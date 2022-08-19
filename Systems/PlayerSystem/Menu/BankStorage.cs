@@ -113,7 +113,7 @@ namespace NWN.Systems
             player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
           }
 
-            search.SetBindValue(player.oid, nuiToken.Token, "");
+          search.SetBindValue(player.oid, nuiToken.Token, "");
           search.SetBindWatch(player.oid, nuiToken.Token, true);
           geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
           geometry.SetBindWatch(player.oid, nuiToken.Token, true);

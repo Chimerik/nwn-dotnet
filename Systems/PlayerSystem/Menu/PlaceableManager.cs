@@ -29,11 +29,12 @@ namespace NWN.Systems
         private readonly NuiBind<string> placeableName = new("placeableName");
         private readonly NuiBind<string> persistState = new("persistState");
         private readonly NuiBind<string> persistTooltip = new("persistTooltip");
+        private readonly NuiBind<bool> persistEnabled = new("persistEnabled");
 
         private readonly NuiBind<int> listCount = new("listCount");
         private readonly NuiBind<string> search = new("search");
 
-        private IEnumerable<NwPlaceable> areaList;
+        private List<NwPlaceable> areaList = new();
         private IEnumerable<NwPlaceable> currentList;
 
         public PlaceableManagerWindow(Player player) : base(player)
@@ -43,9 +44,10 @@ namespace NWN.Systems
           rootColumn.Children = rootChildren;
           rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(placeableName) { Tooltip = placeableName, VerticalAlign = NuiVAlign.Middle }) { VariableSize = true });
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_action") { Id = "examine", Tooltip = "Ouvre le menu d'édition" }) { Width = 35 });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_attack") { Id = "display", Tooltip = "Appliquer un effet visuel pour identifier l'objet" }) { Width = 35 });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_empytqs") { Id = "teleport", Tooltip = "Se téléporter sur l'objet" }) { Width = 35 });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(persistState) { Id = "persist", Tooltip = persistTooltip }) { Width = 35 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ief_darkvis") { Id = "display", Tooltip = "Appliquer un effet visuel pour identifier l'objet" }) { Width = 35 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_more_sp_ab") { Id = "teleport", Tooltip = "Se téléporter sur l'objet" }) { Width = 35 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(persistState) { Id = "persist", Tooltip = persistTooltip, Enabled = persistEnabled }) { Width = 35 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ief_arcanefail") { Id = "remove", Tooltip = "Supprimer" }) { Width = 35 });
 
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) } });
           rootChildren.Add(new NuiRow() { Height = 300, Width = 540, Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35 } } });
@@ -77,12 +79,12 @@ namespace NWN.Systems
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-            areaList = player.oid.ControlledCreature.Area.FindObjectsOfTypeInArea<NwPlaceable>().OrderBy(p => p.DistanceSquared(player.oid.ControlledCreature));
+            areaList = player.oid.ControlledCreature.Area.FindObjectsOfTypeInArea<NwPlaceable>().OrderBy(p => p.DistanceSquared(player.oid.ControlledCreature)).ToList();
             currentList = areaList;
             LoadItemList(currentList);
           }
         }
-        private void HandlePalettePlaceableEvents(ModuleEvents.OnNuiEvent nuiEvent)
+        private void HandlePalettePlaceableEvents(OnNuiEvent nuiEvent)
         {
           switch (nuiEvent.EventType)
           {
@@ -92,10 +94,14 @@ namespace NWN.Systems
               {
                 case "examine":
 
+                  Log.Info(nuiEvent.ArrayIndex);
+                  Log.Info(currentList.ElementAt(nuiEvent.ArrayIndex).Name);
+
                   if (!player.windows.TryAdd("editorPlaceable", new EditorPlaceableWindow(player, currentList.ElementAt(nuiEvent.ArrayIndex))))
                     ((EditorPlaceableWindow)player.windows["editorPlaceable"]).CreateWindow(currentList.ElementAt(nuiEvent.ArrayIndex));
 
                   break;
+
                 case "display":
 
                   NwPlaceable plc = currentList.ElementAt(nuiEvent.ArrayIndex);
@@ -105,6 +111,15 @@ namespace NWN.Systems
                   break;
 
                 case "teleport": player.oid.ControlledCreature.Location = currentList.ElementAt(nuiEvent.ArrayIndex).Location; break;
+
+                case "remove":
+
+                  NwPlaceable removedPlc = currentList.ElementAt(nuiEvent.ArrayIndex);
+                  areaList.Remove(removedPlc);
+                  removedPlc.Destroy();
+                  LoadItemList(currentList);
+
+                  break;
 
                 case "persist":
 
@@ -131,6 +146,8 @@ namespace NWN.Systems
 
                       persistState.SetBindValues(player.oid, nuiToken.Token, persistStateList);
                       persistTooltip.SetBindValues(player.oid, nuiToken.Token, persistTooltipList);
+
+                      Log.Info(targetPlaceable.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value);
                     }
                     else
                     {
@@ -179,26 +196,29 @@ namespace NWN.Systems
           List<string> placeableNameList = new();
           List<string> persistStateList = new();
           List<string> persistTooltipList = new();
+          List<bool> persistEnabledList = new();
 
           foreach (NwPlaceable entry in filteredList)
           {
             placeableNameList.Add(entry.Name);
-
+            persistEnabledList.Add(entry.GetObjectVariable<LocalVariableBool>("_EDITOR_PLACEABLE").HasNothing);
+            Log.Info(entry.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value);
             if (entry.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").HasNothing)
             {
               persistStateList.Add("ir_empytqs");
-              persistTooltipList.Add("Désactiver la persistance");
+              persistTooltipList.Add("Activer la persistance");
             }
             else
             {
               persistStateList.Add("ir_ban");
-              persistTooltipList.Add("Activer la persistance");
+              persistTooltipList.Add("Désactiver la persistance");
             }
           }
 
           placeableName.SetBindValues(player.oid, nuiToken.Token, placeableNameList);
           persistState.SetBindValues(player.oid, nuiToken.Token, persistStateList);
           persistTooltip.SetBindValues(player.oid, nuiToken.Token, persistTooltipList);
+          persistEnabled.SetBindValues(player.oid, nuiToken.Token, persistEnabledList);
           listCount.SetBindValue(player.oid, nuiToken.Token, filteredList.Count());
         }
         private async void RemoveLoopingEffect(NwPlaceable plc)

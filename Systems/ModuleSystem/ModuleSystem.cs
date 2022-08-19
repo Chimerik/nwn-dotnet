@@ -888,12 +888,13 @@ namespace NWN.Systems
     private static void LoadPlaceableSpawns()
     {
       var result = SqLiteUtils.SelectQuery("placeableSpawn",
-            new List<string>() { { "areaTag" }, { "position" }, { "facing" }, { "serializedPlaceable" } },
+            new List<string>() { { "areaTag" }, { "position" }, { "facing" }, { "serializedPlaceable" }, { "rowid" } },
             new List<string[]>() { });
 
       foreach (var spawn in result.Results)
       {
         NwPlaceable plc = NwPlaceable.Deserialize(spawn.GetString(3).ToByteArray());
+        plc.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value = spawn.GetInt(4);
         plc.Location = Utils.GetLocationFromDatabase(spawn.GetString(0), spawn.GetString(1), spawn.GetFloat(2));
       }
     }

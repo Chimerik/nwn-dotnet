@@ -9,6 +9,8 @@ using Anvil.API.Events;
 
 using Newtonsoft.Json;
 
+using NLog.Targets;
+
 namespace NWN.Systems
 {
   public partial class PlayerSystem
@@ -245,7 +247,6 @@ namespace NWN.Systems
             isModelLoaded.SetBindValue(player.oid, nuiToken.Token, true);
           }
         }
-
         private void CreateItem(ModuleEvents.OnPlayerTarget selection)
         {
           if (selection.IsCancelled)
@@ -253,6 +254,7 @@ namespace NWN.Systems
 
           NwPlaceable item = NwPlaceable.Deserialize(currentList.ElementAt(currentArrayindex).serializedObject.ToByteArray());
           item.Location = Location.Create(player.oid.ControlledCreature.Area, selection.TargetPosition, player.oid.ControlledCreature.Rotation);
+          item.GetObjectVariable<LocalVariableBool>("_EDITOR_PLACEABLE").Delete();
         }
 
         private void HandleInsertNewItem(string placeableName, string serializedItem, string playerName, string comment)
@@ -296,7 +298,7 @@ namespace NWN.Systems
             else
             {
               nbDebounce = 1;
-              Log.Info($"Character {player.characterId} : scheduling item palette save in 10s");
+              Log.Info($"Character {player.characterId} : scheduling placeable palette save in 10s");
               DebouncePaletteSave(nbDebounce);
               return;
             }
@@ -304,7 +306,7 @@ namespace NWN.Systems
           else
             HandlePaletteSave();
 
-          Log.Info($"Character {player.characterId} item palette saved in : {(DateTime.Now - elapsed).TotalSeconds} s");
+          Log.Info($"Character {player.characterId} placeable palette saved in : {(DateTime.Now - elapsed).TotalSeconds} s");
         }
 
         private async void DebouncePaletteSave(int initialNbDebounce)
@@ -328,17 +330,17 @@ namespace NWN.Systems
           {
             nbDebounce = 0;
             AuthorizeSave = true;
-            Log.Info($"Character {player.characterId} : debounce done after {nbDebounce} triggers, item palette save authorized");
+            Log.Info($"Character {player.characterId} : debounce done after {nbDebounce} triggers, placeable palette save authorized");
             PaletteSave();
           }
         }
         private async void HandlePaletteSave()
         {
-          Task<string> serializeItemPalette = Task.Run(() => JsonConvert.SerializeObject(Utils.placeablePaletteList.OrderBy(c => c.name).ThenByDescending(c => DateTime.TryParse(c.lastModified, out DateTime lastModified)).ToList()));
-          await serializeItemPalette;
+          Task<string> serializePlaceablePalette = Task.Run(() => JsonConvert.SerializeObject(Utils.placeablePaletteList.OrderBy(c => c.name).ThenByDescending(c => DateTime.TryParse(c.lastModified, out DateTime lastModified)).ToList()));
+          await serializePlaceablePalette;
 
           SqLiteUtils.UpdateQuery("modulePalette",
-          new List<string[]>() { new string[] { "items", serializeItemPalette.Result } },
+          new List<string[]>() { new string[] { "placeables", serializePlaceablePalette.Result } },
           new List<string[]>() { new string[] { "rowid", "1" } });
 
           nbDebounce = 0;

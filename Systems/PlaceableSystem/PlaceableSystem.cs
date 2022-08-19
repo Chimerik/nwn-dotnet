@@ -24,6 +24,9 @@ namespace NWN.Systems
 
       foreach(NwPlaceable plc in NwObject.FindObjectsOfType<NwPlaceable>())
       {
+        if(plc.GetObjectVariable<LocalVariableBool>("_SPAWN_ID").HasNothing)
+          plc.GetObjectVariable<LocalVariableBool>("_EDITOR_PLACEABLE").Value = true;
+
         if (plc.IsStatic)
           continue;
 

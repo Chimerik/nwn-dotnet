@@ -173,10 +173,9 @@ namespace NWN.Systems
           EventsPlugin.SkipEvent();
           await player.oid.ControlledCreature.PlayAnimation(animation, 1, false, TimeSpan.FromDays(1));
 
-          if (player.windows.ContainsKey("sitAnywhere"))
+          if (!player.windows.TryAdd("sitAnywhere", new Player.SitAnywhereWindow(player)))
             ((Player.SitAnywhereWindow)player.windows["sitAnywhere"]).CreateWindow();
-          else
-            player.windows.Add("sitAnywhere", new Player.SitAnywhereWindow(player));
+
           break;
       }
     }

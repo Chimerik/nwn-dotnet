@@ -132,53 +132,37 @@ namespace NWN.Systems
                   break;
 
                 case "examineArea":
-
-                  if (player.windows.ContainsKey("areaDescription"))
+                  if (!player.windows.TryAdd("areaDescription", new AreaDescriptionWindow(player, player.oid.ControlledCreature.Area)))
                     ((AreaDescriptionWindow)player.windows["areaDescription"]).CreateWindow(player.oid.ControlledCreature.Area);
-                  else
-                    player.windows.Add("areaDescription", new AreaDescriptionWindow(player, player.oid.ControlledCreature.Area));
-
                   break;
 
                 case "grimoire":
-
-                  if (player.windows.ContainsKey("grimoires"))
+                  if (!player.windows.TryAdd("grimoires", new GrimoiresWindow(player)))
                     ((GrimoiresWindow)player.windows["grimoires"]).CreateWindow();
-                  else
-                    player.windows.Add("grimoires", new GrimoiresWindow(player));
 
                   CloseWindow();
 
                   break;
 
                 case "quickbars":
-
-                  if (player.windows.ContainsKey("quickbars"))
+                  if (!player.windows.TryAdd("quickbars", new QuickbarsWindow(player)))
                     ((QuickbarsWindow)player.windows["quickbars"]).CreateWindow();
-                  else
-                    player.windows.Add("quickbars", new QuickbarsWindow(player));
 
                   CloseWindow();
 
                   break;
 
                 case "itemAppearance":
-
-                  if (player.windows.ContainsKey("itemAppearances"))
-                    ((ItemAppearancesWindow)player.windows["itemAppearances"]).CreateWindow();
-                  else
-                    player.windows.Add("itemAppearances", new ItemAppearancesWindow(player));
+                  if (!player.windows.TryAdd("itemAppearances", new ItemAppearancesWindow(player)))
+                    ((ItemAppearancesWindow)player.windows["quiitemAppearancesckbars"]).CreateWindow();
 
                   CloseWindow();
 
                   break;
 
                 case "description":
-
-                  if (player.windows.ContainsKey("description"))
+                  if (!player.windows.TryAdd("description", new DescriptionsWindow(player)))
                     ((DescriptionsWindow)player.windows["description"]).CreateWindow();
-                  else
-                    player.windows.Add("description", new DescriptionsWindow(player));
 
                   CloseWindow();
 
@@ -207,22 +191,16 @@ namespace NWN.Systems
                   break;
 
                 case "chat":
-
-                  if (player.windows.ContainsKey("chatColors"))
+                  if (!player.windows.TryAdd("chatColors", new ChatColorsWindow(player)))
                     ((ChatColorsWindow)player.windows["chatColors"]).CreateWindow();
-                  else
-                    player.windows.Add("chatColors", new ChatColorsWindow(player));
 
                   CloseWindow();
 
                   break;
 
                 case "wind":
-
-                  if (player.windows.ContainsKey("areaWindSettings"))
+                  if (!player.windows.TryAdd("areaWindSettings", new AreaWindSettings(player)))
                     ((AreaWindSettings)player.windows["areaWindSettings"]).CreateWindow();
-                  else
-                    player.windows.Add("areaWindSettings", new AreaWindSettings(player));
 
                   CloseWindow();
 
@@ -305,32 +283,23 @@ namespace NWN.Systems
                   break;
 
                 case "visualEffects":
-
-                  if (player.windows.ContainsKey("DMVisualEffects"))
+                  if (!player.windows.TryAdd("DMVisualEffects", new DMVisualEffectsWindow(player)))
                     ((DMVisualEffectsWindow)player.windows["DMVisualEffects"]).CreateWindow();
-                  else
-                    player.windows.Add("DMVisualEffects", new DMVisualEffectsWindow(player));
 
                   CloseWindow();
                   break;
 
                 case "dispelAoE":
-
-                  if (player.windows.ContainsKey("aoeDispel"))
+                  if (!player.windows.TryAdd("aoeDispel", new AoEDispelWindow(player)))
                     ((AoEDispelWindow)player.windows["aoeDispel"]).CreateWindow();
-                  else
-                    player.windows.Add("aoeDispel", new AoEDispelWindow(player));
 
                   CloseWindow();
 
                   break;
 
                 case "effectDispel":
-
-                  if (player.windows.ContainsKey("effectDispel"))
+                  if (!player.windows.TryAdd("effectDispel", new PlayerEffectDispelWindow(player)))
                     ((PlayerEffectDispelWindow)player.windows["effectDispel"]).CreateWindow();
-                  else
-                    player.windows.Add("effectDispel", new PlayerEffectDispelWindow(player));
 
                   CloseWindow();
 
@@ -352,33 +321,32 @@ namespace NWN.Systems
                   break;
 
                 case "creaturePalette":
-
-                  if (player.windows.ContainsKey("paletteCreature"))
+                  if (!player.windows.TryAdd("paletteCreature", new PaletteCreatureWindow(player)))
                     ((PaletteCreatureWindow)player.windows["paletteCreature"]).CreateWindow();
-                  else
-                    player.windows.Add("paletteCreature", new PaletteCreatureWindow(player));
 
                   CloseWindow();
 
                   break;
 
                 case "itemPalette":
-
-                  if (player.windows.ContainsKey("paletteItem"))
+                  if (!player.windows.TryAdd("paletteItem", new PaletteItemWindow(player)))
                     ((PaletteItemWindow)player.windows["paletteItem"]).CreateWindow();
-                  else
-                    player.windows.Add("paletteItem", new PaletteItemWindow(player));
 
                   CloseWindow();
 
                   break;
 
                 case "placeablePalette":
-
-                  if (player.windows.ContainsKey("palettePlaceable"))
+                  if (!player.windows.TryAdd("palettePlaceable", new PalettePlaceableWindow(player)))
                     ((PalettePlaceableWindow)player.windows["palettePlaceable"]).CreateWindow();
-                  else
-                    player.windows.Add("palettePlaceable", new PalettePlaceableWindow(player));
+
+                  CloseWindow();
+
+                  break;
+
+                case "placeableManager":
+                  if (!player.windows.TryAdd("placeableManager", new PlaceableManagerWindow(player)))
+                    ((PlaceableManagerWindow)player.windows["placeableManager"]).CreateWindow();
 
                   CloseWindow();
 

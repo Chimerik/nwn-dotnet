@@ -341,6 +341,7 @@ namespace NWN
       { "creaturePalette", new MainMenuCommand("Palette des créatures", "", CommandRank.DM) },
       { "itemPalette", new MainMenuCommand("Palette des objets", "", CommandRank.DM) },
       { "placeablePalette", new MainMenuCommand("Palette des placeables", "", CommandRank.DM) },
+      { "placeableManager", new MainMenuCommand("Gérer les placeable de la zone", "", CommandRank.DM) },
       { "touch", new MainMenuCommand("Mode toucher", "Permet d'éviter les collisions entre personnages (non utilisable en combat)", CommandRank.Public) },
       { "walk", new MainMenuCommand("Mode marche", "Permet d'avoir l'air moins ridicule en ville", CommandRank.Public) },
       { "follow", new MainMenuCommand("Suivre", "Suivre une créature ciblée (pour les feignasses !)", CommandRank.Public) },
