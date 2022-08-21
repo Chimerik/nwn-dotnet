@@ -127,7 +127,7 @@ namespace NWN.Systems
           foreach (Effect eff in player.oid.LoginCreature.ActiveEffects.Where(e => e.EffectType ==  EffectType.Invisibility || e.EffectType == EffectType.ImprovedInvisibility))
           {
             player.oid.LoginCreature.RemoveEffect(eff);
-            player.oid.SendServerMessage("Le bruit et les vibrations liées à l'extraction permettent de vous localiser facilement malgré tout effet d'invisibilité ou de silence.", ColorConstants.Red);
+            player.oid.SendServerMessage("Le bruit et les vibrations liées à l'extraction permettent de vous localiser facilement malgré tout effet d'invisibilité.", ColorConstants.Red);
           }
 
           if (extractionRemainingTime < 1)

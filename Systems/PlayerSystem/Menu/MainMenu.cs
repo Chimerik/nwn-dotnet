@@ -131,6 +131,11 @@ namespace NWN.Systems
 
                   break;
 
+                case "sit":
+                  if (!player.windows.TryAdd("sitAnywhere", new SitAnywhereWindow(player)))
+                    ((SitAnywhereWindow)player.windows["sitAnywhere"]).CreateWindow();
+                  break;
+
                 case "examineArea":
                   if (!player.windows.TryAdd("areaDescription", new AreaDescriptionWindow(player, player.oid.ControlledCreature.Area)))
                     ((AreaDescriptionWindow)player.windows["areaDescription"]).CreateWindow(player.oid.ControlledCreature.Area);

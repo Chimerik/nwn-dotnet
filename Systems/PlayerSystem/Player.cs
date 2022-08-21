@@ -1161,6 +1161,26 @@ namespace NWN.Systems
           return false;
         }
       }
+      public int GetMateriaYieldFromResource(int quantity, CraftResource resource)
+      {
+        double reprocessingSkill = learnableSkills.ContainsKey(resource.reprocessingLearnable) ? 1.00 + 3 * learnableSkills[resource.reprocessingLearnable].totalPoints / 100 : 1.00;
+        double efficiencySkill = learnableSkills.ContainsKey(resource.reprocessingEfficiencyLearnable) ? 1.00 + 2 * learnableSkills[resource.reprocessingEfficiencyLearnable].totalPoints / 100 : 1.00;
+        double reproGradeSkill = learnableSkills.ContainsKey(resource.reprocessingGradeLearnable) ? 1.00 + 2 * learnableSkills[resource.reprocessingGradeLearnable].totalPoints / 100 : 1.00;
+        double connectionSkill = learnableSkills.ContainsKey(CustomSkill.ConnectionsPromenade) ? 0.95 + learnableSkills[CustomSkill.ConnectionsPromenade].totalPoints / 100 : 1.00;
+        double expertSkill = learnableSkills.ContainsKey(resource.reprocessingExpertiseLearnable) ? 12 * learnableSkills[resource.reprocessingExpertiseLearnable].totalPoints / 100 : 0;
+        double total = 2 * quantity;
+        total -= quantity * resource.grade * 0.15 * expertSkill;
+        total *= 0.3 * reprocessingSkill * efficiencySkill * reproGradeSkill;
+        total *= connectionSkill;
+
+        return (int)total;
+      }
+      public bool IsDm()
+      {
+        if (oid.IsDM || oid.PlayerName == "Chim")
+          return true;
+        return false;
+      }
     }
   }
 }

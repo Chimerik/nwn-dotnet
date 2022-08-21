@@ -18,6 +18,8 @@ namespace NWN.Systems
         private readonly List<NuiElement> rootChildren = new();
         private readonly List<NuiListTemplateCell> rowTemplate = new();
 
+        private readonly NuiBind<bool> visibilityDM = new("visibilityDM");
+
         private readonly NuiBind<string> name = new("name");
         private readonly NuiBind<string> tag = new("tag");
         private readonly NuiBind<string> cost = new("cost");
@@ -95,6 +97,7 @@ namespace NWN.Systems
 
             LoadBaseBinding();
 
+            visibilityDM.SetBindValue(player.oid, nuiToken.Token, player.oid.IsDM || player.oid.PlayerName == "Chim");
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
@@ -296,9 +299,9 @@ namespace NWN.Systems
             {
               new NuiSpacer(),
               new NuiButton("Base") { Id = "base", Height = 35, Width = 90 },
-              new NuiButton("Propriétés") { Id = "properties", Height = 35, Width = 90 },
+              new NuiButton("Propriétés") { Id = "properties", Height = 35, Width = 90, Enabled = visibilityDM },
               new NuiButton("Description") { Id = "description", Height = 35, Width = 90 },
-              new NuiButton("Variables") { Id = "variables", Height = 35, Width = 90 },
+              new NuiButton("Variables") { Id = "variables", Height = 35, Width = 90, Enabled = visibilityDM },
               new NuiSpacer()
             }
           });
@@ -323,8 +326,8 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
-              new NuiLabel("Tag") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
-              new NuiTextEdit("Tag", tag, 30, false) { Height = 35, Width = 200 }
+              new NuiLabel("Tag") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle, Visible = visibilityDM },
+              new NuiTextEdit("Tag", tag, 30, false) { Height = 35, Width = 200, Visible = visibilityDM }
             }
           });
 
@@ -333,7 +336,7 @@ namespace NWN.Systems
             Children = new List<NuiElement>()
             {
               new NuiLabel("Type") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
-              new NuiCombo() { Height = 35, Width = 200, Entries = BaseItems2da.baseItemNameEntries, Selected = baseItemSelected },
+              new NuiCombo() { Height = 35, Width = 200, Entries = BaseItems2da.baseItemNameEntries, Selected = baseItemSelected,  Enabled = visibilityDM },
             }
           });
 
@@ -342,7 +345,7 @@ namespace NWN.Systems
             Children = new List<NuiElement>()
             {
               new NuiLabel("Taille") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
-              new NuiTextEdit("Taille", size, 4, false) { Height = 35, Width = 200 }
+              new NuiTextEdit("Taille", size, 4, false) { Height = 35, Width = 200, Enabled = visibilityDM }
             }
           });
 
@@ -351,7 +354,7 @@ namespace NWN.Systems
             Children = new List<NuiElement>()
             {
               new NuiLabel("Coût") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
-              new NuiTextEdit("Coût", cost, 7, false) { Height = 35, Width = 200 }
+              new NuiTextEdit("Coût", cost, 7, false) { Height = 35, Width = 200, Enabled = visibilityDM }
             }
           });
 
@@ -360,7 +363,7 @@ namespace NWN.Systems
             Children = new List<NuiElement>()
             {
               new NuiLabel("Poids") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
-              new NuiTextEdit("Poids", weight, 4, false) { Height = 35, Width = 200 }
+              new NuiTextEdit("Poids", weight, 4, false) { Height = 35, Width = 200, Enabled = visibilityDM }
             }
           });
 
@@ -369,15 +372,15 @@ namespace NWN.Systems
             Children = new List<NuiElement>()
             {
               new NuiLabel("Charges") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
-              new NuiTextEdit("Charges", charges, 30, false) { Height = 35, Width = 200 }
+              new NuiTextEdit("Charges", charges, 30, false) { Height = 35, Width = 200, Enabled = visibilityDM }
             }
           });
 
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() 
           { 
             new NuiSpacer(),
-            new NuiCheck("Inéchangeable", undroppableChecked) { Height = 35, Width = 120 },
-            new NuiCheck("Identifié", identifiedChecked) { Height = 35, Width = 120 },
+            new NuiCheck("Inéchangeable", undroppableChecked) { Height = 35, Width = 120, Enabled = visibilityDM },
+            new NuiCheck("Identifié", identifiedChecked) { Height = 35, Width = 120, Enabled = visibilityDM },
             new NuiSpacer()
           } });
         }
@@ -549,15 +552,17 @@ namespace NWN.Systems
             {
               new NuiRow() { Children = new List<NuiElement>()
               {
+                new NuiSpacer(),
                 new NuiTextEdit("Nom", newVariableName, 20, false) { Tooltip = newVariableName, Width = 120 },
                 new NuiCombo() { Entries = Utils.variableTypes, Selected = selectedNewVariableType, Width = 80 },
                 new NuiTextEdit("Valeur", newVariableValue, 20, false) { Tooltip = newVariableValue, Width = 120 },
                 new NuiButtonImage("ir_empytqs") { Id = "saveNewVariable", Height = 35, Width = 35 },
+                new NuiSpacer()
               }
             },
               new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35,  Width = 780  } } }
             }
-          });
+          }); ;
         }
         private void LoadVariablesBinding()
         {

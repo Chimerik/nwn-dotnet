@@ -230,27 +230,17 @@ namespace NWN.Systems
           if (!int.TryParse(input.GetBindValue(player.oid, nuiToken.Token), out var inputQuantity) || inputQuantity > selectedResource.quantity)
             inputQuantity = selectedResource.quantity;
 
-          double reprocessingSkill = player.learnableSkills.ContainsKey(selectedResource.reprocessingLearnable) ? 1.00 + 3 * player.learnableSkills[selectedResource.reprocessingLearnable].totalPoints / 100 : 1.00;
-          double efficiencySkill = player.learnableSkills.ContainsKey(selectedResource.reprocessingEfficiencyLearnable) ? 1.00 + 2 * player.learnableSkills[selectedResource.reprocessingEfficiencyLearnable].totalPoints / 100 : 1.00;
-          double reproGradeSkill = player.learnableSkills.ContainsKey(selectedResource.reprocessingGradeLearnable) ? 1.00 + 2 * player.learnableSkills[selectedResource.reprocessingGradeLearnable].totalPoints / 100 : 1.00;
-          double connectionSkill = player.learnableSkills.ContainsKey(CustomSkill.ConnectionsPromenade) ? 0.95 + player.learnableSkills[CustomSkill.ConnectionsPromenade].totalPoints / 100 : 1.00;
-          double expertSkill = player.learnableSkills.ContainsKey(selectedResource.reprocessingExpertiseLearnable) ? 12 * player.learnableSkills[selectedResource.reprocessingExpertiseLearnable].totalPoints / 100 : 0;
-          double total = 2 * inputQuantity;
-            total -= inputQuantity * selectedResource.grade * 0.15 * expertSkill;
-            total *= 0.3 * reprocessingSkill * efficiencySkill * reproGradeSkill;
-            total *= connectionSkill;
+          player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_REFINERY_TOTAL").Value = player.GetMateriaYieldFromResource(inputQuantity, selectedResource);
 
-            player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_REFINERY_TOTAL").Value = (int)total;
+          //TODO : Variabiliser le -30% de fonderie de base, quand il sera possible de fabriquer son propre atelier
+          /* string label = "Efficacité raffinage -30 % (base atelier Impériale)\n" +
+            $"x{reprocessingSkill} (Raffinage)\n" +
+            $"x{efficiencySkill} (Raffinage Efficace)\n" +
+            $"x{reproGradeSkill} (Raffinage Expert)\n" +
+            $"x{connectionSkill} (Taxes Quartier Promenade)\n" +
+            $"Total : {total} matérias de qualité {selectedResource.grade}";
 
-            //TODO : Variabiliser le -30% de fonderie de base, quand il sera possible de fabriquer son propre atelier
-            string label = "Efficacité raffinage -30 % (base atelier Impériale)\n" +
-              $"x{reprocessingSkill} (Raffinage)\n" +
-              $"x{efficiencySkill} (Raffinage Efficace)\n" +
-              $"x{reproGradeSkill} (Raffinage Expert)\n" +
-              $"x{connectionSkill} (Taxes Quartier Promenade)\n" +
-              $"Total : {total} matérias de qualité {selectedResource.grade}";
-
-            refineLabel.SetBindValue(player.oid, nuiToken.Token, label);
+          refineLabel.SetBindValue(player.oid, nuiToken.Token, label);*/
         }
         private void LoadResourceUpgradeGUI()
         {

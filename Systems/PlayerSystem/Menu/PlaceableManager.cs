@@ -1,15 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 using Anvil.API;
-using Anvil.API.Events;
-
-using Newtonsoft.Json;
-
-using NLog.Targets;
 
 using NWN.Core.NWNX;
 

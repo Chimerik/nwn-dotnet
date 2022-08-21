@@ -259,6 +259,7 @@ namespace NWN.Systems
     public static void CreateShopWeaponBlueprint(NwItem oBlueprint, NwBaseItem baseItem)
     {
       oBlueprint.Name = $"Patron original : {baseItem.Name}";
+      oBlueprint.Description = $"Ce patron contient toutes les instructions de conception, à partir de matéria, pour un objet de type : {baseItem.Name}";
 
       oBlueprint.BaseGoldValue = (uint)(baseItem.BaseCost * 50);
       oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value = (int)baseItem.Id;
@@ -270,6 +271,7 @@ namespace NWN.Systems
       var entry = Armor2da.armorTable[baseArmor];
 
       oBlueprint.Name = $"Patron original : {entry.name}";
+      oBlueprint.Description = $"Ce patron contient toutes les instructions de conception, à partir de matéria, pour un objet de type : {entry.name}";
 
       oBlueprint.BaseGoldValue = (uint)(entry.cost * 50);
       oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value = (int)BaseItemType.Armor;

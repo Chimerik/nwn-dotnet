@@ -26,15 +26,23 @@ namespace NWN.Systems
 
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
           {
-              new NuiButtonImage("menu_down") { Id = "down", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
-              new NuiButtonImage("menu_up") { Id = "up", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
-              new NuiButtonImage("right") { Id = "right", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
-              new NuiButtonImage("left") { Id = "left", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
-              new NuiButtonImage("forward") { Id = "forward", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
-              new NuiButtonImage("backward") { Id = "backward", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
-              new NuiButtonImage("rotate_right") { Id = "rotate_right", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
-              new NuiButtonImage("rotate_left") { Id = "rotate_left", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
-              new NuiButtonImage("menu_exit") { Id = "cancel", Height = 40, Width = 40, Tooltip = "Réinitialiser l'affichage de la position du personnage controlé." },
+            new NuiSpacer(),
+            new NuiButtonImage("ief_impinvis") { Id = "ground", Height = 40, Width = 40, Tooltip = "Animation au sol." },
+            new NuiButtonImage("ief_sanctuary") { Id = "chair", Height = 40, Width = 40, Tooltip = "Animation chaise." },
+            new NuiSpacer()
+          } });
+
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
+          {
+            new NuiButtonImage("menu_down") { Id = "down", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
+            new NuiButtonImage("menu_up") { Id = "up", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
+            new NuiButtonImage("right") { Id = "right", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
+            new NuiButtonImage("left") { Id = "left", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
+            new NuiButtonImage("forward") { Id = "forward", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
+            new NuiButtonImage("backward") { Id = "backward", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
+            new NuiButtonImage("rotate_right") { Id = "rotate_right", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
+            new NuiButtonImage("rotate_left") { Id = "rotate_left", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
+            new NuiButtonImage("menu_exit") { Id = "cancel", Height = 40, Width = 40, Tooltip = "Réinitialiser l'affichage de la position du personnage controlé." },
           } });
 
           CreateWindow();
@@ -42,7 +50,7 @@ namespace NWN.Systems
         public void CreateWindow()
         {
           playerPosition = player.oid.ControlledCreature.Position;
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(450, 600, 400, 80);
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(450, 600, 400, 140);
 
           window = new NuiWindow(rootColumn, "Réorientation")
           {
@@ -123,6 +131,14 @@ namespace NWN.Systems
 
                 case "cancel":
                   Utils.ResetVisualTransform(player.oid.ControlledCreature);
+                  return;
+
+                case "ground":
+                  _ = player.oid.ControlledCreature.PlayAnimation(Animation.LoopingSitCross, 1, false, TimeSpan.FromDays(1));
+                  return;
+
+                case "chair":
+                  _ = player.oid.ControlledCreature.PlayAnimation(Animation.LoopingSitChair, 1, false, TimeSpan.FromDays(1));
                   return;
               }
 
