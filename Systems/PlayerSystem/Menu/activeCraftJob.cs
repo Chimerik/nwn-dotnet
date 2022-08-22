@@ -50,6 +50,9 @@ namespace NWN.Systems
             return;
           }
 
+          if (IsOpen)
+            return;
+
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 320, 100);
 
           window = new NuiWindow(rootColumn, "Travail artisanal en cours")
@@ -80,6 +83,7 @@ namespace NWN.Systems
             }
 
             timeLeft.SetBindValue(player.oid, nuiToken.Token, player.craftJob.GetReadableJobCompletionTime());
+
             HandleRealTimeJobProgression();
           }
         }
@@ -100,10 +104,15 @@ namespace NWN.Systems
 
             case "item":
 
-              if (player.windows.ContainsKey("itemExamine"))
-                ((ItemExamineWindow)player.windows["itemExamine"]).CreateWindow(NwItem.Deserialize(player.craftJob.serializedCraftedItem.ToByteArray()));
-              else
-                player.windows.Add("itemExamine", new ItemExamineWindow(player, NwItem.Deserialize(player.craftJob.serializedCraftedItem.ToByteArray())));
+              if (!string.IsNullOrEmpty(player.craftJob.serializedCraftedItem))
+              {
+                NwItem item = NwItem.Deserialize(player.craftJob.serializedCraftedItem.ToByteArray());
+
+                if (!player.windows.ContainsKey("itemExamine")) player.windows.Add("itemExamine", new ItemExamineWindow(player, item));
+                else ((ItemExamineWindow)player.windows["itemExamine"]).CreateWindow(item);
+
+                ItemUtils.ScheduleItemForDestruction(item);
+              }
               
               return;
           }
@@ -119,7 +128,7 @@ namespace NWN.Systems
         public async void HandleRealTimeJobProgression()
         {
           if (player.craftJob.jobProgression != null)
-            player.craftJob.jobProgression.Cancel();
+            player.craftJob.jobProgression.Dispose();
 
           await NwTask.WaitUntil(() => player.oid.LoginCreature == null || player.oid.LoginCreature.Area != null);
 

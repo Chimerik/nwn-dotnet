@@ -173,8 +173,8 @@ namespace NWN.Systems
           EventsPlugin.SkipEvent();
           await player.oid.ControlledCreature.PlayAnimation(animation, 1, false, TimeSpan.FromDays(1));
 
-          if (!player.windows.TryAdd("sitAnywhere", new Player.SitAnywhereWindow(player)))
-            ((Player.SitAnywhereWindow)player.windows["sitAnywhere"]).CreateWindow();
+          if (!player.windows.ContainsKey("sitAnywhere")) player.windows.Add("sitAnywhere", new Player.SitAnywhereWindow(player));
+          else ((Player.SitAnywhereWindow)player.windows["sitAnywhere"]).CreateWindow();
 
           break;
       }
@@ -258,7 +258,7 @@ namespace NWN.Systems
     {
       NwPlayer oPC = guiEvent.Player;
       oPC.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
-
+      
       if (!Players.TryGetValue(oPC.LoginCreature, out Player player))
         return;
 
@@ -270,24 +270,36 @@ namespace NWN.Systems
           {
             case GUIPanel.ExamineItem:
 
-              if (!player.windows.TryAdd("itemExamine", new Player.ItemExamineWindow(player, (NwItem)guiEvent.EventObject)))
-                ((Player.ItemExamineWindow)player.windows["itemExamine"]).CreateWindow((NwItem)guiEvent.EventObject);
+              if (!player.windows.ContainsKey("itemExamine")) player.windows.Add("itemExamine", new Player.ItemExamineWindow(player, (NwItem)guiEvent.EventObject));
+              else ((Player.ItemExamineWindow)player.windows["itemExamine"]).CreateWindow((NwItem)guiEvent.EventObject);
+
+              return;
+
+            case GUIPanel.ExaminePlaceable:
+
+              if (!player.windows.ContainsKey("editorPlaceable")) player.windows.Add("editorPlaceable", new Player.EditorPlaceableWindow(player, (NwPlaceable)guiEvent.EventObject));
+              else ((Player.EditorPlaceableWindow)player.windows["editorPlaceable"]).CreateWindow((NwPlaceable)guiEvent.EventObject);
+
+              return;
+
+            case GUIPanel.ExamineCreature:
+
+              if (!player.windows.ContainsKey("editorPNJ")) player.windows.Add("editorPNJ", new Player.EditorPNJWindow(player, (NwCreature)guiEvent.EventObject));
+              else ((Player.EditorPNJWindow)player.windows["editorPNJ"]).CreateWindow((NwCreature)guiEvent.EventObject);
 
               return;
 
             case GUIPanel.Journal:
 
-              if(!player.TryGetOpenedWindow("mainMenu", out Player.PlayerWindow menuWindow))
-                if (!player.windows.TryAdd("mainMenu", new Player.MainMenuWindow(player)))
-                  ((Player.MainMenuWindow)player.windows["mainMenu"]).CreateWindow();
+              if (!player.windows.ContainsKey("mainMenu")) player.windows.Add("mainMenu", new Player.MainMenuWindow(player));
+              else ((Player.MainMenuWindow)player.windows["mainMenu"]).CreateWindow();
 
               return;
 
             case GUIPanel.PlayerList:
 
-              if (!player.TryGetOpenedWindow("playerList", out Player.PlayerWindow playerListWindow))
-                if (!player.windows.TryAdd("playerList", new Player.PlayerListWindow(player)))
-                  ((Player.PlayerListWindow)player.windows["playerList"]).CreateWindow();
+              if (!player.windows.ContainsKey("playerList")) player.windows.Add("playerList", new Player.PlayerListWindow(player));
+              else ((Player.PlayerListWindow)player.windows["playerList"]).CreateWindow();
 
               return;
           }
@@ -298,26 +310,26 @@ namespace NWN.Systems
 
           // TODO : Lorsque la créature examinée est une invocation du joueur et que le joueur possède le don spell focus conjuration, permettre de la renommer
 
-          if(guiEvent.EventObject is NwCreature examineCreature && examineCreature == oPC.LoginCreature)
+          if(guiEvent.EventObject is NwCreature examineCreature && examineCreature == oPC.LoginCreature) // TODO : plutôt mettre ça dans le menu
           {
-            if (player.craftJob != null)
+            if(player.craftJob != null)
             {
-              if (!player.windows.TryAdd("activeCraftJob", new Player.ActiveCraftJobWindow(player)))
-                ((Player.ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
+              if (!player.windows.ContainsKey("activeCraftJob")) player.windows.Add("activeCraftJob", new Player.ActiveCraftJobWindow(player));
+              else ((Player.ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
             }
 
-            if (!player.windows.TryAdd("learnables", new Player.LearnableWindow(player)))
-              ((Player.LearnableWindow)player.windows["learnables"]).CreateWindow();
+            if (!player.windows.ContainsKey("learnables")) player.windows.Add("learnables", new Player.LearnableWindow(player));
+            else ((Player.LearnableWindow)player.windows["learnables"]).CreateWindow();
           }
 
           break;
 
         case GuiEventType.PartyBarPortraitClick:
-          oPC.SendServerMessage("portrait click");
+          //oPC.SendServerMessage("portrait click");
           break;
 
         case GuiEventType.PlayerListPlayerClick:
-          oPC.SendServerMessage("player list click");
+          //oPC.SendServerMessage("player list click");
           break;
 
         case GuiEventType.ChatBarFocus:

@@ -44,6 +44,12 @@ namespace NWN.Systems
       player.oid.SetGuiPanelDisabled(GUIPanel.Journal, true);
       player.oid.SetGuiPanelDisabled(GUIPanel.PlayerList, true);
 
+      if (player.IsDm())
+      {
+        player.oid.SetGuiPanelDisabled(GUIPanel.ExaminePlaceable, true);
+        player.oid.SetGuiPanelDisabled(GUIPanel.ExamineCreature, true);
+      }
+
       player.currentLanguage = 0;
 
       if (player.oid.LoginCreature.GetObjectVariable<PersistentVariableBool>("_ALWAYS_WALK").HasValue)

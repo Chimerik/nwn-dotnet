@@ -80,7 +80,7 @@ namespace NWN.Systems
         {
           this.targetPlaceable = targetPlaceable;
 
-          LoadBaseLayout();
+          LoadDescriptionLayout();
 
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 410, 500);
 
@@ -99,7 +99,7 @@ namespace NWN.Systems
             nuiToken = tempToken;
             nuiToken.OnNuiEvent += HandleEditorItemEvents;
 
-            LoadBaseBinding();
+            LoadDescriptionBinding();
 
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);

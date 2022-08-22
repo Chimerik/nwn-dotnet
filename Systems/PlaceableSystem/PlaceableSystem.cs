@@ -9,7 +9,6 @@ using static NWN.Systems.PlayerSystem;
 using NWN.System;
 using NWN.Core.NWNX;
 using System.Numerics;
-using Discord;
 
 namespace NWN.Systems
 {
@@ -47,7 +46,8 @@ namespace NWN.Systems
           case "respawn_neutral": plc.OnUsed += HandlePlayerRespawn; break;
           case "respawn_dire": plc.OnUsed += HandlePlayerRespawn; break;
           case "respawn_radiant": plc.OnUsed += HandlePlayerRespawn; break;
-          case "theater_rope": plc.OnUsed += HandlTheaterCurtains; break;
+          case "theater_rope": plc.OnUsed += HandleTheaterCurtains; break;
+          case "forge": plc.OnUsed += OpenWorkshopWindow; break;
         }
 
         if (plc.VisualTransform.Scale != 1 || plc.VisualTransform.Translation != Vector3.Zero || plc.VisualTransform.Rotation != Vector3.Zero)
@@ -115,7 +115,7 @@ namespace NWN.Systems
     {
       onUsed.UsedBy.Location = NwObject.FindObjectsWithTag<NwWaypoint>("WP_START_NEW_CHAR").FirstOrDefault().Location;
     }
-    public void HandlTheaterCurtains(PlaceableEvents.OnUsed onUsed)
+    public void HandleTheaterCurtains(PlaceableEvents.OnUsed onUsed)
     {
       foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("theater_curtain"))
         if(plc.Area == onUsed.Placeable.Area)
@@ -179,9 +179,7 @@ namespace NWN.Systems
         return;
 
       if (onUsed.Placeable.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value == player.characterId)
-      {
         PlayerOwnedShop.DrawMainPage(player, onUsed.Placeable);
-      }
       else
       {
         NwStore shop = onUsed.Placeable.GetNearestObjectsByType<NwStore>().FirstOrDefault(s => s.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value == onUsed.Placeable.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value);
@@ -203,9 +201,7 @@ namespace NWN.Systems
         return;
 
       if (onUsed.Placeable.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value == player.characterId)
-      {
         PlayerOwnedAuction.DrawMainPage(player, onUsed.Placeable);
-      }
       else
       {
         NwStore shop = onUsed.Placeable.GetNearestObjectsByType<NwStore>().FirstOrDefault(s => s.GetObjectVariable<LocalVariableInt>("_AUCTION_ID").Value == onUsed.Placeable.GetObjectVariable<LocalVariableInt>("_AUCTION_ID").Value);
@@ -271,10 +267,8 @@ namespace NWN.Systems
         return;
       }
 
-      if (player.windows.ContainsKey("bankStorage"))
-        ((Player.BankStorageWindow)player.windows["bankStorage"]).CreateWindow();
-      else
-        player.windows.Add("bankStorage", new Player.BankStorageWindow(player));
+      if (!player.windows.ContainsKey("bankStorage")) player.windows.Add("bankStorage", new Player.BankStorageWindow(player));
+      else ((Player.BankStorageWindow)player.windows["bankStorage"]).CreateWindow();
     }
     private async void CheckMateriaInventory(DoorEvents.OnAreaTransitionClick onClick)
     {
@@ -292,50 +286,48 @@ namespace NWN.Systems
     {
       if (Players.TryGetValue(onUsed.UsedBy, out Player player))
       {
-        if (player.windows.ContainsKey("introMirror"))
-          ((Player.IntroMirroWindow)player.windows["introMirror"]).CreateWindow();
-        else
-          player.windows.Add("introMirror", new Player.IntroMirroWindow(player));
+        if (!player.windows.ContainsKey("introMirror")) player.windows.Add("introMirror", new Player.IntroMirroWindow(player));
+        else ((Player.IntroMirroWindow)player.windows["introMirror"]).CreateWindow();
       }
     }
     public static void StartBodyModifierDialog(PlaceableEvents.OnUsed onUsed)
     {
       if (Players.TryGetValue(onUsed.UsedBy, out Player player))
       {
-        if (player.windows.ContainsKey("bodyAppearanceModifier"))
-          ((Player.BodyAppearanceWindow)player.windows["bodyAppearanceModifier"]).CreateWindow(player.oid.LoginCreature);
-        else
-          player.windows.Add("bodyAppearanceModifier", new Player.BodyAppearanceWindow(player, player.oid.LoginCreature));
+        if (!player.windows.ContainsKey("bodyAppearanceModifier")) player.windows.Add("bodyAppearanceModifier", new Player.BodyAppearanceWindow(player, player.oid.LoginCreature));
+        else ((Player.BodyAppearanceWindow)player.windows["bodyAppearanceModifier"]).CreateWindow(player.oid.LoginCreature);
       }
     }
     public static void OpenRefineryWindow(PlaceableEvents.OnUsed onUsed)
     {
       if (Players.TryGetValue(onUsed.UsedBy, out Player player))
       {
-        if (player.windows.ContainsKey("refinery"))
-          ((Player.RefineryWindow)player.windows["refinery"]).CreateWindow(ResourceType.Ore);
-        else
-          player.windows.Add("refinery", new Player.RefineryWindow(player, ResourceType.Ore));
+        if (!player.windows.ContainsKey("refinery")) player.windows.Add("refinery", new Player.RefineryWindow(player, ResourceType.Ore));
+        else ((Player.RefineryWindow)player.windows["refinery"]).CreateWindow(ResourceType.Ore);
       }
     }
     public static void OpenWoodworkWindow(PlaceableEvents.OnUsed onUsed)
     {
       if (Players.TryGetValue(onUsed.UsedBy, out Player player))
       {
-        if (player.windows.ContainsKey("refinery"))
-          ((Player.RefineryWindow)player.windows["refinery"]).CreateWindow(ResourceType.Wood);
-        else
-          player.windows.Add("refinery", new Player.RefineryWindow(player, ResourceType.Wood));
+        if (!player.windows.ContainsKey("refinery")) player.windows.Add("refinery", new Player.RefineryWindow(player, ResourceType.Wood));
+        else ((Player.RefineryWindow)player.windows["refinery"]).CreateWindow(ResourceType.Wood);
       }
     }
     public static void OpenTanneryWindow(PlaceableEvents.OnUsed onUsed)
     {
       if (Players.TryGetValue(onUsed.UsedBy, out Player player))
       {
-        if (player.windows.ContainsKey("refinery"))
-          ((Player.RefineryWindow)player.windows["refinery"]).CreateWindow(ResourceType.Pelt);
-        else
-          player.windows.Add("refinery", new Player.RefineryWindow(player, ResourceType.Pelt));
+        if (!player.windows.ContainsKey("refinery")) player.windows.Add("refinery", new Player.RefineryWindow(player, ResourceType.Pelt));
+        else ((Player.RefineryWindow)player.windows["refinery"]).CreateWindow(ResourceType.Pelt);
+      }
+    }
+    public static void OpenWorkshopWindow(PlaceableEvents.OnUsed onUsed)
+    {
+      if (Players.TryGetValue(onUsed.UsedBy, out Player player))
+      {
+        if (!player.windows.ContainsKey("craftWorkshop")) player.windows.Add("craftWorkshop", new Player.WorkshopWindow(player, onUsed.Placeable.Tag));
+        else ((Player.WorkshopWindow)player.windows["craftWorkshop"]).CreateWindow(onUsed.Placeable.Tag);
       }
     }
   }

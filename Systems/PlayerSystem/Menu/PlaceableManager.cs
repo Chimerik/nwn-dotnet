@@ -90,8 +90,8 @@ namespace NWN.Systems
                   Log.Info(nuiEvent.ArrayIndex);
                   Log.Info(currentList.ElementAt(nuiEvent.ArrayIndex).Name);
 
-                  if (!player.windows.TryAdd("editorPlaceable", new EditorPlaceableWindow(player, currentList.ElementAt(nuiEvent.ArrayIndex))))
-                    ((EditorPlaceableWindow)player.windows["editorPlaceable"]).CreateWindow(currentList.ElementAt(nuiEvent.ArrayIndex));
+                  if (!player.windows.ContainsKey("editorPlaceable")) player.windows.Add("bodyApeditorPlaceablepearanceModifier", new EditorPlaceableWindow(player, currentList.ElementAt(nuiEvent.ArrayIndex)));
+                  else ((EditorPlaceableWindow)player.windows["editorPlaceable"]).CreateWindow(currentList.ElementAt(nuiEvent.ArrayIndex));
 
                   break;
 

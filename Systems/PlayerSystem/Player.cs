@@ -78,8 +78,6 @@ namespace NWN.Systems
         this.areaSystem = areaSystem;
         this.feedbackService = feedbackService;
 
-        Log.Info($"accountID : {this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("accountId").Value}");
-
         if(!oid.IsDM)
         {
           if (this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("accountId").HasNothing && !oid.IsDM)
@@ -98,8 +96,6 @@ namespace NWN.Systems
           InitializeDM();
 
         Players.Add(nwobj.LoginCreature, this);
-
-        Log.Info($"Player first initialization : DONE");
       }
 
       public void EmitKeydown(MenuFeatEventArgs e)
@@ -1047,12 +1043,21 @@ namespace NWN.Systems
         else
           craftJob = new CraftJob(this, blueprint, GetItemCraftTime(blueprint, materiaCost), upgradedItem);
 
-        if (windows.ContainsKey("activeCraftJob"))
-          ((ActiveCraftJobWindow)windows["activeCraftJob"]).CreateWindow();
-        else
-          windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
+        if (!windows.ContainsKey("activeCraftJob")) windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
+        else ((ActiveCraftJobWindow)windows["activeCraftJob"]).CreateWindow();
+      }
+      public void HandlePassiveJobChecks(string worshop)
+      {
+        if (craftJob != null)
+        {
+          oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
+          return;
+        }
 
-        return;
+        craftJob = new CraftJob(this, ItemUtils.GetResourceFromWorkshopTag(worshop), 0, "beam");
+
+        if (!windows.ContainsKey("activeCraftJob")) windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
+        else ((ActiveCraftJobWindow)windows["activeCraftJob"]).CreateWindow();
       }
       public static string GetReadableTimeSpan(double timeCost)
       {
@@ -1090,7 +1095,7 @@ namespace NWN.Systems
       }
       public string GetUniqueTagForChar(string suffix)
       {
-        return this.oid.CDKey + "_" + this.oid.BicFileName + "_" + suffix;
+        return oid.CDKey + "_" + oid.BicFileName + "_" + suffix;
       }
       private void HandleGenericNuiEvents(ModuleEvents.OnNuiEvent nuiEvent)
       {
@@ -1180,6 +1185,23 @@ namespace NWN.Systems
         if (oid.IsDM || oid.PlayerName == "Chim")
           return true;
         return false;
+      }
+      public async void RescheduleRepeatableJob(ResourceType type, double consumedTime, string jobIcon)
+      {
+        bool reopen = false;
+        if (windows.TryGetValue("activeCraftJob", out PlayerWindow activeWindow) && activeWindow.IsOpen)
+          reopen = true;
+
+        await NwTask.Delay(TimeSpan.FromSeconds(0));
+        craftJob = new CraftJob(this, type, consumedTime, jobIcon);
+
+        if (reopen)
+          ((ActiveCraftJobWindow)activeWindow).CreateWindow();
+        else
+        {
+          craftJob.progressLastCalculation = DateTime.Now;
+          craftJob.HandleDelayedJobProgression(this);
+        }
       }
     }
   }

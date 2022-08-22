@@ -143,8 +143,8 @@ namespace NWN.Systems
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
             if ((player.learnableSkills.Any(l => l.Value.active) || player.learnableSpells.Any(l => l.Value.active)) && !player.TryGetOpenedWindow("activeLearnable", out PlayerWindow activeWindow))
-              if (!player.windows.TryAdd("activeLearnable", new ActiveLearnableWindow(player)))
-                ((ActiveLearnableWindow)player.windows["activeLearnable"]).CreateWindow();
+              if (!player.windows.ContainsKey("activeLearnable")) player.windows.Add("activeLearnable", new ActiveLearnableWindow(player));
+              else ((ActiveLearnableWindow)player.windows["activeLearnable"]).CreateWindow();
 
             currentList = player.learnableSkills.Values.Where(s => s.category == SkillSystem.Category.MindBody);
             LoadLearnableList(currentList);

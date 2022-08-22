@@ -40,7 +40,7 @@ namespace NWN.Systems
           rootChildren.Add(new NuiRow() { Height = 385, Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35 } } });
 
           if (player.oid.PlayerName == "Chim")
-            myCommandList = Utils.mainMenuCommands;
+            myCommandList = Utils.mainMenuCommands.ToDictionary(m => m.Key, m => m.Value);
           else if (player.oid.IsDM)
             myCommandList = Utils.mainMenuCommands.Where(m => m.Value.rank < Utils.CommandRank.Admin).ToDictionary(m => m.Key, m => m.Value);
           else
@@ -50,7 +50,11 @@ namespace NWN.Systems
             if (player.bonusRolePlay < 4)
               myCommandList.Remove("commend");
           }
-          
+
+          if (player.craftJob == null)
+            myCommandList.Remove("currentJob");
+
+
           CreateWindow();
         }
         public void CreateWindow()
@@ -81,7 +85,6 @@ namespace NWN.Systems
               myCommandList.Remove("examineArea");
             else
               myCommandList.TryAdd("examineArea", Utils.mainMenuCommands["examineArea"]);
-
 
             currentList = myCommandList;
             LoadMenu(currentList);
@@ -132,42 +135,50 @@ namespace NWN.Systems
                   break;
 
                 case "sit":
-                  if (!player.windows.TryAdd("sitAnywhere", new SitAnywhereWindow(player)))
-                    ((SitAnywhereWindow)player.windows["sitAnywhere"]).CreateWindow();
+
+                  if (!player.windows.ContainsKey("sitAnywhere")) player.windows.Add("sitAnywhere", new SitAnywhereWindow(player));
+                  else ((SitAnywhereWindow)player.windows["sitAnywhere"]).CreateWindow();
+
                   break;
 
                 case "examineArea":
-                  if (!player.windows.TryAdd("areaDescription", new AreaDescriptionWindow(player, player.oid.ControlledCreature.Area)))
-                    ((AreaDescriptionWindow)player.windows["areaDescription"]).CreateWindow(player.oid.ControlledCreature.Area);
+
+                  if (!player.windows.ContainsKey("areaDescription")) player.windows.Add("areaDescription", new AreaDescriptionWindow(player, player.oid.ControlledCreature.Area));
+                  else ((AreaDescriptionWindow)player.windows["areaDescription"]).CreateWindow(player.oid.ControlledCreature.Area);
+
                   break;
 
                 case "grimoire":
-                  if (!player.windows.TryAdd("grimoires", new GrimoiresWindow(player)))
-                    ((GrimoiresWindow)player.windows["grimoires"]).CreateWindow();
+
+                  if (!player.windows.ContainsKey("grimoires")) player.windows.Add("grimoires", new GrimoiresWindow(player));
+                  else ((GrimoiresWindow)player.windows["grimoires"]).CreateWindow();
 
                   CloseWindow();
 
                   break;
 
                 case "quickbars":
-                  if (!player.windows.TryAdd("quickbars", new QuickbarsWindow(player)))
-                    ((QuickbarsWindow)player.windows["quickbars"]).CreateWindow();
+
+                  if (!player.windows.ContainsKey("quickbars")) player.windows.Add("quickbars", new QuickbarsWindow(player));
+                  else ((QuickbarsWindow)player.windows["quickbars"]).CreateWindow();
 
                   CloseWindow();
 
                   break;
 
                 case "itemAppearance":
-                  if (!player.windows.TryAdd("itemAppearances", new ItemAppearancesWindow(player)))
-                    ((ItemAppearancesWindow)player.windows["quiitemAppearancesckbars"]).CreateWindow();
+
+                  if (!player.windows.ContainsKey("itemAppearances")) player.windows.Add("itemAppearances", new ItemAppearancesWindow(player));
+                  else ((ItemAppearancesWindow)player.windows["itemAppearances"]).CreateWindow();
 
                   CloseWindow();
 
                   break;
 
                 case "description":
-                  if (!player.windows.TryAdd("description", new DescriptionsWindow(player)))
-                    ((DescriptionsWindow)player.windows["description"]).CreateWindow();
+
+                  if (!player.windows.ContainsKey("description")) player.windows.Add("description", new DescriptionsWindow(player));
+                  else ((DescriptionsWindow)player.windows["description"]).CreateWindow();
 
                   CloseWindow();
 
@@ -196,16 +207,18 @@ namespace NWN.Systems
                   break;
 
                 case "chat":
-                  if (!player.windows.TryAdd("chatColors", new ChatColorsWindow(player)))
-                    ((ChatColorsWindow)player.windows["chatColors"]).CreateWindow();
+
+                  if (!player.windows.ContainsKey("chatColors")) player.windows.Add("chatColors", new ChatColorsWindow(player));
+                  else ((ChatColorsWindow)player.windows["chatColors"]).CreateWindow();
 
                   CloseWindow();
 
                   break;
 
                 case "wind":
-                  if (!player.windows.TryAdd("areaWindSettings", new AreaWindSettings(player)))
-                    ((AreaWindSettings)player.windows["areaWindSettings"]).CreateWindow();
+
+                  if (!player.windows.ContainsKey("areaWindSettings")) player.windows.Add("areaWindSettings", new AreaWindSettings(player));
+                  else ((AreaWindSettings)player.windows["areaWindSettings"]).CreateWindow();
 
                   CloseWindow();
 
@@ -288,23 +301,26 @@ namespace NWN.Systems
                   break;
 
                 case "visualEffects":
-                  if (!player.windows.TryAdd("DMVisualEffects", new DMVisualEffectsWindow(player)))
-                    ((DMVisualEffectsWindow)player.windows["DMVisualEffects"]).CreateWindow();
+
+                  if (!player.windows.ContainsKey("DMVisualEffects")) player.windows.Add("DMVisualEffects", new DMVisualEffectsWindow(player));
+                  else ((DMVisualEffectsWindow)player.windows["DMVisualEffects"]).CreateWindow();
 
                   CloseWindow();
                   break;
 
                 case "dispelAoE":
-                  if (!player.windows.TryAdd("aoeDispel", new AoEDispelWindow(player)))
-                    ((AoEDispelWindow)player.windows["aoeDispel"]).CreateWindow();
+
+                  if (!player.windows.ContainsKey("aoeDispel")) player.windows.Add("aoeDispel", new AoEDispelWindow(player));
+                  else ((AoEDispelWindow)player.windows["aoeDispel"]).CreateWindow();
 
                   CloseWindow();
 
                   break;
 
                 case "effectDispel":
-                  if (!player.windows.TryAdd("effectDispel", new PlayerEffectDispelWindow(player)))
-                    ((PlayerEffectDispelWindow)player.windows["effectDispel"]).CreateWindow();
+
+                  if (!player.windows.ContainsKey("effectDispel")) player.windows.Add("effectDispel", new PlayerEffectDispelWindow(player));
+                  else ((PlayerEffectDispelWindow)player.windows["effectDispel"]).CreateWindow();
 
                   CloseWindow();
 
@@ -326,34 +342,59 @@ namespace NWN.Systems
                   break;
 
                 case "creaturePalette":
-                  if (!player.windows.TryAdd("paletteCreature", new PaletteCreatureWindow(player)))
-                    ((PaletteCreatureWindow)player.windows["paletteCreature"]).CreateWindow();
+
+                  if (!player.windows.ContainsKey("paletteCreature")) player.windows.Add("paletteCreature", new PaletteCreatureWindow(player));
+                  else ((PaletteCreatureWindow)player.windows["paletteCreature"]).CreateWindow();
 
                   CloseWindow();
 
                   break;
 
                 case "itemPalette":
-                  if (!player.windows.TryAdd("paletteItem", new PaletteItemWindow(player)))
-                    ((PaletteItemWindow)player.windows["paletteItem"]).CreateWindow();
+
+                  if (!player.windows.ContainsKey("paletteItem")) player.windows.Add("paletteItem", new PaletteItemWindow(player));
+                  else ((PaletteItemWindow)player.windows["paletteItem"]).CreateWindow();
 
                   CloseWindow();
 
                   break;
 
                 case "placeablePalette":
-                  if (!player.windows.TryAdd("palettePlaceable", new PalettePlaceableWindow(player)))
-                    ((PalettePlaceableWindow)player.windows["palettePlaceable"]).CreateWindow();
+
+                  if (!player.windows.ContainsKey("palettePlaceable")) player.windows.Add("palettePlaceable", new PalettePlaceableWindow(player));
+                  else ((PalettePlaceableWindow)player.windows["palettePlaceable"]).CreateWindow();
 
                   CloseWindow();
 
                   break;
 
                 case "placeableManager":
-                  if (!player.windows.TryAdd("placeableManager", new PlaceableManagerWindow(player)))
-                    ((PlaceableManagerWindow)player.windows["placeableManager"]).CreateWindow();
+
+                  if (!player.windows.ContainsKey("placeableManager")) player.windows.Add("placeableManager", new PlaceableManagerWindow(player));
+                  else ((PlaceableManagerWindow)player.windows["placeableManager"]).CreateWindow();
 
                   CloseWindow();
+
+                  break;
+
+                case "learnables":
+   
+                  if (!player.windows.ContainsKey("learnables")) player.windows.Add("learnables", new LearnableWindow(player));
+                  else ((LearnableWindow)player.windows["learnables"]).CreateWindow();
+
+                  CloseWindow();
+
+                  break;
+
+                case "currentJob":
+
+                  if (player.craftJob != null)
+                  {
+                    if (!player.windows.ContainsKey("activeCraftJob")) player.windows.Add("activeCraftJob", new ActiveCraftJobWindow(player));
+                    else ((ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
+                    
+                    CloseWindow();
+                  }
 
                   break;
               }

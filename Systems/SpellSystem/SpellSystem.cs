@@ -192,7 +192,7 @@ namespace NWN.Systems
     {
       SpellEvents.OnSpellCast onSpellCast = new SpellEvents.OnSpellCast();
       HandleSpellDamageLocalisation(onSpellCast.Spell.SpellType, onSpellCast.Caster);
-
+      
       if (callInfo.ObjectSelf is not NwCreature castingCreature)
         return;
 

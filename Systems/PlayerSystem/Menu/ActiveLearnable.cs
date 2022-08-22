@@ -56,6 +56,9 @@ namespace NWN.Systems
             return;
           }
 
+          if (IsOpen)
+            return;
+
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 320, 100);
 
           window = new NuiWindow(rootColumn, "Apprentissage en cours")

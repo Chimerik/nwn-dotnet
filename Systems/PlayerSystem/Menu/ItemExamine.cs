@@ -272,12 +272,10 @@ namespace NWN.Systems
                 rootChildren.Add(new NuiRow() { Height = 20, Children = new List<NuiElement>() { new NuiLabel($"    {player.GetMateriaYieldFromResource(item.StackSize, resource)}") }, Width = 590, });
                 rootChildren.Add(new NuiRow() { Height = 35, Width = 590, Visible = player.IsDm(), Children = new List<NuiElement>() {
                   new NuiSpacer(),
-                  new NuiButtonImage("ir_examine") { Id = "edit", Height = 35, Width = 35, Tooltip = "Modifier" },
-                  new NuiSpacer()}
-                });
+                  new NuiButtonImage("ir_examine") { Id = "edit", Height = 30, Width = 30, Tooltip = "Modifier" },
+                  new NuiSpacer()
+                } });
 
-
-                
                 break;
 
             case "sequence_register":
@@ -423,8 +421,8 @@ namespace NWN.Systems
                 player.craftJob = new CraftJob(player, item, JobType.BlueprintCopy);
                 CloseWindow();
 
-                if (!player.windows.TryAdd("activeCraftJob", new ActiveCraftJobWindow(player)))
-                  ((ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
+                if (!player.windows.ContainsKey("activeCraftJob")) player.windows.Add("activeCraftJob", new ActiveCraftJobWindow(player));
+                else ((ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
 
                 break;
 
@@ -436,8 +434,8 @@ namespace NWN.Systems
                 player.craftJob = new CraftJob(player, item, JobType.BlueprintResearchMaterialEfficiency);
                 CloseWindow();
 
-                if (!player.windows.TryAdd("activeCraftJob", new ActiveCraftJobWindow(player)))
-                  ((ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
+                if (!player.windows.ContainsKey("activeCraftJob")) player.windows.Add("activeCraftJob", new ActiveCraftJobWindow(player));
+                else ((ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
 
                 return;
 
@@ -449,8 +447,8 @@ namespace NWN.Systems
                 player.craftJob = new CraftJob(player, item, JobType.BlueprintResearchTimeEfficiency);
                 CloseWindow();
 
-                if (!player.windows.TryAdd("activeCraftJob", new ActiveCraftJobWindow(player)))
-                  ((ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
+                if (!player.windows.ContainsKey("activeCraftJob")) player.windows.Add("activeCraftJob", new ActiveCraftJobWindow(player));
+                else ((ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
 
                 return;
 
@@ -548,8 +546,9 @@ namespace NWN.Systems
             else if (nuiEvent.ElementId.StartsWith("spell_"))
             {
               NwSpell spell = NwSpell.FromSpellId(int.Parse(nuiEvent.ElementId.Split("_")[1]));
-              if (!player.windows.TryAdd("spellDescription", new SpellDescriptionWindow(player, spell)))
-                ((SpellDescriptionWindow)player.windows["spellDescription"]).CreateWindow(spell);
+
+              if (!player.windows.ContainsKey("spellDescription")) player.windows.Add("spellDescription", new SpellDescriptionWindow(player, spell));
+              else ((SpellDescriptionWindow)player.windows["spellDescription"]).CreateWindow(spell);
             }
           }
         }
@@ -611,104 +610,8 @@ namespace NWN.Systems
         }
         private void OpenItemAppearanceModificationWindow()
         {
-          if (!player.windows.TryAdd("editorItem", new EditorItemWindow(player, item)))
-            ((EditorItemWindow)player.windows["editorItem"]).CreateWindow(item);
-
-          /*switch (item.BaseItem.ItemType)
-          {
-            case BaseItemType.Armor:
-
-              if (!player.windows.TryAdd("itemColorsModifier", new ArmorCustomizationWindow(player, item)))
-                ((ArmorCustomizationWindow)player.windows["itemColorsModifier"]).CreateWindow(item);
-
-              break;
-            case BaseItemType.Bastardsword:
-            case BaseItemType.Battleaxe:
-            case BaseItemType.Club:
-            case BaseItemType.Dagger:
-            case BaseItemType.DireMace:
-            case BaseItemType.Doubleaxe:
-            case BaseItemType.DwarvenWaraxe:
-            case BaseItemType.Greataxe:
-            case BaseItemType.Greatsword:
-            case BaseItemType.Halberd:
-            case BaseItemType.Handaxe:
-            case BaseItemType.HeavyCrossbow:
-            case BaseItemType.HeavyFlail:
-            case BaseItemType.Kama:
-            case BaseItemType.Katana:
-            case BaseItemType.Kukri:
-            case BaseItemType.LightCrossbow:
-            case BaseItemType.LightFlail:
-            case BaseItemType.LightHammer:
-            case BaseItemType.LightMace:
-            case BaseItemType.Longbow:
-            case BaseItemType.Longsword:
-            case BaseItemType.MagicStaff:
-            case BaseItemType.Morningstar:
-            case BaseItemType.Quarterstaff:
-            case BaseItemType.Rapier:
-            case BaseItemType.Scimitar:
-            case BaseItemType.Scythe:
-            case BaseItemType.Shortbow:
-            case BaseItemType.ShortSpear:
-            case BaseItemType.Shortsword:
-            case BaseItemType.Sickle:
-            case BaseItemType.Sling:
-            case BaseItemType.ThrowingAxe:
-            case BaseItemType.Trident:
-            case BaseItemType.TwoBladedSword:
-            case BaseItemType.Warhammer:
-            case BaseItemType.Whip:
-
-              if (!player.windows.TryAdd("weaponAppearanceModifier", new WeaponAppearanceWindow(player, item)))
-                ((WeaponAppearanceWindow)player.windows["weaponAppearanceModifier"]).CreateWindow(item);
-
-              break;
-            case BaseItemType.Amulet:
-            case BaseItemType.Arrow:
-            case BaseItemType.Belt:
-            case BaseItemType.Bolt:
-            case BaseItemType.Book:
-            case BaseItemType.Boots:
-            case BaseItemType.Bracer:
-            case BaseItemType.Bullet:
-            case BaseItemType.EnchantedPotion:
-            case BaseItemType.EnchantedScroll:
-            case BaseItemType.EnchantedWand:
-            case BaseItemType.Gloves:
-            case BaseItemType.Grenade:
-            case BaseItemType.LargeShield:
-            case BaseItemType.MagicRod:
-            case BaseItemType.MagicWand:
-            case BaseItemType.Potions:
-            case BaseItemType.Ring:
-            case BaseItemType.Scroll:
-            case BaseItemType.Shuriken:
-            case BaseItemType.SmallShield:
-            case BaseItemType.SpellScroll:
-            case BaseItemType.TowerShield:
-            case BaseItemType.TrapKit:
-
-              if (!player.windows.TryAdd("simpleItemAppearanceModifier", new SimpleItemAppearanceWindow(player, item)))
-                ((SimpleItemAppearanceWindow)player.windows["simpleItemAppearanceModifier"]).CreateWindow(item);
-
-              break;
-
-            case BaseItemType.Helmet:
-
-              if (!player.windows.TryAdd("helmetColorsModifier", new HelmetCustomizationWindow(player, item)))
-                ((HelmetCustomizationWindow)player.windows["helmetColorsModifier"]).CreateWindow(item);
-
-              break;
-
-            case BaseItemType.Cloak:
-
-              if (!player.windows.TryAdd("cloakColorsModifier", new CloakCustomizationWindow(player, item)))
-                ((CloakCustomizationWindow)player.windows["cloakColorsModifier"]).CreateWindow(item);
-
-              break;
-          }*/
+          if (!player.windows.ContainsKey("editorItem")) player.windows.Add("editorItem", new EditorItemWindow(player, item));
+          else ((EditorItemWindow)player.windows["editorItem"]).CreateWindow(item);
         }
         private void DrawUpgradeWidget()
         {

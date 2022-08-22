@@ -123,8 +123,8 @@ namespace NWN.Systems
                 if (player.TryGetOpenedWindow("learnableDescription", out PlayerWindow descriptionWindow))
                   descriptionWindow.CloseWindow();
 
-                if (!player.windows.TryAdd("learnableDescription", new LearnableDescriptionWindow(player, learnableId)))
-                  ((LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(learnableId);
+                if (!player.windows.ContainsKey("learnableDescription")) player.windows.Add("learnableDescription", new LearnableDescriptionWindow(player, learnableId));
+                else ((LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(learnableId);
               }
 
               break;

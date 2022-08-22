@@ -315,6 +315,10 @@ namespace NWN.Systems
       BaseItemType baseItemType = (BaseItemType)blueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value;
       string workshop = baseItemType == BaseItemType.Armor ? Armor2da.GetWorkshop(blueprint.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value) : BaseItems2da.baseItemTable[(int)baseItemType].workshop;
 
+      return GetResourceFromWorkshopTag(workshop);
+    }
+    public static ResourceType GetResourceFromWorkshopTag(string workshop)
+    {
       switch (workshop)
       {
         case "forge":
@@ -342,6 +346,11 @@ namespace NWN.Systems
       }
 
       return ResourceType.Invalid;
+    }
+    public static async void ScheduleItemForDestruction(NwItem item)
+    {
+      await NwTask.Delay(TimeSpan.FromMinutes(5));
+      item.Destroy();
     }
   }
 }

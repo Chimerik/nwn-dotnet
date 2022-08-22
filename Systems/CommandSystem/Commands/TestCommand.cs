@@ -29,8 +29,8 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim" || player.oid.PlayerName == "test")
         {
-          Craft.Collect.System.CreateSelectedResourceInInventory(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == ResourceType.Ore && r.grade == 1),
-              player, 10);
+          /*Craft.Collect.System.CreateSelectedResourceInInventory(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == ResourceType.Ore && r.grade == 1),
+              player, 10);*/
 
           //NwItem armor = player.oid.ControlledCreature.GetItemInSlot(InventorySlot.Chest);
           //armor.AddItemProperty(ItemProperty.ACBonus(80), EffectDuration.Temporary, TimeSpan.FromSeconds(30));
@@ -95,10 +95,8 @@ namespace NWN.Systems
 
       //NativeAttackHook.SendPartyInvite(creature.LoginPlayer.PlayerId, selection.Player.LoginCreature);
 
-      if (player.windows.ContainsKey("editorPNJ"))
-        ((PlayerSystem.Player.EditorPNJWindow)player.windows["editorPNJ"]).CreateWindow(item);
-      else
-        player.windows.Add("editorPNJ", new PlayerSystem.Player.EditorPNJWindow(player, item));
+      if (!player.windows.ContainsKey("editorPNJ")) player.windows.Add("editorPNJ", new PlayerSystem.Player.EditorPNJWindow(player, item));
+      else ((PlayerSystem.Player.EditorPNJWindow)player.windows["editorPNJ"]).CreateWindow(item);
 
       //player.oid.InvitePlayerToParty(creature.LoginPlayer);
     }

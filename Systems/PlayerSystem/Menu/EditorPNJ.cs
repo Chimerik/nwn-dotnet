@@ -194,15 +194,15 @@ namespace NWN.Systems
                   {
                     case Tab.Feat:
 
-                      if(!player.windows.TryAdd("featDescription", new FeatDescriptionWindow(player, availableFeatSearcher[nuiEvent.ArrayIndex])))
-                        ((FeatDescriptionWindow)player.windows["featDescription"]).CreateWindow(availableFeatSearcher[nuiEvent.ArrayIndex]);
+                      if (!player.windows.ContainsKey("featDescription")) player.windows.Add("featDescription", new FeatDescriptionWindow(player, availableFeatSearcher[nuiEvent.ArrayIndex]));
+                      else ((FeatDescriptionWindow)player.windows["featDescription"]).CreateWindow(availableFeatSearcher[nuiEvent.ArrayIndex]);
 
                       break;
 
                     case Tab.Spell:
 
-                      if (!player.windows.TryAdd("spellDescription", new SpellDescriptionWindow(player, availableSpellSearcher[nuiEvent.ArrayIndex])))
-                        ((SpellDescriptionWindow)player.windows["spellDescription"]).CreateWindow(availableSpellSearcher[nuiEvent.ArrayIndex]);
+                      if (!player.windows.ContainsKey("spellDescription")) player.windows.Add("spellDescription", new SpellDescriptionWindow(player, availableSpellSearcher[nuiEvent.ArrayIndex]));
+                      else ((SpellDescriptionWindow)player.windows["spellDescription"]).CreateWindow(availableSpellSearcher[nuiEvent.ArrayIndex]);
                       
                       break;
                   }
@@ -215,21 +215,17 @@ namespace NWN.Systems
                   {
                     case Tab.Feat:
 
-                      if (player.windows.ContainsKey("featDescription"))
-                        ((FeatDescriptionWindow)player.windows["featDescription"]).CreateWindow(availableFeatSearcher[nuiEvent.ArrayIndex]);
-                      else
-                        player.windows.Add("featDescription", new FeatDescriptionWindow(player, availableFeatSearcher[nuiEvent.ArrayIndex]));
+                      if (!player.windows.ContainsKey("featDescription")) player.windows.Add("featDescription", new FeatDescriptionWindow(player, availableFeatSearcher[nuiEvent.ArrayIndex]));
+                      else ((FeatDescriptionWindow)player.windows["featDescription"]).CreateWindow(availableFeatSearcher[nuiEvent.ArrayIndex]);
 
-                      break;
+                      break; 
 
                     case Tab.Spell:
 
-                      if (player.windows.ContainsKey("spellDescription"))
-                        ((SpellDescriptionWindow)player.windows["spellDescription"]).CreateWindow(acquiredSpellSearcher[nuiEvent.ArrayIndex]);
-                      else
-                        player.windows.Add("spellDescription", new SpellDescriptionWindow(player, acquiredSpellSearcher[nuiEvent.ArrayIndex]));
+                      if (!player.windows.ContainsKey("spellDescription")) player.windows.Add("spellDescription", new SpellDescriptionWindow(player, acquiredSpellSearcher[nuiEvent.ArrayIndex]));
+                      else ((SpellDescriptionWindow)player.windows["spellDescription"]).CreateWindow(acquiredSpellSearcher[nuiEvent.ArrayIndex]);
 
-                      break;
+                      break; 
                   }
                   
 

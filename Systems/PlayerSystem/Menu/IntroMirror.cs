@@ -110,8 +110,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.TryAdd("bodyAppearanceModifier", new BodyAppearanceWindow(player, player.oid.LoginCreature)))
-                    ((BodyAppearanceWindow)player.windows["bodyAppearanceModifier"]).CreateWindow(player.oid.LoginCreature);
+                  if (!player.windows.ContainsKey("bodyAppearanceModifier")) player.windows.Add("bodyAppearanceModifier", new BodyAppearanceWindow(player, player.oid.LoginCreature));
+                  else ((BodyAppearanceWindow)player.windows["bodyAppearanceModifier"]).CreateWindow(player.oid.LoginCreature);
 
                   break;
 
@@ -119,8 +119,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.TryAdd("introBackground", new IntroBackgroundWindow(player)))
-                    ((LearnableWindow)player.windows["introBackground"]).CreateWindow();
+                  if (!player.windows.ContainsKey("introBackground")) player.windows.Add("introBackground", new LearnableWindow(player));
+                  else ((LearnableWindow)player.windows["introBackground"]).CreateWindow();
 
                   break;
 
@@ -128,8 +128,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.TryAdd("introLearnables", new IntroLearnableWindow(player)))
-                    ((IntroLearnableWindow)player.windows["introLearnables"]).CreateWindow();
+                  if (!player.windows.ContainsKey("introLearnables")) player.windows.Add("introLearnables", new IntroLearnableWindow(player));
+                  else ((IntroLearnableWindow)player.windows["introLearnables"]).CreateWindow();
                   
                   break;
               }

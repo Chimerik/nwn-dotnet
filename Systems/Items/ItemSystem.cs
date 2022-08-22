@@ -211,6 +211,54 @@ namespace NWN.Systems
           oCorpse.Destroy();
         oAcquiredFrom.Destroy();
       }
+
+      if(oItem.BaseItem.IsStackable)
+      {
+        foreach(var inventoryItem in oPC.Inventory.Items)
+        {
+          bool sameItem = true;
+
+          if(oItem != inventoryItem && inventoryItem.BaseItem.IsStackable && oItem.BaseItem.ItemType == inventoryItem.BaseItem.ItemType && oItem.Tag == inventoryItem.Tag && oItem.Name == inventoryItem.Name
+            && oItem.StackSize + inventoryItem.StackSize <= oItem.BaseItem.MaxStackSize )
+          {
+            foreach(var localVar in oItem.LocalVariables)
+            {
+              switch (localVar)
+              {
+                case LocalVariableString stringVar:
+                  if(stringVar.Value != inventoryItem.GetObjectVariable<LocalVariableString>(stringVar.Name).Value)
+                    sameItem = false;
+                  break;
+                case LocalVariableInt intVar:
+                  if (intVar.Value != inventoryItem.GetObjectVariable<LocalVariableInt>(intVar.Name).Value)
+                    sameItem = false;
+                  break;
+                case LocalVariableFloat floatVar:
+                  if (floatVar.Value != inventoryItem.GetObjectVariable<LocalVariableFloat>(floatVar.Name).Value)
+                    sameItem = false;
+                  break;
+                case DateTimeLocalVariable dateVar:
+                  if (dateVar.Value != inventoryItem.GetObjectVariable<DateTimeLocalVariable>(dateVar.Name).Value)
+                    sameItem = false;
+                  break;
+              }
+
+              if (!sameItem)
+                break;
+            }
+
+            if (!sameItem)
+              continue;
+
+            Log.Info($"inventory item : {inventoryItem.Name} x {inventoryItem.StackSize}");
+            inventoryItem.StackSize += oItem.StackSize;
+            Log.Info($"inventory item : x {inventoryItem.StackSize}");
+            oItem.Destroy();
+            break;
+          }
+        }
+      }
+
       //En pause jusqu'à ce que le système de transport soit en place
       //if (oPC.MovementRate != MovementRate.Immobile && oPC.TotalWeight > Encumbrance2da.encumbranceTable.GetDataEntry(oPC.GetAbilityScore(Ability.Strength)).heavy)
       //oPC.MovementRate = MovementRate.Immobile;

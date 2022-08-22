@@ -23,7 +23,7 @@ namespace NWN.Systems
         private readonly NuiBind<string> blueprintMEs = new ("blueprintMEs");
         private readonly NuiBind<bool> enable = new ("enable");
         private readonly Color white = new(255, 255, 255);
-        private readonly NuiRect drawListRect = new(0, 35, 150, 60);
+        private readonly NuiRect drawListRect = new(0, 25, 300, 60);
         private string workshopTag;
         private IEnumerable<NwItem> blueprintList;
         private IEnumerable<NwItem> filteredList;
@@ -34,19 +34,19 @@ namespace NWN.Systems
 
           List<NuiListTemplateCell> blueprintTemplate = new List<NuiListTemplateCell>
           {
-            new NuiListTemplateCell(new NuiButtonImage(icon) { Tooltip = blueprintNames, Height = 40, Width = 40 }) { Width = 40 },
+            new NuiListTemplateCell(new NuiButtonImage(icon) {Id = "startCraft", Tooltip = blueprintNames, Height = 32, Width = 30 }) { Width = 30 },
             new NuiListTemplateCell(new NuiLabel(blueprintMEs)
             {
               Width = 160, Tooltip = blueprintNames,
               DrawList = new List<NuiDrawListItem>() { new NuiDrawListText(white, drawListRect, blueprintTEs) }
-            }) { Width = 160 },
-            new NuiListTemplateCell(new NuiButton("Produire") { Id = "startCraft", Enabled = enable, Tooltip = "Entame une nouvelle production artisanale. Nécessite d'avoir au moins un niveau d'entrainement dans le métier artisanal correspondant.", Height = 40, Width = 90 }) { Width = 90 }
+            }) { VariableSize = true },
           };
 
           rootColumn.Children = rootChidren;
 
+          rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiButtonImage("beam") { Id = "extraction", Tooltip = "Lancer un job d'extraction passif", Height = 35, Width = 35 }, new NuiSpacer() } });
           rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) { Width = 410 } } });
-          rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiList(blueprintTemplate, listCount) { RowHeight = 45 } } });
+          rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiList(blueprintTemplate, listCount) { RowHeight = 32 } } });
 
           CreateWindow(placeableTag);
         }
@@ -55,7 +55,7 @@ namespace NWN.Systems
         {
           workshopTag = placeableTag;
 
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.65f);
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, 400);
 
           window = new NuiWindow(rootColumn, "Production artisanale")
           {
@@ -101,6 +101,13 @@ namespace NWN.Systems
                   CloseWindow();
                   
                   break;
+
+                case "extraction":
+
+                  player.HandlePassiveJobChecks(workshopTag);
+                  CloseWindow();
+
+                  break;
               }
 
               break;
@@ -133,11 +140,11 @@ namespace NWN.Systems
           {
             int materiaCost = (int)(player.GetItemMateriaCost(item) * (1 - (item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value / 100)));
             TimeSpan jobDuration = TimeSpan.FromSeconds(player.GetItemCraftTime(item, materiaCost));
-
+            
             CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromBlueprint(item) && r.grade == 1);
             int availableQuantity = resource != null ? resource.quantity : 0;
 
-            blueprintNamesList.Add(item.Name);
+            blueprintNamesList.Add(item.Name + " - Lancer le travail artisanal");
             iconList.Add(NwBaseItem.FromItemId(item.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value).WeaponFocusFeat.IconResRef);
             blueprintMEsList.Add($"Coût en {ItemUtils.GetResourceNameFromBlueprint(item)} : {materiaCost}/{availableQuantity}");
             blueprintTEsList.Add($"Temps de fabrication : {new TimeSpan(jobDuration.Days, jobDuration.Hours, jobDuration.Minutes, jobDuration.Seconds)}");

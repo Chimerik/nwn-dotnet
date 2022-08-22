@@ -127,8 +127,8 @@ namespace NWN.Systems
 
                   player.learnableSkills[learnableId].StartLearning(player);
 
-                  if (!player.windows.TryAdd("activeLearnable", new ActiveLearnableWindow(player)))
-                    ((ActiveLearnableWindow)player.windows["activeLearnable"]).CreateWindow();
+                  if (!player.windows.ContainsKey("activeLearnable")) player.windows.Add("activeLearnable", new ActiveLearnableWindow(player));
+                  else ((ActiveLearnableWindow)player.windows["activeLearnable"]).CreateWindow();
 
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Delete();
                   player.oid.LoginCreature.Area.GetObjectVariable<LocalVariableInt>("_GO").Value = 1;
@@ -139,8 +139,8 @@ namespace NWN.Systems
                 if (player.TryGetOpenedWindow("learnableDescription", out PlayerWindow descriptionWindow))
                   descriptionWindow.CloseWindow();
 
-                if (!player.windows.TryAdd("learnableDescription", new LearnableDescriptionWindow(player, learnableId)))
-                  ((LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(learnableId);
+                if (!player.windows.ContainsKey("learnableDescription")) player.windows.Add("learnableDescription", new LearnableDescriptionWindow(player, learnableId));
+                else ((LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(learnableId);
               }
 
               break;
