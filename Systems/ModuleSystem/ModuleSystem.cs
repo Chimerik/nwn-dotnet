@@ -90,6 +90,7 @@ namespace NWN.Systems
 
       TimeSpan nextActivation = DateTime.Now.Hour < 5 ? new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 5, 0, 0) - DateTime.Now : DateTime.Now.AddDays(1).AddHours(-(DateTime.Now.Hour - 5)) - DateTime.Now;
 
+      scheduler.ScheduleRepeating(HandlePlayerLoop, TimeSpan.FromSeconds(1));
       scheduler.ScheduleRepeating(SaveGameDate, TimeSpan.FromMinutes(1));
       scheduler.ScheduleRepeating(SpawnCollectableResources, TimeSpan.FromHours(24), nextActivation);
       scheduler.ScheduleRepeating(DeleteExpiredMail, TimeSpan.FromHours(24), nextActivation);
@@ -249,7 +250,8 @@ namespace NWN.Systems
       //EventsPlugin.SubscribeEvent("NWNX_ON_DM_POSSESS_BEFORE", "b_dm_possess");
 
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_EMOTE_BEFORE", "on_input_emote");
-      
+      EventsPlugin.SubscribeEvent("NWNX_ON_DECREMENT_SPELL_COUNT_BEFORE", "event_dcr_spell");
+
       //EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_AFTER", "event_has_feat");
 
       NwModule.Instance.OnCreatureAttack += AttackSystem.HandleAttackEvent;
@@ -897,6 +899,74 @@ namespace NWN.Systems
         plc.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value = spawn.GetInt(4);
         plc.Location = Utils.GetLocationFromDatabase(spawn.GetString(0), spawn.GetString(1), spawn.GetFloat(2));
       }
+    }
+    private void HandlePlayerLoop()
+    {
+      foreach(var player in PlayerSystem.Players.Values)
+      {
+        if(player.oid.IsConnected && player.oid.LoginCreature != null)
+        {
+          HandleJobLoop(player);
+          HandleLearnableLoop(player);
+          HandleCheckAfkStatus(player);
+        }
+      }
+    }
+    private void HandleJobLoop(PlayerSystem.Player player)
+    {
+      if (player.craftJob != null && (player.oid.LoginCreature.Area != null || player.previousLocation != null))
+      {
+        int areaLevel = player.oid.LoginCreature.Area != null ? player.oid.LoginCreature.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value : player.previousLocation.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value;
+        if (areaLevel < 1)
+        {
+          player.craftJob.remainingTime -= 1;
+          if (player.TryGetOpenedWindow("activeCraftJob", out PlayerSystem.Player.PlayerWindow window) && window is PlayerSystem.Player.ActiveCraftJobWindow craftWindow)
+            craftWindow.timeLeft.SetBindValue(player.oid, craftWindow.nuiToken.Token, player.craftJob.GetReadableJobCompletionTime());
+
+          if (player.craftJob.remainingTime < 1)
+          {
+            PlayerSystem.HandleSpecificJobCompletion[player.craftJob.type].Invoke(player, true);
+            player.craftJob.HandleGenericJobCompletion(player);
+          }
+        }
+      }
+    }
+    private void HandleLearnableLoop(PlayerSystem.Player player)
+    {
+      if (player.activeLearnable != null)
+      {
+        player.activeLearnable.acquiredPoints += player.GetSkillPointsPerSecond(player.activeLearnable);
+        if (player.activeLearnable.acquiredPoints >= player.activeLearnable.pointsToNextLevel)
+          player.activeLearnable.LevelUpWrapper(player);
+
+        if (player.TryGetOpenedWindow("activeLearnable", out PlayerSystem.Player.PlayerWindow window) && window is PlayerSystem.Player.ActiveLearnableWindow learnableWindow)
+          learnableWindow.timeLeft.SetBindValue(player.oid, learnableWindow.nuiToken.Token, player.activeLearnable.GetReadableTimeSpanToNextLevel(player));
+
+        if (player.TryGetOpenedWindow("learnables", out PlayerSystem.Player.PlayerWindow menu) && menu is PlayerSystem.Player.LearnableWindow learnableMenu)
+        {
+          int listPosition = learnableMenu.currentList.ToList().IndexOf(player.activeLearnable);
+
+          if (listPosition > -1)
+          {
+            List<string> time = learnableMenu.remainingTime.GetBindValues(player.oid, learnableMenu.nuiToken.Token);
+            time[listPosition] = player.activeLearnable.GetReadableTimeSpanToNextLevel(player);
+            learnableMenu.remainingTime.SetBindValues(player.oid, learnableMenu.nuiToken.Token, time);
+          }
+        }
+      }
+    }
+    private void HandleCheckAfkStatus(PlayerSystem.Player player)
+    {
+      DateTime lastActionDate = player.oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value;
+
+      if (player.pcState != PlayerSystem.Player.PcState.AFK && player.oid.IsValid && (DateTime.Now - lastActionDate).TotalMinutes > 4)
+      {
+        player.pcState = PlayerSystem.Player.PcState.AFK;
+        Effect afkVXF = Effect.VisualEffect((VfxType)751);
+        afkVXF.Tag = "EFFECT_VFX_AFK";
+        afkVXF.SubType = EffectSubType.Supernatural;
+        player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, afkVXF);
+      }   
     }
   }
 }

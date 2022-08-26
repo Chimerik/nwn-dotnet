@@ -90,7 +90,7 @@ namespace NWN.Systems
       return "GACDEVINT".IndexOf(school);
     }
     
-    public static async void RestoreSpell(NwCreature caster, Spell spell)
+    /*public static async void RestoreSpell(NwCreature caster, Spell spell)
     {
       if (caster == null)
         return;
@@ -99,7 +99,7 @@ namespace NWN.Systems
 
       foreach (MemorizedSpellSlot spellSlot in caster.GetClassInfo((ClassType)43).GetMemorizedSpellSlots(0).Where(s => s.Spell.SpellType == spell && !s.IsReady))
         spellSlot.IsReady = true;
-    }
+    }*/
     public static async void CancelCastOnMovement(NwCreature caster)
     {
       float posX = caster.Position.X;

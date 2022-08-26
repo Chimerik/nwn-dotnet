@@ -17,7 +17,7 @@ namespace NWN.Systems
         private readonly NuiRect drawListRect = new (0, 35, 150, 60);
         private readonly NuiBind<string> icon = new ("icon");
         private readonly NuiBind<string> name = new ("name");
-        private readonly NuiBind<string> timeLeft = new ("timeLeft");
+        public readonly NuiBind<string> timeLeft = new ("timeLeft");
         private readonly NuiBind<string> level = new ("level");
         bool stopPreviousSPGain { get; set; }
         Learnable learnable { get; set; }

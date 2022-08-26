@@ -4,7 +4,6 @@ using Anvil.Services;
 
 using NWN.Core.NWNX;
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -23,13 +22,12 @@ namespace NWN.Systems
           continue;
 
         spawnPoint.GetObjectVariable<LocalVariableBool>("_SPAWN_COOLDOWN").Value = true;
-        NwCreature creature = NwCreature.Deserialize(spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value.ToByteArray());
 
-        if (creature != null)
+        if (CreatureUtils.creatureSpawnDictionary.ContainsKey("creature"))
         {
           //Log.Info($"spawned : {creature.Name}");
+          NwCreature creature = CreatureUtils.creatureSpawnDictionary["creature"].Clone(spawnPoint.Location);
           creature.ApplyEffect(EffectDuration.Permanent, Effect.CutsceneParalyze());
-          creature.Location = spawnPoint.Location;
           creature.OnHeartbeat += CheckIfNoPlayerAround;
           creature.OnDeath += CreatureUtils.OnMobDeathResetSpawn; ;
           creature.GetObjectVariable<LocalVariableObject<NwWaypoint>>("_SPAWN").Value = spawnPoint;

@@ -42,7 +42,7 @@ namespace NWN.Systems
         private readonly NuiBind<int> listCount = new ("listCount");
         private readonly NuiBind<string> icon = new ("icon");
         private readonly NuiBind<string> skillName = new ("skillName");
-        private readonly NuiBind<string> remainingTime = new ("remainingTime");
+        public readonly NuiBind<string> remainingTime = new ("remainingTime");
         private readonly NuiBind<string> level = new ("level");
         private readonly NuiBind<string> learnButtonText = new ("learnButtonText");
         private readonly NuiBind<bool> learnButtonEnabled = new ("learnButtonEnabled");
@@ -148,7 +148,7 @@ namespace NWN.Systems
 
             currentList = player.learnableSkills.Values.Where(s => s.category == SkillSystem.Category.MindBody);
             LoadLearnableList(currentList);
-            RefreshWindowOnAbilityChange();
+            //RefreshWindowOnAbilityChange();
           }
           else
             player.oid.SendServerMessage($"Impossible d'ouvrir la fenêtre {window.Title}. Celle-ci est-elle déjà ouverte ?", ColorConstants.Orange);
@@ -193,10 +193,10 @@ namespace NWN.Systems
                 if (player.TryGetOpenedWindow("activeLearnable", out PlayerWindow activeWindow))
                   activeWindow.CloseWindow();
                 
-                if (player.windows.ContainsKey("activeLearnable"))
-                  ((ActiveLearnableWindow)player.windows["activeLearnable"]).CreateWindow();
-                else
-                  player.windows.Add("activeLearnable", new ActiveLearnableWindow(player));
+                if (!player.windows.ContainsKey("activeLearnable")) player.windows.Add("activeLearnable", new ActiveLearnableWindow(player));
+                else  ((ActiveLearnableWindow)player.windows["activeLearnable"]).CreateWindow();
+                
+                  
 
                 LoadLearnableList(currentList);
               }
@@ -204,10 +204,8 @@ namespace NWN.Systems
               {
                 int learnableId = currentList.ElementAt(nuiEvent.ArrayIndex).id;
 
-                if (player.windows.ContainsKey("learnableDescription"))
-                   ((LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(learnableId);
-                else
-                  player.windows.Add("learnableDescription", new LearnableDescriptionWindow(player, learnableId));
+                if (!player.windows.ContainsKey("learnableDescription")) player.windows.Add("learnableDescription", new LearnableDescriptionWindow(player, learnableId));
+                else  ((LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(learnableId);
               }
 
               break;
@@ -294,10 +292,10 @@ namespace NWN.Systems
           learnButtonEnabled.SetBindValues(player.oid, nuiToken.Token, learnButtonEnabledList);
           listCount.SetBindValue(player.oid, nuiToken.Token, filteredList.Count());
 
-          if (filteredList.Any(l => l.active) && !refreshOn)
-            RefreshActiveLearnable();
+          //if (filteredList.Any(l => l.active) && !refreshOn)
+            //RefreshActiveLearnable();
         }
-        private async void RefreshWindowOnAbilityChange()
+        /*private async void RefreshWindowOnAbilityChange()
         {
           int strength = player.oid.LoginCreature.GetAbilityScore(Ability.Strength);
           int dexterity = player.oid.LoginCreature.GetAbilityScore(Ability.Dexterity);
@@ -315,8 +313,8 @@ namespace NWN.Systems
 
           LoadLearnableList(currentList);
           RefreshWindowOnAbilityChange();
-        }
-        private async void RefreshActiveLearnable()
+        }*/
+        /*private async void RefreshActiveLearnable()
         {
           refreshOn = true;
 
@@ -334,12 +332,16 @@ namespace NWN.Systems
           }
 
           Learnable activeLearnable = currentList.FirstOrDefault(l => l.active);
-          List<string> time = remainingTime.GetBindValues(player.oid, nuiToken.Token);
-          time[currentList.ToList().IndexOf(activeLearnable)] = activeLearnable.GetReadableTimeSpanToNextLevel(player);
-          remainingTime.SetBindValues(player.oid, nuiToken.Token, time);
+
+          if (activeLearnable != null)
+          { 
+            List<string> time = remainingTime.GetBindValues(player.oid, nuiToken.Token);
+            time[currentList.ToList().IndexOf(activeLearnable)] = activeLearnable.GetReadableTimeSpanToNextLevel(player);
+            remainingTime.SetBindValues(player.oid, nuiToken.Token, time);
+          }
 
           RefreshActiveLearnable();
-        }
+        }*/
       }
     }
   }

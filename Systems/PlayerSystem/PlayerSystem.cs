@@ -211,7 +211,7 @@ namespace NWN.Systems
 
         if (learnable.nbScrollUsed <= 5)
         {
-          learnable.acquiredPoints += learnable.GetPointsToNextLevel() / 20;
+          learnable.acquiredPoints += learnable.pointsToNextLevel / 20;
           learnable.nbScrollUsed += 1;
           oPC.ControllingPlayer.SendServerMessage($"Les informations supplémentaires contenues dans ce parchemin vous permettent d'affiner votre connaissance du sort {learnable.name.ColorString(ColorConstants.White)}. Votre apprentissage sera plus rapide.", new Color(32, 255, 32));
         }
@@ -261,6 +261,15 @@ namespace NWN.Systems
       
       if (!Players.TryGetValue(oPC.LoginCreature, out Player player))
         return;
+
+      if (player.pcState == Player.PcState.AFK)
+      {
+        player.pcState = Player.PcState.Online;
+
+        foreach (Effect eff in player.oid.LoginCreature.ActiveEffects)
+          if(eff.Tag == "EFFECT_VFX_AFK")
+            player.oid.LoginCreature.RemoveEffect(eff);
+      }
 
       switch (guiEvent.EventType)
       {

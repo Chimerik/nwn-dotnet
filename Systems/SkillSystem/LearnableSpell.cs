@@ -13,6 +13,7 @@ namespace NWN.Systems
     {
       this.spellLevel = spellLevel;
       currentLevel = multiplier / 2;
+      pointsToNextLevel = 250 * multiplier * Math.Pow(5, currentLevel);
     }
     public LearnableSpell(LearnableSpell learnableBase, bool active = false, int nbScrollUsed = 0, double acquiredSP = 0) : base(learnableBase)
     {
@@ -26,6 +27,7 @@ namespace NWN.Systems
       active = serializableBase.active;
       acquiredPoints = serializableBase.acquiredPoints;
       currentLevel = serializableBase.currentLevel;
+      pointsToNextLevel = 250 * multiplier * Math.Pow(5, currentLevel);
       spLastCalculation = serializableBase.spLastCalculation;
       nbScrollUsed = serializableBase.nbScrollUsed;
       spellLevel = learnableBase.spellLevel;
@@ -54,7 +56,7 @@ namespace NWN.Systems
     }
     public void LevelUp(PlayerSystem.Player player)
     {
-      acquiredPoints = GetPointsToNextLevel();
+      acquiredPoints = pointsToNextLevel;
       active = false;
 
       player.oid.LoginCreature.GetClassInfo((ClassType)43).AddKnownSpell((Spell)id, (byte)spellLevel);

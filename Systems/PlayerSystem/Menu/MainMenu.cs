@@ -463,7 +463,7 @@ namespace NWN.Systems
           Learnable learnable = targetPlayer.GetActiveLearnable();
 
           if (learnable != null)
-            learnable.acquiredPoints = learnable.GetPointsToNextLevel();
+            learnable.acquiredPoints = learnable.pointsToNextLevel;
           else
             selection.Player.SendServerMessage($"{targetPlayer.oid.LoginCreature.Name.ColorString(ColorConstants.White)} ne dispose pas d'apprentissage en cours.", ColorConstants.Orange);
         }

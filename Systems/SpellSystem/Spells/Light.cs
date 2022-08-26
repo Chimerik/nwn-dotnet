@@ -46,10 +46,10 @@ namespace NWN.Systems
         //Apply the VFX impact and effects
         onSpellCast.TargetObject.ApplyEffect(EffectDuration.Temporary, eLink, NwTimeSpan.FromHours(nDuration));
 
-        if (onSpellCast.MetaMagicFeat == MetaMagic.None)
+        /*if (onSpellCast.MetaMagicFeat == MetaMagic.None)
         {
           SpellUtils.RestoreSpell(oCaster, onSpellCast.Spell.SpellType);
-        }
+        }*/
       }
     }
   }

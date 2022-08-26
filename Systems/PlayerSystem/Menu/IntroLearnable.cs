@@ -107,9 +107,9 @@ namespace NWN.Systems
                 int learnableId = int.Parse(nuiEvent.ElementId[(nuiEvent.ElementId.IndexOf("_") + 1)..]);
                 LearnableSkill skill = player.learnableSkills[learnableId];
 
-                if (player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value >= skill.GetPointsToNextLevel())
+                if (player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value >= skill.pointsToNextLevel)
                 {
-                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value -= (int)skill.GetPointsToNextLevel();
+                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value -= (int)skill.pointsToNextLevel;
                   skill.LevelUp(player);
 
                   displayText.SetBindValue(player.oid, nuiToken.Token, $"Vous disposez actuellement de {player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value} points de compétence.\n\n" +
@@ -187,7 +187,7 @@ namespace NWN.Systems
               {
                 new NuiButtonImage(kvp.Value.icon) { Id = kvp.Key.ToString(), Tooltip = "Description", Height = 40, Width = 40 },
                 new NuiLabel(kvp.Value.name) { Id = kvp.Key.ToString(), Tooltip = kvp.Value.name, Width = 160, HorizontalAlign = NuiHAlign.Left, DrawList = new List<NuiDrawListItem>() {
-                new NuiDrawListText(white, drawListRect, kvp.Value.GetPointsToNextLevel().ToString()) } },
+                new NuiDrawListText(white, drawListRect, kvp.Value.pointsToNextLevel.ToString()) } },
                 new NuiLabel("Niveau/Max") { Id = kvp.Key.ToString(), Width = 90, HorizontalAlign = NuiHAlign.Left, DrawList = new List<NuiDrawListItem>() {
                 new NuiDrawListText(white, drawListRect, $"{kvp.Value.currentLevel}/{kvp.Value.maxLevel}") } },
                 new NuiButton("Acheter") { Id = $"learn_{kvp.Key}", Height = 40, Width = 90, Enabled = kvp.Value.currentLevel < kvp.Value.maxLevel && !kvp.Value.active, Tooltip = "Si vous ne disposez pas d'assez de points, cette compétence sera sélectionnée pour entrainement." }

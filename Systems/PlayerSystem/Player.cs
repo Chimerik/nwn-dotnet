@@ -39,6 +39,7 @@ namespace NWN.Systems
       public Dictionary<uint, Player> blocked = new ();
       public Dictionary<int, LearnableSkill> learnableSkills = new ();
       public Dictionary<int, LearnableSpell> learnableSpells = new ();
+      public Learnable activeLearnable { get; set; }
       public Dictionary<int, MapPin> mapPinDictionnary = new ();
       public Dictionary<string, byte[]> areaExplorationStateDictionnary = new ();
       public Dictionary<int, byte[]> chatColors = new ();
@@ -188,15 +189,15 @@ namespace NWN.Systems
             break;
         }
       }
-      public async void InitializePlayerLearnableJobs()
+      public void InitializePlayerLearnableJobs()
       {
-        await NwTask.WaitUntil(() => oid.LoginCreature.Location.Area != null);
+        /*await NwTask.WaitUntil(() => oid.LoginCreature.Location.Area != null);
 
         if (learnableSkills.Any(l => l.Value.active))
           learnableSkills.First(l => l.Value.active).Value.AwaitPlayerStateChangeToCalculateSPGain(this);
 
         else if (learnableSpells.Any(l => l.Value.active))
-          learnableSpells.First(l => l.Value.active).Value.AwaitPlayerStateChangeToCalculateSPGain(this);
+          learnableSpells.First(l => l.Value.active).Value.AwaitPlayerStateChangeToCalculateSPGain(this);*/
 
         /*int improvedHealth = 0;
       if (player.learnableSkills.ContainsKey(CustomSkill.ImprovedHealth))
@@ -356,7 +357,7 @@ namespace NWN.Systems
             pointsPerSecond *= 1.2;
             break;
           case 100:
-            pointsPerSecond *= 10;
+            pointsPerSecond *= 10.0;
             break;
         }
 
@@ -1188,20 +1189,20 @@ namespace NWN.Systems
       }
       public async void RescheduleRepeatableJob(ResourceType type, double consumedTime, string jobIcon)
       {
-        bool reopen = false;
+        /*bool reopen = false;
         if (windows.TryGetValue("activeCraftJob", out PlayerWindow activeWindow) && activeWindow.IsOpen)
-          reopen = true;
+          reopen = true;*/
 
         await NwTask.Delay(TimeSpan.FromSeconds(0));
         craftJob = new CraftJob(this, type, consumedTime, jobIcon);
 
-        if (reopen)
+        /*if (reopen)
           ((ActiveCraftJobWindow)activeWindow).CreateWindow();
         else
         {
           craftJob.progressLastCalculation = DateTime.Now;
           craftJob.HandleDelayedJobProgression(this);
-        }
+        }*/
       }
     }
   }

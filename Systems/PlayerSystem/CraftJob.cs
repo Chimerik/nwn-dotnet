@@ -71,7 +71,7 @@ namespace NWN.Systems
       public string enchantementTag { get; set; }
       public DateTime? progressLastCalculation { get; set; }
       public DateTime? startTime { get; set; }
-      public ScheduledTask jobProgression { get; set; }
+      //public ScheduledTask jobProgression { get; set; }
       public CraftJob(Player player, NwItem oBlueprint, double jobDuration) // Item Craft
       {
         try
@@ -279,7 +279,9 @@ namespace NWN.Systems
           progressLastCalculation = null;
         }
 
-        HandleDelayedJobProgression(player);
+        player.oid.OnServerSendArea -= HandleCraftJobOnAreaChange;
+        player.oid.OnServerSendArea += HandleCraftJobOnAreaChange;
+        //HandleDelayedJobProgression(player);
       }
 
       public class SerializableCraftJob
@@ -304,12 +306,12 @@ namespace NWN.Systems
           remainingTime = baseJob.remainingTime;
           originalSerializedItem = baseJob.originalSerializedItem;
           serializedItem = baseJob.serializedCraftedItem;
-          progressLastCalculation = baseJob.progressLastCalculation;
+          progressLastCalculation = DateTime.Now;
           enchantementTag = baseJob.enchantementTag;
           startTime = baseJob.startTime;
         }
       }
-      public async void HandleDelayedJobProgression(Player player)
+      /*public async void HandleDelayedJobProgression(Player player)
       {
         if (jobProgression != null)
           jobProgression.Dispose();
@@ -345,17 +347,18 @@ namespace NWN.Systems
           HandleSpecificJobCompletion[type].Invoke(player, true);
           HandleGenericJobCompletion(player);
         }
-      }
+      }*/
       public void HandleGenericJobCompletion(Player player)
       {
         if (player.TryGetOpenedWindow("activeCraftJob", out Player.PlayerWindow craftWindow))
-          craftWindow.CloseWindow();
+          if(player.craftJob.type != JobType.Mining && player.craftJob.type != JobType.WoodCutting && player.craftJob.type != JobType.Pelting)
+            craftWindow.CloseWindow();
 
-        if (jobProgression != null)
-          jobProgression.Dispose();
+        //if (jobProgression != null)
+          //jobProgression.Dispose();
 
         player.craftJob = null;
-        player.oid.OnClientDisconnect -= HandleCraftJobOnPlayerLeave;
+        //player.oid.OnClientDisconnect -= HandleCraftJobOnPlayerLeave;
         player.oid.OnServerSendArea -= HandleCraftJobOnAreaChange;
 
         //player.oid.ApplyInstantVisualEffectToObject((VfxType)1516, player.oid.ControlledCreature);
@@ -370,10 +373,10 @@ namespace NWN.Systems
         if (player.TryGetOpenedWindow("activeCraftJob", out Player.PlayerWindow craftWindow))
           craftWindow.CloseWindow();
 
-        if (jobProgression != null)
-          jobProgression.Dispose();
+        //if (jobProgression != null)
+          //jobProgression.Dispose();
 
-        player.oid.OnClientDisconnect -= HandleCraftJobOnPlayerLeave;
+        //player.oid.OnClientDisconnect -= HandleCraftJobOnPlayerLeave;
         player.oid.OnServerSendArea -= HandleCraftJobOnAreaChange;
 
         player.craftJob = null;
@@ -387,7 +390,7 @@ namespace NWN.Systems
         return new TimeSpan(timespan.Days, timespan.Hours, timespan.Minutes, timespan.Seconds).ToString();
       }
       
-      public void HandleCraftJobOnPlayerLeave(OnClientDisconnect onPCDisconnect)
+      /*public void HandleCraftJobOnPlayerLeave(OnClientDisconnect onPCDisconnect)
       {
         onPCDisconnect.Player.OnClientDisconnect -= HandleCraftJobOnPlayerLeave;
         onPCDisconnect.Player.OnServerSendArea -= HandleCraftJobOnAreaChange;
@@ -396,16 +399,16 @@ namespace NWN.Systems
           jobProgression.Dispose();
 
         progressLastCalculation = DateTime.Now;
-      }
+      }*/
       public void HandleCraftJobOnAreaChange(OnServerSendArea onArea)
       {
          if (!Players.TryGetValue(onArea.Player.LoginCreature, out Player player))
           return;
 
-        if (onArea.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 0 && !jobProgression.IsCancelled)
+        if (onArea.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 0 && player.craftJob != null)
         {
-          jobProgression.Dispose();
-          player.oid.OnClientDisconnect -= HandleCraftJobOnPlayerLeave;
+          //jobProgression.Dispose();
+          //player.oid.OnClientDisconnect -= HandleCraftJobOnPlayerLeave;
 
           if (player.TryGetOpenedWindow("activeCraftJob", out Player.PlayerWindow jobWindow))
             ((Player.ActiveCraftJobWindow)jobWindow).timeLeft.SetBindValue(player.oid, jobWindow.nuiToken.Token, "En pause (Hors Cité)");
@@ -413,13 +416,13 @@ namespace NWN.Systems
           return;
         }
 
-        if (onArea.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value == 0 && jobProgression.IsCancelled)
+        /*if (onArea.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value == 0 && jobProgression.IsCancelled)
         {
           if (player.TryGetOpenedWindow("activeCraftJob", out Player.PlayerWindow jobWindow))
             ((Player.ActiveCraftJobWindow)jobWindow).HandleRealTimeJobProgression();
           else
             HandleDelayedJobProgression(player);
-        }
+        }*/
       }
       private void StartBlueprintCopy(Player player, NwItem oBlueprint)
       {

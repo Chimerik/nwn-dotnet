@@ -334,6 +334,27 @@ namespace NWN.Systems
         oPC.OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
       }
     }
+    [ScriptHandler("event_dcr_spell")]
+    private void HandleInputEmote(CallInfo callInfo)
+    {
+      if ((MetaMagic)int.Parse(EventsPlugin.GetEventData("METAMAGIC")) != MetaMagic.None)
+        return;
+
+      Spell spell = (Spell)int.Parse(EventsPlugin.GetEventData("SPELL_ID"));
+      switch(spell)
+      {
+        case Spell.AcidSplash:
+        case Spell.Daze:
+        case Spell.ElectricJolt:
+        case Spell.Flare:
+        case Spell.Light:
+        case Spell.RayOfFrost:
+        case Spell.Resistance:
+        case Spell.Virtue:
+          EventsPlugin.SkipEvent();
+          break;
+      }
+    }
     public void CheckIsDivinationBeforeSpellCast(OnSpellCast onSpellCast)
     {
       if (onSpellCast.Caster.IsLoginPlayerCharacter(out NwPlayer player) && onSpellCast.Spell.SpellSchool == SpellSchool.Divination)

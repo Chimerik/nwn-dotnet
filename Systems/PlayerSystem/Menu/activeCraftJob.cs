@@ -82,9 +82,17 @@ namespace NWN.Systems
               player.craftJob.progressLastCalculation = null;
             }
 
-            timeLeft.SetBindValue(player.oid, nuiToken.Token, player.craftJob.GetReadableJobCompletionTime());
+            if(player.oid.LoginCreature.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 0)
+              timeLeft.SetBindValue(player.oid, nuiToken.Token, "En pause (Hors Cité)");
+            else
+              timeLeft.SetBindValue(player.oid, nuiToken.Token, player.craftJob.GetReadableJobCompletionTime());
 
-            HandleRealTimeJobProgression();
+            //player.oid.OnServerSendArea -= player.craftJob.HandleCraftJobOnAreaChange;
+            //player.oid.OnServerSendArea += player.craftJob.HandleCraftJobOnAreaChange;
+            //player.oid.OnClientDisconnect -= player.craftJob.HandleCraftJobOnPlayerLeave;
+            //player.oid.OnClientDisconnect += player.craftJob.HandleCraftJobOnPlayerLeave;
+
+            //HandleRealTimeJobProgression();
           }
         }
 
@@ -117,15 +125,15 @@ namespace NWN.Systems
               return;
           }
 
-          switch (nuiEvent.EventType)
+          /*switch (nuiEvent.EventType)
           {
             case NuiEventType.Close:
               player.craftJob.progressLastCalculation = DateTime.Now;
               player.craftJob.HandleDelayedJobProgression(player);
               return;
-          }
+          }*/
         }
-        public async void HandleRealTimeJobProgression()
+        /*public async void HandleRealTimeJobProgression()
         {
           if (player.craftJob.jobProgression != null)
             player.craftJob.jobProgression.Dispose();
@@ -162,7 +170,7 @@ namespace NWN.Systems
             }
 
           }, TimeSpan.FromSeconds(1));
-        }
+        }*/
       }
     }
   }
