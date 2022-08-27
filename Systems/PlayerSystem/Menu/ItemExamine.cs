@@ -454,7 +454,7 @@ namespace NWN.Systems
                 CloseWindow();
                 item.Destroy();
 
-                return;
+                ItemUtils.ScheduleItemForDestruction(item, 0.2);
 
               case "hide":
 
@@ -604,6 +604,150 @@ namespace NWN.Systems
         {
           if (!player.windows.ContainsKey("editorItem")) player.windows.Add("editorItem", new EditorItemWindow(player, item));
           else ((EditorItemWindow)player.windows["editorItem"]).CreateWindow(item);
+        }
+        private string GetMateriaQualityIcon(int materiaQuality)
+        {
+          switch(materiaQuality)
+          {
+            case 1: return "ir_level1";
+            case 2: return "ir_level2";
+            case 3: return "ir_level3";
+            case 4: return "ir_level4";
+            case 5: return "ir_level5";
+            case 6: return "ir_level6";
+            case 7: return "ir_level789";
+            case 8: 
+            case 9:
+              return "ir_cntrspell";
+            default: return "ir_cantrips";
+          }
+        }
+        private void LoadIPBindings()
+        {
+          List<string> ipNameList = new();
+          List<Color> ipColorList = new();
+
+          foreach (ItemProperty ip in item.ItemProperties)
+          {
+            string ipName = $"{ip.Property.Name?.ToString()}";
+
+            if (ip?.SubType?.RowIndex > -1)
+              ipName += $" : {NwGameTables.ItemPropertyTable.GetRow(ip.Property.RowIndex).SubTypeTable?.GetRow(ip.SubType.RowIndex).Name?.ToString()}";
+
+            ipName += " " + ip.CostTableValue?.Name?.ToString();
+            ipName += " " + ip.Param1TableValue?.Name?.ToString();
+            ipName += ip.RemainingDuration > TimeSpan.Zero ? $" ({new TimeSpan(ip.RemainingDuration.Days, ip.RemainingDuration.Hours, ip.RemainingDuration.Minutes, ip.RemainingDuration.Seconds)})" : "";
+
+            ipNameList.Add(ipName);
+            ipColorList.Add(ip.DurationType == EffectDuration.Permanent ? ColorConstants.White : ColorConstants.Blue);
+          }
+
+          ipName.SetBindValues(player.oid, nuiToken.Token, ipNameList);
+          ipColor.SetBindValues(player.oid, nuiToken.Token, ipColorList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, ipNameList.Count);
+        }
+        private void LoadStateBindings()
+        {
+          if (item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasValue)
+          {
+            int durabilityState = item.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value / item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value * 100;
+            string tooltip = "Etat : ";
+
+            if(durabilityState >= 100)
+            {
+              tooltip += "flambant neuf ";
+              itemState.SetBindValue(player.oid, nuiToken.Token, "is_perfect");
+            }
+            if (durabilityState < 100 && durabilityState >= 75)
+            {
+              tooltip += "très bon ";
+              itemState.SetBindValue(player.oid, nuiToken.Token, "is_vgood");              
+            }
+            else if (durabilityState < 75 && durabilityState >= 50)
+            {
+              tooltip += "bon ";
+              itemState.SetBindValue(player.oid, nuiToken.Token, "is_good");
+            }
+            else if (durabilityState < 50 && durabilityState >= 25)
+            {
+              tooltip += "usé ";
+              itemState.SetBindValue(player.oid, nuiToken.Token, "is_bad");
+            }
+            else if (durabilityState < 25 && durabilityState >= 5)
+            {
+              tooltip += "abimé ";
+              itemState.SetBindValue(player.oid, nuiToken.Token, "is_vbad");
+            }
+            else if (durabilityState < 5 && durabilityState >= 1)
+            {
+              tooltip += "vétuste ";
+              itemState.SetBindValue(player.oid, nuiToken.Token, "is_awful");
+            }
+            else if (durabilityState < 1)
+            {
+              tooltip += "ruiné ";
+              itemState.SetBindValue(player.oid, nuiToken.Token, "is_ruined");
+            }
+
+            /*if (item.GetObjectVariable<LocalVariableInt>("_DURABILITY_NB_REPAIRS").HasValue) TODO : plutôt afficher cette info sur l'atelier
+              tooltip += $"- Réparé {item.GetObjectVariable<LocalVariableInt>("_DURABILITY_NB_REPAIRS").Value} fois";*/
+
+            if (item.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").HasValue)
+              tooltip += $"- Artisan original : {item.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value} ";
+
+            if (modificationAllowed)
+              tooltip += "- Modifier";
+
+            itemStateTooltip.SetBindValue(player.oid, nuiToken.Token, tooltip);
+          }
+          else
+          {
+            string tooltip = "Etat : Flambant neuf ";
+
+            if (item.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").HasValue)
+              tooltip += $"- Artisan original : {item.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value} ";
+
+            if (modificationAllowed)
+              tooltip += "- Modifier";
+
+            itemState.SetBindValue(player.oid, nuiToken.Token, "is_perfect");
+            itemStateTooltip.SetBindValue(player.oid, nuiToken.Token, tooltip);
+          }
+        }
+        private bool CanStartBlueprintJob(int skill)
+        {
+          if (item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").HasValue)
+          {
+            player.oid.SendServerMessage("Seuls les patrons originaux peuvent faire l'objet d'une recherche ou d'une copie de licence.", ColorConstants.Red);
+            return false;
+          }
+
+          if (item.Possessor != player.oid.ControlledCreature)
+          {
+            player.oid.SendServerMessage($"{item.Name} doit être en votre possession afin de pouvoir commencer un travail de copie.", ColorConstants.Red);
+            return false;
+          }
+
+          if (player.craftJob != null)
+          {
+            player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
+            return false;
+          }
+
+          if ((skill == CustomSkill.BlueprintMetallurgy && item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value > 9)
+            || (skill == CustomSkill.BlueprintResearch && item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_TIME_EFFICIENCY").Value > 9))
+          {
+            player.oid.SendServerMessage("Il n'est pas possible d'améliorer davantage le niveau de recherche de ce patron.", ColorConstants.Red);
+            return false;
+          }
+
+          if (player.learnableSkills.ContainsKey(skill) && player.learnableSkills[skill].totalPoints < 1)
+          {
+            player.oid.SendServerMessage("Il faut avoir étudié les techniques propre à ce métier avant de pouvoir se lancer dans un travail.", ColorConstants.Red);
+            return false;
+          }
+
+          return true;
         }
         private string GetMateriaQualityIcon(int materiaQuality)
         {

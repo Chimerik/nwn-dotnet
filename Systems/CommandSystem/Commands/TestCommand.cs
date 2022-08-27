@@ -68,7 +68,7 @@ namespace NWN.Systems
 
           //SpellSystem.ApplyCustomEffectToTarget(SpellSystem.frog, player.oid.LoginCreature, TimeSpan.FromSeconds(10));
 
-          player.oid.EnterTargetMode(OnTargetSelected, ObjectTypes.Item, MouseCursor.Talk);
+          //player.oid.EnterTargetMode(OnTargetSelected, ObjectTypes.Creature, MouseCursor.Talk);
         }
       }
     }
@@ -90,7 +90,7 @@ namespace NWN.Systems
       if (selection.IsCancelled)
         return;
 
-      if (selection.TargetObject is not NwItem item || !PlayerSystem.Players.TryGetValue(selection.Player.LoginCreature, out PlayerSystem.Player player))
+      if (selection.TargetObject is not NwCreature item || !PlayerSystem.Players.TryGetValue(selection.Player.LoginCreature, out PlayerSystem.Player player))
         return;
 
       foreach (var ip in item.ItemProperties)
