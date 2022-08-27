@@ -10,23 +10,17 @@ namespace NWN.Systems
   {
     private void CleanArea(NwArea area)
     {
-      foreach (NwPlaceable bodyBag in area.FindObjectsOfTypeInArea<NwPlaceable>())
+      foreach (NwPlaceable bodyBag in area.FindObjectsOfTypeInArea<NwPlaceable>().Where(o => o.Tag == "BodyBag"))
       {
-        if (bodyBag.Tag == "BodyBag")
-        {
-          Utils.DestroyInventory(bodyBag);
-          Log.Info($"destroying body bag {bodyBag.Name}");
-          bodyBag.Destroy();
-        }
+        Utils.DestroyInventory(bodyBag);
+        Log.Info($"destroying body bag {bodyBag.Name}");
+        bodyBag.Destroy();
       }
 
-      foreach (NwItem item in area.FindObjectsOfTypeInArea<NwItem>())
+      foreach (NwItem item in area.FindObjectsOfTypeInArea<NwItem>().Where(i => i.Possessor == null))
       {
-        if(item.Possessor == null)
-        {
-          Log.Info($"destroying item {item.Name}");
-          item.Destroy();
-        }
+        Log.Info($"destroying item {item.Name}");
+        item.Destroy();
       }
     }
     private ScheduledTask areaDestroyerScheduler;

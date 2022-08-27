@@ -40,7 +40,7 @@ namespace NWN.Systems
           rootChildren.Add(new NuiRow() { Height = 385, Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35 } } });
 
           if (player.oid.PlayerName == "Chim")
-            myCommandList = Utils.mainMenuCommands.ToDictionary(m => m.Key, m => m.Value);
+            myCommandList = Utils.mainMenuCommands;
           else if (player.oid.IsDM)
             myCommandList = Utils.mainMenuCommands.Where(m => m.Value.rank < Utils.CommandRank.Admin).ToDictionary(m => m.Key, m => m.Value);
           else
@@ -50,11 +50,7 @@ namespace NWN.Systems
             if (player.bonusRolePlay < 4)
               myCommandList.Remove("commend");
           }
-
-          if (player.craftJob == null)
-            myCommandList.Remove("currentJob");
-
-
+          
           CreateWindow();
         }
         public void CreateWindow()
@@ -85,6 +81,7 @@ namespace NWN.Systems
               myCommandList.Remove("examineArea");
             else
               myCommandList.TryAdd("examineArea", Utils.mainMenuCommands["examineArea"]);
+
 
             currentList = myCommandList;
             LoadMenu(currentList);
@@ -134,24 +131,21 @@ namespace NWN.Systems
 
                   break;
 
-                case "sit":
-
-                  if (!player.windows.ContainsKey("sitAnywhere")) player.windows.Add("sitAnywhere", new SitAnywhereWindow(player));
-                  else ((SitAnywhereWindow)player.windows["sitAnywhere"]).CreateWindow();
-
-                  break;
-
                 case "examineArea":
 
-                  if (!player.windows.ContainsKey("areaDescription")) player.windows.Add("areaDescription", new AreaDescriptionWindow(player, player.oid.ControlledCreature.Area));
-                  else ((AreaDescriptionWindow)player.windows["areaDescription"]).CreateWindow(player.oid.ControlledCreature.Area);
+                  if (player.windows.ContainsKey("areaDescription"))
+                    ((AreaDescriptionWindow)player.windows["areaDescription"]).CreateWindow(player.oid.ControlledCreature.Area);
+                  else
+                    player.windows.Add("areaDescription", new AreaDescriptionWindow(player, player.oid.ControlledCreature.Area));
 
                   break;
 
                 case "grimoire":
 
-                  if (!player.windows.ContainsKey("grimoires")) player.windows.Add("grimoires", new GrimoiresWindow(player));
-                  else ((GrimoiresWindow)player.windows["grimoires"]).CreateWindow();
+                  if (player.windows.ContainsKey("grimoires"))
+                    ((GrimoiresWindow)player.windows["grimoires"]).CreateWindow();
+                  else
+                    player.windows.Add("grimoires", new GrimoiresWindow(player));
 
                   CloseWindow();
 
@@ -159,8 +153,10 @@ namespace NWN.Systems
 
                 case "quickbars":
 
-                  if (!player.windows.ContainsKey("quickbars")) player.windows.Add("quickbars", new QuickbarsWindow(player));
-                  else ((QuickbarsWindow)player.windows["quickbars"]).CreateWindow();
+                  if (player.windows.ContainsKey("quickbars"))
+                    ((QuickbarsWindow)player.windows["quickbars"]).CreateWindow();
+                  else
+                    player.windows.Add("quickbars", new QuickbarsWindow(player));
 
                   CloseWindow();
 
@@ -168,8 +164,10 @@ namespace NWN.Systems
 
                 case "itemAppearance":
 
-                  if (!player.windows.ContainsKey("itemAppearances")) player.windows.Add("itemAppearances", new ItemAppearancesWindow(player));
-                  else ((ItemAppearancesWindow)player.windows["itemAppearances"]).CreateWindow();
+                  if (player.windows.ContainsKey("itemAppearances"))
+                    ((ItemAppearancesWindow)player.windows["itemAppearances"]).CreateWindow();
+                  else
+                    player.windows.Add("itemAppearances", new ItemAppearancesWindow(player));
 
                   CloseWindow();
 
@@ -177,8 +175,10 @@ namespace NWN.Systems
 
                 case "description":
 
-                  if (!player.windows.ContainsKey("description")) player.windows.Add("description", new DescriptionsWindow(player));
-                  else ((DescriptionsWindow)player.windows["description"]).CreateWindow();
+                  if (player.windows.ContainsKey("description"))
+                    ((DescriptionsWindow)player.windows["description"]).CreateWindow();
+                  else
+                    player.windows.Add("description", new DescriptionsWindow(player));
 
                   CloseWindow();
 
@@ -208,8 +208,10 @@ namespace NWN.Systems
 
                 case "chat":
 
-                  if (!player.windows.ContainsKey("chatColors")) player.windows.Add("chatColors", new ChatColorsWindow(player));
-                  else ((ChatColorsWindow)player.windows["chatColors"]).CreateWindow();
+                  if (player.windows.ContainsKey("chatColors"))
+                    ((ChatColorsWindow)player.windows["chatColors"]).CreateWindow();
+                  else
+                    player.windows.Add("chatColors", new ChatColorsWindow(player));
 
                   CloseWindow();
 
@@ -217,8 +219,10 @@ namespace NWN.Systems
 
                 case "wind":
 
-                  if (!player.windows.ContainsKey("areaWindSettings")) player.windows.Add("areaWindSettings", new AreaWindSettings(player));
-                  else ((AreaWindSettings)player.windows["areaWindSettings"]).CreateWindow();
+                  if (player.windows.ContainsKey("areaWindSettings"))
+                    ((AreaWindSettings)player.windows["areaWindSettings"]).CreateWindow();
+                  else
+                    player.windows.Add("areaWindSettings", new AreaWindSettings(player));
 
                   CloseWindow();
 
@@ -302,16 +306,20 @@ namespace NWN.Systems
 
                 case "visualEffects":
 
-                  if (!player.windows.ContainsKey("DMVisualEffects")) player.windows.Add("DMVisualEffects", new DMVisualEffectsWindow(player));
-                  else ((DMVisualEffectsWindow)player.windows["DMVisualEffects"]).CreateWindow();
+                  if (player.windows.ContainsKey("DMVisualEffects"))
+                    ((DMVisualEffectsWindow)player.windows["DMVisualEffects"]).CreateWindow();
+                  else
+                    player.windows.Add("DMVisualEffects", new DMVisualEffectsWindow(player));
 
                   CloseWindow();
                   break;
 
                 case "dispelAoE":
 
-                  if (!player.windows.ContainsKey("aoeDispel")) player.windows.Add("aoeDispel", new AoEDispelWindow(player));
-                  else ((AoEDispelWindow)player.windows["aoeDispel"]).CreateWindow();
+                  if (player.windows.ContainsKey("aoeDispel"))
+                    ((AoEDispelWindow)player.windows["aoeDispel"]).CreateWindow();
+                  else
+                    player.windows.Add("aoeDispel", new AoEDispelWindow(player));
 
                   CloseWindow();
 
@@ -319,8 +327,10 @@ namespace NWN.Systems
 
                 case "effectDispel":
 
-                  if (!player.windows.ContainsKey("effectDispel")) player.windows.Add("effectDispel", new PlayerEffectDispelWindow(player));
-                  else ((PlayerEffectDispelWindow)player.windows["effectDispel"]).CreateWindow();
+                  if (player.windows.ContainsKey("effectDispel"))
+                    ((PlayerEffectDispelWindow)player.windows["effectDispel"]).CreateWindow();
+                  else
+                    player.windows.Add("effectDispel", new PlayerEffectDispelWindow(player));
 
                   CloseWindow();
 
@@ -343,58 +353,12 @@ namespace NWN.Systems
 
                 case "creaturePalette":
 
-                  if (!player.windows.ContainsKey("paletteCreature")) player.windows.Add("paletteCreature", new PaletteCreatureWindow(player));
-                  else ((PaletteCreatureWindow)player.windows["paletteCreature"]).CreateWindow();
+                  if (player.windows.ContainsKey("paletteCreature"))
+                    ((PaletteCreatureWindow)player.windows["paletteCreature"]).CreateWindow();
+                  else
+                    player.windows.Add("paletteCreature", new PaletteCreatureWindow(player));
 
                   CloseWindow();
-
-                  break;
-
-                case "itemPalette":
-
-                  if (!player.windows.ContainsKey("paletteItem")) player.windows.Add("paletteItem", new PaletteItemWindow(player));
-                  else ((PaletteItemWindow)player.windows["paletteItem"]).CreateWindow();
-
-                  CloseWindow();
-
-                  break;
-
-                case "placeablePalette":
-
-                  if (!player.windows.ContainsKey("palettePlaceable")) player.windows.Add("palettePlaceable", new PalettePlaceableWindow(player));
-                  else ((PalettePlaceableWindow)player.windows["palettePlaceable"]).CreateWindow();
-
-                  CloseWindow();
-
-                  break;
-
-                case "placeableManager":
-
-                  if (!player.windows.ContainsKey("placeableManager")) player.windows.Add("placeableManager", new PlaceableManagerWindow(player));
-                  else ((PlaceableManagerWindow)player.windows["placeableManager"]).CreateWindow();
-
-                  CloseWindow();
-
-                  break;
-
-                case "learnables":
-   
-                  if (!player.windows.ContainsKey("learnables")) player.windows.Add("learnables", new LearnableWindow(player));
-                  else ((LearnableWindow)player.windows["learnables"]).CreateWindow();
-
-                  CloseWindow();
-
-                  break;
-
-                case "currentJob":
-
-                  if (player.craftJob != null)
-                  {
-                    if (!player.windows.ContainsKey("activeCraftJob")) player.windows.Add("activeCraftJob", new ActiveCraftJobWindow(player));
-                    else ((ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
-                    
-                    CloseWindow();
-                  }
 
                   break;
               }
@@ -463,7 +427,7 @@ namespace NWN.Systems
           Learnable learnable = targetPlayer.GetActiveLearnable();
 
           if (learnable != null)
-            learnable.acquiredPoints = learnable.pointsToNextLevel;
+            learnable.acquiredPoints = learnable.GetPointsToNextLevel();
           else
             selection.Player.SendServerMessage($"{targetPlayer.oid.LoginCreature.Name.ColorString(ColorConstants.White)} ne dispose pas d'apprentissage en cours.", ColorConstants.Orange);
         }

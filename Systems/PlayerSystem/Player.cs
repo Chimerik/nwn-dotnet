@@ -39,7 +39,6 @@ namespace NWN.Systems
       public Dictionary<uint, Player> blocked = new ();
       public Dictionary<int, LearnableSkill> learnableSkills = new ();
       public Dictionary<int, LearnableSpell> learnableSpells = new ();
-      public Learnable activeLearnable { get; set; }
       public Dictionary<int, MapPin> mapPinDictionnary = new ();
       public Dictionary<string, byte[]> areaExplorationStateDictionnary = new ();
       public Dictionary<int, byte[]> chatColors = new ();
@@ -79,6 +78,8 @@ namespace NWN.Systems
         this.areaSystem = areaSystem;
         this.feedbackService = feedbackService;
 
+        Log.Info($"accountID : {this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("accountId").Value}");
+
         if(!oid.IsDM)
         {
           if (this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("accountId").HasNothing && !oid.IsDM)
@@ -97,6 +98,8 @@ namespace NWN.Systems
           InitializeDM();
 
         Players.Add(nwobj.LoginCreature, this);
+
+        Log.Info($"Player first initialization : DONE");
       }
 
       public void EmitKeydown(MenuFeatEventArgs e)
@@ -192,12 +195,12 @@ namespace NWN.Systems
       public async void InitializePlayerLearnableJobs()
       {
         await NwTask.WaitUntil(() => oid.LoginCreature.Location.Area != null);
-        
-        /*if (learnableSkills.Any(l => l.Value.active))
+
+        if (learnableSkills.Any(l => l.Value.active))
           learnableSkills.First(l => l.Value.active).Value.AwaitPlayerStateChangeToCalculateSPGain(this);
 
         else if (learnableSpells.Any(l => l.Value.active))
-          learnableSpells.First(l => l.Value.active).Value.AwaitPlayerStateChangeToCalculateSPGain(this);*/
+          learnableSpells.First(l => l.Value.active).Value.AwaitPlayerStateChangeToCalculateSPGain(this);
 
         /*int improvedHealth = 0;
       if (player.learnableSkills.ContainsKey(CustomSkill.ImprovedHealth))
@@ -217,11 +220,7 @@ namespace NWN.Systems
         if (learnableSkills.ContainsKey(CustomSkill.ImprovedAttackBonus))
           oid.LoginCreature.BaseAttackBonus = (byte)(oid.LoginCreature.BaseAttackBonus + learnableSkills[CustomSkill.ImprovedAttackBonus].totalPoints);
 
-        if (activeLearnable != null && activeLearnable.active && activeLearnable.spLastCalculation.HasValue)
-          activeLearnable.acquiredPoints += (DateTime.Now - activeLearnable.spLastCalculation).Value.TotalSeconds * GetSkillPointsPerSecond(activeLearnable);
-
         pcState = PcState.Online;
-        oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
       }
       public void UnloadMenuQuickbar()
       {
@@ -361,7 +360,7 @@ namespace NWN.Systems
             pointsPerSecond *= 1.2;
             break;
           case 100:
-            pointsPerSecond *= 10.0;
+            pointsPerSecond *= 10;
             break;
         }
 
@@ -373,7 +372,7 @@ namespace NWN.Systems
         else if (pcState == PcState.AFK)
         {
           pointsPerSecond *= 0.8;
-          //Log.Info($"{oid.LoginCreature.Name} was afk. Applying 20 % malus.");
+          Log.Info($"{oid.LoginCreature.Name} was afk. Applying 20 % malus.");
         }
 
         if (oid.LoginCreature.KnowsFeat(Feat.QuickToMaster))
@@ -893,7 +892,7 @@ namespace NWN.Systems
 
         return materiaCost;
       }
-      public double GetItemMateriaCost(NwItem item, double grade = 1)
+      public double GetItemMateriaCost(NwItem item, int grade = 1)
       {
         BaseItemType baseItemType;
 
@@ -1023,24 +1022,13 @@ namespace NWN.Systems
           return;
         }
 
-        if (blueprint == null || blueprint.Possessor != oid.ControlledCreature)
+        if (blueprint == null || blueprint.Possessor == oid.ControlledCreature)
         {
-          oid.SendServerMessage($"{blueprint.Name.ColorString(ColorConstants.White)} n'est plus en votre possession. Impossible de commencer le travail artisanal.", ColorConstants.Red);
+          oid.SendServerMessage($"{blueprint.Name.ColorString(ColorConstants.White)} n'est plus en votre possession. Impossible de démarrer le travail artisanal.", ColorConstants.Red);
           return;
         }
 
-        int grade = 1;
-
-        if (upgradedItem != null)
-        {
-          if(upgradedItem.Possessor != oid.ControlledCreature)
-          {
-            oid.SendServerMessage($"{upgradedItem.Name.ColorString(ColorConstants.White)} n'est plus en votre possession. Impossible de commencer le travail artisanal.", ColorConstants.Red);
-            return;
-          }
-
-          grade = upgradedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value + 1;
-        }
+        int grade = upgradedItem != null ? upgradedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value + 1 : 1 ;
 
         int materiaCost = (int)(GetItemMateriaCost(blueprint, grade) * (1 - (blueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value / 100)));
         CraftResource resource = craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromBlueprint(blueprint) && r.grade == 1 && r.quantity >= materiaCost);
@@ -1059,21 +1047,12 @@ namespace NWN.Systems
         else
           craftJob = new CraftJob(this, blueprint, GetItemCraftTime(blueprint, materiaCost), upgradedItem);
 
-        if (!windows.ContainsKey("activeCraftJob")) windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
-        else ((ActiveCraftJobWindow)windows["activeCraftJob"]).CreateWindow();
-      }
-      public void HandlePassiveJobChecks(string worshop)
-      {
-        if (craftJob != null)
-        {
-          oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
-          return;
-        }
+        if (windows.ContainsKey("activeCraftJob"))
+          ((ActiveCraftJobWindow)windows["activeCraftJob"]).CreateWindow();
+        else
+          windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
 
-        craftJob = new CraftJob(this, ItemUtils.GetResourceFromWorkshopTag(worshop), 0, "beam");
-
-        if (!windows.ContainsKey("activeCraftJob")) windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
-        else ((ActiveCraftJobWindow)windows["activeCraftJob"]).CreateWindow();
+        return;
       }
       public static string GetReadableTimeSpan(double timeCost)
       {
@@ -1111,12 +1090,11 @@ namespace NWN.Systems
       }
       public string GetUniqueTagForChar(string suffix)
       {
-        return oid.CDKey + "_" + oid.BicFileName + "_" + suffix;
+        return this.oid.CDKey + "_" + this.oid.BicFileName + "_" + suffix;
       }
       private void HandleGenericNuiEvents(ModuleEvents.OnNuiEvent nuiEvent)
       {
         string window = nuiEvent.Token.WindowId;
-        nuiEvent.Player.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
 
         switch (nuiEvent.ElementId)
         {
@@ -1169,56 +1147,6 @@ namespace NWN.Systems
           return true;
 
         return false;
-      }
-      public bool QueryAuthorized()
-      {
-        if (oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_QUERY_TIME").HasNothing || oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_QUERY_TIME").Value < DateTime.Now.AddSeconds(10))
-        {
-          oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_QUERY_TIME").Value = DateTime.Now;
-          return true;
-        }
-        else
-        {
-          oid.SendServerMessage($"Votre dernière demande de persistance est trop récente, veuillez réessayez dans 10 secondes.", ColorConstants.Red);
-          return false;
-        }
-      }
-      public int GetMateriaYieldFromResource(int quantity, CraftResource resource)
-      {
-        double reprocessingSkill = learnableSkills.ContainsKey(resource.reprocessingLearnable) ? 1.00 + 3 * learnableSkills[resource.reprocessingLearnable].totalPoints / 100 : 1.00;
-        double efficiencySkill = learnableSkills.ContainsKey(resource.reprocessingEfficiencyLearnable) ? 1.00 + 2 * learnableSkills[resource.reprocessingEfficiencyLearnable].totalPoints / 100 : 1.00;
-        double reproGradeSkill = learnableSkills.ContainsKey(resource.reprocessingGradeLearnable) ? 1.00 + 2 * learnableSkills[resource.reprocessingGradeLearnable].totalPoints / 100 : 1.00;
-        double connectionSkill = learnableSkills.ContainsKey(CustomSkill.ConnectionsPromenade) ? 0.95 + learnableSkills[CustomSkill.ConnectionsPromenade].totalPoints / 100 : 1.00;
-        double expertSkill = learnableSkills.ContainsKey(resource.reprocessingExpertiseLearnable) ? 12 * learnableSkills[resource.reprocessingExpertiseLearnable].totalPoints / 100 : 0;
-        double total = 2 * quantity;
-        total -= quantity * resource.grade * 0.15 * expertSkill;
-        total *= 0.3 * reprocessingSkill * efficiencySkill * reproGradeSkill;
-        total *= connectionSkill;
-
-        return (int)total;
-      }
-      public bool IsDm()
-      {
-        if (oid.IsDM || oid.PlayerName == "Chim")
-          return true;
-        return false;
-      }
-      public async void RescheduleRepeatableJob(ResourceType type, double consumedTime, string jobIcon)
-      {
-        /*bool reopen = false;
-        if (windows.TryGetValue("activeCraftJob", out PlayerWindow activeWindow) && activeWindow.IsOpen)
-          reopen = true;*/
-
-        await NwTask.Delay(TimeSpan.FromSeconds(0));
-        craftJob = new CraftJob(this, type, consumedTime, jobIcon);
-
-        /*if (reopen)
-          ((ActiveCraftJobWindow)activeWindow).CreateWindow();
-        else
-        {
-          craftJob.progressLastCalculation = DateTime.Now;
-          craftJob.HandleDelayedJobProgression(this);
-        }*/
       }
     }
   }

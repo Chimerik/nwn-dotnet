@@ -25,8 +25,11 @@ namespace NWN.Systems
         private readonly NuiBind<string> lastModified = new("lastModified");
         private readonly NuiBind<int> listCount = new("listCount");
         private readonly NuiBind<string> search = new("search");
+        private readonly NuiBind<bool> permanentSpawn = new("permanentSpawn");
         private readonly NuiBind<bool> isCreatorOrAdmin = new("isCreatorOrAdmin");
         private readonly NuiBind<bool> isModelLoaded = new("isModelLoaded");
+        private readonly NuiBind<int> selectedCreatureType = new("selectedCreatureType");
+        private readonly NuiBind<bool> creatureTypeEnabler = new("creatureTypeEnabler");
 
         private readonly NuiBind<List<NuiComboEntry>> creators = new("creators");
         private readonly NuiBind<int> selectedCreator = new("selectedCreator");
@@ -36,7 +39,7 @@ namespace NWN.Systems
         private bool AuthorizeSave { get; set; }
         private int nbDebounce { get; set; }
 
-        private IEnumerable<PaletteEntry> currentList;
+        private IEnumerable<PaletteCreatureEntry> currentList;
 
         public PaletteCreatureWindow(Player player) : base(player)
         {
@@ -50,7 +53,7 @@ namespace NWN.Systems
           rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(lastModified) { Tooltip = lastModified, VerticalAlign = NuiVAlign.Middle }));
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_action") { Id = "copy", Tooltip = "Sélectionner le modèle pour cette entrée", Enabled = isCreatorOrAdmin }) { Width = 35 });
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_attacknearest") { Id = "spawn", Tooltip = "Faire apparaître cette créature" }) { Width = 35 });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_empytqs") { Id = "save", Tooltip = "Valider les modifications", Enabled = isCreatorOrAdmin }) { Width = 35 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_bash") { Id = "save", Tooltip = "Valider les modifications", Enabled = isCreatorOrAdmin }) { Width = 35 });
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_ban") { Id = "delete", Tooltip = "Supprimer cette entrée", Enabled = isCreatorOrAdmin }) { Width = 35 });
 
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
@@ -61,7 +64,15 @@ namespace NWN.Systems
           } });
 
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) } });
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiCombo() { Entries = creators, Selected = selectedCreator }, new NuiSpacer() } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() 
+          { 
+            new NuiSpacer(), 
+            new NuiCombo() { Entries = creators, Selected = selectedCreator },
+            new NuiSpacer(),
+            new NuiCheck("Spawn Permanent", permanentSpawn) { Tooltip = "Si cette option est cochée, la créature sera intégrée au système de spawn et persistera après reboot" }, 
+            new NuiSpacer() 
+          } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiOptions() { Selection = selectedCreatureType, Direction = NuiDirection.Horizontal, Options = { "mob", "pnj fixe", "neutral" }, Tooltip = "mob = monstre hostile. PNJ fixe = immobile. Neutral = créature neutre qui se balade aléatoirement", Enabled = creatureTypeEnabler }, new NuiSpacer() } });
           rootChildren.Add(new NuiRow() { Height = 300, Width = 540, Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35 } } });
 
           CreateWindow();
@@ -88,12 +99,19 @@ namespace NWN.Systems
             search.SetBindValue(player.oid, nuiToken.Token, "");
             search.SetBindWatch(player.oid, nuiToken.Token, true);
 
+            permanentSpawn.SetBindValue(player.oid, nuiToken.Token, false);
+            permanentSpawn.SetBindWatch(player.oid, nuiToken.Token, true);
             creators.SetBindValue(player.oid, nuiToken.Token, Utils.creaturePaletteCreatorsList);
+
             selectedCreator.SetBindValue(player.oid, nuiToken.Token, 0);
             selectedCreator.SetBindWatch(player.oid, nuiToken.Token, true);
 
+            selectedCreatureType.SetBindValue(player.oid, nuiToken.Token, 0);
+            creatureTypeEnabler.SetBindValue(player.oid, nuiToken.Token, false);
+
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+
 
             currentList = Utils.creaturePaletteList;
             LoadCreatureList(currentList);
@@ -145,7 +163,7 @@ namespace NWN.Systems
 
                 case "save":
 
-                  PaletteEntry entry = currentList.ElementAt(nuiEvent.ArrayIndex);
+                  PaletteCreatureEntry entry = currentList.ElementAt(nuiEvent.ArrayIndex);
                   entry.name = creatureName.GetBindValues(player.oid, nuiToken.Token).ElementAt(nuiEvent.ArrayIndex);
                   PaletteSave();
 
@@ -155,7 +173,7 @@ namespace NWN.Systems
 
                 case "delete":
 
-                  PaletteEntry deletedEntry = currentList.ElementAt(nuiEvent.ArrayIndex);
+                  PaletteCreatureEntry deletedEntry = currentList.ElementAt(nuiEvent.ArrayIndex);
                   Utils.creaturePaletteList.Remove(deletedEntry);
 
                   PaletteSave();
@@ -188,12 +206,16 @@ namespace NWN.Systems
                   LoadCreatureList(currentList);
 
                   break;
+
+                case "permanentSpawn":
+                  creatureTypeEnabler.SetBindValue(player.oid, nuiToken.Token, permanentSpawn.GetBindValue(player.oid, nuiToken.Token));
+                  break;
               }
 
               break;
           }
         }
-        private void LoadCreatureList(IEnumerable<PaletteEntry> filteredList)
+        private void LoadCreatureList(IEnumerable<PaletteCreatureEntry> filteredList)
         {
           List<string> creatureNameList = new();
           List<string> creatorNameList = new();
@@ -201,7 +223,7 @@ namespace NWN.Systems
           List<string> lastModifiedList = new();
           List<bool> enabledList = new();
 
-          foreach (PaletteEntry entry in filteredList)
+          foreach (PaletteCreatureEntry entry in filteredList)
           {
             creatureNameList.Add(entry.name);
             creatorNameList.Add(entry.creator);
@@ -228,8 +250,8 @@ namespace NWN.Systems
 
           if (currentArrayindex > -1)
           {
-            PaletteEntry entry = currentList.ElementAt(currentArrayindex);
-            entry.serializedObject = target.Serialize().ToBase64EncodedString();
+            PaletteCreatureEntry entry = currentList.ElementAt(currentArrayindex);
+            entry.serializedCreature = target.Serialize().ToBase64EncodedString();
             player.oid.SendServerMessage($"La créature {target.Name.ColorString(ColorConstants.White)} sera désormais utilisée comme modèle pour l'entrée de la palette {entry.name.ColorString(ColorConstants.White)}.", new Color(32, 255, 32));
             selectionTarget = null;
           }
@@ -246,17 +268,36 @@ namespace NWN.Systems
             return;
 
           Location spawnLocation = Location.Create(player.oid.ControlledCreature.Area, selection.TargetPosition, player.oid.ControlledCreature.Rotation);
-          NwCreature creature = NwCreature.Deserialize(currentList.ElementAt(currentArrayindex).serializedObject.ToByteArray());
+          NwCreature creature = NwCreature.Deserialize(currentList.ElementAt(currentArrayindex).serializedCreature.ToByteArray());
 
-          creature.Location = spawnLocation;
-          creature.OnPerception += CreatureUtils.OnMobPerception;
+          if (!permanentSpawn.GetBindValue(player.oid, nuiToken.Token))
+          {
+            creature.Location = spawnLocation;
+            creature.OnPerception += CreatureUtils.OnMobPerception;
+          }
+          else
+          {
+            switch (selectedCreatureType.GetBindValue(player.oid, nuiToken.Token))
+            {
+              case 1:
+                creature.Tag = "npc";
+                break;
+              case 2:
+                creature.Tag = "walker";
+                break;
+            }
+
+            NwWaypoint spawnPoint = NwWaypoint.Create("creature_spawn", spawnLocation);
+            creature.GetObjectVariable<LocalVariableString>("_SPAWNED_BY").Value = player.oid.PlayerName;
+            spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value = creature.Serialize().ToBase64EncodedString();
+          }
         }
 
         private void HandleInsertNewCreature(string creatureName, string serializedCreature, string playerName, string comment)
         {
           if(!Utils.creaturePaletteList.Any(c => c.creator == playerName))
           {
-            Utils.creaturePaletteList.Add(new PaletteEntry(creatureName, playerName, serializedCreature, DateTime.Now.ToString(), comment));
+            Utils.creaturePaletteList.Add(new PaletteCreatureEntry(creatureName, playerName, serializedCreature, DateTime.Now.ToString(), comment));
 
             Utils.creaturePaletteCreatorsList.Clear();
             Utils.creaturePaletteCreatorsList.Add(new NuiComboEntry("Tous", 0));
@@ -271,10 +312,10 @@ namespace NWN.Systems
             creators.SetBindValue(player.oid, nuiToken.Token, Utils.creaturePaletteCreatorsList);
           }
           else
-            Utils.creaturePaletteList.Add(new PaletteEntry(creatureName, playerName, serializedCreature, DateTime.Now.ToString(), comment));
+            Utils.creaturePaletteList.Add(new PaletteCreatureEntry(creatureName, playerName, serializedCreature, DateTime.Now.ToString(), comment));
 
-          //selectedCreator.SetBindValue(player.oid, nuiToken.Token, Utils.creaturePaletteCreatorsList.FirstOrDefault(c => c.Label == playerName).Value);
-          //search.SetBindValue(player.oid, nuiToken.Token, creatureName);
+          selectedCreator.SetBindValue(player.oid, nuiToken.Token, Utils.creaturePaletteCreatorsList.FirstOrDefault(c => c.Label == playerName).Value);
+          search.SetBindValue(player.oid, nuiToken.Token, creatureName);
 
           player.oid.SendServerMessage("Votre créature a bien été ajoutée à la palette.", new Color(32, 255, 32));
 

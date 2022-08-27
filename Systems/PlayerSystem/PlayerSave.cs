@@ -175,9 +175,6 @@ namespace NWN.Systems
         Task<string> serializeItemAppearances = Task.Run(() => JsonConvert.SerializeObject(itemAppearances));
         Task<string> serializeDescriptions = Task.Run(() => JsonConvert.SerializeObject(descriptions));
 
-        if(activeLearnable != null)
-          activeLearnable.spLastCalculation = DateTime.Now;
-
         Task<string> serializeLearnableSkills = Task.Run(() =>
         {
           Dictionary<int, LearnableSkill.SerializableLearnableSkill> serializableSkills = new Dictionary<int, LearnableSkill.SerializableLearnableSkill>();

@@ -11,7 +11,7 @@ namespace NWN
       get => DateTime.UnixEpoch + TimeSpan.FromSeconds(Object.GetObjectVariable<LocalVariableInt>(Name).Value);
       set
       {
-        Object.GetObjectVariable<LocalVariableInt>(Name).Value = (int)(value - DateTime.UnixEpoch).TotalSeconds;
+        Object.GetObjectVariable<LocalVariableInt>(Name).Value = (int)(value.ToUniversalTime() - DateTime.UnixEpoch).TotalSeconds;
       }
     }
 

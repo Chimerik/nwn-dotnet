@@ -259,7 +259,6 @@ namespace NWN.Systems
     public static void CreateShopWeaponBlueprint(NwItem oBlueprint, NwBaseItem baseItem)
     {
       oBlueprint.Name = $"Patron original : {baseItem.Name}";
-      oBlueprint.Description = $"Ce patron contient toutes les instructions de conception, à partir de matéria, pour un objet de type : {baseItem.Name}";
 
       oBlueprint.BaseGoldValue = (uint)(baseItem.BaseCost * 50);
       oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value = (int)baseItem.Id;
@@ -271,7 +270,6 @@ namespace NWN.Systems
       var entry = Armor2da.armorTable[baseArmor];
 
       oBlueprint.Name = $"Patron original : {entry.name}";
-      oBlueprint.Description = $"Ce patron contient toutes les instructions de conception, à partir de matéria, pour un objet de type : {entry.name}";
 
       oBlueprint.BaseGoldValue = (uint)(entry.cost * 50);
       oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value = (int)BaseItemType.Armor;
@@ -315,10 +313,6 @@ namespace NWN.Systems
       BaseItemType baseItemType = (BaseItemType)blueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value;
       string workshop = baseItemType == BaseItemType.Armor ? Armor2da.GetWorkshop(blueprint.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value) : BaseItems2da.baseItemTable[(int)baseItemType].workshop;
 
-      return GetResourceFromWorkshopTag(workshop);
-    }
-    public static ResourceType GetResourceFromWorkshopTag(string workshop)
-    {
       switch (workshop)
       {
         case "forge":
@@ -346,11 +340,6 @@ namespace NWN.Systems
       }
 
       return ResourceType.Invalid;
-    }
-    public static async void ScheduleItemForDestruction(NwItem item, double delay)
-    {
-      await NwTask.Delay(TimeSpan.FromSeconds(delay));
-      item.Destroy();
     }
   }
 }

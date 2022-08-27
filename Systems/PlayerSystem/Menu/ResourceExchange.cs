@@ -197,8 +197,8 @@ namespace NWN.Systems
 
           CreateWindow(targetPlayer);
 
-          if (!player.windows.ContainsKey(windowId)) player.windows.Add(windowId, new ResourceExchangeWindow(targetPlayer, player));
-          else ((ResourceExchangeWindow)player.windows[windowId]).CreateWindow(targetPlayer);
+          if (!targetPlayer.windows.TryAdd(windowId, new ResourceExchangeWindow(targetPlayer, player)))
+            ((ResourceExchangeWindow)targetPlayer.windows[windowId]).CreateWindow(player);
 
           await NwTask.Delay(TimeSpan.FromSeconds(0.2));
 

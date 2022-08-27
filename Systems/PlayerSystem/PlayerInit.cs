@@ -44,12 +44,6 @@ namespace NWN.Systems
       player.oid.SetGuiPanelDisabled(GUIPanel.Journal, true);
       player.oid.SetGuiPanelDisabled(GUIPanel.PlayerList, true);
 
-      if (player.IsDm())
-      {
-        player.oid.SetGuiPanelDisabled(GUIPanel.ExaminePlaceable, true);
-        player.oid.SetGuiPanelDisabled(GUIPanel.ExamineCreature, true);
-      }
-
       player.currentLanguage = 0;
 
       if (player.oid.LoginCreature.GetObjectVariable<PersistentVariableBool>("_ALWAYS_WALK").HasValue)
@@ -427,14 +421,7 @@ namespace NWN.Systems
           Dictionary<int, LearnableSkill.SerializableLearnableSkill> serializableSkills = JsonConvert.DeserializeObject<Dictionary<int, LearnableSkill.SerializableLearnableSkill>>(serializedLearnableSkills);
 
           foreach (var kvp in serializableSkills)
-          {
-            LearnableSkill skill = new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[kvp.Key], kvp.Value);
-
-            if (skill.active)
-              activeLearnable = skill;
-
-            learnableSkills.Add(kvp.Key, skill);
-          }
+            learnableSkills.Add(kvp.Key, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[kvp.Key], kvp.Value));
         });
 
         Task loadSpellsTask = Task.Run(() =>
@@ -445,14 +432,7 @@ namespace NWN.Systems
           Dictionary<int, LearnableSpell.SerializableLearnableSpell> serializableSpells = JsonConvert.DeserializeObject<Dictionary<int, LearnableSpell.SerializableLearnableSpell>>(serializedLearnableSpells);
 
           foreach (var kvp in serializableSpells)
-          {
-            LearnableSpell spell = new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[kvp.Key], kvp.Value);
-
-            if (spell.active)
-              activeLearnable = spell;
-
-            learnableSpells.Add(kvp.Key, spell);
-          }
+            learnableSpells.Add(kvp.Key, new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[kvp.Key], kvp.Value));
         });
 
         Task loadMateriaTask = Task.Run(() =>
@@ -562,6 +542,43 @@ namespace NWN.Systems
           return;
 
         customDMVisualEffects = await Task.Run(() => JsonConvert.DeserializeObject<List<CustomDMVisualEffect>>(serializedCustomDMVisualEffects));
+      }
+      private async void CheckForAFKStatus()
+      {
+        CancellationTokenSource tokenSource = new CancellationTokenSource();
+
+        if (pcState != PcState.AFK && oid.IsValid)
+          foreach (Effect eff in oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "EFFECT_VFX_AFK"))
+            oid.LoginCreature.RemoveEffect(eff);
+
+        DateTime lastActionDate = oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value;
+
+        Task awaitPlayerAction = NwTask.WaitUntil(() => oid.LoginCreature == null || oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value != lastActionDate, tokenSource.Token);
+        Task awaitAFKTrigger = NwTask.Delay(TimeSpan.FromMinutes(5), tokenSource.Token);
+
+        await NwTask.WhenAny(awaitPlayerAction, awaitAFKTrigger);
+        tokenSource.Cancel();
+
+        if (oid.LoginCreature == null)
+          return;
+
+        if (awaitPlayerAction.IsCompletedSuccessfully)
+        {
+          pcState = PcState.Online;
+
+          foreach (Effect eff in oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "EFFECT_VFX_AFK"))
+            oid.LoginCreature.RemoveEffect(eff);
+        }
+        else if (awaitAFKTrigger.IsCompletedSuccessfully)
+        {
+          pcState = PcState.AFK;
+          Effect afkVXF = Effect.VisualEffect((VfxType)751);
+          afkVXF.Tag = "EFFECT_VFX_AFK";
+          afkVXF.SubType = EffectSubType.Supernatural;
+          oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, afkVXF);
+        }
+
+        CheckForAFKStatus();
       }
       private void OnCombatStarted(OnCombatStatusChange onCombatStatusChange)
       {

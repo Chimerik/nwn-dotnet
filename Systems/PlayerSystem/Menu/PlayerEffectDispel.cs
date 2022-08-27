@@ -107,8 +107,8 @@ namespace NWN.Systems
 
                   int spellId = (int)spells[nuiEvent.ArrayIndex].Id;
 
-                  if (!player.windows.ContainsKey("learnableDescription")) player.windows.Add("learnableDescription", new Player.LearnableDescriptionWindow(player, spellId));
-                  else ((Player.LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(spellId);
+                  if (!player.windows.TryAdd("learnableDescription", new LearnableDescriptionWindow(player, spellId)))
+                    ((LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(spellId);
                   
                   break;
               }

@@ -192,7 +192,7 @@ namespace NWN.Systems
     {
       SpellEvents.OnSpellCast onSpellCast = new SpellEvents.OnSpellCast();
       HandleSpellDamageLocalisation(onSpellCast.Spell.SpellType, onSpellCast.Caster);
-      
+
       if (callInfo.ObjectSelf is not NwCreature castingCreature)
         return;
 
@@ -332,27 +332,6 @@ namespace NWN.Systems
         oPC.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Delete();
         oPC.GetObjectVariable<LocalVariableObject<NwGameObject>>("_AUTO_SPELL_TARGET").Delete();
         oPC.OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
-      }
-    }
-    [ScriptHandler("event_dcr_spell")]
-    private void HandleInputEmote(CallInfo callInfo)
-    {
-      if ((MetaMagic)int.Parse(EventsPlugin.GetEventData("METAMAGIC")) != MetaMagic.None)
-        return;
-
-      Spell spell = (Spell)int.Parse(EventsPlugin.GetEventData("SPELL_ID"));
-      switch(spell)
-      {
-        case Spell.AcidSplash:
-        case Spell.Daze:
-        case Spell.ElectricJolt:
-        case Spell.Flare:
-        case Spell.Light:
-        case Spell.RayOfFrost:
-        case Spell.Resistance:
-        case Spell.Virtue:
-          EventsPlugin.SkipEvent();
-          break;
       }
     }
     public void CheckIsDivinationBeforeSpellCast(OnSpellCast onSpellCast)

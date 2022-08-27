@@ -52,8 +52,6 @@ namespace NWN.Systems
       SkillSystem.InitializeLearnables();
       LoadModulePalette();
       LoadEditorNuiCombo();
-      LoadCreatureSpawns();
-      LoadPlaceableSpawns();
       NwModule.Instance.OnModuleLoad += OnModuleLoad;
     }
     private static async void LoadDiscordBot()
@@ -90,22 +88,11 @@ namespace NWN.Systems
 
       TimeSpan nextActivation = DateTime.Now.Hour < 5 ? new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 5, 0, 0) - DateTime.Now : DateTime.Now.AddDays(1).AddHours(-(DateTime.Now.Hour - 5)) - DateTime.Now;
 
-      scheduler.ScheduleRepeating(HandlePlayerLoop, TimeSpan.FromSeconds(1));
       scheduler.ScheduleRepeating(SaveGameDate, TimeSpan.FromMinutes(1));
       scheduler.ScheduleRepeating(SpawnCollectableResources, TimeSpan.FromHours(24), nextActivation);
       scheduler.ScheduleRepeating(DeleteExpiredMail, TimeSpan.FromHours(24), nextActivation);
 
       //TempLearnablesJsonification();
-
-      /*foreach (var duplicate in NwGameTables.PlaceableTable.GroupBy(p => p.ModelName).Where(p => p.Count() > 1).Select(p => p.Key))
-      {
-        Log.Info(duplicate);
-        foreach (var plc in NwObject.FindObjectsOfType<NwPlaceable>().Where(p => p.Appearance.ModelName == duplicate))
-          Log.Info($"{plc.Name} - rowID {plc.Appearance.RowIndex} - used in {plc.Area.Name}");
-      }*/
-
-      //foreach (var duplicate in NwGameTables.AppearanceTable.GroupBy(p => p.Race).Where(p => p.Count() > 1).Select(p => p.Key))
-      //Log.Info(duplicate);
     }
     /*private async void TempLearnablesJsonification()
     {
@@ -237,12 +224,6 @@ namespace NWN.Systems
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS modulePalette" +
         "('creatures' TEXT, 'placeables' TEXT, 'items' TEXT)");
-
-      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS creatureSpawn " +
-        "('areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL, 'serializedCreature' TEXT NOT NULL)");
-
-      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS placeableSpawn " +
-        "('areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL, 'serializedPlaceable' TEXT NOT NULL)");
     }
     private void InitializeEvents()
     {
@@ -250,8 +231,7 @@ namespace NWN.Systems
       //EventsPlugin.SubscribeEvent("NWNX_ON_DM_POSSESS_BEFORE", "b_dm_possess");
 
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_EMOTE_BEFORE", "on_input_emote");
-      EventsPlugin.SubscribeEvent("NWNX_ON_DECREMENT_SPELL_COUNT_BEFORE", "event_dcr_spell");
-
+      
       //EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_AFTER", "event_has_feat");
 
       NwModule.Instance.OnCreatureAttack += AttackSystem.HandleAttackEvent;
@@ -761,22 +741,8 @@ namespace NWN.Systems
         Utils.colorPaletteLeather.Add($"leather{i+1}");
         Utils.colorPaletteMetal.Add(NWScript.ResManGetAliasFor($"metal{i + 1}", NWScript.RESTYPE_TGA) != "" ? $"metal{i + 1}" : $"leather{i + 1}");
       }
-
-      foreach (var model in NwGameTables.AppearanceTable)
-        if (!string.IsNullOrEmpty(model.Label))
-          Utils.appearanceEntries.Add(new NuiComboEntry(model.Label, model.RowIndex));
-      
-      foreach (var model in NwGameTables.PlaceableTable)
-        if (!string.IsNullOrEmpty(model.Label))
-          Utils.placeableEntries.Add(new NuiComboEntry(model.Label, model.RowIndex));
     }
-    private static void LoadModulePalette()
-    {
-      LoadCreaturePalette();
-      LoadItemPalette();
-      LoadPlaceablePalette();
-    }
-    private static async void LoadCreaturePalette()
+    private static async void LoadModulePalette()
     {
       var result = SqLiteUtils.SelectQuery("modulePalette",
             new List<string>() { { "creatures" } },
@@ -797,7 +763,7 @@ namespace NWN.Systems
         if (string.IsNullOrEmpty(serializedCreaturePalette) || serializedCreaturePalette == "null")
           return;
 
-        Utils.creaturePaletteList = JsonConvert.DeserializeObject<List<PaletteEntry>>(serializedCreaturePalette);
+        Utils.creaturePaletteList = JsonConvert.DeserializeObject<List<PaletteCreatureEntry>>(serializedCreaturePalette);
       });
 
       Utils.creaturePaletteCreatorsList.Add(new NuiComboEntry("Tous", 0));
@@ -807,177 +773,6 @@ namespace NWN.Systems
       {
         Utils.creaturePaletteCreatorsList.Add(new NuiComboEntry(entry.creator, index));
         index++;
-      }
-    }
-    private static async void LoadItemPalette()
-    {
-      var result = SqLiteUtils.SelectQuery("modulePalette",
-            new List<string>() { { "items" } },
-            new List<string[]>() { });
-
-      if (result.Result == null)
-      {
-        await SqLiteUtils.InsertQueryAsync("modulePalette",
-                  new List<string[]>() { new string[] { "items", "" } });
-
-        return;
-      }
-
-      string serializedItemPalette = result.Result.GetString(0);
-
-      await Task.Run(() =>
-      {
-        if (string.IsNullOrEmpty(serializedItemPalette) || serializedItemPalette == "null")
-          return;
-
-        Utils.itemPaletteList = JsonConvert.DeserializeObject<List<PaletteEntry>>(serializedItemPalette);
-      });
-
-      Utils.itemPaletteCreatorsList.Add(new NuiComboEntry("Tous", 0));
-      int index = 1;
-
-      foreach (var entry in Utils.itemPaletteList.DistinctBy(c => c.creator).OrderBy(c => c.creator))
-      {
-        Utils.itemPaletteCreatorsList.Add(new NuiComboEntry(entry.creator, index));
-        index++;
-      }
-    }
-    private static async void LoadPlaceablePalette()
-    {
-      var result = SqLiteUtils.SelectQuery("modulePalette",
-            new List<string>() { { "placeables" } },
-            new List<string[]>() { });
-
-      if (result.Result == null)
-      {
-        await SqLiteUtils.InsertQueryAsync("modulePalette",
-                  new List<string[]>() { new string[] { "placeables", "" } });
-
-        return;
-      }
-
-      string serializedPlaceablePalette = result.Result.GetString(0);
-
-      await Task.Run(() =>
-      {
-        if (string.IsNullOrEmpty(serializedPlaceablePalette) || serializedPlaceablePalette == "null")
-          return;
-
-        Utils.placeablePaletteList = JsonConvert.DeserializeObject<List<PaletteEntry>>(serializedPlaceablePalette);
-      });
-
-      Utils.placeablePaletteCreatorsList.Add(new NuiComboEntry("Tous", 0));
-      int index = 1;
-
-      foreach (var entry in Utils.itemPaletteList.DistinctBy(c => c.creator).OrderBy(c => c.creator))
-      {
-        Utils.placeablePaletteCreatorsList.Add(new NuiComboEntry(entry.creator, index));
-        index++;
-      }
-    }
-    private static void LoadCreatureSpawns()
-    {
-      var result = SqLiteUtils.SelectQuery("creatureSpawn",
-            new List<string>() { { "areaTag" }, { "position" }, { "facing" }, { "serializedCreature" } },
-            new List<string[]>() { });
-
-      foreach (var spawn in result.Results)
-      {
-        NwCreature creature = NwCreature.Deserialize(spawn.GetString(3).ToByteArray());
-        creature.Location = Utils.GetLocationFromDatabase(spawn.GetString(0), spawn.GetString(1), spawn.GetFloat(2));
-      }
-    }
-    private static void LoadPlaceableSpawns()
-    {
-      var result = SqLiteUtils.SelectQuery("placeableSpawn",
-            new List<string>() { { "areaTag" }, { "position" }, { "facing" }, { "serializedPlaceable" }, { "rowid" } },
-            new List<string[]>() { });
-
-      foreach (var spawn in result.Results)
-      {
-        NwPlaceable plc = NwPlaceable.Deserialize(spawn.GetString(3).ToByteArray());
-        plc.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value = spawn.GetInt(4);
-        plc.Location = Utils.GetLocationFromDatabase(spawn.GetString(0), spawn.GetString(1), spawn.GetFloat(2));
-      }
-    }
-    private void HandlePlayerLoop()
-    {
-      foreach(var player in PlayerSystem.Players.Values)
-      {
-        if(player.pcState != PlayerSystem.Player.PcState.Offline && player.oid.IsConnected && player.oid.LoginCreature != null)
-        {
-          HandleJobLoop(player);
-          HandleLearnableLoop(player);
-          HandleCheckAfkStatus(player);
-        }
-      }
-    }
-    private void HandleJobLoop(PlayerSystem.Player player)
-    {
-      if (player.craftJob != null && (player.oid.LoginCreature.Area != null || player.previousLocation != null))
-      {
-        int areaLevel = player.oid.LoginCreature.Area != null ? player.oid.LoginCreature.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value : player.previousLocation.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value;
-        if (areaLevel < 1)
-        {
-          player.craftJob.remainingTime -= 1;
-          if (player.TryGetOpenedWindow("activeCraftJob", out PlayerSystem.Player.PlayerWindow window) && window is PlayerSystem.Player.ActiveCraftJobWindow craftWindow)
-            craftWindow.timeLeft.SetBindValue(player.oid, craftWindow.nuiToken.Token, player.craftJob.GetReadableJobCompletionTime());
-
-          if (player.craftJob.remainingTime < 1)
-          {
-            PlayerSystem.HandleSpecificJobCompletion[player.craftJob.type].Invoke(player, true);
-            player.craftJob.HandleGenericJobCompletion(player);
-          }
-        }
-      }
-    }
-    private void HandleLearnableLoop(PlayerSystem.Player player)
-    {
-      if (player.activeLearnable != null && player.activeLearnable.active)
-      {
-        player.activeLearnable.acquiredPoints += player.GetSkillPointsPerSecond(player.activeLearnable);
-        if (player.activeLearnable.acquiredPoints >= player.activeLearnable.pointsToNextLevel)
-          player.activeLearnable.LevelUpWrapper(player);
-
-        if (player.TryGetOpenedWindow("activeLearnable", out PlayerSystem.Player.PlayerWindow window) && window is PlayerSystem.Player.ActiveLearnableWindow learnableWindow)
-          learnableWindow.timeLeft.SetBindValue(player.oid, learnableWindow.nuiToken.Token, player.activeLearnable.GetReadableTimeSpanToNextLevel(player));
-
-        if (player.TryGetOpenedWindow("learnables", out PlayerSystem.Player.PlayerWindow menu) && menu is PlayerSystem.Player.LearnableWindow learnableMenu)
-        {
-          int listPosition = learnableMenu.currentList.ToList().IndexOf(player.activeLearnable);
-
-          if (listPosition > -1)
-          {
-            List<string> time = learnableMenu.remainingTime.GetBindValues(player.oid, learnableMenu.nuiToken.Token);
-            time[listPosition] = player.activeLearnable.GetReadableTimeSpanToNextLevel(player);
-            learnableMenu.remainingTime.SetBindValues(player.oid, learnableMenu.nuiToken.Token, time);
-          }
-        }
-      }
-    }
-    private void HandleCheckAfkStatus(PlayerSystem.Player player)
-    {
-      DateTime lastActionDate = player.oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value;
-
-      if (player.pcState == PlayerSystem.Player.PcState.Online && player.oid.IsValid && (DateTime.Now - lastActionDate).TotalMinutes > 4)
-      {
-        player.pcState = PlayerSystem.Player.PcState.AFK;
-        Effect afkVXF = Effect.VisualEffect((VfxType)751);
-        afkVXF.Tag = "EFFECT_VFX_AFK";
-        afkVXF.SubType = EffectSubType.Supernatural;
-        player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, afkVXF);
-
-        player.oid.LoginCreature.GetObjectVariable<LocalVariableLocation>("_AFK_LOCATION").Value = player.oid.ControlledCreature.Location;
-      }   
-
-      if(player.pcState == PlayerSystem.Player.PcState.AFK && player.oid.LoginCreature.GetObjectVariable<LocalVariableLocation>("_AFK_LOCATION").HasValue 
-        && player.oid.LoginCreature.GetObjectVariable<LocalVariableLocation>("_AFK_LOCATION").Value != player.oid.ControlledCreature.Location)
-      {
-        player.pcState = PlayerSystem.Player.PcState.Online;
-
-        foreach (Effect eff in player.oid.LoginCreature.ActiveEffects)
-          if (eff.Tag == "EFFECT_VFX_AFK")
-            player.oid.LoginCreature.RemoveEffect(eff);
       }
     }
   }

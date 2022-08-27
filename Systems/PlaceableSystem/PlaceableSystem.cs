@@ -7,8 +7,8 @@ using NLog;
 using System.Threading.Tasks;
 using static NWN.Systems.PlayerSystem;
 using NWN.System;
+using System.Collections.Generic;
 using NWN.Core.NWNX;
-using System.Numerics;
 
 namespace NWN.Systems
 {
@@ -21,51 +21,50 @@ namespace NWN.Systems
     {
       scheduler = schedulerService;
 
-      foreach(NwPlaceable plc in NwObject.FindObjectsOfType<NwPlaceable>())
-      {
-        if(plc.GetObjectVariable<LocalVariableBool>("_SPAWN_ID").HasNothing)
-          plc.GetObjectVariable<LocalVariableBool>("_EDITOR_PLACEABLE").Value = true;
-
-        if (plc.IsStatic)
-          continue;
-
-        switch(plc.Tag)
-        {
-          case "intro_mirror": plc.OnUsed += StartIntroMirrorDialog; break;
-          case "body_modifier": plc.OnUsed += StartBodyModifierDialog; break;
-          case "refinery": plc.OnUsed += OpenRefineryWindow; break;
-          case "decoupe": plc.OnUsed += OpenWoodworkWindow; break;
-          case "tannerie_peau": plc.OnUsed += OpenTanneryWindow; break;
-          case "player_bank": plc.OnLeftClick += HandleClickBank; break;
-          case "ench_bsn": plc.OnClose += HandleCloseEnchantementBassin; break;
-          case "balancoire": plc.OnUsed += OnUsedBalancoire; break;
-          case "dice_poker": plc.OnUsed += OnUsedDicePoker; break;
-          case "go_plouf": plc.OnUsed += OnUsedGoPlouf; break;
-          case "stop_plouf": plc.OnUsed += OnUsedStopPlouf; break;
-          case "portal_start": plc.OnUsed += HandleStartPortalUsed; break;
-          case "respawn_neutral": plc.OnUsed += HandlePlayerRespawn; break;
-          case "respawn_dire": plc.OnUsed += HandlePlayerRespawn; break;
-          case "respawn_radiant": plc.OnUsed += HandlePlayerRespawn; break;
-          case "theater_rope": plc.OnUsed += HandleTheaterCurtains; break;
-          case "forge": plc.OnUsed += OpenWorkshopWindow; break;
-        }
-
-        if (plc.VisualTransform.Scale != 1 || plc.VisualTransform.Translation != Vector3.Zero || plc.VisualTransform.Rotation != Vector3.Zero)
-          plc.VisibilityOverride = VisibilityMode.AlwaysVisible;
-        else if (!plc.Useable)
-          plc.IsStatic = true;
-      }
-
       foreach (NwDoor door in NwObject.FindObjectsOfType<NwDoor>())
-      {
         door.OnOpen += HandleDoorAutoClose;
 
-        if(door.Tag == "at_gates_slums")
-        {
-          door.GetObjectVariable<LocalVariableObject<NwGameObject>>("_TRANSITION_TARGET").Value = door.TransitionTarget;
-          door.OnAreaTransitionClick += CheckMateriaInventory;
-        }
+      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("intro_mirror"))
+        plc.OnUsed += StartIntroMirrorDialog;
+
+      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("body_modifier"))
+        plc.OnUsed += StartBodyModifierDialog;
+
+      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("refinery"))
+        plc.OnUsed += OpenRefineryWindow;
+
+      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("decoupe"))
+        plc.OnUsed += OpenWoodworkWindow;
+
+      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("tannerie_peau"))
+        plc.OnUsed += OpenTanneryWindow;
+
+      foreach (NwDoor gate in NwObject.FindObjectsWithTag<NwDoor>("at_gates_slums"))
+      {
+        gate.GetObjectVariable<LocalVariableObject<NwGameObject>>("_TRANSITION_TARGET").Value = gate.TransitionTarget;
+        gate.OnAreaTransitionClick += CheckMateriaInventory;
       }
+
+      foreach (NwPlaceable bank in NwObject.FindObjectsWithTag<NwPlaceable>("player_bank"))
+        bank.OnLeftClick += HandleClickBank;
+
+      foreach (NwPlaceable bassin in NwObject.FindObjectsWithTag<NwPlaceable>("ench_bsn"))
+        bassin.OnClose += HandleCloseEnchantementBassin;
+
+      foreach (NwPlaceable balancoire in NwObject.FindObjectsWithTag<NwPlaceable>("balancoire"))
+        balancoire.OnUsed += OnUsedBalancoire;
+
+      foreach (NwPlaceable dicePoker in NwObject.FindObjectsWithTag<NwPlaceable>("dice_poker"))
+        dicePoker.OnUsed += OnUsedDicePoker;
+
+      foreach (NwPlaceable goplouf in NwObject.FindObjectsWithTag<NwPlaceable>("go_plouf"))
+        goplouf.OnUsed += OnUsedGoPlouf;
+
+      foreach (NwPlaceable stopplouf in NwObject.FindObjectsWithTag<NwPlaceable>("stop_plouf"))
+        stopplouf.OnUsed += OnUsedStopPlouf;
+
+      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("portal_start", "respawn_neutral", "respawn_dire", "respawn_radiant", "theater_rope"))
+        plc.OnUsed += HandlePlaceableUsed;
 
       foreach (NwCreature corpse in NwObject.FindObjectsWithTag<NwCreature>("dead_wererat"))
       {
@@ -87,7 +86,11 @@ namespace NWN.Systems
         trainer.GetObjectVariable<LocalVariableFloat>("_HEIGHT").Value = CreaturePlugin.GetHeight(trainer);
         trainer.GetObjectVariable<LocalVariableFloat>("_HIT_DISTANCE").Value = CreaturePlugin.GetHitDistance(trainer);
         trainer.GetObjectVariable<LocalVariableFloat>("_CREATURE_PERSONNAL_SPACE").Value = CreaturePlugin.GetCreaturePersonalSpace(trainer);
-      }      
+      }
+
+      foreach (NwPlaceable scaledPlaceable in NwObject.FindObjectsOfType<NwPlaceable>())
+        if (scaledPlaceable.VisualTransform.Scale > 1)
+          scaledPlaceable.VisibilityOverride = VisibilityMode.AlwaysVisible;
     }
     private void HandleTrainingDummyDamaged(CreatureEvents.OnDamaged onDamaged)
     {
@@ -97,6 +100,10 @@ namespace NWN.Systems
         onDamaged.Creature.HP = onDamaged.Creature.MaxHP;
       });
     }
+    public void OnUsedStoragePortalOut(PlaceableEvents.OnUsed onUsed)
+    {
+      onUsed.UsedBy.Location = NwObject.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location;
+    }
     public async void OnUsedBalancoire(PlaceableEvents.OnUsed onUsed)
     {
       await onUsed.UsedBy.ActionSit(onUsed.Placeable.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(p => p.Tag == "balancoiresitter"));
@@ -104,22 +111,57 @@ namespace NWN.Systems
       new Swing(onUsed.Placeable, onUsed.UsedBy, this);
     }
     
-    private void HandlePlayerRespawn(PlaceableEvents.OnUsed onUsed)
+    public void HandleCleanDMPLC(PlaceableEvents.OnDeath onDeath)
     {
+      NwPlaceable plc = onDeath.KilledObject;
+      int plcID = plc.GetObjectVariable<LocalVariableInt>("_ID").Value;
+      if (plcID > 0)
+      {
+        SqLiteUtils.DeletionQuery("dm_persistant_placeable",
+          new Dictionary<string, string>() { { "rowid", plcID.ToString() } });
+      }
+      else
+        Utils.LogMessageToDMs($"Persistent placeable {plc.Name} in area {plc.Area.Name} does not have a valid ID !");
+    }
+    public void HandlePlaceableUsed(PlaceableEvents.OnUsed onUsed)
+    {
+      Log.Info($"{onUsed.UsedBy.Name} used {onUsed.Placeable.Tag}");
       if (!Players.TryGetValue(onUsed.UsedBy.ControllingPlayer.ControlledCreature, out Player player))
         return;
 
-      player.Respawn();
-    }
-    private void HandleStartPortalUsed(PlaceableEvents.OnUsed onUsed)
-    {
-      onUsed.UsedBy.Location = NwObject.FindObjectsWithTag<NwWaypoint>("WP_START_NEW_CHAR").FirstOrDefault().Location;
-    }
-    public void HandleTheaterCurtains(PlaceableEvents.OnUsed onUsed)
-    {
-      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("theater_curtain"))
-        if(plc.Area == onUsed.Placeable.Area)
-          plc.VisibilityOverride = plc.VisibilityOverride == VisibilityMode.Visible ? VisibilityMode.Hidden : VisibilityMode.Visible;
+      switch (onUsed.Placeable.Tag)
+      {
+        case "respawn_neutral":
+          player.Respawn();
+          break;
+        case "respawn_radiant":
+          player.Respawn();
+          break;
+        case "respawn_dire":
+          player.Respawn();
+          break;
+        case "theater_rope":
+
+          VisibilityMode visibilty;
+          if (onUsed.UsedBy.Area.GetObjectVariable<LocalVariableInt>("_THEATER_CURTAIN_OPEN").HasNothing)
+          {
+            visibilty = VisibilityMode.Hidden;
+            onUsed.UsedBy.Area.GetObjectVariable<LocalVariableInt>("_THEATER_CURTAIN_OPEN").Value = 1;
+          }
+          else
+          {
+            visibilty = VisibilityMode.Visible;
+            onUsed.UsedBy.Area.GetObjectVariable<LocalVariableInt>("_THEATER_CURTAIN_OPEN").Delete();
+          }
+
+          foreach (NwPlaceable plc in onUsed.UsedBy.Area.FindObjectsOfTypeInArea<NwPlaceable>().Where(o => o.Tag == "theater_curtain"))
+            plc.VisibilityOverride = visibilty;
+
+          break;
+        case "portal_start":
+          onUsed.UsedBy.Location = NwObject.FindObjectsWithTag<NwWaypoint>("WP_START_NEW_CHAR").FirstOrDefault().Location;
+          break;
+      }
     }
     public static void HandleCancelStatueConversation(CreatureEvents.OnConversation onConversation)
     {
@@ -179,7 +221,9 @@ namespace NWN.Systems
         return;
 
       if (onUsed.Placeable.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value == player.characterId)
+      {
         PlayerOwnedShop.DrawMainPage(player, onUsed.Placeable);
+      }
       else
       {
         NwStore shop = onUsed.Placeable.GetNearestObjectsByType<NwStore>().FirstOrDefault(s => s.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value == onUsed.Placeable.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value);
@@ -201,7 +245,9 @@ namespace NWN.Systems
         return;
 
       if (onUsed.Placeable.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value == player.characterId)
+      {
         PlayerOwnedAuction.DrawMainPage(player, onUsed.Placeable);
+      }
       else
       {
         NwStore shop = onUsed.Placeable.GetNearestObjectsByType<NwStore>().FirstOrDefault(s => s.GetObjectVariable<LocalVariableInt>("_AUCTION_ID").Value == onUsed.Placeable.GetObjectVariable<LocalVariableInt>("_AUCTION_ID").Value);
@@ -267,8 +313,10 @@ namespace NWN.Systems
         return;
       }
 
-      if (!player.windows.ContainsKey("bankStorage")) player.windows.Add("bankStorage", new Player.BankStorageWindow(player));
-      else ((Player.BankStorageWindow)player.windows["bankStorage"]).CreateWindow();
+      if (player.windows.ContainsKey("bankStorage"))
+        ((Player.BankStorageWindow)player.windows["bankStorage"]).CreateWindow();
+      else
+        player.windows.Add("bankStorage", new Player.BankStorageWindow(player));
     }
     private async void CheckMateriaInventory(DoorEvents.OnAreaTransitionClick onClick)
     {
@@ -286,48 +334,50 @@ namespace NWN.Systems
     {
       if (Players.TryGetValue(onUsed.UsedBy, out Player player))
       {
-        if (!player.windows.ContainsKey("introMirror")) player.windows.Add("introMirror", new Player.IntroMirroWindow(player));
-        else ((Player.IntroMirroWindow)player.windows["introMirror"]).CreateWindow();
+        if (player.windows.ContainsKey("introMirror"))
+          ((Player.IntroMirroWindow)player.windows["introMirror"]).CreateWindow();
+        else
+          player.windows.Add("introMirror", new Player.IntroMirroWindow(player));
       }
     }
     public static void StartBodyModifierDialog(PlaceableEvents.OnUsed onUsed)
     {
       if (Players.TryGetValue(onUsed.UsedBy, out Player player))
       {
-        if (!player.windows.ContainsKey("bodyAppearanceModifier")) player.windows.Add("bodyAppearanceModifier", new Player.BodyAppearanceWindow(player, player.oid.LoginCreature));
-        else ((Player.BodyAppearanceWindow)player.windows["bodyAppearanceModifier"]).CreateWindow(player.oid.LoginCreature);
+        if (player.windows.ContainsKey("bodyAppearanceModifier"))
+          ((Player.BodyAppearanceWindow)player.windows["bodyAppearanceModifier"]).CreateWindow(player.oid.LoginCreature);
+        else
+          player.windows.Add("bodyAppearanceModifier", new Player.BodyAppearanceWindow(player, player.oid.LoginCreature));
       }
     }
     public static void OpenRefineryWindow(PlaceableEvents.OnUsed onUsed)
     {
       if (Players.TryGetValue(onUsed.UsedBy, out Player player))
       {
-        if (!player.windows.ContainsKey("refinery")) player.windows.Add("refinery", new Player.RefineryWindow(player, ResourceType.Ore));
-        else ((Player.RefineryWindow)player.windows["refinery"]).CreateWindow(ResourceType.Ore);
+        if (player.windows.ContainsKey("refinery"))
+          ((Player.RefineryWindow)player.windows["refinery"]).CreateWindow(ResourceType.Ore);
+        else
+          player.windows.Add("refinery", new Player.RefineryWindow(player, ResourceType.Ore));
       }
     }
     public static void OpenWoodworkWindow(PlaceableEvents.OnUsed onUsed)
     {
       if (Players.TryGetValue(onUsed.UsedBy, out Player player))
       {
-        if (!player.windows.ContainsKey("refinery")) player.windows.Add("refinery", new Player.RefineryWindow(player, ResourceType.Wood));
-        else ((Player.RefineryWindow)player.windows["refinery"]).CreateWindow(ResourceType.Wood);
+        if (player.windows.ContainsKey("refinery"))
+          ((Player.RefineryWindow)player.windows["refinery"]).CreateWindow(ResourceType.Wood);
+        else
+          player.windows.Add("refinery", new Player.RefineryWindow(player, ResourceType.Wood));
       }
     }
     public static void OpenTanneryWindow(PlaceableEvents.OnUsed onUsed)
     {
       if (Players.TryGetValue(onUsed.UsedBy, out Player player))
       {
-        if (!player.windows.ContainsKey("refinery")) player.windows.Add("refinery", new Player.RefineryWindow(player, ResourceType.Pelt));
-        else ((Player.RefineryWindow)player.windows["refinery"]).CreateWindow(ResourceType.Pelt);
-      }
-    }
-    public static void OpenWorkshopWindow(PlaceableEvents.OnUsed onUsed)
-    {
-      if (Players.TryGetValue(onUsed.UsedBy, out Player player))
-      {
-        if (!player.windows.ContainsKey("craftWorkshop")) player.windows.Add("craftWorkshop", new Player.WorkshopWindow(player, onUsed.Placeable.Tag));
-        else ((Player.WorkshopWindow)player.windows["craftWorkshop"]).CreateWindow(onUsed.Placeable.Tag);
+        if (player.windows.ContainsKey("refinery"))
+          ((Player.RefineryWindow)player.windows["refinery"]).CreateWindow(ResourceType.Pelt);
+        else
+          player.windows.Add("refinery", new Player.RefineryWindow(player, ResourceType.Pelt));
       }
     }
   }
