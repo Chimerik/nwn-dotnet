@@ -101,7 +101,7 @@ namespace NWN.Systems
       if (activable)
         player.oid.LoginCreature.AddFeat((Feat)player.learnableSkills.FirstOrDefault(l => l.Value == this).Key - 10000);
 
-      PlayerSystem.Log.Info($"effect : {skillEffect}");
+      //PlayerSystem.Log.Info($"effect : {skillEffect}");
 
       if (skillEffect != null)
         skillEffect.Invoke(player, id);

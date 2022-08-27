@@ -84,11 +84,11 @@ namespace NWN.Systems
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
             stopPreviousSPGain = true;
-            DelayStartSPGain();
+            //DelayStartSPGain();
           }          
         }
 
-        private async void RefreshWindowUntillClosed()
+        /*private async void RefreshWindowUntillClosed()
         {
           ScheduledTask scheduler = player.scheduler.ScheduleRepeating(() =>
           {
@@ -105,7 +105,7 @@ namespace NWN.Systems
           await NwTask.Delay(TimeSpan.FromSeconds(0.2));
           stopPreviousSPGain = false;
           RefreshWindowUntillClosed();
-        }
+        }*/
       }
     }
   }

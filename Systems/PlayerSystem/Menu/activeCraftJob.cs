@@ -119,7 +119,7 @@ namespace NWN.Systems
                 if (!player.windows.ContainsKey("itemExamine")) player.windows.Add("itemExamine", new ItemExamineWindow(player, item));
                 else ((ItemExamineWindow)player.windows["itemExamine"]).CreateWindow(item);
 
-                ItemUtils.ScheduleItemForDestruction(item);
+                ItemUtils.ScheduleItemForDestruction(item, 300);
               }
               
               return;

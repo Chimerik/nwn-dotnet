@@ -23,10 +23,10 @@ namespace NWN.Systems
 
         spawnPoint.GetObjectVariable<LocalVariableBool>("_SPAWN_COOLDOWN").Value = true;
 
-        if (CreatureUtils.creatureSpawnDictionary.ContainsKey("creature"))
+        if (CreatureUtils.creatureSpawnDictionary.ContainsKey(spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value))
         {
-          //Log.Info($"spawned : {creature.Name}");
-          NwCreature creature = CreatureUtils.creatureSpawnDictionary["creature"].Clone(spawnPoint.Location);
+          NwCreature creature = CreatureUtils.creatureSpawnDictionary[spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value].Clone(spawnPoint.Location);
+
           creature.ApplyEffect(EffectDuration.Permanent, Effect.CutsceneParalyze());
           creature.OnHeartbeat += CheckIfNoPlayerAround;
           creature.OnDeath += CreatureUtils.OnMobDeathResetSpawn; ;
@@ -38,7 +38,7 @@ namespace NWN.Systems
           HandleSpawnSpecificBehaviour(creature);
         }
         else
-          Utils.LogMessageToDMs($"SPAWN SYSYEM - Area {area.Name} - Could not spawn {spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value}");
+          Utils.LogMessageToDMs($"SPAWN SYSTEM - Area {area.Name} - Could not spawn {spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value}");
       }
     }
 

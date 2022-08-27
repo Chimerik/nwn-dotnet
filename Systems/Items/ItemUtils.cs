@@ -347,9 +347,9 @@ namespace NWN.Systems
 
       return ResourceType.Invalid;
     }
-    public static async void ScheduleItemForDestruction(NwItem item)
+    public static async void ScheduleItemForDestruction(NwItem item, double delay)
     {
-      await NwTask.Delay(TimeSpan.FromMinutes(5));
+      await NwTask.Delay(TimeSpan.FromSeconds(delay));
       item.Destroy();
     }
   }

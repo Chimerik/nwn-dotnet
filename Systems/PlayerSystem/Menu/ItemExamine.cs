@@ -130,7 +130,7 @@ namespace NWN.Systems
               new NuiSpacer() { Width = 5 },
               new NuiLabel(damageTypeLabel.Remove(damageTypeLabel.Length -2 )) { Height = 35, Width = 100, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle },
               new NuiSpacer(),
-              new NuiButtonImage("ief_movedecr") { Height = 35, Width = 35, Tooltip = "Poids" },
+              new NuiButtonImage("weight") { Height = 35, Width = 35, Tooltip = "Poids" },
               new NuiSpacer() { Width = 5 },
               new NuiLabel(weight) { Tooltip = weightTooltip, Height = 35, Width = 50, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle },
               new NuiSpacer(),
@@ -167,7 +167,7 @@ namespace NWN.Systems
               new NuiSpacer() { Width = 5 },
               new NuiLabel(armorEntry.arcaneFailure.ToString()) { Height = 35, Width = 35, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle },
               new NuiSpacer(),
-              new NuiButtonImage("ief_movedecr") { Height = 35, Width = 35, Tooltip = "Poids" },
+              new NuiButtonImage("weight") { Height = 35, Width = 35, Tooltip = "Poids" },
               new NuiSpacer() { Width = 5 },
               new NuiLabel(weight) { Tooltip = weightTooltip, Height = 35, Width = 50, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle },
               new NuiSpacer(),
@@ -199,7 +199,7 @@ namespace NWN.Systems
               new NuiSpacer() { Width = 5 },
               new NuiLabel(item.BaseItem.ArcaneSpellFailure.ToString()) { Height = 35, Width = 35, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle },
               new NuiSpacer(),
-              new NuiButtonImage("ief_movedecr") { Height = 35, Width = 35, Tooltip = "Poids" },
+              new NuiButtonImage("weight") { Height = 35, Width = 35, Tooltip = "Poids" },
               new NuiSpacer() { Width = 5 },
               new NuiLabel(weight) { Tooltip = weightTooltip, Height = 35, Width = 50, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle },
               new NuiSpacer(),
@@ -300,7 +300,7 @@ namespace NWN.Systems
 
               rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() {
                 new NuiSpacer(),
-                new NuiButtonImage("ief_movedecr") { Height = 35, Width = 35, Tooltip = "Poids" },
+                new NuiButtonImage("weight") { Height = 35, Width = 35, Tooltip = "Poids" },
                 new NuiSpacer() { Width = 5 },
                 new NuiLabel(weight) { Tooltip = weightTooltip, Height = 35, Width = 50, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle } ,
                 new NuiSpacer(),
@@ -458,8 +458,9 @@ namespace NWN.Systems
                 player.learnableSkills.Add(learnableId, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[learnableId]));
                 player.oid.SendServerMessage("Vous venez d'ajouter une nouvelle compétence à votre livre d'apprentissage !", ColorConstants.Rose);
                 
-                item.Destroy();
                 CloseWindow();
+
+                ItemUtils.ScheduleItemForDestruction(item, 0.2);
 
                 return;
 
@@ -475,51 +476,47 @@ namespace NWN.Systems
 
                 return;
 
-              /*case "upgrade": TODO : Toutes ces actions doivent plutôt se faire à partir d'un atelier de craft
-                player.HandleCraftItemChecks(bestBlueprint, item);
-                CloseWindow();
-                return;
+                /*
+                case "renforcement": TODO : Toutes ces actions doivent plutôt se faire à partir d'un atelier de craft
+                  if (player.craftJob != null)
+                    player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
+                  else
+                    player.craftJob = new(player, item, JobType.Renforcement);
 
-              case "renforcement":
-                if (player.craftJob != null)
-                  player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
-                else
-                  player.craftJob = new(player, item, JobType.Renforcement);
+                  CloseWindow();
+                  return;
 
-                CloseWindow();
-                return;
+                case "recycle":
+                  if (player.craftJob != null)
+                    player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
+                  else
+                    player.craftJob = new(player, item, JobType.Recycling);
 
-              case "recycle":
-                if (player.craftJob != null)
-                  player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
-                else
-                  player.craftJob = new(player, item, JobType.Recycling);
+                  CloseWindow();
+                  return;
 
-                CloseWindow();
-                return;
+                case "surcharge":
 
-              case "surcharge":
+                  int controlLevel = player.learnableSkills.ContainsKey(CustomSkill.SurchargeControlee) ? player.learnableSkills[CustomSkill.SurchargeControlee].totalPoints : 0;
 
-                int controlLevel = player.learnableSkills.ContainsKey(CustomSkill.SurchargeControlee) ? player.learnableSkills[CustomSkill.SurchargeControlee].totalPoints : 0;
+                  int dice = NwRandom.Roll(Utils.random, 100);
 
-                int dice = NwRandom.Roll(Utils.random, 100);
+                  if (dice <= player.learnableSkills[CustomSkill.SurchargeArcanique].totalPoints)
+                  {
+                    item.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
+                    player.oid.SendServerMessage($"En forçant à l'aide de votre puissance brute, vous parvenez à ajouter un emplacement de sort supplémentaire à votre {item.Name.ColorString(ColorConstants.White)} !", ColorConstants.Navy);
+                  }
+                  else if (dice > controlLevel)
+                  {
+                    item.Destroy();
+                    player.oid.SendServerMessage($"Vous forcez, forcez, et votre {item.Name.ColorString(ColorConstants.White)} se brise sous l'excès infligé.", ColorConstants.Purple);
+                  }
 
-                if (dice <= player.learnableSkills[CustomSkill.SurchargeArcanique].totalPoints)
-                {
-                  item.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
-                  player.oid.SendServerMessage($"En forçant à l'aide de votre puissance brute, vous parvenez à ajouter un emplacement de sort supplémentaire à votre {item.Name.ColorString(ColorConstants.White)} !", ColorConstants.Navy);
-                }
-                else if (dice > controlLevel)
-                {
-                  item.Destroy();
-                  player.oid.SendServerMessage($"Vous forcez, forcez, et votre {item.Name.ColorString(ColorConstants.White)} se brise sous l'excès infligé.", ColorConstants.Purple);
-                }
-
-                CloseWindow();
-                return;*/
+                  CloseWindow();
+                  return;*/
             }
 
-            if(nuiEvent.ElementId.StartsWith("up_"))
+            if (nuiEvent.ElementId.StartsWith("up_"))
             {
               int sequenceId = int.Parse(nuiEvent.ElementId.Split("_")[1]);
               if (sequenceId < 1)

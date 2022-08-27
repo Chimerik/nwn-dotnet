@@ -784,15 +784,21 @@ namespace NWN.Systems
 
         int nbCycles = (int)Math.Truncate(elapsedTime / 3600);
         double alreadyConsumedTime = elapsedTime - (nbCycles * 3600);
-        double miningYield = nbCycles * 7200;
+        double miningYield = nbCycles * 1800;
         miningYield = player.learnableSkills.ContainsKey(CustomSkill.MineralExtraction) ? miningYield * player.learnableSkills[CustomSkill.MineralExtraction].bonusMultiplier : miningYield;
         miningYield = player.learnableSkills.ContainsKey(CustomSkill.MineralExtractionYield) ? miningYield * player.learnableSkills[CustomSkill.MineralExtractionYield].bonusMultiplier : miningYield;
 
-        Craft.Collect.System.CreateSelectedResourceInInventory(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == ResourceType.Ore && r.grade == 1),
-          player, (int)miningYield);
+        CraftResource resourceStock = player.craftResourceStock.FirstOrDefault(r => r.type == ResourceType.Ore && r.grade == 1);
+
+        if (resourceStock != null)
+          resourceStock.quantity += (int)miningYield;
+        else
+        {
+          CraftResource resource = Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == ResourceType.Ore && r.grade == 1);
+          player.craftResourceStock.Add(new CraftResource(resource, (int)miningYield));
+        }
 
         player.RescheduleRepeatableJob(ResourceType.Ore, alreadyConsumedTime, player.craftJob.icon);
-
         player.oid.SendServerMessage($"La fin de votre job d'extraction passive de matéria minérale vous rapporte : {(int)miningYield} unités de matéria !", ColorConstants.Orange);
         player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
       }
@@ -814,16 +820,22 @@ namespace NWN.Systems
 
         int nbCycles = (int)Math.Truncate(elapsedTime / 3600);
         double alreadyConsumedTime = elapsedTime - (nbCycles * 3600);
-        double miningYield = nbCycles * 7200;
+        double miningYield = nbCycles * 1800;
         miningYield = player.learnableSkills.ContainsKey(CustomSkill.WoodExtraction) ? miningYield * player.learnableSkills[CustomSkill.WoodExtraction].bonusMultiplier : miningYield;
         miningYield = player.learnableSkills.ContainsKey(CustomSkill.WoodExtractionYield) ? miningYield * player.learnableSkills[CustomSkill.WoodExtractionYield].bonusMultiplier : miningYield;
 
-        Craft.Collect.System.CreateSelectedResourceInInventory(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == ResourceType.Wood && r.grade == 1),
-          player, (int)miningYield);
+        CraftResource resourceStock = player.craftResourceStock.FirstOrDefault(r => r.type == ResourceType.Wood && r.grade == 1);
+        
+        if (resourceStock != null)
+          resourceStock.quantity += (int)miningYield;
+        else
+        {
+          CraftResource resource = Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == ResourceType.Wood && r.grade == 1);
+          player.craftResourceStock.Add(new CraftResource(resource, (int)miningYield));
+        }
 
         player.RescheduleRepeatableJob(ResourceType.Ore, alreadyConsumedTime, player.craftJob.icon);
-
-        player.oid.SendServerMessage($"La fin de votre job d'extraction passive de matéria arboricole vous rapporte : {(int)miningYield} unités de matéria !", ColorConstants.Orange);
+        player.oid.SendServerMessage($"La fin de votre job d'extraction passive de matéria arboricole vous rapporte : {(int)miningYield} unités de matéria, directement envoyées à l'entrepôt !", ColorConstants.Orange);
         player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
       }
       else // cancelled
@@ -844,21 +856,27 @@ namespace NWN.Systems
 
         int nbCycles = (int)Math.Truncate(elapsedTime / 3600);
         double alreadyConsumedTime = elapsedTime - (nbCycles * 3600);
-        double miningYield = nbCycles * 7200;
+        double miningYield = nbCycles * 1800;
         miningYield = player.learnableSkills.ContainsKey(CustomSkill.PeltExtraction) ? miningYield * player.learnableSkills[CustomSkill.PeltExtraction].bonusMultiplier : miningYield;
         miningYield = player.learnableSkills.ContainsKey(CustomSkill.PeltExtractionYield) ? miningYield * player.learnableSkills[CustomSkill.PeltExtractionYield].bonusMultiplier : miningYield;
 
-        Craft.Collect.System.CreateSelectedResourceInInventory(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == ResourceType.Pelt && r.grade == 1),
-          player, (int)miningYield);
+        CraftResource resourceStock = player.craftResourceStock.FirstOrDefault(r => r.type == ResourceType.Wood && r.grade == 1);
+
+        if (resourceStock != null)
+          resourceStock.quantity += (int)miningYield;
+        else
+        {
+          CraftResource resource = Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == ResourceType.Wood && r.grade == 1);
+          player.craftResourceStock.Add(new CraftResource(resource, (int)miningYield));
+        }
 
         player.RescheduleRepeatableJob(ResourceType.Ore, alreadyConsumedTime, player.craftJob.icon);
-
-        player.oid.SendServerMessage($"La fin de votre job d'extraction passive de matéria animale vous rapporte : {(int)miningYield} unités de matéria !", ColorConstants.Orange);
+        player.oid.SendServerMessage($"La fin de votre job d'extraction passive de matéria animale vous rapporte : {(int)miningYield} unités de matéria, directement envoyées à l'entrepôt !", ColorConstants.Orange);
         player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
       }
       else // cancelled
       {
-        player.oid.SendServerMessage($"Vous venez d'annuler votre job de récolte passive de matéria animale.", ColorConstants.Orange);
+        player.oid.SendServerMessage($"Vous venez d'annuler votre job de récolte passive de matéria animale, directement envoyées à l'entrepôt !", ColorConstants.Orange);
       }
 
       return true;

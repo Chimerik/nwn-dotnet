@@ -904,7 +904,7 @@ namespace NWN.Systems
     {
       foreach(var player in PlayerSystem.Players.Values)
       {
-        if(player.oid.IsConnected && player.oid.LoginCreature != null)
+        if(player.pcState != PlayerSystem.Player.PcState.Offline && player.oid.IsConnected && player.oid.LoginCreature != null)
         {
           HandleJobLoop(player);
           HandleLearnableLoop(player);
@@ -933,7 +933,7 @@ namespace NWN.Systems
     }
     private void HandleLearnableLoop(PlayerSystem.Player player)
     {
-      if (player.activeLearnable != null)
+      if (player.activeLearnable != null && player.activeLearnable.active)
       {
         player.activeLearnable.acquiredPoints += player.GetSkillPointsPerSecond(player.activeLearnable);
         if (player.activeLearnable.acquiredPoints >= player.activeLearnable.pointsToNextLevel)
@@ -959,14 +959,26 @@ namespace NWN.Systems
     {
       DateTime lastActionDate = player.oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value;
 
-      if (player.pcState != PlayerSystem.Player.PcState.AFK && player.oid.IsValid && (DateTime.Now - lastActionDate).TotalMinutes > 4)
+      if (player.pcState == PlayerSystem.Player.PcState.Online && player.oid.IsValid && (DateTime.Now - lastActionDate).TotalMinutes > 4)
       {
         player.pcState = PlayerSystem.Player.PcState.AFK;
         Effect afkVXF = Effect.VisualEffect((VfxType)751);
         afkVXF.Tag = "EFFECT_VFX_AFK";
         afkVXF.SubType = EffectSubType.Supernatural;
         player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, afkVXF);
+
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableLocation>("_AFK_LOCATION").Value = player.oid.ControlledCreature.Location;
       }   
+
+      if(player.pcState == PlayerSystem.Player.PcState.AFK && player.oid.LoginCreature.GetObjectVariable<LocalVariableLocation>("_AFK_LOCATION").HasValue 
+        && player.oid.LoginCreature.GetObjectVariable<LocalVariableLocation>("_AFK_LOCATION").Value != player.oid.ControlledCreature.Location)
+      {
+        player.pcState = PlayerSystem.Player.PcState.Online;
+
+        foreach (Effect eff in player.oid.LoginCreature.ActiveEffects)
+          if (eff.Tag == "EFFECT_VFX_AFK")
+            player.oid.LoginCreature.RemoveEffect(eff);
+      }
     }
   }
 }

@@ -189,11 +189,11 @@ namespace NWN.Systems
             break;
         }
       }
-      public void InitializePlayerLearnableJobs()
+      public async void InitializePlayerLearnableJobs()
       {
-        /*await NwTask.WaitUntil(() => oid.LoginCreature.Location.Area != null);
-
-        if (learnableSkills.Any(l => l.Value.active))
+        await NwTask.WaitUntil(() => oid.LoginCreature.Location.Area != null);
+        
+        /*if (learnableSkills.Any(l => l.Value.active))
           learnableSkills.First(l => l.Value.active).Value.AwaitPlayerStateChangeToCalculateSPGain(this);
 
         else if (learnableSpells.Any(l => l.Value.active))
@@ -217,7 +217,11 @@ namespace NWN.Systems
         if (learnableSkills.ContainsKey(CustomSkill.ImprovedAttackBonus))
           oid.LoginCreature.BaseAttackBonus = (byte)(oid.LoginCreature.BaseAttackBonus + learnableSkills[CustomSkill.ImprovedAttackBonus].totalPoints);
 
+        if (activeLearnable != null && activeLearnable.active && activeLearnable.spLastCalculation.HasValue)
+          activeLearnable.acquiredPoints += (DateTime.Now - activeLearnable.spLastCalculation).Value.TotalSeconds * GetSkillPointsPerSecond(activeLearnable);
+
         pcState = PcState.Online;
+        oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
       }
       public void UnloadMenuQuickbar()
       {
@@ -369,7 +373,7 @@ namespace NWN.Systems
         else if (pcState == PcState.AFK)
         {
           pointsPerSecond *= 0.8;
-          Log.Info($"{oid.LoginCreature.Name} was afk. Applying 20 % malus.");
+          //Log.Info($"{oid.LoginCreature.Name} was afk. Applying 20 % malus.");
         }
 
         if (oid.LoginCreature.KnowsFeat(Feat.QuickToMaster))
@@ -889,7 +893,7 @@ namespace NWN.Systems
 
         return materiaCost;
       }
-      public double GetItemMateriaCost(NwItem item, int grade = 1)
+      public double GetItemMateriaCost(NwItem item, double grade = 1)
       {
         BaseItemType baseItemType;
 
@@ -1019,13 +1023,24 @@ namespace NWN.Systems
           return;
         }
 
-        if (blueprint == null || blueprint.Possessor == oid.ControlledCreature)
+        if (blueprint == null || blueprint.Possessor != oid.ControlledCreature)
         {
-          oid.SendServerMessage($"{blueprint.Name.ColorString(ColorConstants.White)} n'est plus en votre possession. Impossible de démarrer le travail artisanal.", ColorConstants.Red);
+          oid.SendServerMessage($"{blueprint.Name.ColorString(ColorConstants.White)} n'est plus en votre possession. Impossible de commencer le travail artisanal.", ColorConstants.Red);
           return;
         }
 
-        int grade = upgradedItem != null ? upgradedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value + 1 : 1 ;
+        int grade = 1;
+
+        if (upgradedItem != null)
+        {
+          if(upgradedItem.Possessor != oid.ControlledCreature)
+          {
+            oid.SendServerMessage($"{upgradedItem.Name.ColorString(ColorConstants.White)} n'est plus en votre possession. Impossible de commencer le travail artisanal.", ColorConstants.Red);
+            return;
+          }
+
+          grade = upgradedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value + 1;
+        }
 
         int materiaCost = (int)(GetItemMateriaCost(blueprint, grade) * (1 - (blueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value / 100)));
         CraftResource resource = craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromBlueprint(blueprint) && r.grade == 1 && r.quantity >= materiaCost);
@@ -1101,6 +1116,7 @@ namespace NWN.Systems
       private void HandleGenericNuiEvents(ModuleEvents.OnNuiEvent nuiEvent)
       {
         string window = nuiEvent.Token.WindowId;
+        nuiEvent.Player.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
 
         switch (nuiEvent.ElementId)
         {

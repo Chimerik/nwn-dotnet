@@ -16,7 +16,7 @@ namespace NWN.Systems
       public class LearnableWindow : PlayerWindow
       {
         bool displaySkill { get; set; }
-        bool refreshOn { get; set; }
+        //bool refreshOn { get; set; }
         private readonly NuiColumn rootColumn;
         private readonly NuiBind<List<NuiComboEntry>> categories = new("categories");
         private readonly List<NuiComboEntry> skillCategories;
@@ -110,7 +110,7 @@ namespace NWN.Systems
         }
         public void CreateWindow()
         {
-          refreshOn = false;
+          //refreshOn = false;
 
           window = new NuiWindow(rootColumn, "Journal d'apprentissage")
           {
@@ -125,7 +125,6 @@ namespace NWN.Systems
           if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
             nuiToken = tempToken;
-            Log.Info($"{windowId} - created token {nuiToken.Token}");
             nuiToken.OnNuiEvent += HandleLearnableEvents;
 
             selectedCategory.SetBindValue(player.oid, nuiToken.Token, 0);
@@ -142,7 +141,7 @@ namespace NWN.Systems
             geometry.SetBindValue(player.oid, nuiToken.Token, player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.65f));
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-            if ((player.learnableSkills.Any(l => l.Value.active) || player.learnableSpells.Any(l => l.Value.active)) && !player.TryGetOpenedWindow("activeLearnable", out PlayerWindow activeWindow))
+            if (player.activeLearnable != null && player.activeLearnable.active && !player.TryGetOpenedWindow("activeLearnable", out PlayerWindow activeWindow))
               if (!player.windows.ContainsKey("activeLearnable")) player.windows.Add("activeLearnable", new ActiveLearnableWindow(player));
               else ((ActiveLearnableWindow)player.windows["activeLearnable"]).CreateWindow();
 
@@ -195,9 +194,7 @@ namespace NWN.Systems
                 
                 if (!player.windows.ContainsKey("activeLearnable")) player.windows.Add("activeLearnable", new ActiveLearnableWindow(player));
                 else  ((ActiveLearnableWindow)player.windows["activeLearnable"]).CreateWindow();
-                
-                  
-
+                 
                 LoadLearnableList(currentList);
               }
               else
@@ -257,28 +254,34 @@ namespace NWN.Systems
 
             if (learnable is LearnableSkill skill)
             {
-              canLearn = skill.attackBonusPrerequisite <= 0 || player.oid.LoginCreature.BaseAttackBonus >= skill.attackBonusPrerequisite;
+              if (learnable.currentLevel >= learnable.maxLevel)
+                canLearn = false;
 
               if (canLearn)
-                foreach (var abilityPreReq in skill.abilityPrerequisites)
-                  if (player.oid.LoginCreature.GetAbilityScore(abilityPreReq.Key, true) < abilityPreReq.Value)
-                  {
-                    canLearn = false;
-                    break;
-                  }
+              {
+                canLearn = skill.attackBonusPrerequisite <= 0 || player.oid.LoginCreature.BaseAttackBonus >= skill.attackBonusPrerequisite;
 
-              if (canLearn)
-                foreach (var skillPreReq in skill.skillPrerequisites)
-                  if (player.learnableSkills[skillPreReq.Key].currentLevel < skillPreReq.Value)
-                  {
-                    canLearn = false;
-                    break;
-                  }
+                if (canLearn)
+                  foreach (var abilityPreReq in skill.abilityPrerequisites)
+                    if (player.oid.LoginCreature.GetAbilityScore(abilityPreReq.Key, true) < abilityPreReq.Value)
+                    {
+                      canLearn = false;
+                      break;
+                    }
+
+                if (canLearn)
+                  foreach (var skillPreReq in skill.skillPrerequisites)
+                    if (player.learnableSkills[skillPreReq.Key].currentLevel < skillPreReq.Value)
+                    {
+                      canLearn = false;
+                      break;
+                    }
+              }
             }
 
             string buttonText = learnable.active ? "En cours" : "Apprendre";
-            if (!canLearn)
-              buttonText = "Prérequis Manquant";
+            //if (!canLearn)
+              //buttonText = "Prérequis Manquant";
 
             learnButtonTextList.Add(buttonText);
             learnButtonEnabledList.Add(canLearn);

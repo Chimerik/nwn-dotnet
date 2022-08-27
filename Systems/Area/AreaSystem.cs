@@ -40,31 +40,36 @@ namespace NWN.Systems
         DoAreaSpecificInitialisation(area);
 
         //Log.Info($"initializing area : {area.Name}");
-
-        foreach (NwPlaceable coffre in area.Objects)
-        {
-          if(coffre.Tag == "loot_chest")
-            coffre.Tag = coffre.GetObjectVariable<LocalVariableString>("_LOOT_REFERENCE").Value;
-          //Log.Info($"initializing chest : {coffre.Name} with : {coffre.Tag}");
-        }
       }
+
+      foreach (NwPlaceable coffre in NwObject.FindObjectsWithTag<NwPlaceable>("loot_chest"))
+      {
+        coffre.Tag = coffre.GetObjectVariable<LocalVariableString>("_LOOT_REFERENCE").Value;
+        //Log.Info($"initializing chest : {coffre.Name} with : {coffre.Tag}");
+      }
+
+      List<NwCreature> creatureToSerialize = new();
 
       foreach (NwCreature creature in NwObject.FindObjectsOfType<NwCreature>())
       {
-        if (creature.Tag != "dead_werat" && creature.Tag != "damage_trainer")
-        {
-          Task waitLoopEnd = NwTask.Run(async () =>
-          {
-            await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-            NwWaypoint spawnPoint = NwWaypoint.Create("creature_spawn", creature.Location);
-            CreatureUtils.creatureSpawnDictionary.TryAdd(creature.Tag, NwCreature.Deserialize(creature.Serialize()));
-            spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value = creature.Tag;
-            creature.Destroy();
-          });
-        }
+        if (creature.Tag == "dead_werat" || creature.Tag == "damage_trainer")
+          continue;
+
+        creatureToSerialize.Add(creature);
       }
 
+      SerializeCreaturesAndCreateSpawn(creatureToSerialize);
       InitializeBankPlaceableNames();
+    }
+    private void SerializeCreaturesAndCreateSpawn(List<NwCreature> creatureList)
+    {
+      foreach(NwCreature creature in creatureList)
+      {
+        NwWaypoint spawnPoint = NwWaypoint.Create("creature_spawn", creature.Location);
+        CreatureUtils.creatureSpawnDictionary.TryAdd(creature.Tag, NwCreature.Deserialize(creature.Serialize()));
+        spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value = creature.Tag;
+        creature.Destroy();
+      }
     }
     public void OnAreaHeartbeat(AreaEvents.OnHeartbeat onHB)
     {
@@ -83,13 +88,15 @@ namespace NWN.Systems
       else
       {
         // Si pas de date de nettoyage planifiée, alors planifier une date de nettoyage
-        if (onHB.Area.GetObjectVariable<DateTimeLocalVariable>("_CLEANING_TIME").HasNothing && onHB.Area.GetObjectVariable<LocalVariableBool>("_CLEANING_TRIGGER").HasValue) 
+        if (onHB.Area.GetObjectVariable<DateTimeLocalVariable>("_CLEANING_TIME").HasNothing) 
         {
-          DateTime cleaningTime = DateTime.Now.AddMinutes(25);
-          onHB.Area.GetObjectVariable<DateTimeLocalVariable>("_CLEANING_TIME").Value = cleaningTime;
-          Log.Info($"{onHB.Area.Name} scheduled for cleaning at {cleaningTime}");
+          if (onHB.Area.GetObjectVariable<LocalVariableBool>("_CLEANING_TRIGGER").HasValue)
+          {
+            onHB.Area.GetObjectVariable<DateTimeLocalVariable>("_CLEANING_TIME").Value = DateTime.Now;
+            Log.Info($"{onHB.Area.Name} scheduled for cleaning at {DateTime.Now.AddMinutes(25)}");
+          }
         }
-        else if (DateTime.Compare(DateTime.Now, onHB.Area.GetObjectVariable<DateTimeLocalVariable>("_CLEANING_TIME").Value) < 0) // Si date de nettoyage dépassée, alors nettoyer et supprimer la planification
+        else if ((DateTime.Now - onHB.Area.GetObjectVariable<DateTimeLocalVariable>("_CLEANING_TIME").Value).TotalMinutes > 25) // Si date de nettoyage dépassée, alors nettoyer et supprimer la planification
         {
           Log.Info($"{onHB.Area.Name} cleaning area");
           CleanArea(onHB.Area);
@@ -107,7 +114,6 @@ namespace NWN.Systems
 
       if (NwModule.Instance.Players.Count(p => p.ControlledCreature != null && p.ControlledCreature.Area == area) == 1)
         CheckSpawns(area);
-        //CreateSpawnChecker(area);
 
       if (!PlayerSystem.Players.TryGetValue(onEnter.EnteringObject, out PlayerSystem.Player player))
         return;

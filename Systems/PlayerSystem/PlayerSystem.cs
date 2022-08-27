@@ -258,7 +258,7 @@ namespace NWN.Systems
     {
       NwPlayer oPC = guiEvent.Player;
       oPC.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
-      
+
       if (!Players.TryGetValue(oPC.LoginCreature, out Player player))
         return;
 
@@ -267,7 +267,7 @@ namespace NWN.Systems
         player.pcState = Player.PcState.Online;
 
         foreach (Effect eff in player.oid.LoginCreature.ActiveEffects)
-          if(eff.Tag == "EFFECT_VFX_AFK")
+          if (eff.Tag == "EFFECT_VFX_AFK")
             player.oid.LoginCreature.RemoveEffect(eff);
       }
 
