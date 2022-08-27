@@ -339,16 +339,10 @@ namespace NWN
     {
       { "dm", new MainMenuCommand("Mode DM", "", CommandRank.Admin) },
       { "creaturePalette", new MainMenuCommand("Palette des créatures", "", CommandRank.DM) },
-      { "itemPalette", new MainMenuCommand("Palette des objets", "", CommandRank.DM) },
-      { "placeablePalette", new MainMenuCommand("Palette des placeables", "", CommandRank.DM) },
-      { "placeableManager", new MainMenuCommand("Gérer les placeable de la zone", "", CommandRank.DM) },
-      { "sit", new MainMenuCommand("S'asseoir n'importe où", "Permet de s'asseoir partout. Attention, seule la position affichée change. La position réelle du personnage reste la même.", CommandRank.Public) },
       { "touch", new MainMenuCommand("Mode toucher", "Permet d'éviter les collisions entre personnages (non utilisable en combat)", CommandRank.Public) },
       { "walk", new MainMenuCommand("Mode marche", "Permet d'avoir l'air moins ridicule en ville", CommandRank.Public) },
       { "follow", new MainMenuCommand("Suivre", "Suivre une créature ciblée (pour les feignasses !)", CommandRank.Public) },
-      { "examineArea", new MainMenuCommand("Examiner les environs", "Obtenir une description de la zone", CommandRank.Public) },
-      { "learnables", new MainMenuCommand("Journal d'apprentissage", "Ouvrir le journal d'apprentissage", CommandRank.Public) },
-      { "currentJob", new MainMenuCommand("Carnet d'artisanat", "Ouvrir mon carnet d'artisanat", CommandRank.Public) },
+      { "examineArea", new MainMenuCommand("Examine les environs", "Obtenir une description de la zone", CommandRank.Public) },
       { "effectDispel", new MainMenuCommand("Dissiper mes effets de sorts", "", CommandRank.Public) },
       { "dispelAoE", new MainMenuCommand("Dissiper mes zones d'effets", "", CommandRank.Public) },
       { "grimoire", new MainMenuCommand("Gérer les grimoires", "Enregistrer ou charger un grimoire de sorts", CommandRank.Public) },
@@ -373,8 +367,6 @@ namespace NWN
       { "giveSkillbook", new MainMenuCommand("Don de skillbook", "", CommandRank.Admin) }, // TODO : Ajouter à OnExamine Player
     };
 
-    public static List<NuiComboEntry> appearanceEntries = new();
-    public static List<NuiComboEntry> placeableEntries = new();
     public static List<NuiComboEntry> raceList = new();
     public static readonly List<NuiComboEntry> genderList = new();
     public static readonly List<NuiComboEntry> soundSetList = new();
@@ -382,11 +374,7 @@ namespace NWN
     public static readonly List<NuiComboEntry> movementRateList = new();
     public static readonly List<NuiComboEntry> sizeList = new();
     public static readonly List<NuiComboEntry> creaturePaletteCreatorsList = new();
-    public static List<PaletteEntry> creaturePaletteList = new();
-    public static readonly List<NuiComboEntry> itemPaletteCreatorsList = new();
-    public static List<PaletteEntry> itemPaletteList = new();
-    public static readonly List<NuiComboEntry> placeablePaletteCreatorsList = new();
-    public static List<PaletteEntry> placeablePaletteList = new();
+    public static List<PaletteCreatureEntry> creaturePaletteList = new();
     public static NuiBind<string>[] paletteColorBindings = new NuiBind<string>[256];
 
     public static readonly List<string> colorPaletteLeather = new();

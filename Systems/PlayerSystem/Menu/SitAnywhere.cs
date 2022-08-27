@@ -14,48 +14,47 @@ namespace NWN.Systems
     {
       public class SitAnywhereWindow : PlayerWindow
       {
-        private readonly NuiColumn rootColumn = new();
-        private readonly List<NuiElement> rootChildren = new();
+        private readonly NuiColumn rootColumn;
         private ScheduledTask checkPositionScheduler { get; set; }
         private Vector3 playerPosition { get; set; }
 
         public SitAnywhereWindow(Player player) : base(player)
         {
           windowId = "sitAnywhere";
-          rootColumn.Children = rootChildren;
-
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
+          
+          rootColumn = new NuiColumn()
           {
-            new NuiSpacer(),
-            new NuiButtonImage("ief_impinvis") { Id = "ground", Height = 40, Width = 40, Tooltip = "Animation au sol." },
-            new NuiButtonImage("ief_sanctuary") { Id = "chair", Height = 40, Width = 40, Tooltip = "Animation chaise." },
-            new NuiSpacer()
-          } });
-
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
-          {
-            new NuiButtonImage("menu_down") { Id = "down", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
-            new NuiButtonImage("menu_up") { Id = "up", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
-            new NuiButtonImage("right") { Id = "right", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
-            new NuiButtonImage("left") { Id = "left", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
-            new NuiButtonImage("forward") { Id = "forward", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
-            new NuiButtonImage("backward") { Id = "backward", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
-            new NuiButtonImage("rotate_right") { Id = "rotate_right", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
-            new NuiButtonImage("rotate_left") { Id = "rotate_left", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
-            new NuiButtonImage("menu_exit") { Id = "cancel", Height = 40, Width = 40, Tooltip = "Réinitialiser l'affichage de la position du personnage controlé." },
-          } });
+            Children = new List<NuiElement>()
+            {
+              new NuiRow()
+              {
+                Children = new List<NuiElement>()
+                {
+                    new NuiButtonImage("menu_down") { Id = "down", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
+                    new NuiButtonImage("menu_up") { Id = "up", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
+                    new NuiButtonImage("right") { Id = "right", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
+                    new NuiButtonImage("left") { Id = "left", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
+                    new NuiButtonImage("forward") { Id = "forward", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
+                    new NuiButtonImage("backward") { Id = "backward", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
+                    new NuiButtonImage("rotate_right") { Id = "rotate_right", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
+                    new NuiButtonImage("rotate_left") { Id = "rotate_left", Height = 40, Width = 40, Tooltip = "Attention, seule la position affichée change. La position réelle du personnage reste la même. Ne pas en abuser." },
+                    new NuiButtonImage("menu_exit") { Id = "cancel", Height = 40, Width = 40, Tooltip = "Réinitialiser l'affichage de la position du personnage controllé." },
+                }
+              }
+            }
+          };
 
           CreateWindow();
         }
         public void CreateWindow()
         {
           playerPosition = player.oid.ControlledCreature.Position;
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(450, 600, 400, 140);
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(450, 600, 370, 50);
 
           window = new NuiWindow(rootColumn, "Réorientation")
           {
             Geometry = geometry,
-            Resizable = false,
+            Resizable = true,
             Collapsed = false,
             Closable = true,
             Transparent = false,
@@ -76,6 +75,12 @@ namespace NWN.Systems
 
         private void HandleSitAnywhereEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
+          if (player.craftJob == null)
+          {
+            CloseWindow();
+            return;
+          }
+
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
@@ -131,14 +136,6 @@ namespace NWN.Systems
 
                 case "cancel":
                   Utils.ResetVisualTransform(player.oid.ControlledCreature);
-                  return;
-
-                case "ground":
-                  _ = player.oid.ControlledCreature.PlayAnimation(Animation.LoopingSitCross, 1, false, TimeSpan.FromDays(1));
-                  return;
-
-                case "chair":
-                  _ = player.oid.ControlledCreature.PlayAnimation(Animation.LoopingSitChair, 1, false, TimeSpan.FromDays(1));
                   return;
               }
 

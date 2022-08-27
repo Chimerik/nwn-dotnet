@@ -29,8 +29,8 @@ namespace NWN.Systems
       onSpellCast.TargetObject.ApplyEffect(EffectDuration.Temporary, eLink, NwTimeSpan.FromRounds(nDuration));
       onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, eVis);
 
-      /*if (onSpellCast.MetaMagicFeat == MetaMagic.None)
-        SpellUtils.RestoreSpell(oCaster, onSpellCast.Spell.SpellType);*/
+      if (onSpellCast.MetaMagicFeat == MetaMagic.None)
+        SpellUtils.RestoreSpell(oCaster, onSpellCast.Spell.SpellType);
     }
   }
 }

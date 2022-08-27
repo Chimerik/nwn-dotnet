@@ -5,7 +5,6 @@ using System;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
-using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -80,27 +79,17 @@ namespace NWN.Systems
           break;
 
         case "walker":
-          creature.AiLevel = AiLevel.VeryLow;
-          _ = creature.ActionRandomWalk();
-          break;
-
         case "civilian":
-          SetRandomAppearance(creature);
-
-          creature.AiLevel = AiLevel.VeryLow;
-          _ = creature.ActionRandomWalk();
-          break;
         case "plage":
         case "cave":
         case "city":
         case "generic":
 
-          SetRandomAppearance(creature);
+          if(creature.GetObjectVariable<LocalVariableString>("_SPAWN_TYPE").Value != "walker")
+            SetRandomAppearance(creature);
 
           creature.AiLevel = AiLevel.VeryLow;
           _ = creature.ActionRandomWalk();
-
-          Effect runAway = Effect.AreaOfEffect((PersistentVfxType)190, scriptHandleFactory.CreateUniqueHandler(HandleRunAwayFromPlayer), null, scriptHandleFactory.CreateUniqueHandler(HandleNoOneAroundNeutral));
 
           break;
 
@@ -263,34 +252,6 @@ namespace NWN.Systems
       creature.Name = creature.Appearance.Name;
       if (creature.Name == "Créature")
         Utils.LogMessageToDMs($"Apparence {rowId} - Nom non défini.");
-    }
-    private ScriptHandleResult HandleRunAwayFromPlayer(CallInfo callInfo)
-    {
-      NwAreaOfEffect aoe = (NwAreaOfEffect)callInfo.ObjectSelf;
-
-      if (!(aoe.Creator is NwCreature { IsPlayerControlled: true } neutral))
-        return ScriptHandleResult.Handled;
-
-      NwCreature closestPlayer = neutral.GetNearestCreatures(CreatureTypeFilter.PlayerChar(true)).FirstOrDefault();
-
-      if (closestPlayer != null && neutral.DistanceSquared(closestPlayer) < 25)
-        _ = neutral.ActionMoveAwayFrom(closestPlayer, true);
-
-      return ScriptHandleResult.Handled;
-    }
-    private ScriptHandleResult HandleNoOneAroundNeutral(CallInfo callInfo)
-    {
-      NwAreaOfEffect aoe = (NwAreaOfEffect)callInfo.ObjectSelf;
-
-      if (!(aoe.Creator is NwCreature { IsPlayerControlled: true } neutral))
-        return ScriptHandleResult.Handled;
-
-      NwCreature closestPlayer = neutral.GetNearestCreatures(CreatureTypeFilter.PlayerChar(true)).FirstOrDefault();
-
-      if (closestPlayer == null && neutral.DistanceSquared(closestPlayer) > 30)
-        _ = neutral.ActionRandomWalk();
-
-      return ScriptHandleResult.Handled;
     }
   }
 }

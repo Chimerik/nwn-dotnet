@@ -27,7 +27,7 @@ namespace NWN.Systems
       {
         if (onSpawn.DungeonMaster.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPAWN_PERSIST").HasValue)
         {
-          oPLC.OnDeath += HandleCleanDMPLC;
+          oPLC.OnDeath += placeableSystem.HandleCleanDMPLC;
 
           SqLiteUtils.InsertQuery("dm_persistant_placeable",
             new List<string[]>() { new string[] { "accountID", "0" }, new string[] { "serializedPlaceable", oPLC.Serialize().ToBase64EncodedString() }, new string[] { "areaTag", oPLC.Area.Tag }, new string[] { "position", oPLC.Position.ToString() }, new string[] { "facing", oPLC.Rotation.ToString() } });
@@ -74,18 +74,6 @@ namespace NWN.Systems
     {
       onGive.Item.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
       Utils.LogMessageToDMs($"{onGive.DungeonMaster.PlayerName} vient de donner {onGive.Item.Name} à {onGive.Target.Name}");
-    }
-    private void HandleCleanDMPLC(PlaceableEvents.OnDeath onDeath)
-    {
-      NwPlaceable plc = onDeath.KilledObject;
-      int plcID = plc.GetObjectVariable<LocalVariableInt>("_ID").Value;
-      if (plcID > 0)
-      {
-        SqLiteUtils.DeletionQuery("dm_persistant_placeable",
-          new Dictionary<string, string>() { { "rowid", plcID.ToString() } });
-      }
-      else
-        Utils.LogMessageToDMs($"Persistent placeable {plc.Name} in area {plc.Area.Name} does not have a valid ID !");
     }
   }
 }

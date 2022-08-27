@@ -26,7 +26,6 @@ namespace NWN.Systems
           Feat,
           Spell,
           Model,
-          Patrouille,
           Variables
         }
 
@@ -125,11 +124,6 @@ namespace NWN.Systems
         private readonly NuiBind<string> newVariableValue = new("newVariableValue");
         private readonly NuiBind<int> selectedNewVariableType = new("selectedNewVariableType");
 
-        private readonly NuiBind<bool> permanentSpawn = new("permanentSpawn");
-        private readonly NuiBind<int> selectedSpawnType = new("selectedSpawnType"); 
-        private readonly NuiBind<bool> spawnOptionsVisibility = new("spawnOptionsVisibility");
-        private int previousType;
-
         Tab currentTab;
 
         public EditorPNJWindow(Player player, NwCreature targetCreature) : base(player)
@@ -146,7 +140,7 @@ namespace NWN.Systems
           this.targetCreature = targetCreature;
           LoadBaseLayout();
 
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 520, 500);
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 410, 500);
 
           window = new NuiWindow(rootGroup, $"Modification de {targetCreature.Name}")
           {
@@ -194,15 +188,15 @@ namespace NWN.Systems
                   {
                     case Tab.Feat:
 
-                      if (!player.windows.ContainsKey("featDescription")) player.windows.Add("featDescription", new FeatDescriptionWindow(player, availableFeatSearcher[nuiEvent.ArrayIndex]));
-                      else ((FeatDescriptionWindow)player.windows["featDescription"]).CreateWindow(availableFeatSearcher[nuiEvent.ArrayIndex]);
+                      if(!player.windows.TryAdd("featDescription", new FeatDescriptionWindow(player, availableFeatSearcher[nuiEvent.ArrayIndex])))
+                        ((FeatDescriptionWindow)player.windows["featDescription"]).CreateWindow(availableFeatSearcher[nuiEvent.ArrayIndex]);
 
                       break;
 
                     case Tab.Spell:
 
-                      if (!player.windows.ContainsKey("spellDescription")) player.windows.Add("spellDescription", new SpellDescriptionWindow(player, availableSpellSearcher[nuiEvent.ArrayIndex]));
-                      else ((SpellDescriptionWindow)player.windows["spellDescription"]).CreateWindow(availableSpellSearcher[nuiEvent.ArrayIndex]);
+                      if (!player.windows.TryAdd("spellDescription", new SpellDescriptionWindow(player, availableSpellSearcher[nuiEvent.ArrayIndex])))
+                        ((SpellDescriptionWindow)player.windows["spellDescription"]).CreateWindow(availableSpellSearcher[nuiEvent.ArrayIndex]);
                       
                       break;
                   }
@@ -215,17 +209,21 @@ namespace NWN.Systems
                   {
                     case Tab.Feat:
 
-                      if (!player.windows.ContainsKey("featDescription")) player.windows.Add("featDescription", new FeatDescriptionWindow(player, availableFeatSearcher[nuiEvent.ArrayIndex]));
-                      else ((FeatDescriptionWindow)player.windows["featDescription"]).CreateWindow(availableFeatSearcher[nuiEvent.ArrayIndex]);
+                      if (player.windows.ContainsKey("featDescription"))
+                        ((FeatDescriptionWindow)player.windows["featDescription"]).CreateWindow(availableFeatSearcher[nuiEvent.ArrayIndex]);
+                      else
+                        player.windows.Add("featDescription", new FeatDescriptionWindow(player, availableFeatSearcher[nuiEvent.ArrayIndex]));
 
-                      break; 
+                      break;
 
                     case Tab.Spell:
 
-                      if (!player.windows.ContainsKey("spellDescription")) player.windows.Add("spellDescription", new SpellDescriptionWindow(player, acquiredSpellSearcher[nuiEvent.ArrayIndex]));
-                      else ((SpellDescriptionWindow)player.windows["spellDescription"]).CreateWindow(acquiredSpellSearcher[nuiEvent.ArrayIndex]);
+                      if (player.windows.ContainsKey("spellDescription"))
+                        ((SpellDescriptionWindow)player.windows["spellDescription"]).CreateWindow(acquiredSpellSearcher[nuiEvent.ArrayIndex]);
+                      else
+                        player.windows.Add("spellDescription", new SpellDescriptionWindow(player, acquiredSpellSearcher[nuiEvent.ArrayIndex]));
 
-                      break; 
+                      break;
                   }
                   
 
@@ -325,8 +323,8 @@ namespace NWN.Systems
 
                 case "appearancePrev":
 
-                  NuiComboEntry entryPrev = Utils.appearanceEntries.FirstOrDefault(a => a.Value == apparenceSelected.GetBindValue(player.oid, nuiToken.Token));
-                  int indexPrev = Utils.appearanceEntries.IndexOf(entryPrev) - 1;
+                  NuiComboEntry entryPrev = Appearance2da.appearanceEntries.FirstOrDefault(a => a.Value == apparenceSelected.GetBindValue(player.oid, nuiToken.Token));
+                  int indexPrev = Appearance2da.appearanceEntries.IndexOf(entryPrev) - 1;
 
                   if (indexPrev > -1)
                     SetAppearance(indexPrev);
@@ -335,10 +333,10 @@ namespace NWN.Systems
 
                 case "appearanceNext":
 
-                  NuiComboEntry entry = Utils.appearanceEntries.FirstOrDefault(a => a.Value == apparenceSelected.GetBindValue(player.oid, nuiToken.Token));
-                  int index = Utils.appearanceEntries.IndexOf(entry) + 1;
+                  NuiComboEntry entry = Appearance2da.appearanceEntries.FirstOrDefault(a => a.Value == apparenceSelected.GetBindValue(player.oid, nuiToken.Token));
+                  int index = Appearance2da.appearanceEntries.IndexOf(entry) + 1;
 
-                  if (index < Utils.appearanceEntries.Count)
+                  if (index < Appearance2da.appearanceEntries.Count)
                     SetAppearance(index);
 
                   break;
@@ -534,6 +532,11 @@ namespace NWN.Systems
 
                   break;
 
+                case "deleteSpawn":
+                  targetCreature.OnDeath -= CreatureUtils.OnMobDeathResetSpawn;
+                  player.oid.SendServerMessage($"{targetCreature.Name.ColorString(ColorConstants.White)} a été retiré du système de spawn.", ColorConstants.Orange);
+                  break;
+
                 case "saveDescription":
                   targetCreature.Description = creatureDescription.GetBindValue(player.oid, nuiToken.Token);
                   targetCreature.GetObjectVariable<LocalVariableString>("_COMMENT").Value = creatureComment.GetBindValue(player.oid, nuiToken.Token);
@@ -569,7 +572,7 @@ namespace NWN.Systems
 
                 case "apparenceSearch":
                   string aSearch = apparenceSearch.GetBindValue(player.oid, nuiToken.Token).ToLower();
-                  apparence.SetBindValue(player.oid, nuiToken.Token, string.IsNullOrEmpty(aSearch) ? Utils.appearanceEntries : Utils.appearanceEntries.Where(v => v.Label.ToLower().Contains(aSearch)).ToList());
+                  apparence.SetBindValue(player.oid, nuiToken.Token, string.IsNullOrEmpty(aSearch) ? Appearance2da.appearanceEntries : Appearance2da.appearanceEntries.Where(v => v.Label.ToLower().Contains(aSearch)).ToList());
                 break;
 
                 case "acquiredFeatSearch":
@@ -805,46 +808,6 @@ namespace NWN.Systems
                   targetCreature.MovementRate = (MovementRate)movementRateSelected.GetBindValue(player.oid, nuiToken.Token);
                   break;
 
-                case "permanentSpawn":
-
-                  bool spawnOn = permanentSpawn.GetBindValue(player.oid, nuiToken.Token);
-
-                  if (player.QueryAuthorized())
-                  {
-                    if (spawnOn)
-                    {
-                      HandleSelectSpawnType();
-
-                      NwWaypoint spawnPoint = NwWaypoint.Create("creature_spawn", targetCreature.Location);
-                      targetCreature.GetObjectVariable<LocalVariableString>("_SPAWNED_BY").Value = player.oid.PlayerName;
-                      spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value = targetCreature.Serialize().ToBase64EncodedString();
-
-                      player.oid.SendServerMessage($"{targetCreature.Name.ColorString(ColorConstants.White)} a été ajouté au système de spawn permanent.\nVeuillez sélectionner la nouvelle créature pour poursuivre l'édition.", ColorConstants.Orange);
-                      targetCreature.Destroy();
-                      CloseWindow();
-                    }
-                    else
-                    {
-                      targetCreature.OnDeath -= CreatureUtils.OnMobDeathResetSpawn;
-                      HandlePermanentSpawnDeletion();
-                      player.oid.SendServerMessage($"{targetCreature.Name.ColorString(ColorConstants.White)} a été retiré du système de spawn.", ColorConstants.Orange);
-                    }
-                  }
-                  else
-                  {
-                    permanentSpawn.SetBindWatch(player.oid, nuiToken.Token, false);
-                    permanentSpawn.SetBindValue(player.oid, nuiToken.Token, !spawnOn);
-                    permanentSpawn.SetBindWatch(player.oid, nuiToken.Token, true);
-                  }
-
-                  spawnOptionsVisibility.SetBindValue(player.oid, nuiToken.Token, permanentSpawn.GetBindValue(player.oid, nuiToken.Token));
-
-                  break;
-
-                case "selectedSpawnType":
-                  HandleSelectSpawnType();
-                  break;
-
                 case "spellQuantity":
 
                   if (int.TryParse(spellQuantity.GetBindValues(player.oid, nuiToken.Token)[spellQuantityIndexSelected], out int newSpellQuantity))
@@ -982,8 +945,14 @@ namespace NWN.Systems
             }
           });
 
-          rootChildren.Add(new NuiRow() {  Children = new List<NuiElement>() { new NuiCheck("Spawn Permanent", permanentSpawn) {  Tooltip = "Si cette option est cochée, la créature sera intégrée au système de spawn et persistera après reboot" } } });
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiOptions() { Selection = selectedSpawnType, Direction = NuiDirection.Horizontal, Options = { "mob", "pnj fixe", "neutral" }, Tooltip = "mob = monstre hostile. PNJ fixe = immobile. Neutral = créature neutre qui se balade aléatoirement", Visible = spawnOptionsVisibility } } });
+          rootChildren.Add(new NuiRow()
+          {
+            Visible = targetCreature.GetObjectVariable<LocalVariableString>("_SPAWNED_BY").Value == player.oid.PlayerName || player.oid.PlayerName == "Chim",
+            Children = new List<NuiElement>()
+            {
+              new NuiButtonImage("ir_rage") { Id = "deleteSpawn", Height = 35, Width = 35, Tooltip = "Retirer cette créature du système de spawn automatique" }
+            }
+          });
         }
         private void StopAllWatchBindings()
         {
@@ -1025,9 +994,6 @@ namespace NWN.Systems
           acquiredFeatSearch.SetBindWatch(player.oid, nuiToken.Token, false);
 
           spellQuantity.SetBindWatch(player.oid, nuiToken.Token, false);
-
-          permanentSpawn.SetBindWatch(player.oid, nuiToken.Token, false);
-          selectedSpawnType.SetBindWatch(player.oid, nuiToken.Token, false);
         }
         private void LoadBaseBinding()
         {
@@ -1054,13 +1020,6 @@ namespace NWN.Systems
 
           soundSetSelected.SetBindValue(player.oid, nuiToken.Token, targetCreature.SoundSet);
           soundSetSelected.SetBindWatch(player.oid, nuiToken.Token, true);
-
-          permanentSpawn.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetObjectVariable<LocalVariableBool>("_SPAWN_ID").HasValue);
-          permanentSpawn.SetBindWatch(player.oid, nuiToken.Token, true);
-          spawnOptionsVisibility.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetObjectVariable<LocalVariableBool>("_SPAWN_ID").HasValue);
-          selectedSpawnType.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetObjectVariable<LocalVariableInt>("_SPAWN_TYPE").Value);
-          selectedSpawnType.SetBindWatch(player.oid, nuiToken.Token, true);
-          previousType = targetCreature.GetObjectVariable<LocalVariableInt>("_SPAWN_TYPE").Value;
         }
         private void LoadPortraitLayout()
         {
@@ -1314,8 +1273,8 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
-              new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Dons disponibles", availableFeatSearch, 20, false) { Width = 240 } } },
-              new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35,  Width = 240  } } }
+              new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Dons disponibles", availableFeatSearch, 20, false) { Width = 190 } } },
+              new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35,  Width = 190  } } }
             }
           });
 
@@ -1323,8 +1282,8 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
-              new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Dons acquis", acquiredFeatSearch, 20, false) { Width = 240 } } },
-              new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplateAcquiredFeats, listAcquiredFeatCount) { RowHeight = 35, Width = 240 } } }
+              new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Dons acquis", acquiredFeatSearch, 20, false) { Width = 190 } } },
+              new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplateAcquiredFeats, listAcquiredFeatCount) { RowHeight = 35, Width = 190 } } }
             }
           });
         }
@@ -1397,8 +1356,8 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
-              new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Sorts disponibles", availableFeatSearch, 20, false) { Width = 240 } } },
-              new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35,  Width = 240  } } }
+              new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Sorts disponibles", availableFeatSearch, 20, false) { Width = 190 } } },
+              new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35,  Width = 190  } } }
             }
           });
 
@@ -1406,8 +1365,8 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
-              new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Sorts acquis", acquiredFeatSearch, 20, false) { Width = 240 } } },
-              new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplateAcquiredFeats, listAcquiredFeatCount) { RowHeight = 35, Width = 240 } } }
+              new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Sorts acquis", acquiredFeatSearch, 20, false) { Width = 190 } } },
+              new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplateAcquiredFeats, listAcquiredFeatCount) { RowHeight = 35, Width = 190 } } }
             }
           });
         }
@@ -1475,32 +1434,52 @@ namespace NWN.Systems
           rootChildren.Clear();
           LoadButtons();
 
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
+          rootChildren.Add(new NuiRow()
           {
-            new NuiLabel("Apparence") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
-            new NuiButton("<") { Id = "appearancePrev", Height = 35, Width = 35 },
-            new NuiCombo() { Height = 35, Width = 200, Entries = apparence, Selected = apparenceSelected },
-            new NuiButton(">") { Id = "appearanceNext", Height = 35, Width = 35 },
-            new NuiTextEdit("Recherche", apparenceSearch, 20, false) { Height = 35, Width = 100 }
-          } });
+            Children = new List<NuiElement>()
+            {
+              new NuiLabel("Apparence") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
+              new NuiCombo() { Height = 35, Width = 200, Entries = apparence, Selected = apparenceSelected },
+              new NuiTextEdit("Recherche", apparenceSearch, 20, false) { Height = 35, Width = 100 }
+            }
+          });
 
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
+          rootChildren.Add(new NuiRow()
           {
-            new NuiLabel("Taille") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle, Tooltip = "Doit être compris entre 0.01 et 99.99" },
-            new NuiTextEdit("Taille", size, 5, false) { Height = 35, Width = 200 }
-          } });
+            Children = new List<NuiElement>()
+            {
+              new NuiSpacer(),
+              new NuiButton("Précédent") { Id = "appearancePrev", Height = 35, Width = 35 },
+              new NuiSpacer(),
+              new NuiButton("Suivant") { Id = "appearanceNext", Height = 35, Width = 35 },
+              new NuiSpacer(),
+            }
+          });
 
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
+          rootChildren.Add(new NuiRow()
           {
-            new NuiLabel("Dynamique") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle, Tooltip = "Disponible uniquement pour les apparences de type dynamiques et genre masculin/féminin" },
-            new NuiButton("Apparence dynamique") { Id = "appearanceDynamic", Height = 35, Width = 200 }
-          } });
+            Children = new List<NuiElement>()
+            {
+              new NuiLabel("Taille") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle, Tooltip = "Doit être compris entre 0.01 et 99.99" },
+              new NuiTextEdit("Taille", size, 5, false) { Height = 35, Width = 200 }
+            }
+          });
+
+          rootChildren.Add(new NuiRow()
+          {
+            Children = new List<NuiElement>()
+            {
+              new NuiLabel("Dynamique") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle, Tooltip = "Disponible uniquement pour les apparences de type dynamiques et genre masculin/féminin" },
+              new NuiButton("Apparence dynamique") { Id = "appearanceDynamic", Height = 35, Width = 200 }
+            }
+          });
         }
         private void LoadModelBinding()
         {
           StopAllWatchBindings();
 
-          apparence.SetBindValue(player.oid, nuiToken.Token, Utils.appearanceEntries);
+          //Log.Info($"Appearance size : {Appearance2da.appearanceEntries.Count}");
+          apparence.SetBindValue(player.oid, nuiToken.Token, Appearance2da.appearanceEntries);
           apparenceSelected.SetBindValue(player.oid, nuiToken.Token, targetCreature.Appearance.RowIndex);
           apparenceSelected.SetBindWatch(player.oid, nuiToken.Token, true);
           apparenceSearch.SetBindWatch(player.oid, nuiToken.Token, true);
@@ -1512,8 +1491,9 @@ namespace NWN.Systems
         {
           apparenceSelected.SetBindWatch(player.oid, nuiToken.Token, false);
 
-          apparenceSelected.SetBindValue(player.oid, nuiToken.Token, Utils.appearanceEntries.ElementAt(index).Value);
+          apparenceSelected.SetBindValue(player.oid, nuiToken.Token, Appearance2da.appearanceEntries.ElementAt(index).Value);
           targetCreature.Appearance = NwGameTables.AppearanceTable[apparenceSelected.GetBindValue(player.oid, nuiToken.Token)];
+          //Log.Info($"appearanceSelected : {apparenceSelected.GetBindValue(player.oid, nuiToken.Token)}");
 
           apparenceSelected.SetBindWatch(player.oid, nuiToken.Token, true);
         }
@@ -1527,7 +1507,7 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
-              new NuiTextEdit("Description", creatureDescription, 999, true) { Height = 200, Width = 490 }
+              new NuiTextEdit("Description", creatureDescription, 999, true) { Height = 200, Width = 400 }
             }
           });
 
@@ -1535,7 +1515,7 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
-              new NuiTextEdit("Commentaire", creatureComment, 999, true) { Height = 200, Width = 490 }
+              new NuiTextEdit("Commentaire", creatureComment, 999, true) { Height = 200, Width = 400 }
             }
           });
 
@@ -1585,7 +1565,7 @@ namespace NWN.Systems
                 new NuiButtonImage("ir_empytqs") { Id = "saveNewVariable", Height = 35, Width = 35 },
               }
             },
-              new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35,  Width = 490  } } }
+              new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35,  Width = 380  } } }
             }
           });
         }
@@ -1631,61 +1611,6 @@ namespace NWN.Systems
           selectedVariableType.SetBindValues(player.oid, nuiToken.Token, selectedVariableTypeList);
           variableValue.SetBindValues(player.oid, nuiToken.Token, variableValueList);
           listCount.SetBindValue(player.oid, nuiToken.Token, count);
-        }
-        private void HandleSelectSpawnType()
-        {
-          if (player.QueryAuthorized())
-          {
-            int type = selectedSpawnType.GetBindValue(player.oid, nuiToken.Token);
-            previousType = type;
-
-            switch (type)
-            {
-              case 1:
-                targetCreature.GetObjectVariable<LocalVariableString>("_SPAWN_TYPE").Value = "npc";
-                break;
-              case 2:
-                targetCreature.GetObjectVariable<LocalVariableString>("_SPAWN_TYPE").Value = "walker";
-                break;
-            }
-
-            targetCreature.GetObjectVariable<LocalVariableInt>("_SPAWN_TYPE").Value = type;
-
-            if (targetCreature.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").HasNothing)
-            {
-              SqLiteUtils.InsertQuery("creatureSpawn",
-                new List<string[]>() { new string[] { "areaTag", targetCreature.Area.Tag }, new string[] { "position", targetCreature.Position.ToString() }, new string[] { "facing", targetCreature.Rotation.ToString() }, new string[] { "serializedCreature", targetCreature.Serialize().ToBase64EncodedString() } });
-
-              var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, $"SELECT last_insert_rowid()");
-              query.Execute();
-
-              targetCreature.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value = query.Result.GetInt(0);
-            }
-            else
-            {
-              SqLiteUtils.UpdateQuery("creatureSpawn",
-                new List<string[]>() { new string[] { "areaTag", targetCreature.Area.Tag }, new string[] { "position", targetCreature.Position.ToString() }, new string[] { "facing", targetCreature.Rotation.ToString() }, new string[] { "serializedCreature", targetCreature.Serialize().ToBase64EncodedString() } },
-                new List<string[]>() { new string[] { "rowid", targetCreature.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value.ToString() } });
-            }
-          }
-          else
-          {
-            selectedSpawnType.SetBindWatch(player.oid, nuiToken.Token, false);
-            selectedSpawnType.SetBindValue(player.oid, nuiToken.Token, previousType);
-            selectedSpawnType.SetBindWatch(player.oid, nuiToken.Token, true);
-          }
-        }
-        private void HandlePermanentSpawnDeletion()
-        {
-          if (targetCreature.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").HasValue)
-          {
-            string spawnId = targetCreature.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value.ToString();
-
-            SqLiteUtils.DeletionQuery("creatureSpawn",
-              new Dictionary<string, string>() { { "rowid", spawnId } });
-
-            targetCreature.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Delete();
-          }
         }
       }
     }

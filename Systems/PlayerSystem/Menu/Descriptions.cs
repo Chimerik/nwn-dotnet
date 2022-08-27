@@ -84,8 +84,8 @@ namespace NWN.Systems
               {
                 case "new":
 
-                  if (!player.windows.ContainsKey("descriptionContent")) player.windows.Add("descriptionContent", new DescriptionContentWindow(player));
-                  else ((DescriptionContentWindow)player.windows["descriptionContent"]).CreateWindow();
+                  if (!player.windows.TryAdd("descriptionContent", new DescriptionContentWindow(player)))
+                    ((DescriptionContentWindow)player.windows["descriptionContent"]).CreateWindow();
 
                   CloseWindow();
 
@@ -100,8 +100,8 @@ namespace NWN.Systems
 
                 case "load":
 
-                  if (!player.windows.ContainsKey("descriptionContent")) player.windows.Add("descriptionContent", new DescriptionContentWindow(player, player.descriptions[nuiEvent.ArrayIndex]));
-                  else ((DescriptionContentWindow)player.windows["descriptionContent"]).CreateWindow(player.descriptions[nuiEvent.ArrayIndex]);
+                  if (!player.windows.TryAdd("descriptionContent", new DescriptionContentWindow(player, player.descriptions[nuiEvent.ArrayIndex])))
+                    ((DescriptionContentWindow)player.windows["descriptionContent"]).CreateWindow(player.descriptions[nuiEvent.ArrayIndex]);
 
                   CloseWindow();
 

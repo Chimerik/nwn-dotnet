@@ -29,9 +29,6 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim" || player.oid.PlayerName == "test")
         {
-          /*Craft.Collect.System.CreateSelectedResourceInInventory(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == ResourceType.Ore && r.grade == 1),
-              player, 10);*/
-
           //NwItem armor = player.oid.ControlledCreature.GetItemInSlot(InventorySlot.Chest);
           //armor.AddItemProperty(ItemProperty.ACBonus(80), EffectDuration.Temporary, TimeSpan.FromSeconds(30));
           //armor.AddItemProperty(ItemProperty.ACBonusVsDmgType(IPDamageType.Physical, 20), EffectDuration.Temporary, TimeSpan.FromSeconds(30));
@@ -68,7 +65,7 @@ namespace NWN.Systems
 
           //SpellSystem.ApplyCustomEffectToTarget(SpellSystem.frog, player.oid.LoginCreature, TimeSpan.FromSeconds(10));
 
-          //player.oid.EnterTargetMode(OnTargetSelected, ObjectTypes.Creature, MouseCursor.Talk);
+          player.oid.EnterTargetMode(OnTargetSelected, ObjectTypes.Item, MouseCursor.Talk);
         }
       }
     }
@@ -90,7 +87,7 @@ namespace NWN.Systems
       if (selection.IsCancelled)
         return;
 
-      if (selection.TargetObject is not NwCreature item || !PlayerSystem.Players.TryGetValue(selection.Player.LoginCreature, out PlayerSystem.Player player))
+      if (selection.TargetObject is not NwItem item || !PlayerSystem.Players.TryGetValue(selection.Player.LoginCreature, out PlayerSystem.Player player))
         return;
 
       foreach (var ip in item.ItemProperties)

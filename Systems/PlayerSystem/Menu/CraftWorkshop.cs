@@ -23,21 +23,10 @@ namespace NWN.Systems
         private readonly NuiBind<string> blueprintMEs = new ("blueprintMEs");
         private readonly NuiBind<bool> enable = new ("enable");
         private readonly Color white = new(255, 255, 255);
-        private readonly NuiRect drawListRect = new(0, 25, 300, 60);
+        private readonly NuiRect drawListRect = new(0, 35, 150, 60);
         private string workshopTag;
         private IEnumerable<NwItem> blueprintList;
         private IEnumerable<NwItem> filteredList;
-
-        private Tab currentTab;
-        private enum Tab
-        {
-          Craft,
-          Upgrade,
-          Repair,
-          Reinforce,
-          Recycle,
-          Surcharge
-        }
 
         public WorkshopWindow(Player player, string placeableTag) : base(player)
         {
@@ -45,29 +34,19 @@ namespace NWN.Systems
 
           List<NuiListTemplateCell> blueprintTemplate = new List<NuiListTemplateCell>
           {
-            new NuiListTemplateCell(new NuiButtonImage(icon) {Id = "startCraft", Tooltip = blueprintNames, Enabled = enable, Height = 32, Width = 30 }) { Width = 30 },
+            new NuiListTemplateCell(new NuiButtonImage(icon) { Tooltip = blueprintNames, Height = 40, Width = 40 }) { Width = 40 },
             new NuiListTemplateCell(new NuiLabel(blueprintMEs)
             {
               Tooltip = blueprintNames,
               DrawList = new List<NuiDrawListItem>() { new NuiDrawListText(white, drawListRect, blueprintTEs) }
-            }) { VariableSize = true },
+            }) { Width = 160 },
+            new NuiListTemplateCell(new NuiButton("Produire") { Id = "startCraft", Enabled = enable, Tooltip = "Entame une nouvelle production artisanale. Nécessite d'avoir au moins un niveau d'entrainement dans le métier artisanal correspondant.", Height = 40, Width = 90 }) { Width = 90 }
           };
 
           rootColumn.Children = rootChidren;
 
-          rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() 
-          { 
-            new NuiSpacer(),
-            new NuiButtonImage("ife_opportunist") { Id = "craftList", Tooltip = "Création de nouveaux objets", Height = 35, Width = 35 },
-            new NuiButtonImage("upgrade") { Id = "upgradeList", Tooltip = "Amélioration d'objets existants", Height = 35, Width = 35 },
-            new NuiButtonImage("ife_layon") { Id = "repairList", Tooltip = "Réparations", Height = 35, Width = 35 },
-            new NuiButtonImage("ir_unequip") { Id = "recycleList", Tooltip = "Recyclage", Height = 35, Width = 35 },
-            new NuiButtonImage("beam") { Id = "extraction", Tooltip = "Lancer un job d'extraction passif", Height = 35, Width = 35 }, 
-            new NuiSpacer() 
-          } });
-
           rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) { Width = 410 } } });
-          rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiList(blueprintTemplate, listCount) { RowHeight = 32 } } });
+          rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiList(blueprintTemplate, listCount) { RowHeight = 45 } } });
 
           CreateWindow(placeableTag);
         }
@@ -76,7 +55,7 @@ namespace NWN.Systems
         {
           workshopTag = placeableTag;
 
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, 400);
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.65f);
 
           window = new NuiWindow(rootColumn, "Production artisanale")
           {
@@ -102,9 +81,9 @@ namespace NWN.Systems
             blueprintList = player.oid.ControlledCreature.Inventory.Items.Where(i => i.Tag == "blueprint" && i.GetObjectVariable<LocalVariableString>("_CRAFT_WORKSHOP").Value == workshopTag);
             filteredList = blueprintList;
             LoadBlueprintList(filteredList);
+          }
 
-            currentTab = Tab.Craft;
-          } 
+            
         }
 
         private void HandleWorkshopEvents(ModuleEvents.OnNuiEvent nuiEvent)
@@ -138,29 +117,11 @@ namespace NWN.Systems
                   break;
 
                 case "startCraft":
+                  NwItem blueprint = filteredList.ElementAt(nuiEvent.ArrayIndex);
 
-                  NwItem item = filteredList.ElementAt(nuiEvent.ArrayIndex);
-
-                  switch(currentTab)
-                  {
-                    case Tab.Craft:
-                      player.HandleCraftItemChecks(item);
-                      break;
-                    case Tab.Upgrade:
-                      player.HandleCraftItemChecks(item.GetObjectVariable<LocalVariableObject<NwItem>>("_BEST_BLUEPRINT").Value, item);
-                      break;
-                  }
-
-                  
+                  player.HandleCraftItemChecks(blueprint);
                   CloseWindow();
                   
-                  break;
-
-                case "extraction":
-
-                  player.HandlePassiveJobChecks(workshopTag);
-                  CloseWindow();
-
                   break;
               }
 
@@ -203,13 +164,13 @@ namespace NWN.Systems
           {
             int materiaCost = (int)(player.GetItemMateriaCost(item) * (1 - (item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value / 100)));
             TimeSpan jobDuration = TimeSpan.FromSeconds(player.GetItemCraftTime(item, materiaCost));
-            
+
             CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromBlueprint(item) && r.grade == 1);
             int availableQuantity = resource != null ? resource.quantity : 0;
 
-            blueprintNamesList.Add(item.Name + " - Commencer la fabrication");
+            blueprintNamesList.Add(item.Name);
             iconList.Add(NwBaseItem.FromItemId(item.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value).WeaponFocusFeat.IconResRef);
-            blueprintMEsList.Add($"Coût en {ItemUtils.GetResourceNameFromBlueprint(item)} : {availableQuantity}/{materiaCost}");
+            blueprintMEsList.Add($"Coût en {ItemUtils.GetResourceNameFromBlueprint(item)} : {materiaCost}/{availableQuantity}");
             blueprintTEsList.Add($"Temps de fabrication : {new TimeSpan(jobDuration.Days, jobDuration.Hours, jobDuration.Minutes, jobDuration.Seconds)}");
             enabledList.Add(player.learnableSkills.ContainsKey(player.GetJobLearnableFromWorkshop(workshopTag)) && player.craftJob == null && availableQuantity >= materiaCost);
           }

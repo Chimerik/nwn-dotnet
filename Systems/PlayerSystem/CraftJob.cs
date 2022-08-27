@@ -22,9 +22,6 @@ namespace NWN.Systems
       { JobType.BlueprintResearchMaterialEfficiency, CompleteBlueprintMaterialResearch },
       { JobType.BlueprintResearchTimeEfficiency, CompleteBlueprintTimeResearch },
       { JobType.Enchantement, CompleteItemEnchantement },
-      { JobType.Mining, CompleteMining },
-      { JobType.WoodCutting, CompleteWoodCutting },
-      { JobType.Pelting, CompletePelting },
     };
 
   public enum JobType
@@ -53,12 +50,6 @@ namespace NWN.Systems
       EnchantementReactivation = 10,
       [Description("Alchimie")]
       Alchemy = 11,
-      [Description("Extraction_minérale_passive")]
-      Mining = 12,
-      [Description("Extraction_arboricole_passive")]
-      WoodCutting = 13,
-      [Description("Extraction_animale_passive")]
-      Pelting = 14,
     }
 
     public class CraftJob
@@ -70,8 +61,7 @@ namespace NWN.Systems
       public string serializedCraftedItem { get; set; }
       public string enchantementTag { get; set; }
       public DateTime? progressLastCalculation { get; set; }
-      public DateTime? startTime { get; set; }
-      //public ScheduledTask jobProgression { get; set; }
+      public ScheduledTask jobProgression { get; set; }
       public CraftJob(Player player, NwItem oBlueprint, double jobDuration) // Item Craft
       {
         try
@@ -255,22 +245,6 @@ namespace NWN.Systems
           Utils.LogMessageToDMs($"{e.Message}\n\n{e.StackTrace}");
         }
       }
-      public CraftJob(Player player, ResourceType resourceType, double consumedTime, string icon) // Passive repeatable mining
-      {
-        try
-        {
-          remainingTime = 3600 - consumedTime;
-          type = JobType.Mining;
-          startTime = DateTime.Now.AddSeconds(-consumedTime);
-          this.icon = icon;
-
-          player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
-        }
-        catch (Exception e)
-        {
-          Utils.LogMessageToDMs($"{e.Message}\n\n{e.StackTrace}");
-        }
-      }
       public CraftJob(SerializableCraftJob serializedJob, Player player)
       {
         type = serializedJob.type;
@@ -280,7 +254,6 @@ namespace NWN.Systems
         serializedCraftedItem = serializedJob.serializedItem;
         enchantementTag = serializedJob.enchantementTag;
         progressLastCalculation = serializedJob.progressLastCalculation;
-        startTime = serializedJob.startTime;
 
         if (progressLastCalculation.HasValue)
         {
@@ -288,9 +261,7 @@ namespace NWN.Systems
           progressLastCalculation = null;
         }
 
-        player.oid.OnServerSendArea -= HandleCraftJobOnAreaChange;
-        player.oid.OnServerSendArea += HandleCraftJobOnAreaChange;
-        //HandleDelayedJobProgression(player);
+        HandleDelayedJobProgression(player);
       }
 
       public class SerializableCraftJob
@@ -302,7 +273,6 @@ namespace NWN.Systems
         public string enchantementTag { get; set; }
         public string icon { get; set; }
         public DateTime? progressLastCalculation { get; set; }
-        public DateTime? startTime { get; set; }
 
         public SerializableCraftJob()
         {
@@ -315,12 +285,11 @@ namespace NWN.Systems
           remainingTime = baseJob.remainingTime;
           originalSerializedItem = baseJob.originalSerializedItem;
           serializedItem = baseJob.serializedCraftedItem;
-          progressLastCalculation = DateTime.Now;
+          progressLastCalculation = baseJob.progressLastCalculation;
           enchantementTag = baseJob.enchantementTag;
-          startTime = baseJob.startTime;
         }
       }
-      /*public async void HandleDelayedJobProgression(Player player)
+      public async void HandleDelayedJobProgression(Player player)
       {
         if (jobProgression != null)
           jobProgression.Dispose();
@@ -337,37 +306,28 @@ namespace NWN.Systems
           return;
         }
 
-        player.oid.OnServerSendArea -= HandleCraftJobOnAreaChange;
-        player.oid.OnServerSendArea += HandleCraftJobOnAreaChange;
+        player.oid.OnServerSendArea -= player.craftJob.HandleCraftJobOnAreaChange;
+        player.oid.OnServerSendArea += player.craftJob.HandleCraftJobOnAreaChange;
         player.oid.OnClientDisconnect -= HandleCraftJobOnPlayerLeave;
         player.oid.OnClientDisconnect += HandleCraftJobOnPlayerLeave;
 
-        if (remainingTime > 0)
+        jobProgression = player.scheduler.ScheduleRepeating(() =>
         {
-          jobProgression = player.scheduler.ScheduleRepeating(() =>
-          {
-            jobProgression.Dispose();
-            HandleSpecificJobCompletion[type].Invoke(player, true);
-            HandleGenericJobCompletion(player);
-          }, TimeSpan.FromSeconds(remainingTime));
-        }
-        else
-        {
+          jobProgression.Dispose();
           HandleSpecificJobCompletion[type].Invoke(player, true);
           HandleGenericJobCompletion(player);
-        }
-      }*/
+        }, TimeSpan.FromSeconds(remainingTime));
+      }
       public void HandleGenericJobCompletion(Player player)
       {
         if (player.TryGetOpenedWindow("activeCraftJob", out Player.PlayerWindow craftWindow))
-          if(player.craftJob.type != JobType.Mining && player.craftJob.type != JobType.WoodCutting && player.craftJob.type != JobType.Pelting)
-            craftWindow.CloseWindow();
+          craftWindow.CloseWindow();
 
-        //if (jobProgression != null)
-          //jobProgression.Dispose();
+        if (jobProgression != null)
+          jobProgression.Dispose();
 
         player.craftJob = null;
-        //player.oid.OnClientDisconnect -= HandleCraftJobOnPlayerLeave;
+        player.oid.OnClientDisconnect -= HandleCraftJobOnPlayerLeave;
         player.oid.OnServerSendArea -= HandleCraftJobOnAreaChange;
 
         //player.oid.ApplyInstantVisualEffectToObject((VfxType)1516, player.oid.ControlledCreature);
@@ -382,10 +342,10 @@ namespace NWN.Systems
         if (player.TryGetOpenedWindow("activeCraftJob", out Player.PlayerWindow craftWindow))
           craftWindow.CloseWindow();
 
-        //if (jobProgression != null)
-          //jobProgression.Dispose();
+        if (jobProgression != null)
+          jobProgression.Dispose();
 
-        //player.oid.OnClientDisconnect -= HandleCraftJobOnPlayerLeave;
+        player.oid.OnClientDisconnect -= HandleCraftJobOnPlayerLeave;
         player.oid.OnServerSendArea -= HandleCraftJobOnAreaChange;
 
         player.craftJob = null;
@@ -399,7 +359,7 @@ namespace NWN.Systems
         return new TimeSpan(timespan.Days, timespan.Hours, timespan.Minutes, timespan.Seconds).ToString();
       }
       
-      /*public void HandleCraftJobOnPlayerLeave(OnClientDisconnect onPCDisconnect)
+      public void HandleCraftJobOnPlayerLeave(OnClientDisconnect onPCDisconnect)
       {
         onPCDisconnect.Player.OnClientDisconnect -= HandleCraftJobOnPlayerLeave;
         onPCDisconnect.Player.OnServerSendArea -= HandleCraftJobOnAreaChange;
@@ -408,16 +368,16 @@ namespace NWN.Systems
           jobProgression.Dispose();
 
         progressLastCalculation = DateTime.Now;
-      }*/
+      }
       public void HandleCraftJobOnAreaChange(OnServerSendArea onArea)
       {
          if (!Players.TryGetValue(onArea.Player.LoginCreature, out Player player))
           return;
 
-        if (onArea.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 0 && player.craftJob != null)
+        if (onArea.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 0 && !jobProgression.IsCancelled)
         {
-          //jobProgression.Dispose();
-          //player.oid.OnClientDisconnect -= HandleCraftJobOnPlayerLeave;
+          jobProgression.Dispose();
+          player.oid.OnClientDisconnect -= HandleCraftJobOnPlayerLeave;
 
           if (player.TryGetOpenedWindow("activeCraftJob", out Player.PlayerWindow jobWindow))
             ((Player.ActiveCraftJobWindow)jobWindow).timeLeft.SetBindValue(player.oid, jobWindow.nuiToken.Token, "En pause (Hors Cité)");
@@ -425,13 +385,13 @@ namespace NWN.Systems
           return;
         }
 
-        /*if (onArea.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value == 0 && jobProgression.IsCancelled)
+        if (onArea.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value == 0 && jobProgression.IsCancelled)
         {
           if (player.TryGetOpenedWindow("activeCraftJob", out Player.PlayerWindow jobWindow))
             ((Player.ActiveCraftJobWindow)jobWindow).HandleRealTimeJobProgression();
           else
             HandleDelayedJobProgression(player);
-        }*/
+        }
       }
       private void StartBlueprintCopy(Player player, NwItem oBlueprint)
       {
@@ -794,114 +754,6 @@ namespace NWN.Systems
       ip.Tag = $"ENCHANTEMENT_{spell.Id}_{ip.Property.PropertyType}_{ip.SubType}_{ip.CostTable}_{ip.CostTableValue}_{enchanterId}";
 
       return ip;
-    }
-    private static bool CompleteMining(Player player, bool completed)
-    {
-      if (completed)
-      {
-        double elapsedTime = (DateTime.Now - player.craftJob.startTime.Value).TotalSeconds;
-
-        if (elapsedTime < 3600)
-          elapsedTime = 3600;
-
-        int nbCycles = (int)Math.Truncate(elapsedTime / 3600);
-        double alreadyConsumedTime = elapsedTime - (nbCycles * 3600);
-        double miningYield = nbCycles * 1800;
-        miningYield = player.learnableSkills.ContainsKey(CustomSkill.MineralExtraction) ? miningYield * player.learnableSkills[CustomSkill.MineralExtraction].bonusMultiplier : miningYield;
-        miningYield = player.learnableSkills.ContainsKey(CustomSkill.MineralExtractionYield) ? miningYield * player.learnableSkills[CustomSkill.MineralExtractionYield].bonusMultiplier : miningYield;
-
-        CraftResource resourceStock = player.craftResourceStock.FirstOrDefault(r => r.type == ResourceType.Ore && r.grade == 1);
-
-        if (resourceStock != null)
-          resourceStock.quantity += (int)miningYield;
-        else
-        {
-          CraftResource resource = Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == ResourceType.Ore && r.grade == 1);
-          player.craftResourceStock.Add(new CraftResource(resource, (int)miningYield));
-        }
-
-        player.RescheduleRepeatableJob(ResourceType.Ore, alreadyConsumedTime, player.craftJob.icon);
-        player.oid.SendServerMessage($"La fin de votre job d'extraction passive de matéria minérale vous rapporte : {(int)miningYield} unités de matéria !", ColorConstants.Orange);
-        player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
-      }
-      else // cancelled
-      {
-        player.oid.SendServerMessage($"Vous venez d'annuler votre job de récolte passive de matéria minérale.", ColorConstants.Orange);
-      }
-
-      return true;
-    }
-    private static bool CompleteWoodCutting(Player player, bool completed)
-    {
-      if (completed)
-      {
-        double elapsedTime = (DateTime.Now - player.craftJob.startTime.Value).TotalSeconds;
-
-        if (elapsedTime < 3600)
-          elapsedTime = 3600;
-
-        int nbCycles = (int)Math.Truncate(elapsedTime / 3600);
-        double alreadyConsumedTime = elapsedTime - (nbCycles * 3600);
-        double miningYield = nbCycles * 1800;
-        miningYield = player.learnableSkills.ContainsKey(CustomSkill.WoodExtraction) ? miningYield * player.learnableSkills[CustomSkill.WoodExtraction].bonusMultiplier : miningYield;
-        miningYield = player.learnableSkills.ContainsKey(CustomSkill.WoodExtractionYield) ? miningYield * player.learnableSkills[CustomSkill.WoodExtractionYield].bonusMultiplier : miningYield;
-
-        CraftResource resourceStock = player.craftResourceStock.FirstOrDefault(r => r.type == ResourceType.Wood && r.grade == 1);
-        
-        if (resourceStock != null)
-          resourceStock.quantity += (int)miningYield;
-        else
-        {
-          CraftResource resource = Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == ResourceType.Wood && r.grade == 1);
-          player.craftResourceStock.Add(new CraftResource(resource, (int)miningYield));
-        }
-
-        player.RescheduleRepeatableJob(ResourceType.Ore, alreadyConsumedTime, player.craftJob.icon);
-        player.oid.SendServerMessage($"La fin de votre job d'extraction passive de matéria arboricole vous rapporte : {(int)miningYield} unités de matéria, directement envoyées à l'entrepôt !", ColorConstants.Orange);
-        player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
-      }
-      else // cancelled
-      {
-        player.oid.SendServerMessage($"Vous venez d'annuler votre job de récolte passive de matéria arboricole.", ColorConstants.Orange);
-      }
-
-      return true;
-    }
-    private static bool CompletePelting(Player player, bool completed)
-    {
-      if (completed)
-      {
-        double elapsedTime = (DateTime.Now - player.craftJob.startTime.Value).TotalSeconds;
-
-        if (elapsedTime < 3600)
-          elapsedTime = 3600;
-
-        int nbCycles = (int)Math.Truncate(elapsedTime / 3600);
-        double alreadyConsumedTime = elapsedTime - (nbCycles * 3600);
-        double miningYield = nbCycles * 1800;
-        miningYield = player.learnableSkills.ContainsKey(CustomSkill.PeltExtraction) ? miningYield * player.learnableSkills[CustomSkill.PeltExtraction].bonusMultiplier : miningYield;
-        miningYield = player.learnableSkills.ContainsKey(CustomSkill.PeltExtractionYield) ? miningYield * player.learnableSkills[CustomSkill.PeltExtractionYield].bonusMultiplier : miningYield;
-
-        CraftResource resourceStock = player.craftResourceStock.FirstOrDefault(r => r.type == ResourceType.Wood && r.grade == 1);
-
-        if (resourceStock != null)
-          resourceStock.quantity += (int)miningYield;
-        else
-        {
-          CraftResource resource = Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == ResourceType.Wood && r.grade == 1);
-          player.craftResourceStock.Add(new CraftResource(resource, (int)miningYield));
-        }
-
-        player.RescheduleRepeatableJob(ResourceType.Ore, alreadyConsumedTime, player.craftJob.icon);
-        player.oid.SendServerMessage($"La fin de votre job d'extraction passive de matéria animale vous rapporte : {(int)miningYield} unités de matéria, directement envoyées à l'entrepôt !", ColorConstants.Orange);
-        player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
-      }
-      else // cancelled
-      {
-        player.oid.SendServerMessage($"Vous venez d'annuler votre job de récolte passive de matéria animale, directement envoyées à l'entrepôt !", ColorConstants.Orange);
-      }
-
-      return true;
     }
   }
 }

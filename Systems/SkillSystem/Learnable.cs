@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 
 using Anvil.API;
 
@@ -16,10 +17,9 @@ namespace NWN.Systems
     public Ability primaryAbility { get; }
     public Ability secondaryAbility { get; }
     public bool active { get; set; }
-    public double acquiredPoints { get; set; }
+    public double acquiredPoints { get; set; }  
     public int currentLevel { get; set; }
     public DateTime? spLastCalculation { get; set; }
-    public double pointsToNextLevel { get;set; }
 
     public Learnable(int id, string name, string description, string icon, int maxLevel, int multiplier, Ability primaryAbility, Ability secondaryAbility)
     {
@@ -48,17 +48,17 @@ namespace NWN.Systems
 
     }
 
-    /**public double GetPointsToNextLevel()
+    public double GetPointsToNextLevel()
     {
       return 250 * multiplier * Math.Pow(5, currentLevel);
-    }*/
+    }
 
     public TimeSpan GetTimeSpanToNextLevel(PlayerSystem.Player player)
     {
       if (player.oid.LoginCreature == null)
         return TimeSpan.FromDays(300);
 
-      return TimeSpan.FromSeconds((pointsToNextLevel - acquiredPoints) / player.GetSkillPointsPerSecond(this));
+      return TimeSpan.FromSeconds((GetPointsToNextLevel() - acquiredPoints) / player.GetSkillPointsPerSecond(this));
     }
 
     public string GetReadableTimeSpanToNextLevel(PlayerSystem.Player player)
@@ -67,7 +67,7 @@ namespace NWN.Systems
       return new TimeSpan(timespan.Days, timespan.Hours, timespan.Minutes, timespan.Seconds).ToString();
     }
 
-    /*public async void AwaitPlayerStateChangeToCalculateSPGain(PlayerSystem.Player player)
+    public async void AwaitPlayerStateChangeToCalculateSPGain(PlayerSystem.Player player)
     {
       TimeSpan timeToNextLevel = GetTimeSpanToNextLevel(player);
       var scheduler = player.scheduler.Schedule(() => { LevelUpWrapper(player);}, timeToNextLevel.TotalSeconds > 0 ? timeToNextLevel: TimeSpan.FromSeconds(0));
@@ -99,9 +99,9 @@ namespace NWN.Systems
       }
 
       AwaitPlayerStateChangeToCalculateSPGain(player);
-    }*/
+    }
 
-    public async void LevelUpWrapper(PlayerSystem.Player player)
+    private async void LevelUpWrapper(PlayerSystem.Player player)
     {
       if (this is LearnableSkill)
       {
@@ -124,22 +124,13 @@ namespace NWN.Systems
     public void StartLearning(PlayerSystem.Player player) // on met en pause le learnable précédent et on active le nouveau
     {
       if (player.learnableSpells.Any(l => l.Value.active))
-      {
-        LearnableSpell spell = player.learnableSpells.FirstOrDefault(l => l.Value.active).Value;
-        spell.active = false;
-        spell.spLastCalculation = null;
-      }
+        player.learnableSpells.FirstOrDefault(l => l.Value.active).Value.active = false;
       else if (player.learnableSkills.Any(l => l.Value.active))
-      {
-        LearnableSkill skill = player.learnableSkills.FirstOrDefault(l => l.Value.active).Value;
-        skill.active = false;
-        skill.spLastCalculation = null;
-      }
+        player.learnableSkills.FirstOrDefault(l => l.Value.active).Value.active = false;
 
       active = true;
-      player.activeLearnable = this;
       spLastCalculation = DateTime.Now;
-      //AwaitPlayerStateChangeToCalculateSPGain(player);
+      AwaitPlayerStateChangeToCalculateSPGain(player);
     }
   }
 }
