@@ -12,9 +12,8 @@ namespace NWN.Systems
     {
       public class EnchantementSelectionWindow : PlayerWindow
       {
-        private readonly NuiGroup rootGroup;
-        private readonly NuiColumn rootColumn;
-        private readonly List<NuiElement> rootChidren;
+        private readonly NuiColumn rootColumn = new();
+        private readonly List<NuiElement> rootChidren = new();
         private readonly NuiBind<string> buttonText = new ("buttonText");
         private readonly NuiBind<int> listCount = new ("listCount");
         private NwSpell spell { get; set; }
@@ -23,13 +22,10 @@ namespace NWN.Systems
         public EnchantementSelectionWindow(Player player, NwSpell spell, NwItem item) : base(player)
         {
           windowId = "enchantementSelection";
-
-          rootChidren = new List<NuiElement>();
-          rootColumn = new NuiColumn() { Children = rootChidren };
-          rootGroup = new NuiGroup() { Id = "rootGroup", Border = true, Layout = rootColumn };
+          rootColumn.Children = rootChidren;
 
           List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell> { new NuiListTemplateCell(new NuiButton(buttonText) { Id = "select", Height = 35 }) { Width = 400 } };
-          rootChidren.Add(new NuiList(rowTemplate, listCount) { RowHeight = 75 });
+          rootChidren.Add(new NuiList(rowTemplate, listCount) { RowHeight = 35 });
 
           CreateWindow(spell, item);
         }
@@ -40,12 +36,24 @@ namespace NWN.Systems
           List<string> enchantementList = new List<string>();
 
           foreach (ItemProperty ip in player.spellSystem.enchantementCategories[(int)spell.Id])
-            enchantementList.Add($"{ItemPropertyDefinition2da.ipDefinitionTable[(int)ip.Property.PropertyType].name} - " +
-              $"{ItemPropertyDefinition2da.GetSubTypeName(ip.Property.PropertyType, ip?.SubType?.RowIndex ?? -1)}");
+          {
+            if (!ip.Property.ItemMap.IsItemPropertyValidForItem(item))
+              continue;
 
+            string ipName = $"{ip.Property.Name?.ToString()}";
+
+            if (ip?.SubType?.RowIndex > -1)
+              ipName += $" : {NwGameTables.ItemPropertyTable.GetRow(ip.Property.RowIndex).SubTypeTable?.GetRow(ip.SubType.RowIndex).Name?.ToString()}";
+
+            ipName += " " + ip.CostTableValue?.Name?.ToString();
+            ipName += " " + ip.Param1TableValue?.Name?.ToString();
+
+            enchantementList.Add(ipName);
+          }
+          
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.4f);
 
-          window = new NuiWindow(rootGroup, "Enchantement - Sélection")
+          window = new NuiWindow(rootColumn, "Enchantement - Sélection")
           {
             Geometry = geometry,
             Resizable = false,
@@ -77,62 +85,14 @@ namespace NWN.Systems
               {
                 case "select":
 
-                  HandleEnchantementChecks(player.spellSystem.enchantementCategories[(int)spell.Id][nuiEvent.ArrayIndex]);
-                  CloseWindow();
+                  if(player.HandleEnchantementItemChecks(itemTarget, spell, player.spellSystem.enchantementCategories[(int)spell.Id][nuiEvent.ArrayIndex]))                        
+                    CloseWindow();
 
                   break;
 
               }
               break;
           }
-        }
-        private void HandleEnchantementChecks(ItemProperty ip)
-        {
-          switch (ip.Property.PropertyType)
-          {
-            case ItemPropertyType.AcBonus:
-            case ItemPropertyType.AcBonusVsAlignmentGroup:
-            case ItemPropertyType.AcBonusVsDamageType:
-            case ItemPropertyType.AcBonusVsRacialGroup:
-            case ItemPropertyType.AcBonusVsSpecificAlignment:
-
-              if (itemTarget.BaseItem.ItemType != BaseItemType.Armor
-                && itemTarget.BaseItem.ItemType != BaseItemType.Helmet
-                && itemTarget.BaseItem.ItemType != BaseItemType.Cloak
-                && itemTarget.BaseItem.ItemType != BaseItemType.Boots
-                && itemTarget.BaseItem.ItemType != BaseItemType.Gloves
-                && itemTarget.BaseItem.ItemType != BaseItemType.Bracer
-                && itemTarget.BaseItem.ItemType != BaseItemType.LargeShield
-                && itemTarget.BaseItem.ItemType != BaseItemType.TowerShield
-                && itemTarget.BaseItem.ItemType != BaseItemType.SmallShield
-                )
-
-                player.oid.SendServerMessage("Ce type d'enchantement ne peut-être utilisé que sur une armure, un bouclier, un casque, une cape, des bottes ou des gants", ColorConstants.Red);
-
-              return;
-
-            case ItemPropertyType.AttackBonus:
-            case ItemPropertyType.AttackBonusVsAlignmentGroup:
-            case ItemPropertyType.AttackBonusVsRacialGroup:
-            case ItemPropertyType.AttackBonusVsSpecificAlignment:
-            case ItemPropertyType.EnhancementBonus:
-            case ItemPropertyType.EnhancementBonusVsAlignmentGroup:
-            case ItemPropertyType.EnhancementBonusVsRacialGroup:
-            case ItemPropertyType.EnhancementBonusVsSpecificAlignment:
-
-              ItemUtils.ItemCategory itemCategory = ItemUtils.GetItemCategory(itemTarget.BaseItem.ItemType);
-
-              if (itemCategory != ItemUtils.ItemCategory.OneHandedMeleeWeapon
-                && itemCategory != ItemUtils.ItemCategory.TwoHandedMeleeWeapon
-                && itemCategory != ItemUtils.ItemCategory.RangedWeapon
-                && itemTarget.BaseItem.ItemType != BaseItemType.Gloves)
-
-                player.oid.SendServerMessage("Ce type d'enchantement ne peut-être utilisé que sur une arme.", ColorConstants.Red);
-
-              return;
-          }
-
-          player.craftJob = new CraftJob(player, itemTarget, spell, ip, JobType.Enchantement);
         }
       }
     }

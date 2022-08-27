@@ -85,6 +85,7 @@ namespace NWN.Systems
             player.windows.Add("materiaExtraction", new PlayerSystem.Player.MateriaExtractionWindow(player, onItemUse.Item, oTarget));
           
           break;
+
         case "private_contract":
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
@@ -98,18 +99,21 @@ namespace NWN.Systems
           }
 
           break;
+
         case "shop_clearance":
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
           new PlayerShop(oPC.ControllingPlayer.LoginCreature, oItem);
 
           break;
+
         case "auction_clearanc":
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
           new PlayerAuction(oPC.ControllingPlayer.LoginCreature, oItem);
 
           break;
+
         case "sequence_register":
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
@@ -117,20 +121,25 @@ namespace NWN.Systems
           new SequenceRegister(player, oItem, oTarget);
 
           break;
+
         case "Peaudejoueur":
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
           oPC.RunEquip(onItemUse.Item, InventorySlot.CreatureSkin);         
           break;
+
         case "potion_cure_mini":
             new PotionCureMini(oPC.ControllingPlayer);
           break;
+
         case "potion_cure_frog":
           new PotionCureFrog(oPC.ControllingPlayer);
           break;
+
         case "potion_alchimique":
           new PotionAlchimisteEffect(onItemUse.Item, oPC.ControllingPlayer, oTarget);
           break;
+
         case "bank_contract":
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
@@ -141,16 +150,7 @@ namespace NWN.Systems
             player.windows.Add("bankContract", new PlayerSystem.Player.BankContractWindow(player, oItem));
 
           break;
-        case "learning_book":
-          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
-          onItemUse.PreventUseItem = true;
 
-          if (player.windows.ContainsKey("learnable"))
-            ((PlayerSystem.Player.LearnableWindow)player.windows["learnable"]).CreateWindow();
-          else
-            player.windows.Add("learnable", new PlayerSystem.Player.LearnableWindow(player));
-
-          break;
         case "materia_detector":
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;

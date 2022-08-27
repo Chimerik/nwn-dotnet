@@ -1015,6 +1015,33 @@ namespace NWN.Systems
 
         return;
       }
+      private bool HandleEnchantementItemChecks(NwItem item, NwSpell spell, ItemProperty ip)
+      {
+        if (craftJob != null)
+        {
+          oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
+          return false;
+        }
+
+        if (item == null || item.Possessor != oid.ControlledCreature)
+        {
+          oid.SendServerMessage($"{item.Name.ColorString(ColorConstants.White)} n'est plus en votre possession. Impossible de commencer le travail artisanal.", ColorConstants.Red);
+          return false;
+        }
+
+        if (item.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").HasNothing)
+        {
+          oid.SendServerMessage($"{item.Name.ColorString(ColorConstants.White)} n'a plus d'emplacement de sort disponible.", ColorConstants.Red);
+          return false;
+        }
+
+        craftJob = new CraftJob(this, item, spell, ip, JobType.Enchantement);
+
+        if (!windows.ContainsKey("activeCraftJob")) windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
+        else ((ActiveCraftJobWindow)windows["activeCraftJob"]).CreateWindow();
+
+        return true;
+      }
       public void HandleCraftItemChecks(NwItem blueprint, NwItem upgradedItem = null)
       {
         if (craftJob != null)
@@ -1219,6 +1246,13 @@ namespace NWN.Systems
           craftJob.progressLastCalculation = DateTime.Now;
           craftJob.HandleDelayedJobProgression(this);
         }*/
+      }
+      public NwItem GetItemBestBlueprint(NwItem item)
+      {
+        return oid.ControlledCreature.Inventory.Items
+             .Where(i => i.Tag == "blueprint" && i.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value == (int)item.BaseItem.ItemType)
+             .OrderByDescending(i => i.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value)
+             .ThenByDescending(i => i.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_TIME_EFFICIENCY").Value).FirstOrDefault();
       }
     }
   }

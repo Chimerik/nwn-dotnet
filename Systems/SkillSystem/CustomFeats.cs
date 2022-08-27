@@ -29,7 +29,7 @@
     public const int BezdnacineReprocessing = 1201;
     public const int ArkonorReprocessing = 1202;
     public const int MercoxitReprocessing = 1203;
-    public const int StripMiner = 1204;
+    //public const int StripMiner = 1204;
     
     public const int CustomPositionRight = 1279;
     public const int CustomPositionLeft = 1280;
@@ -37,7 +37,7 @@
     public const int CustomPositionRotateLeft = 1282;
     public const int CustomPositionForward = 1283;
     public const int CustomPositionBackward = 1284;
-    public const int WoodCutter = 1285;
+    /*public const int WoodCutter = 1285;
     public const int WoodExpertise = 1286;
     public const int WoodProspection = 1287;
     public const int Skinning = 1288;
@@ -64,7 +64,7 @@
     public const int RarePeltReprocessing = 1309;
     public const int MagicPeltReprocessing = 1310;
     public const int EpicPeltReprocessing = 1311;
-    public const int LegendaryPeltReprocessing = 1312;
+    public const int LegendaryPeltReprocessing = 1312;*/
     
     public const int ContractScience = 1314;
     public const int Marchand = 1315;

@@ -347,6 +347,7 @@ namespace NWN.Systems
         oid.LoginCreature.OnSpellBroadcast += spellSystem.HandleHearingSpellBroadcast;
         oid.LoginCreature.OnSpellCast += spellSystem.HandleAutoSpellBeforeSpellCast;
         oid.LoginCreature.OnSpellCast += spellSystem.CheckIsDivinationBeforeSpellCast;
+        oid.LoginCreature.OnSpellCast += spellSystem.HandleCraftEnchantementCast;
         oid.LoginCreature.OnSpellAction += spellSystem.HandleCraftOnSpellInput;
         oid.LoginCreature.OnSpellAction += spellSystem.RegisterMetaMagicOnSpellInput;
       }

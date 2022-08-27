@@ -64,21 +64,22 @@ namespace NWN.Systems
       {881, new ItemProperty[] { ItemProperty.Keen() } },
       {882, new ItemProperty[] { ItemProperty.Haste() } },
     };
-    private static void Enchantement(SpellEvents.OnSpellCast onSpellCast)
+    private static void Enchantement(OnSpellCast onSpellCast, PlayerSystem.Player player)
     {
-      if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oCaster) || !PlayerSystem.Players.TryGetValue(oCaster.ControllingPlayer.LoginCreature, out PlayerSystem.Player player))
-        return;
-
-      if(!(onSpellCast.TargetObject is NwItem targetItem) || targetItem == null || targetItem.Possessor != oCaster)
+      if(!(onSpellCast.TargetObject is NwItem targetItem) || targetItem == null || targetItem.Possessor != player.oid.ControlledCreature)
       {
         player.oid.SendServerMessage("Cible invalide.", ColorConstants.Red);
         return;
       }
 
-      if (player.windows.ContainsKey("enchantementSelection"))
-        ((PlayerSystem.Player.EnchantementSelectionWindow)player.windows["enchantementSelection"]).CreateWindow(onSpellCast.Spell, targetItem);
-      else
-        player.windows.Add("enchantementSelection", new PlayerSystem.Player.EnchantementSelectionWindow(player, onSpellCast.Spell, targetItem));
+      if(!player.learnableSkills.ContainsKey(CustomSkill.Enchanteur) || player.learnableSkills[CustomSkill.Enchanteur].totalPoints < 1)
+      {
+        player.oid.SendServerMessage("Il est nécessaire de connaître les bases de l'enchantement avant de pouvoir commencer ce travail !", ColorConstants.Red);
+        return;
+      }
+
+      if (!player.windows.ContainsKey("enchantementSelection")) player.windows.Add("enchantementSelection", new PlayerSystem.Player.EnchantementSelectionWindow(player, onSpellCast.Spell, targetItem));
+      else ((PlayerSystem.Player.EnchantementSelectionWindow)player.windows["enchantementSelection"]).CreateWindow(onSpellCast.Spell, targetItem);
 
       // TODO : la réactivation fonctionnera via OnExamineItem. Mais gardons ça dans un coin en attendant
       /*if (oTarget.ItemProperties.Any(ip => ip.Tag.StartsWith($"ENCHANTEMENT_{spellId}") && ip.Tag.Contains("INACTIVE")))

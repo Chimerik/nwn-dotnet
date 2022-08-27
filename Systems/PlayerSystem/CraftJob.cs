@@ -125,22 +125,26 @@ namespace NWN.Systems
 
           icon = upgradedItem.BaseItem.WeaponFocusFeat.IconResRef;
           remainingTime = jobDuration;
-          type = JobType.ItemCreation;
+          type = JobType.ItemUpgrade;
 
           originalSerializedItem = upgradedItem.Serialize().ToBase64EncodedString();
 
           Craft.Collect.System.AddCraftedItemProperties(upgradedItem, upgradedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value + 1);
           upgradedItem.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value = player.oid.LoginCreature.OriginalName;
 
-          serializedCraftedItem = upgradedItem.Serialize().ToBase64EncodedString();
-          upgradedItem.Destroy();
-
+          DelayItemSerialization(upgradedItem);
           player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
         }
         catch (Exception e)
         {
           Utils.LogMessageToDMs($"{e.Message}\n\n{e.StackTrace}");
         }
+      }
+      private async void DelayItemSerialization(NwItem upgradedItem) // La suppression d'item property ne s'exécute qu'après la fin du script en cours. Je suis donc obligé de mettre un faux délai avant serialization
+      {
+        await NwTask.Delay(TimeSpan.FromSeconds(0));
+        serializedCraftedItem = upgradedItem.Serialize().ToBase64EncodedString();
+        upgradedItem.Destroy();
       }
       public CraftJob(Player player, NwItem oBlueprint, JobType type) // Blueprint Copy
       {
@@ -215,7 +219,7 @@ namespace NWN.Systems
       {
         try
         {
-          icon = item.BaseItem.WeaponFocusFeat.IconResRef;
+          icon = spell.IconResRef;
           type = jobType;
 
           remainingTime = ItemUtils.GetBaseItemCost(item) * 10 * spell.InnateSpellLevel;
@@ -225,20 +229,25 @@ namespace NWN.Systems
 
           originalSerializedItem = item.Serialize().ToBase64EncodedString();
 
-          NwItem enchantedItem = NwItem.Create(BaseItems2da.baseItemTable[(int)item.BaseItem.ItemType].craftedItem, player.oid.LoginCreature.Location);
-          enchantedItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+          NwItem enchantedItem = item.Clone(player.oid.LoginCreature.Location);
 
           enchantedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value -= 1;
           if (enchantedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value <= 0)
             enchantedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Delete();
 
+          int i = 0;
+
+          while(enchantedItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasValue && i < 20)
+            i++;
+
+          if (i > 19)
+            Utils.LogMessageToDMs($"SYSTEME ENCHANTEMENT - {player.oid.LoginCreature.Name} - {spell.Name.ToString()} - {item.Name} - Impossible de trouver un slot valide libre");
+
+          enchantedItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value = spell.Id;
           enchantementTag = AddCraftedEnchantementProperties(enchantedItem, spell, ip, player.characterId);
 
-          serializedCraftedItem = enchantedItem.Serialize().ToBase64EncodedString();
-
           item.Destroy();
-          enchantedItem.Destroy();
-
+          DelayItemSerialization(enchantedItem);
           player.oid.ApplyInstantVisualEffectToObject((VfxType)832, player.oid.ControlledCreature);
         }
         catch (Exception e)
@@ -726,6 +735,7 @@ namespace NWN.Systems
       }
       else // cancelled
       {
+        ItemUtils.DeserializeAndAcquireItem(player.craftJob.originalSerializedItem, player.oid.LoginCreature);
         player.oid.SendServerMessage($"Vous venez d'annuler la création d'un objet artisanal.", ColorConstants.Orange);
       }
 
@@ -739,7 +749,7 @@ namespace NWN.Systems
     }
     private static ItemProperty GetCraftEnchantementProperties(NwItem craftedItem, NwSpell spell, ItemProperty ip, int enchanterId)
     {
-      ItemProperty existingIP = craftedItem.ItemProperties.FirstOrDefault(i => i.DurationType == EffectDuration.Permanent && i.Property.PropertyType == ip.Property.PropertyType && i.SubType == ip.SubType && i.Param1Table == ip.Param1Table);
+      ItemProperty existingIP = craftedItem.ItemProperties.FirstOrDefault(i => i.DurationType == EffectDuration.Permanent && i.Property.RowIndex == ip.Property.RowIndex && i.SubType?.RowIndex == ip.SubType?.RowIndex && i.Param1TableValue?.RowIndex == ip.Param1TableValue?.RowIndex);
 
       if (existingIP != null)
       {
@@ -759,6 +769,18 @@ namespace NWN.Systems
             newRank += 1;
 
           ip.IntParams[3] = ItemPropertyDamageCost2da.GetDamageCostValueFromRank(newRank); // IntParams[3] = CostTableValue
+        }
+        else if (ip.Property.PropertyType == ItemPropertyType.AcBonus
+          || ip.Property.PropertyType == ItemPropertyType.AcBonusVsAlignmentGroup
+          || ip.Property.PropertyType == ItemPropertyType.AcBonusVsDamageType
+          || ip.Property.PropertyType == ItemPropertyType.AcBonusVsRacialGroup
+          || ip.Property.PropertyType == ItemPropertyType.AcBonusVsSpecificAlignment
+          || ip.Property.PropertyType == ItemPropertyType.AttackBonus
+          || ip.Property.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup
+          || ip.Property.PropertyType == ItemPropertyType.AttackBonusVsRacialGroup
+          || ip.Property.PropertyType == ItemPropertyType.AttackBonusVsSpecificAlignment)
+        {
+          ip.IntParams[3] += existingIP.IntParams[3];
         }
         else
         {

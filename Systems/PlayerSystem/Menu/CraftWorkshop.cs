@@ -48,7 +48,7 @@ namespace NWN.Systems
             new NuiListTemplateCell(new NuiButtonImage(icon) {Id = "startCraft", Tooltip = blueprintNames, Enabled = enable, Height = 32, Width = 30 }) { Width = 30 },
             new NuiListTemplateCell(new NuiLabel(blueprintMEs)
             {
-              Width = 160, Tooltip = blueprintNames,
+              Tooltip = blueprintNames,
               DrawList = new List<NuiDrawListItem>() { new NuiDrawListText(white, drawListRect, blueprintTEs) }
             }) { VariableSize = true },
           };
@@ -116,20 +116,25 @@ namespace NWN.Systems
               switch (nuiEvent.ElementId)
               {
                 case "craftList":
+
                   blueprintList = player.oid.ControlledCreature.Inventory.Items.Where(i => i.Tag == "blueprint" && i.GetObjectVariable<LocalVariableString>("_CRAFT_WORKSHOP").Value == workshopTag);
                   filteredList = blueprintList;
                   LoadBlueprintList(filteredList);
                   search.SetBindValue(player.oid, nuiToken.Token, "");
                   currentTab = Tab.Craft;
+
                   break;
 
                 case "upgradeList":
-                   blueprintList = player.oid.ControlledCreature.Inventory.Items.Where(i => i.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value == player.oid.ControlledCreature.OriginalName 
-                   && i.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value < 8 && BaseItems2da.baseItemTable[(int)i.BaseItem.ItemType].workshop == workshopTag); 
+
+                  blueprintList = player.oid.ControlledCreature.Inventory.Items.Where(i => i.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value == player.oid.ControlledCreature.OriginalName 
+                    && i.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value < 8 && BaseItems2da.baseItemTable[(int)i.BaseItem.ItemType].workshop == workshopTag); 
+                  
                   filteredList = blueprintList;
-                  LoadUpgradableItemList(filteredList);
+                  LoadUpgradableItemList(filteredList.ToList());
                   search.SetBindValue(player.oid, nuiToken.Token, "");
                   currentTab = Tab.Upgrade;
+
                   break;
 
                 case "startCraft":
@@ -170,7 +175,16 @@ namespace NWN.Systems
                   string currentSearch = search.GetBindValue(player.oid, nuiToken.Token).ToLower();
                   filteredList = string.IsNullOrEmpty(currentSearch) ? blueprintList.AsEnumerable() : filteredList.Where(s => s.Name.ToLower().Contains(currentSearch));
 
-                  LoadBlueprintList(filteredList);
+                  switch (currentTab)
+                  {
+                    case Tab.Craft:
+                      LoadBlueprintList(filteredList);
+                      break;
+                    case Tab.Upgrade:
+                      LoadUpgradableItemList(filteredList.ToList());
+                      break;
+                  }
+                  
 
                   break;
               }
@@ -208,7 +222,7 @@ namespace NWN.Systems
           blueprintTEs.SetBindValues(player.oid, nuiToken.Token, blueprintTEsList);
           enable.SetBindValues(player.oid, nuiToken.Token, enabledList);
         }
-        private void LoadUpgradableItemList(IEnumerable<NwItem> items)
+        private void LoadUpgradableItemList(List<NwItem> items)
         {
           List<string> itemNamesList = new();
           List<string> iconList = new();
@@ -219,9 +233,9 @@ namespace NWN.Systems
           foreach (NwItem item in items)
           {
             NwItem bestBlueprint = player.oid.ControlledCreature.Inventory.Items
-            .Where(i => i.Tag == "blueprint" && i.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value == (int)item.BaseItem.ItemType)
-            .OrderByDescending(i => i.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value)
-            .ThenByDescending(i => i.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_TIME_EFFICIENCY").Value).FirstOrDefault();
+             .Where(i => i.Tag == "blueprint" && i.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value == (int)item.BaseItem.ItemType)
+             .OrderByDescending(i => i.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value)
+             .ThenByDescending(i => i.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_TIME_EFFICIENCY").Value).FirstOrDefault();
 
             item.GetObjectVariable<LocalVariableObject<NwItem>>("_BEST_BLUEPRINT").Value = bestBlueprint;
 
@@ -230,14 +244,14 @@ namespace NWN.Systems
             iconList.Add(item.BaseItem.WeaponFocusFeat.IconResRef);
 
             if (bestBlueprint != null)
-            {            
+            {
               int materiaCost = (int)(player.GetItemMateriaCost(bestBlueprint, grade + 1) * (1 - (bestBlueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value / 100)));
               TimeSpan jobDuration = TimeSpan.FromSeconds(player.GetItemCraftTime(bestBlueprint, materiaCost));
 
               CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromBlueprint(bestBlueprint) && r.grade == grade + 1);
               int availableQuantity = resource != null ? resource.quantity : 0;
 
-              blueprintMEsList.Add($"Coût en {ItemUtils.GetResourceNameFromBlueprint(bestBlueprint)} : {availableQuantity}/{materiaCost}");
+              blueprintMEsList.Add($"{item.Name} - Coût en {ItemUtils.GetResourceNameFromBlueprint(bestBlueprint)} : {availableQuantity}/{materiaCost}");
               blueprintTEsList.Add($"Temps de fabrication : {new TimeSpan(jobDuration.Days, jobDuration.Hours, jobDuration.Minutes, jobDuration.Seconds)}");
               enabledList.Add(player.learnableSkills.ContainsKey(player.GetJobLearnableFromWorkshop(workshopTag)) && player.craftJob == null && availableQuantity >= materiaCost);
             }

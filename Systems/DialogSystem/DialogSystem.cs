@@ -3,6 +3,8 @@ using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
 using static NWN.Systems.PlayerSystem;
+using System.Linq;
+using NWN.System;
 
 namespace NWN.Systems
 {
@@ -35,17 +37,17 @@ namespace NWN.Systems
     public void StartBlacksmithDialog(CreatureEvents.OnConversation onConversation)
     {
       if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
-        new Blacksmith(player, onConversation.CurrentSpeaker);
+        HandleGenericShop(player, onConversation.CurrentSpeaker, "blacksmith_shop", ItemUtils.forgeBasicWeaponBlueprints, SkillSystem.forgeBasicSkillBooks, ItemUtils.forgeBasicArmorBlueprints, new[] { "oreextractor", "forgehammer" });
     }
     public void StartWoodworkerDialog(CreatureEvents.OnConversation onConversation)
     {
       if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
-        new Woodworker(player, onConversation.CurrentSpeaker);
+        HandleGenericShop(player, onConversation.CurrentSpeaker, "woodworker_shop", ItemUtils.woodBasicBlueprints, SkillSystem.woodBasicSkillBooks, new int[] { }, new[] { "oreextractor", "forgehammer" });
     }
     public void StartTanneurDialog(CreatureEvents.OnConversation onConversation)
     {
       if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
-        new Tanneur(player, onConversation.CurrentSpeaker);
+        HandleGenericShop(player, onConversation.CurrentSpeaker, "tannery_shop", ItemUtils.leatherBasicWeaponBlueprints, SkillSystem.leatherBasicSkillBooks, ItemUtils.leatherBasicArmorBlueprints, new[] { "oreextractor", "forgehammer" });
     }
     public void StartBibliothecaireDialog(CreatureEvents.OnConversation onConversation)
     {
@@ -75,7 +77,7 @@ namespace NWN.Systems
     public void StartTribunalShopDialog(CreatureEvents.OnConversation onConversation)
     {
       if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
-        new TribunalHotesse(player, onConversation.CurrentSpeaker);
+        HandleGenericShop(player, onConversation.CurrentSpeaker, "magic_shop", new BaseItemType[] { }, SkillSystem.shopBasicMagicSkillBooks, ItemUtils.shopBasicMagicScrolls, new string[] { });
     }
     public void StartPvEArenaHostDialog(CreatureEvents.OnConversation onConversation)
     {
@@ -102,6 +104,62 @@ namespace NWN.Systems
     {
       if (Players.TryGetValue(onUsed.UsedBy, out Player player))
         new HotelDesVentes(player);
+    }
+
+    private async void HandleGenericShop(Player player, NwCreature shopkeeper, string tag, BaseItemType[] basicBluePrints, int[] basicSkillBooks, int[] basicArmorAndScrolls, string[] basicItems)
+    {
+      NwStore shop = shopkeeper.GetNearestObjectsByType<NwStore>().FirstOrDefault(s => s.Tag == tag);
+
+      shop = NwStore.Create("generic_shop_res", shopkeeper.Location, false, tag);
+      shop.GetObjectVariable<LocalVariableObject<NwCreature>>("_STORE_NPC").Value = shopkeeper;
+
+      switch (tag)
+      {
+        case "blacksmith_shop":
+        case "tannery_shop":
+          foreach (int baseArmor in basicArmorAndScrolls)
+          {
+            NwItem oBlueprint = await NwItem.Create("blueprintgeneric", shop);
+            ItemUtils.CreateShopArmorBlueprint(oBlueprint, baseArmor);
+          }
+          break;
+
+        case "magic_shop":
+          foreach (int itemPropertyId in basicArmorAndScrolls)
+          {
+            NwItem oScroll = await NwItem.Create("spellscroll", shop, 1, "scroll");
+            Spell spell = ItemPropertySpells2da.ipSpellTable[itemPropertyId].spell;
+            NwSpell nwSpell = NwSpell.FromSpellType(spell);
+            oScroll.Name = nwSpell.Name.ToString();
+            oScroll.Description = nwSpell.Description.ToString();
+            oScroll.AddItemProperty(ItemProperty.CastSpell((IPCastSpell)itemPropertyId, IPCastSpellNumUses.SingleUse), EffectDuration.Permanent);
+            oScroll.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+          }
+          break;
+      }
+
+      foreach (BaseItemType baseItemType in basicBluePrints)
+      {
+        NwItem oBlueprint = await NwItem.Create("blueprintgeneric", shop);
+        ItemUtils.CreateShopWeaponBlueprint(oBlueprint, NwBaseItem.FromItemType(baseItemType));
+      }
+
+      foreach (int customSkill in basicSkillBooks)
+      {
+        NwItem skillBook = await NwItem.Create("skillbookgeneriq", shop, 1, "skillbook");
+        ItemUtils.CreateShopSkillBook(skillBook, customSkill);
+      }
+
+      foreach (string item in basicItems)
+      {
+        NwItem craftTool = await NwItem.Create(item, shop, 1, item);
+        craftTool.BaseGoldValue = 50;
+        craftTool.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = 10;
+        craftTool.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+      }
+
+      shop.OnOpen += StoreSystem.OnOpenGenericStore;
+      shop.Open(player.oid);
     }
   }
 }

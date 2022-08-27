@@ -192,7 +192,7 @@ namespace NWN.Systems
     {
       SpellEvents.OnSpellCast onSpellCast = new SpellEvents.OnSpellCast();
       HandleSpellDamageLocalisation(onSpellCast.Spell.SpellType, onSpellCast.Caster);
-      
+
       if (callInfo.ObjectSelf is not NwCreature castingCreature)
         return;
 
@@ -203,12 +203,12 @@ namespace NWN.Systems
 
           return;
       }
-      
-      if(onSpellCast.Spell.ImpactScript == "on_ench_cast")
+
+      /*if (onSpellCast.Spell.ImpactScript == "on_ench_cast")
       {
-        Enchantement(onSpellCast);
+        Enchantement(onSpellCast, player);
         oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
-      }
+      }*/
 
       HandleCasterLevel(onSpellCast.Caster, onSpellCast.Spell.SpellType);
 
@@ -333,6 +333,13 @@ namespace NWN.Systems
         oPC.GetObjectVariable<LocalVariableObject<NwGameObject>>("_AUTO_SPELL_TARGET").Delete();
         oPC.OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
       }
+    }
+    public void HandleCraftEnchantementCast(OnSpellCast onSpellCast)
+    {
+      if (onSpellCast.Caster is not NwCreature oPC || !PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player) || onSpellCast.Spell.ImpactScript != "on_ench_cast")
+        return;
+
+      Enchantement(onSpellCast, player);
     }
     [ScriptHandler("event_dcr_spell")]
     private void HandleInputEmote(CallInfo callInfo)

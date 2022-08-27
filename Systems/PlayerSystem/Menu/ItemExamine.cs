@@ -34,9 +34,7 @@ namespace NWN.Systems
         private readonly NuiBind<string> hide = new("hide");
         private readonly NuiBind<string> hideTooltip = new("hideTooltip");
         private bool modificationAllowed { get; set; }
-        private bool IsInWorkshopRange { get; set; }
         private NwItem item { get; set; }
-        private NwItem bestBlueprint { get; set; }
 
         public ItemExamineWindow(Player player, NwItem item) : base(player)
         {
@@ -59,36 +57,31 @@ namespace NWN.Systems
           modificationAllowed = (string.IsNullOrWhiteSpace(originalCrafterName) || originalCrafterName == player.oid.ControlledCreature.OriginalName)
             && (item.Possessor == player.oid.ControlledCreature || player.IsDm());
 
-          if (item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasValue)
-            IsInWorkshopRange = IsPlayerInWorkshopRange();
-
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiText(itemDescription) { Height = 100, Width = 590 } } });
 
           if (!string.IsNullOrWhiteSpace(originalCrafterName))
-          {
-            rootChildren.Add(new NuiText($"Artisan : {originalCrafterName}") { Height = 30, Width = 580, Tooltip = $"Il est indiqué : 'Pour toute modification sur mesure, vous adresser à {originalCrafterName}'" });
-
-            if (originalCrafterName == player.oid.ControlledCreature.OriginalName && item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value < 8)
-              DrawUpgradeWidget();
-          }         
+            rootChildren.Add(new NuiLabel($"Artisan : {originalCrafterName}") { Height = 30, Width = 580, Tooltip = $"Il est indiqué : 'Pour toute modification sur mesure, vous adresser à {originalCrafterName}'", HorizontalAlign = NuiHAlign.Center });
 
           if (item.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").HasValue)
           {
             List<NuiElement> enchantementSlotsRowChildren = new List<NuiElement>();
             NuiRow enchantementSlotsRow = new NuiRow() { Children = enchantementSlotsRowChildren };
+            enchantementSlotsRowChildren.Add(new NuiSpacer());
 
-            for (int i = 0; i < item.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS"); i++)
+            for (int i = 0; i < item.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
             {
+              bool isSlotUsed = item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasValue;
               NwSpell spell = NwSpell.FromSpellId(item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value);
-              string icon = spell != null ? spell.IconResRef : "empty_materia_slot";
-              string id = spell != null ? spell.Id.ToString() : "";
-              string spellName = spell != null ? spell.Name.ToString() : "Emplacement libre";
+              string icon = isSlotUsed ? spell.IconResRef : "empty_ench_slot";
+              string id = isSlotUsed ? spell.Id.ToString() : "";
+              string spellName = isSlotUsed ? spell.Name.ToString() : "Emplacement d'enchantement libre";
 
               // TODO : si l'enchantement est désactivé (item ruiné), écrire "Désactivé dans le tooltip" et si possible, une utiliser une icône grisée
               NuiButtonImage slotButton = new NuiButtonImage(icon) { Id = $"spell_{id}", Tooltip = spellName, Height = 40, Width = 40 };
               enchantementSlotsRowChildren.Add(slotButton);
             }
 
+            enchantementSlotsRowChildren.Add(new NuiSpacer());
             rootChildren.Add(enchantementSlotsRow);
           }
 
@@ -364,7 +357,7 @@ namespace NWN.Systems
           return;
         }
 
-        if(modificationAllowed && item.Possessor != player.oid.ControlledCreature && !player.oid.IsDM)
+        if(modificationAllowed && item.Possessor != player.oid.ControlledCreature && !player.IsDm())
         {
           CloseWindow();
           ((ItemExamineWindow)player.windows["itemExamine"]).CreateWindow(item);
@@ -459,8 +452,7 @@ namespace NWN.Systems
                 player.oid.SendServerMessage("Vous venez d'ajouter une nouvelle compétence à votre livre d'apprentissage !", ColorConstants.Rose);
                 
                 CloseWindow();
-
-                ItemUtils.ScheduleItemForDestruction(item, 0.2);
+                item.Destroy();
 
                 return;
 
@@ -542,10 +534,13 @@ namespace NWN.Systems
             }
             else if (nuiEvent.ElementId.StartsWith("spell_"))
             {
-              NwSpell spell = NwSpell.FromSpellId(int.Parse(nuiEvent.ElementId.Split("_")[1]));
+              if (int.TryParse(nuiEvent.ElementId.Split("_")[1], out int spellId))
+              {
+                NwSpell spell = NwSpell.FromSpellId(int.Parse(nuiEvent.ElementId.Split("_")[1]));
 
-              if (!player.windows.ContainsKey("spellDescription")) player.windows.Add("spellDescription", new SpellDescriptionWindow(player, spell));
-              else ((SpellDescriptionWindow)player.windows["spellDescription"]).CreateWindow(spell);
+                if (!player.windows.ContainsKey("spellDescription")) player.windows.Add("spellDescription", new SpellDescriptionWindow(player, spell));
+                else ((SpellDescriptionWindow)player.windows["spellDescription"]).CreateWindow(spell);
+              }
             }
           }
         }
@@ -609,52 +604,6 @@ namespace NWN.Systems
         {
           if (!player.windows.ContainsKey("editorItem")) player.windows.Add("editorItem", new EditorItemWindow(player, item));
           else ((EditorItemWindow)player.windows["editorItem"]).CreateWindow(item);
-        }
-        private void DrawUpgradeWidget()
-        {
-          if (!IsInWorkshopRange)
-          {
-            rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Améliorable à proximité d'un atelier artisanal adéquat.") } });
-            return;
-          }
-
-          bestBlueprint = player.oid.ControlledCreature.Inventory.Items
-            .Where(i => i.Tag == "blueprint" && i.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value == (int)item.BaseItem.ItemType)
-            .OrderByDescending(i => i.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value)
-            .ThenByDescending(i => i.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_TIME_EFFICIENCY").Value).FirstOrDefault();
-
-          if(bestBlueprint == null)
-          {
-            rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel("Améliorable avec le patron adéquat.") } });
-            return;
-          }
-
-          string icon = item.BaseItem.WeaponFocusFeat.IconResRef;
-          int materiaCost = (int)(player.GetItemMateriaCost(bestBlueprint) * (1 - (bestBlueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value / 100)));
-          TimeSpan jobDuration = TimeSpan.FromSeconds(player.GetItemCraftTime(bestBlueprint, materiaCost));
-
-          CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromBlueprint(item) && r.grade == 1);
-          int availableQuantity = resource != null ? resource.quantity : 0;
-
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
-            {
-              new NuiButtonImage(icon) { Tooltip = bestBlueprint.Name, Height = 40, Width = 40 },
-              new NuiLabel($"Coût en {ItemUtils.GetResourceNameFromBlueprint(bestBlueprint)} : {materiaCost}/{availableQuantity}") { Width = 160, Tooltip =  bestBlueprint.Name,
-                DrawList = new List<NuiDrawListItem>() { new NuiDrawListText(new Color(255, 255, 255), new NuiRect(0, 35, 150, 60), $"Temps de fabrication : {new TimeSpan(jobDuration.Days, jobDuration.Hours, jobDuration.Minutes, jobDuration.Seconds)}") } },
-              new NuiButton("Améliorer") { Id = "upgrade", Enabled = player.craftJob == null && availableQuantity >= materiaCost, Tooltip = "Améliore l'objet à son prochain niveau de qualité avec le patron et la matéria adéquate.", Height = 40, Width = 80 }
-            } 
-          });
-        }
-
-        private bool IsPlayerInWorkshopRange()
-        {
-          string workshopName = BaseItems2da.baseItemTable[(int)item.BaseItem.ItemType].workshop;
-          NwPlaceable workshop = player.oid.ControlledCreature.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(w => w.Tag == workshopName);
-
-          if (workshop == null || player.oid.ControlledCreature.DistanceSquared(workshop) > 25)
-            return false;
-
-          return true;
         }
         private string GetMateriaQualityIcon(int materiaQuality)
         {

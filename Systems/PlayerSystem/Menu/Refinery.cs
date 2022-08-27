@@ -145,25 +145,28 @@ namespace NWN.Systems
                   selectedResource = playerCraftResourceList.ElementAt(nuiEvent.ArrayIndex);
                   string inputQuantity = input.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex];
 
-                  if (!int.TryParse(inputQuantity, out int amount) || amount > selectedResource.quantity || amount < 0)
+                  if (!double.TryParse(inputQuantity, out double amount) || amount > selectedResource.quantity || amount < 0)
                     amount = selectedResource.quantity;
 
-                  selectedResource.quantity -= amount;
+                  selectedResource.quantity -= (int)amount;
 
-                  int selectedGrade = selectedResource.grade;
-                  int refinedQuantity = player.GetMateriaYieldFromResource(selectedGrade, selectedResource);
+                  int selectedGrade = selectedResource.grade + 1;
+                  double concentrationSkill = 1.00 + 5 * player.learnableSkills[CustomSkill.MateriaGradeConcentration].totalPoints / 100.0;
+                  double connectionSkill = player.learnableSkills.ContainsKey(CustomSkill.ConnectionsPromenade) ? 0.95 + player.learnableSkills[CustomSkill.ConnectionsPromenade].totalPoints / 100.0 : 1.00;
+                  double total = amount / 3.0 * concentrationSkill * 0.3; // le * 0.3 représente la qualité de la fonderie de base. Il faudra le variabiliser lorsqu'il sera possible de créer des ateliers de différente qualité
+                  total *= connectionSkill;
 
                   if (HandleRefinerLuck())
                     selectedGrade += 1;
 
-                  CraftResource materia = player.craftResourceStock.FirstOrDefault(r => r.type == selectedResource.type && r.grade == selectedGrade + 1);
+                  CraftResource materia = player.craftResourceStock.FirstOrDefault(r => r.type == selectedResource.type && r.grade == selectedGrade);
 
                   if (materia != null)
-                    materia.quantity += refinedQuantity;
+                    materia.quantity += (int)total;
                   else
-                    player.craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == selectedResource.type && r.grade == selectedGrade + 1), refinedQuantity));
+                    player.craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == selectedResource.type && r.grade == selectedGrade), (int)total));
 
-                  player.oid.SendServerMessage($"Vous parvenez à concentrer {refinedQuantity.ToString().ColorString(ColorConstants.White)} unité(s) de {selectedResource.type.ToDescription().ColorString(ColorConstants.White)} à une qualité {selectedGrade.ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);
+                  player.oid.SendServerMessage($"Vous parvenez à concentrer {((int)total).ToString().ColorString(ColorConstants.White)} unité(s) de {selectedResource.type.ToDescription().ColorString(ColorConstants.White)} à une qualité {selectedGrade.ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);
 
                   LoadMateriaList();
 

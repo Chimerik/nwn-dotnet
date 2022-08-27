@@ -68,7 +68,7 @@ namespace NWN.Systems
 
           //SpellSystem.ApplyCustomEffectToTarget(SpellSystem.frog, player.oid.LoginCreature, TimeSpan.FromSeconds(10));
 
-          //player.oid.EnterTargetMode(OnTargetSelected, ObjectTypes.Creature, MouseCursor.Talk);
+          player.oid.EnterTargetMode(OnTargetSelected, ObjectTypes.Item, MouseCursor.Talk);
         }
       }
     }
@@ -90,13 +90,16 @@ namespace NWN.Systems
       if (selection.IsCancelled)
         return;
 
-      if (selection.TargetObject is not NwCreature item || !PlayerSystem.Players.TryGetValue(selection.Player.LoginCreature, out PlayerSystem.Player player))
+      if (selection.TargetObject is not NwItem item || !PlayerSystem.Players.TryGetValue(selection.Player.LoginCreature, out PlayerSystem.Player player))
         return;
+
+      foreach (var ip in item.ItemProperties)
+        Log.Info($"duration {ip.DurationType} - type {ip.Property.RowIndex} - subtype {ip.SubType?.RowIndex} - param1Value {ip.Param1TableValue} - costValue {ip.CostTableValue.RowIndex}");
 
       //NativeAttackHook.SendPartyInvite(creature.LoginPlayer.PlayerId, selection.Player.LoginCreature);
 
-      if (!player.windows.ContainsKey("editorPNJ")) player.windows.Add("editorPNJ", new PlayerSystem.Player.EditorPNJWindow(player, item));
-      else ((PlayerSystem.Player.EditorPNJWindow)player.windows["editorPNJ"]).CreateWindow(item);
+      /*if (!player.windows.ContainsKey("editorPNJ")) player.windows.Add("editorPNJ", new PlayerSystem.Player.EditorPNJWindow(player, item));
+      else ((PlayerSystem.Player.EditorPNJWindow)player.windows["editorPNJ"]).CreateWindow(item);*/
 
       //player.oid.InvitePlayerToParty(creature.LoginPlayer);
     }

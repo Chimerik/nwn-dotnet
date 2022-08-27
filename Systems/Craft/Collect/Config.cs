@@ -2,6 +2,8 @@
 
 using Anvil.API;
 
+using static NWN.Systems.LootSystem.Lootable;
+
 namespace NWN.Systems.Craft.Collect
 {
   public class Config
@@ -21,6 +23,11 @@ namespace NWN.Systems.Craft.Collect
           craftedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
         else
           craftedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value = 1;
+
+        if (craftedItem.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").HasValue)
+          craftedItem.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value += 1;
+        else
+          craftedItem.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value = 1;
       }
 
       switch (craftedItem.BaseItem.ItemType)
