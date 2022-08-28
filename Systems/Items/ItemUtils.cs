@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using Anvil.API;
 
 using NWN.Core;
@@ -115,7 +116,7 @@ namespace NWN.Systems
     // ----------------------------------------------------------------------------
     public static void RemoveMatchingItemProperties(NwItem oItem, ItemPropertyType nItemPropertyType, EffectDuration nItemPropertyDuration = EffectDuration.Temporary, int nItemPropertySubType = -1)
     {
-      foreach(ItemProperty ip in oItem.ItemProperties.Where(i => i.Property.PropertyType == nItemPropertyType && (i.DurationType == nItemPropertyDuration || nItemPropertyDuration == (EffectDuration)(-1)) && (i?.SubType?.RowIndex == nItemPropertySubType || nItemPropertySubType == -1)))
+      foreach (ItemProperty ip in oItem.ItemProperties.Where(i => i.Property.PropertyType == nItemPropertyType && (i.DurationType == nItemPropertyDuration || nItemPropertyDuration == (EffectDuration)(-1)) && (i?.SubType?.RowIndex == nItemPropertySubType || nItemPropertySubType == -1)))
         oItem.RemoveItemProperty(ip);
     }
     public static void DecreaseItemDurability(NwItem oItem)
@@ -123,7 +124,7 @@ namespace NWN.Systems
       if (oItem == null)
         return;
 
-      int itemDurability = oItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value; 
+      int itemDurability = oItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value;
       if (itemDurability <= 1)
         oItem.Destroy();
       else
@@ -133,7 +134,7 @@ namespace NWN.Systems
     {
       bool isIdentified = oItem.Identified;
       if (isIdentified) oItem.Identified = true;
-        int nGP = oItem.GoldValue;
+      int nGP = oItem.GoldValue;
 
       // Re-set the identification flag to its original if it has been changed.
       if (isIdentified) oItem.Identified = false;
@@ -162,13 +163,13 @@ namespace NWN.Systems
       float baseCost = 9999999;
 
       if (item.BaseItem.ItemType == BaseItemType.Armor)
-        baseCost = Armor2da.GetCost(item.BaseACValue);
+        baseCost = NwGameTables.ArmorTable.GetRow(item.BaseACValue).Cost.Value;
       else
         baseCost = item.BaseItem.BaseCost;
 
       if (baseCost <= 0)
       {
-        if(item.BaseItem.ItemType != BaseItemType.CreatureItem)
+        if (item.BaseItem.ItemType != BaseItemType.CreatureItem)
           Utils.LogMessageToDMs($"{item.Name} - baseCost introuvable pour baseItemType : {item.BaseItem.ItemType}");
 
         return 999999;
@@ -199,7 +200,7 @@ namespace NWN.Systems
     }
     public static DamageType GetDamageTypeFromItemProperty(IPDamageType ipDamageType)
     {
-      switch(ipDamageType)
+      switch (ipDamageType)
       {
         case IPDamageType.Bludgeoning: return DamageType.Bludgeoning;
         case IPDamageType.Piercing: return DamageType.Piercing;
@@ -259,7 +260,7 @@ namespace NWN.Systems
         skillBook.Description = learnable.description;
         skillBook.BaseGoldValue = (uint)(learnable.multiplier * 1000);
       }
-      catch(Exception)
+      catch (Exception)
       {
         Utils.LogMessageToDMs($"ERROR - Could not find {featId} in the learnable dictionnary.");
         skillBook.Destroy();
@@ -268,6 +269,7 @@ namespace NWN.Systems
     public static void CreateShopWeaponBlueprint(NwItem oBlueprint, NwBaseItem baseItem)
     {
       oBlueprint.Name = $"Patron original : {baseItem.Name}";
+      oBlueprint.Description = $"Ce patron contient toutes les instructions de conception, à partir de matéria, pour un objet de type : {baseItem.Name}";
 
       oBlueprint.BaseGoldValue = (uint)(baseItem.BaseCost * 50);
       oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value = (int)baseItem.Id;
@@ -279,6 +281,7 @@ namespace NWN.Systems
       var entry = Armor2da.armorTable[baseArmor];
 
       oBlueprint.Name = $"Patron original : {entry.name}";
+      oBlueprint.Description = $"Ce patron contient toutes les instructions de conception, à partir de matéria, pour un objet de type : {entry.name}";
 
       oBlueprint.BaseGoldValue = (uint)(entry.cost * 50);
       oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value = (int)BaseItemType.Armor;
@@ -288,7 +291,7 @@ namespace NWN.Systems
     }
     public static string DisplayDamageType(DamageType damageType)
     {
-      switch(damageType)
+      switch (damageType)
       {
         case DamageType.Bludgeoning:
           return "Contondant";
@@ -322,6 +325,10 @@ namespace NWN.Systems
       BaseItemType baseItemType = (BaseItemType)blueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value;
       string workshop = baseItemType == BaseItemType.Armor ? Armor2da.GetWorkshop(blueprint.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value) : BaseItems2da.baseItemTable[(int)baseItemType].workshop;
 
+      return GetResourceFromWorkshopTag(workshop);
+    }
+    public static ResourceType GetResourceFromWorkshopTag(string workshop)
+    {
       switch (workshop)
       {
         case "forge":
@@ -349,6 +356,11 @@ namespace NWN.Systems
       }
 
       return ResourceType.Invalid;
+    }
+    public static async void ScheduleItemForDestruction(NwItem item, double delay)
+    {
+      await NwTask.Delay(TimeSpan.FromSeconds(delay));
+      item.Destroy();
     }
   }
 }

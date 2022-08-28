@@ -14,15 +14,15 @@ namespace NWN.Systems
     {
       public class AoEDispelWindow : PlayerWindow
       {
-        private readonly NuiColumn rootRow = new ();
-        private readonly List<NuiElement> rootChildren = new ();
-        private readonly List<NuiListTemplateCell> rowTemplate = new ();
+        private readonly NuiColumn rootRow = new();
+        private readonly List<NuiElement> rootChildren = new();
+        private readonly List<NuiListTemplateCell> rowTemplate = new();
 
-        private readonly NuiBind<string> aoeIcons = new ("aoeIcons");
-        private readonly NuiBind<string> aoeName = new ("aoeName");
-        private readonly NuiBind<string> areaNames = new ("areaNames");
-        private readonly NuiBind<string> aoeRemainingDuration = new ("aoeRemainingDuration");
-        private readonly NuiBind<int> listCount = new ("listCount");
+        private readonly NuiBind<string> aoeIcons = new("aoeIcons");
+        private readonly NuiBind<string> aoeName = new("aoeName");
+        private readonly NuiBind<string> areaNames = new("areaNames");
+        private readonly NuiBind<string> aoeRemainingDuration = new("aoeRemainingDuration");
+        private readonly NuiBind<int> listCount = new("listCount");
 
         public List<NwAreaOfEffect> currentList;
         private ScheduledTask listRefresher;
@@ -56,7 +56,7 @@ namespace NWN.Systems
           };
 
           player.oid.OnNuiEvent -= HandleDispelAoEEvents;
-          
+
 
           if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
@@ -82,7 +82,7 @@ namespace NWN.Systems
               UpdateAoEList();
 
             }, TimeSpan.FromSeconds(1));
-          }           
+          }
         }
 
         private void HandleDispelAoEEvents(ModuleEvents.OnNuiEvent nuiEvent)
@@ -114,8 +114,8 @@ namespace NWN.Systems
                   if (player.TryGetOpenedWindow("learnableDescription", out PlayerWindow descriptionWindow))
                     descriptionWindow.CloseWindow();
 
-                  if (!player.windows.TryAdd("learnableDescription", new LearnableDescriptionWindow(player, spellId)))
-                    ((LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(spellId);
+                  if (!player.windows.ContainsKey("learnableDescription")) player.windows.Add("learnableDescription", new LearnableDescriptionWindow(player, spellId));
+                  else ((LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(spellId);
 
                   break;
               }

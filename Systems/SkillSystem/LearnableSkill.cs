@@ -16,10 +16,10 @@ namespace NWN.Systems
     public int attackBonusPrerequisite { get; }
     public int bonusPoints { get; set; }
     public int totalPoints { get { return currentLevel + bonusPoints; } }
-    public double bonusMultiplier { get { return  1 + (totalPoints / 100); } }
+    public double bonusMultiplier { get { return 1 + (totalPoints / 100); } }
     public double bonusReduction { get { return 1 - (totalPoints / 100); } }
 
-    public LearnableSkill(int id, string name, string description, SkillSystem.Category category, string icon, int maxLevel, int multiplier, Ability primaryAbility, 
+    public LearnableSkill(int id, string name, string description, SkillSystem.Category category, string icon, int maxLevel, int multiplier, Ability primaryAbility,
       Ability secondaryAbility, bool activable = false, Func<PlayerSystem.Player, int, bool> skillEffect = null, Dictionary<Ability, int> abilityPrerequisites = null,
       Dictionary<int, int> skillPrerequisites = null, int attackBonusPrerequisite = 0, int bonusPoints = 0) : base(id, name, description, icon, maxLevel, multiplier, primaryAbility, secondaryAbility)
     {
@@ -47,6 +47,7 @@ namespace NWN.Systems
       this.active = active;
       this.acquiredPoints = acquiredSP;
       this.currentLevel = currentLevel;
+      this.pointsToNextLevel = 250 * multiplier * Math.Pow(5, currentLevel);
       this.abilityPrerequisites = learnableBase.abilityPrerequisites;
       this.skillPrerequisites = learnableBase.skillPrerequisites;
       this.attackBonusPrerequisite = learnableBase.attackBonusPrerequisite;
@@ -59,6 +60,7 @@ namespace NWN.Systems
       active = serializableBase.active;
       acquiredPoints = serializableBase.acquiredPoints;
       currentLevel = serializableBase.currentLevel;
+      pointsToNextLevel = 250 * multiplier * Math.Pow(5, currentLevel);
       spLastCalculation = serializableBase.spLastCalculation;
       skillEffect = learnableBase.skillEffect;
       abilityPrerequisites = learnableBase.abilityPrerequisites;
@@ -91,14 +93,15 @@ namespace NWN.Systems
 
     public void LevelUp(PlayerSystem.Player player)
     {
-      acquiredPoints = GetPointsToNextLevel();
+      acquiredPoints = pointsToNextLevel;
       currentLevel += 1;
+      pointsToNextLevel = 250 * multiplier * Math.Pow(5, currentLevel);
       active = false;
 
       if (activable)
         player.oid.LoginCreature.AddFeat((Feat)player.learnableSkills.FirstOrDefault(l => l.Value == this).Key - 10000);
 
-      PlayerSystem.Log.Info($"effect : {skillEffect}");
+      //PlayerSystem.Log.Info($"effect : {skillEffect}");
 
       if (skillEffect != null)
         skillEffect.Invoke(player, id);

@@ -1,4 +1,6 @@
-﻿using Anvil.API;
+﻿using System;
+
+using Anvil.API;
 using Anvil.API.Events;
 
 namespace NWN.Systems
@@ -35,10 +37,11 @@ namespace NWN.Systems
         {
           nuiToken.Close();
           IsOpen = false;
+          player.oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
         }
         public void ResizeWidgets()
         {
-          switch(windowId)
+          switch (windowId)
           {
             case "bodyAppearanceModifier":
               CloseWindow();

@@ -29,7 +29,7 @@ namespace NWN.Systems
         return;
 
       NwItem oUnequip = oPC.GetItemInSlot(onItemEquip.Slot);
-      
+
       if (oUnequip != null && !oPC.Inventory.CheckFit(oUnequip))
       {
         oPC.ControllingPlayer.SendServerMessage($"Attention, votre inventaire est plein. Vous risqueriez de perdre votre {oUnequip.Name} en déséquipant !", ColorConstants.Red);
@@ -72,7 +72,7 @@ namespace NWN.Systems
 
       if (!PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player) || oItem == null)
         return;
-      
+
       switch (oItem.Tag)
       {
         case "oreextractor":
@@ -83,7 +83,7 @@ namespace NWN.Systems
             ((PlayerSystem.Player.MateriaExtractionWindow)player.windows["materiaExtraction"]).CreateWindow(onItemUse.Item, oTarget);
           else
             player.windows.Add("materiaExtraction", new PlayerSystem.Player.MateriaExtractionWindow(player, onItemUse.Item, oTarget));
-          
+
           break;
 
         case "private_contract":
@@ -125,11 +125,11 @@ namespace NWN.Systems
         case "Peaudejoueur":
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
-          oPC.RunEquip(onItemUse.Item, InventorySlot.CreatureSkin);         
+          oPC.RunEquip(onItemUse.Item, InventorySlot.CreatureSkin);
           break;
 
         case "potion_cure_mini":
-            new PotionCureMini(oPC.ControllingPlayer);
+          new PotionCureMini(oPC.ControllingPlayer);
           break;
 
         case "potion_cure_frog":
@@ -155,9 +155,9 @@ namespace NWN.Systems
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
 
-            if (player.windows.ContainsKey("materiaDetector"))
-              ((PlayerSystem.Player.MateriaDetectorWindow)player.windows["materiaDetector"]).CreateWindow(onItemUse.Item);
-            else
+          if (player.windows.ContainsKey("materiaDetector"))
+            ((PlayerSystem.Player.MateriaDetectorWindow)player.windows["materiaDetector"]).CreateWindow(onItemUse.Item);
+          else
             player.windows.Add("materiaDetector", new PlayerSystem.Player.MateriaDetectorWindow(player, onItemUse.Item));
 
           break;
@@ -179,7 +179,7 @@ namespace NWN.Systems
       Task wait = NwTask.Run(async () =>
       {
         await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-   
+
         if (Config.env == Config.Env.Prod && oItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value != Config.itemKey)
         {
           oItem.Destroy();
@@ -195,6 +195,8 @@ namespace NWN.Systems
         return;
       }
 
+      Log.Info($"{oItem.Name} - {oItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasNothing} - {oItem.BaseItem.EquipmentSlots}");
+
       if (oItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasNothing && oItem.BaseItem.EquipmentSlots != EquipmentSlots.None)
       {
         int durability = ItemUtils.GetBaseItemCost(oItem) * 25;
@@ -207,10 +209,58 @@ namespace NWN.Systems
         PlayerSystem.DeletePlayerCorpseFromDatabase(oItem.GetObjectVariable<LocalVariableInt>("_PC_ID").Value);
 
         NwCreature oCorpse = NwObject.FindObjectsWithTag<NwCreature>("pccorpse").Where(c => c.GetObjectVariable<LocalVariableInt>("_PC_ID").Value == oItem.GetObjectVariable<LocalVariableInt>("_PC_ID")).FirstOrDefault();
-        if(oCorpse != null)
+        if (oCorpse != null)
           oCorpse.Destroy();
         oAcquiredFrom.Destroy();
       }
+
+      if (oItem.BaseItem.IsStackable)
+      {
+        foreach (var inventoryItem in oPC.Inventory.Items)
+        {
+          bool sameItem = true;
+
+          if (oItem != inventoryItem && inventoryItem.BaseItem.IsStackable && oItem.BaseItem.ItemType == inventoryItem.BaseItem.ItemType && oItem.Tag == inventoryItem.Tag && oItem.Name == inventoryItem.Name
+            && oItem.StackSize + inventoryItem.StackSize <= oItem.BaseItem.MaxStackSize)
+          {
+            foreach (var localVar in oItem.LocalVariables)
+            {
+              switch (localVar)
+              {
+                case LocalVariableString stringVar:
+                  if (stringVar.Value != inventoryItem.GetObjectVariable<LocalVariableString>(stringVar.Name).Value)
+                    sameItem = false;
+                  break;
+                case LocalVariableInt intVar:
+                  if (intVar.Value != inventoryItem.GetObjectVariable<LocalVariableInt>(intVar.Name).Value)
+                    sameItem = false;
+                  break;
+                case LocalVariableFloat floatVar:
+                  if (floatVar.Value != inventoryItem.GetObjectVariable<LocalVariableFloat>(floatVar.Name).Value)
+                    sameItem = false;
+                  break;
+                case DateTimeLocalVariable dateVar:
+                  if (dateVar.Value != inventoryItem.GetObjectVariable<DateTimeLocalVariable>(dateVar.Name).Value)
+                    sameItem = false;
+                  break;
+              }
+
+              if (!sameItem)
+                break;
+            }
+
+            if (!sameItem)
+              continue;
+
+            Log.Info($"inventory item : {inventoryItem.Name} x {inventoryItem.StackSize}");
+            inventoryItem.StackSize += oItem.StackSize;
+            Log.Info($"inventory item : x {inventoryItem.StackSize}");
+            oItem.Destroy();
+            break;
+          }
+        }
+      }
+
       //En pause jusqu'à ce que le système de transport soit en place
       //if (oPC.MovementRate != MovementRate.Immobile && oPC.TotalWeight > Encumbrance2da.encumbranceTable.GetDataEntry(oPC.GetAbilityScore(Ability.Strength)).heavy)
       //oPC.MovementRate = MovementRate.Immobile;

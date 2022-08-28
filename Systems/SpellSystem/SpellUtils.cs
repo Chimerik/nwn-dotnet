@@ -69,19 +69,19 @@ namespace NWN.Systems
     }
     public static int GetSpellIDFromScroll(NwItem oScroll)
     {
-        ItemProperty ip = oScroll.ItemProperties.FirstOrDefault(ip => ip.Property.PropertyType == ItemPropertyType.CastSpell);
+      ItemProperty ip = oScroll.ItemProperties.FirstOrDefault(ip => ip.Property.PropertyType == ItemPropertyType.CastSpell);
 
-        if (ip != null)
-            return (int)ItemPropertySpells2da.ipSpellTable[ip.SubType.RowIndex].spell;
+      if (ip != null)
+        return ip.SubTypeTable.GetInt(ip.SubType.RowIndex, "SpellIndex").Value;
 
       return 0;
     }
     public static byte GetSpellLevelFromScroll(NwItem oScroll)
     {
-        ItemProperty ip = oScroll.ItemProperties.FirstOrDefault(ip => ip.Property.PropertyType == ItemPropertyType.CastSpell);
+      ItemProperty ip = oScroll.ItemProperties.FirstOrDefault(ip => ip.Property.PropertyType == ItemPropertyType.CastSpell);
 
-        if (ip != null)
-            return ItemPropertySpells2da.ipSpellTable[ip.SubType.RowIndex].innateLevel;
+      if (ip != null)
+        return (byte)ip.SubTypeTable.GetInt(ip.SubType.RowIndex, "InnateLvl").Value;
 
       return 255;
     }
@@ -89,8 +89,8 @@ namespace NWN.Systems
     {
       return "GACDEVINT".IndexOf(school);
     }
-    
-    public static async void RestoreSpell(NwCreature caster, Spell spell)
+
+    /*public static async void RestoreSpell(NwCreature caster, Spell spell)
     {
       if (caster == null)
         return;
@@ -99,7 +99,7 @@ namespace NWN.Systems
 
       foreach (MemorizedSpellSlot spellSlot in caster.GetClassInfo((ClassType)43).GetMemorizedSpellSlots(0).Where(s => s.Spell.SpellType == spell && !s.IsReady))
         spellSlot.IsReady = true;
-    }
+    }*/
     public static async void CancelCastOnMovement(NwCreature caster)
     {
       float posX = caster.Position.X;
@@ -113,7 +113,7 @@ namespace NWN.Systems
 
     public static bool IsSpellBuff(NwSpell spell)
     {
-      switch(spell.SpellType)
+      switch (spell.SpellType)
       {
         case Spell.Aid:
         case Spell.Amplify:

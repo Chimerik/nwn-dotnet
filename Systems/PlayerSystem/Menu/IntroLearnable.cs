@@ -18,10 +18,10 @@ namespace NWN.Systems
         private readonly NuiRow searchRow;
         private readonly NuiRow textRow;
         private readonly List<NuiElement> rootChidren = new();
-        private readonly NuiBind<string> search = new ("search");
+        private readonly NuiBind<string> search = new("search");
         private readonly Color white = new(255, 255, 255);
         private readonly NuiRect drawListRect = new(0, 35, 150, 60);
-        private readonly NuiBind<string> displayText = new ("text");
+        private readonly NuiBind<string> displayText = new("text");
 
         public IntroLearnableWindow(Player player) : base(player)
         {
@@ -45,7 +45,7 @@ namespace NWN.Systems
               new NuiText(displayText) { Height = 130 }
             }
           };
-          
+
           searchRow = new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) { Width = 388 } } };
 
           CreateWindow();
@@ -107,9 +107,9 @@ namespace NWN.Systems
                 int learnableId = int.Parse(nuiEvent.ElementId[(nuiEvent.ElementId.IndexOf("_") + 1)..]);
                 LearnableSkill skill = player.learnableSkills[learnableId];
 
-                if (player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value >= skill.GetPointsToNextLevel())
+                if (player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value >= skill.pointsToNextLevel)
                 {
-                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value -= (int)skill.GetPointsToNextLevel();
+                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value -= (int)skill.pointsToNextLevel;
                   skill.LevelUp(player);
 
                   displayText.SetBindValue(player.oid, nuiToken.Token, $"Vous disposez actuellement de {player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value} points de compétence.\n\n" +
@@ -127,8 +127,8 @@ namespace NWN.Systems
 
                   player.learnableSkills[learnableId].StartLearning(player);
 
-                  if (!player.windows.TryAdd("activeLearnable", new ActiveLearnableWindow(player)))
-                    ((ActiveLearnableWindow)player.windows["activeLearnable"]).CreateWindow();
+                  if (!player.windows.ContainsKey("activeLearnable")) player.windows.Add("activeLearnable", new ActiveLearnableWindow(player));
+                  else ((ActiveLearnableWindow)player.windows["activeLearnable"]).CreateWindow();
 
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Delete();
                   player.oid.LoginCreature.Area.GetObjectVariable<LocalVariableInt>("_GO").Value = 1;
@@ -139,8 +139,8 @@ namespace NWN.Systems
                 if (player.TryGetOpenedWindow("learnableDescription", out PlayerWindow descriptionWindow))
                   descriptionWindow.CloseWindow();
 
-                if (!player.windows.TryAdd("learnableDescription", new LearnableDescriptionWindow(player, learnableId)))
-                  ((LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(learnableId);
+                if (!player.windows.ContainsKey("learnableDescription")) player.windows.Add("learnableDescription", new LearnableDescriptionWindow(player, learnableId));
+                else ((LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(learnableId);
               }
 
               break;
@@ -187,7 +187,7 @@ namespace NWN.Systems
               {
                 new NuiButtonImage(kvp.Value.icon) { Id = kvp.Key.ToString(), Tooltip = "Description", Height = 40, Width = 40 },
                 new NuiLabel(kvp.Value.name) { Id = kvp.Key.ToString(), Tooltip = kvp.Value.name, Width = 160, HorizontalAlign = NuiHAlign.Left, DrawList = new List<NuiDrawListItem>() {
-                new NuiDrawListText(white, drawListRect, kvp.Value.GetPointsToNextLevel().ToString()) } },
+                new NuiDrawListText(white, drawListRect, kvp.Value.pointsToNextLevel.ToString()) } },
                 new NuiLabel("Niveau/Max") { Id = kvp.Key.ToString(), Width = 90, HorizontalAlign = NuiHAlign.Left, DrawList = new List<NuiDrawListItem>() {
                 new NuiDrawListText(white, drawListRect, $"{kvp.Value.currentLevel}/{kvp.Value.maxLevel}") } },
                 new NuiButton("Acheter") { Id = $"learn_{kvp.Key}", Height = 40, Width = 90, Enabled = kvp.Value.currentLevel < kvp.Value.maxLevel && !kvp.Value.active, Tooltip = "Si vous ne disposez pas d'assez de points, cette compétence sera sélectionnée pour entrainement." }

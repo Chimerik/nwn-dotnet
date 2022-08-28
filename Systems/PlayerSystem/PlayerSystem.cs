@@ -41,7 +41,7 @@ namespace NWN.Systems
     }
     public static void HandleCombatModeOff(OnCombatModeToggle onCombatMode)
     {
-      if(onCombatMode.NewMode == CombatMode.None && onCombatMode.Creature.GetObjectVariable<LocalVariableInt>("_ACTIVATED_TAUNT").HasValue) // Permet de conserver sa posture de combat après avoir utilisé taunt
+      if (onCombatMode.NewMode == CombatMode.None && onCombatMode.Creature.GetObjectVariable<LocalVariableInt>("_ACTIVATED_TAUNT").HasValue) // Permet de conserver sa posture de combat après avoir utilisé taunt
       {
         onCombatMode.PreventToggle = true;
         onCombatMode.Creature.GetObjectVariable<LocalVariableInt>("_ACTIVATED_TAUNT").Delete();
@@ -51,13 +51,13 @@ namespace NWN.Systems
     private static void HandleBeforeSkillUsed(OnUseSkill onUseSkill)
     {
       NwCreature oPC = onUseSkill.Creature;
-      
+
       switch (onUseSkill.Skill.SkillType)
       {
         case Skill.Taunt:
           oPC.GetObjectVariable<LocalVariableInt>("_ACTIVATED_TAUNT").Value = 1;
 
-          Task waitForCooldown= NwTask.Run(async () =>
+          Task waitForCooldown = NwTask.Run(async () =>
           {
             await NwTask.Delay(TimeSpan.FromSeconds(6));
             oPC.GetObjectVariable<LocalVariableInt>("_ACTIVATED_TAUNT").Delete();
@@ -103,7 +103,7 @@ namespace NWN.Systems
           Task waitForTouch = NwTask.Run(async () =>
           {
             TouchAttackResult touch = await oPC.TouchAttackMelee(oTarget);
-            if(touch == TouchAttackResult.Miss)
+            if (touch == TouchAttackResult.Miss)
             {
               oPC.ControllingPlayer.FloatingTextString($"Vous ne parvenez pas à atteindre les poches de {oTarget.Name} !", false);
               return;
@@ -139,7 +139,7 @@ namespace NWN.Systems
     [ScriptHandler("on_input_emote")]
     private async void HandleInputEmote(CallInfo callInfo)
     {
-      if (!Players.TryGetValue(callInfo.ObjectSelf, out Player player))
+      if (callInfo.ObjectSelf is not NwCreature creature || !Players.TryGetValue(creature.ControllingPlayer.LoginCreature, out Player player))
         return;
 
       Animation animation = Utils.TranslateEngineAnimation(int.Parse(EventsPlugin.GetEventData("ANIMATION")));
@@ -173,10 +173,9 @@ namespace NWN.Systems
           EventsPlugin.SkipEvent();
           await player.oid.ControlledCreature.PlayAnimation(animation, 1, false, TimeSpan.FromDays(1));
 
-          if (player.windows.ContainsKey("sitAnywhere"))
-            ((Player.SitAnywhereWindow)player.windows["sitAnywhere"]).CreateWindow();
-          else
-            player.windows.Add("sitAnywhere", new Player.SitAnywhereWindow(player));
+          if (!player.windows.ContainsKey("sitAnywhere")) player.windows.Add("sitAnywhere", new Player.SitAnywhereWindow(player));
+          else ((Player.SitAnywhereWindow)player.windows["sitAnywhere"]).CreateWindow();
+
           break;
       }
     }
@@ -212,7 +211,7 @@ namespace NWN.Systems
 
         if (learnable.nbScrollUsed <= 5)
         {
-          learnable.acquiredPoints += learnable.GetPointsToNextLevel() / 20;
+          learnable.acquiredPoints += learnable.pointsToNextLevel / 20;
           learnable.nbScrollUsed += 1;
           oPC.ControllingPlayer.SendServerMessage($"Les informations supplémentaires contenues dans ce parchemin vous permettent d'affiner votre connaissance du sort {learnable.name.ColorString(ColorConstants.White)}. Votre apprentissage sera plus rapide.", new Color(32, 255, 32));
         }
@@ -236,7 +235,7 @@ namespace NWN.Systems
     }
     public static void HandleCombatRoundEndForAutoSpells(CreatureEvents.OnCombatRoundEnd onCombatRoundEnd)
     {
-      if(onCombatRoundEnd.Creature.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").HasNothing)
+      if (onCombatRoundEnd.Creature.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").HasNothing)
       {
         onCombatRoundEnd.Creature.OnCombatRoundEnd -= HandleCombatRoundEndForAutoSpells;
         return;
@@ -245,7 +244,7 @@ namespace NWN.Systems
       int spellId = onCombatRoundEnd.Creature.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Value;
       NwGameObject target = onCombatRoundEnd.Creature.GetObjectVariable<LocalVariableObject<NwGameObject>>("_AUTO_SPELL_TARGET").Value;
 
-      if(target != null && target.IsValid)
+      if (target != null && target.IsValid)
         _ = onCombatRoundEnd.Creature.ActionCastSpellAt((Spell)spellId, target);
       else
       {
@@ -254,7 +253,7 @@ namespace NWN.Systems
         onCombatRoundEnd.Creature.OnCombatRoundEnd -= HandleCombatRoundEndForAutoSpells;
       }
     }
-   
+
     private static void HandleGuiEvents(ModuleEvents.OnPlayerGuiEvent guiEvent)
     {
       NwPlayer oPC = guiEvent.Player;
@@ -263,67 +262,88 @@ namespace NWN.Systems
       if (!Players.TryGetValue(oPC.LoginCreature, out Player player))
         return;
 
+      if (player.pcState == Player.PcState.AFK)
+      {
+        player.pcState = Player.PcState.Online;
+
+        foreach (Effect eff in player.oid.LoginCreature.ActiveEffects)
+          if (eff.Tag == "EFFECT_VFX_AFK")
+            player.oid.LoginCreature.RemoveEffect(eff);
+      }
+
       switch (guiEvent.EventType)
       {
         case GuiEventType.DisabledPanelAttemptOpen:
 
-          switch(guiEvent.OpenedPanel)
+          switch (guiEvent.OpenedPanel)
           {
             case GUIPanel.ExamineItem:
 
-              if (!player.windows.TryAdd("itemExamine", new Player.ItemExamineWindow(player, (NwItem)guiEvent.EventObject)))
-                ((Player.ItemExamineWindow)player.windows["itemExamine"]).CreateWindow((NwItem)guiEvent.EventObject);
+              if (!player.windows.ContainsKey("itemExamine")) player.windows.Add("itemExamine", new Player.ItemExamineWindow(player, (NwItem)guiEvent.EventObject));
+              else ((Player.ItemExamineWindow)player.windows["itemExamine"]).CreateWindow((NwItem)guiEvent.EventObject);
+
+              return;
+
+            case GUIPanel.ExaminePlaceable:
+
+              if (!player.windows.ContainsKey("editorPlaceable")) player.windows.Add("editorPlaceable", new Player.EditorPlaceableWindow(player, (NwPlaceable)guiEvent.EventObject));
+              else ((Player.EditorPlaceableWindow)player.windows["editorPlaceable"]).CreateWindow((NwPlaceable)guiEvent.EventObject);
+
+              return;
+
+            case GUIPanel.ExamineCreature:
+
+              if (!player.windows.ContainsKey("editorPNJ")) player.windows.Add("editorPNJ", new Player.EditorPNJWindow(player, (NwCreature)guiEvent.EventObject));
+              else ((Player.EditorPNJWindow)player.windows["editorPNJ"]).CreateWindow((NwCreature)guiEvent.EventObject);
 
               return;
 
             case GUIPanel.Journal:
 
-              if(!player.TryGetOpenedWindow("mainMenu", out Player.PlayerWindow menuWindow))
-                if (!player.windows.TryAdd("mainMenu", new Player.MainMenuWindow(player)))
-                  ((Player.MainMenuWindow)player.windows["mainMenu"]).CreateWindow();
+              if (!player.windows.ContainsKey("mainMenu")) player.windows.Add("mainMenu", new Player.MainMenuWindow(player));
+              else ((Player.MainMenuWindow)player.windows["mainMenu"]).CreateWindow();
 
               return;
 
             case GUIPanel.PlayerList:
 
-              if (!player.TryGetOpenedWindow("playerList", out Player.PlayerWindow playerListWindow))
-                if (!player.windows.TryAdd("playerList", new Player.PlayerListWindow(player)))
-                  ((Player.PlayerListWindow)player.windows["playerList"]).CreateWindow();
+              if (!player.windows.ContainsKey("playerList")) player.windows.Add("playerList", new Player.PlayerListWindow(player));
+              else ((Player.PlayerListWindow)player.windows["playerList"]).CreateWindow();
 
               return;
           }
-          
+
           break;
 
         case GuiEventType.ExamineObject:
 
           // TODO : Lorsque la créature examinée est une invocation du joueur et que le joueur possède le don spell focus conjuration, permettre de la renommer
 
-          if(guiEvent.EventObject is NwCreature examineCreature && examineCreature == oPC.LoginCreature)
+          if (guiEvent.EventObject is NwCreature examineCreature && examineCreature == oPC.LoginCreature) // TODO : plutôt mettre ça dans le menu
           {
             if (player.craftJob != null)
             {
-              if (!player.windows.TryAdd("activeCraftJob", new Player.ActiveCraftJobWindow(player)))
-                ((Player.ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
+              if (!player.windows.ContainsKey("activeCraftJob")) player.windows.Add("activeCraftJob", new Player.ActiveCraftJobWindow(player));
+              else ((Player.ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
             }
 
-            if (!player.windows.TryAdd("learnables", new Player.LearnableWindow(player)))
-              ((Player.LearnableWindow)player.windows["learnables"]).CreateWindow();
+            if (!player.windows.ContainsKey("learnables")) player.windows.Add("learnables", new Player.LearnableWindow(player));
+            else ((Player.LearnableWindow)player.windows["learnables"]).CreateWindow();
           }
 
           break;
 
         case GuiEventType.PartyBarPortraitClick:
-          oPC.SendServerMessage("portrait click");
+          //oPC.SendServerMessage("portrait click");
           break;
 
         case GuiEventType.PlayerListPlayerClick:
-          oPC.SendServerMessage("player list click");
+          //oPC.SendServerMessage("player list click");
           break;
 
         case GuiEventType.ChatBarFocus:
 
-          if(guiEvent.ChatBarChannel != ChatBarChannel.Talk && guiEvent.ChatBarChannel != ChatBarChannel.Whisper)
+          if (guiEvent.ChatBarChannel != ChatBarChannel.Talk && guiEvent.ChatBarChannel != ChatBarChannel.Whisper)
             return;
 
           Effect visualMark = Effect.VisualEffect((VfxType)1248);

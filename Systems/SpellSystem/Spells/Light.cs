@@ -17,7 +17,7 @@ namespace NWN.Systems
       if (onSpellCast.TargetObject is NwItem item)
       {
         // Do not allow casting on not equippable items
-        
+
         if (item.BaseItem.EquipmentSlots == EquipmentSlots.None)
           oCaster.ControllingPlayer.FloatingTextStrRef(83326);
         else
@@ -34,7 +34,7 @@ namespace NWN.Systems
       }
       else
       {
-        Effect eVis = Effect.VisualEffect(VfxType.DurLightWhite20) ;
+        Effect eVis = Effect.VisualEffect(VfxType.DurLightWhite20);
         Effect eDur = Effect.VisualEffect(VfxType.DurCessatePositive);
         Effect eLink = Effect.LinkEffects(eVis, eDur);
 
@@ -46,10 +46,10 @@ namespace NWN.Systems
         //Apply the VFX impact and effects
         onSpellCast.TargetObject.ApplyEffect(EffectDuration.Temporary, eLink, NwTimeSpan.FromHours(nDuration));
 
-        if (onSpellCast.MetaMagicFeat == MetaMagic.None)
+        /*if (onSpellCast.MetaMagicFeat == MetaMagic.None)
         {
           SpellUtils.RestoreSpell(oCaster, onSpellCast.Spell.SpellType);
-        }
+        }*/
       }
     }
   }

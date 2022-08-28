@@ -38,7 +38,7 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomSkill.ImprovedIntelligence, new LearnableSkill(CustomSkill.ImprovedIntelligence, "Intelligence accrue", "Augmente l'intelligence d'un point par niveau d'entraînement.", Category.MindBody, "ife_X2GrInt1", 4, 3, Ability.Constitution, Ability.Intelligence, false, HandleImproveAbility));
       learnableDictionary.Add(CustomSkill.ImprovedWisdom, new LearnableSkill(CustomSkill.ImprovedWisdom, "Sagesse accrue", "Augmente la sagesse d'un point par niveau d'entraînement.", Category.MindBody, "ife_X2GrWis1", 4, 3, Ability.Constitution, Ability.Wisdom, false, HandleImproveAbility));
       learnableDictionary.Add(CustomSkill.ImprovedCharisma, new LearnableSkill(CustomSkill.ImprovedCharisma, "Charisme accrue", "Augmente le charisme d'un point par niveau d'entraînement.", Category.MindBody, "ife_X2GrCha1", 4, 3, Ability.Constitution, Ability.Charisma, false, HandleImproveAbility));
-      
+
       learnableDictionary.Add(CustomSkill.ImprovedHealth, new LearnableSkill(CustomSkill.ImprovedHealth, "Résilience", "Augmente les points de vie de de 1 + (Robustesse + 3 * modificateur de constitution de base) par niveau.\n\n Ce don est rétroactif.", Category.MindBody, "ife_X2GrCon1", 5, 2, Ability.Constitution, Ability.Charisma, false, HandleImproveHealth));
       learnableDictionary.Add(CustomSkill.Toughness, new LearnableSkill(CustomSkill.Toughness, "Robustesse", "Augmente le multiplicateur d'augmentation des points de vie de un par niveau d'entraînement.\n\n Rétroactif.", Category.MindBody, "ife_tough", 5, 1, Ability.Constitution, Ability.Charisma, false, HandleImproveHealth));
 
@@ -301,7 +301,7 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomSkill.ReprocessingGrade7Expertise, new LearnableSkill(CustomSkill.ReprocessingGrade7Expertise, "Raffinage expert qualité 7", "Réduit la quantité de matéria de qualité 7 gachée lors du raffinage de 2 % par niveau.", Category.Craft, "ife_X2EpicRepu", 5, 7, Ability.Dexterity, Ability.Wisdom));
       learnableDictionary.Add(CustomSkill.ReprocessingGrade8Expertise, new LearnableSkill(CustomSkill.ReprocessingGrade8Expertise, "Raffinage expert qualité 8", "Réduit la quantité de matéria de qualité 8 gachée lors du raffinage de 2 % par niveau.", Category.Craft, "ife_X2EpicRepu", 5, 8, Ability.Dexterity, Ability.Wisdom));
 
-      learnableDictionary.Add(CustomSkill.MateriaGradeConcentration, new LearnableSkill(CustomSkill.MateriaGradeConcentration, "Concentration de matéria", "Réduit la quantité de matéria nécessaure pour amorcer une concentration de 5 % par niveau.", Category.Craft, "ife_X2EpicRepu", 20, 2, Ability.Strength, Ability.Constitution));
+      learnableDictionary.Add(CustomSkill.MateriaGradeConcentration, new LearnableSkill(CustomSkill.MateriaGradeConcentration, "Concentration de matéria", "Réduit la quantité de matéria nécessaire pour amorcer une concentration de 5 % par niveau.", Category.Craft, "ife_X2EpicRepu", 20, 2, Ability.Strength, Ability.Constitution));
 
       learnableDictionary.Add(CustomSkill.ConnectionsGates, new LearnableSkill(CustomSkill.ConnectionsGates, "Relations Quartier des Portes", "Diminue les taxes imposées aux Portes de la Cité de 1 % par niveau.", Category.Craft, "ife_X2EpicRepu", 5, 1, Ability.Charisma, Ability.Wisdom));
       learnableDictionary.Add(CustomSkill.ConnectionsGovernment, new LearnableSkill(CustomSkill.ConnectionsGovernment, "Relations Quartier du Gouvernement", "Diminue les taxes imposées au Quartier du Gouvernement de 1 % par niveau.", Category.Craft, "ife_X2EpicRepu", 5, 1, Ability.Charisma, Ability.Wisdom));
@@ -339,7 +339,7 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomSkill.EnchanteurChanceux, new LearnableSkill(CustomSkill.EnchanteurChanceux, "Enchanteur Chanceux", "Augmente de 1 % par niveau la chance de ne pas consommer d'emplacement lors d'un enchantement.", Category.Craft, "ife_X2EpicRepu", 10, 3, Ability.Charisma, Ability.Intelligence));
 
       learnableDictionary.Add(CustomSkill.CombattantPrecautionneux, new LearnableSkill(CustomSkill.CombattantPrecautionneux, "Combattant Précautionneux", "Diminue de 1 % par niveau le risque d'usure des objets.", Category.Fight, "ife_X2EpicRepu", 10, 2, Ability.Dexterity, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.ImprovedDodge, new LearnableSkill(CustomSkill.ImprovedDodge, "Esquive améliorée", "Augmente la probabilité d'esquiver une attaque de 2% par niveau.", Category.Fight, "ife_X2EpicRepu", 10, 3, Ability.Dexterity, Ability.Constitution, false, null, new Dictionary<Ability, int>() { { Ability.Dexterity, 22 } } ));
+      learnableDictionary.Add(CustomSkill.ImprovedDodge, new LearnableSkill(CustomSkill.ImprovedDodge, "Esquive améliorée", "Augmente la probabilité d'esquiver une attaque de 2% par niveau.", Category.Fight, "ife_X2EpicRepu", 10, 3, Ability.Dexterity, Ability.Constitution, false, null, new Dictionary<Ability, int>() { { Ability.Dexterity, 22 } }));
 
       learnableDictionary.Add(CustomSkill.CraftOnHandedMeleeWeapon, new LearnableSkill(CustomSkill.CraftOnHandedMeleeWeapon, "Fourbisseur léger", "Diminue le temps de fabrication, de réparation et le coût en matériaux des armes de mêlée à une main de 1 % par niveau.", Category.Craft, "ife_X2EpicRepu", 10, 2, Ability.Dexterity, Ability.Constitution));
       learnableDictionary.Add(CustomSkill.CraftTwoHandedMeleeWeapon, new LearnableSkill(CustomSkill.CraftTwoHandedMeleeWeapon, "Fourbisseur lourd", "Diminue le temps de fabrication, de réparation et le coût en matériaux des armes de mêlée à deux mains de 1 % par niveau.", Category.Craft, "ife_X2EpicRepu", 10, 2, Ability.Strength, Ability.Constitution));
@@ -484,7 +484,7 @@ namespace NWN.Systems
     }
     private static bool HandleBackground(PlayerSystem.Player player, int customSkillId)
     {
-      switch(customSkillId)
+      switch (customSkillId)
       {
         case CustomSkill.Acolyte:
         case CustomSkill.Anthropologist:
@@ -925,10 +925,10 @@ namespace NWN.Systems
     }
     private static bool HandleBaseSkill(PlayerSystem.Player player, int customSkillId)
     {
-      switch(customSkillId)
+      switch (customSkillId)
       {
         case CustomSkill.Athletics:
-          
+
           if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Strength) < player.oid.LoginCreature.GetRawAbilityScore(Ability.Dexterity))
             return true;
 
@@ -1015,7 +1015,7 @@ namespace NWN.Systems
     }
     private static bool HandleImproveSavingThrow(PlayerSystem.Player player, int customSkillId)
     {
-      switch(customSkillId)
+      switch (customSkillId)
       {
         case CustomSkill.ImprovedFortitude:
           player.oid.LoginCreature.SetBaseSavingThrow(SavingThrow.Fortitude, (sbyte)(player.oid.LoginCreature.GetBaseSavingThrow(SavingThrow.Fortitude) + 1));
@@ -1030,7 +1030,7 @@ namespace NWN.Systems
           player.oid.LoginCreature.SetBaseSavingThrow(SavingThrow.All, (sbyte)(player.oid.LoginCreature.GetBaseSavingThrow(SavingThrow.All) + 1));
           break;
       }
-      
+
       return true;
     }
     private static bool HandleAddedSpellSlot(PlayerSystem.Player player, int customSkillId)
@@ -1038,7 +1038,7 @@ namespace NWN.Systems
       NwItem skin = player.oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin);
       IPSpellLevel spellLevel = IPSpellLevel.SL0;
 
-      switch(customSkillId)
+      switch (customSkillId)
       {
         case CustomSkill.ImprovedSpellSlot1:
           spellLevel = IPSpellLevel.SL1;
@@ -1105,7 +1105,7 @@ namespace NWN.Systems
       int multiplier = learnableDictionary[(int)feat].multiplier;
       var result = Math.Log(currentSkillPoints / (250 * multiplier)) / Math.Log(5);
 
-      if(result > 4)
+      if (result > 4)
       {
         result = 4;
         result += (currentSkillPoints - (int)(250 * multiplier * Math.Pow(5, 4))) / (int)(250 * multiplier * Math.Pow(5, 4));

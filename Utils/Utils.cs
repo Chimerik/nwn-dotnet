@@ -14,7 +14,7 @@ namespace NWN
   public static class Utils
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    public static readonly Random random = new ();
+    public static readonly Random random = new();
     public static void LogMessageToDMs(string message)
     {
       Log.Info(message);
@@ -251,8 +251,10 @@ namespace NWN
         case BaseItemType.SpellScroll: // Scrolls get their icon from the cast spell property
         case BaseItemType.EnchantedScroll:
 
-          if (oItem.HasItemProperty(ItemPropertyType.CastSpell))
-            icon = ItemPropertySpells2da.ipSpellTable[oItem.ItemProperties.FirstOrDefault(ip => ip.Property.PropertyType == ItemPropertyType.CastSpell).SubType.RowIndex].icon;
+          ItemProperty ip = oItem.ItemProperties.FirstOrDefault(ip => ip.Property.PropertyType == ItemPropertyType.CastSpell);
+
+          if (ip != null)
+            icon = ip.SubTypeTable.GetString(ip.SubType.RowIndex, "Icon");
 
           break;
 
@@ -335,14 +337,20 @@ namespace NWN
       return new string[3] { topIcon, midIcon, botIcon };
     }
 
-    public static readonly Dictionary<string, MainMenuCommand> mainMenuCommands = new ()
+    public static readonly Dictionary<string, MainMenuCommand> mainMenuCommands = new()
     {
       { "dm", new MainMenuCommand("Mode DM", "", CommandRank.Admin) },
       { "creaturePalette", new MainMenuCommand("Palette des créatures", "", CommandRank.DM) },
+      { "itemPalette", new MainMenuCommand("Palette des objets", "", CommandRank.DM) },
+      { "placeablePalette", new MainMenuCommand("Palette des placeables", "", CommandRank.DM) },
+      { "placeableManager", new MainMenuCommand("Gérer les placeable de la zone", "", CommandRank.DM) },
+      { "sit", new MainMenuCommand("S'asseoir n'importe où", "Permet de s'asseoir partout. Attention, seule la position affichée change. La position réelle du personnage reste la même.", CommandRank.Public) },
       { "touch", new MainMenuCommand("Mode toucher", "Permet d'éviter les collisions entre personnages (non utilisable en combat)", CommandRank.Public) },
       { "walk", new MainMenuCommand("Mode marche", "Permet d'avoir l'air moins ridicule en ville", CommandRank.Public) },
       { "follow", new MainMenuCommand("Suivre", "Suivre une créature ciblée (pour les feignasses !)", CommandRank.Public) },
-      { "examineArea", new MainMenuCommand("Examine les environs", "Obtenir une description de la zone", CommandRank.Public) },
+      { "examineArea", new MainMenuCommand("Examiner les environs", "Obtenir une description de la zone", CommandRank.Public) },
+      { "learnables", new MainMenuCommand("Journal d'apprentissage", "Ouvrir le journal d'apprentissage", CommandRank.Public) },
+      { "currentJob", new MainMenuCommand("Carnet d'artisanat", "Ouvrir mon carnet d'artisanat", CommandRank.Public) },
       { "effectDispel", new MainMenuCommand("Dissiper mes effets de sorts", "", CommandRank.Public) },
       { "dispelAoE", new MainMenuCommand("Dissiper mes zones d'effets", "", CommandRank.Public) },
       { "grimoire", new MainMenuCommand("Gérer les grimoires", "Enregistrer ou charger un grimoire de sorts", CommandRank.Public) },
@@ -357,7 +365,6 @@ namespace NWN
       { "delete", new MainMenuCommand("Supprimer ce personnage", "Attention, la suppression est définitive", CommandRank.Public) },
       { "wind", new MainMenuCommand("Gestion du vent", "Permet de modifier la configuration du vent de cette zone", CommandRank.DM) },
       { "dmRename", new MainMenuCommand("Changer le nom de la cible", "Permet de modifier le nom de n'importe quel objet", CommandRank.DM) }, // TODO : Ajouter à OnExamine Custom pour DM
-      { "persistentPlaceables", new MainMenuCommand("Placeable persistant", "Permettre de rendre persistant les placeables créés, même après reboot", CommandRank.DM) },
       { "visualEffects", new MainMenuCommand("Gérer mes effets visuels", "Permet d'utiliser et de gérer les effets visuels personnalisés", CommandRank.DM) },
       { "reboot", new MainMenuCommand("Reboot", "", CommandRank.Admin) },
       { "refill", new MainMenuCommand("Refill ressources", "", CommandRank.Admin) },
@@ -367,6 +374,8 @@ namespace NWN
       { "giveSkillbook", new MainMenuCommand("Don de skillbook", "", CommandRank.Admin) }, // TODO : Ajouter à OnExamine Player
     };
 
+    public static List<NuiComboEntry> appearanceEntries = new();
+    public static List<NuiComboEntry> placeableEntries = new();
     public static List<NuiComboEntry> raceList = new();
     public static readonly List<NuiComboEntry> genderList = new();
     public static readonly List<NuiComboEntry> soundSetList = new();
@@ -374,7 +383,11 @@ namespace NWN
     public static readonly List<NuiComboEntry> movementRateList = new();
     public static readonly List<NuiComboEntry> sizeList = new();
     public static readonly List<NuiComboEntry> creaturePaletteCreatorsList = new();
-    public static List<PaletteCreatureEntry> creaturePaletteList = new();
+    public static List<PaletteEntry> creaturePaletteList = new();
+    public static readonly List<NuiComboEntry> itemPaletteCreatorsList = new();
+    public static List<PaletteEntry> itemPaletteList = new();
+    public static readonly List<NuiComboEntry> placeablePaletteCreatorsList = new();
+    public static List<PaletteEntry> placeablePaletteList = new();
     public static NuiBind<string>[] paletteColorBindings = new NuiBind<string>[256];
 
     public static readonly List<string> colorPaletteLeather = new();

@@ -66,13 +66,13 @@ namespace NWN.Systems
     };
     private static void Enchantement(OnSpellCast onSpellCast, PlayerSystem.Player player)
     {
-      if(!(onSpellCast.TargetObject is NwItem targetItem) || targetItem == null || targetItem.Possessor != player.oid.ControlledCreature)
+      if (!(onSpellCast.TargetObject is NwItem targetItem) || targetItem == null || targetItem.Possessor != player.oid.ControlledCreature)
       {
         player.oid.SendServerMessage("Cible invalide.", ColorConstants.Red);
         return;
       }
 
-      if(!player.learnableSkills.ContainsKey(CustomSkill.Enchanteur) || player.learnableSkills[CustomSkill.Enchanteur].totalPoints < 1)
+      if (!player.learnableSkills.ContainsKey(CustomSkill.Enchanteur) || player.learnableSkills[CustomSkill.Enchanteur].totalPoints < 1)
       {
         player.oid.SendServerMessage("Il est nécessaire de connaître les bases de l'enchantement avant de pouvoir commencer ce travail !", ColorConstants.Red);
         return;

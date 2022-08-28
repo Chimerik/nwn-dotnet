@@ -134,7 +134,7 @@ namespace NWN.Systems
 
               ItemProperty monsterDamage = ctx.attackWeapon.ItemProperties.FirstOrDefault(i => i.Property.PropertyType == ItemPropertyType.MonsterDamage);
               if (monsterDamage != null)
-                ctx.onAttack.DamageData.Base = (short)(MonsterDamageCost2da.GetMaxDamage(monsterDamage.IntParams[3]) + ctx.oAttacker.GetAbilityModifier(Ability.Strength));
+                ctx.onAttack.DamageData.Base = (short)(CreatureUtils.GetCriticalMonsterDamage(monsterDamage.IntParams[3]) + ctx.oAttacker.GetAbilityModifier(Ability.Strength));
 
               break;
 

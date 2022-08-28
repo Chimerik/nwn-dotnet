@@ -19,11 +19,11 @@ namespace NWN.Systems
         private readonly List<NuiElement> rootChildren = new();
         private readonly List<NuiListTemplateCell> rowTemplate = new();
 
-        private readonly NuiBind<string> spellIcons = new ("spellIcons");
-        private readonly NuiBind<string> spellName = new ("spellName");
-        private readonly NuiBind<string> targetNames = new ("targetNames");
-        private readonly NuiBind<string> spellRemainingDuration = new ("spellRemainingDuration");
-        private readonly NuiBind<int> listCount = new ("listCount");
+        private readonly NuiBind<string> spellIcons = new("spellIcons");
+        private readonly NuiBind<string> spellName = new("spellName");
+        private readonly NuiBind<string> targetNames = new("targetNames");
+        private readonly NuiBind<string> spellRemainingDuration = new("spellRemainingDuration");
+        private readonly NuiBind<int> listCount = new("listCount");
 
         public List<NwGameObject> currentList;
         private readonly List<NwSpell> spells = new();
@@ -82,7 +82,7 @@ namespace NWN.Systems
               UpdateEffectList();
 
             }, TimeSpan.FromSeconds(1));
-          }   
+          }
         }
 
         private void HandleEffectEvents(ModuleEvents.OnNuiEvent nuiEvent)
@@ -107,9 +107,9 @@ namespace NWN.Systems
 
                   int spellId = (int)spells[nuiEvent.ArrayIndex].Id;
 
-                  if (!player.windows.TryAdd("learnableDescription", new LearnableDescriptionWindow(player, spellId)))
-                    ((LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(spellId);
-                  
+                  if (!player.windows.ContainsKey("learnableDescription")) player.windows.Add("learnableDescription", new Player.LearnableDescriptionWindow(player, spellId));
+                  else ((Player.LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(spellId);
+
                   break;
               }
 

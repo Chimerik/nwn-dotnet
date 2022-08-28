@@ -16,7 +16,7 @@ namespace NWN.Systems
       public class LearnableWindow : PlayerWindow
       {
         bool displaySkill { get; set; }
-        bool refreshOn { get; set; }
+        //bool refreshOn { get; set; }
         private readonly NuiColumn rootColumn;
         private readonly NuiBind<List<NuiComboEntry>> categories = new("categories");
         private readonly List<NuiComboEntry> skillCategories;
@@ -36,17 +36,17 @@ namespace NWN.Systems
             new NuiComboEntry("Niveau 9", 10),
           };
 
-        private readonly NuiBind<int> selectedCategory = new ("selectedCategory");
-        private readonly NuiBind<bool> enableSkillButton = new ("enableSkillButton");
-        private readonly NuiBind<bool> enableSpellButton = new ("enableSpellButton");
-        private readonly NuiBind<int> listCount = new ("listCount");
-        private readonly NuiBind<string> icon = new ("icon");
-        private readonly NuiBind<string> skillName = new ("skillName");
-        private readonly NuiBind<string> remainingTime = new ("remainingTime");
-        private readonly NuiBind<string> level = new ("level");
-        private readonly NuiBind<string> learnButtonText = new ("learnButtonText");
-        private readonly NuiBind<bool> learnButtonEnabled = new ("learnButtonEnabled");
-        private readonly NuiBind<string> search = new ("search");
+        private readonly NuiBind<int> selectedCategory = new("selectedCategory");
+        private readonly NuiBind<bool> enableSkillButton = new("enableSkillButton");
+        private readonly NuiBind<bool> enableSpellButton = new("enableSpellButton");
+        private readonly NuiBind<int> listCount = new("listCount");
+        private readonly NuiBind<string> icon = new("icon");
+        private readonly NuiBind<string> skillName = new("skillName");
+        public readonly NuiBind<string> remainingTime = new("remainingTime");
+        private readonly NuiBind<string> level = new("level");
+        private readonly NuiBind<string> learnButtonText = new("learnButtonText");
+        private readonly NuiBind<bool> learnButtonEnabled = new("learnButtonEnabled");
+        private readonly NuiBind<string> search = new("search");
         private readonly Color white = new(255, 255, 255);
         private readonly NuiRect drawListRect = new(0, 35, 150, 60);
 
@@ -54,7 +54,7 @@ namespace NWN.Systems
 
         public LearnableWindow(Player player) : base(player)
         {
-          windowId = "learnables"; 
+          windowId = "learnables";
 
           displaySkill = true;
 
@@ -72,8 +72,8 @@ namespace NWN.Systems
             new NuiListTemplateCell(new NuiButton(learnButtonText) { Id = "learn", Enabled = learnButtonEnabled, Tooltip = "Remplace l'apprentissage actif. L'avancement de l'apprentissage précédent sera sauvegardé.", Height = 40, Width = 90 }) { Width = 90 }
           };
 
-          rootColumn = new NuiColumn() 
-          { 
+          rootColumn = new NuiColumn()
+          {
             Children = new List<NuiElement>()
             {
               new NuiRow()
@@ -110,7 +110,7 @@ namespace NWN.Systems
         }
         public void CreateWindow()
         {
-          refreshOn = false;
+          //refreshOn = false;
 
           window = new NuiWindow(rootColumn, "Journal d'apprentissage")
           {
@@ -121,11 +121,10 @@ namespace NWN.Systems
             Transparent = false,
             Border = true,
           };
-          
+
           if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
             nuiToken = tempToken;
-            Log.Info($"{windowId} - created token {nuiToken.Token}");
             nuiToken.OnNuiEvent += HandleLearnableEvents;
 
             selectedCategory.SetBindValue(player.oid, nuiToken.Token, 0);
@@ -142,13 +141,13 @@ namespace NWN.Systems
             geometry.SetBindValue(player.oid, nuiToken.Token, player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.65f));
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-            if ((player.learnableSkills.Any(l => l.Value.active) || player.learnableSpells.Any(l => l.Value.active)) && !player.TryGetOpenedWindow("activeLearnable", out PlayerWindow activeWindow))
-              if (!player.windows.TryAdd("activeLearnable", new ActiveLearnableWindow(player)))
-                ((ActiveLearnableWindow)player.windows["activeLearnable"]).CreateWindow();
+            if (player.activeLearnable != null && player.activeLearnable.active && !player.TryGetOpenedWindow("activeLearnable", out PlayerWindow activeWindow))
+              if (!player.windows.ContainsKey("activeLearnable")) player.windows.Add("activeLearnable", new ActiveLearnableWindow(player));
+              else ((ActiveLearnableWindow)player.windows["activeLearnable"]).CreateWindow();
 
             currentList = player.learnableSkills.Values.Where(s => s.category == SkillSystem.Category.MindBody);
             LoadLearnableList(currentList);
-            RefreshWindowOnAbilityChange();
+            //RefreshWindowOnAbilityChange();
           }
           else
             player.oid.SendServerMessage($"Impossible d'ouvrir la fenêtre {window.Title}. Celle-ci est-elle déjà ouverte ?", ColorConstants.Orange);
@@ -160,7 +159,7 @@ namespace NWN.Systems
           {
             case NuiEventType.Click:
 
-              switch(nuiEvent.ElementId)
+              switch (nuiEvent.ElementId)
               {
                 case "loadSkills":
                   enableSkillButton.SetBindValue(player.oid, nuiToken.Token, false);
@@ -186,17 +185,15 @@ namespace NWN.Systems
                   return;
               }
 
-              if(nuiEvent.ElementId.StartsWith("learn"))
+              if (nuiEvent.ElementId.StartsWith("learn"))
               {
                 currentList.ElementAt(nuiEvent.ArrayIndex).StartLearning(player);
 
                 if (player.TryGetOpenedWindow("activeLearnable", out PlayerWindow activeWindow))
                   activeWindow.CloseWindow();
-                
-                if (player.windows.ContainsKey("activeLearnable"))
-                  ((ActiveLearnableWindow)player.windows["activeLearnable"]).CreateWindow();
-                else
-                  player.windows.Add("activeLearnable", new ActiveLearnableWindow(player));
+
+                if (!player.windows.ContainsKey("activeLearnable")) player.windows.Add("activeLearnable", new ActiveLearnableWindow(player));
+                else ((ActiveLearnableWindow)player.windows["activeLearnable"]).CreateWindow();
 
                 LoadLearnableList(currentList);
               }
@@ -204,17 +201,15 @@ namespace NWN.Systems
               {
                 int learnableId = currentList.ElementAt(nuiEvent.ArrayIndex).id;
 
-                if (player.windows.ContainsKey("learnableDescription"))
-                   ((LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(learnableId);
-                else
-                  player.windows.Add("learnableDescription", new LearnableDescriptionWindow(player, learnableId));
+                if (!player.windows.ContainsKey("learnableDescription")) player.windows.Add("learnableDescription", new LearnableDescriptionWindow(player, learnableId));
+                else ((LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(learnableId);
               }
 
               break;
 
             case NuiEventType.Watch:
 
-              switch(nuiEvent.ElementId)
+              switch (nuiEvent.ElementId)
               {
                 case "selectedCategory":
                 case "search":
@@ -259,28 +254,34 @@ namespace NWN.Systems
 
             if (learnable is LearnableSkill skill)
             {
-              canLearn = skill.attackBonusPrerequisite <= 0 || player.oid.LoginCreature.BaseAttackBonus >= skill.attackBonusPrerequisite;
+              if (learnable.currentLevel >= learnable.maxLevel)
+                canLearn = false;
 
               if (canLearn)
-                foreach (var abilityPreReq in skill.abilityPrerequisites)
-                  if (player.oid.LoginCreature.GetAbilityScore(abilityPreReq.Key, true) < abilityPreReq.Value)
-                  {
-                    canLearn = false;
-                    break;
-                  }
+              {
+                canLearn = skill.attackBonusPrerequisite <= 0 || player.oid.LoginCreature.BaseAttackBonus >= skill.attackBonusPrerequisite;
 
-              if (canLearn)
-                foreach (var skillPreReq in skill.skillPrerequisites)
-                  if (player.learnableSkills[skillPreReq.Key].currentLevel < skillPreReq.Value)
-                  {
-                    canLearn = false;
-                    break;
-                  }
+                if (canLearn)
+                  foreach (var abilityPreReq in skill.abilityPrerequisites)
+                    if (player.oid.LoginCreature.GetAbilityScore(abilityPreReq.Key, true) < abilityPreReq.Value)
+                    {
+                      canLearn = false;
+                      break;
+                    }
+
+                if (canLearn)
+                  foreach (var skillPreReq in skill.skillPrerequisites)
+                    if (player.learnableSkills[skillPreReq.Key].currentLevel < skillPreReq.Value)
+                    {
+                      canLearn = false;
+                      break;
+                    }
+              }
             }
 
             string buttonText = learnable.active ? "En cours" : "Apprendre";
-            if (!canLearn)
-              buttonText = "Prérequis Manquant";
+            //if (!canLearn)
+            //buttonText = "Prérequis Manquant";
 
             learnButtonTextList.Add(buttonText);
             learnButtonEnabledList.Add(canLearn);
@@ -294,10 +295,10 @@ namespace NWN.Systems
           learnButtonEnabled.SetBindValues(player.oid, nuiToken.Token, learnButtonEnabledList);
           listCount.SetBindValue(player.oid, nuiToken.Token, filteredList.Count());
 
-          if (filteredList.Any(l => l.active) && !refreshOn)
-            RefreshActiveLearnable();
+          //if (filteredList.Any(l => l.active) && !refreshOn)
+          //RefreshActiveLearnable();
         }
-        private async void RefreshWindowOnAbilityChange()
+        /*private async void RefreshWindowOnAbilityChange()
         {
           int strength = player.oid.LoginCreature.GetAbilityScore(Ability.Strength);
           int dexterity = player.oid.LoginCreature.GetAbilityScore(Ability.Dexterity);
@@ -315,8 +316,8 @@ namespace NWN.Systems
 
           LoadLearnableList(currentList);
           RefreshWindowOnAbilityChange();
-        }
-        private async void RefreshActiveLearnable()
+        }*/
+        /*private async void RefreshActiveLearnable()
         {
           refreshOn = true;
 
@@ -334,12 +335,16 @@ namespace NWN.Systems
           }
 
           Learnable activeLearnable = currentList.FirstOrDefault(l => l.active);
-          List<string> time = remainingTime.GetBindValues(player.oid, nuiToken.Token);
-          time[currentList.ToList().IndexOf(activeLearnable)] = activeLearnable.GetReadableTimeSpanToNextLevel(player);
-          remainingTime.SetBindValues(player.oid, nuiToken.Token, time);
+
+          if (activeLearnable != null)
+          { 
+            List<string> time = remainingTime.GetBindValues(player.oid, nuiToken.Token);
+            time[currentList.ToList().IndexOf(activeLearnable)] = activeLearnable.GetReadableTimeSpanToNextLevel(player);
+            remainingTime.SetBindValues(player.oid, nuiToken.Token, time);
+          }
 
           RefreshActiveLearnable();
-        }
+        }*/
       }
     }
   }

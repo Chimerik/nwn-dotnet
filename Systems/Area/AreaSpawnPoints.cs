@@ -5,13 +5,14 @@ using System;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
+using NWN.Core;
 
 namespace NWN.Systems
 {
   [ServiceBinding(typeof(AreaSystem))]
   partial class AreaSystem
   {
-    private readonly Dictionary<string, int[]> randomAppearanceDictionary = new ()
+    private readonly Dictionary<string, int[]> randomAppearanceDictionary = new()
     {
       { "plage", new int[] { 1984, 1985, 1986, 3160, 3155, 3156, 1956, 1957, 1958, 1959, 1960, 1961, 1962, 291, 292, 1964, 4310, 1428, 1430, 1980, 1981, 3261, 3262, 3263 } },
       { "cave", new int[] { 3197, 3198, 3199, 3200, 3202, 3204, 3205, 3206, 3207, 3208, 3209, 3210, 3999, 6425, 6426, 6427, 6428, 6429, 6430, 6431, 6432, 6433, 6434, 6435, 6436, 3397, 3398, 3400, 3434 } },
@@ -21,7 +22,7 @@ namespace NWN.Systems
     };
     private void HandleSpawnSpecificBehaviour(NwCreature creature)
     {
-      switch(creature.Tag)
+      switch (creature.Tag)
       {
         case "statue_tiamat":
 
@@ -79,17 +80,27 @@ namespace NWN.Systems
           break;
 
         case "walker":
+          creature.AiLevel = AiLevel.VeryLow;
+          _ = creature.ActionRandomWalk();
+          break;
+
         case "civilian":
+          SetRandomAppearance(creature);
+
+          creature.AiLevel = AiLevel.VeryLow;
+          _ = creature.ActionRandomWalk();
+          break;
         case "plage":
         case "cave":
         case "city":
         case "generic":
 
-          if(creature.GetObjectVariable<LocalVariableString>("_SPAWN_TYPE").Value != "walker")
-            SetRandomAppearance(creature);
+          SetRandomAppearance(creature);
 
           creature.AiLevel = AiLevel.VeryLow;
           _ = creature.ActionRandomWalk();
+
+          Effect runAway = Effect.AreaOfEffect((PersistentVfxType)190, scriptHandleFactory.CreateUniqueHandler(HandleRunAwayFromPlayer), null, scriptHandleFactory.CreateUniqueHandler(HandleNoOneAroundNeutral));
 
           break;
 
@@ -137,7 +148,7 @@ namespace NWN.Systems
       regen.SubType = EffectSubType.Supernatural;
       onHB.Creature.ApplyEffect(EffectDuration.Permanent, regen);
 
-     // Log.Info("end checking distance from spawn");
+      // Log.Info("end checking distance from spawn");
     }
 
     /*private static void OnDeathSpawnNPCWaypoint(CreatureEvents.OnDeath onDeath)
@@ -252,6 +263,34 @@ namespace NWN.Systems
       creature.Name = creature.Appearance.Name;
       if (creature.Name == "Créature")
         Utils.LogMessageToDMs($"Apparence {rowId} - Nom non défini.");
+    }
+    private ScriptHandleResult HandleRunAwayFromPlayer(CallInfo callInfo)
+    {
+      NwAreaOfEffect aoe = (NwAreaOfEffect)callInfo.ObjectSelf;
+
+      if (!(aoe.Creator is NwCreature { IsPlayerControlled: true } neutral))
+        return ScriptHandleResult.Handled;
+
+      NwCreature closestPlayer = neutral.GetNearestCreatures(CreatureTypeFilter.PlayerChar(true)).FirstOrDefault();
+
+      if (closestPlayer != null && neutral.DistanceSquared(closestPlayer) < 25)
+        _ = neutral.ActionMoveAwayFrom(closestPlayer, true);
+
+      return ScriptHandleResult.Handled;
+    }
+    private ScriptHandleResult HandleNoOneAroundNeutral(CallInfo callInfo)
+    {
+      NwAreaOfEffect aoe = (NwAreaOfEffect)callInfo.ObjectSelf;
+
+      if (!(aoe.Creator is NwCreature { IsPlayerControlled: true } neutral))
+        return ScriptHandleResult.Handled;
+
+      NwCreature closestPlayer = neutral.GetNearestCreatures(CreatureTypeFilter.PlayerChar(true)).FirstOrDefault();
+
+      if (closestPlayer == null && neutral.DistanceSquared(closestPlayer) > 30)
+        _ = neutral.ActionRandomWalk();
+
+      return ScriptHandleResult.Handled;
     }
   }
 }

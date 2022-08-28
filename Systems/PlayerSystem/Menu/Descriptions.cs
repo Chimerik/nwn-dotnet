@@ -14,8 +14,8 @@ namespace NWN.Systems
         private readonly NuiGroup rootGroup;
         private readonly NuiColumn rootColumn;
         private readonly List<NuiElement> rootChidren;
-        private readonly NuiBind<string> buttonText = new ("buttonText");
-        private readonly NuiBind<int> listCount = new ("listCount");
+        private readonly NuiBind<string> buttonText = new("buttonText");
+        private readonly NuiBind<int> listCount = new("listCount");
         private readonly List<string> descriptionNamesList = new();
 
         public DescriptionsWindow(Player player) : base(player)
@@ -84,8 +84,8 @@ namespace NWN.Systems
               {
                 case "new":
 
-                  if (!player.windows.TryAdd("descriptionContent", new DescriptionContentWindow(player)))
-                    ((DescriptionContentWindow)player.windows["descriptionContent"]).CreateWindow();
+                  if (!player.windows.ContainsKey("descriptionContent")) player.windows.Add("descriptionContent", new DescriptionContentWindow(player));
+                  else ((DescriptionContentWindow)player.windows["descriptionContent"]).CreateWindow();
 
                   CloseWindow();
 
@@ -100,8 +100,8 @@ namespace NWN.Systems
 
                 case "load":
 
-                  if (!player.windows.TryAdd("descriptionContent", new DescriptionContentWindow(player, player.descriptions[nuiEvent.ArrayIndex])))
-                    ((DescriptionContentWindow)player.windows["descriptionContent"]).CreateWindow(player.descriptions[nuiEvent.ArrayIndex]);
+                  if (!player.windows.ContainsKey("descriptionContent")) player.windows.Add("descriptionContent", new DescriptionContentWindow(player, player.descriptions[nuiEvent.ArrayIndex]));
+                  else ((DescriptionContentWindow)player.windows["descriptionContent"]).CreateWindow(player.descriptions[nuiEvent.ArrayIndex]);
 
                   CloseWindow();
 

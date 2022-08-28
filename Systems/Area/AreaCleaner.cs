@@ -1,5 +1,6 @@
 ﻿using Anvil.API;
 using Anvil.Services;
+
 using System;
 using System.Linq;
 
@@ -10,17 +11,23 @@ namespace NWN.Systems
   {
     private void CleanArea(NwArea area)
     {
-      foreach (NwPlaceable bodyBag in area.FindObjectsOfTypeInArea<NwPlaceable>().Where(o => o.Tag == "BodyBag"))
+      foreach (NwPlaceable bodyBag in area.FindObjectsOfTypeInArea<NwPlaceable>())
       {
-        Utils.DestroyInventory(bodyBag);
-        Log.Info($"destroying body bag {bodyBag.Name}");
-        bodyBag.Destroy();
+        if (bodyBag.Tag == "BodyBag")
+        {
+          Utils.DestroyInventory(bodyBag);
+          Log.Info($"destroying body bag {bodyBag.Name}");
+          bodyBag.Destroy();
+        }
       }
 
-      foreach (NwItem item in area.FindObjectsOfTypeInArea<NwItem>().Where(i => i.Possessor == null))
+      foreach (NwItem item in area.FindObjectsOfTypeInArea<NwItem>())
       {
-        Log.Info($"destroying item {item.Name}");
-        item.Destroy();
+        if (item.Possessor == null)
+        {
+          Log.Info($"destroying item {item.Name}");
+          item.Destroy();
+        }
       }
     }
     private ScheduledTask areaDestroyerScheduler;
@@ -40,7 +47,7 @@ namespace NWN.Systems
           Log.Info($"Canceling cleaning for area {area.Name}");
         }
         Log.Info("areaCleanerCheckScheduler off");
-      } , TimeSpan.FromSeconds(10));
+      }, TimeSpan.FromSeconds(10));
 
       Log.Info("areaCleanerCheckScheduler OK");
 
@@ -61,7 +68,7 @@ namespace NWN.Systems
           Log.Info($"destroying item {item.Name}");
           item.Destroy();
         }
-      } , TimeSpan.FromMinutes(25));
+      }, TimeSpan.FromMinutes(25));
 
       Log.Info("areaCleanerScheduler OK");
     }

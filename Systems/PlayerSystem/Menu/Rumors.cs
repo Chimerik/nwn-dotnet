@@ -22,12 +22,12 @@ namespace NWN.Systems
         private readonly NuiRow deleteRumorsRow;
         private readonly NuiRow returnRow;
         private readonly NuiList listRow;
-        private readonly NuiBind<string> npcText = new ("npcText");
+        private readonly NuiBind<string> npcText = new("npcText");
         private readonly List<int> rumortIds = new();
-        private readonly NuiBind<string> titles = new ("titles");
-        private readonly NuiBind<string> contents = new ("contents");
-        private readonly NuiBind<int> listCount = new ("listCount");
-        private readonly NuiBind<bool> visible = new ("visible");
+        private readonly NuiBind<string> titles = new("titles");
+        private readonly NuiBind<string> contents = new("contents");
+        private readonly NuiBind<int> listCount = new("listCount");
+        private readonly NuiBind<bool> visible = new("visible");
         private string newRumorTitle { get; set; }
         private int selectedRumorId { get; set; }
 
@@ -101,7 +101,7 @@ namespace NWN.Systems
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
           }
 
-            
+
         }
         private void HandleRumorEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
@@ -112,7 +112,7 @@ namespace NWN.Systems
               switch (nuiEvent.ElementId)
               {
                 case "readGreaterRumors":
-                  LoadDMRumorsList();                  
+                  LoadDMRumorsList();
                   break;
 
                 case "readLesserRumors":
@@ -219,8 +219,8 @@ namespace NWN.Systems
         }
         private void GetRumorTitle()
         {
-          if (!player.windows.TryAdd("playerInput", new PlayerInputWindow(player, "Quel titre donner à votre rumeur ?", SetRumorTitle)))
-            ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Quel titre donner à votre rumeur ?", SetRumorTitle);
+          if (!player.windows.ContainsKey("playerInput")) player.windows.Add("playerInput", new PlayerInputWindow(player, "Retirer combien d'unités ?", SetRumorTitle));
+          else ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Retirer combien d'unités ?", SetRumorTitle);
         }
         private bool SetRumorTitle(string inputValue)
         {
@@ -285,7 +285,7 @@ namespace NWN.Systems
           List<string> titleList = new List<string>();
           List<string> contentList = new List<string>();
 
-          if(query != null)
+          if (query != null)
             foreach (var result in query)
             {
               titleList.Add(result[0]);
@@ -301,8 +301,8 @@ namespace NWN.Systems
         }
         private void GetNewRumorTitle()
         {
-          if (!player.windows.TryAdd("playerInput", new PlayerInputWindow(player, "Quel titre donner à votre rumeur ?", UpdateRumorTitle, titles.GetBindValues(player.oid, nuiToken.Token)[selectedRumorId])))
-            ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Quel titre donner à votre rumeur ?", UpdateRumorTitle, titles.GetBindValues(player.oid, nuiToken.Token)[selectedRumorId]);
+          if (!player.windows.ContainsKey("playerInput")) player.windows.Add("playerInput", new PlayerInputWindow(player, "Retirer combien d'unités ?", UpdateRumorTitle, titles.GetBindValues(player.oid, nuiToken.Token)[selectedRumorId]));
+          else ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Retirer combien d'unités ?", UpdateRumorTitle, titles.GetBindValues(player.oid, nuiToken.Token)[selectedRumorId]);
         }
         private bool UpdateRumorTitle(string inputValue)
         {
@@ -314,8 +314,8 @@ namespace NWN.Systems
 
           newRumorTitle = inputValue;
 
-          if (player.windows.TryAdd("playerInput", new PlayerInputWindow(player, "Quel sera le contenu de votre rumeur  ?", UpdateRumorContent, contents.GetBindValues(player.oid, nuiToken.Token)[selectedRumorId])))
-            ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Quel sera le contenu de votre rumeur ?", UpdateRumorContent, contents.GetBindValues(player.oid, nuiToken.Token)[selectedRumorId]);
+          if (!player.windows.ContainsKey("playerInput")) player.windows.Add("playerInput", new PlayerInputWindow(player, "Retirer combien d'unités ?", UpdateRumorContent, titles.GetBindValues(player.oid, nuiToken.Token)[selectedRumorId]));
+          else ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Retirer combien d'unités ?", UpdateRumorContent, titles.GetBindValues(player.oid, nuiToken.Token)[selectedRumorId]);
 
           return true;
         }

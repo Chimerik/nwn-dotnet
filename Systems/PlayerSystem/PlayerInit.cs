@@ -44,6 +44,12 @@ namespace NWN.Systems
       player.oid.SetGuiPanelDisabled(GUIPanel.Journal, true);
       player.oid.SetGuiPanelDisabled(GUIPanel.PlayerList, true);
 
+      if (player.IsDm())
+      {
+        player.oid.SetGuiPanelDisabled(GUIPanel.ExaminePlaceable, true);
+        player.oid.SetGuiPanelDisabled(GUIPanel.ExamineCreature, true);
+      }
+
       player.currentLanguage = 0;
 
       if (player.oid.LoginCreature.GetObjectVariable<PersistentVariableBool>("_ALWAYS_WALK").HasValue)
@@ -190,7 +196,7 @@ namespace NWN.Systems
         }
 
         SqLiteUtils.InsertQuery("playerCharacters",
-            new List<string[]>() { new string[] { "accountId", accountId.ToString() }, new string[] { "characterName", oid.LoginCreature.Name },  new string[] { "location", SqLiteUtils.SerializeLocation(arrivalLocation) }, new string[] { "menuOriginLeft", "50" }, new string[] { "currentHP", oid.LoginCreature.MaxHP.ToString() } });
+            new List<string[]>() { new string[] { "accountId", accountId.ToString() }, new string[] { "characterName", oid.LoginCreature.Name }, new string[] { "location", SqLiteUtils.SerializeLocation(arrivalLocation) }, new string[] { "menuOriginLeft", "50" }, new string[] { "currentHP", oid.LoginCreature.MaxHP.ToString() } });
 
         var rowQuery = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, "SELECT last_insert_rowid()");
         rowQuery.Execute();
@@ -211,7 +217,7 @@ namespace NWN.Systems
         learnableSkills.Add(CustomSkill.ImprovedIntelligence, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedIntelligence]));
         learnableSkills.Add(CustomSkill.ImprovedWisdom, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedWisdom]));
         learnableSkills.Add(CustomSkill.ImprovedCharisma, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedCharisma]));
-       
+
         learnableSkills.Add(CustomSkill.ImprovedHealth, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedHealth]));
         learnableSkills.Add(CustomSkill.Toughness, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Toughness]));
 
@@ -422,7 +428,14 @@ namespace NWN.Systems
           Dictionary<int, LearnableSkill.SerializableLearnableSkill> serializableSkills = JsonConvert.DeserializeObject<Dictionary<int, LearnableSkill.SerializableLearnableSkill>>(serializedLearnableSkills);
 
           foreach (var kvp in serializableSkills)
-            learnableSkills.Add(kvp.Key, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[kvp.Key], kvp.Value));
+          {
+            LearnableSkill skill = new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[kvp.Key], kvp.Value);
+
+            if (skill.active)
+              activeLearnable = skill;
+
+            learnableSkills.Add(kvp.Key, skill);
+          }
         });
 
         Task loadSpellsTask = Task.Run(() =>
@@ -433,7 +446,14 @@ namespace NWN.Systems
           Dictionary<int, LearnableSpell.SerializableLearnableSpell> serializableSpells = JsonConvert.DeserializeObject<Dictionary<int, LearnableSpell.SerializableLearnableSpell>>(serializedLearnableSpells);
 
           foreach (var kvp in serializableSpells)
-            learnableSpells.Add(kvp.Key, new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[kvp.Key], kvp.Value));
+          {
+            LearnableSpell spell = new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[kvp.Key], kvp.Value);
+
+            if (spell.active)
+              activeLearnable = spell;
+
+            learnableSpells.Add(kvp.Key, spell);
+          }
         });
 
         Task loadMateriaTask = Task.Run(() =>
@@ -441,8 +461,8 @@ namespace NWN.Systems
           if (string.IsNullOrEmpty(serializedCraftResources) || serializedCraftResources == "null")
             return;
 
-          List<CraftResource.SerializableCraftResource> serializableCraftResource = JsonConvert.DeserializeObject<List<CraftResource.SerializableCraftResource>> (serializedCraftResources);
-          
+          List<CraftResource.SerializableCraftResource> serializableCraftResource = JsonConvert.DeserializeObject<List<CraftResource.SerializableCraftResource>>(serializedCraftResources);
+
           foreach (var serializedMateria in serializableCraftResource)
             craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == (ResourceType)serializedMateria.type && r.grade == serializedMateria.grade), serializedMateria.quantity));
         });
@@ -523,7 +543,7 @@ namespace NWN.Systems
 
         await Task.Run(() => chatColors = JsonConvert.DeserializeObject<Dictionary<int, byte[]>>(serializedChatColors));
       }
-      private async void InitializeAccountMutedPlayers(string serializedMutedPlayers) 
+      private async void InitializeAccountMutedPlayers(string serializedMutedPlayers)
       {
         if (string.IsNullOrEmpty(serializedMutedPlayers))
           return;
@@ -544,43 +564,6 @@ namespace NWN.Systems
 
         customDMVisualEffects = await Task.Run(() => JsonConvert.DeserializeObject<List<CustomDMVisualEffect>>(serializedCustomDMVisualEffects));
       }
-      private async void CheckForAFKStatus()
-      {
-        CancellationTokenSource tokenSource = new CancellationTokenSource();
-
-        if (pcState != PcState.AFK && oid.IsValid)
-          foreach (Effect eff in oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "EFFECT_VFX_AFK"))
-            oid.LoginCreature.RemoveEffect(eff);
-
-        DateTime lastActionDate = oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value;
-
-        Task awaitPlayerAction = NwTask.WaitUntil(() => oid.LoginCreature == null || oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value != lastActionDate, tokenSource.Token);
-        Task awaitAFKTrigger = NwTask.Delay(TimeSpan.FromMinutes(5), tokenSource.Token);
-
-        await NwTask.WhenAny(awaitPlayerAction, awaitAFKTrigger);
-        tokenSource.Cancel();
-
-        if (oid.LoginCreature == null)
-          return;
-
-        if (awaitPlayerAction.IsCompletedSuccessfully)
-        {
-          pcState = PcState.Online;
-
-          foreach (Effect eff in oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "EFFECT_VFX_AFK"))
-            oid.LoginCreature.RemoveEffect(eff);
-        }
-        else if (awaitAFKTrigger.IsCompletedSuccessfully)
-        {
-          pcState = PcState.AFK;
-          Effect afkVXF = Effect.VisualEffect((VfxType)751);
-          afkVXF.Tag = "EFFECT_VFX_AFK";
-          afkVXF.SubType = EffectSubType.Supernatural;
-          oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, afkVXF);
-        }
-
-        CheckForAFKStatus();
-      }
       private void OnCombatStarted(OnCombatStatusChange onCombatStatusChange)
       {
         if (onCombatStatusChange.CombatStatus == CombatStatus.ExitCombat)
@@ -598,11 +581,11 @@ namespace NWN.Systems
       }
       private void HandleMapPinChanged(OnMapPinChangePin onChange)
       {
-          MapPin updatedMapPin = mapPinDictionnary[onChange.Id];
-          updatedMapPin.x = onChange.Position.X;
-          updatedMapPin.y = onChange.Position.Y;
-          updatedMapPin.note = onChange.Note;
-          SaveMapPinsToDatabase();
+        MapPin updatedMapPin = mapPinDictionnary[onChange.Id];
+        updatedMapPin.x = onChange.Position.X;
+        updatedMapPin.y = onChange.Position.Y;
+        updatedMapPin.note = onChange.Note;
+        SaveMapPinsToDatabase();
       }
       private void HandleMapPinDestroyed(OnMapPinDestroyPin onDestroy)
       {

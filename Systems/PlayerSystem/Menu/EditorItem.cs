@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using Anvil.API;
 using Anvil.API.Events;
 
@@ -18,6 +19,8 @@ namespace NWN.Systems
         private readonly List<NuiElement> rootChildren = new();
         private readonly List<NuiListTemplateCell> rowTemplate = new();
 
+        private readonly NuiBind<bool> visibilityDM = new("visibilityDM");
+
         private readonly NuiBind<string> name = new("name");
         private readonly NuiBind<string> tag = new("tag");
         private readonly NuiBind<string> cost = new("cost");
@@ -26,17 +29,17 @@ namespace NWN.Systems
         private readonly NuiBind<string> size = new("size");
         private readonly NuiBind<int> baseItemSelected = new("baseItemSelected");
         private readonly NuiBind<bool> undroppableChecked = new("undroppableChecked");
-        private readonly NuiBind<bool> identifiedChecked = new("identifiedChecked"); 
+        private readonly NuiBind<bool> identifiedChecked = new("identifiedChecked");
 
-        private readonly NuiBind<int> listCount = new("listCount"); 
+        private readonly NuiBind<int> listCount = new("listCount");
 
         private readonly NuiBind<int> listAcquiredIPCount = new("listAcquiredFeatCount");
         private readonly NuiBind<string> availableIP = new("availableFeatNames");
         private readonly NuiBind<string> acquiredIP = new("acquiredFeatNames");
-        private readonly NuiBind<bool> ipDetailVisibility = new("ipDetailVisibility"); 
-        private readonly NuiBind<string> selectedIP = new("selectedIP"); 
+        private readonly NuiBind<bool> ipDetailVisibility = new("ipDetailVisibility");
+        private readonly NuiBind<string> selectedIP = new("selectedIP");
         private readonly NuiBind<int> subTypeSelected = new("subTypeSelected");
-        private readonly NuiBind<int> costValueSelected = new("costValueSelected"); 
+        private readonly NuiBind<int> costValueSelected = new("costValueSelected");
         private readonly NuiBind<int> paramValueSelected = new("paramValueSelected");
         private readonly NuiBind<List<NuiComboEntry>> subTypeBind = new("subTypeBind");
         private readonly NuiBind<List<NuiComboEntry>> costValueBind = new("costValueBind");
@@ -47,7 +50,7 @@ namespace NWN.Systems
 
         private readonly NuiBind<string> itemDescription = new("itemDescription");
         private readonly NuiBind<string> itemComment = new("itemComment");
-        
+
         private readonly NuiBind<string> variableName = new("variableName");
         private readonly NuiBind<string> variableValue = new("variableValue");
         private readonly NuiBind<int> selectedVariableType = new("selectedVariableType");
@@ -95,13 +98,14 @@ namespace NWN.Systems
 
             LoadBaseBinding();
 
+            visibilityDM.SetBindValue(player.oid, nuiToken.Token, player.oid.IsDM || player.oid.PlayerName == "Chim");
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
             availableIPList.Clear();
 
             foreach (var entry in NwGameTables.ItemPropertyTable)
-              if(entry.ItemMap.IsItemPropertyValidForItem(targetItem.BaseItem))
+              if (entry.ItemMap.IsItemPropertyValidForItem(targetItem.BaseItem))
                 availableIPList.Add(entry);
           }
           else
@@ -118,7 +122,7 @@ namespace NWN.Systems
 
           switch (nuiEvent.EventType)
           {
-             case NuiEventType.Click:
+            case NuiEventType.Click:
 
               switch (nuiEvent.ElementId)
               {
@@ -152,12 +156,12 @@ namespace NWN.Systems
                   ItemPropertyTableEntry ipEntry = availableIPList[nuiEvent.ArrayIndex];
                   var ip = ItemProperty.Custom(ipEntry, ipEntry.SubTypeTable?.GetRow(0) ?? null, ipEntry.CostTable?.GetRow(1) ?? null, ipEntry.Param1Table?.GetRow(0) ?? null);
                   targetItem.AddItemProperty(ip, EffectDuration.Permanent);
-                  LoadItemPropertyBinding(); 
+                  LoadItemPropertyBinding();
                   break;
 
-              case "removeIP":
+                case "removeIP":
                   targetItem.RemoveItemProperty(acquiredIPList[nuiEvent.ArrayIndex]);
-                  LoadItemPropertyBinding(); 
+                  LoadItemPropertyBinding();
                   break;
 
                 case "openIP":
@@ -176,8 +180,8 @@ namespace NWN.Systems
 
                   if (lastClickedIP.CostTable != null)
                     foreach (var entry in lastClickedIP.CostTable)
-                      if(entry.RowIndex > 0)
-                      costValueEntries.Add(new NuiComboEntry(entry.Name?.ToString(), entry.RowIndex));
+                      if (entry.RowIndex > 0)
+                        costValueEntries.Add(new NuiComboEntry(entry.Name?.ToString(), entry.RowIndex));
 
                   if (lastClickedIP.Param1Table != null)
                     foreach (var entry in lastClickedIP.Param1Table)
@@ -282,7 +286,7 @@ namespace NWN.Systems
                   targetItem.Identified = identifiedChecked.GetBindValue(player.oid, nuiToken.Token);
                   break;
               }
-              
+
 
               break;
           }
@@ -296,9 +300,9 @@ namespace NWN.Systems
             {
               new NuiSpacer(),
               new NuiButton("Base") { Id = "base", Height = 35, Width = 90 },
-              new NuiButton("Propriétés") { Id = "properties", Height = 35, Width = 90 },
+              new NuiButton("Propriétés") { Id = "properties", Height = 35, Width = 90, Enabled = visibilityDM },
               new NuiButton("Description") { Id = "description", Height = 35, Width = 90 },
-              new NuiButton("Variables") { Id = "variables", Height = 35, Width = 90 },
+              new NuiButton("Variables") { Id = "variables", Height = 35, Width = 90, Enabled = visibilityDM },
               new NuiSpacer()
             }
           });
@@ -323,8 +327,8 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
-              new NuiLabel("Tag") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
-              new NuiTextEdit("Tag", tag, 30, false) { Height = 35, Width = 200 }
+              new NuiLabel("Tag") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle, Visible = visibilityDM },
+              new NuiTextEdit("Tag", tag, 30, false) { Height = 35, Width = 200, Visible = visibilityDM }
             }
           });
 
@@ -333,7 +337,7 @@ namespace NWN.Systems
             Children = new List<NuiElement>()
             {
               new NuiLabel("Type") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
-              new NuiCombo() { Height = 35, Width = 200, Entries = BaseItems2da.baseItemNameEntries, Selected = baseItemSelected },
+              new NuiCombo() { Height = 35, Width = 200, Entries = BaseItems2da.baseItemNameEntries, Selected = baseItemSelected,  Enabled = visibilityDM },
             }
           });
 
@@ -342,7 +346,7 @@ namespace NWN.Systems
             Children = new List<NuiElement>()
             {
               new NuiLabel("Taille") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
-              new NuiTextEdit("Taille", size, 4, false) { Height = 35, Width = 200 }
+              new NuiTextEdit("Taille", size, 4, false) { Height = 35, Width = 200, Enabled = visibilityDM }
             }
           });
 
@@ -351,7 +355,7 @@ namespace NWN.Systems
             Children = new List<NuiElement>()
             {
               new NuiLabel("Coût") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
-              new NuiTextEdit("Coût", cost, 7, false) { Height = 35, Width = 200 }
+              new NuiTextEdit("Coût", cost, 7, false) { Height = 35, Width = 200, Enabled = visibilityDM }
             }
           });
 
@@ -360,7 +364,7 @@ namespace NWN.Systems
             Children = new List<NuiElement>()
             {
               new NuiLabel("Poids") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
-              new NuiTextEdit("Poids", weight, 4, false) { Height = 35, Width = 200 }
+              new NuiTextEdit("Poids", weight, 4, false) { Height = 35, Width = 200, Enabled = visibilityDM }
             }
           });
 
@@ -369,17 +373,20 @@ namespace NWN.Systems
             Children = new List<NuiElement>()
             {
               new NuiLabel("Charges") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
-              new NuiTextEdit("Charges", charges, 30, false) { Height = 35, Width = 200 }
+              new NuiTextEdit("Charges", charges, 30, false) { Height = 35, Width = 200, Enabled = visibilityDM }
             }
           });
 
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() 
-          { 
+          rootChildren.Add(new NuiRow()
+          {
+            Children = new List<NuiElement>()
+          {
             new NuiSpacer(),
-            new NuiCheck("Inéchangeable", undroppableChecked) { Height = 35, Width = 120 },
-            new NuiCheck("Identifié", identifiedChecked) { Height = 35, Width = 120 },
+            new NuiCheck("Inéchangeable", undroppableChecked) { Height = 35, Width = 120, Enabled = visibilityDM },
+            new NuiCheck("Identifié", identifiedChecked) { Height = 35, Width = 120, Enabled = visibilityDM },
             new NuiSpacer()
-          } });
+          }
+          });
         }
         private void StopAllWatchBindings()
         {
@@ -446,13 +453,17 @@ namespace NWN.Systems
             new NuiListTemplateCell(new NuiButtonImage("ir_ban") { Id = "removeIP", Tooltip = "Supprimer" }) { Width = 35 }
           };
 
-          rootChildren.Add(new NuiRow() { Height = 380, Children = new List<NuiElement>() 
+          rootChildren.Add(new NuiRow()
+          {
+            Height = 380,
+            Children = new List<NuiElement>()
           {
             new NuiColumn() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35,  Width = 390  } } },
             new NuiColumn() { Children = new List<NuiElement>() { new NuiList(rowTemplateAcquiredIP, listAcquiredIPCount) { RowHeight = 35, Width = 390 } } }
-          } });
-          
-          
+          }
+          });
+
+
         }
         private void LoadItemPropertyBinding()
         {
@@ -467,7 +478,7 @@ namespace NWN.Systems
             if (ip.DurationType == EffectDuration.Permanent)
             {
               acquiredIPList.Add(ip);
-              
+
               string ipName = $"{ip.Property.Name?.ToString()}";
 
               if (ip?.SubType?.RowIndex > -1)
@@ -549,15 +560,17 @@ namespace NWN.Systems
             {
               new NuiRow() { Children = new List<NuiElement>()
               {
+                new NuiSpacer(),
                 new NuiTextEdit("Nom", newVariableName, 20, false) { Tooltip = newVariableName, Width = 120 },
                 new NuiCombo() { Entries = Utils.variableTypes, Selected = selectedNewVariableType, Width = 80 },
                 new NuiTextEdit("Valeur", newVariableValue, 20, false) { Tooltip = newVariableValue, Width = 120 },
                 new NuiButtonImage("ir_empytqs") { Id = "saveNewVariable", Height = 35, Width = 35 },
+                new NuiSpacer()
               }
             },
               new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35,  Width = 780  } } }
             }
-          });
+          }); ;
         }
         private void LoadVariablesBinding()
         {

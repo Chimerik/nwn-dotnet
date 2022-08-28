@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Anvil.API;
 using Anvil.API.Events;
 
@@ -85,7 +86,7 @@ namespace NWN.Systems
         if (oid.LoginCreature.Location.Area != null)
           location = oid.LoginCreature.Location;
 
-        if(windowRectangles == null)
+        if (windowRectangles == null)
         {
           Utils.LogMessageToDMs($"ATTENTION - {oid.LoginCreature.Name} n'a pas été correctement initialisé et n'a pas pu être sauvegardé !");
           return;
@@ -97,7 +98,7 @@ namespace NWN.Systems
         HandleExpiredBuyOrders();
         HandleExpiredSellOrders();
         HandleNewMails();
-        
+
         oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_SAVE_SCHEDULED").Delete();
         oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_SAVE_AUTHORIZED").Delete();
       }
@@ -175,6 +176,9 @@ namespace NWN.Systems
         Task<string> serializeItemAppearances = Task.Run(() => JsonConvert.SerializeObject(itemAppearances));
         Task<string> serializeDescriptions = Task.Run(() => JsonConvert.SerializeObject(descriptions));
 
+        if (activeLearnable != null)
+          activeLearnable.spLastCalculation = DateTime.Now;
+
         Task<string> serializeLearnableSkills = Task.Run(() =>
         {
           Dictionary<int, LearnableSkill.SerializableLearnableSkill> serializableSkills = new Dictionary<int, LearnableSkill.SerializableLearnableSkill>();
@@ -186,7 +190,7 @@ namespace NWN.Systems
 
         Task<string> serializeLearnableSpells = Task.Run(() =>
         {
-          Dictionary<int, LearnableSpell.SerializableLearnableSpell> serializableSpells= new Dictionary<int, LearnableSpell.SerializableLearnableSpell>();
+          Dictionary<int, LearnableSpell.SerializableLearnableSpell> serializableSpells = new Dictionary<int, LearnableSpell.SerializableLearnableSpell>();
           foreach (var kvp in learnableSpells)
             serializableSpells.Add(kvp.Key, new LearnableSpell.SerializableLearnableSpell(kvp.Value));
 
@@ -211,7 +215,7 @@ namespace NWN.Systems
           new string[] { "location", serializedLocation }, new string[] { "currentHP", health }, new string[] { "bankGold", bankGold.ToString() },
           new string[] { "pveArenaCurrentPoints", pveArena.currentPoints.ToString() }, new string[] { "menuOriginTop", menu.originTop.ToString() },
           new string[] { "menuOriginLeft", menu.originLeft.ToString() }, new string[] { "alchemyCauldron", serializeAlchemyCauldron.Result },
-          new string[] { "serializedLearnableSkills", serializeLearnableSkills.Result }, new string[] { "serializedLearnableSpells", serializeLearnableSpells.Result }, 
+          new string[] { "serializedLearnableSkills", serializeLearnableSkills.Result }, new string[] { "serializedLearnableSpells", serializeLearnableSpells.Result },
           new string[] { "explorationState", serializeExplorationState.Result }, new string[] { "quickbars", serializeQuickbars.Result },
           new string[] { "itemAppearances", serializeItemAppearances.Result }, new string[] { "descriptions", serializeDescriptions.Result },
           new string[] { "craftJob", serializeJob.Result  }, new string[] { "materialStorage", serializeCraftResource.Result }, new string[] { "grimoires", serializeGrimoires.Result }  },
@@ -225,7 +229,7 @@ namespace NWN.Systems
               new List<string>() { { "expirationDate" }, { "rowid" } },
               new List<string[]>() { new string[] { "characterId", characterId.ToString() } });
 
-        if(result != null)
+        if (result != null)
           foreach (var contract in result)
           {
             int contractId = int.Parse(contract[1]);
@@ -274,20 +278,20 @@ namespace NWN.Systems
             new List<string>() { { "expirationDate" }, { "rowid" } },
             new List<string[]>() { new string[] { "characterId", characterId.ToString() } });
 
-        if(result != null)
-        foreach (var contract in result)
-        {
-          int contractId = int.Parse(contract[1]);
-
-          if ((DateTime.Parse(contract[0]) - DateTime.Now).TotalSeconds < 0)
+        if (result != null)
+          foreach (var contract in result)
           {
-            Task contractExpiration = NwTask.Run(async () =>
+            int contractId = int.Parse(contract[1]);
+
+            if ((DateTime.Parse(contract[0]) - DateTime.Now).TotalSeconds < 0)
             {
-              await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-              DeleteExpiredBuyOrder(contractId);
-            });
+              Task contractExpiration = NwTask.Run(async () =>
+              {
+                await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+                DeleteExpiredBuyOrder(contractId);
+              });
+            }
           }
-        }
       }
       private async void DeleteExpiredBuyOrder(int contractId)
       {
@@ -313,7 +317,7 @@ namespace NWN.Systems
             new List<string>() { { "expirationDate" }, { "rowid" } },
             new List<string[]>() { new string[] { "characterId", characterId.ToString() } });
 
-        if(result != null)
+        if (result != null)
           foreach (var sellOrder in result)
           {
             int contractId = int.Parse(sellOrder[1]);

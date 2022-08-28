@@ -15,18 +15,29 @@ namespace NWN.Systems
       {
         private readonly NuiColumn rootColumn = new();
         private readonly List<NuiElement> rootChidren = new();
-        private readonly NuiBind<string> search = new ("search");
-        private readonly NuiBind<int> listCount = new ("listCount");
-        private readonly NuiBind<string> icon = new ("icon"); // TODO : Utiliser l'icone d'un don correspondant à l'arme ?
-        private readonly NuiBind<string> blueprintNames = new ("blueprintName");
-        private readonly NuiBind<string> blueprintTEs = new ("blueprintTEs");
-        private readonly NuiBind<string> blueprintMEs = new ("blueprintMEs");
-        private readonly NuiBind<bool> enable = new ("enable");
+        private readonly NuiBind<string> search = new("search");
+        private readonly NuiBind<int> listCount = new("listCount");
+        private readonly NuiBind<string> icon = new("icon");
+        private readonly NuiBind<string> blueprintNames = new("blueprintName");
+        private readonly NuiBind<string> blueprintTEs = new("blueprintTEs");
+        private readonly NuiBind<string> blueprintMEs = new("blueprintMEs");
+        private readonly NuiBind<bool> enable = new("enable");
         private readonly Color white = new(255, 255, 255);
-        private readonly NuiRect drawListRect = new(0, 35, 150, 60);
+        private readonly NuiRect drawListRect = new(0, 25, 500, 60);
         private string workshopTag;
         private IEnumerable<NwItem> blueprintList;
         private IEnumerable<NwItem> filteredList;
+
+        private Tab currentTab;
+        private enum Tab
+        {
+          Craft,
+          Upgrade,
+          Repair,
+          Reinforce,
+          Recycle,
+          Surcharge
+        }
 
         public WorkshopWindow(Player player, string placeableTag) : base(player)
         {
@@ -34,19 +45,34 @@ namespace NWN.Systems
 
           List<NuiListTemplateCell> blueprintTemplate = new List<NuiListTemplateCell>
           {
-            new NuiListTemplateCell(new NuiButtonImage(icon) { Tooltip = blueprintNames, Height = 40, Width = 40 }) { Width = 40 },
+            new NuiListTemplateCell(new NuiButtonImage(icon) {Id = "startCraft", Tooltip = blueprintNames, Enabled = enable, Height = 32, Width = 30 }) { Width = 30 },
             new NuiListTemplateCell(new NuiLabel(blueprintMEs)
             {
               Tooltip = blueprintNames,
               DrawList = new List<NuiDrawListItem>() { new NuiDrawListText(white, drawListRect, blueprintTEs) }
-            }) { Width = 160 },
-            new NuiListTemplateCell(new NuiButton("Produire") { Id = "startCraft", Enabled = enable, Tooltip = "Entame une nouvelle production artisanale. Nécessite d'avoir au moins un niveau d'entrainement dans le métier artisanal correspondant.", Height = 40, Width = 90 }) { Width = 90 }
+            }) { VariableSize = true },
           };
 
           rootColumn.Children = rootChidren;
 
+          rootChidren.Add(new NuiRow()
+          {
+            Children = new List<NuiElement>()
+          {
+            new NuiSpacer(),
+            new NuiButtonImage("ife_opportunist") { Id = "craftList", Tooltip = "Création de nouveaux objets", Height = 35, Width = 35 },
+            new NuiButtonImage("upgrade") { Id = "upgradeList", Tooltip = "Amélioration d'objets existants", Height = 35, Width = 35 },
+            new NuiButtonImage("ife_layon") { Id = "repairList", Tooltip = "Réparer un objet abimé", Height = 35, Width = 35 },
+            new NuiButtonImage("reinforce") { Id = "reinforceList", Tooltip = "Renforcer - Augmente la durabilité d'un objet", Height = 35, Width = 35 },
+            new NuiButtonImage("ir_unequip") { Id = "recycleList", Tooltip = "Recycler", Height = 35, Width = 35 },
+            new NuiButtonImage("overdrive") { Id = "overchargeList", Tooltip = "Surcharge arcanique - Augmente le nombre d'emplacements au risque de détruire l'objet", Height = 35, Width = 35 },
+            new NuiButtonImage("beam") { Id = "extraction", Tooltip = "Lancer un job d'extraction passif", Height = 35, Width = 35 },
+            new NuiSpacer()
+          }
+          });
+
           rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) { Width = 410 } } });
-          rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiList(blueprintTemplate, listCount) { RowHeight = 45 } } });
+          rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiList(blueprintTemplate, listCount) { RowHeight = 32 } } });
 
           CreateWindow(placeableTag);
         }
@@ -55,7 +81,7 @@ namespace NWN.Systems
         {
           workshopTag = placeableTag;
 
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.65f);
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, 400);
 
           window = new NuiWindow(rootColumn, "Production artisanale")
           {
@@ -81,9 +107,9 @@ namespace NWN.Systems
             blueprintList = player.oid.ControlledCreature.Inventory.Items.Where(i => i.Tag == "blueprint" && i.GetObjectVariable<LocalVariableString>("_CRAFT_WORKSHOP").Value == workshopTag);
             filteredList = blueprintList;
             LoadBlueprintList(filteredList);
-          }
 
-            
+            currentTab = Tab.Craft;
+          }
         }
 
         private void HandleWorkshopEvents(ModuleEvents.OnNuiEvent nuiEvent)
@@ -106,9 +132,9 @@ namespace NWN.Systems
 
                 case "upgradeList":
 
-                  blueprintList = player.oid.ControlledCreature.Inventory.Items.Where(i => i.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value == player.oid.ControlledCreature.OriginalName 
-                    && i.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value < 8 && BaseItems2da.baseItemTable[(int)i.BaseItem.ItemType].workshop == workshopTag); 
-                  
+                  blueprintList = player.oid.ControlledCreature.Inventory.Items.Where(i => i.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value == player.oid.ControlledCreature.OriginalName
+                    && i.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value < 8 && BaseItems2da.baseItemTable[(int)i.BaseItem.ItemType].workshop == workshopTag);
+
                   filteredList = blueprintList;
                   LoadUpgradableItemList(filteredList.ToList());
                   search.SetBindValue(player.oid, nuiToken.Token, "");
@@ -116,12 +142,99 @@ namespace NWN.Systems
 
                   break;
 
-                case "startCraft":
-                  NwItem blueprint = filteredList.ElementAt(nuiEvent.ArrayIndex);
+                case "recycleList":
 
-                  player.HandleCraftItemChecks(blueprint);
+                  blueprintList = player.oid.ControlledCreature.Inventory.Items.Where(i => !i.PlotFlag && !i.CursedFlag && ItemUtils.GetResourceTypeFromItem(i) != ResourceType.Invalid);
+                  filteredList = blueprintList;
+                  LoadRecyclableItemList(filteredList);
+                  search.SetBindValue(player.oid, nuiToken.Token, "");
+                  currentTab = Tab.Recycle;
+
+                  break;
+
+                case "repairList":
+
+                  blueprintList = player.oid.ControlledCreature.Inventory.Items.Where(i => !i.PlotFlag && !i.CursedFlag && i.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasValue && i.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value < i.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value && ItemUtils.GetResourceTypeFromItem(i) != ResourceType.Invalid);
+                  filteredList = blueprintList;
+                  LoadRepairableItemList(filteredList);
+                  search.SetBindValue(player.oid, nuiToken.Token, "");
+                  currentTab = Tab.Repair;
+
+                  break;
+
+                case "reinforceList":
+
+                  blueprintList = player.oid.ControlledCreature.Inventory.Items.Where(i => !i.PlotFlag && !i.CursedFlag && i.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasValue && i.GetObjectVariable<LocalVariableInt>("_REINFORCEMENT_LEVEL").Value < 10);
+                  filteredList = blueprintList;
+                  LoadReinforcableItemList(filteredList);
+                  search.SetBindValue(player.oid, nuiToken.Token, "");
+                  currentTab = Tab.Reinforce;
+
+                  break;
+
+                case "overchargeList":
+
+                  blueprintList = player.oid.ControlledCreature.Inventory.Items.Where(i => !i.PlotFlag && !i.CursedFlag && i.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").HasValue);
+                  filteredList = blueprintList;
+                  LoadOverchargableItemList(filteredList);
+                  search.SetBindValue(player.oid, nuiToken.Token, "");
+                  currentTab = Tab.Surcharge;
+
+                  break;
+
+                case "startCraft":
+
+                  NwItem item = filteredList.ElementAt(nuiEvent.ArrayIndex);
+
+                  switch (currentTab)
+                  {
+                    case Tab.Craft:
+                      player.HandleCraftItemChecks(item);
+                      break;
+                    case Tab.Upgrade:
+                      player.HandleCraftItemChecks(item.GetObjectVariable<LocalVariableObject<NwItem>>("_BEST_BLUEPRINT").Value, item);
+                      break;
+                    case Tab.Recycle:
+                      if (player.craftJob != null) player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
+                      else player.craftJob = new(player, item, JobType.Recycling);
+                      break;
+                    case Tab.Repair:
+                      player.HandleRepairItemChecks(item);
+                      break;
+                    case Tab.Reinforce:
+                      if (player.craftJob != null) player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
+                      else player.craftJob = new(player, item, JobType.Renforcement);
+                      break;
+                    case Tab.Surcharge:
+
+                      int successChange = player.learnableSkills.ContainsKey(CustomSkill.SurchargeArcanique) ? player.learnableSkills[CustomSkill.SurchargeArcanique].totalPoints : 0;
+                      int controlLevel = player.learnableSkills.ContainsKey(CustomSkill.SurchargeControlee) ? player.learnableSkills[CustomSkill.SurchargeControlee].totalPoints : 0;
+
+                      int dice = NwRandom.Roll(Utils.random, 100);
+
+                      if (dice <= successChange)
+                      {
+                        item.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
+                        player.oid.SendServerMessage($"En forçant à l'aide de votre puissance brute, vous parvenez à ajouter un emplacement de sort supplémentaire à votre {item.Name.ColorString(ColorConstants.White)} !", ColorConstants.Navy);
+                      }
+                      else if (dice > controlLevel)
+                      {
+                        item.Destroy();
+                        player.oid.SendServerMessage($"Vous forcez, forcez, et votre {item.Name.ColorString(ColorConstants.White)} se brise sous l'excès infligé.", ColorConstants.Purple);
+                      }
+
+                      break;
+                  }
+
                   CloseWindow();
-                  
+
+                  break;
+
+                case "extraction":
+
+                  player.HandlePassiveJobChecks(workshopTag);
+                  CloseWindow();
+
                   break;
               }
 
@@ -140,12 +253,23 @@ namespace NWN.Systems
                   {
                     case Tab.Craft:
                       LoadBlueprintList(filteredList);
-                      break;
+                      break; 
                     case Tab.Upgrade:
                       LoadUpgradableItemList(filteredList.ToList());
                       break;
+                    case Tab.Recycle:
+                      LoadRecyclableItemList(filteredList);
+                      break; 
+                    case Tab.Repair:
+                      LoadRepairableItemList(filteredList);
+                      break;
+                    case Tab.Reinforce:
+                      LoadReinforcableItemList(filteredList);
+                      break;
+                    case Tab.Surcharge:
+                      LoadOverchargableItemList(filteredList);
+                      break;
                   }
-                  
 
                   break;
               }
@@ -154,11 +278,11 @@ namespace NWN.Systems
         }
         private void LoadBlueprintList(IEnumerable<NwItem> blueprints)
         {
-          List<string> blueprintNamesList = new ();
-          List<string> iconList = new ();
-          List<string> blueprintTEsList = new ();
-          List<string> blueprintMEsList = new ();
-          List<bool> enabledList = new ();
+          List<string> blueprintNamesList = new();
+          List<string> iconList = new();
+          List<string> blueprintTEsList = new();
+          List<string> blueprintMEsList = new();
+          List<bool> enabledList = new();
 
           foreach (NwItem item in blueprints)
           {
@@ -168,9 +292,9 @@ namespace NWN.Systems
             CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromBlueprint(item) && r.grade == 1);
             int availableQuantity = resource != null ? resource.quantity : 0;
 
-            blueprintNamesList.Add(item.Name);
-            iconList.Add(NwBaseItem.FromItemId(item.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value).WeaponFocusFeat.IconResRef);
-            blueprintMEsList.Add($"Coût en {ItemUtils.GetResourceNameFromBlueprint(item)} : {materiaCost}/{availableQuantity}");
+            blueprintNamesList.Add(item.Name + " - Commencer la fabrication");
+            iconList.Add("ife_opportunist");
+            blueprintMEsList.Add($"Coût en {ItemUtils.GetResourceNameFromBlueprint(item)} : {availableQuantity}/{materiaCost}");
             blueprintTEsList.Add($"Temps de fabrication : {new TimeSpan(jobDuration.Days, jobDuration.Hours, jobDuration.Minutes, jobDuration.Seconds)}");
             enabledList.Add(player.learnableSkills.ContainsKey(player.GetJobLearnableFromWorkshop(workshopTag)) && player.craftJob == null && availableQuantity >= materiaCost);
           }
@@ -202,7 +326,7 @@ namespace NWN.Systems
 
             int grade = item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value;
             itemNamesList.Add($"{item.Name} - Qualité {grade} - Améliorer");
-            iconList.Add(item.BaseItem.WeaponFocusFeat.IconResRef);
+            iconList.Add("upgrade");
 
             if (bestBlueprint != null)
             {
@@ -222,6 +346,133 @@ namespace NWN.Systems
               blueprintTEsList.Add("Avec le patron adéquat");
               enabledList.Add(false);
             }
+          }
+
+          blueprintNames.SetBindValues(player.oid, nuiToken.Token, itemNamesList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, itemNamesList.Count);
+
+          icon.SetBindValues(player.oid, nuiToken.Token, iconList);
+          blueprintMEs.SetBindValues(player.oid, nuiToken.Token, blueprintMEsList);
+          blueprintTEs.SetBindValues(player.oid, nuiToken.Token, blueprintTEsList);
+          enable.SetBindValues(player.oid, nuiToken.Token, enabledList);
+        }
+        private void LoadRepairableItemList(IEnumerable<NwItem> items)
+        {
+          List<string> itemNamesList = new();
+          List<string> iconList = new();
+          List<string> blueprintTEsList = new();
+          List<string> blueprintMEsList = new();
+          List<bool> enabledList = new();
+
+          foreach (NwItem item in items)
+          {
+            int grade = item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").HasValue ? item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value : 1;
+            int materiaCost = (int)player.GetItemRepairMateriaCost(item);
+            ResourceType resType = ItemUtils.GetResourceTypeFromItem(item);
+            CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == resType && r.grade == grade && r.quantity >= materiaCost);
+            int availableQuantity = resource != null ? resource.quantity : 0;
+
+            itemNamesList.Add($"{item.Name} - Qualité {grade} - Réparé {item.GetObjectVariable<LocalVariableInt>("_DURABILITY_NB_REPAIRS").Value} fois");
+            iconList.Add("ife_layon");
+
+            TimeSpan jobDuration = TimeSpan.FromSeconds(player.GetItemRepairTime(item, materiaCost));
+
+            blueprintMEsList.Add($"{item.Name} - Coût en {resType.ToDescription()} {grade} : {availableQuantity}/{materiaCost}");
+            blueprintTEsList.Add($"Temps de réparation : {new TimeSpan(jobDuration.Days, jobDuration.Hours, jobDuration.Minutes, jobDuration.Seconds)}");
+            enabledList.Add(player.learnableSkills.ContainsKey(CustomSkill.Repair) && player.craftJob == null && availableQuantity >= materiaCost);
+          }
+
+          blueprintNames.SetBindValues(player.oid, nuiToken.Token, itemNamesList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, itemNamesList.Count);
+
+          icon.SetBindValues(player.oid, nuiToken.Token, iconList);
+          blueprintMEs.SetBindValues(player.oid, nuiToken.Token, blueprintMEsList);
+          blueprintTEs.SetBindValues(player.oid, nuiToken.Token, blueprintTEsList);
+          enable.SetBindValues(player.oid, nuiToken.Token, enabledList);
+        }
+        private void LoadRecyclableItemList(IEnumerable<NwItem> items)
+        {
+          List<string> itemNamesList = new();
+          List<string> iconList = new();
+          List<string> blueprintTEsList = new();
+          List<string> blueprintMEsList = new();
+          List<bool> enabledList = new();
+
+          foreach (NwItem item in items)
+          {
+
+            itemNamesList.Add($"{item.Name} - Recycler");
+            iconList.Add("ir_unequip");
+
+            TimeSpan jobDuration = TimeSpan.FromSeconds(player.GetItemRecycleTime(item));
+
+            blueprintMEsList.Add($"{item.Name} - Récupérable {(int)player.GetItemRecycleGain(item)}");
+            blueprintTEsList.Add($"Temps de recyclage : {new TimeSpan(jobDuration.Days, jobDuration.Hours, jobDuration.Minutes, jobDuration.Seconds)}");
+            enabledList.Add(player.learnableSkills.ContainsKey(CustomSkill.Recycler) && player.craftJob == null);
+          }
+
+          blueprintNames.SetBindValues(player.oid, nuiToken.Token, itemNamesList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, itemNamesList.Count);
+
+          icon.SetBindValues(player.oid, nuiToken.Token, iconList);
+          blueprintMEs.SetBindValues(player.oid, nuiToken.Token, blueprintMEsList);
+          blueprintTEs.SetBindValues(player.oid, nuiToken.Token, blueprintTEsList);
+          enable.SetBindValues(player.oid, nuiToken.Token, enabledList);
+        }
+        private void LoadReinforcableItemList(IEnumerable<NwItem> items)
+        {
+          List<string> itemNamesList = new();
+          List<string> iconList = new();
+          List<string> blueprintTEsList = new();
+          List<string> blueprintMEsList = new();
+          List<bool> enabledList = new();
+
+          foreach (NwItem item in items)
+          {
+            if(item.BaseItem.EquipmentSlots == EquipmentSlots.None)
+            {
+              item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Delete();
+              item.GetObjectVariable<LocalVariableInt>("_DURABILITY").Delete();
+              continue;
+            }
+
+            itemNamesList.Add($"{item.Name} - Renforcer");
+            iconList.Add("reinforce");
+
+            TimeSpan jobDuration = TimeSpan.FromSeconds(player.GetItemReinforcementTime(item));
+
+            blueprintMEsList.Add($"{item.Name} - Durabilité +5 %");
+            blueprintTEsList.Add($"Temps de renforcement : {new TimeSpan(jobDuration.Days, jobDuration.Hours, jobDuration.Minutes, jobDuration.Seconds)}");
+            enabledList.Add(player.learnableSkills.ContainsKey(CustomSkill.Renforcement) && player.craftJob == null);
+          }
+
+          blueprintNames.SetBindValues(player.oid, nuiToken.Token, itemNamesList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, itemNamesList.Count);
+
+          icon.SetBindValues(player.oid, nuiToken.Token, iconList);
+          blueprintMEs.SetBindValues(player.oid, nuiToken.Token, blueprintMEsList);
+          blueprintTEs.SetBindValues(player.oid, nuiToken.Token, blueprintTEsList);
+          enable.SetBindValues(player.oid, nuiToken.Token, enabledList);
+        }
+        private void LoadOverchargableItemList(IEnumerable<NwItem> items)
+        {
+          List<string> itemNamesList = new();
+          List<string> iconList = new();
+          List<string> blueprintTEsList = new();
+          List<string> blueprintMEsList = new();
+          List<bool> enabledList = new();
+
+          foreach (NwItem item in items)
+          {
+            int successChance = player.learnableSkills.ContainsKey(CustomSkill.SurchargeArcanique) ? player.learnableSkills[CustomSkill.SurchargeArcanique].totalPoints : 0;
+            int controlLevel = player.learnableSkills.ContainsKey(CustomSkill.SurchargeControlee) ? player.learnableSkills[CustomSkill.SurchargeControlee].totalPoints : 0;
+
+            itemNamesList.Add($"{item.Name} - Surcharger");
+            iconList.Add("overdrive");
+
+            blueprintMEsList.Add($"{item.Name} - Emplacement +1");
+            blueprintTEsList.Add($"Réussite : {successChance} % - Perte {100 - (controlLevel + successChance)} %");
+            enabledList.Add(player.learnableSkills.ContainsKey(CustomSkill.SurchargeArcanique));
           }
 
           blueprintNames.SetBindValues(player.oid, nuiToken.Token, itemNamesList);

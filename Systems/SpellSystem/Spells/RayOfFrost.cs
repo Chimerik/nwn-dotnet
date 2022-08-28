@@ -36,8 +36,8 @@ namespace NWN.Systems
         oCaster.OnCombatRoundEnd += PlayerSystem.HandleCombatRoundEndForAutoSpells;
 
         SpellUtils.CancelCastOnMovement(oCaster);
-        SpellUtils.RestoreSpell(oCaster, onSpellCast.Spell.SpellType);
-      }      
+        //SpellUtils.RestoreSpell(oCaster, onSpellCast.Spell.SpellType);
+      }
     }
   }
 }

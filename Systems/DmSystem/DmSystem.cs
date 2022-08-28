@@ -23,25 +23,7 @@ namespace NWN.Systems
     }
     public void HandleAfterDmSpawnObject(OnDMSpawnObjectAfter onSpawn)
     {
-      if (onSpawn.SpawnedObject is NwPlaceable oPLC)
-      {
-        if (onSpawn.DungeonMaster.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPAWN_PERSIST").HasValue)
-        {
-          oPLC.OnDeath += placeableSystem.HandleCleanDMPLC;
-
-          SqLiteUtils.InsertQuery("dm_persistant_placeable",
-            new List<string[]>() { new string[] { "accountID", "0" }, new string[] { "serializedPlaceable", oPLC.Serialize().ToBase64EncodedString() }, new string[] { "areaTag", oPLC.Area.Tag }, new string[] { "position", oPLC.Position.ToString() }, new string[] { "facing", oPLC.Rotation.ToString() } });
-
-          var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, $"SELECT last_insert_rowid()");
-          query.Execute();
-          oPLC.GetObjectVariable<LocalVariableInt>("_ID").Value = query.Result.GetInt(0);
-
-          onSpawn.DungeonMaster.SendServerMessage($"Création persistante - Vous posez le placeable  {oPLC.Name.ColorString(ColorConstants.White)}", new Color(32, 255, 32));
-        }
-        else
-          onSpawn.DungeonMaster.SendServerMessage($"Création temporaire - {oPLC.Name.ColorString(ColorConstants.White)}", new Color(32, 255, 32));
-      }
-      else if(onSpawn.SpawnedObject is NwItem oItem)
+      if (onSpawn.SpawnedObject is NwItem oItem)
       {
         oItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
         Utils.LogMessageToDMs($"{onSpawn.DungeonMaster.PlayerName} vient de créer {oItem.Name}");
@@ -49,8 +31,8 @@ namespace NWN.Systems
     }
     public void HandleAfterDmJumpTarget(OnDMJumpTargetToPoint onJump)
     {
-      foreach(NwGameObject target in onJump.Targets)
-        if(target is NwCreature targetCreature && targetCreature.Area != null && targetCreature.Area.Tag == "LaBrume" && PlayerSystem.Players.TryGetValue(targetCreature, out PlayerSystem.Player player))
+      foreach (NwGameObject target in onJump.Targets)
+        if (target is NwCreature targetCreature && targetCreature.Area != null && targetCreature.Area.Tag == "LaBrume" && PlayerSystem.Players.TryGetValue(targetCreature, out PlayerSystem.Player player))
           player.DestroyPlayerCorpse();
     }
     public void HandleBeforeDMJumpAllPlayers(OnDMJumpAllPlayersToPoint onJump)

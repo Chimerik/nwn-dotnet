@@ -17,7 +17,7 @@ namespace NWN.Systems
       Effect eVis = Effect.VisualEffect(VfxType.ImpFlameS);
       onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, eVis);
 
-      if (oCaster.CheckResistSpell(onSpellCast.TargetObject) == ResistSpellResult.Failed 
+      if (oCaster.CheckResistSpell(onSpellCast.TargetObject) == ResistSpellResult.Failed
         && onSpellCast.TargetObject.RollSavingThrow(SavingThrow.Fortitude, onSpellCast.SaveDC, SavingThrowType.Spell) == SavingThrowResult.Failure)
       {
         Effect eBad = Effect.AttackDecrease(1 + nCasterLevel / 6);
@@ -32,7 +32,7 @@ namespace NWN.Systems
         oCaster.OnCombatRoundEnd += PlayerSystem.HandleCombatRoundEndForAutoSpells;
 
         SpellUtils.CancelCastOnMovement(oCaster);
-        SpellUtils.RestoreSpell(oCaster, onSpellCast.Spell.SpellType);
+        //SpellUtils.RestoreSpell(oCaster, onSpellCast.Spell.SpellType);
       }
     }
   }

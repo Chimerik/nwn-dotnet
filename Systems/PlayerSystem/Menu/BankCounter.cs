@@ -27,7 +27,7 @@ namespace NWN.Systems
           windowId = "bankCounter";
           this.banker = banker;
 
-          bankerText = new ("bankerText");
+          bankerText = new("bankerText");
 
           rootChidren = new List<NuiElement>();
           rootColumn = new NuiColumn() { Children = rootChidren };
@@ -130,8 +130,11 @@ namespace NWN.Systems
                   if (!player.oid.LoginCreature.Inventory.Items.Any(i => i.Tag == "bank_contract"))
                     banker.Inventory.Items.FirstOrDefault(i => i.Tag == "bank_contract").Clone(player.oid.LoginCreature);
                   else
-                    if (!player.windows.TryAdd("bankContract", new BankContractWindow(player, player.oid.LoginCreature.Inventory.Items.FirstOrDefault(i => i.Tag == "bank_contract"))))
-                      ((BankContractWindow)player.windows["bankContract"]).CreateWindow();
+                  {
+                    if (!player.windows.ContainsKey("bankContract")) player.windows.Add("bankContract", new BankContractWindow(player, player.oid.LoginCreature.Inventory.Items.FirstOrDefault(i => i.Tag == "bank_contract")));
+                    else ((BankContractWindow)player.windows["bankContract"]).CreateWindow();
+                  }
+
                   break;
 
                 case "exit":

@@ -14,8 +14,8 @@ namespace NWN.Systems
       public class MateriaExtractionWindow : PlayerWindow
       {
         private readonly NuiColumn rootColumn;
-        private readonly NuiBind<string> remainingTime = new ("remainingTime");
-        private readonly NuiBind<float> progress = new ("progress");
+        private readonly NuiBind<string> remainingTime = new("remainingTime");
+        private readonly NuiBind<float> progress = new("progress");
         private int extractionRemainingTime { get; set; }
         private int extractionTotalDuration { get; set; }
         private NwItem extractor { get; set; }
@@ -51,7 +51,7 @@ namespace NWN.Systems
           if (oTarget == null || oTarget is not NwPlaceable materia || oTarget.Tag != "mineable_materia")
             return;
 
-          if(player.oid.ControlledCreature.DistanceSquared(materia) > 25)
+          if (player.oid.ControlledCreature.DistanceSquared(materia) > 25)
           {
             player.oid.SendServerMessage("Vous êtes trop éloigné pour démarrer le processus d'extraction.", ColorConstants.Red);
             return;
@@ -60,7 +60,7 @@ namespace NWN.Systems
           SelectExtractionSkill(oTarget.GetObjectVariable<LocalVariableString>("_RESOURCE_TYPE").Value);
           SetExtractionTime();
 
-          if(targetMateria != null)
+          if (targetMateria != null)
             foreach (Effect eff in targetMateria.ActiveEffects.Where(e => e.Tag == $"_{player.oid.CDKey}_MINING_BEAM"))
               targetMateria.RemoveEffect(eff);
 
@@ -111,7 +111,7 @@ namespace NWN.Systems
 
         private void HandleExtractionProgress()
         {
-          if(player.oid.LoginCreature == null || !IsOpen || player.oid.LoginCreature.IsInCombat || player.oid.LoginCreature.IsResting 
+          if (player.oid.LoginCreature == null || !IsOpen || player.oid.LoginCreature.IsInCombat || player.oid.LoginCreature.IsResting
             || player.oid.LoginCreature.CurrentAction == Anvil.API.Action.CastSpell || player.oid.LoginCreature.CurrentAction == Anvil.API.Action.AttackObject
             || player.oid.LoginCreature.CurrentAction == Anvil.API.Action.CounterSpell || player.oid.LoginCreature.CurrentAction == Anvil.API.Action.SetTrap
             || player.oid.LoginCreature.CurrentAction == Anvil.API.Action.ItemCastSpell)
@@ -124,10 +124,10 @@ namespace NWN.Systems
           remainingTime.SetBindValue(player.oid, nuiToken.Token, GetReadableExtractionTime());
           progress.SetBindValue(player.oid, nuiToken.Token, (extractionTotalDuration - extractionRemainingTime) / extractionTotalDuration);
 
-          foreach (Effect eff in player.oid.LoginCreature.ActiveEffects.Where(e => e.EffectType ==  EffectType.Invisibility || e.EffectType == EffectType.ImprovedInvisibility))
+          foreach (Effect eff in player.oid.LoginCreature.ActiveEffects.Where(e => e.EffectType == EffectType.Invisibility || e.EffectType == EffectType.ImprovedInvisibility))
           {
             player.oid.LoginCreature.RemoveEffect(eff);
-            player.oid.SendServerMessage("Le bruit et les vibrations liées à l'extraction permettent de vous localiser facilement malgré tout effet d'invisibilité ou de silence.", ColorConstants.Red);
+            player.oid.SendServerMessage("Le bruit et les vibrations liées à l'extraction permettent de vous localiser facilement malgré tout effet d'invisibilité.", ColorConstants.Red);
           }
 
           if (extractionRemainingTime < 1)
@@ -151,7 +151,7 @@ namespace NWN.Systems
 
             int miningYield = GetMiningYield();
             int grade = GetResourceGrade();
-            
+
             // retirer le yield de la matéria + mise à jour en BDD + destruction de la matéria et du placeable
 
             int remainingMateria = targetMateria.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value;

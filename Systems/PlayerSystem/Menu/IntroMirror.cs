@@ -15,8 +15,8 @@ namespace NWN.Systems
         NuiGroup rootGroup { get; }
         NuiColumn rootColumn { get; }
         List<NuiElement> rootChidren { get; }
-        NuiRow introTextRow { get;  }
-        NuiRow beautyRow { get;  }
+        NuiRow introTextRow { get; }
+        NuiRow beautyRow { get; }
         NuiRow pastRow { get; }
         NuiRow futureRow { get; }
 
@@ -72,9 +72,9 @@ namespace NWN.Systems
           rootChidren.Add(introTextRow);
           rootChidren.Add(beautyRow);
 
-          if(!player.learnableSkills.Values.Any(s => s.category == SkillSystem.Category.StartingTraits))
+          if (!player.learnableSkills.Values.Any(s => s.category == SkillSystem.Category.StartingTraits))
             rootChidren.Add(pastRow);
-          
+
           rootChidren.Add(futureRow);
 
           NuiRect windowRectangle = new NuiRect(0, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.02f, 540, 340);
@@ -100,18 +100,18 @@ namespace NWN.Systems
         }
         private void HandleIntroMirrorEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          switch(nuiEvent.EventType)
+          switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
 
-              switch(nuiEvent.ElementId)
+              switch (nuiEvent.ElementId)
               {
                 case "beauty":
 
                   CloseWindow();
 
-                  if (!player.windows.TryAdd("bodyAppearanceModifier", new BodyAppearanceWindow(player, player.oid.LoginCreature)))
-                    ((BodyAppearanceWindow)player.windows["bodyAppearanceModifier"]).CreateWindow(player.oid.LoginCreature);
+                  if (!player.windows.ContainsKey("bodyAppearanceModifier")) player.windows.Add("bodyAppearanceModifier", new BodyAppearanceWindow(player, player.oid.LoginCreature));
+                  else ((BodyAppearanceWindow)player.windows["bodyAppearanceModifier"]).CreateWindow(player.oid.LoginCreature);
 
                   break;
 
@@ -119,8 +119,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.TryAdd("introBackground", new IntroBackgroundWindow(player)))
-                    ((LearnableWindow)player.windows["introBackground"]).CreateWindow();
+                  if (!player.windows.ContainsKey("introBackground")) player.windows.Add("introBackground", new LearnableWindow(player));
+                  else ((LearnableWindow)player.windows["introBackground"]).CreateWindow();
 
                   break;
 
@@ -128,9 +128,9 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.TryAdd("introLearnables", new IntroLearnableWindow(player)))
-                    ((IntroLearnableWindow)player.windows["introLearnables"]).CreateWindow();
-                  
+                  if (!player.windows.ContainsKey("introLearnables")) player.windows.Add("introLearnables", new IntroLearnableWindow(player));
+                  else ((IntroLearnableWindow)player.windows["introLearnables"]).CreateWindow();
+
                   break;
               }
               break;

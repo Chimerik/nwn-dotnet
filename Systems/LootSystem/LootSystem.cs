@@ -108,7 +108,7 @@ namespace NWN.Systems
       foreach (int itemPropertyId in array)
       {
         NwItem oScroll = await NwItem.Create("spellscroll", oChest, 1, "scroll");
-        NwSpell spellEntry = NwSpell.FromSpellType(ItemPropertySpells2da.ipSpellTable[itemPropertyId].spell);
+        NwSpell spellEntry = NwSpell.FromSpellId(NwGameTables.ItemPropertyTable.GetRow(15).SubTypeTable.GetInt(itemPropertyId, "SpellIndex").Value); // 15 = ItemProperty CastSpell
         oScroll.Name = $"{spellEntry.Name}";
         oScroll.Description = $"{spellEntry.Description}";
 

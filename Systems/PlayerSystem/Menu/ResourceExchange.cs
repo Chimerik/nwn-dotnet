@@ -19,32 +19,32 @@ namespace NWN.Systems
       }
       public class ResourceExchangeWindow : PlayerWindow
       {
-        private readonly NuiRow rootRow = new ();
-        private readonly List<NuiElement> rootChildren = new ();
-        private readonly NuiColumn ownerColumn = new () { Width = 400 };
-        private readonly List<NuiElement> ownerChildren = new ();
-        private readonly NuiColumn targetColumn = new () { Width = 400 };
-        private readonly List<NuiElement> targetChildren = new ();
-        private readonly List<NuiListTemplateCell> rowTemplate = new ();
-        private readonly List<NuiListTemplateCell> targetRowTemplate = new ();
+        private readonly NuiRow rootRow = new();
+        private readonly List<NuiElement> rootChildren = new();
+        private readonly NuiColumn ownerColumn = new() { Width = 400 };
+        private readonly List<NuiElement> ownerChildren = new();
+        private readonly NuiColumn targetColumn = new() { Width = 400 };
+        private readonly List<NuiElement> targetChildren = new();
+        private readonly List<NuiListTemplateCell> rowTemplate = new();
+        private readonly List<NuiListTemplateCell> targetRowTemplate = new();
 
-        private readonly NuiBind<string> myGold = new ("myGold");
-        private readonly NuiBind<string> myResourceNames = new ("myResourceNames");
-        private readonly NuiBind<int> myListCount = new ("myListCount");
-        private readonly NuiBind<string> myResourceIcon = new ("myResourceIcon");
-        private readonly NuiBind<string> myAvailableQuantity = new ("myAvailableQuantity");
-        private readonly NuiBind<string> myQuantity = new ("myQuantity");
+        private readonly NuiBind<string> myGold = new("myGold");
+        private readonly NuiBind<string> myResourceNames = new("myResourceNames");
+        private readonly NuiBind<int> myListCount = new("myListCount");
+        private readonly NuiBind<string> myResourceIcon = new("myResourceIcon");
+        private readonly NuiBind<string> myAvailableQuantity = new("myAvailableQuantity");
+        private readonly NuiBind<string> myQuantity = new("myQuantity");
 
-        private readonly NuiBind<string> targetGold = new ("targetGold");
-        private readonly NuiBind<string> targetResourceNames = new ("targetResourceNames");
-        private readonly NuiBind<int> targetListCount = new ("targetListCount");
-        private readonly NuiBind<string> targetResourceIcon = new ("targetResourceIcon");
+        private readonly NuiBind<string> targetGold = new("targetGold");
+        private readonly NuiBind<string> targetResourceNames = new("targetResourceNames");
+        private readonly NuiBind<int> targetListCount = new("targetListCount");
+        private readonly NuiBind<string> targetResourceIcon = new("targetResourceIcon");
 
-        private readonly NuiBind<bool> proposalEnabled = new ("proposalEnabled");
-        private readonly NuiBind<bool> confirmEnabled = new ("confirmEnabled");
-        private readonly NuiBind<bool> cancelEnabled = new ("cancelEnabled");
+        private readonly NuiBind<bool> proposalEnabled = new("proposalEnabled");
+        private readonly NuiBind<bool> confirmEnabled = new("confirmEnabled");
+        private readonly NuiBind<bool> cancelEnabled = new("cancelEnabled");
 
-        private readonly NuiBind<string> targetState = new ("targetState");
+        private readonly NuiBind<string> targetState = new("targetState");
 
         public ResourceExchangeState exchangeState { get; set; }
         List<CraftResource> myResourceList;
@@ -171,7 +171,7 @@ namespace NWN.Systems
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
           }
 
-            
+
 
           LoadResourceList();
         }
@@ -197,8 +197,8 @@ namespace NWN.Systems
 
           CreateWindow(targetPlayer);
 
-          if (!targetPlayer.windows.TryAdd(windowId, new ResourceExchangeWindow(targetPlayer, player)))
-            ((ResourceExchangeWindow)targetPlayer.windows[windowId]).CreateWindow(player);
+          if (!player.windows.ContainsKey(windowId)) player.windows.Add(windowId, new ResourceExchangeWindow(targetPlayer, player));
+          else ((ResourceExchangeWindow)player.windows[windowId]).CreateWindow(targetPlayer);
 
           await NwTask.Delay(TimeSpan.FromSeconds(0.2));
 
@@ -246,11 +246,11 @@ namespace NWN.Systems
                     {
                       if (proposedQuantity > myResourceList[i].quantity)
                         proposedQuantity = myResourceList[i].quantity;
-                        
+
                       myProposal.Add(new CraftResource(myResourceList[i], proposedQuantity));
                     }
                   }
-  
+
                   targetWindow.LoadTargetResourceList(myProposal);
 
                   if (targetWindow.exchangeState == ResourceExchangeState.AwaitingProposal)
@@ -304,7 +304,7 @@ namespace NWN.Systems
                         targetPlayer.oid.SendServerMessage($"Transaction annulée. {targetPlayer.oid.LoginCreature.Name.ColorString(ColorConstants.White)} ne dispose plus d'assez de {resource.name.ColorString(ColorConstants.White)}", ColorConstants.Red);
                         return;
                       }
-                    
+
                     player.bankGold += targetGoldInput;
                     player.bankGold -= myGoldInput;
                     targetPlayer.bankGold += myGoldInput;
@@ -349,7 +349,7 @@ namespace NWN.Systems
                     targetWindow.targetState.SetBindValue(targetPlayer.oid, targetWindow.nuiToken.Token, "En attente de votre finalisation");
                   }
 
-                 break;
+                  break;
 
                 case "cancel":
 

@@ -43,17 +43,17 @@ namespace NWN.Systems
     }
     private void InitializeLearnableSpells()
     {
-      foreach(NwSpell spell in NwRuleset.Spells)
+      foreach (NwSpell spell in NwRuleset.Spells)
       {
         ClassType castClass;
-        
+
         int clericCastLevel = spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Cleric)) < 255 ? spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Cleric)) : -1;
         int druidCastLevel = spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Druid)) < 255 ? spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Druid)) : -1;
         int paladinCastLevel = spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Paladin)) < 255 ? spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Paladin)) : -1;
         int rangerCastLevel = spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Ranger)) < 255 ? spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Ranger)) : -1;
         int bardCastLevel = spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Bard)) < 255 ? spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Bard)) : -1;
 
-        Dictionary<ClassType, int> classSorter = new ()
+        Dictionary<ClassType, int> classSorter = new()
         {
           { ClassType.Cleric, clericCastLevel },
           { ClassType.Druid, druidCastLevel },
@@ -118,7 +118,7 @@ namespace NWN.Systems
       if (PlayerSystem.Players.TryGetValue(onSpellBroadcast.Caster, out PlayerSystem.Player player))
       {
         ClassType castingClass = SpellUtils.GetCastingClass(onSpellBroadcast.Spell);
-        
+
         switch (castingClass)
         {
           case ClassType.Druid:
@@ -198,10 +198,10 @@ namespace NWN.Systems
 
       if (!(callInfo.ObjectSelf is NwCreature { IsPlayerControlled: true } oPC) || !PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
       {
-          if (castingCreature.Master != null && PlayerSystem.Players.TryGetValue(castingCreature.Master, out PlayerSystem.Player master))
-            NWScript.DelayCommand(0.0f, () => DelayedTagAoESummon(castingCreature, master));
+        if (castingCreature.Master != null && PlayerSystem.Players.TryGetValue(castingCreature.Master, out PlayerSystem.Player master))
+          NWScript.DelayCommand(0.0f, () => DelayedTagAoESummon(castingCreature, master));
 
-          return;
+        return;
       }
 
       /*if (onSpellCast.Spell.ImpactScript == "on_ench_cast")
@@ -299,7 +299,7 @@ namespace NWN.Systems
     private void DelayedTagAoE(PlayerSystem.Player player)
     {
       NwAreaOfEffect aoe = UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>();
-      
+
       if (aoe == null || aoe.GetObjectVariable<LocalVariableBool>("TAGGED").HasValue || aoe.Creator != player.oid.ControlledCreature)
         return;
 
@@ -348,7 +348,7 @@ namespace NWN.Systems
         return;
 
       Spell spell = (Spell)int.Parse(EventsPlugin.GetEventData("SPELL_ID"));
-      switch(spell)
+      switch (spell)
       {
         case Spell.AcidSplash:
         case Spell.Daze:
@@ -375,10 +375,10 @@ namespace NWN.Systems
     public static ScriptHandleResult HandleInvisibiltyHeartBeat(CallInfo callInfo)
     {
       NwAreaOfEffect inviAoE = (NwAreaOfEffect)callInfo.ObjectSelf;
-      
+
       if (!(inviAoE.Creator is NwCreature { IsPlayerControlled: true } oInvi))
         return ScriptHandleResult.Handled;
-      
+
       int iMoveSilentlyCheck = oInvi.GetSkillRank(Skill.MoveSilently) + NwRandom.Roll(Utils.random, 20);
       NwPlaceable invisMarker = NwObject.FindObjectsWithTag<NwPlaceable>($"invis_marker_{oInvi.ControllingPlayer.PlayerName}").FirstOrDefault();
       bool listenTriggered = false;
@@ -420,16 +420,16 @@ namespace NWN.Systems
       Task markerDestroyed = NwTask.WaitUntil(() => silhouette == null, tokenSource.Token);
       Task playerDisconnecting = NwTask.WaitUntil(() => !oPC.IsValid, tokenSource.Token);
       Task positionChanged = NwTask.WaitUntilValueChanged(() => oPC.Location.Position, tokenSource.Token);
-      
+
       await NwTask.WhenAny(positionChanged, markerDestroyed, playerDisconnecting);
       tokenSource.Cancel();
 
       if (markerDestroyed.IsCompletedSuccessfully)
         return;
 
-      if(playerDisconnecting.IsCompletedSuccessfully)
+      if (playerDisconnecting.IsCompletedSuccessfully)
       {
-        if(silhouette != null)
+        if (silhouette != null)
           silhouette.Destroy();
         return;
       }

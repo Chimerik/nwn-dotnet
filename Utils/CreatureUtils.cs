@@ -1,14 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Anvil.API;
 using Anvil.API.Events;
+
 using NWN.Systems;
 
 namespace NWN
 {
   public static class CreatureUtils
   {
+    public static Dictionary<string, NwCreature> creatureSpawnDictionary = new();
     public static void OnMobPerception(CreatureEvents.OnPerception onPerception)
     {
       if (!onPerception.Creature.IsEnemy(onPerception.PerceivedCreature) || onPerception.Creature.IsInCombat)
@@ -41,6 +44,11 @@ namespace NWN
         await NwTask.Delay(TimeSpan.FromSeconds(0.2));
         creature.RunEquip(item, slot);
       });
+    }
+    public static int GetCriticalMonsterDamage(int rowIndex)
+    {
+      var costTable = ItemProperty.MonsterDamage((IPMonsterDamage)rowIndex).CostTable;
+      return costTable.GetInt(rowIndex, "NumDice").Value * costTable.GetInt(rowIndex, "Die").Value;
     }
   }
 }

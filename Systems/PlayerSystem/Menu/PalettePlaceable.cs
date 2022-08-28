@@ -15,13 +15,13 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      public class PaletteCreatureWindow : PlayerWindow
+      public class PalettePlaceableWindow : PlayerWindow
       {
         private readonly NuiColumn rootColumn = new();
         private readonly List<NuiElement> rootChildren = new();
         private readonly List<NuiListTemplateCell> rowTemplate = new();
-        private readonly NuiBind<string> newCreatureName = new("newCreatureName");
-        private readonly NuiBind<string> creatureName = new("creatureName");
+        private readonly NuiBind<string> newPlaceableName = new("newPlaceableName");
+        private readonly NuiBind<string> placeableName = new("placeableName");
         private readonly NuiBind<string> creatorName = new("creatorName");
         private readonly NuiBind<string> comment = new("comment");
         private readonly NuiBind<string> lastModified = new("lastModified");
@@ -33,25 +33,25 @@ namespace NWN.Systems
         private readonly NuiBind<List<NuiComboEntry>> creators = new("creators");
         private readonly NuiBind<int> selectedCreator = new("selectedCreator");
 
-        private NwCreature selectionTarget;
+        private NwPlaceable selectionTarget;
         private int currentArrayindex = -1;
         private bool AuthorizeSave { get; set; }
         private int nbDebounce { get; set; }
 
         private IEnumerable<PaletteEntry> currentList;
 
-        public PaletteCreatureWindow(Player player) : base(player)
+        public PalettePlaceableWindow(Player player) : base(player)
         {
-          windowId = "paletteCreature";
+          windowId = "palettePlaceable";
           AuthorizeSave = false;
           nbDebounce = 0;
 
           rootColumn.Children = rootChildren;
-          rowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("Nom créature", creatureName, 50, false) { Tooltip = creatureName }) { Width = 140 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("Nom", placeableName, 50, false) { Tooltip = placeableName }) { Width = 140 });
           rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(creatorName) { Tooltip = comment, VerticalAlign = NuiVAlign.Middle }) { Width = 60 });
           rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(lastModified) { Tooltip = lastModified, VerticalAlign = NuiVAlign.Middle }));
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_action") { Id = "copy", Tooltip = "Sélectionner le modèle pour cette entrée", Enabled = isCreatorOrAdmin }) { Width = 35 });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_attacknearest") { Id = "spawn", Tooltip = "Faire apparaître cette créature" }) { Width = 35 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_attack") { Id = "spawn", Tooltip = "Créer cet objet" }) { Width = 35 });
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_empytqs") { Id = "save", Tooltip = "Valider les modifications", Enabled = isCreatorOrAdmin }) { Width = 35 });
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_ban") { Id = "delete", Tooltip = "Supprimer cette entrée", Enabled = isCreatorOrAdmin }) { Width = 35 });
 
@@ -59,9 +59,9 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
           {
-            new NuiTextEdit("Nom palette", newCreatureName, 50, false) { Tooltip = newCreatureName, Height = 35 },
-            new NuiButtonImage("ir_action") { Id = "selectNewCreature", Tooltip = "Sélectionner la créature à sauvegarder", Width = 35, Height = 35 },
-            new NuiButtonImage("ir_animalemp") { Id = "create", Tooltip = "Ajouter la créature à la palette", Enabled = isModelLoaded, Width = 35, Height = 35 }
+            new NuiTextEdit("Nom palette", newPlaceableName, 50, false) { Tooltip = newPlaceableName, Height = 35 },
+            new NuiButtonImage("ir_action") { Id = "selectNewItem", Tooltip = "Sélectionner l'objet à sauvegarder", Width = 35, Height = 35 },
+            new NuiButtonImage("ir_animalemp") { Id = "create", Tooltip = "Ajouter l'objet à la palette", Enabled = isModelLoaded, Width = 35, Height = 35 }
           }
           });
 
@@ -75,7 +75,7 @@ namespace NWN.Systems
         {
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 600, 540);
 
-          window = new NuiWindow(rootColumn, "Palette des créatures")
+          window = new NuiWindow(rootColumn, "Palette des placeables")
           {
             Geometry = geometry,
             Resizable = false,
@@ -88,23 +88,24 @@ namespace NWN.Systems
           if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
             nuiToken = tempToken;
-            nuiToken.OnNuiEvent += HandlePaletteCreatureEvents;
+            nuiToken.OnNuiEvent += HandlePalettePlaceableEvents;
 
             search.SetBindValue(player.oid, nuiToken.Token, "");
             search.SetBindWatch(player.oid, nuiToken.Token, true);
 
-            creators.SetBindValue(player.oid, nuiToken.Token, Utils.creaturePaletteCreatorsList);
+            creators.SetBindValue(player.oid, nuiToken.Token, Utils.placeablePaletteCreatorsList);
+
             selectedCreator.SetBindValue(player.oid, nuiToken.Token, 0);
             selectedCreator.SetBindWatch(player.oid, nuiToken.Token, true);
 
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-            currentList = Utils.creaturePaletteList;
-            LoadCreatureList(currentList);
+            currentList = Utils.placeablePaletteList;
+            LoadItemList(currentList);
           }
         }
-        private void HandlePaletteCreatureEvents(ModuleEvents.OnNuiEvent nuiEvent)
+        private void HandlePalettePlaceableEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
           switch (nuiEvent.EventType)
           {
@@ -112,61 +113,61 @@ namespace NWN.Systems
 
               switch (nuiEvent.ElementId)
               {
-                case "selectNewCreature":
+                case "selectNewItem":
 
                   currentArrayindex = -1;
-                  player.oid.SendServerMessage("Quelle créature souhaitez-vous prendre pour modèle ?", ColorConstants.Orange);
-                  player.oid.EnterTargetMode(SelectCreature, ObjectTypes.Creature, MouseCursor.Action);
+                  player.oid.SendServerMessage("Quel objet souhaitez-vous prendre pour modèle ?", ColorConstants.Orange);
+                  player.oid.EnterTargetMode(SelectItem, ObjectTypes.Placeable, MouseCursor.Action);
 
                   break;
 
                 case "create":
 
-                  HandleInsertNewCreature(newCreatureName.GetBindValue(player.oid, nuiToken.Token), selectionTarget.Serialize().ToBase64EncodedString(), player.oid.PlayerName, selectionTarget.GetObjectVariable<LocalVariableString>("_COMMENT").Value);
+                  HandleInsertNewItem(newPlaceableName.GetBindValue(player.oid, nuiToken.Token), selectionTarget.Serialize().ToBase64EncodedString(), player.oid.PlayerName, selectionTarget.GetObjectVariable<LocalVariableString>("_COMMENT").Value);
 
-                  newCreatureName.SetBindValue(player.oid, nuiToken.Token, "");
+                  newPlaceableName.SetBindValue(player.oid, nuiToken.Token, "");
                   selectionTarget = null;
                   isModelLoaded.SetBindValue(player.oid, nuiToken.Token, false);
 
-                  LoadCreatureList(currentList);
+                  LoadItemList(currentList);
 
                   break;
 
                 case "copy":
 
                   currentArrayindex = nuiEvent.ArrayIndex;
-                  player.oid.SendServerMessage("Quelle créature souhaitez-vous prendre pour modèle ?", ColorConstants.Orange);
-                  player.oid.EnterTargetMode(SelectCreature, ObjectTypes.Creature, MouseCursor.Action);
+                  player.oid.SendServerMessage("Quel objet souhaitez-vous prendre pour modèle ?", ColorConstants.Orange);
+                  player.oid.EnterTargetMode(SelectItem, ObjectTypes.Item, MouseCursor.Action);
 
                   break;
 
                 case "spawn":
 
                   currentArrayindex = nuiEvent.ArrayIndex;
-                  player.oid.SendServerMessage("Veuillez sélectionner un emplacement de spawn.", ColorConstants.Orange);
-                  player.oid.EnterTargetMode(SpawnCreature, ObjectTypes.All, MouseCursor.Create);
+                  player.oid.SendServerMessage("Où souhaitez-vous créer cet objet ?", ColorConstants.Orange);
+                  player.oid.EnterTargetMode(CreateItem, ObjectTypes.All, MouseCursor.Create);
 
                   break;
 
                 case "save":
 
                   PaletteEntry entry = currentList.ElementAt(nuiEvent.ArrayIndex);
-                  entry.name = creatureName.GetBindValues(player.oid, nuiToken.Token).ElementAt(nuiEvent.ArrayIndex);
+                  entry.name = placeableName.GetBindValues(player.oid, nuiToken.Token).ElementAt(nuiEvent.ArrayIndex);
                   PaletteSave();
 
-                  player.oid.SendServerMessage($"La créature {entry.name.ColorString(ColorConstants.White)} a bien été sauvegardée dans la palette.", new Color(32, 255, 32));
+                  player.oid.SendServerMessage($"L'objet {entry.name.ColorString(ColorConstants.White)} a bien été sauvegardé dans la palette.", new Color(32, 255, 32));
 
                   break;
 
                 case "delete":
 
                   PaletteEntry deletedEntry = currentList.ElementAt(nuiEvent.ArrayIndex);
-                  Utils.creaturePaletteList.Remove(deletedEntry);
+                  Utils.placeablePaletteList.Remove(deletedEntry);
 
                   PaletteSave();
-                  LoadCreatureList(currentList);
+                  LoadItemList(currentList);
 
-                  player.oid.SendServerMessage($"La créature {deletedEntry.name.ColorString(ColorConstants.White)} a bien été supprimée de la palette.", new Color(32, 255, 32));
+                  player.oid.SendServerMessage($"L'objet {deletedEntry.name.ColorString(ColorConstants.White)} a bien été supprimé de la palette.", new Color(32, 255, 32));
 
                   break;
               }
@@ -183,14 +184,14 @@ namespace NWN.Systems
                   int creatorId = selectedCreator.GetBindValue(player.oid, nuiToken.Token);
 
                   if (creatorId < 1)
-                    currentList = string.IsNullOrEmpty(currentSearch) ? Utils.creaturePaletteList : Utils.creaturePaletteList.Where(c => c.name.ToLower().Contains(currentSearch));
+                    currentList = string.IsNullOrEmpty(currentSearch) ? Utils.placeablePaletteList : Utils.placeablePaletteList.Where(c => c.name.ToLower().Contains(currentSearch));
                   else
                   {
-                    string selectedCreatorName = Utils.creaturePaletteCreatorsList.FirstOrDefault(c => c.Value == creatorId).Label;
-                    currentList = string.IsNullOrEmpty(currentSearch) ? Utils.creaturePaletteList.Where(c => c.creator == selectedCreatorName) : Utils.creaturePaletteList.Where(c => c.name.ToLower().Contains(currentSearch) && c.creator == selectedCreatorName);
+                    string selectedCreatorName = Utils.placeablePaletteCreatorsList.FirstOrDefault(c => c.Value == creatorId).Label;
+                    currentList = string.IsNullOrEmpty(currentSearch) ? Utils.placeablePaletteList.Where(c => c.creator == selectedCreatorName) : Utils.placeablePaletteList.Where(c => c.name.ToLower().Contains(currentSearch) && c.creator == selectedCreatorName);
                   }
 
-                  LoadCreatureList(currentList);
+                  LoadItemList(currentList);
 
                   break;
               }
@@ -198,9 +199,9 @@ namespace NWN.Systems
               break;
           }
         }
-        private void LoadCreatureList(IEnumerable<PaletteEntry> filteredList)
+        private void LoadItemList(IEnumerable<PaletteEntry> filteredList)
         {
-          List<string> creatureNameList = new();
+          List<string> placeableNameList = new();
           List<string> creatorNameList = new();
           List<string> commentList = new();
           List<string> lastModifiedList = new();
@@ -208,7 +209,7 @@ namespace NWN.Systems
 
           foreach (PaletteEntry entry in filteredList)
           {
-            creatureNameList.Add(entry.name);
+            placeableNameList.Add(entry.name);
             creatorNameList.Add(entry.creator);
             commentList.Add(entry.comment);
             lastModifiedList.Add(entry.lastModified);
@@ -219,23 +220,23 @@ namespace NWN.Systems
               enabledList.Add(false);
           }
 
-          creatureName.SetBindValues(player.oid, nuiToken.Token, creatureNameList);
+          placeableName.SetBindValues(player.oid, nuiToken.Token, placeableNameList);
           creatorName.SetBindValues(player.oid, nuiToken.Token, creatorNameList);
           comment.SetBindValues(player.oid, nuiToken.Token, commentList);
           lastModified.SetBindValues(player.oid, nuiToken.Token, lastModifiedList);
           isCreatorOrAdmin.SetBindValues(player.oid, nuiToken.Token, enabledList);
           listCount.SetBindValue(player.oid, nuiToken.Token, filteredList.Count());
         }
-        private void SelectCreature(ModuleEvents.OnPlayerTarget selection)
+        private void SelectItem(ModuleEvents.OnPlayerTarget selection)
         {
-          if (selection.IsCancelled || selection.TargetObject is not NwCreature target)
+          if (selection.IsCancelled || selection.TargetObject is not NwPlaceable target)
             return;
 
           if (currentArrayindex > -1)
           {
             PaletteEntry entry = currentList.ElementAt(currentArrayindex);
             entry.serializedObject = target.Serialize().ToBase64EncodedString();
-            player.oid.SendServerMessage($"La créature {target.Name.ColorString(ColorConstants.White)} sera désormais utilisée comme modèle pour l'entrée de la palette {entry.name.ColorString(ColorConstants.White)}.", new Color(32, 255, 32));
+            player.oid.SendServerMessage($"L'objet {target.Name.ColorString(ColorConstants.White)} sera désormais utilisée comme modèle pour l'entrée de la palette {entry.name.ColorString(ColorConstants.White)}.", new Color(32, 255, 32));
             selectionTarget = null;
           }
           else
@@ -244,46 +245,42 @@ namespace NWN.Systems
             isModelLoaded.SetBindValue(player.oid, nuiToken.Token, true);
           }
         }
-
-        private void SpawnCreature(ModuleEvents.OnPlayerTarget selection)
+        private void CreateItem(ModuleEvents.OnPlayerTarget selection)
         {
           if (selection.IsCancelled)
             return;
 
-          Location spawnLocation = Location.Create(player.oid.ControlledCreature.Area, selection.TargetPosition, player.oid.ControlledCreature.Rotation);
-          NwCreature creature = NwCreature.Deserialize(currentList.ElementAt(currentArrayindex).serializedObject.ToByteArray());
-
-          creature.Location = spawnLocation;
-          creature.OnPerception += CreatureUtils.OnMobPerception;
+          NwPlaceable item = NwPlaceable.Deserialize(currentList.ElementAt(currentArrayindex).serializedObject.ToByteArray());
+          item.Location = Location.Create(player.oid.ControlledCreature.Area, selection.TargetPosition, player.oid.ControlledCreature.Rotation);
+          item.GetObjectVariable<LocalVariableBool>("_EDITOR_PLACEABLE").Delete();
         }
 
-        private void HandleInsertNewCreature(string creatureName, string serializedCreature, string playerName, string comment)
+        private void HandleInsertNewItem(string placeableName, string serializedItem, string playerName, string comment)
         {
-          if (!Utils.creaturePaletteList.Any(c => c.creator == playerName))
+          if (!Utils.placeablePaletteList.Any(c => c.creator == playerName))
           {
-            Utils.creaturePaletteList.Add(new PaletteEntry(creatureName, playerName, serializedCreature, DateTime.Now.ToString(), comment));
+            Utils.placeablePaletteList.Add(new PaletteEntry(placeableName, playerName, serializedItem, DateTime.Now.ToString(), comment));
 
-            Utils.creaturePaletteCreatorsList.Clear();
-            Utils.creaturePaletteCreatorsList.Add(new NuiComboEntry("Tous", 0));
+            Utils.placeablePaletteCreatorsList.Clear();
+            Utils.placeablePaletteCreatorsList.Add(new NuiComboEntry("Tous", 0));
             int index = 1;
 
-            foreach (var entry in Utils.creaturePaletteList.DistinctBy(c => c.creator).OrderBy(c => c.creator))
+            foreach (var entry in Utils.placeablePaletteList.DistinctBy(c => c.creator).OrderBy(c => c.creator))
             {
-              Utils.creaturePaletteCreatorsList.Add(new NuiComboEntry(entry.creator, index));
+              Utils.placeablePaletteCreatorsList.Add(new NuiComboEntry(entry.creator, index));
               index++;
             }
 
-            creators.SetBindValue(player.oid, nuiToken.Token, Utils.creaturePaletteCreatorsList);
+            creators.SetBindValue(player.oid, nuiToken.Token, Utils.placeablePaletteCreatorsList);
           }
           else
-            Utils.creaturePaletteList.Add(new PaletteEntry(creatureName, playerName, serializedCreature, DateTime.Now.ToString(), comment));
+            Utils.placeablePaletteList.Add(new PaletteEntry(placeableName, playerName, serializedItem, DateTime.Now.ToString(), comment));
 
-          //selectedCreator.SetBindValue(player.oid, nuiToken.Token, Utils.creaturePaletteCreatorsList.FirstOrDefault(c => c.Label == playerName).Value);
-          //search.SetBindValue(player.oid, nuiToken.Token, creatureName);
-
-          player.oid.SendServerMessage("Votre créature a bien été ajoutée à la palette.", new Color(32, 255, 32));
-
+          player.oid.SendServerMessage("Votre objet a bien été ajoutée à la palette.", new Color(32, 255, 32));
           PaletteSave();
+
+          //selectedCreator.SetBindValue(player.oid, nuiToken.Token, Utils.placeablePaletteCreatorsList.FirstOrDefault(c => c.Label == playerName).Value);
+          //search.SetBindValue(player.oid, nuiToken.Token, placeableName); 
         }
         private void PaletteSave()
         {
@@ -299,7 +296,7 @@ namespace NWN.Systems
             else
             {
               nbDebounce = 1;
-              Log.Info($"Character {player.characterId} : scheduling creature palette save in 10s");
+              Log.Info($"Character {player.characterId} : scheduling placeable palette save in 10s");
               DebouncePaletteSave(nbDebounce);
               return;
             }
@@ -307,7 +304,7 @@ namespace NWN.Systems
           else
             HandlePaletteSave();
 
-          Log.Info($"Character {player.characterId} creature palette saved in : {(DateTime.Now - elapsed).TotalSeconds} s");
+          Log.Info($"Character {player.characterId} placeable palette saved in : {(DateTime.Now - elapsed).TotalSeconds} s");
         }
 
         private async void DebouncePaletteSave(int initialNbDebounce)
@@ -331,17 +328,17 @@ namespace NWN.Systems
           {
             nbDebounce = 0;
             AuthorizeSave = true;
-            Log.Info($"Character {player.characterId} : debounce done after {nbDebounce} triggers, creature palette save authorized");
+            Log.Info($"Character {player.characterId} : debounce done after {nbDebounce} triggers, placeable palette save authorized");
             PaletteSave();
           }
         }
         private async void HandlePaletteSave()
         {
-          Task<string> serializeCreaturePalette = Task.Run(() => JsonConvert.SerializeObject(Utils.creaturePaletteList.OrderBy(c => c.name).ThenByDescending(c => DateTime.TryParse(c.lastModified, out DateTime lastModified)).ToList()));
-          await serializeCreaturePalette;
+          Task<string> serializePlaceablePalette = Task.Run(() => JsonConvert.SerializeObject(Utils.placeablePaletteList.OrderBy(c => c.name).ThenByDescending(c => DateTime.TryParse(c.lastModified, out DateTime lastModified)).ToList()));
+          await serializePlaceablePalette;
 
           SqLiteUtils.UpdateQuery("modulePalette",
-          new List<string[]>() { new string[] { "creatures", serializeCreaturePalette.Result } },
+          new List<string[]>() { new string[] { "placeables", serializePlaceablePalette.Result } },
           new List<string[]>() { new string[] { "rowid", "1" } });
 
           nbDebounce = 0;

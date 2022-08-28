@@ -13,11 +13,11 @@ namespace NWN.Systems
       public class ActiveCraftJobWindow : PlayerWindow
       {
         private readonly NuiColumn rootColumn;
-        private readonly Color white = new (255, 255, 255);
-        private readonly NuiRect drawListRect = new (0, 35, 150, 60);
-        private readonly NuiBind<string> icon = new ("icon");
-        private readonly NuiBind<string> name = new ("name");
-        public readonly NuiBind<string> timeLeft = new ("timeLeft");
+        private readonly Color white = new(255, 255, 255);
+        private readonly NuiRect drawListRect = new(0, 35, 150, 60);
+        private readonly NuiBind<string> icon = new("icon");
+        private readonly NuiBind<string> name = new("name");
+        public readonly NuiBind<string> timeLeft = new("timeLeft");
 
         public ActiveCraftJobWindow(Player player) : base(player)
         {
@@ -50,6 +50,9 @@ namespace NWN.Systems
             return;
           }
 
+          if (IsOpen)
+            return;
+
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 320, 100);
 
           window = new NuiWindow(rootColumn, "Travail artisanal en cours")
@@ -79,8 +82,17 @@ namespace NWN.Systems
               player.craftJob.progressLastCalculation = null;
             }
 
-            timeLeft.SetBindValue(player.oid, nuiToken.Token, player.craftJob.GetReadableJobCompletionTime());
-            HandleRealTimeJobProgression();
+            if (player.oid.LoginCreature.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 0)
+              timeLeft.SetBindValue(player.oid, nuiToken.Token, "En pause (Hors Cité)");
+            else
+              timeLeft.SetBindValue(player.oid, nuiToken.Token, player.craftJob.GetReadableJobCompletionTime());
+
+            //player.oid.OnServerSendArea -= player.craftJob.HandleCraftJobOnAreaChange;
+            //player.oid.OnServerSendArea += player.craftJob.HandleCraftJobOnAreaChange;
+            //player.oid.OnClientDisconnect -= player.craftJob.HandleCraftJobOnPlayerLeave;
+            //player.oid.OnClientDisconnect += player.craftJob.HandleCraftJobOnPlayerLeave;
+
+            //HandleRealTimeJobProgression();
           }
         }
 
@@ -95,31 +107,36 @@ namespace NWN.Systems
           switch (nuiEvent.ElementId)
           {
             case "cancel":
-                player.craftJob.HandleCraftJobCancellation(player);
+              player.craftJob.HandleCraftJobCancellation(player);
               return;
 
             case "item":
 
-              if (player.windows.ContainsKey("itemExamine"))
-                ((ItemExamineWindow)player.windows["itemExamine"]).CreateWindow(NwItem.Deserialize(player.craftJob.serializedCraftedItem.ToByteArray()));
-              else
-                player.windows.Add("itemExamine", new ItemExamineWindow(player, NwItem.Deserialize(player.craftJob.serializedCraftedItem.ToByteArray())));
-              
+              if (!string.IsNullOrEmpty(player.craftJob.serializedCraftedItem))
+              {
+                NwItem item = NwItem.Deserialize(player.craftJob.serializedCraftedItem.ToByteArray());
+
+                if (!player.windows.ContainsKey("itemExamine")) player.windows.Add("itemExamine", new ItemExamineWindow(player, item));
+                else ((ItemExamineWindow)player.windows["itemExamine"]).CreateWindow(item);
+
+                ItemUtils.ScheduleItemForDestruction(item, 300);
+              }
+
               return;
           }
 
-          switch (nuiEvent.EventType)
+          /*switch (nuiEvent.EventType)
           {
             case NuiEventType.Close:
               player.craftJob.progressLastCalculation = DateTime.Now;
               player.craftJob.HandleDelayedJobProgression(player);
               return;
-          }
+          }*/
         }
-        public async void HandleRealTimeJobProgression()
+        /*public async void HandleRealTimeJobProgression()
         {
           if (player.craftJob.jobProgression != null)
-            player.craftJob.jobProgression.Cancel();
+            player.craftJob.jobProgression.Dispose();
 
           await NwTask.WaitUntil(() => player.oid.LoginCreature == null || player.oid.LoginCreature.Area != null);
 
@@ -153,7 +170,7 @@ namespace NWN.Systems
             }
 
           }, TimeSpan.FromSeconds(1));
-        }
+        }*/
       }
     }
   }

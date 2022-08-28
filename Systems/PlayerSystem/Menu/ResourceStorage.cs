@@ -18,10 +18,10 @@ namespace NWN.Systems
       public class ResourceStorageWindow : PlayerWindow
       {
         NuiColumn rootColumn { get; }
-        private readonly NuiBind<string> resourceNames = new ("resourceNames");
-        private readonly NuiBind<int> listCount = new ("listCount");
-        private readonly NuiBind<string> resourceIcon = new ("resourceIcon");
-        private readonly NuiBind<int> resourceType = new ("resourceType");
+        private readonly NuiBind<string> resourceNames = new("resourceNames");
+        private readonly NuiBind<int> listCount = new("listCount");
+        private readonly NuiBind<string> resourceIcon = new("resourceIcon");
+        private readonly NuiBind<int> resourceType = new("resourceType");
 
         private bool AuthorizeSave { get; set; }
         private int nbDebounce { get; set; }
@@ -57,12 +57,12 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
-              new NuiRow() 
-              { 
-                Height = 35, 
-                Children = new List<NuiElement>() 
-                { 
-                  new NuiCombo 
+              new NuiRow()
+              {
+                Height = 35,
+                Children = new List<NuiElement>()
+                {
+                  new NuiCombo
                   {
                     Selected = resourceType,
                     Entries = new List<NuiComboEntry>
@@ -75,10 +75,10 @@ namespace NWN.Systems
                       new NuiComboEntry("Peaux", 5),
                       new NuiComboEntry("Cuirs", 6),
                       new NuiComboEntry("Plantes", 7),
-                    }, 
+                    },
                   },
                   new NuiButton("Tout déposer") { Id = "dropCategory", Tooltip = "Dépose toutes les resources de la catégories sélectionnée." }
-                } 
+                }
               },
               new NuiList(rowTemplate, listCount) { RowHeight = 35 },
               new NuiRow()
@@ -125,7 +125,7 @@ namespace NWN.Systems
             resourceSelection = player.craftResourceStock.FirstOrDefault();
             LoadResourceList();
           }
-            
+
         }
 
         private void HandleResourceStorageEvents(ModuleEvents.OnNuiEvent nuiEvent)
@@ -143,8 +143,8 @@ namespace NWN.Systems
 
                   resourceSelection = player.craftResourceStock[nuiEvent.ArrayIndex];
 
-                  if (!player.windows.TryAdd("playerInput", new PlayerInputWindow(player, "Retirer combien d'unités ?", WithdrawResource, resourceSelection.quantity.ToString())))
-                    ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Retirer combien d'unités ?", WithdrawResource, resourceSelection.quantity.ToString());
+                  if (!player.windows.ContainsKey("playerInput")) player.windows.Add("playerInput", new PlayerInputWindow(player, "Retirer combien d'unités ?", WithdrawResource, resourceSelection.quantity.ToString()));
+                  else ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Retirer combien d'unités ?", WithdrawResource, resourceSelection.quantity.ToString());
 
                   break;
 
@@ -152,7 +152,7 @@ namespace NWN.Systems
 
                   player.oid.SendServerMessage("Sélectionnez les objets de votre inventaire à déposer au coffre.");
                   player.oid.EnterTargetMode(SelectInventoryItem, ObjectTypes.Item, MouseCursor.PickupDown);
-                  
+
                   break;
 
                 case "dropThis":
@@ -205,7 +205,7 @@ namespace NWN.Systems
             return true;
           }
 
-          while(input > 0)
+          while (input > 0)
           {
             if (input > 50000)
             {
@@ -237,7 +237,7 @@ namespace NWN.Systems
             return;
           }
 
-          if(!Enum.TryParse(item.GetObjectVariable<LocalVariableString>("CRAFT_RESOURCE").Value, out ResourceType type))
+          if (!Enum.TryParse(item.GetObjectVariable<LocalVariableString>("CRAFT_RESOURCE").Value, out ResourceType type))
           {
             player.oid.SendServerMessage($"ERREUR TECHNIQUE - {item.Name.ColorString(ColorConstants.White)} n'a pas été identifié comme une resource artisanale. Le staff a été averti", ColorConstants.Red);
             Utils.LogMessageToDMs($"{item.GetObjectVariable<LocalVariableString>("CRAFT_RESOURCE").Value} utilisé par {player.oid.LoginCreature.Name} n'a pas pu être parsé comme ressource de craft.");
@@ -249,7 +249,7 @@ namespace NWN.Systems
             CraftResource resource = player.craftResourceStock.First(r => r.type == type && r.grade == item.GetObjectVariable<LocalVariableInt>("CRAFT_GRADE").Value);
             resource.quantity += item.StackSize;
           }
-          catch(Exception)
+          catch (Exception)
           {
             player.craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == type && r.grade == item.GetObjectVariable<LocalVariableInt>("CRAFT_GRADE").Value), item.StackSize));
           }

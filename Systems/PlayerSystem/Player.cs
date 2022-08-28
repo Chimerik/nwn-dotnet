@@ -34,25 +34,26 @@ namespace NWN.Systems
       public Cauldron alchemyCauldron { get; set; }
       public PcState pcState { get; set; }
 
-      public List<NwPlayer> listened = new ();
-      public List<int> mutedList = new ();
-      public Dictionary<uint, Player> blocked = new ();
-      public Dictionary<int, LearnableSkill> learnableSkills = new ();
-      public Dictionary<int, LearnableSpell> learnableSpells = new ();
-      public Dictionary<int, MapPin> mapPinDictionnary = new ();
-      public Dictionary<string, byte[]> areaExplorationStateDictionnary = new ();
-      public Dictionary<int, byte[]> chatColors = new ();
-      public Dictionary<string, PlayerWindow> windows = new ();
-      public Dictionary<string, NuiRect> windowRectangles = new ();
+      public List<NwPlayer> listened = new();
+      public List<int> mutedList = new();
+      public Dictionary<uint, Player> blocked = new();
+      public Dictionary<int, LearnableSkill> learnableSkills = new();
+      public Dictionary<int, LearnableSpell> learnableSpells = new();
+      public Learnable activeLearnable { get; set; }
+      public Dictionary<int, MapPin> mapPinDictionnary = new();
+      public Dictionary<string, byte[]> areaExplorationStateDictionnary = new();
+      public Dictionary<int, byte[]> chatColors = new();
+      public Dictionary<string, PlayerWindow> windows = new();
+      public Dictionary<string, NuiRect> windowRectangles = new();
       //public Dictionary<string, int> openedWindows = new ();
-      public List<ChatLine> readChatLines = new ();
+      public List<ChatLine> readChatLines = new();
 
-      public List<CraftResource> craftResourceStock = new ();
-      public List<Grimoire> grimoires = new ();
-      public List<Quickbar> quickbars = new ();
-      public List<ItemAppearance> itemAppearances = new ();
-      public List<CharacterDescription> descriptions = new ();
-      public List<CustomDMVisualEffect> customDMVisualEffects = new ();
+      public List<CraftResource> craftResourceStock = new();
+      public List<Grimoire> grimoires = new();
+      public List<Quickbar> quickbars = new();
+      public List<ItemAppearance> itemAppearances = new();
+      public List<CharacterDescription> descriptions = new();
+      public List<CustomDMVisualEffect> customDMVisualEffects = new();
       public List<NwGameObject> effectTargets = new();
 
 
@@ -78,9 +79,7 @@ namespace NWN.Systems
         this.areaSystem = areaSystem;
         this.feedbackService = feedbackService;
 
-        Log.Info($"accountID : {this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("accountId").Value}");
-
-        if(!oid.IsDM)
+        if (!oid.IsDM)
         {
           if (this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("accountId").HasNothing && !oid.IsDM)
             InitializeNewPlayer();
@@ -98,8 +97,6 @@ namespace NWN.Systems
           InitializeDM();
 
         Players.Add(nwobj.LoginCreature, this);
-
-        Log.Info($"Player first initialization : DONE");
       }
 
       public void EmitKeydown(MenuFeatEventArgs e)
@@ -173,10 +170,10 @@ namespace NWN.Systems
         switch (window)
         {
           case "chat":
-           /* if (windows.ContainsKey(window))
-              ((ChatWriterWindow)windows[window]).CreateWindow();
-            else
-              windows.Add(window, new ChatWriterWindow(this));*/
+            /* if (windows.ContainsKey(window))
+               ((ChatWriterWindow)windows[window]).CreateWindow();
+             else
+               windows.Add(window, new ChatWriterWindow(this));*/
             break;
           case "chatReader":
             if (windows.ContainsKey(window))
@@ -196,11 +193,11 @@ namespace NWN.Systems
       {
         await NwTask.WaitUntil(() => oid.LoginCreature.Location.Area != null);
 
-        if (learnableSkills.Any(l => l.Value.active))
+        /*if (learnableSkills.Any(l => l.Value.active))
           learnableSkills.First(l => l.Value.active).Value.AwaitPlayerStateChangeToCalculateSPGain(this);
 
         else if (learnableSpells.Any(l => l.Value.active))
-          learnableSpells.First(l => l.Value.active).Value.AwaitPlayerStateChangeToCalculateSPGain(this);
+          learnableSpells.First(l => l.Value.active).Value.AwaitPlayerStateChangeToCalculateSPGain(this);*/
 
         /*int improvedHealth = 0;
       if (player.learnableSkills.ContainsKey(CustomSkill.ImprovedHealth))
@@ -220,7 +217,11 @@ namespace NWN.Systems
         if (learnableSkills.ContainsKey(CustomSkill.ImprovedAttackBonus))
           oid.LoginCreature.BaseAttackBonus = (byte)(oid.LoginCreature.BaseAttackBonus + learnableSkills[CustomSkill.ImprovedAttackBonus].totalPoints);
 
+        if (activeLearnable != null && activeLearnable.active && activeLearnable.spLastCalculation.HasValue)
+          activeLearnable.acquiredPoints += (DateTime.Now - activeLearnable.spLastCalculation).Value.TotalSeconds * GetSkillPointsPerSecond(activeLearnable);
+
         pcState = PcState.Online;
+        oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
       }
       public void UnloadMenuQuickbar()
       {
@@ -271,7 +272,7 @@ namespace NWN.Systems
         this.oid.OnPlayerChat += ChatSystem.HandlePlayerInputInt;
 
         CancellationTokenSource tokenSource = new CancellationTokenSource();
-        
+
         Task awaitPlayerCancellation = NwTask.WaitUntil(() => !this.oid.IsValid || this.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_PLAYER_INPUT_CANCELLED").HasValue, tokenSource.Token);
         Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.IsValid && this.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").HasValue, tokenSource.Token);
 
@@ -340,7 +341,7 @@ namespace NWN.Systems
         else
           oid.SendServerMessage(messageKO, ColorConstants.Red);
       }
-      
+
       public double GetSkillPointsPerSecond(Learnable learnable)
       {
         double pointsPerSecond = (oid.LoginCreature.GetAbilityScore(learnable.primaryAbility) + (oid.LoginCreature.GetAbilityScore(learnable.secondaryAbility) / 2.0)) / 60.0; // Il faut laisser les .0 sinon ce ne sont plus des doubles et KABOOM
@@ -360,7 +361,7 @@ namespace NWN.Systems
             pointsPerSecond *= 1.2;
             break;
           case 100:
-            pointsPerSecond *= 10;
+            pointsPerSecond *= 10.0;
             break;
         }
 
@@ -372,7 +373,7 @@ namespace NWN.Systems
         else if (pcState == PcState.AFK)
         {
           pointsPerSecond *= 0.8;
-          Log.Info($"{oid.LoginCreature.Name} was afk. Applying 20 % malus.");
+          //Log.Info($"{oid.LoginCreature.Name} was afk. Applying 20 % malus.");
         }
 
         if (oid.LoginCreature.KnowsFeat(Feat.QuickToMaster))
@@ -880,7 +881,7 @@ namespace NWN.Systems
       }
       public double GetWeaponTimeCost(BaseItemType baseItemType, double materiaCost)
       {
-       var entry = BaseItems2da.baseItemTable[(int)baseItemType];
+        var entry = BaseItems2da.baseItemTable[(int)baseItemType];
 
         if (learnableSkills.ContainsKey(entry.craftLearnable))
           materiaCost *= learnableSkills[entry.craftLearnable].bonusReduction;
@@ -892,7 +893,7 @@ namespace NWN.Systems
 
         return materiaCost;
       }
-      public double GetItemMateriaCost(NwItem item, int grade = 1)
+      public double GetItemMateriaCost(NwItem item, double grade = 1)
       {
         BaseItemType baseItemType;
 
@@ -920,10 +921,10 @@ namespace NWN.Systems
         if (learnableSkills.ContainsKey(entry.craftLearnable))
           materiaCost *= learnableSkills[entry.craftLearnable].bonusReduction;
 
-        if(baseACValue < 1 && learnableSkills.ContainsKey(CustomSkill.CraftClothes))
+        if (baseACValue < 1 && learnableSkills.ContainsKey(CustomSkill.CraftClothes))
           materiaCost *= learnableSkills[CustomSkill.CraftClothes].bonusReduction;
 
-        if(baseACValue > 0 && learnableSkills.ContainsKey(CustomSkill.CraftArmor))
+        if (baseACValue > 0 && learnableSkills.ContainsKey(CustomSkill.CraftArmor))
           materiaCost *= learnableSkills[CustomSkill.CraftArmor].bonusReduction;
 
         int jobFeat = GetJobLearnableFromWorkshop(entry.workshop);
@@ -946,10 +947,10 @@ namespace NWN.Systems
         if (learnableSkills.ContainsKey(jobFeat))
           materiaCost *= learnableSkills[jobFeat].bonusReduction;
 
-        switch(ItemUtils.GetItemCategory(baseItemType))
+        switch (ItemUtils.GetItemCategory(baseItemType))
         {
           case ItemUtils.ItemCategory.OneHandedMeleeWeapon:
-            if(learnableSkills.ContainsKey(CustomSkill.CraftOnHandedMeleeWeapon))
+            if (learnableSkills.ContainsKey(CustomSkill.CraftOnHandedMeleeWeapon))
               materiaCost *= learnableSkills[CustomSkill.CraftOnHandedMeleeWeapon].bonusReduction;
             return materiaCost;
           case ItemUtils.ItemCategory.TwoHandedMeleeWeapon:
@@ -1049,13 +1050,24 @@ namespace NWN.Systems
           return;
         }
 
-        if (blueprint == null || blueprint.Possessor == oid.ControlledCreature)
+        if (blueprint == null || blueprint.Possessor != oid.ControlledCreature)
         {
-          oid.SendServerMessage($"{blueprint.Name.ColorString(ColorConstants.White)} n'est plus en votre possession. Impossible de démarrer le travail artisanal.", ColorConstants.Red);
+          oid.SendServerMessage($"{blueprint.Name.ColorString(ColorConstants.White)} n'est plus en votre possession. Impossible de commencer le travail artisanal.", ColorConstants.Red);
           return;
         }
 
-        int grade = upgradedItem != null ? upgradedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value + 1 : 1 ;
+        int grade = 1;
+
+        if (upgradedItem != null)
+        {
+          if (upgradedItem.Possessor != oid.ControlledCreature)
+          {
+            oid.SendServerMessage($"{upgradedItem.Name.ColorString(ColorConstants.White)} n'est plus en votre possession. Impossible de commencer le travail artisanal.", ColorConstants.Red);
+            return;
+          }
+
+          grade = upgradedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value + 1;
+        }
 
         int materiaCost = (int)(GetItemMateriaCost(blueprint, grade) * (1 - (blueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value / 100)));
         CraftResource resource = craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromBlueprint(blueprint) && r.grade == 1 && r.quantity >= materiaCost);
@@ -1074,32 +1086,70 @@ namespace NWN.Systems
         else
           craftJob = new CraftJob(this, blueprint, GetItemCraftTime(blueprint, materiaCost), upgradedItem);
 
-        if (windows.ContainsKey("activeCraftJob"))
-          ((ActiveCraftJobWindow)windows["activeCraftJob"]).CreateWindow();
-        else
-          windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
+        if (!windows.ContainsKey("activeCraftJob")) windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
+        else ((ActiveCraftJobWindow)windows["activeCraftJob"]).CreateWindow();
+      }
+      public void HandlePassiveJobChecks(string worshop)
+      {
+        if (craftJob != null)
+        {
+          oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
+          return;
+        }
 
-        return;
+        craftJob = new CraftJob(this, ItemUtils.GetResourceFromWorkshopTag(worshop), 0, "beam");
+
+        if (!windows.ContainsKey("activeCraftJob")) windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
+        else ((ActiveCraftJobWindow)windows["activeCraftJob"]).CreateWindow();
       }
       public static string GetReadableTimeSpan(double timeCost)
       {
         TimeSpan timespan = TimeSpan.FromSeconds(timeCost);
         return new TimeSpan(timespan.Days, timespan.Hours, timespan.Minutes, timespan.Seconds).ToString();
       }
-      public string GetItemRepairDescriptionString(NwItem item)
+      public double GetItemReinforcementTime(NwItem item)
       {
-        double materiaCost = GetItemRepairMateriaCost(item);
-        return $"Coût de réparation : {materiaCost} - Temps de réparation : {GetReadableTimeSpan(GetItemRepairTime(item, materiaCost))}";
-      }
+        double remainingTime = ItemUtils.GetBaseItemCost(item) * 100.0;
 
+        if (learnableSkills.ContainsKey(CustomSkill.Renforcement))
+          remainingTime *= (1.0 - (learnableSkills[CustomSkill.Renforcement].totalPoints * 5.0 / 100.0));
+
+        return remainingTime;
+      }
+      public double GetItemRecycleTime(NwItem item)
+      {
+        double remainingTime = ItemUtils.GetBaseItemCost(item) * 125.0;
+
+        if (learnableSkills.ContainsKey(CustomSkill.Recycler))
+          remainingTime *= learnableSkills[CustomSkill.Recycler].bonusReduction;
+
+        if (learnableSkills.ContainsKey(CustomSkill.RecyclerFast))
+          remainingTime *= learnableSkills[CustomSkill.RecyclerFast].bonusReduction;
+
+        return remainingTime;
+      }
+      public double GetItemRecycleGain(NwItem item)
+      {
+        double quantity = item.BaseItem.BaseCost * 125.0;
+
+        if (learnableSkills.ContainsKey(CustomSkill.Recycler))
+          quantity *= learnableSkills[CustomSkill.Recycler].bonusMultiplier;
+
+        if (learnableSkills.ContainsKey(CustomSkill.RecyclerExpert))
+          quantity *= learnableSkills[CustomSkill.RecyclerExpert].bonusMultiplier;
+
+        return quantity;
+      }
       public double GetItemRepairMateriaCost(NwItem item)
       {
         double materiaCost = GetItemMateriaCost(item, item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value);
         materiaCost *= 1 + (5 * item.GetObjectVariable<LocalVariableInt>("_DURABILITY_NB_REPAIRS") / 100);
         materiaCost /= item.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value == this.oid.LoginCreature.OriginalName ? 8 : 4;
-        materiaCost *= learnableSkills[CustomSkill.Repair].bonusReduction;
 
-        if(learnableSkills.ContainsKey(CustomSkill.RepairExpert))
+        if(learnableSkills.ContainsKey(CustomSkill.Repair))
+          materiaCost *= learnableSkills[CustomSkill.Repair].bonusReduction;
+
+        if (learnableSkills.ContainsKey(CustomSkill.RepairExpert))
           materiaCost *= learnableSkills[CustomSkill.RepairExpert].bonusReduction;
 
         return materiaCost;
@@ -1108,7 +1158,9 @@ namespace NWN.Systems
       {
         double timeCost = item.BaseItem.ItemType == BaseItemType.Armor ? GetArmorTimeCost(item.BaseACValue, materiaCost) : GetWeaponTimeCost(item.BaseItem.ItemType, materiaCost);
         timeCost *= 1 + (25 * item.GetObjectVariable<LocalVariableInt>("_DURABILITY_NB_REPAIRS") / 100);
-        timeCost *= learnableSkills[CustomSkill.Repair].bonusReduction;
+
+        if (learnableSkills.ContainsKey(CustomSkill.Repair))
+          timeCost *= learnableSkills[CustomSkill.Repair].bonusReduction;
 
         if (learnableSkills.ContainsKey(CustomSkill.RepairFast))
           timeCost *= learnableSkills[CustomSkill.RepairFast].bonusReduction;
@@ -1117,11 +1169,12 @@ namespace NWN.Systems
       }
       public string GetUniqueTagForChar(string suffix)
       {
-        return this.oid.CDKey + "_" + this.oid.BicFileName + "_" + suffix;
+        return oid.CDKey + "_" + oid.BicFileName + "_" + suffix;
       }
       private void HandleGenericNuiEvents(ModuleEvents.OnNuiEvent nuiEvent)
       {
         string window = nuiEvent.Token.WindowId;
+        nuiEvent.Player.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
 
         switch (nuiEvent.ElementId)
         {
@@ -1132,7 +1185,7 @@ namespace NWN.Systems
             if (windowRectangle.Width > 0 && windowRectangle.Height > 0)
             {
               if (!windowRectangles.ContainsKey(window))
-                  windowRectangles.Add(window, windowRectangle);
+                windowRectangles.Add(window, windowRectangle);
               else
               {
                 if (windowRectangles[window].Width != windowRectangle.Width || windowRectangles[window].Height != windowRectangle.Height)

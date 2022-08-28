@@ -6,6 +6,8 @@ using System.Numerics;
 using Anvil.API;
 using Anvil.API.Events;
 
+using NWN.Core.NWNX;
+
 namespace NWN.Systems
 {
   public partial class PlayerSystem
@@ -14,13 +16,13 @@ namespace NWN.Systems
     {
       public class AreaWindSettings : PlayerWindow
       {
-        private readonly NuiColumn rootCol = new ();
-        private readonly List<NuiElement> rootChildren = new ();
+        private readonly NuiColumn rootCol = new();
+        private readonly List<NuiElement> rootChildren = new();
 
-        private readonly NuiBind<string> directionX = new ("directionX");
-        private readonly NuiBind<string> directionY = new ("directionY");
-        private readonly NuiBind<string> directionZ = new ("directionZ");
-        private readonly NuiBind<string> magnitude = new ("magnitude");
+        private readonly NuiBind<string> directionX = new("directionX");
+        private readonly NuiBind<string> directionY = new("directionY");
+        private readonly NuiBind<string> directionZ = new("directionZ");
+        private readonly NuiBind<string> magnitude = new("magnitude");
 
         public AreaWindSettings(Player player) : base(player)
         {
@@ -63,11 +65,11 @@ namespace NWN.Systems
             player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
 
             NwArea area = player.oid.ControlledCreature.Area;
-
-            directionX.SetBindValue(player.oid, nuiToken.Token, area.GetObjectVariable<LocalVariableFloat>("WIND_X").Value.ToString());
-            directionY.SetBindValue(player.oid, nuiToken.Token, area.GetObjectVariable<LocalVariableFloat>("WIND_Y").Value.ToString());
-            directionZ.SetBindValue(player.oid, nuiToken.Token, area.GetObjectVariable<LocalVariableFloat>("WIND_Z").Value.ToString());
-            magnitude.SetBindValue(player.oid, nuiToken.Token, area.GetObjectVariable<LocalVariableFloat>("WIND_M").Value.ToString());
+            AreaWind wind = AreaPlugin.GetAreaWind(area);
+            directionX.SetBindValue(player.oid, nuiToken.Token, wind.vDirection.X.ToString());
+            directionY.SetBindValue(player.oid, nuiToken.Token, wind.vDirection.Y.ToString());
+            directionZ.SetBindValue(player.oid, nuiToken.Token, wind.vDirection.Z.ToString());
+            magnitude.SetBindValue(player.oid, nuiToken.Token, wind.fMagnitude.ToString());
 
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
@@ -84,7 +86,7 @@ namespace NWN.Systems
                 case "validate":
                   Vector3 direction = new Vector3(float.TryParse(directionX.GetBindValue(player.oid, nuiToken.Token), out float x) ? x : 0, float.TryParse(directionY.GetBindValue(player.oid, nuiToken.Token), out float y) ? y : 0, float.TryParse(directionZ.GetBindValue(player.oid, nuiToken.Token), out float z) ? z : 0);
                   float m = float.TryParse(directionX.GetBindValue(player.oid, nuiToken.Token), out m) ? m : 0;
-                  AreaSystem.RegisterAreaWind(player.oid.ControlledCreature.Area, direction, m);
+                  player.oid.ControlledCreature.Area.SetAreaWind(direction, m, 0, 0);
                   player.oid.SendServerMessage("Nouvelle configuration du vent enregistreée", ColorConstants.Orange);
                   break;
               }

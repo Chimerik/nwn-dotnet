@@ -13,12 +13,12 @@ namespace NWN.Systems
       public class ActiveLearnableWindow : PlayerWindow
       {
         private readonly NuiColumn rootColumn;
-        private readonly Color white = new (255, 255, 255);
-        private readonly NuiRect drawListRect = new (0, 35, 150, 60);
-        private readonly NuiBind<string> icon = new ("icon");
-        private readonly NuiBind<string> name = new ("name");
-        private readonly NuiBind<string> timeLeft = new ("timeLeft");
-        private readonly NuiBind<string> level = new ("level");
+        private readonly Color white = new(255, 255, 255);
+        private readonly NuiRect drawListRect = new(0, 35, 150, 60);
+        private readonly NuiBind<string> icon = new("icon");
+        private readonly NuiBind<string> name = new("name");
+        public readonly NuiBind<string> timeLeft = new("timeLeft");
+        private readonly NuiBind<string> level = new("level");
         bool stopPreviousSPGain { get; set; }
         Learnable learnable { get; set; }
 
@@ -26,8 +26,8 @@ namespace NWN.Systems
         {
           windowId = "activeLearnable";
 
-          rootColumn = new NuiColumn() 
-          { 
+          rootColumn = new NuiColumn()
+          {
             Children = new List<NuiElement>()
             {
               new NuiRow()
@@ -56,6 +56,9 @@ namespace NWN.Systems
             return;
           }
 
+          if (IsOpen)
+            return;
+
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 320, 100);
 
           window = new NuiWindow(rootColumn, "Apprentissage en cours")
@@ -81,11 +84,11 @@ namespace NWN.Systems
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
             stopPreviousSPGain = true;
-            DelayStartSPGain();
-          }          
+            //DelayStartSPGain();
+          }
         }
 
-        private async void RefreshWindowUntillClosed()
+        /*private async void RefreshWindowUntillClosed()
         {
           ScheduledTask scheduler = player.scheduler.ScheduleRepeating(() =>
           {
@@ -102,7 +105,7 @@ namespace NWN.Systems
           await NwTask.Delay(TimeSpan.FromSeconds(0.2));
           stopPreviousSPGain = false;
           RefreshWindowUntillClosed();
-        }
+        }*/
       }
     }
   }

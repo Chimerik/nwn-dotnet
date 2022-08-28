@@ -18,16 +18,16 @@ namespace NWN.Systems
       public class BankStorageWindow : PlayerWindow
       {
         NuiColumn rootColumn { get; }
-        private readonly NuiBind<string> gold = new ("gold");
-        private readonly NuiBind<string> search = new ("search");
-        private readonly NuiBind<string> itemNames = new ("itemNames");
-        private readonly NuiBind<int> listCount = new ("listCount");
-        private readonly NuiBind<string> topIcon = new ("topIcon");
-        private readonly NuiBind<string> midIcon = new ("midIcon");
-        private readonly NuiBind<string> botIcon = new ("botIcon");
-        private readonly NuiBind<bool> enabled = new ("enabled");
-        private readonly NuiBind<NuiRect> imagePosition = new ("rect");
-        private readonly List<NwItem> items = new ();
+        private readonly NuiBind<string> gold = new("gold");
+        private readonly NuiBind<string> search = new("search");
+        private readonly NuiBind<string> itemNames = new("itemNames");
+        private readonly NuiBind<int> listCount = new("listCount");
+        private readonly NuiBind<string> topIcon = new("topIcon");
+        private readonly NuiBind<string> midIcon = new("midIcon");
+        private readonly NuiBind<string> botIcon = new("botIcon");
+        private readonly NuiBind<bool> enabled = new("enabled");
+        private readonly NuiBind<NuiRect> imagePosition = new("rect");
+        private readonly List<NwItem> items = new();
         private IEnumerable<NwItem> filteredList;
 
         private bool AuthorizeSave { get; set; }
@@ -58,8 +58,8 @@ namespace NWN.Systems
             new NuiListTemplateCell(new NuiLabel(itemNames) { Id = "takeItem", VerticalAlign = NuiVAlign.Middle } )
           };
 
-          rootColumn = new NuiColumn() 
-          { 
+          rootColumn = new NuiColumn()
+          {
             Children = new List<NuiElement>()
             {
               new NuiRow()
@@ -113,7 +113,7 @@ namespace NWN.Systems
             player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
           }
 
-            search.SetBindValue(player.oid, nuiToken.Token, "");
+          search.SetBindValue(player.oid, nuiToken.Token, "");
           search.SetBindWatch(player.oid, nuiToken.Token, true);
           geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
           geometry.SetBindWatch(player.oid, nuiToken.Token, true);
@@ -124,25 +124,25 @@ namespace NWN.Systems
 
         private void HandleBankStorageEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          switch(nuiEvent.EventType)
+          switch (nuiEvent.EventType)
           {
             case NuiEventType.Close:
               BankSave();
               break;
             case NuiEventType.Click:
 
-              switch(nuiEvent.ElementId)
+              switch (nuiEvent.ElementId)
               {
                 case "goldDeposit":
 
-                  if (!player.windows.TryAdd("playerInput", new PlayerInputWindow(player, "Déposer combien d'or ?", DepositGold, player.oid.LoginCreature.Gold.ToString())))
-                    ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Déposer combien d'or ?", DepositGold, player.oid.LoginCreature.Gold.ToString());
+                  if (!player.windows.ContainsKey("playerInput")) player.windows.Add("playerInput", new PlayerInputWindow(player, "Déposer combien d'or ?", DepositGold, player.oid.LoginCreature.Gold.ToString()));
+                  else ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Déposer combien d'or ?", DepositGold, player.oid.LoginCreature.Gold.ToString());
 
                   break;
                 case "goldWithdraw":
 
-                  if (!player.windows.TryAdd("playerInput", new PlayerInputWindow(player, "Déposer combien d'or ?", WithdrawGold, player.bankGold.ToString())))
-                    ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Déposer combien d'or ?", WithdrawGold, player.bankGold.ToString());
+                  if (!player.windows.ContainsKey("playerInput")) player.windows.Add("playerInput", new PlayerInputWindow(player, "Déposer combien d'or ?", WithdrawGold, player.bankGold.ToString()));
+                  else ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Déposer combien d'or ?", WithdrawGold, player.bankGold.ToString());
 
                   break;
 
@@ -154,15 +154,17 @@ namespace NWN.Systems
                   break;
               }
 
-            break;
+              break;
 
             case NuiEventType.MouseDown:
 
-              switch(nuiEvent.ElementId)
+              switch (nuiEvent.ElementId)
               {
                 case "examiner":
-                  if (!player.windows.TryAdd("itemExamine", new ItemExamineWindow(player, filteredList.ElementAt(nuiEvent.ArrayIndex))))
-                    ((ItemExamineWindow)player.windows["itemExamine"]).CreateWindow(filteredList.ElementAt(nuiEvent.ArrayIndex));
+
+                  if (!player.windows.ContainsKey("itemExamine")) player.windows.Add("itemExamine", new ItemExamineWindow(player, filteredList.ElementAt(nuiEvent.ArrayIndex)));
+                  else ((ItemExamineWindow)player.windows["itemExamine"]).CreateWindow(filteredList.ElementAt(nuiEvent.ArrayIndex));
+
                   break;
 
                 case "takeItem":
@@ -175,7 +177,7 @@ namespace NWN.Systems
 
             case NuiEventType.Watch:
 
-              switch(nuiEvent.ElementId)
+              switch (nuiEvent.ElementId)
               {
                 case "search":
 
@@ -194,7 +196,7 @@ namespace NWN.Systems
         }
         private bool DepositGold(string inputValue)
         {
-          if(!uint.TryParse(inputValue, out uint inputGold) || inputGold > player.oid.LoginCreature.Gold)
+          if (!uint.TryParse(inputValue, out uint inputGold) || inputGold > player.oid.LoginCreature.Gold)
           {
             player.oid.SendServerMessage("Vous ne disposez pas d'autant d'or.", ColorConstants.Red);
             return true;
@@ -294,7 +296,7 @@ namespace NWN.Systems
         {
           if (selection.IsCancelled || selection.TargetObject is not NwItem item)
             return;
-          
+
           AddItemToList(item);
           item.Destroy();
           player.oid.EnterTargetMode(SelectInventoryItem, ObjectTypes.Item, MouseCursor.PickupDown);
@@ -331,7 +333,7 @@ namespace NWN.Systems
           Task awaitDebounce = NwTask.WaitUntil(() => nbDebounce != initialNbDebounce, tokenSource.Token);
           Task awaitSaveAuthorized = NwTask.Delay(TimeSpan.FromSeconds(10), tokenSource.Token);
 
-          await NwTask.WhenAny( awaitDebounce, awaitSaveAuthorized);
+          await NwTask.WhenAny(awaitDebounce, awaitSaveAuthorized);
           tokenSource.Cancel();
 
           if (awaitDebounce.IsCompletedSuccessfully)

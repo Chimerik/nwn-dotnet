@@ -18,7 +18,7 @@ namespace NWN.Systems
         private readonly NuiRow searchRow;
         private readonly NuiRow textRow;
         private readonly List<NuiElement> rootChidren = new();
-        private readonly NuiBind<string> search = new ("search");
+        private readonly NuiBind<string> search = new("search");
         private readonly Color white = new(255, 255, 255);
         private readonly NuiRect drawListRect = new(0, 35, 150, 60);
 
@@ -30,8 +30,8 @@ namespace NWN.Systems
           rootGroup = new NuiGroup() { Id = "learnableGroup", Border = true, Layout = rootColumn };
 
           buttonRow = new NuiRow()
-            {
-              Children = new List<NuiElement>() {
+          {
+            Children = new List<NuiElement>() {
               new NuiSpacer(),
               new NuiButton("Retour") { Id = "retour", Width = 193},
               new NuiSpacer()
@@ -57,7 +57,7 @@ namespace NWN.Systems
           {
             player.oid.SendServerMessage("Vous avez déjà effectué votre choix d'historique.", ColorConstants.Red);
 
-            if(!player.TryGetOpenedWindow("introMirror", out PlayerWindow introWindow))
+            if (!player.TryGetOpenedWindow("introMirror", out PlayerWindow introWindow))
               ((IntroMirroWindow)introWindow).CreateWindow();
 
             return;
@@ -97,7 +97,7 @@ namespace NWN.Systems
           {
             case NuiEventType.Click:
 
-              if(nuiEvent.ElementId == "retour")
+              if (nuiEvent.ElementId == "retour")
               {
                 CloseWindow();
 
@@ -123,8 +123,8 @@ namespace NWN.Systems
                 if (player.TryGetOpenedWindow("learnableDescription", out PlayerWindow descriptionWindow))
                   descriptionWindow.CloseWindow();
 
-                if (!player.windows.TryAdd("learnableDescription", new LearnableDescriptionWindow(player, learnableId)))
-                  ((LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(learnableId);
+                if (!player.windows.ContainsKey("learnableDescription")) player.windows.Add("learnableDescription", new LearnableDescriptionWindow(player, learnableId));
+                else ((LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(learnableId);
               }
 
               break;

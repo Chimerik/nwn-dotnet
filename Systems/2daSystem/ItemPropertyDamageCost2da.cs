@@ -31,16 +31,11 @@ namespace NWN.Systems
     }
     public static int GetDamageCostValueFromRank(int rank)
     {
-      return ipDamageCostTable.FirstOrDefault(d => d.rank == rank).RowIndex + 1;
+      return ipDamageCostTable.FirstOrDefault(d => d.rank == rank).RowIndex /*+ 1*/;
     }
     public static int GetRankFromCostValue(int row)
     {
       return ipDamageCostTable[row].rank;
-    }
-
-    public static string GetLabelFromIPCostTableValue(int cost)
-    {
-      return ipDamageCostTable[cost].label;
     }
   }
 }

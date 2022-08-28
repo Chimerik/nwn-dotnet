@@ -7,6 +7,8 @@ using System;
 using System.Numerics;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NWN.Core.NWNX;
+using Discord;
 
 namespace NWN.Systems
 {
@@ -34,34 +36,44 @@ namespace NWN.Systems
         area.OnEnter += OnAreaEnter;
         area.OnExit += OnAreaExit;
         area.OnHeartbeat += OnAreaHeartbeat;
-        
+
         DoAreaSpecificInitialisation(area);
 
         //Log.Info($"initializing area : {area.Name}");
-
-        foreach (NwPlaceable coffre in area.Objects.Where(o => o.Tag == "loot_chest"))
-        {
-          coffre.Tag = coffre.GetObjectVariable<LocalVariableString>("_LOOT_REFERENCE").Value;
-          //Log.Info($"initializing chest : {coffre.Name} with : {coffre.Tag}");
-        }
       }
 
-      foreach (NwCreature creature in NwObject.FindObjectsOfType<NwCreature>().Where(c => c.Tag != "dead_wererat" && c.Tag != "damage_trainer"))
+      foreach (NwPlaceable coffre in NwObject.FindObjectsWithTag<NwPlaceable>("loot_chest"))
       {
-        Task waitLoopEnd = NwTask.Run(async () =>
-        {
-          await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-          NwWaypoint spawnPoint = NwWaypoint.Create("creature_spawn", creature.Location);
-          spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value = creature.Serialize().ToBase64EncodedString();
-          creature.Destroy();
-        });
+        coffre.Tag = coffre.GetObjectVariable<LocalVariableString>("_LOOT_REFERENCE").Value;
+        //Log.Info($"initializing chest : {coffre.Name} with : {coffre.Tag}");
       }
 
+      List<NwCreature> creatureToSerialize = new();
+
+      foreach (NwCreature creature in NwObject.FindObjectsOfType<NwCreature>())
+      {
+        if (creature.Tag == "dead_werat" || creature.Tag == "damage_trainer")
+          continue;
+
+        creatureToSerialize.Add(creature);
+      }
+
+      SerializeCreaturesAndCreateSpawn(creatureToSerialize);
       InitializeBankPlaceableNames();
+    }
+    private void SerializeCreaturesAndCreateSpawn(List<NwCreature> creatureList)
+    {
+      foreach (NwCreature creature in creatureList)
+      {
+        NwWaypoint spawnPoint = NwWaypoint.Create("creature_spawn", creature.Location);
+        CreatureUtils.creatureSpawnDictionary.TryAdd(creature.Tag, NwCreature.Deserialize(creature.Serialize()));
+        spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value = creature.Tag;
+        creature.Destroy();
+      }
     }
     public void OnAreaHeartbeat(AreaEvents.OnHeartbeat onHB)
     {
-      if(onHB.Area.PlayerCount > 0)
+      if (onHB.Area.PlayerCount > 0)
       {
         CheckSpawns(onHB.Area);
 
@@ -76,13 +88,15 @@ namespace NWN.Systems
       else
       {
         // Si pas de date de nettoyage planifiée, alors planifier une date de nettoyage
-        if (onHB.Area.GetObjectVariable<DateTimeLocalVariable>("_CLEANING_TIME").HasNothing && onHB.Area.GetObjectVariable<LocalVariableBool>("_CLEANING_TRIGGER").HasValue) 
+        if (onHB.Area.GetObjectVariable<DateTimeLocalVariable>("_CLEANING_TIME").HasNothing)
         {
-          DateTime cleaningTime = DateTime.Now.AddMinutes(25);
-          onHB.Area.GetObjectVariable<DateTimeLocalVariable>("_CLEANING_TIME").Value = cleaningTime;
-          Log.Info($"{onHB.Area.Name} scheduled for cleaning at {cleaningTime}");
+          if (onHB.Area.GetObjectVariable<LocalVariableBool>("_CLEANING_TRIGGER").HasValue)
+          {
+            onHB.Area.GetObjectVariable<DateTimeLocalVariable>("_CLEANING_TIME").Value = DateTime.Now;
+            Log.Info($"{onHB.Area.Name} scheduled for cleaning at {DateTime.Now.AddMinutes(25)}");
+          }
         }
-        else if (DateTime.Compare(DateTime.Now, onHB.Area.GetObjectVariable<DateTimeLocalVariable>("_CLEANING_TIME").Value) < 0) // Si date de nettoyage dépassée, alors nettoyer et supprimer la planification
+        else if ((DateTime.Now - onHB.Area.GetObjectVariable<DateTimeLocalVariable>("_CLEANING_TIME").Value).TotalMinutes > 25) // Si date de nettoyage dépassée, alors nettoyer et supprimer la planification
         {
           Log.Info($"{onHB.Area.Name} cleaning area");
           CleanArea(onHB.Area);
@@ -95,12 +109,11 @@ namespace NWN.Systems
     {
       NwArea area = onEnter.Area;
 
-      if(onEnter.EnteringObject is NwCreature { IsPlayerControlled: false })
+      if (onEnter.EnteringObject is NwCreature { IsPlayerControlled: false })
         return;
 
       if (NwModule.Instance.Players.Count(p => p.ControlledCreature != null && p.ControlledCreature.Area == area) == 1)
         CheckSpawns(area);
-        //CreateSpawnChecker(area);
 
       if (!PlayerSystem.Players.TryGetValue(onEnter.EnteringObject, out PlayerSystem.Player player))
         return;
@@ -154,7 +167,7 @@ namespace NWN.Systems
       }*/
 
       //if (!NwModule.Instance.Players.Any(p => p.ControlledCreature != null && p.ControlledCreature.Area == area))
-        //AreaCleaner(area);
+      //AreaCleaner(area);
     }
     public void OnIntroAreaExit(AreaEvents.OnExit onExit)
     {
@@ -172,7 +185,7 @@ namespace NWN.Systems
 
           NwObject.FindObjectsWithTag<NwPlaceable>("intro_brouillard").FirstOrDefault().VisibilityOverride = VisibilityMode.Hidden;
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
-          RegisterAreaWind(area, new Vector3(1, 0, 0), 4);
+          area.SetAreaWind(new Vector3(1, 0, 0), 4, 0, 0);
 
           break;
         case "SimilisseThetreSalledeSpectacle":
@@ -185,29 +198,29 @@ namespace NWN.Systems
           break;
         case "Gothictest":
         case "CoteSudLaCrique":
-          RegisterAreaWind(area, new Vector3(0, 1, 0), 3);
+          area.SetAreaWind(new Vector3(0, 1, 0), 3, 0, 0);
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 1;
           break;
         case "laplage":
-          RegisterAreaWind(area, new Vector3(1, 0, 0), 2);
+          area.SetAreaWind(new Vector3(1, 0, 0), 2, 0, 0);
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 1;
           break;
         case "leschamps":
-          RegisterAreaWind(area, new Vector3(-1, 0, 0), 1);
+          area.SetAreaWind(new Vector3(-1, 0, 0), 1, 0, 0);
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 1;
           break;
         case "Promenadetest":
         case "Governmenttest":
-          RegisterAreaWind(area, new Vector3(1, 0, 0), 4);
+          area.SetAreaWind(new Vector3(1, 0, 0), 4, 0, 0);
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
-          break; 
+          break;
         case "PalaceGardenTest":
-          RegisterAreaWind(area, new Vector3(1, -1, 0), 2);
+          area.SetAreaWind(new Vector3(1, -1, 0), 2, 0, 0);
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
           break;
         case "SimilisseTransitionPromenadeport":
         case "similissetempledistrict":
-          RegisterAreaWind(area, new Vector3(0, -1, 0), 3);
+          area.SetAreaWind(new Vector3(0, -1, 0), 3, 0, 0);
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
           break;
         case "SIMILISCITYGATE":
@@ -239,7 +252,7 @@ namespace NWN.Systems
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
           break;
         case "cave_flooded":
-          RegisterAreaWind(area, new Vector3(0, 1, 0), 8);
+          area.SetAreaWind(new Vector3(0, 1, 0), 8, 0, 0);
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 2;
           break;
         case "lepontdaruthen":
@@ -277,7 +290,7 @@ namespace NWN.Systems
     }
     private void OnTheaterSceneEnter(TriggerEvents.OnEnter onEnter)
     {
-      onEnter.EnteringObject.VisualTransform.Translation = new Vector3(onEnter.EnteringObject.VisualTransform.Translation.X, 
+      onEnter.EnteringObject.VisualTransform.Translation = new Vector3(onEnter.EnteringObject.VisualTransform.Translation.X,
         onEnter.EnteringObject.VisualTransform.Translation.Y, 2.01f);
 
       if (onEnter.EnteringObject is NwCreature { IsPlayerControlled: true } oPC)
@@ -292,7 +305,7 @@ namespace NWN.Systems
       }
       else
       {
-        onExit.ExitingObject.VisualTransform.Translation = new Vector3(onExit.ExitingObject.VisualTransform.Translation.X, 
+        onExit.ExitingObject.VisualTransform.Translation = new Vector3(onExit.ExitingObject.VisualTransform.Translation.X,
           onExit.ExitingObject.VisualTransform.Translation.Y, 0);
 
         if (onExit.ExitingObject is NwCreature { IsPlayerControlled: true } oPC)
@@ -327,21 +340,12 @@ namespace NWN.Systems
         new List<string>() { { "id" }, { "areaTag" }, { "ownerId" }, { "ownerName" } },
         new List<string[]>() { });
 
-      foreach(var bank in result.Results)
+      foreach (var bank in result.Results)
       {
         NwObject bankPlaceable = NwObject.FindObjectsWithTag<NwPlaceable>("player_bank").FirstOrDefault(b => /*b.Area.Tag == bank.GetString(1) &&*/ b.GetObjectVariable<LocalVariableInt>("id").Value == bank.GetInt(0));
         bankPlaceable.GetObjectVariable<LocalVariableInt>("ownerId").Value = bank.GetInt(2);
         bankPlaceable.Name = bank.GetString(3);
       }
-    }
-    public static void RegisterAreaWind(NwArea area, Vector3 direction, float magnitude)
-    {
-      area.SetAreaWind(direction, magnitude, 0, 0);
-
-      area.GetObjectVariable<LocalVariableFloat>("WIND_X").Value = direction.X;
-      area.GetObjectVariable<LocalVariableFloat>("WIND_Y").Value = direction.Y;
-      area.GetObjectVariable<LocalVariableFloat>("WIND_Z").Value = direction.Z;
-      area.GetObjectVariable<LocalVariableFloat>("WIND_M").Value = magnitude;
     }
     public void InitializeEventsAfterDMSpawnCreature(OnDMSpawnObjectAfter onSpawn)
     {
