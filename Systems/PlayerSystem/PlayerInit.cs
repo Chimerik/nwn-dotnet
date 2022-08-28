@@ -100,7 +100,7 @@ namespace NWN.Systems
           }
 
           SqLiteUtils.InsertQuery("PlayerAccounts",
-            new List<string[]>() { new string[] { "accountName", oid.PlayerName }, new string[] { "cdKey", oid.CDKey }, new string[] { "bonusRolePlay", "1" } });
+            new List<string[]>() { new string[] { "accountName", oid.PlayerName }, new string[] { "cdKey", oid.CDKey }, new string[] { "bonusRolePlay", "1" }, new string[] { "hideFromPlayerList", oid.IsDM ? 1.ToString() : 0.ToString() } });
 
           var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, $"SELECT last_insert_rowid()");
           query.Execute();
@@ -354,7 +354,7 @@ namespace NWN.Systems
       private void InitializePlayerAccount()
       {
         var result = SqLiteUtils.SelectQuery("PlayerAccounts",
-            new List<string>() { { "bonusRolePlay" }, { "mapPins" }, { "chatColors" }, { "mutedPlayers" }, { "windowRectangles" }, { "customDMVisualEffects" } },
+            new List<string>() { { "bonusRolePlay" }, { "mapPins" }, { "chatColors" }, { "mutedPlayers" }, { "windowRectangles" }, { "customDMVisualEffects" }, { "hideFromPlayerList" } },
             new List<string[]>() { { new string[] { "rowid", accountId.ToString() } } });
 
         if (result.Result != null)
@@ -365,6 +365,7 @@ namespace NWN.Systems
           string serializedMutedPlayers = result.Result.GetString(3);
           string serializedWindowRectangles = result.Result.GetString(4);
           string serializedCustomDMVisualEffects = result.Result.GetString(5);
+          hideFromPlayerList = result.Result.GetInt(6).ToBool();
           InitializeAccountMapPins(serializedMapPins);
           InitializeAccountChatColors(serializedChatColors);
           InitializeAccountMutedPlayers(serializedMutedPlayers);

@@ -36,26 +36,30 @@ namespace NWN.Systems
         private readonly NuiBind<string> globalListenTooltip = new("globalListenTooltip");
         private readonly NuiBind<string> hostileIcon = new("hostileIcon");
         private readonly NuiBind<string> hostileTooltip = new("hostileTooltip");
+        private readonly NuiBind<string> displayIcon = new("displayIcon");
+        private readonly NuiBind<string> displayTooltip = new("displayTooltip");
         private readonly NuiBind<int> listCount = new("listCount");
+        private readonly NuiBind<string> playerStatus = new("playerStatus");
 
-        public IEnumerable<NwPlayer> myPlayerList;
+        public List<NwPlayer> myPlayerList = new();
         private NwPlayer selectedPlayer;
 
         public PlayerListWindow(Player player) : base(player)
         {
           windowId = "playerList";
-          
+          rootRow.Children = rootChildren;
+
           rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(playerNames) { Tooltip = areaNames, Height = 35, VerticalAlign = NuiVAlign.Middle }) { VariableSize = true });
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_dialog") { Id = "mp", Tooltip = "Ouvrir un canal privé", Height = 35 }) { Width = 35 });
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_invite") { Id = "party", Tooltip = "Inviter à rejoindre le groupe", Enabled = partyInviteEnabled, Height = 35 }) { Width = 35 });
           
-          if(!player.oid.IsDM && player.oid.PlayerName != "Chim")
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(muteIcon) { Id = "mute", Tooltip = muteTooltip, Enabled = muteEnabled, Height = 35 }) { Width = 35 });
+          if(!player.IsDm())
+            rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(muteIcon) { Id = "mute", Tooltip = muteTooltip, Enabled = muteEnabled, Height = 35 }) { Width = 35 });
 
-          if (player.oid.IsDM || player.oid.PlayerName == "Chim" || player.bonusRolePlay > 3)
+          if (player.IsDm() || player.bonusRolePlay > 3)
             rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ief_damincr") { Id = "commend", Tooltip = bonusRoleplay, Height = 35 }) { Width = 35 });
 
-          if (player.oid.IsDM || player.oid.PlayerName == "Chim")
+          if (player.IsDm())
           {
             rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ief_damdecr") { Id = "downgrade", Tooltip = bonusRoleplayDown, Height = 35 }) { Width = 35 });
             rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(listenIcon) { Id = "listen", Tooltip = listenTooltip, Enabled = muteEnabled, Height = 35 }) { Width = 35 });
@@ -65,7 +69,14 @@ namespace NWN.Systems
 
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(hostileIcon) { Id = "hostile", Tooltip = hostileTooltip, Enabled = muteEnabled, Height = 35 }) { Width = 35 });
 
-          rootRow.Children = rootChildren;
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
+          {
+            new NuiSpacer(),
+            new NuiTextEdit("Ma disponibilité", playerStatus, 50, false) { Width = 300, Height = 35 },
+            new NuiButtonImage("ir_charsheet") { Id = "status", Width = 35, Height = 35 },
+            new NuiSpacer()
+          } });;
+
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35 } } });
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() 
           { 
@@ -74,7 +85,9 @@ namespace NWN.Systems
             new NuiSpacer(),
             new NuiButtonImage("ief_arcanefail") { Id = "areaHostile", Tooltip = "Active l'hostilité sur tous les joueurs de la zone qui ne font pas partie de votre groupe", Height = 35, Width = 35 },
             new NuiSpacer(),
-            new NuiButtonImage(globalListenIcon) { Id = "globalListen", Tooltip = globalListenTooltip, Enabled = player.oid.IsDM || player.oid.PlayerName == "Chim", Height = 35, Width = 35 },
+            new NuiButtonImage(displayIcon) { Id = "display", Tooltip = displayTooltip, Height = 35, Width = 35 },
+            new NuiSpacer(),
+            new NuiButtonImage(globalListenIcon) { Id = "globalListen", Tooltip = globalListenTooltip, Enabled = player.IsDm(), Height = 35, Width = 35 },
             new NuiSpacer()
           } });
 
@@ -82,7 +95,6 @@ namespace NWN.Systems
         }
         public void CreateWindow()
         {
-
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 400, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 4);
 
           window = new NuiWindow(rootRow, "Liste des joueurs")
@@ -122,6 +134,17 @@ namespace NWN.Systems
               globalListenTooltip.SetBindValue(player.oid, nuiToken.Token, "Activer l'écoute de tous les joueurs.");
             }
 
+            if (player.hideFromPlayerList)
+            {
+              displayIcon.SetBindValue(player.oid, nuiToken.Token, "ief_fatigue");
+              displayTooltip.SetBindValue(player.oid, nuiToken.Token, "Vous rendre visible sur la liste des joueurs");
+            }
+            else
+            {
+              displayIcon.SetBindValue(player.oid, nuiToken.Token, "ief_concealed");
+              displayTooltip.SetBindValue(player.oid, nuiToken.Token, "Disparaître de la liste des joueurs (les dms pourront toujours vous y voir)");
+            }
+
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
@@ -131,6 +154,18 @@ namespace NWN.Systems
 
         private void HandlePlayerListEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
+          if (nuiEvent.ArrayIndex > -1)
+          {
+            selectedPlayer = myPlayerList.ElementAt(nuiEvent.ArrayIndex);
+            
+            if(selectedPlayer == null || !selectedPlayer.IsValid || !selectedPlayer.IsConnected)
+            {
+              player.oid.SendServerMessage("Cette action n'est plus valide car ce joueur n'est plus connecté.", ColorConstants.Red);
+              UpdatePlayerList();
+              return;
+            }
+          }
+
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
@@ -138,24 +173,16 @@ namespace NWN.Systems
               switch (nuiEvent.ElementId)
               {
                 case "mp":
-
-                  selectedPlayer = myPlayerList.ElementAt(nuiEvent.ArrayIndex);
-
-                  if (player.windows.ContainsKey(selectedPlayer.PlayerName))
-                    ((PrivateMessageWindow)player.windows[selectedPlayer.PlayerName]).CreateWindow();
-                  else
-                    player.windows.Add(selectedPlayer.PlayerName, new PrivateMessageWindow(player, selectedPlayer));
-
+                  if (!player.windows.ContainsKey(selectedPlayer.PlayerName)) player.windows.Add(selectedPlayer.PlayerName, new PrivateMessageWindow(player, selectedPlayer));
+                  else  ((PrivateMessageWindow)player.windows[selectedPlayer.PlayerName]).CreateWindow();
                   break;
 
                 case "commend":
 
-                  selectedPlayer = myPlayerList.ElementAt(nuiEvent.ArrayIndex);
-
                   if (!Players.TryGetValue(selectedPlayer.LoginCreature, out Player commendedPlayer))
                     return;
 
-                  if (player.oid.IsDM || player.oid.PlayerName == "Chim")
+                  if (player.IsDm())
                   {
                     if (commendedPlayer.bonusRolePlay > 3)
                       return;
@@ -168,7 +195,7 @@ namespace NWN.Systems
 
                     selectedPlayer.SendServerMessage($"Votre bonus roleplay est désormais de {commendedPlayer.bonusRolePlay}", new Color(32, 255, 32));
 
-                    SaveBRPToDatabase(commendedPlayer);
+                    player.oid.ExportCharacter();
                   }
                   else
                   {
@@ -180,7 +207,7 @@ namespace NWN.Systems
                       {
                         commendedPlayer.bonusRolePlay = 2;
                         selectedPlayer.SendServerMessage("Votre bonus roleplay est désormais de 2", new Color(32, 255, 32));
-                        SaveBRPToDatabase(commendedPlayer);
+                        player.oid.ExportCharacter();
                       }
                     }
 
@@ -193,12 +220,10 @@ namespace NWN.Systems
 
                 case "downgrade":
 
-                  selectedPlayer = myPlayerList.ElementAt(nuiEvent.ArrayIndex);
-
                   if (!Players.TryGetValue(selectedPlayer.LoginCreature, out Player downgradedPlayer))
                     return;
 
-                  if (player.oid.IsDM || player.oid.PlayerName == "Chim")
+                  if (player.IsDm())
                   {
                     if (downgradedPlayer.bonusRolePlay < 1)
                       return;
@@ -211,14 +236,12 @@ namespace NWN.Systems
 
                     selectedPlayer.SendServerMessage($"Votre bonus roleplay est désormais de {downgradedPlayer.bonusRolePlay}", new Color(32, 255, 32));
 
-                    SaveBRPToDatabase(downgradedPlayer);
+                    player.oid.ExportCharacter();
                   }
 
                   break;
 
                 case "mute":
-
-                  selectedPlayer = myPlayerList.ElementAt(nuiEvent.ArrayIndex);
 
                   if (!Players.TryGetValue(selectedPlayer.LoginCreature, out Player mutedPlayer))
                     return;
@@ -245,7 +268,7 @@ namespace NWN.Systems
 
                   muteIcon.SetBindValues(player.oid, nuiToken.Token, updatedMutedIconList);
                   muteTooltip.SetBindValues(player.oid, nuiToken.Token, updatedMutedTooltipList);
-                  SaveMutedPlayersToDatabase(player);
+                  player.oid.ExportCharacter();
 
                   break;
 
@@ -262,17 +285,36 @@ namespace NWN.Systems
                   {
                     player.mutedList.Remove(0);
                     player.oid.SendServerMessage("Vous réactivez désormais la réception globale des mps. Vous ne recevrez cependant pas ceux que vous bloquez individuellement.", ColorConstants.Blue);
-                    globalMuteIcon.SetBindValue(player.oid, nuiToken.Token, "ief_darkness");
+                    globalMuteIcon.SetBindValue(player.oid, nuiToken.Token, "ief_darkvis");
                     globalMuteTooltip.SetBindValue(player.oid, nuiToken.Token, "Réactiver la réception globale de MPs. Ceux que vous avez sélectionné individuellement resteront cependant bloqués.");
                   }
 
-                  SaveMutedPlayersToDatabase(player);
+                  player.oid.ExportCharacter();
+
+                  break;
+
+                case "display":
+
+                  if (player.hideFromPlayerList)
+                  {
+                    player.hideFromPlayerList = false;
+                    player.oid.SendServerMessage("Vous apparaissez désormais aux yeux de tous sur la liste des joueurs.", ColorConstants.Blue);
+                    displayIcon.SetBindValue(player.oid, nuiToken.Token, "ief_concealed");
+                    displayTooltip.SetBindValue(player.oid, nuiToken.Token, "Disparaître de la liste des joueurs (les dms pourront toujours vous y voir.");
+                  }
+                  else
+                  {
+                    player.hideFromPlayerList = true;
+                    player.oid.SendServerMessage("Seuls les dms peuvent désormais vous voir sur la liste des joueurs.", ColorConstants.Blue);
+                    displayIcon.SetBindValue(player.oid, nuiToken.Token, "ief_fatigue");
+                    displayTooltip.SetBindValue(player.oid, nuiToken.Token, "Vous rendre visible sur la liste des joueurs.");
+                  }
+
+                  player.oid.ExportCharacter();
 
                   break;
 
                 case "listen":
-
-                  selectedPlayer = myPlayerList.ElementAt(nuiEvent.ArrayIndex);
 
                   if (!Players.TryGetValue(selectedPlayer.LoginCreature, out Player listenPlayer))
                     return;
@@ -309,7 +351,7 @@ namespace NWN.Systems
                     player.oid.SendServerMessage("Ecoute globale désactivée.", ColorConstants.Cyan);
                     player.listened.Clear();
 
-                    globalListenIcon.SetBindValue(player.oid, nuiToken.Token, "ief_concealed");
+                    globalListenIcon.SetBindValue(player.oid, nuiToken.Token, "ief_darkvis");
                     globalListenTooltip.SetBindValue(player.oid, nuiToken.Token, "Activer l'écoute de tous les joueurs.");
                   }
                   else
@@ -327,8 +369,6 @@ namespace NWN.Systems
 
                 case "tp":
 
-                  selectedPlayer = myPlayerList.ElementAt(nuiEvent.ArrayIndex);
-
                   if (selectedPlayer.ControlledCreature.Location != null)
                     player.oid.ControlledCreature.Location = selectedPlayer.ControlledCreature.Location;
                   else
@@ -342,7 +382,6 @@ namespace NWN.Systems
 
                 case "hostile": 
 
-                  selectedPlayer = myPlayerList.ElementAt(nuiEvent.ArrayIndex);
                   List<string> updatedHostileIconList = hostileIcon.GetBindValues(player.oid, nuiToken.Token);
                   List<string> updatedHostileTooltipList = hostileTooltip.GetBindValues(player.oid, nuiToken.Token);
 
@@ -370,6 +409,29 @@ namespace NWN.Systems
                     player.oid.SetPCReputation(false, disliked);
 
                   break;
+
+                case "status":
+
+                  string status = playerStatus.GetBindValue(player.oid, nuiToken.Token);
+                  player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_LIST_STATUS").Value = status;
+                  player.oid.SendServerMessage($"Votre disponibilité affichée dans la liste des joueurs est désormais : {status.ColorString(ColorConstants.White)}", ColorConstants.Orange);
+
+                  break;
+
+                case "party":
+
+                  if (selectedPlayer.PartyMembers.Count() < 2)
+                  {
+                    if (Players.TryGetValue(selectedPlayer.LoginCreature, out Player invitedPlayer))
+                    {
+                      if (!invitedPlayer.windows.ContainsKey("partyInvitation")) invitedPlayer.windows.Add("partyInvitation", new PartyInvitationWindow(invitedPlayer, player));
+                      else ((PartyInvitationWindow)invitedPlayer.windows["partyInvitation"]).CreateWindow(player);
+                    }
+                  }
+                  else
+                    player.oid.SendServerMessage("Cette action n'est plus valide car ce joueur appartient déjà à un groupe.", ColorConstants.Red);
+
+                  break;
               }
 
               break;
@@ -390,21 +452,28 @@ namespace NWN.Systems
           List<bool> partyInviteEnabledList = new ();
           List<bool> muteEnabledList = new();
 
-          myPlayerList = NwModule.Instance.Players.Where(p => p.IsConnected && p != player.oid);
+          myPlayerList.Clear();
 
-          foreach (NwPlayer playerList in myPlayerList)
+          foreach (NwPlayer playerList in NwModule.Instance.Players)
           {
-            if (!Players.TryGetValue(playerList.LoginCreature, out Player playerObject))
+            if (!playerList.IsConnected || playerList == player.oid || !Players.TryGetValue(playerList.LoginCreature, out Player playerObject)
+              || (playerObject.hideFromPlayerList && !player.IsDm()))
               continue;
 
+            myPlayerList.Add(playerList);
+
             string playerName = playerList.ControlledCreature != playerList.LoginCreature ? $"{playerList.LoginCreature.Name} ({playerList.ControlledCreature.Name})" : playerList.LoginCreature.Name;
+
+            if (playerList.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_LIST_STATUS").HasValue)
+              playerName += $" - {playerList.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_LIST_STATUS").Value}" ;
+            
             playerNamesList.Add(playerName);
 
             string areaName = playerName;
             string brpLabel = "Recommander ce joueur";
             string brpDownLabel = "";
 
-            if (player.oid.IsDM || player.oid.PlayerName == "Chim")
+            if (player.IsDm())
             {
               areaName += " - " + playerList.ControlledCreature.Area != null ? playerList.ControlledCreature.Area.Name : "En transition";
 
@@ -452,7 +521,7 @@ namespace NWN.Systems
             brpList.Add(brpLabel);
             brpDownList.Add(brpDownLabel);
             areaNamesList.Add(areaName);
-            partyInviteEnabledList.Add(!player.oid.PartyMembers.Contains(playerList));
+            partyInviteEnabledList.Add(!player.oid.IsDM && playerList.PartyMembers.Count() < 2); 
           }
 
           playerNames.SetBindValues(player.oid, nuiToken.Token, playerNamesList);
@@ -468,21 +537,6 @@ namespace NWN.Systems
           hostileIcon.SetBindValues(player.oid, nuiToken.Token, hostileIconList);
           hostileTooltip.SetBindValues(player.oid, nuiToken.Token, hostileTooltipList);
           listCount.SetBindValue(player.oid, nuiToken.Token, playerNamesList.Count);
-        }
-        private static void SaveBRPToDatabase(Player commendedPlayer)
-        {
-          SqLiteUtils.UpdateQuery("PlayerAccounts",
-            new List<string[]>() { new string[] { "bonusRolePlay", commendedPlayer.bonusRolePlay.ToString() } },
-            new List<string[]>() { new string[] { "rowid", commendedPlayer.accountId.ToString() } });
-        }
-        private static async void SaveMutedPlayersToDatabase(Player player)
-        {
-          Task<string> serializeMuted = Task.Run(() => JsonConvert.SerializeObject(player.mutedList));
-          await serializeMuted;
-
-          SqLiteUtils.UpdateQuery("PlayerAccounts",
-              new List<string[]>() { new string[] { "mutedPlayers", serializeMuted.Result } },
-              new List<string[]>() { new string[] { "rowid", player.accountId.ToString() } });
         }
       }
     }

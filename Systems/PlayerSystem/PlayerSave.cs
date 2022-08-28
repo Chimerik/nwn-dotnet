@@ -157,7 +157,7 @@ namespace NWN.Systems
 
         SqLiteUtils.UpdateQuery("PlayerAccounts",
           new List<string[]>() { new string[] { "windowRectangles", serializeWindowRectangles.Result }, new string[] { "mutedPlayers", serializeMutedPlayers.Result },
-            new string[] { "bonusRolePlay", bonusRolePlay.ToString() }, new string[] { "chatColors", serializeChatColors.Result } },
+            new string[] { "bonusRolePlay", bonusRolePlay.ToString() }, new string[] { "chatColors", serializeChatColors.Result }, new string[] { "hideFromPlayerList", hideFromPlayerList.ToInt().ToString() } },
           new List<string[]>() { new string[] { "rowid", accountId.ToString() } });
       }
       private async void SavePlayerCharacterToDatabase()

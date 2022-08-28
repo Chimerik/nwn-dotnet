@@ -33,6 +33,7 @@ namespace NWN.Systems
       public Arena.PlayerData pveArena { get; set; }
       public Cauldron alchemyCauldron { get; set; }
       public PcState pcState { get; set; }
+      public bool hideFromPlayerList { get; set; }
 
       public List<NwPlayer> listened = new();
       public List<int> mutedList = new();
