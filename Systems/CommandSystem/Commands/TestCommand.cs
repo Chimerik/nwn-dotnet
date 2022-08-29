@@ -68,10 +68,11 @@ namespace NWN.Systems
 
           //SpellSystem.ApplyCustomEffectToTarget(SpellSystem.frog, player.oid.LoginCreature, TimeSpan.FromSeconds(10));
 
-          player.oid.EnterTargetMode(OnTargetSelected, ObjectTypes.Item, MouseCursor.Talk);
+          //player.oid.EnterTargetMode(OnTargetSelected, ObjectTypes.Item, MouseCursor.Talk);
         }
       }
     }
+    private static readonly int[] rockRandomAppearances = new int[] { 1603, 4480, 4481, 5266, 5267, 5268, 5269, 14669, 14670, 14671, 14672, 14673, 14674, 14675, 14676, 14677, 14678 };
 
     public static ScriptHandleResult RefreshQuickLootWindow(CallInfo _)
     {

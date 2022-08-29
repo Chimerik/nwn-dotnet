@@ -28,7 +28,12 @@ namespace NWN.Systems
         {
           rootChidren.Clear();
 
-          string areaDescription = await StringUtils.DownloadGoogleDocFromName(area.Name);
+          string areaDescription = area.Tag.StartsWith("entry_scene") ? "En dehors des épaves de navires éparpillées tout autour de vous, la plage sur laquelle vous avez atterri semble étrangement calme et agréable.\n" +
+            "\n" +
+            "Nulle trace de votre équipage ou des biens que vous aviez emportés. Devant vous se dressent les murailles d'une ville ancienne et délabrée.\n" +
+            "\n" +
+            "Qu'allez-vous faire maintenant ?\n" : await StringUtils.DownloadGoogleDocFromName(area.Name);
+
           await NwTask.SwitchToMainThread();
 
           rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiRow() { Children = new List<NuiElement>() { new NuiText(areaDescription) } } } });

@@ -4,8 +4,11 @@ using Anvil.Services;
 
 using NWN.Core.NWNX;
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
+using System.Transactions;
 
 namespace NWN.Systems
 {
@@ -36,10 +39,23 @@ namespace NWN.Systems
           creature.GetObjectVariable<LocalVariableFloat>("_HIT_DISTANCE").Value = CreaturePlugin.GetHitDistance(creature);
           creature.GetObjectVariable<LocalVariableFloat>("_CREATURE_PERSONNAL_SPACE").Value = CreaturePlugin.GetCreaturePersonalSpace(creature);
           HandleSpawnSpecificBehaviour(creature);
+
+          DelayVisualTransform(creature, spawnPoint.GetObjectVariable<LocalVariableFloat>("_CREATURE_SCALE").HasValue ? spawnPoint.GetObjectVariable<LocalVariableFloat>("_CREATURE_SCALE").Value : 1,
+            spawnPoint.GetObjectVariable<LocalVariableLocation>("_CREATURE_TRANSLATION").HasValue ? spawnPoint.GetObjectVariable<LocalVariableLocation>("_CREATURE_TRANSLATION").Value.Position : Vector3.Zero,
+            spawnPoint.GetObjectVariable<LocalVariableLocation>("_CREATURE_ROTATION").HasValue ? spawnPoint.GetObjectVariable<LocalVariableLocation>("_CREATURE_ROTATION").Value.Position : Vector3.Zero,
+            spawnPoint.GetObjectVariable<LocalVariableInt>("_CREATURE_APPEARANCE").Value);
         }
         else
           Utils.LogMessageToDMs($"SPAWN SYSTEM - Area {area.Name} - Could not spawn {spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value}");
       }
+    }
+    private async void DelayVisualTransform(NwCreature creature, float scale, Vector3 translation, Vector3 rotation, int appearance)
+    {
+      await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+      creature.Appearance = NwGameTables.AppearanceTable.GetRow(appearance);
+      creature.VisualTransform.Scale = scale;
+      creature.VisualTransform.Translation = translation;
+      creature.VisualTransform.Rotation = rotation;
     }
 
     private void CheckIfNoPlayerAround(CreatureEvents.OnHeartbeat onHB)

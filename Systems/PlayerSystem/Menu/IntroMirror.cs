@@ -12,74 +12,37 @@ namespace NWN.Systems
     {
       public class IntroMirroWindow : PlayerWindow
       {
-        NuiGroup rootGroup { get; }
-        NuiColumn rootColumn { get; }
-        List<NuiElement> rootChidren { get; }
-        NuiRow introTextRow { get; }
-        NuiRow beautyRow { get; }
-        NuiRow pastRow { get; }
-        NuiRow futureRow { get; }
+        private readonly NuiColumn rootColumn = new NuiColumn();
+        private readonly List<NuiElement> rootChidren = new();
+        private readonly NuiBind<string> mirrorText = new("mirrorText");
 
         public IntroMirroWindow(Player player) : base(player)
         {
           windowId = "introMirror";
-
-          rootChidren = new List<NuiElement>();
-          rootColumn = new NuiColumn() { Children = rootChidren };
-          rootGroup = new NuiGroup() { Id = "rootGroup", Border = true, Layout = rootColumn };
-
-          introTextRow = new NuiRow()
-          {
-            Children = new List<NuiElement>()
-            {
-              new NuiImage(player.oid.LoginCreature.PortraitResRef + "M") { ImageAspect = NuiAspect.ExactScaled, Width = 60, Height = 100 },
-              new NuiText("Houla, y a pas à dire, vous avez connu de meilleurs jours.\n\n" +
-              "C'est quoi cette mine de déterré ?\n\n" +
-              "On va mettre ça sur le compte du mal de mer.") { Width = 450, Height = 110 }
-            }
-          };
-
-          beautyRow = new NuiRow()
-          {
-            Children = new List<NuiElement>()
-            {
-              new NuiButton("Se refaire une beauté.") { Id = "beauty", Width = 510 }
-            }
-          };
-
-          pastRow = new NuiRow()
-          {
-            Children = new List<NuiElement>()
-            {
-              new NuiButton("Se perdre brièvement dans le passé.") { Id = "past", Width = 510 }
-            }
-          };
-
-          futureRow = new NuiRow()
-          {
-            Children = new List<NuiElement>()
-            {
-              new NuiButton("Se préparer à l'avenir.") { Id = "future", Width = 510 }
-            }
-          };
+          rootColumn.Children = rootChidren;
 
           CreateWindow();
         }
         public void CreateWindow()
         {
-          rootChidren.Clear();
-
-          rootChidren.Add(introTextRow);
-          rootChidren.Add(beautyRow);
-
-          if (!player.learnableSkills.Values.Any(s => s.category == SkillSystem.Category.StartingTraits))
-            rootChidren.Add(pastRow);
-
-          rootChidren.Add(futureRow);
-
           NuiRect windowRectangle = new NuiRect(0, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.02f, 540, 340);
 
-          window = new NuiWindow(rootGroup, "Votre reflet")
+          rootChidren.Clear();
+
+          rootChidren.Add(new NuiRow() { Children = new List<NuiElement>()
+          {
+            new NuiImage(player.oid.LoginCreature.PortraitResRef + "M") { ImageAspect = NuiAspect.ExactScaled, Width = 60, Height = 80 },
+            new NuiText(mirrorText) { Width = 450, Height = 110 }
+          } });
+
+          rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiButton("Se refaire une beauté.") { Id = "beauty", Width = 510 } } });
+
+          if (!player.learnableSkills.Values.Any(s => s.category == SkillSystem.Category.StartingTraits))
+            rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiButton("Se perdre brièvement dans le passé.") { Id = "past", Width = 510 } } });
+          
+          rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiButton("Se préparer à l'avenir.") { Id = "future", Width = 510 } } });
+
+          window = new NuiWindow(rootColumn, "Votre reflet")
           {
             Geometry = geometry,
             Resizable = false,
@@ -94,6 +57,10 @@ namespace NWN.Systems
             nuiToken = tempToken;
             nuiToken.OnNuiEvent += HandleIntroMirrorEvents;
 
+            mirrorText.SetBindValue(player.oid, nuiToken.Token, "Houla, y a pas à dire, vous avez connu de meilleurs jours.\n\n" +
+              "C'est quoi cette mine de déterré ?\n\n" +
+              "On va mettre ça sur le compte du mal de mer.");
+            
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
           }
@@ -119,8 +86,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.ContainsKey("introBackground")) player.windows.Add("introBackground", new LearnableWindow(player));
-                  else ((LearnableWindow)player.windows["introBackground"]).CreateWindow();
+                  if (!player.windows.ContainsKey("introBackground")) player.windows.Add("introBackground", new IntroBackgroundWindow(player));
+                  else ((IntroBackgroundWindow)player.windows["introBackground"]).CreateWindow();
 
                   break;
 

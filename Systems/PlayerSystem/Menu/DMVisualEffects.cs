@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 
 using Anvil.API;
 using Anvil.API.Events;
 
 using Newtonsoft.Json;
+
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -28,6 +31,13 @@ namespace NWN.Systems
         private readonly NuiBind<string> vfxId = new ("vfxId");
         private readonly NuiBind<string> newVFXName = new ("newVFXName");
         private readonly NuiBind<string> newVFXDuration = new ("newVFXDuration");
+        private readonly NuiBind<string> x = new("x");
+        private readonly NuiBind<string> y = new("y");
+        private readonly NuiBind<string> z = new("z");
+        private readonly NuiBind<string> tx = new("tx");
+        private readonly NuiBind<string> ty = new("ty");
+        private readonly NuiBind<string> tz = new("tz");
+        private readonly NuiBind<string> scale = new("scale");
 
         public List<CustomDMVisualEffect> currentList;
         private int selectedVFXId;
@@ -44,17 +54,36 @@ namespace NWN.Systems
 
           rootRow.Children = rootChildren;
 
-          rootChildren.Add(new NuiRow() 
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() 
           { 
-            Children = new List<NuiElement>() 
-            { 
-              new NuiTextEdit("Id", vfxId, 5, false) { Width = 70, Height = 35, Tooltip = "Identifiant de l'effet (visualeffects.2da)" },
-              new NuiTextEdit("Nom", newVFXName, 20, false) { Width = 100, Height = 35, Tooltip = "Nom sous lequel l'effet sera sauvegardé" },
-              new NuiTextEdit("Durée", newVFXDuration, 4, false) { Width = 70, Height = 35, Tooltip = "Durée de l'effet en secondes" },
-              new NuiButton("Tester") { Id = "test", Width = 60, Height = 35, Tooltip = "Essayer l'effet sur un objet ou une zone ciblée" },
-              new NuiButton("Créer") { Id = "save", Width = 60, Height = 35, Tooltip = "Sauvegarde cet effet dans votre liste" }
-            } 
+            new NuiTextEdit("Id", vfxId, 5, false) { Width = 70, Height = 35, Tooltip = "Identifiant de l'effet (visualeffects.2da)" },
+            new NuiTextEdit("Nom", newVFXName, 20, false) { Width = 100, Height = 35, Tooltip = "Nom sous lequel l'effet sera sauvegardé" },
+            new NuiTextEdit("Durée", newVFXDuration, 4, false) { Width = 70, Height = 35, Tooltip = "Durée de l'effet en secondes" },
+            new NuiButton("Tester") { Id = "test", Width = 60, Height = 35, Tooltip = "Essayer l'effet sur un objet ou une zone ciblée" },
+            new NuiButton("Créer") { Id = "save", Width = 60, Height = 35, Tooltip = "Sauvegarde cet effet dans votre liste" }
+          } });
+
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() 
+          { 
+            new NuiTextEdit("Rotation X", x, 3, false) { Width = 70, Height = 35, Tooltip = "Rotation X" },
+            new NuiTextEdit("Rotation Y", y, 3, false) { Width = 70, Height = 35, Tooltip = "Rotation Y" },
+            new NuiTextEdit("Rotation Z", z, 3, false) { Width = 70, Height = 35, Tooltip = "Rotation Z" },
+          } });
+
+          rootChildren.Add(new NuiRow()
+          {
+            Children = new List<NuiElement>()
+          {
+            new NuiTextEdit("Translation X", tx, 3, false) { Width = 70, Height = 35, Tooltip = "Translation X" },
+            new NuiTextEdit("Translation Y", ty, 3, false) { Width = 70, Height = 35, Tooltip = "Translation Y" },
+            new NuiTextEdit("Translation Z", tz, 3, false) { Width = 70, Height = 35, Tooltip = "Translation Z" },
+          }
           });
+
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() 
+          { 
+            new NuiTextEdit("Taille", scale, 5, false) { Width = 70, Height = 35, Tooltip = "Taille de l'effet" },
+          } });
 
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) { Width = 370 } } });
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35 } } });
@@ -226,17 +255,26 @@ namespace NWN.Systems
             return;
           }
 
+          float rx = float.TryParse(x.GetBindValue(player.oid, nuiToken.Token), out rx) ? rx : 0;
+          float ry = float.TryParse(y.GetBindValue(player.oid, nuiToken.Token), out ry) ? ry : 0;
+          float rz = float.TryParse(z.GetBindValue(player.oid, nuiToken.Token), out rz) ? rz : 0;
+          float vfxtx = float.TryParse(tx.GetBindValue(player.oid, nuiToken.Token), out vfxtx) ? vfxtx : 0;
+          float vfxty = float.TryParse(ty.GetBindValue(player.oid, nuiToken.Token), out vfxty) ? vfxty : 0;
+          float vfxtz = float.TryParse(tz.GetBindValue(player.oid, nuiToken.Token), out vfxtz) ? vfxtz : 0;
+          float vfxScale = float.TryParse(scale.GetBindValue(player.oid, nuiToken.Token), out vfxScale) ? vfxScale : 1;
+
           EffectDuration durationType = EffectDuration.Temporary;
           TimeSpan duration = TimeSpan.FromSeconds(selectedVFXDuration);
-          Effect vfx = Effect.VisualEffect((VfxType)selectedVFXId);
+          
+          Effect vfx = Effect.VisualEffect((VfxType)selectedVFXId, false, vfxScale, new Vector3(vfxtx, vfxty, vfxtz), new Vector3(rx, ry, rz));
 
-          if (NwGameTables.VisualEffectTable.GetRow(selectedVFXId).TypeFd == "F")
+          if (vfxRow.TypeFd == "F")
           {
             durationType = EffectDuration.Instant;
             duration = default;
           }
 
-          if (NwGameTables.VisualEffectTable.GetRow(selectedVFXId).TypeFd == "B")
+          if (vfxRow.TypeFd == "B")
             vfx = Effect.Beam((VfxType)selectedVFXId, player.oid.ControlledCreature, BodyNode.Hand);
 
           if (selection.TargetObject is NwGameObject target)

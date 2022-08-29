@@ -18,17 +18,20 @@ namespace NWN.Systems
     {
       NwCreature captain = (NwCreature)callInfo.ObjectSelf;
       NwArea area = captain.Area;
+
+      area.GetObjectVariable<LocalVariableBool>("_STOP_INTRO_ROCK_SPAWN").Value = true;
+
       NwPlayer player = NWScript.GetLastSpeaker().ToNwObject<NwCreature>().ControllingPlayer;
-      player.SetCameraFacing(180, 65, 20);
+      _ = player.SetCameraFacing(180, 65, 20);
 
       captain.DialogResRef = "";
-      captain.SpeakString("Des récifs ! Accrochez-vous, va falloir manoeuvrer serré !");
+      _ = captain.SpeakString("Des récifs ! Accrochez-vous, va falloir manoeuvrer serré !");
 
       List<NwCreature> sailorList = captain.GetNearestCreatures(CreatureTypeFilter.PlayerChar(false)).Where(c => c.Tag == "intro_sailor").ToList();
-      sailorList[0].ActionRandomWalk();
-      sailorList[1].ActionRandomWalk();
-      sailorList[0].SpeakString("Umberlie, épargne-nous !".ColorString(ColorConstants.Orange));
-      sailorList[1].SpeakString("Oh non, non, non, faut faire quelque chose, vite !");
+      _ = sailorList[0].ActionRandomWalk();
+      _ = sailorList[1].ActionRandomWalk();
+      _ = sailorList[0].SpeakString("Umberlie, épargne-nous !".ColorString(ColorConstants.Orange));
+      _ = sailorList[1].SpeakString("Oh non, non, non, faut faire quelque chose, vite !");
       sailorList[0].MovementRate = MovementRate.DM;
       sailorList[1].MovementRate = MovementRate.DM;
 
@@ -42,11 +45,12 @@ namespace NWN.Systems
 
       List<NwPlaceable> rocks = player.LoginCreature.GetNearestObjectsByType<NwPlaceable>().Where(c => c.Tag == "intro_recif").ToList();
       NwPlaceable tourbillon = player.LoginCreature.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(c => c.Tag == "intro_tourbillon");
+      tourbillon.ApplyEffect(EffectDuration.Permanent, Effect.VisualEffect((VfxType)915, false, 20));
 
-      rocks[0].VisibilityOverride = VisibilityMode.Visible;
-      rocks[1].VisibilityOverride = VisibilityMode.Visible;
-      rocks[2].VisibilityOverride = VisibilityMode.Visible;
-      tourbillon.VisibilityOverride = VisibilityMode.Visible;
+      rocks[0].VisibilityOverride = VisibilityMode.AlwaysVisible;
+      rocks[1].VisibilityOverride = VisibilityMode.AlwaysVisible;
+      rocks[2].VisibilityOverride = VisibilityMode.AlwaysVisible;
+      tourbillon.VisibilityOverride = VisibilityMode.AlwaysVisible;
 
       rocks[0].VisualTransform.Lerp(new VisualTransformLerpSettings { LerpType = VisualTransformLerpType.Linear, Duration = TimeSpan.FromSeconds(30), PauseWithGame = true }, transform => { transform.Translation = new Vector3(0, -72, 0); });
       rocks[1].VisualTransform.Lerp(new VisualTransformLerpSettings { LerpType = VisualTransformLerpType.Linear, Duration = TimeSpan.FromSeconds(24), PauseWithGame = true }, transform => { transform.Translation = new Vector3(0, -80, 0); });
@@ -68,23 +72,27 @@ namespace NWN.Systems
 
         await NwTask.Delay(TimeSpan.FromSeconds(10));
         await captain.SpeakString("Qu'est ce que c'est que ce truc ? On ne peut pas éviter la collision, ABANDONNEZ LE NAVIRE !".ColorString(ColorConstants.Red));
-        await NwTask.Delay(TimeSpan.FromSeconds(5));
+
+        tourbillon.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect((VfxType)836, false, 3, new Vector3(-30, 0, 2)));
+        tourbillon.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect((VfxType)836, false, 3, new Vector3(30, 0, 2)));
+
+        await NwTask.Delay(TimeSpan.FromSeconds(1));
         PlayTourbillonEffects(area, player);
       });
     }
     private static void PlayTourbillonEffects(NwArea area, NwPlayer oPC)
     {
       oPC.LoginCreature.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect((VfxType)135));
-      oPC.LoginCreature.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfPwkill, false, 2, new Vector3(0, 0, 0), new Vector3(270, 90, 0)));
-      oPC.LoginCreature.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfFirestorm, false, 2, new Vector3(0, 0, 0), new Vector3(0, 0, 0)));
-      oPC.LoginCreature.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfFirestorm, false, 2, new Vector3(0, 0, 0), new Vector3(0, 90, 0)));
+      //oPC.LoginCreature.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfPwkill, false, 2, new Vector3(0, 0, 0), new Vector3(270, 90, 0)));
+      //oPC.LoginCreature.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfFirestorm, false, 2, new Vector3(0, 0, 0), new Vector3(0, 0, 0)));
+      //oPC.LoginCreature.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfFirestorm, false, 2, new Vector3(0, 0, 0), new Vector3(0, 90, 0)));
 
       Task waitTourbillonEvents = NwTask.Run(async () =>
       {
         await NwTask.Delay(TimeSpan.FromSeconds(2));
         oPC.LoginCreature.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfMysticalExplosion));
 
-        await NwTask.Delay(TimeSpan.FromSeconds(1.6));
+        await NwTask.Delay(TimeSpan.FromSeconds(1));
         oPC.LockCameraDirection(false);
         oPC.LockCameraDistance(false);
         oPC.LockCameraPitch(false);
@@ -99,7 +107,13 @@ namespace NWN.Systems
 
         await NwTask.WaitUntil(() => oPC.LoginCreature.Location.Area != null);
         await oPC.LoginCreature.PlayAnimation(Animation.LoopingDeadBack, 1, true, TimeSpan.FromSeconds(99999999));
-        oPC.FloatingTextString("En dehors des épaves de navires éparpillées tout autour de vous, la plage sur laquelle vous avez atterri semble étrangement calme et agréable. Nulle trace de votre équipage ou des biens que vous aviez emportés. Devant vous se dressent les murailles d'une ville ancienne et délabrée. Qu'allez-vous faire maintenant ?".ColorString(ColorConstants.Silver), false);
+
+        if (PlayerSystem.Players.TryGetValue(oPC.LoginCreature, out PlayerSystem.Player player))
+        {
+          if (!player.windows.ContainsKey("areaDescription")) player.windows.Add("areaDescription", new PlayerSystem.Player.AreaDescriptionWindow(player, area));
+          else ((PlayerSystem.Player.AreaDescriptionWindow)player.windows["areaDescription"]).CreateWindow(area);
+        }
+        //oPC.FloatingTextString("En dehors des épaves de navires éparpillées tout autour de vous, la plage sur laquelle vous avez atterri semble étrangement calme et agréable. Nulle trace de votre équipage ou des biens que vous aviez emportés. Devant vous se dressent les murailles d'une ville ancienne et délabrée. Qu'allez-vous faire maintenant ?".ColorString(ColorConstants.Silver), false);
       });
     }
     private static async void TriggerRandomLightnings(NwArea area, Vector3 center, int maxDistance, NwCreature oPC)
@@ -150,7 +164,7 @@ namespace NWN.Systems
       await sailor2.ClearActionQueue();
       await sailor2.PlayAnimation(Animation.LoopingSpasm, 3.0f, false, TimeSpan.FromHours(1));
 
-      sailor2.VisualTransform.Lerp(new VisualTransformLerpSettings { LerpType = VisualTransformLerpType.SmootherStep, Duration = TimeSpan.FromSeconds(4), PauseWithGame = true }, transform => { transform.Translation = new Vector3(360, 0, 4); });
+      sailor2.VisualTransform.Lerp(new VisualTransformLerpSettings { LerpType = VisualTransformLerpType.SmootherStep, Duration = TimeSpan.FromSeconds(4), PauseWithGame = true }, transform => { transform.Translation = new Vector3(0, 0, 4); });
 
       await NwTask.Delay(TimeSpan.FromSeconds(4));
 

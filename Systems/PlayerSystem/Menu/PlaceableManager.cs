@@ -87,10 +87,7 @@ namespace NWN.Systems
               {
                 case "examine":
 
-                  Log.Info(nuiEvent.ArrayIndex);
-                  Log.Info(currentList.ElementAt(nuiEvent.ArrayIndex).Name);
-
-                  if (!player.windows.ContainsKey("editorPlaceable")) player.windows.Add("bodyApeditorPlaceablepearanceModifier", new EditorPlaceableWindow(player, currentList.ElementAt(nuiEvent.ArrayIndex)));
+                  if (!player.windows.ContainsKey("editorPlaceable")) player.windows.Add("editorPlaceable", new EditorPlaceableWindow(player, currentList.ElementAt(nuiEvent.ArrayIndex)));
                   else ((EditorPlaceableWindow)player.windows["editorPlaceable"]).CreateWindow(currentList.ElementAt(nuiEvent.ArrayIndex));
 
                   break;
@@ -139,8 +136,6 @@ namespace NWN.Systems
 
                       persistState.SetBindValues(player.oid, nuiToken.Token, persistStateList);
                       persistTooltip.SetBindValues(player.oid, nuiToken.Token, persistTooltipList);
-
-                      Log.Info(targetPlaceable.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value);
                     }
                     else
                     {
@@ -195,7 +190,7 @@ namespace NWN.Systems
           {
             placeableNameList.Add(entry.Name);
             persistEnabledList.Add(entry.GetObjectVariable<LocalVariableBool>("_EDITOR_PLACEABLE").HasNothing);
-            Log.Info(entry.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value);
+
             if (entry.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").HasNothing)
             {
               persistStateList.Add("ir_empytqs");

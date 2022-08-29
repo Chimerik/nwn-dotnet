@@ -34,7 +34,7 @@ namespace NWN.Systems
               " - Le Role Play prime sur tout\n" +
               " - La cohérence est fondamentale\n" +
               " - Tout acte doit avoir des conséquences\n\n" +
-              "Seulement, tout cela est un énorme travail et nous avons besoin de l'aide de tout ceux intéressés par la construction d'un mon et par le concept de base !\n\n" +
+              "Seulement, tout cela est un énorme travail et nous avons besoin de l'aide de tout ceux intéressés par la construction d'un monde et par le concept de base !\n\n" +
               "Surtout, n'hésitez pas à nous contacter en jeu et à rejoindre notre Discord : https://discord.gg/vYVhxsnH") { Height = 130 }
             }
           };
@@ -46,7 +46,7 @@ namespace NWN.Systems
         {
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 410, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.65f);
 
-          window = new NuiWindow(rootGroup, "Bienvenue sur les Larmes des Erylies !")
+          window = new NuiWindow(rootGroup, "Bonjour et bienvenue sur les Larmes des Erylies !")
           {
             Geometry = geometry,
             Resizable = true,

@@ -163,6 +163,9 @@ namespace NWN.Systems
           arrivalArea.OnExit += areaSystem.OnIntroAreaExit;
           arrivalLocation = arrivalArea.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(o => o.Tag == "ENTRY_POINT").Location;
 
+          AreaSystem.ScheduleRockSpawn(arrivalArea, 0);
+          AreaSystem.ScheduleRockSpawn(arrivalArea, 1);
+
           arrivalArea.SetAreaWind(new Vector3(1, 0, 0), 4, 0, 0);
 
           foreach (NwPlaceable recif in arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().Where(o => o.Tag == "intro_recif"))

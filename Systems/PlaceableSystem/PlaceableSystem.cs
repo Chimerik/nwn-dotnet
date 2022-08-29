@@ -52,6 +52,7 @@ namespace NWN.Systems
           case "tannerie": plc.OnUsed += OpenWorkshopWindow; break;
         }
 
+        
         if (plc.VisualTransform.Scale != 1 || plc.VisualTransform.Translation != Vector3.Zero || plc.VisualTransform.Rotation != Vector3.Zero)
           plc.VisibilityOverride = VisibilityMode.AlwaysVisible;
         else if (!plc.Useable)
@@ -67,6 +68,9 @@ namespace NWN.Systems
           door.GetObjectVariable<LocalVariableObject<NwGameObject>>("_TRANSITION_TARGET").Value = door.TransitionTarget;
           door.OnAreaTransitionClick += CheckMateriaInventory;
         }
+
+        if (door.VisualTransform.Scale != 1 || door.VisualTransform.Translation != Vector3.Zero || door.VisualTransform.Rotation != Vector3.Zero)
+          door.VisibilityOverride = VisibilityMode.AlwaysVisible;
       }
 
       foreach (NwCreature corpse in NwObject.FindObjectsWithTag<NwCreature>("dead_wererat"))

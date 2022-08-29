@@ -6,9 +6,6 @@ using NLog;
 using System;
 using System.Numerics;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using NWN.Core.NWNX;
-using Discord;
 
 namespace NWN.Systems
 {
@@ -16,6 +13,7 @@ namespace NWN.Systems
   public partial class AreaSystem
   {
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+    private static readonly int[] rockRandomAppearances = new int[] { 1603, 4480, 4481, 5266, 5267, 5268, 5269, 14669, 14670, 14671, 14672, 14673, 14674, 14675, 14676, 14677, 14678 };
     private readonly DialogSystem dialogSystem;
     private readonly ScriptHandleFactory scriptHandleFactory;
     private readonly ScriptCallbackHandle mobRegenIntervalHandle;
@@ -66,6 +64,16 @@ namespace NWN.Systems
       foreach (NwCreature creature in creatureList)
       {
         NwWaypoint spawnPoint = NwWaypoint.Create("creature_spawn", creature.Location);
+
+        if (creature.VisualTransform.Scale != 1 || creature.VisualTransform.Translation != Vector3.Zero || creature.VisualTransform.Rotation != Vector3.Zero)
+        {
+          spawnPoint.GetObjectVariable<LocalVariableFloat>("_CREATURE_SCALE").Value = creature.VisualTransform.Scale;
+          spawnPoint.GetObjectVariable<LocalVariableLocation>("_CREATURE_TRANSLATION").Value = Location.Create(creature.Area, creature.VisualTransform.Translation, 0);
+          spawnPoint.GetObjectVariable<LocalVariableLocation>("_CREATURE_ROTATION").Value = Location.Create(creature.Area, creature.VisualTransform.Rotation, 0);
+        }
+
+        spawnPoint.GetObjectVariable<LocalVariableInt>("_CREATURE_APPEARANCE").Value = creature.Appearance.RowIndex;
+
         CreatureUtils.creatureSpawnDictionary.TryAdd(creature.Tag, NwCreature.Deserialize(creature.Serialize()));
         spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value = creature.Tag;
         creature.Destroy();
@@ -186,6 +194,8 @@ namespace NWN.Systems
           NwObject.FindObjectsWithTag<NwPlaceable>("intro_brouillard").FirstOrDefault().VisibilityOverride = VisibilityMode.Hidden;
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
           area.SetAreaWind(new Vector3(1, 0, 0), 4, 0, 0);
+
+          //ScheduleRockSpawn(area);
 
           break;
         case "SimilisseThetreSalledeSpectacle":
@@ -353,6 +363,37 @@ namespace NWN.Systems
         return;
 
       creature.OnPerception += CreatureUtils.OnMobPerception;
+    }
+    public static async void ScheduleRockSpawn(NwArea area, int side)
+    {
+      SpawnMovingRock(area, side);
+      await NwTask.Delay(TimeSpan.FromSeconds(Utils.random.Next(5, 20)));
+
+      if (area.GetObjectVariable<LocalVariableBool>("_STOP_INTRO_ROCK_SPAWN").HasValue)
+        return;
+
+      ScheduleRockSpawn(area, side);
+    }
+    private static async void SpawnMovingRock(NwArea area, int side)
+    {
+      NwPlaceable rock = NwPlaceable.Create("wall_invi", GetRandomRockSpawn(area, side));
+      rock.VisibilityOverride = VisibilityMode.AlwaysVisible;
+
+      int xTranslation = side < 1 ?  Utils.random.Next(0, 30) : Utils.random.Next(-30, 0);
+
+      rock.VisualTransform.Translation = new Vector3(xTranslation, -71, 0);
+      rock.VisualTransform.Rotation = new Vector3(Utils.random.Next(0, 360), 0, 0);
+      rock.VisualTransform.Scale = Utils.random.NextFloat(0.4f, 1.4f);
+      rock.Appearance = NwGameTables.PlaceableTable.GetRow(rockRandomAppearances[Utils.random.Next(0, rockRandomAppearances.Length)]);
+      rock.VisualTransform.Lerp(new VisualTransformLerpSettings { LerpType = VisualTransformLerpType.Linear, Duration = TimeSpan.FromSeconds(60), PauseWithGame = true }, transform => { transform.Translation = new Vector3(xTranslation, 120, 0); });
+      //Log.Info($"new rock y : {rock.Position.Y} - visual translation x {xTranslation}");
+      await NwTask.Delay(TimeSpan.FromSeconds(60));
+      rock.Destroy();
+    }
+    private static Location GetRandomRockSpawn(NwArea area, int side)
+    {
+      int yPos = side < 1 ? Utils.random.Next(5, 12) : Utils.random.Next(57, 81);
+      return Location.Create(area, new Vector3(36, yPos, 0), 0);
     }
   }
 }

@@ -12,62 +12,52 @@ namespace NWN.Systems
     {
       public class IntroBackgroundWindow : PlayerWindow
       {
-        private readonly NuiGroup rootGroup;
-        private readonly NuiColumn rootColumn;
-        private readonly NuiRow buttonRow;
-        private readonly NuiRow searchRow;
-        private readonly NuiRow textRow;
+        private readonly NuiColumn rootColumn = new();
         private readonly List<NuiElement> rootChidren = new();
-        private readonly NuiBind<string> search = new("search");
         private readonly Color white = new(255, 255, 255);
         private readonly NuiRect drawListRect = new(0, 35, 150, 60);
+        private readonly NuiBind<string> search = new("search");
+        private readonly NuiBind<string> displayText = new("text");
+
+        private readonly NuiBind<int> listCount = new("listCount");
+        private readonly NuiBind<string> icon = new("icon");
+        private readonly NuiBind<string> skillName = new("skillName");
+        private readonly NuiBind<string> remainingTime = new("remainingTime");
+        private readonly NuiBind<string> level = new("level");
+        private readonly NuiBind<bool> learnButtonEnabled = new("learnButtonEnabled");
+
+        public IEnumerable<Learnable> currentList;
 
         public IntroBackgroundWindow(Player player) : base(player)
         {
           windowId = "introBackground";
+          rootColumn.Children = rootChidren;
 
-          rootColumn = new NuiColumn() { Children = rootChidren };
-          rootGroup = new NuiGroup() { Id = "learnableGroup", Border = true, Layout = rootColumn };
-
-          buttonRow = new NuiRow()
+          List<NuiListTemplateCell> learnableTemplate = new List<NuiListTemplateCell>
           {
-            Children = new List<NuiElement>() {
-              new NuiSpacer(),
-              new NuiButton("Retour") { Id = "retour", Width = 193},
-              new NuiSpacer()
-            }
+            new NuiListTemplateCell(new NuiButtonImage(icon) { Id = "description", Tooltip = "Description", Height = 40, Width = 40 }) { Width = 40 },
+            new NuiListTemplateCell(new NuiLabel(skillName)
+            {
+              Width = 160, Id = "description", Tooltip = skillName,
+              DrawList = new List<NuiDrawListItem>() { new NuiDrawListText(white, drawListRect, remainingTime) }
+            }) { Width = 160 },
+            new NuiListTemplateCell(new NuiLabel("Niveau/Max") { Id = "description", Width = 90,
+              DrawList = new List<NuiDrawListItem>() { new NuiDrawListText(white, drawListRect, level) }
+            } ) { Width = 90 },
+            new NuiListTemplateCell(new NuiButton("Apprendre") { Id = "learn", Enabled = learnButtonEnabled, Tooltip = "Si vous ne disposez pas d'assez de points, cette compétence sera sélectionnée pour entrainement.", Height = 40, Width = 90 }) { Width = 90 }
           };
 
-          textRow = new NuiRow()
-          {
-            Children = new List<NuiElement>() {
-              new NuiText("L'espace de quelques instants, la galère disparait de votre esprit.\n" +
-              "Plus jeune, vous vous revoyez ...\n" +
-              "(Attention, il ne sera possible de choisir qu'un seul historique par personnage et il ne sera pas possible de revenir dessus une fois votre choix effectué !)") { Height = 110 }
-            }
-          };
-
-          searchRow = new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) { Width = 388 } } };
+          rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiText(displayText) { Height = 130 } } });
+          rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) { Width = 420 } } });
+          rootChidren.Add(new NuiList(learnableTemplate, listCount) { RowHeight = 40, Width = 420 });
 
           CreateWindow();
         }
         public void CreateWindow()
         {
-          if (player.learnableSkills.Any(s => s.Value.category == SkillSystem.Category.StartingTraits))
-          {
-            player.oid.SendServerMessage("Vous avez déjà effectué votre choix d'historique.", ColorConstants.Red);
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.65f);
 
-            if (!player.TryGetOpenedWindow("introMirror", out PlayerWindow introWindow))
-              ((IntroMirroWindow)introWindow).CreateWindow();
-
-            return;
-          }
-
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? new NuiRect(player.windowRectangles[windowId].X, player.windowRectangles[windowId].Y, 450, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.65f) : new NuiRect(0, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.02f, 450, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.65f);
-
-          RefreshWindow();
-
-          window = new NuiWindow(rootGroup, "Choissisez votre historique")
+          window = new NuiWindow(rootColumn, "Sélection des compétences de départ")
           {
             Geometry = geometry,
             Resizable = false,
@@ -87,7 +77,13 @@ namespace NWN.Systems
 
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
-            RefreshWindow();
+
+            displayText.SetBindValue(player.oid, nuiToken.Token, "L'espace de quelques instants, la galère disparait de votre esprit.\n" +
+              "Plus jeune, vous vous revoyez ...\n" +
+              "(Attention, il ne sera possible de choisir qu'un seul historique par personnage et il ne sera pas possible de revenir dessus une fois votre choix effectué !)");
+
+            currentList = SkillSystem.learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == SkillSystem.Category.StartingTraits);
+            LoadLearnableList(currentList);
           }
         }
 
@@ -97,34 +93,19 @@ namespace NWN.Systems
           {
             case NuiEventType.Click:
 
-              if (nuiEvent.ElementId == "retour")
+              if (nuiEvent.ElementId.StartsWith("learn"))
               {
-                CloseWindow();
-
-                if (!player.TryGetOpenedWindow("introMirror", out PlayerWindow introWindow))
-                  ((IntroMirroWindow)introWindow).CreateWindow();
-
-                return;
-              }
-
-              if (nuiEvent.ElementId.StartsWith("learn_"))
-              {
-                int learnableId = int.Parse(nuiEvent.ElementId[(nuiEvent.ElementId.IndexOf("_") + 1)..]);
-
-                LearnableSkill background = new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[learnableId]);
-                player.learnableSkills.Add(learnableId, background);
+                LearnableSkill background = new LearnableSkill(((LearnableSkill)currentList.ElementAt(nuiEvent.ArrayIndex)));
+                player.learnableSkills.Add(background.id, background);
                 background.LevelUp(player);
-
                 player.oid.SendServerMessage($"Vous venez de sélectionner l'historique {background.name.ColorString(ColorConstants.White)}", new Color(32, 255, 32));
                 CloseWindow();
               }
-              else if (int.TryParse(nuiEvent.ElementId, out int learnableId))
+              else
               {
-                if (player.TryGetOpenedWindow("learnableDescription", out PlayerWindow descriptionWindow))
-                  descriptionWindow.CloseWindow();
-
-                if (!player.windows.ContainsKey("learnableDescription")) player.windows.Add("learnableDescription", new LearnableDescriptionWindow(player, learnableId));
-                else ((LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(learnableId);
+                Learnable skill = currentList.ElementAt(nuiEvent.ArrayIndex);
+                if (!player.windows.ContainsKey("learnableDescription")) player.windows.Add("learnableDescription", new LearnableDescriptionWindow(player, skill.id));
+                else ((LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(skill.id);
               }
 
               break;
@@ -134,52 +115,38 @@ namespace NWN.Systems
               switch (nuiEvent.ElementId)
               {
                 case "search":
-                  RefreshWindow();
+                  string currentSearch = search.GetBindValue(player.oid, nuiToken.Token).ToLower();
+                  currentList = !string.IsNullOrEmpty(currentSearch) ? currentList = currentList.Where(s => s.name.ToLower().Contains(currentSearch)) : SkillSystem.learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == SkillSystem.Category.StartingTraits);
+                  LoadLearnableList(currentList);
                   break;
               }
 
               break;
           }
         }
-        public void RefreshWindow()
+        public void LoadLearnableList(IEnumerable<Learnable> filteredList)
         {
-          rootChidren.Clear();
-          rootChidren.Add(buttonRow);
-          rootChidren.Add(textRow);
-          rootChidren.Add(searchRow);
+          List<string> iconList = new List<string>();
+          List<string> skillNameList = new List<string>();
+          List<string> remainingTimeList = new List<string>();
+          List<string> levelList = new List<string>();
+          List<bool> learnButtonEnabledList = new List<bool>();
 
-          if (nuiToken.Token < 0)
-            return;
-
-          CreateSkillRows();
-
-          rootGroup.SetLayout(player.oid, nuiToken.Token, rootColumn);
-        }
-        private void CreateSkillRows()
-        {
-          string currentSearch = search.GetBindValue(player.oid, nuiToken.Token).ToLower();
-          var filteredList = SkillSystem.learnableDictionary.Where(s => s.Value is LearnableSkill skill && skill.category == SkillSystem.Category.StartingTraits).AsEnumerable();
-
-          if (currentSearch != "")
-            filteredList = filteredList.Where(s => s.Value.name.ToLower().Contains(currentSearch));
-
-          foreach (var kvp in filteredList)
+          foreach (Learnable learnable in filteredList)
           {
-            NuiRow row = new NuiRow()
-            {
-              Children = new List<NuiElement>()
-              {
-                new NuiButtonImage(kvp.Value.icon) { Id = kvp.Key.ToString(), Tooltip = "Description", Height = 40, Width = 40 },
-                new NuiLabel(kvp.Value.name) { Id = kvp.Key.ToString(), Tooltip = kvp.Value.name, Width = 160, HorizontalAlign = NuiHAlign.Left, DrawList = new List<NuiDrawListItem>() {
-                new NuiDrawListText(white, drawListRect, "Instantané") } },
-                new NuiLabel("Niveau/Max") { Id = kvp.Key.ToString(), Width = 90, HorizontalAlign = NuiHAlign.Left, DrawList = new List<NuiDrawListItem>() {
-                new NuiDrawListText(white, drawListRect, $"{kvp.Value.currentLevel}/{kvp.Value.maxLevel}") } },
-                new NuiButton("Sélectionner") { Id = $"learn_{kvp.Key}", Height = 40, Width = 90, Enabled = kvp.Value.currentLevel < kvp.Value.maxLevel && !kvp.Value.active, Tooltip = "Cet historique sera sélectionné et avancera directement au niveau 1." }
-              }
-            };
-
-            rootChidren.Add(row);
+            iconList.Add(learnable.icon);
+            skillNameList.Add(learnable.name);
+            remainingTimeList.Add("Gratuit");
+            levelList.Add($"{learnable.currentLevel}/{learnable.maxLevel}");
+            learnButtonEnabledList.Add(learnable.currentLevel < learnable.maxLevel);
           }
+
+          icon.SetBindValues(player.oid, nuiToken.Token, iconList);
+          skillName.SetBindValues(player.oid, nuiToken.Token, skillNameList);
+          remainingTime.SetBindValues(player.oid, nuiToken.Token, remainingTimeList);
+          level.SetBindValues(player.oid, nuiToken.Token, levelList);
+          learnButtonEnabled.SetBindValues(player.oid, nuiToken.Token, learnButtonEnabledList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, filteredList.Count());
         }
       }
     }
