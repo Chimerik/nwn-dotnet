@@ -17,6 +17,9 @@ namespace NWN.Systems
     private readonly DialogSystem dialogSystem;
     private readonly ScriptHandleFactory scriptHandleFactory;
     private readonly ScriptCallbackHandle mobRegenIntervalHandle;
+    private readonly ScriptCallbackHandle mobRunAway;
+    private readonly ScriptCallbackHandle mobStopRunAway;
+    private readonly Effect runAway;
     private readonly SchedulerService scheduler;
 
     public AreaSystem(ModuleSystem moduleSystem, DialogSystem dialogSystem, ScriptHandleFactory scriptFactory, SchedulerService schedulerService)
@@ -25,6 +28,12 @@ namespace NWN.Systems
       scriptHandleFactory = scriptFactory;
       scheduler = schedulerService;
       mobRegenIntervalHandle = scriptHandleFactory.CreateUniqueHandler(onMobRegenInterval);
+      mobRunAway = scriptHandleFactory.CreateUniqueHandler(HandleRunAwayFromPlayer);
+      mobStopRunAway = scriptHandleFactory.CreateUniqueHandler(HandleNoOneAroundNeutral);
+
+      runAway = Effect.AreaOfEffect((PersistentVfxType)190, mobRunAway, null, mobStopRunAway);
+      runAway.SubType = EffectSubType.Supernatural;
+      runAway.Tag = "_NEUTRALS_RUN_AWAY_EFFECT";
 
       foreach (NwTrigger trigger in NwObject.FindObjectsWithTag("invi_unwalkable"))
         trigger.OnEnter += OnEnterUnwalkableBlock;
@@ -137,8 +146,6 @@ namespace NWN.Systems
         player.oid.SetAreaExplorationState(area, true);
       else if (player.areaExplorationStateDictionnary.ContainsKey(area.Tag))
         player.oid.SetAreaExplorationState(area, player.areaExplorationStateDictionnary[area.Tag]);
-
-      Log.Info("area enter pc off");
     }
     public void OnAreaExit(AreaEvents.OnExit onExit)
     {

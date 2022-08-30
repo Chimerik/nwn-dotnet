@@ -100,12 +100,7 @@ namespace NWN.Systems
           creature.AiLevel = AiLevel.VeryLow;
           _ = creature.ActionRandomWalk();
 
-          Effect runAway = Effect.AreaOfEffect((PersistentVfxType)190, scriptHandleFactory.CreateUniqueHandler(HandleRunAwayFromPlayer), null, scriptHandleFactory.CreateUniqueHandler(HandleNoOneAroundNeutral));
-          runAway.SubType = EffectSubType.Supernatural;
           creature.ApplyEffect(EffectDuration.Permanent, runAway);
-
-          Log.Info($"{creature.ObjectId} applied run away effect");
-          Log.Info($"{creature.Name} applied run away effect");
 
           break;
 
@@ -175,7 +170,7 @@ namespace NWN.Systems
 
       //Log.Info($"creature distance from reset : {creature.Distance(creature.GetObjectVariable<LocalVariableObject<NwAreaOfEffect>>("reset_aoe").Value)}");
 
-      if (creature.DistanceSquared(creature.GetObjectVariable<LocalVariableObject<NwAreaOfEffect>>("_SPAWN").Value) < 1)
+      if (creature.DistanceSquared(creature.GetObjectVariable<LocalVariableObject<NwWaypoint>>("_SPAWN").Value) < 1)
       {
         //Log.Info($"{creature.Name} is on reset position !");
         creature.AiLevel = AiLevel.Default;
@@ -271,23 +266,19 @@ namespace NWN.Systems
     }
     private ScriptHandleResult HandleRunAwayFromPlayer(CallInfo callInfo)
     {
-      Log.Info($"run away effect on enter triggered");
       NwAreaOfEffect aoe = (NwAreaOfEffect)callInfo.ObjectSelf;
+      
+      foreach (var eff in aoe.ActiveEffects)
+        Log.Info(eff.EffectType);
 
-      Log.Info(callInfo.ObjectSelf);
-      Log.Info(callInfo.ObjectSelf.ObjectId);
-      Log.Info(callInfo.ObjectSelf.Name);
-      Log.Info(aoe.Creator);
-      Log.Info(aoe.Name);
-      Log.Info(aoe.Creator is NwCreature);
+      Log.Info(callInfo.ObjectSelf is NwAreaOfEffect);
+      Log.Info(callInfo.ObjectSelf.Tag);
+      Log.Info(NWScript.GetName(NWScript.GetAreaOfEffectCreator(callInfo.ObjectSelf)));
 
-      if (!(aoe.Creator is NwCreature neutral))
+      if (!(NWScript.GetAreaOfEffectCreator(callInfo.ObjectSelf).ToNwObject() is NwCreature neutral) || NWScript.GetEnteringObject().ToNwObject<NwGameObject>() is not NwCreature { IsPlayerControlled: true } player || player.DistanceSquared(neutral) < 25)
         return ScriptHandleResult.Handled;
 
-      NwCreature closestPlayer = neutral.GetNearestCreatures(CreatureTypeFilter.PlayerChar(true)).FirstOrDefault();
-
-      if (closestPlayer != null && neutral.DistanceSquared(closestPlayer) < 25)
-        _ = neutral.ActionMoveAwayFrom(closestPlayer, true);
+       _ = neutral.ActionMoveAwayFrom(player, true);
 
       return ScriptHandleResult.Handled;
     }
