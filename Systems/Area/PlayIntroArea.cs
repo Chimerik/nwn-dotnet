@@ -73,8 +73,10 @@ namespace NWN.Systems
         await NwTask.Delay(TimeSpan.FromSeconds(10));
         await captain.SpeakString("Qu'est ce que c'est que ce truc ? On ne peut pas éviter la collision, ABANDONNEZ LE NAVIRE !".ColorString(ColorConstants.Red));
 
-        tourbillon.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect((VfxType)836, false, 3, new Vector3(-30, 0, 2)));
-        tourbillon.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect((VfxType)836, false, 3, new Vector3(30, 0, 2)));
+        //tourbillon.ApplyEffect(EffectDuration.Temporary, Effect.VisualEffect((VfxType)836, false, 3, new Vector3(0, 30, 3)), TimeSpan.FromSeconds(10));
+        //tourbillon.ApplyEffect(EffectDuration.Temporary, Effect.VisualEffect((VfxType)836, false, 3, new Vector3(0, 15, 3)), TimeSpan.FromSeconds(10));
+        //tourbillon.ApplyEffect(EffectDuration.Temporary, Effect.VisualEffect((VfxType)346, false, 3, new Vector3(-5, -20, 4)), TimeSpan.FromSeconds(10));
+        //tourbillon.ApplyEffect(EffectDuration.Temporary, Effect.VisualEffect((VfxType)346, false, 3, new Vector3(5, -20, 4)), TimeSpan.FromSeconds(10));
 
         await NwTask.Delay(TimeSpan.FromSeconds(1));
         PlayTourbillonEffects(area, player);
@@ -110,8 +112,8 @@ namespace NWN.Systems
 
         if (PlayerSystem.Players.TryGetValue(oPC.LoginCreature, out PlayerSystem.Player player))
         {
-          if (!player.windows.ContainsKey("areaDescription")) player.windows.Add("areaDescription", new PlayerSystem.Player.AreaDescriptionWindow(player, area));
-          else ((PlayerSystem.Player.AreaDescriptionWindow)player.windows["areaDescription"]).CreateWindow(area);
+          if (!player.windows.ContainsKey("areaDescription")) player.windows.Add("areaDescription", new PlayerSystem.Player.AreaDescriptionWindow(player, NwModule.Instance.Areas.FirstOrDefault(a => a.Tag == "entry_scene")));
+          else ((PlayerSystem.Player.AreaDescriptionWindow)player.windows["areaDescription"]).CreateWindow(NwModule.Instance.Areas.FirstOrDefault(a => a.Tag == "entry_scene"));
         }
         //oPC.FloatingTextString("En dehors des épaves de navires éparpillées tout autour de vous, la plage sur laquelle vous avez atterri semble étrangement calme et agréable. Nulle trace de votre équipage ou des biens que vous aviez emportés. Devant vous se dressent les murailles d'une ville ancienne et délabrée. Qu'allez-vous faire maintenant ?".ColorString(ColorConstants.Silver), false);
       });
@@ -166,15 +168,20 @@ namespace NWN.Systems
 
       sailor2.VisualTransform.Lerp(new VisualTransformLerpSettings { LerpType = VisualTransformLerpType.SmootherStep, Duration = TimeSpan.FromSeconds(4), PauseWithGame = true }, transform => { transform.Translation = new Vector3(0, 0, 4); });
 
-      await NwTask.Delay(TimeSpan.FromSeconds(4));
+      await NwTask.Delay(TimeSpan.FromSeconds(2));
 
-      sailor2.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpLightningM));
-      sailor2.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComChunkRedLarge));
-      sailor2.PlotFlag = false;
-      sailor2.ApplyEffect(EffectDuration.Instant, Effect.Damage(120, DamageType.Electrical));
-
-      await sailor1.SpeakString("NOOOOOON, OLAF, MON FRERE JUMEAU ! Quelle horreur !".ColorString(ColorConstants.Red));
       sailor2.VisibilityOverride = VisibilityMode.Hidden;
+
+      await NwTask.Delay(TimeSpan.FromSeconds(1));
+
+      sailor2.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpLightningM));
+      sailor2.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComChunkRedLarge));
+      
+      //sailor2.PlotFlag = false;
+     
+      await sailor1.SpeakString("NOOOOOON, OLAF, MON FRERE JUMEAU ! Quelle horreur !".ColorString(ColorConstants.Red));
+      //sailor2.ApplyEffect(EffectDuration.Instant, Effect.Damage(120, DamageType.Electrical));
+
     }
   }
 }

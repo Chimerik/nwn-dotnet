@@ -455,12 +455,11 @@ namespace NWN.Systems
     }
     private static bool HandleImproveAbility(PlayerSystem.Player player, int customSkillId)
     {
-      Log.Info($"improve ability triggered : {customSkillId}");
+      //Log.Info($"improve ability triggered : {customSkillId}");
       switch (customSkillId)
       {
         case CustomSkill.ImprovedStrength:
           player.oid.LoginCreature.SetsRawAbilityScore(Ability.Strength, (byte)(player.oid.LoginCreature.GetRawAbilityScore(Ability.Strength) + 1));
-          Log.Info($"str : {player.oid.LoginCreature.GetRawAbilityScore(Ability.Strength)}");
           break;
         case CustomSkill.ImprovedDexterity:
           player.oid.LoginCreature.SetsRawAbilityScore(Ability.Dexterity, (byte)(player.oid.LoginCreature.GetRawAbilityScore(Ability.Dexterity) + 1));

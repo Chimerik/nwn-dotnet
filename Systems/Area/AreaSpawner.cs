@@ -30,7 +30,7 @@ namespace NWN.Systems
         {
           NwCreature creature = CreatureUtils.creatureSpawnDictionary[spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value].Clone(spawnPoint.Location);
 
-          creature.ApplyEffect(EffectDuration.Permanent, Effect.CutsceneParalyze());
+          //creature.ApplyEffect(EffectDuration.Permanent, Effect.CutsceneParalyze());
           creature.OnHeartbeat += CheckIfNoPlayerAround;
           creature.OnDeath += CreatureUtils.OnMobDeathResetSpawn; ;
           creature.GetObjectVariable<LocalVariableObject<NwWaypoint>>("_SPAWN").Value = spawnPoint;

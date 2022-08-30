@@ -95,12 +95,17 @@ namespace NWN.Systems
         case "city":
         case "generic":
 
-          SetRandomAppearance(creature);
+          //SetRandomAppearance(creature);
 
           creature.AiLevel = AiLevel.VeryLow;
           _ = creature.ActionRandomWalk();
 
           Effect runAway = Effect.AreaOfEffect((PersistentVfxType)190, scriptHandleFactory.CreateUniqueHandler(HandleRunAwayFromPlayer), null, scriptHandleFactory.CreateUniqueHandler(HandleNoOneAroundNeutral));
+          runAway.SubType = EffectSubType.Supernatural;
+          creature.ApplyEffect(EffectDuration.Permanent, runAway);
+
+          Log.Info($"{creature.ObjectId} applied run away effect");
+          Log.Info($"{creature.Name} applied run away effect");
 
           break;
 
@@ -266,9 +271,17 @@ namespace NWN.Systems
     }
     private ScriptHandleResult HandleRunAwayFromPlayer(CallInfo callInfo)
     {
+      Log.Info($"run away effect on enter triggered");
       NwAreaOfEffect aoe = (NwAreaOfEffect)callInfo.ObjectSelf;
 
-      if (!(aoe.Creator is NwCreature { IsPlayerControlled: true } neutral))
+      Log.Info(callInfo.ObjectSelf);
+      Log.Info(callInfo.ObjectSelf.ObjectId);
+      Log.Info(callInfo.ObjectSelf.Name);
+      Log.Info(aoe.Creator);
+      Log.Info(aoe.Name);
+      Log.Info(aoe.Creator is NwCreature);
+
+      if (!(aoe.Creator is NwCreature neutral))
         return ScriptHandleResult.Handled;
 
       NwCreature closestPlayer = neutral.GetNearestCreatures(CreatureTypeFilter.PlayerChar(true)).FirstOrDefault();
