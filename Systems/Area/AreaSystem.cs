@@ -35,6 +35,8 @@ namespace NWN.Systems
       runAway.SubType = EffectSubType.Supernatural;
       runAway.Tag = "_NEUTRALS_RUN_AWAY_EFFECT";
 
+      LoadGenericSpawnAppearance();
+
       foreach (NwTrigger trigger in NwObject.FindObjectsWithTag("invi_unwalkable"))
         trigger.OnEnter += OnEnterUnwalkableBlock;
 
@@ -386,7 +388,7 @@ namespace NWN.Systems
       NwPlaceable rock = NwPlaceable.Create("wall_invi", GetRandomRockSpawn(area, side));
       rock.VisibilityOverride = VisibilityMode.AlwaysVisible;
 
-      int xTranslation = side < 1 ?  Utils.random.Next(0, 30) : Utils.random.Next(-30, 0);
+      int xTranslation = side < 1 ? Utils.random.Next(0, 30) : Utils.random.Next(-30, 0);
 
       rock.VisualTransform.Translation = new Vector3(xTranslation, -71, 0);
       rock.VisualTransform.Rotation = new Vector3(Utils.random.Next(0, 360), 0, 0);
@@ -401,6 +403,30 @@ namespace NWN.Systems
     {
       int yPos = side < 1 ? Utils.random.Next(5, 12) : Utils.random.Next(57, 81);
       return Location.Create(area, new Vector3(36, yPos, 0), 0);
+    }
+    private void LoadGenericSpawnAppearance()
+    {
+      foreach (var appearance in NwGameTables.AppearanceTable)
+      {
+        switch (appearance.Name)
+        {
+          case "plage":
+            randomAppearanceDictionary["plage"].Add(appearance);
+            break;
+          case "city":
+            randomAppearanceDictionary["city"].Add(appearance);
+            break;
+          case "cave":
+            randomAppearanceDictionary["cave"].Add(appearance);
+            break;
+          case "civilian":
+            randomAppearanceDictionary["civilian"].Add(appearance);
+            break;
+          case "generic":
+            randomAppearanceDictionary["generic"].Add(appearance);
+            break;
+        }
+      }
     }
   }
 }
