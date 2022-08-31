@@ -18,8 +18,6 @@ namespace NWN.Systems
     private readonly ScriptHandleFactory scriptHandleFactory;
     private readonly ScriptCallbackHandle mobRegenIntervalHandle;
     private readonly ScriptCallbackHandle mobRunAway;
-    private readonly ScriptCallbackHandle mobStopRunAway;
-    private readonly Effect runAway;
     private readonly SchedulerService scheduler;
 
     public AreaSystem(ModuleSystem moduleSystem, DialogSystem dialogSystem, ScriptHandleFactory scriptFactory, SchedulerService schedulerService)
@@ -29,11 +27,6 @@ namespace NWN.Systems
       scheduler = schedulerService;
       mobRegenIntervalHandle = scriptHandleFactory.CreateUniqueHandler(onMobRegenInterval);
       mobRunAway = scriptHandleFactory.CreateUniqueHandler(HandleRunAwayFromPlayer);
-      mobStopRunAway = scriptHandleFactory.CreateUniqueHandler(HandleNoOneAroundNeutral);
-
-      runAway = Effect.AreaOfEffect((PersistentVfxType)190, mobRunAway, null, mobStopRunAway);
-      runAway.SubType = EffectSubType.Supernatural;
-      runAway.Tag = "_NEUTRALS_RUN_AWAY_EFFECT";
 
       LoadGenericSpawnAppearance();
 
@@ -84,6 +77,8 @@ namespace NWN.Systems
         }
 
         spawnPoint.GetObjectVariable<LocalVariableInt>("_CREATURE_APPEARANCE").Value = creature.Appearance.RowIndex;
+        spawnPoint.GetObjectVariable<LocalVariableString>("_SPAWN_TYPE").Value = creature.GetObjectVariable<LocalVariableString>("_SPAWN_TYPE").Value;
+        spawnPoint.GetObjectVariable<LocalVariableInt>("animation").Value = creature.GetObjectVariable<LocalVariableInt>("animation").Value;
 
         CreatureUtils.creatureSpawnDictionary.TryAdd(creature.Tag, NwCreature.Deserialize(creature.Serialize()));
         spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value = creature.Tag;

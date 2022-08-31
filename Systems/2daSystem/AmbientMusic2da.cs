@@ -22,7 +22,7 @@ namespace NWN.Systems
         return;
 
       gender = (Gender)genderValue;
-      name = entry.GetString("DisplayName");
+      name = entry.GetString("DisplayName")?.Replace("Ã©", "é").Replace("Ã´", "ô").Replace("Ã¯", "ï");
     }
   }
 
@@ -37,6 +37,9 @@ namespace NWN.Systems
     {
       maleAmbientMusicEntry = ambientMusicTable.Where(m => m.gender == Gender.Male || m.gender == Gender.Both);
       femaleAmbientMusicEntry = ambientMusicTable.Where(m => m.gender == Gender.Female || m.gender == Gender.Both);
+
+      foreach (var entry in femaleAmbientMusicEntry)
+        ModuleSystem.Log.Info(entry.name);
     } 
   }
 }

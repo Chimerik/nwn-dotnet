@@ -28,15 +28,12 @@ namespace NWN.Systems
 
           List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell> { new NuiListTemplateCell(new NuiButton(musicNames) { Id = "select", Height = 35 }) };
 
-          rootColumn = new NuiColumn()
+          rootColumn = new NuiColumn() { Children = new List<NuiElement>()
           {
-            Children = new List<NuiElement>()
-            {
-              new NuiRow() { Height = 35, Children = new List<NuiElement>() { new NuiLabel(currentMusic) } },
-              new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) { Width = 410 } } },
-              new NuiList(rowTemplate, listCount) { RowHeight = 35 },
-            }
-          };
+            new NuiRow() { Height = 35, Children = new List<NuiElement>() { new NuiSpacer(), new NuiLabel(currentMusic), new NuiSpacer() } },
+            new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) { Width = 410 } } },
+            new NuiList(rowTemplate, listCount) { RowHeight = 35 },
+          } };
 
           CreateWindow(bard);
         }
@@ -135,7 +132,7 @@ namespace NWN.Systems
         {
           List<string> nameList = new();
 
-          foreach (AmbientMusicEntry song in songList) 
+          foreach (AmbientMusicEntry song in songList)
             nameList.Add(song.name);
 
           musicNames.SetBindValues(player.oid, nuiToken.Token, nameList);

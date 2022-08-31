@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
 using NWN.Core;
+using Google.Apis.Util;
 
 namespace NWN.Systems
 {
@@ -20,7 +21,7 @@ namespace NWN.Systems
       { "civilian", new List<AppearanceTableEntry>() { } },
       { "generic", new List<AppearanceTableEntry>() { } }
     };
-    private async void HandleSpawnSpecificBehaviour(NwCreature creature)
+    private async void HandleSpawnSpecificBehaviour(NwCreature creature, NwWaypoint spawnPoint)
     {
       switch (creature.Tag)
       {
@@ -61,7 +62,7 @@ namespace NWN.Systems
           Task waitForCreatureToSpawn2 = NwTask.Run(async () =>
           {
             await NwTask.Delay(TimeSpan.FromSeconds(0.5));
-            await creature.PlayAnimation((Animation)creature.GetObjectVariable<LocalVariableInt>("animation").Value, 5, false, TimeSpan.FromDays(365));
+            await creature.PlayAnimation((Animation)spawnPoint.GetObjectVariable<LocalVariableInt>("animation").Value, 5, false, TimeSpan.FromDays(365));
             await NwTask.Delay(TimeSpan.FromSeconds(0.2));
 
             Effect freeze = Effect.VisualEffect(VfxType.DurFreezeAnimation);
@@ -72,7 +73,9 @@ namespace NWN.Systems
           return;
       }
 
-      switch (creature.GetObjectVariable<LocalVariableString>("_SPAWN_TYPE").Value)
+      string spawnType = spawnPoint.GetObjectVariable<LocalVariableString>("_SPAWN_TYPE").Value;
+
+      switch (spawnType)
       {
         case "npc":
           SetNPCEvents(creature);
@@ -81,26 +84,30 @@ namespace NWN.Systems
 
         case "walker":
           creature.AiLevel = AiLevel.VeryLow;
-          _ = creature.ActionRandomWalk();
+          AwaitRandomWalk(creature);
           break;
 
         case "civilian":
-          SetRandomAppearance(creature);
+          SetRandomAppearance(creature, spawnType);
 
           creature.AiLevel = AiLevel.VeryLow;
           _ = creature.ActionRandomWalk();
           break;
+
         case "plage":
         case "cave":
         case "city":
-        case "generic":
-
-          //SetRandomAppearance(creature);
-
-          creature.AiLevel = AiLevel.VeryLow;
-          _ = creature.ActionRandomWalk();
+        case "generic": 
 
           await creature.WaitForObjectContext();
+          SetRandomAppearance(creature, spawnType);
+
+          creature.AiLevel = AiLevel.VeryLow;
+          AwaitRandomWalk(creature);
+
+          Effect runAway = Effect.AreaOfEffect((PersistentVfxType)190, mobRunAway);
+          runAway.SubType = EffectSubType.Supernatural;
+          runAway.Tag = "_NEUTRALS_RUN_AWAY_EFFECT";
           creature.ApplyEffect(EffectDuration.Permanent, runAway);
 
           break;
@@ -199,7 +206,7 @@ namespace NWN.Systems
       switch (creature.Tag)
       {
         case "bank_npc":
-          creature.OnConversation += DialogSystem.StartBankerDialog;
+          creature.OnConversation += dialogSystem.StartBankerDialog;
 
           NwItem contract = await NwItem.Create("shop_clearance", creature);
           contract.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
@@ -249,53 +256,49 @@ namespace NWN.Systems
           break;
       }
     }
-    public void SetRandomAppearance(NwCreature creature)
+    public async void SetRandomAppearance(NwCreature creature, string spawnType)
     {
-      string appearance = creature.GetObjectVariable<LocalVariableString>("_SPAWN_TYPE").HasValue ? creature.GetObjectVariable<LocalVariableString>("_SPAWN_TYPE").Value : "city";
-      List<AppearanceTableEntry> appearanceArray = randomAppearanceDictionary[appearance];
-      AppearanceTableEntry rowId = appearanceArray[Utils.random.Next(0, appearanceArray.Count)];
+      await NwTask.Delay(TimeSpan.FromSeconds(0.3));
 
-      creature.Appearance = rowId;
+      List<AppearanceTableEntry> appearanceArray = randomAppearanceDictionary[spawnType];
+      AppearanceTableEntry appearanceEntry = appearanceArray[Utils.random.Next(0, appearanceArray.Count)];
+
+      creature.Appearance = appearanceEntry;
       creature.PortraitResRef = creature.Appearance.Portrait;
       creature.VisualTransform.Scale = Utils.random.NextFloat(0.80f, 1.20f);
 
-      if (appearance == "civilian")
-        return;
-
-      creature.Name = creature.Appearance.Name;
-      if (creature.Name == "Créature")
-        Utils.LogMessageToDMs($"Apparence {rowId} - Nom non défini.");
+      if (spawnType == "civilian")
+        creature.Name = "Habitant de Similisse";
+      else
+        creature.Name = creature.Appearance.Label;
     }
     private ScriptHandleResult HandleRunAwayFromPlayer(CallInfo callInfo)
     {
-      NwAreaOfEffect aoe = (NwAreaOfEffect)callInfo.ObjectSelf;
-
-      Log.Info(callInfo.ObjectSelf is NwAreaOfEffect);
-      Log.Info(callInfo.ObjectSelf.Tag);
-      Log.Info(NWScript.GetName(NWScript.GetAreaOfEffectCreator(callInfo.ObjectSelf)));
-      Log.Info(aoe.Creator);
-      Log.Info(aoe.Creator.Name);
-
-      if (!(NWScript.GetAreaOfEffectCreator(callInfo.ObjectSelf).ToNwObject() is NwCreature neutral) || NWScript.GetEnteringObject().ToNwObject<NwGameObject>() is not NwCreature { IsPlayerControlled: true } player || player.DistanceSquared(neutral) < 25)
+      if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData))
         return ScriptHandleResult.Handled;
 
-       _ = neutral.ActionMoveAwayFrom(player, true);
+      if (!(eventData.Effect.Creator is NwCreature neutral))
+        return ScriptHandleResult.Handled;
+      
+      if (!(eventData.Entering is NwCreature oEntering))
+        return ScriptHandleResult.Handled;
+
+      if(!(oEntering.IsPlayerControlled || (oEntering.Master != null && oEntering.Master.IsPlayerControlled)))
+        return ScriptHandleResult.Handled;
+      
+      MoveAway(neutral, oEntering);
 
       return ScriptHandleResult.Handled;
     }
-    private ScriptHandleResult HandleNoOneAroundNeutral(CallInfo callInfo)
+    private async void MoveAway(NwCreature creature, NwCreature oEntering)
     {
-      NwAreaOfEffect aoe = (NwAreaOfEffect)callInfo.ObjectSelf;
-
-      if (!(aoe.Creator is NwCreature { IsPlayerControlled: true } neutral))
-        return ScriptHandleResult.Handled;
-
-      NwCreature closestPlayer = neutral.GetNearestCreatures(CreatureTypeFilter.PlayerChar(true)).FirstOrDefault();
-
-      if (closestPlayer == null && neutral.DistanceSquared(closestPlayer) > 30)
-        _ = neutral.ActionRandomWalk();
-
-      return ScriptHandleResult.Handled;
+      await creature.ClearActionQueue();
+      await creature.ActionMoveAwayFrom(oEntering, true, 10);
+    }
+    private async void AwaitRandomWalk(NwCreature creature)
+    {
+      await creature.ClearActionQueue();
+      await creature.ActionRandomWalk();
     }
   }
 }

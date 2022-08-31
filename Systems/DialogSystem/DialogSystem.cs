@@ -24,7 +24,7 @@ namespace NWN.Systems
         plc.OnUsed += StartAuctionHouseDialog;
     }
 
-    public static void StartBankerDialog(CreatureEvents.OnConversation onConversation)
+    public void StartBankerDialog(CreatureEvents.OnConversation onConversation)
     {
       if (!Players.TryGetValue(onConversation.LastSpeaker, out Player player))
         return;

@@ -38,7 +38,7 @@ namespace NWN.Systems
           creature.GetObjectVariable<LocalVariableFloat>("_HEIGHT").Value = CreaturePlugin.GetHeight(creature);
           creature.GetObjectVariable<LocalVariableFloat>("_HIT_DISTANCE").Value = CreaturePlugin.GetHitDistance(creature);
           creature.GetObjectVariable<LocalVariableFloat>("_CREATURE_PERSONNAL_SPACE").Value = CreaturePlugin.GetCreaturePersonalSpace(creature);
-          HandleSpawnSpecificBehaviour(creature);
+          HandleSpawnSpecificBehaviour(creature, spawnPoint);
 
           DelayVisualTransform(creature, spawnPoint.GetObjectVariable<LocalVariableFloat>("_CREATURE_SCALE").HasValue ? spawnPoint.GetObjectVariable<LocalVariableFloat>("_CREATURE_SCALE").Value : 1,
             spawnPoint.GetObjectVariable<LocalVariableLocation>("_CREATURE_TRANSLATION").HasValue ? spawnPoint.GetObjectVariable<LocalVariableLocation>("_CREATURE_TRANSLATION").Value.Position : Vector3.Zero,
