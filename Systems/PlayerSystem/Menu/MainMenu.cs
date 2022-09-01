@@ -382,6 +382,18 @@ namespace NWN.Systems
                   }
 
                   break;
+
+                case "language":
+
+                  if (player.craftJob != null)
+                  {
+                    if (!player.windows.ContainsKey("languageSelection")) player.windows.Add("languageSelection", new LanguageSelectionWindow(player));
+                    else ((LanguageSelectionWindow)player.windows["languageSelection"]).CreateWindow();
+
+                    CloseWindow();
+                  }
+
+                  break;
               }
               break;
 

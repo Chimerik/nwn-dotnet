@@ -19,8 +19,9 @@ namespace NWN.Systems
     private readonly ScriptCallbackHandle mobRegenIntervalHandle;
     private readonly ScriptCallbackHandle mobRunAway;
     private readonly SchedulerService scheduler;
+    
 
-    public AreaSystem(ModuleSystem moduleSystem, DialogSystem dialogSystem, ScriptHandleFactory scriptFactory, SchedulerService schedulerService)
+  public AreaSystem(ModuleSystem moduleSystem, DialogSystem dialogSystem, ScriptHandleFactory scriptFactory, SchedulerService schedulerService)
     {
       this.dialogSystem = dialogSystem;
       scriptHandleFactory = scriptFactory;

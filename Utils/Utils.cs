@@ -351,6 +351,7 @@ namespace NWN
       { "examineArea", new MainMenuCommand("Examiner les environs", "Obtenir une description de la zone", CommandRank.Public) },
       { "learnables", new MainMenuCommand("Journal d'apprentissage", "Ouvrir le journal d'apprentissage", CommandRank.Public) },
       { "currentJob", new MainMenuCommand("Carnet d'artisanat", "Ouvrir mon carnet d'artisanat", CommandRank.Public) },
+      { "language", new MainMenuCommand("Langue", "Choisir la langue actuellement parlée par mon personnage", CommandRank.Public) },
       { "effectDispel", new MainMenuCommand("Dissiper mes effets de sorts", "", CommandRank.Public) },
       { "dispelAoE", new MainMenuCommand("Dissiper mes zones d'effets", "", CommandRank.Public) },
       { "grimoire", new MainMenuCommand("Gérer les grimoires", "Enregistrer ou charger un grimoire de sorts", CommandRank.Public) },

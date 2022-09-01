@@ -182,9 +182,10 @@ namespace NWN.Systems
 
         if (Config.env == Config.Env.Prod && oItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value != Config.itemKey)
         {
-          oItem.Destroy();
-          oPC.LoginPlayer.SendServerMessage($"{oItem.Name.ColorString(ColorConstants.White)} est un objet invalide et n'aurait jamais du pouvoir être ramassé. Il a donc été détruit.");
-          Utils.LogMessageToDMs($"{oPC.Name} ({oPC.LoginPlayer.PlayerName}) a tenté de ramassé l'objet invalide : {oItem.Name}");
+          //oItem.Destroy();
+          //oPC.LoginPlayer.SendServerMessage($"{oItem.Name.ColorString(ColorConstants.White)} est un objet invalide et n'aurait jamais du pouvoir être ramassé. Il a donc été détruit.");
+          Utils.LogMessageToDMs($"{oPC.Name} ({oPC.LoginPlayer.PlayerName}) a tenté de ramasser l'objet invalide : {oItem.Name}");
+          oItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
         }
       });
 

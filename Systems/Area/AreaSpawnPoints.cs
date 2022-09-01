@@ -5,8 +5,6 @@ using System;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
-using NWN.Core;
-using Google.Apis.Util;
 
 namespace NWN.Systems
 {
@@ -26,7 +24,7 @@ namespace NWN.Systems
       switch (creature.Tag)
       {
         case "statue_tiamat":
-          
+
           creature.OnConversation += PlaceableSystem.HandleCancelStatueConversation;
 
           Effect eff = Effect.CutsceneGhost();
@@ -78,8 +76,13 @@ namespace NWN.Systems
       switch (spawnType)
       {
         case "npc":
+
           SetNPCEvents(creature);
           creature.AiLevel = AiLevel.VeryLow;
+
+          if (creature.Tag == "marten_forgenfer")
+            GenerateMartenRandomBanter(creature);
+
           break;
 
         case "walker":
@@ -91,13 +94,17 @@ namespace NWN.Systems
           SetRandomAppearance(creature, spawnType);
 
           creature.AiLevel = AiLevel.VeryLow;
-          _ = creature.ActionRandomWalk();
+          if (creature.Area.Tag == "SimilisseTransitionPromenadeport")
+            GenerateInfectedRandomBanter(creature);
+          else
+            AwaitRandomWalk(creature);
+
           break;
 
         case "plage":
         case "cave":
         case "city":
-        case "generic": 
+        case "generic":
 
           await creature.WaitForObjectContext();
           SetRandomAppearance(creature, spawnType);
@@ -279,13 +286,13 @@ namespace NWN.Systems
 
       if (!(eventData.Effect.Creator is NwCreature neutral))
         return ScriptHandleResult.Handled;
-      
+
       if (!(eventData.Entering is NwCreature oEntering))
         return ScriptHandleResult.Handled;
 
-      if(!(oEntering.IsPlayerControlled || (oEntering.Master != null && oEntering.Master.IsPlayerControlled)))
+      if (!(oEntering.IsPlayerControlled || (oEntering.Master != null && oEntering.Master.IsPlayerControlled)))
         return ScriptHandleResult.Handled;
-      
+
       MoveAway(neutral, oEntering);
 
       return ScriptHandleResult.Handled;
@@ -299,6 +306,63 @@ namespace NWN.Systems
     {
       await creature.ClearActionQueue();
       await creature.ActionRandomWalk();
+    }
+    private readonly string[] randomInfectedBanterArray = new string[] 
+    {
+      "S'il vous plait, laissez-moi passer !",
+      "J'ai besoin de voir ma famille de l'autre côté !",
+      "Je connais des gens importants, vous allez le regretter !",
+      "Pitié, vous ne pouvez pas nous garder de ce côté indéfiniment !",
+      "On a plus de nourriture, plus rien pour nous soigner !",
+      "Laissez nous sortir !",
+      "On veut passer !",
+      "Je suis pas malade ! Regardez-moi, j'ai l'air malade ?",
+      "Tout ça est ridicule !",
+      "Il n'y a pas d'épidémie, vous n'avez aucune preuve !",
+      "Au secours !",
+      "Ayez pitié !",
+      "Nous n'y sommes pour rien !",
+      "On veut juste passer !",
+      "C'est un outrage !",
+      "A l'aide !",
+      "Par pitié !",
+      "Comprenez-nous, ça ne peut pas durer !",
+      "Combien de temps allez vous nous garder comme ça ?",
+      "Les gens ne sont pas fait pour vivre enfermés !",
+      "Laissez-nous passer !",
+      "Il faut nous aider !"
+    };
+    private readonly string[] randomMartenBanterArray = new string[]
+    {
+      "Personne ne passe.",
+      "Gardez votre calme.",
+      "L'épidémie est trop dangereuse : personne ne sort pour le moment.",
+      "Nous vous tiendrons informés dès que nous aurons des nouvelles.",
+      "Ceux qui tentent de forcer le barrage seront abattus.",
+      "Aucun geste brusque.",
+      "Pas d'agitation.",
+      "Les agitateurs seront fermement réprimandés.",
+      "Reculez !",
+      "Ne vous tenez pas trop près du barrage.",
+      "Eloignez-vous"
+    };
+    private async void GenerateInfectedRandomBanter(NwCreature creature)
+    {
+      await NwTask.Delay(TimeSpan.FromSeconds(Utils.random.Next(30, 300)));
+      if (creature != null)
+      {
+        await creature.SpeakString(randomInfectedBanterArray[Utils.random.Next(0, randomInfectedBanterArray.Length)].ColorString(ColorConstants.Red));
+        GenerateInfectedRandomBanter(creature);
+      }
+    }
+    private async void GenerateMartenRandomBanter(NwCreature creature)
+    {
+      await NwTask.Delay(TimeSpan.FromSeconds(Utils.random.Next(15, 60)));
+      if (creature != null)
+      {
+        await creature.SpeakString(randomMartenBanterArray[Utils.random.Next(0, randomMartenBanterArray.Length)].ColorString(ColorConstants.Blue));
+        GenerateMartenRandomBanter(creature);
+      }
     }
   }
 }

@@ -41,8 +41,9 @@ namespace NWN.Systems
 
           languageValues.Add(new NuiComboEntry("Commun", 0));
 
-          foreach (var language in player.learnableSkills.Values.Where(l => l.category == SkillSystem.Category.Language && l.currentLevel > 0))
-            languageValues.Add(new NuiComboEntry(language.name, language.id));
+          foreach (var language in player.learnableSkills.Values)
+            if(language.category == SkillSystem.Category.Language && language.currentLevel > 0)
+              languageValues.Add(new NuiComboEntry(language.name, language.id));
 
           textEdit = new NuiTextEdit("", writingChat, 3000, true) { Id = "chatWriter", Height = (windowRectangle.Height - 160) * 0.96f, Width = windowRectangle.Width * 0.96f };
 
