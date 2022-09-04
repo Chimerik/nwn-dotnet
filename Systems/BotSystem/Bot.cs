@@ -49,7 +49,7 @@ namespace NWN.Systems
       await _client.StartAsync();
 
       _client.UserJoined += UpdateUserList;
-      _client.UserLeft += UpdateUserList;
+      _client.UserLeft += UpdateUserListOnLeave;
 
       await Task.Delay(TimeSpan.FromSeconds(5));
 
@@ -161,6 +161,10 @@ namespace NWN.Systems
     }
 
     private static async Task UpdateUserList(SocketGuildUser data)
+    {
+      await _client.DownloadUsersAsync(new List<IGuild> { { _client.GetGuild(680072044364562528) } });
+    }
+    private static async Task UpdateUserListOnLeave(SocketGuild guild, SocketUser user)
     {
       await _client.DownloadUsersAsync(new List<IGuild> { { _client.GetGuild(680072044364562528) } });
     }

@@ -182,10 +182,15 @@ namespace NWN.Systems
 
         if (Config.env == Config.Env.Prod && oItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value != Config.itemKey)
         {
-          //oItem.Destroy();
-          //oPC.LoginPlayer.SendServerMessage($"{oItem.Name.ColorString(ColorConstants.White)} est un objet invalide et n'aurait jamais du pouvoir être ramassé. Il a donc été détruit.");
           Utils.LogMessageToDMs($"{oPC.Name} ({oPC.LoginPlayer.PlayerName}) a tenté de ramasser l'objet invalide : {oItem.Name}");
-          oItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+          
+          if (oPC.LoginPlayer.LoginCreature.GetObjectVariable<LocalVariableString>("_REINITILISATION_DONE").HasNothing)
+            oItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+          else
+          {
+            oItem.Destroy();
+            oPC.LoginPlayer.SendServerMessage($"{oItem.Name.ColorString(ColorConstants.White)} est un objet invalide et n'aurait jamais du pouvoir être ramassé. Il a donc été détruit.");
+          }
         }
       });
 
@@ -196,9 +201,9 @@ namespace NWN.Systems
         return;
       }
 
-      Log.Info($"{oItem.Name} - {oItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasNothing} - {oItem.BaseItem.EquipmentSlots}");
+      //Log.Info($"{oItem.Name} - {oItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasNothing} - {oItem.BaseItem.EquipmentSlots} - {oItem.BaseItem.ItemType}");
 
-      if (oItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasNothing && oItem.BaseItem.EquipmentSlots != EquipmentSlots.None)
+      if (oItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasNothing && (oItem.BaseItem.EquipmentSlots != EquipmentSlots.None || oItem.BaseItem.ItemType == BaseItemType.CreatureItem))
       {
         int durability = ItemUtils.GetBaseItemCost(oItem) * 25;
         oItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value = durability;
@@ -253,9 +258,7 @@ namespace NWN.Systems
             if (!sameItem)
               continue;
 
-            Log.Info($"inventory item : {inventoryItem.Name} x {inventoryItem.StackSize}");
             inventoryItem.StackSize += oItem.StackSize;
-            Log.Info($"inventory item : x {inventoryItem.StackSize}");
             oItem.Destroy();
             break;
           }

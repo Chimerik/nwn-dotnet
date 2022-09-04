@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using NWN.Core;
 using Google.Apis.Drive.v3;
 using Newtonsoft.Json;
-using Google.Apis.Drive.v3.Data;
 
 namespace NWN.Systems
 {
@@ -74,6 +73,16 @@ namespace NWN.Systems
 
       //NwModule.Instance.SetEventScript((EventScriptType)NWScript.EVENT_SCRIPT_MODULE_ON_PLAYER_TILE_ACTION, "on_tile_action");
 
+      string serverName = "FR] LDE - Alpha fermée";
+
+      switch (Config.env)
+      {
+        case Config.Env.Bigby: serverName = "FR] LDE - Bigby test server"; break;
+        case Config.Env.Chim: serverName = "FR] LDE - Chim test server"; break;
+      }
+
+      NwServer.Instance.ServerInfo.ServerName = serverName;
+      NwServer.Instance.ServerInfo.ModuleName = "Les Larmes des Erylies";
       NwServer.Instance.ServerInfo.PlayOptions.RestoreSpellUses = false;
       NwServer.Instance.ServerInfo.PlayOptions.ShowDMJoinMessage = false;
 
@@ -183,9 +192,6 @@ namespace NWN.Systems
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS loot_containers" +
         "('chestTag' TEXT NOT NULL, 'accountID' INTEGER NOT NULL, 'serializedChest' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL, PRIMARY KEY(chestTag))");
 
-      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS dm_persistant_placeable" +
-        "('accountID' INTEGER NOT NULL, 'serializedPlaceable' TEXT NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL)");
-
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS areaResourceStock" +
         "('id' INTEGER NOT NULL, 'areaTag' TEXT NOT NULL, 'type' TEXT NOT NULL, 'quantity' INTEGER NOT NULL, 'lastChecked' TEXT NOT NULL, UNIQUE (id, areaTag, type))");
 
@@ -210,9 +216,6 @@ namespace NWN.Systems
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerAuctions" +
         "('characterId' INTEGER NOT NULL, 'shop' TEXT NOT NULL, 'panel' TEXT NOT NULL, 'expirationDate' TEXT NOT NULL, 'highestAuction' INTEGER NOT NULL, 'highestAuctionner' INTEGER NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL)");
 
-      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS savedNPC" +
-        "('accountName' TEXT NOT NULL, 'name' TEXT NOT NULL, 'serializedCreature' TEXT NOT NULL, UNIQUE (accountName, name))");
-
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS rumors" +
         "('accountId' INTEGER NOT NULL, 'title' TEXT NOT NULL, 'content' TEXT NOT NULL, UNIQUE (accountId, title))");
 
@@ -221,15 +224,6 @@ namespace NWN.Systems
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS messenger" +
         "('characterId' INTEGER NOT NULL, 'senderName' TEXT NOT NULL, 'title' TEXT NOT NULL, 'message', TEXT NOT NULL, 'sentDate' TEXT NOT NULL, 'read' INTEGER NOT NULL)");
-
-      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS dmVFX" +
-        "('playerName' TEXT NOT NULL, 'vfxName' TEXT NOT NULL, 'vfxId' INTEGER NOT NULL, UNIQUE (playerName, vfxName))");
-
-      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS dmVFXDuration" +
-        "('playerName' TEXT NOT NULL, 'vfxDuration' INTEGER NOT NULL, PRIMARY KEY(playerName))");
-
-      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerAlchemyRecipe" +
-        "('characterId' INTEGER NOT NULL, 'recipeName' TEXT NOT NULL, 'serializedRecipe' TEXT NOT NULL, UNIQUE (characterId, recipeName))");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS bankPlaceables" +
         "('id' INTEGER NOT NULL, 'areaTag' TEXT NOT NULL, 'ownerId' INTEGER NOT NULL, 'ownerName' TEXT NOT NULL, UNIQUE (id, areaTag))");
@@ -607,6 +601,7 @@ namespace NWN.Systems
         interactibleMateria.VisibilityOverride = VisibilityMode.Hidden;
 
         waypoint.Destroy();
+
         string id = waypoint.GetObjectVariable<LocalVariableInt>("id").Value.ToString();
         string areaTag = waypoint.Area.Tag;
         string type = waypoint.Tag;

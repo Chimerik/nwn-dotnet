@@ -20,11 +20,11 @@ namespace NWN.Systems.Alchemy
     public static Vector2 center;
     public AlchemySystem()
     {
-      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("alchemy_cauldron"))
+      /*foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("alchemy_cauldron"))
         plc.OnUsed += StartAlchemyTableDialog;
 
       foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("alchemy_mortar"))
-        plc.OnUsed += StartAlchemyMortarDialog;
+        plc.OnUsed += StartAlchemyMortarDialog;*/
 
       //LoadAlchemyTable();
     }

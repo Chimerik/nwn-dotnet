@@ -86,31 +86,32 @@ namespace NWN.Systems
           break;
 
         case "walker":
-          creature.AiLevel = AiLevel.VeryLow;
-          AwaitRandomWalk(creature);
+          creature.OnHeartbeat += CheckActionRandomWalk;
           break;
 
         case "civilian":
           SetRandomAppearance(creature, spawnType);
 
-          creature.AiLevel = AiLevel.VeryLow;
+          //creature.AiLevel = AiLevel.VeryLow;
           if (creature.Area.Tag == "SimilisseTransitionPromenadeport")
+          {
+            creature.AiLevel = AiLevel.VeryLow;
             GenerateInfectedRandomBanter(creature);
+          }
           else
-            AwaitRandomWalk(creature);
+            creature.OnHeartbeat += CheckActionRandomWalk;
 
           break;
 
         case "plage":
         case "cave":
-        case "city":
+        case "city":    
         case "generic":
 
           await creature.WaitForObjectContext();
           SetRandomAppearance(creature, spawnType);
-
-          creature.AiLevel = AiLevel.VeryLow;
-          AwaitRandomWalk(creature);
+          
+          creature.OnHeartbeat += CheckActionRandomWalk;
 
           Effect runAway = Effect.AreaOfEffect((PersistentVfxType)190, mobRunAway);
           runAway.SubType = EffectSubType.Supernatural;
@@ -302,11 +303,19 @@ namespace NWN.Systems
       await creature.ClearActionQueue();
       await creature.ActionMoveAwayFrom(oEntering, true, 10);
     }
-    private async void AwaitRandomWalk(NwCreature creature)
+    private async void CheckActionRandomWalk(CreatureEvents.OnHeartbeat onHB)
     {
+      if(onHB.Creature.CurrentAction != Anvil.API.Action.RandomWalk && onHB.Creature.CurrentAction != Anvil.API.Action.MoveToPoint)
+        await onHB.Creature.ActionRandomWalk();
+        //onHB.Creature.AiLevel = AiLevel.VeryLow;
+    }
+    /*private async void AwaitRandomWalk(NwCreature creature)
+    {
+      await creature.WaitForObjectContext();
+      await NwTask.Delay(TimeSpan.FromSeconds(0.5));
       await creature.ClearActionQueue();
       await creature.ActionRandomWalk();
-    }
+    }*/
     private readonly string[] randomInfectedBanterArray = new string[] 
     {
       "S'il vous plait, laissez-moi passer !",
@@ -348,8 +357,8 @@ namespace NWN.Systems
     };
     private async void GenerateInfectedRandomBanter(NwCreature creature)
     {
-      await NwTask.Delay(TimeSpan.FromSeconds(Utils.random.Next(30, 300)));
-      if (creature != null)
+      await NwTask.Delay(TimeSpan.FromSeconds(Utils.random.Next(20, 120)));
+      if (creature != null && creature.IsValid)
       {
         await creature.SpeakString(randomInfectedBanterArray[Utils.random.Next(0, randomInfectedBanterArray.Length)].ColorString(ColorConstants.Red));
         GenerateInfectedRandomBanter(creature);
@@ -358,9 +367,9 @@ namespace NWN.Systems
     private async void GenerateMartenRandomBanter(NwCreature creature)
     {
       await NwTask.Delay(TimeSpan.FromSeconds(Utils.random.Next(15, 60)));
-      if (creature != null)
+      if (creature != null && creature.IsValid)
       {
-        await creature.SpeakString(randomMartenBanterArray[Utils.random.Next(0, randomMartenBanterArray.Length)].ColorString(ColorConstants.Blue));
+        await creature.SpeakString(randomMartenBanterArray[Utils.random.Next(0, randomMartenBanterArray.Length)].ColorString(ColorConstants.Silver));
         GenerateMartenRandomBanter(creature);
       }
     }

@@ -35,11 +35,11 @@ namespace NWN.Systems
 
     public class SerializableLearnableSpell
     {
-      public bool active { get; }
-      public double acquiredPoints { get; }
-      public int currentLevel { get; }
-      public int nbScrollUsed { get; }
-      public DateTime? spLastCalculation { get; }
+      public bool active { get; set; }
+      public double acquiredPoints { get; set; }
+      public int currentLevel { get; set; }
+      public int nbScrollUsed { get; set; }
+      public DateTime? spLastCalculation { get; set; }
 
       public SerializableLearnableSpell()
       {

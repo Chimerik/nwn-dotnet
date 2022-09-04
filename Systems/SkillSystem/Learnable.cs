@@ -139,6 +139,21 @@ namespace NWN.Systems
       active = true;
       player.activeLearnable = this;
       spLastCalculation = DateTime.Now;
+
+      if (player.tempCurrentSkillPoint > 0)
+      {
+        if (pointsToNextLevel < player.tempCurrentSkillPoint)
+        {
+          acquiredPoints += pointsToNextLevel;
+          player.tempCurrentSkillPoint -= (int)pointsToNextLevel;
+        }
+        else
+        {
+          acquiredPoints += player.tempCurrentSkillPoint;
+          player.tempCurrentSkillPoint = 0;
+        } 
+      }
+
       //AwaitPlayerStateChangeToCalculateSPGain(player);
     }
   }

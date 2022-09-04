@@ -7,7 +7,6 @@ using Discord;
 using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
-using System.Threading;
 using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
@@ -19,6 +18,8 @@ namespace NWN.Systems
     {
       Log.Info("Player connecting");
       NwPlayer oPC = HandlePlayerConnect.Player;
+
+      Utils.LogMessageToDMs($"{oPC.PlayerName} vient de connecter {oPC.LoginCreature.Name} ({NwModule.Instance.PlayerCount} joueurs)");
 
       if (!Players.TryGetValue(oPC.LoginCreature, out Player player))
         player = new Player(oPC, areaSystem, spellSystem, feedbackService, scheduler);
@@ -69,7 +70,7 @@ namespace NWN.Systems
       Utils.ResetVisualTransform(player.oid.ControlledCreature);
       player.pcState = Player.PcState.Offline;
 
-      player.InitializePlayerLearnableJobs();
+      //player.InitializePlayerLearnableJobs();
 
       if (!player.oid.LoginCreature.KnowsFeat(CustomFeats.Sit))
         player.oid.LoginCreature.AddFeat(CustomFeats.Sit);
@@ -79,7 +80,7 @@ namespace NWN.Systems
 
       player.mapLoadingTime = DateTime.Now;
 
-      Log.Info("End of player init.");
+      player.HandleReinit();
     }
     public partial class Player
     {
@@ -379,7 +380,7 @@ namespace NWN.Systems
       private void InitializePlayerCharacter()
       {
         var result = SqLiteUtils.SelectQuery("playerCharacters",
-            new List<string>() { { "location" }, { "currentHP" }, { "bankGold" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" }, { "alchemyCauldron" }, { "serializedLearnableSkills" }, { "serializedLearnableSpells" }, { "explorationState" }, { "materialStorage" }, { "craftJob" }, { "grimoires" }, { "quickbars" }, { "itemAppearances" }, { "descriptions" } },
+            new List<string>() { { "location" }, { "currentHP" }, { "bankGold" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" }, { "alchemyCauldron" }, { "serializedLearnableSkills" }, { "serializedLearnableSpells" }, { "explorationState" }, { "materialStorage" }, { "craftJob" }, { "grimoires" }, { "quickbars" }, { "itemAppearances" }, { "descriptions" }, { "currentSkillPoints" } },
             new List<string[]>() { { new string[] { "rowid", characterId.ToString() } } });
 
         if (result.Result == null)
@@ -401,13 +402,12 @@ namespace NWN.Systems
         string serializedQuickbars = result.Result.GetString(13);
         string serializedItemAppearances = result.Result.GetString(14);
         string serializedDescriptions = result.Result.GetString(15);
+        tempCurrentSkillPoint = result.Result.GetInt(16);
 
         InitializePlayerAsync(serializedCauldron, serializedExploration, serializedLearnableSkills, serializedLearnableSpells, serializedCraftResources, serializedCraftJob, serializedGrimoires, serializedQuickbars, serializedItemAppearances, serializedDescriptions);
       }
       private async void InitializePlayerAsync(string serializedCauldron, string serializedExploration, string serializedLearnableSkills, string serializedLearnableSpells, string serializedCraftResources, string serializedCraftJob, string serializedGrimoires, string serializedQuickbars, string serializedItemAppearances, string serializedDescriptions)
       {
-        Log.Info("starting async init");
-
         Task loadCauldronTask = Task.Run(() =>
         {
           if (string.IsNullOrEmpty(serializedCauldron) || serializedCauldron == "null")
@@ -512,7 +512,35 @@ namespace NWN.Systems
         });
 
         await Task.WhenAll(loadSkillsTask, loadSpellsTask, loadExplorationTask, loadCauldronTask, loadCraftJobTask, loadGrimoiresTask, loadQuickbarsTask, loadItemAppearancesTask, loadDescriptionsTask);
-        Log.Info("async init done");
+
+        FinalizePlayerData();
+      }
+      private void FinalizePlayerData()
+      {
+        int improvedHealth = learnableSkills.ContainsKey(CustomSkill.ImprovedHealth) ? learnableSkills[CustomSkill.ImprovedHealth].currentLevel : 0;
+        int toughness = learnableSkills.ContainsKey(CustomSkill.Toughness) ? learnableSkills[CustomSkill.Toughness].currentLevel : 0;
+
+        oid.LoginCreature.LevelInfo[0].HitDie = (byte)(80
+          + (1 + 5 * ((oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2)
+          + toughness) * improvedHealth);
+
+        Log.Info($"hit die : {oid.LoginCreature.LevelInfo[0].HitDie}");
+        Log.Info($"{(oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2}");
+        Log.Info($"{toughness}");
+        Log.Info($"{improvedHealth}");
+        Log.Info($"{(1 + 5 * ((oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2) + toughness) * improvedHealth}");
+
+        if (oid.LoginCreature.HP <= 0)
+          oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Death());
+
+        if (learnableSkills.ContainsKey(CustomSkill.ImprovedAttackBonus))
+          oid.LoginCreature.BaseAttackBonus = (byte)(oid.LoginCreature.BaseAttackBonus + learnableSkills[CustomSkill.ImprovedAttackBonus].totalPoints);
+
+        if (activeLearnable != null && activeLearnable.active && activeLearnable.spLastCalculation.HasValue)
+          activeLearnable.acquiredPoints += (DateTime.Now - activeLearnable.spLastCalculation).Value.TotalSeconds * GetSkillPointsPerSecond(activeLearnable);
+
+        pcState = PcState.Online;
+        oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
       }
       private async void InitializeAccountMapPins(string serializedMapPins)
       {
@@ -595,6 +623,30 @@ namespace NWN.Systems
       {
         mapPinDictionnary.Remove(onDestroy.Id);
         SaveMapPinsToDatabase();
+      }
+      public void HandleReinit()
+      {
+        if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_REINITILISATION_DONE").HasNothing)
+        {
+          foreach(var item in oid.LoginCreature.Inventory.Items)
+            item.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+
+          foreach (var feat in oid.LoginCreature.Feats)
+            if (feat.Id > 1116)
+              oid.LoginCreature.RemoveFeat(feat);
+
+          oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin).Destroy();
+
+          Task waitSkinCreated = NwTask.Run(async () =>
+          {
+            NwItem pcSkin = await NwItem.Create("peaudejoueur", oid.LoginCreature);
+            pcSkin.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+            pcSkin.Name = $"Propriétés de {oid.LoginCreature.Name}";
+            oid.LoginCreature.RunEquip(pcSkin, InventorySlot.CreatureSkin);
+          });
+
+          oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_REINITILISATION_DONE").Value = 1;
+        }
       }
     }
   }

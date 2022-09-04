@@ -299,7 +299,7 @@ namespace NWN.Systems
             else
             {
               nbDebounce = 1;
-              Log.Info($"Character {player.characterId} : scheduling creature palette save in 10s");
+              Log.Info($"Character {player.oid.PlayerName} : scheduling creature palette save in 10s");
               DebouncePaletteSave(nbDebounce);
               return;
             }
@@ -307,7 +307,7 @@ namespace NWN.Systems
           else
             HandlePaletteSave();
 
-          Log.Info($"Character {player.characterId} creature palette saved in : {(DateTime.Now - elapsed).TotalSeconds} s");
+          Log.Info($"Character {player.oid.PlayerName} creature palette saved in : {(DateTime.Now - elapsed).TotalSeconds} s");
         }
 
         private async void DebouncePaletteSave(int initialNbDebounce)

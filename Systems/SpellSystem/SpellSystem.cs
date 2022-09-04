@@ -10,6 +10,8 @@ using System.Threading;
 using System;
 using System.Collections.Generic;
 using NWN.Systems.Arena;
+using Microsoft.Data.Sqlite;
+using Newtonsoft.Json;
 
 namespace NWN.Systems
 {
@@ -69,6 +71,123 @@ namespace NWN.Systems
         level = level < 1 ? 0.5f : level;
 
         SkillSystem.learnableDictionary.Add(spell.Id, new LearnableSpell(spell.Id, spell.Name.ToString(), spell.Description.ToString(), spell.IconResRef, level < 1 ? 1 : (int)level, level < 1 ? 0 : (int)level, castClass == ClassType.Druid || castClass == ClassType.Cleric || castClass == ClassType.Ranger ? Ability.Wisdom : Ability.Intelligence, Ability.Charisma));
+      }
+
+      //ReinitStuff();
+      //RefoundSkills();
+    }
+    private static async void RefoundSkills()
+    {
+      List<string[]> results = new List<string[]>();
+
+      using (var connection = new SqliteConnection("Data Source=/home/chim/aoadatabasebeforereinit.sqlite3"))
+      {
+        connection.Open();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "select characterId, SUM(skillPoints) from playerLearnableSkills group by characterId";
+
+        using (var reader = await command.ExecuteReaderAsync())
+        {
+          while (reader.Read())
+          {
+            string[] row = new string[2];
+
+            for (int i = 0; i < 2; i++)
+              row[i] = !reader.IsDBNull(i) ? reader.GetString(i) : "";
+
+            results.Add(row);
+          }
+        }
+      }
+
+      Dictionary<int, int> refundSkillDico = new();
+
+      foreach (var result in results)
+      {
+        int charId = int.Parse(result[0]);
+        int skillPoints = int.Parse(result[1]);
+
+        refundSkillDico.TryAdd(charId, skillPoints);
+      }
+
+      foreach (var player in refundSkillDico)
+        TempRefundSkillQuery(player.Key.ToString(), player.Value.ToString());
+    }
+    private static async void ReinitSpells()
+    {
+      List<string[]> results = new List<string[]>();
+
+      using (var connection = new SqliteConnection("Data Source=/home/chim/aoadatabasebeforereinit.sqlite3"))
+      {
+        connection.Open();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "select characterId, skillId, skillPoints, trained from playerLearnableSpells where trained < 1";
+
+        using (var reader = await command.ExecuteReaderAsync())
+        {
+          while (reader.Read())
+          {
+            string[] row = new string[4];
+
+            for (int i = 0; i < 4; i++)
+              row[i] = !reader.IsDBNull(i) ? reader.GetString(i) : "";
+
+            results.Add(row);
+          }
+        }
+      }
+
+      Dictionary<int, Dictionary<int, LearnableSpell>> reinitSpellDico = new();
+
+      foreach (var result in results)
+      {
+        int charId = int.Parse(result[0]);
+        int spellId = int.Parse(result[1]);
+        LearnableSpell newSpell = (LearnableSpell)SkillSystem.learnableDictionary[spellId];
+        LearnableSpell.SerializableLearnableSpell newSerializedSpell = new LearnableSpell.SerializableLearnableSpell(newSpell);
+        newSerializedSpell.active = false;
+        newSerializedSpell.acquiredPoints = int.Parse(result[2]);
+        newSerializedSpell.currentLevel = 0;
+        newSerializedSpell.nbScrollUsed = 0;
+
+
+        reinitSpellDico.TryAdd(charId, new Dictionary<int, LearnableSpell>());
+        reinitSpellDico[charId].Add(spellId, new LearnableSpell(newSpell, newSerializedSpell));
+      }
+
+      foreach (var player in reinitSpellDico)
+      {
+        Dictionary<int, LearnableSpell.SerializableLearnableSpell> serializableSpells = new Dictionary<int, LearnableSpell.SerializableLearnableSpell>();
+        foreach (var kvp in player.Value)
+          serializableSpells.Add(kvp.Key, new LearnableSpell.SerializableLearnableSpell(kvp.Value));
+
+        TempReinitQuery(player.Key.ToString(), JsonConvert.SerializeObject(serializableSpells));
+      }
+    }
+    private static void TempReinitQuery(string charId, string serializedSpells)
+    {
+      using (var connection = new SqliteConnection("Data Source=/home/chim/aoadatabasebeforereinit.sqlite3"))
+      {
+        connection.Open();
+        string queryString = $"UPDATE playerCharacters SET serializedLearnableSpells = $serializedLearnableSpells where rowId = {charId}";
+        Log.Info($"UPDATE playerCharacters SET serializedLearnableSpells = {serializedSpells} where rowId = {charId}");
+        var command = connection.CreateCommand();
+        command.CommandText = queryString;
+
+        command.Parameters.AddWithValue("$serializedLearnableSpells", serializedSpells);
+        command.ExecuteNonQuery();
+      }
+    }
+    private static void TempRefundSkillQuery(string charId, string skillPoints)
+    {
+      using (var connection = new SqliteConnection("Data Source=/home/chim/aoadatabasebeforereinit.sqlite3"))
+      {
+        connection.Open();
+        var command = connection.CreateCommand();
+        command.CommandText = $"UPDATE playerCharacters SET currentSkillPoints = {skillPoints} where rowId = {charId}";
+        command.ExecuteNonQuery();
       }
     }
 

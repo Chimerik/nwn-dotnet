@@ -15,7 +15,7 @@ namespace NWN.Systems
       if (onPCDisconnect.Player == null || onPCDisconnect.Player.LoginCreature == null)
         return;
 
-      Log.Info($"{onPCDisconnect.Player.LoginCreature.Name} disconnecting.");
+      Utils.LogMessageToDMs($"{onPCDisconnect.Player.PlayerName} vient de se déconnecter {onPCDisconnect.Player.LoginCreature.Name} ({NwModule.Instance.PlayerCount - 1} joueur(s))");
 
       if (!Players.TryGetValue(onPCDisconnect.Player.LoginCreature, out Player player))
         return;

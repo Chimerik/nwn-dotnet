@@ -37,9 +37,6 @@ namespace NWN.Systems
     {
       maleAmbientMusicEntry = ambientMusicTable.Where(m => m.gender == Gender.Male || m.gender == Gender.Both);
       femaleAmbientMusicEntry = ambientMusicTable.Where(m => m.gender == Gender.Female || m.gender == Gender.Both);
-
-      foreach (var entry in femaleAmbientMusicEntry)
-        ModuleSystem.Log.Info(entry.name);
     } 
   }
 }

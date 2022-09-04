@@ -222,7 +222,7 @@ namespace NWN.Systems
           if ((PlayerSystem.Players.TryGetValue(player.LoginCreature, out PlayerSystem.Player listener) && listener.learnableSkills.ContainsKey(ctx.language.id)) || player.IsDM)
           {
             chatReceivers.Add(player, "[" + ctx.language.name + "] " + ctx.msg);
-            player.SendServerMessage(ctx.oSender.ControlledCreature + " : [" + ctx.language.name + "] " + ctx.chatLine.untranslatedText);
+            player.SendServerMessage(ctx.oSender.ControlledCreature.Name + " : [" + ctx.language.name + "] " + ctx.chatLine.untranslatedText);
           }
           else
             chatReceivers.Add(player, ctx.chatLine.untranslatedText);

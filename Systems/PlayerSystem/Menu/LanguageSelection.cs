@@ -18,23 +18,21 @@ namespace NWN.Systems
 
         public LanguageSelectionWindow(Player player) : base(player)
         {
-          windowId = "areaDescription";
+          windowId = "languageSelection";
           rootColumn.Children = rootChidren;
 
-          rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiCombo() { Entries = languageList, Selected = languageSelection, Height = 35, Width = 120, Margin = 0.0f } } });
+          rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiCombo() { Entries = languageList, Selected = languageSelection, Height = 30, Width = 120, Margin = 0.0f } } });
 
           CreateWindow();
         }
         public void CreateWindow()
         {
-          rootChidren.Clear();
-
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 200, 70);
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 180, 70);
 
           window = new NuiWindow(rootColumn, "Sélection de langue")
           {
             Geometry = geometry,
-            Resizable = true,
+            Resizable = false,
             Collapsed = false,
             Closable = true,
             Transparent = false,
@@ -58,6 +56,8 @@ namespace NWN.Systems
         private List<NuiComboEntry> GetPlayerLanguageList()
         {
           List<NuiComboEntry> languageList = new List<NuiComboEntry>();
+
+          languageList.Add(new NuiComboEntry("Commun", 0));
 
           foreach (var language in player.learnableSkills.Values)
             if (language.category == SkillSystem.Category.Language && language.currentLevel > 0)

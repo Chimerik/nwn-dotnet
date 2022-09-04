@@ -447,8 +447,8 @@ namespace NWN.Systems
       if (player.learnableSkills.ContainsKey(CustomSkill.Toughness))
         toughness = player.learnableSkills[CustomSkill.Toughness].currentLevel;
 
-      player.oid.LoginCreature.LevelInfo[0].HitDie = (byte)(10
-        + (1 + 3 * ((player.oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2)
+      player.oid.LoginCreature.LevelInfo[0].HitDie = (byte)(80
+        + (1 + 5 * ((player.oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2)
         + toughness) * improvedHealth);
 
       return true;

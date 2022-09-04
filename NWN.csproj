@@ -37,13 +37,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Discord.Net" Version="2.4.0" />
-        <PackageReference Include="Google.Api.Gax" Version="3.6.0-beta03" />
-        <PackageReference Include="Google.Apis" Version="1.55.0" />
-        <PackageReference Include="Google.Apis.Auth" Version="1.55.0" />
-        <PackageReference Include="Google.Apis.Drive.v3" Version="1.55.0.2502" />
-        <PackageReference Include="Google.Cloud.Translation.V2" Version="2.1.0" />
-        <PackageReference Include="Microsoft.Data.Sqlite" Version="6.0.0" />
+        <PackageReference Include="Discord.Net" Version="3.8.0" />
+        <PackageReference Include="Google.Api.Gax" Version="4.0.0" />
+        <PackageReference Include="Google.Apis" Version="1.57.0" />
+        <PackageReference Include="Google.Apis.Auth" Version="1.57.0" />
+        <PackageReference Include="Google.Apis.Drive.v3" Version="1.57.0.2789" />
+        <PackageReference Include="Google.Cloud.Translation.V2" Version="3.1.0" />
+        <PackageReference Include="Microsoft.Data.Sqlite" Version="6.0.8" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
         <PackageReference Include="NWN.Core" Version="8193.34.7" />
         <PackageReference Include="NWN.Native" Version="8193.34.4" />

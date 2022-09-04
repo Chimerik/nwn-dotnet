@@ -40,6 +40,7 @@ namespace NWN.Systems
       public Dictionary<uint, Player> blocked = new();
       public Dictionary<int, LearnableSkill> learnableSkills = new();
       public Dictionary<int, LearnableSpell> learnableSpells = new();
+      public int tempCurrentSkillPoint { get; set; }
       public Learnable activeLearnable { get; set; }
       public Dictionary<int, MapPin> mapPinDictionnary = new();
       public Dictionary<string, byte[]> areaExplorationStateDictionnary = new();
@@ -190,27 +191,28 @@ namespace NWN.Systems
             break;
         }
       }
-      public async void InitializePlayerLearnableJobs()
+      /*public async void InitializePlayerLearnableJobs()
       {
         await NwTask.WaitUntil(() => oid.LoginCreature.Location.Area != null);
 
-        /*if (learnableSkills.Any(l => l.Value.active))
+        if (learnableSkills.Any(l => l.Value.active))
           learnableSkills.First(l => l.Value.active).Value.AwaitPlayerStateChangeToCalculateSPGain(this);
 
         else if (learnableSpells.Any(l => l.Value.active))
-          learnableSpells.First(l => l.Value.active).Value.AwaitPlayerStateChangeToCalculateSPGain(this);*/
+          learnableSpells.First(l => l.Value.active).Value.AwaitPlayerStateChangeToCalculateSPGain(this);
 
-        /*int improvedHealth = 0;
-      if (player.learnableSkills.ContainsKey(CustomSkill.ImprovedHealth))
-        improvedHealth = player.learnableSkills[CustomSkill.ImprovedHealth].currentLevel;
+        int improvedHealth = learnableSkills.ContainsKey(CustomSkill.ImprovedHealth) ? learnableSkills[CustomSkill.ImprovedHealth].currentLevel : 0;
+        int toughness = learnableSkills.ContainsKey(CustomSkill.Toughness) ? learnableSkills[CustomSkill.Toughness].currentLevel : 0;
+        
+        oid.LoginCreature.LevelInfo[0].HitDie = (byte)(80
+          + (1 + 5 * ((oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2)
+          + toughness) * improvedHealth);
 
-      int toughness = 0;
-      if (player.learnableSkills.ContainsKey(CustomSkill.Toughness))
-        toughness = player.learnableSkills[CustomSkill.Toughness].currentLevel;
-
-      player.oid.LoginCreature.LevelInfo[0].HitDie = (byte)(10
-        + (1 + 3 * ((player.oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2)
-        + toughness) * improvedHealth);*/
+        Log.Info($"hit die : {oid.LoginCreature.LevelInfo[0].HitDie}");
+        Log.Info($"{(oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2}");
+        Log.Info($"{toughness}");
+        Log.Info($"{improvedHealth}");
+        Log.Info($"{(1 + 5 * ((oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2) + toughness) * improvedHealth}");
 
         if (oid.LoginCreature.HP <= 0)
           oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Death());
@@ -223,7 +225,7 @@ namespace NWN.Systems
 
         pcState = PcState.Online;
         oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
-      }
+      }*/
       public void UnloadMenuQuickbar()
       {
         oid.ControlledCreature.RemoveFeat(CustomFeats.CustomMenuUP);

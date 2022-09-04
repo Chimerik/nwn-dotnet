@@ -18,18 +18,14 @@ namespace NWN
     public static void LogMessageToDMs(string message)
     {
       Log.Info(message);
+      //Bot._client.GetUser(225961076448034817).SendMessageAsync(message); Bigby user
+      //Bot._client.GetUser(232218662080086017).SendMessageAsync(message); Chim user
 
       switch (Config.env)
       {
-        case Config.Env.Prod:
-          (Bot._client.GetChannel(703964971549196339) as IMessageChannel).SendMessageAsync(message);
-          break;
-        case Config.Env.Bigby:
-          Bot._client.GetUser(225961076448034817).SendMessageAsync(message);
-          break;
-        case Config.Env.Chim:
-          Bot._client.GetUser(232218662080086017).SendMessageAsync(message);
-          break;
+        case Config.Env.Prod:(Bot._client.GetChannel(703964971549196339) as IMessageChannel).SendMessageAsync(message); break;
+        case Config.Env.Bigby: (Bot._client.GetChannel(703964971549196339) as IMessageChannel).SendMessageAsync("Bigby test : " + message); break;
+        case Config.Env.Chim: (Bot._client.GetChannel(703964971549196339) as IMessageChannel).SendMessageAsync("Chim test : " + message); break;
       }
     }
     public static void DestroyInventory(NwCreature oContainer)
@@ -486,5 +482,34 @@ namespace NWN
         this.rank = rank;
       }
     }
+    public static readonly Feat[] racialFeats = new Feat[]
+    {
+      Feat.BattleTrainingVersusGiants,
+      Feat.BattleTrainingVersusGoblins,
+      Feat.BattleTrainingVersusOrcs,
+      Feat.BattleTrainingVersusReptilians,
+      Feat.Lowlightvision,
+      Feat.Lucky,
+      Feat.Darkvision,
+      Feat.Fearless,
+      Feat.GoodAim,
+      Feat.PartialSkillAffinityListen,
+      Feat.PartialSkillAffinitySearch,
+      Feat.PartialSkillAffinitySpot,
+      Feat.QuickToMaster,
+      Feat.HardinessVersusEnchantments,
+      Feat.HardinessVersusIllusions,
+      Feat.HardinessVersusPoisons,
+      Feat.HardinessVersusSpells,
+      Feat.ImmunityToSleep,
+      Feat.KeenSense,
+      Feat.SkillAffinityConcentration,
+      Feat.SkillAffinityListen,
+      Feat.SkillAffinityLore,
+      Feat.SkillAffinityMoveSilently,
+      Feat.SkillAffinitySearch,
+      Feat.SkillAffinitySpot,
+      Feat.Stonecunning, 
+    };
   }
 }

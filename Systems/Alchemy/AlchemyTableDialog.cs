@@ -3,11 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Text.Json;
 
 using Anvil.API;
-
-using static NWN.Systems.Craft.Collect.Config;
 
 namespace NWN.Systems.Alchemy
 {
