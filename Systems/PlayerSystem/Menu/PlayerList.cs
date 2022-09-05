@@ -65,6 +65,7 @@ namespace NWN.Systems
             rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(listenIcon) { Id = "listen", Tooltip = listenTooltip, Enabled = muteEnabled, Height = 35 }) { Width = 35 });
             rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_more_sp_ab") { Id = "tp", Tooltip = "Se téléporter auprès de ce joueur", Height = 35 }) { Width = 35 });
             rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_boot") { Id = "kick", Tooltip = "Exclure ce joueur du module", Enabled = muteEnabled, Height = 35 }) { Width = 35 });
+            rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_boot") { Id = "reinit", Tooltip = "Ouvrir le menu origine (réinitialisation seulement)", Enabled = muteEnabled, Height = 35 }) { Width = 35 });
           }
 
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(hostileIcon) { Id = "hostile", Tooltip = hostileTooltip, Enabled = muteEnabled, Height = 35 }) { Width = 35 });
@@ -377,7 +378,7 @@ namespace NWN.Systems
                   break;
 
                 case "kick":
-                  myPlayerList.ElementAt(nuiEvent.ArrayIndex).BootPlayer();
+                  selectedPlayer.BootPlayer();
                   break;
 
                 case "hostile": 
@@ -430,6 +431,19 @@ namespace NWN.Systems
                   }
                   else
                     player.oid.SendServerMessage("Cette action n'est plus valide car ce joueur appartient déjà à un groupe.", ColorConstants.Red);
+
+                  break;
+
+                case "reinit":
+
+                  if (!Players.TryGetValue(selectedPlayer.LoginCreature, out Player reinitPlayer))
+                    return;
+
+                  if (reinitPlayer.learnableSkills.Values.Any(s => s.category == SkillSystem.Category.StartingTraits))
+                    return;
+
+                  if (!reinitPlayer.windows.ContainsKey("introBackground")) reinitPlayer.windows.Add("introBackground", new IntroBackgroundWindow(reinitPlayer));
+                  else ((IntroBackgroundWindow)reinitPlayer.windows["introBackground"]).CreateWindow();
 
                   break;
               }

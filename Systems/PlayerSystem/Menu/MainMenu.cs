@@ -80,7 +80,7 @@ namespace NWN.Systems
             search.SetBindWatch(player.oid, nuiToken.Token, true);
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
-
+            
             if (!AreaDescriptionExists(player.oid.ControlledCreature.Area.Name))
               myCommandList.Remove("examineArea");
             else

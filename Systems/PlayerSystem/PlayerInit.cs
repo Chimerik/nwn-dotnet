@@ -512,7 +512,7 @@ namespace NWN.Systems
         });
 
         await Task.WhenAll(loadSkillsTask, loadSpellsTask, loadExplorationTask, loadCauldronTask, loadCraftJobTask, loadGrimoiresTask, loadQuickbarsTask, loadItemAppearancesTask, loadDescriptionsTask);
-
+        await NwTask.SwitchToMainThread();
         FinalizePlayerData();
       }
       private void FinalizePlayerData()
@@ -523,12 +523,6 @@ namespace NWN.Systems
         oid.LoginCreature.LevelInfo[0].HitDie = (byte)(80
           + (1 + 5 * ((oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2)
           + toughness) * improvedHealth);
-
-        Log.Info($"hit die : {oid.LoginCreature.LevelInfo[0].HitDie}");
-        Log.Info($"{(oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2}");
-        Log.Info($"{toughness}");
-        Log.Info($"{improvedHealth}");
-        Log.Info($"{(1 + 5 * ((oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2) + toughness) * improvedHealth}");
 
         if (oid.LoginCreature.HP <= 0)
           oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Death());
@@ -626,7 +620,7 @@ namespace NWN.Systems
       }
       public void HandleReinit()
       {
-        if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_REINITILISATION_DONE").HasNothing)
+        if (!oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_REINITILISATION_DONE").HasNothing)
         {
           foreach(var item in oid.LoginCreature.Inventory.Items)
             item.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
@@ -645,7 +639,9 @@ namespace NWN.Systems
             oid.LoginCreature.RunEquip(pcSkin, InventorySlot.CreatureSkin);
           });
 
-          oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_REINITILISATION_DONE").Value = 1;
+          InitializeNewPlayerLearnableSkills();
+
+          oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_REINITIALISATION_DONE").Value = 1;
         }
       }
     }

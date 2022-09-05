@@ -1,5 +1,4 @@
 ﻿using Google.Cloud.Translation.V2;
-using Anvil.API;
 
 namespace NWN.Systems
 {

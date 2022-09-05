@@ -103,8 +103,6 @@ namespace NWN.Systems
       scheduler.ScheduleRepeating(SpawnCollectableResources, TimeSpan.FromHours(24), nextActivation);
       scheduler.ScheduleRepeating(DeleteExpiredMail, TimeSpan.FromHours(24), nextActivation);
 
-      //TempLearnablesJsonification();
-
       /*foreach (var duplicate in NwGameTables.PlaceableTable.GroupBy(p => p.ModelName).Where(p => p.Count() > 1).Select(p => p.Key))
       {
         Log.Info(duplicate);
@@ -115,62 +113,6 @@ namespace NWN.Systems
       //foreach (var duplicate in NwGameTables.AppearanceTable.GroupBy(p => p.Race).Where(p => p.Count() > 1).Select(p => p.Key))
       //Log.Info(duplicate);
     }
-    /*private async void TempLearnablesJsonification()
-    {
-      List<int> charIds = new List<int>();
-
-      var result = await SqLiteUtils.SelectQueryAsync("playerCharacters",
-          new List<string>() { { "ROWID" } },
-          new List<string[]>() {});
-
-      if(result != null)
-        foreach (var characterId in result)
-          charIds.Add(int.Parse(characterId[0]));
-
-      foreach (int charId in charIds)
-      {
-        Dictionary<string, Learnable> tempDic = new Dictionary<string, Learnable>();
-
-        var featResult = await SqLiteUtils.SelectQueryAsync("playerLearnableSkills",
-          new List<string>() { { "skillId" }, { "skillPoints" }, { "trained" }, { "active" } },
-          new List<string[]>() { { new string[] { "characterId", charId.ToString() } } });
-
-        if(featResult != null)
-        foreach (var skill in featResult)
-        {
-          int id = int.Parse(skill[0]);
-          Feat skillId = (Feat)id;
-          int currentSkillPoints = int.Parse(skill[1]);
-          bool active = int.Parse(skill[3]) == 1 ? true : false;
-
-          if (skill[2] == "0")
-            tempDic.Add($"F{id}", new Learnable(LearnableType.Feat, id, currentSkillPoints, active));
-        }
-
-        var spellResult = await SqLiteUtils.SelectQueryAsync("playerLearnableSpells",
-          new List<string>() { { "skillId" }, { "skillPoints" }, { "nbScrolls" }, { "active" } },
-          new List<string[]>() { { new string[] { "characterId", charId.ToString() } }, { new string[] { "trained", "0" } } });
-
-        if(spellResult != null)
-          foreach (var spell in spellResult)
-          {
-            bool active = spell[3] == "1" ? true : false;
-            tempDic.Add($"S{spell[0]}", new Learnable(LearnableType.Spell, int.Parse(spell[0]), int.Parse(spell[1]), active, int.Parse(spell[2])));
-          }
-
-        using (var stream = new MemoryStream())
-        {
-          await JsonSerializer.SerializeAsync(stream, tempDic);
-          stream.Position = 0;
-          using var reader = new StreamReader(stream);
-          string serializedLearnables = await reader.ReadToEndAsync();
-
-          SqLiteUtils.UpdateQuery("playerCharacters",
-          new List<string[]>() { new string[] { "serializedLearnables", serializedLearnables } },
-          new List<string[]>() { new string[] { "rowid", charId.ToString() } });
-        }
-      }
-    }*/
     private static void CreateDatabase()
     {
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS moduleInfo" +
