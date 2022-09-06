@@ -18,8 +18,7 @@ namespace NWN.Systems
     private readonly ScriptHandleFactory scriptHandleFactory;
     private readonly ScriptCallbackHandle mobRegenIntervalHandle;
     private readonly ScriptCallbackHandle mobRunAway;
-    private readonly SchedulerService scheduler;
-    
+    private readonly SchedulerService scheduler;    
 
   public AreaSystem(ModuleSystem moduleSystem, DialogSystem dialogSystem, ScriptHandleFactory scriptFactory, SchedulerService schedulerService)
     {
@@ -34,11 +33,36 @@ namespace NWN.Systems
       foreach (NwTrigger trigger in NwObject.FindObjectsWithTag("invi_unwalkable"))
         trigger.OnEnter += OnEnterUnwalkableBlock;
 
+      var resultMusics = SqLiteUtils.SelectQuery("areaMusics",
+        new List<string>() { { "areaTag" }, { "backgroundDay" }, { "backgroundNight" }, { "battle" } },
+        new List<string[]>() { });
+
+      Dictionary<string, int[]> areaMusics = new();
+      Dictionary<string, int> areaLoadScreens = new();
+
+      foreach (var area in resultMusics.Results)
+        areaMusics.TryAdd(area.GetString(0), new int[] { area.GetInt(1), area.GetInt(2), area.GetInt(3) });
+
+      var resultLoadScreens = SqLiteUtils.SelectQuery("areaLoadScreens",
+        new List<string>() { { "areaTag" }, { "loadScreen" } },
+        new List<string[]>() { });
+
+      foreach (var area in resultLoadScreens.Results)
+        areaLoadScreens.TryAdd(area.GetString(0), area.GetInt(0));
+
       foreach (NwArea area in NwModule.Instance.Areas)
       {
         area.OnEnter += OnAreaEnter;
         area.OnExit += OnAreaExit;
         area.OnHeartbeat += OnAreaHeartbeat;
+
+        if(areaMusics.ContainsKey(area.Tag))
+        {
+          int[] musicTab = areaMusics[area.Tag];
+          area.MusicBackgroundDayTrack = musicTab[0];
+          area.MusicBackgroundNightTrack = musicTab[1];
+          area.MusicBattleTrack = musicTab[2];
+        }
 
         DoAreaSpecificInitialisation(area);
 

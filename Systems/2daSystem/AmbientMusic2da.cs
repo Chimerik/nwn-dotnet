@@ -22,14 +22,14 @@ namespace NWN.Systems
         return;
 
       gender = (Gender)genderValue;
-      name = entry.GetString("DisplayName")?.Replace("Ã©", "é").Replace("Ã´", "ô").Replace("Ã¯", "ï");
+      name = string.IsNullOrEmpty(entry.GetString("DisplayName")) ? entry.GetStrRef("Description").ToString() : entry.GetString("DisplayName")?.Replace("Ã©", "é").Replace("Ã´", "ô").Replace("Ã¯", "ï");
     }
   }
 
   [ServiceBinding(typeof(AmbientMusic2da))]
   public class AmbientMusic2da
   {
-    private readonly TwoDimArray<AmbientMusicEntry> ambientMusicTable = NwGameTables.GetTable<AmbientMusicEntry>("ambientmusic.2da");
+    public static readonly TwoDimArray<AmbientMusicEntry> ambientMusicTable = NwGameTables.GetTable<AmbientMusicEntry>("ambientmusic.2da");
     public static IEnumerable<AmbientMusicEntry> maleAmbientMusicEntry;
     public static IEnumerable<AmbientMusicEntry> femaleAmbientMusicEntry;
 

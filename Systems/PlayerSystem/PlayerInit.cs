@@ -9,6 +9,7 @@ using Anvil.API.Events;
 using Anvil.Services;
 using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -16,7 +17,6 @@ namespace NWN.Systems
   {
     private void HandlePlayerConnect(ModuleEvents.OnClientEnter HandlePlayerConnect)
     {
-      Log.Info("Player connecting");
       NwPlayer oPC = HandlePlayerConnect.Player;
 
       Utils.LogMessageToDMs($"{oPC.PlayerName} vient de connecter {oPC.LoginCreature.Name} ({NwModule.Instance.PlayerCount} joueurs)");
@@ -628,6 +628,9 @@ namespace NWN.Systems
           foreach (var feat in oid.LoginCreature.Feats)
             if (feat.Id > 1116)
               oid.LoginCreature.RemoveFeat(feat);
+
+          foreach (Skill skillType in (Skill[])Enum.GetValues(typeof(Skill)))
+            oid.LoginCreature.SetSkillRank(NwSkill.FromSkillType(skillType), 0);
 
           oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin).Destroy();
 

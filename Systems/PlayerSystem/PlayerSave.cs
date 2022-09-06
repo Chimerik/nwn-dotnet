@@ -41,7 +41,6 @@ namespace NWN.Systems
       else
         player.HandlePlayerSave();
 
-
       Log.Info($"{player.oid.LoginCreature.Name} saved in : {(DateTime.Now - elapsed).TotalSeconds} s");
     }
     public partial class Player

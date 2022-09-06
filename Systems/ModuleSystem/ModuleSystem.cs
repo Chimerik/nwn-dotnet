@@ -178,6 +178,12 @@ namespace NWN.Systems
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS placeableSpawn " +
         "('areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL, 'serializedPlaceable' TEXT NOT NULL)");
+
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS areaMusics" +
+        "('areaTag' TEXT NOT NULL, 'backgroundDay' INTEGER NOT NULL, 'backgroundNight' INTEGER NOT NULL, 'battle' INTEGER NOT NULL, PRIMARY KEY(areaTag))");
+
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS areaLoadScreens" +
+        "('areaTag' TEXT NOT NULL, 'loadScreen' INTEGER NOT NULL, PRIMARY KEY(areaTag))");
     }
     private void InitializeEvents()
     {
@@ -188,7 +194,7 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_DECREMENT_SPELL_COUNT_BEFORE", "event_dcr_spell");
 
       //EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_AFTER", "event_has_feat");
-
+      
       NwModule.Instance.OnCreatureAttack += AttackSystem.HandleAttackEvent;
       NwModule.Instance.OnCreatureDamage += AttackSystem.HandleDamageEvent;
       NwModule.Instance.OnEffectApply += OnPlayerEffectApplied;
@@ -741,8 +747,8 @@ namespace NWN.Systems
       var result = SqLiteUtils.SelectQuery("modulePalette",
             new List<string>() { { "items" } },
             new List<string[]>() { });
-
-      if (result.Result == null)
+      
+      if (result.Result == null) 
       {
         await SqLiteUtils.InsertQueryAsync("modulePalette",
                   new List<string[]>() { new string[] { "items", "" } });
