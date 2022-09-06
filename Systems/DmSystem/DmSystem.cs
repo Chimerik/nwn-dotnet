@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using Anvil.API;
+﻿using Anvil.API;
 using Anvil.API.Events;
-using NWN.Core;
 using Anvil.Services;
 
 namespace NWN.Systems
@@ -10,18 +8,18 @@ namespace NWN.Systems
   public class DmSystem
   {
     private readonly PlaceableSystem placeableSystem;
-    public DmSystem(PlaceableSystem placeableSystem)
+    public DmSystem(PlaceableSystem placeableSystem, EventService eventService)
     {
       this.placeableSystem = placeableSystem;
 
-      NwModule.Instance.OnDMSpawnObjectAfter += HandleAfterDmSpawnObject;
+      eventService.SubscribeAll<OnDMSpawnObject, DMEventFactory>(HandleAfterDmSpawnObject, EventCallbackType.After);
       NwModule.Instance.OnDMJumpTargetToPoint += HandleAfterDmJumpTarget;
       NwModule.Instance.OnDMJumpAllPlayersToPoint += HandleBeforeDMJumpAllPlayers;
       NwModule.Instance.OnDMGiveXP += HandleBeforeDmGiveXP;
       NwModule.Instance.OnDMGiveGold += HandleBeforeDmGiveGold;
-      NwModule.Instance.OnDMGiveItemAfter += HandleAfterDmGiveItem;
+      eventService.SubscribeAll<OnDMGiveItem, DMEventFactory>(HandleAfterDmGiveItem, EventCallbackType.After);
     }
-    public void HandleAfterDmSpawnObject(OnDMSpawnObjectAfter onSpawn)
+    public void HandleAfterDmSpawnObject(OnDMSpawnObject onSpawn)
     {
       if (onSpawn.SpawnedObject is NwItem oItem)
       {
@@ -52,7 +50,7 @@ namespace NWN.Systems
       Utils.LogMessageToDMs($"{onGive.DungeonMaster.PlayerName} vient de donner {onGive.Amount} po à {onGive.Target.Name}");
     }
 
-    public void HandleAfterDmGiveItem(OnDMGiveItemAfter onGive)
+    public void HandleAfterDmGiveItem(OnDMGiveItem onGive)
     {
       onGive.Item.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
       Utils.LogMessageToDMs($"{onGive.DungeonMaster.PlayerName} vient de donner {onGive.Item.Name} à {onGive.Target.Name}");

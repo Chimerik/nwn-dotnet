@@ -63,6 +63,7 @@ namespace NWN.Systems
       private readonly AreaSystem areaSystem;
       private readonly FeedbackService feedbackService;
       public readonly SchedulerService scheduler;
+      public readonly EventService eventService;
 
       public enum PcState
       {
@@ -71,7 +72,7 @@ namespace NWN.Systems
         AFK
       }
 
-      public Player(NwPlayer nwobj, AreaSystem areaSystem, SpellSystem spellSystem, FeedbackService feedbackService, SchedulerService schedulerService)
+      public Player(NwPlayer nwobj, AreaSystem areaSystem, SpellSystem spellSystem, FeedbackService feedbackService, SchedulerService schedulerService, EventService eventService)
       {
         oid = nwobj;
         menu = new PrivateMenu(this);
@@ -80,6 +81,7 @@ namespace NWN.Systems
         this.spellSystem = spellSystem;
         this.areaSystem = areaSystem;
         this.feedbackService = feedbackService;
+        this.eventService = eventService;
 
         if (!oid.IsDM)
         {

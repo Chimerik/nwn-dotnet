@@ -38,12 +38,12 @@ namespace NWN.Systems
           saveScheduled = 0;
           rootColumn.Children = rootChildren;
 
-          List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell>  { new NuiListTemplateCell(new NuiButton(musicNames) { Id = "select", Height = 35 }) };
+          List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell>  { new NuiListTemplateCell(new NuiButton(musicNames) { Id = "select", Tooltip = musicNames, Height = 35, Width = 410 }) };
 
-          rootChildren.Add(new NuiRow() { Height = 35, Children = new List<NuiElement>()
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
           {
             new NuiSpacer(),
-            new NuiLabel(currentMusic) { VerticalAlign = NuiVAlign.Middle },
+            new NuiLabel(currentMusic) { Tooltip = currentMusic, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle, Width = 375,  Height = 35 },
             new NuiButtonImage("ir_empytqs") { Id = "persist", Tooltip = "Rendre persistante la sélection musicale de cette zone", Width = 35, Height = 35 },
             new NuiSpacer()
           } });
@@ -83,6 +83,8 @@ namespace NWN.Systems
             musicTypeSelected.SetBindWatch(player.oid, nuiToken.Token, true);
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            Log.Info(geometry.GetBindValue(player.oid, nuiToken.Token));
 
             songList = AmbientMusic2da.ambientMusicTable.ToList();
 
@@ -131,7 +133,7 @@ namespace NWN.Systems
                   {
                     saveScheduled = 1;
                     Utils.LogMessageToDMs($"{player.oid.PlayerName} : scheduling {area.Name} musics save in 10s");
-                    DebounceSave(area, 1);
+                    DebounceSave(area, 1, player.oid.PlayerName);
                   }
 
                   break;
@@ -146,11 +148,7 @@ namespace NWN.Systems
                 case "search":
 
                   string currentSearch = search.GetBindValue(player.oid, nuiToken.Token).ToLower();
-                  var filteredList = songList;
-
-                  if (!string.IsNullOrEmpty(currentSearch))
-                    filteredList = filteredList.Where(m => m.name.ToLower().Contains(currentSearch));
-
+                  var filteredList = string.IsNullOrEmpty(currentSearch) ? songList : songList.Where(m => m.name.ToLower().Contains(currentSearch));
                   LoadList(filteredList);
 
                   break;
@@ -179,7 +177,7 @@ namespace NWN.Systems
           musicNames.SetBindValues(player.oid, nuiToken.Token, nameList);
           listCount.SetBindValue(player.oid, nuiToken.Token, nameList.Count);
         }
-        public async void DebounceSave(NwArea areaToSave, int nbDebounces)
+        public async void DebounceSave(NwArea areaToSave, int nbDebounces, string playerName)
         {
           CancellationTokenSource tokenSource = new CancellationTokenSource();
 
@@ -194,14 +192,14 @@ namespace NWN.Systems
 
           if (awaitDebounce.IsCompletedSuccessfully)
           {
-            DebounceSave(areaToSave, nbDebounces + 1);
+            DebounceSave(areaToSave, nbDebounces + 1, playerName);
             return;
           }
 
           if (awaitSaveAuthorized.IsCompletedSuccessfully)
           {
             saveScheduled = 0;
-            Utils.LogMessageToDMs($"{player.oid.PlayerName} : {area.Name} saving musics");
+            Utils.LogMessageToDMs($"{playerName} : {area.Name} saving musics");
             HandleSave(areaToSave);
           }
         }

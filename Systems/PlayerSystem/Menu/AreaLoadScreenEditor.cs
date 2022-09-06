@@ -20,20 +20,21 @@ namespace NWN.Systems
         private readonly NuiBind<string> currentLoadScreen = new("currentLoadScreen");
         private readonly NuiBind<string> loadScreenResRef = new("loadScreenResRef");
         private readonly NuiBind<int> listCount = new("listCount");
+        private readonly NuiBind<string> search = new("search");
         private NwArea area { get; set; }
-        private bool saveAuthorized { get; set; }
+        IEnumerable<LoadScreenTableEntry> filteredList { get; set; }
         private int saveScheduled { get; set; }
 
         public AreaLoadScreenEditorWindow(Player player, NwArea area) : base(player)
         {
           windowId = "areaLoadScreenEditor";
-          saveAuthorized = false;
           saveScheduled = 0;
           rootColumn.Children = rootChildren;
 
           List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell> { new NuiListTemplateCell(new NuiButtonImage(loadScreenResRef) { Id = "select", Height = 200 }) };
 
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiButtonImage(currentLoadScreen) { Width = 410, Height = 200 } } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiButtonImage(currentLoadScreen) { Tooltip = "Ecran de chargement actuel", Width = 410, Height = 200 } } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) { Width = 410, Height = 35 } } });
           rootChildren.Add(new NuiList(rowTemplate, listCount) { RowHeight = 200 });
 
           CreateWindow(area);
@@ -60,10 +61,13 @@ namespace NWN.Systems
             nuiToken.OnNuiEvent += HandleAreaLoadScreenEditorEvents;
             player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
             
-            currentLoadScreen.SetBindValue(player.oid, nuiToken.Token, LoadScreen2da.loadScreenResRef[(int)area.LoadScreen]);
+            currentLoadScreen.SetBindValue(player.oid, nuiToken.Token, area.LoadScreen.BMPResRef);
+            search.SetBindValue(player.oid, nuiToken.Token, "");
+            search.SetBindWatch(player.oid, nuiToken.Token, true);
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
+            filteredList = Utils.loadScreensResRefList;
             LoadList();
           }
         }
@@ -78,9 +82,8 @@ namespace NWN.Systems
               {
                 case "select":
 
-                  var entry = LoadScreen2da.loadScreenResRef.ElementAt(nuiEvent.ArrayIndex);
-                  currentLoadScreen.SetBindValue(player.oid, nuiToken.Token, entry.Value);
-                  area.LoadScreen = (ushort)entry.Key;
+                  area.LoadScreen = filteredList.ElementAt(nuiEvent.ArrayIndex);
+                  currentLoadScreen.SetBindValue(player.oid, nuiToken.Token, area.LoadScreen.BMPResRef);
 
                   if (saveScheduled > 0)
                     saveScheduled += 1;
@@ -88,12 +91,27 @@ namespace NWN.Systems
                   {
                     saveScheduled = 1;
                     Utils.LogMessageToDMs($"{player.oid.PlayerName} : scheduling {area.Name} loadscreen save in 10s");
-                    DebounceSave(area, 1);
+                    DebounceSave(area, 1, player.oid.PlayerName);
                   }
 
                   break;
               }
 
+              break;
+
+            case NuiEventType.Watch:
+
+              switch (nuiEvent.ElementId)
+              {
+                case "search":
+
+                  string currentSearch = search.GetBindValue(player.oid, nuiToken.Token).ToLower();
+                  filteredList = string.IsNullOrEmpty(currentSearch) ? Utils.loadScreensResRefList : Utils.loadScreensResRefList.Where(m => m.Label.ToLower().Contains(currentSearch));
+                  LoadList();
+
+                  break;
+
+              }
               break;
           }
         }
@@ -101,13 +119,13 @@ namespace NWN.Systems
         {
           List<string> nameList = new();
 
-          foreach (var loadscreen in LoadScreen2da.loadScreenResRef)
-            nameList.Add(loadscreen.Value);
+          foreach (var loadscreen in filteredList)
+            nameList.Add(loadscreen.BMPResRef);
 
           loadScreenResRef.SetBindValues(player.oid, nuiToken.Token, nameList);
           listCount.SetBindValue(player.oid, nuiToken.Token, nameList.Count);
         }
-        public async void DebounceSave(NwArea areaToSave, int nbDebounces)
+        public async void DebounceSave(NwArea areaToSave, int nbDebounces, string playerName)
         {
           CancellationTokenSource tokenSource = new CancellationTokenSource();
 
@@ -122,15 +140,14 @@ namespace NWN.Systems
 
           if (awaitDebounce.IsCompletedSuccessfully)
           {
-            DebounceSave(areaToSave, nbDebounces + 1);
+            DebounceSave(areaToSave, nbDebounces + 1, playerName);
             return;
           }
 
           if (awaitSaveAuthorized.IsCompletedSuccessfully)
           {
             saveScheduled = 0;
-            saveAuthorized = false;
-            Utils.LogMessageToDMs($"{player.oid.PlayerName} : {area.Name} saving loadscreen");
+            Utils.LogMessageToDMs($"{playerName} : {area.Name} saving loadscreen");
             HandleSave(areaToSave);
           }
         }
@@ -139,7 +156,7 @@ namespace NWN.Systems
           await SqLiteUtils.InsertQueryAsync("areaLoadScreens",
           new List<string[]>() {
             new string[] { "areaTag", areaToSave.Tag },
-            new string[] { "loadScreen", areaToSave.LoadScreen.ToString() } },
+            new string[] { "loadScreen", areaToSave.LoadScreen.RowIndex.ToString() } },
           new List<string>() { "areaTag" },
           new List<string[]>() { new string[] { "loadScreen" } });
         }

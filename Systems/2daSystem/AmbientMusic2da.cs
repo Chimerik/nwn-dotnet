@@ -22,7 +22,7 @@ namespace NWN.Systems
         return;
 
       gender = (Gender)genderValue;
-      name = string.IsNullOrEmpty(entry.GetString("DisplayName")) ? entry.GetStrRef("Description").ToString() : entry.GetString("DisplayName")?.Replace("Ã©", "é").Replace("Ã´", "ô").Replace("Ã¯", "ï");
+      name = string.IsNullOrEmpty(entry.GetString("DisplayName")) ? string.IsNullOrEmpty(entry.GetStrRef("Description").ToString()) ? entry.GetString("Resource") :  entry.GetStrRef("Description").ToString() : entry.GetString("DisplayName")?.Replace("Ã©", "é").Replace("Ã´", "ô").Replace("Ã¯", "ï");
     }
   }
 

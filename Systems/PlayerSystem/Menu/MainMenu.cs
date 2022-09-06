@@ -384,11 +384,29 @@ namespace NWN.Systems
                   break;
 
                 case "language":
-                  Log.Info("opening language window ?");
+
                     if (!player.windows.ContainsKey("languageSelection")) player.windows.Add("languageSelection", new LanguageSelectionWindow(player));
                     else ((LanguageSelectionWindow)player.windows["languageSelection"]).CreateWindow();
 
                     CloseWindow();
+
+                  break;
+
+                case "areaMusicEditor":
+
+                  if (!player.windows.ContainsKey("areaMusicEditor")) player.windows.Add("areaMusicEditor", new AreaMusicEditorWindow(player, player.oid.ControlledCreature.Area));
+                  else ((AreaMusicEditorWindow)player.windows["areaMusicEditor"]).CreateWindow(player.oid.ControlledCreature.Area);
+
+                  CloseWindow();
+
+                  break;
+
+                case "areaLoadScreenEditor":
+
+                  if (!player.windows.ContainsKey("areaLoadScreenEditor")) player.windows.Add("areaLoadScreenEditor", new AreaLoadScreenEditorWindow(player, player.oid.ControlledCreature.Area));
+                  else ((AreaLoadScreenEditorWindow)player.windows["areaLoadScreenEditor"]).CreateWindow(player.oid.ControlledCreature.Area);
+
+                  CloseWindow();
 
                   break;
               }

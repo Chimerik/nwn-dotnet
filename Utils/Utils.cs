@@ -363,6 +363,8 @@ namespace NWN
       { "wind", new MainMenuCommand("Gestion du vent", "Permet de modifier la configuration du vent de cette zone", CommandRank.DM) },
       { "dmRename", new MainMenuCommand("Changer le nom de la cible", "Permet de modifier le nom de n'importe quel objet", CommandRank.DM) }, // TODO : Ajouter à OnExamine Custom pour DM
       { "visualEffects", new MainMenuCommand("Gérer mes effets visuels", "Permet d'utiliser et de gérer les effets visuels personnalisés", CommandRank.DM) },
+      { "areaMusicEditor", new MainMenuCommand("Modifier la sélection musicale de la zone", "", CommandRank.DM) },
+      { "areaLoadScreenEditor", new MainMenuCommand("Modifier l'écran de chargement de la zone", "", CommandRank.DM) },
       { "reboot", new MainMenuCommand("Reboot", "", CommandRank.Admin) },
       { "refill", new MainMenuCommand("Refill ressources", "", CommandRank.Admin) },
       { "instantLearn", new MainMenuCommand("Instant Learn", "", CommandRank.Admin) }, // TODO : Ajouter à OnExamine Player
@@ -397,6 +399,8 @@ namespace NWN
           new NuiComboEntry("float", 3),
           new NuiComboEntry("date", 4)
         };
+
+    public static readonly IEnumerable<LoadScreenTableEntry> loadScreensResRefList = NwGameTables.LoadScreenTable.Where(l => l.BMPResRef != null);
 
     public static void ConvertLocalVariable(string localName, string localValue, int localType, NwGameObject target, NwPlayer player)
     {

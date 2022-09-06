@@ -18,9 +18,9 @@ namespace NWN.Systems
     private readonly ScriptHandleFactory scriptHandleFactory;
     private readonly ScriptCallbackHandle mobRegenIntervalHandle;
     private readonly ScriptCallbackHandle mobRunAway;
-    private readonly SchedulerService scheduler;    
+    private readonly SchedulerService scheduler;
 
-  public AreaSystem(ModuleSystem moduleSystem, DialogSystem dialogSystem, ScriptHandleFactory scriptFactory, SchedulerService schedulerService)
+    public AreaSystem(ModuleSystem moduleSystem, DialogSystem dialogSystem, ScriptHandleFactory scriptFactory, SchedulerService schedulerService)
     {
       this.dialogSystem = dialogSystem;
       scriptHandleFactory = scriptFactory;
@@ -48,7 +48,7 @@ namespace NWN.Systems
         new List<string[]>() { });
 
       foreach (var area in resultLoadScreens.Results)
-        areaLoadScreens.TryAdd(area.GetString(0), area.GetInt(0));
+        areaLoadScreens.TryAdd(area.GetString(0), area.GetInt(1));
 
       foreach (NwArea area in NwModule.Instance.Areas)
       {
@@ -64,7 +64,10 @@ namespace NWN.Systems
           area.MusicBattleTrack = musicTab[2];
         }
 
-        DoAreaSpecificInitialisation(area);
+        if (areaLoadScreens.ContainsKey(area.Tag))
+          area.LoadScreen = NwGameTables.LoadScreenTable.GetRow(areaLoadScreens[area.Tag]);
+
+          DoAreaSpecificInitialisation(area);
 
         //Log.Info($"initializing area : {area.Name}");
       }
@@ -386,7 +389,7 @@ namespace NWN.Systems
         bankPlaceable.Name = bank.GetString(3);
       }
     }
-    public void InitializeEventsAfterDMSpawnCreature(OnDMSpawnObjectAfter onSpawn)
+    public void InitializeEventsAfterDMSpawnCreature(OnDMSpawnObject onSpawn)
     {
       if (onSpawn.SpawnedObject is not NwCreature creature)
         return;
