@@ -67,7 +67,7 @@ namespace NWN.Systems
         if (areaLoadScreens.ContainsKey(area.Tag))
           area.LoadScreen = NwGameTables.LoadScreenTable.GetRow(areaLoadScreens[area.Tag]);
 
-          DoAreaSpecificInitialisation(area);
+        DoAreaSpecificInitialisation(area);
 
         //Log.Info($"initializing area : {area.Name}");
       }

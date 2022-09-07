@@ -19,6 +19,7 @@ namespace NWN.Systems
         private readonly List<NuiElement> rootChildren = new();
         private readonly NuiBind<string> currentLoadScreen = new("currentLoadScreen");
         private readonly NuiBind<string> loadScreenResRef = new("loadScreenResRef");
+        private readonly NuiBind<string> loadScreenLabel = new("loadScreenLabel");
         private readonly NuiBind<int> listCount = new("listCount");
         private readonly NuiBind<string> search = new("search");
         private NwArea area { get; set; }
@@ -31,7 +32,7 @@ namespace NWN.Systems
           saveScheduled = 0;
           rootColumn.Children = rootChildren;
 
-          List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell> { new NuiListTemplateCell(new NuiButtonImage(loadScreenResRef) { Id = "select", Height = 200 }) };
+          List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell> { new NuiListTemplateCell(new NuiButtonImage(loadScreenResRef) { Id = "select", Tooltip = loadScreenLabel, Height = 200 }) };
 
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiButtonImage(currentLoadScreen) { Tooltip = "Ecran de chargement actuel", Width = 410, Height = 200 } } });
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) { Width = 410, Height = 35 } } });
@@ -118,11 +119,16 @@ namespace NWN.Systems
         private void LoadList()
         {
           List<string> nameList = new();
+          List<string> labelList = new();
 
           foreach (var loadscreen in filteredList)
+          {
             nameList.Add(loadscreen.BMPResRef);
+            labelList.Add(loadscreen.Label);
+          }
 
           loadScreenResRef.SetBindValues(player.oid, nuiToken.Token, nameList);
+          loadScreenLabel.SetBindValues(player.oid, nuiToken.Token, labelList);
           listCount.SetBindValue(player.oid, nuiToken.Token, nameList.Count);
         }
         public async void DebounceSave(NwArea areaToSave, int nbDebounces, string playerName)
