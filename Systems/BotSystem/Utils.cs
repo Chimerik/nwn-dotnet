@@ -9,7 +9,7 @@ namespace NWN.Systems
 {
   class DiscordUtils
   {
-    public static async Task<int> CheckPlayerCredentialsFromDiscord(SocketCommandContext context, string sPCName)
+    public static async Task<int> CheckPlayerCredentialsFromDiscord(ulong userId, string sPCName)
     {
       using (var connection = new SqliteConnection(Config.dbPath))
       {
@@ -19,7 +19,7 @@ namespace NWN.Systems
         command.CommandText = "SELECT pc.ROWID from PlayerAccounts " +
         $"LEFT join playerCharacters pc on pc.accountId = PlayerAccounts.ROWID WHERE discordId = @discordId and pc.characterName like '{sPCName}%' ";
 
-        command.Parameters.AddWithValue("@discordId", context.User.Id.ToString());
+        command.Parameters.AddWithValue("@discordId", userId.ToString());
 
         using (var reader = await command.ExecuteReaderAsync())
         {

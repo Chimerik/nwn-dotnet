@@ -63,8 +63,7 @@ namespace NWN.Systems
       }
       catch (Exception e)
       {
-        Log.Info($"Could not load discord bot : {e.Message}");
-        Utils.LogMessageToDMs($"Could not load discord bot : {e.Message}");
+        Log.Info($"Could not load discord bot : {e.Message} - {e.StackTrace}");
       }
     }
     private void OnModuleLoad(ModuleEvents.OnModuleLoad onModuleLoad)
@@ -73,7 +72,7 @@ namespace NWN.Systems
 
       //NwModule.Instance.SetEventScript((EventScriptType)NWScript.EVENT_SCRIPT_MODULE_ON_PLAYER_TILE_ACTION, "on_tile_action");
 
-      string serverName = "FR] LDE - Alpha fermée";
+      string serverName = "FR] LDE - Closed Alpha";
 
       switch (Config.env)
       {
@@ -101,7 +100,7 @@ namespace NWN.Systems
       scheduler.ScheduleRepeating(HandlePlayerLoop, TimeSpan.FromSeconds(1));
       scheduler.ScheduleRepeating(SaveGameDate, TimeSpan.FromMinutes(1));
       scheduler.ScheduleRepeating(SpawnCollectableResources, TimeSpan.FromHours(24), nextActivation);
-      scheduler.ScheduleRepeating(DeleteExpiredMail, TimeSpan.FromHours(24), nextActivation);
+      //scheduler.ScheduleRepeating(DeleteExpiredMail, TimeSpan.FromHours(24), nextActivation);
 
       /*foreach (var duplicate in NwGameTables.PlaceableTable.GroupBy(p => p.ModelName).Where(p => p.Count() > 1).Select(p => p.Key))
       {
@@ -453,6 +452,8 @@ namespace NWN.Systems
           int quantity = int.Parse(resourceBlock[3]);
           DateTime lastChecked = DateTime.Parse(resourceBlock[4]);
           NwWaypoint blockWaypoint = blockArea.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(w => w.Tag == spawnType && w.GetObjectVariable<LocalVariableInt>("id").Value == blockId);
+
+          Log.Info($"Area {blockArea.Name} - Spawning {spawnType} - id {blockId} - Quantity {quantity} - lastChecked {lastChecked} - wp {blockWaypoint}");
 
           switch (spawnType)
           {

@@ -2,18 +2,19 @@
 using System.Threading.Tasks;
 using Discord.Commands;
 using Anvil.API;
+using Discord.WebSocket;
 
 namespace NWN.Systems
 {
   public static partial class BotSystem
   {
-    public static async Task ExecuteGetMyMailsListCommand(SocketCommandContext context, string characterName)
+    public static async Task ExecuteGetMyMailsListCommand(SocketSlashCommand command, string characterName)
     {
-      int result = await DiscordUtils.CheckPlayerCredentialsFromDiscord(context, characterName);
+      int result = await DiscordUtils.CheckPlayerCredentialsFromDiscord(command.User.Id, characterName);
 
       if (result <= 0)
       {
-        await context.Channel.SendMessageAsync("Le personnage indiqué n'existe pas ou n'a pas été enregistré avec votre code Discord et votre clef cd.");
+        //await context.Channel.SendMessageAsync("Le personnage indiqué n'existe pas ou n'a pas été enregistré avec votre code Discord et votre clef cd.");
         return;
       }
 
@@ -31,7 +32,7 @@ namespace NWN.Systems
         messageList += $"{mail[0]} | {mail[1]} | {mail[2]} | {mail[3]}";
       }
 
-      await context.Channel.SendMessageAsync(messageList);
+      //await context.Channel.SendMessageAsync(messageList);
     }
   }
 }

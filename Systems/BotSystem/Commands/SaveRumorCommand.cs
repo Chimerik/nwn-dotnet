@@ -37,7 +37,7 @@ namespace NWN.Systems
       switch (rank)
       {
         default:
-          await (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{Bot._client.GetGuild(680072044364562528).EveryoneRole.Mention} Création de la rumeur {titre_rumeur} à valider.");
+          await Bot.staffGeneralChannel.SendMessageAsync($"{Bot.discordServer.EveryoneRole.Mention} Création de la rumeur {titre_rumeur} à valider.");
           return;
         case "admin":
         case "staff":

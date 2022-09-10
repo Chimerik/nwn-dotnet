@@ -71,20 +71,15 @@ namespace NWN.Systems
     public async Task SendMailAsync(string nom_perso_emetteur, int ID_perso_destinataire, string titre_courrier, string contenu_courrier)
       => await BotSystem.ExecuteSendMailCommand(Context, nom_perso_emetteur, ID_perso_destinataire, titre_courrier, contenu_courrier);*/
 
-    [Command("mycourrier")]
+    /*[Command("mycourrier")]
     [Summary("Affiche la liste des courriers destinés à l'un de vos personnages.")]
     public async Task GetMyMailsListAsync(string nom_perso)
       => await BotSystem.ExecuteGetMyMailsListCommand(Context, nom_perso);
 
     [Command("mycourrier")]
-    [Summary("Affiche le contenu de la rumeur demandée.")]
+    [Summary("Affiche le contenu du courrier spécifié.")]
     public async Task GetMailAsync(string numero_courrier, string nom_personnage)
-      => await BotSystem.ExecuteGetMailCommand(Context, numero_courrier, nom_personnage);
-
-    [Command("suprumeur")]
-    [Summary("Supprime la rumeur indiquée.")]
-    public async Task DeleteMailAsync(string numero_courrier, string nom_personnage)
-      => await BotSystem.ExecuteDeleteMailCommand(Context, numero_courrier, nom_personnage);
+      => await BotSystem.ExecuteGetMailCommand(Context, numero_courrier, nom_personnage);*/
 
     [Command("reboot")]
     [Summary("Reboot le module.")]
@@ -141,11 +136,6 @@ namespace NWN.Systems
     public async Task DisplayDiceRollInfo()
       => await BotSystem.ExecuteDisplayDiceRollInfoCommand(Context);
 
-    [Command("alignement")]
-    [Summary("Affiche des informations concernant la façon dont l'alignement est utilisé sur les Larmes des Erylies.")]
-    public async Task DisplayAlignementInfo()
-      => await BotSystem.ExecuteDisplayAlignementInfoCommand(Context);
-
     [Command("evil")]
     [Summary("Affiche des recommandations sur la façon de jouer evil sur les Larmes des Erylies sans risquer trop de frustration.")]
     public async Task DisplayEvilInfo()
@@ -170,11 +160,6 @@ namespace NWN.Systems
     [Summary("Affiche des informations concernant le fonctionnement général des animations sur les Larmes des Erylies.")]
     public async Task DisplayAnimationInfo()
       => await BotSystem.ExecuteDisplayAnimationInfoCommand(Context);
-
-    [Command("developpement")]
-    [Summary("Affiche la liste des développements et tâches en cours.")]
-    public async Task DisplayDevInfo()
-      => await BotSystem.ExecuteDisplayDevInfoCommand(Context);
 
     [Command("backlog")]
     [Summary("Affiche la liste des projets et tâches en attente.")]

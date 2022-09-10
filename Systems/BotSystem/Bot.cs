@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace NWN.Systems
@@ -13,6 +15,12 @@ namespace NWN.Systems
   {
     public const char prefix = '!';
     public static DiscordSocketClient _client;
+    public static SocketGuild discordServer;
+    public static IMessageChannel staffGeneralChannel;
+    public static IMessageChannel playerGeneralChannel;
+    public static IMessageChannel logChannel;
+    public static SocketUser chimDiscordUser;
+    public static SocketUser bigbyDiscordUser;
 
     // Keep the CommandService and DI container around for use with commands.
     // These two types require you install the Discord.Net.Commands package.
@@ -27,7 +35,6 @@ namespace NWN.Systems
     public static async Task MainAsync()
     {
       _client = new DiscordSocketClient();
-      await _client.DownloadUsersAsync(new List<IGuild> { { _client.GetGuild(680072044364562528) } });
 
       commandService = new CommandService();
       
@@ -36,25 +43,27 @@ namespace NWN.Systems
 
       // Setup your DI container.
       _services = ConfigureServices();
-      
-      var cfg = new DiscordSocketConfig();
-      cfg.GatewayIntents |= GatewayIntents.GuildMembers;
+
+      var config = new DiscordSocketConfig()
+      {
+        // Other config options can be presented here.
+        GatewayIntents = GatewayIntents.All
+      };
+
+      _client = new DiscordSocketClient(config);      
       
       // Centralize the logic for commands into a separate method.
       await InitCommands();
 
-      var token = Environment.GetEnvironmentVariable("BOT");
-
-      await _client.LoginAsync(TokenType.Bot, token);
+      await _client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("BOT"));
       await _client.StartAsync();
-      
+
+      //_client.Ready += CreateSlashGlobalCommands;
+      _client.SlashCommandExecuted += SlashCommandHandler;
+      _client.Connected += OnDiscordConnected;
+      _client.GuildMembersDownloaded += OnUsersDownloaded;
       _client.UserJoined += UpdateUserList;
       _client.UserLeft += UpdateUserListOnLeave;
-
-      await Task.Delay(TimeSpan.FromSeconds(5));
-
-      if(Config.env == Config.Env.Prod)
-        await (_client.GetChannel(786218144296468481) as IMessageChannel).SendMessageAsync($"Module en ligne !");
 
       // Block this task until the program is closed.
       await Task.Delay(Timeout.Infinite);
@@ -162,11 +171,77 @@ namespace NWN.Systems
 
     private static async Task UpdateUserList(SocketGuildUser data)
     {
-      await _client.DownloadUsersAsync(new List<IGuild> { { _client.GetGuild(680072044364562528) } });
+      await _client.DownloadUsersAsync(new List<IGuild> { { discordServer } });
+      await data.SendMessageAsync($"Bonjour {data.DisplayName} et bienvenue sur le Discord des Larmes des Erylies.\n\n Pour commencer, n'hésite pas à consulter notre livre du joueur : \n https://docs.google.com/document/d/1ammPGnH-sVjNHnJHCMAm_khbe8mBqTPFeCfqCvJt7ig/edit?usp=sharing");
     }
     private static async Task UpdateUserListOnLeave(SocketGuild guild, SocketUser user)
     {
+      await _client.DownloadUsersAsync(new List<IGuild> { { discordServer } });
+    }
+    private static async Task OnDiscordConnected()
+    {
       await _client.DownloadUsersAsync(new List<IGuild> { { _client.GetGuild(680072044364562528) } });
+    }
+    private static async Task OnUsersDownloaded(SocketGuild server)
+    {
+      discordServer = server;
+      staffGeneralChannel = _client.GetChannel(680072044364562532) as IMessageChannel;
+      playerGeneralChannel = _client.GetChannel(786218144296468481) as IMessageChannel;
+      logChannel = _client.GetChannel(703964971549196339) as IMessageChannel;
+
+      chimDiscordUser = _client.GetUser(232218662080086017);
+      bigbyDiscordUser = _client.GetUser(225961076448034817);
+
+      Utils.LogMessageToDMs("Module en ligne !");
+
+      try
+      {
+        var guildCommand = new SlashCommandBuilder()
+        .WithName("animations")
+        .WithDescription("Informations générales sur les animations sur le module");
+        /*var guildCommand = new SlashCommandBuilder()
+        .WithName("test")
+        .WithDescription("test argument")
+        .AddOption("arg", ApplicationCommandOptionType.Integer, "le test de notre argument", isRequired: true)
+        .WithDefaultMemberPermissions(GuildPermission.Administrator);*/
+
+        var slash = guildCommand.Build();
+        await discordServer.CreateApplicationCommandAsync(slash);
+      }
+      catch (Exception exception)
+      {
+        Utils.LogMessageToDMs(exception.Message + exception.StackTrace);
+      }
+    }
+    private static async Task SlashCommandHandler(SocketSlashCommand command)
+    {
+      switch(command.CommandName)
+      {
+        default:
+          await command.RespondAsync("Commande non reconnue, veuillez vérifier votre saisie.", ephemeral: true);
+          break;
+        case "developpement":
+          await command.RespondAsync($"Voici la liste des prochains développements prévus sur le module :\nhttps://docs.google.com/document/d/1F0LMG8QjVld4dT1HpKf1ALe3WfVVlKZbawKmQMAHASM/edit?usp=sharing");
+          break;
+        case "alignement":
+          await command.RespondAsync($"Quelques informations générales concernant les alignements sur le module :\nhttps://docs.google.com/document/d/159t2E4TsLkKgrN_ix2IhfdDQWUJm-C-5-57ePSyx09o/edit?usp=sharing");
+          break;
+        case "animations":
+          await command.RespondAsync($"Quelques informations générales concernant les animations sur le module :\nhttps://docs.google.com/document/d/1Dzo6fCjf-JNvTR6pATbk-6lLGxCYpzG-Vk8O4hCXaZg/edit?usp=sharing");
+          break;
+        case "test":
+          await command.RespondAsync($"Test d'argument, vous avez envoyé : {command.Data.Options.First().Value}", ephemeral: true);
+          break;
+        case "mail_supprimer":
+          await BotSystem.ExecuteDeleteMailCommand(command);
+          break;
+        case "rumeur_pj_supprimer": // droit général
+          await BotSystem.ExecuteDeleteMyRumorCommand(command);
+          break;
+        case "rumeur_supprimer": // droit staff et admin
+          await BotSystem.ExecuteDeleteRumorCommand(command);
+          break;
+      }
     }
   }
 }

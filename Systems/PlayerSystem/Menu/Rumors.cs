@@ -262,8 +262,8 @@ namespace NWN.Systems
             CloseWindow();
             CreateWindow();
 
-            //if (!player.oid.IsDM)
-              //await (Bot._client.GetChannel(680072044364562532) as Discord.IMessageChannel).SendMessageAsync($"{Bot._client.GetGuild(680072044364562528).EveryoneRole.Mention} Création de la rumeur {newRumorTitle} par {player.oid.LoginCreature.Name} à valider.");
+            if (!player.oid.IsDM)
+              await Bot.staffGeneralChannel.SendMessageAsync($"{Bot.discordServer.EveryoneRole.Mention} Création de la rumeur {newRumorTitle} par {player.oid.LoginCreature.Name} à valider.");
           });
 
           return true;
@@ -336,11 +336,11 @@ namespace NWN.Systems
           CloseWindow();
           CreateWindow();
 
-          /*Task waitForTransaction = NwTask.Run(async () =>
+          Task waitForTransaction = NwTask.Run(async () =>
           {
             if (!player.oid.IsDM)
-              await (Bot._client.GetChannel(680072044364562532) as Discord.IMessageChannel).SendMessageAsync($"{Bot._client.GetGuild(680072044364562528).EveryoneRole.Mention} Modification de la rumeur {newRumorTitle} par {player.oid.LoginCreature.Name} à valider.");
-          });*/
+              await Bot.staffGeneralChannel.SendMessageAsync($"{Bot.discordServer.EveryoneRole.Mention} Modification de la rumeur {newRumorTitle} par {player.oid.LoginCreature.Name} à valider.");
+          });
 
           return true;
         }

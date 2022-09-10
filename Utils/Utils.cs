@@ -18,14 +18,14 @@ namespace NWN
     public static void LogMessageToDMs(string message)
     {
       Log.Info(message);
-      //Bot._client.GetUser(225961076448034817).SendMessageAsync(message); Bigby user
-      //Bot._client.GetUser(232218662080086017).SendMessageAsync(message); Chim user
+      //Bot.bigbyDiscordUser.SendMessageAsync(message); Bigby user
+      //Bot.chimDiscordUser.SendMessageAsync(message); Chim user
 
       switch (Config.env)
       {
-        case Config.Env.Prod:(Bot._client.GetChannel(703964971549196339) as IMessageChannel).SendMessageAsync(message); break;
-        case Config.Env.Bigby: (Bot._client.GetChannel(703964971549196339) as IMessageChannel).SendMessageAsync("Bigby test : " + message); break;
-        case Config.Env.Chim: (Bot._client.GetChannel(703964971549196339) as IMessageChannel).SendMessageAsync("Chim test : " + message); break;
+        case Config.Env.Prod: Bot.logChannel.SendMessageAsync(message); break;
+        case Config.Env.Bigby: Bot.logChannel.SendMessageAsync("Bigby test : " + message); break;
+        case Config.Env.Chim: Bot.logChannel.SendMessageAsync("Chim test : " + message); break;
       }
     }
     public static void DestroyInventory(NwCreature oContainer)

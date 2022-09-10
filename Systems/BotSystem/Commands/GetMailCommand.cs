@@ -1,21 +1,18 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Discord.Commands;
-using Anvil.API;
-using NWN.Core;
+using Discord.WebSocket;
 
 namespace NWN.Systems
 {
   public static partial class BotSystem
   {
-    public static async Task ExecuteGetMailCommand(SocketCommandContext context, string mailId, string characterName)
+    public static async Task ExecuteGetMailCommand(SocketSlashCommand command, string mailId, string characterName)
     {
-      int result = await DiscordUtils.CheckPlayerCredentialsFromDiscord(context, characterName);
+      int result = await DiscordUtils.CheckPlayerCredentialsFromDiscord(command.User.Id, characterName);
 
       if (result <= 0)
       {
-        await context.Channel.SendMessageAsync("Le personnage indiqué n'existe pas ou n'a pas été enregistré avec votre code Discord et votre clef cd.");
+        //await context.Channel.SendMessageAsync("Le personnage indiqué n'existe pas ou n'a pas été enregistré avec votre code Discord et votre clef cd.");
         return;
       }
 
@@ -25,14 +22,14 @@ namespace NWN.Systems
 
       if(query == null || query.Count < 1)
       {
-        await context.Channel.SendMessageAsync($"Le personnage indiqué n'a pas reçu de message dont le numéro correspond à {mailId}.");
+        //await context.Channel.SendMessageAsync($"Le personnage indiqué n'a pas reçu de message dont le numéro correspond à {mailId}.");
         return;
       }
 
-      await context.Channel.SendMessageAsync($"De {query[0][0]}");
-      await context.Channel.SendMessageAsync($"Envoyé le {query[0][2]} :");
-      await context.Channel.SendMessageAsync($"{query[0][1]}");
-      await context.Channel.SendMessageAsync($"{query[0][3]}");
+      //await context.Channel.SendMessageAsync($"De {query[0][0]}");
+      //await context.Channel.SendMessageAsync($"Envoyé le {query[0][2]} :");
+      //await context.Channel.SendMessageAsync($"{query[0][1]}");
+      //await context.Channel.SendMessageAsync($"{query[0][3]}");
 
       SqLiteUtils.UpdateQuery("messenger",
         new List<string[]>() { new string[] { "read", "1" } },

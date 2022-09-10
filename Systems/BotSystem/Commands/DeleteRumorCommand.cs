@@ -1,46 +1,34 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Discord.Commands;
-using Anvil.API;
-using NWN.Core;
+using Discord.WebSocket;
+using System.Linq;
 
 namespace NWN.Systems
 {
   public static partial class BotSystem
   {
-    public static async Task ExecuteDeleteRumorCommand(SocketCommandContext context, string rumorId)
+    public static async Task ExecuteDeleteRumorCommand(SocketSlashCommand command)
     {
-      int accountId = await DiscordUtils.GetPlayerAccountIdFromDiscord(context.User.Id);
+      SqLiteUtils.DeletionQuery("rumors",
+        new Dictionary<string, string>() { { "ROWID", command.Data.Options.First().Value.ToString() } });
+
+      await command.RespondAsync($"La rumeur numéro {command.Data.Options.First().Value} a bien été supprimée.", ephemeral: true);
+
+    }
+    public static async Task ExecuteDeleteMyRumorCommand(SocketSlashCommand command)
+    {
+      int accountId = await DiscordUtils.GetPlayerAccountIdFromDiscord(command.User.Id);
 
       if (accountId < 0)
       {
-        await context.Channel.SendMessageAsync("Votre compte Discord ne semble pas enregistré avec votre compte NwN. Veuillez suivre la procédure de la commande !register.");
+        await command.RespondAsync("Votre compte Discord ne semble pas enregistré avec votre compte NwN. Veuillez suivre la procédure de la commande /register.", ephemeral: true);
         return;
       }
 
-      string rank = await DiscordUtils.GetPlayerStaffRankFromDiscord(context.User.Id);
+      SqLiteUtils.DeletionQuery("rumors",
+            new Dictionary<string, string>() { { "accountId", accountId.ToString() }, { "ROWID", command.Data.Options.First().Value.ToString() } });
 
-      switch (rank)
-      {
-        default:
-
-          SqLiteUtils.DeletionQuery("rumors",
-            new Dictionary<string, string>() { { "accountId", accountId.ToString() }, { "ROWID", rumorId } });
-
-          await context.Channel.SendMessageAsync($"Votre rumeur numéro {rumorId} a bien été supprimée.");
-
-          return;
-
-        case "admin":
-        case "staff":
-
-          SqLiteUtils.DeletionQuery("rumors",
-            new Dictionary<string, string>() { { "ROWID", rumorId } });
-
-          await context.Channel.SendMessageAsync($"La rumeur numéro {rumorId} a bien été supprimée.");
-
-          return;
-      }
+      await command.RespondAsync($"Votre rumeur numéro {command.Data.Options.First().Value} a bien été supprimée.", ephemeral: true);
     }
   }
 }

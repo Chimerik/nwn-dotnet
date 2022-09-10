@@ -93,8 +93,8 @@ namespace NWN.Systems
         {
           if (Config.env == Config.Env.Prod)
           {
-            (Bot._client.GetChannel(786218144296468481) as IMessageChannel).SendMessageAsync($"Toute première connexion de {oid.LoginCreature.Name}. Accueillons le comme il se doit !");
-            (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{Bot._client.GetGuild(680072044364562528).EveryoneRole.Mention} Toute première connexion de {oid.LoginCreature.Name} => nouveau joueur à accueillir !");
+           Bot.playerGeneralChannel.SendMessageAsync($"Toute première connexion de {oid.LoginCreature.Name}. Accueillons le comme il se doit !");
+            Bot.staffGeneralChannel.SendMessageAsync($"{Bot.discordServer.EveryoneRole.Mention} Toute première connexion de {oid.LoginCreature.Name} => nouveau joueur à accueillir !");
 
             windows.Add("introWelcome", new IntroWelcomeWindow(this));
           }
@@ -145,7 +145,7 @@ namespace NWN.Systems
         {
           Task waitBotMessage = NwTask.Run(async () =>
           {
-            await (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{oid.PlayerName} vient de créer un nouveau personnage : {oid.LoginCreature.Name}");
+            await Bot.staffGeneralChannel.SendMessageAsync($"{oid.PlayerName} vient de créer un nouveau personnage : {oid.LoginCreature.Name}");
           });
         }
 
