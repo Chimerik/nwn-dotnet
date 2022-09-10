@@ -437,7 +437,7 @@ namespace NWN.Systems
             if (skill.active)
               activeLearnable = skill;
 
-            learnableSkills.Add(kvp.Key, skill);
+            learnableSkills.TryAdd(kvp.Key, skill);
           }
         });
 

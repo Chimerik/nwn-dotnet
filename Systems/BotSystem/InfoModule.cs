@@ -56,11 +56,6 @@ namespace NWN.Systems
     public async Task GetRumorAsync(int numero_rumeur)
       => await BotSystem.ExecuteGetRumorCommand(Context, numero_rumeur);
 
-    [Command("suprumeur")]
-    [Summary("Supprime la rumeur indiquée.")]
-    public async Task DeleteRumorAsync(string numero_rumeur)
-      => await BotSystem.ExecuteDeleteRumorCommand(Context, numero_rumeur);
-
     /*[Command("listepersos")]
     [Summary("Affiche la liste des personnages.")]
     public async Task GetCharacterListAsync()
@@ -155,11 +150,6 @@ namespace NWN.Systems
     [Summary("Affiche des informations concernant la façon dont la magie fonctionne sur les Larmes des Erylies.")]
     public async Task DisplayMagicInfo()
       => await BotSystem.ExecuteDisplayMagicInfoCommand(Context);
-
-    [Command("animations")]
-    [Summary("Affiche des informations concernant le fonctionnement général des animations sur les Larmes des Erylies.")]
-    public async Task DisplayAnimationInfo()
-      => await BotSystem.ExecuteDisplayAnimationInfoCommand(Context);
 
     [Command("backlog")]
     [Summary("Affiche la liste des projets et tâches en attente.")]
