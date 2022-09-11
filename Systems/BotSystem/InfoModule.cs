@@ -106,16 +106,6 @@ namespace NWN.Systems
     public async Task DisplayPVPInfo()
       => await BotSystem.ExecuteDisplayPVPInfoCommand(Context);
 
-    [Command("mort")]
-    [Summary("Affiche les principales règles liées aux différents types de morts sur les Larmes des Erylies.")]
-    public async Task DisplayDeathInfo()
-      => await BotSystem.ExecuteDisplayDeathInfoCommand(Context);
-
-    [Command("soins")]
-    [Summary("Affiche les principales informations sur la façon dont les soins sont pris en compte sur les Larmes des Erylies.")]
-    public async Task DisplayHealInfo()
-      => await BotSystem.ExecuteDisplayHealInfoCommand(Context);
-
     [Command("multicompte")]
     [Summary("Affiche les règles concernant le multi-compte sur les Larmes des Erylies.")]
     public async Task DisplayMultiAccountInfo()
@@ -126,21 +116,6 @@ namespace NWN.Systems
     public async Task DisplayKnowledgeInfo()
       => await BotSystem.ExecuteDisplayKnowledgeInfoCommand(Context);
 
-    [Command("dés")]
-    [Summary("Affiche les règles concernant la prise en compte des jets de dés sur les Larmes des Erylies.")]
-    public async Task DisplayDiceRollInfo()
-      => await BotSystem.ExecuteDisplayDiceRollInfoCommand(Context);
-
-    [Command("evil")]
-    [Summary("Affiche des recommandations sur la façon de jouer evil sur les Larmes des Erylies sans risquer trop de frustration.")]
-    public async Task DisplayEvilInfo()
-      => await BotSystem.ExecuteDisplayEvilInfoCommand(Context);
-
-    [Command("bonusroleplay")]
-    [Summary("Affiche le principe et fonctionnement du bonus de roleplay.")]
-    public async Task DisplayBonusRoleplayInfo()
-      => await BotSystem.ExecuteDisplayBonusRoleplayInfoCommand(Context);
-
     [Command("sortsrp")]
     [Summary("Affiche les règles concernant la gestion des sorts rp sur les Larmes des Erylies.")]
     public async Task DisplayRoleplaySpellsInfo()
@@ -150,10 +125,5 @@ namespace NWN.Systems
     [Summary("Affiche des informations concernant la façon dont la magie fonctionne sur les Larmes des Erylies.")]
     public async Task DisplayMagicInfo()
       => await BotSystem.ExecuteDisplayMagicInfoCommand(Context);
-
-    [Command("backlog")]
-    [Summary("Affiche la liste des projets et tâches en attente.")]
-    public async Task DisplayBacklogInfo()
-      => await BotSystem.ExecuteDisplayBacklogInfoCommand(Context);
   }
 }

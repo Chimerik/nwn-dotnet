@@ -60,10 +60,11 @@ namespace NWN.Systems
 
       //_client.Ready += CreateSlashGlobalCommands;
       _client.SlashCommandExecuted += SlashCommandHandler;
-      _client.Connected += OnDiscordConnected;
+      _client.Ready += OnDiscordConnected;
       _client.GuildMembersDownloaded += OnUsersDownloaded;
       _client.UserJoined += UpdateUserList;
       _client.UserLeft += UpdateUserListOnLeave;
+      _client.Disconnected += OnDiscordDisconnected;
 
       // Block this task until the program is closed.
       await Task.Delay(Timeout.Infinite);
@@ -182,6 +183,21 @@ namespace NWN.Systems
     {
       await _client.DownloadUsersAsync(new List<IGuild> { { _client.GetGuild(680072044364562528) } });
     }
+    private static async Task OnDiscordDisconnected(Exception e)
+    {
+      ModuleSystem.Log.Info($"WARNING - Discord Disconnected - Error :\n\n{e.Message}\n{e.StackTrace}");
+    }
+    private static async void HandleDiscordReconnect()
+    {
+      ModuleSystem.Log.Info("Trying to reconnect");
+
+      await _client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("BOT"));
+      await _client.StartAsync();
+
+      //if (_client.ConnectionState != ConnectionState.Connected)
+
+
+    }
     private static async Task OnUsersDownloaded(SocketGuild server)
     {
       discordServer = server;
@@ -220,14 +236,32 @@ namespace NWN.Systems
         default:
           await command.RespondAsync("Commande non reconnue, veuillez vérifier votre saisie.", ephemeral: true);
           break;
-        case "developpement":
-          await command.RespondAsync($"Voici la liste des prochains développements prévus sur le module :\nhttps://docs.google.com/document/d/1F0LMG8QjVld4dT1HpKf1ALe3WfVVlKZbawKmQMAHASM/edit?usp=sharing");
+        case "info_developpement":
+          await command.RespondAsync("Voici la liste des prochains développements prévus sur le module :\nhttps://docs.google.com/document/d/1F0LMG8QjVld4dT1HpKf1ALe3WfVVlKZbawKmQMAHASM/edit?usp=sharing");
           break;
-        case "alignement":
-          await command.RespondAsync($"Quelques informations générales concernant les alignements sur le module :\nhttps://docs.google.com/document/d/159t2E4TsLkKgrN_ix2IhfdDQWUJm-C-5-57ePSyx09o/edit?usp=sharing");
+        case "info_backlog":
+          await command.RespondAsync("La liste des futurs projets à prioriser :\nhttps://docs.google.com/document/d/1pudZjfhxLwIeHzHZlLHozH2qiquvIi-sXrhfRRLGpuU/edit?usp=sharing");
           break;
-        case "animations":
-          await command.RespondAsync($"Quelques informations générales concernant les animations sur le module :\nhttps://docs.google.com/document/d/1Dzo6fCjf-JNvTR6pATbk-6lLGxCYpzG-Vk8O4hCXaZg/edit?usp=sharing");
+        case "info_alignement":
+          await command.RespondAsync("Informations générales concernant les alignements sur le module :\nhttps://docs.google.com/document/d/159t2E4TsLkKgrN_ix2IhfdDQWUJm-C-5-57ePSyx09o/edit?usp=sharing");
+          break;
+        case "info_animations":
+          await command.RespondAsync("Informations générales concernant les animations sur le module :\nhttps://docs.google.com/document/d/1Dzo6fCjf-JNvTR6pATbk-6lLGxCYpzG-Vk8O4hCXaZg/edit?usp=sharing");
+          break;
+        case "info_bonus_investissement":
+          await command.RespondAsync("Informations générales concernant le bonus d'investissement :\nhttps://docs.google.com/document/d/1pobNknqQ0QG-_pBQxBz0X5wAOkdiqC13eCUGyVr5CQE/edit?usp=sharing");
+          break;
+        case "info_mort":
+          await command.RespondAsync("Informations générales concernant la mort sur le module :\nhttps://docs.google.com/document/d/1kzOeWtOgnIvk4Jw6vmtD_xVWIU2GUmfvdZ4h8Z2BDAY/edit?usp=sharing");
+          break;
+        case "info_jets_de_dés":
+          await command.RespondAsync("Informations générales concernant la mort sur le module :\nhttps://docs.google.com/document/d/1IBaRsSZIE3Zg2GJ0SSBNY6-dR2xoTmYYmEhlA95WEfs/edit?usp=sharing");
+          break;
+        case "info_evil":
+          await command.RespondAsync("Informations générales concernant le Role Play des personnages d'alignement mauvais :\nhttps://docs.google.com/document/d/1eCqJ2G27RFEwVBOrnei4KDEnbGsmvzghqtqz3w6vPbQ/edit?usp=sharing");
+          break;
+        case "info_soins":
+          await command.RespondAsync("Informations générales concernant les blessures et les soins :\nhttps://docs.google.com/document/d/12yT3ZvLtGXVteW29JTJxpQ6GRpQ3ArWUeCvXAbbCM4o/edit?usp=sharing");
           break;
         case "test":
           await command.RespondAsync($"Test d'argument, vous avez envoyé : {command.Data.Options.First().Value}", ephemeral: true);
