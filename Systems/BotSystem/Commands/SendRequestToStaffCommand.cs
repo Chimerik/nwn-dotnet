@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+﻿/*using System.Threading.Tasks;
 using Discord.Commands;
 
 namespace NWN.Systems
@@ -10,4 +10,4 @@ namespace NWN.Systems
             await (Bot._client.GetChannel(796027712510492674) as Discord.IMessageChannel).SendMessageAsync($"{context.User.Username} : {demande}");
         }
     }
-}
+}*/

@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using NWN.Core;
 using Google.Apis.Drive.v3;
 using Newtonsoft.Json;
+using System.Numerics;
 
 namespace NWN.Systems
 {
@@ -437,20 +438,20 @@ namespace NWN.Systems
         new List<string[]>() { new string[] { "highestAuction", "0" } },
         new List<string[]>() { new string[] { "ROWID", auctionId.ToString() } });
     }
-    private static async void RestoreResourceBlocksFromDatabase()
+    private static void RestoreResourceBlocksFromDatabase()
     {
-      var result = await SqLiteUtils.SelectQueryAsync("areaResourceStock",
+      var result = SqLiteUtils.SelectQuery("areaResourceStock",
           new List<string>() { { "id" }, { "areaTag" }, { "type" }, { "quantity" }, { "lastChecked" } },
           new List<string[]>() { });
 
       if (result != null)
-        foreach (var resourceBlock in result)
+        foreach (var resourceBlock in result.Results)
         {
-          int blockId = int.Parse(resourceBlock[0]);
-          NwArea blockArea = (NwArea)NwObject.FindObjectsWithTag(resourceBlock[1]).FirstOrDefault();
-          string spawnType = resourceBlock[2];
-          int quantity = int.Parse(resourceBlock[3]);
-          DateTime lastChecked = DateTime.Parse(resourceBlock[4]);
+          int blockId = resourceBlock.GetInt(0);
+          NwArea blockArea = (NwArea)NwObject.FindObjectsWithTag(resourceBlock.GetString(1)).FirstOrDefault();
+          string spawnType = resourceBlock.GetString(2);
+          int quantity = resourceBlock.GetInt(3);
+          DateTime lastChecked = DateTime.Parse(resourceBlock.GetString(4)); 
           NwWaypoint blockWaypoint = blockArea.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(w => w.Tag == spawnType && w.GetObjectVariable<LocalVariableInt>("id").Value == blockId);
 
           Log.Info($"Area {blockArea.Name} - Spawning {spawnType} - id {blockId} - Quantity {quantity} - lastChecked {lastChecked} - wp {blockWaypoint}");
@@ -812,12 +813,13 @@ namespace NWN.Systems
     private static void LoadCreatureSpawns()
     {
       var result = SqLiteUtils.SelectQuery("creatureSpawn",
-            new List<string>() { { "areaTag" }, { "position" }, { "facing" }, { "serializedCreature" } },
+            new List<string>() { { "areaTag" }, { "position" }, { "facing" }, { "serializedCreature" }, { "rowid" } },
             new List<string[]>() { });
 
       foreach (var spawn in result.Results)
       {
         NwCreature creature = NwCreature.Deserialize(spawn.GetString(3).ToByteArray());
+        creature.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value = spawn.GetInt(4);
         creature.Location = Utils.GetLocationFromDatabase(spawn.GetString(0), spawn.GetString(1), spawn.GetFloat(2));
       }
     }
@@ -838,7 +840,7 @@ namespace NWN.Systems
     {
       foreach (var player in PlayerSystem.Players.Values)
       {
-        if (player.pcState != PlayerSystem.Player.PcState.Offline && player.oid.IsConnected && player.oid.LoginCreature != null)
+        if (player.pcState != PlayerSystem.Player.PcState.Offline && player.oid != null && player.oid.IsConnected && player.oid.LoginCreature != null)
         {
           HandleJobLoop(player);
           HandleLearnableLoop(player);
@@ -892,8 +894,30 @@ namespace NWN.Systems
     private void HandleCheckAfkStatus(PlayerSystem.Player player)
     {
       DateTime lastActionDate = player.oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value;
+      double minutesSinceLastAction = (DateTime.Now - lastActionDate).TotalMinutes;
 
-      if (player.pcState == PlayerSystem.Player.PcState.Online && player.oid.IsValid && (DateTime.Now - lastActionDate).TotalMinutes > 4)
+      if(player.pcState == PlayerSystem.Player.PcState.AFK)
+      {
+        if (player.oid.IsValid)
+        {
+          if (minutesSinceLastAction < 5.0)
+          {
+            player.pcState = PlayerSystem.Player.PcState.Online;
+
+            foreach (Effect eff in player.oid.LoginCreature.ActiveEffects)
+              if (eff.Tag == "EFFECT_VFX_AFK")
+                player.oid.LoginCreature.RemoveEffect(eff);
+          }
+          else if (player.oid.LoginCreature.GetObjectVariable<LocalVariableLocation>("_AFK_LOCATION").HasValue)
+          {
+            Vector3 afkPos = player.oid.LoginCreature.GetObjectVariable<LocalVariableLocation>("_AFK_LOCATION").Value.Position;
+            
+            if(afkPos.X != player.oid.ControlledCreature.Location.Position.X || afkPos.Y != player.oid.ControlledCreature.Location.Position.Y || afkPos.Z != player.oid.ControlledCreature.Location.Position.Z)
+              player.oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
+          }
+        }
+      }
+      else if (player.pcState == PlayerSystem.Player.PcState.Online && player.oid.IsValid && minutesSinceLastAction > 5.0)
       {
         player.pcState = PlayerSystem.Player.PcState.AFK;
         Effect afkVXF = Effect.VisualEffect((VfxType)751);
@@ -902,16 +926,6 @@ namespace NWN.Systems
         player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, afkVXF);
 
         player.oid.LoginCreature.GetObjectVariable<LocalVariableLocation>("_AFK_LOCATION").Value = player.oid.ControlledCreature.Location;
-      }
-
-      if (player.pcState == PlayerSystem.Player.PcState.AFK && player.oid.LoginCreature.GetObjectVariable<LocalVariableLocation>("_AFK_LOCATION").HasValue
-        && player.oid.LoginCreature.GetObjectVariable<LocalVariableLocation>("_AFK_LOCATION").Value != player.oid.ControlledCreature.Location)
-      {
-        player.pcState = PlayerSystem.Player.PcState.Online;
-
-        foreach (Effect eff in player.oid.LoginCreature.ActiveEffects)
-          if (eff.Tag == "EFFECT_VFX_AFK")
-            player.oid.LoginCreature.RemoveEffect(eff);
       }
     }
   }

@@ -26,6 +26,8 @@ namespace NWN.Systems
         oItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
         Utils.LogMessageToDMs($"{onSpawn.DungeonMaster.PlayerName} vient de créer {oItem.Name}");
       }
+      else if(onSpawn.SpawnedObject is NwCreature creature)
+        creature.OnDeath += CreatureUtils.MakeInventoryUndroppable;
     }
     public void HandleAfterDmJumpTarget(OnDMJumpTargetToPoint onJump)
     {

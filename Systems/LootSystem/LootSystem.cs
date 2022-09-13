@@ -129,11 +129,11 @@ namespace NWN.Systems
 
       if (lootablesDic.TryGetValue(oContainer.Tag, out Lootable.Config lootableConfig))
       {
-        Utils.DestroyInventory(oContainer);
+        ItemUtils.MakeCreatureInventoryUndroppable(oContainer);
         lootableConfig.GenerateLoot(oContainer);
       }
-      else
-        Log.Info($"Unregistered container tag=\"{oContainer.Tag}\"");
+      //else
+        //Utils.LogMessageToDMs($"Unregistered container tag=\"{oContainer.Tag}\"");
 
       if(oContainer.Tag.StartsWith("boss_"))
       {

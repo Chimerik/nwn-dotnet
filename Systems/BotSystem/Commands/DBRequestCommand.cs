@@ -1,30 +1,23 @@
-﻿using Discord.Commands;
-using System.Threading.Tasks;
-using Anvil.API;
+﻿using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
+using Discord.WebSocket;
+using System.Linq;
 
 namespace NWN.Systems
 {
   public static partial class BotSystem
   {
-    public static async Task ExecuteDBRequestCommand(SocketCommandContext context, string request)
+    public static async Task ExecuteDBRequestCommand(SocketSlashCommand command)
     {
-      string rank = await DiscordUtils.GetPlayerStaffRankFromDiscord(context.User.Id);
-      if (rank != "admin")
-      {
-        await context.Channel.SendMessageAsync("Noooon, vous n'êtes pas la maaaaaître ! Le maaaaître est bien plus poli, d'habitude !");
-        return;
-      }
-
       using (var connection = new SqliteConnection(Config.dbPath))
       {
         connection.Open();
 
-        var command = connection.CreateCommand();
-        command.CommandText = request;
+        var sqlCommand = connection.CreateCommand();
+        sqlCommand.CommandText = command.Data.Options.First().ToString();
 
-        await command.ExecuteNonQueryAsync();
-        await context.Channel.SendMessageAsync("Requête correctement exécutée.");
+        await sqlCommand.ExecuteNonQueryAsync();
+        await command.RespondAsync("Requête correctement exécutée.");
       }
 
       /*if (query.Error != "")

@@ -262,15 +262,6 @@ namespace NWN.Systems
       if (!Players.TryGetValue(oPC.LoginCreature, out Player player))
         return;
 
-      if (player.pcState == Player.PcState.AFK)
-      {
-        player.pcState = Player.PcState.Online;
-
-        foreach (Effect eff in player.oid.LoginCreature.ActiveEffects)
-          if (eff.Tag == "EFFECT_VFX_AFK")
-            player.oid.LoginCreature.RemoveEffect(eff);
-      }
-
       switch (guiEvent.EventType)
       {
         case GuiEventType.DisabledPanelAttemptOpen:

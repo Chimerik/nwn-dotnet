@@ -1,22 +1,20 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Discord.Commands;
 using Anvil.API;
-using NWN.Core;
+using Discord.WebSocket;
 
 namespace NWN.Systems
 {
   public static partial class BotSystem
   {
-    public static async Task ExecuteRegisterDiscordId(SocketCommandContext context, string cdKey)
+    public static async Task ExecuteRegisterDiscordId(SocketSlashCommand command)
     {
-      await NwTask.SwitchToMainThread();
-
       SqLiteUtils.UpdateQuery("PlayerAccounts",
-          new List<string[]>() { new string[] { "discordId", context.User.Id.ToString() } },
-          new List<string[]>() { new string[] { "cdKey", cdKey } });
+          new List<string[]>() { new string[] { "discordId", command.User.Id.ToString() } },
+          new List<string[]>() { new string[] { "cdKey", command.Data.Options.First().ToString() } });
 
-      await context.Channel.SendMessageAsync("Voilà qui est fait. Enfin, pour tant soit peu que la clef fournie fusse valide !");
+      await command.RespondAsync("Discord a bien été lié à la clef fournie. Enfin, pour tant soit peu que la clef fournie fusse valide !", ephemeral: true);
     }
   }
 }

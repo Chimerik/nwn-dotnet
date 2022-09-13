@@ -816,13 +816,12 @@ namespace NWN.Systems
                     {
                       HandleSelectSpawnType();
 
-                      NwWaypoint spawnPoint = NwWaypoint.Create("creature_spawn", targetCreature.Location);
                       targetCreature.GetObjectVariable<LocalVariableString>("_SPAWNED_BY").Value = player.oid.PlayerName;
-                      spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value = targetCreature.Serialize().ToBase64EncodedString();
+                      CreatureUtils.HandleSpawnPointCreation(targetCreature);
 
                       player.oid.SendServerMessage($"{targetCreature.Name.ColorString(ColorConstants.White)} a été ajouté au système de spawn permanent.\nVeuillez sélectionner la nouvelle créature pour poursuivre l'édition.", ColorConstants.Orange);
-                      targetCreature.Destroy();
                       CloseWindow();
+                      return;
                     }
                     else
                     {
