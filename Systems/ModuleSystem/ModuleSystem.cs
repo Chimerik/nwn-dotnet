@@ -674,7 +674,7 @@ namespace NWN.Systems
           case Gender.Other: Utils.genderList.Add(new NuiComboEntry("Autre", (int)genderType)); break;
         }
       }
-
+      
       foreach (var entry in SoundSet2da.soundSetTable)
         if (!string.IsNullOrEmpty(entry.resRef))
           Utils.soundSetList.Add(new NuiComboEntry(entry.label, entry.RowIndex));

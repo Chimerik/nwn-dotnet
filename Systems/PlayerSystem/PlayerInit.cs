@@ -511,6 +511,7 @@ namespace NWN.Systems
         });
 
         await Task.WhenAll(loadSkillsTask, loadSpellsTask, loadExplorationTask, loadCauldronTask, loadCraftJobTask, loadGrimoiresTask, loadQuickbarsTask, loadItemAppearancesTask, loadDescriptionsTask);
+        Utils.LogMessageToDMs($"async init done {oid.LoginCreature.Name}");
         await NwTask.SwitchToMainThread();
         FinalizePlayerData();
       }
@@ -534,6 +535,8 @@ namespace NWN.Systems
 
         pcState = PcState.Online;
         oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
+
+        Utils.LogMessageToDMs($"player finalized {oid.LoginCreature.Name}");
       }
       private async void InitializeAccountMapPins(string serializedMapPins)
       {
@@ -619,6 +622,8 @@ namespace NWN.Systems
       }
       public void HandleReinit()
       {
+        Utils.LogMessageToDMs($"{oid.LoginCreature.Name} reinit done : {oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_REINITILISATION_DONE").HasNothing}");
+
         if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_REINITILISATION_DONE").HasNothing)
         {
           foreach(var item in oid.LoginCreature.Inventory.Items)

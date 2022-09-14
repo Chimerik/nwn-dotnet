@@ -193,7 +193,7 @@ namespace NWN.Systems
 
       await _client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("BOT"));
       await _client.StartAsync();
-
+      
       //if (_client.ConnectionState != ConnectionState.Connected)
 
 
