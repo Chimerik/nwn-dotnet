@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 using Anvil.API;
@@ -58,6 +57,8 @@ namespace NWN.Systems
         private readonly NuiBind<string> newVariableName = new("newVariableName");
         private readonly NuiBind<string> newVariableValue = new("newVariableValue");
         private readonly NuiBind<int> selectedNewVariableType = new("selectedNewVariableType");
+
+        private readonly NuiBind<bool> modificationAllowed = new("modificationAllowed");
 
         private readonly List<ItemPropertyTableEntry> availableIPList = new();
         private readonly List<ItemProperty> acquiredIPList = new();
@@ -224,6 +225,11 @@ namespace NWN.Systems
                   targetItem.LocalVariables.ElementAt(nuiEvent.ArrayIndex).Delete();
                   LoadVariablesBinding();
                   break;
+
+                case "appearance":
+                  if (modificationAllowed.GetBindValue(player.oid, nuiToken.Token))
+                    ItemUtils.OpenItemCustomizationWindow(targetItem, player);
+                  break;
               }
 
               break;
@@ -377,16 +383,20 @@ namespace NWN.Systems
             }
           });
 
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
           {
             new NuiSpacer(),
             new NuiCheck("Inéchangeable", undroppableChecked) { Height = 35, Width = 120, Enabled = visibilityDM },
             new NuiCheck("Identifié", identifiedChecked) { Height = 35, Width = 120, Enabled = visibilityDM },
             new NuiSpacer()
-          }
-          });
+          } });
+
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
+          {
+            new NuiSpacer(),
+            new NuiButton("Apparence") { Id = "appearance", Height = 35, Width = 120, Enabled = modificationAllowed },
+            new NuiSpacer()
+          } });
         }
         private void StopAllWatchBindings()
         {
@@ -423,6 +433,9 @@ namespace NWN.Systems
           identifiedChecked.SetBindValue(player.oid, nuiToken.Token, targetItem.Identified);
           undroppableChecked.SetBindWatch(player.oid, nuiToken.Token, true);
           identifiedChecked.SetBindWatch(player.oid, nuiToken.Token, true);
+          string originalCrafterName = targetItem.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value;
+          modificationAllowed.SetBindValue(player.oid, nuiToken.Token, (string.IsNullOrWhiteSpace(originalCrafterName) || originalCrafterName == player.oid.ControlledCreature.OriginalName)
+            && (targetItem.Possessor == player.oid.ControlledCreature || player.IsDm()));
         }
         private void LoadItemPropertyLayout()
         {

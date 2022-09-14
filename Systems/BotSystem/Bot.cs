@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+
+using Anvil.API;
+
 using Discord;
 using Discord.WebSocket;
 
@@ -87,7 +90,21 @@ namespace NWN.Systems
     {
       ModuleSystem.Log.Info("Trying to reconnect");
 
+      await NwTask.Delay(TimeSpan.FromSeconds(10));
+
+      if(_client.ConnectionState != ConnectionState.Connected)
       {
+        try
+        {
+          await _client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("BOT"));
+          await _client.StartAsync();
+        }
+        catch(Exception e)
+        {
+          ModuleSystem.Log.Info(e.Message + "\n" + e.StackTrace);
+        }
+      }
+
     }
     private static async Task OnUsersDownloaded(SocketGuild server)
     {

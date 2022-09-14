@@ -400,7 +400,15 @@ namespace NWN.Systems
             {
               case "edit":
                 CloseWindow();
-                OpenItemAppearanceModificationWindow();
+
+                if (player.IsDm())
+                {
+                  if (!player.windows.ContainsKey("editorItem")) player.windows.Add("editorItem", new EditorItemWindow(player, item));
+                  else ((EditorItemWindow)player.windows["editorItem"]).CreateWindow(item);
+                }
+                else if (modificationAllowed)
+                  ItemUtils.OpenItemCustomizationWindow(item, player);
+
                 return;
 
               case "add":
@@ -582,11 +590,6 @@ namespace NWN.Systems
 
           CreateSequenceRegisterLayout(item.GetObjectVariable<LocalVariableString>("_REGISTERED_SEQUENCE").Value.Split("_"));
           sequenceRegisterGroup.SetLayout(player.oid, nuiToken.Token, sequenceRegisterRow);
-        }
-        private void OpenItemAppearanceModificationWindow()
-        {
-          if (!player.windows.ContainsKey("editorItem")) player.windows.Add("editorItem", new EditorItemWindow(player, item));
-          else ((EditorItemWindow)player.windows["editorItem"]).CreateWindow(item);
         }
         private string GetMateriaQualityIcon(int materiaQuality)
         {

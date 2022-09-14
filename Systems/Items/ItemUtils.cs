@@ -377,5 +377,38 @@ namespace NWN.Systems
           item.Droppable = false;
       }
     }
+    public static void OpenItemCustomizationWindow(NwItem item, PlayerSystem.Player player)
+    {
+      switch (item.BaseItem.ModelType)
+      {
+        case BaseItemModelType.Simple:
+          if (!player.windows.ContainsKey("simpleItemAppearanceModifier")) player.windows.Add("simpleItemAppearanceModifier", new PlayerSystem.Player.SimpleItemAppearanceWindow(player, item));
+          else ((PlayerSystem.Player.SimpleItemAppearanceWindow)player.windows["simpleItemAppearanceModifier"]).CreateWindow(item);
+          break;
+
+        case BaseItemModelType.Layered:
+          if (item.BaseItem.ItemType == BaseItemType.Helmet)
+          {
+            if (!player.windows.ContainsKey("helmetColorsModifier")) player.windows.Add("helmetColorsModifier", new PlayerSystem.Player.HelmetCustomizationWindow(player, item));
+            else ((PlayerSystem.Player.HelmetCustomizationWindow)player.windows["helmetColorsModifier"]).CreateWindow(item);
+          }
+          else if (item.BaseItem.ItemType == BaseItemType.Cloak)
+          {
+            if (!player.windows.ContainsKey("cloakColorsModifier")) player.windows.Add("cloakColorsModifier", new PlayerSystem.Player.CloakCustomizationWindow(player, item));
+            else ((PlayerSystem.Player.CloakCustomizationWindow)player.windows["cloakColorsModifier"]).CreateWindow(item);
+          }
+          break;
+
+        case BaseItemModelType.Composite:
+          if (!player.windows.ContainsKey("weaponAppearanceModifier")) player.windows.Add("weaponAppearanceModifier", new PlayerSystem.Player.WeaponAppearanceWindow(player, item));
+          else ((PlayerSystem.Player.WeaponAppearanceWindow)player.windows["weaponAppearanceModifier"]).CreateWindow(item);
+          break;
+
+        case BaseItemModelType.Armor:
+          if (!player.windows.ContainsKey("itemColorsModifier")) player.windows.Add("itemColorsModifier", new PlayerSystem.Player.ArmorCustomizationWindow(player, item));
+          else ((PlayerSystem.Player.ArmorCustomizationWindow)player.windows["itemColorsModifier"]).CreateWindow(item);
+          break;
+      }
+    }
   }
 }

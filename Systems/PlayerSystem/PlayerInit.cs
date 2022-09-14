@@ -79,6 +79,9 @@ namespace NWN.Systems
 
       player.mapLoadingTime = DateTime.Now;
 
+      if (player.learnableSkills.Count > 0)
+        player.FinalizePlayerData();
+
       player.HandleReinit();
     }
     public partial class Player
@@ -313,8 +316,6 @@ namespace NWN.Systems
               oid.LoginCreature.AddFeat(CustomFeats.Orc);
             break;
         }
-
-        //CheckForAFKStatus();
       }
       private void InitializePlayerEvents()
       {
@@ -511,11 +512,10 @@ namespace NWN.Systems
         });
 
         await Task.WhenAll(loadSkillsTask, loadSpellsTask, loadExplorationTask, loadCauldronTask, loadCraftJobTask, loadGrimoiresTask, loadQuickbarsTask, loadItemAppearancesTask, loadDescriptionsTask);
-        Utils.LogMessageToDMs($"async init done {oid.LoginCreature.Name}");
         await NwTask.SwitchToMainThread();
         FinalizePlayerData();
       }
-      private void FinalizePlayerData()
+      public void FinalizePlayerData()
       {
         int improvedHealth = learnableSkills.ContainsKey(CustomSkill.ImprovedHealth) ? learnableSkills[CustomSkill.ImprovedHealth].currentLevel : 0;
         int toughness = learnableSkills.ContainsKey(CustomSkill.Toughness) ? learnableSkills[CustomSkill.Toughness].currentLevel : 0;
@@ -535,8 +535,6 @@ namespace NWN.Systems
 
         pcState = PcState.Online;
         oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
-
-        Utils.LogMessageToDMs($"player finalized {oid.LoginCreature.Name}");
       }
       private async void InitializeAccountMapPins(string serializedMapPins)
       {
