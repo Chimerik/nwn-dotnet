@@ -223,7 +223,7 @@ namespace NWN.Systems
             foreach (Effect eff in targetMateria.ActiveEffects.Where(e => e.Tag == $"_{player.oid.CDKey}_MINING_BEAM"))
               targetMateria.RemoveEffect(eff);
 
-          if (player.oid.LoginCreature != null)
+          if (player.oid != null && player.oid.LoginCreature != null)
             foreach (Effect eff in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "_RESOURCE_EXTRACTION_HIDE_DEBUFF"))
               player.oid.LoginCreature.RemoveEffect(eff);
 

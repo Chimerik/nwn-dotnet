@@ -1,25 +1,17 @@
-﻿using Discord.Commands;
-using Anvil.API;
+﻿using Anvil.API;
 using System.Threading.Tasks;
+using Discord.WebSocket;
 
 namespace NWN.Systems
 {
   public static partial class BotSystem
   {
-    public static async Task ExecuteRefillCommand(SocketCommandContext context)
+    public static async Task ExecuteRefillCommand(SocketSlashCommand command)
     {
-      string rank = await DiscordUtils.GetPlayerStaffRankFromDiscord(context.User.Id);
-
-      if (rank != "admin")
-      {
-        await context.Channel.SendMessageAsync("Noooon, vous n'êtes pas la maaaaaître ! Le maaaaître est bien plus poli, d'habitude !");
-        return;
-      }
-
       await NwTask.SwitchToMainThread();
 
       ModuleSystem.SpawnCollectableResources();
-      await context.Channel.SendMessageAsync("Refill terminé");
+      await command.RespondAsync("Refill terminé.", ephemeral: true);
     }
   }
 }

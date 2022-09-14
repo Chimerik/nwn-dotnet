@@ -1,19 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Commands;
 using Discord.WebSocket;
-
-using Microsoft.Extensions.DependencyInjection;
 
 namespace NWN.Systems
 {
   public static partial class Bot
   {
-    public const char prefix = '!';
     public static DiscordSocketClient _client;
     public static SocketGuild discordServer;
     public static IMessageChannel staffGeneralChannel;
@@ -22,43 +17,17 @@ namespace NWN.Systems
     public static SocketUser chimDiscordUser;
     public static SocketUser bigbyDiscordUser;
 
-    // Keep the CommandService and DI container around for use with commands.
-    // These two types require you install the Discord.Net.Commands package.
-    public static CommandService commandService;
-    private static IServiceProvider _services;
-
-    public static IEnumerable<CommandInfo> GetCommands()
-    {
-      return commandService.Commands;
-    }
-
     public static async Task MainAsync()
     {
-      _client = new DiscordSocketClient();
-
-      commandService = new CommandService();
-      
+      _client = new DiscordSocketClient();      
       _client.Log += Log;
-      commandService.Log += Log;
 
-      // Setup your DI container.
-      _services = ConfigureServices();
-
-      var config = new DiscordSocketConfig()
-      {
-        // Other config options can be presented here.
-        GatewayIntents = GatewayIntents.All
-      };
-
+      var config = new DiscordSocketConfig() { GatewayIntents = GatewayIntents.GuildMembers | GatewayIntents.AllUnprivileged };
       _client = new DiscordSocketClient(config);      
-      
-      // Centralize the logic for commands into a separate method.
-      await InitCommands();
 
       await _client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("BOT"));
       await _client.StartAsync();
 
-      //_client.Ready += CreateSlashGlobalCommands;
       _client.SlashCommandExecuted += SlashCommandHandler;
       _client.Ready += OnDiscordConnected;
       _client.GuildMembersDownloaded += OnUsersDownloaded;
@@ -88,88 +57,12 @@ namespace NWN.Systems
           Console.ForegroundColor = ConsoleColor.DarkGray;
           break;
       }
+
       Console.WriteLine($"{DateTime.Now,-19} [{message.Severity,8}] {message.Source}: {message.Message} {message.Exception}");
       Console.ResetColor();
 
-      // If you get an error saying 'CompletedTask' doesn't exist,
-      // your project is targeting .NET 4.5.2 or lower. You'll need
-      // to adjust your project's target framework to 4.6 or higher
-      // (instructions for this are easily Googled).
-      // If you *need* to run on .NET 4.5 for compat/other reasons,
-      // the alternative is to 'return Task.Delay(0);' instead.
       return Task.CompletedTask;
     }
-    // If any services require the client, or the CommandService, or something else you keep on hand,
-    // pass them as parameters into this method as needed.
-    // If this method is getting pretty long, you can seperate it out into another file using partials.
-    private static IServiceProvider ConfigureServices()
-    {
-      var map = new ServiceCollection()
-          // Repeat this for all the service classes
-          // and other dependencies that your commands might need.
-          .AddSingleton(new CommandService());
-
-      // When all your required services are in the collection, build the container.
-      // Tip: There's an overload taking in a 'validateScopes' bool to make sure
-      // you haven't made any mistakes in your dependency graph.
-      return map.BuildServiceProvider();
-    }
-    private static async Task InitCommands()
-    {
-      // Either search the program and add all Module classes that can be found.
-      // Module classes MUST be marked 'public' or they will be ignored.
-      // You also need to pass your 'IServiceProvider' instance now,
-      // so make sure that's done before you get here.
-      //      await commandService.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
-      // Or add Modules manually if you prefer to be a little more explicit:
-      await commandService.AddModuleAsync<InfoModule>(_services);
-      // Note that the first one is 'Modules' (plural) and the second is 'Module' (singular).
-
-      // Subscribe a handler to see if a message invokes a command.
-      _client.MessageReceived += HandleCommandAsync;
-    }
-    private static async Task HandleCommandAsync(SocketMessage arg)
-    {
-      // Bail out if it's a System Message.
-      var msg = arg as SocketUserMessage;
-      if (msg == null) return;
-
-      // We don't want the bot to respond to itself or other bots.
-      if (msg.Author.Id == _client.CurrentUser.Id || msg.Author.IsBot) return;
-
-      // Create a number to track where the prefix ends and the command begins
-      int pos = 0;
-      // Replace the '!' with whatever character
-      // you want to prefix your commands with.
-      // Uncomment the second half if you also want
-      // commands to be invoked by mentioning the bot instead.
-      if (msg.HasCharPrefix(prefix, ref pos) /* || msg.HasMentionPrefix(_client.CurrentUser, ref pos) */)
-      {
-        // Create a Command Context.
-        var context = new SocketCommandContext(_client, msg);
-
-        // Execute the command. (result does not indicate a return value, 
-        // rather an object stating if the command executed successfully).
-        var result = await commandService.ExecuteAsync(context, pos, _services);
-
-        // Uncomment the following lines if you want the bot
-        // to send a message if it failed.
-        // This does not catch errors from commandService with 'RunMode.Async',
-        // subscribe a handler for 'commandService.CommandExecuted' to see those.
-        if (!result.IsSuccess)
-        {
-          if (result.Error == CommandError.UnknownCommand)
-          {
-            await msg.Channel.SendMessageAsync("La commande indiquée n'existe pas.\nVeuillez taper \"!help\" pour obtenir la liste des commandes disponibles.");
-          }
-          else
-          {
-            await msg.Channel.SendMessageAsync(result.ErrorReason);
-          }
-        }
-      }
-    }
-
     private static async Task UpdateUserList(SocketGuildUser data)
     {
       await _client.DownloadUsersAsync(new List<IGuild> { { discordServer } });
@@ -183,20 +76,18 @@ namespace NWN.Systems
     {
       await _client.DownloadUsersAsync(new List<IGuild> { { _client.GetGuild(680072044364562528) } });
     }
-    private static async Task OnDiscordDisconnected(Exception e)
+    private static Task OnDiscordDisconnected(Exception e)
     {
       ModuleSystem.Log.Info($"WARNING - Discord Disconnected - Error :\n\n{e.Message}\n{e.StackTrace}");
+      HandleDiscordReconnect();
+      return Task.CompletedTask;
     }
+
     private static async void HandleDiscordReconnect()
     {
       ModuleSystem.Log.Info("Trying to reconnect");
 
-      await _client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("BOT"));
-      await _client.StartAsync();
-      
-      //if (_client.ConnectionState != ConnectionState.Connected)
-
-
+      {
     }
     private static async Task OnUsersDownloaded(SocketGuild server)
     {
@@ -209,17 +100,49 @@ namespace NWN.Systems
       bigbyDiscordUser = _client.GetUser(225961076448034817);
 
       Utils.LogMessageToDMs("Module en ligne !");
-
+      //CreateSlashCommand("reboot", "Reboot le module", GuildPermission.Administrator);
+      //await discordServer.DeleteApplicationCommandsAsync();
+      //CreateAllSlashCommand();
+    }
+    private static void CreateAllSlashCommand()
+    {
+      CreateSlashCommand("info_developpement", "Liste des développements et améliorations en cours", GuildPermission.SendMessages);
+      CreateSlashCommand("info_backlog", "Liste de futurs projets à prioriser", GuildPermission.SendMessages);
+      CreateSlashCommand("info_alignement", "Informations sur les alignements", GuildPermission.SendMessages);
+      CreateSlashCommand("info_animations", "Informations sur/ la gestion des animations", GuildPermission.SendMessages);
+      CreateSlashCommand("info_bonus_investissement", "Informations sur le concept de bonus d'investissement", GuildPermission.SendMessages);
+      CreateSlashCommand("info_mort", "La gestion de la mort sur le module", GuildPermission.SendMessages);
+      CreateSlashCommand("info_jets_de_dés", "La gestion des jets de dés sur le module", GuildPermission.SendMessages);
+      CreateSlashCommand("info_evil", "Le Role Play des personnages d'alignement mauvais", GuildPermission.SendMessages);
+      CreateSlashCommand("info_soins", "La gestion des blessures et des soins sur le module", GuildPermission.SendMessages);
+      CreateSlashCommand("info_savoir", "La gestion du savoir et des connaissances des personnages sur le module", GuildPermission.SendMessages);
+      CreateSlashCommand("info_raison_d_etre", "Notre raison d'être, ce qui nous motive et ce que nous aimerions que le module soit", GuildPermission.SendMessages);
+      CreateSlashCommand("info_magie", "Informations sur la magie", GuildPermission.SendMessages);
+      CreateSlashCommand("info_multicompte", "Règles concernant le multi-compte", GuildPermission.SendMessages);
+      CreateSlashCommand("info_pvp", "Règles concernant le PvP", GuildPermission.SendMessages);
+      CreateSlashCommand("info_sorts_rp", "Règles concernant les sorts RP", GuildPermission.SendMessages);
+      CreateSlashCommand("info_univers", "Pourquoi cet univers ?", GuildPermission.SendMessages);
+      CreateSlashCommand("info_livre_joueur", "Tout sur l'univers et le contexte RP du module", GuildPermission.SendMessages);
+      CreateSlashCommand("rumeur_supprimer", "Supprimer une rumeur", GuildPermission.MentionEveryone, "rumeur", "Identifiant de la rumeur", ApplicationCommandOptionType.Integer);
+      CreateSlashCommand("rumeur_liste", "Afficher la liste des rumeurs en cours", GuildPermission.MentionEveryone);
+      CreateSlashCommand("rumeur_lire", "Lire une rumeur", GuildPermission.MentionEveryone, "rumeur", "Identifiant de la rumeur", ApplicationCommandOptionType.Integer);
+      CreateSlashCommand("reboot", "Reboot le module", GuildPermission.Administrator);
+      CreateSlashCommand("refill", "Refill ressources", GuildPermission.Administrator);
+      CreateSlashCommand("register", "Lier son compte Discord et Never", GuildPermission.SendMessages, "public_key", "Votre clef publique Never", ApplicationCommandOptionType.String);
+      CreateSlashCommand("quiestla", "Combien sommes nous actuellement en jeu ?", GuildPermission.SendMessages);
+      CreateSlashCommand("joueurs_liste", "Obtenir la liste des joueurs connectés", GuildPermission.MentionEveryone);
+    }
+    private static async void CreateSlashCommand(string name, string description, GuildPermission permission, string optionName = "", string optionDescription = "", ApplicationCommandOptionType optionType = ApplicationCommandOptionType.Integer)
+    {
       try
       {
         var guildCommand = new SlashCommandBuilder()
-        .WithName("animations")
-        .WithDescription("Informations générales sur les animations sur le module");
-        /*var guildCommand = new SlashCommandBuilder()
-        .WithName("test")
-        .WithDescription("test argument")
-        .AddOption("arg", ApplicationCommandOptionType.Integer, "le test de notre argument", isRequired: true)
-        .WithDefaultMemberPermissions(GuildPermission.Administrator);*/
+        .WithName(name)
+        .WithDescription(description)
+        .WithDefaultMemberPermissions(permission);
+
+        if (!string.IsNullOrEmpty(optionName))
+          guildCommand = guildCommand.AddOption(optionName, optionType, optionDescription, isRequired: true);
 
         var slash = guildCommand.Build();
         await discordServer.CreateApplicationCommandAsync(slash);
@@ -231,7 +154,9 @@ namespace NWN.Systems
     }
     private static async Task SlashCommandHandler(SocketSlashCommand command)
     {
-      switch(command.CommandName)
+      Utils.LogMessageToDMs($"Discord - commande {command.CommandName} utilisée par - {command.User.Username}");
+
+      switch (command.CommandName)
       {
         default:
           await command.RespondAsync("Commande non reconnue, veuillez vérifier votre saisie.", ephemeral: true);
@@ -263,17 +188,53 @@ namespace NWN.Systems
         case "info_soins":
           await command.RespondAsync("Informations générales concernant les blessures et les soins :\nhttps://docs.google.com/document/d/12yT3ZvLtGXVteW29JTJxpQ6GRpQ3ArWUeCvXAbbCM4o/edit?usp=sharing");
           break;
-        case "test":
-          await command.RespondAsync($"Test d'argument, vous avez envoyé : {command.Data.Options.First().Value}", ephemeral: true);
+        case "info_savoir":
+          await command.RespondAsync("Informations générales concernant le savoir et les connaissances d'un personnage :\nhttps://docs.google.com/document/d/1sJtd0XZmBpeTa9s5lVRfaMw3QdfLM8md2GJJHvDdM6Y/edit?usp=sharing");
           break;
-        case "mail_supprimer":
-          await BotSystem.ExecuteDeleteMailCommand(command);
+        case "info_raison_d_etre":
+          await command.RespondAsync("Notre raison d'être, ce qui nous motive et ce que nous aimerions que le module soit :\nhttps://docs.google.com/document/d/1kRRVt_dYdYR-6JPw_-CLbk7eYYCsL-Ots_7xqg5lCRo/edit?usp=sharing");
           break;
-        case "rumeur_pj_supprimer": // droit général
-          await BotSystem.ExecuteDeleteMyRumorCommand(command);
+        case "info_magie":
+          await command.RespondAsync("Informations générales concernant la magie :\nhttps://docs.google.com/document/d/1Wsn-9TPOoYzSUgJVNb_y9yf4cdA9ODUdG6zewdO0LjE/edit?usp=sharing");
+          break;
+        case "info_multicompte":
+          await command.RespondAsync("Règles concernant le multi-compte :\nhttps://docs.google.com/document/d/17d2ooZJoPkC-oMFzpyAIjpr5CbSM1lLB3yyzoxRzHR8/edit?usp=sharing");
+          break;
+        case "info_pvp":
+          await command.RespondAsync("Règles concernant le PvP :\nhttps://docs.google.com/document/d/1z-dQok7wEMdcZsk24C19VITYMYOpypHqHQQutBJeK68/edit?usp=sharing");
+          break;
+        case "info_sorts_rp":
+          await command.RespondAsync("Règles concernant les sorts RP :\nhttps://docs.google.com/document/d/1MOG5Kw2Yyaa0TW7mEdGdFvc3vFY1t08G_bJNDRqa70E/edit?usp=sharing");
+          break;
+        case "info_univers":
+          await command.RespondAsync("Informations concernant les choix de l'univers du module :\nhttps://docs.google.com/document/d/1mwKEVr-7MLUeWynivYuJeHbcnCvymfv9zHM23J-nPMI/edit?usp=sharing");
+          break;
+        case "info_livre_joueur":
+          await command.RespondAsync("Présentation de l'univers et du contexte RP du module :\nhttps://docs.google.com/document/d/1ammPGnH-sVjNHnJHCMAm_khbe8mBqTPFeCfqCvJt7ig/edit?usp=sharing");
           break;
         case "rumeur_supprimer": // droit staff et admin
           await BotSystem.ExecuteDeleteRumorCommand(command);
+          break;
+        case "rumeur_liste": // droit staff et admin
+          await BotSystem.ExecuteGetRumorsListCommand(command);
+          break;
+        case "rumeur_lire": // droit staff et admin,
+          await BotSystem.ExecuteGetRumorCommand(command);
+          break;
+        case "reboot": // droit admin
+          await BotSystem.ExecuteRebootCommand(command);
+          break;
+        case "refill": // droit admin
+          await BotSystem.ExecuteRefillCommand(command);
+          break;
+        case "register": // droit général
+          await BotSystem.ExecuteRegisterDiscordId(command);
+          break;
+        case "quiestla": // droit général
+          await BotSystem.ExecuteGetConnectedPlayersCommand(command);
+          break;
+        case "joueurs_liste": // droit admin & staff
+          await BotSystem.ExecuteGetConnectedPlayersCommand(command, true);
           break;
       }
     }

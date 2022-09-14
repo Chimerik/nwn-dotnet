@@ -4,6 +4,8 @@ using System.Linq;
 
 using Anvil.API;
 
+using NLog.Fluent;
+
 using NWN.Core;
 
 namespace NWN.Systems
@@ -361,6 +363,19 @@ namespace NWN.Systems
     {
       await NwTask.Delay(TimeSpan.FromSeconds(delay));
       item.Destroy();
+    }
+    public static void MakeCreatureInventoryUndroppable(NwCreature creature)
+    {
+      foreach (var item in creature.Inventory.Items)
+        item.Droppable = false;
+
+      foreach (InventorySlot slot in (InventorySlot[])Enum.GetValues(typeof(InventorySlot)))
+      {
+        NwItem item = creature.GetItemInSlot(slot);
+
+        if (item != null && item.IsValid)
+          item.Droppable = false;
+      }
     }
   }
 }

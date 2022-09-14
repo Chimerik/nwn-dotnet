@@ -94,24 +94,7 @@ namespace NWN.Systems
     private void SerializeCreaturesAndCreateSpawn(List<NwCreature> creatureList)
     {
       foreach (NwCreature creature in creatureList)
-      {
-        NwWaypoint spawnPoint = NwWaypoint.Create("creature_spawn", creature.Location);
-
-        if (creature.VisualTransform.Scale != 1 || creature.VisualTransform.Translation != Vector3.Zero || creature.VisualTransform.Rotation != Vector3.Zero)
-        {
-          spawnPoint.GetObjectVariable<LocalVariableFloat>("_CREATURE_SCALE").Value = creature.VisualTransform.Scale;
-          spawnPoint.GetObjectVariable<LocalVariableLocation>("_CREATURE_TRANSLATION").Value = Location.Create(creature.Area, creature.VisualTransform.Translation, 0);
-          spawnPoint.GetObjectVariable<LocalVariableLocation>("_CREATURE_ROTATION").Value = Location.Create(creature.Area, creature.VisualTransform.Rotation, 0);
-        }
-
-        spawnPoint.GetObjectVariable<LocalVariableInt>("_CREATURE_APPEARANCE").Value = creature.Appearance.RowIndex;
-        spawnPoint.GetObjectVariable<LocalVariableString>("_SPAWN_TYPE").Value = creature.GetObjectVariable<LocalVariableString>("_SPAWN_TYPE").Value;
-        spawnPoint.GetObjectVariable<LocalVariableInt>("animation").Value = creature.GetObjectVariable<LocalVariableInt>("animation").Value;
-
-        CreatureUtils.creatureSpawnDictionary.TryAdd(creature.Tag, NwCreature.Deserialize(creature.Serialize()));
-        spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value = creature.Tag;
-        creature.Destroy();
-      }
+        CreatureUtils.HandleSpawnPointCreation(creature);
     }
     public void OnAreaHeartbeat(AreaEvents.OnHeartbeat onHB)
     {

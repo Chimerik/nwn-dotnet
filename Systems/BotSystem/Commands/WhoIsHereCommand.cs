@@ -1,19 +1,17 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using Discord.Commands;
 using Anvil.API;
+using Discord.WebSocket;
 
 namespace NWN.Systems
 {
   public static partial class BotSystem
   {
-    public static async Task ExecuteGetConnectedPlayersCommand(SocketCommandContext context)
+    public static async Task ExecuteGetConnectedPlayersCommand(SocketSlashCommand command, bool staff = false)
     {
-      string rank = await DiscordUtils.GetPlayerStaffRankFromDiscord(context.User.Id);
-
       await NwTask.SwitchToMainThread();
 
-      if (rank == "admin")
+      if (staff)
       {
         string message = "";
         foreach (NwPlayer player in NwModule.Instance.Players)
@@ -22,10 +20,10 @@ namespace NWN.Systems
         if (message.Length == 0)
           message = "Aucun joueur n'est actuellement connecté.";
 
-        await context.Channel.SendMessageAsync(message);
+        await command.RespondAsync(message, ephemeral:true);
       }
       else
-        await context.Channel.SendMessageAsync($"Nous sommes actuellement {NwModule.Instance.Players.Count()} joueur(s) sur le module !");
+        await command.RespondAsync($"Nous sommes actuellement {NwModule.Instance.Players.Count()} joueur(s) sur le module !", ephemeral: true);
     }
   }
 }

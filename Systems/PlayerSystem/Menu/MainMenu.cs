@@ -244,7 +244,7 @@ namespace NWN.Systems
                     connectingPlayer.BootPlayer("Navré, le module est en cours de redémarrage. Vous pourrez vous reconnecter dans une minute.");
 
                   foreach (Player connectedPlayer in Players.Values.Where(p => p.pcState != PcState.Offline))
-                    player.windows.Add("rebootCountdown", new RebootCountdownWindow(player));
+                    connectedPlayer.windows.Add("rebootCountdown", new RebootCountdownWindow(connectedPlayer));
 
                   var scheduler = player.scheduler.Schedule(() =>
                   {

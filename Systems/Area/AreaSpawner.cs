@@ -32,12 +32,18 @@ namespace NWN.Systems
 
           //creature.ApplyEffect(EffectDuration.Permanent, Effect.CutsceneParalyze());
           creature.OnHeartbeat += CheckIfNoPlayerAround;
-          creature.OnDeath += CreatureUtils.OnMobDeathResetSpawn; ;
+          creature.OnDeath += CreatureUtils.MakeInventoryUndroppable;
+          creature.OnDeath += CreatureUtils.OnMobDeathResetSpawn;
+          creature.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value = spawnPoint.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value;
           creature.GetObjectVariable<LocalVariableObject<NwWaypoint>>("_SPAWN").Value = spawnPoint;
           creature.GetObjectVariable<LocalVariableFloat>("_PERSONNAL_SPACE").Value = CreaturePlugin.GetPersonalSpace(creature);
           creature.GetObjectVariable<LocalVariableFloat>("_HEIGHT").Value = CreaturePlugin.GetHeight(creature);
           creature.GetObjectVariable<LocalVariableFloat>("_HIT_DISTANCE").Value = CreaturePlugin.GetHitDistance(creature);
           creature.GetObjectVariable<LocalVariableFloat>("_CREATURE_PERSONNAL_SPACE").Value = CreaturePlugin.GetCreaturePersonalSpace(creature);
+
+          if (spawnPoint.GetObjectVariable<LocalVariableString>("_SPAWNED_BY").HasValue)
+            creature.GetObjectVariable<LocalVariableString>("_SPAWNED_BY").Value = spawnPoint.GetObjectVariable<LocalVariableString>("_SPAWNED_BY").Value;
+
           HandleSpawnSpecificBehaviour(creature, spawnPoint);
 
           DelayVisualTransform(creature, spawnPoint.GetObjectVariable<LocalVariableFloat>("_CREATURE_SCALE").HasValue ? spawnPoint.GetObjectVariable<LocalVariableFloat>("_CREATURE_SCALE").Value : 1,

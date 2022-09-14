@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 using Anvil.API;
 using Anvil.API.Events;
@@ -213,22 +211,7 @@ namespace NWN.Systems
               {
                 case "selectedCategory":
                 case "search":
-
-                  int categorySelected = selectedCategory.GetBindValue(player.oid, nuiToken.Token);
-                  string currentSearch = search.GetBindValue(player.oid, nuiToken.Token).ToLower();
-
-                  if (displaySkill)
-                    currentList = player.learnableSkills.Values.Where(s => s.category == (SkillSystem.Category)categorySelected);
-                  else if (categorySelected > 0)
-                    currentList = player.learnableSpells.Values.Where(s => s.spellLevel == categorySelected - 1);
-                  else
-                    currentList = player.learnableSpells.Values;
-
-                  if (!string.IsNullOrEmpty(currentSearch))
-                    currentList = currentList.Where(s => s.name.ToLower().Contains(currentSearch));
-
-                  LoadLearnableList(currentList);
-
+                  HandleLearnableSearch();
                   break;
               }
 
@@ -297,6 +280,23 @@ namespace NWN.Systems
 
           //if (filteredList.Any(l => l.active) && !refreshOn)
           //RefreshActiveLearnable();
+        }
+        public void HandleLearnableSearch()
+        {
+          int categorySelected = selectedCategory.GetBindValue(player.oid, nuiToken.Token);
+          string currentSearch = search.GetBindValue(player.oid, nuiToken.Token).ToLower();
+
+          if (displaySkill)
+            currentList = player.learnableSkills.Values.Where(s => s.category == (SkillSystem.Category)categorySelected);
+          else if (categorySelected > 0)
+            currentList = player.learnableSpells.Values.Where(s => s.spellLevel == categorySelected - 1);
+          else
+            currentList = player.learnableSpells.Values;
+
+          if (!string.IsNullOrEmpty(currentSearch))
+            currentList = currentList.Where(s => s.name.ToLower().Contains(currentSearch));
+
+          LoadLearnableList(currentList);
         }
         /*private async void RefreshWindowOnAbilityChange()
         {

@@ -1,7 +1,4 @@
 ﻿using System.Collections.Generic;
-using Discord.Commands;
-using Anvil.API;
-using NWN.Core;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 
@@ -29,17 +26,6 @@ namespace NWN.Systems
       }
 
       return 0;
-    }
-    public static async Task<string> GetPlayerStaffRankFromDiscord(ulong UserId)
-    {
-      var result = await SqLiteUtils.SelectQueryAsync("PlayerAccounts",
-        new List<string>() { { "rank" } },
-        new List<string[]>() { new string[] { "discordId", UserId.ToString() } });
-
-      if (result != null && result.Count > 0)
-        return result[0][0];
-
-      return "";
     }
     public static async Task<int> GetPlayerAccountIdFromDiscord(ulong UserId)
     {

@@ -473,6 +473,9 @@ namespace NWN.Systems
                 CloseWindow();
                 item.Destroy();
 
+                if (player.TryGetOpenedWindow("learnables", out PlayerWindow window))
+                  ((LearnableWindow)window).HandleLearnableSearch();
+
                 return;
 
               case "hide":

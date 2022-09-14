@@ -255,6 +255,7 @@ namespace NWN.Systems
 
           creature.Location = spawnLocation;
           creature.OnPerception += CreatureUtils.OnMobPerception;
+          creature.OnDeath += CreatureUtils.MakeInventoryUndroppable;
         }
 
         private void HandleInsertNewCreature(string creatureName, string serializedCreature, string playerName, string comment)
