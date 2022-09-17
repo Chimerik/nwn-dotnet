@@ -51,7 +51,7 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
-              new NuiTextEdit("Contenu de la description", descriptionText, 15000, true) { Width = windowRectangle.Width - 20, Height = windowRectangle.Height - 90 },
+              new NuiTextEdit("Contenu de la description", descriptionText, 15000, true) { Width = windowRectangle.Width - 40, Height = windowRectangle.Height - 150 },
             }
           });
 

@@ -52,8 +52,6 @@ namespace NWN.Systems
       });
 
       Log.Info($"{onPCDisconnect.Player.LoginCreature.Name} disconnected.");
-
-      player.oid = null;
     }
   }
 }

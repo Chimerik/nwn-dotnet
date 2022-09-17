@@ -231,8 +231,6 @@ namespace NWN.Systems
               {
                 case "cloakSelection":
 
-                  Log.Info(cloakSelection.GetBindValue(player.oid, nuiToken.Token));
-
                   item.Appearance.SetSimpleModel((byte)cloakSelection.GetBindValue(player.oid, nuiToken.Token));
                   NwItem newCloak = item.Clone(nuiEvent.Player.ControlledCreature);
                   nuiEvent.Player.ControlledCreature.RunEquip(newCloak, InventorySlot.Cloak);

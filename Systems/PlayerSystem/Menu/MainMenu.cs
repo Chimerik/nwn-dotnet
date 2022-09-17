@@ -177,8 +177,8 @@ namespace NWN.Systems
 
                 case "description":
 
-                  if (!player.windows.ContainsKey("description")) player.windows.Add("description", new DescriptionsWindow(player));
-                  else ((DescriptionsWindow)player.windows["description"]).CreateWindow();
+                  if (!player.windows.ContainsKey("descriptions")) player.windows.Add("descriptions", new DescriptionsWindow(player));
+                  else ((DescriptionsWindow)player.windows["descriptions"]).CreateWindow();
 
                   CloseWindow();
 

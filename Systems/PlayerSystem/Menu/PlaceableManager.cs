@@ -43,7 +43,7 @@ namespace NWN.Systems
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ief_arcanefail") { Id = "remove", Tooltip = "Supprimer" }) { Width = 35 });
 
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) } });
-          rootChildren.Add(new NuiRow() { Height = 300, Width = 540, Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35 } } });
+          rootChildren.Add(new NuiRow() { Height = 460, Width = 540, Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35 } } });
 
           CreateWindow();
         }

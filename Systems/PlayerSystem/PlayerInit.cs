@@ -620,8 +620,6 @@ namespace NWN.Systems
       }
       public void HandleReinit()
       {
-        Utils.LogMessageToDMs($"{oid.LoginCreature.Name} reinit done : {oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_REINITILISATION_DONE").HasNothing}");
-
         if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_REINITILISATION_DONE").HasNothing)
         {
           foreach(var item in oid.LoginCreature.Inventory.Items)

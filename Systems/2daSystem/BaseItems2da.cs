@@ -12,45 +12,20 @@ namespace NWN.Systems
   {
     public string name { get; private set; }
     public string workshop { get; private set; }
+    public string resRef { get; private set; }
     public string craftedItem { get; private set; }
     public int craftLearnable { get; private set; }
     public double cost { get; private set; }
-    public Dictionary<ItemAppearanceWeaponModel, List<byte>> weaponModels { get; private set; }
-
-    // RowIndex is already populated externally, and we do not need to assign it in InterpretEntry.
     public int RowIndex { get; init; }
 
     public void InterpretEntry(TwoDimArrayEntry entry)
     {
       workshop = entry.GetString("Category");
       craftedItem = entry.GetString("label");
-      string resRef = entry.GetString("ItemClass");
+      resRef = entry.GetString("ItemClass");
       name = entry.GetStrRef("Name").HasValue && entry.GetInt("Name") > 0 ?  entry.GetStrRef("Name").Value.ToParsedString() : "";
       craftLearnable = entry.GetInt("ILRStackSize").GetValueOrDefault(-1);
       cost = entry.GetInt("BaseCost").GetValueOrDefault(-1);
-
-      Dictionary<ItemAppearanceWeaponModel, List<byte>> weaponModels = new Dictionary<ItemAppearanceWeaponModel, List<byte>>();
-
-      if (!string.IsNullOrEmpty(resRef))
-      {
-        weaponModels.Add(ItemAppearanceWeaponModel.Top, new List<byte>());
-        weaponModels.Add(ItemAppearanceWeaponModel.Middle, new List<byte>());
-        weaponModels.Add(ItemAppearanceWeaponModel.Bottom, new List<byte>());
-
-        for (byte i = 10; i < 255; i++)
-        {
-          string search = i.ToString().PadLeft(3, '0');
-
-          if (NWScript.ResManGetAliasFor($"{resRef}_t_{search}", NWScript.RESTYPE_MDL) != "")
-            weaponModels[ItemAppearanceWeaponModel.Top].Add(i);
-
-          if (NWScript.ResManGetAliasFor($"{resRef}_m_{search}", NWScript.RESTYPE_MDL) != "")
-            weaponModels[ItemAppearanceWeaponModel.Middle].Add(i);
-
-          if (NWScript.ResManGetAliasFor($"{resRef}_b_{search}", NWScript.RESTYPE_MDL) != "")
-            weaponModels[ItemAppearanceWeaponModel.Bottom].Add(i);
-        }
-      }
     }
   }
   [ServiceBinding(typeof(BaseItems2da))]
@@ -117,15 +92,6 @@ namespace NWN.Systems
         if (resMan.IsValidResource($"iashto_{search}", ResRefType.TGA))
           simpleItemModels["iashto"].Add(i);
       }
-    }
-    public static List<NuiComboEntry> GetWeaponModelList(BaseItemType baseItem, ItemAppearanceWeaponModel part)
-    {
-      List<NuiComboEntry> comboEntries = new List<NuiComboEntry>();
-
-      foreach (byte model in baseItemTable[(int)baseItem].weaponModels[part])
-        comboEntries.Add(new NuiComboEntry(model.ToString(), model));
-
-      return comboEntries;
     }
   }
 }

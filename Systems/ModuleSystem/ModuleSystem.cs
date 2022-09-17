@@ -704,6 +704,39 @@ namespace NWN.Systems
       foreach (var model in NwGameTables.PlaceableTable)
         if (!string.IsNullOrEmpty(model.Label))
           Utils.placeableEntries.Add(new NuiComboEntry(model.Label, model.RowIndex));
+
+      ItemUtils.weaponModelDictionary = new();
+
+      foreach (var baseItem in BaseItems2da.baseItemTable)
+      {
+        Dictionary<ItemAppearanceWeaponModel, List<NuiComboEntry>> models = new();
+
+        List<NuiComboEntry> topEntries = new();
+        List<NuiComboEntry> midEntries = new();
+        List<NuiComboEntry> botEntries = new();
+
+        string resRef = baseItem.resRef;
+
+        for (byte i = 10; i < 255; i++)
+        {
+          string search = i.ToString().PadLeft(3, '0');
+
+          if (NWScript.ResManGetAliasFor($"{resRef}_t_{search}", NWScript.RESTYPE_MDL) != "")
+            topEntries.Add(new NuiComboEntry(i.ToString(), i));
+          
+          if (NWScript.ResManGetAliasFor($"{resRef}_m_{search}", NWScript.RESTYPE_MDL) != "")
+            midEntries.Add(new NuiComboEntry(i.ToString(), i));
+
+          if (NWScript.ResManGetAliasFor($"{resRef}_b_{search}", NWScript.RESTYPE_MDL) != "")
+            botEntries.Add(new NuiComboEntry(i.ToString(), i));
+        }
+
+        models.Add(ItemAppearanceWeaponModel.Top, topEntries);
+        models.Add(ItemAppearanceWeaponModel.Middle, midEntries);
+        models.Add(ItemAppearanceWeaponModel.Bottom, botEntries);
+
+        ItemUtils.weaponModelDictionary.Add((BaseItemType)baseItem.RowIndex, models);
+      }
     }
     private static void LoadModulePalette()
     {

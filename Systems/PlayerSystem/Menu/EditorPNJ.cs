@@ -629,8 +629,9 @@ namespace NWN.Systems
                   break;
 
                 case "name":
-                  //targetCreature.Name = name.GetBindValue(player.oid, nuiToken.Token);
-                  targetCreature.OriginalFirstName = name.GetBindValue(player.oid, nuiToken.Token);
+                  targetCreature.Name = name.GetBindValue(player.oid, nuiToken.Token);
+                  //targetCreature.OriginalFirstName = name.GetBindValue(player.oid, nuiToken.Token);
+                  //targetCreature.OriginalLastName = name.GetBindValue(player.oid, nuiToken.Token);
                   break;
 
                 case "tag":

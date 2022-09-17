@@ -38,8 +38,8 @@ namespace NWN.Systems
 
           List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell>
           {
-            new NuiListTemplateCell(new NuiButton(buttonText) { Id = "load", Height = 35 }) { Width = 300 },
-            new NuiListTemplateCell(new NuiButton("Supprimer") { Id = "delete", Height = 35 }) { Width = 60 },
+            new NuiListTemplateCell(new NuiButton(buttonText) { Id = "load", Height = 35 }) { VariableSize = true },
+            new NuiListTemplateCell(new NuiButtonImage("ir_ban") { Id = "delete", Height = 35 }) { Width = 35 },
           };
           rootChidren.Add(new NuiList(rowTemplate, listCount) { RowHeight = 35 });
 
@@ -47,6 +47,8 @@ namespace NWN.Systems
         }
         public void CreateWindow()
         {
+          descriptionNamesList.Clear();
+
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.4f);
 
           window = new NuiWindow(rootGroup, "Descriptions - Sélection")

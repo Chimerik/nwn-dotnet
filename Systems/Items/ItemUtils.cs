@@ -4,8 +4,6 @@ using System.Linq;
 
 using Anvil.API;
 
-using NLog.Fluent;
-
 using NWN.Core;
 
 namespace NWN.Systems
@@ -18,6 +16,8 @@ namespace NWN.Systems
     public static readonly BaseItemType[] forgeBasicWeaponBlueprints = new BaseItemType[] { BaseItemType.LightMace, BaseItemType.Helmet, BaseItemType.Dagger, BaseItemType.Morningstar, BaseItemType.ShortSpear, BaseItemType.Sickle, BaseItemType.LightHammer, BaseItemType.LightFlail, BaseItemType.Bracer };
     public static readonly int[] forgeBasicArmorBlueprints = new int[] { 4 };
     public static readonly int[] leatherBasicArmorBlueprints = new int[] { 0, 1, 2, 3 };
+
+    public static Dictionary<BaseItemType, Dictionary<ItemAppearanceWeaponModel, List<NuiComboEntry>>> weaponModelDictionary;
 
     public enum ItemCategory
     {
@@ -409,6 +409,10 @@ namespace NWN.Systems
           else ((PlayerSystem.Player.ArmorCustomizationWindow)player.windows["itemColorsModifier"]).CreateWindow(item);
           break;
       }
+    }
+    public static List<NuiComboEntry> GetWeaponModelList(BaseItemType baseItem, ItemAppearanceWeaponModel part)
+    {
+      return weaponModelDictionary[baseItem][part];
     }
   }
 }

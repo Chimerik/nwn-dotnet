@@ -621,6 +621,10 @@ namespace NWN.Systems
               ipName += $" : {NwGameTables.ItemPropertyTable.GetRow(ip.Property.RowIndex).SubTypeTable?.GetRow(ip.SubType.RowIndex).Name?.ToString()}";
 
             ipName += " " + ip.CostTableValue?.Name?.ToString();
+
+            if (ip.Property.PropertyType == ItemPropertyType.OnHitProperties && ip.SubType.RowIndex == 18) // OnHit, Ability Drain
+              ipName += " " + NwGameTables.ItemPropertyTable.GetRow(0)?.SubTypeTable.GetRow(ip.IntParams[5]).Name?.ToString();
+
             ipName += " " + ip.Param1TableValue?.Name?.ToString();
             ipName += ip.RemainingDuration > TimeSpan.Zero ? $" ({new TimeSpan(ip.RemainingDuration.Days, ip.RemainingDuration.Hours, ip.RemainingDuration.Minutes, ip.RemainingDuration.Seconds)})" : "";
 

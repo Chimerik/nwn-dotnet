@@ -42,6 +42,9 @@ namespace NWN.Systems
         player.HandlePlayerSave();
 
       Log.Info($"{player.oid.LoginCreature.Name} saved in : {(DateTime.Now - elapsed).TotalSeconds} s");
+
+      if (player.pcState == Player.PcState.Offline)
+        player.oid = null;
     }
     public partial class Player
     {
@@ -49,8 +52,8 @@ namespace NWN.Systems
       {
         CancellationTokenSource tokenSource = new CancellationTokenSource();
 
-        Task awaitPlayerLeaves = NwTask.WaitUntilValueChanged(() => oid.IsValid, tokenSource.Token);
-        Task awaitDebounce = NwTask.WaitUntil(() => !oid.IsValid || oid.LoginCreature.GetObjectVariable<LocalVariableInt>($"_SAVE_SCHEDULED").Value != nbDebounces, tokenSource.Token);
+        Task awaitPlayerLeaves = NwTask.WaitUntilValueChanged(() => pcState == PcState.Offline, tokenSource.Token);
+        Task awaitDebounce = NwTask.WaitUntil(() => oid == null || oid.LoginCreature.GetObjectVariable<LocalVariableInt>($"_SAVE_SCHEDULED").Value != nbDebounces, tokenSource.Token);
         Task awaitSaveAuthorized = NwTask.Delay(TimeSpan.FromSeconds(10), tokenSource.Token);
 
         await NwTask.WhenAny(awaitPlayerLeaves, awaitDebounce, awaitSaveAuthorized);

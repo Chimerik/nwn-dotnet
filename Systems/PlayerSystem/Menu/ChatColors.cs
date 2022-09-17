@@ -49,13 +49,13 @@ namespace NWN.Systems
 
           List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell>
           {
-            new NuiListTemplateCell(new NuiButton(buttonText) { Id = "set", Tooltip = "Applique la couleur sélectionnée à ce canal.", Height = 35 }) { Width = windowRectangle.Width - 120 },
-            new NuiListTemplateCell(new NuiButton("Réinitialiser") { Id = "reinit", Tooltip = "Réinitialise ce canal à la couleur par défaut.", Height = 35 }),
+            new NuiListTemplateCell(new NuiButton(buttonText) { Id = "set", Tooltip = "Applique la couleur sélectionnée à ce canal.", Height = 35 }) { VariableSize = true },
+            new NuiListTemplateCell(new NuiButtonImage("ir_ban") { Id = "reinit", Tooltip = "Réinitialise ce canal à la couleur par défaut.", Height = 35 }) { Width = 35},
           };
 
           rootChidren.Add(new NuiList(rowTemplate, listCount) { RowHeight = 35 });
 
-          window = new NuiWindow(rootGroup, "Descriptions - Sélection")
+          window = new NuiWindow(rootGroup, "Couleurs de chat - Sélection")
           {
             Geometry = geometry,
             Resizable = true,
@@ -90,10 +90,8 @@ namespace NWN.Systems
                   Color newColor = color.GetBindValue(player.oid, nuiToken.Token);
                   int chatChannel = GetChatChannelFromIndex(nuiEvent.ArrayIndex);
 
-                  if (player.chatColors.ContainsKey(chatChannel))
+                  if(!player.chatColors.TryAdd(chatChannel, new byte[4] { newColor.Red, newColor.Green, newColor.Blue, newColor.Alpha }))
                     player.chatColors[chatChannel] = new byte[4] { newColor.Red, newColor.Green, newColor.Blue, newColor.Alpha };
-                  else
-                    player.chatColors.Add(chatChannel, new byte[4] { newColor.Red, newColor.Green, newColor.Blue, newColor.Alpha });
 
                   player.oid.SendServerMessage("Couleur de canal enregistrée.", ColorConstants.Orange);
 
@@ -116,14 +114,14 @@ namespace NWN.Systems
         {
           return index switch
           {
-            2 => (int)ChatChannel.DmTalk,
-            3 => (int)ChatChannel.PlayerWhisper,
-            4 => (int)ChatChannel.DmWhisper,
-            5 => (int)ChatChannel.PlayerParty,
-            6 => (int)ChatChannel.PlayerTell,
-            7 => (int)ChatChannel.DmShout,
-            8 => 100,// emotes
-            9 => 101,// correctif
+            1 => (int)ChatChannel.DmTalk,
+            2 => (int)ChatChannel.PlayerWhisper,
+            3 => (int)ChatChannel.DmWhisper,
+            4 => (int)ChatChannel.PlayerParty,
+            5 => (int)ChatChannel.PlayerTell,
+            //6 => (int)ChatChannel.DmShout,
+            6 => 100,// emotes
+            7 => 101,// correctif
             _ => (int)ChatChannel.PlayerTalk,
           };
         }
