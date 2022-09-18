@@ -107,7 +107,6 @@ namespace NWN.Systems
           {
             nuiToken = tempToken;
             nuiToken.OnNuiEvent += HandleFishingStrengthEvents;
-            player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
 
             weightSpeed = 0;
 

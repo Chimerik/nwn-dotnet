@@ -26,13 +26,13 @@ namespace NWN.Systems
 
       if (characterId > 0)
       {
-        var result = SqLiteUtils.SelectQuery("playerCharacters",
+        var query = SqLiteUtils.SelectQuery("playerCharacters",
         new List<string>() { { "location" } },
         new List<string[]>() { new string[] { "rowid", characterId.ToString() } });
 
-        if (result.Result != null)
+        foreach(var result in query)
         {
-          Location spawnLoc = SqLiteUtils.DeserializeLocation(result.Result.GetString(0));
+          Location spawnLoc = SqLiteUtils.DeserializeLocation(result[0]);
 
           if (spawnLoc.Area == null)
             return;

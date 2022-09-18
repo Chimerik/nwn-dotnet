@@ -110,7 +110,6 @@ namespace NWN.Systems
             nuiToken = tempToken;
 
             nuiToken.OnNuiEvent += HandleBankStorageEvents;
-            player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
           }
 
           search.SetBindValue(player.oid, nuiToken.Token, "");
@@ -380,9 +379,9 @@ namespace NWN.Systems
             new List<string>() { { "persistantStorage" } },
             new List<string[]>() { { new string[] { "rowid", player.characterId.ToString() } } });
 
-          if (result.Result != null)
+          if (result != null)
           {
-            string serializedBank = result.Result.GetString(0);
+            string serializedBank = result.FirstOrDefault()[0];
             List<string> serializedItems = new List<string>();
 
             Task loadBank = Task.Run(() =>

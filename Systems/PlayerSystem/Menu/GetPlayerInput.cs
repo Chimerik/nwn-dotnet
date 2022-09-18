@@ -56,7 +56,6 @@ namespace NWN.Systems
           {
             nuiToken = tempToken;
             nuiToken.OnNuiEvent += HandlePlayerInputEvents;
-            player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
 
             input.SetBindValue(player.oid, nuiToken.Token, quantity);
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);

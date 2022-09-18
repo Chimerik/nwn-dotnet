@@ -27,12 +27,6 @@ namespace NWN.Systems
           //token = -1;
         }
 
-        protected void OnAreaChangeCloseWindow(OnServerSendArea _)
-        {
-          player.oid.OnServerSendArea -= OnAreaChangeCloseWindow;
-          CloseWindow();
-        }
-
         public void CloseWindow()
         {
           nuiToken.Close();

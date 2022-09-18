@@ -79,7 +79,6 @@ namespace NWN.Systems
           {
             nuiToken = tempToken;
             nuiToken.OnNuiEvent += HandleRefineryEvents;
-            player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
 
             LoadMateriaList();
 

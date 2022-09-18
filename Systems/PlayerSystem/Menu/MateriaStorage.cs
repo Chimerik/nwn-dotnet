@@ -78,7 +78,6 @@ namespace NWN.Systems
           {
             nuiToken = tempToken;
             nuiToken.OnNuiEvent += HandleMateriaStorageEvents;
-            player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
 
             npcText.SetBindValue(player.oid, nuiToken.Token, tempText);
             LoadMateriaList();

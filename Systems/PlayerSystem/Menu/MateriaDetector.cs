@@ -95,7 +95,6 @@ namespace NWN.Systems
             nuiToken = tempToken;
 
             nuiToken.OnNuiEvent += HandleDetectorEvents;
-            player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
 
             selectedCategory.SetBindValue(player.oid, nuiToken.Token, 0);
             selectedCategory.SetBindWatch(player.oid, nuiToken.Token, true);

@@ -62,7 +62,6 @@ namespace NWN.Systems
           {
             nuiToken = tempToken;
             nuiToken.OnNuiEvent += HandleAreaWindSettingsEvents;
-            player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
 
             NwArea area = player.oid.ControlledCreature.Area;
             AreaWind wind = AreaPlugin.GetAreaWind(area);

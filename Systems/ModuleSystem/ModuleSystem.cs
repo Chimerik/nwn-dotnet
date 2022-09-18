@@ -213,8 +213,11 @@ namespace NWN.Systems
         new List<string>() { { "year" }, { "month" }, { "day" }, { "hour" }, { "minute" }, { "second" } },
         new List<string[]>() { new string[] { "rowid", "1" } });
 
-      if (query.Result != null)
-        NwDateTime.Now = new NwDateTime(query.Result.GetInt(0), query.Result.GetInt(1), query.Result.GetInt(2), query.Result.GetInt(3), query.Result.GetInt(4), query.Result.GetInt(5));
+      if (query != null)
+      {
+        var result = query.FirstOrDefault();
+        NwDateTime.Now = new NwDateTime(int.Parse(result[0]), int.Parse(result[1]), int.Parse(result[2]), int.Parse(result[3]), int.Parse(result[4]), int.Parse(result[5]));
+      }
       else
       {
         SqLiteUtils.InsertQuery("moduleInfo",
@@ -229,15 +232,15 @@ namespace NWN.Systems
     }
     public static void RestorePlayerCorpseFromDatabase()
     {
-      var result = SqLiteUtils.SelectQuery("playerDeathCorpses",
+      var query = SqLiteUtils.SelectQuery("playerDeathCorpses",
         new List<string>() { { "deathCorpse" }, { "location" }, { "characterId" } },
         new List<string[]>());
 
-      foreach (var pcCorpse in result.Results)
+      foreach (var pcCorpse in query)
       {
-        NwCreature corpse = NwCreature.Deserialize(pcCorpse.GetString(0).ToByteArray());
-        corpse.Location = SqLiteUtils.DeserializeLocation(pcCorpse.GetString(1));
-        corpse.GetObjectVariable<LocalVariableInt>("_PC_ID").Value = pcCorpse.GetInt(2);
+        NwCreature corpse = NwCreature.Deserialize(pcCorpse[0].ToByteArray());
+        corpse.Location = SqLiteUtils.DeserializeLocation(pcCorpse[1]);
+        corpse.GetObjectVariable<LocalVariableInt>("_PC_ID").Value = int.Parse(pcCorpse[2]);
 
         foreach (NwItem item in corpse.Inventory.Items.Where(i => i.Tag != "item_pccorpse"))
           item.Destroy();
@@ -249,19 +252,19 @@ namespace NWN.Systems
     {
       // TODO : envoyer un mp discord + courrier aux joueurs 7 jours avant expiration + 1 jour avant expiration
 
-      var result = SqLiteUtils.SelectQuery("playerShops",
+      var query = SqLiteUtils.SelectQuery("playerShops",
         new List<string>() { { "shop" }, { "panel" }, { "characterId" }, { "rowid" }, { "expirationDate" }, { "areaTag" }, { "position" }, { "facing" } },
         new List<string[]>());
 
-      foreach (var playerShop in result.Results)
+      foreach (var playerShop in query)
       {
-        NwStore shop = SqLiteUtils.StoreSerializationFormatProtection(playerShop, 0, Utils.GetLocationFromDatabase(playerShop.GetString(5), playerShop.GetString(6), playerShop.GetFloat(7)));
-        NwPlaceable panel = SqLiteUtils.PlaceableSerializationFormatProtection(playerShop, 1, Utils.GetLocationFromDatabase(playerShop.GetString(5), playerShop.GetString(6), playerShop.GetFloat(7)));
-        shop.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value = playerShop.GetInt(2);
-        shop.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value = playerShop.GetInt(3);
-        panel.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value = playerShop.GetInt(2);
-        panel.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value = playerShop.GetInt(3);
-        double expirationTime = (DateTime.Now - DateTime.Parse(playerShop.GetString(4))).TotalDays;
+        NwStore shop = SqLiteUtils.StoreSerializationFormatProtection(playerShop[0], Utils.GetLocationFromDatabase(playerShop[5], playerShop[6], float.Parse(playerShop[7])));
+        NwPlaceable panel = SqLiteUtils.PlaceableSerializationFormatProtection(playerShop[1], Utils.GetLocationFromDatabase(playerShop[5], playerShop[6], float.Parse(playerShop[7])));
+        shop.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value = int.Parse(playerShop[2]);
+        shop.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value = int.Parse(playerShop[3]);
+        panel.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value = int.Parse(playerShop[2]);
+        panel.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value = int.Parse(playerShop[3]);
+        double expirationTime = (DateTime.Now - DateTime.Parse(playerShop[4])).TotalDays;
 
         int ownerId = shop.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value;
 
@@ -307,16 +310,16 @@ namespace NWN.Systems
         new List<string>() { { "shop" }, { "panel" }, { "characterId" }, { "rowid" }, { "expirationDate" }, { "highestAuction" }, { "highestAuctionner" }, { "areaTag" }, { "position" }, { "facing" } },
         new List<string[]>() { new string[] { "shop", "deleted", "!=" } });
 
-      foreach (var auction in result.Results)
+      foreach (var auction in result)
       {
-        NwStore shop = SqLiteUtils.StoreSerializationFormatProtection(auction, 0, Utils.GetLocationFromDatabase(auction.GetString(7), auction.GetString(8), auction.GetFloat(9)));
-        NwPlaceable panel = SqLiteUtils.PlaceableSerializationFormatProtection(auction, 1, Utils.GetLocationFromDatabase(auction.GetString(7), auction.GetString(8), auction.GetFloat(9)));
-        shop.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value = auction.GetInt(2);
-        shop.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value = auction.GetInt(3);
-        shop.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTION").Value = auction.GetInt(5);
-        shop.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTIONNER").Value = auction.GetInt(6);
-        panel.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value = auction.GetInt(2);
-        panel.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value = auction.GetInt(3);
+        NwStore shop = SqLiteUtils.StoreSerializationFormatProtection(auction[0], Utils.GetLocationFromDatabase(auction[7], auction[8], float.Parse(auction[2])));
+        NwPlaceable panel = SqLiteUtils.PlaceableSerializationFormatProtection(auction[1], Utils.GetLocationFromDatabase(auction[7], auction[8], float.Parse(auction[2])));
+        shop.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value = int.Parse(auction[2]);
+        shop.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value = int.Parse(auction[3]);
+        shop.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTION").Value = int.Parse(auction[5]);
+        shop.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTIONNER").Value = int.Parse(auction[6]);
+        panel.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value = int.Parse(auction[2]);
+        panel.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value = int.Parse(auction[3]);
 
         panel.OnUsed += PlaceableSystem.OnUsedPlayerOwnedAuction;
 
@@ -330,15 +333,15 @@ namespace NWN.Systems
         new List<string>() { { "characterId" }, { "rowid" }, { "highestAuction" }, { "highestAuctionner" }, { "shop" } },
         new List<string[]>() { new string[] { "expirationDate", DateTime.Now.ToString(), ">" } });
 
-      foreach (var auction in result.Results)
+      foreach (var auction in result)
       {
-        int buyerId = auction.GetInt(3);
-        int sellerId = auction.GetInt(0);
-        int auctionId = auction.GetInt(1);
+        int buyerId = int.Parse(auction[3]);
+        int sellerId = int.Parse(auction[0]);
+        int auctionId = int.Parse(auction[1]);
 
         NwPlayer oSeller = NwModule.Instance.Players.FirstOrDefault(p => p.LoginCreature != null && p.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value == sellerId);
         NwStore store = NwObject.FindObjectsOfType<NwStore>().FirstOrDefault(p => p.GetObjectVariable<LocalVariableInt>("_AUCTION_ID").Value == auctionId);
-        NwStore oStore = SqLiteUtils.StoreSerializationFormatProtection(auction, 4, NwModule.Instance.StartingLocation);
+        NwStore oStore = SqLiteUtils.StoreSerializationFormatProtection(auction[4], NwModule.Instance.StartingLocation);
         NwItem tempItem = oStore.Items.FirstOrDefault();
         oStore.Destroy();
 
@@ -363,7 +366,7 @@ namespace NWN.Systems
         else
         {
           // Si highestAuction > 0 On donne les sous au seller et on lui envoie un message s'il est co. S'il n'est pas co on met à jour en bdd et on lui envoie un courrier
-          int highestAuction = auction.GetInt(2);
+          int highestAuction = int.Parse(auction[2]);
 
           if (highestAuction > 0)
           {
@@ -444,31 +447,30 @@ namespace NWN.Systems
           new List<string>() { { "id" }, { "areaTag" }, { "type" }, { "quantity" }, { "lastChecked" } },
           new List<string[]>() { });
 
-      if (result != null)
-        foreach (var resourceBlock in result.Results)
+      foreach (var resourceBlock in result)
+      {
+        int blockId = int.Parse(resourceBlock[0]);
+        NwArea blockArea = (NwArea)NwObject.FindObjectsWithTag(resourceBlock[1]).FirstOrDefault();
+        string spawnType = resourceBlock[2];
+        int quantity = int.Parse(resourceBlock[3]);
+        DateTime lastChecked = DateTime.Parse(resourceBlock[4]); 
+        NwWaypoint blockWaypoint = blockArea.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(w => w.Tag == spawnType && w.GetObjectVariable<LocalVariableInt>("id").Value == blockId);
+
+        Log.Info($"Area {blockArea.Name} - Spawning {spawnType} - id {blockId} - Quantity {quantity} - lastChecked {lastChecked} - wp {blockWaypoint}");
+
+        switch (spawnType)
         {
-          int blockId = resourceBlock.GetInt(0);
-          NwArea blockArea = (NwArea)NwObject.FindObjectsWithTag(resourceBlock.GetString(1)).FirstOrDefault();
-          string spawnType = resourceBlock.GetString(2);
-          int quantity = resourceBlock.GetInt(3);
-          DateTime lastChecked = DateTime.Parse(resourceBlock.GetString(4)); 
-          NwWaypoint blockWaypoint = blockArea.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(w => w.Tag == spawnType && w.GetObjectVariable<LocalVariableInt>("id").Value == blockId);
-
-          Log.Info($"Area {blockArea.Name} - Spawning {spawnType} - id {blockId} - Quantity {quantity} - lastChecked {lastChecked} - wp {blockWaypoint}");
-
-          switch (spawnType)
-          {
-            case "ore_spawn_wp":
-              SpawnResourceBlock("mineable_rock", blockWaypoint, quantity, lastChecked);
-              break;
-            case "wood_spawn_wp":
-              SpawnResourceBlock("mineable_tree", blockWaypoint, quantity, lastChecked);
-              break;
-            case "animal_spawn_wp":
-              SpawnResourceBlock("mineable_animal", blockWaypoint, quantity, lastChecked);
-              break;
-          }
+          case "ore_spawn_wp":
+            SpawnResourceBlock("mineable_rock", blockWaypoint, quantity, lastChecked);
+            break;
+          case "wood_spawn_wp":
+            SpawnResourceBlock("mineable_tree", blockWaypoint, quantity, lastChecked);
+            break;
+          case "animal_spawn_wp":
+            SpawnResourceBlock("mineable_animal", blockWaypoint, quantity, lastChecked);
+            break;
         }
+      }
     }
     public static void SpawnCollectableResources()
     {
@@ -750,7 +752,7 @@ namespace NWN.Systems
             new List<string>() { { "creatures" } },
             new List<string[]>() { });
 
-      if (result.Result == null)
+      if (result == null)
       {
         await SqLiteUtils.InsertQueryAsync("modulePalette",
                   new List<string[]>() { new string[] { "creatures", "" } });
@@ -758,7 +760,7 @@ namespace NWN.Systems
         return;
       }
 
-      string serializedCreaturePalette = result.Result.GetString(0);
+      string serializedCreaturePalette = result.FirstOrDefault()[0];
 
       await Task.Run(() =>
       {
@@ -783,7 +785,7 @@ namespace NWN.Systems
             new List<string>() { { "items" } },
             new List<string[]>() { });
       
-      if (result.Result == null) 
+      if (result == null) 
       {
         await SqLiteUtils.InsertQueryAsync("modulePalette",
                   new List<string[]>() { new string[] { "items", "" } });
@@ -791,7 +793,7 @@ namespace NWN.Systems
         return;
       }
 
-      string serializedItemPalette = result.Result.GetString(0);
+      string serializedItemPalette = result.FirstOrDefault()[0];
 
       await Task.Run(() =>
       {
@@ -816,7 +818,7 @@ namespace NWN.Systems
             new List<string>() { { "placeables" } },
             new List<string[]>() { });
 
-      if (result.Result == null)
+      if (result == null)
       {
         await SqLiteUtils.InsertQueryAsync("modulePalette",
                   new List<string[]>() { new string[] { "placeables", "" } });
@@ -824,7 +826,7 @@ namespace NWN.Systems
         return;
       }
 
-      string serializedPlaceablePalette = result.Result.GetString(0);
+      string serializedPlaceablePalette = result.FirstOrDefault()[0];
 
       await Task.Run(() =>
       {
@@ -849,11 +851,11 @@ namespace NWN.Systems
             new List<string>() { { "areaTag" }, { "position" }, { "facing" }, { "serializedCreature" }, { "rowid" } },
             new List<string[]>() { });
 
-      foreach (var spawn in result.Results)
+      foreach (var spawn in result)
       {
-        NwCreature creature = NwCreature.Deserialize(spawn.GetString(3).ToByteArray());
-        creature.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value = spawn.GetInt(4);
-        creature.Location = Utils.GetLocationFromDatabase(spawn.GetString(0), spawn.GetString(1), spawn.GetFloat(2));
+        NwCreature creature = NwCreature.Deserialize(spawn[3].ToByteArray());
+        creature.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value = int.Parse(spawn[4]);
+        creature.Location = Utils.GetLocationFromDatabase(spawn[0], spawn[1], float.Parse(spawn[2]));
       }
     }
     private static void LoadPlaceableSpawns()
@@ -862,11 +864,11 @@ namespace NWN.Systems
             new List<string>() { { "areaTag" }, { "position" }, { "facing" }, { "serializedPlaceable" }, { "rowid" } },
             new List<string[]>() { });
 
-      foreach (var spawn in result.Results)
+      foreach (var spawn in result)
       {
-        NwPlaceable plc = NwPlaceable.Deserialize(spawn.GetString(3).ToByteArray());
-        plc.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value = spawn.GetInt(4);
-        plc.Location = Utils.GetLocationFromDatabase(spawn.GetString(0), spawn.GetString(1), spawn.GetFloat(2));
+        NwPlaceable plc = NwPlaceable.Deserialize(spawn[3].ToByteArray());
+        plc.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value = int.Parse(spawn[4]);
+        plc.Location = Utils.GetLocationFromDatabase(spawn[0], spawn[1], float.Parse(spawn[2]));
       }
     }
     private void HandlePlayerLoop()

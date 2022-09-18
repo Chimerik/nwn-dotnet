@@ -101,7 +101,7 @@ namespace NWN.Systems
           window = new NuiWindow(rootRow, "Liste des joueurs")
           {
             Geometry = geometry,
-            Resizable = false,
+            Resizable = true,
             Collapsed = false,
             Closable = closable,
             Transparent = false,

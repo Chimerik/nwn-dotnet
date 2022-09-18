@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using Anvil.API;
 using Anvil.Services;
 
+using NWN.Core.NWNX;
+
 namespace NWN.Systems
 {
   public partial class PlayerSystem
@@ -48,7 +50,7 @@ namespace NWN.Systems
 
             timeLeft.SetBindValue(player.oid, nuiToken.Token, "30");
 
-            geometry.SetBindValue(player.oid, nuiToken.Token, new NuiRect(player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) / 2 - 200, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 200, 40));
+            geometry.SetBindValue(player.oid, nuiToken.Token, new NuiRect(player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) / 2 - 200, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 300, 80));
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
             RefreshWindowUntillClosed();

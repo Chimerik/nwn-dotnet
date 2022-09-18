@@ -891,6 +891,8 @@ namespace NWN.Systems
       if (onExit.ExitingObject is not NwCreature creature || !PlayerSystem.Players.TryGetValue(onExit.ExitingObject, out PlayerSystem.Player player))
         return;
 
+      AreaSystem.CloseWindows(player);
+
       if (creature.IsPlayerControlled) // Cas normal de changement de zone
         if (!PlayerSystem.Players.TryGetValue(creature.ControllingPlayer.LoginCreature, out player))
           return;

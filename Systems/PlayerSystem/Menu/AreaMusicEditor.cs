@@ -7,6 +7,8 @@ using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
 
+using NLog.LayoutRenderers.Wrappers;
+
 namespace NWN.Systems
 {
   public partial class PlayerSystem
@@ -74,7 +76,6 @@ namespace NWN.Systems
           {
             nuiToken = tempToken;
             nuiToken.OnNuiEvent += HandleAreaMusicEditorEvents;
-            player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
 
             currentMusic.SetBindValue(player.oid, nuiToken.Token, AmbientMusic2da.ambientMusicTable.GetRow(area.MusicBackgroundDayTrack).name);
             search.SetBindValue(player.oid, nuiToken.Token, "");
@@ -84,10 +85,7 @@ namespace NWN.Systems
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-            Log.Info(geometry.GetBindValue(player.oid, nuiToken.Token));
-
             songList = AmbientMusic2da.ambientMusicTable.ToList();
-
             LoadList(songList);
           }
         }

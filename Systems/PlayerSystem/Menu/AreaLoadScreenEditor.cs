@@ -60,7 +60,6 @@ namespace NWN.Systems
           {
             nuiToken = tempToken;
             nuiToken.OnNuiEvent += HandleAreaLoadScreenEditorEvents;
-            player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
             
             currentLoadScreen.SetBindValue(player.oid, nuiToken.Token, area.LoadScreen.BMPResRef);
             search.SetBindValue(player.oid, nuiToken.Token, "");

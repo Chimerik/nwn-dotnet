@@ -91,8 +91,6 @@ namespace NWN.Systems
           {
             nuiToken = tempToken;
             nuiToken.OnNuiEvent += HandleRumorEvents;
-            player.oid.OnServerSendArea -= OnAreaChangeCloseWindow;
-            player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
 
             npcText.SetBindValue(player.oid, nuiToken.Token, "Bonjour, ami ! Prend une place et cette petite chopine.\n" +
               "A moins que tu n'aies quelque goût pour les dernières histoires du cru ?");

@@ -157,7 +157,6 @@ namespace NWN.Systems
           {
             nuiToken = tempToken;
             nuiToken.OnNuiEvent += HandleResourceExchangeEvents;
-            player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
             player.oid.OnClientDisconnect += HandleResourceExchangeDisconnection;
 
             myGold.SetBindValue(player.oid, nuiToken.Token, "0");
@@ -212,7 +211,6 @@ namespace NWN.Systems
           {
             case NuiEventType.Close:
               // OnClose => Fermer la fenêtre du destinataire si celle-ci est toujours ouverte
-              player.oid.OnServerSendArea -= OnAreaChangeCloseWindow;
               player.oid.OnClientDisconnect -= HandleResourceExchangeDisconnection;
               targetWindow.CloseWindow();
               targetPlayer.oid.SendServerMessage($"Transaction annulée par {player.oid.LoginCreature.Name.ColorString(ColorConstants.White)}", ColorConstants.Orange);

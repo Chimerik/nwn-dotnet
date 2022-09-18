@@ -97,7 +97,6 @@ namespace NWN.Systems
           {
             nuiToken = tempToken;
             nuiToken.OnNuiEvent += HandleWorkshopEvents;
-            player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
 
             search.SetBindValue(player.oid, nuiToken.Token, "");
             search.SetBindWatch(player.oid, nuiToken.Token, true);

@@ -116,52 +116,7 @@ namespace NWN
         }
       });
     }
-    public static SQLQuery SelectQuery(string tableName, List<string> queryParameters, List<string[]> whereParameters, string orderBy = "")
-    {
-      string queryString = $"SELECT ";
 
-      foreach (string param in queryParameters)
-        queryString += $"{param}, ";
-
-      queryString = queryString.Remove(queryString.Length - 2);
-      queryString += $" FROM {tableName}";
-
-      if (whereParameters.Count() > 0)
-      {
-        queryString += " WHERE ";
-
-        foreach (var param in whereParameters)
-        {
-          if (param.Length > 2)
-            queryString += $"{param[0]} {param[2]} @{param[0]} and ";
-          else
-            queryString += $"{param[0]} = @{param[0]} and ";
-        }
-
-        queryString = queryString.Remove(queryString.Length - 5);
-      }
-      queryString += orderBy;
-
-      var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, queryString);
-  
-      //Log.Info(queryString);
-      string logString = "Binding WHERE : ";
-
-      foreach (var param in whereParameters)
-      {
-        query.BindParam($"@{param[0]}", param[1]);
-        logString += $"@{param[0]} = {param[1]} ";
-      }
-
-      //Log.Info(logString);
-
-      query.Execute();
-
-      if (query.Error != "")
-        Utils.LogMessageToDMs($"{queryString} - {query.Error}");
-
-      return query;
-    }
     public static async Task<List<string[]>> SelectQueryAsync(string tableName, List<string> queryParameters, List<string[]> whereParameters, string orderBy = "")
     {
       return await Task.Run(async () =>
@@ -242,6 +197,84 @@ namespace NWN
           return null;
         }
       });
+    }
+    public static List<string[]> SelectQuery(string tableName, List<string> queryParameters, List<string[]> whereParameters, string orderBy = "")
+    {
+        string queryString = "SELECT ";
+
+        foreach (string param in queryParameters)
+          queryString += $"{param}, ";
+
+        queryString = queryString.Remove(queryString.Length - 2);
+        queryString += $" FROM {tableName}";
+
+        if (whereParameters.Count() > 0)
+        {
+          queryString += " WHERE ";
+
+          foreach (var param in whereParameters)
+          {
+            if (param.Length > 2)
+              queryString += $"{param[0]} {param[2]} @{param[0]} and ";
+            else
+              queryString += $"{param[0]} = @{param[0]} and ";
+          }
+
+          queryString = queryString.Remove(queryString.Length - 5);
+        }
+
+        queryString += orderBy;
+
+        string logString = "Binding WHERE : ";
+
+        try
+        {
+          using (var connection = new SqliteConnection(Config.dbPath))
+          {
+            connection.Open();
+
+            var command = connection.CreateCommand();
+            command.CommandText = queryString;
+
+            foreach (var param in whereParameters)
+            {
+              command.Parameters.AddWithValue($"@{param[0]}", (object)param[1] ?? DBNull.Value);
+              logString += $"@{param[0]} = {param[1]} ";
+            }
+
+            //Log.Info(queryString);
+            //Log.Info(logString);
+
+            using (var reader = command.ExecuteReader())
+            {
+              List<string[]> results = new List<string[]>();
+
+              while (reader.Read())
+              {
+                string[] row = new string[queryParameters.Count];
+
+                for (int i = 0; i < queryParameters.Count; i++)
+                {
+                  if (!reader.IsDBNull(i))
+                    row[i] = reader.GetString(i);
+                  else
+                    row[i] = "";
+                }
+
+                results.Add(row);
+              }
+
+              return results;
+            }
+          }
+        }
+        catch (Exception e)
+        {
+          Utils.LogMessageToDMs($"Select Query - {e.Message}");
+          Utils.LogMessageToDMs(queryString);
+          Utils.LogMessageToDMs(logString);
+          return null;
+        }
     }
     public static bool InsertQuery(string tableName, List<string[]> queryParameters, List<string> conflictParameters = null, List<string[]> updateParameters = null, List<string> whereParameters = null)
     {
@@ -414,36 +447,18 @@ namespace NWN
 
       return true;
     }
-    public static NwStore StoreSerializationFormatProtection(SQLResult result, int index, Location location)
+    public static NwStore StoreSerializationFormatProtection(string serializedStore, Location location)
     {
-      NwStore deserializedStore;
-
-      try
-      {
-        deserializedStore = NwStore.Deserialize(result.GetString(index).ToByteArray());
-        deserializedStore.Location = location;
-      }
-      catch (FormatException)
-      {
-        deserializedStore = result.GetObject<NwStore>(index, location);
-      }
+      NwStore deserializedStore = NwStore.Deserialize(serializedStore.ToByteArray());
+      deserializedStore.Location = location;
 
       return deserializedStore;
     }
-    public static NwPlaceable PlaceableSerializationFormatProtection(SQLResult result, int index, Location location)
+    public static NwPlaceable PlaceableSerializationFormatProtection(string serializedPlaceable, Location location)
     {
-      NwPlaceable deserializedPlaceable;
-
-      try
-      {
-        deserializedPlaceable = NwPlaceable.Deserialize(result.GetString(index).ToByteArray());
-        deserializedPlaceable.Location = location;
-      }
-      catch (FormatException)
-      {
-        deserializedPlaceable = result.GetObject<NwPlaceable>(index, location);
-      }
-
+      NwPlaceable deserializedPlaceable = NwPlaceable.Deserialize(serializedPlaceable.ToByteArray());
+      deserializedPlaceable.Location = location;
+ 
       return deserializedPlaceable;
     }
     public class DataBaseLocation

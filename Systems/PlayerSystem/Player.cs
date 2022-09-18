@@ -248,10 +248,10 @@ namespace NWN.Systems
           new List<string>() { { "accountName" } },
           new List<string[]>() { new string[] { "rowId", accountId.ToString() } });
 
-        if (result.Result == null)
+        if (result == null)
           return "";
 
-        return result.Result.GetString(0);
+        return result.FirstOrDefault()[0];
       }
       // Take gold from the PC or from his bank account
       public void PayOrBorrowGold(int price)

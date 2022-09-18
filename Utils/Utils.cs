@@ -209,9 +209,9 @@ namespace NWN
           new List<string>() { { "storage" } },
           new List<string[]>() { new string[] { "ROWID", characterId.ToString() } });
 
-      if (result.Result != null)
+      if (result != null)
       {
-        NwStore storage = SqLiteUtils.StoreSerializationFormatProtection(result.Result, 0, NwModule.Instance.StartingLocation);
+        NwStore storage = SqLiteUtils.StoreSerializationFormatProtection(result.FirstOrDefault()[0], NwModule.Instance.StartingLocation);
         item.Clone(storage);
         item.Destroy();
 

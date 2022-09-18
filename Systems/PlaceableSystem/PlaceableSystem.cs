@@ -51,11 +51,10 @@ namespace NWN.Systems
           case "scierie": plc.OnUsed += OpenWorkshopWindow; break;
           case "tannerie": plc.OnUsed += OpenWorkshopWindow; break;
         }
-
         
         if (plc.VisualTransform.Scale != 1 || plc.VisualTransform.Translation != Vector3.Zero || plc.VisualTransform.Rotation != Vector3.Zero)
           plc.VisibilityOverride = VisibilityMode.AlwaysVisible;
-        else if (!plc.Useable)
+        else if (!plc.Useable && plc.AnimationState != AnimationState.PlaceableActivated)
           plc.IsStatic = true;
       }
 

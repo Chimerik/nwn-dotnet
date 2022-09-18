@@ -41,6 +41,7 @@ namespace NWN.Systems
             new NuiListTemplateCell(new NuiButton(buttonText) { Id = "load", Height = 35 }) { VariableSize = true },
             new NuiListTemplateCell(new NuiButtonImage("ir_ban") { Id = "delete", Height = 35 }) { Width = 35 },
           };
+
           rootChidren.Add(new NuiList(rowTemplate, listCount) { RowHeight = 35 });
 
           CreateWindow();

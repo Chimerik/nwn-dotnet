@@ -57,7 +57,6 @@ namespace NWN.Systems
           {
             nuiToken = tempToken;
             nuiToken.OnNuiEvent += HandleJukeBoxEvents;
-            player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
 
             search.SetBindValue(player.oid, nuiToken.Token, "");
             search.SetBindWatch(player.oid, nuiToken.Token, true);

@@ -42,9 +42,9 @@ namespace NWN.Systems
 
       await NwTask.SwitchToMainThread();
 
-      foreach (var result in query.Results)
+      foreach (var result in query)
       {
-        NwPlaceable oChest = SqLiteUtils.PlaceableSerializationFormatProtection(result, 0, Utils.GetLocationFromDatabase(CHEST_AREA_TAG, result.GetString(1), result.GetFloat(2)));
+        NwPlaceable oChest = SqLiteUtils.PlaceableSerializationFormatProtection(result[0], Utils.GetLocationFromDatabase(CHEST_AREA_TAG, result[1], float.Parse(result[2])));
 
         if (oChest == null)
         {

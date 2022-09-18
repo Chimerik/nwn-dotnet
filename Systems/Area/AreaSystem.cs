@@ -40,15 +40,15 @@ namespace NWN.Systems
       Dictionary<string, int[]> areaMusics = new();
       Dictionary<string, int> areaLoadScreens = new();
 
-      foreach (var area in resultMusics.Results)
-        areaMusics.TryAdd(area.GetString(0), new int[] { area.GetInt(1), area.GetInt(2), area.GetInt(3) });
+      foreach (var area in resultMusics)
+        areaMusics.TryAdd(area[0], new int[] { int.Parse(area[1]), int.Parse(area[2]), int.Parse(area[3]) });
 
       var resultLoadScreens = SqLiteUtils.SelectQuery("areaLoadScreens",
         new List<string>() { { "areaTag" }, { "loadScreen" } },
         new List<string[]>() { });
 
-      foreach (var area in resultLoadScreens.Results)
-        areaLoadScreens.TryAdd(area.GetString(0), area.GetInt(1));
+      foreach (var area in resultLoadScreens)
+        areaLoadScreens.TryAdd(area[0], int.Parse(area[1]));
 
       foreach (NwArea area in NwModule.Instance.Areas)
       {
@@ -166,8 +166,10 @@ namespace NWN.Systems
       {
         Log.Info($"{creature.ControllingPlayer.LoginCreature.Name} vient de quitter la zone {area.Name}");
 
-        if (!PlayerSystem.Players.TryGetValue(creature.ControllingPlayer.LoginCreature, out PlayerSystem.Player player))
+        if (!PlayerSystem.Players.TryGetValue(creature, out PlayerSystem.Player player))
           return;
+
+        CloseWindows(player);
 
         player.mapLoadingTime = DateTime.Now;
 
@@ -194,11 +196,16 @@ namespace NWN.Systems
     }
     public void OnIntroAreaExit(AreaEvents.OnExit onExit)
     {
-      if (onExit.ExitingObject is not NwCreature oPC || !oPC.IsPlayerControlled || onExit.Area.Tag != $"entry_scene_{oPC.ControllingPlayer.CDKey}")
+      if (onExit.ExitingObject is not NwCreature oPC || !oPC.IsPlayerControlled || !PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
         return;
 
-      Log.Info($"{oPC.Name} exited area {onExit.Area.Name}");
-      AreaDestroyer(onExit.Area);
+      CloseWindows(player);
+
+      if (onExit.Area.Tag == $"entry_scene_{oPC.ControllingPlayer.CDKey}")
+      {
+        Log.Info($"{oPC.Name} exited area {onExit.Area.Name}");
+        AreaDestroyer(onExit.Area);
+      }
     }
     private void DoAreaSpecificInitialisation(NwArea area)
     {
@@ -365,11 +372,11 @@ namespace NWN.Systems
         new List<string>() { { "id" }, { "areaTag" }, { "ownerId" }, { "ownerName" } },
         new List<string[]>() { });
 
-      foreach (var bank in result.Results)
+      foreach (var bank in result)
       {
-        NwObject bankPlaceable = NwObject.FindObjectsWithTag<NwPlaceable>("player_bank").FirstOrDefault(b => /*b.Area.Tag == bank.GetString(1) &&*/ b.GetObjectVariable<LocalVariableInt>("id").Value == bank.GetInt(0));
-        bankPlaceable.GetObjectVariable<LocalVariableInt>("ownerId").Value = bank.GetInt(2);
-        bankPlaceable.Name = bank.GetString(3);
+        NwObject bankPlaceable = NwObject.FindObjectsWithTag<NwPlaceable>("player_bank").FirstOrDefault(b => /*b.Area.Tag == bank.GetString(1) &&*/ b.GetObjectVariable<LocalVariableInt>("id").Value == int.Parse(bank[0]));
+        bankPlaceable.GetObjectVariable<LocalVariableInt>("ownerId").Value = int.Parse(bank[2]);
+        bankPlaceable.Name = bank[3];
       }
     }
     public void InitializeEventsAfterDMSpawnCreature(OnDMSpawnObject onSpawn)
@@ -430,6 +437,33 @@ namespace NWN.Systems
             break;
           case "generic":
             randomAppearanceDictionary["generic"].Add(appearance);
+            break;
+        }
+      }
+    }
+   public static void CloseWindows(PlayerSystem.Player player)
+    {
+      foreach(var window in player.windows)
+      {
+        if (!window.Value.IsOpen)
+          continue;
+
+        switch(window.Key)
+        {
+          case "areaMusicEditor":
+          case "areaLoadScreenEditor":
+          case "areaWindSettings":
+          case "bankStorage":
+          case "craftWorkshop":
+          case "fishing":
+          case "playerInput":
+          case "jukebox":
+          case "materiaDetector":
+          case "materiaStorage":
+          case "refinery":
+          case "resourceExchange":
+          case "rumors":
+            window.Value.CloseWindow();
             break;
         }
       }
