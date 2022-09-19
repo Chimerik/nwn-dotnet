@@ -24,8 +24,8 @@ namespace NWN.Systems
         return;
 
       gender = (Gender)genderValue;
-      name = string.IsNullOrEmpty(entry.GetString("DisplayName")) ? string.IsNullOrEmpty(entry.GetStrRef("Description").ToString()) ? entry.GetString("Resource") : entry.GetStrRef("Description").ToString() : entry.GetString("DisplayName")/*?.Replace("Ã©", "é").Replace("Ã´", "ô").Replace("Ã¯", "ï")*/;
-      name = Encoding.UTF8.GetString(Encoding.GetEncoding("iso-8859-1").GetBytes(name));
+
+      name = string.IsNullOrEmpty(entry.GetString("DisplayName")) ? string.IsNullOrEmpty(entry.GetStrRef("Description").ToString()) ? entry.GetString("Resource") : entry.GetStrRef("Description").ToString() : Encoding.UTF8.GetString(Encoding.GetEncoding("iso-8859-1").GetBytes(entry.GetString("DisplayName")));
     }
   }
 
