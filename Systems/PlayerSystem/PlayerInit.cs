@@ -514,7 +514,7 @@ namespace NWN.Systems
         {
           if (string.IsNullOrEmpty(serializedDescriptions) || serializedDescriptions == "null")
             return;
-          Log.Info(serializedDescriptions);
+
           descriptions = JsonConvert.DeserializeObject<List<CharacterDescription>>(serializedDescriptions);
         });
 

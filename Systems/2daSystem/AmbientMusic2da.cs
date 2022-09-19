@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 using Anvil.API;
 using Anvil.Services;
@@ -22,21 +24,22 @@ namespace NWN.Systems
         return;
 
       gender = (Gender)genderValue;
-      name = string.IsNullOrEmpty(entry.GetString("DisplayName")) ? string.IsNullOrEmpty(entry.GetStrRef("Description").ToString()) ? entry.GetString("Resource") :  entry.GetStrRef("Description").ToString() : entry.GetString("DisplayName")?.Replace("Ã©", "é").Replace("Ã´", "ô").Replace("Ã¯", "ï");
+      name = string.IsNullOrEmpty(entry.GetString("DisplayName")) ? string.IsNullOrEmpty(entry.GetStrRef("Description").ToString()) ? entry.GetString("Resource") : entry.GetStrRef("Description").ToString() : entry.GetString("DisplayName")/*?.Replace("Ã©", "é").Replace("Ã´", "ô").Replace("Ã¯", "ï")*/;
+      name = Encoding.UTF8.GetString(Encoding.GetEncoding("iso-8859-1").GetBytes(name));
     }
   }
 
-  [ServiceBinding(typeof(AmbientMusic2da))]
-  public class AmbientMusic2da
-  {
-    public static readonly TwoDimArray<AmbientMusicEntry> ambientMusicTable = NwGameTables.GetTable<AmbientMusicEntry>("ambientmusic.2da");
-    public static IEnumerable<AmbientMusicEntry> maleAmbientMusicEntry;
-    public static IEnumerable<AmbientMusicEntry> femaleAmbientMusicEntry;
-
-    public AmbientMusic2da()
+    [ServiceBinding(typeof(AmbientMusic2da))]
+    public class AmbientMusic2da
     {
-      maleAmbientMusicEntry = ambientMusicTable.Where(m => m.gender == Gender.Male || m.gender == Gender.Both);
-      femaleAmbientMusicEntry = ambientMusicTable.Where(m => m.gender == Gender.Female || m.gender == Gender.Both);
-    } 
-  }
+      public static readonly TwoDimArray<AmbientMusicEntry> ambientMusicTable = NwGameTables.GetTable<AmbientMusicEntry>("ambientmusic.2da");
+      public static IEnumerable<AmbientMusicEntry> maleAmbientMusicEntry;
+      public static IEnumerable<AmbientMusicEntry> femaleAmbientMusicEntry;
+
+      public AmbientMusic2da()
+      {
+        maleAmbientMusicEntry = ambientMusicTable.Where(m => m.gender == Gender.Male || m.gender == Gender.Both);
+        femaleAmbientMusicEntry = ambientMusicTable.Where(m => m.gender == Gender.Female || m.gender == Gender.Both);
+      }
+    }
 }
