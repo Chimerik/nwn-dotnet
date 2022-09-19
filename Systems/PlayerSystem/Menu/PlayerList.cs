@@ -489,7 +489,14 @@ namespace NWN.Systems
 
             if (player.IsDm())
             {
-              areaName += " - " + playerList.ControlledCreature.Area != null ? playerList.ControlledCreature.Area.Name : "En transition";
+              try
+              {
+                areaName += " - " + playerList.ControlledCreature.Area.Name;
+              }
+              catch(Exception)
+              {
+                areaName += " - En transition";
+              }
 
               brpLabel = playerObject.bonusRolePlay < 4 ? $"Augmenter le bonus roleplay au niveau {playerObject.bonusRolePlay + 1}" : "Bonus roleplay niveau max (4)";
               brpDownLabel = playerObject.bonusRolePlay > 0 ? $"Diminuer le bonus roleplay au niveau {playerObject.bonusRolePlay - 1}" : "Bonus roleplay niveau min (0)";

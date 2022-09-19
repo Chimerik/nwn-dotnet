@@ -76,8 +76,9 @@ namespace NWN.Systems
       if (!player.oid.LoginCreature.KnowsFeat(CustomFeats.Sit))
         player.oid.LoginCreature.AddFeat(CustomFeats.Sit);
 
-      foreach (Player connectedPlayer in Players.Values.Where(p => p.pcState != Player.PcState.Offline && p.TryGetOpenedWindow("playerList", out Player.PlayerWindow playerListWindow)))
-        ((Player.PlayerListWindow)connectedPlayer.windows["playerList"]).UpdatePlayerList();
+      foreach (Player connectedPlayer in Players.Values)
+        if(connectedPlayer.pcState != Player.PcState.Offline && connectedPlayer.TryGetOpenedWindow("playerList", out Player.PlayerWindow playerListWindow))
+          ((Player.PlayerListWindow)connectedPlayer.windows["playerList"]).UpdatePlayerList();
 
       player.mapLoadingTime = DateTime.Now;
 
@@ -90,7 +91,8 @@ namespace NWN.Systems
     {
       public void InitializeNewPlayer()
       {
-        var result = SqLiteUtils.SelectQuery("PlayerAccounts",
+        var result = SqLiteUtils.SelectQuery
+          ("PlayerAccounts",
           new List<string>() { { "rowid" } },
           new List<string[]>() { { new string[] { "accountName", oid.PlayerName } } });
 
@@ -370,7 +372,7 @@ namespace NWN.Systems
 
         foreach(var result in query)
         {
-          bonusRolePlay = int.Parse(result[0]);
+          bonusRolePlay = int.TryParse(result[0], out int brp) ? brp : 1;
           string serializedMapPins = result[1];
           string serializedChatColors = result[2];
           string serializedMutedPlayers = result[3];
@@ -393,11 +395,11 @@ namespace NWN.Systems
         foreach (var result in query)
         {
           location = SqLiteUtils.DeserializeLocation(result[0]);
-          oid.LoginCreature.HP = int.Parse(result[1]);
-          bankGold = int.Parse(result[2]);
-          menu.originTop = int.Parse(result[3]);
-          menu.originLeft = int.Parse(result[4]);
-          pveArena.totalPoints = uint.Parse(result[5]);
+          oid.LoginCreature.HP = int.TryParse(result[1], out int hp) ? hp : 1 ;
+          bankGold = int.TryParse(result[2], out int gold) ? gold : 0;
+          menu.originTop = int.TryParse(result[3], out int top) ? top : 0;
+          menu.originLeft = int.TryParse(result[4], out int left) ? left : 0;
+          pveArena.totalPoints = uint.TryParse(result[5], out uint points) ? points : 0;
           string serializedCauldron = result[6];
           string serializedLearnableSkills = result[7];
           string serializedLearnableSpells = result[8];
@@ -408,7 +410,7 @@ namespace NWN.Systems
           string serializedQuickbars = result[13];
           string serializedItemAppearances = result[14];
           string serializedDescriptions = result[15];
-          tempCurrentSkillPoint = int.Parse(result[16]);
+          tempCurrentSkillPoint = int.TryParse(result[16], out int skill) ? skill : 0;
 
           InitializePlayerAsync(serializedCauldron, serializedExploration, serializedLearnableSkills, serializedLearnableSpells, serializedCraftResources, serializedCraftJob, serializedGrimoires, serializedQuickbars, serializedItemAppearances, serializedDescriptions);
         }
