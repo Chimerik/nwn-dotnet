@@ -75,7 +75,7 @@ namespace NWN.Systems
 
       switch (oItem.Tag)
       {
-        case "oreextractor":
+        /*case "oreextractor":
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
 
@@ -83,8 +83,8 @@ namespace NWN.Systems
             ((PlayerSystem.Player.MateriaExtractionWindow)player.windows["materiaExtraction"]).CreateWindow(onItemUse.Item, oTarget);
           else
             player.windows.Add("materiaExtraction", new PlayerSystem.Player.MateriaExtractionWindow(player, onItemUse.Item, oTarget));
-
-          break;
+        
+          break;*/
 
         case "private_contract":
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
@@ -100,7 +100,7 @@ namespace NWN.Systems
 
           break;
 
-        case "shop_clearance":
+        /*case "shop_clearance":
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
           new PlayerShop(oPC.ControllingPlayer.LoginCreature, oItem);
@@ -112,7 +112,7 @@ namespace NWN.Systems
           onItemUse.PreventUseItem = true;
           new PlayerAuction(oPC.ControllingPlayer.LoginCreature, oItem);
 
-          break;
+          break;*/
 
         case "sequence_register":
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);

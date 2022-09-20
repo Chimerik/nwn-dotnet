@@ -116,7 +116,7 @@ namespace NWN.Systems
           }
           else
           {
-            ThrowException($"Invalid chest tag '{chestTag}'");
+            //ThrowException($"Invalid chest tag '{chestTag}'");
           }
         }
       }

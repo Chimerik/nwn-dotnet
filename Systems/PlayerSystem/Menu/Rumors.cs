@@ -291,6 +291,8 @@ namespace NWN.Systems
               rumortIds.Add(int.Parse(result[2]));
             }
 
+          await NwTask.SwitchToMainThread();
+
           visible.SetBindValue(player.oid, nuiToken.Token, true);
 
           titles.SetBindValues(player.oid, nuiToken.Token, titleList);

@@ -91,8 +91,8 @@ namespace NWN.Systems
       SetModuleTime();
 
       RestorePlayerCorpseFromDatabase();
-      RestorePlayerShopsFromDatabase();
-      RestorePlayerAuctionsFromDatabase();
+      //RestorePlayerShopsFromDatabase();
+      //RestorePlayerAuctionsFromDatabase();
       RestoreResourceBlocksFromDatabase();
       LoadHeadLists();
 
@@ -920,8 +920,12 @@ namespace NWN.Systems
           if (listPosition > -1)
           {
             List<string> time = learnableMenu.remainingTime.GetBindValues(player.oid, learnableMenu.nuiToken.Token);
-            time[listPosition] = player.activeLearnable.GetReadableTimeSpanToNextLevel(player);
-            learnableMenu.remainingTime.SetBindValues(player.oid, learnableMenu.nuiToken.Token, time);
+
+            if (time != null)
+            {
+              time[listPosition] = player.activeLearnable.GetReadableTimeSpanToNextLevel(player);
+              learnableMenu.remainingTime.SetBindValues(player.oid, learnableMenu.nuiToken.Token, time);
+            }
           }
         }
       }
