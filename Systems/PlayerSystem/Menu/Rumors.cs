@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using Anvil.API;
 using Anvil.API.Events;
 
+using Microsoft.Data.Sqlite;
+
 namespace NWN.Systems
 {
   public partial class PlayerSystem
@@ -52,15 +54,15 @@ namespace NWN.Systems
             Children = new List<NuiElement>()
             {
               new NuiImage(innkeeper.PortraitResRef + "M") { ImageAspect = NuiAspect.ExactScaled, Width = 60, Height = 100 },
-              new NuiText(npcText) { Width = 450, Height = 250 }
+              new NuiText(npcText) { Width = 440, Height = 100 }
             }
           };
 
-          readGreaterRumorsRow = new NuiRow() { Children = new List<NuiElement>() { new NuiButton("Quelles sont les dernières grandes rumeurs ?") { Id = "readGreaterRumors", Width = 510 } } };
-          readLesserRumorsRow = new NuiRow() { Children = new List<NuiElement>() { new NuiButton("Dites moi tout des derniers potins et on-dits.") { Id = "readLesserRumors", Width = 510 } } };
-          createRumorsRow = new NuiRow() { Children = new List<NuiElement>() { new NuiButton("J'en ai une bien bonne à vous raconter !") { Id = "createRumor", Width = 510 } } };
-          deleteRumorsRow = new NuiRow() { Children = new List<NuiElement>() { new NuiButton("Vous vous souvenez de ce que je vous ai raconté ?") { Id = "readMyRumors", Width = 510 } } };
-          returnRow = new NuiRow() { Children = new List<NuiElement>() { new NuiButton("Retour.") { Id = "retour", Width = 510 } } };
+          readGreaterRumorsRow = new NuiRow() { Children = new List<NuiElement>() { new NuiButton("Quelles sont les dernières grandes rumeurs ?") { Id = "readGreaterRumors", Width = 500, Height = 35 } } };
+          readLesserRumorsRow = new NuiRow() { Children = new List<NuiElement>() { new NuiButton("Dites moi tout des derniers potins et on-dits.") { Id = "readLesserRumors", Width = 500, Height = 35 } } };
+          createRumorsRow = new NuiRow() { Children = new List<NuiElement>() { new NuiButton("J'en ai une bien bonne à vous raconter !") { Id = "createRumor", Width = 500, Height = 35 } } };
+          deleteRumorsRow = new NuiRow() { Children = new List<NuiElement>() { new NuiButton("Vous vous souvenez de ce que je vous ai raconté ?") { Id = "readMyRumors", Width = 500, Height = 35 } } };
+          returnRow = new NuiRow() { Children = new List<NuiElement>() { new NuiButton("Retour.") { Id = "retour", Width = 500, Height = 35 } } };
 
           listRow = new NuiList(rowTemplate, listCount) { RowHeight = 75 };
 
@@ -75,9 +77,9 @@ namespace NWN.Systems
           rootChidren.Add(createRumorsRow);
           rootChidren.Add(deleteRumorsRow);
 
-          NuiRect windowRectangle = new NuiRect(0, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.02f, 540, 450);
+          NuiRect windowRectangle = new NuiRect(0, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.02f, 540, 350);
 
-          window = new NuiWindow(rootGroup, "Ernesto Arna")
+          window = new NuiWindow(rootGroup, "Aubergiste")
           {
             Geometry = geometry,
             Resizable = false,
@@ -149,7 +151,7 @@ namespace NWN.Systems
               break;
           }
         }
-        private void LoadDMRumorsList()
+        private async void LoadDMRumorsList()
         {
           rootChidren.Clear();
           rumortIds.Clear();
@@ -159,19 +161,30 @@ namespace NWN.Systems
 
           npcText.SetBindValue(player.oid, nuiToken.Token, "Voilà ce qui dit de plus important ces derniers temps.");
 
-          var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, "SELECT title, content, rowid from rumors r " +
-          "LEFT JOIN PlayerAccounts pa on r.accountId = pa.ROWID " +
-          "where pa.rank in ('admin', 'staff')");
-
           List<string> titleList = new List<string>();
           List<string> contentList = new List<string>();
 
-          foreach (var result in query.Results)
+          using (var connection = new SqliteConnection(Config.dbPath))
           {
-            titleList.Add(result.GetString(0));
-            contentList.Add(result.GetString(1));
-            rumortIds.Add(result.GetInt(2));
+            connection.Open();
+
+            var sqlCommand = connection.CreateCommand();
+            sqlCommand.CommandText = "SELECT title, content, r.ROWID from rumors r " +
+              "LEFT JOIN PlayerAccounts pa on r.accountId = pa.ROWID " +
+              "where ifnull(pa.rank, '') in ('admin', 'staff')";
+
+            using (var reader = await sqlCommand.ExecuteReaderAsync())
+            {
+              while (reader.Read())
+              {
+                titleList.Add(reader.GetString(0));
+                contentList.Add(reader.GetString(1));
+                rumortIds.Add(reader.GetInt32(2));
+              }
+            }
           }
+
+          await NwTask.SwitchToMainThread();
 
           if (player.oid.IsDM)
             visible.SetBindValue(player.oid, nuiToken.Token, true);
@@ -182,7 +195,7 @@ namespace NWN.Systems
           contents.SetBindValues(player.oid, nuiToken.Token, contentList);
           listCount.SetBindValue(player.oid, nuiToken.Token, titleList.Count);
         }
-        private void LoadPCRumorsList()
+        private async void LoadPCRumorsList()
         {
           rootChidren.Clear();
           rumortIds.Clear();
@@ -192,19 +205,30 @@ namespace NWN.Systems
 
           npcText.SetBindValue(player.oid, nuiToken.Token, "Voici les petits potins du moment.");
 
-          var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, "SELECT title, content, rowid from rumors r " +
-          "LEFT JOIN PlayerAccounts pa on r.accountId = pa.ROWID " +
-          "where pa.rank not in ('admin', 'staff')");
-
           List<string> titleList = new List<string>();
           List<string> contentList = new List<string>();
 
-          foreach (var result in query.Results)
+          using (var connection = new SqliteConnection(Config.dbPath))
           {
-            titleList.Add(result.GetString(0));
-            contentList.Add(result.GetString(1));
-            rumortIds.Add(result.GetInt(2));
+            connection.Open();
+
+            var sqlCommand = connection.CreateCommand();
+            sqlCommand.CommandText = "SELECT title, content, r.ROWID from rumors r " +
+              "LEFT JOIN PlayerAccounts pa on r.accountId = pa.ROWID " +
+              "where ifnull(pa.rank, '') not in ('admin', 'staff')";
+
+            using (var reader = await sqlCommand.ExecuteReaderAsync())
+            {
+              while (reader.Read())
+              {
+                titleList.Add(reader.GetString(0));
+                contentList.Add(reader.GetString(1));
+                rumortIds.Add(reader.GetInt32(2));
+              }
+            }
           }
+
+          await NwTask.SwitchToMainThread();
 
           if (player.oid.IsDM)
             visible.SetBindValue(player.oid, nuiToken.Token, true);
@@ -217,8 +241,8 @@ namespace NWN.Systems
         }
         private void GetRumorTitle()
         {
-          if (!player.windows.ContainsKey("playerInput")) player.windows.Add("playerInput", new PlayerInputWindow(player, "Retirer combien d'unités ?", SetRumorTitle));
-          else ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Retirer combien d'unités ?", SetRumorTitle);
+          if (!player.windows.ContainsKey("playerInput")) player.windows.Add("playerInput", new PlayerInputWindow(player, "Quel titre ?", SetRumorTitle));
+          else ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Quel titre ?", SetRumorTitle);
         }
         private bool SetRumorTitle(string inputValue)
         {

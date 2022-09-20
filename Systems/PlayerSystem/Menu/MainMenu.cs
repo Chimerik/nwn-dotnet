@@ -81,7 +81,7 @@ namespace NWN.Systems
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
             
-            if (!AreaDescriptionExists(player.oid.ControlledCreature.Area.Name))
+            if (!AreaDescriptionExists(player.oid))
               myCommandList.Remove("examineArea");
             else
               myCommandList.TryAdd("examineArea", Utils.mainMenuCommands["examineArea"]);
@@ -441,16 +441,27 @@ namespace NWN.Systems
           buttonTooltip.SetBindValues(player.oid, nuiToken.Token, commandList.Values.Select(c => c.tooltip));
           listCount.SetBindValue(player.oid, nuiToken.Token, commandList.Count);
         }
-        private static bool AreaDescriptionExists(string areaName)
+        private static bool AreaDescriptionExists(NwPlayer oPlayer)
         {
-          var request = ModuleSystem.googleDriveService.Files.List();
-          request.Q = $"name = '{areaName}'";
-          FileList list = request.Execute();
+          try
+          {
+            var request = ModuleSystem.googleDriveService.Files.List();
+            request.Q = $"name = '{oPlayer.ControlledCreature.Area.Name}'";
 
-          if (list.Files.Count > 0)
-            return true;
-          else
+            Log.Info($"Area - {oPlayer.ControlledCreature.Area.Name} - Description request - {oPlayer.ControlledCreature.Name} - {request.Q}");
+
+            FileList list = request.Execute();
+
+            if (list.Files.Count > 0)
+              return true;
+            else
+              return false;
+          }
+          catch(Exception e)
+          {
+            Utils.LogMessageToDMs($"{e.Message}\n{e.StackTrace}");
             return false;
+          }
         }
         private void RenameTarget(ModuleEvents.OnPlayerTarget selection)
         {

@@ -214,6 +214,7 @@ namespace NWN.Systems
       switch (creature.Tag)
       {
         case "bank_npc":
+
           creature.OnConversation += dialogSystem.StartBankerDialog;
 
           NwItem contract = await NwItem.Create("shop_clearance", creature);

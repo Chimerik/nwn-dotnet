@@ -39,7 +39,10 @@ namespace NWN.Systems
       }
 
       if (onDamage.DamageData.Base > -1) // S'il ne s'agit pas d'un sort, alors le calcul des dégâts a déjà été traité lors de l'event d'attaque
+      {
+        PlayerSystem.Log.Info("Weapon damage handled in attack event. Exiting damage event.");
         return;
+      }
 
       /*if (onDamage.Target.GetObjectVariable<LocalVariableInt>($"_DAMAGE_HANDLED_FROM_{onDamage.DamagedBy}").HasValue)
       {
@@ -51,6 +54,8 @@ namespace NWN.Systems
         return;
 
       //await NwModule.Instance.WaitForObjectContext();
+
+      PlayerSystem.Log.Info("Spell damage. Setting new damage context.");
 
       damagePipeline.Execute(new Context(
         onAttack: null,

@@ -29,10 +29,8 @@ namespace NWN.Systems
       if (!Players.TryGetValue(onConversation.LastSpeaker, out Player player))
         return;
 
-      if (player.windows.ContainsKey("bankCounter"))
-        ((Player.BankCounterWindow)player.windows["bankCounter"]).CreateWindow();
-      else
-        player.windows.Add("bankCounter", new Player.BankCounterWindow(player, onConversation.CurrentSpeaker));
+      if (!player.windows.ContainsKey("bankCounter")) player.windows.Add("bankCounter", new Player.BankCounterWindow(player, onConversation.CurrentSpeaker));
+      else ((Player.BankCounterWindow)player.windows["bankCounter"]).CreateWindow();        
     }
     public void StartBlacksmithDialog(CreatureEvents.OnConversation onConversation)
     {

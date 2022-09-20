@@ -45,6 +45,9 @@ namespace NWN.Systems
         //this.maxBaseAC = 0;
         this.attackPosition = AttackPosition.NormalOrRanged;
         this.isUnarmedAttack = oAttacker != null && oAttacker.GetItemInSlot(InventorySlot.RightHand) == null;
+        //PlayerSystem.Log.Info($"config - unarmed {isUnarmedAttack}");
+        //PlayerSystem.Log.Info($"config - oAttacker {oAttacker}");
+        //PlayerSystem.Log.Info($"config - right hand {oAttacker.GetItemInSlot(InventorySlot.RightHand)}");
         this.isRangedAttack = oAttacker != null && oAttacker.GetItemInSlot(InventorySlot.RightHand) != null
         && ItemUtils.GetItemCategory(oAttacker.GetItemInSlot(InventorySlot.RightHand).BaseItem.ItemType) == ItemUtils.ItemCategory.RangedWeapon;
         this.targetAC = new Dictionary<DamageType, int>();

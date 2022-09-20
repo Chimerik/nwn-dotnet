@@ -41,7 +41,7 @@ namespace NWN.Systems
       PlayerSystem.Log.Info("Base : " + onAttack.DamageData.Base);
       PlayerSystem.Log.Info("attackNumber : " + onAttack.AttackNumber);
       PlayerSystem.Log.Info("attack type : " + onAttack.WeaponAttackType);
-
+      
       if (!(onAttack.Target is NwCreature oTarget))
         return;
 
@@ -90,6 +90,7 @@ namespace NWN.Systems
       switch (ctx.onAttack.WeaponAttackType)
       {
         case WeaponAttackType.MainHand:
+        case WeaponAttackType.HastedAttack:
           if (ctx.oAttacker.GetItemInSlot(InventorySlot.RightHand) != null)
             ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.RightHand);
           break;
@@ -687,6 +688,12 @@ namespace NWN.Systems
         switch (damageType)
         {
           case DamageType.BaseWeapon: // Base weapon damage
+
+            /*ModuleSystem.Log.Info($"unarmed : {ctx.isUnarmedAttack}");
+
+            if (!ctx.isUnarmedAttack)
+              ModuleSystem.Log.Info($"weapon : {ctx.attackWeapon.Name}");*/
+
             targetAC = ctx.isUnarmedAttack ? HandleReducedDamageFromWeaponDamageType(ctx, new List<DamageType>() { DamageType.Bludgeoning }) : HandleReducedDamageFromWeaponDamageType(ctx, ctx.attackWeapon.BaseItem.WeaponType);
             break;
 

@@ -44,21 +44,8 @@ namespace NWN.Systems
             }
           };
 
-          contractRow = new NuiRow()
-          {
-            Children = new List<NuiElement>()
-            {
-              new NuiButton("Laissez moi jeter un oeil à ce contrat.") { Id = "contract", Width = 510 }
-            }
-          };
-
-          exitRow = new NuiRow()
-          {
-            Children = new List<NuiElement>()
-            {
-              new NuiButton("Merci, je voulais seulement vous saluer.") { Id = "exit", Width = 510 }
-            }
-          };
+          contractRow = new NuiRow() { Children = new List<NuiElement>() { new NuiButton("Laissez moi jeter un oeil à ce contrat.") { Id = "contract", Width = 510 } } };
+          exitRow = new NuiRow() { Children = new List<NuiElement>() { new NuiButton("Merci, je voulais seulement vous saluer.") { Id = "exit", Width = 510 } } };
 
           CreateWindow();
         }
