@@ -221,11 +221,11 @@ namespace NWN.Systems
           contract.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
           contract.Tag = "bank_contract";
           contract.Name = "Contrat d'ouverture de compte Skalsgard";
-          contract.Description = "Le contrat que vous avez entre les mains déclare sur des pages et des pages des conditions d'ouverture de compte et de services sommes toutes classiques.\n\n" +
+          contract.Description = "Le contrat que vous avez entre les mains déclare sur des pages et des pages des conditions d'ouverture de compte et de services somme toute classiques.\n\n" +
           "Les suivantes sortent tout de même sensiblement de l'ordinaire :\n" +
           " - La banque autorise un découvert illimité et automatique avec intérêts de 30 %.\n" +
           " - La banque se réserve la possibilité de demander le remboursement d'un prêt à n'importe quel moment.\n" +
-          " - En cas de défaut de paiement, le signataire s'engage à rembourser sa dette sous forme de Substance Pure, récoltée dans les tréfons de Similisse.\n" +
+          " - En cas de défaut de paiement, le signataire s'engage à rembourser sa dette sous forme de Substance Pure, récoltée dans les tréfonds de Similisse.\n" +
           " - La banque assure la sécurité des coffres : seuls les clients sont autorisés à voir et interagir au coffre qui leur a été attribué et à son contenu.\n" +
           " - Le client signataire s'engage à ne pas tenter de voir ou d'interagir avec les coffres d'autres clients, ou leur contenu.\n\n" +
           "Bon pour accord,\n" +
