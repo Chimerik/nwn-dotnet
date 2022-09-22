@@ -19,7 +19,7 @@ namespace NWN.Systems
         private readonly NuiBind<string> name = new("name");
         public readonly NuiBind<string> timeLeft = new("timeLeft");
         private readonly NuiBind<string> level = new("level");
-        bool stopPreviousSPGain { get; set; }
+        //bool stopPreviousSPGain { get; set; }
         Learnable learnable { get; set; }
 
         public ActiveLearnableWindow(Player player) : base(player)
@@ -83,7 +83,7 @@ namespace NWN.Systems
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-            stopPreviousSPGain = true;
+            //stopPreviousSPGain = true;
             //DelayStartSPGain();
           }
         }

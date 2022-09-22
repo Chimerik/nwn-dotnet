@@ -896,8 +896,13 @@ namespace NWN.Systems
 
           if (player.craftJob.remainingTime < 1)
           {
-            PlayerSystem.HandleSpecificJobCompletion[player.craftJob.type].Invoke(player, true);
-            player.craftJob.HandleGenericJobCompletion(player);
+            if (player.craftJob.type != PlayerSystem.JobType.Invalid)
+            {
+              PlayerSystem.HandleSpecificJobCompletion[player.craftJob.type].Invoke(player, true);
+              player.craftJob.HandleGenericJobCompletion(player);
+            }
+            else
+              player.craftJob = null;
           }
         }
       }

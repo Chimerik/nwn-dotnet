@@ -464,6 +464,12 @@ namespace NWN.Systems
                 if (!CanStartBlueprintJob(CustomSkill.BlueprintResearch))
                   return;
 
+                if(!player.learnableSkills.ContainsKey(CustomSkill.BlueprintResearch))
+                {
+                  player.oid.SendServerMessage("Il est tout d'abord nécessaire de maîtriser les bases de la recherche avant de pouvoir lancer cette étude !");
+                  return;
+                }
+
                 player.craftJob = new CraftJob(player, item, JobType.BlueprintResearchTimeEfficiency);
                 CloseWindow();
 

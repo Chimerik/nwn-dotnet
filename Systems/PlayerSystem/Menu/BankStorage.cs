@@ -58,42 +58,38 @@ namespace NWN.Systems
             new NuiListTemplateCell(new NuiLabel(itemNames) { Id = "takeItem", VerticalAlign = NuiVAlign.Middle } )
           };
 
-          rootColumn = new NuiColumn()
+          rootColumn = new NuiColumn() { Children = new List<NuiElement>() { new NuiRow()
           {
+            Height = 35,
             Children = new List<NuiElement>()
             {
-              new NuiRow()
-              {
-                Height = 35,
-                Children = new List<NuiElement>()
-                {
-                  new NuiLabel("Pièces d'or : ") { Width = 120, VerticalAlign = NuiVAlign.Middle },
-                  new NuiLabel(gold) { Width = 120, VerticalAlign = NuiVAlign.Middle },
-                  new NuiButton("Dépôt") { Id = "goldDeposit", Width = 80 },
-                  new NuiButton("Retrait") { Id = "goldWithdraw", Width = 80 }
-                }
-              },
-              new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) { Width = 410 } } },
-              new NuiList(rowTemplate, listCount) { RowHeight = 75 },
-              new NuiRow()
-              {
-                Height = 35,
-                Children = new List<NuiElement>()
-                {
-                  new NuiSpacer(),
-                  new NuiButton("Activer mode dépôt") { Id = "itemDeposit", Width = 160 },
-                  new NuiSpacer()
-                }
-              },
+              new NuiLabel("Pièces d'or : ") { Width = 120, VerticalAlign = NuiVAlign.Middle },
+              new NuiLabel(gold) { Width = 120, VerticalAlign = NuiVAlign.Middle },
+              new NuiButton("Dépôt") { Id = "goldDeposit", Width = 80 },
+              new NuiButton("Retrait") { Id = "goldWithdraw", Width = 80 }
             }
-          };
+          },
+
+            new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) { Width = 410 } } },
+            new NuiList(rowTemplate, listCount) { RowHeight = 75 },
+            new NuiRow()
+            {
+              Height = 35,
+              Children = new List<NuiElement>()
+              {
+                new NuiSpacer(),
+                new NuiButton("Activer mode dépôt") { Id = "itemDeposit", Width = 160 },
+                new NuiSpacer()
+              }
+            } 
+          } };
 
           CreateWindow();
         }
 
         public void CreateWindow()
         {
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.65f);
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, 600);
 
           window = new NuiWindow(rootColumn, $"Coffre privé de {player.oid.LoginCreature.Name}")
           {
@@ -167,8 +163,15 @@ namespace NWN.Systems
                   break;
 
                 case "takeItem":
-                  player.oid.ControlledCreature.AcquireItem(filteredList.ElementAt(nuiEvent.ArrayIndex));
-                  RemoveItemFromList(nuiEvent.ArrayIndex);
+                  NwItem item = filteredList.ElementAt(nuiEvent.ArrayIndex);
+
+                  if (item != null && item.IsValid)
+                    player.oid.ControlledCreature.AcquireItem(item);
+                  else
+                    Utils.LogMessageToDMs($"Bank - {player.oid.LoginCreature.Name} trying to take an invalid item.");
+
+                  items.Remove(item);
+                  UpdateItemList();
                   break;
               }
 
@@ -178,20 +181,21 @@ namespace NWN.Systems
 
               switch (nuiEvent.ElementId)
               {
-                case "search":
-
-                  string currentSearch = search.GetBindValue(player.oid, nuiToken.Token).ToLower();
-                  filteredList = items;
-
-                  if (!string.IsNullOrEmpty(currentSearch))
-                    filteredList = filteredList.Where(s => s.Name.ToLower().Contains(currentSearch));
-
-                  LoadBankItemList(filteredList);
-
-                  break;
+                case "search": UpdateItemList(); break;
               }
+
               break;
           }
+        }
+        private void UpdateItemList()
+        {
+          string currentSearch = search.GetBindValue(player.oid, nuiToken.Token).ToLower();
+          filteredList = items;
+
+          if (!string.IsNullOrEmpty(currentSearch))
+            filteredList = filteredList.Where(s => s.Name.ToLower().Contains(currentSearch));
+
+          LoadBankItemList(filteredList);
         }
         private bool DepositGold(string inputValue)
         {
@@ -221,83 +225,14 @@ namespace NWN.Systems
 
           return true;
         }
-        private void RemoveItemFromList(int index)
-        {
-          items.Remove(filteredList.ElementAt(index));
-
-          List<string> tempList = itemNames.GetBindValues(player.oid, nuiToken.Token);
-          tempList.RemoveAt(index);
-          itemNames.SetBindValues(player.oid, nuiToken.Token, tempList);
-
-          tempList = topIcon.GetBindValues(player.oid, nuiToken.Token);
-          tempList.RemoveAt(index);
-          topIcon.SetBindValues(player.oid, nuiToken.Token, tempList);
-
-          tempList = midIcon.GetBindValues(player.oid, nuiToken.Token);
-          tempList.RemoveAt(index);
-          midIcon.SetBindValues(player.oid, nuiToken.Token, tempList);
-
-          tempList = botIcon.GetBindValues(player.oid, nuiToken.Token);
-          tempList.RemoveAt(index);
-          botIcon.SetBindValues(player.oid, nuiToken.Token, tempList);
-
-          List<bool> tempEnableList = enabled.GetBindValues(player.oid, nuiToken.Token);
-          tempEnableList.RemoveAt(index);
-          enabled.SetBindValues(player.oid, nuiToken.Token, tempEnableList);
-
-          listCount.SetBindValue(player.oid, nuiToken.Token, listCount.GetBindValue(player.oid, nuiToken.Token) - 1);
-        }
-        private void AddItemToList(NwItem item)
-        {
-          items.Add(item);
-          List<string> tempList = itemNames.GetBindValues(player.oid, nuiToken.Token);
-          tempList.Add(item.Name);
-          itemNames.SetBindValues(player.oid, nuiToken.Token, tempList);
-
-          string[] tempArray = Utils.GetIconResref(item);
-
-          tempList = topIcon.GetBindValues(player.oid, nuiToken.Token);
-          tempList.Add(tempArray[0]);
-          topIcon.SetBindValues(player.oid, nuiToken.Token, tempList);
-
-          tempList = midIcon.GetBindValues(player.oid, nuiToken.Token);
-          tempList.Add(tempArray[1]);
-          midIcon.SetBindValues(player.oid, nuiToken.Token, tempList);
-
-          tempList = botIcon.GetBindValues(player.oid, nuiToken.Token);
-          tempList.Add(tempArray[2]);
-          botIcon.SetBindValues(player.oid, nuiToken.Token, tempList);
-
-          List<bool> tempEnableList = enabled.GetBindValues(player.oid, nuiToken.Token);
-          tempEnableList.Add(!string.IsNullOrEmpty(tempArray[1]));
-          enabled.SetBindValues(player.oid, nuiToken.Token, tempEnableList);
-
-          List<NuiRect> imagePosList = imagePosition.GetBindValues(player.oid, nuiToken.Token);
-
-          switch (item.BaseItem.ModelType)
-          {
-            case BaseItemModelType.Simple:
-              imagePosList.Add(ItemUtils.GetItemCategory(item.BaseItem.ItemType) != ItemUtils.ItemCategory.Shield ? new NuiRect(0, 25, 25, 25) : new NuiRect(0, 15, 25, 25));
-              break;
-            case BaseItemModelType.Composite:
-              imagePosList.Add(ItemUtils.GetItemCategory(item.BaseItem.ItemType) != ItemUtils.ItemCategory.Ammunition ? new NuiRect(0, 0, 25, 25) : new NuiRect(0, 25, 25, 25));
-              break;
-            case BaseItemModelType.Armor:
-            case BaseItemModelType.Layered:
-              imagePosList.Add(new NuiRect(0, 0, 25, 25));
-              break;
-          }
-
-          imagePosition.SetBindValues(player.oid, nuiToken.Token, imagePosList);
-          listCount.SetBindValue(player.oid, nuiToken.Token, listCount.GetBindValue(player.oid, nuiToken.Token) + 1);
-        }
         private void SelectInventoryItem(ModuleEvents.OnPlayerTarget selection)
         {
-          if (selection.IsCancelled || selection.TargetObject is not NwItem item)
+          if (selection.IsCancelled || selection.TargetObject is not NwItem item || item == null || !item.IsValid)
             return;
 
-          AddItemToList(item);
+          items.Add(NwItem.Deserialize(item.Serialize()));
           item.Destroy();
+          UpdateItemList();
           player.oid.EnterTargetMode(SelectInventoryItem, ObjectTypes.Item, MouseCursor.PickupDown);
         }
         public void BankSave()

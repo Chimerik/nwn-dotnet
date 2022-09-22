@@ -540,7 +540,18 @@ namespace NWN.Systems
           oid.LoginCreature.BaseAttackBonus = (byte)(oid.LoginCreature.BaseAttackBonus + learnableSkills[CustomSkill.ImprovedAttackBonus].totalPoints);
 
         if (activeLearnable != null && activeLearnable.active && activeLearnable.spLastCalculation.HasValue)
+        {
           activeLearnable.acquiredPoints += (DateTime.Now - activeLearnable.spLastCalculation).Value.TotalSeconds * GetSkillPointsPerSecond(activeLearnable);
+          
+          if (!windows.ContainsKey("activeLearnable")) windows.Add("activeLearnable", new ActiveLearnableWindow(this));
+          else ((ActiveLearnableWindow)windows["activeLearnable"]).CreateWindow();
+        }
+
+        if(craftJob != null)
+        {
+          if (!windows.ContainsKey("activeCraftJob")) windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
+          else ((ActiveCraftJobWindow)windows["activeCraftJob"]).CreateWindow();
+        }
 
         pcState = PcState.Online;
         oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;

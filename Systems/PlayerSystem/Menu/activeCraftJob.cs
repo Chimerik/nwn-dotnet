@@ -82,7 +82,7 @@ namespace NWN.Systems
               player.craftJob.progressLastCalculation = null;
             }
 
-            if (player.oid.LoginCreature.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 0)
+            if (player.oid.LoginCreature.Area == null || player.oid.LoginCreature.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 0)
               timeLeft.SetBindValue(player.oid, nuiToken.Token, "En pause (Hors Cité)");
             else
               timeLeft.SetBindValue(player.oid, nuiToken.Token, player.craftJob.GetReadableJobCompletionTime());

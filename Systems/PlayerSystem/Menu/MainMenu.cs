@@ -446,7 +446,7 @@ namespace NWN.Systems
           try
           {
             var request = ModuleSystem.googleDriveService.Files.List();
-            request.Q = $"name = '{oPlayer.ControlledCreature.Area.Name}'";
+            request.Q = $"name = '{oPlayer.ControlledCreature.Area.Name.Replace("'", "")}'";
 
             Log.Info($"Area - {oPlayer.ControlledCreature.Area.Name} - Description request - {oPlayer.ControlledCreature.Name} - {request.Q}");
 

@@ -267,7 +267,7 @@ namespace NWN.Systems
 
       if (onClick.Placeable.GetObjectVariable<LocalVariableInt>("ownerId").Value != player.characterId)
       {
-        player.oid.SendServerMessage("Vous avez beau avancer la main, le coffre semble rester hors d'atteinte, inaccessible. De plus, vous entendez un lointain cliquetis de chaînes dans les tréfonds de votres esprit. Quelque chose vient de se mettre en marche.", ColorConstants.Red);
+        player.oid.SendServerMessage("Vous avez beau avancer la main, le coffre semble rester hors d'atteinte, inaccessible. De plus, vous entendez un lointain cliquetis de chaînes dans les tréfonds de votre esprit. Quelque chose vient de se mettre en marche.", ColorConstants.Red);
         onClick.ClickedBy.ControlledCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSpellMantleUse));
         return;
       }

@@ -800,7 +800,7 @@ namespace NWN.Systems
 
         int nbCycles = (int)Math.Truncate(elapsedTime / 3600);
         double alreadyConsumedTime = elapsedTime - (nbCycles * 3600);
-        double miningYield = nbCycles * 1800;
+        double miningYield = nbCycles * 900;
         miningYield = player.learnableSkills.ContainsKey(CustomSkill.MineralExtraction) ? miningYield * player.learnableSkills[CustomSkill.MineralExtraction].bonusMultiplier : miningYield;
         miningYield = player.learnableSkills.ContainsKey(CustomSkill.MineralExtractionYield) ? miningYield * player.learnableSkills[CustomSkill.MineralExtractionYield].bonusMultiplier : miningYield;
 
@@ -836,7 +836,7 @@ namespace NWN.Systems
 
         int nbCycles = (int)Math.Truncate(elapsedTime / 3600);
         double alreadyConsumedTime = elapsedTime - (nbCycles * 3600);
-        double miningYield = nbCycles * 1800;
+        double miningYield = nbCycles * 900;
         miningYield = player.learnableSkills.ContainsKey(CustomSkill.WoodExtraction) ? miningYield * player.learnableSkills[CustomSkill.WoodExtraction].bonusMultiplier : miningYield;
         miningYield = player.learnableSkills.ContainsKey(CustomSkill.WoodExtractionYield) ? miningYield * player.learnableSkills[CustomSkill.WoodExtractionYield].bonusMultiplier : miningYield;
 
@@ -872,7 +872,7 @@ namespace NWN.Systems
 
         int nbCycles = (int)Math.Truncate(elapsedTime / 3600);
         double alreadyConsumedTime = elapsedTime - (nbCycles * 3600);
-        double miningYield = nbCycles * 1800;
+        double miningYield = nbCycles * 900;
         miningYield = player.learnableSkills.ContainsKey(CustomSkill.PeltExtraction) ? miningYield * player.learnableSkills[CustomSkill.PeltExtraction].bonusMultiplier : miningYield;
         miningYield = player.learnableSkills.ContainsKey(CustomSkill.PeltExtractionYield) ? miningYield * player.learnableSkills[CustomSkill.PeltExtractionYield].bonusMultiplier : miningYield;
 
