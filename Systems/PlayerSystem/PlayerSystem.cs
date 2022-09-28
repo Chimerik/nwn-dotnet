@@ -216,15 +216,21 @@ namespace NWN.Systems
           oPC.ControllingPlayer.SendServerMessage($"Les informations supplémentaires contenues dans ce parchemin vous permettent d'affiner votre connaissance du sort {learnable.name.ColorString(ColorConstants.White)}. Votre apprentissage sera plus rapide.", new Color(32, 255, 32));
         }
         else
+        {
           oPC.ControllingPlayer.SendServerMessage("Vous avez déjà retiré tout ce que vous pouviez de ce parchemin.", ColorConstants.Orange);
-        return;
+          return;
+        }
       }
       else
       {
         player.learnableSpells.Add(spellId, new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[spellId]));
         oPC.ControllingPlayer.SendServerMessage($"Le sort a été ajouté à votre liste d'apprentissage et est désormais disponible pour étude.");
-        oScroll.Destroy();
       }
+
+      if (oScroll.StackSize > 1)
+        oScroll.StackSize -= 1;
+      else
+        oScroll.Destroy();
     }
 
     public static void HandleOnClientLevelUp(OnClientLevelUpBegin onLevelUp)

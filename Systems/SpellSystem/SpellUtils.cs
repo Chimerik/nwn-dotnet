@@ -3,6 +3,7 @@ using System.Linq;
 using System;
 using Anvil.API.Events;
 using System.Collections.Generic;
+using NLog.Fluent;
 
 namespace NWN.Systems
 {
@@ -81,7 +82,16 @@ namespace NWN.Systems
       ItemProperty ip = oScroll.ItemProperties.FirstOrDefault(ip => ip.Property.PropertyType == ItemPropertyType.CastSpell);
 
       if (ip != null)
-        return (byte)ip.SubTypeTable.GetInt(ip.SubType.RowIndex, "InnateLvl").Value;
+      {
+        try
+        {
+          return (byte)ip.SubTypeTable.GetInt(ip.SubType.RowIndex, "InnateLvl").Value;
+        }
+        catch(Exception)
+        {
+          return 1;
+        }
+      }
 
       return 255;
     }

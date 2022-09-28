@@ -905,6 +905,7 @@ namespace NWN.Systems
               player.craftJob = null;
           }
         }
+        else player.craftJob.startTime = DateTime.Now;
       }
     }
     private void HandleLearnableLoop(PlayerSystem.Player player)

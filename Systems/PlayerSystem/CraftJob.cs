@@ -524,6 +524,13 @@ namespace NWN.Systems
     }
     private static bool CompleteBlueprintCopy(Player player, bool completed)
     {
+      if (string.IsNullOrEmpty(player.craftJob.serializedCraftedItem))
+      {
+        player.oid.SendServerMessage("Il semble y avoir eu une erreur. Votre travail artisanal a été annulé.");
+        player.craftJob = null;
+        return true;
+      }
+
       if (completed)
       {
         NwItem bpCopy = ItemUtils.DeserializeAndAcquireItem(player.craftJob.serializedCraftedItem, player.oid.LoginCreature);
@@ -541,6 +548,13 @@ namespace NWN.Systems
     }
     private static bool CompleteBlueprintMaterialResearch(Player player, bool completed)
     {
+      if (string.IsNullOrEmpty(player.craftJob.serializedCraftedItem))
+      {
+        player.oid.SendServerMessage("Il semble y avoir eu une erreur. Votre travail artisanal a été annulé.");
+        player.craftJob = null;
+        return true;
+      }
+
       if (completed)
       {
         NwItem bpCopy = ItemUtils.DeserializeAndAcquireItem(player.craftJob.serializedCraftedItem, player.oid.LoginCreature);
@@ -557,6 +571,13 @@ namespace NWN.Systems
     }
     private static bool CompleteBlueprintTimeResearch(Player player, bool completed)
     {
+      if (string.IsNullOrEmpty(player.craftJob.serializedCraftedItem))
+      {
+        player.oid.SendServerMessage("Il semble y avoir eu une erreur. Votre travail artisanal a été annulé.");
+        player.craftJob = null;
+        return true;
+      }
+
       if (completed)
       {
         NwItem bpCopy = ItemUtils.DeserializeAndAcquireItem(player.craftJob.serializedCraftedItem, player.oid.LoginCreature);
