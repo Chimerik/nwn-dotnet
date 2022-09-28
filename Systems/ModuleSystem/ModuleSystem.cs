@@ -73,7 +73,7 @@ namespace NWN.Systems
 
       //NwModule.Instance.SetEventScript((EventScriptType)NWScript.EVENT_SCRIPT_MODULE_ON_PLAYER_TILE_ACTION, "on_tile_action");
 
-      string serverName = "FR] LDE - Closed Alpha";
+      string serverName = "FR] Les Larmes des Erylies";
 
       switch (Config.env)
       {
@@ -82,7 +82,8 @@ namespace NWN.Systems
       }
 
       NwServer.Instance.ServerInfo.ServerName = serverName;
-      NwServer.Instance.ServerInfo.ModuleName = "Les Larmes des Erylies";
+      NwServer.Instance.ServerInfo.ModuleName = "Démo technique ouverte";
+      NwServer.Instance.DMPassword = Environment.GetEnvironmentVariable("DMPASS");
       NwServer.Instance.ServerInfo.PlayOptions.RestoreSpellUses = false;
       NwServer.Instance.ServerInfo.PlayOptions.ShowDMJoinMessage = false;
 
