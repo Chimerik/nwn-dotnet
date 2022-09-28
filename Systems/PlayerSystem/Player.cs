@@ -248,7 +248,7 @@ namespace NWN.Systems
           new List<string>() { { "accountName" } },
           new List<string[]>() { new string[] { "rowId", accountId.ToString() } });
 
-        if (result == null)
+        if (result == null || result.Count < 1)
           return "";
 
         return result.FirstOrDefault()[0];

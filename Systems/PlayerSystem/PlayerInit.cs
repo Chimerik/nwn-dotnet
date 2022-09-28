@@ -96,7 +96,7 @@ namespace NWN.Systems
           new List<string>() { { "rowid" } },
           new List<string[]>() { { new string[] { "accountName", oid.PlayerName } } });
 
-        if (result == null)
+        if (result == null || result.Count < 1)
         {
           if (Config.env == Config.Env.Prod)
           {
@@ -526,6 +526,9 @@ namespace NWN.Systems
       }
       public void FinalizePlayerData()
       {
+        if (oid == null || oid.LoginCreature == null)
+          return;
+
         int improvedHealth = learnableSkills.ContainsKey(CustomSkill.ImprovedHealth) ? learnableSkills[CustomSkill.ImprovedHealth].currentLevel : 0;
         int toughness = learnableSkills.ContainsKey(CustomSkill.Toughness) ? learnableSkills[CustomSkill.Toughness].currentLevel : 0;
 

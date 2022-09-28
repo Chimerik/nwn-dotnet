@@ -752,7 +752,7 @@ namespace NWN.Systems
             new List<string>() { { "creatures" } },
             new List<string[]>() { });
 
-      if (result == null)
+      if (result == null || result.Count < 1) 
       {
         await SqLiteUtils.InsertQueryAsync("modulePalette",
                   new List<string[]>() { new string[] { "creatures", "" } });
@@ -785,7 +785,7 @@ namespace NWN.Systems
             new List<string>() { { "items" } },
             new List<string[]>() { });
       
-      if (result == null) 
+      if (result == null || result.Count < 1) 
       {
         await SqLiteUtils.InsertQueryAsync("modulePalette",
                   new List<string[]>() { new string[] { "items", "" } });
@@ -818,7 +818,7 @@ namespace NWN.Systems
             new List<string>() { { "placeables" } },
             new List<string[]>() { });
 
-      if (result == null)
+      if (result == null || result.Count < 1)
       {
         await SqLiteUtils.InsertQueryAsync("modulePalette",
                   new List<string[]>() { new string[] { "placeables", "" } });
