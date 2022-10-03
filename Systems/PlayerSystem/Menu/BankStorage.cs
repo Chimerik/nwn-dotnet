@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,6 +9,10 @@ using Anvil.API;
 using Anvil.API.Events;
 
 using Newtonsoft.Json;
+
+using NWN.Core;
+
+using static NWN.Systems.LootSystem.Lootable;
 
 namespace NWN.Systems
 {
@@ -172,6 +177,7 @@ namespace NWN.Systems
 
                   items.Remove(item);
                   UpdateItemList();
+                  BankSave();
                   break;
               }
 
@@ -233,6 +239,7 @@ namespace NWN.Systems
           items.Add(NwItem.Deserialize(item.Serialize()));
           item.Destroy();
           UpdateItemList();
+          BankSave();
           player.oid.EnterTargetMode(SelectInventoryItem, ObjectTypes.Item, MouseCursor.PickupDown);
         }
         public void BankSave()
@@ -289,7 +296,8 @@ namespace NWN.Systems
         private async void HandleBankSave()
         {
           List<string> serializedItems = new List<string>();
-          await Task.Run(() => SerializeItemList(serializedItems));
+
+          await NwTask.Run(async () => { await SerializeItems(serializedItems); });
 
           Task<string> serializeBank = Task.Run(() => JsonConvert.SerializeObject(serializedItems));
           await serializeBank;
@@ -301,12 +309,23 @@ namespace NWN.Systems
           nbDebounce = 0;
           AuthorizeSave = false;
         }
-        private List<string> SerializeItemList(List<string> serializedItems)
+        private async Task SerializeItems(List<string> serializedItems)
         {
-          foreach (NwItem item in items)
+          Queue<NwItem> serializeQueue = new Queue<NwItem>(items);
+          while (serializeQueue.Count > 0)
+          {
+            NwItem item = serializeQueue.Dequeue();
             serializedItems.Add(item.Serialize().ToBase64EncodedString());
 
-          return serializedItems;
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            while (serializeQueue.Count > 0 && stopwatch.Elapsed.TotalMilliseconds < Config.MaxSerializeTimeMs)
+            {
+              item = serializeQueue.Dequeue();
+              serializedItems.Add(item.Serialize().ToBase64EncodedString());
+            }
+
+            await NwTask.NextFrame();
+          }
         }
         private async void DeserializeBankItemList()
         {

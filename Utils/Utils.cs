@@ -388,6 +388,7 @@ namespace NWN
     public static readonly List<NuiComboEntry> placeablePaletteCreatorsList = new();
     public static List<PaletteEntry> placeablePaletteList = new();
     public static NuiBind<string>[] paletteColorBindings = new NuiBind<string>[256];
+    public static List<Rumor> rumors = new();
 
     public static readonly List<string> colorPaletteLeather = new();
     public static readonly List<string> colorPaletteMetal = new();
@@ -466,7 +467,107 @@ namespace NWN
       skillBonusDodge += creature.GetAbilityModifier(Ability.Dexterity) - creature.ArmorCheckPenalty - creature.ShieldCheckPenalty;
       return skillBonusDodge < 0 ? 0 : skillBonusDodge;
     }
-
+    public static int GetResTypeFromFileExtension(string extension, string fileName)
+    {
+      switch (extension)
+      {
+        case "2da": return NWScript.RESTYPE_2DA;
+        case "4pc": return NWScript.RESTYPE_4PC;
+        case "are": return NWScript.RESTYPE_ARE;
+        case "bak": return NWScript.RESTYPE_BAK;
+        case "bic": return NWScript.RESTYPE_BIC;
+        case "bif": return NWScript.RESTYPE_BIF;
+        case "bmp": return NWScript.RESTYPE_BMP;
+        case "btc": return NWScript.RESTYPE_BTC;
+        case "btd": return NWScript.RESTYPE_BTD;
+        case "bte": return NWScript.RESTYPE_BTE;
+        case "btg": return NWScript.RESTYPE_BTG;
+        case "bti": return NWScript.RESTYPE_BTI;
+        case "btm": return NWScript.RESTYPE_BTM;
+        case "btp": return NWScript.RESTYPE_BTP;
+        case "bts": return NWScript.RESTYPE_BTS;
+        case "btt": return NWScript.RESTYPE_BTT;
+        case "caf": return NWScript.RESTYPE_CAF;
+        case "ccs": return NWScript.RESTYPE_CCS;
+        case "css": return NWScript.RESTYPE_CSS;
+        case "dat": return NWScript.RESTYPE_DAT;
+        case "dds": return NWScript.RESTYPE_DDS;
+        case "dft": return NWScript.RESTYPE_DFT;
+        case "dlg": return NWScript.RESTYPE_DLG;
+        case "dwk": return NWScript.RESTYPE_DWK;
+        case "erf": return NWScript.RESTYPE_ERF;
+        case "fac": return NWScript.RESTYPE_FAC;
+        case "fnt": return NWScript.RESTYPE_FNT;
+        case "gff": return NWScript.RESTYPE_GFF;
+        case "gic": return NWScript.RESTYPE_GIC;
+        case "gif": return NWScript.RESTYPE_GIF;
+        case "git": return NWScript.RESTYPE_GIT;
+        case "gui": return NWScript.RESTYPE_GUI;
+        case "hak": return NWScript.RESTYPE_HAK;
+        case "ids": return NWScript.RESTYPE_IDS;
+        case "ifo": return NWScript.RESTYPE_IFO;
+        case "ini": return NWScript.RESTYPE_INI;
+        case "itp": return NWScript.RESTYPE_ITP;
+        case "jpg": return NWScript.RESTYPE_JPG;
+        case "jrl": return NWScript.RESTYPE_JRL;
+        case "jui": return NWScript.RESTYPE_JUI;
+        case "key": return NWScript.RESTYPE_KEY;
+        case "ktx": return NWScript.RESTYPE_KTX;
+        case "lod": return NWScript.RESTYPE_LOD;
+        case "ltr": return NWScript.RESTYPE_LTR;
+        case "lua": return NWScript.RESTYPE_LUA;
+        case "mdl": return NWScript.RESTYPE_MDL;
+        case "mod": return NWScript.RESTYPE_MOD;
+        case "mp3": return NWScript.RESTYPE_MP3;
+        case "mpg": return NWScript.RESTYPE_MPG;
+        case "mtr": return NWScript.RESTYPE_MTR;
+        case "mve": return NWScript.RESTYPE_MVE;
+        case "ncs": return NWScript.RESTYPE_NCS;
+        case "ndb": return NWScript.RESTYPE_NDB;
+        case "nss": return NWScript.RESTYPE_NSS;
+        case "nwm": return NWScript.RESTYPE_NWM;
+        case "plh": return NWScript.RESTYPE_PLH;
+        case "plt": return NWScript.RESTYPE_PLT;
+        case "png": return NWScript.RESTYPE_PNG;
+        case "ptm": return NWScript.RESTYPE_PTM;
+        case "ptt": return NWScript.RESTYPE_PTT;
+        case "pwk": return NWScript.RESTYPE_PWK;
+        case "res": return NWScript.RESTYPE_RES;
+        case "sav": return NWScript.RESTYPE_SAV;
+        case "set": return NWScript.RESTYPE_SET;
+        case "shd": return NWScript.RESTYPE_SHD;
+        case "slt": return NWScript.RESTYPE_SLT;
+        case "sq3": return NWScript.RESTYPE_SQ3;
+        case "sql": return NWScript.RESTYPE_SQL;
+        case "ssf": return NWScript.RESTYPE_SSF;
+        case "tex": return NWScript.RESTYPE_TEX;
+        case "tga": return NWScript.RESTYPE_TGA;
+        case "thg": return NWScript.RESTYPE_THG;
+        case "tlk": return NWScript.RESTYPE_TLK;
+        case "tml": return NWScript.RESTYPE_TML;
+        case "ttf": return NWScript.RESTYPE_TTF;
+        case "txi": return NWScript.RESTYPE_TXI;
+        case "txt": return NWScript.RESTYPE_TXT;
+        case "utc": return NWScript.RESTYPE_UTC;
+        case "utd": return NWScript.RESTYPE_UTD;
+        case "ute": return NWScript.RESTYPE_UTE;
+        case "utg": return NWScript.RESTYPE_UTG;
+        case "uti": return NWScript.RESTYPE_UTI;
+        case "utm": return NWScript.RESTYPE_UTM;
+        case "utp": return NWScript.RESTYPE_UTP;
+        case "uts": return NWScript.RESTYPE_UTS;
+        case "utt": return NWScript.RESTYPE_UTT;
+        case "utw": return NWScript.RESTYPE_UTW;
+        case "wav": return NWScript.RESTYPE_WAV;
+        case "wbm": return NWScript.RESTYPE_WBM;
+        case "wfx": return NWScript.RESTYPE_WFX;
+        case "wok": return NWScript.RESTYPE_WOK;
+        case "xbc": return NWScript.RESTYPE_XBC;
+        default:
+          Utils.LogMessageToDMs($"WARNING - type {extension} non reconnu - fichier {fileName}");
+          return NWScript.RESTYPE_MDL;
+      }
+    }
     public enum CommandRank
     {
       Public,

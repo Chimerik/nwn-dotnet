@@ -1,10 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 using Anvil.API;
 using Anvil.API.Events;
 
 using Microsoft.Data.Sqlite;
+
+using Newtonsoft.Json;
 
 namespace NWN.Systems
 {
@@ -14,72 +18,68 @@ namespace NWN.Systems
     {
       public class RumorsWindow : PlayerWindow
       {
-        private readonly NuiGroup rootGroup;
-        private readonly NuiColumn rootColumn;
-        private readonly List<NuiElement> rootChidren;
-        private readonly NuiRow introTextRow;
-        private readonly NuiRow readGreaterRumorsRow;
-        private readonly NuiRow readLesserRumorsRow;
-        private readonly NuiRow createRumorsRow;
-        private readonly NuiRow deleteRumorsRow;
-        private readonly NuiRow returnRow;
-        private readonly NuiList listRow;
-        private readonly NuiBind<string> npcText = new("npcText");
-        private readonly List<int> rumortIds = new();
+        private readonly NuiColumn rootColumn = new();
+        private readonly NuiGroup groupText = new() { Id = "groupText", Border = true, Width = 520, Height = 200 };
+        private readonly NuiRow readRow = new();
+        private readonly NuiRow writeRow = new();
+        private readonly List<NuiElement> rootChidren = new();
+        private readonly NuiBind<string> contentText = new("contentText");
+        private readonly NuiBind<string> titleText = new("titleText");
         private readonly NuiBind<string> titles = new("titles");
-        private readonly NuiBind<string> contents = new("contents");
         private readonly NuiBind<int> listCount = new("listCount");
         private readonly NuiBind<bool> visible = new("visible");
-        private string newRumorTitle { get; set; }
-        private int selectedRumorId { get; set; }
+        private readonly NuiBind<bool> enableSaveRumor = new("enableSaveRumor");
 
-        public RumorsWindow(Player player, NwCreature innkeeper) : base(player)
+        private readonly List<Rumor> currentRumors = new();
+        private Rumor editedRumor;
+
+        public RumorsWindow(Player player) : base(player)
         {
           windowId = "rumors";
+          rootColumn.Children = rootChidren;
 
           List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell>
           {
-            new NuiListTemplateCell(new NuiText(titles)),
-            new NuiListTemplateCell(new NuiText(contents)),
-            new NuiListTemplateCell(new NuiButton("Modifier") { Id = "modify", Visible = visible, Enabled = visible }),
-            new NuiListTemplateCell(new NuiButton("Supprimer") { Id = "delete", Visible = visible, Enabled = visible })
+            new NuiListTemplateCell(new NuiButton(titles) { Id = "read", Tooltip = "Racontez moi cette rumeur" }) { VariableSize = true },
+            new NuiListTemplateCell(new NuiButtonImage("ir_charsheet") { Id = "edit", Tooltip = "Attendez, ce n'est pas tout à fait ce qu'il s'est passé !", Visible = visible, Enabled = visible }) { Width = 35},
+            new NuiListTemplateCell(new NuiButtonImage("ir_abort") { Id = "delete", Tooltip = "Honnêtement, oubliez ça", Visible = visible, Enabled = visible }) { Width = 35}
           };
 
-          rootChidren = new List<NuiElement>();
-          rootColumn = new NuiColumn() { Children = rootChidren };
-          rootGroup = new NuiGroup() { Id = "rootGroup", Border = true, Layout = rootColumn };
-
-          introTextRow = new NuiRow()
+          readRow = new NuiRow() { Width = 500, Height = 190, Children = new List<NuiElement>()
           {
-            Children = new List<NuiElement>()
-            {
-              new NuiImage(innkeeper.PortraitResRef + "M") { ImageAspect = NuiAspect.ExactScaled, Width = 60, Height = 100 },
-              new NuiText(npcText) { Width = 440, Height = 100 }
-            }
-          };
+              new NuiText(titleText) { Tooltip = titleText, Width = 80, Height = 190 },
+              new NuiText(contentText) { Width = 430, Height = 190 }
+          } };
 
-          readGreaterRumorsRow = new NuiRow() { Children = new List<NuiElement>() { new NuiButton("Quelles sont les dernières grandes rumeurs ?") { Id = "readGreaterRumors", Width = 500, Height = 35 } } };
-          readLesserRumorsRow = new NuiRow() { Children = new List<NuiElement>() { new NuiButton("Dites moi tout des derniers potins et on-dits.") { Id = "readLesserRumors", Width = 500, Height = 35 } } };
-          createRumorsRow = new NuiRow() { Children = new List<NuiElement>() { new NuiButton("J'en ai une bien bonne à vous raconter !") { Id = "createRumor", Width = 500, Height = 35 } } };
-          deleteRumorsRow = new NuiRow() { Children = new List<NuiElement>() { new NuiButton("Vous vous souvenez de ce que je vous ai raconté ?") { Id = "readMyRumors", Width = 500, Height = 35 } } };
-          returnRow = new NuiRow() { Children = new List<NuiElement>() { new NuiButton("Retour.") { Id = "retour", Width = 500, Height = 35 } } };
+          writeRow = new NuiRow() { Width = 500, Height = 200, Children = new List<NuiElement>()
+          {
+              new NuiTextEdit("Titre de la rumeur", titleText, 100, false) { Tooltip = titleText, Width = 80, Height = 190 },
+              new NuiTextEdit("Contenu de la rumeur", contentText, 4000, true) { Width = 430, Height = 190 }
+          } };
 
-          listRow = new NuiList(rowTemplate, listCount) { RowHeight = 75 };
+          groupText.Layout = readRow;
+          rootChidren.Add(groupText);
+
+          rootChidren.Add(new NuiRow() { Children = new List<NuiElement>()
+          {
+            new NuiSpacer(),
+            new NuiButtonImage("ir_partychat") { Id = "readGreaterRumors", Tooltip = "Quelles sont les dernières grandes rumeurs ?", Width = 35, Height = 35 },
+            new NuiButtonImage("ir_chat") { Id = "readLesserRumors", Tooltip = "Dites moi tout des derniers potins et on-dits.", Width = 35, Height = 35 },
+            new NuiButtonImage("ir_command") { Id = "createRumor", Tooltip = "J'en ai une bien bonne à vous raconter !", Width = 35, Height = 35 },
+            new NuiButtonImage("ir_dialog") { Id = "readMyRumors", Tooltip = "Vous vous souvenez de ce que je vous ai raconté ?", Width = 35, Height = 35 },
+            new NuiButtonImage("ir_learnscroll") { Id = "saveRumor", Tooltip = "Rappelez-vous bien de ça !", Width = 35, Height = 35, Enabled = enableSaveRumor },
+            new NuiSpacer()
+          } });
+
+          rootChidren.Add(new NuiList(rowTemplate, listCount) { RowHeight = 35, Width = 520 });
 
           CreateWindow();
         }
         public void CreateWindow()
         {
-          rootChidren.Clear();
-          rootChidren.Add(introTextRow);
-          rootChidren.Add(readGreaterRumorsRow);
-          rootChidren.Add(readLesserRumorsRow);
-          rootChidren.Add(createRumorsRow);
-          rootChidren.Add(deleteRumorsRow);
+          NuiRect windowRectangle = new NuiRect(0, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.02f, 540, 600);
 
-          NuiRect windowRectangle = new NuiRect(0, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.02f, 540, 350);
-
-          window = new NuiWindow(rootGroup, "Aubergiste")
+          window = new NuiWindow(rootColumn, "Aubergiste")
           {
             Geometry = geometry,
             Resizable = false,
@@ -94,14 +94,15 @@ namespace NWN.Systems
             nuiToken = tempToken;
             nuiToken.OnNuiEvent += HandleRumorEvents;
 
-            npcText.SetBindValue(player.oid, nuiToken.Token, "Bonjour, ami ! Prend une place et cette petite chopine.\n" +
+            titleText.SetBindValue(player.oid, nuiToken.Token, "Aubergiste");
+            contentText.SetBindValue(player.oid, nuiToken.Token, "Bonjour, ami ! Prend une place et cette petite chopine.\n" +
               "A moins que tu n'aies quelque goût pour les dernières histoires du cru ?");
 
+            enableSaveRumor.SetBindValue(player.oid, nuiToken.Token, false);
+            groupText.SetLayout(player.oid, nuiToken.Token, readRow);
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
           }
-
-
         }
         private void HandleRumorEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
@@ -111,262 +112,177 @@ namespace NWN.Systems
 
               switch (nuiEvent.ElementId)
               {
-                case "readGreaterRumors":
-                  LoadDMRumorsList();
-                  break;
-
-                case "readLesserRumors":
-                  LoadPCRumorsList();
-                  break;
-
-                case "createRumor":
-                  GetRumorTitle();
-                  break;
-
-                case "readMyRumors":
-                  LoadMyRumorsList();
-                  break;
-
-                case "return":
-                  CloseWindow();
-                  CreateWindow();
-                  break;
-
-                case "modify":
-                  selectedRumorId = nuiEvent.ArrayIndex;
-                  GetNewRumorTitle();
-                  break;
-
-                case "delete":
-
-                  SqLiteUtils.DeletionQuery("rumors",
-                  new Dictionary<string, string>() { { "rowid", rumortIds[nuiEvent.ArrayIndex].ToString() } });
-
-                  player.oid.SendServerMessage($"La rumeur {titles.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex].ColorString(ColorConstants.White)} a bien été supprimée", ColorConstants.Pink);
-
-                  CloseWindow();
-                  CreateWindow();
-                  break;
+                case "readGreaterRumors": LoadDMRumorsList(); break;
+                case "readLesserRumors": LoadPCRumorsList(); break;
+                case "createRumor": LoadCreateRumorGUI(); break;
+                case "readMyRumors": LoadMyRumorsList(); break;
+                case "saveRumor": SaveRumor(); break;
+                case "read": LoadRumor(currentRumors[nuiEvent.ArrayIndex]); break;
+                case "edit": EditRumor(currentRumors[nuiEvent.ArrayIndex]); break;
+                case "delete": DeleteRumor(currentRumors[nuiEvent.ArrayIndex]); break;
               }
               break;
           }
         }
-        private async void LoadDMRumorsList()
+        private void LoadDMRumorsList()
         {
-          rootChidren.Clear();
-          rumortIds.Clear();
-          rootChidren.Add(introTextRow);
-          rootChidren.Add(listRow);
-          rootChidren.Add(returnRow);
+          currentRumors.Clear();
+          groupText.SetLayout(player.oid, nuiToken.Token, readRow);
 
-          npcText.SetBindValue(player.oid, nuiToken.Token, "Voilà ce qui dit de plus important ces derniers temps.");
+          titleText.SetBindValue(player.oid, nuiToken.Token, "Aubergiste");
+          contentText.SetBindValue(player.oid, nuiToken.Token, "Voilà ce qui dit de plus important ces derniers temps.");
+          enableSaveRumor.SetBindValue(player.oid, nuiToken.Token, false);
 
           List<string> titleList = new List<string>();
-          List<string> contentList = new List<string>();
+          List<bool> visibleList = new List<bool>();
 
-          using (var connection = new SqliteConnection(Config.dbPath))
+          foreach (Rumor rumor in Utils.rumors)
           {
-            connection.Open();
+            if (!rumor.dmCreated)
+              continue;
 
-            var sqlCommand = connection.CreateCommand();
-            sqlCommand.CommandText = "SELECT title, content, r.ROWID from rumors r " +
-              "LEFT JOIN PlayerAccounts pa on r.accountId = pa.ROWID " +
-              "where ifnull(pa.rank, '') in ('admin', 'staff')";
+            titleList.Add(rumor.title);
+            currentRumors.Add(rumor);
 
-            using (var reader = await sqlCommand.ExecuteReaderAsync())
-            {
-              while (reader.Read())
-              {
-                titleList.Add(reader.GetString(0));
-                contentList.Add(reader.GetString(1));
-                rumortIds.Add(reader.GetInt32(2));
-              }
-            }
+            if (player.oid.IsDM)
+              visibleList.Add(true);
+            else
+              visibleList.Add(false);
           }
 
-          await NwTask.SwitchToMainThread();
-
-          if (player.oid.IsDM)
-            visible.SetBindValue(player.oid, nuiToken.Token, true);
-          else
-            visible.SetBindValue(player.oid, nuiToken.Token, false);
-
           titles.SetBindValues(player.oid, nuiToken.Token, titleList);
-          contents.SetBindValues(player.oid, nuiToken.Token, contentList);
+          visible.SetBindValues(player.oid, nuiToken.Token, visibleList);
           listCount.SetBindValue(player.oid, nuiToken.Token, titleList.Count);
         }
-        private async void LoadPCRumorsList()
+        private void LoadPCRumorsList()
         {
-          rootChidren.Clear();
-          rumortIds.Clear();
-          rootChidren.Add(introTextRow);
-          rootChidren.Add(listRow);
-          rootChidren.Add(returnRow);
+          currentRumors.Clear();
+          groupText.SetLayout(player.oid, nuiToken.Token, readRow);
 
-          npcText.SetBindValue(player.oid, nuiToken.Token, "Voici les petits potins du moment.");
+          titleText.SetBindValue(player.oid, nuiToken.Token, "Aubergiste");
+          contentText.SetBindValue(player.oid, nuiToken.Token, "Voici les petits potins du moment.");
+          enableSaveRumor.SetBindValue(player.oid, nuiToken.Token, false);
 
           List<string> titleList = new List<string>();
-          List<string> contentList = new List<string>();
+          List<bool> visibleList = new List<bool>();
 
-          using (var connection = new SqliteConnection(Config.dbPath))
+          foreach (Rumor rumor in Utils.rumors)
           {
-            connection.Open();
+            if (rumor.dmCreated)
+              continue;
 
-            var sqlCommand = connection.CreateCommand();
-            sqlCommand.CommandText = "SELECT title, content, r.ROWID from rumors r " +
-              "LEFT JOIN PlayerAccounts pa on r.accountId = pa.ROWID " +
-              "where ifnull(pa.rank, '') not in ('admin', 'staff')";
+            titleList.Add(rumor.title);
+            currentRumors.Add(rumor);
 
-            using (var reader = await sqlCommand.ExecuteReaderAsync())
-            {
-              while (reader.Read())
-              {
-                titleList.Add(reader.GetString(0));
-                contentList.Add(reader.GetString(1));
-                rumortIds.Add(reader.GetInt32(2));
-              }
-            }
+            if (player.oid.IsDM || player.characterId == rumor.characterId)
+              visibleList.Add(true);
+            else
+              visibleList.Add(false);
           }
-
-          await NwTask.SwitchToMainThread();
-
-          if (player.oid.IsDM)
-            visible.SetBindValue(player.oid, nuiToken.Token, true);
-          else
-            visible.SetBindValue(player.oid, nuiToken.Token, false);
 
           titles.SetBindValues(player.oid, nuiToken.Token, titleList);
-          contents.SetBindValues(player.oid, nuiToken.Token, contentList);
+          visible.SetBindValues(player.oid, nuiToken.Token, visibleList);
           listCount.SetBindValue(player.oid, nuiToken.Token, titleList.Count);
         }
-        private void GetRumorTitle()
+        private void LoadMyRumorsList()
         {
-          if (!player.windows.ContainsKey("playerInput")) player.windows.Add("playerInput", new PlayerInputWindow(player, "Quel titre ?", SetRumorTitle));
-          else ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Quel titre ?", SetRumorTitle);
-        }
-        private bool SetRumorTitle(string inputValue)
-        {
-          if (string.IsNullOrEmpty(inputValue))
-          {
-            player.oid.SendServerMessage("Un titre est nécessaire pour créer votre rumeur.", ColorConstants.Red);
-            return true;
-          }
+          currentRumors.Clear();
+          groupText.SetLayout(player.oid, nuiToken.Token, readRow);
 
-          newRumorTitle = inputValue;
-
-          if (player.windows.ContainsKey("playerInput"))
-            ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Quel sera le contenu de votre rumeur ?", SetRumorContent);
-          else
-            player.windows.Add("playerInput", new PlayerInputWindow(player, "Quel sera le contenu de votre rumeur  ?", SetRumorContent));
-
-          return true;
-        }
-        private bool SetRumorContent(string inputValue)
-        {
-          if (string.IsNullOrEmpty(inputValue))
-          {
-            player.oid.SendServerMessage("Le contenu de votre rumeur ne peut pas être vide.", ColorConstants.Red);
-            return true;
-          }
-
-          Task waitForTransaction = NwTask.Run(async () =>
-          {
-            bool queryResult = await SqLiteUtils.InsertQueryAsync("rumors",
-              new List<string[]>() {
-            new string[] { "accountId", player.accountId.ToString() },
-            new string[] { "title", newRumorTitle },
-            new string[] { "content", inputValue } },
-              new List<string>() { "accountId", "title" },
-              new List<string[]>() { new string[] { "content" } });
-
-            player.HandleAsyncQueryFeedback(queryResult, $"Héhé {newRumorTitle.ColorString(ColorConstants.White)}, c'est pas tombé dans l'oreille d'un sourd !", "Erreur technique - Votre rumeur n'as pas été enregistrée.");
-
-            CloseWindow();
-            CreateWindow();
-
-            if (!player.oid.IsDM)
-              await Bot.staffGeneralChannel.SendMessageAsync($"{Bot.discordServer.EveryoneRole.Mention} Création de la rumeur {newRumorTitle} par {player.oid.LoginCreature.Name} à valider.");
-          });
-
-          return true;
-        }
-        private async void LoadMyRumorsList()
-        {
-          rootChidren.Clear();
-          rumortIds.Clear();
-          rootChidren.Add(introTextRow);
-          rootChidren.Add(listRow);
-          rootChidren.Add(returnRow);
-
-          npcText.SetBindValue(player.oid, nuiToken.Token, "Voici les rumeurs que vous avez laissé courir.");
-
-          var query = await SqLiteUtils.SelectQueryAsync("rumors",
-            new List<string>() { { "title" }, { "content" }, { "rowid" } },
-            new List<string[]>() { new string[] { "accountId", player.accountId.ToString() } });
+          titleText.SetBindValue(player.oid, nuiToken.Token, "Aubergiste");
+          contentText.SetBindValue(player.oid, nuiToken.Token, "Voici les rumeurs que vous avez laissé courir.");
+          enableSaveRumor.SetBindValue(player.oid, nuiToken.Token, false);
 
           List<string> titleList = new List<string>();
-          List<string> contentList = new List<string>();
+          List<bool> visibleList = new List<bool>();
 
-          if (query != null)
-            foreach (var result in query)
-            {
-              titleList.Add(result[0]);
-              contentList.Add(result[1]);
-              rumortIds.Add(int.Parse(result[2]));
-            }
+          foreach (Rumor rumor in Utils.rumors)
+          {
+            if (rumor.characterId != player.characterId)
+              continue;
 
-          await NwTask.SwitchToMainThread();
-
-          visible.SetBindValue(player.oid, nuiToken.Token, true);
+            titleList.Add(rumor.title);
+            currentRumors.Add(rumor);
+            visibleList.Add(true);
+          }
 
           titles.SetBindValues(player.oid, nuiToken.Token, titleList);
-          contents.SetBindValues(player.oid, nuiToken.Token, contentList);
+          visible.SetBindValues(player.oid, nuiToken.Token, visibleList);
           listCount.SetBindValue(player.oid, nuiToken.Token, titleList.Count);
         }
-        private void GetNewRumorTitle()
+        private void LoadCreateRumorGUI()
         {
-          if (!player.windows.ContainsKey("playerInput")) player.windows.Add("playerInput", new PlayerInputWindow(player, "Retirer combien d'unités ?", UpdateRumorTitle, titles.GetBindValues(player.oid, nuiToken.Token)[selectedRumorId]));
-          else ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Retirer combien d'unités ?", UpdateRumorTitle, titles.GetBindValues(player.oid, nuiToken.Token)[selectedRumorId]);
+          groupText.SetLayout(player.oid, nuiToken.Token, writeRow);
+          titleText.SetBindValue(player.oid, nuiToken.Token, "");
+          contentText.SetBindValue(player.oid, nuiToken.Token, "");
+          enableSaveRumor.SetBindValue(player.oid, nuiToken.Token, true);
         }
-        private bool UpdateRumorTitle(string inputValue)
+        private void SaveRumor()
         {
-          if (string.IsNullOrEmpty(inputValue))
+          string title = titleText.GetBindValue(player.oid, nuiToken.Token);
+          string content = contentText.GetBindValue(player.oid, nuiToken.Token);
+
+          if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(content))
           {
-            player.oid.SendServerMessage("Un titre est nécessaire pour créer votre rumeur.", ColorConstants.Red);
-            return true;
+            player.oid.SendServerMessage("Votre rumeur doit avoir un titre et un message afin d'être retenue par les locaux !", ColorConstants.Red);
+            return;
           }
 
-          newRumorTitle = inputValue;
+          int newRumorId = 0;
 
-          if (!player.windows.ContainsKey("playerInput")) player.windows.Add("playerInput", new PlayerInputWindow(player, "Retirer combien d'unités ?", UpdateRumorContent, titles.GetBindValues(player.oid, nuiToken.Token)[selectedRumorId]));
-          else ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Retirer combien d'unités ?", UpdateRumorContent, titles.GetBindValues(player.oid, nuiToken.Token)[selectedRumorId]);
-
-          return true;
-        }
-        private bool UpdateRumorContent(string inputValue)
-        {
-          if (string.IsNullOrEmpty(inputValue))
+          try
           {
-            player.oid.SendServerMessage("Le contenu de votre rumeur ne peut pas être vide.", ColorConstants.Red);
-            return true;
+            newRumorId = Utils.rumors.MaxBy(r => r.id).id + 1;
           }
+          catch (Exception) { }
 
-          SqLiteUtils.UpdateQuery("playerCharacters",
-          new List<string[]>() { new string[] { "title", newRumorTitle }, new string[] { "content", inputValue } },
-          new List<string[]>() { new string[] { "rowid", rumortIds[selectedRumorId].ToString() } });
-
-          player.oid.SendServerMessage($"La rumeur {newRumorTitle.ColorString(ColorConstants.White)} a bien été modifiée");
-
-          CloseWindow();
-          CreateWindow();
-
-          Task waitForTransaction = NwTask.Run(async () =>
+          if(editedRumor != null)
           {
-            if (!player.oid.IsDM)
-              await Bot.staffGeneralChannel.SendMessageAsync($"{Bot.discordServer.EveryoneRole.Mention} Modification de la rumeur {newRumorTitle} par {player.oid.LoginCreature.Name} à valider.");
-          });
+            editedRumor.title = title;
+            editedRumor.content = content;
+            editedRumor = null;
+          }
+          else
+            Utils.rumors.Insert(0, new Rumor(newRumorId, title, content, player.oid.IsDM, player.characterId, player.oid.LoginCreature.Name));
 
-          return true;
+          player.oid.SendServerMessage($"Votre rumeur {title.ColorString(ColorConstants.White)} a bien été retenue par les locaux !", ColorConstants.Orange);
+          Utils.LogMessageToDMs($"{player.oid.LoginCreature.Name} ({player.oid.PlayerName}) vient d'enregistrer la rumeur {newRumorId} : {title}\n\n{content}");
+
+          enableSaveRumor.SetBindValue(player.oid, nuiToken.Token, false);
+          LoadMyRumorsList();
+          SaveRumorsToDatabase();
+        }
+        private static async void SaveRumorsToDatabase()
+        {
+          Task<string> serializedRumors = Task.Run(() => JsonConvert.SerializeObject(Utils.rumors));
+          await serializedRumors;
+
+          SqLiteUtils.UpdateQuery("rumors",
+          new List<string[]>() { new string[] { "rumors", serializedRumors.Result } },
+          new List<string[]>() { new string[] { "rowid", "1" } });
+        }
+        private void LoadRumor(Rumor rumor)
+        {
+          groupText.SetLayout(player.oid, nuiToken.Token, readRow);
+          titleText.SetBindValue(player.oid, nuiToken.Token, rumor.title);
+          contentText.SetBindValue(player.oid, nuiToken.Token, rumor.content);
+          enableSaveRumor.SetBindValue(player.oid, nuiToken.Token, false);
+        }
+        private void EditRumor(Rumor rumor)
+        {
+          groupText.SetLayout(player.oid, nuiToken.Token, writeRow);
+          titleText.SetBindValue(player.oid, nuiToken.Token, rumor.title);
+          contentText.SetBindValue(player.oid, nuiToken.Token, rumor.content);
+          enableSaveRumor.SetBindValue(player.oid, nuiToken.Token, true);
+          editedRumor = rumor;
+        }
+        private void DeleteRumor(Rumor rumor)
+        {
+          player.oid.SendServerMessage($"Votre rumeur {rumor.title.ColorString(ColorConstants.White)} a bien été oubliée par les locaux", ColorConstants.Orange);
+          Utils.LogMessageToDMs($"{player.oid.LoginCreature.Name} ({player.oid.PlayerName}) vient de supprimer la rumeur {rumor.id} : {rumor.title}\n\n{rumor.content}");
+          Utils.rumors.Remove(rumor);
+          LoadMyRumorsList();
+          SaveRumorsToDatabase();
         }
       }
     }

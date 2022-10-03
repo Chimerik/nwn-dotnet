@@ -291,8 +291,11 @@ namespace NWN.Systems
         oid.LoginCreature.OnItemEquip += ItemSystem.OnItemEquipBefore;
         oid.LoginCreature.OnUseFeat += FeatSystem.OnUseFeatBefore;
         oid.LoginCreature.OnSpellCast += spellSystem.HandleAutoSpellBeforeSpellCast;
+        oid.OnPlayerGuiEvent += HandleGuiEvents;
+        oid.OnNuiEvent += HandleGenericNuiEvents;
 
         ItemSystem.feedbackService.AddCombatLogMessageFilter(CombatLogMessage.ComplexAttack, oid);
+        eventService.Subscribe<OnDMSpawnObject, DMEventFactory>(oid.LoginCreature, areaSystem.InitializeEventsAfterDMSpawnCreature, EventCallbackType.After);
       }
       public void InitializePlayer()
       {

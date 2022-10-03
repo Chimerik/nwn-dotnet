@@ -69,7 +69,7 @@ namespace NWN.Systems
         if (player.windows.ContainsKey("rumors"))
           ((Player.RumorsWindow)player.windows["rumors"]).CreateWindow();
         else
-          player.windows.Add("rumors", new Player.RumorsWindow(player, onConversation.CurrentSpeaker));
+          player.windows.Add("rumors", new Player.RumorsWindow(player));
       }
     }
     public void StartTribunalShopDialog(CreatureEvents.OnConversation onConversation)

@@ -42,8 +42,8 @@ namespace NWN.Systems
         else
           player.areaExplorationStateDictionnary[player.oid.LoginCreature.Area.Tag] = player.oid.GetAreaExplorationState(player.oid.LoginCreature.Area);
 
-      if (player.TryGetOpenedWindow("bankStorage", out Player.PlayerWindow storageWindow))
-        ((Player.BankStorageWindow)storageWindow).BankSave();
+      /*if (player.TryGetOpenedWindow("bankStorage", out Player.PlayerWindow storageWindow))
+        ((Player.BankStorageWindow)storageWindow).BankSave();*/
 
       Task waitDisconnection = NwTask.Run(async () =>
       {

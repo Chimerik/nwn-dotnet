@@ -13,6 +13,7 @@ using NWN.Core;
 using Google.Apis.Drive.v3;
 using Newtonsoft.Json;
 using System.Numerics;
+using System.IO;
 
 namespace NWN.Systems
 {
@@ -51,6 +52,7 @@ namespace NWN.Systems
 
       SkillSystem.InitializeLearnables();
       LoadModulePalette();
+      LoadRumors();
       LoadEditorNuiCombo();
       LoadCreatureSpawns();
       LoadPlaceableSpawns();
@@ -74,16 +76,24 @@ namespace NWN.Systems
       //NwModule.Instance.SetEventScript((EventScriptType)NWScript.EVENT_SCRIPT_MODULE_ON_PLAYER_TILE_ACTION, "on_tile_action");
 
       string serverName = "FR] Les Larmes des Erylies";
+      NwServer.Instance.ServerInfo.ModuleName = "Demo technique ouverte";
 
       switch (Config.env)
       {
-        case Config.Env.Bigby: serverName = "FR] LDE - Bigby test server"; break;
-        case Config.Env.Chim: serverName = "FR] LDE - Chim test server"; break;
+        case Config.Env.Bigby: 
+          serverName = "FR] LDE - Bigby test server";
+          NwServer.Instance.ServerInfo.ModuleName = "Developpement et test local";
+          break;
+        case Config.Env.Chim: 
+          serverName = "FR] LDE - Chim test server";
+          NwServer.Instance.ServerInfo.ModuleName = "Developpement et test local";
+          break;
       }
 
       NwServer.Instance.ServerInfo.ServerName = serverName;
-      NwServer.Instance.ServerInfo.ModuleName = "Démo technique ouverte";
-      NwServer.Instance.DMPassword = Environment.GetEnvironmentVariable("DMPASS");
+      
+      NwServer.Instance.PlayerPassword = string.Empty;
+      NwServer.Instance.DMPassword = string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DMPASS")) ? "b" : Environment.GetEnvironmentVariable("DMPASS");
       NwServer.Instance.ServerInfo.PlayOptions.RestoreSpellUses = false;
       NwServer.Instance.ServerInfo.PlayOptions.ShowDMJoinMessage = false;
 
@@ -113,6 +123,22 @@ namespace NWN.Systems
 
       //foreach (var duplicate in NwGameTables.AppearanceTable.GroupBy(p => p.Race).Where(p => p.Count() > 1).Select(p => p.Key))
       //Log.Info(duplicate);
+      Log.Info($"start");
+      string[] files = Directory.GetFiles("/home/chim/checkres");
+      foreach (string file in files)
+      {
+        string fileName = Path.GetFileName(file);
+        string resName = fileName.Substring(0, fileName.LastIndexOf('.'));
+        string extension = fileName.Substring(fileName.LastIndexOf('.') + 1);
+        string resAlias = NWScript.ResManGetAliasFor(resName, Utils.GetResTypeFromFileExtension(extension, fileName));
+
+        if (!string.IsNullOrEmpty(resAlias))
+        {
+          File.Delete(file);
+          Log.Info($"Found {resName} in {resAlias}");
+        }
+      }
+      Log.Info($"end");
     }
     private static void CreateDatabase()
     {
@@ -160,7 +186,7 @@ namespace NWN.Systems
         "('characterId' INTEGER NOT NULL, 'shop' TEXT NOT NULL, 'panel' TEXT NOT NULL, 'expirationDate' TEXT NOT NULL, 'highestAuction' INTEGER NOT NULL, 'highestAuctionner' INTEGER NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS rumors" +
-        "('accountId' INTEGER NOT NULL, 'title' TEXT NOT NULL, 'content' TEXT NOT NULL, UNIQUE (accountId, title))");
+        "('rumors' TEXT DEFAULT NULL)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS arenaRewardShop" +
         "('id' INTEGER NOT NULL, 'shop' TEXT NOT NULL, PRIMARY KEY(id))");
@@ -522,18 +548,18 @@ namespace NWN.Systems
 
           Log.Info($"REFILL - {ressourcePoint.Area.Name} - {ressourcePoint.Name}");
         }*/
-      }
-
-      /*foreach (NwArea area in NwModule.Instance.Areas.Where(l => l.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 1))
-      {
-        int areaLevel = area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value;
-
-        SqLiteUtils.InsertQuery("areaResourceStock",
-          new List<string[]>() { new string[] { "areaTag", area.Tag }, new string[] { "mining", (areaLevel * 2).ToString() }, new string[] { "wood", (areaLevel * 2).ToString() }, new string[] { "animals", (areaLevel * 2).ToString() } },
-          new List<string>() { "areaTag" },
-          new List<string[]>() { new string[] { "mining" }, new string[] { "wood" }, new string[] { "animals" } });
-      }*/
     }
+
+    /*foreach (NwArea area in NwModule.Instance.Areas.Where(l => l.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 1))
+    {
+      int areaLevel = area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value;
+
+      SqLiteUtils.InsertQuery("areaResourceStock",
+        new List<string[]>() { new string[] { "areaTag", area.Tag }, new string[] { "mining", (areaLevel * 2).ToString() }, new string[] { "wood", (areaLevel * 2).ToString() }, new string[] { "animals", (areaLevel * 2).ToString() } },
+        new List<string>() { "areaTag" },
+        new List<string[]>() { new string[] { "mining" }, new string[] { "wood" }, new string[] { "animals" } });
+    }*/
+  }
     private static async void SpawnResourceBlock(string resourceTemplate, NwWaypoint waypoint, int quantity, DateTime lastChecked)
     {
       try
@@ -749,7 +775,7 @@ namespace NWN.Systems
     }
     private static async void LoadCreaturePalette()
     {
-      var result = SqLiteUtils.SelectQuery("modulePalette",
+      var result = await SqLiteUtils.SelectQueryAsync("modulePalette",
             new List<string>() { { "creatures" } },
             new List<string[]>() { });
 
@@ -782,7 +808,7 @@ namespace NWN.Systems
     }
     private static async void LoadItemPalette()
     {
-      var result = SqLiteUtils.SelectQuery("modulePalette",
+      var result = await SqLiteUtils.SelectQueryAsync("modulePalette",
             new List<string>() { { "items" } },
             new List<string[]>() { });
       
@@ -815,7 +841,7 @@ namespace NWN.Systems
     }
     private static async void LoadPlaceablePalette()
     {
-      var result = SqLiteUtils.SelectQuery("modulePalette",
+      var result = await SqLiteUtils.SelectQueryAsync("modulePalette",
             new List<string>() { { "placeables" } },
             new List<string[]>() { });
 
@@ -845,6 +871,31 @@ namespace NWN.Systems
         Utils.placeablePaletteCreatorsList.Add(new NuiComboEntry(entry.creator, index));
         index++;
       }
+    }
+    private static async void LoadRumors()
+    {
+      var result = await SqLiteUtils.SelectQueryAsync("rumors",
+            new List<string>() { { "rumors" } },
+            new List<string[]>() { });
+
+      if (result == null || result.Count < 1)
+      {
+        await SqLiteUtils.InsertQueryAsync("rumors",
+                  new List<string[]>() { new string[] { "rumors", "" } });
+
+        return;
+      }
+
+      string serializedRumors = result.FirstOrDefault()[0];
+
+      await Task.Run(() =>
+      {
+        if (string.IsNullOrEmpty(serializedRumors) || serializedRumors == "null")
+          return;
+
+        Utils.rumors = JsonConvert.DeserializeObject<List<Rumor>>(serializedRumors);
+        Utils.rumors = Utils.rumors.OrderByDescending(r => r.id).ToList();
+      });
     }
     private static void LoadCreatureSpawns()
     {

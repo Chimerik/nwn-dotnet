@@ -68,7 +68,7 @@ namespace NWN.Systems
             rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_boot") { Id = "reinit", Tooltip = "Ouvrir le menu origine (réinitialisation seulement)", Enabled = muteEnabled, Height = 35 }) { Width = 35 });
           }
 
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(hostileIcon) { Id = "hostile", Tooltip = hostileTooltip, Enabled = muteEnabled, Height = 35 }) { Width = 35 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(hostileIcon) { Id = "hostile", Tooltip = hostileTooltip, Height = 35 }) { Width = 35 });
 
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
           {

@@ -14,6 +14,7 @@ namespace NWN.Systems
     public static readonly string googleDriveCredentials = Environment.GetEnvironmentVariable("GOOGLE_DRIVE_CREDENTIALS");
     public static readonly string itemKey = Environment.GetEnvironmentVariable("ITEM_KEY");
     public const int InvalidInput = -999999;
+    public const int MaxSerializeTimeMs = 10;
     public enum Env
     {
       Prod,

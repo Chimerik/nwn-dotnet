@@ -143,6 +143,8 @@ namespace NWN.Systems
           break;
       }
 
+      creature.ApplyEffect(EffectDuration.Permanent, Effect.CutsceneParalyze());
+
       creature.OnHeartbeat += CheckDistanceFromSpawn;
     }
 

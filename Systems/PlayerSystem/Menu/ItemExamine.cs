@@ -52,6 +52,10 @@ namespace NWN.Systems
         public void CreateWindow(NwItem item)
         {
           rootChildren.Clear();
+
+          if (item == null || !item.IsValid)
+            return;
+
           this.item = item;
           string originalCrafterName = item.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value;
           modificationAllowed = (string.IsNullOrWhiteSpace(originalCrafterName) || originalCrafterName == player.oid.ControlledCreature.OriginalName)

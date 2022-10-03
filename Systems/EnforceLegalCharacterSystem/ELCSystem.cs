@@ -51,14 +51,11 @@ namespace NWN.Systems
       }
       else
       {
-        if (onELCFailure.Type == ValidationFailureType.Character && onELCFailure.SubType == ValidationFailureSubType.ClassSpellcasterInvalidPrimaryStat && oPC.GetAbilityScore(Ability.Intelligence, true) < 11)
+        if ((onELCFailure.Type == ValidationFailureType.Character && onELCFailure.SubType == ValidationFailureSubType.ClassSpellcasterInvalidPrimaryStat && oPC.GetAbilityScore(Ability.Intelligence, true) < 11)
+          || onELCFailure.Type == ValidationFailureType.Spell)
           onELCFailure.IgnoreFailure = true;
         else
-        {
-          string failureMessage = $"ELC VALIDATION FAILURE - Player {onELCFailure.Player.PlayerName} - Character {oPC.Name} - type : {onELCFailure.Type} - SubType : {onELCFailure.SubType}";
-          Log.Info(failureMessage);
-          Utils.LogMessageToDMs(failureMessage);
-        }
+          Utils.LogMessageToDMs($"ELC VALIDATION FAILURE - Player {onELCFailure.Player.PlayerName} - Character {oPC.Name} - type : {onELCFailure.Type} - SubType : {onELCFailure.SubType}");
       }
     }
   }
