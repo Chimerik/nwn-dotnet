@@ -3,14 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
-using Discord;
 using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
 using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
-using NWN.Core.NWNX;
-using System.Text;
 
 namespace NWN.Systems
 {
@@ -100,7 +97,7 @@ namespace NWN.Systems
         {
           if (Config.env == Config.Env.Prod)
           {
-           Bot.playerGeneralChannel.SendMessageAsync($"Toute première connexion de {oid.LoginCreature.Name}. Accueillons le comme il se doit !");
+            Bot.playerGeneralChannel.SendMessageAsync($"Toute première connexion de {oid.LoginCreature.Name}. Accueillons le comme il se doit !");
             Bot.staffGeneralChannel.SendMessageAsync($"{Bot.discordServer.EveryoneRole.Mention} Toute première connexion de {oid.LoginCreature.Name} => nouveau joueur à accueillir !");
 
             windows.Add("introWelcome", new IntroWelcomeWindow(this));

@@ -176,7 +176,7 @@ namespace NWN.Systems
         }
         private void HandleEditorPNJEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (targetCreature == null)
+          if (targetCreature == null || !targetCreature.IsValid)
           {
             player.oid.SendServerMessage("La créature éditée n'est plus valide.", ColorConstants.Red);
             CloseWindow();

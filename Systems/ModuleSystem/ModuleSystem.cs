@@ -123,7 +123,8 @@ namespace NWN.Systems
 
       //foreach (var duplicate in NwGameTables.AppearanceTable.GroupBy(p => p.Race).Where(p => p.Count() > 1).Select(p => p.Key))
       //Log.Info(duplicate);
-      Log.Info($"start");
+
+      /*Log.Info($"start");
       string[] files = Directory.GetFiles("/home/chim/checkres");
       foreach (string file in files)
       {
@@ -138,7 +139,7 @@ namespace NWN.Systems
           Log.Info($"Found {resName} in {resAlias}");
         }
       }
-      Log.Info($"end");
+      Log.Info($"end");*/
     }
     private static void CreateDatabase()
     {

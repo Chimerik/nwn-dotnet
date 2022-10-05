@@ -110,7 +110,7 @@ namespace NWN.Systems
     {
       discordServer = server;
       staffGeneralChannel = _client.GetChannel(680072044364562532) as IMessageChannel;
-      playerGeneralChannel = _client.GetChannel(786218144296468481) as IMessageChannel;
+      playerGeneralChannel = _client.GetChannel(1026545572099924088) as IMessageChannel;
       logChannel = _client.GetChannel(703964971549196339) as IMessageChannel;
 
       chimDiscordUser = _client.GetUser(232218662080086017);
