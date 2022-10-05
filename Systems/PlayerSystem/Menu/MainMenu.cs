@@ -432,7 +432,7 @@ namespace NWN.Systems
           }
           catch(Exception e)
           {
-            Utils.LogMessageToDMs($"{e.Message}\n{e.StackTrace}\narray index : {nuiEvent.ArrayIndex} - key collection count {currentList.Count} - search {search.GetBindValue(player.oid, nuiToken.Token)}");
+            Utils.LogMessageToDMs($"{e.Message}\n{e.StackTrace}\narray index : {nuiEvent.ArrayIndex} - key collection count {currentList.Count}");
           }
         }
         private void LoadMenu(Dictionary<string, Utils.MainMenuCommand> commandList)
