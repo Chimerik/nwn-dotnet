@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 
 using Anvil.API;
@@ -119,6 +120,10 @@ namespace NWN
     public static string GetMetalPaletteResRef(int color)
     {
       return NWScript.ResManGetAliasFor($"metal{color}", NWScript.RESTYPE_TGA) != "" ? $"metal{color}" : $"leather{color}";
+    }
+    public static string ConvertToUTF8(string toConvert)
+    {
+      return Encoding.UTF8.GetString(Encoding.GetEncoding("iso-8859-1").GetBytes(toConvert));
     }
   }
 }

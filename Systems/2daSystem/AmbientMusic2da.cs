@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -25,21 +24,21 @@ namespace NWN.Systems
 
       gender = (Gender)genderValue;
 
-      name = string.IsNullOrEmpty(entry.GetString("DisplayName")) ? string.IsNullOrEmpty(entry.GetStrRef("Description").ToString()) ? entry.GetString("Resource") : entry.GetStrRef("Description").ToString() : Encoding.UTF8.GetString(Encoding.GetEncoding("iso-8859-1").GetBytes(entry.GetString("DisplayName")));
+      name = string.IsNullOrEmpty(entry.GetString("DisplayName")) ? string.IsNullOrEmpty(entry.GetStrRef("Description").ToString()) ? entry.GetString("Resource") : entry.GetStrRef("Description").ToString() : StringUtils.ConvertToUTF8(entry.GetString("DisplayName"));
     }
   }
 
-    [ServiceBinding(typeof(AmbientMusic2da))]
-    public class AmbientMusic2da
-    {
-      public static readonly TwoDimArray<AmbientMusicEntry> ambientMusicTable = NwGameTables.GetTable<AmbientMusicEntry>("ambientmusic.2da");
-      public static IEnumerable<AmbientMusicEntry> maleAmbientMusicEntry;
-      public static IEnumerable<AmbientMusicEntry> femaleAmbientMusicEntry;
+  [ServiceBinding(typeof(AmbientMusic2da))]
+  public class AmbientMusic2da
+  {
+    public static readonly TwoDimArray<AmbientMusicEntry> ambientMusicTable = NwGameTables.GetTable<AmbientMusicEntry>("ambientmusic.2da");
+    public static IEnumerable<AmbientMusicEntry> maleAmbientMusicEntry;
+    public static IEnumerable<AmbientMusicEntry> femaleAmbientMusicEntry;
 
-      public AmbientMusic2da()
-      {
-        maleAmbientMusicEntry = ambientMusicTable.Where(m => m.gender == Gender.Male || m.gender == Gender.Both);
-        femaleAmbientMusicEntry = ambientMusicTable.Where(m => m.gender == Gender.Female || m.gender == Gender.Both);
-      }
+    public AmbientMusic2da()
+    {
+      maleAmbientMusicEntry = ambientMusicTable.Where(m => m.gender == Gender.Male || m.gender == Gender.Both);
+      femaleAmbientMusicEntry = ambientMusicTable.Where(m => m.gender == Gender.Female || m.gender == Gender.Both);
     }
+  }
 }

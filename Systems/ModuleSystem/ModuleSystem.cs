@@ -124,7 +124,7 @@ namespace NWN.Systems
       //foreach (var duplicate in NwGameTables.AppearanceTable.GroupBy(p => p.Race).Where(p => p.Count() > 1).Select(p => p.Key))
       //Log.Info(duplicate);
 
-      /*Log.Info($"start");
+      Log.Info($"start");
       string[] files = Directory.GetFiles("/home/chim/checkres");
       foreach (string file in files)
       {
@@ -135,11 +135,11 @@ namespace NWN.Systems
 
         if (!string.IsNullOrEmpty(resAlias))
         {
-          File.Delete(file);
+          //File.Delete(file);
           Log.Info($"Found {resName} in {resAlias}");
         }
       }
-      Log.Info($"end");*/
+      Log.Info($"end");
     }
     private static void CreateDatabase()
     {
@@ -729,7 +729,7 @@ namespace NWN.Systems
 
       foreach (var model in NwGameTables.AppearanceTable)
         if (!string.IsNullOrEmpty(model.Label))
-          Utils.appearanceEntries.Add(new NuiComboEntry(model.Label, model.RowIndex));
+          Utils.appearanceEntries.Add(new NuiComboEntry(StringUtils.ConvertToUTF8(model.Label)  , model.RowIndex));
 
       foreach (var model in NwGameTables.PlaceableTable)
         if (!string.IsNullOrEmpty(model.Label))

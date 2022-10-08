@@ -281,7 +281,7 @@ namespace NWN.Systems
       if (spawnType == "civilian")
         creature.Name = "Habitant de Similisse";
       else
-        creature.Name = creature.Appearance.Label;
+        creature.Name = StringUtils.ConvertToUTF8(creature.Appearance.Label);
     }
     private ScriptHandleResult HandleRunAwayFromPlayer(CallInfo callInfo)
     {
