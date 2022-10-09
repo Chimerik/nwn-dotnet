@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Anvil.API;
 
 using Discord;
@@ -117,8 +116,25 @@ namespace NWN.Systems
       bigbyDiscordUser = _client.GetUser(225961076448034817);
 
       Utils.LogMessageToDMs("Module en ligne !");
-      //CreateSlashCommand("reboot", "Reboot le module", GuildPermission.Administrator);
-      //await discordServer.DeleteApplicationCommandsAsync();
+
+      /*try
+      {
+        var guildCommand = new SlashCommandBuilder()
+        .WithName("annonce")
+        .WithDescription("publie une annonce")
+        .WithDefaultMemberPermissions(GuildPermission.MentionEveryone)
+        .AddOption("texte", ApplicationCommandOptionType.String, "Texte de l'annonce", isRequired: true)
+        .AddOption("channel", ApplicationCommandOptionType.Channel, "Chan Discord");
+
+        var slash = guildCommand.Build();
+        await discordServer.CreateApplicationCommandAsync(slash);
+      }
+      catch (Exception exception)
+      {
+        Utils.LogMessageToDMs(exception.Message + exception.StackTrace);
+      }*/
+
+
       //CreateAllSlashCommand();
     }
     private static void CreateAllSlashCommand()
@@ -126,7 +142,7 @@ namespace NWN.Systems
       CreateSlashCommand("info_developpement", "Liste des développements et améliorations en cours", GuildPermission.SendMessages);
       CreateSlashCommand("info_backlog", "Liste de futurs projets à prioriser", GuildPermission.SendMessages);
       CreateSlashCommand("info_alignement", "Informations sur les alignements", GuildPermission.SendMessages);
-      CreateSlashCommand("info_animations", "Informations sur/ la gestion des animations", GuildPermission.SendMessages);
+      CreateSlashCommand("info_animations", "Informations sur la gestion des animations", GuildPermission.SendMessages);
       CreateSlashCommand("info_bonus_investissement", "Informations sur le concept de bonus d'investissement", GuildPermission.SendMessages);
       CreateSlashCommand("info_mort", "La gestion de la mort sur le module", GuildPermission.SendMessages);
       CreateSlashCommand("info_jets_de_dés", "La gestion des jets de dés sur le module", GuildPermission.SendMessages);
@@ -252,6 +268,9 @@ namespace NWN.Systems
           break;
         case "joueurs_liste": // droit admin & staff
           await BotSystem.ExecuteGetConnectedPlayersCommand(command, true);
+          break;
+        case "annonce": // droit staff
+          await BotSystem.ExecuteBroadcastAnnouncementCommand(command);
           break;
       }
     }

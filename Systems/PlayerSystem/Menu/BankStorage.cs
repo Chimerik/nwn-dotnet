@@ -171,7 +171,10 @@ namespace NWN.Systems
                   NwItem item = filteredList.ElementAt(nuiEvent.ArrayIndex);
 
                   if (item != null && item.IsValid)
+                  {
                     player.oid.ControlledCreature.AcquireItem(item);
+                    Log.Info($"Banque - {player.oid.LoginCreature.Name} ({player.oid.PlayerName}) retire {item.Name}");
+                  }
                   else
                     Utils.LogMessageToDMs($"Bank - {player.oid.LoginCreature.Name} trying to take an invalid item.");
 
@@ -236,6 +239,7 @@ namespace NWN.Systems
           if (selection.IsCancelled || selection.TargetObject is not NwItem item || item == null || !item.IsValid)
             return;
 
+          Log.Info($"Banque - {player.oid.LoginCreature.Name} ({player.oid.PlayerName}) dépose {item.Name}");
           items.Add(NwItem.Deserialize(item.Serialize()));
           item.Destroy();
           UpdateItemList();

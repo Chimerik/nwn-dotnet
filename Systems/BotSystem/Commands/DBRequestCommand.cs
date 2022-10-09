@@ -14,7 +14,7 @@ namespace NWN.Systems
         connection.Open();
 
         var sqlCommand = connection.CreateCommand();
-        sqlCommand.CommandText = command.Data.Options.First().ToString();
+        sqlCommand.CommandText = command.Data.Options.First().Value.ToString();
 
         await sqlCommand.ExecuteNonQueryAsync();
         await command.RespondAsync("Requête correctement exécutée.");

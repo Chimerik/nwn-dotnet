@@ -9,7 +9,7 @@ namespace NWN.Systems
   {
     public static async Task ExecuteGetRumorCommand(SocketSlashCommand command)
     {
-      string rumorId = command.Data.Options.First().ToString();
+      string rumorId = command.Data.Options.First().Value.ToString();
 
       var query = await SqLiteUtils.SelectQueryAsync("rumors",
             new List<string>() { { "title" }, { "content" } },
