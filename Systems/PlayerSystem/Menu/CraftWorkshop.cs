@@ -23,7 +23,7 @@ namespace NWN.Systems
         private readonly NuiBind<string> blueprintMEs = new("blueprintMEs");
         private readonly NuiBind<bool> enable = new("enable");
         private readonly Color white = new(255, 255, 255);
-        private readonly NuiRect drawListRect = new(0, 25, 500, 60);
+        private readonly NuiBind<NuiRect> drawListRect = new("drawListRect");
         private string workshopTag;
         private IEnumerable<NwItem> blueprintList;
         private IEnumerable<NwItem> filteredList;
@@ -97,6 +97,8 @@ namespace NWN.Systems
           {
             nuiToken = tempToken;
             nuiToken.OnNuiEvent += HandleWorkshopEvents;
+
+            drawListRect.SetBindValue(player.oid, nuiToken.Token, Utils.GetDrawListTextScaleFromPlayerUI(player));
 
             search.SetBindValue(player.oid, nuiToken.Token, "");
             search.SetBindWatch(player.oid, nuiToken.Token, true);

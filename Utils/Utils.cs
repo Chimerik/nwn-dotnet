@@ -7,7 +7,6 @@ using Anvil.API;
 using System.Collections.Generic;
 using NLog;
 using NWN.Core;
-using System.Threading.Tasks;
 
 namespace NWN
 {
@@ -466,6 +465,10 @@ namespace NWN
       skillBonusDodge += creature.KnowsFeat(Feat.Dodge) ? 2 : 0;
       skillBonusDodge += creature.GetAbilityModifier(Ability.Dexterity) - creature.ArmorCheckPenalty - creature.ShieldCheckPenalty;
       return skillBonusDodge < 0 ? 0 : skillBonusDodge;
+    }
+    public static NuiRect GetDrawListTextScaleFromPlayerUI(PlayerSystem.Player player)
+    {
+      return new(0, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) * 0.234f, 500, 60);
     }
     public static int GetResTypeFromFileExtension(string extension, string fileName)
     {

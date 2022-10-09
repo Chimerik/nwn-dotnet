@@ -15,7 +15,7 @@ namespace NWN.Systems
         private readonly NuiColumn rootColumn = new();
         private readonly List<NuiElement> rootChidren = new();
         private readonly Color white = new(255, 255, 255);
-        private readonly NuiRect drawListRect = new(0, 35, 150, 60);
+        private readonly NuiBind<NuiRect> drawListRect = new("drawListRect");
         private readonly NuiBind<string> search = new("search");
         private readonly NuiBind<string> displayText = new("text");
 
@@ -71,6 +71,8 @@ namespace NWN.Systems
           {
             nuiToken = tempToken;
             nuiToken.OnNuiEvent += HandleLearnableEvents;
+
+            drawListRect.SetBindValue(player.oid, nuiToken.Token, Utils.GetDrawListTextScaleFromPlayerUI(player));
 
             search.SetBindValue(player.oid, nuiToken.Token, "");
             search.SetBindWatch(player.oid, nuiToken.Token, true);

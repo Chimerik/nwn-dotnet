@@ -46,22 +46,15 @@ namespace NWN.Systems
         private readonly NuiBind<string> learnButtonText = new("learnButtonText");
         private readonly NuiBind<bool> learnButtonEnabled = new("learnButtonEnabled");
         private readonly NuiBind<string> search = new("search");
-        //private readonly NuiBind<string> yTest = new("yTest");
+        private readonly NuiBind<NuiRect> drawListRect = new("drawListRect");
         private readonly Color white = new(255, 255, 255);
-        private readonly NuiRect drawListRect;
-        //private readonly NuiBind<NuiRect> drawListRect = new("drawListRect");
-        // 1.0 = 25
-        // 1.5 = 35
-        // 2.1 = 50
 
         public IEnumerable<Learnable> currentList;
 
         public LearnableWindow(Player player) : base(player)
         {
           windowId = "learnables";
-
           displaySkill = true;
-          drawListRect = new(0, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) * 23.4f, 150, 60);
 
           List<NuiListTemplateCell> learnableTemplate = new List<NuiListTemplateCell>
           {
@@ -87,7 +80,6 @@ namespace NWN.Systems
             },
             new NuiRow() { Children = new List<NuiElement>() { new NuiCombo() { Entries = categories, Selected = selectedCategory, Width = 419 } } },
             new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) { Width = 420 } } },
-            //new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("yTest", yTest, 50, false) { Width = 420 } } },
             new NuiList(learnableTemplate, listCount) { RowHeight = 40, Width = 420 },
           } };
 
@@ -116,9 +108,7 @@ namespace NWN.Systems
             nuiToken = tempToken;
             nuiToken.OnNuiEvent += HandleLearnableEvents;
 
-            /*drawListRect.SetBindValue(player.oid, nuiToken.Token, new(0, 35, 150, 60));
-            yTest.SetBindValue(player.oid, nuiToken.Token, "35");
-            yTest.SetBindWatch(player.oid, nuiToken.Token, true);*/
+            drawListRect.SetBindValue(player.oid, nuiToken.Token, Utils.GetDrawListTextScaleFromPlayerUI(player));
 
             selectedCategory.SetBindValue(player.oid, nuiToken.Token, 0);
             selectedCategory.SetBindWatch(player.oid, nuiToken.Token, true);
@@ -208,10 +198,6 @@ namespace NWN.Systems
                 case "search":
                   HandleLearnableSearch();
                   break;
-                /*case "yTest":
-                  if(float.TryParse(yTest.GetBindValue(player.oid, nuiToken.Token), out float yPos))
-                    drawListRect.SetBindValue(player.oid, nuiToken.Token, new(0, yPos, 150, 60));
-                  break;*/
               }
 
               break;

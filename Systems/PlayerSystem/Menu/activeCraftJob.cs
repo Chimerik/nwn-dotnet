@@ -14,7 +14,7 @@ namespace NWN.Systems
       {
         private readonly NuiColumn rootColumn;
         private readonly Color white = new(255, 255, 255);
-        private readonly NuiRect drawListRect = new(0, 35, 150, 60);
+        private readonly NuiBind<NuiRect> drawListRect = new("drawListRect");
         private readonly NuiBind<string> icon = new("icon");
         private readonly NuiBind<string> name = new("name");
         public readonly NuiBind<string> timeLeft = new("timeLeft");
@@ -53,7 +53,15 @@ namespace NWN.Systems
           if (IsOpen)
             return;
 
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 320, 100);
+          NuiRect windowRectangle;
+
+          if (player.windowRectangles.ContainsKey(windowId))
+          {
+            NuiRect playerRect = player.windowRectangles[windowId];
+            windowRectangle = new(playerRect.X, playerRect.Y, 320, 100);
+          }
+          else
+            windowRectangle = new(0, 200, 320, 100);
 
           window = new NuiWindow(rootColumn, "Travail artisanal en cours")
           {
@@ -70,6 +78,7 @@ namespace NWN.Systems
             nuiToken = tempToken;
             nuiToken.OnNuiEvent += HandleActiveCraftJobEvents;
 
+            drawListRect.SetBindValue(player.oid, nuiToken.Token, Utils.GetDrawListTextScaleFromPlayerUI(player));
             icon.SetBindValue(player.oid, nuiToken.Token, player.craftJob.icon);
             name.SetBindValue(player.oid, nuiToken.Token, player.craftJob.type.ToDescription());
 

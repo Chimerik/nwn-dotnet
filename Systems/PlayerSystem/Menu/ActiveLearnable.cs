@@ -14,7 +14,7 @@ namespace NWN.Systems
       {
         private readonly NuiColumn rootColumn;
         private readonly Color white = new(255, 255, 255);
-        private readonly NuiRect drawListRect = new(0, 35, 150, 60);
+        private readonly NuiBind<NuiRect> drawListRect = new("drawListRect");
         private readonly NuiBind<string> icon = new("icon");
         private readonly NuiBind<string> name = new("name");
         public readonly NuiBind<string> timeLeft = new("timeLeft");
@@ -75,6 +75,7 @@ namespace NWN.Systems
           {
             nuiToken = tempToken;
 
+            drawListRect.SetBindValue(player.oid, nuiToken.Token, Utils.GetDrawListTextScaleFromPlayerUI(player));
             timeLeft.SetBindValue(player.oid, nuiToken.Token, learnable.GetReadableTimeSpanToNextLevel(player));
             icon.SetBindValue(player.oid, nuiToken.Token, learnable.icon);
             name.SetBindValue(player.oid, nuiToken.Token, learnable.name);
