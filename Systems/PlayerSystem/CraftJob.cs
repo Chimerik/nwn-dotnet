@@ -88,7 +88,16 @@ namespace NWN.Systems
           }
 
           int baseItemType = oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value;
-          icon = NwBaseItem.FromItemId(baseItemType).WeaponFocusFeat.IconResRef;
+
+          try
+          {
+            icon = NwBaseItem.FromItemId(baseItemType).WeaponFocusFeat.IconResRef;
+          }
+          catch(Exception)
+          {
+            icon = "clockwork";
+          }
+
           remainingTime = jobDuration;
           type = JobType.ItemCreation;
 

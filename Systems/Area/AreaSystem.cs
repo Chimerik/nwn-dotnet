@@ -89,7 +89,7 @@ namespace NWN.Systems
       }
 
       SerializeCreaturesAndCreateSpawn(creatureToSerialize);
-      InitializeBankPlaceableNames();
+      //InitializeBankPlaceableNames();
     }
     private void SerializeCreaturesAndCreateSpawn(List<NwCreature> creatureList)
     {
@@ -368,15 +368,22 @@ namespace NWN.Systems
     }
     private static void InitializeBankPlaceableNames()
     {
-      var result = SqLiteUtils.SelectQuery("bankPlaceables",
-        new List<string>() { { "id" }, { "areaTag" }, { "ownerId" }, { "ownerName" } },
-        new List<string[]>() { });
-
-      foreach (var bank in result)
+      try
       {
-        NwObject bankPlaceable = NwObject.FindObjectsWithTag<NwPlaceable>("player_bank").FirstOrDefault(b => /*b.Area.Tag == bank.GetString(1) &&*/ b.GetObjectVariable<LocalVariableInt>("id").Value == int.Parse(bank[0]));
-        bankPlaceable.GetObjectVariable<LocalVariableInt>("ownerId").Value = int.Parse(bank[2]);
-        bankPlaceable.Name = bank[3];
+        var result = SqLiteUtils.SelectQuery("bankPlaceables",
+          new List<string>() { { "id" }, { "areaTag" }, { "ownerId" }, { "ownerName" } },
+          new List<string[]>() { });
+
+        foreach (var bank in result)
+        {
+          NwObject bankPlaceable = NwObject.FindObjectsWithTag<NwPlaceable>("player_bank").FirstOrDefault(b => /*b.Area.Tag == bank.GetString(1) &&*/ b.GetObjectVariable<LocalVariableInt>("id").Value == int.Parse(bank[0]));
+          bankPlaceable.GetObjectVariable<LocalVariableInt>("ownerId").Value = int.Parse(bank[2]);
+          bankPlaceable.Name = bank[3];
+        }
+      }
+      catch(Exception e)
+      {
+        Utils.LogMessageToDMs($"ERREUR - Impossible de charger les placeables de banque\n{e.Message}\n{e.StackTrace}");
       }
     }
     public void InitializeEventsAfterDMSpawnCreature(OnDMSpawnObject onSpawn)

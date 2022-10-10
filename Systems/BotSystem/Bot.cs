@@ -12,6 +12,7 @@ namespace NWN.Systems
   public static partial class Bot
   {
     public static DiscordSocketClient _client;
+    public static SocketForumChannel forum;
     public static SocketGuild discordServer;
     public static IMessageChannel staffGeneralChannel;
     public static IMessageChannel playerGeneralChannel;
@@ -108,23 +109,23 @@ namespace NWN.Systems
     private static async Task OnUsersDownloaded(SocketGuild server)
     {
       discordServer = server;
+      forum = discordServer.GetForumChannel(1028962050052997190);
       staffGeneralChannel = _client.GetChannel(680072044364562532) as IMessageChannel;
       playerGeneralChannel = _client.GetChannel(1026545572099924088) as IMessageChannel;
       logChannel = _client.GetChannel(703964971549196339) as IMessageChannel;
 
       chimDiscordUser = _client.GetUser(232218662080086017);
-      bigbyDiscordUser = _client.GetUser(225961076448034817);
-
+      bigbyDiscordUser = _client.GetUser(225961076448034817);    
       Utils.LogMessageToDMs("Module en ligne !");
 
-      /*try
+      try
       {
         var guildCommand = new SlashCommandBuilder()
-        .WithName("annonce")
-        .WithDescription("publie une annonce")
-        .WithDefaultMemberPermissions(GuildPermission.MentionEveryone)
-        .AddOption("texte", ApplicationCommandOptionType.String, "Texte de l'annonce", isRequired: true)
-        .AddOption("channel", ApplicationCommandOptionType.Channel, "Chan Discord");
+        .WithName("staff_demande")
+        .WithDescription("Créé une nouvelle demande visible uniquement par le staff et vous")
+        .WithDefaultMemberPermissions(GuildPermission.SendMessages)
+        .AddOption("titre", ApplicationCommandOptionType.String, "Titre", isRequired: true)
+        .AddOption("contenu", ApplicationCommandOptionType.String, "Demande", isRequired: true);
 
         var slash = guildCommand.Build();
         await discordServer.CreateApplicationCommandAsync(slash);
@@ -132,7 +133,7 @@ namespace NWN.Systems
       catch (Exception exception)
       {
         Utils.LogMessageToDMs(exception.Message + exception.StackTrace);
-      }*/
+      }
 
 
       //CreateAllSlashCommand();
@@ -271,6 +272,9 @@ namespace NWN.Systems
           break;
         case "annonce": // droit staff
           await BotSystem.ExecuteBroadcastAnnouncementCommand(command);
+          break;
+        case "staff_demande": // droit général
+          await BotSystem.ExecutePlayerRequestCommand(command);
           break;
       }
     }
