@@ -172,7 +172,6 @@ namespace NWN.Systems
       {
         connection.Open();
         string queryString = $"UPDATE playerCharacters SET serializedLearnableSpells = $serializedLearnableSpells where rowId = {charId}";
-        Log.Info($"UPDATE playerCharacters SET serializedLearnableSpells = {serializedSpells} where rowId = {charId}");
         var command = connection.CreateCommand();
         command.CommandText = queryString;
 
@@ -231,6 +230,8 @@ namespace NWN.Systems
     {
       if (onSpellAction.MetaMagic == MetaMagic.Silent)
         onSpellAction.Caster.GetObjectVariable<LocalVariableInt>("_IS_SILENT_SPELL").Value = 1;
+
+      onSpellAction.Caster.GetObjectVariable<LocalVariableInt>("_CURRENT_SPELL").Value = onSpellAction.Spell.Id;
     }
     public void SetCastingClassOnSpellBroadcast(OnSpellBroadcast onSpellBroadcast)
     {
@@ -329,7 +330,7 @@ namespace NWN.Systems
         oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
       }*/
 
-      HandleCasterLevel(onSpellCast.Caster, onSpellCast.Spell.SpellType);
+      HandleCasterLevel(onSpellCast.Caster, onSpellCast.Spell.SpellType, player);
 
       switch (onSpellCast.Spell.SpellType)
       {
@@ -392,19 +393,20 @@ namespace NWN.Systems
 
       NWScript.DelayCommand(0.0f, () => DelayedTagAoE(player));
     }
-    private void HandleCasterLevel(NwGameObject caster, Spell spell)
+    private void HandleCasterLevel(NwGameObject caster, Spell spell, PlayerSystem.Player player)
     {
       if (caster is not NwCreature castingCreature)
         return;
 
       //CreaturePlugin.SetClassByPosition(castingCreature, 0, 43);
-
+ 
       ClassType castingClass = SpellUtils.GetCastingClass(spell);
 
       if ((int)castingClass == 43 && castingCreature.GetAbilityScore(Ability.Charisma) > castingCreature.GetAbilityScore(Ability.Intelligence))
         castingClass = ClassType.Sorcerer;
 
       CreaturePlugin.SetClassByPosition(castingCreature, 0, (int)castingClass);
+      CreaturePlugin.SetLevelByPosition(castingCreature, 0, player.learnableSkills.ContainsKey(CustomSkill.ImprovedCasterLevel) ? player.learnableSkills[CustomSkill.ImprovedCasterLevel].totalPoints : 1);
 
       NWScript.DelayCommand(0.0f, () => DelayedSpellHook(castingCreature));
     }
@@ -414,6 +416,7 @@ namespace NWN.Systems
         return;
 
       CreaturePlugin.SetClassByPosition(player, 0, 43);
+      CreaturePlugin.SetLevelByPosition(player, 0, 1);
     }
     private void DelayedTagAoE(PlayerSystem.Player player)
     {
@@ -460,13 +463,17 @@ namespace NWN.Systems
 
       Enchantement(onSpellCast, player);
     }
-    [ScriptHandler("event_dcr_spell")]
-    private void HandleInputEmote(CallInfo callInfo)
+
+    [ScriptHandler("spell_dcr")]
+    private void OnDecreaseSpellCount(CallInfo callInfo)
     {
       if ((MetaMagic)int.Parse(EventsPlugin.GetEventData("METAMAGIC")) != MetaMagic.None)
         return;
 
-      Spell spell = (Spell)int.Parse(EventsPlugin.GetEventData("SPELL_ID"));
+      //Log.Info(EventsPlugin.GetEventData("SPELL_ID"));
+      //Log.Info(callInfo.ObjectSelf.GetObjectVariable<LocalVariableInt>("_CURRENT_SPELL").Value);
+      //Spell spell = (Spell)int.Parse(EventsPlugin.GetEventData("SPELL_ID"));
+      Spell spell = (Spell)callInfo.ObjectSelf.GetObjectVariable<LocalVariableInt>("_CURRENT_SPELL").Value;
       switch (spell)
       {
         case Spell.AcidSplash:

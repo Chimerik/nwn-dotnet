@@ -24,8 +24,8 @@ namespace NWN.Systems
         {
           RestTextChannel chan = await Bot.discordServer.CreateTextChannelAsync(command.User.Username);
           var customPermissions = new GuildPermission();
-          RestRole userRole = await Bot.discordServer.CreateRoleAsync(command.User.Username, GuildPermission.ViewChannel);
-          await (command.User as IGuildUser).AddRoleAsync(userRole);
+         // RestRole userRole = await Bot.discordServer.CreateRoleAsync(command.User.Username, GuildPermission.ViewChannel);
+         // await (command.User as IGuildUser).AddRoleAsync(userRole);
         }
       }
 

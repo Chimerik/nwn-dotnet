@@ -33,10 +33,10 @@ namespace NWN.Systems
       Command command;
       if (!commandDic.TryGetValue(commandName, out command))
       {
-        ctx.oSender.SendServerMessage(
+        /*ctx.oSender.SendServerMessage(
        $"\nUnknown command \"{commandName}\".\n\n" +
       $"Type \"{PREFIX}help\" for a list of all available commands.", ColorConstants.Orange
-        );
+        );*/
         return;
       }
 
