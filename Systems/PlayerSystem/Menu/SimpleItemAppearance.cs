@@ -54,25 +54,6 @@ namespace NWN.Systems
             return;
           }
 
-         /* int i = 0;
-          NuiRow row = new() { Children = new() };
-
-          Log.Info($"model key : {item.BaseItem.DefaultIcon}");
-
-          foreach (int model in BaseItems2da.simpleItemModels[item.BaseItem.DefaultIcon])
-          {
-            if (i == 3)
-            {
-              colChildren.Add(row);
-              row = new() { Children = new() };
-              i = 0;
-            }
-
-            row.Children.Add(new NuiButtonImage($"{item.BaseItem.DefaultIcon}_{model.ToString().PadLeft(3, '0')}") { Id = $"{model}", Margin = 0, Padding = 0, Width = 75, Height = 100 });
-
-            i++;
-          }*/
-
           player.DisableItemAppearanceFeedbackMessages();
 
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.7f, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 3);
@@ -105,24 +86,21 @@ namespace NWN.Systems
 
           if (nuiEvent.EventType == NuiEventType.Click)
           {
-            if (!item.IsValid || item.Possessor != nuiEvent.Player.ControlledCreature)
+            if (!item.IsValid && (item.Possessor != player.oid.ControlledCreature || !player.IsDm()))
             {
-              nuiEvent.Player.SendServerMessage("L'objet en cours de modification n'est plus en votre possession !", ColorConstants.Red);
+              player.oid.SendServerMessage("L'objet en cours de modification n'est plus en votre possession !", ColorConstants.Red);
               CloseWindow();
               return;
             }
-
-            ;
-
             
             item.Appearance.SetSimpleModel((byte)BaseItems2da.simpleItemModels[item.BaseItem.DefaultIcon].ElementAt(5 * nuiEvent.ArrayIndex + int.Parse(nuiEvent.ElementId)));
-            NwItem newItem = item.Clone(nuiEvent.Player.ControlledCreature);
+            NwItem newItem = item.Clone(player.oid.ControlledCreature);
 
             for (int i = 0; i < 13; i++)
             {
-              if (player.oid.LoginCreature.GetItemInSlot((InventorySlot)i) == item)
+              if (player.oid.ControlledCreature.GetItemInSlot((InventorySlot)i) == item)
               {
-                player.oid.LoginCreature.RunEquip(newItem, (InventorySlot)i);
+                player.oid.ControlledCreature.RunEquip(newItem, (InventorySlot)i);
                 break;
               }
             }

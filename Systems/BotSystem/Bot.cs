@@ -20,6 +20,9 @@ namespace NWN.Systems
     public static SocketUser chimDiscordUser;
     public static SocketUser bigbyDiscordUser;
 
+    public static OverwritePermissions requestForumPermissions = new();
+    public static SocketCategoryChannel forumCategory;
+
     public static async Task MainAsync()
     {
       _client = new DiscordSocketClient();      
@@ -37,6 +40,9 @@ namespace NWN.Systems
       _client.UserJoined += UpdateUserList;
       _client.UserLeft += UpdateUserListOnLeave;
       _client.Disconnected += OnDiscordDisconnected;
+
+      requestForumPermissions.Modify(PermValue.Deny, PermValue.Deny, PermValue.Allow, PermValue.Allow, PermValue.Allow, PermValue.Deny, PermValue.Deny, PermValue.Allow, PermValue.Allow, PermValue.Allow, PermValue.Deny
+        , PermValue.Allow);
 
       // Block this task until the program is closed.
       await Task.Delay(Timeout.Infinite);
@@ -69,7 +75,20 @@ namespace NWN.Systems
     private static async Task UpdateUserList(SocketGuildUser data)
     {
       await _client.DownloadUsersAsync(new List<IGuild> { { discordServer } });
-      await data.SendMessageAsync($"Bonjour {data.DisplayName} et bienvenue sur le Discord des Larmes des Erylies.\n\n Pour commencer, n'hésite pas à consulter notre livre du joueur : \n https://docs.google.com/document/d/1ammPGnH-sVjNHnJHCMAm_khbe8mBqTPFeCfqCvJt7ig/edit?usp=sharing");
+
+      if (data.IsBot)
+        return;
+
+      await data.AddRoleAsync(1026507902074245216);
+      await playerGeneralChannel.SendMessageAsync($"Bonjour {data.Mention} et bienvenue sur le Discord des Larmes des Erylies.\n\n Pour commencer, n'hésite pas à consulter notre livre du joueur : \n https://docs.google.com/document/d/1ammPGnH-sVjNHnJHCMAm_khbe8mBqTPFeCfqCvJt7ig/edit?usp=sharing");
+
+      /*if (!forumCategory.Channels.Any(c => c.Name == data.Username))
+      {
+        RestTextChannel chan = await Bot.discordServer.CreateTextChannelAsync(data.Username, f => { f.CategoryId = forumCategory.Id; } );
+        await chan.AddPermissionOverwriteAsync(data, requestForumPermissions);
+      }*/
+
+      //await data.SendMessageAsync($"Bonjour @{data.DisplayName} et bienvenue sur le Discord des Larmes des Erylies.\n\n Pour commencer, n'hésite pas à consulter notre livre du joueur : \n https://docs.google.com/document/d/1ammPGnH-sVjNHnJHCMAm_khbe8mBqTPFeCfqCvJt7ig/edit?usp=sharing");
     }
     private static async Task UpdateUserListOnLeave(SocketGuild guild, SocketUser user)
     {
@@ -109,16 +128,17 @@ namespace NWN.Systems
     private static async Task OnUsersDownloaded(SocketGuild server)
     {
       discordServer = server;
-      forum = discordServer.GetForumChannel(1028962050052997190);
+      forum = discordServer.GetForumChannel(1031269379947638884);
       staffGeneralChannel = _client.GetChannel(680072044364562532) as IMessageChannel;
       playerGeneralChannel = _client.GetChannel(1026545572099924088) as IMessageChannel;
       logChannel = _client.GetChannel(703964971549196339) as IMessageChannel;
+      forumCategory = discordServer.GetCategoryChannel(1031290085154500739);
 
       chimDiscordUser = _client.GetUser(232218662080086017);
       bigbyDiscordUser = _client.GetUser(225961076448034817);    
       Utils.LogMessageToDMs("Module en ligne !");
 
-      try
+      /*try
       {
         var guildCommand = new SlashCommandBuilder()
         .WithName("staff_demande")
@@ -133,8 +153,7 @@ namespace NWN.Systems
       catch (Exception exception)
       {
         Utils.LogMessageToDMs(exception.Message + exception.StackTrace);
-      }
-
+      }*/
 
       //CreateAllSlashCommand();
     }
@@ -214,7 +233,7 @@ namespace NWN.Systems
           await command.RespondAsync("Informations générales concernant la mort sur le module :\nhttps://docs.google.com/document/d/1kzOeWtOgnIvk4Jw6vmtD_xVWIU2GUmfvdZ4h8Z2BDAY/edit?usp=sharing");
           break;
         case "info_jets_de_dés":
-          await command.RespondAsync("Informations générales concernant la mort sur le module :\nhttps://docs.google.com/document/d/1IBaRsSZIE3Zg2GJ0SSBNY6-dR2xoTmYYmEhlA95WEfs/edit?usp=sharing");
+          await command.RespondAsync("Informations générales concernant les jets de dés sur le module :\nhttps://docs.google.com/document/d/1IBaRsSZIE3Zg2GJ0SSBNY6-dR2xoTmYYmEhlA95WEfs/edit?usp=sharing");
           break;
         case "info_evil":
           await command.RespondAsync("Informations générales concernant le Role Play des personnages d'alignement mauvais :\nhttps://docs.google.com/document/d/1eCqJ2G27RFEwVBOrnei4KDEnbGsmvzghqtqz3w6vPbQ/edit?usp=sharing");

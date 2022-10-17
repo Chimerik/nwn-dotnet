@@ -166,7 +166,7 @@ namespace NWN.Systems
             return;
           }
 
-          if (!item.IsValid || item.Possessor != nuiEvent.Player.ControlledCreature)
+          if (!item.IsValid && (item.Possessor != nuiEvent.Player.ControlledCreature || !player.IsDm()))
           {
             nuiEvent.Player.SendServerMessage("L'objet en cours de modification n'est plus en votre possession !", ColorConstants.Red);
             player.EnableItemAppearanceFeedbackMessages();

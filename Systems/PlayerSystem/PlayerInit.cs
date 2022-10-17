@@ -288,7 +288,6 @@ namespace NWN.Systems
         oid.LoginCreature.OnItemEquip += ItemSystem.OnItemEquipBefore;
         oid.LoginCreature.OnUseFeat += FeatSystem.OnUseFeatBefore;
         oid.LoginCreature.OnSpellCast += spellSystem.HandleAutoSpellBeforeSpellCast;
-        oid.OnPlayerGuiEvent += HandleGuiEvents;
         oid.OnNuiEvent += HandleGenericNuiEvents;
 
         ItemSystem.feedbackService.AddCombatLogMessageFilter(CombatLogMessage.ComplexAttack, oid);
@@ -347,7 +346,6 @@ namespace NWN.Systems
         oid.LoginCreature.OnItemScrollLearn += HandleBeforeScrollLearn;
         oid.LoginCreature.OnItemUnequip += ItemSystem.HandleUnequipItemBefore;
         oid.LoginCreature.OnUseSkill += HandleBeforeSkillUsed;
-        oid.OnPlayerGuiEvent += HandleGuiEvents;
         oid.OnNuiEvent += HandleGenericNuiEvents;
         oid.OnMapPinAddPin += HandleMapPinAdded;
         oid.OnMapPinChangePin += HandleMapPinChanged;

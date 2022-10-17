@@ -260,7 +260,7 @@ namespace NWN.Systems
       }
     }
 
-    private static void HandleGuiEvents(ModuleEvents.OnPlayerGuiEvent guiEvent)
+    public static void HandleGuiEvents(ModuleEvents.OnPlayerGuiEvent guiEvent)
     {
       NwPlayer oPC = guiEvent.Player;
       oPC.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;

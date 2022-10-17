@@ -82,11 +82,11 @@ namespace NWN.Systems
       {
         case Config.Env.Bigby: 
           serverName = "FR] LDE - Bigby test server";
-          NwServer.Instance.ServerInfo.ModuleName = "Developpement et test local";
+          NwServer.Instance.ServerInfo.ModuleName = "Recherche et développement";
           break;
         case Config.Env.Chim: 
           serverName = "FR] LDE - Chim test server";
-          NwServer.Instance.ServerInfo.ModuleName = "Developpement et test local";
+          NwServer.Instance.ServerInfo.ModuleName = "Recherche et développement";
           break;
       }
 
@@ -140,6 +140,19 @@ namespace NWN.Systems
         }
       }
       Log.Info($"end");*/
+
+      /*Dictionary<string, string> tilesets = new();
+
+      foreach (NwArea area in NwModule.Instance.Areas)
+        if (!tilesets.TryAdd(area.Tileset, area.Name))
+          tilesets[area.Tileset] += $" | {area.Name}";
+
+      foreach(var tile in tilesets)
+        Log.Info($"{tile.Key} - {tile.Value}");*/
+
+      /*foreach (NwArea area in NwModule.Instance.Areas)
+        if (area.Name.Contains("toremove"))
+          Log.Info($"{area.Name} - {area.Tileset} - {NWScript.ResManGetAliasFor(area.Tileset, NWScript.RESTYPE_SET)}");*/
     }
     private static void CreateDatabase()
     {
@@ -222,7 +235,8 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_DECREMENT_SPELL_COUNT_BEFORE", "spell_dcr");
 
       //EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_AFTER", "event_has_feat");
-      
+
+      NwModule.Instance.OnPlayerGuiEvent += PlayerSystem.HandleGuiEvents;
       NwModule.Instance.OnCreatureAttack += AttackSystem.HandleAttackEvent;
       NwModule.Instance.OnCreatureDamage += AttackSystem.HandleDamageEvent;
       NwModule.Instance.OnEffectApply += OnPlayerEffectApplied;

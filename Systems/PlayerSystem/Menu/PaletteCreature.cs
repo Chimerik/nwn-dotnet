@@ -240,7 +240,11 @@ namespace NWN.Systems
           }
           else
           {
-            selectionTarget = target;
+            if(target.IsLoginPlayerCharacter)
+              selectionTarget = target.Clone(target.Location);
+            else
+              selectionTarget = target;
+
             isModelLoaded.SetBindValue(player.oid, nuiToken.Token, true);
           }
         }

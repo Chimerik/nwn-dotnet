@@ -84,7 +84,7 @@ namespace NWN.Systems
               "Plus jeune, vous vous revoyez ...\n" +
               "(Attention, il ne sera possible de choisir qu'un seul historique par personnage et il ne sera pas possible de revenir dessus une fois votre choix effectué !)");
 
-            currentList = SkillSystem.learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == SkillSystem.Category.StartingTraits);
+            currentList = SkillSystem.learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == SkillSystem.Category.StartingTraits).OrderBy(s => s.name);
             LoadLearnableList(currentList);
           }
         }
@@ -118,7 +118,7 @@ namespace NWN.Systems
               {
                 case "search":
                   string currentSearch = search.GetBindValue(player.oid, nuiToken.Token).ToLower();
-                  currentList = !string.IsNullOrEmpty(currentSearch) ? currentList = currentList.Where(s => s.name.ToLower().Contains(currentSearch)) : SkillSystem.learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == SkillSystem.Category.StartingTraits);
+                  currentList = !string.IsNullOrEmpty(currentSearch) ? currentList = currentList.Where(s => s.name.ToLower().Contains(currentSearch)) : SkillSystem.learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == SkillSystem.Category.StartingTraits).OrderBy(s => s.name);
                   LoadLearnableList(currentList);
                   break;
               }

@@ -377,18 +377,16 @@ namespace NWN.Systems
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
           }
         }
+        private void CloseItemWindow()
+        {
+          player.oid.LoginCreature.OnSpellAction -= RegisterSpellSequence;
+          CloseWindow();
+        }
         private void HandleItemExamineEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
           if (item == null)
           {
-            CloseWindow();
-            return;
-          }
-
-          if (modificationAllowed && item.Possessor != player.oid.ControlledCreature && !player.IsDm())
-          {
-            CloseWindow();
-            ((ItemExamineWindow)player.windows["itemExamine"]).CreateWindow(item);
+            CloseItemWindow();
             return;
           }
 
@@ -400,6 +398,14 @@ namespace NWN.Systems
 
           if (nuiEvent.EventType == NuiEventType.Click)
           {
+            if (item.Possessor != player.oid.ControlledCreature && !player.IsDm())
+            {
+              ((ItemExamineWindow)player.windows["itemExamine"]).CreateWindow(item);
+              player.oid.SendServerMessage($"L'objet doit être en votre possession afin de permettre ce type d'action !", ColorConstants.Red);
+              CloseItemWindow();
+              return;
+            }
+
             switch (nuiEvent.ElementId)
             {
               case "edit":
@@ -412,6 +418,8 @@ namespace NWN.Systems
                 }
                 else if (modificationAllowed)
                   ItemUtils.OpenItemCustomizationWindow(item, player);
+                else
+                  player.oid.SendServerMessage("Seul l'artisan d'origine peut modifier l'apparence de cet objet !", ColorConstants.Orange);
 
                 return;
 
