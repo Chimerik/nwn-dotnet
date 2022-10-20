@@ -127,6 +127,9 @@ namespace NWN.Systems
     }
     private static async Task OnUsersDownloaded(SocketGuild server)
     {
+      if (discordServer != null)
+        return;
+
       discordServer = server;
       forum = discordServer.GetForumChannel(1031269379947638884);
       staffGeneralChannel = _client.GetChannel(680072044364562532) as IMessageChannel;

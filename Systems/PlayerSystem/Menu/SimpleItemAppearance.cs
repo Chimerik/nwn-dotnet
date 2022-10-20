@@ -107,6 +107,8 @@ namespace NWN.Systems
 
             item.Destroy();
             item = newItem;
+            
+            player.oid.SendServerMessage($"Apparence sélectionnée : {item.BaseItem.ItemClass}_{item.Appearance.GetSimpleModel()}", ColorConstants.Orange);
           }
         }
         private void LoadIcons()
