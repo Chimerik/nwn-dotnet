@@ -3,7 +3,6 @@ using NWN.Native.API;
 using Anvil.Services;
 using NLog;
 using System.Linq;
-using System;
 using NWN.Core;
 using System.Numerics;
 
@@ -40,6 +39,8 @@ namespace NWN.Systems
       CNWSCreature creature = CNWSCreature.FromPointer(pCreature);
       var targetObject = CNWSObject.FromPointer(pTarget);
 
+      Log.Info($"{creature.m_sDisplayName} attacking {targetObject.GetFirstName()} {targetObject.GetLastName()}");
+
       CNWSCombatRound combatRound = creature.m_pcCombatRound;
       CNWSCombatAttackData attackData = combatRound.GetAttack(combatRound.m_nCurrentAttack);
       
@@ -59,7 +60,10 @@ namespace NWN.Systems
 
         int dodgeRoll = NwRandom.Roll(Utils.random, 100);
         if (dodgeRoll <= unchecked((sbyte)targetCreature.m_pStats.GetAbilityMod(1)) + skillBonusDodge - targetCreature.m_pStats.m_nArmorCheckPenalty - targetCreature.m_pStats.m_nShieldCheckPenalty)
+        {
           attackData.m_nAttackResult = 4;
+          attackData.m_nMissedBy = 8;
+        }
       }
     }
     private int OnAddUseTalentOnObjectHook(void* pCreature, int talentType, int talentId, uint oidTarget, byte nMultiClass, uint oidItem, int nItemPropertyIndex, byte nCasterLevel, int nMetaType)

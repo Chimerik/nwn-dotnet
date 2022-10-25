@@ -20,35 +20,28 @@ namespace NWN.Systems
         public readonly NuiBind<string> timeLeft = new("timeLeft");
         private readonly NuiBind<string> level = new("level");
         //bool stopPreviousSPGain { get; set; }
-        Learnable learnable { get; set; }
+        private Learnable learnable { get; set; }
+        private Player target { get; set; }
 
-        public ActiveLearnableWindow(Player player) : base(player)
+        public ActiveLearnableWindow(Player player, Player target = null) : base(player)
         {
           windowId = "activeLearnable";
 
-          rootColumn = new NuiColumn()
+          rootColumn = new NuiColumn() { Children = new List<NuiElement>() { new NuiRow() { Children = new List<NuiElement>()
           {
-            Children = new List<NuiElement>()
-            {
-              new NuiRow()
-              {
-                Children = new List<NuiElement>()
-                {
-                    new NuiButtonImage(icon) { Height = 40, Width = 40 },
-                    new NuiLabel(name) { Tooltip = name, Width = 160, HorizontalAlign = NuiHAlign.Left, DrawList = new List<NuiDrawListItem>() {
-                    new NuiDrawListText(white, drawListRect, timeLeft) } },
-                    new NuiLabel("Niveau/Max") { Width = 90, HorizontalAlign = NuiHAlign.Left, DrawList = new List<NuiDrawListItem>() {
-                    new NuiDrawListText(white, drawListRect, level) } }
-                }
-              }
-            }
-          };
+              new NuiButtonImage(icon) { Height = 40, Width = 40 },
+              new NuiLabel(name) { Tooltip = name, Width = 160, HorizontalAlign = NuiHAlign.Left, DrawList = new List<NuiDrawListItem>() {
+              new NuiDrawListText(white, drawListRect, timeLeft) } },
+              new NuiLabel("Niveau/Max") { Width = 90, HorizontalAlign = NuiHAlign.Left, DrawList = new List<NuiDrawListItem>() {
+              new NuiDrawListText(white, drawListRect, level) } }
+          } } } };
 
-          CreateWindow();
+          CreateWindow(target);
         }
-        public void CreateWindow()
+        public void CreateWindow(Player playerTarget = null)
         {
-          learnable = player.GetActiveLearnable();
+          target = playerTarget != null ? playerTarget : player;
+          learnable = target.GetActiveLearnable();
 
           if (learnable == null)
           {
@@ -56,16 +49,13 @@ namespace NWN.Systems
             return;
           }
 
-          if (IsOpen)
-            return;
-
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 320, 100);
 
           window = new NuiWindow(rootColumn, "Apprentissage en cours")
           {
             Geometry = geometry,
             Resizable = false,
-            Collapsed = false,
+            Collapsed = collasped,
             Closable = true,
             Transparent = false,
             Border = true,
@@ -76,11 +66,12 @@ namespace NWN.Systems
             nuiToken = tempToken;
 
             drawListRect.SetBindValue(player.oid, nuiToken.Token, Utils.GetDrawListTextScaleFromPlayerUI(player));
-            timeLeft.SetBindValue(player.oid, nuiToken.Token, learnable.GetReadableTimeSpanToNextLevel(player));
+            timeLeft.SetBindValue(player.oid, nuiToken.Token, learnable.GetReadableTimeSpanToNextLevel(target));
             icon.SetBindValue(player.oid, nuiToken.Token, learnable.icon);
             name.SetBindValue(player.oid, nuiToken.Token, learnable.name);
             level.SetBindValue(player.oid, nuiToken.Token, $"{learnable.currentLevel}/{learnable.maxLevel}");
 
+            collasped.SetBindValue(player.oid, nuiToken.Token, false);
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 

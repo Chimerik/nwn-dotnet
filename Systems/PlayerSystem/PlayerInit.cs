@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Anvil.API;
 using Anvil.API.Events;
@@ -37,6 +38,12 @@ namespace NWN.Systems
 
           player.TeleportPlayerToSavedLocation();
         }
+
+        Task playerInitialized = NwTask.Run(async () =>
+        {
+          await NwTask.NextFrame();
+          player.FinalizePlayerData();
+        });
       }
 
       player.oid.SetGuiPanelDisabled(GUIPanel.ExamineItem, true);
@@ -78,9 +85,6 @@ namespace NWN.Systems
           ((Player.PlayerListWindow)connectedPlayer.windows["playerList"]).UpdatePlayerList();
 
       player.mapLoadingTime = DateTime.Now;
-
-      if (player.learnableSkills.Count > 0)
-        player.FinalizePlayerData();
 
       player.HandleReinit();
     }
@@ -149,10 +153,7 @@ namespace NWN.Systems
 
         if (Config.env == Config.Env.Prod)
         {
-          Task waitBotMessage = NwTask.Run(async () =>
-          {
-            await Bot.staffGeneralChannel.SendMessageAsync($"{oid.PlayerName} vient de créer un nouveau personnage : {oid.LoginCreature.Name}");
-          });
+          Task waitBotMessage = NwTask.Run(async () => { await Bot.staffGeneralChannel.SendMessageAsync($"{oid.PlayerName} vient de créer un nouveau personnage : {oid.LoginCreature.Name}"); });
         }
 
         int startingSP = 5000;
@@ -543,7 +544,7 @@ namespace NWN.Systems
         if (activeLearnable != null && activeLearnable.active && activeLearnable.spLastCalculation.HasValue)
         {
           activeLearnable.acquiredPoints += (DateTime.Now - activeLearnable.spLastCalculation).Value.TotalSeconds * GetSkillPointsPerSecond(activeLearnable);
-          
+
           if (!windows.ContainsKey("activeLearnable")) windows.Add("activeLearnable", new ActiveLearnableWindow(this));
           else ((ActiveLearnableWindow)windows["activeLearnable"]).CreateWindow();
         }

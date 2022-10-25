@@ -89,7 +89,7 @@ namespace NWN.Systems
       }
 
       SerializeCreaturesAndCreateSpawn(creatureToSerialize);
-      //InitializeBankPlaceableNames();
+      InitializeBankPlaceableNames();
     }
     private void SerializeCreaturesAndCreateSpawn(List<NwCreature> creatureList)
     {
@@ -255,13 +255,21 @@ namespace NWN.Systems
           area.SetAreaWind(new Vector3(0, -1, 0), 3, 0, 0);
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
           break;
+        case "Similisse":
+        case "SimilisseQuartierdelaPromenadeTa":
+          area.OnEnter += TaverneOnEnter;
+          area.OnExit += TaverneOnExit;
+          area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
+          break;
+        case "similissebanque":
+          area.OnExit += BankOnExit;
+          area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
+          break;
         case "SIMILISCITYGATE":
         case "Similiscityentrepot":
-        case "Similisse":
         case "SimilisseQuartierdelaPromenadeAt":
         case "entrepotpersonnel":
         case "Forge":
-        case "SimilisseQuartierdelaPromenadeTa":
         case "similisseslums":
         case "SIMILISSE_BIBLIOTHEQUE":
         case "Dispensaire":
@@ -274,7 +282,6 @@ namespace NWN.Systems
         case "SimilisseTribunalPrison":
         case "SimilisseSalleDesDelibrations":
         case "Sawmill":
-        case "similissebanque":
         case "tannery":
         case "qg_marten":
         case "ToursdesInventeurs":
@@ -320,6 +327,26 @@ namespace NWN.Systems
           break;
       }
     }
+    private void TaverneOnEnter(AreaEvents.OnEnter onEnter)
+    {
+      if (onEnter.EnteringObject is NwCreature { IsPlayerControlled: true } oPC && PlayerSystem.Players.TryGetValue(oPC.ControllingPlayer.LoginCreature, out PlayerSystem.Player player))
+      {
+        if (!player.windows.ContainsKey("jukeBoxCurrentSong")) player.windows.Add("jukeBoxCurrentSong", new PlayerSystem.Player.JukeBoxCurrentSongWindow(player, onEnter.Area));
+        else ((PlayerSystem.Player.JukeBoxCurrentSongWindow)player.windows["jukeBoxCurrentSong"]).CreateWindow(onEnter.Area);
+      }
+    }
+    private void TaverneOnExit(AreaEvents.OnExit onExit)
+    {
+      if (onExit.ExitingObject is NwCreature { IsPlayerControlled: true } oPC && PlayerSystem.Players.TryGetValue(oPC.ControllingPlayer.LoginCreature, out PlayerSystem.Player player)
+        && player.TryGetOpenedWindow("jukeBoxCurrentSong", out PlayerSystem.Player.PlayerWindow window))
+        window.CloseWindow();
+    }
+    private void BankOnExit(AreaEvents.OnExit onExit)
+    {
+      if (onExit.ExitingObject is NwCreature { IsPlayerControlled: true } oPC && oPC.IsLoginPlayerCharacter && PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player)
+        && player.windows.ContainsKey("bankStorage"))
+        ((PlayerSystem.Player.BankStorageWindow)player.windows["bankStorage"]).items = null;
+    }
     private void OnTheaterSceneEnter(TriggerEvents.OnEnter onEnter)
     {
       onEnter.EnteringObject.VisualTransform.Translation = new Vector3(onEnter.EnteringObject.VisualTransform.Translation.X,
@@ -328,7 +355,6 @@ namespace NWN.Systems
       if (onEnter.EnteringObject is NwCreature { IsPlayerControlled: true } oPC)
         oPC.ControllingPlayer.CameraHeight = 1 + 2.01f;
     }
-
     private void OnTheaterSceneExit(TriggerEvents.OnExit onExit)
     {
       if (onExit.ExitingObject == null)

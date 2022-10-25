@@ -10,10 +10,6 @@ using Anvil.API.Events;
 
 using Newtonsoft.Json;
 
-using NWN.Core;
-
-using static NWN.Systems.LootSystem.Lootable;
-
 namespace NWN.Systems
 {
   public partial class PlayerSystem
@@ -32,7 +28,7 @@ namespace NWN.Systems
         private readonly NuiBind<string> botIcon = new("botIcon");
         private readonly NuiBind<bool> enabled = new("enabled");
         private readonly NuiBind<NuiRect> imagePosition = new("rect");
-        private readonly List<NwItem> items = new();
+        public List<NwItem> items { get; set; }
         private IEnumerable<NwItem> filteredList;
 
         private bool AuthorizeSave { get; set; }
@@ -43,8 +39,6 @@ namespace NWN.Systems
           windowId = "bankStorage";
           AuthorizeSave = false;
           nbDebounce = 0;
-
-          DeserializeBankItemList();
 
           List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell>
           {
@@ -63,36 +57,41 @@ namespace NWN.Systems
             new NuiListTemplateCell(new NuiLabel(itemNames) { Id = "takeItem", VerticalAlign = NuiVAlign.Middle } )
           };
 
-          rootColumn = new NuiColumn() { Children = new List<NuiElement>() { new NuiRow()
-          {
-            Height = 35,
-            Children = new List<NuiElement>()
-            {
-              new NuiLabel("Pièces d'or : ") { Width = 120, VerticalAlign = NuiVAlign.Middle },
-              new NuiLabel(gold) { Width = 120, VerticalAlign = NuiVAlign.Middle },
-              new NuiButton("Dépôt") { Id = "goldDeposit", Width = 80 },
-              new NuiButton("Retrait") { Id = "goldWithdraw", Width = 80 }
-            }
-          },
-
-            new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) { Width = 410 } } },
-            new NuiList(rowTemplate, listCount) { RowHeight = 75 },
-            new NuiRow()
-            {
-              Height = 35,
-              Children = new List<NuiElement>()
+          rootColumn = new NuiColumn() 
+          { 
+            Children = new List<NuiElement>() 
+            { 
+              new NuiRow()
               {
-                new NuiSpacer(),
-                new NuiButton("Activer mode dépôt") { Id = "itemDeposit", Width = 160 },
-                new NuiSpacer()
-              }
-            } 
-          } };
+                Height = 35,
+                Children = new List<NuiElement>()
+                {
+                  new NuiLabel("Pièces d'or : ") { Width = 120, VerticalAlign = NuiVAlign.Middle },
+                  new NuiLabel(gold) { Width = 120, VerticalAlign = NuiVAlign.Middle },
+                  new NuiButton("Dépôt") { Id = "goldDeposit", Width = 80 },
+                  new NuiButton("Retrait") { Id = "goldWithdraw", Width = 80 }
+                }
+              },
+
+              new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) { Width = 410 } } },
+              new NuiList(rowTemplate, listCount) { RowHeight = 75 },
+              new NuiRow()
+              {
+                Height = 35,
+                Children = new List<NuiElement>()
+                {
+                  new NuiSpacer(),
+                  new NuiButton("Activer mode dépôt") { Id = "itemDeposit", Width = 160 },
+                  new NuiSpacer()
+                }
+              } 
+            }
+          };
 
           CreateWindow();
         }
 
-        public void CreateWindow()
+        public async void CreateWindow()
         {
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, 600);
 
@@ -105,6 +104,12 @@ namespace NWN.Systems
             Transparent = false,
             Border = true,
           };
+
+          if (items == null)
+          {
+            await DeserializeBankItemList();
+            await NwTask.SwitchToMainThread();
+          }
 
           if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
@@ -270,25 +275,26 @@ namespace NWN.Systems
 
           Log.Info($"Character {player.characterId} bank saved in : {(DateTime.Now - elapsed).TotalSeconds} s");
         }
-
+        
         private async void DebounceBankSave(int initialNbDebounce)
         {
           CancellationTokenSource tokenSource = new CancellationTokenSource();
 
+          Task awaitPlayerLeave = NwTask.WaitUntilValueChanged(() => player.pcState == PcState.Offline, tokenSource.Token);
           Task awaitDebounce = NwTask.WaitUntil(() => nbDebounce != initialNbDebounce, tokenSource.Token);
           Task awaitSaveAuthorized = NwTask.Delay(TimeSpan.FromSeconds(10), tokenSource.Token);
 
-          await NwTask.WhenAny(awaitDebounce, awaitSaveAuthorized);
+          await NwTask.WhenAny(awaitPlayerLeave, awaitDebounce, awaitSaveAuthorized);
           tokenSource.Cancel();
 
           if (awaitDebounce.IsCompletedSuccessfully)
           {
             nbDebounce += 1;
-            DebounceBankSave(initialNbDebounce + 1);
+            DebounceBankSave(nbDebounce);
             return;
           }
 
-          if (awaitSaveAuthorized.IsCompletedSuccessfully)
+          if (awaitPlayerLeave.IsCompletedSuccessfully || awaitSaveAuthorized.IsCompletedSuccessfully)
           {
             nbDebounce = 0;
             AuthorizeSave = true;
@@ -331,9 +337,9 @@ namespace NWN.Systems
             await NwTask.NextFrame();
           }
         }
-        private async void DeserializeBankItemList()
+        private async Task DeserializeBankItemList()
         {
-          var result = SqLiteUtils.SelectQuery("playerCharacters",
+          var result = await SqLiteUtils.SelectQueryAsync("playerCharacters",
             new List<string>() { { "persistantStorage" } },
             new List<string[]>() { { new string[] { "rowid", player.characterId.ToString() } } });
 
@@ -352,10 +358,10 @@ namespace NWN.Systems
 
             await loadBank;
 
+            items = new();
+
             foreach (string serializedItem in serializedItems)
               items.Add(NwItem.Deserialize(serializedItem.ToByteArray()));
-
-            await NwTask.SwitchToMainThread();
           }
         }
 

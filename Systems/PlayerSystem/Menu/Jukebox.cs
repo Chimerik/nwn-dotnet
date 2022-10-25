@@ -101,7 +101,16 @@ namespace NWN.Systems
                   bard.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSoundBurstSilent));
                   bard.ApplyEffect(EffectDuration.Permanent, Effect.VisualEffect(VfxType.DurBardSong), TimeSpan.FromHours(24));
 
+                  area.GetObjectVariable<LocalVariableString>("_LAST_REQUEST_BY").Value = player.oid.ControlledCreature.Name;
+
                   ChatSystem.chatService.SendMessage(ChatChannel.PlayerTalk, $"{player.oid.ControlledCreature.Name} vient de demander à jouer {selectedSong.name}", bard);
+
+                  foreach(NwPlayer listener in NwModule.Instance.Players)
+                    if(listener.ControlledCreature?.Area == area && Players.TryGetValue(listener.LoginCreature, out PlayerSystem.Player listeningPlayer) && listeningPlayer.TryGetOpenedWindow("jukeBoxCurrentSong", out PlayerWindow songWindow))
+                    {
+                      ((JukeBoxCurrentSongWindow)songWindow).song.SetBindValue(listener, songWindow.nuiToken.Token, $"Chanson en cours : {selectedSong.name}");
+                      ((JukeBoxCurrentSongWindow)songWindow).askedBy.SetBindValue(listener, songWindow.nuiToken.Token, $"Demandée par : {player.oid.ControlledCreature.Name}");
+                    } 
 
                   break;
               }

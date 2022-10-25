@@ -2229,7 +2229,7 @@ namespace NWN.Systems
               else
                 item.Appearance.SetArmorPieceColor(selectedArmorPart, selectedColorChannel, byte.Parse(nuiEvent.ElementId));
 
-              if (lastClickedColorButton.Key.Contains("metal"))
+              if (lastClickedColorButton.Key.Contains("Metal"))
                 lastClickedColorButton.SetBindValue(player.oid, nuiToken.Token, StringUtils.GetMetalPaletteResRef(resRef));
               else
                 lastClickedColorButton.SetBindValue(player.oid, nuiToken.Token, $"leather{resRef}");

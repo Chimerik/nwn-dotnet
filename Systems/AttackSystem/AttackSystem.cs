@@ -34,13 +34,8 @@ namespace NWN.Systems
     );
     public static void HandleAttackEvent(OnCreatureAttack onAttack)
     {
-      PlayerSystem.Log.Info("Entering Attack Event");
-      PlayerSystem.Log.Info("Attacker : " + onAttack.Attacker.Name);
-      PlayerSystem.Log.Info("Target : " + onAttack.Target.Name);
-      PlayerSystem.Log.Info("Result : " + onAttack.AttackResult);
-      PlayerSystem.Log.Info("Base : " + onAttack.DamageData.Base);
-      PlayerSystem.Log.Info("attackNumber : " + onAttack.AttackNumber);
-      PlayerSystem.Log.Info("attack type : " + onAttack.WeaponAttackType);
+      PlayerSystem.Log.Info($"Attack Event - Attacker {onAttack.Attacker.Name} - Target {onAttack.Target.Name} - Result {onAttack.AttackResult}" +
+        $" - Base damage {onAttack.DamageData.Base} - attack number {onAttack.AttackNumber} - attack type {onAttack.WeaponAttackType}");
       
       if (!(onAttack.Target is NwCreature oTarget))
         return;

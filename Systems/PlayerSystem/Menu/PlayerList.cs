@@ -65,7 +65,7 @@ namespace NWN.Systems
             rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(listenIcon) { Id = "listen", Tooltip = listenTooltip, Enabled = muteEnabled, Height = 35 }) { Width = 35 });
             rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_more_sp_ab") { Id = "tp", Tooltip = "Se téléporter auprès de ce joueur", Height = 35 }) { Width = 35 });
             rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_boot") { Id = "kick", Tooltip = "Exclure ce joueur du module", Enabled = muteEnabled, Height = 35 }) { Width = 35 });
-            rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_boot") { Id = "reinit", Tooltip = "Ouvrir le menu origine (réinitialisation seulement)", Enabled = muteEnabled, Height = 35 }) { Width = 35 });
+            rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_examine") { Id = "learnables", Tooltip = "Ouvrir le journal d'apprentissage de ce joueur", Height = 35 }) { Width = 35 });
           }
 
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(hostileIcon) { Id = "hostile", Tooltip = hostileTooltip, Height = 35 }) { Width = 35 });
@@ -174,8 +174,12 @@ namespace NWN.Systems
               switch (nuiEvent.ElementId)
               {
                 case "mp":
+                  /*if (!player.windows.ContainsKey(selectedPlayer.PlayerName)) player.windows.Add(selectedPlayer.PlayerName, new PrivateMessageWindow(player, selectedPlayer));
+                  else  ((PrivateMessageWindow)player.windows[selectedPlayer.PlayerName]).CreateWindow();*/
+
                   if (!player.windows.ContainsKey(selectedPlayer.PlayerName)) player.windows.Add(selectedPlayer.PlayerName, new PrivateMessageWindow(player, selectedPlayer));
                   else  ((PrivateMessageWindow)player.windows[selectedPlayer.PlayerName]).CreateWindow();
+                 
                   break;
 
                 case "commend":
@@ -434,16 +438,13 @@ namespace NWN.Systems
 
                   break;
 
-                case "reinit":
+                case "learnables":
 
-                  if (!Players.TryGetValue(selectedPlayer.LoginCreature, out Player reinitPlayer))
+                  if (!Players.TryGetValue(selectedPlayer.LoginCreature, out Player targetPlayer))
                     return;
 
-                  if (reinitPlayer.learnableSkills.Values.Any(s => s.category == SkillSystem.Category.StartingTraits))
-                    return;
-
-                  if (!reinitPlayer.windows.ContainsKey("introBackground")) reinitPlayer.windows.Add("introBackground", new IntroBackgroundWindow(reinitPlayer));
-                  else ((IntroBackgroundWindow)reinitPlayer.windows["introBackground"]).CreateWindow();
+                  if (!player.windows.ContainsKey("learnables")) player.windows.Add("learnables", new LearnableWindow(player, targetPlayer));
+                  else ((LearnableWindow)player.windows["learnables"]).CreateWindow(targetPlayer);
 
                   break;
               }

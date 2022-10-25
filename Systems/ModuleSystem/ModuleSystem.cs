@@ -82,11 +82,11 @@ namespace NWN.Systems
       {
         case Config.Env.Bigby: 
           serverName = "FR] LDE - Bigby test server";
-          NwServer.Instance.ServerInfo.ModuleName = "Recherche et développement";
+          NwServer.Instance.ServerInfo.ModuleName = "Recherche et developpement";
           break;
         case Config.Env.Chim: 
           serverName = "FR] LDE - Chim test server";
-          NwServer.Instance.ServerInfo.ModuleName = "Recherche et développement";
+          NwServer.Instance.ServerInfo.ModuleName = "Recherche et developpement";
           break;
       }
 
@@ -153,6 +153,55 @@ namespace NWN.Systems
       /*foreach (NwArea area in NwModule.Instance.Areas)
         if (area.Name.Contains("toremove"))
           Log.Info($"{area.Name} - {area.Tileset} - {NWScript.ResManGetAliasFor(area.Tileset, NWScript.RESTYPE_SET)}");*/
+    }
+    private static async void ReadGDocLine()
+    {
+      var request = googleDriveService.Files.Export("1Q21R9JZdbajKK9S2F1pesHZo2Gh-zeO3LuXt7XAMJXY", "text/csv");
+      List<string> resources = new();
+
+      using var stream = new MemoryStream();
+      await request.DownloadAsync(stream);
+
+      stream.Position = 0;
+      using(var reader = new StreamReader(stream))
+      {
+        string line;
+        while ((line = reader.ReadLine()) != null)
+          resources.Add(line);
+      }
+
+      await NwTask.SwitchToMainThread();
+
+      List<PlaceableTableEntry> resourceList = new();
+
+      foreach (var resource in resources)
+        GetGameResourceTable(resource, resourceList);
+
+      foreach(var resource in resourceList.OrderBy(r => NWScript.ResManGetAliasFor(r.ModelName, NWScript.RESTYPE_MDL)).ThenBy(r => r.ModelName).ThenBy(r => r.RowIndex).ThenBy(r => r.Label))
+        Log.Info($"{resource.Label} | {resource.RowIndex} | {resource.ModelName} | {NWScript.ResManGetAliasFor(resource.ModelName, NWScript.RESTYPE_MDL)}");
+    }
+    private static void GetGameResourceTable(string resourceName, List<PlaceableTableEntry> resourceList)
+    {
+      var resources = NwGameTables.PlaceableTable.Where(r => r.Label == resourceName.Replace("\"", ""));
+
+      if (resources == null || resources.Count() < 1)
+      {
+        Log.Info($"--- {resourceName} absent du 2DA ---");
+        return;
+      }
+
+      if(resources.Count() > 1)
+      {
+        Log.Info($"--- Label en doublon ---");
+
+        foreach (var resource in resources)
+          Log.Info($"{resourceName} | {resource.RowIndex} | {resource.ModelName} | {NWScript.ResManGetAliasFor(resource.ModelName, NWScript.RESTYPE_MDL)}");
+
+        return;
+      }
+
+      foreach (var resource in resources)
+        resourceList.Add(resource);
     }
     private static void CreateDatabase()
     {

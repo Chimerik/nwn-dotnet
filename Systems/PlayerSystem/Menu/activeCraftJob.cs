@@ -67,7 +67,7 @@ namespace NWN.Systems
           {
             Geometry = geometry,
             Resizable = false,
-            Collapsed = false,
+            Collapsed = collasped,
             Closable = true,
             Transparent = false,
             Border = true,
@@ -82,6 +82,7 @@ namespace NWN.Systems
             icon.SetBindValue(player.oid, nuiToken.Token, player.craftJob.icon);
             name.SetBindValue(player.oid, nuiToken.Token, player.craftJob.type.ToDescription());
 
+            collasped.SetBindValue(player.oid, nuiToken.Token, false);
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 

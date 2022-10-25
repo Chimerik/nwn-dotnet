@@ -235,10 +235,10 @@ namespace NWN.Systems
     {
       NwModule.Instance.OnChatMessageSend -= OnNWNXChatEvent;
 
-      ChatLine.ChatCategory chatCategory = ctx.msg.Trim().StartsWith("(") || ctx.channel == ChatChannel.PlayerParty ? ChatLine.ChatCategory.HorsRolePlay : ChatLine.ChatCategory.RolePlay;
-
       if (ctx.oTarget != null)
-        chatCategory = ChatLine.ChatCategory.Private;
+        ctx.chatLine.category = ChatLine.ChatCategory.Private;
+      else
+        ctx.chatLine.category = ctx.msg.Trim().StartsWith("(") || ctx.channel == ChatChannel.PlayerParty ? ChatLine.ChatCategory.HorsRolePlay : ChatLine.ChatCategory.RolePlay;
 
       foreach (KeyValuePair<NwPlayer, string> chatReceiver in chatReceivers)
       {
@@ -272,18 +272,23 @@ namespace NWN.Systems
 
         if (ctx.chatLine.category == ChatLine.ChatCategory.Private)
         {
-          if (playerSender.readChatLines.Count > 150)
-            playerSender.readChatLines.RemoveAt(0);
-
           playerSender.readChatLines.Add(ctx.chatLine);
 
-          if (receiver.TryGetOpenedWindow(ctx.oSender.PlayerName, out PlayerSystem.Player.PlayerWindow pmWindow))
+          /*if (receiver.TryGetOpenedWindow(ctx.oSender.PlayerName, out PlayerSystem.Player.PlayerWindow pmWindow))
             ((PlayerSystem.Player.PrivateMessageWindow)pmWindow).InsertNewChatInWindow(ctx.chatLine);
           else if (receiver.TryGetOpenedWindow("chatReader", out PlayerSystem.Player.PlayerWindow chatWindow))
             ((PlayerSystem.Player.ChatReaderWindow)chatWindow).HandleNewPM(ctx.oSender.PlayerName);
 
           if (playerSender.TryGetOpenedWindow(ctx.oTarget.PlayerName, out PlayerSystem.Player.PlayerWindow targetPMWindow))
-            ((PlayerSystem.Player.PrivateMessageWindow)targetPMWindow).InsertNewChatInWindow(ctx.chatLine);
+            ((PlayerSystem.Player.PrivateMessageWindow)targetPMWindow).InsertNewChatInWindow(ctx.chatLine);*/
+
+          if (receiver.TryGetOpenedWindow(ctx.oSender.PlayerName, out PlayerSystem.Player.PlayerWindow pmWindow))
+            ((PlayerSystem.Player.PrivateMessageWindow)pmWindow).UpdateChat();
+          else if (receiver.TryGetOpenedWindow("chatReader", out PlayerSystem.Player.PlayerWindow chatWindow))
+            ((PlayerSystem.Player.ChatReaderWindow)chatWindow).HandleNewPM(ctx.oSender.PlayerName);
+
+          if (playerSender.TryGetOpenedWindow(ctx.oTarget.PlayerName, out PlayerSystem.Player.PlayerWindow targetPMWindow))
+            ((PlayerSystem.Player.PrivateMessageWindow)targetPMWindow).UpdateChat();
         }
 
         string coloredChat = chatReceiver.Value;

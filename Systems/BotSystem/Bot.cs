@@ -156,8 +156,8 @@ namespace NWN.Systems
       catch (Exception exception)
       {
         Utils.LogMessageToDMs(exception.Message + exception.StackTrace);
-      }*/
-
+      }
+      */
       //CreateAllSlashCommand();
     }
     private static void CreateAllSlashCommand()
