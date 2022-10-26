@@ -65,7 +65,7 @@ namespace NWN.Systems
           {
             Geometry = geometry,
             Resizable = false,
-            Collapsed = false,
+            Collapsed = collasped,
             Closable = true,
             Transparent = false,
             Border = true,
@@ -78,6 +78,7 @@ namespace NWN.Systems
 
             search.SetBindValue(player.oid, nuiToken.Token, "");
             search.SetBindWatch(player.oid, nuiToken.Token, true);
+            collasped.SetBindValue(player.oid, nuiToken.Token, true);
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
             
