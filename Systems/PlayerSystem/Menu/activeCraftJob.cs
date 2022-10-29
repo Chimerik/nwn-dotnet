@@ -50,9 +50,6 @@ namespace NWN.Systems
             return;
           }
 
-          if (IsOpen)
-            return;
-
           NuiRect windowRectangle;
 
           if (player.windowRectangles.ContainsKey(windowId))

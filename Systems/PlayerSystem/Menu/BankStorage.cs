@@ -68,8 +68,8 @@ namespace NWN.Systems
                 {
                   new NuiLabel("Pièces d'or : ") { Width = 120, VerticalAlign = NuiVAlign.Middle },
                   new NuiLabel(gold) { Width = 120, VerticalAlign = NuiVAlign.Middle },
-                  new NuiButton("Dépôt") { Id = "goldDeposit", Width = 80 },
-                  new NuiButton("Retrait") { Id = "goldWithdraw", Width = 80 }
+                  new NuiButton("Dépôt") { Id = "goldDeposit", Width = 80, Tooltip = "Fais de transaction : 5 %" },
+                  new NuiButton("Retrait") { Id = "goldWithdraw", Width = 80, Tooltip = "Fais de transaction : 5 %" }
                 }
               },
 
@@ -219,8 +219,10 @@ namespace NWN.Systems
             return true;
           }
 
+
+
           player.oid.LoginCreature.Gold -= inputGold;
-          player.bankGold += (int)inputGold;
+          player.bankGold += (int)(inputGold * 0.95);
           gold.SetBindValue(player.oid, nuiToken.Token, player.bankGold.ToString());
 
           return true;
@@ -234,7 +236,7 @@ namespace NWN.Systems
           }
 
           player.bankGold -= inputGold;
-          player.oid.LoginCreature.Gold += (uint)inputGold;
+          player.oid.LoginCreature.Gold += (uint)(inputGold * 0.95);
           gold.SetBindValue(player.oid, nuiToken.Token, player.bankGold.ToString());
 
           return true;
