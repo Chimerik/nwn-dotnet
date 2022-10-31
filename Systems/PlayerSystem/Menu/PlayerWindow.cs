@@ -15,7 +15,7 @@ namespace NWN.Systems
         protected readonly NuiBind<bool> closable = new("closable");
         protected readonly NuiBind<bool> resizable = new("resizable");
         protected readonly NuiBind<NuiRect> geometry = new("geometry");
-        protected readonly NuiBind<bool> collasped = new("collasped");
+        protected readonly NuiBind<bool> collapsed = new("collapsed");
         protected readonly Player player;
         protected NuiWindow window { get; set; }
         public NuiWindowToken nuiToken { get; set; }

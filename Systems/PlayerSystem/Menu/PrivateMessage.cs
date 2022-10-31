@@ -18,7 +18,7 @@ namespace NWN.Systems
       public class PrivateMessageWindow : PlayerWindow
       {
         private readonly float characterWidth = 10 /* oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) / 100*/;
-        private readonly float spaceWidth = 4;
+        //private readonly float spaceWidth = 4;
         private readonly float characterHeight = 18 /* oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) / 100*/;
         private readonly NuiGroup chatReaderGroup = new() { Id = "chatReaderGroup", Border = false, Scrollbars = NuiScrollbars.Y };
         private readonly NuiColumn rootColumn = new();

@@ -98,7 +98,7 @@ namespace NWN.Systems
           {
             Geometry = geometry,
             Resizable = false,
-            Collapsed = collasped,
+            Collapsed = collapsed,
             Closable = true,
             Transparent = false,
             Border = true,
@@ -125,7 +125,7 @@ namespace NWN.Systems
 
             categories.SetBindValue(player.oid, nuiToken.Token, skillCategories);
 
-            collasped.SetBindValue(player.oid, nuiToken.Token, true);
+            collapsed.SetBindValue(player.oid, nuiToken.Token, false);
             geometry.SetBindValue(player.oid, nuiToken.Token, player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.65f));
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 

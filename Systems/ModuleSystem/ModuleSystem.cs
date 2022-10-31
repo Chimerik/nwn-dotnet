@@ -213,7 +213,7 @@ namespace NWN.Systems
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerCharacters" +
         "('accountId' INTEGER NOT NULL, 'characterName' TEXT NOT NULL, 'previousSPCalculation' TEXT, 'serializedLearnableSkills' TEXT, 'serializedLearnableSpells' TEXT," +
-        "'location' TEXT, 'itemAppearances' TEXT," +
+        "'location' TEXT, 'itemAppearances' TEXT, 'currentSkillPoints' INTEGER," +
         "'currentHP' INTEGER, 'bankGold' INTEGER, 'pveArenaCurrentPoints' INTEGER, 'menuOriginTop' INTEGER, 'menuOriginLeft' INTEGER, 'storage' TEXT, " +
         "'alchemyCauldron' TEXT, 'explorationState' TEXT, 'materialStorage' TEXT, 'craftJob' TEXT, 'grimoires' TEXT, 'quickbars' TEXT," +
         "'descriptions' TEXT)");
@@ -304,7 +304,7 @@ namespace NWN.Systems
         new List<string>() { { "year" }, { "month" }, { "day" }, { "hour" }, { "minute" }, { "second" } },
         new List<string[]>() { new string[] { "rowid", "1" } });
 
-      if (query != null)
+      if (query != null && query.Count > 0)
       {
         var result = query.FirstOrDefault();
         NwDateTime.Now = new NwDateTime(int.Parse(result[0]), int.Parse(result[1]), int.Parse(result[2]), int.Parse(result[3]), int.Parse(result[4]), int.Parse(result[5]));

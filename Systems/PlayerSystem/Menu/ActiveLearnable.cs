@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-
+﻿using System.Collections.Generic;
 using Anvil.API;
-using Anvil.Services;
 
 namespace NWN.Systems
 {
@@ -55,7 +52,7 @@ namespace NWN.Systems
           {
             Geometry = geometry,
             Resizable = false,
-            Collapsed = collasped,
+            Collapsed = collapsed,
             Closable = true,
             Transparent = false,
             Border = true,
@@ -71,7 +68,8 @@ namespace NWN.Systems
             name.SetBindValue(player.oid, nuiToken.Token, learnable.name);
             level.SetBindValue(player.oid, nuiToken.Token, $"{learnable.currentLevel}/{learnable.maxLevel}");
 
-            collasped.SetBindValue(player.oid, nuiToken.Token, false);
+            collapsed.SetBindValue(player.oid, nuiToken.Token, false);
+            Log.Info(collapsed.GetBindValue(player.oid, nuiToken.Token));
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
