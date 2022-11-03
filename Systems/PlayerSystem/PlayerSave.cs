@@ -15,8 +15,6 @@ namespace NWN.Systems
   {
     public static void HandleBeforePlayerSave(OnServerCharacterSave onSaveBefore)
     {
-      DateTime elapsed = DateTime.Now;
-
       if (!Players.TryGetValue(onSaveBefore.Player.LoginCreature, out Player player))
         return;
 
@@ -41,10 +39,7 @@ namespace NWN.Systems
       else
         player.HandlePlayerSave();
 
-      Log.Info($"{player.oid.LoginCreature.Name} saved in : {(DateTime.Now - elapsed).TotalSeconds} s");
-
-      if (player.pcState == Player.PcState.Offline)
-        player.oid = null;
+      
     }
     public partial class Player
     {
@@ -164,6 +159,8 @@ namespace NWN.Systems
       }
       private async void SavePlayerCharacterToDatabase()
       {
+        DateTime elapsed = DateTime.Now;
+
         string serializedLocation = location.Area != null ? SqLiteUtils.SerializeLocation(location) : SqLiteUtils.SerializeLocation(previousLocation);
         string firstName = oid.LoginCreature.OriginalFirstName;
         string lastName = oid.LoginCreature.OriginalLastName;
@@ -223,7 +220,10 @@ namespace NWN.Systems
           new string[] { "craftJob", serializeJob.Result  }, new string[] { "materialStorage", serializeCraftResource.Result }, new string[] { "grimoires", serializeGrimoires.Result }  },
         new List<string[]>() { new string[] { "rowid", characterId.ToString() } });
 
-        Log.Info("ASYNC SAVE FINALIZED.");
+        Log.Info($"ASYNC SAVE FINALIZED for {firstName} {lastName} in {(DateTime.Now - elapsed).TotalSeconds} s");
+
+        if (pcState == PcState.Offline)
+          oid = null;
       }
       private async void HandleExpiredContracts()
       {

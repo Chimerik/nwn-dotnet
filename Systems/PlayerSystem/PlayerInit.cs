@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Anvil.API;
 using Anvil.API.Events;
@@ -187,7 +186,7 @@ namespace NWN.Systems
 
           Task waitDefaultMapLoaded = NwTask.Run(async () =>
           {
-            await NwTask.WaitUntil(() => oid.LoginCreature.Location.Area != null);
+            await NwTask.WaitUntilValueChanged(() => oid.LoginCreature.Location.Area);
             oid.LoginCreature.Location = arrivalLocation;
           });
         }

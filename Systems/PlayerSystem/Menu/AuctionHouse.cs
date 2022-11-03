@@ -14,7 +14,7 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      public class EditorPlaceableWindow : PlayerWindow
+      public class AuctionHouseWindow : PlayerWindow
       {
         private NwPlaceable targetPlaceable;
         private readonly NuiGroup rootGroup = new() { Id = "rootGroup", Border = false, Padding = 0, Margin = 0 };
@@ -63,7 +63,7 @@ namespace NWN.Systems
         private readonly NuiBind<string> newVariableValue = new("newVariableValue");
         private readonly NuiBind<int> selectedNewVariableType = new("selectedNewVariableType");
 
-        public EditorPlaceableWindow(Player player, NwPlaceable targetPlaceable) : base(player)
+        public AuctionHouseWindow(Player player, NwPlaceable targetPlaceable) : base(player)
         {
           windowId = "editorPlaceable";
 
