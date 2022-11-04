@@ -31,7 +31,9 @@ namespace NWN.Systems
       await NwTask.WaitUntilValueChanged(() => oPC.Position);
 
       swing.GetObjectVariable<LocalVariableInt>("_IS_SWINGING").Delete();
-      scheduleMotion.Dispose();
+      
+      if(scheduleMotion != null)
+        scheduleMotion.Dispose();
 
       VisualTransformLerpSettings vtLerpSettings = new VisualTransformLerpSettings
       {
