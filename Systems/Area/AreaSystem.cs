@@ -288,6 +288,7 @@ namespace NWN.Systems
         case "SIMILISPALAISNOU":
         case "qg_kathra":
         case "alchemy":
+        case "QuartierdesTemplesLesQuartiersde":
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
           break;
         case "cave_flooded":
@@ -343,9 +344,21 @@ namespace NWN.Systems
     }
     private void BankOnExit(AreaEvents.OnExit onExit)
     {
-      if (onExit.ExitingObject is NwCreature { IsPlayerControlled: true } oPC && oPC.IsLoginPlayerCharacter && PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player)
-        && player.windows.ContainsKey("bankStorage"))
-        ((PlayerSystem.Player.BankStorageWindow)player.windows["bankStorage"]).items = null;
+      if (onExit.ExitingObject is NwCreature { IsPlayerControlled: true } oPC && oPC.IsLoginPlayerCharacter && PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
+      {
+        if(player.windows.ContainsKey("bankStorage"))
+          ((PlayerSystem.Player.BankStorageWindow)player.windows["bankStorage"]).items = null;
+
+        if(player.windows.ContainsKey("auctionHouse"))
+        {
+          PlayerSystem.Player.AuctionHouseWindow auctionHouseWindow = ((PlayerSystem.Player.AuctionHouseWindow)player.windows["auctionHouse"]);
+          auctionHouseWindow.auctions = null;
+          auctionHouseWindow.tradeRequests = null;
+          auctionHouseWindow.sellOrders = null;
+          auctionHouseWindow.buyOrders = null;
+        }
+      }
+        
     }
     private void OnTheaterSceneEnter(TriggerEvents.OnEnter onEnter)
     {

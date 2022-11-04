@@ -42,7 +42,7 @@ namespace NWN.Systems
 
           List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell>
           {
-            new NuiListTemplateCell(new NuiButton("Examiner") { Id = "examiner", Height = 35 }) { Width = 80 },
+            new NuiListTemplateCell(new NuiButtonImage("ir_examine") { Id = "examiner", Height = 35 }) { Width = 35 },
             new NuiListTemplateCell(new NuiSpacer()
             {
               Height = 125, Id = "takeItem",
@@ -68,8 +68,8 @@ namespace NWN.Systems
                 {
                   new NuiLabel("Pièces d'or : ") { Width = 120, VerticalAlign = NuiVAlign.Middle },
                   new NuiLabel(gold) { Width = 120, VerticalAlign = NuiVAlign.Middle },
-                  new NuiButton("Dépôt") { Id = "goldDeposit", Width = 80, Tooltip = "Fais de transaction : 5 %" },
-                  new NuiButton("Retrait") { Id = "goldWithdraw", Width = 80, Tooltip = "Fais de transaction : 5 %" }
+                  new NuiButton("Dépôt") { Id = "goldDeposit", Width = 80, Tooltip = "Frais de transaction : 5 %" },
+                  new NuiButton("Retrait") { Id = "goldWithdraw", Width = 80, Tooltip = "Frais de transaction : 5 %" }
                 }
               },
 

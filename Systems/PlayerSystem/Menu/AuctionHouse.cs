@@ -1,12 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
+using System.Threading.Tasks;
 
 using Anvil.API;
 using Anvil.API.Events;
-using Anvil.Services;
 
-using Color = Anvil.API.Color;
+using Discord.Net;
+
+using Newtonsoft.Json;
+
+using NWN.Systems.TradeSystem;
 
 namespace NWN.Systems
 {
@@ -16,71 +20,91 @@ namespace NWN.Systems
     {
       public class AuctionHouseWindow : PlayerWindow
       {
-        private NwPlaceable targetPlaceable;
         private readonly NuiGroup rootGroup = new() { Id = "rootGroup", Border = false, Padding = 0, Margin = 0 };
         private readonly NuiColumn layoutColumn = new();
         private readonly List<NuiElement> rootChildren = new();
         private readonly List<NuiListTemplateCell> rowTemplate = new();
         private readonly NuiBind<int> listCount = new("listCount");
 
-        private readonly NuiBind<string> name = new("name");
-        private readonly NuiBind<string> tag = new("tag");
+        private readonly NuiBind<string> itemNames = new("itemNames");
+        private readonly NuiBind<string> topIcon = new("topIcon");
+        private readonly NuiBind<string> midIcon = new("midIcon");
+        private readonly NuiBind<string> botIcon = new("botIcon");
+        private readonly NuiBind<bool> enabled = new("enabled");
+        private readonly NuiBind<NuiRect> imagePosition = new("rect");
 
-        private readonly NuiBind<string> apparenceSearch = new("apparenceSearch");
-        private readonly NuiBind<List<NuiComboEntry>> apparence = new("apparence");
-        private readonly NuiBind<int> apparenceSelected = new("apparenceSelected");
+        private readonly NuiBind<string> requestName = new("requestName");
+        private readonly NuiBind<string> search = new("search");
 
-        private readonly NuiBind<bool> plotChecked = new("plotChecked");
-        private readonly NuiBind<bool> statVisible = new("statVisible");
-        private readonly NuiBind<bool> useableChecked = new("useableChecked");
-        private readonly NuiBind<bool> hasInventoryChecked = new("hasInventoryChecked");
-        private readonly NuiBind<bool> inventoryVisible = new("inventoryVisible");
-        private readonly NuiBind<bool> persistantChecked = new("persistantChecked");
-        private readonly NuiBind<bool> updateVisibility = new("updateVisibility");
+        private readonly NuiBind<string> highestBid = new("highestBid");
+        private readonly NuiBind<string> highestBidToolTip = new("highestBidToolTip");
+        private readonly NuiBind<string> buyoutPrice = new("buyoutPrice");
+        private readonly NuiBind<string> expireDate = new("expireDate");
+        private readonly NuiBind<string> proposal = new("proposal");
+        private readonly NuiBind<bool> isAuctionCreator = new("isAuctionCreator");
+        private readonly NuiBind<bool> biddingEnabled = new("biddingEnabled");
 
-        private readonly NuiBind<string> hardness = new("hardness");
-        private readonly NuiBind<string> hitPoints = new("hitPoints");
-        private readonly NuiBind<string> scale = new("scale");
-        private readonly NuiBind<string> orientation = new("orientation");
-        private readonly NuiBind<string> xPosition = new("xPosition");
-        private readonly NuiBind<string> yPosition = new("yPosition");
-        private readonly NuiBind<string> zPosition = new("zPosition");
-        private readonly NuiBind<string> xRotation = new("xRotation");
-        private readonly NuiBind<string> yRotation = new("yRotation");
-        private readonly NuiBind<string> zRotation = new("zRotation");
-        private readonly NuiBind<string> xTranslation = new("xTranslation");
-        private readonly NuiBind<string> yTranslation = new("yTranslation");
-        private readonly NuiBind<string> zTranslation = new("zTranslation");
+        private readonly NuiBind<string> orderUnitPrice = new("orderUnitPrice");
+        private readonly NuiBind<string> orderUnitPriceTooltip = new("orderUnitPriceTooltip");
+        private readonly NuiBind<string> orderQuantity = new("orderQuantity");
+        private readonly NuiBind<bool> displayBuyOrder = new("displayBuyOrder");
+        private readonly NuiBind<bool> displaySellOrder = new("displaySellOrder");
+        private readonly NuiBind<string> unitPrice = new("unitPrice");
+        private readonly NuiBind<string> quantity = new("quantity"); 
+        private readonly NuiBind<bool> cancelOrderVisible = new("cancelOrderVisible");
 
-        private readonly NuiBind<string> itemDescription = new("itemDescription");
-        private readonly NuiBind<string> itemComment = new("itemComment");
+        private readonly NuiBind<int> selectedMaterial = new("selectedMaterial");
+        //private readonly NuiBind<int> selectedLevel = new("selectedLevel");
 
-        private readonly NuiBind<string> variableName = new("variableName");
-        private readonly NuiBind<string> variableValue = new("variableValue");
-        private readonly NuiBind<int> selectedVariableType = new("selectedVariableType");
+        private readonly List<NuiComboEntry> resourcesCombo = new();
+        /*private readonly List<NuiComboEntry> resourceLevelCombo = new()
+          {
+            new NuiComboEntry("1", 1),
+            new NuiComboEntry("2", 2),
+            new NuiComboEntry("3", 3),
+            new NuiComboEntry("4", 4),
+            new NuiComboEntry("5", 5),
+            new NuiComboEntry("6", 6),
+            new NuiComboEntry("7", 7),
+            new NuiComboEntry("8", 8),
+          };*/
 
-        private readonly NuiBind<string> newVariableName = new("newVariableName");
-        private readonly NuiBind<string> newVariableValue = new("newVariableValue");
-        private readonly NuiBind<int> selectedNewVariableType = new("selectedNewVariableType");
+        public List<TradeRequest> tradeRequests { get; set; }
+        private IEnumerable<TradeRequest> filteredTradeRequests;
 
-        public AuctionHouseWindow(Player player, NwPlaceable targetPlaceable) : base(player)
+        public List<Auction> auctions { get; set; }
+        private IEnumerable<Auction> filteredAuctions;
+
+        public List<BuyOrder> buyOrders { get; set; }
+        private IEnumerable<BuyOrder> filteredBuyOrders;
+
+        public List<SellOrder> sellOrders { get; set; }
+        private IEnumerable<SellOrder> filteredSellOrders;
+
+        public AuctionHouseWindow(Player player) : base(player)
         {
-          windowId = "editorPlaceable";
+          windowId = "auctionHouse";
 
           rootGroup.Layout = layoutColumn;
           layoutColumn.Children = rootChildren;
 
-          CreateWindow(targetPlaceable);
+          int i = 0;
+
+          foreach (CraftResource resource in Craft.Collect.System.craftResourceArray)
+          {
+            resourcesCombo.Add(new NuiComboEntry(resource.name, i));
+            i++;
+          }
+
+          CreateWindow();
         }
-        public void CreateWindow(NwPlaceable targetPlaceable)
+        public void CreateWindow()
         {
-          this.targetPlaceable = targetPlaceable;
+          LoadRequestsLayout();
 
-          LoadDescriptionLayout();
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? new NuiRect(player.windowRectangles[windowId].X, player.windowRectangles[windowId].Y, 410, 500) : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 410, 500);
 
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 410, 500);
-
-          window = new NuiWindow(rootGroup, $"Modification de {targetPlaceable.Name}")
+          window = new NuiWindow(rootGroup, "Hôtel des ventes")
           {
             Geometry = geometry,
             Resizable = false,
@@ -93,9 +117,9 @@ namespace NWN.Systems
           if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
             nuiToken = tempToken;
-            nuiToken.OnNuiEvent += HandleEditorItemEvents;
+            nuiToken.OnNuiEvent += HandleAuctionHouseEvents;
 
-            LoadDescriptionBinding();
+            LoadRequestsBinding();
 
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
@@ -103,61 +127,33 @@ namespace NWN.Systems
           else
             player.oid.SendServerMessage($"Impossible d'ouvrir la fenêtre {window.Title}. Celle-ci est-elle déjà ouverte ?", ColorConstants.Orange);
         }
-        private void HandleEditorItemEvents(ModuleEvents.OnNuiEvent nuiEvent)
+        private void HandleAuctionHouseEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (targetPlaceable == null)
-          {
-            player.oid.SendServerMessage("L'objet édité n'est plus valide.", ColorConstants.Red);
-            CloseWindow();
-            return;
-          }
-
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
 
               switch (nuiEvent.ElementId)
               {
-                case "base":
-                  LoadBaseLayout();
+                case "requests":
+                  LoadRequestsLayout();
                   rootGroup.SetLayout(player.oid, nuiEvent.Token.Token, layoutColumn);
-                  LoadBaseBinding();
+                  LoadRequestsBinding();
                   break;
 
-                case "description":
-                  LoadDescriptionLayout();
+                case "auctions":
+                  LoadAuctionsLayout();
                   rootGroup.SetLayout(player.oid, nuiToken.Token, layoutColumn);
-                  LoadDescriptionBinding();
+                  LoadAuctionsBinding();
                   break;
 
-                case "variables":
-                  LoadVariablesLayout();
+                case "market":
+                  LoadMarketLayout();
                   rootGroup.SetLayout(player.oid, nuiToken.Token, layoutColumn);
-                  selectedNewVariableType.SetBindValue(player.oid, nuiToken.Token, 0);
-                  LoadVariablesBinding();
-
+                  LoadBuyOrdersBinding();
                   break;
 
-                case "saveDescription":
-                  targetPlaceable.Description = itemDescription.GetBindValue(player.oid, nuiToken.Token);
-                  targetPlaceable.GetObjectVariable<LocalVariableString>("_COMMENT").Value = itemComment.GetBindValue(player.oid, nuiToken.Token);
-                  player.oid.SendServerMessage($"La description et le commentaire de l'objet {targetPlaceable.Name.ColorString(ColorConstants.White)} ont bien été enregistrées.", new Color(32, 255, 32));
-                  break;
-
-                case "saveNewVariable":
-                  Utils.ConvertLocalVariable(newVariableName.GetBindValue(player.oid, nuiToken.Token), newVariableValue.GetBindValue(player.oid, nuiToken.Token), selectedNewVariableType.GetBindValue(player.oid, nuiToken.Token), targetPlaceable, player.oid);
-                  LoadVariablesBinding();
-                  break;
-
-                case "saveVariable":
-                  Utils.ConvertLocalVariable(variableName.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex], variableValue.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex], selectedVariableType.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex], targetPlaceable, player.oid);
-                  LoadVariablesBinding();
-                  break;
-
-                case "deleteVariable":
-                  targetPlaceable.LocalVariables.ElementAt(nuiEvent.ArrayIndex).Delete();
-                  LoadVariablesBinding();
-                  break;
+                case "displaySellOrders": LoadSellOrderBindings(); break;
               }
 
               break;
@@ -166,335 +162,8 @@ namespace NWN.Systems
 
               switch (nuiEvent.ElementId)
               {
-                case "name":
-                  targetPlaceable.Name = name.GetBindValue(player.oid, nuiToken.Token);
-                  break;
-
-                case "tag":
-                  targetPlaceable.Tag = tag.GetBindValue(player.oid, nuiToken.Token);
-                  break;
-
-                case "apparenceSearch":
-                  string aSearch = apparenceSearch.GetBindValue(player.oid, nuiToken.Token).ToLower();
-                  apparence.SetBindValue(player.oid, nuiToken.Token, string.IsNullOrEmpty(aSearch) ? Utils.placeableEntries : Utils.placeableEntries.Where(v => v.Label.ToLower().Contains(aSearch)).ToList());
-                  break;
-
-                case "apparenceSelected":
-                  targetPlaceable.Appearance = NwGameTables.PlaceableTable.GetRow(apparenceSelected.GetBindValue(player.oid, nuiToken.Token));
-                  NwPlaceable newPlaceable = targetPlaceable.Clone(targetPlaceable.Location);
-                  targetPlaceable.Destroy();
-                  targetPlaceable = newPlaceable;
-                  break;
-
-                case "orientation":
-
-                  if (float.TryParse(orientation.GetBindValue(player.oid, nuiToken.Token), out float newOrientation))
-                  {
-                    newOrientation = newOrientation < 0 ? 0 : newOrientation;
-                    newOrientation = newOrientation > 360 ? 360 : newOrientation;
-                    targetPlaceable.Rotation = newOrientation;
-                  }
-
-                  break;
-
-                case "xPosition":
-
-                  if (float.TryParse(xPosition.GetBindValue(player.oid, nuiToken.Token), out float newXPosition))
-                    targetPlaceable.Position = new Vector3(newXPosition, targetPlaceable.Position.Y, targetPlaceable.Position.Z);
-
-                  break;
-
-                case "yPosition":
-
-                  if (float.TryParse(yPosition.GetBindValue(player.oid, nuiToken.Token), out float newYPosition))
-                    targetPlaceable.Position = new Vector3(targetPlaceable.Position.X, newYPosition, targetPlaceable.Position.Z);
-
-                  break;
-
-                case "zPosition":
-
-                  if (float.TryParse(zPosition.GetBindValue(player.oid, nuiToken.Token), out float newZPosition))
-                  {
-                    newZPosition = newZPosition < -10 ? -10 : newZPosition;
-                    newZPosition = newZPosition > 100 ? 100 : newZPosition;
-
-                    targetPlaceable.Position = new Vector3(targetPlaceable.Position.X, targetPlaceable.Position.Y, newZPosition);
-                  }
-
-                  break;
-
-                case "scale":
-
-                  if (float.TryParse(scale.GetBindValue(player.oid, nuiToken.Token), out float newSize))
-                  {
-                    if (newSize == 0 && !targetPlaceable.Useable && targetPlaceable.VisualTransform.Translation == Vector3.Zero && targetPlaceable.VisualTransform.Rotation == Vector3.Zero)
-                    {
-                      targetPlaceable.IsStatic = true;
-                      targetPlaceable.VisibilityOverride = VisibilityMode.Default;
-                    }
-                    else
-                    {
-                      targetPlaceable.IsStatic = false;
-                      targetPlaceable.VisibilityOverride = VisibilityMode.AlwaysVisible;
-                    }
-
-                    targetPlaceable.VisualTransform.Scale = newSize > 100 ? 100 : newSize;
-                  }
-
-                  break;
-
-                case "xRotation":
-
-                  if (float.TryParse(xRotation.GetBindValue(player.oid, nuiToken.Token), out float newXRotation))
-                  {
-                    newXRotation = newXRotation < 0 ? 0 : newXRotation;
-                    newXRotation = newXRotation > 360 ? 360 : newXRotation;
-
-                    if (newXRotation == 0 && !targetPlaceable.Useable && targetPlaceable.VisualTransform.Translation == Vector3.Zero && targetPlaceable.VisualTransform.Rotation == Vector3.Zero)
-                    {
-                      targetPlaceable.IsStatic = true;
-                      targetPlaceable.VisibilityOverride = VisibilityMode.Default;
-                    }
-                    else
-                    {
-                      targetPlaceable.IsStatic = false;
-                      targetPlaceable.VisibilityOverride = VisibilityMode.AlwaysVisible;
-                    }
-
-                    targetPlaceable.VisualTransform.Rotation = new Vector3(newXRotation, targetPlaceable.VisualTransform.Rotation.Y, targetPlaceable.VisualTransform.Rotation.Z);
-                  }
-
-                  break;
-
-                case "yRotation":
-
-                  if (float.TryParse(yRotation.GetBindValue(player.oid, nuiToken.Token), out float newYRotation))
-                  {
-                    newYRotation = newYRotation < 0 ? 0 : newYRotation;
-                    newYRotation = newYRotation > 360 ? 360 : newYRotation;
-
-                    if (newYRotation == 0 && !targetPlaceable.Useable && targetPlaceable.VisualTransform.Translation == Vector3.Zero && targetPlaceable.VisualTransform.Rotation == Vector3.Zero)
-                    {
-                      targetPlaceable.IsStatic = true;
-                      targetPlaceable.VisibilityOverride = VisibilityMode.Default;
-                    }
-                    else
-                    {
-                      targetPlaceable.IsStatic = false;
-                      targetPlaceable.VisibilityOverride = VisibilityMode.AlwaysVisible;
-                    }
-
-                    targetPlaceable.VisualTransform.Rotation = new Vector3(targetPlaceable.VisualTransform.Rotation.X, newYRotation, targetPlaceable.VisualTransform.Rotation.Z);
-                  }
-
-                  break;
-
-                case "zRotation":
-
-                  if (float.TryParse(zRotation.GetBindValue(player.oid, nuiToken.Token), out float newZRotation))
-                  {
-                    newZRotation = newZRotation < 0 ? 0 : newZRotation;
-                    newZRotation = newZRotation > 360 ? 360 : newZRotation;
-
-                    if (newZRotation == 0 && !targetPlaceable.Useable && targetPlaceable.VisualTransform.Translation == Vector3.Zero && targetPlaceable.VisualTransform.Rotation == Vector3.Zero)
-                    {
-                      targetPlaceable.IsStatic = true;
-                      targetPlaceable.VisibilityOverride = VisibilityMode.Default;
-                    }
-                    else
-                    {
-                      targetPlaceable.IsStatic = false;
-                      targetPlaceable.VisibilityOverride = VisibilityMode.AlwaysVisible;
-                    }
-
-                    targetPlaceable.VisualTransform.Rotation = new Vector3(targetPlaceable.VisualTransform.Rotation.X, targetPlaceable.VisualTransform.Rotation.Y, newZRotation);
-                  }
-
-                  break;
-
-                case "xTranslation":
-
-                  if (float.TryParse(xTranslation.GetBindValue(player.oid, nuiToken.Token), out float newXTranslation))
-                  {
-                    newXTranslation = newXTranslation < -50 ? -50 : newXTranslation;
-                    newXTranslation = newXTranslation > 50 ? 50 : newXTranslation;
-
-                    if (newXTranslation == 0 && !targetPlaceable.Useable && targetPlaceable.VisualTransform.Translation == Vector3.Zero && targetPlaceable.VisualTransform.Rotation == Vector3.Zero)
-                    {
-                      targetPlaceable.IsStatic = true;
-                      targetPlaceable.VisibilityOverride = VisibilityMode.Default;
-                    }
-                    else
-                    {
-                      targetPlaceable.IsStatic = false;
-                      targetPlaceable.VisibilityOverride = VisibilityMode.AlwaysVisible;
-                    }
-
-                    targetPlaceable.VisualTransform.Translation = new Vector3(newXTranslation, targetPlaceable.VisualTransform.Translation.Y, targetPlaceable.VisualTransform.Translation.Z);
-                  }
-
-                  break;
-
-                case "yTranslation":
-
-                  if (float.TryParse(yTranslation.GetBindValue(player.oid, nuiToken.Token), out float newYTranslation))
-                  {
-                    newYTranslation = newYTranslation < -60 ? -60 : newYTranslation;
-                    newYTranslation = newYTranslation > 60 ? 60 : newYTranslation;
-
-                    if (newYTranslation == 0 && !targetPlaceable.Useable && targetPlaceable.VisualTransform.Translation == Vector3.Zero && targetPlaceable.VisualTransform.Rotation == Vector3.Zero)
-                    {
-                      targetPlaceable.IsStatic = true;
-                      targetPlaceable.VisibilityOverride = VisibilityMode.Default;
-                    }
-                    else
-                    {
-                      targetPlaceable.IsStatic = false;
-                      targetPlaceable.VisibilityOverride = VisibilityMode.AlwaysVisible;
-                    }
-
-                    targetPlaceable.VisualTransform.Translation = new Vector3(targetPlaceable.VisualTransform.Translation.X, newYTranslation, targetPlaceable.VisualTransform.Translation.Z);
-                  }
-
-                  break;
-
-                case "zTranslation":
-
-                  if (float.TryParse(zTranslation.GetBindValue(player.oid, nuiToken.Token), out float newZTranslation))
-                  {
-                    newZTranslation = newZTranslation < -10 ? -10 : newZTranslation;
-                    newZTranslation = newZTranslation > 100 ? 100 : newZTranslation;
-
-                    if (newZTranslation == 0 && !targetPlaceable.Useable && targetPlaceable.VisualTransform.Translation == Vector3.Zero && targetPlaceable.VisualTransform.Rotation == Vector3.Zero)
-                    {
-                      targetPlaceable.IsStatic = true;
-                      targetPlaceable.VisibilityOverride = VisibilityMode.Default;
-                    }
-                    else
-                    {
-                      targetPlaceable.IsStatic = false;
-                      targetPlaceable.VisibilityOverride = VisibilityMode.AlwaysVisible;
-                    }
-
-                    targetPlaceable.VisualTransform.Translation = new Vector3(targetPlaceable.VisualTransform.Translation.X, targetPlaceable.VisualTransform.Translation.Y, newZTranslation);
-                  }
-
-                  break;
-
-                case "hardness":
-
-                  if (int.TryParse(hardness.GetBindValue(player.oid, nuiToken.Token), out int newHardness))
-                  {
-                    newHardness = newHardness < 0 ? 0 : newHardness;
-                    newHardness = newHardness > 250 ? 250 : newHardness;
-                    targetPlaceable.Hardness = newHardness;
-                  }
-
-                  break;
-
-                case "hitPoints":
-
-                  if (int.TryParse(hitPoints.GetBindValue(player.oid, nuiToken.Token), out int newHP))
-                  {
-                    newHP = newHP < 0 ? 0 : newHP;
-                    newHP = newHP > 10000 ? 10000 : newHP;
-                    targetPlaceable.HP = newHP;
-                  }
-
-                  break;
-
-                case "plotChecked":
-                  targetPlaceable.PlotFlag = plotChecked.GetBindValue(player.oid, nuiToken.Token);
-                  statVisible.SetBindValue(player.oid, nuiToken.Token, !targetPlaceable.PlotFlag);
-                  break;
-
-                case "useableChecked":
-
-                  targetPlaceable.Useable = useableChecked.GetBindValue(player.oid, nuiToken.Token);
-                  inventoryVisible.SetBindValue(player.oid, nuiToken.Token, targetPlaceable.Useable);
-
-                  if (!targetPlaceable.Useable)
-                  {
-                    targetPlaceable.HasInventory = false;
-                    hasInventoryChecked.SetBindWatch(player.oid, nuiToken.Token, false);
-                    hasInventoryChecked.SetBindValue(player.oid, nuiToken.Token, false);
-                    hasInventoryChecked.SetBindWatch(player.oid, nuiToken.Token, true);
-
-                    if (targetPlaceable.VisualTransform.Scale == 1 && targetPlaceable.VisualTransform.Translation == Vector3.Zero && targetPlaceable.VisualTransform.Rotation == Vector3.Zero)
-                    {
-                      targetPlaceable.IsStatic = true;
-                      targetPlaceable.VisibilityOverride = VisibilityMode.Default;
-                    }
-                  }
-                  else
-                  {
-                    targetPlaceable.IsStatic = false;
-
-                    if (targetPlaceable.VisualTransform.Scale != 1 || targetPlaceable.VisualTransform.Translation != Vector3.Zero || targetPlaceable.VisualTransform.Rotation != Vector3.Zero)
-                      targetPlaceable.VisibilityOverride = VisibilityMode.AlwaysVisible;
-                  }
-
-                  break;
-
-                case "hasInventoryChecked":
-                  targetPlaceable.HasInventory = hasInventoryChecked.GetBindValue(player.oid, nuiToken.Token);
-                  break;
-
-                case "persistantChecked":
-
-                  bool persistance = persistantChecked.GetBindValue(player.oid, nuiToken.Token);
-
-                  if (player.QueryAuthorized())
-                  {
-                    if (persistance)
-                    {
-                      if (targetPlaceable.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").HasNothing)
-                      {
-                        SqLiteUtils.InsertQuery("placeableSpawn",
-                          new List<string[]>() { new string[] { "areaTag", targetPlaceable.Area.Tag }, new string[] { "position", targetPlaceable.Position.ToString() }, new string[] { "facing", targetPlaceable.Rotation.ToString() }, new string[] { "serializedPlaceable", targetPlaceable.Serialize().ToBase64EncodedString() } });
-
-                        var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, $"SELECT last_insert_rowid()");
-                        query.Execute();
-
-                        targetPlaceable.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value = query.Result.GetInt(0);
-                        player.oid.SendServerMessage($"{targetPlaceable.Name.ColorString(ColorConstants.White)} est désormais un placeable persistant.", ColorConstants.Orange);
-                      }
-                    }
-                    else
-                    {
-                      if (targetPlaceable.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").HasValue)
-                      {
-                        string spawnId = targetPlaceable.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value.ToString();
-
-                        SqLiteUtils.DeletionQuery("placeableSpawn",
-                          new Dictionary<string, string>() { { "rowid", spawnId } });
-
-                        targetPlaceable.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Delete();
-                        player.oid.SendServerMessage($"{targetPlaceable.Name.ColorString(ColorConstants.White)} n'est plus un placeable persistant. Il disparaitra au prochain reboot.", ColorConstants.Orange);
-                      }
-                    }
-                  }
-                  else
-                  {
-                    persistantChecked.SetBindWatch(player.oid, nuiToken.Token, false);
-                    persistantChecked.SetBindValue(player.oid, nuiToken.Token, !persistance);
-                    persistantChecked.SetBindWatch(player.oid, nuiToken.Token, true);
-                  }
-
-                  updateVisibility.SetBindValue(player.oid, nuiToken.Token, persistantChecked.GetBindValue(player.oid, nuiToken.Token));
-
-                  break;
-
-                case "updatePersistantPlc":
-                  if (targetPlaceable.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").HasValue && player.QueryAuthorized())
-                  {
-                    SqLiteUtils.UpdateQuery("placeableSpawn",
-                    new List<string[]>() { new string[] { "areaTag", targetPlaceable.Area.Tag }, new string[] { "position", targetPlaceable.Position.ToString() }, new string[] { "facing", targetPlaceable.Rotation.ToString() }, new string[] { "serializedPlaceable", targetPlaceable.Serialize().ToBase64EncodedString() } },
-                    new List<string[]>() { new string[] { "rowid", targetPlaceable.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value.ToString() } });
-
-                    player.oid.SendServerMessage($"{targetPlaceable.Name.ColorString(ColorConstants.White)} les données de persistance ont bien été mises à jour.", ColorConstants.Orange);
-                  }
-                  break;
+                case "searchRequest": UpdateTradeRequestsList(); break;
+                case "searchAuction": UpdateAuctionsList(); break;
               }
 
               break;
@@ -503,320 +172,421 @@ namespace NWN.Systems
 
         private void LoadButtons()
         {
-          rootChildren.Add(new NuiRow()
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
           {
-            Children = new List<NuiElement>()
-            {
-              new NuiSpacer(),
-              new NuiButton("Base") { Id = "base", Height = 35, Width = 90 },
-              new NuiButton("Description") { Id = "description", Height = 35, Width = 90 },
-              new NuiButton("Variables") { Id = "variables", Height = 35, Width = 90 },
-              new NuiSpacer()
-            }
-          });
+            new NuiSpacer(),
+            new NuiButton("Requêtes") { Id = "requests", Height = 35, Width = 90 },
+            new NuiButton("Enchères") { Id = "description", Height = 35, Width = 90 },
+            new NuiButton("Marché de gros") { Id = "Market", Height = 35, Width = 90 },
+            new NuiSpacer()
+          } });
         }
 
-        private void LoadBaseLayout()
+        private void LoadRequestsLayout()
         {
           rootChildren.Clear();
-
-          LoadButtons();
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-          {
-            new NuiLabel("Nom") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
-            new NuiTextEdit("Nom", name, 25, false) { Height = 35, Width = 200 }
-          }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-          {
-            new NuiLabel("Tag") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
-            new NuiTextEdit("Tag", tag, 30, false) { Height = 35, Width = 200 }
-          }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-          {
-            new NuiLabel("Apparence") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
-            new NuiCombo() { Height = 35, Width = 200, Entries = apparence, Selected = apparenceSelected },
-            new NuiTextEdit("Recherche", apparenceSearch, 20, false) { Height = 35, Width = 100 }
-          }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-          {
-            new NuiCheck("Indestructible", plotChecked) { Height = 35, Width = 120 },
-            new NuiLabel("Résistance") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle, Visible = statVisible, Tooltip = "Doit être compris entre 0 et 250" },
-            new NuiTextEdit("Résistance", hardness, 3, false) { Height = 35, Width = 35, Visible = statVisible },
-            new NuiLabel("HP") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle, Visible = statVisible, Tooltip = "Doit être compris entre 0 et 10000" },
-            new NuiTextEdit("HP", hitPoints, 5, false) { Height = 35, Width = 35, Visible = statVisible },
-          }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-          {
-            new NuiCheck("Utilisable", useableChecked) { Height = 35, Width = 90 },
-            new NuiCheck("Inventaire", hasInventoryChecked) { Height = 35, Width = 90, Visible = inventoryVisible },
-            new NuiCheck("Persistant", persistantChecked) { Height = 35, Width = 90 },
-            new NuiButtonImage("ir_empytqs") { Id = "updatePersistantPlc", Height = 35, Width = 35, Visible = updateVisibility, Tooltip = "Mettre à jour le placeable persistant. Utile si des modifications ont été faites depuis la dernière sauvegarde." },
-          }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-          {
-            new NuiLabel("Orientation") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle, Tooltip = "Doit être compris entre 0 et 360.0" },
-            new NuiTextEdit("Orientation", orientation, 5, false) { Height = 35, Width = 100 },
-            new NuiLabel("Taille") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle, Tooltip = "Doit être compris entre 0.01 et 99.99" },
-            new NuiTextEdit("Taille", scale, 5, false) { Height = 35, Width = 100 }
-          }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-          {
-            new NuiLabel("Position") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
-            new NuiTextEdit("X", xPosition, 5, false) { Height = 35, Width = 100, Tooltip = "Doit être compris entre 0 et 50.0" },
-            new NuiTextEdit("Y", yPosition, 5, false) { Height = 35, Width = 100, Tooltip = "Doit être compris entre 0 et 60.0" },
-            new NuiTextEdit("Z", zPosition, 5, false) { Height = 35, Width = 100, Tooltip = "Doit être compris entre -10 et 100" }
-          }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-          {
-            new NuiLabel("Rotation") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle, Tooltip = "Doit être compris entre 0 et 360.0" },
-            new NuiTextEdit("X", xRotation, 5, false) { Height = 35, Width = 100 },
-            new NuiTextEdit("Y", yRotation, 5, false) { Height = 35, Width = 100 },
-            new NuiTextEdit("Z", zRotation, 5, false) { Height = 35, Width = 100 }
-          }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-          {
-            new NuiLabel("Translation") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
-            new NuiTextEdit("X", xTranslation, 5, false) { Height = 35, Width = 100, Tooltip = "Doit être compris entre -50.00 et 50.00" },
-            new NuiTextEdit("Y", yTranslation, 5, false) { Height = 35, Width = 100, Tooltip = "Doit être compris entre -60.00 et 60.00" },
-            new NuiTextEdit("Z", zTranslation, 5, false) { Height = 35, Width = 100, Tooltip = "Doit être compris entre -10.00 et 100" }
-          }
-          });
-        }
-        private void StopAllWatchBindings()
-        {
-          name.SetBindWatch(player.oid, nuiToken.Token, false);
-          tag.SetBindWatch(player.oid, nuiToken.Token, false);
-          apparenceSelected.SetBindWatch(player.oid, nuiToken.Token, false);
-          apparenceSearch.SetBindWatch(player.oid, nuiToken.Token, false);
-          plotChecked.SetBindWatch(player.oid, nuiToken.Token, false);
-          hardness.SetBindWatch(player.oid, nuiToken.Token, false);
-          hitPoints.SetBindWatch(player.oid, nuiToken.Token, false);
-          useableChecked.SetBindWatch(player.oid, nuiToken.Token, false);
-          hasInventoryChecked.SetBindWatch(player.oid, nuiToken.Token, false);
-          scale.SetBindWatch(player.oid, nuiToken.Token, false);
-          xRotation.SetBindWatch(player.oid, nuiToken.Token, false);
-          yRotation.SetBindWatch(player.oid, nuiToken.Token, false);
-          zRotation.SetBindWatch(player.oid, nuiToken.Token, false);
-          xTranslation.SetBindWatch(player.oid, nuiToken.Token, false);
-          yTranslation.SetBindWatch(player.oid, nuiToken.Token, false);
-          zTranslation.SetBindWatch(player.oid, nuiToken.Token, false);
-          orientation.SetBindWatch(player.oid, nuiToken.Token, false);
-          xPosition.SetBindWatch(player.oid, nuiToken.Token, false);
-          yPosition.SetBindWatch(player.oid, nuiToken.Token, false);
-          zPosition.SetBindWatch(player.oid, nuiToken.Token, false);
-          persistantChecked.SetBindWatch(player.oid, nuiToken.Token, false);
-        }
-        private void LoadBaseBinding()
-        {
-          StopAllWatchBindings();
-
-          name.SetBindValue(player.oid, nuiToken.Token, targetPlaceable.Name);
-          name.SetBindWatch(player.oid, nuiToken.Token, true);
-          tag.SetBindValue(player.oid, nuiToken.Token, targetPlaceable.Tag);
-          tag.SetBindWatch(player.oid, nuiToken.Token, true);
-
-          apparence.SetBindValue(player.oid, nuiToken.Token, Utils.placeableEntries);
-          apparenceSelected.SetBindValue(player.oid, nuiToken.Token, targetPlaceable.Appearance.RowIndex);
-          apparenceSelected.SetBindWatch(player.oid, nuiToken.Token, true);
-          apparenceSearch.SetBindWatch(player.oid, nuiToken.Token, true);
-
-          plotChecked.SetBindValue(player.oid, nuiToken.Token, targetPlaceable.PlotFlag);
-          plotChecked.SetBindWatch(player.oid, nuiToken.Token, true);
-          persistantChecked.SetBindValue(player.oid, nuiToken.Token, targetPlaceable.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").HasValue);
-          persistantChecked.SetBindWatch(player.oid, nuiToken.Token, true);
-          updateVisibility.SetBindValue(player.oid, nuiToken.Token, targetPlaceable.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").HasValue);
-          statVisible.SetBindValue(player.oid, nuiToken.Token, !targetPlaceable.PlotFlag);
-          hardness.SetBindValue(player.oid, nuiToken.Token, targetPlaceable.Hardness.ToString());
-          hardness.SetBindWatch(player.oid, nuiToken.Token, true);
-          hitPoints.SetBindValue(player.oid, nuiToken.Token, targetPlaceable.HP.ToString());
-          hitPoints.SetBindWatch(player.oid, nuiToken.Token, true);
-
-          useableChecked.SetBindValue(player.oid, nuiToken.Token, targetPlaceable.Useable);
-          useableChecked.SetBindWatch(player.oid, nuiToken.Token, true);
-          inventoryVisible.SetBindValue(player.oid, nuiToken.Token, targetPlaceable.Useable);
-          inventoryVisible.SetBindWatch(player.oid, nuiToken.Token, true);
-          hasInventoryChecked.SetBindValue(player.oid, nuiToken.Token, targetPlaceable.HasInventory);
-          hasInventoryChecked.SetBindWatch(player.oid, nuiToken.Token, true);
-
-          orientation.SetBindValue(player.oid, nuiToken.Token, targetPlaceable.Rotation.ToString());
-          xPosition.SetBindValue(player.oid, nuiToken.Token, targetPlaceable.Position.X.ToString());
-          yPosition.SetBindValue(player.oid, nuiToken.Token, targetPlaceable.Position.Y.ToString());
-          zPosition.SetBindValue(player.oid, nuiToken.Token, targetPlaceable.Position.Z.ToString());
-
-          scale.SetBindValue(player.oid, nuiToken.Token, targetPlaceable.VisualTransform.Scale.ToString());
-          scale.SetBindWatch(player.oid, nuiToken.Token, true);
-
-          xRotation.SetBindValue(player.oid, nuiToken.Token, targetPlaceable.VisualTransform.Rotation.X.ToString());
-          yRotation.SetBindValue(player.oid, nuiToken.Token, targetPlaceable.VisualTransform.Rotation.Y.ToString());
-          zRotation.SetBindValue(player.oid, nuiToken.Token, targetPlaceable.VisualTransform.Rotation.Z.ToString());
-
-          xTranslation.SetBindValue(player.oid, nuiToken.Token, targetPlaceable.VisualTransform.Translation.X.ToString());
-          yTranslation.SetBindValue(player.oid, nuiToken.Token, targetPlaceable.VisualTransform.Translation.Y.ToString());
-          zTranslation.SetBindValue(player.oid, nuiToken.Token, targetPlaceable.VisualTransform.Translation.Z.ToString());
-
-          orientation.SetBindWatch(player.oid, nuiToken.Token, true);
-          xPosition.SetBindWatch(player.oid, nuiToken.Token, true);
-          yPosition.SetBindWatch(player.oid, nuiToken.Token, true);
-          zPosition.SetBindWatch(player.oid, nuiToken.Token, true);
-          xRotation.SetBindWatch(player.oid, nuiToken.Token, true);
-          yRotation.SetBindWatch(player.oid, nuiToken.Token, true);
-          zRotation.SetBindWatch(player.oid, nuiToken.Token, true);
-          xTranslation.SetBindWatch(player.oid, nuiToken.Token, true);
-          yTranslation.SetBindWatch(player.oid, nuiToken.Token, true);
-          zTranslation.SetBindWatch(player.oid, nuiToken.Token, true);
-        }
-        private void LoadDescriptionLayout()
-        {
-          rootChildren.Clear();
-          LoadButtons();
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-            {
-              new NuiTextEdit("Description", itemDescription, 999, true) { Height = 170, Width = 390 }
-            }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-            {
-              new NuiTextEdit("Commentaire", itemComment, 999, true) { Height = 170, Width = 390 }
-            }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-            {
-              new NuiSpacer(),
-              new NuiButtonImage("ir_empytqs") { Id = "saveDescription", Tooltip = "Enregistrer la description et le commentaire de cette créature", Height = 35, Width = 35 },
-              new NuiSpacer()
-            }
-          });
-        }
-
-        private void LoadDescriptionBinding()
-        {
-          StopAllWatchBindings();
-
-          itemDescription.SetBindValue(player.oid, nuiToken.Token, targetPlaceable.Description);
-          itemComment.SetBindValue(player.oid, nuiToken.Token, targetPlaceable.GetObjectVariable<LocalVariableString>("_COMMENT").Value);
-        }
-        private void LoadVariablesLayout()
-        {
-          rootChildren.Clear();
-          LoadButtons();
           rowTemplate.Clear();
+          LoadButtons();
 
-          rowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("Nom", variableName, 20, false) { Tooltip = variableName }) { VariableSize = true });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiCombo() { Entries = Utils.variableTypes, Selected = selectedVariableType, Width = 60 }));
-          rowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("Valeur", variableValue, 20, false) { Tooltip = variableValue }) { VariableSize = true });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_empytqs") { Id = "saveVariable", Tooltip = "Sauvegarder" }) { Width = 35 });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_ban") { Id = "deleteVariable", Tooltip = "Supprimer" }) { Width = 35 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButton(requestName) { Id = "openRequest", Tooltip = requestName }) { VariableSize = true });
 
           List<NuiElement> columnsChildren = new();
           NuiRow columnsRow = new() { Children = columnsChildren };
           rootChildren.Add(columnsRow);
 
-          columnsChildren.Add(new NuiColumn()
+          columnsChildren.Add(new NuiColumn() { Children = new List<NuiElement>()
           {
-            Children = new List<NuiElement>()
+            new NuiRow() { Children = new List<NuiElement>()
             {
-              new NuiRow() { Children = new List<NuiElement>()
-              {
-                new NuiTextEdit("Nom", newVariableName, 20, false) { Tooltip = newVariableName, Width = 120 },
-                new NuiCombo() { Entries = Utils.variableTypes, Selected = selectedNewVariableType, Width = 80 },
-                new NuiTextEdit("Valeur", newVariableValue, 20, false) { Tooltip = newVariableValue, Width = 120 },
-                new NuiButtonImage("ir_empytqs") { Id = "saveNewVariable", Height = 35, Width = 35 },
-              }
-            },
-              new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35,  Width = 380 } } }
-            }
-          });
+              new NuiTextEdit("Recherche", search, 20, false) { Id = "searchRequest" },
+              new NuiButtonImage("ir_split") { Id = "newRequest", Tooltip = "Afficher une nouvelle requête", Height = 35, Width = 35 },
+            } },
+            new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35,  Width = 380 } } }
+          } });
         }
-        private void LoadVariablesBinding()
+        private void StopAllWatchBindings()
+        {
+          search.SetBindWatch(player.oid, nuiToken.Token, false);
+          selectedMaterial.SetBindWatch(player.oid, nuiToken.Token, false);
+        }
+        private async void LoadRequestsBinding()
         {
           StopAllWatchBindings();
 
-          List<string> variableNameList = new();
-          List<int> selectedVariableTypeList = new();
-          List<string> variableValueList = new();
-          int count = 0;
+          search.SetBindValue(player.oid, nuiToken.Token, "");
+          search.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          foreach (var variable in targetPlaceable.LocalVariables)
+          if (tradeRequests == null)
           {
-            switch (variable)
-            {
-              case LocalVariableString stringVar:
-
-                if (stringVar.Name == "ITEM_KEY")
-                  continue;
-
-                variableValueList.Add(stringVar.Value);
-                selectedVariableTypeList.Add(2);
-                break;
-              case LocalVariableInt intVar:
-                variableValueList.Add(intVar.Value.ToString());
-                selectedVariableTypeList.Add(1);
-                break;
-              case LocalVariableFloat floatVar:
-                variableValueList.Add(floatVar.Value.ToString());
-                selectedVariableTypeList.Add(3);
-                break;
-              case DateTimeLocalVariable dateVar:
-                variableValueList.Add(dateVar.Value.ToString());
-                selectedVariableTypeList.Add(4);
-                break;
-
-              default:
-                continue;
-            }
-
-            variableNameList.Add(variable.Name);
-            count++;
+            await DeserializeTradeRequests();
+            await NwTask.SwitchToMainThread();
           }
 
-          variableName.SetBindValues(player.oid, nuiToken.Token, variableNameList);
-          selectedVariableType.SetBindValues(player.oid, nuiToken.Token, selectedVariableTypeList);
-          variableValue.SetBindValues(player.oid, nuiToken.Token, variableValueList);
-          listCount.SetBindValue(player.oid, nuiToken.Token, count);
+          filteredTradeRequests = tradeRequests;
+          LoadTradeRequests(filteredTradeRequests);
+        }
+        private void LoadTradeRequests(IEnumerable<TradeRequest> filteredList)
+        {
+          List<string> requestNameList = new();
+
+          foreach (var request in tradeRequests)
+            if(request.expirationDate > DateTime.Now)
+              requestNameList.Add(request.description);
+
+          requestName.SetBindValues(player.oid, nuiToken.Token, requestNameList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, requestNameList.Count());
+        }
+        private void UpdateTradeRequestsList()
+        {
+          string currentSearch = search.GetBindValue(player.oid, nuiToken.Token).ToLower();
+          filteredTradeRequests = tradeRequests;
+
+          if (!string.IsNullOrEmpty(currentSearch))
+            filteredTradeRequests = filteredTradeRequests.Where(s => s.description.ToLower().Contains(currentSearch));
+
+          LoadTradeRequests(filteredTradeRequests);
+        }
+        private void UpdateAuctionsList()
+        {
+          string currentSearch = search.GetBindValue(player.oid, nuiToken.Token).ToLower();
+          filteredAuctions = auctions;
+
+          if (!string.IsNullOrEmpty(currentSearch))
+            filteredAuctions = filteredAuctions.Where(s => s.itemName.ToLower().Contains(currentSearch));
+
+          LoadAuctions(filteredAuctions);
+        }
+        private void LoadAuctionsLayout()
+        {
+          rootChildren.Clear();
+          rowTemplate.Clear();
+          LoadButtons();
+
+          rowTemplate.Add(new NuiListTemplateCell(new NuiSpacer()
+          {
+            Height = 125,
+            Id = "examineItem",
+            DrawList = new List<NuiDrawListItem>()
+            {
+              new NuiDrawListImage(topIcon, imagePosition),
+              new NuiDrawListImage(midIcon, imagePosition) { Enabled = enabled },
+              new NuiDrawListImage(botIcon, imagePosition) { Enabled = enabled }
+
+            }
+          }) { Width = 45 });
+
+          rowTemplate.Add(new NuiListTemplateCell(new NuiText(highestBid) { Tooltip = highestBidToolTip }) { VariableSize = true });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiText(buyoutPrice) { Tooltip = buyoutPrice }) { VariableSize = true });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiText(expireDate) { Tooltip = expireDate }) { VariableSize = true });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("", proposal, 20, false) { Tooltip = "Montant proposé pour enchérir" }) { VariableSize = true });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_split") { Id = "auctionBid", Enabled = biddingEnabled, Tooltip = "Enchérir" }) { Width = 35 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_charsheet") { Id = "closeBid", Tooltip = "Clore l'enchère", Visible = isAuctionCreator }) { Width = 35 });
+
+          List<NuiElement> columnsChildren = new();
+          NuiRow columnsRow = new() { Children = columnsChildren };
+          rootChildren.Add(columnsRow);
+
+          columnsChildren.Add(new NuiColumn() { Children = new List<NuiElement>()
+          {
+            new NuiRow() { Children = new List<NuiElement>()
+            {
+              new NuiTextEdit("Recherche", search, 20, false) { Id = "searchAuction" },
+              new NuiButtonImage("ir_split") { Id = "newAuction", Tooltip = "Afficher une nouvelle enchère", Height = 35, Width = 35 },
+            } },
+            new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35,  Width = 380 } } }
+          } });
+        }
+
+        private async void LoadAuctionsBinding()
+        {
+          StopAllWatchBindings();
+
+          search.SetBindValue(player.oid, nuiToken.Token, "");
+          search.SetBindWatch(player.oid, nuiToken.Token, true);
+
+          if (auctions == null)
+          {
+            await DeserializeAuctions();
+            await NwTask.SwitchToMainThread();
+          }
+
+          filteredAuctions = auctions;
+          LoadAuctions(filteredAuctions);
+        }
+
+        private void LoadAuctions(IEnumerable<Auction> filteredList)
+        {
+          List<string> highestBidList = new();
+          List<string> highestBidTooltipList = new();
+          List<string> buyoutPriceList = new();
+          List<string> expireDateList = new();
+          List<string> proposalList = new();
+          List<bool> isAuctionCreatorList = new();
+          List<bool> biddingEnabledList = new();
+
+          foreach (var auction in filteredList)
+          {
+            if (auction.expirationDate > DateTime.Now)
+            {
+              highestBidList.Add(auction.highestBid.ToString());
+              highestBidTooltipList.Add(auction.highestBidderId == player.characterId ? $"{auction.highestBid} : C'est vous !" : auction.highestBid.ToString());
+              buyoutPriceList.Add(auction.buyoutPrice.ToString());
+              expireDateList.Add(auction.expirationDate.ToString());
+              proposalList.Add("");
+              isAuctionCreatorList.Add(auction.auctionerId == player.characterId);
+              biddingEnabledList.Add(auction.auctionerId != player.characterId);
+            }
+          }
+
+          highestBid.SetBindValues(player.oid, nuiToken.Token, highestBidList);
+          highestBidToolTip.SetBindValues(player.oid, nuiToken.Token, highestBidTooltipList);
+          buyoutPrice.SetBindValues(player.oid, nuiToken.Token, buyoutPriceList);
+          expireDate.SetBindValues(player.oid, nuiToken.Token, expireDateList);
+          proposal.SetBindValues(player.oid, nuiToken.Token, proposalList);
+          isAuctionCreator.SetBindValues(player.oid, nuiToken.Token, isAuctionCreatorList);
+          biddingEnabled.SetBindValues(player.oid, nuiToken.Token, biddingEnabledList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, highestBidList.Count());
+        }
+        private void LoadMarketLayout()
+        {
+          rootChildren.Clear();
+          LoadButtons();
+          rowTemplate.Clear();
+
+          rowTemplate.Add(new NuiListTemplateCell(new NuiText(orderUnitPrice) { Tooltip = orderUnitPriceTooltip }) { VariableSize = true });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiText(orderQuantity) { Tooltip = orderQuantity }) { VariableSize = true });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiText(expireDate) { Tooltip = expireDate }) { VariableSize = true });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_abort") { Id = "cancelOrder", Tooltip = "Annuler votre ordre", Visible = cancelOrderVisible }) { Width = 35 });
+
+          List<NuiElement> columnsChildren = new();
+          NuiRow columnsRow = new() { Children = columnsChildren };
+          rootChildren.Add(columnsRow);
+
+          columnsChildren.Add(new NuiColumn() { Children = new List<NuiElement>()
+          {
+            new NuiRow() { Children = new List<NuiElement>()
+            {
+              new NuiButtonImage("ir_learnscroll") { Id = "displayBuyOrders", Tooltip = "Consulter les ordres d'achat", Enabled = displayBuyOrder },
+              new NuiButtonImage("ir_barter") { Id = "displaySellOrders", Tooltip = "Consulter les ordres de vente", Enabled = displaySellOrder }
+            } },
+            new NuiRow() { Children = new List<NuiElement>()
+            {
+              new NuiCombo() { Id = "materialType", Entries = resourcesCombo, Selected = selectedMaterial, Tooltip = "Type de matériau" },
+              //new NuiCombo() { Id = "materialLevel", Entries = resourceLevelCombo, Selected = selectedLevel, Tooltip = "Niveau d'infusion" }
+            } },
+            new NuiRow() { Children = new List<NuiElement>()
+            {
+              new NuiTextEdit("Prix unitaire", unitPrice, 20, false) { Id = "unitPrice", Tooltip = "Prix unitaire de votre nouvel ordre" },
+              new NuiTextEdit("Quantité", quantity, 20, false) { Id = "quantity", Tooltip = "Quantité de votre nouvel ordre" },
+              new NuiButtonImage("ir_buy") { Id = "newBuyOrder", Tooltip = "Placer un nouvel ordre d'achat", Height = 35, Width = 35 },
+              new NuiButtonImage("ir_sell") { Id = "newSellOrder", Tooltip = "Placer un nouvel ordre de vente", Height = 35, Width = 35 }
+            } },
+            new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35,  Width = 380 } } }
+          } });;
+        }
+        private async void LoadBuyOrdersBinding()
+        {
+          StopAllWatchBindings();
+
+          displayBuyOrder.SetBindValue(player.oid, nuiToken.Token, false);
+          displaySellOrder.SetBindValue(player.oid, nuiToken.Token, true);
+
+          selectedMaterial.SetBindValue(player.oid, nuiToken.Token, 0);
+          selectedMaterial.SetBindWatch(player.oid, nuiToken.Token, true);
+
+          if (buyOrders == null)
+          {
+            await DeserializeBuyOrders();
+            await NwTask.SwitchToMainThread();
+          }
+
+          filteredBuyOrders = buyOrders;
+          LoadBuyOrders(filteredBuyOrders);
+        }
+        private void LoadBuyOrders(IEnumerable<BuyOrder> filteredList)
+        {
+          List<string> orderUnitPriceList = new();
+          List<string> orderUnitPriceTooltipList = new();
+          List<string> orderQuantityList = new();
+          List<string> expireDateList = new();
+          List<bool> cancelOrderVisibleList = new();
+
+          CraftResource resource = Craft.Collect.System.craftResourceArray[selectedMaterial.GetBindValue(player.oid, nuiToken.Token)];
+
+          foreach (var order in filteredList)
+          {
+            if (resource.type == order.resourceType && resource.grade == order.resourceLevel && order.expirationDate > DateTime.Now)
+            {
+              orderUnitPriceList.Add(order.unitPrice.ToString());
+              orderQuantityList.Add(order.quantity.ToString());
+              expireDateList.Add(order.expirationDate.ToString());
+              cancelOrderVisibleList.Add(order.buyerId == player.characterId ? true : false);
+              orderUnitPriceTooltipList.Add($"{order.unitPrice} - Total : {order.GetTotalCost()}");
+            }
+          }
+
+          orderUnitPrice.SetBindValues(player.oid, nuiToken.Token, orderUnitPriceList);
+          orderQuantity.SetBindValues(player.oid, nuiToken.Token, orderQuantityList);
+          expireDate.SetBindValues(player.oid, nuiToken.Token, expireDateList);
+          cancelOrderVisible.SetBindValues(player.oid, nuiToken.Token, cancelOrderVisibleList);
+          orderUnitPriceTooltip.SetBindValues(player.oid, nuiToken.Token, orderUnitPriceTooltipList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, orderUnitPriceList.Count());
+        }
+        private async void LoadSellOrderBindings()
+        {
+          StopAllWatchBindings();
+
+          displayBuyOrder.SetBindValue(player.oid, nuiToken.Token, true);
+          displaySellOrder.SetBindValue(player.oid, nuiToken.Token, false);
+
+          selectedMaterial.SetBindValue(player.oid, nuiToken.Token, 0);
+          selectedMaterial.SetBindWatch(player.oid, nuiToken.Token, true);
+
+          if (sellOrders == null)
+          {
+            await DeserializeSellOrders();
+            await NwTask.SwitchToMainThread();
+          }
+
+          filteredSellOrders = sellOrders.OrderByDescending(b => b.unitPrice);
+          LoadSellOrders(filteredSellOrders);
+        }
+        private void LoadSellOrders(IEnumerable<SellOrder> filteredList)
+        {
+          List<string> orderUnitPriceList = new();
+          List<string> orderUnitPriceTooltipList = new();
+          List<string> orderQuantityList = new();
+          List<string> expireDateList = new();
+          List<bool> cancelOrderVisibleList = new();
+
+          CraftResource resource = Craft.Collect.System.craftResourceArray[selectedMaterial.GetBindValue(player.oid, nuiToken.Token)];
+
+          foreach (var order in filteredList)
+          {
+            if (resource.type == order.resourceType && resource.grade == order.resourceLevel && order.expirationDate > DateTime.Now)
+            {
+              orderUnitPriceList.Add(order.unitPrice.ToString());
+              orderQuantityList.Add(order.quantity.ToString());
+              expireDateList.Add(order.expirationDate.ToString());
+              cancelOrderVisibleList.Add(order.sellerId == player.characterId ? true : false);
+              orderUnitPriceTooltipList.Add($"{order.unitPrice} - Total : {order.GetTotalCost()}");
+            }
+          }
+
+          orderUnitPrice.SetBindValues(player.oid, nuiToken.Token, orderUnitPriceList);
+          orderQuantity.SetBindValues(player.oid, nuiToken.Token, orderQuantityList);
+          expireDate.SetBindValues(player.oid, nuiToken.Token, expireDateList);
+          cancelOrderVisible.SetBindValues(player.oid, nuiToken.Token, cancelOrderVisibleList);
+          orderUnitPriceTooltip.SetBindValues(player.oid, nuiToken.Token, orderUnitPriceTooltipList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, orderUnitPriceList.Count());
+        }
+        private async Task DeserializeTradeRequests()
+        {
+          var result = await SqLiteUtils.SelectQueryAsync("trade",
+            new List<string>() { { "requests" } },
+            new List<string[]>() { { new string[] { } } });
+
+          if (result != null)
+          {
+            string serializedRequests = result.FirstOrDefault()[0];
+            List<TradeRequest> serializedTradeRequests= new();
+
+            Task loadRequests = Task.Run(() =>
+            {
+              if (string.IsNullOrEmpty(serializedRequests))
+                return;
+
+              serializedTradeRequests = JsonConvert.DeserializeObject<List<TradeRequest>>(serializedRequests);
+            });
+
+            await loadRequests;
+
+            tradeRequests = new();
+
+            foreach (TradeRequest serializedTradeRequest in serializedTradeRequests)
+              tradeRequests.Add(serializedTradeRequest);
+          }
+        }
+        private async Task DeserializeAuctions()
+        {
+          var result = await SqLiteUtils.SelectQueryAsync("trade",
+            new List<string>() { { "auctions" } },
+            new List<string[]>() { { new string[] { } } });
+
+          if (result != null)
+          {
+            string serializedRequests = result.FirstOrDefault()[0];
+            List<Auction> serializedTradeRequests = new();
+
+            Task loadRequests = Task.Run(() =>
+            {
+              if (string.IsNullOrEmpty(serializedRequests))
+                return;
+
+              serializedTradeRequests = JsonConvert.DeserializeObject<List<Auction>>(serializedRequests);
+            });
+
+            await loadRequests;
+
+            auctions = new();
+
+            foreach (Auction serializedTradeRequest in serializedTradeRequests)
+              auctions.Add(serializedTradeRequest);
+          }
+        }
+        private async Task DeserializeBuyOrders()
+        {
+          var result = await SqLiteUtils.SelectQueryAsync("trade",
+            new List<string>() { { "buyOrders" } },
+            new List<string[]>() { { new string[] { } } });
+
+          if (result != null)
+          {
+            string serializedRequests = result.FirstOrDefault()[0];
+            List<BuyOrder> serializedTradeRequests = new();
+
+            Task loadRequests = Task.Run(() =>
+            {
+              if (string.IsNullOrEmpty(serializedRequests))
+                return;
+
+              serializedTradeRequests = JsonConvert.DeserializeObject<List<BuyOrder>>(serializedRequests);
+            });
+
+            await loadRequests;
+
+            auctions = new();
+
+            foreach (BuyOrder serializedTradeRequest in serializedTradeRequests)
+              buyOrders.Add(serializedTradeRequest);
+          }
+        }
+        private async Task DeserializeSellOrders()
+        {
+          var result = await SqLiteUtils.SelectQueryAsync("trade",
+            new List<string>() { { "sellOrders" } },
+            new List<string[]>() { { new string[] { } } });
+
+          if (result != null)
+          {
+            string serializedRequests = result.FirstOrDefault()[0];
+            List<SellOrder> serializedTradeRequests = new();
+
+            Task loadRequests = Task.Run(() =>
+            {
+              if (string.IsNullOrEmpty(serializedRequests))
+                return;
+
+              serializedTradeRequests = JsonConvert.DeserializeObject<List<SellOrder>>(serializedRequests);
+            });
+
+            await loadRequests;
+
+            auctions = new();
+
+            foreach (SellOrder serializedTradeRequest in serializedTradeRequests)
+              sellOrders.Add(serializedTradeRequest);
+          }
         }
       }
     }
