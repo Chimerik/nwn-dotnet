@@ -13,6 +13,8 @@ namespace NWN.Systems
   {
     public static async Task ExecuteRebootCommand(SocketSlashCommand command)
     {
+      TradeSystem.saveScheduled = true;
+
       await command.RespondAsync("Séquence de reboot initiée.", ephemeral: true);
 
       await NwTask.SwitchToMainThread();
@@ -28,6 +30,8 @@ namespace NWN.Systems
       SqLiteUtils.UpdateQuery("moduleInfo",
         new List<string[]>() { new string[] { "year", NwDateTime.Now.Year.ToString() }, new string[] { "month", NwDateTime.Now.Month.ToString() }, new string[] { "day", NwDateTime.Now.DayInTenday.ToString() }, new string[] { "hour", NwDateTime.Now.Hour.ToString() }, new string[] { "minute", NwDateTime.Now.Minute.ToString() }, new string[] { "second", NwDateTime.Now.Second.ToString() } },
         new List<string[]>() { new string[] { "rowid", "1" } });
+
+      TradeSystem.SaveToDatabase();
 
       await NwTask.Delay(TimeSpan.FromSeconds(4));
       NwServer.Instance.ShutdownServer();

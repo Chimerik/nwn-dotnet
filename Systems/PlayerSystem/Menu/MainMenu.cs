@@ -244,6 +244,7 @@ namespace NWN.Systems
                   case "reboot":
 
                     NwServer.Instance.PlayerPassword = "REBOOTINPROGRESS";
+                    TradeSystem.saveScheduled = true;
 
                     CloseWindow();
 
@@ -259,7 +260,8 @@ namespace NWN.Systems
                         new List<string[]>() { new string[] { "year", NwDateTime.Now.Year.ToString() }, new string[] { "month", NwDateTime.Now.Month.ToString() }, new string[] { "day", NwDateTime.Now.DayInTenday.ToString() }, new string[] { "hour", NwDateTime.Now.Hour.ToString() }, new string[] { "minute", NwDateTime.Now.Minute.ToString() }, new string[] { "second", NwDateTime.Now.Second.ToString() } },
                         new List<string[]>() { new string[] { "rowid", "1" } });
                     }, TimeSpan.FromSeconds(31));
-
+                    
+                    var schedulerTradeSystemSave = player.scheduler.Schedule(() => { TradeSystem.SaveToDatabase(); }, TimeSpan.FromSeconds(31));
                     var schedulerReboot = player.scheduler.Schedule(() => { NwServer.Instance.ShutdownServer(); }, TimeSpan.FromSeconds(35));
 
                     break;

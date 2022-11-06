@@ -1,13 +1,13 @@
 ﻿using System;
 
-namespace NWN.Systems.TradeSystem
+namespace NWN.Systems
 {
   public class SellOrder
   {
     public readonly int sellerId;
     public readonly ResourceType resourceType;
     public readonly int resourceLevel;
-    public readonly int quantity;
+    public int quantity;
     public readonly int unitPrice;
     public DateTime expirationDate;
 

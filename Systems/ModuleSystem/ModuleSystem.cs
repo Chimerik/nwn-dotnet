@@ -110,7 +110,7 @@ namespace NWN.Systems
       TimeSpan nextActivation = DateTime.Now.Hour < 5 ? new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 5, 0, 0) - DateTime.Now : DateTime.Now.AddDays(1).AddHours(-(DateTime.Now.Hour - 5)) - DateTime.Now;
 
       scheduler.ScheduleRepeating(HandlePlayerLoop, TimeSpan.FromSeconds(1));
-      scheduler.ScheduleRepeating(SaveGameDate, TimeSpan.FromMinutes(1));
+      scheduler.ScheduleRepeating(HandleSaveDate, TimeSpan.FromMinutes(1));
       scheduler.ScheduleRepeating(SpawnCollectableResources, TimeSpan.FromHours(24), nextActivation);
       //scheduler.ScheduleRepeating(DeleteExpiredMail, TimeSpan.FromHours(24), nextActivation);
 
@@ -274,6 +274,9 @@ namespace NWN.Systems
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS areaLoadScreens" +
         "('areaTag' TEXT NOT NULL, 'loadScreen' INTEGER NOT NULL, PRIMARY KEY(areaTag))");
+
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS trade" +
+        "('requests' TEXT, 'auctions' TEXT, 'buyOrders' TEXT, 'sellOrders' TEXT");
     }
     private void InitializeEvents()
     {
@@ -315,12 +318,13 @@ namespace NWN.Systems
           new List<string[]>() { new string[] { "year", NwDateTime.Now.Year.ToString() }, new string[] { "month", NwDateTime.Now.Month.ToString() }, new string[] { "day", NwDateTime.Now.DayInTenday.ToString() }, new string[] { "hour", NwDateTime.Now.Hour.ToString() }, new string[] { "minute", NwDateTime.Now.Minute.ToString() }, new string[] { "second", NwDateTime.Now.Second.ToString() } });
       }
     }
-    private void SaveGameDate()
+    private void HandleSaveDate()
     {
       SqLiteUtils.UpdateQuery("moduleInfo",
         new List<string[]>() { new string[] { "year", NwDateTime.Now.Year.ToString() }, { new string[] { "month", NwDateTime.Now.Month.ToString() } }, { new string[] { "day", NwDateTime.Now.DayInTenday.ToString() } }, { new string[] { "hour", NwDateTime.Now.Hour.ToString() } }, { new string[] { "minute", NwDateTime.Now.Minute.ToString() } }, { new string[] { "second", NwDateTime.Now.Second.ToString() } } },
         new List<string[]>() { new string[] { "ROWID", "1" } });
     }
+    
     public static void RestorePlayerCorpseFromDatabase()
     {
       var query = SqLiteUtils.SelectQuery("playerDeathCorpses",
@@ -612,18 +616,18 @@ namespace NWN.Systems
 
           Log.Info($"REFILL - {ressourcePoint.Area.Name} - {ressourcePoint.Name}");
         }*/
+      }
+
+      /*foreach (NwArea area in NwModule.Instance.Areas.Where(l => l.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 1))
+      {
+        int areaLevel = area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value;
+
+        SqLiteUtils.InsertQuery("areaResourceStock",
+          new List<string[]>() { new string[] { "areaTag", area.Tag }, new string[] { "mining", (areaLevel * 2).ToString() }, new string[] { "wood", (areaLevel * 2).ToString() }, new string[] { "animals", (areaLevel * 2).ToString() } },
+          new List<string>() { "areaTag" },
+          new List<string[]>() { new string[] { "mining" }, new string[] { "wood" }, new string[] { "animals" } });
+      }*/
     }
-
-    /*foreach (NwArea area in NwModule.Instance.Areas.Where(l => l.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 1))
-    {
-      int areaLevel = area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value;
-
-      SqLiteUtils.InsertQuery("areaResourceStock",
-        new List<string[]>() { new string[] { "areaTag", area.Tag }, new string[] { "mining", (areaLevel * 2).ToString() }, new string[] { "wood", (areaLevel * 2).ToString() }, new string[] { "animals", (areaLevel * 2).ToString() } },
-        new List<string>() { "areaTag" },
-        new List<string[]>() { new string[] { "mining" }, new string[] { "wood" }, new string[] { "animals" } });
-    }*/
-  }
     private static async void SpawnResourceBlock(string resourceTemplate, NwWaypoint waypoint, int quantity, DateTime lastChecked)
     {
       try

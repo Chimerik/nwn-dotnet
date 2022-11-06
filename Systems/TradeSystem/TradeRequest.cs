@@ -1,21 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace NWN.Systems.TradeSystem
+namespace NWN.Systems
 {
   public class TradeRequest
   {
     public readonly int requesterId;
     public readonly string description;
     public readonly int buyoutPrice;
-    public readonly DateTime expirationDate;
+    public DateTime expirationDate;
     public List<TradeProposal> proposalList;
 
-    public TradeRequest(int requesterId, string description, int buyoutPrice, DateTime expirationDate, List<TradeProposal> proposalList)
+    public TradeRequest(int requesterId, string description, DateTime expirationDate, List<TradeProposal> proposalList)
     {
       this.requesterId = requesterId;
       this.description = description;
-      this.buyoutPrice = buyoutPrice;
       this.expirationDate = expirationDate;
       this.proposalList = proposalList;
     }
@@ -28,12 +27,16 @@ namespace NWN.Systems.TradeSystem
   public class TradeProposal
   {
     public readonly int characterId;
+    public readonly int sellPrice;
     public readonly List<string> serializedItems;
+    public bool cancelled;
 
-    public TradeProposal(int characterId, List<string> serializedItems)
+    public TradeProposal(int characterId, int sellPrice, List<string> serializedItems)
     {
       this.characterId = characterId;
+      this.sellPrice = sellPrice;
       this.serializedItems = serializedItems;
+      cancelled = false;
     }
     public TradeProposal()
     {

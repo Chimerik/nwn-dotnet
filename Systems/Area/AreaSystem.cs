@@ -509,6 +509,7 @@ namespace NWN.Systems
           case "refinery":
           case "resourceExchange":
           case "rumors":
+          case "auctionHouse":
             window.Value.CloseWindow();
             break;
         }
