@@ -13,7 +13,7 @@ namespace NWN.Systems
     public int highestBidderId;
     public int highestBid;
 
-    public Auction(int auctionerId, string serializedItem, string itemName, DateTime expirationDate, int highestBidderId = -1, int highestBid = 0, int startingPrice = 0, int buyoutPrice = 0)
+    public Auction(int auctionerId, string serializedItem, string itemName, DateTime expirationDate, int startingPrice = 0, int buyoutPrice = 0, int highestBidderId = -1, int highestBid = 0)
     {
       this.auctionerId = auctionerId;
       this.serializedItem = serializedItem;

@@ -25,7 +25,7 @@ namespace NWN.Systems
     public static List<Auction> auctionList;
     public static List<BuyOrder> buyOrderList;
     public static List<SellOrder> sellOrderList;
-    public static bool saveScheduled = false;
+    private static bool saveScheduled = false;
     public TradeSystem(SchedulerService schedulerService)
     {
       DeserializeTradeRequests();
@@ -145,10 +145,13 @@ namespace NWN.Systems
 
     public static async void ScheduleSaveToDatabase()
     {
-      saveScheduled = true;
-      Log.Info("TRADE SYSTEM - Scheduling save in 10 seconds");
-      await NwTask.Delay(TimeSpan.FromSeconds(10));
-      SaveToDatabase();
+      if (!saveScheduled)
+      {
+        saveScheduled = true;
+        Log.Info("TRADE SYSTEM - Scheduling save in 10 seconds");
+        await NwTask.Delay(TimeSpan.FromSeconds(10));
+        SaveToDatabase();
+      }
     }
 
     public static async void SaveToDatabase()
@@ -195,7 +198,7 @@ namespace NWN.Systems
             {
               proposal.cancelled = true;
 
-              UpdatePlayerBankAccount(proposal.characterId.ToString(), proposal.sellPrice.ToString());
+              UpdatePlayerBankAccount(proposal.characterId.ToString(), proposal.sellPrice.ToString(), "Proposal cancelled - Request Expired");
               AddItemToPlayerDataBaseBank(proposal.characterId.ToString(), proposal.serializedItems, "Proposal cancelled - Request Expired");
             }
           }
@@ -212,7 +215,7 @@ namespace NWN.Systems
         {
           if (auction.highestBid == 0)
             GiveItemAuction(auction.auctionerId, auction.itemName, auction.serializedItem);
-          else
+          else if(auction.buyoutPrice > 0 && auction.highestBid < auction.buyoutPrice)
             ResolveSuccessfulAuction(auction);
 
           Log.Info($"TRADE SYSTEM - Auction expired of {auction.itemName} from {auction.auctionerId} won by {auction.highestBidderId} for {auction.highestBid}");
@@ -251,7 +254,7 @@ namespace NWN.Systems
             buyer.bankGold += sellPrice;
           }
 
-          UpdatePlayerBankAccount(buyOrder.buyerId.ToString(), sellPrice.ToString());
+          UpdatePlayerBankAccount(buyOrder.buyerId.ToString(), sellPrice.ToString(), "Buy Order Expired");
 
           Log.Info($"TRADE SYSTEM - Buy order expired of {buyOrder.quantity} {buyOrder.resourceType.ToDescription()} {buyOrder.resourceLevel} from {buyOrder.buyerId}");
         }
@@ -259,7 +262,7 @@ namespace NWN.Systems
 
       buyOrderList.RemoveAll(trade => trade.expirationDate < DateTime.Now);
     }
-    private static void GiveItemAuction(int characterId, string itemName, string serializedItem, int highestBid = 0)
+    public static void GiveItemAuction(int characterId, string itemName, string serializedItem, int highestBid = 0)
     {
       Player player = Players.FirstOrDefault(p => p.Value.characterId == characterId).Value;
 
@@ -302,7 +305,7 @@ namespace NWN.Systems
       UpdatePlayerResourceStock(sellOrder.sellerId.ToString(), resource, sellOrder.quantity);
       // TODO : ajouter notification par lettre
     }
-    private static void ResolveSuccessfulAuction(Auction auction)
+    public static void ResolveSuccessfulAuction(Auction auction)
     {
       Player seller = Players.FirstOrDefault(p => p.Value.characterId == auction.auctionerId).Value;
       int sellPrice = GetTaxedSellPrice(seller, auction.highestBid);
@@ -315,7 +318,7 @@ namespace NWN.Systems
         seller.bankGold += sellPrice;
       }
 
-      UpdatePlayerBankAccount(auction.auctionerId.ToString(), sellPrice.ToString());
+      UpdatePlayerBankAccount(auction.auctionerId.ToString(), sellPrice.ToString(), "Auction successful");
       GiveItemAuction(auction.highestBidderId, auction.itemName, auction.serializedItem, auction.highestBid);
     }
     public static async void AddItemToPlayerDataBaseBank(string characterId, List<string> serializedItemstoAdd, string logUseCase)
@@ -349,7 +352,7 @@ namespace NWN.Systems
         });
       } 
     }
-    private static int GetTaxedSellPrice(Player seller, int sellPrice)
+    public static int GetTaxedSellPrice(Player seller, int sellPrice)
     {
       double tax = sellPrice * 0.92;
 
@@ -358,13 +361,13 @@ namespace NWN.Systems
 
       return sellPrice - (int)tax;
     }
-    public static void UpdatePlayerBankAccount(string characterId, string sellPrice)
+    public static void UpdatePlayerBankAccount(string characterId, string sellPrice, string logUseCase)
     {
       SqLiteUtils.UpdateQuery("playerCharacters",
         new List<string[]>() { new string[] { "bankGold", sellPrice, "+" } },
         new List<string[]>() { new string[] { "ROWID", characterId } });
 
-      Log.Info($"TRADE SYSTEM - Successful auction - Updated bank account {characterId} of {sellPrice}");
+      Log.Info($"TRADE SYSTEM - {logUseCase} - Updated bank account {characterId} of {sellPrice}");
 
       // TODO : ajouter notification par lettre
     }
@@ -380,7 +383,7 @@ namespace NWN.Systems
 
         Task loadMateriaTask = Task.Run(() =>
         {
-          List<SerializableCraftResource> serializableCraftResource = JsonConvert.DeserializeObject<List<CraftResource.SerializableCraftResource>>(serializedCraftResources);
+          List<SerializableCraftResource> serializableCraftResource = JsonConvert.DeserializeObject<List<SerializableCraftResource>>(serializedCraftResources);
 
           SerializableCraftResource playerResource = serializableCraftResource.FirstOrDefault(r => r.type == (int)resource.type && r.grade == resource.grade);
 
@@ -400,6 +403,23 @@ namespace NWN.Systems
         Log.Info($"TRADE SYSTEM - Expired Sell Order - Updated resource stock of {characterId} of {quantity}");
 
         // TODO : ajouter notification par lettre
+      }
+    }
+    public static async void AddResourceToPlayerStock(Player player, ResourceType type, int grade, int quantity)
+    {
+      if (player != null)
+      {
+        CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == type && r.grade == grade);
+
+        if (resource != null)
+          resource.quantity += quantity;
+        else
+        {
+          resource = Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == type && r.grade == grade);
+          player.craftResourceStock.Add(new CraftResource(resource, quantity));
+        }
+
+        // TODO : si player est null, aller chercher la correspondance en base de données et lui filer ses ressources puis réenregistrer le tout
       }
     }
   }

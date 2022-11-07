@@ -613,6 +613,8 @@ namespace NWN.Systems
       }
       private void OnCombatStarted(OnCombatStatusChange onCombatStatusChange)
       {
+        onCombatStatusChange.Player.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
+
         if (onCombatStatusChange.CombatStatus == CombatStatus.ExitCombat)
           return;
 

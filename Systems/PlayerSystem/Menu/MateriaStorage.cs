@@ -103,8 +103,6 @@ namespace NWN.Systems
                     ResourceType type = (ResourceType)Enum.Parse(typeof(ResourceType), item.GetObjectVariable<LocalVariableString>("CRAFT_RESOURCE").Value);
                     int grade = item.GetObjectVariable<LocalVariableInt>("CRAFT_GRADE").Value;
 
-
-
                     CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == type && r.grade == grade);
 
                     if (resource != null)
@@ -135,7 +133,7 @@ namespace NWN.Systems
                   return;
 
                 case "withdraw":
-                  npcText.SetBindValue(player.oid, nuiToken.Token, "Retirer ? Et pour quoi faire ? Vous ne pouvez pas entrer en ville avec de toute façon.\n\n" +
+                  npcText.SetBindValue(player.oid, nuiToken.Token, "Retirer ? Hé, pour quoi faire ? Vous pouvez pas entrer en ville avec de toute façon.\n\n" +
                     "Si vous voulez vendre du stock à quelqu'un, passez plutôt par un contrat du Juge du Changement.");
                   return;
 

@@ -268,8 +268,14 @@ namespace NWN.Systems
       {
         try
         {
+          switch(resourceType)
+          {
+            case ResourceType.Plank: type = JobType.WoodCutting; break;
+            case ResourceType.Leather: type = JobType.Pelting; break;
+            default: type = JobType.Mining; break;
+          }
+
           remainingTime = 3600 - consumedTime;
-          type = JobType.Mining;
           startTime = DateTime.Now.AddSeconds(-consumedTime);
           this.icon = icon;
 
@@ -420,6 +426,8 @@ namespace NWN.Systems
       }*/
       public void HandleCraftJobOnAreaChange(OnServerSendArea onArea)
       {
+        Log.Info($"Area change detected while craft job active");
+
         if (!Players.TryGetValue(onArea.Player.LoginCreature, out Player player))
           return;
 

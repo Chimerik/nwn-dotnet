@@ -243,7 +243,7 @@ namespace NWN.Systems
         }
         private void SelectInventoryItem(ModuleEvents.OnPlayerTarget selection)
         {
-          if (selection.IsCancelled || selection.TargetObject is not NwItem item || item == null || !item.IsValid)
+          if (selection.IsCancelled || selection.TargetObject is not NwItem item || item == null || !item.IsValid || item.Possessor != player.oid.LoginCreature)
             return;
 
           Log.Info($"Banque - {player.oid.LoginCreature.Name} ({player.oid.PlayerName}) dépose {item.Name}");

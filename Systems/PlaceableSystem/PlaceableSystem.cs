@@ -37,7 +37,6 @@ namespace NWN.Systems
           case "decoupe": plc.OnUsed += OpenWoodworkWindow; break;
           case "tannerie_peau": plc.OnUsed += OpenTanneryWindow; break;
           case "player_bank": plc.OnLeftClick += HandleClickBank; break;
-          case "ench_bsn": plc.OnClose += HandleCloseEnchantementBassin; break;
           case "balancoire": plc.OnUsed += OnUsedBalancoire; break;
           case "dice_poker": plc.OnUsed += OnUsedDicePoker; break;
           case "go_plouf": plc.OnUsed += OnUsedGoPlouf; break;
@@ -120,7 +119,7 @@ namespace NWN.Systems
     {
       onUsed.UsedBy.Location = NwObject.FindObjectsWithTag<NwWaypoint>("WP_START_NEW_CHAR").FirstOrDefault().Location;
     }
-    public void HandleTheaterCurtains(PlaceableEvents.OnUsed onUsed)
+    public static void HandleTheaterCurtains(PlaceableEvents.OnUsed onUsed)
     {
       foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("theater_curtain"))
         if (plc.Area == onUsed.Placeable.Area)
@@ -142,37 +141,8 @@ namespace NWN.Systems
     {
       await NwTask.Delay(TimeSpan.FromSeconds(10));
       await onOpen.Door.Close();
-      if (onOpen.Door.TransitionTarget is NwDoor)
-        await ((NwDoor)onOpen.Door.TransitionTarget).Close();
-    }
-    private void HandleCloseEnchantementBassin(PlaceableEvents.OnClose onClose)
-    {
-      NwCreature oPC = onClose.ClosedBy;
-
-      if (!Players.TryGetValue(oPC, out Player player))
-        return;
-
-      NwItem oItem = onClose.Placeable.Inventory.Items.FirstOrDefault();
-
-      if (oItem == null)
-      {
-        player.oid.SendServerMessage("Aucun objet valide n'a été déposé dans le bassin.");
-        return;
-      }
-
-      if (oItem.BaseItem.EquipmentSlots == EquipmentSlots.None)
-      {
-        player.oid.SendServerMessage("Impossible d'enchanter un objet non équippable.");
-        return;
-      }
-
-      if (oItem.PlotFlag)
-      {
-        player.oid.SendServerMessage("Impossible d'enchanter cet objet.");
-        return;
-      }
-
-      EnchantmentBasinSystem.GetEnchantmentBasinFromTag(oItem.Tag).DrawMenu(player, oItem, onClose.Placeable);
+      if (onOpen.Door.TransitionTarget is NwDoor door)
+        await door.Close();
     }
     private void HandleSetUpDeadCreatureCorpse(CreatureEvents.OnSpawn onSpawn)
     {

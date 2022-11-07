@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 using Anvil.API;
 using Anvil.API.Events;
+
+using NWN.Native.API;
+
+using static System.Collections.Specialized.BitVector32;
 
 namespace NWN.Systems
 {
@@ -37,6 +42,11 @@ namespace NWN.Systems
         private readonly NuiBind<string> proposal = new("proposal");
         private readonly NuiBind<bool> isAuctionCreator = new("isAuctionCreator");
         private readonly NuiBind<bool> biddingEnabled = new("biddingEnabled");
+        private readonly NuiBind<string> auctionSellPrice = new("auctionSellPrice");
+        private readonly NuiBind<string> auctionBuyoutPrice = new("auctionBuyoutPrice");
+        private readonly NuiBind<bool> isAuctionItemSelected = new("isAuctionItemSelected");
+
+        private NwItem auctionItemSelected = null;
 
         private readonly NuiBind<string> orderUnitPrice = new("orderUnitPrice");
         private readonly NuiBind<string> orderUnitPriceTooltip = new("orderUnitPriceTooltip");
@@ -198,7 +208,7 @@ namespace NWN.Systems
                   break;
 
                 case "proposalItemDeposit":
-                  player.oid.SendServerMessage("Sélectionnez les objets de votre inventaire que vous souhaitez proposer pour cette commande.");
+                  player.oid.SendServerMessage("Veuillez sélectionner les objets de votre inventaire que vous souhaitez proposer pour cette commande.", ColorConstants.Orange);
                   player.oid.EnterTargetMode(SelectProposalInventoryItem, ObjectTypes.Item, MouseCursor.PickupDown);
                   break;
 
@@ -210,7 +220,7 @@ namespace NWN.Systems
                   TradeProposal acceptedProposal = lastRequestClicked.proposalList[nuiEvent.ArrayIndex];
 
                   if (lastRequestClicked.expirationDate < DateTime.Now)
-                    player.oid.SendServerMessage("Cette commande a malheureusement expirée !", ColorConstants.Red);
+                    player.oid.SendServerMessage("Cette commande a malheureusement expiré !", ColorConstants.Red);
                   else if (acceptedProposal.cancelled)
                     player.oid.SendServerMessage("Cette proposition a malheureusement été retirée !", ColorConstants.Red);
                   else if (acceptedProposal.sellPrice > player.bankGold)
@@ -219,6 +229,10 @@ namespace NWN.Systems
                   {
                     player.bankGold -= acceptedProposal.sellPrice;
                     TradeSystem.AddItemToPlayerDataBaseBank(player.characterId.ToString(), acceptedProposal.serializedItems, "Accepted proposal");
+
+                    int taxedSellPrice = TradeSystem.GetTaxedSellPrice(Players.FirstOrDefault(p => p.Value.characterId == acceptedProposal.characterId).Value, acceptedProposal.sellPrice);
+                    TradeSystem.UpdatePlayerBankAccount(acceptedProposal.characterId.ToString(), taxedSellPrice.ToString(), "Proposal accepted - Request accepted");
+
                     acceptedProposal.cancelled = true;
 
                     foreach(var proposal in lastRequestClicked.proposalList)
@@ -226,12 +240,14 @@ namespace NWN.Systems
                       if (proposal.cancelled)
                         continue;
 
-                      TradeSystem.UpdatePlayerBankAccount(proposal.characterId.ToString(), proposal.sellPrice.ToString());
-                      TradeSystem.AddItemToPlayerDataBaseBank(proposal.characterId.ToString(), proposal.serializedItems, "Proposal cancelled - Request Accepted");
+                      TradeSystem.UpdatePlayerBankAccount(proposal.characterId.ToString(), proposal.sellPrice.ToString(), "Proposal cancelled - Request accepted");
+                      TradeSystem.AddItemToPlayerDataBaseBank(proposal.characterId.ToString(), proposal.serializedItems, "Proposal cancelled - Request accepted");
                       proposal.cancelled = true;
                     }
 
                     lastRequestClicked.expirationDate = DateTime.Now;
+                    TradeSystem.tradeRequestList.Remove(lastRequestClicked);
+                    lastRequestClicked = null;
                     player.oid.SendServerMessage("La proposition a bien été acceptée. Les objets ont été déposés dans votre compte Skalsgard !", ColorConstants.Orange);
                   }
 
@@ -274,7 +290,7 @@ namespace NWN.Systems
                     return;
                   }
 
-                  if (int.TryParse(search.GetBindValue(player.oid, nuiToken.Token), out int sellPrice) && sellPrice < 1)
+                  if (int.TryParse(search.GetBindValue(player.oid, nuiToken.Token), out int sellPrice) || sellPrice < 1)
                   {
                     if(player.bankGold < sellPrice)
                     {
@@ -324,7 +340,21 @@ namespace NWN.Systems
 
                 case "openRequest": LoadRequestDetailsLayout(filteredTradeRequests.ElementAt(nuiEvent.ArrayIndex)); break;
                 case "loadProposalLayout": LoadCreateProposalLayout(); break;
-                case "displaySellOrders": LoadSellOrderBindings(); break;
+
+                case "displayBuyOrders":
+
+                  displayBuyOrder.SetBindValue(player.oid, nuiToken.Token, true);
+                  displaySellOrder.SetBindValue(player.oid, nuiToken.Token, false);
+                  LoadBuyOrders(filteredBuyOrders); 
+
+                  break;
+                case "displaySellOrders":
+
+                  displayBuyOrder.SetBindValue(player.oid, nuiToken.Token, false);
+                  displaySellOrder.SetBindValue(player.oid, nuiToken.Token, true);
+                  LoadSellOrders(filteredSellOrders); 
+                  
+                  break;
 
                 case "examineItem":
 
@@ -333,6 +363,237 @@ namespace NWN.Systems
 
                   if (!player.windows.ContainsKey("itemExamine")) player.windows.Add("itemExamine", new ItemExamineWindow(player, auctionItem));
                   else ((ItemExamineWindow)player.windows["itemExamine"]).CreateWindow(auctionItem);
+
+                  break;
+
+                case "auctionBid":
+
+                  if(!int.TryParse(proposal.GetBindValue(player.oid, nuiToken.Token), out int bid) || bid < 1)
+                  {
+                    player.oid.SendServerMessage("L'enchère saisie est incorrecte. Veuillez saisir une valeur valide.", ColorConstants.Red);
+                    return;
+                  }
+
+                  Auction auction = filteredAuctions.ElementAt(nuiEvent.ArrayIndex);
+
+                  if(auction.expirationDate < DateTime.Now || (auction.buyoutPrice > 0 && auction.highestBid >= auction.buyoutPrice))
+                  {
+                    player.oid.SendServerMessage("Cette enchère est désormais close. Impossible de surenchérir !", ColorConstants.Red);
+                    return;
+                  }
+
+                  if (bid <= auction.startingPrice)
+                  {
+                    player.oid.SendServerMessage("L'enchère saisie doit obligatoirement être supérieur à la mise à prix", ColorConstants.Red);
+                    return;
+                  }
+
+                  if (bid <= auction.highestBid)
+                  {
+                    player.oid.SendServerMessage("L'enchère saisie doit obligatoirement être supérieure à l'enchère maximale", ColorConstants.Red);
+                    return;
+                  }
+
+                  if(bid > player.bankGold)
+                  {
+                    player.oid.SendServerMessage("Vous ne disposez pas de la somme nécessaire sur votre compte Skalsgard pour enchérir autant", ColorConstants.Red);
+                    return;
+                  }
+
+                  player.bankGold -= bid;
+
+                  if(auction.highestBid > 0) // TODO : prévoir notification en cas d'outbid
+                    TradeSystem.UpdatePlayerBankAccount(auction.highestBidderId.ToString(), auction.highestBid.ToString(), "Auction outbid");
+
+                  auction.highestBid = bid;
+                  auction.highestBidderId = player.characterId;
+
+                  if (auction.buyoutPrice > 0 && bid >= auction.buyoutPrice)
+                  {
+                    TradeSystem.auctionList.Remove(auction);
+                    TradeSystem.ResolveSuccessfulAuction(auction);
+                    TradeSystem.ScheduleSaveToDatabase();
+                  }
+                  else if((DateTime.Now - auction.expirationDate).TotalMinutes < 5)
+                    auction.expirationDate.AddMinutes(5);
+
+                  LoadAuctions(filteredAuctions);
+
+                  break;
+
+                case "closeBid":
+
+                  Auction closedAuction = filteredAuctions.ElementAt(nuiEvent.ArrayIndex);
+
+                  if(closedAuction.highestBid > 0)
+                  {
+                    player.oid.SendServerMessage("Des enchères sont déjà en cours sur cette offre, il n'est plus possible de l'annuler", ColorConstants.Red);
+                    return;
+                  }
+
+                  if (closedAuction.expirationDate < DateTime.Now)
+                  {
+                    player.oid.SendServerMessage("Cette enchère est déjà close", ColorConstants.Red);
+                    return;
+                  }
+
+                  TradeSystem.GiveItemAuction(closedAuction.auctionerId, closedAuction.itemName, closedAuction.serializedItem);
+                  TradeSystem.auctionList.Remove(closedAuction);
+                  TradeSystem.ScheduleSaveToDatabase();
+
+                  LoadAuctions(filteredAuctions);
+
+                  break;
+
+                case "auctionItemSelect":
+                  player.oid.SendServerMessage("Veuillez sélectionner l'objet de votre inventaire que vous souhaitez mettre aux enchères.", ColorConstants.Orange);
+                  player.oid.EnterTargetMode(SelectAuctionInventoryItem, ObjectTypes.Item, MouseCursor.PickupDown);
+                  break;
+
+                case "newAuction":
+
+                  if(auctionItemSelected == null || !auctionItemSelected.IsValid || auctionItemSelected.Possessor != player.oid.LoginCreature)
+                  {
+                    player.oid.SendServerMessage("L'object sélectionné n'existe plus ou n'est plus en votre possession", ColorConstants.Red);
+                    isAuctionItemSelected.SetBindValue(player.oid, nuiToken.Token, false);
+                    return;
+                  }
+
+                  if(!int.TryParse(auctionBuyoutPrice.GetBindValue(player.oid, nuiToken.Token), out int buyoutPrice) || buyoutPrice < 1)
+                    buyoutPrice = 0;
+
+                  if (int.TryParse(auctionSellPrice.GetBindValue(player.oid, nuiToken.Token), out int startPrice))
+                  {
+                    int brokerFee = (int)(startPrice * 0.03);
+                    if (player.bankGold < brokerFee)
+                    {
+                      player.oid.SendServerMessage("Vous ne disposez pas d'assez d'or sur votre compte Skalsgard pour vous acquiter des frais de dossier de 3 %", ColorConstants.Red);
+                      return;
+                    }
+
+                    player.bankGold -= brokerFee;
+                    player.oid.SendServerMessage($"{brokerFee} pièces viennent d'être prélevées de votre comtpe Skalsgard en tant que frais de dossier", ColorConstants.Orange);
+                  }
+                  else
+                    startPrice = 0;
+
+                  TradeSystem.auctionList.Add(new Auction(player.characterId, auctionItemSelected.Serialize().ToBase64EncodedString(), auctionItemSelected.Name, DateTime.Now.AddDays(7), startPrice, buyoutPrice));
+
+                  auctionItemSelected.Destroy();
+                  auctionItemSelected = null;
+                  isAuctionItemSelected.SetBindValue(player.oid, nuiToken.Token, false);
+
+                  LoadAuctions(filteredAuctions);
+                  TradeSystem.ScheduleSaveToDatabase();
+
+                  player.oid.SendServerMessage($"Votre enchère pour {auctionItemSelected.Name.ColorString(ColorConstants.White)} a bien été enregistrée pour une mise à prix à {startPrice.ToString().ColorString(ColorConstants.White)} et une valeur d'achat immédiat de {buyoutPrice.ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);
+
+                  break;
+
+                case "cancelOrder":
+
+                  if(displayBuyOrder.GetBindValue(player.oid, nuiToken.Token)) // cas Buy Order
+                  {
+                    BuyOrder cancelledOrder = filteredBuyOrders.ElementAt(nuiEvent.ArrayIndex);
+
+                    if (cancelledOrder.expirationDate < DateTime.Now)
+                      player.oid.SendServerMessage("Cet ordre d'achat a déjà expiré", ColorConstants.Red);
+                    else
+                    {
+                      int refund = cancelledOrder.unitPrice * cancelledOrder.quantity;
+                      player.bankGold += refund;
+                      cancelledOrder.expirationDate = DateTime.Now;
+                      TradeSystem.buyOrderList.Remove(cancelledOrder);
+
+                      player.oid.SendServerMessage($"Votre ordre d'achat a bien été annulé, {refund.ToString().ColorString(ColorConstants.White)} pièces ont été débloquées sur votre compte Skalsgard", ColorConstants.Orange);
+                    }
+
+                    LoadBuyOrders(filteredBuyOrders);
+                  }
+                  else // cas Sell Order
+                  {
+                    SellOrder cancelledOrder = filteredSellOrders.ElementAt(nuiEvent.ArrayIndex);
+
+                    if (cancelledOrder.expirationDate < DateTime.Now)
+                      player.oid.SendServerMessage("Cet ordre de vente a déjà expiré", ColorConstants.Red);
+                    else
+                    {
+                      TradeSystem.AddResourceToPlayerStock(player, cancelledOrder.resourceType, cancelledOrder.resourceLevel, cancelledOrder.quantity);
+
+                      cancelledOrder.expirationDate = DateTime.Now;
+                      TradeSystem.sellOrderList.Remove(cancelledOrder);
+
+                      player.oid.SendServerMessage($"Votre ordre de vente a bien été annulé, {cancelledOrder.quantity.ToString().ColorString(ColorConstants.White)} unités de {cancelledOrder.resourceType.ToDescription().ColorString(ColorConstants.White)} {cancelledOrder.resourceLevel.ToString().ColorString(ColorConstants.White)} ont été débloquées sur votre compte Skalsgard", ColorConstants.Orange);
+                    }
+
+                    LoadSellOrders(filteredSellOrders);
+                  }
+
+                  break;
+
+                case "newBuyOrder":
+
+                  if(!int.TryParse(unitPrice.GetBindValue(player.oid, nuiToken.Token), out int boUnitPrice) || boUnitPrice < 1)
+                  {
+                    player.oid.SendServerMessage("Veuillez saisir un prix d'achat unitaire valide", ColorConstants.Red);
+                    return;
+                  }
+
+                  if (!int.TryParse(quantity.GetBindValue(player.oid, nuiToken.Token), out int boQuantity) || boQuantity < 1)
+                  {
+                    player.oid.SendServerMessage("Veuillez saisir une quantité valide", ColorConstants.Red);
+                    return;
+                  }
+
+                  int transactionCost = boQuantity * boUnitPrice;
+                  int taxCost = (int)(transactionCost * 0.03);
+
+                  if (player.bankGold < transactionCost + taxCost)
+                  {
+                    player.oid.SendServerMessage("Vous ne disposez pas de suffisament d'or sur votre compte Skalsgard pour vous permettre de passer cet ordre d'achat", ColorConstants.Red);
+                    return;
+                  }
+
+                  player.bankGold -= taxCost;
+                  player.oid.SendServerMessage($"{taxCost.ToString().ColorString(ColorConstants.White)} pièces ont été prélevées de votre compte Skalsgard afin d'assurer les frais de dossier de votre ordre", ColorConstants.Orange);
+                  ResolveBuyOrderAsync(boUnitPrice, boQuantity, Craft.Collect.System.craftResourceArray[selectedMaterial.GetBindValue(player.oid, nuiToken.Token)]);
+
+                  break;
+
+                case "newSellOrder":
+
+                  if (!int.TryParse(unitPrice.GetBindValue(player.oid, nuiToken.Token), out int soUnitPrice) || soUnitPrice < 1)
+                  {
+                    player.oid.SendServerMessage("Veuillez saisir un prix de vente unitaire valide", ColorConstants.Red);
+                    return;
+                  }
+
+                  if (!int.TryParse(quantity.GetBindValue(player.oid, nuiToken.Token), out int soQuantity) || soQuantity < 1)
+                  {
+                    player.oid.SendServerMessage("Veuillez saisir une quantité valide", ColorConstants.Red);
+                    return;
+                  }
+
+                  CraftResource boughtResource = Craft.Collect.System.craftResourceArray[selectedMaterial.GetBindValue(player.oid, nuiToken.Token)];
+                  CraftResource playerResource = player.craftResourceStock.FirstOrDefault(r => r.type == boughtResource.type && r.grade == boughtResource.grade);
+
+                  if(playerResource == null || playerResource.quantity < soQuantity)
+                  {
+                    player.oid.SendServerMessage("Vous ne disposez pas des stocks de matérias nécessaires pour passer cet ordre de vente", ColorConstants.Red);
+                    return;
+                  }
+
+                  int soTax = (int)(soQuantity * soUnitPrice * 0.03);
+
+                  if (player.bankGold < soTax)
+                  {
+                    player.oid.SendServerMessage("Vous ne disposez pas de suffisament d'or sur votre compte Skalsgard pour vous permettre de passer cet ordre de vente", ColorConstants.Red);
+                    return;
+                  }
+
+                  player.bankGold -= soTax;
+                  player.oid.SendServerMessage($"{soTax.ToString().ColorString(ColorConstants.White)} pièces ont été prélevées de votre compte Skalsgard afin d'assurer les frais de dossier de votre ordre", ColorConstants.Orange);
+                  ResolveSellOrderAsync(soUnitPrice, soQuantity, boughtResource);
 
                   break;
 
@@ -358,6 +619,7 @@ namespace NWN.Systems
               {
                 case "searchRequest": UpdateTradeRequestsList(); break;
                 case "searchAuction": UpdateAuctionsList(); break;
+                case "selectedMaterial": UpdateOrderList(); break;
               }
 
               break;
@@ -453,6 +715,21 @@ namespace NWN.Systems
           filteredAuctions = !string.IsNullOrEmpty(currentSearch) ? TradeSystem.auctionList.Where(s => s.itemName.ToLower().Contains(currentSearch)) : TradeSystem.auctionList;
           LoadAuctions(filteredAuctions);
         }
+        private void UpdateOrderList()
+        {
+          CraftResource selectedResource = Craft.Collect.System.craftResourceArray[selectedMaterial.GetBindValue(player.oid, nuiToken.Token)];
+
+          if (displayBuyOrder.GetBindValue(player.oid, nuiToken.Token)) // cas Buy Order
+          {
+            filteredBuyOrders = filteredBuyOrders.Where(b => b.resourceType == selectedResource.type && b.resourceLevel == selectedResource.grade);
+            LoadBuyOrders(filteredBuyOrders);
+          }
+          else // cas Sell Order
+          {
+            filteredSellOrders = filteredSellOrders.Where(b => b.resourceType == selectedResource.type && b.resourceLevel == selectedResource.grade);
+            LoadSellOrders(filteredSellOrders);
+          }
+        }
         private void LoadAuctionsLayout()
         {
           rootChildren.Clear();
@@ -468,7 +745,6 @@ namespace NWN.Systems
               new NuiDrawListImage(topIcon, imagePosition),
               new NuiDrawListImage(midIcon, imagePosition) { Enabled = enabled },
               new NuiDrawListImage(botIcon, imagePosition) { Enabled = enabled }
-
             }
           }) { Width = 45 });
 
@@ -478,7 +754,7 @@ namespace NWN.Systems
           rowTemplate.Add(new NuiListTemplateCell(new NuiText(expireDate) { Tooltip = expireDate }) { VariableSize = true });
           rowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("", proposal, 20, false) { Tooltip = "Montant proposé pour enchérir" }) { VariableSize = true });
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_split") { Id = "auctionBid", Enabled = biddingEnabled, Tooltip = "Enchérir" }) { Width = 35 });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_charsheet") { Id = "closeBid", Tooltip = "Clore l'enchère", Visible = isAuctionCreator }) { Width = 35 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_charsheet") { Id = "closeBid", Tooltip = "Clore l'enchère. Uniquement si aucune enchère n'a été enregistrée", Visible = isAuctionCreator }) { Width = 35 });
 
           List<NuiElement> columnsChildren = new();
           NuiRow columnsRow = new() { Children = columnsChildren };
@@ -486,11 +762,14 @@ namespace NWN.Systems
 
           columnsChildren.Add(new NuiColumn() { Children = new List<NuiElement>()
           {
-            new NuiRow() { Children = new List<NuiElement>()
+            new NuiRow() { Height = 35, Children = new List<NuiElement>()
             {
-              new NuiTextEdit("Recherche", search, 20, false) { Id = "searchAuction" },
-              new NuiButtonImage("ir_split") { Id = "newAuction", Tooltip = "Afficher une nouvelle enchère", Height = 35, Width = 35 },
+              new NuiTextEdit("Mise à prix", auctionSellPrice, 10, false) { Width = 60, Tooltip = "Prix de vente minimal" },
+              new NuiTextEdit("Achat direct", auctionBuyoutPrice, 10, false) { Width = 60, Tooltip = "Prix d'achat immédiat" },
+              new NuiButton("Sélection d'objet") { Id = "auctionItemSelect", Tooltip = "Sélectionner l'objet à mettre aux enchères", Width = 80 },
+              new NuiButtonImage("ir_split") { Id = "newAuction", Enabled = isAuctionItemSelected, Tooltip = "Afficher une nouvelle enchère", Width = 35 },
             } },
+            new NuiRow() { Height = 35, Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 20, false) } },
             new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35,  Width = 380 } } }
           } });
         }
@@ -499,8 +778,14 @@ namespace NWN.Systems
         {
           StopAllWatchBindings();
 
+          auctionItemSelected = null;
+
           search.SetBindValue(player.oid, nuiToken.Token, "");
           search.SetBindWatch(player.oid, nuiToken.Token, true);
+
+          auctionSellPrice.SetBindValue(player.oid, nuiToken.Token, "0");
+          auctionBuyoutPrice.SetBindValue(player.oid, nuiToken.Token, "0");
+          isAuctionItemSelected.SetBindValue(player.oid, nuiToken.Token, false);
 
           filteredAuctions = TradeSystem.auctionList;
           LoadAuctions(filteredAuctions);
@@ -527,7 +812,7 @@ namespace NWN.Systems
               buyoutPriceList.Add(auction.buyoutPrice.ToString());
               expireDateList.Add(auction.expirationDate.ToString());
               proposalList.Add("");
-              isAuctionCreatorList.Add(auction.auctionerId == player.characterId);
+              isAuctionCreatorList.Add(auction.auctionerId == player.characterId && auction.highestBid < 1);
               biddingEnabledList.Add(auction.auctionerId != player.characterId);
             }
           }
@@ -566,7 +851,7 @@ namespace NWN.Systems
             } },
             new NuiRow() { Children = new List<NuiElement>()
             {
-              new NuiCombo() { Id = "materialType", Entries = resourcesCombo, Selected = selectedMaterial, Tooltip = "Type de matériau" },
+              new NuiCombo() { Entries = resourcesCombo, Selected = selectedMaterial, Tooltip = "Type de matériau" },
               //new NuiCombo() { Id = "materialLevel", Entries = resourceLevelCombo, Selected = selectedLevel, Tooltip = "Niveau d'infusion" }
             } },
             new NuiRow() { Children = new List<NuiElement>()
@@ -589,11 +874,12 @@ namespace NWN.Systems
           selectedMaterial.SetBindValue(player.oid, nuiToken.Token, 0);
           selectedMaterial.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          filteredBuyOrders = TradeSystem.buyOrderList.OrderBy(b => b.unitPrice);
           LoadBuyOrders(filteredBuyOrders);
         }
         private void LoadBuyOrders(IEnumerable<BuyOrder> filteredList)
         {
+          filteredList = filteredList.OrderBy(b => b.unitPrice);
+
           List<string> orderUnitPriceList = new();
           List<string> orderUnitPriceTooltipList = new();
           List<string> orderQuantityList = new();
@@ -621,21 +907,10 @@ namespace NWN.Systems
           orderUnitPriceTooltip.SetBindValues(player.oid, nuiToken.Token, orderUnitPriceTooltipList);
           listCount.SetBindValue(player.oid, nuiToken.Token, orderUnitPriceList.Count);
         }
-        private void LoadSellOrderBindings()
-        {
-          StopAllWatchBindings();
-
-          displayBuyOrder.SetBindValue(player.oid, nuiToken.Token, true);
-          displaySellOrder.SetBindValue(player.oid, nuiToken.Token, false);
-
-          selectedMaterial.SetBindValue(player.oid, nuiToken.Token, 0);
-          selectedMaterial.SetBindWatch(player.oid, nuiToken.Token, true);
-
-          filteredSellOrders = TradeSystem.sellOrderList.OrderByDescending(b => b.unitPrice);
-          LoadSellOrders(filteredSellOrders);
-        }
         private void LoadSellOrders(IEnumerable<SellOrder> filteredList)
         {
+          filteredList = filteredList.OrderByDescending(b => b.unitPrice);
+
           List<string> orderUnitPriceList = new();
           List<string> orderUnitPriceTooltipList = new();
           List<string> orderQuantityList = new();
@@ -685,9 +960,7 @@ namespace NWN.Systems
         private void SaveNewRequestToDatabase(string description)
         {
           TradeSystem.tradeRequestList.Add(new TradeRequest(player.characterId, description, DateTime.Now.AddMonths(1), new List<TradeProposal>()));
-
-          if (!TradeSystem.saveScheduled)
-            TradeSystem.ScheduleSaveToDatabase();
+          TradeSystem.ScheduleSaveToDatabase();
         }
         private void LoadRequestDetailsLayout(TradeRequest request)
         {
@@ -856,9 +1129,10 @@ namespace NWN.Systems
           enabled.SetBindValues(player.oid, nuiToken.Token, enabledList);
           imagePosition.SetBindValues(player.oid, nuiToken.Token, imagePosList);
         }
+        
         private void SelectProposalInventoryItem(ModuleEvents.OnPlayerTarget selection)
         {
-          if (selection.IsCancelled || selection.TargetObject is not NwItem item || item == null || !item.IsValid)
+          if (selection.IsCancelled || selection.TargetObject is not NwItem item || item == null || !item.IsValid || item.Possessor != player.oid.LoginCreature)
             return;
 
           newProposalItems.Add(NwItem.Deserialize(item.Serialize()));
@@ -866,6 +1140,16 @@ namespace NWN.Systems
 
           LoadCreateProposalItemList();
           player.oid.EnterTargetMode(SelectProposalInventoryItem, ObjectTypes.Item, MouseCursor.PickupDown);
+        }
+        private void SelectAuctionInventoryItem(ModuleEvents.OnPlayerTarget selection)
+        {
+          if (selection.IsCancelled || selection.TargetObject is not NwItem item || item == null || !item.IsValid || item.Possessor != player.oid.LoginCreature)
+            return;
+
+          auctionItemSelected = item;
+          isAuctionItemSelected.SetBindValue(player.oid, nuiToken.Token, true);
+
+          player.oid.SendServerMessage($"Vous venez de sélectionner {item.Name.ColorString(ColorConstants.White)} pour être mis aux enchères.", ColorConstants.Orange);
         }
         private void HandleRequestCancellation(TradeRequest request)
         {
@@ -875,21 +1159,158 @@ namespace NWN.Systems
           {
             foreach (TradeProposal proposal in request.proposalList)
             {
-              TradeSystem.UpdatePlayerBankAccount(proposal.characterId.ToString(), proposal.sellPrice.ToString());
-              TradeSystem.AddItemToPlayerDataBaseBank(proposal.characterId.ToString(), proposal.serializedItems, "Proposal canceled");
+              TradeSystem.UpdatePlayerBankAccount(proposal.characterId.ToString(), proposal.sellPrice.ToString(), "Proposal cancelled");
+              TradeSystem.AddItemToPlayerDataBaseBank(proposal.characterId.ToString(), proposal.serializedItems, "Proposal cancelled");
             }
 
             request.expirationDate = DateTime.Now;
+            TradeSystem.tradeRequestList.Remove(request);
+            lastRequestClicked = null;
 
-            if (!TradeSystem.saveScheduled)
-              TradeSystem.ScheduleSaveToDatabase();
-
+            TradeSystem.ScheduleSaveToDatabase();
             player.oid.SendServerMessage("Votre commande a bien été annulée", ColorConstants.Orange);
           }
 
           LoadRequestsLayout();
           rootGroup.SetLayout(player.oid, nuiToken.Token, layoutColumn);
           LoadRequestsBinding();
+        }
+        private async void ResolveBuyOrderAsync(int unitPrice, int quantity, CraftResource resource)
+        {
+          int boughtQuantity = 0;
+          int pricePaid = 0;
+
+          Task<int> buyOrderTask = Task.Run(() =>
+          {
+            foreach (var sellOrder in TradeSystem.sellOrderList.OrderBy(b => b.unitPrice))
+            {
+              if (sellOrder.unitPrice > unitPrice)
+                break;
+
+              if (sellOrder.sellerId == player.characterId || sellOrder.resourceType != resource.type || sellOrder.resourceLevel != resource.grade 
+                || sellOrder.quantity < 1 || sellOrder.expirationDate < DateTime.Now)
+                continue;
+
+              if (sellOrder.quantity < quantity)
+              {
+                boughtQuantity += sellOrder.quantity;
+                quantity -= sellOrder.quantity;
+                int transactionPrice = sellOrder.quantity * sellOrder.unitPrice;
+                pricePaid += transactionPrice;
+
+                TradeSystem.AddResourceToPlayerStock(player, sellOrder.resourceType, sellOrder.resourceLevel, sellOrder.quantity); // TODO : notification missive
+                TradeSystem.UpdatePlayerBankAccount(sellOrder.sellerId.ToString(), 
+                  TradeSystem.GetTaxedSellPrice(Players.FirstOrDefault(p => p.Value.characterId == sellOrder.sellerId).Value, transactionPrice).ToString(), "Sucessful sell order");
+
+                player.bankGold -= transactionPrice;
+
+                sellOrder.quantity = 0;
+                TradeSystem.sellOrderList.Remove(sellOrder);
+              }
+              else
+              {
+                boughtQuantity += quantity;
+                int transactionPrice = sellOrder.quantity * sellOrder.unitPrice;
+                pricePaid += transactionPrice;
+
+                TradeSystem.AddResourceToPlayerStock(player, sellOrder.resourceType, sellOrder.resourceLevel, quantity); // TODO : notification missive
+                TradeSystem.UpdatePlayerBankAccount(sellOrder.sellerId.ToString(), 
+                  TradeSystem.GetTaxedSellPrice(Players.FirstOrDefault(p => p.Value.characterId == sellOrder.sellerId).Value, transactionPrice).ToString(), "Sucessful sell order");
+
+                sellOrder.quantity -= quantity;
+                player.bankGold -= transactionPrice;
+
+                if (sellOrder.quantity == 0)
+                  TradeSystem.sellOrderList.Remove(sellOrder);
+
+                return 0;
+              }
+            }
+
+            return quantity;
+          });
+
+          await buyOrderTask;
+          await NwTask.SwitchToMainThread();
+
+          player.oid.SendServerMessage($"Vous venez d'acheter {boughtQuantity.ToString().ColorString(ColorConstants.White)} unités de {resource.type.ToDescription().ColorString(ColorConstants.White)} {resource.grade.ToString().ColorString(ColorConstants.White)} pour un coût de {pricePaid.ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);
+
+          if (quantity > 0)
+          {
+            TradeSystem.buyOrderList.Add(new BuyOrder(player.characterId, resource.type, resource.grade, quantity, DateTime.Now.AddMonths(1), unitPrice));
+            player.bankGold -= (quantity * unitPrice);
+            player.oid.SendServerMessage($"Un ordre d'achat a été créé pour la quantité restante de {quantity.ToString().ColorString(ColorConstants.White)} unités", ColorConstants.Orange);
+          }
+            
+          TradeSystem.ScheduleSaveToDatabase();
+
+          LoadBuyOrders(filteredBuyOrders);
+        }
+        private async void ResolveSellOrderAsync(int unitPrice, int quantity, CraftResource resource)
+        {
+          int soldQuantity = 0;
+          int priceEarned = 0;
+
+          Task<int> sellOrderTask = Task.Run(() =>
+          {
+            foreach (var buyOrder in TradeSystem.buyOrderList.OrderByDescending(b => b.unitPrice))
+            {
+              if (buyOrder.unitPrice < unitPrice)
+                break;
+
+              if (buyOrder.buyerId == player.characterId || buyOrder.resourceType != resource.type || buyOrder.resourceLevel != resource.grade
+                || buyOrder.quantity < 1 || buyOrder.expirationDate < DateTime.Now)
+                continue;
+
+              if (buyOrder.quantity < quantity)
+              {
+                soldQuantity += buyOrder.quantity;
+                quantity -= buyOrder.quantity;
+                int transactionPrice = buyOrder.quantity * buyOrder.unitPrice;
+                priceEarned += transactionPrice;
+
+                TradeSystem.AddResourceToPlayerStock(Players.FirstOrDefault(p => p.Value.characterId == buyOrder.buyerId).Value, buyOrder.resourceType, buyOrder.resourceLevel, buyOrder.quantity); // TODO : notification missive
+                
+                player.bankGold += TradeSystem.GetTaxedSellPrice(player, transactionPrice);
+
+                buyOrder.quantity = 0;
+                TradeSystem.buyOrderList.Remove(buyOrder);
+              }
+              else
+              {
+                soldQuantity += quantity;
+                int transactionPrice = buyOrder.quantity * buyOrder.unitPrice;
+                priceEarned += transactionPrice;
+
+                TradeSystem.AddResourceToPlayerStock(Players.FirstOrDefault(p => p.Value.characterId == buyOrder.buyerId).Value, buyOrder.resourceType, buyOrder.resourceLevel, quantity); // TODO : notification missive
+                
+                player.bankGold += TradeSystem.GetTaxedSellPrice(player, transactionPrice);
+                buyOrder.quantity -= quantity;
+
+                if (buyOrder.quantity == 0)
+                  TradeSystem.buyOrderList.Remove(buyOrder);
+
+                return 0;
+              }
+            }
+
+            return quantity;
+          });
+
+          await sellOrderTask;
+          await NwTask.SwitchToMainThread();
+
+          player.oid.SendServerMessage($"Vous venez de vendre {soldQuantity.ToString().ColorString(ColorConstants.White)} unités de {resource.type.ToDescription().ColorString(ColorConstants.White)} {resource.grade.ToString().ColorString(ColorConstants.White)} à un prix de {priceEarned.ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);
+
+          if (quantity > 0)
+          {
+            TradeSystem.sellOrderList.Add(new SellOrder(player.characterId, resource.type, resource.grade, quantity, DateTime.Now.AddMonths(1), unitPrice));
+            player.oid.SendServerMessage($"Un ordre de vente a été créé pour la quantité restante de {quantity.ToString().ColorString(ColorConstants.White)} unités", ColorConstants.Orange);
+          }
+
+          TradeSystem.ScheduleSaveToDatabase();
+
+          LoadSellOrders(filteredSellOrders);
         }
         private void CleanUpProposalItems()
         {
