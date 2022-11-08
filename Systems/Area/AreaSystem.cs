@@ -154,6 +154,9 @@ namespace NWN.Systems
         player.oid.SetAreaExplorationState(area, true);
       else if (player.areaExplorationStateDictionnary.ContainsKey(area.Tag))
         player.oid.SetAreaExplorationState(area, player.areaExplorationStateDictionnary[area.Tag]);
+
+      if (player.craftJob != null && area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 0 && player.TryGetOpenedWindow("activeCraftJob", out PlayerSystem.Player.PlayerWindow jobWindow))
+        ((PlayerSystem.Player.ActiveCraftJobWindow)jobWindow).timeLeft.SetBindValue(player.oid, jobWindow.nuiToken.Token, "En pause (Hors Cité)");
     }
     public void OnAreaExit(AreaEvents.OnExit onExit)
     {

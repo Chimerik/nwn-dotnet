@@ -40,7 +40,7 @@ namespace NWN.Systems
     {
       var result = await SqLiteUtils.SelectQueryAsync("trade",
         new List<string>() { { "requests" } },
-        new List<string[]>() { { Array.Empty<string>() } });
+        new List<string[]>() { });
 
       if (result != null && result.Count > 0)
       {
@@ -70,7 +70,7 @@ namespace NWN.Systems
     {
       var result = await SqLiteUtils.SelectQueryAsync("trade",
         new List<string>() { { "auctions" } },
-        new List<string[]>() { { Array.Empty<string>() } });
+        new List<string[]>() { });
 
       if (result != null && result.Count > 0)
       {
@@ -95,7 +95,7 @@ namespace NWN.Systems
     {
       var result = await SqLiteUtils.SelectQueryAsync("trade",
         new List<string>() { { "buyOrders" } },
-        new List<string[]>() { { Array.Empty<string>() } });
+        new List<string[]>() { });
 
       if (result != null && result.Count > 0)
       {
@@ -120,7 +120,7 @@ namespace NWN.Systems
     {
       var result = await SqLiteUtils.SelectQueryAsync("trade",
         new List<string>() { { "sellOrders" } },
-        new List<string[]>() { { Array.Empty<string>() } });
+        new List<string[]>() { });
 
       if (result != null && result.Count > 0)
       {

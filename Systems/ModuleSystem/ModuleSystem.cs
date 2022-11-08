@@ -276,7 +276,7 @@ namespace NWN.Systems
         "('areaTag' TEXT NOT NULL, 'loadScreen' INTEGER NOT NULL, PRIMARY KEY(areaTag))");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS trade" +
-        "('requests' TEXT, 'auctions' TEXT, 'buyOrders' TEXT, 'sellOrders' TEXT");
+        "('requests' TEXT, 'auctions' TEXT, 'buyOrders' TEXT, 'sellOrders' TEXT)");
     }
     private void InitializeEvents()
     {

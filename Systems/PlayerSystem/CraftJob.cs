@@ -5,7 +5,6 @@ using System.Linq;
 
 using Anvil.API;
 using Anvil.API.Events;
-using Anvil.Services;
 
 namespace NWN.Systems
 {
@@ -302,9 +301,6 @@ namespace NWN.Systems
           remainingTime -= (DateTime.Now - progressLastCalculation.Value).TotalSeconds;
           progressLastCalculation = null;
         }
-
-        player.oid.OnServerSendArea -= HandleCraftJobOnAreaChange;
-        player.oid.OnServerSendArea += HandleCraftJobOnAreaChange;
         //HandleDelayedJobProgression(player);
       }
 
@@ -383,7 +379,6 @@ namespace NWN.Systems
 
         player.craftJob = null;
         //player.oid.OnClientDisconnect -= HandleCraftJobOnPlayerLeave;
-        player.oid.OnServerSendArea -= HandleCraftJobOnAreaChange;
 
         //player.oid.ApplyInstantVisualEffectToObject((VfxType)1516, player.oid.ControlledCreature);
         player.oid.PlaySound("gui_level_up");
@@ -401,7 +396,6 @@ namespace NWN.Systems
         //jobProgression.Dispose();
 
         //player.oid.OnClientDisconnect -= HandleCraftJobOnPlayerLeave;
-        player.oid.OnServerSendArea -= HandleCraftJobOnAreaChange;
 
         player.craftJob = null;
 
@@ -424,32 +418,6 @@ namespace NWN.Systems
 
         progressLastCalculation = DateTime.Now;
       }*/
-      public void HandleCraftJobOnAreaChange(OnServerSendArea onArea)
-      {
-        Log.Info($"Area change detected while craft job active");
-
-        if (!Players.TryGetValue(onArea.Player.LoginCreature, out Player player))
-          return;
-
-        if (onArea.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 0 && player.craftJob != null)
-        {
-          //jobProgression.Dispose();
-          //player.oid.OnClientDisconnect -= HandleCraftJobOnPlayerLeave;
-
-          if (player.TryGetOpenedWindow("activeCraftJob", out Player.PlayerWindow jobWindow))
-            ((Player.ActiveCraftJobWindow)jobWindow).timeLeft.SetBindValue(player.oid, jobWindow.nuiToken.Token, "En pause (Hors Cité)");
-
-          return;
-        }
-
-        /*if (onArea.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value == 0 && jobProgression.IsCancelled)
-        {
-          if (player.TryGetOpenedWindow("activeCraftJob", out Player.PlayerWindow jobWindow))
-            ((Player.ActiveCraftJobWindow)jobWindow).HandleRealTimeJobProgression();
-          else
-            HandleDelayedJobProgression(player);
-        }*/
-      }
       private void StartBlueprintCopy(Player player, NwItem oBlueprint)
       {
         remainingTime = player.GetItemMateriaCost(oBlueprint) * 2 * player.learnableSkills[CustomSkill.BlueprintCopy].bonusReduction;

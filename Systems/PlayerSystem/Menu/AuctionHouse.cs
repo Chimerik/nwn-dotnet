@@ -113,7 +113,7 @@ namespace NWN.Systems
           
           LoadRequestsLayout();
 
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? new NuiRect(player.windowRectangles[windowId].X, player.windowRectangles[windowId].Y, 410, 500) : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 410, 500);
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? new NuiRect(player.windowRectangles[windowId].X, player.windowRectangles[windowId].Y, 520, 600) : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 520, 600);
 
           window = new NuiWindow(rootGroup, "Hôtel des ventes")
           {
@@ -253,23 +253,6 @@ namespace NWN.Systems
 
                   break;
 
-                case "removeProposalItem":
-
-                  NwItem proposalItem = newProposalItems[nuiEvent.ArrayIndex];
-
-                  if (proposalItem != null && proposalItem.IsValid)
-                  {
-                    player.oid.ControlledCreature.AcquireItem(proposalItem);
-                    Log.Info($"TRADE SYSTEM - {player.oid.LoginCreature.Name} ({player.oid.PlayerName}) retire {proposalItem.Name}");
-                  }
-                  else
-                    Utils.LogMessageToDMs($"TRADE SYSTEM - {player.oid.LoginCreature.Name} trying to take an invalid item.");
-
-                  newProposalItems.Remove(proposalItem);
-                  LoadCreateProposalItemList();
-
-                  break;
-
                 case "createNewProposal":
 
                   if(lastRequestClicked.expirationDate < DateTime.Now)
@@ -282,6 +265,8 @@ namespace NWN.Systems
 
                     foreach(NwItem item in newProposalItems)
                       player.oid.ControlledCreature.AcquireItem(item);
+
+                    newProposalItems.Clear();
 
                     return;
                   }
@@ -298,6 +283,8 @@ namespace NWN.Systems
 
                     foreach (NwItem item in newProposalItems)
                       serializedItems.Add(item.Serialize().ToBase64EncodedString());
+
+                    newProposalItems.Clear();
 
                     player.bankGold -= sellPrice;
 
@@ -610,6 +597,30 @@ namespace NWN.Systems
 
               break;
 
+            case NuiEventType.MouseDown:
+
+              switch(nuiEvent.ElementId)
+              {
+                case "removeProposalItem":
+
+                  NwItem proposalItem = newProposalItems[nuiEvent.ArrayIndex];
+
+                  if (proposalItem != null && proposalItem.IsValid)
+                  {
+                    player.oid.ControlledCreature.AcquireItem(proposalItem);
+                    Log.Info($"TRADE SYSTEM - {player.oid.LoginCreature.Name} ({player.oid.PlayerName}) retire {proposalItem.Name}");
+                  }
+                  else
+                    Utils.LogMessageToDMs($"TRADE SYSTEM - {player.oid.LoginCreature.Name} trying to take an invalid item.");
+
+                  newProposalItems.Remove(proposalItem);
+                  LoadCreateProposalItemList();
+
+                  break;
+              }
+
+              break;
+
             case NuiEventType.Watch:
 
               switch (nuiEvent.ElementId)
@@ -628,9 +639,9 @@ namespace NWN.Systems
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
           {
             new NuiSpacer(),
-            new NuiButton("Commandes") { Id = "requests", Height = 35, Width = 90 },
-            new NuiButton("Enchères") { Id = "description", Height = 35, Width = 90 },
-            new NuiButton("Marché de gros") { Id = "Market", Height = 35, Width = 90 },
+            new NuiButton("Commandes") { Id = "requests", Height = 35, Width = 120 },
+            new NuiButton("Enchères") { Id = "auctions", Height = 35, Width = 120 },
+            new NuiButton("Marché Ouvert") { Id = "market", Height = 35, Width = 120 },
             new NuiSpacer()
           } });
         }
@@ -642,7 +653,7 @@ namespace NWN.Systems
           LoadButtons();
 
           rowTemplate.Add(new NuiListTemplateCell(new NuiButton(requestName) { Id = "openRequest", Tooltip = "Détails de la commande" }) { VariableSize = true });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiText(expireDate) { Tooltip = "Date d'expiration" }) { Width = 80 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiText(expireDate) { Tooltip = "Date d'expiration", Scrollbars = NuiScrollbars.None }) { Width = 120 });
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_abort") { Id = "deleteRequest", Visible = isAuctionCreator, Tooltip = "Annuler ma commande" }) { Width = 35 });
 
           List<NuiElement> columnsChildren = new();
@@ -662,13 +673,17 @@ namespace NWN.Systems
               new NuiSpacer(),
             } },
             new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 20, false) { Id = "searchRequest" } } },
-            new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35,  Width = 380 } } }
+            new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 80,  Width = 500 } } }
           } });
         }
         private void StopAllWatchBindings()
         {
           search.SetBindWatch(player.oid, nuiToken.Token, false);
           selectedMaterial.SetBindWatch(player.oid, nuiToken.Token, false);
+
+          foreach (NwItem item in newProposalItems)
+            player.oid.ControlledCreature.AcquireItem(item);
+
           newProposalItems.Clear();
         }
         private void LoadRequestsBinding()
@@ -763,7 +778,7 @@ namespace NWN.Systems
             {
               new NuiTextEdit("Mise à prix", auctionSellPrice, 10, false) { Width = 60, Tooltip = "Prix de vente minimal" },
               new NuiTextEdit("Achat direct", auctionBuyoutPrice, 10, false) { Width = 60, Tooltip = "Prix d'achat immédiat" },
-              new NuiButton("Sélection d'objet") { Id = "auctionItemSelect", Tooltip = "Sélectionner l'objet à mettre aux enchères", Width = 80 },
+              new NuiButton("Sélection") { Id = "auctionItemSelect", Tooltip = "Sélectionner l'objet à mettre aux enchères", Width = 80 },
               new NuiButtonImage("ir_split") { Id = "newAuction", Enabled = isAuctionItemSelected, Tooltip = "Afficher une nouvelle enchère", Width = 35 },
             } },
             new NuiRow() { Height = 35, Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 20, false) } },
@@ -843,12 +858,12 @@ namespace NWN.Systems
           {
             new NuiRow() { Children = new List<NuiElement>()
             {
-              new NuiButtonImage("ir_learnscroll") { Id = "displayBuyOrders", Tooltip = "Consulter les ordres d'achat", Enabled = displayBuyOrder },
-              new NuiButtonImage("ir_barter") { Id = "displaySellOrders", Tooltip = "Consulter les ordres de vente", Enabled = displaySellOrder }
+              new NuiButtonImage("ir_learnscroll") { Id = "displayBuyOrders", Tooltip = "Consulter les ordres d'achat", Enabled = displayBuyOrder, Height = 35, Width = 35 },
+              new NuiButtonImage("ir_barter") { Id = "displaySellOrders", Tooltip = "Consulter les ordres de vente", Enabled = displaySellOrder, Height = 35, Width = 35 }
             } },
             new NuiRow() { Children = new List<NuiElement>()
             {
-              new NuiCombo() { Entries = resourcesCombo, Selected = selectedMaterial, Tooltip = "Type de matériau" },
+              new NuiCombo() { Entries = resourcesCombo, Selected = selectedMaterial, Tooltip = "Type de matériau", Width = 500 },
               //new NuiCombo() { Id = "materialLevel", Entries = resourceLevelCombo, Selected = selectedLevel, Tooltip = "Niveau d'infusion" }
             } },
             new NuiRow() { Children = new List<NuiElement>()
@@ -858,7 +873,7 @@ namespace NWN.Systems
               new NuiButtonImage("ir_buy") { Id = "newBuyOrder", Tooltip = "Placer un nouvel ordre d'achat", Height = 35, Width = 35 },
               new NuiButtonImage("ir_sell") { Id = "newSellOrder", Tooltip = "Placer un nouvel ordre de vente", Height = 35, Width = 35 }
             } },
-            new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35,  Width = 380 } } }
+            new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35 } } }
           } });;
         }
         private void LoadBuyOrdersBinding()
@@ -947,7 +962,7 @@ namespace NWN.Systems
 
           columnsChildren.Add(new NuiColumn() { Children = new List<NuiElement>()
           {
-            new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Description de la commande", search, 1000, true) } },
+            new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Description de la commande", search, 1000, true) { Height = 400 } } },
             new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiButtonImage("ir_learnscroll") { Id = "createRequest", Tooltip = "Afficher cette commande sur le tableau", Height = 35, Width = 35 }, new NuiSpacer() } },
           } });
 
@@ -981,7 +996,8 @@ namespace NWN.Systems
 
           bool requestCreator = player.characterId == request.requesterId;
 
-          requestChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiText(request.expirationDate.ToString()), new NuiSpacer() } });
+          requestChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiText(request.description) { Height = 90, Width = 500 }, new NuiSpacer() } });
+          requestChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiText(request.expirationDate.ToString()) { Height = 35, Width = 500, Tooltip = "Date d'expiration" }, new NuiSpacer() } });
           requestChildren.Add(new NuiRow() { Children = new List<NuiElement>()
             {
               new NuiSpacer(),
@@ -1075,7 +1091,7 @@ namespace NWN.Systems
           columnsChildren.Add(new NuiColumn() { Children = new List<NuiElement>() { new NuiRow() { Children = new List<NuiElement>()
           {
             new NuiTextEdit("Prix proposé", search, 10, false) { Tooltip = "Prix proposé" },
-            new NuiButtonImage("ir_barter") { Id = "createNewProposal", Tooltip = "Valider la proposition commerciale", Enabled = enabled }
+            new NuiButtonImage("ir_barter") { Id = "createNewProposal", Tooltip = "Valider la proposition commerciale", Height = 35, Width = 35 }
           } },
           new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35,  Width = 380 } } },
           new NuiRow() { Height = 35, Children = new List<NuiElement>() { new NuiSpacer(), new NuiButton("Activer mode sélection") { Id = "proposalItemDeposit", Width = 160 }, new NuiSpacer() } }
@@ -1314,11 +1330,9 @@ namespace NWN.Systems
             }
 
           foreach (NwItem item in newProposalItems)
-            if (item.IsValid)
-            {
-              Log.Info($"TRADE SYSTEM - Player {player.characterId} - Cleaning new proposal item {item.Name}");
-              item.Destroy();
-            }
+            player.oid.ControlledCreature.AcquireItem(item);
+
+          newProposalItems.Clear();
 
           player.oid.OnClientLeave -= OnClientLeave;
         }
