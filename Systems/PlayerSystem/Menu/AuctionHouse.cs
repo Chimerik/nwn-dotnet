@@ -6,10 +6,6 @@ using System.Threading.Tasks;
 using Anvil.API;
 using Anvil.API.Events;
 
-using NWN.Native.API;
-
-using static System.Collections.Specialized.BitVector32;
-
 namespace NWN.Systems
 {
   public partial class PlayerSystem
@@ -518,12 +514,12 @@ namespace NWN.Systems
                       player.oid.SendServerMessage("Cet ordre de vente a déjà expiré", ColorConstants.Red);
                     else
                     {
-                      TradeSystem.AddResourceToPlayerStock(player, cancelledOrder.resourceType, cancelledOrder.resourceLevel, cancelledOrder.quantity);
+                      TradeSystem.AddResourceToPlayerStock(player, player.characterId, cancelledOrder.resourceType, 
+                        cancelledOrder.resourceLevel, cancelledOrder.quantity, $"Votre ordre de vente a bien été annulé, {cancelledOrder.quantity.ToString().ColorString(ColorConstants.White)} unités de {cancelledOrder.resourceType.ToDescription().ColorString(ColorConstants.White)} {cancelledOrder.resourceLevel.ToString().ColorString(ColorConstants.White)} ont été débloquées sur votre compte Skalsgard",
+                        "Sell Order Cancelled");
 
                       cancelledOrder.expirationDate = DateTime.Now;
                       TradeSystem.sellOrderList.Remove(cancelledOrder);
-
-                      player.oid.SendServerMessage($"Votre ordre de vente a bien été annulé, {cancelledOrder.quantity.ToString().ColorString(ColorConstants.White)} unités de {cancelledOrder.resourceType.ToDescription().ColorString(ColorConstants.White)} {cancelledOrder.resourceLevel.ToString().ColorString(ColorConstants.White)} ont été débloquées sur votre compte Skalsgard", ColorConstants.Orange);
                     }
 
                     LoadSellOrders(filteredSellOrders);
@@ -592,6 +588,7 @@ namespace NWN.Systems
                   }
 
                   player.bankGold -= soTax;
+                  playerResource.quantity -= soQuantity;
                   player.oid.SendServerMessage($"{soTax.ToString().ColorString(ColorConstants.White)} pièces ont été prélevées de votre compte Skalsgard afin d'assurer les frais de dossier de votre ordre", ColorConstants.Orange);
                   ResolveSellOrderAsync(soUnitPrice, soQuantity, boughtResource);
 
@@ -1177,9 +1174,6 @@ namespace NWN.Systems
         }
         private async void ResolveBuyOrderAsync(int unitPrice, int quantity, CraftResource resource)
         {
-          int boughtQuantity = 0;
-          int pricePaid = 0;
-
           Task<int> buyOrderTask = Task.Run(() =>
           {
             foreach (var sellOrder in TradeSystem.sellOrderList.OrderBy(b => b.unitPrice))
@@ -1193,12 +1187,13 @@ namespace NWN.Systems
 
               if (sellOrder.quantity < quantity)
               {
-                boughtQuantity += sellOrder.quantity;
                 quantity -= sellOrder.quantity;
                 int transactionPrice = sellOrder.quantity * sellOrder.unitPrice;
-                pricePaid += transactionPrice;
 
-                TradeSystem.AddResourceToPlayerStock(player, sellOrder.resourceType, sellOrder.resourceLevel, sellOrder.quantity); // TODO : notification missive
+                TradeSystem.AddResourceToPlayerStock(player, player.characterId, sellOrder.resourceType, sellOrder.resourceLevel, sellOrder.quantity, 
+                  $"Vous venez d'acheter {sellOrder.quantity.ToString().ColorString(ColorConstants.White)} unités de {resource.type.ToDescription().ColorString(ColorConstants.White)} {resource.grade.ToString().ColorString(ColorConstants.White)} à un prix unitaire de {sellOrder.unitPrice.ToString().ColorString(ColorConstants.White)} (coût total : {transactionPrice.ToString().ColorString(ColorConstants.White)})",
+                  "Successful Buy Order");
+
                 TradeSystem.UpdatePlayerBankAccount(sellOrder.sellerId.ToString(), 
                   TradeSystem.GetTaxedSellPrice(Players.FirstOrDefault(p => p.Value.characterId == sellOrder.sellerId).Value, transactionPrice).ToString(), "Sucessful sell order");
 
@@ -1209,11 +1204,12 @@ namespace NWN.Systems
               }
               else
               {
-                boughtQuantity += quantity;
                 int transactionPrice = sellOrder.quantity * sellOrder.unitPrice;
-                pricePaid += transactionPrice;
+ 
+                TradeSystem.AddResourceToPlayerStock(player, player.characterId, sellOrder.resourceType, sellOrder.resourceLevel, quantity,
+                  $"Vous venez d'acheter {sellOrder.quantity.ToString().ColorString(ColorConstants.White)} unités de {resource.type.ToDescription().ColorString(ColorConstants.White)} {resource.grade.ToString().ColorString(ColorConstants.White)} à un prix unitaire de {sellOrder.unitPrice.ToString().ColorString(ColorConstants.White)} (coût total : {transactionPrice.ToString().ColorString(ColorConstants.White)})",
+                  "Successful Buy Order");
 
-                TradeSystem.AddResourceToPlayerStock(player, sellOrder.resourceType, sellOrder.resourceLevel, quantity); // TODO : notification missive
                 TradeSystem.UpdatePlayerBankAccount(sellOrder.sellerId.ToString(), 
                   TradeSystem.GetTaxedSellPrice(Players.FirstOrDefault(p => p.Value.characterId == sellOrder.sellerId).Value, transactionPrice).ToString(), "Sucessful sell order");
 
@@ -1233,12 +1229,11 @@ namespace NWN.Systems
           await buyOrderTask;
           await NwTask.SwitchToMainThread();
 
-          player.oid.SendServerMessage($"Vous venez d'acheter {boughtQuantity.ToString().ColorString(ColorConstants.White)} unités de {resource.type.ToDescription().ColorString(ColorConstants.White)} {resource.grade.ToString().ColorString(ColorConstants.White)} pour un coût de {pricePaid.ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);
-
           if (quantity > 0)
           {
             TradeSystem.buyOrderList.Add(new BuyOrder(player.characterId, resource.type, resource.grade, quantity, DateTime.Now.AddMonths(1), unitPrice));
             player.bankGold -= (quantity * unitPrice);
+
             player.oid.SendServerMessage($"Un ordre d'achat a été créé pour la quantité restante de {quantity.ToString().ColorString(ColorConstants.White)} unités", ColorConstants.Orange);
           }
             
@@ -1248,9 +1243,6 @@ namespace NWN.Systems
         }
         private async void ResolveSellOrderAsync(int unitPrice, int quantity, CraftResource resource)
         {
-          int soldQuantity = 0;
-          int priceEarned = 0;
-
           Task<int> sellOrderTask = Task.Run(() =>
           {
             foreach (var buyOrder in TradeSystem.buyOrderList.OrderByDescending(b => b.unitPrice))
@@ -1264,12 +1256,13 @@ namespace NWN.Systems
 
               if (buyOrder.quantity < quantity)
               {
-                soldQuantity += buyOrder.quantity;
                 quantity -= buyOrder.quantity;
                 int transactionPrice = buyOrder.quantity * buyOrder.unitPrice;
-                priceEarned += transactionPrice;
 
-                TradeSystem.AddResourceToPlayerStock(Players.FirstOrDefault(p => p.Value.characterId == buyOrder.buyerId).Value, buyOrder.resourceType, buyOrder.resourceLevel, buyOrder.quantity); // TODO : notification missive
+                TradeSystem.AddResourceToPlayerStock(Players.FirstOrDefault(p => p.Value.characterId == buyOrder.buyerId).Value, buyOrder.buyerId,
+                   buyOrder.resourceType, buyOrder.resourceLevel, buyOrder.quantity,
+                   $"Vous venez de vendre {buyOrder.quantity.ToString().ColorString(ColorConstants.White)} unités de {resource.type.ToDescription().ColorString(ColorConstants.White)} {resource.grade.ToString().ColorString(ColorConstants.White)} à un prix unitaire de {buyOrder.unitPrice.ToString().ColorString(ColorConstants.White)} (gain total : {transactionPrice.ToString().ColorString(ColorConstants.White)})", 
+                  "Successful Sell Order");
                 
                 player.bankGold += TradeSystem.GetTaxedSellPrice(player, transactionPrice);
 
@@ -1278,12 +1271,13 @@ namespace NWN.Systems
               }
               else
               {
-                soldQuantity += quantity;
                 int transactionPrice = buyOrder.quantity * buyOrder.unitPrice;
-                priceEarned += transactionPrice;
 
-                TradeSystem.AddResourceToPlayerStock(Players.FirstOrDefault(p => p.Value.characterId == buyOrder.buyerId).Value, buyOrder.resourceType, buyOrder.resourceLevel, quantity); // TODO : notification missive
-                
+                TradeSystem.AddResourceToPlayerStock(Players.FirstOrDefault(p => p.Value.characterId == buyOrder.buyerId).Value, buyOrder.buyerId,
+                  buyOrder.resourceType, buyOrder.resourceLevel, quantity,
+                  $"Vous venez de vendre {buyOrder.quantity.ToString().ColorString(ColorConstants.White)} unités de {resource.type.ToDescription().ColorString(ColorConstants.White)} {resource.grade.ToString().ColorString(ColorConstants.White)} à un prix unitaire de {buyOrder.unitPrice.ToString().ColorString(ColorConstants.White)} (gain total : {transactionPrice.ToString().ColorString(ColorConstants.White)})",
+                  "Successful Sell Order");
+
                 player.bankGold += TradeSystem.GetTaxedSellPrice(player, transactionPrice);
                 buyOrder.quantity -= quantity;
 
@@ -1299,8 +1293,6 @@ namespace NWN.Systems
 
           await sellOrderTask;
           await NwTask.SwitchToMainThread();
-
-          player.oid.SendServerMessage($"Vous venez de vendre {soldQuantity.ToString().ColorString(ColorConstants.White)} unités de {resource.type.ToDescription().ColorString(ColorConstants.White)} {resource.grade.ToString().ColorString(ColorConstants.White)} à un prix de {priceEarned.ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);
 
           if (quantity > 0)
           {

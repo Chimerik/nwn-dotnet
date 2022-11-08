@@ -11,7 +11,6 @@ using Newtonsoft.Json;
 using NLog;
 
 using static NWN.Systems.CraftResource;
-using static NWN.Systems.LootSystem.Lootable;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
@@ -25,7 +24,7 @@ namespace NWN.Systems
     public static List<Auction> auctionList;
     public static List<BuyOrder> buyOrderList;
     public static List<SellOrder> sellOrderList;
-    private static bool saveScheduled = false;
+    public static bool saveScheduled = false;
     public TradeSystem(SchedulerService schedulerService)
     {
       DeserializeTradeRequests();
@@ -230,7 +229,10 @@ namespace NWN.Systems
       {
         if (sellOrder.expirationDate < DateTime.Now)
         {
-          GiveBackResources(sellOrder);
+          AddResourceToPlayerStock(Players.FirstOrDefault(p => p.Value.characterId == sellOrder.sellerId).Value, sellOrder.sellerId, 
+            sellOrder.resourceType, sellOrder.resourceLevel, sellOrder.quantity, $"Votre ordre de vente de {sellOrder.quantity} {sellOrder.resourceType.ToDescription()} {sellOrder.resourceLevel} a expiré. Les ressources libérées sont de nouveau disponibles dans votre entrepôt.",
+            "Sell Order Expired");
+
           Log.Info($"TRADE SYSTEM - Sell order expired of {sellOrder.quantity} {sellOrder.resourceType.ToDescription()} {sellOrder.resourceLevel} from {sellOrder.sellerId}");
         }
       }
@@ -284,26 +286,24 @@ namespace NWN.Systems
       AddItemToPlayerDataBaseBank(characterId.ToString(), new List<string>() { serializedItem }, "Auction expired");
       // TODO : ajouter notification par lettre
     }
-    private static void GiveBackResources(SellOrder sellOrder)
+    public static void AddResourceToPlayerStock(Player player, int characterId, ResourceType type, int grade, int quantity, string playerMessage, string logUseCase)
     {
-      Player seller = Players.FirstOrDefault(p => p.Value.characterId == sellOrder.sellerId).Value;
-      CraftResource resource = Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == sellOrder.resourceType && r.grade == sellOrder.resourceLevel);
+      CraftResource resource = Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == type && r.grade == grade);
 
-      if (seller != null)
+      if (player != null)
       {
-        if (seller.pcState != Player.PcState.Offline)
-          seller.oid.SendServerMessage($"Votre ordre de vente de {sellOrder.quantity} {sellOrder.resourceType.ToDescription()} {sellOrder.resourceLevel} a expiré. Les ressources libérées sont de nouveau disponibles dans votre entrepôt.", ColorConstants.Orange);
-
-        CraftResource playerResource = seller.craftResourceStock.FirstOrDefault(r => r.type == sellOrder.resourceType && r.grade == sellOrder.resourceLevel);
+        CraftResource playerResource = player.craftResourceStock.FirstOrDefault(r => r.type == type && r.grade == grade);
 
         if (playerResource != null)
-          playerResource.quantity += sellOrder.quantity;
+          playerResource.quantity += quantity;
         else
-          seller.craftResourceStock.Add(new CraftResource(resource, sellOrder.quantity));
+          player.craftResourceStock.Add(new CraftResource(resource, quantity));
+
+        if (player.pcState != Player.PcState.Offline)
+          player.oid.SendServerMessage(playerMessage, ColorConstants.Orange);
       }
 
-      UpdatePlayerResourceStock(sellOrder.sellerId.ToString(), resource, sellOrder.quantity);
-      // TODO : ajouter notification par lettre
+      UpdatePlayerResourceStock(characterId.ToString(), resource, quantity, logUseCase);
     }
     public static void ResolveSuccessfulAuction(Auction auction)
     {
@@ -371,7 +371,7 @@ namespace NWN.Systems
 
       // TODO : ajouter notification par lettre
     }
-    private static async void UpdatePlayerResourceStock(string characterId, CraftResource resource, int quantity)
+    private static async void UpdatePlayerResourceStock(string characterId, CraftResource resource, int quantity, string logUseCase)
     {
       var result = await SqLiteUtils.SelectQueryAsync("playerCharacters",
         new List<string>() { { "materialStorage" } },
@@ -400,26 +400,8 @@ namespace NWN.Systems
           });
         });
 
-        Log.Info($"TRADE SYSTEM - Expired Sell Order - Updated resource stock of {characterId} of {quantity}");
-
+        Log.Info($"TRADE SYSTEM - {logUseCase} - Updated resource stock of {characterId} of {quantity}");
         // TODO : ajouter notification par lettre
-      }
-    }
-    public static async void AddResourceToPlayerStock(Player player, ResourceType type, int grade, int quantity)
-    {
-      if (player != null)
-      {
-        CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == type && r.grade == grade);
-
-        if (resource != null)
-          resource.quantity += quantity;
-        else
-        {
-          resource = Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == type && r.grade == grade);
-          player.craftResourceStock.Add(new CraftResource(resource, quantity));
-        }
-
-        // TODO : si player est null, aller chercher la correspondance en base de données et lui filer ses ressources puis réenregistrer le tout
       }
     }
   }

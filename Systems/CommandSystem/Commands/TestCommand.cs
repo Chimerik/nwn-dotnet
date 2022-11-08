@@ -31,6 +31,9 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim" || player.oid.PlayerName == "test")
         {
+          if (!player.windows.ContainsKey("auctionHouse")) player.windows.Add("auctionHouse", new PlayerSystem.Player.AuctionHouseWindow(player));
+          else ((PlayerSystem.Player.AuctionHouseWindow)player.windows["auctionHouse"]).CreateWindow();
+
           /*Craft.Collect.System.CreateSelectedResourceInInventory(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == ResourceType.Ore && r.grade == 1),
               player, 10);*/
 
