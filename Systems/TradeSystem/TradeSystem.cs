@@ -20,10 +20,10 @@ namespace NWN.Systems
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     private readonly SchedulerService scheduler;
-    public static List<TradeRequest> tradeRequestList;
-    public static List<Auction> auctionList;
-    public static List<BuyOrder> buyOrderList;
-    public static List<SellOrder> sellOrderList;
+    public static List<TradeRequest> tradeRequestList = new();
+    public static List<Auction> auctionList = new();
+    public static List<BuyOrder> buyOrderList = new() ;
+    public static List<SellOrder> sellOrderList = new();
     public static bool saveScheduled = false;
     public TradeSystem(SchedulerService schedulerService)
     {
@@ -125,21 +125,18 @@ namespace NWN.Systems
       if (result != null && result.Count > 0)
       {
         string serializedRequests = result.FirstOrDefault()[0];
-        List<SellOrder> serializedTradeRequests = new();
-
+        
         Task loadRequests = Task.Run(() =>
         {
           if (string.IsNullOrEmpty(serializedRequests))
             return;
 
-          serializedTradeRequests = JsonConvert.DeserializeObject<List<SellOrder>>(serializedRequests);
+          List<SellOrder.SerializableSellOrder> serializedSellOrders = JsonConvert.DeserializeObject<List<SellOrder.SerializableSellOrder>>(serializedRequests);
+          
+          foreach (var sellOrder in serializedSellOrders)
+            sellOrderList.Add(new SellOrder(sellOrder));
         });
-
-        await loadRequests;
-        sellOrderList = serializedTradeRequests;
       }
-      else
-        sellOrderList = new();
     }
 
     public static async void ScheduleSaveToDatabase()
@@ -158,7 +155,15 @@ namespace NWN.Systems
       Log.Info("TRADE SYSTEM - STARTING SAVE PROCESS");
       DateTime elapsed = DateTime.Now;
 
-      Task<string> serializeRequests = Task.Run(() => JsonConvert.SerializeObject(tradeRequestList));
+      Task<string> serializeRequests = Task.Run(() =>
+      {
+        List<SellOrder.SerializableSellOrder> serializableSellOrders = new();
+        foreach (var sellOrder in sellOrderList)
+          serializableSellOrders.Add(new SellOrder.SerializableSellOrder(sellOrder));
+
+        return JsonConvert.SerializeObject(tradeRequestList);
+      });
+
       Task<string> serializeAuctions = Task.Run(() => JsonConvert.SerializeObject(auctionList));
       Task<string> serializeBuyOrders = Task.Run(() => JsonConvert.SerializeObject(buyOrderList));
       Task<string> serializeSellOrders = Task.Run(() => JsonConvert.SerializeObject(sellOrderList));

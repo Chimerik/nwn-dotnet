@@ -25,6 +25,39 @@ namespace NWN.Systems
     {
 
     }
+    public SellOrder(SerializableSellOrder serializedSellOrder)
+    {
+      this.sellerId = serializedSellOrder.sellerId;
+      this.resourceType = (ResourceType)serializedSellOrder.resourceType;
+      this.resourceLevel = serializedSellOrder.resourceLevel;
+      this.quantity = serializedSellOrder.quantity;
+      this.expirationDate = serializedSellOrder.expirationDate;
+      this.unitPrice = serializedSellOrder.unitPrice;
+    }
+
+    public class SerializableSellOrder
+    {
+      public int sellerId { get; set; }
+      public int resourceType { get; set; }
+      public int resourceLevel { get; set; }
+      public int quantity { get; set; }
+      public int unitPrice { get; set; }
+      public DateTime expirationDate { get; set; }
+
+      public SerializableSellOrder()
+      {
+
+      }
+      public SerializableSellOrder(SellOrder sellOrderBase)
+      {
+        sellerId = sellOrderBase.sellerId;
+        resourceType = (int)sellOrderBase.resourceType;
+        resourceLevel = sellOrderBase.resourceLevel;
+        quantity = sellOrderBase.quantity;
+        unitPrice = sellOrderBase.unitPrice;
+        expirationDate = sellOrderBase.expirationDate;
+      }
+    }
     public int GetTotalCost() { return quantity * unitPrice; }
 
   }

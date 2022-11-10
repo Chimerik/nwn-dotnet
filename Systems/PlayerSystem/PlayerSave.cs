@@ -48,7 +48,7 @@ namespace NWN.Systems
         CancellationTokenSource tokenSource = new CancellationTokenSource();
 
         Task awaitPlayerLeaves = NwTask.WaitUntilValueChanged(() => pcState == PcState.Offline, tokenSource.Token);
-        Task awaitDebounce = NwTask.WaitUntil(() => oid == null || oid.LoginCreature.GetObjectVariable<LocalVariableInt>($"_SAVE_SCHEDULED").Value != nbDebounces, tokenSource.Token);
+        Task awaitDebounce = NwTask.WaitUntil(() => oid == null || !oid.IsValid || oid.LoginCreature.GetObjectVariable<LocalVariableInt>($"_SAVE_SCHEDULED").Value != nbDebounces, tokenSource.Token);
         Task awaitSaveAuthorized = NwTask.Delay(TimeSpan.FromSeconds(10), tokenSource.Token);
 
         await NwTask.WhenAny(awaitPlayerLeaves, awaitDebounce, awaitSaveAuthorized);

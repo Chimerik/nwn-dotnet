@@ -319,17 +319,17 @@ namespace NWN.Systems
 
                 case "displayBuyOrders":
 
-                  displayBuyOrder.SetBindValue(player.oid, nuiToken.Token, true);
-                  displaySellOrder.SetBindValue(player.oid, nuiToken.Token, false);
+                  displayBuyOrder.SetBindValue(player.oid, nuiToken.Token, false);
+                  displaySellOrder.SetBindValue(player.oid, nuiToken.Token, true);
                   LoadBuyOrders(); 
 
                   break;
                 case "displaySellOrders":
 
-                  displayBuyOrder.SetBindValue(player.oid, nuiToken.Token, false);
-                  displaySellOrder.SetBindValue(player.oid, nuiToken.Token, true);
-                  LoadSellOrders(); 
-                  
+                  displayBuyOrder.SetBindValue(player.oid, nuiToken.Token, true);
+                  displaySellOrder.SetBindValue(player.oid, nuiToken.Token, false);
+                  LoadSellOrders();
+
                   break;
 
                 case "examineItem":
@@ -764,8 +764,8 @@ namespace NWN.Systems
             new NuiRow() { Height = 35, Children = new List<NuiElement>()
             {
               new NuiSpacer(),
-              new NuiTextEdit("Mise à prix", auctionSellPrice, 10, false) { Width = 60, Tooltip = "Prix de vente minimal" },
-              new NuiTextEdit("Achat direct", auctionBuyoutPrice, 10, false) { Width = 60, Tooltip = "Prix d'achat immédiat" },
+              new NuiTextEdit("Mise à prix", auctionSellPrice, 10, false) { Width = 185, Tooltip = "Prix de vente minimal" },
+              new NuiTextEdit("Achat direct", auctionBuyoutPrice, 10, false) { Width = 185, Tooltip = "Prix d'achat immédiat" },
               new NuiButton("Sélection") { Id = "auctionItemSelect", Tooltip = "Sélectionner l'objet à mettre aux enchères", Width = 80 },
               new NuiButtonImage("ir_split") { Id = "newAuction", Enabled = isAuctionItemSelected, Tooltip = "Afficher une nouvelle enchère", Width = 35 },
               new NuiSpacer()
@@ -783,9 +783,6 @@ namespace NWN.Systems
 
           search.SetBindValue(player.oid, nuiToken.Token, "");
           search.SetBindWatch(player.oid, nuiToken.Token, true);
-
-          auctionSellPrice.SetBindValue(player.oid, nuiToken.Token, "0");
-          auctionBuyoutPrice.SetBindValue(player.oid, nuiToken.Token, "0");
           isAuctionItemSelected.SetBindValue(player.oid, nuiToken.Token, false);
 
           filteredAuctions = TradeSystem.auctionList;
@@ -834,9 +831,9 @@ namespace NWN.Systems
           LoadButtons();
           rowTemplate.Clear();
 
-          rowTemplate.Add(new NuiListTemplateCell(new NuiText(orderUnitPrice) { Tooltip = orderUnitPriceTooltip }) { VariableSize = true });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiText(orderQuantity) { Tooltip = orderQuantity }) { VariableSize = true });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiText(expireDate) { Tooltip = expireDate }) { VariableSize = true });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiText(orderUnitPrice) { Tooltip = orderUnitPriceTooltip, Scrollbars = NuiScrollbars.None }) { VariableSize = true });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiText(orderQuantity) { Tooltip = orderQuantity, Scrollbars = NuiScrollbars.None }) { VariableSize = true });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(expireDate) { Tooltip = expireDate, VerticalAlign = NuiVAlign.Middle }) { VariableSize = true });
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_abort") { Id = "cancelOrder", Tooltip = "Annuler votre ordre", Visible = cancelOrderVisible }) { Width = 35 });
 
           List<NuiElement> columnsChildren = new();
@@ -854,13 +851,13 @@ namespace NWN.Systems
             } },
             new NuiRow() { Children = new List<NuiElement>()
             {
-              new NuiCombo() { Entries = resourcesCombo, Selected = selectedMaterial, Tooltip = "Type de matériau", Width = 500 },
+              new NuiCombo() { Entries = resourcesCombo, Selected = selectedMaterial, Width = 500 },
               //new NuiCombo() { Id = "materialLevel", Entries = resourceLevelCombo, Selected = selectedLevel, Tooltip = "Niveau d'infusion" }
             } },
             new NuiRow() { Children = new List<NuiElement>()
             {
-              new NuiTextEdit("Prix unitaire", unitPrice, 20, false) { Id = "unitPrice", Tooltip = "Prix unitaire de votre nouvel ordre", Width = 215 },
-              new NuiTextEdit("Quantité", quantity, 20, false) { Id = "quantity", Tooltip = "Quantité de votre nouvel ordre", Width = 215 },
+              new NuiTextEdit("Prix unitaire", unitPrice, 20, false) { Id = "unitPrice", Tooltip = "Prix unitaire de votre nouvel ordre", Width = 210 },
+              new NuiTextEdit("Quantité", quantity, 20, false) { Id = "quantity", Tooltip = "Quantité de votre nouvel ordre", Width = 210 },
               new NuiButtonImage("ir_buy") { Id = "newBuyOrder", Tooltip = "Placer un nouvel ordre d'achat", Height = 35, Width = 35 },
               new NuiButtonImage("ir_sell") { Id = "newSellOrder", Tooltip = "Placer un nouvel ordre de vente", Height = 35, Width = 35 }
             } },
@@ -873,7 +870,7 @@ namespace NWN.Systems
 
           displayBuyOrder.SetBindValue(player.oid, nuiToken.Token, false);
           displaySellOrder.SetBindValue(player.oid, nuiToken.Token, true);
-
+          
           selectedMaterial.SetBindValue(player.oid, nuiToken.Token, 0);
           selectedMaterial.SetBindWatch(player.oid, nuiToken.Token, true);
 
@@ -896,7 +893,7 @@ namespace NWN.Systems
             {
               orderUnitPriceList.Add(order.unitPrice.ToString());
               orderQuantityList.Add(order.quantity.ToString());
-              expireDateList.Add(order.expirationDate.ToString());
+              expireDateList.Add(order.expirationDate.ToString("dd/MM/yyyy HH:mm:ss"));
               cancelOrderVisibleList.Add(order.buyerId == player.characterId);
               orderUnitPriceTooltipList.Add($"{order.unitPrice} - Total : {order.GetTotalCost()}");
             }
@@ -926,7 +923,7 @@ namespace NWN.Systems
             {
               orderUnitPriceList.Add(order.unitPrice.ToString());
               orderQuantityList.Add(order.quantity.ToString());
-              expireDateList.Add(order.expirationDate.ToString());
+              expireDateList.Add(order.expirationDate.ToString("dd/MM/yyyy HH:mm:ss"));
               cancelOrderVisibleList.Add(order.sellerId == player.characterId);
               orderUnitPriceTooltipList.Add($"{order.unitPrice} - Total : {order.GetTotalCost()}");
             }
