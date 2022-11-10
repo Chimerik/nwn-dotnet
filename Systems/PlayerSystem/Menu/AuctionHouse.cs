@@ -69,16 +69,9 @@ namespace NWN.Systems
             new NuiComboEntry("8", 8),
           };*/
 
-        public List<TradeRequest> tradeRequests { get; set; }
         private IEnumerable<TradeRequest> filteredTradeRequests;
-
-        public List<Auction> auctions { get; set; }
         private IEnumerable<Auction> filteredAuctions;
-
-        public List<BuyOrder> buyOrders { get; set; }
         private IEnumerable<BuyOrder> filteredBuyOrders;
-
-        public List<SellOrder> sellOrders { get; set; }
         private IEnumerable<SellOrder> filteredSellOrders;
 
         public List<NwItem> tradeProposalItemScheduledForDestruction = new();
@@ -328,14 +321,14 @@ namespace NWN.Systems
 
                   displayBuyOrder.SetBindValue(player.oid, nuiToken.Token, true);
                   displaySellOrder.SetBindValue(player.oid, nuiToken.Token, false);
-                  LoadBuyOrders(filteredBuyOrders); 
+                  LoadBuyOrders(); 
 
                   break;
                 case "displaySellOrders":
 
                   displayBuyOrder.SetBindValue(player.oid, nuiToken.Token, false);
                   displaySellOrder.SetBindValue(player.oid, nuiToken.Token, true);
-                  LoadSellOrders(filteredSellOrders); 
+                  LoadSellOrders(); 
                   
                   break;
 
@@ -491,7 +484,7 @@ namespace NWN.Systems
                       player.oid.SendServerMessage($"Votre ordre d'achat a bien été annulé, {refund.ToString().ColorString(ColorConstants.White)} pièces ont été débloquées sur votre compte Skalsgard", ColorConstants.Orange);
                     }
 
-                    LoadBuyOrders(filteredBuyOrders);
+                    LoadBuyOrders();
                   }
                   else // cas Sell Order
                   {
@@ -509,7 +502,7 @@ namespace NWN.Systems
                       TradeSystem.sellOrderList.Remove(cancelledOrder);
                     }
 
-                    LoadSellOrders(filteredSellOrders);
+                    LoadSellOrders();
                   }
 
                   break;
@@ -732,15 +725,9 @@ namespace NWN.Systems
           CraftResource selectedResource = Craft.Collect.System.craftResourceArray[selectedMaterial.GetBindValue(player.oid, nuiToken.Token)];
 
           if (displayBuyOrder.GetBindValue(player.oid, nuiToken.Token)) // cas Buy Order
-          {
-            filteredBuyOrders = filteredBuyOrders.Where(b => b.resourceType == selectedResource.type && b.resourceLevel == selectedResource.grade);
-            LoadBuyOrders(filteredBuyOrders);
-          }
+            LoadBuyOrders();
           else // cas Sell Order
-          {
-            filteredSellOrders = filteredSellOrders.Where(b => b.resourceType == selectedResource.type && b.resourceLevel == selectedResource.grade);
-            LoadSellOrders(filteredSellOrders);
-          }
+            LoadSellOrders();
         }
         private void LoadAuctionsLayout()
         {
@@ -776,13 +763,15 @@ namespace NWN.Systems
           {
             new NuiRow() { Height = 35, Children = new List<NuiElement>()
             {
+              new NuiSpacer(),
               new NuiTextEdit("Mise à prix", auctionSellPrice, 10, false) { Width = 60, Tooltip = "Prix de vente minimal" },
               new NuiTextEdit("Achat direct", auctionBuyoutPrice, 10, false) { Width = 60, Tooltip = "Prix d'achat immédiat" },
               new NuiButton("Sélection") { Id = "auctionItemSelect", Tooltip = "Sélectionner l'objet à mettre aux enchères", Width = 80 },
               new NuiButtonImage("ir_split") { Id = "newAuction", Enabled = isAuctionItemSelected, Tooltip = "Afficher une nouvelle enchère", Width = 35 },
+              new NuiSpacer()
             } },
             new NuiRow() { Height = 35, Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 20, false) } },
-            new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35,  Width = 380 } } }
+            new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35,  Width = 500 } } }
           } });
         }
 
@@ -858,8 +847,10 @@ namespace NWN.Systems
           {
             new NuiRow() { Children = new List<NuiElement>()
             {
+              new NuiSpacer(),
               new NuiButtonImage("ir_learnscroll") { Id = "displayBuyOrders", Tooltip = "Consulter les ordres d'achat", Enabled = displayBuyOrder, Height = 35, Width = 35 },
-              new NuiButtonImage("ir_barter") { Id = "displaySellOrders", Tooltip = "Consulter les ordres de vente", Enabled = displaySellOrder, Height = 35, Width = 35 }
+              new NuiButtonImage("ir_barter") { Id = "displaySellOrders", Tooltip = "Consulter les ordres de vente", Enabled = displaySellOrder, Height = 35, Width = 35 },
+              new NuiSpacer()
             } },
             new NuiRow() { Children = new List<NuiElement>()
             {
@@ -868,8 +859,8 @@ namespace NWN.Systems
             } },
             new NuiRow() { Children = new List<NuiElement>()
             {
-              new NuiTextEdit("Prix unitaire", unitPrice, 20, false) { Id = "unitPrice", Tooltip = "Prix unitaire de votre nouvel ordre" },
-              new NuiTextEdit("Quantité", quantity, 20, false) { Id = "quantity", Tooltip = "Quantité de votre nouvel ordre" },
+              new NuiTextEdit("Prix unitaire", unitPrice, 20, false) { Id = "unitPrice", Tooltip = "Prix unitaire de votre nouvel ordre", Width = 215 },
+              new NuiTextEdit("Quantité", quantity, 20, false) { Id = "quantity", Tooltip = "Quantité de votre nouvel ordre", Width = 215 },
               new NuiButtonImage("ir_buy") { Id = "newBuyOrder", Tooltip = "Placer un nouvel ordre d'achat", Height = 35, Width = 35 },
               new NuiButtonImage("ir_sell") { Id = "newSellOrder", Tooltip = "Placer un nouvel ordre de vente", Height = 35, Width = 35 }
             } },
@@ -886,11 +877,12 @@ namespace NWN.Systems
           selectedMaterial.SetBindValue(player.oid, nuiToken.Token, 0);
           selectedMaterial.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          LoadBuyOrders(filteredBuyOrders);
+          LoadBuyOrders();
         }
-        private void LoadBuyOrders(IEnumerable<BuyOrder> filteredList)
+        private void LoadBuyOrders()
         {
-          filteredList = filteredList.OrderBy(b => b.unitPrice);
+          CraftResource resource = Craft.Collect.System.craftResourceArray[selectedMaterial.GetBindValue(player.oid, nuiToken.Token)];
+          filteredBuyOrders = TradeSystem.buyOrderList.Where(bo => bo.resourceType == resource.type && bo.resourceLevel == resource.grade).OrderBy(b => b.unitPrice);
 
           List<string> orderUnitPriceList = new();
           List<string> orderUnitPriceTooltipList = new();
@@ -898,9 +890,7 @@ namespace NWN.Systems
           List<string> expireDateList = new();
           List<bool> cancelOrderVisibleList = new();
 
-          CraftResource resource = Craft.Collect.System.craftResourceArray[selectedMaterial.GetBindValue(player.oid, nuiToken.Token)];
-
-          foreach (var order in filteredList)
+          foreach (var order in filteredBuyOrders)
           {
             if (resource.type == order.resourceType && resource.grade == order.resourceLevel && order.expirationDate > DateTime.Now)
             {
@@ -919,9 +909,10 @@ namespace NWN.Systems
           orderUnitPriceTooltip.SetBindValues(player.oid, nuiToken.Token, orderUnitPriceTooltipList);
           listCount.SetBindValue(player.oid, nuiToken.Token, orderUnitPriceList.Count);
         }
-        private void LoadSellOrders(IEnumerable<SellOrder> filteredList)
+        private void LoadSellOrders()
         {
-          filteredList = filteredList.OrderByDescending(b => b.unitPrice);
+          CraftResource resource = Craft.Collect.System.craftResourceArray[selectedMaterial.GetBindValue(player.oid, nuiToken.Token)];
+          filteredSellOrders = TradeSystem.sellOrderList.Where(bo => bo.resourceType == resource.type && bo.resourceLevel == resource.grade).OrderBy(b => b.unitPrice);
 
           List<string> orderUnitPriceList = new();
           List<string> orderUnitPriceTooltipList = new();
@@ -929,9 +920,7 @@ namespace NWN.Systems
           List<string> expireDateList = new();
           List<bool> cancelOrderVisibleList = new();
 
-          CraftResource resource = Craft.Collect.System.craftResourceArray[selectedMaterial.GetBindValue(player.oid, nuiToken.Token)];
-
-          foreach (var order in filteredList)
+          foreach (var order in filteredSellOrders)
           {
             if (resource.type == order.resourceType && resource.grade == order.resourceLevel && order.expirationDate > DateTime.Now)
             {
@@ -1255,7 +1244,7 @@ namespace NWN.Systems
             
           TradeSystem.ScheduleSaveToDatabase();
 
-          LoadBuyOrders(filteredBuyOrders);
+          LoadBuyOrders();
         }
         private async void ResolveSellOrderAsync(int unitPrice, int quantity, CraftResource resource)
         {
@@ -1318,7 +1307,7 @@ namespace NWN.Systems
 
           TradeSystem.ScheduleSaveToDatabase();
 
-          LoadSellOrders(filteredSellOrders);
+          LoadSellOrders();
         }
         private void CleanUpProposalItems()
         {

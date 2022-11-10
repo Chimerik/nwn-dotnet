@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -91,7 +92,19 @@ namespace NWN.Systems
                   foreach (var ip in contract.ItemProperties)
                     contract.RemoveItemProperty(ip);
 
+                  string ownerName = player.oid.LoginCreature.Name;
+
+                  var result = await SqLiteUtils.SelectQueryAsync("bankPlaceables",
+                    new List<string>() { { "max(id)" } },
+                    new List<string[]>() { });
+
                   int id = 1;
+
+                  if (result != null && result.Count > 0)
+                    if (int.TryParse(result.FirstOrDefault()[0], out id))
+                      id += 1;
+
+                  /*int id = 1;
 
                   using (var connection = new SqliteConnection(Config.dbPath))
                   {
@@ -103,19 +116,30 @@ namespace NWN.Systems
                     using var reader = await command.ExecuteReaderAsync();
                     while (reader.Read())
                       id += reader.GetInt32(0);
+                  }*/
+
+                  await NwTask.SwitchToMainThread();
+
+                  try
+                  {
+                    SqLiteUtils.InsertQuery("bankPlaceables",
+                    new List<string[]>() { new string[] { "id", id.ToString() }, new string[] { "areaTag", "similissebanque" }, new string[] { "ownerId", player.characterId.ToString() }, new string[] { "ownerName", ownerName } });
+
+                    NwPlaceable bank = NwObject.FindObjectsWithTag<NwPlaceable>("player_bank").FirstOrDefault(b => b.GetObjectVariable<LocalVariableInt>("id").Value == id);
+                    bank.GetObjectVariable<LocalVariableInt>("ownerId").Value = player.characterId;
+                    bank.Name = player.oid.LoginCreature.Name;
+                    bank.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpKnock));
+
+                    player.oid.SendServerMessage("Le contrat est désormais signé. Votre emplacement réservé vous attend dans la salle des coffres de la banque Skalsgard.", new Color(32, 255, 32));
+                    Utils.LogMessageToDMs($"{player.oid.LoginCreature.Name} ({player.oid.PlayerName}) signature contrat Skaslgard - Id {id} ");
+
+                    InitializeGiftItems();
                   }
-
-                  SqLiteUtils.InsertQuery("bankPlaceables",
-                  new List<string[]>() { new string[] { "id", id.ToString() }, new string[] { "areaTag", "similissebanque" }, new string[] { "ownerId", player.characterId.ToString() }, new string[] { "ownerName", player.oid.LoginCreature.Name } });
-
-                  NwPlaceable bank = NwObject.FindObjectsWithTag<NwPlaceable>("player_bank").FirstOrDefault(b => b.GetObjectVariable<LocalVariableInt>("id").Value == id);
-                  bank.GetObjectVariable<LocalVariableInt>("ownerId").Value = player.characterId;
-                  bank.Name = player.oid.LoginCreature.Name;
-                  bank.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpKnock));
-
-                  player.oid.SendServerMessage("Le contrat est désormais signé. Votre emplacement réservé vous attend dans la salle des coffres de la banque Skalsgard.", new Color(32, 255, 32));
-
-                  InitializeGiftItems();
+                  catch(Exception e)
+                  {
+                    Utils.LogMessageToDMs($"BANK SYSTEM - ERROR - {player.oid.LoginCreature.Name} ({player.oid.PlayerName}) Impossible de créer le compte en banque - Id {id}");
+                    Utils.LogMessageToDMs($"{e.Message}\n{e.StackTrace}");
+                  }
 
                   break;
               }
@@ -124,13 +148,14 @@ namespace NWN.Systems
         }
         private async void InitializeGiftItems()
         {
-          List<string> serializedItems = new();
-
-          serializedItems.Add(CreateTempGiftItem("bad_armor", 1));
-          serializedItems.Add(CreateTempGiftItem("bad_club", 1));
-          serializedItems.Add(CreateTempGiftItem("bad_shield", 1));
-          serializedItems.Add(CreateTempGiftItem("bad_sling", 1));
-          serializedItems.Add(CreateTempGiftItem("NW_WAMBU001", 99));
+          List<string> serializedItems = new()
+          {
+            CreateTempGiftItem("bad_armor", 1),
+            CreateTempGiftItem("bad_club", 1),
+            CreateTempGiftItem("bad_shield", 1),
+            CreateTempGiftItem("bad_sling", 1),
+            CreateTempGiftItem("NW_WAMBU001", 99)
+          };
 
           Task<string> serializeBank = Task.Run(() => JsonConvert.SerializeObject(serializedItems));
           await serializeBank;

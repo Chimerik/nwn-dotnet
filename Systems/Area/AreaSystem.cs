@@ -351,15 +351,6 @@ namespace NWN.Systems
       {
         if(player.windows.ContainsKey("bankStorage"))
           ((PlayerSystem.Player.BankStorageWindow)player.windows["bankStorage"]).items = null;
-
-        if(player.windows.ContainsKey("auctionHouse"))
-        {
-          PlayerSystem.Player.AuctionHouseWindow auctionHouseWindow = ((PlayerSystem.Player.AuctionHouseWindow)player.windows["auctionHouse"]);
-          auctionHouseWindow.auctions = null;
-          auctionHouseWindow.tradeRequests = null;
-          auctionHouseWindow.sellOrders = null;
-          auctionHouseWindow.buyOrders = null;
-        }
       }
         
     }
