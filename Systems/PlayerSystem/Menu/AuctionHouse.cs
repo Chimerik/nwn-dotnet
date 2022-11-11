@@ -314,7 +314,6 @@ namespace NWN.Systems
 
                   break;
 
-                case "openRequest": LoadRequestDetailsLayout(filteredTradeRequests.ElementAt(nuiEvent.ArrayIndex)); break;
                 case "loadProposalLayout": LoadCreateProposalLayout(); break;
 
                 case "displayBuyOrders":
@@ -455,14 +454,14 @@ namespace NWN.Systems
 
                   TradeSystem.auctionList.Add(new Auction(player.characterId, auctionItemSelected.Serialize().ToBase64EncodedString(), auctionItemSelected.Name, DateTime.Now.AddDays(7), startPrice, buyoutPrice));
 
-                  auctionItemSelected.Destroy();
-                  auctionItemSelected = null;
-                  isAuctionItemSelected.SetBindValue(player.oid, nuiToken.Token, false);
-
                   LoadAuctions(filteredAuctions);
                   TradeSystem.ScheduleSaveToDatabase();
 
                   player.oid.SendServerMessage($"Votre enchère pour {auctionItemSelected.Name.ColorString(ColorConstants.White)} a bien été enregistrée pour une mise à prix à {startPrice.ToString().ColorString(ColorConstants.White)} et une valeur d'achat immédiat de {buyoutPrice.ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);
+
+                  auctionItemSelected.Destroy();
+                  auctionItemSelected = null;
+                  isAuctionItemSelected.SetBindValue(player.oid, nuiToken.Token, false);
 
                   break;
 
@@ -594,6 +593,8 @@ namespace NWN.Systems
 
               switch(nuiEvent.ElementId)
               {
+                case "openRequest": LoadRequestDetailsLayout(filteredTradeRequests.ElementAt(nuiEvent.ArrayIndex)); break;
+
                 case "removeProposalItem":
 
                   NwItem proposalItem = newProposalItems[nuiEvent.ArrayIndex];
@@ -645,8 +646,8 @@ namespace NWN.Systems
           rowTemplate.Clear();
           LoadButtons();
 
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButton(requestName) { Id = "openRequest", Tooltip = "Détails de la commande" }) { VariableSize = true });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiText(expireDate) { Tooltip = "Date d'expiration", Scrollbars = NuiScrollbars.None }) { Width = 120 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiText(requestName) { Id = "openRequest", Tooltip = "Détails de la commande" }) { VariableSize = true });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(expireDate) { Tooltip = "Date d'expiration", VerticalAlign = NuiVAlign.Middle }) { Width = 120 });
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_abort") { Id = "deleteRequest", Visible = isAuctionCreator, Tooltip = "Annuler ma commande" }) { Width = 35 });
 
           List<NuiElement> columnsChildren = new();
@@ -747,11 +748,11 @@ namespace NWN.Systems
             }
           }) { Width = 45 });
 
-          rowTemplate.Add(new NuiListTemplateCell(new NuiText(highestBid) { Tooltip = highestBidToolTip }) { VariableSize = true });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiText(startingPrice) { Tooltip = "Enchère minimum" }) { VariableSize = true });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiText(buyoutPrice) { Tooltip = "Prix d'achat immédiat" }) { VariableSize = true });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiText(expireDate) { Tooltip = expireDate }) { VariableSize = true });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("", proposal, 20, false) { Tooltip = "Montant proposé pour enchérir" }) { VariableSize = true });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(highestBid) { Tooltip = highestBidToolTip, VerticalAlign = NuiVAlign.Middle }) { Width = 90 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(startingPrice) { Tooltip = "Enchère minimum", VerticalAlign = NuiVAlign.Middle }) { Width = 90 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(buyoutPrice) { Tooltip = "Prix d'achat immédiat", VerticalAlign = NuiVAlign.Middle }) { Width = 90 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(expireDate) { Tooltip = expireDate, VerticalAlign = NuiVAlign.Middle }) { VariableSize = true });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("", proposal, 20, false) { Tooltip = "Montant proposé pour enchérir" }) { Width = 90 });
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_split") { Id = "auctionBid", Enabled = biddingEnabled, Tooltip = "Enchérir" }) { Width = 35 });
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_charsheet") { Id = "closeBid", Tooltip = "Clore l'enchère. Uniquement si aucune enchère n'a été enregistrée", Visible = isAuctionCreator }) { Width = 35 });
 
@@ -771,7 +772,7 @@ namespace NWN.Systems
               new NuiSpacer()
             } },
             new NuiRow() { Height = 35, Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 20, false) } },
-            new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35,  Width = 500 } } }
+            new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 75,  Width = 500 } } }
           } });
         }
 

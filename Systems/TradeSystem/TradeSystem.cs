@@ -45,23 +45,20 @@ namespace NWN.Systems
       if (result != null && result.Count > 0)
       {
         string serializedRequests = result.FirstOrDefault()[0];
-        List<TradeRequest> serializedTradeRequests = new();
 
         Task loadRequests = Task.Run(() =>
         {
           if (string.IsNullOrEmpty(serializedRequests))
             return;
 
-          serializedTradeRequests = JsonConvert.DeserializeObject<List<TradeRequest>>(serializedRequests);
-        });
+          List<TradeRequest.SerializableTradeRequest> serializedTradeRequest = JsonConvert.DeserializeObject<List<TradeRequest.SerializableTradeRequest>>(serializedRequests);
 
-        await loadRequests;
-        tradeRequestList = serializedTradeRequests;
+          foreach (var tradeRequest in serializedTradeRequest)
+            tradeRequestList.Add(new TradeRequest(tradeRequest));
+        });
       }
       else
       {
-        tradeRequestList = new List<TradeRequest>();
-
         await SqLiteUtils.InsertQueryAsync("trade",
         new List<string[]>() { new string[] { "requests", "" }, new string[] { "auctions", "" }, new string[] { "buyOrders", "" }, new string[] { "sellOrders", "" } });
       }
@@ -75,21 +72,18 @@ namespace NWN.Systems
       if (result != null && result.Count > 0)
       {
         string serializedRequests = result.FirstOrDefault()[0];
-        List<Auction> serializedTradeRequests = new();
 
         Task loadRequests = Task.Run(() =>
         {
           if (string.IsNullOrEmpty(serializedRequests))
             return;
 
-          serializedTradeRequests = JsonConvert.DeserializeObject<List<Auction>>(serializedRequests);
-        });
+          List<Auction.SerializableAuction> serializedAuction = JsonConvert.DeserializeObject<List<Auction.SerializableAuction>>(serializedRequests);
 
-        await loadRequests;
-        auctionList = serializedTradeRequests;
+          foreach (var auction in serializedAuction)
+            auctionList.Add(new Auction(auction));
+        });
       }
-      else
-        auctionList = new();
     }
     private static async void DeserializeBuyOrders()
     {
@@ -100,21 +94,18 @@ namespace NWN.Systems
       if (result != null && result.Count > 0)
       {
         string serializedRequests = result.FirstOrDefault()[0];
-        List<BuyOrder> serializedTradeRequests = new();
-
+        
         Task loadRequests = Task.Run(() =>
         {
           if (string.IsNullOrEmpty(serializedRequests))
             return;
 
-          serializedTradeRequests = JsonConvert.DeserializeObject<List<BuyOrder>>(serializedRequests);
+          List<SellOrder.SerializableSellOrder> serializedSellOrders = JsonConvert.DeserializeObject<List<SellOrder.SerializableSellOrder>>(serializedRequests);
+          
+          foreach (var sellOrder in serializedSellOrders)
+            sellOrderList.Add(new SellOrder(sellOrder));
         });
-
-        await loadRequests;
-        buyOrderList = serializedTradeRequests;
       }
-      else
-        buyOrderList = new();
     }
     private static async void DeserializeSellOrders()
     {

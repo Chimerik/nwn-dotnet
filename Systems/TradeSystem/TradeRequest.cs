@@ -22,6 +22,33 @@ namespace NWN.Systems
     {
 
     }
+    public TradeRequest(SerializableTradeRequest serializedTradeRequest)
+    {
+      this.requesterId = serializedTradeRequest.requesterId;
+      this.description = serializedTradeRequest.description;
+      this.proposalList = serializedTradeRequest.proposalList;
+      this.expirationDate = serializedTradeRequest.expirationDate;
+    }
+
+    public class SerializableTradeRequest
+    {
+      public int requesterId { get; set; }
+      public string description { get; set; }
+      public List<TradeProposal> proposalList { get; set; }
+      public DateTime expirationDate { get; set; }
+
+      public SerializableTradeRequest()
+      {
+
+      }
+      public SerializableTradeRequest(TradeRequest TradeRequestBase)
+      {
+        requesterId = TradeRequestBase.requesterId;
+        description = TradeRequestBase.description;
+        proposalList = TradeRequestBase.proposalList;
+        expirationDate = TradeRequestBase.expirationDate;
+      }
+    }
   }
 
   public class TradeProposal
@@ -41,6 +68,30 @@ namespace NWN.Systems
     public TradeProposal()
     {
 
+    }
+    public TradeProposal(SerializableTradeProposal serializedTradeProposal)
+    {
+      this.characterId = serializedTradeProposal.characterId;
+      this.sellPrice = serializedTradeProposal.sellPrice;
+      this.serializedItems = serializedTradeProposal.serializedItems;
+    }
+
+    public class SerializableTradeProposal
+    {
+      public int characterId { get; set; }
+      public int sellPrice { get; set; }
+      public List<string> serializedItems { get; set; }
+
+      public SerializableTradeProposal()
+      {
+
+      }
+      public SerializableTradeProposal(TradeProposal TradeProposalBase)
+      {
+        characterId = TradeProposalBase.characterId;
+        sellPrice = TradeProposalBase.sellPrice;
+        serializedItems = TradeProposalBase.serializedItems;
+      }
     }
   }
 }
