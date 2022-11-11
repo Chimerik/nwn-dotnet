@@ -32,21 +32,27 @@ namespace NWN.Systems
   public class BaseItems2da
   {
     public static readonly TwoDimArray<BaseItemEntry> baseItemTable = NwGameTables.GetTable<BaseItemEntry>("baseitems.2da");
-    public static List<NuiComboEntry> helmetModelEntries = new List<NuiComboEntry>();
-    public static List<NuiComboEntry> baseItemNameEntries = new List<NuiComboEntry>();
-    public static Dictionary<string, List<int>> simpleItemModels = new Dictionary<string, List<int>>();
+    public static readonly List<NuiComboEntry> helmetModelEntries = new();
+    public static List<NuiComboEntry> baseItemNameEntries = new();
+    public static List<NuiComboEntry> itemTypeEntries = new();
+    public static readonly Dictionary<string, List<int>> simpleItemModels = new();
     public BaseItems2da(ResourceManager resMan)
     {
       int count = 0;
+
       foreach (var entry in baseItemTable)
       {
         if (!string.IsNullOrEmpty(entry.name))
-          baseItemNameEntries.Add(new NuiComboEntry(entry.name.ToString(), count));
-
+        {
+          baseItemNameEntries.Add(new NuiComboEntry(entry.name, count));
+          itemTypeEntries.Add(new NuiComboEntry(entry.name, entry.RowIndex));
+        }
         count++;
       }
 
       baseItemNameEntries = baseItemNameEntries.OrderBy(b => b.Label).ToList();
+      itemTypeEntries = itemTypeEntries.OrderBy(b => b.Label).ToList();
+      itemTypeEntries.Insert(0, new NuiComboEntry("Tous", (int)BaseItemType.Invalid));
 
       simpleItemModels.Add("iashlw", new List<int>());
       simpleItemModels.Add("iit_neck", new List<int>());

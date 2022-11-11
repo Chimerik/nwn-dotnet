@@ -100,10 +100,10 @@ namespace NWN.Systems
           if (string.IsNullOrEmpty(serializedRequests))
             return;
 
-          List<SellOrder.SerializableSellOrder> serializedSellOrders = JsonConvert.DeserializeObject<List<SellOrder.SerializableSellOrder>>(serializedRequests);
+          List<BuyOrder.SerializableBuyOrder> serializedBuyOrders = JsonConvert.DeserializeObject<List<BuyOrder.SerializableBuyOrder>>(serializedRequests);
           
-          foreach (var sellOrder in serializedSellOrders)
-            sellOrderList.Add(new SellOrder(sellOrder));
+          foreach (var buyOrder in serializedBuyOrders)
+            buyOrderList.Add(new BuyOrder(buyOrder));
         });
       }
     }
@@ -148,16 +148,39 @@ namespace NWN.Systems
 
       Task<string> serializeRequests = Task.Run(() =>
       {
+        List<TradeRequest.SerializableTradeRequest> serializableTradeRequests = new();
+        foreach (var tradeRequest in tradeRequestList)
+          serializableTradeRequests.Add(new TradeRequest.SerializableTradeRequest(tradeRequest));
+
+        return JsonConvert.SerializeObject(serializableTradeRequests);
+      });
+
+      Task<string> serializeAuctions = Task.Run(() =>
+      {
+        List<Auction.SerializableAuction> serializableAuctions = new();
+        foreach (var auction in auctionList)
+          serializableAuctions.Add(new Auction.SerializableAuction(auction));
+
+        return JsonConvert.SerializeObject(auctionList);
+      });
+
+      Task<string> serializeBuyOrders = Task.Run(() =>
+      {
+        List<BuyOrder.SerializableBuyOrder> serializableBuyOrders = new();
+        foreach (var buyOrder in buyOrderList)
+          serializableBuyOrders.Add(new BuyOrder.SerializableBuyOrder(buyOrder));
+
+        return JsonConvert.SerializeObject(serializableBuyOrders);
+      });
+
+      Task<string> serializeSellOrders = Task.Run(() =>
+      {
         List<SellOrder.SerializableSellOrder> serializableSellOrders = new();
         foreach (var sellOrder in sellOrderList)
           serializableSellOrders.Add(new SellOrder.SerializableSellOrder(sellOrder));
 
-        return JsonConvert.SerializeObject(tradeRequestList);
+        return JsonConvert.SerializeObject(serializableSellOrders);
       });
-
-      Task<string> serializeAuctions = Task.Run(() => JsonConvert.SerializeObject(auctionList));
-      Task<string> serializeBuyOrders = Task.Run(() => JsonConvert.SerializeObject(buyOrderList));
-      Task<string> serializeSellOrders = Task.Run(() => JsonConvert.SerializeObject(sellOrderList));
 
       await Task.WhenAll(serializeRequests, serializeAuctions, serializeBuyOrders, serializeSellOrders);
 
@@ -209,7 +232,7 @@ namespace NWN.Systems
         if (auction.expirationDate < DateTime.Now)
         {
           if (auction.highestBid == 0)
-            GiveItemAuction(auction.auctionerId, auction.itemName, auction.serializedItem);
+            GiveItemAuction(auction);
           else if(auction.buyoutPrice > 0 && auction.highestBid < auction.buyoutPrice)
             ResolveSuccessfulAuction(auction);
 
@@ -260,29 +283,39 @@ namespace NWN.Systems
 
       buyOrderList.RemoveAll(trade => trade.expirationDate < DateTime.Now);
     }
-    public static void GiveItemAuction(int characterId, string itemName, string serializedItem, int highestBid = 0)
+    public static void GiveItemAuction(Auction auction)
     {
-      Player player = Players.FirstOrDefault(p => p.Value.characterId == characterId).Value;
+      Player auctionner = Players.FirstOrDefault(p => p.Value.characterId == auction.auctionerId).Value;
 
-      if (player != null && player.pcState != Player.PcState.Offline && player.windows.ContainsKey("bankStorage") && 
-        ((Player.BankStorageWindow)player.windows["bankStorage"]).items != null) 
+      if (auction.highestBid < 1) // L'enchère est expirée et n'a pas trouvé d'acheteur
       {
-        Player.BankStorageWindow bankWindow = ((Player.BankStorageWindow)player.windows["bankStorage"]);
-        bankWindow.items.Add(NwItem.Deserialize(serializedItem.ToByteArray()));
-        bankWindow.BankSave();
+        if (auctionner != null && auctionner.pcState != Player.PcState.Offline)
+          auctionner.oid.SendServerMessage($"Votre enchère pour {auction.itemName.ColorString(ColorConstants.White)} n'a pas trouvé d'acheteur. L'objet a été envoyé dans votre coffre Skalsgard.", ColorConstants.Orange);
 
-        if(highestBid < 1)
-          player.oid.SendServerMessage($"Votre enchère pour {itemName.ColorString(ColorConstants.White)} n'a pas trouvé d'acheteur. L'objet a été envoyé dans votre coffre Skalsgard.", ColorConstants.Orange);
-        else
-          player.oid.SendServerMessage($"Votre avez remportez l'enchère pour {itemName.ColorString(ColorConstants.White)} pour un prix de {highestBid.ToString().ColorString(ColorConstants.White)}. L'objet a été envoyé dans votre coffre Skalsgard.", ColorConstants.Orange);
-
+        AddItemToPlayerDataBaseBank(auction.auctionerId.ToString(), new List<string>() { auction.serializedItem }, "Auction expired, no bidder");
         return;
       }
+      else // L'enchère est remportée par le highest bidder
+      {
+        Player bidder = Players.FirstOrDefault(p => p.Value.characterId == auction.highestBidderId).Value;
 
-      AddItemToPlayerDataBaseBank(characterId.ToString(), new List<string>() { serializedItem }, "Auction expired");
-      // TODO : ajouter notification par lettre
+        if (bidder != null && bidder.pcState != Player.PcState.Offline)
+        {
+          if (auction.highestBid >= auction.buyoutPrice) // cas achat direct
+          {
+            ItemUtils.DeserializeAndAcquireItem(auction.serializedItem, bidder.oid.LoginCreature);
+            bidder.oid.SendServerMessage($"Vous venez d'acquérir {auction.itemName.ColorString(ColorConstants.White)} pour un prix de {auction.highestBid.ToString().ColorString(ColorConstants.White)}.", ColorConstants.Orange);
+            return;
+          }
+          else
+            bidder.oid.SendServerMessage($"Votre avez remportez l'enchère pour {auction.itemName.ColorString(ColorConstants.White)} pour un prix de {auction.highestBid.ToString().ColorString(ColorConstants.White)}. L'objet a été envoyé dans votre coffre Skalsgard.", ColorConstants.Orange);
+        }
+
+        AddItemToPlayerDataBaseBank(bidder.characterId.ToString(), new List<string>() { auction.serializedItem }, "Auction successful");
+        // TODO : ajouter notification par lettre
+      }
     }
-    public static void AddResourceToPlayerStock(Player player, int characterId, ResourceType type, int grade, int quantity, string playerMessage, string logUseCase)
+    public static async void AddResourceToPlayerStock(Player player, int characterId, ResourceType type, int grade, int quantity, string playerMessage, string logUseCase)
     {
       CraftResource resource = Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == type && r.grade == grade);
 
@@ -296,7 +329,10 @@ namespace NWN.Systems
           player.craftResourceStock.Add(new CraftResource(resource, quantity));
 
         if (player.pcState != Player.PcState.Offline)
+        {
+          await NwTask.SwitchToMainThread();
           player.oid.SendServerMessage(playerMessage, ColorConstants.Orange);
+        }
       }
 
       UpdatePlayerResourceStock(characterId.ToString(), resource, quantity, logUseCase);
@@ -315,7 +351,7 @@ namespace NWN.Systems
       }
 
       UpdatePlayerBankAccount(auction.auctionerId.ToString(), sellPrice.ToString(), "Auction successful");
-      GiveItemAuction(auction.highestBidderId, auction.itemName, auction.serializedItem, auction.highestBid);
+      GiveItemAuction(auction);
     }
     public static async void AddItemToPlayerDataBaseBank(string characterId, List<string> serializedItemstoAdd, string logUseCase)
     {
@@ -323,7 +359,7 @@ namespace NWN.Systems
         new List<string>() { { "persistantStorage" } },
         new List<string[]>() { { new string[] { "rowid", characterId } } });
 
-      if (result != null)
+      if (result != null && result.Any())
       {
         string serializedBank = result.FirstOrDefault()[0];
         List<string> serializedItems = new List<string>();
@@ -346,7 +382,9 @@ namespace NWN.Systems
 
           Log.Info($"TRADE SYSTEM - {logUseCase} - serialized bank for {characterId}");
         });
-      } 
+      }
+      else
+        Utils.LogMessageToDMs($"TRADE SYSTEM ERROR - {logUseCase} - Impossible de trouver le personnage {characterId}");
     }
     public static int GetTaxedSellPrice(Player seller, int sellPrice)
     {
@@ -355,7 +393,7 @@ namespace NWN.Systems
       if (seller != null && seller.learnableSkills.ContainsKey(CustomSkill.Comptabilite))
         tax *= (1 - (seller.learnableSkills[CustomSkill.Comptabilite].totalPoints * 0.11));
 
-      return sellPrice - (int)tax;
+      return (int)tax;
     }
     public static void UpdatePlayerBankAccount(string characterId, string sellPrice, string logUseCase)
     {
@@ -373,7 +411,7 @@ namespace NWN.Systems
         new List<string>() { { "materialStorage" } },
         new List<string[]>() { new string[] { "ROWID", characterId } });
 
-      if (result != null && result.Count > 0)
+      if (result != null && result.Any())
       {
         string serializedCraftResources = result[0][0];
 
@@ -399,6 +437,8 @@ namespace NWN.Systems
         Log.Info($"TRADE SYSTEM - {logUseCase} - Updated resource stock of {characterId} of {quantity}");
         // TODO : ajouter notification par lettre
       }
+      else
+        Log.Info($"TRADE SYSTEM ERROR - {logUseCase} - Impossible de trouver le personnage {characterId}");
     }
   }
 }

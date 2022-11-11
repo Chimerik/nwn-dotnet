@@ -20,7 +20,6 @@ namespace NWN.Systems
         private readonly List<NuiListTemplateCell> rowTemplate = new();
         private readonly NuiBind<int> listCount = new("listCount");
 
-        //private readonly NuiBind<string> itemNames = new("itemNames");
         private readonly NuiBind<string> topIcon = new("topIcon");
         private readonly NuiBind<string> midIcon = new("midIcon");
         private readonly NuiBind<string> botIcon = new("botIcon");
@@ -28,46 +27,47 @@ namespace NWN.Systems
         private readonly NuiBind<NuiRect> imagePosition = new("rect");
 
         private readonly NuiBind<string> requestName = new("requestName");
+        private readonly NuiBind<string> requestNameTooltip = new("requestNameTooltip");
         private readonly NuiBind<string> search = new("search");
+        private readonly NuiBind<string> searchRequest = new("searchRequest");
+        private readonly NuiBind<string> searchAuction = new("searchAuction");
 
         private readonly NuiBind<string> highestBid = new("highestBid");
         private readonly NuiBind<string> highestBidToolTip = new("highestBidToolTip");
         private readonly NuiBind<string> startingPrice = new("startingPrice");
+        private readonly NuiBind<string> startingPriceTooltip = new("startingPriceTooltip");
         private readonly NuiBind<string> buyoutPrice = new("buyoutPrice");
+        private readonly NuiBind<string> buyoutPriceTooltip = new("buyoutPriceTooltip");
         private readonly NuiBind<string> expireDate = new("expireDate");
+        private readonly NuiBind<string> expireDateTooltip = new("expireDateTooltip");
         private readonly NuiBind<string> proposal = new("proposal");
         private readonly NuiBind<bool> isAuctionCreator = new("isAuctionCreator");
-        private readonly NuiBind<bool> biddingEnabled = new("biddingEnabled");
         private readonly NuiBind<string> auctionSellPrice = new("auctionSellPrice");
         private readonly NuiBind<string> auctionBuyoutPrice = new("auctionBuyoutPrice");
         private readonly NuiBind<bool> isAuctionItemSelected = new("isAuctionItemSelected");
+
+        private readonly NuiBind<string> auctionButtonImage = new("auctionButtonImage");
+        private readonly NuiBind<string> auctionButtonTooltip = new("auctionButtonTooltip");
+        private readonly NuiBind<bool> auctionButtonEnabled = new("auctionButtonEnabled");
+
+        private readonly NuiBind<int> selectedItemType = new("selectedItemType");
 
         private NwItem auctionItemSelected = null;
 
         private readonly NuiBind<string> orderUnitPrice = new("orderUnitPrice");
         private readonly NuiBind<string> orderUnitPriceTooltip = new("orderUnitPriceTooltip");
         private readonly NuiBind<string> orderQuantity = new("orderQuantity");
+        private readonly NuiBind<string> orderQuantityTooltip = new("orderQuantityTooltip");
         private readonly NuiBind<bool> displayBuyOrder = new("displayBuyOrder");
         private readonly NuiBind<bool> displaySellOrder = new("displaySellOrder");
         private readonly NuiBind<string> unitPrice = new("unitPrice");
         private readonly NuiBind<string> quantity = new("quantity"); 
         private readonly NuiBind<bool> cancelOrderVisible = new("cancelOrderVisible");
 
-        private readonly NuiBind<int> selectedMaterial = new("selectedMaterial");
-        //private readonly NuiBind<int> selectedLevel = new("selectedLevel");
+        private readonly NuiBind<string> availableGold = new("availableGold");
+        private readonly NuiBind<string> availableMaterial = new("availableMaterial");
 
-        private readonly List<NuiComboEntry> resourcesCombo = new();
-        /*private readonly List<NuiComboEntry> resourceLevelCombo = new()
-          {
-            new NuiComboEntry("1", 1),
-            new NuiComboEntry("2", 2),
-            new NuiComboEntry("3", 3),
-            new NuiComboEntry("4", 4),
-            new NuiComboEntry("5", 5),
-            new NuiComboEntry("6", 6),
-            new NuiComboEntry("7", 7),
-            new NuiComboEntry("8", 8),
-          };*/
+        private readonly NuiBind<int> selectedMaterial = new("selectedMaterial");
 
         private IEnumerable<TradeRequest> filteredTradeRequests;
         private IEnumerable<Auction> filteredAuctions;
@@ -86,14 +86,6 @@ namespace NWN.Systems
           rootGroup.Layout = layoutColumn;
           layoutColumn.Children = rootChildren;
 
-          int i = 0;
-
-          foreach (CraftResource resource in Craft.Collect.System.craftResourceArray)
-          {
-            resourcesCombo.Add(new NuiComboEntry(resource.name, i));
-            i++;
-          }
-
           CreateWindow();
         }
         public void CreateWindow()
@@ -106,7 +98,7 @@ namespace NWN.Systems
           
           LoadRequestsLayout();
 
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? new NuiRect(player.windowRectangles[windowId].X, player.windowRectangles[windowId].Y, 520, 600) : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 520, 600);
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? new NuiRect(player.windowRectangles[windowId].X, player.windowRectangles[windowId].Y, 630, 600) : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 630, 600);
 
           window = new NuiWindow(rootGroup, "Hôtel des ventes")
           {
@@ -135,9 +127,7 @@ namespace NWN.Systems
         {
           switch (nuiEvent.EventType)
           {
-            case NuiEventType.Close:
-              CleanUpProposalItems();
-              break;
+            case NuiEventType.Close: CleanUpProposalItems(); break;
 
             case NuiEventType.Click:
 
@@ -201,50 +191,9 @@ namespace NWN.Systems
                   player.oid.EnterTargetMode(SelectProposalInventoryItem, ObjectTypes.Item, MouseCursor.PickupDown);
                   break;
 
+                case "openRequest": LoadRequestDetailsLayout(filteredTradeRequests.ElementAt(nuiEvent.ArrayIndex)); break;
                 case "deleteRequest": HandleRequestCancellation(filteredTradeRequests.ElementAt(nuiEvent.ArrayIndex));  break;
                 case "cancelRequest": HandleRequestCancellation(lastRequestClicked); break;
-
-                case "acceptProposal":
-
-                  TradeProposal acceptedProposal = lastRequestClicked.proposalList[nuiEvent.ArrayIndex];
-
-                  if (lastRequestClicked.expirationDate < DateTime.Now)
-                    player.oid.SendServerMessage("Cette commande a malheureusement expiré !", ColorConstants.Red);
-                  else if (acceptedProposal.cancelled)
-                    player.oid.SendServerMessage("Cette proposition a malheureusement été retirée !", ColorConstants.Red);
-                  else if (acceptedProposal.sellPrice > player.bankGold)
-                    player.oid.SendServerMessage("Vous ne disposez malheureusement pas de suffisamment d'or sur votre compte Skalsgard !", ColorConstants.Red);
-                  else
-                  {
-                    player.bankGold -= acceptedProposal.sellPrice;
-                    TradeSystem.AddItemToPlayerDataBaseBank(player.characterId.ToString(), acceptedProposal.serializedItems, "Accepted proposal");
-
-                    int taxedSellPrice = TradeSystem.GetTaxedSellPrice(Players.FirstOrDefault(p => p.Value.characterId == acceptedProposal.characterId).Value, acceptedProposal.sellPrice);
-                    TradeSystem.UpdatePlayerBankAccount(acceptedProposal.characterId.ToString(), taxedSellPrice.ToString(), "Proposal accepted - Request accepted");
-
-                    acceptedProposal.cancelled = true;
-
-                    foreach(var proposal in lastRequestClicked.proposalList)
-                    {
-                      if (proposal.cancelled)
-                        continue;
-
-                      TradeSystem.UpdatePlayerBankAccount(proposal.characterId.ToString(), proposal.sellPrice.ToString(), "Proposal cancelled - Request accepted");
-                      TradeSystem.AddItemToPlayerDataBaseBank(proposal.characterId.ToString(), proposal.serializedItems, "Proposal cancelled - Request accepted");
-                      proposal.cancelled = true;
-                    }
-
-                    lastRequestClicked.expirationDate = DateTime.Now;
-                    TradeSystem.tradeRequestList.Remove(lastRequestClicked);
-                    lastRequestClicked = null;
-                    player.oid.SendServerMessage("La proposition a bien été acceptée. Les objets ont été déposés dans votre compte Skalsgard !", ColorConstants.Orange);
-                  }
-
-                  LoadRequestsLayout();
-                  rootGroup.SetLayout(player.oid, nuiEvent.Token.Token, layoutColumn);
-                  LoadRequestsBinding();
-
-                  break;
 
                 case "createNewProposal":
 
@@ -291,132 +240,19 @@ namespace NWN.Systems
 
                   break;
 
-                case "cancelProposal":
-
-                  if (lastRequestClicked.expirationDate < DateTime.Now)
-                  {
-                    player.oid.SendServerMessage("Cette proposition commerciale a déjà été annulée !", ColorConstants.Orange);
-
-                    LoadRequestsLayout();
-                    rootGroup.SetLayout(player.oid, nuiEvent.Token.Token, layoutColumn);
-                    LoadRequestsBinding();
-
-                    return;
-                  }
-
-                  TradeProposal deletedProposal = lastRequestClicked.proposalList[nuiEvent.ArrayIndex];
-                  deletedProposal.cancelled = true;
-
-                  player.bankGold += deletedProposal.sellPrice;
-                  TradeSystem.AddItemToPlayerDataBaseBank(player.characterId.ToString(), deletedProposal.serializedItems, $"Proposal cancelled by {player.oid.LoginCreature.Name}");
-
-                  player.oid.SendServerMessage($"La proposition a bien été annulée. Vos objets et {deletedProposal.sellPrice} pièces ont été débloquées sur votre compte Skalsgard.", ColorConstants.Orange);
-
-                  break;
-
                 case "loadProposalLayout": LoadCreateProposalLayout(); break;
 
-                case "displayBuyOrders":
+                case "displayBuyOrders": LoadBuyOrders(); break;
+                case "displaySellOrders": LoadSellOrders(); break;
 
-                  displayBuyOrder.SetBindValue(player.oid, nuiToken.Token, false);
-                  displaySellOrder.SetBindValue(player.oid, nuiToken.Token, true);
-                  LoadBuyOrders(); 
-
-                  break;
-                case "displaySellOrders":
-
-                  displayBuyOrder.SetBindValue(player.oid, nuiToken.Token, true);
-                  displaySellOrder.SetBindValue(player.oid, nuiToken.Token, false);
-                  LoadSellOrders();
-
-                  break;
-
-                case "examineItem":
-
-                  NwItem auctionItem = NwItem.Deserialize(filteredAuctions.ElementAt(nuiEvent.ArrayIndex).serializedItem.ToByteArray());
-                  tradeProposalItemScheduledForDestruction.Add(auctionItem);
-
-                  if (!player.windows.ContainsKey("itemExamine")) player.windows.Add("itemExamine", new ItemExamineWindow(player, auctionItem));
-                  else ((ItemExamineWindow)player.windows["itemExamine"]).CreateWindow(auctionItem);
-
-                  break;
-
-                case "auctionBid":
-
-                  if(!int.TryParse(proposal.GetBindValue(player.oid, nuiToken.Token), out int bid) || bid < 1)
-                  {
-                    player.oid.SendServerMessage("L'enchère saisie est incorrecte. Veuillez saisir une valeur valide.", ColorConstants.Red);
-                    return;
-                  }
+                case "auctionAction":
 
                   Auction auction = filteredAuctions.ElementAt(nuiEvent.ArrayIndex);
 
-                  if(auction.expirationDate < DateTime.Now || (auction.buyoutPrice > 0 && auction.highestBid >= auction.buyoutPrice))
-                  {
-                    player.oid.SendServerMessage("Cette enchère est désormais close. Impossible de surenchérir !", ColorConstants.Red);
-                    return;
-                  }
-
-                  if (bid <= auction.startingPrice)
-                  {
-                    player.oid.SendServerMessage("L'enchère saisie doit obligatoirement être supérieur à la mise à prix", ColorConstants.Red);
-                    return;
-                  }
-
-                  if (bid <= auction.highestBid)
-                  {
-                    player.oid.SendServerMessage("L'enchère saisie doit obligatoirement être supérieure à l'enchère maximale", ColorConstants.Red);
-                    return;
-                  }
-
-                  if(bid > player.bankGold)
-                  {
-                    player.oid.SendServerMessage("Vous ne disposez pas de la somme nécessaire sur votre compte Skalsgard pour enchérir autant", ColorConstants.Red);
-                    return;
-                  }
-
-                  player.bankGold -= bid;
-
-                  if(auction.highestBid > 0) // TODO : prévoir notification en cas d'outbid
-                    TradeSystem.UpdatePlayerBankAccount(auction.highestBidderId.ToString(), auction.highestBid.ToString(), "Auction outbid");
-
-                  auction.highestBid = bid;
-                  auction.highestBidderId = player.characterId;
-
-                  if (auction.buyoutPrice > 0 && bid >= auction.buyoutPrice)
-                  {
-                    TradeSystem.auctionList.Remove(auction);
-                    TradeSystem.ResolveSuccessfulAuction(auction);
-                    TradeSystem.ScheduleSaveToDatabase();
-                  }
-                  else if((DateTime.Now - auction.expirationDate).TotalMinutes < 5)
-                    auction.expirationDate.AddMinutes(5);
-
-                  LoadAuctions(filteredAuctions);
-
-                  break;
-
-                case "closeBid":
-
-                  Auction closedAuction = filteredAuctions.ElementAt(nuiEvent.ArrayIndex);
-
-                  if(closedAuction.highestBid > 0)
-                  {
-                    player.oid.SendServerMessage("Des enchères sont déjà en cours sur cette offre, il n'est plus possible de l'annuler", ColorConstants.Red);
-                    return;
-                  }
-
-                  if (closedAuction.expirationDate < DateTime.Now)
-                  {
-                    player.oid.SendServerMessage("Cette enchère est déjà close", ColorConstants.Red);
-                    return;
-                  }
-
-                  TradeSystem.GiveItemAuction(closedAuction.auctionerId, closedAuction.itemName, closedAuction.serializedItem);
-                  TradeSystem.auctionList.Remove(closedAuction);
-                  TradeSystem.ScheduleSaveToDatabase();
-
-                  LoadAuctions(filteredAuctions);
+                  if (auction.auctionerId == player.characterId)
+                    ActionCancelAuction(auction);
+                  else
+                    ActionBid(auction, proposal.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex]);
 
                   break;
 
@@ -447,12 +283,12 @@ namespace NWN.Systems
                     }
 
                     player.bankGold -= brokerFee;
-                    player.oid.SendServerMessage($"{brokerFee} pièces viennent d'être prélevées de votre comtpe Skalsgard en tant que frais de dossier", ColorConstants.Orange);
+                    player.oid.SendServerMessage($"{brokerFee} pièces viennent d'être prélevées de votre compte Skalsgard en tant que frais de dossier", ColorConstants.Orange);
                   }
                   else
                     startPrice = 0;
 
-                  TradeSystem.auctionList.Add(new Auction(player.characterId, auctionItemSelected.Serialize().ToBase64EncodedString(), auctionItemSelected.Name, DateTime.Now.AddDays(7), startPrice, buyoutPrice));
+                  TradeSystem.auctionList.Add(new Auction(player.characterId, auctionItemSelected.Serialize().ToBase64EncodedString(), auctionItemSelected.Name, auctionItemSelected.BaseItem.ItemType, DateTime.Now.AddDays(7), startPrice, buyoutPrice));
 
                   LoadAuctions(filteredAuctions);
                   TradeSystem.ScheduleSaveToDatabase();
@@ -467,7 +303,7 @@ namespace NWN.Systems
 
                 case "cancelOrder":
 
-                  if(displayBuyOrder.GetBindValue(player.oid, nuiToken.Token)) // cas Buy Order
+                  if(displaySellOrder.GetBindValue(player.oid, nuiToken.Token)) // cas Buy Order
                   {
                     BuyOrder cancelledOrder = filteredBuyOrders.ElementAt(nuiEvent.ArrayIndex);
 
@@ -575,14 +411,14 @@ namespace NWN.Systems
 
                 default:
 
-                  if (nuiEvent.ElementId.Contains("examineProposalItem"))
-                  {
-                    NwItem item = NwItem.Deserialize(lastRequestClicked.proposalList[nuiEvent.ArrayIndex].serializedItems[int.Parse(nuiEvent.ElementId[^1..])].ToByteArray());
-                    tradeProposalItemScheduledForDestruction.Add(item);
+                  Log.Info(nuiEvent.ElementId);
 
-                    if (!player.windows.ContainsKey("itemExamine")) player.windows.Add("itemExamine", new ItemExamineWindow(player, item));
-                    else ((ItemExamineWindow)player.windows["itemExamine"]).CreateWindow(item);
-                  }
+                  string[] splitCancel = nuiEvent.ElementId.Split("_");
+                  
+                  if (nuiEvent.ElementId.StartsWith("cancelProposal"))
+                    CancelTradeProposal(lastRequestClicked.proposalList.FirstOrDefault(p => p.characterId == int.Parse(splitCancel[1])));
+                  else if (nuiEvent.ElementId.StartsWith("acceptProposal"))
+                    AcceptTradeProposal(lastRequestClicked.proposalList.FirstOrDefault(p => p.characterId == int.Parse(splitCancel[1])));
 
                   break;
               }
@@ -593,7 +429,15 @@ namespace NWN.Systems
 
               switch(nuiEvent.ElementId)
               {
-                case "openRequest": LoadRequestDetailsLayout(filteredTradeRequests.ElementAt(nuiEvent.ArrayIndex)); break;
+                case "examineItem":
+
+                  NwItem auctionItem = NwItem.Deserialize(filteredAuctions.ElementAt(nuiEvent.ArrayIndex).serializedItem.ToByteArray());
+                  tradeProposalItemScheduledForDestruction.Add(auctionItem);
+
+                  if (!player.windows.ContainsKey("itemExamine")) player.windows.Add("itemExamine", new ItemExamineWindow(player, auctionItem));
+                  else ((ItemExamineWindow)player.windows["itemExamine"]).CreateWindow(auctionItem);
+
+                  break;
 
                 case "removeProposalItem":
 
@@ -611,6 +455,21 @@ namespace NWN.Systems
                   LoadCreateProposalItemList();
 
                   break;
+
+                default:
+
+                  if (nuiEvent.ElementId.StartsWith("examineProposalItem"))
+                  {
+                    Log.Info(nuiEvent.ElementId);
+                    string[] splitProposal = nuiEvent.ElementId.Split("_");
+                    NwItem item = NwItem.Deserialize(lastRequestClicked.proposalList.FirstOrDefault(p => p.characterId == int.Parse(splitProposal[1])).serializedItems[int.Parse(splitProposal[2])].ToByteArray());
+                    tradeProposalItemScheduledForDestruction.Add(item);
+
+                    if (!player.windows.ContainsKey("itemExamine")) player.windows.Add("itemExamine", new ItemExamineWindow(player, item));
+                    else ((ItemExamineWindow)player.windows["itemExamine"]).CreateWindow(item);
+                  }
+
+                  break;
               }
 
               break;
@@ -620,8 +479,10 @@ namespace NWN.Systems
               switch (nuiEvent.ElementId)
               {
                 case "searchRequest": UpdateTradeRequestsList(); break;
-                case "searchAuction": UpdateAuctionsList(); break;
                 case "selectedMaterial": UpdateOrderList(); break;
+                case "searchAuction":
+                case "selectedItemType":
+                  UpdateAuctionsList(); break;
               }
 
               break;
@@ -646,8 +507,9 @@ namespace NWN.Systems
           rowTemplate.Clear();
           LoadButtons();
 
-          rowTemplate.Add(new NuiListTemplateCell(new NuiText(requestName) { Id = "openRequest", Tooltip = "Détails de la commande" }) { VariableSize = true });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(expireDate) { Tooltip = "Date d'expiration", VerticalAlign = NuiVAlign.Middle }) { Width = 120 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButton("Détails") { Id = "openRequest", Tooltip = "Détails de la commande" }) { Width = 50 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiText(requestName)) { VariableSize = true });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(expireDate) { Tooltip = "Date d'expiration", VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { Width = 110 });
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_abort") { Id = "deleteRequest", Visible = isAuctionCreator, Tooltip = "Annuler ma commande" }) { Width = 35 });
 
           List<NuiElement> columnsChildren = new();
@@ -666,14 +528,17 @@ namespace NWN.Systems
               new NuiButtonImage("ir_accept") { Id = "myProposals", Tooltip = "Consulter les commandes auxquelles vous avez répondu", Height = 35, Width = 35 },
               new NuiSpacer(),
             } },
-            new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 20, false) { Id = "searchRequest" } } },
-            new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 80,  Width = 500 } } }
+            new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", searchRequest, 20, false) } },
+            new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 80,  Width = 600 } } }
           } });
         }
         private void StopAllWatchBindings()
         {
           search.SetBindWatch(player.oid, nuiToken.Token, false);
+          searchRequest.SetBindWatch(player.oid, nuiToken.Token, false);
+          searchAuction.SetBindWatch(player.oid, nuiToken.Token, false);
           selectedMaterial.SetBindWatch(player.oid, nuiToken.Token, false);
+          selectedItemType.SetBindWatch(player.oid, nuiToken.Token, false);
 
           foreach (NwItem item in newProposalItems)
             player.oid.ControlledCreature.AcquireItem(item);
@@ -684,8 +549,8 @@ namespace NWN.Systems
         {
           StopAllWatchBindings();
 
-          search.SetBindValue(player.oid, nuiToken.Token, "");
-          search.SetBindWatch(player.oid, nuiToken.Token, true);
+          searchRequest.SetBindValue(player.oid, nuiToken.Token, "");
+          searchRequest.SetBindWatch(player.oid, nuiToken.Token, true);
 
           filteredTradeRequests = TradeSystem.tradeRequestList;
           LoadTradeRequests(filteredTradeRequests);
@@ -700,7 +565,7 @@ namespace NWN.Systems
             if (request.expirationDate > DateTime.Now)
             {
               requestNameList.Add(request.description);
-              expireDateList.Add(request.expirationDate.ToString());
+              expireDateList.Add(request.expirationDate.ToString("dd/MM/yyyy HH:mm"));
               isCreatorList.Add(request.requesterId == player.characterId);
             }
 
@@ -711,20 +576,22 @@ namespace NWN.Systems
         }
         private void UpdateTradeRequestsList()
         {
-          string currentSearch = search.GetBindValue(player.oid, nuiToken.Token).ToLower();
+          string currentSearch = searchRequest.GetBindValue(player.oid, nuiToken.Token).ToLower();
           filteredTradeRequests = !string.IsNullOrEmpty(currentSearch) ? TradeSystem.tradeRequestList.Where(s => s.description.ToLower().Contains(currentSearch)) : TradeSystem.tradeRequestList;
           LoadTradeRequests(filteredTradeRequests);
         }
         private void UpdateAuctionsList()
         {
-          string currentSearch = search.GetBindValue(player.oid, nuiToken.Token).ToLower();
+          string currentSearch = searchAuction.GetBindValue(player.oid, nuiToken.Token).ToLower();
+          BaseItemType itemType = (BaseItemType)selectedItemType.GetBindValue(player.oid, nuiToken.Token);
+
           filteredAuctions = !string.IsNullOrEmpty(currentSearch) ? TradeSystem.auctionList.Where(s => s.itemName.ToLower().Contains(currentSearch)) : TradeSystem.auctionList;
+          filteredAuctions = itemType != BaseItemType.Invalid ? filteredAuctions.Where(i => i.itemType == itemType) : filteredAuctions;
+
           LoadAuctions(filteredAuctions);
         }
         private void UpdateOrderList()
         {
-          CraftResource selectedResource = Craft.Collect.System.craftResourceArray[selectedMaterial.GetBindValue(player.oid, nuiToken.Token)];
-
           if (displayBuyOrder.GetBindValue(player.oid, nuiToken.Token)) // cas Buy Order
             LoadBuyOrders();
           else // cas Sell Order
@@ -736,25 +603,13 @@ namespace NWN.Systems
           rowTemplate.Clear();
           LoadButtons();
 
-          rowTemplate.Add(new NuiListTemplateCell(new NuiSpacer()
-          {
-            Height = 125,
-            Id = "examineItem",
-            DrawList = new List<NuiDrawListItem>()
-            {
-              new NuiDrawListImage(topIcon, imagePosition),
-              new NuiDrawListImage(midIcon, imagePosition) { Enabled = enabled },
-              new NuiDrawListImage(botIcon, imagePosition) { Enabled = enabled }
-            }
-          }) { Width = 45 });
-
-          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(highestBid) { Tooltip = highestBidToolTip, VerticalAlign = NuiVAlign.Middle }) { Width = 90 });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(startingPrice) { Tooltip = "Enchère minimum", VerticalAlign = NuiVAlign.Middle }) { Width = 90 });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(buyoutPrice) { Tooltip = "Prix d'achat immédiat", VerticalAlign = NuiVAlign.Middle }) { Width = 90 });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(expireDate) { Tooltip = expireDate, VerticalAlign = NuiVAlign.Middle }) { VariableSize = true });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("", proposal, 20, false) { Tooltip = "Montant proposé pour enchérir" }) { Width = 90 });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_split") { Id = "auctionBid", Enabled = biddingEnabled, Tooltip = "Enchérir" }) { Width = 35 });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_charsheet") { Id = "closeBid", Tooltip = "Clore l'enchère. Uniquement si aucune enchère n'a été enregistrée", Visible = isAuctionCreator }) { Width = 35 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(requestName) { Id = "examineItem", Tooltip = requestNameTooltip, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { Width = 120 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(highestBid) { Tooltip = highestBidToolTip, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { Width = 70 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(startingPrice) { Tooltip = startingPriceTooltip, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { Width = 70 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(buyoutPrice) { Tooltip = buyoutPriceTooltip, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { Width = 70 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(expireDate) { Tooltip = expireDateTooltip, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { Width = 110 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("", proposal, 20, false) { Tooltip = availableGold }) { Width = 70 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(auctionButtonImage) { Id = "auctionAction", Tooltip = auctionButtonTooltip, Enabled = auctionButtonEnabled }) { Width = 35 });
 
           List<NuiElement> columnsChildren = new();
           NuiRow columnsRow = new() { Children = columnsChildren };
@@ -771,8 +626,9 @@ namespace NWN.Systems
               new NuiButtonImage("ir_split") { Id = "newAuction", Enabled = isAuctionItemSelected, Tooltip = "Afficher une nouvelle enchère", Width = 35 },
               new NuiSpacer()
             } },
-            new NuiRow() { Height = 35, Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 20, false) } },
-            new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 75,  Width = 500 } } }
+            new NuiRow() { Height = 35, Children = new List<NuiElement>() { new NuiCombo() { Entries = BaseItems2da.itemTypeEntries, Selected = selectedItemType, Width = 600 } } },
+            new NuiRow() { Height = 35, Children = new List<NuiElement>() { new NuiTextEdit("Recherche", searchAuction, 20, false) } },
+            new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35,  Width = 600 } } }
           } });
         }
 
@@ -782,8 +638,15 @@ namespace NWN.Systems
 
           auctionItemSelected = null;
 
-          search.SetBindValue(player.oid, nuiToken.Token, "");
-          search.SetBindWatch(player.oid, nuiToken.Token, true);
+          auctionSellPrice.SetBindValue(player.oid, nuiToken.Token, "");
+          auctionBuyoutPrice.SetBindValue(player.oid, nuiToken.Token, "");
+
+          searchAuction.SetBindValue(player.oid, nuiToken.Token, "");
+          searchAuction.SetBindWatch(player.oid, nuiToken.Token, true);
+
+          selectedItemType.SetBindValue(player.oid, nuiToken.Token, (int)BaseItemType.Invalid);
+          selectedItemType.SetBindWatch(player.oid, nuiToken.Token, true);
+
           isAuctionItemSelected.SetBindValue(player.oid, nuiToken.Token, false);
 
           filteredAuctions = TradeSystem.auctionList;
@@ -792,39 +655,60 @@ namespace NWN.Systems
 
         private void LoadAuctions(IEnumerable<Auction> filteredList)
         {
+          List<string> requestNameList = new();
+          List<string> requestNameTooltipList = new();
           List<string> highestBidList = new();
           List<string> highestBidTooltipList = new();
           List<string> startingPriceList = new();
+          List<string> startingPriceTooltipList = new();
           List<string> buyoutPriceList = new();
+          List<string> buyoutPriceTooltipList = new();
           List<string> expireDateList = new();
+          List<string> expireDateTooltipList = new();
           List<string> proposalList = new();
-          List<bool> isAuctionCreatorList = new();
-          List<bool> biddingEnabledList = new();
+          List<string> auctionButtonImageList = new();
+          List<string> auctionButtonTooltipList = new();
+          List<bool> auctionButtonEnabledList = new();
 
           foreach (var auction in filteredList)
           {
             if (auction.expirationDate > DateTime.Now)
-            {
+            { 
+              bool isAuctionCreator = auction.auctionerId == player.characterId;
+              requestNameList.Add(auction.itemName);
+              requestNameTooltipList.Add($"Examiner {auction.itemName}");
               highestBidList.Add(auction.highestBid.ToString());
-              highestBidTooltipList.Add(auction.highestBidderId == player.characterId ? $"{auction.highestBid} : C'est vous !" : auction.highestBid.ToString());
+              highestBidTooltipList.Add(auction.highestBidderId == player.characterId ? $"Enchère gagnante {auction.highestBid} : C'est vous !" : $"Enchère gagnante {auction.highestBid}");
               startingPriceList.Add(auction.startingPrice.ToString());
+              startingPriceTooltipList.Add($"Mise à prix {auction.startingPrice}");
               buyoutPriceList.Add(auction.buyoutPrice.ToString());
-              expireDateList.Add(auction.expirationDate.ToString());
-              proposalList.Add("");
-              isAuctionCreatorList.Add(auction.auctionerId == player.characterId && auction.highestBid < 1);
-              biddingEnabledList.Add(auction.auctionerId != player.characterId);
+              buyoutPriceTooltipList.Add($"Prix d'achat immédiat {auction.buyoutPrice}");
+              expireDateList.Add(auction.expirationDate.ToString("dd/MM/yyyy HH:mm"));
+              expireDateTooltipList.Add($"Expire le {auction.expirationDate:dd/MM/yyyy HH:mm}");
+              proposalList.Add(auction.highestBid > auction.startingPrice ? (auction.highestBid + 1).ToString() : (auction.startingPrice + 1).ToString());
+              auctionButtonImageList.Add(isAuctionCreator ? "ir_charsheet" : "ir_split");
+              auctionButtonTooltipList.Add(isAuctionCreator ? "Clore l'enchère, si aucune enchère n'a encore été enregistrée" : "Enchérir");
+              auctionButtonEnabledList.Add(isAuctionCreator ? auction.highestBid < 1 : true);
             }
           }
 
+          requestName.SetBindValues(player.oid, nuiToken.Token, requestNameList);
+          requestNameTooltip.SetBindValues(player.oid, nuiToken.Token, requestNameTooltipList);
+          auctionButtonImage.SetBindValues(player.oid, nuiToken.Token, auctionButtonImageList);
+          auctionButtonTooltip.SetBindValues(player.oid, nuiToken.Token, auctionButtonTooltipList);
+          auctionButtonEnabled.SetBindValues(player.oid, nuiToken.Token, auctionButtonEnabledList);
           highestBid.SetBindValues(player.oid, nuiToken.Token, highestBidList);
           highestBidToolTip.SetBindValues(player.oid, nuiToken.Token, highestBidTooltipList);
           startingPrice.SetBindValues(player.oid, nuiToken.Token, startingPriceList);
+          startingPriceTooltip.SetBindValues(player.oid, nuiToken.Token, startingPriceTooltipList);
           buyoutPrice.SetBindValues(player.oid, nuiToken.Token, buyoutPriceList);
+          buyoutPriceTooltip.SetBindValues(player.oid, nuiToken.Token, buyoutPriceTooltipList);
           expireDate.SetBindValues(player.oid, nuiToken.Token, expireDateList);
+          expireDateTooltip.SetBindValues(player.oid, nuiToken.Token, expireDateTooltipList);
           proposal.SetBindValues(player.oid, nuiToken.Token, proposalList);
-          isAuctionCreator.SetBindValues(player.oid, nuiToken.Token, isAuctionCreatorList);
-          biddingEnabled.SetBindValues(player.oid, nuiToken.Token, biddingEnabledList);
           listCount.SetBindValue(player.oid, nuiToken.Token, highestBidList.Count);
+
+          availableGold.SetBindValue(player.oid, nuiToken.Token, $"Montant proposé pour enchérir (Or disponible {player.bankGold})");
         }
         private void LoadMarketLayout()
         {
@@ -832,9 +716,9 @@ namespace NWN.Systems
           LoadButtons();
           rowTemplate.Clear();
 
-          rowTemplate.Add(new NuiListTemplateCell(new NuiText(orderUnitPrice) { Tooltip = orderUnitPriceTooltip, Scrollbars = NuiScrollbars.None }) { VariableSize = true });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiText(orderQuantity) { Tooltip = orderQuantity, Scrollbars = NuiScrollbars.None }) { VariableSize = true });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(expireDate) { Tooltip = expireDate, VerticalAlign = NuiVAlign.Middle }) { VariableSize = true });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(orderUnitPrice) { Tooltip = orderUnitPriceTooltip, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { VariableSize = true });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(orderQuantity) { Tooltip = orderQuantityTooltip, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { VariableSize = true });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(expireDate) { Tooltip = expireDate, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { Width = 110 });
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_abort") { Id = "cancelOrder", Tooltip = "Annuler votre ordre", Visible = cancelOrderVisible }) { Width = 35 });
 
           List<NuiElement> columnsChildren = new();
@@ -850,15 +734,11 @@ namespace NWN.Systems
               new NuiButtonImage("ir_barter") { Id = "displaySellOrders", Tooltip = "Consulter les ordres de vente", Enabled = displaySellOrder, Height = 35, Width = 35 },
               new NuiSpacer()
             } },
+            new NuiRow() { Children = new List<NuiElement>() { new NuiCombo() { Entries = Utils.tradeMaterialList, Selected = selectedMaterial, Width = 600 } } },
             new NuiRow() { Children = new List<NuiElement>()
             {
-              new NuiCombo() { Entries = resourcesCombo, Selected = selectedMaterial, Width = 500 },
-              //new NuiCombo() { Id = "materialLevel", Entries = resourceLevelCombo, Selected = selectedLevel, Tooltip = "Niveau d'infusion" }
-            } },
-            new NuiRow() { Children = new List<NuiElement>()
-            {
-              new NuiTextEdit("Prix unitaire", unitPrice, 20, false) { Id = "unitPrice", Tooltip = "Prix unitaire de votre nouvel ordre", Width = 210 },
-              new NuiTextEdit("Quantité", quantity, 20, false) { Id = "quantity", Tooltip = "Quantité de votre nouvel ordre", Width = 210 },
+              new NuiTextEdit("Prix unitaire", unitPrice, 20, false) { Id = "unitPrice", Tooltip = availableGold, Width = 260 },
+              new NuiTextEdit("Quantité", quantity, 20, false) { Id = "quantity", Tooltip = availableMaterial, Width = 260 },
               new NuiButtonImage("ir_buy") { Id = "newBuyOrder", Tooltip = "Placer un nouvel ordre d'achat", Height = 35, Width = 35 },
               new NuiButtonImage("ir_sell") { Id = "newSellOrder", Tooltip = "Placer un nouvel ordre de vente", Height = 35, Width = 35 }
             } },
@@ -868,6 +748,9 @@ namespace NWN.Systems
         private void LoadBuyOrdersBinding()
         {
           StopAllWatchBindings();
+
+          unitPrice.SetBindValue(player.oid, nuiToken.Token, "");
+          quantity.SetBindValue(player.oid, nuiToken.Token, "");
 
           displayBuyOrder.SetBindValue(player.oid, nuiToken.Token, false);
           displaySellOrder.SetBindValue(player.oid, nuiToken.Token, true);
@@ -884,6 +767,7 @@ namespace NWN.Systems
 
           List<string> orderUnitPriceList = new();
           List<string> orderUnitPriceTooltipList = new();
+          List<string> orderQuantityTooltipList = new();
           List<string> orderQuantityList = new();
           List<string> expireDateList = new();
           List<bool> cancelOrderVisibleList = new();
@@ -894,9 +778,10 @@ namespace NWN.Systems
             {
               orderUnitPriceList.Add(order.unitPrice.ToString());
               orderQuantityList.Add(order.quantity.ToString());
-              expireDateList.Add(order.expirationDate.ToString("dd/MM/yyyy HH:mm:ss"));
+              expireDateList.Add(order.expirationDate.ToString("dd/MM/yyyy HH:mm"));
               cancelOrderVisibleList.Add(order.buyerId == player.characterId);
-              orderUnitPriceTooltipList.Add($"{order.unitPrice} - Total : {order.GetTotalCost()}");
+              orderUnitPriceTooltipList.Add($"Prix unitaire {order.unitPrice} - Total {order.GetTotalCost()}");
+              orderQuantityTooltipList.Add($"Quantité disponible {order.quantity}");
             }
           }
 
@@ -905,7 +790,16 @@ namespace NWN.Systems
           expireDate.SetBindValues(player.oid, nuiToken.Token, expireDateList);
           cancelOrderVisible.SetBindValues(player.oid, nuiToken.Token, cancelOrderVisibleList);
           orderUnitPriceTooltip.SetBindValues(player.oid, nuiToken.Token, orderUnitPriceTooltipList);
+          orderQuantityTooltip.SetBindValues(player.oid, nuiToken.Token, orderQuantityTooltipList);
           listCount.SetBindValue(player.oid, nuiToken.Token, orderUnitPriceList.Count);
+
+          displayBuyOrder.SetBindValue(player.oid, nuiToken.Token, false);
+          displaySellOrder.SetBindValue(player.oid, nuiToken.Token, true);
+
+          CraftResource playerResource = player.craftResourceStock.FirstOrDefault(r => r.type == resource.type && r.grade == resource.grade);
+
+          availableGold.SetBindValue(player.oid, nuiToken.Token, $"Prix unitaire de votre nouvel ordre (or disponible {player.bankGold})");
+          availableMaterial.SetBindValue(player.oid, nuiToken.Token, $"Quantité de votre nouvel ordre (matéria disponible {(playerResource != null ? playerResource.quantity : 0)})");
         }
         private void LoadSellOrders()
         {
@@ -924,7 +818,7 @@ namespace NWN.Systems
             {
               orderUnitPriceList.Add(order.unitPrice.ToString());
               orderQuantityList.Add(order.quantity.ToString());
-              expireDateList.Add(order.expirationDate.ToString("dd/MM/yyyy HH:mm:ss"));
+              expireDateList.Add(order.expirationDate.ToString("dd/MM/yyyy HH:mm"));
               cancelOrderVisibleList.Add(order.sellerId == player.characterId);
               orderUnitPriceTooltipList.Add($"{order.unitPrice} - Total : {order.GetTotalCost()}");
             }
@@ -936,6 +830,14 @@ namespace NWN.Systems
           cancelOrderVisible.SetBindValues(player.oid, nuiToken.Token, cancelOrderVisibleList);
           orderUnitPriceTooltip.SetBindValues(player.oid, nuiToken.Token, orderUnitPriceTooltipList);
           listCount.SetBindValue(player.oid, nuiToken.Token, orderUnitPriceList.Count);
+
+          displayBuyOrder.SetBindValue(player.oid, nuiToken.Token, true);
+          displaySellOrder.SetBindValue(player.oid, nuiToken.Token, false);
+
+          CraftResource playerResource = player.craftResourceStock.FirstOrDefault(r => r.type == resource.type && r.grade == resource.grade);
+
+          availableGold.SetBindValue(player.oid, nuiToken.Token, $"Prix unitaire de votre nouvel ordre (or disponible {player.bankGold})");
+          availableMaterial.SetBindValue(player.oid, nuiToken.Token, $"Quantité de votre nouvel ordre (matéria disponible {(playerResource != null ? playerResource.quantity : 0)})");
         }
         
         private void LoadNewRequestLayout()
@@ -983,8 +885,8 @@ namespace NWN.Systems
 
           bool requestCreator = player.characterId == request.requesterId;
 
-          requestChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiText(request.description) { Height = 90, Width = 500 }, new NuiSpacer() } });
-          requestChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiText(request.expirationDate.ToString()) { Height = 35, Width = 500, Tooltip = "Date d'expiration" }, new NuiSpacer() } });
+          requestChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiText(request.description) { Height = 90, Width = 590 }, new NuiSpacer() } });
+          requestChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiLabel(request.expirationDate.ToString("dd/MM/yyyy HH:mm")) { Height = 35, Width = 120, Tooltip = $"Expire le {request.expirationDate:dd/MM/yyyy HH:mm}", HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }, new NuiSpacer() } });
           requestChildren.Add(new NuiRow() { Children = new List<NuiElement>()
             {
               new NuiSpacer(),
@@ -1000,18 +902,20 @@ namespace NWN.Systems
               continue;
 
             NuiRow proposalRow = new();
+            requestChildren.Add(proposalRow);
             List<NuiElement> proposalChildren = new();
             proposalRow.Children = proposalChildren;
 
-            proposalChildren.Add(new NuiText(proposal.sellPrice.ToString()) { Tooltip = proposal.sellPrice.ToString(), Width = 60 });
             proposalChildren.Add(new NuiButtonImage(requestCreator ? "ir_accept" : "ir_abort") 
             { 
-              Id = requestCreator ? "acceptProposal" : "cancelProposal", 
+              Id = requestCreator ? $"acceptProposal_{proposal.characterId}" : $"cancelProposal_{proposal.characterId}", 
               Tooltip = requestCreator ? "Accepter cette proposition" : "Annuler cette proposition", 
               Enabled = requestCreator || player.characterId == proposal.characterId, 
               Height = 35,
               Width = 35 
             });
+
+            proposalChildren.Add(new NuiLabel(proposal.sellPrice.ToString()) { Tooltip = $"Prix proposé {proposal.sellPrice} (Or disponbile {player.bankGold})", Width = 70, Height = 35 });
 
             int i = 0;
 
@@ -1026,12 +930,12 @@ namespace NWN.Systems
                 BaseItemModelType.Composite => ItemUtils.GetItemCategory(item.BaseItem.ItemType) != ItemUtils.ItemCategory.Ammunition ? new NuiRect(0, 0, 25, 25) : new NuiRect(0, 25, 25, 25),
                 _ => new NuiRect(0, 0, 25, 25),
               };
-
+              
               proposalChildren.Add(new NuiSpacer()
               {
                 Height = 125,
-                Width = 45,
-                Id = "examineProposalItem" + i,
+                Width = 85 - player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) * 0.234f,
+                Id = $"examineProposalItem_{proposal.characterId}_{i}",
                 Tooltip = item.Name,
                 DrawList = new List<NuiDrawListItem>()
                 {
@@ -1188,6 +1092,10 @@ namespace NWN.Systems
                 || sellOrder.quantity < 1 || sellOrder.expirationDate < DateTime.Now)
                 continue;
 
+              Log.Info($"buyOrder unitPrice {unitPrice}");
+              Log.Info($"buyOrder quantity {quantity}");
+              Log.Info($"sellOrder quantity {sellOrder.quantity}");
+
               if (sellOrder.quantity < quantity)
               {
                 quantity -= sellOrder.quantity;
@@ -1207,10 +1115,10 @@ namespace NWN.Systems
               }
               else
               {
-                int transactionPrice = sellOrder.quantity * sellOrder.unitPrice;
+                int transactionPrice = quantity * sellOrder.unitPrice;
  
                 TradeSystem.AddResourceToPlayerStock(player, player.characterId, sellOrder.resourceType, sellOrder.resourceLevel, quantity,
-                  $"Vous venez d'acheter {sellOrder.quantity.ToString().ColorString(ColorConstants.White)} unités de {resource.type.ToDescription().ColorString(ColorConstants.White)} {resource.grade.ToString().ColorString(ColorConstants.White)} à un prix unitaire de {sellOrder.unitPrice.ToString().ColorString(ColorConstants.White)} (coût total : {transactionPrice.ToString().ColorString(ColorConstants.White)})",
+                  $"Vous venez d'acheter {quantity.ToString().ColorString(ColorConstants.White)} unités de {resource.type.ToDescription().ColorString(ColorConstants.White)} {resource.grade.ToString().ColorString(ColorConstants.White)} à un prix unitaire de {sellOrder.unitPrice.ToString().ColorString(ColorConstants.White)} (coût total : {transactionPrice.ToString().ColorString(ColorConstants.White)})",
                   "Successful Buy Order");
 
                 TradeSystem.UpdatePlayerBankAccount(sellOrder.sellerId.ToString(), 
@@ -1222,7 +1130,9 @@ namespace NWN.Systems
                 if (sellOrder.quantity == 0)
                   TradeSystem.sellOrderList.Remove(sellOrder);
 
-                return 0;
+                quantity = 0;
+
+                return quantity;
               }
             }
 
@@ -1306,6 +1216,161 @@ namespace NWN.Systems
           TradeSystem.ScheduleSaveToDatabase();
 
           LoadSellOrders();
+        }
+        private void ActionBid(Auction auction, string inputBid)
+        {
+          if (!int.TryParse(inputBid, out int bid) || bid < 1)
+          {
+            player.oid.SendServerMessage("L'enchère saisie est incorrecte. Veuillez saisir une valeur valide.", ColorConstants.Red);
+            return;
+          }
+
+          if (auction.expirationDate < DateTime.Now || (auction.buyoutPrice > 0 && auction.highestBid >= auction.buyoutPrice))
+          {
+            player.oid.SendServerMessage("Cette enchère est désormais close. Impossible de surenchérir !", ColorConstants.Red);
+            return;
+          }
+
+          if (bid <= auction.startingPrice)
+          {
+            player.oid.SendServerMessage("L'enchère saisie doit obligatoirement être supérieur à la mise à prix", ColorConstants.Red);
+            return;
+          }
+
+          if (bid <= auction.highestBid)
+          {
+            player.oid.SendServerMessage("L'enchère saisie doit obligatoirement être supérieure à l'enchère maximale", ColorConstants.Red);
+            return;
+          }
+
+          if (bid > player.bankGold)
+          {
+            player.oid.SendServerMessage("Vous ne disposez pas de la somme nécessaire sur votre compte Skalsgard pour enchérir autant", ColorConstants.Red);
+            return;
+          }
+
+          player.bankGold -= bid;
+
+          if (auction.highestBid > 0) // TODO : prévoir notification en cas d'outbid
+            TradeSystem.UpdatePlayerBankAccount(auction.highestBidderId.ToString(), auction.highestBid.ToString(), "Auction outbid");
+
+          auction.highestBid = bid;
+          auction.highestBidderId = player.characterId;
+
+          if (auction.buyoutPrice > 0 && bid >= auction.buyoutPrice)
+          {
+            TradeSystem.auctionList.Remove(auction);
+            TradeSystem.ResolveSuccessfulAuction(auction);
+            TradeSystem.ScheduleSaveToDatabase();
+          }
+          else if ((DateTime.Now - auction.expirationDate).TotalMinutes < 5)
+            auction.expirationDate.AddMinutes(5);
+
+          LoadAuctions(filteredAuctions);
+        }
+        private void ActionCancelAuction(Auction auction)
+        {
+          if (auction.highestBid > 0)
+            player.oid.SendServerMessage("Des enchères sont déjà en cours sur cette offre, il n'est plus possible de l'annuler", ColorConstants.Red);
+          else if (auction.expirationDate < DateTime.Now)
+            player.oid.SendServerMessage("Cette enchère est déjà close", ColorConstants.Red);
+          else
+          {
+            ItemUtils.DeserializeAndAcquireItem(auction.serializedItem, player.oid.LoginCreature);
+            TradeSystem.auctionList.Remove(auction);
+            TradeSystem.ScheduleSaveToDatabase();
+
+            player.oid.SendServerMessage($"Votre enchère a été annulée et votre {auction.itemName} restitué", ColorConstants.Orange);
+          }
+
+          LoadAuctions(filteredAuctions);
+        }
+        private void CancelTradeProposal(TradeProposal cancelledProposal)
+        {
+          if (lastRequestClicked.expirationDate < DateTime.Now)
+          {
+            player.oid.SendServerMessage("Cette commande n'est malheureusement plus valide", ColorConstants.Red);
+
+            LoadRequestsLayout();
+            rootGroup.SetLayout(player.oid, nuiToken.Token, layoutColumn);
+            LoadRequestsBinding();
+            return;
+          }
+
+          if (cancelledProposal == null)
+          {
+            player.oid.SendServerMessage("Cette proposition commerciale a déjà été annulée !", ColorConstants.Orange);
+            LoadRequestDetailsLayout(lastRequestClicked);
+            return;
+          }
+
+          cancelledProposal.cancelled = true;
+
+          player.bankGold += cancelledProposal.sellPrice;
+
+          foreach (var item in cancelledProposal.serializedItems)
+            ItemUtils.DeserializeAndAcquireItem(item, player.oid.LoginCreature);
+
+          lastRequestClicked.proposalList.Remove(cancelledProposal);
+
+          player.oid.SendServerMessage($"La proposition a bien été annulée. Vos objets et {cancelledProposal.sellPrice} pièces ont été débloquées sur votre compte Skalsgard.", ColorConstants.Orange);
+          
+          LoadRequestDetailsLayout(lastRequestClicked);
+          TradeSystem.ScheduleSaveToDatabase();
+        }
+        private void AcceptTradeProposal(TradeProposal acceptedProposal)
+        {
+          if (lastRequestClicked.expirationDate < DateTime.Now)
+            player.oid.SendServerMessage("Cette commande a malheureusement expiré !", ColorConstants.Red);
+          else if (acceptedProposal == null)
+          {
+            player.oid.SendServerMessage("Cette proposition commerciale a malheureusement été annulée !", ColorConstants.Red);
+            LoadRequestDetailsLayout(lastRequestClicked);
+            return;
+          }
+          else if (acceptedProposal.cancelled)
+          {
+            player.oid.SendServerMessage("Cette proposition a malheureusement été retirée !", ColorConstants.Red);
+            LoadRequestDetailsLayout(lastRequestClicked);
+            return;
+          }
+          else if (acceptedProposal.sellPrice > player.bankGold)
+          {
+            player.oid.SendServerMessage("Vous ne disposez malheureusement pas de suffisamment d'or sur votre compte Skalsgard !", ColorConstants.Red);
+            LoadRequestDetailsLayout(lastRequestClicked);
+            return;
+          }
+          else
+          {
+            player.bankGold -= acceptedProposal.sellPrice;
+            TradeSystem.AddItemToPlayerDataBaseBank(player.characterId.ToString(), acceptedProposal.serializedItems, "Accepted proposal");
+
+            int taxedSellPrice = TradeSystem.GetTaxedSellPrice(Players.FirstOrDefault(p => p.Value.characterId == acceptedProposal.characterId).Value, acceptedProposal.sellPrice);
+            TradeSystem.UpdatePlayerBankAccount(acceptedProposal.characterId.ToString(), taxedSellPrice.ToString(), "Proposal accepted - Request accepted");
+
+            acceptedProposal.cancelled = true;
+
+            foreach (var proposal in lastRequestClicked.proposalList)
+            {
+              if (proposal.cancelled)
+                continue;
+
+              TradeSystem.UpdatePlayerBankAccount(proposal.characterId.ToString(), proposal.sellPrice.ToString(), "Proposal cancelled - Request accepted");
+              TradeSystem.AddItemToPlayerDataBaseBank(proposal.characterId.ToString(), proposal.serializedItems, "Proposal cancelled - Request accepted");
+              proposal.cancelled = true;
+            }
+
+            lastRequestClicked.expirationDate = DateTime.Now;
+            TradeSystem.tradeRequestList.Remove(lastRequestClicked);
+            lastRequestClicked = null;
+            player.oid.SendServerMessage("La proposition a bien été acceptée. Les objets ont été déposés dans votre compte Skalsgard !", ColorConstants.Orange);
+          }
+
+          LoadRequestsLayout();
+          rootGroup.SetLayout(player.oid, nuiToken.Token, layoutColumn);
+          LoadRequestsBinding();
+
+          TradeSystem.ScheduleSaveToDatabase();
         }
         private void CleanUpProposalItems()
         {

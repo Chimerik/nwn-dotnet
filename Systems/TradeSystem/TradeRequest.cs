@@ -24,29 +24,35 @@ namespace NWN.Systems
     }
     public TradeRequest(SerializableTradeRequest serializedTradeRequest)
     {
-      this.requesterId = serializedTradeRequest.requesterId;
-      this.description = serializedTradeRequest.description;
-      this.proposalList = serializedTradeRequest.proposalList;
-      this.expirationDate = serializedTradeRequest.expirationDate;
+      requesterId = serializedTradeRequest.requesterId;
+      description = serializedTradeRequest.description;
+      expirationDate = serializedTradeRequest.expirationDate;
+      proposalList = new();
+
+      foreach (var proposal in serializedTradeRequest.proposalList)
+        proposalList.Add(new TradeProposal(proposal));
     }
 
     public class SerializableTradeRequest
     {
       public int requesterId { get; set; }
       public string description { get; set; }
-      public List<TradeProposal> proposalList { get; set; }
+      public List<TradeProposal.SerializableTradeProposal> proposalList { get; set; }
       public DateTime expirationDate { get; set; }
 
       public SerializableTradeRequest()
       {
 
       }
-      public SerializableTradeRequest(TradeRequest TradeRequestBase)
+      public SerializableTradeRequest(TradeRequest tradeRequestBase)
       {
-        requesterId = TradeRequestBase.requesterId;
-        description = TradeRequestBase.description;
-        proposalList = TradeRequestBase.proposalList;
-        expirationDate = TradeRequestBase.expirationDate;
+        requesterId = tradeRequestBase.requesterId;
+        description = tradeRequestBase.description;
+        expirationDate = tradeRequestBase.expirationDate;
+        proposalList = new();
+
+        foreach (var proposal in tradeRequestBase.proposalList)
+          proposalList.Add(new TradeProposal.SerializableTradeProposal(proposal));
       }
     }
   }
@@ -71,9 +77,9 @@ namespace NWN.Systems
     }
     public TradeProposal(SerializableTradeProposal serializedTradeProposal)
     {
-      this.characterId = serializedTradeProposal.characterId;
-      this.sellPrice = serializedTradeProposal.sellPrice;
-      this.serializedItems = serializedTradeProposal.serializedItems;
+      characterId = serializedTradeProposal.characterId;
+      sellPrice = serializedTradeProposal.sellPrice;
+      serializedItems = serializedTradeProposal.serializedItems;
     }
 
     public class SerializableTradeProposal

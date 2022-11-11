@@ -18,6 +18,7 @@ namespace NWN.Systems
         private readonly NuiRow introTextRow;
         private readonly NuiRow contractRow;
         private readonly NuiRow exitRow;
+        private readonly NuiRow auctionHouseRow;
         private readonly NuiText widgetBankerText;
         private readonly NuiBind<string> bankerText;
         private readonly NwCreature banker;
@@ -46,6 +47,7 @@ namespace NWN.Systems
 
           contractRow = new NuiRow() { Children = new List<NuiElement>() { new NuiButton("Laissez moi jeter un oeil à ce contrat.") { Id = "contract", Width = 510 } } };
           exitRow = new NuiRow() { Children = new List<NuiElement>() { new NuiButton("Merci, je voulais seulement vous saluer.") { Id = "exit", Width = 510 } } };
+          auctionHouseRow = new NuiRow() { Children = new List<NuiElement>() { new NuiButton("J'aimerais accéder à l'hôtel des ventes.") { Id = "auctionHouse", Width = 510 } } };
 
           CreateWindow();
         }
@@ -63,6 +65,8 @@ namespace NWN.Systems
               $"Y a-t-il autre chose pour votre service ?";
 
             widgetBankerText.Height = 140;
+
+            rootChidren.Add(auctionHouseRow);
           }
           else
           {
@@ -121,6 +125,13 @@ namespace NWN.Systems
                     if (!player.windows.ContainsKey("bankContract")) player.windows.Add("bankContract", new BankContractWindow(player, player.oid.LoginCreature.Inventory.Items.FirstOrDefault(i => i.Tag == "bank_contract")));
                     else ((BankContractWindow)player.windows["bankContract"]).CreateWindow();
                   }
+
+                  break;
+
+                case "auctionHouse":
+
+                  if (!player.windows.ContainsKey("auctionHouse")) player.windows.Add("auctionHouse", new PlayerSystem.Player.AuctionHouseWindow(player));
+                  else ((PlayerSystem.Player.AuctionHouseWindow)player.windows["auctionHouse"]).CreateWindow();
 
                   break;
 

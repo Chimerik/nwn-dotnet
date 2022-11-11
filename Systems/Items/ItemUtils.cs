@@ -245,7 +245,15 @@ namespace NWN.Systems
     {
       NwItem deserializedItem = NwItem.Deserialize(itemTemplate.ToByteArray());
       deserializedItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
-      receiver.AcquireItem(deserializedItem);
+
+      if(receiver.Inventory.CheckFit(deserializedItem))
+        receiver.AcquireItem(deserializedItem);
+      else if(receiver.IsLoginPlayerCharacter && PlayerSystem.Players.TryGetValue(receiver, out PlayerSystem.Player player)
+        && NwObject.FindObjectsWithTag<NwPlaceable>("player_bank").Any(b => b.GetObjectVariable<LocalVariableInt>("ownerId").Value == player.characterId))
+      {
+        TradeSystem.AddItemToPlayerDataBaseBank(player.characterId.ToString(), new List<string> { itemTemplate }, "Inventory full");
+        receiver.LoginPlayer.SendServerMessage($"L'objet {deserializedItem.Name.ColorString(ColorConstants.White)} ne rentre pas dans votre inventaire. Afin d'éviter toute perte, il a été mis en sécurité dans votre coffre Skalsgard", ColorConstants.Red);
+      }
       return deserializedItem;
     }
     public static void CreateShopSkillBook(NwItem skillBook, int featId)

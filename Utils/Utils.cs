@@ -309,7 +309,7 @@ namespace NWN
       if (NWScript.ResManGetAliasFor(sIcon, NWScript.RESTYPE_TGA) != "")// Check if the icon actually exists, if not, we'll fall through and return the default icon
         return sIcon;
       else
-        return "";
+        return sDefaultIcon;
     }
     public static string[] Util_GetComplexIconData(NwItem item/*, int id*/)
     {
@@ -372,8 +372,10 @@ namespace NWN
       { "giveSkillbook", new MainMenuCommand("Don de skillbook", "", CommandRank.Admin) }, // TODO : Ajouter à OnExamine Player
     };
 
-    public static List<NuiComboEntry> appearanceEntries = new();
-    public static List<NuiComboEntry> placeableEntries = new();
+    public static readonly List<NuiComboEntry> tradeMaterialList = new();
+
+    public static readonly List<NuiComboEntry> appearanceEntries = new();
+    public static readonly List<NuiComboEntry> placeableEntries = new();
     public static List<NuiComboEntry> raceList = new();
     public static readonly List<NuiComboEntry> genderList = new();
     public static readonly List<NuiComboEntry> soundSetList = new();
