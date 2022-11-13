@@ -1185,7 +1185,17 @@ namespace NWN.Systems
         {
           case "geometry":
 
-            NuiRect windowRectangle = new NuiBind<NuiRect>("geometry").GetBindValue(nuiEvent.Player, nuiEvent.Token.Token);
+            NuiRect windowRectangle;
+
+            try
+            {
+              windowRectangle = new NuiBind<NuiRect>("geometry").GetBindValue(nuiEvent.Player, nuiEvent.Token.Token);
+            }
+            catch(Exception e)
+            {
+              Utils.LogMessageToDMs($"{nuiEvent.Player.LoginCreature.Name}\n{nuiEvent.Token.WindowId}\n{e.Message}\n{e.StackTrace}");
+              windowRectangle = new(10, 10, 600, 600);
+            }
 
             if (windowRectangle.Width > 0 && windowRectangle.Height > 0)
             {
