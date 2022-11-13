@@ -14,7 +14,7 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      public class MailBox : PlayerWindow
+      /*public class MailBox : PlayerWindow
       {
         private readonly NuiGroup rootGroup = new() { Id = "rootGroup", Border = false, Padding = 0, Margin = 0 };
         private readonly NuiColumn layoutColumn = new();
@@ -378,7 +378,7 @@ namespace NWN.Systems
           variableValue.SetBindValues(player.oid, nuiToken.Token, variableValueList);
           listCount.SetBindValue(player.oid, nuiToken.Token, count);
         }
-      }
+      }*/
     }
   }
 }

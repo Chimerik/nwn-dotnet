@@ -46,9 +46,10 @@ namespace NWN.Systems
           case "respawn_dire": plc.OnUsed += HandlePlayerRespawn; break;
           case "respawn_radiant": plc.OnUsed += HandlePlayerRespawn; break;
           case "theater_rope": plc.OnUsed += HandleTheaterCurtains; break;
-          case "forge": plc.OnUsed += OpenWorkshopWindow; break;
-          case "scierie": plc.OnUsed += OpenWorkshopWindow; break;
+          case "forge": 
+          case "scierie":
           case "tannerie": plc.OnUsed += OpenWorkshopWindow; break;
+          case "bank_gold": plc.OnUsed += Give1000Gold; break;
         }
         
         if (plc.VisualTransform.Scale != 1 || plc.VisualTransform.Translation != Vector3.Zero || plc.VisualTransform.Rotation != Vector3.Zero)
@@ -297,6 +298,7 @@ namespace NWN.Systems
         else ((Player.RefineryWindow)player.windows["refinery"]).CreateWindow(ResourceType.Pelt);
       }
     }
+    
     public static void OpenWorkshopWindow(PlaceableEvents.OnUsed onUsed)
     {
       if (Players.TryGetValue(onUsed.UsedBy, out Player player))
@@ -304,6 +306,10 @@ namespace NWN.Systems
         if (!player.windows.ContainsKey("craftWorkshop")) player.windows.Add("craftWorkshop", new Player.WorkshopWindow(player, onUsed.Placeable.Tag));
         else ((Player.WorkshopWindow)player.windows["craftWorkshop"]).CreateWindow(onUsed.Placeable.Tag);
       }
+    }
+    public static void Give1000Gold(PlaceableEvents.OnUsed onUsed)
+    {
+      onUsed.UsedBy.GiveGold(1000);
     }
   }
 }
