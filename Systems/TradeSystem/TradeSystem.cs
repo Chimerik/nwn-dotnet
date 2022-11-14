@@ -20,13 +20,15 @@ namespace NWN.Systems
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     private readonly SchedulerService scheduler;
-    public static List<TradeRequest> tradeRequestList = new();
-    public static List<Auction> auctionList = new();
-    public static List<BuyOrder> buyOrderList = new() ;
-    public static List<SellOrder> sellOrderList = new();
-    public static bool saveScheduled = false;
+    public static readonly List<TradeRequest> tradeRequestList = new();
+    public static readonly List<Auction> auctionList = new();
+    public static readonly List<BuyOrder> buyOrderList = new();
+    public static readonly List<SellOrder> sellOrderList = new();
+    public static bool saveScheduled { get; set; }
     public TradeSystem(SchedulerService schedulerService)
     {
+      saveScheduled = false;
+
       DeserializeTradeRequests();
       DeserializeAuctions();
       DeserializeBuyOrders();
@@ -135,7 +137,7 @@ namespace NWN.Systems
       if (!saveScheduled)
       {
         saveScheduled = true;
-        Log.Info("TRADE SYSTEM - Scheduling save in 10 seconds");
+        //Log.Info("TRADE SYSTEM - Scheduling save in 10 seconds");
         await NwTask.Delay(TimeSpan.FromSeconds(10));
         SaveToDatabase();
       }
@@ -143,8 +145,8 @@ namespace NWN.Systems
 
     public static async void SaveToDatabase()
     {
-      Log.Info("TRADE SYSTEM - STARTING SAVE PROCESS");
-      DateTime elapsed = DateTime.Now;
+      /*Log.Info("TRADE SYSTEM - STARTING SAVE PROCESS");
+      DateTime elapsed = DateTime.Now;*/
 
       Task<string> serializeRequests = Task.Run(() =>
       {
@@ -190,7 +192,7 @@ namespace NWN.Systems
 
       saveScheduled = false;
 
-      Log.Info($"TRADE SYSTEM - SAVED FINALIZED in {(DateTime.Now - elapsed).TotalSeconds} s");
+      //Log.Info($"TRADE SYSTEM - SAVED FINALIZED in {(DateTime.Now - elapsed).TotalSeconds} s");
     }
     private async void DeleteExpiredTrades()
     {
@@ -269,10 +271,10 @@ namespace NWN.Systems
 
           if (buyer != null)
           {
-            if (buyer.pcState != Player.PcState.Offline)
-              buyer.oid.SendServerMessage($"Votre ordre d'achat pour {buyOrder.quantity} {buyOrder.resourceType.ToDescription().ColorString(ColorConstants.White)} {buyOrder.resourceLevel} a expiré. La banque Skalsgard a débloqué les fond immobilisés pour l'opération", ColorConstants.Orange);
-
             buyer.bankGold += sellPrice;
+
+            if (buyer.pcState != Player.PcState.Offline)
+              buyer.oid.SendServerMessage($"Votre ordre d'achat pour {StringUtils.ToWhitecolor(buyOrder.quantity)} {StringUtils.ToWhitecolor(buyOrder.resourceType.ToDescription())} {StringUtils.ToWhitecolor(buyOrder.resourceLevel)} a expiré. La banque Skalsgard a débloqué les fond immobilisés pour l'opération (solde {StringUtils.ToWhitecolor(buyer.bankGold)})", ColorConstants.Orange);
           }
 
           UpdatePlayerBankAccount(buyOrder.buyerId.ToString(), sellPrice.ToString(), "Buy Order Expired");
@@ -322,16 +324,23 @@ namespace NWN.Systems
       if (player != null)
       {
         CraftResource playerResource = player.craftResourceStock.FirstOrDefault(r => r.type == type && r.grade == grade);
+        int messageQuantity;
 
         if (playerResource != null)
+        {
           playerResource.quantity += quantity;
+          messageQuantity = playerResource.quantity;
+        }
         else
+        {
           player.craftResourceStock.Add(new CraftResource(resource, quantity));
+          messageQuantity = quantity;
+        }
 
         if (player.pcState != Player.PcState.Offline)
         {
           await NwTask.SwitchToMainThread();
-          player.oid.SendServerMessage(playerMessage, ColorConstants.Orange);
+          player.oid.SendServerMessage($"{playerMessage} (solde {StringUtils.ToWhitecolor(messageQuantity)})", ColorConstants.Orange);
         }
       }
 
@@ -344,10 +353,10 @@ namespace NWN.Systems
 
       if (seller != null)
       {
-        if (seller.pcState != Player.PcState.Offline)
-          seller.oid.SendServerMessage($"La vente aux enchères de votre {auction.itemName.ColorString(ColorConstants.White)} vient de vous rapporter {sellPrice}. Félicitations !", ColorConstants.Orange);
-
         seller.bankGold += sellPrice;
+
+        if (seller.pcState != Player.PcState.Offline)
+          seller.oid.SendServerMessage($"La vente aux enchères de votre {StringUtils.ToWhitecolor(auction.itemName)} vient de vous rapporter {StringUtils.ToWhitecolor(sellPrice)} (solde {StringUtils.ToWhitecolor(seller.bankGold)})", ColorConstants.Orange);
       }
 
       UpdatePlayerBankAccount(auction.auctionerId.ToString(), sellPrice.ToString(), "Auction successful");

@@ -133,6 +133,8 @@ namespace NWN.Systems
                   if (!player.windows.ContainsKey("auctionHouse")) player.windows.Add("auctionHouse", new PlayerSystem.Player.AuctionHouseWindow(player));
                   else ((PlayerSystem.Player.AuctionHouseWindow)player.windows["auctionHouse"]).CreateWindow();
 
+                  CloseWindow();
+
                   break;
 
                 case "exit":

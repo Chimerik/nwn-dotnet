@@ -125,5 +125,13 @@ namespace NWN
     {
       return Encoding.UTF8.GetString(Encoding.GetEncoding("iso-8859-1").GetBytes(toConvert));
     }
+    public static string ToWhitecolor(int toColorWhite)
+    {
+      return toColorWhite.ToString().ColorString(ColorConstants.White);
+    }
+    public static string ToWhitecolor(string toColorWhite)
+    {
+      return toColorWhite.ColorString(ColorConstants.White);
+    }
   }
 }

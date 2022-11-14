@@ -215,12 +215,6 @@ namespace NWN.Systems
 
                   if (int.TryParse(search.GetBindValue(player.oid, nuiToken.Token), out int sellPrice) || sellPrice < 1)
                   {
-                    if(player.bankGold < sellPrice)
-                    {
-                      player.oid.SendServerMessage("Vous ne disposez pas de suffisamment d'or sur votre compte Skalsgard pour faire une proposition aussi élevée", ColorConstants.Red);
-                      return;
-                    }
-
                     List<string> serializedItems = new();
 
                     foreach (NwItem item in newProposalItems)
@@ -228,12 +222,10 @@ namespace NWN.Systems
 
                     newProposalItems.Clear();
 
-                    player.bankGold -= sellPrice;
-
                     TradeProposal proposal = new TradeProposal(player.characterId, sellPrice, serializedItems);
                     lastRequestClicked.proposalList.Add(proposal);
                     LoadRequestDetailsLayout(lastRequestClicked);
-                    player.oid.SendServerMessage($"Votre nouvelle proposition a bien été enregistrée, {sellPrice} pièces ont été prélevées de votre compte Skalsgard !", ColorConstants.Orange);
+                    player.oid.SendServerMessage("Votre nouvelle proposition a bien été enregistrée)", ColorConstants.Orange);
                   }
                   else
                     player.oid.SendServerMessage("Le prix de vente indiqué est incorrect. Impossible d'enregistrer votre proposition", ColorConstants.Red);
@@ -282,8 +274,12 @@ namespace NWN.Systems
                       return;
                     }
 
-                    player.bankGold -= brokerFee;
-                    player.oid.SendServerMessage($"{brokerFee} pièces viennent d'être prélevées de votre compte Skalsgard en tant que frais de dossier", ColorConstants.Orange);
+                    if (brokerFee > 0)
+                    {
+                      player.bankGold -= brokerFee;
+                      availableGold.SetBindValue(player.oid, nuiToken.Token, $"Or en banque : {player.bankGold}");
+                      player.oid.SendServerMessage($"{StringUtils.ToWhitecolor(brokerFee)} pièces viennent d'être prélevées de votre compte Skalsgard en tant que frais de dossier (solde {StringUtils.ToWhitecolor(player.bankGold)})", ColorConstants.Orange);
+                    }
                   }
                   else
                     startPrice = 0;
@@ -313,10 +309,11 @@ namespace NWN.Systems
                     {
                       int refund = cancelledOrder.unitPrice * cancelledOrder.quantity;
                       player.bankGold += refund;
+                      availableGold.SetBindValue(player.oid, nuiToken.Token, $"Or en banque : {player.bankGold}");
                       cancelledOrder.expirationDate = DateTime.Now;
                       TradeSystem.buyOrderList.Remove(cancelledOrder);
 
-                      player.oid.SendServerMessage($"Votre ordre d'achat a bien été annulé, {refund.ToString().ColorString(ColorConstants.White)} pièces ont été débloquées sur votre compte Skalsgard", ColorConstants.Orange);
+                      player.oid.SendServerMessage($"Votre ordre d'achat a bien été annulé, {StringUtils.ToWhitecolor(refund)} pièces ont été débloquées sur votre compte Skalsgard (solde {StringUtils.ToWhitecolor(player.bankGold)})", ColorConstants.Orange);
                     }
 
                     LoadBuyOrders();
@@ -330,7 +327,7 @@ namespace NWN.Systems
                     else
                     {
                       TradeSystem.AddResourceToPlayerStock(player, player.characterId, cancelledOrder.resourceType, 
-                        cancelledOrder.resourceLevel, cancelledOrder.quantity, $"Votre ordre de vente a bien été annulé, {cancelledOrder.quantity.ToString().ColorString(ColorConstants.White)} unités de {cancelledOrder.resourceType.ToDescription().ColorString(ColorConstants.White)} {cancelledOrder.resourceLevel.ToString().ColorString(ColorConstants.White)} ont été débloquées sur votre compte Skalsgard",
+                        cancelledOrder.resourceLevel, cancelledOrder.quantity, $"Votre ordre de vente a bien été annulé, {StringUtils.ToWhitecolor(cancelledOrder.quantity)} unités de {StringUtils.ToWhitecolor(cancelledOrder.resourceType.ToDescription())} {StringUtils.ToWhitecolor(cancelledOrder.resourceLevel)} ont été débloquées sur votre compte Skalsgard",
                         "Sell Order Cancelled");
 
                       cancelledOrder.expirationDate = DateTime.Now;
@@ -365,8 +362,13 @@ namespace NWN.Systems
                     return;
                   }
 
-                  player.bankGold -= taxCost;
-                  player.oid.SendServerMessage($"{taxCost.ToString().ColorString(ColorConstants.White)} pièces ont été prélevées de votre compte Skalsgard afin d'assurer les frais de dossier de votre ordre", ColorConstants.Orange);
+                  if (taxCost > 0)
+                  {
+                    player.bankGold -= taxCost;
+                    availableGold.SetBindValue(player.oid, nuiToken.Token, $"Or en banque : {player.bankGold}");
+                    player.oid.SendServerMessage($"{StringUtils.ToWhitecolor(taxCost)} pièces ont été prélevées de votre compte Skalsgard afin d'assurer les frais de gestion de votre ordre (solde {StringUtils.ToWhitecolor(player.bankGold)})", ColorConstants.Orange);
+                  }
+
                   ResolveBuyOrderAsync(boUnitPrice, boQuantity, Craft.Collect.System.craftResourceArray[selectedMaterial.GetBindValue(player.oid, nuiToken.Token)]);
 
                   break;
@@ -402,9 +404,16 @@ namespace NWN.Systems
                     return;
                   }
 
-                  player.bankGold -= soTax;
                   playerResource.quantity -= soQuantity;
-                  player.oid.SendServerMessage($"{soTax.ToString().ColorString(ColorConstants.White)} pièces ont été prélevées de votre compte Skalsgard afin d'assurer les frais de dossier de votre ordre", ColorConstants.Orange);
+
+                  if (soTax > 0)
+                  {
+                    player.bankGold -= soTax;
+                    availableGold.SetBindValue(player.oid, nuiToken.Token, $"Or en banque : {player.bankGold}");
+                    player.oid.SendServerMessage($"{StringUtils.ToWhitecolor(soTax)} pièces ont été prélevées de votre compte Skalsgard afin d'assurer les frais de gestion de votre ordre (solde {StringUtils.ToWhitecolor(player.bankGold)})", ColorConstants.Orange);
+                  }
+
+                  player.oid.SendServerMessage($"{StringUtils.ToWhitecolor(soQuantity)} unités de {StringUtils.ToWhitecolor(playerResource.type.ToDescription())} {StringUtils.ToWhitecolor(playerResource.grade)} ont été prélevées de votre entrepôt (solde {StringUtils.ToWhitecolor(playerResource.quantity)})", ColorConstants.Orange);
                   ResolveSellOrderAsync(soUnitPrice, soQuantity, boughtResource);
 
                   break;
@@ -509,7 +518,7 @@ namespace NWN.Systems
 
           rowTemplate.Add(new NuiListTemplateCell(new NuiButton("Détails") { Id = "openRequest", Tooltip = "Détails de la commande" }) { Width = 50 });
           rowTemplate.Add(new NuiListTemplateCell(new NuiText(requestName)) { VariableSize = true });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(expireDate) { Tooltip = "Date d'expiration", VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { Width = 110 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(expireDate) { Tooltip = expireDateTooltip, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { Width = 110 });
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_abort") { Id = "deleteRequest", Visible = isAuctionCreator, Tooltip = "Annuler ma commande" }) { Width = 35 });
 
           List<NuiElement> columnsChildren = new();
@@ -559,6 +568,7 @@ namespace NWN.Systems
         {
           List<string> requestNameList = new();
           List<string> expireDateList = new();
+          List<string> expireDateTooltipList = new();
           List<bool> isCreatorList = new();
 
           foreach (var request in filteredList)
@@ -566,6 +576,7 @@ namespace NWN.Systems
             {
               requestNameList.Add(request.description);
               expireDateList.Add(request.expirationDate.ToString("dd/MM/yyyy HH:mm"));
+              expireDateTooltipList.Add($"Expire le {request.expirationDate:dd/MM/yyyy HH:mm}");
               isCreatorList.Add(request.requesterId == player.characterId);
             }
 
@@ -608,7 +619,7 @@ namespace NWN.Systems
           rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(startingPrice) { Tooltip = startingPriceTooltip, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { Width = 70 });
           rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(buyoutPrice) { Tooltip = buyoutPriceTooltip, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { Width = 70 });
           rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(expireDate) { Tooltip = expireDateTooltip, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { Width = 110 });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("", proposal, 20, false) { Tooltip = availableGold }) { Width = 70 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("", proposal, 20, false) { Tooltip = "Montant suggéré pour enchérir" }) { Width = 70 });
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(auctionButtonImage) { Id = "auctionAction", Tooltip = auctionButtonTooltip, Enabled = auctionButtonEnabled }) { Width = 35 });
 
           List<NuiElement> columnsChildren = new();
@@ -617,6 +628,7 @@ namespace NWN.Systems
 
           columnsChildren.Add(new NuiColumn() { Children = new List<NuiElement>()
           {
+            new NuiRow() { Height = 35, Children = new List<NuiElement>() { new NuiSpacer(), new NuiLabel(availableGold) { VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center, Width = 600 }, new NuiSpacer() } },
             new NuiRow() { Height = 35, Children = new List<NuiElement>()
             {
               new NuiSpacer(),
@@ -637,6 +649,8 @@ namespace NWN.Systems
           StopAllWatchBindings();
 
           auctionItemSelected = null;
+
+          availableGold.SetBindValue(player.oid, nuiToken.Token, $"Or en banque : {player.bankGold}");
 
           auctionSellPrice.SetBindValue(player.oid, nuiToken.Token, "");
           auctionBuyoutPrice.SetBindValue(player.oid, nuiToken.Token, "");
@@ -688,7 +702,7 @@ namespace NWN.Systems
               proposalList.Add(auction.highestBid > auction.startingPrice ? (auction.highestBid + 1).ToString() : (auction.startingPrice + 1).ToString());
               auctionButtonImageList.Add(isAuctionCreator ? "ir_charsheet" : "ir_split");
               auctionButtonTooltipList.Add(isAuctionCreator ? "Clore l'enchère, si aucune enchère n'a encore été enregistrée" : "Enchérir");
-              auctionButtonEnabledList.Add(isAuctionCreator ? auction.highestBid < 1 : true);
+              auctionButtonEnabledList.Add(!isAuctionCreator || auction.highestBid < 1);
             }
           }
 
@@ -707,8 +721,6 @@ namespace NWN.Systems
           expireDateTooltip.SetBindValues(player.oid, nuiToken.Token, expireDateTooltipList);
           proposal.SetBindValues(player.oid, nuiToken.Token, proposalList);
           listCount.SetBindValue(player.oid, nuiToken.Token, highestBidList.Count);
-
-          availableGold.SetBindValue(player.oid, nuiToken.Token, $"Montant proposé pour enchérir (Or disponible {player.bankGold})");
         }
         private void LoadMarketLayout()
         {
@@ -718,7 +730,7 @@ namespace NWN.Systems
 
           rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(orderUnitPrice) { Tooltip = orderUnitPriceTooltip, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { VariableSize = true });
           rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(orderQuantity) { Tooltip = orderQuantityTooltip, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { VariableSize = true });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(expireDate) { Tooltip = expireDate, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { Width = 110 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(expireDate) { Tooltip = expireDateTooltip, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { Width = 110 });
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_abort") { Id = "cancelOrder", Tooltip = "Annuler votre ordre", Visible = cancelOrderVisible }) { Width = 35 });
 
           List<NuiElement> columnsChildren = new();
@@ -727,6 +739,7 @@ namespace NWN.Systems
 
           columnsChildren.Add(new NuiColumn() { Children = new List<NuiElement>()
           {
+            new NuiRow() { Height = 35, Children = new List<NuiElement>() { new NuiSpacer(), new NuiLabel(availableGold) { VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center, Width = 600 }, new NuiSpacer() } },
             new NuiRow() { Children = new List<NuiElement>()
             {
               new NuiSpacer(),
@@ -737,7 +750,7 @@ namespace NWN.Systems
             new NuiRow() { Children = new List<NuiElement>() { new NuiCombo() { Entries = Utils.tradeMaterialList, Selected = selectedMaterial, Width = 600 } } },
             new NuiRow() { Children = new List<NuiElement>()
             {
-              new NuiTextEdit("Prix unitaire", unitPrice, 20, false) { Id = "unitPrice", Tooltip = availableGold, Width = 260 },
+              new NuiTextEdit("Prix unitaire", unitPrice, 20, false) { Id = "unitPrice", Tooltip = "Prix unitaire de votre nouvel ordre", Width = 260 },
               new NuiTextEdit("Quantité", quantity, 20, false) { Id = "quantity", Tooltip = availableMaterial, Width = 260 },
               new NuiButtonImage("ir_buy") { Id = "newBuyOrder", Tooltip = "Placer un nouvel ordre d'achat", Height = 35, Width = 35 },
               new NuiButtonImage("ir_sell") { Id = "newSellOrder", Tooltip = "Placer un nouvel ordre de vente", Height = 35, Width = 35 }
@@ -748,6 +761,8 @@ namespace NWN.Systems
         private void LoadBuyOrdersBinding()
         {
           StopAllWatchBindings();
+
+          availableGold.SetBindValue(player.oid, nuiToken.Token, $"Or en banque : {player.bankGold}");
 
           unitPrice.SetBindValue(player.oid, nuiToken.Token, "");
           quantity.SetBindValue(player.oid, nuiToken.Token, "");
@@ -770,6 +785,7 @@ namespace NWN.Systems
           List<string> orderQuantityTooltipList = new();
           List<string> orderQuantityList = new();
           List<string> expireDateList = new();
+          List<string> expireDateTooltipList = new();
           List<bool> cancelOrderVisibleList = new();
 
           foreach (var order in filteredBuyOrders)
@@ -778,7 +794,8 @@ namespace NWN.Systems
             {
               orderUnitPriceList.Add(order.unitPrice.ToString());
               orderQuantityList.Add(order.quantity.ToString());
-              expireDateList.Add(order.expirationDate.ToString("dd/MM/yyyy HH:mm"));
+              expireDateList.Add($"{order.expirationDate:dd/MM/yyyy HH:mm}");
+              expireDateTooltipList.Add($"Expire le : {order.expirationDate:dd/MM/yyyy HH:mm}");
               cancelOrderVisibleList.Add(order.buyerId == player.characterId);
               orderUnitPriceTooltipList.Add($"Prix unitaire {order.unitPrice} - Total {order.GetTotalCost()}");
               orderQuantityTooltipList.Add($"Quantité disponible {order.quantity}");
@@ -788,6 +805,7 @@ namespace NWN.Systems
           orderUnitPrice.SetBindValues(player.oid, nuiToken.Token, orderUnitPriceList);
           orderQuantity.SetBindValues(player.oid, nuiToken.Token, orderQuantityList);
           expireDate.SetBindValues(player.oid, nuiToken.Token, expireDateList);
+          expireDateTooltip.SetBindValues(player.oid, nuiToken.Token, expireDateTooltipList);
           cancelOrderVisible.SetBindValues(player.oid, nuiToken.Token, cancelOrderVisibleList);
           orderUnitPriceTooltip.SetBindValues(player.oid, nuiToken.Token, orderUnitPriceTooltipList);
           orderQuantityTooltip.SetBindValues(player.oid, nuiToken.Token, orderQuantityTooltipList);
@@ -797,8 +815,6 @@ namespace NWN.Systems
           displaySellOrder.SetBindValue(player.oid, nuiToken.Token, true);
 
           CraftResource playerResource = player.craftResourceStock.FirstOrDefault(r => r.type == resource.type && r.grade == resource.grade);
-
-          availableGold.SetBindValue(player.oid, nuiToken.Token, $"Prix unitaire de votre nouvel ordre (or disponible {player.bankGold})");
           availableMaterial.SetBindValue(player.oid, nuiToken.Token, $"Quantité de votre nouvel ordre (matéria disponible {(playerResource != null ? playerResource.quantity : 0)})");
         }
         private void LoadSellOrders()
@@ -810,6 +826,7 @@ namespace NWN.Systems
           List<string> orderUnitPriceTooltipList = new();
           List<string> orderQuantityList = new();
           List<string> expireDateList = new();
+          List<string> expireDateTooltipList = new();
           List<bool> cancelOrderVisibleList = new();
 
           foreach (var order in filteredSellOrders)
@@ -818,7 +835,8 @@ namespace NWN.Systems
             {
               orderUnitPriceList.Add(order.unitPrice.ToString());
               orderQuantityList.Add(order.quantity.ToString());
-              expireDateList.Add(order.expirationDate.ToString("dd/MM/yyyy HH:mm"));
+              expireDateList.Add($"{order.expirationDate:dd/MM/yyyy HH:mm}");
+              expireDateTooltipList.Add($"Expire le : {order.expirationDate:dd/MM/yyyy HH:mm}");
               cancelOrderVisibleList.Add(order.sellerId == player.characterId);
               orderUnitPriceTooltipList.Add($"{order.unitPrice} - Total : {order.GetTotalCost()}");
             }
@@ -827,6 +845,7 @@ namespace NWN.Systems
           orderUnitPrice.SetBindValues(player.oid, nuiToken.Token, orderUnitPriceList);
           orderQuantity.SetBindValues(player.oid, nuiToken.Token, orderQuantityList);
           expireDate.SetBindValues(player.oid, nuiToken.Token, expireDateList);
+          expireDateTooltip.SetBindValues(player.oid, nuiToken.Token, expireDateTooltipList);
           cancelOrderVisible.SetBindValues(player.oid, nuiToken.Token, cancelOrderVisibleList);
           orderUnitPriceTooltip.SetBindValues(player.oid, nuiToken.Token, orderUnitPriceTooltipList);
           listCount.SetBindValue(player.oid, nuiToken.Token, orderUnitPriceList.Count);
@@ -835,8 +854,6 @@ namespace NWN.Systems
           displaySellOrder.SetBindValue(player.oid, nuiToken.Token, false);
 
           CraftResource playerResource = player.craftResourceStock.FirstOrDefault(r => r.type == resource.type && r.grade == resource.grade);
-
-          availableGold.SetBindValue(player.oid, nuiToken.Token, $"Prix unitaire de votre nouvel ordre (or disponible {player.bankGold})");
           availableMaterial.SetBindValue(player.oid, nuiToken.Token, $"Quantité de votre nouvel ordre (matéria disponible {(playerResource != null ? playerResource.quantity : 0)})");
         }
         
@@ -874,6 +891,8 @@ namespace NWN.Systems
           LoadButtons();
 
           StopAllWatchBindings();
+
+          availableGold.SetBindValue(player.oid, nuiToken.Token, $"Or en banque : {player.bankGold}");
           search.SetBindValue(player.oid, nuiToken.Token, "");
 
           List<NuiElement> columnsChildren = new();
@@ -887,6 +906,7 @@ namespace NWN.Systems
 
           requestChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiText(request.description) { Height = 90, Width = 590 }, new NuiSpacer() } });
           requestChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiLabel(request.expirationDate.ToString("dd/MM/yyyy HH:mm")) { Height = 35, Width = 120, Tooltip = $"Expire le {request.expirationDate:dd/MM/yyyy HH:mm}", HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }, new NuiSpacer() } });
+          requestChildren.Add(new NuiRow() { Height = 35, Children = new List<NuiElement>() { new NuiSpacer(), new NuiLabel(availableGold) { VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }, new NuiSpacer() } });
           requestChildren.Add(new NuiRow() { Children = new List<NuiElement>()
             {
               new NuiSpacer(),
@@ -915,7 +935,7 @@ namespace NWN.Systems
               Width = 35 
             });
 
-            proposalChildren.Add(new NuiLabel(proposal.sellPrice.ToString()) { Tooltip = $"Prix proposé {proposal.sellPrice} (Or disponbile {player.bankGold})", Width = 70, Height = 35 });
+            proposalChildren.Add(new NuiLabel(proposal.sellPrice.ToString()) { Tooltip = $"Prix proposé {proposal.sellPrice} (Or en banque {player.bankGold})", Width = 70, Height = 35 });
 
             int i = 0;
 
@@ -1092,23 +1112,20 @@ namespace NWN.Systems
                 || sellOrder.quantity < 1 || sellOrder.expirationDate < DateTime.Now)
                 continue;
 
-              Log.Info($"buyOrder unitPrice {unitPrice}");
-              Log.Info($"buyOrder quantity {quantity}");
-              Log.Info($"sellOrder quantity {sellOrder.quantity}");
-
               if (sellOrder.quantity < quantity)
               {
                 quantity -= sellOrder.quantity;
                 int transactionPrice = sellOrder.quantity * sellOrder.unitPrice;
+                player.bankGold -= transactionPrice;
 
                 TradeSystem.AddResourceToPlayerStock(player, player.characterId, sellOrder.resourceType, sellOrder.resourceLevel, sellOrder.quantity, 
-                  $"Vous venez d'acheter {sellOrder.quantity.ToString().ColorString(ColorConstants.White)} unités de {resource.type.ToDescription().ColorString(ColorConstants.White)} {resource.grade.ToString().ColorString(ColorConstants.White)} à un prix unitaire de {sellOrder.unitPrice.ToString().ColorString(ColorConstants.White)} (coût total : {transactionPrice.ToString().ColorString(ColorConstants.White)})",
+                  $"Vous venez d'acheter {StringUtils.ToWhitecolor(sellOrder.quantity)} unités de {StringUtils.ToWhitecolor(resource.type.ToDescription())} {StringUtils.ToWhitecolor(resource.grade)} à un prix unitaire de {StringUtils.ToWhitecolor(sellOrder.unitPrice)} (coût total {StringUtils.ToWhitecolor(transactionPrice)}) (solde {StringUtils.ToWhitecolor(player.bankGold)})",
                   "Successful Buy Order");
 
                 TradeSystem.UpdatePlayerBankAccount(sellOrder.sellerId.ToString(), 
                   TradeSystem.GetTaxedSellPrice(Players.FirstOrDefault(p => p.Value.characterId == sellOrder.sellerId).Value, transactionPrice).ToString(), "Sucessful sell order");
 
-                player.bankGold -= transactionPrice;
+                
 
                 sellOrder.quantity = 0;
                 TradeSystem.sellOrderList.Remove(sellOrder);
@@ -1116,16 +1133,16 @@ namespace NWN.Systems
               else
               {
                 int transactionPrice = quantity * sellOrder.unitPrice;
- 
+                player.bankGold -= transactionPrice;
+
                 TradeSystem.AddResourceToPlayerStock(player, player.characterId, sellOrder.resourceType, sellOrder.resourceLevel, quantity,
-                  $"Vous venez d'acheter {quantity.ToString().ColorString(ColorConstants.White)} unités de {resource.type.ToDescription().ColorString(ColorConstants.White)} {resource.grade.ToString().ColorString(ColorConstants.White)} à un prix unitaire de {sellOrder.unitPrice.ToString().ColorString(ColorConstants.White)} (coût total : {transactionPrice.ToString().ColorString(ColorConstants.White)})",
+                  $"Vous venez d'acheter {StringUtils.ToWhitecolor(quantity)} unités de {StringUtils.ToWhitecolor(resource.type.ToDescription())} {StringUtils.ToWhitecolor(resource.grade)} à un prix unitaire de {StringUtils.ToWhitecolor(sellOrder.unitPrice)}) (solde {StringUtils.ToWhitecolor(player.bankGold)})",
                   "Successful Buy Order");
 
                 TradeSystem.UpdatePlayerBankAccount(sellOrder.sellerId.ToString(), 
                   TradeSystem.GetTaxedSellPrice(Players.FirstOrDefault(p => p.Value.characterId == sellOrder.sellerId).Value, transactionPrice).ToString(), "Sucessful sell order");
 
                 sellOrder.quantity -= quantity;
-                player.bankGold -= transactionPrice;
 
                 if (sellOrder.quantity == 0)
                   TradeSystem.sellOrderList.Remove(sellOrder);
@@ -1147,9 +1164,10 @@ namespace NWN.Systems
             TradeSystem.buyOrderList.Add(new BuyOrder(player.characterId, resource.type, resource.grade, quantity, DateTime.Now.AddMonths(1), unitPrice));
             player.bankGold -= (quantity * unitPrice);
 
-            player.oid.SendServerMessage($"Un ordre d'achat a été créé pour la quantité restante de {quantity.ToString().ColorString(ColorConstants.White)} unités", ColorConstants.Orange);
+            player.oid.SendServerMessage($"Un ordre d'achat a été créé pour la quantité restante de {StringUtils.ToWhitecolor(quantity)} unités (solde {StringUtils.ToWhitecolor(player.bankGold)})", ColorConstants.Orange);
           }
-            
+
+          availableGold.SetBindValue(player.oid, nuiToken.Token, $"Or en banque : {player.bankGold}");
           TradeSystem.ScheduleSaveToDatabase();
 
           LoadBuyOrders();
@@ -1171,33 +1189,34 @@ namespace NWN.Systems
               {
                 quantity -= buyOrder.quantity;
                 int transactionPrice = buyOrder.quantity * buyOrder.unitPrice;
+                player.bankGold += TradeSystem.GetTaxedSellPrice(player, transactionPrice);
 
                 TradeSystem.AddResourceToPlayerStock(Players.FirstOrDefault(p => p.Value.characterId == buyOrder.buyerId).Value, buyOrder.buyerId,
                    buyOrder.resourceType, buyOrder.resourceLevel, buyOrder.quantity,
-                   $"Vous venez de vendre {buyOrder.quantity.ToString().ColorString(ColorConstants.White)} unités de {resource.type.ToDescription().ColorString(ColorConstants.White)} {resource.grade.ToString().ColorString(ColorConstants.White)} à un prix unitaire de {buyOrder.unitPrice.ToString().ColorString(ColorConstants.White)} (gain total : {transactionPrice.ToString().ColorString(ColorConstants.White)})", 
+                   $"Vous venez de vendre {buyOrder.quantity.ToString().ColorString(ColorConstants.White)} unités de {StringUtils.ToWhitecolor(resource.type.ToDescription())} {StringUtils.ToWhitecolor(resource.grade)} à un prix unitaire de {StringUtils.ToWhitecolor(buyOrder.unitPrice)} (gain total : {StringUtils.ToWhitecolor(transactionPrice)}) (solde {StringUtils.ToWhitecolor(player.bankGold)})", 
                   "Successful Sell Order");
                 
-                player.bankGold += TradeSystem.GetTaxedSellPrice(player, transactionPrice);
-
                 buyOrder.quantity = 0;
                 TradeSystem.buyOrderList.Remove(buyOrder);
               }
               else
               {
                 int transactionPrice = buyOrder.quantity * buyOrder.unitPrice;
+                player.bankGold += TradeSystem.GetTaxedSellPrice(player, transactionPrice);
 
                 TradeSystem.AddResourceToPlayerStock(Players.FirstOrDefault(p => p.Value.characterId == buyOrder.buyerId).Value, buyOrder.buyerId,
                   buyOrder.resourceType, buyOrder.resourceLevel, quantity,
-                  $"Vous venez de vendre {buyOrder.quantity.ToString().ColorString(ColorConstants.White)} unités de {resource.type.ToDescription().ColorString(ColorConstants.White)} {resource.grade.ToString().ColorString(ColorConstants.White)} à un prix unitaire de {buyOrder.unitPrice.ToString().ColorString(ColorConstants.White)} (gain total : {transactionPrice.ToString().ColorString(ColorConstants.White)})",
+                  $"Vous venez de vendre {StringUtils.ToWhitecolor(buyOrder.quantity)} unités de {StringUtils.ToWhitecolor(resource.type.ToDescription())} {StringUtils.ToWhitecolor(resource.grade)} à un prix unitaire de {StringUtils.ToWhitecolor(buyOrder.unitPrice)} (gain total : {StringUtils.ToWhitecolor(transactionPrice)}) (solde {StringUtils.ToWhitecolor(player.bankGold)})",
                   "Successful Sell Order");
 
-                player.bankGold += TradeSystem.GetTaxedSellPrice(player, transactionPrice);
+                
                 buyOrder.quantity -= quantity;
+                quantity = 0;
 
                 if (buyOrder.quantity == 0)
                   TradeSystem.buyOrderList.Remove(buyOrder);
 
-                return 0;
+                return quantity;
               }
             }
 
@@ -1213,6 +1232,7 @@ namespace NWN.Systems
             player.oid.SendServerMessage($"Un ordre de vente a été créé pour la quantité restante de {quantity.ToString().ColorString(ColorConstants.White)} unités", ColorConstants.Orange);
           }
 
+          availableGold.SetBindValue(player.oid, nuiToken.Token, $"Or en banque : {player.bankGold}");
           TradeSystem.ScheduleSaveToDatabase();
 
           LoadSellOrders();
@@ -1250,9 +1270,24 @@ namespace NWN.Systems
           }
 
           player.bankGold -= bid;
+          availableGold.SetBindValue(player.oid, nuiToken.Token, $"Or en banque : {player.bankGold}");
+
+          player.oid.SendServerMessage($"Votre enchère de {StringUtils.ToWhitecolor(bid)} sur {StringUtils.ToWhitecolor(auction.itemName)} a bien été prise en compte (solde {StringUtils.ToWhitecolor(player.bankGold)})", ColorConstants.Orange);
 
           if (auction.highestBid > 0) // TODO : prévoir notification en cas d'outbid
+          {
+            Player outBidded = Players.FirstOrDefault(p => p.Value.characterId == auction.highestBidderId).Value;
+
+            if (outBidded != null)
+            {
+              outBidded.bankGold += auction.highestBid;
+
+              if (outBidded.pcState != Player.PcState.Offline)
+                player.oid.SendServerMessage($"Votre enchère pour {StringUtils.ToWhitecolor(auction.itemName)} a été dépassée. La Nouvelle enchère se porte à {StringUtils.ToWhitecolor(bid)}. Votre mise précédente de {StringUtils.ToWhitecolor(auction.highestBid)} a été débloquée sur votre compte Skalsgard");
+            }
+
             TradeSystem.UpdatePlayerBankAccount(auction.highestBidderId.ToString(), auction.highestBid.ToString(), "Auction outbid");
+          }
 
           auction.highestBid = bid;
           auction.highestBidderId = player.characterId;
@@ -1263,8 +1298,11 @@ namespace NWN.Systems
             TradeSystem.ResolveSuccessfulAuction(auction);
             TradeSystem.ScheduleSaveToDatabase();
           }
-          else if ((DateTime.Now - auction.expirationDate).TotalMinutes < 5)
+          else if ((auction.expirationDate - DateTime.Now).TotalMinutes < 5)
+          {
             auction.expirationDate.AddMinutes(5);
+            player.oid.SendServerMessage("Suite à votre récente enchère, celle-ci a été étendue de 5 minutes", ColorConstants.Orange);
+          }
 
           LoadAuctions(filteredAuctions);
         }
@@ -1280,7 +1318,7 @@ namespace NWN.Systems
             TradeSystem.auctionList.Remove(auction);
             TradeSystem.ScheduleSaveToDatabase();
 
-            player.oid.SendServerMessage($"Votre enchère a été annulée et votre {auction.itemName} restitué", ColorConstants.Orange);
+            player.oid.SendServerMessage($"Votre enchère a été annulée et votre {StringUtils.ToWhitecolor(auction.itemName)} restitué", ColorConstants.Orange);
           }
 
           LoadAuctions(filteredAuctions);
@@ -1307,13 +1345,14 @@ namespace NWN.Systems
           cancelledProposal.cancelled = true;
 
           player.bankGold += cancelledProposal.sellPrice;
+          availableGold.SetBindValue(player.oid, nuiToken.Token, $"Or en banque : {player.bankGold}");
 
           foreach (var item in cancelledProposal.serializedItems)
             ItemUtils.DeserializeAndAcquireItem(item, player.oid.LoginCreature);
 
           lastRequestClicked.proposalList.Remove(cancelledProposal);
 
-          player.oid.SendServerMessage($"La proposition a bien été annulée. Vos objets et {cancelledProposal.sellPrice} pièces ont été débloquées sur votre compte Skalsgard.", ColorConstants.Orange);
+          player.oid.SendServerMessage($"La proposition a bien été annulée. Vos objets et {StringUtils.ToWhitecolor(cancelledProposal.sellPrice)} pièces ont été débloquées sur votre compte Skalsgard (solde {StringUtils.ToWhitecolor(player.bankGold)})", ColorConstants.Orange);
           
           LoadRequestDetailsLayout(lastRequestClicked);
           TradeSystem.ScheduleSaveToDatabase();
@@ -1343,6 +1382,7 @@ namespace NWN.Systems
           else
           {
             player.bankGold -= acceptedProposal.sellPrice;
+            availableGold.SetBindValue(player.oid, nuiToken.Token, $"Or en banque : {player.bankGold}");
             TradeSystem.AddItemToPlayerDataBaseBank(player.characterId.ToString(), acceptedProposal.serializedItems, "Accepted proposal");
 
             int taxedSellPrice = TradeSystem.GetTaxedSellPrice(Players.FirstOrDefault(p => p.Value.characterId == acceptedProposal.characterId).Value, acceptedProposal.sellPrice);
@@ -1355,15 +1395,15 @@ namespace NWN.Systems
               if (proposal.cancelled)
                 continue;
 
-              TradeSystem.UpdatePlayerBankAccount(proposal.characterId.ToString(), proposal.sellPrice.ToString(), "Proposal cancelled - Request accepted");
-              TradeSystem.AddItemToPlayerDataBaseBank(proposal.characterId.ToString(), proposal.serializedItems, "Proposal cancelled - Request accepted");
+              TradeSystem.UpdatePlayerBankAccount(proposal.characterId.ToString(), proposal.sellPrice.ToString(), "Proposal successful - Request accepted");
+              TradeSystem.AddItemToPlayerDataBaseBank(proposal.characterId.ToString(), proposal.serializedItems, "Proposal successful - Request accepted");
               proposal.cancelled = true;
             }
 
             lastRequestClicked.expirationDate = DateTime.Now;
             TradeSystem.tradeRequestList.Remove(lastRequestClicked);
             lastRequestClicked = null;
-            player.oid.SendServerMessage("La proposition a bien été acceptée. Les objets ont été déposés dans votre compte Skalsgard !", ColorConstants.Orange);
+            player.oid.SendServerMessage($"La proposition a bien été acceptée pour un prix de {StringUtils.ToWhitecolor(acceptedProposal.sellPrice)}. Les objets ont été déposés dans votre compte Skalsgard (solde {StringUtils.ToWhitecolor(player.bankGold)})", ColorConstants.Orange);
           }
 
           LoadRequestsLayout();

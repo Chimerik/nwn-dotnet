@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿/*using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 
@@ -378,7 +378,7 @@ namespace NWN.Systems
           variableValue.SetBindValues(player.oid, nuiToken.Token, variableValueList);
           listCount.SetBindValue(player.oid, nuiToken.Token, count);
         }
-      }*/
+      }
     }
   }
-}
+}*/

@@ -504,6 +504,7 @@ namespace NWN.Systems
           case "resourceExchange":
           case "rumors":
           case "auctionHouse":
+          case "bankCounter":
             window.Value.CloseWindow();
             break;
         }
