@@ -313,7 +313,7 @@ namespace NWN.Systems
             bidder.oid.SendServerMessage($"Votre avez remportez l'enchère pour {auction.itemName.ColorString(ColorConstants.White)} pour un prix de {auction.highestBid.ToString().ColorString(ColorConstants.White)}. L'objet a été envoyé dans votre coffre Skalsgard.", ColorConstants.Orange);
         }
 
-        AddItemToPlayerDataBaseBank(bidder.characterId.ToString(), new List<string>() { auction.serializedItem }, "Auction successful");
+        AddItemToPlayerDataBaseBank(auction.highestBidderId.ToString(), new List<string>() { auction.serializedItem }, "Auction successful");
         // TODO : ajouter notification par lettre
       }
     }

@@ -89,7 +89,7 @@ namespace NWN.Systems
         }
         catch(Exception)
         {
-          return 1;
+          return 0;
         }
       }
 

@@ -274,7 +274,7 @@ namespace NWN.Systems
             default: type = JobType.Mining; break;
           }
 
-          remainingTime = 3600 - consumedTime;
+          remainingTime = 3600;
           startTime = DateTime.Now.AddSeconds(-consumedTime);
           this.icon = icon;
 
@@ -326,6 +326,7 @@ namespace NWN.Systems
           remainingTime = baseJob.remainingTime;
           originalSerializedItem = baseJob.originalSerializedItem;
           serializedItem = baseJob.serializedCraftedItem;
+          baseJob.progressLastCalculation = DateTime.Now;
           progressLastCalculation = DateTime.Now;
           enchantementTag = baseJob.enchantementTag;
           startTime = baseJob.startTime;
@@ -820,7 +821,7 @@ namespace NWN.Systems
           player.craftResourceStock.Add(new CraftResource(resource, (int)miningYield));
         }
 
-        player.RescheduleRepeatableJob(ResourceType.Ore, alreadyConsumedTime, player.craftJob.icon);
+        player.RescheduleRepeatableJob(ResourceType.Ore, elapsedTime, player.craftJob.icon);
         player.oid.SendServerMessage($"La fin de votre job d'extraction passive de matéria minérale vous rapporte : {(int)miningYield} unités de matéria !", ColorConstants.Orange);
         player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
       }

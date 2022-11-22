@@ -474,7 +474,7 @@ namespace NWN
     }
     public static int GetResTypeFromFileExtension(string extension, string fileName)
     {
-      switch (extension)
+      switch (extension.ToLower())
       {
         case "2da": return NWScript.RESTYPE_2DA;
         case "4pc": return NWScript.RESTYPE_4PC;

@@ -151,6 +151,7 @@ namespace NWN.Systems
               return;
 
             case NuiEventType.Close:
+              Utils.ResetVisualTransform(player.oid.ControlledCreature);
               checkPositionScheduler.Dispose();
               return;
           }
@@ -167,6 +168,7 @@ namespace NWN.Systems
           {
             player.oid.SendServerMessage("Déplacement détecté. Réinitialisation de l'affichage de la position.", ColorConstants.Orange);
             Utils.ResetVisualTransform(player.oid.ControlledCreature);
+            playerPosition = player.oid.ControlledCreature.Position;
           }
         }
       }

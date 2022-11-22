@@ -190,7 +190,7 @@ namespace NWN.Systems
       onScrollLearn.PreventLearnScroll = true;
       NwItem oScroll = onScrollLearn.Scroll;
       int spellId = SpellUtils.GetSpellIDFromScroll(oScroll);
-      byte spellLevel = SpellUtils.GetSpellLevelFromScroll(oScroll);
+      byte spellLevel = NwSpell.FromSpellId(spellId).InnateSpellLevel;
 
       if (spellId < 0 || spellLevel > 10)
       {

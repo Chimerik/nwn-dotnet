@@ -250,6 +250,8 @@ namespace NWN.Systems
           globalColorColumnChildren.Add(globalColorRow1);
           globalColorColumnChildren.Add(globalColorRow2);
 
+          globalColorColumnChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiButton("Nom & Description") { Id = "loadItemNameEditor", Width = 150, Height = 50} } });
+
           globalColorRowChildren1.Add(new NuiSpacer());
           globalColorRowChildren1.Add(new NuiButton("")
           {
@@ -1193,9 +1195,9 @@ namespace NWN.Systems
             return;
           }
 
-          if (!item.IsValid && (item.Possessor != nuiEvent.Player.ControlledCreature || !player.IsDm()))
+          if (item == null || !item.IsValid || (item.Possessor != player.oid.ControlledCreature && !player.IsDm()))
           {
-            nuiEvent.Player.SendServerMessage("L'objet en cours de modification n'est plus en votre possession !", ColorConstants.Red);
+            player.oid.SendServerMessage("L'objet en cours de modification n'est plus en votre possession !", ColorConstants.Red);
             player.EnableItemAppearanceFeedbackMessages();
             CloseWindow();
             return;
@@ -2190,6 +2192,11 @@ namespace NWN.Systems
                   selectedArmorPart = CreaturePart.RightFoot;
                   selectedColorChannel = ItemAppearanceArmorColor.Metal2;
                   lastClickedColorButton = rightFootMetal2;
+                  return;
+
+                case "loadItemNameEditor":
+                  if (!player.windows.ContainsKey("editorItemName")) player.windows.Add("editorItemName", new EditorItemName(player, item));
+                  else ((EditorItemName)player.windows["editorItemName"]).CreateWindow(item);
                   return;
               }
 

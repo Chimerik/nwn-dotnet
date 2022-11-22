@@ -45,7 +45,7 @@ namespace NWN.Systems
 
           List<NuiListTemplateCell> blueprintTemplate = new List<NuiListTemplateCell>
           {
-            new NuiListTemplateCell(new NuiButtonImage(icon) {Id = "startCraft", Tooltip = blueprintNames, Enabled = enable, Height = 32, Width = 30 }) { Width = 30 },
+            new NuiListTemplateCell(new NuiButtonImage(icon) {Id = "startCraft", Tooltip = blueprintNames, Enabled = enable, Height = 40 }) { Width = 40 },
             new NuiListTemplateCell(new NuiLabel(blueprintMEs)
             {
               Tooltip = blueprintNames,
@@ -72,7 +72,7 @@ namespace NWN.Systems
           });
 
           rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) { Width = 410 } } });
-          rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiList(blueprintTemplate, listCount) { RowHeight = 32 } } });
+          rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiList(blueprintTemplate, listCount) { RowHeight = 40 } } });
 
           CreateWindow(placeableTag);
         }

@@ -136,7 +136,7 @@ namespace NWN.Systems
         if (!string.IsNullOrEmpty(resAlias))
         {
           //File.Delete(file);
-          Log.Info($"Found {resName} in {resAlias}");
+          Log.Info($"Found {resName}.{extension} in {resAlias}");
         }
       }
       Log.Info($"end");*/
@@ -154,12 +154,10 @@ namespace NWN.Systems
         if (area.Name.Contains("toremove"))
           Log.Info($"{area.Name} - {area.Tileset} - {NWScript.ResManGetAliasFor(area.Tileset, NWScript.RESTYPE_SET)}");*/
 
-      /*string[] array = new[] { "zcp_turtle5", "zcp_turtle6", "hyx_squrrel", "hyx_treesqurrel", "zcp_tortoise4", "c_fox_mt", "C_LionM_mt", "c_panther_mt", "c_LionFM-mt", "c_Leopard2_mt", "c_Bear2_mt", "c_Bear3_mt", "c_Husky_mt", "c_Hyena_mt", "hyx_foxbateared", "hyx_foxdesert", "hyx_foxfennec", "hyx_foxgray", "hyx_foxkit", "hyx_foxarctic", "c_Wolf_mt", "c_wolfwint",
-      "c_husky", "c_malamute", "c_dog", "c_deeprothe", "fightbull", "highbull", "holstncow", "c_a_cow", "c_a_ox", "longhbull", "buffabird2", "buffabird3", "angus2cow", "anguscow", "bisonbis", "goatclc", "goatsclc", "hog", "hogblk", "pig", "bwpig", "c_boar", "c_hog", "c_peccary", "c_babirusa", "c_potpig", "c_firehog", "c_sb_leg_boar", "c_razorboar", "pigblk", "c_Boar1_mt", "c_Boar2_mt", "zcp_boar_g", "c_owlbear_b2", "c_owlbear_b3", "c_owlbear_b4", "c_owlbear_a5", "c_bearblck", "c_bearbrwn", "c_cat", "c_Tiger_mt", "c_cat_wtiger", "c_snowleopard",
-      "c_cloudleopard", "c_sabrtooth", "c_cheetah", "c_cat_crag", "c_cat_lion", "zcp_lionmale", "c_monkeyb", "c_monkeyw", ""};
+      /*string[] array = new[] { "r1_plc561" };
 
       foreach(var mdl in array)
-      Log.Info($";{mdl};{NWScript.ResManGetAliasFor(mdl, NWScript.RESTYPE_MDL)}");*/ 
+        Log.Info($";{mdl};{NWScript.ResManGetAliasFor(mdl, NWScript.RESTYPE_MDL)}");*/
     }
     private static async void ReadGDocLine()
     {
@@ -447,7 +445,7 @@ namespace NWN.Systems
       try
       {
         int blockId = waypoint.GetObjectVariable<LocalVariableInt>("id").Value;
-
+        
         NwPlaceable newResourceBlock = NwPlaceable.Create(resourceTemplate, waypoint.Location);
         newResourceBlock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = quantity;
         newResourceBlock.GetObjectVariable<DateTimeLocalVariable>("_LAST_CHECK").Value = lastChecked;

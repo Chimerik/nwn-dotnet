@@ -13,27 +13,32 @@ namespace NWN.Systems
       public class BodyAppearanceWindow : PlayerWindow
       {
         private const float BUTTONSIZE = 15.0f;
-        private const float COMBOSIZE = 100.0f;
+        private const float COMBOSIZE = 150.0f;
 
         private readonly NuiColumn rootColumn = new();
         private readonly List<NuiElement> rootChildren = new();
         private readonly NuiBind<int> headSelection = new ("headSelection");
         private readonly NuiBind<int> sizeSelection = new ("sizeSelection");
 
-        private readonly NuiBind<List<NuiComboEntry>> headList = new NuiBind<List<NuiComboEntry>>("headList");
+        private readonly NuiBind<List<NuiComboEntry>> headList = new("headList");
         private List<NuiComboEntry> headPlaceholderList;
 
         private readonly NuiBind<int> chestSelection = new ("chestSelection");
+        private readonly NuiBind<int> pelvisSelection = new("pelvisSelection");
+        private readonly NuiBind<int> neckSelection = new("neckSelection");
         private readonly NuiBind<int> bicepRightSelection = new ("bicepRightSelection");
         private readonly NuiBind<int> forearmRightSelection = new ("forearmRightSelection");
+        private readonly NuiBind<int> handRightSelection = new("handRightSelection");
         private readonly NuiBind<int> thighRightSelection = new ("thighRightSelection");
         private readonly NuiBind<int> shinRightSelection = new ("shinRightSelection");
+        private readonly NuiBind<int> footRightSelection = new("footRightSelection");
         private readonly NuiBind<int> bicepLeftSelection = new ("bicepLeftSelection");
         private readonly NuiBind<int> forearmLeftSelection = new ("forearmLeftSelection");
+        private readonly NuiBind<int> handLeftSelection = new("handLeftSelection");
         private readonly NuiBind<int> thighLeftSelection = new ("thighLeftSelection");
         private readonly NuiBind<int> shinLeftSelection = new ("shinLeftSelection");
+        private readonly NuiBind<int> footLeftSelection = new("footLeftSelection");
 
-        private readonly List<NuiComboEntry> comboChest = new () { new NuiComboEntry("1", 1) };
         private readonly List<NuiComboEntry> comboBicep = new ()
           {
             new NuiComboEntry("1", 1),
@@ -47,7 +52,7 @@ namespace NWN.Systems
           windowId = "bodyAppearanceModifier";
           
           rootColumn.Children = rootChildren;
-          rootChildren.Add(new NuiRow { Children = new List<NuiElement> { new NuiSpacer { }, new NuiButton("Couleurs") { Id = "openColors", Height = 35, Width = 70 }, new NuiSpacer { } } });
+          rootChildren.Add(new NuiRow { Height = 40, Children = new List<NuiElement> { new NuiSpacer { }, new NuiButton("Couleurs") { Id = "openColors", Height = 35, Width = 70 }, new NuiSpacer { } } });
 
           rootChildren.Add(new NuiRow()
           {
@@ -55,151 +60,168 @@ namespace NWN.Systems
             {
               new NuiColumn() { Children = new List<NuiElement>()
               {
-                new NuiRow() { Children = new List<NuiElement>()
+                new NuiRow() { Height = BUTTONSIZE, Children = new List<NuiElement>()
                 {
-                  new NuiLabel("Taille") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }
+                  new NuiSpacer(),
+                  new NuiLabel("Taille") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+                  new NuiSpacer()
                 } },
-                new NuiRow() { Margin = 0.0f, Children = new List<NuiElement>()
+                new NuiRow() { Height = BUTTONSIZE, Margin = 0.0f, Children = new List<NuiElement>()
                 {
+                  new NuiSpacer(),
                   new NuiButton("<") { Id = "sizeDecrease", Height = BUTTONSIZE, Width = BUTTONSIZE, Margin = 0.0f },
                   new NuiCombo(){ Entries = Utils.sizeList, Selected = sizeSelection, Height = BUTTONSIZE, Width = COMBOSIZE, Margin = 0.0f },
-                  new NuiButton(">") { Id = "sizeIncrease", Height = BUTTONSIZE, Width = BUTTONSIZE, Margin = 0.0f }
+                  new NuiButton(">") { Id = "sizeIncrease", Height = BUTTONSIZE, Width = BUTTONSIZE, Margin = 0.0f },
+                  new NuiSpacer()
                 } },
-              } },
-              new NuiColumn() { Children = new List<NuiElement>()
-              {
-                new NuiRow() { Children = new List<NuiElement>()
+                new NuiRow() { Height = BUTTONSIZE, Children = new List<NuiElement>()
                 {
-                  new NuiLabel("Tête") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }
+                  new NuiSpacer(),
+                  new NuiLabel("Tête") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+                  new NuiSpacer()
                 } },
-                new NuiRow() { Margin = 0.0f,Children = new List<NuiElement>()
+                new NuiRow() { Height = BUTTONSIZE, Margin = 0.0f,Children = new List<NuiElement>()
                 {
+                  new NuiSpacer(),
                   new NuiButton("<") { Id = "headDecrease", Height = BUTTONSIZE, Width = BUTTONSIZE, Margin = 0.0f },
                   new NuiCombo(){ Entries = headList, Selected = headSelection, Height = BUTTONSIZE, Width = COMBOSIZE, Margin = 0.0f },
-                  new NuiButton(">") { Id = "headIncrease", Height = BUTTONSIZE, Width = BUTTONSIZE, Margin = 0.0f }
+                  new NuiButton(">") { Id = "headIncrease", Height = BUTTONSIZE, Width = BUTTONSIZE, Margin = 0.0f },
+                  new NuiSpacer()
+                } },
+                new NuiRow() { Height = BUTTONSIZE, Children = new List<NuiElement>()
+                {
+                  new NuiSpacer(),
+                  new NuiLabel("Cou") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+                  new NuiSpacer()
+                } },
+                new NuiRow() { Height = BUTTONSIZE, Margin = 0.0f, Children = new List<NuiElement>()
+                {
+                  new NuiSpacer(),
+                  new NuiCombo(){ Entries = comboBicep, Selected = neckSelection, Height = BUTTONSIZE, Width = COMBOSIZE, Margin = 0.0f },
+                  new NuiSpacer()
+                } },
+                new NuiRow() { Height = BUTTONSIZE, Children = new List<NuiElement>()
+                {
+                  new NuiSpacer(),
+                  new NuiLabel("Torse") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+                  new NuiSpacer()
+                } },
+                new NuiRow() { Height = BUTTONSIZE, Margin = 0.0f, Children = new List<NuiElement>()
+                {
+                  new NuiSpacer(),
+                  new NuiCombo(){ Entries = comboBicep, Selected = chestSelection, Height = BUTTONSIZE, Width = COMBOSIZE, Margin = 0.0f },
+                  new NuiSpacer()
+                } },
+                new NuiRow() { Height = BUTTONSIZE, Children = new List<NuiElement>()
+                {
+                  new NuiSpacer(),
+                  new NuiLabel("Pelvis") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+                  new NuiSpacer()
+                } },
+                new NuiRow() { Height = BUTTONSIZE, Margin = 0.0f, Children = new List<NuiElement>()
+                {
+                  new NuiSpacer(),
+                  new NuiCombo(){ Entries = comboBicep, Selected = pelvisSelection, Height = BUTTONSIZE, Width = COMBOSIZE, Margin = 0.0f },
+                  new NuiSpacer()
+                } },
+                new NuiRow() { Height = BUTTONSIZE, Children = new List<NuiElement>()
+                {
+                  new NuiSpacer(),
+                  new NuiLabel("Biceps Droit") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+                  new NuiSpacer(),
+                  new NuiLabel("Biceps Gauche") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+                  new NuiSpacer()
+                } },
+                new NuiRow() { Height = BUTTONSIZE, Margin = 0.0f, Children = new List<NuiElement>()
+                {
+                  new NuiSpacer(),
+                  new NuiCombo(){ Entries = comboBicep, Selected = bicepRightSelection, Height = BUTTONSIZE, Width = COMBOSIZE, Margin = 0.0f },
+                  new NuiSpacer(),
+                  new NuiCombo(){ Entries = comboBicep, Selected = bicepLeftSelection, Height = BUTTONSIZE, Width = COMBOSIZE, Margin = 0.0f },
+                  new NuiSpacer()
+                } },
+                new NuiRow() { Height = BUTTONSIZE, Children = new List<NuiElement>()
+                {
+                  new NuiSpacer(),
+                  new NuiLabel("Avant-bras Droit") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+                  new NuiSpacer(),
+                  new NuiLabel("Avant-bras Gauche") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+                  new NuiSpacer()
+                } },
+                new NuiRow() { Height = BUTTONSIZE, Margin = 0.0f, Children = new List<NuiElement>()
+                {
+                  new NuiSpacer(),
+                  new NuiCombo(){ Entries = comboBicep, Selected = forearmRightSelection, Height = BUTTONSIZE, Width = COMBOSIZE, Margin = 0.0f },
+                  new NuiSpacer(),
+                  new NuiCombo(){ Entries = comboBicep, Selected = forearmLeftSelection, Height = BUTTONSIZE, Width = COMBOSIZE, Margin = 0.0f },
+                  new NuiSpacer()
+                } },
+                new NuiRow() { Height = BUTTONSIZE, Children = new List<NuiElement>()
+                {
+                  new NuiSpacer(),
+                  new NuiLabel("Main Droite") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+                  new NuiSpacer(),
+                  new NuiLabel("Main Gauche") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+                  new NuiSpacer()
+                } },
+                new NuiRow() { Height = BUTTONSIZE, Margin = 0.0f, Children = new List<NuiElement>()
+                {
+                  new NuiSpacer(),
+                  new NuiCombo(){ Entries = comboBicep, Selected = handRightSelection, Height = BUTTONSIZE, Width = COMBOSIZE, Margin = 0.0f },
+                  new NuiSpacer(),
+                  new NuiCombo(){ Entries = comboBicep, Selected = handLeftSelection, Height = BUTTONSIZE, Width = COMBOSIZE, Margin = 0.0f },
+                  new NuiSpacer()
+                } },
+                new NuiRow() { Height = BUTTONSIZE, Children = new List<NuiElement>()
+                {
+                  new NuiSpacer(),
+                  new NuiLabel("Cuisse Droite") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+                  new NuiSpacer(),
+                  new NuiLabel("Cuisse Gauche") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+                  new NuiSpacer()
+                } },
+                new NuiRow() { Height = BUTTONSIZE, Margin = 0.0f, Children = new List<NuiElement>()
+                {
+                  new NuiSpacer(),
+                  new NuiCombo(){ Entries = comboBicep, Selected = thighRightSelection, Height = BUTTONSIZE, Width = COMBOSIZE, Margin = 0.0f },
+                  new NuiSpacer(),
+                  new NuiCombo(){ Entries = comboBicep, Selected = thighLeftSelection, Height = BUTTONSIZE, Width = COMBOSIZE, Margin = 0.0f },
+                  new NuiSpacer()
+                } },
+                new NuiRow() { Height = BUTTONSIZE, Children = new List<NuiElement>()
+                {
+                  new NuiSpacer(),
+                  new NuiLabel("Tibia Droit") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+                  new NuiSpacer(),
+                  new NuiLabel("Tibia Gauche") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+                  new NuiSpacer()
+                } },
+                new NuiRow() { Height = BUTTONSIZE, Margin = 0.0f, Children = new List<NuiElement>()
+                {
+                  new NuiSpacer(),
+                  new NuiCombo(){ Entries = comboBicep, Selected = shinRightSelection, Height = BUTTONSIZE, Width = COMBOSIZE, Margin = 0.0f },
+                  new NuiSpacer(),
+                  new NuiCombo(){ Entries = comboBicep, Selected = shinLeftSelection, Height = BUTTONSIZE, Width = COMBOSIZE, Margin = 0.0f },
+                  new NuiSpacer()
+                } },
+                new NuiRow() { Height = BUTTONSIZE, Children = new List<NuiElement>()
+                {
+                  new NuiSpacer(),
+                  new NuiLabel("Pied Droit") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+                  new NuiSpacer(),
+                  new NuiLabel("Pied Gauche") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+                  new NuiSpacer()
+                } },
+                new NuiRow() { Height = BUTTONSIZE, Margin = 0.0f, Children = new List<NuiElement>()
+                {
+                  new NuiSpacer(),
+                  new NuiCombo(){ Entries = comboBicep, Selected = footRightSelection, Height = BUTTONSIZE, Width = COMBOSIZE, Margin = 0.0f },
+                  new NuiSpacer(),
+                  new NuiCombo(){ Entries = comboBicep, Selected = footLeftSelection, Height = BUTTONSIZE, Width = COMBOSIZE, Margin = 0.0f },
+                  new NuiSpacer()
                 } },
               } }
             } 
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-            {
-              new NuiColumn() { Children = new List<NuiElement>()
-              {
-                new NuiRow() { Children = new List<NuiElement>()
-                {
-                  new NuiLabel("Torse") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }
-                } },
-                new NuiRow() { Margin = 0.0f, Children = new List<NuiElement>()
-                {
-                  new NuiCombo(){ Entries = comboChest, Selected = chestSelection, Height = BUTTONSIZE, Width = COMBOSIZE, Margin = 0.0f }
-                } },
-              } },
-              new NuiColumn() { Children = new List<NuiElement>()
-              {
-                new NuiRow() { Children = new List<NuiElement>()
-                {
-                  new NuiLabel("Biceps droit") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }
-                } },
-                new NuiRow() { Margin = 0.0f,Children = new List<NuiElement>()
-                {
-                  new NuiCombo(){ Entries = comboBicep, Selected = bicepRightSelection, Height = BUTTONSIZE, Width = COMBOSIZE, Margin = 0.0f },
-                } },
-              } },
-              new NuiColumn() { Children = new List<NuiElement>()
-              {
-                new NuiRow() { Children = new List<NuiElement>()
-                {
-                  new NuiLabel("Biceps gauche") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }
-                } },
-                new NuiRow() { Margin = 0.0f,Children = new List<NuiElement>()
-                {
-                  new NuiCombo(){ Entries = comboBicep, Selected = bicepLeftSelection, Height = BUTTONSIZE, Width = COMBOSIZE, Margin = 0.0f },
-                } },
-              } }
-            }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-            {
-              new NuiColumn() { Children = new List<NuiElement>()
-              {
-                new NuiRow() { Children = new List<NuiElement>()
-                {
-                  new NuiLabel("Avant-bras droit") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }
-                } },
-                new NuiRow() { Margin = 0.0f, Children = new List<NuiElement>()
-                {
-                  new NuiCombo(){ Entries = comboBicep, Selected = forearmRightSelection, Height = BUTTONSIZE, Width = COMBOSIZE, Margin = 0.0f }
-                } },
-              } },
-              new NuiColumn() { Children = new List<NuiElement>()
-              {
-                new NuiRow() { Children = new List<NuiElement>()
-                {
-                  new NuiLabel("Avant-bras gauche") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }
-                } },
-                new NuiRow() { Margin = 0.0f,Children = new List<NuiElement>()
-                {
-                  new NuiCombo(){ Entries = comboBicep, Selected = forearmLeftSelection, Height = BUTTONSIZE, Width = COMBOSIZE, Margin = 0.0f },
-                } },
-              } },
-              new NuiColumn() { Children = new List<NuiElement>()
-              {
-                new NuiRow() { Children = new List<NuiElement>()
-                {
-                  new NuiLabel("Cuisse droite") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }
-                } },
-                new NuiRow() { Margin = 0.0f,Children = new List<NuiElement>()
-                {
-                  new NuiCombo(){ Entries = comboBicep, Selected = thighRightSelection, Height = BUTTONSIZE, Width = COMBOSIZE, Margin = 0.0f },
-                } },
-              } }
-            }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-            {
-              new NuiColumn() { Children = new List<NuiElement>()
-              {
-                new NuiRow() { Children = new List<NuiElement>()
-                {
-                  new NuiLabel("Cuisse gauche") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }
-                } },
-                new NuiRow() { Margin = 0.0f, Children = new List<NuiElement>()
-                {
-                  new NuiCombo(){ Entries = comboBicep, Selected = thighLeftSelection, Height = BUTTONSIZE, Width = COMBOSIZE, Margin = 0.0f }
-                } },
-              } },
-              new NuiColumn() { Children = new List<NuiElement>()
-              {
-                new NuiRow() { Children = new List<NuiElement>()
-                {
-                  new NuiLabel("Tibia droit") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }
-                } },
-                new NuiRow() { Margin = 0.0f,Children = new List<NuiElement>()
-                {
-                  new NuiCombo(){ Entries = comboBicep, Selected = shinRightSelection, Height = BUTTONSIZE, Width = COMBOSIZE, Margin = 0.0f },
-                } },
-              } },
-              new NuiColumn() { Children = new List<NuiElement>()
-              {
-                new NuiRow() { Children = new List<NuiElement>()
-                {
-                  new NuiLabel("Tibia gauche") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }
-                } },
-                new NuiRow() { Margin = 0.0f,Children = new List<NuiElement>()
-                {
-                  new NuiCombo(){ Entries = comboBicep, Selected = shinLeftSelection, Height = BUTTONSIZE, Width = COMBOSIZE, Margin = 0.0f },
-                } },
-              } }
-            }
           });
 
           CreateWindow(targetCreature);
@@ -210,12 +232,7 @@ namespace NWN.Systems
           player.DisableItemAppearanceFeedbackMessages();
           CloseWindow();
 
-          if (targetCreature.Gender == Gender.Male && comboChest.Count < 2)
-            comboChest.Add(new NuiComboEntry("2", 2));
-          else if (targetCreature.Gender == Gender.Female && comboChest.Count > 1)
-            comboChest.RemoveAt(1);
-
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.7f, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 3);
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(0, 0, 650, 450);
 
           window = new NuiWindow(rootColumn, $"{targetCreature.Name} - Modification corporelle")
           {
@@ -254,15 +271,21 @@ namespace NWN.Systems
             headSelection.SetBindWatch(player.oid, nuiToken.Token, true);
             sizeSelection.SetBindWatch(player.oid, nuiToken.Token, true);
 
+            neckSelection.SetBindWatch(player.oid, nuiToken.Token, true);
             chestSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            pelvisSelection.SetBindWatch(player.oid, nuiToken.Token, true);
             bicepRightSelection.SetBindWatch(player.oid, nuiToken.Token, true);
             bicepLeftSelection.SetBindWatch(player.oid, nuiToken.Token, true);
             forearmRightSelection.SetBindWatch(player.oid, nuiToken.Token, true);
             forearmLeftSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            handRightSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            handLeftSelection.SetBindWatch(player.oid, nuiToken.Token, true);
             thighRightSelection.SetBindWatch(player.oid, nuiToken.Token, true);
             thighLeftSelection.SetBindWatch(player.oid, nuiToken.Token, true);
             shinRightSelection.SetBindWatch(player.oid, nuiToken.Token, true);
             shinLeftSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            footRightSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            footLeftSelection.SetBindWatch(player.oid, nuiToken.Token, true);
 
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
@@ -346,8 +369,16 @@ namespace NWN.Systems
                     targetCreature.VisualTransform.Scale = newScale;
                   break;
 
+                case "neckSelection":
+                  targetCreature.SetCreatureBodyPart(CreaturePart.Neck, neckSelection.GetBindValue(player.oid, nuiToken.Token));
+                  break;
+
                 case "chestSelection":
                   targetCreature.SetCreatureBodyPart(CreaturePart.Torso, chestSelection.GetBindValue(player.oid, nuiToken.Token));
+                  break;
+
+                case "pelvisSelection":
+                  targetCreature.SetCreatureBodyPart(CreaturePart.Pelvis, pelvisSelection.GetBindValue(player.oid, nuiToken.Token));
                   break;
 
                 case "bicepRightSelection":
@@ -366,6 +397,14 @@ namespace NWN.Systems
                   targetCreature.SetCreatureBodyPart(CreaturePart.LeftForearm, forearmLeftSelection.GetBindValue(player.oid, nuiToken.Token));
                   break;
 
+                case "handRightSelection":
+                  targetCreature.SetCreatureBodyPart(CreaturePart.RightHand, handRightSelection.GetBindValue(player.oid, nuiToken.Token));
+                  break;
+
+                case "handLeftSelection":
+                  targetCreature.SetCreatureBodyPart(CreaturePart.LeftHand, handLeftSelection.GetBindValue(player.oid, nuiToken.Token));
+                  break;
+
                 case "thighRightSelection":
                   targetCreature.SetCreatureBodyPart(CreaturePart.RightThigh, thighRightSelection.GetBindValue(player.oid, nuiToken.Token));
                   break;
@@ -380,6 +419,14 @@ namespace NWN.Systems
 
                 case "shinLeftSelection":
                   targetCreature.SetCreatureBodyPart(CreaturePart.LeftShin, shinLeftSelection.GetBindValue(player.oid, nuiToken.Token));
+                  break;
+
+                case "footRightSelection":
+                  targetCreature.SetCreatureBodyPart(CreaturePart.RightFoot, footRightSelection.GetBindValue(player.oid, nuiToken.Token));
+                  break;
+
+                case "footLeftSelection":
+                  targetCreature.SetCreatureBodyPart(CreaturePart.LeftFoot, footLeftSelection.GetBindValue(player.oid, nuiToken.Token));
                   break;
               }
 

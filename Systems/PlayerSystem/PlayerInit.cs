@@ -550,6 +550,12 @@ namespace NWN.Systems
 
         if(craftJob != null)
         {
+          if ((craftJob.type == JobType.Mining || craftJob.type == JobType.WoodCutting || craftJob.type == JobType.Pelting) && craftJob.progressLastCalculation.HasValue)
+          {
+            craftJob.remainingTime -= (DateTime.Now - craftJob.progressLastCalculation.Value).TotalSeconds;
+            craftJob.progressLastCalculation = null;
+          }
+
           if (!windows.ContainsKey("activeCraftJob")) windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
           else ((ActiveCraftJobWindow)windows["activeCraftJob"]).CreateWindow();
         }

@@ -131,6 +131,8 @@ namespace NWN.Systems
         private readonly NuiBind<bool> spawnOptionsVisibility = new("spawnOptionsVisibility");
         private int previousType;
 
+        List<NuiComboEntry> filteredEntries;
+
         Tab currentTab;
 
         public EditorPNJWindow(Player player, NwCreature targetCreature) : base(player)
@@ -308,10 +310,8 @@ namespace NWN.Systems
                     return;
                   }
 
-                  if (player.windows.ContainsKey("bodyAppearanceModifier"))
-                    ((BodyAppearanceWindow)player.windows["bodyAppearanceModifier"]).CreateWindow(targetCreature);
-                  else
-                    player.windows.Add("bodyAppearanceModifier", new BodyAppearanceWindow(player, targetCreature));
+                  if (!player.windows.ContainsKey("bodyAppearanceModifier")) player.windows.Add("bodyAppearanceModifier", new BodyAppearanceWindow(player, targetCreature));
+                  else ((BodyAppearanceWindow)player.windows["bodyAppearanceModifier"]).CreateWindow(targetCreature);
 
                   break;
 
@@ -324,25 +324,8 @@ namespace NWN.Systems
 
                   break;
 
-                case "appearancePrev":
-
-                  NuiComboEntry entryPrev = Utils.appearanceEntries.FirstOrDefault(a => a.Value == apparenceSelected.GetBindValue(player.oid, nuiToken.Token));
-                  int indexPrev = Utils.appearanceEntries.IndexOf(entryPrev) - 1;
-
-                  if (indexPrev > -1)
-                    SetAppearance(indexPrev);
-
-                  break;
-
-                case "appearanceNext":
-
-                  NuiComboEntry entry = Utils.appearanceEntries.FirstOrDefault(a => a.Value == apparenceSelected.GetBindValue(player.oid, nuiToken.Token));
-                  int index = Utils.appearanceEntries.IndexOf(entry) + 1;
-
-                  if (index < Utils.appearanceEntries.Count)
-                    SetAppearance(index);
-
-                  break;
+                case "appearancePrev": HandleAppearanceSearch(-1); break;
+                case "appearanceNext": HandleAppearanceSearch(1); break;
 
                 case "portraitSelect1":
                   targetCreature.PortraitResRef = portraits1.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex];
@@ -570,7 +553,8 @@ namespace NWN.Systems
 
                 case "apparenceSearch":
                   string aSearch = apparenceSearch.GetBindValue(player.oid, nuiToken.Token).ToLower();
-                  apparence.SetBindValue(player.oid, nuiToken.Token, string.IsNullOrEmpty(aSearch) ? Utils.appearanceEntries : Utils.appearanceEntries.Where(v => v.Label.ToLower().Contains(aSearch)).ToList());
+                  filteredEntries = string.IsNullOrEmpty(aSearch) ? Utils.appearanceEntries : Utils.appearanceEntries.Where(v => v.Label.ToLower().Contains(aSearch)).ToList();
+                  apparence.SetBindValue(player.oid, nuiToken.Token, filteredEntries);
                   break;
 
                 case "acquiredFeatSearch":
@@ -1510,6 +1494,7 @@ namespace NWN.Systems
         {
           StopAllWatchBindings();
 
+          filteredEntries = Utils.appearanceEntries;
           apparence.SetBindValue(player.oid, nuiToken.Token, Utils.appearanceEntries);
           apparenceSelected.SetBindValue(player.oid, nuiToken.Token, targetCreature.Appearance.RowIndex);
           apparenceSelected.SetBindWatch(player.oid, nuiToken.Token, true);
@@ -1522,8 +1507,8 @@ namespace NWN.Systems
         {
           apparenceSelected.SetBindWatch(player.oid, nuiToken.Token, false);
 
-          apparenceSelected.SetBindValue(player.oid, nuiToken.Token, Utils.appearanceEntries.ElementAt(index).Value);
-          targetCreature.Appearance = NwGameTables.AppearanceTable[apparenceSelected.GetBindValue(player.oid, nuiToken.Token)];
+          apparenceSelected.SetBindValue(player.oid, nuiToken.Token, index);
+          targetCreature.Appearance = NwGameTables.AppearanceTable[index];
 
           apparenceSelected.SetBindWatch(player.oid, nuiToken.Token, true);
         }
@@ -1696,6 +1681,18 @@ namespace NWN.Systems
 
             targetCreature.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Delete();
           }
+        }
+        private void HandleAppearanceSearch(int index)
+        {
+          NuiComboEntry entryPrev = filteredEntries.FirstOrDefault(a => a.Value == apparenceSelected.GetBindValue(player.oid, nuiToken.Token));
+          int indexPrev = filteredEntries.IndexOf(entryPrev) + index;
+
+          if (indexPrev < 0)
+            SetAppearance(filteredEntries.ElementAt(filteredEntries.Count() - 1).Value);
+          else if (indexPrev >= filteredEntries.Count())
+            SetAppearance(filteredEntries.ElementAt(0).Value);
+          else
+            SetAppearance(filteredEntries.ElementAt(indexPrev).Value);
         }
       }
     }

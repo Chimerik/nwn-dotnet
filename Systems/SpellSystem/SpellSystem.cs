@@ -437,7 +437,7 @@ namespace NWN.Systems
 
       if (aoe == null || aoe.GetObjectVariable<LocalVariableBool>("TAGGED").HasValue || aoe.Creator != castingCreature)
         return;
-
+      
       aoe.Tag = master.oid.CDKey;
       aoe.GetObjectVariable<LocalVariableBool>("TAGGED").Value = true;
 

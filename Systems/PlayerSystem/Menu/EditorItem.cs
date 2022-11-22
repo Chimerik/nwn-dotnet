@@ -208,7 +208,7 @@ namespace NWN.Systems
                 case "saveDescription":
                   targetItem.Description = itemDescription.GetBindValue(player.oid, nuiToken.Token);
                   targetItem.GetObjectVariable<LocalVariableString>("_COMMENT").Value = itemComment.GetBindValue(player.oid, nuiToken.Token);
-                  player.oid.SendServerMessage($"La description et le commentaire de la créature {targetItem.Name.ColorString(ColorConstants.White)} ont bien été enregistrées.", new Color(32, 255, 32));
+                  player.oid.SendServerMessage($"La description et le commentaire de l'objet {targetItem.Name.ColorString(ColorConstants.White)} ont bien été enregistrées.", new Color(32, 255, 32));
                   break;
 
                 case "saveNewVariable":
@@ -538,7 +538,7 @@ namespace NWN.Systems
             Children = new List<NuiElement>()
             {
               new NuiSpacer(),
-              new NuiButtonImage("ir_empytqs") { Id = "saveDescription", Tooltip = "Enregistrer la description et le commentaire de cette créature", Height = 35, Width = 35 },
+              new NuiButtonImage("ir_empytqs") { Id = "saveDescription", Tooltip = "Enregistrer la description et le commentaire de cet objet", Height = 35, Width = 35 },
               new NuiSpacer()
             }
           });
