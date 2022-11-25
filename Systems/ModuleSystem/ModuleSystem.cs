@@ -282,6 +282,9 @@ namespace NWN.Systems
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS trade" +
         "('requests' TEXT, 'auctions' TEXT, 'buyOrders' TEXT, 'sellOrders' TEXT)");
+
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerConnectionInfo" +
+        "('playerAccount' TEXT NOT NULL, 'cdKey' TEXT NOT NULL, 'ipAdress' TEXT NOT NULL, 'lastConnection' TEXT NOT NULL, UNIQUE (playerAccount, cdKey, ipAdress))");
     }
     private void InitializeEvents()
     {

@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
+
+using Microsoft.Data.Sqlite;
+
 using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
@@ -73,8 +76,6 @@ namespace NWN.Systems
 
       Utils.ResetVisualTransform(player.oid.ControlledCreature);
       player.pcState = Player.PcState.Offline;
-
-      //player.InitializePlayerLearnableJobs();
 
       if (!player.oid.LoginCreature.KnowsFeat(CustomFeats.Sit))
         player.oid.LoginCreature.AddFeat(CustomFeats.Sit);
@@ -560,8 +561,83 @@ namespace NWN.Systems
           else ((ActiveCraftJobWindow)windows["activeCraftJob"]).CreateWindow();
         }
 
+        CheckPlayerConnectionInfo();
+
         pcState = PcState.Online;
         oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
+      }
+      private async void CheckPlayerConnectionInfo()
+      {
+        string cdKey = oid.CDKey;
+        string playerName = oid.PlayerName;
+        string ipAdress = oid.IPAddress;
+
+        await SqLiteUtils.InsertQueryAsync("playerConnectionInfo",
+          new List<string[]>() {
+            new string[] { "playerAccount", playerName },
+            new string[] { "cdKey", cdKey },
+            new string[] { "ipAdress", ipAdress },
+            new string[] { "lastConnection", DateTime.Now.ToString() } },
+          new List<string>() { "playerAccount", "cdKey", "ipAdress" },
+          new List<string[]>() { new string[] { "lastConnection" } });
+
+        string queryString = "select playerAccount from playerConnectionInfo where playerAccount != @playerAccount and cdKey = @cdKey";
+
+        try
+        {
+          using (var connection = new SqliteConnection(Config.dbPath))
+          {
+            connection.Open();
+
+            var command = connection.CreateCommand();
+            command.CommandText = queryString;
+
+            command.Parameters.AddWithValue($"@playerAccount", (object)playerName ?? DBNull.Value);
+            command.Parameters.AddWithValue($"@cdKey", (object)cdKey ?? DBNull.Value);
+
+            using (var reader = await command.ExecuteReaderAsync())
+            {
+              while (reader.Read())
+              {
+                Utils.LogMessageToDMs($"WARNING - {playerName} vient de se connecter avec la clef {cdKey} également utilisée par {reader.GetString(0)}");
+              }
+            }
+          }
+        }
+        catch (Exception e)
+        {
+          Utils.LogMessageToDMs($"Select Query - {e.Message}");
+          Utils.LogMessageToDMs(queryString);
+        }
+
+        try
+        {
+          queryString = "select playerAccount from playerConnectionInfo where playerAccount != @playerAccount and ipAdress = @ipAdress";
+
+          using (var connection = new SqliteConnection(Config.dbPath))
+          {
+            connection.Open();
+
+            var command = connection.CreateCommand();
+            command.CommandText = queryString;
+
+            command.Parameters.AddWithValue($"@playerAccount", (object)playerName ?? DBNull.Value);
+            command.Parameters.AddWithValue($"@ipAdress", (object)ipAdress ?? DBNull.Value);
+
+            using (var reader = await command.ExecuteReaderAsync())
+            {
+              while (reader.Read())
+              {
+                Utils.LogMessageToDMs($"WARNING - {playerName} vient de se connecter avec l'adresse ip {ipAdress} également utilisée par {reader.GetString(0)}");
+              }
+            }
+          }
+        }
+        catch (Exception e)
+        {
+          Utils.LogMessageToDMs($"Select Query - {e.Message}");
+          Utils.LogMessageToDMs(queryString);
+        }
       }
       private async void InitializeAccountMapPins(string serializedMapPins)
       {
