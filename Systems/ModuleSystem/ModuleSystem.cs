@@ -560,7 +560,7 @@ namespace NWN.Systems
       if (player == null)
         return;
 
-      effectApplied.Effect.Tag = player.oid.CDKey;
+      effectApplied.Effect.Tag = $"_PLAYER_{player.characterId}";
 
       if (effectApplied.Object is NwGameObject gameObject && !player.effectTargets.Contains(gameObject))
         player.effectTargets.Add(gameObject);

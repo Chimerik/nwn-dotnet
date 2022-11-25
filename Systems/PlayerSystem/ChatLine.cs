@@ -28,8 +28,7 @@ namespace NWN.Systems
       this.untranslatedText = untranslatedText.Trim();
       this.channel = channel;
       this.category = category;
-      textHistory = new List<string>();
-      textHistory.Add(this.text);
+      textHistory = new List<string> { this.text };
     }
     public enum ChatCategory
     {

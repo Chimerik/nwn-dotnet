@@ -425,7 +425,7 @@ namespace NWN.Systems
       if (aoe == null || aoe.GetObjectVariable<LocalVariableBool>("TAGGED").HasValue || aoe.Creator != player.oid.ControlledCreature)
         return;
 
-      aoe.Tag = player.oid.CDKey;
+      aoe.Tag = $"_PLAYER_{player.characterId}";
       aoe.GetObjectVariable<LocalVariableBool>("TAGGED").Value = true;
 
       if (player.TryGetOpenedWindow("aoeDispel", out PlayerSystem.Player.PlayerWindow aoeWindow))
@@ -438,7 +438,7 @@ namespace NWN.Systems
       if (aoe == null || aoe.GetObjectVariable<LocalVariableBool>("TAGGED").HasValue || aoe.Creator != castingCreature)
         return;
       
-      aoe.Tag = master.oid.CDKey;
+      aoe.Tag = $"_PLAYER_{master.characterId}";
       aoe.GetObjectVariable<LocalVariableBool>("TAGGED").Value = true;
 
       if (master.TryGetOpenedWindow("aoeDispel", out PlayerSystem.Player.PlayerWindow aoeWindow))

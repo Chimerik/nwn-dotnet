@@ -16,12 +16,7 @@ namespace NWN.Systems
 
     public DialogSystem(/*SpellSystem spellSystem*/)
     {
-      //this.spellSystem = spellSystem;
-      /*foreach (NwPlaceable plc in NwModule.FindObjectsWithTag<NwPlaceable>("bank_gold"))
-        plc.OnUsed += StartGoldStealDialog;*/
 
-      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("hventes"))
-        plc.OnUsed += StartAuctionHouseDialog;
     }
 
     public void StartBankerDialog(CreatureEvents.OnConversation onConversation)
@@ -97,13 +92,6 @@ namespace NWN.Systems
           player.windows.Add("materiaStorage", new Player.MateriaStorageWindow(player, onConversation.CurrentSpeaker));
       }
     }
-    
-    public static void StartAuctionHouseDialog(PlaceableEvents.OnUsed onUsed)
-    {
-      if (Players.TryGetValue(onUsed.UsedBy, out Player player))
-        new HotelDesVentes(player);
-    }
-
     private async void HandleGenericShop(Player player, NwCreature shopkeeper, string tag, BaseItemType[] basicBluePrints, int[] basicSkillBooks, int[] basicArmorAndScrolls, string[] basicItems)
     {
       NwStore shop = shopkeeper.GetNearestObjectsByType<NwStore>().FirstOrDefault(s => s.Tag == tag);

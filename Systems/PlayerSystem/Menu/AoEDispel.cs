@@ -125,7 +125,7 @@ namespace NWN.Systems
         }
         public void UpdateAoEList()
         {
-          currentList = NwObject.FindObjectsWithTag<NwAreaOfEffect>(player.oid.CDKey).ToList();
+          currentList = NwObject.FindObjectsWithTag<NwAreaOfEffect>($"_PLAYER_{player.characterId}").ToList();
           LoadPlayerAoEList(currentList);
         }
         private void LoadPlayerAoEList(List<NwAreaOfEffect> aoeList)

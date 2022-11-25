@@ -1119,7 +1119,7 @@ namespace NWN.Systems
                 player.bankGold -= transactionPrice;
 
                 TradeSystem.AddResourceToPlayerStock(player, player.characterId, sellOrder.resourceType, sellOrder.resourceLevel, sellOrder.quantity, 
-                  $"Vous venez d'acheter {StringUtils.ToWhitecolor(sellOrder.quantity)} unités de {StringUtils.ToWhitecolor(resource.type.ToDescription())} {StringUtils.ToWhitecolor(resource.grade)} à un prix unitaire de {StringUtils.ToWhitecolor(sellOrder.unitPrice)} (coût total {StringUtils.ToWhitecolor(transactionPrice)}) (solde {StringUtils.ToWhitecolor(player.bankGold)})",
+                  $"Vous venez d'acheter {StringUtils.ToWhitecolor(sellOrder.quantity)} unités de {StringUtils.ToWhitecolor(resource.type.ToDescription())} {StringUtils.ToWhitecolor(resource.grade)} à un prix unitaire de {StringUtils.ToWhitecolor(sellOrder.unitPrice)} (coût total {StringUtils.ToWhitecolor(transactionPrice)}) (solde en banque {StringUtils.ToWhitecolor(player.bankGold)})",
                   "Successful Buy Order");
 
                 TradeSystem.UpdatePlayerBankAccount(sellOrder.sellerId.ToString(), 
@@ -1136,7 +1136,7 @@ namespace NWN.Systems
                 player.bankGold -= transactionPrice;
 
                 TradeSystem.AddResourceToPlayerStock(player, player.characterId, sellOrder.resourceType, sellOrder.resourceLevel, quantity,
-                  $"Vous venez d'acheter {StringUtils.ToWhitecolor(quantity)} unités de {StringUtils.ToWhitecolor(resource.type.ToDescription())} {StringUtils.ToWhitecolor(resource.grade)} à un prix unitaire de {StringUtils.ToWhitecolor(sellOrder.unitPrice)}) (solde {StringUtils.ToWhitecolor(player.bankGold)})",
+                  $"Vous venez d'acheter {StringUtils.ToWhitecolor(quantity)} unités de {StringUtils.ToWhitecolor(resource.type.ToDescription())} {StringUtils.ToWhitecolor(resource.grade)} à un prix unitaire de {StringUtils.ToWhitecolor(sellOrder.unitPrice)}) (solde en banque {StringUtils.ToWhitecolor(player.bankGold)})",
                   "Successful Buy Order");
 
                 TradeSystem.UpdatePlayerBankAccount(sellOrder.sellerId.ToString(), 

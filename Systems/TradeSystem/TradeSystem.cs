@@ -340,7 +340,7 @@ namespace NWN.Systems
         if (player.pcState != Player.PcState.Offline)
         {
           await NwTask.SwitchToMainThread();
-          player.oid.SendServerMessage($"{playerMessage} (solde {StringUtils.ToWhitecolor(messageQuantity)})", ColorConstants.Orange);
+          player.oid.SendServerMessage($"{playerMessage} (solde matéria {StringUtils.ToWhitecolor(messageQuantity)})", ColorConstants.Orange);
         }
       }
 

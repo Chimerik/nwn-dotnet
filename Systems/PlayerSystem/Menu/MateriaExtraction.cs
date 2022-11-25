@@ -61,7 +61,7 @@ namespace NWN.Systems
           SetExtractionTime();
 
           if (targetMateria != null)
-            foreach (Effect eff in targetMateria.ActiveEffects.Where(e => e.Tag == $"_{player.oid.CDKey}_MINING_BEAM"))
+            foreach (Effect eff in targetMateria.ActiveEffects.Where(e => e.Tag == $"_{player.characterId}_MINING_BEAM"))
               targetMateria.RemoveEffect(eff);
 
           this.extractor = extractor;
@@ -99,7 +99,7 @@ namespace NWN.Systems
             }
 
             Effect eRay = Effect.Beam(VfxType.BeamDisintegrate, extractor, BodyNode.Hand);
-            eRay.Tag = $"_{player.oid.CDKey}_MINING_BEAM";
+            eRay.Tag = $"_{player.characterId}_MINING_BEAM";
             oTarget.ApplyEffect(EffectDuration.Temporary, eRay, TimeSpan.FromSeconds(extractionRemainingTime));
 
             if (extractionProgress != null)
@@ -220,7 +220,7 @@ namespace NWN.Systems
           extractionProgress.Dispose();
 
           if (targetMateria != null)
-            foreach (Effect eff in targetMateria.ActiveEffects.Where(e => e.Tag == $"_{player.oid.CDKey}_MINING_BEAM"))
+            foreach (Effect eff in targetMateria.ActiveEffects.Where(e => e.Tag == $"_{player.characterId}_MINING_BEAM"))
               targetMateria.RemoveEffect(eff);
 
           if (player.oid != null && player.oid.LoginCreature != null)
@@ -269,7 +269,7 @@ namespace NWN.Systems
         }
         private void HandleMateriaUpdate(int remainingMateria)
         {
-          foreach (Effect eff in targetMateria.ActiveEffects.Where(e => e.Tag == $"_{player.oid.CDKey}_MINING_BEAM"))
+          foreach (Effect eff in targetMateria.ActiveEffects.Where(e => e.Tag == $"_{player.characterId}_MINING_BEAM"))
             targetMateria.RemoveEffect(eff);
 
           string areaTag = targetMateria.Area.Tag;

@@ -63,13 +63,13 @@ namespace NWN.Systems
       if (oPC.IsDM)
         return;
 
-      string pcAccount = player.CheckDBPlayerAccount();
+      /*string pcAccount = player.CheckDBPlayerAccount();
       if (pcAccount != oPC.PlayerName)
       {
         oPC.BootPlayer($"Attention - Ce personnage est enregistré sous le compte {pcAccount}, or vous venez de vous connecter sous {oPC.PlayerName}, veuillez vous reconnecter avec le bon compte !");
         Utils.LogMessageToDMs($"Attention - {oPC.PlayerName} vient de se connecter avec un personnage enregistré sous le compte : {pcAccount} !");
         return;
-      }
+      }*/
 
       Utils.ResetVisualTransform(player.oid.ControlledCreature);
       player.pcState = Player.PcState.Offline;
@@ -105,7 +105,7 @@ namespace NWN.Systems
 
             windows.Add("introWelcome", new IntroWelcomeWindow(this));
           }
-
+          
           SqLiteUtils.InsertQuery("PlayerAccounts",
             new List<string[]>() { new string[] { "accountName", oid.PlayerName }, new string[] { "cdKey", oid.CDKey }, new string[] { "bonusRolePlay", "1" }, new string[] { "hideFromPlayerList", oid.IsDM ? 1.ToString() : 0.ToString() } });
 
@@ -524,7 +524,7 @@ namespace NWN.Systems
       }
       public void FinalizePlayerData()
       {
-        if (oid == null || oid.LoginCreature == null)
+        if (oid == null || !oid.IsValid || oid.LoginCreature == null)
           return;
 
         int improvedHealth = learnableSkills.ContainsKey(CustomSkill.ImprovedHealth) ? learnableSkills[CustomSkill.ImprovedHealth].currentLevel : 0;

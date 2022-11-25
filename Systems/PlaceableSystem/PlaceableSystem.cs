@@ -149,51 +149,6 @@ namespace NWN.Systems
     {
       onSpawn.Creature.ApplyEffect(EffectDuration.Instant, Effect.Death());
     }
-    public static void OnUsedPlayerOwnedShop(PlaceableEvents.OnUsed onUsed)
-    {
-      if (!Players.TryGetValue(onUsed.UsedBy, out Player player))
-        return;
-
-      if (onUsed.Placeable.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value == player.characterId)
-        PlayerOwnedShop.DrawMainPage(player, onUsed.Placeable);
-      else
-      {
-        NwStore shop = onUsed.Placeable.GetNearestObjectsByType<NwStore>().FirstOrDefault(s => s.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value == onUsed.Placeable.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value);
-
-        if (shop == null)
-        {
-          player.oid.SendServerMessage("Cette boutique n'est pas accessible pour le moment.", ColorConstants.Orange);
-          return;
-        }
-
-        shop.OnOpen -= StoreSystem.OnOpenOtherPlayerShop;
-        shop.OnOpen += StoreSystem.OnOpenOtherPlayerShop;
-        shop.Open(player.oid);
-      }
-    }
-    public static void OnUsedPlayerOwnedAuction(PlaceableEvents.OnUsed onUsed)
-    {
-      if (!Players.TryGetValue(onUsed.UsedBy, out Player player))
-        return;
-
-      if (onUsed.Placeable.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value == player.characterId)
-        PlayerOwnedAuction.DrawMainPage(player, onUsed.Placeable);
-      else
-      {
-        NwStore shop = onUsed.Placeable.GetNearestObjectsByType<NwStore>().FirstOrDefault(s => s.GetObjectVariable<LocalVariableInt>("_AUCTION_ID").Value == onUsed.Placeable.GetObjectVariable<LocalVariableInt>("_AUCTION_ID").Value);
-
-        if (shop == null)
-        {
-          player.oid.SendServerMessage("Cette enchère n'est pas accessible pour le moment.", ColorConstants.Orange);
-          return;
-        }
-
-        shop.OnOpen -= StoreSystem.OnOpenOtherPlayerAuction;
-        shop.OnOpen += StoreSystem.OnOpenOtherPlayerAuction;
-        shop.Open(player.oid);
-        PlayerOwnedAuction.GetAuctionPrice(player, shop, onUsed.Placeable);
-      }
-    }
     private void OnUsedDicePoker(PlaceableEvents.OnUsed onUsed)
     {
       if (!Players.TryGetValue(onUsed.UsedBy, out Player player))

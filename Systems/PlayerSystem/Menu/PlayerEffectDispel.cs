@@ -98,7 +98,7 @@ namespace NWN.Systems
                   NwSpell spell = spells[nuiEvent.ArrayIndex];
                   NwGameObject target = targets[nuiEvent.ArrayIndex];
 
-                  foreach (Effect eff in target.ActiveEffects.Where(e => e.Spell == spell && e.Tag == player.oid.CDKey))
+                  foreach (Effect eff in target.ActiveEffects.Where(e => e.Spell == spell && e.Tag == $"_PLAYER_{player.characterId}"))
                     target.RemoveEffect(eff);
 
                   break;
@@ -138,7 +138,7 @@ namespace NWN.Systems
             {
               Effect latestEffect = group.OrderByDescending(e => e.DurationRemaining).FirstOrDefault();
 
-              if (latestEffect.Tag == player.oid.CDKey)
+              if (latestEffect.Tag == $"_PLAYER_{player.characterId}")
               {
                 foundEffect = true;
 
