@@ -1,4 +1,4 @@
-﻿/*using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 
@@ -14,19 +14,22 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      /*public class MailBox : PlayerWindow
+      public class MailBox : PlayerWindow
       {
         private readonly NuiGroup rootGroup = new() { Id = "rootGroup", Border = false, Padding = 0, Margin = 0 };
         private readonly NuiColumn layoutColumn = new();
         private readonly List<NuiElement> rootChildren = new();
         private readonly List<NuiListTemplateCell> rowTemplate = new();
         private readonly NuiBind<int> listCount = new("listCount");
+        private readonly NuiBind<string> search = new("search");
+        private readonly NuiBind<bool> inboxSelected = new("inboxSelected");
+        private readonly NuiBind<bool> outboxSelected = new("outboxSelected");
 
         private readonly NuiBind<string> title = new("title");
         private readonly NuiBind<string> content = new("content");
         private readonly NuiBind<string> expeditorName = new("expeditorName");
         private readonly NuiBind<string> receivedDate = new("receiveDate");
-        private readonly NuiBind<string> unread = new("unread");
+        private readonly NuiBind<bool> unread = new("unread");
 
         public MailBox(Player player) : base(player)
         {
@@ -381,4 +384,4 @@ namespace NWN.Systems
       }
     }
   }
-}*/
+}
