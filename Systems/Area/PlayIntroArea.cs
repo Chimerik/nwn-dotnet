@@ -103,7 +103,7 @@ namespace NWN.Systems
         Utils.DestroyEquippedItems(oPC.LoginCreature);
         await NwItem.Create("learning_book", oPC.LoginCreature);
         NwItem rags = await NwItem.Create("rags", oPC.LoginCreature);
-        rags.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+        //rags.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
         oPC.LoginCreature.RunEquip(rags, InventorySlot.Chest);
         oPC.LoginCreature.Location = ((NwWaypoint)NwObject.FindObjectsWithTag("WP_START_NEW_CHAR").FirstOrDefault()).Location;
 

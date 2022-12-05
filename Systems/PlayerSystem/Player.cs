@@ -45,10 +45,11 @@ namespace NWN.Systems
       public Dictionary<int, MapPin> mapPinDictionnary = new();
       public Dictionary<string, byte[]> areaExplorationStateDictionnary = new();
       public Dictionary<int, byte[]> chatColors = new();
-      public Dictionary<string, PlayerWindow> windows = new();
+      public readonly Dictionary<string, PlayerWindow> windows = new();
       public Dictionary<string, NuiRect> windowRectangles = new();
       //public Dictionary<string, int> openedWindows = new ();
-      public List<ChatLine> readChatLines = new();
+      public readonly List<ChatLine> readChatLines = new();
+      public readonly List<Mail> mails = new();
 
       public List<CraftResource> craftResourceStock = new();
       public List<Grimoire> grimoires = new();
@@ -57,7 +58,6 @@ namespace NWN.Systems
       public List<CharacterDescription> descriptions = new();
       public List<CustomDMVisualEffect> customDMVisualEffects = new();
       public List<NwGameObject> effectTargets = new();
-
 
       private readonly SpellSystem spellSystem;
       private readonly AreaSystem areaSystem;

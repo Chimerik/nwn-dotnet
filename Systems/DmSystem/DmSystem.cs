@@ -23,7 +23,8 @@ namespace NWN.Systems
     {
       if (onSpawn.SpawnedObject is NwItem oItem)
       {
-        oItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+        //oItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+        oItem.GetObjectVariable<LocalVariableString>("ITEM_CREATED_BY").Value = onSpawn.DungeonMaster.PlayerName;
         Utils.LogMessageToDMs($"{onSpawn.DungeonMaster.PlayerName} vient de créer {oItem.Name}");
       }
       else if(onSpawn.SpawnedObject is NwCreature creature)
@@ -54,7 +55,8 @@ namespace NWN.Systems
 
     public void HandleAfterDmGiveItem(OnDMGiveItem onGive)
     {
-      onGive.Item.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+      //onGive.Item.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+      onGive.Item.GetObjectVariable<LocalVariableString>("ITEM_GIVEN_BY").Value = onGive.DungeonMaster.PlayerName;
       Utils.LogMessageToDMs($"{onGive.DungeonMaster.PlayerName} vient de donner {onGive.Item.Name} à {onGive.Target.Name}");
     }
   }

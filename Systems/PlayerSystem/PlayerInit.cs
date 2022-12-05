@@ -66,14 +66,6 @@ namespace NWN.Systems
       if (oPC.IsDM)
         return;
 
-      /*string pcAccount = player.CheckDBPlayerAccount();
-      if (pcAccount != oPC.PlayerName)
-      {
-        oPC.BootPlayer($"Attention - Ce personnage est enregistré sous le compte {pcAccount}, or vous venez de vous connecter sous {oPC.PlayerName}, veuillez vous reconnecter avec le bon compte !");
-        Utils.LogMessageToDMs($"Attention - {oPC.PlayerName} vient de se connecter avec un personnage enregistré sous le compte : {pcAccount} !");
-        return;
-      }*/
-
       Utils.ResetVisualTransform(player.oid.ControlledCreature);
       player.pcState = Player.PcState.Offline;
 
@@ -199,7 +191,7 @@ namespace NWN.Systems
           Task waitSkinCreated = NwTask.Run(async () =>
           {
             NwItem pcSkin = await NwItem.Create("peaudejoueur", oid.LoginCreature);
-            pcSkin.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+            //pcSkin.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
             pcSkin.Name = $"Propriétés de {oid.LoginCreature.Name}";
             oid.LoginCreature.RunEquip(pcSkin, InventorySlot.CreatureSkin);
           });
@@ -388,7 +380,7 @@ namespace NWN.Systems
       private void InitializePlayerCharacter()
       {
         var query = SqLiteUtils.SelectQuery("playerCharacters",
-            new List<string>() { { "location" }, { "currentHP" }, { "bankGold" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" }, { "alchemyCauldron" }, { "serializedLearnableSkills" }, { "serializedLearnableSpells" }, { "explorationState" }, { "materialStorage" }, { "craftJob" }, { "grimoires" }, { "quickbars" }, { "itemAppearances" }, { "descriptions" }, { "currentSkillPoints" } },
+            new List<string>() { { "location" }, { "currentHP" }, { "bankGold" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" }, { "alchemyCauldron" }, { "serializedLearnableSkills" }, { "serializedLearnableSpells" }, { "explorationState" }, { "materialStorage" }, { "craftJob" }, { "grimoires" }, { "quickbars" }, { "itemAppearances" }, { "descriptions" }, { "currentSkillPoints" }, { "mails" } },
             new List<string[]>() { { new string[] { "rowid", characterId.ToString() } } });
 
         foreach (var result in query)
@@ -410,11 +402,12 @@ namespace NWN.Systems
           string serializedItemAppearances = result[14];
           string serializedDescriptions = result[15];
           tempCurrentSkillPoint = int.TryParse(result[16], out int skill) ? skill : 0;
+          string serializedMails = result[17];
 
-          InitializePlayerAsync(serializedCauldron, serializedExploration, serializedLearnableSkills, serializedLearnableSpells, serializedCraftResources, serializedCraftJob, serializedGrimoires, serializedQuickbars, serializedItemAppearances, serializedDescriptions);
+          InitializePlayerAsync(serializedCauldron, serializedExploration, serializedLearnableSkills, serializedLearnableSpells, serializedCraftResources, serializedCraftJob, serializedGrimoires, serializedQuickbars, serializedItemAppearances, serializedDescriptions, serializedMails);
         }
       }
-      private async void InitializePlayerAsync(string serializedCauldron, string serializedExploration, string serializedLearnableSkills, string serializedLearnableSpells, string serializedCraftResources, string serializedCraftJob, string serializedGrimoires, string serializedQuickbars, string serializedItemAppearances, string serializedDescriptions)
+      private async void InitializePlayerAsync(string serializedCauldron, string serializedExploration, string serializedLearnableSkills, string serializedLearnableSpells, string serializedCraftResources, string serializedCraftJob, string serializedGrimoires, string serializedQuickbars, string serializedItemAppearances, string serializedDescriptions, string serializedMails)
       {
         Task loadCauldronTask = Task.Run(() =>
         {
@@ -519,7 +512,19 @@ namespace NWN.Systems
           descriptions = JsonConvert.DeserializeObject<List<CharacterDescription>>(serializedDescriptions);
         });
 
-        await Task.WhenAll(loadSkillsTask, loadSpellsTask, loadExplorationTask, loadCauldronTask, loadCraftJobTask, loadGrimoiresTask, loadQuickbarsTask, loadItemAppearancesTask, loadDescriptionsTask);
+        Task loadMailsTask = Task.Run(() =>
+        {
+          if (string.IsNullOrEmpty(serializedMails) || serializedMails == "null")
+            return;
+
+          List<Mail.SerializableMail> serializedMail = JsonConvert.DeserializeObject<List<Mail.SerializableMail>>(serializedMails);
+
+          foreach (var mail in serializedMail)
+            if(!mail.expirationDate.HasValue || mail.expirationDate > DateTime.Now)
+              mails.Add(new Mail(mail));              
+        });
+
+        await Task.WhenAll(loadSkillsTask, loadSpellsTask, loadExplorationTask, loadCauldronTask, loadCraftJobTask, loadGrimoiresTask, loadQuickbarsTask, loadItemAppearancesTask, loadDescriptionsTask, loadMailsTask);
         await NwTask.SwitchToMainThread();
         FinalizePlayerData();
       }
@@ -727,8 +732,8 @@ namespace NWN.Systems
       {
         if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_REINITIALISATION_DONE").HasNothing)
         {
-          foreach(var item in oid.LoginCreature.Inventory.Items)
-            item.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+          /*foreach(var item in oid.LoginCreature.Inventory.Items)
+            item.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;*/
 
           foreach (var feat in oid.LoginCreature.Feats)
             if (feat.Id > 1116)
@@ -743,7 +748,7 @@ namespace NWN.Systems
           Task waitSkinCreated = NwTask.Run(async () =>
           {
             NwItem pcSkin = await NwItem.Create("peaudejoueur", oid.LoginCreature);
-            pcSkin.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+            //pcSkin.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
             pcSkin.Name = $"Propriétés de {oid.LoginCreature.Name}";
             oid.LoginCreature.RunEquip(pcSkin, InventorySlot.CreatureSkin);
           });

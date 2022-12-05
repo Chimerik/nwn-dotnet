@@ -35,7 +35,7 @@ namespace NWN.Systems
         }
 
         NwItem craftTool = await NwItem.Create("NW_IT_MPOTION006", shop);
-        craftTool.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+        //craftTool.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
         craftTool.BaseGoldValue = 450;
       }
 

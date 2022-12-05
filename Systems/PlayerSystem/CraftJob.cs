@@ -101,7 +101,7 @@ namespace NWN.Systems
           type = JobType.ItemCreation;
 
           NwItem craftedItem = NwItem.Create(BaseItems2da.baseItemTable[baseItemType].craftedItem, player.oid.LoginCreature.Location);
-          craftedItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+          //craftedItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
 
           Craft.Collect.System.AddCraftedItemProperties(craftedItem, 1);
           craftedItem.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value = player.oid.LoginCreature.OriginalName;
@@ -203,7 +203,7 @@ namespace NWN.Systems
           originalSerializedItem = item.Serialize().ToBase64EncodedString();
 
           NwItem repairedItem = NwItem.Create(BaseItems2da.baseItemTable[(int)item.BaseItem.ItemType].craftedItem, player.oid.LoginCreature.Location);
-          repairedItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+          //repairedItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
 
           if (player.learnableSkills.ContainsKey(CustomSkill.RepairCareful))
             repairedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value = (int)(repairedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value * (0.95 + player.learnableSkills[CustomSkill.RepairCareful].totalPoints / 100));

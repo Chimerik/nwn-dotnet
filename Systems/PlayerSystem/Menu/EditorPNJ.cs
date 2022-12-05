@@ -1613,6 +1613,33 @@ namespace NWN.Systems
                 variableValueList.Add(dateVar.Value.ToString());
                 selectedVariableTypeList.Add(4);
                 break;
+              case PersistentVariableInt intPersistVar:
+
+                if (player.oid.PlayerName != "Chim")
+                  continue;
+
+                variableValueList.Add(intPersistVar.Value.ToString());
+                selectedVariableTypeList.Add(5);
+
+                break;
+              case PersistentVariableString stringPersistVar:
+
+                if (player.oid.PlayerName != "Chim")
+                  continue;
+
+                variableValueList.Add(stringPersistVar.Value.ToString());
+                selectedVariableTypeList.Add(6);
+
+
+                break;
+              case PersistentVariableFloat floatPersistVar:
+
+                if (player.oid.PlayerName != "Chim")
+                  continue;
+
+                variableValueList.Add(floatPersistVar.Value.ToString());
+                selectedVariableTypeList.Add(7);
+                break;
 
               default:
                 continue;

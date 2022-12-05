@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 using Anvil.API;
@@ -326,9 +327,11 @@ namespace NWN.Systems
                       player.oid.SendServerMessage("Cet ordre de vente a déjà expiré", ColorConstants.Red);
                     else
                     {
-                      TradeSystem.AddResourceToPlayerStock(player, player.characterId, cancelledOrder.resourceType, 
-                        cancelledOrder.resourceLevel, cancelledOrder.quantity, $"Votre ordre de vente a bien été annulé, {StringUtils.ToWhitecolor(cancelledOrder.quantity)} unités de {StringUtils.ToWhitecolor(cancelledOrder.resourceType.ToDescription())} {StringUtils.ToWhitecolor(cancelledOrder.resourceLevel)} ont été débloquées sur votre compte Skalsgard",
+                      TradeSystem.AddResourceToPlayerStock(player.characterId, cancelledOrder.resourceType, cancelledOrder.resourceLevel, cancelledOrder.quantity, 
+                        $"Annulation vente - {cancelledOrder.quantity} {cancelledOrder.resourceType.ToDescription()} {cancelledOrder.resourceLevel}", 
+                        $"Très honoré client,\n\n  La banque Skalsgard confirme l'annulation de votre ordre de vente de {cancelledOrder.quantity} unités de {cancelledOrder.resourceType.ToDescription()} {cancelledOrder.resourceLevel}.\n\nLes ressources ont été débloquées sur votre entrepôt Alliance.\n\nAu plaisir de vous servir de nouveau, Banque Skalsgard.",
                         "Sell Order Cancelled");
+
 
                       cancelledOrder.expirationDate = DateTime.Now;
                       TradeSystem.sellOrderList.Remove(cancelledOrder);
@@ -1083,33 +1086,32 @@ namespace NWN.Systems
           {
             foreach (TradeProposal proposal in request.proposalList)
             {
-              TradeSystem.UpdatePlayerBankAccount(proposal.characterId.ToString(), proposal.sellPrice.ToString(), "Proposal cancelled");
+              TradeSystem.UpdatePlayerBankAccount(proposal.characterId, proposal.sellPrice, "Proposition rejetée - Commande annulée",
+                $"Très honoré client,\n\n La banque Skalsgard est au regret de vous annoncer le rejet de votre proposition commerciale, la commande initiale ayant malheureusement été annulée.\n\nLe contenu de votre proposition a été restitué au sein de votre compte Skalsgard.\n\nDétails de la commande initiale :\n\n{request.description}",
+                "Proposal cancelled");
+
               TradeSystem.AddItemToPlayerDataBaseBank(proposal.characterId.ToString(), proposal.serializedItems, "Proposal cancelled");
             }
-
             request.expirationDate = DateTime.Now;
             TradeSystem.tradeRequestList.Remove(request);
             lastRequestClicked = null;
-
             TradeSystem.ScheduleSaveToDatabase();
             player.oid.SendServerMessage("Votre commande a bien été annulée", ColorConstants.Orange);
           }
-
           LoadRequestsLayout();
           rootGroup.SetLayout(player.oid, nuiToken.Token, layoutColumn);
           LoadRequestsBinding();
         }
         private async void ResolveBuyOrderAsync(int unitPrice, int quantity, CraftResource resource)
         {
-          Task<int> buyOrderTask = Task.Run(() =>
+          Task<int> buyOrderTask = Task.Run(async () =>
           {
             foreach (var sellOrder in TradeSystem.sellOrderList.OrderBy(b => b.unitPrice))
             {
               if (sellOrder.unitPrice > unitPrice)
                 break;
-
-              if (sellOrder.sellerId == player.characterId || sellOrder.resourceType != resource.type || sellOrder.resourceLevel != resource.grade 
-                || sellOrder.quantity < 1 || sellOrder.expirationDate < DateTime.Now)
+              if (sellOrder.sellerId == player.characterId || sellOrder.resourceType != resource.type || sellOrder.resourceLevel != resource.grade
+              || sellOrder.quantity < 1 || sellOrder.expirationDate < DateTime.Now)
                 continue;
 
               if (sellOrder.quantity < quantity)
@@ -1118,14 +1120,15 @@ namespace NWN.Systems
                 int transactionPrice = sellOrder.quantity * sellOrder.unitPrice;
                 player.bankGold -= transactionPrice;
 
-                TradeSystem.AddResourceToPlayerStock(player, player.characterId, sellOrder.resourceType, sellOrder.resourceLevel, sellOrder.quantity, 
-                  $"Vous venez d'acheter {StringUtils.ToWhitecolor(sellOrder.quantity)} unités de {StringUtils.ToWhitecolor(resource.type.ToDescription())} {StringUtils.ToWhitecolor(resource.grade)} à un prix unitaire de {StringUtils.ToWhitecolor(sellOrder.unitPrice)} (coût total {StringUtils.ToWhitecolor(transactionPrice)}) (solde en banque {StringUtils.ToWhitecolor(player.bankGold)})",
+                TradeSystem.AddResourceToPlayerStock(player.characterId, sellOrder.resourceType, sellOrder.resourceLevel, sellOrder.quantity,
+                  $"Ordre d'achat - {sellOrder.quantity} {resource.type.ToDescription()} {resource.grade} - {transactionPrice}",
+                  $"Très honoré client,\n\n  La banque Skalsgard a l'insigne honneur de vous féliciter pour le succès de votre ordre d'achat de {sellOrder.quantity} unités de {resource.type.ToDescription()} {resource.grade} à un prix unitaire de {sellOrder.unitPrice} (coût total {transactionPrice}) (solde en banque {player.bankGold}).\n\nAu plaisir de vous accompagner lors de vos futures transactions.",
                   "Successful Buy Order");
 
-                TradeSystem.UpdatePlayerBankAccount(sellOrder.sellerId.ToString(), 
-                  TradeSystem.GetTaxedSellPrice(Players.FirstOrDefault(p => p.Value.characterId == sellOrder.sellerId).Value, transactionPrice).ToString(), "Sucessful sell order");
-
-                
+                int taxedSellPrice = await TradeSystem.GetTaxedSellPrice(sellOrder.sellerId, transactionPrice);
+                TradeSystem.UpdatePlayerBankAccount(sellOrder.sellerId, taxedSellPrice, $"Ordre de vente - {sellOrder.quantity} {resource.type.ToDescription()} {resource.grade} - {taxedSellPrice}",
+                  $"Très honoré client,\n\n La banque Skalsgard est heureuse de vous annoncer le succès de votre ordre de vente composé de {sellOrder.quantity} unités de {resource.type.ToDescription()} {resource.grade} à un prix unitaire de {sellOrder.unitPrice}.\n\n{taxedSellPrice} pièces ont été versées sur votre compte Skalsgard.\n\nAu plaisir de vou accompagner lors de vos futures transactions.",
+                  "Sucessful sell order");
 
                 sellOrder.quantity = 0;
                 TradeSystem.sellOrderList.Remove(sellOrder);
@@ -1135,12 +1138,15 @@ namespace NWN.Systems
                 int transactionPrice = quantity * sellOrder.unitPrice;
                 player.bankGold -= transactionPrice;
 
-                TradeSystem.AddResourceToPlayerStock(player, player.characterId, sellOrder.resourceType, sellOrder.resourceLevel, quantity,
-                  $"Vous venez d'acheter {StringUtils.ToWhitecolor(quantity)} unités de {StringUtils.ToWhitecolor(resource.type.ToDescription())} {StringUtils.ToWhitecolor(resource.grade)} à un prix unitaire de {StringUtils.ToWhitecolor(sellOrder.unitPrice)}) (solde en banque {StringUtils.ToWhitecolor(player.bankGold)})",
+                TradeSystem.AddResourceToPlayerStock(player.characterId, sellOrder.resourceType, sellOrder.resourceLevel, quantity,
+                  $"Ordre d'achat - {quantity} {resource.type.ToDescription()} {resource.grade} - {transactionPrice}",
+                  $"Très honoré client,\n\n  La banque Skalsgard à l'insige honneur de vous féliciter pour le succès de votre ordre d'achat de {quantity} unités de {resource.type.ToDescription()} {resource.grade} à un prix unitaire de {sellOrder.unitPrice} (coût total {transactionPrice}) (solde en banque {player.bankGold}).\n\nAu plaisir de vous accompagner lors de vos futures transactions !",
                   "Successful Buy Order");
 
-                TradeSystem.UpdatePlayerBankAccount(sellOrder.sellerId.ToString(), 
-                  TradeSystem.GetTaxedSellPrice(Players.FirstOrDefault(p => p.Value.characterId == sellOrder.sellerId).Value, transactionPrice).ToString(), "Sucessful sell order");
+                int taxedSellPrice = await TradeSystem.GetTaxedSellPrice(sellOrder.sellerId, transactionPrice);
+                TradeSystem.UpdatePlayerBankAccount(sellOrder.sellerId, taxedSellPrice, $"Ordre de vente - {quantity} {resource.type.ToDescription()} {resource.grade} - {taxedSellPrice}",
+                  $"Très honoré client,\n\n La banque Skalsgard est heureuse de vous annoncer le succès de votre ordre de vente composé de {quantity} unités de {resource.type.ToDescription()} {resource.grade} à un prix unitaire de {sellOrder.unitPrice}.\n\n{taxedSellPrice} pièces ont été versées sur votre compte Skalsgard.\n\nAu plaisir de vous accompagner lors de vos futures transactions !",
+                  "Sucessful sell order");
 
                 sellOrder.quantity -= quantity;
 
@@ -1174,7 +1180,7 @@ namespace NWN.Systems
         }
         private async void ResolveSellOrderAsync(int unitPrice, int quantity, CraftResource resource)
         {
-          Task<int> sellOrderTask = Task.Run(() =>
+          Task<int> sellOrderTask = Task.Run(async () =>
           {
             foreach (var buyOrder in TradeSystem.buyOrderList.OrderByDescending(b => b.unitPrice))
             {
@@ -1189,27 +1195,34 @@ namespace NWN.Systems
               {
                 quantity -= buyOrder.quantity;
                 int transactionPrice = buyOrder.quantity * buyOrder.unitPrice;
-                player.bankGold += TradeSystem.GetTaxedSellPrice(player, transactionPrice);
 
-                TradeSystem.AddResourceToPlayerStock(Players.FirstOrDefault(p => p.Value.characterId == buyOrder.buyerId).Value, buyOrder.buyerId,
-                   buyOrder.resourceType, buyOrder.resourceLevel, buyOrder.quantity,
-                   $"Vous venez de vendre {buyOrder.quantity.ToString().ColorString(ColorConstants.White)} unités de {StringUtils.ToWhitecolor(resource.type.ToDescription())} {StringUtils.ToWhitecolor(resource.grade)} à un prix unitaire de {StringUtils.ToWhitecolor(buyOrder.unitPrice)} (gain total : {StringUtils.ToWhitecolor(transactionPrice)}) (solde {StringUtils.ToWhitecolor(player.bankGold)})", 
-                  "Successful Sell Order");
+                int taxedSellPrice = await TradeSystem.GetTaxedSellPrice(player.characterId, transactionPrice);
+                player.bankGold += taxedSellPrice;
+
+                new Mail("Banque Skalsgard", -1, player.characterId.ToString(), $"Ordre de vente - {buyOrder.quantity} {resource.type.ToDescription()} {resource.grade} - {taxedSellPrice} ", $"Très honoré client,\n\n La banque Skalsgard a l'insigne honneur de vous annoncer le succès de votre ordre de vente composé de {buyOrder.quantity} unités de {resource.type.ToDescription()} {resource.grade} à un prix unitaire de {buyOrder.unitPrice}.\n\nLa somme de {taxedSellPrice} a bien été transférée sur votre compte Skalsgard.\n\nAu plaisir de pouvoir compter sur votre confiance lors de nos prochaines transactions.\n\n", DateTime.Now, DateTime.Now.AddMonths(3), false).SendMailToPlayer(player.characterId.ToString());
                 
+                TradeSystem.AddResourceToPlayerStock(buyOrder.buyerId, buyOrder.resourceType, buyOrder.resourceLevel, buyOrder.quantity,
+                  $"Ordre d'achat - {buyOrder.quantity} {resource.type.ToDescription()} {resource.grade} - {transactionPrice}",
+                  $"Très honoré client,\n\n La banque Skalsgard a l'insigne honneur de vous annoncer le succès de votre ordre d'achat composé de {buyOrder.quantity} unités de {resource.type.ToDescription()} {resource.grade} à un prix unitaire de {buyOrder.unitPrice}.\n\nPrix total : {transactionPrice}. Les ressources ont été envoyés été transférées dans votre entrepôt Alliance.\n\n", 
+                  "Successful Sell Order");
+
                 buyOrder.quantity = 0;
                 TradeSystem.buyOrderList.Remove(buyOrder);
               }
               else
               {
-                int transactionPrice = buyOrder.quantity * buyOrder.unitPrice;
-                player.bankGold += TradeSystem.GetTaxedSellPrice(player, transactionPrice);
+                int transactionPrice = quantity * buyOrder.unitPrice;
+                int taxedSellPrice = await TradeSystem.GetTaxedSellPrice(player.characterId, transactionPrice);
+                player.bankGold += taxedSellPrice;
 
-                TradeSystem.AddResourceToPlayerStock(Players.FirstOrDefault(p => p.Value.characterId == buyOrder.buyerId).Value, buyOrder.buyerId,
-                  buyOrder.resourceType, buyOrder.resourceLevel, quantity,
-                  $"Vous venez de vendre {StringUtils.ToWhitecolor(buyOrder.quantity)} unités de {StringUtils.ToWhitecolor(resource.type.ToDescription())} {StringUtils.ToWhitecolor(resource.grade)} à un prix unitaire de {StringUtils.ToWhitecolor(buyOrder.unitPrice)} (gain total : {StringUtils.ToWhitecolor(transactionPrice)}) (solde {StringUtils.ToWhitecolor(player.bankGold)})",
+                new Mail("Banque Skalsgard", -1, player.characterId.ToString(), $"Ordre de vente - {buyOrder.quantity} {resource.type.ToDescription()} {resource.grade} - {taxedSellPrice} ", $"Très honoré client,\n\n La banque Skalsgard a l'insigne honneur de vous annoncer le succès de votre ordre de vente composé de {buyOrder.quantity} unités de {resource.type.ToDescription()} {resource.grade} à un prix unitaire de {buyOrder.unitPrice}.\n\nLa somme de {taxedSellPrice} a bien été transférée sur votre compte Skalsgard.\n\nAu plaisir de pouvoir compter sur votre confiance lors de nos prochaines transactions.\n\n", DateTime.Now, DateTime.Now.AddMonths(3), false).SendMailToPlayer(player.characterId.ToString());
+
+                TradeSystem.AddResourceToPlayerStock(buyOrder.buyerId, buyOrder.resourceType, buyOrder.resourceLevel, buyOrder.quantity,
+                  $"Ordre d'achat - {buyOrder.quantity} {resource.type.ToDescription()} {resource.grade} - {transactionPrice}",
+                  $"Très honoré client,\n\n La banque Skalsgard a l'insigne honneur de vous annoncer le succès de votre ordre d'achat composé de {buyOrder.quantity} unités de {resource.type.ToDescription()} {resource.grade} à un prix unitaire de {buyOrder.unitPrice}.\n\nPrix total : {transactionPrice}. Les ressources ont été envoyés été transférées dans votre entrepôt Alliance.\n\n",
                   "Successful Sell Order");
 
-                
+
                 buyOrder.quantity -= quantity;
                 quantity = 0;
 
@@ -1274,20 +1287,10 @@ namespace NWN.Systems
 
           player.oid.SendServerMessage($"Votre enchère de {StringUtils.ToWhitecolor(bid)} sur {StringUtils.ToWhitecolor(auction.itemName)} a bien été prise en compte (solde {StringUtils.ToWhitecolor(player.bankGold)})", ColorConstants.Orange);
 
-          if (auction.highestBid > 0) // TODO : prévoir notification en cas d'outbid
-          {
-            Player outBidded = Players.FirstOrDefault(p => p.Value.characterId == auction.highestBidderId).Value;
-
-            if (outBidded != null)
-            {
-              outBidded.bankGold += auction.highestBid;
-
-              if (outBidded.pcState != Player.PcState.Offline)
-                player.oid.SendServerMessage($"Votre enchère pour {StringUtils.ToWhitecolor(auction.itemName)} a été dépassée. La Nouvelle enchère se porte à {StringUtils.ToWhitecolor(bid)}. Votre mise précédente de {StringUtils.ToWhitecolor(auction.highestBid)} a été débloquée sur votre compte Skalsgard");
-            }
-
-            TradeSystem.UpdatePlayerBankAccount(auction.highestBidderId.ToString(), auction.highestBid.ToString(), "Auction outbid");
-          }
+          if (auction.highestBid > 0)
+            TradeSystem.UpdatePlayerBankAccount(auction.highestBidderId, auction.highestBid, $"Enchère dépassez - {auction.itemName} - Surenchérissez !",
+              $"Très honoré client,\n\n  La banque Skalsgard est au regret de vous annoncer que votre enchère de {auction.highestBid} pour {auction.itemName} a été dépassée par une enchère de {bid}.\n\nNous vous enjoignons à réagir dès à présent avec une enchère supérieure pour l'emporter !",
+              "Auction outbid");
 
           auction.highestBid = bid;
           auction.highestBidderId = player.characterId;
@@ -1357,7 +1360,7 @@ namespace NWN.Systems
           LoadRequestDetailsLayout(lastRequestClicked);
           TradeSystem.ScheduleSaveToDatabase();
         }
-        private void AcceptTradeProposal(TradeProposal acceptedProposal)
+        private async void AcceptTradeProposal(TradeProposal acceptedProposal)
         {
           if (lastRequestClicked.expirationDate < DateTime.Now)
             player.oid.SendServerMessage("Cette commande a malheureusement expiré !", ColorConstants.Red);
@@ -1385,9 +1388,11 @@ namespace NWN.Systems
             availableGold.SetBindValue(player.oid, nuiToken.Token, $"Or en banque : {player.bankGold}");
             TradeSystem.AddItemToPlayerDataBaseBank(player.characterId.ToString(), acceptedProposal.serializedItems, "Accepted proposal");
 
-            int taxedSellPrice = TradeSystem.GetTaxedSellPrice(Players.FirstOrDefault(p => p.Value.characterId == acceptedProposal.characterId).Value, acceptedProposal.sellPrice);
-            TradeSystem.UpdatePlayerBankAccount(acceptedProposal.characterId.ToString(), taxedSellPrice.ToString(), "Proposal accepted - Request accepted");
-
+            int taxedSellPrice = await TradeSystem.GetTaxedSellPrice(acceptedProposal.characterId, acceptedProposal.sellPrice);
+            TradeSystem.UpdatePlayerBankAccount(acceptedProposal.characterId, taxedSellPrice, $"Succès de votre proposition commerciale !", 
+              $"Très honoré client,\n\n  La banque Skalsgard est heureuse de vous annoncer que votre proposition commerciale pour un prix de {taxedSellPrice} a été acceptée.\n\nFélicitations ! L'or a été versée sur votre compte Skalsgard. Ci-dessous, le détail de la commande initiale :\n\n{lastRequestClicked.description}",
+              "Proposal accepted - Request accepted");
+ 
             acceptedProposal.cancelled = true;
 
             foreach (var proposal in lastRequestClicked.proposalList)
@@ -1395,21 +1400,26 @@ namespace NWN.Systems
               if (proposal.cancelled)
                 continue;
 
-              TradeSystem.UpdatePlayerBankAccount(proposal.characterId.ToString(), proposal.sellPrice.ToString(), "Proposal successful - Request accepted");
-              TradeSystem.AddItemToPlayerDataBaseBank(proposal.characterId.ToString(), proposal.serializedItems, "Proposal successful - Request accepted");
               proposal.cancelled = true;
+
+              TradeSystem.UpdatePlayerBankAccount(proposal.characterId, proposal.sellPrice, "Proposition commerciale annulée",
+                $"Très honoré client,\n\n  La banque Skalsgard est au regret de vous annoncer que votre proposition commerciale pour un prix de {proposal.sellPrice} a été refusée.\n\nCi-dessous, le détail de la commande initiale :\n\n{lastRequestClicked.description}",
+                "Proposal successful - Request accepted");
+
+              TradeSystem.AddItemToPlayerDataBaseBank(proposal.characterId.ToString(), proposal.serializedItems, "Proposal successful - Request accepted");
             }
 
             lastRequestClicked.expirationDate = DateTime.Now;
             TradeSystem.tradeRequestList.Remove(lastRequestClicked);
             lastRequestClicked = null;
+
+            await NwTask.SwitchToMainThread();
             player.oid.SendServerMessage($"La proposition a bien été acceptée pour un prix de {StringUtils.ToWhitecolor(acceptedProposal.sellPrice)}. Les objets ont été déposés dans votre compte Skalsgard (solde {StringUtils.ToWhitecolor(player.bankGold)})", ColorConstants.Orange);
           }
-
+          await NwTask.SwitchToMainThread();
           LoadRequestsLayout();
           rootGroup.SetLayout(player.oid, nuiToken.Token, layoutColumn);
           LoadRequestsBinding();
-
           TradeSystem.ScheduleSaveToDatabase();
         }
         private void CleanUpProposalItems()
@@ -1420,10 +1430,8 @@ namespace NWN.Systems
               Log.Info($"TRADE SYSTEM - Player {player.characterId} - Cleaning proposal item {item.Name}");
               item.Destroy();
             }
-
           foreach (NwItem item in newProposalItems)
             player.oid.ControlledCreature.AcquireItem(item);
-
           newProposalItems.Clear();
 
           player.oid.OnClientLeave -= OnClientLeave;

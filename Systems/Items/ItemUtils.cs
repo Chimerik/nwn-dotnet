@@ -244,7 +244,7 @@ namespace NWN.Systems
     public static NwItem DeserializeAndAcquireItem(string itemTemplate, NwCreature receiver)
     {
       NwItem deserializedItem = NwItem.Deserialize(itemTemplate.ToByteArray());
-      deserializedItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+      //deserializedItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
 
       if(receiver.Inventory.CheckFit(deserializedItem))
         receiver.AcquireItem(deserializedItem);
@@ -260,7 +260,7 @@ namespace NWN.Systems
     {
       skillBook.Appearance.SetSimpleModel((byte)Utils.random.Next(0, 50));
       skillBook.GetObjectVariable<LocalVariableInt>("_SKILL_ID").Value = featId;
-      skillBook.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+      //skillBook.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
 
       try
       {
@@ -283,7 +283,7 @@ namespace NWN.Systems
       oBlueprint.BaseGoldValue = (uint)(baseItem.BaseCost * 50);
       oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value = (int)baseItem.Id;
       oBlueprint.GetObjectVariable<LocalVariableString>("_CRAFT_WORKSHOP").Value = BaseItems2da.baseItemTable[(int)baseItem.ItemType].workshop;
-      oBlueprint.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+      //oBlueprint.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
     }
     public static void CreateShopArmorBlueprint(NwItem oBlueprint, int baseArmor)
     {
@@ -296,7 +296,7 @@ namespace NWN.Systems
       oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value = (int)BaseItemType.Armor;
       oBlueprint.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value = baseArmor;
       oBlueprint.GetObjectVariable<LocalVariableString>("_CRAFT_WORKSHOP").Value = entry.workshop;
-      oBlueprint.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+      //oBlueprint.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
     }
     public static string DisplayDamageType(DamageType damageType)
     {

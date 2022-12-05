@@ -220,7 +220,7 @@ namespace NWN.Systems
           creature.OnConversation += dialogSystem.StartBankerDialog;
 
           NwItem contract = await NwItem.Create("shop_clearance", creature);
-          contract.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+          //contract.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
           contract.Tag = "bank_contract";
           contract.Name = "Contrat d'ouverture de compte Skalsgard";
           contract.Description = "Le contrat que vous avez entre les mains déclare sur des pages et des pages des conditions d'ouverture de compte et de services somme toute classiques.\n\n" +

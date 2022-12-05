@@ -1076,7 +1076,7 @@ namespace NWN.Systems
         {
           NwItem pcSkin = await NwItem.Create("peaudejoueur", player.oid.LoginCreature);
           pcSkin.Name = $"Propriétés de {player.oid.LoginCreature.Name}";
-          pcSkin.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+          //pcSkin.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
           player.oid.LoginCreature.RunEquip(pcSkin, InventorySlot.CreatureSkin);
         });
       }

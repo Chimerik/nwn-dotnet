@@ -118,7 +118,7 @@ namespace NWN.Systems
             oScroll.Name = nwSpell.Name.ToString();
             oScroll.Description = nwSpell.Description.ToString();
             oScroll.AddItemProperty(ItemProperty.CastSpell((IPCastSpell)itemPropertyId, IPCastSpellNumUses.SingleUse), EffectDuration.Permanent);
-            oScroll.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+            //oScroll.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
           }
           break;
       }
@@ -140,7 +140,7 @@ namespace NWN.Systems
         NwItem craftTool = await NwItem.Create(item, shop, 1, item);
         craftTool.BaseGoldValue = 50;
         craftTool.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = 10;
-        craftTool.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+        //craftTool.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
       }
 
       shop.OnOpen += StoreSystem.OnOpenGenericStore;

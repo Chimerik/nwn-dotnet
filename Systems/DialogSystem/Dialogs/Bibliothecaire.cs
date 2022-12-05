@@ -42,7 +42,7 @@ namespace NWN.Systems
         skillBook.Name = "Ouvrage ruiné";
         skillBook.Description = "Cet ouvrage est abîmé au-delà de toute rédemption. Il est même trop humide pour faire du feu.\n\n Il est fort probable qu'il se désagrège entre vos doigts si vous tentez de l'ouvrir.";
         skillBook.BaseGoldValue = 3000;
-        skillBook.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+        //skillBook.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
       }
 
       shop.OnOpen += StoreSystem.OnOpenBiblioStore;

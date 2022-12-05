@@ -92,9 +92,6 @@ namespace NWN.Systems
         SavePlayerAccountToDatabase();
         SavePlayerCharacterToDatabase();
         HandleExpiredContracts();
-        HandleExpiredBuyOrders();
-        HandleExpiredSellOrders();
-        HandleNewMails();
 
         oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_SAVE_SCHEDULED").Delete();
         oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_SAVE_AUTHORIZED").Delete();
@@ -207,7 +204,17 @@ namespace NWN.Systems
           return JsonConvert.SerializeObject(serializableCraftResources);
         });
 
-        await Task.WhenAll(serializeAlchemyCauldron, serializeLearnableSkills, serializeLearnableSpells, serializeExplorationState, serializeJob, serializeCraftResource, serializeGrimoires, serializeQuickbars, serializeItemAppearances, serializeDescriptions);
+        Task<string> serializeMails = Task.Run(() =>
+        {
+          List<Mail.SerializableMail> serializableMails = new();
+          foreach (var mail in mails)
+            if(!mail.expirationDate.HasValue || mail.expirationDate.Value > DateTime.Now)
+              serializableMails.Add(new Mail.SerializableMail(mail));
+
+          return JsonConvert.SerializeObject(serializableMails);
+        });
+
+        await Task.WhenAll(serializeAlchemyCauldron, serializeLearnableSkills, serializeLearnableSpells, serializeExplorationState, serializeJob, serializeCraftResource, serializeGrimoires, serializeQuickbars, serializeItemAppearances, serializeDescriptions, serializeMails);
 
         SqLiteUtils.UpdateQuery("playerCharacters",
         new List<string[]>() { new string[] { "characterName", $"{firstName} {lastName}" },
@@ -217,7 +224,8 @@ namespace NWN.Systems
           new string[] { "serializedLearnableSkills", serializeLearnableSkills.Result }, new string[] { "serializedLearnableSpells", serializeLearnableSpells.Result },
           new string[] { "explorationState", serializeExplorationState.Result }, new string[] { "quickbars", serializeQuickbars.Result }, new string[] { "currentSkillPoints", tempCurrentSkillPoint.ToString() },
           new string[] { "itemAppearances", serializeItemAppearances.Result }, new string[] { "descriptions", serializeDescriptions.Result },
-          new string[] { "craftJob", serializeJob.Result  }, new string[] { "materialStorage", serializeCraftResource.Result }, new string[] { "grimoires", serializeGrimoires.Result }  },
+          new string[] { "craftJob", serializeJob.Result  }, new string[] { "materialStorage", serializeCraftResource.Result }, new string[] { "grimoires", serializeGrimoires.Result },
+          new string[] { "mails", serializeMails.Result  } },
         new List<string[]>() { new string[] { "rowid", characterId.ToString() } });
 
         Log.Info($"ASYNC SAVE FINALIZED for {firstName} {lastName} in {(DateTime.Now - elapsed).TotalSeconds} s");
@@ -272,105 +280,6 @@ namespace NWN.Systems
 
           SqLiteUtils.DeletionQuery("playerPrivateContracts",
             new Dictionary<string, string>() { { "rowid", contractId.ToString() } });
-        }
-      }
-      private async void HandleExpiredBuyOrders()
-      {
-        var result = await SqLiteUtils.SelectQueryAsync("playerBuyOrders",
-            new List<string>() { { "expirationDate" }, { "rowid" } },
-            new List<string[]>() { new string[] { "characterId", characterId.ToString() } });
-
-        if (result != null)
-          foreach (var contract in result)
-          {
-            int contractId = int.Parse(contract[1]);
-
-            if ((DateTime.Parse(contract[0]) - DateTime.Now).TotalSeconds < 0)
-            {
-              Task contractExpiration = NwTask.Run(async () =>
-              {
-                await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-                DeleteExpiredBuyOrder(contractId);
-              });
-            }
-          }
-      }
-      private async void DeleteExpiredBuyOrder(int contractId)
-      {
-        var result = await SqLiteUtils.SelectQueryAsync("playerBuyOrders",
-            new List<string>() { { "quantity" }, { "unitPrice" } },
-            new List<string[]>() { new string[] { "rowid", characterId.ToString() } });
-
-        await NwTask.SwitchToMainThread();
-
-        if (result != null)
-        {
-          int gold = int.Parse(result[0][0]) * int.Parse(result[0][1]);
-          bankGold += gold;
-          oid.SendServerMessage($"Expiration de l'ordre d'achat {contractId} - {gold} pièce(s) d'or ont été reversées à votre banque.");
-
-          SqLiteUtils.DeletionQuery("playerBuyOrders",
-              new Dictionary<string, string>() { { "rowid", contractId.ToString() } });
-        }
-      }
-      private async void HandleExpiredSellOrders()
-      {
-        var result = await SqLiteUtils.SelectQueryAsync("playerSellOrders",
-            new List<string>() { { "expirationDate" }, { "rowid" } },
-            new List<string[]>() { new string[] { "characterId", characterId.ToString() } });
-
-        if (result != null)
-          foreach (var sellOrder in result)
-          {
-            int contractId = int.Parse(sellOrder[1]);
-
-            if ((DateTime.Parse(sellOrder[0]) - DateTime.Now).TotalSeconds < 0)
-            {
-              Task contractExpiration = NwTask.Run(async () =>
-              {
-                await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-                DeleteExpiredSellOrder(contractId);
-              });
-            }
-          }
-      }
-      private async void DeleteExpiredSellOrder(int contractId)
-      {
-        var result = await SqLiteUtils.SelectQueryAsync("playerSellOrders",
-            new List<string>() { { "playerSellOrders" }, { "quantity" } },
-            new List<string[]>() { new string[] { "rowid", contractId.ToString() } });
-
-        await NwTask.SwitchToMainThread();
-
-        if (result != null)
-        {
-          string material = result[0][0];
-          int quantity = int.Parse(result[0][1]);
-
-          /*if (materialStock.ContainsKey(material))
-            materialStock[material] += quantity;
-          else
-            materialStock.Add(material, quantity);*/
-
-          oid.SendServerMessage($"Expiration de l'ordre de vente {contractId} - {quantity} unité(s) de {material} sont en cours de transfert vers votre entrepôt.");
-
-          SqLiteUtils.DeletionQuery("playerSellOrders",
-             new Dictionary<string, string>() { { "rowid", contractId.ToString() } });
-        }
-      }
-      private async void HandleNewMails()
-      {
-        var result = await SqLiteUtils.SelectQueryAsync("messenger",
-            new List<string>() { { "count (*)" } },
-            new List<string[]>() { new string[] { "characterId", characterId.ToString() }, new string[] { "read", "0" } });
-
-        await NwTask.SwitchToMainThread();
-
-        if (result != null)
-        {
-          int nbMails = int.Parse(result[0][0]);
-          if (nbMails > 0)
-            oid.SendServerMessage($"{nbMails.ToString().ColorString(ColorConstants.White)} lettres non lues se trouvent dans votre boîte aux lettres.", ColorConstants.Pink);
         }
       }
     }

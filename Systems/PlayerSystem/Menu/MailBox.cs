@@ -1,12 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
-
 using Anvil.API;
 using Anvil.API.Events;
-using Anvil.Services;
-
-using Color = Anvil.API.Color;
 
 namespace NWN.Systems
 {
@@ -22,14 +18,24 @@ namespace NWN.Systems
         private readonly List<NuiListTemplateCell> rowTemplate = new();
         private readonly NuiBind<int> listCount = new("listCount");
         private readonly NuiBind<string> search = new("search");
-        private readonly NuiBind<bool> inboxSelected = new("inboxSelected");
-        private readonly NuiBind<bool> outboxSelected = new("outboxSelected");
+        private readonly NuiBind<bool> inboxEnabled = new("inboxEnabled");
+        private readonly NuiBind<bool> outboxEnabled = new("outboxEnabled");
+        private readonly NuiBind<bool> suppressEnabled = new("suppressEnabled");
 
         private readonly NuiBind<string> title = new("title");
         private readonly NuiBind<string> content = new("content");
-        private readonly NuiBind<string> expeditorName = new("expeditorName");
-        private readonly NuiBind<string> receivedDate = new("receiveDate");
-        private readonly NuiBind<bool> unread = new("unread");
+        private readonly NuiBind<string> senderName = new("senderName");
+        private readonly NuiBind<string> receivedDate = new("receivedDate");
+        private readonly NuiBind<Color> readColorBinding = new("readColorBinding");
+
+        private readonly Color readColor = new(255, 255, 255, 125); 
+        private readonly Color unreadColor = new(255, 255, 255);
+
+        private readonly NuiBind<List<NuiComboEntry>> comboEntries = new("comboEntries");
+        private readonly NuiBind<int> selectedEntry = new("selectedEntry");
+
+        IEnumerable<Mail> filteredList;
+        Mail lastReadMail;
 
         public MailBox(Player player) : base(player)
         {
@@ -38,13 +44,18 @@ namespace NWN.Systems
           rootGroup.Layout = layoutColumn;
           layoutColumn.Children = rootChildren;
 
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(senderName) { Tooltip = senderName, ForegroundColor = readColorBinding, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { Width = 120 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(title) { Id = "read", Tooltip = title, ForegroundColor = readColorBinding, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { VariableSize = true });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(receivedDate) { Tooltip = receivedDate, ForegroundColor = readColorBinding, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { Width = 110 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_ban") { Id = "delete", Tooltip = "Supprimer" }) { Width = 35 });
+
           CreateWindow();
         }
         public void CreateWindow()
         {
-          LoadInboxLayout();
+          LoadMailBoxLayout();
 
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 410, 500);
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? new NuiRect(player.windowRectangles[windowId].X, player.windowRectangles[windowId].Y, 600, 500) : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 600, 500);
 
           window = new NuiWindow(rootGroup, "Boîte aux lettres")
           {
@@ -61,7 +72,12 @@ namespace NWN.Systems
             nuiToken = tempToken;
             nuiToken.OnNuiEvent += HandleEditorItemEvents;
 
-            LoadDescriptionBinding();
+            selectedEntry.SetBindValue(player.oid, nuiToken.Token, 0);
+            LoadMailBoxBinding();
+            inboxEnabled.SetBindValue(player.oid, nuiToken.Token, false);
+            outboxEnabled.SetBindValue(player.oid, nuiToken.Token, true);
+            SearchMails();
+            LoadMessages(filteredList);
 
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
@@ -77,45 +93,160 @@ namespace NWN.Systems
 
               switch (nuiEvent.ElementId)
               {
-                case "base":
-                  LoadBaseLayout();
+                case "inbox":
+
+                  LoadMailBoxLayout();
                   rootGroup.SetLayout(player.oid, nuiEvent.Token.Token, layoutColumn);
-                  LoadBaseBinding();
+                  LoadMailBoxBinding();
+                  inboxEnabled.SetBindValue(player.oid, nuiToken.Token, false);
+                  outboxEnabled.SetBindValue(player.oid, nuiToken.Token, true);
+                  SearchMails();
+                  LoadMessages(filteredList);
+
                   break;
 
-                case "description":
-                  LoadDescriptionLayout();
+                case "outbox":
+
+                  LoadMailBoxLayout();
                   rootGroup.SetLayout(player.oid, nuiToken.Token, layoutColumn);
-                  LoadDescriptionBinding();
+                  LoadMailBoxBinding();
+                  inboxEnabled.SetBindValue(player.oid, nuiToken.Token, true);
+                  outboxEnabled.SetBindValue(player.oid, nuiToken.Token, false);
+                  SearchMails();
+                  LoadMessages(filteredList);
+
                   break;
 
-                case "variables":
-                  LoadVariablesLayout();
+                case "write":
+                  LoadWriteLayout();
                   rootGroup.SetLayout(player.oid, nuiToken.Token, layoutColumn);
-                  LoadVariablesBinding();
+                  break;
+
+                case "delete":
+
+                  player.mails.Remove(filteredList.ElementAt(nuiEvent.ArrayIndex));
+
+                  LoadMailBoxLayout();
+                  rootGroup.SetLayout(player.oid, nuiEvent.Token.Token, layoutColumn);
+                  LoadMailBoxBinding();
+                  inboxEnabled.SetBindValue(player.oid, nuiToken.Token, false);
+                  outboxEnabled.SetBindValue(player.oid, nuiToken.Token, true);
+                  SearchMails();
+                  LoadMessages(filteredList);
 
                   break;
+
+                case "send":
+
+                  int targetId = selectedEntry.GetBindValue(player.oid, nuiToken.Token);
+                  string targetName = Utils.mailReceiverEntries.FirstOrDefault(m => m.Value == targetId).Label;
+                  string mailTitle = title.GetBindValue(player.oid, nuiToken.Token);
+                  string mailContent = content.GetBindValue(player.oid, nuiToken.Token);
+
+                  Mail newMail = new Mail(player.oid.LoginCreature.Name, player.characterId, targetName, mailTitle, mailContent, DateTime.Now);
+                  player.mails.Add(newMail);
+
+                  if (targetId != player.characterId)
+                  {
+                    Player targetPlayer = Players.FirstOrDefault(p => p.Value.characterId == targetId).Value;
+                    targetPlayer?.mails.Add(newMail);
+
+                    if (targetPlayer == null || targetPlayer.pcState == PcState.Offline)
+                      newMail.SendMailToPlayer(targetId.ToString());
+                  }
+
+                  LoadMailBoxLayout();
+                  rootGroup.SetLayout(player.oid, nuiEvent.Token.Token, layoutColumn);
+                  LoadMailBoxBinding();
+                  inboxEnabled.SetBindValue(player.oid, nuiToken.Token, false);
+                  outboxEnabled.SetBindValue(player.oid, nuiToken.Token, true);
+                  SearchMails();
+                  LoadMessages(filteredList);
+
+                  Utils.LogMessageToDMs($"MAIL SYSTEM - {player.oid.LoginCreature.Name} vient d'envoyer une lettre à {targetName}\n" +
+                    $"Titre : {mailTitle}\n" +
+                    $"Contenu : {mailContent}");
+
+                  break;
+
+                case "unreadFilter":
+
+                  LoadMailBoxLayout();
+                  rootGroup.SetLayout(player.oid, nuiEvent.Token.Token, layoutColumn);
+                  LoadMailBoxBinding();
+                  inboxEnabled.SetBindValue(player.oid, nuiToken.Token, false);
+                  outboxEnabled.SetBindValue(player.oid, nuiToken.Token, true);
+                  SearchMails();
+                  LoadMessages(filteredList.Where(m => !m.read));
+
+                  break;
+
+                case "massDelete":
+
+                  foreach (var mail in filteredList.ToList())
+                    player.mails.Remove(mail);
+
+                  LoadMailBoxLayout();
+                  rootGroup.SetLayout(player.oid, nuiEvent.Token.Token, layoutColumn);
+                  LoadMailBoxBinding();
+                  inboxEnabled.SetBindValue(player.oid, nuiToken.Token, false);
+                  outboxEnabled.SetBindValue(player.oid, nuiToken.Token, true);
+                  SearchMails();
+                  LoadMessages(filteredList);
+
+                  break;
+              }
+
+              break;
+
+            case NuiEventType.MouseUp:
+
+              if(nuiEvent.ElementId == "read")
+              {
+                Mail clickedMail = filteredList.ElementAt(nuiEvent.ArrayIndex);
+                clickedMail.read = true;
+                LoadReadLayout(clickedMail);
+                rootGroup.SetLayout(player.oid, nuiToken.Token, layoutColumn);
               }
 
               break;
 
             case NuiEventType.Watch:
 
-              switch (nuiEvent.ElementId)
+              switch(nuiEvent.ElementId)
               {
-                case "name":
-
-                  break;
-
-                case "tag":
-
+                case "search":
+                case "selectedEntry":
+                  SearchMails(); 
                   break;
               }
 
               break;
           }
         }
+        private void SearchMails()
+        {
+          string searchValue = search.GetBindValue(player.oid, nuiToken.Token).ToLower();
+          string selectedSender = null;
 
+          try { selectedSender = Utils.mailReceiverEntries.ElementAt(selectedEntry.GetBindValue(player.oid, nuiToken.Token)).Label; }
+          catch(Exception) { }
+
+          if (inboxEnabled.GetBindValue(player.oid, nuiToken.Token))
+          {
+            filteredList = !string.IsNullOrEmpty(selectedSender) ? player.mails.Where(m => m.to == selectedSender) : player.mails;
+            
+            if(!string.IsNullOrEmpty(searchValue))
+              filteredList = filteredList.Where(m => m.title.ToLower().Contains(searchValue));
+          }
+          else
+          {
+            filteredList = !string.IsNullOrEmpty(selectedSender) ? player.mails.Where(m => m.from == selectedSender) : player.mails;
+
+            if (!string.IsNullOrEmpty(searchValue))
+              filteredList = player.mails.Where(m => m.title.ToLower().Contains(searchValue));
+          }
+        }
         private void LoadButtons()
         {
           rootChildren.Add(new NuiRow()
@@ -123,263 +254,136 @@ namespace NWN.Systems
             Children = new List<NuiElement>()
             {
               new NuiSpacer(),
-              new NuiButton("Réception") { Id = "receive", Height = 35, Width = 90 },
-              new NuiButton("Envoi") { Id = "send", Height = 35, Width = 90 },
+              new NuiButton("Réception") { Id = "inbox", Enabled = inboxEnabled, Height = 35, Width = 100 },
+              new NuiButton("Boite d'envoi") { Id = "outbox", Enabled = outboxEnabled, Height = 35, Width = 100 },
+              new NuiButton("Ecrire") { Id = "write", Height = 35, Width = 100 },
+              new NuiButton("Non lus") { Id = "unreadFilter", Tooltip = "Filtre par missives non lues", Height = 35, Width = 100 },
+              new NuiButton("Suppression") { Id = "massDelete", Tooltip = "Supprime toutes les missives actuellement actuellement affichés", Enabled = suppressEnabled, Height = 35, Width = 100 },
               new NuiSpacer()
             }
-          });
-        }
-
-        private void LoadInboxLayout()
-        {
-          rootChildren.Clear();
-          LoadButtons();
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-          {
-            new NuiLabel("Nom") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
-            new NuiTextEdit("Nom", name, 25, false) { Height = 35, Width = 200 }
-          }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-          {
-            new NuiLabel("Tag") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
-            new NuiTextEdit("Tag", tag, 30, false) { Height = 35, Width = 200 }
-          }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-          {
-            new NuiLabel("Apparence") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
-            new NuiCombo() { Height = 35, Width = 200, Entries = apparence, Selected = apparenceSelected },
-            new NuiTextEdit("Recherche", apparenceSearch, 20, false) { Height = 35, Width = 100 }
-          }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-          {
-            new NuiCheck("Indestructible", plotChecked) { Height = 35, Width = 120 },
-            new NuiLabel("Résistance") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle, Visible = statVisible, Tooltip = "Doit être compris entre 0 et 250" },
-            new NuiTextEdit("Résistance", hardness, 3, false) { Height = 35, Width = 35, Visible = statVisible },
-            new NuiLabel("HP") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle, Visible = statVisible, Tooltip = "Doit être compris entre 0 et 10000" },
-            new NuiTextEdit("HP", hitPoints, 5, false) { Height = 35, Width = 35, Visible = statVisible },
-          }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-          {
-            new NuiCheck("Utilisable", useableChecked) { Height = 35, Width = 90 },
-            new NuiCheck("Inventaire", hasInventoryChecked) { Height = 35, Width = 90, Visible = inventoryVisible },
-            new NuiCheck("Persistant", persistantChecked) { Height = 35, Width = 90 },
-            new NuiButtonImage("ir_empytqs") { Id = "updatePersistantPlc", Height = 35, Width = 35, Visible = updateVisibility, Tooltip = "Mettre à jour le placeable persistant. Utile si des modifications ont été faites depuis la dernière sauvegarde." },
-          }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-          {
-            new NuiLabel("Orientation") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle, Tooltip = "Doit être compris entre 0 et 360.0" },
-            new NuiTextEdit("Orientation", orientation, 5, false) { Height = 35, Width = 100 },
-            new NuiLabel("Taille") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle, Tooltip = "Doit être compris entre 0.01 et 99.99" },
-            new NuiTextEdit("Taille", scale, 5, false) { Height = 35, Width = 100 }
-          }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-          {
-            new NuiLabel("Position") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
-            new NuiTextEdit("X", xPosition, 5, false) { Height = 35, Width = 100, Tooltip = "Doit être compris entre 0 et 50.0" },
-            new NuiTextEdit("Y", yPosition, 5, false) { Height = 35, Width = 100, Tooltip = "Doit être compris entre 0 et 60.0" },
-            new NuiTextEdit("Z", zPosition, 5, false) { Height = 35, Width = 100, Tooltip = "Doit être compris entre -10 et 100" }
-          }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-          {
-            new NuiLabel("Rotation") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle, Tooltip = "Doit être compris entre 0 et 360.0" },
-            new NuiTextEdit("X", xRotation, 5, false) { Height = 35, Width = 100 },
-            new NuiTextEdit("Y", yRotation, 5, false) { Height = 35, Width = 100 },
-            new NuiTextEdit("Z", zRotation, 5, false) { Height = 35, Width = 100 }
-          }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-          {
-            new NuiLabel("Translation") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
-            new NuiTextEdit("X", xTranslation, 5, false) { Height = 35, Width = 100, Tooltip = "Doit être compris entre -50.00 et 50.00" },
-            new NuiTextEdit("Y", yTranslation, 5, false) { Height = 35, Width = 100, Tooltip = "Doit être compris entre -60.00 et 60.00" },
-            new NuiTextEdit("Z", zTranslation, 5, false) { Height = 35, Width = 100, Tooltip = "Doit être compris entre -10.00 et 100" }
-          }
           });
         }
         private void StopAllWatchBindings()
         {
-          name.SetBindWatch(player.oid, nuiToken.Token, false);
-          tag.SetBindWatch(player.oid, nuiToken.Token, false);
-          apparenceSelected.SetBindWatch(player.oid, nuiToken.Token, false);
-          apparenceSearch.SetBindWatch(player.oid, nuiToken.Token, false);
-          plotChecked.SetBindWatch(player.oid, nuiToken.Token, false);
-          hardness.SetBindWatch(player.oid, nuiToken.Token, false);
-          hitPoints.SetBindWatch(player.oid, nuiToken.Token, false);
-          useableChecked.SetBindWatch(player.oid, nuiToken.Token, false);
-          hasInventoryChecked.SetBindWatch(player.oid, nuiToken.Token, false);
-          scale.SetBindWatch(player.oid, nuiToken.Token, false);
-          xRotation.SetBindWatch(player.oid, nuiToken.Token, false);
-          yRotation.SetBindWatch(player.oid, nuiToken.Token, false);
-          zRotation.SetBindWatch(player.oid, nuiToken.Token, false);
-          xTranslation.SetBindWatch(player.oid, nuiToken.Token, false);
-          yTranslation.SetBindWatch(player.oid, nuiToken.Token, false);
-          zTranslation.SetBindWatch(player.oid, nuiToken.Token, false);
-          orientation.SetBindWatch(player.oid, nuiToken.Token, false);
-          xPosition.SetBindWatch(player.oid, nuiToken.Token, false);
-          yPosition.SetBindWatch(player.oid, nuiToken.Token, false);
-          zPosition.SetBindWatch(player.oid, nuiToken.Token, false);
-          persistantChecked.SetBindWatch(player.oid, nuiToken.Token, false);
+          selectedEntry.SetBindWatch(player.oid, nuiToken.Token, false);
+          search.SetBindWatch(player.oid, nuiToken.Token, false);
         }
-        private void LoadBaseBinding()
-        {
-          StopAllWatchBindings();
-
-          name.SetBindValue(player.oid, nuiToken.Token, targetPlaceable.Name);
-          name.SetBindWatch(player.oid, nuiToken.Token, true);
-          tag.SetBindValue(player.oid, nuiToken.Token, targetPlaceable.Tag);
-          tag.SetBindWatch(player.oid, nuiToken.Token, true);
-        }
-        private void LoadDescriptionLayout()
+        private void LoadMailBoxLayout()
         {
           rootChildren.Clear();
           LoadButtons();
+          lastReadMail = null;
 
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-            {
-              new NuiTextEdit("Description", itemDescription, 999, true) { Height = 170, Width = 390 }
-            }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-            {
-              new NuiTextEdit("Commentaire", itemComment, 999, true) { Height = 170, Width = 390 }
-            }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-            {
-              new NuiSpacer(),
-              new NuiButtonImage("ir_empytqs") { Id = "saveDescription", Tooltip = "Enregistrer la description et le commentaire de cette créature", Height = 35, Width = 35 },
-              new NuiSpacer()
-            }
-          });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiCombo() { Entries = comboEntries, Selected = selectedEntry, Height = 35, Width = 580 } } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 20, false) { Height = 35, Width = 580 } } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35, Width = 580 } } });
         }
-
-        private void LoadDescriptionBinding()
+        private void LoadMailBoxBinding()
         {
           StopAllWatchBindings();
 
-          itemDescription.SetBindValue(player.oid, nuiToken.Token, targetPlaceable.Description);
-          itemComment.SetBindValue(player.oid, nuiToken.Token, targetPlaceable.GetObjectVariable<LocalVariableString>("_COMMENT").Value);
+          selectedEntry.SetBindValue(player.oid, nuiToken.Token, 0);
+          search.SetBindValue(player.oid, nuiToken.Token, "");
+          suppressEnabled.SetBindValue(player.oid, nuiToken.Token, true);
+          selectedEntry.SetBindWatch(player.oid, nuiToken.Token, true);
+          search.SetBindWatch(player.oid, nuiToken.Token, true);
         }
-        private void LoadVariablesLayout()
+
+        private void LoadMessages(IEnumerable<Mail> displayList)
         {
-          rootChildren.Clear();
-          LoadButtons();
-          rowTemplate.Clear();
-
-          rowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("Nom", variableName, 20, false) { Tooltip = variableName }) { VariableSize = true });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiCombo() { Entries = Utils.variableTypes, Selected = selectedVariableType, Width = 60 }));
-          rowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("Valeur", variableValue, 20, false) { Tooltip = variableValue }) { VariableSize = true });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_empytqs") { Id = "saveVariable", Tooltip = "Sauvegarder" }) { Width = 35 });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_ban") { Id = "deleteVariable", Tooltip = "Supprimer" }) { Width = 35 });
-
-          List<NuiElement> columnsChildren = new();
-          NuiRow columnsRow = new() { Children = columnsChildren };
-          rootChildren.Add(columnsRow);
-
-          columnsChildren.Add(new NuiColumn()
-          {
-            Children = new List<NuiElement>()
-            {
-              new NuiRow() { Children = new List<NuiElement>()
-              {
-                new NuiTextEdit("Nom", newVariableName, 20, false) { Tooltip = newVariableName, Width = 120 },
-                new NuiCombo() { Entries = Utils.variableTypes, Selected = selectedNewVariableType, Width = 80 },
-                new NuiTextEdit("Valeur", newVariableValue, 20, false) { Tooltip = newVariableValue, Width = 120 },
-                new NuiButtonImage("ir_empytqs") { Id = "saveNewVariable", Height = 35, Width = 35 },
-              }
-            },
-              new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35,  Width = 380 } } }
-            }
-          });
-        }
-        private void LoadVariablesBinding()
-        {
-          StopAllWatchBindings();
-
-          List<string> variableNameList = new();
-          List<int> selectedVariableTypeList = new();
-          List<string> variableValueList = new();
+          List<string> nameList = new();
+          List<string> dateList = new();
+          List<string> titleList = new();
+          List<NuiComboEntry> entries = new();
+          List<Color> colorList = new();
           int count = 0;
 
-          foreach (var variable in targetPlaceable.LocalVariables)
+          entries.Add(new NuiComboEntry("Tous", count));
+
+          foreach (var mail in displayList)
           {
-            switch (variable)
+            string receiver;
+            string sender;
+
+            if (inboxEnabled.GetBindValue(player.oid, nuiToken.Token))
             {
-              case LocalVariableString stringVar:
-
-                if (stringVar.Name == "ITEM_KEY")
-                  continue;
-
-                variableValueList.Add(stringVar.Value);
-                selectedVariableTypeList.Add(2);
-                break;
-              case LocalVariableInt intVar:
-                variableValueList.Add(intVar.Value.ToString());
-                selectedVariableTypeList.Add(1);
-                break;
-              case LocalVariableFloat floatVar:
-                variableValueList.Add(floatVar.Value.ToString());
-                selectedVariableTypeList.Add(3);
-                break;
-              case DateTimeLocalVariable dateVar:
-                variableValueList.Add(dateVar.Value.ToString());
-                selectedVariableTypeList.Add(4);
-                break;
-
-              default:
-                continue;
+              receiver = mail.from;
+              sender = mail.to;
+              mail.read = true;
+            }
+            else
+            {
+              receiver = mail.to;
+              sender = mail.from;
             }
 
-            variableNameList.Add(variable.Name);
-            count++;
+            if (!nameList.Contains(sender))
+            {
+              count++;
+              entries.Add(new NuiComboEntry(sender, count));
+            }
+
+            nameList.Add(sender);
+            titleList.Add(mail.title);
+            dateList.Add(mail.sentDate.ToString("dd/MM/yyyy HH:mm"));
+            colorList.Add(mail.read ? readColor : unreadColor);
           }
 
-          variableName.SetBindValues(player.oid, nuiToken.Token, variableNameList);
-          selectedVariableType.SetBindValues(player.oid, nuiToken.Token, selectedVariableTypeList);
-          variableValue.SetBindValues(player.oid, nuiToken.Token, variableValueList);
-          listCount.SetBindValue(player.oid, nuiToken.Token, count);
+          senderName.SetBindValues(player.oid, nuiToken.Token, nameList);
+          title.SetBindValues(player.oid, nuiToken.Token, titleList);
+          receivedDate.SetBindValues(player.oid, nuiToken.Token, dateList);
+          comboEntries.SetBindValue(player.oid, nuiToken.Token, entries);
+          readColorBinding.SetBindValues(player.oid, nuiToken.Token, colorList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, titleList.Count);
+        }
+        private void LoadReadLayout(Mail mail)
+        {
+          StopAllWatchBindings();
+          rootChildren.Clear();
+          LoadButtons();
+          lastReadMail = mail;
+
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiLabel($"De : {mail.from}, A : {mail.to}, Le : {mail.sentDate:dd/MM/yyyy HH:mm}") { Tooltip = mail.from, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle, Height = 35, Width = 580 }, new NuiSpacer() } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiLabel(mail.title) { Tooltip = mail.title, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle, Height = 35, Width = 380 }, new NuiSpacer() } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiText(mail.content) { Height = 380, Width = 580 } } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
+          {
+            new NuiSpacer(),
+            new NuiButton("Répondre") { Id = "write", Enabled = mail.from != player.oid.LoginCreature.Name && !StringUtils.noReplyArray.Contains(mail.from), Height = 35, Width = 80 },
+            new NuiSpacer(),
+            new NuiButtonImage("ir_ban") { Id = "delete", Height = 35, Width = 35 },
+            new NuiSpacer()
+          } });
+
+          suppressEnabled.SetBindValue(player.oid, nuiToken.Token, false);
+          inboxEnabled.SetBindValue(player.oid, nuiToken.Token, true);
+          outboxEnabled.SetBindValue(player.oid, nuiToken.Token, true);
+        }
+        private void LoadWriteLayout()
+        {
+          StopAllWatchBindings();
+          rootChildren.Clear();
+          LoadButtons();
+
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiCombo() { Entries = Utils.mailReceiverEntries, Selected = selectedEntry, Height = 35, Width = 580 } } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Objet", title, 200, false) { Height = 35, Width = 580 } } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Contenu", content, 3000, true) { Height = 200, Width = 580 } } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiButton("Envoyer") { Id = "send", Height = 35, Width = 60 }, new NuiSpacer() } });
+
+          selectedEntry.SetBindValue(player.oid, nuiToken.Token, -1);
+          title.SetBindValue(player.oid, nuiToken.Token, "");
+          content.SetBindValue(player.oid, nuiToken.Token, "");
+          suppressEnabled.SetBindValue(player.oid, nuiToken.Token, false);
+
+          if (lastReadMail != null)
+          {
+            selectedEntry.SetBindValue(player.oid, nuiToken.Token, lastReadMail.fromCharactedId);
+            title.SetBindValue(player.oid, nuiToken.Token, $"Réponse : {lastReadMail.title}");
+          }
+
+          inboxEnabled.SetBindValue(player.oid, nuiToken.Token, true);
+          outboxEnabled.SetBindValue(player.oid, nuiToken.Token, true);
+          selectedEntry.SetBindWatch(player.oid, nuiToken.Token, true);
         }
       }
     }

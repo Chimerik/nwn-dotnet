@@ -176,7 +176,7 @@ namespace NWN.Systems
       if (oPC.ControllingPlayer == null || oItem == null)
         return;
 
-      Task wait = NwTask.Run(async () =>
+      /*Task wait = NwTask.Run(async () =>
       {
         await NwTask.Delay(TimeSpan.FromSeconds(0.2));
 
@@ -192,7 +192,7 @@ namespace NWN.Systems
             oPC.LoginPlayer.SendServerMessage($"{oItem.Name.ColorString(ColorConstants.White)} est un objet invalide et n'aurait jamais du pouvoir être ramassé. Il a donc été détruit.");
           }
         }
-      });
+      });*/
 
       if (oItem.Tag == "undroppable_item")
       {

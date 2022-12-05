@@ -376,6 +376,7 @@ namespace NWN
 
     public static readonly List<NuiComboEntry> appearanceEntries = new();
     public static readonly List<NuiComboEntry> placeableEntries = new();
+    public static readonly List<NuiComboEntry> mailReceiverEntries = new();
     public static List<NuiComboEntry> raceList = new();
     public static readonly List<NuiComboEntry> genderList = new();
     public static readonly List<NuiComboEntry> soundSetList = new();
@@ -399,7 +400,10 @@ namespace NWN
           new NuiComboEntry("int", 1),
           new NuiComboEntry("string", 2),
           new NuiComboEntry("float", 3),
-          new NuiComboEntry("date", 4)
+          new NuiComboEntry("date", 4),
+          new NuiComboEntry("persistInt", 5),
+          new NuiComboEntry("persistString", 6),
+          new NuiComboEntry("persistFloat", 7)
         };
 
     public static readonly IEnumerable<LoadScreenTableEntry> loadScreensResRefList = NwGameTables.LoadScreenTable.Where(l => l.BMPResRef != null);

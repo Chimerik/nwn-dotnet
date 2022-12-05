@@ -104,20 +104,6 @@ namespace NWN.Systems
                     if (int.TryParse(result.FirstOrDefault()[0], out id))
                       id += 1;
 
-                  /*int id = 1;
-
-                  using (var connection = new SqliteConnection(Config.dbPath))
-                  {
-                    connection.Open();
-
-                    var command = connection.CreateCommand();
-                    command.CommandText = "SELECT max(id) from bankPlaceables";
-
-                    using var reader = await command.ExecuteReaderAsync();
-                    while (reader.Read())
-                      id += reader.GetInt32(0);
-                  }*/
-
                   await NwTask.SwitchToMainThread();
 
                   try
@@ -134,6 +120,7 @@ namespace NWN.Systems
                     Utils.LogMessageToDMs($"{player.oid.LoginCreature.Name} ({player.oid.PlayerName}) signature contrat Skaslgard - Id {id} ");
 
                     InitializeGiftItems();
+                    Utils.mailReceiverEntries.Add(new NuiComboEntry(player.oid.LoginCreature.Name, player.characterId));
                   }
                   catch(Exception e)
                   {
@@ -167,7 +154,6 @@ namespace NWN.Systems
         private static string CreateTempGiftItem(string itemTemplate, int stackSize)
         {
           NwItem tempItem = NwItem.Create(itemTemplate, NwModule.Instance.StartingLocation, false, stackSize);
-          tempItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
           tempItem.Destroy();
           return tempItem.Serialize().ToBase64EncodedString();
         }

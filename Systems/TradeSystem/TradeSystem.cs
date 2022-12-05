@@ -163,7 +163,7 @@ namespace NWN.Systems
         foreach (var auction in auctionList)
           serializableAuctions.Add(new Auction.SerializableAuction(auction));
 
-        return JsonConvert.SerializeObject(auctionList);
+        return JsonConvert.SerializeObject(serializableAuctions);
       });
 
       Task<string> serializeBuyOrders = Task.Run(() =>
@@ -218,7 +218,10 @@ namespace NWN.Systems
             {
               proposal.cancelled = true;
 
-              UpdatePlayerBankAccount(proposal.characterId.ToString(), proposal.sellPrice.ToString(), "Proposal cancelled - Request Expired");
+              UpdatePlayerBankAccount(proposal.characterId, proposal.sellPrice, $"Expiration de votre commande",
+                $"Très honoré client,\n\n  La banque Skalsgard est au regret de vous annoncer que votre commande a été expiré.\n\nN'hésitez pas à la remettre au tableau pour la renouveller !\n\nCi-dessous, le détail de la commande initiale :\n\n{request.description}",
+                "Proposal cancelled - Request Expired");
+
               AddItemToPlayerDataBaseBank(proposal.characterId.ToString(), proposal.serializedItems, "Proposal cancelled - Request Expired");
             }
           }
@@ -250,8 +253,9 @@ namespace NWN.Systems
       {
         if (sellOrder.expirationDate < DateTime.Now)
         {
-          AddResourceToPlayerStock(Players.FirstOrDefault(p => p.Value.characterId == sellOrder.sellerId).Value, sellOrder.sellerId, 
-            sellOrder.resourceType, sellOrder.resourceLevel, sellOrder.quantity, $"Votre ordre de vente de {sellOrder.quantity} {sellOrder.resourceType.ToDescription()} {sellOrder.resourceLevel} a expiré. Les ressources libérées sont de nouveau disponibles dans votre entrepôt.",
+          AddResourceToPlayerStock(sellOrder.sellerId, sellOrder.resourceType, sellOrder.resourceLevel, sellOrder.quantity,
+            $"Expiration de votre ordre de vente - {sellOrder.quantity} {sellOrder.resourceType.ToDescription()} {sellOrder.resourceLevel}",
+            $"Très honoré client,\n\n  La banque Skalsgard est au regret de vous annoncer l'expiration de votre ordre de vente de {sellOrder.quantity} {sellOrder.resourceType.ToDescription()} {sellOrder.resourceLevel}.\n\nLes ressources libérées sont de nouveau disponibles dans votre entrepôt.\n\nN'hésitez pas à renouveler votre ordre dès que possible (frais de gestion identiques).",
             "Sell Order Expired");
 
           Log.Info($"TRADE SYSTEM - Sell order expired of {sellOrder.quantity} {sellOrder.resourceType.ToDescription()} {sellOrder.resourceLevel} from {sellOrder.sellerId}");
@@ -277,7 +281,9 @@ namespace NWN.Systems
               buyer.oid.SendServerMessage($"Votre ordre d'achat pour {StringUtils.ToWhitecolor(buyOrder.quantity)} {StringUtils.ToWhitecolor(buyOrder.resourceType.ToDescription())} {StringUtils.ToWhitecolor(buyOrder.resourceLevel)} a expiré. La banque Skalsgard a débloqué les fond immobilisés pour l'opération (solde {StringUtils.ToWhitecolor(buyer.bankGold)})", ColorConstants.Orange);
           }
 
-          UpdatePlayerBankAccount(buyOrder.buyerId.ToString(), sellPrice.ToString(), "Buy Order Expired");
+          UpdatePlayerBankAccount(buyOrder.buyerId, sellPrice, "Expiration de votre ordre d'achat",
+            $"Très honoré client,\n\n  La banque Skalsgard est au regret de vous annoncer que votre ordre d'achat de {buyOrder.quantity} {buyOrder.resourceType.ToDescription()} {buyOrder.resourceLevel} au prix unitaire de {buyOrder.unitPrice} a expiré.\n\nN'hésitez pas à la renouveller (frais de gestion identiques).",
+            "Buy Order Expired");
 
           Log.Info($"TRADE SYSTEM - Buy order expired of {buyOrder.quantity} {buyOrder.resourceType.ToDescription()} {buyOrder.resourceLevel} from {buyOrder.buyerId}");
         }
@@ -291,10 +297,8 @@ namespace NWN.Systems
 
       if (auction.highestBid < 1) // L'enchère est expirée et n'a pas trouvé d'acheteur
       {
-        if (auctionner != null && auctionner.pcState != Player.PcState.Offline)
-          auctionner.oid.SendServerMessage($"Votre enchère pour {auction.itemName.ColorString(ColorConstants.White)} n'a pas trouvé d'acheteur. L'objet a été envoyé dans votre coffre Skalsgard.", ColorConstants.Orange);
-
         AddItemToPlayerDataBaseBank(auction.auctionerId.ToString(), new List<string>() { auction.serializedItem }, "Auction expired, no bidder");
+        new Mail("Banque Skalsgard", -1, auction.auctionerId.ToString(), $"Enchère {auction.itemName} - Echec", $"Très honoré client,\n\n La banque Skalsgard est au regret de vous annoncer l'échec de votre enchère pour {auction.itemName}.\nVotre offre n'a malheureusement pas su trouver d'acheteur.", DateTime.Now, DateTime.Now.AddMonths(3), false).SendMailToPlayer(auction.auctionerId.ToString());
         return;
       }
       else // L'enchère est remportée par le highest bidder
@@ -309,16 +313,15 @@ namespace NWN.Systems
             bidder.oid.SendServerMessage($"Vous venez d'acquérir {auction.itemName.ColorString(ColorConstants.White)} pour un prix de {auction.highestBid.ToString().ColorString(ColorConstants.White)}.", ColorConstants.Orange);
             return;
           }
-          else
-            bidder.oid.SendServerMessage($"Votre avez remportez l'enchère pour {auction.itemName.ColorString(ColorConstants.White)} pour un prix de {auction.highestBid.ToString().ColorString(ColorConstants.White)}. L'objet a été envoyé dans votre coffre Skalsgard.", ColorConstants.Orange);
         }
 
         AddItemToPlayerDataBaseBank(auction.highestBidderId.ToString(), new List<string>() { auction.serializedItem }, "Auction successful");
-        // TODO : ajouter notification par lettre
+        new Mail("Banque Skalsgard", -1, auction.highestBidderId.ToString(), $"Enchère {auction.itemName} - Emportée !", $"Très honoré client,\n\nLa banque Skalsgard est au heureuse de vous annoncer que vous remportez l'enchère pour {auction.itemName} à un prix de {auction.highestBid}.", DateTime.Now, DateTime.Now.AddMonths(3), false).SendMailToPlayer(auction.highestBidderId.ToString());
       }
     }
-    public static async void AddResourceToPlayerStock(Player player, int characterId, ResourceType type, int grade, int quantity, string playerMessage, string logUseCase)
+    public static void AddResourceToPlayerStock(int characterId, ResourceType type, int grade, int quantity, string playerMessageTitle, string playerMessage, string logUseCase)
     {
+      Player player = Players.FirstOrDefault(p => p.Value.characterId == characterId).Value;
       CraftResource resource = Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == type && r.grade == grade);
 
       if (player != null)
@@ -337,29 +340,24 @@ namespace NWN.Systems
           messageQuantity = quantity;
         }
 
-        if (player.pcState != Player.PcState.Offline)
-        {
-          await NwTask.SwitchToMainThread();
-          player.oid.SendServerMessage($"{playerMessage} (solde matéria {StringUtils.ToWhitecolor(messageQuantity)})", ColorConstants.Orange);
-        }
+        playerMessage += $"(solde matéria {messageQuantity})";
       }
 
       UpdatePlayerResourceStock(characterId.ToString(), resource, quantity, logUseCase);
+      new Mail("Banque Skalsgard", -1, characterId.ToString(), playerMessageTitle, playerMessage, DateTime.Now, DateTime.Now.AddMonths(3), false).SendMailToPlayer(characterId.ToString());
     }
-    public static void ResolveSuccessfulAuction(Auction auction)
+    public static async void ResolveSuccessfulAuction(Auction auction)
     {
       Player seller = Players.FirstOrDefault(p => p.Value.characterId == auction.auctionerId).Value;
-      int sellPrice = GetTaxedSellPrice(seller, auction.highestBid);
+      int sellPrice = await GetTaxedSellPrice(auction.auctionerId, auction.highestBid);
 
       if (seller != null)
-      {
         seller.bankGold += sellPrice;
+ 
+      UpdatePlayerBankAccount(auction.auctionerId, sellPrice, $"Succès de votre enchère - {auction.itemName} !",
+        $"Très honoré client,\n\n La banque Skalsgard est heureuse de vous annoncer le succès de votre enchère pour {auction.itemName}.\n\n{sellPrice} pièces ont été versées sur votre compte Skalsgard.\n\n",
+        "Auction successful");
 
-        if (seller.pcState != Player.PcState.Offline)
-          seller.oid.SendServerMessage($"La vente aux enchères de votre {StringUtils.ToWhitecolor(auction.itemName)} vient de vous rapporter {StringUtils.ToWhitecolor(sellPrice)} (solde {StringUtils.ToWhitecolor(seller.bankGold)})", ColorConstants.Orange);
-      }
-
-      UpdatePlayerBankAccount(auction.auctionerId.ToString(), sellPrice.ToString(), "Auction successful");
       GiveItemAuction(auction);
     }
     public static async void AddItemToPlayerDataBaseBank(string characterId, List<string> serializedItemstoAdd, string logUseCase)
@@ -395,24 +393,31 @@ namespace NWN.Systems
       else
         Utils.LogMessageToDMs($"TRADE SYSTEM ERROR - {logUseCase} - Impossible de trouver le personnage {characterId}");
     }
-    public static int GetTaxedSellPrice(Player seller, int sellPrice)
+    public static async Task<int> GetTaxedSellPrice(int sellerId, int sellPrice)
     {
-      double tax = sellPrice * 0.92;
+      Player seller = Players.FirstOrDefault(p => p.Value.characterId == sellerId).Value;
+      int comptabiliteLevel = 0;
 
-      if (seller != null && seller.learnableSkills.ContainsKey(CustomSkill.Comptabilite))
-        tax *= (1 - (seller.learnableSkills[CustomSkill.Comptabilite].totalPoints * 0.11));
+      if (seller == null)
+        comptabiliteLevel = await SqLiteUtils.GetOfflinePlayerSkillPoints(sellerId.ToString(), CustomSkill.Comptabilite);
+      else if (seller.learnableSkills.ContainsKey(CustomSkill.Comptabilite))
+        comptabiliteLevel = seller.learnableSkills[CustomSkill.Comptabilite].totalPoints;
 
-      return (int)tax;
+      return (int)(sellPrice * 0.92 * (1 - (comptabiliteLevel * 0.11)));
     }
-    public static void UpdatePlayerBankAccount(string characterId, string sellPrice, string logUseCase)
+    public static void UpdatePlayerBankAccount(int characterId, int sellPrice, string playerMessageTitle, string playerMessage, string logUseCase)
     {
+      Player player = Players.FirstOrDefault(p => p.Value.characterId == characterId).Value;
+
+      if (player != null)
+        player.bankGold += sellPrice;
+
       SqLiteUtils.UpdateQuery("playerCharacters",
-        new List<string[]>() { new string[] { "bankGold", sellPrice, "+" } },
-        new List<string[]>() { new string[] { "ROWID", characterId } });
+        new List<string[]>() { new string[] { "bankGold", sellPrice.ToString(), "+" } },
+        new List<string[]>() { new string[] { "ROWID", characterId.ToString() } });
 
+      new Mail("Banque Skalsgard", -1, characterId.ToString(), playerMessageTitle, playerMessage, DateTime.Now, DateTime.Now.AddMonths(3), false).SendMailToPlayer(characterId.ToString());
       Log.Info($"TRADE SYSTEM - {logUseCase} - Updated bank account {characterId} of {sellPrice}");
-
-      // TODO : ajouter notification par lettre
     }
     private static async void UpdatePlayerResourceStock(string characterId, CraftResource resource, int quantity, string logUseCase)
     {

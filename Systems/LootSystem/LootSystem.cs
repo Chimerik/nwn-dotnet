@@ -113,7 +113,7 @@ namespace NWN.Systems
         oScroll.Description = $"{spellEntry.Description}";
 
         oScroll.AddItemProperty(ItemProperty.CastSpell((IPCastSpell)itemPropertyId, IPCastSpellNumUses.SingleUse), EffectDuration.Permanent);
-        oScroll.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+        //oScroll.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
       }
 
       UpdateChestTagToLootsDic(oChest);

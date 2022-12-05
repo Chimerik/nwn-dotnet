@@ -56,6 +56,7 @@ namespace NWN.Systems
       LoadEditorNuiCombo();
       LoadCreatureSpawns();
       LoadPlaceableSpawns();
+      LoadMailReceiverList();
       NwModule.Instance.OnModuleLoad += OnModuleLoad;
     }
     private static async void LoadDiscordBot()
@@ -101,9 +102,13 @@ namespace NWN.Systems
 
       SetModuleTime();
 
+      foreach(NwItem item in NwObject.FindObjectsOfType<NwItem>()) // Permet de contrôler que les joueurs n'importent pas des items pétés en important des maps
+      { // penser à la faire également lors de la création d'une zone dynamique
+        item.Destroy();
+        Utils.LogMessageToDMs($"OnModuleLoad - Destroyed item {item.Name} in area {item?.Area?.Name}");
+      }
+
       RestorePlayerCorpseFromDatabase();
-      //RestorePlayerShopsFromDatabase();
-      //RestorePlayerAuctionsFromDatabase();
       RestoreResourceBlocksFromDatabase();
       LoadHeadLists();
 
@@ -112,7 +117,6 @@ namespace NWN.Systems
       scheduler.ScheduleRepeating(HandlePlayerLoop, TimeSpan.FromSeconds(1));
       scheduler.ScheduleRepeating(HandleSaveDate, TimeSpan.FromMinutes(1));
       scheduler.ScheduleRepeating(SpawnCollectableResources, TimeSpan.FromHours(24), nextActivation);
-      //scheduler.ScheduleRepeating(DeleteExpiredMail, TimeSpan.FromHours(24), nextActivation);
 
       /*foreach (var duplicate in NwGameTables.PlaceableTable.GroupBy(p => p.ModelName).Where(p => p.Count() > 1).Select(p => p.Key))
       {
@@ -221,7 +225,7 @@ namespace NWN.Systems
         "'location' TEXT, 'itemAppearances' TEXT, 'currentSkillPoints' INTEGER," +
         "'currentHP' INTEGER, 'bankGold' INTEGER, 'pveArenaCurrentPoints' INTEGER, 'menuOriginTop' INTEGER, 'menuOriginLeft' INTEGER, 'storage' TEXT, " +
         "'alchemyCauldron' TEXT, 'explorationState' TEXT, 'materialStorage' TEXT, 'craftJob' TEXT, 'grimoires' TEXT, 'quickbars' TEXT," +
-        "'descriptions' TEXT)");
+        "'descriptions' TEXT, 'mails' TEXT)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerDeathCorpses" +
         "('characterId' INTEGER NOT NULL, 'deathCorpse' TEXT NOT NULL, 'location' TEXT NOT NULL)");
@@ -479,11 +483,6 @@ namespace NWN.Systems
         Utils.LogMessageToDMs($"Warning : could not spawn {waypoint.Tag} nb {waypoint.GetObjectVariable<LocalVariableInt>("id").Value} in {waypoint.Area.Name}");
       }
     }
-    public static void DeleteExpiredMail()
-    {
-      SqLiteUtils.DeletionQuery("messenger",
-          new Dictionary<string, string>() { { "expirationDate", DateTime.Now.AddDays(30).ToLongDateString() } }, ">");
-    }
     private static void LoadHeadLists()
     {
       /*Log.Info($"karandas found in {NWScript.ResManGetAliasFor("c_karandas", NWScript.RESTYPE_MDL)}");
@@ -657,6 +656,17 @@ namespace NWN.Systems
         Utils.tradeMaterialList.Add(new NuiComboEntry(resource.name, j));
         j++;
       }
+    }
+    private static async void LoadMailReceiverList()
+    {
+      var results = await SqLiteUtils.SelectQueryAsync("bankPlaceables",
+            new List<string>() { { "ownerId" }, { "ownerName" } },
+            new List<string[]>() { });
+
+      if (results != null && results.Count > 0)
+        foreach (var result in results)
+          if(int.TryParse(result[0], out int charId) && charId > -1)
+            Utils.mailReceiverEntries.Add(new NuiComboEntry(result[1], charId));
     }
     private static void LoadModulePalette()
     {

@@ -60,7 +60,17 @@ namespace NWN.Systems
           rootColumn = new NuiColumn() 
           { 
             Children = new List<NuiElement>() 
-            { 
+            {
+              new NuiRow()
+              {
+                Height = 35,
+                Children = new List<NuiElement>()
+                {
+                  new NuiSpacer(),
+                  new NuiButton("Missives") { Id = "mailBox", Tooltip = "Consulter la boîte aux lettres Skalsgard", Width = 160 },
+                  new NuiSpacer()
+                }
+              },
               new NuiRow()
               {
                 Height = 35,
@@ -155,6 +165,16 @@ namespace NWN.Systems
 
                   player.oid.SendServerMessage("Sélectionnez les objets de votre inventaire à déposer au coffre.");
                   player.oid.EnterTargetMode(SelectInventoryItem, ObjectTypes.Item, MouseCursor.PickupDown);
+
+                  break;
+
+                case "mailBox":
+
+                  CloseWindow();
+
+                  if (!player.windows.ContainsKey("mailBox")) player.windows.Add("mailBox", new MailBox(player));
+                  else ((MailBox)player.windows["mailBox"]).CreateWindow();
+
 
                   break;
               }

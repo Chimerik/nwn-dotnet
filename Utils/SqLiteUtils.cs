@@ -499,5 +499,32 @@ namespace NWN
         return NwModule.Instance.StartingLocation;
       }      
     }
+    public static async Task<int> GetOfflinePlayerSkillPoints(string characterId, int skillId)
+    {
+      var result = await SelectQueryAsync("playerCharacters",
+        new List<string>() { { "serializedLearnableSkills" } },
+        new List<string[]>() { new string[] { "ROWID", characterId } });
+
+      if (result == null && result.Count < 1)
+        return 0;
+
+      string serializedLearnableSkills = result.FirstOrDefault()[0];
+
+      Task<int> loadSkillsTask = Task.Run(() =>
+      {
+        if (string.IsNullOrEmpty(serializedLearnableSkills) || serializedLearnableSkills == "null")
+          return 0;
+
+        Dictionary<int, LearnableSkill.SerializableLearnableSkill> serializableSkills = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<int, LearnableSkill.SerializableLearnableSkill>>(serializedLearnableSkills);
+
+        if (serializableSkills.TryGetValue(skillId, out LearnableSkill.SerializableLearnableSkill skill))
+          return skill.currentLevel + skill.bonusPoints;
+        else
+          return 0;
+      });
+
+      await loadSkillsTask;
+      return loadSkillsTask.Result;
+    }
   }
 }
