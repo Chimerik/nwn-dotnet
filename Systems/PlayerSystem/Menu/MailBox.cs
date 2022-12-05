@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Anvil.API;
 using Anvil.API.Events;
 
@@ -44,9 +45,9 @@ namespace NWN.Systems
           rootGroup.Layout = layoutColumn;
           layoutColumn.Children = rootChildren;
 
-          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(senderName) { Tooltip = senderName, ForegroundColor = readColorBinding, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { Width = 120 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(senderName) { Id = "read", Tooltip = senderName, ForegroundColor = readColorBinding, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { Width = 120 });
           rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(title) { Id = "read", Tooltip = title, ForegroundColor = readColorBinding, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { VariableSize = true });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(receivedDate) { Tooltip = receivedDate, ForegroundColor = readColorBinding, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { Width = 110 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(receivedDate) { Id = "read", Tooltip = receivedDate, ForegroundColor = readColorBinding, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { Width = 110 });
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_ban") { Id = "delete", Tooltip = "Supprimer" }) { Width = 35 });
 
           CreateWindow();
@@ -133,6 +134,24 @@ namespace NWN.Systems
                   outboxEnabled.SetBindValue(player.oid, nuiToken.Token, true);
                   SearchMails();
                   LoadMessages(filteredList);
+
+                  break;
+
+                case "copy":
+
+                  NwItem letter = NwItem.Create("skillbookgeneriq", player.oid.LoginCreature.Location);
+                  letter.BaseItem = NwBaseItem.FromItemType(BaseItemType.MiscMedium);
+                  letter.Appearance.SetSimpleModel(42);
+                  letter.Tag = "missive";
+                  letter.Name = $"Missive de {lastReadMail.from}";
+                  letter.Description = $"De {lastReadMail.from}\n" +
+                  $"A {lastReadMail.to}\n" +
+                  $"Le {lastReadMail.sentDate:dd/MM/yyyy}\n\n" +
+                  $"{lastReadMail.title}\n\n" +
+                  $"{lastReadMail.content}";
+
+                  letter.Clone(player.oid.LoginCreature);
+                  letter.Destroy();
 
                   break;
 
@@ -343,15 +362,17 @@ namespace NWN.Systems
           LoadButtons();
           lastReadMail = mail;
 
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiLabel($"De : {mail.from}, A : {mail.to}, Le : {mail.sentDate:dd/MM/yyyy HH:mm}") { Tooltip = mail.from, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle, Height = 35, Width = 580 }, new NuiSpacer() } });
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiLabel(mail.title) { Tooltip = mail.title, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle, Height = 35, Width = 380 }, new NuiSpacer() } });
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiText(mail.content) { Height = 380, Width = 580 } } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiLabel($"De : {mail.from}, A : {mail.to}, Le : {mail.sentDate:dd/MM/yyyy HH:mm}") { Tooltip = mail.from, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle, Height = 35, Width = 560 }, new NuiSpacer() } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiLabel(mail.title) { Tooltip = mail.title, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle, Height = 35, Width = 560 }, new NuiSpacer() } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiText(mail.content) { Height = 300, Width = 560 } } });
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
           {
             new NuiSpacer(),
             new NuiButton("Répondre") { Id = "write", Enabled = mail.from != player.oid.LoginCreature.Name && !StringUtils.noReplyArray.Contains(mail.from), Height = 35, Width = 80 },
             new NuiSpacer(),
-            new NuiButtonImage("ir_ban") { Id = "delete", Height = 35, Width = 35 },
+            new NuiButtonImage("ir_empytqs") { Id = "copy", Tooltip = "Retirer une copie physique", Enabled = lastReadMail.fromCharactedId > 0, Height = 35, Width = 35 },
+            new NuiSpacer(),
+            new NuiButtonImage("ir_ban") { Id = "delete", Tooltip = "Détruire cette missive", Height = 35, Width = 35 },
             new NuiSpacer()
           } });
 

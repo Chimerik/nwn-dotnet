@@ -61,7 +61,8 @@ namespace NWN.Systems
           modificationAllowed = (string.IsNullOrWhiteSpace(originalCrafterName) || originalCrafterName == player.oid.ControlledCreature.OriginalName)
             && (item.Possessor == player.oid.ControlledCreature || player.IsDm());
 
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiText(itemDescription) { Height = 100, Width = 590 } } });
+          NuiText descriptionWidget = new NuiText(itemDescription) { Height = 100, Width = 590 };
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { descriptionWidget } });
 
           if (!string.IsNullOrWhiteSpace(originalCrafterName))
             rootChildren.Add(new NuiLabel($"Artisan : {originalCrafterName}") { Height = 30, Width = 580, Tooltip = $"Il est indiqué : 'Pour toute modification sur mesure, vous adresser à {originalCrafterName}'", HorizontalAlign = NuiHAlign.Center });
@@ -113,9 +114,8 @@ namespace NWN.Systems
             foreach (DamageType damageType in item.BaseItem.WeaponType)
               damageTypeLabel += $"{ItemUtils.DisplayDamageType(damageType)} / ";
 
-            rootChildren.Add(new NuiRow()
+            rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() 
             {
-              Children = new List<NuiElement>() {
               new NuiSpacer(),
               new NuiButtonImage("ir_powerattack") { Height = 35, Width = 35, Tooltip = "Dégats" },
               new NuiSpacer() { Width = 5 },
@@ -137,9 +137,8 @@ namespace NWN.Systems
               new NuiSpacer() { Width = 15 },
               new NuiSpacer(),
               new NuiButtonImage(itemState) { Id = "edit", Height = 35, Width = 35, Tooltip = itemStateTooltip },
-              new NuiSpacer(),
-            }
-            });
+              new NuiSpacer()
+            } });
 
             if (nbIP > 0)
               rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 20, Height = nbIP < 10 ? nbIP * 25 : 250 } } });
@@ -149,9 +148,8 @@ namespace NWN.Systems
             var armorEntry = Armor2da.armorTable[item.BaseACValue];
             string armorProficiency = $"{player.GetArmorProficiencyLevel(item.BaseACValue) * 10} %";
 
-            rootChildren.Add(new NuiRow()
+            rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() 
             {
-              Children = new List<NuiElement>() {
               new NuiSpacer(),
               new NuiButtonImage("ir_guard") { Height = 35, Width = 35, Tooltip = "Armure" },
               new NuiSpacer() { Width = 5 },
@@ -177,9 +175,8 @@ namespace NWN.Systems
               new NuiSpacer() { Width = 15 },
               new NuiSpacer(),
               new NuiButtonImage(itemState) { Id = "edit", Height = 35, Width = 35, Tooltip = itemStateTooltip },
-              new NuiSpacer(),
-            }
-            });
+              new NuiSpacer()
+            } });
 
             if (nbIP > 0)
               rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 20, Height = nbIP < 10 ? nbIP * 25 : 250 } } });
@@ -188,9 +185,8 @@ namespace NWN.Systems
           {
             string armorProficiency = $"{player.GetShieldProficiencyLevel(item.BaseItem.ItemType) * 10} %";
 
-            rootChildren.Add(new NuiRow()
+            rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() 
             {
-              Children = new List<NuiElement>() {
               new NuiSpacer(),
               new NuiButtonImage("ir_guard") { Height = 35, Width = 35, Tooltip = "Armure" },
               new NuiSpacer() { Width = 5 },
@@ -213,8 +209,7 @@ namespace NWN.Systems
               new NuiSpacer(),
               new NuiButtonImage(itemState) { Id = "edit", Height = 35, Width = 35, Tooltip = itemStateTooltip },
               new NuiSpacer()
-            }
-            });
+            } });
 
             if (nbIP > 0)
               rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 20, Height = nbIP < 10 ? nbIP * 25 : 250 } } });
@@ -229,9 +224,8 @@ namespace NWN.Systems
                 int mineralCost = (int)(player.GetItemMateriaCost(item) * (1 - (materielEfficiency / 100)));
                 TimeSpan jobDuration = TimeSpan.FromSeconds(player.GetItemCraftTime(item, mineralCost));
 
-                rootChildren.Add(new NuiRow()
+                rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() 
                 {
-                  Children = new List<NuiElement>() {
                   new NuiSpacer(),
                   new NuiButtonImage("s_mefficiency") { Id = "blueprintME", Height = 35, Width = 35, Tooltip = "Recherche en rendement matériel - Démarrer un travail de recherche" },
                   new NuiSpacer() { Width = 5 },
@@ -255,8 +249,7 @@ namespace NWN.Systems
                   new NuiSpacer(),
                   new NuiButtonImage("ir_examine") { Id = "edit", Height = 35, Width = 35, Tooltip = "Modifier", Visible = player.IsDm() },
                   new NuiSpacer()
-                }
-                });
+                } });
 
                 break;
 
@@ -288,8 +281,7 @@ namespace NWN.Systems
                   new NuiSpacer(),
                   new NuiButtonImage("ir_examine") { Id = "edit", Height = 30, Width = 30, Tooltip = "Modifier" },
                   new NuiSpacer()
-                }
-                });
+                } });
 
                 break;
 
@@ -301,38 +293,37 @@ namespace NWN.Systems
               case "skillbook":
 
                 bool canLearn = !player.learnableSkills.ContainsKey(item.GetObjectVariable<LocalVariableInt>("_SKILL_ID").Value);
-                rootChildren.Add(new NuiRow()
+                
+                rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() 
                 {
-                  Children = new List<NuiElement>() {
-                new NuiSpacer(),
-                new NuiButtonImage("ir_wizard") { Id = "skillbook_learn", Enabled = canLearn, Tooltip = canLearn ? "Ajouter cette compétence à votre livre d'apprentissage" : "Cette compétence se trouve déjà dans votre livre d'apprentissage", Height = 35, Width = 35 },
-                new NuiSpacer(),
-                new NuiButtonImage("ir_examine") { Id = "edit", Height = 35, Width = 35, Tooltip = "Modifier" },
-                new NuiSpacer()
-              }
-                });
+                  new NuiSpacer(),
+                  new NuiButtonImage("ir_wizard") { Id = "skillbook_learn", Enabled = canLearn, Tooltip = canLearn ? "Ajouter cette compétence à votre livre d'apprentissage" : "Cette compétence se trouve déjà dans votre livre d'apprentissage", Height = 35, Width = 35 },
+                  new NuiSpacer(),
+                  new NuiButtonImage("ir_examine") { Id = "edit", Height = 35, Width = 35, Tooltip = "Modifier" },
+                  new NuiSpacer()
+                } });
 
                 break;
 
+              case "missive": descriptionWidget.Height = 360; break;
+
               default:
 
-                rootChildren.Add(new NuiRow()
+                rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() 
                 {
-                  Children = new List<NuiElement>() {
-                new NuiSpacer(),
-                new NuiButtonImage("weight") { Height = 35, Width = 35, Tooltip = "Poids" },
-                new NuiSpacer() { Width = 5 },
-                new NuiLabel(weight) { Tooltip = weightTooltip, Height = 35, Width = 50, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle } ,
-                new NuiSpacer(),
-                new NuiButtonImage(materiaQualityIcon) { Height = 35, Width = 35, Tooltip = $"Qualité de matéria : {materiaQuality}" },
-                new NuiSpacer() { Width = 15 },
-                new NuiSpacer(),
-                new NuiButtonImage(itemState) { Id = "edit", Height = 35, Width = 35, Tooltip = itemStateTooltip },
-                new NuiSpacer(),
-                new NuiButtonImage(hide) { Id = "hide", Tooltip = hideTooltip, Height = 35, Width = 35, Visible = item.BaseItem.ItemType == BaseItemType.Helmet || item.BaseItem.ItemType == BaseItemType.Cloak },
-                new NuiSpacer()
-              }
-                });
+                  new NuiSpacer(),
+                  new NuiButtonImage("weight") { Height = 35, Width = 35, Tooltip = "Poids" },
+                  new NuiSpacer() { Width = 5 },
+                  new NuiLabel(weight) { Tooltip = weightTooltip, Height = 35, Width = 50, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle } ,
+                  new NuiSpacer(),
+                  new NuiButtonImage(materiaQualityIcon) { Height = 35, Width = 35, Tooltip = $"Qualité de matéria : {materiaQuality}" },
+                  new NuiSpacer() { Width = 15 },
+                  new NuiSpacer(),
+                  new NuiButtonImage(itemState) { Id = "edit", Height = 35, Width = 35, Tooltip = itemStateTooltip },
+                  new NuiSpacer(),
+                  new NuiButtonImage(hide) { Id = "hide", Tooltip = hideTooltip, Height = 35, Width = 35, Visible = item.BaseItem.ItemType == BaseItemType.Helmet || item.BaseItem.ItemType == BaseItemType.Cloak },
+                  new NuiSpacer()
+                } });
 
                 if (nbIP > 0)
                   rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 20, Height = nbIP < 10 ? nbIP * 25 : 250 } } });
