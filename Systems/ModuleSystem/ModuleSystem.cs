@@ -225,7 +225,7 @@ namespace NWN.Systems
         "'location' TEXT, 'itemAppearances' TEXT, 'currentSkillPoints' INTEGER," +
         "'currentHP' INTEGER, 'bankGold' INTEGER, 'pveArenaCurrentPoints' INTEGER, 'menuOriginTop' INTEGER, 'menuOriginLeft' INTEGER, 'storage' TEXT, " +
         "'alchemyCauldron' TEXT, 'explorationState' TEXT, 'materialStorage' TEXT, 'craftJob' TEXT, 'grimoires' TEXT, 'quickbars' TEXT," +
-        "'descriptions' TEXT, 'mails' TEXT)");
+        "'descriptions' TEXT)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerDeathCorpses" +
         "('characterId' INTEGER NOT NULL, 'deathCorpse' TEXT NOT NULL, 'location' TEXT NOT NULL)");
@@ -284,8 +284,7 @@ namespace NWN.Systems
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS areaLoadScreens" +
         "('areaTag' TEXT NOT NULL, 'loadScreen' INTEGER NOT NULL, PRIMARY KEY(areaTag))");
 
-      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS trade" +
-        "('requests' TEXT, 'auctions' TEXT, 'buyOrders' TEXT, 'sellOrders' TEXT)");
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS trade ('requests' TEXT, 'auctions' TEXT, 'buyOrders' TEXT, 'sellOrders' TEXT)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerConnectionInfo" +
         "('playerAccount' TEXT NOT NULL, 'cdKey' TEXT NOT NULL, 'ipAdress' TEXT NOT NULL, 'lastConnection' TEXT NOT NULL, UNIQUE (playerAccount, cdKey, ipAdress))");

@@ -293,12 +293,10 @@ namespace NWN.Systems
     }
     public static void GiveItemAuction(Auction auction)
     {
-      Player auctionner = Players.FirstOrDefault(p => p.Value.characterId == auction.auctionerId).Value;
-
       if (auction.highestBid < 1) // L'enchère est expirée et n'a pas trouvé d'acheteur
       {
         AddItemToPlayerDataBaseBank(auction.auctionerId.ToString(), new List<string>() { auction.serializedItem }, "Auction expired, no bidder");
-        new Mail("Banque Skalsgard", -1, auction.auctionerId.ToString(), $"Enchère {auction.itemName} - Echec", $"Très honoré client,\n\n La banque Skalsgard est au regret de vous annoncer l'échec de votre enchère pour {auction.itemName}.\nVotre offre n'a malheureusement pas su trouver d'acheteur.", DateTime.Now, DateTime.Now.AddMonths(3), false).SendMailToPlayer(auction.auctionerId.ToString());
+        new Mail("Banque Skalsgard", -1, "Très honoré client", auction.auctionerId, $"Enchère {auction.itemName} - Echec", $"Très honoré client,\n\n La banque Skalsgard est au regret de vous annoncer l'échec de votre enchère pour {auction.itemName}.\nVotre offre n'a malheureusement pas su trouver d'acheteur.", DateTime.Now, DateTime.Now.AddMonths(3), false).SendMailToPlayer(auction.auctionerId.ToString());
         return;
       }
       else // L'enchère est remportée par le highest bidder
@@ -316,7 +314,7 @@ namespace NWN.Systems
         }
 
         AddItemToPlayerDataBaseBank(auction.highestBidderId.ToString(), new List<string>() { auction.serializedItem }, "Auction successful");
-        new Mail("Banque Skalsgard", -1, auction.highestBidderId.ToString(), $"Enchère {auction.itemName} - Emportée !", $"Très honoré client,\n\nLa banque Skalsgard est au heureuse de vous annoncer que vous remportez l'enchère pour {auction.itemName} à un prix de {auction.highestBid}.", DateTime.Now, DateTime.Now.AddMonths(3), false).SendMailToPlayer(auction.highestBidderId.ToString());
+        new Mail("Banque Skalsgard", -1, "Très honoré client", auction.highestBidderId, $"Enchère {auction.itemName} - Emportée !", $"Très honoré client,\n\nLa banque Skalsgard est au heureuse de vous annoncer que vous remportez l'enchère pour {auction.itemName} à un prix de {auction.highestBid}.", DateTime.Now, DateTime.Now.AddMonths(3), false).SendMailToPlayer(auction.highestBidderId.ToString());
       }
     }
     public static void AddResourceToPlayerStock(int characterId, ResourceType type, int grade, int quantity, string playerMessageTitle, string playerMessage, string logUseCase)
@@ -344,7 +342,7 @@ namespace NWN.Systems
       }
 
       UpdatePlayerResourceStock(characterId.ToString(), resource, quantity, logUseCase);
-      new Mail("Banque Skalsgard", -1, characterId.ToString(), playerMessageTitle, playerMessage, DateTime.Now, DateTime.Now.AddMonths(3), false).SendMailToPlayer(characterId.ToString());
+      new Mail("Banque Skalsgard", -1, "Très honoré client", characterId, playerMessageTitle, playerMessage, DateTime.Now, DateTime.Now.AddMonths(3), false).SendMailToPlayer(characterId.ToString());
     }
     public static async void ResolveSuccessfulAuction(Auction auction)
     {
@@ -416,7 +414,7 @@ namespace NWN.Systems
         new List<string[]>() { new string[] { "bankGold", sellPrice.ToString(), "+" } },
         new List<string[]>() { new string[] { "ROWID", characterId.ToString() } });
 
-      new Mail("Banque Skalsgard", -1, characterId.ToString(), playerMessageTitle, playerMessage, DateTime.Now, DateTime.Now.AddMonths(3), false).SendMailToPlayer(characterId.ToString());
+      new Mail("Banque Skalsgard", -1, "Très honoré client", characterId, playerMessageTitle, playerMessage, DateTime.Now, DateTime.Now.AddMonths(3), false).SendMailToPlayer(characterId.ToString());
       Log.Info($"TRADE SYSTEM - {logUseCase} - Updated bank account {characterId} of {sellPrice}");
     }
     private static async void UpdatePlayerResourceStock(string characterId, CraftResource resource, int quantity, string logUseCase)

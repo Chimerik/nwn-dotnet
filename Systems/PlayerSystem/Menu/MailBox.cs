@@ -162,7 +162,7 @@ namespace NWN.Systems
                   string mailTitle = title.GetBindValue(player.oid, nuiToken.Token);
                   string mailContent = content.GetBindValue(player.oid, nuiToken.Token);
 
-                  Mail newMail = new Mail(player.oid.LoginCreature.Name, player.characterId, targetName, mailTitle, mailContent, DateTime.Now);
+                  Mail newMail = new Mail(player.oid.LoginCreature.Name, player.characterId, targetName, targetId, mailTitle, mailContent, DateTime.Now);
                   player.mails.Add(newMail);
 
                   if (targetId != player.characterId)
@@ -370,7 +370,7 @@ namespace NWN.Systems
             new NuiSpacer(),
             new NuiButton("Répondre") { Id = "write", Enabled = mail.from != player.oid.LoginCreature.Name && !StringUtils.noReplyArray.Contains(mail.from), Height = 35, Width = 80 },
             new NuiSpacer(),
-            new NuiButtonImage("ir_empytqs") { Id = "copy", Tooltip = "Retirer une copie physique", Enabled = lastReadMail.fromCharactedId > 0, Height = 35, Width = 35 },
+            new NuiButtonImage("ir_empytqs") { Id = "copy", Tooltip = "Retirer une copie physique", Enabled = lastReadMail.fromCharacterId > 0, Height = 35, Width = 35 },
             new NuiSpacer(),
             new NuiButtonImage("ir_ban") { Id = "delete", Tooltip = "Détruire cette missive", Height = 35, Width = 35 },
             new NuiSpacer()
@@ -398,7 +398,7 @@ namespace NWN.Systems
 
           if (lastReadMail != null)
           {
-            selectedEntry.SetBindValue(player.oid, nuiToken.Token, lastReadMail.fromCharactedId);
+            selectedEntry.SetBindValue(player.oid, nuiToken.Token, lastReadMail.fromCharacterId);
             title.SetBindValue(player.oid, nuiToken.Token, $"Réponse : {lastReadMail.title}");
           }
 

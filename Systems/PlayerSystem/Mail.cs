@@ -9,19 +9,21 @@ namespace NWN.Systems
   public class Mail
   {
     public readonly string from;
-    public readonly int fromCharactedId;
+    public readonly int fromCharacterId;
     public readonly string to;
+    public readonly int toCharacterId;
     public readonly string title;
     public readonly string content;
     public readonly DateTime sentDate;
     public readonly DateTime? expirationDate;
     public bool read;
 
-    public Mail(string from, int fromCharactedId, string to, string title, string content, DateTime sentDate, DateTime? expirationDate = null, bool read = false)
+    public Mail(string from, int fromCharacterId, string to, int toCharacterId, string title, string content, DateTime sentDate, DateTime? expirationDate = null, bool read = false)
     {
       this.from = from;
-      this.fromCharactedId = fromCharactedId;
+      this.fromCharacterId = fromCharacterId;
       this.to = to;
+      this.toCharacterId = toCharacterId;
       this.title = title;
       this.content = content;
       this.sentDate = sentDate;
@@ -34,7 +36,7 @@ namespace NWN.Systems
     }
     public async void SendMailToPlayer(string characterId)
     {
-      var result = await SqLiteUtils.SelectQueryAsync("playerCharacters",
+      var result = await SqLiteUtils.SelectQueryAsync("mails",
         new List<string>() { { "mails" } },
         new List<string[]>() { new string[] { "ROWID", characterId } });
 
@@ -66,7 +68,7 @@ namespace NWN.Systems
     public Mail(SerializableMail serializedMail)
     {
       from = serializedMail.from;
-      fromCharactedId = serializedMail.fromCharactedId;
+      fromCharacterId = serializedMail.fromCharacterId;
       to = serializedMail.to;
       title = serializedMail.title;
       content = serializedMail.content;
@@ -77,8 +79,9 @@ namespace NWN.Systems
 
     public class SerializableMail
     {
-      public int fromCharactedId { get; set; }
+      public int fromCharacterId { get; set; }
       public string from { get; set; }
+      public int toCharacterId { get; set; }
       public string to { get; set; }
       public string title { get; set; }
       public string content { get; set; }
@@ -93,8 +96,9 @@ namespace NWN.Systems
       }
       public SerializableMail(Mail mailBase)
       {
-        fromCharactedId = mailBase.fromCharactedId;
+        fromCharacterId = mailBase.fromCharacterId;
         from = mailBase.from;
+        toCharacterId = mailBase.toCharacterId;
         to = mailBase.to;
         title = mailBase.title;
         content = mailBase.content;
