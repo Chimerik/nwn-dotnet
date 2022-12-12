@@ -54,6 +54,8 @@ namespace NWN.Systems
           if (player.craftJob == null)
             myCommandList.Remove("currentJob");
 
+          if(!player.subscriptions.Any(s => s.type == Utils.SubscriptionType.MailDistantAccess))
+            myCommandList.Remove("mailBox");
 
           CreateWindow();
         }
@@ -105,6 +107,23 @@ namespace NWN.Systems
 
                 switch (currentList.Keys.ElementAt(nuiEvent.ArrayIndex))
                 {
+                  case "mailBox":
+
+                    int areaLevel = player.oid.LoginCreature.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 1 ? player.oid.LoginCreature.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value : 0;
+                    List<Mail> mailsToDelete = new();
+
+                    foreach (var mail in player.mails.Where(m => !m.read && m.fromCharacterId != player.characterId))
+                      if (Utils.random.Next(101) <= areaLevel)
+                        mailsToDelete.Add(mail);
+
+                    foreach (var mail in mailsToDelete)
+                      player.mails.Remove(mail);
+
+                    if (!player.windows.ContainsKey("mailBox")) player.windows.Add("mailBox", new MailBox(player));
+                    else ((MailBox)player.windows["mailBox"]).CreateWindow();
+
+                    break;
+
                   case "touch":
 
                     var effectList = player.oid.ControlledCreature.ActiveEffects.Where(e => e.EffectType == EffectType.CutsceneGhost);

@@ -117,6 +117,7 @@ namespace NWN.Systems
       scheduler.ScheduleRepeating(HandlePlayerLoop, TimeSpan.FromSeconds(1));
       scheduler.ScheduleRepeating(HandleSaveDate, TimeSpan.FromMinutes(1));
       scheduler.ScheduleRepeating(SpawnCollectableResources, TimeSpan.FromHours(24), nextActivation);
+      scheduler.ScheduleRepeating(HandleSubscriptionDues, TimeSpan.FromHours(24), nextActivation);
 
       /*foreach (var duplicate in NwGameTables.PlaceableTable.GroupBy(p => p.ModelName).Where(p => p.Count() > 1).Select(p => p.Key))
       {
@@ -225,7 +226,7 @@ namespace NWN.Systems
         "'location' TEXT, 'itemAppearances' TEXT, 'currentSkillPoints' INTEGER," +
         "'currentHP' INTEGER, 'bankGold' INTEGER, 'pveArenaCurrentPoints' INTEGER, 'menuOriginTop' INTEGER, 'menuOriginLeft' INTEGER, 'storage' TEXT, " +
         "'alchemyCauldron' TEXT, 'explorationState' TEXT, 'materialStorage' TEXT, 'craftJob' TEXT, 'grimoires' TEXT, 'quickbars' TEXT," +
-        "'descriptions' TEXT)");
+        "'descriptions' TEXT, 'mails' TEXT, 'subscriptions' TEXT)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerDeathCorpses" +
         "('characterId' INTEGER NOT NULL, 'deathCorpse' TEXT NOT NULL, 'location' TEXT NOT NULL)");
@@ -369,7 +370,7 @@ namespace NWN.Systems
         DateTime lastChecked = DateTime.Parse(resourceBlock[4]); 
         NwWaypoint blockWaypoint = blockArea.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(w => w.Tag == spawnType && w.GetObjectVariable<LocalVariableInt>("id").Value == blockId);
 
-        Log.Info($"Area {blockArea.Name} - Spawning {spawnType} - id {blockId} - Quantity {quantity} - lastChecked {lastChecked} - wp {blockWaypoint}");
+        Log.Info($"Area {blockArea.Name} - Spawning {spawnType} - id {blockId} - Quantity {quantity} - lastChecked {lastChecked} - wp {blockWaypoint.Tag}");
 
         switch (spawnType)
         {
@@ -406,7 +407,7 @@ namespace NWN.Systems
               SpawnResourceBlock("mineable_animal", ressourcePoint, resourceQuantity, DateTime.Now);
               break;
           }
-
+          
           Log.Info($"REFILL - {ressourcePoint.Area.Name} - {ressourcePoint.Name}");
         }
         /*int areaLevel = ressourcePoint.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value;
@@ -445,6 +446,36 @@ namespace NWN.Systems
           new List<string>() { "areaTag" },
           new List<string[]>() { new string[] { "mining" }, new string[] { "wood" }, new string[] { "animals" } });
       }*/
+    }
+    public static async void HandleSubscriptionDues()
+    {
+      Log.Info("Handling plaeyr subscription dues");
+
+      var query = await SqLiteUtils.SelectQueryAsync("playerCharacters",
+        new List<string>() { { "ROWID" }, { "subscriptions" } },
+        new List<string[]>());
+
+      foreach (var character in query)
+      {
+        if (!int.TryParse(character[0], out int characterId) || string.IsNullOrEmpty(character[1]) || character[1] == "null")
+          continue;
+
+        List<Subscription.SerializableSubscription> serializedSubscription = JsonConvert.DeserializeObject<List<Subscription.SerializableSubscription>>(character[1]);
+
+        foreach(var subscription in serializedSubscription)
+          if(subscription.nextDueDate < DateTime.Now)
+          {
+            subscription.nextDueDate = DateTime.Now.AddDays(subscription.daysToNextDueDate);
+
+            PlayerSystem.Player player = PlayerSystem.Players.FirstOrDefault(p => p.Value.characterId == characterId).Value;
+            TradeSystem.UpdatePlayerBankAccount(characterId, -subscription.fee, "", "", $"Subscription to {subscription.type}");
+          }
+
+        SqLiteUtils.UpdateQuery("playerCharacters",
+          new List<string[]>() { new string[] { "subscriptions", JsonConvert.SerializeObject(serializedSubscription) } },
+          new List<string[]>() { new string[] { "ROWID", characterId.ToString() } });
+      }
+
     }
     private static async void SpawnResourceBlock(string resourceTemplate, NwWaypoint waypoint, int quantity, DateTime lastChecked)
     {
@@ -614,8 +645,6 @@ namespace NWN.Systems
       foreach (var model in NwGameTables.PlaceableTable)
         if (!string.IsNullOrEmpty(model.Label))
           Utils.placeableEntries.Add(new NuiComboEntry(model.Label, model.RowIndex));
-
-      ItemUtils.weaponModelDictionary = new();
 
       foreach (var baseItem in BaseItems2da.baseItemTable)
       {

@@ -214,7 +214,16 @@ namespace NWN.Systems
           return JsonConvert.SerializeObject(serializableMails);
         });
 
-        await Task.WhenAll(serializeAlchemyCauldron, serializeLearnableSkills, serializeLearnableSpells, serializeExplorationState, serializeJob, serializeCraftResource, serializeGrimoires, serializeQuickbars, serializeItemAppearances, serializeDescriptions, serializeMails);
+        Task<string> serializeSubscriptions = Task.Run(() =>
+        {
+          List<Subscription.SerializableSubscription> serializableSubscriptions = new();
+          foreach (var subscription in subscriptions)
+              serializableSubscriptions.Add(new Subscription.SerializableSubscription(subscription));
+
+          return JsonConvert.SerializeObject(serializableSubscriptions);
+        });
+
+        await Task.WhenAll(serializeAlchemyCauldron, serializeLearnableSkills, serializeLearnableSpells, serializeExplorationState, serializeJob, serializeCraftResource, serializeGrimoires, serializeQuickbars, serializeItemAppearances, serializeDescriptions, serializeMails, serializeSubscriptions);
 
         SqLiteUtils.UpdateQuery("playerCharacters",
         new List<string[]>() { new string[] { "characterName", $"{firstName} {lastName}" },
@@ -225,7 +234,7 @@ namespace NWN.Systems
           new string[] { "explorationState", serializeExplorationState.Result }, new string[] { "quickbars", serializeQuickbars.Result }, new string[] { "currentSkillPoints", tempCurrentSkillPoint.ToString() },
           new string[] { "itemAppearances", serializeItemAppearances.Result }, new string[] { "descriptions", serializeDescriptions.Result },
           new string[] { "craftJob", serializeJob.Result  }, new string[] { "materialStorage", serializeCraftResource.Result }, new string[] { "grimoires", serializeGrimoires.Result },
-          new string[] { "mails", serializeMails.Result  } },
+          new string[] { "mails", serializeMails.Result  }, new string[] { "subscriptions", serializeSubscriptions.Result  } },
         new List<string[]>() { new string[] { "rowid", characterId.ToString() } });
 
         Log.Info($"ASYNC SAVE FINALIZED for {firstName} {lastName} in {(DateTime.Now - elapsed).TotalSeconds} s");

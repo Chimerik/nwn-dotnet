@@ -50,6 +50,7 @@ namespace NWN.Systems
       //public Dictionary<string, int> openedWindows = new ();
       public readonly List<ChatLine> readChatLines = new();
       public readonly List<Mail> mails = new();
+      public readonly List<Subscription> subscriptions = new();
 
       public List<CraftResource> craftResourceStock = new();
       public List<Grimoire> grimoires = new();
@@ -1020,7 +1021,7 @@ namespace NWN.Systems
 
         return;
       }
-      private bool HandleEnchantementItemChecks(NwItem item, NwSpell spell, ItemProperty ip)
+      private bool HandleEnchantementItemChecks(NwItem item, NwSpell spell, int index)
       {
         if (craftJob != null)
         {
@@ -1040,7 +1041,7 @@ namespace NWN.Systems
           return false;
         }
 
-        craftJob = new CraftJob(this, item, spell, ip, JobType.Enchantement);
+        craftJob = new CraftJob(this, item, spell, index, JobType.Enchantement);
 
         if (!windows.ContainsKey("activeCraftJob")) windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
         else ((ActiveCraftJobWindow)windows["activeCraftJob"]).CreateWindow();

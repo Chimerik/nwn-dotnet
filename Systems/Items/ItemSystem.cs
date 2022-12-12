@@ -66,7 +66,6 @@ namespace NWN.Systems
     public static async void OnItemUseBefore(OnItemUse onItemUse)
     {
       NwCreature oPC = onItemUse.UsedBy;
-
       NwItem oItem = onItemUse.Item;
       NwGameObject oTarget = onItemUse.TargetObject;
 
@@ -92,33 +91,18 @@ namespace NWN.Systems
 
           if (oTarget != null && oTarget != player.oid.LoginCreature)
           {
-            if (player.windows.ContainsKey("resourceExchange"))
-              ((PlayerSystem.Player.ResourceExchangeWindow)player.windows["resourceExchange"]).CreateOwnerWindow(oTarget);
-            else
-              player.windows.Add("resourceExchange", new PlayerSystem.Player.ResourceExchangeWindow(player, oTarget));
+            if (!player.windows.ContainsKey("resourceExchange")) player.windows.Add("resourceExchange", new PlayerSystem.Player.ResourceExchangeWindow(player, oTarget));
+            else ((PlayerSystem.Player.ResourceExchangeWindow)player.windows["resourceExchange"]).CreateOwnerWindow(oTarget);
           }
 
           break;
 
-        /*case "shop_clearance":
-          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
-          onItemUse.PreventUseItem = true;
-          new PlayerShop(oPC.ControllingPlayer.LoginCreature, oItem);
-
-          break;
-
-        case "auction_clearanc":
-          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
-          onItemUse.PreventUseItem = true;
-          new PlayerAuction(oPC.ControllingPlayer.LoginCreature, oItem);
-
-          break;*/
-
         case "sequence_register":
+          
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
 
-          new SequenceRegister(player, oItem, oTarget);
+          SequenceRegister.HandleCastSequence(player, oItem, oTarget);
 
           break;
 
@@ -129,39 +113,52 @@ namespace NWN.Systems
           break;
 
         case "potion_cure_mini":
-          new PotionCureMini(oPC.ControllingPlayer);
+          Potion.CureMini(oPC.ControllingPlayer);
           break;
 
         case "potion_cure_frog":
-          new PotionCureFrog(oPC.ControllingPlayer);
+          Potion.CureFrog(oPC.ControllingPlayer);
           break;
 
         case "potion_alchimique":
-          new PotionAlchimisteEffect(onItemUse.Item, oPC.ControllingPlayer, oTarget);
+          Potion.AlchemyEffect(onItemUse.Item, oPC.ControllingPlayer, oTarget);
           break;
 
         case "bank_contract":
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
 
-          if (player.windows.ContainsKey("bankContract"))
-            ((PlayerSystem.Player.BankContractWindow)player.windows["bankContract"]).CreateWindow();
-          else
-            player.windows.Add("bankContract", new PlayerSystem.Player.BankContractWindow(player, oItem));
-
-          break;
-
-        case "materia_detector":
-          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
-          onItemUse.PreventUseItem = true;
-
-          if (player.windows.ContainsKey("materiaDetector"))
-            ((PlayerSystem.Player.MateriaDetectorWindow)player.windows["materiaDetector"]).CreateWindow(onItemUse.Item);
-          else
-            player.windows.Add("materiaDetector", new PlayerSystem.Player.MateriaDetectorWindow(player, onItemUse.Item));
+          if (!player.windows.ContainsKey("bankContract")) player.windows.Add("bankContract", new PlayerSystem.Player.BankContractWindow(player, onItemUse.Item));
+          else ((PlayerSystem.Player.BankContractWindow)player.windows["bankContract"]).CreateWindow();
 
           break;
       }
+
+      if(oItem.LocalVariables.Any(v => v.Name.Contains("ENCHANTEMENT_CUSTOM_")))
+      {
+        if (oTarget != null && oTarget.Tag == "mineable_materia") 
+        {
+          if(oItem.LocalVariables.Any(v => v.Name.Contains("ENCHANTEMENT_CUSTOM_EXTRACTOR_"))) // L'objet est alors utilisé en mode extraction
+          {
+
+          }
+        }
+        else if(oItem.LocalVariables.Any(v => v.Name.Contains("ENCHANTEMENT_CUSTOM_DETECTOR_"))) // L'objet est alors utilisé en mode scanner
+        {
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
+          onItemUse.PreventUseItem = true;
+
+          if (!player.learnableSkills.ContainsKey(CustomSkill.OreDetection) && !player.learnableSkills.ContainsKey(CustomSkill.WoodDetection) && !player.learnableSkills.ContainsKey(CustomSkill.PeltDetection))
+          {
+            player.oid.SendServerMessage("Une compétence de recherche de matéria de base est nécessaire avant de pouvoir utiliser cet objet", ColorConstants.Red);
+            return;
+          }
+
+          if (!player.windows.ContainsKey("materiaDetector")) player.windows.Add("materiaDetector", new PlayerSystem.Player.MateriaDetectorWindow(player, onItemUse.Item));
+          else ((PlayerSystem.Player.MateriaDetectorWindow)player.windows["materiaDetector"]).CreateWindow(onItemUse.Item);
+        }
+      }
+
 
       await NwTask.Delay(TimeSpan.FromSeconds(0.2));
       feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
@@ -214,9 +211,7 @@ namespace NWN.Systems
       {
         PlayerSystem.DeletePlayerCorpseFromDatabase(oItem.GetObjectVariable<LocalVariableInt>("_PC_ID").Value);
 
-        NwCreature oCorpse = NwObject.FindObjectsWithTag<NwCreature>("pccorpse").Where(c => c.GetObjectVariable<LocalVariableInt>("_PC_ID").Value == oItem.GetObjectVariable<LocalVariableInt>("_PC_ID")).FirstOrDefault();
-        if (oCorpse != null)
-          oCorpse.Destroy();
+        NwObject.FindObjectsWithTag<NwCreature>("pccorpse").Where(c => c.GetObjectVariable<LocalVariableInt>("_PC_ID").Value == oItem.GetObjectVariable<LocalVariableInt>("_PC_ID")).FirstOrDefault()?.Destroy();
         oAcquiredFrom.Destroy();
       }
 

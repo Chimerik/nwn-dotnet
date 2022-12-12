@@ -101,7 +101,6 @@ namespace NWN.Systems
           type = JobType.ItemCreation;
 
           NwItem craftedItem = NwItem.Create(BaseItems2da.baseItemTable[baseItemType].craftedItem, player.oid.LoginCreature.Location);
-          //craftedItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
 
           Craft.Collect.System.AddCraftedItemProperties(craftedItem, 1);
           craftedItem.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value = player.oid.LoginCreature.OriginalName;
@@ -223,7 +222,7 @@ namespace NWN.Systems
           Utils.LogMessageToDMs($"{e.Message}\n\n{e.StackTrace}");
         }
       }
-      public CraftJob(Player player, NwItem item, NwSpell spell, ItemProperty ip, JobType jobType) // Enchantement
+      public CraftJob(Player player, NwItem item, NwSpell spell, int index, JobType jobType) // Enchantement
       {
         try
         {
@@ -252,7 +251,7 @@ namespace NWN.Systems
             Utils.LogMessageToDMs($"SYSTEME ENCHANTEMENT - {player.oid.LoginCreature.Name} - {spell.Name.ToString()} - {item.Name} - Impossible de trouver un slot valide libre");
 
           enchantedItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value = spell.Id;
-          enchantementTag = AddCraftedEnchantementProperties(enchantedItem, spell, ip, player.characterId);
+          enchantementTag = AddCraftedEnchantementProperties(enchantedItem, spell, index, player);
 
           item.Destroy();
           DelayItemSerialization(enchantedItem);
@@ -267,13 +266,12 @@ namespace NWN.Systems
       {
         try
         {
-          switch(resourceType)
+          type = resourceType switch
           {
-            case ResourceType.Plank: type = JobType.WoodCutting; break;
-            case ResourceType.Leather: type = JobType.Pelting; break;
-            default: type = JobType.Mining; break;
-          }
-
+            ResourceType.Plank => JobType.WoodCutting,
+            ResourceType.Leather => JobType.Pelting,
+            _ => JobType.Mining,
+          };
           remainingTime = 3600;
           startTime = DateTime.Now.AddSeconds(-consumedTime);
           this.icon = icon;
@@ -285,7 +283,7 @@ namespace NWN.Systems
           Utils.LogMessageToDMs($"{e.Message}\n\n{e.StackTrace}");
         }
       }
-      public CraftJob(SerializableCraftJob serializedJob, Player player)
+      public CraftJob(SerializableCraftJob serializedJob)
       {
         type = serializedJob.type;
         icon = serializedJob.icon;
@@ -301,7 +299,6 @@ namespace NWN.Systems
           remainingTime -= (DateTime.Now - progressLastCalculation.Value).TotalSeconds;
           progressLastCalculation = null;
         }
-        //HandleDelayedJobProgression(player);
       }
 
       public class SerializableCraftJob
@@ -332,56 +329,13 @@ namespace NWN.Systems
           startTime = baseJob.startTime;
         }
       }
-      /*public async void HandleDelayedJobProgression(Player player)
-      {
-        if (jobProgression != null)
-          jobProgression.Dispose();
-
-        await NwTask.WaitUntil(() => player.oid.LoginCreature == null || player.oid.LoginCreature.Area != null);
-
-        if (player.oid.LoginCreature == null)
-          return;
-
-        if (player.oid.LoginCreature.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 0)
-        {
-          player.oid.OnServerSendArea -= HandleCraftJobOnAreaChange;
-          player.oid.OnServerSendArea += HandleCraftJobOnAreaChange;
-          return;
-        }
-
-        player.oid.OnServerSendArea -= HandleCraftJobOnAreaChange;
-        player.oid.OnServerSendArea += HandleCraftJobOnAreaChange;
-        player.oid.OnClientDisconnect -= HandleCraftJobOnPlayerLeave;
-        player.oid.OnClientDisconnect += HandleCraftJobOnPlayerLeave;
-
-        if (remainingTime > 0)
-        {
-          jobProgression = player.scheduler.ScheduleRepeating(() =>
-          {
-            jobProgression.Dispose();
-            HandleSpecificJobCompletion[type].Invoke(player, true);
-            HandleGenericJobCompletion(player);
-          }, TimeSpan.FromSeconds(remainingTime));
-        }
-        else
-        {
-          HandleSpecificJobCompletion[type].Invoke(player, true);
-          HandleGenericJobCompletion(player);
-        }
-      }*/
       public void HandleGenericJobCompletion(Player player)
       {
         if (player.TryGetOpenedWindow("activeCraftJob", out Player.PlayerWindow craftWindow))
           if (player.craftJob.type != JobType.Mining && player.craftJob.type != JobType.WoodCutting && player.craftJob.type != JobType.Pelting)
             craftWindow.CloseWindow();
 
-        //if (jobProgression != null)
-        //jobProgression.Dispose();
-
         player.craftJob = null;
-        //player.oid.OnClientDisconnect -= HandleCraftJobOnPlayerLeave;
-
-        //player.oid.ApplyInstantVisualEffectToObject((VfxType)1516, player.oid.ControlledCreature);
         player.oid.PlaySound("gui_level_up");
         player.oid.ExportCharacter();
       }
@@ -393,14 +347,7 @@ namespace NWN.Systems
         if (player.TryGetOpenedWindow("activeCraftJob", out Player.PlayerWindow craftWindow))
           craftWindow.CloseWindow();
 
-        //if (jobProgression != null)
-        //jobProgression.Dispose();
-
-        //player.oid.OnClientDisconnect -= HandleCraftJobOnPlayerLeave;
-
         player.craftJob = null;
-
-        //player.oid.PlaySound("gui_level_up"); // TODO : ajouter SFX annulation
         player.oid.ExportCharacter();
       }
       public string GetReadableJobCompletionTime()
@@ -408,17 +355,6 @@ namespace NWN.Systems
         TimeSpan timespan = TimeSpan.FromSeconds(remainingTime);
         return new TimeSpan(timespan.Days, timespan.Hours, timespan.Minutes, timespan.Seconds).ToString();
       }
-
-      /*public void HandleCraftJobOnPlayerLeave(OnClientDisconnect onPCDisconnect)
-      {
-        onPCDisconnect.Player.OnClientDisconnect -= HandleCraftJobOnPlayerLeave;
-        onPCDisconnect.Player.OnServerSendArea -= HandleCraftJobOnAreaChange;
-
-        if (jobProgression != null)
-          jobProgression.Dispose();
-
-        progressLastCalculation = DateTime.Now;
-      }*/
       private void StartBlueprintCopy(Player player, NwItem oBlueprint)
       {
         remainingTime = player.GetItemMateriaCost(oBlueprint) * 2 * player.learnableSkills[CustomSkill.BlueprintCopy].bonusReduction;
@@ -725,12 +661,20 @@ namespace NWN.Systems
 
         if (NwRandom.Roll(Utils.random, 100) <= enchanteurExpertLevel * 2)
         {
-          ItemProperty oldIp = item.ItemProperties.FirstOrDefault(ip => ip.Tag == player.craftJob.enchantementTag);
-          item.RemoveItemProperty(oldIp);
+          if(player.craftJob.enchantementTag.StartsWith("ENCHANTEMENT_CUSTOM_"))
+          {
+            item.GetObjectVariable<LocalVariableInt>(player.craftJob.enchantementTag).Value *= 15 / 10;
+            item.GetObjectVariable<LocalVariableInt>($"{player.craftJob.enchantementTag}_DURABILITY").Value *= 15 / 10;
+          }
+          else
+          {
+            ItemProperty oldIp = item.ItemProperties.FirstOrDefault(ip => ip.Tag == player.craftJob.enchantementTag);
+            item.RemoveItemProperty(oldIp);
 
-          oldIp.IntParams[3] += 1; // IntParams[3] = CostTableValue
-          item.AddItemProperty(oldIp, EffectDuration.Permanent);
-
+            oldIp.IntParams[3] += 1; // IntParams[3] = CostTableValue
+            item.AddItemProperty(oldIp, EffectDuration.Permanent);
+          }
+          
           player.oid.SendServerMessage("Votre talent d'enchanteur vous a permis d'obtenir un effet plus puissant !", ColorConstants.Orange);
         }
       }
@@ -742,13 +686,15 @@ namespace NWN.Systems
 
       return true;
     }
-    private static string AddCraftedEnchantementProperties(NwItem craftedItem, NwSpell spell, ItemProperty ip, int enchanterId)
+    private static string AddCraftedEnchantementProperties(NwItem craftedItem, NwSpell spell, int index, Player enchanter)
     {
-      ItemProperty newIp = GetCraftEnchantementProperties(craftedItem, spell, ip, enchanterId);
-      craftedItem.AddItemProperty(newIp, EffectDuration.Permanent);
-      return newIp.Tag;
+      return spell.Id switch
+      {
+        883 or 884 or 885 or 886 or 887 or 888 or 889 or 889 => GetExtractorEnchantementProperties(enchanter, craftedItem, spell, index),
+        _ => GetCraftEnchantementProperties(craftedItem, spell, SpellUtils.enchantementCategories[spell.Id][index], enchanter.characterId),
+      };
     }
-    private static ItemProperty GetCraftEnchantementProperties(NwItem craftedItem, NwSpell spell, ItemProperty ip, int enchanterId)
+    private static string GetCraftEnchantementProperties(NwItem craftedItem, NwSpell spell, ItemProperty ip, int enchanterId)
     {
       ItemProperty existingIP = craftedItem.ItemProperties.FirstOrDefault(i => i.DurationType == EffectDuration.Permanent && i.Property.RowIndex == ip.Property.RowIndex && i.SubType?.RowIndex == ip.SubType?.RowIndex && i.Param1TableValue?.RowIndex == ip.Param1TableValue?.RowIndex);
 
@@ -793,8 +739,39 @@ namespace NWN.Systems
       }
 
       ip.Tag = $"ENCHANTEMENT_{spell.Id}_{ip.Property.PropertyType}_{ip.SubType}_{ip.CostTable}_{ip.CostTableValue}_{enchanterId}";
+      craftedItem.AddItemProperty(ip, EffectDuration.Permanent);
 
-      return ip;
+      return ip.Tag;
+    }
+    private static string GetExtractorEnchantementProperties(Player enchanter, NwItem craftedItem, NwSpell spell, int index)
+    {
+      var enchantement = spell.Id switch
+      {
+        887 => "DETECTOR",
+        888 => "DETECTOR",
+        889 => "DETECTOR",
+        890 => "DETECTOR",
+        _ => "EXTRACTOR",
+      };
+    
+    var type = index switch
+      {
+        0 => "YIELD",
+        1 => "SPEED",
+        2 => "QUALITY",
+        3 => "RANGE",
+        _ => "RESIST",
+      };
+
+      int existingEnchantement = 1 + craftedItem.LocalVariables.Count(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_{enchantement}_{type}_") && !l.Name.Contains("_DURABILITY"));
+
+      craftedItem.GetObjectVariable<LocalVariableInt>($"ENCHANTEMENT_CUSTOM_{enchantement}_{type}_{existingEnchantement}").Value = 2 * spell.InnateSpellLevel /** enchanter.learnableSpells[spell.Id].currentLevel*/;
+      craftedItem.GetObjectVariable<LocalVariableInt>($"ENCHANTEMENT_CUSTOM_{enchantement}_{type}_{existingEnchantement}_DURABILITY").Value = craftedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value * 100;
+      
+      if (!craftedItem.ItemProperties.Any(ip => ip.Property.PropertyType == ItemPropertyType.CastSpell && ip.SubType.RowIndex == 329)) // 329 = Activate Item
+        craftedItem.AddItemProperty(ItemProperty.CastSpell((IPCastSpell)329, IPCastSpellNumUses.UnlimitedUse), EffectDuration.Permanent);
+
+      return $"ENCHANTEMENT_CUSTOM_{enchantement}_{type}_{existingEnchantement}";
     }
     private static bool CompleteMining(Player player, bool completed)
     {

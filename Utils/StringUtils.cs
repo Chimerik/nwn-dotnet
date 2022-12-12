@@ -37,9 +37,20 @@ namespace NWN
     }
     public static string ToDescription(this Enum value)
     {
-      FieldInfo field = value.GetType().GetField(value.ToString());
-      DescriptionAttribute attribute = Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute)) as DescriptionAttribute;
-      return attribute == null ? value.ToString().Replace("_", " ") : attribute.Description.Replace("_", " ");
+      try
+      {
+        FieldInfo field = value.GetType().GetField(value.ToString());
+        DescriptionAttribute attribute = Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute)) as DescriptionAttribute;
+        return attribute == null ? value.ToString().Replace("_", " ") : attribute.Description.Replace("_", " ");
+      }
+      catch(Exception e)
+      {
+        Utils.LogMessageToDMs($"{e.Message}\n\n" +
+          $"{e.StackTrace}\n\n" +
+          $"value : {value}");
+
+        return "";
+      }
     }
     public static string TranslateAttributeToFrench(Ability ability)
     {

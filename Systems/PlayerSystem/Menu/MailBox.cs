@@ -21,7 +21,8 @@ namespace NWN.Systems
         private readonly NuiBind<string> search = new("search");
         private readonly NuiBind<bool> inboxEnabled = new("inboxEnabled");
         private readonly NuiBind<bool> outboxEnabled = new("outboxEnabled");
-        private readonly NuiBind<bool> suppressEnabled = new("suppressEnabled");
+        private readonly NuiBind<bool> suppressEnabled = new("suppressEnabled"); 
+        private readonly NuiBind<bool> receiptSelected = new("receiptSelected");
 
         private readonly NuiBind<string> title = new("title");
         private readonly NuiBind<string> content = new("content");
@@ -153,6 +154,8 @@ namespace NWN.Systems
                   letter.Clone(player.oid.LoginCreature);
                   letter.Destroy();
 
+                  player.bankGold -= 1;
+
                   break;
 
                 case "send":
@@ -162,17 +165,11 @@ namespace NWN.Systems
                   string mailTitle = title.GetBindValue(player.oid, nuiToken.Token);
                   string mailContent = content.GetBindValue(player.oid, nuiToken.Token);
 
-                  Mail newMail = new Mail(player.oid.LoginCreature.Name, player.characterId, targetName, targetId, mailTitle, mailContent, DateTime.Now);
+                  Mail newMail = new Mail(player.oid.LoginCreature.Name, player.characterId, targetName, targetId, mailTitle, mailContent, DateTime.Now, receiptSelected.GetBindValue(player.oid, nuiToken.Token));
                   player.mails.Add(newMail);
 
                   if (targetId != player.characterId)
-                  {
-                    Player targetPlayer = Players.FirstOrDefault(p => p.Value.characterId == targetId).Value;
-                    targetPlayer?.mails.Add(newMail);
-
-                    if (targetPlayer == null || targetPlayer.pcState == PcState.Offline)
-                      newMail.SendMailToPlayer(targetId.ToString());
-                  }
+                    newMail.SendMailToPlayer(targetId);
 
                   LoadMailBoxLayout();
                   rootGroup.SetLayout(player.oid, nuiEvent.Token.Token, layoutColumn);
@@ -181,6 +178,11 @@ namespace NWN.Systems
                   outboxEnabled.SetBindValue(player.oid, nuiToken.Token, true);
                   SearchMails();
                   LoadMessages(filteredList);
+
+                  player.bankGold -= 1;
+
+                  if (receiptSelected.GetBindValue(player.oid, nuiToken.Token))
+                    player.bankGold -= 5;
 
                   Utils.LogMessageToDMs($"MAIL SYSTEM - {player.oid.LoginCreature.Name} vient d'envoyer une lettre à {targetName}\n" +
                     $"Titre : {mailTitle}\n" +
@@ -223,7 +225,12 @@ namespace NWN.Systems
               if(nuiEvent.ElementId == "read")
               {
                 Mail clickedMail = filteredList.ElementAt(nuiEvent.ArrayIndex);
+
+                if(!clickedMail.read && clickedMail.receipt)
+                  clickedMail.SendReceiptToPlayer();
+
                 clickedMail.read = true;
+
                 LoadReadLayout(clickedMail);
                 rootGroup.SetLayout(player.oid, nuiToken.Token, layoutColumn);
               }
@@ -286,6 +293,7 @@ namespace NWN.Systems
         {
           selectedEntry.SetBindWatch(player.oid, nuiToken.Token, false);
           search.SetBindWatch(player.oid, nuiToken.Token, false);
+          receiptSelected.SetBindWatch(player.oid, nuiToken.Token, false);
         }
         private void LoadMailBoxLayout()
         {
@@ -368,9 +376,9 @@ namespace NWN.Systems
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
           {
             new NuiSpacer(),
-            new NuiButton("Répondre") { Id = "write", Enabled = mail.from != player.oid.LoginCreature.Name && !StringUtils.noReplyArray.Contains(mail.from), Height = 35, Width = 80 },
+            new NuiButton("Répondre") { Id = "write", Tooltip = "Coût d'envoi : 1 pièce", Enabled = mail.from != player.oid.LoginCreature.Name && !StringUtils.noReplyArray.Contains(mail.from), Height = 35, Width = 80 },
             new NuiSpacer(),
-            new NuiButtonImage("ir_empytqs") { Id = "copy", Tooltip = "Retirer une copie physique", Enabled = lastReadMail.fromCharacterId > 0, Height = 35, Width = 35 },
+            new NuiButtonImage("ir_empytqs") { Id = "copy", Tooltip = "Retirer une copie physique, coût 1 pièce", Enabled = lastReadMail.fromCharacterId > 0, Height = 35, Width = 35 },
             new NuiSpacer(),
             new NuiButtonImage("ir_ban") { Id = "delete", Tooltip = "Détruire cette missive", Height = 35, Width = 35 },
             new NuiSpacer()
@@ -389,7 +397,7 @@ namespace NWN.Systems
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiCombo() { Entries = Utils.mailReceiverEntries, Selected = selectedEntry, Height = 35, Width = 580 } } });
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Objet", title, 200, false) { Height = 35, Width = 580 } } });
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Contenu", content, 3000, true) { Height = 200, Width = 580 } } });
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiButton("Envoyer") { Id = "send", Height = 35, Width = 60 }, new NuiSpacer() } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiButton("Envoyer") { Id = "send", Height = 35, Width = 60 }, new NuiCheck("Accusé", receiptSelected) { Tooltip = "Demander un accusé de lecture (coût supplémentaire de 5 pièces)" }, new NuiSpacer() } });
 
           selectedEntry.SetBindValue(player.oid, nuiToken.Token, -1);
           title.SetBindValue(player.oid, nuiToken.Token, "");
@@ -405,6 +413,7 @@ namespace NWN.Systems
           inboxEnabled.SetBindValue(player.oid, nuiToken.Token, true);
           outboxEnabled.SetBindValue(player.oid, nuiToken.Token, true);
           selectedEntry.SetBindWatch(player.oid, nuiToken.Token, true);
+          receiptSelected.SetBindWatch(player.oid, nuiToken.Token, true);
         }
       }
     }

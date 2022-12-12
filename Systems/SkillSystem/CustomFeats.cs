@@ -475,6 +475,10 @@
 
     public const int ArtisanFocus = 20355;
 
+    public const int MineralExtractionSafe = 20356;
+    public const int WoodExtractionSafe = 20357;
+    public const int PeltExtractionSafe = 20358;
+
     public const int Invalid = 65535;
   }
 }

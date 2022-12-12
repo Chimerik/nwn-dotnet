@@ -225,6 +225,8 @@ namespace NWN.Systems
       {
         player.learnableSpells.Add(spellId, new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[spellId]));
         oPC.ControllingPlayer.SendServerMessage($"Le sort a été ajouté à votre liste d'apprentissage et est désormais disponible pour étude.");
+
+        Utils.LogMessageToDMs($"SPELL SYSYEM - Player : {oPC.Name} vient d'ajouter {NwSpell.FromSpellId(spellId).Name.ToString()} ({spellId}) à sa liste d'apprentissage");
       }
 
       if (oScroll.StackSize > 1)

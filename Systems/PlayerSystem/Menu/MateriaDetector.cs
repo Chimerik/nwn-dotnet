@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Threading;
-using System.Threading.Tasks;
 
 using Anvil.API;
 using Anvil.API.Events;
@@ -22,11 +20,15 @@ namespace NWN.Systems
         private readonly List<NuiComboEntry> resourceCategories = new();
 
         private readonly NuiBind<int> selectedCategory = new ("selectedCategory");
-        private readonly NuiBind<string> remainingTime = new ("remainingTime");
+        private readonly NuiBind<float> progress = new("progress");
+        private readonly NuiBind<string> readableRemainingTime = new ("readableRemainingTime");
         private readonly NuiBind<string> estimatedQuantity = new ("estimatedQuantity");
         private readonly NuiBind<string> estimatedDistance = new ("estimatedDistance");
         private readonly NuiBind<string> estimatedCoordinates = new ("estimatedCoordinates");
-        private int scanDuration { get; set; }
+        private readonly Color white = new(255, 255, 255);
+        private readonly NuiBind<NuiRect> drawListRect = new("drawListRect");
+        private double scanDuration { get; set; }
+        private int timeLeft { get; set; }
         private NwItem detector { get; set; }
         public ScheduledTask detectionProgress { get; set; }
         private string resourceTemplate = "ore_spawn_wp";
@@ -40,22 +42,28 @@ namespace NWN.Systems
         public MateriaDetectorWindow(Player player, NwItem detector) : base(player)
         {
           windowId = "materiaDetector";
-
+          
           rootColumn = new NuiColumn()
           {
             Children = new List<NuiElement>()
             {
               new NuiRow() { Children = new List<NuiElement>() 
               { 
-                new NuiCombo() { Entries = categories, Selected = selectedCategory },
-                new NuiButton("Recherche") { Id = "start_detection", Tooltip = "Démarrer la recherche de matéria à proximité" } }
-              },
+                new NuiSpacer(),
+                new NuiCombo() { Entries = categories, Selected = selectedCategory, Height = 35, Width = 100 },
+                new NuiButton("Recherche") { Id = "start_detection", Tooltip = "Démarrer la recherche de matéria à proximité", Height = 35, Width = 80 },
+                new NuiSpacer()
+              } },
               new NuiRow() { Children = new List<NuiElement>()
               {
-                new NuiText(remainingTime) { Tooltip = "Temps restant avant la fin de la recherche" },
-                new NuiText(estimatedQuantity) { Tooltip = "Quantité estimée de la plus volumineuse masse" },
-                new NuiText(estimatedDistance) { Tooltip = "Distance estimée de la plus volumineuse masse" },
-                new NuiText(estimatedCoordinates) { Tooltip = "Coordonnées estimées de la plus volumineuse masse" }
+                new NuiProgress(progress) { Width = 460, Height = 35, DrawList = new List<NuiDrawListItem>() {
+                    new NuiDrawListText(white, drawListRect, readableRemainingTime) } }
+              } },
+              new NuiRow() { Children = new List<NuiElement>()
+              {
+                new NuiText(estimatedQuantity) { Tooltip = "Quantité estimée de la plus volumineuse masse", Height = 35, Width = 151, Scrollbars = NuiScrollbars.None },
+                new NuiText(estimatedDistance) { Tooltip = "Distance estimée de la plus volumineuse masse", Height = 35, Width = 151, Scrollbars = NuiScrollbars.None },
+                new NuiText(estimatedCoordinates) { Tooltip = "Coordonnées estimées de la plus volumineuse masse", Height = 35, Width = 151, Scrollbars = NuiScrollbars.None }
               } }
             }
           };
@@ -67,7 +75,6 @@ namespace NWN.Systems
           this.detector = detector;
 
           resourceCategories.Clear();
-          resourceCategories.Add(new NuiComboEntry("", 0));
 
           if (player.learnableSkills.ContainsKey(CustomSkill.OreDetection))
             resourceCategories.Add(new NuiComboEntry("Minerai", 1));
@@ -78,12 +85,12 @@ namespace NWN.Systems
           if (player.learnableSkills.ContainsKey(CustomSkill.PeltDetection))
             resourceCategories.Add(new NuiComboEntry("Peaux", 3));
 
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.65f);
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? new NuiRect(player.windowRectangles[windowId].X, player.windowRectangles[windowId].Y, 500, 160) : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 500, 160);
 
           window = new NuiWindow(rootColumn, "Détecteur de matéria")
           {
             Geometry = geometry,
-            Resizable = true,
+            Resizable = false,
             Collapsed = false,
             Closable = true,
             Transparent = false,
@@ -93,13 +100,16 @@ namespace NWN.Systems
           if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
             nuiToken = tempToken;
-
             nuiToken.OnNuiEvent += HandleDetectorEvents;
+            player.oid.OnClientLeave += OnLeaveCancelDetection;
 
-            selectedCategory.SetBindValue(player.oid, nuiToken.Token, 0);
+            selectedCategory.SetBindValue(player.oid, nuiToken.Token, resourceCategories.FirstOrDefault().Value);
             selectedCategory.SetBindWatch(player.oid, nuiToken.Token, true);
 
-            remainingTime.SetBindValue(player.oid, nuiToken.Token, "");
+            drawListRect.SetBindValue(player.oid, nuiToken.Token, new(300, 15, 151, 20));
+            progress.SetBindValue(player.oid, nuiToken.Token, 0);
+
+            readableRemainingTime.SetBindValue(player.oid, nuiToken.Token, "");
             estimatedQuantity.SetBindValue(player.oid, nuiToken.Token, "");
             estimatedDistance.SetBindValue(player.oid, nuiToken.Token, "");
             estimatedCoordinates.SetBindValue(player.oid, nuiToken.Token, "");
@@ -121,25 +131,25 @@ namespace NWN.Systems
               {
                 case "start_detection":
 
-                  if(selectedCategory.GetBindValue(player.oid, nuiToken.Token) == 0)
+                  if(selectedCategory.GetBindValue(player.oid, nuiToken.Token) < 1)
                   {
                     player.oid.SendServerMessage("Impossible d'entamer une recherche sans avoir préciser la catégorie recherchée.", ColorConstants.Red);
                     return;
                   }
 
-                  detector.GetObjectVariable<LocalVariableInt>("_REMAINING_USES").Value -= 1;
+                  /*detector.GetObjectVariable<LocalVariableInt>("_REMAINING_USES").Value -= 1;
                   if (detector.GetObjectVariable<LocalVariableInt>("_REMAINING_USES").Value < 0)
                   {
                     detector.Destroy();
                     CloseWindow();
                     player.oid.SendServerMessage("Le détecteur se désagrège entre vos mains, vidé de toute substance.", ColorConstants.Red);
                     return;
-                  }
+                  }*/
 
                   SetDetectionTime();
-                  remainingTime.SetBindValue(player.oid, nuiToken.Token, GetReadableDetectionTime());
+                  readableRemainingTime.SetBindValue(player.oid, nuiToken.Token, GetReadableDetectionTime());
 
-                  if (!detectionProgress.IsCancelled)
+                  if (detectionProgress != null && !detectionProgress.IsCancelled)
                     CancelScanProgress();
 
                   detectionProgress = player.scheduler.ScheduleRepeating(HandleScanProgress, TimeSpan.FromSeconds(1));
@@ -150,9 +160,10 @@ namespace NWN.Systems
               break;
 
             case NuiEventType.Watch:
-              if (nuiEvent.ElementId == "selectedCategory")
-                if (!detectionProgress.IsCancelled)
+
+              if (nuiEvent.ElementId == "selectedCategory" && !detectionProgress.IsCancelled)
                   CancelScanProgress();
+
               break;
           }
         }
@@ -165,10 +176,11 @@ namespace NWN.Systems
             return;
           }
 
-          scanDuration -= 1;
-          remainingTime.SetBindValue(player.oid, nuiToken.Token, GetReadableDetectionTime());
+          timeLeft -= 1;
+          readableRemainingTime.SetBindValue(player.oid, nuiToken.Token, GetReadableDetectionTime());
+          progress.SetBindValue(player.oid, nuiToken.Token, (float)((scanDuration - timeLeft) / scanDuration));
 
-          if (scanDuration < 1)
+          if (timeLeft < 1)
           {
             detectionProgress.Dispose();
 
@@ -178,11 +190,12 @@ namespace NWN.Systems
 
             if (!materiaList.Any())
             {
-              remainingTime.SetBindValue(player.oid, nuiToken.Token, "Recherche - Échec");
+              readableRemainingTime.SetBindValue(player.oid, nuiToken.Token, "Recherche - Échec");
+              progress.SetBindValue(player.oid, nuiToken.Token, 0);
               return;
             }
 
-            remainingTime.SetBindValue(player.oid, nuiToken.Token, "Recherche - Terminée");
+            readableRemainingTime.SetBindValue(player.oid, nuiToken.Token, "Recherche - Terminée");
 
             NwPlaceable biggestMateria = materiaList.OrderByDescending(m => m.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value).FirstOrDefault();
 
@@ -200,10 +213,16 @@ namespace NWN.Systems
             return;
           }
         }
+        private void OnLeaveCancelDetection(ModuleEvents.OnClientLeave onLeave)
+        {
+          if (detectionProgress != null)
+            CancelScanProgress();
+        }
         private void CancelScanProgress()
         {
           detectionProgress.Dispose();
-          remainingTime.SetBindValue(player.oid, nuiToken.Token, "");
+          readableRemainingTime.SetBindValue(player.oid, nuiToken.Token, "");
+          progress.SetBindValue(player.oid, nuiToken.Token, 0);
           estimatedQuantity.SetBindValue(player.oid, nuiToken.Token, "");
           estimatedDistance.SetBindValue(player.oid, nuiToken.Token, "");
           estimatedCoordinates.SetBindValue(player.oid, nuiToken.Token, "");
@@ -286,15 +305,9 @@ namespace NWN.Systems
           }
 
           foreach (NwPlaceable materia in materiaList.Where(m => m.DistanceSquared(player.oid.ControlledCreature) < findDistance * findDistance))
-          {
             if (NwRandom.Roll(Utils.random, 100) < detectionChance)
-            {
-              player.oid.SetPersonalVisibilityOverride(materia, Anvil.Services.VisibilityMode.Visible);
-
               foreach (var partyMember in player.oid.PartyMembers)
-                partyMember.SetPersonalVisibilityOverride(materia, Anvil.Services.VisibilityMode.Visible);
-            }
-          }
+                partyMember.SetPersonalVisibilityOverride(materia, Anvil.Services.VisibilityMode.AlwaysVisible);
         }
         private void SetDetectionTime()
         {
@@ -312,10 +325,12 @@ namespace NWN.Systems
               scanDuration = Craft.Collect.System.GetResourceDetectionTime(player, CustomSkill.PeltDetection, CustomSkill.PeltDetectionSpeed);
               break;
           }
+
+          timeLeft = (int)scanDuration;
         }
         private string GetReadableDetectionTime()
         {
-          return new TimeSpan(TimeSpan.FromSeconds(scanDuration).Hours, TimeSpan.FromSeconds(scanDuration).Minutes, TimeSpan.FromSeconds(scanDuration).Seconds).ToString();
+          return new TimeSpan(TimeSpan.FromSeconds(timeLeft).Hours, TimeSpan.FromSeconds(timeLeft).Minutes, TimeSpan.FromSeconds(timeLeft).Seconds).ToString();
         }
       }
     }

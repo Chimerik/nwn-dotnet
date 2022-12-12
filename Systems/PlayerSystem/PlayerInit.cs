@@ -98,7 +98,7 @@ namespace NWN.Systems
 
             windows.Add("introWelcome", new IntroWelcomeWindow(this));
           }
-          
+
           SqLiteUtils.InsertQuery("PlayerAccounts",
             new List<string[]>() { new string[] { "accountName", oid.PlayerName }, new string[] { "cdKey", oid.CDKey }, new string[] { "bonusRolePlay", "1" }, new string[] { "hideFromPlayerList", oid.IsDM ? 1.ToString() : 0.ToString() } });
 
@@ -361,7 +361,7 @@ namespace NWN.Systems
             new List<string>() { { "bonusRolePlay" }, { "mapPins" }, { "chatColors" }, { "mutedPlayers" }, { "windowRectangles" }, { "customDMVisualEffects" }, { "hideFromPlayerList" } },
             new List<string[]>() { { new string[] { "rowid", accountId.ToString() } } });
 
-        foreach(var result in query)
+        foreach (var result in query)
         {
           bonusRolePlay = int.TryParse(result[0], out int brp) ? brp : 1;
           string serializedMapPins = result[1];
@@ -380,13 +380,15 @@ namespace NWN.Systems
       private void InitializePlayerCharacter()
       {
         var query = SqLiteUtils.SelectQuery("playerCharacters",
-            new List<string>() { { "location" }, { "currentHP" }, { "bankGold" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" }, { "alchemyCauldron" }, { "serializedLearnableSkills" }, { "serializedLearnableSpells" }, { "explorationState" }, { "materialStorage" }, { "craftJob" }, { "grimoires" }, { "quickbars" }, { "itemAppearances" }, { "descriptions" }, { "currentSkillPoints" }, { "mails" } },
+            new List<string>() { { "location" }, { "currentHP" }, { "bankGold" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" },
+              { "alchemyCauldron" }, { "serializedLearnableSkills" }, { "serializedLearnableSpells" }, { "explorationState" }, { "materialStorage" }, { "craftJob" },
+              { "grimoires" }, { "quickbars" }, { "itemAppearances" }, { "descriptions" }, { "currentSkillPoints" }, { "mails" }, { "subscriptions" } },
             new List<string[]>() { { new string[] { "rowid", characterId.ToString() } } });
 
         foreach (var result in query)
         {
           location = SqLiteUtils.DeserializeLocation(result[0]);
-          oid.LoginCreature.HP = int.TryParse(result[1], out int hp) ? hp : 1 ;
+          oid.LoginCreature.HP = int.TryParse(result[1], out int hp) ? hp : 1;
           bankGold = int.TryParse(result[2], out int gold) ? gold : 0;
           menu.originTop = int.TryParse(result[3], out int top) ? top : 0;
           menu.originLeft = int.TryParse(result[4], out int left) ? left : 0;
@@ -403,11 +405,12 @@ namespace NWN.Systems
           string serializedDescriptions = result[15];
           tempCurrentSkillPoint = int.TryParse(result[16], out int skill) ? skill : 0;
           string serializedMails = result[17];
+          string serializedSubscriptions = result[18];
 
-          InitializePlayerAsync(serializedCauldron, serializedExploration, serializedLearnableSkills, serializedLearnableSpells, serializedCraftResources, serializedCraftJob, serializedGrimoires, serializedQuickbars, serializedItemAppearances, serializedDescriptions, serializedMails);
+          InitializePlayerAsync(serializedCauldron, serializedExploration, serializedLearnableSkills, serializedLearnableSpells, serializedCraftResources, serializedCraftJob, serializedGrimoires, serializedQuickbars, serializedItemAppearances, serializedDescriptions, serializedMails, serializedSubscriptions);
         }
       }
-      private async void InitializePlayerAsync(string serializedCauldron, string serializedExploration, string serializedLearnableSkills, string serializedLearnableSpells, string serializedCraftResources, string serializedCraftJob, string serializedGrimoires, string serializedQuickbars, string serializedItemAppearances, string serializedDescriptions, string serializedMails)
+      private async void InitializePlayerAsync(string serializedCauldron, string serializedExploration, string serializedLearnableSkills, string serializedLearnableSpells, string serializedCraftResources, string serializedCraftJob, string serializedGrimoires, string serializedQuickbars, string serializedItemAppearances, string serializedDescriptions, string serializedMails, string serializedSubscriptions)
       {
         Task loadCauldronTask = Task.Run(() =>
         {
@@ -477,7 +480,7 @@ namespace NWN.Systems
           if (string.IsNullOrEmpty(serializedCraftJob) || serializedCraftJob == "null")
             return;
 
-          craftJob = new CraftJob(JsonConvert.DeserializeObject<CraftJob.SerializableCraftJob>(serializedCraftJob), this);
+          craftJob = new CraftJob(JsonConvert.DeserializeObject<CraftJob.SerializableCraftJob>(serializedCraftJob));
         });
 
         Task loadGrimoiresTask = Task.Run(() =>
@@ -512,6 +515,17 @@ namespace NWN.Systems
           descriptions = JsonConvert.DeserializeObject<List<CharacterDescription>>(serializedDescriptions);
         });
 
+        Task loadSubscriptionsTask = Task.Run(() =>
+        {
+          if (string.IsNullOrEmpty(serializedSubscriptions) || serializedSubscriptions == "null")
+            return;
+
+          List<Subscription.SerializableSubscription> serializedSubscription = JsonConvert.DeserializeObject<List<Subscription.SerializableSubscription>>(serializedSubscriptions);
+
+          foreach (var subscription in serializedSubscription)
+              subscriptions.Add(new Subscription(subscription));
+        });
+
         Task loadMailsTask = Task.Run(() =>
         {
           if (string.IsNullOrEmpty(serializedMails) || serializedMails == "null")
@@ -520,11 +534,11 @@ namespace NWN.Systems
           List<Mail.SerializableMail> serializedMail = JsonConvert.DeserializeObject<List<Mail.SerializableMail>>(serializedMails);
 
           foreach (var mail in serializedMail)
-            if(!mail.expirationDate.HasValue || mail.expirationDate > DateTime.Now)
-              mails.Add(new Mail(mail));              
+            if (!mail.expirationDate.HasValue || mail.expirationDate > DateTime.Now)
+              mails.Add(new Mail(mail));
         });
 
-        await Task.WhenAll(loadSkillsTask, loadSpellsTask, loadExplorationTask, loadCauldronTask, loadCraftJobTask, loadGrimoiresTask, loadQuickbarsTask, loadItemAppearancesTask, loadDescriptionsTask, loadMailsTask);
+        await Task.WhenAll(loadSkillsTask, loadSpellsTask, loadExplorationTask, loadCauldronTask, loadCraftJobTask, loadGrimoiresTask, loadQuickbarsTask, loadItemAppearancesTask, loadDescriptionsTask, loadMailsTask, loadSubscriptionsTask);
         await NwTask.SwitchToMainThread();
         FinalizePlayerData();
       }
@@ -533,6 +547,16 @@ namespace NWN.Systems
         if (oid == null || !oid.IsValid || oid.LoginCreature == null)
           return;
 
+        HandleHealthPointInit();
+        HandleLearnableInit();
+        HandleJobInit();
+        CheckPlayerConnectionInfo();
+        HandleMailNotification();
+        pcState = PcState.Online;
+        oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
+      }
+      private void HandleHealthPointInit()
+      {
         int improvedHealth = learnableSkills.ContainsKey(CustomSkill.ImprovedHealth) ? learnableSkills[CustomSkill.ImprovedHealth].currentLevel : 0;
         int toughness = learnableSkills.ContainsKey(CustomSkill.Toughness) ? learnableSkills[CustomSkill.Toughness].currentLevel : 0;
 
@@ -545,7 +569,9 @@ namespace NWN.Systems
 
         if (learnableSkills.ContainsKey(CustomSkill.ImprovedAttackBonus))
           oid.LoginCreature.BaseAttackBonus = (byte)(oid.LoginCreature.BaseAttackBonus + learnableSkills[CustomSkill.ImprovedAttackBonus].totalPoints);
-
+      }
+      private void HandleLearnableInit()
+      {
         if (activeLearnable != null && activeLearnable.active && activeLearnable.spLastCalculation.HasValue)
         {
           activeLearnable.acquiredPoints += (DateTime.Now - activeLearnable.spLastCalculation).Value.TotalSeconds * GetSkillPointsPerSecond(activeLearnable);
@@ -553,8 +579,10 @@ namespace NWN.Systems
           if (!windows.ContainsKey("activeLearnable")) windows.Add("activeLearnable", new ActiveLearnableWindow(this));
           else ((ActiveLearnableWindow)windows["activeLearnable"]).CreateWindow();
         }
-
-        if(craftJob != null)
+      }
+      private void HandleJobInit()
+      {
+        if (craftJob != null)
         {
           if ((craftJob.type == JobType.Mining || craftJob.type == JobType.WoodCutting || craftJob.type == JobType.Pelting) && craftJob.progressLastCalculation.HasValue)
           {
@@ -565,11 +593,24 @@ namespace NWN.Systems
           if (!windows.ContainsKey("activeCraftJob")) windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
           else ((ActiveCraftJobWindow)windows["activeCraftJob"]).CreateWindow();
         }
+      }
+      private void HandleMailNotification()
+      {
+        if (!subscriptions.Any(s => s.type == Utils.SubscriptionType.MailNotification))
+          return;
 
-        CheckPlayerConnectionInfo();
+        int unreadCount = mails.Count(m => m.fromCharacterId < 1 && !m.read);
 
-        pcState = PcState.Online;
-        oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
+        if (unreadCount > 0)
+          oid.SendServerMessage($"Votre pièce vibre. Vous avez reçu {StringUtils.ToWhitecolor(unreadCount)} nouvelle(s) missive(s) de la banque", ColorConstants.Orange);
+
+        unreadCount = mails.Count(m => m.fromCharacterId > 0 && !m.read && m.fromCharacterId != characterId);
+
+        if (unreadCount > 0)
+          oid.SendServerMessage($"Votre pièce vibre. Vous avez reçu {StringUtils.ToWhitecolor(unreadCount)} nouvelle(s) missive(s) personnelle(s)", ColorConstants.Orange);
+
+        if (location?.Area?.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 1)
+          bankGold -= location.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value * 5;
       }
       private async void CheckPlayerConnectionInfo()
       {
@@ -590,23 +631,19 @@ namespace NWN.Systems
 
         try
         {
-          using (var connection = new SqliteConnection(Config.dbPath))
+          using var connection = new SqliteConnection(Config.dbPath);
+          connection.Open();
+
+          var command = connection.CreateCommand();
+          command.CommandText = queryString;
+
+          command.Parameters.AddWithValue($"@playerAccount", (object)playerName ?? DBNull.Value);
+          command.Parameters.AddWithValue($"@cdKey", (object)cdKey ?? DBNull.Value);
+
+          using var reader = await command.ExecuteReaderAsync();
+          while (reader.Read())
           {
-            connection.Open();
-
-            var command = connection.CreateCommand();
-            command.CommandText = queryString;
-
-            command.Parameters.AddWithValue($"@playerAccount", (object)playerName ?? DBNull.Value);
-            command.Parameters.AddWithValue($"@cdKey", (object)cdKey ?? DBNull.Value);
-
-            using (var reader = await command.ExecuteReaderAsync())
-            {
-              while (reader.Read())
-              {
-                Utils.LogMessageToDMs($"WARNING - {playerName} vient de se connecter avec la clef {cdKey} également utilisée par {reader.GetString(0)}");
-              }
-            }
+            Utils.LogMessageToDMs($"WARNING - {playerName} vient de se connecter avec la clef {cdKey} également utilisée par {reader.GetString(0)}");
           }
         }
         catch (Exception e)
@@ -619,23 +656,19 @@ namespace NWN.Systems
         {
           queryString = "select playerAccount from playerConnectionInfo where playerAccount != @playerAccount and ipAdress = @ipAdress";
 
-          using (var connection = new SqliteConnection(Config.dbPath))
+          using var connection = new SqliteConnection(Config.dbPath);
+          connection.Open();
+
+          var command = connection.CreateCommand();
+          command.CommandText = queryString;
+
+          command.Parameters.AddWithValue($"@playerAccount", (object)playerName ?? DBNull.Value);
+          command.Parameters.AddWithValue($"@ipAdress", (object)ipAdress ?? DBNull.Value);
+
+          using var reader = await command.ExecuteReaderAsync();
+          while (reader.Read())
           {
-            connection.Open();
-
-            var command = connection.CreateCommand();
-            command.CommandText = queryString;
-
-            command.Parameters.AddWithValue($"@playerAccount", (object)playerName ?? DBNull.Value);
-            command.Parameters.AddWithValue($"@ipAdress", (object)ipAdress ?? DBNull.Value);
-
-            using (var reader = await command.ExecuteReaderAsync())
-            {
-              while (reader.Read())
-              {
-                Utils.LogMessageToDMs($"WARNING - {playerName} vient de se connecter avec l'adresse ip {ipAdress} également utilisée par {reader.GetString(0)}");
-              }
-            }
+            Utils.LogMessageToDMs($"WARNING - {playerName} vient de se connecter avec l'adresse ip {ipAdress} également utilisée par {reader.GetString(0)}");
           }
         }
         catch (Exception e)

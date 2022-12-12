@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using Anvil.API;
+
 using Newtonsoft.Json;
 
 namespace NWN.Systems
@@ -17,8 +20,9 @@ namespace NWN.Systems
     public readonly DateTime sentDate;
     public readonly DateTime? expirationDate;
     public bool read;
+    public bool receipt;
 
-    public Mail(string from, int fromCharacterId, string to, int toCharacterId, string title, string content, DateTime sentDate, DateTime? expirationDate = null, bool read = false)
+    public Mail(string from, int fromCharacterId, string to, int toCharacterId, string title, string content, DateTime sentDate, bool receipt = false, DateTime? expirationDate = null, bool read = false)
     {
       this.from = from;
       this.fromCharacterId = fromCharacterId;
@@ -29,14 +33,69 @@ namespace NWN.Systems
       this.sentDate = sentDate;
       this.expirationDate = expirationDate;
       this.read = read;
+      this.receipt = receipt;
     }
     public Mail()
     {
 
     }
-    public async void SendMailToPlayer(string characterId)
+    public Mail(SerializableMail serializedMail)
     {
-      var result = await SqLiteUtils.SelectQueryAsync("mails",
+      from = serializedMail.from;
+      fromCharacterId = serializedMail.fromCharacterId;
+      to = serializedMail.to;
+      title = serializedMail.title;
+      content = serializedMail.content;
+      expirationDate = serializedMail.expirationDate;
+      sentDate = serializedMail.sentDate;
+      read = serializedMail.read;
+      receipt = serializedMail.receipt;
+    }
+
+    public class SerializableMail
+    {
+      public int fromCharacterId { get; set; }
+      public string from { get; set; }
+      public int toCharacterId { get; set; }
+      public string to { get; set; }
+      public string title { get; set; }
+      public string content { get; set; }
+      public DateTime sentDate { get; set; }
+      public DateTime? expirationDate { get; set; }
+      public bool read { get; set; }
+      public bool receipt { get; set; }
+
+      public SerializableMail()
+      {
+
+      }
+      public SerializableMail(Mail mailBase)
+      {
+        fromCharacterId = mailBase.fromCharacterId;
+        from = mailBase.from;
+        toCharacterId = mailBase.toCharacterId;
+        to = mailBase.to;
+        title = mailBase.title;
+        content = mailBase.content;
+        sentDate = mailBase.sentDate;
+        expirationDate = mailBase.expirationDate;
+        read = mailBase.read;
+        receipt = mailBase.receipt;
+      }
+    }
+    public void SendMailToPlayer(int characterId)
+    {
+      PlayerSystem.Player targetPlayer = PlayerSystem.Players.FirstOrDefault(p => p.Value.characterId == characterId).Value;
+
+      if (targetPlayer == null || targetPlayer.pcState == PlayerSystem.Player.PcState.Offline)
+        SendMailToDataBase(characterId.ToString());
+      else
+        SendMailNotification(targetPlayer);
+
+    }
+    private async void SendMailToDataBase(string characterId)
+    {
+      var result = await SqLiteUtils.SelectQueryAsync("playerCharacters",
         new List<string>() { { "mails" } },
         new List<string[]>() { new string[] { "ROWID", characterId } });
 
@@ -65,47 +124,26 @@ namespace NWN.Systems
             new List<string[]>() { new string[] { "rowid", characterId } });
       }
     }
-    public Mail(SerializableMail serializedMail)
+    private void SendMailNotification(PlayerSystem.Player player)
     {
-      from = serializedMail.from;
-      fromCharacterId = serializedMail.fromCharacterId;
-      to = serializedMail.to;
-      title = serializedMail.title;
-      content = serializedMail.content;
-      expirationDate = serializedMail.expirationDate;
-      sentDate = serializedMail.sentDate;
-      read = serializedMail.read;
+      player.mails.Add(this);
+
+      if (!player.subscriptions.Any(s => s.type == Utils.SubscriptionType.MailNotification))
+        return;
+
+      if (fromCharacterId < 1)
+        player.oid.SendServerMessage("Votre pièce vibre. Vous venez de recevoir une nouvelle missive de la banque", ColorConstants.Orange);
+      else
+        player.oid.SendServerMessage("Votre pièce vibre. Vous venez de recevoir une nouvelle missive personnelle", ColorConstants.Orange);
+
+      if (player.oid.LoginCreature.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 1)
+        player.bankGold -= player.oid.LoginCreature.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value * 5;
     }
-
-    public class SerializableMail
+    public void SendReceiptToPlayer()
     {
-      public int fromCharacterId { get; set; }
-      public string from { get; set; }
-      public int toCharacterId { get; set; }
-      public string to { get; set; }
-      public string title { get; set; }
-      public string content { get; set; }
-      public DateTime sentDate { get; set; }
-      public DateTime? expirationDate { get; set; }
-      public bool read { get; set; }
-  
-
-      public SerializableMail()
-      {
-
-      }
-      public SerializableMail(Mail mailBase)
-      {
-        fromCharacterId = mailBase.fromCharacterId;
-        from = mailBase.from;
-        toCharacterId = mailBase.toCharacterId;
-        to = mailBase.to;
-        title = mailBase.title;
-        content = mailBase.content;
-        sentDate = mailBase.sentDate;
-        expirationDate = mailBase.expirationDate;
-        read = mailBase.read;
-      }
+      new Mail("Banque Skalsgard", -1, from, fromCharacterId, "Accusé de lecture", 
+        $"Très honoré client,\n\n Nous sommes ravis de vous annoncer que votre missive du {sentDate:dd/MM/YYYY} à destination de {to} a bien été reçue et lue par son destinataire.\n\nTitre de la missive : {title}",
+        DateTime.Now, false, DateTime.Now.AddMonths(3)).SendMailToPlayer(fromCharacterId);
     }
   }
 }

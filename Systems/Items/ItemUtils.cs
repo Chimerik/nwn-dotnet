@@ -9,14 +9,14 @@ namespace NWN.Systems
 {
   public static class ItemUtils
   {
-    public static int[] shopBasicMagicScrolls = new int[] { NWScript.IP_CONST_CASTSPELL_ACID_SPLASH_1, NWScript.IP_CONST_CASTSPELL_DAZE_1, NWScript.IP_CONST_CASTSPELL_ELECTRIC_JOLT_1, NWScript.IP_CONST_CASTSPELL_FLARE_1, NWScript.IP_CONST_CASTSPELL_RAY_OF_FROST_1, NWScript.IP_CONST_CASTSPELL_RESISTANCE_5, NWScript.IP_CONST_CASTSPELL_BURNING_HANDS_5, NWScript.IP_CONST_CASTSPELL_CHARM_PERSON_2, NWScript.IP_CONST_CASTSPELL_COLOR_SPRAY_2, NWScript.IP_CONST_CASTSPELL_ENDURE_ELEMENTS_2, NWScript.IP_CONST_CASTSPELL_EXPEDITIOUS_RETREAT_5, NWScript.IP_CONST_CASTSPELL_GREASE_2, 459, 478, 460, NWScript.IP_CONST_CASTSPELL_MAGE_ARMOR_2, NWScript.IP_CONST_CASTSPELL_MAGIC_MISSILE_5, NWScript.IP_CONST_CASTSPELL_NEGATIVE_ENERGY_RAY_5, NWScript.IP_CONST_CASTSPELL_RAY_OF_ENFEEBLEMENT_2, NWScript.IP_CONST_CASTSPELL_SCARE_2, 469, NWScript.IP_CONST_CASTSPELL_SHIELD_5, NWScript.IP_CONST_CASTSPELL_SLEEP_5, NWScript.IP_CONST_CASTSPELL_SUMMON_CREATURE_I_5, NWScript.IP_CONST_CASTSPELL_AMPLIFY_5, NWScript.IP_CONST_CASTSPELL_BALAGARNSIRONHORN_7, NWScript.IP_CONST_CASTSPELL_LESSER_DISPEL_5, NWScript.IP_CONST_CASTSPELL_CURE_MINOR_WOUNDS_1, NWScript.IP_CONST_CASTSPELL_INFLICT_MINOR_WOUNDS_1, NWScript.IP_CONST_CASTSPELL_VIRTUE_1, NWScript.IP_CONST_CASTSPELL_BANE_5, NWScript.IP_CONST_CASTSPELL_BLESS_2, NWScript.IP_CONST_CASTSPELL_CURE_LIGHT_WOUNDS_5, NWScript.IP_CONST_CASTSPELL_DIVINE_FAVOR_5, NWScript.IP_CONST_CASTSPELL_DOOM_5, NWScript.IP_CONST_CASTSPELL_ENTROPIC_SHIELD_5, NWScript.IP_CONST_CASTSPELL_INFLICT_LIGHT_WOUNDS_5, NWScript.IP_CONST_CASTSPELL_REMOVE_FEAR_2, NWScript.IP_CONST_CASTSPELL_SANCTUARY_2, NWScript.IP_CONST_CASTSPELL_SHIELD_OF_FAITH_5, NWScript.IP_CONST_CASTSPELL_CAMOFLAGE_5, NWScript.IP_CONST_CASTSPELL_ENTANGLE_5, NWScript.IP_CONST_CASTSPELL_MAGIC_FANG_5, 540, 541, 542, 543, 544 };
+    public static readonly int[] shopBasicMagicScrolls = new int[] { NWScript.IP_CONST_CASTSPELL_ACID_SPLASH_1, NWScript.IP_CONST_CASTSPELL_DAZE_1, NWScript.IP_CONST_CASTSPELL_ELECTRIC_JOLT_1, NWScript.IP_CONST_CASTSPELL_FLARE_1, NWScript.IP_CONST_CASTSPELL_RAY_OF_FROST_1, NWScript.IP_CONST_CASTSPELL_RESISTANCE_5, NWScript.IP_CONST_CASTSPELL_BURNING_HANDS_5, NWScript.IP_CONST_CASTSPELL_CHARM_PERSON_2, NWScript.IP_CONST_CASTSPELL_COLOR_SPRAY_2, NWScript.IP_CONST_CASTSPELL_ENDURE_ELEMENTS_2, NWScript.IP_CONST_CASTSPELL_EXPEDITIOUS_RETREAT_5, NWScript.IP_CONST_CASTSPELL_GREASE_2, 459, 478, 460, NWScript.IP_CONST_CASTSPELL_MAGE_ARMOR_2, NWScript.IP_CONST_CASTSPELL_MAGIC_MISSILE_5, NWScript.IP_CONST_CASTSPELL_NEGATIVE_ENERGY_RAY_5, NWScript.IP_CONST_CASTSPELL_RAY_OF_ENFEEBLEMENT_2, NWScript.IP_CONST_CASTSPELL_SCARE_2, 469, NWScript.IP_CONST_CASTSPELL_SHIELD_5, NWScript.IP_CONST_CASTSPELL_SLEEP_5, NWScript.IP_CONST_CASTSPELL_SUMMON_CREATURE_I_5, NWScript.IP_CONST_CASTSPELL_AMPLIFY_5, NWScript.IP_CONST_CASTSPELL_BALAGARNSIRONHORN_7, NWScript.IP_CONST_CASTSPELL_LESSER_DISPEL_5, NWScript.IP_CONST_CASTSPELL_CURE_MINOR_WOUNDS_1, NWScript.IP_CONST_CASTSPELL_INFLICT_MINOR_WOUNDS_1, NWScript.IP_CONST_CASTSPELL_VIRTUE_1, NWScript.IP_CONST_CASTSPELL_BANE_5, NWScript.IP_CONST_CASTSPELL_BLESS_2, NWScript.IP_CONST_CASTSPELL_CURE_LIGHT_WOUNDS_5, NWScript.IP_CONST_CASTSPELL_DIVINE_FAVOR_5, NWScript.IP_CONST_CASTSPELL_DOOM_5, NWScript.IP_CONST_CASTSPELL_ENTROPIC_SHIELD_5, NWScript.IP_CONST_CASTSPELL_INFLICT_LIGHT_WOUNDS_5, NWScript.IP_CONST_CASTSPELL_REMOVE_FEAR_2, NWScript.IP_CONST_CASTSPELL_SANCTUARY_2, NWScript.IP_CONST_CASTSPELL_SHIELD_OF_FAITH_5, NWScript.IP_CONST_CASTSPELL_CAMOFLAGE_5, NWScript.IP_CONST_CASTSPELL_ENTANGLE_5, NWScript.IP_CONST_CASTSPELL_MAGIC_FANG_5, 540, 541, 542, 543, 544, 583, 587 };
     public static readonly BaseItemType[] leatherBasicWeaponBlueprints = new BaseItemType[] { BaseItemType.Belt, BaseItemType.Gloves, BaseItemType.Boots, BaseItemType.Cloak, BaseItemType.Whip };
     public static readonly BaseItemType[] woodBasicBlueprints = new BaseItemType[] { BaseItemType.SmallShield, BaseItemType.Club, BaseItemType.Dart, BaseItemType.Bullet, BaseItemType.HeavyCrossbow, BaseItemType.LightCrossbow, BaseItemType.Quarterstaff, BaseItemType.Sling, BaseItemType.Arrow, BaseItemType.Bolt };
     public static readonly BaseItemType[] forgeBasicWeaponBlueprints = new BaseItemType[] { BaseItemType.LightMace, BaseItemType.Helmet, BaseItemType.Dagger, BaseItemType.Morningstar, BaseItemType.ShortSpear, BaseItemType.Sickle, BaseItemType.LightHammer, BaseItemType.LightFlail, BaseItemType.Bracer };
     public static readonly int[] forgeBasicArmorBlueprints = new int[] { 4 };
     public static readonly int[] leatherBasicArmorBlueprints = new int[] { 0, 1, 2, 3 };
 
-    public static Dictionary<BaseItemType, Dictionary<ItemAppearanceWeaponModel, List<NuiComboEntry>>> weaponModelDictionary;
+    public static readonly Dictionary<BaseItemType, Dictionary<ItemAppearanceWeaponModel, List<NuiComboEntry>>> weaponModelDictionary = new();
 
     public enum ItemCategory
     {
@@ -35,81 +35,21 @@ namespace NWN.Systems
 
     public static ItemCategory GetItemCategory(BaseItemType baseItemType)
     {
-      switch (baseItemType)
+      return baseItemType switch
       {
-        case BaseItemType.Armor:
-        case BaseItemType.Helmet:
-          return ItemCategory.Armor;
-        case BaseItemType.SmallShield:
-        case BaseItemType.TowerShield:
-        case BaseItemType.LargeShield:
-          return ItemCategory.Shield;
-        case BaseItemType.Doubleaxe:
-        case BaseItemType.Greataxe:
-        case BaseItemType.Greatsword:
-        case BaseItemType.Halberd:
-        case BaseItemType.HeavyFlail:
-        case BaseItemType.Quarterstaff:
-        case BaseItemType.Scythe:
-        case BaseItemType.TwoBladedSword:
-        case BaseItemType.DireMace:
-        case BaseItemType.Trident:
-        case BaseItemType.ShortSpear:
-          return ItemCategory.TwoHandedMeleeWeapon;
-        case BaseItemType.Bastardsword:
-        case BaseItemType.Longsword:
-        case BaseItemType.Battleaxe:
-        case BaseItemType.Club:
-        case BaseItemType.Dagger:
-        case BaseItemType.DwarvenWaraxe:
-        case BaseItemType.Handaxe:
-        case BaseItemType.Kama:
-        case BaseItemType.Katana:
-        case BaseItemType.Kukri:
-        case BaseItemType.LightFlail:
-        case BaseItemType.LightHammer:
-        case BaseItemType.LightMace:
-        case BaseItemType.Morningstar:
-        case BaseItemType.Rapier:
-        case BaseItemType.Shortsword:
-        case BaseItemType.Scimitar:
-        case BaseItemType.Sickle:
-        case BaseItemType.Warhammer:
-        case BaseItemType.Whip:
-          return ItemCategory.OneHandedMeleeWeapon;
-        case BaseItemType.HeavyCrossbow:
-        case BaseItemType.LightCrossbow:
-        case BaseItemType.Shortbow:
-        case BaseItemType.Longbow:
-        case BaseItemType.Dart:
-        case BaseItemType.Sling:
-        case BaseItemType.ThrowingAxe:
-          return ItemCategory.RangedWeapon;
-        case BaseItemType.Arrow:
-        case BaseItemType.Bolt:
-        case BaseItemType.Bullet:
-          return ItemCategory.Ammunition;
-        case BaseItemType.Potions:
-        case BaseItemType.BlankPotion:
-        case BaseItemType.EnchantedPotion:
-          return ItemCategory.Potions;
-        case BaseItemType.Scroll:
-        case BaseItemType.BlankScroll:
-        case BaseItemType.EnchantedScroll:
-        case BaseItemType.SpellScroll:
-          return ItemCategory.Scroll;
-        case BaseItemType.Belt:
-        case BaseItemType.Boots:
-        case BaseItemType.Bracer:
-        case BaseItemType.Cloak:
-        case BaseItemType.Gloves:
-          return ItemCategory.Clothes;
-        case (BaseItemType)114: //marteau de forgeron
-        case (BaseItemType)115: //extracteur de minerai
-          return ItemCategory.CraftTool;
-        default:
-          return ItemCategory.Invalid;
-      }
+        BaseItemType.Armor or BaseItemType.Helmet => ItemCategory.Armor,
+        BaseItemType.SmallShield or BaseItemType.TowerShield or BaseItemType.LargeShield => ItemCategory.Shield,
+        BaseItemType.Doubleaxe or BaseItemType.Greataxe or BaseItemType.Greatsword or BaseItemType.Halberd or BaseItemType.HeavyFlail or BaseItemType.Quarterstaff or BaseItemType.Scythe or BaseItemType.TwoBladedSword or BaseItemType.DireMace or BaseItemType.Trident or BaseItemType.ShortSpear => ItemCategory.TwoHandedMeleeWeapon,
+        BaseItemType.Bastardsword or BaseItemType.Longsword or BaseItemType.Battleaxe or BaseItemType.Club or BaseItemType.Dagger or BaseItemType.DwarvenWaraxe or BaseItemType.Handaxe or BaseItemType.Kama or BaseItemType.Katana or BaseItemType.Kukri or BaseItemType.LightFlail or BaseItemType.LightHammer or BaseItemType.LightMace or BaseItemType.Morningstar or BaseItemType.Rapier or BaseItemType.Shortsword or BaseItemType.Scimitar or BaseItemType.Sickle or BaseItemType.Warhammer or BaseItemType.Whip => ItemCategory.OneHandedMeleeWeapon,
+        BaseItemType.HeavyCrossbow or BaseItemType.LightCrossbow or BaseItemType.Shortbow or BaseItemType.Longbow or BaseItemType.Dart or BaseItemType.Sling or BaseItemType.ThrowingAxe => ItemCategory.RangedWeapon,
+        BaseItemType.Arrow or BaseItemType.Bolt or BaseItemType.Bullet => ItemCategory.Ammunition,
+        BaseItemType.Potions or BaseItemType.BlankPotion or BaseItemType.EnchantedPotion => ItemCategory.Potions,
+        BaseItemType.Scroll or BaseItemType.BlankScroll or BaseItemType.EnchantedScroll or BaseItemType.SpellScroll => ItemCategory.Scroll,
+        BaseItemType.Belt or BaseItemType.Boots or BaseItemType.Bracer or BaseItemType.Cloak or BaseItemType.Gloves => ItemCategory.Clothes,
+        //marteau de forgeron
+        (BaseItemType)114 or (BaseItemType)115 => ItemCategory.CraftTool,
+        _ => ItemCategory.Invalid,
+      };
     }
     // ----------------------------------------------------------------------------
     // Removes all itemproperties with matching nItemPropertyType and
@@ -201,24 +141,24 @@ namespace NWN.Systems
     }
     public static DamageType GetDamageTypeFromItemProperty(IPDamageType ipDamageType)
     {
-      switch (ipDamageType)
+      return ipDamageType switch
       {
-        case IPDamageType.Bludgeoning: return DamageType.Bludgeoning;
-        case IPDamageType.Piercing: return DamageType.Piercing;
-        case IPDamageType.Slashing: return DamageType.Slashing;
-        case IPDamageType.Acid: return DamageType.Acid;
-        case IPDamageType.Magical: return DamageType.Magical;
-        case IPDamageType.Fire: return DamageType.Fire;
-        case IPDamageType.Cold: return DamageType.Cold;
-        case IPDamageType.Electrical: return DamageType.Electrical;
-        case IPDamageType.Divine: return DamageType.Divine;
-        case IPDamageType.Negative: return DamageType.Negative;
-        case IPDamageType.Positive: return DamageType.Positive;
-        case IPDamageType.Sonic: return DamageType.Sonic;
-        case IPDamageType.Physical: return (DamageType)8192; // Physical
-        case (IPDamageType)14: return (DamageType)16384; // Elemental
-        default: return DamageType.Slashing;
-      }
+        IPDamageType.Bludgeoning => DamageType.Bludgeoning,
+        IPDamageType.Piercing => DamageType.Piercing,
+        IPDamageType.Slashing => DamageType.Slashing,
+        IPDamageType.Acid => DamageType.Acid,
+        IPDamageType.Magical => DamageType.Magical,
+        IPDamageType.Fire => DamageType.Fire,
+        IPDamageType.Cold => DamageType.Cold,
+        IPDamageType.Electrical => DamageType.Electrical,
+        IPDamageType.Divine => DamageType.Divine,
+        IPDamageType.Negative => DamageType.Negative,
+        IPDamageType.Positive => DamageType.Positive,
+        IPDamageType.Sonic => DamageType.Sonic,
+        IPDamageType.Physical => (DamageType)8192,// Physical
+        (IPDamageType)14 => (DamageType)16384,// Elemental
+        _ => DamageType.Slashing,
+      };
     }
     public static int GetMaxDamage(NwBaseItem baseItem, NwCreature oCreature, bool IsRangedAttack)
     {
@@ -244,7 +184,6 @@ namespace NWN.Systems
     public static NwItem DeserializeAndAcquireItem(string itemTemplate, NwCreature receiver)
     {
       NwItem deserializedItem = NwItem.Deserialize(itemTemplate.ToByteArray());
-      //deserializedItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
 
       if(receiver.Inventory.CheckFit(deserializedItem))
         receiver.AcquireItem(deserializedItem);
@@ -260,14 +199,13 @@ namespace NWN.Systems
     {
       skillBook.Appearance.SetSimpleModel((byte)Utils.random.Next(0, 50));
       skillBook.GetObjectVariable<LocalVariableInt>("_SKILL_ID").Value = featId;
-      //skillBook.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
 
       try
       {
         Learnable learnable = SkillSystem.learnableDictionary[featId];
         skillBook.Name = $"Livre de compétence : {learnable.name}";
         skillBook.Description = learnable.description;
-        skillBook.BaseGoldValue = (uint)(learnable.multiplier * 1000);
+        skillBook.BaseGoldValue = (uint)(learnable.multiplier * 100000);
       }
       catch (Exception)
       {
@@ -280,10 +218,9 @@ namespace NWN.Systems
       oBlueprint.Name = $"Patron original : {baseItem.Name}";
       oBlueprint.Description = $"Ce patron contient toutes les instructions de conception, à partir de matéria, pour un objet de type : {baseItem.Name}";
 
-      oBlueprint.BaseGoldValue = (uint)(baseItem.BaseCost * 50);
+      oBlueprint.BaseGoldValue = (uint)(baseItem.BaseCost * 5000);
       oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value = (int)baseItem.Id;
       oBlueprint.GetObjectVariable<LocalVariableString>("_CRAFT_WORKSHOP").Value = BaseItems2da.baseItemTable[(int)baseItem.ItemType].workshop;
-      //oBlueprint.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
     }
     public static void CreateShopArmorBlueprint(NwItem oBlueprint, int baseArmor)
     {
@@ -292,42 +229,33 @@ namespace NWN.Systems
       oBlueprint.Name = $"Patron original : {entry.name}";
       oBlueprint.Description = $"Ce patron contient toutes les instructions de conception, à partir de matéria, pour un objet de type : {entry.name}";
 
-      oBlueprint.BaseGoldValue = (uint)(entry.cost * 50);
+      oBlueprint.BaseGoldValue = (uint)(entry.cost * 5000);
       oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value = (int)BaseItemType.Armor;
       oBlueprint.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value = baseArmor;
       oBlueprint.GetObjectVariable<LocalVariableString>("_CRAFT_WORKSHOP").Value = entry.workshop;
-      //oBlueprint.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
     }
     public static string DisplayDamageType(DamageType damageType)
     {
-      switch (damageType)
+      return damageType switch
       {
-        case DamageType.Bludgeoning:
-          return "Contondant";
-        case DamageType.Piercing:
-          return "Perçant";
-        case DamageType.Slashing:
-          return "Tranchant";
-      }
-
-      return "";
+        DamageType.Bludgeoning => "Contondant",
+        DamageType.Piercing => "Perçant",
+        DamageType.Slashing => "Tranchant",
+        _ => "",
+      };
     }
     public static string GetResourceNameFromBlueprint(NwItem blueprint)
     {
       BaseItemType baseItemType = (BaseItemType)blueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value;
       string workshop = baseItemType == BaseItemType.Armor ? Armor2da.GetWorkshop(blueprint.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value) : BaseItems2da.baseItemTable[(int)baseItemType].workshop;
 
-      switch (workshop)
+      return workshop switch
       {
-        case "forge":
-          return ResourceType.Ingot.ToDescription();
-        case "scierie":
-          return ResourceType.Plank.ToDescription();
-        case "tannerie":
-          return ResourceType.Leather.ToDescription();
-      }
-
-      return "ressource non définie";
+        "forge" => ResourceType.Ingot.ToDescription(),
+        "scierie" => ResourceType.Plank.ToDescription(),
+        "tannerie" => ResourceType.Leather.ToDescription(),
+        _ => "ressource non définie",
+      };
     }
     public static ResourceType GetResourceTypeFromBlueprint(NwItem blueprint)
     {
@@ -338,33 +266,25 @@ namespace NWN.Systems
     }
     public static ResourceType GetResourceFromWorkshopTag(string workshop)
     {
-      switch (workshop)
+      return workshop switch
       {
-        case "forge":
-          return ResourceType.Ingot;
-        case "scierie":
-          return ResourceType.Plank;
-        case "tannerie":
-          return ResourceType.Leather;
-      }
-
-      return ResourceType.Invalid;
+        "forge" => ResourceType.Ingot,
+        "scierie" => ResourceType.Plank,
+        "tannerie" => ResourceType.Leather,
+        _ => ResourceType.Invalid,
+      };
     }
     public static ResourceType GetResourceTypeFromItem(NwItem item)
     {
       string workshop = item.BaseItem.ItemType == BaseItemType.Armor ? Armor2da.GetWorkshop(item.BaseACValue) : BaseItems2da.baseItemTable[(int)item.BaseItem.ItemType].workshop;
 
-      switch (workshop)
+      return workshop switch
       {
-        case "forge":
-          return ResourceType.Ingot;
-        case "scierie":
-          return ResourceType.Plank;
-        case "tannerie":
-          return ResourceType.Leather;
-      }
-
-      return ResourceType.Invalid;
+        "forge" => ResourceType.Ingot,
+        "scierie" => ResourceType.Plank,
+        "tannerie" => ResourceType.Leather,
+        _ => ResourceType.Invalid,
+      };
     }
     public static async void ScheduleItemForDestruction(NwItem item, double delay)
     {

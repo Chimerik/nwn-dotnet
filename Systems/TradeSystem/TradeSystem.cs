@@ -7,7 +7,6 @@ using Anvil.API;
 using Anvil.Services;
 
 using Newtonsoft.Json;
-
 using NLog;
 
 using static NWN.Systems.CraftResource;
@@ -296,7 +295,7 @@ namespace NWN.Systems
       if (auction.highestBid < 1) // L'enchère est expirée et n'a pas trouvé d'acheteur
       {
         AddItemToPlayerDataBaseBank(auction.auctionerId.ToString(), new List<string>() { auction.serializedItem }, "Auction expired, no bidder");
-        new Mail("Banque Skalsgard", -1, "Très honoré client", auction.auctionerId, $"Enchère {auction.itemName} - Echec", $"Très honoré client,\n\n La banque Skalsgard est au regret de vous annoncer l'échec de votre enchère pour {auction.itemName}.\nVotre offre n'a malheureusement pas su trouver d'acheteur.", DateTime.Now, DateTime.Now.AddMonths(3), false).SendMailToPlayer(auction.auctionerId.ToString());
+        new Mail("Banque Skalsgard", -1, "Très honoré client", auction.auctionerId, $"Enchère {auction.itemName} - Echec", $"Très honoré client,\n\n La banque Skalsgard est au regret de vous annoncer l'échec de votre enchère pour {auction.itemName}.\nVotre offre n'a malheureusement pas su trouver d'acheteur.", DateTime.Now, false, DateTime.Now.AddMonths(3), false).SendMailToPlayer(auction.auctionerId);
         return;
       }
       else // L'enchère est remportée par le highest bidder
@@ -314,35 +313,44 @@ namespace NWN.Systems
         }
 
         AddItemToPlayerDataBaseBank(auction.highestBidderId.ToString(), new List<string>() { auction.serializedItem }, "Auction successful");
-        new Mail("Banque Skalsgard", -1, "Très honoré client", auction.highestBidderId, $"Enchère {auction.itemName} - Emportée !", $"Très honoré client,\n\nLa banque Skalsgard est au heureuse de vous annoncer que vous remportez l'enchère pour {auction.itemName} à un prix de {auction.highestBid}.", DateTime.Now, DateTime.Now.AddMonths(3), false).SendMailToPlayer(auction.highestBidderId.ToString());
+        new Mail("Banque Skalsgard", -1, "Très honoré client", auction.highestBidderId, $"Enchère {auction.itemName} - Emportée !", $"Très honoré client,\n\nLa banque Skalsgard est au heureuse de vous annoncer que vous remportez l'enchère pour {auction.itemName} à un prix de {auction.highestBid}.", DateTime.Now, false, DateTime.Now.AddMonths(3), false).SendMailToPlayer(auction.highestBidderId);
       }
     }
     public static void AddResourceToPlayerStock(int characterId, ResourceType type, int grade, int quantity, string playerMessageTitle, string playerMessage, string logUseCase)
     {
-      Player player = Players.FirstOrDefault(p => p.Value.characterId == characterId).Value;
-      CraftResource resource = Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == type && r.grade == grade);
-
-      if (player != null)
+      try
       {
-        CraftResource playerResource = player.craftResourceStock.FirstOrDefault(r => r.type == type && r.grade == grade);
-        int messageQuantity;
+        Player player = Players.FirstOrDefault(p => p.Value.characterId == characterId).Value;
+        CraftResource resource = Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == type && r.grade == grade);
 
-        if (playerResource != null)
+        if (player != null)
         {
-          playerResource.quantity += quantity;
-          messageQuantity = playerResource.quantity;
-        }
-        else
-        {
-          player.craftResourceStock.Add(new CraftResource(resource, quantity));
-          messageQuantity = quantity;
+          CraftResource playerResource = player.craftResourceStock.FirstOrDefault(r => r.type == type && r.grade == grade);
+          int messageQuantity;
+
+          if (playerResource != null)
+          {
+            playerResource.quantity += quantity;
+            messageQuantity = playerResource.quantity;
+          }
+          else
+          {
+            player.craftResourceStock.Add(new CraftResource(resource, quantity));
+            messageQuantity = quantity;
+          }
+
+          playerMessage += $"(solde matéria {messageQuantity})";
         }
 
-        playerMessage += $"(solde matéria {messageQuantity})";
+        UpdatePlayerResourceStock(characterId.ToString(), resource, quantity, logUseCase);
+        new Mail("Banque Skalsgard", -1, "Très honoré client", characterId, playerMessageTitle, playerMessage, DateTime.Now, false, DateTime.Now.AddMonths(3), false).SendMailToPlayer(characterId);
       }
-
-      UpdatePlayerResourceStock(characterId.ToString(), resource, quantity, logUseCase);
-      new Mail("Banque Skalsgard", -1, "Très honoré client", characterId, playerMessageTitle, playerMessage, DateTime.Now, DateTime.Now.AddMonths(3), false).SendMailToPlayer(characterId.ToString());
+      catch(Exception e)
+      {
+        Utils.LogMessageToDMs($"{e.Message}\n\n" +
+          $"{e.StackTrace}\n\n" +
+          $"characterId {characterId} - type {type} - grade {grade} - quantity {quantity}");
+      }
     }
     public static async void ResolveSuccessfulAuction(Auction auction)
     {
@@ -414,7 +422,9 @@ namespace NWN.Systems
         new List<string[]>() { new string[] { "bankGold", sellPrice.ToString(), "+" } },
         new List<string[]>() { new string[] { "ROWID", characterId.ToString() } });
 
-      new Mail("Banque Skalsgard", -1, "Très honoré client", characterId, playerMessageTitle, playerMessage, DateTime.Now, DateTime.Now.AddMonths(3), false).SendMailToPlayer(characterId.ToString());
+      if(!string.IsNullOrEmpty(playerMessageTitle))
+        new Mail("Banque Skalsgard", -1, "Très honoré client", characterId, playerMessageTitle, playerMessage, DateTime.Now, false, DateTime.Now.AddMonths(3), false).SendMailToPlayer(characterId);
+     
       Log.Info($"TRADE SYSTEM - {logUseCase} - Updated bank account {characterId} of {sellPrice}");
     }
     private static async void UpdatePlayerResourceStock(string characterId, CraftResource resource, int quantity, string logUseCase)
@@ -447,7 +457,6 @@ namespace NWN.Systems
         });
 
         Log.Info($"TRADE SYSTEM - {logUseCase} - Updated resource stock of {characterId} of {quantity}");
-        // TODO : ajouter notification par lettre
       }
       else
         Log.Info($"TRADE SYSTEM ERROR - {logUseCase} - Impossible de trouver le personnage {characterId}");

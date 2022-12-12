@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 using Anvil.API;
@@ -1199,7 +1198,7 @@ namespace NWN.Systems
                 int taxedSellPrice = await TradeSystem.GetTaxedSellPrice(player.characterId, transactionPrice);
                 player.bankGold += taxedSellPrice;
 
-                new Mail("Banque Skalsgard", -1, "Très honoré client", player.characterId, $"Ordre de vente - {buyOrder.quantity} {resource.type.ToDescription()} {resource.grade} - {taxedSellPrice} ", $"Très honoré client,\n\n La banque Skalsgard a l'insigne honneur de vous annoncer le succès de votre ordre de vente composé de {buyOrder.quantity} unités de {resource.type.ToDescription()} {resource.grade} à un prix unitaire de {buyOrder.unitPrice}.\n\nLa somme de {taxedSellPrice} a bien été transférée sur votre compte Skalsgard.\n\nAu plaisir de pouvoir compter sur votre confiance lors de nos prochaines transactions.\n\n", DateTime.Now, DateTime.Now.AddMonths(3), false).SendMailToPlayer(player.characterId.ToString());
+                new Mail("Banque Skalsgard", -1, "Très honoré client", player.characterId, $"Ordre de vente - {buyOrder.quantity} {resource.type.ToDescription()} {resource.grade} - {taxedSellPrice} ", $"Très honoré client,\n\n La banque Skalsgard a l'insigne honneur de vous annoncer le succès de votre ordre de vente composé de {buyOrder.quantity} unités de {resource.type.ToDescription()} {resource.grade} à un prix unitaire de {buyOrder.unitPrice}.\n\nLa somme de {taxedSellPrice} a bien été transférée sur votre compte Skalsgard.\n\nAu plaisir de pouvoir compter sur votre confiance lors de nos prochaines transactions.\n\n", DateTime.Now, false, DateTime.Now.AddMonths(3), false).SendMailToPlayer(player.characterId);
                 
                 TradeSystem.AddResourceToPlayerStock(buyOrder.buyerId, buyOrder.resourceType, buyOrder.resourceLevel, buyOrder.quantity,
                   $"Ordre d'achat - {buyOrder.quantity} {resource.type.ToDescription()} {resource.grade} - {transactionPrice}",
@@ -1215,7 +1214,7 @@ namespace NWN.Systems
                 int taxedSellPrice = await TradeSystem.GetTaxedSellPrice(player.characterId, transactionPrice);
                 player.bankGold += taxedSellPrice;
 
-                new Mail("Banque Skalsgard", -1, "Très honoré client", player.characterId, $"Ordre de vente - {buyOrder.quantity} {resource.type.ToDescription()} {resource.grade} - {taxedSellPrice} ", $"Très honoré client,\n\n La banque Skalsgard a l'insigne honneur de vous annoncer le succès de votre ordre de vente composé de {buyOrder.quantity} unités de {resource.type.ToDescription()} {resource.grade} à un prix unitaire de {buyOrder.unitPrice}.\n\nLa somme de {taxedSellPrice} a bien été transférée sur votre compte Skalsgard.\n\nAu plaisir de pouvoir compter sur votre confiance lors de nos prochaines transactions.\n\n", DateTime.Now, DateTime.Now.AddMonths(3), false).SendMailToPlayer(player.characterId.ToString());
+                new Mail("Banque Skalsgard", -1, "Très honoré client", player.characterId, $"Ordre de vente - {buyOrder.quantity} {resource.type.ToDescription()} {resource.grade} - {taxedSellPrice} ", $"Très honoré client,\n\n La banque Skalsgard a l'insigne honneur de vous annoncer le succès de votre ordre de vente composé de {buyOrder.quantity} unités de {resource.type.ToDescription()} {resource.grade} à un prix unitaire de {buyOrder.unitPrice}.\n\nLa somme de {taxedSellPrice} a bien été transférée sur votre compte Skalsgard.\n\nAu plaisir de pouvoir compter sur votre confiance lors de nos prochaines transactions.\n\n", DateTime.Now, false, DateTime.Now.AddMonths(3), false).SendMailToPlayer(player.characterId);
 
                 TradeSystem.AddResourceToPlayerStock(buyOrder.buyerId, buyOrder.resourceType, buyOrder.resourceLevel, buyOrder.quantity,
                   $"Ordre d'achat - {buyOrder.quantity} {resource.type.ToDescription()} {resource.grade} - {transactionPrice}",

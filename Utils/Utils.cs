@@ -7,6 +7,7 @@ using Anvil.API;
 using System.Collections.Generic;
 using NLog;
 using NWN.Core;
+using System.ComponentModel;
 
 namespace NWN
 {
@@ -14,6 +15,11 @@ namespace NWN
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public static readonly Random random = new();
+    public enum SubscriptionType
+    {
+      MailNotification = 1,
+      MailDistantAccess = 2
+    }
     public static void LogMessageToDMs(string message)
     {
       Log.Info(message);
@@ -339,6 +345,7 @@ namespace NWN
       { "itemPalette", new MainMenuCommand("Palette des objets", "", CommandRank.DM) },
       { "placeablePalette", new MainMenuCommand("Palette des placeables", "", CommandRank.DM) },
       { "placeableManager", new MainMenuCommand("Gérer les placeable de la zone", "", CommandRank.DM) },
+      { "mailBox", new MainMenuCommand("Corbeau Messager", "Le corbeau Skalsgard vous apporte vos missives où que vous vous trouviez", CommandRank.Public) },
       { "sit", new MainMenuCommand("S'asseoir n'importe où", "Permet de s'asseoir partout. Attention, seule la position affichée change. La position réelle du personnage reste la même.", CommandRank.Public) },
       { "touch", new MainMenuCommand("Mode toucher", "Permet d'éviter les collisions entre personnages (non utilisable en combat)", CommandRank.Public) },
       { "walk", new MainMenuCommand("Mode marche", "Permet d'avoir l'air moins ridicule en ville", CommandRank.Public) },
