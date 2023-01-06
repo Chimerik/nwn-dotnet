@@ -129,7 +129,7 @@ namespace NWN
         queryString = queryString.Remove(queryString.Length - 2);
         queryString += $" FROM {tableName}";
 
-        if (whereParameters.Count() > 0)
+        if (whereParameters.Count > 0)
         {
           queryString += " WHERE ";
 
@@ -208,7 +208,7 @@ namespace NWN
         queryString = queryString.Remove(queryString.Length - 2);
         queryString += $" FROM {tableName}";
 
-        if (whereParameters.Count() > 0)
+        if (whereParameters.Count > 0)
         {
           queryString += " WHERE ";
 

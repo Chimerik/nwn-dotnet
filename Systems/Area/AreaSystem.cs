@@ -30,7 +30,7 @@ namespace NWN.Systems
 
       LoadGenericSpawnAppearance();
 
-      foreach (NwTrigger trigger in NwObject.FindObjectsWithTag("invi_unwalkable"))
+      foreach (NwTrigger trigger in NwObject.FindObjectsWithTag<NwTrigger>("invi_unwalkable"))
         trigger.OnEnter += OnEnterUnwalkableBlock;
 
       var resultMusics = SqLiteUtils.SelectQuery("areaMusics",
@@ -91,7 +91,7 @@ namespace NWN.Systems
       SerializeCreaturesAndCreateSpawn(creatureToSerialize);
       InitializeBankPlaceableNames();
     }
-    private void SerializeCreaturesAndCreateSpawn(List<NwCreature> creatureList)
+    private static void SerializeCreaturesAndCreateSpawn(List<NwCreature> creatureList)
     {
       foreach (NwCreature creature in creatureList)
         CreatureUtils.HandleSpawnPointCreation(creature);
@@ -158,7 +158,7 @@ namespace NWN.Systems
       if (player.craftJob != null && area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 0 && player.TryGetOpenedWindow("activeCraftJob", out PlayerSystem.Player.PlayerWindow jobWindow))
         ((PlayerSystem.Player.ActiveCraftJobWindow)jobWindow).timeLeft.SetBindValue(player.oid, jobWindow.nuiToken.Token, "En pause (Hors Cité)");
     }
-    public void OnAreaExit(AreaEvents.OnExit onExit)
+    public static void OnAreaExit(AreaEvents.OnExit onExit)
     {
       if (onExit.ExitingObject is not NwCreature creature)
         return;
@@ -291,40 +291,68 @@ namespace NWN.Systems
         case "SIMILISPALAISNOU":
         case "qg_kathra":
         case "alchemy":
-        case "QuartierdesTemplesLesQuartiersde":
-          area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
-          break;
+        case "QuartierdesTemplesLesQuartiersde": area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0; break;
         case "cave_flooded":
           area.SetAreaWind(new Vector3(0, 1, 0), 8, 0, 0);
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 2;
+          area.GetObjectVariable<LocalVariableInt>("_CAVE").Value = 1;
+          area.GetObjectVariable<LocalVariableInt>("_WATER").Value = 1;
+          break;
+        case "cave_uw_ruins_entry":
+          area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 2;
+          area.GetObjectVariable<LocalVariableInt>("_CAVE").Value = 1;
+          area.GetObjectVariable<LocalVariableInt>("_WATER").Value = 1;
           break;
         case "lepontdaruthen":
         case "Fermesnord":
         case "fermes_ouest":
         case "terres_de_fryar":
         case "vallee":
-        case "cave_uw_ruins_entry":
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 2;
+          area.GetObjectVariable<LocalVariableInt>("_FOREST").Value = 1;
+          area.GetObjectVariable<LocalVariableInt>("_WATER").Value = 1;
           break;
         case "chemin_interdit":
+          area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 3;
+          area.GetObjectVariable<LocalVariableInt>("_FOREST").Value = 1;
+          area.GetObjectVariable<LocalVariableInt>("_WATER").Value = 1;
+          break;
         case "collines_mugissantes":
         case "basse_montagne":
         case "haute_montagne":
+          area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 3;
+          area.GetObjectVariable<LocalVariableInt>("_FOREST").Value = 1;
+          break;
         case "GoblinTunnels":
         case "caverne_kobolts":
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 3;
+          area.GetObjectVariable<LocalVariableInt>("_CAVE").Value = 1;
           break;
         case "epine_seeksa":
         case "OrcEncampment":
+          area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 4;
+          area.GetObjectVariable<LocalVariableInt>("_FOREST").Value = 1;
+          break;
         case "vallee_caverne":
         case "cave_kuotoa":
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 4;
+          area.GetObjectVariable<LocalVariableInt>("_CAVE").Value = 1;
+          area.GetObjectVariable<LocalVariableInt>("_WATER").Value = 1;
+          break;
+        case "AkkabanGothrasLair":
+          area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 5;
+          area.GetObjectVariable<LocalVariableInt>("_CAVE").Value = 1;
+          area.GetObjectVariable<LocalVariableInt>("_WATER").Value = 1;
           break;
         case "SaltMines":
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 5;
+          area.GetObjectVariable<LocalVariableInt>("_WATER").Value = 1;
           break;
+        case "Senraad":
+          area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 5; break;
         case "ant_nest":
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 6;
+          area.GetObjectVariable<LocalVariableInt>("_WATER").Value = 1;
           break;
         default:
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 1;
@@ -419,7 +447,7 @@ namespace NWN.Systems
         Utils.LogMessageToDMs($"ERREUR - Impossible de charger les placeables de banque\n{e.Message}\n{e.StackTrace}");
       }
     }
-    public void InitializeEventsAfterDMSpawnCreature(OnDMSpawnObject onSpawn)
+    public static void InitializeEventsAfterDMSpawnCreature(OnDMSpawnObject onSpawn)
     {
       if (onSpawn.SpawnedObject is not NwCreature creature)
         return;
@@ -463,21 +491,11 @@ namespace NWN.Systems
       {
         switch (appearance.Name)
         {
-          case "plage":
-            randomAppearanceDictionary["plage"].Add(appearance);
-            break;
-          case "city":
-            randomAppearanceDictionary["city"].Add(appearance);
-            break;
-          case "cave":
-            randomAppearanceDictionary["cave"].Add(appearance);
-            break;
-          case "civilian":
-            randomAppearanceDictionary["civilian"].Add(appearance);
-            break;
-          case "generic":
-            randomAppearanceDictionary["generic"].Add(appearance);
-            break;
+          case "plage": randomAppearanceDictionary["plage"].Add(appearance); break;
+          case "city": randomAppearanceDictionary["city"].Add(appearance); break;
+          case "cave": randomAppearanceDictionary["cave"].Add(appearance); break;
+          case "civilian": randomAppearanceDictionary["civilian"].Add(appearance); break;
+          case "generic": randomAppearanceDictionary["generic"].Add(appearance); break;
         }
       }
     }

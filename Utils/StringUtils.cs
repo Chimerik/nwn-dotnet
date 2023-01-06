@@ -135,6 +135,9 @@ namespace NWN
     }
     public static string ConvertToUTF8(string toConvert)
     {
+      if (string.IsNullOrEmpty(toConvert))
+        return "";
+      
       return Encoding.UTF8.GetString(Encoding.GetEncoding("iso-8859-1").GetBytes(toConvert));
     }
     public static string ToWhitecolor(int toColorWhite)

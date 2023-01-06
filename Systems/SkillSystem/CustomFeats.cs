@@ -253,12 +253,12 @@
     public const int OreDetectionSpeed = 20153;
     public const int WoodDetectionSpeed = 20154;
     public const int PeltDetectionSpeed = 20155;
-    public const int OreDetectionAccuracy = 20156;
-    public const int WoodDetectionAccuracy = 20157;
-    public const int PeltDetectionAccuracy = 20158;
-    public const int OreDetectionOrientation = 20159;
-    public const int WoodDetectionOrientation = 20160;
-    public const int PeltDetectionOrientation = 20161;
+    public const int OreDetectionRange = 20156;
+    public const int WoodDetectionRange = 20157;
+    public const int PeltDetectionRange = 20158;
+    public const int OreDetectionSafe = 20159;
+    public const int WoodDetectionSafe = 20160;
+    public const int PeltDetectionSafe = 20161;
     public const int OreDetectionEstimation = 20162;
     public const int WoodDetectionEstimation = 20163;
     public const int PeltDetectionEstimation = 20164;
@@ -478,6 +478,8 @@
     public const int MineralExtractionSafe = 20356;
     public const int WoodExtractionSafe = 20357;
     public const int PeltExtractionSafe = 20358;
+
+    public const int MateriaScanning = 20359;
 
     public const int Invalid = 65535;
   }

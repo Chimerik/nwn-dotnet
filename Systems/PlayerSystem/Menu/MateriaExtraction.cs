@@ -102,9 +102,7 @@ namespace NWN.Systems
             eRay.Tag = $"_{player.characterId}_MINING_BEAM";
             oTarget.ApplyEffect(EffectDuration.Temporary, eRay, TimeSpan.FromSeconds(extractionRemainingTime));
 
-            if (extractionProgress != null)
-              extractionProgress.Dispose();
-
+            extractionProgress?.Dispose();
             extractionProgress = player.scheduler.ScheduleRepeating(HandleExtractionProgress, TimeSpan.FromSeconds(1));
           }
         }
@@ -227,8 +225,7 @@ namespace NWN.Systems
             foreach (Effect eff in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "_RESOURCE_EXTRACTION_HIDE_DEBUFF"))
               player.oid.LoginCreature.RemoveEffect(eff);
 
-          if (player.oid != null)
-            player.oid.SendServerMessage("Votre tentative d'extraction a été annulée.", ColorConstants.Orange);
+          player.oid?.SendServerMessage("Votre tentative d'extraction a été annulée.", ColorConstants.Orange);
         }
         private int GetMiningYield()
         {

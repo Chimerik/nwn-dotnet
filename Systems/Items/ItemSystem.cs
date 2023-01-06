@@ -148,9 +148,9 @@ namespace NWN.Systems
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
 
-          if (!player.learnableSkills.ContainsKey(CustomSkill.OreDetection) && !player.learnableSkills.ContainsKey(CustomSkill.WoodDetection) && !player.learnableSkills.ContainsKey(CustomSkill.PeltDetection))
+          if (!player.learnableSkills.ContainsKey(CustomSkill.MateriaScanning))
           {
-            player.oid.SendServerMessage("Une compétence de recherche de matéria de base est nécessaire avant de pouvoir utiliser cet objet", ColorConstants.Red);
+            player.oid.SendServerMessage("La base de la compétence de recherche de dépot de matéria doit être maîtrisée avant de pouvoir utiliser cet objet", ColorConstants.Red);
             return;
           }
 

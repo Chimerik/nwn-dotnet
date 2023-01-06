@@ -6,6 +6,9 @@ using System.Numerics;
 using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
+using NWN.Core;
+using NWN.Core.NWNX;
+using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
@@ -16,75 +19,64 @@ namespace NWN.Systems
       public class MateriaDetectorWindow : PlayerWindow
       {
         private readonly NuiColumn rootColumn;
-        private readonly NuiBind<List<NuiComboEntry>> categories = new("categories");
-        private readonly List<NuiComboEntry> resourceCategories = new();
+        private readonly List<NuiListTemplateCell> rowTemplate = new();
+        private readonly List<NuiComboEntry> resourceCategories = new() { new NuiComboEntry("Dépot minéral", 1), new NuiComboEntry("Dépot végétal", 2), new NuiComboEntry("Peaux", 3) };
 
         private readonly NuiBind<int> selectedCategory = new ("selectedCategory");
+        private readonly NuiBind<int> selectedMode = new("selectedCategory");
         private readonly NuiBind<float> progress = new("progress");
         private readonly NuiBind<string> readableRemainingTime = new ("readableRemainingTime");
+        private readonly NuiBind<string> materiaType = new ("materiaType");
+        private readonly NuiBind<string> areaDistance = new("areaDistance");
+        private readonly NuiBind<string> meterDistance = new ("meterDistance");
         private readonly NuiBind<string> estimatedQuantity = new ("estimatedQuantity");
-        private readonly NuiBind<string> estimatedDistance = new ("estimatedDistance");
-        private readonly NuiBind<string> estimatedCoordinates = new ("estimatedCoordinates");
         private readonly Color white = new(255, 255, 255);
         private readonly NuiBind<NuiRect> drawListRect = new("drawListRect");
+        private readonly NuiBind<int> listCount = new("listCount");
         private double scanDuration { get; set; }
         private int timeLeft { get; set; }
         private NwItem detector { get; set; }
-        public ScheduledTask detectionProgress { get; set; }
-        private string resourceTemplate = "ore_spawn_wp";
+        public ScheduledTask scanProgress { get; set; }
+        private string resourceTemplate = "mineable_rock";
         private int resourceDetectionSkill = CustomSkill.OreDetection;
-        private int resourceAccuracyDetectionSkill = CustomSkill.OreDetectionAccuracy;
-        private int resourceOrientationSkill = CustomSkill.OreDetectionOrientation;
+        private int resourceRangeDetectionSkill = CustomSkill.OreDetectionRange;
+        private int resourceDurabilitySkill = CustomSkill.OreDetectionSafe;
         private int resourceEstimationSkill = CustomSkill.OreDetectionEstimation;
-        private int resourceFindDistanceSkill = CustomSkill.OreDetectionAdvanced;
-        private int resourceSpawnChanceSkill = CustomSkill.OreDetectionMastery;
+        private int resourceAdvancedSkill = CustomSkill.OreDetectionAdvanced;
+        private int resourceMasterSkill = CustomSkill.OreDetectionMastery;
 
         public MateriaDetectorWindow(Player player, NwItem detector) : base(player)
         {
           windowId = "materiaDetector";
-          
-          rootColumn = new NuiColumn()
+
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(materiaType) { Tooltip = "Type de matéria", VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { Width = 150 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(areaDistance) { Tooltip = "Rayon de détection", VerticalAlign = NuiVAlign.Middle }) { Width = 150 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(meterDistance) { Tooltip = "Distance", VerticalAlign = NuiVAlign.Middle }) { Width = 150 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(estimatedQuantity) { Tooltip = "Quantité estimée", VerticalAlign = NuiVAlign.Middle }) { Width = 150 });
+
+          rootColumn = new NuiColumn() { Children = new List<NuiElement>()
           {
-            Children = new List<NuiElement>()
+            new NuiRow() { Children = new List<NuiElement>() 
+            { 
+              new NuiSpacer(),
+              new NuiCombo() { Entries = resourceCategories, Selected = selectedCategory, Height = 35, Width = 100 },
+              new NuiCombo() { Entries = new List<NuiComboEntry>() { new NuiComboEntry("Mode Passif", 0), new NuiComboEntry("Mode Actif", 1) }, Selected = selectedMode, Height = 35, Width = 100 },
+              new NuiButton("Recherche") { Id = "start_detection", Tooltip = "Démarrer la recherche de matéria à proximité", Height = 35, Width = 80 },
+              new NuiSpacer()
+            } },
+            new NuiRow() { Children = new List<NuiElement>()
             {
-              new NuiRow() { Children = new List<NuiElement>() 
-              { 
-                new NuiSpacer(),
-                new NuiCombo() { Entries = categories, Selected = selectedCategory, Height = 35, Width = 100 },
-                new NuiButton("Recherche") { Id = "start_detection", Tooltip = "Démarrer la recherche de matéria à proximité", Height = 35, Width = 80 },
-                new NuiSpacer()
-              } },
-              new NuiRow() { Children = new List<NuiElement>()
-              {
-                new NuiProgress(progress) { Width = 460, Height = 35, DrawList = new List<NuiDrawListItem>() {
-                    new NuiDrawListText(white, drawListRect, readableRemainingTime) } }
-              } },
-              new NuiRow() { Children = new List<NuiElement>()
-              {
-                new NuiText(estimatedQuantity) { Tooltip = "Quantité estimée de la plus volumineuse masse", Height = 35, Width = 151, Scrollbars = NuiScrollbars.None },
-                new NuiText(estimatedDistance) { Tooltip = "Distance estimée de la plus volumineuse masse", Height = 35, Width = 151, Scrollbars = NuiScrollbars.None },
-                new NuiText(estimatedCoordinates) { Tooltip = "Coordonnées estimées de la plus volumineuse masse", Height = 35, Width = 151, Scrollbars = NuiScrollbars.None }
-              } }
-            }
-          };
+              new NuiProgress(progress) { Width = 460, Height = 35, DrawList = new List<NuiDrawListItem>() {
+                  new NuiDrawListText(white, drawListRect, readableRemainingTime) } }
+            } },
+            new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35 } } }
+          } };
           
           CreateWindow(detector);
         }
         public void CreateWindow(NwItem detector)
         {
           this.detector = detector;
-
-          resourceCategories.Clear();
-
-          if (player.learnableSkills.ContainsKey(CustomSkill.OreDetection))
-            resourceCategories.Add(new NuiComboEntry("Minerai", 1));
-
-          if (player.learnableSkills.ContainsKey(CustomSkill.WoodDetection))
-            resourceCategories.Add(new NuiComboEntry("Bois", 2));
-
-          if (player.learnableSkills.ContainsKey(CustomSkill.PeltDetection))
-            resourceCategories.Add(new NuiComboEntry("Peaux", 3));
-
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? new NuiRect(player.windowRectangles[windowId].X, player.windowRectangles[windowId].Y, 500, 160) : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 500, 160);
 
           window = new NuiWindow(rootColumn, "Détecteur de matéria")
@@ -105,19 +97,17 @@ namespace NWN.Systems
 
             selectedCategory.SetBindValue(player.oid, nuiToken.Token, resourceCategories.FirstOrDefault().Value);
             selectedCategory.SetBindWatch(player.oid, nuiToken.Token, true);
+            selectedMode.SetBindValue(player.oid, nuiToken.Token, 0);
 
             drawListRect.SetBindValue(player.oid, nuiToken.Token, new(300, 15, 151, 20));
             progress.SetBindValue(player.oid, nuiToken.Token, 0);
 
             readableRemainingTime.SetBindValue(player.oid, nuiToken.Token, "");
-            estimatedQuantity.SetBindValue(player.oid, nuiToken.Token, "");
-            estimatedDistance.SetBindValue(player.oid, nuiToken.Token, "");
-            estimatedCoordinates.SetBindValue(player.oid, nuiToken.Token, "");
-
-            categories.SetBindValue(player.oid, nuiToken.Token, resourceCategories);
 
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            listCount.SetBindValue(player.oid, nuiToken.Token, 0);
           }
         }
 
@@ -131,28 +121,10 @@ namespace NWN.Systems
               {
                 case "start_detection":
 
-                  if(selectedCategory.GetBindValue(player.oid, nuiToken.Token) < 1)
-                  {
-                    player.oid.SendServerMessage("Impossible d'entamer une recherche sans avoir préciser la catégorie recherchée.", ColorConstants.Red);
-                    return;
-                  }
-
-                  /*detector.GetObjectVariable<LocalVariableInt>("_REMAINING_USES").Value -= 1;
-                  if (detector.GetObjectVariable<LocalVariableInt>("_REMAINING_USES").Value < 0)
-                  {
-                    detector.Destroy();
-                    CloseWindow();
-                    player.oid.SendServerMessage("Le détecteur se désagrège entre vos mains, vidé de toute substance.", ColorConstants.Red);
-                    return;
-                  }*/
-
-                  SetDetectionTime();
-                  readableRemainingTime.SetBindValue(player.oid, nuiToken.Token, GetReadableDetectionTime());
-
-                  if (detectionProgress != null && !detectionProgress.IsCancelled)
+                  if (scanProgress != null && !scanProgress.IsCancelled)
                     CancelScanProgress();
 
-                  detectionProgress = player.scheduler.ScheduleRepeating(HandleScanProgress, TimeSpan.FromSeconds(1));
+                  StartScan();
 
                   return;
               }
@@ -161,172 +133,262 @@ namespace NWN.Systems
 
             case NuiEventType.Watch:
 
-              if (nuiEvent.ElementId == "selectedCategory" && !detectionProgress.IsCancelled)
+              if (nuiEvent.ElementId == "selectedCategory" && !scanProgress.IsCancelled)
                   CancelScanProgress();
 
               break;
           }
         }
+        private void StartScan()
+        {
+          SetDetectionTime();
+          progress.SetBindValue(player.oid, nuiToken.Token, 0);
+          readableRemainingTime.SetBindValue(player.oid, nuiToken.Token, GetReadableDetectionTime());
+          scanProgress = player.scheduler.ScheduleRepeating(HandleScanProgress, TimeSpan.FromSeconds(1));
+        }
 
         private void HandleScanProgress()
         {
-          if(player.oid.LoginCreature == null || !IsOpen)
+          try
           {
-            CancelScanProgress();
-            return;
-          }
-
-          timeLeft -= 1;
-          readableRemainingTime.SetBindValue(player.oid, nuiToken.Token, GetReadableDetectionTime());
-          progress.SetBindValue(player.oid, nuiToken.Token, (float)((scanDuration - timeLeft) / scanDuration));
-
-          if (timeLeft < 1)
-          {
-            detectionProgress.Dispose();
-
-            SelectDetectionSkill(selectedCategory.GetBindValue(player.oid, nuiToken.Token));
-
-            var materiaList = player.oid.LoginCreature.Area.FindObjectsOfTypeInArea<NwPlaceable>().Where(m => m.Tag == "mineable_materia" && m.GetObjectVariable<LocalVariableString>("_RESOURCE_TYPE").Value == resourceTemplate);
-
-            if (!materiaList.Any())
+            if (player.oid.LoginCreature == null || !IsOpen)
             {
-              readableRemainingTime.SetBindValue(player.oid, nuiToken.Token, "Recherche - Échec");
-              progress.SetBindValue(player.oid, nuiToken.Token, 0);
+              CancelScanProgress();
               return;
             }
 
-            readableRemainingTime.SetBindValue(player.oid, nuiToken.Token, "Recherche - Terminée");
+            timeLeft -= 1;
+            readableRemainingTime.SetBindValue(player.oid, nuiToken.Token, GetReadableDetectionTime());
+            progress.SetBindValue(player.oid, nuiToken.Token, (float)((scanDuration - timeLeft) / scanDuration));
 
-            NwPlaceable biggestMateria = materiaList.OrderByDescending(m => m.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value).FirstOrDefault();
+            if (timeLeft < 1)
+            {
+              scanProgress.Dispose();
 
-            EstimateDistance(biggestMateria);
+              SelectDetectionSkill(selectedCategory.GetBindValue(player.oid, nuiToken.Token));
 
-            if (player.learnableSkills.ContainsKey(resourceOrientationSkill))
-              EstimateCoordinates(biggestMateria);
-            else
-              estimatedCoordinates.SetBindValue(player.oid, nuiToken.Token, "");
+              if (selectedMode.GetBindValue(player.oid, nuiToken.Token) > 0)
+                HandleActiveScan();
+              else
+                HandlePassiveScan();
+            }
+          }
+          catch (Exception e) 
+          {
+            Utils.LogMessageToDMs($"MATERIA SCANNING - {e.Message}\n\n{e.StackTrace}");
+          }
+        }
+        private void HandlePassiveScan()
+        {
+          int detectorRange = player.learnableSkills.ContainsKey(resourceRangeDetectionSkill) ? player.learnableSkills[resourceRangeDetectionSkill].totalPoints : 0 ;
+          Dictionary<NwArea, int> scannedAreas = new();
 
-            Craft.Collect.System.UpdateResourceBlockInfo(biggestMateria);
-            EstimateQuantity(biggestMateria);
-            MateriaRevealCheck(materiaList);
+          AddDoorAreaToScanRange(player.oid.LoginCreature.Area, scannedAreas, detectorRange, 0);
+          AddTransitionAreaToScanRange(player.oid.LoginCreature.Area, scannedAreas, detectorRange, 0);
 
+          scannedAreas.Remove(player.oid.LoginCreature.Area);
+          IEnumerable<NwPlaceable> materiaList = player.oid.LoginCreature.Area.FindObjectsOfTypeInArea<NwPlaceable>().Where(m => m.Tag == "mineable_materia" && m.ResRef == resourceTemplate && m.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value > 5000);
+
+          foreach(var area in scannedAreas.Keys)
+            materiaList = materiaList.Concat(area.FindObjectsOfTypeInArea<NwPlaceable>().Where(m => m.Tag == "mineable_materia" && m.ResRef == resourceTemplate && m.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value > 5000));
+
+          if (!materiaList.Any())
+          {
+            readableRemainingTime.SetBindValue(player.oid, nuiToken.Token, "Recherche Passive : Aucun dépôt");
+            //progress.SetBindValue(player.oid, nuiToken.Token, 0);
             return;
           }
+
+          materiaList = materiaList.OrderBy(m => m.DistanceSquared(player.oid.LoginCreature));
+
+          readableRemainingTime.SetBindValue(player.oid, nuiToken.Token, "Recherche Passive : Terminée");
+
+          List<string> typeList = new List<string>();
+          List<string> areaDistanceList = new List<string>();
+          List<string> distanceList = new List<string>();
+          List<string> quantityList = new List<string>(); 
+
+          foreach (var materia in materiaList)
+          {
+            typeList.Add((player.oid.LoginCreature.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value - 1).ToString());
+            areaDistanceList.Add(scannedAreas.ContainsKey(materia.Area) ? scannedAreas[materia.Area].ToString() : "0");
+            distanceList.Add(materia.Area == player.oid.LoginCreature.Area ? ((int)materia.Distance(player.oid.LoginCreature)).ToString() : "-");
+            quantityList.Add(EstimateQuantity(materia).ToString());
+          }
+
+          materiaType.SetBindValues(player.oid, nuiToken.Token, typeList);
+          areaDistance.SetBindValues(player.oid, nuiToken.Token, areaDistanceList);
+          meterDistance.SetBindValues(player.oid, nuiToken.Token, distanceList);
+          estimatedQuantity.SetBindValues(player.oid, nuiToken.Token, quantityList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, materiaList.Count());
+        }
+        private void AddDoorAreaToScanRange(NwArea area, Dictionary<NwArea, int> scannedAreas, int detectorRange, int distance)
+        {
+          if (detectorRange > distance)
+            return;
+
+          foreach (var door in area.FindObjectsOfTypeInArea<NwDoor>())
+            if (door.TransitionTarget != null && door.TransitionTarget.Area != null)
+              if (scannedAreas.TryAdd(door.TransitionTarget.Area, distance + 1))
+                AddDoorAreaToScanRange(door.TransitionTarget.Area, scannedAreas, detectorRange, distance + 1);
+        }
+        private void AddTransitionAreaToScanRange(NwArea area, Dictionary<NwArea, int> scannedAreas, int detectorRange, int distance)
+        {
+          if (detectorRange > distance)
+            return;
+
+          foreach (var transition in area.FindObjectsOfTypeInArea<NwTrigger>())
+            if (transition.TransitionTarget != null && transition.TransitionTarget.Area != null)
+              if (scannedAreas.TryAdd(transition.TransitionTarget.Area, distance + 1))
+                AddDoorAreaToScanRange(transition.TransitionTarget.Area, scannedAreas, detectorRange, distance + 1);
+        }
+        private void HandleActiveScan()
+        {
+          NwArea area = player.oid.LoginCreature.Area;
+          var materiaList = area.FindObjectsOfTypeInArea<NwPlaceable>().Where(m => m.Tag == "mineable_materia" && m.ResRef == resourceTemplate).OrderBy(m => m.DistanceSquared(player.oid.LoginCreature));
+
+          if (!materiaList.Any()) // S'il n'y a aucune matéria dans la zone, on vérifie si un bloc peut spawn dans la zone
+          {
+            readableRemainingTime.SetBindValue(player.oid, nuiToken.Token, "Recherche Active - Échec");
+
+            switch (resourceTemplate)
+            {
+              case "mineable_rock":
+
+                if (area.GetObjectVariable<LocalVariableInt>("_CAVE").HasNothing)
+                  return;
+                  
+                break;
+              case "mineable_tree":
+
+                if (area.GetObjectVariable<LocalVariableInt>("_FOREST").HasNothing)
+                  return;
+
+                break;
+
+              case "mineable_animal":
+
+                if (area.GetObjectVariable<LocalVariableInt>("_WATER").HasNothing)
+                  return;
+                
+                break;
+            } // Si un bloc peut spawn dans la zone, alors on vérifie l'enchantement du détecteur et la compétence de l'utilisateur pour en faire spawn un
+
+            MateriaRevealCheck();
+          }
+
+          readableRemainingTime.SetBindValue(player.oid, nuiToken.Token, "Recherche - Terminée");
+
+          List<string> typeList = new List<string>();
+          List<string> areaDistanceList = new List<string>();
+          List<string> distanceList = new List<string>();
+          List<string> quantityList = new List<string>();
+
+          foreach (var materia in materiaList)
+          {
+            typeList.Add((player.oid.LoginCreature.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value - 1).ToString());
+            areaDistanceList.Add("-");
+            distanceList.Add(((int)materia.Distance(player.oid.LoginCreature)).ToString());
+            quantityList.Add(EstimateQuantity(materia).ToString());
+          }
+
+          materiaType.SetBindValues(player.oid, nuiToken.Token, typeList);
+          areaDistance.SetBindValues(player.oid, nuiToken.Token, areaDistanceList);
+          meterDistance.SetBindValues(player.oid, nuiToken.Token, distanceList);
+          estimatedQuantity.SetBindValues(player.oid, nuiToken.Token, quantityList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, materiaList.Count());
         }
         private void OnLeaveCancelDetection(ModuleEvents.OnClientLeave onLeave)
         {
-          if (detectionProgress != null)
+          if (scanProgress != null)
             CancelScanProgress();
         }
         private void CancelScanProgress()
         {
-          detectionProgress.Dispose();
+          scanProgress.Dispose();
           readableRemainingTime.SetBindValue(player.oid, nuiToken.Token, "");
           progress.SetBindValue(player.oid, nuiToken.Token, 0);
-          estimatedQuantity.SetBindValue(player.oid, nuiToken.Token, "");
-          estimatedDistance.SetBindValue(player.oid, nuiToken.Token, "");
-          estimatedCoordinates.SetBindValue(player.oid, nuiToken.Token, "");
         }
         private void SelectDetectionSkill(int resourceType)
         {
           switch (resourceType)
           {
             case 2:
-              resourceTemplate = "wood_spawn_wp";
+              resourceTemplate = "mineable_tree";
               resourceDetectionSkill = CustomSkill.WoodDetection;
-              resourceAccuracyDetectionSkill = CustomSkill.WoodDetectionAccuracy;
-              resourceOrientationSkill = CustomSkill.WoodDetectionOrientation;
+              resourceRangeDetectionSkill = CustomSkill.WoodDetectionRange;
+              resourceDurabilitySkill = CustomSkill.WoodDetectionSafe;
               resourceEstimationSkill = CustomSkill.WoodDetectionEstimation;
-              resourceFindDistanceSkill = CustomSkill.WoodDetectionAdvanced;
-              resourceSpawnChanceSkill = CustomSkill.WoodDetectionMastery;
+              resourceAdvancedSkill = CustomSkill.WoodDetectionAdvanced;
+              resourceMasterSkill = CustomSkill.WoodDetectionMastery;
               break;
             case 3:
-              resourceTemplate = "animal_spawn_wp";
+              resourceTemplate = "mineable_animal";
               resourceDetectionSkill = CustomSkill.PeltDetection;
-              resourceAccuracyDetectionSkill = CustomSkill.PeltDetectionAccuracy;
-              resourceOrientationSkill = CustomSkill.PeltDetectionOrientation;
+              resourceRangeDetectionSkill = CustomSkill.OreDetectionRange;
+              resourceDurabilitySkill = CustomSkill.PeltDetectionSafe;
               resourceEstimationSkill = CustomSkill.PeltDetectionEstimation;
-              resourceFindDistanceSkill = CustomSkill.PeltDetectionAdvanced;
-              resourceSpawnChanceSkill = CustomSkill.PeltDetectionMastery;
+              resourceAdvancedSkill = CustomSkill.PeltDetectionAdvanced;
+              resourceMasterSkill = CustomSkill.PeltDetectionMastery;
               break;
           }
         }
-        private void EstimateDistance(NwPlaceable materia)
-        {
-          int totalSkillPoints = player.learnableSkills.ContainsKey(resourceAccuracyDetectionSkill) ? player.learnableSkills[resourceDetectionSkill].totalPoints + player.learnableSkills[resourceAccuracyDetectionSkill].totalPoints : player.learnableSkills[resourceDetectionSkill].totalPoints;
-          int distance = (int)player.oid.ControlledCreature.Distance(materia);
-          int previousEstimation = materia.GetObjectVariable<LocalVariableInt>($"_DISTANCE_ESTIMATE_{player.characterId}").Value;
-          int newEstimation = Utils.random.Next((int)(distance * totalSkillPoints * 0.05) - 1, 2 * distance - (int)(distance * totalSkillPoints * 0.05));
-
-          distance = distance - previousEstimation < distance - newEstimation ? previousEstimation : newEstimation;
-          estimatedDistance.SetBindValue(player.oid, nuiToken.Token, $"Proximité : {distance}");
-
-          materia.GetObjectVariable<LocalVariableInt>($"_DISTANCE_ESTIMATE_{player.characterId}").Value = distance;
-        }
-        private void EstimateCoordinates(NwPlaceable materia)
-        {
-          int skillPoints = player.learnableSkills[resourceOrientationSkill].totalPoints;
-          Location previousEstimation = materia.GetObjectVariable<LocalVariableLocation>($"_LOCATION_ESTIMATE_{player.characterId}").Value;
-
-          int randomX = Utils.random.Next((int)(materia.Position.X * skillPoints * 0.05) - 1, (int)(2 * materia.Position.X - materia.Position.X * skillPoints * 0.05));
-          int randomY = Utils.random.Next((int)(materia.Position.Y * skillPoints * 0.05) - 1, (int)(2 * materia.Position.Y - materia.Position.Y * skillPoints * 0.05));
-          int randomZ = Utils.random.Next((int)(materia.Position.Z * skillPoints * 0.05) - 1, (int)(2 * materia.Position.Z - materia.Position.Z * skillPoints * 0.05));
-          
-          int newX = materia.Position.X - previousEstimation.Position.X < materia.Position.X - randomX ? (int)previousEstimation.Position.X : randomX;
-          int newY = materia.Position.Y - previousEstimation.Position.Y < materia.Position.Y - randomY ? (int)previousEstimation.Position.Y : randomY;
-          int newZ = materia.Position.Z - previousEstimation.Position.Z < materia.Position.Z - randomX ? (int)previousEstimation.Position.Z : randomZ;
-
-          estimatedCoordinates.SetBindValue(player.oid, nuiToken.Token, $"Direction : {newX}X {newY}Y {newZ}Z");
-
-          materia.GetObjectVariable<LocalVariableLocation>($"_LOCATION_ESTIMATE_{player.characterId}").Value =  Location.Create(materia.Area, new Vector3(newX, newY, newZ), materia.Rotation);
-        }
-        private void EstimateQuantity(NwPlaceable materia)
+        private int EstimateQuantity(NwPlaceable materia)
         {
           int realQuantity = materia.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value;
-          int skillPoints = player.learnableSkills.ContainsKey(resourceEstimationSkill) ? player.learnableSkills[resourceDetectionSkill].totalPoints + player.learnableSkills[resourceEstimationSkill].totalPoints : player.learnableSkills[resourceDetectionSkill].totalPoints;
-          int previousEstimation = materia.GetObjectVariable<LocalVariableInt>($"_QUANTITY_ESTIMATE_{player.characterId}").Value;
-          int newEstimate = Utils.random.Next((int)(realQuantity * skillPoints * 0.05) - 1, 2 * realQuantity - (int)(realQuantity * skillPoints * 0.05));
+          int skillPoints = player.learnableSkills.ContainsKey(resourceDetectionSkill) ? player.learnableSkills[CustomSkill.MateriaScanning].totalPoints + player.learnableSkills[resourceDetectionSkill].totalPoints : player.learnableSkills[CustomSkill.MateriaScanning].totalPoints;
+          skillPoints += player.learnableSkills.ContainsKey(resourceEstimationSkill) ? player.learnableSkills[resourceEstimationSkill].totalPoints : 0;
+          skillPoints += player.learnableSkills.ContainsKey(resourceAdvancedSkill) ? player.learnableSkills[resourceAdvancedSkill].totalPoints : 0;
+          skillPoints += player.learnableSkills.ContainsKey(resourceMasterSkill) ? player.learnableSkills[resourceMasterSkill].totalPoints : 0;
+          skillPoints += detector.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_DETECTOR_QUALITY_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value);
 
-          newEstimate = realQuantity - previousEstimation < realQuantity - newEstimate ? previousEstimation : newEstimate;
-          estimatedQuantity.SetBindValue(player.oid, nuiToken.Token, $"Masse : {newEstimate}");
-
-          materia.GetObjectVariable<LocalVariableInt>($"_QUANTITY_ESTIMATE_{player.characterId}").Value = newEstimate;
+          return Utils.random.Next((int)(realQuantity * skillPoints * 0.05) - 1, 2 * realQuantity - (int)(realQuantity * skillPoints * 0.05));
         }
-        private void MateriaRevealCheck(IEnumerable<NwPlaceable> materiaList)
+        private void MateriaRevealCheck()
         {
-          int areaLevel = player.oid.LoginCreature.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value;
-          int findDistance = player.learnableSkills.ContainsKey(resourceFindDistanceSkill) ? 2 + player.learnableSkills[resourceDetectionSkill].totalPoints + player.learnableSkills[resourceFindDistanceSkill].totalPoints : 2 + player.learnableSkills[resourceDetectionSkill].totalPoints;
-          int detectionChance = player.learnableSkills.ContainsKey(resourceSpawnChanceSkill) ? player.learnableSkills[resourceDetectionSkill].totalPoints + player.learnableSkills[resourceSpawnChanceSkill].totalPoints - (areaLevel - 2) * 15 : player.learnableSkills[resourceDetectionSkill].totalPoints - (areaLevel - 2) * 15;
-
-          if (detectionChance < 1)
+          NwArea area = player.oid.LoginCreature.Area;
+          int areaLevel = area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value;
+          int skillPoints = player.learnableSkills.ContainsKey(resourceDetectionSkill) ? player.learnableSkills[CustomSkill.MateriaScanning].totalPoints + player.learnableSkills[resourceDetectionSkill].totalPoints : player.learnableSkills[CustomSkill.MateriaScanning].totalPoints;
+          skillPoints += player.learnableSkills.ContainsKey(resourceAdvancedSkill) ? player.learnableSkills[resourceAdvancedSkill].totalPoints : 0;
+          skillPoints += player.learnableSkills.ContainsKey(resourceMasterSkill) ? player.learnableSkills[resourceMasterSkill].totalPoints : 0;
+          skillPoints += detector.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_YIELD_QUALITY_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value);
+          
+          if(NwRandom.Roll(Utils.random, 100) < skillPoints)
           {
-            player.oid.SendServerMessage("Votre détecteur indique la présence de matéria dans cette zone, mais votre sensibilité n'est pas suffisament affinée pour déterminer avec précision les points d'extraction.");
-            return;
-          }
+            int areaWidth = NWScript.GetAreaSize((int)AreaSizeDimension.Width, area); 
+            int areaHeigth =  NWScript.GetAreaSize((int)AreaSizeDimension.Height, area);
+            float radius = areaWidth > areaHeigth ? areaWidth * 7 : areaHeigth * 7;
+            Vector3 randomPosition = new Vector3(Utils.random.Next(areaWidth * 8), Utils.random.Next(areaHeigth * 8), 10);
 
-          foreach (NwPlaceable materia in materiaList.Where(m => m.DistanceSquared(player.oid.ControlledCreature) < findDistance * findDistance))
-            if (NwRandom.Roll(Utils.random, 100) < detectionChance)
-              foreach (var partyMember in player.oid.PartyMembers)
-                partyMember.SetPersonalVisibilityOverride(materia, Anvil.Services.VisibilityMode.AlwaysVisible);
+            // TODO : risque de boucle infinie ou de freezer du serveur ? Prévoir une sortie de boucle après plus de X tentatives + voir pour limiter le nombre tentatives toutes les X frames du serveur, comme pour les coffres persos
+            while (AreaPlugin.GetPathExists(player.oid.LoginCreature.Area, player.oid.LoginCreature.Position, randomPosition, areaWidth * areaHeigth) < 1)
+              randomPosition = new Vector3(Utils.random.Next(areaWidth * 8), Utils.random.Next(areaHeigth * 8), 10);
+
+            NwPlaceable newResourceBlock = NwPlaceable.Create(resourceTemplate, Location.Create(area, new Vector3(randomPosition.X, randomPosition.Y, Location.Create(area, randomPosition, Utils.random.Next(360)).GroundHeight), Utils.random.Next(360)));
+            newResourceBlock.Tag = "mineable_materia";
+            newResourceBlock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = 2 * NwRandom.Roll(Utils.random, 100 - (area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value * 10)) * ((100 + skillPoints) / 100);
+          }
         }
         private void SetDetectionTime()
         {
-          scanDuration = 120;
-
           switch(selectedCategory.GetBindValue(player.oid, nuiToken.Token))
           {
-            case 1:
-              scanDuration = Craft.Collect.System.GetResourceDetectionTime(player, CustomSkill.OreDetection, CustomSkill.OreDetectionSpeed);
-              break;
-            case 2:
-              scanDuration = Craft.Collect.System.GetResourceDetectionTime(player, CustomSkill.WoodDetection, CustomSkill.WoodDetectionSpeed);
-              break;
-            case 3:
-              scanDuration = Craft.Collect.System.GetResourceDetectionTime(player, CustomSkill.PeltDetection, CustomSkill.PeltDetectionSpeed);
-              break;
+            case 1: GetResourceDetectionTime(player, CustomSkill.OreDetection, CustomSkill.OreDetectionSpeed, CustomSkill.OreDetectionAdvanced, CustomSkill.OreDetectionMastery); break;
+            case 2: GetResourceDetectionTime(player, CustomSkill.WoodDetection, CustomSkill.WoodDetectionSpeed, CustomSkill.WoodDetectionAdvanced, CustomSkill.WoodDetectionMastery); break;
+            case 3: GetResourceDetectionTime(player, CustomSkill.PeltDetection, CustomSkill.PeltDetectionSpeed, CustomSkill.PeltDetectionAdvanced, CustomSkill.PeltDetectionMastery); break;
           }
-
-          timeLeft = (int)scanDuration;
+        }
+        public void GetResourceDetectionTime(Player player, int detectionSkill, int speedSkill, int advancedSkill, int masterySkill)
+        {
+          int scanDuration = 120;
+          scanDuration -= scanDuration * (int)(player.learnableSkills[CustomSkill.MateriaScanning].totalPoints * 0.05);
+          scanDuration -= player.learnableSkills.ContainsKey(detectionSkill) ? scanDuration * (int)(player.learnableSkills[detectionSkill].totalPoints * 0.05) : 0;
+          scanDuration -= player.learnableSkills.ContainsKey(speedSkill) ? scanDuration * (int)(player.learnableSkills[speedSkill].totalPoints * 0.05) : 0;
+          scanDuration -= player.learnableSkills.ContainsKey(advancedSkill) ? scanDuration * (int)(player.learnableSkills[advancedSkill].totalPoints * 0.05) : 0;
+          scanDuration -= player.learnableSkills.ContainsKey(masterySkill) ? scanDuration * (int)(player.learnableSkills[masterySkill].totalPoints * 0.05) : 0;
+          scanDuration -= scanDuration * (detector.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_DETECTOR_SPEED_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value) / 100);
+          
+          timeLeft = scanDuration;
         }
         private string GetReadableDetectionTime()
         {

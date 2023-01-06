@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Anvil.API;
@@ -41,7 +43,7 @@ namespace NWN.Systems
       _client.UserLeft += UpdateUserListOnLeave;
       _client.Disconnected += OnDiscordDisconnected;
 
-      requestForumPermissions.Modify(PermValue.Deny, PermValue.Deny, PermValue.Allow, PermValue.Allow, PermValue.Allow, PermValue.Deny, PermValue.Deny, PermValue.Allow, PermValue.Allow, PermValue.Allow, PermValue.Deny
+      requestForumPermissions = requestForumPermissions.Modify(PermValue.Deny, PermValue.Deny, PermValue.Allow, PermValue.Allow, PermValue.Allow, PermValue.Deny, PermValue.Deny, PermValue.Allow, PermValue.Allow, PermValue.Allow, PermValue.Deny
         , PermValue.Allow);
 
       // Block this task until the program is closed.
@@ -82,13 +84,14 @@ namespace NWN.Systems
       await data.AddRoleAsync(1026507902074245216);
       await playerGeneralChannel.SendMessageAsync($"Bonjour {data.Mention} et bienvenue sur le Discord des Larmes des Erylies.\n\n Pour commencer, n'hésite pas à consulter notre livre du joueur : \n https://docs.google.com/document/d/1ammPGnH-sVjNHnJHCMAm_khbe8mBqTPFeCfqCvJt7ig/edit?usp=sharing");
 
-      /*if (!forumCategory.Channels.Any(c => c.Name == data.Username))
+      if (!forumCategory.Channels.Any(c => c.Name == data.Username.ToLower().Replace(" ", "-")))
       {
-        RestTextChannel chan = await Bot.discordServer.CreateTextChannelAsync(data.Username, f => { f.CategoryId = forumCategory.Id; } );
+        var chan = await discordServer.CreateForumChannelAsync(data.Username, f => { f.CategoryId = forumCategory.Id; } );
         await chan.AddPermissionOverwriteAsync(data, requestForumPermissions);
-      }*/
-
-      //await data.SendMessageAsync($"Bonjour @{data.DisplayName} et bienvenue sur le Discord des Larmes des Erylies.\n\n Pour commencer, n'hésite pas à consulter notre livre du joueur : \n https://docs.google.com/document/d/1ammPGnH-sVjNHnJHCMAm_khbe8mBqTPFeCfqCvJt7ig/edit?usp=sharing");
+        await chan.CreatePostAsync("Suivi personnalisé", ThreadArchiveDuration.OneWeek, null, $"Bonjour {data.Mention} !\n\n" +
+          $"Bienvenue sur ton forum personnalisé de suivi de joueur. Ce forum et les sujets qu'il contient ne sont visibles que pour toi et le staff.\n\n" +
+          $"Cela permettra donc de nous faire parvenir tes demandes RP et d'en suivre l'avancement, ainsi que de tenir au courant le staff des derniers développements de ton personnage !");
+      }
     }
     private static async Task UpdateUserListOnLeave(SocketGuild guild, SocketUser user)
     {
@@ -111,7 +114,7 @@ namespace NWN.Systems
 
       await NwTask.Delay(TimeSpan.FromSeconds(10));
 
-      if(_client.ConnectionState != ConnectionState.Connected)
+      if(_client.ConnectionState != Discord.ConnectionState.Connected)
       {
         try
         {

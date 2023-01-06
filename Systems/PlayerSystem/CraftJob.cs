@@ -690,7 +690,7 @@ namespace NWN.Systems
     {
       return spell.Id switch
       {
-        883 or 884 or 885 or 886 or 887 or 888 or 889 or 889 => GetExtractorEnchantementProperties(enchanter, craftedItem, spell, index),
+        883 or 884 or 885 or 886 or 887 or 888 or 889 or 889 => GetCraftToolEnchantementProperties(enchanter, craftedItem, spell, index),
         _ => GetCraftEnchantementProperties(craftedItem, spell, SpellUtils.enchantementCategories[spell.Id][index], enchanter.characterId),
       };
     }
@@ -743,7 +743,7 @@ namespace NWN.Systems
 
       return ip.Tag;
     }
-    private static string GetExtractorEnchantementProperties(Player enchanter, NwItem craftedItem, NwSpell spell, int index)
+    private static string GetCraftToolEnchantementProperties(Player enchanter, NwItem craftedItem, NwSpell spell, int index)
     {
       var enchantement = spell.Id switch
       {
@@ -759,13 +759,12 @@ namespace NWN.Systems
         0 => "YIELD",
         1 => "SPEED",
         2 => "QUALITY",
-        3 => "RANGE",
         _ => "RESIST",
       };
 
       int existingEnchantement = 1 + craftedItem.LocalVariables.Count(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_{enchantement}_{type}_") && !l.Name.Contains("_DURABILITY"));
-
-      craftedItem.GetObjectVariable<LocalVariableInt>($"ENCHANTEMENT_CUSTOM_{enchantement}_{type}_{existingEnchantement}").Value = 2 * spell.InnateSpellLevel /** enchanter.learnableSpells[spell.Id].currentLevel*/;
+      
+      craftedItem.GetObjectVariable<LocalVariableInt>($"ENCHANTEMENT_CUSTOM_{enchantement}_{type}_{existingEnchantement}").Value = 2 * spell.InnateSpellLevel /** enchanter.learnableSpells[spell.Id].currentLevel*/; // TODO : Prendre en compte le niveau des sorts;
       craftedItem.GetObjectVariable<LocalVariableInt>($"ENCHANTEMENT_CUSTOM_{enchantement}_{type}_{existingEnchantement}_DURABILITY").Value = craftedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value * 100;
       
       if (!craftedItem.ItemProperties.Any(ip => ip.Property.PropertyType == ItemPropertyType.CastSpell && ip.SubType.RowIndex == 329)) // 329 = Activate Item

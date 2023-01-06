@@ -177,7 +177,7 @@ namespace NWN.Systems
     private ScriptHandleResult onMobRegenInterval(CallInfo _)
     {
       EffectRunScriptEvent eventData = new EffectRunScriptEvent();
-
+      
       if (eventData.EffectTarget is not NwCreature creature || !creature.IsValid)
         return ScriptHandleResult.Handled;
 

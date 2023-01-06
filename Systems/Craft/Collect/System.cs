@@ -10,11 +10,11 @@ namespace NWN.Systems.Craft.Collect
   public static class System
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    public static string[] badPelts = new string[] { "paraceratherium", "ankheg", "gorille", "giantlizard" };
-    public static string[] commonPelts = new string[] { "alligator", "crocodile", "crocblinde", "varan" };
-    public static string[] normalPelts = new string[] { "basilisk", "jhakar", "gorgon", "bulette", "dagon" };
+    public static readonly string[] badPelts = new string[] { "paraceratherium", "ankheg", "gorille", "giantlizard" };
+    public static readonly string[] commonPelts = new string[] { "alligator", "crocodile", "crocblinde", "varan" };
+    public static readonly string[] normalPelts = new string[] { "basilisk", "jhakar", "gorgon", "bulette", "dagon" };
 
-    public static CraftResource[] craftResourceArray = new CraftResource[] 
+    public static readonly CraftResource[] craftResourceArray = new CraftResource[] 
     { 
       new CraftResource(ResourceType.Ore, "Un phénomène mystérieux provoque l'agglomération de Substance à certains minerais bruts, qu'on appelle alors 'matéria'.\n\nCette matéria brute doit être raffinée avant de pouvoir être utilisée par un artisan.", 82, 1, new decimal(0.5)),
       new CraftResource(ResourceType.Ore, "Un phénomène mystérieux provoque l'agglomération de Substance à certains minerais bruts, qu'on appelle alors 'matéria'.\n\nCette matéria brute doit être raffinée avant de pouvoir être utilisée par un artisan.", 82, 2, new decimal(0.5)),
@@ -66,12 +66,12 @@ namespace NWN.Systems.Craft.Collect
       new CraftResource(ResourceType.Leather, "Une fois raffinée, la matéria brute peut-être exploitée par un artisan.\n\nCes cuirs tannés et gorgés de Substance disposeront de certaines propriétés magiques et pourront même peut-être être ré-enchantés.", 87, 8, new decimal(0.2)),
     }; 
 
-    public static int[] lowArmorBlueprints = new int[] { 0, 1, 2, 3 };
-    public static BaseItemType[] lowWeaponBlueprints = new BaseItemType[] { BaseItemType.Whip, BaseItemType.LightMace, BaseItemType.Helmet, BaseItemType.Dagger, BaseItemType.Morningstar, BaseItemType.ShortSpear, BaseItemType.Sickle, BaseItemType.Arrow, BaseItemType.Belt, BaseItemType.Amulet, BaseItemType.Bolt, BaseItemType.Boots, BaseItemType.Bracer, BaseItemType.Bullet, BaseItemType.Cloak, BaseItemType.Club, BaseItemType.Dart, BaseItemType.Gloves, BaseItemType.HeavyCrossbow, BaseItemType.LightCrossbow, BaseItemType.Quarterstaff, BaseItemType.Ring, BaseItemType.Shuriken, BaseItemType.Sling, BaseItemType.SmallShield, BaseItemType.Torch };
-    public static int[] mediumArmorBlueprints = new int[] { 4, 5 };
-    public static BaseItemType[] mediumWeaponBlueprints = new BaseItemType[] { BaseItemType.Battleaxe, BaseItemType.Greatsword, BaseItemType.Greataxe, BaseItemType.Halberd, BaseItemType.Handaxe, BaseItemType.HeavyFlail, BaseItemType.LargeShield, BaseItemType.LightFlail, BaseItemType.LightHammer, BaseItemType.LightMace, BaseItemType.Longbow, BaseItemType.Longsword, BaseItemType.Rapier, BaseItemType.Scimitar, BaseItemType.Shortbow, BaseItemType.Shortsword, BaseItemType.Shuriken, BaseItemType.ThrowingAxe, BaseItemType.Trident, BaseItemType.Warhammer };
-    public static int[] highArmorBlueprints = new int[] { 6, 7, 8 };
-    public static BaseItemType[] highWeapônBlueprints = new BaseItemType[] { BaseItemType.TwoBladedSword, BaseItemType.TowerShield, BaseItemType.Scythe, BaseItemType.Kukri, BaseItemType.Katana, BaseItemType.Kama, BaseItemType.DwarvenWaraxe, BaseItemType.DireMace, BaseItemType.Doubleaxe, BaseItemType.Bastardsword };
+    public static readonly int[] lowArmorBlueprints = new int[] { 0, 1, 2, 3 };
+    public static readonly BaseItemType[] lowWeaponBlueprints = new BaseItemType[] { BaseItemType.Whip, BaseItemType.LightMace, BaseItemType.Helmet, BaseItemType.Dagger, BaseItemType.Morningstar, BaseItemType.ShortSpear, BaseItemType.Sickle, BaseItemType.Arrow, BaseItemType.Belt, BaseItemType.Amulet, BaseItemType.Bolt, BaseItemType.Boots, BaseItemType.Bracer, BaseItemType.Bullet, BaseItemType.Cloak, BaseItemType.Club, BaseItemType.Dart, BaseItemType.Gloves, BaseItemType.HeavyCrossbow, BaseItemType.LightCrossbow, BaseItemType.Quarterstaff, BaseItemType.Ring, BaseItemType.Shuriken, BaseItemType.Sling, BaseItemType.SmallShield, BaseItemType.Torch };
+    public static readonly int[] mediumArmorBlueprints = new int[] { 4, 5 };
+    public static readonly BaseItemType[] mediumWeaponBlueprints = new BaseItemType[] { BaseItemType.Battleaxe, BaseItemType.Greatsword, BaseItemType.Greataxe, BaseItemType.Halberd, BaseItemType.Handaxe, BaseItemType.HeavyFlail, BaseItemType.LargeShield, BaseItemType.LightFlail, BaseItemType.LightHammer, BaseItemType.LightMace, BaseItemType.Longbow, BaseItemType.Longsword, BaseItemType.Rapier, BaseItemType.Scimitar, BaseItemType.Shortbow, BaseItemType.Shortsword, BaseItemType.Shuriken, BaseItemType.ThrowingAxe, BaseItemType.Trident, BaseItemType.Warhammer };
+    public static readonly int[] highArmorBlueprints = new int[] { 6, 7, 8 };
+    public static readonly BaseItemType[] highWeapônBlueprints = new BaseItemType[] { BaseItemType.TwoBladedSword, BaseItemType.TowerShield, BaseItemType.Scythe, BaseItemType.Kukri, BaseItemType.Katana, BaseItemType.Kama, BaseItemType.DwarvenWaraxe, BaseItemType.DireMace, BaseItemType.Doubleaxe, BaseItemType.Bastardsword };
 
     public static async void UpdateResourceBlockInfo(NwPlaceable resourceBlock)
     {
@@ -92,14 +92,6 @@ namespace NWN.Systems.Craft.Collect
         new List<string[]>() { new string[] { "id", resourceId }, new string[] { "areaTag", areaTag }, new string[] { "type", resourceType }, new string[] { "quantity", resourceQuantity }, new string[] { "lastChecked", DateTime.Now.ToString() } },
         new List<string>() { "id", "areaTag", "type" },
         new List<string[]>() { new string[] { "quantity" }, new string[] { "lastChecked" } });
-    }
-
-    public static int GetResourceDetectionTime(PlayerSystem.Player player, int detectionSkill, int speedSkill)
-    {
-      int scanDuration = 120;
-      scanDuration -= scanDuration * (int)(player.learnableSkills[detectionSkill].totalPoints * 0.05);
-      scanDuration -= player.learnableSkills.ContainsKey(speedSkill) ? scanDuration * (int)(player.learnableSkills[speedSkill].totalPoints * 0.05) : 0;
-      return scanDuration;
     }
     public static async void CreateSelectedResourceInInventory(CraftResource selection, PlayerSystem.Player player, int quantity)
     {

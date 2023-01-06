@@ -10,17 +10,16 @@ namespace NWN.Systems
     {
       public class AreaDescriptionWindow : PlayerWindow
       {
-        NuiGroup rootGroup { get; }
-        NuiColumn rootColumn { get; }
-        List<NuiElement> rootChidren { get; }
+        private readonly NuiGroup rootGroup = new NuiGroup() { Id = "areaGroup", Border = true };
+        private readonly NuiColumn rootColumn = new NuiColumn();
+        private readonly List<NuiElement> rootChidren = new List<NuiElement>();
 
         public AreaDescriptionWindow(Player player, NwArea area) : base(player)
         {
           windowId = "areaDescription";
 
-          rootChidren = new List<NuiElement>();
-          rootColumn = new NuiColumn() { Children = rootChidren };
-          rootGroup = new NuiGroup() { Id = "areaGroup", Border = true, Layout = rootColumn };
+          rootColumn.Children = rootChidren;
+          rootGroup.Layout = rootColumn;
 
           CreateWindow(area);
         }
