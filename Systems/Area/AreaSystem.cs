@@ -291,6 +291,7 @@ namespace NWN.Systems
         case "SIMILISPALAISNOU":
         case "qg_kathra":
         case "alchemy":
+        case "test":
         case "QuartierdesTemplesLesQuartiersde": area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0; break;
         case "cave_flooded":
           area.SetAreaWind(new Vector3(0, 1, 0), 8, 0, 0);
@@ -447,7 +448,7 @@ namespace NWN.Systems
         Utils.LogMessageToDMs($"ERREUR - Impossible de charger les placeables de banque\n{e.Message}\n{e.StackTrace}");
       }
     }
-    public static void InitializeEventsAfterDMSpawnCreature(OnDMSpawnObject onSpawn)
+    public void InitializeEventsAfterDMSpawnCreature(OnDMSpawnObject onSpawn)
     {
       if (onSpawn.SpawnedObject is not NwCreature creature)
         return;

@@ -235,12 +235,6 @@ namespace NWN.Systems
         oid.ControlledCreature.RemoveFeat(CustomFeats.CustomMenuDOWN);
         oid.ControlledCreature.RemoveFeat(CustomFeats.CustomMenuSELECT);
         oid.ControlledCreature.RemoveFeat(CustomFeats.CustomMenuEXIT);
-        oid.ControlledCreature.RemoveFeat(CustomFeats.CustomPositionLeft);
-        oid.ControlledCreature.RemoveFeat(CustomFeats.CustomPositionRight);
-        oid.ControlledCreature.RemoveFeat(CustomFeats.CustomPositionForward);
-        oid.ControlledCreature.RemoveFeat(CustomFeats.CustomPositionBackward);
-        oid.ControlledCreature.RemoveFeat(CustomFeats.CustomPositionRotateLeft);
-        oid.ControlledCreature.RemoveFeat(CustomFeats.CustomPositionRotateRight);
         oid.ControlledCreature.DeserializeQuickbar(this.serializedQuickbar.ToByteArray());
       }
       public string CheckDBPlayerAccount()

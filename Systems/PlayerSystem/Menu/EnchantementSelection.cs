@@ -59,6 +59,7 @@ namespace NWN.Systems
               enchantementList.Add("Améliorer la vitesse");
               enchantementList.Add("Améliorer la précision");
               enchantementList.Add("Renforcer la durabilité");
+              enchantementList.Add("Améliorer la qualité");
 
               break;
 

@@ -251,7 +251,7 @@ namespace NWN.Systems
             Utils.LogMessageToDMs($"SYSTEME ENCHANTEMENT - {player.oid.LoginCreature.Name} - {spell.Name.ToString()} - {item.Name} - Impossible de trouver un slot valide libre");
 
           enchantedItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value = spell.Id;
-          enchantementTag = AddCraftedEnchantementProperties(enchantedItem, spell, index, player);
+          enchantementTag = AddCraftedEnchantementProperties(enchantedItem, spell, index, player, i);
 
           item.Destroy();
           DelayItemSerialization(enchantedItem);
@@ -686,11 +686,11 @@ namespace NWN.Systems
 
       return true;
     }
-    private static string AddCraftedEnchantementProperties(NwItem craftedItem, NwSpell spell, int index, Player enchanter)
+    private static string AddCraftedEnchantementProperties(NwItem craftedItem, NwSpell spell, int index, Player enchanter, int slot)
     {
       return spell.Id switch
       {
-        883 or 884 or 885 or 886 or 887 or 888 or 889 or 889 => GetCraftToolEnchantementProperties(enchanter, craftedItem, spell, index),
+        883 or 884 or 885 or 886 or 887 or 888 or 889 or 889 => GetCraftToolEnchantementProperties(enchanter, craftedItem, spell, index, slot),
         _ => GetCraftEnchantementProperties(craftedItem, spell, SpellUtils.enchantementCategories[spell.Id][index], enchanter.characterId),
       };
     }
@@ -743,7 +743,7 @@ namespace NWN.Systems
 
       return ip.Tag;
     }
-    private static string GetCraftToolEnchantementProperties(Player enchanter, NwItem craftedItem, NwSpell spell, int index)
+    private static string GetCraftToolEnchantementProperties(Player enchanter, NwItem craftedItem, NwSpell spell, int index, int slot)
     {
       var enchantement = spell.Id switch
       {
@@ -759,18 +759,19 @@ namespace NWN.Systems
         0 => "YIELD",
         1 => "SPEED",
         2 => "QUALITY",
+        4 => "ACCURACY",
         _ => "RESIST",
       };
 
       int existingEnchantement = 1 + craftedItem.LocalVariables.Count(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_{enchantement}_{type}_") && !l.Name.Contains("_DURABILITY"));
       
-      craftedItem.GetObjectVariable<LocalVariableInt>($"ENCHANTEMENT_CUSTOM_{enchantement}_{type}_{existingEnchantement}").Value = 2 * spell.InnateSpellLevel /** enchanter.learnableSpells[spell.Id].currentLevel*/; // TODO : Prendre en compte le niveau des sorts;
-      craftedItem.GetObjectVariable<LocalVariableInt>($"ENCHANTEMENT_CUSTOM_{enchantement}_{type}_{existingEnchantement}_DURABILITY").Value = craftedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value * 100;
+      craftedItem.GetObjectVariable<LocalVariableInt>($"ENCHANTEMENT_CUSTOM_{enchantement}_{type}_{existingEnchantement}_{slot}").Value = 2 * spell.InnateSpellLevel /** enchanter.learnableSpells[spell.Id].currentLevel*/; // TODO : Prendre en compte le niveau des sorts;
+      craftedItem.GetObjectVariable<LocalVariableInt>($"ENCHANTEMENT_CUSTOM_{enchantement}_{type}_{existingEnchantement}_{slot}_DURABILITY").Value = craftedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value * 100;
       
       if (!craftedItem.ItemProperties.Any(ip => ip.Property.PropertyType == ItemPropertyType.CastSpell && ip.SubType.RowIndex == 329)) // 329 = Activate Item
         craftedItem.AddItemProperty(ItemProperty.CastSpell((IPCastSpell)329, IPCastSpellNumUses.UnlimitedUse), EffectDuration.Permanent);
 
-      return $"ENCHANTEMENT_CUSTOM_{enchantement}_{type}_{existingEnchantement}";
+      return $"ENCHANTEMENT_CUSTOM_{enchantement}_{type}_{existingEnchantement}_{slot}";
     }
     private static bool CompleteMining(Player player, bool completed)
     {

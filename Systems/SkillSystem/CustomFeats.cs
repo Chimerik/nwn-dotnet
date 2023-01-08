@@ -480,6 +480,9 @@
     public const int PeltExtractionSafe = 20358;
 
     public const int MateriaScanning = 20359;
+    public const int OreDetectionAccuracy = 20360;
+    public const int WoodDetectionAccuracy = 20361;
+    public const int PeltDetectionAccuracy = 20362;
 
     public const int Invalid = 65535;
   }

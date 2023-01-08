@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 
 using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
-using NWN.Core;
-using NWN.Core.NWNX;
-using static NWN.Systems.PlayerSystem;
+
 
 namespace NWN.Systems
 {
@@ -42,6 +39,7 @@ namespace NWN.Systems
         private int resourceRangeDetectionSkill = CustomSkill.OreDetectionRange;
         private int resourceDurabilitySkill = CustomSkill.OreDetectionSafe;
         private int resourceEstimationSkill = CustomSkill.OreDetectionEstimation;
+        private int resourceAccuracySkill = CustomSkill.OreDetectionAccuracy;
         private int resourceAdvancedSkill = CustomSkill.OreDetectionAdvanced;
         private int resourceMasterSkill = CustomSkill.OreDetectionMastery;
 
@@ -171,6 +169,8 @@ namespace NWN.Systems
                 HandleActiveScan();
               else
                 HandlePassiveScan();
+
+              HandleDurability();
             }
           }
           catch (Exception e) 
@@ -210,7 +210,7 @@ namespace NWN.Systems
 
           foreach (var materia in materiaList)
           {
-            typeList.Add((player.oid.LoginCreature.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value - 1).ToString());
+            typeList.Add(materia.GetObjectVariable<LocalVariableInt>("_GRADE").Value.ToString());
             areaDistanceList.Add(scannedAreas.ContainsKey(materia.Area) ? scannedAreas[materia.Area].ToString() : "0");
             distanceList.Add(materia.Area == player.oid.LoginCreature.Area ? ((int)materia.Distance(player.oid.LoginCreature)).ToString() : "-");
             quantityList.Add(EstimateQuantity(materia).ToString());
@@ -286,7 +286,7 @@ namespace NWN.Systems
 
           foreach (var materia in materiaList)
           {
-            typeList.Add((player.oid.LoginCreature.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value - 1).ToString());
+            typeList.Add(materia.GetObjectVariable<LocalVariableInt>("_GRADE").Value.ToString());
             areaDistanceList.Add("-");
             distanceList.Add(((int)materia.Distance(player.oid.LoginCreature)).ToString());
             quantityList.Add(EstimateQuantity(materia).ToString());
@@ -319,6 +319,7 @@ namespace NWN.Systems
               resourceRangeDetectionSkill = CustomSkill.WoodDetectionRange;
               resourceDurabilitySkill = CustomSkill.WoodDetectionSafe;
               resourceEstimationSkill = CustomSkill.WoodDetectionEstimation;
+              resourceAccuracySkill = CustomSkill.WoodDetectionAccuracy;
               resourceAdvancedSkill = CustomSkill.WoodDetectionAdvanced;
               resourceMasterSkill = CustomSkill.WoodDetectionMastery;
               break;
@@ -328,6 +329,7 @@ namespace NWN.Systems
               resourceRangeDetectionSkill = CustomSkill.OreDetectionRange;
               resourceDurabilitySkill = CustomSkill.PeltDetectionSafe;
               resourceEstimationSkill = CustomSkill.PeltDetectionEstimation;
+              resourceAccuracySkill = CustomSkill.PeltDetectionAccuracy;
               resourceAdvancedSkill = CustomSkill.PeltDetectionAdvanced;
               resourceMasterSkill = CustomSkill.PeltDetectionMastery;
               break;
@@ -351,22 +353,35 @@ namespace NWN.Systems
           int skillPoints = player.learnableSkills.ContainsKey(resourceDetectionSkill) ? player.learnableSkills[CustomSkill.MateriaScanning].totalPoints + player.learnableSkills[resourceDetectionSkill].totalPoints : player.learnableSkills[CustomSkill.MateriaScanning].totalPoints;
           skillPoints += player.learnableSkills.ContainsKey(resourceAdvancedSkill) ? player.learnableSkills[resourceAdvancedSkill].totalPoints : 0;
           skillPoints += player.learnableSkills.ContainsKey(resourceMasterSkill) ? player.learnableSkills[resourceMasterSkill].totalPoints : 0;
-          skillPoints += detector.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_YIELD_QUALITY_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value);
+          skillPoints += detector.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_DETECTOR_YIELD_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value);
           
           if(NwRandom.Roll(Utils.random, 100) < skillPoints)
           {
-            int areaWidth = NWScript.GetAreaSize((int)AreaSizeDimension.Width, area); 
-            int areaHeigth =  NWScript.GetAreaSize((int)AreaSizeDimension.Height, area);
-            float radius = areaWidth > areaHeigth ? areaWidth * 7 : areaHeigth * 7;
-            Vector3 randomPosition = new Vector3(Utils.random.Next(areaWidth * 8), Utils.random.Next(areaHeigth * 8), 10);
+            Location randomLocation = Utils.GetRandomLocationInArea(area);
 
-            // TODO : risque de boucle infinie ou de freezer du serveur ? Prévoir une sortie de boucle après plus de X tentatives + voir pour limiter le nombre tentatives toutes les X frames du serveur, comme pour les coffres persos
-            while (AreaPlugin.GetPathExists(player.oid.LoginCreature.Area, player.oid.LoginCreature.Position, randomPosition, areaWidth * areaHeigth) < 1)
-              randomPosition = new Vector3(Utils.random.Next(areaWidth * 8), Utils.random.Next(areaHeigth * 8), 10);
+            if (randomLocation is null)
+            {
+              player.oid.SendServerMessage("HRP - La détection active de matéria a échoué en raison d'un problème technique. Le staff a été prévenu", ColorConstants.Red);
+              return;
+            }
 
-            NwPlaceable newResourceBlock = NwPlaceable.Create(resourceTemplate, Location.Create(area, new Vector3(randomPosition.X, randomPosition.Y, Location.Create(area, randomPosition, Utils.random.Next(360)).GroundHeight), Utils.random.Next(360)));
-            newResourceBlock.Tag = "mineable_materia";
-            newResourceBlock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = 2 * NwRandom.Roll(Utils.random, 100 - (area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value * 10)) * ((100 + skillPoints) / 100);
+            NwPlaceable newResourceBlock = NwPlaceable.Create(resourceTemplate, randomLocation, false, "mineable_materia");
+            int grade = Utils.GetSpawnedMateriaGrade(areaLevel);
+
+            if (grade < 8)
+            {
+              skillPoints = player.learnableSkills.ContainsKey(resourceDetectionSkill) ? player.learnableSkills[CustomSkill.MateriaScanning].totalPoints + player.learnableSkills[resourceDetectionSkill].totalPoints : player.learnableSkills[CustomSkill.MateriaScanning].totalPoints;
+              skillPoints += player.learnableSkills.ContainsKey(resourceAccuracySkill) ? player.learnableSkills[resourceAccuracySkill].totalPoints : 0;
+              skillPoints += player.learnableSkills.ContainsKey(resourceAdvancedSkill) ? player.learnableSkills[resourceAdvancedSkill].totalPoints : 0;
+              skillPoints += player.learnableSkills.ContainsKey(resourceMasterSkill) ? player.learnableSkills[resourceMasterSkill].totalPoints : 0;
+              skillPoints += detector.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_DETECTOR_ACCURACY_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value);
+
+              if (NwRandom.Roll(Utils.random, 100) < skillPoints)
+                grade++;
+            }
+
+            newResourceBlock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = (int)(Utils.random.NextDouble(Config.minSmallMateriaSpawnYield, Config.maxSmallMateriaSpawnYield) * (1.00 + (areaLevel - grade) * Config.baseMateriaGrowthMultiplier) * ((100 + skillPoints) / 100));
+            newResourceBlock.GetObjectVariable<LocalVariableInt>("_GRADE").Value = grade;
           }
         }
         private void SetDetectionTime()
@@ -393,6 +408,40 @@ namespace NWN.Systems
         private string GetReadableDetectionTime()
         {
           return new TimeSpan(TimeSpan.FromSeconds(timeLeft).Hours, TimeSpan.FromSeconds(timeLeft).Minutes, TimeSpan.FromSeconds(timeLeft).Seconds).ToString();
+        }
+        private void HandleDurability()
+        {
+          int skillPoints = player.learnableSkills.ContainsKey(resourceDurabilitySkill) ? player.learnableSkills[resourceDurabilitySkill].totalPoints * 2 : 0;
+          skillPoints += detector.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_DETECTOR_RESIST_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value);
+
+          foreach (var local in detector.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_DETECTOR_") && l.Name.Contains("_DURABILITY")))
+          {
+            if (NwRandom.Roll(Utils.random, 100) < skillPoints)
+              continue;
+
+            LocalVariableInt durabilityVar = (LocalVariableInt)local;
+            if (NwRandom.Roll(Utils.random, 100) < durabilityVar.Value)
+              durabilityVar.Value -= 10;
+            else
+            {
+              string[] enchantementArray = local.Name.Split("_");
+
+              switch (enchantementArray[3]) // type de l'enchantement
+              {
+                case "YIELD": player.oid.SendServerMessage($"L'enchantement d'amélioration de sensibilité de votre détecteur est épuisé", ColorConstants.Red); break;
+                case "SPEED": player.oid.SendServerMessage($"L'enchantement d'amélioration de vitesse de votre détecteur est épuisé", ColorConstants.Red); break;
+                case "QUALITY": player.oid.SendServerMessage($"L'enchantement d'amélioration de précision de votre détecteur est épuisé", ColorConstants.Red); break;
+                case "ACCURACY": player.oid.SendServerMessage($"L'enchantement d'amélioration de qualité de votre détecteur est épuisé", ColorConstants.Red); break;
+                case "RESIST": player.oid.SendServerMessage($"L'enchantement d'amélioration de durabilité de votre détecteur est épuisé", ColorConstants.Red); break;
+              }
+
+              detector.GetObjectVariable<LocalVariableInt>(local.Name.Replace("_DETECTOR", "")).Delete();
+              local.Delete();
+
+              detector.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
+              detector.GetObjectVariable<LocalVariableInt>($"SLOT{int.Parse(enchantementArray[5])}").Delete();                
+            }
+          }
         }
       }
     }

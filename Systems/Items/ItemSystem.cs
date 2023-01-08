@@ -4,7 +4,6 @@ using Anvil.Services;
 using System.Linq;
 using Anvil.API.Events;
 using NLog;
-using System.Threading.Tasks;
 using System;
 
 namespace NWN.Systems

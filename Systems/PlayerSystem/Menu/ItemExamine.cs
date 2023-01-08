@@ -737,7 +737,7 @@ namespace NWN.Systems
             return false;
           }
 
-          if (player.learnableSkills.ContainsKey(skill) && player.learnableSkills[skill].totalPoints < 1)
+          if (!player.learnableSkills.ContainsKey(skill) || player.learnableSkills[skill].totalPoints < 1)
           {
             player.oid.SendServerMessage("Il faut avoir étudié les techniques propre à ce métier avant de pouvoir se lancer dans un travail.", ColorConstants.Red);
             return false;

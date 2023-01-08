@@ -237,7 +237,7 @@ namespace NWN.Systems
         "('chestTag' TEXT NOT NULL, 'accountID' INTEGER NOT NULL, 'serializedChest' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL, PRIMARY KEY(chestTag))");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS areaResourceStock" +
-        "('id' INTEGER NOT NULL, 'areaTag' TEXT NOT NULL, 'areaLevel' INTEGER NOT NULL, 'type' TEXT NOT NULL, 'quantity' INTEGER NOT NULL, 'lastChecked' TEXT NOT NULL, UNIQUE (id, areaTag, type))");
+        "('type' TEXT NOT NULL, 'quantity' INTEGER NOT NULL, 'grade' INTEGER NOT NULL, 'location' TEXT NOT NULL, UNIQUE (type, quantity, grade, location))");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS scriptPerformance" +
         "('script' TEXT NOT NULL, 'nbExecutions' INTEGER NOT NULL, 'averageExecutionTime' REAL NOT NULL, 'cumulatedExecutionTime' REAL NOT NULL, PRIMARY KEY(script))");
@@ -360,51 +360,42 @@ namespace NWN.Systems
     private static void RestoreResourceBlocksFromDatabase()
     {
       var result = SqLiteUtils.SelectQuery("areaResourceStock",
-          new List<string>() { { "id" }, { "areaTag" }, { "type" }, { "quantity" } },
+          new List<string>() { { "type" }, { "quantity" }, { "grade" }, { "location" } },
           new List<string[]>() { });
 
       foreach (var resourceBlock in result)
       {
-        int blockId = int.Parse(resourceBlock[0]);
-        NwArea blockArea = (NwArea)NwObject.FindObjectsWithTag(resourceBlock[1]).FirstOrDefault();
-        string spawnType = resourceBlock[2];
-        int quantity = int.Parse(resourceBlock[3]);
-        NwWaypoint blockWaypoint = blockArea.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(w => w.Tag == spawnType && w.GetObjectVariable<LocalVariableInt>("id").Value == blockId);
+        Location materiaLocation = SqLiteUtils.DeserializeLocation(resourceBlock[3]);
+        string resRef = resourceBlock[0];
+        int quantity = int.Parse(resourceBlock[1]);
+        int grade = int.Parse(resourceBlock[2]);
+        NwPlaceable newResourceBlock = NwPlaceable.Create(resRef, materiaLocation, false, "mineable_materia");
+        newResourceBlock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = quantity;
+        newResourceBlock.GetObjectVariable<LocalVariableInt>("_GRADE").Value = grade;
 
-        Log.Info($"Area {blockArea.Name} - Spawning {spawnType} - id {blockId} - Quantity {quantity} - wp {blockWaypoint.Tag}");
-
-        switch (spawnType)
-        {
-          case "ore_spawn_wp": SpawnResourceBlock("mineable_rock", blockWaypoint, quantity); break;
-          case "wood_spawn_wp": SpawnResourceBlock("mineable_tree", blockWaypoint, quantity); break;
-          case "animal_spawn_wp": SpawnResourceBlock("mineable_animal", blockWaypoint, quantity); break;
-        }
+        Log.Info($"MATERIA SPAWN - Area {materiaLocation.Area.Name} - Spawning {resRef} - Quantity {grade} - grade {grade}");
       }
     }
     private void HandleMateriaGrowth()
     {
       Dictionary<int, int> areaLevelUpdater = new();
 
-      foreach (var materia in NwObject.FindObjectsWithTag<NwPlaceable>("mineable_materia"))
+      foreach (var materia in NwObject.FindObjectsWithTag<NwGameObject>("mineable_materia"))
       {
         int areaLevel = materia.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value;
-        int resourceGrowth = 720 / areaLevel;
+        int materiaGrade = materia.GetObjectVariable<LocalVariableInt>("_GRADE").Value;
+        int resourceGrowth = (int)(Config.baseMateriaGrowth * (1.00 + (areaLevel - materiaGrade) * Config.baseMateriaGrowthMultiplier));
+        int quantity = materia.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value;
+        string resRef = materia.ResRef;
+        Location location = materia.Location;
+
         materia.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value += resourceGrowth;
 
         if (areaLevelUpdater.TryAdd(areaLevel, areaLevel))
-          UpdateDatabaseMateria(areaLevel, resourceGrowth);
+          SqLiteUtils.UpdateQuery("areaResourceStock",
+          new List<string[]>() { new string[] { "quantity", resourceGrowth.ToString() } },
+          new List<string[]>() { new string[] { "type", resRef }, new string[] { "quantity", quantity.ToString() }, new string[] { "grade", materiaGrade.ToString() }, new string[] { "location", SqLiteUtils.SerializeLocation(location) } });
       }
-    }
-    private static async void UpdateDatabaseMateria(int areaLevel, int resourceGrowth)
-    {
-      using var connection = new SqliteConnection(Config.dbPath);
-      connection.Open();
-
-      var sqlCommand = connection.CreateCommand();
-      sqlCommand.CommandText = $"UPDATE areaResourceStock SET quantity = quantity + {resourceGrowth} " +
-                               $"WHERE areaLevel = {areaLevel} ";
-
-      await sqlCommand.ExecuteNonQueryAsync();
     }
     public static void SpawnCollectableResources()
     {
@@ -422,71 +413,46 @@ namespace NWN.Systems
         while (nbMateriaToSpawn > 0)
         {
           if (area.GetObjectVariable<LocalVariableInt>("_CAVE").HasValue)
-            SpawnResource(area, "mineable_rock");
+            SpawnResourceBlock(area, areaLevel, "mineable_rock");
 
           if (area.GetObjectVariable<LocalVariableInt>("_WATER").HasValue)
-            SpawnResource(area, "mineable_animal");
+            SpawnResourceBlock(area, areaLevel, "mineable_animal");
 
           if (area.GetObjectVariable<LocalVariableInt>("_FOREST").HasValue)
-            SpawnResource(area, "mineable_tree");
+            SpawnResourceBlock(area, areaLevel, "mineable_tree");
 
           nbMateriaToSpawn -= 1;
         }
       }
+    }
+    private static async void SpawnResourceBlock(NwArea area, int areaLevel, string resourceTemplate)
+    {
+      if (NwRandom.Roll(Utils.random, 100) > Config.materiaSpawnChance)
+        return;
 
-      foreach (NwWaypoint ressourcePoint in NwObject.FindObjectsWithTag<NwWaypoint>(new string[] { "ore_spawn_wp", "wood_spawn_wp", "animal_spawn_wp" }))
+      try
       {
-        if (NwRandom.Roll(Utils.random, 100) > 85)
-        {
-          int resourceQuantity = 5 * NwRandom.Roll(Utils.random, 100 - (ressourcePoint.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value * 10));
-          string resRef = "mineable_rock";
+        Location randomLocation = Utils.GetRandomLocationInArea(area);
 
-          switch (ressourcePoint.Tag)
-          {
-            case "wood_spawn_wp": resRef = "mineable_tree"; break;
-            case "animal_spawn_wp": resRef = "mineable_animal"; break;
-          }
+        if (randomLocation is null)
+          return;
 
-          SpawnResourceBlock(resRef, ressourcePoint, resourceQuantity);
+        int materiaGrade = Utils.GetSpawnedMateriaGrade(areaLevel);
+        int resourceQuantity = (int)(Utils.random.NextDouble(Config.minMateriaSpawnYield, Config.maxMateriaSpawnYield) * (1.00 + (areaLevel - materiaGrade) * Config.baseMateriaGrowthMultiplier));
+      
+        NwPlaceable newResourceBlock = NwPlaceable.Create(resourceTemplate, randomLocation, false, "mineable_materia");
+        newResourceBlock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = resourceQuantity;
+        newResourceBlock.GetObjectVariable<LocalVariableInt>("_GRADE").Value = materiaGrade;
 
-          Log.Info($"REFILL - {ressourcePoint.Area.Name} - {ressourcePoint.Name}");
-        }
-        /*int areaLevel = ressourcePoint.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value;
-        if (NwRandom.Roll(Utils.random, 100) >= (areaLevel * 20) - 20)
-        {
-          string resRef = "";
-          string name = "";
-
-          switch (ressourcePoint.Tag)
-          {
-            case "ore_spawn_wp":
-              resRef = "mineable_rock";
-              name = Enum.GetName(typeof(OreType), GetRandomOreSpawnFromAreaLevel(areaLevel));
-              break;
-            case "wood_spawn_wp":
-              resRef = "mineable_tree";
-              name = Enum.GetName(typeof(WoodType), GetRandomOreSpawnFromAreaLevel(areaLevel));
-              break;
-          }
-
-          var newRock = NwPlaceable.Create(resRef, ressourcePoint.Location);
-          newRock.Name = name;
-          newRock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = 50 * NwRandom.Roll(Utils.random, 100);
-          ressourcePoint.Destroy();
-
-          Log.Info($"REFILL - {ressourcePoint.Area.Name} - {ressourcePoint.Name}");
-        }*/
+        await SqLiteUtils.InsertQueryAsync("areaResourceStock",
+          new List<string[]>() { new string[] { "type", resourceTemplate }, new string[] { "quantity", resourceQuantity.ToString() }, new string[] { "grade", materiaGrade.ToString() }, new string[] { "location", SqLiteUtils.SerializeLocation(randomLocation) } },
+          new List<string>() { "type", "quantity", "grade", "location" },
+          new List<string[]>() { new string[] { "quantity" } });
       }
-
-      /*foreach (NwArea area in NwModule.Instance.Areas.Where(l => l.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 1))
+      catch (Exception)
       {
-        int areaLevel = area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value;
-
-        SqLiteUtils.InsertQuery("areaResourceStock",
-          new List<string[]>() { new string[] { "areaTag", area.Tag }, new string[] { "mining", (areaLevel * 2).ToString() }, new string[] { "wood", (areaLevel * 2).ToString() }, new string[] { "animals", (areaLevel * 2).ToString() } },
-          new List<string>() { "areaTag" },
-          new List<string[]>() { new string[] { "mining" }, new string[] { "wood" }, new string[] { "animals" } });
-      }*/
+        Utils.LogMessageToDMs($"MATERIA SPAWN - could not spawn {resourceTemplate} in {area.Name}");
+      }
     }
     public static async void HandleSubscriptionDues()
     {
@@ -503,8 +469,8 @@ namespace NWN.Systems
 
         List<Subscription.SerializableSubscription> serializedSubscription = JsonConvert.DeserializeObject<List<Subscription.SerializableSubscription>>(character[1]);
 
-        foreach(var subscription in serializedSubscription)
-          if(subscription.nextDueDate < DateTime.Now)
+        foreach (var subscription in serializedSubscription)
+          if (subscription.nextDueDate < DateTime.Now)
           {
             subscription.nextDueDate = DateTime.Now.AddDays(subscription.daysToNextDueDate);
 
@@ -515,36 +481,6 @@ namespace NWN.Systems
         SqLiteUtils.UpdateQuery("playerCharacters",
           new List<string[]>() { new string[] { "subscriptions", JsonConvert.SerializeObject(serializedSubscription) } },
           new List<string[]>() { new string[] { "ROWID", characterId.ToString() } });
-      }
-
-    }
-    private static async void SpawnResourceBlock(string resourceTemplate, NwWaypoint waypoint, int quantity)
-    {
-      try
-      {
-        int blockId = waypoint.GetObjectVariable<LocalVariableInt>("id").Value;
-        
-        NwPlaceable newResourceBlock = NwPlaceable.Create(resourceTemplate, waypoint.Location);
-        newResourceBlock.Tag = "mineable_materia";
-        newResourceBlock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = quantity;
-        newResourceBlock.GetObjectVariable<LocalVariableInt>("id").Value = blockId;
-
-        waypoint.Destroy();
-
-        string id = waypoint.GetObjectVariable<LocalVariableInt>("id").Value.ToString();
-        string areaTag = waypoint.Area.Tag;
-        string type = waypoint.Tag;
-        string areaLevel = waypoint.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value.ToString();
-
-        await SqLiteUtils.InsertQueryAsync("areaResourceStock",
-          new List<string[]>() { new string[] { "id", id }, new string[] { "areaTag", areaTag }, new string[] { "areaLevel", areaLevel }, new string[] { "type", type }, new string[] { "quantity", quantity.ToString() }, new string[] { "lastChecked", DateTime.Now.ToString() } },
-          new List<string>() { "id", "areaTag", "type" },
-          new List<string[]>() { new string[] { "quantity" }, new string[] { "lastChecked" } });
-      }
-      catch (Exception)
-      {
-        Log.Info($"Warning : could not spawn {waypoint.Tag} nb {waypoint.GetObjectVariable<LocalVariableInt>("id").Value} in {waypoint.Area.Name}");
-        Utils.LogMessageToDMs($"Warning : could not spawn {waypoint.Tag} nb {waypoint.GetObjectVariable<LocalVariableInt>("id").Value} in {waypoint.Area.Name}");
       }
     }
     private static void LoadHeadLists()

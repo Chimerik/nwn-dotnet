@@ -69,9 +69,6 @@ namespace NWN.Systems
       Utils.ResetVisualTransform(player.oid.ControlledCreature);
       player.pcState = Player.PcState.Offline;
 
-      if (!player.oid.LoginCreature.KnowsFeat(CustomFeats.Sit))
-        player.oid.LoginCreature.AddFeat(CustomFeats.Sit);
-
       foreach (Player connectedPlayer in Players.Values)
         if(connectedPlayer.pcState != Player.PcState.Offline && connectedPlayer.TryGetOpenedWindow("playerList", out Player.PlayerWindow playerListWindow))
           ((Player.PlayerListWindow)connectedPlayer.windows["playerList"]).UpdatePlayerList();
@@ -108,36 +105,7 @@ namespace NWN.Systems
           oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("accountId").Value = query.Result.GetInt(0);
         }
         else
-          oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("accountId").Value = int.Parse(result.FirstOrDefault()[0]);
-
-        int startingLanguage = -1;
-
-        switch (oid.LoginCreature.Race.RacialType)
-        {
-          case RacialType.Dwarf:
-            startingLanguage = CustomSkill.Nain;
-            break;
-          case RacialType.Elf:
-          case RacialType.HalfElf:
-            startingLanguage = CustomSkill.Elfique;
-            break;
-          case RacialType.Halfling:
-            startingLanguage = CustomSkill.Halfelin;
-            break;
-          case RacialType.Gnome:
-            startingLanguage = CustomSkill.Gnome;
-            break;
-          case RacialType.HalfOrc:
-            startingLanguage = CustomSkill.Orc;
-            break;
-        }
-
-        if (startingLanguage > -1)
-        {
-          LearnableSkill language = new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[startingLanguage]);
-          learnableSkills.Add(startingLanguage, language);
-          language.LevelUp(this);
-        }
+          oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("accountId").Value = int.Parse(result.FirstOrDefault()[0]); 
       }
       public void InitializeNewCharacter()
       {
@@ -216,6 +184,35 @@ namespace NWN.Systems
         if (learnableSkills.ContainsKey(CustomSkill.ImprovedStrength))
           return;
 
+        int startingLanguage = -1;
+
+        switch (oid.LoginCreature.Race.RacialType)
+        {
+          case RacialType.Dwarf:
+            startingLanguage = CustomSkill.Nain;
+            break;
+          case RacialType.Elf:
+          case RacialType.HalfElf:
+            startingLanguage = CustomSkill.Elfique;
+            break;
+          case RacialType.Halfling:
+            startingLanguage = CustomSkill.Halfelin;
+            break;
+          case RacialType.Gnome:
+            startingLanguage = CustomSkill.Gnome;
+            break;
+          case RacialType.HalfOrc:
+            startingLanguage = CustomSkill.Orc;
+            break;
+        }
+
+        if (startingLanguage > -1)
+        {
+          LearnableSkill language = new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[startingLanguage]);
+          learnableSkills.Add(startingLanguage, language);
+          language.LevelUp(this);
+        }
+
         learnableSkills.Add(CustomSkill.ImprovedStrength, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedStrength]));
         learnableSkills.Add(CustomSkill.ImprovedDexterity, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedDexterity]));
         learnableSkills.Add(CustomSkill.ImprovedConstitution, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedConstitution]));
@@ -292,31 +289,6 @@ namespace NWN.Systems
         InitializeSpellEvents();
         InitializePlayerAccount();
         InitializePlayerCharacter();
-
-        switch (oid.LoginCreature.Race.RacialType)
-        {
-          case RacialType.Dwarf:
-            if (!oid.LoginCreature.KnowsFeat(CustomFeats.Nain))
-              oid.LoginCreature.AddFeat(CustomFeats.Nain);
-            break;
-          case RacialType.Elf:
-          case RacialType.HalfElf:
-            if (!oid.LoginCreature.KnowsFeat(CustomFeats.Elfique))
-              oid.LoginCreature.AddFeat(CustomFeats.Elfique);
-            break;
-          case RacialType.Halfling:
-            if (!oid.LoginCreature.KnowsFeat(CustomFeats.Halfelin))
-              oid.LoginCreature.AddFeat(CustomFeats.Halfelin);
-            break;
-          case RacialType.Gnome:
-            if (!oid.LoginCreature.KnowsFeat(CustomFeats.Gnome))
-              oid.LoginCreature.AddFeat(CustomFeats.Gnome);
-            break;
-          case RacialType.HalfOrc:
-            if (!oid.LoginCreature.KnowsFeat(CustomFeats.Orc))
-              oid.LoginCreature.AddFeat(CustomFeats.Orc);
-            break;
-        }
       }
       private void InitializePlayerEvents()
       {

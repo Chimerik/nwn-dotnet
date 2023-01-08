@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using NLog;
 using NWN.Core;
 using System.ComponentModel;
+using NWN.Core.NWNX;
+using static NWN.Systems.PlayerSystem;
 
 namespace NWN
 {
@@ -632,5 +634,51 @@ namespace NWN
       Feat.SkillAffinitySpot,
       Feat.Stonecunning, 
     };
+    public static Location GetRandomLocationInArea(NwArea area)
+    {
+      NwGameObject transition;
+
+      try
+      {
+        transition = area.FindObjectsOfTypeInArea<NwDoor>().First(d => d.TransitionTarget != null);
+      }
+      catch(Exception)
+      {
+        try
+        {
+          transition = area.FindObjectsOfTypeInArea<NwTrigger>().First(t => t.TransitionTarget != null);
+        }
+        catch(Exception)
+        {
+          LogMessageToDMs($"MATERIA SPAWN - Impossible de trouver une transition valide dans la zone {area.Name}");
+          return null;
+        }
+      }
+
+      int areaWidth = NWScript.GetAreaSize((int)AreaSizeDimension.Width, area);
+      int areaHeigth = NWScript.GetAreaSize((int)AreaSizeDimension.Height, area);
+      Vector3 randomPosition = new Vector3(random.Next(areaWidth * 8), random.Next(areaHeigth * 8), 10);
+
+      // TODO : risque de boucle infinie ou de freeze du serveur ? Prévoir une sortie de boucle après plus de X tentatives
+      while (AreaPlugin.GetPathExists(area, transition.Position, randomPosition, areaWidth * areaHeigth) < 1)
+        randomPosition = new Vector3(random.Next(areaWidth * 8), random.Next(areaHeigth * 8), 10);
+
+      return Location.Create(area, new Vector3(randomPosition.X, randomPosition.Y, Location.Create(area, randomPosition, random.Next(360)).GroundHeight), random.Next(360));
+    }
+    public static int GetSpawnedMateriaGrade(int areaLevel)
+    {
+      int materiaGrade = 1;
+      int roll = NwRandom.Roll(Utils.random, 100);
+
+      foreach (int chance in Config.materiaSpawnGradeChance[areaLevel])
+      {
+        if (roll < chance)
+          return materiaGrade;
+
+        materiaGrade++;
+      }
+
+      return materiaGrade;
+    }
   }
 }
