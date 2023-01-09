@@ -444,6 +444,7 @@ namespace NWN.Systems
         NwPlaceable newResourceBlock = NwPlaceable.Create(resourceTemplate, randomLocation, false, "mineable_materia");
         newResourceBlock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = resourceQuantity;
         newResourceBlock.GetObjectVariable<LocalVariableInt>("_GRADE").Value = materiaGrade;
+        Utils.SetResourceBlockData(newResourceBlock);
 
         Log.Info($"MATERIA SPAWN - spawned {resourceTemplate} {materiaGrade} ({resourceQuantity}) in {area.Name}");
 

@@ -375,6 +375,7 @@ namespace NWN.Systems
 
             newResourceBlock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = (int)(Utils.random.NextDouble(Config.minSmallMateriaSpawnYield, Config.maxSmallMateriaSpawnYield) * (1.00 + (areaLevel - grade) * Config.baseMateriaGrowthMultiplier) * ((100 + skillPoints) / 100));
             newResourceBlock.GetObjectVariable<LocalVariableInt>("_GRADE").Value = grade;
+            Utils.SetResourceBlockData(newResourceBlock);
           }
         }
         private void SetDetectionTime()

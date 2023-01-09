@@ -699,5 +699,28 @@ namespace NWN
 
       return materiaGrade;
     }
+    public static void SetResourceBlockData(NwPlaceable block)
+    {
+      switch(block.ResRef) 
+      {
+        case "mineable_rock":
+          block.Name = "Matéria - Dépôt minéral";
+          block.Useable = true;
+          block.Description = "Un phénomène mystérieux provoque l'agglomération d'influx à certains matériaux bruts, qu'on appelle alors 'matéria'.\n\nAvant de pouvoir être utilisée par un artisan, cette matéria brute doit être extraite, puis raffinée avec une technique spéciale qui permet de rendre le matériau malléable.";
+          break;
+        case "mineable_animal":
+          block.Name = "Matéria - Dépôt animal";
+          block.Useable = true;
+          block.Description = "Un phénomène mystérieux provoque l'agglomération d'influx à certains matériaux bruts, qu'on appelle alors 'matéria'.\n\nAvant de pouvoir être utilisée par un artisan, cette matéria brute doit être extraite, puis raffinée avec une technique spéciale qui permet de rendre le matériau malléable.";
+          block.Appearance = NwGameTables.PlaceableTable.GetRow(4964);
+          break;
+        case "mineable_tree":
+          block.Name = "Matéria - Dépôt végétal";
+          block.Useable = true;
+          block.Description = "Un phénomène mystérieux provoque l'agglomération d'influx à certains matériaux bruts, qu'on appelle alors 'matéria'.\n\nAvant de pouvoir être utilisée par un artisan, cette matéria brute doit être extraite, puis raffinée avec une technique spéciale qui permet de rendre le matériau malléable.";
+          block.Appearance = NwGameTables.PlaceableTable.GetRow(30557);
+          break;
+      }
+    }
   }
 }
