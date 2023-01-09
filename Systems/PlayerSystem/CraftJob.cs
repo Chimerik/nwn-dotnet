@@ -766,7 +766,7 @@ namespace NWN.Systems
       int existingEnchantement = 1 + craftedItem.LocalVariables.Count(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_{enchantement}_{type}_") && !l.Name.Contains("_DURABILITY"));
       
       craftedItem.GetObjectVariable<LocalVariableInt>($"ENCHANTEMENT_CUSTOM_{enchantement}_{type}_{existingEnchantement}_{slot}").Value = 2 * spell.InnateSpellLevel /** enchanter.learnableSpells[spell.Id].currentLevel*/; // TODO : Prendre en compte le niveau des sorts;
-      craftedItem.GetObjectVariable<LocalVariableInt>($"ENCHANTEMENT_CUSTOM_{enchantement}_{type}_{existingEnchantement}_{slot}_DURABILITY").Value = craftedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value * 100;
+      craftedItem.GetObjectVariable<LocalVariableInt>($"ENCHANTEMENT_CUSTOM_{enchantement}_{type}_{existingEnchantement}_{slot}_DURABILITY").Value = craftedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value * Config.baseCraftToolDurability;
       
       if (!craftedItem.ItemProperties.Any(ip => ip.Property.PropertyType == ItemPropertyType.CastSpell && ip.SubType.RowIndex == 329)) // 329 = Activate Item
         craftedItem.AddItemProperty(ItemProperty.CastSpell((IPCastSpell)329, IPCastSpellNumUses.UnlimitedUse), EffectDuration.Permanent);

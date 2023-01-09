@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 using Anvil.API;
@@ -14,8 +15,10 @@ namespace NWN.Systems
       public class MateriaExtractionWindow : PlayerWindow
       {
         private readonly NuiColumn rootColumn;
-        private readonly NuiBind<string> remainingTime = new("remainingTime");
         private readonly NuiBind<float> progress = new("progress");
+        private readonly NuiBind<string> readableRemainingTime = new("readableRemainingTime");
+        private readonly Color white = new(255, 255, 255);
+        private readonly NuiBind<NuiRect> drawListRect = new("drawListRect");
         private int extractionRemainingTime { get; set; }
         private int extractionTotalDuration { get; set; }
         private NwItem extractor { get; set; }
@@ -32,14 +35,14 @@ namespace NWN.Systems
         {
           windowId = "materiaExtraction";
 
-          rootColumn = new NuiColumn()
+          rootColumn = new NuiColumn() { Children = new List<NuiElement>()
           {
-            Children = new List<NuiElement>()
+            new NuiRow() { Children = new List<NuiElement>()
             {
-              new NuiRow() { Children = new List<NuiElement>() { new NuiProgress(progress) } },
-              new NuiRow() { Children = new List<NuiElement>() { new NuiText(remainingTime) { Tooltip = "Temps restant avant la fin de l'extraction" } } }
-            }
-          };
+              new NuiProgress(progress) { Width = 485, Height = 35, DrawList = new List<NuiDrawListItem>() {
+                  new NuiDrawListText(white, drawListRect, readableRemainingTime) } }
+            } },
+          } };
 
           CreateWindow(extractor, oTarget);
         }

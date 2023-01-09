@@ -61,6 +61,10 @@ namespace NWN.Systems
 
     public static readonly double scanBaseDuration = 120;
 
+    // CRAFT
+
+    public static readonly int baseCraftToolDurability = 100;
+
     public static DriveService AuthenticateServiceAccount()
     {
       try

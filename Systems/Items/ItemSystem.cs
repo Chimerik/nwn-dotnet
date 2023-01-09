@@ -73,17 +73,6 @@ namespace NWN.Systems
 
       switch (oItem.Tag)
       {
-        /*case "oreextractor":
-          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
-          onItemUse.PreventUseItem = true;
-
-          if (player.windows.ContainsKey("materiaExtraction"))
-            ((PlayerSystem.Player.MateriaExtractionWindow)player.windows["materiaExtraction"]).CreateWindow(onItemUse.Item, oTarget);
-          else
-            player.windows.Add("materiaExtraction", new PlayerSystem.Player.MateriaExtractionWindow(player, onItemUse.Item, oTarget));
-        
-          break;*/
-
         case "private_contract":
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
@@ -139,7 +128,11 @@ namespace NWN.Systems
         {
           if(oItem.LocalVariables.Any(v => v.Name.Contains("ENCHANTEMENT_CUSTOM_EXTRACTOR_"))) // L'objet est alors utilisé en mode extraction
           {
+            feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
+            onItemUse.PreventUseItem = true;
 
+            if (!player.windows.ContainsKey("materiaExtraction")) player.windows.Add("materiaExtraction", new PlayerSystem.Player.MateriaExtractionWindow(player, onItemUse.Item, oTarget));
+            else ((PlayerSystem.Player.MateriaExtractionWindow)player.windows["materiaExtraction"]).CreateWindow(onItemUse.Item, oTarget);
           }
         }
         else if(oItem.LocalVariables.Any(v => v.Name.Contains("ENCHANTEMENT_CUSTOM_DETECTOR_"))) // L'objet est alors utilisé en mode scanner
