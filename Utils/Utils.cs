@@ -7,9 +7,9 @@ using Anvil.API;
 using System.Collections.Generic;
 using NLog;
 using NWN.Core;
-using System.ComponentModel;
 using NWN.Core.NWNX;
-using static NWN.Systems.PlayerSystem;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace NWN
 {
@@ -634,7 +634,7 @@ namespace NWN
       Feat.SkillAffinitySpot,
       Feat.Stonecunning, 
     };
-    public static Location GetRandomLocationInArea(NwArea area)
+    public static async Task<Location> GetRandomLocationInArea(NwArea area)
     {
       NwGameObject transition;
 
@@ -658,17 +658,36 @@ namespace NWN
       int areaWidth = NWScript.GetAreaSize((int)AreaSizeDimension.Width, area);
       int areaHeigth = NWScript.GetAreaSize((int)AreaSizeDimension.Height, area);
       Vector3 randomPosition = new Vector3(random.Next(areaWidth * 8), random.Next(areaHeigth * 8), 10);
-
-      // TODO : risque de boucle infinie ou de freeze du serveur ? Prévoir une sortie de boucle après plus de X tentatives
-      while (AreaPlugin.GetPathExists(area, transition.Position, randomPosition, areaWidth * areaHeigth) < 1)
+      int nbTry = 1;
+      Stopwatch stopwatch = Stopwatch.StartNew();
+      
+      while (AreaPlugin.GetPathExists(area, transition.Position, randomPosition, areaWidth * areaHeigth) < 1 && stopwatch.Elapsed.TotalSeconds < 2)
+      {
+        nbTry++;
         randomPosition = new Vector3(random.Next(areaWidth * 8), random.Next(areaHeigth * 8), 10);
 
+        while (AreaPlugin.GetPathExists(area, transition.Position, randomPosition, areaWidth * areaHeigth) < 1 && stopwatch.Elapsed.TotalMilliseconds < Config.MaxSerializeTimeMs)
+        {
+          nbTry++;
+          randomPosition = new Vector3(random.Next(areaWidth * 8), random.Next(areaHeigth * 8), 10);
+        }
+
+        await NwTask.NextFrame();
+      }
+
+      if (stopwatch.Elapsed.TotalSeconds > 2)
+      {
+        LogMessageToDMs($"WARNING - MATERIA SPAWN - Could not find valid path in {area.Name}");
+        return null;
+      }
+
+      Log.Info($"Path found in {area.Name} after {nbTry} tries ({stopwatch.Elapsed.TotalMilliseconds} ms)");
       return Location.Create(area, new Vector3(randomPosition.X, randomPosition.Y, Location.Create(area, randomPosition, random.Next(360)).GroundHeight), random.Next(360));
     }
     public static int GetSpawnedMateriaGrade(int areaLevel)
     {
       int materiaGrade = 1;
-      int roll = NwRandom.Roll(Utils.random, 100);
+      int roll = NwRandom.Roll(random, 100);
 
       foreach (int chance in Config.materiaSpawnGradeChance[areaLevel])
       {

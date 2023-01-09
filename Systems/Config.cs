@@ -59,6 +59,8 @@ namespace NWN.Systems
       { 9, new int[] {0, 0, 10, 22, 38, 56, 75, 100} },
     };
 
+    public static readonly double scanBaseDuration = 120;
+
     public static DriveService AuthenticateServiceAccount()
     {
       try

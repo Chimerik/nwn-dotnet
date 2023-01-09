@@ -6,7 +6,6 @@ using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
 
-
 namespace NWN.Systems
 {
   public partial class PlayerSystem
@@ -17,10 +16,10 @@ namespace NWN.Systems
       {
         private readonly NuiColumn rootColumn;
         private readonly List<NuiListTemplateCell> rowTemplate = new();
-        private readonly List<NuiComboEntry> resourceCategories = new() { new NuiComboEntry("Dépot minéral", 1), new NuiComboEntry("Dépot végétal", 2), new NuiComboEntry("Peaux", 3) };
+        private readonly List<NuiComboEntry> resourceCategories = new() { new NuiComboEntry("Dépôt minéral", 1), new NuiComboEntry("Dépôt végétal", 2), new NuiComboEntry("Dépôt animal", 3) };
 
         private readonly NuiBind<int> selectedCategory = new ("selectedCategory");
-        private readonly NuiBind<int> selectedMode = new("selectedCategory");
+        private readonly NuiBind<int> selectedMode = new("selectedMode");
         private readonly NuiBind<float> progress = new("progress");
         private readonly NuiBind<string> readableRemainingTime = new ("readableRemainingTime");
         private readonly NuiBind<string> materiaType = new ("materiaType");
@@ -31,7 +30,7 @@ namespace NWN.Systems
         private readonly NuiBind<NuiRect> drawListRect = new("drawListRect");
         private readonly NuiBind<int> listCount = new("listCount");
         private double scanDuration { get; set; }
-        private int timeLeft { get; set; }
+        private double timeLeft { get; set; }
         private NwItem detector { get; set; }
         public ScheduledTask scanProgress { get; set; }
         private string resourceTemplate = "mineable_rock";
@@ -47,35 +46,35 @@ namespace NWN.Systems
         {
           windowId = "materiaDetector";
 
-          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(materiaType) { Tooltip = "Type de matéria", VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { Width = 150 });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(areaDistance) { Tooltip = "Rayon de détection", VerticalAlign = NuiVAlign.Middle }) { Width = 150 });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(meterDistance) { Tooltip = "Distance", VerticalAlign = NuiVAlign.Middle }) { Width = 150 });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(estimatedQuantity) { Tooltip = "Quantité estimée", VerticalAlign = NuiVAlign.Middle }) { Width = 150 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(materiaType) { Tooltip = "Type de matéria", VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { Width = 60 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(areaDistance) { Tooltip = "Rayon de détection", VerticalAlign = NuiVAlign.Middle }) { Width = 60 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(meterDistance) { Tooltip = "Distance", VerticalAlign = NuiVAlign.Middle }) { Width = 185 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(estimatedQuantity) { Tooltip = "Quantité estimée", VerticalAlign = NuiVAlign.Middle }) { Width = 185 });
 
           rootColumn = new NuiColumn() { Children = new List<NuiElement>()
           {
             new NuiRow() { Children = new List<NuiElement>() 
             { 
               new NuiSpacer(),
-              new NuiCombo() { Entries = resourceCategories, Selected = selectedCategory, Height = 35, Width = 100 },
-              new NuiCombo() { Entries = new List<NuiComboEntry>() { new NuiComboEntry("Mode Passif", 0), new NuiComboEntry("Mode Actif", 1) }, Selected = selectedMode, Height = 35, Width = 100 },
-              new NuiButton("Recherche") { Id = "start_detection", Tooltip = "Démarrer la recherche de matéria à proximité", Height = 35, Width = 80 },
+              new NuiCombo() { Entries = resourceCategories, Selected = selectedCategory, Height = 35, Width = 160 },
+              new NuiCombo() { Entries = new List<NuiComboEntry>() { new NuiComboEntry("Mode Passif", 0), new NuiComboEntry("Mode Actif", 1) }, Selected = selectedMode, Height = 35, Width = 160 },
+              new NuiButton("Recherche") { Id = "start_detection", Tooltip = "Démarrer la recherche de matéria à proximité", Height = 35, Width = 160 },
               new NuiSpacer()
             } },
             new NuiRow() { Children = new List<NuiElement>()
             {
-              new NuiProgress(progress) { Width = 460, Height = 35, DrawList = new List<NuiDrawListItem>() {
+              new NuiProgress(progress) { Width = 485, Height = 35, DrawList = new List<NuiDrawListItem>() {
                   new NuiDrawListText(white, drawListRect, readableRemainingTime) } }
             } },
             new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35 } } }
           } };
-          
+
           CreateWindow(detector);
         }
         public void CreateWindow(NwItem detector)
         {
           this.detector = detector;
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? new NuiRect(player.windowRectangles[windowId].X, player.windowRectangles[windowId].Y, 500, 160) : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 500, 160);
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? new NuiRect(player.windowRectangles[windowId].X, player.windowRectangles[windowId].Y, 500, 400) : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 500, 400);
 
           window = new NuiWindow(rootColumn, "Détecteur de matéria")
           {
@@ -89,12 +88,12 @@ namespace NWN.Systems
 
           if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
+
             nuiToken = tempToken;
             nuiToken.OnNuiEvent += HandleDetectorEvents;
             player.oid.OnClientLeave += OnLeaveCancelDetection;
 
             selectedCategory.SetBindValue(player.oid, nuiToken.Token, resourceCategories.FirstOrDefault().Value);
-            selectedCategory.SetBindWatch(player.oid, nuiToken.Token, true);
             selectedMode.SetBindValue(player.oid, nuiToken.Token, 0);
 
             drawListRect.SetBindValue(player.oid, nuiToken.Token, new(300, 15, 151, 20));
@@ -126,13 +125,6 @@ namespace NWN.Systems
 
                   return;
               }
-
-              break;
-
-            case NuiEventType.Watch:
-
-              if (nuiEvent.ElementId == "selectedCategory" && !scanProgress.IsCancelled)
-                  CancelScanProgress();
 
               break;
           }
@@ -194,14 +186,14 @@ namespace NWN.Systems
 
           if (!materiaList.Any())
           {
-            readableRemainingTime.SetBindValue(player.oid, nuiToken.Token, "Recherche Passive : Aucun dépôt");
+            readableRemainingTime.SetBindValue(player.oid, nuiToken.Token, "Recherche - Échec");
             //progress.SetBindValue(player.oid, nuiToken.Token, 0);
             return;
           }
 
           materiaList = materiaList.OrderBy(m => m.DistanceSquared(player.oid.LoginCreature));
 
-          readableRemainingTime.SetBindValue(player.oid, nuiToken.Token, "Recherche Passive : Terminée");
+          readableRemainingTime.SetBindValue(player.oid, nuiToken.Token, "Recherche - Terminée");
 
           List<string> typeList = new List<string>();
           List<string> areaDistanceList = new List<string>();
@@ -249,7 +241,7 @@ namespace NWN.Systems
 
           if (!materiaList.Any()) // S'il n'y a aucune matéria dans la zone, on vérifie si un bloc peut spawn dans la zone
           {
-            readableRemainingTime.SetBindValue(player.oid, nuiToken.Token, "Recherche Active - Échec");
+            readableRemainingTime.SetBindValue(player.oid, nuiToken.Token, "Recherche - Échec");
 
             switch (resourceTemplate)
             {
@@ -346,7 +338,7 @@ namespace NWN.Systems
 
           return Utils.random.Next((int)(realQuantity * skillPoints * 0.05) - 1, 2 * realQuantity - (int)(realQuantity * skillPoints * 0.05));
         }
-        private void MateriaRevealCheck()
+        private async void MateriaRevealCheck()
         {
           NwArea area = player.oid.LoginCreature.Area;
           int areaLevel = area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value;
@@ -357,7 +349,8 @@ namespace NWN.Systems
           
           if(NwRandom.Roll(Utils.random, 100) < skillPoints)
           {
-            Location randomLocation = Utils.GetRandomLocationInArea(area);
+            Location randomLocation = await Utils.GetRandomLocationInArea(area);
+            await NwTask.SwitchToMainThread();
 
             if (randomLocation is null)
             {
@@ -395,7 +388,7 @@ namespace NWN.Systems
         }
         public void GetResourceDetectionTime(Player player, int detectionSkill, int speedSkill, int advancedSkill, int masterySkill)
         {
-          int scanDuration = 120;
+          scanDuration = Config.env == Config.Env.Prod ? Config.scanBaseDuration : 10;
           scanDuration -= scanDuration * (int)(player.learnableSkills[CustomSkill.MateriaScanning].totalPoints * 0.05);
           scanDuration -= player.learnableSkills.ContainsKey(detectionSkill) ? scanDuration * (int)(player.learnableSkills[detectionSkill].totalPoints * 0.05) : 0;
           scanDuration -= player.learnableSkills.ContainsKey(speedSkill) ? scanDuration * (int)(player.learnableSkills[speedSkill].totalPoints * 0.05) : 0;

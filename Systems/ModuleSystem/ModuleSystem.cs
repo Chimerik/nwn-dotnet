@@ -407,7 +407,7 @@ namespace NWN.Systems
         if (areaLevel < 2)
           continue;
 
-        int nbMateriaToSpawn = NwObject.FindObjectsWithTag<NwGameObject>("mineable_materia").Count(m => m.Area == area) - 12 - areaLevel;
+        int nbMateriaToSpawn = 12 - areaLevel - NwObject.FindObjectsWithTag<NwGameObject>("mineable_materia").Count(m => m.Area == area);
         Log.Info($"REFILL - {area.Name} - {nbMateriaToSpawn} can spawn");
 
         while (nbMateriaToSpawn > 0)
@@ -432,7 +432,8 @@ namespace NWN.Systems
 
       try
       {
-        Location randomLocation = Utils.GetRandomLocationInArea(area);
+        Location randomLocation = await Utils.GetRandomLocationInArea(area);
+        await NwTask.SwitchToMainThread();
 
         if (randomLocation is null)
           return;
@@ -443,6 +444,8 @@ namespace NWN.Systems
         NwPlaceable newResourceBlock = NwPlaceable.Create(resourceTemplate, randomLocation, false, "mineable_materia");
         newResourceBlock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = resourceQuantity;
         newResourceBlock.GetObjectVariable<LocalVariableInt>("_GRADE").Value = materiaGrade;
+
+        Log.Info($"MATERIA SPAWN - spawned {resourceTemplate} {materiaGrade} ({resourceQuantity}) in {area.Name}");
 
         await SqLiteUtils.InsertQueryAsync("areaResourceStock",
           new List<string[]>() { new string[] { "type", resourceTemplate }, new string[] { "quantity", resourceQuantity.ToString() }, new string[] { "grade", materiaGrade.ToString() }, new string[] { "location", SqLiteUtils.SerializeLocation(randomLocation) } },
