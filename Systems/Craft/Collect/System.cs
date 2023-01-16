@@ -73,37 +73,6 @@ namespace NWN.Systems.Craft.Collect
     public static readonly int[] highArmorBlueprints = new int[] { 6, 7, 8 };
     public static readonly BaseItemType[] highWeapônBlueprints = new BaseItemType[] { BaseItemType.TwoBladedSword, BaseItemType.TowerShield, BaseItemType.Scythe, BaseItemType.Kukri, BaseItemType.Katana, BaseItemType.Kama, BaseItemType.DwarvenWaraxe, BaseItemType.DireMace, BaseItemType.Doubleaxe, BaseItemType.Bastardsword };
 
-    public static async void UpdateResourceBlockInfo(NwPlaceable resourceBlock)
-    {
-      if (resourceBlock.GetObjectVariable<DateTimeLocalVariable>("_LAST_CHECK").HasNothing)
-        resourceBlock.GetObjectVariable<DateTimeLocalVariable>("_LAST_CHECK").Value = DateTime.Now.AddDays(-3);
-
-      double totalSeconds = (DateTime.Now - resourceBlock.GetObjectVariable<DateTimeLocalVariable>("_LAST_CHECK").Value).TotalSeconds;
-      double materiaGrowth = totalSeconds / (5 * resourceBlock.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value);
-      resourceBlock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value += (int)materiaGrowth;
-      resourceBlock.GetObjectVariable<DateTimeLocalVariable>("_LAST_CHECK").Value = DateTime.Now;
-
-      string resourceId = resourceBlock.GetObjectVariable<LocalVariableInt>("id").Value.ToString();
-      string areaTag = resourceBlock.Area.Tag;
-      string resourceType = resourceBlock.GetObjectVariable<LocalVariableString>("_RESOURCE_TYPE").Value;
-      string resourceQuantity = resourceBlock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value.ToString();
-
-      await SqLiteUtils.InsertQueryAsync("areaResourceStock",
-        new List<string[]>() { new string[] { "id", resourceId }, new string[] { "areaTag", areaTag }, new string[] { "type", resourceType }, new string[] { "quantity", resourceQuantity }, new string[] { "lastChecked", DateTime.Now.ToString() } },
-        new List<string>() { "id", "areaTag", "type" },
-        new List<string[]>() { new string[] { "quantity" }, new string[] { "lastChecked" } });
-    }
-    public static async void CreateSelectedResourceInInventory(CraftResource selection, PlayerSystem.Player player, int quantity)
-    {
-      NwItem pcResource = await NwItem.Create("craft_resource", player.oid.LoginCreature);
-      pcResource.GetObjectVariable<LocalVariableString>("CRAFT_RESOURCE").Value = selection.type.ToString();
-      pcResource.GetObjectVariable<LocalVariableInt>("CRAFT_GRADE").Value = selection.grade;
-      pcResource.Name = selection.name;
-      pcResource.Description = selection.description;
-      pcResource.Weight = selection.weight;
-      pcResource.Appearance.SetSimpleModel(selection.icon);
-      pcResource.StackSize = quantity;
-    }
     public static void AddCraftedItemProperties(NwItem craftedItem, int grade)
     {
       craftedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value = grade;

@@ -162,7 +162,7 @@ namespace NWN.Systems
               else
                 HandlePassiveScan();
 
-              HandleDurability();
+              ItemUtils.HandleCraftToolDurability(player, detector, "DETECTOR", resourceDurabilitySkill);
             }
           }
           catch (Exception e) 
@@ -382,12 +382,12 @@ namespace NWN.Systems
         {
           switch(selectedCategory.GetBindValue(player.oid, nuiToken.Token))
           {
-            case 1: GetResourceDetectionTime(player, CustomSkill.OreDetection, CustomSkill.OreDetectionSpeed, CustomSkill.OreDetectionAdvanced, CustomSkill.OreDetectionMastery); break;
-            case 2: GetResourceDetectionTime(player, CustomSkill.WoodDetection, CustomSkill.WoodDetectionSpeed, CustomSkill.WoodDetectionAdvanced, CustomSkill.WoodDetectionMastery); break;
-            case 3: GetResourceDetectionTime(player, CustomSkill.PeltDetection, CustomSkill.PeltDetectionSpeed, CustomSkill.PeltDetectionAdvanced, CustomSkill.PeltDetectionMastery); break;
+            case 1: GetResourceDetectionTime(CustomSkill.OreDetection, CustomSkill.OreDetectionSpeed, CustomSkill.OreDetectionAdvanced, CustomSkill.OreDetectionMastery); break;
+            case 2: GetResourceDetectionTime(CustomSkill.WoodDetection, CustomSkill.WoodDetectionSpeed, CustomSkill.WoodDetectionAdvanced, CustomSkill.WoodDetectionMastery); break;
+            case 3: GetResourceDetectionTime(CustomSkill.PeltDetection, CustomSkill.PeltDetectionSpeed, CustomSkill.PeltDetectionAdvanced, CustomSkill.PeltDetectionMastery); break;
           }
         }
-        public void GetResourceDetectionTime(Player player, int detectionSkill, int speedSkill, int advancedSkill, int masterySkill)
+        public void GetResourceDetectionTime(int detectionSkill, int speedSkill, int advancedSkill, int masterySkill)
         {
           scanDuration = Config.env == Config.Env.Prod ? Config.scanBaseDuration : 10;
           scanDuration -= scanDuration * (int)(player.learnableSkills[CustomSkill.MateriaScanning].totalPoints * 0.05);
@@ -402,40 +402,6 @@ namespace NWN.Systems
         private string GetReadableDetectionTime()
         {
           return new TimeSpan(TimeSpan.FromSeconds(timeLeft).Hours, TimeSpan.FromSeconds(timeLeft).Minutes, TimeSpan.FromSeconds(timeLeft).Seconds).ToString();
-        }
-        private void HandleDurability()
-        {
-          int skillPoints = player.learnableSkills.ContainsKey(resourceDurabilitySkill) ? player.learnableSkills[resourceDurabilitySkill].totalPoints * 2 : 0;
-          skillPoints += detector.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_DETECTOR_RESIST_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value);
-
-          foreach (var local in detector.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_DETECTOR_") && l.Name.Contains("_DURABILITY")))
-          {
-            if (NwRandom.Roll(Utils.random, 100) < skillPoints)
-              continue;
-
-            LocalVariableInt durabilityVar = (LocalVariableInt)local;
-            if (NwRandom.Roll(Utils.random, 100) < durabilityVar.Value)
-              durabilityVar.Value -= 10;
-            else
-            {
-              string[] enchantementArray = local.Name.Split("_");
-
-              switch (enchantementArray[3]) // type de l'enchantement
-              {
-                case "YIELD": player.oid.SendServerMessage($"L'enchantement d'amélioration de sensibilité de votre détecteur est épuisé", ColorConstants.Red); break;
-                case "SPEED": player.oid.SendServerMessage($"L'enchantement d'amélioration de vitesse de votre détecteur est épuisé", ColorConstants.Red); break;
-                case "QUALITY": player.oid.SendServerMessage($"L'enchantement d'amélioration de précision de votre détecteur est épuisé", ColorConstants.Red); break;
-                case "ACCURACY": player.oid.SendServerMessage($"L'enchantement d'amélioration de qualité de votre détecteur est épuisé", ColorConstants.Red); break;
-                case "RESIST": player.oid.SendServerMessage($"L'enchantement d'amélioration de durabilité de votre détecteur est épuisé", ColorConstants.Red); break;
-              }
-
-              detector.GetObjectVariable<LocalVariableInt>(local.Name.Replace("_DETECTOR", "")).Delete();
-              local.Delete();
-
-              detector.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
-              detector.GetObjectVariable<LocalVariableInt>($"SLOT{int.Parse(enchantementArray[5])}").Delete();                
-            }
-          }
         }
       }
     }

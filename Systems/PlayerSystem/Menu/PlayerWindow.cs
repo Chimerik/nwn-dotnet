@@ -32,7 +32,9 @@ namespace NWN.Systems
         {
           nuiToken.Close();
           IsOpen = false;
-          player.oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
+          
+          if(player.oid != null && player.oid.LoginCreature != null)
+            player.oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
         }
         public void ResizeWidgets()
         {

@@ -101,7 +101,7 @@ namespace NWN.Systems
     }
     public static int GetBaseItemCost(NwItem item)
     {
-      float baseCost = 9999999;
+      float baseCost;
 
       if (item.BaseItem.ItemType == BaseItemType.Armor)
         baseCost = NwGameTables.ArmorTable.GetRow(item.BaseACValue).Cost.Value;
@@ -340,6 +340,65 @@ namespace NWN.Systems
     public static List<NuiComboEntry> GetWeaponModelList(BaseItemType baseItem, ItemAppearanceWeaponModel part)
     {
       return weaponModelDictionary[baseItem][part];
+    }
+    public static void HandleCraftToolDurability(PlayerSystem.Player player, NwItem craftTool, string type, int resourceDurabilitySkill)
+    {
+      List<ObjectVariable> localsToRemove = new();
+      int slotToAdd = 0;
+      int skillPoints = player.learnableSkills.ContainsKey(resourceDurabilitySkill) ? player.learnableSkills[resourceDurabilitySkill].totalPoints * 2 : 0;
+      skillPoints += craftTool.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_{type}_RESIST_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value);
+
+      foreach (var local in craftTool.LocalVariables)
+      {
+        if (!local.Name.StartsWith($"ENCHANTEMENT_CUSTOM_{type}_") || !local.Name.Contains("_DURABILITY") || NwRandom.Roll(Utils.random, 100) < skillPoints)
+          continue;
+
+        LocalVariableInt durabilityVar = (LocalVariableInt)local;
+        if (NwRandom.Roll(Utils.random, 100) < durabilityVar.Value)
+          durabilityVar.Value -= 10;
+        else
+        {
+          string[] enchantementArray = local.Name.Split("_");
+
+          switch (enchantementArray[3]) // type de l'enchantement
+          {
+            case "YIELD": 
+              
+              switch(type)
+              {
+                case "EXTRACTOR": player.oid.SendServerMessage($"L'enchantement d'amélioration de rendement de votre outil est épuisé", ColorConstants.Red); break;
+                case "DETECTOR": player.oid.SendServerMessage($"L'enchantement d'amélioration de sensibilité de votre outil est épuisé", ColorConstants.Red); break;
+              }
+
+              break;
+              
+            case "SPEED": player.oid.SendServerMessage($"L'enchantement d'amélioration de vitesse de votre outil est épuisé", ColorConstants.Red); break;
+            case "QUALITY": player.oid.SendServerMessage($"L'enchantement d'amélioration de précision de votre outil est épuisé", ColorConstants.Red); break;
+            case "ACCURACY": player.oid.SendServerMessage($"L'enchantement d'amélioration de qualité de votre outil est épuisé", ColorConstants.Red); break;
+            case "RESIST": player.oid.SendServerMessage($"L'enchantement d'amélioration de durabilité de votre outil est épuisé", ColorConstants.Red); break;
+          }
+
+          localsToRemove.Add(craftTool.GetObjectVariable<LocalVariableInt>(local.Name.Replace("_DURABILITY", "")));
+          //DelayedLocalVarDeletion(craftTool.GetObjectVariable<LocalVariableInt>(local.Name.Replace("_DURABILITY", "")));
+          localsToRemove.Add(local);
+          //DelayedLocalVarDeletion(local);
+
+          //craftTool.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
+          slotToAdd++;
+          localsToRemove.Add(craftTool.GetObjectVariable<LocalVariableInt>($"SLOT{int.Parse(enchantementArray[5])}"));
+          //DelayedLocalVarDeletion(craftTool.GetObjectVariable<LocalVariableInt>($"SLOT{int.Parse(enchantementArray[5])}"));
+        }
+      }
+
+      foreach (var local in localsToRemove)
+        local.Delete();
+
+      craftTool.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += slotToAdd;
+    }
+    private static async void DelayedLocalVarDeletion(ObjectVariable local)
+    {
+      await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+      local.Delete();
     }
   }
 }

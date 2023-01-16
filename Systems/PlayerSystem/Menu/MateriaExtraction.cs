@@ -6,6 +6,8 @@ using System.Linq;
 using Anvil.API;
 using Anvil.Services;
 
+using Microsoft.Data.Sqlite;
+
 namespace NWN.Systems
 {
   public partial class PlayerSystem
@@ -19,91 +21,83 @@ namespace NWN.Systems
         private readonly NuiBind<string> readableRemainingTime = new("readableRemainingTime");
         private readonly Color white = new(255, 255, 255);
         private readonly NuiBind<NuiRect> drawListRect = new("drawListRect");
-        private int extractionRemainingTime { get; set; }
-        private int extractionTotalDuration { get; set; }
+        private double extractionRemainingTime { get; set; }
+        private double extractionTotalDuration { get; set; }
         private NwItem extractor { get; set; }
-        private NwPlaceable targetMateria { get; set; }
+        private NwGameObject targetMateria { get; set; }
         private ScheduledTask extractionProgress { get; set; }
         private ResourceType resourceType = ResourceType.Ore;
-        private int resourceExtractionSkill = CustomSkill.MineralExtraction;
-        private int resourceExtractionSpeedSkill = CustomSkill.MineralExtractionSpeed;
-        private int resourceYieldSkill = CustomSkill.MineralExtractionYield;
-        private int resourceCriticalSuccessSkill = CustomSkill.MineralExtractionCriticalSuccess;
-        private int resourceCriticalFailureSkill = CustomSkill.MineralExtractionCriticalFailure;
+        private int resourceExtractionSkill = CustomSkill.OreExtraction;
+        private int resourceExtractionSpeedSkill = CustomSkill.OreExtractionSpeed;
+        private int resourceYieldSkill = CustomSkill.OreExtractionYield;
+        private int resourceSafetySkill = CustomSkill.OreExtractionSafe;
+        private int resourceDurableSkill = CustomSkill.OreExtractionDurable;
+        private int resourceAdvancedSkill = CustomSkill.OreExtractionAdvanced;
+        private int resourceMasterySkill = CustomSkill.OreExtractionMastery;
 
         public MateriaExtractionWindow(Player player, NwItem extractor, NwGameObject oTarget) : base(player)
         {
           windowId = "materiaExtraction";
 
-          rootColumn = new NuiColumn() { Children = new List<NuiElement>()
+          rootColumn = new NuiColumn() { Children = new List<NuiElement>() { new NuiRow() { Children = new List<NuiElement>()
           {
-            new NuiRow() { Children = new List<NuiElement>()
-            {
-              new NuiProgress(progress) { Width = 485, Height = 35, DrawList = new List<NuiDrawListItem>() {
-                  new NuiDrawListText(white, drawListRect, readableRemainingTime) } }
-            } },
-          } };
+            new NuiProgress(progress) { Width = 485, Height = 35, DrawList = new List<NuiDrawListItem>() {
+              new NuiDrawListText(white, drawListRect, readableRemainingTime) } }
+          } } } };
 
           CreateWindow(extractor, oTarget);
         }
         public void CreateWindow(NwItem extractor, NwGameObject oTarget)
         {
-          if (!extractionProgress.IsCancelled)
-            extractionProgress.Dispose();
-
-          if (oTarget == null || oTarget is not NwPlaceable materia || oTarget.Tag != "mineable_materia")
+          if (oTarget == null || oTarget.Tag != "mineable_materia")
             return;
 
-          if (player.oid.ControlledCreature.DistanceSquared(materia) > 25)
+          if (player.oid.LoginCreature.DistanceSquared(oTarget) > 50)
           {
             player.oid.SendServerMessage("Vous êtes trop éloigné pour démarrer le processus d'extraction.", ColorConstants.Red);
             return;
           }
 
-          SelectExtractionSkill(oTarget.GetObjectVariable<LocalVariableString>("_RESOURCE_TYPE").Value);
+          this.extractor = extractor;
+
+          SelectExtractionSkill(oTarget.ResRef);
           SetExtractionTime();
 
-          if (targetMateria != null)
-            foreach (Effect eff in targetMateria.ActiveEffects.Where(e => e.Tag == $"_{player.characterId}_MINING_BEAM"))
-              targetMateria.RemoveEffect(eff);
+          foreach (Effect eff in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "_MINING_BEAM"))
+            targetMateria.RemoveEffect(eff);
 
-          this.extractor = extractor;
-          this.targetMateria = materia;
+          this.targetMateria = oTarget;
 
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.65f);
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? new NuiRect(player.windowRectangles[windowId].X, player.windowRectangles[windowId].Y, 490, 40) : new NuiRect(player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) / 2 - 250, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 490, 40);
 
-          window = new NuiWindow(rootColumn, "Extraction en cours")
+          window = new NuiWindow(rootColumn, "")
           {
             Geometry = geometry,
-            Resizable = true,
+            Resizable = false,
             Collapsed = false,
-            Closable = true,
+            Closable = false,
             Transparent = false,
-            Border = true,
+            Border = false,
           };
 
           if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
             nuiToken = tempToken;
 
-            remainingTime.SetBindValue(player.oid, nuiToken.Token, GetReadableExtractionTime());
+            readableRemainingTime.SetBindValue(player.oid, nuiToken.Token, GetReadableExtractionTime());
             progress.SetBindValue(player.oid, nuiToken.Token, 0);
+            drawListRect.SetBindValue(player.oid, nuiToken.Token, new(300, 15, 151, 20));
 
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-            if (!player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag == "_RESOURCE_EXTRACTION_HIDE_DEBUFF"))
-            {
-              Effect eff = Effect.SkillDecrease(NwSkill.FromSkillType(Skill.Hide), 100);
-              eff = Effect.LinkEffects(eff, Effect.SkillDecrease(NwSkill.FromSkillType(Skill.MoveSilently), 100));
-              eff.SubType = EffectSubType.Supernatural;
+            Effect eRay = Effect.Beam(VfxType.BeamDisintegrate, oTarget, BodyNode.Chest);
+            eRay = Effect.LinkEffects(eRay, Effect.SkillDecrease(NwSkill.FromSkillType(Skill.Hide), 100));
+            eRay = Effect.LinkEffects(eRay, Effect.SkillDecrease(NwSkill.FromSkillType(Skill.MoveSilently), 100));
+            eRay.SubType = EffectSubType.Supernatural;
+            eRay.Tag = "_MINING_BEAM";
 
-              player.oid.LoginCreature.ApplyEffect(EffectDuration.Temporary, eff, TimeSpan.FromSeconds(extractionTotalDuration));
-            }
-
-            Effect eRay = Effect.Beam(VfxType.BeamDisintegrate, extractor, BodyNode.Hand);
-            eRay.Tag = $"_{player.characterId}_MINING_BEAM";
-            oTarget.ApplyEffect(EffectDuration.Temporary, eRay, TimeSpan.FromSeconds(extractionRemainingTime));
+            player.oid.LoginCreature.ApplyEffect(EffectDuration.Temporary, eRay, TimeSpan.FromSeconds(extractionRemainingTime));
 
             extractionProgress?.Dispose();
             extractionProgress = player.scheduler.ScheduleRepeating(HandleExtractionProgress, TimeSpan.FromSeconds(1));
@@ -112,7 +106,8 @@ namespace NWN.Systems
 
         private void HandleExtractionProgress()
         {
-          if (player.oid.LoginCreature == null || !IsOpen || player.oid.LoginCreature.IsInCombat || player.oid.LoginCreature.IsResting
+          if (player.oid == null || player.oid.LoginCreature == null || targetMateria == null || player.oid.LoginCreature.Area != targetMateria.Area || extractor == null 
+            || extractor.Possessor != player.oid.LoginCreature || !IsOpen || player.oid.LoginCreature.IsInCombat || player.oid.LoginCreature.IsResting
             || player.oid.LoginCreature.CurrentAction == Anvil.API.Action.CastSpell || player.oid.LoginCreature.CurrentAction == Anvil.API.Action.AttackObject
             || player.oid.LoginCreature.CurrentAction == Anvil.API.Action.CounterSpell || player.oid.LoginCreature.CurrentAction == Anvil.API.Action.SetTrap
             || player.oid.LoginCreature.CurrentAction == Anvil.API.Action.ItemCastSpell)
@@ -122,8 +117,8 @@ namespace NWN.Systems
           }
 
           extractionRemainingTime -= 1;
-          remainingTime.SetBindValue(player.oid, nuiToken.Token, GetReadableExtractionTime());
-          progress.SetBindValue(player.oid, nuiToken.Token, (extractionTotalDuration - extractionRemainingTime) / extractionTotalDuration);
+          readableRemainingTime.SetBindValue(player.oid, nuiToken.Token, GetReadableExtractionTime());
+          progress.SetBindValue(player.oid, nuiToken.Token, (float)((extractionTotalDuration - extractionRemainingTime) / extractionTotalDuration));
 
           foreach (Effect eff in player.oid.LoginCreature.ActiveEffects.Where(e => e.EffectType == EffectType.Invisibility || e.EffectType == EffectType.ImprovedInvisibility))
           {
@@ -133,7 +128,7 @@ namespace NWN.Systems
 
           if (extractionRemainingTime < 1)
           {
-            extractionProgress.Dispose();
+            extractionProgress?.Dispose();
             CloseWindow();
 
             if (targetMateria == null)
@@ -148,36 +143,34 @@ namespace NWN.Systems
               return;
             }
 
-            Craft.Collect.System.UpdateResourceBlockInfo(targetMateria);
+            if (player.oid.LoginCreature.DistanceSquared(targetMateria) > 50)
+            {
+              player.oid.SendServerMessage("Vous êtes trop éloigné du dépôt. Impossible de finaliser le processus d'extraction.", ColorConstants.Red);
+              return;
+            }
 
             int miningYield = GetMiningYield();
             int grade = GetResourceGrade();
-
-            // retirer le yield de la matéria + mise à jour en BDD + destruction de la matéria et du placeable
-
             int remainingMateria = targetMateria.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value;
-            string areaTag = targetMateria.Area.Tag;
 
             if (miningYield >= remainingMateria)
             {
               miningYield = remainingMateria;
-              HandleMateriaDestruction();
+              HandleMateriaDestruction(remainingMateria);
             }
             else
             {
-              remainingMateria -= miningYield;
-              targetMateria.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = remainingMateria;
-              HandleMateriaUpdate(remainingMateria);
+
+              HandleMateriaUpdate(remainingMateria, remainingMateria - miningYield);
+              targetMateria.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value -= miningYield;
             }
 
-            // donner le yield au joueur
-            Craft.Collect.System.CreateSelectedResourceInInventory(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == resourceType && r.grade == grade),
-              player, miningYield);
+            CreateSelectedResourceInInventory(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == resourceType && r.grade == grade), miningYield);
 
-            // retirer debuff stealth
-            foreach (Effect eff in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "_RESOURCE_EXTRACTION_HIDE_DEBUFF"))
+            foreach (Effect eff in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "_MINING_BEAM"))
               player.oid.LoginCreature.RemoveEffect(eff);
 
+            ItemUtils.HandleCraftToolDurability(player, extractor, "EXTRACTOR", resourceSafetySkill);
             player.oid.SendServerMessage($"Vous parvenez à extraire {miningYield.ToString().ColorString(ColorConstants.White)} unité(s) de matéria", new Color(32, 255, 32));
 
             return;
@@ -187,29 +180,41 @@ namespace NWN.Systems
         {
           switch (type)
           {
-            case "wood_spawn_wp":
+            case "mineable_tree":
               resourceType = ResourceType.Wood;
               resourceExtractionSkill = CustomSkill.WoodExtraction;
               resourceExtractionSpeedSkill = CustomSkill.WoodExtractionSpeed;
               resourceYieldSkill = CustomSkill.WoodExtractionYield;
-              resourceCriticalSuccessSkill = CustomSkill.WoodExtractionCriticalSuccess;
-              resourceCriticalFailureSkill = CustomSkill.WoodExtractionCriticalFailure;
+              resourceSafetySkill = CustomSkill.WoodExtractionSafe;
+              resourceDurableSkill = CustomSkill.WoodExtractionDurable;
+              resourceAdvancedSkill = CustomSkill.WoodExtractionAdvanced;
+              resourceMasterySkill = CustomSkill.WoodExtractionMastery;
               break;
-            case "animal_spawn_wp":
+
+            case "mineable_animal":
               resourceType = ResourceType.Pelt;
               resourceExtractionSkill = CustomSkill.PeltExtraction;
               resourceExtractionSpeedSkill = CustomSkill.PeltExtractionSpeed;
               resourceYieldSkill = CustomSkill.PeltExtractionYield;
-              resourceCriticalSuccessSkill = CustomSkill.PeltExtractionCriticalSuccess;
-              resourceCriticalFailureSkill = CustomSkill.PeltExtractionCriticalFailure;
+              resourceSafetySkill = CustomSkill.PeltExtractionSafe;
+              resourceDurableSkill = CustomSkill.PeltExtractionDurable;
+              resourceAdvancedSkill = CustomSkill.PeltExtractionAdvanced;
+              resourceMasterySkill = CustomSkill.PeltExtractionMastery;
               break;
           }
         }
         private void SetExtractionTime()
         {
-          extractionTotalDuration = 180;
+          extractionTotalDuration = Config.env == Config.Env.Prod ? Config.extractionBaseDuration : 10;
+          extractionTotalDuration -= extractionTotalDuration * (int)(player.learnableSkills[CustomSkill.MateriaScanning].totalPoints * 0.05);
           extractionTotalDuration -= player.learnableSkills.ContainsKey(resourceExtractionSkill) ? extractionTotalDuration * (int)(player.learnableSkills[resourceExtractionSkill].totalPoints * 0.05) : 0;
           extractionTotalDuration -= player.learnableSkills.ContainsKey(resourceExtractionSpeedSkill) ? extractionTotalDuration * (int)(player.learnableSkills[resourceExtractionSpeedSkill].totalPoints * 0.05) : 0;
+          extractionTotalDuration -= player.learnableSkills.ContainsKey(resourceAdvancedSkill) ? extractionTotalDuration * (int)(player.learnableSkills[resourceAdvancedSkill].totalPoints * 0.05) : 0;
+          extractionTotalDuration -= player.learnableSkills.ContainsKey(resourceMasterySkill) ? extractionTotalDuration * (int)(player.learnableSkills[resourceMasterySkill].totalPoints * 0.05) : 0;
+          
+          
+          extractionTotalDuration -= extractionTotalDuration * (extractor.LocalVariables.Where(l => l.Name.StartsWith("ENCHANTEMENT_CUSTOM_EXTRACTOR_SPEED_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value) / 100);
+
           extractionRemainingTime = extractionTotalDuration;
         }
         private string GetReadableExtractionTime()
@@ -218,67 +223,144 @@ namespace NWN.Systems
         }
         private void CancelExtraction()
         {
-          extractionProgress.Dispose();
+          extractionProgress?.Dispose();
+          CloseWindow();
 
-          if (targetMateria != null)
-            foreach (Effect eff in targetMateria.ActiveEffects.Where(e => e.Tag == $"_{player.characterId}_MINING_BEAM"))
-              targetMateria.RemoveEffect(eff);
+          foreach (Effect eff in player.oid?.LoginCreature?.ActiveEffects.Where(e => e.Tag == "_MINING_BEAM"))
+            player.oid.LoginCreature.RemoveEffect(eff);
 
-          if (player.oid != null && player.oid.LoginCreature != null)
+          /*if (player.oid != null && player.oid.LoginCreature != null)
             foreach (Effect eff in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "_RESOURCE_EXTRACTION_HIDE_DEBUFF"))
-              player.oid.LoginCreature.RemoveEffect(eff);
+              player.oid.LoginCreature.RemoveEffect(eff);*/
 
-          player.oid?.SendServerMessage("Votre tentative d'extraction a été annulée.", ColorConstants.Orange);
+          player.oid?.SendServerMessage("Tentative d'extraction annulée.", ColorConstants.Orange);
         }
         private int GetMiningYield()
         {
-          double miningYield = 1500;
-          miningYield *= 1 + (extractor.GetObjectVariable<LocalVariableInt>("_ITEM_LEVEL").Value / 100);
-          miningYield = player.learnableSkills.ContainsKey(resourceExtractionSkill) ? miningYield * player.learnableSkills[resourceExtractionSkill].bonusMultiplier : miningYield;
-          miningYield = player.learnableSkills.ContainsKey(resourceYieldSkill) ? miningYield * player.learnableSkills[resourceYieldSkill].bonusMultiplier : miningYield;
+          double miningYield = Config.extractionBaseYield;
+          miningYield += miningYield * (int)(player.learnableSkills[CustomSkill.MateriaScanning].totalPoints * 0.05);
+          miningYield += player.learnableSkills.ContainsKey(resourceExtractionSkill) ? miningYield * (int)(player.learnableSkills[resourceExtractionSkill].totalPoints * 0.05) : 0;
+          miningYield += player.learnableSkills.ContainsKey(resourceYieldSkill) ? miningYield * (int)(player.learnableSkills[resourceYieldSkill].totalPoints * 0.05) : 0;
+          miningYield += player.learnableSkills.ContainsKey(resourceAdvancedSkill) ? miningYield * (int)(player.learnableSkills[resourceAdvancedSkill].totalPoints * 0.05) : 0;
+          miningYield += player.learnableSkills.ContainsKey(resourceMasterySkill) ? miningYield * (int)(player.learnableSkills[resourceMasterySkill].totalPoints * 0.05) : 0;
+          miningYield += miningYield * (extractor.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_EXTRACTOR_YIELD_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value) / 100);
+
           return (int)miningYield;
         }
         private int GetResourceGrade()
         {
-          int grade = targetMateria.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value - 1;
+          // Plus la ressource est de niveau important, plus la chance de critical success est basse et plus celle de failure est élevée
+          int grade = targetMateria.GetObjectVariable<LocalVariableInt>("_GRADE").Value;
+          int gradeChance = (grade - 1) * 2;
+          int skill = player.learnableSkills[CustomSkill.MateriaScanning].totalPoints;
+          skill += player.learnableSkills.ContainsKey(resourceExtractionSkill) ? skill * (int)(player.learnableSkills[resourceExtractionSkill].totalPoints * 0.01) : 0;
+          skill += player.learnableSkills.ContainsKey(resourceAdvancedSkill) ? skill * (int)(player.learnableSkills[resourceAdvancedSkill].totalPoints * 0.01) : 0;
+          skill += player.learnableSkills.ContainsKey(resourceMasterySkill) ? skill * (int)(player.learnableSkills[resourceMasterySkill].totalPoints * 0.01) : 0;
+          skill += extractor.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_EXTRACTOR_QUALITY_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value);
+
           int random = NwRandom.Roll(Utils.random, 100);
-          int antiFailureSkill = player.learnableSkills.ContainsKey(resourceCriticalFailureSkill) ? player.learnableSkills[resourceCriticalFailureSkill].totalPoints : 0;
-          int criticalSuccessSkill = player.learnableSkills.ContainsKey(resourceCriticalSuccessSkill) ? player.learnableSkills[resourceCriticalSuccessSkill].totalPoints : 0;
 
-          if (random + antiFailureSkill < 11 && grade > 1)
+          if (random - gradeChance + skill < 1 && grade > 1)
+          {
             grade -= 1;
+            player.oid.SendServerMessage("Cette extraction est plus difficile que d'habitude. Vous ne parvenez à extraire qu'une matéria de moindre qualité.");
+          }
 
-          if (random + criticalSuccessSkill > 100 && grade < 8)
+          if (random + gradeChance + skill > 100 && grade < 8)
+          {
             grade += 1;
+            player.oid.SendServerMessage("Votre compétence vous permet d'extraire une matéria de qualité supérieure.");
+          }
 
           return grade;
         }
-        private void HandleMateriaDestruction()
+        private async void HandleMateriaDestruction(int remainingMateria)
         {
-          string areaTag = targetMateria.Area.Tag;
-          int materiaId = targetMateria.GetObjectVariable<LocalVariableInt>("id").Value;
+          int materiaGrade = targetMateria.GetObjectVariable<LocalVariableInt>("_GRADE").Value;
+          string resRef = targetMateria.ResRef;
+          Location location = targetMateria.Location;
 
-          targetMateria.Destroy();
-          // TODO : Vérifier le tag des placeables mineables pour les variabiliser
-          // TODO : envisager animation de destruction pour le placeable ?
-          targetMateria.Area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(p => p.Tag == "mineable_tree" && p.GetObjectVariable<LocalVariableInt>("id").Value == materiaId).Destroy();
-          NwWaypoint resourceWapoint = NwWaypoint.Create(targetMateria.GetObjectVariable<LocalVariableString>("_RESOURCE_TYPE").Value, targetMateria.Location);
+          if (player.learnableSkills.ContainsKey(resourceDurableSkill))
+          {
+            if(NwRandom.Roll(Utils.random, 100) <= player.learnableSkills[resourceDurableSkill].totalPoints)
+            {
+              player.oid.SendServerMessage("Votre maîtrise de l'extraction vous a permis de conserver le dépôt intact malgré son épuisement total.");
+              targetMateria.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = 0;
 
-          SqLiteUtils.DeletionQuery("areaResourceStock",
-          new Dictionary<string, string>() { { "areaTag", areaTag }, { "id", materiaId.ToString() } });
+              try
+              {
+                using (var connection = new SqliteConnection(Config.dbPath))
+                {
+                  connection.Open();
+
+                  var sqlCommand = connection.CreateCommand();
+                  sqlCommand.CommandText = $"UPDATE areaResourceStock SET quantity = 0 " +
+                                        $"WHERE type = '{resRef}' and quantity = {remainingMateria} and grade = {materiaGrade} and location = '{SqLiteUtils.SerializeLocation(location)}' ";
+
+                  await sqlCommand.ExecuteNonQueryAsync();
+                }
+              }
+              catch (Exception e) { Utils.LogMessageToDMs($"Update Query - Materia Block - {e.Message}"); }
+
+              return;
+            }
+          }
+
+          targetMateria.Destroy(); // TODO : envisager animation de destruction pour le placeable ?
+
+          try
+          {
+            using (var connection = new SqliteConnection(Config.dbPath))
+            {
+              connection.Open();
+
+              var sqlCommand = connection.CreateCommand();
+              sqlCommand.CommandText = $"DELETE from areaResourceStock " +
+                                    $"WHERE type = '{resRef}' and quantity = {remainingMateria} and grade = {materiaGrade} and location = '{SqLiteUtils.SerializeLocation(location)}' ";
+
+              await sqlCommand.ExecuteNonQueryAsync();
+            }
+          }
+          catch (Exception e) { Utils.LogMessageToDMs($"Delete Query - Materia Block - {e.Message}"); }
         }
-        private void HandleMateriaUpdate(int remainingMateria)
+        private async void HandleMateriaUpdate(int previousMateria, int remainingMateria)
         {
-          foreach (Effect eff in targetMateria.ActiveEffects.Where(e => e.Tag == $"_{player.characterId}_MINING_BEAM"))
-            targetMateria.RemoveEffect(eff);
+          int materiaGrade = targetMateria.GetObjectVariable<LocalVariableInt>("_GRADE").Value;
+          string resRef = targetMateria.ResRef;
+          Location location = targetMateria.Location;
 
-          string areaTag = targetMateria.Area.Tag;
-          string materiaId = targetMateria.GetObjectVariable<LocalVariableInt>("id").Value.ToString();
+          try
+          {
+            using (var connection = new SqliteConnection(Config.dbPath))
+            {
+              connection.Open();
 
-          // mise à jour BDD
-          SqLiteUtils.UpdateQuery("areaResourceStock",
-          new List<string[]>() { new string[] { "quantity", remainingMateria.ToString() }, new string[] { "lastChecked", DateTime.Now.ToString() } },
-          new List<string[]>() { new string[] { "areaTag", areaTag }, new string[] { "id", materiaId.ToString() } });
+              var sqlCommand = connection.CreateCommand();
+              sqlCommand.CommandText = $"UPDATE areaResourceStock SET quantity = {remainingMateria} " +
+                                    $"WHERE type = '{resRef}' and quantity = {previousMateria} and grade = {materiaGrade} and location = '{SqLiteUtils.SerializeLocation(location)}' ";
+
+              await sqlCommand.ExecuteNonQueryAsync();
+            }
+          }
+          catch (Exception e)
+          {
+            Utils.LogMessageToDMs($"Update Query - Materia Block - {e.Message}");
+          }
+        }
+        private async void CreateSelectedResourceInInventory(CraftResource selection, int quantity)
+        {
+          player.feedbackService.AddFeedbackMessageFilter(FeedbackMessage.ItemReceived, player.oid);
+
+          NwItem pcResource = await NwItem.Create("craft_resource", player.oid.LoginCreature);
+          pcResource.GetObjectVariable<LocalVariableString>("CRAFT_RESOURCE").Value = selection.type.ToString();
+          pcResource.GetObjectVariable<LocalVariableInt>("CRAFT_GRADE").Value = selection.grade;
+          pcResource.Name = selection.name;
+          pcResource.Description = selection.description;
+          pcResource.Weight = selection.weight;
+          pcResource.Appearance.SetSimpleModel(selection.icon);
+          pcResource.StackSize = quantity;
+
+          player.feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.ItemReceived, player.oid);
         }
       }
     }

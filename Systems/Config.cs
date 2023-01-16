@@ -61,6 +61,10 @@ namespace NWN.Systems
 
     public static readonly double scanBaseDuration = 120;
 
+    // EXTRACTION
+
+    public static readonly double extractionBaseDuration = 60;
+    public static readonly double extractionBaseYield = 16 * extractionBaseDuration;
     // CRAFT
 
     public static readonly int baseCraftToolDurability = 100;

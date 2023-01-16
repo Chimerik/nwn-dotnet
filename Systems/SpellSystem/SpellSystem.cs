@@ -70,7 +70,7 @@ namespace NWN.Systems
         float level = spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Wizard));
         level = level < 1 ? 0.5f : level;
 
-        SkillSystem.learnableDictionary.Add(spell.Id, new LearnableSpell(spell.Id, spell.Name.ToString(), spell.Description.ToString(), spell.IconResRef, level < 1 ? 1 : (int)level, level < 1 ? 0 : (int)level, castClass == ClassType.Druid || castClass == ClassType.Cleric || castClass == ClassType.Ranger ? Ability.Wisdom : Ability.Intelligence, Ability.Charisma));
+        SkillSystem.learnableDictionary.Add(spell.Id, new LearnableSpell(spell.Id, spell.Name.Override is null ? spell.Name.ToString() : spell.Name.Override, spell.Description.Override is null ? spell.Description.ToString() : spell.Name.Override, spell.IconResRef, level < 1 ? 1 : (int)level, level < 1 ? 0 : (int)level, castClass == ClassType.Druid || castClass == ClassType.Cleric || castClass == ClassType.Ranger ? Ability.Wisdom : Ability.Intelligence, Ability.Charisma));
       }
 
       //ReinitStuff();

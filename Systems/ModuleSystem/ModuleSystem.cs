@@ -376,7 +376,7 @@ namespace NWN.Systems
         Log.Info($"MATERIA SPAWN - Area {materiaLocation.Area.Name} - Spawning {resRef} - Quantity {grade} - grade {grade}");
       }
     }
-    private void HandleMateriaGrowth()
+    private async void HandleMateriaGrowth()
     {
       Dictionary<int, int> areaLevelUpdater = new();
 
@@ -392,9 +392,25 @@ namespace NWN.Systems
         materia.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value += resourceGrowth;
 
         if (areaLevelUpdater.TryAdd(areaLevel, areaLevel))
-          SqLiteUtils.UpdateQuery("areaResourceStock",
-          new List<string[]>() { new string[] { "quantity", resourceGrowth.ToString() } },
-          new List<string[]>() { new string[] { "type", resRef }, new string[] { "quantity", quantity.ToString() }, new string[] { "grade", materiaGrade.ToString() }, new string[] { "location", SqLiteUtils.SerializeLocation(location) } });
+        {
+          try
+          {
+            using (var connection = new SqliteConnection(Config.dbPath))
+            {
+              connection.Open();
+
+              var sqlCommand = connection.CreateCommand();
+              sqlCommand.CommandText = $"UPDATE areaResourceStock SET quantity = {resourceGrowth} " +
+                                    $"WHERE type = '{resRef}' and quantity = {quantity} and grade = {materiaGrade} and location = '{SqLiteUtils.SerializeLocation(location)}' ";
+
+              await sqlCommand.ExecuteNonQueryAsync();
+            }
+          }
+          catch (Exception e)
+          {
+            Utils.LogMessageToDMs($"Update Query - Materia Block - {e.Message}");
+          }
+        }
       }
     }
     public static void SpawnCollectableResources()

@@ -104,9 +104,6 @@ namespace NWN
               logString += $"${param[0]} = {param[1]} ";
             }
 
-            //Log.Info(queryString);
-            //Log.Info(logString);
-
             await command.ExecuteNonQueryAsync();
           }
         }

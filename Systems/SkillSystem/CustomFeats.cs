@@ -269,23 +269,23 @@
     public const int WoodDetectionMastery = 20169;
     public const int PeltDetectionMastery = 20170;
 
-    public const int MineralExtraction = 20171;
-    public const int MineralExtractionSpeed = 20172;
-    public const int MineralExtractionYield = 20173;
-    public const int MineralExtractionCriticalSuccess = 20174;
-    public const int MineralExtractionCriticalFailure = 20175;
+    public const int OreExtraction = 20171;
+    public const int OreExtractionSpeed = 20172;
+    public const int OreExtractionYield = 20173;
+    public const int OreExtractionAdvanced = 20174;
+    public const int OreExtractionMastery = 20175;
 
     public const int WoodExtraction = 20176;
     public const int WoodExtractionSpeed = 20177;
     public const int WoodExtractionYield = 20178;
-    public const int WoodExtractionCriticalSuccess = 20179;
-    public const int WoodExtractionCriticalFailure = 20180;
+    public const int WoodExtractionAdvanced = 20179;
+    public const int WoodExtractionMastery = 20180;
 
     public const int PeltExtraction = 20181;
     public const int PeltExtractionSpeed = 20182;
     public const int PeltExtractionYield = 20183;
-    public const int PeltExtractionCriticalSuccess = 20184;
-    public const int PeltExtractionCriticalFailure = 20185;
+    public const int PeltExtractionAdvanced = 20184;
+    public const int PeltExtractionMastery = 20185;
 
     public const int ReprocessingOre = 20186;
     public const int ReprocessingOreEfficiency = 20187;
@@ -475,7 +475,7 @@
 
     public const int ArtisanFocus = 20355;
 
-    public const int MineralExtractionSafe = 20356;
+    public const int OreExtractionSafe = 20356;
     public const int WoodExtractionSafe = 20357;
     public const int PeltExtractionSafe = 20358;
 
@@ -483,6 +483,11 @@
     public const int OreDetectionAccuracy = 20360;
     public const int WoodDetectionAccuracy = 20361;
     public const int PeltDetectionAccuracy = 20362;
+
+    public const int MateriaExtraction = 20363;
+    public const int OreExtractionDurable = 20364;
+    public const int WoodExtractionDurable = 20365;
+    public const int PeltExtractionDurable = 20366;
 
     public const int Invalid = 65535;
   }

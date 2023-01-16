@@ -785,8 +785,8 @@ namespace NWN.Systems
         int nbCycles = (int)Math.Truncate(elapsedTime / 3600);
         double alreadyConsumedTime = elapsedTime - (nbCycles * 3600);
         double miningYield = nbCycles * 900;
-        miningYield = player.learnableSkills.ContainsKey(CustomSkill.MineralExtraction) ? miningYield * player.learnableSkills[CustomSkill.MineralExtraction].bonusMultiplier : miningYield;
-        miningYield = player.learnableSkills.ContainsKey(CustomSkill.MineralExtractionYield) ? miningYield * player.learnableSkills[CustomSkill.MineralExtractionYield].bonusMultiplier : miningYield;
+        miningYield = player.learnableSkills.ContainsKey(CustomSkill.OreExtraction) ? miningYield * player.learnableSkills[CustomSkill.OreExtraction].bonusMultiplier : miningYield;
+        miningYield = player.learnableSkills.ContainsKey(CustomSkill.OreExtractionYield) ? miningYield * player.learnableSkills[CustomSkill.OreExtractionYield].bonusMultiplier : miningYield;
 
         CraftResource resourceStock = player.craftResourceStock.FirstOrDefault(r => r.type == ResourceType.Ore && r.grade == 1);
 

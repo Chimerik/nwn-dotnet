@@ -5,6 +5,7 @@ using System.Linq;
 using Anvil.API.Events;
 using NLog;
 using System;
+using System.Threading.Tasks;
 
 namespace NWN.Systems
 {
@@ -131,6 +132,12 @@ namespace NWN.Systems
             feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
             onItemUse.PreventUseItem = true;
 
+            if (!player.learnableSkills.ContainsKey(CustomSkill.MateriaExtraction))
+            {
+              player.oid.SendServerMessage("La base de la compétence d'extraction de dépot de matéria doit être apprise avant de pouvoir utiliser cet objet", ColorConstants.Red);
+              return;
+            }
+
             if (!player.windows.ContainsKey("materiaExtraction")) player.windows.Add("materiaExtraction", new PlayerSystem.Player.MateriaExtractionWindow(player, onItemUse.Item, oTarget));
             else ((PlayerSystem.Player.MateriaExtractionWindow)player.windows["materiaExtraction"]).CreateWindow(onItemUse.Item, oTarget);
           }
@@ -142,7 +149,7 @@ namespace NWN.Systems
 
           if (!player.learnableSkills.ContainsKey(CustomSkill.MateriaScanning))
           {
-            player.oid.SendServerMessage("La base de la compétence de recherche de dépot de matéria doit être maîtrisée avant de pouvoir utiliser cet objet", ColorConstants.Red);
+            player.oid.SendServerMessage("La base de la compétence de recherche de dépot de matéria doit être apprise avant de pouvoir utiliser cet objet", ColorConstants.Red);
             return;
           }
 
@@ -185,8 +192,10 @@ namespace NWN.Systems
 
       if (oItem.Tag == "undroppable_item")
       {
+        feedbackService.AddFeedbackMessageFilter(FeedbackMessage.ItemLost, oPC.ControllingPlayer);
         oItem.Clone(oAcquiredFrom);
         oItem.Destroy();
+        feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.ItemLost, oPC.ControllingPlayer);
         return;
       }
 
@@ -209,6 +218,8 @@ namespace NWN.Systems
 
       if (oItem.BaseItem.IsStackable)
       {
+        feedbackService.AddFeedbackMessageFilter(FeedbackMessage.ItemReceived, oPC.ControllingPlayer);
+
         foreach (var inventoryItem in oPC.Inventory.Items)
         {
           bool sameItem = true;
@@ -250,6 +261,8 @@ namespace NWN.Systems
             break;
           }
         }
+
+        feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.ItemReceived, oPC.ControllingPlayer);
       }
 
       //En pause jusqu'à ce que le système de transport soit en place
