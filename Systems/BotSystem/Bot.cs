@@ -118,8 +118,11 @@ namespace NWN.Systems
       {
         try
         {
+          ModuleSystem.Log.Info("Discord still disconnected firing login async");
           await _client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("BOT"));
+          ModuleSystem.Log.Info("Discord still disconnected, firing start async");
           await _client.StartAsync();
+          ModuleSystem.Log.Info("Discord restarted");
         }
         catch(Exception e)
         {

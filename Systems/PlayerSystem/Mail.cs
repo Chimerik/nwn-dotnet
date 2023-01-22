@@ -142,7 +142,7 @@ namespace NWN.Systems
     public void SendReceiptToPlayer()
     {
       new Mail("Banque Skalsgard", -1, from, fromCharacterId, "Accusé de lecture", 
-        $"Très honoré client,\n\n Nous sommes ravis de vous annoncer que votre missive du {sentDate:dd/MM/YYYY} à destination de {to} a bien été reçue et lue par son destinataire.\n\nTitre de la missive : {title}",
+        $"Très honoré client,\n\n Nous sommes ravis de vous annoncer que votre missive du {sentDate:dd/MM/yyyy} à destination de {to} a bien été reçue et lue par son destinataire.\n\nTitre de la missive : {title}",
         DateTime.Now, false, DateTime.Now.AddMonths(3)).SendMailToPlayer(fromCharacterId);
     }
   }

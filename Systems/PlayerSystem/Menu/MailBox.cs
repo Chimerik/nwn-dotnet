@@ -258,7 +258,7 @@ namespace NWN.Systems
           try { selectedSender = Utils.mailReceiverEntries.ElementAt(selectedEntry.GetBindValue(player.oid, nuiToken.Token)).Label; }
           catch(Exception) { }
 
-          if (inboxEnabled.GetBindValue(player.oid, nuiToken.Token))
+          if (inboxEnabled.GetBindValue(player.oid, nuiToken.Token)) // Si inbox enabled, alors c'est qu'on se trouve sur l'outbox
           {
             filteredList = !string.IsNullOrEmpty(selectedSender) ? player.mails.Where(m => m.to == selectedSender) : player.mails;
             
@@ -329,18 +329,17 @@ namespace NWN.Systems
 
           foreach (var mail in displayList)
           {
-            string receiver;
             string sender;
 
-            if (inboxEnabled.GetBindValue(player.oid, nuiToken.Token))
+            if (inboxEnabled.GetBindValue(player.oid, nuiToken.Token)) // Si inbox enabled, alors on charge l'outbox
             {
-              receiver = mail.from;
+              nameList.Add(mail.to);
               sender = mail.to;
               mail.read = true;
             }
             else
             {
-              receiver = mail.to;
+              nameList.Add(mail.from);
               sender = mail.from;
             }
 
@@ -350,7 +349,6 @@ namespace NWN.Systems
               entries.Add(new NuiComboEntry(sender, count));
             }
 
-            nameList.Add(sender);
             titleList.Add(mail.title);
             dateList.Add(mail.sentDate.ToString("dd/MM/yyyy HH:mm"));
             colorList.Add(mail.read ? readColor : unreadColor);
@@ -397,7 +395,13 @@ namespace NWN.Systems
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiCombo() { Entries = Utils.mailReceiverEntries, Selected = selectedEntry, Height = 35, Width = 580 } } });
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Objet", title, 200, false) { Height = 35, Width = 580 } } });
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Contenu", content, 3000, true) { Height = 200, Width = 580 } } });
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiButton("Envoyer") { Id = "send", Height = 35, Width = 60 }, new NuiCheck("Accusé", receiptSelected) { Tooltip = "Demander un accusé de lecture (coût supplémentaire de 5 pièces)" }, new NuiSpacer() } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() 
+          { 
+            new NuiSpacer(), 
+            new NuiButton("Envoyer") { Id = "send", Height = 35, Width = 60 }, 
+            new NuiCheck("Accusé", receiptSelected) { Tooltip = "Demander un accusé de lecture (coût supplémentaire de 5 pièces)" }, 
+            new NuiSpacer() 
+          } });
 
           selectedEntry.SetBindValue(player.oid, nuiToken.Token, -1);
           title.SetBindValue(player.oid, nuiToken.Token, "");
@@ -412,6 +416,7 @@ namespace NWN.Systems
 
           inboxEnabled.SetBindValue(player.oid, nuiToken.Token, true);
           outboxEnabled.SetBindValue(player.oid, nuiToken.Token, true);
+          receiptSelected.SetBindValue(player.oid, nuiToken.Token, false);
           selectedEntry.SetBindWatch(player.oid, nuiToken.Token, true);
           receiptSelected.SetBindWatch(player.oid, nuiToken.Token, true);
         }

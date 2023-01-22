@@ -203,14 +203,24 @@ namespace NWN.Systems
     }
     private async void CheckMateriaInventory(DoorEvents.OnAreaTransitionClick onClick)
     {
-      if (!onClick.ClickedBy.ControlledCreature.Inventory.Items.Any(i => i.Tag == "craft_resource"))
-        await onClick.ClickedBy.ControlledCreature.JumpToObject(onClick.Door.TransitionTarget);
-      else
+      try
       {
-        onClick.ClickedBy.SendServerMessage("Une sorte de mur de force vous empêche de pénétrer plus avant dans la cité.\nUn frisson remonte le long de votre moëlle épinière alors que vous avez la certitude que quelque chose puissant porte un regard soupçonneux sur vous.\n\nLes miliciens vous signaleront que la Loi interdit d'entrer en possession de matéria et qu'il vous faut les déposer à l'entrepôt derrière vous.", ColorConstants.Red);
-        await onClick.ClickedBy.ControlledCreature.ClearActionQueue();
-        onClick.ClickedBy.ControlledCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSpellMantleUse));
-        return;
+        if (!onClick.ClickedBy.ControlledCreature.Inventory.Items.Any(i => i.Tag == "craft_resource"))
+          await onClick.ClickedBy.ControlledCreature.JumpToObject(onClick.Door.TransitionTarget);
+        else
+        {
+          onClick.ClickedBy.SendServerMessage("Une sorte de mur de force vous empêche de pénétrer plus avant dans la cité.\nUn frisson remonte le long de votre moëlle épinière alors que vous avez la certitude que quelque chose puissant porte un regard soupçonneux sur vous.\n\nLes miliciens vous signaleront que la Loi interdit d'entrer en possession de matéria et qu'il vous faut les déposer à l'entrepôt derrière vous.", ColorConstants.Red);
+          await onClick.ClickedBy.ControlledCreature.ClearActionQueue();
+          onClick.ClickedBy.ControlledCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSpellMantleUse));
+        }
+      }
+      catch(Exception e) 
+      {
+        Utils.LogMessageToDMs($"SLUMS TRANSITION ERROR - {e.Message}\n{e.StackTrace}");
+        Utils.LogMessageToDMs($"ClickedBy - {onClick.ClickedBy.PlayerName}");
+        Utils.LogMessageToDMs($"ControlledCreature - {onClick.ClickedBy.ControlledCreature.Name}");
+        Utils.LogMessageToDMs($"ControlledCreature - {onClick.ClickedBy.ControlledCreature.Inventory}");
+        Utils.LogMessageToDMs($"ControlledCreature - {onClick.ClickedBy.ControlledCreature.Inventory.Items}");
       }
     }
     public static void StartIntroMirrorDialog(PlaceableEvents.OnUsed onUsed)

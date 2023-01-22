@@ -518,6 +518,13 @@ namespace NWN.Systems
     {
       if (completed)
       {
+        if(player.craftJob.serializedCraftedItem == null)
+        {
+          player.oid.SendServerMessage("Erreur technique - Votre objet n'a pas pu être créé. Veuillez contacter le staff et leur fournir les renseignements qui pourront les aider à déterminer l'origine du problème.", ColorConstants.Red);
+          Utils.LogMessageToDMs($"CRAFT ERROR - {player.craftJob.type} - {player.oid.LoginCreature.Name}");
+          return true;
+        }
+
         NwItem item = ItemUtils.DeserializeAndAcquireItem(player.craftJob.serializedCraftedItem, player.oid.LoginCreature);
         player.oid.SendServerMessage($"Vous venez de terminer la création de : {item.Name.ColorString(ColorConstants.White)}", ColorConstants.Orange);
         player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
@@ -690,7 +697,7 @@ namespace NWN.Systems
     {
       return spell.Id switch
       {
-        883 or 884 or 885 or 886 or 887 or 888 or 889 or 889 => GetCraftToolEnchantementProperties(enchanter, craftedItem, spell, index, slot),
+        883 or 884 or 885 or 886 or 887 or 888 or 889 or 889 => GetCraftToolEnchantementProperties(craftedItem, spell, index, slot),
         _ => GetCraftEnchantementProperties(craftedItem, spell, SpellUtils.enchantementCategories[spell.Id][index], enchanter.characterId),
       };
     }
@@ -743,7 +750,7 @@ namespace NWN.Systems
 
       return ip.Tag;
     }
-    private static string GetCraftToolEnchantementProperties(Player enchanter, NwItem craftedItem, NwSpell spell, int index, int slot)
+    private static string GetCraftToolEnchantementProperties(NwItem craftedItem, NwSpell spell, int index, int slot)
     {
       var enchantement = spell.Id switch
       {
