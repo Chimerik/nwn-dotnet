@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Linq;
 
 using Anvil.API;
-using Anvil.API.Events;
 
 namespace NWN.Systems
 {
@@ -70,13 +69,11 @@ namespace NWN.Systems
       public string enchantementTag { get; set; }
       public DateTime? progressLastCalculation { get; set; }
       public DateTime? startTime { get; set; }
-      //public ScheduledTask jobProgression { get; set; }
-      public CraftJob(Player player, NwItem oBlueprint, double jobDuration) // Item Craft
+
+      public CraftJob(Player player, NwItem oBlueprint, double jobDuration, NwItem tool) // Item Craft
       {
         try
         {
-          // TODO : gérer la durabilité de l'outil de craft
-
           // s'il s'agit d'une copie de blueprint, alors le nombre d'utilisation diminue de 1
           if (oBlueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").HasValue)
           {
@@ -99,11 +96,14 @@ namespace NWN.Systems
 
           remainingTime = jobDuration;
           type = JobType.ItemCreation;
-
-          NwItem craftedItem = NwItem.Create(BaseItems2da.baseItemTable[baseItemType].craftedItem, player.oid.LoginCreature.Location);
+          NwItem craftedItem = (BaseItemType)baseItemType == BaseItemType.Armor ? NwItem.Create(Armor2da.armorTable[oBlueprint.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value].craftResRef, player.oid.LoginCreature.Location)
+            : NwItem.Create(BaseItems2da.baseItemTable[baseItemType].craftedItem, player.oid.LoginCreature.Location);
 
           Craft.Collect.System.AddCraftedItemProperties(craftedItem, 1);
           craftedItem.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value = player.oid.LoginCreature.OriginalName;
+
+          if (NwRandom.Roll(Utils.random, 100) <= tool.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_CRAFT_QUALITY_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value))
+            craftedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
 
           serializedCraftedItem = craftedItem.Serialize().ToBase64EncodedString();
           craftedItem.Destroy();
@@ -115,12 +115,10 @@ namespace NWN.Systems
           Utils.LogMessageToDMs($"{e.Message}\n\n{e.StackTrace}");
         }
       }
-      public CraftJob(Player player, NwItem oBlueprint, double jobDuration, NwItem upgradedItem) // Item Upgrade
+      public CraftJob(Player player, NwItem oBlueprint, double jobDuration, NwItem upgradedItem, NwItem tool) // Item Upgrade
       {
         try
         {
-          // TODO : gérer la durabilité de l'outil de craft
-
           // s'il s'agit d'une copie de blueprint, alors le nombre d'utilisation diminue de 1
           if (oBlueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").HasValue)
           {
@@ -133,6 +131,9 @@ namespace NWN.Systems
           icon = upgradedItem.BaseItem.WeaponFocusFeat.IconResRef;
           remainingTime = jobDuration;
           type = JobType.ItemUpgrade;
+
+          if (NwRandom.Roll(Utils.random, 100) <= tool.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_CRAFT_QUALITY_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value))
+            upgradedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
 
           originalSerializedItem = upgradedItem.Serialize().ToBase64EncodedString();
 
@@ -153,12 +154,34 @@ namespace NWN.Systems
         serializedCraftedItem = upgradedItem.Serialize().ToBase64EncodedString();
         upgradedItem.Destroy();
       }
-      public CraftJob(Player player, NwItem oBlueprint, JobType type) // Blueprint Copy
+      public CraftJob(Player player, NwItem oBlueprint, NwItem tool, JobType type) // Item Renforcement & Recycling
       {
         try
         {
           this.type = type;
 
+          switch (type)
+          {
+            case JobType.Renforcement:
+              icon = NwBaseItem.FromItemId(oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value).EpicWeaponFocusFeat.IconResRef;
+              StartRenforcement(player, oBlueprint, tool);
+              break;
+            case JobType.Recycling:
+              icon = NwBaseItem.FromItemId(oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value).EpicWeaponFocusFeat.IconResRef;
+              StartRecycling(player, oBlueprint, tool);
+              break;
+          }
+        }
+        catch (Exception e)
+        {
+          Utils.LogMessageToDMs($"{e.Message}\n\n{e.StackTrace}");
+        }
+      }
+      public CraftJob(Player player, NwItem oBlueprint, JobType type) // Blueprint Copy
+      {
+        try
+        {
+          this.type = type;
 
           switch (type)
           {
@@ -174,14 +197,6 @@ namespace NWN.Systems
               icon = NwBaseItem.FromItemId(oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value).EpicWeaponFocusFeat.IconResRef;
               StartBlueprintTimeResearch(player, oBlueprint);
               break;
-            case JobType.Renforcement:
-              icon = NwBaseItem.FromItemId(oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value).EpicWeaponFocusFeat.IconResRef;
-              StartRenforcement(player, oBlueprint);
-              break;
-            case JobType.Recycling:
-              icon = NwBaseItem.FromItemId(oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value).EpicWeaponFocusFeat.IconResRef;
-              StartRecycling(player, oBlueprint);
-              break;
           }
         }
         catch (Exception e)
@@ -193,8 +208,6 @@ namespace NWN.Systems
       {
         try
         {
-          // TODO : gérer la durabilité de l'outil de craft
-
           icon = item.BaseItem.WeaponFocusFeat.IconResRef;
           remainingTime = jobDuration;
           type = jobType;
@@ -202,7 +215,6 @@ namespace NWN.Systems
           originalSerializedItem = item.Serialize().ToBase64EncodedString();
 
           NwItem repairedItem = NwItem.Create(BaseItems2da.baseItemTable[(int)item.BaseItem.ItemType].craftedItem, player.oid.LoginCreature.Location);
-          //repairedItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
 
           if (player.learnableSkills.ContainsKey(CustomSkill.RepairCareful))
             repairedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value = (int)(repairedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value * (0.95 + player.learnableSkills[CustomSkill.RepairCareful].totalPoints / 100));
@@ -407,11 +419,11 @@ namespace NWN.Systems
 
         player.oid.ApplyInstantVisualEffectToObject((VfxType)792, player.oid.ControlledCreature);
       }
-      private void StartRenforcement(Player player, NwItem item)
+      private void StartRenforcement(Player player, NwItem item, NwItem tool)
       {
         try
         {
-          remainingTime = player.GetItemReinforcementTime(item);
+          remainingTime = player.GetItemReinforcementTime(item, tool);
           originalSerializedItem = item.Serialize().ToBase64EncodedString();
 
           item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value += item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value * 5 / 100;
@@ -427,11 +439,11 @@ namespace NWN.Systems
           Utils.LogMessageToDMs($"{e.Message}\n\n{e.StackTrace}");
         }
       }
-      private void StartRecycling(Player player, NwItem item)
+      private void StartRecycling(Player player, NwItem item, NwItem tool)
       {
         try
         {
-          remainingTime = player.GetItemRecycleTime(item);
+          remainingTime = player.GetItemRecycleTime(item, tool);
 
           originalSerializedItem = item.Serialize().ToBase64EncodedString();
           item.Destroy();
@@ -697,7 +709,7 @@ namespace NWN.Systems
     {
       return spell.Id switch
       {
-        883 or 884 or 885 or 886 or 887 or 888 or 889 or 889 => GetCraftToolEnchantementProperties(craftedItem, spell, index, slot),
+        883 or 884 or 885 or 886 or 887 or 888 or 889 or 889 or 890 or 891 or 892 or 893 => GetCraftToolEnchantementProperties(craftedItem, spell, index, slot),
         _ => GetCraftEnchantementProperties(craftedItem, spell, SpellUtils.enchantementCategories[spell.Id][index], enchanter.characterId),
       };
     }
@@ -758,6 +770,10 @@ namespace NWN.Systems
         888 => "DETECTOR",
         889 => "DETECTOR",
         890 => "DETECTOR",
+        891 => "CRAFT",
+        892 => "CRAFT",
+        893 => "CRAFT",
+        894 => "CRAFT",
         _ => "EXTRACTOR",
       };
     

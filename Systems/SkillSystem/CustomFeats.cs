@@ -489,6 +489,8 @@
     public const int WoodExtractionDurable = 20365;
     public const int PeltExtractionDurable = 20366;
 
+    public const int ArtisanPrudent = 20367;
+
     public const int Invalid = 65535;
   }
 }

@@ -78,6 +78,7 @@ namespace NWN.Systems
             LoadMailBoxBinding();
             inboxEnabled.SetBindValue(player.oid, nuiToken.Token, false);
             outboxEnabled.SetBindValue(player.oid, nuiToken.Token, true);
+            SetSenderEntries();
             SearchMails();
             LoadMessages(filteredList);
 
@@ -102,6 +103,7 @@ namespace NWN.Systems
                   LoadMailBoxBinding();
                   inboxEnabled.SetBindValue(player.oid, nuiToken.Token, false);
                   outboxEnabled.SetBindValue(player.oid, nuiToken.Token, true);
+                  SetSenderEntries();
                   SearchMails();
                   LoadMessages(filteredList);
 
@@ -114,6 +116,7 @@ namespace NWN.Systems
                   LoadMailBoxBinding();
                   inboxEnabled.SetBindValue(player.oid, nuiToken.Token, true);
                   outboxEnabled.SetBindValue(player.oid, nuiToken.Token, false);
+                  SetSenderEntries();
                   SearchMails();
                   LoadMessages(filteredList);
 
@@ -133,6 +136,7 @@ namespace NWN.Systems
                   LoadMailBoxBinding();
                   inboxEnabled.SetBindValue(player.oid, nuiToken.Token, false);
                   outboxEnabled.SetBindValue(player.oid, nuiToken.Token, true);
+                  SetSenderEntries();
                   SearchMails();
                   LoadMessages(filteredList);
 
@@ -168,6 +172,10 @@ namespace NWN.Systems
                   Mail newMail = new Mail(player.oid.LoginCreature.Name, player.characterId, targetName, targetId, mailTitle, mailContent, DateTime.Now, receiptSelected.GetBindValue(player.oid, nuiToken.Token));
                   player.mails.Add(newMail);
 
+                  Log.Info($"sendMail : {player.mails.Count}");
+                  Log.Info($"sendMail senderId : {player.characterId}");
+                  Log.Info($"sendMail targetId : {targetId}");
+
                   if (targetId != player.characterId)
                     newMail.SendMailToPlayer(targetId);
 
@@ -176,6 +184,7 @@ namespace NWN.Systems
                   LoadMailBoxBinding();
                   inboxEnabled.SetBindValue(player.oid, nuiToken.Token, false);
                   outboxEnabled.SetBindValue(player.oid, nuiToken.Token, true);
+                  SetSenderEntries();
                   SearchMails();
                   LoadMessages(filteredList);
 
@@ -212,6 +221,7 @@ namespace NWN.Systems
                   LoadMailBoxBinding();
                   inboxEnabled.SetBindValue(player.oid, nuiToken.Token, false);
                   outboxEnabled.SetBindValue(player.oid, nuiToken.Token, true);
+                  SetSenderEntries();
                   SearchMails();
                   LoadMessages(filteredList);
 
@@ -253,21 +263,20 @@ namespace NWN.Systems
         private void SearchMails()
         {
           string searchValue = search.GetBindValue(player.oid, nuiToken.Token).ToLower();
-          string selectedSender = null;
-
-          try { selectedSender = Utils.mailReceiverEntries.ElementAt(selectedEntry.GetBindValue(player.oid, nuiToken.Token)).Label; }
-          catch(Exception) { }
+          int selectedSender = selectedEntry.GetBindValue(player.oid, nuiToken.Token);
 
           if (inboxEnabled.GetBindValue(player.oid, nuiToken.Token)) // Si inbox enabled, alors c'est qu'on se trouve sur l'outbox
           {
-            filteredList = !string.IsNullOrEmpty(selectedSender) ? player.mails.Where(m => m.to == selectedSender) : player.mails;
-            
-            if(!string.IsNullOrEmpty(searchValue))
+            filteredList = selectedSender != 0 ? player.mails.Where(m => m.toCharacterId == selectedSender) : player.mails;
+            filteredList = filteredList.Where(m => m.fromCharacterId == player.characterId);
+
+            if (!string.IsNullOrEmpty(searchValue))
               filteredList = filteredList.Where(m => m.title.ToLower().Contains(searchValue));
           }
           else
           {
-            filteredList = !string.IsNullOrEmpty(selectedSender) ? player.mails.Where(m => m.from == selectedSender) : player.mails;
+            filteredList = selectedSender != 0 ? player.mails.Where(m => m.fromCharacterId == selectedSender) : player.mails;
+            filteredList = filteredList.Where(m => m.toCharacterId == player.characterId);
 
             if (!string.IsNullOrEmpty(searchValue))
               filteredList = player.mails.Where(m => m.title.ToLower().Contains(searchValue));
@@ -315,39 +324,22 @@ namespace NWN.Systems
           selectedEntry.SetBindWatch(player.oid, nuiToken.Token, true);
           search.SetBindWatch(player.oid, nuiToken.Token, true);
         }
-
         private void LoadMessages(IEnumerable<Mail> displayList)
         {
           List<string> nameList = new();
           List<string> dateList = new();
           List<string> titleList = new();
-          List<NuiComboEntry> entries = new();
           List<Color> colorList = new();
-          int count = 0;
-
-          entries.Add(new NuiComboEntry("Tous", count));
 
           foreach (var mail in displayList)
           {
-            string sender;
-
             if (inboxEnabled.GetBindValue(player.oid, nuiToken.Token)) // Si inbox enabled, alors on charge l'outbox
             {
               nameList.Add(mail.to);
-              sender = mail.to;
               mail.read = true;
             }
             else
-            {
               nameList.Add(mail.from);
-              sender = mail.from;
-            }
-
-            if (!nameList.Contains(sender))
-            {
-              count++;
-              entries.Add(new NuiComboEntry(sender, count));
-            }
 
             titleList.Add(mail.title);
             dateList.Add(mail.sentDate.ToString("dd/MM/yyyy HH:mm"));
@@ -357,7 +349,6 @@ namespace NWN.Systems
           senderName.SetBindValues(player.oid, nuiToken.Token, nameList);
           title.SetBindValues(player.oid, nuiToken.Token, titleList);
           receivedDate.SetBindValues(player.oid, nuiToken.Token, dateList);
-          comboEntries.SetBindValue(player.oid, nuiToken.Token, entries);
           readColorBinding.SetBindValues(player.oid, nuiToken.Token, colorList);
           listCount.SetBindValue(player.oid, nuiToken.Token, titleList.Count);
         }
@@ -398,7 +389,8 @@ namespace NWN.Systems
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() 
           { 
             new NuiSpacer(), 
-            new NuiButton("Envoyer") { Id = "send", Height = 35, Width = 60 }, 
+            new NuiButton("Envoyer") { Id = "send", Height = 35, Width = 60 },
+            new NuiSpacer(),
             new NuiCheck("Accusé", receiptSelected) { Tooltip = "Demander un accusé de lecture (coût supplémentaire de 5 pièces)" }, 
             new NuiSpacer() 
           } });
@@ -419,6 +411,23 @@ namespace NWN.Systems
           receiptSelected.SetBindValue(player.oid, nuiToken.Token, false);
           selectedEntry.SetBindWatch(player.oid, nuiToken.Token, true);
           receiptSelected.SetBindWatch(player.oid, nuiToken.Token, true);
+        }
+        private void SetSenderEntries()
+        {
+          List<NuiComboEntry> entries = new() { new NuiComboEntry("Tous", 0) };
+
+          if (inboxEnabled.GetBindValue(player.oid, nuiToken.Token)) // Si inbox enabled, alors c'est qu'on se trouve sur l'outbox
+          {
+            foreach (var sender in player.mails.DistinctBy(m => m.toCharacterId))
+              entries.Add(new NuiComboEntry(sender.to, sender.toCharacterId));
+          }
+          else
+          {
+            foreach (var sender in player.mails.DistinctBy(m => m.fromCharacterId))
+              entries.Add(new NuiComboEntry(sender.from, sender.fromCharacterId));
+          }
+
+          comboEntries.SetBindValue(player.oid, nuiToken.Token, entries);
         }
       }
     }

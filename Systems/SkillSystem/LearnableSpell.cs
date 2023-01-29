@@ -2,6 +2,8 @@
 
 using Anvil.API;
 
+using NLog;
+
 namespace NWN.Systems
 {
   public class LearnableSpell : Learnable

@@ -5,7 +5,6 @@ using System.Linq;
 using Anvil.API.Events;
 using NLog;
 using System;
-using System.Threading.Tasks;
 
 namespace NWN.Systems
 {
@@ -125,11 +124,12 @@ namespace NWN.Systems
 
       if(oItem.LocalVariables.Any(v => v.Name.Contains("ENCHANTEMENT_CUSTOM_")))
       {
-        if (oTarget != null && oTarget.Tag == "mineable_materia") 
+        if (oTarget is not null) 
         {
-          if(oItem.LocalVariables.Any(v => v.Name.Contains("ENCHANTEMENT_CUSTOM_EXTRACTOR_"))) // L'objet est alors utilisé en mode extraction
+          if(oTarget.Tag == "mineable_materia" && oItem.LocalVariables.Any(v => v.Name.Contains("ENCHANTEMENT_CUSTOM_EXTRACTOR_"))) // L'objet est alors utilisé en mode extraction
           {
             feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
+            feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemNotEquipped, oPC.ControllingPlayer);
             onItemUse.PreventUseItem = true;
 
             if (!player.learnableSkills.ContainsKey(CustomSkill.MateriaExtraction))
@@ -141,10 +141,32 @@ namespace NWN.Systems
             if (!player.windows.ContainsKey("materiaExtraction")) player.windows.Add("materiaExtraction", new PlayerSystem.Player.MateriaExtractionWindow(player, onItemUse.Item, oTarget));
             else ((PlayerSystem.Player.MateriaExtractionWindow)player.windows["materiaExtraction"]).CreateWindow(onItemUse.Item, oTarget);
           }
+
+          if (oItem.LocalVariables.Any(v => v.Name.Contains("ENCHANTEMENT_CUSTOM_CRAFT_"))) // L'objet est alors utilisé en mode craft
+          {
+            switch(oTarget.Tag)
+            {
+              case "forge":
+              case "scierie":
+              case "tannerie":
+              case "enchant":
+
+                feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
+                feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemNotEquipped, oPC.ControllingPlayer);
+                onItemUse.PreventUseItem = true;
+
+                if (!player.windows.ContainsKey("craftWorkshop")) player.windows.Add("craftWorkshop", new PlayerSystem.Player.WorkshopWindow(player, oTarget.Tag, oItem));
+                else ((PlayerSystem.Player.WorkshopWindow)player.windows["craftWorkshop"]).CreateWindow(oTarget.Tag, oItem); 
+                
+                break;
+            }
+          }
         }
-        else if(oItem.LocalVariables.Any(v => v.Name.Contains("ENCHANTEMENT_CUSTOM_DETECTOR_"))) // L'objet est alors utilisé en mode scanner
+
+        if((oTarget is null || oTarget == oPC) && oItem.LocalVariables.Any(v => v.Name.Contains("ENCHANTEMENT_CUSTOM_DETECTOR_"))) // L'objet est alors utilisé en mode scanner
         {
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemNotEquipped, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
 
           if (!player.learnableSkills.ContainsKey(CustomSkill.MateriaScanning))
@@ -158,9 +180,9 @@ namespace NWN.Systems
         }
       }
 
-
       await NwTask.Delay(TimeSpan.FromSeconds(0.2));
       feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
+      feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.UseItemNotEquipped, oPC.ControllingPlayer);
     }
     public static void OnAcquireItem(ModuleEvents.OnAcquireItem onAcquireItem)
     {

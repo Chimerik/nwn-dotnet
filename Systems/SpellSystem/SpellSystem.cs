@@ -27,7 +27,7 @@ namespace NWN.Systems
     public static Effect frog;
     public AreaSystem areaSystem;
 
-    public SpellSystem(ScriptHandleFactory scriptFactory, AreaSystem areaSystem)
+    public SpellSystem(ScriptHandleFactory scriptFactory, AreaSystem areaSystem, Spells2da spells2Da)
     {
       scriptHandleFactory = scriptFactory;
       this.areaSystem = areaSystem;

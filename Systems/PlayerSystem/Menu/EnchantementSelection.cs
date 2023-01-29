@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Net.Http.Headers;
-using System.Xml.Linq;
 
 using Anvil.API;
 using Anvil.API.Events;
@@ -60,6 +58,18 @@ namespace NWN.Systems
               enchantementList.Add("Améliorer la précision");
               enchantementList.Add("Renforcer la durabilité");
               enchantementList.Add("Améliorer la qualité");
+
+              break;
+
+            case 891: // Enchantement de craft
+            case 892:
+            case 893:
+            case 894:
+
+              enchantementList.Add("Réduire le coût en matéria");
+              enchantementList.Add("Réduire le temps de fabrication");
+              enchantementList.Add("Améliorer la concentration");
+              enchantementList.Add("Renforcer la durabilité");
 
               break;
 

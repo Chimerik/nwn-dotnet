@@ -39,7 +39,9 @@ namespace NWN.Systems
           Surcharge
         }
 
-        public WorkshopWindow(Player player, string placeableTag) : base(player)
+        NwItem tool;
+
+        public WorkshopWindow(Player player, string placeableTag, NwItem tool) : base(player)
         {
           windowId = "craftWorkshop";
 
@@ -74,12 +76,13 @@ namespace NWN.Systems
           rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) { Width = 410 } } });
           rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiList(blueprintTemplate, listCount) { RowHeight = 40 } } });
 
-          CreateWindow(placeableTag);
+          CreateWindow(placeableTag, tool);
         }
 
-        public void CreateWindow(string placeableTag)
+        public void CreateWindow(string placeableTag, NwItem tool)
         {
           workshopTag = placeableTag;
+          this.tool = tool;
 
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, 400);
 
@@ -190,21 +193,37 @@ namespace NWN.Systems
                   switch (currentTab)
                   {
                     case Tab.Craft:
-                      player.HandleCraftItemChecks(item);
+                      player.HandleCraftItemChecks(item, tool);
                       break;
                     case Tab.Upgrade:
-                      player.HandleCraftItemChecks(item.GetObjectVariable<LocalVariableObject<NwItem>>("_BEST_BLUEPRINT").Value, item);
+                      player.HandleCraftItemChecks(item.GetObjectVariable<LocalVariableObject<NwItem>>("_BEST_BLUEPRINT").Value, tool, item);
                       break;
                     case Tab.Recycle:
+
                       if (player.craftJob != null) player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
-                      else player.craftJob = new(player, item, JobType.Recycling);
+                      else if (tool is null || tool.Possessor != player.oid.LoginCreature || !tool.LocalVariables.Any(v => v.Name.Contains("ENCHANTEMENT_CUSTOM_CRAFT_")))
+                        player.oid.SendServerMessage("L'outil que vous utilisez actuellement ne permet plus la manipulation de matéria raffinée. Veuillez en utiliser un autre.", ColorConstants.Red);
+                      else
+                      {
+                        player.craftJob = new(player, item, tool, JobType.Recycling);
+                        ItemUtils.HandleCraftToolDurability(player, tool, "CRAFT", CustomSkill.ArtisanPrudent);
+                      }
+                      
                       break;
                     case Tab.Repair:
-                      player.HandleRepairItemChecks(item);
+                      player.HandleRepairItemChecks(item, tool);
                       break;
                     case Tab.Reinforce:
+
                       if (player.craftJob != null) player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
-                      else player.craftJob = new(player, item, JobType.Renforcement);
+                      else if (tool is null || tool.Possessor != player.oid.LoginCreature || !tool.LocalVariables.Any(v => v.Name.Contains("ENCHANTEMENT_CUSTOM_CRAFT_")))
+                        player.oid.SendServerMessage("L'outil que vous utilisez actuellement ne permet plus la manipulation de matéria raffinée. Veuillez en utiliser un autre.", ColorConstants.Red);
+                      else
+                      {
+                        player.craftJob = new(player, item, tool, JobType.Renforcement);
+                        ItemUtils.HandleCraftToolDurability(player, tool, "CRAFT", CustomSkill.ArtisanPrudent);
+                      }
+
                       break;
                     case Tab.Surcharge:
 
@@ -216,12 +235,12 @@ namespace NWN.Systems
                       if (dice <= successChange)
                       {
                         item.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
-                        player.oid.SendServerMessage($"En forçant à l'aide de votre puissance brute, vous parvenez à ajouter un emplacement de sort supplémentaire à votre {item.Name.ColorString(ColorConstants.White)} !", ColorConstants.Navy);
+                        player.oid.SendServerMessage($"En forçant à l'aide de votre puissance brute, vous parvenez à ajouter un emplacement de sort supplémentaire à votre {StringUtils.ToWhitecolor(item.Name)} !", ColorConstants.Navy);
                       }
                       else if (dice > controlLevel)
                       {
                         item.Destroy();
-                        player.oid.SendServerMessage($"Vous forcez, forcez, et votre {item.Name.ColorString(ColorConstants.White)} se brise sous l'excès infligé.", ColorConstants.Purple);
+                        player.oid.SendServerMessage($"Vous forcez, forcez, et votre {StringUtils.ToWhitecolor(item.Name)} se brise sous l'excès infligé.", ColorConstants.Purple);
                       }
 
                       break;
@@ -287,8 +306,8 @@ namespace NWN.Systems
 
           foreach (NwItem item in blueprints)
           {
-            int materiaCost = (int)(player.GetItemMateriaCost(item) * (1 - (item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value / 100)));
-            TimeSpan jobDuration = TimeSpan.FromSeconds(player.GetItemCraftTime(item, materiaCost));
+            int materiaCost = (int)(player.GetItemMateriaCost(item, tool) * (1 - (item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value / 100)));
+            TimeSpan jobDuration = TimeSpan.FromSeconds(player.GetItemCraftTime(item, materiaCost, tool));
 
             CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromBlueprint(item) && r.grade == 1);
             int availableQuantity = resource != null ? resource.quantity : 0;
@@ -331,8 +350,8 @@ namespace NWN.Systems
 
             if (bestBlueprint != null)
             {
-              int materiaCost = (int)(player.GetItemMateriaCost(bestBlueprint, grade + 1) * (1 - (bestBlueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value / 100)));
-              TimeSpan jobDuration = TimeSpan.FromSeconds(player.GetItemCraftTime(bestBlueprint, materiaCost));
+              int materiaCost = (int)(player.GetItemMateriaCost(bestBlueprint, tool, grade + 1) * (1 - (bestBlueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value / 100)));
+              TimeSpan jobDuration = TimeSpan.FromSeconds(player.GetItemCraftTime(bestBlueprint, materiaCost, tool));
 
               CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromBlueprint(bestBlueprint) && r.grade == grade + 1);
               int availableQuantity = resource != null ? resource.quantity : 0;
@@ -368,7 +387,7 @@ namespace NWN.Systems
           foreach (NwItem item in items)
           {
             int grade = item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").HasValue ? item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value : 1;
-            int materiaCost = (int)player.GetItemRepairMateriaCost(item);
+            int materiaCost = (int)player.GetItemRepairMateriaCost(item, tool);
             ResourceType resType = ItemUtils.GetResourceTypeFromItem(item);
             CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == resType && r.grade == grade && r.quantity >= materiaCost);
             int availableQuantity = resource != null ? resource.quantity : 0;
@@ -376,7 +395,7 @@ namespace NWN.Systems
             itemNamesList.Add($"{item.Name} - Qualité {grade} - Réparé {item.GetObjectVariable<LocalVariableInt>("_DURABILITY_NB_REPAIRS").Value} fois");
             iconList.Add("ife_layon");
 
-            TimeSpan jobDuration = TimeSpan.FromSeconds(player.GetItemRepairTime(item, materiaCost));
+            TimeSpan jobDuration = TimeSpan.FromSeconds(player.GetItemRepairTime(item, materiaCost, tool));
 
             blueprintMEsList.Add($"{item.Name} - Coût en {resType.ToDescription()} {grade} : {availableQuantity}/{materiaCost}");
             blueprintTEsList.Add($"Temps de réparation : {new TimeSpan(jobDuration.Days, jobDuration.Hours, jobDuration.Minutes, jobDuration.Seconds)}");
@@ -405,7 +424,7 @@ namespace NWN.Systems
             itemNamesList.Add($"{item.Name} - Recycler");
             iconList.Add("ir_unequip");
 
-            TimeSpan jobDuration = TimeSpan.FromSeconds(player.GetItemRecycleTime(item));
+            TimeSpan jobDuration = TimeSpan.FromSeconds(player.GetItemRecycleTime(item, tool));
 
             blueprintMEsList.Add($"{item.Name} - Récupérable {(int)player.GetItemRecycleGain(item)}");
             blueprintTEsList.Add($"Temps de recyclage : {new TimeSpan(jobDuration.Days, jobDuration.Hours, jobDuration.Minutes, jobDuration.Seconds)}");
@@ -440,7 +459,7 @@ namespace NWN.Systems
             itemNamesList.Add($"{item.Name} - Renforcer");
             iconList.Add("reinforce");
 
-            TimeSpan jobDuration = TimeSpan.FromSeconds(player.GetItemReinforcementTime(item));
+            TimeSpan jobDuration = TimeSpan.FromSeconds(player.GetItemReinforcementTime(item, tool));
 
             blueprintMEsList.Add($"{item.Name} - Durabilité +5 %");
             blueprintTEsList.Add($"Temps de renforcement : {new TimeSpan(jobDuration.Days, jobDuration.Hours, jobDuration.Minutes, jobDuration.Seconds)}");

@@ -313,14 +313,11 @@ namespace NWN.System
 
     public static void OnOpenGenericStore(StoreEvents.OnOpen onOpen)
     {
-      onOpen.Store.OnClose += OnCloseGenericStore;
       onOpen.Player.ControlledCreature.OnStoreRequestBuy += HandleGenericStoreBuy;
       onOpen.Player.ControlledCreature.OnStoreRequestSell += HandleGenericStoreSell;
     }
     public static void OnCloseGenericStore(StoreEvents.OnClose onClose)
     {
-      onClose.Store.OnOpen -= OnOpenGenericStore;
-      onClose.Store.OnClose -= OnCloseGenericStore;
       onClose.Creature.OnStoreRequestBuy -= HandleGenericStoreBuy;
       onClose.Creature.OnStoreRequestSell -= HandleGenericStoreSell;
     }

@@ -58,7 +58,7 @@ namespace NWN.Systems
           rootChildren.Clear();
           rootChildren.Add(introTextRow);
           string tempText = "";
-          int windowSize = 340;
+          int windowSize = 350;
 
           if (NwObject.FindObjectsWithTag<NwPlaceable>("player_bank").Any(b => b.GetObjectVariable<LocalVariableInt>("ownerId").Value == player.characterId))
           {
@@ -86,7 +86,7 @@ namespace NWN.Systems
 
           rootChildren.Add(exitRow);
 
-          NuiRect windowRectangle = new NuiRect(0, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.02f, 540, windowSize);
+          NuiRect windowRectangle = new NuiRect(0, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.02f, 550, windowSize);
 
           window = new NuiWindow(rootGroup, "Ernesto Arna")
           {

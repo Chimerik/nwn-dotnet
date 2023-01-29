@@ -443,7 +443,7 @@ namespace NWN.Systems
     }
     private static async void SpawnResourceBlock(NwArea area, int areaLevel, string resourceTemplate)
     {
-      if (NwRandom.Roll(Utils.random, 100) > Config.materiaSpawnChance)
+      if (NwRandom.Roll(Utils.random, 100) < Config.materiaSpawnChance)
         return;
 
       try

@@ -855,45 +855,39 @@ namespace NWN.Systems
             return masteryLevel;
         }
       }
-      public double GetItemCraftTime(NwItem item, int materiaCost)
+      public double GetItemCraftTime(NwItem item, int materiaCost, NwItem tool = null)
       {
         BaseItemType baseItemType = (BaseItemType)item.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value;
         double timeEfficiency = (1 - (item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_TIME_EFFICIENCY").Value / 100));
 
         if (baseItemType == BaseItemType.Armor)
-          return GetArmorTimeCost(item.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value, materiaCost) * timeEfficiency;
+          return GetArmorTimeCost(item.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value, materiaCost, tool) * timeEfficiency;
 
-        return GetWeaponTimeCost(baseItemType, materiaCost) * timeEfficiency;
+        return GetWeaponTimeCost(baseItemType, materiaCost, tool) * timeEfficiency;
       }
-      public double GetArmorTimeCost(int baseACValue, double materiaCost)
+      public double GetArmorTimeCost(int baseACValue, double materiaCost, NwItem tool)
       {
         var entry = Armor2da.armorTable[baseACValue];
-
-        if (learnableSkills.ContainsKey(entry.craftLearnable))
-          materiaCost *= learnableSkills[entry.craftLearnable].bonusReduction;
-
         int jobFeat = GetJobLearnableFromWorkshop(entry.workshop);
 
-        if (learnableSkills.ContainsKey(jobFeat))
-          materiaCost *= learnableSkills[jobFeat].bonusReduction;
+        materiaCost *= learnableSkills.ContainsKey(entry.craftLearnable) ? learnableSkills[entry.craftLearnable].bonusReduction : 1;
+        materiaCost *= learnableSkills.ContainsKey(jobFeat) ? learnableSkills[jobFeat].bonusReduction : 1;
+        materiaCost *= tool is not null ? (1 - (tool.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_CRAFT_SPEED_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value) / 100)) : 1;
 
         return materiaCost;
       }
-      public double GetWeaponTimeCost(BaseItemType baseItemType, double materiaCost)
+      public double GetWeaponTimeCost(BaseItemType baseItemType, double materiaCost, NwItem tool)
       {
         var entry = BaseItems2da.baseItemTable[(int)baseItemType];
-
-        if (learnableSkills.ContainsKey(entry.craftLearnable))
-          materiaCost *= learnableSkills[entry.craftLearnable].bonusReduction;
-
         int jobFeat = GetJobLearnableFromWorkshop(entry.workshop);
 
-        if (learnableSkills.ContainsKey(jobFeat))
-          materiaCost *= learnableSkills[jobFeat].bonusReduction;
+        materiaCost *= learnableSkills.ContainsKey(entry.craftLearnable) ? learnableSkills[entry.craftLearnable].bonusReduction : 1;
+        materiaCost *= learnableSkills.ContainsKey(jobFeat) ? learnableSkills[jobFeat].bonusReduction : 1;
+        materiaCost *= tool is not null ? (1 - (tool.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_CRAFT_SPEED_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value) / 100)) : 1;
 
         return materiaCost;
       }
-      public double GetItemMateriaCost(NwItem item, double grade = 1)
+      public double GetItemMateriaCost(NwItem item, NwItem tool = null, double grade = 1)
       {
         BaseItemType baseItemType;
 
@@ -902,73 +896,48 @@ namespace NWN.Systems
           baseItemType = (BaseItemType)item.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value;
 
           if (baseItemType == BaseItemType.Armor)
-            return GetArmorMateriaCost(item.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value) * (1 - ((grade - 1) / 10));
+            return GetArmorMateriaCost(item.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value, tool) * (1 - ((grade - 1) / 10));
         }
         else
           baseItemType = item.BaseItem.ItemType;
 
         if (baseItemType == BaseItemType.Armor)
-          return GetArmorMateriaCost(item.BaseACValue) * (1 - ((grade - 1) / 10));
+          return GetArmorMateriaCost(item.BaseACValue, tool) * (1 - ((grade - 1) / 10));
 
-        return GetWeaponMateriaCost(baseItemType) * (1 - ((grade - 1) / 10));
+        return GetWeaponMateriaCost(baseItemType, tool) * (1 - ((grade - 1) / 10));
       }
 
-      public double GetArmorMateriaCost(int baseACValue)
+      public double GetArmorMateriaCost(int baseACValue, NwItem tool)
       {
         var entry = Armor2da.armorTable[baseACValue];
         double materiaCost = entry.cost * 1000;
-
-        if (learnableSkills.ContainsKey(entry.craftLearnable))
-          materiaCost *= learnableSkills[entry.craftLearnable].bonusReduction;
-
-        if (baseACValue < 1 && learnableSkills.ContainsKey(CustomSkill.CraftClothes))
-          materiaCost *= learnableSkills[CustomSkill.CraftClothes].bonusReduction;
-
-        if (baseACValue > 0 && learnableSkills.ContainsKey(CustomSkill.CraftArmor))
-          materiaCost *= learnableSkills[CustomSkill.CraftArmor].bonusReduction;
-
         int jobFeat = GetJobLearnableFromWorkshop(entry.workshop);
 
-        if (learnableSkills.ContainsKey(jobFeat))
-          materiaCost *= learnableSkills[jobFeat].bonusReduction;
+        materiaCost *= learnableSkills.ContainsKey(entry.craftLearnable) ? learnableSkills[entry.craftLearnable].bonusReduction : 1;
+        materiaCost *= baseACValue < 1 && learnableSkills.ContainsKey(CustomSkill.CraftClothes) ? learnableSkills[CustomSkill.CraftClothes].bonusReduction : 1;
+        materiaCost *= baseACValue > 0 && learnableSkills.ContainsKey(CustomSkill.CraftArmor) ? learnableSkills[CustomSkill.CraftArmor].bonusReduction : 1;
+        materiaCost *= learnableSkills.ContainsKey(jobFeat) ? learnableSkills[jobFeat].bonusReduction : 1;
+        materiaCost *= tool is not null ? (1 - (tool.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_CRAFT_YIELD_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value) / 100)) : 1;
 
         return materiaCost;
       }
-      public double GetWeaponMateriaCost(BaseItemType baseItemType)
+      public double GetWeaponMateriaCost(BaseItemType baseItemType, NwItem tool)
       {
         var entry = BaseItems2da.baseItemTable[(int)baseItemType];
         double materiaCost = entry.cost * 1000;
-
-        if (learnableSkills.ContainsKey(entry.craftLearnable))
-          materiaCost *= learnableSkills[entry.craftLearnable].bonusReduction;
-
         int jobFeat = GetJobLearnableFromWorkshop(entry.workshop);
 
-        if (learnableSkills.ContainsKey(jobFeat))
-          materiaCost *= learnableSkills[jobFeat].bonusReduction;
+        materiaCost *= learnableSkills.ContainsKey(entry.craftLearnable) ? learnableSkills[entry.craftLearnable].bonusReduction : 1;
+        materiaCost *= learnableSkills.ContainsKey(jobFeat) ? learnableSkills[jobFeat].bonusReduction : 1;
+        materiaCost *= tool is not null ? (1 - (tool.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_CRAFT_YIELD_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value) / 100)) : 1;
 
         switch (ItemUtils.GetItemCategory(baseItemType))
         {
-          case ItemUtils.ItemCategory.OneHandedMeleeWeapon:
-            if (learnableSkills.ContainsKey(CustomSkill.CraftOnHandedMeleeWeapon))
-              materiaCost *= learnableSkills[CustomSkill.CraftOnHandedMeleeWeapon].bonusReduction;
-            return materiaCost;
-          case ItemUtils.ItemCategory.TwoHandedMeleeWeapon:
-            if (learnableSkills.ContainsKey(CustomSkill.CraftTwoHandedMeleeWeapon))
-              materiaCost *= learnableSkills[CustomSkill.CraftTwoHandedMeleeWeapon].bonusReduction;
-            return materiaCost;
-          case ItemUtils.ItemCategory.RangedWeapon:
-            if (learnableSkills.ContainsKey(CustomSkill.CraftRangedWeapon))
-              materiaCost *= learnableSkills[CustomSkill.CraftRangedWeapon].bonusReduction;
-            return materiaCost;
-          case ItemUtils.ItemCategory.Shield:
-            if (learnableSkills.ContainsKey(CustomSkill.CraftShield))
-              materiaCost *= learnableSkills[CustomSkill.CraftShield].bonusReduction;
-            return materiaCost;
-          case ItemUtils.ItemCategory.Ammunition:
-            if (learnableSkills.ContainsKey(CustomSkill.CraftAmmunitions))
-              materiaCost *= learnableSkills[CustomSkill.CraftAmmunitions].bonusReduction;
-            return materiaCost;
+          case ItemUtils.ItemCategory.OneHandedMeleeWeapon: materiaCost *= learnableSkills.ContainsKey(CustomSkill.CraftOnHandedMeleeWeapon) ? learnableSkills[CustomSkill.CraftOnHandedMeleeWeapon].bonusReduction : 1; break;
+          case ItemUtils.ItemCategory.TwoHandedMeleeWeapon: materiaCost *= learnableSkills.ContainsKey(CustomSkill.CraftTwoHandedMeleeWeapon) ? learnableSkills[CustomSkill.CraftTwoHandedMeleeWeapon].bonusReduction : 1; break;
+          case ItemUtils.ItemCategory.RangedWeapon: materiaCost *= learnableSkills.ContainsKey(CustomSkill.CraftRangedWeapon) ? learnableSkills[CustomSkill.CraftRangedWeapon].bonusReduction : 1; break;
+          case ItemUtils.ItemCategory.Shield: materiaCost *= learnableSkills.ContainsKey(CustomSkill.CraftShield) ? learnableSkills[CustomSkill.CraftShield].bonusReduction : 1; break;
+          case ItemUtils.ItemCategory.Ammunition: materiaCost *= learnableSkills.ContainsKey(CustomSkill.CraftAmmunitions) ? learnableSkills[CustomSkill.CraftAmmunitions].bonusReduction : 1; break;
         }
 
         return materiaCost;
@@ -985,7 +954,7 @@ namespace NWN.Systems
           _ => -1,
         };
       }
-      public void HandleRepairItemChecks(NwItem repairedItem)
+      public void HandleRepairItemChecks(NwItem repairedItem, NwItem tool)
       {
         if (craftJob != null)
         {
@@ -993,9 +962,15 @@ namespace NWN.Systems
           return;
         }
 
+        if(tool is null || tool.Possessor != oid.LoginCreature || !tool.LocalVariables.Any(v => v.Name.Contains("ENCHANTEMENT_CUSTOM_CRAFT_")))
+        {
+          oid.SendServerMessage("L'outil que vous utilisez actuellement ne permet plus la manipulation de matéria raffinée. Veuillez en utiliser un autre.", ColorConstants.Red);
+          return;
+        }
+
         int grade = repairedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").HasValue ? repairedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value : 1;
 
-        int materiaCost = (int)GetItemRepairMateriaCost(repairedItem);
+        int materiaCost = (int)GetItemRepairMateriaCost(repairedItem, tool);
         CraftResource resource = craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromItem(repairedItem) && r.grade == 1 && r.quantity >= materiaCost);
         int availableQuantity = resource != null ? resource.quantity : 0;
 
@@ -1006,12 +981,12 @@ namespace NWN.Systems
         }
 
         resource.quantity -= materiaCost;
-        craftJob = new CraftJob(this, repairedItem, GetItemRepairTime(repairedItem, materiaCost), JobType.Repair);
+        craftJob = new CraftJob(this, repairedItem, GetItemRepairTime(repairedItem, materiaCost, tool), JobType.Repair);
 
-        if (windows.ContainsKey("activeCraftJob"))
-          ((ActiveCraftJobWindow)windows["activeCraftJob"]).CreateWindow();
-        else
-          windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
+        ItemUtils.HandleCraftToolDurability(this, tool, "CRAFT", CustomSkill.ArtisanPrudent);
+
+        if (!windows.ContainsKey("activeCraftJob")) windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
+        else ((ActiveCraftJobWindow) windows["activeCraftJob"]).CreateWindow();
 
         return;
       }
@@ -1042,7 +1017,7 @@ namespace NWN.Systems
 
         return true;
       }
-      public void HandleCraftItemChecks(NwItem blueprint, NwItem upgradedItem = null)
+      public void HandleCraftItemChecks(NwItem blueprint, NwItem tool, NwItem upgradedItem = null)
       {
         if (craftJob != null)
         {
@@ -1053,6 +1028,12 @@ namespace NWN.Systems
         if (blueprint == null || blueprint.Possessor != oid.ControlledCreature)
         {
           oid.SendServerMessage($"{blueprint.Name.ColorString(ColorConstants.White)} n'est plus en votre possession. Impossible de commencer le travail artisanal.", ColorConstants.Red);
+          return;
+        }
+
+        if (tool is null || tool.Possessor != oid.LoginCreature || !tool.LocalVariables.Any(v => v.Name.Contains("ENCHANTEMENT_CUSTOM_CRAFT_")))
+        {
+          oid.SendServerMessage("L'outil que vous utilisez actuellement ne permet plus la manipulation de matéria raffinée. Veuillez en utiliser un autre.", ColorConstants.Red);
           return;
         }
 
@@ -1069,7 +1050,7 @@ namespace NWN.Systems
           grade = upgradedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value + 1;
         }
 
-        int materiaCost = (int)(GetItemMateriaCost(blueprint, grade) * (1 - (blueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value / 100)));
+        int materiaCost = (int)(GetItemMateriaCost(blueprint, tool, grade) * (1 - (blueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value / 100)));
         CraftResource resource = craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromBlueprint(blueprint) && r.grade == 1 && r.quantity >= materiaCost);
         int availableQuantity = resource != null ? resource.quantity : 0;
 
@@ -1080,11 +1061,9 @@ namespace NWN.Systems
         }
 
         resource.quantity -= materiaCost;
-
-        if (grade < 2)
-          craftJob = new CraftJob(this, blueprint, GetItemCraftTime(blueprint, materiaCost));
-        else
-          craftJob = new CraftJob(this, blueprint, GetItemCraftTime(blueprint, materiaCost), upgradedItem);
+        craftJob = grade < 2 ? new CraftJob(this, blueprint, GetItemCraftTime(blueprint, materiaCost, tool), tool) : new CraftJob(this, blueprint, GetItemCraftTime(blueprint, materiaCost, tool), upgradedItem, tool);
+        
+        ItemUtils.HandleCraftToolDurability(this, tool, "CRAFT", CustomSkill.ArtisanPrudent);
 
         if (!windows.ContainsKey("activeCraftJob")) windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
         else ((ActiveCraftJobWindow)windows["activeCraftJob"]).CreateWindow();
@@ -1107,63 +1086,49 @@ namespace NWN.Systems
         TimeSpan timespan = TimeSpan.FromSeconds(timeCost);
         return new TimeSpan(timespan.Days, timespan.Hours, timespan.Minutes, timespan.Seconds).ToString();
       }
-      public double GetItemReinforcementTime(NwItem item)
+      public double GetItemReinforcementTime(NwItem item, NwItem tool)
       {
         double remainingTime = ItemUtils.GetBaseItemCost(item) * 100.0;
-
-        if (learnableSkills.ContainsKey(CustomSkill.Renforcement))
-          remainingTime *= (1.0 - (learnableSkills[CustomSkill.Renforcement].totalPoints * 5.0 / 100.0));
+        remainingTime *= learnableSkills.ContainsKey(CustomSkill.Renforcement) ? (1.0 - (learnableSkills[CustomSkill.Renforcement].totalPoints * 5.0 / 100.0)) : 1;
 
         return remainingTime;
       }
-      public double GetItemRecycleTime(NwItem item)
+      public double GetItemRecycleTime(NwItem item, NwItem tool)
       {
         double remainingTime = ItemUtils.GetBaseItemCost(item) * 125.0;
 
-        if (learnableSkills.ContainsKey(CustomSkill.Recycler))
-          remainingTime *= learnableSkills[CustomSkill.Recycler].bonusReduction;
-
-        if (learnableSkills.ContainsKey(CustomSkill.RecyclerFast))
-          remainingTime *= learnableSkills[CustomSkill.RecyclerFast].bonusReduction;
+        remainingTime *= learnableSkills.ContainsKey(CustomSkill.Recycler) ? learnableSkills[CustomSkill.Recycler].bonusReduction : 1;
+        remainingTime *= learnableSkills.ContainsKey(CustomSkill.RecyclerFast) ? learnableSkills[CustomSkill.RecyclerFast].bonusReduction : 1;
+        remainingTime *= (1 - (tool.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_CRAFT_SPEED_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value) / 100));
 
         return remainingTime;
       }
       public double GetItemRecycleGain(NwItem item)
       {
         double quantity = item.BaseItem.BaseCost * 125.0;
-
-        if (learnableSkills.ContainsKey(CustomSkill.Recycler))
-          quantity *= learnableSkills[CustomSkill.Recycler].bonusMultiplier;
-
-        if (learnableSkills.ContainsKey(CustomSkill.RecyclerExpert))
-          quantity *= learnableSkills[CustomSkill.RecyclerExpert].bonusMultiplier;
+        quantity *= learnableSkills.ContainsKey(CustomSkill.Recycler) ? learnableSkills[CustomSkill.Recycler].bonusMultiplier : 1;
+        quantity *= learnableSkills.ContainsKey(CustomSkill.RecyclerExpert) ? learnableSkills[CustomSkill.RecyclerExpert].bonusMultiplier : 1;
 
         return quantity;
       }
-      public double GetItemRepairMateriaCost(NwItem item)
+      public double GetItemRepairMateriaCost(NwItem item, NwItem tool)
       {
-        double materiaCost = GetItemMateriaCost(item, item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value);
+        double materiaCost = GetItemMateriaCost(item, tool, item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value);
         materiaCost *= 1 + (5 * item.GetObjectVariable<LocalVariableInt>("_DURABILITY_NB_REPAIRS") / 100);
-        materiaCost /= item.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value == this.oid.LoginCreature.OriginalName ? 8 : 4;
-
-        if(learnableSkills.ContainsKey(CustomSkill.Repair))
-          materiaCost *= learnableSkills[CustomSkill.Repair].bonusReduction;
-
-        if (learnableSkills.ContainsKey(CustomSkill.RepairExpert))
-          materiaCost *= learnableSkills[CustomSkill.RepairExpert].bonusReduction;
+        materiaCost *= (1 - (tool.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_CRAFT_YIELD_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value) / 100));
+        materiaCost /= item.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value == oid.LoginCreature.OriginalName ? 8 : 4;
+        materiaCost *= learnableSkills.ContainsKey(CustomSkill.Repair) ? learnableSkills[CustomSkill.Repair].bonusReduction : 1;
+        materiaCost *= learnableSkills.ContainsKey(CustomSkill.RepairExpert) ? learnableSkills[CustomSkill.RepairExpert].bonusReduction : 1;
 
         return materiaCost;
       }
-      public double GetItemRepairTime(NwItem item, double materiaCost)
+      public double GetItemRepairTime(NwItem item, double materiaCost, NwItem tool)
       {
-        double timeCost = item.BaseItem.ItemType == BaseItemType.Armor ? GetArmorTimeCost(item.BaseACValue, materiaCost) : GetWeaponTimeCost(item.BaseItem.ItemType, materiaCost);
+        double timeCost = item.BaseItem.ItemType == BaseItemType.Armor ? GetArmorTimeCost(item.BaseACValue, materiaCost, tool) : GetWeaponTimeCost(item.BaseItem.ItemType, materiaCost, tool);
         timeCost *= 1 + (25 * item.GetObjectVariable<LocalVariableInt>("_DURABILITY_NB_REPAIRS") / 100);
-
-        if (learnableSkills.ContainsKey(CustomSkill.Repair))
-          timeCost *= learnableSkills[CustomSkill.Repair].bonusReduction;
-
-        if (learnableSkills.ContainsKey(CustomSkill.RepairFast))
-          timeCost *= learnableSkills[CustomSkill.RepairFast].bonusReduction;
+        timeCost *= learnableSkills.ContainsKey(CustomSkill.Repair) ? learnableSkills[CustomSkill.Repair].bonusReduction : 1;
+        timeCost *= learnableSkills.ContainsKey(CustomSkill.RepairFast) ? learnableSkills[CustomSkill.RepairFast].bonusReduction : 1;
+        timeCost *= (1 - (tool.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_CRAFT_SPEED_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value) / 100));
 
         return timeCost;
       }
@@ -1273,20 +1238,8 @@ namespace NWN.Systems
       }
       public async void RescheduleRepeatableJob(ResourceType type, double consumedTime, string jobIcon)
       {
-        /*bool reopen = false;
-        if (windows.TryGetValue("activeCraftJob", out PlayerWindow activeWindow) && activeWindow.IsOpen)
-          reopen = true;*/
-
         await NwTask.Delay(TimeSpan.FromSeconds(0));
         craftJob = new CraftJob(this, type, consumedTime, jobIcon);
-
-        /*if (reopen)
-          ((ActiveCraftJobWindow)activeWindow).CreateWindow();
-        else
-        {
-          craftJob.progressLastCalculation = DateTime.Now;
-          craftJob.HandleDelayedJobProgression(this);
-        }*/
       }
       public NwItem GetItemBestBlueprint(NwItem item)
       {
