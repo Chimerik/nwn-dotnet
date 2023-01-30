@@ -14,21 +14,23 @@ namespace NWN.Systems
 
     public LearnableSpell(int id, string name, string description, string icon, int multiplier, Ability primaryAbility, Ability secondaryAbility, int maxLevel = 15) : base(id, name, description, icon, maxLevel, multiplier, primaryAbility, secondaryAbility)
     {
-      pointsToNextLevel = 5000 * (currentLevel + 1) * multiplier;
+     
+
     }
-    public LearnableSpell(LearnableSpell learnableBase, bool active = false, double acquiredSP = 0, int currentLevel = 0) : base(learnableBase)
+    public LearnableSpell(LearnableSpell learnableBase) : base(learnableBase)
     {
-      this.canLearn = true;
-      this.active = active;
-      this.acquiredPoints = acquiredSP;
-      this.currentLevel = currentLevel;
+      canLearn = true;
+      active = false;
+      acquiredPoints = 0;
+      currentLevel = 0;
+      pointsToNextLevel = 5000 * multiplier / 2;
     }
     public LearnableSpell(LearnableSpell learnableBase, SerializableLearnableSpell serializableBase) : base(learnableBase)
     {
       active = serializableBase.active;
       acquiredPoints = serializableBase.acquiredPoints;
       currentLevel = serializableBase.currentLevel;
-      pointsToNextLevel = 5000 * (currentLevel + 1) * multiplier;
+      pointsToNextLevel = serializableBase.currentLevel > 0 ? 5000 * serializableBase.currentLevel * multiplier : 5000 * multiplier / 2;
       spLastCalculation = serializableBase.spLastCalculation;
       canLearn = serializableBase.canLearn;
     }
@@ -58,10 +60,8 @@ namespace NWN.Systems
     {
       acquiredPoints = pointsToNextLevel;
       currentLevel += 1;
-      pointsToNextLevel = 5000 * (currentLevel + 1) * multiplier;
-      ModuleSystem.Log.Info(currentLevel);
-      ModuleSystem.Log.Info(multiplier);
-      ModuleSystem.Log.Info(pointsToNextLevel);
+      pointsToNextLevel = 5000 * (currentLevel) * multiplier;
+
       active = false;
       canLearn = false;
 
