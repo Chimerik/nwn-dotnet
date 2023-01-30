@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 using Anvil.API;
 
@@ -8,31 +9,28 @@ namespace NWN.Systems
 {
   public class LearnableSpell : Learnable
   {
-    public int nbScrollUsed { get; set; }
-    public int spellLevel { get; }
+    public bool canLearn { get; set; }
+    // Dans le cas des Spell, multiplier = spell Level - 1
 
-    public LearnableSpell(int id, string name, string description, string icon, int multiplier, int spellLevel, Ability primaryAbility, Ability secondaryAbility, int maxLevel = 1) : base(id, name, description, icon, maxLevel, multiplier, primaryAbility, secondaryAbility)
+    public LearnableSpell(int id, string name, string description, string icon, int multiplier, Ability primaryAbility, Ability secondaryAbility, int maxLevel = 15) : base(id, name, description, icon, maxLevel, multiplier, primaryAbility, secondaryAbility)
     {
-      this.spellLevel = spellLevel;
-      currentLevel = multiplier / 2;
-      pointsToNextLevel = 250 * multiplier * Math.Pow(5, currentLevel);
+      pointsToNextLevel = 5000 * (currentLevel + 1) * multiplier;
     }
-    public LearnableSpell(LearnableSpell learnableBase, bool active = false, int nbScrollUsed = 0, double acquiredSP = 0) : base(learnableBase)
+    public LearnableSpell(LearnableSpell learnableBase, bool active = false, double acquiredSP = 0, int currentLevel = 0) : base(learnableBase)
     {
-      this.nbScrollUsed = nbScrollUsed;
+      this.canLearn = true;
       this.active = active;
       this.acquiredPoints = acquiredSP;
-      this.spellLevel = learnableBase.spellLevel;
+      this.currentLevel = currentLevel;
     }
     public LearnableSpell(LearnableSpell learnableBase, SerializableLearnableSpell serializableBase) : base(learnableBase)
     {
       active = serializableBase.active;
       acquiredPoints = serializableBase.acquiredPoints;
       currentLevel = serializableBase.currentLevel;
-      pointsToNextLevel = 250 * multiplier * Math.Pow(5, currentLevel);
+      pointsToNextLevel = 5000 * (currentLevel + 1) * multiplier;
       spLastCalculation = serializableBase.spLastCalculation;
-      nbScrollUsed = serializableBase.nbScrollUsed;
-      spellLevel = learnableBase.spellLevel;
+      canLearn = serializableBase.canLearn;
     }
 
     public class SerializableLearnableSpell
@@ -40,7 +38,7 @@ namespace NWN.Systems
       public bool active { get; set; }
       public double acquiredPoints { get; set; }
       public int currentLevel { get; set; }
-      public int nbScrollUsed { get; set; }
+      public bool canLearn { get; set; }
       public DateTime? spLastCalculation { get; set; }
 
       public SerializableLearnableSpell()
@@ -53,16 +51,22 @@ namespace NWN.Systems
         acquiredPoints = learnableBase.acquiredPoints;
         currentLevel = learnableBase.currentLevel;
         spLastCalculation = learnableBase.spLastCalculation;
-        nbScrollUsed = learnableBase.nbScrollUsed;
+        canLearn = learnableBase.canLearn;
       }
     }
     public void LevelUp(PlayerSystem.Player player)
     {
       acquiredPoints = pointsToNextLevel;
+      currentLevel += 1;
+      pointsToNextLevel = 5000 * (currentLevel + 1) * multiplier;
+      ModuleSystem.Log.Info(currentLevel);
+      ModuleSystem.Log.Info(multiplier);
+      ModuleSystem.Log.Info(pointsToNextLevel);
       active = false;
+      canLearn = false;
 
-      player.oid.LoginCreature.GetClassInfo((ClassType)43).AddKnownSpell((Spell)id, (byte)spellLevel);
-      player.learnableSpells.Remove(id);
+      if (!player.oid.LoginCreature.GetClassInfo((ClassType)43).GetKnownSpells((byte)(multiplier - 1)).Any(s => s.Id == id))
+        player.oid.LoginCreature.GetClassInfo((ClassType)43).AddKnownSpell((Spell)id, (byte)(multiplier - 1));
 
       if (player.TryGetOpenedWindow("activeLearnable", out PlayerSystem.Player.PlayerWindow activeLearnableWindow))
         activeLearnableWindow.CloseWindow();

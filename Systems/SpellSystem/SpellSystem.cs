@@ -68,9 +68,9 @@ namespace NWN.Systems
         castClass = sortedClass.ElementAt(0).Value > -1 ? sortedClass.ElementAt(0).Key : (ClassType)43;
 
         float level = spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Wizard));
-        level = level < 1 ? 0.5f : level;
+        int multiplier = level < 1 ? 1 : (int)level + 1;
 
-        SkillSystem.learnableDictionary.Add(spell.Id, new LearnableSpell(spell.Id, spell.Name.Override is null ? spell.Name.ToString() : spell.Name.Override, spell.Description.Override is null ? spell.Description.ToString() : spell.Name.Override, spell.IconResRef, level < 1 ? 1 : (int)level, level < 1 ? 0 : (int)level, castClass == ClassType.Druid || castClass == ClassType.Cleric || castClass == ClassType.Ranger ? Ability.Wisdom : Ability.Intelligence, Ability.Charisma));
+        SkillSystem.learnableDictionary.Add(spell.Id, new LearnableSpell(spell.Id, spell.Name.Override is null ? spell.Name.ToString() : spell.Name.Override, spell.Description.Override is null ? spell.Description.ToString() : spell.Name.Override, spell.IconResRef, multiplier, castClass == ClassType.Druid || castClass == ClassType.Cleric || castClass == ClassType.Ranger ? Ability.Wisdom : Ability.Intelligence, Ability.Charisma));
       }
 
       //ReinitStuff();
@@ -150,8 +150,6 @@ namespace NWN.Systems
         newSerializedSpell.active = false;
         newSerializedSpell.acquiredPoints = int.Parse(result[2]);
         newSerializedSpell.currentLevel = 0;
-        newSerializedSpell.nbScrollUsed = 0;
-
 
         reinitSpellDico.TryAdd(charId, new Dictionary<int, LearnableSpell>());
         reinitSpellDico[charId].Add(spellId, new LearnableSpell(newSpell, newSerializedSpell));
@@ -330,7 +328,7 @@ namespace NWN.Systems
         oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
       }*/
 
-      HandleCasterLevel(onSpellCast.Caster, onSpellCast.Spell.SpellType, player);
+      HandleCasterLevel(onSpellCast.Caster, onSpellCast.Spell, player); // Désactivé car j'utilise un Native Hook, mais à vérifier que ça marche bien
 
       switch (onSpellCast.Spell.SpellType)
       {
@@ -393,7 +391,7 @@ namespace NWN.Systems
 
       NWScript.DelayCommand(0.0f, () => DelayedTagAoE(player));
     }
-    private void HandleCasterLevel(NwGameObject caster, Spell spell, PlayerSystem.Player player)
+    private void HandleCasterLevel(NwGameObject caster, NwSpell spell, PlayerSystem.Player player)
     {
       if (caster is not NwCreature castingCreature)
         return;
@@ -406,7 +404,22 @@ namespace NWN.Systems
         castingClass = ClassType.Sorcerer;
 
       CreaturePlugin.SetClassByPosition(castingCreature, 0, (int)castingClass);
-      CreaturePlugin.SetLevelByPosition(castingCreature, 0, player.learnableSkills.ContainsKey(CustomSkill.ImprovedCasterLevel) ? player.learnableSkills[CustomSkill.ImprovedCasterLevel].totalPoints : 1);
+      CreaturePlugin.SetCasterLevelOverride(castingCreature, (int)castingClass, player.learnableSpells[spell.Id].currentLevel);
+
+      if(castingCreature.IsLoginPlayerCharacter)
+      {
+        if(castingCreature.ControllingPlayer.IsDM && !castingCreature.IsDMPossessed)
+          CreaturePlugin.SetCasterLevelOverride(castingCreature, (int)castingClass, 15);
+        else
+          CreaturePlugin.SetCasterLevelOverride(castingCreature, (int)castingClass, player.learnableSpells[spell.Id].currentLevel);
+      }
+      else if(castingCreature.IsPlayerControlled)
+      {
+        if(castingCreature.GetObjectVariable<LocalVariableInt>("_CREATURE_CASTER_LEVEL").HasValue)
+          CreaturePlugin.SetCasterLevelOverride(castingCreature, (int)castingClass, castingCreature.GetObjectVariable<LocalVariableInt>("_CREATURE_CASTER_LEVEL").Value);
+        else
+          CreaturePlugin.SetCasterLevelOverride(castingCreature, (int)castingClass, (int)castingCreature.ChallengeRating);
+      }
 
       NWScript.DelayCommand(0.0f, () => DelayedSpellHook(castingCreature));
     }
@@ -415,8 +428,10 @@ namespace NWN.Systems
       if (!player.IsValid)
         return;
 
+      //Log.Info($"spellhook caster level AFTER : {player.LastSpellCasterLevel}");
+
       CreaturePlugin.SetClassByPosition(player, 0, 43);
-      CreaturePlugin.SetLevelByPosition(player, 0, 1);
+      //CreaturePlugin.SetLevelByPosition(player, 0, 1);
     }
     private void DelayedTagAoE(PlayerSystem.Player player)
     {

@@ -13,11 +13,12 @@ namespace NWN.Systems
   {
     private readonly Logger Log = LogManager.GetCurrentClassLogger();
     private readonly CExoString casterLevelVariable = "_CREATURE_CASTER_LEVEL".ToExoString();
+    //private readonly CExoString spellIdVariable = "_CURRENT_SPELL".ToExoString();
 
     //private delegate int GetDamageRollHook(void* thisPtr, void* pTarget, int bOffHand, int bCritical, int bSneakAttack, int bDeathAttack, int bForceMax);
     private delegate void ResolveAttackRollHook(void* pCreature, void* pTarget);
     private delegate byte GetSpellLikeAbilityCasterLevelHook(void* pCreatureStats, int nSpellId);
-    private delegate byte GetCasterLevelHook(void* pCreatureStats, byte nMultiClass);
+    //private delegate byte GetCasterLevelHook(void* pCreatureStats, byte nMultiClass);
     private delegate int AddUseTalentOnObjectHook(void* pCreature, int talentType, int talentId, uint oidTarget, byte nMultiClass, uint oidItem, int nItemPropertyIndex, byte nCasterLevel, int nMetaType);
     private delegate int AddUseTalentAtLocationHook(void* pCreature, int talentType, int talentId, Vector3 vTargetLocation, byte nMultiClass, uint oidItem, int nItemPropertyIndex, byte nCasterLevel, int nMetaType);
 
@@ -30,7 +31,7 @@ namespace NWN.Systems
       //getDamageRollHook = hookService.RequestHook<GetDamageRollHook>(OnGetDamageRoll, FunctionsLinux._ZN17CNWSCreatureStats13GetDamageRollEP10CNWSObjectiiiii, HookOrder.Early);
       hookService.RequestHook<ResolveAttackRollHook>(OnResolveAttackRoll, FunctionsLinux._ZN12CNWSCreature17ResolveAttackRollEP10CNWSObject, HookOrder.Early);
       hookService.RequestHook<GetSpellLikeAbilityCasterLevelHook>(OnGetSpellLikeAbilityCasterLevel, FunctionsLinux._ZN17CNWSCreatureStats30GetSpellLikeAbilityCasterLevelEj, HookOrder.Early);
-      hookService.RequestHook<GetCasterLevelHook>(OnGetCasterLevel, FunctionsLinux._ZN17CNWSCreatureStats14GetCasterLevelEh, HookOrder.Early);
+      //hookService.RequestHook<GetCasterLevelHook>(OnGetCasterLevel, FunctionsLinux._ZN17CNWSCreatureStats14GetCasterLevelEh, HookOrder.Early); // Malheureusement ce hook est inutile => La fonction n'est jamais appelée en jeu
       addUseTalentOnObjectHook = hookService.RequestHook<AddUseTalentOnObjectHook>(OnAddUseTalentOnObjectHook, FunctionsLinux._ZN12CNWSCreature27AddUseTalentOnObjectActionsEiijhjihh, HookOrder.Early);
       addUseTalentAtLocationHook = hookService.RequestHook<AddUseTalentAtLocationHook>(OnAddUseTalentAtLocationHook, FunctionsLinux._ZN12CNWSCreature29AddUseTalentAtLocationActionsEii6Vectorhjihh, HookOrder.Early);
     }
@@ -105,18 +106,26 @@ namespace NWN.Systems
       else
         return creatureStats.m_pSpellLikeAbilityList.FirstOrDefault(s => s.m_nSpellId == nSpellId).m_nCasterLevel;
     }
-    private byte OnGetCasterLevel(void* pCreatureStats, byte nMultiClass)
+    /*private byte OnGetCasterLevel(void* pCreatureStats, byte nMultiClass)
     {
       CNWSCreatureStats creatureStats = CNWSCreatureStats.FromPointer(pCreatureStats);
-      int casterLevel;
+      int casterLevel = 1;
+
+      Log.Info("ENTERING NATIVE CASTER LEVEL HOOK");
 
       if (PlayerSystem.Players.TryGetValue(creatureStats.m_pBaseCreature.m_idSelf, out PlayerSystem.Player player))
-        casterLevel = player.learnableSkills.ContainsKey(CustomSkill.ImprovedCasterLevel) ? player.learnableSkills[CustomSkill.ImprovedCasterLevel].totalPoints : 0;
-      else
-        casterLevel = creatureStats.m_pBaseCreature.m_ScriptVars.GetInt(casterLevelVariable);
+      {
+        player.oid.SendServerMessage("ENTERING NATIVE CASTER LEVEL HOOK");
+        if (player.oid.ControlledCreature != player.oid.LoginCreature)
+          casterLevel = creatureStats.m_pBaseCreature.m_ScriptVars.GetInt(casterLevelVariable);
+        else
+          casterLevel = !player.oid.IsDM ? player.learnableSpells[creatureStats.m_pBaseCreature.m_ScriptVars.GetInt(spellIdVariable)].currentLevel : 15;
+      }
+
+      Log.Info(casterLevel);
 
       return (byte)casterLevel;
-    }
+    }*/
 
     /*private int OnGetDamageRoll(void* thisPtr, void* pTarget, int bOffHand, int bCritical, int bSneakAttack, int bDeathAttack, int bForceMax)
     {

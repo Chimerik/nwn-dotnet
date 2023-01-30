@@ -266,10 +266,6 @@ namespace NWN.Systems
     public static void OpenWorkshopWindow(PlaceableEvents.OnUsed onUsed)
     {
       onUsed.UsedBy.ControllingPlayer?.SendServerMessage("Afin de commencer un travail artisanat, il vous utiliser sur cet atelier un objet disposant d'un enchantement de manipulation de matéria raffinée.");
-
-      /*if (Players.TryGetValue(onUsed.UsedBy, out Player player))
-        if (!player.windows.ContainsKey("craftWorkshop")) player.windows.Add("craftWorkshop", new Player.WorkshopWindow(player, onUsed.Placeable.Tag));
-        else ((Player.WorkshopWindow)player.windows["craftWorkshop"]).CreateWindow(onUsed.Placeable.Tag);*/
     }
     public static void Give1000Gold(PlaceableEvents.OnUsed onUsed)
     {

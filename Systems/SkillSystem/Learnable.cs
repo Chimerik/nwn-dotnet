@@ -47,12 +47,6 @@ namespace NWN.Systems
     {
 
     }
-
-    /**public double GetPointsToNextLevel()
-    {
-      return 250 * multiplier * Math.Pow(5, currentLevel);
-    }*/
-
     public TimeSpan GetTimeSpanToNextLevel(PlayerSystem.Player player)
     {
       if (player.oid.LoginCreature == null)
@@ -60,47 +54,11 @@ namespace NWN.Systems
 
       return TimeSpan.FromSeconds((pointsToNextLevel - acquiredPoints) / player.GetSkillPointsPerSecond(this));
     }
-
     public string GetReadableTimeSpanToNextLevel(PlayerSystem.Player player)
     {
       TimeSpan timespan = GetTimeSpanToNextLevel(player);
       return new TimeSpan(timespan.Days, timespan.Hours, timespan.Minutes, timespan.Seconds).ToString();
     }
-
-    /*public async void AwaitPlayerStateChangeToCalculateSPGain(PlayerSystem.Player player)
-    {
-      TimeSpan timeToNextLevel = GetTimeSpanToNextLevel(player);
-      var scheduler = player.scheduler.Schedule(() => { LevelUpWrapper(player);}, timeToNextLevel.TotalSeconds > 0 ? timeToNextLevel: TimeSpan.FromSeconds(0));
-
-      CancellationTokenSource tokenSource = new CancellationTokenSource();
-
-      int primary = player.oid.LoginCreature.GetAbilityScore(primaryAbility);
-      int secondary = player.oid.LoginCreature.GetAbilityScore(secondaryAbility);
-      PlayerSystem.Player.PcState pcState = player.pcState;
-      
-      double spPerSecond = player.GetSkillPointsPerSecond(this);
-
-      await NwTask.WaitUntil(() => player.oid.LoginCreature == null || pcState != player.pcState || primary != player.oid.LoginCreature.GetAbilityScore(primaryAbility) || secondary != player.oid.LoginCreature.GetAbilityScore(secondaryAbility) || !active, tokenSource.Token);
-      tokenSource.Cancel();
-      scheduler.Dispose();
-
-      if (spLastCalculation.HasValue)
-        acquiredPoints += (DateTime.Now - spLastCalculation).Value.TotalSeconds * spPerSecond;
-
-      spLastCalculation = DateTime.Now;
-
-      if (pcState == PlayerSystem.Player.PcState.Offline || player.oid.LoginCreature == null)
-        return;
-
-      if (!active)
-      {
-        spLastCalculation = null;
-        return;
-      }
-
-      AwaitPlayerStateChangeToCalculateSPGain(player);
-    }*/
-
     public async void LevelUpWrapper(PlayerSystem.Player player)
     {
       if (this is LearnableSkill)
@@ -153,8 +111,6 @@ namespace NWN.Systems
           player.tempCurrentSkillPoint = 0;
         } 
       }
-
-      //AwaitPlayerStateChangeToCalculateSPGain(player);
     }
   }
 }

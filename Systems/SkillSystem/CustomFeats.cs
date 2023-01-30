@@ -189,7 +189,7 @@
     public const int ImprovedSpellSlot7 = 20091;
     public const int ImprovedSpellSlot8 = 20092;
     public const int ImprovedSpellSlot9 = 20093;
-    public const int ImprovedCasterLevel = 20094;
+    //public const int ImprovedCasterLevel = 20094; // Retiré, car désormais chaque sort dispose de son propre niveau. Pourra être remplacé par autre chose
 
     public const int ImprovedLightArmorProficiency = 20099;
     public const int ImprovedMediumArmorProficiency = 20100;

@@ -224,7 +224,7 @@ namespace NWN.Systems
         learnableSkills.Add(CustomSkill.Toughness, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Toughness]));
 
         learnableSkills.Add(CustomSkill.ImprovedAttackBonus, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedAttackBonus]));
-        learnableSkills.Add(CustomSkill.ImprovedCasterLevel, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedCasterLevel]));
+        //learnableSkills.Add(CustomSkill.ImprovedCasterLevel, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedCasterLevel]));
         learnableSkills.Add(CustomSkill.ImprovedSpellSlot0, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedSpellSlot0]));
         learnableSkills.Add(CustomSkill.ImprovedSpellSlot1, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedSpellSlot1]));
 
@@ -409,12 +409,17 @@ namespace NWN.Systems
 
           foreach (var kvp in serializableSkills)
           {
-            LearnableSkill skill = new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[kvp.Key], kvp.Value);
+            if (SkillSystem.learnableDictionary.ContainsKey(kvp.Key))
+            {
+              LearnableSkill skill = new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[kvp.Key], kvp.Value);
 
-            if (skill.active)
-              activeLearnable = skill;
+              if (skill.active)
+                activeLearnable = skill;
 
-            learnableSkills.TryAdd(kvp.Key, skill);
+              learnableSkills.TryAdd(kvp.Key, skill);
+            }
+            else
+              Utils.LogMessageToDMs($"SKILL SYSTEM - INVALID SKILL KEY {kvp.Key} REMOVED FROM {oid.LoginCreature.Name} ({oid.PlayerName})");
           }
         });
 

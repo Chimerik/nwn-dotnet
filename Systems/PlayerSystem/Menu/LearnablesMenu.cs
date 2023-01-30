@@ -135,7 +135,6 @@ namespace NWN.Systems
 
             currentList = target.learnableSkills.Values.Where(s => s.category == SkillSystem.Category.MindBody);
             LoadLearnableList(currentList);
-            //RefreshWindowOnAbilityChange();
           }
           else
             player.oid.SendServerMessage($"Impossible d'ouvrir la fenêtre {window.Title}. Celle-ci est-elle déjà ouverte ?", ColorConstants.Orange);
@@ -150,6 +149,7 @@ namespace NWN.Systems
               switch (nuiEvent.ElementId)
               {
                 case "loadSkills":
+
                   enableSkillButton.SetBindValue(player.oid, nuiToken.Token, false);
                   enableSpellButton.SetBindValue(player.oid, nuiToken.Token, true);
                   selectedCategory.SetBindWatch(player.oid, nuiToken.Token, false);
@@ -159,8 +159,11 @@ namespace NWN.Systems
                   displaySkill = true;
                   currentList = target.learnableSkills.Values.Where(s => s.category == SkillSystem.Category.MindBody);
                   LoadLearnableList(currentList);
+
                   return;
+
                 case "loadSpells":
+
                   enableSkillButton.SetBindValue(player.oid, nuiToken.Token, true);
                   enableSpellButton.SetBindValue(player.oid, nuiToken.Token, false);
                   selectedCategory.SetBindWatch(player.oid, nuiToken.Token, false);
@@ -170,6 +173,7 @@ namespace NWN.Systems
                   displaySkill = false;
                   currentList = target.learnableSpells.Values;
                   LoadLearnableList(currentList);
+
                   return;
               }
 
@@ -251,6 +255,8 @@ namespace NWN.Systems
                     }
               }
             }
+            else if (learnable is LearnableSpell spell && !spell.canLearn)
+              canLearn = false;
 
             string buttonText = learnable.active ? "En cours" : "Apprendre";
             //if (!canLearn)
@@ -267,9 +273,6 @@ namespace NWN.Systems
           learnButtonText.SetBindValues(player.oid, nuiToken.Token, learnButtonTextList);
           learnButtonEnabled.SetBindValues(player.oid, nuiToken.Token, learnButtonEnabledList);
           listCount.SetBindValue(player.oid, nuiToken.Token, filteredList.Count());
-
-          //if (filteredList.Any(l => l.active) && !refreshOn)
-          //RefreshActiveLearnable();
         }
         public void HandleLearnableSearch()
         {
@@ -279,7 +282,7 @@ namespace NWN.Systems
           if (displaySkill)
             currentList = target.learnableSkills.Values.Where(s => s.category == (SkillSystem.Category)categorySelected);
           else if (categorySelected > 0)
-            currentList = target.learnableSpells.Values.Where(s => s.spellLevel == categorySelected - 1);
+            currentList = target.learnableSpells.Values.Where(s => s.multiplier == categorySelected - 2);
           else
             currentList = target.learnableSpells.Values;
 
@@ -288,53 +291,6 @@ namespace NWN.Systems
 
           LoadLearnableList(currentList);
         }
-        /*private async void RefreshWindowOnAbilityChange()
-        {
-          int strength = player.oid.LoginCreature.GetAbilityScore(Ability.Strength);
-          int dexterity = player.oid.LoginCreature.GetAbilityScore(Ability.Dexterity);
-          int constitution = player.oid.LoginCreature.GetAbilityScore(Ability.Constitution);
-          int intelligence = player.oid.LoginCreature.GetAbilityScore(Ability.Intelligence);
-          int wisdom = player.oid.LoginCreature.GetAbilityScore(Ability.Wisdom);
-          int charisma = player.oid.LoginCreature.GetAbilityScore(Ability.Charisma);
-
-          CancellationTokenSource tokenSource = new CancellationTokenSource();
-          await NwTask.WaitUntil(() => player.oid.LoginCreature == null || !IsOpen || strength != player.oid.LoginCreature.GetAbilityScore(Ability.Strength) || dexterity != player.oid.LoginCreature.GetAbilityScore(Ability.Dexterity) || constitution != player.oid.LoginCreature.GetAbilityScore(Ability.Constitution) || intelligence != player.oid.LoginCreature.GetAbilityScore(Ability.Intelligence) || wisdom != player.oid.LoginCreature.GetAbilityScore(Ability.Wisdom) || charisma != player.oid.LoginCreature.GetAbilityScore(Ability.Charisma), tokenSource.Token);
-          tokenSource.Cancel();
-
-          if (player.oid.LoginCreature == null || !IsOpen)
-            return;
-
-          LoadLearnableList(currentList);
-          RefreshWindowOnAbilityChange();
-        }*/
-        /*private async void RefreshActiveLearnable()
-        {
-          refreshOn = true;
-
-          CancellationTokenSource tokenSource = new CancellationTokenSource();
-          Task awaitInactive = NwTask.WaitUntil(() => player.oid.LoginCreature == null || !IsOpen || !currentList.Any(l => l.active), tokenSource.Token);
-          Task awaitOneSecond = NwTask.Delay(TimeSpan.FromSeconds(1), tokenSource.Token);
-
-          await NwTask.WhenAny(awaitInactive, awaitOneSecond);
-          tokenSource.Cancel();
-
-          if (awaitInactive.IsCompletedSuccessfully)
-          {
-            refreshOn = false;
-            return;
-          }
-
-          Learnable activeLearnable = currentList.FirstOrDefault(l => l.active);
-
-          if (activeLearnable != null)
-          { 
-            List<string> time = remainingTime.GetBindValues(player.oid, nuiToken.Token);
-            time[currentList.ToList().IndexOf(activeLearnable)] = activeLearnable.GetReadableTimeSpanToNextLevel(player);
-            remainingTime.SetBindValues(player.oid, nuiToken.Token, time);
-          }
-
-          RefreshActiveLearnable();
-        }*/
       }
     }
   }
