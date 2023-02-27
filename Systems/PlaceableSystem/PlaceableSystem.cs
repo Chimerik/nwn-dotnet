@@ -68,6 +68,9 @@ namespace NWN.Systems
           door.OnAreaTransitionClick += CheckMateriaInventory;
         }
 
+        if (door.Tag == "at_tour_collines") // TODO : temporaire, à supprimer après mise à jour des haks
+          door.Locked = false;
+
         if (door.VisualTransform.Scale != 1 || door.VisualTransform.Translation != Vector3.Zero || door.VisualTransform.Rotation != Vector3.Zero)
           door.VisibilityOverride = VisibilityMode.AlwaysVisible;
       }
@@ -265,7 +268,7 @@ namespace NWN.Systems
     }
     public static void OpenWorkshopWindow(PlaceableEvents.OnUsed onUsed)
     {
-      onUsed.UsedBy.ControllingPlayer?.SendServerMessage("Afin de commencer un travail artisanat, il vous utiliser sur cet atelier un objet disposant d'un enchantement de manipulation de matéria raffinée.");
+      onUsed.UsedBy.ControllingPlayer?.SendServerMessage("Afin de commencer un travail artisanal, il vous faut utiliser sur cet atelier un objet disposant d'un enchantement de manipulation de matéria raffinée.");
     }
     public static void Give1000Gold(PlaceableEvents.OnUsed onUsed)
     {

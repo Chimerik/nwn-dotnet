@@ -27,6 +27,8 @@ namespace NWN.Systems
     public static readonly Dictionary<string, GoldBalance> goldBalanceMonitoring = new();
     private readonly SchedulerService scheduler;
 
+    public static NwCreature placeholderTemplate = NwObject.FindObjectsWithTag<NwCreature>("damage_trainer").FirstOrDefault(); 
+
     public class HeadModels
     {
       public Gender gender { get; }
@@ -76,7 +78,7 @@ namespace NWN.Systems
       NwModule.Instance.GetObjectVariable<LocalVariableString>("X2_S_UD_SPELLSCRIPT").Value = "spellhook";
 
       //NwModule.Instance.SetEventScript((EventScriptType)NWScript.EVENT_SCRIPT_MODULE_ON_PLAYER_TILE_ACTION, "on_tile_action");
-
+      
       string serverName = "FR] Les Larmes des Erylies";
       NwServer.Instance.ServerInfo.ModuleName = "Demo technique ouverte";
 
@@ -100,6 +102,7 @@ namespace NWN.Systems
       NwServer.Instance.ServerInfo.PlayOptions.ShowDMJoinMessage = false;
 
       ItemSystem.feedbackService.AddCombatLogMessageFilter(CombatLogMessage.ComplexAttack);
+      ItemSystem.feedbackService.AddCombatLogMessageFilter(CombatLogMessage.Initiative);
 
       SetModuleTime();
 
@@ -120,6 +123,26 @@ namespace NWN.Systems
       scheduler.ScheduleRepeating(HandleMateriaGrowth, TimeSpan.FromHours(1));
       scheduler.ScheduleRepeating(SpawnCollectableResources, TimeSpan.FromHours(24), nextActivation);
       scheduler.ScheduleRepeating(HandleSubscriptionDues, TimeSpan.FromHours(24), nextActivation);
+
+      placeholderTemplate = NwObject.FindObjectsWithTag<NwCreature>("damage_trainer").FirstOrDefault();
+      placeholderTemplate = placeholderTemplate?.Clone(placeholderTemplate?.Location);
+      placeholderTemplate.VisibilityOverride = VisibilityMode.Hidden;
+
+      /*placeholderTemplate.ApplyEffect(EffectDuration.Permanent, Effect.DamageImmunityIncrease(DamageType.Magical, 50));
+      placeholderTemplate.ApplyEffect(EffectDuration.Permanent, Effect.DamageImmunityIncrease(DamageType.Magical, 10));
+      placeholderTemplate.ApplyEffect(EffectDuration.Permanent, Effect.DamageImmunityIncrease(DamageType.Magical, -25));
+      placeholderTemplate.ApplyEffect(EffectDuration.Permanent, Effect.DamageImmunityIncrease(DamageType.Magical, -100));
+
+      foreach (var eff in placeholderTemplate.ActiveEffects)
+      {
+        Log.Info($"effect {eff.EffectType} - {eff.IntParams[0]}");
+        int i = 0;
+        foreach (var param in eff.IntParams)
+        {
+          Log.Info($"{i} - {param}");
+          i++;
+        }
+      }*/
 
       /*foreach (var duplicate in NwGameTables.PlaceableTable.GroupBy(p => p.ModelName).Where(p => p.Count() > 1).Select(p => p.Key))
       {
@@ -372,6 +395,7 @@ namespace NWN.Systems
         NwPlaceable newResourceBlock = NwPlaceable.Create(resRef, materiaLocation, false, "mineable_materia");
         newResourceBlock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = quantity;
         newResourceBlock.GetObjectVariable<LocalVariableInt>("_GRADE").Value = grade;
+        Utils.SetResourceBlockData(newResourceBlock);
 
         Log.Info($"MATERIA SPAWN - Area {materiaLocation.Area.Name} - Spawning {resRef} - Quantity {grade} - grade {grade}");
       }
@@ -632,10 +656,6 @@ namespace NWN.Systems
         if (!string.IsNullOrEmpty(model.Label))
           Utils.appearanceEntries.Add(new NuiComboEntry(StringUtils.ConvertToUTF8(model.Label)  , model.RowIndex));
 
-      foreach (var model in NwGameTables.PlaceableTable)
-        if (!string.IsNullOrEmpty(model.Label))
-          Utils.placeableEntries.Add(new NuiComboEntry(model.Label, model.RowIndex));
-
       foreach (var baseItem in BaseItems2da.baseItemTable)
       {
         Dictionary<ItemAppearanceWeaponModel, List<NuiComboEntry>> models = new();
@@ -841,6 +861,13 @@ namespace NWN.Systems
         plc.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value = int.Parse(spawn[4]);
         plc.Location = Utils.GetLocationFromDatabase(spawn[0], spawn[1], float.Parse(spawn[2]));
       }
+
+     foreach(NwPlaceable tempTransition in NwObject.FindObjectsWithTag<NwPlaceable>("temp_at_prom_gov"))
+        tempTransition.OnLeftClick += OnUsedTempTransition;
+    }
+    public static void OnUsedTempTransition(PlaceableEvents.OnLeftClick onUsed)
+    {
+      onUsed.ClickedBy.ControlledCreature.Location = NwObject.FindObjectsWithTag<NwDoor>("at_gouvernement_promenade").FirstOrDefault()?.Location;
     }
     private void HandlePlayerLoop()
     {

@@ -49,7 +49,7 @@ namespace NWN.Systems
         }
         public void CreateWindow(NwItem extractor, NwGameObject oTarget)
         {
-          if (oTarget == null || oTarget.Tag != "mineable_materia")
+          if (oTarget is null || oTarget.Tag != "mineable_materia")
             return;
 
           if (player.oid.LoginCreature.DistanceSquared(oTarget) > 50)
@@ -68,7 +68,7 @@ namespace NWN.Systems
 
           this.targetMateria = oTarget;
 
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? new NuiRect(player.windowRectangles[windowId].X, player.windowRectangles[windowId].Y, 490, 40) : new NuiRect(player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) / 2 - 250, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 490, 40);
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? new NuiRect(player.windowRectangles[windowId].X, player.windowRectangles[windowId].Y, 495, 45) : new NuiRect(player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) / 2 - 250, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 495, 45);
 
           window = new NuiWindow(rootColumn, "")
           {
@@ -171,7 +171,7 @@ namespace NWN.Systems
               player.oid.LoginCreature.RemoveEffect(eff);
 
             ItemUtils.HandleCraftToolDurability(player, extractor, "EXTRACTOR", resourceSafetySkill);
-            player.oid.SendServerMessage($"Vous parvenez à extraire {miningYield.ToString().ColorString(ColorConstants.White)} unité(s) de matéria", new Color(32, 255, 32));
+            player.oid.SendServerMessage($"Vous parvenez à extraire {StringUtils.ToWhitecolor(miningYield)} unité(s) de matéria de niveau de concentration {StringUtils.ToWhitecolor(grade)}", new Color(32, 255, 32));
 
             return;
           }
@@ -347,11 +347,9 @@ namespace NWN.Systems
             Utils.LogMessageToDMs($"Update Query - Materia Block - {e.Message}");
           }
         }
-        private async void CreateSelectedResourceInInventory(CraftResource selection, int quantity)
+        private void CreateSelectedResourceInInventory(CraftResource selection, int quantity)
         {
-          player.feedbackService.AddFeedbackMessageFilter(FeedbackMessage.ItemReceived, player.oid);
-
-          NwItem pcResource = await NwItem.Create("craft_resource", player.oid.LoginCreature);
+          NwItem pcResource = NwItem.Create("craft_resource", player.oid.LoginCreature.Location);
           pcResource.GetObjectVariable<LocalVariableString>("CRAFT_RESOURCE").Value = selection.type.ToString();
           pcResource.GetObjectVariable<LocalVariableInt>("CRAFT_GRADE").Value = selection.grade;
           pcResource.Name = selection.name;
@@ -360,7 +358,7 @@ namespace NWN.Systems
           pcResource.Appearance.SetSimpleModel(selection.icon);
           pcResource.StackSize = quantity;
 
-          player.feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.ItemReceived, player.oid);
+          player.oid.LoginCreature.AcquireItem(pcResource, false);
         }
       }
     }

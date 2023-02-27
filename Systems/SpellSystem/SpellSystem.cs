@@ -328,7 +328,7 @@ namespace NWN.Systems
         oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
       }*/
 
-      HandleCasterLevel(onSpellCast.Caster, onSpellCast.Spell, player); // Désactivé car j'utilise un Native Hook, mais à vérifier que ça marche bien
+      HandleCasterLevel(onSpellCast.Caster, onSpellCast.Spell, player);
 
       switch (onSpellCast.Spell.SpellType)
       {

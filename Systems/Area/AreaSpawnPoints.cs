@@ -342,7 +342,36 @@ namespace NWN.Systems
       "Combien de temps allez vous nous garder comme ça ?",
       "Les gens ne sont pas fait pour vivre enfermés !",
       "Laissez-nous passer !",
-      "Il faut nous aider !"
+      "Il faut nous aider !",
+      "Nous avons le droit de savoir ce qui se passe !",
+      "Pourquoi nous maintenez-vous enfermés ici ? C'est inhumain !",
+      "Comment pouvons-nous faire confiance à votre Empereur si vous ne nous dites rien ?",
+      "Nous avons des familles et des vies à l'extérieur de ce quartier !",
+      "Cette barricade ne nous protège pas, elle nous emprisonne !",
+      "Nous ne sommes pas des animaux ! Nous méritons d'être traités avec respect et dignité !",
+      "Nous demandons simplement des réponses claires et honnêtes !",
+      "Si vous ne nous dites pas ce qui se passe, nous allons devoir prendre les choses en main !",
+      "Cette quarantaine est une violation de nos droits ! Nous ne laisserons pas cela se produire !",
+      "Nous ne pouvons pas rester ici indéfiniment ! Donnez-nous une solution ou laissez-nous partir !",
+      "Nous ne voulons pas mourir ici, laisser-nous sortir !",
+      "Comment allons-nous survivre sans accès à la nourriture et aux médicaments ?",
+      "Je ne veux pas perdre ma famille à cause de cette maladie !",
+      "Vous nous condamnez en nous enfermant ici !",
+      "Je ne veux pas être infecté par cette maladie !",
+      "Nous avons besoin d'une solution, sinon nous sommes tous perdus !",
+      "Je ne veux pas rester ici et regarder mes proches mourir lentement !",
+      "Nous ne pouvons pas faire face seuls, nous avons besoin d'aide !",
+      "Je ne veux pas finir comme ces pauvres âmes que nous avons vues tomber malades !",
+      "Nous ne pouvons pas être abandonnés ici, nous méritons une chance de survie !",
+      "Si vous ne nous laissez pas partir, nous allons détruire cette barricade !",
+      "Nous ne pouvons pas rester coincés ici indéfiniment !",
+      "Nous ne laisserons pas cette maladie nous condamner à mort !",
+      "Nous allons devoir prendre les choses en main si vous ne nous donnez pas des réponses bientôt !",
+      "Si nous mourrons ici, vous devrez répondre de vos actes devant les dieux !",
+      "Nous ne pouvons pas être traités comme des prisonniers !",
+      "Nous avons le droit de protéger nos proches et nos maisons !",
+      "Nous avons des armes, nous pouvons briser cette barricade et sortir !",
+      "Nous ne laisserons pas cette maladie nous gouverner, nous allons nous battre pour notre liberté !"
     };
     private readonly string[] randomMartenBanterArray = new string[]
     {
@@ -356,7 +385,17 @@ namespace NWN.Systems
       "Les agitateurs seront fermement réprimandés.",
       "Reculez !",
       "Ne vous tenez pas trop près du barrage.",
-      "Eloignez-vous"
+      "Eloignez-vous",
+      "Arrêtez immédiatement ! Vous risquez d'aggraver la situation !",
+      "Nous faisons tout ce que nous pouvons pour protéger les habitants de cette île !",
+      "Reculez ! Cette barricade est là pour votre sécurité de tous !",
+      "Je suis désolé, mais nous ne pouvons pas prendre de risques avec une épidémie aussi dangereuse !",
+      "Vous mettez en danger la vie de tous les habitants de Similisse en agissant ainsi !",
+      "Nous avons besoin de votre coopération et de votre patience pour gérer cette situation difficile !",
+      "Je comprends que vous soyez en colère, mais nous devons tous faire notre part pour éviter une catastrophe !",
+      "Veuillez gardez votre calme et restez derrière la barricade !",
+      "Il y a des vies en jeu ici ! Nous ne pouvons pas nous permettre de prendre des risques inutiles !",
+      "Nous ne pouvons pas laisser la peur et la panique prendre le dessus ! Nous devons rester forts et solidaires !"
     };
     private async void GenerateInfectedRandomBanter(NwCreature creature)
     {

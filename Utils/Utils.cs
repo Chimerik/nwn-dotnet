@@ -665,7 +665,7 @@ namespace NWN
       {
         nbTry++;
         randomPosition = new Vector3(random.Next(areaWidth * 8), random.Next(areaHeigth * 8), 10);
-
+        
         while (AreaPlugin.GetPathExists(area, transition.Position, randomPosition, areaWidth * areaHeigth) < 1 && stopwatch.Elapsed.TotalMilliseconds < Config.MaxSerializeTimeMs)
         {
           nbTry++;
@@ -682,7 +682,17 @@ namespace NWN
       }
 
       Log.Info($"Path found in {area.Name} after {nbTry} tries ({stopwatch.Elapsed.TotalMilliseconds} ms)");
-      return Location.Create(area, new Vector3(randomPosition.X, randomPosition.Y, Location.Create(area, randomPosition, random.Next(360)).GroundHeight), random.Next(360));
+
+      ModuleSystem.placeholderTemplate.Location = Location.Create(area, new Vector3(randomPosition.X, randomPosition.Y, 0), random.Next(360));
+      Vector3 safePosition = CreaturePlugin.ComputeSafeLocation(ModuleSystem.placeholderTemplate, randomPosition);
+
+      if(safePosition == Vector3.Zero)
+      {
+        LogMessageToDMs($"WARNING - MATERIA SPAWN - Could not find safePosition in {area.Name}");
+        return null;
+      }
+
+      return Location.Create(area, safePosition, random.Next(360));
     }
     public static int GetSpawnedMateriaGrade(int areaLevel)
     {

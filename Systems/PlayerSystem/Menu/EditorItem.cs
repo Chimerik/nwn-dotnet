@@ -46,6 +46,7 @@ namespace NWN.Systems
         private readonly List<NuiComboEntry> subTypeEntries = new();
         private readonly List<NuiComboEntry> costValueEntries = new();
         private readonly List<NuiComboEntry> paramValueEntries = new();
+        private readonly NuiBind<string> addTooltip = new("addTooltip");
 
         private readonly NuiBind<string> itemDescription = new("itemDescription");
         private readonly NuiBind<string> itemComment = new("itemComment");
@@ -106,7 +107,7 @@ namespace NWN.Systems
             availableIPList.Clear();
 
             foreach (var entry in NwGameTables.ItemPropertyTable)
-              if (entry.ItemMap.IsItemPropertyValidForItem(targetItem.BaseItem))
+              if (entry.ItemMap.IsItemPropertyValidForItem(targetItem.BaseItem) && entry.Name is not null)
                 availableIPList.Add(entry);
           }
           else
@@ -177,16 +178,19 @@ namespace NWN.Systems
 
                   if (NwGameTables.ItemPropertyTable.GetRow(lastClickedIP.Property.RowIndex).SubTypeTable != null)
                     foreach (var entry in NwGameTables.ItemPropertyTable.GetRow(lastClickedIP.Property.RowIndex).SubTypeTable)
-                      subTypeEntries.Add(new NuiComboEntry(entry.Name?.ToString(), entry.RowIndex));
+                      if(entry.Name.HasValue)
+                        subTypeEntries.Add(new NuiComboEntry(entry.Name?.ToString(), entry.RowIndex));
 
                   if (lastClickedIP.CostTable != null)
                     foreach (var entry in lastClickedIP.CostTable)
                       if (entry.RowIndex > 0)
-                        costValueEntries.Add(new NuiComboEntry(entry.Name?.ToString(), entry.RowIndex));
+                        if (entry.Name.HasValue)
+                          costValueEntries.Add(new NuiComboEntry(entry.Name?.ToString(), entry.RowIndex));
 
                   if (lastClickedIP.Param1Table != null)
                     foreach (var entry in lastClickedIP.Param1Table)
-                      paramValueEntries.Add(new NuiComboEntry(entry.Name?.ToString(), entry.RowIndex));
+                      if (entry.Name.HasValue)
+                        paramValueEntries.Add(new NuiComboEntry(entry.Name?.ToString(), entry.RowIndex));
 
                   subTypeBind.SetBindValue(player.oid, nuiToken.Token, subTypeEntries);
                   costValueBind.SetBindValue(player.oid, nuiToken.Token, costValueEntries);
@@ -458,7 +462,7 @@ namespace NWN.Systems
           }
           });
 
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButton(availableIP) { Id = "addIP", Tooltip = "Ajouter" }) { VariableSize = true });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButton(availableIP) { Id = "addIP", Tooltip = addTooltip }) { VariableSize = true });
 
           List<NuiListTemplateCell> rowTemplateAcquiredIP = new()
           {
@@ -475,13 +479,12 @@ namespace NWN.Systems
             new NuiColumn() { Children = new List<NuiElement>() { new NuiList(rowTemplateAcquiredIP, listAcquiredIPCount) { RowHeight = 35, Width = 390 } } }
           }
           });
-
-
         }
         private void LoadItemPropertyBinding()
         {
           List<string> acquiredIPNames = new();
           List<string> availableIPNames = new();
+          List<string> addTooltipList = new();
 
           StopAllWatchBindings();
           acquiredIPList.Clear();
@@ -505,9 +508,13 @@ namespace NWN.Systems
           }
 
           foreach (var ip in availableIPList)
+          {
             availableIPNames.Add(ip.Name.Value.ToString());
+            addTooltipList.Add($"Ajouter (id {ip.RowIndex})");
+          }
 
           availableIP.SetBindValues(player.oid, nuiToken.Token, availableIPNames);
+          addTooltip.SetBindValues(player.oid, nuiToken.Token, addTooltipList);
           acquiredIP.SetBindValues(player.oid, nuiToken.Token, acquiredIPNames);
           listCount.SetBindValue(player.oid, nuiToken.Token, availableIPNames.Count);
           listAcquiredIPCount.SetBindValue(player.oid, nuiToken.Token, acquiredIPNames.Count);

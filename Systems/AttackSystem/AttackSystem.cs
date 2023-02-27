@@ -6,19 +6,19 @@ using System;
 using System.Collections.Generic;
 using Action = System.Action;
 using Context = NWN.Systems.Config.Context;
+using NWN.Core;
 
 namespace NWN.Systems
 {
   [ServiceBinding(typeof(AttackSystem))]
   public partial class AttackSystem
   {
-    public static Pipeline<Context> pipeline = new Pipeline<Context>(
+    public static Pipeline<Context> pipeline = new(
       new Action<Context, Action>[]
       {
             IsAttackDodged,
             ProcessBaseDamageTypeAndAttackWeapon,
             ProcessCriticalHit,
-            ProcessBaseDamage,
             ProcessTargetDamageAbsorption,
             ProcessBaseArmorPenetration,
             ProcessBonusArmorPenetration,
@@ -37,9 +37,9 @@ namespace NWN.Systems
       PlayerSystem.Log.Info($"Attack Event - Attacker {onAttack.Attacker.Name} - Target {onAttack.Target.Name} - Result {onAttack.AttackResult}" +
         $" - Base damage {onAttack.DamageData.Base} - attack number {onAttack.AttackNumber} - attack type {onAttack.WeaponAttackType}");
       
-      if (!(onAttack.Target is NwCreature oTarget))
+      if (onAttack.Target is not NwCreature oTarget)
         return;
-
+      
       pipeline.Execute(new Context(
         onAttack: onAttack,
         oTarget: oTarget
@@ -56,27 +56,15 @@ namespace NWN.Systems
     {
       if (ctx.onAttack.AttackResult == AttackResult.Miss)
       {
-        ctx.onAttack.AttackResult = AttackResult.Miss;
-        if (ctx.oAttacker.IsPlayerControlled)
-          ctx.oAttacker.ControllingPlayer.SendServerMessage($"{ctx.oTarget.Name} a esquivé votre attaque.");
+        foreach (NwPlayer player in NwModule.Instance.Players)
+          if (player?.ControlledCreature?.Area == ctx.oTarget?.Area && player?.ControlledCreature.DistanceSquared(ctx.oTarget) < 1225)
+            player.DisplayFloatingTextStringOnCreature(ctx.oTarget, "Attaque esquivée !");
 
-        if (ctx.oTarget.IsPlayerControlled)
-          ctx.oTarget.ControllingPlayer.SendServerMessage($"Attaque de {ctx.oAttacker.Name} esquivée.");
+        return;
       }
-
+        
       next();
     }
-    /*private static void ProcessAdditionnalDamageEffect(Context ctx, Action next)
-    {
-      foreach (var effectType in ctx.oAttacker.ActiveEffects.Where(e => e.EffectType == EffectType.DamageIncrease).GroupBy(e => e.IntParams.ElementAt(1)))
-      {
-        Effect maxEffect = effectType.OrderByDescending(e => e.IntParams.ElementAt(0)).FirstOrDefault();
-        DamageType damageType = (DamageType)maxEffect.IntParams.ElementAt(1);
-        Config.SetContextDamage(ctx, damageType, Config.GetContextDamage(ctx, damageType) + maxEffect.IntParams.ElementAt(0));
-      }
-       
-      next();
-    }*/
     private static void ProcessBaseDamageTypeAndAttackWeapon(Context ctx, Action next)
     {
       if (ctx.isUnarmedAttack && ctx.oAttacker.GetItemInSlot(InventorySlot.Arms) != null)
@@ -87,7 +75,12 @@ namespace NWN.Systems
         case WeaponAttackType.MainHand:
         case WeaponAttackType.HastedAttack:
           if (ctx.oAttacker.GetItemInSlot(InventorySlot.RightHand) != null)
+          {
             ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.RightHand);
+
+            if(ItemUtils.GetItemCategory(ctx.attackWeapon.BaseItem.ItemType) == ItemUtils.ItemCategory.RangedWeapon) // Pour les armes à distance, attaquer depuis une élévation augmente les dégâts (max 10 = + 200 %)
+              Config.SetContextDamage(ctx, DamageType.BaseWeapon, Config.GetContextDamage(ctx, DamageType.BaseWeapon) + (int)(ctx.oAttacker?.Location.GroundHeight - ctx.oTarget?.Location.GroundHeight * 0.1f));
+          }
           break;
 
         case WeaponAttackType.Offhand:
@@ -115,81 +108,15 @@ namespace NWN.Systems
     }
     private static void ProcessCriticalHit(Context ctx, Action next)
     {
-      if (IsHitCritical(ctx))
+      if (ctx.onAttack.AttackResult == AttackResult.CriticalHit)
       {
         ctx.baseArmorPenetration += 20;
+        ctx.oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComBloodCrtRed));
 
-        if (ctx.attackWeapon != null && !ctx.isUnarmedAttack)
-        {
-          switch (ctx.attackWeapon.BaseItem.ItemType)
-          {
-            case BaseItemType.CreatureBludgeoningWeapon:
-            case BaseItemType.CreaturePiercingWeapon:
-            case BaseItemType.CreatureSlashingAndPiercingWeapon:
-            case BaseItemType.CreatureSlashingWeapon:
-
-              ItemProperty monsterDamage = ctx.attackWeapon.ItemProperties.FirstOrDefault(i => i.Property.PropertyType == ItemPropertyType.MonsterDamage);
-              if (monsterDamage != null)
-                ctx.onAttack.DamageData.Base = (short)(CreatureUtils.GetCriticalMonsterDamage(monsterDamage.IntParams[3]) + ctx.oAttacker.GetAbilityModifier(Ability.Strength));
-
-              break;
-
-            default:
-              ctx.onAttack.DamageData.Base = (short)ItemUtils.GetMaxDamage(ctx.attackWeapon.BaseItem, ctx.oAttacker, ctx.isRangedAttack);
-              break;
-          }
-        }
-        else
-          ctx.baseArmorPenetration += 20;
-
-        ctx.oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComBloodCrtRed, false, 1.3f));
+        foreach (NwPlayer player in NwModule.Instance.Players)
+          if (player?.ControlledCreature?.Area == ctx.oTarget?.Area && player?.ControlledCreature.DistanceSquared(ctx.oTarget) < 1225)
+            player.DisplayFloatingTextStringOnCreature(ctx.oTarget, "Coup critique !".ColorString(ColorConstants.Red));
       }
-
-      next();
-    }
-    private static bool IsHitCritical(Context ctx)
-    {
-      int critChance = 0;
-
-      if (ctx.oTarget.FlatFooted)
-        critChance += 10;
-
-      if (!ctx.oAttacker.IsLoginPlayerCharacter)
-      {
-        if (ctx.oAttacker.ChallengeRating < 11)
-          critChance += 5;
-        else
-          critChance += (int)ctx.oAttacker.ChallengeRating - 5;
-      }
-      else
-      {
-        PlayerSystem.Players.TryGetValue(ctx.oAttacker, out PlayerSystem.Player player);       
-        critChance += ctx.attackWeapon == null ? player.GetWeaponCritScienceLevel(BaseItemType.Gloves) : player.GetWeaponCritScienceLevel(ctx.attackWeapon.BaseItem.ItemType);
-        critChance += 5;
-      }
-
-      if (NwRandom.Roll(Utils.random, 100) < critChance)
-        return true;
-      else
-        return false;
-    }
-    private static void ProcessBaseDamage(Context ctx, Action next)
-    {
-      if (!ctx.oAttacker.IsLoginPlayerCharacter) // si ce n'est pas un joueur, alors ses dégâts sont modifiés selon le facteur de puissance de la créature
-      {
-        if (ctx.oAttacker.ChallengeRating < 1)
-          ctx.onAttack.DamageData.Base /= 10;
-        else
-          ctx.onAttack.DamageData.Base *= (short)(ctx.oAttacker.ChallengeRating / 10);
-      }
-      else if(PlayerSystem.Players.TryGetValue(ctx.oAttacker, out PlayerSystem.Player player)) // si c'est un joueur, alors ses dégâts sont modifiés selon sa maîtrise de l'arme actuelle
-      {
-        int weaponMasteryLevel = ctx.attackWeapon == null ? player.GetWeaponMasteryLevel(BaseItemType.Gloves) : player.GetWeaponMasteryLevel(ctx.attackWeapon.BaseItem.ItemType);
-        ctx.onAttack.DamageData.Base *= (short)(weaponMasteryLevel / 10);
-      }
-
-      if (ctx.onAttack.DamageData.Base < 1)
-        ctx.onAttack.DamageData.Base = 1;
 
       next();
     }
@@ -359,9 +286,18 @@ namespace NWN.Systems
     private static void HandleDamageAbsorbed(Context ctx, DamageType damageType, int ipCostValue, DamageType secondaryDamageType = DamageType.BaseWeapon)
     {
       int absorptionValue = DamageImmunityCost2da.damageImmunityTable[ipCostValue].value;
+
+      foreach (Effect effect in ctx.oTarget.ActiveEffects)
+      {
+        if (effect.EffectType == EffectType.DamageImmunityIncrease && effect.IntParams[0] == (int)secondaryDamageType)
+          absorptionValue += effect.IntParams[1];
+        else if (effect.EffectType == EffectType.DamageImmunityDecrease && effect.IntParams[0] == (int)secondaryDamageType)
+          absorptionValue -= effect.IntParams[1];
+      }
+
       if (absorptionValue > 0)
       {
-        absorptionValue = 100 / (absorptionValue - 100);
+        absorptionValue = absorptionValue < 200 ? 100 / (absorptionValue - 100) : 200;
         int totalAbsorbedDamage = 0;
         int absorbedDamage = 0;
 
@@ -387,23 +323,36 @@ namespace NWN.Systems
         ctx.oTarget.ApplyEffect(EffectDuration.Instant, Effect.Heal(absorbedDamage));
         ctx.oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadHeal));
 
-        foreach (NwCreature oPC in ctx.oTarget.Area.FindObjectsOfTypeInArea<NwCreature>().Where(p => p.IsPlayerControlled && p.DistanceSquared(ctx.oTarget) < 35))
-          oPC.ControllingPlayer.DisplayFloatingTextStringOnCreature(ctx.oTarget, totalAbsorbedDamage.ToString().ColorString(new Color(32, 255, 32)));
+        foreach (NwPlayer player in NwModule.Instance.Players)
+          if (player?.ControlledCreature?.Area == ctx.oTarget?.Area && player?.ControlledCreature.DistanceSquared(ctx.oTarget) < 1225)
+            player.DisplayFloatingTextStringOnCreature(ctx.oTarget, $"Absorbe {StringUtils.ToWhitecolor(totalAbsorbedDamage)}".ColorString(new Color(32, 255, 32)));
       }
     }
     private static void ProcessBaseArmorPenetration(Context ctx, Action next)
     {
-      if (ctx.onAttack.WeaponAttackType == WeaponAttackType.Offhand) 
-        ctx.baseArmorPenetration += ctx.oAttacker.GetAttackBonus(true, false, true);
-      else if(ctx.isRangedAttack)
-        ctx.baseArmorPenetration += ctx.oAttacker.GetAttackBonus();
-      else
-        ctx.baseArmorPenetration += ctx.oAttacker.GetAttackBonus(true);
+      if (ctx.oAttacker.IsFlanking(ctx.oTarget))
+        ctx.baseArmorPenetration += 5;
 
-      if (ctx.attackWeapon != null && ctx.attackWeapon.BaseItem.ItemType == BaseItemType.Gloves) // la fonction GetAttackBonus ne prend pas en compte le + AB des gants, donc je le rajoute
+      if (ctx.attackWeapon is null)
+        next();
+
+      if (ctx.isRangedAttack)
+        ctx.baseArmorPenetration += ctx.oAttacker.GetAttackBonus();
+      else if (ctx.onAttack.WeaponAttackType == WeaponAttackType.Offhand)
+        ctx.baseArmorPenetration += ctx.oAttacker.GetAttackBonus(true, false, true);
+      else
+      {
+        ctx.baseArmorPenetration += ctx.oAttacker.GetAttackBonus(true);
+        ctx.baseArmorPenetration += ctx.oAttacker.GetAbilityModifier(Ability.Strength) < ctx.oAttacker.GetAbilityModifier(Ability.Dexterity)
+          && ctx.attackWeapon.BaseItem.WeaponFinesseMinimumCreatureSize >= ctx.oAttacker.Size
+          ? ctx.oAttacker.GetAbilityModifier(Ability.Dexterity)
+          : ctx.oAttacker.GetAbilityModifier(Ability.Strength);
+      }
+
+      if (ctx.attackWeapon.BaseItem.ItemType == BaseItemType.Gloves || ctx.attackWeapon.BaseItem.ItemType == BaseItemType.Bracer) // la fonction GetAttackBonus ne prend pas en compte le + AB des gants, donc je le rajoute
       {
         ItemProperty maxAttackBonus = ctx.attackWeapon.ItemProperties.Where(i => i.Property.PropertyType == ItemPropertyType.AttackBonus).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
-        if (maxAttackBonus != null)
+        if (maxAttackBonus is not null)
           ctx.baseArmorPenetration += maxAttackBonus.IntParams[3];
       }
 
@@ -413,7 +362,10 @@ namespace NWN.Systems
     {
       if (ctx.attackWeapon != null)
       {
+        int bonusDamage = 0; 
+
         foreach (var propType in ctx.attackWeapon.ItemProperties.Where(i => i.Property.PropertyType == ItemPropertyType.EnhancementBonus
+           || i.Property.PropertyType == ItemPropertyType.DecreasedEnhancementModifier || i.Property.PropertyType == ItemPropertyType.DecreasedDamage
            || (i.Property.PropertyType == ItemPropertyType.AttackBonusVsRacialGroup && i?.SubType?.RowIndex == (int)ctx.oTarget.Race.RacialType)
            || (i.Property.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup && i?.SubType?.RowIndex == (int)ctx.oTarget.GoodEvilAlignment)
            || (i.Property.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup && i?.SubType?.RowIndex == (int)ctx.oTarget.LawChaosAlignment)
@@ -426,19 +378,32 @@ namespace NWN.Systems
         {
           ItemProperty maxIP = propType.OrderByDescending(i => i.CostTableValue).FirstOrDefault();
           ctx.baseArmorPenetration += maxIP.IntParams[3];
+
+          if (maxIP.Property.PropertyType is ItemPropertyType.EnhancementBonus or ItemPropertyType.DecreasedEnhancementModifier
+            or ItemPropertyType.EnhancementBonusVsRacialGroup or ItemPropertyType.EnhancementBonusVsAlignmentGroup
+            or ItemPropertyType.EnhancementBonusVsSpecificAlignment or ItemPropertyType.DecreasedEnhancementModifier)
+            bonusDamage += maxIP.IntParams[3];
         }
 
-        foreach (var effectType in ctx.oAttacker.ActiveEffects.Where(e => e.EffectType == EffectType.AttackIncrease).GroupBy(e => e.IntParams.ElementAt(1)))
+        foreach (var effect in ctx.oAttacker.ActiveEffects)
         {
-          Effect maxEffect = effectType.OrderByDescending(e => e.IntParams.ElementAt(0)).FirstOrDefault();
-          ctx.baseArmorPenetration += maxEffect.IntParams.ElementAt(0);
+          if(effect.EffectType == EffectType.DamageIncrease)
+          {
+            if ((DamageType)effect.IntParams[1] == DamageType.BaseWeapon)
+              bonusDamage += effect.IntParams[0];
+            else
+              Config.SetContextDamage(ctx, (DamageType)effect.IntParams[1], Config.GetContextDamage(ctx, (DamageType)effect.IntParams[1]) + effect.IntParams[0]);
+          }
+          else if (effect.EffectType == EffectType.DamageDecrease)
+          {
+            if ((DamageType)effect.IntParams[1] == DamageType.BaseWeapon)
+              bonusDamage -= effect.IntParams[0];
+            else
+              Config.SetContextDamage(ctx, (DamageType)effect.IntParams[1], Config.GetContextDamage(ctx, (DamageType)effect.IntParams[1]) - effect.IntParams[0]);
+          }
         }
-        
-        foreach (var effectType in ctx.oAttacker.ActiveEffects.Where(e => e.EffectType == EffectType.AttackDecrease).GroupBy(e => e.IntParams.ElementAt(1)))
-        {
-          Effect maxEffect = effectType.OrderByDescending(e => e.IntParams.ElementAt(0)).FirstOrDefault();
-          ctx.baseArmorPenetration -= maxEffect.IntParams.ElementAt(0);
-        }
+
+        Config.SetContextDamage(ctx, DamageType.BaseWeapon, Config.GetContextDamage(ctx, DamageType.BaseWeapon) + bonusDamage);
       }
 
       next();
@@ -569,8 +534,8 @@ namespace NWN.Systems
       {
         int baseArmorACValue = ctx.oTarget.GetItemInSlot(InventorySlot.Chest) != null ? ctx.oTarget.GetItemInSlot(InventorySlot.Chest).BaseACValue : -1;
         int armorProficiency = PlayerSystem.Players.TryGetValue(ctx.oTarget, out PlayerSystem.Player player) ? player.GetArmorProficiencyLevel(baseArmorACValue) / 10 : -1;
-
-        foreach (var propType in ctx.targetArmor.ItemProperties.Where(i => i.Property.PropertyType == ItemPropertyType.AcBonus
+        
+        foreach (var propType in ctx.targetArmor.ItemProperties.Where(i => i.Property.PropertyType == ItemPropertyType.AcBonus || i.Property.PropertyType == ItemPropertyType.DecreasedAc
          || (ctx.oAttacker != null && i.Property.PropertyType == ItemPropertyType.AttackBonusVsRacialGroup && i.SubType.RowIndex == (int)ctx.oAttacker.Race.RacialType)
          || (ctx.oAttacker != null && i.Property.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup && i.SubType.RowIndex == (int)ctx.oAttacker.GoodEvilAlignment)
          || (ctx.oAttacker != null && i.Property.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup && i.SubType.RowIndex == (int)ctx.oAttacker.LawChaosAlignment)
@@ -603,19 +568,13 @@ namespace NWN.Systems
           //ctx.targetAC[damageType] = ctx.maxBaseAC;
         }
       }
-      if (ctx.oAttacker != null)
-      {
-        foreach (var effectType in ctx.oAttacker.ActiveEffects.Where(e => e.EffectType == EffectType.AcIncrease).GroupBy(e => e.IntParams.ElementAt(1)))
-        {
-          Effect maxEffect = effectType.OrderByDescending(e => e.IntParams.ElementAt(0)).FirstOrDefault();
-          ctx.targetAC[DamageType.BaseWeapon] += maxEffect.IntParams.ElementAt(0);
-        }
-      }
 
-      foreach (var effectType in ctx.oTarget.ActiveEffects.Where(e => e.EffectType == EffectType.AcDecrease).GroupBy(e => e.IntParams.ElementAt(1)))
+      foreach (var effect in ctx.oTarget.ActiveEffects)
       {
-        Effect maxEffect = effectType.OrderByDescending(e => e.IntParams.ElementAt(0)).FirstOrDefault();
-        ctx.targetAC[DamageType.BaseWeapon] -= maxEffect.IntParams.ElementAt(0);
+        if(effect.EffectType == EffectType.AcIncrease)
+          ctx.targetAC[DamageType.BaseWeapon] += effect.IntParams[1];
+        else if (effect.EffectType == EffectType.AcDecrease)
+          ctx.targetAC[DamageType.BaseWeapon] -= effect.IntParams[1];
       }
       
       next();
@@ -675,43 +634,49 @@ namespace NWN.Systems
     {
       double targetAC = 0;
 
+      if(ctx.attackWeapon.ItemProperties.Any(i => i.Property.PropertyType == ItemPropertyType.NoDamage))
+      {
+        foreach (DamageType damageType in (DamageType[])Enum.GetValues(typeof(DamageType)))
+          Config.SetContextDamage(ctx, damageType, 0);
+
+        next();
+        return;
+      }
+
       foreach (DamageType damageType in (DamageType[])Enum.GetValues(typeof(DamageType)))
       {
         if (Config.GetContextDamage(ctx, damageType) < 1)
           continue;
 
-        switch (damageType)
+        targetAC = damageType switch
         {
-          case DamageType.BaseWeapon: // Base weapon damage
-
-            /*ModuleSystem.Log.Info($"unarmed : {ctx.isUnarmedAttack}");
+          // Base weapon damage
+          DamageType.BaseWeapon => ctx.isUnarmedAttack ? HandleReducedDamageFromWeaponDamageType(ctx, new List<DamageType>() { DamageType.Bludgeoning }) : HandleReducedDamageFromWeaponDamageType(ctx, ctx.attackWeapon.BaseItem.WeaponType),/*ModuleSystem.Log.Info($"unarmed : {ctx.isUnarmedAttack}");
 
             if (!ctx.isUnarmedAttack)
               ModuleSystem.Log.Info($"weapon : {ctx.attackWeapon.Name}");*/
-
-            targetAC = ctx.isUnarmedAttack ? HandleReducedDamageFromWeaponDamageType(ctx, new List<DamageType>() { DamageType.Bludgeoning }) : HandleReducedDamageFromWeaponDamageType(ctx, ctx.attackWeapon.BaseItem.WeaponType);
-            break;
-
-          case DamageType.Bludgeoning: // Physical bonus damage
-          case DamageType.Piercing:
-          case DamageType.Slashing:
-            targetAC = ctx.targetAC[DamageType.BaseWeapon] + ctx.targetAC.GetValueOrDefault((DamageType)8192) + ctx.targetAC.GetValueOrDefault(damageType);
-            break;
-
-          default: // Elemental bonus damage
-            targetAC = ctx.targetAC[DamageType.BaseWeapon] + ctx.targetAC.GetValueOrDefault((DamageType)16384) + ctx.targetAC.GetValueOrDefault(damageType);
-            break;
-        }
-
+          // Physical bonus damage
+          DamageType.Bludgeoning or DamageType.Piercing or DamageType.Slashing => ctx.targetAC[DamageType.BaseWeapon] + ctx.targetAC.GetValueOrDefault((DamageType)8192) + ctx.targetAC.GetValueOrDefault(damageType),
+          // Elemental bonus damage
+          _ => ctx.targetAC[DamageType.BaseWeapon] + ctx.targetAC.GetValueOrDefault((DamageType)16384) + ctx.targetAC.GetValueOrDefault(damageType),
+        };
         if (targetAC < 0) targetAC = 0;
 
         double initialDamage = Config.GetContextDamage(ctx, damageType);
         double modifiedDamage = initialDamage * Utils.GetDamageMultiplier(targetAC);
 
+        if (damageType == DamageType.BaseWeapon && PlayerSystem.Players.TryGetValue(ctx.oAttacker, out PlayerSystem.Player attackerPlayer))
+        {
+          modifiedDamage *= attackerPlayer.GetWeaponMasteryLevel(ctx.attackWeapon.BaseItem.ItemType) * 0.01;
+
+          if (modifiedDamage < 1)
+            modifiedDamage = 1;
+        }
+
         if (ctx.oTarget.Tag == "damage_trainer" && ctx.oAttacker.IsPlayerControlled)
         {
           ctx.oAttacker.ControllingPlayer.SendServerMessage($"Initial : {damageType.ToString().ColorString(ColorConstants.White)} - {initialDamage.ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);
-          ctx.oAttacker.ControllingPlayer.SendServerMessage($"Armure totale vs {damageType.ToString().ColorString(ColorConstants.White)} : {targetAC.ToString().ColorString(ColorConstants.White)} - Dégâts {string.Format("{0:0}", modifiedDamage).ColorString(ColorConstants.White)}", ColorConstants.Orange);
+          ctx.oAttacker.ControllingPlayer.SendServerMessage($"Armure totale vs {damageType.ToString().ColorString(ColorConstants.White)} : {targetAC.ToString().ColorString(ColorConstants.White)} - Dégâts {string.Format("{0:0}", (int)modifiedDamage).ColorString(ColorConstants.White)}", ColorConstants.Orange);
           ctx.oAttacker.ControllingPlayer.SendServerMessage($"Réduction : {string.Format("{0:0.000}", ((initialDamage - modifiedDamage) / modifiedDamage) * 100).ColorString(ColorConstants.White)}%", ColorConstants.Orange);
         }
 
@@ -760,9 +725,6 @@ namespace NWN.Systems
     {
       if (!PlayerSystem.Players.TryGetValue(ctx.oTarget, out PlayerSystem.Player player))
         return;
-
-      PlayerSystem.Log.Info("Entered item durability");
-      PlayerSystem.Log.Info($"player : {player.oid.PlayerName}");
 
       // La cible de l'attaque est un joueur, on fait diminuer la durabilité
 

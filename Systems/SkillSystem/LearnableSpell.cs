@@ -23,14 +23,15 @@ namespace NWN.Systems
       active = false;
       acquiredPoints = 0;
       currentLevel = 0;
-      pointsToNextLevel = 5000 * multiplier / 2;
+      pointsToNextLevel = 5000 * multiplier;
     }
     public LearnableSpell(LearnableSpell learnableBase, SerializableLearnableSpell serializableBase) : base(learnableBase)
     {
       active = serializableBase.active;
       acquiredPoints = serializableBase.acquiredPoints;
       currentLevel = serializableBase.currentLevel;
-      pointsToNextLevel = serializableBase.currentLevel > 0 ? 5000 * serializableBase.currentLevel * multiplier : 5000 * multiplier / 2;
+      pointsToNextLevel = serializableBase.currentLevel > 0 ? 5000 * serializableBase.currentLevel * multiplier : 5000 * multiplier;
+      pointsToNextLevel += currentLevel * 250 + multiplier * 250;
       spLastCalculation = serializableBase.spLastCalculation;
       canLearn = serializableBase.canLearn;
     }
@@ -60,7 +61,7 @@ namespace NWN.Systems
     {
       acquiredPoints = pointsToNextLevel;
       currentLevel += 1;
-      pointsToNextLevel = 5000 * (currentLevel) * multiplier;
+      pointsToNextLevel = 5000 * (currentLevel) * multiplier + currentLevel * 250 + multiplier * 250;
 
       active = false;
       canLearn = false;

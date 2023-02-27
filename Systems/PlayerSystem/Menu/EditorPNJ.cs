@@ -218,8 +218,8 @@ namespace NWN.Systems
                   {
                     case Tab.Feat:
 
-                      if (!player.windows.ContainsKey("featDescription")) player.windows.Add("featDescription", new FeatDescriptionWindow(player, availableFeatSearcher[nuiEvent.ArrayIndex]));
-                      else ((FeatDescriptionWindow)player.windows["featDescription"]).CreateWindow(availableFeatSearcher[nuiEvent.ArrayIndex]);
+                      if (!player.windows.ContainsKey("featDescription")) player.windows.Add("featDescription", new FeatDescriptionWindow(player, acquiredFeatSearcher[nuiEvent.ArrayIndex]));
+                      else ((FeatDescriptionWindow)player.windows["featDescription"]).CreateWindow(acquiredFeatSearcher[nuiEvent.ArrayIndex]);
 
                       break;
 

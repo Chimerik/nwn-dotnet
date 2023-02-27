@@ -128,29 +128,7 @@ namespace NWN.Systems
         Location.Create(area, new Vector3(center.X + Utils.random.Next(-maxDistance / 4, maxDistance), center.Y + Utils.random.Next(-maxDistance / 3, maxDistance / 3), 0), 0).ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpLightningM));
 
       foreach (NwCreature sailor in oPC.GetNearestCreatures().Where(c => c.Tag == "intro_sailor"))
-      {
-        switch (Utils.random.Next(0, 6))
-        {
-          case 0:
-            await sailor.SpeakString("Oh bordel, c'est pas passé loin !");
-            break;
-          case 1:
-            await sailor.SpeakString("Fichtre, encore un comme ça et est on foutu !");
-            break;
-          case 2:
-            await sailor.SpeakString("Talos aie pitié de nous !");
-            break;
-          case 3:
-            await sailor.SpeakString("Si jamais ça passe un peu plus près, j'donne pas cher de notre peau !");
-            break;
-          case 4:
-            await sailor.SpeakString("J'crois que le moment est venu de paniquer !");
-            break;
-          case 5:
-            await sailor.SpeakString("C'est la fin, le ciel nous tombe sur la tête !");
-            break;
-        }
-      }
+        await sailor.SpeakString(randomTerrifiedSailorBanterArray[Utils.random.Next(0, randomTerrifiedSailorBanterArray.Length)].ColorString(ColorConstants.Red));
 
       await NwTask.Delay(TimeSpan.FromSeconds(Utils.random.Next(5, 10)));
 
@@ -183,5 +161,23 @@ namespace NWN.Systems
       //sailor2.ApplyEffect(EffectDuration.Instant, Effect.Damage(120, DamageType.Electrical));
 
     }
+    private static readonly string[] randomTerrifiedSailorBanterArray = new string[]
+    {
+      "Oh bordel, c'est pas passé loin !",
+      "Fichtre, encore un comme ça et est on foutu !",
+      "Talos aie pitié de nous !",
+      "Si jamais ça passe un peu plus près, j'donne pas cher de notre peau !",
+      "J'crois que le moment est venu de paniquer !",
+      "Par tous les dieux, nous allons sombrer !",
+      "Les flots sont en colère, c'est la fin !",
+      "A l'aide ! Nous sommes perdus !",
+      "Le navire ne tiendra pas le coup, nous allons tous périr !",
+      "Oh non, cette vague va nous engloutir !",
+      "Que les dieux aient pitié de nous !",
+      "Nous ne survivrons jamais à une telle tempête !",
+      "Nous ne reverrons jamais la terre ferme !",
+      "Tous les marins à leur poste ! Nous devons tenir bon !",
+      "Talos, Umberlie, aidez-nous !"
+    };
   }
 }

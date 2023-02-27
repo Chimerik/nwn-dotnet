@@ -280,7 +280,6 @@ namespace NWN.Systems
         oid.LoginCreature.OnSpellCast += spellSystem.HandleAutoSpellBeforeSpellCast;
         oid.OnNuiEvent += HandleGenericNuiEvents;
 
-        ItemSystem.feedbackService.AddCombatLogMessageFilter(CombatLogMessage.ComplexAttack, oid);
         eventService.Subscribe<OnDMSpawnObject, DMEventFactory>(oid.LoginCreature, areaSystem.InitializeEventsAfterDMSpawnCreature, EventCallbackType.After);
       }
       public void InitializePlayer()

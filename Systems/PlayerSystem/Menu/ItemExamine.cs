@@ -602,20 +602,18 @@ namespace NWN.Systems
         }
         private string GetMateriaQualityIcon(int materiaQuality)
         {
-          switch (materiaQuality)
+          return materiaQuality switch
           {
-            case 1: return "ir_level1";
-            case 2: return "ir_level2";
-            case 3: return "ir_level3";
-            case 4: return "ir_level4";
-            case 5: return "ir_level5";
-            case 6: return "ir_level6";
-            case 7: return "ir_level789";
-            case 8:
-            case 9:
-              return "ir_cntrspell";
-            default: return "ir_cantrips";
-          }
+            1 => "ir_level1",
+            2 => "ir_level2",
+            3 => "ir_level3",
+            4 => "ir_level4",
+            5 => "ir_level5",
+            6 => "ir_level6",
+            7 => "ir_level789",
+            8 or 9 => "ir_cntrspell",
+            _ => "ir_cantrips",
+          };
         }
         private void LoadIPBindings()
         {

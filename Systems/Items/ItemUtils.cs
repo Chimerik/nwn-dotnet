@@ -18,6 +18,27 @@ namespace NWN.Systems
 
     public static readonly Dictionary<BaseItemType, Dictionary<ItemAppearanceWeaponModel, List<NuiComboEntry>>> weaponModelDictionary = new();
 
+    public static readonly Dictionary<BaseItemType, int[,]> itemDamageDictionary = new()
+    {
+      { BaseItemType.Dagger,  new int[,] { { 1, 3 }, { 1, 4 }, { 2, 5 }, { 3, 6 }, { 3, 7 }, { 4, 8 }, { 4, 10 }, { 5, 12 } } },
+      { BaseItemType.LightCrossbow,  new int[,] { { 4, 7 }, { 6, 10 }, { 8, 13 }, { 10, 16 }, { 12, 19 }, { 14, 22 }, { 17, 26 }, { 20, 30 } } },
+      { BaseItemType.Shortbow,  new int[,] { { 2, 4 }, { 3, 6 }, { 4, 8 }, { 5, 10 }, { 6, 12 }, { 7, 14 }, { 8, 16 }, { 10, 19 } } },
+      { BaseItemType.Sling,  new int[,] { { 1, 3 }, { 2, 4 }, { 3, 5 }, { 4, 6 }, { 4, 7 }, { 5, 9 }, { 6, 11 }, { 7, 13 } } },
+      { BaseItemType.Club,  new int[,] { { 1, 3 }, { 2, 5 }, { 3, 7 }, { 4, 9 }, { 5, 11 }, { 6, 13 }, { 8, 15 }, { 10, 17 } } },
+      { BaseItemType.LightMace,  new int[,] { { 1, 3 }, { 2, 5 }, { 3, 7 }, { 4, 9 }, { 5, 11 }, { 6, 13 }, { 8, 15 }, { 10, 17 } } },
+      { BaseItemType.Morningstar,  new int[,] { { 1, 3 }, { 2, 5 }, { 3, 7 }, { 4, 9 }, { 5, 11 }, { 6, 13 }, { 8, 15 }, { 10, 17 } } },
+      { BaseItemType.LightFlail,  new int[,] { { 1, 3 }, { 2, 5 }, { 3, 7 }, { 4, 9 }, { 5, 11 }, { 6, 13 }, { 8, 15 }, { 10, 17 } } },
+      { BaseItemType.Handaxe,  new int[,] { { 1, 4 }, { 1, 6 }, { 2, 8 }, { 2, 10 }, { 3, 12 }, { 3, 14 }, { 4, 16 }, { 4, 19 } } },
+      { BaseItemType.Quarterstaff,  new int[,] { { 3, 5 }, { 4, 7 }, { 5, 10 }, { 7, 13 }, { 9, 16 }, { 11, 19 }, { 13, 22 }, { 15, 25 } } },
+      { BaseItemType.ShortSpear,  new int[,] { { 3, 5 }, { 4, 8 }, { 5, 11 }, { 6, 14 }, { 8, 17 }, { 10, 20 }, { 12, 23 }, { 14, 27 } } },
+      { BaseItemType.LightHammer,  new int[,] { { 3, 5 }, { 4, 7 }, { 5, 10 }, { 7, 13 }, { 9, 16 }, { 11, 19 }, { 13, 22 }, { 15, 25 } } },
+      { BaseItemType.Shortsword,  new int[,] { { 1, 4 }, { 2, 5 }, { 3, 6 }, { 4, 7 }, { 5, 9 }, { 6, 11 }, { 8, 13 }, { 10, 15 } } },
+      { BaseItemType.Gloves,  new int[,] { { 1, 3 }, { 1, 4 }, { 2, 5 }, { 3, 6 }, { 3, 7 }, { 4, 8 }, { 4, 10 }, { 5, 12 } } },
+      { BaseItemType.Bracer,  new int[,] { { 1, 3 }, { 1, 4 }, { 2, 5 }, { 3, 6 }, { 3, 7 }, { 4, 8 }, { 4, 10 }, { 5, 12 } } },
+
+      { BaseItemType.Battleaxe,  new int[,] { { 3, 5 }, { 3, 8 }, { 3, 11 }, { 4, 14 }, { 4, 17 }, { 5, 20 }, { 5, 24 }, { 6, 28 } } },
+    };
+
     public enum ItemCategory
     {
       Invalid = -1,
@@ -49,6 +70,14 @@ namespace NWN.Systems
         //marteau de forgeron
         (BaseItemType)114 or (BaseItemType)115 => ItemCategory.CraftTool,
         _ => ItemCategory.Invalid,
+      };
+    }
+    public static bool IsLightWeapon(BaseItemType baseItemType)
+    {
+      return baseItemType switch
+      {
+        BaseItemType.Rapier or BaseItemType.Dagger or BaseItemType.Kama or BaseItemType.Kukri or BaseItemType.Sickle or BaseItemType.Quarterstaff or BaseItemType.Scimitar or BaseItemType.Shortsword or BaseItemType.Handaxe => true,
+        _ => false
       };
     }
     // ----------------------------------------------------------------------------

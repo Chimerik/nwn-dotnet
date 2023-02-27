@@ -188,6 +188,7 @@ namespace NWN.Systems
       if (!Players.TryGetValue(onScrollLearn.Creature, out Player player))
         return;
 
+
       NwItem oScroll = onScrollLearn.Scroll;
       int spellId = SpellUtils.GetSpellIDFromScroll(oScroll);
       byte spellLevel = NwSpell.FromSpellId(spellId).InnateSpellLevel;
@@ -201,6 +202,12 @@ namespace NWN.Systems
 
       if (player.learnableSpells.ContainsKey(spellId))
       {
+        if (oScroll.GetObjectVariable<LocalVariableInt>("_ONE_USE_ONLY").HasValue && Config.env == Config.Env.Prod)
+        {
+          player.oid.SendServerMessage("Vous avez déjà retiré tout ce qui était possible de ce parchemin. Essayez d'en trouver une autre version pour en apprendre davantage", ColorConstants.Orange);
+          return;
+        }
+        
         LearnableSpell learnable = player.learnableSpells[spellId];
 
         if (!learnable.canLearn) 
@@ -210,7 +217,8 @@ namespace NWN.Systems
         }
         else
         {
-          learnable.acquiredPoints += learnable.pointsToNextLevel / 5;
+          learnable.acquiredPoints += learnable.currentLevel > 1 ? (learnable.pointsToNextLevel - (5000 * (learnable.currentLevel - 1) * learnable.multiplier)) / 5
+            : 1000 * learnable.multiplier;
           oPC.ControllingPlayer.SendServerMessage($"Les informations supplémentaires contenues dans ce parchemin vous permettent d'affiner votre connaissance du sort {StringUtils.ToWhitecolor(learnable.name)}. Votre étude sera plus rapide.", new Color(32, 255, 32));
         }
       }
@@ -222,9 +230,9 @@ namespace NWN.Systems
         Utils.LogMessageToDMs($"SPELL SYSTEM - Player : {oPC.Name} vient d'ajouter {NwSpell.FromSpellId(spellId).Name.ToString()} ({spellId}) à sa liste d'apprentissage");
       }
 
-      if (player.TryGetOpenedWindow("learnables", out PlayerSystem.Player.PlayerWindow learnableWindow))
+      if (player.TryGetOpenedWindow("learnables", out Player.PlayerWindow learnableWindow))
       {
-        PlayerSystem.Player.LearnableWindow window = (PlayerSystem.Player.LearnableWindow)learnableWindow;
+        Player.LearnableWindow window = (Player.LearnableWindow)learnableWindow;
         window.LoadLearnableList(window.currentList);
       }
 

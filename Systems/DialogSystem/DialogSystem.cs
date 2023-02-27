@@ -185,6 +185,7 @@ namespace NWN.Systems
               oScroll.Name = nwSpell.Name.ToString();
               oScroll.Description = nwSpell.Description.ToString();
               oScroll.AddItemProperty(ItemProperty.CastSpell((IPCastSpell)itemPropertyId, IPCastSpellNumUses.SingleUse), EffectDuration.Permanent);
+              oScroll.GetObjectVariable<LocalVariableInt>("_ONE_USE_ONLY").Value = 1;
             }
             break;
         }

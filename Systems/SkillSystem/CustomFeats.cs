@@ -307,51 +307,51 @@
     public const int ConnectionsGovernment = 20202;
     public const int ConnectionsTemple = 20203;
 
-    public const int ClubCriticalScience = 20204;
-    public const int ShortSwordCriticalScience = 20205;
-    public const int LightFlailCriticalScience = 20206;
-    public const int ShortBowCriticalScience = 20207;
-    public const int LightCrossBowCriticalScience = 20208;
-    public const int LightMaceCriticalScience = 20209;
-    public const int DaggerCriticalScience = 20210;
-    public const int DartCriticalScience = 20211;
-    public const int UnharmedCriticalScience = 20212;
-    public const int LightHammerCriticalScience = 20213;
-    public const int HandAxeCriticalScience = 20214;
-    public const int QuarterStaffCriticalScience = 20215;
-    public const int MagicStaffCriticalScience = 20216;
-    public const int MorningStarCriticalScience = 20217;
-    public const int ShortSpearCriticalScience = 20218;
-    public const int SlingCriticalScience = 20219;
-    public const int SickleCriticalScience = 20220;
+    public const int ClubScience = 20204;
+    public const int ShortSwordScience = 20205;
+    public const int LightFlailScience = 20206;
+    public const int ShortBowScience = 20207;
+    public const int LightCrossBowScience = 20208;
+    public const int LightMaceScience = 20209;
+    public const int DaggerScience = 20210;
+    public const int DartScience = 20211;
+    public const int UnharmedScience = 20212;
+    public const int LightHammerScience = 20213;
+    public const int HandAxeScience = 20214;
+    public const int QuarterStaffScience = 20215;
+    public const int MagicStaffScience = 20216;
+    public const int MorningStarScience = 20217;
+    public const int ShortSpearScience = 20218;
+    public const int SlingScience = 20219;
+    public const int SickleScience = 20220;
 
-    public const int LongSwordCriticalScience = 20221;
-    public const int BattleAxeCriticalScience = 20222;
-    public const int WarHammerCriticalScience = 20223;
-    public const int LongBowCriticalScience = 20224;
-    public const int HeavyCrossbowCriticalScience = 20225;
-    public const int HalberdCriticalScience = 20226;
-    public const int GreatSwordCriticalScience = 20227;
-    public const int GreatAxeCriticalScience = 20228;
-    public const int HeavyFlailCriticalScience = 20229;
-    public const int RapierCriticalScience = 20230;
-    public const int ScimitarCriticalScience = 20231;
-    public const int ThrowingAxeCriticalScience = 20232;
-    public const int TridentCriticalScience = 20233;
+    public const int LongSwordScience = 20221;
+    public const int BattleAxeScience = 20222;
+    public const int WarHammerScience = 20223;
+    public const int LongBowScience = 20224;
+    public const int HeavyCrossbowScience = 20225;
+    public const int HalberdScience = 20226;
+    public const int GreatSwordScience = 20227;
+    public const int GreatAxeScience = 20228;
+    public const int HeavyFlailScience = 20229;
+    public const int RapierScience = 20230;
+    public const int ScimitarScience = 20231;
+    public const int ThrowingAxeScience = 20232;
+    public const int TridentScience = 20233;
 
-    public const int BastardSwordCriticalScience = 20234;
-    public const int TwoBladedSwordCriticalScience = 20235;
-    public const int DireMaceCriticalScience = 20236;
-    public const int DoubleAxeCriticalScience = 20237;
-    public const int KamaCriticalScience = 20238;
-    public const int KukriCriticalScience = 20239;
-    public const int KatanaCriticalScience = 20240;
-    public const int ScytheCriticalScience = 20241;
-    public const int DwarvenWarAxeCriticalScience = 20242;
-    public const int WhipCriticalScience = 20243;
+    public const int BastardSwordScience = 20234;
+    public const int TwoBladedSwordScience = 20235;
+    public const int DireMaceScience = 20236;
+    public const int DoubleAxeScience = 20237;
+    public const int KamaScience = 20238;
+    public const int KukriScience = 20239;
+    public const int KatanaScience = 20240;
+    public const int ScytheScience = 20241;
+    public const int DwarvenWarAxeScience = 20242;
+    public const int WhipScience = 20243;
 
     public const int ImprovedShurikenProficiency = 20244;
-    public const int ShurikenCriticalScience = 20245;
+    public const int ShurikenScience = 20245;
 
     public const int ImprovedDualWieldDefenseProficiency = 20246;
 
@@ -490,6 +490,65 @@
     public const int PeltExtractionDurable = 20366;
 
     public const int ArtisanPrudent = 20367;
+
+    public const int UncannyDodge = 20368;
+
+    public const int LightArmorProficiency = 20369;
+    public const int MediumArmorProficiency = 20370;
+    public const int HeavyArmorProficiency = 20371;
+    public const int FullPlateProficiency = 20372;
+
+    public const int LightShieldProficiency = 20373;
+    public const int MediumShieldProficiency = 20374;
+    public const int HeavyShieldProficiency = 20375;
+    public const int DualWieldDefenseProficiency = 20376;
+
+    public const int ClothingArmorProficiency = 20377;
+    public const int ImprovedClothingArmorProficiency = 20378;
+
+    public const int ClubProficiency = 20379;
+    public const int ShortSwordProficiency = 20380;
+    public const int LightFlailProficiency = 20381;
+    public const int ShortBowProficiency = 20382;
+    public const int LightCrossBowProficiency = 20383;
+    public const int LightMaceProficiency = 20384;
+    public const int DaggerProficiency = 20385;
+    public const int DartProficiency = 20386;
+    public const int UnharmedProficiency = 20387;
+    public const int LightHammerProficiency = 20388;
+    public const int HandAxeProficiency = 20389;
+    public const int QuarterStaffProficiency = 20390;
+    public const int MagicStaffProficiency = 20391;
+    public const int MorningStarProficiency = 20392;
+    public const int ShortSpearProficiency = 20393;
+    public const int SlingProficiency = 20394;
+    public const int SickleProficiency = 20395;
+
+    public const int LongSwordProficiency = 20396;
+    public const int BattleAxeProficiency = 20397;
+    public const int WarHammerProficiency = 20398;
+    public const int LongBowProficiency = 20399;
+    public const int HeavyCrossbowProficiency = 20400;
+    public const int HalberdProficiency = 20401;
+    public const int GreatSwordProficiency = 20402;
+    public const int GreatAxeProficiency = 20403;
+    public const int HeavyFlailProficiency = 20404;
+    public const int RapierProficiency = 20405;
+    public const int ScimitarProficiency = 20406;
+    public const int ThrowingAxeProficiency = 20407;
+    public const int TridentProficiency = 20408;
+
+    public const int BastardSwordProficiency = 20409;
+    public const int TwoBladedSwordProficiency = 20410;
+    public const int DireMaceProficiency = 20411;
+    public const int DoubleAxeProficiency = 20412;
+    public const int KamaProficiency = 20413;
+    public const int KukriProficiency = 20414;
+    public const int KatanaProficiency = 20415;
+    public const int ScytheProficiency = 20416;
+    public const int DwarvenWarAxeProficiency = 20417;
+    public const int WhipProficiency = 20418;
+    public const int ShurikenProficiency = 20419;
 
     public const int Invalid = 65535;
   }
