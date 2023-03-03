@@ -45,6 +45,7 @@ namespace NWN.Systems.Craft.Collect
         case BaseItemType.Boots:
           return GetArmorPartProperties();
         case BaseItemType.Gloves:
+        case BaseItemType.Bracer:
           return GetGlovesProperties();
         case BaseItemType.Amulet:
           return GetAmuletProperties(grade);
@@ -68,9 +69,26 @@ namespace NWN.Systems.Craft.Collect
           return GetAmmunitionProperties();
       }
 
+      SetWeaponDamage(craftedItem, grade - 1);
+
       Utils.LogMessageToDMs($"No craft property found for category {itemCategory} grade {grade}");
 
       return new List<ItemProperty>();
+    }
+    public static void SetWeaponDamage(NwItem craftedItem, int grade)
+    {
+      if (!ItemUtils.itemDamageDictionary.ContainsKey(craftedItem.BaseItem.ItemType))
+        return;
+
+      if(grade >  0) // cas des objets craftés. Les dégâts sont alors égaux à ceux de la config
+      {
+        craftedItem.GetObjectVariable<LocalVariableInt>("_MIN_WEAPON_DAMAGE").Value = ItemUtils.itemDamageDictionary[craftedItem.BaseItem.ItemType][grade, 0];
+        craftedItem.GetObjectVariable<LocalVariableInt>("_MAX_WEAPON_DAMAGE").Value = ItemUtils.itemDamageDictionary[craftedItem.BaseItem.ItemType][grade, 1];
+      }
+      else // cas des objets lootés. Les dégâts sont alors aléatoires. Mais ça ne va pas suffire, car il me faudra le niveau du loot
+      {
+
+      }
     }
 
     public static List<ItemProperty> GetArmorProperties(NwItem craftedItem, int grade)
@@ -172,7 +190,7 @@ namespace NWN.Systems.Craft.Collect
     {
       craftedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value = 5 + 5 * materialTier;
       craftedItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = 5 + 5 * materialTier;
-      craftedItem.GetObjectVariable<LocalVariableInt>("_ITEM_LEVEL").Value = materialTier;
+      craftedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value = materialTier;
 
       List<ItemProperty> tool = new List<ItemProperty>();
       tool.Add(ItemProperty.Quality(IPQuality.Unknown));
