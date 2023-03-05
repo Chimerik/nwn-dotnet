@@ -10,6 +10,9 @@ using Anvil.Services;
 using Microsoft.Data.Sqlite;
 
 using Newtonsoft.Json;
+
+using NWN.Core.NWNX;
+
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace NWN.Systems
@@ -62,6 +65,9 @@ namespace NWN.Systems
 
       if (player.oid.LoginCreature.GetObjectVariable<PersistentVariableBool>("_ALWAYS_WALK").HasValue)
         player.oid.ControlledCreature.AlwaysWalk = true;
+
+      if (player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand) is not null)
+        player.oid.LoginCreature.BaseAttackCount = ItemUtils.GetWeaponAttackPerRound(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand).BaseItem.ItemType);
 
       if (oPC.IsDM)
         return;
@@ -223,30 +229,30 @@ namespace NWN.Systems
         learnableSkills.Add(CustomSkill.ImprovedHealth, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedHealth]));
         learnableSkills.Add(CustomSkill.Toughness, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Toughness]));
 
-        learnableSkills.Add(CustomSkill.ImprovedAttackBonus, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedAttackBonus]));
+        //learnableSkills.Add(CustomSkill.ImprovedAttackBonus, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedAttackBonus]));
         //learnableSkills.Add(CustomSkill.ImprovedCasterLevel, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedCasterLevel]));
         learnableSkills.Add(CustomSkill.ImprovedSpellSlot0, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedSpellSlot0]));
         learnableSkills.Add(CustomSkill.ImprovedSpellSlot1, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedSpellSlot1]));
 
-        learnableSkills.Add(CustomSkill.ImprovedLightArmorProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedLightArmorProficiency]));
-        learnableSkills.Add(CustomSkill.ImprovedLightShieldProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedLightShieldProficiency]));
+        learnableSkills.Add(CustomSkill.LightArmorProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightArmorProficiency]));
+        learnableSkills.Add(CustomSkill.LightShieldProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightShieldProficiency]));
 
-        learnableSkills.Add(CustomSkill.ImprovedClubProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedClubProficiency]));
-        learnableSkills.Add(CustomSkill.ImprovedLightFlailProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedLightFlailProficiency]));
-        learnableSkills.Add(CustomSkill.ImprovedShortBowProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedShortBowProficiency]));
-        learnableSkills.Add(CustomSkill.ImprovedLightCrossBowProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedLightCrossBowProficiency]));
-        learnableSkills.Add(CustomSkill.ImprovedLightMaceProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedLightMaceProficiency]));
-        learnableSkills.Add(CustomSkill.ImprovedDaggerProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedDaggerProficiency]));
-        learnableSkills.Add(CustomSkill.ImprovedDartProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedDartProficiency]));
-        learnableSkills.Add(CustomSkill.ImprovedLightHammerProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedLightHammerProficiency]));
-        learnableSkills.Add(CustomSkill.ImprovedQuarterStaffProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedQuarterStaffProficiency]));
-        learnableSkills.Add(CustomSkill.ImprovedMorningStarProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedMorningStarProficiency]));
-        learnableSkills.Add(CustomSkill.ImprovedShortSpearProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedShortSpearProficiency]));
-        learnableSkills.Add(CustomSkill.ImprovedSlingProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedSlingProficiency]));
-        learnableSkills.Add(CustomSkill.ImprovedSickleProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedSickleProficiency]));
+        learnableSkills.Add(CustomSkill.ClubProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ClubProficiency]));
+        learnableSkills.Add(CustomSkill.LightFlailProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightFlailProficiency]));
+        learnableSkills.Add(CustomSkill.ShortBowProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ShortBowProficiency]));
+        learnableSkills.Add(CustomSkill.LightCrossBowProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightCrossBowProficiency]));
+        learnableSkills.Add(CustomSkill.LightMaceProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightMaceProficiency]));
+        learnableSkills.Add(CustomSkill.DaggerProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.DaggerProficiency]));
+        learnableSkills.Add(CustomSkill.DartProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.DartProficiency]));
+        learnableSkills.Add(CustomSkill.LightHammerProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightHammerProficiency]));
+        learnableSkills.Add(CustomSkill.QuarterStaffProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.QuarterStaffProficiency]));
+        learnableSkills.Add(CustomSkill.MorningStarProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.MorningStarProficiency]));
+        learnableSkills.Add(CustomSkill.ShortSpearProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ShortSpearProficiency]));
+        learnableSkills.Add(CustomSkill.SlingProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.SlingProficiency]));
+        learnableSkills.Add(CustomSkill.SickleProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.SickleProficiency]));
 
-        learnableSkills.Add(CustomSkill.TwoWeaponFighting, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.TwoWeaponFighting]));
-        learnableSkills.Add(CustomSkill.WeaponFinesse, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.WeaponFinesse]));
+        //learnableSkills.Add(CustomSkill.TwoWeaponFighting, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.TwoWeaponFighting]));
+        //learnableSkills.Add(CustomSkill.WeaponFinesse, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.WeaponFinesse]));
 
         learnableSkills.Add(CustomSkill.Athletics, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Athletics]));
         learnableSkills.Add(CustomSkill.Acrobatics, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Acrobatics]));
@@ -739,6 +745,113 @@ namespace NWN.Systems
       }
       public void HandleReinit()
       {
+        LearnableSkill oldSkill;
+
+        if(learnableSkills.ContainsKey(CustomSkill.ImprovedClubProficiency))
+        {
+          oldSkill = learnableSkills[CustomSkill.ImprovedClubProficiency];
+          learnableSkills.Add(CustomSkill.ClubProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ClubProficiency], false, oldSkill.acquiredPoints, oldSkill.currentLevel, oldSkill.bonusPoints));
+          learnableSkills.Remove(CustomSkill.ImprovedClubProficiency);
+        }
+
+        if (learnableSkills.ContainsKey(CustomSkill.ImprovedLightFlailProficiency))
+        {
+          oldSkill = learnableSkills[CustomSkill.ImprovedLightFlailProficiency];
+          learnableSkills.Add(CustomSkill.LightFlailProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightFlailProficiency], false, oldSkill.acquiredPoints, oldSkill.currentLevel, oldSkill.bonusPoints));
+          learnableSkills.Remove(CustomSkill.ImprovedLightFlailProficiency);
+        }
+
+        if (learnableSkills.ContainsKey(CustomSkill.ImprovedShortBowProficiency))
+        {
+          oldSkill = learnableSkills[CustomSkill.ImprovedShortBowProficiency];
+          learnableSkills.Add(CustomSkill.ShortBowProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ShortBowProficiency], false, oldSkill.acquiredPoints, oldSkill.currentLevel, oldSkill.bonusPoints));
+          learnableSkills.Remove(CustomSkill.ImprovedShortBowProficiency);
+        }
+
+        if (learnableSkills.ContainsKey(CustomSkill.ImprovedLightCrossBowProficiency))
+        {
+          oldSkill = learnableSkills[CustomSkill.ImprovedLightCrossBowProficiency];
+          learnableSkills.Add(CustomSkill.LightCrossBowProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightCrossBowProficiency], false, oldSkill.acquiredPoints, oldSkill.currentLevel, oldSkill.bonusPoints));
+          learnableSkills.Remove(CustomSkill.ImprovedLightCrossBowProficiency);
+        }
+
+        if (learnableSkills.ContainsKey(CustomSkill.ImprovedLightMaceProficiency))
+        {
+          oldSkill = learnableSkills[CustomSkill.ImprovedLightMaceProficiency];
+          learnableSkills.Add(CustomSkill.LightMaceProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightMaceProficiency], false, oldSkill.acquiredPoints, oldSkill.currentLevel, oldSkill.bonusPoints));
+          learnableSkills.Remove(CustomSkill.ImprovedLightMaceProficiency);
+        }
+
+        if (learnableSkills.ContainsKey(CustomSkill.ImprovedDaggerProficiency))
+        {
+          oldSkill = learnableSkills[CustomSkill.ImprovedDaggerProficiency];
+          learnableSkills.Add(CustomSkill.DaggerProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.DaggerProficiency], false, oldSkill.acquiredPoints, oldSkill.currentLevel, oldSkill.bonusPoints));
+          learnableSkills.Remove(CustomSkill.ImprovedDaggerProficiency);
+        }
+
+        if (learnableSkills.ContainsKey(CustomSkill.ImprovedDartProficiency))
+        {
+          oldSkill = learnableSkills[CustomSkill.ImprovedDartProficiency];
+          learnableSkills.Add(CustomSkill.DartProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.DartProficiency], false, oldSkill.acquiredPoints, oldSkill.currentLevel, oldSkill.bonusPoints));
+          learnableSkills.Remove(CustomSkill.ImprovedDartProficiency);
+        }
+
+        if (learnableSkills.ContainsKey(CustomSkill.ImprovedLightHammerProficiency))
+        {
+          oldSkill = learnableSkills[CustomSkill.ImprovedLightHammerProficiency];
+          learnableSkills.Add(CustomSkill.LightHammerProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightHammerProficiency], false, oldSkill.acquiredPoints, oldSkill.currentLevel, oldSkill.bonusPoints));
+          learnableSkills.Remove(CustomSkill.ImprovedLightHammerProficiency);
+        }
+
+        if (learnableSkills.ContainsKey(CustomSkill.ImprovedQuarterStaffProficiency))
+        {
+          oldSkill = learnableSkills[CustomSkill.ImprovedQuarterStaffProficiency];
+          learnableSkills.Add(CustomSkill.QuarterStaffProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.QuarterStaffProficiency], false, oldSkill.acquiredPoints, oldSkill.currentLevel, oldSkill.bonusPoints));
+          learnableSkills.Remove(CustomSkill.ImprovedQuarterStaffProficiency);
+        }
+
+        if (learnableSkills.ContainsKey(CustomSkill.ImprovedMorningStarProficiency))
+        {
+          oldSkill = learnableSkills[CustomSkill.ImprovedMorningStarProficiency];
+          learnableSkills.Add(CustomSkill.MorningStarProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.MorningStarProficiency], false, oldSkill.acquiredPoints, oldSkill.currentLevel, oldSkill.bonusPoints));
+          learnableSkills.Remove(CustomSkill.ImprovedMorningStarProficiency);
+        }
+
+        if (learnableSkills.ContainsKey(CustomSkill.ImprovedShortSpearProficiency) && !learnableSkills.ContainsKey(CustomSkill.ShortSpearProficiency))
+        {
+          oldSkill = learnableSkills[CustomSkill.ImprovedShortSpearProficiency];
+          learnableSkills.Add(CustomSkill.ShortSpearProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ShortSpearProficiency], false, oldSkill.acquiredPoints, oldSkill.currentLevel, oldSkill.bonusPoints));
+          learnableSkills.Remove(CustomSkill.ImprovedShortSpearProficiency);
+        }
+
+        if (learnableSkills.ContainsKey(CustomSkill.ImprovedSlingProficiency))
+        {
+          oldSkill = learnableSkills[CustomSkill.ImprovedSlingProficiency];
+          learnableSkills.Add(CustomSkill.SlingProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.SlingProficiency], false, oldSkill.acquiredPoints, oldSkill.currentLevel, oldSkill.bonusPoints));
+          learnableSkills.Remove(CustomSkill.ImprovedSlingProficiency);
+        }
+
+        if (learnableSkills.ContainsKey(CustomSkill.ImprovedSickleProficiency))
+        {
+          oldSkill = learnableSkills[CustomSkill.ImprovedSickleProficiency];
+          learnableSkills.Add(CustomSkill.SickleProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.SickleProficiency], false, oldSkill.acquiredPoints, oldSkill.currentLevel, oldSkill.bonusPoints));
+          learnableSkills.Remove(CustomSkill.ImprovedSickleProficiency);
+        }
+
+        if (learnableSkills.ContainsKey(CustomSkill.ImprovedLightArmorProficiency))
+        {
+          oldSkill = learnableSkills[CustomSkill.ImprovedLightArmorProficiency];
+          learnableSkills.Add(CustomSkill.LightArmorProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightArmorProficiency], false, oldSkill.acquiredPoints, oldSkill.currentLevel, oldSkill.bonusPoints));
+          learnableSkills.Remove(CustomSkill.ImprovedLightArmorProficiency);
+        }
+
+        if (learnableSkills.ContainsKey(CustomSkill.ImprovedLightShieldProficiency))
+        {
+          oldSkill = learnableSkills[CustomSkill.ImprovedLightShieldProficiency];
+          learnableSkills.Add(CustomSkill.LightShieldProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightShieldProficiency], false, oldSkill.acquiredPoints, oldSkill.currentLevel, oldSkill.bonusPoints));
+          learnableSkills.Remove(CustomSkill.ImprovedLightShieldProficiency);
+        }
+
         if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_REINITIALISATION_DONE").HasNothing)
         {
           /*foreach(var item in oid.LoginCreature.Inventory.Items)

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using Action = System.Action;
 using Context = NWN.Systems.Config.Context;
 using NWN.Core;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -34,8 +35,8 @@ namespace NWN.Systems
     );
     public static void HandleAttackEvent(OnCreatureAttack onAttack)
     {
-      PlayerSystem.Log.Info($"Attack Event - Attacker {onAttack.Attacker.Name} - Target {onAttack.Target.Name} - Result {onAttack.AttackResult}" +
-        $" - Base damage {onAttack.DamageData.Base} - attack number {onAttack.AttackNumber} - attack type {onAttack.WeaponAttackType}");
+      Utils.LogMessageToConsole($"Attack Event - Attacker {onAttack.Attacker.Name} - Target {onAttack.Target.Name} - Result {onAttack.AttackResult}" +
+        $" - Base damage {onAttack.DamageData.Base} - attack number {onAttack.AttackNumber} - attack type {onAttack.WeaponAttackType}", Config.Env.Chim);
       
       if (onAttack.Target is not NwCreature oTarget)
         return;
@@ -334,7 +335,10 @@ namespace NWN.Systems
         ctx.baseArmorPenetration += 5;
 
       if (ctx.attackWeapon is null)
+      {
         next();
+        return;
+      }
 
       if (ctx.isRangedAttack)
         ctx.baseArmorPenetration += ctx.oAttacker.GetAttackBonus();
@@ -342,11 +346,13 @@ namespace NWN.Systems
         ctx.baseArmorPenetration += ctx.oAttacker.GetAttackBonus(true, false, true);
       else
       {
+        int versatileModifier = ItemUtils.IsVersatileWeapon(ctx.attackWeapon.BaseItem.ItemType) ? 2 : 1;
+
         ctx.baseArmorPenetration += ctx.oAttacker.GetAttackBonus(true);
         ctx.baseArmorPenetration += ctx.oAttacker.GetAbilityModifier(Ability.Strength) < ctx.oAttacker.GetAbilityModifier(Ability.Dexterity)
           && ctx.attackWeapon.BaseItem.WeaponFinesseMinimumCreatureSize >= ctx.oAttacker.Size
-          ? ctx.oAttacker.GetAbilityModifier(Ability.Dexterity)
-          : ctx.oAttacker.GetAbilityModifier(Ability.Strength);
+          ? ctx.oAttacker.GetAbilityModifier(Ability.Dexterity) * versatileModifier
+          : ctx.oAttacker.GetAbilityModifier(Ability.Strength) * versatileModifier;
       }
 
       if (ctx.attackWeapon.BaseItem.ItemType == BaseItemType.Gloves || ctx.attackWeapon.BaseItem.ItemType == BaseItemType.Bracer) // la fonction GetAttackBonus ne prend pas en compte le + AB des gants, donc je le rajoute
@@ -355,6 +361,10 @@ namespace NWN.Systems
         if (maxAttackBonus is not null)
           ctx.baseArmorPenetration += maxAttackBonus.IntParams[3];
       }
+
+      // Les armes perforantes disposent de 20 % de pénétration supplémentaire contre les armures lourdes
+      if (ctx.attackWeapon.BaseItem.WeaponType.Contains(DamageType.Piercing) && ctx.oTarget.GetItemInSlot(InventorySlot.Chest) is not null && ctx.oTarget.GetItemInSlot(InventorySlot.Chest).BaseACValue > 5)
+        ctx.baseArmorPenetration += 20;
 
       next();
     }
@@ -651,8 +661,12 @@ namespace NWN.Systems
         targetAC = damageType switch
         {
           // Base weapon damage
-          DamageType.BaseWeapon => ctx.isUnarmedAttack ? HandleReducedDamageFromWeaponDamageType(ctx, new List<DamageType>() { DamageType.Bludgeoning }) : HandleReducedDamageFromWeaponDamageType(ctx, ctx.attackWeapon.BaseItem.WeaponType),/*ModuleSystem.Log.Info($"unarmed : {ctx.isUnarmedAttack}");
+          DamageType.BaseWeapon => ctx.isUnarmedAttack ? HandleReducedDamageFromWeaponDamageType(ctx, new List<DamageType>() { DamageType.Bludgeoning }) : HandleReducedDamageFromWeaponDamageType(ctx, ctx.attackWeapon.BaseItem.WeaponType),
+          
+          // Les dégâts électiques ont 25 % de pénétration d'armure supplémentaires
+          DamageType.Electrical => ctx.targetAC[DamageType.BaseWeapon] + ctx.targetAC.GetValueOrDefault((DamageType)16384) + ctx.targetAC.GetValueOrDefault(damageType) - 25,
 
+          /*ModuleSystem.Log.Info($"unarmed : {ctx.isUnarmedAttack}");
             if (!ctx.isUnarmedAttack)
               ModuleSystem.Log.Info($"weapon : {ctx.attackWeapon.Name}");*/
           // Physical bonus damage
@@ -664,13 +678,16 @@ namespace NWN.Systems
 
         double initialDamage = Config.GetContextDamage(ctx, damageType);
         double modifiedDamage = initialDamage * Utils.GetDamageMultiplier(targetAC);
+        double skillDamage = -1;
+        double skillModifier = -1;
 
         if (damageType == DamageType.BaseWeapon && PlayerSystem.Players.TryGetValue(ctx.oAttacker, out PlayerSystem.Player attackerPlayer))
         {
-          modifiedDamage *= attackerPlayer.GetWeaponMasteryLevel(ctx.attackWeapon.BaseItem.ItemType) * 0.01;
+          skillModifier = attackerPlayer.GetWeaponMasteryLevel(ctx.attackWeapon.BaseItem.ItemType);
+          skillDamage = modifiedDamage * skillModifier;
 
-          if (modifiedDamage < 1)
-            modifiedDamage = 1;
+          if (skillDamage < 1)
+            skillDamage = 1;
         }
 
         if (ctx.oTarget.Tag == "damage_trainer" && ctx.oAttacker.IsPlayerControlled)
@@ -678,10 +695,16 @@ namespace NWN.Systems
           ctx.oAttacker.ControllingPlayer.SendServerMessage($"Initial : {damageType.ToString().ColorString(ColorConstants.White)} - {initialDamage.ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);
           ctx.oAttacker.ControllingPlayer.SendServerMessage($"Armure totale vs {damageType.ToString().ColorString(ColorConstants.White)} : {targetAC.ToString().ColorString(ColorConstants.White)} - Dégâts {string.Format("{0:0}", (int)modifiedDamage).ColorString(ColorConstants.White)}", ColorConstants.Orange);
           ctx.oAttacker.ControllingPlayer.SendServerMessage($"Réduction : {string.Format("{0:0.000}", ((initialDamage - modifiedDamage) / modifiedDamage) * 100).ColorString(ColorConstants.White)}%", ColorConstants.Orange);
+
+          if (skillDamage > -1)
+            ctx.oAttacker.ControllingPlayer.SendServerMessage($"Compétence d'arme : {Math.Round(modifiedDamage, 2).ToString().ColorString(ColorConstants.White)} * {(skillModifier * 100).ToString().ColorString(ColorConstants.White)}% = {Math.Round(skillDamage, 2).ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);
         }
 
-        Config.SetContextDamage(ctx, damageType, (int)modifiedDamage);
-        PlayerSystem.Log.Info($"Final : {damageType} - AC {targetAC} - Initial {initialDamage} - Final Damage {modifiedDamage}");
+        if (skillDamage < 0)
+          skillDamage = modifiedDamage;
+
+        Config.SetContextDamage(ctx, damageType, (int)Math.Round(skillDamage, MidpointRounding.ToEven));
+        Utils.LogMessageToConsole($"Final : {damageType} - AC {targetAC} - Initial {initialDamage} - Final Damage {skillDamage}", Config.Env.Chim);
       }
 
       /*if(ctx.onAttack != null)
@@ -700,11 +723,10 @@ namespace NWN.Systems
     }
     private static void ProcessAttackerItemDurability(Context ctx, Action next)
     {
-      if (PlayerSystem.Players.TryGetValue(ctx.oAttacker, out PlayerSystem.Player attacker) && ctx.attackWeapon != null)
+      if (ctx.attackWeapon is not null && PlayerSystem.Players.TryGetValue(ctx.oAttacker, out PlayerSystem.Player attacker))
       {
         // L'attaquant est un joueur. On diminue la durabilité de son arme
-        PlayerSystem.Log.Info("Entered item durability");
-        PlayerSystem.Log.Info($"player : {attacker.oid.PlayerName}");
+        Utils.LogMessageToConsole($"{attacker.oid.PlayerName} - Entering item durability", Config.Env.Chim);
 
         int durabilityChance = 30;
 
@@ -716,7 +738,7 @@ namespace NWN.Systems
         durabilityChance -= dexBonus + safetyLevel;
 
         if (NwRandom.Roll(Utils.random, 100, 1) < 2 && NwRandom.Roll(Utils.random, 100, 1) < durabilityChance)
-          DecreaseItemDurability(ctx.attackWeapon, attacker.oid);
+          DecreaseItemDurability(ctx.attackWeapon, attacker.oid, GetWeaponDurabilityLoss(ctx));
       }
 
       next();
@@ -741,11 +763,11 @@ namespace NWN.Systems
       if (NwRandom.Roll(Utils.random, 100, 1) > 1 && NwRandom.Roll(Utils.random, 100, 1) > durabilityRate)
         return;
 
-      if (ctx.targetArmor != null)
-        DecreaseItemDurability(ctx.targetArmor, player.oid);
-
-      if(ctx.oTarget.GetItemInSlot(InventorySlot.LeftHand) != null)
-        DecreaseItemDurability(ctx.oTarget.GetItemInSlot(InventorySlot.LeftHand), player.oid);
+      if (ctx.targetArmor is not null)
+        DecreaseItemDurability(ctx.targetArmor, player.oid, GetArmorDurabilityLoss(ctx));
+      
+      if(ctx.oTarget.GetItemInSlot(InventorySlot.LeftHand) is not null)
+        DecreaseItemDurability(ctx.oTarget.GetItemInSlot(InventorySlot.LeftHand), player.oid, GetShieldDurabilityLoss(ctx));
 
       List<NwItem> slots = new List<NwItem>();
 
@@ -764,13 +786,65 @@ namespace NWN.Systems
       if (slots.Count > 0)
       {
         int random = NwRandom.Roll(Utils.random, slots.Count) - 1;
-        DecreaseItemDurability(slots.ElementAt(random), player.oid);
+        DecreaseItemDurability(slots.ElementAt(random), player.oid, GetItemDurabilityLoss(ctx));
       }
     }
-
-    private static void DecreaseItemDurability(NwItem item, NwPlayer oPC)
+    private static int GetArmorDurabilityLoss(Context ctx)
     {
-      item.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value -= 1;
+      int durabilityLoss = 1;
+
+      if(ctx.attackWeapon is not null)
+      {
+        if (ctx.oTarget.GetItemInSlot(InventorySlot.Chest)?.BaseACValue < 6 && ctx.attackWeapon.BaseItem.WeaponType.Contains(DamageType.Slashing))
+          durabilityLoss++;
+
+        if (ctx.oTarget.GetItemInSlot(InventorySlot.Chest)?.BaseACValue > 5 && ctx.attackWeapon.BaseItem.WeaponType.Contains(DamageType.Bludgeoning))
+          durabilityLoss++;
+
+        if (Config.GetContextDamage(ctx, DamageType.Acid) > 0)
+          durabilityLoss++;
+      }
+
+      return durabilityLoss;
+    }
+    private static int GetShieldDurabilityLoss(Context ctx)
+    {
+      int durabilityLoss = 1;
+
+      if (ctx.attackWeapon is not null && ctx.attackWeapon.BaseItem.WeaponType.Contains(DamageType.Bludgeoning))
+        durabilityLoss++;
+
+      if (Config.GetContextDamage(ctx, DamageType.Acid) > 0)
+        durabilityLoss++;
+
+      return durabilityLoss;
+    }
+    private static int GetWeaponDurabilityLoss(Context ctx)
+    {
+      int durabilityLoss = 1;
+
+      if ((ctx.oTarget.GetItemInSlot(InventorySlot.Chest)?.BaseACValue > 5 
+        || (ctx.oTarget.GetItemInSlot(InventorySlot.LeftHand) is not null && ItemUtils.GetItemCategory(ctx.oTarget.GetItemInSlot(InventorySlot.LeftHand).BaseItem.ItemType) == ItemUtils.ItemCategory.Shield))
+        && ctx.attackWeapon.BaseItem.WeaponType.Count() < 2 && ctx.attackWeapon.BaseItem.WeaponType.Contains(DamageType.Slashing))
+        durabilityLoss++;
+
+      if (Config.GetContextDamage(ctx, DamageType.Acid) > 0)
+        durabilityLoss++;
+
+      return durabilityLoss;
+    }
+    private static int GetItemDurabilityLoss(Context ctx)
+    {
+      int durabilityLoss = 1;
+
+      if (Config.GetContextDamage(ctx, DamageType.Acid) > 0)
+        durabilityLoss++;
+
+      return durabilityLoss;
+    }
+    private static void DecreaseItemDurability(NwItem item, NwPlayer oPC, int durabilityLoss)
+    {
+      item.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value -= durabilityLoss;
       if (item.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value <= 0)
       {
         if (item.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").HasNothing)

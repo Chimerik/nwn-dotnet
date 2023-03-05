@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using Anvil.API;
 
@@ -80,14 +81,23 @@ namespace NWN.Systems.Craft.Collect
       if (!ItemUtils.itemDamageDictionary.ContainsKey(craftedItem.BaseItem.ItemType))
         return;
 
-      if(grade >  0) // cas des objets craftés. Les dégâts sont alors égaux à ceux de la config
+      if (grade >  0) // cas des objets craftés. Les dégâts sont alors égaux à ceux de la config
       {
         craftedItem.GetObjectVariable<LocalVariableInt>("_MIN_WEAPON_DAMAGE").Value = ItemUtils.itemDamageDictionary[craftedItem.BaseItem.ItemType][grade, 0];
         craftedItem.GetObjectVariable<LocalVariableInt>("_MAX_WEAPON_DAMAGE").Value = ItemUtils.itemDamageDictionary[craftedItem.BaseItem.ItemType][grade, 1];
       }
-      else // cas des objets lootés. Les dégâts sont alors aléatoires. Mais ça ne va pas suffire, car il me faudra le niveau du loot
+      else // cas des objets lootés. Les dégâts sont alors aléatoires
       {
+        grade = Math.Abs(grade);
 
+        int minDamage = ItemUtils.itemDamageDictionary[craftedItem.BaseItem.ItemType][grade, 0];
+        int maxDamage = ItemUtils.itemDamageDictionary[craftedItem.BaseItem.ItemType][grade, 1];
+
+        int randMinDamage = Utils.random.Next((int)(minDamage * 0.5), minDamage + 1);
+        int randMaxDamage = Utils.random.Next(randMinDamage, maxDamage + 1);
+
+        craftedItem.GetObjectVariable<LocalVariableInt>("_MIN_WEAPON_DAMAGE").Value = randMinDamage;
+        craftedItem.GetObjectVariable<LocalVariableInt>("_MAX_WEAPON_DAMAGE").Value = randMaxDamage;
       }
     }
 
@@ -192,53 +202,35 @@ namespace NWN.Systems.Craft.Collect
       craftedItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = 5 + 5 * materialTier;
       craftedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value = materialTier;
 
-      List<ItemProperty> tool = new List<ItemProperty>();
-      tool.Add(ItemProperty.Quality(IPQuality.Unknown));
-
-      return tool;
+      return new List<ItemProperty> { ItemProperty.Quality(IPQuality.Unknown) };
     }
     public static List<ItemProperty> GetOneHandedMeleeWeaponProperties()
     {
-      List<ItemProperty> oneHanded = new List<ItemProperty>();
-      oneHanded.Add(ItemProperty.AttackBonus(2));
-
-      return oneHanded;
+      return new List<ItemProperty> { ItemProperty.AttackBonus(2) };
     }
     public static List<ItemProperty> GetRangedWeaponProperties()
     {
-      List<ItemProperty> oneHanded = new List<ItemProperty>();
-      oneHanded.Add(ItemProperty.AttackBonus(2));
-
-      return oneHanded;
+      return new List<ItemProperty> { ItemProperty.AttackBonus(2) };
     }
     public static List<ItemProperty> GetTwoHandedMeleeWeaponProperties()
     {
-      List<ItemProperty> twoHanded = new List<ItemProperty>();
-      twoHanded.Add(ItemProperty.AttackBonus(4));
-
-      return twoHanded;
+      return new List<ItemProperty> { ItemProperty.AttackBonus(4) };
     }
     public static List<ItemProperty> GetArmorPartProperties()
     {
-      List<ItemProperty> armorPart = new List<ItemProperty>();
-      armorPart.Add(ItemProperty.ACBonus(7));
-
-      return armorPart;
+      return new List<ItemProperty> { ItemProperty.ACBonus(7) };
     }
     public static List<ItemProperty> GetGlovesProperties()
     {
-      List<ItemProperty> gloves = new List<ItemProperty>();
-      gloves.Add(ItemProperty.ACBonus(7));
-      gloves.Add(ItemProperty.AttackBonus(2));
-
-      return gloves;
+      return new List<ItemProperty>
+      {
+        ItemProperty.ACBonus(7),
+        ItemProperty.AttackBonus(2)
+      };
     }
     public static List<ItemProperty> GetAmmunitionProperties()
     {
-      List<ItemProperty> ammunition = new List<ItemProperty>();
-      ammunition.Add(ItemProperty.DamageBonus(IPDamageType.Piercing, IPDamageBonus.Plus1));
-
-      return ammunition;
+      return new List<ItemProperty> { ItemProperty.DamageBonus(IPDamageType.Piercing, IPDamageBonus.Plus1) };
     }
     public static List<ItemProperty> GetRingProperties(int materialTier)
     {

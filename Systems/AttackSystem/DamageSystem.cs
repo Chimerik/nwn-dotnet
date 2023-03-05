@@ -10,7 +10,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(AttackSystem))]
   public partial class AttackSystem
   {
-    public static Pipeline<Context> damagePipeline = new Pipeline<Context>(
+    public static Pipeline<Context> damagePipeline = new(
       new Action<Context, Action>[]
       {
             ProcessTargetDamageAbsorption,
@@ -27,20 +27,20 @@ namespace NWN.Systems
     );
     public static void HandleDamageEvent(OnCreatureDamage onDamage)
     {
-      PlayerSystem.Log.Info("Entering Damage Event");
+      Utils.LogMessageToConsole("Entering Damage Event", Config.Env.Chim);
 
-      if (onDamage.DamagedBy != null)
-        PlayerSystem.Log.Info("DamagedBy : " + onDamage.DamagedBy.Name);
+      if (onDamage.DamagedBy is not null)
+        Utils.LogMessageToConsole("DamagedBy : " + onDamage.DamagedBy.Name, Config.Env.Chim);
 
-      if (onDamage.Target == null)
+      if (onDamage.Target is null)
       {
-        PlayerSystem.Log.Info("Damage target null");
+        Utils.LogMessageToConsole("Damage target null", Config.Env.Chim);
         return;
       }
 
       if (onDamage.DamageData.Base > -1) // S'il ne s'agit pas d'un sort, alors le calcul des dégâts a déjà été traité lors de l'event d'attaque
       {
-        PlayerSystem.Log.Info("Weapon damage handled in attack event. Exiting damage event.");
+        Utils.LogMessageToConsole("Weapon damage handled in attack event. Exiting damage event.", Config.Env.Chim);
         return;
       }
 
@@ -50,12 +50,12 @@ namespace NWN.Systems
         return;
       }*/
 
-      if (!(onDamage.Target is NwCreature oTarget))
+      if (onDamage.Target is not NwCreature oTarget)
         return;
 
       //await NwModule.Instance.WaitForObjectContext();
 
-      PlayerSystem.Log.Info("Spell damage. Setting new damage context.");
+      Utils.LogMessageToConsole("Spell damage. Setting new damage context.", Config.Env.Chim);
 
       damagePipeline.Execute(new Context(
         onAttack: null,
@@ -96,7 +96,7 @@ namespace NWN.Systems
 
     private static void ProcessSpellAttackPosition(Context ctx, Action next)
     {
-      PlayerSystem.Log.Info($"ProcessSpellAttackPosition");
+      Utils.LogMessageToConsole("ProcessSpellAttackPosition", Config.Env.Chim);
       // TODO : voir comment le "damager" est détecté dans le cas des AoE FNF et des AoE qui restent plus longtemps au sol => il est null s'il est déco ou mort. Peut-être mettre le damage en variable locale sur l'AoE créée et le récupérer de là
 
       if (ctx.oAttacker != null && ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_SPELL_ATTACK_POSITION").HasValue)

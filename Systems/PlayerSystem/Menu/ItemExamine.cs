@@ -105,9 +105,29 @@ namespace NWN.Systems
 
           if (ItemUtils.IsWeapon(item.BaseItem) || item.BaseItem.ItemType == BaseItemType.Gloves || item.BaseItem.ItemType == BaseItemType.Bracer)
           {
-            int damage = item.BaseItem.DieToRoll * player.GetWeaponMasteryLevel(item.BaseItem.ItemType) / 10;
-            if (damage < 1)
-              damage = 1;
+            if((item.GetObjectVariable<LocalVariableInt>("_MIN_WEAPON_DAMAGE").HasNothing || item.GetObjectVariable<LocalVariableInt>("_MAX_WEAPON_DAMAGE").HasNothing))
+            {
+              if(ItemUtils.itemDamageDictionary.ContainsKey(item.BaseItem.ItemType))
+              {
+                int weaponGrade = item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE");
+                item.GetObjectVariable<LocalVariableInt>("_MIN_WEAPON_DAMAGE").Value = ItemUtils.itemDamageDictionary[item.BaseItem.ItemType][weaponGrade, 0];
+                item.GetObjectVariable<LocalVariableInt>("_MAX_WEAPON_DAMAGE").Value = ItemUtils.itemDamageDictionary[item.BaseItem.ItemType][weaponGrade, 1];
+              }
+              else
+                Utils.LogMessageToDMs($"WARNING - WEAPON SYSTEM - ITEM TYPE {item.BaseItem.ItemType} ({(int)item.BaseItem.ItemType}) - NO BASE DAMAGE SET");
+            }
+
+            int minDamage = item.GetObjectVariable<LocalVariableInt>("_MIN_WEAPON_DAMAGE").Value;
+            int maxDamage = item.GetObjectVariable<LocalVariableInt>("_MAX_WEAPON_DAMAGE").Value;
+            double weaponMasteryLevel = player.GetWeaponMasteryLevel(item.BaseItem.ItemType);
+            int minSkillDamage = (int)(minDamage * weaponMasteryLevel);
+            int maxSkillDamage = (int)(maxDamage * weaponMasteryLevel);
+
+            if (minSkillDamage < 1)
+              minSkillDamage = 1;
+
+            if (maxSkillDamage < 1)
+              maxSkillDamage = 1;
 
             string damageTypeLabel = "";
 
@@ -119,11 +139,11 @@ namespace NWN.Systems
               new NuiSpacer(),
               new NuiButtonImage("ir_powerattack") { Height = 35, Width = 35, Tooltip = "Dégats" },
               new NuiSpacer() { Width = 5 },
-              new NuiLabel($"{item.BaseItem.NumDamageDice}d{damage} / {item.BaseItem.NumDamageDice}d{item.BaseItem.DieToRoll}") { Tooltip = "Effectif / Base : Vos dégâts effectifs peuvent être améliorés en entrainant la compétence spécifique à l'arme.", Height = 35, Width = 80, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle } ,
+              new NuiLabel($"{minSkillDamage}-{maxSkillDamage} / {minDamage}-{maxDamage}") { Tooltip = "Effectif / Base : Vos dégâts effectifs peuvent être améliorés en entrainant la compétence spécifique à l'arme.", Height = 35, Width = 80, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle } ,
               new NuiSpacer(),
               new NuiButtonImage("ir_moreattacks") { Height = 35, Width = 35, Tooltip = "Critiques" },
               new NuiSpacer() { Width = 5 },
-              new NuiLabel($"{damage}d{damage} - {player.GetWeaponCritScienceLevel(item.BaseItem.ItemType) + 5} %") { Tooltip = "Vos chances de critiques peuvent être améliorées en entrainant la compétence de science du critique spécifique à l'arme", Height = 35, Width = 80, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle },
+              new NuiLabel($"{maxSkillDamage} + 20 AP - {player.GetWeaponCritScienceLevel(item.BaseItem.ItemType) + 5} %") { Tooltip = "Vos chances de critiques peuvent être améliorées en entrainant la compétence de science du critique spécifique à l'arme", Height = 35, Width = 80, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle },
               new NuiSpacer(),
               new NuiButtonImage("ir_sell02") { Height = 35, Width = 35, Tooltip = "Type de dégâts" },
               new NuiSpacer() { Width = 5 },

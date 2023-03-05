@@ -78,53 +78,22 @@ namespace NWN.Systems
     }
     public static short RollDamage(int costValue)
     {
-      switch(costValue)
+      return costValue switch
       {
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-          return (short)costValue;
-        case 6:
-          return (short)NwRandom.Roll(Utils.random, 4);
-        case 7:
-          return (short)NwRandom.Roll(Utils.random, 6);
-        case 8:
-          return (short)NwRandom.Roll(Utils.random, 8);
-        case 9:
-          return (short)NwRandom.Roll(Utils.random, 10);
-        case 10:
-          return (short)NwRandom.Roll(Utils.random, 6, 2);
-        case 11:
-          return (short)NwRandom.Roll(Utils.random, 8, 2);
-        case 12:
-          return (short)NwRandom.Roll(Utils.random, 4, 2);
-        case 13:
-          return (short)NwRandom.Roll(Utils.random, 10, 2);
-        case 14:
-          return (short)NwRandom.Roll(Utils.random, 12, 1);
-        case 15:
-          return (short)NwRandom.Roll(Utils.random, 12, 2);
-        case 16:
-        case 17:
-        case 18:
-        case 19:
-        case 20:
-        case 21:
-        case 22:
-        case 23:
-        case 24:
-        case 25:
-        case 26:
-        case 27:
-        case 28:
-        case 29:
-        case 30:
-          return (short)(costValue - 10);
-        default:
-          return 0;
-      }
+        1 or 2 or 3 or 4 or 5 => (short)costValue,
+        6 => (short)NwRandom.Roll(Utils.random, 4),
+        7 => (short)NwRandom.Roll(Utils.random, 6),
+        8 => (short)NwRandom.Roll(Utils.random, 8),
+        9 => (short)NwRandom.Roll(Utils.random, 10),
+        10 => (short)NwRandom.Roll(Utils.random, 6, 2),
+        11 => (short)NwRandom.Roll(Utils.random, 8, 2),
+        12 => (short)NwRandom.Roll(Utils.random, 4, 2),
+        13 => (short)NwRandom.Roll(Utils.random, 10, 2),
+        14 => (short)NwRandom.Roll(Utils.random, 12, 1),
+        15 => (short)NwRandom.Roll(Utils.random, 12, 2),
+        16 or 17 or 18 or 19 or 20 or 21 or 22 or 23 or 24 or 25 or 26 or 27 or 28 or 29 or 30 => (short)(costValue - 10),
+        _ => 0,
+      };
     }
     public static int GetContextDamage(Context ctx, DamageType damageType)
     {
@@ -132,8 +101,8 @@ namespace NWN.Systems
         return ctx.onAttack.DamageData.GetDamageByType(damageType);
       else if (ctx.onDamage != null)
         return ctx.onDamage.DamageData.GetDamageByType(damageType);
-      
-      PlayerSystem.Log.Info("Error : trying to get damage without any event context.");
+
+      Utils.LogMessageToConsole("Error : trying to get damage without any event context.");
       return -1;
     }
     public static void SetContextDamage(Context ctx, DamageType damageType, int value)
@@ -143,7 +112,7 @@ namespace NWN.Systems
       else if (ctx.onDamage != null)
         SetDamage(ctx.onDamage.DamageData, damageType, value);
       else
-        PlayerSystem.Log.Info("Error : trying to set damage without any event context.");
+        Utils.LogMessageToConsole("Error : trying to set damage without any event context.");
     }
     public static void SetDamage<T>(DamageData<T> damageData, DamageType damageType, T value) where T : unmanaged
     {

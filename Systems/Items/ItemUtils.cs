@@ -47,7 +47,6 @@ namespace NWN.Systems
       { BaseItemType.Halberd,  new int[,] { { 3, 9 }, { 4, 13 }, { 5, 17 }, { 6, 21 }, { 7, 25 }, { 8, 30 }, { 10, 35 }, { 12, 40 } } },
       { BaseItemType.HeavyFlail,  new int[,] { { 3, 5 }, { 5, 9 }, { 7, 13 }, { 10, 17 }, { 12, 21 }, { 14, 25 }, { 16, 29 }, { 19, 35 } } },
       { BaseItemType.Longbow,  new int[,] { { 3, 5 }, { 4, 8 }, { 5, 11 }, { 7, 14 }, { 9, 17 }, { 11, 20 }, { 13, 24 }, { 15, 28 } } },
-      { BaseItemType.Longbow,  new int[,] { { 3, 5 }, { 4, 8 }, { 5, 11 }, { 7, 14 }, { 9, 17 }, { 11, 20 }, { 13, 24 }, { 15, 28 } } },
       { BaseItemType.Trident,  new int[,] { { 3, 5 }, { 4, 8 }, { 5, 11 }, { 6, 14 }, { 8, 17 }, { 10, 20 }, { 12, 23 }, { 14, 27 } } },
       { BaseItemType.Kama,  new int[,] { { 2, 4 }, { 2, 5 }, { 3, 6 }, { 4, 7 }, { 4, 8 }, { 5, 10 }, { 6, 13 }, { 8, 16 } } },
       { BaseItemType.Kukri,  new int[,] { { 2, 4 }, { 2, 5 }, { 3, 6 }, { 4, 7 }, { 4, 8 }, { 5, 10 }, { 6, 13 }, { 8, 16 } } },
@@ -92,12 +91,43 @@ namespace NWN.Systems
         _ => ItemCategory.Invalid,
       };
     }
-    public static bool IsLightWeapon(BaseItemType baseItemType)
+    public static bool CanBeEquippedInLeftHand(BaseItemType baseItemType)
     {
       return baseItemType switch
       {
-        BaseItemType.Rapier or BaseItemType.Dagger or BaseItemType.Kama or BaseItemType.Kukri or BaseItemType.Sickle or BaseItemType.Quarterstaff or BaseItemType.Scimitar or BaseItemType.Shortsword or BaseItemType.Handaxe => true,
+        BaseItemType.Dagger or BaseItemType.Kama or BaseItemType.Kukri or BaseItemType.Sickle or BaseItemType.Shortsword or BaseItemType.Handaxe
+        or BaseItemType.LightFlail or BaseItemType.Torch or BaseItemType.SmallShield or BaseItemType.LargeShield or BaseItemType.TowerShield => true,
         _ => false
+      };
+    }
+    public static bool IsVersatileWeapon(BaseItemType baseItemType)
+    {
+      return baseItemType switch
+      {
+        BaseItemType.Club or BaseItemType.Bastardsword or BaseItemType.DwarvenWaraxe or BaseItemType.Katana => true,
+        _ => false
+      };
+    }
+    public static bool IsReachWeapon(BaseItemType baseItemType)
+    {
+      return baseItemType switch
+      {
+        BaseItemType.Quarterstaff or BaseItemType.Warhammer or BaseItemType.Greataxe or BaseItemType.Greatsword or BaseItemType.Halberd or BaseItemType.HeavyFlail
+        or BaseItemType.Trident or BaseItemType.Whip or BaseItemType.Bastardsword or BaseItemType.Scythe => true,
+        _ => false
+      };
+    }
+    public static int GetWeaponAttackPerRound(BaseItemType baseItemType)
+    {
+      return baseItemType switch
+      {
+        BaseItemType.Dagger or BaseItemType.Sickle or BaseItemType.Handaxe or BaseItemType.Rapier or BaseItemType.Kama or BaseItemType.Kukri 
+        or BaseItemType.DireMace or BaseItemType.Doubleaxe or BaseItemType.TwoBladedSword or BaseItemType.Shuriken => 3,
+        BaseItemType.Dart or BaseItemType.Shortbow or BaseItemType.Sling or BaseItemType.Club or BaseItemType.LightMace or BaseItemType.Morningstar
+        or BaseItemType.ShortSpear or BaseItemType.LightFlail or BaseItemType.Battleaxe or BaseItemType.Longsword or BaseItemType.Scimitar
+        or BaseItemType.Longbow or BaseItemType.Trident or BaseItemType.Whip or BaseItemType.Bastardsword or BaseItemType.DwarvenWaraxe 
+        or BaseItemType.Katana => 2,
+        _ => 1
       };
     }
     // ----------------------------------------------------------------------------

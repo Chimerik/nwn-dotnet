@@ -1,7 +1,6 @@
 ﻿using Anvil.API;
 using NWN.Native.API;
 using Anvil.Services;
-using NLog;
 using System.Linq;
 using NWN.Core;
 using System.Numerics;
@@ -13,15 +12,15 @@ namespace NWN.Systems
   [ServiceBinding(typeof(NativeAttackHook))]
   public unsafe class NativeAttackHook
   {
-    private readonly Logger Log = LogManager.GetCurrentClassLogger();
     private readonly CExoString casterLevelVariable = "_CREATURE_CASTER_LEVEL".ToExoString();
     private readonly CExoString minWeaponDamageVariable = "_MIN_WEAPON_DAMAGE".ToExoString();
     private readonly CExoString maxWeaponDamageVariable = "_MAX_WEAPON_DAMAGE".ToExoString();
     private readonly CExoString minCreatureDamageVariable = "_MIN_CREATURE_DAMAGE".ToExoString();
     private readonly CExoString maxCreatureDamageVariable = "_MAX_CREATURE_DAMAGE".ToExoString();
     private readonly CExoString critChanceVariable = "_ADD_CRIT_CHANCE".ToExoString();
+    private readonly CExoString itemGradeVariable = "_ITEM_GRADE".ToExoString();
     //private readonly CExoString spellIdVariable = "_CURRENT_SPELL".ToExoString();
-
+    
     private delegate int GetDamageRollHook(void* thisPtr, void* pTarget, int bOffHand, int bCritical, int bSneakAttack, int bDeathAttack, int bForceMax);
     private delegate void ResolveAttackRollHook(void* pCreature, void* pTarget);
     private delegate byte GetSpellLikeAbilityCasterLevelHook(void* pCreatureStats, int nSpellId);
@@ -47,7 +46,7 @@ namespace NWN.Systems
       CNWSCreature creature = CNWSCreature.FromPointer(pCreature);
       CNWSObject targetObject = CNWSObject.FromPointer(pTarget);
 
-      Log.Info($"{creature.m_pStats.GetFullName().ToExoLocString().GetSimple(0)} attacking {targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)}");
+      Utils.LogMessageToConsole($"{creature.m_pStats.GetFullName().ToExoLocString().GetSimple(0)} attacking {targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)}", Config.Env.Chim);
 
       CNWSCombatRound combatRound = creature.m_pcCombatRound;
       CNWSCombatAttackData attackData = combatRound.GetAttack(combatRound.m_nCurrentAttack);
@@ -143,13 +142,13 @@ namespace NWN.Systems
       var targetObject = CNWSObject.FromPointer(pTarget);
       //var damageFlags = creatureStats.m_pBaseCreature.GetDamageFlags();
 
-      Log.Info($"Entering GetDamageRoll Hook : {creatureStats.GetFullName().ToExoLocString().GetSimple(0)} attacking {targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)}");
+      Utils.LogMessageToConsole($"Entering GetDamageRoll Hook : {creatureStats.GetFullName().ToExoLocString().GetSimple(0)} attacking {targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)}", Config.Env.Chim);
 
       if (targetObject.m_bPlotObject == 1)
         return -1;
 
       int minDamage = 0;
-      int maxDamage;
+      int maxDamage = 0;
       int damage = 0;
 
       // Get attacker weapon
@@ -166,16 +165,23 @@ namespace NWN.Systems
           {
             minDamage = attacker.m_ScriptVars.GetInt(minCreatureDamageVariable);
             maxDamage = attacker.m_ScriptVars.GetInt(maxCreatureDamageVariable);
+
+            if(minDamage < 1 && ItemUtils.itemDamageDictionary.ContainsKey((BaseItemType)weapon.m_nBaseItem)) // S'il la créature ne dispose pas de variable pour ses dégâts, alors on va chercher les dégâts correspondant à son arme
+            {
+              int weaponGrade = weapon.m_ScriptVars.GetInt(itemGradeVariable);
+              minDamage = ItemUtils.itemDamageDictionary[(BaseItemType)weapon.m_nBaseItem][weaponGrade, 0];
+              maxDamage = ItemUtils.itemDamageDictionary[(BaseItemType)weapon.m_nBaseItem][weaponGrade, 1];
+              weapon.m_ScriptVars.SetInt(minWeaponDamageVariable, minDamage);
+              weapon.m_ScriptVars.SetInt(maxWeaponDamageVariable, maxDamage);
+            }
           }
         }
-        else // si pas d'arme (donc gants, creature weapon on rien), appliquer la logique pour le combat à mains nues
-          maxDamage = 3;
 
         if (minDamage < 1)
           minDamage = 1;
 
         if (maxDamage < 1)
-          maxDamage = 1;
+          maxDamage = 3;
 
         damage += bCritical > 0 ? maxDamage : Utils.random.Next(minDamage, maxDamage + 1);
 
@@ -215,19 +221,13 @@ namespace NWN.Systems
     }
     private static CNWSItem GetAttackWeapon(CNWSCreature attacker, int bOffHand)
     {
-      var weapon = bOffHand == 1
+      var weapon = ((bOffHand == 1
             ? attacker.m_pInventory.GetItemInSlot((uint)EquipmentSlot.LeftHand)
-            : attacker.m_pInventory.GetItemInSlot((uint)EquipmentSlot.RightHand);
-
-      if (weapon == null) // Nothing equipped - check gloves.
-        weapon = attacker.m_pInventory.GetItemInSlot((uint)EquipmentSlot.Arms);
-
-      if (weapon == null) // Gloves not equipped. Check claws
-      {
-        weapon = bOffHand == 1
-            ? attacker.m_pInventory.GetItemInSlot((uint)EquipmentSlot.CreatureWeaponLeft)
-            : attacker.m_pInventory.GetItemInSlot((uint)EquipmentSlot.CreatureWeaponRight);
-      }
+            : attacker.m_pInventory.GetItemInSlot((uint)EquipmentSlot.RightHand)) 
+            ?? attacker.m_pInventory.GetItemInSlot((uint)EquipmentSlot.Arms)) // Si pas d'arme, on check les gants
+            ?? (bOffHand == 1 // si toujours pas d'arme, on check les griffes
+              ? attacker.m_pInventory.GetItemInSlot((uint)EquipmentSlot.CreatureWeaponLeft)
+              : attacker.m_pInventory.GetItemInSlot((uint)EquipmentSlot.CreatureWeaponRight)); 
 
       return weapon;
     }

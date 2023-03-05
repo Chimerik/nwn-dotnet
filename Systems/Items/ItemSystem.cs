@@ -27,14 +27,24 @@ namespace NWN.Systems
       if (oPC == null || oItem == null)
         return;
 
+      if (onItemEquip.Slot == InventorySlot.LeftHand && !ItemUtils.CanBeEquippedInLeftHand(oItem.BaseItem.ItemType))
+      {
+        oPC.ControllingPlayer.SendServerMessage($"{StringUtils.ToWhitecolor(oItem.Name)} n'est pas une arme légère et ne peut être équipée dans la main gauche", ColorConstants.Red);
+        onItemEquip.PreventEquip = true;
+        return;
+      }
+
       NwItem oUnequip = oPC.GetItemInSlot(onItemEquip.Slot);
 
       if (oUnequip != null && !oPC.Inventory.CheckFit(oUnequip))
       {
-        oPC.ControllingPlayer.SendServerMessage($"Attention, votre inventaire est plein. Vous risqueriez de perdre votre {oUnequip.Name} en déséquipant !", ColorConstants.Red);
+        oPC.ControllingPlayer.SendServerMessage($"Attention, votre inventaire est plein. Vous risqueriez de perdre votre {StringUtils.ToWhitecolor(oUnequip.Name)} en déséquipant !", ColorConstants.Red);
         onItemEquip.PreventEquip = true;
         return;
       }
+
+      if(onItemEquip.Slot == InventorySlot.RightHand)
+        oPC.BaseAttackCount = ItemUtils.GetWeaponAttackPerRound(oItem.BaseItem.ItemType);
     }
 
     public static void HandleUnequipItemBefore(OnItemUnequip onUnequip)
@@ -43,7 +53,12 @@ namespace NWN.Systems
       NwItem oItem = onUnequip.Item;
 
       if (!oPC.ControllingPlayer.IsValid || !oItem.IsValid || oPC.Inventory.CheckFit(oItem))
+      {
+        if (oPC.GetItemInSlot(InventorySlot.RightHand) is not null)
+          oPC.BaseAttackCount = ItemUtils.GetWeaponAttackPerRound(oPC.GetItemInSlot(InventorySlot.RightHand).BaseItem.ItemType);
+
         return;
+      }
 
       if (oPC.GetObjectVariable<LocalVariableInt>("CUSTOM_EFFECT_NOARMOR").HasValue
         || oPC.GetObjectVariable<LocalVariableInt>("CUSTOM_EFFECT_NOWEAPON").HasValue
