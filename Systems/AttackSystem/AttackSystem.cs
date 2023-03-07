@@ -644,7 +644,7 @@ namespace NWN.Systems
     {
       double targetAC = 0;
 
-      if(ctx.attackWeapon.ItemProperties.Any(i => i.Property.PropertyType == ItemPropertyType.NoDamage))
+      if(ctx.attackWeapon is not null && ctx.attackWeapon.ItemProperties.Any(i => i.Property.PropertyType == ItemPropertyType.NoDamage))
       {
         foreach (DamageType damageType in (DamageType[])Enum.GetValues(typeof(DamageType)))
           Config.SetContextDamage(ctx, damageType, 0);
@@ -683,7 +683,7 @@ namespace NWN.Systems
 
         if (damageType == DamageType.BaseWeapon && PlayerSystem.Players.TryGetValue(ctx.oAttacker, out PlayerSystem.Player attackerPlayer))
         {
-          skillModifier = attackerPlayer.GetWeaponMasteryLevel(ctx.attackWeapon.BaseItem.ItemType);
+          skillModifier = ctx.attackWeapon is not null ? attackerPlayer.GetWeaponMasteryLevel(ctx.attackWeapon.BaseItem.ItemType) : 0;
           skillDamage = modifiedDamage * skillModifier;
 
           if (skillDamage < 1)

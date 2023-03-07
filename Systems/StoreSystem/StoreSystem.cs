@@ -8,7 +8,7 @@ using System.Linq;
 using Anvil.API.Events;
 using System.Collections.Generic;
 
-namespace NWN.System
+namespace NWN.Systems
 {
   [ServiceBinding(typeof(StoreSystem))]
   public class StoreSystem

@@ -2,8 +2,6 @@
 
 using Anvil.API;
 
-using NWN.System;
-
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems

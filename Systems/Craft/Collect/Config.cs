@@ -3,8 +3,6 @@ using System.Collections.Generic;
 
 using Anvil.API;
 
-using static NWN.Systems.LootSystem.Lootable;
-
 namespace NWN.Systems.Craft.Collect
 {
   public class Config

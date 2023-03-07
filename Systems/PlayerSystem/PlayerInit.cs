@@ -424,7 +424,7 @@ namespace NWN.Systems
               learnableSkills.TryAdd(kvp.Key, skill);
             }
             else
-              Utils.LogMessageToDMs($"SKILL SYSTEM - INVALID SKILL KEY {kvp.Key} REMOVED FROM {oid.LoginCreature.Name} ({oid.PlayerName})");
+              Utils.LogMessageToDMs($"SKILL SYSTEM - INVALID SKILL KEY {kvp.Key} REMOVED FROM {this.characterId} ({this.accountId})");
           }
         });
 

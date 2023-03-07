@@ -1,12 +1,14 @@
 ﻿using Anvil.API;
 using System;
 using Anvil.API.Events;
+using Anvil.Services;
 
 namespace NWN.Systems
 {
-  class RayOfFrost
+  [ServiceBinding(typeof(SpellSystem))]
+  public partial class SpellSystem
   {
-    public RayOfFrost(SpellEvents.OnSpellCast onSpellCast)
+    public static void RayOfFrost(SpellEvents.OnSpellCast onSpellCast)
     {
       if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oCaster))
         return;
@@ -29,15 +31,16 @@ namespace NWN.Systems
       onSpellCast.TargetObject.ApplyEffect(EffectDuration.Temporary, eRay, TimeSpan.FromSeconds(1.7));
 
       if (oCaster.IsPlayerControlled && onSpellCast.MetaMagicFeat == MetaMagic.None)
-      {
-        oCaster.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Value = (int)onSpellCast.Spell.SpellType;
+        _ = oCaster.ActionCastSpellAt(NwSpell.FromSpellType(Spell.RayOfFrost), onSpellCast.TargetObject);
+      //await oCaster.AddActionToQueue(async () => await oCaster.ActionCastSpellAt(NwSpell.FromSpellType(Spell.RayOfFrost), onSpellCast.TargetObject));
+
+        /*oCaster.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Value = (int)onSpellCast.Spell.SpellType;
         oCaster.GetObjectVariable<LocalVariableObject<NwGameObject>>("_AUTO_SPELL_TARGET").Value = onSpellCast.TargetObject;
         oCaster.OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
         oCaster.OnCombatRoundEnd += PlayerSystem.HandleCombatRoundEndForAutoSpells;
 
-        SpellUtils.CancelCastOnMovement(oCaster);
+        SpellUtils.CancelCastOnMovement(oCaster);*/
         //SpellUtils.RestoreSpell(oCaster, onSpellCast.Spell.SpellType);
-      }
     }
   }
 }

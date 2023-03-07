@@ -142,10 +142,10 @@ namespace NWN.Systems
       var targetObject = CNWSObject.FromPointer(pTarget);
       //var damageFlags = creatureStats.m_pBaseCreature.GetDamageFlags();
 
-      Utils.LogMessageToConsole($"Entering GetDamageRoll Hook : {creatureStats.GetFullName().ToExoLocString().GetSimple(0)} attacking {targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)}", Config.Env.Chim);
-
-      if (targetObject.m_bPlotObject == 1)
+      if (attacker is null || targetObject is null || targetObject.m_bPlotObject == 1)
         return -1;
+
+      Utils.LogMessageToConsole($"Entering GetDamageRoll Hook : {creatureStats.GetFullName().ToExoLocString().GetSimple(0)} attacking {targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)}", Config.Env.Chim);
 
       int minDamage = 0;
       int maxDamage = 0;
@@ -240,7 +240,7 @@ namespace NWN.Systems
       PlayerSystem.Player defender = PlayerSystem.Players.GetValueOrDefault(target.m_idSelf);
 
       // Si la cible est en mouvement et est frappée en mêlée par une créature qu'elle ne voit pas, alors crit auto
-      if (ItemUtils.GetItemCategory((BaseItemType)weapon.m_nBaseItem) != ItemUtils.ItemCategory.RangedWeapon && CreaturePlugin.GetMovementType(target.m_idSelf) > 0)
+      if ((weapon is null || ItemUtils.GetItemCategory((BaseItemType)weapon.m_nBaseItem) != ItemUtils.ItemCategory.RangedWeapon) && CreaturePlugin.GetMovementType(target.m_idSelf) > 0)
       {
         var visionNode = target.GetVisibleListElement(attacker.m_idSelf);
 
@@ -270,10 +270,10 @@ namespace NWN.Systems
         }
       }
 
-      int critChance = weapon.m_ScriptVars.GetInt(critChanceVariable); ; // TODO : Gérer les chances de crit pour chaque type d'arme de base
+      int critChance = weapon is not null ? weapon.m_ScriptVars.GetInt(critChanceVariable) : 0 ; // TODO : Gérer les chances de crit pour chaque type d'arme de base
 
       if (!PlayerSystem.Players.TryGetValue(attacker.m_idSelf, out PlayerSystem.Player player)) // Si l'attaquant n'est pas un joueur, le crit est déterminé par le FP
-        critChance += attacker.m_pStats.m_fChallengeRating < 11 ? 5 : (int)attacker.m_pStats.m_fChallengeRating - 5;
+        critChance += attacker.m_ScriptVars.GetInt(critChanceVariable);
       else
       {
         // Pour un joueur , la chance de crit dépend de sa maîtrise de l'arme (max + 20 %)
@@ -282,7 +282,7 @@ namespace NWN.Systems
         // TODO : Prévoir des capacités qui donnent des chances de crit temporaire (cf page Critical Hit du Guild Wars wiki)
         // TODO : chaque attaque spéciale d'une arme a des effets supplémentaires dont la puissance dépend du niveau de maîtrise et d'expertise dans l'arme
 
-        critChance += player.GetWeaponCritScienceLevel((BaseItemType)weapon.m_nBaseItem);
+        critChance += weapon is not null ? player.GetWeaponCritScienceLevel((BaseItemType)weapon.m_nBaseItem) : 0;
       }
 
       if (NwRandom.Roll(Utils.random, 100) < critChance)

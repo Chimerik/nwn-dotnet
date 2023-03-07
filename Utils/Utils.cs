@@ -25,14 +25,31 @@ namespace NWN
     public static void LogMessageToDMs(string message)
     {
       Log.Info(message);
+      SendDiscordLog(message, 0);
+
       //Bot.bigbyDiscordUser.SendMessageAsync(message); Bigby user
       //Bot.chimDiscordUser.SendMessageAsync(message); Chim user
-
-      switch (Config.env)
+    }
+    private static async void SendDiscordLog(string message, int nbTry)
+    {
+      try
       {
-        case Config.Env.Prod: Bot.logChannel.SendMessageAsync(message); break;
-        case Config.Env.Bigby: Bot.logChannel.SendMessageAsync("Bigby test : " + message); break;
-        case Config.Env.Chim: Bot.logChannel.SendMessageAsync("Chim test : " + message); break;
+        switch (Config.env)
+        {
+          case Config.Env.Prod: await Bot.logChannel.SendMessageAsync(message); break;
+          case Config.Env.Bigby: await Bot.logChannel.SendMessageAsync("Bigby test : " + message); break;
+          case Config.Env.Chim: await Bot.logChannel.SendMessageAsync("Chim test : " + message); break;
+        }
+      }
+      catch (Exception)
+      {
+        await Task.Delay(10000);
+
+        if (nbTry < 5)
+        {
+          Log.Info($"Retrying ({nbTry}) to send Discord message");
+          SendDiscordLog(message, nbTry++);
+        }
       }
     }
     public static void LogMessageToConsole(string message, Config.Env env = Config.Env.Prod)

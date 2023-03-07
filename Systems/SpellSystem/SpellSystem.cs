@@ -358,7 +358,7 @@ namespace NWN.Systems
           break;
 
         case Spell.RayOfFrost:
-          new RayOfFrost(onSpellCast);
+          RayOfFrost(onSpellCast);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 

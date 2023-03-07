@@ -8,6 +8,7 @@ using Anvil.Services;
 using Anvil.API.Events;
 using NLog;
 using System.Threading.Tasks;
+using static Anvil.API.Events.CreatureEvents;
 
 namespace NWN.Systems
 {
@@ -248,8 +249,8 @@ namespace NWN.Systems
       Utils.LogMessageToDMs($"{onLevelUp.Player.LoginCreature.Name} vient d'essayer de level up.");
       onLevelUp.Player.LoginCreature.Xp = 1;
     }
-    public static void HandleCombatRoundEndForAutoSpells(CreatureEvents.OnCombatRoundEnd onCombatRoundEnd)
-    {
+    public static async void HandleCombatRoundEndForAutoSpells(OnCombatRoundEnd onCombatRoundEnd)
+    { 
       if (onCombatRoundEnd.Creature.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").HasNothing)
       {
         onCombatRoundEnd.Creature.OnCombatRoundEnd -= HandleCombatRoundEndForAutoSpells;
@@ -258,9 +259,15 @@ namespace NWN.Systems
 
       int spellId = onCombatRoundEnd.Creature.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Value;
       NwGameObject target = onCombatRoundEnd.Creature.GetObjectVariable<LocalVariableObject<NwGameObject>>("_AUTO_SPELL_TARGET").Value;
-
-      if (target != null && target.IsValid)
-        _ = onCombatRoundEnd.Creature.ActionCastSpellAt((Spell)spellId, target);
+      
+      if (target is not null && target.IsValid)
+      {
+        Utils.LogMessageToConsole("1", Config.Env.Chim);
+        //_ = onCombatRoundEnd.Creature.AddActionToQueue(() => NWScript.ActionCastSpellAtObject(spellId, target));
+        await onCombatRoundEnd.Creature.WaitForObjectContext();
+        await onCombatRoundEnd.Creature.ActionCastSpellAt((Spell)spellId, target);
+        Utils.LogMessageToConsole("2", Config.Env.Chim);
+      }
       else
       {
         onCombatRoundEnd.Creature.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Delete();

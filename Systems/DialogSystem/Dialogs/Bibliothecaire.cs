@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Anvil.API;
-using NWN.System;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems

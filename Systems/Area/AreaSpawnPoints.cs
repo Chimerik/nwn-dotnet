@@ -143,8 +143,6 @@ namespace NWN.Systems
           break;
       }
 
-      creature.ApplyEffect(EffectDuration.Permanent, Effect.CutsceneParalyze());
-
       creature.OnHeartbeat += CheckDistanceFromSpawn;
     }
 
@@ -288,10 +286,10 @@ namespace NWN.Systems
       if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData))
         return ScriptHandleResult.Handled;
 
-      if (!(eventData.Effect.Creator is NwCreature neutral))
+      if (eventData.Effect.Creator is not NwCreature neutral)
         return ScriptHandleResult.Handled;
 
-      if (!(eventData.Entering is NwCreature oEntering))
+      if (eventData.Entering is not NwCreature oEntering)
         return ScriptHandleResult.Handled;
 
       if (!(oEntering.IsPlayerControlled || (oEntering.Master != null && oEntering.Master.IsPlayerControlled)))
@@ -301,7 +299,7 @@ namespace NWN.Systems
 
       return ScriptHandleResult.Handled;
     }
-    private async void MoveAway(NwCreature creature, NwCreature oEntering)
+    private static async void MoveAway(NwCreature creature, NwCreature oEntering)
     {
       await creature.ClearActionQueue();
       await creature.ActionMoveAwayFrom(oEntering, true, 10);

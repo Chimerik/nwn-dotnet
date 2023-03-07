@@ -4,7 +4,6 @@ using Anvil.API.Events;
 using Anvil.Services;
 using static NWN.Systems.PlayerSystem;
 using System.Linq;
-using NWN.System;
 
 namespace NWN.Systems
 {

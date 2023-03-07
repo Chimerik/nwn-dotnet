@@ -6,7 +6,6 @@ using System.Linq;
 using NLog;
 using System.Threading.Tasks;
 using static NWN.Systems.PlayerSystem;
-using NWN.System;
 using NWN.Core.NWNX;
 using System.Numerics;
 
