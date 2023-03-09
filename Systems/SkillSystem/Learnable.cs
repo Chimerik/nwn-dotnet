@@ -61,14 +61,14 @@ namespace NWN.Systems
     }
     public async void LevelUpWrapper(PlayerSystem.Player player)
     {
-      if (this is LearnableSkill)
+      if (this is LearnableSkill skill)
       {
-        ((LearnableSkill)this).LevelUp(player);
+        skill.LevelUp(player);
         player.oid.SendServerMessage($"Vous venez de terminer l'apprentissage de {name}, niveau {currentLevel} !");
       }
-      else if (this is LearnableSpell)
+      else if (this is LearnableSpell spell)
       {
-        ((LearnableSpell)this).LevelUp(player);
+        spell.LevelUp(player);
         player.oid.SendServerMessage($"Vous venez de terminer l'apprentissage de {name} !");
       }
 

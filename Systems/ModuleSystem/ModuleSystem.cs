@@ -52,6 +52,7 @@ namespace NWN.Systems
       LoadDiscordBot();
       CreateDatabase();
       InitializeEvents();
+      InitializeCreatureStats();
 
       SkillSystem.InitializeLearnables();
       LoadModulePalette();
@@ -188,6 +189,37 @@ namespace NWN.Systems
 
       foreach(var mdl in array)
         Log.Info($";{mdl};{NWScript.ResManGetAliasFor(mdl, NWScript.RESTYPE_MDL)}");*/
+    }
+    public static async void InitializeCreatureStats()
+    {
+      var request = googleDriveService.Files.Export("1unBzzGyX0tKvwkz0a-o8uJL5K52Uc8g_0-tFqUN8uEU", "text/csv");
+
+      using var stream = new MemoryStream();
+      await request.DownloadAsync(stream);
+      stream.Position = 0;
+
+      string line;
+      int i = 1;
+
+      using (var reader = new StreamReader(stream))
+        while ((line = await reader.ReadLineAsync()) != null)
+        {
+          try
+          {
+            string[] data = line.Split(',');
+
+            if (data[0] != "tag")
+              Config.creatureStats.Add(data[0], new CreatureStats(int.Parse(data[1]), int.Parse(data[2]), int.Parse(data[3]), int.Parse(data[4]), int.Parse(data[5]), int.Parse(data[6])));
+          }
+          catch(Exception e) 
+          {
+            Utils.LogMessageToDMs($"WARNING - CREATURE STATS INIT - COULD NOT LOAD LINE {i}\n" +
+              $"{e.Message}\n" +
+              $"{e.StackTrace}");
+          }
+
+          i++;
+        }
     }
     private static async void ReadGDocLine()
     {

@@ -38,6 +38,10 @@ namespace NWN.Systems
       };
     }
 
+    // CREATURES
+
+    public static Dictionary<string, CreatureStats> creatureStats = new();
+
     // MATERIA
 
     public static readonly int baseMateriaGrowth = 360;

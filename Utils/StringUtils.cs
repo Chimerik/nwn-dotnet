@@ -22,12 +22,12 @@ namespace NWN
 
     public static string FirstCharToUpper(this string input)
     {
-      switch (input)
+      return input switch
       {
-        case null: throw new ArgumentNullException(nameof(input));
-        case "": throw new ArgumentException($"{nameof(input)} cannot be empty", nameof(input));
-        default: return input.First().ToString().ToUpper() + input.Substring(1);
-      }
+        null => throw new ArgumentNullException(nameof(input)),
+        "" => throw new ArgumentException($"{nameof(input)} cannot be empty", nameof(input)),
+        _ => string.Concat(input.First().ToString().ToUpper(), input.AsSpan(1)),
+      };
     }
 
     public static int NthIndexOf(string s, char c, int n)
@@ -40,8 +40,7 @@ namespace NWN
       try
       {
         FieldInfo field = value.GetType().GetField(value.ToString());
-        DescriptionAttribute attribute = Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute)) as DescriptionAttribute;
-        return attribute == null ? value.ToString().Replace("_", " ") : attribute.Description.Replace("_", " ");
+        return Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute)) is not DescriptionAttribute attribute ? value.ToString().Replace("_", " ") : attribute.Description.Replace("_", " ");
       }
       catch(Exception e)
       {
@@ -54,41 +53,29 @@ namespace NWN
     }
     public static string TranslateAttributeToFrench(Ability ability)
     {
-      switch(ability)
+      return ability switch
       {
-        case Ability.Strength:
-          return "Force";
-        case Ability.Dexterity:
-          return "Dextérité";
-        case Ability.Wisdom:
-          return "Sagesse";
-        case Ability.Charisma:
-          return "Charisme";
-      }
-
-      return ability.ToString();
+        Ability.Strength => "Force",
+        Ability.Dexterity => "Dextérité",
+        Ability.Wisdom => "Sagesse",
+        Ability.Charisma => "Charisme",
+        _ => ability.ToString(),
+      };
     }
     public static string GetAttributeIcon(Ability ability)
     {
-      switch (ability)
+      return ability switch
       {
-        case Ability.Strength:
-          return "ief_inc_str";
-        case Ability.Dexterity:
-          return "ief_inc_dex";
-        case Ability.Constitution:
-          return "ief_inc_con";
-        case Ability.Intelligence:
-          return "ief_inc_int";
-        case Ability.Wisdom:
-          return "ief_inc_wis";
-        case Ability.Charisma:
-          return "ief_inc_cha";
-      }
-
-      return ability.ToString();
+        Ability.Strength => "ief_inc_str",
+        Ability.Dexterity => "ief_inc_dex",
+        Ability.Constitution => "ief_inc_con",
+        Ability.Intelligence => "ief_inc_int",
+        Ability.Wisdom => "ief_inc_wis",
+        Ability.Charisma => "ief_inc_cha",
+        _ => ability.ToString(),
+      };
     }
-    public async static Task<Stream> GenerateStreamFromString(string s)
+    public static async Task<Stream> GenerateStreamFromString(string s)
     {
       var stream = new MemoryStream();
       var writer = new StreamWriter(stream);

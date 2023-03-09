@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -114,7 +113,7 @@ namespace NWN.Systems
 
       await NwTask.Delay(TimeSpan.FromSeconds(10));
 
-      if(_client.ConnectionState != Discord.ConnectionState.Connected)
+      if(_client.ConnectionState != ConnectionState.Connected)
       {
         try
         {
@@ -150,9 +149,9 @@ namespace NWN.Systems
       /*try
       {
         var guildCommand = new SlashCommandBuilder()
-        .WithName("staff_demande")
-        .WithDescription("Créé une nouvelle demande visible uniquement par le staff et vous")
-        .WithDefaultMemberPermissions(GuildPermission.SendMessages)
+        .WithName("refresh_creature_stats")
+        .WithDescription("Met à jour les stats des créatures")
+        .WithDefaultMemberPermissions(GuildPermission.MentionEveryone);
         .AddOption("titre", ApplicationCommandOptionType.String, "Titre", isRequired: true)
         .AddOption("contenu", ApplicationCommandOptionType.String, "Demande", isRequired: true);
 
@@ -162,8 +161,8 @@ namespace NWN.Systems
       catch (Exception exception)
       {
         Utils.LogMessageToDMs(exception.Message + exception.StackTrace);
-      }
-      */
+      }*/
+      
       //CreateAllSlashCommand();
     }
     private static void CreateAllSlashCommand()
@@ -297,6 +296,11 @@ namespace NWN.Systems
           break;
         case "joueurs_liste": // droit admin & staff
           await BotSystem.ExecuteGetConnectedPlayersCommand(command, true);
+          break;
+        case "refresh_creature_stats": // droit admin & staff
+          Utils.LogMessageToDMs($"{command.User.Username} vient de rafraichir les stats des créatures");
+          Config.creatureStats.Clear();
+          ModuleSystem.InitializeCreatureStats();
           break;
         case "annonce": // droit staff
           await BotSystem.ExecuteBroadcastAnnouncementCommand(command);
