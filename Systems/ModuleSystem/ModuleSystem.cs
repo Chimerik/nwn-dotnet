@@ -910,6 +910,7 @@ namespace NWN.Systems
           HandleJobLoop(player);
           HandleLearnableLoop(player);
           HandleCheckAfkStatus(player);
+          HandlePassiveRegen(player);
         }
       }
     }
@@ -1003,6 +1004,30 @@ namespace NWN.Systems
 
         player.oid.LoginCreature.GetObjectVariable<LocalVariableLocation>("_AFK_LOCATION").Value = player.oid.ControlledCreature.Location;
       }
+    }
+    private static void HandlePassiveRegen(PlayerSystem.Player player)
+    {
+      if (player.oid.LoginCreature.IsInCombat || player.oid.LoginCreature.HP >= player.oid.LoginCreature.MaxHP)
+      {
+        if(player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_PASSIVE_REGEN").HasValue)
+        {
+          player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_PASSIVE_REGEN").Delete();
+          player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_PASSIVE_LAST_TICK").Delete();
+        }
+        
+        return;
+      }
+
+      if(player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_PASSIVE_LAST_TICK").HasNothing)
+      {
+        player.oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_PASSIVE_LAST_TICK").Value = DateTime.Now;
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_PASSIVE_REGEN").Value = 2;
+      }
+      else if(player.oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_PASSIVE_LAST_TICK").Value > DateTime.Now.AddSeconds(3)
+        && player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_PASSIVE_REGEN").Value < 20)
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_PASSIVE_REGEN").Value += 2;
+
+      player.oid.LoginCreature.HP += player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_PASSIVE_REGEN").Value;
     }
   }
 }

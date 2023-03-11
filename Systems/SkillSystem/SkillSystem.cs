@@ -492,17 +492,19 @@ namespace NWN.Systems
     }
     private static bool HandleImproveHealth(PlayerSystem.Player player, int customSkillId)
     {
-      int improvedHealth = 0;
-      if (player.learnableSkills.ContainsKey(CustomSkill.ImprovedHealth))
-        improvedHealth = player.learnableSkills[CustomSkill.ImprovedHealth].currentLevel;
+      int improvedHealth = player.learnableSkills.ContainsKey(CustomSkill.ImprovedHealth) ? player.learnableSkills[CustomSkill.ImprovedHealth].currentLevel : 0;
+      int toughness = player.learnableSkills.ContainsKey(CustomSkill.Toughness) ? player.learnableSkills[CustomSkill.Toughness].currentLevel : 0;
 
-      int toughness = 0;
-      if (player.learnableSkills.ContainsKey(CustomSkill.Toughness))
-        toughness = player.learnableSkills[CustomSkill.Toughness].currentLevel;
-
-      player.oid.LoginCreature.LevelInfo[0].HitDie = (byte)(80
-        + (1 + 5 * ((player.oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2)
-        + toughness) * improvedHealth);
+      if (player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_CORE_MAX_HP").HasValue)
+      {
+        player.oid.LoginCreature.LevelInfo[0].HitDie = (byte)(player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_CORE_MAX_HP").Value
+          + improvedHealth * (toughness + (player.oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10)));
+      }
+      else
+      {
+        player.oid.LoginCreature.LevelInfo[0].HitDie = (byte)(10
+        + improvedHealth * (toughness + ((player.oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2)));
+      }
 
       return true;
     }

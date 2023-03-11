@@ -98,6 +98,7 @@ namespace NWN.Systems
         creature.GetObjectVariable<LocalVariableInt>("_MAX_CREATURE_DAMAGE").Value = stats.maxDamage;
         creature.GetObjectVariable<LocalVariableInt>("_ADD_CRIT_CHANCE").Value = stats.critChance;
         creature.MaxHP = stats.HP;
+        creature.HP = creature.MaxHP;
         CreaturePlugin.SetBaseAC(creature, stats.AC);
         creature.BaseAttackCount = stats.nbAttacks;
       }

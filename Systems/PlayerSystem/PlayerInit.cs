@@ -11,8 +11,6 @@ using Microsoft.Data.Sqlite;
 
 using Newtonsoft.Json;
 
-using NWN.Core.NWNX;
-
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace NWN.Systems
@@ -111,7 +109,7 @@ namespace NWN.Systems
           oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("accountId").Value = query.Result.GetInt(0);
         }
         else
-          oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("accountId").Value = int.Parse(result.FirstOrDefault()[0]); 
+          oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("accountId").Value = int.Parse(result.FirstOrDefault()[0]);
       }
       public void InitializeNewCharacter()
       {
@@ -165,7 +163,6 @@ namespace NWN.Systems
           Task waitSkinCreated = NwTask.Run(async () =>
           {
             NwItem pcSkin = await NwItem.Create("peaudejoueur", oid.LoginCreature);
-            //pcSkin.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
             pcSkin.Name = $"Propriétés de {oid.LoginCreature.Name}";
             oid.LoginCreature.RunEquip(pcSkin, InventorySlot.CreatureSkin);
           });
@@ -505,7 +502,7 @@ namespace NWN.Systems
           List<Subscription.SerializableSubscription> serializedSubscription = JsonConvert.DeserializeObject<List<Subscription.SerializableSubscription>>(serializedSubscriptions);
 
           foreach (var subscription in serializedSubscription)
-              subscriptions.Add(new Subscription(subscription));
+            subscriptions.Add(new Subscription(subscription));
         });
 
         Task loadMailsTask = Task.Run(() =>
@@ -542,15 +539,19 @@ namespace NWN.Systems
         int improvedHealth = learnableSkills.ContainsKey(CustomSkill.ImprovedHealth) ? learnableSkills[CustomSkill.ImprovedHealth].currentLevel : 0;
         int toughness = learnableSkills.ContainsKey(CustomSkill.Toughness) ? learnableSkills[CustomSkill.Toughness].currentLevel : 0;
 
-        oid.LoginCreature.LevelInfo[0].HitDie = (byte)(80
-          + (1 + 5 * ((oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2)
-          + toughness) * improvedHealth);
+        if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_CORE_MAX_HP").HasValue)
+        {
+          oid.LoginCreature.LevelInfo[0].HitDie = (byte)(oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_CORE_MAX_HP").Value
+            + improvedHealth * (toughness + (oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10)));
+        }
+        else
+        {
+          oid.LoginCreature.LevelInfo[0].HitDie = (byte)(10
+          + improvedHealth * (toughness + ((oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2)));
+        }
 
         if (oid.LoginCreature.HP <= 0)
           oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Death());
-
-        if (learnableSkills.ContainsKey(CustomSkill.ImprovedAttackBonus))
-          oid.LoginCreature.BaseAttackBonus = (byte)(oid.LoginCreature.BaseAttackBonus + learnableSkills[CustomSkill.ImprovedAttackBonus].totalPoints);
       }
       private void HandleLearnableInit()
       {
@@ -743,8 +744,19 @@ namespace NWN.Systems
         mapPinDictionnary.Remove(onDestroy.Id);
         SaveMapPinsToDatabase();
       }
+      private async void CreateCOREPOT()
+      {
+        NwItem potion = await NwItem.Create("potions", oid.LoginCreature, 50);
+        potion.Name = "COREPOT";
+
+        potion.GetObjectVariable<LocalVariableInt>("_CORE_MAX_HP").Value = 80;
+        potion.GetObjectVariable<LocalVariableInt>("_CORE_MAX_MANA").Value = 80;
+        potion.GetObjectVariable<LocalVariableInt>("_CORE_DURATION").Value = 60;
+        potion.Tag = "potion_core_influx";
+      }
       public void HandleReinit()
       {
+        CreateCOREPOT();
         LearnableSkill oldSkill;
 
         if(learnableSkills.ContainsKey(CustomSkill.ImprovedClubProficiency))

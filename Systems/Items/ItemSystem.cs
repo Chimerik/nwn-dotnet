@@ -9,13 +9,19 @@ using System;
 namespace NWN.Systems
 {
   [ServiceBinding(typeof(ItemSystem))]
-  public class ItemSystem
+  public partial class ItemSystem
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public static FeedbackService feedbackService;
-    public ItemSystem(FeedbackService feedback)
+    private readonly ScriptHandleFactory scriptHandleFactory;
+    public static ScriptCallbackHandle removeCoreHandle;
+    public ItemSystem(FeedbackService feedback, ScriptHandleFactory scriptFactory)
     {
       feedbackService = feedback;
+      scriptHandleFactory = scriptFactory;
+
+      removeCoreHandle = scriptHandleFactory.CreateUniqueHandler(Potion.RemoveCore);
+
       //NwModule.Instance.OnAcquireItem += OnAcquireItem;
       //NwModule.Instance.OnUnacquireItem += OnUnacquireItem;
     }
@@ -113,6 +119,10 @@ namespace NWN.Systems
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
           oPC.RunEquip(onItemUse.Item, InventorySlot.CreatureSkin);
+          break;
+
+        case "potion_core_influx":
+          Potion.CoreInflux(player, onItemUse.Item);
           break;
 
         case "potion_cure_mini":
