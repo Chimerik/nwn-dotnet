@@ -79,8 +79,8 @@ namespace NWN.Systems
           {
             ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.RightHand);
 
-            if(ItemUtils.GetItemCategory(ctx.attackWeapon.BaseItem.ItemType) == ItemUtils.ItemCategory.RangedWeapon) // Pour les armes à distance, attaquer depuis une élévation augmente les dégâts (max 10 = + 200 %)
-              Config.SetContextDamage(ctx, DamageType.BaseWeapon, Config.GetContextDamage(ctx, DamageType.BaseWeapon) + (int)(ctx.oAttacker?.Location.GroundHeight - ctx.oTarget?.Location.GroundHeight * 0.1f));
+            if (ItemUtils.GetItemCategory(ctx.attackWeapon.BaseItem.ItemType) == ItemUtils.ItemCategory.RangedWeapon) // Pour les armes à distance, attaquer depuis une élévation augmente les dégâts (max 20 = + 200 %) 
+              Config.SetContextDamage(ctx, DamageType.BaseWeapon, Config.GetContextDamage(ctx, DamageType.BaseWeapon) + (int)(Config.GetContextDamage(ctx, DamageType.BaseWeapon) * ((ctx.oAttacker?.Location.GroundHeight - ctx.oTarget?.Location.GroundHeight) * 0.1f)));
           }
           break;
 
@@ -702,24 +702,28 @@ namespace NWN.Systems
 
         if (skillDamage < 0)
           skillDamage = modifiedDamage;
-
+          
         Config.SetContextDamage(ctx, damageType, (int)Math.Round(skillDamage, MidpointRounding.ToEven));
         Utils.LogMessageToConsole($"Final : {damageType} - AC {targetAC} - Initial {initialDamage} - Final Damage {skillDamage}", Config.Env.Chim);
       }
 
-      /*if(ctx.onAttack != null)
-        ctx.oTarget.GetObjectVariable<LocalVariableInt>($"_DAMAGE_HANDLED_FROM_{ctx.oAttacker}").Value = 1;*/
+      if (Config.env != Config.Env.Prod && ctx.oTarget.IsLoginPlayerCharacter)
+        ctx.oTarget.ApplyEffect(EffectDuration.Temporary, Effect.TemporaryHitpoints(500), TimeSpan.FromSeconds(10));
 
-      /*if (ctx.oTarget.Tag == "damage_trainer")
+
+    /*if(ctx.onAttack != null)
+      ctx.oTarget.GetObjectVariable<LocalVariableInt>($"_DAMAGE_HANDLED_FROM_{ctx.oAttacker}").Value = 1;*/
+
+    /*if (ctx.oTarget.Tag == "damage_trainer")
+    {
+      Task HealAfterDamage = NwTask.Run(async () =>
       {
-        Task HealAfterDamage = NwTask.Run(async () =>
-        {
-          await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
-          ctx.oTarget.HP = ctx.oTarget.MaxHP;
-        });
-      }*/
+        await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
+        ctx.oTarget.HP = ctx.oTarget.MaxHP;
+      });
+    }*/
 
-      next();
+    next();
     }
     private static void ProcessAttackerItemDurability(Context ctx, Action next)
     {
