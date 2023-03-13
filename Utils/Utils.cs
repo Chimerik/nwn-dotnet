@@ -52,11 +52,6 @@ namespace NWN
         }
       }
     }
-    public static void LogMessageToConsole(string message, Config.Env env = Config.Env.Prod)
-    {
-      if(Config.env == env)
-        Log.Info(message);
-    }
     public static void DestroyInventory(NwCreature oContainer)
     {
       foreach (NwItem item in oContainer.Inventory.Items)

@@ -21,7 +21,7 @@ namespace NWN.Systems
     {
       NwPlayer oPC = HandlePlayerConnect.Player;
 
-      Utils.LogMessageToDMs($"{oPC.PlayerName} vient de connecter {oPC.LoginCreature.Name} ({NwModule.Instance.PlayerCount} joueurs)");
+      LogUtils.LogMessage($"{oPC.PlayerName} vient de connecter {oPC.LoginCreature.Name} ({NwModule.Instance.PlayerCount} joueurs)", LogUtils.LogType.PlayerConnections);
 
       if (!Players.TryGetValue(oPC.LoginCreature, out Player player))
         player = new Player(oPC, areaSystem, spellSystem, feedbackService, scheduler, eventService);
@@ -115,10 +115,7 @@ namespace NWN.Systems
       {
         oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_REINITIALISATION_DONE").Value = 1;
 
-        if (Config.env == Config.Env.Prod)
-        {
-          Task waitBotMessage = NwTask.Run(async () => { await Bot.staffGeneralChannel.SendMessageAsync($"{oid.PlayerName} vient de créer un nouveau personnage : {oid.LoginCreature.Name}"); });
-        }
+        LogUtils.LogMessage($"{oid.PlayerName} vient de créer un nouveau personnage : {oid.LoginCreature.Name}", LogUtils.LogType.PlayerConnections);
 
         int startingSP = 5000;
         if (oid.LoginCreature.KnowsFeat(Feat.QuickToMaster))
@@ -356,7 +353,7 @@ namespace NWN.Systems
         var query = SqLiteUtils.SelectQuery("playerCharacters",
             new List<string>() { { "location" }, { "currentHP" }, { "bankGold" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" },
               { "alchemyCauldron" }, { "serializedLearnableSkills" }, { "serializedLearnableSpells" }, { "explorationState" }, { "materialStorage" }, { "craftJob" },
-              { "grimoires" }, { "quickbars" }, { "itemAppearances" }, { "descriptions" }, { "currentSkillPoints" }, { "mails" }, { "subscriptions" } },
+              { "grimoires" }, { "quickbars" }, { "itemAppearances" }, { "descriptions" }, { "currentSkillPoints" }, { "mails" }, { "subscriptions" }, { "endurance" } },
             new List<string[]>() { { new string[] { "rowid", characterId.ToString() } } });
 
         foreach (var result in query)
@@ -380,11 +377,12 @@ namespace NWN.Systems
           tempCurrentSkillPoint = int.TryParse(result[16], out int skill) ? skill : 0;
           string serializedMails = result[17];
           string serializedSubscriptions = result[18];
+          string serializedEndurance = result[19];
 
-          InitializePlayerAsync(serializedCauldron, serializedExploration, serializedLearnableSkills, serializedLearnableSpells, serializedCraftResources, serializedCraftJob, serializedGrimoires, serializedQuickbars, serializedItemAppearances, serializedDescriptions, serializedMails, serializedSubscriptions);
+          InitializePlayerAsync(serializedCauldron, serializedExploration, serializedLearnableSkills, serializedLearnableSpells, serializedCraftResources, serializedCraftJob, serializedGrimoires, serializedQuickbars, serializedItemAppearances, serializedDescriptions, serializedMails, serializedSubscriptions, serializedEndurance);
         }
       }
-      private async void InitializePlayerAsync(string serializedCauldron, string serializedExploration, string serializedLearnableSkills, string serializedLearnableSpells, string serializedCraftResources, string serializedCraftJob, string serializedGrimoires, string serializedQuickbars, string serializedItemAppearances, string serializedDescriptions, string serializedMails, string serializedSubscriptions)
+      private async void InitializePlayerAsync(string serializedCauldron, string serializedExploration, string serializedLearnableSkills, string serializedLearnableSpells, string serializedCraftResources, string serializedCraftJob, string serializedGrimoires, string serializedQuickbars, string serializedItemAppearances, string serializedDescriptions, string serializedMails, string serializedSubscriptions, string serializedEndurance)
       {
         Task loadCauldronTask = Task.Run(() =>
         {
@@ -470,6 +468,17 @@ namespace NWN.Systems
           grimoires = JsonConvert.DeserializeObject<List<Grimoire>>(serializedGrimoires);
         });
 
+        Task loadEnduranceTask = Task.Run(() =>
+        {
+          if (string.IsNullOrEmpty(serializedEndurance) || serializedEndurance == "null")
+          {
+            endurance = new();
+            return;
+          }
+
+          endurance = JsonConvert.DeserializeObject<Endurance>(serializedEndurance);
+        });
+
         Task loadQuickbarsTask = Task.Run(() =>
         {
           if (string.IsNullOrEmpty(serializedQuickbars) || serializedQuickbars == "null")
@@ -517,7 +526,7 @@ namespace NWN.Systems
               mails.Add(new Mail(mail));
         });
 
-        await Task.WhenAll(loadSkillsTask, loadSpellsTask, loadExplorationTask, loadCauldronTask, loadCraftJobTask, loadGrimoiresTask, loadQuickbarsTask, loadItemAppearancesTask, loadDescriptionsTask, loadMailsTask, loadSubscriptionsTask);
+        await Task.WhenAll(loadSkillsTask, loadSpellsTask, loadExplorationTask, loadCauldronTask, loadCraftJobTask, loadGrimoiresTask, loadQuickbarsTask, loadItemAppearancesTask, loadDescriptionsTask, loadMailsTask, loadSubscriptionsTask, loadEnduranceTask);
         await NwTask.SwitchToMainThread();
         FinalizePlayerData();
       }
@@ -536,29 +545,34 @@ namespace NWN.Systems
       }
       private void HandleHealthPointInit()
       {
+        if (oid.LoginCreature.HP < 1)
+          oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Death());
+
+        if (oid.LoginCreature.ActiveEffects.Any(e => e.Tag == "_CORE_EFFECT"))
+          return;
+
         int improvedHealth = learnableSkills.ContainsKey(CustomSkill.ImprovedHealth) ? learnableSkills[CustomSkill.ImprovedHealth].currentLevel : 0;
         int toughness = learnableSkills.ContainsKey(CustomSkill.Toughness) ? learnableSkills[CustomSkill.Toughness].currentLevel : 0;
 
-        if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_CORE_MAX_HP").HasValue)
-        {
-          oid.LoginCreature.LevelInfo[0].HitDie = (byte)(oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_CORE_MAX_HP").Value
-            + improvedHealth * (toughness + (oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10)));
-        }
-        else
-        {
-          oid.LoginCreature.LevelInfo[0].HitDie = (byte)(10
-          + improvedHealth * (toughness + ((oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2)));
-        }
+        int conModifier = ((oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2);
+        oid.LoginCreature.LevelInfo[0].HitDie = (byte)(endurance.maxHP
+        + improvedHealth * (toughness + conModifier));
 
-        if (oid.LoginCreature.HP <= 0)
-          oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Death());
+        Effect runAction = Effect.RunAction(null, ItemSystem.removeCoreHandle);
+        runAction = Effect.LinkEffects(runAction, Effect.Icon(EffectIcon.TemporaryHitpoints));
+        runAction.Tag = "_CORE_EFFECT";
+        runAction.SubType = EffectSubType.Supernatural;
+
+        TimeSpan duration = endurance.expirationDate - DateTime.Now;
+
+        oid.LoginCreature.ApplyEffect(EffectDuration.Temporary, runAction, TimeSpan.FromSeconds(duration.TotalSeconds > 0 ? duration.TotalSeconds : 0));
+        LogUtils.LogMessage($"{oid.LoginCreature.Name} application des effets du Mélange à la connexion : HP endurance {endurance.maxHP}, max HP {oid.LoginCreature.LevelInfo[0].HitDie + conModifier}, HP régénérable {endurance.regenerableHP}, mana régénérable {endurance.regenerableMana}, se dissipe le {endurance.expirationDate}", LogUtils.LogType.EnduranceSystem);
       }
       private void HandleLearnableInit()
       {
         if (activeLearnable != null && activeLearnable.active && activeLearnable.spLastCalculation.HasValue)
         {
           activeLearnable.acquiredPoints += (DateTime.Now - activeLearnable.spLastCalculation).Value.TotalSeconds * GetSkillPointsPerSecond(activeLearnable);
-
           if (!windows.ContainsKey("activeLearnable")) windows.Add("activeLearnable", new ActiveLearnableWindow(this));
           else ((ActiveLearnableWindow)windows["activeLearnable"]).CreateWindow();
         }
@@ -572,7 +586,6 @@ namespace NWN.Systems
             craftJob.remainingTime -= (DateTime.Now - craftJob.progressLastCalculation.Value).TotalSeconds;
             craftJob.progressLastCalculation = null;
           }
-
           if (!windows.ContainsKey("activeCraftJob")) windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
           else ((ActiveCraftJobWindow)windows["activeCraftJob"]).CreateWindow();
         }
@@ -581,12 +594,9 @@ namespace NWN.Systems
       {
         if (!subscriptions.Any(s => s.type == Utils.SubscriptionType.MailNotification))
           return;
-
         int unreadCount = mails.Count(m => m.fromCharacterId < 1 && !m.read);
-
         if (unreadCount > 0)
           oid.SendServerMessage($"Votre pièce vibre. Vous avez reçu {StringUtils.ToWhitecolor(unreadCount)} nouvelle(s) missive(s) de la banque", ColorConstants.Orange);
-
         unreadCount = mails.Count(m => m.fromCharacterId > 0 && !m.read && m.fromCharacterId != characterId);
 
         if (unreadCount > 0)
@@ -626,7 +636,7 @@ namespace NWN.Systems
           using var reader = await command.ExecuteReaderAsync();
           while (reader.Read())
           {
-            Utils.LogMessageToDMs($"WARNING - {playerName} vient de se connecter avec la clef {cdKey} également utilisée par {reader.GetString(0)}");
+            LogUtils.LogMessage($"WARNING - {playerName} vient de se connecter avec la clef {cdKey} également utilisée par {reader.GetString(0)}", LogUtils.LogType.PlayerConnections);
           }
         }
         catch (Exception e)
@@ -651,7 +661,7 @@ namespace NWN.Systems
           using var reader = await command.ExecuteReaderAsync();
           while (reader.Read())
           {
-            Utils.LogMessageToDMs($"WARNING - {playerName} vient de se connecter avec l'adresse ip {ipAdress} également utilisée par {reader.GetString(0)}");
+            LogUtils.LogMessage($"WARNING - {playerName} vient de se connecter avec l'adresse ip {ipAdress} également utilisée par {reader.GetString(0)}", LogUtils.LogType.PlayerConnections);
           }
         }
         catch (Exception e)
@@ -746,12 +756,13 @@ namespace NWN.Systems
       }
       private async void CreateCOREPOT()
       {
-        NwItem potion = await NwItem.Create("potions", oid.LoginCreature, 50);
+        NwItem potion = await NwItem.Create("nw_it_mpotion021", oid.LoginCreature, 50);
         potion.Name = "COREPOT";
 
         potion.GetObjectVariable<LocalVariableInt>("_CORE_MAX_HP").Value = 80;
-        potion.GetObjectVariable<LocalVariableInt>("_CORE_MAX_MANA").Value = 80;
-        potion.GetObjectVariable<LocalVariableInt>("_CORE_DURATION").Value = 60;
+        potion.GetObjectVariable<LocalVariableInt>("_CORE_REMAINING_HP").Value = 240;
+        potion.GetObjectVariable<LocalVariableInt>("_CORE_REMAINING_MANA").Value = 120;
+        potion.GetObjectVariable<LocalVariableInt>("_CORE_DURATION").Value = 28800;
         potion.Tag = "potion_core_influx";
       }
       public void HandleReinit()

@@ -102,7 +102,7 @@ namespace NWN.Systems
       else if (ctx.onDamage != null)
         return ctx.onDamage.DamageData.GetDamageByType(damageType);
 
-      Utils.LogMessageToConsole("Error : trying to get damage without any event context.");
+      LogUtils.LogMessage("ERROR : trying to get damage without any event context.", LogUtils.LogType.Combat);
       return -1;
     }
     public static void SetContextDamage(Context ctx, DamageType damageType, int value)
@@ -112,7 +112,7 @@ namespace NWN.Systems
       else if (ctx.onDamage != null)
         SetDamage(ctx.onDamage.DamageData, damageType, value);
       else
-        Utils.LogMessageToConsole("Error : trying to set damage without any event context.");
+        LogUtils.LogMessage("ERROR : trying to set damage without any event context.", LogUtils.LogType.Combat);
     }
     public static void SetDamage<T>(DamageData<T> damageData, DamageType damageType, T value) where T : unmanaged
     {

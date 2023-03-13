@@ -46,7 +46,7 @@ namespace NWN.Systems
       CNWSCreature creature = CNWSCreature.FromPointer(pCreature);
       CNWSObject targetObject = CNWSObject.FromPointer(pTarget);
 
-      Utils.LogMessageToConsole($"{creature.m_pStats.GetFullName().ToExoLocString().GetSimple(0)} attacking {targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)}", Config.Env.Chim);
+      LogUtils.LogMessage($"{creature.m_pStats.GetFullName().ToExoLocString().GetSimple(0)} attacking {targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)}", LogUtils.LogType.Combat);
 
       CNWSCombatRound combatRound = creature.m_pcCombatRound;
       CNWSCombatAttackData attackData = combatRound.GetAttack(combatRound.m_nCurrentAttack);
@@ -58,18 +58,30 @@ namespace NWN.Systems
       {
         CNWSCreature targetCreature = targetObject.AsNWSCreature();
         int skillBonusDodge = PlayerSystem.Players.TryGetValue(targetObject.m_idSelf, out PlayerSystem.Player player) && player.learnableSkills.ContainsKey(CustomSkill.ImprovedDodge) ? 2 * player.learnableSkills[CustomSkill.ImprovedDodge].totalPoints : 0;
+        string logString = $"{skillBonusDodge} (Esquive améliorée) ";
 
         if (targetCreature.m_pStats.HasFeat((ushort)Anvil.API.Feat.Dodge).ToBool())
+        {
           skillBonusDodge += 2;
+          logString += "+ 2 (Don Esquive) ";
+        }
 
         if (targetCreature.m_nCreatureSize < creature.m_nCreatureSize)
+        {
           skillBonusDodge += 5;
+          logString += "+ 5 (Taille créature) ";
+        }
 
         int dodgeRoll = NwRandom.Roll(Utils.random, 100);
-        if (dodgeRoll <= unchecked((sbyte)targetCreature.m_pStats.GetAbilityMod(1)) + skillBonusDodge - targetCreature.m_pStats.m_nArmorCheckPenalty - targetCreature.m_pStats.m_nShieldCheckPenalty)
+        int dodgeCalculations = unchecked((sbyte)targetCreature.m_pStats.GetAbilityMod(1)) + skillBonusDodge - targetCreature.m_pStats.m_nArmorCheckPenalty - targetCreature.m_pStats.m_nShieldCheckPenalty;
+
+        LogUtils.LogMessage($"{logString} + {unchecked((sbyte)targetCreature.m_pStats.GetAbilityMod(1))} (DEX) - {targetCreature.m_pStats.m_nArmorCheckPenalty + targetCreature.m_pStats.m_nShieldCheckPenalty} (Pénalité d'armure) = {dodgeCalculations} VS {dodgeRoll}", LogUtils.LogType.Combat);
+        
+        if (dodgeRoll <= dodgeCalculations) // TODO : supprimer l'esquive passive pour la remplacer par une esquive active
         {
           attackData.m_nAttackResult = 4;
           attackData.m_nMissedBy = 8;
+          LogUtils.LogMessage("Esquive réussie", LogUtils.LogType.Combat);
         }
         else if (IsHitCritical(creature, targetCreature, combatRound.GetCurrentAttackWeapon(attackData.m_nWeaponAttackType)))
           attackData.m_nAttackResult = 3;
@@ -145,7 +157,7 @@ namespace NWN.Systems
       if (attacker is null || targetObject is null || targetObject.m_bPlotObject == 1)
         return -1;
 
-      Utils.LogMessageToConsole($"Entering GetDamageRoll Hook : {creatureStats.GetFullName().ToExoLocString().GetSimple(0)} attacking {targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)}", Config.Env.Chim);
+      LogUtils.LogMessage($"Jet de dégâts : {creatureStats.GetFullName().ToExoLocString().GetSimple(0)} attaque {targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)}", LogUtils.LogType.Combat);
 
       int minDamage = 0;
       int maxDamage = 0;
@@ -187,35 +199,37 @@ namespace NWN.Systems
 
         if (damage < 1)
           damage = 1;
-        
-          // Calculate total defense on the target.
-          /*if (targetObject != null && targetObject.m_nObjectType == (int)ObjectType.Creature)
-          {
-            var target = CNWSCreature.FromPointer(pTarget);
 
-            foreach (var slotItemId in target.m_pInventory.m_pEquipSlot)
+        LogUtils.LogMessage($"Dégâts de base de l'arme : {damage} (min {minDamage}, max {maxDamage})", LogUtils.LogType.Combat);
+
+        // Calculate total defense on the target.
+        /*if (targetObject != null && targetObject.m_nObjectType == (int)ObjectType.Creature)
+        {
+          var target = CNWSCreature.FromPointer(pTarget);
+
+          foreach (var slotItemId in target.m_pInventory.m_pEquipSlot)
+          {
+            if (slotItemId != NWNXLib.OBJECT_INVALID)
             {
-              if (slotItemId != NWNXLib.OBJECT_INVALID)
+              var item = NWNXLib.AppManager().m_pServerExoApp.GetItemByGameObjectID(slotItemId);
+              for (var index = 0; index < item.m_lstPassiveProperties.array_size; index++)
               {
-                var item = NWNXLib.AppManager().m_pServerExoApp.GetItemByGameObjectID(slotItemId);
-                for (var index = 0; index < item.m_lstPassiveProperties.array_size; index++)
+                var ip = item.GetPassiveProperty(index);
+                if (ip != null && ip.m_nPropertyName == (ushort)ItemPropertyType.Defense)
                 {
-                  var ip = item.GetPassiveProperty(index);
-                  if (ip != null && ip.m_nPropertyName == (ushort)ItemPropertyType.Defense)
-                  {
-                    defense += ip.m_nCostTableValue;
-                  }
+                  defense += ip.m_nCostTableValue;
                 }
               }
             }
-          }*/
+          }
+        }*/
 
-          // On n'applique pas les calculs de réduction du jeu de base, car ces propriétés n'existent pas. Chez nous, les réductions sont calculées par rapport à l'armure
-          // TODO : il faudra donc modifier tous les sorts qui donnnent de la résistance ou de la réduction pour qu'ils donnent de l'armure spécifique
-          //damage = target.DoDamageImmunity(creature, damage, damageFlags, 0, 1);
-          //damage = target.DoDamageResistance(creature, damage, damageFlags, 0, 1, 1);
-          //damage = target.DoDamageReduction(creature, damage, damagePower, 0, 1);
-        }
+        // On n'applique pas les calculs de réduction du jeu de base, car ces propriétés n'existent pas. Chez nous, les réductions sont calculées par rapport à l'armure
+        // TODO : il faudra donc modifier tous les sorts qui donnnent de la résistance ou de la réduction pour qu'ils donnent de l'armure spécifique
+        //damage = target.DoDamageImmunity(creature, damage, damageFlags, 0, 1);
+        //damage = target.DoDamageResistance(creature, damage, damageFlags, 0, 1, 1);
+        //damage = target.DoDamageReduction(creature, damage, damagePower, 0, 1);
+      }
 
       return damage;
     }
@@ -234,7 +248,10 @@ namespace NWN.Systems
     private bool IsHitCritical(CNWSCreature attacker, CNWSCreature target, CNWSItem weapon)
     {
       if (target.m_pStats.m_nRace == (ushort)Anvil.API.RacialType.Construct || target.m_pStats.m_nRace == (ushort)Anvil.API.RacialType.Undead)
+      {
+        LogUtils.LogMessage("Cible immunisée aux coups critiques", LogUtils.LogType.Combat);
         return false;
+      }
 
       PlayerSystem.Player attackerPlayer = PlayerSystem.Players.GetValueOrDefault(attacker.m_idSelf);
       PlayerSystem.Player defender = PlayerSystem.Players.GetValueOrDefault(target.m_idSelf);
@@ -266,14 +283,22 @@ namespace NWN.Systems
             }
           }
           else
+          {
+            LogUtils.LogMessage("Frappe de mêlée dans le dos sur cible en mouvement : Critique automatique (+20 AP)", LogUtils.LogType.Combat);
             return true;
+          }
         }
       }
 
       int critChance = weapon is not null ? weapon.m_ScriptVars.GetInt(critChanceVariable) : 0 ; // TODO : Gérer les chances de crit pour chaque type d'arme de base
+      string critLog = $"{critChance} (arme) ";
 
       if (!PlayerSystem.Players.TryGetValue(attacker.m_idSelf, out PlayerSystem.Player player)) // Si l'attaquant n'est pas un joueur, le crit est déterminé par le FP
-        critChance += attacker.m_ScriptVars.GetInt(critChanceVariable);
+      {
+        int creatureCrit = attacker.m_ScriptVars.GetInt(critChanceVariable);
+        critLog += $"+ {creatureCrit} (créature) ";
+        critChance += creatureCrit; 
+      }
       else
       {
         // Pour un joueur , la chance de crit dépend de sa maîtrise de l'arme (max + 20 %)
@@ -281,12 +306,22 @@ namespace NWN.Systems
         // TODO : Prévoir un enchantement qui permet d'ajouter des chances de crit à une arme (max + 15 %)
         // TODO : Prévoir des capacités qui donnent des chances de crit temporaire (cf page Critical Hit du Guild Wars wiki)
         // TODO : chaque attaque spéciale d'une arme a des effets supplémentaires dont la puissance dépend du niveau de maîtrise et d'expertise dans l'arme
+        // TODO : Augmenter légèrement les chances de crit en fonction du niveau de matéria infusée 
+        // TODO : Prévoir un enchantement qui augmente les chances de crit
 
-        critChance += weapon is not null ? player.GetWeaponCritScienceLevel((BaseItemType)weapon.m_nBaseItem) : 0;
+        int playerCrit = weapon is not null ? player.GetWeaponCritScienceLevel((BaseItemType)weapon.m_nBaseItem) : 0;
+        critLog += $"+ {playerCrit} (entrainement) ";
+        critChance += playerCrit;
       }
 
-      if (NwRandom.Roll(Utils.random, 100) < critChance)
+      int critRoll = NwRandom.Roll(Utils.random, 100);
+      LogUtils.LogMessage($"{critLog} = {critChance} VS {critRoll}", LogUtils.LogType.Combat);
+
+      if (critRoll <= critChance)
+      {
+        LogUtils.LogMessage("Coup critique ! (+20 AP)", LogUtils.LogType.Combat);
         return true;
+      }
       else
         return false;
     }

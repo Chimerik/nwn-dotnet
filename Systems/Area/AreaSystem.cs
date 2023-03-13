@@ -12,7 +12,6 @@ namespace NWN.Systems
   [ServiceBinding(typeof(AreaSystem))]
   public partial class AreaSystem
   {
-    private static readonly Logger Log = LogManager.GetCurrentClassLogger();
     private static readonly int[] rockRandomAppearances = new int[] { 1603, 4480, 4481, 5266, 5267, 5268, 5269, 14669, 14670, 14671, 14672, 14673, 14674, 14675, 14676, 14677, 14678 };
     private readonly DialogSystem dialogSystem;
     private readonly ScriptHandleFactory scriptHandleFactory;
@@ -105,7 +104,7 @@ namespace NWN.Systems
         if (onHB.Area.GetObjectVariable<DateTimeLocalVariable>("_CLEANING_TIME").HasValue) // Si date de nettoyage planifiée, supprimer la planification
         {
           onHB.Area.GetObjectVariable<DateTimeLocalVariable>("_CLEANING_TIME").Delete();
-          Log.Info($"{onHB.Area.Name} canceling scheduled cleaning");
+          LogUtils.LogMessage($"{onHB.Area.Name} canceling scheduled cleaning", LogUtils.LogType.AreaManagement);
         }
         else
           onHB.Area.GetObjectVariable<LocalVariableBool>("_CLEANING_TRIGGER").Value = true;
@@ -118,12 +117,12 @@ namespace NWN.Systems
           if (onHB.Area.GetObjectVariable<LocalVariableBool>("_CLEANING_TRIGGER").HasValue)
           {
             onHB.Area.GetObjectVariable<DateTimeLocalVariable>("_CLEANING_TIME").Value = DateTime.Now;
-            Log.Info($"{onHB.Area.Name} scheduled for cleaning at {DateTime.Now.AddMinutes(25)}");
+            LogUtils.LogMessage($"{onHB.Area.Name} scheduled for cleaning at {DateTime.Now.AddMinutes(25)}", LogUtils.LogType.AreaManagement);
           }
         }
         else if ((DateTime.Now - onHB.Area.GetObjectVariable<DateTimeLocalVariable>("_CLEANING_TIME").Value).TotalMinutes > 25) // Si date de nettoyage dépassée, alors nettoyer et supprimer la planification
         {
-          Log.Info($"{onHB.Area.Name} cleaning area");
+          LogUtils.LogMessage($"{onHB.Area.Name} cleaning area", LogUtils.LogType.AreaManagement);
           CleanArea(onHB.Area);
           onHB.Area.GetObjectVariable<DateTimeLocalVariable>("_CLEANING_TIME").Delete();
           onHB.Area.GetObjectVariable<LocalVariableBool>("_CLEANING_TRIGGER").Delete();
@@ -143,7 +142,7 @@ namespace NWN.Systems
       if (!PlayerSystem.Players.TryGetValue(onEnter.EnteringObject, out PlayerSystem.Player player))
         return;
 
-      Log.Info($"Map {area.Name} loaded in : {(DateTime.Now - player.mapLoadingTime).TotalSeconds} by {onEnter.EnteringObject.Name}");
+      LogUtils.LogMessage($"Map {area.Name} loaded in : {(DateTime.Now - player.mapLoadingTime).TotalSeconds} by {onEnter.EnteringObject.Name}", LogUtils.LogType.AreaManagement);
 
       player.location = player.oid.LoginCreature.Location;
 
@@ -167,7 +166,7 @@ namespace NWN.Systems
 
       if (creature.IsPlayerControlled) // Cas normal de changement de zone
       {
-        Log.Info($"{creature.ControllingPlayer.LoginCreature.Name} vient de quitter la zone {area.Name}");
+       LogUtils.LogMessage($"{creature.ControllingPlayer.LoginCreature.Name} vient de quitter la zone {area.Name}", LogUtils.LogType.AreaManagement);
 
         if (!PlayerSystem.Players.TryGetValue(creature, out PlayerSystem.Player player))
           return;
@@ -206,7 +205,7 @@ namespace NWN.Systems
 
       if (onExit.Area.Tag == $"entry_scene_{oPC.ControllingPlayer.CDKey}")
       {
-        Log.Info($"{oPC.Name} exited area {onExit.Area.Name}");
+        LogUtils.LogMessage($"{oPC.Name} exited area {onExit.Area.Name}", LogUtils.LogType.AreaManagement);
         AreaDestroyer(onExit.Area);
       }
     }
@@ -395,7 +394,7 @@ namespace NWN.Systems
     {
       if (onExit.ExitingObject == null)
       {
-        Log.Info("Exiting object was null");
+        LogUtils.LogMessage("THEATER SCENE - Exiting object was null", LogUtils.LogType.AreaManagement);
       }
       else
       {
@@ -408,7 +407,7 @@ namespace NWN.Systems
     }
     private async void OnEnterUnwalkableBlock(TriggerEvents.OnEnter onEnter)
     {
-      Log.Info($"onEnter : {onEnter.EnteringObject.Name}");
+      //Log.Info($"onEnter : {onEnter.EnteringObject.Name}");
 
       if (onEnter.EnteringObject is not NwCreature oEntering)
         return;

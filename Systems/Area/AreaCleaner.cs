@@ -16,7 +16,7 @@ namespace NWN.Systems
         if (bodyBag.Tag == "BodyBag")
         {
           Utils.DestroyInventory(bodyBag);
-          Log.Info($"destroying body bag {bodyBag.Name}");
+          LogUtils.LogMessage($"destroying body bag {bodyBag.Name}", LogUtils.LogType.AreaManagement);
           bodyBag.Destroy();
         }
       }
@@ -25,7 +25,7 @@ namespace NWN.Systems
       {
         if (item.Possessor == null)
         {
-          Log.Info($"destroying item {item.Name}");
+          LogUtils.LogMessage($"destroying item {item.Name}", LogUtils.LogType.AreaManagement);
           item.Destroy();
         }
       }
@@ -37,7 +37,7 @@ namespace NWN.Systems
       {
         if (!NwModule.Instance.Players.Any(p => p.ControlledCreature == null && p.ControlledCreature.Area == null) && area.PlayerCount < 1)
         {
-          Log.Info($"Destroyed area {area.Name}");
+          LogUtils.LogMessage($"Destroyed area {area.Name}", LogUtils.LogType.AreaManagement);
           area.Destroy();
           areaDestroyerScheduler.Dispose();
         }

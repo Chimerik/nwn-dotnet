@@ -25,7 +25,7 @@ namespace NWN.Systems
     public static readonly TranslationClient googleTranslationClient = TranslationClient.Create();
     public static readonly DriveService googleDriveService = Config.AuthenticateServiceAccount();
     public static readonly Dictionary<string, GoldBalance> goldBalanceMonitoring = new();
-    private readonly SchedulerService scheduler;
+    private static SchedulerService scheduler;
 
     public static NwCreature placeholderTemplate = NwObject.FindObjectsWithTag<NwCreature>("damage_trainer").FirstOrDefault(); 
 
@@ -50,6 +50,7 @@ namespace NWN.Systems
       scheduler = schedulerService;
 
       LoadDiscordBot();
+      scheduler.ScheduleRepeating(LogUtils.LogLoop, TimeSpan.FromSeconds(1));
       CreateDatabase();
       InitializeEvents();
       InitializeCreatureStats();
@@ -110,7 +111,7 @@ namespace NWN.Systems
       foreach(NwItem item in NwObject.FindObjectsOfType<NwItem>()) // Permet de contrôler que les joueurs n'importent pas des items pétés en important des maps
       { // penser à la faire également lors de la création d'une zone dynamique
         item.Destroy();
-        Utils.LogMessageToDMs($"OnModuleLoad - Destroyed item {item.Name} in area {item?.Area?.Name}");
+        LogUtils.LogMessage($"OnModuleLoad - Destroyed item {item.Name} in area {item?.Area?.Name}", LogUtils.LogType.IllegalItems);
       }
 
       RestorePlayerCorpseFromDatabase();
@@ -283,7 +284,7 @@ namespace NWN.Systems
         "'location' TEXT, 'itemAppearances' TEXT, 'currentSkillPoints' INTEGER," +
         "'currentHP' INTEGER, 'bankGold' INTEGER, 'pveArenaCurrentPoints' INTEGER, 'menuOriginTop' INTEGER, 'menuOriginLeft' INTEGER, 'storage' TEXT, " +
         "'alchemyCauldron' TEXT, 'explorationState' TEXT, 'materialStorage' TEXT, 'craftJob' TEXT, 'grimoires' TEXT, 'quickbars' TEXT," +
-        "'descriptions' TEXT, 'mails' TEXT, 'subscriptions' TEXT)");
+        "'descriptions' TEXT, 'mails' TEXT, 'subscriptions' TEXT, 'endurance' TEXT)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerDeathCorpses" +
         "('characterId' INTEGER NOT NULL, 'deathCorpse' TEXT NOT NULL, 'location' TEXT NOT NULL)");
@@ -429,7 +430,7 @@ namespace NWN.Systems
         newResourceBlock.GetObjectVariable<LocalVariableInt>("_GRADE").Value = grade;
         Utils.SetResourceBlockData(newResourceBlock);
 
-        Log.Info($"MATERIA SPAWN - Area {materiaLocation.Area.Name} - Spawning {resRef} - Quantity {grade} - grade {grade}");
+        LogUtils.LogMessage($"MATERIA SPAWN - Area {materiaLocation.Area.Name} - Spawning {resRef} - Quantity {grade} - grade {grade}", LogUtils.LogType.MateriaSpawn);
       }
     }
     private async void HandleMateriaGrowth()
@@ -464,14 +465,14 @@ namespace NWN.Systems
           }
           catch (Exception e)
           {
-            Utils.LogMessageToDMs($"Update Query - Materia Block - {e.Message}");
+            LogUtils.LogMessage($"Update Query - Materia Block - {e.Message}", LogUtils.LogType.MateriaSpawn);
           }
         }
       }
     }
     public static void SpawnCollectableResources()
     {
-      Log.Info("Starting to spawn collectable ressources");
+      LogUtils.LogMessage("Starting to spawn collectable ressources", LogUtils.LogType.MateriaSpawn);
 
       foreach(NwArea area in NwModule.Instance.Areas)
       {
@@ -480,7 +481,7 @@ namespace NWN.Systems
           continue;
 
         int nbMateriaToSpawn = 12 - areaLevel - NwObject.FindObjectsWithTag<NwGameObject>("mineable_materia").Count(m => m.Area == area);
-        Log.Info($"REFILL - {area.Name} - {nbMateriaToSpawn} can spawn");
+        LogUtils.LogMessage($"REFILL - {area.Name} - {nbMateriaToSpawn} materia(s) can spawn", LogUtils.LogType.MateriaSpawn);
 
         while (nbMateriaToSpawn > 0)
         {
@@ -518,7 +519,7 @@ namespace NWN.Systems
         newResourceBlock.GetObjectVariable<LocalVariableInt>("_GRADE").Value = materiaGrade;
         Utils.SetResourceBlockData(newResourceBlock);
 
-        Log.Info($"MATERIA SPAWN - spawned {resourceTemplate} {materiaGrade} ({resourceQuantity}) in {area.Name}");
+        LogUtils.LogMessage($"MATERIA SPAWN - spawned {resourceTemplate} {materiaGrade} ({resourceQuantity}) in {area.Name}", LogUtils.LogType.MateriaSpawn);
 
         await SqLiteUtils.InsertQueryAsync("areaResourceStock",
           new List<string[]>() { new string[] { "type", resourceTemplate }, new string[] { "quantity", resourceQuantity.ToString() }, new string[] { "grade", materiaGrade.ToString() }, new string[] { "location", SqLiteUtils.SerializeLocation(randomLocation) } },
@@ -527,7 +528,7 @@ namespace NWN.Systems
       }
       catch (Exception)
       {
-        Utils.LogMessageToDMs($"MATERIA SPAWN - could not spawn {resourceTemplate} in {area.Name}");
+        LogUtils.LogMessage($"MATERIA SPAWN - could not spawn {resourceTemplate} in {area.Name}", LogUtils.LogType.MateriaSpawn);
       }
     }
     public static async void HandleSubscriptionDues()
@@ -1007,7 +1008,7 @@ namespace NWN.Systems
     }
     private static void HandlePassiveRegen(PlayerSystem.Player player)
     {
-      if (player.oid.LoginCreature.IsInCombat || player.oid.LoginCreature.HP >= player.oid.LoginCreature.MaxHP)
+      if (player.endurance.regenerableHP < 1 || player.oid.LoginCreature.IsInCombat || player.oid.LoginCreature.HP >= player.oid.LoginCreature.MaxHP)
       {
         if(player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_PASSIVE_REGEN").HasValue)
         {
@@ -1027,7 +1028,18 @@ namespace NWN.Systems
         && player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_PASSIVE_REGEN").Value < 20)
         player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_PASSIVE_REGEN").Value += 2;
 
-      player.oid.LoginCreature.HP += player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_PASSIVE_REGEN").Value;
+      int currentRegen = player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_PASSIVE_REGEN").Value;
+
+      if (player.endurance.regenerableHP - currentRegen < 0)
+      {
+        player.oid.LoginCreature.HP += player.endurance.regenerableHP;
+        player.endurance.regenerableHP = 0;
+      }
+      else
+      {
+        player.oid.LoginCreature.HP += currentRegen;
+        player.endurance.regenerableHP -= currentRegen;
+      }
     }
   }
 }

@@ -23,6 +23,7 @@ namespace NWN.Systems
 
     public static OverwritePermissions requestForumPermissions = new();
     public static SocketCategoryChannel forumCategory;
+    public static SocketForumChannel logForum;
 
     public static async Task MainAsync()
     {
@@ -141,10 +142,41 @@ namespace NWN.Systems
       playerGeneralChannel = _client.GetChannel(1026545572099924088) as IMessageChannel;
       logChannel = _client.GetChannel(703964971549196339) as IMessageChannel;
       forumCategory = discordServer.GetCategoryChannel(1031290085154500739);
+      logForum = discordServer.GetForumChannel(1084562366794043453);
 
       chimDiscordUser = _client.GetUser(232218662080086017);
-      bigbyDiscordUser = _client.GetUser(225961076448034817);    
-      Utils.LogMessageToDMs("Module en ligne !");
+      bigbyDiscordUser = _client.GetUser(225961076448034817);
+
+      try
+      {
+        var activeThreads = await logForum.GetActiveThreadsAsync();
+        var publicArchivedThreads = await logForum.GetPublicArchivedThreadsAsync();
+        //var privateArchivedThreads = await logForum.GetPrivateArchivedThreadsAsync();
+        
+        foreach (var logType in (LogUtils.LogType[])Enum.GetValues(typeof(LogUtils.LogType)))
+        {
+          string logName;
+
+          if (logType == LogUtils.LogType.Console)
+            logName = "Chim Test Server Logs";
+          else
+            logName = logType.ToString();
+
+          var post = activeThreads.FirstOrDefault(t => t.Name == logName);
+          post ??= publicArchivedThreads.FirstOrDefault(t => t.Name == logName);
+          //post ??= privateArchivedThreads.FirstOrDefault(t => t.Name == logName);
+          post ??= await logForum.CreatePostAsync(logName, ThreadArchiveDuration.OneWeek, null, "Système de logs du module");
+
+          LogUtils.logChannelDictionary.Add(logType, post);
+          LogUtils.logPile.TryAdd(logType, new Queue<string>());
+        }
+      }
+      catch(Exception e) 
+      {
+        ModuleSystem.Log.Info($"{e.Message}\n{e.StackTrace}");
+      }
+
+      LogUtils.LogMessage("Module en ligne !", LogUtils.LogType.ModuleAdministration);
 
       /*try
       {
@@ -162,7 +194,7 @@ namespace NWN.Systems
       {
         Utils.LogMessageToDMs(exception.Message + exception.StackTrace);
       }*/
-      
+
       //CreateAllSlashCommand();
     }
     private static void CreateAllSlashCommand()
@@ -215,7 +247,7 @@ namespace NWN.Systems
     }
     private static async Task SlashCommandHandler(SocketSlashCommand command)
     {
-      Utils.LogMessageToDMs($"Discord - commande {command.CommandName} utilisée par - {command.User.Username}");
+      LogUtils.LogMessage($"Discord - commande {command.CommandName} utilisée par - {command.User.Username}", LogUtils.LogType.ModuleAdministration);
 
       switch (command.CommandName)
       {
@@ -298,7 +330,6 @@ namespace NWN.Systems
           await BotSystem.ExecuteGetConnectedPlayersCommand(command, true);
           break;
         case "refresh_creature_stats": // droit admin & staff
-          Utils.LogMessageToDMs($"{command.User.Username} vient de rafraichir les stats des créatures");
           Config.creatureStats.Clear();
           ModuleSystem.InitializeCreatureStats();
           break;

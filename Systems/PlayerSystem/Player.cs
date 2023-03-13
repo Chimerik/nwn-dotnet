@@ -34,6 +34,7 @@ namespace NWN.Systems
       public Cauldron alchemyCauldron { get; set; }
       public PcState pcState { get; set; }
       public bool hideFromPlayerList { get; set; }
+      public Endurance endurance = new();
 
       public List<NwPlayer> listened = new();
       public List<int> mutedList = new();

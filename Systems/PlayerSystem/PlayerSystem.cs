@@ -262,11 +262,11 @@ namespace NWN.Systems
       
       if (target is not null && target.IsValid)
       {
-        Utils.LogMessageToConsole("1", Config.Env.Chim);
+        //Utils.LogMessageToConsole("1", Config.Env.Chim);
         //_ = onCombatRoundEnd.Creature.AddActionToQueue(() => NWScript.ActionCastSpellAtObject(spellId, target));
         await onCombatRoundEnd.Creature.WaitForObjectContext();
         await onCombatRoundEnd.Creature.ActionCastSpellAt((Spell)spellId, target);
-        Utils.LogMessageToConsole("2", Config.Env.Chim);
+        //Utils.LogMessageToConsole("2", Config.Env.Chim);
       }
       else
       {

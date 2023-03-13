@@ -17,26 +17,27 @@ namespace NWN.Systems
     public static Pipeline<Context> pipeline = new(
       new Action<Context, Action>[]
       {
-            IsAttackDodged,
-            ProcessBaseDamageTypeAndAttackWeapon,
-            ProcessCriticalHit,
-            ProcessTargetDamageAbsorption,
-            ProcessBaseArmorPenetration,
-            ProcessBonusArmorPenetration,
-            ProcessAttackPosition,
-            ProcessArmorSlotHit,
-            ProcessTargetSpecificAC,
-            ProcessTargetShieldAC,
-            ProcessArmorPenetrationCalculations,
-            ProcessDamageCalculations,
-            ProcessAttackerItemDurability,
-            ProcessTargetItemDurability,
+        IsAttackOfOpportunity,
+        IsAttackDodged,
+        ProcessBaseDamageTypeAndAttackWeapon,
+        ProcessCriticalHit,
+        ProcessTargetDamageAbsorption,
+        ProcessBaseArmorPenetration,
+        ProcessBonusArmorPenetration,
+        ProcessAttackPosition,
+        ProcessArmorSlotHit,
+        ProcessTargetSpecificAC,
+        ProcessTargetShieldAC,
+        ProcessArmorPenetrationCalculations,
+        ProcessDamageCalculations,
+        ProcessAttackerItemDurability,
+        ProcessTargetItemDurability,
       }
     );
     public static void HandleAttackEvent(OnCreatureAttack onAttack)
     {
-      Utils.LogMessageToConsole($"Attack Event - Attacker {onAttack.Attacker.Name} - Target {onAttack.Target.Name} - Result {onAttack.AttackResult}" +
-        $" - Base damage {onAttack.DamageData.Base} - attack number {onAttack.AttackNumber} - attack type {onAttack.WeaponAttackType}", Config.Env.Chim);
+      LogUtils.LogMessage($"Attack Event - Attacker {onAttack.Attacker.Name} - Target {onAttack.Target.Name} - Result {onAttack.AttackResult}" +
+        $" - Base damage {onAttack.DamageData.Base} - attack number {onAttack.AttackNumber} - attack type {onAttack.WeaponAttackType}", LogUtils.LogType.Combat);
       
       if (onAttack.Target is not NwCreature oTarget)
         return;
@@ -51,8 +52,21 @@ namespace NWN.Systems
       oPC.RunUnequip(oItem);
       oItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = -1;
       oPC.ControllingPlayer.SendServerMessage($"Il ne reste plus que des ruines de votre {oItem.Name.ColorString(ColorConstants.White)}. Des réparations s'imposent !", ColorConstants.Red);
+      LogUtils.LogMessage("Objet de qualité artisanale ruiné : à réparer !", LogUtils.LogType.Durability);
     }
+    private static void IsAttackOfOpportunity(Context ctx, Action next) // A réfléchir : faut-il supprimer totalement les attaques d'opportunité ?
+    {
+      if (ctx.onAttack.AttackType == 65002)
+      {
+        foreach (NwPlayer player in NwModule.Instance.Players)
+          if (player?.ControlledCreature?.Area == ctx.oTarget?.Area && player?.ControlledCreature.DistanceSquared(ctx.oTarget) < 1225)
+            player.DisplayFloatingTextStringOnCreature(ctx.oTarget, "Attaque d'opportunité !");
 
+        return;
+      }
+
+      next();
+    }
     private static void IsAttackDodged(Context ctx, Action next)
     {
       if (ctx.onAttack.AttackResult == AttackResult.Miss)
@@ -327,6 +341,8 @@ namespace NWN.Systems
         foreach (NwPlayer player in NwModule.Instance.Players)
           if (player?.ControlledCreature?.Area == ctx.oTarget?.Area && player?.ControlledCreature.DistanceSquared(ctx.oTarget) < 1225)
             player.DisplayFloatingTextStringOnCreature(ctx.oTarget, $"Absorbe {StringUtils.ToWhitecolor(totalAbsorbedDamage)}".ColorString(new Color(32, 255, 32)));
+
+        LogUtils.LogMessage($"{ctx.oTarget.Name} absorbe {totalAbsorbedDamage} dégâts de type {secondaryDamageType}", LogUtils.LogType.Combat);
       }
     }
     private static void ProcessBaseArmorPenetration(Context ctx, Action next)
@@ -704,11 +720,11 @@ namespace NWN.Systems
           skillDamage = modifiedDamage;
           
         Config.SetContextDamage(ctx, damageType, (int)Math.Round(skillDamage, MidpointRounding.ToEven));
-        Utils.LogMessageToConsole($"Final : {damageType} - AC {targetAC} - Initial {initialDamage} - Final Damage {skillDamage}", Config.Env.Chim);
+        LogUtils.LogMessage($"Final : {damageType} - AC {targetAC} - Initial {initialDamage} - Final Damage {skillDamage}", LogUtils.LogType.Combat);
       }
 
-      if (Config.env != Config.Env.Prod && ctx.oTarget.IsLoginPlayerCharacter)
-        ctx.oTarget.ApplyEffect(EffectDuration.Temporary, Effect.TemporaryHitpoints(500), TimeSpan.FromSeconds(10));
+      /*if (ctx.oTarget.IsLoginPlayerCharacter) // TODO : a supprimer quand les potions de core seront en place
+        ctx.oTarget.ApplyEffect(EffectDuration.Temporary, Effect.TemporaryHitpoints(500), TimeSpan.FromSeconds(10));*/
 
 
     /*if(ctx.onAttack != null)
@@ -730,18 +746,22 @@ namespace NWN.Systems
       if (ctx.attackWeapon is not null && PlayerSystem.Players.TryGetValue(ctx.oAttacker, out PlayerSystem.Player attacker))
       {
         // L'attaquant est un joueur. On diminue la durabilité de son arme
-        Utils.LogMessageToConsole($"{attacker.oid.PlayerName} - Entering item durability", Config.Env.Chim);
-
-        int durabilityChance = 30;
 
         int dexBonus = ctx.oAttacker.GetAbilityModifier(Ability.Dexterity) - (ctx.oAttacker.ArmorCheckPenalty + ctx.oAttacker.ShieldCheckPenalty);
         if (dexBonus < 0)
           dexBonus = 0;
 
         int safetyLevel = attacker.learnableSkills.ContainsKey(CustomSkill.CombattantPrecautionneux) ? attacker.learnableSkills[CustomSkill.CombattantPrecautionneux].totalPoints : 0;
-        durabilityChance -= dexBonus + safetyLevel;
+        int durabilityChance = 30 - (dexBonus - safetyLevel);
+        if (durabilityChance < 1)
+          durabilityChance = 1;
 
-        if (NwRandom.Roll(Utils.random, 100, 1) < 2 && NwRandom.Roll(Utils.random, 100, 1) < durabilityChance)
+        int durabilityRoll = Utils.random.Next(1000);
+
+        LogUtils.LogMessage($"Jet de durabilité - {attacker.oid.LoginCreature.Name} - {ctx.attackWeapon.Name}", LogUtils.LogType.Durability);
+        LogUtils.LogMessage($"30 (base) - {dexBonus} (DEX) - {safetyLevel} (Compétence) = {durabilityChance} VS {durabilityRoll}", LogUtils.LogType.Durability);
+
+        if (durabilityRoll < durabilityChance)
           DecreaseItemDurability(ctx.attackWeapon, attacker.oid, GetWeaponDurabilityLoss(ctx));
       }
 
@@ -764,14 +784,27 @@ namespace NWN.Systems
       if (durabilityRate < 1)
         durabilityRate = 1;
 
-      if (NwRandom.Roll(Utils.random, 100, 1) > 1 && NwRandom.Roll(Utils.random, 100, 1) > durabilityRate)
+      int durabilityRoll = Utils.random.Next(1000); ;
+
+      LogUtils.LogMessage($"Jet de durabilité - {player.oid.LoginCreature.Name}", LogUtils.LogType.Durability);
+      LogUtils.LogMessage($"30 (base) - {dexBonus} (DEX) - {safetyLevel} (Compétence) = {durabilityRate} VS {durabilityRoll}", LogUtils.LogType.Durability);
+
+      if (durabilityRoll < durabilityRate)
         return;
 
       if (ctx.targetArmor is not null)
+      {
+        LogUtils.LogMessage($"Armure : {ctx.targetArmor.Name}", LogUtils.LogType.Durability);
         DecreaseItemDurability(ctx.targetArmor, player.oid, GetArmorDurabilityLoss(ctx));
-      
-      if(ctx.oTarget.GetItemInSlot(InventorySlot.LeftHand) is not null)
-        DecreaseItemDurability(ctx.oTarget.GetItemInSlot(InventorySlot.LeftHand), player.oid, GetShieldDurabilityLoss(ctx));
+      }
+
+      NwItem leftSlot = ctx.oTarget.GetItemInSlot(InventorySlot.LeftHand);
+
+      if (leftSlot is not null)
+      {
+        LogUtils.LogMessage($"Bouclier / Parade : {leftSlot.Name}", LogUtils.LogType.Durability);
+        DecreaseItemDurability(leftSlot, player.oid, GetShieldDurabilityLoss(ctx));
+      }
 
       List<NwItem> slots = new List<NwItem>();
 
@@ -790,7 +823,10 @@ namespace NWN.Systems
       if (slots.Count > 0)
       {
         int random = NwRandom.Roll(Utils.random, slots.Count) - 1;
-        DecreaseItemDurability(slots.ElementAt(random), player.oid, GetItemDurabilityLoss(ctx));
+        NwItem randomItem = slots.ElementAt(random);
+
+        LogUtils.LogMessage($"Equipement aléatoire : {randomItem.Name}", LogUtils.LogType.Durability);
+        DecreaseItemDurability(randomItem, player.oid, GetItemDurabilityLoss(ctx));
       }
     }
     private static int GetArmorDurabilityLoss(Context ctx)
@@ -849,12 +885,15 @@ namespace NWN.Systems
     private static void DecreaseItemDurability(NwItem item, NwPlayer oPC, int durabilityLoss)
     {
       item.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value -= durabilityLoss;
+      LogUtils.LogMessage($"Durabilité perdue : {durabilityLoss} - Reste : {item.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value}", LogUtils.LogType.Durability);
+
       if (item.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value <= 0)
       {
         if (item.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").HasNothing)
         {
           item.Destroy();
           oPC.SendServerMessage($"Il ne reste plus que des ruines de votre {item.Name.ColorString(ColorConstants.White)}. Ces débris ne sont même pas réparables !", ColorConstants.Red);
+          LogUtils.LogMessage("Objet de qualité non artisanale détruit.", LogUtils.LogType.Durability);
         }
         else
           HandleItemRuined(oPC.ControlledCreature, item);

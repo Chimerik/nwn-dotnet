@@ -6,6 +6,8 @@ using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
 
+using NLog.Targets;
+
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
@@ -44,34 +46,30 @@ namespace NWN.Systems
       }
       public static void CoreInflux(Player player, NwItem potion)
       {
-        // TODO : Que se passe-t-il si le personnage a déjà un CORE actif quand il prend la potion ?
-        // TODO : Que se passe-t-il si le perso reco et qu'il avait un CORE actif mais que celui-ci s'est dissipé pendant la déco ?
-
-        Utils.LogMessageToConsole("removing previous core potion", Config.Env.Chim);
-
         foreach (Effect eff in player.oid.LoginCreature.ActiveEffects)
           if (eff.Tag == "_CORE_EFFECT")
             player.oid.LoginCreature.RemoveEffect(eff);
 
-        player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_CORE_MAX_HP").Value = potion.GetObjectVariable<LocalVariableInt>("_CORE_MAX_HP").Value;
-        player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_CORE_MAX_MANA").Value = potion.GetObjectVariable<LocalVariableInt>("_CORE_MAX_MANA").Value;
-        player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_CORE_REMAINING_HP").Value = potion.GetObjectVariable<LocalVariableInt>("_CORE_MAX_HP").Value;
-        player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_CORE_REMAINING_MANA").Value = potion.GetObjectVariable<LocalVariableInt>("_CORE_MAX_MANA").Value;
+        player.endurance = new Endurance(potion.GetObjectVariable<LocalVariableInt>("_CORE_MAX_HP").Value, potion.GetObjectVariable<LocalVariableInt>("_CORE_REMAINING_HP").Value,
+          potion.GetObjectVariable<LocalVariableInt>("_CORE_REMAINING_MANA").Value, DateTime.Now.AddSeconds(potion.GetObjectVariable<LocalVariableInt>("_CORE_DURATION").Value));
 
         int improvedHealth = player.learnableSkills.ContainsKey(CustomSkill.ImprovedHealth) ? player.learnableSkills[CustomSkill.ImprovedHealth].currentLevel : 0;
         int toughness = player.learnableSkills.ContainsKey(CustomSkill.Toughness) ? player.learnableSkills[CustomSkill.Toughness].currentLevel : 0;
 
-        player.oid.LoginCreature.LevelInfo[0].HitDie = (byte)(potion.GetObjectVariable<PersistentVariableInt>("_CORE_MAX_HP").Value
-          + improvedHealth * (toughness + (player.oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10)));
+        int conModifier = ((player.oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2);
+        player.oid.LoginCreature.LevelInfo[0].HitDie = (byte)(player.endurance.maxHP
+          + improvedHealth * (toughness + conModifier));
 
         Effect runAction = Effect.RunAction(null, removeCoreHandle);
+        runAction = Effect.LinkEffects(runAction, Effect.Icon(EffectIcon.TemporaryHitpoints));
         runAction.Tag = "_CORE_EFFECT";
         runAction.SubType = EffectSubType.Supernatural;
-        runAction = Effect.LinkEffects(runAction, Effect.Icon(EffectIcon.ImmunityMind));
 
         player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPolymorph));
         player.oid.LoginCreature.ApplyEffect(EffectDuration.Temporary, runAction, TimeSpan.FromSeconds(potion.GetObjectVariable<LocalVariableInt>("_CORE_DURATION").Value));
-        Utils.LogMessageToConsole("Applying core effect", Config.Env.Chim);
+        
+        LogUtils.LogMessage($"{player.oid.LoginCreature.Name} absorbe le Mélange : HP endurance {player.endurance.maxHP}, max HP {player.oid.LoginCreature.LevelInfo[0].HitDie + conModifier}, HP régénérable {player.endurance.regenerableHP}, mana régénérable {player.endurance.regenerableMana}, se dissipe le {player.endurance.expirationDate}", LogUtils.LogType.EnduranceSystem);
+        player.oid.ExportCharacter();
       }
       public static ScriptHandleResult RemoveCore(CallInfo _)
       {
@@ -80,17 +78,22 @@ namespace NWN.Systems
         if (!Players.TryGetValue(eventData.EffectTarget, out Player player))
           return ScriptHandleResult.Handled;
 
-        Utils.LogMessageToConsole("removing core effect", Config.Env.Chim);
-
+        player.endurance.maxHP = 10;
+        player.endurance.expirationDate = DateTime.Now;
         player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.DurCessatePositive));
-        player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_CORE_MAX_HP").Delete();
-        player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_CORE_MAX_MANA").Delete();
 
         int improvedHealth = player.learnableSkills.ContainsKey(CustomSkill.ImprovedHealth) ? player.learnableSkills[CustomSkill.ImprovedHealth].currentLevel : 0;
         int toughness = player.learnableSkills.ContainsKey(CustomSkill.Toughness) ? player.learnableSkills[CustomSkill.Toughness].currentLevel : 0;
 
-        player.oid.LoginCreature.LevelInfo[0].HitDie = (byte)(10
-          + improvedHealth * (toughness + ((player.oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2)));
+        int conModifier = ((player.oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2);
+
+        player.oid.LoginCreature.LevelInfo[0].HitDie = (byte)(player.endurance.maxHP
+          + improvedHealth * (toughness + conModifier));
+
+        if (player.oid.LoginCreature.HP > player.oid.LoginCreature.LevelInfo[0].HitDie + conModifier)
+          player.oid.LoginCreature.HP = player.oid.LoginCreature.LevelInfo[0].HitDie + conModifier;
+
+        LogUtils.LogMessage($"{player.oid.LoginCreature.Name} perd les effets du Mélange : HP endurance {player.endurance.maxHP}, max HP {player.oid.LoginCreature.LevelInfo[0].HitDie + conModifier}, HP régénérable {player.endurance.regenerableHP}, mana régénérable {player.endurance.regenerableMana}", LogUtils.LogType.EnduranceSystem);
 
         return ScriptHandleResult.Handled;
       }
