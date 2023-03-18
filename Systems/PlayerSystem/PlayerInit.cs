@@ -66,6 +66,8 @@ namespace NWN.Systems
 
       if (player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand) is not null)
         player.oid.LoginCreature.BaseAttackCount = ItemUtils.GetWeaponAttackPerRound(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand).BaseItem.ItemType);
+      else
+        player.oid.LoginCreature.BaseAttackCount = 3;
 
       if (oPC.IsDM)
         return;

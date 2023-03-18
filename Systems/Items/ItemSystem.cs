@@ -62,6 +62,8 @@ namespace NWN.Systems
       {
         if (oPC.GetItemInSlot(InventorySlot.RightHand) is not null)
           oPC.BaseAttackCount = ItemUtils.GetWeaponAttackPerRound(oPC.GetItemInSlot(InventorySlot.RightHand).BaseItem.ItemType);
+        else
+          oPC.BaseAttackCount = 3;
 
         return;
       }

@@ -122,12 +122,14 @@ namespace NWN.Systems
       return baseItemType switch
       {
         BaseItemType.Dagger or BaseItemType.Sickle or BaseItemType.Handaxe or BaseItemType.Rapier or BaseItemType.Kama or BaseItemType.Kukri 
-        or BaseItemType.DireMace or BaseItemType.Doubleaxe or BaseItemType.TwoBladedSword or BaseItemType.Shuriken => 3,
-        BaseItemType.Dart or BaseItemType.Shortbow or BaseItemType.Sling or BaseItemType.Club or BaseItemType.LightMace or BaseItemType.Morningstar
-        or BaseItemType.ShortSpear or BaseItemType.LightFlail or BaseItemType.Battleaxe or BaseItemType.Longsword or BaseItemType.Scimitar
-        or BaseItemType.Longbow or BaseItemType.Trident or BaseItemType.Whip or BaseItemType.Bastardsword or BaseItemType.DwarvenWaraxe 
-        or BaseItemType.Katana => 2,
-        _ => 1
+        or BaseItemType.DireMace or BaseItemType.Doubleaxe or BaseItemType.TwoBladedSword or BaseItemType.Shuriken or BaseItemType.Dart
+        or BaseItemType.Longsword or BaseItemType.Scimitar or BaseItemType.Shortsword or BaseItemType.Battleaxe or BaseItemType.Bastardsword
+        or BaseItemType.DwarvenWaraxe or BaseItemType.Katana => 5,
+        BaseItemType.Club or BaseItemType.LightMace or BaseItemType.Morningstar or BaseItemType.ShortSpear or BaseItemType.LightFlail
+        or BaseItemType.Trident or BaseItemType.Whip or BaseItemType.Scythe => 4,
+        BaseItemType.Longbow => 2,
+        BaseItemType.LightCrossbow or BaseItemType.HeavyCrossbow => 2,
+        _ => 3,
       };
     }
     // ----------------------------------------------------------------------------

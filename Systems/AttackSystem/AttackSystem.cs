@@ -49,7 +49,7 @@ namespace NWN.Systems
     }
     private static void HandleItemRuined(NwCreature oPC, NwItem oItem)
     {
-      oPC.RunUnequip(oItem);
+      //oPC.RunUnequip(oItem);
       oItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = -1;
       oPC.ControllingPlayer.SendServerMessage($"Il ne reste plus que des ruines de votre {oItem.Name.ColorString(ColorConstants.White)}. Des réparations s'imposent !", ColorConstants.Red);
       LogUtils.LogMessage("Objet de qualité artisanale ruiné : à réparer !", LogUtils.LogType.Durability);
@@ -355,6 +355,12 @@ namespace NWN.Systems
         next();
         return;
       }
+      else if(ctx.attackWeapon.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value < 0 && ctx.oAttacker.IsLoginPlayerCharacter)
+      {
+        ctx.oAttacker.LoginPlayer.SendServerMessage($"{StringUtils.ToWhitecolor(ctx.attackWeapon.Name)} est en ruines. Sans réparations, cette arme est inutile.", ColorConstants.Red);
+        next();
+        return;
+      }
 
       if (ctx.isRangedAttack)
         ctx.baseArmorPenetration += ctx.oAttacker.GetAttackBonus();
@@ -386,7 +392,7 @@ namespace NWN.Systems
     }
     private static void ProcessBonusArmorPenetration(Context ctx, Action next)
     {
-      if (ctx.attackWeapon != null)
+      if (ctx.attackWeapon != null && ctx.attackWeapon.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value != -1)
       {
         int bonusDamage = 0; 
 
@@ -502,6 +508,9 @@ namespace NWN.Systems
 
       ctx.targetArmor = ctx.oTarget.GetItemInSlot(hitSlot);
 
+      if (ctx.oAttacker != null && ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_SPELL_ATTACK_POSITION").HasValue)
+        ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_SPELL_ATTACK_POSITION").Delete();
+
       if (ctx.targetArmor == null && !ctx.oTarget.IsLoginPlayerCharacter) // Dans le cas où la créature n'a pas d'armure et n'est pas un joueur, alors on simplifie et on prend directement sa CA de base pour la CA générique et les propriétés de sa peau pour la CA spécifique
       {
         ctx.targetArmor = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin);
@@ -509,6 +518,14 @@ namespace NWN.Systems
       }
       else if (hitSlot != InventorySlot.Chest)
       {
+        if(ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value < 0) 
+        {
+          ctx.oTarget.LoginPlayer.SendServerMessage($"{StringUtils.ToWhitecolor(ctx.targetArmor.Name)} est en ruines. Sans réparations, cette pièce d'armure ne vous apporte aucune protection.", ColorConstants.Red);
+          ctx.targetAC[DamageType.BaseWeapon] = 0;
+          next();
+          return;
+        }
+
         NwItem baseArmor = ctx.oTarget.GetItemInSlot(InventorySlot.Chest);
 
         if (baseArmor != null)
@@ -545,18 +562,13 @@ namespace NWN.Systems
       }
 
       if (ctx.oTarget.Tag == "damage_trainer" && ctx.oAttacker.IsPlayerControlled)
-      {
         ctx.oAttacker.ControllingPlayer.SendServerMessage($"Hit slot : {hitSlot.ToString().ColorString(ColorConstants.White)}", ColorConstants.Brown);
-      }
-
-      if (ctx.oAttacker != null && ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_SPELL_ATTACK_POSITION").HasValue)
-        ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_SPELL_ATTACK_POSITION").Delete();
 
       next();
     }
     private static void ProcessTargetSpecificAC(Context ctx, Action next)
     {
-      if (ctx.targetArmor != null)
+      if (ctx.targetArmor != null && ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1)
       {
         int baseArmorACValue = ctx.oTarget.GetItemInSlot(InventorySlot.Chest) != null ? ctx.oTarget.GetItemInSlot(InventorySlot.Chest).BaseACValue : -1;
         int armorProficiency = PlayerSystem.Players.TryGetValue(ctx.oTarget, out PlayerSystem.Player player) ? player.GetArmorProficiencyLevel(baseArmorACValue) / 10 : -1;
@@ -609,10 +621,10 @@ namespace NWN.Systems
     {
       NwItem targetShield = ctx.oTarget.GetItemInSlot(InventorySlot.LeftHand);
 
-      if (targetShield != null) // Même si l'objet n'est pas à proprement parler un bouclier, tout item dans la main gauche procure un bonus de protection global
+      if (targetShield != null && targetShield.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1) // Même si l'objet n'est pas à proprement parler un bouclier, tout item dans la main gauche procure un bonus de protection global
       {
-        int shieldProficiency = PlayerSystem.Players.TryGetValue(ctx.oTarget, out PlayerSystem.Player player) ? player.GetShieldProficiencyLevel(targetShield.BaseItem.ItemType) / 10 : -1;      
-
+        int shieldProficiency = PlayerSystem.Players.TryGetValue(ctx.oTarget, out PlayerSystem.Player player) ? player.GetShieldProficiencyLevel(targetShield.BaseItem.ItemType) / 10 : -1;
+        
         foreach (var propType in targetShield.ItemProperties.Where(i => i.Property.PropertyType == ItemPropertyType.AcBonus
          || (ctx.oAttacker != null && i.Property.PropertyType == ItemPropertyType.AttackBonusVsRacialGroup && i.SubType.RowIndex == (int)ctx.oAttacker.Race.RacialType)
          || (ctx.oAttacker != null && i.Property.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup && i.SubType.RowIndex == (int)ctx.oAttacker.GoodEvilAlignment)
@@ -690,6 +702,7 @@ namespace NWN.Systems
           // Elemental bonus damage
           _ => ctx.targetAC[DamageType.BaseWeapon] + ctx.targetAC.GetValueOrDefault((DamageType)16384) + ctx.targetAC.GetValueOrDefault(damageType),
         };
+
         if (targetAC < 0) targetAC = 0;
 
         double initialDamage = Config.GetContextDamage(ctx, damageType);
@@ -743,7 +756,7 @@ namespace NWN.Systems
     }
     private static void ProcessAttackerItemDurability(Context ctx, Action next)
     {
-      if (ctx.attackWeapon is not null && PlayerSystem.Players.TryGetValue(ctx.oAttacker, out PlayerSystem.Player attacker))
+      if (ctx.attackWeapon is not null && ctx.attackWeapon.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1 && PlayerSystem.Players.TryGetValue(ctx.oAttacker, out PlayerSystem.Player attacker))
       {
         // L'attaquant est un joueur. On diminue la durabilité de son arme
 
@@ -792,7 +805,7 @@ namespace NWN.Systems
       if (durabilityRoll < durabilityRate)
         return;
 
-      if (ctx.targetArmor is not null)
+      if (ctx.targetArmor is not null && ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1)
       {
         LogUtils.LogMessage($"Armure : {ctx.targetArmor.Name}", LogUtils.LogType.Durability);
         DecreaseItemDurability(ctx.targetArmor, player.oid, GetArmorDurabilityLoss(ctx));
@@ -800,7 +813,7 @@ namespace NWN.Systems
 
       NwItem leftSlot = ctx.oTarget.GetItemInSlot(InventorySlot.LeftHand);
 
-      if (leftSlot is not null)
+      if (leftSlot is not null && leftSlot.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1)
       {
         LogUtils.LogMessage($"Bouclier / Parade : {leftSlot.Name}", LogUtils.LogType.Durability);
         DecreaseItemDurability(leftSlot, player.oid, GetShieldDurabilityLoss(ctx));
@@ -825,8 +838,11 @@ namespace NWN.Systems
         int random = NwRandom.Roll(Utils.random, slots.Count) - 1;
         NwItem randomItem = slots.ElementAt(random);
 
-        LogUtils.LogMessage($"Equipement aléatoire : {randomItem.Name}", LogUtils.LogType.Durability);
-        DecreaseItemDurability(randomItem, player.oid, GetItemDurabilityLoss(ctx));
+        if (randomItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1)
+        {
+          LogUtils.LogMessage($"Equipement aléatoire : {randomItem.Name}", LogUtils.LogType.Durability);
+          DecreaseItemDurability(randomItem, player.oid, GetItemDurabilityLoss(ctx));
+        }
       }
     }
     private static int GetArmorDurabilityLoss(Context ctx)

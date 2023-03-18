@@ -134,7 +134,7 @@ namespace NWN.Systems
     public void StartTribunalShopDialog(CreatureEvents.OnConversation onConversation)
     {
       if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
-        HandleGenericShop(player, onConversation.CurrentSpeaker, "magic_shop", new BaseItemType[] { }, SkillSystem.shopBasicMagicSkillBooks, ItemUtils.shopBasicMagicScrolls);
+        HandleGenericShop(player, onConversation.CurrentSpeaker, "magic_shop", System.Array.Empty<BaseItemType>(), SkillSystem.shopBasicMagicSkillBooks, ItemUtils.shopBasicMagicScrolls);
     }
     public void StartPvEArenaHostDialog(CreatureEvents.OnConversation onConversation)
     {
@@ -177,6 +177,7 @@ namespace NWN.Systems
             break;
 
           case "magic_shop":
+
             foreach (int itemPropertyId in basicArmorAndScrolls)
             {
               NwItem oScroll = await NwItem.Create("spellscroll", shop, 1, "scroll");
@@ -186,6 +187,25 @@ namespace NWN.Systems
               oScroll.AddItemProperty(ItemProperty.CastSpell((IPCastSpell)itemPropertyId, IPCastSpellNumUses.SingleUse), EffectDuration.Permanent);
               oScroll.GetObjectVariable<LocalVariableInt>("_ONE_USE_ONLY").Value = 1;
             }
+
+            NwItem potion = await NwItem.Create("nw_it_mpotion021", shopkeeper, 10);
+            potion.Name = "Mélange mineur";
+            potion.Description = "Une dose d'influx pur a été savamment conditionnée pour en retirer ses effets les plus néfastes et mettre en exergue ses incroyables bienfaits.\n\n" +
+              "Quiconque absorbe le Mélange se voit doter d'une résilience permettant de résister aux plus rudes combats.\n" +
+              "L'accès à la magie devient naturellement possible à tous, alors que celle-ci est d'ordinaire réservée aux créatures les plus fantastiques.\n" +
+              "On dit aussi que ce fameux Mélange rend beau et prolonge la vie. Mais ces assertions restent discutables" +
+              "En tout cas, qu'attendez-vous ? Mais attention, tout cela n'est que temporaire !\n\n" +
+              "Note à la clientèle : le manque éventuellement ressentis suite à l'absence de ré-ingestion de Mélange pendant une période prolongée ne peut en aucun cas être retenu contre le vendeur.";
+
+            potion.GetObjectVariable<LocalVariableInt>("_CORE_MAX_HP").Value = 80;
+            potion.GetObjectVariable<LocalVariableInt>("_CORE_MAX_MANA").Value = 20;
+            potion.GetObjectVariable<LocalVariableInt>("_CORE_REMAINING_HP").Value = 240;
+            potion.GetObjectVariable<LocalVariableInt>("_CORE_REMAINING_MANA").Value = 120;
+            potion.GetObjectVariable<LocalVariableInt>("_CORE_DURATION").Value = 28800;
+
+            potion.BaseGoldValue = 15000;
+            potion.Tag = "potion_core_influx";
+
             break;
         }
 

@@ -19,6 +19,7 @@ namespace NWN.Systems
     private readonly CExoString maxCreatureDamageVariable = "_MAX_CREATURE_DAMAGE".ToExoString();
     private readonly CExoString critChanceVariable = "_ADD_CRIT_CHANCE".ToExoString();
     private readonly CExoString itemGradeVariable = "_ITEM_GRADE".ToExoString();
+    private readonly CExoString durabilityVariable = "_DURABILITY".ToExoString();
     //private readonly CExoString spellIdVariable = "_CURRENT_SPELL".ToExoString();
     
     private delegate int GetDamageRollHook(void* thisPtr, void* pTarget, int bOffHand, int bCritical, int bSneakAttack, int bDeathAttack, int bForceMax);
@@ -164,72 +165,72 @@ namespace NWN.Systems
       int damage = 0;
 
       // Get attacker weapon
-      if (attacker is not null)
+      var weapon = GetAttackWeapon(attacker, bOffHand);
+
+      if (weapon is not null)
       {
-        var weapon = GetAttackWeapon(attacker, bOffHand);
+        if(weapon.m_ScriptVars.GetInt(durabilityVariable) < 0)
+          return -1;
 
-        if (weapon is not null)
+        minDamage = weapon.m_ScriptVars.GetInt(minWeaponDamageVariable);
+        maxDamage = weapon.m_ScriptVars.GetInt(maxWeaponDamageVariable);
+
+        if (minDamage < 1) // S'il ne s'agit pas d'un joueur, avec les dégâts de base sont déterminés par des variables sur la créature
         {
-          minDamage = weapon.m_ScriptVars.GetInt(minWeaponDamageVariable);
-          maxDamage = weapon.m_ScriptVars.GetInt(maxWeaponDamageVariable);
+          minDamage = attacker.m_ScriptVars.GetInt(minCreatureDamageVariable);
+          maxDamage = attacker.m_ScriptVars.GetInt(maxCreatureDamageVariable);
 
-          if (minDamage < 1) // S'il ne s'agit pas d'un joueur, avec les dégâts de base sont déterminés par des variables sur la créature
+          if(minDamage < 1 && ItemUtils.itemDamageDictionary.ContainsKey((BaseItemType)weapon.m_nBaseItem)) // S'il la créature ne dispose pas de variable pour ses dégâts, alors on va chercher les dégâts correspondant à son arme
           {
-            minDamage = attacker.m_ScriptVars.GetInt(minCreatureDamageVariable);
-            maxDamage = attacker.m_ScriptVars.GetInt(maxCreatureDamageVariable);
-
-            if(minDamage < 1 && ItemUtils.itemDamageDictionary.ContainsKey((BaseItemType)weapon.m_nBaseItem)) // S'il la créature ne dispose pas de variable pour ses dégâts, alors on va chercher les dégâts correspondant à son arme
-            {
-              int weaponGrade = weapon.m_ScriptVars.GetInt(itemGradeVariable);
-              minDamage = ItemUtils.itemDamageDictionary[(BaseItemType)weapon.m_nBaseItem][weaponGrade, 0];
-              maxDamage = ItemUtils.itemDamageDictionary[(BaseItemType)weapon.m_nBaseItem][weaponGrade, 1];
-              weapon.m_ScriptVars.SetInt(minWeaponDamageVariable, minDamage);
-              weapon.m_ScriptVars.SetInt(maxWeaponDamageVariable, maxDamage);
-            }
+            int weaponGrade = weapon.m_ScriptVars.GetInt(itemGradeVariable);
+            minDamage = ItemUtils.itemDamageDictionary[(BaseItemType)weapon.m_nBaseItem][weaponGrade, 0];
+            maxDamage = ItemUtils.itemDamageDictionary[(BaseItemType)weapon.m_nBaseItem][weaponGrade, 1];
+            weapon.m_ScriptVars.SetInt(minWeaponDamageVariable, minDamage);
+            weapon.m_ScriptVars.SetInt(maxWeaponDamageVariable, maxDamage);
           }
         }
+      }
 
-        if (minDamage < 1)
-          minDamage = 1;
+      if (minDamage < 1)
+        minDamage = 1;
 
-        if (maxDamage < 1)
-          maxDamage = 3;
+      if (maxDamage < 1)
+        maxDamage = 3;
 
-        damage += bCritical > 0 ? maxDamage : Utils.random.Next(minDamage, maxDamage + 1);
+      damage += bCritical > 0 ? maxDamage : Utils.random.Next(minDamage, maxDamage + 1);
 
-        if (damage < 1)
-          damage = 1;
+      if (damage < 1)
+        damage = 1;
 
-        LogUtils.LogMessage($"Dégâts de base de l'arme : {damage} (min {minDamage}, max {maxDamage})", LogUtils.LogType.Combat);
+      LogUtils.LogMessage($"Dégâts de base de l'arme : {damage} (min {minDamage}, max {maxDamage})", LogUtils.LogType.Combat);
 
-        // Calculate total defense on the target.
-        /*if (targetObject != null && targetObject.m_nObjectType == (int)ObjectType.Creature)
+      // Calculate total defense on the target.
+      /*if (targetObject != null && targetObject.m_nObjectType == (int)ObjectType.Creature)
+      {
+        var target = CNWSCreature.FromPointer(pTarget);
+
+        foreach (var slotItemId in target.m_pInventory.m_pEquipSlot)
         {
-          var target = CNWSCreature.FromPointer(pTarget);
-
-          foreach (var slotItemId in target.m_pInventory.m_pEquipSlot)
+          if (slotItemId != NWNXLib.OBJECT_INVALID)
           {
-            if (slotItemId != NWNXLib.OBJECT_INVALID)
+            var item = NWNXLib.AppManager().m_pServerExoApp.GetItemByGameObjectID(slotItemId);
+            for (var index = 0; index < item.m_lstPassiveProperties.array_size; index++)
             {
-              var item = NWNXLib.AppManager().m_pServerExoApp.GetItemByGameObjectID(slotItemId);
-              for (var index = 0; index < item.m_lstPassiveProperties.array_size; index++)
+              var ip = item.GetPassiveProperty(index);
+              if (ip != null && ip.m_nPropertyName == (ushort)ItemPropertyType.Defense)
               {
-                var ip = item.GetPassiveProperty(index);
-                if (ip != null && ip.m_nPropertyName == (ushort)ItemPropertyType.Defense)
-                {
-                  defense += ip.m_nCostTableValue;
-                }
+                defense += ip.m_nCostTableValue;
               }
             }
           }
-        }*/
+        }
+      }*/
 
-        // On n'applique pas les calculs de réduction du jeu de base, car ces propriétés n'existent pas. Chez nous, les réductions sont calculées par rapport à l'armure
-        // TODO : il faudra donc modifier tous les sorts qui donnnent de la résistance ou de la réduction pour qu'ils donnent de l'armure spécifique
-        //damage = target.DoDamageImmunity(creature, damage, damageFlags, 0, 1);
-        //damage = target.DoDamageResistance(creature, damage, damageFlags, 0, 1, 1);
-        //damage = target.DoDamageReduction(creature, damage, damagePower, 0, 1);
-      }
+      // On n'applique pas les calculs de réduction du jeu de base, car ces propriétés n'existent pas. Chez nous, les réductions sont calculées par rapport à l'armure
+      // TODO : il faudra donc modifier tous les sorts qui donnnent de la résistance ou de la réduction pour qu'ils donnent de l'armure spécifique
+      //damage = target.DoDamageImmunity(creature, damage, damageFlags, 0, 1);
+      //damage = target.DoDamageResistance(creature, damage, damageFlags, 0, 1, 1);
+      //damage = target.DoDamageReduction(creature, damage, damagePower, 0, 1);
 
       return damage;
     }

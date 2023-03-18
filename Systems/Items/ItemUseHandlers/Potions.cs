@@ -50,7 +50,8 @@ namespace NWN.Systems
           if (eff.Tag == "_CORE_EFFECT")
             player.oid.LoginCreature.RemoveEffect(eff);
 
-        player.endurance = new Endurance(potion.GetObjectVariable<LocalVariableInt>("_CORE_MAX_HP").Value, potion.GetObjectVariable<LocalVariableInt>("_CORE_REMAINING_HP").Value,
+        player.endurance = new Endurance(potion.GetObjectVariable<LocalVariableInt>("_CORE_MAX_HP").Value, potion.GetObjectVariable<LocalVariableInt>("_CORE_MAX_MANA").Value,
+          potion.GetObjectVariable<LocalVariableInt>("_CORE_REMAINING_HP").Value,
           potion.GetObjectVariable<LocalVariableInt>("_CORE_REMAINING_MANA").Value, DateTime.Now.AddSeconds(potion.GetObjectVariable<LocalVariableInt>("_CORE_DURATION").Value));
 
         int improvedHealth = player.learnableSkills.ContainsKey(CustomSkill.ImprovedHealth) ? player.learnableSkills[CustomSkill.ImprovedHealth].currentLevel : 0;
@@ -79,6 +80,7 @@ namespace NWN.Systems
           return ScriptHandleResult.Handled;
 
         player.endurance.maxHP = 10;
+        player.endurance.maxMana = 0;
         player.endurance.expirationDate = DateTime.Now;
         player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.DurCessatePositive));
 
