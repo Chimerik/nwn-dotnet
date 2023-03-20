@@ -671,6 +671,68 @@ namespace NWN.Systems
 
         return masteryLevel * 0.01;
       }
+      public double GetWeaponDoubleStrikeChance(BaseItemType baseItem)
+      {
+        double masteryLevel = 0;
+
+        switch (baseItem)
+        {
+          case BaseItemType.Shortsword:
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.ShortSwordProficiency) ? learnableSkills[CustomSkill.ShortSwordProficiency].totalPoints : 0;
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.ImprovedShortSwordProficiency) ? learnableSkills[CustomSkill.ImprovedShortSwordProficiency].totalPoints : 0;
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.ShortSwordScience) ? learnableSkills[CustomSkill.ShortSwordScience].totalPoints : 0;
+            break;
+          case BaseItemType.Dagger:
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.DaggerProficiency) ? learnableSkills[CustomSkill.DaggerProficiency].totalPoints : 0;
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.ImprovedDaggerProficiency) ? learnableSkills[CustomSkill.ImprovedDaggerProficiency].totalPoints : 0;
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.DaggerScience) ? learnableSkills[CustomSkill.DaggerScience].totalPoints : 0;
+            break;
+          case BaseItemType.Handaxe:
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.HandAxeProficiency) ? learnableSkills[CustomSkill.HandAxeProficiency].totalPoints : 0;
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.ImprovedHandAxeProficiency) ? learnableSkills[CustomSkill.ImprovedHandAxeProficiency].totalPoints : 0;
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.HandAxeScience) ? learnableSkills[CustomSkill.HandAxeScience].totalPoints : 0;
+            break;
+          case BaseItemType.Kama:
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.KamaProficiency) ? learnableSkills[CustomSkill.KamaProficiency].totalPoints : 0;
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.ImprovedKamaProficiency) ? learnableSkills[CustomSkill.ImprovedKamaProficiency].totalPoints : 0;
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.KamaScience) ? learnableSkills[CustomSkill.KamaScience].totalPoints : 0;
+            break;
+          case BaseItemType.Kukri:
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.KukriProficiency) ? learnableSkills[CustomSkill.KukriProficiency].totalPoints : 0;
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.ImprovedKukriProficiency) ? learnableSkills[CustomSkill.ImprovedKukriProficiency].totalPoints : 0;
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.KukriScience) ? learnableSkills[CustomSkill.KukriScience].totalPoints : 0;
+            break;
+          case BaseItemType.Quarterstaff:
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.QuarterStaffProficiency) ? learnableSkills[CustomSkill.QuarterStaffProficiency].totalPoints : 0;
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.ImprovedQuarterStaffProficiency) ? learnableSkills[CustomSkill.ImprovedQuarterStaffProficiency].totalPoints : 0;
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.QuarterStaffScience) ? learnableSkills[CustomSkill.QuarterStaffScience].totalPoints : 0;
+            break;
+          case BaseItemType.Rapier:
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.RapierProficiency) ? learnableSkills[CustomSkill.RapierProficiency].totalPoints : 0;
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.ImprovedRapierProficiency) ? learnableSkills[CustomSkill.ImprovedRapierProficiency].totalPoints : 0;
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.RapierScience) ? learnableSkills[CustomSkill.RapierScience].totalPoints : 0;
+            break;
+          case BaseItemType.Shuriken:
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.ShurikenProficiency) ? learnableSkills[CustomSkill.ShurikenProficiency].totalPoints : 0;
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.ImprovedShurikenProficiency) ? learnableSkills[CustomSkill.ImprovedShurikenProficiency].totalPoints : 0;
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.ShurikenScience) ? learnableSkills[CustomSkill.ShurikenScience].totalPoints : 0;
+            break;
+          case BaseItemType.Sickle:
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.SickleProficiency) ? learnableSkills[CustomSkill.SickleProficiency].totalPoints : 0;
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.ImprovedSickleProficiency) ? learnableSkills[CustomSkill.ImprovedSickleProficiency].totalPoints : 0;
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.SickleScience) ? learnableSkills[CustomSkill.SickleScience].totalPoints : 0;
+            break;
+          case BaseItemType.Gloves:
+          case BaseItemType.Bracer:
+          default:
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.UnharmedProficiency) ? learnableSkills[CustomSkill.UnharmedProficiency].totalPoints : 0;
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.ImprovedUnharmedProficiency) ? learnableSkills[CustomSkill.ImprovedUnharmedProficiency].totalPoints : 0;
+            masteryLevel += learnableSkills.ContainsKey(CustomSkill.UnharmedScience) ? learnableSkills[CustomSkill.UnharmedScience].totalPoints : 0;
+            break;
+        }
+
+        return Math.Round(masteryLevel * 0.02, MidpointRounding.ToEven);
+      }
       public int GetWeaponCritScienceLevel(BaseItemType baseItem)
       {
         int masteryLevel = 0;

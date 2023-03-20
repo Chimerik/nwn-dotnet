@@ -135,5 +135,11 @@ namespace NWN
     {
       return toColorWhite.ColorString(ColorConstants.White);
     }
+    public static void DisplayStringToAllPlayersNearTarget(NwCreature target, string message)
+    {
+      foreach (NwPlayer player in NwModule.Instance.Players)
+        if (player?.ControlledCreature?.Area == target?.Area && player?.ControlledCreature.DistanceSquared(target) < 1225)
+          player.DisplayFloatingTextStringOnCreature(target, message);
+    }
   }
 }

@@ -6,8 +6,6 @@ using System;
 using System.Collections.Generic;
 using Action = System.Action;
 using Context = NWN.Systems.Config.Context;
-using NWN.Core;
-using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -30,6 +28,7 @@ namespace NWN.Systems
         ProcessTargetShieldAC,
         ProcessArmorPenetrationCalculations,
         ProcessDamageCalculations,
+        ProcessDoubleStrike,
         ProcessAttackerItemDurability,
         ProcessTargetItemDurability,
       }
@@ -57,26 +56,14 @@ namespace NWN.Systems
     private static void IsAttackOfOpportunity(Context ctx, Action next) // A réfléchir : faut-il supprimer totalement les attaques d'opportunité ?
     {
       if (ctx.onAttack.AttackType == 65002)
-      {
-        foreach (NwPlayer player in NwModule.Instance.Players)
-          if (player?.ControlledCreature?.Area == ctx.oTarget?.Area && player?.ControlledCreature.DistanceSquared(ctx.oTarget) < 1225)
-            player.DisplayFloatingTextStringOnCreature(ctx.oTarget, "Attaque d'opportunité !");
-
-        return;
-      }
+        StringUtils.DisplayStringToAllPlayersNearTarget(ctx.oTarget, "Attaque d'opportunité !");
 
       next();
     }
     private static void IsAttackDodged(Context ctx, Action next)
     {
       if (ctx.onAttack.AttackResult == AttackResult.Miss)
-      {
-        foreach (NwPlayer player in NwModule.Instance.Players)
-          if (player?.ControlledCreature?.Area == ctx.oTarget?.Area && player?.ControlledCreature.DistanceSquared(ctx.oTarget) < 1225)
-            player.DisplayFloatingTextStringOnCreature(ctx.oTarget, "Attaque esquivée !");
-
-        return;
-      }
+        StringUtils.DisplayStringToAllPlayersNearTarget(ctx.oTarget, "Attaque esquivée !");
         
       next();
     }
@@ -127,10 +114,7 @@ namespace NWN.Systems
       {
         ctx.baseArmorPenetration += 20;
         ctx.oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComBloodCrtRed));
-
-        foreach (NwPlayer player in NwModule.Instance.Players)
-          if (player?.ControlledCreature?.Area == ctx.oTarget?.Area && player?.ControlledCreature.DistanceSquared(ctx.oTarget) < 1225)
-            player.DisplayFloatingTextStringOnCreature(ctx.oTarget, "Coup critique !".ColorString(ColorConstants.Red));
+        StringUtils.DisplayStringToAllPlayersNearTarget(ctx.oTarget, "Coup critique !");
       }
 
       next();
@@ -221,8 +205,7 @@ namespace NWN.Systems
                 ctx.oTarget.ApplyEffect(EffectDuration.Instant, Effect.Heal(absorbedDamage));
                 ctx.oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadHeal));
 
-                foreach (NwCreature oPC in ctx.oTarget.Area.FindObjectsOfTypeInArea<NwCreature>().Where(p => p.IsPlayerControlled && p.DistanceSquared(ctx.oTarget) < 35))
-                  oPC.ControllingPlayer.DisplayFloatingTextStringOnCreature(ctx.oTarget, totalAbsorbedDamage.ToString().ColorString(new Color(32, 255, 32)));
+                StringUtils.DisplayStringToAllPlayersNearTarget(ctx.oTarget, totalAbsorbedDamage.ToString().ColorString(new Color(32, 255, 32)));
               }
               break;
 
@@ -338,10 +321,7 @@ namespace NWN.Systems
         ctx.oTarget.ApplyEffect(EffectDuration.Instant, Effect.Heal(absorbedDamage));
         ctx.oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadHeal));
 
-        foreach (NwPlayer player in NwModule.Instance.Players)
-          if (player?.ControlledCreature?.Area == ctx.oTarget?.Area && player?.ControlledCreature.DistanceSquared(ctx.oTarget) < 1225)
-            player.DisplayFloatingTextStringOnCreature(ctx.oTarget, $"Absorbe {StringUtils.ToWhitecolor(totalAbsorbedDamage)}".ColorString(new Color(32, 255, 32)));
-
+        StringUtils.DisplayStringToAllPlayersNearTarget(ctx.oTarget, $"Absorbe {StringUtils.ToWhitecolor(totalAbsorbedDamage)}".ColorString(new Color(32, 255, 32)));
         LogUtils.LogMessage($"{ctx.oTarget.Name} absorbe {totalAbsorbedDamage} dégâts de type {secondaryDamageType}", LogUtils.LogType.Combat);
       }
     }
@@ -753,6 +733,62 @@ namespace NWN.Systems
     }*/
 
     next();
+    }
+    private static void ProcessDoubleStrike(Context ctx, Action next)
+    {
+      NwItem leftSlot = ctx.oAttacker.GetItemInSlot(InventorySlot.LeftHand);
+
+      if (((leftSlot is not null && ItemUtils.GetItemCategory(leftSlot.BaseItem.ItemType) != ItemUtils.ItemCategory.Shield ) || ctx.isUnarmedAttack) 
+        && ctx.attackWeapon is not null
+        && PlayerSystem.Players.TryGetValue(ctx.oAttacker, out PlayerSystem.Player attackerPlayer)) 
+      {
+        double doubleStrikeChance = attackerPlayer.GetWeaponDoubleStrikeChance(ctx.attackWeapon.BaseItem.ItemType);
+        int randomChance = Utils.random.Next(100);
+
+        LogUtils.LogMessage($"Double Strike Chance : {doubleStrikeChance} vs {randomChance}", LogUtils.LogType.Combat);
+
+        if (randomChance < doubleStrikeChance)
+        {
+          StringUtils.DisplayStringToAllPlayersNearTarget(ctx.oTarget, "Frappe double !");
+          LogUtils.LogMessage("Frappe double confirmée !", LogUtils.LogType.Combat);
+
+          int damage = 0;
+          int minDamage = ctx.attackWeapon.GetObjectVariable<LocalVariableInt>("_MIN_WEAPON_DAMAGE").Value;
+          int maxDamage = ctx.attackWeapon.GetObjectVariable<LocalVariableInt>("_MAX_WEAPON_DAMAGE").Value;
+
+          if (minDamage < 1)
+            minDamage = 1;
+
+          if (maxDamage < 1)
+            maxDamage = 3;
+
+          damage += ctx.onAttack.AttackResult == AttackResult.CriticalHit ? maxDamage : Utils.random.Next(minDamage, maxDamage + 1);
+
+          foreach (DamageType damageType in (DamageType[])Enum.GetValues(typeof(DamageType)))
+          {
+            if (damageType == DamageType.BaseWeapon)
+            {
+              double targetAC = ctx.isUnarmedAttack ? HandleReducedDamageFromWeaponDamageType(ctx, new List<DamageType>() { DamageType.Bludgeoning }) : HandleReducedDamageFromWeaponDamageType(ctx, ctx.attackWeapon.BaseItem.WeaponType);
+              double modifiedDamage = damage * Utils.GetDamageMultiplier(targetAC);
+              double skillDamage = attackerPlayer.GetWeaponMasteryLevel(ctx.attackWeapon.BaseItem.ItemType);
+              double skillModifier = attackerPlayer.GetWeaponMasteryLevel(ctx.attackWeapon.BaseItem.ItemType) * modifiedDamage;
+              damage = (int)Math.Round(skillDamage, MidpointRounding.ToEven);
+
+              if (damage < 1)
+                damage = 1;
+            }
+            else
+              damage = Config.GetContextDamage(ctx, damageType);
+
+            ctx.oTarget.ApplyEffect(EffectDuration.Instant, Effect.Damage(damage, damageType));
+          }
+
+          ProcessAttackerItemDurability(ctx, next);
+          ProcessTargetItemDurability(ctx, next);
+        }
+      }
+
+      next();
     }
     private static void ProcessAttackerItemDurability(Context ctx, Action next)
     {
