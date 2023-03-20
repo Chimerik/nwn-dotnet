@@ -498,7 +498,7 @@ namespace NWN.Systems
       }
       else if (hitSlot != InventorySlot.Chest)
       {
-        if(ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value < 0) 
+        if(ctx.targetArmor != null && ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value < 0) 
         {
           ctx.oTarget.LoginPlayer.SendServerMessage($"{StringUtils.ToWhitecolor(ctx.targetArmor.Name)} est en ruines. Sans réparations, cette pièce d'armure ne vous apporte aucune protection.", ColorConstants.Red);
           ctx.targetAC[DamageType.BaseWeapon] = 0;

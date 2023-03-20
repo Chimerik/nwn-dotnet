@@ -44,11 +44,13 @@ namespace NWN.Systems
             customUnpackedEffect.ApplyCustomUnPackedEffectToTarget(target, potion);
         }
       }
-      public static void CoreInflux(Player player, NwItem potion)
+      public static async void CoreInflux(Player player, NwItem potion)
       {
         foreach (Effect eff in player.oid.LoginCreature.ActiveEffects)
           if (eff.Tag == "_CORE_EFFECT")
             player.oid.LoginCreature.RemoveEffect(eff);
+
+        await NwTask.Delay(TimeSpan.FromSeconds(0.2));
 
         player.endurance = new Endurance(potion.GetObjectVariable<LocalVariableInt>("_CORE_MAX_HP").Value, potion.GetObjectVariable<LocalVariableInt>("_CORE_MAX_MANA").Value,
           potion.GetObjectVariable<LocalVariableInt>("_CORE_REMAINING_HP").Value,

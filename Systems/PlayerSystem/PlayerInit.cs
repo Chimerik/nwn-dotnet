@@ -10,7 +10,6 @@ using Anvil.Services;
 using Microsoft.Data.Sqlite;
 
 using Newtonsoft.Json;
-
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace NWN.Systems
@@ -569,6 +568,9 @@ namespace NWN.Systems
 
         oid.LoginCreature.ApplyEffect(EffectDuration.Temporary, runAction, TimeSpan.FromSeconds(duration.TotalSeconds > 0 ? duration.TotalSeconds : 0));
         LogUtils.LogMessage($"{oid.LoginCreature.Name} application des effets du Mélange à la connexion : HP endurance {endurance.maxHP}, max HP {oid.LoginCreature.LevelInfo[0].HitDie + conModifier}, HP régénérable {endurance.regenerableHP}, mana régénérable {endurance.regenerableMana}, se dissipe le {endurance.expirationDate}", LogUtils.LogType.EnduranceSystem);
+
+        if (!windows.ContainsKey("healthBar"))windows.Add("healthBar", new PlayerSystem.Player.HealthBarWindow(this));
+        else ((PlayerSystem.Player.HealthBarWindow)windows["healthBar"]).CreateWindow();
       }
       private void HandleLearnableInit()
       {
@@ -756,20 +758,8 @@ namespace NWN.Systems
         mapPinDictionnary.Remove(onDestroy.Id);
         SaveMapPinsToDatabase();
       }
-      private async void CreateCOREPOT()
-      {
-        NwItem potion = await NwItem.Create("nw_it_mpotion021", oid.LoginCreature, 50);
-        potion.Name = "COREPOT";
-
-        potion.GetObjectVariable<LocalVariableInt>("_CORE_MAX_HP").Value = 80;
-        potion.GetObjectVariable<LocalVariableInt>("_CORE_REMAINING_HP").Value = 240;
-        potion.GetObjectVariable<LocalVariableInt>("_CORE_REMAINING_MANA").Value = 120;
-        potion.GetObjectVariable<LocalVariableInt>("_CORE_DURATION").Value = 28800;
-        potion.Tag = "potion_core_influx";
-      }
       public void HandleReinit()
       {
-        CreateCOREPOT();
         LearnableSkill oldSkill;
 
         if(learnableSkills.ContainsKey(CustomSkill.ImprovedClubProficiency))

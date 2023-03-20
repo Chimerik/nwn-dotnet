@@ -1,7 +1,6 @@
 ﻿using System;
 
 using Anvil.API;
-using Anvil.API.Events;
 
 namespace NWN.Systems
 {
@@ -41,8 +40,12 @@ namespace NWN.Systems
           switch (windowId)
           {
             case "bodyAppearanceModifier":
-              CloseWindow();
+              //CloseWindow();
               ((BodyAppearanceWindow)this).CreateWindow(((BodyAppearanceWindow)this).targetCreature);
+              break;
+            case "healthBar":
+              //CloseWindow();
+              ((HealthBarWindow)this).CreateWindow();
               break;
           }
         }

@@ -1013,20 +1013,23 @@ namespace NWN.Systems
         if(player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_PASSIVE_REGEN").HasValue)
         {
           player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_PASSIVE_REGEN").Delete();
-          player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_PASSIVE_LAST_TICK").Delete();
+          player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_PASSIVE_NEXT_TICK").Delete();
         }
         
         return;
       }
 
-      if(player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_PASSIVE_LAST_TICK").HasNothing)
+      if (player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_PASSIVE_NEXT_TICK").HasNothing)
       {
-        player.oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_PASSIVE_LAST_TICK").Value = DateTime.Now;
+        player.oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_PASSIVE_NEXT_TICK").Value = DateTime.Now.AddSeconds(3);
         player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_PASSIVE_REGEN").Value = 2;
       }
-      else if(player.oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_PASSIVE_LAST_TICK").Value > DateTime.Now.AddSeconds(3)
+      else if (DateTime.Now > player.oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_PASSIVE_NEXT_TICK").Value
         && player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_PASSIVE_REGEN").Value < 20)
+      {
         player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_PASSIVE_REGEN").Value += 2;
+        player.oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_PASSIVE_NEXT_TICK").Value = DateTime.Now.AddSeconds(3);
+      }
 
       int currentRegen = player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_PASSIVE_REGEN").Value;
 
@@ -1040,6 +1043,11 @@ namespace NWN.Systems
         player.oid.LoginCreature.HP += currentRegen;
         player.endurance.regenerableHP -= currentRegen;
       }
+
+      int maxHP = player.oid.LoginCreature.LevelInfo[0].HitDie + ((player.oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2);
+
+      if (player.oid.LoginCreature.HP > maxHP)
+        player.oid.LoginCreature.HP = maxHP;
     }
   }
 }

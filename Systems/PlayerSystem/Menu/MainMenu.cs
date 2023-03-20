@@ -420,6 +420,15 @@ namespace NWN.Systems
 
                     break;
 
+                  case "healthManaBars":
+
+                    if (!player.windows.ContainsKey("healthBar")) player.windows.Add("healthBar", new HealthBarWindow(player));
+                    else ((HealthBarWindow)player.windows["healthBar"]).CreateWindow();
+
+                    CloseWindow();
+
+                    break;
+
                   case "areaMusicEditor":
 
                     if (!player.windows.ContainsKey("areaMusicEditor")) player.windows.Add("areaMusicEditor", new AreaMusicEditorWindow(player, player.oid.ControlledCreature.Area));
