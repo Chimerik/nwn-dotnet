@@ -52,7 +52,12 @@ namespace NWN.Systems
 
         await NwTask.Delay(TimeSpan.FromSeconds(0.2));
 
-        player.endurance = new Endurance(potion.GetObjectVariable<LocalVariableInt>("_CORE_MAX_HP").Value, potion.GetObjectVariable<LocalVariableInt>("_CORE_MAX_MANA").Value,
+        int maxMana = potion.GetObjectVariable<LocalVariableInt>("_CORE_MAX_MANA").Value 
+          + player.oid.LoginCreature.GetAbilityModifier(Ability.Intelligence) + player.oid.LoginCreature.GetAbilityModifier(Ability.Wisdom) 
+          + (player.oid.LoginCreature.GetAbilityModifier(Ability.Charisma) * 2);
+
+        player.endurance = new Endurance(potion.GetObjectVariable<LocalVariableInt>("_CORE_MAX_HP").Value, maxMana,
+          player.endurance.currentMana < maxMana ? player.endurance.maxMana : maxMana, 
           potion.GetObjectVariable<LocalVariableInt>("_CORE_REMAINING_HP").Value,
           potion.GetObjectVariable<LocalVariableInt>("_CORE_REMAINING_MANA").Value, DateTime.Now.AddSeconds(potion.GetObjectVariable<LocalVariableInt>("_CORE_DURATION").Value));
 
@@ -82,7 +87,12 @@ namespace NWN.Systems
           return ScriptHandleResult.Handled;
 
         player.endurance.maxHP = 10;
-        player.endurance.maxMana = 0;
+        player.endurance.maxMana = player.oid.LoginCreature.GetAbilityModifier(Ability.Intelligence) + player.oid.LoginCreature.GetAbilityModifier(Ability.Wisdom)
+          + (player.oid.LoginCreature.GetAbilityModifier(Ability.Charisma) * 2);
+
+        if (player.endurance.currentMana > player.endurance.maxMana)
+          player.endurance.currentMana = player.endurance.maxMana;
+
         player.endurance.expirationDate = DateTime.Now;
         player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.DurCessatePositive));
 

@@ -123,6 +123,7 @@ namespace NWN.Systems
       scheduler.ScheduleRepeating(HandlePlayerLoop, TimeSpan.FromSeconds(1));
       scheduler.ScheduleRepeating(HandleSaveDate, TimeSpan.FromMinutes(1));
       scheduler.ScheduleRepeating(HandleMateriaGrowth, TimeSpan.FromHours(1));
+      scheduler.ScheduleRepeating(HandleEnergyRegen, TimeSpan.FromSeconds(1));
       scheduler.ScheduleRepeating(SpawnCollectableResources, TimeSpan.FromHours(24), nextActivation);
       scheduler.ScheduleRepeating(HandleSubscriptionDues, TimeSpan.FromHours(24), nextActivation);
 
@@ -1048,6 +1049,31 @@ namespace NWN.Systems
 
       if (player.oid.LoginCreature.HP > maxHP)
         player.oid.LoginCreature.HP = maxHP;
+    }
+    private static void HandleEnergyRegen()
+    {
+      foreach (var player in PlayerSystem.Players.Values)
+      {
+        if (player.pcState != PlayerSystem.Player.PcState.Offline && player.oid != null && player.oid.IsConnected && player.oid.LoginCreature != null)
+        {
+          if (player.endurance.regenerableMana < 1 || player.endurance.currentMana >= player.endurance.maxMana)
+            continue;
+
+          if (player.endurance.regenerableHP - player.energyRegen < 0)
+          {
+            player.endurance.currentMana += player.endurance.regenerableMana;
+            player.endurance.regenerableMana = 0;
+          }
+          else
+          {
+            player.endurance.currentMana += player.energyRegen;
+            player.endurance.regenerableMana -= player.energyRegen;
+          }
+
+          if (player.endurance.currentMana > player.endurance.maxMana)
+            player.endurance.currentMana = player.endurance.maxMana;
+        }
+      }
     }
   }
 }

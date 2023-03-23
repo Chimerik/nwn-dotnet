@@ -42,6 +42,9 @@ namespace NWN.Systems
       public Dictionary<int, LearnableSkill> learnableSkills = new();
       public Dictionary<int, LearnableSpell> learnableSpells = new();
       public int tempCurrentSkillPoint { get; set; }
+      public int MaxHP { get => oid.LoginCreature.LevelInfo[0].HitDie + ((oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2); }
+      public int energyRegen { get; set; }
+      public int healthRegen { get; set; }
       public Learnable activeLearnable { get; set; }
       public Dictionary<int, MapPin> mapPinDictionnary = new();
       public Dictionary<string, byte[]> areaExplorationStateDictionnary = new();

@@ -10,22 +10,22 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      public class HealthBarWindow : PlayerWindow
+      public class EnergyBarWindow : PlayerWindow
       {
         private readonly NuiRow root;
-        private readonly NuiBind<float> health = new("health");
-        private readonly NuiBind<string> readableHealth = new("readableHealth");
+        private readonly NuiBind<float> energy = new("energy");
+        private readonly NuiBind<string> readableEnergy = new("readableEnergy");
         private readonly Color white = new(255, 255, 255);
         private readonly NuiBind<NuiRect> drawListRect = new("drawListRect");
 
-        private readonly NuiProgress healthBar;
+        private readonly NuiProgress energyBar;
 
-        public HealthBarWindow(Player player) : base(player)
+        public EnergyBarWindow(Player player) : base(player)
         {
-          windowId = "healthBar";
+          windowId = "energyBar";
 
-          healthBar = new NuiProgress(health) { Width = 485, Height = 35, ForegroundColor = ColorConstants.Red, DrawList = new List<NuiDrawListItem>() {
-              new NuiDrawListText(white, drawListRect, readableHealth) 
+          energyBar = new NuiProgress(energy) { Width = 485, Height = 35, ForegroundColor = ColorConstants.Red, DrawList = new List<NuiDrawListItem>() {
+              new NuiDrawListText(white, drawListRect, readableEnergy)
           } };
 
           root = new NuiRow() { Children = new List<NuiElement>() };
@@ -38,8 +38,8 @@ namespace NWN.Systems
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? new NuiRect(player.windowRectangles[windowId].X, player.windowRectangles[windowId].Y, player.windowRectangles[windowId].Width, 45) : new NuiRect(player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) / 2 - 250, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 495, 45);
 
           root.Children.Clear();
-          healthBar.Width = windowRectangle.Width - 7;
-          root.Children.Add(healthBar);
+          energyBar.Width = windowRectangle.Width - 7;
+          root.Children.Add(energyBar);
 
           window = new NuiWindow(root, "")
           {
@@ -55,9 +55,9 @@ namespace NWN.Systems
           {
             nuiToken = tempToken;
 
-            readableHealth.SetBindValue(player.oid, nuiToken.Token, player.oid.LoginCreature.HP.ToString());
-            health.SetBindValue(player.oid, nuiToken.Token, (float)((double)player.oid.LoginCreature.HP / (double)player.MaxHP));
-            drawListRect.SetBindValue(player.oid, nuiToken.Token, new((float)(healthBar.Width.Value / 1.3), 15, 151, 20));
+            readableEnergy.SetBindValue(player.oid, nuiToken.Token, player.oid.LoginCreature.HP.ToString());
+            energy.SetBindValue(player.oid, nuiToken.Token, (float)((double)player.endurance.currentMana / (double)player.endurance.maxMana));
+            drawListRect.SetBindValue(player.oid, nuiToken.Token, new((float)(energyBar.Width.Value / 1.3), 15, 151, 20));
 
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
@@ -73,25 +73,25 @@ namespace NWN.Systems
         {
           CancellationTokenSource tokenSource = new CancellationTokenSource();
 
-          int previousHP = player.oid.LoginCreature.HP;
+          int previousEnergy = player.endurance.currentMana;
 
           Task windowClosed = NwTask.WaitUntil(() => !player.oid.IsValid || !IsOpen, tokenSource.Token);
-          Task healthChanged = NwTask.WaitUntil(() => !player.oid.IsValid || previousHP != player.oid.LoginCreature.HP, tokenSource.Token);
+          Task energyChanged = NwTask.WaitUntil(() => !player.oid.IsValid || previousEnergy != player.endurance.currentMana, tokenSource.Token);
 
-          await NwTask.WhenAny(windowClosed, healthChanged);
+          await NwTask.WhenAny(windowClosed, energyChanged);
           tokenSource.Cancel();
 
           if (windowClosed.IsCompletedSuccessfully)
             return;
 
-          string currentHP = player.oid.LoginCreature.HP.ToString() + " ";
+          string currentEnergy = player.endurance.currentMana.ToString() + " ";
 
-          if (player.oid.LoginCreature.HP < player.MaxHP && player.endurance.regenerableHP > 0)
-            for (int i = 0; i < player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_PASSIVE_REGEN").Value / 2; i++)
-              currentHP += ">";
+          if (player.endurance.regenerableMana > 0)
+            for (int i = 0; i < player.energyRegen; i++)
+              currentEnergy += ">";
 
-          readableHealth.SetBindValue(player.oid, nuiToken.Token, currentHP);
-          health.SetBindValue(player.oid, nuiToken.Token, (float)((double)player.oid.LoginCreature.HP / (double)player.MaxHP));
+          readableEnergy.SetBindValue(player.oid, nuiToken.Token, currentEnergy);
+          energy.SetBindValue(player.oid, nuiToken.Token, (float)((double)player.endurance.currentMana / (double)player.endurance.maxMana));
 
           UpdateCurrentHealth();
         }

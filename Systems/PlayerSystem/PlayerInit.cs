@@ -569,8 +569,10 @@ namespace NWN.Systems
         oid.LoginCreature.ApplyEffect(EffectDuration.Temporary, runAction, TimeSpan.FromSeconds(duration.TotalSeconds > 0 ? duration.TotalSeconds : 0));
         LogUtils.LogMessage($"{oid.LoginCreature.Name} application des effets du Mélange à la connexion : HP endurance {endurance.maxHP}, max HP {oid.LoginCreature.LevelInfo[0].HitDie + conModifier}, HP régénérable {endurance.regenerableHP}, mana régénérable {endurance.regenerableMana}, se dissipe le {endurance.expirationDate}", LogUtils.LogType.EnduranceSystem);
 
-        if (!windows.ContainsKey("healthBar"))windows.Add("healthBar", new PlayerSystem.Player.HealthBarWindow(this));
-        else ((PlayerSystem.Player.HealthBarWindow)windows["healthBar"]).CreateWindow();
+        energyRegen = oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand)?.BaseItem.ItemType == BaseItemType.MagicStaff ? 4 : 2;
+
+        if (!windows.ContainsKey("healthBar"))windows.Add("healthBar", new HealthBarWindow(this));
+        else ((HealthBarWindow)windows["healthBar"]).CreateWindow();
       }
       private void HandleLearnableInit()
       {
