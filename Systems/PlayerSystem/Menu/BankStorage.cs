@@ -198,10 +198,10 @@ namespace NWN.Systems
                   if (item != null && item.IsValid)
                   {
                     player.oid.ControlledCreature.AcquireItem(item);
-                    Log.Info($"Banque - {player.oid.LoginCreature.Name} ({player.oid.PlayerName}) retire {item.Name}");
+                    LogUtils.LogMessage($"{player.oid.LoginCreature.Name} ({player.oid.PlayerName}) retire {item.Name}", LogUtils.LogType.PersonalStorageSystem);
                   }
                   else
-                    Utils.LogMessageToDMs($"Bank - {player.oid.LoginCreature.Name} trying to take an invalid item.");
+                    LogUtils.LogMessage($"{player.oid.LoginCreature.Name} trying to take an invalid item.", LogUtils.LogType.PersonalStorageSystem);
 
                   items.Remove(item);
                   UpdateItemList();
@@ -266,7 +266,7 @@ namespace NWN.Systems
           if (selection.IsCancelled || selection.TargetObject is not NwItem item || item == null || !item.IsValid || item.Possessor != player.oid.LoginCreature)
             return;
 
-          Log.Info($"Banque - {player.oid.LoginCreature.Name} ({player.oid.PlayerName}) dépose {item.Name}");
+          LogUtils.LogMessage($"{player.oid.LoginCreature.Name} ({player.oid.PlayerName}) dépose {item.Name}", LogUtils.LogType.PersonalStorageSystem);
           items.Add(NwItem.Deserialize(item.Serialize()));
           item.Destroy();
           UpdateItemList();
@@ -287,7 +287,7 @@ namespace NWN.Systems
             else
             {
               nbDebounce = 1;
-              Log.Info($"Character {player.characterId} : scheduling bank save in 10s");
+              LogUtils.LogMessage($"Character {player.characterId} : scheduling bank save in 10s", LogUtils.LogType.PersonalStorageSystem);
               DebounceBankSave(nbDebounce);
               return;
             }
@@ -295,7 +295,7 @@ namespace NWN.Systems
           else
             HandleBankSave();
 
-          Log.Info($"Character {player.characterId} bank saved in : {(DateTime.Now - elapsed).TotalSeconds} s");
+          LogUtils.LogMessage($"Character {player.characterId} bank saved in : {(DateTime.Now - elapsed).TotalSeconds} s", LogUtils.LogType.PersonalStorageSystem);
         }
         
         private async void DebounceBankSave(int initialNbDebounce)
@@ -320,7 +320,7 @@ namespace NWN.Systems
           {
             nbDebounce = 0;
             AuthorizeSave = true;
-            Log.Info($"Character {player.characterId} : debounce done after {nbDebounce} triggers, bank save authorized");
+            LogUtils.LogMessage($"Character {player.characterId} : debounce done after {nbDebounce} triggers, bank save authorized", LogUtils.LogType.PersonalStorageSystem);
             BankSave();
           }
         }

@@ -1,35 +1,39 @@
-﻿using Anvil.API;
+﻿using System;
+
+using Anvil.API;
 using Anvil.API.Events;
+
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
-  class Virtue
+  public partial class SpellSystem
   {
-    public Virtue(SpellEvents.OnSpellCast onSpellCast)
+    private static async void Virtue(SpellEvents.OnSpellCast onSpellCast, PlayerSystem.Player player)
     {
       if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oCaster))
         return;
 
-      int nCasterLevel = oCaster.LastSpellCasterLevel;
+      foreach (var eff in onSpellCast.TargetObject.ActiveEffects)
+        if(eff.Tag.StartsWith("CUSTOM_EFFECT_REGEN_HEALING_BREEZE_"))
+          onSpellCast.TargetObject.RemoveEffect(eff);
+
+      int regen = ((int)Math.Round(4 + (double)(CreaturePlugin.GetCasterLevelOverride(oCaster, (int)SpellUtils.GetCastingClass(NwSpell.FromSpellType(Spell.Virtue)))) / 3, MidpointRounding.ToEven));
+      int nDuration = 15;
+
+      await NwTask.Delay(TimeSpan.FromSeconds(0.2));
 
       SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell.SpellType, false);
 
-      int nDuration = nCasterLevel;
-      Effect eVis = Effect.VisualEffect(VfxType.ImpHolyAid);
-      Effect eHP = Effect.TemporaryHitpoints(1);
-      Effect eDur = Effect.VisualEffect(VfxType.DurCessatePositive);
-      Effect eLink = Effect.LinkEffects(eHP, eDur);
+      Effect healingBreeze = Effect.RunAction();
+      healingBreeze = Effect.LinkEffects(healingBreeze, Effect.Icon((EffectIcon)130));
+      healingBreeze.Tag = $"CUSTOM_EFFECT_REGEN_HEALING_BREEZE_{regen}";
 
       if (onSpellCast.MetaMagicFeat == MetaMagic.Extend)
-        nDuration = nDuration * 2; //Duration is +100%
+        nDuration *= 2; //Duration is +100%
 
-      onSpellCast.TargetObject.ApplyEffect(EffectDuration.Temporary, eLink, NwTimeSpan.FromRounds(nDuration));
-      onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, eVis);
-
-      /*if (onSpellCast.MetaMagicFeat == MetaMagic.None)
-      {
-        SpellUtils.RestoreSpell(oCaster, onSpellCast.Spell.SpellType);
-      }*/
+      onSpellCast.TargetObject.ApplyEffect(EffectDuration.Temporary, healingBreeze, TimeSpan.FromSeconds(nDuration));
+      onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHolyAid));
     }
   }
 }

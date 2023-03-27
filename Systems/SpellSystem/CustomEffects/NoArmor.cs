@@ -20,7 +20,7 @@ namespace NWN.Systems
     {
       oTarget.OnItemValidateEquip -= NoEquipArmorMalus;
       oTarget.OnItemValidateUse -= NoUseArmorMalus;
-      PlayerSystem.Log.Info($"removed no armor from {oTarget.Name} - oTarget: {oTarget} - LoginCreature: {oTarget.LoginPlayer.LoginCreature} - ControllingPlayer.ControllingCreature: {oTarget.ControllingPlayer.ControlledCreature} - ControllingPlayer.LoginCreature {oTarget.ControllingPlayer.ControlledCreature}");
+      //PlayerSystem.Log.Info($"removed no armor from {oTarget.Name} - oTarget: {oTarget} - LoginCreature: {oTarget.LoginPlayer.LoginCreature} - ControllingPlayer.ControllingCreature: {oTarget.ControllingPlayer.ControlledCreature} - ControllingPlayer.LoginCreature {oTarget.ControllingPlayer.ControlledCreature}");
     }
     private static void NoEquipArmorMalus(OnItemValidateEquip onItemValidateEquip)
     {
@@ -36,7 +36,6 @@ namespace NWN.Systems
     {
       if (onItemValidateUse.Item.BaseItem.ItemType == BaseItemType.Armor)
       {
-        PlayerSystem.Log.Info($"no armore : {onItemValidateUse.Item.Name} denied !");
         onItemValidateUse.CanUse = false;
       }
     }

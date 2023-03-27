@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Threading;
 using System.Threading.Tasks;
 using Anvil.API;
 using Anvil.API.Events;
@@ -278,7 +279,6 @@ namespace NWN.Systems
         oid.LoginCreature.OnUnacquireItem += ItemSystem.OnUnacquireItem;
         oid.LoginCreature.OnItemEquip += ItemSystem.OnItemEquipBefore;
         oid.LoginCreature.OnUseFeat += FeatSystem.OnUseFeatBefore;
-        oid.LoginCreature.OnSpellCast += spellSystem.HandleAutoSpellBeforeSpellCast;
         oid.OnNuiEvent += HandleGenericNuiEvents;
 
         eventService.Subscribe<OnDMSpawnObject, DMEventFactory>(oid.LoginCreature, areaSystem.InitializeEventsAfterDMSpawnCreature, EventCallbackType.After);
@@ -319,13 +319,11 @@ namespace NWN.Systems
       }
       private void InitializeSpellEvents()
       {
-        oid.LoginCreature.OnSpellBroadcast += spellSystem.SetCastingClassOnSpellBroadcast;
-        oid.LoginCreature.OnSpellBroadcast += spellSystem.HandleHearingSpellBroadcast;
-        oid.LoginCreature.OnSpellCast += spellSystem.HandleAutoSpellBeforeSpellCast;
+        oid.LoginCreature.OnSpellAction += spellSystem.HandleSpellInput;
+        oid.LoginCreature.OnSpellAction += spellSystem.HandleCraftOnSpellInput;
+        //oid.LoginCreature.OnSpellBroadcast += spellSystem.HandleHearingSpellBroadcast;
         oid.LoginCreature.OnSpellCast += spellSystem.CheckIsDivinationBeforeSpellCast;
         oid.LoginCreature.OnSpellCast += spellSystem.HandleCraftEnchantementCast;
-        oid.LoginCreature.OnSpellAction += spellSystem.HandleCraftOnSpellInput;
-        oid.LoginCreature.OnSpellAction += spellSystem.RegisterMetaMagicOnSpellInput;
       }
       private void InitializePlayerAccount()
       {
@@ -541,6 +539,7 @@ namespace NWN.Systems
         HandleJobInit();
         CheckPlayerConnectionInfo();
         HandleMailNotification();
+        RestoreCooledDownSpells();
         pcState = PcState.Online;
         oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
       }
@@ -560,19 +559,28 @@ namespace NWN.Systems
         + improvedHealth * (toughness + conModifier));
 
         Effect runAction = Effect.RunAction(null, ItemSystem.removeCoreHandle);
-        runAction = Effect.LinkEffects(runAction, Effect.Icon(EffectIcon.TemporaryHitpoints));
+        runAction = Effect.LinkEffects(runAction, Effect.Icon((EffectIcon)131));
         runAction.Tag = "_CORE_EFFECT";
         runAction.SubType = EffectSubType.Supernatural;
 
         TimeSpan duration = endurance.expirationDate - DateTime.Now;
 
         oid.LoginCreature.ApplyEffect(EffectDuration.Temporary, runAction, TimeSpan.FromSeconds(duration.TotalSeconds > 0 ? duration.TotalSeconds : 0));
-        LogUtils.LogMessage($"{oid.LoginCreature.Name} application des effets du Mélange à la connexion : HP endurance {endurance.maxHP}, max HP {oid.LoginCreature.LevelInfo[0].HitDie + conModifier}, HP régénérable {endurance.regenerableHP}, mana régénérable {endurance.regenerableMana}, se dissipe le {endurance.expirationDate}", LogUtils.LogType.EnduranceSystem);
+        LogUtils.LogMessage($"{oid.LoginCreature.Name} application des effets du Mélange à la connexion : HP endurance {endurance.maxHP}, max HP {oid.LoginCreature.LevelInfo[0].HitDie + conModifier}, HP régénérable {endurance.regenerableHP}, max énergie {endurance.maxMana}, énergie régénérable {(int)endurance.regenerableMana}, se dissipe le {endurance.expirationDate}", LogUtils.LogType.EnduranceSystem);
 
         energyRegen = oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand)?.BaseItem.ItemType == BaseItemType.MagicStaff ? 4 : 2;
 
         if (!windows.ContainsKey("healthBar"))windows.Add("healthBar", new HealthBarWindow(this));
         else ((HealthBarWindow)windows["healthBar"]).CreateWindow();
+
+        if (!windows.ContainsKey("energyBar")) windows.Add("energyBar", new EnergyBarWindow(this));
+        else ((EnergyBarWindow)windows["energyBar"]).CreateWindow();
+
+        if (!windows.ContainsKey("energyBar")) windows.Add("energyBar", new EnergyBarWindow(this));
+        else ((EnergyBarWindow)windows["energyBar"]).CreateWindow();
+
+        if (!windows.ContainsKey("energyBar")) windows.Add("energyBar", new EnergyBarWindow(this));
+        else ((EnergyBarWindow)windows["energyBar"]).CreateWindow();
       }
       private void HandleLearnableInit()
       {
@@ -610,6 +618,42 @@ namespace NWN.Systems
 
         if (location?.Area?.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 1)
           bankGold -= location.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value * 5;
+      }
+      private void RestoreCooledDownSpells()
+      {
+        foreach(var localVar in oid.LoginCreature.LocalVariables)
+          if(localVar is DateTimeLocalVariable dateVar && dateVar.Name.StartsWith("_SPELL_COOLDOWN_"))
+          {
+            double cooldown = (DateTime.Now - dateVar.Value).TotalSeconds;
+            if (cooldown < 0)
+              cooldown = 1;
+
+            string[] split = localVar.Name.Split("_");
+            WaitCooldownToRestoreSpell(NwSpell.FromSpellId(int.Parse(split[split.Length - 1])), cooldown);
+          }
+      }
+      private async void WaitCooldownToRestoreSpell(NwSpell spell, double cooldown)
+      {
+        CancellationTokenSource tokenSource = new CancellationTokenSource();
+
+        Task playerLeft = NwTask.WaitUntil(() => !oid.IsValid, tokenSource.Token);
+        Task cooledDown = NwTask.Delay(TimeSpan.FromSeconds(cooldown), tokenSource.Token);
+
+        await NwTask.WhenAny(playerLeft, cooledDown);
+        tokenSource.Cancel();
+
+        if (playerLeft.IsCompletedSuccessfully || !oid.IsValid)
+          return;
+
+        RestoreSpell(spell);
+      }
+      private void RestoreSpell(NwSpell spell)
+      {
+        foreach (var spellSlot in oid.LoginCreature.GetClassInfo((ClassType)43).GetMemorizedSpellSlots(spell.InnateSpellLevel))
+          if (spellSlot.Spell == spell)
+            spellSlot.IsReady = true;
+
+        oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>($"_SPELL_COOLDOWN_{spell.Id}").Delete();
       }
       private async void CheckPlayerConnectionInfo()
       {

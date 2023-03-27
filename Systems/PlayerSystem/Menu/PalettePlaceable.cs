@@ -296,7 +296,7 @@ namespace NWN.Systems
             else
             {
               nbDebounce = 1;
-              Log.Info($"Character {player.characterId} : scheduling placeable palette save in 10s");
+              LogUtils.LogMessage($"Character {player.characterId} : scheduling placeable palette save in 10s", LogUtils.LogType.ModuleAdministration);
               DebouncePaletteSave(nbDebounce);
               return;
             }
@@ -304,7 +304,7 @@ namespace NWN.Systems
           else
             HandlePaletteSave();
 
-          Log.Info($"Character {player.characterId} placeable palette saved in : {(DateTime.Now - elapsed).TotalSeconds} s");
+          LogUtils.LogMessage($"Character {player.characterId} placeable palette saved in : {(DateTime.Now - elapsed).TotalSeconds} s", LogUtils.LogType.ModuleAdministration);
         }
 
         private async void DebouncePaletteSave(int initialNbDebounce)
@@ -328,7 +328,7 @@ namespace NWN.Systems
           {
             nbDebounce = 0;
             AuthorizeSave = true;
-            Log.Info($"Character {player.characterId} : debounce done after {nbDebounce} triggers, placeable palette save authorized");
+            LogUtils.LogMessage($"Character {player.characterId} : debounce done after {nbDebounce} triggers, placeable palette save authorized", LogUtils.LogType.ModuleAdministration);
             PaletteSave();
           }
         }

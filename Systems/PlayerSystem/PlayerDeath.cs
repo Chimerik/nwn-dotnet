@@ -92,14 +92,14 @@ namespace NWN.Systems
 
         SetupPCCorpse(oPCCorpse);
 
-        Log.Info($"Corpse {oPCCorpse.Name} created");
+        LogUtils.LogMessage($"Corpse {oPCCorpse.Name} created", LogUtils.LogType.PlayerDeath);
       }
       public void StripPlayerOfCraftResources()
       {
-        Log.Info($"{oid.LoginCreature.Name} dead. Stripping him of craft resources");
+        LogUtils.LogMessage($"{oid.LoginCreature.Name} dead. Stripping him of craft resources", LogUtils.LogType.PlayerDeath);
         foreach (NwItem oItem in oid.LoginCreature.Inventory.Items.Where(i => i.Tag == "craft_resource" || i.Tag == "blueprint"))
         {
-          Log.Info($"{oItem.Name} stripped");
+          LogUtils.LogMessage($"{oItem.Name} stripped", LogUtils.LogType.PlayerDeath);
           oItem.Clone(deathCorpse).Droppable = true;
           oItem.Destroy();
         }

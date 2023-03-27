@@ -175,7 +175,7 @@ namespace NWN.Systems
             if (chatLine.category == ChatLine.ChatCategory.Private && !string.IsNullOrEmpty(chatLine.text)
               && (chatLine.playerName == player.oid.PlayerName && chatLine.receiverPlayerName == windowId || (chatLine.playerName == windowId && chatLine.receiverPlayerName == player.oid.PlayerName)))
             {
-              Log.Info(chatLine.text);
+              //Log.Info(chatLine.text);
               AddNewChat(chatLine);
             }
           }

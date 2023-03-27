@@ -172,10 +172,6 @@ namespace NWN.Systems
                   Mail newMail = new Mail(player.oid.LoginCreature.Name, player.characterId, targetName, targetId, mailTitle, mailContent, DateTime.Now, receiptSelected.GetBindValue(player.oid, nuiToken.Token));
                   player.mails.Add(newMail);
 
-                  Log.Info($"sendMail : {player.mails.Count}");
-                  Log.Info($"sendMail senderId : {player.characterId}");
-                  Log.Info($"sendMail targetId : {targetId}");
-
                   if (targetId != player.characterId)
                     newMail.SendMailToPlayer(targetId);
 

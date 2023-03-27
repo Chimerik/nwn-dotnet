@@ -15,7 +15,6 @@ namespace NWN
 {
   public static class Utils
   {
-    public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public static readonly Random random = new();
     public enum SubscriptionType
     {
@@ -24,7 +23,7 @@ namespace NWN
     }
     public static void LogMessageToDMs(string message)
     {
-      Log.Info(message);
+      ModuleSystem.Log.Info(message);
       SendDiscordLog(message, 0);
 
       //Bot.bigbyDiscordUser.SendMessageAsync(message); Bigby user
@@ -47,7 +46,7 @@ namespace NWN
 
         if (nbTry < 5)
         {
-          Log.Info($"Retrying ({nbTry}) to send Discord message");
+          ModuleSystem.Log.Info($"Retrying ({nbTry}) to send Discord message");
           SendDiscordLog(message, nbTry++);
         }
       }
@@ -247,7 +246,7 @@ namespace NWN
       }
       else
       {
-        LogMessageToDMs($"Impossible de trouver le storage du pj {characterId} et d'y déposer un objet !");
+        LogUtils.LogMessage($"Impossible de trouver le storage du pj {characterId} et d'y déposer un objet !", LogUtils.LogType.PlayerConnections);
       }
     }
     public static void ResetVisualTransform(NwCreature creature)
@@ -600,7 +599,7 @@ namespace NWN
         case "wok": return NWScript.RESTYPE_WOK;
         case "xbc": return NWScript.RESTYPE_XBC;
         default:
-          Utils.LogMessageToDMs($"WARNING - type {extension} non reconnu - fichier {fileName}");
+          LogUtils.LogMessage($"WARNING - type {extension} non reconnu - fichier {fileName}", LogUtils.LogType.ModuleAdministration);
           return NWScript.RESTYPE_MDL;
       }
     }
@@ -668,7 +667,7 @@ namespace NWN
         }
         catch(Exception)
         {
-          LogMessageToDMs($"MATERIA SPAWN - Impossible de trouver une transition valide dans la zone {area.Name}");
+          LogUtils.LogMessage($"Impossible de trouver une transition valide dans la zone {area.Name}", LogUtils.LogType.MateriaSpawn);
           return null;
         }
       }
@@ -695,18 +694,18 @@ namespace NWN
 
       if (stopwatch.Elapsed.TotalSeconds > 2)
       {
-        LogMessageToDMs($"WARNING - MATERIA SPAWN - Could not find valid path in {area.Name}");
+        LogUtils.LogMessage($"Could not find valid path in {area.Name}", LogUtils.LogType.MateriaSpawn);
         return null;
       }
 
-      Log.Info($"Path found in {area.Name} after {nbTry} tries ({stopwatch.Elapsed.TotalMilliseconds} ms)");
+      LogUtils.LogMessage($"Path found in {area.Name} after {nbTry} tries ({stopwatch.Elapsed.TotalMilliseconds} ms)", LogUtils.LogType.MateriaSpawn);
 
       ModuleSystem.placeholderTemplate.Location = Location.Create(area, new Vector3(randomPosition.X, randomPosition.Y, 0), random.Next(360));
       Vector3 safePosition = CreaturePlugin.ComputeSafeLocation(ModuleSystem.placeholderTemplate, randomPosition);
 
       if(safePosition == Vector3.Zero)
       {
-        LogMessageToDMs($"WARNING - MATERIA SPAWN - Could not find safePosition in {area.Name}");
+        LogUtils.LogMessage($"Could not find safePosition in {area.Name}", LogUtils.LogType.MateriaSpawn);
         return null;
       }
 

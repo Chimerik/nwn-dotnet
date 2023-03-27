@@ -6,12 +6,12 @@ namespace NWN.Systems
   {
     public int maxHP { get; set; }
     public int maxMana { get; set; }
-    public int currentMana { get; set; }
+    public double currentMana { get; set; }
     public int regenerableHP { get; set; }
-    public int regenerableMana { get; set; }
+    public double regenerableMana { get; set; }
     public DateTime expirationDate { get; set; }
 
-    public Endurance(int maxHP, int maxMana, int currentMana, int regenerableHP, int regenerableMana, DateTime expirationDate)
+    public Endurance(int maxHP, int maxMana, double currentMana, int regenerableHP, double regenerableMana, DateTime expirationDate)
     {
       this.maxHP = maxHP;
       this.currentMana = currentMana;
@@ -42,9 +42,9 @@ namespace NWN.Systems
     {
       public int maxHP { get; set; }
       public int maxMana { get; set; }
-      public int currentMana { get; set; }
+      public double currentMana { get; set; }
       public int regenerableHP { get; set; }
-      public int regenerableMana { get; set; }
+      public double regenerableMana { get; set; }
       public DateTime expirationDate { get; set; }
 
       public SerializableEndurance()

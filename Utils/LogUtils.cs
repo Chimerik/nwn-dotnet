@@ -27,7 +27,12 @@ namespace NWN
       AreaManagement,
       ModuleAdministration,
       PlayerConnections,
-      EnduranceSystem
+      EnduranceSystem,
+      TradeSystem,
+      ArenaSystem,
+      PlayerSaveSystem,
+      PersonalStorageSystem,
+      PlayerDeath
     }
 
     public static readonly Dictionary<LogType, Queue<string>> logPile = new();

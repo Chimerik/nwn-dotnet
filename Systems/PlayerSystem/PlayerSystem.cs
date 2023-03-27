@@ -8,14 +8,12 @@ using Anvil.Services;
 using Anvil.API.Events;
 using NLog;
 using System.Threading.Tasks;
-using static Anvil.API.Events.CreatureEvents;
 
 namespace NWN.Systems
 {
   [ServiceBinding(typeof(PlayerSystem))]
   public partial class PlayerSystem
   {
-    public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public EventService eventService { get; set; }
     public FeedbackService feedbackService;
     public ScriptHandleFactory scriptHandleFactory;
@@ -196,7 +194,7 @@ namespace NWN.Systems
 
       if (spellId < 0 || spellLevel > 10)
       {
-        Utils.LogMessageToDMs($"LEARN SPELL FROM SCROLL - Player : {oPC.Name}, SpellId : {spellId}, SpellLevel : {spellLevel} - INVALID");
+        LogUtils.LogMessage($"LEARN SPELL FROM SCROLL - Player : {oPC.Name}, SpellId : {spellId}, SpellLevel : {spellLevel} - INVALID", LogUtils.LogType.Learnables);
         oPC.ControllingPlayer.SendServerMessage("HRP - Ce parchemin ne semble pas correctement configuré, impossible d'en apprendre quoique ce soit. Le staff a été informé du problème.", ColorConstants.Red);
         return;
       }
@@ -228,7 +226,7 @@ namespace NWN.Systems
         player.learnableSpells.Add(spellId, new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[spellId]));
         oPC.ControllingPlayer.SendServerMessage($"Le sort a été ajouté à votre liste d'apprentissage et est désormais disponible pour étude.");
 
-        Utils.LogMessageToDMs($"SPELL SYSTEM - Player : {oPC.Name} vient d'ajouter {NwSpell.FromSpellId(spellId).Name.ToString()} ({spellId}) à sa liste d'apprentissage");
+        LogUtils.LogMessage($"SPELL SYSTEM - Player : {oPC.Name} vient d'ajouter {NwSpell.FromSpellId(spellId).Name.ToString()} ({spellId}) à sa liste d'apprentissage", LogUtils.LogType.Learnables);
       }
 
       if (player.TryGetOpenedWindow("learnables", out Player.PlayerWindow learnableWindow))
@@ -246,36 +244,9 @@ namespace NWN.Systems
     public static void HandleOnClientLevelUp(OnClientLevelUpBegin onLevelUp)
     {
       onLevelUp.PreventLevelUp = true;
-      Utils.LogMessageToDMs($"{onLevelUp.Player.LoginCreature.Name} vient d'essayer de level up.");
+      LogUtils.LogMessage($"{onLevelUp.Player.LoginCreature.Name} vient d'essayer de level up.", LogUtils.LogType.ModuleAdministration);
       onLevelUp.Player.LoginCreature.Xp = 1;
     }
-    public static async void HandleCombatRoundEndForAutoSpells(OnCombatRoundEnd onCombatRoundEnd)
-    { 
-      if (onCombatRoundEnd.Creature.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").HasNothing)
-      {
-        onCombatRoundEnd.Creature.OnCombatRoundEnd -= HandleCombatRoundEndForAutoSpells;
-        return;
-      }
-
-      int spellId = onCombatRoundEnd.Creature.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Value;
-      NwGameObject target = onCombatRoundEnd.Creature.GetObjectVariable<LocalVariableObject<NwGameObject>>("_AUTO_SPELL_TARGET").Value;
-      
-      if (target is not null && target.IsValid)
-      {
-        //Utils.LogMessageToConsole("1", Config.Env.Chim);
-        //_ = onCombatRoundEnd.Creature.AddActionToQueue(() => NWScript.ActionCastSpellAtObject(spellId, target));
-        await onCombatRoundEnd.Creature.WaitForObjectContext();
-        await onCombatRoundEnd.Creature.ActionCastSpellAt((Spell)spellId, target);
-        //Utils.LogMessageToConsole("2", Config.Env.Chim);
-      }
-      else
-      {
-        onCombatRoundEnd.Creature.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Delete();
-        onCombatRoundEnd.Creature.GetObjectVariable<LocalVariableObject<NwGameObject>>("_AUTO_SPELL_TARGET").Delete();
-        onCombatRoundEnd.Creature.OnCombatRoundEnd -= HandleCombatRoundEndForAutoSpells;
-      }
-    }
-
     public static void HandleGuiEvents(ModuleEvents.OnPlayerGuiEvent guiEvent)
     {
       NwPlayer oPC = guiEvent.Player;

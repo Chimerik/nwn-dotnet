@@ -23,17 +23,6 @@ namespace NWN.Systems
         Effect eBad = Effect.AttackDecrease(1 + nCasterLevel / 6);
         onSpellCast.TargetObject.ApplyEffect(EffectDuration.Temporary, eBad, NwTimeSpan.FromRounds(10 + nCasterLevel));
       }
-
-      if (onSpellCast.MetaMagicFeat == MetaMagic.None)
-      {
-        oCaster.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Value = (int)onSpellCast.Spell.SpellType;
-        oCaster.GetObjectVariable<LocalVariableObject<NwGameObject>>("_AUTO_SPELL_TARGET").Value = onSpellCast.TargetObject;
-        oCaster.OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
-        oCaster.OnCombatRoundEnd += PlayerSystem.HandleCombatRoundEndForAutoSpells;
-
-        SpellUtils.CancelCastOnMovement(oCaster);
-        //SpellUtils.RestoreSpell(oCaster, onSpellCast.Spell.SpellType);
-      }
     }
   }
 }

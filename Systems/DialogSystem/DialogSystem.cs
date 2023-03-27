@@ -188,7 +188,7 @@ namespace NWN.Systems
               oScroll.GetObjectVariable<LocalVariableInt>("_ONE_USE_ONLY").Value = 1;
             }
 
-            NwItem potion = await NwItem.Create("nw_it_mpotion021", shopkeeper, 10);
+            NwItem potion = await NwItem.Create("potion_cure_frog", shop, 1, "potion_core_influx");
             potion.Name = "Mélange mineur";
             potion.Description = "Une dose d'influx pur a été savamment conditionnée pour en retirer ses effets les plus néfastes et mettre en exergue ses incroyables bienfaits.\n\n" +
               "Quiconque absorbe le Mélange se voit doter d'une résilience permettant de résister aux plus rudes combats.\n" +

@@ -55,7 +55,7 @@ namespace NWN.Systems.Arena
       oArena.MusicBackgroundNightTrack = 183;
       oArena.PlayBackgroundMusic();
 
-      Log.Info($"{player.oid.LoginCreature.Name} just finished round {player.pveArena.currentRound} - Difficulty {player.pveArena.currentDifficulty}");
+      LogUtils.LogMessage($"{player.oid.LoginCreature.Name} just finished round {player.pveArena.currentRound} - Difficulty {player.pveArena.currentDifficulty}", LogUtils.LogType.ArenaSystem);
       player.pveArena.currentPoints += GetRoundPoints(player);
       player.pveArena.currentRound += 1;
 

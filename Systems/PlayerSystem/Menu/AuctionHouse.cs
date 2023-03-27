@@ -422,8 +422,6 @@ namespace NWN.Systems
 
                 default:
 
-                  Log.Info(nuiEvent.ElementId);
-
                   string[] splitCancel = nuiEvent.ElementId.Split("_");
                   
                   if (nuiEvent.ElementId.StartsWith("cancelProposal"))
@@ -457,10 +455,10 @@ namespace NWN.Systems
                   if (proposalItem != null && proposalItem.IsValid)
                   {
                     player.oid.ControlledCreature.AcquireItem(proposalItem);
-                    Log.Info($"TRADE SYSTEM - {player.oid.LoginCreature.Name} ({player.oid.PlayerName}) retire {proposalItem.Name}");
+                    LogUtils.LogMessage($"{player.oid.LoginCreature.Name} ({player.oid.PlayerName}) retire {proposalItem.Name}", LogUtils.LogType.TradeSystem);
                   }
                   else
-                    Utils.LogMessageToDMs($"TRADE SYSTEM - {player.oid.LoginCreature.Name} trying to take an invalid item.");
+                    LogUtils.LogMessage($"TRADE SYSTEM - {player.oid.LoginCreature.Name} trying to take an invalid item.", LogUtils.LogType.TradeSystem);
 
                   newProposalItems.Remove(proposalItem);
                   LoadCreateProposalItemList();
@@ -471,7 +469,6 @@ namespace NWN.Systems
 
                   if (nuiEvent.ElementId.StartsWith("examineProposalItem"))
                   {
-                    Log.Info(nuiEvent.ElementId);
                     string[] splitProposal = nuiEvent.ElementId.Split("_");
                     NwItem item = NwItem.Deserialize(lastRequestClicked.proposalList.FirstOrDefault(p => p.characterId == int.Parse(splitProposal[1])).serializedItems[int.Parse(splitProposal[2])].ToByteArray());
                     tradeProposalItemScheduledForDestruction.Add(item);
@@ -1426,7 +1423,7 @@ namespace NWN.Systems
           foreach (NwItem item in tradeProposalItemScheduledForDestruction)
             if (item.IsValid)
             {
-              Log.Info($"TRADE SYSTEM - Player {player.characterId} - Cleaning proposal item {item.Name}");
+              LogUtils.LogMessage($"Player {player.characterId} - Cleaning proposal item {item.Name}", LogUtils.LogType.TradeSystem);
               item.Destroy();
             }
           foreach (NwItem item in newProposalItems)

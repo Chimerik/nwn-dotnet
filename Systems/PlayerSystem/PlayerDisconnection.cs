@@ -51,8 +51,6 @@ namespace NWN.Systems
         foreach(Player connectedPlayer in Players.Values.Where(p => p.pcState != Player.PcState.Offline && p.TryGetOpenedWindow("playerList", out Player.PlayerWindow playerListWindow)))
           ((Player.PlayerListWindow)connectedPlayer.windows["playerList"]).UpdatePlayerList();
       });
-
-      Log.Info($"{onPCDisconnect.Player.LoginCreature.Name} disconnected.");
     }
   }
 }

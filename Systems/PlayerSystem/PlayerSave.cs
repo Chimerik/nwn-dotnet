@@ -30,7 +30,7 @@ namespace NWN.Systems
         else
         {
           player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_SAVE_SCHEDULED").Value = 1;
-          Log.Info($"{player.oid.PlayerName} : scheduling save in 10s");
+          LogUtils.LogMessage($"{player.oid.PlayerName} : scheduling save in 10s", LogUtils.LogType.PlayerSaveSystem);
 
           player.DebounceSave(player.oid.PlayerName, 1);
           return;
@@ -69,11 +69,11 @@ namespace NWN.Systems
           {
             oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_SAVE_SCHEDULED").Delete();
             oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_SAVE_AUTHORIZED").Value = 1;
-            Log.Info($"{oid.PlayerName} : debounce done after {nbDebounces} triggers, save authorized");
+            LogUtils.LogMessage($"{oid.PlayerName} : debounce done after {nbDebounces} triggers, save authorized", LogUtils.LogType.PlayerSaveSystem);
             oid.ExportCharacter();
           }
           else
-            Log.Info($"{playerName} : already disconnected. Cancelling save.");
+            LogUtils.LogMessage($"{playerName} : already disconnected. Cancelling save.", LogUtils.LogType.PlayerSaveSystem);
         }
       }
       public void HandlePlayerSave()
@@ -112,7 +112,7 @@ namespace NWN.Systems
           foreach (Effect eff in effectList)
             oid.LoginCreature.RemoveEffect(eff);
 
-          Log.Info($"Polymorph detected, saving effect list");
+          LogUtils.LogMessage($"Polymorph detected, saving effect list", LogUtils.LogType.PlayerSaveSystem);
 
           RestorePolymorph(effectList);
         }
@@ -133,7 +133,7 @@ namespace NWN.Systems
 
         await NwTask.Delay(TimeSpan.FromSeconds(0.1));
 
-        Log.Info($"Polymorph detected, restoring effect list on {oid.LoginCreature.Name}");
+        LogUtils.LogMessage($"Polymorph detected, restoring effect list on {oid.LoginCreature.Name}", LogUtils.LogType.PlayerSaveSystem);
 
         foreach (Effect eff in effectList)
           oid.LoginCreature.ApplyEffect(eff.DurationType, eff, TimeSpan.FromSeconds((double)eff.DurationRemaining));
@@ -238,7 +238,7 @@ namespace NWN.Systems
           new string[] { "mails", serializeMails.Result  }, new string[] { "subscriptions", serializeSubscriptions.Result  }, new string[] { "endurance", serializeEndurance.Result  } },
         new List<string[]>() { new string[] { "rowid", characterId.ToString() } });
 
-        Log.Info($"ASYNC SAVE FINALIZED for {firstName} {lastName} in {(DateTime.Now - elapsed).TotalSeconds} s");
+        LogUtils.LogMessage($"ASYNC SAVE FINALIZED for {firstName} {lastName} in {(DateTime.Now - elapsed).TotalSeconds} s", LogUtils.LogType.PlayerSaveSystem);
 
         if (pcState == PcState.Offline)
           oid = null;

@@ -12,6 +12,9 @@ using System.Collections.Generic;
 using NWN.Systems.Arena;
 using Microsoft.Data.Sqlite;
 using Newtonsoft.Json;
+using static NWN.Systems.PlayerSystem;
+using NLog.Targets;
+using System.Numerics;
 
 namespace NWN.Systems
 {
@@ -19,7 +22,7 @@ namespace NWN.Systems
   public partial class SpellSystem
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    private readonly ScriptHandleFactory scriptHandleFactory;
+    private static ScriptHandleFactory scriptHandleFactory;
     public int[] lowEnchantements = new int[] { 540, 541, 542, 543, 544, 545, 546, 547, 548, 549, 550, 551, 552, 553, 554 };
     public int[] mediumEnchantements = new int[] { 555, 556, 557, 558, 559, 560, 561, 562 };
     public int[] highEnchantements = new int[] { 563, 564, 565, 566, 567, 568 };
@@ -188,7 +191,7 @@ namespace NWN.Systems
       }
     }
 
-    private Effect CreateCustomEffect(string tag, Func<CallInfo, ScriptHandleResult> onApply, Func<CallInfo, ScriptHandleResult> onRemoved, EffectIcon icon = EffectIcon.Invalid, Func<CallInfo, ScriptHandleResult> onInterval = null, TimeSpan interval = default, string effectData = "")
+    private static Effect CreateCustomEffect(string tag, Func<CallInfo, ScriptHandleResult> onApply, Func<CallInfo, ScriptHandleResult> onRemoved, EffectIcon icon = EffectIcon.Invalid, Func<CallInfo, ScriptHandleResult> onInterval = null, TimeSpan interval = default, EffectSubType subType = EffectSubType.Supernatural, string effectData = "")
     {
       ScriptCallbackHandle applyHandle = scriptHandleFactory.CreateUniqueHandler(onApply);
       ScriptCallbackHandle removeHandle = scriptHandleFactory.CreateUniqueHandler(onRemoved);
@@ -196,20 +199,83 @@ namespace NWN.Systems
 
       Effect runAction = Effect.RunAction(applyHandle, removeHandle, intervalHandle, interval, effectData);
       runAction.Tag = tag;
-      runAction.SubType = EffectSubType.Supernatural;
+      runAction.SubType = subType;
 
       if (icon != EffectIcon.Invalid)
         runAction = Effect.LinkEffects(runAction, Effect.Icon(icon));
 
       return runAction;
     }
+    public async void HandleSpellInput(OnSpellAction onSpellAction)
+    {
+      if (!(Players.TryGetValue(onSpellAction.Caster, out Player player)))
+        return;
 
+      if (onSpellAction.IsFake || onSpellAction.IsInstant)
+        return;
 
+      onSpellAction.PreventSpellCast = true;
+
+      int[] spellCost = SpellUtils.spellCostDictionary[onSpellAction.Spell];
+      int energyCost = spellCost[0];
+      int remainingCooldown = (int)Math.Round((player.oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>($"_SPELL_COOLDOWN_{onSpellAction.Spell.Id}").Value - DateTime.Now).TotalSeconds, MidpointRounding.ToEven);
+
+      if (remainingCooldown > 0)
+      {
+        player.oid.DisplayFloatingTextStringOnCreature(player.oid.ControlledCreature, $"{StringUtils.ToWhitecolor(onSpellAction.Spell.Name.ToString())} - Temps restant : {StringUtils.ToWhitecolor(remainingCooldown.ToString())}".ColorString(ColorConstants.Red));
+        return;
+      }
+
+      int missingEnergy = energyCost - (int)Math.Round(player.endurance.currentMana, MidpointRounding.ToZero);
+
+      if (missingEnergy > 0)
+      {
+        player.oid.DisplayFloatingTextStringOnCreature(player.oid.ControlledCreature, $"{onSpellAction.Spell.Name.ToString()} - Energie manquante : {missingEnergy.ToString().ColorString(ColorConstants.Red)}");
+        return;
+      }
+
+      await onSpellAction.Caster.ClearActionQueue();
+
+      player.endurance.currentMana -= energyCost;
+
+      HandleCastTime(onSpellAction);
+    }
+    private static async void HandleCastTime(OnSpellAction spellAction)
+    {
+      Location targetLocation = spellAction.IsAreaTarget ? Location.Create(spellAction.Caster.Area, spellAction.TargetPosition, spellAction.Caster.Rotation) : null;
+      Vector3 previousPosition = spellAction.Caster.Position;
+
+      if (spellAction.IsAreaTarget)
+        await spellAction.Caster.ActionCastFakeSpellAt(spellAction.Spell, targetLocation);
+      else
+        await spellAction.Caster.ActionCastFakeSpellAt(spellAction.Spell, spellAction.TargetObject);
+
+      foreach (NwPlayer player in NwModule.Instance.Players)
+        if (player?.ControlledCreature?.Area == spellAction.Caster?.Area && player.ControlledCreature.IsCreatureHeard(spellAction.Caster))
+          player.DisplayFloatingTextStringOnCreature(spellAction.Caster, StringUtils.ToWhitecolor($"{spellAction.Caster.Name.ColorString(ColorConstants.Blue)} incante {spellAction.Spell.Name.ToString().ColorString(ColorConstants.Purple)}"));
+
+      await NwTask.Delay(TimeSpan.FromMilliseconds(spellAction.Spell.ConjureTime.TotalMilliseconds / 1.5));
+
+      if (spellAction.Caster.GetObjectVariable<LocalVariableInt>("_CURRENT_SPELL").HasValue || (spellAction.TargetObject is null && !spellAction.IsAreaTarget)
+        || previousPosition.X != spellAction.Caster.Position.X || previousPosition.Y != spellAction.Caster.Position.Y
+        || spellAction.Caster.GetObjectVariable<LocalVariableInt>("_INTERRUPTED").HasValue)
+      {
+        spellAction.Caster.GetObjectVariable<LocalVariableInt>("_INTERRUPTED").Delete();
+        return;
+      }
+
+      if (spellAction.IsAreaTarget)
+        await spellAction.Caster.ActionCastSpellAt(spellAction.Spell, targetLocation, spellAction.MetaMagic, true, ProjectilePathType.Default, true);
+      else
+        await spellAction.Caster.ActionCastSpellAt(spellAction.Spell, spellAction.TargetObject, spellAction.MetaMagic, true, 0, ProjectilePathType.Default, true);
+
+      spellAction.Caster.GetObjectVariable<LocalVariableInt>("_CURRENT_SPELL").Value = spellAction.Spell.Id;
+    }
     public void HandleCraftOnSpellInput(OnSpellAction onSpellAction)
     {
       if (onSpellAction.Spell.ImpactScript == "on_ench_cast")
       {
-        if (!(PlayerSystem.Players.TryGetValue(onSpellAction.Caster, out PlayerSystem.Player player)) || player.craftJob != null)
+        if (!(Players.TryGetValue(onSpellAction.Caster, out Player player)) || player.craftJob != null)
         {
           player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
           onSpellAction.PreventSpellCast = true;
@@ -224,86 +290,6 @@ namespace NWN.Systems
         }
       }
     }
-    public void RegisterMetaMagicOnSpellInput(OnSpellAction onSpellAction)
-    {
-      if (onSpellAction.MetaMagic == MetaMagic.Silent)
-        onSpellAction.Caster.GetObjectVariable<LocalVariableInt>("_IS_SILENT_SPELL").Value = 1;
-
-      onSpellAction.Caster.GetObjectVariable<LocalVariableInt>("_CURRENT_SPELL").Value = onSpellAction.Spell.Id;
-    }
-    public void SetCastingClassOnSpellBroadcast(OnSpellBroadcast onSpellBroadcast)
-    {
-      if (PlayerSystem.Players.TryGetValue(onSpellBroadcast.Caster, out PlayerSystem.Player player))
-      {
-        ClassType castingClass = SpellUtils.GetCastingClass(onSpellBroadcast.Spell);
-
-        switch (castingClass)
-        {
-          case ClassType.Druid:
-
-            NwItem armor = onSpellBroadcast.Caster.GetItemInSlot(InventorySlot.Chest);
-            NwItem shield = onSpellBroadcast.Caster.GetItemInSlot(InventorySlot.LeftHand);
-
-            if ((armor != null && armor.BaseACValue > 5) || (shield != null && shield.BaseACValue > 1))
-            {
-              onSpellBroadcast.PreventSpellCast = true;
-              player.oid.SendServerMessage("Un si lourd arnachement affaiblit bien trop votre lien à la nature.", ColorConstants.Red);
-            }
-
-            break;
-
-          case ClassType.Cleric:
-          case ClassType.Paladin:
-          case ClassType.Ranger:
-
-            onSpellBroadcast.Caster.BaseArmorArcaneSpellFailure = 0;
-            onSpellBroadcast.Caster.BaseShieldArcaneSpellFailure = 0;
-
-            Task resetClassOnNextFrame = NwTask.Run(async () =>
-            {
-              CancellationTokenSource tokenSource = new CancellationTokenSource();
-
-              Task spellCast = NwTask.WaitUntil(() => !onSpellBroadcast.Caster.IsValid || onSpellBroadcast.Caster.CurrentAction != Anvil.API.Action.CastSpell, tokenSource.Token);
-
-              await NwTask.WhenAny(spellCast);
-              tokenSource.Cancel();
-
-              if (!onSpellBroadcast.Caster.IsValid)
-                return;
-
-              NwItem shield = onSpellBroadcast.Caster.GetItemInSlot(InventorySlot.LeftHand);
-              NwItem armor = onSpellBroadcast.Caster.GetItemInSlot(InventorySlot.Chest);
-
-              if (shield != null)
-                onSpellBroadcast.Caster.BaseShieldArcaneSpellFailure = shield.BaseItem.ArcaneSpellFailure;
-
-              if (armor != null)
-                onSpellBroadcast.Caster.BaseArmorArcaneSpellFailure = Armor2da.GetArcaneSpellFailure(armor.BaseACValue);
-            });
-
-            break;
-        }
-      }
-    }
-    public void HandleHearingSpellBroadcast(OnSpellBroadcast onSpellBroadcast)
-    {
-      if (onSpellBroadcast.Caster.ControllingPlayer.IsDM ||
-        !onSpellBroadcast.Caster.ActiveEffects.Any(e => e.EffectType == EffectType.Invisibility || e.EffectType == EffectType.ImprovedInvisibility)
-        || onSpellBroadcast.Caster.GetObjectVariable<LocalVariableInt>("_IS_SILENT_SPELL").HasValue)
-      {
-        onSpellBroadcast.Caster.GetObjectVariable<LocalVariableInt>("_IS_SILENT_SPELL").Delete();
-        return;
-      }
-
-      foreach (NwCreature spotter in onSpellBroadcast.Caster.Area.FindObjectsOfTypeInArea<NwCreature>().Where(p => p.IsPlayerControlled && p.DistanceSquared(onSpellBroadcast.Caster) < 400.0f))
-      {
-        if (!spotter.IsCreatureSeen(onSpellBroadcast.Caster))
-        {
-          spotter.ControllingPlayer.SendServerMessage("Quelqu'un d'invisible est en train de lancer un sort à proximité !", ColorConstants.Cyan);
-          spotter.ControllingPlayer.ShowVisualEffect(VfxType.FnfLosNormal10, onSpellBroadcast.Caster.Position);
-        }
-      }
-    }
 
     [ScriptHandler("spellhook")]
     private void HandleSpellHook(CallInfo callInfo)
@@ -314,9 +300,9 @@ namespace NWN.Systems
       if (callInfo.ObjectSelf is not NwCreature castingCreature)
         return;
 
-      if (!(callInfo.ObjectSelf is NwCreature { IsPlayerControlled: true } oPC) || !PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
+      if (!(callInfo.ObjectSelf is NwCreature { IsPlayerControlled: true } oPC) || !Players.TryGetValue(oPC, out Player player))
       {
-        if (castingCreature.Master != null && PlayerSystem.Players.TryGetValue(castingCreature.Master, out PlayerSystem.Player master))
+        if (castingCreature.Master != null && Players.TryGetValue(castingCreature.Master, out Player master))
           NWScript.DelayCommand(0.0f, () => DelayedTagAoESummon(castingCreature, master));
 
         return;
@@ -368,7 +354,7 @@ namespace NWN.Systems
           break;
 
         case Spell.Virtue:
-          new Virtue(onSpellCast);
+          Virtue(onSpellCast, player);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -389,15 +375,14 @@ namespace NWN.Systems
           break;
       }
 
+      castingCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_SPELL").Delete();
       NWScript.DelayCommand(0.0f, () => DelayedTagAoE(player));
     }
-    private void HandleCasterLevel(NwGameObject caster, NwSpell spell, PlayerSystem.Player player)
+    private void HandleCasterLevel(NwGameObject caster, NwSpell spell, Player player)
     {
       if (caster is not NwCreature castingCreature)
         return;
 
-      //CreaturePlugin.SetClassByPosition(castingCreature, 0, 43);
- 
       ClassType castingClass = SpellUtils.GetCastingClass(spell);
 
       if ((int)castingClass == 43 && castingCreature.GetAbilityScore(Ability.Charisma) > castingCreature.GetAbilityScore(Ability.Intelligence))
@@ -410,8 +395,6 @@ namespace NWN.Systems
       {
         if(castingCreature.ControllingPlayer.IsDM && !castingCreature.IsDMPossessed)
           CreaturePlugin.SetCasterLevelOverride(castingCreature, (int)castingClass, 15);
-        else
-          CreaturePlugin.SetCasterLevelOverride(castingCreature, (int)castingClass, player.learnableSpells[spell.Id].currentLevel);
       }
       else if(castingCreature.IsPlayerControlled)
       {
@@ -421,19 +404,28 @@ namespace NWN.Systems
           CreaturePlugin.SetCasterLevelOverride(castingCreature, (int)castingClass, (int)castingCreature.ChallengeRating);
       }
 
-      NWScript.DelayCommand(0.0f, () => DelayedSpellHook(castingCreature));
+
+
+
+      NWScript.DelayCommand(0.0f, () => DelayedSpellHook(castingCreature, spell, player));
     }
-    private void DelayedSpellHook(NwCreature player)
+    private void DelayedSpellHook(NwCreature caster, NwSpell spell, Player player)
     {
-      if (!player.IsValid)
+      if (!caster.IsValid)
         return;
 
-      //Log.Info($"spellhook caster level AFTER : {player.LastSpellCasterLevel}");
+      CreaturePlugin.SetClassByPosition(caster, 0, 43);
 
-      CreaturePlugin.SetClassByPosition(player, 0, 43);
-      //CreaturePlugin.SetLevelByPosition(player, 0, 1);
+      foreach (var spellSlot in caster.GetClassInfo((ClassType)43).GetMemorizedSpellSlots(spell.InnateSpellLevel))
+        if (spellSlot.Spell == spell)
+          spellSlot.IsReady = false;
+
+      int cooldown = SpellUtils.spellCostDictionary[spell][1];
+
+      StartSpellCooldown(caster, spell, cooldown, player);
+      WaitCooldownToRestoreSpell(caster, spell, cooldown);
     }
-    private void DelayedTagAoE(PlayerSystem.Player player)
+    private void DelayedTagAoE(Player player)
     {
       NwAreaOfEffect aoe = UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>();
 
@@ -443,10 +435,10 @@ namespace NWN.Systems
       aoe.Tag = $"_PLAYER_{player.characterId}";
       aoe.GetObjectVariable<LocalVariableBool>("TAGGED").Value = true;
 
-      if (player.TryGetOpenedWindow("aoeDispel", out PlayerSystem.Player.PlayerWindow aoeWindow))
-        ((PlayerSystem.Player.AoEDispelWindow)aoeWindow).UpdateAoEList();
+      if (player.TryGetOpenedWindow("aoeDispel", out Player.PlayerWindow aoeWindow))
+        ((Player.AoEDispelWindow)aoeWindow).UpdateAoEList();
     }
-    private void DelayedTagAoESummon(NwCreature castingCreature, PlayerSystem.Player master)
+    private void DelayedTagAoESummon(NwCreature castingCreature, Player master)
     {
       NwAreaOfEffect aoe = UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>();
 
@@ -457,51 +449,172 @@ namespace NWN.Systems
       aoe.GetObjectVariable<LocalVariableBool>("TAGGED").Value = true;
 
       if (master.TryGetOpenedWindow("aoeDispel", out PlayerSystem.Player.PlayerWindow aoeWindow))
-        ((PlayerSystem.Player.AoEDispelWindow)aoeWindow).UpdateAoEList();
-    }
-    public void HandleAutoSpellBeforeSpellCast(OnSpellCast onSpellCast)
-    {
-      if (onSpellCast.Caster is not NwCreature oPC)
-        return;
-
-      if (oPC.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").HasValue && oPC.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Value != onSpellCast.Spell.Id)
-      {
-        oPC.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Delete();
-        oPC.GetObjectVariable<LocalVariableObject<NwGameObject>>("_AUTO_SPELL_TARGET").Delete();
-        oPC.OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
-      }
+        ((Player.AoEDispelWindow)aoeWindow).UpdateAoEList();
     }
     public void HandleCraftEnchantementCast(OnSpellCast onSpellCast)
     {
-      if (onSpellCast.Caster is not NwCreature oPC || !PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player) || onSpellCast.Spell.ImpactScript != "on_ench_cast")
+      if (onSpellCast.Caster is not NwCreature oPC || !Players.TryGetValue(oPC, out Player player) || onSpellCast.Spell.ImpactScript != "on_ench_cast")
         return;
 
       Enchantement(onSpellCast, player);
     }
-
-    [ScriptHandler("spell_dcr")]
-    private void OnDecreaseSpellCount(CallInfo callInfo)
+    private void StartSpellCooldown(NwCreature caster, NwSpell spell, int cooldown, Player player)
     {
-      if ((MetaMagic)int.Parse(EventsPlugin.GetEventData("METAMAGIC")) != MetaMagic.None)
-        return;
+      byte slotId;
 
-      //Log.Info(EventsPlugin.GetEventData("SPELL_ID"));
-      //Log.Info(callInfo.ObjectSelf.GetObjectVariable<LocalVariableInt>("_CURRENT_SPELL").Value);
-      //Spell spell = (Spell)int.Parse(EventsPlugin.GetEventData("SPELL_ID"));
-      Spell spell = (Spell)callInfo.ObjectSelf.GetObjectVariable<LocalVariableInt>("_CURRENT_SPELL").Value;
-      switch (spell)
+      for (slotId = 0; slotId < 13; slotId++)
       {
-        case Spell.AcidSplash:
-        case Spell.Daze:
-        case Spell.ElectricJolt:
-        case Spell.Flare:
-        case Spell.Light:
-        case Spell.RayOfFrost:
-        case Spell.Resistance:
-        case Spell.Virtue:
-          EventsPlugin.SkipEvent();
+        var slot = caster.GetQuickBarButton(slotId);
+
+        if (slot.ObjectType == QuickBarButtonType.Spell && slot.Param1 == spell.Id)
           break;
       }
+
+      if (slotId > 11)
+        return;
+
+      Color color;
+
+      if (player.chatColors.TryGetValue(102, out byte[] colorArray))
+        color = new(colorArray[0], colorArray[1], colorArray[2], colorArray[3]);
+      else
+        color = ColorConstants.Red;
+
+      DecreaseSpellCooldown(caster, spell.Id, cooldown, GetUIScaledPosition(caster.ControllingPlayer.GetDeviceProperty(PlayerDeviceProperty.GuiScale), slotId), color);
+    }
+    private async void DecreaseSpellCooldown(NwCreature caster, int spell, int cooldown, int xPos, Color color)
+    {
+      if (!caster.IsValid)
+        return;
+
+      caster.LoginPlayer.PostString(cooldown.ToString(), xPos, 100, ScreenAnchor.TopLeft, cooldown, color, color, spell);
+
+      await NwTask.Delay(TimeSpan.FromSeconds(1));
+      cooldown--;
+      
+      if(cooldown > 0)
+        DecreaseSpellCooldown(caster, spell, cooldown, xPos, color);
+    }
+    private int GetUIScaledPosition(int uiScale, int slotId)
+    {
+      return uiScale switch
+      {
+        110 => slotId switch
+        {
+          1 => 51,
+          2 => 56,
+          3 => 64,
+          4 => 71,
+          5 => 77,
+          6 => 84,
+          7 => 91,
+          8 => 97,
+          9 => 104,
+          10 => 111,
+          11 => 117,
+          _ => 44,
+        },
+        120 => slotId switch
+        {
+          1 => 44,
+          2 => 50,
+          3 => 57,
+          4 => 64,
+          5 => 70,
+          6 => 77,
+          7 => 84,
+          8 => 90,
+          9 => 97,
+          10 => 104,
+          11 => 110,
+          _ => 37,
+        },
+        130 => slotId switch
+        {
+          1 => 38,
+          2 => 44,
+          3 => 51,
+          4 => 58,
+          5 => 65,
+          6 => 71,
+          7 => 78,
+          8 => 84,
+          9 => 91,
+          10 => 98,
+          11 => 104,
+          _ => 31,
+        },
+        140 => slotId switch
+        {
+          1 => 33,
+          2 => 39,
+          3 => 46,
+          4 => 53,
+          5 => 60,
+          6 => 66,
+          7 => 73,
+          8 => 79,
+          9 => 86,
+          10 => 93,
+          11 => 99,
+          _ => 26,
+        },
+        150 => slotId switch
+        {
+          1 => 29,
+          2 => 35,
+          3 => 42,
+          4 => 48,
+          5 => 55,
+          6 => 62,
+          7 => 68,
+          8 => 75,
+          9 => 82,
+          10 => 88,
+          11 => 95,
+          _ => 22,
+        },
+        _ => slotId switch
+        {
+          1 => 59,
+          2 => 65,
+          3 => 72,
+          4 => 79,
+          5 => 86,
+          6 => 92,
+          7 => 99,
+          8 => 106,
+          9 => 112,
+          10 => 119,
+          11 => 125,
+          _ => 52,
+        },
+      };
+    }
+    private async void WaitCooldownToRestoreSpell(NwCreature caster, NwSpell spell, int cooldown)
+    {
+      caster.GetObjectVariable<DateTimeLocalVariable>($"_SPELL_COOLDOWN_{spell.Id}").Value = DateTime.Now.AddSeconds(cooldown);
+
+      CancellationTokenSource tokenSource = new CancellationTokenSource();
+
+      Task playerLeft = NwTask.WaitUntil(() => !caster.IsValid, tokenSource.Token);
+      Task cooledDown = NwTask.Delay(TimeSpan.FromSeconds(cooldown), tokenSource.Token);
+
+      await NwTask.WhenAny(playerLeft, cooledDown);
+      tokenSource.Cancel();
+
+      if (playerLeft.IsCompletedSuccessfully || !caster.IsValid)
+        return;
+
+      RestoreSpell(caster, spell);
+    }
+    public void RestoreSpell(NwCreature caster, NwSpell spell)
+    {
+      foreach (var spellSlot in caster.GetClassInfo((ClassType)43).GetMemorizedSpellSlots(spell.InnateSpellLevel))
+        if (spellSlot.Spell == spell)
+          spellSlot.IsReady = true;
+
+      caster.GetObjectVariable<DateTimeLocalVariable>($"_SPELL_COOLDOWN_{spell.Id}").Delete();
     }
     public void CheckIsDivinationBeforeSpellCast(OnSpellCast onSpellCast)
     {
@@ -860,7 +973,7 @@ namespace NWN.Systems
 
       return ScriptHandleResult.Handled;
     }
-    private void HandleSpellDamageLocalisation(Spell spell, NwGameObject oCaster)
+    private static void HandleSpellDamageLocalisation(Spell spell, NwGameObject oCaster)
     {
       switch (spell)
       {
@@ -923,7 +1036,6 @@ namespace NWN.Systems
 
       if (player.pveArena.currentRound == 0) // S'il s'agit d'un spectateur
       {
-        player.oid.LoginCreature.OnSpellCast += HandleAutoSpellBeforeSpellCast;
         player.oid.LoginCreature.OnSpellCast += CheckIsDivinationBeforeSpellCast;
         player.oid.LoginCreature.OnSpellCast -= Arena.Utils.NoMagicMalus;
         return;

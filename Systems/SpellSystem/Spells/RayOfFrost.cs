@@ -29,18 +29,6 @@ namespace NWN.Systems
       }
 
       onSpellCast.TargetObject.ApplyEffect(EffectDuration.Temporary, eRay, TimeSpan.FromSeconds(1.7));
-
-      if (oCaster.IsPlayerControlled && onSpellCast.MetaMagicFeat == MetaMagic.None)
-        _ = oCaster.ActionCastSpellAt(NwSpell.FromSpellType(Spell.RayOfFrost), onSpellCast.TargetObject);
-      //await oCaster.AddActionToQueue(async () => await oCaster.ActionCastSpellAt(NwSpell.FromSpellType(Spell.RayOfFrost), onSpellCast.TargetObject));
-
-        /*oCaster.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Value = (int)onSpellCast.Spell.SpellType;
-        oCaster.GetObjectVariable<LocalVariableObject<NwGameObject>>("_AUTO_SPELL_TARGET").Value = onSpellCast.TargetObject;
-        oCaster.OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
-        oCaster.OnCombatRoundEnd += PlayerSystem.HandleCombatRoundEndForAutoSpells;
-
-        SpellUtils.CancelCastOnMovement(oCaster);*/
-        //SpellUtils.RestoreSpell(oCaster, onSpellCast.Spell.SpellType);
     }
   }
 }

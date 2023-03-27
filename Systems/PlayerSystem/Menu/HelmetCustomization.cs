@@ -247,8 +247,6 @@ namespace NWN.Systems
               {
                 case "helmetSelection":
 
-                  Log.Info(helmetSelection.GetBindValue(player.oid, nuiToken.Token));
-
                   item.Appearance.SetSimpleModel((byte)helmetSelection.GetBindValue(player.oid, nuiToken.Token));
                   NwItem newhelmet = item.Clone(nuiEvent.Player.ControlledCreature);
                   nuiEvent.Player.ControlledCreature.RunEquip(newhelmet, InventorySlot.Head);

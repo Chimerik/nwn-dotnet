@@ -192,7 +192,7 @@ namespace NWN.Systems
       if (baseCost <= 0)
       {
         if (item.BaseItem.ItemType != BaseItemType.CreatureItem)
-          Utils.LogMessageToDMs($"{item.Name} - baseCost introuvable pour baseItemType : {item.BaseItem.ItemType}");
+          LogUtils.LogMessage($"{item.Name} - baseCost introuvable pour baseItemType : {item.BaseItem.ItemType}", LogUtils.LogType.ModuleAdministration);
 
         return 999999;
       }
@@ -290,7 +290,7 @@ namespace NWN.Systems
       }
       catch (Exception)
       {
-        Utils.LogMessageToDMs($"ERROR - Could not find {featId} in the learnable dictionnary.");
+        LogUtils.LogMessage($"ERROR - Could not find {featId} in the learnable dictionnary.", LogUtils.LogType.ModuleAdministration);
         skillBook.Destroy();
       }
     }

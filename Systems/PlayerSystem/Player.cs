@@ -43,7 +43,7 @@ namespace NWN.Systems
       public Dictionary<int, LearnableSpell> learnableSpells = new();
       public int tempCurrentSkillPoint { get; set; }
       public int MaxHP { get => oid.LoginCreature.LevelInfo[0].HitDie + ((oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2); }
-      public int energyRegen { get; set; }
+      public double energyRegen { get; set; }
       public int healthRegen { get; set; }
       public Learnable activeLearnable { get; set; }
       public Dictionary<int, MapPin> mapPinDictionnary = new();
@@ -372,7 +372,7 @@ namespace NWN.Systems
         if (pcState == PcState.Offline)
         {
           pointsPerSecond *= 0.6;
-          Log.Info($"{oid.LoginCreature.Name} was not connected. Applying 40 % malus.");
+          LogUtils.LogMessage($"{oid.LoginCreature.Name} was not connected. Applying 40 % malus.", LogUtils.LogType.Learnables);
         }
         else if (pcState == PcState.AFK)
         {

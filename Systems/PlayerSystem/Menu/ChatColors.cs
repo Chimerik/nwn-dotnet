@@ -19,7 +19,7 @@ namespace NWN.Systems
         private readonly NuiBind<Color> color = new ("color");
         private readonly NuiBind<int> listCount = new ("listCount");
         private readonly List<string> channelList = new ()
-        { "Parler - Joueur", "Parler - DM", "Murmurer - Joueur", "Murmurer - DM", "Groupe - Joueur", "Message privé - Joueur", "Emotes", "Correctif" };
+        { "Parler - Joueur", "Parler - DM", "Murmurer - Joueur", "Murmurer - DM", "Groupe - Joueur", "Message privé - Joueur", "Emotes", "Correctif", "Cooldowns" };
 
         public ChatColorsWindow(Player player) : base(player)
         {
@@ -122,6 +122,7 @@ namespace NWN.Systems
             //6 => (int)ChatChannel.DmShout,
             6 => 100,// emotes
             7 => 101,// correctif
+            8 => 102,// cooldowns
             _ => (int)ChatChannel.PlayerTalk,
           };
         }

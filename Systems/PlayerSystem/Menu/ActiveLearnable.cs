@@ -69,7 +69,6 @@ namespace NWN.Systems
             level.SetBindValue(player.oid, nuiToken.Token, $"{learnable.currentLevel}/{learnable.maxLevel}");
 
             collapsed.SetBindValue(player.oid, nuiToken.Token, false);
-            Log.Info(collapsed.GetBindValue(player.oid, nuiToken.Token));
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 

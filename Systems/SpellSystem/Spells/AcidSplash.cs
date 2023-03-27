@@ -22,17 +22,6 @@ namespace NWN.Systems
         int nDamage = SpellUtils.MaximizeOrEmpower(iDamage, 1 + nCasterLevel / 6, onSpellCast.MetaMagicFeat);
         onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(eVis, Effect.Damage(nDamage, DamageType.Acid)));
       }
-
-      if (onSpellCast.MetaMagicFeat == MetaMagic.None)
-      {
-        oCaster.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Value = (int)onSpellCast.Spell.Id;
-        oCaster.GetObjectVariable<LocalVariableObject<NwGameObject>>("_AUTO_SPELL_TARGET").Value = onSpellCast.TargetObject;
-        oCaster.OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
-        oCaster.OnCombatRoundEnd += PlayerSystem.HandleCombatRoundEndForAutoSpells;
-
-        SpellUtils.CancelCastOnMovement(oCaster);
-        //SpellUtils.RestoreSpell(oCaster, onSpellCast.Spell.SpellType);
-      }
     }
   }
 }

@@ -15,12 +15,18 @@ namespace NWN.Systems
     public static FeedbackService feedbackService;
     private readonly ScriptHandleFactory scriptHandleFactory;
     public static ScriptCallbackHandle removeCoreHandle;
+    private static Effect corePotionEffect;
     public ItemSystem(FeedbackService feedback, ScriptHandleFactory scriptFactory)
     {
       feedbackService = feedback;
       scriptHandleFactory = scriptFactory;
 
       removeCoreHandle = scriptHandleFactory.CreateUniqueHandler(Potion.RemoveCore);
+
+      corePotionEffect = Effect.RunAction(null, removeCoreHandle);
+      corePotionEffect = Effect.LinkEffects(corePotionEffect, Effect.Icon((EffectIcon)131));
+      corePotionEffect.Tag = "_CORE_EFFECT";
+      corePotionEffect.SubType = EffectSubType.Supernatural;
 
       //NwModule.Instance.OnAcquireItem += OnAcquireItem;
       //NwModule.Instance.OnUnacquireItem += OnUnacquireItem;

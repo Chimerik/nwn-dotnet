@@ -38,7 +38,7 @@ namespace NWN.Systems
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? new NuiRect(player.windowRectangles[windowId].X, player.windowRectangles[windowId].Y, player.windowRectangles[windowId].Width, 45) : new NuiRect(player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) / 2 - 250, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 495, 45);
 
           root.Children.Clear();
-          healthBar.Width = windowRectangle.Width - 7;
+          healthBar.Width = windowRectangle.Width - 8;
           root.Children.Add(healthBar);
 
           window = new NuiWindow(root, "")
@@ -74,9 +74,10 @@ namespace NWN.Systems
           CancellationTokenSource tokenSource = new CancellationTokenSource();
 
           int previousHP = player.oid.LoginCreature.HP;
+          int previousRegen = player.healthRegen;
 
           Task windowClosed = NwTask.WaitUntil(() => !player.oid.IsValid || !IsOpen, tokenSource.Token);
-          Task healthChanged = NwTask.WaitUntil(() => !player.oid.IsValid || previousHP != player.oid.LoginCreature.HP, tokenSource.Token);
+          Task healthChanged = NwTask.WaitUntil(() => !player.oid.IsValid || previousHP != player.oid.LoginCreature.HP || previousRegen != player.healthRegen, tokenSource.Token);
 
           await NwTask.WhenAny(windowClosed, healthChanged);
           tokenSource.Cancel();
@@ -86,8 +87,8 @@ namespace NWN.Systems
 
           string currentHP = player.oid.LoginCreature.HP.ToString() + " ";
 
-          if (player.oid.LoginCreature.HP < player.MaxHP && player.endurance.regenerableHP > 0)
-            for (int i = 0; i < player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_PASSIVE_REGEN").Value / 2; i++)
+          if (player.healthRegen > 0)
+            for (int i = 0; i < player.healthRegen / 2; i++)
               currentHP += ">";
 
           readableHealth.SetBindValue(player.oid, nuiToken.Token, currentHP);

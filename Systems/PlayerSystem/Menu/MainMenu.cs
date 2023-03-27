@@ -425,6 +425,9 @@ namespace NWN.Systems
                     if (!player.windows.ContainsKey("healthBar")) player.windows.Add("healthBar", new HealthBarWindow(player));
                     else ((HealthBarWindow)player.windows["healthBar"]).CreateWindow();
 
+                    if (!player.windows.ContainsKey("energyBar")) player.windows.Add("energyBar", new EnergyBarWindow(player));
+                    else ((EnergyBarWindow)player.windows["energyBar"]).CreateWindow();
+
                     CloseWindow();
 
                     break;
@@ -483,7 +486,7 @@ namespace NWN.Systems
             var request = ModuleSystem.googleDriveService.Files.List();
             request.Q = $"name = '{oPlayer.ControlledCreature.Area.Name.Replace("'", "")}'";
 
-            Log.Info($"Area - {oPlayer.ControlledCreature.Area.Name} - Description request - {oPlayer.ControlledCreature.Name} - {request.Q}");
+            LogUtils.LogMessage($"Area - {oPlayer.ControlledCreature.Area.Name} - Description request - {oPlayer.ControlledCreature.Name} - {request.Q}", LogUtils.LogType.AreaManagement);
 
             FileList list = request.Execute();
 

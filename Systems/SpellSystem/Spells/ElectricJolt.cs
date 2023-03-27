@@ -23,17 +23,6 @@ namespace NWN.Systems
         onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, eVis);
         onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, eBad);
       }
-
-      if (onSpellCast.MetaMagicFeat == MetaMagic.None)
-      {
-        oCaster.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Value = (int)onSpellCast.Spell.SpellType;
-        oCaster.GetObjectVariable<LocalVariableObject<NwGameObject>>("_AUTO_SPELL_TARGET").Value = onSpellCast.TargetObject;
-        oCaster.OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
-        oCaster.OnCombatRoundEnd += PlayerSystem.HandleCombatRoundEndForAutoSpells;
-
-        SpellUtils.CancelCastOnMovement(oCaster);
-        //SpellUtils.RestoreSpell(oCaster, onSpellCast.Spell.SpellType);
-      }
     }
   }
 }

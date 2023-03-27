@@ -68,15 +68,10 @@ namespace NWN.Systems
         player.oid.LoginCreature.LevelInfo[0].HitDie = (byte)(player.endurance.maxHP
           + improvedHealth * (toughness + conModifier));
 
-        Effect runAction = Effect.RunAction(null, removeCoreHandle);
-        runAction = Effect.LinkEffects(runAction, Effect.Icon(EffectIcon.TemporaryHitpoints));
-        runAction.Tag = "_CORE_EFFECT";
-        runAction.SubType = EffectSubType.Supernatural;
-
         player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPolymorph));
-        player.oid.LoginCreature.ApplyEffect(EffectDuration.Temporary, runAction, TimeSpan.FromSeconds(potion.GetObjectVariable<LocalVariableInt>("_CORE_DURATION").Value));
+        player.oid.LoginCreature.ApplyEffect(EffectDuration.Temporary, corePotionEffect, TimeSpan.FromSeconds(potion.GetObjectVariable<LocalVariableInt>("_CORE_DURATION").Value));
         
-        LogUtils.LogMessage($"{player.oid.LoginCreature.Name} absorbe le Mélange : HP endurance {player.endurance.maxHP}, max HP {player.oid.LoginCreature.LevelInfo[0].HitDie + conModifier}, HP régénérable {player.endurance.regenerableHP}, mana régénérable {player.endurance.regenerableMana}, se dissipe le {player.endurance.expirationDate}", LogUtils.LogType.EnduranceSystem);
+        LogUtils.LogMessage($"{player.oid.LoginCreature.Name} absorbe le Mélange : HP endurance {player.endurance.maxHP}, max HP {player.oid.LoginCreature.LevelInfo[0].HitDie + conModifier}, HP régénérable {player.endurance.regenerableHP}, mana régénérable {(int)player.endurance.regenerableMana}, se dissipe le {player.endurance.expirationDate}", LogUtils.LogType.EnduranceSystem);
         player.oid.ExportCharacter();
       }
       public static ScriptHandleResult RemoveCore(CallInfo _)

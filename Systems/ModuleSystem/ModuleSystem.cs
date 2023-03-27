@@ -117,13 +117,13 @@ namespace NWN.Systems
       RestorePlayerCorpseFromDatabase();
       RestoreResourceBlocksFromDatabase();
       LoadHeadLists();
+      InitializeTlkOverrides();
 
       TimeSpan nextActivation = DateTime.Now.Hour < 5 ? new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 5, 0, 0) - DateTime.Now : DateTime.Now.AddDays(1).AddHours(-(DateTime.Now.Hour - 5)) - DateTime.Now;
 
       scheduler.ScheduleRepeating(HandlePlayerLoop, TimeSpan.FromSeconds(1));
       scheduler.ScheduleRepeating(HandleSaveDate, TimeSpan.FromMinutes(1));
       scheduler.ScheduleRepeating(HandleMateriaGrowth, TimeSpan.FromHours(1));
-      scheduler.ScheduleRepeating(HandleEnergyRegen, TimeSpan.FromSeconds(1));
       scheduler.ScheduleRepeating(SpawnCollectableResources, TimeSpan.FromHours(24), nextActivation);
       scheduler.ScheduleRepeating(HandleSubscriptionDues, TimeSpan.FromHours(24), nextActivation);
 
@@ -222,6 +222,11 @@ namespace NWN.Systems
 
           i++;
         }
+    }
+    private static void InitializeTlkOverrides()
+    {
+      StrRef tlkEntry = StrRef.FromCustomTlk(190050); 
+      tlkEntry.Override = "Mélange";
     }
     private static async void ReadGDocLine()
     {
@@ -355,7 +360,7 @@ namespace NWN.Systems
       //EventsPlugin.SubscribeEvent("NWNX_ON_DM_POSSESS_BEFORE", "b_dm_possess");
 
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_EMOTE_BEFORE", "on_input_emote");
-      EventsPlugin.SubscribeEvent("NWNX_ON_DECREMENT_SPELL_COUNT_BEFORE", "spell_dcr");
+      //EventsPlugin.SubscribeEvent("NWNX_ON_DECREMENT_SPELL_COUNT_BEFORE", "spell_dcr");
 
       //EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_AFTER", "event_has_feat");
 
@@ -913,6 +918,8 @@ namespace NWN.Systems
           HandleLearnableLoop(player);
           HandleCheckAfkStatus(player);
           HandlePassiveRegen(player);
+          HandleRegen(player);
+          HandleEnergyRegen(player);
         }
       }
     }
@@ -1031,47 +1038,87 @@ namespace NWN.Systems
         player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_PASSIVE_REGEN").Value += 2;
         player.oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_PASSIVE_NEXT_TICK").Value = DateTime.Now.AddSeconds(3);
       }
+    }
+    private static void HandleRegen(PlayerSystem.Player player)
+    {
+      int maxHP = player.MaxHP;
+      player.healthRegen = 0;
 
-      int currentRegen = player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_PASSIVE_REGEN").Value;
+      foreach (var eff in player.oid.LoginCreature.ActiveEffects)
+      {
+        if (eff.Tag.StartsWith("CUSTOM_EFFECT_REGEN_"))
+        {
+          var split = eff.Tag.Split("_");
+          player.healthRegen += int.Parse(split[split.Length - 1]);
 
-      if (player.endurance.regenerableHP - currentRegen < 0)
+          if (player.healthRegen > 19)
+          {
+            player.healthRegen = 20;
+            break;
+          }
+        }
+      }
+
+      if (player.oid.LoginCreature.HP >= maxHP)
+        return;
+
+      if (player.oid.LoginCreature.HP + player.healthRegen >= maxHP)
+      {
+        player.oid.LoginCreature.HP = maxHP;
+        return;
+      }
+
+      player.oid.LoginCreature.HP += player.healthRegen;
+
+      if (player.healthRegen > 19 || player.endurance.regenerableHP < 1)
+        return;
+
+      int currentPassiveRegen = player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_PASSIVE_REGEN").Value;
+
+      if (player.healthRegen + currentPassiveRegen > 19)
+        currentPassiveRegen = 20 - player.healthRegen;
+
+      player.healthRegen += currentPassiveRegen;
+
+      if (player.oid.LoginCreature.HP + currentPassiveRegen > maxHP)
+      {
+        player.endurance.regenerableHP -= maxHP - player.oid.LoginCreature.HP;
+        player.oid.LoginCreature.HP = maxHP;
+      }
+      else if(player.endurance.regenerableHP - currentPassiveRegen < 0)
       {
         player.oid.LoginCreature.HP += player.endurance.regenerableHP;
         player.endurance.regenerableHP = 0;
       }
       else
       {
-        player.oid.LoginCreature.HP += currentRegen;
-        player.endurance.regenerableHP -= currentRegen;
+        player.oid.LoginCreature.HP += currentPassiveRegen;
+        player.endurance.regenerableHP -= currentPassiveRegen;
       }
-
-      int maxHP = player.oid.LoginCreature.LevelInfo[0].HitDie + ((player.oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2);
-
-      if (player.oid.LoginCreature.HP > maxHP)
-        player.oid.LoginCreature.HP = maxHP;
     }
-    private static void HandleEnergyRegen()
+    private static void HandleEnergyRegen(PlayerSystem.Player player)
     {
-      foreach (var player in PlayerSystem.Players.Values)
+      if (player.pcState != PlayerSystem.Player.PcState.Offline && player.oid != null && player.oid.IsConnected && player.oid.LoginCreature != null)
       {
-        if (player.pcState != PlayerSystem.Player.PcState.Offline && player.oid != null && player.oid.IsConnected && player.oid.LoginCreature != null)
+        if (player.endurance.regenerableMana < 1 || player.endurance.currentMana >= player.endurance.maxMana || player.energyRegen < 1)
+          return;
+
+        double currentRegen = player.energyRegen / 3;
+
+        if(player.endurance.currentMana + currentRegen > player.endurance.maxMana)
         {
-          if (player.endurance.regenerableMana < 1 || player.endurance.currentMana >= player.endurance.maxMana)
-            continue;
-
-          if (player.endurance.regenerableHP - player.energyRegen < 0)
-          {
-            player.endurance.currentMana += player.endurance.regenerableMana;
-            player.endurance.regenerableMana = 0;
-          }
-          else
-          {
-            player.endurance.currentMana += player.energyRegen;
-            player.endurance.regenerableMana -= player.energyRegen;
-          }
-
-          if (player.endurance.currentMana > player.endurance.maxMana)
-            player.endurance.currentMana = player.endurance.maxMana;
+          player.endurance.regenerableMana -= (player.endurance.maxMana - player.endurance.currentMana);
+          player.endurance.currentMana = player.endurance.maxMana;
+        }
+        else if (player.endurance.regenerableMana - currentRegen < 0)
+        {
+          player.endurance.currentMana += player.endurance.regenerableMana;
+          player.endurance.regenerableMana = 0;
+        }
+        else
+        {
+          player.endurance.currentMana += currentRegen;
+          player.endurance.regenerableMana -= currentRegen;
         }
       }
     }

@@ -264,10 +264,10 @@ namespace NWN.Systems
                 successBind.SetBindValue(player.oid, nuiToken.Token, successValue);
               }
 
-              if (successValue <= 0)
+              /*if (successValue <= 0)
                 Log.Info("PERDU !");
               else if (successValue >= 1)
-                Log.Info("GAGNE !");
+                Log.Info("GAGNE !");*/
 
               if (successValue > 0.6)
               {

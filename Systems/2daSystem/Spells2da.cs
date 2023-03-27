@@ -14,26 +14,16 @@ namespace NWN.Systems
     {
       energyCost = entry.GetInt("ImmunityType").GetValueOrDefault(0);
       cooldown = entry.GetInt("ItemImmunity").GetValueOrDefault(0);
-
-      if (RowIndex < 840)
-        return;
-
-      if(!entry.GetStrRef("Name").HasValue)
-      {
-        Utils.LogMessageToDMs($"SPELL SYSTEM - {RowIndex} - N'a pas de nom TLK défini");
-        return;
-      }
-
-      if (!entry.GetStrRef("SpellDesc").HasValue)
-      {
-        Utils.LogMessageToDMs($"SPELL SYSTEM - {RowIndex} - N'a pas de description TLK défini");
-        return;
-      }
       
-      StrRef tlkEntry = entry.GetStrRef("Name").Value;
-      tlkEntry.Override = StringUtils.ConvertToUTF8(entry.GetString("Label"));
-      tlkEntry = entry.GetStrRef("SpellDesc").Value;
-      tlkEntry.Override = StringUtils.ConvertToUTF8(entry.GetString("Description"));
+      StrRef tlkEntry = entry.GetStrRef("Name").GetValueOrDefault(StrRef.FromCustomTlk(0));
+
+      if (tlkEntry.Id > 0 && string.IsNullOrEmpty(tlkEntry.ToString()))
+        tlkEntry.Override = StringUtils.ConvertToUTF8(entry.GetString("Label"));
+
+      tlkEntry = entry.GetStrRef("SpellDesc").GetValueOrDefault(StrRef.FromCustomTlk(0));
+
+      if (tlkEntry.Id > 0 && string.IsNullOrEmpty(tlkEntry.ToString()))
+        tlkEntry.Override = StringUtils.ConvertToUTF8(entry.GetString("Description")).Replace("$", "\n");
     }
   }
 
@@ -41,12 +31,11 @@ namespace NWN.Systems
   public class Spells2da
   {
     public static readonly TwoDimArray<SpellEntry> spellTable = NwGameTables.GetTable<SpellEntry>("spells.2da");
-    public static readonly Dictionary<NwSpell, int[]> spellCostDictionary = new();
 
     public Spells2da()
     {
       foreach (var entry in spellTable)
-        spellCostDictionary.Add(NwSpell.FromSpellId(entry.RowIndex), new int[] { entry.energyCost, entry.cooldown });
+        SpellUtils.spellCostDictionary.Add(NwSpell.FromSpellId(entry.RowIndex), new int[] { entry.energyCost, entry.cooldown });
     }
   }
 }
