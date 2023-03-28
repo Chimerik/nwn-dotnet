@@ -800,17 +800,18 @@ namespace NWN.Systems
         if (dexBonus < 0)
           dexBonus = 0;
 
+        // TODO : Plutôt faire dépendre ça de la maîtrise de l'arme
         int safetyLevel = attacker.learnableSkills.ContainsKey(CustomSkill.CombattantPrecautionneux) ? attacker.learnableSkills[CustomSkill.CombattantPrecautionneux].totalPoints : 0;
-        int durabilityChance = 30 - (dexBonus - safetyLevel);
-        if (durabilityChance < 1)
-          durabilityChance = 1;
+        int durabilityRate = 30 - (dexBonus - safetyLevel);
+        if (durabilityRate < 1)
+          durabilityRate = 1;
 
         int durabilityRoll = Utils.random.Next(1000);
 
         LogUtils.LogMessage($"Jet de durabilité - {attacker.oid.LoginCreature.Name} - {ctx.attackWeapon.Name}", LogUtils.LogType.Durability);
-        LogUtils.LogMessage($"30 (base) - {dexBonus} (DEX) - {safetyLevel} (Compétence) = {durabilityChance} VS {durabilityRoll}", LogUtils.LogType.Durability);
+        LogUtils.LogMessage($"30 (base) - {dexBonus} (DEX) - {safetyLevel} (Compétence) = {durabilityRate} VS {durabilityRoll}", LogUtils.LogType.Durability);
 
-        if (durabilityRoll < durabilityChance)
+        if (durabilityRoll < durabilityRate)
           DecreaseItemDurability(ctx.attackWeapon, attacker.oid, GetWeaponDurabilityLoss(ctx));
       }
 
@@ -827,57 +828,58 @@ namespace NWN.Systems
       if (dexBonus < 0)
         dexBonus = 0;
 
+      // TODO : Plutôt faire dépendre ça de la maîtrise de l'arme, de l'armure ou du bouclier
       int safetyLevel = player.learnableSkills.ContainsKey(CustomSkill.CombattantPrecautionneux) ? player.learnableSkills[CustomSkill.CombattantPrecautionneux].totalPoints : 0;
 
       int durabilityRate = 30 - dexBonus - safetyLevel;
       if (durabilityRate < 1)
         durabilityRate = 1;
 
-      int durabilityRoll = Utils.random.Next(1000); ;
+      int durabilityRoll = Utils.random.Next(1000);
 
       LogUtils.LogMessage($"Jet de durabilité - {player.oid.LoginCreature.Name}", LogUtils.LogType.Durability);
       LogUtils.LogMessage($"30 (base) - {dexBonus} (DEX) - {safetyLevel} (Compétence) = {durabilityRate} VS {durabilityRoll}", LogUtils.LogType.Durability);
 
       if (durabilityRoll < durabilityRate)
-        return;
-
-      if (ctx.targetArmor is not null && ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1)
       {
-        LogUtils.LogMessage($"Armure : {ctx.targetArmor.Name}", LogUtils.LogType.Durability);
-        DecreaseItemDurability(ctx.targetArmor, player.oid, GetArmorDurabilityLoss(ctx));
-      }
-
-      NwItem leftSlot = ctx.oTarget.GetItemInSlot(InventorySlot.LeftHand);
-
-      if (leftSlot is not null && leftSlot.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1)
-      {
-        LogUtils.LogMessage($"Bouclier / Parade : {leftSlot.Name}", LogUtils.LogType.Durability);
-        DecreaseItemDurability(leftSlot, player.oid, GetShieldDurabilityLoss(ctx));
-      }
-
-      List<NwItem> slots = new List<NwItem>();
-
-      if (ctx.oTarget.GetItemInSlot(InventorySlot.Belt) != null)
-        slots.Add(ctx.oTarget.GetItemInSlot(InventorySlot.Belt));
-
-      if (ctx.oTarget.GetItemInSlot(InventorySlot.LeftRing) != null)
-        slots.Add(ctx.oTarget.GetItemInSlot(InventorySlot.LeftRing));
-
-      if (ctx.oTarget.GetItemInSlot(InventorySlot.RightRing) != null)
-        slots.Add(ctx.oTarget.GetItemInSlot(InventorySlot.RightRing));
-
-      if (ctx.oTarget.GetItemInSlot(InventorySlot.Neck) != null)
-        slots.Add(ctx.oTarget.GetItemInSlot(InventorySlot.Neck));
-
-      if (slots.Count > 0)
-      {
-        int random = NwRandom.Roll(Utils.random, slots.Count) - 1;
-        NwItem randomItem = slots.ElementAt(random);
-
-        if (randomItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1)
+        if (ctx.targetArmor is not null && ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1)
         {
-          LogUtils.LogMessage($"Equipement aléatoire : {randomItem.Name}", LogUtils.LogType.Durability);
-          DecreaseItemDurability(randomItem, player.oid, GetItemDurabilityLoss(ctx));
+          LogUtils.LogMessage($"Armure : {ctx.targetArmor.Name}", LogUtils.LogType.Durability);
+          DecreaseItemDurability(ctx.targetArmor, player.oid, GetArmorDurabilityLoss(ctx));
+        }
+
+        NwItem leftSlot = ctx.oTarget.GetItemInSlot(InventorySlot.LeftHand);
+
+        if (leftSlot is not null && leftSlot.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1)
+        {
+          LogUtils.LogMessage($"Bouclier / Parade : {leftSlot.Name}", LogUtils.LogType.Durability);
+          DecreaseItemDurability(leftSlot, player.oid, GetShieldDurabilityLoss(ctx));
+        }
+
+        List<NwItem> slots = new();
+
+        if (ctx.oTarget.GetItemInSlot(InventorySlot.Belt) != null)
+          slots.Add(ctx.oTarget.GetItemInSlot(InventorySlot.Belt));
+
+        if (ctx.oTarget.GetItemInSlot(InventorySlot.LeftRing) != null)
+          slots.Add(ctx.oTarget.GetItemInSlot(InventorySlot.LeftRing));
+
+        if (ctx.oTarget.GetItemInSlot(InventorySlot.RightRing) != null)
+          slots.Add(ctx.oTarget.GetItemInSlot(InventorySlot.RightRing));
+
+        if (ctx.oTarget.GetItemInSlot(InventorySlot.Neck) != null)
+          slots.Add(ctx.oTarget.GetItemInSlot(InventorySlot.Neck));
+
+        if (slots.Count > 0)
+        {
+          int random = NwRandom.Roll(Utils.random, slots.Count) - 1;
+          NwItem randomItem = slots.ElementAt(random);
+
+          if (randomItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1)
+          {
+            LogUtils.LogMessage($"Equipement aléatoire : {randomItem.Name}", LogUtils.LogType.Durability);
+            DecreaseItemDurability(randomItem, player.oid, GetItemDurabilityLoss(ctx));
+          }
         }
       }
     }
@@ -934,7 +936,7 @@ namespace NWN.Systems
 
       return durabilityLoss;
     }
-    private static void DecreaseItemDurability(NwItem item, NwPlayer oPC, int durabilityLoss)
+    private static async void DecreaseItemDurability(NwItem item, NwPlayer oPC, int durabilityLoss)
     {
       item.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value -= durabilityLoss;
       LogUtils.LogMessage($"Durabilité perdue : {durabilityLoss} - Reste : {item.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value}", LogUtils.LogType.Durability);
@@ -945,6 +947,13 @@ namespace NWN.Systems
         {
           item.Destroy();
           oPC.SendServerMessage($"Il ne reste plus que des ruines de votre {item.Name.ColorString(ColorConstants.White)}. Ces débris ne sont même pas réparables !", ColorConstants.Red);
+
+          if (oPC.LoginCreature.GetSlotFromItem(item) == EquipmentSlots.Chest)
+          {
+            NwItem rags = await NwItem.Create("rags", oPC.LoginCreature);
+            oPC.LoginCreature.RunEquip(rags, EquipmentSlots.Chest);
+          }
+
           LogUtils.LogMessage("Objet de qualité non artisanale détruit.", LogUtils.LogType.Durability);
         }
         else

@@ -39,14 +39,9 @@ namespace NWN.Systems
         {
           switch (windowId)
           {
-            case "bodyAppearanceModifier":
-              //CloseWindow();
-              ((BodyAppearanceWindow)this).CreateWindow(((BodyAppearanceWindow)this).targetCreature);
-              break;
-            case "healthBar":
-              //CloseWindow();
-              ((HealthBarWindow)this).CreateWindow();
-              break;
+            case "bodyAppearanceModifier": ((BodyAppearanceWindow)this).CreateWindow(((BodyAppearanceWindow)this).targetCreature); break;
+            case "healthBar": ((HealthBarWindow)this).CreateWindow(); break;
+            case "energyBar": ((EnergyBarWindow)this).CreateWindow(); break;
           }
         }
       }

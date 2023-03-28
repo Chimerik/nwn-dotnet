@@ -9,7 +9,7 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    private static async void Virtue(SpellEvents.OnSpellCast onSpellCast, PlayerSystem.Player player)
+    private static async void HealingBreeze(SpellEvents.OnSpellCast onSpellCast)
     {
       if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oCaster))
         return;

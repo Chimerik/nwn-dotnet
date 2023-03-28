@@ -20,7 +20,6 @@ namespace NWN.Systems
     private void HandlePlayerConnect(ModuleEvents.OnClientEnter HandlePlayerConnect)
     {
       NwPlayer oPC = HandlePlayerConnect.Player;
-
       LogUtils.LogMessage($"{oPC.PlayerName} vient de connecter {oPC.LoginCreature.Name} ({NwModule.Instance.PlayerCount} joueurs)", LogUtils.LogType.PlayerConnections);
 
       if (!Players.TryGetValue(oPC.LoginCreature, out Player player))
@@ -531,7 +530,7 @@ namespace NWN.Systems
       }
       public void FinalizePlayerData()
       {
-        if (oid == null || !oid.IsValid || oid.LoginCreature == null)
+        if (oid == null || oid.LoginCreature == null)
           return;
 
         HandleHealthPointInit();
@@ -547,6 +546,12 @@ namespace NWN.Systems
       {
         if (oid.LoginCreature.HP < 1)
           oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Death());
+
+        if (!windows.ContainsKey("healthBar")) windows.Add("healthBar", new HealthBarWindow(this));
+        else ((HealthBarWindow)windows["healthBar"]).CreateWindow();
+
+        if (!windows.ContainsKey("energyBar")) windows.Add("energyBar", new EnergyBarWindow(this));
+        else ((EnergyBarWindow)windows["energyBar"]).CreateWindow();
 
         if (oid.LoginCreature.ActiveEffects.Any(e => e.Tag == "_CORE_EFFECT"))
           return;
@@ -569,18 +574,6 @@ namespace NWN.Systems
         LogUtils.LogMessage($"{oid.LoginCreature.Name} application des effets du Mélange à la connexion : HP endurance {endurance.maxHP}, max HP {oid.LoginCreature.LevelInfo[0].HitDie + conModifier}, HP régénérable {endurance.regenerableHP}, max énergie {endurance.maxMana}, énergie régénérable {(int)endurance.regenerableMana}, se dissipe le {endurance.expirationDate}", LogUtils.LogType.EnduranceSystem);
 
         energyRegen = oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand)?.BaseItem.ItemType == BaseItemType.MagicStaff ? 4 : 2;
-
-        if (!windows.ContainsKey("healthBar"))windows.Add("healthBar", new HealthBarWindow(this));
-        else ((HealthBarWindow)windows["healthBar"]).CreateWindow();
-
-        if (!windows.ContainsKey("energyBar")) windows.Add("energyBar", new EnergyBarWindow(this));
-        else ((EnergyBarWindow)windows["energyBar"]).CreateWindow();
-
-        if (!windows.ContainsKey("energyBar")) windows.Add("energyBar", new EnergyBarWindow(this));
-        else ((EnergyBarWindow)windows["energyBar"]).CreateWindow();
-
-        if (!windows.ContainsKey("energyBar")) windows.Add("energyBar", new EnergyBarWindow(this));
-        else ((EnergyBarWindow)windows["energyBar"]).CreateWindow();
       }
       private void HandleLearnableInit()
       {

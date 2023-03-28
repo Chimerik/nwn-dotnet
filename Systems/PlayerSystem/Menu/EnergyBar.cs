@@ -1,9 +1,10 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
 using Anvil.API;
-using System.Threading.Tasks;
-using System;
+using Anvil.API.Events;
 
 namespace NWN.Systems
 {
@@ -36,10 +37,10 @@ namespace NWN.Systems
         public void CreateWindow()
         {
           bool closableBind = IsOpen && !closable.GetBindValue(player.oid, nuiToken.Token);
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? new NuiRect(player.windowRectangles[windowId].X, player.windowRectangles[windowId].Y, player.windowRectangles[windowId].Width, 45) : new NuiRect(player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) / 2 - 250, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 495, 45);
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) / 2 + 250, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 495, 60);
 
           root.Children.Clear();
-          energyBar.Width = windowRectangle.Width - 8;
+          energyBar.Width = windowRectangle.Width - 15;
           root.Children.Add(energyBar);
 
           window = new NuiWindow(root, "")
@@ -48,7 +49,7 @@ namespace NWN.Systems
             Resizable = resizable,
             Collapsed = false,
             Closable = closable,
-            Transparent = false,
+            Transparent = true,
             Border = false,
           };
 
@@ -58,7 +59,7 @@ namespace NWN.Systems
 
             readableEnergy.SetBindValue(player.oid, nuiToken.Token, ((int)Math.Round(player.endurance.currentMana, MidpointRounding.ToZero)).ToString());
             energy.SetBindValue(player.oid, nuiToken.Token, (float)(player.endurance.currentMana / (double)player.endurance.maxMana));
-            drawListRect.SetBindValue(player.oid, nuiToken.Token, new((float)(energyBar.Width.Value / 1.3), 15, 151, 20));
+            drawListRect.SetBindValue(player.oid, nuiToken.Token, new((float)(energyBar.Width.Value / StringUtils.GetDrawListTextPositionScaledToUI(player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale))), energyBar.Height.Value / 3, 151, 20));
 
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
@@ -67,6 +68,8 @@ namespace NWN.Systems
             resizable.SetBindValue(player.oid, nuiToken.Token, closableBind);
 
             IsOpen = true;
+            player.oid.OnClientLeave -= SetWindowClosed;
+            player.oid.OnClientLeave += SetWindowClosed;
             UpdateCurrentEnergy();
           }
         }
@@ -96,6 +99,10 @@ namespace NWN.Systems
           energy.SetBindValue(player.oid, nuiToken.Token, (float)((double)player.endurance.currentMana / (double)player.endurance.maxMana));
 
           UpdateCurrentEnergy();
+        }
+        private void SetWindowClosed(ModuleEvents.OnClientLeave onLeave)
+        {
+          IsOpen = false;
         }
       }
     }

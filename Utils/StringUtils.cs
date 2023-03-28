@@ -141,5 +141,21 @@ namespace NWN
         if (player?.ControlledCreature?.Area == target?.Area && player?.ControlledCreature.DistanceSquared(target) < 1225)
           player.DisplayFloatingTextStringOnCreature(target, message);
     }
+    public static double GetDrawListTextPositionScaledToUI(int uiScale)
+    {
+      if (uiScale < 160)
+        return Math.Round(2 - (0.14 * ((uiScale / 100 - 1) * 10)), 2, MidpointRounding.ToEven);
+      else
+      {
+        return uiScale switch
+        {
+          160 => 1.22,
+          170 => 1.2,
+          180 => 1.14,
+          190 => 1.1,
+          _ => 1,
+        };
+      } 
+    }
   }
 }

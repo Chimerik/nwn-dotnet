@@ -354,7 +354,7 @@ namespace NWN.Systems
           break;
 
         case Spell.Virtue:
-          Virtue(onSpellCast, player);
+          HealingBreeze(onSpellCast);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
