@@ -198,41 +198,6 @@ namespace NWN.Systems
             break;
         }
       }
-      /*public async void InitializePlayerLearnableJobs()
-      {
-        await NwTask.WaitUntil(() => oid.LoginCreature.Location.Area != null);
-
-        if (learnableSkills.Any(l => l.Value.active))
-          learnableSkills.First(l => l.Value.active).Value.AwaitPlayerStateChangeToCalculateSPGain(this);
-
-        else if (learnableSpells.Any(l => l.Value.active))
-          learnableSpells.First(l => l.Value.active).Value.AwaitPlayerStateChangeToCalculateSPGain(this);
-
-        int improvedHealth = learnableSkills.ContainsKey(CustomSkill.ImprovedHealth) ? learnableSkills[CustomSkill.ImprovedHealth].currentLevel : 0;
-        int toughness = learnableSkills.ContainsKey(CustomSkill.Toughness) ? learnableSkills[CustomSkill.Toughness].currentLevel : 0;
-        
-        oid.LoginCreature.LevelInfo[0].HitDie = (byte)(80
-          + (1 + 5 * ((oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2)
-          + toughness) * improvedHealth);
-
-        Log.Info($"hit die : {oid.LoginCreature.LevelInfo[0].HitDie}");
-        Log.Info($"{(oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2}");
-        Log.Info($"{toughness}");
-        Log.Info($"{improvedHealth}");
-        Log.Info($"{(1 + 5 * ((oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2) + toughness) * improvedHealth}");
-
-        if (oid.LoginCreature.HP <= 0)
-          oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Death());
-
-        if (learnableSkills.ContainsKey(CustomSkill.ImprovedAttackBonus))
-          oid.LoginCreature.BaseAttackBonus = (byte)(oid.LoginCreature.BaseAttackBonus + learnableSkills[CustomSkill.ImprovedAttackBonus].totalPoints);
-
-        if (activeLearnable != null && activeLearnable.active && activeLearnable.spLastCalculation.HasValue)
-          activeLearnable.acquiredPoints += (DateTime.Now - activeLearnable.spLastCalculation).Value.TotalSeconds * GetSkillPointsPerSecond(activeLearnable);
-
-        pcState = PcState.Online;
-        oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
-      }*/
       public void UnloadMenuQuickbar()
       {
         oid.ControlledCreature.RemoveFeat(CustomFeats.CustomMenuUP);
@@ -375,10 +340,7 @@ namespace NWN.Systems
           LogUtils.LogMessage($"{oid.LoginCreature.Name} was not connected. Applying 40 % malus.", LogUtils.LogType.Learnables);
         }
         else if (pcState == PcState.AFK)
-        {
           pointsPerSecond *= 0.8;
-          //Log.Info($"{oid.LoginCreature.Name} was afk. Applying 20 % malus.");
-        }
 
         if (oid.LoginCreature.KnowsFeat(Feat.QuickToMaster))
           pointsPerSecond *= 1.1;

@@ -208,6 +208,8 @@ namespace NWN.Systems
     }
     public async void HandleSpellInput(OnSpellAction onSpellAction)
     {
+      onSpellAction.Caster.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
+
       if (!(Players.TryGetValue(onSpellAction.Caster, out Player player)))
         return;
 
@@ -495,7 +497,7 @@ namespace NWN.Systems
       if(cooldown > 0)
         DecreaseSpellCooldown(caster, spell, cooldown, xPos, color);
     }
-    private int GetUIScaledPosition(int uiScale, int slotId)
+    private static int GetUIScaledPosition(int uiScale, int slotId)
     {
       return uiScale switch
       {

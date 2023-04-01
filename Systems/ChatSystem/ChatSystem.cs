@@ -32,7 +32,7 @@ namespace NWN.Systems
       if(onChat.ChatChannel == ChatChannel.ServerMessage)
         return;
       
-      if (!(onChat.Sender is NwCreature oSender) || oSender.GetObjectVariable<LocalVariableString>("_AWAITING_PLAYER_INPUT").HasValue)
+      if (onChat.Sender is not NwCreature oSender || oSender.GetObjectVariable<LocalVariableString>("_AWAITING_PLAYER_INPUT").HasValue)
         return;
 
       if (!oSender.IsPlayerControlled || !PlayerSystem.Players.TryGetValue(oSender.ControllingPlayer.LoginCreature, out playerSender))
@@ -42,6 +42,8 @@ namespace NWN.Systems
       {
 
       }
+
+      playerSender.oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
 
       if (oSender.Area != null)
         areaName = oSender.Area.Name;
@@ -105,6 +107,7 @@ namespace NWN.Systems
         using StreamWriter file =
         new StreamWriter(path, true);
         file.WriteLineAsync(DateTime.Now.ToShortTimeString() + " - [" + ctx.channel + " - " + areaName + "] " + ctx.oSender.ControlledCreature.OriginalName + " : " + ctx.msg);
+        LogUtils.LogChatMessage(areaName, $"[{ctx.oSender.PlayerName} - {ctx.channel}] {ctx.oSender.ControlledCreature.OriginalName} : {ctx.msg}");
       }
       else
       {

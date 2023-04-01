@@ -37,7 +37,7 @@ namespace NWN.Systems
     {
       LogUtils.LogMessage($"Attack Event - Attacker {onAttack.Attacker.Name} - Target {onAttack.Target.Name} - Result {onAttack.AttackResult}" +
         $" - Base damage {onAttack.DamageData.Base} - attack number {onAttack.AttackNumber} - attack type {onAttack.WeaponAttackType}", LogUtils.LogType.Combat);
-      
+
       if (onAttack.Target is not NwCreature oTarget)
         return;
       

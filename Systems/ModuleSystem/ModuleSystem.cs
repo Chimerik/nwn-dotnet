@@ -227,6 +227,12 @@ namespace NWN.Systems
     {
       StrRef tlkEntry = StrRef.FromCustomTlk(190050); 
       tlkEntry.Override = "Mélange";
+
+      tlkEntry = StrRef.FromCustomTlk(190051);
+      tlkEntry.Override = "Tranche-artère";
+
+      tlkEntry = StrRef.FromCustomTlk(190052);
+      tlkEntry.Override = "Adrénaline : 4\nAttaque à l'épée.\nInflige 5...21...25 secondes de saignement.";
     }
     private static async void ReadGDocLine()
     {
@@ -989,6 +995,7 @@ namespace NWN.Systems
           if (minutesSinceLastAction < 5.0)
           {
             player.pcState = PlayerSystem.Player.PcState.Online;
+            LogUtils.LogMessage($"{player.oid.PlayerName} sorti de AFK - Retrait du malus", LogUtils.LogType.Learnables);
 
             foreach (Effect eff in player.oid.LoginCreature.ActiveEffects)
               if (eff.Tag == "EFFECT_VFX_AFK")
@@ -1012,6 +1019,7 @@ namespace NWN.Systems
         player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, afkVXF);
 
         player.oid.LoginCreature.GetObjectVariable<LocalVariableLocation>("_AFK_LOCATION").Value = player.oid.ControlledCreature.Location;
+        LogUtils.LogMessage($"{player.oid.PlayerName} est AFK - Application de 20 % de malus", LogUtils.LogType.Learnables);
       }
     }
     private static void HandlePassiveRegen(PlayerSystem.Player player)

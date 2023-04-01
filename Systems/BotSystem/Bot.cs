@@ -24,6 +24,7 @@ namespace NWN.Systems
     public static OverwritePermissions requestForumPermissions = new();
     public static SocketCategoryChannel forumCategory;
     public static SocketForumChannel logForum;
+    public static SocketForumChannel chatLogForum;
 
     public static async Task MainAsync()
     {
@@ -143,6 +144,7 @@ namespace NWN.Systems
       logChannel = _client.GetChannel(703964971549196339) as IMessageChannel;
       forumCategory = discordServer.GetCategoryChannel(1031290085154500739);
       logForum = discordServer.GetForumChannel(1084562366794043453);
+      chatLogForum = discordServer.GetForumChannel(1091614035335729213);
 
       chimDiscordUser = _client.GetUser(232218662080086017);
       bigbyDiscordUser = _client.GetUser(225961076448034817);

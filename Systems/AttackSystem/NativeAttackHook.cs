@@ -21,7 +21,7 @@ namespace NWN.Systems
     private readonly CExoString itemGradeVariable = "_ITEM_GRADE".ToExoString();
     private readonly CExoString durabilityVariable = "_DURABILITY".ToExoString();
     //private readonly CExoString spellIdVariable = "_CURRENT_SPELL".ToExoString();
-    
+
     private delegate int GetDamageRollHook(void* thisPtr, void* pTarget, int bOffHand, int bCritical, int bSneakAttack, int bDeathAttack, int bForceMax);
     private delegate void ResolveAttackRollHook(void* pCreature, void* pTarget);
     private delegate byte GetSpellLikeAbilityCasterLevelHook(void* pCreatureStats, int nSpellId);

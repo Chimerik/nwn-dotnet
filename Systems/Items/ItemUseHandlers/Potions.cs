@@ -102,7 +102,7 @@ namespace NWN.Systems
         if (player.oid.LoginCreature.HP > player.oid.LoginCreature.LevelInfo[0].HitDie + conModifier)
           player.oid.LoginCreature.HP = player.oid.LoginCreature.LevelInfo[0].HitDie + conModifier;
 
-        LogUtils.LogMessage($"{player.oid.LoginCreature.Name} perd les effets du Mélange : HP endurance {player.endurance.maxHP}, max HP {player.oid.LoginCreature.LevelInfo[0].HitDie + conModifier}, HP régénérable {player.endurance.regenerableHP}, mana régénérable {player.endurance.regenerableMana}", LogUtils.LogType.EnduranceSystem);
+        LogUtils.LogMessage($"{player.oid.LoginCreature.Name} perd les effets du Mélange : HP endurance {player.endurance.maxHP}, max HP {player.oid.LoginCreature.LevelInfo[0].HitDie + conModifier}, HP régénérable {player.endurance.regenerableHP}, mana régénérable {(int)player.endurance.regenerableMana}", LogUtils.LogType.EnduranceSystem);
 
         return ScriptHandleResult.Handled;
       }

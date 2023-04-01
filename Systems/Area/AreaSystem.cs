@@ -54,6 +54,7 @@ namespace NWN.Systems
         area.OnEnter += OnAreaEnter;
         area.OnExit += OnAreaExit;
         area.OnHeartbeat += OnAreaHeartbeat;
+        area.RestingAllowed = false;
 
         if(areaMusics.ContainsKey(area.Tag))
         {

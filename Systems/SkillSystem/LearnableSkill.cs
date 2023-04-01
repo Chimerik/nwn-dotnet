@@ -98,8 +98,8 @@ namespace NWN.Systems
       pointsToNextLevel = 250 * multiplier * Math.Pow(5, currentLevel);
       active = false;
 
-      if (activable)
-        player.oid.LoginCreature.AddFeat((Feat)player.learnableSkills.FirstOrDefault(l => l.Value == this).Key - 10000);
+      if (activable && !player.oid.LoginCreature.Feats.Any(f => f.Id == id - 10000))
+        player.oid.LoginCreature.AddFeat((Feat)(id - 10000));
 
       //PlayerSystem.Log.Info($"effect : {skillEffect}");
 

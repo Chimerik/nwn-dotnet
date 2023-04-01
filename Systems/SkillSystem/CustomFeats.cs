@@ -90,6 +90,8 @@
     public const int TwoWeaponFighting = 10041;
     public const int WeaponFinesse = 10042;
 
+    public const int SeverArtery = 11136;
+
     public const int ImprovedStrength = 20000;
     public const int ImprovedDexterity = 20001;
     public const int ImprovedConstitution = 20002;
