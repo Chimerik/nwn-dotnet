@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Reactive.Concurrency;
 using System.Threading.Tasks;
 
 using Anvil.API;
@@ -35,6 +36,48 @@ namespace NWN
       NwWaypoint spawnPoint = onDeath.KilledCreature.GetObjectVariable<LocalVariableObject<NwWaypoint>>("_SPAWN").Value;
       await NwTask.Delay(TimeSpan.FromMinutes(10));
       spawnPoint.GetObjectVariable<LocalVariableBool>("_SPAWN_COOLDOWN").Delete();
+    }
+    public static void CreatureHealthRegenLoop(NwCreature creature)
+    {
+      if (creature is null || !creature.IsValid)
+        return;
+
+      int maxHP = creature.MaxHP;
+      int healthRegen = 0;
+
+      foreach (var eff in creature.ActiveEffects)
+      {
+        if (eff.Tag == "CUSTOM_EFFECT_BLEEDING")
+          healthRegen -= 3;
+        else if (eff.Tag.StartsWith("CUSTOM_EFFECT_REGEN_"))
+        {
+          var split = eff.Tag.Split("_");
+          healthRegen += int.Parse(split[split.Length - 1]);
+
+          if (healthRegen > 19)
+          {
+            healthRegen = 20;
+            break;
+          }
+        }
+      }
+
+      if (healthRegen < -20)
+        healthRegen = -20;
+
+      if (creature.HP >= maxHP && healthRegen >= 0)
+        return;
+
+      if (creature.HP + healthRegen >= maxHP)
+      {
+        creature.HP = maxHP;
+        return;
+      }
+
+      creature.HP += healthRegen;
+
+      if (creature.HP < 1)
+        creature.ApplyEffect(EffectDuration.Instant, Effect.Death(false, false));
     }
     public static void ForceSlotReEquip(NwCreature creature, NwItem item, InventorySlot slot = InventorySlot.Chest)
     {

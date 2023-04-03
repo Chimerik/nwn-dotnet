@@ -178,7 +178,6 @@ namespace NWN.Systems
           break;
       }
     }
-
     public static void HandleBeforeScrollLearn(OnItemScrollLearn onScrollLearn)
     {
       NwCreature oPC = onScrollLearn.Creature;

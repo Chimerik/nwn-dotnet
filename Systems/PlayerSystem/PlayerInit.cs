@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
-
 using Microsoft.Data.Sqlite;
 
 using Newtonsoft.Json;
@@ -539,6 +538,7 @@ namespace NWN.Systems
         CheckPlayerConnectionInfo();
         HandleMailNotification();
         RestoreCooledDownSpells();
+        HandleAdrenalineInit();
         pcState = PcState.Online;
         oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
       }
@@ -624,6 +624,18 @@ namespace NWN.Systems
             string[] split = localVar.Name.Split("_");
             WaitCooldownToRestoreSpell(NwSpell.FromSpellId(int.Parse(split[split.Length - 1])), cooldown);
           }
+      }
+      private void HandleAdrenalineInit()
+      {
+        if (oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>($"_LAST_DAMAGE_ON").HasNothing)
+        {
+          foreach (var feat in oid.LoginCreature.Feats)
+            if (feat.MaxLevel > 0 && feat.MaxLevel < 255)
+            {
+              oid.LoginCreature.DecrementRemainingFeatUses(feat);
+              oid.LoginCreature.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{feat.Id}").Delete();
+            }
+        }
       }
       private async void WaitCooldownToRestoreSpell(NwSpell spell, double cooldown)
       {

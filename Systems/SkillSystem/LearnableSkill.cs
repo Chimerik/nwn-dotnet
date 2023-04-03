@@ -101,10 +101,7 @@ namespace NWN.Systems
       if (activable && !player.oid.LoginCreature.Feats.Any(f => f.Id == id - 10000))
         player.oid.LoginCreature.AddFeat((Feat)(id - 10000));
 
-      //PlayerSystem.Log.Info($"effect : {skillEffect}");
-
-      if (skillEffect != null)
-        skillEffect.Invoke(player, id);
+      skillEffect?.Invoke(player, id);
 
       if (player.TryGetOpenedWindow("activeLearnable", out PlayerSystem.Player.PlayerWindow activeLearnableWindow))
         activeLearnableWindow.CloseWindow();
@@ -116,6 +113,7 @@ namespace NWN.Systems
       }
 
       player.oid.ExportCharacter();
+      LogUtils.LogMessage($"{player.oid.LoginCreature.Name} maîtrise {name} niveau {currentLevel}", LogUtils.LogType.Learnables);
     }
   }
 }

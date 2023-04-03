@@ -12,6 +12,19 @@ namespace NWN.Systems
   [ServiceBinding(typeof(AttackSystem))]
   public partial class AttackSystem
   {
+    private static ScriptHandleFactory scriptHandleFactory;
+    private static Effect bleeding;
+
+    public AttackSystem(ScriptHandleFactory scriptFactory)
+    {
+      scriptHandleFactory = scriptFactory;
+
+      bleeding = Effect.RunAction(null/*scriptHandleFactory.CreateUniqueHandler(ApplyBleeding)*/, null, scriptHandleFactory.CreateUniqueHandler(IntervalBleeding), TimeSpan.FromSeconds(1));
+      bleeding = Effect.LinkEffects(bleeding, Effect.Icon((EffectIcon)132));
+      bleeding.Tag = "CUSTOM_EFFECT_BLEEDING";
+      bleeding.SubType = EffectSubType.Supernatural;
+    }
+
     public static Pipeline<Context> pipeline = new(
       new Action<Context, Action>[]
       {
@@ -28,6 +41,8 @@ namespace NWN.Systems
         ProcessTargetShieldAC,
         ProcessArmorPenetrationCalculations,
         ProcessDamageCalculations,
+        ProcessSpecialAttack,
+        ProcessAdrenaline,
         ProcessDoubleStrike,
         ProcessAttackerItemDurability,
         ProcessTargetItemDurability,
@@ -514,7 +529,7 @@ namespace NWN.Systems
           ctx.maxBaseAC = baseArmor.ItemProperties.Where(i => i.PropertyType == ItemPropertyType.AcBonus)
             .OrderByDescending(i => i.CostTableValue).FirstOrDefault().CostTableValue;*/
 
-          ctx.targetAC[DamageType.BaseWeapon] = PlayerSystem.Players.TryGetValue(ctx.oTarget, out PlayerSystem.Player player) ? baseArmor.BaseACValue * 3 * player.GetArmorProficiencyLevel(baseArmor.BaseACValue) / 10 : baseArmor.BaseACValue * 3;
+          ctx.targetAC[DamageType.BaseWeapon] = ctx.attackingPlayer is not null ? baseArmor.BaseACValue * 3 * ctx.attackingPlayer.GetArmorProficiencyLevel(baseArmor.BaseACValue) / 10 : baseArmor.BaseACValue * 3;
 
           switch (baseArmor.BaseACValue)
           {
@@ -551,7 +566,7 @@ namespace NWN.Systems
       if (ctx.targetArmor != null && ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1)
       {
         int baseArmorACValue = ctx.oTarget.GetItemInSlot(InventorySlot.Chest) != null ? ctx.oTarget.GetItemInSlot(InventorySlot.Chest).BaseACValue : -1;
-        int armorProficiency = PlayerSystem.Players.TryGetValue(ctx.oTarget, out PlayerSystem.Player player) ? player.GetArmorProficiencyLevel(baseArmorACValue) / 10 : -1;
+        int armorProficiency = ctx.attackingPlayer is not null ? ctx.attackingPlayer.GetArmorProficiencyLevel(baseArmorACValue) / 10 : -1;
         
         foreach (var propType in ctx.targetArmor.ItemProperties.Where(i => i.Property.PropertyType == ItemPropertyType.AcBonus || i.Property.PropertyType == ItemPropertyType.DecreasedAc
          || (ctx.oAttacker != null && i.Property.PropertyType == ItemPropertyType.AttackBonusVsRacialGroup && i.SubType.RowIndex == (int)ctx.oAttacker.Race.RacialType)
@@ -603,7 +618,7 @@ namespace NWN.Systems
 
       if (targetShield != null && targetShield.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1) // Même si l'objet n'est pas à proprement parler un bouclier, tout item dans la main gauche procure un bonus de protection global
       {
-        int shieldProficiency = PlayerSystem.Players.TryGetValue(ctx.oTarget, out PlayerSystem.Player player) ? player.GetShieldProficiencyLevel(targetShield.BaseItem.ItemType) / 10 : -1;
+        int shieldProficiency = ctx.attackingPlayer is not null ? ctx.attackingPlayer.GetShieldProficiencyLevel(targetShield.BaseItem.ItemType) / 10 : -1;
         
         foreach (var propType in targetShield.ItemProperties.Where(i => i.Property.PropertyType == ItemPropertyType.AcBonus
          || (ctx.oAttacker != null && i.Property.PropertyType == ItemPropertyType.AttackBonusVsRacialGroup && i.SubType.RowIndex == (int)ctx.oAttacker.Race.RacialType)
@@ -690,9 +705,9 @@ namespace NWN.Systems
         double skillDamage = -1;
         double skillModifier = -1;
 
-        if (damageType == DamageType.BaseWeapon && PlayerSystem.Players.TryGetValue(ctx.oAttacker, out PlayerSystem.Player attackerPlayer))
+        if (damageType == DamageType.BaseWeapon && ctx.attackingPlayer is not null)
         {
-          skillModifier = ctx.attackWeapon is not null ? attackerPlayer.GetWeaponMasteryLevel(ctx.attackWeapon.BaseItem.ItemType) : 0;
+          skillModifier = ctx.attackWeapon is not null ? ctx.attackingPlayer.GetWeaponMasteryLevel(ctx.attackWeapon.BaseItem.ItemType) : 0;
           skillDamage = modifiedDamage * skillModifier;
 
           if (skillDamage < 1)
@@ -716,33 +731,94 @@ namespace NWN.Systems
         LogUtils.LogMessage($"Final : {damageType} - AC {targetAC} - Initial {initialDamage} - Final Damage {skillDamage}", LogUtils.LogType.Combat);
       }
 
-      /*if (ctx.oTarget.IsLoginPlayerCharacter) // TODO : a supprimer quand les potions de core seront en place
-        ctx.oTarget.ApplyEffect(EffectDuration.Temporary, Effect.TemporaryHitpoints(500), TimeSpan.FromSeconds(10));*/
-
-
-    /*if(ctx.onAttack != null)
-      ctx.oTarget.GetObjectVariable<LocalVariableInt>($"_DAMAGE_HANDLED_FROM_{ctx.oAttacker}").Value = 1;*/
-
-    /*if (ctx.oTarget.Tag == "damage_trainer")
+      next();
+    }
+    private static void ProcessSpecialAttack(Context ctx, Action next)
     {
-      Task HealAfterDamage = NwTask.Run(async () =>
+      if (ctx.attackingPlayer is not null && ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_NEXT_ATTACK").HasValue)
       {
-        await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
-        ctx.oTarget.HP = ctx.oTarget.MaxHP;
-      });
-    }*/
+        int skilId = ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_NEXT_ATTACK").Value;
 
-    next();
+        switch (skilId)
+        {
+          case CustomSkill.SeverArtery:
+            SeverArtery(ctx.attackingPlayer, ctx.oTarget);
+            break;
+        }
+
+        ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_NEXT_ATTACK").Delete();
+
+        foreach (NwPlayer player in NwModule.Instance.Players)
+          if (player?.ControlledCreature?.Area == ctx.oAttacker.Area && player.ControlledCreature.IsCreatureHeard(ctx.oAttacker))
+            player.DisplayFloatingTextStringOnCreature(ctx.oAttacker, StringUtils.ToWhitecolor($"{ctx.oAttacker.Name.ColorString(ColorConstants.Cyan)} utilise {NwFeat.FromFeatId(skilId - 10000).Name.ToString().ColorString(ColorConstants.Red)}"));
+      }
+
+      next();
+    }
+    private static void ProcessAdrenaline(Context ctx, Action next)
+    {
+      if(ctx.attackingPlayer is not null && Config.GetContextDamage(ctx, DamageType.BaseWeapon) > -1)
+      {
+        foreach(var feat in ctx.oAttacker.Feats)
+        {
+          if (feat.MaxLevel > 0 && feat.MaxLevel < 255 && ctx.oAttacker.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{feat.Id}").Value < feat.MaxLevel)
+          {
+            ctx.oAttacker.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{feat.Id}").Value += 25;
+
+            if (ctx.oAttacker.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{feat.Id}").Value >= feat.MaxLevel)
+              ctx.oAttacker.IncrementRemainingFeatUses(feat);
+
+            StringUtils.UpdateQuickbarPostring(ctx.attackingPlayer, feat.Id, ctx.oAttacker.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{feat.Id}").Value / 25);
+          }
+        }
+
+        ctx.oAttacker.GetObjectVariable<DateTimeLocalVariable>($"_LAST_DAMAGE_ON").Value = DateTime.Now;
+      }
+
+      if(ctx.targetPlayer is not null)
+      {
+        int totalDamage = 0;
+
+        foreach (DamageType damageType in (DamageType[])Enum.GetValues(typeof(DamageType)))
+        {
+          int damage = Config.GetContextDamage(ctx, damageType);
+
+          if (damage > 0)
+            totalDamage += damage;
+        }
+
+        int adrenalineCharge = totalDamage / ctx.targetPlayer.endurance.maxHP * 100;
+
+        if(adrenalineCharge > 0)
+          foreach (var feat in ctx.oTarget.Feats)
+          {
+            ModuleSystem.Log.Info($"{feat.Name.ToString()} : {feat.MaxLevel}");
+            ModuleSystem.Log.Info($"Adrénaline : {ctx.oTarget.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{feat.Id}").Value}");
+            if (feat.MaxLevel > 0 && feat.MaxLevel < 255 && ctx.oTarget.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{feat.Id}").Value < feat.MaxLevel)
+            {
+              ctx.oTarget.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{feat.Id}").Value += adrenalineCharge;
+
+              if (ctx.oTarget.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{feat.Id}").Value >= feat.MaxLevel)
+                ctx.oTarget.IncrementRemainingFeatUses(feat);
+
+              if(ctx.oTarget.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{feat.Id}").Value / 25 > 0)
+                StringUtils.UpdateQuickbarPostring(ctx.targetPlayer, feat.Id, ctx.oTarget.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{feat.Id}").Value / 25);
+            }
+          }
+
+        ctx.oTarget.GetObjectVariable<DateTimeLocalVariable>($"_LAST_DAMAGE_ON").Value = DateTime.Now;
+      }
+
+      next();
     }
     private static void ProcessDoubleStrike(Context ctx, Action next)
     {
       NwItem leftSlot = ctx.oAttacker.GetItemInSlot(InventorySlot.LeftHand);
 
       if (((leftSlot is not null && ItemUtils.GetItemCategory(leftSlot.BaseItem.ItemType) != ItemUtils.ItemCategory.Shield ) || ctx.isUnarmedAttack) 
-        && ctx.attackWeapon is not null
-        && PlayerSystem.Players.TryGetValue(ctx.oAttacker, out PlayerSystem.Player attackerPlayer)) 
+        && ctx.attackWeapon is not null && ctx.attackingPlayer is not null) 
       {
-        double doubleStrikeChance = attackerPlayer.GetWeaponDoubleStrikeChance(ctx.attackWeapon.BaseItem.ItemType);
+        double doubleStrikeChance = ctx.attackingPlayer.GetWeaponDoubleStrikeChance(ctx.attackWeapon.BaseItem.ItemType);
         int randomChance = Utils.random.Next(100);
 
         LogUtils.LogMessage($"Double Strike Chance : {doubleStrikeChance} vs {randomChance}", LogUtils.LogType.Combat);
@@ -770,8 +846,8 @@ namespace NWN.Systems
             {
               double targetAC = ctx.isUnarmedAttack ? HandleReducedDamageFromWeaponDamageType(ctx, new List<DamageType>() { DamageType.Bludgeoning }) : HandleReducedDamageFromWeaponDamageType(ctx, ctx.attackWeapon.BaseItem.WeaponType);
               double modifiedDamage = damage * Utils.GetDamageMultiplier(targetAC);
-              double skillDamage = attackerPlayer.GetWeaponMasteryLevel(ctx.attackWeapon.BaseItem.ItemType);
-              double skillModifier = attackerPlayer.GetWeaponMasteryLevel(ctx.attackWeapon.BaseItem.ItemType) * modifiedDamage;
+              double skillDamage = ctx.attackingPlayer.GetWeaponMasteryLevel(ctx.attackWeapon.BaseItem.ItemType);
+              double skillModifier = ctx.attackingPlayer.GetWeaponMasteryLevel(ctx.attackWeapon.BaseItem.ItemType) * modifiedDamage;
               damage = (int)Math.Round(skillDamage, MidpointRounding.ToEven);
 
               if (damage < 1)
@@ -792,7 +868,7 @@ namespace NWN.Systems
     }
     private static void ProcessAttackerItemDurability(Context ctx, Action next)
     {
-      if (ctx.attackWeapon is not null && ctx.attackWeapon.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1 && PlayerSystem.Players.TryGetValue(ctx.oAttacker, out PlayerSystem.Player attacker))
+      if (ctx.attackWeapon is not null && ctx.attackWeapon.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1 && ctx.attackingPlayer is not null)
       {
         // L'attaquant est un joueur. On diminue la durabilité de son arme
 
@@ -801,25 +877,25 @@ namespace NWN.Systems
           dexBonus = 0;
 
         // TODO : Plutôt faire dépendre ça de la maîtrise de l'arme
-        int safetyLevel = attacker.learnableSkills.ContainsKey(CustomSkill.CombattantPrecautionneux) ? attacker.learnableSkills[CustomSkill.CombattantPrecautionneux].totalPoints : 0;
+        int safetyLevel = ctx.attackingPlayer.learnableSkills.ContainsKey(CustomSkill.CombattantPrecautionneux) ? ctx.attackingPlayer.learnableSkills[CustomSkill.CombattantPrecautionneux].totalPoints : 0;
         int durabilityRate = 30 - (dexBonus - safetyLevel);
         if (durabilityRate < 1)
           durabilityRate = 1;
 
         int durabilityRoll = Utils.random.Next(1000);
 
-        LogUtils.LogMessage($"Jet de durabilité - {attacker.oid.LoginCreature.Name} - {ctx.attackWeapon.Name}", LogUtils.LogType.Durability);
+        LogUtils.LogMessage($"Jet de durabilité - {ctx.attackingPlayer.oid.LoginCreature.Name} - {ctx.attackWeapon.Name}", LogUtils.LogType.Durability);
         LogUtils.LogMessage($"30 (base) - {dexBonus} (DEX) - {safetyLevel} (Compétence) = {durabilityRate} VS {durabilityRoll}", LogUtils.LogType.Durability);
 
         if (durabilityRoll < durabilityRate)
-          DecreaseItemDurability(ctx.attackWeapon, attacker.oid, GetWeaponDurabilityLoss(ctx));
+          DecreaseItemDurability(ctx.attackWeapon, ctx.attackingPlayer.oid, GetWeaponDurabilityLoss(ctx));
       }
 
       next();
     }
     private static void ProcessTargetItemDurability(Context ctx, Action next)
     {
-      if (!PlayerSystem.Players.TryGetValue(ctx.oTarget, out PlayerSystem.Player player))
+      if (ctx.attackingPlayer is null)
         return;
 
       // La cible de l'attaque est un joueur, on fait diminuer la durabilité
@@ -829,7 +905,7 @@ namespace NWN.Systems
         dexBonus = 0;
 
       // TODO : Plutôt faire dépendre ça de la maîtrise de l'arme, de l'armure ou du bouclier
-      int safetyLevel = player.learnableSkills.ContainsKey(CustomSkill.CombattantPrecautionneux) ? player.learnableSkills[CustomSkill.CombattantPrecautionneux].totalPoints : 0;
+      int safetyLevel = ctx.attackingPlayer.learnableSkills.ContainsKey(CustomSkill.CombattantPrecautionneux) ? ctx.attackingPlayer.learnableSkills[CustomSkill.CombattantPrecautionneux].totalPoints : 0;
 
       int durabilityRate = 30 - dexBonus - safetyLevel;
       if (durabilityRate < 1)
@@ -837,7 +913,7 @@ namespace NWN.Systems
 
       int durabilityRoll = Utils.random.Next(1000);
 
-      LogUtils.LogMessage($"Jet de durabilité - {player.oid.LoginCreature.Name}", LogUtils.LogType.Durability);
+      LogUtils.LogMessage($"Jet de durabilité - {ctx.attackingPlayer.oid.LoginCreature.Name}", LogUtils.LogType.Durability);
       LogUtils.LogMessage($"30 (base) - {dexBonus} (DEX) - {safetyLevel} (Compétence) = {durabilityRate} VS {durabilityRoll}", LogUtils.LogType.Durability);
 
       if (durabilityRoll < durabilityRate)
@@ -845,7 +921,7 @@ namespace NWN.Systems
         if (ctx.targetArmor is not null && ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1)
         {
           LogUtils.LogMessage($"Armure : {ctx.targetArmor.Name}", LogUtils.LogType.Durability);
-          DecreaseItemDurability(ctx.targetArmor, player.oid, GetArmorDurabilityLoss(ctx));
+          DecreaseItemDurability(ctx.targetArmor, ctx.attackingPlayer.oid, GetArmorDurabilityLoss(ctx));
         }
 
         NwItem leftSlot = ctx.oTarget.GetItemInSlot(InventorySlot.LeftHand);
@@ -853,7 +929,7 @@ namespace NWN.Systems
         if (leftSlot is not null && leftSlot.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1)
         {
           LogUtils.LogMessage($"Bouclier / Parade : {leftSlot.Name}", LogUtils.LogType.Durability);
-          DecreaseItemDurability(leftSlot, player.oid, GetShieldDurabilityLoss(ctx));
+          DecreaseItemDurability(leftSlot, ctx.attackingPlayer.oid, GetShieldDurabilityLoss(ctx));
         }
 
         List<NwItem> slots = new();
@@ -878,7 +954,7 @@ namespace NWN.Systems
           if (randomItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1)
           {
             LogUtils.LogMessage($"Equipement aléatoire : {randomItem.Name}", LogUtils.LogType.Durability);
-            DecreaseItemDurability(randomItem, player.oid, GetItemDurabilityLoss(ctx));
+            DecreaseItemDurability(randomItem, ctx.attackingPlayer.oid, GetItemDurabilityLoss(ctx));
           }
         }
       }

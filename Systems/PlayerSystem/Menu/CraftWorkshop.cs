@@ -235,7 +235,7 @@ namespace NWN.Systems
                       if (dice <= successChange)
                       {
                         item.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
-                        player.oid.SendServerMessage($"En forçant à l'aide de votre puissance brute, vous parvenez à ajouter un emplacement de sort supplémentaire à votre {StringUtils.ToWhitecolor(item.Name)} !", ColorConstants.Navy);
+                        player.oid.SendServerMessage($"En forçant à l'aide de votre puissance brute, vous parvenez à ajouter un emplacement de sort supplémentaire à votre {StringUtils.ToWhitecolor(item.Name)} !", ColorConstants.Cyan);
                       }
                       else if (dice > controlLevel)
                       {

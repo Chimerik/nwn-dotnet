@@ -88,37 +88,37 @@ namespace NWN.Systems
       if (!Players.TryGetValue(onConversation.LastSpeaker, out Player player))
         return;
 
-      if (!player.windows.ContainsKey("bankCounter")) player.windows.Add("bankCounter", new Player.BankCounterWindow(player, onConversation.CurrentSpeaker));
+      if (!player.windows.ContainsKey("bankCounter")) player.windows.Add("bankCounter", new Player.BankCounterWindow(player, onConversation.Creature));
       else ((Player.BankCounterWindow)player.windows["bankCounter"]).CreateWindow();        
     }
     public void StartBlacksmithDialog(CreatureEvents.OnConversation onConversation) // TODO => Mettre à dispo des outils avec enchantement de craft de base
     {
       if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
-        HandleGenericShop(player, onConversation.CurrentSpeaker, "blacksmith_shop", ItemUtils.forgeBasicWeaponBlueprints, SkillSystem.forgeBasicSkillBooks, ItemUtils.forgeBasicArmorBlueprints, forgeTool);
+        HandleGenericShop(player, onConversation.Creature, "blacksmith_shop", ItemUtils.forgeBasicWeaponBlueprints, SkillSystem.forgeBasicSkillBooks, ItemUtils.forgeBasicArmorBlueprints, forgeTool);
     }
     public void StartWoodworkerDialog(CreatureEvents.OnConversation onConversation)
     {
       if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
-        HandleGenericShop(player, onConversation.CurrentSpeaker, "woodworker_shop", ItemUtils.woodBasicBlueprints, SkillSystem.woodBasicSkillBooks, new int[] { }, woodTool);
+        HandleGenericShop(player, onConversation.Creature, "woodworker_shop", ItemUtils.woodBasicBlueprints, SkillSystem.woodBasicSkillBooks, new int[] { }, woodTool);
     }
     public void StartTanneurDialog(CreatureEvents.OnConversation onConversation)
     {
       if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
-        HandleGenericShop(player, onConversation.CurrentSpeaker, "tannery_shop", ItemUtils.leatherBasicWeaponBlueprints, SkillSystem.leatherBasicSkillBooks, ItemUtils.leatherBasicArmorBlueprints, tannerTool);
+        HandleGenericShop(player, onConversation.Creature, "tannery_shop", ItemUtils.leatherBasicWeaponBlueprints, SkillSystem.leatherBasicSkillBooks, ItemUtils.leatherBasicArmorBlueprints, tannerTool);
     }
     public void StartBibliothecaireDialog(CreatureEvents.OnConversation onConversation)
     {
       if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
-        new Bibliothecaire(player, onConversation.CurrentSpeaker);
+        new Bibliothecaire(player, onConversation.Creature);
     }
     public void StartJukeboxDialog(CreatureEvents.OnConversation onConversation)
     {
       if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
       {
         if (player.windows.ContainsKey("jukebox"))
-          ((Player.JukeBoxWindow)player.windows["jukebox"]).CreateWindow(onConversation.CurrentSpeaker);
+          ((Player.JukeBoxWindow)player.windows["jukebox"]).CreateWindow(onConversation.Creature);
         else
-          player.windows.Add("jukebox", new Player.JukeBoxWindow(player, onConversation.CurrentSpeaker));
+          player.windows.Add("jukebox", new Player.JukeBoxWindow(player, onConversation.Creature));
       }
     }
     public void StartRumorsDialog(CreatureEvents.OnConversation onConversation)
@@ -134,7 +134,7 @@ namespace NWN.Systems
     public void StartTribunalShopDialog(CreatureEvents.OnConversation onConversation)
     {
       if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
-        HandleGenericShop(player, onConversation.CurrentSpeaker, "magic_shop", System.Array.Empty<BaseItemType>(), SkillSystem.shopBasicMagicSkillBooks, ItemUtils.shopBasicMagicScrolls);
+        HandleGenericShop(player, onConversation.Creature, "magic_shop", System.Array.Empty<BaseItemType>(), SkillSystem.shopBasicMagicSkillBooks, ItemUtils.shopBasicMagicScrolls);
     }
     public void StartPvEArenaHostDialog(CreatureEvents.OnConversation onConversation)
     {
@@ -153,7 +153,7 @@ namespace NWN.Systems
         if (player.windows.ContainsKey("materiaStorage"))
           ((Player.MateriaStorageWindow)player.windows["materiaStorage"]).CreateWindow();
         else
-          player.windows.Add("materiaStorage", new Player.MateriaStorageWindow(player, onConversation.CurrentSpeaker));
+          player.windows.Add("materiaStorage", new Player.MateriaStorageWindow(player, onConversation.Creature));
       }
     }
     private async void HandleGenericShop(Player player, NwCreature shopkeeper, string tag, BaseItemType[] basicBluePrints, int[] basicSkillBooks, int[] basicArmorAndScrolls, byte[] craftTool = null)

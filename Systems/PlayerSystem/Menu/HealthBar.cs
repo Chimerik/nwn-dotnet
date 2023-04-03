@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Anvil.API;
 using Anvil.API.Events;
 using System.Threading.Tasks;
-using System;
+using System.Linq;
 
 namespace NWN.Systems
 {
@@ -19,14 +19,15 @@ namespace NWN.Systems
         private readonly NuiBind<string> readableHealth = new("readableHealth");
         private readonly Color white = new(255, 255, 255);
         private readonly NuiBind<NuiRect> drawListRect = new("drawListRect");
-
+        private readonly NuiBind<Color> color = new("color");
+        private readonly Color bleedingColor = new(215, 121, 101);
         private readonly NuiProgress healthBar;
 
         public HealthBarWindow(Player player) : base(player)
         {
           windowId = "healthBar";
 
-          healthBar = new NuiProgress(health) { Width = 485, Height = 35, ForegroundColor = ColorConstants.Red, DrawList = new List<NuiDrawListItem>() {
+          healthBar = new NuiProgress(health) { Width = 485, Height = 35, ForegroundColor = color, DrawList = new List<NuiDrawListItem>() {
               new NuiDrawListText(white, drawListRect, readableHealth) 
           } };
 
@@ -57,6 +58,7 @@ namespace NWN.Systems
           {
             nuiToken = tempToken;
 
+            color.SetBindValue(player.oid, nuiToken.Token, ColorConstants.Red);
             readableHealth.SetBindValue(player.oid, nuiToken.Token, player.oid.LoginCreature.HP.ToString());
             health.SetBindValue(player.oid, nuiToken.Token, (float)((double)player.oid.LoginCreature.HP / (double)player.MaxHP));
             drawListRect.SetBindValue(player.oid, nuiToken.Token, new((float)(healthBar.Width.Value / StringUtils.GetDrawListTextPositionScaledToUI(player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale))), healthBar.Height.Value / 3, 151, 20));
@@ -88,12 +90,31 @@ namespace NWN.Systems
           if (windowClosed.IsCompletedSuccessfully)
             return;
 
-          string currentHP = player.oid.LoginCreature.HP.ToString() + " ";
+          string currentHP = "";
+          string pip = "";
+
+          if (player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag == "CUSTOM_EFFECT_BLEEDING"))
+            color.SetBindValue(player.oid, nuiToken.Token, bleedingColor);
+          else
+            color.SetBindValue(player.oid, nuiToken.Token, ColorConstants.Red);
 
           if (player.healthRegen > 0)
+          {
             for (int i = 0; i < player.healthRegen / 2; i++)
-              currentHP += ">";
+              pip += ">";
 
+            currentHP = player.oid.LoginCreature.HP.ToString() + " " + pip;
+          }
+          else if (player.healthRegen < 0)
+          {
+            for (int i = 0; i > player.healthRegen / 2; i--)
+              pip += "<";
+
+            currentHP = pip + " " + player.oid.LoginCreature.HP.ToString();
+          }
+          else
+            currentHP = player.oid.LoginCreature.HP.ToString();
+ 
           readableHealth.SetBindValue(player.oid, nuiToken.Token, currentHP);
           health.SetBindValue(player.oid, nuiToken.Token, (float)((double)player.oid.LoginCreature.HP / (double)player.MaxHP));
 

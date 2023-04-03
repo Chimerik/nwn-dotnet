@@ -63,11 +63,16 @@ namespace NWN.Systems
 
       //Log.Info("end check if no one around");
     }
-    private void InitializeCreatureEvents(NwCreature creature)
+    private async void InitializeCreatureEvents(NwCreature creature)
     {
       creature.OnHeartbeat += CheckIfNoPlayerAround;
       creature.OnDeath += CreatureUtils.MakeInventoryUndroppable;
       creature.OnDeath += CreatureUtils.OnMobDeathResetSpawn;
+      
+      var creatureLoop = scheduler.ScheduleRepeating(() => CreatureUtils.CreatureHealthRegenLoop(creature), TimeSpan.FromSeconds(1));
+
+      await NwTask.WaitUntil(() => creature == null || !creature.IsValid);
+      creatureLoop.Dispose();
     }
     private static void InitializeGenericVariables(NwCreature creature, NwWaypoint spawnPoint) 
     {

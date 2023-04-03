@@ -233,6 +233,9 @@ namespace NWN.Systems
 
       tlkEntry = StrRef.FromCustomTlk(190052);
       tlkEntry.Override = "Adrénaline : 4\nAttaque à l'épée.\nInflige 5...21...25 secondes de saignement.";
+
+      tlkEntry = StrRef.FromCustomTlk(190053);
+      tlkEntry.Override = "Saignement";
     }
     private static async void ReadGDocLine()
     {
@@ -366,10 +369,8 @@ namespace NWN.Systems
       //EventsPlugin.SubscribeEvent("NWNX_ON_DM_POSSESS_BEFORE", "b_dm_possess");
 
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_EMOTE_BEFORE", "on_input_emote");
-      //EventsPlugin.SubscribeEvent("NWNX_ON_DECREMENT_SPELL_COUNT_BEFORE", "spell_dcr");
-
       //EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_AFTER", "event_has_feat");
-
+      
       NwModule.Instance.OnPlayerGuiEvent += PlayerSystem.HandleGuiEvents;
       NwModule.Instance.OnCreatureAttack += AttackSystem.HandleAttackEvent;
       NwModule.Instance.OnCreatureDamage += AttackSystem.HandleDamageEvent;
@@ -926,6 +927,7 @@ namespace NWN.Systems
           HandlePassiveRegen(player);
           HandleRegen(player);
           HandleEnergyRegen(player);
+          HandleAdrenalineReset(player);
         }
       }
     }
@@ -1024,7 +1026,8 @@ namespace NWN.Systems
     }
     private static void HandlePassiveRegen(PlayerSystem.Player player)
     {
-      if (player.endurance.regenerableHP < 1 || player.oid.LoginCreature.IsInCombat || player.oid.LoginCreature.HP >= player.oid.LoginCreature.MaxHP)
+      if (player.endurance.regenerableHP < 1 || player.oid.LoginCreature.IsInCombat || player.oid.LoginCreature.HP >= player.oid.LoginCreature.MaxHP
+        || player.healthRegen < 0)
       {
         if(player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_PASSIVE_REGEN").HasValue)
         {
@@ -1054,20 +1057,22 @@ namespace NWN.Systems
 
       foreach (var eff in player.oid.LoginCreature.ActiveEffects)
       {
-        if (eff.Tag.StartsWith("CUSTOM_EFFECT_REGEN_"))
+        if (eff.Tag == "CUSTOM_EFFECT_BLEEDING")
+          player.healthRegen -= 3;
+        else if (eff.Tag.StartsWith("CUSTOM_EFFECT_REGEN_"))
         {
           var split = eff.Tag.Split("_");
           player.healthRegen += int.Parse(split[split.Length - 1]);
-
-          if (player.healthRegen > 19)
-          {
-            player.healthRegen = 20;
-            break;
-          }
         }
       }
 
-      if (player.oid.LoginCreature.HP >= maxHP)
+      if (player.healthRegen < -19)
+        player.healthRegen = -20;
+
+      if (player.healthRegen > 19)
+        player.healthRegen = 20;
+
+      if (player.oid.LoginCreature.HP >= maxHP && player.healthRegen >= 0)
         return;
 
       if (player.oid.LoginCreature.HP + player.healthRegen >= maxHP)
@@ -1077,6 +1082,12 @@ namespace NWN.Systems
       }
 
       player.oid.LoginCreature.HP += player.healthRegen;
+
+      if (player.oid.LoginCreature.HP < 1)
+      {
+        player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Death(false, false));
+        return;
+      }
 
       if (player.healthRegen > 19 || player.endurance.regenerableHP < 1)
         return;
@@ -1129,6 +1140,30 @@ namespace NWN.Systems
           player.endurance.regenerableMana -= currentRegen;
         }
       }
+    }
+    private static void HandleAdrenalineReset(PlayerSystem.Player player)
+    {
+      if(player.oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>($"_LAST_DAMAGE_ON").HasValue
+        && (DateTime.Now - player.oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>($"_LAST_DAMAGE_ON").Value).TotalSeconds > 25)
+      {
+        foreach (var local in player.oid.LoginCreature.LocalVariables)
+          if (local.Name.StartsWith("_ADRENALINE_") && local is LocalVariableInt intVar)
+          {
+            string[] splitLocal = local.Name.Split("_");
+            int featId = int.Parse(splitLocal[splitLocal.Length - 1]);
+            player.oid.LoginCreature.DecrementRemainingFeatUses(NwFeat.FromFeatId(featId));
+            DelayedLocalVarDeletion(local);
+            StringUtils.UpdateQuickbarPostring(player, featId, 0);
+          }
+
+        player.oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>($"_LAST_DAMAGE_ON").Delete();
+        LogUtils.LogMessage($"{player.oid.LoginCreature.Name} perd toute son adrénaline", LogUtils.LogType.Combat);
+      }
+    }
+    private async static void DelayedLocalVarDeletion(ObjectVariable local)
+    {
+      await NwTask.NextFrame();
+      local.Delete();
     }
   }
 }

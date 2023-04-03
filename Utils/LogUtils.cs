@@ -60,7 +60,7 @@ namespace NWN
     }
     public static void LogChatMessage(string areaName, string message)
     {
-      if(!chatLogPile.TryAdd(areaName, new()));
+      if(!chatLogPile.TryAdd(areaName, new()))
         chatLogPile[areaName].Enqueue(message);
     }
 

@@ -16,7 +16,6 @@ namespace NWN.Systems
         private readonly NuiBind<string> name = new("name");
         public readonly NuiBind<string> timeLeft = new("timeLeft");
         private readonly NuiBind<string> level = new("level");
-        //bool stopPreviousSPGain { get; set; }
         private Learnable learnable { get; set; }
         private Player target { get; set; }
 
@@ -71,30 +70,8 @@ namespace NWN.Systems
             collapsed.SetBindValue(player.oid, nuiToken.Token, false);
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
-
-            //stopPreviousSPGain = true;
-            //DelayStartSPGain();
           }
         }
-
-        /*private async void RefreshWindowUntillClosed()
-        {
-          ScheduledTask scheduler = player.scheduler.ScheduleRepeating(() =>
-          {
-            learnable.acquiredPoints += player.GetSkillPointsPerSecond(learnable);
-            timeLeft.SetBindValue(player.oid, nuiToken.Token, learnable.GetReadableTimeSpanToNextLevel(player));
-            player.oid.ExportCharacter();
-          }, TimeSpan.FromSeconds(1));
-
-          await NwTask.WaitUntil(() => player.oid.LoginCreature == null || !IsOpen || stopPreviousSPGain || !learnable.active);
-          scheduler.Dispose();
-        }
-        private async void DelayStartSPGain()
-        {
-          await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-          stopPreviousSPGain = false;
-          RefreshWindowUntillClosed();
-        }*/
       }
     }
   }

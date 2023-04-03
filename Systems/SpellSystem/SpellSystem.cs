@@ -13,7 +13,6 @@ using NWN.Systems.Arena;
 using Microsoft.Data.Sqlite;
 using Newtonsoft.Json;
 using static NWN.Systems.PlayerSystem;
-using NLog.Targets;
 using System.Numerics;
 
 namespace NWN.Systems
@@ -254,7 +253,7 @@ namespace NWN.Systems
 
       foreach (NwPlayer player in NwModule.Instance.Players)
         if (player?.ControlledCreature?.Area == spellAction.Caster?.Area && player.ControlledCreature.IsCreatureHeard(spellAction.Caster))
-          player.DisplayFloatingTextStringOnCreature(spellAction.Caster, StringUtils.ToWhitecolor($"{spellAction.Caster.Name.ColorString(ColorConstants.Blue)} incante {spellAction.Spell.Name.ToString().ColorString(ColorConstants.Purple)}"));
+          player.DisplayFloatingTextStringOnCreature(spellAction.Caster, StringUtils.ToWhitecolor($"{spellAction.Caster.Name.ColorString(ColorConstants.Cyan)} incante {spellAction.Spell.Name.ToString().ColorString(ColorConstants.Purple)}"));
 
       await NwTask.Delay(TimeSpan.FromMilliseconds(spellAction.Spell.ConjureTime.TotalMilliseconds / 1.5));
 
@@ -391,7 +390,7 @@ namespace NWN.Systems
         castingClass = ClassType.Sorcerer;
 
       CreaturePlugin.SetClassByPosition(castingCreature, 0, (int)castingClass);
-      CreaturePlugin.SetCasterLevelOverride(castingCreature, (int)castingClass, player.learnableSpells[spell.Id].currentLevel);
+      CreaturePlugin.SetCasterLevelOverride(castingCreature, (int)castingClass, player.learnableSpells.TryGetValue(spell.Id, out LearnableSpell spellLevel) ? spellLevel.currentLevel : 1);
 
       if(castingCreature.IsLoginPlayerCharacter)
       {
@@ -482,7 +481,7 @@ namespace NWN.Systems
       else
         color = ColorConstants.Red;
 
-      DecreaseSpellCooldown(caster, spell.Id, cooldown, GetUIScaledPosition(caster.ControllingPlayer.GetDeviceProperty(PlayerDeviceProperty.GuiScale), slotId), color);
+      DecreaseSpellCooldown(caster, spell.Id, cooldown, StringUtils.GetUIScaledPosition(caster.ControllingPlayer.GetDeviceProperty(PlayerDeviceProperty.GuiScale), slotId), color);
     }
     private async void DecreaseSpellCooldown(NwCreature caster, int spell, int cooldown, int xPos, Color color)
     {
@@ -497,102 +496,7 @@ namespace NWN.Systems
       if(cooldown > 0)
         DecreaseSpellCooldown(caster, spell, cooldown, xPos, color);
     }
-    private static int GetUIScaledPosition(int uiScale, int slotId)
-    {
-      return uiScale switch
-      {
-        110 => slotId switch
-        {
-          1 => 51,
-          2 => 56,
-          3 => 64,
-          4 => 71,
-          5 => 77,
-          6 => 84,
-          7 => 91,
-          8 => 97,
-          9 => 104,
-          10 => 111,
-          11 => 117,
-          _ => 44,
-        },
-        120 => slotId switch
-        {
-          1 => 44,
-          2 => 50,
-          3 => 57,
-          4 => 64,
-          5 => 70,
-          6 => 77,
-          7 => 84,
-          8 => 90,
-          9 => 97,
-          10 => 104,
-          11 => 110,
-          _ => 37,
-        },
-        130 => slotId switch
-        {
-          1 => 38,
-          2 => 44,
-          3 => 51,
-          4 => 58,
-          5 => 65,
-          6 => 71,
-          7 => 78,
-          8 => 84,
-          9 => 91,
-          10 => 98,
-          11 => 104,
-          _ => 31,
-        },
-        140 => slotId switch
-        {
-          1 => 33,
-          2 => 39,
-          3 => 46,
-          4 => 53,
-          5 => 60,
-          6 => 66,
-          7 => 73,
-          8 => 79,
-          9 => 86,
-          10 => 93,
-          11 => 99,
-          _ => 26,
-        },
-        150 => slotId switch
-        {
-          1 => 29,
-          2 => 35,
-          3 => 42,
-          4 => 48,
-          5 => 55,
-          6 => 62,
-          7 => 68,
-          8 => 75,
-          9 => 82,
-          10 => 88,
-          11 => 95,
-          _ => 22,
-        },
-        _ => slotId switch
-        {
-          1 => 59,
-          2 => 65,
-          3 => 72,
-          4 => 79,
-          5 => 86,
-          6 => 92,
-          7 => 99,
-          8 => 106,
-          9 => 112,
-          10 => 119,
-          11 => 125,
-          _ => 52,
-        },
-      };
-    }
+    
     private async void WaitCooldownToRestoreSpell(NwCreature caster, NwSpell spell, int cooldown)
     {
       caster.GetObjectVariable<DateTimeLocalVariable>($"_SPELL_COOLDOWN_{spell.Id}").Value = DateTime.Now.AddSeconds(cooldown);

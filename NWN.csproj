@@ -47,11 +47,15 @@
         <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
         <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
-        <PackageReference Include="NWN.Core" Version="8193.34.7" />
-        <PackageReference Include="NWN.Native" Version="8193.34.4" />
+        <PackageReference Include="NWN.Core" Version="8193.34.15" />
+        <PackageReference Include="NWN.Native" Version="8193.34.5" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Anvil\NWN.Anvil\NWN.Anvil.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Systems\FeatSystem\Feats\" />
     </ItemGroup>
 </Project>

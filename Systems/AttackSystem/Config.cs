@@ -13,7 +13,9 @@ namespace NWN.Systems
       public OnCreatureDamage onDamage { get; set; }
       //public List<DamageType> weaponBaseDamageType { get; set; }
       public NwCreature oAttacker { get; }
+      public PlayerSystem.Player attackingPlayer { get; }
       public NwCreature oTarget { get; }
+      public PlayerSystem.Player targetPlayer { get; }
       public bool isUnarmedAttack { get; }
       public bool isRangedAttack { get; }
       public NwItem attackWeapon { get; set; }
@@ -32,11 +34,20 @@ namespace NWN.Systems
         this.oAttacker = null;
 
         if (onAttack != null)
+        {
           this.oAttacker = onAttack.Attacker;
+          this.attackingPlayer = PlayerSystem.Players.TryGetValue(oAttacker, out PlayerSystem.Player attackerPlayer) ? attackerPlayer : null;
+        }
+          
         else if (onDamage != null && onDamage.DamagedBy is NwCreature oCreature)
-            this.oAttacker = oCreature;
-
+        {
+          this.oAttacker = oCreature;
+          this.attackingPlayer = PlayerSystem.Players.TryGetValue(oAttacker, out PlayerSystem.Player attackerPlayer) ? attackerPlayer : null;
+        }
+            
         this.oTarget = oTarget;
+        this.targetPlayer = PlayerSystem.Players.TryGetValue(oTarget, out PlayerSystem.Player defendingPlayer) ? defendingPlayer : null;
+
         this.attackWeapon = null;
         this.targetArmor = null;
         //this.weaponBaseDamageType = new List<DamageType>(); // Slashing par défaut

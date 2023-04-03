@@ -22,6 +22,7 @@ namespace NWN.Systems
             ProcessTargetShieldAC,
             ProcessArmorPenetrationCalculations,
             ProcessDamageCalculations,
+            ProcessAdrenaline,
             ProcessTargetItemDurability,
       }
     );
