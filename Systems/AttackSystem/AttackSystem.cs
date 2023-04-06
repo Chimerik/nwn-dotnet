@@ -738,6 +738,7 @@ namespace NWN.Systems
       if (ctx.attackingPlayer is not null && ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_NEXT_ATTACK").HasValue)
       {
         int skilId = ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_NEXT_ATTACK").Value;
+        NwFeat usedFeat = NwFeat.FromFeatId(skilId - 10000);
 
         switch (skilId)
         {
@@ -750,7 +751,24 @@ namespace NWN.Systems
 
         foreach (NwPlayer player in NwModule.Instance.Players)
           if (player?.ControlledCreature?.Area == ctx.oAttacker.Area && player.ControlledCreature.IsCreatureHeard(ctx.oAttacker))
-            player.DisplayFloatingTextStringOnCreature(ctx.oAttacker, StringUtils.ToWhitecolor($"{ctx.oAttacker.Name.ColorString(ColorConstants.Cyan)} utilise {NwFeat.FromFeatId(skilId - 10000).Name.ToString().ColorString(ColorConstants.Red)}"));
+            player.DisplayFloatingTextStringOnCreature(ctx.oAttacker, StringUtils.ToWhitecolor($"{ctx.oAttacker.Name.ColorString(ColorConstants.Cyan)} utilise {usedFeat.Name.ToString().ColorString(ColorConstants.Red)}"));
+
+        ctx.oAttacker.DecrementRemainingFeatUses(usedFeat);
+        ctx.oAttacker.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{skilId}").Value = 0;
+        StringUtils.UpdateQuickbarPostring(ctx.attackingPlayer, skilId, 0);
+
+        foreach (var feat in ctx.oAttacker.Feats)
+        {
+          if (feat.MaxLevel > 0 && feat.MaxLevel < 255 && ctx.oAttacker.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{feat.Id}").Value > 0)
+          {
+            ctx.oAttacker.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{feat.Id}").Value -= 25;
+
+            if (ctx.oAttacker.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{feat.Id}").Value < 0)
+              ctx.oAttacker.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{feat.Id}").Value = 0;
+            ctx.oAttacker.DecrementRemainingFeatUses(feat, 0);
+            StringUtils.UpdateQuickbarPostring(ctx.attackingPlayer, feat.Id, ctx.oAttacker.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{feat.Id}").Value / 25);
+          }
+        }
       }
 
       next();

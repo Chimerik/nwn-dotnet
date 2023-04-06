@@ -350,7 +350,8 @@ namespace NWN.Systems
         var query = SqLiteUtils.SelectQuery("playerCharacters",
             new List<string>() { { "location" }, { "currentHP" }, { "bankGold" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" },
               { "alchemyCauldron" }, { "serializedLearnableSkills" }, { "serializedLearnableSpells" }, { "explorationState" }, { "materialStorage" }, { "craftJob" },
-              { "grimoires" }, { "quickbars" }, { "itemAppearances" }, { "descriptions" }, { "currentSkillPoints" }, { "mails" }, { "subscriptions" }, { "endurance" } },
+              { "grimoires" }, { "quickbars" }, { "itemAppearances" }, { "descriptions" }, { "currentSkillPoints" }, { "mails" }, { "subscriptions" }, { "endurance" },
+              { "cooldownPosition" } },
             new List<string[]>() { { new string[] { "rowid", characterId.ToString() } } });
 
         foreach (var result in query)
@@ -375,11 +376,12 @@ namespace NWN.Systems
           string serializedMails = result[17];
           string serializedSubscriptions = result[18];
           string serializedEndurance = result[19];
+          string serializedCooldownPosition = result[20];
 
-          InitializePlayerAsync(serializedCauldron, serializedExploration, serializedLearnableSkills, serializedLearnableSpells, serializedCraftResources, serializedCraftJob, serializedGrimoires, serializedQuickbars, serializedItemAppearances, serializedDescriptions, serializedMails, serializedSubscriptions, serializedEndurance);
+          InitializePlayerAsync(serializedCauldron, serializedExploration, serializedLearnableSkills, serializedLearnableSpells, serializedCraftResources, serializedCraftJob, serializedGrimoires, serializedQuickbars, serializedItemAppearances, serializedDescriptions, serializedMails, serializedSubscriptions, serializedEndurance, serializedCooldownPosition);
         }
       }
-      private async void InitializePlayerAsync(string serializedCauldron, string serializedExploration, string serializedLearnableSkills, string serializedLearnableSpells, string serializedCraftResources, string serializedCraftJob, string serializedGrimoires, string serializedQuickbars, string serializedItemAppearances, string serializedDescriptions, string serializedMails, string serializedSubscriptions, string serializedEndurance)
+      private async void InitializePlayerAsync(string serializedCauldron, string serializedExploration, string serializedLearnableSkills, string serializedLearnableSpells, string serializedCraftResources, string serializedCraftJob, string serializedGrimoires, string serializedQuickbars, string serializedItemAppearances, string serializedDescriptions, string serializedMails, string serializedSubscriptions, string serializedEndurance, string serializedCooldownPosition)
       {
         Task loadCauldronTask = Task.Run(() =>
         {
@@ -484,6 +486,12 @@ namespace NWN.Systems
           quickbars = JsonConvert.DeserializeObject<List<Quickbar>>(serializedQuickbars);
         });
 
+        Task loadCooldownPositionTask = Task.Run(() => 
+        {
+          cooldownPositions = string.IsNullOrEmpty(serializedCooldownPosition) || serializedCooldownPosition == "null" ? 
+            new CooldownPosition(52, 6) : cooldownPositions = JsonConvert.DeserializeObject<CooldownPosition>(serializedCooldownPosition);
+        });
+
         Task loadItemAppearancesTask = Task.Run(() =>
         {
           if (string.IsNullOrEmpty(serializedItemAppearances) || serializedItemAppearances == "null")
@@ -523,7 +531,7 @@ namespace NWN.Systems
               mails.Add(new Mail(mail));
         });
 
-        await Task.WhenAll(loadSkillsTask, loadSpellsTask, loadExplorationTask, loadCauldronTask, loadCraftJobTask, loadGrimoiresTask, loadQuickbarsTask, loadItemAppearancesTask, loadDescriptionsTask, loadMailsTask, loadSubscriptionsTask, loadEnduranceTask);
+        await Task.WhenAll(loadSkillsTask, loadSpellsTask, loadExplorationTask, loadCauldronTask, loadCraftJobTask, loadGrimoiresTask, loadQuickbarsTask, loadItemAppearancesTask, loadDescriptionsTask, loadMailsTask, loadSubscriptionsTask, loadEnduranceTask, loadCooldownPositionTask);
         await NwTask.SwitchToMainThread();
         FinalizePlayerData();
       }

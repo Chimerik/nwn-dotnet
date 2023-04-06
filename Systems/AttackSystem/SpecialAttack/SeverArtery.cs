@@ -22,25 +22,6 @@ namespace NWN.Systems
 
       int duration = 5 + (int)(player.learnableSkills[CustomSkill.SeverArtery].totalPoints * 1.5);
 
-      player.oid.LoginCreature.DecrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.SeverArtery - 10000));
-      player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{CustomSkill.SeverArtery - 10000}").Value = 0;
-      StringUtils.UpdateQuickbarPostring(player, CustomSkill.SeverArtery - 10000, 0);
-
-      foreach (var feat in player.oid.LoginCreature.Feats)
-      {
-        if (feat.MaxLevel > 0 && feat.MaxLevel < 255 && player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{feat.Id}").Value > 0)
-        {
-          player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{feat.Id}").Value -= 25;
-
-          if (player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{feat.Id}").Value < 0)
-            player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{feat.Id}").Value = 0;
-
-          player.oid.LoginCreature.DecrementRemainingFeatUses(feat, 0);
-
-          StringUtils.UpdateQuickbarPostring(player, feat.Id, player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{feat.Id}").Value / 25);
-        }
-      }
-
       await NwTask.NextFrame();
       targetCreature.ApplyEffect(EffectDuration.Temporary, bleeding, TimeSpan.FromSeconds(duration));
 

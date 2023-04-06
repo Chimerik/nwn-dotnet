@@ -70,7 +70,10 @@ namespace NWN.Systems
         player.oid.LoginCreature.GetClassInfo((ClassType)43).AddKnownSpell((Spell)id, (byte)(multiplier - 1));
 
       if (player.TryGetOpenedWindow("activeLearnable", out PlayerSystem.Player.PlayerWindow activeLearnableWindow))
-        activeLearnableWindow.CloseWindow();
+      {
+        PlayerSystem.Player.ActiveLearnableWindow window = (PlayerSystem.Player.ActiveLearnableWindow)activeLearnableWindow;
+        window.timeLeft.SetBindValue(player.oid, window.nuiToken.Token, "Apprentissage terminé");
+      }
 
       if (player.TryGetOpenedWindow("learnables", out PlayerSystem.Player.PlayerWindow learnableWindow))
       {

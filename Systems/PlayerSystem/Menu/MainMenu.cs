@@ -449,6 +449,15 @@ namespace NWN.Systems
                     CloseWindow();
 
                     break;
+
+                  case "cooldownPosition":
+
+                    if (!player.windows.ContainsKey("cooldownPosition")) player.windows.Add("cooldownPosition", new CooldownPositionSetter(player));
+                    else ((CooldownPositionSetter)player.windows["cooldownPosition"]).CreateWindow();
+
+                    CloseWindow();
+
+                    break;
                 }
                 break;
 

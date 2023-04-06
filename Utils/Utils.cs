@@ -381,6 +381,7 @@ namespace NWN
       { "itemAppearance", new MainMenuCommand("Gestion des apparences d'objets", "Enregistrer ou charger une apparence d'objet", CommandRank.Public) },
       { "description", new MainMenuCommand("Gérer les descriptions", "Enregistrer ou charger une description de personnage", CommandRank.Public) },
       { "chat", new MainMenuCommand("Gestion des couleurs du chat", "Personnaliser les couleurs du chat", CommandRank.Public) },
+      { "cooldownPosition", new MainMenuCommand("Gérer l'affichage des cooldowns", "Personnaliser l'affichage des cooldowns", CommandRank.Public) },
       { "unstuck", new MainMenuCommand("Déblocage du décor", "Tentative de déblocage du décor (succès non garanti)", CommandRank.Public) },
       { "reinitPositionDisplay", new MainMenuCommand("Réinitialiser la position affichée", "Réinitialise la position affichée du personnage (à utiliser en cas de problème avec le système d'assise)", CommandRank.Public) },
       { "publicKey", new MainMenuCommand("Afficher ma clé publique", "Permet d'obtenir la clé publique de votre compte, utile pour lier le compte Discord au compte Never", CommandRank.Public) },

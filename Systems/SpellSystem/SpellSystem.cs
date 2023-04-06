@@ -405,8 +405,7 @@ namespace NWN.Systems
           CreaturePlugin.SetCasterLevelOverride(castingCreature, (int)castingClass, (int)castingCreature.ChallengeRating);
       }
 
-
-
+      LogUtils.LogMessage($"{castingCreature.Name} lance {spell.Name.ToString()} (CL {CreaturePlugin.GetCasterLevelOverride(castingCreature, (int)castingClass)} - Cost/CD {SpellUtils.spellCostDictionary[spell]})", LogUtils.LogType.Combat);
 
       NWScript.DelayCommand(0.0f, () => DelayedSpellHook(castingCreature, spell, player));
     }
@@ -474,14 +473,10 @@ namespace NWN.Systems
       if (slotId > 11)
         return;
 
-      Color color;
+      Color color = player.chatColors.TryGetValue(102, out byte[] colorArray) ? new(colorArray[0], colorArray[1], colorArray[2], colorArray[3]) 
+        : ColorConstants.Red;
 
-      if (player.chatColors.TryGetValue(102, out byte[] colorArray))
-        color = new(colorArray[0], colorArray[1], colorArray[2], colorArray[3]);
-      else
-        color = ColorConstants.Red;
-
-      DecreaseSpellCooldown(caster, spell.Id, cooldown, StringUtils.GetUIScaledPosition(caster.ControllingPlayer.GetDeviceProperty(PlayerDeviceProperty.GuiScale), slotId), color);
+      DecreaseSpellCooldown(caster, spell.Id, cooldown, player.cooldownPositions.xPos + slotId * player.cooldownPositions.spacing, color);
     }
     private async void DecreaseSpellCooldown(NwCreature caster, int spell, int cooldown, int xPos, Color color)
     {

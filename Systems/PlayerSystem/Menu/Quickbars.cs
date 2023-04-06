@@ -13,7 +13,7 @@ namespace NWN.Systems
       {
         private readonly NuiGroup rootGroup;
         private readonly NuiColumn rootColumn;
-        private readonly List<NuiElement> rootChidren;
+        private readonly List<NuiElement> rootChidren = new List<NuiElement>();
         private readonly NuiBind<string> buttonText = new ("buttonText");
         private readonly NuiBind<int> listCount = new ("listCount");
         private readonly NuiBind<string> quickbarName = new ("quickbarName");
@@ -24,24 +24,21 @@ namespace NWN.Systems
         {
           windowId = "quickbars";
 
-          rootChidren = new List<NuiElement>();
           rootColumn = new NuiColumn() { Children = rootChidren };
           rootGroup = new NuiGroup() { Id = "rootGroup", Border = true, Layout = rootColumn };
 
-          rootChidren.Add(new NuiRow()
+          rootChidren.Add(new NuiRow() { Children = new List<NuiElement>()
           {
-            Children = new List<NuiElement>()
-            {
-              new NuiTextEdit("Nom d'une nouvelle barre de raccourcis", quickbarName, 40, false) { Width = 300, Tooltip = "Afin d'enregistrer une nouvelle barre de raccourcis, un nom doit être renseigné." },
-              new NuiButton("Enregistrer") { Id = "new", Width = 80, Enabled = saveQuickbarEnabled, Tooltip = "Enregistre une nouvelle barre avec vos raccourcis tels qu'actuellement configurés." }
-            }
-          });
+            new NuiTextEdit("Nom d'une nouvelle barre de raccourcis", quickbarName, 40, false) { Width = 300, Height = 35, Tooltip = "Afin d'enregistrer une nouvelle barre de raccourcis, un nom doit être renseigné." },
+            new NuiButtonImage("ir_empytqs") { Id = "new", Width = 35, Height = 35, Enabled = saveQuickbarEnabled, Tooltip = "Enregistre une nouvelle barre avec vos raccourcis tels qu'actuellement configurés." }
+          } });
 
           List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell>
           {
             new NuiListTemplateCell(new NuiButton(buttonText) { Id = "load", Height = 35 }) { Width = 300 },
             new NuiListTemplateCell(new NuiButton("Supprimer") { Id = "delete", Height = 35 }) { Width = 60 },
           };
+
           rootChidren.Add(new NuiList(rowTemplate, listCount) { RowHeight = 35 });
 
           CreateWindow();

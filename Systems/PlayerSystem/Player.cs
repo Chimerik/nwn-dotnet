@@ -59,6 +59,7 @@ namespace NWN.Systems
       public List<CraftResource> craftResourceStock = new();
       public List<Grimoire> grimoires = new();
       public List<Quickbar> quickbars = new();
+      public CooldownPosition cooldownPositions = new();
       public List<ItemAppearance> itemAppearances = new();
       public List<CharacterDescription> descriptions = new();
       public List<CustomDMVisualEffect> customDMVisualEffects = new();
