@@ -24,7 +24,7 @@ namespace NWN.Systems
       removeCoreHandle = scriptHandleFactory.CreateUniqueHandler(Potion.RemoveCore);
 
       corePotionEffect = Effect.RunAction(null, removeCoreHandle);
-      corePotionEffect = Effect.LinkEffects(corePotionEffect, Effect.Icon((EffectIcon)131));
+      corePotionEffect = Effect.LinkEffects(corePotionEffect, Effect.Icon(NwGameTables.EffectIconTable.GetRow(131)));
       corePotionEffect.Tag = "_CORE_EFFECT";
       corePotionEffect.SubType = EffectSubType.Supernatural;
 

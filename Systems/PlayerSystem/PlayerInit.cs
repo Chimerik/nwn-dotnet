@@ -174,8 +174,8 @@ namespace NWN.Systems
         oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value = rowQuery.Result.GetInt(0);
 
         for (byte spellLevel = 0; spellLevel < 10; spellLevel++)
-          foreach (NwSpell spell in oid.LoginCreature.GetClassInfo((ClassType)43).GetKnownSpells(spellLevel))
-            oid.LoginCreature.GetClassInfo((ClassType)43).RemoveKnownSpell(spellLevel, spell);
+          if(oid.LoginCreature.GetClassInfo((ClassType)43).KnownSpells.Count > 0)
+            oid.LoginCreature.GetClassInfo((ClassType)43).KnownSpells[spellLevel].Clear();
 
         InitializeNewPlayerLearnableSkills();
       }
@@ -326,7 +326,8 @@ namespace NWN.Systems
       private void InitializePlayerAccount()
       {
         var query = SqLiteUtils.SelectQuery("PlayerAccounts",
-            new List<string>() { { "bonusRolePlay" }, { "mapPins" }, { "chatColors" }, { "mutedPlayers" }, { "windowRectangles" }, { "customDMVisualEffects" }, { "hideFromPlayerList" } },
+            new List<string>() { { "bonusRolePlay" }, { "mapPins" }, { "chatColors" }, { "mutedPlayers" }, { "windowRectangles" }, { "customDMVisualEffects" },
+              { "hideFromPlayerList" }, { "cooldownPosition" } },
             new List<string[]>() { { new string[] { "rowid", accountId.ToString() } } });
 
         foreach (var result in query)
@@ -338,11 +339,13 @@ namespace NWN.Systems
           string serializedWindowRectangles = result[4];
           string serializedCustomDMVisualEffects = result[5];
           hideFromPlayerList = result[6].ParseIntBool();
+          string serializedCooldownPosition = result[7];
           InitializeAccountMapPins(serializedMapPins);
           InitializeAccountChatColors(serializedChatColors);
           InitializeAccountMutedPlayers(serializedMutedPlayers);
           InitializeAccountWindowRectanglesPlayers(serializedWindowRectangles);
           InitializeAccountCustomDMVisualEffects(serializedCustomDMVisualEffects);
+          InitializeAccountCooldownPosition(serializedCooldownPosition);
         }
       }
       private void InitializePlayerCharacter()
@@ -350,8 +353,7 @@ namespace NWN.Systems
         var query = SqLiteUtils.SelectQuery("playerCharacters",
             new List<string>() { { "location" }, { "currentHP" }, { "bankGold" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" },
               { "alchemyCauldron" }, { "serializedLearnableSkills" }, { "serializedLearnableSpells" }, { "explorationState" }, { "materialStorage" }, { "craftJob" },
-              { "grimoires" }, { "quickbars" }, { "itemAppearances" }, { "descriptions" }, { "currentSkillPoints" }, { "mails" }, { "subscriptions" }, { "endurance" },
-              { "cooldownPosition" } },
+              { "grimoires" }, { "quickbars" }, { "itemAppearances" }, { "descriptions" }, { "currentSkillPoints" }, { "mails" }, { "subscriptions" }, { "endurance" } },
             new List<string[]>() { { new string[] { "rowid", characterId.ToString() } } });
 
         foreach (var result in query)
@@ -376,12 +378,11 @@ namespace NWN.Systems
           string serializedMails = result[17];
           string serializedSubscriptions = result[18];
           string serializedEndurance = result[19];
-          string serializedCooldownPosition = result[20];
 
-          InitializePlayerAsync(serializedCauldron, serializedExploration, serializedLearnableSkills, serializedLearnableSpells, serializedCraftResources, serializedCraftJob, serializedGrimoires, serializedQuickbars, serializedItemAppearances, serializedDescriptions, serializedMails, serializedSubscriptions, serializedEndurance, serializedCooldownPosition);
+          InitializePlayerAsync(serializedCauldron, serializedExploration, serializedLearnableSkills, serializedLearnableSpells, serializedCraftResources, serializedCraftJob, serializedGrimoires, serializedQuickbars, serializedItemAppearances, serializedDescriptions, serializedMails, serializedSubscriptions, serializedEndurance);
         }
       }
-      private async void InitializePlayerAsync(string serializedCauldron, string serializedExploration, string serializedLearnableSkills, string serializedLearnableSpells, string serializedCraftResources, string serializedCraftJob, string serializedGrimoires, string serializedQuickbars, string serializedItemAppearances, string serializedDescriptions, string serializedMails, string serializedSubscriptions, string serializedEndurance, string serializedCooldownPosition)
+      private async void InitializePlayerAsync(string serializedCauldron, string serializedExploration, string serializedLearnableSkills, string serializedLearnableSpells, string serializedCraftResources, string serializedCraftJob, string serializedGrimoires, string serializedQuickbars, string serializedItemAppearances, string serializedDescriptions, string serializedMails, string serializedSubscriptions, string serializedEndurance)
       {
         Task loadCauldronTask = Task.Run(() =>
         {
@@ -486,12 +487,6 @@ namespace NWN.Systems
           quickbars = JsonConvert.DeserializeObject<List<Quickbar>>(serializedQuickbars);
         });
 
-        Task loadCooldownPositionTask = Task.Run(() => 
-        {
-          cooldownPositions = string.IsNullOrEmpty(serializedCooldownPosition) || serializedCooldownPosition == "null" ? 
-            new CooldownPosition(52, 6) : cooldownPositions = JsonConvert.DeserializeObject<CooldownPosition>(serializedCooldownPosition);
-        });
-
         Task loadItemAppearancesTask = Task.Run(() =>
         {
           if (string.IsNullOrEmpty(serializedItemAppearances) || serializedItemAppearances == "null")
@@ -531,7 +526,7 @@ namespace NWN.Systems
               mails.Add(new Mail(mail));
         });
 
-        await Task.WhenAll(loadSkillsTask, loadSpellsTask, loadExplorationTask, loadCauldronTask, loadCraftJobTask, loadGrimoiresTask, loadQuickbarsTask, loadItemAppearancesTask, loadDescriptionsTask, loadMailsTask, loadSubscriptionsTask, loadEnduranceTask, loadCooldownPositionTask);
+        await Task.WhenAll(loadSkillsTask, loadSpellsTask, loadExplorationTask, loadCauldronTask, loadCraftJobTask, loadGrimoiresTask, loadQuickbarsTask, loadItemAppearancesTask, loadDescriptionsTask, loadMailsTask, loadSubscriptionsTask, loadEnduranceTask);
         await NwTask.SwitchToMainThread();
         FinalizePlayerData();
       }
@@ -572,7 +567,7 @@ namespace NWN.Systems
         + improvedHealth * (toughness + conModifier));
 
         Effect runAction = Effect.RunAction(null, ItemSystem.removeCoreHandle);
-        runAction = Effect.LinkEffects(runAction, Effect.Icon((EffectIcon)131));
+        runAction = Effect.LinkEffects(runAction, Effect.Icon(NwGameTables.EffectIconTable.GetRow(132)));
         runAction.Tag = "_CORE_EFFECT";
         runAction.SubType = EffectSubType.Supernatural;
 
@@ -630,7 +625,7 @@ namespace NWN.Systems
               cooldown = 1;
 
             string[] split = localVar.Name.Split("_");
-            WaitCooldownToRestoreSpell(NwSpell.FromSpellId(int.Parse(split[split.Length - 1])), cooldown);
+            WaitCooldownToRestoreSpell(NwSpell.FromSpellId(int.Parse(split[^1])), cooldown);
           }
       }
       private void HandleAdrenalineInit()
@@ -786,6 +781,11 @@ namespace NWN.Systems
           return;
 
         customDMVisualEffects = await Task.Run(() => JsonConvert.DeserializeObject<List<CustomDMVisualEffect>>(serializedCustomDMVisualEffects));
+      }
+      private async void InitializeAccountCooldownPosition(string serializedPosition)
+      {
+        cooldownPositions = string.IsNullOrEmpty(serializedPosition) || serializedPosition == "null" ?
+          new CooldownPosition(52, 6) : cooldownPositions = await Task.Run(() => JsonConvert.DeserializeObject<CooldownPosition>(serializedPosition));
       }
       private void OnCombatStarted(OnCombatStatusChange onCombatStatusChange)
       {

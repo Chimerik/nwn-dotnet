@@ -65,9 +65,9 @@ namespace NWN.Systems
 
       active = false;
       canLearn = false;
-
-      if (!player.oid.LoginCreature.GetClassInfo((ClassType)43).GetKnownSpells((byte)(multiplier - 1)).Any(s => s.Id == id))
-        player.oid.LoginCreature.GetClassInfo((ClassType)43).AddKnownSpell((Spell)id, (byte)(multiplier - 1));
+      
+      if (!player.oid.LoginCreature.GetClassInfo((ClassType)43).KnownSpells[multiplier - 1].Any(s => s.Id == id))
+        player.oid.LoginCreature.GetClassInfo((ClassType)43).KnownSpells[multiplier - 1].Add(NwSpell.FromSpellId(id));
 
       if (player.TryGetOpenedWindow("activeLearnable", out PlayerSystem.Player.PlayerWindow activeLearnableWindow))
       {

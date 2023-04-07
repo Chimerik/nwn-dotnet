@@ -20,7 +20,7 @@ namespace NWN.Systems
       scriptHandleFactory = scriptFactory;
 
       bleeding = Effect.RunAction(null/*scriptHandleFactory.CreateUniqueHandler(ApplyBleeding)*/, null, scriptHandleFactory.CreateUniqueHandler(IntervalBleeding), TimeSpan.FromSeconds(1));
-      bleeding = Effect.LinkEffects(bleeding, Effect.Icon((EffectIcon)132));
+      bleeding = Effect.LinkEffects(bleeding, Effect.Icon((NwGameTables.EffectIconTable.GetRow(132))));
       bleeding.Tag = "CUSTOM_EFFECT_BLEEDING";
       bleeding.SubType = EffectSubType.Supernatural;
     }

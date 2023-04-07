@@ -148,10 +148,12 @@ namespace NWN.Systems
         int charId = int.Parse(result[0]);
         int spellId = int.Parse(result[1]);
         LearnableSpell newSpell = (LearnableSpell)SkillSystem.learnableDictionary[spellId];
-        LearnableSpell.SerializableLearnableSpell newSerializedSpell = new LearnableSpell.SerializableLearnableSpell(newSpell);
-        newSerializedSpell.active = false;
-        newSerializedSpell.acquiredPoints = int.Parse(result[2]);
-        newSerializedSpell.currentLevel = 0;
+        LearnableSpell.SerializableLearnableSpell newSerializedSpell = new LearnableSpell.SerializableLearnableSpell(newSpell)
+        {
+          active = false,
+          acquiredPoints = int.Parse(result[2]),
+          currentLevel = 0
+        };
 
         reinitSpellDico.TryAdd(charId, new Dictionary<int, LearnableSpell>());
         reinitSpellDico[charId].Add(spellId, new LearnableSpell(newSpell, newSerializedSpell));
@@ -201,7 +203,7 @@ namespace NWN.Systems
       runAction.SubType = subType;
 
       if (icon != EffectIcon.Invalid)
-        runAction = Effect.LinkEffects(runAction, Effect.Icon(icon));
+        runAction = Effect.LinkEffects(runAction, Effect.Icon(NwGameTables.EffectIconTable.GetRow((int)icon)));
 
       return runAction;
     }
@@ -585,8 +587,7 @@ namespace NWN.Systems
 
       if (playerDisconnecting.IsCompletedSuccessfully)
       {
-        if (silhouette != null)
-          silhouette.Destroy();
+        silhouette?.Destroy();
         return;
       }
 

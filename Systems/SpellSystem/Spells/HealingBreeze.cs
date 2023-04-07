@@ -24,7 +24,7 @@ namespace NWN.Systems
       SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell.SpellType, false);
 
       Effect healingBreeze = Effect.RunAction();
-      healingBreeze = Effect.LinkEffects(healingBreeze, Effect.Icon((EffectIcon)130));
+      healingBreeze = Effect.LinkEffects(healingBreeze, Effect.Icon(NwGameTables.EffectIconTable.GetRow(130)));
       healingBreeze.Tag = $"CUSTOM_EFFECT_REGEN_HEALING_BREEZE_{regen}";
 
       if (onSpellCast.MetaMagicFeat == MetaMagic.Extend)

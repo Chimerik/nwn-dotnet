@@ -348,8 +348,8 @@ namespace NWN.Systems
 
         case GuiEventType.EffectIconClick:
 
-          int nEffectIcon = (int)guiEvent.EffectIcon;
-          EffectType nIconEffectType = EffectIconToEffectType(nEffectIcon);
+          EffectIconTableEntry nEffectIcon = guiEvent.EffectIcon;
+          EffectType nIconEffectType = EffectIconToEffectType(nEffectIcon.RowIndex);
 
           if (nIconEffectType == EffectType.InvalidEffect)
             return;
@@ -414,7 +414,7 @@ namespace NWN.Systems
               case EffectType.AbilityIncrease:
               case EffectType.AbilityDecrease:
                 {
-                  Ability nAbility = AbilityTypeFromEffectIconAbility(nEffectIcon);
+                  Ability nAbility = AbilityTypeFromEffectIconAbility(nEffectIcon.RowIndex);
 
                   if ((int)nAbility != eff.IntParams.ElementAt(0))
                     bSkipDisplay = true;
@@ -473,13 +473,13 @@ namespace NWN.Systems
 
               case EffectType.Immunity:
                 {
-                  ImmunityType nImmunity = ImmunityTypeFromEffectIconImmunity(nEffectIcon);
+                  ImmunityType nImmunity = ImmunityTypeFromEffectIconImmunity(nEffectIcon.RowIndex);
 
                   if ((int)nImmunity != eff.IntParams.ElementAt(0))
                     bSkipDisplay = true;
                   else
                   {
-                    sStats = NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("effecticons", "StrRef", nEffectIcon)));
+                    sStats = NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("effecticons", "StrRef", nEffectIcon.RowIndex)));
                     sRacialTypeAlignment = GetVersusRacialTypeAndAlignment(eff.IntParams.ElementAt(1), eff.IntParams.ElementAt(2), eff.IntParams.ElementAt(3));
                   }
                   break;
@@ -489,7 +489,7 @@ namespace NWN.Systems
               case EffectType.DamageImmunityDecrease:
                 {
                   int nDamageType = eff.IntParams.ElementAt(0);
-                  DamageType nDamageTypeFromIcon = DamageTypeFromEffectIconDamageImmunity(nEffectIcon);
+                  DamageType nDamageTypeFromIcon = DamageTypeFromEffectIconDamageImmunity(nEffectIcon.RowIndex);
 
                   if (nDamageTypeFromIcon != DamageType.BaseWeapon && nDamageType != (int)nDamageTypeFromIcon)
                     bSkipDisplay = true;
@@ -612,9 +612,9 @@ namespace NWN.Systems
               case EffectType.Invisibility:
                 {
                   int nInvisibilityType = eff.IntParams.ElementAt(0);
-                  if (nEffectIcon == NWScript.EFFECT_ICON_INVISIBILITY)
+                  if (nEffectIcon.RowIndex == NWScript.EFFECT_ICON_INVISIBILITY)
                     bSkipDisplay = nInvisibilityType != NWScript.INVISIBILITY_TYPE_NORMAL;
-                  else if (nEffectIcon == NWScript.EFFECT_ICON_IMPROVEDINVISIBILITY)
+                  else if (nEffectIcon.RowIndex == NWScript.EFFECT_ICON_IMPROVEDINVISIBILITY)
                     bSkipDisplay = nInvisibilityType != NWScript.INVISIBILITY_TYPE_IMPROVED;
                   if (!bSkipDisplay)
                   {

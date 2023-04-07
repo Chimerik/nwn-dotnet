@@ -17,7 +17,7 @@ namespace NWN
 {
   public static class StringUtils
   {
-    public static JsonSerializerSettings settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
+    public static JsonSerializerSettings settings = new() { TypeNameHandling = TypeNameHandling.All };
     public static string[] noReplyArray = { "Banque Skalsgard" };
 
     public static string FirstCharToUpper(this string input)

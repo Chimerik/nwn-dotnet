@@ -203,25 +203,25 @@ namespace NWN.Systems
       string line;
       int i = 1;
 
-      using (var reader = new StreamReader(stream))
-        while ((line = await reader.ReadLineAsync()) != null)
+      using var reader = new StreamReader(stream);
+      while ((line = await reader.ReadLineAsync()) != null)
+      {
+        try
         {
-          try
-          {
-            string[] data = line.Split(',');
+          string[] data = line.Split(',');
 
-            if (data[0] != "tag")
-              Config.creatureStats.Add(data[0], new CreatureStats(int.Parse(data[1]), int.Parse(data[2]), int.Parse(data[3]), int.Parse(data[4]), int.Parse(data[5]), int.Parse(data[6])));
-          }
-          catch(Exception e) 
-          {
-            Utils.LogMessageToDMs($"WARNING - CREATURE STATS INIT - COULD NOT LOAD LINE {i}\n" +
-              $"{e.Message}\n" +
-              $"{e.StackTrace}");
-          }
-
-          i++;
+          if (data[0] != "tag")
+            Config.creatureStats.Add(data[0], new CreatureStats(int.Parse(data[1]), int.Parse(data[2]), int.Parse(data[3]), int.Parse(data[4]), int.Parse(data[5]), int.Parse(data[6])));
         }
+        catch (Exception e)
+        {
+          Utils.LogMessageToDMs($"WARNING - CREATURE STATS INIT - COULD NOT LOAD LINE {i}\n" +
+            $"{e.Message}\n" +
+            $"{e.StackTrace}");
+        }
+
+        i++;
+      }
     }
     private static void InitializeTlkOverrides()
     {
@@ -237,7 +237,7 @@ namespace NWN.Systems
       tlkEntry = StrRef.FromCustomTlk(190053);
       tlkEntry.Override = "Saignement";
     }
-    private static async void ReadGDocLine()
+    /*private static async void ReadGDocLine()
     {
       var request = googleDriveService.Files.Export("1Q21R9JZdbajKK9S2F1pesHZo2Gh-zeO3LuXt7XAMJXY", "text/csv");
       List<string> resources = new();
@@ -262,8 +262,8 @@ namespace NWN.Systems
 
       foreach(var resource in resourceList.OrderBy(r => NWScript.ResManGetAliasFor(r.ModelName, NWScript.RESTYPE_MDL)).ThenBy(r => r.ModelName).ThenBy(r => r.RowIndex).ThenBy(r => r.Label))
         Log.Info($"{resource.Label} | {resource.RowIndex} | {resource.ModelName} | {NWScript.ResManGetAliasFor(resource.ModelName, NWScript.RESTYPE_MDL)}");
-    }
-    private static void GetGameResourceTable(string resourceName, List<PlaceableTableEntry> resourceList)
+    }*/
+    /*private static void GetGameResourceTable(string resourceName, List<PlaceableTableEntry> resourceList)
     {
       var resources = NwGameTables.PlaceableTable.Where(r => r.Label == resourceName.Replace("\"", ""));
 
@@ -285,21 +285,22 @@ namespace NWN.Systems
 
       foreach (var resource in resources)
         resourceList.Add(resource);
-    }
+    }*/
     private static void CreateDatabase()
     {
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS moduleInfo" +
         "('year' INTEGER NOT NULL, 'month' INTEGER NOT NULL, 'day' INTEGER NOT NULL, 'hour' INTEGER NOT NULL, 'minute' INTEGER NOT NULL, 'second' INTEGER NOT NULL)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS PlayerAccounts" +
-        "('accountName' TEXT NOT NULL, 'cdKey' TEXT, 'bonusRolePlay' INTEGER NOT NULL, 'discordId' TEXT, 'rank' TEXT, 'mapPins' TEXT, 'chatColors' TEXT, 'mutedPlayers' TEXT, 'windowRectangles' TEXT, 'customDMVisualEffects' TEXT, 'hideFromPlayerList' INTEGER NOT NULL DEFAULT 0)");
+        "('accountName' TEXT NOT NULL, 'cdKey' TEXT, 'bonusRolePlay' INTEGER NOT NULL, 'discordId' TEXT, 'rank' TEXT, 'mapPins' TEXT, 'chatColors' TEXT," +
+        " 'mutedPlayers' TEXT, 'windowRectangles' TEXT, 'customDMVisualEffects' TEXT, 'hideFromPlayerList' INTEGER NOT NULL DEFAULT 0, 'cooldownPosition' TEXT)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerCharacters" +
         "('accountId' INTEGER NOT NULL, 'characterName' TEXT NOT NULL, 'previousSPCalculation' TEXT, 'serializedLearnableSkills' TEXT, 'serializedLearnableSpells' TEXT," +
         "'location' TEXT, 'itemAppearances' TEXT, 'currentSkillPoints' INTEGER," +
         "'currentHP' INTEGER, 'bankGold' INTEGER, 'pveArenaCurrentPoints' INTEGER, 'menuOriginTop' INTEGER, 'menuOriginLeft' INTEGER, 'storage' TEXT, " +
         "'alchemyCauldron' TEXT, 'explorationState' TEXT, 'materialStorage' TEXT, 'craftJob' TEXT, 'grimoires' TEXT, 'quickbars' TEXT," +
-        "'descriptions' TEXT, 'mails' TEXT, 'subscriptions' TEXT, 'endurance' TEXT, 'cooldownPosition' TEXT)");
+        "'descriptions' TEXT, 'mails' TEXT, 'subscriptions' TEXT, 'endurance' TEXT)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerDeathCorpses" +
         "('characterId' INTEGER NOT NULL, 'deathCorpse' TEXT NOT NULL, 'location' TEXT NOT NULL)");
@@ -465,16 +466,14 @@ namespace NWN.Systems
         {
           try
           {
-            using (var connection = new SqliteConnection(Config.dbPath))
-            {
-              connection.Open();
+            using var connection = new SqliteConnection(Config.dbPath);
+            connection.Open();
 
-              var sqlCommand = connection.CreateCommand();
-              sqlCommand.CommandText = $"UPDATE areaResourceStock SET quantity = {resourceGrowth} " +
-                                    $"WHERE type = '{resRef}' and quantity = {quantity} and grade = {materiaGrade} and location = '{SqLiteUtils.SerializeLocation(location)}' ";
+            var sqlCommand = connection.CreateCommand();
+            sqlCommand.CommandText = $"UPDATE areaResourceStock SET quantity = {resourceGrowth} " +
+                                  $"WHERE type = '{resRef}' and quantity = {quantity} and grade = {materiaGrade} and location = '{SqLiteUtils.SerializeLocation(location)}' ";
 
-              await sqlCommand.ExecuteNonQueryAsync();
-            }
+            await sqlCommand.ExecuteNonQueryAsync();
           }
           catch (Exception e)
           {
@@ -1062,7 +1061,7 @@ namespace NWN.Systems
         else if (eff.Tag.StartsWith("CUSTOM_EFFECT_REGEN_"))
         {
           var split = eff.Tag.Split("_");
-          player.healthRegen += int.Parse(split[split.Length - 1]);
+          player.healthRegen += int.Parse(split[^1]);
         }
       }
 
@@ -1147,10 +1146,10 @@ namespace NWN.Systems
         && (DateTime.Now - player.oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>($"_LAST_DAMAGE_ON").Value).TotalSeconds > 25)
       {
         foreach (var local in player.oid.LoginCreature.LocalVariables)
-          if (local.Name.StartsWith("_ADRENALINE_") && local is LocalVariableInt intVar)
+          if (local.Name.StartsWith("_ADRENALINE_") && local is LocalVariableInt)
           {
             string[] splitLocal = local.Name.Split("_");
-            int featId = int.Parse(splitLocal[splitLocal.Length - 1]);
+            int featId = int.Parse(splitLocal[^1]);
             player.oid.LoginCreature.DecrementRemainingFeatUses(NwFeat.FromFeatId(featId));
             DelayedLocalVarDeletion(local);
             StringUtils.UpdateQuickbarPostring(player, featId, 0);
@@ -1160,7 +1159,7 @@ namespace NWN.Systems
         LogUtils.LogMessage($"{player.oid.LoginCreature.Name} perd toute son adrénaline", LogUtils.LogType.Combat);
       }
     }
-    private async static void DelayedLocalVarDeletion(ObjectVariable local)
+    private static async void DelayedLocalVarDeletion(ObjectVariable local)
     {
       await NwTask.NextFrame();
       local.Delete();
