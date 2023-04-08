@@ -324,14 +324,11 @@ namespace NWN.Systems
 
           LoadButtons();
 
-          rootChildren.Add(new NuiRow()
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
           {
-            Children = new List<NuiElement>()
-            {
-              new NuiLabel("Nom") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
-              new NuiTextEdit("Nom", name, 25, false) { Height = 35, Width = 200 }
-            }
-          });
+            new NuiLabel("Nom") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
+            new NuiTextEdit("Nom", name, 25, false) { Height = 35, Width = 200 }
+          } });
 
           rootChildren.Add(new NuiRow()
           {
@@ -607,7 +604,7 @@ namespace NWN.Systems
             {
               case LocalVariableString stringVar:
 
-                if (stringVar.Name == "ITEM_KEY")
+                if (stringVar.Name == "DM_ITEM_CREATED_BY" && player.oid.PlayerName != "Chim")
                   continue;
 
                 variableValueList.Add(stringVar.Value);

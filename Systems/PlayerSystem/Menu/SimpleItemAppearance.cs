@@ -34,6 +34,8 @@ namespace NWN.Systems
           windowId = "simpleItemAppearanceModifier";
           rootColumn.Children = colChildren;
 
+          colChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiButton("Nom & Description") { Id = "loadItemNameEditor", Width = 150, Height = 50 } } });
+
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(icon) { Id = "0", Height = 100, Visible = iconVisible }) { Width = 75  });
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(icon2) { Id = "1", Height = 100, Visible = icon2Visible }) { Width = 75 });
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(icon3) { Id = "2", Height = 100, Visible = icon3Visible }) { Width = 75 });
@@ -90,6 +92,13 @@ namespace NWN.Systems
             {
               player.oid.SendServerMessage("L'objet en cours de modification n'est plus en votre possession !", ColorConstants.Red);
               CloseWindow();
+              return;
+            }
+
+            if(nuiEvent.EventType == NuiEventType.Click && nuiEvent.ElementId == "loadItemNameEditor")
+            {
+              if (!player.windows.ContainsKey("editorItemName")) player.windows.Add("editorItemName", new EditorItemName(player, item));
+              else ((EditorItemName)player.windows["editorItemName"]).CreateWindow(item);
               return;
             }
             

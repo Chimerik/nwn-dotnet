@@ -28,6 +28,8 @@ namespace NWN.Systems
           windowId = "weaponAppearanceModifier";
           rootColumn.Children = rootChildren;
 
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiButton("Nom & Description") { Id = "loadItemNameEditor", Width = 150, Height = 50 } } });
+
           rootChildren.Add(new NuiRow() { Height = 20, Margin = 0.0f,  Children = new List<NuiElement>()
           {
             new NuiSpacer(),
@@ -180,6 +182,10 @@ namespace NWN.Systems
                 case "topIncrease": HandleWeaponSelectorChange(ItemAppearanceWeaponModel.Top, 1); break;
                 case "midIncrease": HandleWeaponSelectorChange(ItemAppearanceWeaponModel.Middle, 1); break;
                 case "botIncrease": HandleWeaponSelectorChange(ItemAppearanceWeaponModel.Bottom, 1); break;
+                case "loadItemNameEditor":
+                  if (!player.windows.ContainsKey("editorItemName")) player.windows.Add("editorItemName", new EditorItemName(player, item));
+                  else ((EditorItemName)player.windows["editorItemName"]).CreateWindow(item);
+                  return;
               }
 
               break;

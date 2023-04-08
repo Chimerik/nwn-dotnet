@@ -39,7 +39,7 @@ namespace NWN.Systems
           window = new NuiWindow(layoutColumn, $"Modification de {targetItem.Name}")
           {
             Geometry = geometry,
-            Resizable = false,
+            Resizable = true,
             Collapsed = false,
             Closable = true,
             Transparent = false,

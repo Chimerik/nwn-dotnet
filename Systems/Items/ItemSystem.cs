@@ -227,24 +227,6 @@ namespace NWN.Systems
       if (oPC.ControllingPlayer == null || oItem == null)
         return;
 
-      /*Task wait = NwTask.Run(async () =>
-      {
-        await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-
-        if (Config.env == Config.Env.Prod && oItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value != Config.itemKey)
-        {
-          Utils.LogMessageToDMs($"{oPC.Name} ({oPC.LoginPlayer.PlayerName}) a tenté de ramasser l'objet invalide : {oItem.Name}");
-          
-          if (oPC.LoginPlayer.LoginCreature.GetObjectVariable<LocalVariableString>("_REINITILISATION_DONE").HasNothing)
-            oItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
-          else
-          {
-            oItem.Destroy();
-            oPC.LoginPlayer.SendServerMessage($"{oItem.Name.ColorString(ColorConstants.White)} est un objet invalide et n'aurait jamais du pouvoir être ramassé. Il a donc été détruit.");
-          }
-        }
-      });*/
-
       if (oItem.Tag == "undroppable_item")
       {
         feedbackService.AddFeedbackMessageFilter(FeedbackMessage.ItemLost, oPC.ControllingPlayer);
@@ -253,8 +235,6 @@ namespace NWN.Systems
         feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.ItemLost, oPC.ControllingPlayer);
         return;
       }
-
-      //Log.Info($"{oItem.Name} - {oItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasNothing} - {oItem.BaseItem.EquipmentSlots} - {oItem.BaseItem.ItemType}");
 
       if (oItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasNothing && (oItem.BaseItem.EquipmentSlots != EquipmentSlots.None || oItem.BaseItem.ItemType == BaseItemType.CreatureItem))
       {
@@ -270,6 +250,9 @@ namespace NWN.Systems
         NwObject.FindObjectsWithTag<NwCreature>("pccorpse").Where(c => c.GetObjectVariable<LocalVariableInt>("_PC_ID").Value == oItem.GetObjectVariable<LocalVariableInt>("_PC_ID")).FirstOrDefault()?.Destroy();
         oAcquiredFrom.Destroy();
       }
+
+      if (!oPC.LoginPlayer.IsDM && oItem.GetObjectVariable<LocalVariableString>("DM_ITEM_CREATED_BY").HasValue)
+        LogUtils.LogMessage($"{oPC.Name} vient d'acquérir {oItem.Name} créé par {oItem.GetObjectVariable<LocalVariableString>("DM_ITEM_CREATED_BY").Value}", LogUtils.LogType.DMAction);
 
       if (oItem.BaseItem.IsStackable)
       {

@@ -17,6 +17,7 @@ namespace NWN.Systems
         private readonly NuiColumn rootColumn = new() { Margin = 0.0f };
         private readonly List<NuiElement> rootChildren = new();
 
+        private readonly NuiBind<string> name = new("name");
         private readonly NuiBind<int> helmetSelection = new("helmetSelection");
         private readonly NuiBind<string> helmetLeather1 = new("helmetLeather1");
         private readonly NuiBind<string> helmetCloth1 = new("helmetCloth1");
@@ -33,6 +34,8 @@ namespace NWN.Systems
         {
           windowId = "helmetColorsModifier";
           rootColumn.Children = rootChildren;
+
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiButton("Nom & Description") { Id = "loadItemNameEditor", Width = 150, Height = 50 } } });
 
           int nbButton = 0;
 
@@ -67,49 +70,49 @@ namespace NWN.Systems
             Height = 20,
             Margin = 0.0f,
             Children = new List<NuiElement>()
-          {
-            new NuiSpacer(),
-            new NuiLabel("Casque") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
-            new NuiSpacer()
-          }
+            {
+              new NuiSpacer(),
+              new NuiLabel("Casque") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+              new NuiSpacer()
+            }
           });
 
           rootChildren.Add(new NuiRow()
           {
             Children = new List<NuiElement>()
-          {
-            new NuiSpacer(),
-            new NuiButton("<") { Id = "helmetDecrease", Height = 20, Width = 20, Margin = 0.0f },
-            new NuiCombo(){ Entries = BaseItems2da.helmetModelEntries, Selected = helmetSelection, Height = 20, Width = 100, Margin = 0.0f },
-            new NuiButton(">") { Id = "helmetIncrease", Height = 20, Width = 20, Margin = 0.0f },
-            new NuiSpacer()
-          }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Margin = 0.0f,
-            Children = new List<NuiElement>()
-          {
-            new NuiSpacer(),
-            new NuiButton("") { Id = "helmetLeather1", Width = 15, Height = 15, Margin = 0.0f, Tooltip = "Cuir 1", DrawList = new() { new NuiDrawListImage(helmetLeather1, new NuiRect(4, 4, 9, 9)) { Aspect = NuiAspect.Stretch } } },
-            new NuiButton("") { Id = "helmetCloth1", Width = 15, Height = 15, Margin = 0.0f, Tooltip = "Tissu 1", DrawList = new() { new NuiDrawListImage(helmetCloth1, new NuiRect(4, 4, 9, 9)) { Aspect = NuiAspect.Stretch } } },
-            new NuiButton("") { Id = "helmetMetal1", Width = 15, Height = 15, Margin = 0.0f, Tooltip = "Métal 1", DrawList = new() { new NuiDrawListImage(helmetMetal1, new NuiRect(4, 4, 9, 9)) { Aspect = NuiAspect.Stretch } } },
-            new NuiSpacer()
-          }
+            {
+              new NuiSpacer(),
+              new NuiButton("<") { Id = "helmetDecrease", Height = 20, Width = 20, Margin = 0.0f },
+              new NuiCombo(){ Entries = BaseItems2da.helmetModelEntries, Selected = helmetSelection, Height = 20, Width = 100, Margin = 0.0f },
+              new NuiButton(">") { Id = "helmetIncrease", Height = 20, Width = 20, Margin = 0.0f },
+              new NuiSpacer()
+            }
           });
 
           rootChildren.Add(new NuiRow()
           {
             Margin = 0.0f,
             Children = new List<NuiElement>()
+            {
+              new NuiSpacer(),
+              new NuiButton("") { Id = "helmetLeather1", Width = 15, Height = 15, Margin = 0.0f, Tooltip = "Cuir 1", DrawList = new() { new NuiDrawListImage(helmetLeather1, new NuiRect(4, 4, 9, 9)) { Aspect = NuiAspect.Stretch } } },
+              new NuiButton("") { Id = "helmetCloth1", Width = 15, Height = 15, Margin = 0.0f, Tooltip = "Tissu 1", DrawList = new() { new NuiDrawListImage(helmetCloth1, new NuiRect(4, 4, 9, 9)) { Aspect = NuiAspect.Stretch } } },
+              new NuiButton("") { Id = "helmetMetal1", Width = 15, Height = 15, Margin = 0.0f, Tooltip = "Métal 1", DrawList = new() { new NuiDrawListImage(helmetMetal1, new NuiRect(4, 4, 9, 9)) { Aspect = NuiAspect.Stretch } } },
+              new NuiSpacer()
+            }
+          });
+
+          rootChildren.Add(new NuiRow()
           {
-            new NuiSpacer(),
-            new NuiButton("") { Id = "helmetLeather2", Width = 15, Height = 15, Margin = 0.0f, Tooltip = "Cuir 2", DrawList = new() { new NuiDrawListImage(helmetLeather2, new NuiRect(4, 4, 9, 9)) { Aspect = NuiAspect.Stretch } } },
-            new NuiButton("") { Id = "helmetCloth2", Width = 15, Height = 15, Margin = 0.0f, Tooltip = "Tissu 2", DrawList = new() { new NuiDrawListImage(helmetCloth2, new NuiRect(4, 4, 9, 9)) { Aspect = NuiAspect.Stretch } } },
-            new NuiButton("") { Id = "helmetMetal2", Width = 15, Height = 15, Margin = 0.0f, Tooltip = "Métal 2", DrawList = new() { new NuiDrawListImage(helmetMetal2, new NuiRect(4, 4, 9, 9)) { Aspect = NuiAspect.Stretch } } },
-            new NuiSpacer()
-          }
+            Margin = 0.0f,
+            Children = new List<NuiElement>()
+            {
+              new NuiSpacer(),
+              new NuiButton("") { Id = "helmetLeather2", Width = 15, Height = 15, Margin = 0.0f, Tooltip = "Cuir 2", DrawList = new() { new NuiDrawListImage(helmetLeather2, new NuiRect(4, 4, 9, 9)) { Aspect = NuiAspect.Stretch } } },
+              new NuiButton("") { Id = "helmetCloth2", Width = 15, Height = 15, Margin = 0.0f, Tooltip = "Tissu 2", DrawList = new() { new NuiDrawListImage(helmetCloth2, new NuiRect(4, 4, 9, 9)) { Aspect = NuiAspect.Stretch } } },
+              new NuiButton("") { Id = "helmetMetal2", Width = 15, Height = 15, Margin = 0.0f, Tooltip = "Métal 2", DrawList = new() { new NuiDrawListImage(helmetMetal2, new NuiRect(4, 4, 9, 9)) { Aspect = NuiAspect.Stretch } } },
+              new NuiSpacer()
+            } 
           });
 
           CreateWindow(item);
@@ -222,6 +225,11 @@ namespace NWN.Systems
 
                 case "helmetIncrease":
                   HandleArmorSelectorChange(1);
+                  return;
+
+                case "loadItemNameEditor":
+                  if (!player.windows.ContainsKey("editorItemName")) player.windows.Add("editorItemName", new EditorItemName(player, item));
+                  else ((EditorItemName)player.windows["editorItemName"]).CreateWindow(item);
                   return;
               }
 

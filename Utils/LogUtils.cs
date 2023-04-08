@@ -38,7 +38,8 @@ namespace NWN
       ArenaSystem,
       PlayerSaveSystem,
       PersonalStorageSystem,
-      PlayerDeath
+      PlayerDeath,
+      DMAction
     }
 
     public static readonly Dictionary<LogType, Queue<string>> logPile = new();
@@ -106,7 +107,7 @@ namespace NWN
             while (message.Length > 2000)
             {
               string splitMessage = message[..1999];
-              message = message.Substring(2000);
+              message = message[2000..];
               SendChatLogToDiscord(chat.Key, splitMessage);
               await Task.Delay(5);
             }

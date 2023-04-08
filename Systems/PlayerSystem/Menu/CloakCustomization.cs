@@ -34,6 +34,8 @@ namespace NWN.Systems
           windowId = "cloakColorsModifier";
           rootColumn.Children = rootChildren;
 
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiButton("Nom & Description") { Id = "loadItemNameEditor", Width = 150, Height = 50 } } });
+
           int nbButton = 0;
 
           for (int i = 0; i < 13; i++)
@@ -206,7 +208,12 @@ namespace NWN.Systems
 
                 case "cloakIncrease":
                   HandleArmorSelectorChange(1);
-                  return; 
+                  return;
+
+                case "loadItemNameEditor":
+                  if (!player.windows.ContainsKey("editorItemName")) player.windows.Add("editorItemName", new EditorItemName(player, item));
+                  else ((EditorItemName)player.windows["editorItemName"]).CreateWindow(item);
+                  return;
               }
 
               int resRef = int.Parse(nuiEvent.ElementId) + 1;
