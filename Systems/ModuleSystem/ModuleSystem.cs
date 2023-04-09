@@ -107,13 +107,7 @@ namespace NWN.Systems
       ItemSystem.feedbackService.AddCombatLogMessageFilter(CombatLogMessage.Initiative);
 
       SetModuleTime();
-
-      foreach(NwItem item in NwObject.FindObjectsOfType<NwItem>()) // Permet de contrôler que les joueurs n'importent pas des items pétés en important des maps
-      { // penser à la faire également lors de la création d'une zone dynamique
-        item.Destroy();
-        LogUtils.LogMessage($"OnModuleLoad - Destroyed item {item.Name} in area {item?.Area?.Name}", LogUtils.LogType.IllegalItems);
-      }
-
+      CheckIllegalItems();
       RestorePlayerCorpseFromDatabase();
       RestoreResourceBlocksFromDatabase();
       LoadHeadLists();
@@ -408,7 +402,16 @@ namespace NWN.Systems
         new List<string[]>() { new string[] { "year", NwDateTime.Now.Year.ToString() }, { new string[] { "month", NwDateTime.Now.Month.ToString() } }, { new string[] { "day", NwDateTime.Now.DayInTenday.ToString() } }, { new string[] { "hour", NwDateTime.Now.Hour.ToString() } }, { new string[] { "minute", NwDateTime.Now.Minute.ToString() } }, { new string[] { "second", NwDateTime.Now.Second.ToString() } } },
         new List<string[]>() { new string[] { "ROWID", "1" } });
     }
-    
+    public static async void CheckIllegalItems()// Permet de contrôler que les joueurs n'importent pas des items pétés en important des maps
+    {
+      await NwTask.WaitUntil(() => LogUtils.logPile.ContainsKey(LogUtils.LogType.IllegalItems));
+
+      foreach (NwItem item in NwObject.FindObjectsOfType<NwItem>()) // penser à la faire également lors de la création d'une zone dynamique
+      { 
+        item.Destroy();
+        LogUtils.LogMessage($"OnModuleLoad - Destroyed item {item.Name} in area {item?.Area?.Name}", LogUtils.LogType.IllegalItems);
+      }
+    }
     public static void RestorePlayerCorpseFromDatabase()
     {
       var query = SqLiteUtils.SelectQuery("playerDeathCorpses",

@@ -52,27 +52,7 @@ namespace NWN.Systems
     }
     private static Task Log(LogMessage message)
     {
-      switch (message.Severity)
-      {
-        case LogSeverity.Critical:
-        case LogSeverity.Error:
-          Console.ForegroundColor = ConsoleColor.Red;
-          break;
-        case LogSeverity.Warning:
-          Console.ForegroundColor = ConsoleColor.Yellow;
-          break;
-        case LogSeverity.Info:
-          Console.ForegroundColor = ConsoleColor.White;
-          break;
-        case LogSeverity.Verbose:
-        case LogSeverity.Debug:
-          Console.ForegroundColor = ConsoleColor.DarkGray;
-          break;
-      }
-
-      Console.WriteLine($"{DateTime.Now,-19} [{message.Severity,8}] {message.Source}: {message.Message} {message.Exception}");
-      Console.ResetColor();
-
+      ModuleSystem.Log.Info($"{DateTime.Now,-19} [{message.Severity,8}] {message.Source}: {message.Message} {message.Exception}");
       return Task.CompletedTask;
     }
     private static async Task UpdateUserList(SocketGuildUser data)
@@ -104,14 +84,14 @@ namespace NWN.Systems
     }
     private static Task OnDiscordDisconnected(Exception e)
     {
-      ModuleSystem.Log.Info($"WARNING - Discord Disconnected - Error :\n\n{e.Message}\n{e.StackTrace}");
+      //ModuleSystem.Log.Info($"WARNING - Discord Disconnected - Error :\n\n{e.Message}\n{e.StackTrace}");
       HandleDiscordReconnect();
       return Task.CompletedTask;
     }
 
     private static async void HandleDiscordReconnect()
     {
-      ModuleSystem.Log.Info("Trying to reconnect");
+      //ModuleSystem.Log.Info("Trying to reconnect");
 
       await NwTask.Delay(TimeSpan.FromSeconds(10));
 
