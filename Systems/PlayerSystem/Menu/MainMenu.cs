@@ -540,7 +540,10 @@ namespace NWN.Systems
           Learnable learnable = targetPlayer.GetActiveLearnable();
 
           if (learnable != null)
+          {
+            LogUtils.LogMessage($"{selection.Player.PlayerName} utilise apprentissage instantanné sur {oPC.LoginCreature.Name} ({learnable.name} - {learnable.currentLevel})", LogUtils.LogType.DMAction);
             learnable.acquiredPoints = learnable.pointsToNextLevel;
+          }
           else
             selection.Player.SendServerMessage($"{targetPlayer.oid.LoginCreature.Name.ColorString(ColorConstants.White)} ne dispose pas d'apprentissage en cours.", ColorConstants.Orange);
         }
@@ -551,7 +554,10 @@ namespace NWN.Systems
             return;
 
           if (targetPlayer.craftJob != null)
+          {
             targetPlayer.craftJob.remainingTime = 1;
+            LogUtils.LogMessage($"{selection.Player.PlayerName} utilise craft instantanné sur {oPC.LoginCreature.Name} ({targetPlayer.craftJob.type})", LogUtils.LogType.DMAction);
+          }
         }
         private void SelectGiveResourcesTarget(ModuleEvents.OnPlayerTarget selection)
         {

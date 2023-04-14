@@ -33,8 +33,11 @@ namespace NWN
     }
     public static async void OnMobDeathResetSpawn(CreatureEvents.OnDeath onDeath)
     {
+      ModuleSystem.Log.Info("On death triggered - OnMobDeathResetSpawn");
+
       NwWaypoint spawnPoint = onDeath.KilledCreature.GetObjectVariable<LocalVariableObject<NwWaypoint>>("_SPAWN").Value;
-      await NwTask.Delay(TimeSpan.FromMinutes(10));
+      await NwTask.Delay(TimeSpan.FromSeconds(10));
+      //await NwTask.Delay(TimeSpan.FromMinutes(10));
       spawnPoint.GetObjectVariable<LocalVariableBool>("_SPAWN_COOLDOWN").Delete();
     }
     public static void CreatureHealthRegenLoop(NwCreature creature)
@@ -52,7 +55,7 @@ namespace NWN
         else if (eff.Tag.StartsWith("CUSTOM_EFFECT_REGEN_"))
         {
           var split = eff.Tag.Split("_");
-          healthRegen += int.Parse(split[split.Length - 1]);
+          healthRegen += int.Parse(split[^1]);
 
           if (healthRegen > 19)
           {
@@ -74,10 +77,10 @@ namespace NWN
         return;
       }
 
-      creature.HP += healthRegen;
-
-      if (creature.HP < 1)
-        creature.ApplyEffect(EffectDuration.Instant, Effect.Death(false, false));
+      if(healthRegen > -1)
+        creature.HP += healthRegen;
+      else
+        creature.ApplyEffect(EffectDuration.Instant, Effect.Damage(healthRegen, DamageType.Slashing));
     }
     public static void ForceSlotReEquip(NwCreature creature, NwItem item, InventorySlot slot = InventorySlot.Chest)
     {
@@ -96,6 +99,7 @@ namespace NWN
     }
     public static void MakeInventoryUndroppable(CreatureEvents.OnDeath onDeath)
     {
+      ModuleSystem.Log.Info("On death triggered - make inventory undroppable");
       ItemUtils.MakeCreatureInventoryUndroppable(onDeath.KilledCreature);
     }
     public static void HandleSpawnPointCreation(NwCreature creature)

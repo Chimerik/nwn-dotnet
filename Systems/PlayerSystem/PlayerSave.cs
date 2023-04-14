@@ -240,7 +240,7 @@ namespace NWN.Systems
           new string[] { "mails", serializeMails.Result  }, new string[] { "subscriptions", serializeSubscriptions.Result  }, new string[] { "endurance", serializeEndurance.Result } },
         new List<string[]>() { new string[] { "rowid", characterId.ToString() } });
 
-        LogUtils.LogMessage($"ASYNC SAVE FINALIZED for {firstName} {lastName} in {(DateTime.Now - elapsed).TotalSeconds} s", LogUtils.LogType.PlayerSaveSystem);
+        LogUtils.LogMessage($"ASYNC SAVE FINALIZED for {firstName} {lastName} in {Math.Round((DateTime.Now - elapsed).TotalSeconds, 3, MidpointRounding.ToEven)} s", LogUtils.LogType.PlayerSaveSystem);
 
         if (pcState == PcState.Offline)
           oid = null;

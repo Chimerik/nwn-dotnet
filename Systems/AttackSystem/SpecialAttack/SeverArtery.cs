@@ -1,5 +1,5 @@
-﻿using Anvil.API;
-using System;
+﻿using System;
+using Anvil.API;
 using Anvil.Services;
 using static NWN.Systems.PlayerSystem;
 
@@ -23,9 +23,8 @@ namespace NWN.Systems
       int duration = 5 + (int)(player.learnableSkills[CustomSkill.SeverArtery].totalPoints * 1.5);
 
       await NwTask.NextFrame();
+      //targetCreature.ApplyEffect(EffectDuration.Instant, Effect.Death(false, false));
       targetCreature.ApplyEffect(EffectDuration.Temporary, bleeding, TimeSpan.FromSeconds(duration));
-
-      // TODO : mise à jour de l'affichage poststring
     }
   }
 }

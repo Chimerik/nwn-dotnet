@@ -32,6 +32,7 @@ namespace NWN.Systems
           InitializeGenericVariables(creature, spawnPoint);
           HandleSpawnSpecificBehaviour(creature, spawnPoint);
           InitializeCreatureStats(creature);
+          //creature.ApplyEffect(EffectDuration.Instant, Effect.Death(false, false));
           //creature.ApplyEffect(EffectDuration.Permanent, Effect.CutsceneParalyze());
         }
         else
@@ -74,6 +75,7 @@ namespace NWN.Systems
       await NwTask.WaitUntil(() => creature == null || !creature.IsValid);
       creatureLoop.Dispose();
     }
+    
     private static void InitializeGenericVariables(NwCreature creature, NwWaypoint spawnPoint) 
     {
       creature.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value = spawnPoint.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value;

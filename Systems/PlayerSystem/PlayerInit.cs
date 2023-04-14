@@ -322,6 +322,7 @@ namespace NWN.Systems
         //oid.LoginCreature.OnSpellBroadcast += spellSystem.HandleHearingSpellBroadcast;
         oid.LoginCreature.OnSpellCast += spellSystem.CheckIsDivinationBeforeSpellCast;
         oid.LoginCreature.OnSpellCast += spellSystem.HandleCraftEnchantementCast;
+        oid.LoginCreature.OnSpellSlotMemorize += HandleMemorizeSpellSlot;
       }
       private void InitializePlayerAccount()
       {
@@ -419,7 +420,7 @@ namespace NWN.Systems
               learnableSkills.TryAdd(kvp.Key, skill);
             }
             else
-              Utils.LogMessageToDMs($"SKILL SYSTEM - INVALID SKILL KEY {kvp.Key} REMOVED FROM {this.characterId} ({this.accountId})");
+              LogUtils.LogMessage($"SKILL SYSTEM - INVALID SKILL KEY {kvp.Key} REMOVED FROM {this.characterId} ({this.accountId})", LogUtils.LogType.Learnables);
           }
         });
 
@@ -953,6 +954,17 @@ namespace NWN.Systems
 
           oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_REINITIALISATION_DONE").Value = 1;
         }
+      }
+      private async void HandleMemorizeSpellSlot(OnSpellSlotMemorize onMemorize)
+      {
+        if (onMemorize.Creature.GetObjectVariable<DateTimeLocalVariable>($"_SPELL_COOLDOWN_{onMemorize.Spell.Id}").Value > DateTime.UnixEpoch)
+          return;
+
+        await NwTask.NextFrame();
+        
+        foreach (var spellSlot in onMemorize.Creature.GetClassInfo((ClassType)43).GetMemorizedSpellSlots(onMemorize.Spell.InnateSpellLevel))
+          if (spellSlot.Spell == onMemorize.Spell)
+            spellSlot.IsReady = true;
       }
     }
   }

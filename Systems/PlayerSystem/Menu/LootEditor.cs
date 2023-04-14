@@ -18,8 +18,9 @@ namespace NWN.Systems
     {
       public class LootEditorWindow : PlayerWindow
       {
-        NuiColumn rootColumn { get; }
-        private readonly NuiBind<string> gold = new("gold");
+        private readonly NuiColumn rootColumn = new();
+        private readonly List<NuiElement> rootChildren = new();
+        
         private readonly NuiBind<string> search = new("search");
         private readonly NuiBind<string> itemNames = new("itemNames");
         private readonly NuiBind<int> listCount = new("listCount");
@@ -28,6 +29,19 @@ namespace NWN.Systems
         private readonly NuiBind<string> botIcon = new("botIcon");
         private readonly NuiBind<bool> enabled = new("enabled");
         private readonly NuiBind<NuiRect> imagePosition = new("rect");
+
+        private readonly List<NuiComboEntry> lootCategories = new()
+          {
+            new NuiComboEntry("Inutile", 0), // gris
+            new NuiComboEntry("Simple", 1), // blanc
+            new NuiComboEntry("Raffiné", 2), // bleu
+            new NuiComboEntry("Chef d'oeuvre", 3), // vert
+            new NuiComboEntry("Rare", 4), // or
+            new NuiComboEntry("Exotique", 5), // orange
+            new NuiComboEntry("Élevé", 6), // rose
+            new NuiComboEntry("Légendaire", 7), // violet
+          };
+
         public List<NwItem> items { get; set; }
         private IEnumerable<NwItem> filteredList;
 
@@ -57,46 +71,23 @@ namespace NWN.Systems
             new NuiListTemplateCell(new NuiLabel(itemNames) { Id = "takeItem", VerticalAlign = NuiVAlign.Middle } )
           };
 
-          rootColumn = new NuiColumn()
-          {
-            Children = new List<NuiElement>()
-            {
-              new NuiRow()
-              {
-                Height = 35,
-                Children = new List<NuiElement>()
-                {
-                  new NuiSpacer(),
-                  new NuiButton("Missives") { Id = "mailBox", Tooltip = "Consulter la boîte aux lettres Skalsgard", Width = 160 },
-                  new NuiSpacer()
-                }
-              },
-              new NuiRow()
-              {
-                Height = 35,
-                Children = new List<NuiElement>()
-                {
-                  new NuiLabel("Pièces d'or : ") { Width = 120, VerticalAlign = NuiVAlign.Middle },
-                  new NuiLabel(gold) { Width = 120, VerticalAlign = NuiVAlign.Middle },
-                  new NuiButton("Dépôt") { Id = "goldDeposit", Width = 80, Tooltip = "Frais de transaction : 5 %" },
-                  new NuiButton("Retrait") { Id = "goldWithdraw", Width = 80, Tooltip = "Frais de transaction : 5 %" }
-                }
-              },
+          rootColumn.Children = rootChildren;
 
-              new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) { Width = 410 } } },
-              new NuiList(rowTemplate, listCount) { RowHeight = 75 },
-              new NuiRow()
-              {
-                Height = 35,
-                Children = new List<NuiElement>()
-                {
-                  new NuiSpacer(),
-                  new NuiButton("Activer mode dépôt") { Id = "itemDeposit", Width = 160 },
-                  new NuiSpacer()
-                }
-              }
-            }
-          };
+          rootChildren.Add(new NuiRow() { Height = 35, Children = new List<NuiElement>()
+          {
+            new NuiSpacer(),
+            new NuiButton("Missives") { Id = "mailBox", Tooltip = "Consulter la boîte aux lettres Skalsgard", Width = 160 },
+            new NuiSpacer()
+          } });
+
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) { Width = 410 } } });
+          rootChildren.Add(new NuiList(rowTemplate, listCount) { RowHeight = 75 });
+          rootChildren.Add(new NuiRow() { Height = 35, Children = new List<NuiElement>()
+          {
+            new NuiSpacer(),
+            new NuiButton("Activer mode dépôt") { Id = "itemDeposit", Width = 160 },
+            new NuiSpacer()
+          } });
 
           CreateWindow();
         }
@@ -243,7 +234,6 @@ namespace NWN.Systems
 
           player.oid.LoginCreature.Gold -= inputGold;
           player.bankGold += (int)(inputGold * 0.95);
-          gold.SetBindValue(player.oid, nuiToken.Token, player.bankGold.ToString());
 
           return true;
         }
@@ -257,7 +247,6 @@ namespace NWN.Systems
 
           player.bankGold -= inputGold;
           player.oid.LoginCreature.Gold += (uint)(inputGold * 0.95);
-          gold.SetBindValue(player.oid, nuiToken.Token, player.bankGold.ToString());
 
           return true;
         }
@@ -419,8 +408,6 @@ namespace NWN.Systems
                 break;
             }
           }
-
-          gold.SetBindValue(player.oid, nuiToken.Token, player.bankGold.ToString());
 
           itemNames.SetBindValues(player.oid, nuiToken.Token, itemNameList);
           listCount.SetBindValue(player.oid, nuiToken.Token, itemNameList.Count);

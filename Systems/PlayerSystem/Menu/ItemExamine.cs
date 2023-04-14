@@ -667,7 +667,7 @@ namespace NWN.Systems
         {
           if (item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasValue)
           {
-            int durabilityState = item.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value / item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value * 100;
+            int durabilityState = (int)((double)item.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value / (double)item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value * 100);
             string tooltip = "Etat : ";
 
             if (durabilityState >= 100)

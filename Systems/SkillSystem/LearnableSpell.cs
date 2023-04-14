@@ -73,6 +73,7 @@ namespace NWN.Systems
       {
         PlayerSystem.Player.ActiveLearnableWindow window = (PlayerSystem.Player.ActiveLearnableWindow)activeLearnableWindow;
         window.timeLeft.SetBindValue(player.oid, window.nuiToken.Token, "Apprentissage terminé");
+        window.level.SetBindValue(player.oid, window.nuiToken.Token, $"{currentLevel}/{maxLevel}");
       }
 
       if (player.TryGetOpenedWindow("learnables", out PlayerSystem.Player.PlayerWindow learnableWindow))

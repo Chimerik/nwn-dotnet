@@ -15,7 +15,7 @@ namespace NWN.Systems
         private readonly NuiBind<string> icon = new("icon");
         private readonly NuiBind<string> name = new("name");
         public readonly NuiBind<string> timeLeft = new("timeLeft");
-        private readonly NuiBind<string> level = new("level");
+        public readonly NuiBind<string> level = new("level");
         private Learnable learnable { get; set; }
         private Player target { get; set; }
 

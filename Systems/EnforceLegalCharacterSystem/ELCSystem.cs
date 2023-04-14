@@ -48,6 +48,7 @@ namespace NWN.Systems
       if (oPC.GetObjectVariable<PersistentVariableInt>("characterId").HasValue)
       {
         onELCFailure.IgnoreFailure = true;
+        LogUtils.LogMessage($"ELC VALIDATION IGNORED - Player {onELCFailure.Player.PlayerName} - Character {oPC.Name} - type : {onELCFailure.Type} - SubType : {onELCFailure.SubType}", LogUtils.LogType.PlayerConnections);
       }
       else
       {
@@ -55,7 +56,7 @@ namespace NWN.Systems
           || onELCFailure.Type == ValidationFailureType.Spell)
           onELCFailure.IgnoreFailure = true;
         else
-          Utils.LogMessageToDMs($"ELC VALIDATION FAILURE - Player {onELCFailure.Player.PlayerName} - Character {oPC.Name} - type : {onELCFailure.Type} - SubType : {onELCFailure.SubType}");
+          LogUtils.LogMessage($"ELC VALIDATION FAILURE - Player {onELCFailure.Player.PlayerName} - Character {oPC.Name} - type : {onELCFailure.Type} - SubType : {onELCFailure.SubType}", LogUtils.LogType.PlayerConnections);
       }
     }
   }

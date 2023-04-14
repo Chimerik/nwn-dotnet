@@ -41,8 +41,8 @@ namespace NWN.Systems
         ProcessTargetShieldAC,
         ProcessArmorPenetrationCalculations,
         ProcessDamageCalculations,
-        ProcessSpecialAttack,
         ProcessAdrenaline,
+        ProcessSpecialAttack,
         ProcessDoubleStrike,
         ProcessAttackerItemDurability,
         ProcessTargetItemDurability,
@@ -55,7 +55,7 @@ namespace NWN.Systems
 
       if (onAttack.Target is not NwCreature oTarget)
         return;
-      
+
       pipeline.Execute(new Context(
         onAttack: onAttack,
         oTarget: oTarget
@@ -726,8 +726,9 @@ namespace NWN.Systems
 
         if (skillDamage < 0)
           skillDamage = modifiedDamage;
-          
-        Config.SetContextDamage(ctx, damageType, (int)Math.Round(skillDamage, MidpointRounding.ToEven));
+
+        skillDamage = Math.Round(skillDamage, MidpointRounding.ToEven);
+        Config.SetContextDamage(ctx, damageType, (int)skillDamage);
         LogUtils.LogMessage($"Final : {damageType} - AC {targetAC} - Initial {initialDamage} - Final Damage {skillDamage}", LogUtils.LogType.Combat);
       }
 
@@ -737,10 +738,10 @@ namespace NWN.Systems
     {
       if (ctx.attackingPlayer is not null && ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_NEXT_ATTACK").HasValue)
       {
-        int skilId = ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_NEXT_ATTACK").Value;
-        NwFeat usedFeat = NwFeat.FromFeatId(skilId - 10000);
+        int skillId = ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_NEXT_ATTACK").Value;
+        NwFeat usedFeat = NwFeat.FromFeatId(skillId - 10000);
 
-        switch (skilId)
+        switch (skillId)
         {
           case CustomSkill.SeverArtery:
             SeverArtery(ctx.attackingPlayer, ctx.oTarget);
@@ -754,8 +755,8 @@ namespace NWN.Systems
             player.DisplayFloatingTextStringOnCreature(ctx.oAttacker, StringUtils.ToWhitecolor($"{ctx.oAttacker.Name.ColorString(ColorConstants.Cyan)} utilise {usedFeat.Name.ToString().ColorString(ColorConstants.Red)}"));
 
         ctx.oAttacker.DecrementRemainingFeatUses(usedFeat);
-        ctx.oAttacker.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{skilId}").Value = 0;
-        StringUtils.UpdateQuickbarPostring(ctx.attackingPlayer, skilId, 0);
+        ctx.oAttacker.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{usedFeat.Id}").Value = 0;
+        StringUtils.UpdateQuickbarPostring(ctx.attackingPlayer, usedFeat.Id, 0);
 
         foreach (var feat in ctx.oAttacker.Feats)
         {
@@ -902,8 +903,7 @@ namespace NWN.Systems
 
         int durabilityRoll = Utils.random.Next(1000);
 
-        LogUtils.LogMessage($"Jet de durabilité - {ctx.attackingPlayer.oid.LoginCreature.Name} - {ctx.attackWeapon.Name}", LogUtils.LogType.Durability);
-        LogUtils.LogMessage($"30 (base) - {dexBonus} (DEX) - {safetyLevel} (Compétence) = {durabilityRate} VS {durabilityRoll}", LogUtils.LogType.Durability);
+        LogUtils.LogMessage($"Jet - {ctx.attackingPlayer.oid.LoginCreature.Name} - {ctx.attackWeapon.Name} - 30 (base) - {dexBonus} (DEX) - {safetyLevel} (Compétence) = {durabilityRate} VS {durabilityRoll}", LogUtils.LogType.Durability);
 
         if (durabilityRoll < durabilityRate)
           DecreaseItemDurability(ctx.attackWeapon, ctx.attackingPlayer.oid, GetWeaponDurabilityLoss(ctx));
@@ -913,7 +913,7 @@ namespace NWN.Systems
     }
     private static void ProcessTargetItemDurability(Context ctx, Action next)
     {
-      if (ctx.attackingPlayer is null)
+      if (ctx.targetPlayer is null)
         return;
 
       // La cible de l'attaque est un joueur, on fait diminuer la durabilité
@@ -923,7 +923,7 @@ namespace NWN.Systems
         dexBonus = 0;
 
       // TODO : Plutôt faire dépendre ça de la maîtrise de l'arme, de l'armure ou du bouclier
-      int safetyLevel = ctx.attackingPlayer.learnableSkills.ContainsKey(CustomSkill.CombattantPrecautionneux) ? ctx.attackingPlayer.learnableSkills[CustomSkill.CombattantPrecautionneux].totalPoints : 0;
+      int safetyLevel = ctx.targetPlayer.learnableSkills.ContainsKey(CustomSkill.CombattantPrecautionneux) ? ctx.targetPlayer.learnableSkills[CustomSkill.CombattantPrecautionneux].totalPoints : 0;
 
       int durabilityRate = 30 - dexBonus - safetyLevel;
       if (durabilityRate < 1)
@@ -931,23 +931,24 @@ namespace NWN.Systems
 
       int durabilityRoll = Utils.random.Next(1000);
 
-      LogUtils.LogMessage($"Jet de durabilité - {ctx.attackingPlayer.oid.LoginCreature.Name}", LogUtils.LogType.Durability);
-      LogUtils.LogMessage($"30 (base) - {dexBonus} (DEX) - {safetyLevel} (Compétence) = {durabilityRate} VS {durabilityRoll}", LogUtils.LogType.Durability);
+      LogUtils.LogMessage($"Jet - {ctx.targetPlayer.oid.LoginCreature.Name} - Armure - 30 (base) - {dexBonus} (DEX) - {safetyLevel} (Compétence) = {durabilityRate} VS {durabilityRoll}", LogUtils.LogType.Durability);
 
       if (durabilityRoll < durabilityRate)
       {
         if (ctx.targetArmor is not null && ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1)
         {
           LogUtils.LogMessage($"Armure : {ctx.targetArmor.Name}", LogUtils.LogType.Durability);
-          DecreaseItemDurability(ctx.targetArmor, ctx.attackingPlayer.oid, GetArmorDurabilityLoss(ctx));
+          DecreaseItemDurability(ctx.targetArmor, ctx.targetPlayer.oid, GetArmorDurabilityLoss(ctx));
         }
+        else
+          LogUtils.LogMessage("Pas d'armure équipée sur l'emplacement touché", LogUtils.LogType.Durability);
 
         NwItem leftSlot = ctx.oTarget.GetItemInSlot(InventorySlot.LeftHand);
 
         if (leftSlot is not null && leftSlot.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1)
         {
           LogUtils.LogMessage($"Bouclier / Parade : {leftSlot.Name}", LogUtils.LogType.Durability);
-          DecreaseItemDurability(leftSlot, ctx.attackingPlayer.oid, GetShieldDurabilityLoss(ctx));
+          DecreaseItemDurability(leftSlot, ctx.targetPlayer.oid, GetShieldDurabilityLoss(ctx));
         }
 
         List<NwItem> slots = new();
@@ -972,7 +973,7 @@ namespace NWN.Systems
           if (randomItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1)
           {
             LogUtils.LogMessage($"Equipement aléatoire : {randomItem.Name}", LogUtils.LogType.Durability);
-            DecreaseItemDurability(randomItem, ctx.attackingPlayer.oid, GetItemDurabilityLoss(ctx));
+            DecreaseItemDurability(randomItem, ctx.targetPlayer.oid, GetItemDurabilityLoss(ctx));
           }
         }
       }

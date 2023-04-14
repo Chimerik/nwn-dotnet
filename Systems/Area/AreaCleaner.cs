@@ -13,7 +13,7 @@ namespace NWN.Systems
     {
       foreach (NwPlaceable bodyBag in area.FindObjectsOfTypeInArea<NwPlaceable>())
       {
-        if (bodyBag.Tag == "BodyBag")
+        if(bodyBag.IsBodyBag)
         {
           Utils.DestroyInventory(bodyBag);
           LogUtils.LogMessage($"destroying body bag {bodyBag.Name}", LogUtils.LogType.AreaManagement);

@@ -92,6 +92,8 @@ namespace NWN.Systems
                     else
                       targetPlayer.craftResourceStock.Add(new CraftResource(resource, quantity));
 
+                    LogUtils.LogMessage($"{player.oid.PlayerName} fait un don à {targetPlayer.oid.LoginCreature.Name} ({resource.type} {resource.grade} - {quantity})", LogUtils.LogType.DMAction);
+
                     player.oid.SendServerMessage($"Don de {quantity} unité(s) de {resource.name} à {targetPlayer.oid.LoginCreature.Name.ColorString(ColorConstants.White)} terminé avec succès !", new Color(32, 255, 32));
                     targetPlayer.oid.SendServerMessage($"{player.oid.LoginCreature.Name.ColorString(ColorConstants.White)} vient de vous faire don de {quantity} unité(s) de {resource.name}.", new Color(32, 255, 32));
                     targetPlayer.oid.ExportCharacter();

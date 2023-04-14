@@ -73,10 +73,13 @@ namespace NWN.Systems
           logString += "+ 5 (Taille créature) ";
         }
 
+        int armorPenalty = unchecked((sbyte)targetCreature.m_pStats.m_nArmorCheckPenalty) < 0 ? 256 - targetCreature.m_pStats.m_nArmorCheckPenalty : targetCreature.m_pStats.m_nArmorCheckPenalty;
+        int shieldPenalty = unchecked((sbyte)targetCreature.m_pStats.m_nShieldCheckPenalty) < 0 ? 256 - targetCreature.m_pStats.m_nShieldCheckPenalty : targetCreature.m_pStats.m_nShieldCheckPenalty;
+        int dexScore = unchecked((sbyte)targetCreature.m_pStats.GetAbilityMod(1)) < 0 ? 256 - targetCreature.m_pStats.GetAbilityMod(1) : targetCreature.m_pStats.GetAbilityMod(1);
         int dodgeRoll = NwRandom.Roll(Utils.random, 100);
-        int dodgeCalculations = unchecked((sbyte)targetCreature.m_pStats.GetAbilityMod(1)) + skillBonusDodge - targetCreature.m_pStats.m_nArmorCheckPenalty - targetCreature.m_pStats.m_nShieldCheckPenalty;
+        int dodgeCalculations = dexScore + skillBonusDodge - armorPenalty - shieldPenalty;
 
-        LogUtils.LogMessage($"{logString} + {unchecked((sbyte)targetCreature.m_pStats.GetAbilityMod(1))} (DEX) - {targetCreature.m_pStats.m_nArmorCheckPenalty + targetCreature.m_pStats.m_nShieldCheckPenalty} (Pénalité d'armure) = {dodgeCalculations} VS {dodgeRoll}", LogUtils.LogType.Combat);
+        LogUtils.LogMessage($"{logString} + {dexScore} (DEX) - {armorPenalty + shieldPenalty} (Pénalité d'armure) = {dodgeCalculations} VS {dodgeRoll}", LogUtils.LogType.Combat);
         
         if (dodgeRoll <= dodgeCalculations) // TODO : supprimer l'esquive passive pour la remplacer par une esquive active
         {

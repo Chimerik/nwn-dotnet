@@ -218,7 +218,7 @@ namespace NWN.Systems.Arena
 
       player.oid.LoginCreature.Location = NwObject.FindObjectsWithTag<NwWaypoint>("_SPECTATOR_WAYPOINT").FirstOrDefault().Location;
 
-      player.oid.LoginCreature.OnSpellCast -= spellSystem.CheckIsDivinationBeforeSpellCast;
+      //player.oid.LoginCreature.OnSpellCast -= spellSystem.CheckIsDivinationBeforeSpellCast;
       player.oid.LoginCreature.OnSpellCast -= Utils.NoMagicMalus;
       player.oid.LoginCreature.OnSpellCast += Utils.NoMagicMalus;
     }

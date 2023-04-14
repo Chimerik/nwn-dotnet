@@ -207,10 +207,8 @@ namespace NWN.Systems
 
       return runAction;
     }
-    public async void HandleSpellInput(OnSpellAction onSpellAction)
+    public void HandleSpellInput(OnSpellAction onSpellAction)
     {
-      onSpellAction.Caster.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
-
       if (!(Players.TryGetValue(onSpellAction.Caster, out Player player)))
         return;
 
@@ -237,7 +235,7 @@ namespace NWN.Systems
         return;
       }
 
-      await onSpellAction.Caster.ClearActionQueue();
+      _ = onSpellAction.Caster.ClearActionQueue();
 
       player.endurance.currentMana -= energyCost;
 
@@ -379,6 +377,7 @@ namespace NWN.Systems
       }
 
       castingCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_SPELL").Delete();
+      castingCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
       NWScript.DelayCommand(0.0f, () => DelayedTagAoE(player));
     }
     private void HandleCasterLevel(NwGameObject caster, NwSpell spell, Player player)
@@ -407,8 +406,8 @@ namespace NWN.Systems
           CreaturePlugin.SetCasterLevelOverride(castingCreature, (int)castingClass, (int)castingCreature.ChallengeRating);
       }
 
-      LogUtils.LogMessage($"{castingCreature.Name} lance {spell.Name.ToString()} (CL {CreaturePlugin.GetCasterLevelOverride(castingCreature, (int)castingClass)} - Cost/CD {SpellUtils.spellCostDictionary[spell]})", LogUtils.LogType.Combat);
-
+      int[] spellCosts = SpellUtils.spellCostDictionary[spell];
+      LogUtils.LogMessage($"{castingCreature.Name} lance {spell.Name.ToString()} (CL {CreaturePlugin.GetCasterLevelOverride(castingCreature, (int)castingClass)} - Cost/CD {spellCosts[0]}/{spellCosts[1]})", LogUtils.LogType.Combat);
       NWScript.DelayCommand(0.0f, () => DelayedSpellHook(castingCreature, spell, player));
     }
     private void DelayedSpellHook(NwCreature caster, NwSpell spell, Player player)
@@ -511,7 +510,7 @@ namespace NWN.Systems
 
       RestoreSpell(caster, spell);
     }
-    public void RestoreSpell(NwCreature caster, NwSpell spell)
+    public static void RestoreSpell(NwCreature caster, NwSpell spell)
     {
       foreach (var spellSlot in caster.GetClassInfo((ClassType)43).GetMemorizedSpellSlots(spell.InnateSpellLevel))
         if (spellSlot.Spell == spell)

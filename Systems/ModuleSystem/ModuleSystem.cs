@@ -47,7 +47,12 @@ namespace NWN.Systems
 
     public ModuleSystem(SchedulerService schedulerService)
     {
-      scheduler = schedulerService;
+      NwCreature victim = NwCreature.Create("nw_chicken", NwModule.Instance.StartingLocation, false, "test_victim");
+      Log.Info($"-------------------------------{victim.Name}-{victim.HP}-------------------------------------------------");
+      victim.OnDeath += MakeInventoryUndroppable;
+      victim.ApplyEffect(EffectDuration.Instant, Effect.Death(false, false));
+      //victim.OnHeartbeat += VictimCustomHeartbeat;
+      /*scheduler = schedulerService;
 
       LoadDiscordBot();
       scheduler.ScheduleRepeating(LogUtils.LogLoop, TimeSpan.FromSeconds(1));
@@ -62,7 +67,7 @@ namespace NWN.Systems
       LoadCreatureSpawns();
       LoadPlaceableSpawns();
       LoadMailReceiverList();
-      NwModule.Instance.OnModuleLoad += OnModuleLoad;
+      NwModule.Instance.OnModuleLoad += OnModuleLoad;*/
     }
     private static async void LoadDiscordBot()
     {
@@ -77,7 +82,7 @@ namespace NWN.Systems
     }
     private void OnModuleLoad(ModuleEvents.OnModuleLoad onModuleLoad)
     {
-      NwModule.Instance.GetObjectVariable<LocalVariableString>("X2_S_UD_SPELLSCRIPT").Value = "spellhook";
+      /*NwModule.Instance.GetObjectVariable<LocalVariableString>("X2_S_UD_SPELLSCRIPT").Value = "spellhook";
 
       //NwModule.Instance.SetEventScript((EventScriptType)NWScript.EVENT_SCRIPT_MODULE_ON_PLAYER_TILE_ACTION, "on_tile_action");
       
@@ -123,7 +128,11 @@ namespace NWN.Systems
 
       placeholderTemplate = NwObject.FindObjectsWithTag<NwCreature>("damage_trainer").FirstOrDefault();
       placeholderTemplate = placeholderTemplate?.Clone(placeholderTemplate?.Location);
-      placeholderTemplate.VisibilityOverride = VisibilityMode.Hidden;
+      placeholderTemplate.VisibilityOverride = VisibilityMode.Hidden;*/
+
+      //scheduler.ScheduleRepeating(() => VictimCustomHeartbeat(deserializedVictim), TimeSpan.FromSeconds(1));
+      //NwObject.FindObjectsWithTag<NwCreature>("test_victim").FirstOrDefault().ApplyEffect(EffectDuration.Instant, Effect.Death(false, false));
+      //Log.Info($"-------------------------------{victim.Name}-{victim.HP}-------------------------------------------------");
 
       /*placeholderTemplate.ApplyEffect(EffectDuration.Permanent, Effect.DamageImmunityIncrease(DamageType.Magical, 50));
       placeholderTemplate.ApplyEffect(EffectDuration.Permanent, Effect.DamageImmunityIncrease(DamageType.Magical, 10));
@@ -186,35 +195,56 @@ namespace NWN.Systems
       foreach(var mdl in array)
         Log.Info($";{mdl};{NWScript.ResManGetAliasFor(mdl, NWScript.RESTYPE_MDL)}");*/
     }
+    private void MakeInventoryUndroppable(CreatureEvents.OnDeath onDeath)
+    {
+      Log.Info("On death triggered - make inventory undroppable");
+      //ItemUtils.MakeCreatureInventoryUndroppable(onDeath.KilledCreature);
+    }
+    private void VictimCustomHeartbeat(CreatureEvents.OnHeartbeat hb)
+    {
+      Log.Info("Victim Heartbeat");
+      Log.Info($"-------------------------------{hb.Creature.Name}-{hb.Creature.HP}-------------------------------------------------");
+      hb.Creature.ApplyEffect(EffectDuration.Instant, Effect.Death(false, false));
+      Log.Info($"-------------------------------{hb.Creature.Name}-{hb.Creature.HP}-------------------------------------------------");
+    }
     public static async void InitializeCreatureStats()
     {
-      var request = googleDriveService.Files.Export("1unBzzGyX0tKvwkz0a-o8uJL5K52Uc8g_0-tFqUN8uEU", "text/csv");
-
-      using var stream = new MemoryStream();
-      await request.DownloadAsync(stream);
-      stream.Position = 0;
-
-      string line;
-      int i = 1;
-
-      using var reader = new StreamReader(stream);
-      while ((line = await reader.ReadLineAsync()) != null)
+      try
       {
-        try
-        {
-          string[] data = line.Split(',');
+        var request = googleDriveService.Files.Export("1unBzzGyX0tKvwkz0a-o8uJL5K52Uc8g_0-tFqUN8uEU", "text/csv");
 
-          if (data[0] != "tag")
-            Config.creatureStats.Add(data[0], new CreatureStats(int.Parse(data[1]), int.Parse(data[2]), int.Parse(data[3]), int.Parse(data[4]), int.Parse(data[5]), int.Parse(data[6])));
-        }
-        catch (Exception e)
-        {
-          Utils.LogMessageToDMs($"WARNING - CREATURE STATS INIT - COULD NOT LOAD LINE {i}\n" +
-            $"{e.Message}\n" +
-            $"{e.StackTrace}");
-        }
+        using var stream = new MemoryStream();
+        await request.DownloadAsync(stream);
+        stream.Position = 0;
 
-        i++;
+        string line;
+        int i = 1;
+
+        using var reader = new StreamReader(stream);
+        while ((line = await reader.ReadLineAsync()) != null)
+        {
+          try
+          {
+            string[] data = line.Split(',');
+
+            if (data[0] != "tag")
+              Config.creatureStats.Add(data[0], new CreatureStats(int.Parse(data[1]), int.Parse(data[2]), int.Parse(data[3]), int.Parse(data[4]), int.Parse(data[5]), int.Parse(data[6])));
+          }
+          catch (Exception e)
+          {
+            Utils.LogMessageToDMs($"WARNING - CREATURE STATS INIT - COULD NOT LOAD LINE {i}\n" +
+              $"{e.Message}\n" +
+              $"{e.StackTrace}");
+          }
+
+          i++;
+        }
+      }
+      catch(Exception e)
+      {
+        Utils.LogMessageToDMs($"WARNING - ERROR DURING CREATURE STATS INIT\n" +
+              $"{e.Message}\n" +
+              $"{e.StackTrace}");
       }
     }
     private static void InitializeTlkOverrides()
@@ -369,7 +399,7 @@ namespace NWN.Systems
       NwModule.Instance.OnPlayerGuiEvent += PlayerSystem.HandleGuiEvents;
       NwModule.Instance.OnCreatureAttack += AttackSystem.HandleAttackEvent;
       NwModule.Instance.OnCreatureDamage += AttackSystem.HandleDamageEvent;
-      NwModule.Instance.OnEffectApply += OnPlayerEffectApplied;
+      //NwModule.Instance.OnEffectApply += OnPlayerEffectApplied;
       NwModule.Instance.OnCreatureCheckProficiencies += OnCheckProficiencies;
     }
 
@@ -404,8 +434,6 @@ namespace NWN.Systems
     }
     public static async void CheckIllegalItems()// Permet de contrôler que les joueurs n'importent pas des items pétés en important des maps
     {
-      await NwTask.WaitUntil(() => LogUtils.logPile.ContainsKey(LogUtils.LogType.IllegalItems));
-
       foreach (NwItem item in NwObject.FindObjectsOfType<NwItem>()) // penser à la faire également lors de la création d'une zone dynamique
       { 
         item.Destroy();
@@ -651,7 +679,7 @@ namespace NWN.Systems
         else if (caster.Master != null && caster.Master.IsPlayerControlled && !PlayerSystem.Players.TryGetValue(caster.Master, out player))
           return;
 
-      if (player == null)
+      if (player is null)
         return;
 
       effectApplied.Effect.Tag = $"_PLAYER_{player.characterId}";
@@ -965,7 +993,10 @@ namespace NWN.Systems
       {
         player.activeLearnable.acquiredPoints += player.GetSkillPointsPerSecond(player.activeLearnable);
         if (player.activeLearnable.acquiredPoints >= player.activeLearnable.pointsToNextLevel)
+        {
           player.activeLearnable.LevelUpWrapper(player);
+          return;
+        }
 
         if (player.TryGetOpenedWindow("activeLearnable", out PlayerSystem.Player.PlayerWindow window) && window is PlayerSystem.Player.ActiveLearnableWindow learnableWindow)
           learnableWindow.timeLeft.SetBindValue(player.oid, learnableWindow.nuiToken.Token, player.activeLearnable.GetReadableTimeSpanToNextLevel(player));
@@ -1083,11 +1114,11 @@ namespace NWN.Systems
         return;
       }
 
-      player.oid.LoginCreature.HP += player.healthRegen;
-
-      if (player.oid.LoginCreature.HP < 1)
+      if(player.healthRegen > -1)
+        player.oid.LoginCreature.HP += player.healthRegen;
+      else
       {
-        player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Death(false, false));
+        player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Damage(player.healthRegen, DamageType.Slashing));
         return;
       }
 

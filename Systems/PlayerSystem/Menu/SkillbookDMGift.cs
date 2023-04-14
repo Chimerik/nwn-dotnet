@@ -95,6 +95,8 @@ namespace NWN.Systems
                   player.oid.SendServerMessage($"Don du skillbook {skillBook.Name} à {targetPlayer.oid.LoginCreature.Name.ColorString(ColorConstants.White)} terminé avec succès !", new Color(32, 255, 32));
                   targetPlayer.oid.SendServerMessage($"{player.oid.LoginCreature.Name.ColorString(ColorConstants.White)} vient de vous faire don du livre de compétence {skillBook.Name}.", new Color(32, 255, 32));
 
+                  LogUtils.LogMessage($"{player.oid.PlayerName} donne un skillbook à {targetPlayer.oid.LoginCreature.Name} ({skillBook.Name})", LogUtils.LogType.DMAction);
+
                   CloseWindow();
 
                   break;

@@ -143,7 +143,7 @@ namespace NWN.Systems
       if (!PlayerSystem.Players.TryGetValue(onEnter.EnteringObject, out PlayerSystem.Player player))
         return;
 
-      LogUtils.LogMessage($"Map {area.Name} loaded in : {(DateTime.Now - player.mapLoadingTime).TotalSeconds} by {onEnter.EnteringObject.Name}", LogUtils.LogType.AreaManagement);
+      LogUtils.LogMessage($"Map {area.Name} loaded in : {Math.Round((DateTime.Now - player.mapLoadingTime).TotalSeconds, 3, MidpointRounding.ToEven)} by {onEnter.EnteringObject.Name}", LogUtils.LogType.AreaManagement);
 
       player.location = player.oid.LoginCreature.Location;
 

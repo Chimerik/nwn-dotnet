@@ -1,7 +1,4 @@
-﻿
-
-using Anvil.API;
-
+﻿using Anvil.API;
 using Discord;
 
 using NLog;
@@ -12,8 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
-using static NWN.LogUtils;
 
 namespace NWN
 {
@@ -47,7 +42,7 @@ namespace NWN
     public static readonly Dictionary<string, Queue<string>> chatLogPile = new();
     public static readonly Dictionary<string, Discord.Rest.RestThreadChannel> chatLogChannelDictionary = new();
 
-    public static void LogMessage(string message, LogType type)
+    public static async void LogMessage(string message, LogType type)
     {
       Log.Info(message);
 
@@ -56,6 +51,7 @@ namespace NWN
         if (Config.env == Config.Env.Chim)
           type = LogType.Console;
 
+        await NwTask.WaitUntil(() => logPile.ContainsKey(type));
         logPile[type].Enqueue(message);
       }
     }

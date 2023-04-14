@@ -34,7 +34,7 @@ namespace NWN.Systems
       if (eventData.EffectTarget is not NwCreature oTarget)
         return ScriptHandleResult.Handled;
 
-      oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect((VfxType)115));
+      oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect((VfxType)491));
 
       return ScriptHandleResult.Handled;
     }
