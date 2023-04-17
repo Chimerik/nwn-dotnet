@@ -29,6 +29,7 @@ namespace NWN.Systems
         private readonly NuiBind<string> botIcon = new("botIcon");
         private readonly NuiBind<bool> enabled = new("enabled");
         private readonly NuiBind<NuiRect> imagePosition = new("rect");
+        private readonly NuiBind<int> selectedCategory = new("selectedCategory");
 
         private readonly List<NuiComboEntry> lootCategories = new()
           {
@@ -42,7 +43,6 @@ namespace NWN.Systems
             new NuiComboEntry("Légendaire", 7), // violet
           };
 
-        public List<NwItem> items { get; set; }
         private IEnumerable<NwItem> filteredList;
 
         private bool AuthorizeSave { get; set; }
@@ -50,7 +50,7 @@ namespace NWN.Systems
 
         public LootEditorWindow(Player player) : base(player)
         {
-          windowId = "bankStorage";
+          windowId = "lootEditor";
           AuthorizeSave = false;
           nbDebounce = 0;
 
@@ -73,12 +73,7 @@ namespace NWN.Systems
 
           rootColumn.Children = rootChildren;
 
-          rootChildren.Add(new NuiRow() { Height = 35, Children = new List<NuiElement>()
-          {
-            new NuiSpacer(),
-            new NuiButton("Missives") { Id = "mailBox", Tooltip = "Consulter la boîte aux lettres Skalsgard", Width = 160 },
-            new NuiSpacer()
-          } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiCombo() { Entries = lootCategories, Selected = selectedCategory, Width = 410, Height = 35 } } });
 
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) { Width = 410 } } });
           rootChildren.Add(new NuiList(rowTemplate, listCount) { RowHeight = 75 });
@@ -92,11 +87,11 @@ namespace NWN.Systems
           CreateWindow();
         }
 
-        public async void CreateWindow()
+        public void CreateWindow()
         {
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, 600);
 
-          window = new NuiWindow(rootColumn, $"Coffre privé de {player.oid.LoginCreature.Name}")
+          window = new NuiWindow(rootColumn, "Editeur de loots")
           {
             Geometry = geometry,
             Resizable = false,
@@ -106,66 +101,38 @@ namespace NWN.Systems
             Border = true,
           };
 
-          if (items == null)
-          {
-            await DeserializeBankItemList();
-            await NwTask.SwitchToMainThread();
-          }
-
           if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
             nuiToken = tempToken;
 
-            nuiToken.OnNuiEvent += HandleBankStorageEvents;
+            nuiToken.OnNuiEvent += HandleLootEditorEvents;
+            search.SetBindValue(player.oid, nuiToken.Token, "");
+            search.SetBindWatch(player.oid, nuiToken.Token, true);
+            selectedCategory.SetBindValue(player.oid, nuiToken.Token, 0);
+            selectedCategory.SetBindWatch(player.oid, nuiToken.Token, true);
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            filteredList = LootSystem.lootDictionary[LootSystem.LootCategory.Inutile];
+            LoadItemList(filteredList);
           }
-
-          search.SetBindValue(player.oid, nuiToken.Token, "");
-          search.SetBindWatch(player.oid, nuiToken.Token, true);
-          geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
-          geometry.SetBindWatch(player.oid, nuiToken.Token, true);
-
-          filteredList = items;
-          LoadBankItemList(filteredList);
         }
 
-        private void HandleBankStorageEvents(ModuleEvents.OnNuiEvent nuiEvent)
+        private void HandleLootEditorEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Close:
-              BankSave();
+              LootSave();
               break;
             case NuiEventType.Click:
 
               switch (nuiEvent.ElementId)
               {
-                case "goldDeposit":
-
-                  if (!player.windows.ContainsKey("playerInput")) player.windows.Add("playerInput", new PlayerInputWindow(player, "Déposer combien d'or ?", DepositGold, player.oid.LoginCreature.Gold.ToString()));
-                  else ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Déposer combien d'or ?", DepositGold, player.oid.LoginCreature.Gold.ToString());
-
-                  break;
-                case "goldWithdraw":
-
-                  if (!player.windows.ContainsKey("playerInput")) player.windows.Add("playerInput", new PlayerInputWindow(player, "Déposer combien d'or ?", WithdrawGold, player.bankGold.ToString()));
-                  else ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Déposer combien d'or ?", WithdrawGold, player.bankGold.ToString());
-
-                  break;
-
                 case "itemDeposit":
 
-                  player.oid.SendServerMessage("Sélectionnez les objets de votre inventaire à déposer au coffre.");
+                  player.oid.SendServerMessage("Sélectionnez les objets de votre inventaire à ajouter à la liste.");
                   player.oid.EnterTargetMode(SelectInventoryItem, ObjectTypes.Item, MouseCursor.PickupDown);
-
-                  break;
-
-                case "mailBox":
-
-                  CloseWindow();
-
-                  if (!player.windows.ContainsKey("mailBox")) player.windows.Add("mailBox", new MailBox(player));
-                  else ((MailBox)player.windows["mailBox"]).CreateWindow();
-
 
                   break;
               }
@@ -185,18 +152,20 @@ namespace NWN.Systems
 
                 case "takeItem":
                   NwItem item = filteredList.ElementAt(nuiEvent.ArrayIndex);
+                  LootSystem.LootCategory selectedLootCategory = (LootSystem.LootCategory)selectedCategory.GetBindValue(player.oid, nuiToken.Token);
 
                   if (item != null && item.IsValid)
                   {
                     player.oid.ControlledCreature.AcquireItem(item);
-                    LogUtils.LogMessage($"{player.oid.LoginCreature.Name} ({player.oid.PlayerName}) retire {item.Name}", LogUtils.LogType.PersonalStorageSystem);
+
+                    LogUtils.LogMessage($"{player.oid.PlayerName} retire {item.Name} de la liste {selectedLootCategory}", LogUtils.LogType.DMAction);
                   }
                   else
-                    LogUtils.LogMessage($"{player.oid.LoginCreature.Name} trying to take an invalid item.", LogUtils.LogType.PersonalStorageSystem);
+                    LogUtils.LogMessage($"{player.oid.PlayerName} tente de retirer un objet invalide de la liste {selectedLootCategory}.", LogUtils.LogType.DMAction);
 
-                  items.Remove(item);
+                  LootSystem.lootDictionary[selectedLootCategory].Remove(item);
                   UpdateItemList();
-                  BankSave();
+                  LootSave();
                   break;
               }
 
@@ -206,6 +175,7 @@ namespace NWN.Systems
 
               switch (nuiEvent.ElementId)
               {
+                case "selectedCategory":
                 case "search": UpdateItemList(); break;
               }
 
@@ -215,54 +185,32 @@ namespace NWN.Systems
         private void UpdateItemList()
         {
           string currentSearch = search.GetBindValue(player.oid, nuiToken.Token).ToLower();
-          filteredList = items;
+          LootSystem.LootCategory selectedLootCategory = (LootSystem.LootCategory)selectedCategory.GetBindValue(player.oid, nuiToken.Token);
+
+          filteredList = LootSystem.lootDictionary[selectedLootCategory];
 
           if (!string.IsNullOrEmpty(currentSearch))
             filteredList = filteredList.Where(s => s.Name.ToLower().Contains(currentSearch));
 
-          LoadBankItemList(filteredList);
-        }
-        private bool DepositGold(string inputValue)
-        {
-          if (!uint.TryParse(inputValue, out uint inputGold) || inputGold > player.oid.LoginCreature.Gold)
-          {
-            player.oid.SendServerMessage("Vous ne disposez pas d'autant d'or.", ColorConstants.Red);
-            return true;
-          }
-
-
-
-          player.oid.LoginCreature.Gold -= inputGold;
-          player.bankGold += (int)(inputGold * 0.95);
-
-          return true;
-        }
-        private bool WithdrawGold(string inputValue)
-        {
-          if (!int.TryParse(inputValue, out int inputGold) || inputGold > player.bankGold)
-          {
-            player.oid.SendServerMessage("Vous ne disposez pas d'autant d'or.", ColorConstants.Red);
-            return true;
-          }
-
-          player.bankGold -= inputGold;
-          player.oid.LoginCreature.Gold += (uint)(inputGold * 0.95);
-
-          return true;
+          LoadItemList(filteredList);
         }
         private void SelectInventoryItem(ModuleEvents.OnPlayerTarget selection)
         {
           if (selection.IsCancelled || selection.TargetObject is not NwItem item || item == null || !item.IsValid || item.Possessor != player.oid.LoginCreature)
             return;
 
-          LogUtils.LogMessage($"{player.oid.LoginCreature.Name} ({player.oid.PlayerName}) dépose {item.Name}", LogUtils.LogType.PersonalStorageSystem);
-          items.Add(NwItem.Deserialize(item.Serialize()));
+          LootSystem.LootCategory selectedLootCategory = (LootSystem.LootCategory)selectedCategory.GetBindValue(player.oid, nuiToken.Token);
+          LootSystem.lootDictionary[selectedLootCategory].Add(NwItem.Deserialize(item.Serialize()));
+
           item.Destroy();
           UpdateItemList();
-          BankSave();
+          LootSave();
+
           player.oid.EnterTargetMode(SelectInventoryItem, ObjectTypes.Item, MouseCursor.PickupDown);
+
+          LogUtils.LogMessage($"{player.oid.PlayerName} ajoute {item.Name} à la liste {selectedLootCategory}", LogUtils.LogType.DMAction);
         }
-        public void BankSave()
+        public void LootSave()
         {
           DateTime elapsed = DateTime.Now;
 
@@ -276,18 +224,18 @@ namespace NWN.Systems
             else
             {
               nbDebounce = 1;
-              LogUtils.LogMessage($"Character {player.characterId} : scheduling bank save in 10s", LogUtils.LogType.PersonalStorageSystem);
-              DebounceBankSave(nbDebounce);
+              LogUtils.LogMessage($"Account {player.accountId} : scheduling loot save in 10s", LogUtils.LogType.DMAction);
+              DebounceLootSave(nbDebounce);
               return;
             }
           }
           else
-            HandleBankSave();
+            HandleLootSave();
 
-          LogUtils.LogMessage($"Character {player.characterId} bank saved in : {(DateTime.Now - elapsed).TotalSeconds} s", LogUtils.LogType.PersonalStorageSystem);
+          LogUtils.LogMessage($"Account {player.accountId} loot saved in : {(DateTime.Now - elapsed).TotalSeconds} s", LogUtils.LogType.DMAction);
         }
 
-        private async void DebounceBankSave(int initialNbDebounce)
+        private async void DebounceLootSave(int initialNbDebounce)
         {
           CancellationTokenSource tokenSource = new CancellationTokenSource();
 
@@ -301,7 +249,7 @@ namespace NWN.Systems
           if (awaitDebounce.IsCompletedSuccessfully)
           {
             nbDebounce += 1;
-            DebounceBankSave(nbDebounce);
+            DebounceLootSave(nbDebounce);
             return;
           }
 
@@ -309,28 +257,35 @@ namespace NWN.Systems
           {
             nbDebounce = 0;
             AuthorizeSave = true;
-            LogUtils.LogMessage($"Character {player.characterId} : debounce done after {nbDebounce} triggers, bank save authorized", LogUtils.LogType.PersonalStorageSystem);
-            BankSave();
+            LogUtils.LogMessage($"Account {player.accountId} : debounce done after {nbDebounce} triggers, loot save authorized", LogUtils.LogType.DMAction);
+            LootSave();
           }
         }
 
-        private async void HandleBankSave()
+        private async void HandleLootSave()
         {
-          List<string> serializedItems = new List<string>();
+          Dictionary<LootSystem.LootCategory, List<string>> serializedLootDictionary = new();
 
-          await NwTask.Run(async () => { await SerializeItems(serializedItems); });
+          foreach (var lootList in LootSystem.lootDictionary) 
+          {
+            List<string> serializedItems = new();
 
-          Task<string> serializeBank = Task.Run(() => JsonConvert.SerializeObject(serializedItems));
-          await serializeBank;
+            await NwTask.Run(async () => { await SerializeItems(serializedItems, lootList.Value); });
 
-          SqLiteUtils.UpdateQuery("playerCharacters",
-          new List<string[]>() { new string[] { "persistantStorage", serializeBank.Result } },
-          new List<string[]>() { new string[] { "rowid", player.characterId.ToString() } });
+            serializedLootDictionary.Add(lootList.Key, serializedItems);
+          }
+
+          Task<string> serializedLoots = Task.Run(() => JsonConvert.SerializeObject(serializedLootDictionary));
+          await serializedLoots;
+
+          SqLiteUtils.UpdateQuery("lootSystem",
+          new List<string[]>() { new string[] { "loot", serializedLoots.Result } },
+          new List<string[]>() { new string[] { "rowid", "1" } });
 
           nbDebounce = 0;
           AuthorizeSave = false;
         }
-        private async Task SerializeItems(List<string> serializedItems)
+        private static async Task SerializeItems(List<string> serializedItems, List<NwItem> items)
         {
           Queue<NwItem> serializeQueue = new Queue<NwItem>(items);
           while (serializeQueue.Count > 0)
@@ -348,35 +303,7 @@ namespace NWN.Systems
             await NwTask.NextFrame();
           }
         }
-        private async Task DeserializeBankItemList()
-        {
-          var result = await SqLiteUtils.SelectQueryAsync("playerCharacters",
-            new List<string>() { { "persistantStorage" } },
-            new List<string[]>() { { new string[] { "rowid", player.characterId.ToString() } } });
-
-          if (result != null)
-          {
-            string serializedBank = result.FirstOrDefault()[0];
-            List<string> serializedItems = new List<string>();
-
-            Task loadBank = Task.Run(() =>
-            {
-              if (string.IsNullOrEmpty(serializedBank))
-                return;
-
-              serializedItems = JsonConvert.DeserializeObject<List<string>>(serializedBank);
-            });
-
-            await loadBank;
-
-            items = new();
-
-            foreach (string serializedItem in serializedItems)
-              items.Add(NwItem.Deserialize(serializedItem.ToByteArray()));
-          }
-        }
-
-        private void LoadBankItemList(IEnumerable<NwItem> filteredList)
+        private void LoadItemList(IEnumerable<NwItem> filteredList)
         {
           List<string> itemNameList = new();
           List<string> topIconList = new();

@@ -47,12 +47,12 @@ namespace NWN.Systems
 
     public ModuleSystem(SchedulerService schedulerService)
     {
-      NwCreature victim = NwCreature.Create("nw_chicken", NwModule.Instance.StartingLocation, false, "test_victim");
+      /*NwCreature victim = NwCreature.Create("nw_chicken", NwModule.Instance.StartingLocation, false, "test_victim");
       Log.Info($"-------------------------------{victim.Name}-{victim.HP}-------------------------------------------------");
       victim.OnDeath += MakeInventoryUndroppable;
-      victim.ApplyEffect(EffectDuration.Instant, Effect.Death(false, false));
-      //victim.OnHeartbeat += VictimCustomHeartbeat;
-      /*scheduler = schedulerService;
+      victim.ApplyEffect(EffectDuration.Instant, Effect.Death(false, false));*/
+
+      scheduler = schedulerService;
 
       LoadDiscordBot();
       scheduler.ScheduleRepeating(LogUtils.LogLoop, TimeSpan.FromSeconds(1));
@@ -67,7 +67,7 @@ namespace NWN.Systems
       LoadCreatureSpawns();
       LoadPlaceableSpawns();
       LoadMailReceiverList();
-      NwModule.Instance.OnModuleLoad += OnModuleLoad;*/
+      NwModule.Instance.OnModuleLoad += OnModuleLoad;
     }
     private static async void LoadDiscordBot()
     {
@@ -82,7 +82,7 @@ namespace NWN.Systems
     }
     private void OnModuleLoad(ModuleEvents.OnModuleLoad onModuleLoad)
     {
-      /*NwModule.Instance.GetObjectVariable<LocalVariableString>("X2_S_UD_SPELLSCRIPT").Value = "spellhook";
+      NwModule.Instance.GetObjectVariable<LocalVariableString>("X2_S_UD_SPELLSCRIPT").Value = "spellhook";
 
       //NwModule.Instance.SetEventScript((EventScriptType)NWScript.EVENT_SCRIPT_MODULE_ON_PLAYER_TILE_ACTION, "on_tile_action");
       
@@ -128,11 +128,7 @@ namespace NWN.Systems
 
       placeholderTemplate = NwObject.FindObjectsWithTag<NwCreature>("damage_trainer").FirstOrDefault();
       placeholderTemplate = placeholderTemplate?.Clone(placeholderTemplate?.Location);
-      placeholderTemplate.VisibilityOverride = VisibilityMode.Hidden;*/
-
-      //scheduler.ScheduleRepeating(() => VictimCustomHeartbeat(deserializedVictim), TimeSpan.FromSeconds(1));
-      //NwObject.FindObjectsWithTag<NwCreature>("test_victim").FirstOrDefault().ApplyEffect(EffectDuration.Instant, Effect.Death(false, false));
-      //Log.Info($"-------------------------------{victim.Name}-{victim.HP}-------------------------------------------------");
+      placeholderTemplate.VisibilityOverride = VisibilityMode.Hidden;
 
       /*placeholderTemplate.ApplyEffect(EffectDuration.Permanent, Effect.DamageImmunityIncrease(DamageType.Magical, 50));
       placeholderTemplate.ApplyEffect(EffectDuration.Permanent, Effect.DamageImmunityIncrease(DamageType.Magical, 10));
@@ -149,6 +145,10 @@ namespace NWN.Systems
           i++;
         }
       }*/
+
+      /*foreach (var entry in NwGameTables.PlaceableTable)
+        if(!string.IsNullOrEmpty(entry.Label) && entry.Label.Contains("supprimer"))
+          Log.Info($"{entry.ModelName};{NWScript.ResManGetAliasFor(entry.ModelName, NWScript.RESTYPE_MDL)}");*/
 
       /*foreach (var duplicate in NwGameTables.PlaceableTable.GroupBy(p => p.ModelName).Where(p => p.Count() > 1).Select(p => p.Key))
       {
@@ -199,13 +199,6 @@ namespace NWN.Systems
     {
       Log.Info("On death triggered - make inventory undroppable");
       //ItemUtils.MakeCreatureInventoryUndroppable(onDeath.KilledCreature);
-    }
-    private void VictimCustomHeartbeat(CreatureEvents.OnHeartbeat hb)
-    {
-      Log.Info("Victim Heartbeat");
-      Log.Info($"-------------------------------{hb.Creature.Name}-{hb.Creature.HP}-------------------------------------------------");
-      hb.Creature.ApplyEffect(EffectDuration.Instant, Effect.Death(false, false));
-      Log.Info($"-------------------------------{hb.Creature.Name}-{hb.Creature.HP}-------------------------------------------------");
     }
     public static async void InitializeCreatureStats()
     {
@@ -387,6 +380,8 @@ namespace NWN.Systems
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerConnectionInfo" +
         "('playerAccount' TEXT NOT NULL, 'cdKey' TEXT NOT NULL, 'ipAdress' TEXT NOT NULL, 'lastConnection' TEXT NOT NULL, UNIQUE (playerAccount, cdKey, ipAdress))");
+
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS lootSystem ('loot' TEXT)");
     }
     private void InitializeEvents()
     {

@@ -397,6 +397,7 @@ namespace NWN
       { "instantCraft", new MainMenuCommand("Instant Craft", "", CommandRank.Admin) }, // TODO : Ajouter à OnExamine Player
       { "giveResources", new MainMenuCommand("Don de ressources", "", CommandRank.Admin) }, // TODO : Ajouter à OnExamine Player
       { "giveSkillbook", new MainMenuCommand("Don de skillbook", "", CommandRank.Admin) }, // TODO : Ajouter à OnExamine Player
+      { "lootEditor", new MainMenuCommand("Modifier les listes de loots", "", CommandRank.Admin) }
     };
 
     public static readonly List<NuiComboEntry> tradeMaterialList = new();

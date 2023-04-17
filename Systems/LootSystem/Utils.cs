@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using Anvil.API;
-using NWN.Core;
 
 namespace NWN.Systems
 {
   public partial class LootSystem
   {
-    private async void UpdateDB(NwPlaceable oChest, NwCreature oClosedBy)
+    private static async void UpdateDB(NwPlaceable oChest, NwCreature oClosedBy)
     {
       if (PlayerSystem.Players.TryGetValue(oClosedBy, out PlayerSystem.Player oPC))
       {

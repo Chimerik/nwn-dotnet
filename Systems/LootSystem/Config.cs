@@ -1,16 +1,30 @@
 ﻿using System.Collections.Generic;
-using Anvil.Services;
+using Anvil.API;
 
 namespace NWN.Systems
 {
   public partial class LootSystem
   {
-    public readonly static string LOOT_CONTAINER_ON_CLOSE_SCRIPT = "ls_load_onclose";
-    public readonly static string ON_LOOT_SCRIPT = "ls_onloot";
-    public readonly static string CHEST_AREA_TAG = "la_zone_des_loots";
-    private readonly static string SQL_TABLE = "loot_containers";
+    public static readonly string LOOT_CONTAINER_ON_CLOSE_SCRIPT = "ls_load_onclose";
+    public static readonly string ON_LOOT_SCRIPT = "ls_onloot";
+    public static readonly string CHEST_AREA_TAG = "la_zone_des_loots";
+    private static readonly string SQL_TABLE = "loot_containers";
 
-    public readonly static Dictionary<string, Lootable.Config> lootablesDic = new Dictionary<string, Lootable.Config>
+    public enum LootCategory
+    {
+      Inutile,
+      Simple,
+      Raffiné,
+      Masterwork,
+      Rare,
+      Exotique,
+      Élevé,
+      Légendaire
+    };
+
+    public static readonly Dictionary<LootCategory, List<NwItem>> lootDictionary = new();
+
+    public static readonly Dictionary<string, Lootable.Config> lootablesDic = new Dictionary<string, Lootable.Config>
         {
             { "gobelin_chest", new Lootable.Config(
                 gold: new Lootable.Gold(min: 15, max: 65, chance: 75),

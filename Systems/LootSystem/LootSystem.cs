@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using System.Threading.Tasks;
 using NLog;
 using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
+using Newtonsoft.Json;
 
 namespace NWN.Systems
 {
@@ -19,13 +19,51 @@ namespace NWN.Systems
     public LootSystem(SpellSystem spellSystem)
     {
       this.spellSystem = spellSystem;
-      NwModule.Instance.OnModuleLoad += OnModuleLoad;
+      LoadLootSystem();
     }
-    private void OnModuleLoad(ModuleEvents.OnModuleLoad onModuleLoad)
+    private static async void LoadLootSystem()
     {
-      InitChestArea();
+      var result = await SqLiteUtils.SelectQueryAsync("lootSystem",
+            new List<string>() { { "loot" } },
+            new List<string[]>() { });
+
+      if (result == null || result.Count < 1)
+      {
+        Dictionary<LootSystem.LootCategory, List<string>> newLootDico = new();
+
+        foreach (LootSystem.LootCategory category in (LootSystem.LootCategory[])Enum.GetValues(typeof(LootSystem.LootCategory)))
+        {
+          newLootDico.Add(category, new List<string>());
+          LootSystem.lootDictionary.Add(category, new List<NwItem>());
+        }
+
+        await SqLiteUtils.InsertQueryAsync("lootSystem",
+          new List<string[]>() { new string[] { "loot", JsonConvert.SerializeObject(newLootDico) } });
+
+        return;
+      }
+
+      string serializedLoots = result.FirstOrDefault()[0];
+      Dictionary<LootSystem.LootCategory, List<string>> serializedLootDico = new();
+
+      await Task.Run(() =>
+      {
+        if (string.IsNullOrEmpty(serializedLoots) || serializedLoots == "null")
+          return;
+
+        serializedLootDico = JsonConvert.DeserializeObject<Dictionary<LootSystem.LootCategory, List<string>>>(serializedLoots);
+      });
+
+      foreach (var entry in serializedLootDico)
+      {
+        List<NwItem> category = new();
+        LootSystem.lootDictionary.Add(entry.Key, category);
+
+        foreach (string serializedItem in entry.Value)
+          category.Add(NwItem.Deserialize(serializedItem.ToByteArray()));
+      }
     }
-    private async void InitChestArea()
+    /*private async void InitChestArea()
     {
       NwArea area = NwModule.Instance.Areas.FirstOrDefault(a => a.Tag == CHEST_AREA_TAG);
 
@@ -103,7 +141,7 @@ namespace NWN.Systems
         UpdateChestTagToLootsDic(oChest);
       }
     }*/
-    private async void InitializeLootChestFromScrollArray(NwPlaceable oChest, int[] array)
+   /* private async void InitializeLootChestFromScrollArray(NwPlaceable oChest, int[] array)
     {
       foreach (int itemPropertyId in array)
       {
@@ -122,7 +160,7 @@ namespace NWN.Systems
     {
       UpdateChestTagToLootsDic(onClose.Placeable);
       UpdateDB(onClose.Placeable, onClose.ClosedBy);
-    }
+    }*/
     public static void HandleLoot(CreatureEvents.OnDeath onDeath)
     {
       NwCreature oContainer = onDeath.KilledCreature;

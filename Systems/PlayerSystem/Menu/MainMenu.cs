@@ -458,6 +458,15 @@ namespace NWN.Systems
                     CloseWindow();
 
                     break;
+
+                  case "lootEditor":
+
+                    if (!player.windows.ContainsKey("lootEditor")) player.windows.Add("lootEditor", new LootEditorWindow(player));
+                    else ((LootEditorWindow)player.windows["lootEditor"]).CreateWindow();
+
+                    CloseWindow();
+
+                    break;
                 }
                 break;
 
