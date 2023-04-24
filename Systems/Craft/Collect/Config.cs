@@ -18,43 +18,33 @@ namespace NWN.Systems.Craft.Collect
         craftedItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value /= 2;
       else
       {
-        if (craftedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").HasValue)
+        if((itemCategory == ItemUtils.ItemCategory.TwoHandedMeleeWeapon || itemCategory == ItemUtils.ItemCategory.RangedWeapon) && grade % 2 == 0)
+        {
+          craftedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 2;
+          craftedItem.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value += 2;
+        }
+        else
+        {
           craftedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
-        else
-          craftedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value = 1;
-
-        if (craftedItem.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").HasValue)
           craftedItem.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value += 1;
-        else
-          craftedItem.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value = 1;
+        }
       }
 
       switch (craftedItem.BaseItem.ItemType)
       {
-        case BaseItemType.Armor:
-          return GetArmorProperties(craftedItem, grade);
-        case BaseItemType.SmallShield:
-          return GetSmallShieldProperties(grade);
-        case BaseItemType.LargeShield:
-          return GetLargeShieldProperties(grade);
-        case BaseItemType.TowerShield:
-          return GetTowerShieldProperties(grade);
+        case BaseItemType.Armor: return GetArmorProperties(craftedItem, grade);
+        case BaseItemType.SmallShield: return GetSmallShieldProperties(grade);
+        case BaseItemType.LargeShield: return GetLargeShieldProperties(grade);
+        case BaseItemType.TowerShield: return GetTowerShieldProperties(grade);
         case BaseItemType.Helmet:
         case BaseItemType.Cloak:
         case BaseItemType.Boots:
-          return GetArmorPartProperties();
         case BaseItemType.Gloves:
         case BaseItemType.Bracer:
-          return GetGlovesProperties();
-        case BaseItemType.Amulet:
-          return GetAmuletProperties(grade);
-        case BaseItemType.Ring:
-          return GetRingProperties(grade);
-        case BaseItemType.Belt:
-          return GetBeltProperties(grade);
+        case BaseItemType.Belt: return GetArmorPartProperties();
       }
 
-      switch (ItemUtils.GetItemCategory(craftedItem.BaseItem.ItemType))
+      switch (itemCategory)
       {
         case ItemUtils.ItemCategory.CraftTool:
           return GetToolProperties(craftedItem, grade);
@@ -185,7 +175,7 @@ namespace NWN.Systems.Craft.Collect
         case 0:
         case 1:
           shield.Add(ItemProperty.ACBonus(2 * materialTier));
-          shield.Add(ItemProperty.ACBonusVsDmgType(IPDamageType.Piercing, 20));
+          shield.Add(ItemProperty.ACBonusVsDmgType(IPDamageType.Piercing, 40));
           break;
         default:
           shield.Add(ItemProperty.ACBonus(2));
@@ -202,168 +192,10 @@ namespace NWN.Systems.Craft.Collect
 
       return new List<ItemProperty> { ItemProperty.Quality(IPQuality.Unknown) };
     }
-    public static List<ItemProperty> GetOneHandedMeleeWeaponProperties()
-    {
-      return new List<ItemProperty> { ItemProperty.AttackBonus(2) };
-    }
-    public static List<ItemProperty> GetRangedWeaponProperties()
-    {
-      return new List<ItemProperty> { ItemProperty.AttackBonus(2) };
-    }
-    public static List<ItemProperty> GetTwoHandedMeleeWeaponProperties()
-    {
-      return new List<ItemProperty> { ItemProperty.AttackBonus(4) };
-    }
-    public static List<ItemProperty> GetArmorPartProperties()
-    {
-      return new List<ItemProperty> { ItemProperty.ACBonus(7) };
-    }
-    public static List<ItemProperty> GetGlovesProperties()
-    {
-      return new List<ItemProperty>
-      {
-        ItemProperty.ACBonus(7),
-        ItemProperty.AttackBonus(2)
-      };
-    }
-    public static List<ItemProperty> GetAmmunitionProperties()
-    {
-      return new List<ItemProperty> { ItemProperty.DamageBonus(IPDamageType.Piercing, IPDamageBonus.Plus1) };
-    }
-    public static List<ItemProperty> GetRingProperties(int materialTier)
-    {
-      List<ItemProperty> ring = new List<ItemProperty>();
-
-      switch (materialTier)
-      {
-        case 0:
-          ring.Add(ItemProperty.SkillBonus(Skill.Hide, 1));
-          break;
-        case 1:
-          ring.Add(ItemProperty.BonusSavingThrowVsX(IPSaveVs.Fire, 1));
-          break;
-        case 2:
-          ring.Add(ItemProperty.BonusSavingThrowVsX(IPSaveVs.Cold, 1));
-          ring.Add(ItemProperty.AbilityBonus(IPAbility.Dexterity, 1));
-          ring.Add(ItemProperty.SkillBonus(Skill.MoveSilently, 1));
-          break;
-        case 3:
-          ring.Add(ItemProperty.BonusSavingThrowVsX(IPSaveVs.Acid, 1));
-          ring.Add(ItemProperty.SkillBonus(Skill.Hide, 1));
-          break;
-        case 4:
-          ring.Add(ItemProperty.BonusSavingThrowVsX(IPSaveVs.Electrical, 1));
-          ring.Add(ItemProperty.AbilityBonus(IPAbility.Dexterity, 1));
-          ring.Add(ItemProperty.SkillBonus(Skill.MoveSilently, 1));
-          break;
-        case 5:
-          ring.Add(ItemProperty.BonusSavingThrowVsX(IPSaveVs.Negative, 1));
-          ring.Add(ItemProperty.SkillBonus(Skill.Hide, 1));
-          break;
-        case 6:
-          ring.Add(ItemProperty.BonusSavingThrowVsX(IPSaveVs.Positive, 1));
-          ring.Add(ItemProperty.AbilityBonus(IPAbility.Dexterity, 1));
-          ring.Add(ItemProperty.SkillBonus(Skill.MoveSilently, 1));
-          break;
-        case 7:
-          ring.Add(ItemProperty.BonusSavingThrowVsX(IPSaveVs.Sonic, 1));
-          ring.Add(ItemProperty.SkillBonus(Skill.Hide, 1));
-          break;
-        case 8:
-          ring.Add(ItemProperty.BonusSavingThrowVsX(IPSaveVs.Divine, 1));
-          ring.Add(ItemProperty.AbilityBonus(IPAbility.Dexterity, 1));
-          break;
-      }
-
-      return ring;
-    }
-    public static List<ItemProperty> GetBeltProperties(int materialTier)
-    {
-      List<ItemProperty> belt = new List<ItemProperty>();
-
-      switch (materialTier)
-      {
-        case 0:
-          belt.Add(ItemProperty.SkillBonus(Skill.Spot, 1));
-          break;
-        case 1:
-          belt.Add(ItemProperty.BonusSavingThrowVsX(IPSaveVs.Fire, 1));
-          break;
-        case 2:
-          belt.Add(ItemProperty.AbilityBonus(IPAbility.Strength, 1));
-          belt.Add(ItemProperty.SkillBonus(Skill.Listen, 1));
-          break;
-        case 3:
-          belt.Add(ItemProperty.SkillBonus(Skill.Spot, 1));
-          belt.Add(ItemProperty.SkillBonus(Skill.Discipline, 1));
-          break;
-        case 4:
-          belt.Add(ItemProperty.AbilityBonus(IPAbility.Strength, 1));
-          belt.Add(ItemProperty.SkillBonus(Skill.Listen, 1));
-          break;
-        case 5:
-          belt.Add(ItemProperty.SkillBonus(Skill.Spot, 1));
-          belt.Add(ItemProperty.SkillBonus(Skill.Discipline, 1));
-          break;
-        case 6:
-          belt.Add(ItemProperty.AbilityBonus(IPAbility.Strength, 1));
-          belt.Add(ItemProperty.SkillBonus(Skill.Listen, 1));
-          break;
-        case 7:
-          belt.Add(ItemProperty.SkillBonus(Skill.Spot, 1));
-          belt.Add(ItemProperty.SkillBonus(Skill.Discipline, 1));
-          break;
-        case 8:
-          belt.Add(ItemProperty.AbilityBonus(IPAbility.Strength, 1));
-          break;
-      }
-
-      return belt;
-    }
-    public static List<ItemProperty> GetAmuletProperties(int materialTier)
-    {
-      List<ItemProperty> amulet = new List<ItemProperty>();
-
-      switch (materialTier)
-      {
-        case 0:
-          amulet.Add(ItemProperty.SkillBonus(Skill.MoveSilently, 1));
-          break;
-        case 1:
-          amulet.Add(ItemProperty.BonusSavingThrowVsX(IPSaveVs.Poison, 1));
-          break;
-        case 2:
-          amulet.Add(ItemProperty.AbilityBonus(IPAbility.Constitution, 1));
-          amulet.Add(ItemProperty.BonusSavingThrowVsX(IPSaveVs.Fear, 1));
-          break;
-        case 3:
-          amulet.Add(ItemProperty.SkillBonus(Skill.Hide, 1));
-          amulet.Add(ItemProperty.BonusSavingThrowVsX(IPSaveVs.Disease, 1));
-          break;
-        case 4:
-          amulet.Add(ItemProperty.AbilityBonus(IPAbility.Constitution, 1));
-          amulet.Add(ItemProperty.BonusSavingThrowVsX(IPSaveVs.MindAffecting, 1));
-          break;
-        case 5:
-          amulet.Add(ItemProperty.SkillBonus(Skill.Hide, 1));
-          amulet.Add(ItemProperty.BonusSavingThrowVsX(IPSaveVs.Death, 1));
-          break;
-        case 6:
-          amulet.Add(ItemProperty.AbilityBonus(IPAbility.Constitution, 1));
-          amulet.Add(ItemProperty.BonusSavingThrow(IPSaveBaseType.Will, 1));
-          break;
-        case 7:
-          amulet.Add(ItemProperty.BonusSavingThrow(IPSaveBaseType.Fortitude, 1));
-          break;
-        case 8:
-          amulet.Add(ItemProperty.AbilityBonus(IPAbility.Constitution, 1));
-          amulet.Add(ItemProperty.BonusSavingThrow(IPSaveBaseType.Will, 1));
-          amulet.Add(ItemProperty.BonusSavingThrow(IPSaveBaseType.Fortitude, 1));
-          amulet.Add(ItemProperty.BonusSavingThrow(IPSaveBaseType.Reflex, 1));
-          break;
-      }
-
-      return amulet;
-    }
+    public static List<ItemProperty> GetOneHandedMeleeWeaponProperties() { return new List<ItemProperty> { ItemProperty.AttackBonus(2) }; }
+    public static List<ItemProperty> GetRangedWeaponProperties() { return new List<ItemProperty> { ItemProperty.AttackBonus(4) }; }
+    public static List<ItemProperty> GetTwoHandedMeleeWeaponProperties() { return new List<ItemProperty> { ItemProperty.AttackBonus(4) }; }
+    public static List<ItemProperty> GetArmorPartProperties() { return new List<ItemProperty> { ItemProperty.ACBonus(7) }; }
+    public static List<ItemProperty> GetAmmunitionProperties() { return new List<ItemProperty> { ItemProperty.DamageBonus(IPDamageType.Piercing, IPDamageBonus.Plus1) }; }
   }
 }

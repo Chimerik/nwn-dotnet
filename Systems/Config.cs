@@ -42,6 +42,15 @@ namespace NWN.Systems
 
     public static Dictionary<string, CreatureStats> creatureStats = new();
 
+    // LOOT
+
+    public static readonly int baseCreatureDropChance = 4;
+    public static readonly int minCreatureGoldDrop = 12;
+    public static readonly int maxCreatureGoldDrop = 17;
+    public static readonly int creatureGoldDropAreaMultiplier = 8;
+    public static readonly int mobQualityRollMultiplier = 30;
+    public static readonly int bossQualityRollMultiplier = 60;
+
     // MATERIA
 
     public static readonly int baseMateriaGrowth = 360;

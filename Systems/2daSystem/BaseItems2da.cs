@@ -36,6 +36,7 @@ namespace NWN.Systems
     public static List<NuiComboEntry> baseItemNameEntries = new();
     public static List<NuiComboEntry> itemTypeEntries = new();
     public static readonly Dictionary<string, List<int>> simpleItemModels = new();
+    public static readonly List<NwBaseItem> lootableEquipement = new();
     public BaseItems2da(ResourceManager resMan)
     {
       int count = 0;
@@ -46,6 +47,12 @@ namespace NWN.Systems
         {
           baseItemNameEntries.Add(new NuiComboEntry(entry.name, count));
           itemTypeEntries.Add(new NuiComboEntry(entry.name, entry.RowIndex));
+
+          NwBaseItem baseItem = NwBaseItem.FromItemId(count);
+
+          if (baseItem.EquipmentSlots != EquipmentSlots.None && baseItem.EquipmentSlots != EquipmentSlots.CreatureArmour && baseItem.EquipmentSlots != EquipmentSlots.CreatureWeaponBite
+            && baseItem.EquipmentSlots != EquipmentSlots.CreatureWeaponLeft && baseItem.EquipmentSlots != EquipmentSlots.CreatureWeaponRight)
+            lootableEquipement.Add(baseItem);
         }
         count++;
       }

@@ -7,6 +7,7 @@ using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
 using Newtonsoft.Json;
+using NWN.Systems.Arena;
 
 namespace NWN.Systems
 {
@@ -29,9 +30,9 @@ namespace NWN.Systems
 
       if (result == null || result.Count < 1)
       {
-        Dictionary<LootSystem.LootCategory, List<string>> newLootDico = new();
+        Dictionary<LootSystem.LootQuality, List<string>> newLootDico = new();
 
-        foreach (LootSystem.LootCategory category in (LootSystem.LootCategory[])Enum.GetValues(typeof(LootSystem.LootCategory)))
+        foreach (LootSystem.LootQuality category in (LootSystem.LootQuality[])Enum.GetValues(typeof(LootSystem.LootQuality)))
         {
           newLootDico.Add(category, new List<string>());
           LootSystem.lootDictionary.Add(category, new List<NwItem>());
@@ -44,20 +45,20 @@ namespace NWN.Systems
       }
 
       string serializedLoots = result.FirstOrDefault()[0];
-      Dictionary<LootSystem.LootCategory, List<string>> serializedLootDico = new();
+      Dictionary<LootSystem.LootQuality, List<string>> serializedLootDico = new();
 
       await Task.Run(() =>
       {
         if (string.IsNullOrEmpty(serializedLoots) || serializedLoots == "null")
           return;
 
-        serializedLootDico = JsonConvert.DeserializeObject<Dictionary<LootSystem.LootCategory, List<string>>>(serializedLoots);
+        serializedLootDico = JsonConvert.DeserializeObject<Dictionary<LootSystem.LootQuality, List<string>>>(serializedLoots);
       });
 
       foreach (var entry in serializedLootDico)
       {
         List<NwItem> category = new();
-        LootSystem.lootDictionary.Add(entry.Key, category);
+        lootDictionary.Add(entry.Key, category);
 
         foreach (string serializedItem in entry.Value)
           category.Add(NwItem.Deserialize(serializedItem.ToByteArray()));
@@ -165,16 +166,29 @@ namespace NWN.Systems
     {
       NwCreature oContainer = onDeath.KilledCreature;
 
-      if (lootablesDic.TryGetValue(oContainer.Tag, out Lootable.Config lootableConfig))
+      if(oContainer.Area is null)
+      {
+        LogUtils.LogMessage($"{onDeath.Killer.Name} tue {oContainer.Name} hors zone - Pas de loot", LogUtils.LogType.LootSystem);
+        return;
+      }
+
+      int areaLevel = oContainer.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value;
+
+      if(areaLevel < 2)
+      {
+        LogUtils.LogMessage($"{oContainer.Area.Name} (zone level {areaLevel}) - {onDeath.Killer.Name} tue {oContainer.Name} - Pas de loot", LogUtils.LogType.LootSystem);
+        return;
+      }
+
+      /*if (lootablesDic.TryGetValue(oContainer.Tag, out Lootable.Config lootableConfig))
       {
         ItemUtils.MakeCreatureInventoryUndroppable(oContainer);
         lootableConfig.GenerateLoot(oContainer);
-      }
+      }*/
       //else
-        //Utils.LogMessageToDMs($"Unregistered container tag=\"{oContainer.Tag}\"");
+      //Utils.LogMessageToDMs($"Unregistered container tag=\"{oContainer.Tag}\"");
 
-      if(oContainer.Tag.StartsWith("boss_"))
-      {
+      /*if (oContainer.Tag.StartsWith("boss_"))
         foreach (NwPlaceable chest in oContainer.Area.FindObjectsOfTypeInArea<NwPlaceable>().Where(c => lootablesDic.ContainsKey(c.Tag)))
         {
           //Log.Info($"Found chest : {chest.Name}");
@@ -187,7 +201,25 @@ namespace NWN.Systems
           }
           else
             Utils.LogMessageToDMs($"AREA - {oContainer.Area.Name} - Unregistered container tag=\"{chest.Tag}\", name : {chest.Name}");
-        }
+        }*/
+
+      int dropChance = NwRandom.Roll(Utils.random, 100);
+
+      if (oContainer.Tag.StartsWith("boss_"))
+      {
+
+      }
+      else if (dropChance < (Config.baseCreatureDropChance + 2 * areaLevel) * 2) // Normal Creature Item Drop
+      {
+        NwItem lootItem = CreateLootItem(areaLevel);
+      }
+      else if(dropChance  < Config.baseCreatureDropChance + 2 * areaLevel) // Normal Creature Gold Drop
+      {
+        int goldDrop = Utils.random.Next(Config.minCreatureGoldDrop + ((areaLevel - 2) * Config.creatureGoldDropAreaMultiplier), Config.maxCreatureGoldDrop + ((areaLevel - 2) * Config.creatureGoldDropAreaMultiplier) + 1);
+        // TODO : spawn n'importe quel objet de la catégorie Inutile et lui ajouter "Extractible" dans le nom
+        // TODO : Lui affecter la valeur de goldDrop sur une variable locale
+        // TODO : Créer un PNJ qui effectue l'extraction d'influx pour une rentabilité dérisoire
+        // TODO : Créer des compétences d'extraction d'influx (le job est instant à partir de n'import quel atelier)
       }
     }
   }

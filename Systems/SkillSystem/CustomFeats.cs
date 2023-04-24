@@ -4,7 +4,8 @@
   {
     // Les compétences customs activables sous forme de dons sont numérotées à partir de 10000 afin d'éviter la collision avec les ID de sorts dans le dictionnary global des Learnables
     // Les compétences customs passives sont numérotées à partir de 20000 afin de laisser suffisament de marge pour pouvoir ajouter des actifs sans tout retoucher
-    
+    // Les inscriptions sont numérotées à partir de 50000 afin d'éviter les collions avec les CustomSkills
+
     public const int CustomMenuUP = 1132;
     public const int CustomMenuDOWN = 1133;
     public const int CustomMenuSELECT = 1134;

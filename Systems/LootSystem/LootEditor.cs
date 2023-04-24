@@ -36,7 +36,7 @@ namespace NWN.Systems
             new NuiComboEntry("Inutile", 0), // gris
             new NuiComboEntry("Simple", 1), // blanc
             new NuiComboEntry("Raffiné", 2), // bleu
-            new NuiComboEntry("Chef d'oeuvre", 3), // vert
+            new NuiComboEntry("Superbe", 3), // vert
             new NuiComboEntry("Rare", 4), // or
             new NuiComboEntry("Exotique", 5), // orange
             new NuiComboEntry("Élevé", 6), // rose
@@ -113,7 +113,7 @@ namespace NWN.Systems
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-            filteredList = LootSystem.lootDictionary[LootSystem.LootCategory.Inutile];
+            filteredList = LootSystem.lootDictionary[LootSystem.LootQuality.Inutile];
             LoadItemList(filteredList);
           }
         }
@@ -152,7 +152,7 @@ namespace NWN.Systems
 
                 case "takeItem":
                   NwItem item = filteredList.ElementAt(nuiEvent.ArrayIndex);
-                  LootSystem.LootCategory selectedLootCategory = (LootSystem.LootCategory)selectedCategory.GetBindValue(player.oid, nuiToken.Token);
+                  LootSystem.LootQuality selectedLootCategory = (LootSystem.LootQuality)selectedCategory.GetBindValue(player.oid, nuiToken.Token);
 
                   if (item != null && item.IsValid)
                   {
@@ -185,7 +185,7 @@ namespace NWN.Systems
         private void UpdateItemList()
         {
           string currentSearch = search.GetBindValue(player.oid, nuiToken.Token).ToLower();
-          LootSystem.LootCategory selectedLootCategory = (LootSystem.LootCategory)selectedCategory.GetBindValue(player.oid, nuiToken.Token);
+          LootSystem.LootQuality selectedLootCategory = (LootSystem.LootQuality)selectedCategory.GetBindValue(player.oid, nuiToken.Token);
 
           filteredList = LootSystem.lootDictionary[selectedLootCategory];
 
@@ -199,7 +199,7 @@ namespace NWN.Systems
           if (selection.IsCancelled || selection.TargetObject is not NwItem item || item == null || !item.IsValid || item.Possessor != player.oid.LoginCreature)
             return;
 
-          LootSystem.LootCategory selectedLootCategory = (LootSystem.LootCategory)selectedCategory.GetBindValue(player.oid, nuiToken.Token);
+          LootSystem.LootQuality selectedLootCategory = (LootSystem.LootQuality)selectedCategory.GetBindValue(player.oid, nuiToken.Token);
           LootSystem.lootDictionary[selectedLootCategory].Add(NwItem.Deserialize(item.Serialize()));
 
           item.Destroy();
@@ -264,7 +264,7 @@ namespace NWN.Systems
 
         private async void HandleLootSave()
         {
-          Dictionary<LootSystem.LootCategory, List<string>> serializedLootDictionary = new();
+          Dictionary<LootSystem.LootQuality, List<string>> serializedLootDictionary = new();
 
           foreach (var lootList in LootSystem.lootDictionary) 
           {

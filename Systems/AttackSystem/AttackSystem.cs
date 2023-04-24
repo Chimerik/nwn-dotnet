@@ -460,6 +460,8 @@ namespace NWN.Systems
 
           if (randLocation < 13)
             hitSlot = InventorySlot.Boots;
+          else if (randLocation < 25)
+            hitSlot = InventorySlot.Belt;
           else if (randLocation < 38)
             hitSlot = InventorySlot.Cloak;
           else if (randLocation < 51)
@@ -475,6 +477,8 @@ namespace NWN.Systems
 
           if (randLocation < 28)
             hitSlot = InventorySlot.Boots;
+          else if (randLocation < 58)
+            hitSlot = InventorySlot.Belt;
           else if (randLocation < 69)
             hitSlot = InventorySlot.Cloak;
           else if (randLocation < 82)

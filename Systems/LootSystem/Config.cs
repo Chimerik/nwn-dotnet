@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Anvil.API;
+
+using NWN.Native.API;
 
 namespace NWN.Systems
 {
@@ -10,19 +13,44 @@ namespace NWN.Systems
     public static readonly string CHEST_AREA_TAG = "la_zone_des_loots";
     private static readonly string SQL_TABLE = "loot_containers";
 
-    public enum LootCategory
+    private enum LootableType
     {
-      Inutile,
-      Simple,
-      Raffiné,
-      Masterwork,
-      Rare,
-      Exotique,
-      Élevé,
-      Légendaire
+      Equipement,
+      Skillbook,
+      SpellScroll,
+      Enchantment,
+      Potion,
+      Food,
+      Beverage
     };
 
-    public static readonly Dictionary<LootCategory, List<NwItem>> lootDictionary = new();
+    private static readonly Array lootTypeArray = Enum.GetValues(typeof(LootableType));
+
+    public enum LootQuality
+    {
+      Inutile = 100, // gris
+      Simple = 200, // blanc
+      Raffiné = 300, // bleu
+      Superbe = 400, // vert
+      Rare = 500, // or
+      Exotique = 600, // orange
+      Transcendé = 700, // rose
+      Légendaire = 800 // violet
+    };
+
+    public static readonly Dictionary<LootQuality, Color> lootColor = new()
+    {
+      { LootQuality.Inutile, new Color(170, 170, 170, 100) },
+      { LootQuality.Simple, ColorConstants.White },
+      { LootQuality.Raffiné, new Color(85, 153, 255) },
+      { LootQuality.Superbe, new Color(51, 204, 17) },
+      { LootQuality.Rare, new Color(255, 221, 34) },
+      { LootQuality.Exotique, new Color(255, 170, 0) },
+      { LootQuality.Transcendé, new Color(244, 63, 133) },
+      { LootQuality.Légendaire, new Color(153, 51, 255) },
+    };
+
+    public static readonly Dictionary<LootQuality, List<NwItem>> lootDictionary = new();
 
     public static readonly Dictionary<string, Lootable.Config> lootablesDic = new Dictionary<string, Lootable.Config>
         {

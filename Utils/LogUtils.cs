@@ -34,7 +34,8 @@ namespace NWN
       PlayerSaveSystem,
       PersonalStorageSystem,
       PlayerDeath,
-      DMAction
+      DMAction,
+      LootSystem
     }
 
     public static readonly Dictionary<LogType, Queue<string>> logPile = new();
