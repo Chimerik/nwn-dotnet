@@ -315,12 +315,30 @@ namespace NWN.Systems
       oBlueprint.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value = baseArmor;
       oBlueprint.GetObjectVariable<LocalVariableString>("_CRAFT_WORKSHOP").Value = entry.workshop;
     }
-    public static string DisplayDamageType(DamageType damageType)
+    public static string DisplayDamageType(NwItem item)
+    {
+      for (int i = 0; i < item.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+        switch (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
+        {
+          case CustomInscription.Polaire: return "Polaire";
+          case CustomInscription.Sismique: return "Terrestre";
+          case CustomInscription.Incendiaire: return "Feu";
+          case CustomInscription.Electrocution: return "Foudre";
+        }
+
+      string damageTypeLabel = "";
+
+      foreach (DamageType damageType in item.BaseItem.WeaponType)
+        damageTypeLabel += $"{ItemUtils.DisplayBaseDamageType(damageType)} / ";
+
+      return damageTypeLabel.Remove(damageTypeLabel.Length - 2);
+    }
+    public static string DisplayBaseDamageType(DamageType damageType)
     {
       return damageType switch
       {
         DamageType.Bludgeoning => "Contondant",
-        DamageType.Piercing => "Perçant",
+        DamageType.Piercing => "Perforant",
         DamageType.Slashing => "Tranchant",
         _ => "",
       };
@@ -744,43 +762,43 @@ namespace NWN.Systems
 
       if (hivernal != 0)
       {
-        ipNames.Add($"+{hivernal} armure contre les dégâts polaires");
+        ipNames.Add($"+{hivernal} armure contre les dégâts Polaires");
         ipColors.Add(ColorConstants.White);
       }
 
       if (ignifuge != 0)
       {
-        ipNames.Add($"+{ignifuge} armure contre les dégâts de feu");
+        ipNames.Add($"+{ignifuge} armure contre les dégâts de Feu");
         ipColors.Add(ColorConstants.White);
       }
 
       if (paratonnerre != 0)
       {
-        ipNames.Add($"+{paratonnerre} armure contre les dégâts de foudre");
+        ipNames.Add($"+{paratonnerre} armure contre les dégâts de Foudre");
         ipColors.Add(ColorConstants.White);
       }
 
       if (tectonique != 0)
       {
-        ipNames.Add($"+{tectonique} armure contre les dégâts terrestres");
+        ipNames.Add($"+{tectonique} armure contre les dégâts Terrestres");
         ipColors.Add(ColorConstants.White);
       }
 
       if (infiltrateur != 0)
       {
-        ipNames.Add($"+{infiltrateur} armure contre les dégâts perçants");
+        ipNames.Add($"+{infiltrateur} armure contre les dégâts Perforants");
         ipColors.Add(ColorConstants.White);
       }
 
       if (saboteur != 0)
       {
-        ipNames.Add($"+{saboteur} armure contre les dégâts tranchants");
+        ipNames.Add($"+{saboteur} armure contre les dégâts Tranchants");
         ipColors.Add(ColorConstants.White);
       }
 
       if (avantGarde != 0)
       {
-        ipNames.Add($"+{avantGarde} armure contre les dégâts contondants");
+        ipNames.Add($"+{avantGarde} armure contre les dégâts Contondants");
         ipColors.Add(ColorConstants.White);
       }
 
@@ -1138,7 +1156,7 @@ namespace NWN.Systems
 
       if (piercingArmor != 0)
       {
-        ipNames.Add($"+{armor} armure contre les dégâts perçants");
+        ipNames.Add($"+{armor} armure contre les dégâts Perforants");
         ipColors.Add(ColorConstants.White);
       }
 
@@ -1228,7 +1246,7 @@ namespace NWN.Systems
 
       if (contreVentsEtMarees != 0)
       {
-        ipNames.Add($"+{contreVentsEtMarees} armure contre les dégâts Perçants");
+        ipNames.Add($"+{contreVentsEtMarees} armure contre les dégâts Perforants");
         ipColors.Add(ColorConstants.White);
       }
 
@@ -1623,6 +1641,68 @@ namespace NWN.Systems
       int pourfendeurDragon = 0;
       int pourfendeurExterieur = 0;
       int pourfendeurAberration = 0;
+      int forceEtHonneur = 0;
+      int maitreDeSonDestin = 0;
+      int danseAvecLaMort = 0;
+      int sadisme = 0;
+      int masochisme = 0;
+      int queDuMuscle = 0;
+      int refuge = 0;
+      int protecteur = 0;
+      int devotion = 0;
+      int endurance = 0;
+      int valeur = 0;
+      int serenite = 0;
+      int toutAuTalent = 0;
+      int vision = 0;
+      int pourfendeurGeant = 0;
+      int pourfendeurMagie = 0;
+      int pourfendeurBien = 0;
+      int pourfendeurChaos = 0;
+      int pourfendeurMal = 0;
+      int pourfendeurNeutralite = 0;
+      int pourfendeurLoi = 0;
+      int vengeanceSeraMienne = 0;
+      int faucheuse = 0;
+      int givroclaste = 0;
+      int pyroclaste = 0;
+      int electroclaste = 0;
+      int seismoclaste = 0;
+      int aiguillon = 0;
+      int rasoir = 0;
+      int fracasseur = 0;
+      int pourfendeurHalfelin = 0;
+      int pourfendeurDemiElfe = 0;
+      int pourfendeurDemiOrc = 0;
+      int pourfendeurHumain = 0;
+      int pourfendeurElfe = 0;
+      int pourfendeurGnome = 0;
+      int pourfendeurNain = 0;
+      int securite = 0;
+      int ayezFoi = 0;
+      int aucunRecours = 0;
+      int mienneEstLaPeine = 0;
+      int carpeDiem = 0;
+      int fureur = 0;
+      int penetration = 0;
+      int pourfendeurOrc = 0;
+      int pourfendeurNonVie = 0;
+      int pourfendeurArtificiel = 0;
+      int maitrise = 0;
+      int adepte = 0;
+      int barbele = 0;
+      int atrocite = 0;
+      int handicapant = 0;
+      int pesanteur = 0;
+      int venimeuse = 0;
+      int mutisme = 0;
+      int pourfendeurMonstre = 0;
+      int pourfendeurHumanoide = 0;
+      int pourfendeurMetamorphe = 0;
+      int pourfendeurGobelin = 0;
+      int pourfendeurAnimal = 0;
+      int pourfendeurReptilien = 0;
+      int pourfendeurVermine = 0;
 
       for (int i = 0; i < item.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
       {
@@ -1641,6 +1721,73 @@ namespace NWN.Systems
           case CustomInscription.PourfendeurDragon: zele += 3; break;
           case CustomInscription.PourfendeurExtérieur: zele += 3; break;
           case CustomInscription.PourfendeurAberration: zele += 3; break;
+          case CustomInscription.ForceEtHonneur: forceEtHonneur += 2; break;
+          case CustomInscription.MaîtreDeSonDestin: maitreDeSonDestin += 2; break;
+          case CustomInscription.DanseAvecLaMort: danseAvecLaMort += 2; break;
+          case CustomInscription.Sadisme: sadisme += 3; break;
+          case CustomInscription.Masochisme: 
+            masochisme += 1;
+            pourfendeur += 2;
+            break;
+          case CustomInscription.QueDuMuscle:
+            queDuMuscle += 1;
+            pourfendeur += 2;
+            break;
+          case CustomInscription.Refuge: refuge += 1; break;
+          case CustomInscription.Protecteur: protecteur += 1; break;
+          case CustomInscription.Dévotion: devotion += 6; break;
+          case CustomInscription.Endurance: endurance += 6; break;
+          case CustomInscription.Valeur: valeur += 8; break;
+          case CustomInscription.Sérénité: serenite += 1; break;
+          case CustomInscription.ToutAuTalent: toutAuTalent += 1; break;
+          case CustomInscription.Vision: vision += 1; break;
+          case CustomInscription.PourfendeurGéant: pourfendeurGeant += 3; break;
+          case CustomInscription.PourfendeurMagie: pourfendeurMagie += 3; break;
+          case CustomInscription.PourfendeurBien: pourfendeurBien += 2; break;
+          case CustomInscription.PourfendeurChaos: pourfendeurChaos += 2; break;
+          case CustomInscription.PourfendeurMal: pourfendeurMal += 2; break;
+          case CustomInscription.PourfendeurNeutralité: pourfendeurNeutralite += 2; break;
+          case CustomInscription.PourfendeurLoi: pourfendeurLoi += 2; break;
+          case CustomInscription.VengeanceSeraMienne: vengeanceSeraMienne += 3; break;
+          case CustomInscription.AccueillezLaFaucheuse: faucheuse += 3; break;
+          case CustomInscription.Givroclaste: givroclaste += 2; break;
+          case CustomInscription.Pyroclaste: pyroclaste += 2; break;
+          case CustomInscription.Electroclaste: electroclaste += 2; break;
+          case CustomInscription.Séismoclaste: seismoclaste += 2; break;
+          case CustomInscription.Aiguillon: aiguillon += 2; break;
+          case CustomInscription.Rasoir: rasoir += 2; break;
+          case CustomInscription.Fracasseur: fracasseur += 2; break;
+          case CustomInscription.PourfendeurHalfelin: pourfendeurHalfelin += 3; break;
+          case CustomInscription.PourfendeurHumain: pourfendeurHumain += 3; break;
+          case CustomInscription.PourfendeurDemiElfe: pourfendeurDemiElfe += 3; break;
+          case CustomInscription.PourfendeurDemiOrc: pourfendeurDemiOrc += 3; break;
+          case CustomInscription.PourfendeurElfe: pourfendeurElfe += 3; break;
+          case CustomInscription.PourfendeurGnome: pourfendeurGnome += 3; break;
+          case CustomInscription.PourfendeurNain: pourfendeurNain += 3; break;
+          case CustomInscription.LaSécuritéAvantTout: securite += 1; break;
+          case CustomInscription.AyezFoi: securite += 1; break;
+          case CustomInscription.AucunRecours: aucunRecours += 2; break;
+          case CustomInscription.MienneEstLaPeine: mienneEstLaPeine += 2; break;
+          case CustomInscription.Fureur: fureur += 1; break;
+          case CustomInscription.Pénétration: penetration += 3; break;
+          case CustomInscription.PourfendeurNonVie: pourfendeurNonVie += 3; break;
+          case CustomInscription.PourfendeurArtificiel: pourfendeurArtificiel += 3; break;
+          case CustomInscription.PourfendeurOrc: pourfendeurOrc += 3; break;
+          case CustomInscription.Maîtrise: pourfendeurOrc += 3; break;
+          case CustomInscription.Adepte: adepte += 3; break;
+          case CustomInscription.Barbelé: barbele += 4; break;
+          case CustomInscription.Atrocité: atrocite += 4; break;
+          case CustomInscription.Handicapant: handicapant += 4; break;
+          case CustomInscription.Pesanteur: pesanteur += 4; break;
+          case CustomInscription.Venimeuse: venimeuse += 4; break;
+          case CustomInscription.Mutisme: mutisme += 4; break;
+          case CustomInscription.PourfendeurMonstres: mutisme += 4; break;
+          case CustomInscription.PourfendeurHumanoïdes: mutisme += 4; break;
+          case CustomInscription.PourfendeurMétamorphes: mutisme += 4; break;
+          case CustomInscription.PourfendeurGobelins: mutisme += 4; break;
+          case CustomInscription.PourfendeurAnimal: mutisme += 4; break;
+          case CustomInscription.PourfendeurReptilien: mutisme += 4; break;
+          case CustomInscription.PourfendeurVermine: mutisme += 4; break;
         }
       }
 
@@ -1705,6 +1852,380 @@ namespace NWN.Systems
       if (pourfendeurAberration != 0)
       {
         ipNames.Add($"+{pourfendeurAberration}% Dégâts contre les Aberrations");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (forceEtHonneur != 0)
+      {
+        ipNames.Add($"+{forceEtHonneur}% Dégâts si la Santé est > 50%");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (maitreDeSonDestin != 0)
+      {
+        ipNames.Add($"+{maitreDeSonDestin}% Dégâts sous l'effet d'un sort positif");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (danseAvecLaMort != 0)
+      {
+        ipNames.Add($"+{danseAvecLaMort}% Dégâts sous l'effet d'une pose de combat");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (sadisme != 0)
+      {
+        ipNames.Add($"+{sadisme}% Dégâts contres le ennemis victimes d'un maléfice");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (masochisme != 0)
+      {
+        ipNames.Add($"-{masochisme} Armure en attaquant");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (queDuMuscle != 0)
+      {
+        ipNames.Add($"-{queDuMuscle} Energie");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (refuge != 0)
+      {
+        ipNames.Add($"+{refuge} Armure contre les dégâts Physiques");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (protecteur != 0)
+      {
+        ipNames.Add($"+{protecteur} Armure contre les dégâts Elémentaires");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (devotion != 0)
+      {
+        ipNames.Add($"+{devotion} Santé sous l'effet d'un enchantement");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (endurance != 0)
+      {
+        ipNames.Add($"+{endurance} Santé sous l'effet d'une pose de combat");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (valeur != 0)
+      {
+        ipNames.Add($"+{valeur} Santé sous l'effet d'un maléfice");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (serenite != 0)
+      {
+        ipNames.Add($"+{serenite}% de chance de diviser par deux le temps de recharge des capacités");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (toutAuTalent != 0)
+      {
+        ipNames.Add($"+{toutAuTalent}% de chance de diviser par deux le temps de recharge des capacités");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (vision != 0)
+      {
+        ipNames.Add($"+{vision} Energie");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (pourfendeurGeant != 0)
+      {
+        ipNames.Add($"+{pourfendeurGeant}% Dégâts contre les Géants");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (pourfendeurMagie != 0)
+      {
+        ipNames.Add($"+{pourfendeurMagie}% Dégâts contre les créatures Magiques");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (pourfendeurBien != 0)
+      {
+        ipNames.Add($"+{pourfendeurBien}% Dégâts contre les créatures alignées au Bien");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (pourfendeurChaos != 0)
+      {
+        ipNames.Add($"+{pourfendeurChaos}% Dégâts contre les créatures alignées au Chaos");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (pourfendeurMal != 0)
+      {
+        ipNames.Add($"+{pourfendeurMal}% Dégâts contre les créatures Magiques alignées au Mal");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (pourfendeurNeutralite != 0)
+      {
+        ipNames.Add($"+{pourfendeurNeutralite}% Dégâts contre les créatures Magiques alignées de façon Neutre");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (pourfendeurLoi != 0)
+      {
+        ipNames.Add($"+{pourfendeurLoi}% Dégâts contre les créatures alignées à la Loi");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (vengeanceSeraMienne != 0)
+      {
+        ipNames.Add($"+{vengeanceSeraMienne}% Dégâts si Santé < 50%");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (faucheuse != 0)
+      {
+        ipNames.Add($"+{faucheuse}% Dégâts sous l'effet d'un maléfice");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (givroclaste != 0)
+      {
+        ipNames.Add($"+{givroclaste}% Dégâts Polaires");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (pyroclaste != 0)
+      {
+        ipNames.Add($"+{pyroclaste}% Dégâts de Feu");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (electroclaste != 0)
+      {
+        ipNames.Add($"+{electroclaste}% Dégâts de Foudre");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (seismoclaste != 0)
+      {
+        ipNames.Add($"+{seismoclaste}% Dégâts Terrestres");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (aiguillon != 0)
+      {
+        ipNames.Add($"+{aiguillon}% Dégâts Perforants");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (rasoir != 0)
+      {
+        ipNames.Add($"+{rasoir}% Dégâts Tranchants");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (fracasseur != 0)
+      {
+        ipNames.Add($"+{fracasseur}% Dégâts Contondants");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (pourfendeurHalfelin!= 0)
+      {
+        ipNames.Add($"+{pourfendeurHalfelin}% Dégâts contre les Hafelins");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (pourfendeurHumain != 0)
+      {
+        ipNames.Add($"+{pourfendeurHumain}% Dégâts contre les Humains");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (pourfendeurDemiElfe != 0)
+      {
+        ipNames.Add($"+{pourfendeurDemiElfe}% Dégâts contre les Demi-Elfes");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (pourfendeurDemiOrc != 0)
+      {
+        ipNames.Add($"+{pourfendeurDemiOrc}% Dégâts contre les Demi-Orcs");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (pourfendeurElfe != 0)
+      {
+        ipNames.Add($"+{pourfendeurElfe}% Dégâts contre les Elfes");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (pourfendeurGnome != 0)
+      {
+        ipNames.Add($"+{pourfendeurGnome}% Dégâts contre les Gnomes");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (pourfendeurNain != 0)
+      {
+        ipNames.Add($"+{pourfendeurNain}% Dégâts contre les Nains");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (securite != 0)
+      {
+        ipNames.Add($"+{securite} Energie si Santé > 50%");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (ayezFoi != 0)
+      {
+        ipNames.Add($"+{ayezFoi} Energie sous l'effet d'un sort positif");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (aucunRecours != 0)
+      {
+        ipNames.Add($"+{aucunRecours} Energie si Santé < 50%");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (mienneEstLaPeine != 0)
+      {
+        ipNames.Add($"+{mienneEstLaPeine} Energie sous l'effet d'un maléfice");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (carpeDiem != 0)
+      {
+        ipNames.Add($"+15 Energie (non cumulable)");
+        ipColors.Add(ColorConstants.White);
+        ipNames.Add($"-1 Récupération d'Energie");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (fureur != 0)
+      {
+        ipNames.Add($"+{fureur}% chances de doubler le gain d'adrénaline d'une attaque");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (penetration != 0)
+      {
+        ipNames.Add($"+{penetration}% chances d'ajouter 20% de pénétration d'armure à une attaque");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (pourfendeurNonVie != 0)
+      {
+        ipNames.Add($"+{pourfendeurNonVie}% Dégâts contre les mort-vivants");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (pourfendeurArtificiel != 0)
+      {
+        ipNames.Add($"+{pourfendeurArtificiel}% Dégats contre les créatures Artificielles");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (pourfendeurOrc != 0)
+      {
+        ipNames.Add($"+{pourfendeurOrc}% Dégâts contre les Orcs");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (maitrise != 0)
+      {
+        ipNames.Add($"+{maitrise}% de chances d'avoir +1 à la compétence de maîtrise de l'arme");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (adepte != 0)
+      {
+        ipNames.Add($"+{adepte}% de chances de diviser par deux le temps d'incantation des sorts liés à la maîtrise de l'arme");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (barbele != 0)
+      {
+        ipNames.Add($"+{barbele}% de durée des effets de saignements que vous infligez");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (atrocite != 0)
+      {
+        ipNames.Add($"+{atrocite}% de durée des effets de blessures profondes que vous infligez");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (handicapant != 0)
+      {
+        ipNames.Add($"+{handicapant}% de durée des effets d'infirmité que vous infligez");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (pesanteur != 0)
+      {
+        ipNames.Add($"+{pesanteur}% de durée des effets de faiblesse que vous infligez");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (venimeuse != 0)
+      {
+        ipNames.Add($"+{venimeuse}% de durée des effets d'empoisonnement que vous infligez");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (mutisme != 0)
+      {
+        ipNames.Add($"+{mutisme}% de durée des effets d'étourdissement que vous infligez");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (pourfendeurMonstre != 0)
+      {
+        ipNames.Add($"+{pourfendeurMonstre}% Dégâts contre les créatures Monstrueuses");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (pourfendeurHumanoide != 0)
+      {
+        ipNames.Add($"+{pourfendeurHumanoide}% Dégâts contre les créatures Humanoïdes");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (pourfendeurMetamorphe != 0)
+      {
+        ipNames.Add($"+{pourfendeurMetamorphe}% Dégâts contre les Métamorphes");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (pourfendeurGobelin != 0)
+      {
+        ipNames.Add($"+{pourfendeurGobelin}% Dégâts contre les créatures Gobelinoïdes");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (pourfendeurAnimal != 0)
+      {
+        ipNames.Add($"+{pourfendeurAnimal}% Dégâts contre les Animaux");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (pourfendeurReptilien != 0)
+      {
+        ipNames.Add($"+{pourfendeurReptilien}% Dégâts contre les créatures Reptiliennes");
+        ipColors.Add(ColorConstants.White);
+      }
+
+      if (pourfendeurVermine != 0)
+      {
+        ipNames.Add($"+{pourfendeurVermine}% Dégâts contre la Vermine");
         ipColors.Add(ColorConstants.White);
       }
     }

@@ -241,7 +241,8 @@ namespace NWN.Systems
           icon = spell.IconResRef;
           type = jobType;
 
-          remainingTime = ItemUtils.GetBaseItemCost(item) * 10 * SkillSystem.learnableDictionary[Spells2da.spellTable.GetRow(spell.Id).inscriptionSkill].multiplier;
+          Learnable learnable = SkillSystem.learnableDictionary[Spells2da.spellTable.GetRow(spell.Id).inscriptionSkill];
+          remainingTime = ItemUtils.GetBaseItemCost(item) * 10 * learnable.multiplier;
 
           if (player.learnableSkills.ContainsKey(CustomSkill.Enchanteur)) // TODO : Le temps doit diminuer en fonction de l'entrainement du perso dans la catégorie d'inscription
             remainingTime *= player.learnableSkills[CustomSkill.Enchanteur].bonusReduction;
@@ -263,6 +264,8 @@ namespace NWN.Systems
             LogUtils.LogMessage($"Inscription {player.oid.LoginCreature.Name} - {spell.Name.ToString()} - {item.Name} - Impossible de trouver un slot valide libre", LogUtils.LogType.Craft);
 
           enchantedItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value = spell.Id;
+
+          HandleDamageModifierInscription(enchantedItem, learnable.id);
 
           item.Destroy();
           DelayItemSerialization(enchantedItem);
@@ -942,6 +945,23 @@ namespace NWN.Systems
       }
 
       return true;
+    }
+    private static void HandleDamageModifierInscription(NwItem newItem, int learnableId)
+    {
+      if(learnableId == CustomInscription.Polaire || learnableId == CustomInscription.Sismique || learnableId == CustomInscription.Incendiaire || learnableId == CustomInscription.Electrocution)
+      {
+        for (int i = 0; i < newItem.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+          switch(newItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
+          {
+            case CustomInscription.Polaire:
+            case CustomInscription.Sismique:
+            case CustomInscription.Incendiaire:
+            case CustomInscription.Electrocution:
+              newItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Delete();
+              newItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
+              break;
+          }
+      }
     }
   }
 }

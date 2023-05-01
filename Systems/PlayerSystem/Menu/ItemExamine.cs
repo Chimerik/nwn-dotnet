@@ -128,11 +128,6 @@ namespace NWN.Systems
             if (maxSkillDamage < 1)
               maxSkillDamage = 1;
 
-            string damageTypeLabel = "";
-
-            foreach (DamageType damageType in item.BaseItem.WeaponType)
-              damageTypeLabel += $"{ItemUtils.DisplayDamageType(damageType)} / ";
-
             rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() 
             {
               new NuiSpacer(),
@@ -146,7 +141,7 @@ namespace NWN.Systems
               new NuiSpacer(),
               new NuiButtonImage("ir_sell02") { Height = 35, Width = 35, Tooltip = "Type de dégâts" },
               new NuiSpacer() { Width = 5 },
-              new NuiLabel(damageTypeLabel.Remove(damageTypeLabel.Length -2 )) { Height = 35, Width = 100, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle },
+              new NuiLabel(ItemUtils.DisplayDamageType(item)) { Height = 35, Width = 100, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle },
               new NuiSpacer(),
               new NuiButtonImage("weight") { Height = 35, Width = 35, Tooltip = "Poids" },
               new NuiSpacer() { Width = 5 },
