@@ -234,7 +234,46 @@ namespace NWN.Systems
           Utils.LogMessageToDMs($"{e.Message}\n\n{e.StackTrace}");
         }
       }
-      public CraftJob(Player player, NwItem item, NwSpell spell, int index, JobType jobType) // Enchantement
+      public CraftJob(Player player, NwItem item, NwSpell spell, JobType jobType) // Enchantement NEW => Inscription
+      {
+        try
+        {
+          icon = spell.IconResRef;
+          type = jobType;
+
+          remainingTime = ItemUtils.GetBaseItemCost(item) * 10 * SkillSystem.learnableDictionary[Spells2da.spellTable.GetRow(spell.Id).inscriptionSkill].multiplier;
+
+          if (player.learnableSkills.ContainsKey(CustomSkill.Enchanteur)) // TODO : Le temps doit diminuer en fonction de l'entrainement du perso dans la catégorie d'inscription
+            remainingTime *= player.learnableSkills[CustomSkill.Enchanteur].bonusReduction;
+
+          originalSerializedItem = item.Serialize().ToBase64EncodedString();
+
+          NwItem enchantedItem = item.Clone(NwModule.Instance.StartingLocation);
+
+          enchantedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value -= 1;
+          if (enchantedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value <= 0)
+            enchantedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Delete();
+
+          int i = 0;
+
+          while (enchantedItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasValue && i < item.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value)
+            i++;
+
+          if (i >= item.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value)
+            LogUtils.LogMessage($"Inscription {player.oid.LoginCreature.Name} - {spell.Name.ToString()} - {item.Name} - Impossible de trouver un slot valide libre", LogUtils.LogType.Craft);
+
+          enchantedItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value = spell.Id;
+
+          item.Destroy();
+          DelayItemSerialization(enchantedItem);
+          player.oid.ApplyInstantVisualEffectToObject((VfxType)832, player.oid.ControlledCreature);
+        }
+        catch (Exception e)
+        {
+          Utils.LogMessageToDMs($"{e.Message}\n\n{e.StackTrace}");
+        }
+      }
+      public CraftJob(Player player, NwItem item, NwSpell spell, int index, JobType jobType) // Enchantement OLD
       {
         try
         {

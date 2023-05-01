@@ -130,7 +130,7 @@
     public const int Adepte = 50562;
     public const int Barbelé = 50563;
     public const int Atrocité = 50564;
-    public const int Infirme = 50565;
+    public const int Handicapant = 50565;
     public const int Pesanteur = 50566;
     public const int Venimeuse = 50567;
     public const int Mutisme = 50568;
@@ -141,6 +141,7 @@
     public const int PourfendeurAnimal = 50573;
     public const int PourfendeurReptilien = 50574;
     public const int PourfendeurVermine = 50575;
+    public const int Défense = 50576;
 
 
     // BOUCLIER
@@ -163,7 +164,7 @@
     public const int lEnigmeDelAcier = 51016;
     public const int PasLeVisage = 51017;
     public const int PortéParLeVent = 51018;
-    public const int SolideCommeLeRoc = 51019;
+    public const int CommeUnRoc = 51019;
     public const int Illumination = 51020;
     public const int ChevaucheLaTempête = 51021;
     public const int RepousseHalfelin = 51022;
@@ -204,18 +205,18 @@
     public const int Invocateur = 51506;
     public const int Belliciste = 51507;
     public const int LaMeilleureDesRaisons = 51508;
-    public const int DeDifficultéAOpportunité = 51509;
+    public const int Opportuniste = 51509;
     public const int Clarté = 51510;
     public const int Pureté = 51511;
     public const int Récupération = 51512;
     public const int Cicatrisant = 51513;
     public const int Ardeur = 51514;
-    public const int Mitrhidate = 51515;
+    public const int Mithridate = 51515;
     public const int Coagulant = 51516;
     public const int Hardiesse = 51517;
     public const int Survivant = 51518;
     public const int Rayonnant = 51519;
-    public const int Résilence = 51519;
+    public const int Résilence = 51520;
 
     // ANY ITEM
     public const int LaBonneMesure = 52000;

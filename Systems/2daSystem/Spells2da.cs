@@ -8,12 +8,14 @@ namespace NWN.Systems
     public int RowIndex { get; init; }
     public int energyCost { get; private set; }
     public int cooldown { get; private set; }
+    public int inscriptionSkill { get; private set; }
 
     public void InterpretEntry(TwoDimArrayEntry entry)
     {
       energyCost = entry.GetInt("ImmunityType").GetValueOrDefault(0);
       cooldown = entry.GetInt("ItemImmunity").GetValueOrDefault(0);
-      
+      inscriptionSkill = cooldown;
+
       StrRef tlkEntry = entry.GetStrRef("Name").GetValueOrDefault(StrRef.FromCustomTlk(0));
 
       if (tlkEntry.Id > 0 && string.IsNullOrEmpty(tlkEntry.ToString()))

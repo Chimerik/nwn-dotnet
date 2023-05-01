@@ -30,12 +30,12 @@ namespace NWN.Systems
 
       if (result == null || result.Count < 1)
       {
-        Dictionary<LootSystem.LootQuality, List<string>> newLootDico = new();
+        Dictionary<LootQuality, List<string>> newLootDico = new();
 
-        foreach (LootSystem.LootQuality category in (LootSystem.LootQuality[])Enum.GetValues(typeof(LootSystem.LootQuality)))
+        foreach (LootQuality category in (LootQuality[])Enum.GetValues(typeof(LootQuality)))
         {
           newLootDico.Add(category, new List<string>());
-          LootSystem.lootDictionary.Add(category, new List<NwItem>());
+          lootDictionary.Add(category, new List<NwItem>());
         }
 
         await SqLiteUtils.InsertQueryAsync("lootSystem",
@@ -45,14 +45,14 @@ namespace NWN.Systems
       }
 
       string serializedLoots = result.FirstOrDefault()[0];
-      Dictionary<LootSystem.LootQuality, List<string>> serializedLootDico = new();
+      Dictionary<LootQuality, List<string>> serializedLootDico = new();
 
       await Task.Run(() =>
       {
         if (string.IsNullOrEmpty(serializedLoots) || serializedLoots == "null")
           return;
 
-        serializedLootDico = JsonConvert.DeserializeObject<Dictionary<LootSystem.LootQuality, List<string>>>(serializedLoots);
+        serializedLootDico = JsonConvert.DeserializeObject<Dictionary<LootQuality, List<string>>>(serializedLoots);
       });
 
       foreach (var entry in serializedLootDico)
@@ -211,7 +211,7 @@ namespace NWN.Systems
       }
       else if (dropChance < (Config.baseCreatureDropChance + 2 * areaLevel) * 2) // Normal Creature Item Drop
       {
-        NwItem lootItem = CreateLootItem(areaLevel);
+        //NwItem lootItem = CreateLootItem(areaLevel);
       }
       else if(dropChance  < Config.baseCreatureDropChance + 2 * areaLevel) // Normal Creature Gold Drop
       {

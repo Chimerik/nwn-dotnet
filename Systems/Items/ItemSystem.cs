@@ -97,6 +97,14 @@ namespace NWN.Systems
       NwItem oItem = onItemUse.Item;
       NwGameObject oTarget = onItemUse.TargetObject;
 
+
+      if(oItem.BaseItem.ItemType == BaseItemType.SpellScroll)
+      {
+        onItemUse.PreventUseItem = true;
+        oPC.ControllingPlayer?.SendServerMessage("Les parchemins ne peuvent être utilisés qu'à but d'apprentissage", ColorConstants.Red);
+        return;
+      }
+
       if (!PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player) || oItem == null)
         return;
 

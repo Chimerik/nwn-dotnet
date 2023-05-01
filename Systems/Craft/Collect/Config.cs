@@ -33,29 +33,21 @@ namespace NWN.Systems.Craft.Collect
       switch (craftedItem.BaseItem.ItemType)
       {
         case BaseItemType.Armor: return GetArmorProperties(craftedItem, grade);
-        case BaseItemType.SmallShield: return GetSmallShieldProperties(grade);
-        case BaseItemType.LargeShield: return GetLargeShieldProperties(grade);
-        case BaseItemType.TowerShield: return GetTowerShieldProperties(grade);
+        case BaseItemType.SmallShield: return GetSmallShieldProperties(craftedItem, grade);
+        case BaseItemType.LargeShield: return GetLargeShieldProperties(craftedItem, grade);
+        case BaseItemType.TowerShield: return GetTowerShieldProperties(craftedItem, grade);
         case BaseItemType.Helmet:
         case BaseItemType.Cloak:
         case BaseItemType.Boots:
         case BaseItemType.Gloves:
         case BaseItemType.Bracer:
-        case BaseItemType.Belt: return GetArmorPartProperties();
+        case BaseItemType.Belt: return GetArmorPartProperties(craftedItem);
       }
 
       switch (itemCategory)
       {
         case ItemUtils.ItemCategory.CraftTool:
           return GetToolProperties(craftedItem, grade);
-        case ItemUtils.ItemCategory.OneHandedMeleeWeapon:
-          return GetOneHandedMeleeWeaponProperties();
-        case ItemUtils.ItemCategory.TwoHandedMeleeWeapon:
-          return GetTwoHandedMeleeWeaponProperties();
-        case ItemUtils.ItemCategory.RangedWeapon:
-          return GetRangedWeaponProperties();
-        case ItemUtils.ItemCategory.Ammunition:
-          return GetAmmunitionProperties();
       }
 
       SetWeaponDamage(craftedItem, grade - 1);
@@ -98,6 +90,7 @@ namespace NWN.Systems.Craft.Collect
         case 0:
         case 1:
           badArmor.Add(ItemProperty.ACBonus(craftedItem.BaseACValue * 3 + 7 * grade));
+          craftedItem.GetObjectVariable<LocalVariableInt>("_BASE_ARMOR").Value = craftedItem.BaseACValue * 3 + 7 * grade;
 
           switch (craftedItem.BaseACValue)
           {
@@ -106,32 +99,41 @@ namespace NWN.Systems.Craft.Collect
             case 3:
             case 4:
               badArmor.Add(ItemProperty.ACBonusVsDmgType((IPDamageType)14, craftedItem.BaseACValue * 5));
+              craftedItem.GetObjectVariable<LocalVariableInt>("_BASE_ELEMENTAL_ARMOR").Value = craftedItem.BaseACValue * 5;
               break;
             case 5:
               badArmor.Add(ItemProperty.ACBonusVsDmgType((IPDamageType)14, 30));
+              craftedItem.GetObjectVariable<LocalVariableInt>("_BASE_ELEMENTAL_ARMOR").Value = 30;
               badArmor.Add(ItemProperty.ACBonusVsDmgType((IPDamageType)4, 5));
+              craftedItem.GetObjectVariable<LocalVariableInt>("_BASE_PHYSICAL_ARMOR").Value = 5;
               break;
             case 6:
               badArmor.Add(ItemProperty.ACBonusVsDmgType((IPDamageType)4, 10));
+              craftedItem.GetObjectVariable<LocalVariableInt>("_BASE_PHYSICAL_ARMOR").Value = 10;
               break;
             case 7:
               badArmor.Add(ItemProperty.ACBonusVsDmgType((IPDamageType)4, 15));
+              craftedItem.GetObjectVariable<LocalVariableInt>("_BASE_PHYSICAL_ARMOR").Value = 15;
               break;
             case 8:
               badArmor.Add(ItemProperty.ACBonusVsDmgType((IPDamageType)4, 20));
+              craftedItem.GetObjectVariable<LocalVariableInt>("_BASE_PHYSICAL_ARMOR").Value = 20;
               break;
           }
           break;
 
         default:
           badArmor.Add(ItemProperty.ACBonus(7));
+          craftedItem.GetObjectVariable<LocalVariableInt>("_BASE_ARMOR").Value += 7;
           break;
       }
 
       return badArmor;
     }
-    public static List<ItemProperty> GetSmallShieldProperties(int materialTier)
+    public static List<ItemProperty> GetSmallShieldProperties(NwItem craftedItem, int materialTier)
     {
+      craftedItem.GetObjectVariable<LocalVariableInt>("_BASE_PIERCING_ARMOR").Value = 5;
+
       List<ItemProperty> shield = new List<ItemProperty>();
 
       switch (materialTier)
@@ -139,17 +141,21 @@ namespace NWN.Systems.Craft.Collect
         case 0:
         case 1:
           shield.Add(ItemProperty.ACBonus(2 + 2 * materialTier));
+          craftedItem.GetObjectVariable<LocalVariableInt>("_BASE_ARMOR").Value = 2 + 2 * materialTier;
           shield.Add(ItemProperty.ACBonusVsDmgType(IPDamageType.Piercing, 5));
           break;
         default:
           shield.Add(ItemProperty.ACBonus(2));
+          craftedItem.GetObjectVariable<LocalVariableInt>("_BASE_ARMOR").Value += 2;
           break;
       }
 
       return shield;
     }
-    public static List<ItemProperty> GetLargeShieldProperties(int materialTier)
+    public static List<ItemProperty> GetLargeShieldProperties(NwItem craftedItem, int materialTier)
     {
+      craftedItem.GetObjectVariable<LocalVariableInt>("_BASE_PIERCING_ARMOR").Value = 10;
+
       List<ItemProperty> shield = new List<ItemProperty>();
 
       switch (materialTier)
@@ -157,17 +163,21 @@ namespace NWN.Systems.Craft.Collect
         case 0:
         case 1:
           shield.Add(ItemProperty.ACBonus(4 + 2 * materialTier));
+          craftedItem.GetObjectVariable<LocalVariableInt>("_BASE_ARMOR").Value = 4 + 2 * materialTier;
           shield.Add(ItemProperty.ACBonusVsDmgType(IPDamageType.Piercing, 10));
           break;
         default:
           shield.Add(ItemProperty.ACBonus(2));
+          craftedItem.GetObjectVariable<LocalVariableInt>("_BASE_ARMOR").Value += 2;
           break;
       }
 
       return shield;
     }
-    public static List<ItemProperty> GetTowerShieldProperties(int materialTier)
+    public static List<ItemProperty> GetTowerShieldProperties(NwItem craftedItem, int materialTier)
     {
+      craftedItem.GetObjectVariable<LocalVariableInt>("_BASE_PIERCING_ARMOR").Value = 40;
+
       List<ItemProperty> shield = new List<ItemProperty>();
 
       switch (materialTier)
@@ -175,10 +185,12 @@ namespace NWN.Systems.Craft.Collect
         case 0:
         case 1:
           shield.Add(ItemProperty.ACBonus(2 * materialTier));
+          craftedItem.GetObjectVariable<LocalVariableInt>("_BASE_ARMOR").Value = 2 * materialTier;
           shield.Add(ItemProperty.ACBonusVsDmgType(IPDamageType.Piercing, 40));
           break;
         default:
           shield.Add(ItemProperty.ACBonus(2));
+          craftedItem.GetObjectVariable<LocalVariableInt>("_BASE_ARMOR").Value += 2;
           break;
       }
 
@@ -192,10 +204,10 @@ namespace NWN.Systems.Craft.Collect
 
       return new List<ItemProperty> { ItemProperty.Quality(IPQuality.Unknown) };
     }
-    public static List<ItemProperty> GetOneHandedMeleeWeaponProperties() { return new List<ItemProperty> { ItemProperty.AttackBonus(2) }; }
-    public static List<ItemProperty> GetRangedWeaponProperties() { return new List<ItemProperty> { ItemProperty.AttackBonus(4) }; }
-    public static List<ItemProperty> GetTwoHandedMeleeWeaponProperties() { return new List<ItemProperty> { ItemProperty.AttackBonus(4) }; }
-    public static List<ItemProperty> GetArmorPartProperties() { return new List<ItemProperty> { ItemProperty.ACBonus(7) }; }
-    public static List<ItemProperty> GetAmmunitionProperties() { return new List<ItemProperty> { ItemProperty.DamageBonus(IPDamageType.Piercing, IPDamageBonus.Plus1) }; }
+    public static List<ItemProperty> GetArmorPartProperties(NwItem craftedItem) 
+    {
+      craftedItem.GetObjectVariable<LocalVariableInt>("_BASE_ARMOR").Value += 7;
+      return new List<ItemProperty> { ItemProperty.ACBonus(7) }; 
+    }
   }
 }

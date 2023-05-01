@@ -80,7 +80,7 @@ namespace NWN.Systems
     {
       return (LootableType)lootTypeArray.GetValue(Utils.random.Next(lootTypeArray.Length));
     }
-    private static NwItem CreateLootItem(int areaLevel)
+    /*private static NwItem CreateLootItem(int areaLevel)
     {
       NwItem lootItem;
       LootQuality itemQuality = GetLootQualityFromAreaLevel(areaLevel);
@@ -104,7 +104,7 @@ namespace NWN.Systems
       }
 
       return lootItem;
-    }
+    }*/
     private static NwItem GetEquipementItem(LootQuality itemQuality)
     {
       var lootList = BaseItems2da.lootableEquipement;

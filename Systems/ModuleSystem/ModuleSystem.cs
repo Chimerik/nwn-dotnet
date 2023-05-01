@@ -253,6 +253,11 @@ namespace NWN.Systems
 
       tlkEntry = StrRef.FromCustomTlk(190053);
       tlkEntry.Override = "Saignement";
+
+      tlkEntry = StrRef.FromCustomTlk(1382);
+      tlkEntry.Override = "Souffle de guérison";
+
+      
     }
     /*private static async void ReadGDocLine()
     {

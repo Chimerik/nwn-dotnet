@@ -81,7 +81,6 @@ namespace NWN.Systems
               string id = isSlotUsed ? spell.Id.ToString() : "";
               string spellName = isSlotUsed ? spell.Name.ToString() : "Emplacement d'enchantement libre";
 
-              // TODO : si l'enchantement est désactivé (item ruiné), écrire "Désactivé dans le tooltip" et si possible, une utiliser une icône grisée
               NuiButtonImage slotButton = new NuiButtonImage(icon) { Id = $"spell_{id}", Tooltip = spellName, Height = 40, Width = 40 };
               enchantementSlotsRowChildren.Add(slotButton);
             }
@@ -95,7 +94,7 @@ namespace NWN.Systems
           string weight = item.Weight.ToString();
           string weightTooltip = weight;
           string windowName = item.Name;
-          int nbIP = item.ItemProperties.Count();
+          int nbIP = item.BaseItem.ItemType != BaseItemType.SpellScroll ? item.ItemProperties.Count() : 0;
 
           if (item.StackSize > 1)
           {
@@ -637,8 +636,13 @@ namespace NWN.Systems
         }
         private void LoadIPBindings()
         {
+          if (item.BaseItem.ItemType == BaseItemType.SpellScroll) // On affiche pas les propriétés des parchemins
+            return;
+
           List<string> ipNameList = new();
           List<Color> ipColorList = new();
+
+          GetItemProperties(ipNameList, ipColorList);
 
           foreach (ItemProperty ip in item.ItemProperties)
           {
@@ -762,6 +766,35 @@ namespace NWN.Systems
           }
 
           return true;
+        }
+        private void GetItemProperties(List<string> ipNames, List<Color> ipColors)
+        {
+          switch (item.BaseItem.ItemType)
+          {
+            case BaseItemType.Armor:
+            case BaseItemType.Helmet:
+            case BaseItemType.Cloak:
+            case BaseItemType.Boots:
+            case BaseItemType.Gloves:
+            case BaseItemType.Bracer:
+            case BaseItemType.Belt:
+              ItemUtils.GetArmorProperties(item, ipNames, ipColors);
+              return;
+
+            case BaseItemType.SmallShield:
+            case BaseItemType.LargeShield:
+            case BaseItemType.TowerShield:
+              ItemUtils.GetShieldProperties(item, ipNames, ipColors);
+              return;
+
+            case BaseItemType.Amulet:
+            case BaseItemType.Ring:
+              ItemUtils.GetJewelProperties(item, ipNames, ipColors);
+              return;
+          }
+
+          if (item.GetObjectVariable<LocalVariableInt>("_MIN_WEAPON_DAMAGE").HasValue)
+            ItemUtils.GetWeaponProperties(item, ipNames, ipColors);
         }
       }
     }

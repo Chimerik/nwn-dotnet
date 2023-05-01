@@ -73,6 +73,10 @@ namespace NWN.Systems
 
               break;
 
+            case 895:
+
+              break;
+
             default:
 
               foreach (ItemProperty ip in SpellUtils.enchantementCategories[spell.Id])
