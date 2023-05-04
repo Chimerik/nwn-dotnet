@@ -204,6 +204,17 @@ namespace NWN.Systems
             potion.GetObjectVariable<LocalVariableInt>("_CORE_DURATION").Value = 28800;
 
             potion.BaseGoldValue = 15000;
+            potion.AddGoldValue = 0;
+            potion.Tag = "potion_core_influx";
+
+            potion = await NwItem.Create("potion_cure_frog", shop, 1, "dose_influx_pur");
+            potion.Name = "Dose d'influx pur";
+            potion.Description = "L'influx est substance mystérieuse qu'on trouve plus facilement au sein des profondeurs de Similisse.\n\n" +
+              "Il est certain que nous sommes encore loin d'avoir découvert toutes ses utilités.\n" +
+              "Restez cependant prudent, car si le contact prolongé de cette substance à tendance à rendre la matière malléable et plus facile à travailler, elle rend aussi malléable la chair, les os et les organes, ce qui peut avoir des conséquences désastreuses.";
+
+            potion.BaseGoldValue = 1;
+            potion.AddGoldValue = 0;
             potion.Tag = "potion_core_influx";
 
             break;
@@ -240,6 +251,9 @@ namespace NWN.Systems
         shop.OnClose += StoreSystem.OnCloseGenericStore;
       }
 
+      shop.MarkDown = 0;
+      shop.MarkDown = 0;
+      shop.MarkDownStolen = 0;
       shop.Open(player.oid);
     }
   }

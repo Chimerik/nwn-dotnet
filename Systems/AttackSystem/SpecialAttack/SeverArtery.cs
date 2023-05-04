@@ -17,7 +17,7 @@ namespace NWN.Systems
       }
 
       foreach (var eff in targetCreature.ActiveEffects)
-        if (eff.Tag == "CUSTOM_EFFECT_BLEEDING")
+        if (eff.Tag == "CUSTOM_CONDITION_BLEEDING")
           targetCreature.RemoveEffect(eff);
 
       int duration = 5 + (int)(player.learnableSkills[CustomSkill.SeverArtery].totalPoints * 1.5);

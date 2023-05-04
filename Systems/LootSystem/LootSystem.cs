@@ -142,27 +142,40 @@ namespace NWN.Systems
         UpdateChestTagToLootsDic(oChest);
       }
     }*/
-   /* private async void InitializeLootChestFromScrollArray(NwPlaceable oChest, int[] array)
-    {
-      foreach (int itemPropertyId in array)
-      {
-        NwItem oScroll = await NwItem.Create("spellscroll", oChest, 1, "scroll");
-        NwSpell spellEntry = NwSpell.FromSpellId(NwGameTables.ItemPropertyTable.GetRow(15).SubTypeTable.GetInt(itemPropertyId, "SpellIndex").Value); // 15 = ItemProperty CastSpell
-        oScroll.Name = $"{spellEntry.Name}";
-        oScroll.Description = $"{spellEntry.Description}";
+    /* private async void InitializeLootChestFromScrollArray(NwPlaceable oChest, int[] array)
+     {
+       foreach (int itemPropertyId in array)
+       {
+         NwItem oScroll = await NwItem.Create("spellscroll", oChest, 1, "scroll");
+         NwSpell spellEntry = NwSpell.FromSpellId(NwGameTables.ItemPropertyTable.GetRow(15).SubTypeTable.GetInt(itemPropertyId, "SpellIndex").Value); // 15 = ItemProperty CastSpell
+         oScroll.Name = $"{spellEntry.Name}";
+         oScroll.Description = $"{spellEntry.Description}";
 
-        oScroll.AddItemProperty(ItemProperty.CastSpell((IPCastSpell)itemPropertyId, IPCastSpellNumUses.SingleUse), EffectDuration.Permanent);
-        //oScroll.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
-      }
+         oScroll.AddItemProperty(ItemProperty.CastSpell((IPCastSpell)itemPropertyId, IPCastSpellNumUses.SingleUse), EffectDuration.Permanent);
+         //oScroll.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+       }
 
-      UpdateChestTagToLootsDic(oChest);
-    }
-    private void OnLootConfigContainerClose(PlaceableEvents.OnClose onClose)
-    {
-      UpdateChestTagToLootsDic(onClose.Placeable);
-      UpdateDB(onClose.Placeable, onClose.ClosedBy);
-    }*/
+       UpdateChestTagToLootsDic(oChest);
+     }
+     private void OnLootConfigContainerClose(PlaceableEvents.OnClose onClose)
+     {
+       UpdateChestTagToLootsDic(onClose.Placeable);
+       UpdateDB(onClose.Placeable, onClose.ClosedBy);
+     }*/
     public static void HandleLoot(CreatureEvents.OnDeath onDeath)
+    {
+      NwCreature deadCreature = onDeath.KilledCreature;
+
+      if (deadCreature.Tag.StartsWith("boss_")) // Cas spécifique où la créature est un boss et loot de meilleures récompenses
+      {
+
+      }
+      else // Cas des mobs génériques
+      {
+        // 5 % de chance de drop de
+      }
+    }
+    /*public static void HandleLoot(CreatureEvents.OnDeath onDeath)
     {
       NwCreature oContainer = onDeath.KilledCreature;
 
@@ -201,7 +214,7 @@ namespace NWN.Systems
           }
           else
             Utils.LogMessageToDMs($"AREA - {oContainer.Area.Name} - Unregistered container tag=\"{chest.Tag}\", name : {chest.Name}");
-        }*/
+        }
 
       int dropChance = NwRandom.Roll(Utils.random, 100);
 
@@ -221,6 +234,6 @@ namespace NWN.Systems
         // TODO : Créer un PNJ qui effectue l'extraction d'influx pour une rentabilité dérisoire
         // TODO : Créer des compétences d'extraction d'influx (le job est instant à partir de n'import quel atelier)
       }
-    }
+    }*/
   }
 }

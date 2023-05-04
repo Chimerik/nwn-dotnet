@@ -50,7 +50,7 @@ namespace NWN
 
       foreach (var eff in creature.ActiveEffects)
       {
-        if (eff.Tag == "CUSTOM_EFFECT_BLEEDING")
+        if (eff.Tag == "CUSTOM_CONDITION_BLEEDING")
           healthRegen -= 3;
         else if (eff.Tag.StartsWith("CUSTOM_EFFECT_REGEN_"))
         {

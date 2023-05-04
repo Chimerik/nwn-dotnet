@@ -242,11 +242,7 @@ namespace NWN.Systems
           type = jobType;
 
           Learnable learnable = SkillSystem.learnableDictionary[Spells2da.spellTable.GetRow(spell.Id).inscriptionSkill];
-          remainingTime = ItemUtils.GetBaseItemCost(item) * 10 * learnable.multiplier;
-
-          if (player.learnableSkills.ContainsKey(CustomSkill.Enchanteur)) // TODO : Le temps doit diminuer en fonction de l'entrainement du perso dans la catégorie d'inscription
-            remainingTime *= player.learnableSkills[CustomSkill.Enchanteur].bonusReduction;
-
+          remainingTime = GetInscriptionTimeCost(learnable, player, item);
           originalSerializedItem = item.Serialize().ToBase64EncodedString();
 
           NwItem enchantedItem = item.Clone(NwModule.Instance.StartingLocation);
@@ -285,8 +281,8 @@ namespace NWN.Systems
 
           remainingTime = ItemUtils.GetBaseItemCost(item) * 10 * spell.InnateSpellLevel;
 
-          if (player.learnableSkills.ContainsKey(CustomSkill.Enchanteur))
-            remainingTime *= player.learnableSkills[CustomSkill.Enchanteur].bonusReduction;
+          //if (player.learnableSkills.ContainsKey(CustomSkill.Enchanteur))
+            //remainingTime *= player.learnableSkills[CustomSkill.Enchanteur].bonusReduction;
 
           originalSerializedItem = item.Serialize().ToBase64EncodedString();
 
@@ -710,7 +706,7 @@ namespace NWN.Systems
         player.oid.SendServerMessage($"Vous venez de terminer l'enchantement de : {item.Name.ColorString(ColorConstants.White)}", ColorConstants.Orange);
         player.oid.ApplyInstantVisualEffectToObject((VfxType)1055, player.oid.ControlledCreature);
 
-        int enchanteurChanceuxLevel = player.learnableSkills.ContainsKey(CustomSkill.EnchanteurChanceux) ? player.learnableSkills[CustomSkill.EnchanteurChanceux].totalPoints : 0;
+        /*int enchanteurChanceuxLevel = player.learnableSkills.ContainsKey(CustomSkill.EnchanteurChanceux) ? player.learnableSkills[CustomSkill.EnchanteurChanceux].totalPoints : 0;
 
         if (NwRandom.Roll(Utils.random, 100) <= enchanteurChanceuxLevel)
         {
@@ -737,7 +733,7 @@ namespace NWN.Systems
           }
           
           player.oid.SendServerMessage("Votre talent d'enchanteur vous a permis d'obtenir un effet plus puissant !", ColorConstants.Orange);
-        }
+        }*/
       }
       else // cancelled
       {
@@ -962,6 +958,18 @@ namespace NWN.Systems
               break;
           }
       }
+    }
+    private static double GetInscriptionTimeCost(Learnable learnable, Player player, NwItem item)
+    {
+      double remainingTime = ItemUtils.GetBaseItemCost(item) * 10 * learnable.multiplier;
+
+      return item.BaseItem.ItemType switch
+      {
+        BaseItemType.SmallShield or BaseItemType.LargeShield or BaseItemType.TowerShield => remainingTime * player.GetShieldInscriptionSkillScore(),
+        BaseItemType.Armor or BaseItemType.Helmet or BaseItemType.Cloak or BaseItemType.Boots or BaseItemType.Gloves or BaseItemType.Bracer or BaseItemType.Belt => remainingTime * player.GetArmorInscriptionSkillScore(),
+        BaseItemType.Amulet or BaseItemType.Ring => remainingTime * player.GetOrnamentInscriptionSkillScore(),
+        _ => remainingTime * player.GetWeaponInscriptionSkillScore(),
+      };
     }
   }
 }

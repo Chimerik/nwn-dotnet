@@ -10,6 +10,7 @@ namespace NWN.Systems
   {
     private bool activable { get; }
     public SkillSystem.Category category { get; }
+    public SkillSystem.Type type { get; }
     private Func<PlayerSystem.Player, int, bool> skillEffect { get; }
     public Dictionary<Ability, int> abilityPrerequisites { get; }
     public Dictionary<int, int> skillPrerequisites { get; }
@@ -18,6 +19,7 @@ namespace NWN.Systems
     public int totalPoints { get { return currentLevel + bonusPoints; } }
     public double bonusMultiplier { get { return 1 + (totalPoints / 100); } }
     public double bonusReduction { get { return 1 - (totalPoints / 100); } }
+
 
     public LearnableSkill(int id, string name, string description, SkillSystem.Category category, string icon, int maxLevel, int multiplier, Ability primaryAbility,
       Ability secondaryAbility, bool activable = false, Func<PlayerSystem.Player, int, bool> skillEffect = null, Dictionary<Ability, int> abilityPrerequisites = null,

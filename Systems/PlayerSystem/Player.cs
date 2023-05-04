@@ -1064,7 +1064,6 @@ namespace NWN.Systems
           "forge" => CustomSkill.Blacksmith,
           "scierie" => CustomSkill.Woodworker,
           "tannerie" => CustomSkill.Tanner,
-          "enchant" => CustomSkill.Enchanteur,
           "alchemy" => CustomSkill.Alchemist,
           _ => -1,
         };
@@ -1362,6 +1361,151 @@ namespace NWN.Systems
              .Where(i => i.Tag == "blueprint" && i.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value == (int)item.BaseItem.ItemType)
              .OrderByDescending(i => i.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value)
              .ThenByDescending(i => i.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_TIME_EFFICIENCY").Value).FirstOrDefault();
+      }
+      public double GetShieldInscriptionSkillScore()
+      {
+        double skillScore = 1;
+
+        if (learnableSkills.ContainsKey(CustomSkill.CalligrapheBlindeur))
+          skillScore -= learnableSkills[CustomSkill.CalligrapheBlindeur].totalPoints * 2 / 100;
+
+        if (learnableSkills.ContainsKey(CustomSkill.CalligrapheBlindeurExpert))
+          skillScore -= learnableSkills[CustomSkill.CalligrapheBlindeurExpert].totalPoints * 2 / 100;
+
+        if (learnableSkills.ContainsKey(CustomSkill.CalligrapheBlindeurMaitre))
+          skillScore -= learnableSkills[CustomSkill.CalligrapheBlindeurMaitre].totalPoints * 3 / 100;
+
+        if (learnableSkills.ContainsKey(CustomSkill.CalligrapheBlindeurScience))
+          skillScore -= learnableSkills[CustomSkill.CalligrapheBlindeurScience].totalPoints * 3 / 100;
+
+        return skillScore;
+      }
+      public double GetArmorInscriptionSkillScore()
+      {
+        double skillScore = 1;
+
+        if (learnableSkills.ContainsKey(CustomSkill.CalligrapheArmurier))
+          skillScore -= learnableSkills[CustomSkill.CalligrapheArmurier].totalPoints * 2 / 100;
+
+        if (learnableSkills.ContainsKey(CustomSkill.CalligrapheArmurierExpert))
+          skillScore -= learnableSkills[CustomSkill.CalligrapheArmurierExpert].totalPoints * 2 / 100;
+
+        if (learnableSkills.ContainsKey(CustomSkill.CalligrapheArmurierMaitre))
+          skillScore -= learnableSkills[CustomSkill.CalligrapheArmurierMaitre].totalPoints * 3 / 100;
+
+        if (learnableSkills.ContainsKey(CustomSkill.CalligrapheArmurierScience))
+          skillScore -= learnableSkills[CustomSkill.CalligrapheArmurierScience].totalPoints * 3 / 100;
+
+        return skillScore;
+      }
+      public double GetOrnamentInscriptionSkillScore()
+      {
+        double skillScore = 1;
+
+        if (learnableSkills.ContainsKey(CustomSkill.CalligrapheCiseleur))
+          skillScore -= learnableSkills[CustomSkill.CalligrapheCiseleur].totalPoints * 2 / 100;
+
+        if (learnableSkills.ContainsKey(CustomSkill.CalligrapheCiseleurExpert))
+          skillScore -= learnableSkills[CustomSkill.CalligrapheCiseleurExpert].totalPoints * 2 / 100;
+
+        if (learnableSkills.ContainsKey(CustomSkill.CalligrapheCiseleurMaitre))
+          skillScore -= learnableSkills[CustomSkill.CalligrapheCiseleurMaitre].totalPoints * 3 / 100;
+
+        if (learnableSkills.ContainsKey(CustomSkill.CalligrapheCiseleurScience))
+          skillScore -= learnableSkills[CustomSkill.CalligrapheCiseleurScience].totalPoints * 3 / 100;
+
+        return skillScore;
+      }
+      public double GetWeaponInscriptionSkillScore()
+      {
+        double skillScore = 1;
+
+        if (learnableSkills.ContainsKey(CustomSkill.CalligrapheCoutelier))
+          skillScore -= learnableSkills[CustomSkill.CalligrapheCoutelier].totalPoints * 2 / 100;
+
+        if (learnableSkills.ContainsKey(CustomSkill.CalligrapheCoutelierExpert))
+          skillScore -= learnableSkills[CustomSkill.CalligrapheCoutelierExpert].totalPoints * 2 / 100;
+
+        if (learnableSkills.ContainsKey(CustomSkill.CalligrapheCoutelierMaitre))
+          skillScore -= learnableSkills[CustomSkill.CalligrapheCoutelierMaitre].totalPoints * 3 / 100;
+
+        if (learnableSkills.ContainsKey(CustomSkill.CalligrapheCoutelierScience))
+          skillScore -= learnableSkills[CustomSkill.CalligrapheCoutelierScience].totalPoints * 3 / 100;
+
+        return skillScore;
+      }
+      public int GetAirMagicSkillScore()
+      {
+        int skillScore = 0;
+
+        if (learnableSkills.ContainsKey(CustomSkill.AirMagic))
+          skillScore += learnableSkills[CustomSkill.AirMagic].totalPoints;
+
+        if (learnableSkills.ContainsKey(CustomSkill.AirMagicExpert))
+          skillScore += learnableSkills[CustomSkill.AirMagicExpert].totalPoints;
+
+        if (learnableSkills.ContainsKey(CustomSkill.AirMagicMaster))
+          skillScore += learnableSkills[CustomSkill.AirMagicMaster].totalPoints;
+
+        if (learnableSkills.ContainsKey(CustomSkill.AirMagicScience))
+          skillScore += learnableSkills[CustomSkill.AirMagicScience].totalPoints;
+
+        return skillScore;
+      }
+
+      public int GetFireMagicSkillScore()
+      {
+        int skillScore = 0;
+
+        if (learnableSkills.ContainsKey(CustomSkill.FireMagic))
+          skillScore += learnableSkills[CustomSkill.FireMagic].totalPoints;
+
+        if (learnableSkills.ContainsKey(CustomSkill.FireMagicExpert))
+          skillScore += learnableSkills[CustomSkill.FireMagicExpert].totalPoints;
+
+        if (learnableSkills.ContainsKey(CustomSkill.FireMagicMaster))
+          skillScore += learnableSkills[CustomSkill.FireMagicMaster].totalPoints;
+
+        if (learnableSkills.ContainsKey(CustomSkill.FireMagicScience))
+          skillScore += learnableSkills[CustomSkill.FireMagicScience].totalPoints;
+
+        return skillScore;
+      }
+      public int GetEarthMagicSkillScore()
+      {
+        int skillScore = 0;
+
+        if (learnableSkills.ContainsKey(CustomSkill.EarthMagic))
+          skillScore += learnableSkills[CustomSkill.EarthMagic].totalPoints;
+
+        if (learnableSkills.ContainsKey(CustomSkill.EarthMagicExpert))
+          skillScore += learnableSkills[CustomSkill.EarthMagicExpert].totalPoints;
+
+        if (learnableSkills.ContainsKey(CustomSkill.EarthMagicMaster))
+          skillScore += learnableSkills[CustomSkill.EarthMagicMaster].totalPoints;
+
+        if (learnableSkills.ContainsKey(CustomSkill.EarthMagicScience))
+          skillScore += learnableSkills[CustomSkill.EarthMagicScience].totalPoints;
+
+        return skillScore;
+      }
+      public int GetWaterMagicSkillScore()
+      {
+        int skillScore = 0;
+
+        if (learnableSkills.ContainsKey(CustomSkill.WaterMagic))
+          skillScore += learnableSkills[CustomSkill.WaterMagic].totalPoints;
+
+        if (learnableSkills.ContainsKey(CustomSkill.WaterMagicExpert))
+          skillScore += learnableSkills[CustomSkill.WaterMagicExpert].totalPoints;
+
+        if (learnableSkills.ContainsKey(CustomSkill.WaterMagicMaster))
+          skillScore += learnableSkills[CustomSkill.WaterMagicMaster].totalPoints;
+
+        if (learnableSkills.ContainsKey(CustomSkill.WaterMagicScience))
+          skillScore += learnableSkills[CustomSkill.WaterMagicScience].totalPoints;
+
+        return skillScore;
       }
     }
   }

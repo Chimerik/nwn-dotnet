@@ -21,7 +21,7 @@ namespace NWN.Systems
 
       bleeding = Effect.RunAction(null/*scriptHandleFactory.CreateUniqueHandler(ApplyBleeding)*/, null, scriptHandleFactory.CreateUniqueHandler(IntervalBleeding), TimeSpan.FromSeconds(1));
       bleeding = Effect.LinkEffects(bleeding, Effect.Icon((NwGameTables.EffectIconTable.GetRow(132))));
-      bleeding.Tag = "CUSTOM_EFFECT_BLEEDING";
+      bleeding.Tag = "CUSTOM_CONDITION_BLEEDING";
       bleeding.SubType = EffectSubType.Supernatural;
     }
 
@@ -815,8 +815,6 @@ namespace NWN.Systems
         if(adrenalineCharge > 0)
           foreach (var feat in ctx.oTarget.Feats)
           {
-            ModuleSystem.Log.Info($"{feat.Name.ToString()} : {feat.MaxLevel}");
-            ModuleSystem.Log.Info($"Adrénaline : {ctx.oTarget.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{feat.Id}").Value}");
             if (feat.MaxLevel > 0 && feat.MaxLevel < 255 && ctx.oTarget.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{feat.Id}").Value < feat.MaxLevel)
             {
               ctx.oTarget.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{feat.Id}").Value += adrenalineCharge;

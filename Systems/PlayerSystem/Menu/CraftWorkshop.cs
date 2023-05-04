@@ -227,17 +227,17 @@ namespace NWN.Systems
                       break;
                     case Tab.Surcharge:
 
-                      int successChange = player.learnableSkills.ContainsKey(CustomSkill.SurchargeArcanique) ? player.learnableSkills[CustomSkill.SurchargeArcanique].totalPoints : 0;
-                      int controlLevel = player.learnableSkills.ContainsKey(CustomSkill.SurchargeControlee) ? player.learnableSkills[CustomSkill.SurchargeControlee].totalPoints : 0;
+                      int successChange = player.learnableSkills.ContainsKey(CustomSkill.CalligraphieSurcharge) ? player.learnableSkills[CustomSkill.CalligraphieSurcharge].totalPoints : 0;
+                      int controlLevel = player.learnableSkills.ContainsKey(CustomSkill.CalligraphieSurchargeControlee) ? player.learnableSkills[CustomSkill.CalligraphieSurchargeControlee].totalPoints : 0;
 
                       int dice = NwRandom.Roll(Utils.random, 100);
 
-                      if (dice <= successChange)
+                      if (dice <= 2 * successChange)
                       {
                         item.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
                         player.oid.SendServerMessage($"En forçant à l'aide de votre puissance brute, vous parvenez à ajouter un emplacement de sort supplémentaire à votre {StringUtils.ToWhitecolor(item.Name)} !", ColorConstants.Cyan);
                       }
-                      else if (dice > controlLevel)
+                      else if (dice > 10 * controlLevel)
                       {
                         item.Destroy();
                         player.oid.SendServerMessage($"Vous forcez, forcez, et votre {StringUtils.ToWhitecolor(item.Name)} se brise sous l'excès infligé.", ColorConstants.Purple);
@@ -484,15 +484,15 @@ namespace NWN.Systems
 
           foreach (NwItem item in items)
           {
-            int successChance = player.learnableSkills.ContainsKey(CustomSkill.SurchargeArcanique) ? player.learnableSkills[CustomSkill.SurchargeArcanique].totalPoints : 0;
-            int controlLevel = player.learnableSkills.ContainsKey(CustomSkill.SurchargeControlee) ? player.learnableSkills[CustomSkill.SurchargeControlee].totalPoints : 0;
+            int successChance = player.learnableSkills.ContainsKey(CustomSkill.CalligraphieSurcharge) ? player.learnableSkills[CustomSkill.CalligraphieSurcharge].totalPoints : 0;
+            int controlLevel = player.learnableSkills.ContainsKey(CustomSkill.CalligraphieSurchargeControlee) ? player.learnableSkills[CustomSkill.CalligraphieSurchargeControlee].totalPoints : 0;
 
             itemNamesList.Add($"{item.Name} - Surcharger");
             iconList.Add("overdrive");
 
             blueprintMEsList.Add($"{item.Name} - Emplacement +1");
-            blueprintTEsList.Add($"Réussite : {successChance} % - Perte {100 - (controlLevel + successChance)} %");
-            enabledList.Add(player.learnableSkills.ContainsKey(CustomSkill.SurchargeArcanique));
+            blueprintTEsList.Add($"Réussite : {successChance} % - Perte {100 - (10 * controlLevel + 2 * successChance)} %");
+            enabledList.Add(player.learnableSkills.ContainsKey(CustomSkill.CalligraphieSurcharge));
           }
 
           blueprintNames.SetBindValues(player.oid, nuiToken.Token, itemNamesList);

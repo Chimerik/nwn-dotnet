@@ -453,17 +453,17 @@
     public const int RecyclerFast = 20335;
     public const int RecyclerExpert = 20336;
 
-    public const int SurchargeArcanique = 20337;
-    public const int SurchargeControlee = 20338;
+    public const int CalligraphieSurcharge = 20337;
+    public const int CalligraphieSurchargeControlee = 20338;
 
     public const int Repair = 20339;
     public const int RepairFast = 20340;
     public const int RepairExpert = 20341;
     public const int RepairCareful = 20342;
 
-    public const int Enchanteur = 20343;
-    public const int EnchanteurExpert = 20344;
-    public const int EnchanteurChanceux = 20345;
+    public const int CalligrapheArmurier = 20343;
+    public const int CalligrapheArmurierMaitre = 20344;
+    public const int CalligrapheArmurierScience = 20345;
 
     public const int CombattantPrecautionneux = 20346;
     public const int ImprovedDodge = 20347;
@@ -552,6 +552,40 @@
     public const int DwarvenWarAxeProficiency = 20417;
     public const int WhipProficiency = 20418;
     public const int ShurikenProficiency = 20419;
+
+    public const int CalligrapheArmurierExpert = 20420;
+    public const int CalligrapheBlindeur = 20421;
+    public const int CalligrapheBlindeurMaitre = 20422;
+    public const int CalligrapheBlindeurScience = 20423;
+    public const int CalligrapheBlindeurExpert = 20424;
+    public const int CalligrapheCiseleur = 20425;
+    public const int CalligrapheCiseleurMaitre = 20426;
+    public const int CalligrapheCiseleurScience = 20427;
+    public const int CalligrapheCiseleurExpert = 20428;
+    public const int CalligrapheCoutelier = 20429;
+    public const int CalligrapheCoutelierMaitre = 20430;
+    public const int CalligrapheCoutelierScience = 20431;
+    public const int CalligrapheCoutelierExpert = 20432;
+
+    public const int AirMagic = 20433;
+    public const int AirMagicMaster = 20434;
+    public const int AirMagicScience = 20435;
+    public const int AirMagicExpert = 20436;
+
+    public const int FireMagic = 20437;
+    public const int FireMagicMaster = 20438;
+    public const int FireMagicScience = 20439;
+    public const int FireMagicExpert = 20440;
+
+    public const int EarthMagic = 20441;
+    public const int EarthMagicMaster = 20442;
+    public const int EarthMagicScience = 20443;
+    public const int EarthMagicExpert = 20444;
+
+    public const int WaterMagic = 20445;
+    public const int WaterMagicMaster = 20446;
+    public const int WaterMagicScience = 20447;
+    public const int WaterMagicExpert = 20448;
 
     public const int Invalid = 65535;
   }

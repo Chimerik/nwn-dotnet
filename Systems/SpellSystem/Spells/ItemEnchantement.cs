@@ -1,7 +1,6 @@
-﻿using Anvil.API;
+﻿using System;
+using Anvil.API;
 using Anvil.API.Events;
-
-using NWN.Native.API;
 
 namespace NWN.Systems
 {
@@ -21,9 +20,26 @@ namespace NWN.Systems
         return;
       }
 
-      if (!player.learnableSkills.ContainsKey(CustomSkill.Enchanteur) || player.learnableSkills[CustomSkill.Enchanteur].totalPoints < 1)
+      int skillPoints = 0;
+
+      try
       {
-        player.oid.SendServerMessage("Il est nécessaire de connaître les bases de l'enchantement avant de pouvoir commencer ce travail !", ColorConstants.Red);
+        skillPoints += targetItem.BaseItem.ItemType switch
+        {
+          BaseItemType.SmallShield or BaseItemType.LargeShield or BaseItemType.TowerShield => player.learnableSkills[CustomSkill.CalligrapheBlindeur].totalPoints,
+          BaseItemType.Armor or BaseItemType.Helmet or BaseItemType.Cloak or BaseItemType.Boots or BaseItemType.Gloves or BaseItemType.Bracer or BaseItemType.Belt => player.learnableSkills[CustomSkill.CalligrapheArmurier].totalPoints,
+          BaseItemType.Amulet or BaseItemType.Ring => player.learnableSkills[CustomSkill.CalligrapheCiseleur].totalPoints,
+          _ => player.learnableSkills[CustomSkill.CalligrapheCoutelier].totalPoints,
+        };
+      }
+      catch(Exception)
+      {
+        skillPoints = 0;
+      }
+
+      if(skillPoints < 1) 
+      {
+        player.oid.SendServerMessage($"Il est nécessaire de connaître les bases de la calligraphie sur {targetItem.BaseItem.ItemType} avant de pouvoir commencer ce travail !", ColorConstants.Red);
         return;
       }
 
@@ -33,7 +49,37 @@ namespace NWN.Systems
         return;
       }
 
-      // TODO : ajouter un coût en influx pur au lancement d'une inscription
+      double cost = Math.Pow(2, skillPoints) * 100;
+      int availableInflux = 0;
+
+      foreach (NwItem item in player.oid.LoginCreature.Inventory.Items)
+        if (item.Tag == "dose_influx_pur")
+          availableInflux += item.StackSize;
+
+      if(availableInflux < cost)
+      {
+        player.oid.SendServerMessage($"Il vous manque {(int)cost - availableInflux} dose(s) d'influx pur pour pouvoir commencer ce travail !", ColorConstants.Red);
+        return;
+      }
+
+      foreach (NwItem item in player.oid.LoginCreature.Inventory.Items)
+      {
+        if (item.Tag == "dose_influx_pur")
+        {
+          if (item.StackSize > cost)
+          {
+            item.StackSize -= (int)cost;
+            break;
+          }
+          else if (item.StackSize == cost)
+            item.Destroy();
+          else if (item.StackSize < cost)
+          {
+            item.Destroy();
+            cost -= item.StackSize;
+          }
+        }
+      }
 
       player.craftJob = new PlayerSystem.CraftJob(player, targetItem, onSpellCast.Spell, PlayerSystem.JobType.Enchantement);
 

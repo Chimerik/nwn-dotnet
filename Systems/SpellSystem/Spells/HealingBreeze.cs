@@ -15,7 +15,7 @@ namespace NWN.Systems
         return;
 
       foreach (var eff in onSpellCast.TargetObject.ActiveEffects)
-        if(eff.Tag.StartsWith("CUSTOM_EFFECT_REGEN_HEALING_BREEZE_"))
+        if(eff.Tag.StartsWith("CUSTOM_POSITIVE_SPELL_REGEN_HEALING_BREEZE_"))
           onSpellCast.TargetObject.RemoveEffect(eff);
 
       int regen = ((int)Math.Round(4 + (double)(CreaturePlugin.GetCasterLevelOverride(oCaster, (int)SpellUtils.GetCastingClass(NwSpell.FromSpellType(Spell.Virtue)))) / 3, MidpointRounding.ToEven));
@@ -25,7 +25,7 @@ namespace NWN.Systems
 
       Effect healingBreeze = Effect.RunAction();
       healingBreeze = Effect.LinkEffects(healingBreeze, Effect.Icon(NwGameTables.EffectIconTable.GetRow(130)));
-      healingBreeze.Tag = $"CUSTOM_EFFECT_REGEN_HEALING_BREEZE_{regen}";
+      healingBreeze.Tag = $"CUSTOM_POSITIVE_SPELL_REGEN_HEALING_BREEZE_{regen}";
 
       if (onSpellCast.MetaMagicFeat == MetaMagic.Extend)
         nDuration *= 2; //Duration is +100%      

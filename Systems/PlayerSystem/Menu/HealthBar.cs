@@ -93,7 +93,7 @@ namespace NWN.Systems
           string currentHP = "";
           string pip = "";
 
-          if (player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag == "CUSTOM_EFFECT_BLEEDING"))
+          if (player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag == "CUSTOM_CONDITION_BLEEDING"))
             color.SetBindValue(player.oid, nuiToken.Token, bleedingColor);
           else
             color.SetBindValue(player.oid, nuiToken.Token, ColorConstants.Red);
