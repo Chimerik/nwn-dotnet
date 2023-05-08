@@ -163,7 +163,7 @@ namespace NWN.Systems
 
                 case "itemDeposit":
 
-                  player.oid.SendServerMessage("Sélectionnez les objets de votre inventaire à déposer au coffre.");
+                  player.oid.SendServerMessage("Sélectionnez les objets de votre inventaire à déposer au coffre.", ColorConstants.Orange);
                   player.oid.EnterTargetMode(SelectInventoryItem, ObjectTypes.Item, MouseCursor.PickupDown);
 
                   break;

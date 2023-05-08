@@ -440,54 +440,149 @@ namespace NWN.Systems
     {
       return weaponModelDictionary[baseItem][part];
     }
-    public static void HandleCraftToolDurability(PlayerSystem.Player player, NwItem craftTool, string type, int resourceDurabilitySkill)
+    public static void HandleCraftToolDurability(PlayerSystem.Player player, NwItem craftTool, int type, int resourceDurabilitySkill)
     {
       List<ObjectVariable> localsToRemove = new();
       int slotToAdd = 0;
       int skillPoints = player.learnableSkills.ContainsKey(resourceDurabilitySkill) ? player.learnableSkills[resourceDurabilitySkill].totalPoints * 2 : 0;
-      skillPoints += craftTool.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_{type}_RESIST_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value);
 
-      foreach (var local in craftTool.LocalVariables)
+      for (int i = 0; i < craftTool.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
       {
-        if (!local.Name.StartsWith($"ENCHANTEMENT_CUSTOM_{type}_") || !local.Name.Contains("_DURABILITY") || NwRandom.Roll(Utils.random, 100) < skillPoints)
+        if (craftTool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
           continue;
 
-        LocalVariableInt durabilityVar = (LocalVariableInt)local;
-        if (NwRandom.Roll(Utils.random, 100) < durabilityVar.Value)
-          durabilityVar.Value -= 10;
+        if (craftTool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value == type)
+          skillPoints += 2;
+        else if (craftTool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value == type + 1)
+          skillPoints += 4;
+        else if (craftTool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value == type + 2)
+          skillPoints += 6;
+        else if (craftTool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value == type + 3)
+          skillPoints += 8;
+      }
+
+      for (int i = 0; i < craftTool.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+      {
+        if (craftTool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing || craftTool.GetObjectVariable<LocalVariableInt>($"SLOT{i}_DURABILITY").HasNothing 
+          || NwRandom.Roll(Utils.random, 100) < skillPoints)
+          continue;
+
+        if (NwRandom.Roll(Utils.random, 100) < craftTool.GetObjectVariable<LocalVariableInt>($"SLOT{i}_DURABILITY").Value)
+          craftTool.GetObjectVariable<LocalVariableInt>($"SLOT{i}_DURABILITY").Value -= 10;
         else
         {
-          string[] enchantementArray = local.Name.Split("_");
-
-          switch (enchantementArray[3]) // type de l'enchantement
+          switch (craftTool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
           {
-            case "YIELD": 
-              
-              switch(type)
-              {
-                case "EXTRACTOR": player.oid.SendServerMessage($"L'enchantement d'amélioration de rendement de votre outil est épuisé", ColorConstants.Red); break;
-                case "DETECTOR": player.oid.SendServerMessage($"L'enchantement d'amélioration de sensibilité de votre outil est épuisé", ColorConstants.Red); break;
-                case "CRAFT": player.oid.SendServerMessage($"L'enchantement de réduction de coût de matéria de votre outil est épuisé", ColorConstants.Red); break;
-              }
-
+            case CustomInscription.MateriaDetectionDurabilityMinor: 
+            case CustomInscription.MateriaDetectionDurability: 
+            case CustomInscription.MateriaDetectionDurabilityMajor: 
+            case CustomInscription.MateriaDetectionDurabilitySupreme: 
+              player.oid.SendServerMessage($"L'inscription d'amélioration de durabilité de détection de votre {craftTool.Name} est épuisée", ColorConstants.Red); 
               break;
-              
-            case "SPEED": player.oid.SendServerMessage($"L'enchantement d'amélioration de vitesse de votre outil est épuisé", ColorConstants.Red); break;
-            case "QUALITY": player.oid.SendServerMessage($"L'enchantement d'amélioration de précision de votre outil est épuisé", ColorConstants.Red); break;
-            case "ACCURACY": player.oid.SendServerMessage($"L'enchantement d'amélioration de qualité de votre outil est épuisé", ColorConstants.Red); break;
-            case "RESIST": player.oid.SendServerMessage($"L'enchantement d'amélioration de durabilité de votre outil est épuisé", ColorConstants.Red); break;
+
+            case CustomInscription.MateriaDetectionAccuracyMinor:
+            case CustomInscription.MateriaDetectionAccuracy:
+            case CustomInscription.MateriaDetectionAccuracyMajor:
+            case CustomInscription.MateriaDetectionAccuracySupreme:
+              player.oid.SendServerMessage($"L'inscription d'amélioration de précision de détection de votre {craftTool.Name} est épuisée", ColorConstants.Red);
+              break;
+
+            case CustomInscription.MateriaDetectionQualityMinor:
+            case CustomInscription.MateriaDetectionQuality:
+            case CustomInscription.MateriaDetectionQualityMajor:
+            case CustomInscription.MateriaDetectionQualitySupreme:
+              player.oid.SendServerMessage($"L'inscription d'amélioration de qualité de détection de votre {craftTool.Name} est épuisée", ColorConstants.Red);
+              break;
+
+            case CustomInscription.MateriaDetectionReliabilityMinor:
+            case CustomInscription.MateriaDetectionReliability:
+            case CustomInscription.MateriaDetectionReliabilityMajor:
+            case CustomInscription.MateriaDetectionReliabilitySupreme:
+              player.oid.SendServerMessage($"L'inscription d'amélioration de fiabilité de détection de votre {craftTool.Name} est épuisée", ColorConstants.Red);
+              break;
+
+            case CustomInscription.MateriaDetectionSpeedMinor:
+            case CustomInscription.MateriaDetectionSpeed:
+            case CustomInscription.MateriaDetectionSpeedMajor:
+            case CustomInscription.MateriaDetectionSpeedSupreme:
+              player.oid.SendServerMessage($"L'inscription d'amélioration de vitesse de détection de votre {craftTool.Name} est épuisée", ColorConstants.Red);
+              break;
+
+            case CustomInscription.MateriaExtractionDurabilityMinor:
+            case CustomInscription.MateriaExtractionDurability:
+            case CustomInscription.MateriaExtractionDurabilityMajor:
+            case CustomInscription.MateriaExtractionDurabilitySupreme:
+              player.oid.SendServerMessage($"L'inscription d'amélioration de durabilité d'extraction de votre {craftTool.Name} est épuisée", ColorConstants.Red);
+              break;
+
+            case CustomInscription.MateriaExtractionQualityMinor:
+            case CustomInscription.MateriaExtractionQuality:
+            case CustomInscription.MateriaExtractionQualityMajor:
+            case CustomInscription.MateriaExtractionQualitySupreme:
+              player.oid.SendServerMessage($"L'inscription d'amélioration de qualité d'extraction de votre {craftTool.Name} est épuisée", ColorConstants.Red);
+              break;
+
+            case CustomInscription.MateriaExtractionSpeedMinor:
+            case CustomInscription.MateriaExtractionSpeed:
+            case CustomInscription.MateriaExtractionSpeedMajor:
+            case CustomInscription.MateriaExtractionSpeedSupreme:
+              player.oid.SendServerMessage($"L'inscription d'amélioration de vitesse d'extraction, de votre {craftTool.Name} est épuisée", ColorConstants.Red);
+              break;
+
+            case CustomInscription.MateriaExtractionYieldMinor:
+            case CustomInscription.MateriaExtractionYield:
+            case CustomInscription.MateriaExtractionYieldMajor:
+            case CustomInscription.MateriaExtractionYieldSupreme:
+              player.oid.SendServerMessage($"L'inscription d'amélioration de rendement d'extraction, de votre {craftTool.Name} est épuisée", ColorConstants.Red);
+              break;
+
+            case CustomInscription.MateriaProductionDurabilityMinor:
+            case CustomInscription.MateriaProductionDurability:
+            case CustomInscription.MateriaProductionDurabilityMajor:
+            case CustomInscription.MateriaProductionDurabilitySupreme:
+              player.oid.SendServerMessage($"L'inscription d'amélioration de durabilité de production artisanale de votre {craftTool.Name} est épuisée", ColorConstants.Red);
+              break;
+
+            case CustomInscription.MateriaProductionYieldMinor:
+            case CustomInscription.MateriaProductionYield:
+            case CustomInscription.MateriaProductionYieldMajor:
+            case CustomInscription.MateriaProductionYieldSupreme:
+              player.oid.SendServerMessage($"L'inscription d'amélioration d'efficacité de production artisanale de votre {craftTool.Name} est épuisée", ColorConstants.Red);
+              break;
+
+            case CustomInscription.MateriaProductionSpeedMinor:
+            case CustomInscription.MateriaProductionSpeed:
+            case CustomInscription.MateriaProductionSpeedMajor:
+            case CustomInscription.MateriaProductionSpeedSupreme:
+              player.oid.SendServerMessage($"L'inscription d'amélioration de rapidité de production artisanale de votre {craftTool.Name} est épuisée", ColorConstants.Red);
+              break;
+
+            case CustomInscription.MateriaInscriptionDurabilityMinor:
+            case CustomInscription.MateriaInscriptionDurability:
+            case CustomInscription.MateriaInscriptionDurabilityMajor:
+            case CustomInscription.MateriaInscriptionDurabilitySupreme:
+              player.oid.SendServerMessage($"L'inscription d'amélioration de durabilité d'inscription de votre {craftTool.Name} est épuisée", ColorConstants.Red);
+              break;
+
+            case CustomInscription.MateriaInscriptionYieldMinor:
+            case CustomInscription.MateriaInscriptionYield:
+            case CustomInscription.MateriaInscriptionYieldMajor:
+            case CustomInscription.MateriaInscriptionYieldSupreme:
+              player.oid.SendServerMessage($"L'inscription d'amélioration d'efficacité d'inscription de votre {craftTool.Name} est épuisée", ColorConstants.Red);
+              break;
+
+            case CustomInscription.MateriaInscriptionSpeedMinor:
+            case CustomInscription.MateriaInscriptionSpeed:
+            case CustomInscription.MateriaInscriptionSpeedMajor:
+            case CustomInscription.MateriaInscriptionSpeedSupreme:
+              player.oid.SendServerMessage($"L'inscription d'amélioration de rapidité d'inscription de votre {craftTool.Name} est épuisée", ColorConstants.Red);
+              break;
           }
 
-          localsToRemove.Add(craftTool.GetObjectVariable<LocalVariableInt>(local.Name.Replace("_DURABILITY", "")));
-          //DelayedLocalVarDeletion(craftTool.GetObjectVariable<LocalVariableInt>(local.Name.Replace("_DURABILITY", "")));
-          localsToRemove.Add(local);
-          //DelayedLocalVarDeletion(local);
-
-          //craftTool.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
           slotToAdd++;
-          localsToRemove.Add(craftTool.GetObjectVariable<LocalVariableInt>($"SLOT{int.Parse(enchantementArray[5])}"));
-          //DelayedLocalVarDeletion(craftTool.GetObjectVariable<LocalVariableInt>($"SLOT{int.Parse(enchantementArray[5])}"));
-        }
+          localsToRemove.Add(craftTool.GetObjectVariable<LocalVariableInt>($"SLOT{i}_DURABILITY"));
+          localsToRemove.Add(craftTool.GetObjectVariable<LocalVariableInt>($"SLOT{i}"));
+        }   
       }
 
       foreach (var local in localsToRemove)

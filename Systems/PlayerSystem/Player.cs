@@ -45,6 +45,7 @@ namespace NWN.Systems
       public int MaxHP { get => oid.LoginCreature.LevelInfo[0].HitDie + ((oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2); }
       public double energyRegen { get; set; }
       public int healthRegen { get; set; }
+      public bool wasHPGreaterThan50 { get; set; }
       public Learnable activeLearnable { get; set; }
       public Dictionary<int, MapPin> mapPinDictionnary = new();
       public Dictionary<string, byte[]> areaExplorationStateDictionnary = new();
@@ -1097,39 +1098,12 @@ namespace NWN.Systems
         resource.quantity -= materiaCost;
         craftJob = new CraftJob(this, repairedItem, GetItemRepairTime(repairedItem, materiaCost, tool), JobType.Repair);
 
-        ItemUtils.HandleCraftToolDurability(this, tool, "CRAFT", CustomSkill.ArtisanPrudent);
+        ItemUtils.HandleCraftToolDurability(this, tool, CustomInscription.MateriaProductionDurability, CustomSkill.ArtisanPrudent);
 
         if (!windows.ContainsKey("activeCraftJob")) windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
         else ((ActiveCraftJobWindow) windows["activeCraftJob"]).CreateWindow();
 
         return;
-      }
-      private bool HandleEnchantementItemChecks(NwItem item, NwSpell spell, int index)
-      {
-        if (craftJob != null)
-        {
-          oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
-          return false;
-        }
-
-        if (item == null || item.Possessor != oid.ControlledCreature)
-        {
-          oid.SendServerMessage($"{item.Name.ColorString(ColorConstants.White)} n'est plus en votre possession. Impossible de commencer le travail artisanal.", ColorConstants.Red);
-          return false;
-        }
-
-        if (item.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").HasNothing)
-        {
-          oid.SendServerMessage($"{item.Name.ColorString(ColorConstants.White)} n'a plus d'emplacement de sort disponible.", ColorConstants.Red);
-          return false;
-        }
-
-        craftJob = new CraftJob(this, item, spell, index, JobType.Enchantement);
-
-        if (!windows.ContainsKey("activeCraftJob")) windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
-        else ((ActiveCraftJobWindow)windows["activeCraftJob"]).CreateWindow();
-
-        return true;
       }
       public void HandleCraftItemChecks(NwItem blueprint, NwItem tool, NwItem upgradedItem = null)
       {
@@ -1177,7 +1151,7 @@ namespace NWN.Systems
         resource.quantity -= materiaCost;
         craftJob = grade < 2 ? new CraftJob(this, blueprint, GetItemCraftTime(blueprint, materiaCost, tool), tool) : new CraftJob(this, blueprint, GetItemCraftTime(blueprint, materiaCost, tool), upgradedItem, tool);
         
-        ItemUtils.HandleCraftToolDurability(this, tool, "CRAFT", CustomSkill.ArtisanPrudent);
+        ItemUtils.HandleCraftToolDurability(this, tool, CustomInscription.MateriaProductionDurability, CustomSkill.ArtisanPrudent);
 
         if (!windows.ContainsKey("activeCraftJob")) windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
         else ((ActiveCraftJobWindow)windows["activeCraftJob"]).CreateWindow();
@@ -1420,17 +1394,17 @@ namespace NWN.Systems
       {
         double skillScore = 1;
 
-        if (learnableSkills.ContainsKey(CustomSkill.CalligrapheCoutelier))
-          skillScore -= learnableSkills[CustomSkill.CalligrapheCoutelier].totalPoints * 2 / 100;
+        if (learnableSkills.ContainsKey(CustomSkill.CalligrapheFourbisseur))
+          skillScore -= learnableSkills[CustomSkill.CalligrapheFourbisseur].totalPoints * 2 / 100;
 
-        if (learnableSkills.ContainsKey(CustomSkill.CalligrapheCoutelierExpert))
-          skillScore -= learnableSkills[CustomSkill.CalligrapheCoutelierExpert].totalPoints * 2 / 100;
+        if (learnableSkills.ContainsKey(CustomSkill.CalligrapheFourbisseurExpert))
+          skillScore -= learnableSkills[CustomSkill.CalligrapheFourbisseurExpert].totalPoints * 2 / 100;
 
-        if (learnableSkills.ContainsKey(CustomSkill.CalligrapheCoutelierMaitre))
-          skillScore -= learnableSkills[CustomSkill.CalligrapheCoutelierMaitre].totalPoints * 3 / 100;
+        if (learnableSkills.ContainsKey(CustomSkill.CalligrapheFourbisseurMaitre))
+          skillScore -= learnableSkills[CustomSkill.CalligrapheFourbisseurMaitre].totalPoints * 3 / 100;
 
-        if (learnableSkills.ContainsKey(CustomSkill.CalligrapheCoutelierScience))
-          skillScore -= learnableSkills[CustomSkill.CalligrapheCoutelierScience].totalPoints * 3 / 100;
+        if (learnableSkills.ContainsKey(CustomSkill.CalligrapheFourbisseurScience))
+          skillScore -= learnableSkills[CustomSkill.CalligrapheFourbisseurScience].totalPoints * 3 / 100;
 
         return skillScore;
       }
@@ -1506,6 +1480,167 @@ namespace NWN.Systems
           skillScore += learnableSkills[CustomSkill.WaterMagicScience].totalPoints;
 
         return skillScore;
+      }
+      public void SetMaxHP()
+      {
+        int improvedHealth = learnableSkills.ContainsKey(CustomSkill.ImprovedHealth) ? learnableSkills[CustomSkill.ImprovedHealth].currentLevel : 0;
+        int toughness = learnableSkills.ContainsKey(CustomSkill.Toughness) ? learnableSkills[CustomSkill.Toughness].currentLevel : 0;
+        int additionalHPFromItems = CheckForAdditionalHP();
+
+        oid.LoginCreature.LevelInfo[0].HitDie = oid.LoginCreature.ActiveEffects.Any(e => e.Tag == "_CORE_EFFECT") ? 
+            (byte)(endurance.maxHP + improvedHealth * (toughness + (oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10)) + additionalHPFromItems)
+          : (byte)(endurance.maxHP + improvedHealth * (toughness + (oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10 / 2)) + additionalHPFromItems);
+      }
+      public int GetAdditionalMana()
+      {
+        return oid.LoginCreature.GetAbilityModifier(Ability.Intelligence) + oid.LoginCreature.GetAbilityModifier(Ability.Wisdom)
+          + (oid.LoginCreature.GetAbilityModifier(Ability.Charisma) * 2)
+          + CheckForAdditionalMana();
+      }
+      public int CheckForAdditionalHP()
+      {
+        int additionnalHP = 0;
+
+        foreach (InventorySlot slot in (InventorySlot[])Enum.GetValues(typeof(InventorySlot)))
+          additionnalHP += CheckForAdditionalHPOnItem(oid.LoginCreature.GetItemInSlot(slot));
+
+        return additionnalHP;
+      }
+      public int CheckForAdditionalMana()
+      {
+        int additionnalMana = 0;
+        energyRegen = oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand)?.BaseItem.ItemType == BaseItemType.MagicStaff ? 4 : 2;
+
+        foreach (InventorySlot slot in (InventorySlot[])Enum.GetValues(typeof(InventorySlot)))
+          additionnalMana += CheckForAdditionalManaOnItem(oid.LoginCreature.GetItemInSlot(slot));
+
+        return additionnalMana;
+      }
+      public int CheckForAdditionalHPOnItem(NwItem item)
+      {
+        if (item is null || !item.IsValid)
+          return 0;
+
+        int additionalHP = 0;
+
+        for (int i = 0; i < item.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+        {
+          if (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+            continue;
+
+          switch (Spells2da.spellTable.GetRow(item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value).inscriptionSkill)
+          {
+            case CustomInscription.Courage:
+            case CustomInscription.Vigueur:  additionalHP += 4; break;
+            case CustomInscription.Dévotion:
+            case CustomInscription.Piété:
+              if (oid.LoginCreature.ActiveEffects.Any(e => e.Tag.Contains("CUSTOM_POSITIVE_SPELL_")))
+                additionalHP += 6;
+              break;
+
+            case CustomInscription.Endurance:
+            case CustomInscription.Ténacité:
+              if (oid.LoginCreature.ActiveEffects.Any(e => e.Tag.Contains("_STANCE_")))
+                additionalHP += 6;
+              break;
+
+            case CustomInscription.Valeur:
+            case CustomInscription.Détermination:
+              if (oid.LoginCreature.ActiveEffects.Any(e => e.Tag.Contains("CUSTOM_MALEFICE_")))
+                additionalHP += 8;
+              break;
+
+            case CustomInscription.LaVieNestQueDouleur: additionalHP -= 3; break;
+            case CustomInscription.Survivant: additionalHP += 1; break;
+          }
+        }
+
+        return additionalHP;
+      }
+      public int CheckForAdditionalManaOnItem(NwItem item)
+      {
+        if (item is null || !item.IsValid)
+          return 0;
+
+        int additionalMana = 0;
+        bool carpeDiem = false;
+        bool zele = false;
+
+        for (int i = 0; i < item.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+        {
+          if (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+            continue;
+
+          switch (Spells2da.spellTable.GetRow(item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value).inscriptionSkill)
+          {
+            case CustomInscription.Rayonnant:
+            case CustomInscription.Vision: additionalMana += 1; break;
+            case CustomInscription.HeureuxLesSimplesdEsprits:
+            case CustomInscription.QueDuMuscle: additionalMana -= 1; break;
+
+            case CustomInscription.LaSécuritéAvantTout:
+              if (oid.LoginCreature.HP > MaxHP / 2)
+                additionalMana += 1;
+              break;
+
+            case CustomInscription.AucunRecours:
+              if (oid.LoginCreature.HP < MaxHP / 2)
+                additionalMana += 2;
+              break;
+
+            case CustomInscription.AyezFoi:
+              if (oid.LoginCreature.ActiveEffects.Any(e => e.Tag.Contains("CUSTOM_POSITIVE_SPELL_")))
+                additionalMana += 1;
+              break;
+
+            case CustomInscription.MienneEstLaPeine:
+            case CustomInscription.Détermination:
+              if (oid.LoginCreature.ActiveEffects.Any(e => e.Tag.Contains("CUSTOM_MALEFICE_")))
+                additionalMana += 2;
+              break;
+
+            case CustomInscription.CarpeDiem: carpeDiem = true; break;
+            case CustomInscription.Zèle: zele = true; break;
+          }
+        }
+
+        if(carpeDiem)
+        {
+          additionalMana += 15;
+          energyRegen -= 1;
+        }
+
+        if (zele)
+          energyRegen -= 1;
+
+        return additionalMana;
+      }
+      public bool IsVampireWeapon(NwItem item)
+      {
+        if(item is null || !item.IsValid) 
+          return false;
+
+        for (int i = 0; i < item.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+        {
+          if (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+            continue;
+
+          if(Spells2da.spellTable.GetRow(item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value).inscriptionSkill == CustomInscription.Vampirisme)
+            return true;
+        }
+
+        return false;
+      }
+
+      protected void HandleItemPropertyChecksOnEffectApplied(OnEffectApply effectApplied)
+      {
+        SetMaxHP();
+        endurance.additionnalMana = GetAdditionalMana();
+      }
+      protected void HandleItemPropertyChecksOnEffectRemoved(OnEffectRemove effectRemoved)
+      {
+        SetMaxHP();
+        endurance.additionnalMana = GetAdditionalMana();
       }
     }
   }

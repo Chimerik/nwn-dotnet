@@ -63,6 +63,7 @@
     public const int GardeReptilien = 50055;
     public const int GardeVermine = 50056;
     public const int Absorption = 50057;
+    public const int GardeElementaire = 50058;
 
     //WEAPON
     public const int Pourfendeur = 50500;
@@ -142,7 +143,37 @@
     public const int PourfendeurReptilien = 50574;
     public const int PourfendeurVermine = 50575;
     public const int Défense = 50576;
+    public const int PourfendeurElementaire = 50077;
 
+    public const int MateriaInscriptionDurabilityMinor = 50078;
+    public const int MateriaInscriptionDurability = 50079;
+    public const int MateriaInscriptionDurabilityMajor = 50080;
+    public const int MateriaInscriptionDurabilitySupreme = 50081;
+
+    public const int MateriaInscriptionYieldMinor = 50082;
+    public const int MateriaInscriptionYield = 50083;
+    public const int MateriaInscriptionYieldMajor = 50084;
+    public const int MateriaInscriptionYieldSupreme = 50085;
+
+    public const int MateriaInscriptionSpeedMinor = 50086;
+    public const int MateriaInscriptionSpeed = 50087;
+    public const int MateriaInscriptionSpeedMajor = 50088;
+    public const int MateriaInscriptionSpeedSupreme = 50089;
+
+    public const int MateriaProductionDurabilityMinor = 50090;
+    public const int MateriaProductionDurability = 50091;
+    public const int MateriaProductionDurabilityMajor = 50092;
+    public const int MateriaProductionDurabilitySupreme = 50093;
+
+    public const int MateriaProductionYieldMinor = 50094;
+    public const int MateriaProductionYield = 50095;
+    public const int MateriaProductionYieldMajor = 50096;
+    public const int MateriaProductionYieldSupreme = 50097;
+
+    public const int MateriaProductionSpeedMinor = 50098;
+    public const int MateriaProductionSpeed = 50099;
+    public const int MateriaProductionSpeedMajor = 50100;
+    public const int MateriaProductionSpeedSupreme = 50101;
 
     // BOUCLIER
     public const int Blindé = 51000;
@@ -194,6 +225,7 @@
     public const int RepousseAnimal = 51046;
     public const int RepousseReptilien = 51047;
     public const int RepousseVermine = 51048;
+    public const int RepousseElementaire = 50049;
 
     // RINGS & AMULET
     public const int OnApprendDeSesErreurs = 51500;
@@ -221,15 +253,50 @@
     // ANY ITEM
     public const int LaBonneMesure = 52000;
     public const int Renforcement = 52001;
-    public const int MateriaDetectionAccélérée = 52002;
-    public const int MateriaDetectionAméliorée = 52003;
-    public const int MateriaDetectionQualité = 52004;
-    public const int MateriaDetectionPrécise = 52005;
-    public const int MateriaDetectionDurable = 52006;
-    public const int MateriaExtractionAccélérée = 52007;
-    public const int MateriaExtractionAméliorée = 52008;
-    public const int MateriaExtractionQualité = 52009;
-    public const int MateriaExtractionPrécise = 52010;
-    public const int MateriaExtractionDurable = 52011;
+
+    public const int MateriaDetectionDurabilityMinor = 52002;
+    public const int MateriaDetectionDurability = 52003;
+    public const int MateriaDetectionDurabilityMajor = 52004;
+    public const int MateriaDetectionDurabilitySupreme = 52005;
+
+    public const int MateriaDetectionAccuracyMinor = 52006;
+    public const int MateriaDetectionAccuracy = 52007;
+    public const int MateriaDetectionAccuracyMajor = 52008;
+    public const int MateriaDetectionAccuracySupreme = 52009;
+
+    public const int MateriaDetectionReliabilityMinor = 52010;
+    public const int MateriaDetectionReliability = 52011;
+    public const int MateriaDetectionReliabilityMajor = 52012;
+    public const int MateriaDetectionReliabilitySupreme = 52013;
+
+    public const int MateriaDetectionQualityMinor = 52014;
+    public const int MateriaDetectionQuality = 52015;
+    public const int MateriaDetectionQualityMajor = 52016;
+    public const int MateriaDetectionQualitySupreme = 52017;
+
+    public const int MateriaDetectionSpeedMinor = 52018;
+    public const int MateriaDetectionSpeed = 52019;
+    public const int MateriaDetectionSpeedMajor = 52020;
+    public const int MateriaDetectionSpeedSupreme = 52021;
+
+    public const int MateriaExtractionDurabilityMinor = 52022;
+    public const int MateriaExtractionDurability = 52023;
+    public const int MateriaExtractionDurabilityMajor = 52024;
+    public const int MateriaExtractionDurabilitySupreme = 52025;
+
+    public const int MateriaExtractionYieldMinor = 52026;
+    public const int MateriaExtractionYield = 52027;
+    public const int MateriaExtractionYieldMajor = 52028;
+    public const int MateriaExtractionYieldSupreme = 52029;
+
+    public const int MateriaExtractionQualityMinor = 52030;
+    public const int MateriaExtractionQuality = 52031;
+    public const int MateriaExtractionQualityMajor = 52032;
+    public const int MateriaExtractionQualitySupreme = 52033;
+
+    public const int MateriaExtractionSpeedMinor = 52034;
+    public const int MateriaExtractionSpeed = 52035;
+    public const int MateriaExtractionSpeedMajor = 52036;
+    public const int MateriaExtractionSpeedSupreme = 52037;
   }
 }

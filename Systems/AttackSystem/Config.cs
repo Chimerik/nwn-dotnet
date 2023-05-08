@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Anvil.API;
@@ -27,6 +28,7 @@ namespace NWN.Systems
       public AttackPosition attackPosition { get; set; }
       public Dictionary<DamageType, int> targetAC { get; set; }
       public int physicalReduction { get; set; }
+      public int adrenalineGainModifier { get; set; }
 
 
       public Context(OnCreatureAttack onAttack, NwCreature oTarget, OnCreatureDamage onDamage = null)
@@ -66,6 +68,7 @@ namespace NWN.Systems
         this.targetAC = new Dictionary<DamageType, int>();
         targetAC.Add(DamageType.BaseWeapon, 0);
         this.physicalReduction = 0;
+        this.adrenalineGainModifier = 1;
       }
     }
     public enum AttackPosition
@@ -188,6 +191,11 @@ namespace NWN.Systems
               ctx.targetAC[DamageType.BaseWeapon] += 3;
             break;
 
+          case CustomInscription.GardeElementaire:
+            if (attacker.Race.RacialType == RacialType.Elemental)
+              ctx.targetAC[DamageType.BaseWeapon] += 3;
+            break;
+
           case CustomInscription.Inflexible: ctx.targetAC[(DamageType)8192] += 1; break;
           case CustomInscription.Redoutable: ctx.targetAC[(DamageType)16384] += 1; break;
           case CustomInscription.Marchevent:
@@ -243,13 +251,34 @@ namespace NWN.Systems
               ctx.targetAC[DamageType.BaseWeapon] += 2;
             break;
 
-          case CustomInscription.Hivernal: ctx.targetAC[DamageType.Cold] += 2; break;
-          case CustomInscription.Ignifugé: ctx.targetAC[DamageType.Fire] += 2; break;
-          case CustomInscription.Paratonnerre: ctx.targetAC[DamageType.Electrical] += 2; break;
-          case CustomInscription.Tectonique: ctx.targetAC[DamageType.Acid] += 2; break;
-          case CustomInscription.Infiltrateur: ctx.targetAC[DamageType.Piercing] += 1; break;
-          case CustomInscription.Saboteur: ctx.targetAC[DamageType.Slashing] += 1; break;
-          case CustomInscription.AvantGarde: ctx.targetAC[DamageType.Bludgeoning] += 1; break;
+          case CustomInscription.Hivernal:
+            if (!ctx.targetAC.TryAdd(DamageType.Cold, 2))
+              ctx.targetAC[DamageType.Cold] += 2; 
+            break;
+          case CustomInscription.Ignifugé:
+            if (!ctx.targetAC.TryAdd(DamageType.Fire, 2))
+                ctx.targetAC[DamageType.Fire] += 2; 
+            break;
+          case CustomInscription.Paratonnerre: 
+            if (!ctx.targetAC.TryAdd(DamageType.Electrical, 2))
+              ctx.targetAC[DamageType.Electrical] += 2; 
+            break;
+          case CustomInscription.Tectonique: 
+            if (!ctx.targetAC.TryAdd(DamageType.Acid, 2))
+              ctx.targetAC[DamageType.Acid] += 2; 
+            break;
+          case CustomInscription.Infiltrateur:
+            if (!ctx.targetAC.TryAdd(DamageType.Piercing, 2)) 
+              ctx.targetAC[DamageType.Piercing] += 1; 
+            break;
+          case CustomInscription.Saboteur: 
+            if (!ctx.targetAC.TryAdd(DamageType.Slashing, 2))
+              ctx.targetAC[DamageType.Slashing] += 1; 
+            break;
+          case CustomInscription.AvantGarde: 
+            if (!ctx.targetAC.TryAdd(DamageType.Bludgeoning, 2))
+              ctx.targetAC[DamageType.Bludgeoning] += 1; 
+            break;
           case CustomInscription.GardeHalfelin:
             if (attacker.Race.RacialType == RacialType.Halfling)
               ctx.targetAC[DamageType.BaseWeapon] += 3;
@@ -475,17 +504,17 @@ namespace NWN.Systems
           case CustomInscription.Blindé: ctx.targetAC[DamageType.BaseWeapon] += 1; break;
           case CustomInscription.RepousseDragon:
             if (attacker.Race.RacialType == RacialType.Dragon)
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              ctx.targetAC[DamageType.BaseWeapon] += 2;
             break;
 
           case CustomInscription.RepousseExtérieur:
             if (attacker.Race.RacialType == RacialType.Outsider)
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              ctx.targetAC[DamageType.BaseWeapon] += 2;
             break;
 
           case CustomInscription.RepousseAberration:
             if (attacker.Race.RacialType == RacialType.Aberration)
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              ctx.targetAC[DamageType.BaseWeapon] += 2;
             break;
 
           case CustomInscription.LongueVieAuRoi:
@@ -499,21 +528,23 @@ namespace NWN.Systems
             break;
 
           case CustomInscription.LaSurvieDuMieuxEquipé:
-            ctx.targetAC[(DamageType)8192] += 1;
+            if (!ctx.targetAC.TryAdd((DamageType)8192, 1))
+              ctx.targetAC[(DamageType)8192] += 1;
             break;
 
           case CustomInscription.ParéEnTouteSaison:
-            ctx.targetAC[(DamageType)16384] += 1;
+            if (!ctx.targetAC.TryAdd((DamageType)16384, 1))
+              ctx.targetAC[(DamageType)16384] += 1;
             break;
 
           case CustomInscription.RepousseGéant:
             if (attacker.Race.RacialType == RacialType.Giant)
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              ctx.targetAC[DamageType.BaseWeapon] += 2;
             break;
 
           case CustomInscription.RepousseMagie:
             if (attacker.Race.RacialType == RacialType.MagicalBeast)
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              ctx.targetAC[DamageType.BaseWeapon] += 2;
             break;
 
           case CustomInscription.RepousseBon:
@@ -540,8 +571,481 @@ namespace NWN.Systems
             if (attacker.LawChaosAlignment == Alignment.Lawful)
               ctx.targetAC[DamageType.BaseWeapon] += 2;
             break;
+
+          case CustomInscription.ContreVentsEtMarées: ctx.targetAC[DamageType.Piercing] += 2;
+            break;
+
+          case CustomInscription.lEnigmeDelAcier:
+            if (!ctx.targetAC.TryAdd(DamageType.Slashing, 2))
+              ctx.targetAC[DamageType.Slashing] += 2;
+            break;
+
+          case CustomInscription.PasLeVisage:
+            if (!ctx.targetAC.TryAdd(DamageType.Bludgeoning, 2))
+              ctx.targetAC[DamageType.Bludgeoning] += 2;
+            break;
+
+          case CustomInscription.PortéParLeVent:
+            if (!ctx.targetAC.TryAdd(DamageType.Cold, 2))
+              ctx.targetAC[DamageType.Cold] += 2;
+            break;
+
+          case CustomInscription.CommeUnRoc:
+            if (!ctx.targetAC.TryAdd(DamageType.Acid, 2))
+              ctx.targetAC[DamageType.Acid] += 2;
+            break;
+
+          case CustomInscription.Illumination:
+            if (!ctx.targetAC.TryAdd(DamageType.Fire, 2))
+              ctx.targetAC[DamageType.Fire] += 2;
+            break;
+
+          case CustomInscription.ChevaucheLaTempête:
+            if (!ctx.targetAC.TryAdd(DamageType.Electrical, 2))
+              ctx.targetAC[DamageType.Electrical] += 2;
+            break;
+
+          case CustomInscription.RepousseHalfelin:
+            if (attacker.Race.RacialType == RacialType.Halfling)
+              ctx.targetAC[DamageType.BaseWeapon] += 2;
+            break;
+
+          case CustomInscription.RepousseHumain:
+            if (attacker.Race.RacialType == RacialType.Human)
+              ctx.targetAC[DamageType.BaseWeapon] += 2;
+            break;
+
+          case CustomInscription.RepousseDemiElfe:
+            if (attacker.Race.RacialType == RacialType.HalfElf)
+              ctx.targetAC[DamageType.BaseWeapon] += 2;
+            break;
+
+          case CustomInscription.RepousseDemiOrc:
+            if (attacker.Race.RacialType == RacialType.HalfOrc)
+              ctx.targetAC[DamageType.BaseWeapon] += 2;
+            break;
+
+          case CustomInscription.RepousseElfe:
+            if (attacker.Race.RacialType == RacialType.Elf)
+              ctx.targetAC[DamageType.BaseWeapon] += 2;
+            break;
+
+          case CustomInscription.RepousseGnome:
+            if (attacker.Race.RacialType == RacialType.Gnome)
+              ctx.targetAC[DamageType.BaseWeapon] += 2;
+            break;
+
+          case CustomInscription.RepousseNain:
+            if (attacker.Race.RacialType == RacialType.Dwarf)
+              ctx.targetAC[DamageType.BaseWeapon] += 2;
+            break;
+
+          case CustomInscription.RepousseElementaire:
+            if (attacker.Race.RacialType == RacialType.Elemental)
+              ctx.targetAC[DamageType.BaseWeapon] += 2;
+            break;
+
+          case CustomInscription.LaRaisonDuPlusFort:
+            if (player.oid.LoginCreature.AttackTarget is not null && (player.oid.LoginCreature.AnimationState != AnimationState.Walking
+              || player.oid.LoginCreature.AnimationState != AnimationState.Running))
+              ctx.targetAC[DamageType.BaseWeapon] += 1;
+            break;
+
+          case CustomInscription.SavoirNestQueLaMoitiéDuChemin:
+            if (player.oid.LoginCreature.AnimationState == AnimationState.Cast1 || player.oid.LoginCreature.AnimationState == AnimationState.Cast2
+              || player.oid.LoginCreature.AnimationState == AnimationState.Cast3 || player.oid.LoginCreature.AnimationState == AnimationState.Cast4
+              || player.oid.LoginCreature.AnimationState == AnimationState.Cast5 || player.oid.LoginCreature.AnimationState == AnimationState.CastCreature
+              || player.oid.LoginCreature.AnimationState == AnimationState.Conjure1 || player.oid.LoginCreature.AnimationState == AnimationState.Conjure2)
+              ctx.targetAC[DamageType.BaseWeapon] += 1;
+            break;
+
+          case CustomInscription.CeNestQuuneEgratignure:
+            if (player.oid.LoginCreature.HP < player.MaxHP / 2)
+              ctx.targetAC[DamageType.BaseWeapon] += 1;
+            break;
+
+          case CustomInscription.NeTremblezPas:
+            if (player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag.Contains("CUSTOM_MALEFICE_")))
+              ctx.targetAC[DamageType.BaseWeapon] += 3;
+            break;
+
+          case CustomInscription.RepousseNonVie:
+            if (attacker.Race.RacialType == RacialType.Undead)
+              ctx.targetAC[DamageType.BaseWeapon] += 2;
+            break;
+
+          case CustomInscription.RepousseArtifice:
+            if (attacker.Race.RacialType == RacialType.Construct)
+              ctx.targetAC[DamageType.BaseWeapon] += 2;
+            break;
+
+          case CustomInscription.RepousseOrc:
+            if (attacker.Race.RacialType == RacialType.HumanoidOrc)
+              ctx.targetAC[DamageType.BaseWeapon] += 2;
+            break;
+
+          case CustomInscription.HeureuxLesSimplesdEsprits:
+          case CustomInscription.LaVieNestQueDouleur:
+            ctx.targetAC[DamageType.BaseWeapon] += 1;
+            break;
+
+          case CustomInscription.RepousseMonstre:
+            if (attacker.Race.RacialType == RacialType.HumanoidOrc)
+              ctx.targetAC[DamageType.BaseWeapon] += 2;
+            break;
+
+          case CustomInscription.RepousseHumanoïde:
+            if (attacker.Race.RacialType == RacialType.HumanoidMonstrous)
+              ctx.targetAC[DamageType.BaseWeapon] += 2;
+            break;
+
+          case CustomInscription.RepousseMétamorphe:
+            if (attacker.Race.RacialType == RacialType.ShapeChanger)
+              ctx.targetAC[DamageType.BaseWeapon] += 2;
+            break;
+
+          case CustomInscription.RepousseGobelinoïde:
+            if (attacker.Race.RacialType == RacialType.HumanoidGoblinoid)
+              ctx.targetAC[DamageType.BaseWeapon] += 2;
+            break;
+
+          case CustomInscription.RepousseAnimal:
+            if (attacker.Race.RacialType == RacialType.Animal)
+              ctx.targetAC[DamageType.BaseWeapon] += 2;
+            break;
+
+          case CustomInscription.RepousseReptilien:
+            if (attacker.Race.RacialType == RacialType.HumanoidReptilian)
+              ctx.targetAC[DamageType.BaseWeapon] += 2;
+            break;
+
+          case CustomInscription.RepousseVermine:
+            if (attacker.Race.RacialType == RacialType.Vermin)
+              ctx.targetAC[DamageType.BaseWeapon] += 2;
+            break;
         }
       }
+    }
+    public static void GetArmorValueFromWeapon(Context ctx, NwItem item)
+    {
+      for (int i = 0; i < item.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+      {
+        if (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+          continue;
+
+        switch (Spells2da.spellTable.GetRow(item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value).inscriptionSkill)
+        {
+          case CustomInscription.Défense:
+            if (!ctx.targetAC.TryAdd(DamageType.BaseWeapon, 1))
+              ctx.targetAC[DamageType.BaseWeapon] += 1;
+            break;
+
+          case CustomInscription.Masochisme:
+            if (!ctx.targetAC.TryAdd(DamageType.BaseWeapon, -1))
+              ctx.targetAC[DamageType.BaseWeapon] -= 1;
+            break;
+
+          case CustomInscription.Refuge:
+            if (!ctx.targetAC.TryAdd((DamageType)8192, 1))
+              ctx.targetAC[(DamageType)8192] += 1;
+            break;
+
+          case CustomInscription.Protecteur:
+            if (!ctx.targetAC.TryAdd((DamageType)16384, 1))
+              ctx.targetAC[(DamageType)16384] += 1;
+            break;
+        }
+      }
+    }
+    public static void GetDamageValueFromWeapon(Context ctx, NwItem item, PlayerSystem.Player player, NwCreature defender)
+    {
+      double baseDamage = GetContextDamage(ctx, DamageType.BaseWeapon);
+      double coldDamage = GetContextDamage(ctx, DamageType.Cold);
+      double fireDamage = GetContextDamage(ctx, DamageType.Fire);
+      double elecDamage = GetContextDamage(ctx, DamageType.Electrical);
+      double acidDamage = GetContextDamage(ctx, DamageType.Acid);
+      double piercingDamage = GetContextDamage(ctx, DamageType.Piercing);
+      double slashDamage = GetContextDamage(ctx, DamageType.Slashing);
+      double bluntDamage = GetContextDamage(ctx, DamageType.Bludgeoning);
+      bool vampirism = false;
+      bool zele = false;
+      int doubleAdrenaline = 0;
+      int bonusPenetration = 0;
+
+      for (int i = 0; i < item.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+      {
+        if (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+          continue;
+
+        switch (Spells2da.spellTable.GetRow(item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value).inscriptionSkill)
+        {
+          case CustomInscription.Sismique:
+            if (baseDamage > -1)
+            {
+              acidDamage += baseDamage;
+              baseDamage = -1;
+            }
+            break;
+
+          case CustomInscription.Incendiaire:
+            if (baseDamage > -1)
+            {
+              fireDamage += baseDamage;
+              baseDamage = -1;
+            }
+            break;
+
+          case CustomInscription.Polaire:
+            if (baseDamage > -1)
+            {
+              coldDamage += baseDamage;
+              baseDamage = -1;
+            }
+            break;
+
+          case CustomInscription.Electrocution:
+            if (baseDamage > -1)
+            {
+              elecDamage += baseDamage;
+              baseDamage = -1;
+            }
+            break;
+        }
+      }
+
+      for (int i = 0; i < item.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+      {
+        if (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+          continue;
+
+        switch (Spells2da.spellTable.GetRow(item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value).inscriptionSkill)
+        {
+          case CustomInscription.Pourfendeur: baseDamage *= 1.01; break;
+          case CustomInscription.QueDuMuscle:
+          case CustomInscription.Masochisme: baseDamage *= 1.02; break;
+          case CustomInscription.Vampirisme: vampirism = true; break;
+          case CustomInscription.Zèle: zele = true; break;
+
+          case CustomInscription.PourfendeurDragon:
+            if (defender.Race.RacialType == RacialType.Dragon) 
+              baseDamage *= 1.03; 
+            break;
+
+          case CustomInscription.PourfendeurExtérieur:
+            if (defender.Race.RacialType == RacialType.Outsider)
+              baseDamage *= 1.03;
+            break;
+
+          case CustomInscription.PourfendeurAberration:
+            if (defender.Race.RacialType == RacialType.Aberration)
+              baseDamage *= 1.03;
+            break;
+
+          case CustomInscription.PourfendeurGéant:
+            if (defender.Race.RacialType == RacialType.Giant)
+              baseDamage *= 1.03;
+            break;
+
+          case CustomInscription.PourfendeurElementaire:
+            if (defender.Race.RacialType == RacialType.Elemental)
+              baseDamage *= 1.03;
+            break;
+
+          case CustomInscription.PourfendeurMagie:
+            if (defender.Race.RacialType == RacialType.MagicalBeast)
+              baseDamage *= 1.03;
+            break;
+
+          case CustomInscription.PourfendeurHalfelin:
+            if (defender.Race.RacialType == RacialType.Halfling)
+              baseDamage *= 1.03;
+            break;
+
+          case CustomInscription.PourfendeurHumain:
+            if (defender.Race.RacialType == RacialType.Human)
+              baseDamage *= 1.03;
+            break;
+
+          case CustomInscription.PourfendeurDemiElfe:
+            if (defender.Race.RacialType == RacialType.HalfElf)
+              baseDamage *= 1.03;
+            break;
+
+          case CustomInscription.PourfendeurDemiOrc:
+            if (defender.Race.RacialType == RacialType.HalfOrc)
+              baseDamage *= 1.03;
+            break;
+
+          case CustomInscription.PourfendeurElfe:
+            if (defender.Race.RacialType == RacialType.Elf)
+              baseDamage *= 1.03;
+            break;
+
+          case CustomInscription.PourfendeurGnome:
+            if (defender.Race.RacialType == RacialType.Gnome)
+              baseDamage *= 1.03;
+            break;
+
+          case CustomInscription.PourfendeurNain:
+            if (defender.Race.RacialType == RacialType.Dwarf)
+              baseDamage *= 1.03;
+            break;
+
+          case CustomInscription.PourfendeurNonVie:
+            if (defender.Race.RacialType == RacialType.Undead)
+              baseDamage *= 1.03;
+            break;
+
+          case CustomInscription.PourfendeurArtificiel:
+            if (defender.Race.RacialType == RacialType.Construct)
+              baseDamage *= 1.03;
+            break;
+
+          case CustomInscription.PourfendeurOrc:
+            if (defender.Race.RacialType == RacialType.HumanoidOrc)
+              baseDamage *= 1.03;
+            break;
+
+          case CustomInscription.PourfendeurMonstres:
+            if (defender.Race.RacialType == RacialType.Beast)
+              baseDamage *= 1.03;
+            break;
+
+          case CustomInscription.PourfendeurHumanoïdes:
+            if (defender.Race.RacialType == RacialType.HumanoidMonstrous)
+              baseDamage *= 1.03;
+            break;
+
+          case CustomInscription.PourfendeurMétamorphes:
+            if (defender.Race.RacialType == RacialType.ShapeChanger)
+              baseDamage *= 1.03;
+            break;
+
+          case CustomInscription.PourfendeurGobelins:
+            if (defender.Race.RacialType == RacialType.HumanoidGoblinoid)
+              baseDamage *= 1.03;
+            break;
+
+          case CustomInscription.PourfendeurAnimal:
+            if (defender.Race.RacialType == RacialType.Animal)
+              baseDamage *= 1.03;
+            break;
+
+          case CustomInscription.PourfendeurReptilien:
+            if (defender.Race.RacialType == RacialType.HumanoidReptilian)
+              baseDamage *= 1.03;
+            break;
+
+          case CustomInscription.PourfendeurVermine:
+            if (defender.Race.RacialType == RacialType.Vermin)
+              baseDamage *= 1.03;
+            break;
+
+          case CustomInscription.PourfendeurBien:
+            if (defender.GoodEvilAlignment == Alignment.Good)
+              baseDamage *= 1.02;
+            break;
+
+          case CustomInscription.PourfendeurChaos:
+            if (defender.LawChaosAlignment == Alignment.Chaotic)
+              baseDamage *= 1.02;
+            break;
+
+          case CustomInscription.PourfendeurMal:
+            if (defender.GoodEvilAlignment == Alignment.Evil)
+              baseDamage *= 1.02;
+            break;
+
+          case CustomInscription.PourfendeurNeutralité:
+            if (defender.GoodEvilAlignment == Alignment.Neutral && defender.LawChaosAlignment == Alignment.Neutral)
+              baseDamage *= 1.02;
+            break;
+
+          case CustomInscription.PourfendeurLoi:
+            if (defender.LawChaosAlignment == Alignment.Lawful)
+              baseDamage *= 1.02;
+            break;
+
+          case CustomInscription.ForceEtHonneur:
+            if (player.oid.LoginCreature.HP > player.MaxHP / 2)
+              baseDamage *= 1.02;
+            break;
+
+          case CustomInscription.VengeanceSeraMienne:
+            if (player.oid.LoginCreature.HP < player.MaxHP / 2)
+              baseDamage *= 1.03;
+            break;
+
+          case CustomInscription.MaîtreDeSonDestin:
+            if (player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag.Contains("CUSTOM_POSITIVE_SPELL_")))
+              baseDamage *= 1.02;
+            break;
+            
+          case CustomInscription.DanseAvecLaMort:
+            if (player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag.Contains("_STANCE_")))
+              baseDamage *= 1.02;
+            break;
+
+          case CustomInscription.Sadisme:
+            if (player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag.Contains("CUSTOM_MALEFICE_")))
+              baseDamage *= 1.03;
+            break;
+
+          case CustomInscription.Givroclaste: coldDamage *= 1.02; break;
+          case CustomInscription.Pyroclaste: fireDamage *= 1.02; break;
+          case CustomInscription.Electroclaste: elecDamage *= 1.02; break;
+          case CustomInscription.Séismoclaste: acidDamage *= 1.02; break;
+          case CustomInscription.Aiguillon: piercingDamage *= 1.02; break;
+          case CustomInscription.Rasoir: slashDamage *= 1.02; break;
+          case CustomInscription.Fracasseur: bluntDamage *= 1.02; break;
+
+          case CustomInscription.Fureur: doubleAdrenaline += 1; break;
+          case CustomInscription.Pénétration: bonusPenetration += 3; break;
+        }
+      }
+
+      if (vampirism)
+      {
+        if (GetContextDamage(ctx, DamageType.Negative) < 0)
+          SetContextDamage(ctx, DamageType.Negative, 3);
+        else
+          SetContextDamage(ctx, DamageType.Negative, GetContextDamage(ctx, DamageType.Negative) + 3);
+
+        player.oid.LoginCreature.HP = player.oid.LoginCreature.HP + 3 >= player.MaxHP ? player.MaxHP : player.oid.LoginCreature.HP + 3;
+      }
+
+      if(zele)
+        player.endurance.currentMana = player.endurance.currentMana + 1 >= player.endurance.maxMana ? player.endurance.maxMana : player.endurance.currentMana + 1;
+
+      if (doubleAdrenaline > 0 && doubleAdrenaline > NwRandom.Roll(Utils.random, 100))
+        ctx.adrenalineGainModifier = 2;
+
+      if (bonusPenetration > 0 && bonusPenetration > NwRandom.Roll(Utils.random, 100))
+        ctx.baseArmorPenetration += 20;
+
+      if(baseDamage > -1) 
+        SetContextDamage(ctx, DamageType.BaseWeapon, (int)Math.Round(baseDamage, MidpointRounding.ToEven));
+
+      if (coldDamage > -1)
+        SetContextDamage(ctx, DamageType.Cold, (int)Math.Round(coldDamage, MidpointRounding.ToEven));
+
+      if (fireDamage > -1)
+        SetContextDamage(ctx, DamageType.Fire, (int)Math.Round(fireDamage, MidpointRounding.ToEven));
+
+      if (elecDamage > -1)
+        SetContextDamage(ctx, DamageType.Electrical, (int)Math.Round(elecDamage, MidpointRounding.ToEven));
+
+      if (acidDamage > -1)
+        SetContextDamage(ctx, DamageType.Acid, (int)Math.Round(acidDamage, MidpointRounding.ToEven));
+
+      if (piercingDamage > -1)
+        SetContextDamage(ctx, DamageType.Piercing, (int)Math.Round(piercingDamage, MidpointRounding.ToEven));
+
+      if (slashDamage > -1)
+        SetContextDamage(ctx, DamageType.Slashing, (int)Math.Round(slashDamage, MidpointRounding.ToEven));
+
+      if (bluntDamage > -1)
+        SetContextDamage(ctx, DamageType.Bludgeoning, (int)Math.Round(bluntDamage, MidpointRounding.ToEven));
     }
   }
 }

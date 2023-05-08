@@ -206,7 +206,7 @@ namespace NWN.Systems
                       else
                       {
                         player.craftJob = new(player, item, tool, JobType.Recycling);
-                        ItemUtils.HandleCraftToolDurability(player, tool, "CRAFT", CustomSkill.ArtisanPrudent);
+                        ItemUtils.HandleCraftToolDurability(player, tool, CustomInscription.MateriaProductionDurability, CustomSkill.ArtisanPrudent);
                       }
                       
                       break;
@@ -221,7 +221,7 @@ namespace NWN.Systems
                       else
                       {
                         player.craftJob = new(player, item, tool, JobType.Renforcement);
-                        ItemUtils.HandleCraftToolDurability(player, tool, "CRAFT", CustomSkill.ArtisanPrudent);
+                        ItemUtils.HandleCraftToolDurability(player, tool, CustomInscription.MateriaProductionDurability, CustomSkill.ArtisanPrudent);
                       }
 
                       break;

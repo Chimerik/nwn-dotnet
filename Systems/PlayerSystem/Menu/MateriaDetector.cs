@@ -162,7 +162,7 @@ namespace NWN.Systems
               else
                 HandlePassiveScan();
 
-              ItemUtils.HandleCraftToolDurability(player, detector, "DETECTOR", resourceDurabilitySkill);
+              ItemUtils.HandleCraftToolDurability(player, detector, CustomInscription.MateriaDetectionDurability, resourceDurabilitySkill);
             }
           }
           catch (Exception e) 
@@ -334,7 +334,20 @@ namespace NWN.Systems
           skillPoints += player.learnableSkills.ContainsKey(resourceEstimationSkill) ? player.learnableSkills[resourceEstimationSkill].totalPoints : 0;
           skillPoints += player.learnableSkills.ContainsKey(resourceAdvancedSkill) ? player.learnableSkills[resourceAdvancedSkill].totalPoints : 0;
           skillPoints += player.learnableSkills.ContainsKey(resourceMasterSkill) ? player.learnableSkills[resourceMasterSkill].totalPoints : 0;
-          skillPoints += detector.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_DETECTOR_QUALITY_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value);
+
+          for (int i = 0; i < detector.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+          {
+            if (detector.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+              continue;
+
+            switch (detector.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
+            {
+              case CustomInscription.MateriaDetectionAccuracyMinor: skillPoints += 2; break;
+              case CustomInscription.MateriaDetectionAccuracy: skillPoints += 4; break;
+              case CustomInscription.MateriaDetectionAccuracyMajor: skillPoints += 6; break;
+              case CustomInscription.MateriaDetectionAccuracySupreme: skillPoints += 8; break;
+            }
+          }
 
           return Utils.random.Next((int)(realQuantity * skillPoints * 0.05) - 1, 2 * realQuantity - (int)(realQuantity * skillPoints * 0.05));
         }
@@ -345,8 +358,21 @@ namespace NWN.Systems
           int skillPoints = player.learnableSkills.ContainsKey(resourceDetectionSkill) ? player.learnableSkills[CustomSkill.MateriaScanning].totalPoints + player.learnableSkills[resourceDetectionSkill].totalPoints : player.learnableSkills[CustomSkill.MateriaScanning].totalPoints;
           skillPoints += player.learnableSkills.ContainsKey(resourceAdvancedSkill) ? player.learnableSkills[resourceAdvancedSkill].totalPoints : 0;
           skillPoints += player.learnableSkills.ContainsKey(resourceMasterSkill) ? player.learnableSkills[resourceMasterSkill].totalPoints : 0;
-          skillPoints += detector.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_DETECTOR_YIELD_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value);
-          
+
+          for (int i = 0; i < detector.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+          {
+            if (detector.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+              continue;
+
+            switch(detector.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
+            {
+              case CustomInscription.MateriaDetectionReliabilityMinor: skillPoints += 2; break;
+              case CustomInscription.MateriaDetectionReliability: skillPoints += 4; break;
+              case CustomInscription.MateriaDetectionReliabilityMajor: skillPoints += 6; break;
+              case CustomInscription.MateriaDetectionReliabilitySupreme: skillPoints += 8; break;
+            }
+          }
+
           if(NwRandom.Roll(Utils.random, 100) < skillPoints)
           {
             Location randomLocation = await Utils.GetRandomLocationInArea(area);
@@ -367,7 +393,23 @@ namespace NWN.Systems
               skillPoints += player.learnableSkills.ContainsKey(resourceAccuracySkill) ? player.learnableSkills[resourceAccuracySkill].totalPoints : 0;
               skillPoints += player.learnableSkills.ContainsKey(resourceAdvancedSkill) ? player.learnableSkills[resourceAdvancedSkill].totalPoints : 0;
               skillPoints += player.learnableSkills.ContainsKey(resourceMasterSkill) ? player.learnableSkills[resourceMasterSkill].totalPoints : 0;
-              skillPoints += detector.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_DETECTOR_ACCURACY_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value);
+
+              for (int i = 0; i < detector.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+              {
+                if (detector.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+                  continue;
+
+                if (detector.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value == CustomInscription.MateriaDetectionQuality)
+                  skillPoints += 6;
+
+                switch (detector.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
+                {
+                  case CustomInscription.MateriaDetectionQualityMinor: skillPoints += 2; break;
+                  case CustomInscription.MateriaDetectionQuality: skillPoints += 4; break;
+                  case CustomInscription.MateriaDetectionQualityMajor: skillPoints += 6; break;
+                  case CustomInscription.MateriaDetectionQualitySupreme: skillPoints += 8; break;
+                }
+              }
 
               if (NwRandom.Roll(Utils.random, 100) < skillPoints)
                 grade++;
@@ -390,13 +432,26 @@ namespace NWN.Systems
         public void GetResourceDetectionTime(int detectionSkill, int speedSkill, int advancedSkill, int masterySkill)
         {
           scanDuration = Config.env == Config.Env.Prod ? Config.scanBaseDuration : 10;
-          scanDuration -= scanDuration * (int)(player.learnableSkills[CustomSkill.MateriaScanning].totalPoints * 0.05);
-          scanDuration -= player.learnableSkills.ContainsKey(detectionSkill) ? scanDuration * (int)(player.learnableSkills[detectionSkill].totalPoints * 0.05) : 0;
-          scanDuration -= player.learnableSkills.ContainsKey(speedSkill) ? scanDuration * (int)(player.learnableSkills[speedSkill].totalPoints * 0.05) : 0;
-          scanDuration -= player.learnableSkills.ContainsKey(advancedSkill) ? scanDuration * (int)(player.learnableSkills[advancedSkill].totalPoints * 0.05) : 0;
-          scanDuration -= player.learnableSkills.ContainsKey(masterySkill) ? scanDuration * (int)(player.learnableSkills[masterySkill].totalPoints * 0.05) : 0;
-          scanDuration -= scanDuration * (detector.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_DETECTOR_SPEED_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value) / 100);
-          
+          scanDuration *= 1 - player.learnableSkills[CustomSkill.MateriaScanning].totalPoints * 0.05;
+          scanDuration *= player.learnableSkills.ContainsKey(detectionSkill) ? 1 - player.learnableSkills[detectionSkill].totalPoints * 0.05 : 1;
+          scanDuration *= player.learnableSkills.ContainsKey(speedSkill) ? 1 - player.learnableSkills[speedSkill].totalPoints * 0.05 : 1;
+          scanDuration *= player.learnableSkills.ContainsKey(advancedSkill) ? 1 - player.learnableSkills[advancedSkill].totalPoints * 0.05 : 1;
+          scanDuration *= player.learnableSkills.ContainsKey(masterySkill) ? 1 - player.learnableSkills[masterySkill].totalPoints * 0.05 : 1;
+
+          for (int i = 0; i < detector.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+          {
+            if (detector.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+              continue;
+
+            switch (detector.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
+            {
+              case CustomInscription.MateriaDetectionSpeedMinor: scanDuration *= 0.98; break;
+              case CustomInscription.MateriaDetectionSpeed: scanDuration *= 0.96; break;
+              case CustomInscription.MateriaDetectionSpeedMajor: scanDuration *= 0.94; break;
+              case CustomInscription.MateriaDetectionSpeedSupreme: scanDuration *= 0.92; break;
+            }
+          }
+
           timeLeft = scanDuration;
         }
         private string GetReadableDetectionTime()

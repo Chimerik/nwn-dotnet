@@ -20,24 +20,93 @@ namespace NWN.Systems
         return;
       }
 
-      int skillPoints = 0;
+      LearnableSkill inscription = player.learnableSkills[player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CASTING_INSCRIPTION").Value];
 
-      try
+      switch (targetItem.BaseItem.ItemType)
       {
-        skillPoints += targetItem.BaseItem.ItemType switch
-        {
-          BaseItemType.SmallShield or BaseItemType.LargeShield or BaseItemType.TowerShield => player.learnableSkills[CustomSkill.CalligrapheBlindeur].totalPoints,
-          BaseItemType.Armor or BaseItemType.Helmet or BaseItemType.Cloak or BaseItemType.Boots or BaseItemType.Gloves or BaseItemType.Bracer or BaseItemType.Belt => player.learnableSkills[CustomSkill.CalligrapheArmurier].totalPoints,
-          BaseItemType.Amulet or BaseItemType.Ring => player.learnableSkills[CustomSkill.CalligrapheCiseleur].totalPoints,
-          _ => player.learnableSkills[CustomSkill.CalligrapheCoutelier].totalPoints,
-        };
-      }
-      catch(Exception)
-      {
-        skillPoints = 0;
+        case BaseItemType.SmallShield:
+        case BaseItemType.LargeShield:
+        case BaseItemType.TowerShield:
+          if(inscription.id < CustomInscription.Blindé || inscription.id > CustomInscription.RepousseElementaire)
+          {
+            player.oid.SendServerMessage($"L'inscription {StringUtils.ToWhitecolor(inscription.name)} ne peut pas être calligraphiée sur un bouclier", ColorConstants.Red);
+            return;
+          }
+          break;
+
+        case BaseItemType.Amulet:
+        case BaseItemType.Ring:
+          if (inscription.id < CustomInscription.OnApprendDeSesErreurs || inscription.id > CustomInscription.Résilence)
+          {
+            player.oid.SendServerMessage($"L'inscription {StringUtils.ToWhitecolor(inscription.name)} ne peut pas être calligraphiée sur un ornement", ColorConstants.Red);
+            return;
+          }
+          break;
+
+        case BaseItemType.Armor:
+        case BaseItemType.Helmet:
+        case BaseItemType.Cloak:
+        case BaseItemType.Boots:
+        case BaseItemType.Gloves:
+        case BaseItemType.Bracer:
+        case BaseItemType.Belt:
+          if (inscription.id < CustomInscription.Cuirassé || inscription.id > CustomInscription.GardeElementaire)
+          {
+            player.oid.SendServerMessage($"L'inscription {StringUtils.ToWhitecolor(inscription.name)} ne peut pas être calligraphiée sur une pièce d'armure", ColorConstants.Red);
+            return;
+          }
+          break;
+
+        default:
+          if (inscription.id < CustomInscription.Pourfendeur || inscription.id > CustomInscription.MateriaProductionSpeedSupreme)
+          {
+            player.oid.SendServerMessage($"L'inscription {StringUtils.ToWhitecolor(inscription.name)} ne peut pas être calligraphiée sur une arme", ColorConstants.Red);
+            return;
+          }
+          break;
       }
 
-      if(skillPoints < 1) 
+      int skill = CustomSkill.CalligrapheFourbisseur;
+      int masterSkill = CustomSkill.CalligrapheFourbisseurMaitre;
+      int scienceSkill = CustomSkill.CalligrapheFourbisseurScience;
+      int expertSkill = CustomSkill.CalligrapheFourbisseurExpert;
+
+      switch(targetItem.BaseItem.ItemType)
+      {
+        case BaseItemType.SmallShield:
+        case BaseItemType.LargeShield:
+        case BaseItemType.TowerShield:
+          skill = CustomSkill.CalligrapheBlindeur;
+          masterSkill = CustomSkill.CalligrapheBlindeurMaitre;
+          scienceSkill = CustomSkill.CalligrapheBlindeurScience;
+          expertSkill = CustomSkill.CalligrapheCiseleurExpert;
+          break;
+
+        case BaseItemType.Amulet:
+        case BaseItemType.Ring:
+          skill = CustomSkill.CalligrapheCiseleur;
+          masterSkill = CustomSkill.CalligrapheCiseleurMaitre;
+          scienceSkill = CustomSkill.CalligrapheCiseleurScience;
+          expertSkill = CustomSkill.CalligrapheCiseleurExpert;
+          break;
+
+        case BaseItemType.Armor:
+        case BaseItemType.Helmet:
+        case BaseItemType.Cloak:
+        case BaseItemType.Boots:
+        case BaseItemType.Gloves:
+        case BaseItemType.Bracer:
+        case BaseItemType.Belt:
+          skill = CustomSkill.CalligrapheArmurier;
+          masterSkill = CustomSkill.CalligrapheArmurierMaitre;
+          scienceSkill = CustomSkill.CalligrapheArmurierScience;
+          expertSkill = CustomSkill.CalligrapheArmurierExpert;
+          break;
+      }
+
+      double skillPoints = player.learnableSkills.ContainsKey(skill) ? player.learnableSkills[skill].totalPoints * 0.02 : 0;
+
+      if (skillPoints == 0) 
       {
         player.oid.SendServerMessage($"Il est nécessaire de connaître les bases de la calligraphie sur {targetItem.BaseItem.ItemType} avant de pouvoir commencer ce travail !", ColorConstants.Red);
         return;
@@ -49,7 +118,46 @@ namespace NWN.Systems
         return;
       }
 
-      double cost = Math.Pow(2, skillPoints) * 100;
+      NwItem inscriptionTool = player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
+
+      if (inscriptionTool is null || !inscriptionTool.IsValid)
+      {
+        player.oid.SendServerMessage("Votre main droite doit être équipée d'un objet disposant d'une inscription de calligraphie pour pouvoir commencer ce travail.", ColorConstants.Red);
+        return;
+      }
+
+      bool inscriptionCraft = false;
+      double reduction = 0;
+
+      for (int i = 0; i < inscriptionTool.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+      {
+        int inscriptionId = inscriptionTool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value;
+        if (inscriptionId >= CustomInscription.MateriaInscriptionDurabilityMinor && inscriptionId <= CustomInscription.MateriaInscriptionSpeedSupreme)
+          inscriptionCraft = true;
+
+        switch(inscriptionId)
+        {
+          case CustomInscription.MateriaInscriptionYieldMinor: reduction += 0.02; break;
+          case CustomInscription.MateriaInscriptionYield: reduction += 0.04; break;
+          case CustomInscription.MateriaInscriptionYieldMajor: reduction += 0.06; break;
+          case CustomInscription.MateriaInscriptionYieldSupreme: reduction += 0.08; break;
+        }
+      }
+
+      if(!inscriptionCraft)
+      {
+        player.oid.SendServerMessage("Votre main droite doit être équipée d'un objet disposant d'une inscription de calligraphie pour pouvoir commencer ce travail.", ColorConstants.Red);
+        return;
+      }
+
+      skillPoints += player.learnableSkills.ContainsKey(masterSkill) ? player.learnableSkills[masterSkill].totalPoints * 0.02 : 0;
+      skillPoints += player.learnableSkills.ContainsKey(scienceSkill) ? player.learnableSkills[scienceSkill].totalPoints * 0.03 : 0;
+      skillPoints += player.learnableSkills.ContainsKey(expertSkill) ? player.learnableSkills[expertSkill].totalPoints * 0.03 : 0;
+     
+      double cost = Math.Pow(2, inscription.multiplier) * 100;
+      cost *= 1 - skillPoints;
+      cost *= 1 - reduction;
+
       int availableInflux = 0;
 
       foreach (NwItem item in player.oid.LoginCreature.Inventory.Items)
@@ -81,10 +189,10 @@ namespace NWN.Systems
         }
       }
 
-      player.craftJob = new PlayerSystem.CraftJob(player, targetItem, onSpellCast.Spell, PlayerSystem.JobType.Enchantement);
+      player.craftJob = new PlayerSystem.CraftJob(player, targetItem, inscription, PlayerSystem.JobType.Enchantement);
+      player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CASTING_INSCRIPTION").Delete();
 
-      /*if (!player.windows.ContainsKey("enchantementSelection")) player.windows.Add("enchantementSelection", new PlayerSystem.Player.EnchantementSelectionWindow(player, onSpellCast.Spell, targetItem));
-      else ((PlayerSystem.Player.EnchantementSelectionWindow)player.windows["enchantementSelection"]).CreateWindow(onSpellCast.Spell, targetItem);*/
+      ItemUtils.HandleCraftToolDurability(player, inscriptionTool, CustomInscription.MateriaInscriptionDurability, skill);
     }
   }
 }

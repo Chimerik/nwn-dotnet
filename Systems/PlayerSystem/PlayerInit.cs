@@ -313,6 +313,8 @@ namespace NWN.Systems
         oid.OnMapPinAddPin += HandleMapPinAdded;
         oid.OnMapPinChangePin += HandleMapPinChanged;
         oid.OnMapPinDestroyPin += HandleMapPinDestroyed;
+        oid.LoginCreature.OnEffectApply += HandleItemPropertyChecksOnEffectApplied;
+        oid.LoginCreature.OnEffectRemove += HandleItemPropertyChecksOnEffectRemoved;
         eventService.Subscribe<OnDMSpawnObject, DMEventFactory>(oid.LoginCreature, areaSystem.InitializeEventsAfterDMSpawnCreature, EventCallbackType.After);
       }
       private void InitializeSpellEvents()
@@ -560,24 +562,21 @@ namespace NWN.Systems
         if (oid.LoginCreature.ActiveEffects.Any(e => e.Tag == "_CORE_EFFECT"))
           return;
 
-        int improvedHealth = learnableSkills.ContainsKey(CustomSkill.ImprovedHealth) ? learnableSkills[CustomSkill.ImprovedHealth].currentLevel : 0;
-        int toughness = learnableSkills.ContainsKey(CustomSkill.Toughness) ? learnableSkills[CustomSkill.Toughness].currentLevel : 0;
-
         int conModifier = ((oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2);
-        oid.LoginCreature.LevelInfo[0].HitDie = (byte)(endurance.maxHP
-        + improvedHealth * (toughness + conModifier));
+        SetMaxHP();
 
         Effect runAction = Effect.RunAction(null, ItemSystem.removeCoreHandle);
         runAction = Effect.LinkEffects(runAction, Effect.Icon(NwGameTables.EffectIconTable.GetRow(132)));
         runAction.Tag = "_CORE_EFFECT";
         runAction.SubType = EffectSubType.Supernatural;
-
+        
         TimeSpan duration = endurance.expirationDate - DateTime.Now;
 
         oid.LoginCreature.ApplyEffect(EffectDuration.Temporary, runAction, TimeSpan.FromSeconds(duration.TotalSeconds > 0 ? duration.TotalSeconds : 0));
         LogUtils.LogMessage($"{oid.LoginCreature.Name} application des effets du Mélange à la connexion : HP endurance {endurance.maxHP}, max HP {oid.LoginCreature.LevelInfo[0].HitDie + conModifier}, HP régénérable {endurance.regenerableHP}, max énergie {endurance.maxMana}, énergie régénérable {(int)endurance.regenerableMana}, se dissipe le {endurance.expirationDate}", LogUtils.LogType.EnduranceSystem);
 
         energyRegen = oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand)?.BaseItem.ItemType == BaseItemType.MagicStaff ? 4 : 2;
+        wasHPGreaterThan50 = oid.LoginCreature.HP > MaxHP / 2;
       }
       private void HandleLearnableInit()
       {

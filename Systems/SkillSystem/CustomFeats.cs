@@ -562,10 +562,10 @@
     public const int CalligrapheCiseleurMaitre = 20426;
     public const int CalligrapheCiseleurScience = 20427;
     public const int CalligrapheCiseleurExpert = 20428;
-    public const int CalligrapheCoutelier = 20429;
-    public const int CalligrapheCoutelierMaitre = 20430;
-    public const int CalligrapheCoutelierScience = 20431;
-    public const int CalligrapheCoutelierExpert = 20432;
+    public const int CalligrapheFourbisseur = 20429;
+    public const int CalligrapheFourbisseurMaitre = 20430;
+    public const int CalligrapheFourbisseurScience = 20431;
+    public const int CalligrapheFourbisseurExpert = 20432;
 
     public const int AirMagic = 20433;
     public const int AirMagicMaster = 20434;

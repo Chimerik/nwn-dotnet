@@ -170,7 +170,7 @@ namespace NWN.Systems
             foreach (Effect eff in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "_MINING_BEAM"))
               player.oid.LoginCreature.RemoveEffect(eff);
 
-            ItemUtils.HandleCraftToolDurability(player, extractor, "EXTRACTOR", resourceSafetySkill);
+            ItemUtils.HandleCraftToolDurability(player, extractor, CustomInscription.MateriaExtractionDurability, resourceSafetySkill);
             player.oid.SendServerMessage($"Vous parvenez à extraire {StringUtils.ToWhitecolor(miningYield)} unité(s) de matéria de niveau de concentration {StringUtils.ToWhitecolor(grade)}", new Color(32, 255, 32));
 
             return;
@@ -206,14 +206,25 @@ namespace NWN.Systems
         private void SetExtractionTime()
         {
           extractionTotalDuration = Config.env == Config.Env.Prod ? Config.extractionBaseDuration : 10;
-          extractionTotalDuration -= extractionTotalDuration * (int)(player.learnableSkills[CustomSkill.MateriaScanning].totalPoints * 0.05);
-          extractionTotalDuration -= player.learnableSkills.ContainsKey(resourceExtractionSkill) ? extractionTotalDuration * (int)(player.learnableSkills[resourceExtractionSkill].totalPoints * 0.05) : 0;
-          extractionTotalDuration -= player.learnableSkills.ContainsKey(resourceExtractionSpeedSkill) ? extractionTotalDuration * (int)(player.learnableSkills[resourceExtractionSpeedSkill].totalPoints * 0.05) : 0;
-          extractionTotalDuration -= player.learnableSkills.ContainsKey(resourceAdvancedSkill) ? extractionTotalDuration * (int)(player.learnableSkills[resourceAdvancedSkill].totalPoints * 0.05) : 0;
-          extractionTotalDuration -= player.learnableSkills.ContainsKey(resourceMasterySkill) ? extractionTotalDuration * (int)(player.learnableSkills[resourceMasterySkill].totalPoints * 0.05) : 0;
-          
-          
-          extractionTotalDuration -= extractionTotalDuration * (extractor.LocalVariables.Where(l => l.Name.StartsWith("ENCHANTEMENT_CUSTOM_EXTRACTOR_SPEED_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value) / 100);
+          extractionTotalDuration *=  1 - player.learnableSkills[CustomSkill.MateriaScanning].totalPoints * 0.05;
+          extractionTotalDuration *= player.learnableSkills.ContainsKey(resourceExtractionSkill) ? 1 - player.learnableSkills[resourceExtractionSkill].totalPoints * 0.05 : 1;
+          extractionTotalDuration *= player.learnableSkills.ContainsKey(resourceExtractionSpeedSkill) ? 1 - player.learnableSkills[resourceExtractionSpeedSkill].totalPoints * 0.05 : 1;
+          extractionTotalDuration *= player.learnableSkills.ContainsKey(resourceAdvancedSkill) ? 1 - player.learnableSkills[resourceAdvancedSkill].totalPoints * 0.05 : 1;
+          extractionTotalDuration *= player.learnableSkills.ContainsKey(resourceMasterySkill) ? 1 - player.learnableSkills[resourceMasterySkill].totalPoints * 0.05 : 1;
+
+          for (int i = 0; i < extractor.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+          {
+            if (extractor.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+              continue;
+
+            switch(extractor.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
+            {
+              case CustomInscription.MateriaExtractionSpeedMinor: extractionTotalDuration *= 0.98; break;
+              case CustomInscription.MateriaExtractionSpeed: extractionTotalDuration *= 0.96; break;
+              case CustomInscription.MateriaExtractionSpeedMajor: extractionTotalDuration *= 0.94; break;
+              case CustomInscription.MateriaExtractionSpeedSupreme: extractionTotalDuration *= 0.92; break;
+            }
+          }
 
           extractionRemainingTime = extractionTotalDuration;
         }
@@ -238,12 +249,25 @@ namespace NWN.Systems
         private int GetMiningYield()
         {
           double miningYield = Config.extractionBaseYield;
-          miningYield += miningYield * (int)(player.learnableSkills[CustomSkill.MateriaScanning].totalPoints * 0.05);
-          miningYield += player.learnableSkills.ContainsKey(resourceExtractionSkill) ? miningYield * (int)(player.learnableSkills[resourceExtractionSkill].totalPoints * 0.05) : 0;
-          miningYield += player.learnableSkills.ContainsKey(resourceYieldSkill) ? miningYield * (int)(player.learnableSkills[resourceYieldSkill].totalPoints * 0.05) : 0;
-          miningYield += player.learnableSkills.ContainsKey(resourceAdvancedSkill) ? miningYield * (int)(player.learnableSkills[resourceAdvancedSkill].totalPoints * 0.05) : 0;
-          miningYield += player.learnableSkills.ContainsKey(resourceMasterySkill) ? miningYield * (int)(player.learnableSkills[resourceMasterySkill].totalPoints * 0.05) : 0;
-          miningYield += miningYield * (extractor.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_EXTRACTOR_YIELD_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value) / 100);
+          miningYield *= 1 + player.learnableSkills[CustomSkill.MateriaScanning].totalPoints * 0.05;
+          miningYield *= player.learnableSkills.ContainsKey(resourceExtractionSkill) ? 1 + player.learnableSkills[resourceExtractionSkill].totalPoints * 0.05 : 1;
+          miningYield *= player.learnableSkills.ContainsKey(resourceYieldSkill) ? 1 + player.learnableSkills[resourceYieldSkill].totalPoints * 0.05 : 1;
+          miningYield *= player.learnableSkills.ContainsKey(resourceAdvancedSkill) ? 1 + player.learnableSkills[resourceAdvancedSkill].totalPoints * 0.05 : 1;
+          miningYield *= player.learnableSkills.ContainsKey(resourceMasterySkill) ? 1 + player.learnableSkills[resourceMasterySkill].totalPoints * 0.05 : 1;
+
+          for (int i = 0; i < extractor.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+          {
+            if (extractor.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+              continue;
+
+            switch (extractor.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
+            {
+              case CustomInscription.MateriaExtractionYieldMinor: extractionTotalDuration *= 0.98; break;
+              case CustomInscription.MateriaExtractionYield: extractionTotalDuration *= 0.96; break;
+              case CustomInscription.MateriaExtractionYieldMajor: extractionTotalDuration *= 0.94; break;
+              case CustomInscription.MateriaExtractionYieldSupreme: extractionTotalDuration *= 0.92; break;
+            }
+          }
 
           return (int)miningYield;
         }
@@ -253,10 +277,23 @@ namespace NWN.Systems
           int grade = targetMateria.GetObjectVariable<LocalVariableInt>("_GRADE").Value;
           int gradeChance = (grade - 1) * 2;
           int skill = player.learnableSkills[CustomSkill.MateriaScanning].totalPoints;
-          skill += player.learnableSkills.ContainsKey(resourceExtractionSkill) ? skill * (int)(player.learnableSkills[resourceExtractionSkill].totalPoints * 0.01) : 0;
-          skill += player.learnableSkills.ContainsKey(resourceAdvancedSkill) ? skill * (int)(player.learnableSkills[resourceAdvancedSkill].totalPoints * 0.01) : 0;
-          skill += player.learnableSkills.ContainsKey(resourceMasterySkill) ? skill * (int)(player.learnableSkills[resourceMasterySkill].totalPoints * 0.01) : 0;
-          skill += extractor.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_EXTRACTOR_QUALITY_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value);
+          skill += player.learnableSkills.ContainsKey(resourceExtractionSkill) ? player.learnableSkills[resourceExtractionSkill].totalPoints : 0;
+          skill += player.learnableSkills.ContainsKey(resourceAdvancedSkill) ? player.learnableSkills[resourceAdvancedSkill].totalPoints : 0;
+          skill += player.learnableSkills.ContainsKey(resourceMasterySkill) ? player.learnableSkills[resourceMasterySkill].totalPoints : 0;
+
+          for (int i = 0; i < extractor.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+          {
+            if (extractor.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+              continue;
+
+            switch (extractor.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
+            {
+              case CustomInscription.MateriaExtractionQualityMinor: skill += 2; break;
+              case CustomInscription.MateriaExtractionQuality: skill += 4; break;
+              case CustomInscription.MateriaExtractionQualityMajor: skill += 6; break;
+              case CustomInscription.MateriaExtractionQualitySupreme: skill += 8; break;
+            }
+          }
 
           int random = NwRandom.Roll(Utils.random, 100);
 

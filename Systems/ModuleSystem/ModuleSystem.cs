@@ -146,9 +146,9 @@ namespace NWN.Systems
         }
       }*/
 
-      /*foreach (var entry in NwGameTables.PlaceableTable)
+      foreach (var entry in NwGameTables.PlaceableTable)
         if(!string.IsNullOrEmpty(entry.Label) && entry.Label.Contains("supprimer"))
-          Log.Info($"{entry.ModelName};{NWScript.ResManGetAliasFor(entry.ModelName, NWScript.RESTYPE_MDL)}");*/
+          Log.Info($"{entry.ModelName};{NWScript.ResManGetAliasFor(entry.ModelName, NWScript.RESTYPE_MDL)}");
 
       /*foreach (var duplicate in NwGameTables.PlaceableTable.GroupBy(p => p.ModelName).Where(p => p.Count() > 1).Select(p => p.Key))
       {
@@ -958,6 +958,7 @@ namespace NWN.Systems
           HandleRegen(player);
           HandleEnergyRegen(player);
           HandleAdrenalineReset(player);
+          HandleHealthTriggeredItemProperty(player);
         }
       }
     }
@@ -1099,6 +1100,12 @@ namespace NWN.Systems
         }
       }
 
+      if (player.IsVampireWeapon(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand)))
+        player.healthRegen -= 1;
+
+      if (player.IsVampireWeapon(player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand)))
+        player.healthRegen -= 1;
+
       if (player.healthRegen < -19)
         player.healthRegen = -20;
 
@@ -1191,6 +1198,14 @@ namespace NWN.Systems
 
         player.oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>($"_LAST_DAMAGE_ON").Delete();
         LogUtils.LogMessage($"{player.oid.LoginCreature.Name} perd toute son adrénaline", LogUtils.LogType.Combat);
+      }
+    }
+    private static void HandleHealthTriggeredItemProperty(PlayerSystem.Player player)
+    {
+      if (player.wasHPGreaterThan50 != player.oid.LoginCreature.HP > player.MaxHP / 2)
+      {
+        player.CheckForAdditionalMana();
+        player.wasHPGreaterThan50 = player.oid.LoginCreature.HP > player.MaxHP / 2;
       }
     }
     private static async void DelayedLocalVarDeletion(ObjectVariable local)

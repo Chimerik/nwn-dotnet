@@ -736,6 +736,18 @@ namespace NWN.Systems
         LogUtils.LogMessage($"Final : {damageType} - AC {targetAC} - Initial {initialDamage} - Final Damage {skillDamage}", LogUtils.LogType.Combat);
       }
 
+      if(ctx.physicalReduction > 0)
+      {
+        if (Config.GetContextDamage(ctx, DamageType.BaseWeapon) > -1)
+          Config.SetContextDamage(ctx, DamageType.BaseWeapon, Config.GetContextDamage(ctx, DamageType.BaseWeapon) - ctx.physicalReduction);
+        else if (Config.GetContextDamage(ctx, DamageType.Piercing) > -1)
+          Config.SetContextDamage(ctx, DamageType.Piercing, Config.GetContextDamage(ctx, DamageType.Piercing) - ctx.physicalReduction);
+        else if (Config.GetContextDamage(ctx, DamageType.Slashing) > -1)
+          Config.SetContextDamage(ctx, DamageType.Slashing, Config.GetContextDamage(ctx, DamageType.Slashing) - ctx.physicalReduction);
+        else if (Config.GetContextDamage(ctx, DamageType.Bludgeoning) > -1)
+          Config.SetContextDamage(ctx, DamageType.Bludgeoning, Config.GetContextDamage(ctx, DamageType.Bludgeoning) - ctx.physicalReduction);
+      }
+
       next();
     }
     private static void ProcessSpecialAttack(Context ctx, Action next)
@@ -786,7 +798,7 @@ namespace NWN.Systems
         {
           if (feat.MaxLevel > 0 && feat.MaxLevel < 255 && ctx.oAttacker.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{feat.Id}").Value < feat.MaxLevel)
           {
-            ctx.oAttacker.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{feat.Id}").Value += 25;
+            ctx.oAttacker.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{feat.Id}").Value += 25 * ctx.adrenalineGainModifier > feat.MaxLevel ? feat.MaxLevel : 25 * ctx.adrenalineGainModifier;
 
             if (ctx.oAttacker.GetObjectVariable<LocalVariableInt>($"_ADRENALINE_{feat.Id}").Value >= feat.MaxLevel)
               ctx.oAttacker.IncrementRemainingFeatUses(feat);

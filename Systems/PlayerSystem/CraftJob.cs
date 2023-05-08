@@ -234,15 +234,14 @@ namespace NWN.Systems
           Utils.LogMessageToDMs($"{e.Message}\n\n{e.StackTrace}");
         }
       }
-      public CraftJob(Player player, NwItem item, NwSpell spell, JobType jobType) // Enchantement NEW => Inscription
+      public CraftJob(Player player, NwItem item, LearnableSkill inscription, JobType jobType) // Enchantement NEW => Inscription
       {
         try
         {
-          icon = spell.IconResRef;
+          icon = inscription.icon;
           type = jobType;
 
-          Learnable learnable = SkillSystem.learnableDictionary[Spells2da.spellTable.GetRow(spell.Id).inscriptionSkill];
-          remainingTime = GetInscriptionTimeCost(learnable, player, item);
+          remainingTime = GetInscriptionTimeCost(inscription, player, item);
           originalSerializedItem = item.Serialize().ToBase64EncodedString();
 
           NwItem enchantedItem = item.Clone(NwModule.Instance.StartingLocation);
@@ -257,51 +256,15 @@ namespace NWN.Systems
             i++;
 
           if (i >= item.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value)
-            LogUtils.LogMessage($"Inscription {player.oid.LoginCreature.Name} - {spell.Name.ToString()} - {item.Name} - Impossible de trouver un slot valide libre", LogUtils.LogType.Craft);
+            LogUtils.LogMessage($"Inscription {player.oid.LoginCreature.Name} - {inscription.name} - {item.Name} - Impossible de trouver un slot valide libre", LogUtils.LogType.Craft);
 
-          enchantedItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value = spell.Id;
+          enchantedItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value = inscription.id;
 
-          HandleDamageModifierInscription(enchantedItem, learnable.id);
+          if((inscription.id >= CustomInscription.MateriaInscriptionDurabilityMinor && inscription.id <= CustomInscription.MateriaProductionSpeedSupreme) 
+          || (inscription.id >= CustomInscription.MateriaDetectionDurabilityMinor && inscription.id <= CustomInscription.MateriaExtractionSpeedSupreme))
+            enchantedItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}_DURABILITY").Value = enchantedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value * Config.baseCraftToolDurability;
 
-          item.Destroy();
-          DelayItemSerialization(enchantedItem);
-          player.oid.ApplyInstantVisualEffectToObject((VfxType)832, player.oid.ControlledCreature);
-        }
-        catch (Exception e)
-        {
-          Utils.LogMessageToDMs($"{e.Message}\n\n{e.StackTrace}");
-        }
-      }
-      public CraftJob(Player player, NwItem item, NwSpell spell, int index, JobType jobType) // Enchantement OLD
-      {
-        try
-        {
-          icon = spell.IconResRef;
-          type = jobType;
-
-          remainingTime = ItemUtils.GetBaseItemCost(item) * 10 * spell.InnateSpellLevel;
-
-          //if (player.learnableSkills.ContainsKey(CustomSkill.Enchanteur))
-            //remainingTime *= player.learnableSkills[CustomSkill.Enchanteur].bonusReduction;
-
-          originalSerializedItem = item.Serialize().ToBase64EncodedString();
-
-          NwItem enchantedItem = item.Clone(player.oid.LoginCreature.Location);
-
-          enchantedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value -= 1;
-          if (enchantedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value <= 0)
-            enchantedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Delete();
-
-          int i = 0;
-
-          while (enchantedItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasValue && i < 20)
-            i++;
-
-          if (i > 19)
-            Utils.LogMessageToDMs($"SYSTEME ENCHANTEMENT - {player.oid.LoginCreature.Name} - {spell.Name.ToString()} - {item.Name} - Impossible de trouver un slot valide libre");
-
-          enchantedItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value = spell.Id;
-          enchantementTag = AddCraftedEnchantementProperties(enchantedItem, spell, index, player, i);
+          HandleDamageModifierInscription(enchantedItem, inscription.id);
 
           item.Destroy();
           DelayItemSerialization(enchantedItem);
@@ -743,14 +706,6 @@ namespace NWN.Systems
 
       return true;
     }
-    private static string AddCraftedEnchantementProperties(NwItem craftedItem, NwSpell spell, int index, Player enchanter, int slot)
-    {
-      return spell.Id switch
-      {
-        883 or 884 or 885 or 886 or 887 or 888 or 889 or 889 or 890 or 891 or 892 or 893 => GetCraftToolEnchantementProperties(craftedItem, spell, index, slot),
-        _ => GetCraftEnchantementProperties(craftedItem, spell, SpellUtils.enchantementCategories[spell.Id][index], enchanter.characterId),
-      };
-    }
     private static string GetCraftEnchantementProperties(NwItem craftedItem, NwSpell spell, ItemProperty ip, int enchanterId)
     {
       ItemProperty existingIP = craftedItem.ItemProperties.FirstOrDefault(i => i.DurationType == EffectDuration.Permanent && i.Property.RowIndex == ip.Property.RowIndex && i.SubType?.RowIndex == ip.SubType?.RowIndex && i.Param1TableValue?.RowIndex == ip.Param1TableValue?.RowIndex);
@@ -799,40 +754,6 @@ namespace NWN.Systems
       craftedItem.AddItemProperty(ip, EffectDuration.Permanent);
 
       return ip.Tag;
-    }
-    private static string GetCraftToolEnchantementProperties(NwItem craftedItem, NwSpell spell, int index, int slot)
-    {
-      var enchantement = spell.Id switch
-      {
-        887 => "DETECTOR",
-        888 => "DETECTOR",
-        889 => "DETECTOR",
-        890 => "DETECTOR",
-        891 => "CRAFT",
-        892 => "CRAFT",
-        893 => "CRAFT",
-        894 => "CRAFT",
-        _ => "EXTRACTOR",
-      };
-    
-    var type = index switch
-      {
-        0 => "YIELD",
-        1 => "SPEED",
-        2 => "QUALITY",
-        4 => "ACCURACY",
-        _ => "RESIST",
-      };
-
-      int existingEnchantement = 1 + craftedItem.LocalVariables.Count(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_{enchantement}_{type}_") && !l.Name.Contains("_DURABILITY"));
-      
-      craftedItem.GetObjectVariable<LocalVariableInt>($"ENCHANTEMENT_CUSTOM_{enchantement}_{type}_{existingEnchantement}_{slot}").Value = 2 * spell.InnateSpellLevel /** enchanter.learnableSpells[spell.Id].currentLevel*/; // TODO : Prendre en compte le niveau des sorts;
-      craftedItem.GetObjectVariable<LocalVariableInt>($"ENCHANTEMENT_CUSTOM_{enchantement}_{type}_{existingEnchantement}_{slot}_DURABILITY").Value = craftedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value * Config.baseCraftToolDurability;
-      
-      if (!craftedItem.ItemProperties.Any(ip => ip.Property.PropertyType == ItemPropertyType.CastSpell && ip.SubType.RowIndex == 329)) // 329 = Activate Item
-        craftedItem.AddItemProperty(ItemProperty.CastSpell((IPCastSpell)329, IPCastSpellNumUses.UnlimitedUse), EffectDuration.Permanent);
-
-      return $"ENCHANTEMENT_CUSTOM_{enchantement}_{type}_{existingEnchantement}_{slot}";
     }
     private static bool CompleteMining(Player player, bool completed)
     {
@@ -962,6 +883,19 @@ namespace NWN.Systems
     private static double GetInscriptionTimeCost(Learnable learnable, Player player, NwItem item)
     {
       double remainingTime = ItemUtils.GetBaseItemCost(item) * 10 * learnable.multiplier;
+      double reduction = 0;
+      NwItem inscriptionTool = player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
+
+      for (int i = 0; i < inscriptionTool.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+      {
+        switch (inscriptionTool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
+        {
+          case CustomInscription.MateriaInscriptionSpeedMinor: reduction += 0.02; break;
+          case CustomInscription.MateriaInscriptionSpeed: reduction += 0.04; break;
+          case CustomInscription.MateriaInscriptionSpeedMajor: reduction += 0.06; break;
+          case CustomInscription.MateriaInscriptionSpeedSupreme: reduction += 0.08; break;
+        }
+      }
 
       return item.BaseItem.ItemType switch
       {

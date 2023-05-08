@@ -57,6 +57,12 @@ namespace NWN.Systems
 
       if(onItemEquip.Slot == InventorySlot.RightHand)
         oPC.BaseAttackCount = ItemUtils.GetWeaponAttackPerRound(oItem.BaseItem.ItemType);
+
+      if (!PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
+        return;
+
+      player.SetMaxHP();
+      player.endurance.additionnalMana = player.GetAdditionalMana();
     }
 
     public static void HandleUnequipItemBefore(OnItemUnequip onUnequip)
@@ -70,6 +76,12 @@ namespace NWN.Systems
           oPC.BaseAttackCount = ItemUtils.GetWeaponAttackPerRound(oPC.GetItemInSlot(InventorySlot.RightHand).BaseItem.ItemType);
         else
           oPC.BaseAttackCount = 3;
+
+        if (!PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
+          return;
+
+        player.SetMaxHP();
+        player.endurance.additionnalMana = player.GetAdditionalMana();
 
         return;
       }
