@@ -1,4 +1,4 @@
-﻿using Google.Cloud.Translation.V2;
+using Google.Cloud.Translation.V2;
 using NLog;
 using Anvil.API;
 using Anvil.API.Events;
