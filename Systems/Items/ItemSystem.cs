@@ -110,7 +110,7 @@ namespace NWN.Systems
       NwGameObject oTarget = onItemUse.TargetObject;
 
 
-      if(oItem.BaseItem.ItemType == BaseItemType.SpellScroll)
+      if (oItem.BaseItem.ItemType == BaseItemType.SpellScroll)
       {
         onItemUse.PreventUseItem = true;
         oPC.ControllingPlayer?.SendServerMessage("Les parchemins ne peuvent être utilisés qu'à but d'apprentissage", ColorConstants.Red);
@@ -135,7 +135,7 @@ namespace NWN.Systems
           break;
 
         case "sequence_register":
-          
+
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
 
@@ -175,15 +175,11 @@ namespace NWN.Systems
           break;
       }
 
-      if(oItem.LocalVariables.Any(v => v.Name.Contains("ENCHANTEMENT_CUSTOM_")))
-      {
-        if (oTarget is not null) 
+      if (oTarget is not null)
+      { 
+        switch (oTarget.Tag)
         {
-          if(oTarget.Tag == "mineable_materia" && oItem.LocalVariables.Any(v => v.Name.Contains("ENCHANTEMENT_CUSTOM_EXTRACTOR_"))) // L'objet est alors utilisé en mode extraction
-          {
-            feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
-            feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemNotEquipped, oPC.ControllingPlayer);
-            onItemUse.PreventUseItem = true;
+          case "mineable_materia": // Utilisation en mode extraction
 
             if (!player.learnableSkills.ContainsKey(CustomSkill.MateriaExtraction))
             {
@@ -191,45 +187,83 @@ namespace NWN.Systems
               return;
             }
 
-            if (!player.windows.ContainsKey("materiaExtraction")) player.windows.Add("materiaExtraction", new PlayerSystem.Player.MateriaExtractionWindow(player, onItemUse.Item, oTarget));
-            else ((PlayerSystem.Player.MateriaExtractionWindow)player.windows["materiaExtraction"]).CreateWindow(onItemUse.Item, oTarget);
-          }
-
-          if (oItem.LocalVariables.Any(v => v.Name.Contains("ENCHANTEMENT_CUSTOM_CRAFT_"))) // L'objet est alors utilisé en mode craft
-          {
-            switch(oTarget.Tag)
+            for (int i = 0; i < oItem.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
             {
-              case "forge":
-              case "scierie":
-              case "tannerie":
-              case "enchant":
+              if (oItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+                continue;
 
+              int inscriptionId = oItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}");
+
+              if (inscriptionId >= CustomInscription.MateriaExtractionDurabilityMinor && inscriptionId <= CustomInscription.MateriaExtractionSpeedSupreme)
+              {
+                feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
+                feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemNotEquipped, oPC.ControllingPlayer);
+                onItemUse.PreventUseItem = true;
+
+                if (!player.windows.ContainsKey("materiaExtraction")) player.windows.Add("materiaExtraction", new PlayerSystem.Player.MateriaExtractionWindow(player, onItemUse.Item, oTarget));
+                else ((PlayerSystem.Player.MateriaExtractionWindow)player.windows["materiaExtraction"]).CreateWindow(onItemUse.Item, oTarget);
+
+                break;
+              }
+            }
+
+            player.oid.SendServerMessage("Votre outil ne dispose d'aucune inscription permettant de procéder à une extraction de matéria. Pensez à faire appliquer une nouvelle inscription d'extraction !", ColorConstants.Red);
+            return;
+
+          case "forge":
+          case "scierie":
+          case "tannerie":
+
+            for (int i = 0; i < oItem.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+            {
+              if (oItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+                continue;
+
+              int inscriptionId = oItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}");
+
+              if (inscriptionId >= CustomInscription.MateriaProductionDurabilityMinor && inscriptionId <= CustomInscription.MateriaProductionSpeedSupreme)
+              {
                 feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
                 feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemNotEquipped, oPC.ControllingPlayer);
                 onItemUse.PreventUseItem = true;
 
                 if (!player.windows.ContainsKey("craftWorkshop")) player.windows.Add("craftWorkshop", new PlayerSystem.Player.WorkshopWindow(player, oTarget.Tag, oItem));
-                else ((PlayerSystem.Player.WorkshopWindow)player.windows["craftWorkshop"]).CreateWindow(oTarget.Tag, oItem); 
-                
+                else ((PlayerSystem.Player.WorkshopWindow)player.windows["craftWorkshop"]).CreateWindow(oTarget.Tag, oItem);
+
                 break;
+              }
             }
-          }
-        }
 
-        if((oTarget is null || oTarget == oPC) && oItem.LocalVariables.Any(v => v.Name.Contains("ENCHANTEMENT_CUSTOM_DETECTOR_"))) // L'objet est alors utilisé en mode scanner
-        {
-          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
-          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemNotEquipped, oPC.ControllingPlayer);
-          onItemUse.PreventUseItem = true;
-
-          if (!player.learnableSkills.ContainsKey(CustomSkill.MateriaScanning))
-          {
-            player.oid.SendServerMessage("La base de la compétence de recherche de dépot de matéria doit être apprise avant de pouvoir utiliser cet objet", ColorConstants.Red);
+            player.oid.SendServerMessage("Votre outil ne dispose d'aucune inscription permettant de manipuler de la matéria pour une production artisanale. Pensez à faire appliquer une nouvelle inscription de production !", ColorConstants.Red);
             return;
-          }
+        }
+      }
+      else // Utilisation en mode scanner ?
+      {
+        for (int i = 0; i < oItem.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+        {
+          if (oItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+            continue;
 
-          if (!player.windows.ContainsKey("materiaDetector")) player.windows.Add("materiaDetector", new PlayerSystem.Player.MateriaDetectorWindow(player, onItemUse.Item));
-          else ((PlayerSystem.Player.MateriaDetectorWindow)player.windows["materiaDetector"]).CreateWindow(onItemUse.Item);
+          int inscriptionId = oItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}");
+
+          if (inscriptionId >= CustomInscription.MateriaDetectionDurabilityMinor && inscriptionId <= CustomInscription.MateriaExtractionDurabilitySupreme)
+          {
+            if (!player.learnableSkills.ContainsKey(CustomSkill.MateriaScanning))
+            {
+              player.oid.SendServerMessage("La base de la compétence de recherche de dépot de matéria doit être apprise avant de pouvoir utiliser cet objet", ColorConstants.Red);
+              return;
+            }
+
+            feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
+            feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemNotEquipped, oPC.ControllingPlayer);
+            onItemUse.PreventUseItem = true;
+
+            if (!player.windows.ContainsKey("materiaDetector")) player.windows.Add("materiaDetector", new PlayerSystem.Player.MateriaDetectorWindow(player, onItemUse.Item));
+            else ((PlayerSystem.Player.MateriaDetectorWindow)player.windows["materiaDetector"]).CreateWindow(onItemUse.Item);
+
+            break;
+          }
         }
       }
 

@@ -141,6 +141,7 @@ namespace NWN.Systems
           upgradedItem.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value = player.oid.LoginCreature.OriginalName;
 
           DelayItemSerialization(upgradedItem);
+
           player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
         }
         catch (Exception e)
@@ -234,7 +235,7 @@ namespace NWN.Systems
           Utils.LogMessageToDMs($"{e.Message}\n\n{e.StackTrace}");
         }
       }
-      public CraftJob(Player player, NwItem item, LearnableSkill inscription, JobType jobType) // Enchantement NEW => Inscription
+      public CraftJob(Player player, NwItem item, LearnableSkill inscription, JobType jobType) // Inscription & Calligraphie
       {
         try
         {
@@ -666,7 +667,7 @@ namespace NWN.Systems
       if (completed)
       {
         NwItem item = ItemUtils.DeserializeAndAcquireItem(player.craftJob.serializedCraftedItem, player.oid.LoginCreature);
-        player.oid.SendServerMessage($"Vous venez de terminer l'enchantement de : {item.Name.ColorString(ColorConstants.White)}", ColorConstants.Orange);
+        player.oid.SendServerMessage($"Vous venez de terminer la calligraphie de : {item.Name.ColorString(ColorConstants.White)}", ColorConstants.Orange);
         player.oid.ApplyInstantVisualEffectToObject((VfxType)1055, player.oid.ControlledCreature);
 
         /*int enchanteurChanceuxLevel = player.learnableSkills.ContainsKey(CustomSkill.EnchanteurChanceux) ? player.learnableSkills[CustomSkill.EnchanteurChanceux].totalPoints : 0;

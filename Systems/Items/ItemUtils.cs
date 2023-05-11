@@ -663,7 +663,7 @@ namespace NWN.Systems
         if (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
           continue;
 
-        switch (Spells2da.spellTable.GetRow(item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value).inscriptionSkill)
+        switch (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
         {
           case CustomInscription.Cuirassé: armor += 1; break;
           case CustomInscription.Absorption:
@@ -1183,7 +1183,7 @@ namespace NWN.Systems
         if (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
           continue;
 
-        switch (Spells2da.spellTable.GetRow(item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value).inscriptionSkill)
+        switch (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
         {
           case CustomInscription.Blindé: armor += 1; break;
           case CustomInscription.RepousseDragon: repousseDragon += 2; break;
@@ -1572,7 +1572,7 @@ namespace NWN.Systems
         if (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
           continue;
 
-        switch (Spells2da.spellTable.GetRow(item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value).inscriptionSkill)
+        switch (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
         {
           case CustomInscription.OnApprendDeSesErreurs: erreurs += 1; break;
           case CustomInscription.PatienceEtLongueurDeTemps: patience += 1; break;
@@ -1804,7 +1804,7 @@ namespace NWN.Systems
         if (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
           continue;
 
-        switch (Spells2da.spellTable.GetRow(item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value).inscriptionSkill)
+        switch (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
         {
           case CustomInscription.Pourfendeur: pourfendeur += 1; break;
           case CustomInscription.Défense: defense += 1; break;

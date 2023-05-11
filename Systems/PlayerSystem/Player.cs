@@ -1077,9 +1077,23 @@ namespace NWN.Systems
           return;
         }
 
-        if(tool is null || tool.Possessor != oid.LoginCreature || !tool.LocalVariables.Any(v => v.Name.Contains("ENCHANTEMENT_CUSTOM_CRAFT_")))
+        if (tool is null || tool.Possessor != oid.LoginCreature)
         {
-          oid.SendServerMessage("L'outil que vous utilisez actuellement ne permet plus la manipulation de matéria raffinée. Veuillez en utiliser un autre.", ColorConstants.Red);
+          oid.SendServerMessage("L'outil que vous utilisez actuellement n'est plus valide. Veuillez en utiliser un autre.", ColorConstants.Red);
+          return;
+        }
+
+        for (int i = 0; i < tool.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+        {
+          if (tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+            continue;
+
+          int inscriptionId = tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}");
+
+          if (inscriptionId >= CustomInscription.MateriaProductionDurabilityMinor && inscriptionId <= CustomInscription.MateriaProductionSpeedSupreme)
+            break;
+
+          oid.SendServerMessage("L'outil utilisé pour votre travail ne dispose plus d'inscription permettant la manipulation de matéria, pensez à faire appliquer de nouvelles inscriptions !", ColorConstants.Red);
           return;
         }
 
@@ -1119,12 +1133,26 @@ namespace NWN.Systems
           return;
         }
 
-        if (tool is null || tool.Possessor != oid.LoginCreature || !tool.LocalVariables.Any(v => v.Name.Contains("ENCHANTEMENT_CUSTOM_CRAFT_")))
+        if (tool is null || tool.Possessor != oid.LoginCreature)
         {
-          oid.SendServerMessage("L'outil que vous utilisez actuellement ne permet plus la manipulation de matéria raffinée. Veuillez en utiliser un autre.", ColorConstants.Red);
+          oid.SendServerMessage("L'outil utilisé pour votre travail n'est plus valide, veuillez en utiliser un autre !", ColorConstants.Red);
           return;
         }
 
+        for (int i = 0; i < tool.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+        {
+          if (tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+            continue;
+
+          int inscriptionId = tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}");
+
+          if (inscriptionId >= CustomInscription.MateriaProductionDurabilityMinor && inscriptionId <= CustomInscription.MateriaProductionSpeedSupreme)
+            break;
+
+          oid.SendServerMessage("L'outil utilisé pour votre travail ne dispose plus d'inscription permettant la manipulation de matéria, pensez à faire appliquer de nouvelles inscriptions !", ColorConstants.Red);
+          return;
+        }
+       
         int grade = 1;
 
         if (upgradedItem != null)
@@ -1528,7 +1556,7 @@ namespace NWN.Systems
           if (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
             continue;
 
-          switch (Spells2da.spellTable.GetRow(item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value).inscriptionSkill)
+          switch (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
           {
             case CustomInscription.Courage:
             case CustomInscription.Vigueur:  additionalHP += 4; break;
@@ -1571,7 +1599,7 @@ namespace NWN.Systems
           if (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
             continue;
 
-          switch (Spells2da.spellTable.GetRow(item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value).inscriptionSkill)
+          switch (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
           {
             case CustomInscription.Rayonnant:
             case CustomInscription.Vision: additionalMana += 1; break;
@@ -1625,7 +1653,7 @@ namespace NWN.Systems
           if (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
             continue;
 
-          if(Spells2da.spellTable.GetRow(item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value).inscriptionSkill == CustomInscription.Vampirisme)
+          if(item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value == CustomInscription.Vampirisme)
             return true;
         }
 

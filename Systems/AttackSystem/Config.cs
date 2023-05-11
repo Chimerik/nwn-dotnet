@@ -152,7 +152,7 @@ namespace NWN.Systems
         if (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
           continue;
 
-        switch (Spells2da.spellTable.GetRow(item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value).inscriptionSkill)
+        switch (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
         {
           case CustomInscription.Cuirassé: ctx.targetAC[DamageType.BaseWeapon] += 1; break;
           case CustomInscription.Absorption:
@@ -499,7 +499,7 @@ namespace NWN.Systems
         if (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
           continue;
 
-        switch (Spells2da.spellTable.GetRow(item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value).inscriptionSkill)
+        switch (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
         {
           case CustomInscription.Blindé: ctx.targetAC[DamageType.BaseWeapon] += 1; break;
           case CustomInscription.RepousseDragon:
@@ -733,7 +733,7 @@ namespace NWN.Systems
         if (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
           continue;
 
-        switch (Spells2da.spellTable.GetRow(item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value).inscriptionSkill)
+        switch (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
         {
           case CustomInscription.Défense:
             if (!ctx.targetAC.TryAdd(DamageType.BaseWeapon, 1))
@@ -777,7 +777,7 @@ namespace NWN.Systems
         if (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
           continue;
 
-        switch (Spells2da.spellTable.GetRow(item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value).inscriptionSkill)
+        switch (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
         {
           case CustomInscription.Sismique:
             if (baseDamage > -1)
@@ -818,7 +818,7 @@ namespace NWN.Systems
         if (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
           continue;
 
-        switch (Spells2da.spellTable.GetRow(item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value).inscriptionSkill)
+        switch (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
         {
           case CustomInscription.Pourfendeur: baseDamage *= 1.01; break;
           case CustomInscription.QueDuMuscle:
