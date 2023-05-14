@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Anvil.API;
 using System.Threading.Tasks;
