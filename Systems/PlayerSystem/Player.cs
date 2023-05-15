@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Anvil.API;
 using System.Threading.Tasks;
@@ -988,7 +988,23 @@ namespace NWN.Systems
 
         materiaCost *= learnableSkills.ContainsKey(entry.craftLearnable) ? learnableSkills[entry.craftLearnable].bonusReduction : 1;
         materiaCost *= learnableSkills.ContainsKey(jobFeat) ? learnableSkills[jobFeat].bonusReduction : 1;
-        materiaCost *= tool is not null ? (1 - (tool.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_CRAFT_SPEED_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value) / 100)) : 1;
+
+        if (tool is not null)
+        {
+          for (int i = 0; i < tool.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+          {
+            if (tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+              continue;
+
+            switch (tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
+            {
+              case CustomInscription.MateriaProductionSpeedMinor: materiaCost *= 0.98; break;
+              case CustomInscription.MateriaProductionSpeed: materiaCost *= 0.96; break;
+              case CustomInscription.MateriaProductionSpeedMajor: materiaCost *= 0.94; break;
+              case CustomInscription.MateriaProductionSpeedSupreme: materiaCost *= 0.92; break;
+            }
+          }
+        }
 
         return materiaCost;
       }
@@ -999,7 +1015,23 @@ namespace NWN.Systems
 
         materiaCost *= learnableSkills.ContainsKey(entry.craftLearnable) ? learnableSkills[entry.craftLearnable].bonusReduction : 1;
         materiaCost *= learnableSkills.ContainsKey(jobFeat) ? learnableSkills[jobFeat].bonusReduction : 1;
-        materiaCost *= tool is not null ? (1 - (tool.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_CRAFT_SPEED_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value) / 100)) : 1;
+
+        if (tool is not null)
+        {
+          for (int i = 0; i < tool.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+          {
+            if (tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+              continue;
+
+            switch (tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
+            {
+              case CustomInscription.MateriaProductionSpeedMinor: materiaCost *= 0.98; break;
+              case CustomInscription.MateriaProductionSpeed: materiaCost *= 0.96; break;
+              case CustomInscription.MateriaProductionSpeedMajor: materiaCost *= 0.94; break;
+              case CustomInscription.MateriaProductionSpeedSupreme: materiaCost *= 0.92; break;
+            }
+          }
+        }
 
         return materiaCost;
       }
@@ -1033,7 +1065,23 @@ namespace NWN.Systems
         materiaCost *= baseACValue < 1 && learnableSkills.ContainsKey(CustomSkill.CraftClothes) ? learnableSkills[CustomSkill.CraftClothes].bonusReduction : 1;
         materiaCost *= baseACValue > 0 && learnableSkills.ContainsKey(CustomSkill.CraftArmor) ? learnableSkills[CustomSkill.CraftArmor].bonusReduction : 1;
         materiaCost *= learnableSkills.ContainsKey(jobFeat) ? learnableSkills[jobFeat].bonusReduction : 1;
-        materiaCost *= tool is not null ? (1 - (tool.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_CRAFT_YIELD_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value) / 100)) : 1;
+
+        if (tool is not null)
+        {
+          for (int i = 0; i < tool.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+          {
+            if (tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+              continue;
+
+            switch (tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
+            {
+              case CustomInscription.MateriaProductionYieldMinor: materiaCost *= 0.98; break;
+              case CustomInscription.MateriaProductionYield: materiaCost *= 0.96; break;
+              case CustomInscription.MateriaProductionYieldMajor: materiaCost *= 0.94; break;
+              case CustomInscription.MateriaProductionYieldSupreme: materiaCost *= 0.92; break;
+            }
+          }
+        }
 
         return materiaCost;
       }
@@ -1045,7 +1093,23 @@ namespace NWN.Systems
 
         materiaCost *= learnableSkills.ContainsKey(entry.craftLearnable) ? learnableSkills[entry.craftLearnable].bonusReduction : 1;
         materiaCost *= learnableSkills.ContainsKey(jobFeat) ? learnableSkills[jobFeat].bonusReduction : 1;
-        materiaCost *= tool is not null ? (1 - (tool.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_CRAFT_YIELD_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value) / 100)) : 1;
+
+        if (tool is not null)
+        {
+          for (int i = 0; i < tool.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+          {
+            if (tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+              continue;
+
+            switch (tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
+            {
+              case CustomInscription.MateriaProductionYieldMinor: materiaCost *= 0.98; break;
+              case CustomInscription.MateriaProductionYield: materiaCost *= 0.96; break;
+              case CustomInscription.MateriaProductionYieldMajor: materiaCost *= 0.94; break;
+              case CustomInscription.MateriaProductionYieldSupreme: materiaCost *= 0.92; break;
+            }
+          }
+        }
 
         switch (ItemUtils.GetItemCategory(baseItemType))
         {
@@ -1090,7 +1154,7 @@ namespace NWN.Systems
 
           int inscriptionId = tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}");
 
-          if (inscriptionId >= CustomInscription.MateriaProductionDurabilityMinor && inscriptionId <= CustomInscription.MateriaProductionSpeedSupreme)
+          if (inscriptionId >= CustomInscription.MateriaProductionDurabilityMinor && inscriptionId <= CustomInscription.MateriaProductionQualitySupreme)
             break;
 
           oid.SendServerMessage("L'outil utilisé pour votre travail ne dispose plus d'inscription permettant la manipulation de matéria, pensez à faire appliquer de nouvelles inscriptions !", ColorConstants.Red);
@@ -1146,8 +1210,8 @@ namespace NWN.Systems
 
           int inscriptionId = tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}");
 
-          if (inscriptionId >= CustomInscription.MateriaProductionDurabilityMinor && inscriptionId <= CustomInscription.MateriaProductionSpeedSupreme)
-            break;
+          if (inscriptionId >= CustomInscription.MateriaProductionDurabilityMinor && inscriptionId <= CustomInscription.MateriaProductionQualitySupreme)
+            break; 
 
           oid.SendServerMessage("L'outil utilisé pour votre travail ne dispose plus d'inscription permettant la manipulation de matéria, pensez à faire appliquer de nouvelles inscriptions !", ColorConstants.Red);
           return;
@@ -1215,7 +1279,23 @@ namespace NWN.Systems
 
         remainingTime *= learnableSkills.ContainsKey(CustomSkill.Recycler) ? learnableSkills[CustomSkill.Recycler].bonusReduction : 1;
         remainingTime *= learnableSkills.ContainsKey(CustomSkill.RecyclerFast) ? learnableSkills[CustomSkill.RecyclerFast].bonusReduction : 1;
-        remainingTime *= (1 - (tool.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_CRAFT_SPEED_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value) / 100));
+
+        if (tool is not null)
+        {
+          for (int i = 0; i < tool.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+          {
+            if (tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+              continue;
+
+            switch (tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
+            {
+              case CustomInscription.MateriaProductionSpeedMinor: remainingTime *= 0.98; break;
+              case CustomInscription.MateriaProductionSpeed: remainingTime *= 0.96; break;
+              case CustomInscription.MateriaProductionSpeedMajor: remainingTime *= 0.94; break;
+              case CustomInscription.MateriaProductionSpeedSupreme: remainingTime *= 0.92; break;
+            }
+          }
+        }
 
         return remainingTime;
       }
@@ -1225,16 +1305,49 @@ namespace NWN.Systems
         quantity *= learnableSkills.ContainsKey(CustomSkill.Recycler) ? learnableSkills[CustomSkill.Recycler].bonusMultiplier : 1;
         quantity *= learnableSkills.ContainsKey(CustomSkill.RecyclerExpert) ? learnableSkills[CustomSkill.RecyclerExpert].bonusMultiplier : 1;
 
+        /*if (tool is not null)
+        {
+          for (int i = 0; i < tool.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+          {
+            if (tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+              continue;
+
+            switch (tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
+            {
+              case CustomInscription.MateriaProductionYieldMinor: quantity *= 1.02; break;
+              case CustomInscription.MateriaProductionYield: quantity *= 1.04; break;
+              case CustomInscription.MateriaProductionYieldMajor: quantity *= 1.06; break;
+              case CustomInscription.MateriaProductionYieldSupreme: quantity *= 1.08; break;
+            }
+          }
+        }*/
+
         return quantity;
       }
       public double GetItemRepairMateriaCost(NwItem item, NwItem tool)
       {
         double materiaCost = GetItemMateriaCost(item, tool, item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value);
         materiaCost *= 1 + (5 * item.GetObjectVariable<LocalVariableInt>("_DURABILITY_NB_REPAIRS") / 100);
-        materiaCost *= (1 - (tool.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_CRAFT_YIELD_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value) / 100));
         materiaCost /= item.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value == oid.LoginCreature.OriginalName ? 8 : 4;
         materiaCost *= learnableSkills.ContainsKey(CustomSkill.Repair) ? learnableSkills[CustomSkill.Repair].bonusReduction : 1;
         materiaCost *= learnableSkills.ContainsKey(CustomSkill.RepairExpert) ? learnableSkills[CustomSkill.RepairExpert].bonusReduction : 1;
+
+        if (tool is not null)
+        {
+          for (int i = 0; i < tool.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+          {
+            if (tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+              continue;
+
+            switch (tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
+            {
+              case CustomInscription.MateriaProductionYieldMinor: materiaCost *= 1.02; break;
+              case CustomInscription.MateriaProductionYield: materiaCost *= 1.04; break;
+              case CustomInscription.MateriaProductionYieldMajor: materiaCost *= 1.06; break;
+              case CustomInscription.MateriaProductionYieldSupreme: materiaCost *= 1.08; break;
+            }
+          }
+        }
 
         return materiaCost;
       }
@@ -1244,7 +1357,23 @@ namespace NWN.Systems
         timeCost *= 1 + (25 * item.GetObjectVariable<LocalVariableInt>("_DURABILITY_NB_REPAIRS") / 100);
         timeCost *= learnableSkills.ContainsKey(CustomSkill.Repair) ? learnableSkills[CustomSkill.Repair].bonusReduction : 1;
         timeCost *= learnableSkills.ContainsKey(CustomSkill.RepairFast) ? learnableSkills[CustomSkill.RepairFast].bonusReduction : 1;
-        timeCost *= (1 - (tool.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_CRAFT_SPEED_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value) / 100));
+
+        if (tool is not null)
+        {
+          for (int i = 0; i < tool.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+          {
+            if (tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+              continue;
+
+            switch (tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
+            {
+              case CustomInscription.MateriaProductionSpeedMinor: timeCost *= 1.02; break;
+              case CustomInscription.MateriaProductionSpeed: timeCost *= 1.04; break;
+              case CustomInscription.MateriaProductionSpeedMajor: timeCost *= 1.06; break;
+              case CustomInscription.MateriaProductionSpeedSupreme: timeCost *= 1.08; break;
+            }
+          }
+        }
 
         return timeCost;
       }

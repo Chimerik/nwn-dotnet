@@ -175,6 +175,11 @@
     public const int MateriaProductionSpeedMajor = 50100;
     public const int MateriaProductionSpeedSupreme = 50101;
 
+    public const int MateriaProductionQualityMinor = 50102;
+    public const int MateriaProductionQuality = 50103;
+    public const int MateriaProductionQualityMajor = 50104;
+    public const int MateriaProductionQualitySupreme = 50105;
+
     // BOUCLIER
     public const int Blindé = 51000;
     public const int RepousseDragon = 51001;
@@ -225,7 +230,7 @@
     public const int RepousseAnimal = 51046;
     public const int RepousseReptilien = 51047;
     public const int RepousseVermine = 51048;
-    public const int RepousseElementaire = 50049;
+    public const int RepousseElementaire = 51049;
 
     // RINGS & AMULET
     public const int OnApprendDeSesErreurs = 51500;

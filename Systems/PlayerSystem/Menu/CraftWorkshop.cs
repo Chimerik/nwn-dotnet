@@ -201,10 +201,26 @@ namespace NWN.Systems
                     case Tab.Recycle:
 
                       if (player.craftJob != null) player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
-                      else if (tool is null || tool.Possessor != player.oid.LoginCreature || !tool.LocalVariables.Any(v => v.Name.Contains("ENCHANTEMENT_CUSTOM_CRAFT_")))
-                        player.oid.SendServerMessage("L'outil que vous utilisez actuellement ne permet plus la manipulation de matéria raffinée. Veuillez en utiliser un autre.", ColorConstants.Red);
+                      else if(tool is null || tool.Possessor != player.oid.LoginCreature)
+                      {
+                        player.oid.SendServerMessage("L'outil que vous utilisez n'est plus valide. Veuillez en utiliser un autre.", ColorConstants.Red);
+                      }
                       else
                       {
+                        for (int i = 0; i < tool.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+                        {
+                          if (tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+                            continue;
+
+                          int inscriptionId = tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}");
+
+                          if (inscriptionId >= CustomInscription.MateriaProductionDurabilityMinor && inscriptionId <= CustomInscription.MateriaProductionQualitySupreme)
+                            break;
+
+                          player.oid.SendServerMessage("L'outil utilisé pour votre travail ne dispose plus d'inscription permettant la manipulation de matéria, pensez à faire appliquer de nouvelles inscriptions !", ColorConstants.Red);
+                          return;
+                        }
+
                         player.craftJob = new(player, item, tool, JobType.Recycling);
                         ItemUtils.HandleCraftToolDurability(player, tool, CustomInscription.MateriaProductionDurability, CustomSkill.ArtisanPrudent);
                       }
@@ -216,10 +232,24 @@ namespace NWN.Systems
                     case Tab.Reinforce:
 
                       if (player.craftJob != null) player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
-                      else if (tool is null || tool.Possessor != player.oid.LoginCreature || !tool.LocalVariables.Any(v => v.Name.Contains("ENCHANTEMENT_CUSTOM_CRAFT_")))
-                        player.oid.SendServerMessage("L'outil que vous utilisez actuellement ne permet plus la manipulation de matéria raffinée. Veuillez en utiliser un autre.", ColorConstants.Red);
+                      else if (tool is null || tool.Possessor != player.oid.LoginCreature)
+                        player.oid.SendServerMessage("L'outil que vous utilisez actuellement n'est plus valide. Veuillez en utiliser un autre.", ColorConstants.Red);
                       else
                       {
+                        for (int i = 0; i < tool.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+                        {
+                          if (tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+                            continue;
+
+                          int inscriptionId = tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}");
+
+                          if (inscriptionId >= CustomInscription.MateriaProductionDurabilityMinor && inscriptionId <= CustomInscription.MateriaProductionQualitySupreme)
+                            break;
+
+                          player.oid.SendServerMessage("L'outil utilisé pour votre travail ne dispose plus d'inscription permettant la manipulation de matéria, pensez à faire appliquer de nouvelles inscriptions !", ColorConstants.Red);
+                          return;
+                        }
+
                         player.craftJob = new(player, item, tool, JobType.Renforcement);
                         ItemUtils.HandleCraftToolDurability(player, tool, CustomInscription.MateriaProductionDurability, CustomSkill.ArtisanPrudent);
                       }

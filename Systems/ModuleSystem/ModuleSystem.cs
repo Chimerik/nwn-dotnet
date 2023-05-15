@@ -1,4 +1,4 @@
-using Google.Cloud.Translation.V2;
+﻿using Google.Cloud.Translation.V2;
 using NLog;
 using Anvil.API;
 using Anvil.API.Events;
@@ -146,9 +146,9 @@ namespace NWN.Systems
         }
       }*/
 
-      foreach (var entry in NwGameTables.PlaceableTable)
+      /*foreach (var entry in NwGameTables.PlaceableTable)
         if(!string.IsNullOrEmpty(entry.Label) && entry.Label.Contains("supprimer"))
-          Log.Info($"{entry.ModelName};{NWScript.ResManGetAliasFor(entry.ModelName, NWScript.RESTYPE_MDL)}");
+          Log.Info($"{entry.ModelName};{NWScript.ResManGetAliasFor(entry.ModelName, NWScript.RESTYPE_MDL)}");*/
 
       /*foreach (var duplicate in NwGameTables.PlaceableTable.GroupBy(p => p.ModelName).Where(p => p.Count() > 1).Select(p => p.Key))
       {

@@ -102,8 +102,27 @@ namespace NWN.Systems
           Craft.Collect.System.AddCraftedItemProperties(craftedItem, 1);
           craftedItem.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value = player.oid.LoginCreature.OriginalName;
 
-          if (NwRandom.Roll(Utils.random, 100) <= tool.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_CRAFT_QUALITY_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value))
+          int addSlotChance = 0;
+
+          for (int i = 0; i < tool.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+          {
+            if (tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+              continue;
+
+            switch (tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
+            {
+              case CustomInscription.MateriaProductionQualityMinor: addSlotChance += 1; break;
+              case CustomInscription.MateriaProductionQuality: addSlotChance += 2; break;
+              case CustomInscription.MateriaProductionQualityMajor: addSlotChance += 3; break;
+              case CustomInscription.MateriaProductionQualitySupreme: addSlotChance += 4; break;
+            }
+          }
+
+          if (NwRandom.Roll(Utils.random, 100) < addSlotChance)
+          {
             craftedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
+            craftedItem.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value += 1;
+          }
 
           serializedCraftedItem = craftedItem.Serialize().ToBase64EncodedString();
           craftedItem.Destroy();
@@ -132,8 +151,27 @@ namespace NWN.Systems
           remainingTime = jobDuration;
           type = JobType.ItemUpgrade;
 
-          if (NwRandom.Roll(Utils.random, 100) <= tool.LocalVariables.Where(l => l.Name.StartsWith($"ENCHANTEMENT_CUSTOM_CRAFT_QUALITY_") && !l.Name.Contains("_DURABILITY")).Sum(l => ((LocalVariableInt)l).Value))
+          int addSlotChance = 0;
+
+          for (int i = 0; i < tool.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+          {
+            if (tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").HasNothing)
+              continue;
+
+            switch (tool.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
+            {
+              case CustomInscription.MateriaProductionQualityMinor: addSlotChance += 1; break;
+              case CustomInscription.MateriaProductionQuality: addSlotChance += 2; break;
+              case CustomInscription.MateriaProductionQualityMajor: addSlotChance += 3; break;
+              case CustomInscription.MateriaProductionQualitySupreme: addSlotChance += 4; break;
+            }
+          }
+
+          if (NwRandom.Roll(Utils.random, 100) < addSlotChance)
+          {
             upgradedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
+            upgradedItem.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value += 1;
+          }
 
           originalSerializedItem = upgradedItem.Serialize().ToBase64EncodedString();
 
@@ -261,7 +299,7 @@ namespace NWN.Systems
 
           enchantedItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value = inscription.id;
 
-          if((inscription.id >= CustomInscription.MateriaInscriptionDurabilityMinor && inscription.id <= CustomInscription.MateriaProductionSpeedSupreme) 
+          if((inscription.id >= CustomInscription.MateriaInscriptionDurabilityMinor && inscription.id <= CustomInscription.MateriaProductionQualitySupreme) 
           || (inscription.id >= CustomInscription.MateriaDetectionDurabilityMinor && inscription.id <= CustomInscription.MateriaExtractionSpeedSupreme))
             enchantedItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}_DURABILITY").Value = enchantedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value * Config.baseCraftToolDurability;
 
@@ -670,34 +708,42 @@ namespace NWN.Systems
         player.oid.SendServerMessage($"Vous venez de terminer la calligraphie de : {item.Name.ColorString(ColorConstants.White)}", ColorConstants.Orange);
         player.oid.ApplyInstantVisualEffectToObject((VfxType)1055, player.oid.ControlledCreature);
 
-        /*int enchanteurChanceuxLevel = player.learnableSkills.ContainsKey(CustomSkill.EnchanteurChanceux) ? player.learnableSkills[CustomSkill.EnchanteurChanceux].totalPoints : 0;
+        int addedSlotChance = 0;
 
-        if (NwRandom.Roll(Utils.random, 100) <= enchanteurChanceuxLevel)
+        switch(item.BaseItem.ItemType)
         {
-          item.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
-          player.oid.SendServerMessage("Votre talent d'enchanteur vous a permit de ne pas consommer d'emplacement !", ColorConstants.Orange);
+          case BaseItemType.SmallShield:
+          case BaseItemType.LargeShield:
+          case BaseItemType.TowerShield:
+            addedSlotChance = player.learnableSkills.ContainsKey(CustomSkill.CalligrapheBlindeurScience) ? player.learnableSkills[CustomSkill.CalligrapheBlindeurScience].totalPoints : 0;
+            addedSlotChance = player.learnableSkills.ContainsKey(CustomSkill.CalligrapheBlindeurExpert) ? player.learnableSkills[CustomSkill.CalligrapheBlindeurExpert].totalPoints : 0;
+            break;
+          case BaseItemType.Armor:
+          case BaseItemType.Helmet:
+          case BaseItemType.Cloak:
+          case BaseItemType.Boots:
+          case BaseItemType.Gloves:
+          case BaseItemType.Bracer:
+          case BaseItemType.Belt:
+            addedSlotChance = player.learnableSkills.ContainsKey(CustomSkill.CalligrapheArmurierExpert) ? player.learnableSkills[CustomSkill.CalligrapheArmurierExpert].totalPoints : 0;
+            addedSlotChance = player.learnableSkills.ContainsKey(CustomSkill.CalligrapheArmurierScience) ? player.learnableSkills[CustomSkill.CalligrapheArmurierScience].totalPoints : 0;
+            break;
+          case BaseItemType.Amulet:
+          case BaseItemType.Ring:
+            addedSlotChance = player.learnableSkills.ContainsKey(CustomSkill.CalligrapheCiseleurExpert) ? player.learnableSkills[CustomSkill.CalligrapheCiseleurExpert].totalPoints : 0;
+            addedSlotChance = player.learnableSkills.ContainsKey(CustomSkill.CalligrapheCiseleurScience) ? player.learnableSkills[CustomSkill.CalligrapheCiseleurScience].totalPoints : 0;
+            break;
+          default:
+            addedSlotChance = player.learnableSkills.ContainsKey(CustomSkill.CalligrapheFourbisseurExpert) ? player.learnableSkills[CustomSkill.CalligrapheFourbisseurExpert].totalPoints : 0;
+            addedSlotChance = player.learnableSkills.ContainsKey(CustomSkill.CalligrapheFourbisseurScience) ? player.learnableSkills[CustomSkill.CalligrapheFourbisseurScience].totalPoints : 0;
+            break;
         }
 
-        int enchanteurExpertLevel = player.learnableSkills.ContainsKey(CustomSkill.EnchanteurExpert) ? player.learnableSkills[CustomSkill.EnchanteurExpert].totalPoints : 0;
-
-        if (NwRandom.Roll(Utils.random, 100) <= enchanteurExpertLevel * 2)
+        if (NwRandom.Roll(Utils.random, 100) < addedSlotChance)
         {
-          if(player.craftJob.enchantementTag.StartsWith("ENCHANTEMENT_CUSTOM_"))
-          {
-            item.GetObjectVariable<LocalVariableInt>(player.craftJob.enchantementTag).Value *= 15 / 10;
-            item.GetObjectVariable<LocalVariableInt>($"{player.craftJob.enchantementTag}_DURABILITY").Value *= 15 / 10;
-          }
-          else
-          {
-            ItemProperty oldIp = item.ItemProperties.FirstOrDefault(ip => ip.Tag == player.craftJob.enchantementTag);
-            item.RemoveItemProperty(oldIp);
-
-            oldIp.IntParams[3] += 1; // IntParams[3] = CostTableValue
-            item.AddItemProperty(oldIp, EffectDuration.Permanent);
-          }
-          
-          player.oid.SendServerMessage("Votre talent d'enchanteur vous a permis d'obtenir un effet plus puissant !", ColorConstants.Orange);
-        }*/
+          item.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
+          player.oid.SendServerMessage("Votre talent de calligraphe vous a permit de ne pas consommer d'emplacement !", ColorConstants.Orange);
+        }
       }
       else // cancelled
       {

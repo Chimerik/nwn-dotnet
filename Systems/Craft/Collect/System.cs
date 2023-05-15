@@ -76,8 +76,9 @@ namespace NWN.Systems.Craft.Collect
     public static void AddCraftedItemProperties(NwItem craftedItem, int grade)
     {
       craftedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value = grade;
+      SetCraftItemProperties(craftedItem, grade);
 
-      foreach (ItemProperty ip in GetCraftItemProperties(craftedItem, grade))
+      /*foreach (ItemProperty ip in SetCraftItemProperties(craftedItem, grade))
       {
         ItemProperty existingIP = craftedItem.ItemProperties.FirstOrDefault(i => i.DurationType == EffectDuration.Permanent && i.Property.RowIndex == ip.Property.RowIndex && i.SubType?.RowIndex == ip.SubType?.RowIndex && i.Param1TableValue?.RowIndex == ip.Param1TableValue?.RowIndex);
 
@@ -122,7 +123,7 @@ namespace NWN.Systems.Craft.Collect
         }
 
         craftedItem.AddItemProperty(ip, EffectDuration.Permanent);
-      }
+      }*/
     }
   }
 }

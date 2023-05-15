@@ -36,46 +36,41 @@ namespace NWN.Systems
       craftTool.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value = 1;
       craftTool.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = 10;
       craftTool.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value = 1;
-      craftTool.GetObjectVariable<LocalVariableInt>($"SLOT0").Value = 891;
-      craftTool.GetObjectVariable<LocalVariableInt>($"ENCHANTEMENT_CUSTOM_CRAFT_RESIST_1_0").Value = 4;
-      craftTool.GetObjectVariable<LocalVariableInt>($"ENCHANTEMENT_CUSTOM_CRAFT_RESIST_1_0_DURABILITY").Value = 75;
+      craftTool.GetObjectVariable<LocalVariableInt>("SLOT0").Value = CustomInscription.MateriaProductionDurabilityMinor;
+      craftTool.GetObjectVariable<LocalVariableInt>("SLOT0_DURABILITY").Value = 75;
       craftTool.AddItemProperty(ItemProperty.CastSpell((IPCastSpell)329, IPCastSpellNumUses.UnlimitedUse), EffectDuration.Permanent);
 
       switch (resRef)
       {
         case "lighthammer":
           craftTool.Name = "Marteau de forgeron";
-          craftTool.Description = "Cet outil est enchanté afin de permettre la manipulation et le durcissement de la matéria raffinée dans le but d'en produire des objets utiles.";
+          craftTool.Description = "Cet outil est calligraphié afin de permettre la manipulation et le durcissement de la matéria raffinée dans le but d'en produire des objets utiles.";
           forgeTool = craftTool.Serialize();
           break;
 
         case "handaxe":
           craftTool.Name = "Rabot d'ébéniste";
-          craftTool.Description = "Cet outil est enchanté afin de permettre la manipulation et le durcissement de la matéria raffinée dans le but d'en produire des objets utiles.";
+          craftTool.Description = "Cet outil est calligraphié afin de permettre la manipulation et le durcissement de la matéria raffinée dans le but d'en produire des objets utiles.";
           woodTool = craftTool.Serialize();
           break;
 
         case "dagger":
           craftTool.Name = "Couteau de tanneur";
-          craftTool.Description = "Cet outil est enchanté afin de permettre la manipulation et le durcissement de la matéria raffinée dans le but d'en produire des objets utiles.";
+          craftTool.Description = "Cet outil est calligraphié afin de permettre la manipulation et le durcissement de la matéria raffinée dans le but d'en produire des objets utiles.";
           tannerTool = craftTool.Serialize();
           break;
 
         case "club":
           craftTool.Name = "Extracteur de matéria";
-          craftTool.Description = "Cet outil est enchanté afin de permettre l'extraction de matéria à partir d'un dépôt naturel.";
-          craftTool.GetObjectVariable<LocalVariableInt>($"ENCHANTEMENT_CUSTOM_EXTRACTOR_RESIST_1_0").Value = 4;
-          craftTool.GetObjectVariable<LocalVariableInt>($"ENCHANTEMENT_CUSTOM_EXTRACTOR_RESIST_1_0_DURABILITY").Value = 75;
-          craftTool.GetObjectVariable<LocalVariableInt>($"SLOT0").Value = 883;
+          craftTool.Description = "Cet outil est calligraphié afin de permettre l'extraction de matéria à partir d'un dépôt naturel.";
+          craftTool.GetObjectVariable<LocalVariableInt>($"SLOT0").Value = CustomInscription.MateriaExtractionDurabilityMinor;
           extractor = craftTool.Serialize();
           break;
 
         case "helmet":
           craftTool.Name = "Détecteur de matéria";
-          craftTool.Description = "Cet outil est enchanté afin de permettre la détection de dépôts naturels de matéria.";
-          craftTool.GetObjectVariable<LocalVariableInt>($"ENCHANTEMENT_CUSTOM_DETECTOR_RESIST_1_0").Value = 4;
-          craftTool.GetObjectVariable<LocalVariableInt>($"ENCHANTEMENT_CUSTOM_DETECTOR_RESIST_1_0_DURABILITY").Value = 75;
-          craftTool.GetObjectVariable<LocalVariableInt>($"SLOT0").Value = 887;
+          craftTool.Description = "Cet outil est calligraphié afin de permettre la détection de dépôts naturels de matéria.";
+          craftTool.GetObjectVariable<LocalVariableInt>($"SLOT0").Value = CustomInscription.MateriaDetectionDurabilityMinor;
           detector = craftTool.Serialize();
           break;
       }
