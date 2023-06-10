@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using NLog;
 using Anvil.API;
-using NWN.Core;
 using System.ComponentModel;
 using System.Threading.Tasks;
 
@@ -825,6 +824,9 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomInscription.MateriaInscriptionYield, new LearnableSkill(CustomInscription.MateriaInscriptionYield, "Calligraphie efficace", "Inscription d'objet\n\n-4% de quantité d'influx nécessaire lors de la calligraphiea\nLa présence d'au moins une inscription de calligraphie est nécessaire pour réaliser une calligraphie\nConsomme un emplacement libre d'inscription", Category.Inscription, "ife_X2EpicRepu", 5, 3, Ability.Charisma, Ability.Intelligence));
       learnableDictionary.Add(CustomInscription.MateriaInscriptionYieldMajor, new LearnableSkill(CustomInscription.MateriaInscriptionYieldMajor, "Calligraphie efficace majeure", "Inscription d'objet\n\n-6% de quantité d'influx nécessaire lors de la calligraphie\nLa présence d'au moins une inscription de calligraphie est nécessaire pour réaliser une calligraphie\nConsomme un emplacement libre d'inscription", Category.Inscription, "ife_X2EpicRepu", 5, 4, Ability.Charisma, Ability.Intelligence));
       learnableDictionary.Add(CustomInscription.MateriaInscriptionYieldSupreme, new LearnableSkill(CustomInscription.MateriaInscriptionYieldSupreme, "Calligraphie efficace suprême", "Inscription d'objet\n\n-8% de quantité d'influx nécessaire lors de la calligraphie\nLa présence d'au moins une inscription de calligraphie est nécessaire pour réaliser une calligraphie\nConsomme un emplacement libre d'inscription", Category.Inscription, "ife_X2EpicRepu", 5, 5, Ability.Charisma, Ability.Intelligence));
+    
+      //foreach(var learnable in learnableDictionary)
+        //ModuleSystem.Log.Info($";{learnable.Value.name};{learnable.Value.description.Replace("\n", "")};{learnable.Value.multiplier};{learnable.Value.primaryAbility};{learnable.Value.secondaryAbility}") ;
     }
     private static bool HandleImproveHealth(PlayerSystem.Player player, int customSkillId)
     {
