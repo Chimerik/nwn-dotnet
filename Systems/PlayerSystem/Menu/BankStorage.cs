@@ -164,7 +164,7 @@ namespace NWN.Systems
                 case "itemDeposit":
 
                   player.oid.SendServerMessage("Sélectionnez les objets de votre inventaire à déposer au coffre.", ColorConstants.Orange);
-                  player.oid.EnterTargetMode(SelectInventoryItem, ObjectTypes.Item, MouseCursor.PickupDown);
+                  player.oid.EnterTargetMode(SelectInventoryItem, Config.selectItemTargetMode);
 
                   break;
 
@@ -271,7 +271,7 @@ namespace NWN.Systems
           item.Destroy();
           UpdateItemList();
           BankSave();
-          player.oid.EnterTargetMode(SelectInventoryItem, ObjectTypes.Item, MouseCursor.PickupDown);
+          player.oid.EnterTargetMode(SelectInventoryItem, Config.selectItemTargetMode);
         }
         public void BankSave()
         {

@@ -197,81 +197,81 @@ namespace NWN
     }
     public static List<string[]> SelectQuery(string tableName, List<string> queryParameters, List<string[]> whereParameters, string orderBy = "")
     {
-        string queryString = "SELECT ";
+      string queryString = "SELECT ";
+      
+      foreach (string param in queryParameters)
+        queryString += $"{param}, ";
 
-        foreach (string param in queryParameters)
-          queryString += $"{param}, ";
+      queryString = queryString.Remove(queryString.Length - 2);
+      queryString += $" FROM {tableName}";
 
-        queryString = queryString.Remove(queryString.Length - 2);
-        queryString += $" FROM {tableName}";
+      if (whereParameters.Count > 0)
+      {
+        queryString += " WHERE ";
 
-        if (whereParameters.Count > 0)
+        foreach (var param in whereParameters)
         {
-          queryString += " WHERE ";
+          if (param.Length > 2)
+            queryString += $"{param[0]} {param[2]} @{param[0]} and ";
+          else
+            queryString += $"{param[0]} = @{param[0]} and ";
+        }
+
+        queryString = queryString.Remove(queryString.Length - 5);
+      }
+
+      queryString += orderBy;
+
+      string logString = "Binding WHERE : ";
+
+      try
+      {
+        using (var connection = new SqliteConnection(Config.dbPath))
+        {
+          connection.Open();
+
+          var command = connection.CreateCommand();
+          command.CommandText = queryString;
 
           foreach (var param in whereParameters)
           {
-            if (param.Length > 2)
-              queryString += $"{param[0]} {param[2]} @{param[0]} and ";
-            else
-              queryString += $"{param[0]} = @{param[0]} and ";
+            command.Parameters.AddWithValue($"@{param[0]}", (object)param[1] ?? DBNull.Value);
+            logString += $"@{param[0]} = {param[1]} ";
           }
 
-          queryString = queryString.Remove(queryString.Length - 5);
-        }
+          //Log.Info(queryString);
+          //Log.Info(logString);
 
-        queryString += orderBy;
-
-        string logString = "Binding WHERE : ";
-
-        try
-        {
-          using (var connection = new SqliteConnection(Config.dbPath))
+          using (var reader = command.ExecuteReader())
           {
-            connection.Open();
+            List<string[]> results = new List<string[]>();
 
-            var command = connection.CreateCommand();
-            command.CommandText = queryString;
-
-            foreach (var param in whereParameters)
+            while (reader.Read())
             {
-              command.Parameters.AddWithValue($"@{param[0]}", (object)param[1] ?? DBNull.Value);
-              logString += $"@{param[0]} = {param[1]} ";
-            }
+              string[] row = new string[queryParameters.Count];
 
-            //Log.Info(queryString);
-            //Log.Info(logString);
-
-            using (var reader = command.ExecuteReader())
-            {
-              List<string[]> results = new List<string[]>();
-
-              while (reader.Read())
+              for (int i = 0; i < queryParameters.Count; i++)
               {
-                string[] row = new string[queryParameters.Count];
-
-                for (int i = 0; i < queryParameters.Count; i++)
-                {
-                  if (!reader.IsDBNull(i))
-                    row[i] = reader.GetString(i);
-                  else
-                    row[i] = "";
-                }
-
-                results.Add(row);
+                if (!reader.IsDBNull(i))
+                  row[i] = reader.GetString(i);
+                else
+                  row[i] = "";
               }
 
-              return results;
+              results.Add(row);
             }
+
+            return results;
           }
         }
-        catch (Exception e)
-        {
-          Utils.LogMessageToDMs($"Select Query - {e.Message}");
-          Utils.LogMessageToDMs(queryString);
-          Utils.LogMessageToDMs(logString);
-          return null;
-        }
+      }
+      catch (Exception e)
+      {
+        Utils.LogMessageToDMs($"Select Query - {e.Message}");
+        Utils.LogMessageToDMs(queryString);
+        Utils.LogMessageToDMs(logString);
+        return null;
+      }
     }
     public static bool InsertQuery(string tableName, List<string[]> queryParameters, List<string> conflictParameters = null, List<string[]> updateParameters = null, List<string> whereParameters = null)
     {

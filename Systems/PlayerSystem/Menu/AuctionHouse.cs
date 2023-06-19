@@ -188,7 +188,7 @@ namespace NWN.Systems
 
                 case "proposalItemDeposit":
                   player.oid.SendServerMessage("Veuillez sélectionner les objets de votre inventaire que vous souhaitez proposer pour cette commande.", ColorConstants.Orange);
-                  player.oid.EnterTargetMode(SelectProposalInventoryItem, ObjectTypes.Item, MouseCursor.PickupDown);
+                  player.oid.EnterTargetMode(SelectProposalInventoryItem, Config.selectItemTargetMode);
                   break;
 
                 case "openRequest": LoadRequestDetailsLayout(filteredTradeRequests.ElementAt(nuiEvent.ArrayIndex)); break;
@@ -250,7 +250,7 @@ namespace NWN.Systems
 
                 case "auctionItemSelect":
                   player.oid.SendServerMessage("Veuillez sélectionner l'objet de votre inventaire que vous souhaitez mettre aux enchères.", ColorConstants.Orange);
-                  player.oid.EnterTargetMode(SelectAuctionInventoryItem, ObjectTypes.Item, MouseCursor.PickupDown);
+                  player.oid.EnterTargetMode(SelectAuctionInventoryItem, Config.selectItemTargetMode);
                   break;
 
                 case "newAuction":
@@ -1062,7 +1062,7 @@ namespace NWN.Systems
           item.Destroy();
 
           LoadCreateProposalItemList();
-          player.oid.EnterTargetMode(SelectProposalInventoryItem, ObjectTypes.Item, MouseCursor.PickupDown);
+          player.oid.EnterTargetMode(SelectProposalInventoryItem, Config.selectItemTargetMode);
         }
         private void SelectAuctionInventoryItem(ModuleEvents.OnPlayerTarget selection)
         {

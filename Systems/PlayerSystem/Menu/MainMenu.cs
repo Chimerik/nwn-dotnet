@@ -256,7 +256,7 @@ namespace NWN.Systems
 
                   case "dmRename":
                     player.oid.SendServerMessage("Veuillez sélectionner la cible à renommer");
-                    player.oid.EnterTargetMode(RenameTarget, ObjectTypes.All, MouseCursor.CreateDown);
+                    player.oid.EnterTargetMode(RenameTarget, Config.selectItemTargetMode);
                     CloseWindow();
                     break;
 
@@ -291,25 +291,25 @@ namespace NWN.Systems
 
                   case "instantLearn":
                     player.oid.SendServerMessage("Veuillez sélectionner la cible de l'apprentissage instantanné.");
-                    player.oid.EnterTargetMode(SelectLearnTarget, ObjectTypes.Creature, MouseCursor.CreateDown);
+                    player.oid.EnterTargetMode(SelectLearnTarget, Config.selectItemTargetMode);
                     CloseWindow();
                     break;
 
                   case "instantCraft":
                     player.oid.SendServerMessage("Veuillez sélectionner la cible du craft instantanné.");
-                    player.oid.EnterTargetMode(SelectCraftTarget, ObjectTypes.Creature, MouseCursor.CreateDown);
+                    player.oid.EnterTargetMode(SelectCraftTarget, Config.selectItemTargetMode);
                     CloseWindow();
                     break;
 
                   case "giveResources":
                     player.oid.SendServerMessage("Veuillez sélectionner la cible du don.");
-                    player.oid.EnterTargetMode(SelectGiveResourcesTarget, ObjectTypes.Creature, MouseCursor.CreateDown);
+                    player.oid.EnterTargetMode(SelectGiveResourcesTarget, Config.selectItemTargetMode);
                     CloseWindow();
                     break;
 
                   case "giveSkillbook":
                     player.oid.SendServerMessage("Veuillez sélectionner la cible du don.");
-                    player.oid.EnterTargetMode(SelectGiveSkillbookTarget, ObjectTypes.Creature, MouseCursor.CreateDown);
+                    player.oid.EnterTargetMode(SelectGiveSkillbookTarget, Config.selectItemTargetMode);
                     CloseWindow();
                     break;
 
@@ -348,7 +348,7 @@ namespace NWN.Systems
                       return;
                     }
 
-                    player.oid.EnterTargetMode(FollowTarget, ObjectTypes.Creature, MouseCursor.Follow);
+                    player.oid.EnterTargetMode(FollowTarget, Config.selectItemTargetMode);
 
                     CloseWindow();
 

@@ -15,6 +15,9 @@ using Newtonsoft.Json;
 using System.Numerics;
 using System.IO;
 using Microsoft.Data.Sqlite;
+using System.Runtime.InteropServices;
+using SQLitePCL;
+using System.Reflection;
 
 namespace NWN.Systems
 {
@@ -52,10 +55,16 @@ namespace NWN.Systems
       victim.OnDeath += MakeInventoryUndroppable;
       victim.ApplyEffect(EffectDuration.Instant, Effect.Death(false, false));*/
 
+      // Ces deux lignes permettent de résoudre le conflit entre le sqlite du jeu de base et le sqlite de .net que j'utilise
+      NativeLibrary.SetDllImportResolver(typeof(SQLite3Provider_e_sqlite3).Assembly, ResolveFromNwServer);
+      Marshal.PrelinkAll(typeof(SQLite3Provider_e_sqlite3));
+
       scheduler = schedulerService;
 
       LoadDiscordBot();
+
       scheduler.ScheduleRepeating(LogUtils.LogLoop, TimeSpan.FromSeconds(1));
+
       CreateDatabase();
       InitializeEvents();
       InitializeCreatureStats();
@@ -68,6 +77,15 @@ namespace NWN.Systems
       LoadPlaceableSpawns();
       LoadMailReceiverList();
       NwModule.Instance.OnModuleLoad += OnModuleLoad;
+    }
+    private IntPtr ResolveFromNwServer(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
+    {
+      if (libraryName == "e_sqlite3")
+      {
+        return NativeLibrary.GetMainProgramHandle();
+      }
+
+      return IntPtr.Zero;
     }
     private static async void LoadDiscordBot()
     {
@@ -706,20 +724,20 @@ namespace NWN.Systems
           case Gender.Other: Utils.genderList.Add(new NuiComboEntry("Autre", (int)genderType)); break;
         }
       }
-      
+
       foreach (var entry in SoundSet2da.soundSetTable)
         if (!string.IsNullOrEmpty(entry.resRef))
           Utils.soundSetList.Add(new NuiComboEntry(entry.label, entry.RowIndex));
-
+      
       foreach (StandardFaction faction in (StandardFaction[])Enum.GetValues(typeof(StandardFaction)))
         Utils.factionList.Add(new NuiComboEntry(faction.ToString(), (int)faction));
-
+      
       foreach (MovementRate movement in (MovementRate[])Enum.GetValues(typeof(MovementRate)))
         Utils.movementRateList.Add(new NuiComboEntry(movement.ToString(), (int)movement));
-
+     
       for (int i = 0; i < 51; i++)
         Utils.sizeList.Add(new NuiComboEntry($"x{((float)(i + 75)) / 100}", i));
-
+      
       for (int i = 0; i < 256; i++)
       {
         Utils.paletteColorBindings[i] = new NuiBind<string>($"color{i}");
@@ -730,18 +748,18 @@ namespace NWN.Systems
 
       foreach (var model in NwGameTables.AppearanceTable)
         if (!string.IsNullOrEmpty(model.Label))
-          Utils.appearanceEntries.Add(new NuiComboEntry(StringUtils.ConvertToUTF8(model.Label)  , model.RowIndex));
-
+          Utils.appearanceEntries.Add(new NuiComboEntry(StringUtils.ConvertToUTF8(model.Label), model.RowIndex));
+      
       foreach (var baseItem in BaseItems2da.baseItemTable)
       {
         Dictionary<ItemAppearanceWeaponModel, List<NuiComboEntry>> models = new();
-
+        
         List<NuiComboEntry> topEntries = new();
         List<NuiComboEntry> midEntries = new();
         List<NuiComboEntry> botEntries = new();
-
+        
         string resRef = baseItem.resRef;
-
+        
         for (byte i = 10; i < 255; i++)
         {
           string search = i.ToString().PadLeft(3, '0');
@@ -755,11 +773,11 @@ namespace NWN.Systems
           if (NWScript.ResManGetAliasFor($"{resRef}_b_{search}", NWScript.RESTYPE_MDL) != "")
             botEntries.Add(new NuiComboEntry(i.ToString(), i));
         }
-
+        
         models.Add(ItemAppearanceWeaponModel.Top, topEntries);
         models.Add(ItemAppearanceWeaponModel.Middle, midEntries);
         models.Add(ItemAppearanceWeaponModel.Bottom, botEntries);
-
+        
         ItemUtils.weaponModelDictionary.Add((BaseItemType)baseItem.RowIndex, models);
       }
 

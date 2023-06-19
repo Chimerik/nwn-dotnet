@@ -103,7 +103,7 @@ namespace NWN.Systems
               if (nuiEvent.ElementId == "inscription")
               {
                 player.oid.SendServerMessage("Sélectionnez l'objet sur lequel vous souhaitez inscrire cette calligraphie.", ColorConstants.Orange);
-                player.oid.EnterTargetMode(SelectInventoryItem, ObjectTypes.Item, MouseCursor.Magic);
+                player.oid.EnterTargetMode(SelectInventoryItem, Config.selectItemTargetMode);
               }
               break;
           }

@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 
+using Anvil.API;
+using Anvil.Services;
+
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v3;
 using Google.Apis.Services;
@@ -109,5 +112,12 @@ namespace NWN.Systems
         throw new Exception("CreateServiceAccountDriveFailed", ex);
       }
     }
+
+    public static readonly TargetModeSettings selectItemTargetMode = new()
+    {
+      ValidTargets = ObjectTypes.Item,
+      CursorType = MouseCursor.Use,
+      BadCursorType = MouseCursor.Nouse
+    };
   }
 }

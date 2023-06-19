@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 using Anvil.API;
 using Anvil.API.Events;
+using Anvil.Services;
 
 using Newtonsoft.Json;
 
@@ -130,9 +131,9 @@ namespace NWN.Systems
               switch (nuiEvent.ElementId)
               {
                 case "itemDeposit":
-
+                  
                   player.oid.SendServerMessage("Sélectionnez les objets de votre inventaire à ajouter à la liste.");
-                  player.oid.EnterTargetMode(SelectInventoryItem, ObjectTypes.Item, MouseCursor.PickupDown);
+                  player.oid.EnterTargetMode(SelectInventoryItem, Config.selectItemTargetMode);
 
                   break;
               }
@@ -206,7 +207,7 @@ namespace NWN.Systems
           UpdateItemList();
           LootSave();
 
-          player.oid.EnterTargetMode(SelectInventoryItem, ObjectTypes.Item, MouseCursor.PickupDown);
+          player.oid.EnterTargetMode(SelectInventoryItem, Config.selectItemTargetMode);
 
           LogUtils.LogMessage($"{player.oid.PlayerName} ajoute {item.Name} à la liste {selectedLootCategory}", LogUtils.LogType.DMAction);
         }

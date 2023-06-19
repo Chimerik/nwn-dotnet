@@ -96,7 +96,7 @@ namespace NWN.Systems
               {
                 case "new":
                   player.oid.SendServerMessage("Veuillez sélectionner l'objet dont vous souhaitez sauvegarder l'apparence.", ColorConstants.Orange);
-                  player.oid.EnterTargetMode(OnItemSelectedSaveAppearance, ObjectTypes.Item, MouseCursor.Create);
+                  player.oid.EnterTargetMode(OnItemSelectedSaveAppearance, Config.selectItemTargetMode);
                   break;
 
                 case "delete":
@@ -110,7 +110,7 @@ namespace NWN.Systems
 
                   player.oid.SendServerMessage("Veuillez sélectionner l'objet sur lequel vous souhaitez appliquer l'apparence sauvegardée.", ColorConstants.Orange);
                   selectedIndex = nuiEvent.ArrayIndex;
-                  player.oid.EnterTargetMode(OnItemSelectedLoadAppearance, ObjectTypes.Item, MouseCursor.Create);
+                  player.oid.EnterTargetMode(OnItemSelectedLoadAppearance, Config.selectItemTargetMode);
 
                   break;
 

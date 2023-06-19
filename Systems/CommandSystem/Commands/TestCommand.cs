@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 
 using Anvil.API;
@@ -101,8 +101,6 @@ namespace NWN.Systems
 
       foreach (var ip in item.ItemProperties)
         Log.Info($"duration {ip.DurationType} - type {ip.Property.RowIndex} - subtype {ip.SubType?.RowIndex} - param1Value {ip.Param1TableValue} - costValue {ip.CostTableValue.RowIndex}");
-
-      //NativeAttackHook.SendPartyInvite(creature.LoginPlayer.PlayerId, selection.Player.LoginCreature);
 
       /*if (!player.windows.ContainsKey("editorPNJ")) player.windows.Add("editorPNJ", new PlayerSystem.Player.EditorPNJWindow(player, item));
       else ((PlayerSystem.Player.EditorPNJWindow)player.windows["editorPNJ"]).CreateWindow(item);*/

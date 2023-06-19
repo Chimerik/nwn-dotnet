@@ -6,6 +6,9 @@ using NWN.Core;
 using System.Numerics;
 using System.Collections.Generic;
 using NWN.Core.NWNX;
+using System.Runtime.InteropServices;
+using Anvil.API.Events;
+using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
@@ -22,11 +25,20 @@ namespace NWN.Systems
     private readonly CExoString durabilityVariable = "_DURABILITY".ToExoString();
     //private readonly CExoString spellIdVariable = "_CURRENT_SPELL".ToExoString();
 
+    [NativeFunction("_ZN17CNWSCreatureStats13GetDamageRollEP10CNWSObjectiiiii", null)]
     private delegate int GetDamageRollHook(void* thisPtr, void* pTarget, int bOffHand, int bCritical, int bSneakAttack, int bDeathAttack, int bForceMax);
+    
+    [NativeFunction("_ZN12CNWSCreature17ResolveAttackRollEP10CNWSObject", null)]
     private delegate void ResolveAttackRollHook(void* pCreature, void* pTarget);
+    
+    [NativeFunction("_ZN17CNWSCreatureStats30GetSpellLikeAbilityCasterLevelEj", null)]
     private delegate byte GetSpellLikeAbilityCasterLevelHook(void* pCreatureStats, int nSpellId);
     //private delegate byte GetCasterLevelHook(void* pCreatureStats, byte nMultiClass);
-    private delegate int AddUseTalentOnObjectHook(void* pCreature, int talentType, int talentId, uint oidTarget, byte nMultiClass, uint oidItem, int nItemPropertyIndex, byte nCasterLevel, int nMetaType);
+    
+    [NativeFunction("_ZN12CNWSCreature27AddUseTalentOnObjectActionsEiijhjihh", null)]
+    protected delegate int AddUseTalentOnObjectHook(void* pCreature, int talentType, int talentId, uint oidTarget, byte nMultiClass, uint oidItem, int nItemPropertyIndex, byte nCasterLevel, int nMetaType);
+
+    [NativeFunction("_ZN12CNWSCreature29AddUseTalentAtLocationActionsEii6Vectorhjihh", null)]
     private delegate int AddUseTalentAtLocationHook(void* pCreature, int talentType, int talentId, Vector3 vTargetLocation, byte nMultiClass, uint oidItem, int nItemPropertyIndex, byte nCasterLevel, int nMetaType);
 
     private readonly FunctionHook<GetDamageRollHook> getDamageRollHook;
@@ -35,12 +47,12 @@ namespace NWN.Systems
 
     public NativeAttackHook(HookService hookService)
     {
-      getDamageRollHook = hookService.RequestHook<GetDamageRollHook>(OnGetDamageRoll, FunctionsLinux._ZN17CNWSCreatureStats13GetDamageRollEP10CNWSObjectiiiii, HookOrder.Early);
-      hookService.RequestHook<ResolveAttackRollHook>(OnResolveAttackRoll, FunctionsLinux._ZN12CNWSCreature17ResolveAttackRollEP10CNWSObject, HookOrder.Early);
-      hookService.RequestHook<GetSpellLikeAbilityCasterLevelHook>(OnGetSpellLikeAbilityCasterLevel, FunctionsLinux._ZN17CNWSCreatureStats30GetSpellLikeAbilityCasterLevelEj, HookOrder.Early);
-      //hookService.RequestHook<GetCasterLevelHook>(OnGetCasterLevel, FunctionsLinux.damage, HookOrder.Early); // Malheureusement ce hook est inutile => La fonction n'est jamais appelée en jeu
-      addUseTalentOnObjectHook = hookService.RequestHook<AddUseTalentOnObjectHook>(OnAddUseTalentOnObjectHook, FunctionsLinux._ZN12CNWSCreature27AddUseTalentOnObjectActionsEiijhjihh, HookOrder.Early);
-      addUseTalentAtLocationHook = hookService.RequestHook<AddUseTalentAtLocationHook>(OnAddUseTalentAtLocationHook, FunctionsLinux._ZN12CNWSCreature29AddUseTalentAtLocationActionsEii6Vectorhjihh, HookOrder.Early);
+      getDamageRollHook = hookService.RequestHook<GetDamageRollHook>(OnGetDamageRoll, HookOrder.Early);
+      hookService.RequestHook<ResolveAttackRollHook>(OnResolveAttackRoll, HookOrder.Early);
+      hookService.RequestHook<GetSpellLikeAbilityCasterLevelHook>(OnGetSpellLikeAbilityCasterLevel, HookOrder.Early);
+      //hookService.RequestHook<GetCasterLevelHook>(OnGetCasterLevel, HookOrder.Early); // Malheureusement ce hook est inutile => La fonction n'est jamais appelée en jeu
+      addUseTalentOnObjectHook = hookService.RequestHook<AddUseTalentOnObjectHook>(OnAddUseTalentOnObjectHook, HookOrder.Early);
+      addUseTalentAtLocationHook = hookService.RequestHook<AddUseTalentAtLocationHook>(OnAddUseTalentAtLocationHook, HookOrder.Early);
     }
     private void OnResolveAttackRoll(void* pCreature, void* pTarget)
     {
@@ -58,7 +70,7 @@ namespace NWN.Systems
       if (targetObject.m_nObjectType == (int)ObjectType.Creature)
       {
         CNWSCreature targetCreature = targetObject.AsNWSCreature();
-        int skillBonusDodge = PlayerSystem.Players.TryGetValue(targetObject.m_idSelf, out PlayerSystem.Player player) && player.learnableSkills.ContainsKey(CustomSkill.ImprovedDodge) ? 2 * player.learnableSkills[CustomSkill.ImprovedDodge].totalPoints : 0;
+        int skillBonusDodge = Players.TryGetValue(targetObject.m_idSelf, out Player player) && player.learnableSkills.ContainsKey(CustomSkill.ImprovedDodge) ? 2 * player.learnableSkills[CustomSkill.ImprovedDodge].totalPoints : 0;
         string logString = $"{skillBonusDodge} (Esquive améliorée) ";
 
         if (targetCreature.m_pStats.HasFeat((ushort)Anvil.API.Feat.Dodge).ToBool())
