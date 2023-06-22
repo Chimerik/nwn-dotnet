@@ -100,6 +100,16 @@ namespace NWN.Systems
         _ => false
       };
     }
+    public static bool IsFinesseWeapon(BaseItemType baseItemType)
+    {
+      return baseItemType switch
+      {
+        BaseItemType.Dagger or BaseItemType.Sickle or BaseItemType.Handaxe or BaseItemType.Quarterstaff or BaseItemType.Shortsword
+        or BaseItemType.Quarterstaff or BaseItemType.Scimitar or BaseItemType.Kama or BaseItemType.Rapier or BaseItemType.Kukri
+        or BaseItemType.Katana => true,
+        _ => false
+      };
+    }
     public static bool IsVersatileWeapon(BaseItemType baseItemType)
     {
       return baseItemType switch

@@ -121,7 +121,7 @@ namespace NWN.Systems
 
       NwServer.Instance.ServerInfo.ServerName = serverName;
       
-      NwServer.Instance.PlayerPassword = string.Empty;
+      NwServer.Instance.PlayerPassword = string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PCPASS")) ? string.Empty : Environment.GetEnvironmentVariable("PCPASS");
       NwServer.Instance.DMPassword = string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DMPASS")) ? "b" : Environment.GetEnvironmentVariable("DMPASS");
       NwServer.Instance.ServerInfo.PlayOptions.RestoreSpellUses = false;
       NwServer.Instance.ServerInfo.PlayOptions.ShowDMJoinMessage = false;
@@ -1111,6 +1111,8 @@ namespace NWN.Systems
       {
         if (eff.Tag == "CUSTOM_CONDITION_BLEEDING")
           player.healthRegen -= 3;
+        else if (eff.Tag == "CUSTOM_CONDITION_POISON")
+          player.healthRegen -= 4;
         else if (eff.Tag.StartsWith("CUSTOM_EFFECT_REGEN_"))
         {
           var split = eff.Tag.Split("_");

@@ -52,6 +52,8 @@ namespace NWN
       {
         if (eff.Tag == "CUSTOM_CONDITION_BLEEDING")
           healthRegen -= 3;
+        else if (eff.Tag == "CUSTOM_CONDITION_POISON")
+          healthRegen -= 4;
         else if (eff.Tag.StartsWith("CUSTOM_EFFECT_REGEN_"))
         {
           var split = eff.Tag.Split("_");

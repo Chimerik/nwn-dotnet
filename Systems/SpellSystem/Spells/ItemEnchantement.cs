@@ -24,6 +24,22 @@ namespace NWN.Systems
 
       switch (targetItem.BaseItem.ItemType)
       {
+        case BaseItemType.MagicStaff:
+
+          switch(inscription.id)
+          {
+            case CustomInscription.Vampirisme:
+            case CustomInscription.Zèle:
+            case CustomInscription.Sismique:
+            case CustomInscription.Incendiaire:
+            case CustomInscription.Polaire:
+            case CustomInscription.Electrocution:
+              player.oid.SendServerMessage($"L'inscription {StringUtils.ToWhitecolor(inscription.name)} ne peut pas être calligraphiée sur un bâton de mage", ColorConstants.Red);
+              return;
+          }
+
+          break;
+
         case BaseItemType.SmallShield:
         case BaseItemType.LargeShield:
         case BaseItemType.TowerShield:

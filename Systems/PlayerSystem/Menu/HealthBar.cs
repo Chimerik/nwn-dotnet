@@ -21,6 +21,8 @@ namespace NWN.Systems
         private readonly NuiBind<NuiRect> drawListRect = new("drawListRect");
         private readonly NuiBind<Color> color = new("color");
         private readonly Color bleedingColor = new(215, 121, 101);
+        private readonly Color poisonColor = new(133, 147, 63);
+        private readonly Color hexColor = new(227, 103, 165);
         private readonly NuiProgress healthBar;
 
         public HealthBarWindow(Player player) : base(player)
@@ -93,7 +95,11 @@ namespace NWN.Systems
           string currentHP = "";
           string pip = "";
 
-          if (player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag == "CUSTOM_CONDITION_BLEEDING"))
+          if (player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag == "CUSTOM_CONDITION_HEX"))
+            color.SetBindValue(player.oid, nuiToken.Token, hexColor);
+          if (player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag == "CUSTOM_CONDITION_POISON"))
+            color.SetBindValue(player.oid, nuiToken.Token, poisonColor);
+          else if (player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag == "CUSTOM_CONDITION_BLEEDING"))
             color.SetBindValue(player.oid, nuiToken.Token, bleedingColor);
           else
             color.SetBindValue(player.oid, nuiToken.Token, ColorConstants.Red);

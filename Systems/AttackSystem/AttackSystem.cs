@@ -14,6 +14,8 @@ namespace NWN.Systems
   {
     private static ScriptHandleFactory scriptHandleFactory;
     private static Effect bleeding;
+    private static Effect poison;
+    private static Effect deepWound;
 
     public AttackSystem(ScriptHandleFactory scriptFactory)
     {
@@ -23,6 +25,16 @@ namespace NWN.Systems
       bleeding = Effect.LinkEffects(bleeding, Effect.Icon((NwGameTables.EffectIconTable.GetRow(132))));
       bleeding.Tag = "CUSTOM_CONDITION_BLEEDING";
       bleeding.SubType = EffectSubType.Supernatural;
+
+      poison = Effect.RunAction(null/*scriptHandleFactory.CreateUniqueHandler(ApplyBleeding)*/, null, scriptHandleFactory.CreateUniqueHandler(IntervalPoison), TimeSpan.FromSeconds(1));
+      poison = Effect.LinkEffects(poison, Effect.Icon((NwGameTables.EffectIconTable.GetRow(132)))); // TODO : importer une icône poison
+      poison.Tag = "CUSTOM_CONDITION_POISON";
+      poison.SubType = EffectSubType.Supernatural;
+
+      poison = Effect.RunAction(null/*scriptHandleFactory.CreateUniqueHandler(ApplyBleeding)*/, null, null);
+      poison = Effect.LinkEffects(deepWound, Effect.Icon((NwGameTables.EffectIconTable.GetRow(132)))); // TODO : importer une icône deep wound
+      poison.Tag = "CUSTOM_CONDITION_DEEPWOUND";
+      poison.SubType = EffectSubType.Supernatural;
     }
 
     public static Pipeline<Context> pipeline = new(
@@ -34,12 +46,13 @@ namespace NWN.Systems
         ProcessCriticalHit,
         ProcessTargetDamageAbsorption,
         ProcessBaseArmorPenetration,
-        ProcessBonusArmorPenetration,
+        //ProcessBonusArmorPenetration,
         ProcessAttackPosition,
         ProcessArmorSlotHit,
         ProcessTargetSpecificAC,
         ProcessTargetShieldAC,
         ProcessArmorPenetrationCalculations,
+        ProcessDamageFromWeaponInscriptions,
         ProcessDamageCalculations,
         ProcessAdrenaline,
         ProcessSpecialAttack,
@@ -84,6 +97,7 @@ namespace NWN.Systems
     }
     private static void ProcessBaseDamageTypeAndAttackWeapon(Context ctx, Action next)
     {
+      // TODO : penser à modifier cette partie lorsque l'arme "poings" sera implémentée
       if (ctx.isUnarmedAttack && ctx.oAttacker.GetItemInSlot(InventorySlot.Arms) != null)
           ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.Arms);
 
@@ -347,37 +361,32 @@ namespace NWN.Systems
 
       if (ctx.attackWeapon is null)
       {
+        // Combat à mains nues utilise à la fois la force et la dex pour l'AP
+        // TODO : Créer un nouveau type d'arme "mains nues" sans modèle
+        ctx.baseArmorPenetration += ctx.oAttacker.GetAbilityModifier(Ability.Dexterity) + ctx.oAttacker.GetAbilityModifier(Ability.Strength);
         next();
         return;
       }
-      else if(ctx.attackWeapon.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value < 0 && ctx.oAttacker.IsLoginPlayerCharacter)
+      else if(ctx.attackWeapon.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value < 1 && ctx.oAttacker.IsLoginPlayerCharacter)
       {
         ctx.oAttacker.LoginPlayer.SendServerMessage($"{StringUtils.ToWhitecolor(ctx.attackWeapon.Name)} est en ruines. Sans réparations, cette arme est inutile.", ColorConstants.Red);
         next();
         return;
       }
 
+      int versatileModifier = ItemUtils.IsVersatileWeapon(ctx.attackWeapon.BaseItem.ItemType) ? 2 : 1;
+
       if (ctx.isRangedAttack)
-        ctx.baseArmorPenetration += ctx.oAttacker.GetAttackBonus();
-      else if (ctx.onAttack.WeaponAttackType == WeaponAttackType.Offhand)
-        ctx.baseArmorPenetration += ctx.oAttacker.GetAttackBonus(true, false, true);
+      {
+        if(ctx.attackWeapon.BaseItem.ItemType == BaseItemType.ThrowingAxe)
+          ctx.baseArmorPenetration += ctx.oAttacker.GetAbilityModifier(Ability.Strength);
+      }
+      else if (ItemUtils.IsFinesseWeapon(ctx.attackWeapon.BaseItem.ItemType))
+      {
+        ctx.baseArmorPenetration += ctx.oAttacker.GetAbilityModifier(Ability.Dexterity) * versatileModifier;
+      }
       else
-      {
-        int versatileModifier = ItemUtils.IsVersatileWeapon(ctx.attackWeapon.BaseItem.ItemType) ? 2 : 1;
-
-        ctx.baseArmorPenetration += ctx.oAttacker.GetAttackBonus(true);
-        ctx.baseArmorPenetration += ctx.oAttacker.GetAbilityModifier(Ability.Strength) < ctx.oAttacker.GetAbilityModifier(Ability.Dexterity)
-          && ctx.attackWeapon.BaseItem.WeaponFinesseMinimumCreatureSize >= ctx.oAttacker.Size
-          ? ctx.oAttacker.GetAbilityModifier(Ability.Dexterity) * versatileModifier
-          : ctx.oAttacker.GetAbilityModifier(Ability.Strength) * versatileModifier;
-      }
-
-      if (ctx.attackWeapon.BaseItem.ItemType == BaseItemType.Gloves || ctx.attackWeapon.BaseItem.ItemType == BaseItemType.Bracer) // la fonction GetAttackBonus ne prend pas en compte le + AB des gants, donc je le rajoute
-      {
-        ItemProperty maxAttackBonus = ctx.attackWeapon.ItemProperties.Where(i => i.Property.PropertyType == ItemPropertyType.AttackBonus).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
-        if (maxAttackBonus is not null)
-          ctx.baseArmorPenetration += maxAttackBonus.IntParams[3];
-      }
+        ctx.baseArmorPenetration += ctx.oAttacker.GetAbilityModifier(Ability.Strength) * versatileModifier;
 
       // Les armes perforantes disposent de 20 % de pénétration supplémentaire contre les armures lourdes
       if (ctx.attackWeapon.BaseItem.WeaponType.Contains(DamageType.Piercing) && ctx.oTarget.GetItemInSlot(InventorySlot.Chest) is not null && ctx.oTarget.GetItemInSlot(InventorySlot.Chest).BaseACValue > 5)
@@ -385,7 +394,7 @@ namespace NWN.Systems
 
       next();
     }
-    private static void ProcessBonusArmorPenetration(Context ctx, Action next)
+    /*private static void ProcessBonusArmorPenetration(Context ctx, Action next)
     {
       if (ctx.attackWeapon != null && ctx.attackWeapon.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value != -1)
       {
@@ -434,7 +443,7 @@ namespace NWN.Systems
       }
 
       next();
-    }
+    }*/
     private static void ProcessAttackPosition(Context ctx, Action next)
     {
       if ((ctx.isUnarmedAttack || !ctx.isRangedAttack)
@@ -510,55 +519,10 @@ namespace NWN.Systems
       if (ctx.oAttacker != null && ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_SPELL_ATTACK_POSITION").HasValue)
         ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_SPELL_ATTACK_POSITION").Delete();
 
-      if (ctx.targetArmor == null && !ctx.oTarget.IsLoginPlayerCharacter) // Dans le cas où la créature n'a pas d'armure et n'est pas un joueur, alors on simplifie et on prend directement sa CA de base pour la CA générique et les propriétés de sa peau pour la CA spécifique
-      {
-        ctx.targetArmor = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin);
+      // Dans le cas où la créature n'est pas un joueur, alors on simplifie et on prend directement sa CA de base pour la CA générique
+      // TODO : ajouter une option dans l'éditeur de créature pour saisir de la CA spécifique ou de l'absorption, etc
+      if (!ctx.oTarget.IsLoginPlayerCharacter) 
         ctx.targetAC[DamageType.BaseWeapon] = ctx.oTarget.AC - ctx.oTarget.GetAbilityModifier(Ability.Dexterity) - 10;
-      }
-      else if (hitSlot != InventorySlot.Chest)
-      {
-        if(ctx.targetArmor != null && ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value < 0) 
-        {
-          ctx.oTarget.LoginPlayer.SendServerMessage($"{StringUtils.ToWhitecolor(ctx.targetArmor.Name)} est en ruines. Sans réparations, cette pièce d'armure ne vous apporte aucune protection.", ColorConstants.Red);
-          ctx.targetAC[DamageType.BaseWeapon] = 0;
-          next();
-          return;
-        }
-
-        NwItem baseArmor = ctx.oTarget.GetItemInSlot(InventorySlot.Chest);
-
-        if (baseArmor != null)
-        {
-          /*if(baseArmor.ItemProperties.Any(i => i.PropertyType == ItemPropertyType.AcBonus))
-          ctx.maxBaseAC = baseArmor.ItemProperties.Where(i => i.PropertyType == ItemPropertyType.AcBonus)
-            .OrderByDescending(i => i.CostTableValue).FirstOrDefault().CostTableValue;*/
-
-          ctx.targetAC[DamageType.BaseWeapon] = ctx.attackingPlayer is not null ? baseArmor.BaseACValue * 3 * ctx.attackingPlayer.GetArmorProficiencyLevel(baseArmor.BaseACValue) / 10 : baseArmor.BaseACValue * 3;
-
-          switch (baseArmor.BaseACValue)
-          {
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-              ctx.targetAC.Add((DamageType)16384, baseArmor.BaseACValue * 5);
-              break;
-            case 5:
-              ctx.targetAC.Add((DamageType)16384, 30);
-              ctx.targetAC.Add((DamageType)8192, 5);
-              break;
-            case 6:
-              ctx.targetAC.Add((DamageType)8192, 10);
-              break;
-            case 7:
-              ctx.targetAC.Add((DamageType)8192, 15);
-              break;
-            case 8:
-              ctx.targetAC.Add((DamageType)8192, 20);
-              break;
-          }
-        }
-      }
 
       if (ctx.oTarget.Tag == "damage_trainer" && ctx.oAttacker.IsPlayerControlled)
         ctx.oAttacker.ControllingPlayer.SendServerMessage($"Hit slot : {hitSlot.ToString().ColorString(ColorConstants.White)}", ColorConstants.Brown);
@@ -567,7 +531,10 @@ namespace NWN.Systems
     }
     private static void ProcessTargetSpecificAC(Context ctx, Action next)
     {
-      if (ctx.targetArmor != null && ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1)
+      Config.SetArmorValueFromArmorPiece(ctx);
+      // TODO : Gérer les EFFECT qui ajoutent de l'armure (nécessite la refacto des sorts)
+
+      /*if (ctx.targetArmor != null && ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1)
       {
         int baseArmorACValue = ctx.oTarget.GetItemInSlot(InventorySlot.Chest) != null ? ctx.oTarget.GetItemInSlot(InventorySlot.Chest).BaseACValue : -1;
         int armorProficiency = ctx.attackingPlayer is not null ? ctx.attackingPlayer.GetArmorProficiencyLevel(baseArmorACValue) / 10 : -1;
@@ -604,23 +571,24 @@ namespace NWN.Systems
           //if (ctx.targetAC[damageType] > ctx.maxBaseAC)
           //ctx.targetAC[damageType] = ctx.maxBaseAC;
         }
-      }
+      }*/
 
-      foreach (var effect in ctx.oTarget.ActiveEffects)
+      /*foreach (var effect in ctx.oTarget.ActiveEffects)
       {
         if(effect.EffectType == EffectType.AcIncrease)
           ctx.targetAC[DamageType.BaseWeapon] += effect.IntParams[1];
         else if (effect.EffectType == EffectType.AcDecrease)
           ctx.targetAC[DamageType.BaseWeapon] -= effect.IntParams[1];
-      }
+      }*/
       
       next();
     }
     private static void ProcessTargetShieldAC(Context ctx, Action next)
     {
-      NwItem targetShield = ctx.oTarget.GetItemInSlot(InventorySlot.LeftHand);
+      Config.SetArmorValueFromShield(ctx);
+      /*NwItem targetShield = ctx.oTarget.GetItemInSlot(InventorySlot.LeftHand);
 
-      if (targetShield != null && targetShield.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1) // Même si l'objet n'est pas à proprement parler un bouclier, tout item dans la main gauche procure un bonus de protection global
+      if (targetShield != null && targetShield.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value < 1) // Même si l'objet n'est pas à proprement parler un bouclier, tout item dans la main gauche procure un bonus de protection global
       {
         int shieldProficiency = ctx.attackingPlayer is not null ? ctx.attackingPlayer.GetShieldProficiencyLevel(targetShield.BaseItem.ItemType) / 10 : -1;
         
@@ -646,7 +614,7 @@ namespace NWN.Systems
           else
             ctx.targetAC.Add(damageType, shieldProficiency > -1 ? maxIP.IntParams[3] * shieldProficiency : maxIP.IntParams[3]);
         }
-      }
+      }*/
 
       next();
     }
@@ -665,6 +633,11 @@ namespace NWN.Systems
 
       ctx.targetAC[DamageType.BaseWeapon] = ctx.targetAC[DamageType.BaseWeapon] * (100 - armorPenetration) / 100;
 
+      next();
+    }
+    private static void ProcessDamageFromWeaponInscriptions(Context ctx, Action next)
+    {
+      Config.SetDamageValueFromWeapon(ctx);
       next();
     }
     private static void ProcessDamageCalculations(Context ctx, Action next)
@@ -760,7 +733,7 @@ namespace NWN.Systems
         switch (skillId)
         {
           case CustomSkill.SeverArtery:
-            SeverArtery(ctx.attackingPlayer, ctx.oTarget);
+            SeverArtery(ctx.attackingPlayer, ctx.oTarget, ctx.onAttack.WeaponAttackType);
             break;
         }
 
@@ -1050,7 +1023,7 @@ namespace NWN.Systems
       item.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value -= durabilityLoss;
       LogUtils.LogMessage($"Durabilité perdue : {durabilityLoss} - Reste : {item.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value}", LogUtils.LogType.Durability);
 
-      if (item.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value <= 0)
+      if (item.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value < 1)
       {
         if (item.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").HasNothing)
         {

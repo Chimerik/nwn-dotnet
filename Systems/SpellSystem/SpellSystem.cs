@@ -92,7 +92,7 @@ namespace NWN.Systems
     }
     public void HandleSpellInput(OnSpellAction onSpellAction)
     {
-      if (!(Players.TryGetValue(onSpellAction.Caster, out Player player)))
+      if (!Players.TryGetValue(onSpellAction.Caster, out Player player))
         return;
 
       if (onSpellAction.IsFake || onSpellAction.IsInstant)
@@ -122,12 +122,14 @@ namespace NWN.Systems
 
       player.endurance.currentMana -= energyCost;
 
-      HandleCastTime(onSpellAction);
+      HandleCastTime(onSpellAction, player);
     }
-    private static async void HandleCastTime(OnSpellAction spellAction)
+    private static async void HandleCastTime(OnSpellAction spellAction, Player castingPlayer)
     {
       Location targetLocation = spellAction.IsAreaTarget ? Location.Create(spellAction.Caster.Area, spellAction.TargetPosition, spellAction.Caster.Rotation) : null;
       Vector3 previousPosition = spellAction.Caster.Position;
+
+      double castReduction = GetCastReduction(castingPlayer, spellAction.Spell);
 
       if (spellAction.IsAreaTarget)
         await spellAction.Caster.ActionCastFakeSpellAt(spellAction.Spell, targetLocation);
@@ -138,7 +140,7 @@ namespace NWN.Systems
         if (player?.ControlledCreature?.Area == spellAction.Caster?.Area && player.ControlledCreature.IsCreatureHeard(spellAction.Caster))
           player.DisplayFloatingTextStringOnCreature(spellAction.Caster, StringUtils.ToWhitecolor($"{spellAction.Caster.Name.ColorString(ColorConstants.Cyan)} incante {spellAction.Spell.Name.ToString().ColorString(ColorConstants.Purple)}"));
 
-      await NwTask.Delay(TimeSpan.FromMilliseconds(spellAction.Spell.ConjureTime.TotalMilliseconds / 1.5));
+      await NwTask.Delay(TimeSpan.FromMilliseconds(spellAction.Spell.ConjureTime.TotalMilliseconds * castReduction / 1.5));
 
       if (spellAction.Caster.GetObjectVariable<LocalVariableInt>("_CURRENT_SPELL").HasValue || (spellAction.TargetObject is null && !spellAction.IsAreaTarget)
         || previousPosition.X != spellAction.Caster.Position.X || previousPosition.Y != spellAction.Caster.Position.Y
@@ -154,6 +156,50 @@ namespace NWN.Systems
         await spellAction.Caster.ActionCastSpellAt(spellAction.Spell, spellAction.TargetObject, spellAction.MetaMagic, true, 0, ProjectilePathType.Default, true);
 
       spellAction.Caster.GetObjectVariable<LocalVariableInt>("_CURRENT_SPELL").Value = spellAction.Spell.Id;
+    }
+    private static double GetCastReduction(Player player, NwSpell spell)
+    {
+      NwItem item = player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
+
+      double timeReduction = 1;
+
+      if (item is not null)
+      {
+        int fulguranceChance = 0;
+
+        for (int i = 0; i < item.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+        {
+          switch (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
+          {
+            case CustomInscription.Fulgurance:
+              fulguranceChance += 1;
+              break;
+
+            case CustomInscription.ToutAuTalent:
+
+              break;
+          }
+        }
+
+        if (NwRandom.Roll(Utils.random, 100) < fulguranceChance)
+          timeReduction = 0.5;
+      }
+
+      if(spell.SpellSchool == SpellSchool.Necromancy) // TODO : configurer tous les sorts exploitant des cadavres comme étant de l'école nécromancie
+      {
+        timeReduction -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.Neck), CustomInscription.Ensanglanté);
+        timeReduction -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftRing), CustomInscription.Ensanglanté);
+        timeReduction -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightRing), CustomInscription.Ensanglanté);
+      }
+
+      if (spell.SpellSchool == SpellSchool.Conjuration) // TODO : configurer tous les sorts d'invocation comme étant de l'école conjuration
+      {
+        timeReduction -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.Neck), CustomInscription.Invocateur);
+        timeReduction -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftRing), CustomInscription.Invocateur);
+        timeReduction -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightRing), CustomInscription.Invocateur);
+      }
+
+      return timeReduction;      
     }
     public void HandleCraftOnSpellInput(OnSpellAction onSpellAction)
     {
@@ -200,6 +246,16 @@ namespace NWN.Systems
 
       HandleCasterLevel(onSpellCast.Caster, onSpellCast.Spell, player);
 
+      double durationModifier = 1;
+
+      // TODO : Prévoir un tag qui permet de détecter que le sort est un buff plutôt que faire sur l'école
+      if (onSpellCast.Spell.SpellSchool == SpellSchool.Enchantment)
+      {
+        durationModifier += SpellUtils.GetIncreaseDurationFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.Neck), CustomInscription.Extension);
+        durationModifier += SpellUtils.GetIncreaseDurationFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftRing), CustomInscription.Extension);
+        durationModifier += SpellUtils.GetIncreaseDurationFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightRing), CustomInscription.Extension);
+      } 
+
       switch (onSpellCast.Spell.SpellType)
       {
         case Spell.AcidSplash:
@@ -238,7 +294,7 @@ namespace NWN.Systems
           break;
 
         case Spell.Virtue:
-          HealingBreeze(onSpellCast);
+          HealingBreeze(onSpellCast, durationModifier);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 

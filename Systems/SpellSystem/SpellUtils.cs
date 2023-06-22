@@ -174,5 +174,27 @@ namespace NWN.Systems
         _ => false,
       };
     }
+    public static double GetReduceCastTimeFromItem(NwItem item, int inscription)
+    {
+      double castTimeModifier = 0;
+
+      if (item is not null)
+        for (int i = 0; i < item.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+          if (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value == inscription)
+            castTimeModifier += 1;
+
+      return castTimeModifier;
+    }
+    public static double GetIncreaseDurationFromItem(NwItem item, int inscription)
+    {
+      double increaseDuration = 0;
+
+      if (item is not null)
+        for (int i = 0; i < item.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+          if (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value == inscription)
+            increaseDuration += 0.06;
+
+      return increaseDuration;
+    }
   }
 }

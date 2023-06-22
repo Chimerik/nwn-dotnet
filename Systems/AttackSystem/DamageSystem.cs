@@ -21,6 +21,7 @@ namespace NWN.Systems
             ProcessTargetSpecificAC,
             ProcessTargetShieldAC,
             ProcessArmorPenetrationCalculations,
+            ProcessDamageFromMagicStaffInscriptions,
             ProcessDamageCalculations,
             ProcessAdrenaline,
             ProcessTargetItemDurability,
@@ -89,10 +90,10 @@ namespace NWN.Systems
 
       next();
     }
-
-    private static void ProcessMageStaffBonusDamage(Context ctx, Action next)
+    private static void ProcessDamageFromMagicStaffInscriptions(Context ctx, Action next)
     {
-      // TODO : Ajouter des dégâts bonus au sort si l'arme en main est un bâton de mage et qu'il dispose de propriétés de bonus de dégâts
+      if(ctx.attackingPlayer?.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand)?.BaseItem.ItemType == BaseItemType.MagicStaff)
+        Config.SetDamageValueFromWeapon(ctx);
 
       next();
     }
