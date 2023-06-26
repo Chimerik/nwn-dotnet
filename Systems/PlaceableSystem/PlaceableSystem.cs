@@ -30,7 +30,7 @@ namespace NWN.Systems
 
         switch (plc.Tag)
         {
-          case "intro_mirror": plc.OnUsed += StartIntroMirrorDialog; break;
+          case "intro_mirror": plc.OnLeftClick += StartIntroMirrorDialog; break;
           case "body_modifier": plc.OnUsed += StartBodyModifierDialog; break;
           case "refinery": plc.OnUsed += OpenRefineryWindow; break;
           case "decoupe": plc.OnUsed += OpenWoodworkWindow; break;
@@ -225,9 +225,9 @@ namespace NWN.Systems
         Utils.LogMessageToDMs($"ControlledCreature - {onClick.ClickedBy.ControlledCreature.Inventory.Items}");
       }
     }
-    public static void StartIntroMirrorDialog(PlaceableEvents.OnUsed onUsed)
+    public static void StartIntroMirrorDialog(PlaceableEvents.OnLeftClick onUsed)
     {
-      if (Players.TryGetValue(onUsed.UsedBy, out Player player))
+      if (Players.TryGetValue(onUsed.ClickedBy.LoginCreature, out Player player))
       {
         if (!player.windows.ContainsKey("introMirror")) player.windows.Add("introMirror", new Player.IntroMirroWindow(player));
         else ((Player.IntroMirroWindow)player.windows["introMirror"]).CreateWindow();

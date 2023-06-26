@@ -1659,7 +1659,7 @@ namespace NWN.Systems
         int additionnalHP = 0;
 
         foreach (InventorySlot slot in (InventorySlot[])Enum.GetValues(typeof(InventorySlot)))
-          additionnalHP += CheckForAdditionalHPOnItem(oid.LoginCreature.GetItemInSlot(slot));
+          additionnalHP += CheckForAdditionalHPOnItem(oid?.LoginCreature?.GetItemInSlot(slot));
 
         return additionnalHP;
       }

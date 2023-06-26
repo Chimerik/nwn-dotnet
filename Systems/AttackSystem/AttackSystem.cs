@@ -31,10 +31,10 @@ namespace NWN.Systems
       poison.Tag = "CUSTOM_CONDITION_POISON";
       poison.SubType = EffectSubType.Supernatural;
 
-      poison = Effect.RunAction(null/*scriptHandleFactory.CreateUniqueHandler(ApplyBleeding)*/, null, null);
-      poison = Effect.LinkEffects(deepWound, Effect.Icon((NwGameTables.EffectIconTable.GetRow(132)))); // TODO : importer une icône deep wound
-      poison.Tag = "CUSTOM_CONDITION_DEEPWOUND";
-      poison.SubType = EffectSubType.Supernatural;
+      deepWound = Effect.RunAction(null/*scriptHandleFactory.CreateUniqueHandler(ApplyBleeding)*/, null, null);
+      deepWound = Effect.LinkEffects(deepWound, Effect.Icon((NwGameTables.EffectIconTable.GetRow(132)))); // TODO : importer une icône deep wound
+      deepWound.Tag = "CUSTOM_CONDITION_DEEPWOUND";
+      deepWound.SubType = EffectSubType.Supernatural;
     }
 
     public static Pipeline<Context> pipeline = new(

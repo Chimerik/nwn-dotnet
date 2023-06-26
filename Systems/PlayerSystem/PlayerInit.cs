@@ -144,7 +144,7 @@ namespace NWN.Systems
           tourbillon.VisualTransform.Translation = new Vector3(tourbillon.VisualTransform.Translation.X, 115, tourbillon.VisualTransform.Translation.Z);
 
           NwPlaceable introMirror = arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(o => o.Tag == "intro_mirror");
-          introMirror.OnUsed += PlaceableSystem.StartIntroMirrorDialog;
+          introMirror.OnLeftClick += PlaceableSystem.StartIntroMirrorDialog;
 
           Task waitDefaultMapLoaded = NwTask.Run(async () =>
           {
