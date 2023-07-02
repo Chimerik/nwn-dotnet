@@ -272,6 +272,33 @@ namespace NWN.Systems
       tlkEntry = StrRef.FromCustomTlk(190053);
       tlkEntry.Override = "Saignement";
 
+      tlkEntry = StrRef.FromCustomTlk(190054);
+      tlkEntry.Override = "Brûlure";
+
+      tlkEntry = StrRef.FromCustomTlk(190055);
+      tlkEntry.Override = "Infirmité";
+
+      tlkEntry = StrRef.FromCustomTlk(190056);
+      tlkEntry.Override = "Blessure profonde";
+
+      tlkEntry = StrRef.FromCustomTlk(190057);
+      tlkEntry.Override = "Maladie";
+
+      tlkEntry = StrRef.FromCustomTlk(190058);
+      tlkEntry.Override = "Empoisonnement";
+
+      tlkEntry = StrRef.FromCustomTlk(190059);
+      tlkEntry.Override = "Faiblesse";
+
+      tlkEntry = StrRef.FromCustomTlk(190060);
+      tlkEntry.Override = "Armure brisée";
+
+      tlkEntry = StrRef.FromCustomTlk(190061);
+      tlkEntry.Override = "Aveuglement";
+
+      tlkEntry = StrRef.FromCustomTlk(190062);
+      tlkEntry.Override = "Etourdissement";
+
       tlkEntry = StrRef.FromCustomTlk(1382);
       tlkEntry.Override = "Souffle de guérison";
 
@@ -1113,6 +1140,10 @@ namespace NWN.Systems
           player.healthRegen -= 3;
         else if (eff.Tag == "CUSTOM_CONDITION_POISON")
           player.healthRegen -= 4;
+        else if (eff.Tag == "CUSTOM_CONDITION_DISEASE")
+          player.healthRegen -= 4;
+        else if (eff.Tag == "CUSTOM_CONDITION_BURNING")
+          player.healthRegen -= 7;
         else if (eff.Tag.StartsWith("CUSTOM_EFFECT_REGEN_"))
         {
           var split = eff.Tag.Split("_");

@@ -10,8 +10,6 @@ using System.Threading;
 using System;
 using System.Collections.Generic;
 using NWN.Systems.Arena;
-using Microsoft.Data.Sqlite;
-using Newtonsoft.Json;
 using static NWN.Systems.PlayerSystem;
 using System.Numerics;
 
@@ -140,13 +138,25 @@ namespace NWN.Systems
         if (player?.ControlledCreature?.Area == spellAction.Caster?.Area && player.ControlledCreature.IsCreatureHeard(spellAction.Caster))
           player.DisplayFloatingTextStringOnCreature(spellAction.Caster, StringUtils.ToWhitecolor($"{spellAction.Caster.Name.ColorString(ColorConstants.Cyan)} incante {spellAction.Spell.Name.ToString().ColorString(ColorConstants.Purple)}"));
 
-      await NwTask.Delay(TimeSpan.FromMilliseconds(spellAction.Spell.ConjureTime.TotalMilliseconds * castReduction / 1.5));
 
-      if (spellAction.Caster.GetObjectVariable<LocalVariableInt>("_CURRENT_SPELL").HasValue || (spellAction.TargetObject is null && !spellAction.IsAreaTarget)
-        || previousPosition.X != spellAction.Caster.Position.X || previousPosition.Y != spellAction.Caster.Position.Y
-        || spellAction.Caster.GetObjectVariable<LocalVariableInt>("_INTERRUPTED").HasValue)
+      CancellationTokenSource tokenSource = new CancellationTokenSource();
+
+      Task spellinterrupted = NwTask.WaitUntil(() => !spellAction.Caster.IsValid 
+      || spellAction.Caster.GetObjectVariable<LocalVariableInt>("_CURRENT_SPELL").HasValue
+      || spellAction.Caster.GetObjectVariable<LocalVariableInt>("_INTERRUPTED").HasValue
+      || (spellAction.TargetObject is null && !spellAction.IsAreaTarget)
+      || previousPosition.X != spellAction.Caster.Position.X || previousPosition.Y != spellAction.Caster.Position.Y
+      || (spellAction.TargetObject is not null && spellAction.TargetObject.Area != spellAction.Caster.Area), tokenSource.Token);
+      Task castTimer = NwTask.Delay(TimeSpan.FromMilliseconds(spellAction.Spell.ConjureTime.TotalMilliseconds * castReduction / 1.5), tokenSource.Token);
+
+      await NwTask.WhenAny(spellinterrupted, castTimer);
+      tokenSource.Cancel();
+
+      if (spellinterrupted.IsCompletedSuccessfully)
       {
-        spellAction.Caster.GetObjectVariable<LocalVariableInt>("_INTERRUPTED").Delete();
+        if(spellAction.Caster.IsValid)
+          spellAction.Caster.GetObjectVariable<LocalVariableInt>("_INTERRUPTED").Delete();
+
         return;
       }
 
@@ -162,6 +172,13 @@ namespace NWN.Systems
       NwItem item = player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
 
       double timeReduction = 1;
+
+      foreach (var eff in player.oid.LoginCreature.ActiveEffects)
+        if (eff.Tag == "CUSTOM_CONDITION_DAZED")
+        {
+          timeReduction = 2;
+          break;
+        }
 
       if (item is not null)
       {
@@ -182,7 +199,7 @@ namespace NWN.Systems
         }
 
         if (NwRandom.Roll(Utils.random, 100) < fulguranceChance)
-          timeReduction = 0.5;
+          timeReduction /= 2;
       }
 
       if(spell.SpellSchool == SpellSchool.Necromancy) // TODO : configurer tous les sorts exploitant des cadavres comme étant de l'école nécromancie
@@ -883,7 +900,7 @@ namespace NWN.Systems
 
       // A partir de là, il s'agit du gladiateur
       player.oid.OnPlayerDeath -= Arena.Utils.HandleArenaDeath;
-      player.oid.OnPlayerDeath += PlayerSystem.HandlePlayerDeath;
+      player.oid.OnPlayerDeath += HandlePlayerDeath;
 
       player.pveArena.currentPoints = 0;
       player.pveArena.currentRound = 0;

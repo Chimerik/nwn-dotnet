@@ -304,6 +304,7 @@ namespace NWN.Systems
             enchantedItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}_DURABILITY").Value = enchantedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value * Config.baseCraftToolDurability;
 
           HandleDamageModifierInscription(enchantedItem, inscription.id);
+          HandleAbilityModifierInscription(enchantedItem, inscription.id);
 
           item.Destroy();
           DelayItemSerialization(enchantedItem);
@@ -715,8 +716,8 @@ namespace NWN.Systems
           case BaseItemType.SmallShield:
           case BaseItemType.LargeShield:
           case BaseItemType.TowerShield:
-            addedSlotChance = player.learnableSkills.ContainsKey(CustomSkill.CalligrapheBlindeurScience) ? player.learnableSkills[CustomSkill.CalligrapheBlindeurScience].totalPoints : 0;
-            addedSlotChance = player.learnableSkills.ContainsKey(CustomSkill.CalligrapheBlindeurExpert) ? player.learnableSkills[CustomSkill.CalligrapheBlindeurExpert].totalPoints : 0;
+            addedSlotChance += player.learnableSkills.ContainsKey(CustomSkill.CalligrapheBlindeurScience) ? player.learnableSkills[CustomSkill.CalligrapheBlindeurScience].totalPoints : 0;
+            addedSlotChance += player.learnableSkills.ContainsKey(CustomSkill.CalligrapheBlindeurExpert) ? player.learnableSkills[CustomSkill.CalligrapheBlindeurExpert].totalPoints : 0;
             break;
           case BaseItemType.Armor:
           case BaseItemType.Helmet:
@@ -725,24 +726,24 @@ namespace NWN.Systems
           case BaseItemType.Gloves:
           case BaseItemType.Bracer:
           case BaseItemType.Belt:
-            addedSlotChance = player.learnableSkills.ContainsKey(CustomSkill.CalligrapheArmurierExpert) ? player.learnableSkills[CustomSkill.CalligrapheArmurierExpert].totalPoints : 0;
-            addedSlotChance = player.learnableSkills.ContainsKey(CustomSkill.CalligrapheArmurierScience) ? player.learnableSkills[CustomSkill.CalligrapheArmurierScience].totalPoints : 0;
+            addedSlotChance += player.learnableSkills.ContainsKey(CustomSkill.CalligrapheArmurierExpert) ? player.learnableSkills[CustomSkill.CalligrapheArmurierExpert].totalPoints : 0;
+            addedSlotChance += player.learnableSkills.ContainsKey(CustomSkill.CalligrapheArmurierScience) ? player.learnableSkills[CustomSkill.CalligrapheArmurierScience].totalPoints : 0;
             break;
           case BaseItemType.Amulet:
           case BaseItemType.Ring:
-            addedSlotChance = player.learnableSkills.ContainsKey(CustomSkill.CalligrapheCiseleurExpert) ? player.learnableSkills[CustomSkill.CalligrapheCiseleurExpert].totalPoints : 0;
-            addedSlotChance = player.learnableSkills.ContainsKey(CustomSkill.CalligrapheCiseleurScience) ? player.learnableSkills[CustomSkill.CalligrapheCiseleurScience].totalPoints : 0;
+            addedSlotChance += player.learnableSkills.ContainsKey(CustomSkill.CalligrapheCiseleurExpert) ? player.learnableSkills[CustomSkill.CalligrapheCiseleurExpert].totalPoints : 0;
+            addedSlotChance += player.learnableSkills.ContainsKey(CustomSkill.CalligrapheCiseleurScience) ? player.learnableSkills[CustomSkill.CalligrapheCiseleurScience].totalPoints : 0;
             break;
           default:
-            addedSlotChance = player.learnableSkills.ContainsKey(CustomSkill.CalligrapheFourbisseurExpert) ? player.learnableSkills[CustomSkill.CalligrapheFourbisseurExpert].totalPoints : 0;
-            addedSlotChance = player.learnableSkills.ContainsKey(CustomSkill.CalligrapheFourbisseurScience) ? player.learnableSkills[CustomSkill.CalligrapheFourbisseurScience].totalPoints : 0;
+            addedSlotChance += player.learnableSkills.ContainsKey(CustomSkill.CalligrapheFourbisseurExpert) ? player.learnableSkills[CustomSkill.CalligrapheFourbisseurExpert].totalPoints : 0;
+            addedSlotChance += player.learnableSkills.ContainsKey(CustomSkill.CalligrapheFourbisseurScience) ? player.learnableSkills[CustomSkill.CalligrapheFourbisseurScience].totalPoints : 0;
             break;
         }
 
         if (NwRandom.Roll(Utils.random, 100) < addedSlotChance)
         {
           item.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
-          player.oid.SendServerMessage("Votre talent de calligraphe vous a permit de ne pas consommer d'emplacement !", ColorConstants.Orange);
+          player.oid.SendServerMessage("Votre talent de calligraphe vous a permis de ne pas consommer d'emplacement !", ColorConstants.Orange);
         }
       }
       else // cancelled
@@ -925,6 +926,91 @@ namespace NWN.Systems
               newItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
               break;
           }
+      }
+    }
+    private static void HandleAbilityModifierInscription(NwItem newItem, int learnableId)
+    {
+      int bonus = 1;
+
+      switch(learnableId)
+      {
+        case CustomInscription.OnApprendDeSesErreurs:
+
+          foreach (ItemProperty ip in newItem.ItemProperties)
+            if (ip.Property.PropertyType == ItemPropertyType.AbilityBonus && ip.SubType.RowIndex == (int)IPAbility.Intelligence)
+            {
+              bonus += ip.CostTableValue.RowIndex;
+              newItem.RemoveItemProperty(ip);
+            }
+
+          newItem.AddItemProperty(ItemProperty.AbilityBonus(IPAbility.Intelligence, bonus), EffectDuration.Permanent);
+
+          break;
+
+        case CustomInscription.PatienceEtLongueurDeTemps:
+
+          foreach (ItemProperty ip in newItem.ItemProperties)
+            if (ip.Property.PropertyType == ItemPropertyType.AbilityBonus && ip.SubType.RowIndex == (int)IPAbility.Wisdom)
+            {
+              bonus += ip.CostTableValue.RowIndex;
+              newItem.RemoveItemProperty(ip);
+            }
+
+          newItem.AddItemProperty(ItemProperty.AbilityBonus(IPAbility.Wisdom, bonus), EffectDuration.Permanent);
+
+          break;
+
+        case CustomInscription.AuxDependsDeCeluiQuilEcoute:
+
+          foreach (ItemProperty ip in newItem.ItemProperties)
+            if (ip.Property.PropertyType == ItemPropertyType.AbilityBonus && ip.SubType.RowIndex == (int)IPAbility.Charisma)
+            {
+              bonus += ip.CostTableValue.RowIndex;
+              newItem.RemoveItemProperty(ip);
+            }
+
+          newItem.AddItemProperty(ItemProperty.AbilityBonus(IPAbility.Charisma, bonus), EffectDuration.Permanent);
+
+          break;
+
+        case CustomInscription.LaMeilleureDesRaisons:
+
+          foreach (ItemProperty ip in newItem.ItemProperties)
+            if (ip.Property.PropertyType == ItemPropertyType.AbilityBonus && ip.SubType.RowIndex == (int)IPAbility.Strength)
+            {
+              bonus += ip.CostTableValue.RowIndex;
+              newItem.RemoveItemProperty(ip);
+            }
+
+          newItem.AddItemProperty(ItemProperty.AbilityBonus(IPAbility.Strength, bonus), EffectDuration.Permanent);
+
+          break;
+
+        case CustomInscription.Opportuniste:
+
+          foreach (ItemProperty ip in newItem.ItemProperties)
+            if (ip.Property.PropertyType == ItemPropertyType.AbilityBonus && ip.SubType.RowIndex == (int)IPAbility.Dexterity)
+            {
+              bonus += ip.CostTableValue.RowIndex;
+              newItem.RemoveItemProperty(ip);
+            }
+
+          newItem.AddItemProperty(ItemProperty.AbilityBonus(IPAbility.Dexterity, bonus), EffectDuration.Permanent);
+
+          break;
+
+        case CustomInscription.Résilence:
+
+          foreach (ItemProperty ip in newItem.ItemProperties)
+            if (ip.Property.PropertyType == ItemPropertyType.AbilityBonus && ip.SubType.RowIndex == (int)IPAbility.Constitution)
+            {
+              bonus += ip.CostTableValue.RowIndex;
+              newItem.RemoveItemProperty(ip);
+            }
+
+          newItem.AddItemProperty(ItemProperty.AbilityBonus(IPAbility.Constitution, bonus), EffectDuration.Permanent);
+
+          break;
       }
     }
     private static double GetInscriptionTimeCost(Learnable learnable, Player player, NwItem item)

@@ -1644,9 +1644,18 @@ namespace NWN.Systems
         int toughness = learnableSkills.ContainsKey(CustomSkill.Toughness) ? learnableSkills[CustomSkill.Toughness].currentLevel : 0;
         int additionalHPFromItems = CheckForAdditionalHP();
 
-        oid.LoginCreature.LevelInfo[0].HitDie = oid.LoginCreature.ActiveEffects.Any(e => e.Tag == "_CORE_EFFECT") ? 
+        double totalMaxHP = oid.LoginCreature.ActiveEffects.Any(e => e.Tag == "_CORE_EFFECT") ?
             (byte)(endurance.maxHP + improvedHealth * (toughness + (oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10)) + additionalHPFromItems)
           : (byte)(endurance.maxHP + improvedHealth * (toughness + (oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10 / 2)) + additionalHPFromItems);
+
+        foreach (var eff in oid.LoginCreature.ActiveEffects)
+          if (eff.Tag == "CUSTOM_CONDITION_DEEPWOUND")
+          { 
+            totalMaxHP *= 0.80;
+            break;
+          }
+
+        oid.LoginCreature.LevelInfo[0].HitDie = (byte)Math.Round(totalMaxHP, MidpointRounding.ToEven);
       }
       public int GetAdditionalMana()
       {

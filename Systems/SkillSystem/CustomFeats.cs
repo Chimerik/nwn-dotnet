@@ -587,6 +587,196 @@
     public const int WaterMagicScience = 20447;
     public const int WaterMagicExpert = 20448;
 
+    public const int Brutalite = 20449;
+    public const int BrutaliteMaster = 20450;
+    public const int BrutaliteScience = 20451;
+    public const int BrutaliteExpert = 20452;
+
+    public const int Axemanship = 20453;
+    public const int AxemanshipMaster = 20454;
+    public const int AxemanshipScience = 20455;
+    public const int AxemanshipExpert = 20456;
+
+    public const int Hammermanship = 20457;
+    public const int HammermanshipMaster = 20458;
+    public const int HammermanshipScience = 20459;
+    public const int HammermanshipExpert = 20460;
+
+    public const int Swordmanship = 20461;
+    public const int SwordmanshipMaster = 20462;
+    public const int SwordmanshipScience = 20463;
+    public const int SwordmanshipExpert = 20464;
+
+    public const int Tactics = 20465;
+    public const int TacticsMaster = 20466;
+    public const int TacticsScience = 20467;
+    public const int TacticsExpert = 20468;
+
+    public const int Expertise = 20469; // TODO : Réduit le coût en énergie des attaques de Ranger, de toucher et les skills rituels. Dépend de la sagesse
+    public const int ExpertiseMaster = 20470; // TODO : Réservé à ceux qui ont un rp de ranger / druide
+    public const int ExpertiseScience = 20471;
+    public const int ExpertiseExpert = 20472;
+
+    public const int Beast = 20473;
+    public const int BeastMaster = 20474;
+    public const int BeastScience = 20475;
+    public const int BeastExpert = 20476;
+
+    public const int Marksmanship = 20477;
+    public const int MarksmanshipMaster = 20478;
+    public const int MarksmanshipScience = 20479;
+    public const int MarksmanshipExpert = 20480;
+
+    public const int WildernessSurvival = 20481;
+    public const int WildernessSurvivalMaster = 20482;
+    public const int WildernessSurvivalScience = 20483;
+    public const int WildernessSurvivalExpert = 20484;
+
+    public const int DivineFavor = 20481; // TODO : Donne un bonus de soin en fonction de la sagesse quand un sort de soin est lancé sur un allié
+    public const int DivineFavorMaster = 20482; // TODO : Réservé à ceux qui ont un rp de prêtre
+    public const int DivineFavorScience = 20483;
+    public const int DivineFavorExpert = 20484;
+
+    public const int HealingPrayers = 20485;
+    public const int HealingPrayersMaster = 20486;
+    public const int HealingPrayersScience = 20487;
+    public const int HealingPrayersExpert = 20488;
+
+    public const int ProtectionPrayers = 20489;
+    public const int ProtectionPrayersMaster = 20490;
+    public const int ProtectionPrayersScience = 20491;
+    public const int ProtectionPrayersExpert = 20492;
+
+    public const int SmitingPrayers = 20493;
+    public const int SmitingPrayersMaster = 20494;
+    public const int SmitingPrayersScience = 20495;
+    public const int SmitingPrayersExpert = 20496;
+
+    public const int SoulReaping = 20497; // TODO : Réservé à ceux qui ont un vrai rp de nécro
+    public const int SoulReapingMaster = 20498; // TODO : donne de l'énergie chaque fois qu'une créature proche meurt. Dépend de l'intelligence
+    public const int SoulReapingScience = 20499;
+    public const int SoulReapingExpert = 20500;
+
+    public const int BloodMagic = 20501;
+    public const int BloodMagicMaster = 20502;
+    public const int BloodMagicScience = 20503;
+    public const int BloodMagicExpert = 20504;
+
+    public const int Curses = 20505;
+    public const int CursesMaster = 20506;
+    public const int CursesScience = 20507;
+    public const int CursesExpert = 20508;
+
+    public const int DeathMagic = 20509;
+    public const int DeathMagicMaster = 20510;
+    public const int DeathMagicScience = 20511;
+    public const int DeathMagicExpert = 20512;
+
+    public const int FastCasting = 20513; // TODO : Réservé à ceux qui ont un vrai rp d'enso
+    public const int FastCastingMaster = 20514; // TODO : Diminue le temps de cast des sorts et sceaux. Dépend du charisme
+    public const int FastCastingScience = 20515;
+    public const int FastCastingExpert = 20516;
+
+    public const int Domination = 20517;
+    public const int DominationMaster = 20518;
+    public const int DominationScience = 20519;
+    public const int DominationExpert = 20520;
+
+    public const int Illusion = 20521;
+    public const int IllusionMaster = 20522;
+    public const int IllusionScience = 20523;
+    public const int IllusionExpert = 20524;
+
+    public const int Inspiration = 20525;
+    public const int InspirationMaster = 20526;
+    public const int InspirationScience = 20527;
+    public const int InspirationExpert = 20528;
+
+    public const int EnergyStorage = 20529; // TODO : Réservé à ceux qui ont un vrai rp de mage
+    public const int EnergyStorageMaster = 20530; // TODO : Augmente l'énergie maximum
+    public const int EnergyStorageScience = 20531;
+    public const int EnergyStorageExpert = 20532;
+
+    public const int CriticalStrikes = 20533; // TODO : Augmente les chances de coups critiques en fonction de la dextérité. Les coups critiques rendent de l'énergie
+    public const int CriticalStrikesMaster = 20534; 
+    public const int CriticalStrikesScience = 20535;
+    public const int CriticalStrikesExpert = 20536;
+
+    public const int Daggermanship = 20537;
+    public const int DaggermanshipMaster = 20538;
+    public const int DaggermanshipScience = 20539;
+    public const int DaggermanshipExpert = 20540;
+
+    public const int DeadlyArts = 20541;
+    public const int DeadlyArtsMaster = 20542;
+    public const int DeadlyArtsScience = 20543;
+    public const int DeadlyArtsExpert = 20544;
+
+    public const int ShadowArts = 20545;
+    public const int ShadowArtsMaster = 20546;
+    public const int ShadowArtsScience = 20547;
+    public const int ShadowArtsExpert = 20548;
+
+    public const int SpawningPower = 20549; // TODO : Augmente la santé des créatures invoquées en fonction de la sagesse
+    public const int SpawningPowerMaster = 20550;
+    public const int SpawningPowerScience = 20551;
+    public const int SpawningPowerExpert = 20552;
+
+    public const int ChannelingMagic = 20553;
+    public const int ChannelingMagicMaster = 20554;
+    public const int ChannelingMagicScience = 20555;
+    public const int ChannelingMagicExpert = 20556;
+
+    public const int Communing = 20557;
+    public const int CommuningMaster = 20558;
+    public const int CommuningScience = 20559;
+    public const int CommuningExpert = 20560;
+
+    public const int RestorationMagic = 20561;
+    public const int RestorationMagicMaster = 20562;
+    public const int RestorationMagicScience = 20563;
+    public const int RestorationMagicExpert = 20564;
+
+    public const int Leadership = 20565; // TODO : Réservé à ceux qui ont un vrai rp de barde.
+    public const int LeadershipMaster = 20566; // TODO : Donne de l'énergie à l'utilisation de cris et de chants en fonction du charisme et du nombre d'alliés affectés
+    public const int LeadershipScience = 20567;
+    public const int LeadershipExpert = 20568;
+
+    public const int Command = 20569; 
+    public const int CommandMaster = 20570; 
+    public const int CommandScience = 20571;
+    public const int CommandExpert = 20572;
+
+    public const int Motivation = 20573;
+    public const int MotivationMaster = 20574;
+    public const int MotivationScience = 20575;
+    public const int MotivationExpert = 20576;
+
+    public const int Spearmanship = 20577;
+    public const int SpearmanshipMaster = 20578;
+    public const int SpearmanshipScience = 20579;
+    public const int SpearmanshipExpert = 20580;
+
+    public const int Mysticism = 20581; // TODO : Réduit le coût des enchantements divins
+    public const int MysticismMaster = 20582;
+    public const int MysticismScience = 20583;
+    public const int MysticismExpert = 20584;
+
+    public const int DivineProtection = 20585;
+    public const int DivineProtectionMaster = 20586;
+    public const int DivineProtectionScience = 20587;
+    public const int DivineProtectionExpert = 20588;
+
+    public const int DivineMight = 20589;
+    public const int DivineMightMaster = 20590;
+    public const int DivineMightScience = 20591;
+    public const int DivineMightExpert = 20592;
+
+    public const int Scythemanship = 20593;
+    public const int ScythemanshipMaster = 20594;
+    public const int ScythemanshipScience = 20595;
+    public const int ScythemanshipExpert = 20596;
+
     public const int Invalid = 65535;
   }
 }

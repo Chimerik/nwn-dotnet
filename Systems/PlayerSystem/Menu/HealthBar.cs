@@ -97,7 +97,7 @@ namespace NWN.Systems
 
           if (player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag == "CUSTOM_CONDITION_HEX"))
             color.SetBindValue(player.oid, nuiToken.Token, hexColor);
-          if (player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag == "CUSTOM_CONDITION_POISON"))
+          if (player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag == "CUSTOM_CONDITION_POISON" || e.Tag == "CUSTOM_CONDITION_DISEASE"))
             color.SetBindValue(player.oid, nuiToken.Token, poisonColor);
           else if (player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag == "CUSTOM_CONDITION_BLEEDING"))
             color.SetBindValue(player.oid, nuiToken.Token, bleedingColor);

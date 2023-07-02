@@ -23,6 +23,7 @@ namespace NWN.Systems
     private readonly CExoString critChanceVariable = "_ADD_CRIT_CHANCE".ToExoString();
     private readonly CExoString itemGradeVariable = "_ITEM_GRADE".ToExoString();
     private readonly CExoString durabilityVariable = "_DURABILITY".ToExoString();
+    private readonly CExoString blindEffectString = "CUSTOM_CONDITION_BLIND".ToExoString();
     //private readonly CExoString spellIdVariable = "_CURRENT_SPELL".ToExoString();
 
     [NativeFunction("_ZN17CNWSCreatureStats13GetDamageRollEP10CNWSObjectiiiii", null)]
@@ -84,6 +85,20 @@ namespace NWN.Systems
           skillBonusDodge += 5;
           logString += "+ 5 (Taille créature) ";
         }
+
+        foreach(var eff in creature.m_appliedEffects)
+          if(eff.GetCustomTag() == blindEffectString) // 90 % miss chance if blinded
+          {
+            if (NwRandom.Roll(Utils.random, 100) < 11)
+            {
+              attackData.m_nAttackResult = 4;
+              attackData.m_nMissedBy = 8;
+              LogUtils.LogMessage("Attaque échouée - aveuglement", LogUtils.LogType.Combat);
+              return;
+            }
+
+            break;
+          }
 
         int armorPenalty = unchecked((sbyte)targetCreature.m_pStats.m_nArmorCheckPenalty) < 0 ? 256 - targetCreature.m_pStats.m_nArmorCheckPenalty : targetCreature.m_pStats.m_nArmorCheckPenalty;
         int shieldPenalty = unchecked((sbyte)targetCreature.m_pStats.m_nShieldCheckPenalty) < 0 ? 256 - targetCreature.m_pStats.m_nShieldCheckPenalty : targetCreature.m_pStats.m_nShieldCheckPenalty;
@@ -269,8 +284,8 @@ namespace NWN.Systems
         return false;
       }
 
-      PlayerSystem.Player attackerPlayer = PlayerSystem.Players.GetValueOrDefault(attacker.m_idSelf);
-      PlayerSystem.Player defender = PlayerSystem.Players.GetValueOrDefault(target.m_idSelf);
+      Player attackerPlayer = Players.GetValueOrDefault(attacker.m_idSelf);
+      Player defender = Players.GetValueOrDefault(target.m_idSelf);
 
       // Si la cible est en mouvement et est frappée en mêlée par une créature qu'elle ne voit pas, alors crit auto
       if ((weapon is null || ItemUtils.GetItemCategory((BaseItemType)weapon.m_nBaseItem) != ItemUtils.ItemCategory.RangedWeapon) && CreaturePlugin.GetMovementType(target.m_idSelf) > 0)
@@ -309,7 +324,7 @@ namespace NWN.Systems
       int critChance = weapon is not null ? weapon.m_ScriptVars.GetInt(critChanceVariable) : 0 ; // TODO : Gérer les chances de crit pour chaque type d'arme de base
       string critLog = $"{critChance} (arme) ";
 
-      if (!PlayerSystem.Players.TryGetValue(attacker.m_idSelf, out PlayerSystem.Player player)) // Si l'attaquant n'est pas un joueur, le crit est déterminé par le FP
+      if (!Players.TryGetValue(attacker.m_idSelf, out Player player)) // Si l'attaquant n'est pas un joueur, le crit est déterminé par le FP
       {
         int creatureCrit = attacker.m_ScriptVars.GetInt(critChanceVariable);
         critLog += $"+ {creatureCrit} (créature) ";
@@ -321,9 +336,6 @@ namespace NWN.Systems
         // TODO : Prévoir un skill spécial pour les roubs qui remplace attaque sournoise et augmente les chances de crit (Critical Strikes dans Guild Wars)
         // TODO : Prévoir un enchantement qui permet d'ajouter des chances de crit à une arme (max + 15 %)
         // TODO : Prévoir des capacités qui donnent des chances de crit temporaire (cf page Critical Hit du Guild Wars wiki)
-        // TODO : chaque attaque spéciale d'une arme a des effets supplémentaires dont la puissance dépend du niveau de maîtrise et d'expertise dans l'arme
-        // TODO : Augmenter légèrement les chances de crit en fonction du niveau de matéria infusée 
-        // TODO : Prévoir un enchantement qui augmente les chances de crit
 
         int playerCrit = weapon is not null ? player.GetWeaponCritScienceLevel((BaseItemType)weapon.m_nBaseItem) : 0;
         critLog += $"+ {playerCrit} (entrainement) ";

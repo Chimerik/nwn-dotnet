@@ -1,9 +1,11 @@
-﻿using Anvil.API;
-using Anvil.Services;
-using Anvil.API.Events;
-using System.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+
+using Anvil.API;
+using Anvil.API.Events;
+using Anvil.Services;
+
 using Action = System.Action;
 using Context = NWN.Systems.Config.Context;
 
@@ -16,6 +18,13 @@ namespace NWN.Systems
     private static Effect bleeding;
     private static Effect poison;
     private static Effect deepWound;
+    private static Effect burning;
+    private static Effect crippled;
+    private static Effect disease;
+    private static Effect weakness;
+    private static Effect dazed;
+    private static Effect blind;
+    private static Effect cracked;
 
     public AttackSystem(ScriptHandleFactory scriptFactory)
     {
@@ -26,15 +35,50 @@ namespace NWN.Systems
       bleeding.Tag = "CUSTOM_CONDITION_BLEEDING";
       bleeding.SubType = EffectSubType.Supernatural;
 
-      poison = Effect.RunAction(null/*scriptHandleFactory.CreateUniqueHandler(ApplyBleeding)*/, null, scriptHandleFactory.CreateUniqueHandler(IntervalPoison), TimeSpan.FromSeconds(1));
-      poison = Effect.LinkEffects(poison, Effect.Icon((NwGameTables.EffectIconTable.GetRow(132)))); // TODO : importer une icône poison
+      poison = Effect.RunAction(null, null, scriptHandleFactory.CreateUniqueHandler(IntervalPoison), TimeSpan.FromSeconds(1));
+      poison = Effect.LinkEffects(poison, Effect.Icon((NwGameTables.EffectIconTable.GetRow(137)))); // TODO : ajouter effet visuel poison
       poison.Tag = "CUSTOM_CONDITION_POISON";
       poison.SubType = EffectSubType.Supernatural;
 
-      deepWound = Effect.RunAction(null/*scriptHandleFactory.CreateUniqueHandler(ApplyBleeding)*/, null, null);
-      deepWound = Effect.LinkEffects(deepWound, Effect.Icon((NwGameTables.EffectIconTable.GetRow(132)))); // TODO : importer une icône deep wound
+      deepWound = Effect.RunAction(scriptHandleFactory.CreateUniqueHandler(ApplyDeepWound), scriptHandleFactory.CreateUniqueHandler(RemoveDeepWound), null);
+      deepWound = Effect.LinkEffects(deepWound, Effect.Icon((NwGameTables.EffectIconTable.GetRow(135)))); // TODO : ajouter effet visuel deep wound
       deepWound.Tag = "CUSTOM_CONDITION_DEEPWOUND";
       deepWound.SubType = EffectSubType.Supernatural;
+
+      burning = Effect.RunAction(null, null, scriptHandleFactory.CreateUniqueHandler(IntervalBurning)); // TODO : ajouter effet visuel burning
+      burning = Effect.LinkEffects(burning, Effect.Icon((NwGameTables.EffectIconTable.GetRow(133))));
+      burning.Tag = "CUSTOM_CONDITION_BURNING";
+      burning.SubType = EffectSubType.Supernatural; 
+
+      crippled = Effect.RunAction(scriptHandleFactory.CreateUniqueHandler(ApplyCrippled), scriptHandleFactory.CreateUniqueHandler(RemoveCrippled), null);
+      crippled = Effect.LinkEffects(crippled, Effect.Icon((NwGameTables.EffectIconTable.GetRow(134)))); // TODO : ajouter effet visuel crippled
+      crippled.Tag = "CUSTOM_CONDITION_CRIPPLED";
+      crippled.SubType = EffectSubType.Supernatural;
+
+      disease = Effect.RunAction(null, null, scriptHandleFactory.CreateUniqueHandler(IntervalDisease), TimeSpan.FromSeconds(1));
+      disease = Effect.LinkEffects(disease, Effect.Icon((NwGameTables.EffectIconTable.GetRow(136)))); // TODO : ajouter effet visuel disease
+      disease.Tag = "CUSTOM_CONDITION_DISEASE";
+      disease.SubType = EffectSubType.Supernatural;
+
+      weakness = Effect.RunAction(scriptHandleFactory.CreateUniqueHandler(ApplyWeakness), scriptHandleFactory.CreateUniqueHandler(RemoveWeakness), null);
+      weakness = Effect.LinkEffects(weakness, Effect.Icon((NwGameTables.EffectIconTable.GetRow(138)))); // TODO : ajouter effet visuel weakness
+      weakness.Tag = "CUSTOM_CONDITION_WEAKNESS";
+      weakness.SubType = EffectSubType.Supernatural;
+
+      dazed = Effect.RunAction(null, null, null);
+      dazed = Effect.LinkEffects(dazed, Effect.Icon((NwGameTables.EffectIconTable.GetRow(141)))); // TODO : ajouter effet visuel dazed
+      dazed.Tag = "CUSTOM_CONDITION_DAZED";
+      dazed.SubType = EffectSubType.Supernatural;
+
+      blind = Effect.RunAction(null, null, null);
+      blind = Effect.LinkEffects(blind, Effect.Icon((NwGameTables.EffectIconTable.GetRow(140)))); // TODO : ajouter effet visuel dazed
+      blind.Tag = "CUSTOM_CONDITION_DAZED";
+      blind.SubType = EffectSubType.Supernatural;
+
+      cracked = Effect.RunAction(null, null, null);
+      cracked = Effect.LinkEffects(cracked, Effect.Icon((NwGameTables.EffectIconTable.GetRow(139)))); // TODO : ajouter effet visuel cracked armor
+      cracked.Tag = "CUSTOM_CONDITION_CRACKEDARMOR";
+      cracked.SubType = EffectSubType.Supernatural;
     }
 
     public static Pipeline<Context> pipeline = new(
@@ -42,6 +86,7 @@ namespace NWN.Systems
       {
         IsAttackOfOpportunity,
         IsAttackDodged,
+        ProcessDazed,
         ProcessBaseDamageTypeAndAttackWeapon,
         ProcessCriticalHit,
         ProcessTargetDamageAbsorption,
@@ -53,6 +98,7 @@ namespace NWN.Systems
         ProcessTargetShieldAC,
         ProcessArmorPenetrationCalculations,
         ProcessDamageFromWeaponInscriptions,
+        ProcessWeakness,
         ProcessDamageCalculations,
         ProcessAdrenaline,
         ProcessSpecialAttack,
@@ -93,6 +139,23 @@ namespace NWN.Systems
       if (ctx.onAttack.AttackResult == AttackResult.Miss)
         StringUtils.DisplayStringToAllPlayersNearTarget(ctx.oTarget, "Attaque esquivée !");
         
+      //next();
+    }
+    private static void ProcessDazed(Context ctx, Action next)
+    {
+      if (ctx.oTarget.AnimationState == AnimationState.Cast1 || ctx.oTarget.AnimationState == AnimationState.Cast2 || ctx.oTarget.AnimationState == AnimationState.Cast3 ||
+        ctx.oTarget.AnimationState == AnimationState.Cast4 || ctx.oTarget.AnimationState == AnimationState.Cast5 || ctx.oTarget.AnimationState == AnimationState.CastCreature)
+      {
+        foreach (var eff in ctx.oTarget.ActiveEffects)
+          if (eff.Tag == "CUSTOM_CONDITION_DAZED")
+          {
+            _ = ctx.oTarget.ClearActionQueue();
+           ctx.oTarget.GetObjectVariable<LocalVariableInt>("_INTERRUPTED").Value = 1;
+            // TODO : ajouter un effet d'echec du sort
+            break;
+          }
+      }
+
       next();
     }
     private static void ProcessBaseDamageTypeAndAttackWeapon(Context ctx, Action next)
@@ -638,6 +701,18 @@ namespace NWN.Systems
     private static void ProcessDamageFromWeaponInscriptions(Context ctx, Action next)
     {
       Config.SetDamageValueFromWeapon(ctx);
+      next();
+    }
+    private static void ProcessWeakness(Context ctx, Action next)
+    {
+      foreach (var eff in ctx.oAttacker.ActiveEffects)
+        if (eff.Tag == "CUSTOM_CONDITION_WEAKNESS")
+        {
+          Config.SetContextDamage(ctx, DamageType.BaseWeapon, (int)Math.Round((double)Config.GetContextDamage(ctx, DamageType.BaseWeapon) * 0.33, MidpointRounding.ToEven));
+          next();
+          return;
+        }
+
       next();
     }
     private static void ProcessDamageCalculations(Context ctx, Action next)

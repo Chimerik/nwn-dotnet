@@ -10,13 +10,10 @@ namespace NWN.Systems
   {
     public static int GetDeepWoundModifiedDuration(PlayerSystem.Player player, NwGameObject targetObject, WeaponAttackType attackType, double duration)
     {
-      if (targetObject is not NwCreature targetCreature || targetCreature.Race.RacialType == RacialType.Construct || targetCreature.Race.RacialType == RacialType.Undead)
-      {
-        player.oid.SendServerMessage($"La cible {StringUtils.ToWhitecolor(targetObject.Name)} ne peut pas être affectée par le poison", ColorConstants.Orange);
+      if (targetObject is not NwCreature targetCreature)
         return 0;
-      }
 
-      bool applyPoison = true;
+      bool applyDeepWound = true;
       double durationIncrease = 1;
 
       durationIncrease += 0.04 * GetDeepWoundDurationModifierFromItem(attackType == WeaponAttackType.Offhand ? player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand) : player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand), CustomInscription.Atrocité);
@@ -35,13 +32,13 @@ namespace NWN.Systems
         if (eff.Tag == "CUSTOM_CONDITION_DEEPWOUND")
         {
           if (eff.DurationRemaining > duration)
-            applyPoison = false;
+            applyDeepWound = false;
           else
             targetCreature.RemoveEffect(eff);
         }
       }
 
-      return applyPoison ? (int)Math.Round(duration, MidpointRounding.ToEven) : 0;
+      return applyDeepWound ? (int)Math.Round(duration, MidpointRounding.ToEven) : 0;
     }
     private static double GetDeepWoundDurationModifierFromItem(NwItem item, int inscription)
     {
@@ -61,18 +58,42 @@ namespace NWN.Systems
       if (eventData.EffectTarget is not NwCreature oTarget)
         return ScriptHandleResult.Handled;
 
-      oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect((VfxType)115)); // TODO : choisir un effet visuel pour l'empoisonnement
+      oTarget.OnHeal += DeepWoundReducedHealing;
 
-      /*if(PlayerSystem.Players.TryGetValue(oTarget, out PlayerSystem.Player player))
-      {
+      //oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect((VfxType)115)); // TODO : choisir un effet visuel pour la blessure profonde
 
-      }
+      if(PlayerSystem.Players.TryGetValue(oTarget, out PlayerSystem.Player player))
+        player.SetMaxHP();
       else 
       {
-
-      }*/
+        int deepWoundLostHP = (int)Math.Round(oTarget.MaxHP * 0.80, MidpointRounding.ToEven);
+        oTarget.GetObjectVariable<LocalVariableInt>("_DEEPWOUND_LOST_HP").Value = deepWoundLostHP;
+        oTarget.MaxHP -= deepWoundLostHP;
+      }
 
       return ScriptHandleResult.Handled;
+    }
+
+    public static ScriptHandleResult RemoveDeepWound(CallInfo _)
+    {
+      EffectRunScriptEvent eventData = new EffectRunScriptEvent();
+
+      if (eventData.EffectTarget is not NwCreature oTarget)
+        return ScriptHandleResult.Handled;
+
+      oTarget.OnHeal -= DeepWoundReducedHealing;
+
+      if (PlayerSystem.Players.TryGetValue(oTarget, out PlayerSystem.Player player))
+        player.SetMaxHP();
+      else 
+        oTarget.MaxHP += oTarget.GetObjectVariable<LocalVariableInt>("_DEEPWOUND_LOST_HP").Value;
+
+      return ScriptHandleResult.Handled;
+    }
+
+    private static void DeepWoundReducedHealing(OnHeal onHeal)
+    {
+      onHeal.HealAmount = (int)Math.Round(onHeal.HealAmount * 0.80, MidpointRounding.ToEven);
     }
   }
 }
