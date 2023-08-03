@@ -742,7 +742,7 @@ namespace NWN.Systems
                   if (sbyte.TryParse(naturalAC.GetBindValue(player.oid, nuiToken.Token), out sbyte newAC))
                   {
                     targetCreature.BaseAC = newAC;
-                    naturalACTooltip.SetBindValue(player.oid, nuiToken.Token, $"La créature subit naturellement {Utils.GetDamageMultiplier(targetCreature.AC) * 100:0.##} % des dégâts");
+                    naturalACTooltip.SetBindValue(player.oid, nuiToken.Token, $"La créature subit naturellement {Utils.GetDamageMultiplier(targetCreature.AC, 0) * 100:0.##} % des dégâts");
                   }
                   break;
 
@@ -1249,7 +1249,7 @@ namespace NWN.Systems
           willTooltip.SetBindValue(player.oid, nuiToken.Token, $"Total avec modificateur : {targetCreature.GetBaseSavingThrow(SavingThrow.Will) + targetCreature.GetAbilityModifier(Ability.Wisdom)}");
 
           naturalAC.SetBindValue(player.oid, nuiToken.Token, targetCreature.BaseAC.ToString());
-          naturalACTooltip.SetBindValue(player.oid, nuiToken.Token, $"La créature subit naturellement {Utils.GetDamageMultiplier(targetCreature.AC) * 100:0.##} % des dégâts");
+          naturalACTooltip.SetBindValue(player.oid, nuiToken.Token, $"La créature subit naturellement {Utils.GetDamageMultiplier(targetCreature.AC, 0) * 100:0.##} % des dégâts");
           armorPenetration.SetBindValue(player.oid, nuiToken.Token, targetCreature.BaseAttackBonus.ToString());
           attackPerRound.SetBindValue(player.oid, nuiToken.Token, targetCreature.BaseAttackCount.ToString());
           spellCasterLevel.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetObjectVariable<LocalVariableInt>("_CREATURE_CASTER_LEVEL").Value.ToString());

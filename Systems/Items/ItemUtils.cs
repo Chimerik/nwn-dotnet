@@ -25,7 +25,8 @@ namespace NWN.Systems
       { BaseItemType.Shortbow,  new int[,] { { 2, 4 }, { 3, 6 }, { 4, 8 }, { 5, 10 }, { 6, 12 }, { 7, 14 }, { 8, 16 }, { 10, 19 } } },
       { BaseItemType.Sling,  new int[,] { { 1, 3 }, { 2, 4 }, { 3, 5 }, { 4, 6 }, { 4, 7 }, { 5, 9 }, { 6, 11 }, { 7, 13 } } },
       { BaseItemType.Club,  new int[,] { { 1, 3 }, { 2, 5 }, { 3, 7 }, { 4, 9 }, { 5, 11 }, { 6, 13 }, { 8, 15 }, { 10, 17 } } },
-      { BaseItemType.LightMace,  new int[,] { { 1, 3 }, { 2, 5 }, { 3, 7 }, { 4, 9 }, { 5, 11 }, { 6, 13 }, { 8, 15 }, { 10, 17 } } },
+      { BaseItemType.LightMace,  new int[,] { { 1, 3 }, { 2, 5 }, { 3, 7 }, { 4, 10 }, { 5, 13 }, { 7, 16 }, { 9, 19 }, { 11, 22 } } },
+      { BaseItemType.MagicStaff,  new int[,] { { 1, 3 }, { 2, 5 }, { 3, 7 }, { 4, 10 }, { 5, 13 }, { 7, 16 }, { 9, 19 }, { 11, 22 } } },
       { BaseItemType.Morningstar,  new int[,] { { 1, 3 }, { 2, 5 }, { 3, 7 }, { 4, 9 }, { 5, 11 }, { 6, 13 }, { 8, 15 }, { 10, 17 } } },
       { BaseItemType.LightFlail,  new int[,] { { 1, 3 }, { 2, 5 }, { 3, 7 }, { 4, 9 }, { 5, 11 }, { 6, 13 }, { 8, 15 }, { 10, 17 } } },
       { BaseItemType.Handaxe,  new int[,] { { 1, 4 }, { 1, 6 }, { 2, 8 }, { 2, 10 }, { 3, 12 }, { 3, 14 }, { 4, 16 }, { 4, 19 } } },
@@ -56,6 +57,8 @@ namespace NWN.Systems
       { BaseItemType.DireMace,  new int[,] { { 3, 5 }, { 4, 7 }, { 5, 10 }, { 7, 13 }, { 9, 16 }, { 11, 19 }, { 13, 22 }, { 15, 25 } } },
       { BaseItemType.Doubleaxe,  new int[,] { { 3, 5 }, { 3, 8 }, { 3, 11 }, { 4, 14 }, { 4, 17 }, { 5, 20 }, { 5, 24 }, { 6, 28 } } },
       { BaseItemType.TwoBladedSword,  new int[,] { { 3, 5 }, { 4, 7 }, { 3, 9 }, { 7, 11 }, { 9, 13 }, { 11, 16 }, { 13, 19 }, { 15, 22 } } },
+      { BaseItemType.Scythe,  new int[,] { { 3, 5 }, { 3, 10 }, { 4, 15 }, { 5, 20 }, { 6, 25 }, { 7, 30 }, { 8, 35 }, { 9, 41 } } },
+      { BaseItemType.Sickle,  new int[,] { { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 } } },
     };
 
     public enum ItemCategory
@@ -131,11 +134,11 @@ namespace NWN.Systems
     {
       return baseItemType switch
       {
-        BaseItemType.Dagger or BaseItemType.Sickle or BaseItemType.Handaxe or BaseItemType.Rapier or BaseItemType.Kama or BaseItemType.Kukri 
+        BaseItemType.Dagger or BaseItemType.Handaxe or BaseItemType.Rapier or BaseItemType.Kama or BaseItemType.Kukri 
         or BaseItemType.DireMace or BaseItemType.Doubleaxe or BaseItemType.TwoBladedSword or BaseItemType.Shuriken or BaseItemType.Dart
         or BaseItemType.Longsword or BaseItemType.Scimitar or BaseItemType.Shortsword or BaseItemType.Battleaxe or BaseItemType.Bastardsword
         or BaseItemType.DwarvenWaraxe or BaseItemType.Katana => 5,
-        BaseItemType.Club or BaseItemType.LightMace or BaseItemType.Morningstar or BaseItemType.ShortSpear or BaseItemType.LightFlail
+        BaseItemType.Club or BaseItemType.Morningstar or BaseItemType.ShortSpear or BaseItemType.LightFlail
         or BaseItemType.Trident or BaseItemType.Whip or BaseItemType.Scythe => 4,
         BaseItemType.Longbow => 2,
         BaseItemType.LightCrossbow or BaseItemType.HeavyCrossbow => 2,

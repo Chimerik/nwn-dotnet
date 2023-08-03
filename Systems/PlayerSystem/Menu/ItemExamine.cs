@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -118,7 +118,7 @@ namespace NWN.Systems
 
             int minDamage = item.GetObjectVariable<LocalVariableInt>("_MIN_WEAPON_DAMAGE").Value;
             int maxDamage = item.GetObjectVariable<LocalVariableInt>("_MAX_WEAPON_DAMAGE").Value;
-            double weaponMasteryLevel = player.GetWeaponMasteryLevel(item.BaseItem.ItemType);
+            double weaponMasteryLevel = player.GetWeaponMasteryLevel(item);
             int minSkillDamage = (int)(minDamage * weaponMasteryLevel);
             int maxSkillDamage = (int)(maxDamage * weaponMasteryLevel);
 
@@ -137,7 +137,7 @@ namespace NWN.Systems
               new NuiSpacer(),
               new NuiButtonImage("ir_moreattacks") { Height = 35, Width = 35, Tooltip = "Critiques" },
               new NuiSpacer() { Width = 5 },
-              new NuiLabel($"{maxSkillDamage} + 20 AP - {player.GetWeaponCritScienceLevel(item.BaseItem.ItemType) + 5} %") { Tooltip = "Vos chances de critiques peuvent être améliorées en entrainant la compétence de science du critique spécifique à l'arme", Height = 35, Width = 80, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle },
+              new NuiLabel($"{maxSkillDamage} + 20 AP - {player.GetWeaponMasteryLevel(item) + 5} %") { Tooltip = "Vos chances de critiques peuvent être améliorées en entrainant la compétence de science du critique spécifique à l'arme", Height = 35, Width = 80, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle },
               new NuiSpacer(),
               new NuiButtonImage("ir_sell02") { Height = 35, Width = 35, Tooltip = "Type de dégâts" },
               new NuiSpacer() { Width = 5 },

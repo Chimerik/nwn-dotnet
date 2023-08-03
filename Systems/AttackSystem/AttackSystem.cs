@@ -5,7 +5,7 @@ using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
-
+using NWN.Core.NWNX;
 using Action = System.Action;
 using Context = NWN.Systems.Config.Context;
 
@@ -422,40 +422,32 @@ namespace NWN.Systems
       if (ctx.oAttacker.IsFlanking(ctx.oTarget))
         ctx.baseArmorPenetration += 5;
 
-      if (ctx.attackWeapon is null)
-      {
-        // Combat à mains nues utilise à la fois la force et la dex pour l'AP
-        // TODO : Créer un nouveau type d'arme "mains nues" sans modèle
-        ctx.baseArmorPenetration += ctx.oAttacker.GetAbilityModifier(Ability.Dexterity) + ctx.oAttacker.GetAbilityModifier(Ability.Strength);
-        next();
-        return;
-      }
-      else if(ctx.attackWeapon.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value < 1 && ctx.oAttacker.IsLoginPlayerCharacter)
-      {
-        ctx.oAttacker.LoginPlayer.SendServerMessage($"{StringUtils.ToWhitecolor(ctx.attackWeapon.Name)} est en ruines. Sans réparations, cette arme est inutile.", ColorConstants.Red);
-        next();
-        return;
-      }
-
-      int versatileModifier = ItemUtils.IsVersatileWeapon(ctx.attackWeapon.BaseItem.ItemType) ? 2 : 1;
-
-      if (ctx.isRangedAttack)
-      {
-        if(ctx.attackWeapon.BaseItem.ItemType == BaseItemType.ThrowingAxe)
-          ctx.baseArmorPenetration += ctx.oAttacker.GetAbilityModifier(Ability.Strength);
-      }
-      else if (ItemUtils.IsFinesseWeapon(ctx.attackWeapon.BaseItem.ItemType))
-      {
-        ctx.baseArmorPenetration += ctx.oAttacker.GetAbilityModifier(Ability.Dexterity) * versatileModifier;
-      }
-      else
-        ctx.baseArmorPenetration += ctx.oAttacker.GetAbilityModifier(Ability.Strength) * versatileModifier;
-
       // Les armes perforantes disposent de 20 % de pénétration supplémentaire contre les armures lourdes
       if (ctx.attackWeapon.BaseItem.WeaponType.Contains(DamageType.Piercing) && ctx.oTarget.GetItemInSlot(InventorySlot.Chest) is not null && ctx.oTarget.GetItemInSlot(InventorySlot.Chest).BaseACValue > 5)
         ctx.baseArmorPenetration += 20;
 
-      next();
+      if (ctx.attackingPlayer is not null && ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_NEXT_ATTACK").HasValue)
+      {
+        int skillId = ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_NEXT_ATTACK").Value;
+        NwFeat usedFeat = NwFeat.FromFeatId(skillId - 10000);
+
+        switch (skillId)
+        {
+          case CustomSkill.SeverArtery:
+
+            int athleticsLevel = ctx.attackingPlayer.learnableSkills.ContainsKey(CustomSkill.Athletics) ? ctx.attackingPlayer.learnableSkills[CustomSkill.Athletics].totalPoints : 0;
+            athleticsLevel += ctx.attackingPlayer.learnableSkills.ContainsKey(CustomSkill.AthleticsExpert) ? ctx.attackingPlayer.learnableSkills[CustomSkill.AthleticsExpert].totalPoints : 0;
+            athleticsLevel += ctx.attackingPlayer.learnableSkills.ContainsKey(CustomSkill.AthleticsScience) ? ctx.attackingPlayer.learnableSkills[CustomSkill.AthleticsScience].totalPoints : 0;
+            athleticsLevel += ctx.attackingPlayer.learnableSkills.ContainsKey(CustomSkill.AthleticsMaster) ? ctx.attackingPlayer.learnableSkills[CustomSkill.AthleticsMaster].totalPoints : 0;
+            athleticsLevel = athleticsLevel > ctx.attackingPlayer.learnableSkills[CustomSkill.Athletics].totalPoints ? ctx.attackingPlayer.learnableSkills[CustomSkill.Athletics].totalPoints : athleticsLevel;
+
+            ctx.baseArmorPenetration += athleticsLevel * 4;
+
+            break;
+        }
+      }
+
+        next();
     }
     /*private static void ProcessBonusArmorPenetration(Context ctx, Action next)
     {
@@ -753,35 +745,19 @@ namespace NWN.Systems
         if (targetAC < 0) targetAC = 0;
 
         double initialDamage = Config.GetContextDamage(ctx, damageType);
-        double modifiedDamage = initialDamage * Utils.GetDamageMultiplier(targetAC);
-        double skillDamage = -1;
-        double skillModifier = -1;
-
-        if (damageType == DamageType.BaseWeapon && ctx.attackingPlayer is not null)
-        {
-          skillModifier = ctx.attackWeapon is not null ? ctx.attackingPlayer.GetWeaponMasteryLevel(ctx.attackWeapon.BaseItem.ItemType) : 0;
-          skillDamage = modifiedDamage * skillModifier;
-
-          if (skillDamage < 1)
-            skillDamage = 1;
-        }
+        double skillModifier = damageType == DamageType.BaseWeapon && ctx.attackingPlayer is not null ? ctx.attackingPlayer.GetWeaponMasteryLevel(ctx.attackWeapon) : 0;
+        double modifiedDamage = initialDamage * Utils.GetDamageMultiplier(targetAC, skillModifier);
 
         if (ctx.oTarget.Tag == "damage_trainer" && ctx.oAttacker.IsPlayerControlled)
         {
           ctx.oAttacker.ControllingPlayer.SendServerMessage($"Initial : {damageType.ToString().ColorString(ColorConstants.White)} - {initialDamage.ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);
           ctx.oAttacker.ControllingPlayer.SendServerMessage($"Armure totale vs {damageType.ToString().ColorString(ColorConstants.White)} : {targetAC.ToString().ColorString(ColorConstants.White)} - Dégâts {string.Format("{0:0}", (int)modifiedDamage).ColorString(ColorConstants.White)}", ColorConstants.Orange);
           ctx.oAttacker.ControllingPlayer.SendServerMessage($"Réduction : {string.Format("{0:0.000}", ((initialDamage - modifiedDamage) / modifiedDamage) * 100).ColorString(ColorConstants.White)}%", ColorConstants.Orange);
-
-          if (skillDamage > -1)
-            ctx.oAttacker.ControllingPlayer.SendServerMessage($"Compétence d'arme : {Math.Round(modifiedDamage, 2).ToString().ColorString(ColorConstants.White)} * {(skillModifier * 100).ToString().ColorString(ColorConstants.White)}% = {Math.Round(skillDamage, 2).ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);
         }
 
-        if (skillDamage < 0)
-          skillDamage = modifiedDamage;
-
-        skillDamage = Math.Round(skillDamage, MidpointRounding.ToEven);
-        Config.SetContextDamage(ctx, damageType, (int)skillDamage);
-        LogUtils.LogMessage($"Final : {damageType} - AC {targetAC} - Initial {initialDamage} - Final Damage {skillDamage}", LogUtils.LogType.Combat);
+        modifiedDamage = Math.Round(modifiedDamage, MidpointRounding.ToEven);
+        Config.SetContextDamage(ctx, damageType, (int)modifiedDamage);
+        LogUtils.LogMessage($"Final : {damageType} - AC {targetAC} - Initial {initialDamage} - Final Damage {modifiedDamage}", LogUtils.LogType.Combat);
       }
 
       if(ctx.physicalReduction > 0)
@@ -899,7 +875,7 @@ namespace NWN.Systems
       if (((leftSlot is not null && ItemUtils.GetItemCategory(leftSlot.BaseItem.ItemType) != ItemUtils.ItemCategory.Shield ) || ctx.isUnarmedAttack) 
         && ctx.attackWeapon is not null && ctx.attackingPlayer is not null) 
       {
-        double doubleStrikeChance = ctx.attackingPlayer.GetWeaponDoubleStrikeChance(ctx.attackWeapon.BaseItem.ItemType);
+        double doubleStrikeChance = ctx.attackingPlayer.GetWeaponMasteryLevel(ctx.attackWeapon);
         int randomChance = Utils.random.Next(100);
 
         LogUtils.LogMessage($"Double Strike Chance : {doubleStrikeChance} vs {randomChance}", LogUtils.LogType.Combat);
@@ -926,10 +902,8 @@ namespace NWN.Systems
             if (damageType == DamageType.BaseWeapon)
             {
               double targetAC = ctx.isUnarmedAttack ? HandleReducedDamageFromWeaponDamageType(ctx, new List<DamageType>() { DamageType.Bludgeoning }) : HandleReducedDamageFromWeaponDamageType(ctx, ctx.attackWeapon.BaseItem.WeaponType);
-              double modifiedDamage = damage * Utils.GetDamageMultiplier(targetAC);
-              double skillDamage = ctx.attackingPlayer.GetWeaponMasteryLevel(ctx.attackWeapon.BaseItem.ItemType);
-              double skillModifier = ctx.attackingPlayer.GetWeaponMasteryLevel(ctx.attackWeapon.BaseItem.ItemType) * modifiedDamage;
-              damage = (int)Math.Round(skillDamage, MidpointRounding.ToEven);
+              double modifiedDamage = damage * Utils.GetDamageMultiplier(targetAC, ctx.attackingPlayer.GetWeaponMasteryLevel(ctx.attackWeapon));
+              damage = (int)Math.Round(modifiedDamage, MidpointRounding.ToEven);
 
               if (damage < 1)
                 damage = 1;

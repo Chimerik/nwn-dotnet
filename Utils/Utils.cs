@@ -488,9 +488,9 @@ namespace NWN
         local.Delete();
     }
 
-    public static double GetDamageMultiplier(double targetAC)
+    public static double GetDamageMultiplier(double targetAC, double strikeLevel)
     {
-      return Math.Pow(0.5, (targetAC - 60) / 40);
+      return Math.Pow(2, (strikeLevel - targetAC) / 40);
     }
 
     public static int GetDodgeChance(NwCreature creature)

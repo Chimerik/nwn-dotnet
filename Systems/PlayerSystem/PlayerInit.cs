@@ -79,7 +79,7 @@ namespace NWN.Systems
 
       player.mapLoadingTime = DateTime.Now;
 
-      player.HandleReinit();
+      //player.HandleReinit();
     }
     public partial class Player
     {
@@ -231,18 +231,7 @@ namespace NWN.Systems
         learnableSkills.Add(CustomSkill.LightArmorProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightArmorProficiency]));
         learnableSkills.Add(CustomSkill.LightShieldProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightShieldProficiency]));
 
-        learnableSkills.Add(CustomSkill.ClubProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ClubProficiency]));
-        learnableSkills.Add(CustomSkill.LightFlailProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightFlailProficiency]));
-        learnableSkills.Add(CustomSkill.ShortBowProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ShortBowProficiency]));
-        learnableSkills.Add(CustomSkill.LightCrossBowProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightCrossBowProficiency]));
-        learnableSkills.Add(CustomSkill.LightMaceProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightMaceProficiency]));
-        learnableSkills.Add(CustomSkill.DaggerProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.DaggerProficiency]));
-        learnableSkills.Add(CustomSkill.DartProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.DartProficiency]));
-        learnableSkills.Add(CustomSkill.LightHammerProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightHammerProficiency]));
         learnableSkills.Add(CustomSkill.QuarterStaffProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.QuarterStaffProficiency]));
-        learnableSkills.Add(CustomSkill.MorningStarProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.MorningStarProficiency]));
-        learnableSkills.Add(CustomSkill.ShortSpearProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ShortSpearProficiency]));
-        learnableSkills.Add(CustomSkill.SlingProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.SlingProficiency]));
         learnableSkills.Add(CustomSkill.SickleProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.SickleProficiency]));
 
         //learnableSkills.Add(CustomSkill.TwoWeaponFighting, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.TwoWeaponFighting]));
@@ -817,7 +806,7 @@ namespace NWN.Systems
         mapPinDictionnary.Remove(onDestroy.Id);
         SaveMapPinsToDatabase();
       }
-      public void HandleReinit()
+      /*public void HandleReinit()
       {
         LearnableSkill oldSkill;
 
@@ -928,8 +917,8 @@ namespace NWN.Systems
 
         if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_REINITIALISATION_DONE").HasNothing)
         {
-          /*foreach(var item in oid.LoginCreature.Inventory.Items)
-            item.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;*/
+          //foreach(var item in oid.LoginCreature.Inventory.Items)
+            //item.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
 
           foreach (var feat in oid.LoginCreature.Feats)
             if (feat.Id > 1116)
@@ -953,7 +942,7 @@ namespace NWN.Systems
 
           oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_REINITIALISATION_DONE").Value = 1;
         }
-      }
+      }*/
       private async void HandleMemorizeSpellSlot(OnSpellSlotMemorize onMemorize)
       {
         if (onMemorize.Creature.GetObjectVariable<DateTimeLocalVariable>($"_SPELL_COOLDOWN_{onMemorize.Spell.Id}").Value > DateTime.UnixEpoch)

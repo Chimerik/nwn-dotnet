@@ -333,11 +333,8 @@ namespace NWN.Systems
       else
       {
         // Pour un joueur , la chance de crit dépend de sa maîtrise de l'arme (max + 20 %)
-        // TODO : Prévoir un skill spécial pour les roubs qui remplace attaque sournoise et augmente les chances de crit (Critical Strikes dans Guild Wars)
-        // TODO : Prévoir un enchantement qui permet d'ajouter des chances de crit à une arme (max + 15 %)
-        // TODO : Prévoir des capacités qui donnent des chances de crit temporaire (cf page Critical Hit du Guild Wars wiki)
 
-        int playerCrit = weapon is not null ? player.GetWeaponCritScienceLevel((BaseItemType)weapon.m_nBaseItem) : 0;
+        int playerCrit = weapon is not null ? player.GetWeaponMasteryLevel(weapon.m_idSelf.ToNwObject<NwItem>()) : 0;
         critLog += $"+ {playerCrit} (entrainement) ";
         critChance += playerCrit;
       }
