@@ -139,29 +139,29 @@
     public const int Wanderer = 20043;
     public const int Taken = 20044;
 
-    public const int Acrobatics = 20046; // remplace discipline
-    public const int Escamotage = 20047;
-    public const int Stealth = 20048; // Regroupe à la fois discrétion et déplacement silencieux
-    public const int Concentration = 20049;
-    public const int Arcana = 20050;
-    public const int History = 20051;
-    public const int Nature = 20052;
-    public const int Religion = 20053;
-    public const int Investigation = 20054; // Remplace fouille (détection des pièges)
-    public const int Dressage = 20055; // Permet de calmer et de gérer un animal. N'assure pas le contrôle. Différent de l'empathie animale des druides
-    public const int Insight = 20056;
-    public const int Medicine = 20057;
-    public const int Perception = 20058; // Perception regroupe à la fois Détection, perception auditive
-    public const int Survival = 20059;
-    public const int Deception = 20060;
-    public const int Intimidation = 20061;
-    public const int Performance = 20062;
-    public const int Persuasion = 20063;
-    public const int OpenLock = 20064; // TODO : déverrouiller une porte nécessite des outils de voleur
-    public const int TrapExpertise = 20065; // regroupe désamorçage et pose // TODO : désamorcer un piège nécessite des outils de voleur
-    public const int Taunt = 20066; // TODO : sur un PNJ, taunt force la cible à attaquer le taunter. Sur un PJ, taunt diminue la CA et impose un malus d'échec des sorts
-    // TODO : pas de compétence "parade" pour le moment. Il serait en revanche possible de réfléchir à un don qui permettrait de réduire les dégâts reçus en fonction de certaines conditions, cf Martial Adept de DD5 : Combat Maneuvers
-    // TODO : pas d'empathie animale pour le moment. Mais réfléchir à un système pour jouer à Pokémon
+    public const int OpenLock = 20045; // TODO : déverrouiller nécessite toujours des outils
+    public const int OpenLockExpert = 20046; 
+    public const int OpenLockScience = 20047;
+    public const int OpenLockMaster = 20048;
+    public const int Escamotage = 20049;
+    public const int EscamotageExpert = 20050;
+    public const int EscamotageScience = 20051;
+    public const int EscamotageMaster = 20052;
+    //public const int Concentration = 20049; // TODO : remplacer Concentration par un simple jet CON + SAG
+    public const int Arcana = 20053;
+    public const int ArcanaExpert = 20054;
+    public const int ArcanaScience = 20055;
+    public const int ArcanaMaster = 20056;
+
+    public const int History = 20057;
+    public const int HistoryExpert = 20058;
+    public const int HistoryScience = 20059;
+    public const int HistoryMaster = 20060;
+
+    public const int Nature = 20061;
+    public const int NatureExpert = 20063;
+    public const int NatureScience = 20064;
+    public const int NatureMaster = 20065;
 
     public const int Elfique = 20067;
     public const int Nain = 20068;
@@ -675,6 +675,46 @@
     public const int ScythemanshipMaster = 20594;
     public const int ScythemanshipScience = 20595;
     public const int ScythemanshipExpert = 20596;
+
+    public const int Religion = 20597;
+    public const int ReligionExpert = 20598;
+    public const int ReligionScience = 20599;
+    public const int ReligionMaster = 20600;
+
+    public const int Investigation = 20601;
+    public const int InvestigationExpert = 20602;
+    public const int InvestigationScience = 20603;
+    public const int InvestigationMaster = 20604;
+
+    public const int Insight = 20605;
+    public const int InsightExpert = 20606;
+    public const int InsightScience = 20607;
+    public const int InsightMaster = 20608;
+
+    public const int Medicine = 20609;
+    public const int MedicineExpert = 20610;
+    public const int MedicineScience = 20611;
+    public const int MedicineMaster = 20612;
+
+    public const int Perception = 20613;
+    public const int PerceptionExpert = 20614;
+    public const int PerceptionScience = 20615;
+    public const int PerceptionMaster = 20616;
+
+    public const int Deception = 20617;
+    public const int DeceptionExpert = 20618;
+    public const int DeceptionScience = 20619;
+    public const int DeceptionMaster = 20620;
+
+    public const int Intimidation = 20621;
+    public const int IntimidationExpert = 20622;
+    public const int IntimidationScience = 20623;
+    public const int IntimidationMaster = 20624;
+
+    public const int Persuasion = 20625;
+    public const int PersuasionExpert = 20626;
+    public const int PersuasionScience = 20627;
+    public const int PersuasionMaster = 20628;
 
     public const int Invalid = 65535;
   }

@@ -296,7 +296,7 @@ namespace NWN.Systems
         {
           if (defender is not null && defender.learnableSkills.ContainsKey(CustomSkill.UncannyDodge))
           {
-            int survivalSkill = defender.learnableSkills.ContainsKey(CustomSkill.Survival) ? defender.learnableSkills[CustomSkill.Survival].totalPoints : 0;
+            int survivalSkill = defender.learnableSkills.ContainsKey(CustomSkill.WildernessSurvival) ? defender.learnableSkills[CustomSkill.WildernessSurvival].totalPoints : 0;
 
             if (attackerPlayer is not null)
             {
