@@ -24,6 +24,74 @@ namespace NWN.Systems
 
       switch (targetItem.BaseItem.ItemType)
       {
+        case BaseItemType.Sickle:
+
+          switch (inscription.id)
+          {
+            case CustomInscription.Pourfendeur:
+            case CustomInscription.PourfendeurAberration:
+            case CustomInscription.PourfendeurAnimal:
+            case CustomInscription.PourfendeurArtificiel:
+            case CustomInscription.PourfendeurBien:
+            case CustomInscription.PourfendeurChaos:
+            case CustomInscription.PourfendeurDemiElfe:
+            case CustomInscription.PourfendeurDemiOrc:
+            case CustomInscription.PourfendeurDragon:
+            case CustomInscription.PourfendeurElementaire:
+            case CustomInscription.PourfendeurElfe:
+            case CustomInscription.PourfendeurExtérieur:
+            case CustomInscription.PourfendeurGnome:
+            case CustomInscription.PourfendeurGobelins:
+            case CustomInscription.PourfendeurGéant:
+            case CustomInscription.PourfendeurHalfelin:
+            case CustomInscription.PourfendeurHumain:
+            case CustomInscription.PourfendeurHumanoïdes:
+            case CustomInscription.PourfendeurLoi:
+            case CustomInscription.PourfendeurMagie:
+            case CustomInscription.PourfendeurMal:
+            case CustomInscription.PourfendeurMonstres:
+            case CustomInscription.PourfendeurMétamorphes:
+            case CustomInscription.PourfendeurNain:
+            case CustomInscription.PourfendeurNeutralité:
+            case CustomInscription.PourfendeurNonVie:
+            case CustomInscription.PourfendeurOrc:
+            case CustomInscription.PourfendeurReptilien:
+            case CustomInscription.PourfendeurVermine:
+            case CustomInscription.Zèle:
+            case CustomInscription.Sismique:
+            case CustomInscription.Incendiaire:
+            case CustomInscription.Polaire:
+            case CustomInscription.Electrocution:
+            case CustomInscription.ForceEtHonneur:
+            case CustomInscription.MaîtreDeSonDestin:
+            case CustomInscription.DanseAvecLaMort:
+            case CustomInscription.Sadisme:
+            case CustomInscription.Masochisme:
+            case CustomInscription.QueDuMuscle:
+            case CustomInscription.VengeanceSeraMienne:
+            case CustomInscription.AccueillezLaFaucheuse:
+            case CustomInscription.Givroclaste:
+            case CustomInscription.Pyroclaste:
+            case CustomInscription.Electroclaste:
+            case CustomInscription.Séismoclaste:
+            case CustomInscription.Aiguillon:
+            case CustomInscription.Rasoir:
+            case CustomInscription.Fracasseur:
+            case CustomInscription.Fureur:
+            case CustomInscription.Pénétration:
+            case CustomInscription.Barbelé:
+            case CustomInscription.Atrocité:
+            case CustomInscription.Handicapant:
+            case CustomInscription.Pesanteur:
+            case CustomInscription.Venimeuse:
+            case CustomInscription.Mutisme:
+            case CustomInscription.Extension:
+              player.oid.SendServerMessage($"L'inscription {StringUtils.ToWhitecolor(inscription.name)} ne peut pas être calligraphiée sur un focus", ColorConstants.Red);
+              return;
+          }
+
+          break;
+
         case BaseItemType.MagicStaff:
 
           switch(inscription.id)
@@ -52,7 +120,7 @@ namespace NWN.Systems
 
         case BaseItemType.Amulet:
         case BaseItemType.Ring:
-          if (inscription.id < CustomInscription.OnApprendDeSesErreurs || inscription.id > CustomInscription.Résilence)
+          if (inscription.id < CustomInscription.OnApprendDeSesErreurs || inscription.id > CustomInscription.Extension)
           {
             player.oid.SendServerMessage($"L'inscription {StringUtils.ToWhitecolor(inscription.name)} ne peut pas être calligraphiée sur un ornement", ColorConstants.Red);
             return;

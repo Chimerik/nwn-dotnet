@@ -20,8 +20,10 @@ namespace NWN.Systems
     public int currentLevel { get; set; }
     public DateTime? spLastCalculation { get; set; }
     public double pointsToNextLevel { get; set; }
+    public SkillSystem.Attribut attribut { get; }
+    public SkillSystem.Type type { get; }
 
-    public Learnable(int id, string name, string description, string icon, int maxLevel, int multiplier, Ability primaryAbility, Ability secondaryAbility)
+    public Learnable(int id, string name, string description, string icon, int maxLevel, int multiplier, Ability primaryAbility, Ability secondaryAbility, SkillSystem.Attribut attribut, SkillSystem.Type type)
     {
       this.id = id;
       this.name = name;
@@ -31,6 +33,8 @@ namespace NWN.Systems
       this.multiplier = multiplier;
       this.primaryAbility = primaryAbility;
       this.secondaryAbility = secondaryAbility;
+      this.attribut = attribut;
+      this.type = type;
     }
     public Learnable(Learnable learnableBase)
     {
@@ -42,6 +46,8 @@ namespace NWN.Systems
       this.multiplier = learnableBase.multiplier;
       this.primaryAbility = learnableBase.primaryAbility;
       this.secondaryAbility = learnableBase.secondaryAbility;
+      this.attribut = attribut;
+      this.type = type;
     }
     public Learnable()
     {

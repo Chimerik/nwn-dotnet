@@ -169,9 +169,10 @@ namespace NWN.Systems
     }
     private static double GetCastReduction(Player player, NwSpell spell)
     {
-      NwItem item = player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
-
       double timeReduction = 1;
+
+      if (SpellUtils.spellCostDictionary[spell][3] == (int)SkillSystem.Type.Signet)
+        return timeReduction;
 
       foreach (var eff in player.oid.LoginCreature.ActiveEffects)
         if (eff.Tag == "CUSTOM_CONDITION_DAZED")
@@ -180,29 +181,13 @@ namespace NWN.Systems
           break;
         }
 
-      if (item is not null)
-      {
-        int fulguranceChance = 0;
+      if(ItemUtils.GetItemHalvesCastTime(spell, player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand)))
+        timeReduction /= 2;
 
-        for (int i = 0; i < item.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
-        {
-          switch (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
-          {
-            case CustomInscription.Fulgurance:
-              fulguranceChance += 1;
-              break;
+      if (ItemUtils.GetItemHalvesCastTime(spell, player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand)))
+        timeReduction /= 2;
 
-            case CustomInscription.ToutAuTalent:
-
-              break;
-          }
-        }
-
-        if (NwRandom.Roll(Utils.random, 100) < fulguranceChance)
-          timeReduction /= 2;
-      }
-
-      if(spell.SpellSchool == SpellSchool.Necromancy) // TODO : configurer tous les sorts exploitant des cadavres comme étant de l'école nécromancie
+      if (spell.SpellSchool == SpellSchool.Necromancy) // TODO : configurer tous les sorts exploitant des cadavres comme étant de l'école nécromancie
       {
         timeReduction -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.Neck), CustomInscription.Ensanglanté);
         timeReduction -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftRing), CustomInscription.Ensanglanté);
@@ -218,7 +203,7 @@ namespace NWN.Systems
 
       return timeReduction;      
     }
-    public void HandleCraftOnSpellInput(OnSpellAction onSpellAction)
+    public static void HandleCraftOnSpellInput(OnSpellAction onSpellAction)
     {
       if (onSpellAction.Spell.ImpactScript == "on_ench_cast")
       {

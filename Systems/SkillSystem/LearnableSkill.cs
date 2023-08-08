@@ -10,11 +10,9 @@ namespace NWN.Systems
   {
     private bool activable { get; }
     public SkillSystem.Category category { get; }
-    public SkillSystem.Type type { get; }
     private Func<PlayerSystem.Player, int, bool> skillEffect { get; }
     public Dictionary<Ability, int> abilityPrerequisites { get; }
     public Dictionary<int, int> skillPrerequisites { get; }
-    public int attackBonusPrerequisite { get; }
     public int bonusPoints { get; set; }
     public int totalPoints { get { return currentLevel + bonusPoints; } }
     public double bonusMultiplier { get { return 1 + (totalPoints / 100); } }
@@ -22,13 +20,12 @@ namespace NWN.Systems
 
 
     public LearnableSkill(int id, string name, string description, SkillSystem.Category category, string icon, int maxLevel, int multiplier, Ability primaryAbility,
-      Ability secondaryAbility, bool activable = false, Func<PlayerSystem.Player, int, bool> skillEffect = null, Dictionary<Ability, int> abilityPrerequisites = null,
-      Dictionary<int, int> skillPrerequisites = null, int attackBonusPrerequisite = 0, int bonusPoints = 0) : base(id, name, description, icon, maxLevel, multiplier, primaryAbility, secondaryAbility)
+      Ability secondaryAbility, SkillSystem.Attribut attribut = SkillSystem.Attribut.Invalid, SkillSystem.Type type = SkillSystem.Type.Invalid, bool activable = false, Func<PlayerSystem.Player, int, bool> skillEffect = null, Dictionary<Ability, int> abilityPrerequisites = null,
+      Dictionary<int, int> skillPrerequisites = null, int bonusPoints = 0) : base(id, name, description, icon, maxLevel, multiplier, primaryAbility, secondaryAbility, attribut, type)
     {
       this.activable = activable;
       this.category = category;
       this.skillEffect = skillEffect;
-      this.attackBonusPrerequisite = attackBonusPrerequisite;
       this.bonusPoints = bonusPoints;
 
       if (abilityPrerequisites == null)
@@ -52,7 +49,6 @@ namespace NWN.Systems
       this.pointsToNextLevel = 250 * multiplier * Math.Pow(5, currentLevel);
       this.abilityPrerequisites = learnableBase.abilityPrerequisites;
       this.skillPrerequisites = learnableBase.skillPrerequisites;
-      this.attackBonusPrerequisite = learnableBase.attackBonusPrerequisite;
       this.bonusPoints = bonusPoints;
     }
     public LearnableSkill(LearnableSkill learnableBase, SerializableLearnableSkill serializableBase) : base(learnableBase)
@@ -67,7 +63,6 @@ namespace NWN.Systems
       skillEffect = learnableBase.skillEffect;
       abilityPrerequisites = learnableBase.abilityPrerequisites;
       skillPrerequisites = learnableBase.skillPrerequisites;
-      attackBonusPrerequisite = learnableBase.attackBonusPrerequisite;
       bonusPoints = serializableBase.bonusPoints;
     }
 

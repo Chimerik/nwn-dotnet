@@ -5,7 +5,6 @@ using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
-using NWN.Core.NWNX;
 using Action = System.Action;
 using Context = NWN.Systems.Config.Context;
 

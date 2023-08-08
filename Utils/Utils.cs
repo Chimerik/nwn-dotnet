@@ -492,14 +492,6 @@ namespace NWN
     {
       return Math.Pow(2, (strikeLevel - targetAC) / 40);
     }
-
-    public static int GetDodgeChance(NwCreature creature)
-    {
-      int skillBonusDodge = PlayerSystem.Players.TryGetValue(creature, out PlayerSystem.Player player) && player.learnableSkills.ContainsKey(CustomSkill.ImprovedDodge) ? 2 * player.learnableSkills[CustomSkill.ImprovedDodge].totalPoints : 0;
-      skillBonusDodge += creature.KnowsFeat(Feat.Dodge) ? 2 : 0;
-      skillBonusDodge += creature.GetAbilityModifier(Ability.Dexterity) - creature.ArmorCheckPenalty - creature.ShieldCheckPenalty;
-      return skillBonusDodge < 0 ? 0 : skillBonusDodge;
-    }
     public static NuiRect GetDrawListTextScaleFromPlayerUI(PlayerSystem.Player player)
     {
       return new(0, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) * 0.234f, 500, 60);

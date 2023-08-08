@@ -8,11 +8,14 @@ namespace NWN.Systems
     public int RowIndex { get; init; }
     public int energyCost { get; private set; }
     public int cooldown { get; private set; }
+    public int attribute { get; private set; }
+    public int type { get; private set; }
 
     public void InterpretEntry(TwoDimArrayEntry entry)
     {
       energyCost = entry.GetInt("ImmunityType").GetValueOrDefault(0);
       cooldown = entry.GetInt("ItemImmunity").GetValueOrDefault(0);
+      type = entry.GetInt("AltMessage").GetValueOrDefault(0);
 
       StrRef tlkEntry = entry.GetStrRef("Name").GetValueOrDefault(StrRef.FromCustomTlk(0));
 
@@ -34,7 +37,7 @@ namespace NWN.Systems
     public Spells2da()
     {
       foreach (var entry in spellTable)
-        SpellUtils.spellCostDictionary.Add(NwSpell.FromSpellId(entry.RowIndex), new int[] { entry.energyCost, entry.cooldown });
+        SpellUtils.spellCostDictionary.Add(NwSpell.FromSpellId(entry.RowIndex), new int[] { entry.energyCost, entry.cooldown, entry.attribute, entry.type });
     }
   }
 }

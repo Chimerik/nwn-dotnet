@@ -71,14 +71,8 @@ namespace NWN.Systems
       if (targetObject.m_nObjectType == (int)ObjectType.Creature)
       {
         CNWSCreature targetCreature = targetObject.AsNWSCreature();
-        int skillBonusDodge = Players.TryGetValue(targetObject.m_idSelf, out Player player) && player.learnableSkills.ContainsKey(CustomSkill.ImprovedDodge) ? 2 * player.learnableSkills[CustomSkill.ImprovedDodge].totalPoints : 0;
-        string logString = $"{skillBonusDodge} (Esquive améliorée) ";
-
-        if (targetCreature.m_pStats.HasFeat((ushort)Anvil.API.Feat.Dodge).ToBool())
-        {
-          skillBonusDodge += 2;
-          logString += "+ 2 (Don Esquive) ";
-        }
+        int skillBonusDodge = 0;
+        string logString = "";
 
         if (targetCreature.m_nCreatureSize < creature.m_nCreatureSize)
         {

@@ -86,7 +86,6 @@ namespace NWN.Systems
 
         private readonly NuiBind<string> naturalAC = new("naturalAC"); // TOOLTIP : ajouter % réduction de dégâts
         private readonly NuiBind<string> naturalACTooltip = new("naturalACTooltip");
-        private readonly NuiBind<string> dodgeChance = new("dodgeChance");
         private readonly NuiBind<string> hitPoints = new("hitPoints");
         private readonly NuiBind<int> movementRateSelected = new("movementRateSelected");
 
@@ -681,7 +680,6 @@ namespace NWN.Systems
                   {
                     targetCreature.SetsRawAbilityScore(Ability.Dexterity, (byte)(newDeterity - targetCreature.Race.GetAbilityAdjustment(Ability.Dexterity)));
                     reflex.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetBaseSavingThrow(SavingThrow.Reflex).ToString());
-                    dodgeChance.SetBindValue(player.oid, nuiToken.Token, Utils.GetDodgeChance(targetCreature).ToString());
                     dexterityModifier.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetAbilityModifier(Ability.Dexterity).ToString());
                     reflexTooltip.SetBindValue(player.oid, nuiToken.Token, $"Total avec modificateur : {targetCreature.GetBaseSavingThrow(SavingThrow.Reflex) + targetCreature.GetAbilityModifier(Ability.Dexterity)}");
                   }
@@ -1144,7 +1142,6 @@ namespace NWN.Systems
               new NuiButtonImage("ir_flee") { Height = 35, Width = 35, Tooltip = "Réflexes de base" },
               new NuiTextEdit("Réflexes", reflex, 3, false) { Height = 35, Width = 45, Tooltip = reflexTooltip },
               new NuiButtonImage("ife_dodge") { Height = 35, Width = 35, Tooltip = "Pourcentage de chance d'éviter totalement une attaque ou un sort" },
-              new NuiLabel(dodgeChance) { Height = 35, Width = 45, Tooltip = "Toute créature a 5 % de chance supplémentaire d'éviter une attaque d'une créature plus grande", VerticalAlign = NuiVAlign.Middle }
             }
           });
 
@@ -1254,7 +1251,6 @@ namespace NWN.Systems
           attackPerRound.SetBindValue(player.oid, nuiToken.Token, targetCreature.BaseAttackCount.ToString());
           spellCasterLevel.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetObjectVariable<LocalVariableInt>("_CREATURE_CASTER_LEVEL").Value.ToString());
 
-          dodgeChance.SetBindValue(player.oid, nuiToken.Token, Utils.GetDodgeChance(targetCreature).ToString());
           hitPoints.SetBindValue(player.oid, nuiToken.Token, targetCreature.MaxHP.ToString());
           movementRateSelected.SetBindValue(player.oid, nuiToken.Token, (int)targetCreature.MovementRate);
 

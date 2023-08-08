@@ -10,7 +10,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(AttackSystem))]
   public partial class AttackSystem
   {
-    public static Pipeline<Context> damagePipeline = new(
+    public static readonly Pipeline<Context> damagePipeline = new(
       new Action<Context, Action>[]
       {
             ProcessTargetDamageAbsorption,
@@ -92,8 +92,12 @@ namespace NWN.Systems
     }
     private static void ProcessDamageFromMagicStaffInscriptions(Context ctx, Action next)
     {
-      if(ctx.attackingPlayer?.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand)?.BaseItem.ItemType == BaseItemType.MagicStaff)
+      var weapon = ctx.attackingPlayer?.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
+      if (weapon?.BaseItem.ItemType == BaseItemType.MagicStaff || weapon?.BaseItem.ItemType == BaseItemType.LightMace)
+      {
+        ctx.attackWeapon = ctx.attackingPlayer.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
         Config.SetDamageValueFromWeapon(ctx);
+      }
 
       next();
     }

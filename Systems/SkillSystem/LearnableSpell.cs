@@ -3,8 +3,6 @@ using System.Linq;
 
 using Anvil.API;
 
-using NLog;
-
 namespace NWN.Systems
 {
   public class LearnableSpell : Learnable
@@ -12,7 +10,7 @@ namespace NWN.Systems
     public bool canLearn { get; set; }
     // Dans le cas des Spell, multiplier = spell Level - 1
 
-    public LearnableSpell(int id, string name, string description, string icon, int multiplier, Ability primaryAbility, Ability secondaryAbility, int maxLevel = 15) : base(id, name, description, icon, maxLevel, multiplier, primaryAbility, secondaryAbility)
+    public LearnableSpell(int id, string name, string description, string icon, int multiplier, Ability primaryAbility, Ability secondaryAbility, int maxLevel = 15, SkillSystem.Attribut attribut = SkillSystem.Attribut.Invalid, SkillSystem.Type type = SkillSystem.Type.Invalid) : base(id, name, description, icon, maxLevel, multiplier, primaryAbility, secondaryAbility, attribut, type)
     {
      
 

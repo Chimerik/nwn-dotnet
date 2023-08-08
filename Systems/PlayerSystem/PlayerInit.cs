@@ -302,7 +302,7 @@ namespace NWN.Systems
       private void InitializeSpellEvents()
       {
         oid.LoginCreature.OnSpellAction += spellSystem.HandleSpellInput;
-        oid.LoginCreature.OnSpellAction += spellSystem.HandleCraftOnSpellInput;
+        oid.LoginCreature.OnSpellAction += SpellSystem.HandleCraftOnSpellInput;
         //oid.LoginCreature.OnSpellBroadcast += spellSystem.HandleHearingSpellBroadcast;
         oid.LoginCreature.OnSpellCast += spellSystem.CheckIsDivinationBeforeSpellCast;
         oid.LoginCreature.OnSpellCast += spellSystem.HandleCraftEnchantementCast;

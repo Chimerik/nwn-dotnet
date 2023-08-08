@@ -219,7 +219,7 @@ namespace NWN.Systems
             {
               var slot = ctx.targetPlayer.oid.LoginCreature.GetQuickBarButton(slotId);
 
-              if (slot.ObjectType == QuickBarButtonType.Feat && SkillSystem.learnableDictionary.ContainsKey(slot.Param1) && ((LearnableSkill)SkillSystem.learnableDictionary[slot.Param1]).type == SkillSystem.Type.Signet)
+              if (slot.ObjectType == QuickBarButtonType.Feat && SkillSystem.learnableDictionary.ContainsKey(slot.Param1) && (SkillSystem.learnableDictionary[slot.Param1]).type == SkillSystem.Type.Signet)
                 ctx.targetAC[DamageType.BaseWeapon] += 1;
             }
             break;
@@ -815,7 +815,7 @@ namespace NWN.Systems
         }
       }
     }
-    public static void SetDamageValueFromWeapon(Context ctx)
+    public static void SetDamageValueFromWeapon(Context ctx, NwItem focus = null)
     {
       if (ctx.attackWeapon is null || ctx.attackWeapon.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value < 1)
         return;

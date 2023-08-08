@@ -398,7 +398,6 @@
     public const int CalligrapheArmurierScience = 20345;
 
     public const int CombattantPrecautionneux = 20346;
-    public const int ImprovedDodge = 20347;
 
     public const int CraftOnHandedMeleeWeapon = 20348;
     public const int CraftTwoHandedMeleeWeapon = 20349;

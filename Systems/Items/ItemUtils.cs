@@ -1737,6 +1737,33 @@ namespace NWN.Systems
         ipColors.Add(ColorConstants.White);
       }
     }
+    public static bool  GetItemHalvesCastTime(NwSpell spell, NwItem item)
+    {
+      if (item is not null)
+      {
+        int fulguranceChance = 0;
+
+        for (int i = 0; i < item.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+        {
+          switch (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
+          {
+            case CustomInscription.Fulgurance:
+              fulguranceChance += 1;
+              break;
+
+            case CustomInscription.ToutAuTalent:
+              if(item.GetObjectVariable<LocalVariableInt>("_ITEM_ATTRIBUTE").Value == SpellUtils.spellCostDictionary[spell][2])
+                fulguranceChance += 2;
+              break;
+          }
+        }
+
+        if (NwRandom.Roll(Utils.random, 100) < fulguranceChance)
+          return true;
+      }
+
+      return false;
+    }
     public static void GetWeaponProperties(NwItem item, List<string> ipNames, List<Color> ipColors)
     {
       int pourfendeur = 0;

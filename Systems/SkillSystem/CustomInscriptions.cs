@@ -69,7 +69,7 @@
     public const int Pourfendeur = 50500;
     public const int Courage = 50501;
     public const int Fulgurance = 50502;
-    public const int Extension = 50503;
+    
     public const int Vampirisme = 50504;
     public const int Zèle = 50505;
     public const int PourfendeurDragon = 50506;
@@ -235,6 +235,7 @@
     // RINGS & AMULET
     public const int OnApprendDeSesErreurs = 51500;
     public const int PatienceEtLongueurDeTemps = 51501;
+    public const int Extension = 51521;
     public const int Evocateur = 51502;
     public const int AuxDependsDeCeluiQuilEcoute = 51503;
     public const int PoingDeFer = 51504;
