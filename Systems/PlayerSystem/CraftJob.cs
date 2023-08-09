@@ -305,6 +305,7 @@ namespace NWN.Systems
 
           HandleDamageModifierInscription(enchantedItem, inscription.id);
           HandleAbilityModifierInscription(enchantedItem, inscription.id);
+          HandleAttributeModifierInscription(enchantedItem, inscription.id);
 
           item.Destroy();
           DelayItemSerialization(enchantedItem);
@@ -913,19 +914,126 @@ namespace NWN.Systems
     }
     private static void HandleDamageModifierInscription(NwItem newItem, int learnableId)
     {
-      if(learnableId == CustomInscription.Polaire || learnableId == CustomInscription.Sismique || learnableId == CustomInscription.Incendiaire || learnableId == CustomInscription.Electrocution)
+      switch(learnableId)
       {
-        for (int i = 0; i < newItem.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
-          switch(newItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
-          {
-            case CustomInscription.Polaire:
-            case CustomInscription.Sismique:
-            case CustomInscription.Incendiaire:
-            case CustomInscription.Electrocution:
-              newItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Delete();
-              newItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
-              break;
-          }
+        case CustomInscription.Polaire:
+        case CustomInscription.Sismique:
+        case CustomInscription.Incendiaire:
+        case CustomInscription.Electrocution:
+
+          for (int i = 0; i < newItem.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+            switch (newItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
+            {
+              case CustomInscription.Polaire:
+              case CustomInscription.Sismique:
+              case CustomInscription.Incendiaire:
+              case CustomInscription.Electrocution:
+                newItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Delete();
+                newItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
+                break;
+            }
+
+          break;
+      }
+    }
+    private static void HandleAttributeModifierInscription(NwItem newItem, int learnableId)
+    {
+      switch (learnableId)
+      {
+        case CustomInscription.Athletics:
+        case CustomInscription.Tactics:
+        case CustomInscription.Swordmanship:
+        case CustomInscription.Axemanship:
+        case CustomInscription.Hammermanship:
+        case CustomInscription.Expertise:
+        case CustomInscription.WildnernessSurvival:
+        case CustomInscription.Marksmanship:
+        case CustomInscription.BeastMastery:
+        case CustomInscription.WaterMagic:
+        case CustomInscription.AirMagic:
+        case CustomInscription.FireMagic:
+        case CustomInscription.EarthMagic:
+        case CustomInscription.EnergyStorage:
+        case CustomInscription.DivineFavor:
+        case CustomInscription.HealingPrayers:
+        case CustomInscription.ProtectionPrayers:
+        case CustomInscription.SmitingPrayers:
+        case CustomInscription.SoulReaping:
+        case CustomInscription.BloodMagic:
+        case CustomInscription.DeathMagic:
+        case CustomInscription.Curses:
+        case CustomInscription.FastCasting:
+        case CustomInscription.DominationMagic:
+        case CustomInscription.IllusionMagic:
+        case CustomInscription.CriticalStrikes:
+        case CustomInscription.InspirationMagic:
+        case CustomInscription.DaggerMastery:
+        case CustomInscription.DeadlyArts:
+        case CustomInscription.ShadowArts:
+        case CustomInscription.SpawningPower:
+        case CustomInscription.Communing:
+        case CustomInscription.RestorationMagic:
+        case CustomInscription.ChannelingMagic:
+        case CustomInscription.Commandement:
+        case CustomInscription.Leadership:
+        case CustomInscription.Motivation:
+        case CustomInscription.Spearmanship:
+        case CustomInscription.Mysticism:
+        case CustomInscription.DivineProtection:
+        case CustomInscription.DivineMight:
+        case CustomInscription.Scythemanship:
+
+          for (int i = 0; i < newItem.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+            switch (newItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
+            {
+              case CustomInscription.Athletics:
+              case CustomInscription.Tactics:
+              case CustomInscription.Swordmanship:
+              case CustomInscription.Axemanship:
+              case CustomInscription.Hammermanship:
+              case CustomInscription.Expertise:
+              case CustomInscription.WildnernessSurvival:
+              case CustomInscription.Marksmanship:
+              case CustomInscription.BeastMastery:
+              case CustomInscription.WaterMagic:
+              case CustomInscription.AirMagic:
+              case CustomInscription.FireMagic:
+              case CustomInscription.EarthMagic:
+              case CustomInscription.EnergyStorage:
+              case CustomInscription.DivineFavor:
+              case CustomInscription.HealingPrayers:
+              case CustomInscription.ProtectionPrayers:
+              case CustomInscription.SmitingPrayers:
+              case CustomInscription.SoulReaping:
+              case CustomInscription.BloodMagic:
+              case CustomInscription.DeathMagic:
+              case CustomInscription.Curses:
+              case CustomInscription.FastCasting:
+              case CustomInscription.DominationMagic:
+              case CustomInscription.IllusionMagic:
+              case CustomInscription.CriticalStrikes:
+              case CustomInscription.InspirationMagic:
+              case CustomInscription.DaggerMastery:
+              case CustomInscription.DeadlyArts:
+              case CustomInscription.ShadowArts:
+              case CustomInscription.SpawningPower:
+              case CustomInscription.Communing:
+              case CustomInscription.RestorationMagic:
+              case CustomInscription.ChannelingMagic:
+              case CustomInscription.Commandement:
+              case CustomInscription.Leadership:
+              case CustomInscription.Motivation:
+              case CustomInscription.Spearmanship:
+              case CustomInscription.Mysticism:
+              case CustomInscription.DivineProtection:
+              case CustomInscription.DivineMight:
+              case CustomInscription.Scythemanship:
+                newItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Delete();
+                newItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
+                break;
+            }
+
+          break;
       }
     }
     private static void HandleAbilityModifierInscription(NwItem newItem, int learnableId)

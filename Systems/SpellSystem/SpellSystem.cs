@@ -127,7 +127,7 @@ namespace NWN.Systems
       Location targetLocation = spellAction.IsAreaTarget ? Location.Create(spellAction.Caster.Area, spellAction.TargetPosition, spellAction.Caster.Rotation) : null;
       Vector3 previousPosition = spellAction.Caster.Position;
 
-      double castReduction = GetCastReduction(castingPlayer, spellAction.Spell);
+      double castTime = GetCastTime(castingPlayer, spellAction.Spell);
 
       if (spellAction.IsAreaTarget)
         await spellAction.Caster.ActionCastFakeSpellAt(spellAction.Spell, targetLocation);
@@ -147,7 +147,7 @@ namespace NWN.Systems
       || (spellAction.TargetObject is null && !spellAction.IsAreaTarget)
       || previousPosition.X != spellAction.Caster.Position.X || previousPosition.Y != spellAction.Caster.Position.Y
       || (spellAction.TargetObject is not null && spellAction.TargetObject.Area != spellAction.Caster.Area), tokenSource.Token);
-      Task castTimer = NwTask.Delay(TimeSpan.FromMilliseconds(spellAction.Spell.ConjureTime.TotalMilliseconds * castReduction / 1.5), tokenSource.Token);
+      Task castTimer = NwTask.Delay(TimeSpan.FromMilliseconds(castTime), tokenSource.Token);
 
       await NwTask.WhenAny(spellinterrupted, castTimer);
       tokenSource.Cancel();
@@ -167,41 +167,53 @@ namespace NWN.Systems
 
       spellAction.Caster.GetObjectVariable<LocalVariableInt>("_CURRENT_SPELL").Value = spellAction.Spell.Id;
     }
-    private static double GetCastReduction(Player player, NwSpell spell)
+    private static double GetCastTime(Player player, NwSpell spell)
     {
-      double timeReduction = 1;
+      double castTime = spell.ConjureTime.TotalMilliseconds;
 
-      if (SpellUtils.spellCostDictionary[spell][3] == (int)SkillSystem.Type.Signet)
-        return timeReduction;
+      if (SpellUtils.spellCostDictionary[spell][3] != (int)SkillSystem.Type.Signet)
+      {
 
-      foreach (var eff in player.oid.LoginCreature.ActiveEffects)
-        if (eff.Tag == "CUSTOM_CONDITION_DAZED")
+        foreach (var eff in player.oid.LoginCreature.ActiveEffects)
+          if (eff.Tag == "CUSTOM_CONDITION_DAZED")
+          {
+            castTime *= 2;
+            break;
+          }
+
+        if (ItemUtils.GetItemHalvesCastTime(spell, player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand)))
+          castTime /= 2;
+
+        if (ItemUtils.GetItemHalvesCastTime(spell, player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand)))
+          castTime /= 2;
+
+        if (spell.SpellSchool == SpellSchool.Necromancy) // TODO : configurer tous les sorts exploitant des cadavres comme étant de l'école nécromancie
         {
-          timeReduction = 2;
-          break;
+          castTime -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.Neck), CustomInscription.Ensanglanté);
+          castTime -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftRing), CustomInscription.Ensanglanté);
+          castTime -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightRing), CustomInscription.Ensanglanté);
         }
 
-      if(ItemUtils.GetItemHalvesCastTime(spell, player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand)))
-        timeReduction /= 2;
-
-      if (ItemUtils.GetItemHalvesCastTime(spell, player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand)))
-        timeReduction /= 2;
-
-      if (spell.SpellSchool == SpellSchool.Necromancy) // TODO : configurer tous les sorts exploitant des cadavres comme étant de l'école nécromancie
-      {
-        timeReduction -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.Neck), CustomInscription.Ensanglanté);
-        timeReduction -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftRing), CustomInscription.Ensanglanté);
-        timeReduction -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightRing), CustomInscription.Ensanglanté);
+        if (spell.SpellSchool == SpellSchool.Conjuration) // TODO : configurer tous les sorts d'invocation comme étant de l'école conjuration
+        {
+          castTime -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.Neck), CustomInscription.Invocateur);
+          castTime -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftRing), CustomInscription.Invocateur);
+          castTime -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightRing), CustomInscription.Invocateur);
+        }
       }
 
-      if (spell.SpellSchool == SpellSchool.Conjuration) // TODO : configurer tous les sorts d'invocation comme étant de l'école conjuration
+      int fastCastLevel = player.GetAttributeLevel(SkillSystem.Attribut.FastCasting);
+
+      if(fastCastLevel > 0 && (castTime > 2000 
+        || SpellUtils.spellCostDictionary[spell][(int)SpellUtils.SpellData.Attribute] == (int)SkillSystem.Attribut.DominationMagic
+        || SpellUtils.spellCostDictionary[spell][(int)SpellUtils.SpellData.Attribute] == (int)SkillSystem.Attribut.FastCasting
+        || SpellUtils.spellCostDictionary[spell][(int)SpellUtils.SpellData.Attribute] == (int)SkillSystem.Attribut.InspirationMagic
+        || SpellUtils.spellCostDictionary[spell][(int)SpellUtils.SpellData.Attribute] == (int)SkillSystem.Attribut.IllusionMagic))
       {
-        timeReduction -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.Neck), CustomInscription.Invocateur);
-        timeReduction -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftRing), CustomInscription.Invocateur);
-        timeReduction -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightRing), CustomInscription.Invocateur);
+        castTime -= fastCastLevel * (player.oid.LoginCreature.GetAbilityScore(Ability.Charisma) - 10) / 400;
       }
 
-      return timeReduction;      
+      return castTime / 1.5;      
     }
     public static void HandleCraftOnSpellInput(OnSpellAction onSpellAction)
     {
@@ -246,17 +258,37 @@ namespace NWN.Systems
         oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
       }*/
 
-      HandleCasterLevel(onSpellCast.Caster, onSpellCast.Spell, player);
+      HandleCasterLevel(onSpellCast, player);
 
       double durationModifier = 1;
 
-      // TODO : Prévoir un tag qui permet de détecter que le sort est un buff plutôt que faire sur l'école
-      if (onSpellCast.Spell.SpellSchool == SpellSchool.Enchantment)
+      if (SpellUtils.spellCostDictionary[onSpellCast.Spell][(int)SpellUtils.SpellData.Type] == (int)SkillSystem.Type.Enchantement)
       {
         durationModifier += SpellUtils.GetIncreaseDurationFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.Neck), CustomInscription.Extension);
         durationModifier += SpellUtils.GetIncreaseDurationFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftRing), CustomInscription.Extension);
         durationModifier += SpellUtils.GetIncreaseDurationFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightRing), CustomInscription.Extension);
-      } 
+      }
+
+      SkillSystem.Attribut spellAttribute = (SkillSystem.Attribut)SpellUtils.spellCostDictionary[onSpellCast.Spell][(int)SpellUtils.SpellData.Attribute];
+      int attributeLevel = player.GetAttributeLevel(spellAttribute); 
+      int bonusAttributeChance = 0;
+
+      NwItem castItem = player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
+
+      if(castItem is not null && ItemUtils.GetItemAttribute(castItem) == spellAttribute)
+        for (int i = 0; i < castItem.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+          if (castItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value == CustomInscription.Maîtrise)
+            bonusAttributeChance += 3;
+
+      castItem = player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand);
+
+      if (castItem is not null && ItemUtils.GetItemAttribute(castItem) == spellAttribute)
+        for (int i = 0; i < castItem.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+          if (castItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value == CustomInscription.Maîtrise)
+            bonusAttributeChance += 3;
+
+      if (NwRandom.Roll(Utils.random, 100) < bonusAttributeChance)
+        attributeLevel += 1;
 
       switch (onSpellCast.Spell.SpellType)
       {
@@ -296,7 +328,7 @@ namespace NWN.Systems
           break;
 
         case Spell.Virtue:
-          HealingBreeze(onSpellCast, durationModifier);
+          HealingBreeze(onSpellCast, durationModifier, attributeLevel);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -321,18 +353,18 @@ namespace NWN.Systems
       castingCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
       NWScript.DelayCommand(0.0f, () => DelayedTagAoE(player));
     }
-    private void HandleCasterLevel(NwGameObject caster, NwSpell spell, Player player)
+    private void HandleCasterLevel(SpellEvents.OnSpellCast onSpellCast, Player player)
     {
-      if (caster is not NwCreature castingCreature)
+      if (onSpellCast.Caster is not NwCreature castingCreature)
         return;
 
-      ClassType castingClass = SpellUtils.GetCastingClass(spell);
+      ClassType castingClass = SpellUtils.GetCastingClass(onSpellCast.Spell);
 
       if ((int)castingClass == 43 && castingCreature.GetAbilityScore(Ability.Charisma) > castingCreature.GetAbilityScore(Ability.Intelligence))
         castingClass = ClassType.Sorcerer;
 
       CreaturePlugin.SetClassByPosition(castingCreature, 0, (int)castingClass);
-      CreaturePlugin.SetCasterLevelOverride(castingCreature, (int)castingClass, player.learnableSpells.TryGetValue(spell.Id, out LearnableSpell spellLevel) ? spellLevel.currentLevel : 1);
+      CreaturePlugin.SetCasterLevelOverride(castingCreature, (int)castingClass, player.learnableSpells.TryGetValue(onSpellCast.Spell.Id, out LearnableSpell spellLevel) ? spellLevel.currentLevel : 1);
 
       if(castingCreature.IsLoginPlayerCharacter)
       {
@@ -347,25 +379,42 @@ namespace NWN.Systems
           CreaturePlugin.SetCasterLevelOverride(castingCreature, (int)castingClass, (int)castingCreature.ChallengeRating);
       }
 
-      int[] spellCosts = SpellUtils.spellCostDictionary[spell];
-      LogUtils.LogMessage($"{castingCreature.Name} lance {spell.Name.ToString()} (CL {CreaturePlugin.GetCasterLevelOverride(castingCreature, (int)castingClass)} - Cost/CD {spellCosts[0]}/{spellCosts[1]})", LogUtils.LogType.Combat);
-      NWScript.DelayCommand(0.0f, () => DelayedSpellHook(castingCreature, spell, player));
+      int[] spellCosts = SpellUtils.spellCostDictionary[onSpellCast.Spell];
+      LogUtils.LogMessage($"{castingCreature.Name} lance {onSpellCast.Spell.Name.ToString()} (CL {CreaturePlugin.GetCasterLevelOverride(castingCreature, (int)castingClass)} - Cost/CD {spellCosts[0]}/{spellCosts[1]})", LogUtils.LogType.Combat);
+      NWScript.DelayCommand(0.0f, () => DelayedSpellHook(onSpellCast, player));
     }
-    private void DelayedSpellHook(NwCreature caster, NwSpell spell, Player player)
+    private void DelayedSpellHook(SpellEvents.OnSpellCast onSpellCast, Player player)
     {
-      if (!caster.IsValid)
+      if (!onSpellCast.Caster.IsValid || onSpellCast.Caster is not NwCreature caster)
         return;
 
-      CreaturePlugin.SetClassByPosition(caster, 0, 43);
+      CreaturePlugin.SetClassByPosition(onSpellCast.Caster, 0, 43);
 
-      foreach (var spellSlot in caster.GetClassInfo((ClassType)43).GetMemorizedSpellSlots(spell.InnateSpellLevel))
-        if (spellSlot.Spell == spell)
+      foreach (var spellSlot in caster.GetClassInfo((ClassType)43).GetMemorizedSpellSlots(onSpellCast.Spell.InnateSpellLevel))
+        if (spellSlot.Spell == onSpellCast.Spell)
           spellSlot.IsReady = false;
 
-      int cooldown = SpellUtils.spellCostDictionary[spell][1];
+      int cooldown = SpellUtils.spellCostDictionary[onSpellCast.Spell][1];
 
-      StartSpellCooldown(caster, spell, cooldown, player);
-      WaitCooldownToRestoreSpell(caster, spell, cooldown);
+      StartSpellCooldown(caster, onSpellCast.Spell, cooldown, player);
+      WaitCooldownToRestoreSpell(caster, onSpellCast.Spell, cooldown);
+
+      switch((SkillSystem.Attribut)SpellUtils.spellCostDictionary[onSpellCast.Spell][(int)SpellUtils.SpellData.Attribute])
+      {
+        case SkillSystem.Attribut.DivineFavor:
+        case SkillSystem.Attribut.ProtectionPrayers:
+        case SkillSystem.Attribut.HealingPrayers:
+
+          int divineFavorLevel = player.GetAttributeLevel(SkillSystem.Attribut.DivineFavor);
+
+          if(divineFavorLevel > 0)
+          {
+            int healAmount = divineFavorLevel * caster.GetAbilityModifier(Ability.Wisdom) / 8;
+            StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{healAmount} (Faveur Divine)", ColorConstants.Cyan);
+          }
+
+          break;
+      }
     }
     private void DelayedTagAoE(Player player)
     {
@@ -469,7 +518,6 @@ namespace NWN.Systems
         LogUtils.LogMessage($"{player.ControlledCreature.Name} ({player.PlayerName}) vient de lancer un sort de divination. Faire intervenir les apôtres pour jugement.", LogUtils.LogType.ModuleAdministration);
       }
     }
-
     public static ScriptHandleResult HandleInvisibiltyHeartBeat(CallInfo callInfo)
     {
       NwAreaOfEffect inviAoE = (NwAreaOfEffect)callInfo.ObjectSelf;

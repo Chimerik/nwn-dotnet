@@ -83,7 +83,6 @@ namespace NWN.Systems
     public static Pipeline<Context> pipeline = new(
       new Action<Context, Action>[]
       {
-        IsAttackOfOpportunity,
         IsAttackDodged,
         ProcessDazed,
         ProcessBaseDamageTypeAndAttackWeapon,
@@ -126,17 +125,10 @@ namespace NWN.Systems
       oPC.ControllingPlayer.SendServerMessage($"Il ne reste plus que des ruines de votre {oItem.Name.ColorString(ColorConstants.White)}. Des réparations s'imposent !", ColorConstants.Red);
       LogUtils.LogMessage("Objet de qualité artisanale ruiné : à réparer !", LogUtils.LogType.Durability);
     }
-    private static void IsAttackOfOpportunity(Context ctx, Action next) // A réfléchir : faut-il supprimer totalement les attaques d'opportunité ?
-    {
-      if (ctx.onAttack.AttackType == 65002)
-        StringUtils.DisplayStringToAllPlayersNearTarget(ctx.oTarget, "Attaque d'opportunité !");
-
-      next();
-    }
     private static void IsAttackDodged(Context ctx, Action next)
     {
       if (ctx.onAttack.AttackResult == AttackResult.Miss)
-        StringUtils.DisplayStringToAllPlayersNearTarget(ctx.oTarget, "Attaque esquivée !");
+        StringUtils.DisplayStringToAllPlayersNearTarget(ctx.oTarget, "Esquive", ColorConstants.White);
         
       //next();
     }
@@ -205,7 +197,51 @@ namespace NWN.Systems
       {
         ctx.baseArmorPenetration += 20;
         ctx.oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComBloodCrtRed));
-        StringUtils.DisplayStringToAllPlayersNearTarget(ctx.oTarget, "Coup critique !");
+        StringUtils.DisplayStringToAllPlayersNearTarget(ctx.oTarget, "Critique", ColorConstants.Orange);
+
+        if (ctx.attackingPlayer.endurance.regenerableMana > 0)
+        {
+          int criticalMastery = ctx.attackingPlayer.GetAttributeLevel(SkillSystem.Attribut.CriticalStrikes);
+          criticalMastery = criticalMastery > (ctx.oAttacker.GetAbilityScore(Ability.Dexterity, true) - 10) / 2 ? (ctx.oAttacker.GetAbilityScore(Ability.Dexterity, true) - 10) / 2 : criticalMastery;
+
+          switch (criticalMastery)
+          {
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+              ctx.attackingPlayer.endurance.currentMana += 1;
+              ctx.attackingPlayer.endurance.regenerableMana -= 1;
+              break;
+               case 8:
+            case 9: case 10:
+            case 11:
+            case 12:
+              ctx.attackingPlayer.endurance.currentMana += 2;
+              ctx.attackingPlayer.endurance.regenerableMana -= 2;
+              break;
+            case 13:
+            case 14:
+            case 15:
+            case 16:
+            case 17:
+              ctx.attackingPlayer.endurance.currentMana += 3;
+              ctx.attackingPlayer.endurance.regenerableMana -= 3;
+              break;
+            case 18:
+            case 19:
+            case 20:
+            case 21:
+            case 22:
+            case 23:
+            case 24:
+            case 25:
+              ctx.attackingPlayer.endurance.currentMana += 4;
+              ctx.attackingPlayer.endurance.regenerableMana -= 4;
+              break;
+          }
+        }
       }
 
       next();
@@ -296,7 +332,7 @@ namespace NWN.Systems
                 ctx.oTarget.ApplyEffect(EffectDuration.Instant, Effect.Heal(absorbedDamage));
                 ctx.oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadHeal));
 
-                StringUtils.DisplayStringToAllPlayersNearTarget(ctx.oTarget, totalAbsorbedDamage.ToString().ColorString(new Color(32, 255, 32)));
+                StringUtils.DisplayStringToAllPlayersNearTarget(ctx.oTarget, totalAbsorbedDamage.ToString(), new Color(32, 255, 32));
               }
               break;
 
@@ -412,7 +448,7 @@ namespace NWN.Systems
         ctx.oTarget.ApplyEffect(EffectDuration.Instant, Effect.Heal(absorbedDamage));
         ctx.oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadHeal));
 
-        StringUtils.DisplayStringToAllPlayersNearTarget(ctx.oTarget, $"Absorbe {StringUtils.ToWhitecolor(totalAbsorbedDamage)}".ColorString(new Color(32, 255, 32)));
+        StringUtils.DisplayStringToAllPlayersNearTarget(ctx.oTarget, $"Absorbe {StringUtils.ToWhitecolor(totalAbsorbedDamage)}", new Color(32, 255, 32));
         LogUtils.LogMessage($"{ctx.oTarget.Name} absorbe {totalAbsorbedDamage} dégâts de type {secondaryDamageType}", LogUtils.LogType.Combat);
       }
     }
@@ -427,26 +463,16 @@ namespace NWN.Systems
 
       if (ctx.attackingPlayer is not null && ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_NEXT_ATTACK").HasValue)
       {
-        int skillId = ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_NEXT_ATTACK").Value;
-        NwFeat usedFeat = NwFeat.FromFeatId(skillId - 10000);
+        int athleticsLevel = ctx.attackingPlayer.learnableSkills.ContainsKey(CustomSkill.Athletics) ? ctx.attackingPlayer.learnableSkills[CustomSkill.Athletics].totalPoints : 0;
+        athleticsLevel += ctx.attackingPlayer.learnableSkills.ContainsKey(CustomSkill.AthleticsExpert) ? ctx.attackingPlayer.learnableSkills[CustomSkill.AthleticsExpert].totalPoints : 0;
+        athleticsLevel += ctx.attackingPlayer.learnableSkills.ContainsKey(CustomSkill.AthleticsScience) ? ctx.attackingPlayer.learnableSkills[CustomSkill.AthleticsScience].totalPoints : 0;
+        athleticsLevel += ctx.attackingPlayer.learnableSkills.ContainsKey(CustomSkill.AthleticsMaster) ? ctx.attackingPlayer.learnableSkills[CustomSkill.AthleticsMaster].totalPoints : 0;
+        athleticsLevel = athleticsLevel > (ctx.oAttacker.GetAbilityScore(Ability.Strength, true) - 10) / 2 ? (ctx.oAttacker.GetAbilityScore(Ability.Strength, true) - 10) / 2 : athleticsLevel;
 
-        switch (skillId)
-        {
-          case CustomSkill.SeverArtery:
-
-            int athleticsLevel = ctx.attackingPlayer.learnableSkills.ContainsKey(CustomSkill.Athletics) ? ctx.attackingPlayer.learnableSkills[CustomSkill.Athletics].totalPoints : 0;
-            athleticsLevel += ctx.attackingPlayer.learnableSkills.ContainsKey(CustomSkill.AthleticsExpert) ? ctx.attackingPlayer.learnableSkills[CustomSkill.AthleticsExpert].totalPoints : 0;
-            athleticsLevel += ctx.attackingPlayer.learnableSkills.ContainsKey(CustomSkill.AthleticsScience) ? ctx.attackingPlayer.learnableSkills[CustomSkill.AthleticsScience].totalPoints : 0;
-            athleticsLevel += ctx.attackingPlayer.learnableSkills.ContainsKey(CustomSkill.AthleticsMaster) ? ctx.attackingPlayer.learnableSkills[CustomSkill.AthleticsMaster].totalPoints : 0;
-            athleticsLevel = athleticsLevel > ctx.attackingPlayer.learnableSkills[CustomSkill.Athletics].totalPoints ? ctx.attackingPlayer.learnableSkills[CustomSkill.Athletics].totalPoints : athleticsLevel;
-
-            ctx.baseArmorPenetration += athleticsLevel * 4;
-
-            break;
-        }
+        ctx.baseArmorPenetration += athleticsLevel * 4;
       }
 
-        next();
+      next();
     }
     /*private static void ProcessBonusArmorPenetration(Context ctx, Action next)
     {
@@ -780,10 +806,22 @@ namespace NWN.Systems
         int skillId = ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_NEXT_ATTACK").Value;
         NwFeat usedFeat = NwFeat.FromFeatId(skillId - 10000);
 
+        SkillSystem.Attribut attackAttribute = SkillSystem.learnableDictionary[skillId].attribut;
+        int attributeLevel = ctx.attackingPlayer.GetAttributeLevel(attackAttribute);
+        int bonusAttributeChance = 0;
+
+        if (ctx.attackWeapon is not null && ItemUtils.GetItemAttribute(ctx.attackWeapon) == attackAttribute)
+          for (int i = 0; i < ctx.attackWeapon.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+            if (ctx.attackWeapon.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value == CustomInscription.Maîtrise)
+              bonusAttributeChance += 3;
+
+        if (NwRandom.Roll(Utils.random, 100) < bonusAttributeChance)
+          attributeLevel += 1;
+
         switch (skillId)
         {
           case CustomSkill.SeverArtery:
-            SeverArtery(ctx.attackingPlayer, ctx.oTarget, ctx.onAttack.WeaponAttackType);
+            SeverArtery(ctx.attackingPlayer, ctx.oTarget, ctx.onAttack.WeaponAttackType, attributeLevel);
             break;
         }
 
@@ -881,7 +919,7 @@ namespace NWN.Systems
 
         if (randomChance < doubleStrikeChance)
         {
-          StringUtils.DisplayStringToAllPlayersNearTarget(ctx.oTarget, "Frappe double !");
+          StringUtils.DisplayStringToAllPlayersNearTarget(ctx.oTarget, "Frappe double", ColorConstants.Orange);
           LogUtils.LogMessage("Frappe double confirmée !", LogUtils.LogType.Combat);
 
           int damage = 0;

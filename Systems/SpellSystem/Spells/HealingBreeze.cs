@@ -9,7 +9,7 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    private static async void HealingBreeze(SpellEvents.OnSpellCast onSpellCast, double durationModifier)
+    private static async void HealingBreeze(SpellEvents.OnSpellCast onSpellCast, double durationModifier, int attributeLevel)
     {
       if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oCaster))
         return;
@@ -18,7 +18,7 @@ namespace NWN.Systems
         if(eff.Tag.StartsWith("CUSTOM_POSITIVE_SPELL_REGEN_HEALING_BREEZE_"))
           onSpellCast.TargetObject.RemoveEffect(eff);
 
-      int regen = ((int)Math.Round(4 + (double)(CreaturePlugin.GetCasterLevelOverride(oCaster, (int)SpellUtils.GetCastingClass(NwSpell.FromSpellType(Spell.Virtue)))) / 3, MidpointRounding.ToEven));
+      int regen = ((int)Math.Round(4 + (double)(attributeLevel) / 3, MidpointRounding.ToEven));
       int nDuration = (int)Math.Round(15 * durationModifier, MidpointRounding.ToEven);
 
       SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell.SpellType, false);

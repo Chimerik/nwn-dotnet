@@ -276,6 +276,7 @@ namespace NWN.Systems
         oid.LoginCreature.OnUnacquireItem += ItemSystem.OnUnacquireItem;
         oid.LoginCreature.OnItemEquip += ItemSystem.OnItemEquipBefore;
         oid.LoginCreature.OnItemUse += ItemSystem.OnItemUseBefore;
+        oid.OnPlayerDeath += OnDeathSoulReap;
         oid.OnPlayerDeath += HandlePlayerDeath;
         oid.LoginCreature.OnUseFeat += FeatSystem.OnUseFeatBefore;
         oid.OnCombatStatusChange += OnCombatStarted;

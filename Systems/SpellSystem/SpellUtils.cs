@@ -3,14 +3,21 @@ using System.Linq;
 using System;
 using Anvil.API.Events;
 using System.Collections.Generic;
-using NLog.Fluent;
 
 namespace NWN.Systems
 {
   public static class SpellUtils
   {
+    public enum SpellData
+    {
+      EnergyCost = 0,
+      Cooldown = 1,
+      Attribute = 2,
+      Type = 3
+    }
+
     public static readonly Dictionary<NwSpell, int[]> spellCostDictionary = new();
-    public static readonly Dictionary<int, ItemProperty[]> enchantementCategories = new Dictionary<int, ItemProperty[]>()
+    public static readonly Dictionary<int, ItemProperty[]> enchantementCategories = new()
     {
       //NIVEAU 0
       {840, new ItemProperty[] { ItemProperty.Light(IPLightBrightness.Dim, IPLightColor.Blue), ItemProperty.Light(IPLightBrightness.Dim, IPLightColor.Green), ItemProperty.Light(IPLightBrightness.Dim, IPLightColor.Orange), ItemProperty.Light(IPLightBrightness.Dim, IPLightColor.Purple), ItemProperty.Light(IPLightBrightness.Dim, IPLightColor.Red), ItemProperty.Light(IPLightBrightness.Dim, IPLightColor.White), ItemProperty.Light(IPLightBrightness.Dim, IPLightColor.Yellow), ItemProperty.Light(IPLightBrightness.Low, IPLightColor.Blue), ItemProperty.Light(IPLightBrightness.Low, IPLightColor.Green), ItemProperty.Light(IPLightBrightness.Low, IPLightColor.Orange), ItemProperty.Light(IPLightBrightness.Low, IPLightColor.Purple), ItemProperty.Light(IPLightBrightness.Low, IPLightColor.Red), ItemProperty.Light(IPLightBrightness.Low, IPLightColor.White), ItemProperty.Light(IPLightBrightness.Low, IPLightColor.Yellow) } },

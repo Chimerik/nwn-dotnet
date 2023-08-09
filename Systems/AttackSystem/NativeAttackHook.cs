@@ -291,10 +291,16 @@ namespace NWN.Systems
           if (defender is not null && defender.learnableSkills.ContainsKey(CustomSkill.UncannyDodge))
           {
             int survivalSkill = defender.learnableSkills.ContainsKey(CustomSkill.WildernessSurvival) ? defender.learnableSkills[CustomSkill.WildernessSurvival].totalPoints : 0;
+            survivalSkill += defender.learnableSkills.ContainsKey(CustomSkill.WildernessSurvivalExpert) ? defender.learnableSkills[CustomSkill.WildernessSurvivalExpert].totalPoints : 0;
+            survivalSkill += defender.learnableSkills.ContainsKey(CustomSkill.WaterMagicScience) ? defender.learnableSkills[CustomSkill.WaterMagicScience].totalPoints : 0;
+            survivalSkill += defender.learnableSkills.ContainsKey(CustomSkill.WaterMagicMaster) ? defender.learnableSkills[CustomSkill.WaterMagicMaster].totalPoints : 0;
 
             if (attackerPlayer is not null)
             {
               int deceptionSkill = attackerPlayer.learnableSkills.ContainsKey(CustomSkill.Deception) ? attackerPlayer.learnableSkills[CustomSkill.Deception].totalPoints : 0;
+              deceptionSkill += attackerPlayer.learnableSkills.ContainsKey(CustomSkill.DeceptionExpert) ? attackerPlayer.learnableSkills[CustomSkill.DeceptionExpert].totalPoints : 0;
+              deceptionSkill += attackerPlayer.learnableSkills.ContainsKey(CustomSkill.DeceptionScience) ? attackerPlayer.learnableSkills[CustomSkill.DeceptionScience].totalPoints : 0;
+              deceptionSkill += attackerPlayer.learnableSkills.ContainsKey(CustomSkill.DeceptionMaster) ? attackerPlayer.learnableSkills[CustomSkill.DeceptionMaster].totalPoints : 0;
 
               if (NwRandom.Roll(Utils.random, 20) + deceptionSkill
                 > NwRandom.Roll(Utils.random, 20) + survivalSkill + defender.learnableSkills[CustomSkill.UncannyDodge].totalPoints)
@@ -329,6 +335,8 @@ namespace NWN.Systems
         // Pour un joueur , la chance de crit dépend de sa maîtrise de l'arme (max + 20 %)
 
         int playerCrit = weapon is not null ? player.GetWeaponMasteryLevel(weapon.m_idSelf.ToNwObject<NwItem>()) : 0;
+        int criticalMastery = player.GetAttributeLevel(SkillSystem.Attribut.CriticalStrikes);
+        playerCrit += criticalMastery > attacker.m_pStats.GetDEXStat() ? attacker.m_pStats.GetDEXStat() : criticalMastery;
         critLog += $"+ {playerCrit} (entrainement) ";
         critChance += playerCrit;
       }

@@ -1742,7 +1742,9 @@ namespace NWN.Systems
       if (item is not null)
       {
         int fulguranceChance = 0;
-
+        int spellAttribute = SpellUtils.spellCostDictionary[spell][(int)SpellUtils.SpellData.Attribute];
+        SkillSystem.Attribut itemAttribute = GetItemAttribute(item);
+        
         for (int i = 0; i < item.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
         {
           switch (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
@@ -1752,8 +1754,13 @@ namespace NWN.Systems
               break;
 
             case CustomInscription.ToutAuTalent:
-              if(item.GetObjectVariable<LocalVariableInt>("_ITEM_ATTRIBUTE").Value == SpellUtils.spellCostDictionary[spell][2])
-                fulguranceChance += 2;
+              if((int)itemAttribute == spellAttribute)
+                fulguranceChance += 3;
+              break;
+
+            case CustomInscription.Adepte:
+              if ((int)itemAttribute == spellAttribute)
+                fulguranceChance += 1;
               break;
           }
         }
@@ -2363,6 +2370,14 @@ namespace NWN.Systems
         ipNames.Add($"+{pourfendeurVermine}% Dégâts contre la Vermine");
         ipColors.Add(ColorConstants.White);
       }
+    }
+    public static SkillSystem.Attribut GetItemAttribute(NwItem item)
+    {
+      for (int i = 0; i < item.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
+        if (Enum.IsDefined(typeof(SkillSystem.Attribut), item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value))
+          return (SkillSystem.Attribut)item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value;
+
+      return SkillSystem.Attribut.Invalid;
     }
   }
 }

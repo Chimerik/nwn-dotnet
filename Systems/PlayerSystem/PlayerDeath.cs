@@ -9,6 +9,25 @@ namespace NWN.Systems
 {
   public partial class PlayerSystem
   {
+    public static async void OnDeathSoulReap(ModuleEvents.OnPlayerDeath onPlayerDeath)
+    {
+      foreach (NwPlayer player in NwModule.Instance.Players)
+        if (player?.ControlledCreature?.Area == onPlayerDeath.DeadPlayer.LoginCreature?.Area 
+          && player?.ControlledCreature.DistanceSquared(onPlayerDeath.DeadPlayer.LoginCreature) < 600
+          && Players.TryGetValue(player.LoginCreature, out Player reaper) && reaper.GetAttributeLevel(SkillSystem.Attribut.SoulReaping) > 0
+          && reaper.endurance.regenerableMana > 0
+          && reaper.soulReapTriggers < (player.LoginCreature.GetAbilityScore(Ability.Intelligence, true) - 10) / 4)
+        {
+          int reaperLevel = reaper.GetAttributeLevel(SkillSystem.Attribut.SoulReaping);
+          reaper.endurance.currentMana += reaperLevel;
+          reaper.endurance.regenerableMana -= reaperLevel;
+
+          reaper.soulReapTriggers += 1;
+
+          await NwTask.Delay(TimeSpan.FromSeconds(15));
+          reaper.soulReapTriggers -= 1;
+        }
+    }
     public static void HandlePlayerDeath(ModuleEvents.OnPlayerDeath onPlayerDeath)
     {
       if (Players.TryGetValue(onPlayerDeath.DeadPlayer.LoginCreature, out Player player))

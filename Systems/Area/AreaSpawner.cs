@@ -59,6 +59,7 @@ namespace NWN.Systems
 
       onHB.Creature.GetObjectVariable<LocalVariableObject<NwWaypoint>>("_SPAWN").Value.GetObjectVariable<LocalVariableBool>("_SPAWN_COOLDOWN").Delete();
       onHB.Creature.OnDeath -= LootSystem.HandleLoot;
+      onHB.Creature.OnDeath -= CreatureUtils.OnMobDeathSoulReap;
       onHB.Creature.OnDeath -= CreatureUtils.OnMobDeathResetSpawn;
       onHB.Creature.Destroy();
 
@@ -68,6 +69,7 @@ namespace NWN.Systems
     {
       creature.OnHeartbeat += CheckIfNoPlayerAround;
       creature.OnDeath += CreatureUtils.MakeInventoryUndroppable;
+      creature.OnDeath += CreatureUtils.OnMobDeathSoulReap;
       creature.OnDeath += CreatureUtils.OnMobDeathResetSpawn;
       
       var creatureLoop = scheduler.ScheduleRepeating(() => CreatureUtils.CreatureHealthRegenLoop(creature), TimeSpan.FromSeconds(1));

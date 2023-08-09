@@ -16,6 +16,7 @@ namespace NWN.Systems
       energyCost = entry.GetInt("ImmunityType").GetValueOrDefault(0);
       cooldown = entry.GetInt("ItemImmunity").GetValueOrDefault(0);
       type = entry.GetInt("AltMessage").GetValueOrDefault(0);
+      attribute = entry.GetInt("Category").GetValueOrDefault(0);
 
       StrRef tlkEntry = entry.GetStrRef("Name").GetValueOrDefault(StrRef.FromCustomTlk(0));
 

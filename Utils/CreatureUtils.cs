@@ -31,6 +31,25 @@ namespace NWN
           break;
       }
     }
+    public static async void OnMobDeathSoulReap(CreatureEvents.OnDeath onDeath)
+    {
+      foreach (NwPlayer player in NwModule.Instance.Players)
+        if (player?.ControlledCreature?.Area == onDeath.KilledCreature?.Area
+        && player?.ControlledCreature.DistanceSquared(onDeath.KilledCreature) < 600
+        && PlayerSystem.Players.TryGetValue(player.LoginCreature, out PlayerSystem.Player reaper) && reaper.GetAttributeLevel(SkillSystem.Attribut.SoulReaping) > 0
+          && reaper.endurance.regenerableMana > 0
+          && reaper.soulReapTriggers < (player.LoginCreature.GetAbilityScore(Ability.Intelligence, true) - 10) / 4)
+        {
+          int reaperLevel = reaper.GetAttributeLevel(SkillSystem.Attribut.SoulReaping);
+          reaper.endurance.currentMana += reaperLevel;
+          reaper.endurance.regenerableMana -= reaperLevel;
+
+          reaper.soulReapTriggers += 1;
+
+          await NwTask.Delay(TimeSpan.FromSeconds(15));
+          reaper.soulReapTriggers -= 1;
+        }
+    }
     public static async void OnMobDeathResetSpawn(CreatureEvents.OnDeath onDeath)
     {
       ModuleSystem.Log.Info("On death triggered - OnMobDeathResetSpawn");

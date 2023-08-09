@@ -439,8 +439,9 @@ namespace NWN.Systems
       //EventsPlugin.SubscribeEvent("NWNX_ON_DM_POSSESS_BEFORE", "b_dm_possess");
 
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_EMOTE_BEFORE", "on_input_emote");
+      EventsPlugin.SubscribeEvent("NWNX_ON_COMBAT_ATTACK_OF_OPPORTUNITY_BEFORE", "on_opportunity");
       //EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_AFTER", "event_has_feat");
-      
+
       NwModule.Instance.OnPlayerGuiEvent += PlayerSystem.HandleGuiEvents;
       NwModule.Instance.OnCreatureAttack += AttackSystem.HandleAttackEvent;
       NwModule.Instance.OnCreatureDamage += AttackSystem.HandleDamageEvent;
@@ -982,13 +983,6 @@ namespace NWN.Systems
         plc.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value = int.Parse(spawn[4]);
         plc.Location = Utils.GetLocationFromDatabase(spawn[0], spawn[1], float.Parse(spawn[2]));
       }
-
-     foreach(NwPlaceable tempTransition in NwObject.FindObjectsWithTag<NwPlaceable>("temp_at_prom_gov"))
-        tempTransition.OnLeftClick += OnUsedTempTransition;
-    }
-    public static void OnUsedTempTransition(PlaceableEvents.OnLeftClick onUsed)
-    {
-      onUsed.ClickedBy.ControlledCreature.Location = NwObject.FindObjectsWithTag<NwDoor>("at_gouvernement_promenade").FirstOrDefault()?.Location;
     }
     private void HandlePlayerLoop()
     {
@@ -1263,6 +1257,11 @@ namespace NWN.Systems
     {
       await NwTask.NextFrame();
       local.Delete();
+    }
+    [ScriptHandler("on_opportunity")]
+    private void HandleOpportunityAttack(CallInfo callInfo)
+    {
+      EventsPlugin.SkipEvent();
     }
   }
 }

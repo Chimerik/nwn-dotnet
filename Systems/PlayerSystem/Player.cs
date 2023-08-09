@@ -46,6 +46,7 @@ namespace NWN.Systems
       public double energyRegen { get; set; }
       public int healthRegen { get; set; }
       public bool wasHPGreaterThan50 { get; set; }
+      public int soulReapTriggers { get; set; }
       public Learnable activeLearnable { get; set; }
       public Dictionary<int, MapPin> mapPinDictionnary = new();
       public Dictionary<string, byte[]> areaExplorationStateDictionnary = new();
@@ -1315,6 +1316,7 @@ namespace NWN.Systems
       {
         return oid.LoginCreature.GetAbilityModifier(Ability.Intelligence) + oid.LoginCreature.GetAbilityModifier(Ability.Wisdom)
           + (oid.LoginCreature.GetAbilityModifier(Ability.Charisma) * 2)
+          + ((oid.LoginCreature.GetAbilityScore(Ability.Intelligence, true) - 10) / 4 * GetAttributeLevel(SkillSystem.Attribut.EnergyStorage))
           + CheckForAdditionalMana();
       }
       public int CheckForAdditionalHP()
@@ -1451,7 +1453,6 @@ namespace NWN.Systems
 
         return false;
       }
-
       protected void HandleItemPropertyChecksOnEffectApplied(OnEffectApply effectApplied)
       {
         SetMaxHP();
@@ -1461,6 +1462,15 @@ namespace NWN.Systems
       {
         SetMaxHP();
         endurance.additionnalMana = GetAdditionalMana();
+      }
+      public int GetAttributeLevel(SkillSystem.Attribut attribut)
+      {
+        int attributeLevel = learnableSkills.ContainsKey((int)attribut) ? learnableSkills[(int)attribut].totalPoints : 0;
+        attributeLevel += learnableSkills.ContainsKey((int)attribut + 1) ? learnableSkills[(int)attribut + 1].totalPoints : 0;
+        attributeLevel += learnableSkills.ContainsKey((int)attribut + 2) ? learnableSkills[(int)attribut + 2].totalPoints : 0;
+        attributeLevel += learnableSkills.ContainsKey((int)attribut + 3) ? learnableSkills[(int)attribut + 3].totalPoints : 0;
+
+        return attributeLevel;
       }
     }
   }
