@@ -223,19 +223,11 @@ namespace NWN.Systems
         learnableSkills.Add(CustomSkill.ImprovedHealth, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedHealth]));
         learnableSkills.Add(CustomSkill.Toughness, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Toughness]));
 
-        //learnableSkills.Add(CustomSkill.ImprovedAttackBonus, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedAttackBonus]));
-        //learnableSkills.Add(CustomSkill.ImprovedCasterLevel, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedCasterLevel]));
         learnableSkills.Add(CustomSkill.ImprovedSpellSlot0, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedSpellSlot0]));
         learnableSkills.Add(CustomSkill.ImprovedSpellSlot1, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedSpellSlot1]));
 
         learnableSkills.Add(CustomSkill.LightArmorProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightArmorProficiency]));
         learnableSkills.Add(CustomSkill.LightShieldProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightShieldProficiency]));
-
-        learnableSkills.Add(CustomSkill.QuarterStaffProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.QuarterStaffProficiency]));
-        learnableSkills.Add(CustomSkill.SickleProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.SickleProficiency]));
-
-        //learnableSkills.Add(CustomSkill.TwoWeaponFighting, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.TwoWeaponFighting]));
-        //learnableSkills.Add(CustomSkill.WeaponFinesse, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.WeaponFinesse]));
 
         learnableSkills.Add(CustomSkill.Athletics, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Athletics]));
         learnableSkills.Add(CustomSkill.Escamotage, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Escamotage]));
@@ -254,8 +246,14 @@ namespace NWN.Systems
       }
       public void InitializeDM()
       {
-        oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireItem;
-        oid.LoginCreature.OnUnacquireItem += ItemSystem.OnUnacquireItem;
+        oid.LoginCreature.OnAcquireItem += ItemSystem.HandleUnacquirableItems;
+        oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireForceDurability;
+        oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquirePlayerCorpse;
+        oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireDMCreatedItem;
+        oid.LoginCreature.OnAcquireItem += ItemSystem.MergeStackableItem;
+        oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireItemSavePlayer;
+        oid.LoginCreature.OnUnacquireItem += ItemSystem.OnUnacquirePlayerCorpse;
+        oid.LoginCreature.OnUnacquireItem += ItemSystem.OnUnacquireItemSavePlayer;
         oid.LoginCreature.OnItemEquip += ItemSystem.OnItemEquipBefore;
         oid.LoginCreature.OnUseFeat += FeatSystem.OnUseFeatBefore;
         oid.OnNuiEvent += HandleGenericNuiEvents;
@@ -272,8 +270,14 @@ namespace NWN.Systems
       private void InitializePlayerEvents()
       {
         oid.OnServerCharacterSave += HandleBeforePlayerSave;
-        oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireItem;
-        oid.LoginCreature.OnUnacquireItem += ItemSystem.OnUnacquireItem;
+        oid.LoginCreature.OnAcquireItem += ItemSystem.HandleUnacquirableItems;
+        oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireForceDurability;
+        oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquirePlayerCorpse;
+        oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireDMCreatedItem;
+        oid.LoginCreature.OnAcquireItem += ItemSystem.MergeStackableItem;
+        oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireItemSavePlayer;
+        oid.LoginCreature.OnUnacquireItem += ItemSystem.OnUnacquirePlayerCorpse;
+        oid.LoginCreature.OnUnacquireItem += ItemSystem.OnUnacquireItemSavePlayer;
         oid.LoginCreature.OnItemEquip += ItemSystem.OnItemEquipBefore;
         oid.LoginCreature.OnItemUse += ItemSystem.OnItemUseBefore;
         oid.OnPlayerDeath += OnDeathSoulReap;

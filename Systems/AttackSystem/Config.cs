@@ -140,29 +140,30 @@ namespace NWN.Systems
       if (ctx.targetPlayer is null || ctx.targetArmor is null || ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value < 1)
         return;
 
+      int armorBaseAC = 0;
+      int armorElementalAC = 0;
+      int armorPhysicalAC = 0;
+      int armorPercingAC = 0;
+      int armorSlashingAC = 0;
+      int armorBludgeoningAC = 0;
+      int armorFireAC = 0;
+      int armorColdAC = 0;
+      int armorAcidAC = 0;
+      int armorElectricalAC = 0;
+
       if (ctx.targetArmor.BaseItem.ItemType == BaseItemType.Armor)
       {
-        if (!ctx.targetAC.TryAdd(DamageType.BaseWeapon, ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_BASE_ARMOR").Value))
-          ctx.targetAC[DamageType.BaseWeapon] += ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_BASE_ARMOR").Value;
-
-        if (!ctx.targetAC.TryAdd((DamageType)8192, ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_BASE_PHYSICAL_ARMOR").Value))
-          ctx.targetAC[(DamageType)8192] += ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_BASE_PHYSICAL_ARMOR").Value;
-
-        if (!ctx.targetAC.TryAdd((DamageType)16384, ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_BASE_ELEMENTAL_ARMOR").Value))
-          ctx.targetAC[(DamageType)16384] += ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_BASE_ELEMENTAL_ARMOR").Value;
+        armorBaseAC += ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_BASE_ARMOR").Value;
+        armorPhysicalAC += ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_BASE_PHYSICAL_ARMOR").Value;
+        armorElementalAC += ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_BASE_ELEMENTAL_ARMOR").Value;
       }
-      else
+      else // Dans le cas où il s'agit d'une pièce d'armure, on définit le type d'armure à partir de la pièce principale du torse
       {
-        // Dans le cas où il s'agit d'une pièce d'armure, on définit le type d'armure à partir de la pièce principale du torse
         NwItem baseArmor = ctx.oTarget.GetItemInSlot(InventorySlot.Chest);
 
         if (baseArmor is not null)
         {
-          if (!ctx.targetAC.TryAdd(DamageType.BaseWeapon, baseArmor.BaseACValue * 3 * ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_BASE_ARMOR").Value))
-            ctx.targetAC[DamageType.BaseWeapon] += baseArmor.BaseACValue * 3 * ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_BASE_ARMOR").Value;
-
-          ctx.targetAC.TryAdd((DamageType)16384, 0);
-          ctx.targetAC.TryAdd((DamageType)8192, 0);
+          armorBaseAC += baseArmor.BaseACValue * 3 * ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_BASE_ARMOR").Value;
 
           switch (baseArmor.BaseACValue)
           {
@@ -170,30 +171,24 @@ namespace NWN.Systems
             case 2:
             case 3:
             case 4:
-                ctx.targetAC[(DamageType)16384] += baseArmor.BaseACValue * 5;
+              armorElementalAC += baseArmor.BaseACValue * 5;
               break;
             case 5:
-                ctx.targetAC[(DamageType)16384] += 30;
-                ctx.targetAC[(DamageType)8192] += 5;
+                armorElementalAC += 30;
+              armorPhysicalAC += 5;
               break;
             case 6:
-                ctx.targetAC[(DamageType)8192] += 10;
+              armorPhysicalAC += 10;
               break;
             case 7:
-                ctx.targetAC[(DamageType)8192] += 15;
+                armorPhysicalAC += 15;
               break;
             case 8:
-                ctx.targetAC[(DamageType)8192] += 20;
+                armorPhysicalAC += 20;
               break;
           }
         }
       }
-
-      int armorProficiencyLevel = ctx.targetPlayer.GetArmorProficiencyLevel(ctx.targetArmor.BaseACValue) / 10;
-
-      ctx.targetAC[DamageType.BaseWeapon] *= armorProficiencyLevel;
-      ctx.targetAC[(DamageType)16384] *= armorProficiencyLevel;
-      ctx.targetAC[(DamageType)8192] *= armorProficiencyLevel;
 
       for (int i = 0; i < ctx.targetArmor.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
       {
@@ -210,7 +205,7 @@ namespace NWN.Systems
 
           case CustomInscription.Prismatique:
             if (ctx.targetPlayer.GetAirMagicSkillScore() > 14 && ctx.targetPlayer.GetFireMagicSkillScore() > 14 && ctx.targetPlayer.GetWaterMagicSkillScore() > 14 && ctx.targetPlayer.GetAirMagicSkillScore() > 14)
-              ctx.targetAC[DamageType.BaseWeapon] += 1;
+              armorBaseAC += 1;
             break;
 
           case CustomInscription.Artisan:
@@ -220,32 +215,32 @@ namespace NWN.Systems
               var slot = ctx.targetPlayer.oid.LoginCreature.GetQuickBarButton(slotId);
 
               if (slot.ObjectType == QuickBarButtonType.Feat && SkillSystem.learnableDictionary.ContainsKey(slot.Param1) && (SkillSystem.learnableDictionary[slot.Param1]).type == SkillSystem.Type.Signet)
-                ctx.targetAC[DamageType.BaseWeapon] += 1;
+                armorBaseAC += 1;
             }
             break;
 
           case CustomInscription.GardeDragon:
             if (ctx.oAttacker.Race.RacialType == RacialType.Dragon)
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              armorBaseAC += 3;
             break;
 
           case CustomInscription.GardeExtérieur:
             if (ctx.oAttacker.Race.RacialType == RacialType.Outsider)
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              armorBaseAC += 3;
             break;
 
           case CustomInscription.GardeAberration:
             if (ctx.oAttacker.Race.RacialType == RacialType.Aberration)
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              armorBaseAC += 3;
             break;
 
           case CustomInscription.GardeElementaire:
             if (ctx.oAttacker.Race.RacialType == RacialType.Elemental)
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              armorBaseAC += 3;
             break;
 
-          case CustomInscription.Inflexible: ctx.targetAC[(DamageType)8192] += 1; break;
-          case CustomInscription.Redoutable: ctx.targetAC[(DamageType)16384] += 1; break;
+          case CustomInscription.Inflexible: armorPhysicalAC += 1; break;
+          case CustomInscription.Redoutable: armorElementalAC += 1; break;
           case CustomInscription.Marchevent:
 
             int positiveEffect = 0;
@@ -255,7 +250,7 @@ namespace NWN.Systems
               {
                 positiveEffect++;
                 if (positiveEffect > 2)
-                  ctx.targetAC[DamageType.BaseWeapon] += 1;
+                  armorBaseAC += 1;
 
                 if (positiveEffect > 5)
                   break;
@@ -266,126 +261,126 @@ namespace NWN.Systems
 
           case CustomInscription.GardeGeant:
             if (ctx.oAttacker.Race.RacialType == RacialType.Giant)
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              armorBaseAC += 3;
             break;
 
           case CustomInscription.GardeMagie:
             if (ctx.oAttacker.Race.RacialType == RacialType.MagicalBeast)
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              armorBaseAC += 3;
             break;
 
           case CustomInscription.GardeBon:
             if (ctx.oAttacker.GoodEvilAlignment == Alignment.Good)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              armorBaseAC += 2;
             break;
 
           case CustomInscription.GardeChaos:
             if (ctx.oAttacker.LawChaosAlignment == Alignment.Chaotic)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              armorBaseAC += 2;
             break;
 
           case CustomInscription.GardeMal:
             if (ctx.oAttacker.GoodEvilAlignment == Alignment.Evil)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              armorBaseAC += 2;
             break;
 
           case CustomInscription.GardeNeutre:
             if (ctx.oAttacker.GoodEvilAlignment == Alignment.Neutral && ctx.oAttacker.LawChaosAlignment == Alignment.Neutral)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              armorBaseAC += 2;
             break;
 
           case CustomInscription.GardeLoi:
             if (ctx.oAttacker.LawChaosAlignment == Alignment.Lawful)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              armorBaseAC += 2;
             break;
 
           case CustomInscription.Hivernal:
             if (!ctx.targetAC.TryAdd(DamageType.Cold, 2))
-              ctx.targetAC[DamageType.Cold] += 2; 
+              armorColdAC += 2; 
             break;
           case CustomInscription.Ignifugé:
             if (!ctx.targetAC.TryAdd(DamageType.Fire, 2))
-                ctx.targetAC[DamageType.Fire] += 2; 
+              armorFireAC += 2; 
             break;
           case CustomInscription.Paratonnerre: 
             if (!ctx.targetAC.TryAdd(DamageType.Electrical, 2))
-              ctx.targetAC[DamageType.Electrical] += 2; 
+              armorElectricalAC += 2; 
             break;
           case CustomInscription.Tectonique: 
             if (!ctx.targetAC.TryAdd(DamageType.Acid, 2))
-              ctx.targetAC[DamageType.Acid] += 2; 
+              armorAcidAC += 2; 
             break;
           case CustomInscription.Infiltrateur:
             if (!ctx.targetAC.TryAdd(DamageType.Piercing, 2)) 
-              ctx.targetAC[DamageType.Piercing] += 1; 
+              armorPercingAC += 1; 
             break;
           case CustomInscription.Saboteur: 
             if (!ctx.targetAC.TryAdd(DamageType.Slashing, 2))
-              ctx.targetAC[DamageType.Slashing] += 1; 
+              armorSlashingAC += 1; 
             break;
           case CustomInscription.AvantGarde: 
             if (!ctx.targetAC.TryAdd(DamageType.Bludgeoning, 2))
-              ctx.targetAC[DamageType.Bludgeoning] += 1; 
+              armorBludgeoningAC += 1; 
             break;
           case CustomInscription.GardeHalfelin:
             if (ctx.oAttacker.Race.RacialType == RacialType.Halfling)
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              armorBaseAC += 3;
             break;
 
           case CustomInscription.GardeHumain:
             if (ctx.oAttacker.Race.RacialType == RacialType.Human)
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              armorBaseAC += 3;
             break;
 
           case CustomInscription.GardeDemiElfe:
             if (ctx.oAttacker.Race.RacialType == RacialType.HalfElf)
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              armorBaseAC += 3;
             break;
 
           case CustomInscription.GardeDemiOrc:
             if (ctx.oAttacker.Race.RacialType == RacialType.HalfOrc)
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              armorBaseAC += 3;
             break;
 
           case CustomInscription.GardeElfe:
             if (ctx.oAttacker.Race.RacialType == RacialType.Elf)
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              armorBaseAC += 3;
             break;
 
           case CustomInscription.GardeGnome:
             if (ctx.oAttacker.Race.RacialType == RacialType.Gnome)
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              armorBaseAC += 3;
             break;
 
           case CustomInscription.GardeNain:
             if (ctx.oAttacker.Race.RacialType == RacialType.Dwarf)
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              armorBaseAC += 3;
             break;
 
           case CustomInscription.Agitateur:
             if (ctx.targetPlayer.oid.LoginCreature.AttackTarget is not null && (ctx.targetPlayer.oid.LoginCreature.AnimationState != AnimationState.Walking
               || ctx.targetPlayer.oid.LoginCreature.AnimationState != AnimationState.Running))
-              ctx.targetAC[DamageType.BaseWeapon] += 1;
+              armorBaseAC += 1;
             break;
 
           case CustomInscription.Sentinelle:
             if (ctx.targetPlayer.oid.LoginCreature.ActiveEffects.Any(e => e.Tag.Contains("_STANCE_")))
-              ctx.targetAC[DamageType.BaseWeapon] += 1;
+              armorBaseAC += 1;
             break;
 
           case CustomInscription.Belluaire:
             if (ctx.targetPlayer.oid.LoginCreature.Faction.GetMembers().Any(a => a.Master == ctx.targetPlayer.oid.LoginCreature && a.Tag.Contains("_ANIMAL_COMPANION_")))
-              ctx.targetAC[DamageType.BaseWeapon] += 1;
+              armorBaseAC += 1;
             break;
 
           case CustomInscription.Eclaireur:
             if (ctx.targetPlayer.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_IS_USING_PREPARATION").HasValue)
-              ctx.targetAC[DamageType.BaseWeapon] += 1;
+              armorBaseAC += 1;
             break;
 
           case CustomInscription.Disciple:
             if (ctx.targetPlayer.oid.LoginCreature.ActiveEffects.Any(e => e.Tag.Contains("CUSTOM_CONDITION_")))
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              armorBaseAC += 2;
             break;
 
           case CustomInscription.Virtuose:
@@ -393,20 +388,20 @@ namespace NWN.Systems
               || ctx.targetPlayer.oid.LoginCreature.AnimationState == AnimationState.Cast3 || ctx.targetPlayer.oid.LoginCreature.AnimationState == AnimationState.Cast4
               || ctx.targetPlayer.oid.LoginCreature.AnimationState == AnimationState.Cast5 || ctx.targetPlayer.oid.LoginCreature.AnimationState == AnimationState.CastCreature
               || ctx.targetPlayer.oid.LoginCreature.AnimationState == AnimationState.Conjure1 || ctx.targetPlayer.oid.LoginCreature.AnimationState == AnimationState.Conjure2)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              armorBaseAC += 2;
             break;
 
           case CustomInscription.Fossoyeur:
             double hpLeft = ctx.targetPlayer.oid.LoginCreature.HP / ctx.targetPlayer.MaxHP;
 
             if (hpLeft > 0.6)
-              ctx.targetAC[DamageType.BaseWeapon] += 1;
+              armorBaseAC += 1;
             else if (hpLeft > 0.4)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              armorBaseAC += 2;
             else if (hpLeft > 0.2)
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              armorBaseAC += 3;
             else
-              ctx.targetAC[DamageType.BaseWeapon] += 4;
+              armorBaseAC += 4;
 
             break;
 
@@ -424,51 +419,51 @@ namespace NWN.Systems
 
             switch (nbSkillInCD)
             {
-              case 2: ctx.targetAC[DamageType.BaseWeapon] += 1; break;
-              case 4: ctx.targetAC[DamageType.BaseWeapon] += 2; break;
-              case 6: ctx.targetAC[DamageType.BaseWeapon] += 3; break;
-              case 8: ctx.targetAC[DamageType.BaseWeapon] += 4; break;
+              case 2: armorBaseAC += 1; break;
+              case 4: armorBaseAC += 2; break;
+              case 6: armorBaseAC += 3; break;
+              case 8: armorBaseAC += 4; break;
             }
 
             break;
 
           case CustomInscription.Destructeur:
             if (ctx.targetPlayer.oid.LoginCreature.ActiveEffects.Any(e => e.Tag.Contains("CUSTOM_MALEFICE_")))
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              armorBaseAC += 3;
             break;
 
           case CustomInscription.Bénédiction:
             if (ctx.targetPlayer.oid.LoginCreature.ActiveEffects.Any(e => e.Tag.Contains("CUSTOM_POSITIVE_SPELL_")))
-              ctx.targetAC[DamageType.BaseWeapon] += 1;
+              armorBaseAC += 1;
             break;
 
           case CustomInscription.Centurion:
             if (ctx.targetPlayer.oid.LoginCreature.ActiveEffects.Any(e => e.Tag.Contains("CUSTOM_SHOUT_")))
-              ctx.targetAC[DamageType.BaseWeapon] += 1;
+              armorBaseAC += 1;
             break;
 
           case CustomInscription.Oublié:
             if (ctx.targetPlayer.oid.LoginCreature.ActiveEffects.Any(e => !e.Tag.Contains("CUSTOM_POSITIVE_SPELL_")))
-              ctx.targetAC[DamageType.BaseWeapon] += 1;
+              armorBaseAC += 1;
             break;
 
           case CustomInscription.GardeNonVie:
             if (ctx.oAttacker.Race.RacialType == RacialType.Undead)
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              armorBaseAC += 3;
             break;
 
           case CustomInscription.GardeArtifice:
             if (ctx.oAttacker.Race.RacialType == RacialType.Construct)
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              armorBaseAC += 3;
             break;
 
           case CustomInscription.GardeOrc:
             if (ctx.oAttacker.Race.RacialType == RacialType.HumanoidOrc)
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              armorBaseAC += 3;
             break;
 
           case CustomInscription.Lieutenant:
-            ctx.targetAC[DamageType.BaseWeapon] -= 4;
+            armorBaseAC -= 4;
             break;
 
           case CustomInscription.MaîtreBlème:
@@ -476,10 +471,10 @@ namespace NWN.Systems
 
             switch (controlledUndead)
             {
-              case 1: ctx.targetAC[DamageType.BaseWeapon] += 1; break;
-              case 3: ctx.targetAC[DamageType.BaseWeapon] += 2; break;
-              case 5: ctx.targetAC[DamageType.BaseWeapon] += 3; break;
-              case 8: ctx.targetAC[DamageType.BaseWeapon] += 4; break;
+              case 1: armorBaseAC += 1; break;
+              case 3: armorBaseAC += 2; break;
+              case 5: armorBaseAC += 3; break;
+              case 8: armorBaseAC += 4; break;
             }
 
             break;
@@ -489,50 +484,81 @@ namespace NWN.Systems
 
             switch (controlledSummons)
             {
-              case 1: ctx.targetAC[DamageType.BaseWeapon] += 1; break;
-              case 3: ctx.targetAC[DamageType.BaseWeapon] += 2; break;
-              case 5: ctx.targetAC[DamageType.BaseWeapon] += 3; break;
-              case 8: ctx.targetAC[DamageType.BaseWeapon] += 4; break;
+              case 1: armorBaseAC += 1; break;
+              case 3: armorBaseAC += 2; break;
+              case 5: armorBaseAC += 3; break;
+              case 8: armorBaseAC += 4; break;
             }
 
             break;
 
           case CustomInscription.GardeMonstre:
             if (ctx.oAttacker.Race.RacialType == RacialType.HumanoidMonstrous)
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              armorBaseAC += 3;
             break;
 
           case CustomInscription.GardeHumanoïde:
             if (ctx.oAttacker.Race.RacialType == RacialType.HumanoidMonstrous)
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              armorBaseAC += 3;
             break;
 
           case CustomInscription.GardeMétamorphe:
             if (ctx.oAttacker.Race.RacialType == RacialType.ShapeChanger)
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              armorBaseAC += 3;
             break;
 
           case CustomInscription.GardeGoblinoïde:
             if (ctx.oAttacker.Race.RacialType == RacialType.HumanoidGoblinoid)
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              armorBaseAC += 3;
             break;
 
           case CustomInscription.GardeAnimal:
             if (ctx.oAttacker.Race.RacialType == RacialType.Animal)
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              armorBaseAC += 3;
             break;
 
           case CustomInscription.GardeReptilien:
             if (ctx.oAttacker.Race.RacialType == RacialType.HumanoidReptilian)
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              armorBaseAC += 3;
             break;
 
           case CustomInscription.GardeVermine:
             if (ctx.oAttacker.Race.RacialType == RacialType.Vermin)
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              armorBaseAC += 3;
             break;
         }
       }
+      int armorProficiency = ctx.targetPlayer.GetArmorProficiencyLevel(ctx.targetArmor.BaseACValue) < ItemUtils.GetItemProficiencyRequirement(ctx.targetArmor) ? 3 : 1;
+
+      if (!ctx.targetAC.TryAdd(DamageType.BaseWeapon, armorBaseAC / armorProficiency))
+        ctx.targetAC[DamageType.BaseWeapon] += armorBaseAC / armorProficiency;
+
+      if (!ctx.targetAC.TryAdd((DamageType)8192, armorPhysicalAC / armorProficiency))
+        ctx.targetAC[(DamageType)8192] += armorPhysicalAC / armorProficiency;
+
+      if (!ctx.targetAC.TryAdd((DamageType)16384, armorElementalAC / armorProficiency))
+        ctx.targetAC[(DamageType)16384] += armorElementalAC / armorProficiency;
+
+      if (!ctx.targetAC.TryAdd(DamageType.Piercing, armorPercingAC / armorProficiency))
+        ctx.targetAC[DamageType.Piercing] += armorPercingAC / armorProficiency;
+
+      if (!ctx.targetAC.TryAdd(DamageType.Slashing, armorPercingAC / armorProficiency))
+        ctx.targetAC[DamageType.Slashing] += armorPercingAC / armorProficiency;
+
+      if (!ctx.targetAC.TryAdd(DamageType.Bludgeoning, armorPercingAC / armorProficiency))
+        ctx.targetAC[DamageType.Bludgeoning] += armorPercingAC / armorProficiency;
+
+      if (!ctx.targetAC.TryAdd(DamageType.Fire, armorPercingAC / armorProficiency))
+        ctx.targetAC[DamageType.Fire] += armorPercingAC / armorProficiency;
+
+      if (!ctx.targetAC.TryAdd(DamageType.Acid, armorPercingAC / armorProficiency))
+        ctx.targetAC[DamageType.Acid] += armorPercingAC / armorProficiency;
+
+      if (!ctx.targetAC.TryAdd(DamageType.Cold, armorPercingAC / armorProficiency))
+        ctx.targetAC[DamageType.Cold] += armorPercingAC / armorProficiency;
+
+      if (!ctx.targetAC.TryAdd(DamageType.Electrical, armorPercingAC / armorProficiency))
+        ctx.targetAC[DamageType.Electrical] += armorPercingAC / armorProficiency;
     }
     public static void SetArmorValueFromShield(Context ctx)
     {
@@ -541,13 +567,16 @@ namespace NWN.Systems
       if (item is null || item.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value < 1)
         return;
 
-      int shieldProficiency = ctx.targetPlayer.GetShieldProficiencyLevel(item.BaseItem.ItemType) / 10;
-
-      if (!ctx.targetAC.TryAdd(DamageType.BaseWeapon, item.GetObjectVariable<LocalVariableInt>("_BASE_ARMOR").Value * shieldProficiency))
-        ctx.targetAC[DamageType.BaseWeapon] += item.GetObjectVariable<LocalVariableInt>("_BASE_ARMOR").Value * shieldProficiency;
-
-      if (!ctx.targetAC.TryAdd(DamageType.Piercing, item.GetObjectVariable<LocalVariableInt>("_BASE_PIERCING_ARMOR").Value * shieldProficiency))
-        ctx.targetAC[DamageType.Piercing] += item.GetObjectVariable<LocalVariableInt>("_BASE_PIERCING_ARMOR").Value * shieldProficiency;
+      int shieldBaseAC = item.GetObjectVariable<LocalVariableInt>("_BASE_ARMOR").Value;
+      int shieldElementalAC = 0;
+      int shieldPhysicalAC = 0;
+      int shieldPercingAC = item.GetObjectVariable<LocalVariableInt>("_BASE_PIERCING_ARMOR").Value;
+      int shieldSlashingAC = 0;
+      int shieldBludgeoningAC = 0;
+      int shieldFireAC = 0;
+      int shieldColdAC = 0;
+      int shieldAcidAC = 0;
+      int shieldElectricalAC = 0;
 
       for (int i = 0; i < item.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
       {
@@ -556,75 +585,75 @@ namespace NWN.Systems
 
         switch (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
         {
-          case CustomInscription.Blindé: ctx.targetAC[DamageType.BaseWeapon] += 1; break;
+          case CustomInscription.Blindé: shieldBaseAC += 1; break;
           case CustomInscription.RepousseDragon:
             if (ctx.oAttacker.Race.RacialType == RacialType.Dragon)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              shieldBaseAC += 2;
             break;
 
           case CustomInscription.RepousseExtérieur:
             if (ctx.oAttacker.Race.RacialType == RacialType.Outsider)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              shieldBaseAC += 2;
             break;
 
           case CustomInscription.RepousseAberration:
             if (ctx.oAttacker.Race.RacialType == RacialType.Aberration)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              shieldBaseAC += 2;
             break;
 
           case CustomInscription.LongueVieAuRoi:
             if (ctx.targetPlayer.oid.LoginCreature.HP > ctx.targetPlayer.MaxHP / 2)
-              ctx.targetAC[DamageType.BaseWeapon] += 1;
+              shieldBaseAC += 1;
             break;
 
           case CustomInscription.LaFoiEstMonBouclier:
             if (ctx.targetPlayer.oid.LoginCreature.ActiveEffects.Any(e => e.Tag.Contains("CUSTOM_POSITIVE_SPELL_")))
-              ctx.targetAC[DamageType.BaseWeapon] += 1;
+              shieldBaseAC += 1;
             break;
 
           case CustomInscription.LaSurvieDuMieuxEquipé:
             if (!ctx.targetAC.TryAdd((DamageType)8192, 1))
-              ctx.targetAC[(DamageType)8192] += 1;
+              shieldPhysicalAC += 1;
             break;
 
           case CustomInscription.ParéEnTouteSaison:
             if (!ctx.targetAC.TryAdd((DamageType)16384, 1))
-              ctx.targetAC[(DamageType)16384] += 1;
+              shieldElementalAC += 1;
             break;
 
           case CustomInscription.RepousseGéant:
             if (ctx.oAttacker.Race.RacialType == RacialType.Giant)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              shieldBaseAC += 2;
             break;
 
           case CustomInscription.RepousseMagie:
             if (ctx.oAttacker.Race.RacialType == RacialType.MagicalBeast)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              shieldBaseAC += 2;
             break;
 
           case CustomInscription.RepousseBon:
             if (ctx.oAttacker.GoodEvilAlignment == Alignment.Good)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              shieldBaseAC += 2;
             break;
 
           case CustomInscription.RepousseChaos:
             if (ctx.oAttacker.LawChaosAlignment == Alignment.Chaotic)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              shieldBaseAC += 2;
             break;
 
           case CustomInscription.RepousseMal:
             if (ctx.oAttacker.GoodEvilAlignment == Alignment.Evil)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              shieldBaseAC += 2;
             break;
 
           case CustomInscription.RepousseNeutre:
             if (ctx.oAttacker.GoodEvilAlignment == Alignment.Neutral && ctx.oAttacker.LawChaosAlignment == Alignment.Neutral)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              shieldBaseAC += 2;
             break;
 
           case CustomInscription.RepousseLoi:
             if (ctx.oAttacker.LawChaosAlignment == Alignment.Lawful)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              shieldBaseAC += 2;
             break;
 
           case CustomInscription.ContreVentsEtMarées: ctx.targetAC[DamageType.Piercing] += 2;
@@ -632,78 +661,78 @@ namespace NWN.Systems
 
           case CustomInscription.lEnigmeDelAcier:
             if (!ctx.targetAC.TryAdd(DamageType.Slashing, 2))
-              ctx.targetAC[DamageType.Slashing] += 2;
+              shieldSlashingAC += 2;
             break;
 
           case CustomInscription.PasLeVisage:
             if (!ctx.targetAC.TryAdd(DamageType.Bludgeoning, 2))
-              ctx.targetAC[DamageType.Bludgeoning] += 2;
+              shieldBludgeoningAC += 2;
             break;
 
           case CustomInscription.PortéParLeVent:
             if (!ctx.targetAC.TryAdd(DamageType.Cold, 2))
-              ctx.targetAC[DamageType.Cold] += 2;
+              shieldColdAC += 2;
             break;
 
           case CustomInscription.CommeUnRoc:
             if (!ctx.targetAC.TryAdd(DamageType.Acid, 2))
-              ctx.targetAC[DamageType.Acid] += 2;
+              shieldAcidAC += 2;
             break;
 
           case CustomInscription.Illumination:
             if (!ctx.targetAC.TryAdd(DamageType.Fire, 2))
-              ctx.targetAC[DamageType.Fire] += 2;
+              shieldFireAC += 2;
             break;
 
           case CustomInscription.ChevaucheLaTempête:
             if (!ctx.targetAC.TryAdd(DamageType.Electrical, 2))
-              ctx.targetAC[DamageType.Electrical] += 2;
+              shieldElectricalAC += 2;
             break;
 
           case CustomInscription.RepousseHalfelin:
             if (ctx.oAttacker.Race.RacialType == RacialType.Halfling)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              shieldBaseAC += 2;
             break;
 
           case CustomInscription.RepousseHumain:
             if (ctx.oAttacker.Race.RacialType == RacialType.Human)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              shieldBaseAC += 2;
             break;
 
           case CustomInscription.RepousseDemiElfe:
             if (ctx.oAttacker.Race.RacialType == RacialType.HalfElf)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              shieldBaseAC += 2;
             break;
 
           case CustomInscription.RepousseDemiOrc:
             if (ctx.oAttacker.Race.RacialType == RacialType.HalfOrc)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              shieldBaseAC += 2;
             break;
 
           case CustomInscription.RepousseElfe:
             if (ctx.oAttacker.Race.RacialType == RacialType.Elf)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              shieldBaseAC += 2;
             break;
 
           case CustomInscription.RepousseGnome:
             if (ctx.oAttacker.Race.RacialType == RacialType.Gnome)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              shieldBaseAC += 2;
             break;
 
           case CustomInscription.RepousseNain:
             if (ctx.oAttacker.Race.RacialType == RacialType.Dwarf)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              shieldBaseAC += 2;
             break;
 
           case CustomInscription.RepousseElementaire:
             if (ctx.oAttacker.Race.RacialType == RacialType.Elemental)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              shieldBaseAC += 2;
             break;
 
           case CustomInscription.LaRaisonDuPlusFort:
             if (ctx.targetPlayer.oid.LoginCreature.AttackTarget is not null && (ctx.targetPlayer.oid.LoginCreature.AnimationState != AnimationState.Walking
               || ctx.targetPlayer.oid.LoginCreature.AnimationState != AnimationState.Running))
-              ctx.targetAC[DamageType.BaseWeapon] += 1;
+              shieldBaseAC += 1;
             break;
 
           case CustomInscription.SavoirNestQueLaMoitiéDuChemin:
@@ -711,80 +740,116 @@ namespace NWN.Systems
               || ctx.targetPlayer.oid.LoginCreature.AnimationState == AnimationState.Cast3 || ctx.targetPlayer.oid.LoginCreature.AnimationState == AnimationState.Cast4
               || ctx.targetPlayer.oid.LoginCreature.AnimationState == AnimationState.Cast5 || ctx.targetPlayer.oid.LoginCreature.AnimationState == AnimationState.CastCreature
               || ctx.targetPlayer.oid.LoginCreature.AnimationState == AnimationState.Conjure1 || ctx.targetPlayer.oid.LoginCreature.AnimationState == AnimationState.Conjure2)
-              ctx.targetAC[DamageType.BaseWeapon] += 1;
+              shieldBaseAC += 1;
             break;
 
           case CustomInscription.CeNestQuuneEgratignure:
             if (ctx.targetPlayer.oid.LoginCreature.HP < ctx.targetPlayer.MaxHP / 2)
-              ctx.targetAC[DamageType.BaseWeapon] += 1;
+              shieldBaseAC += 1;
             break;
 
           case CustomInscription.NeTremblezPas:
             if (ctx.targetPlayer.oid.LoginCreature.ActiveEffects.Any(e => e.Tag.Contains("CUSTOM_MALEFICE_")))
-              ctx.targetAC[DamageType.BaseWeapon] += 3;
+              shieldBaseAC += 3;
             break;
 
           case CustomInscription.RepousseNonVie:
             if (ctx.oAttacker.Race.RacialType == RacialType.Undead)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              shieldBaseAC += 2;
             break;
 
           case CustomInscription.RepousseArtifice:
             if (ctx.oAttacker.Race.RacialType == RacialType.Construct)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              shieldBaseAC += 2;
             break;
 
           case CustomInscription.RepousseOrc:
             if (ctx.oAttacker.Race.RacialType == RacialType.HumanoidOrc)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              shieldBaseAC += 2;
             break;
 
           case CustomInscription.HeureuxLesSimplesdEsprits:
           case CustomInscription.LaVieNestQueDouleur:
-            ctx.targetAC[DamageType.BaseWeapon] += 1;
+            shieldBaseAC += 1;
             break;
 
           case CustomInscription.RepousseMonstre:
             if (ctx.oAttacker.Race.RacialType == RacialType.HumanoidOrc)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              shieldBaseAC += 2;
             break;
 
           case CustomInscription.RepousseHumanoïde:
             if (ctx.oAttacker.Race.RacialType == RacialType.HumanoidMonstrous)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              shieldBaseAC += 2;
             break;
 
           case CustomInscription.RepousseMétamorphe:
             if (ctx.oAttacker.Race.RacialType == RacialType.ShapeChanger)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              shieldBaseAC += 2;
             break;
 
           case CustomInscription.RepousseGobelinoïde:
             if (ctx.oAttacker.Race.RacialType == RacialType.HumanoidGoblinoid)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              shieldBaseAC += 2;
             break;
 
           case CustomInscription.RepousseAnimal:
             if (ctx.oAttacker.Race.RacialType == RacialType.Animal)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              shieldBaseAC += 2;
             break;
 
           case CustomInscription.RepousseReptilien:
             if (ctx.oAttacker.Race.RacialType == RacialType.HumanoidReptilian)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              shieldBaseAC += 2;
             break;
 
           case CustomInscription.RepousseVermine:
             if (ctx.oAttacker.Race.RacialType == RacialType.Vermin)
-              ctx.targetAC[DamageType.BaseWeapon] += 2;
+              shieldBaseAC += 2;
             break;
         }
       }
+
+      int shieldProficiency = ctx.targetPlayer.GetShieldProficiencyLevel(item.BaseItem.ItemType) < ItemUtils.GetItemProficiencyRequirement(item) ? 3 : 1;
+
+      if (!ctx.targetAC.TryAdd(DamageType.BaseWeapon, shieldBaseAC / shieldProficiency))
+        ctx.targetAC[DamageType.BaseWeapon] += shieldBaseAC / shieldProficiency;
+
+      if (!ctx.targetAC.TryAdd((DamageType)8192, shieldPhysicalAC / shieldProficiency))
+        ctx.targetAC[(DamageType)8192] += shieldPhysicalAC / shieldProficiency;
+
+      if (!ctx.targetAC.TryAdd((DamageType)16384, shieldElementalAC / shieldProficiency))
+        ctx.targetAC[(DamageType)16384] += shieldElementalAC / shieldProficiency;
+
+      if (!ctx.targetAC.TryAdd(DamageType.Piercing, shieldPercingAC / shieldProficiency))
+        ctx.targetAC[DamageType.Piercing] += shieldPercingAC / shieldProficiency;
+
+      if (!ctx.targetAC.TryAdd(DamageType.Slashing, shieldPercingAC / shieldProficiency))
+        ctx.targetAC[DamageType.Slashing] += shieldPercingAC / shieldProficiency;
+
+      if (!ctx.targetAC.TryAdd(DamageType.Bludgeoning, shieldPercingAC / shieldProficiency))
+        ctx.targetAC[DamageType.Bludgeoning] += shieldPercingAC / shieldProficiency;
+
+      if (!ctx.targetAC.TryAdd(DamageType.Fire, shieldPercingAC / shieldProficiency))
+        ctx.targetAC[DamageType.Fire] += shieldPercingAC / shieldProficiency;
+
+      if (!ctx.targetAC.TryAdd(DamageType.Acid, shieldPercingAC / shieldProficiency))
+        ctx.targetAC[DamageType.Acid] += shieldPercingAC / shieldProficiency;
+
+      if (!ctx.targetAC.TryAdd(DamageType.Cold, shieldPercingAC / shieldProficiency))
+        ctx.targetAC[DamageType.Cold] += shieldPercingAC / shieldProficiency;
+
+      if (!ctx.targetAC.TryAdd(DamageType.Electrical, shieldPercingAC / shieldProficiency))
+        ctx.targetAC[DamageType.Electrical] += shieldPercingAC / shieldProficiency;
     }
     public static void GetArmorValueFromWeapon(Context ctx, NwItem item)
     {
       if (item is null || item.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value < 1)
         return;
+
+      int weaponBaseArmor = 0;
+      int weaponPhysicalArmor = 0;
+      int weaponElementalArmor = 0;
 
       for (int i = 0; i < item.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
       {
@@ -793,27 +858,23 @@ namespace NWN.Systems
 
         switch (item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value)
         {
-          case CustomInscription.Défense:
-            if (!ctx.targetAC.TryAdd(DamageType.BaseWeapon, 1))
-              ctx.targetAC[DamageType.BaseWeapon] += 1;
-            break;
-
-          case CustomInscription.Masochisme:
-            if (!ctx.targetAC.TryAdd(DamageType.BaseWeapon, -1))
-              ctx.targetAC[DamageType.BaseWeapon] -= 1;
-            break;
-
-          case CustomInscription.Refuge:
-            if (!ctx.targetAC.TryAdd((DamageType)8192, 1))
-              ctx.targetAC[(DamageType)8192] += 1;
-            break;
-
-          case CustomInscription.Protecteur:
-            if (!ctx.targetAC.TryAdd((DamageType)16384, 1))
-              ctx.targetAC[(DamageType)16384] += 1;
-            break;
+          case CustomInscription.Défense: weaponBaseArmor += 1; break;
+          case CustomInscription.Masochisme: weaponBaseArmor -= 1; break;
+          case CustomInscription.Refuge: weaponPhysicalArmor += 1; break;
+          case CustomInscription.Protecteur: weaponElementalArmor += 1; break;
         }
       }
+
+      int weaponProficiency = ctx.targetPlayer.GetWeaponMasteryLevel(item) < ItemUtils.GetItemProficiencyRequirement(item) ? 3 : 1;
+
+      if (!ctx.targetAC.TryAdd(DamageType.BaseWeapon, weaponBaseArmor / weaponProficiency))
+        ctx.targetAC[DamageType.BaseWeapon] += weaponBaseArmor / weaponProficiency;
+
+      if (!ctx.targetAC.TryAdd((DamageType)8192, weaponPhysicalArmor / weaponProficiency))
+        ctx.targetAC[(DamageType)8192] += weaponPhysicalArmor / weaponProficiency;
+
+      if (!ctx.targetAC.TryAdd((DamageType)16384, weaponElementalArmor / weaponProficiency))
+        ctx.targetAC[(DamageType)16384] += weaponElementalArmor / weaponProficiency;
     }
     public static void SetDamageValueFromWeapon(Context ctx, NwItem focus = null)
     {
@@ -1064,13 +1125,14 @@ namespace NWN.Systems
           case CustomInscription.Pénétration: bonusPenetration += 3; break;
         }
       }
+      int weaponProficiency = ctx.targetPlayer.GetWeaponMasteryLevel(ctx.attackWeapon) < ItemUtils.GetItemProficiencyRequirement(ctx.attackWeapon) ? 3 : 1;
 
       if (vampirism)
       {
         if (GetContextDamage(ctx, DamageType.Negative) < 0)
-          SetContextDamage(ctx, DamageType.Negative, 3);
+          SetContextDamage(ctx, DamageType.Negative, 3 / weaponProficiency);
         else
-          SetContextDamage(ctx, DamageType.Negative, GetContextDamage(ctx, DamageType.Negative) + 3);
+          SetContextDamage(ctx, DamageType.Negative, GetContextDamage(ctx, DamageType.Negative) + 3 / weaponProficiency);
 
         ctx.attackingPlayer.oid.LoginCreature.HP = ctx.attackingPlayer.oid.LoginCreature.HP + 3 >= ctx.attackingPlayer.MaxHP ? ctx.attackingPlayer.MaxHP : ctx.attackingPlayer.oid.LoginCreature.HP + 3;
       }
@@ -1082,31 +1144,31 @@ namespace NWN.Systems
         ctx.adrenalineGainModifier = 2;
 
       if (bonusPenetration > 0 && bonusPenetration > NwRandom.Roll(Utils.random, 100))
-        ctx.baseArmorPenetration += 20;
+        ctx.baseArmorPenetration += 20 / weaponProficiency;
 
       if(baseDamage > -1) 
-        SetContextDamage(ctx, DamageType.BaseWeapon, (int)Math.Round(baseDamage, MidpointRounding.ToEven));
+        SetContextDamage(ctx, DamageType.BaseWeapon, (int)Math.Round(baseDamage / weaponProficiency, MidpointRounding.ToEven));
 
       if (coldDamage > -1)
-        SetContextDamage(ctx, DamageType.Cold, (int)Math.Round(coldDamage, MidpointRounding.ToEven));
+        SetContextDamage(ctx, DamageType.Cold, (int)Math.Round(coldDamage / weaponProficiency, MidpointRounding.ToEven));
 
       if (fireDamage > -1)
-        SetContextDamage(ctx, DamageType.Fire, (int)Math.Round(fireDamage, MidpointRounding.ToEven));
+        SetContextDamage(ctx, DamageType.Fire, (int)Math.Round(fireDamage / weaponProficiency, MidpointRounding.ToEven));
 
       if (elecDamage > -1)
-        SetContextDamage(ctx, DamageType.Electrical, (int)Math.Round(elecDamage, MidpointRounding.ToEven));
+        SetContextDamage(ctx, DamageType.Electrical, (int)Math.Round(elecDamage / weaponProficiency, MidpointRounding.ToEven));
 
       if (acidDamage > -1)
-        SetContextDamage(ctx, DamageType.Acid, (int)Math.Round(acidDamage, MidpointRounding.ToEven));
+        SetContextDamage(ctx, DamageType.Acid, (int)Math.Round(acidDamage / weaponProficiency, MidpointRounding.ToEven));
 
       if (piercingDamage > -1)
-        SetContextDamage(ctx, DamageType.Piercing, (int)Math.Round(piercingDamage, MidpointRounding.ToEven));
+        SetContextDamage(ctx, DamageType.Piercing, (int)Math.Round(piercingDamage / weaponProficiency, MidpointRounding.ToEven));
 
       if (slashDamage > -1)
-        SetContextDamage(ctx, DamageType.Slashing, (int)Math.Round(slashDamage, MidpointRounding.ToEven));
+        SetContextDamage(ctx, DamageType.Slashing, (int)Math.Round(slashDamage / weaponProficiency, MidpointRounding.ToEven));
 
       if (bluntDamage > -1)
-        SetContextDamage(ctx, DamageType.Bludgeoning, (int)Math.Round(bluntDamage, MidpointRounding.ToEven));
+        SetContextDamage(ctx, DamageType.Bludgeoning, (int)Math.Round(bluntDamage / weaponProficiency, MidpointRounding.ToEven));
     }
   }
 }

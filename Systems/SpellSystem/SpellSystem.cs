@@ -98,8 +98,7 @@ namespace NWN.Systems
 
       onSpellAction.PreventSpellCast = true;
 
-      int[] spellCost = SpellUtils.spellCostDictionary[onSpellAction.Spell];
-      int energyCost = spellCost[0];
+      double energyCost = SpellUtils.spellCostDictionary[onSpellAction.Spell][(int)SpellUtils.SpellData.EnergyCost];
       int remainingCooldown = (int)Math.Round((player.oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>($"_SPELL_COOLDOWN_{onSpellAction.Spell.Id}").Value - DateTime.Now).TotalSeconds, MidpointRounding.ToEven);
 
       if (remainingCooldown > 0)
@@ -108,7 +107,13 @@ namespace NWN.Systems
         return;
       }
 
-      int missingEnergy = energyCost - (int)Math.Round(player.endurance.currentMana, MidpointRounding.ToZero);
+      if((SkillSystem.Type)SpellUtils.spellCostDictionary[onSpellAction.Spell][(int)SpellUtils.SpellData.Type] == SkillSystem.Type.Enchantement)
+      {
+        int mysticismLevel = player.GetAttributeLevel(SkillSystem.Attribut.Mysticism);
+        energyCost *= mysticismLevel * ((onSpellAction.Caster.GetAbilityScore(Ability.Charisma, true) - 10) / 2) / 100;
+      }
+
+      int missingEnergy = (int)(energyCost - Math.Round(player.endurance.currentMana, MidpointRounding.ToZero));
 
       if (missingEnergy > 0)
       {
@@ -118,7 +123,7 @@ namespace NWN.Systems
 
       _ = onSpellAction.Caster.ClearActionQueue();
 
-      player.endurance.currentMana -= energyCost;
+      player.endurance.currentMana -= (int)Math.Round(energyCost, MidpointRounding.ToZero);
 
       HandleCastTime(onSpellAction, player);
     }
@@ -346,6 +351,41 @@ namespace NWN.Systems
         case Spell.ImprovedInvisibility:
           ImprovedInvisibility(onSpellCast);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+      }
+
+      switch((SkillSystem.Type)SpellUtils.spellCostDictionary[onSpellCast.Spell][(int)SpellUtils.SpellData.Type])
+      {
+        case SkillSystem.Type.Shout:
+        case SkillSystem.Type.Chant:
+
+          List<NwCreature> targetList = new();
+
+          foreach(NwCreature partyMember in castingCreature.Faction.GetMembers())
+            if(castingCreature?.Area == partyMember?.Area && castingCreature.DistanceSquared(partyMember) < 900)
+              targetList.Add(partyMember);
+
+          if (player.endurance.regenerableMana > 0 && player.endurance.currentMana < player.endurance.maxMana)
+          {
+
+            int leadershipLevel = 2 * player.GetAttributeLevel(SkillSystem.Attribut.Leadership);
+            int mana = 2 * targetList.Count;
+            int charismaModifier = 3 * (castingCreature.GetAbilityScore(Ability.Charisma, true) - 10) / 2;
+            mana = leadershipLevel > charismaModifier
+              ? mana > charismaModifier ? charismaModifier : mana
+              : mana > leadershipLevel ? leadershipLevel : mana;
+
+            player.endurance.currentMana = mana + player.endurance.currentMana > player.endurance.maxMana ? player.endurance.maxMana : mana + player.endurance.currentMana;
+            player.endurance.regenerableMana -= mana;
+          }
+
+          switch (onSpellCast.Spell.SpellType)
+          {
+            case Spell.WarCry:
+              // TODO : on appelle la routine du sort en lui fournissant la liste des créatures affectées
+              break;
+          }
+
           break;
       }
 

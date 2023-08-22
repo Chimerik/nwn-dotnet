@@ -61,6 +61,9 @@ namespace NWN.Systems
           modificationAllowed = (string.IsNullOrWhiteSpace(originalCrafterName) || originalCrafterName == player.oid.ControlledCreature.OriginalName)
             && (item.Possessor == player.oid.ControlledCreature || player.IsDm());
 
+          if(item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").HasValue && item.BaseItem.ItemType != BaseItemType.Amulet && item.BaseItem.ItemType != BaseItemType.Ring)
+            rootChildren.Add(new NuiLabel(GetItemRequirementText(item)) { Height = 30, Width = 580, Tooltip = GetItemRequirementTooltip(item), ForegroundColor = GetItemRequirementColor(item), HorizontalAlign = NuiHAlign.Left });
+
           NuiText descriptionWidget = new NuiText(itemDescription) { Height = 100, Width = 590 };
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { descriptionWidget } });
 
@@ -79,7 +82,7 @@ namespace NWN.Systems
               NwSpell spell = NwSpell.FromSpellId(item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value);
               string icon = isSlotUsed ? spell.IconResRef : "empty_ench_slot";
               string id = isSlotUsed ? spell.Id.ToString() : "";
-              string spellName = isSlotUsed ? spell.Name.ToString() : "Emplacement d'enchantement libre";
+              string spellName = isSlotUsed ? spell.Name.ToString() : "Emplacement d'inscription libre";
 
               NuiButtonImage slotButton = new NuiButtonImage(icon) { Id = $"spell_{id}", Tooltip = spellName, Height = 40, Width = 40 };
               enchantementSlotsRowChildren.Add(slotButton);
@@ -791,7 +794,106 @@ namespace NWN.Systems
           if (item.GetObjectVariable<LocalVariableInt>("_MIN_WEAPON_DAMAGE").HasValue)
             ItemUtils.GetWeaponProperties(item, ipNames, ipColors);
         }
+        private string GetItemRequirementTooltip(NwItem item)
+        {
+          int proficiencyLevel = 0;
+
+          switch(item.BaseItem.ItemType)
+          {
+            case BaseItemType.Armor: proficiencyLevel = player.GetArmorProficiencyLevel(item.BaseItem.BaseAC); break;
+            case BaseItemType.SmallShield:
+            case BaseItemType.LargeShield:
+            case BaseItemType.TowerShield: proficiencyLevel = player.GetShieldProficiencyLevel(item.BaseItem.ItemType); break;
+            default: proficiencyLevel = player.GetWeaponMasteryLevel(item); break; ;
+          }
+
+          return proficiencyLevel < ItemUtils.GetItemProficiencyRequirement(item) ? "Maîtrise insuffisante, malus 70 % appliqué" : "";
+        }
+        private Color GetItemRequirementColor(NwItem item)
+        {
+          int proficiencyLevel = 0;
+
+          switch (item.BaseItem.ItemType)
+          {
+            case BaseItemType.Armor: proficiencyLevel = player.GetArmorProficiencyLevel(item.BaseItem.BaseAC); break;
+            case BaseItemType.SmallShield:
+            case BaseItemType.LargeShield:
+            case BaseItemType.TowerShield: proficiencyLevel = player.GetShieldProficiencyLevel(item.BaseItem.ItemType); break;
+            default: proficiencyLevel = player.GetWeaponMasteryLevel(item); break; ;
+          }
+
+          return proficiencyLevel < ItemUtils.GetItemProficiencyRequirement(item) ? ColorConstants.Red : ColorConstants.Blue;
+        }
+        private string GetItemRequirementText(NwItem item)
+      {
+        string requirementText = "Entraînement requis : ";
+
+        switch (item.BaseItem.ItemType)
+        {
+          case BaseItemType.Armor:
+
+              switch (item.BaseItem.BaseAC)
+              {
+                default: requirementText += "vêtement : "; break; ;
+                case 1:
+                case 2:
+                case 3: requirementText += "armure légère : "; break;
+                case 4:
+                case 5: requirementText += "armure intermédiaire : "; break;
+                case 6:
+                case 7: requirementText += "armure lourde : "; break;
+                case 8: requirementText += "harnois : "; break;
+              }
+
+              break;
+
+            case BaseItemType.SmallShield: requirementText += "rondache : "; break;
+            case BaseItemType.LargeShield: requirementText += "écu : "; break;
+            case BaseItemType.TowerShield: requirementText += "pavois : "; break;
+            case BaseItemType.Shortsword:
+            case BaseItemType.Longsword:
+            case BaseItemType.Greatsword:
+            case BaseItemType.Bastardsword:
+            case BaseItemType.TwoBladedSword:
+            case BaseItemType.Katana:
+            case BaseItemType.Scimitar: requirementText += "épée : "; break;
+
+            case BaseItemType.Handaxe:
+            case BaseItemType.Battleaxe:
+            case BaseItemType.Greataxe:
+            case BaseItemType.Doubleaxe:
+            case BaseItemType.DwarvenWaraxe: requirementText += "hache : "; break;
+
+            case BaseItemType.Shortbow:
+            case BaseItemType.Longbow:
+            case BaseItemType.Sling:
+            case BaseItemType.Shuriken:
+            case BaseItemType.Dart:
+            case BaseItemType.LightCrossbow:
+            case BaseItemType.HeavyCrossbow: requirementText += "adresse au tir : "; break;
+
+            case BaseItemType.Club:
+            case BaseItemType.LightFlail:
+            case BaseItemType.LightHammer:
+            case BaseItemType.Morningstar:
+            case BaseItemType.Warhammer:
+            case BaseItemType.HeavyFlail:
+            case BaseItemType.DireMace: requirementText += "marteau : "; break;
+
+            case BaseItemType.ShortSpear:
+            case BaseItemType.ThrowingAxe: requirementText += "armes de jet : "; break;
+
+            case BaseItemType.Dagger:
+            case BaseItemType.Kama:
+            case BaseItemType.Kukri: requirementText += "dague : "; break;
+
+            case BaseItemType.Scythe: requirementText += "faux : "; break;
+
+          }
+
+          return requirementText += ItemUtils.GetItemProficiencyRequirement(item).ToString();
       }
     }
+  }
   }
 }

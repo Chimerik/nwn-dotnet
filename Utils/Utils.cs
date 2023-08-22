@@ -494,7 +494,7 @@ namespace NWN
     }
     public static NuiRect GetDrawListTextScaleFromPlayerUI(PlayerSystem.Player player)
     {
-      return new(0, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) * 0.234f, 500, 60);
+      return new(0, 0/*player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) * 0.234f*/, 500, 60);
     }
     public static int GetResTypeFromFileExtension(string extension, string fileName)
     {

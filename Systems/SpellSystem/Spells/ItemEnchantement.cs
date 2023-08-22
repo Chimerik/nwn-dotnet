@@ -102,7 +102,7 @@ namespace NWN.Systems
             case CustomInscription.Incendiaire:
             case CustomInscription.Polaire:
             case CustomInscription.Electrocution:
-              player.oid.SendServerMessage($"L'inscription {StringUtils.ToWhitecolor(inscription.name)} ne peut pas être calligraphiée sur un bâton de mage", ColorConstants.Red);
+              player.oid.SendServerMessage($"L'inscription {StringUtils.ToWhitecolor(inscription.name)} ne peut pas être calligraphiée sur un bourdon", ColorConstants.Red);
               return;
           }
 

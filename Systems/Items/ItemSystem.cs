@@ -271,24 +271,27 @@ namespace NWN.Systems
       feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
       feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.UseItemNotEquipped, oPC.ControllingPlayer);
     }
-    public static void OnAcquireItem(ModuleEvents.OnAcquireItem onAcquireItem)
+    public static void HandleUnacquirableItems(ModuleEvents.OnAcquireItem onAcquireItem)
     {
       NwCreature oPC = (NwCreature)onAcquireItem.AcquiredBy;
-
-      NwItem oItem = onAcquireItem.Item;
       NwGameObject oAcquiredFrom = onAcquireItem.AcquiredFrom;
+      NwItem oItem = onAcquireItem.Item;
+
+      if (oPC.ControllingPlayer == null || oItem == null || oItem.Tag != "undroppable_item")
+        return;
+
+      feedbackService.AddFeedbackMessageFilter(FeedbackMessage.ItemLost, oPC.ControllingPlayer);
+      oItem.Clone(oAcquiredFrom);
+      oItem.Destroy();
+      feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.ItemLost, oPC.ControllingPlayer);
+    }
+    public static void OnAcquireForceDurability(ModuleEvents.OnAcquireItem onAcquireItem)
+    {
+      NwCreature oPC = (NwCreature)onAcquireItem.AcquiredBy;
+      NwItem oItem = onAcquireItem.Item;
 
       if (oPC.ControllingPlayer == null || oItem == null)
         return;
-
-      if (oItem.Tag == "undroppable_item")
-      {
-        feedbackService.AddFeedbackMessageFilter(FeedbackMessage.ItemLost, oPC.ControllingPlayer);
-        oItem.Clone(oAcquiredFrom);
-        oItem.Destroy();
-        feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.ItemLost, oPC.ControllingPlayer);
-        return;
-      }
 
       if (oItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasNothing && (oItem.BaseItem.EquipmentSlots != EquipmentSlots.None || oItem.BaseItem.ItemType == BaseItemType.CreatureItem))
       {
@@ -296,6 +299,15 @@ namespace NWN.Systems
         oItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value = durability;
         oItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = durability;
       }
+    }
+    public static void OnAcquirePlayerCorpse(ModuleEvents.OnAcquireItem onAcquireItem)
+    {
+      NwCreature oPC = (NwCreature)onAcquireItem.AcquiredBy;
+      NwGameObject oAcquiredFrom = onAcquireItem.AcquiredFrom;
+      NwItem oItem = onAcquireItem.Item;
+
+      if (oPC.ControllingPlayer == null || oItem == null)
+        return;
 
       if (oItem.Tag == "item_pccorpse" && oAcquiredFrom?.Tag == "pccorpse_bodybag")
       {
@@ -304,94 +316,116 @@ namespace NWN.Systems
         NwObject.FindObjectsWithTag<NwCreature>("pccorpse").Where(c => c.GetObjectVariable<LocalVariableInt>("_PC_ID").Value == oItem.GetObjectVariable<LocalVariableInt>("_PC_ID")).FirstOrDefault()?.Destroy();
         oAcquiredFrom.Destroy();
       }
+    }
+    public static void OnAcquireDMCreatedItem(ModuleEvents.OnAcquireItem onAcquireItem)
+    {
+      NwCreature oPC = (NwCreature)onAcquireItem.AcquiredBy;
+      NwItem oItem = onAcquireItem.Item;
 
-      if (!oPC.LoginPlayer.IsDM && oItem.GetObjectVariable<LocalVariableString>("DM_ITEM_CREATED_BY").HasValue)
-        LogUtils.LogMessage($"{oPC.Name} vient d'acquérir {oItem.Name} créé par {oItem.GetObjectVariable<LocalVariableString>("DM_ITEM_CREATED_BY").Value}", LogUtils.LogType.DMAction);
+      if (oPC.ControllingPlayer == null || oItem == null || oPC.LoginPlayer.IsDM || oItem.GetObjectVariable<LocalVariableString>("DM_ITEM_CREATED_BY").HasNothing)
+        return;
 
-      if (oItem.BaseItem.IsStackable)
+      LogUtils.LogMessage($"{oPC.Name} vient d'acquérir {oItem.Name} créé par {oItem.GetObjectVariable<LocalVariableString>("DM_ITEM_CREATED_BY").Value}", LogUtils.LogType.DMAction);
+    }
+    public static void MergeStackableItem(ModuleEvents.OnAcquireItem onAcquireItem)
+    {
+      NwCreature oPC = (NwCreature)onAcquireItem.AcquiredBy;
+      NwItem oItem = onAcquireItem.Item;
+
+      if (oPC.ControllingPlayer == null || oItem == null || !oItem.BaseItem.IsStackable)
+        return;
+
+      feedbackService.AddFeedbackMessageFilter(FeedbackMessage.ItemReceived, oPC.ControllingPlayer);
+
+      foreach (var inventoryItem in oPC.Inventory.Items)
       {
-        feedbackService.AddFeedbackMessageFilter(FeedbackMessage.ItemReceived, oPC.ControllingPlayer);
+        bool sameItem = true;
 
-        foreach (var inventoryItem in oPC.Inventory.Items)
+        if (oItem != inventoryItem && inventoryItem.BaseItem.IsStackable && oItem.BaseItem.ItemType == inventoryItem.BaseItem.ItemType && oItem.Tag == inventoryItem.Tag && oItem.Name == inventoryItem.Name
+          && oItem.StackSize + inventoryItem.StackSize <= oItem.BaseItem.MaxStackSize)
         {
-          bool sameItem = true;
-
-          if (oItem != inventoryItem && inventoryItem.BaseItem.IsStackable && oItem.BaseItem.ItemType == inventoryItem.BaseItem.ItemType && oItem.Tag == inventoryItem.Tag && oItem.Name == inventoryItem.Name
-            && oItem.StackSize + inventoryItem.StackSize <= oItem.BaseItem.MaxStackSize)
+          foreach (var localVar in oItem.LocalVariables)
           {
-            foreach (var localVar in oItem.LocalVariables)
+            switch (localVar)
             {
-              switch (localVar)
-              {
-                case LocalVariableString stringVar:
-                  if (stringVar.Value != inventoryItem.GetObjectVariable<LocalVariableString>(stringVar.Name).Value)
-                    sameItem = false;
-                  break;
-                case LocalVariableInt intVar:
-                  if (intVar.Value != inventoryItem.GetObjectVariable<LocalVariableInt>(intVar.Name).Value)
-                    sameItem = false;
-                  break;
-                case LocalVariableFloat floatVar:
-                  if (floatVar.Value != inventoryItem.GetObjectVariable<LocalVariableFloat>(floatVar.Name).Value)
-                    sameItem = false;
-                  break;
-                case DateTimeLocalVariable dateVar:
-                  if (dateVar.Value != inventoryItem.GetObjectVariable<DateTimeLocalVariable>(dateVar.Name).Value)
-                    sameItem = false;
-                  break;
-              }
-
-              if (!sameItem)
+              case LocalVariableString stringVar:
+                if (stringVar.Value != inventoryItem.GetObjectVariable<LocalVariableString>(stringVar.Name).Value)
+                  sameItem = false;
+                break;
+              case LocalVariableInt intVar:
+                if (intVar.Value != inventoryItem.GetObjectVariable<LocalVariableInt>(intVar.Name).Value)
+                  sameItem = false;
+                break;
+              case LocalVariableFloat floatVar:
+                if (floatVar.Value != inventoryItem.GetObjectVariable<LocalVariableFloat>(floatVar.Name).Value)
+                  sameItem = false;
+                break;
+              case DateTimeLocalVariable dateVar:
+                if (dateVar.Value != inventoryItem.GetObjectVariable<DateTimeLocalVariable>(dateVar.Name).Value)
+                  sameItem = false;
                 break;
             }
 
             if (!sameItem)
-              continue;
-
-            inventoryItem.StackSize += oItem.StackSize;
-            oItem.Destroy();
-            break;
+              break;
           }
-        }
 
-        feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.ItemReceived, oPC.ControllingPlayer);
+          if (!sameItem)
+            continue;
+
+          inventoryItem.StackSize += oItem.StackSize;
+          oItem.Destroy();
+          break;
+        }
       }
+
+      feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.ItemReceived, oPC.ControllingPlayer);
+    }
+    public static void OnAcquireItemSavePlayer(ModuleEvents.OnAcquireItem onAcquireItem)
+    {
+      NwCreature oPC = (NwCreature)onAcquireItem.AcquiredBy;
+      NwItem oItem = onAcquireItem.Item;
+
+      if (oPC.ControllingPlayer == null || oItem == null
+        || !PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player) || player.pcState == PlayerSystem.Player.PcState.Offline)
+        return;
+
+      player.oid.ExportCharacter();
 
       //En pause jusqu'à ce que le système de transport soit en place
       //if (oPC.MovementRate != MovementRate.Immobile && oPC.TotalWeight > Encumbrance2da.encumbranceTable.GetDataEntry(oPC.GetAbilityScore(Ability.Strength)).heavy)
-      //oPC.MovementRate = MovementRate.Immobile;
-
-      if (PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player) && player.pcState != PlayerSystem.Player.PcState.Offline)
-        player.oid.ExportCharacter();
+      //oPC.MovementRate = MovementRate.Immobile;        
     }
-    public static void OnUnacquireItem(ModuleEvents.OnUnacquireItem onUnacquireItem)
+    public static void OnUnacquirePlayerCorpse(ModuleEvents.OnUnacquireItem onUnacquireItem)
     {
       NwItem oItem = onUnacquireItem.Item;
 
-      if (onUnacquireItem.LostBy.ControllingPlayer == null || oItem == null)
+      if (onUnacquireItem.LostBy.ControllingPlayer == null || oItem == null || oItem.Tag != "item_pccorpse" || oItem.Possessor is not null) // signifie que l'item a été drop au sol et pas donné à un autre PJ ou mis dans un placeable
         return;
 
-      NwGameObject oGivenTo = oItem.Possessor;
+      NwCreature oCorpse = NwCreature.Deserialize(oItem.GetObjectVariable<LocalVariableString>("_SERIALIZED_CORPSE").Value.ToByteArray());
+      oCorpse.Location = oItem.Location;
+      Utils.DestroyInventory(oCorpse);
+      oCorpse.AcquireItem(oItem);
+      oCorpse.VisibilityOverride = VisibilityMode.Hidden;
+      PlayerSystem.SetupPCCorpse(oCorpse);
 
-      if (oItem.Tag == "item_pccorpse" && oGivenTo == null) // signifie que l'item a été drop au sol et pas donné à un autre PJ ou mis dans un placeable
-      {
-        NwCreature oCorpse = NwCreature.Deserialize(oItem.GetObjectVariable<LocalVariableString>("_SERIALIZED_CORPSE").Value.ToByteArray());
-        oCorpse.Location = oItem.Location;
-        Utils.DestroyInventory(oCorpse);
-        oCorpse.AcquireItem(oItem);
-        oCorpse.VisibilityOverride = VisibilityMode.Hidden;
-        PlayerSystem.SetupPCCorpse(oCorpse);
+      PlayerSystem.SavePlayerCorpseToDatabase(oItem.GetObjectVariable<LocalVariableInt>("_PC_ID").Value, oCorpse);
+    }
+    public static void OnUnacquireItemSavePlayer(ModuleEvents.OnUnacquireItem onUnacquireItem)
+    {
+      NwItem oItem = onUnacquireItem.Item;
 
-        PlayerSystem.SavePlayerCorpseToDatabase(oItem.GetObjectVariable<LocalVariableInt>("_PC_ID").Value, oCorpse);
-      }
+      if (onUnacquireItem.LostBy.ControllingPlayer == null || oItem == null 
+        || !PlayerSystem.Players.TryGetValue(onUnacquireItem.LostBy, out PlayerSystem.Player player) || player.pcState == PlayerSystem.Player.PcState.Offline )
+        return;
+
+      player.oid.ExportCharacter();
 
       //En pause jusqu'à ce que le système de transport soit en place
       //if (onUnacquireItem.LostBy.MovementRate == MovementRate.Immobile)
       //if (onUnacquireItem.LostBy.TotalWeight <= Encumbrance2da.encumbranceTable.GetDataEntry(onUnacquireItem.LostBy.GetAbilityScore(Ability.Strength)).heavy)
       //onUnacquireItem.LostBy.MovementRate = MovementRate.PC;
-
-      if (PlayerSystem.Players.TryGetValue(onUnacquireItem.LostBy, out PlayerSystem.Player player) && player.pcState != PlayerSystem.Player.PcState.Offline)
-        player.oid.ExportCharacter();
     }
     public static void NoEquipRuinedItem(OnItemValidateEquip onItemValidateEquip)
     {

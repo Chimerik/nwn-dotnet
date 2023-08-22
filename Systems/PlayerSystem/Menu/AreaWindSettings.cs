@@ -28,10 +28,7 @@ namespace NWN.Systems
         {
           windowId = "areaWindSettings";
           rootCol.Children = rootChildren;
-          CreateWindow();
-        }
-        public void CreateWindow()
-        {
+
           rootChildren.Add(new NuiRow()
           {
             Children = new List<NuiElement>()
@@ -46,6 +43,10 @@ namespace NWN.Systems
             }
           });
 
+          CreateWindow();
+        }
+        public void CreateWindow()
+        {
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 400, 100);
 
           window = new NuiWindow(rootCol, $"Vent : {player.oid.ControlledCreature.Area.Name}")

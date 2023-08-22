@@ -199,8 +199,9 @@ namespace NWN.Systems
         ctx.oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComBloodCrtRed));
         StringUtils.DisplayStringToAllPlayersNearTarget(ctx.oTarget, "Critique", ColorConstants.Orange);
 
-        if (ctx.attackingPlayer.endurance.regenerableMana > 0)
+        if (ctx.attackingPlayer.endurance.regenerableMana > 0 && ctx.attackingPlayer.endurance.currentMana < ctx.attackingPlayer.endurance.maxMana)
         {
+          int mana = 0;
           int criticalMastery = ctx.attackingPlayer.GetAttributeLevel(SkillSystem.Attribut.CriticalStrikes);
           criticalMastery = criticalMastery > (ctx.oAttacker.GetAbilityScore(Ability.Dexterity, true) - 10) / 2 ? (ctx.oAttacker.GetAbilityScore(Ability.Dexterity, true) - 10) / 2 : criticalMastery;
 
@@ -210,25 +211,17 @@ namespace NWN.Systems
             case 4:
             case 5:
             case 6:
-            case 7:
-              ctx.attackingPlayer.endurance.currentMana += 1;
-              ctx.attackingPlayer.endurance.regenerableMana -= 1;
-              break;
-               case 8:
-            case 9: case 10:
+            case 7: mana = 1; break;
+            case 8:
+            case 9: 
+            case 10:
             case 11:
-            case 12:
-              ctx.attackingPlayer.endurance.currentMana += 2;
-              ctx.attackingPlayer.endurance.regenerableMana -= 2;
-              break;
+            case 12: mana = 2; break;
             case 13:
             case 14:
             case 15:
             case 16:
-            case 17:
-              ctx.attackingPlayer.endurance.currentMana += 3;
-              ctx.attackingPlayer.endurance.regenerableMana -= 3;
-              break;
+            case 17:  mana = 3;break;
             case 18:
             case 19:
             case 20:
@@ -236,11 +229,11 @@ namespace NWN.Systems
             case 22:
             case 23:
             case 24:
-            case 25:
-              ctx.attackingPlayer.endurance.currentMana += 4;
-              ctx.attackingPlayer.endurance.regenerableMana -= 4;
-              break;
+            case 25: mana = 4; break;
           }
+
+          ctx.attackingPlayer.endurance.currentMana = ctx.attackingPlayer.endurance.currentMana + mana > ctx.attackingPlayer.endurance.maxMana ? ctx.attackingPlayer.endurance.maxMana : ctx.attackingPlayer.endurance.currentMana + mana;
+          ctx.attackingPlayer.endurance.regenerableMana -= mana;
         }
       }
 
@@ -666,6 +659,8 @@ namespace NWN.Systems
     private static void ProcessTargetShieldAC(Context ctx, Action next)
     {
       Config.SetArmorValueFromShield(ctx);
+      Config.GetArmorValueFromWeapon(ctx, ctx.oTarget.GetItemInSlot(InventorySlot.RightHand));
+      Config.GetArmorValueFromWeapon(ctx, ctx.oTarget.GetItemInSlot(InventorySlot.LeftHand));
       /*NwItem targetShield = ctx.oTarget.GetItemInSlot(InventorySlot.LeftHand);
 
       if (targetShield != null && targetShield.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value < 1) // Même si l'objet n'est pas à proprement parler un bouclier, tout item dans la main gauche procure un bonus de protection global
@@ -960,26 +955,31 @@ namespace NWN.Systems
     }
     private static void ProcessAttackerItemDurability(Context ctx, Action next)
     {
-      if (ctx.attackWeapon is not null && ctx.attackWeapon.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1 && ctx.attackingPlayer is not null)
+      if (ctx.attackWeapon is not null &&  ctx.attackingPlayer is not null)
       {
-        // L'attaquant est un joueur. On diminue la durabilité de son arme
+        if (ctx.attackWeapon.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1)
+        {
+          // L'attaquant est un joueur. On diminue la durabilité de son arme
 
-        int dexBonus = ctx.oAttacker.GetAbilityModifier(Ability.Dexterity) - (ctx.oAttacker.ArmorCheckPenalty + ctx.oAttacker.ShieldCheckPenalty);
-        if (dexBonus < 0)
-          dexBonus = 0;
+          int dexBonus = ctx.oAttacker.GetAbilityModifier(Ability.Dexterity) - (ctx.oAttacker.ArmorCheckPenalty + ctx.oAttacker.ShieldCheckPenalty);
+          if (dexBonus < 0)
+            dexBonus = 0;
 
-        // TODO : Plutôt faire dépendre ça de la maîtrise de l'arme
-        int safetyLevel = ctx.attackingPlayer.learnableSkills.ContainsKey(CustomSkill.CombattantPrecautionneux) ? ctx.attackingPlayer.learnableSkills[CustomSkill.CombattantPrecautionneux].totalPoints : 0;
-        int durabilityRate = 30 - (dexBonus - safetyLevel);
-        if (durabilityRate < 1)
-          durabilityRate = 1;
+          // TODO : Plutôt faire dépendre ça de la maîtrise de l'arme
+          int safetyLevel = ctx.attackingPlayer.learnableSkills.ContainsKey(CustomSkill.CombattantPrecautionneux) ? ctx.attackingPlayer.learnableSkills[CustomSkill.CombattantPrecautionneux].totalPoints : 0;
+          int durabilityRate = 30 - (dexBonus - safetyLevel);
+          if (durabilityRate < 1)
+            durabilityRate = 1;
 
-        int durabilityRoll = Utils.random.Next(1000);
+          int durabilityRoll = Utils.random.Next(500);
 
-        LogUtils.LogMessage($"Jet - {ctx.attackingPlayer.oid.LoginCreature.Name} - {ctx.attackWeapon.Name} - 30 (base) - {dexBonus} (DEX) - {safetyLevel} (Compétence) = {durabilityRate} VS {durabilityRoll}", LogUtils.LogType.Durability);
+          LogUtils.LogMessage($"Jet - {ctx.attackingPlayer.oid.LoginCreature.Name} - {ctx.attackWeapon.Name} - 30 (base) - {dexBonus} (DEX) - {safetyLevel} (Compétence) = {durabilityRate} VS {durabilityRoll}", LogUtils.LogType.Durability);
 
-        if (durabilityRoll < durabilityRate)
-          DecreaseItemDurability(ctx.attackWeapon, ctx.attackingPlayer.oid, GetWeaponDurabilityLoss(ctx));
+          if (durabilityRoll < durabilityRate)
+            DecreaseItemDurability(ctx.attackWeapon, ctx.attackingPlayer.oid, GetWeaponDurabilityLoss(ctx));
+        }
+        else
+          ctx.attackingPlayer.oid.SendServerMessage($"Votre {StringUtils.ToWhitecolor(ctx.attackWeapon.Name)} n'est plus en état !", ColorConstants.Red);
       }
 
       next();
@@ -1002,26 +1002,36 @@ namespace NWN.Systems
       if (durabilityRate < 1)
         durabilityRate = 1;
 
-      int durabilityRoll = Utils.random.Next(1000);
+      int durabilityRoll = Utils.random.Next(500);
 
       LogUtils.LogMessage($"Jet - {ctx.targetPlayer.oid.LoginCreature.Name} - Armure - 30 (base) - {dexBonus} (DEX) - {safetyLevel} (Compétence) = {durabilityRate} VS {durabilityRoll}", LogUtils.LogType.Durability);
 
       if (durabilityRoll < durabilityRate)
       {
-        if (ctx.targetArmor is not null && ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1)
+        if (ctx.targetArmor is not null)
         {
-          LogUtils.LogMessage($"Armure : {ctx.targetArmor.Name}", LogUtils.LogType.Durability);
-          DecreaseItemDurability(ctx.targetArmor, ctx.targetPlayer.oid, GetArmorDurabilityLoss(ctx));
+          if(ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1)
+          {
+            LogUtils.LogMessage($"Armure : {ctx.targetArmor.Name}", LogUtils.LogType.Durability);
+            DecreaseItemDurability(ctx.targetArmor, ctx.targetPlayer.oid, GetArmorDurabilityLoss(ctx));
+          }
+          else
+            ctx.targetPlayer.oid.SendServerMessage($"Votre {StringUtils.ToWhitecolor(ctx.targetArmor.Name)} n'est plus en état !", ColorConstants.Red);
         }
         else
           LogUtils.LogMessage("Pas d'armure équipée sur l'emplacement touché", LogUtils.LogType.Durability);
 
         NwItem leftSlot = ctx.oTarget.GetItemInSlot(InventorySlot.LeftHand);
 
-        if (leftSlot is not null && leftSlot.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1)
+        if (leftSlot is not null)
         {
-          LogUtils.LogMessage($"Bouclier / Parade : {leftSlot.Name}", LogUtils.LogType.Durability);
-          DecreaseItemDurability(leftSlot, ctx.targetPlayer.oid, GetShieldDurabilityLoss(ctx));
+          if (leftSlot.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1)
+          {
+            LogUtils.LogMessage($"Bouclier / Parade : {leftSlot.Name}", LogUtils.LogType.Durability);
+            DecreaseItemDurability(leftSlot, ctx.targetPlayer.oid, GetShieldDurabilityLoss(ctx));
+          }
+          else
+            ctx.targetPlayer.oid.SendServerMessage($"Votre {StringUtils.ToWhitecolor(leftSlot.Name)} n'est plus en état !", ColorConstants.Red);
         }
 
         List<NwItem> slots = new();
@@ -1048,6 +1058,8 @@ namespace NWN.Systems
             LogUtils.LogMessage($"Equipement aléatoire : {randomItem.Name}", LogUtils.LogType.Durability);
             DecreaseItemDurability(randomItem, ctx.targetPlayer.oid, GetItemDurabilityLoss(ctx));
           }
+          else
+            ctx.targetPlayer.oid.SendServerMessage($"Votre {StringUtils.ToWhitecolor(randomItem.Name)} n'est plus en état !", ColorConstants.Red);
         }
       }
     }

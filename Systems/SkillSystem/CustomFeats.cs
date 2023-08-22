@@ -10,62 +10,13 @@
     public const int CustomMenuDOWN = 1133;
     public const int CustomMenuSELECT = 1134;
     public const int CustomMenuEXIT = 1135;
-    
-    public const int Miner = 118;
-    public const int Geology = 1186;
-    public const int Prospection = 1187;
-    public const int VeldsparReprocessing = 1188;
-    public const int ScorditeReprocessing = 1189;
-    public const int PyroxeresReprocessing = 1190;
-    public const int PlagioclaseReprocessing = 1191;
-    public const int OmberReprocessing = 1192;
-    public const int KerniteReprocessing = 1193;
-    public const int GneissReprocessing = 1194;
-    public const int JaspetReprocessing = 1195;
-    public const int HemorphiteReprocessing = 1196;
-    public const int HedbergiteReprocessing = 1197;
-    public const int DarkOchreReprocessing = 1198;
-    public const int CrokiteReprocessing = 1199;
-    public const int BistotReprocessing = 1200;
-    public const int BezdnacineReprocessing = 1201;
-    public const int ArkonorReprocessing = 1202;
-    public const int MercoxitReprocessing = 1203;
-    //public const int StripMiner = 1204;
-    
+ 
     public const int CustomPositionRight = 1279;
     public const int CustomPositionLeft = 1280;
     public const int CustomPositionRotateRight = 1281;
     public const int CustomPositionRotateLeft = 1282;
     public const int CustomPositionForward = 1283;
     public const int CustomPositionBackward = 1284;
-    /*public const int WoodCutter = 1285;
-    public const int WoodExpertise = 1286;
-    public const int WoodProspection = 1287;
-    public const int Skinning = 1288;
-    public const int AnimalExpertise = 1289;
-    public const int Hunting = 1290;
-    
-    public const int WoodReprocessing = 1292;
-    public const int WoodReprocessingEfficiency = 1293;
-    public const int LaurelinReprocessing = 1294;
-    public const int TelperionReprocessing = 1295;
-    public const int MallornReprocessing = 1296;
-    public const int NimlothReprocessing = 1297;
-    public const int OiolaireReprocessing = 1298;
-    public const int QlipothReprocessing = 1299;
-    public const int FerocheneReprocessing = 1300;
-    public const int ValinorReprocessing = 1301;
-    
-    public const int PeltReprocessing = 1303;
-    public const int PeltReprocessingEfficiency = 1304;
-    public const int BadPeltReprocessing = 1305;
-    public const int CommonPeltReprocessing = 1306;
-    public const int NormalPeltReprocessing = 1307;
-    public const int UncommunPeltReprocessing = 1308;
-    public const int RarePeltReprocessing = 1309;
-    public const int MagicPeltReprocessing = 1310;
-    public const int EpicPeltReprocessing = 1311;
-    public const int LegendaryPeltReprocessing = 1312;*/
     
     public const int ContractScience = 1314;
     public const int Marchand = 1315;
@@ -193,25 +144,6 @@
     public const int ImprovedSpellSlot9 = 20093;
     //public const int ImprovedCasterLevel = 20094; // Retiré, car désormais chaque sort dispose de son propre niveau. Pourra être remplacé par autre chose
 
-    public const int ImprovedLightArmorProficiency = 20099;
-    public const int ImprovedMediumArmorProficiency = 20100;
-    public const int ImprovedHeavyArmorProficiency = 20101;
-    public const int ImprovedFullPlateProficiency = 20102;
-    public const int ImprovedLightShieldProficiency = 20103;
-    public const int ImprovedMediumShieldProficiency = 20104;
-    public const int ImprovedHeavyShieldProficiency = 20105;
-
-    public const int ImprovedUnharmedProficiency = 20114;
-    public const int ImprovedQuarterStaffProficiency = 20117;
-    public const int ImprovedMagicStaffProficiency = 20118;
-    public const int ImprovedSickleProficiency = 20122;
-
-    public const int ImprovedHalberdProficiency = 20128;
-    public const int ImprovedRapierProficiency = 20132;
-    public const int ImprovedTridentProficiency = 20135;
-
-    public const int ImprovedWhipProficiency = 20145;
-
     public const int ImprovedFortitude = 20146;
     public const int ImprovedReflex = 20147;
     public const int ImprovedWill = 20148;
@@ -276,19 +208,6 @@
     public const int ConnectionsGates = 20201;
     public const int ConnectionsGovernment = 20202;
     public const int ConnectionsTemple = 20203;
-
-    public const int UnharmedScience = 20212;
-    public const int QuarterStaffScience = 20215;
-    public const int MagicStaffScience = 20216;
-    public const int SickleScience = 20220;
-
-    public const int HalberdScience = 20226;
-    public const int RapierScience = 20230;
-    public const int TridentScience = 20233;
-
-    public const int WhipScience = 20243;
-
-    public const int ImprovedDualWieldDefenseProficiency = 20246;
 
     public const int MateriaGradeConcentration = 20247;
     public const int ReprocessingOreExpertise = 20248;
@@ -428,28 +347,59 @@
     public const int UncannyDodge = 20368;
 
     public const int LightArmorProficiency = 20369;
-    public const int MediumArmorProficiency = 20370;
-    public const int HeavyArmorProficiency = 20371;
-    public const int FullPlateProficiency = 20372;
+    public const int ExpertLightArmorProficiency = 20370;
+    public const int ScienceLightArmorProficiency = 20371;
+    public const int MasterLightArmorProficiency = 20373;
 
-    public const int LightShieldProficiency = 20373;
-    public const int MediumShieldProficiency = 20374;
-    public const int HeavyShieldProficiency = 20375;
-    public const int DualWieldDefenseProficiency = 20376;
+    public const int MediumArmorProficiency = 20374;
+    public const int ExpertMediumArmorProficiency = 20375;
+    public const int ScienceMediumArmorProficiency = 20376;
+    public const int MasterMediumArmorProficiency = 20377;
 
-    public const int ClothingArmorProficiency = 20377;
-    public const int ImprovedClothingArmorProficiency = 20378;
+    public const int HeavyArmorProficiency = 20378;
+    public const int ExpertHeavyArmorProficiency = 20379;
+    public const int ScienceHeavyArmorProficiency = 20380;
+    public const int MasterHeavyArmorProficiency = 20381;
 
-    public const int UnharmedProficiency = 20387;
+    public const int FullPlateProficiency = 20382;
+    public const int ExpertFullPlateProficiency = 20383;
+    public const int ScienceFullPlateProficiency = 20384;
+    public const int MasterFullPlateProficiency = 20385;
+
+    public const int LightShieldProficiency = 20386;
+    public const int ExpertLightShieldProficiency = 20387;
+    public const int ScienceLightShieldProficiency = 20388;
+    public const int MasterLightShieldProficiency = 20389;
+
+    public const int MediumShieldProficiency = 20390;
+    public const int ExpertMediumShieldProficiency = 20391;
+    public const int ScienceMediumShieldProficiency = 20392;
+    public const int MasterMediumShieldProficiency = 20393;
+
+    public const int HeavyShieldProficiency = 20394;
+    public const int ExpertHeavyShieldProficiency = 20395;
+    public const int ScienceHeavyShieldProficiency = 20396;
+    public const int MasterHeavyShieldProficiency = 20397;
+
+    public const int DualWieldDefenseProficiency = 20398;
+    public const int ExpertDualWieldDefenseProficiency = 20399;
+    public const int ScienceDualWieldDefenseProficiency = 20400;
+    public const int MasterDualWieldDefenseProficiency = 20401;
+
+    public const int ClothingArmorProficiency = 20402;
+    public const int ExpertClothingArmorProficiency = 20403;
+    public const int ScienceClothingArmorProficiency = 20404;
+    public const int MasterClothingArmorProficiency = 20405;
+
+    /*public const int UnharmedProficiency = 20387;
     public const int QuarterStaffProficiency = 20390;
     public const int MagicStaffProficiency = 20391;
-    public const int SickleProficiency = 20395;
 
     public const int HalberdProficiency = 20401;
     public const int RapierProficiency = 20405;
     public const int TridentProficiency = 20408;
 
-    public const int WhipProficiency = 20418;
+    public const int WhipProficiency = 20418;*/
 
     public const int CalligrapheArmurierExpert = 20420;
     public const int CalligrapheBlindeur = 20421;

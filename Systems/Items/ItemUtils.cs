@@ -2379,5 +2379,12 @@ namespace NWN.Systems
 
       return SkillSystem.Attribut.Invalid;
     }
+    public static int GetItemProficiencyRequirement(NwItem item)
+    {
+      if (item is null)
+        return 0;
+
+      return item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value * 2 + 2;
+    }
   }
 }
