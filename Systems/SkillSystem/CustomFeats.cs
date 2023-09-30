@@ -480,11 +480,6 @@
     public const int WildernessSurvivalScience = 20483;
     public const int WildernessSurvivalExpert = 20484;
 
-    public const int DivineFavor = 20481; // TODO : Donne un bonus de soin en fonction de la sagesse quand un sort de soin est lancé sur un allié
-    public const int DivineFavorMaster = 20482; // TODO : Réservé à ceux qui ont un rp de prêtre
-    public const int DivineFavorScience = 20483;
-    public const int DivineFavorExpert = 20484;
-
     public const int HealingPrayers = 20485;
     public const int HealingPrayersMaster = 20486;
     public const int HealingPrayersScience = 20487;

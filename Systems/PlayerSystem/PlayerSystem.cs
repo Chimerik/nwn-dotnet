@@ -6,7 +6,6 @@ using NWN.Core.NWNX;
 using Anvil.API;
 using Anvil.Services;
 using Anvil.API.Events;
-using NLog;
 using System.Threading.Tasks;
 
 namespace NWN.Systems

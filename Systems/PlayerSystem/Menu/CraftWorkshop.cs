@@ -339,7 +339,7 @@ namespace NWN.Systems
             int materiaCost = (int)(player.GetItemMateriaCost(item, tool) * (1 - (item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value / 100)));
             TimeSpan jobDuration = TimeSpan.FromSeconds(player.GetItemCraftTime(item, materiaCost, tool));
 
-            CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromBlueprint(item) && r.grade == 1);
+            CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromBlueprint(item));
             int availableQuantity = resource != null ? resource.quantity : 0;
 
             blueprintNamesList.Add(item.Name + " - Commencer la fabrication");
@@ -383,7 +383,7 @@ namespace NWN.Systems
               int materiaCost = (int)(player.GetItemMateriaCost(bestBlueprint, tool, grade + 1) * (1 - (bestBlueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value / 100)));
               TimeSpan jobDuration = TimeSpan.FromSeconds(player.GetItemCraftTime(bestBlueprint, materiaCost, tool));
 
-              CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromBlueprint(bestBlueprint) && r.grade == grade + 1);
+              CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromBlueprint(bestBlueprint));
               int availableQuantity = resource != null ? resource.quantity : 0;
 
               blueprintMEsList.Add($"{item.Name} - Coût en {ItemUtils.GetResourceNameFromBlueprint(bestBlueprint)} : {availableQuantity}/{materiaCost}");
@@ -419,7 +419,7 @@ namespace NWN.Systems
             int grade = item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").HasValue ? item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value : 1;
             int materiaCost = (int)player.GetItemRepairMateriaCost(item, tool);
             ResourceType resType = ItemUtils.GetResourceTypeFromItem(item);
-            CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == resType && r.grade == grade && r.quantity >= materiaCost);
+            CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == resType && r.quantity >= materiaCost);
             int availableQuantity = resource != null ? resource.quantity : 0;
 
             itemNamesList.Add($"{item.Name} - Qualité {grade} - Réparé {item.GetObjectVariable<LocalVariableInt>("_DURABILITY_NB_REPAIRS").Value} fois");

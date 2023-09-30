@@ -278,16 +278,16 @@ namespace NWN.Systems
                   return;
                 }
 
-                CraftResource resource = Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == resourceType && r.grade == item.GetObjectVariable<LocalVariableInt>("CRAFT_GRADE").Value);
+                CraftResource resource = Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == resourceType);
 
                 rootChildren.Add(new NuiRow() { Height = 20, Children = new List<NuiElement>() { new NuiLabel("Raffinage - Rendement détaillé :") }, Width = 590, });
                 rootChildren.Add(new NuiRow() { Height = 20, Children = new List<NuiElement>() { new NuiLabel("    30 % (base fonderie Impériale)") }, Width = 590, });
-                rootChildren.Add(new NuiRow() { Height = 20, Children = new List<NuiElement>() { new NuiLabel($"      x{(player.learnableSkills.ContainsKey(resource.reprocessingLearnable) ? 1.00 + 3 * player.learnableSkills[resource.reprocessingLearnable].totalPoints / 100 : 1.00)} (Raffinage)") }, Width = 590, });
+                /*rootChildren.Add(new NuiRow() { Height = 20, Children = new List<NuiElement>() { new NuiLabel($"      x{(player.learnableSkills.ContainsKey(resource.reprocessingLearnable) ? 1.00 + 3 * player.learnableSkills[resource.reprocessingLearnable].totalPoints / 100 : 1.00)} (Raffinage)") }, Width = 590, });
                 rootChildren.Add(new NuiRow() { Height = 20, Children = new List<NuiElement>() { new NuiLabel($"      x{(player.learnableSkills.ContainsKey(resource.reprocessingEfficiencyLearnable) ? 1.00 + 2 * player.learnableSkills[resource.reprocessingLearnable].totalPoints / 100 : 1.00)} (Raffinage Efficace)") }, Width = 590, });
                 rootChildren.Add(new NuiRow() { Height = 20, Children = new List<NuiElement>() { new NuiLabel($"      x{(player.learnableSkills.ContainsKey(resource.reprocessingGradeLearnable) ? 1.00 + 2 * player.learnableSkills[resource.reprocessingGradeLearnable].totalPoints / 100 : 1.00)} (Raffinage Expert)") }, Width = 590, });
                 rootChildren.Add(new NuiRow() { Height = 20, Children = new List<NuiElement>() { new NuiLabel($"      x{(player.learnableSkills.ContainsKey(CustomSkill.ConnectionsPromenade) ? 0.95 + player.learnableSkills[CustomSkill.ConnectionsPromenade].totalPoints / 100 : 0.95)} (Taxes de la Promenade)") }, Width = 590, });
                 rootChildren.Add(new NuiRow() { Height = 20, Children = new List<NuiElement>() { new NuiSpacer() }, Width = 590, });
-                rootChildren.Add(new NuiRow() { Height = 20, Children = new List<NuiElement>() { new NuiLabel("Votre rendement net à la raffinerie :") }, Width = 590, });
+                */rootChildren.Add(new NuiRow() { Height = 20, Children = new List<NuiElement>() { new NuiLabel("Votre rendement net à la raffinerie :") }, Width = 590, });
                 rootChildren.Add(new NuiRow() { Height = 20, Children = new List<NuiElement>() { new NuiLabel($"    {player.GetMateriaYieldFromResource(item.StackSize, resource)}") }, Width = 590, });
                 rootChildren.Add(new NuiRow()
                 {

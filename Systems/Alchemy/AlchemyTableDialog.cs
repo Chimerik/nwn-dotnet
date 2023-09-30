@@ -545,7 +545,7 @@ namespace NWN.Systems.Alchemy
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
 
-      bool awaitedValue = await player.WaitForPlayerInputString();
+      bool awaitedValue = true;// await player.WaitForPlayerInputString();
 
       if (awaitedValue)
       {

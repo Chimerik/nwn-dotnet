@@ -23,10 +23,9 @@ namespace NWN.Systems
         private readonly NuiBind<bool> concentrateEnabled = new("concentrateEnabled");
         private IEnumerable<CraftResource> playerCraftResourceList;
         private CraftResource selectedResource;
-        private ResourceType resourceType;
         private ResourceType refinedResourceType;
 
-        public RefineryWindow(Player player, ResourceType resourceType) : base(player)
+        public RefineryWindow(Player player, ResourceType refinedResourceType) : base(player)
         {
           windowId = "refinery";
 
@@ -57,11 +56,11 @@ namespace NWN.Systems
             $"Total : {total} matérias raffinées de qualité {selectedResource.grade + 1}";*/
 
           rootChidren.Add(new NuiList(rowTemplate, listCount) { RowHeight = 40 });
-          CreateWindow(resourceType);
+          CreateWindow(refinedResourceType);
         }
-        public void CreateWindow(ResourceType resourceType)
+        public void CreateWindow(ResourceType refinedResourceType)
         {
-          this.resourceType = resourceType;
+          this.refinedResourceType = refinedResourceType;
 
           NuiRect windowRectangle = /*player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] :*/ new NuiRect(0, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.02f, 540, 400);
 
@@ -85,13 +84,6 @@ namespace NWN.Systems
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
           }
-
-          switch (resourceType)
-          {
-            case ResourceType.Wood: refinedResourceType = ResourceType.Plank; break;
-            case ResourceType.Pelt: refinedResourceType = ResourceType.Leather; break;
-            default: refinedResourceType = ResourceType.Ingot; break;
-          }
         }
         private void HandleRefineryEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
@@ -111,10 +103,10 @@ namespace NWN.Systems
 
                   selectedResource.quantity -= quantity;
 
-                  int grade = selectedResource.grade;
+                  //int grade = selectedResource.grade;
                   int refinedAmount = player.GetMateriaYieldFromResource(quantity, selectedResource);
 
-                  if (HandleRefinerLuck())
+                  /*if (HandleRefinerLuck())
                     if (grade == 8)
                     {
                       refinedAmount *= 50 / 100;
@@ -125,15 +117,15 @@ namespace NWN.Systems
                       grade += 1;
                       player.oid.SendServerMessage("Quelle chance, vous parvenez à obtenir une matéria raffinée de plus grande qualité !", new Color(32, 255, 32));
                     }
-
-                  CraftResource refinedMateria = player.craftResourceStock.FirstOrDefault(r => r.type == refinedResourceType && r.grade == grade);
+                  */
+                  CraftResource refinedMateria = player.craftResourceStock.FirstOrDefault(r => r.type == refinedResourceType);
 
                   if (refinedMateria != null)
                     refinedMateria.quantity += refinedAmount;
                   else
-                    player.craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == refinedResourceType && r.grade == grade), refinedAmount));
+                    player.craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == refinedResourceType), refinedAmount));
 
-                  player.oid.SendServerMessage($"Vous parvenez à raffiner {refinedAmount} unité(s) de {refinedResourceType} de qualité {grade}", ColorConstants.Orange);
+                  player.oid.SendServerMessage($"Vous parvenez à raffiner {refinedAmount} unité(s) de {refinedResourceType}", ColorConstants.Orange);
 
                   LoadMateriaList();
 
@@ -149,23 +141,23 @@ namespace NWN.Systems
 
                   selectedResource.quantity -= (int)amount;
 
-                  int selectedGrade = selectedResource.grade + 1;
+                  //int selectedGrade = selectedResource.grade + 1;
                   double concentrationSkill = 1.00 + 5 * player.learnableSkills[CustomSkill.MateriaGradeConcentration].totalPoints / 100.0;
                   double connectionSkill = player.learnableSkills.ContainsKey(CustomSkill.ConnectionsPromenade) ? 0.95 + player.learnableSkills[CustomSkill.ConnectionsPromenade].totalPoints / 100.0 : 1.00;
                   double total = amount / 3.0 * concentrationSkill * 0.3; // le * 0.3 représente la qualité de la fonderie de base. Il faudra le variabiliser lorsqu'il sera possible de créer des ateliers de différente qualité
                   total *= connectionSkill;
 
-                  if (HandleRefinerLuck())
-                    selectedGrade += 1;
+                  /*if (HandleRefinerLuck())
+                    selectedGrade += 1;*/
 
-                  CraftResource materia = player.craftResourceStock.FirstOrDefault(r => r.type == selectedResource.type && r.grade == selectedGrade);
+                  CraftResource materia = player.craftResourceStock.FirstOrDefault(r => r.type == selectedResource.type);
 
                   if (materia != null)
                     materia.quantity += (int)total;
                   else
-                    player.craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == selectedResource.type && r.grade == selectedGrade), (int)total));
+                    player.craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == selectedResource.type), (int)total));
 
-                  player.oid.SendServerMessage($"Vous parvenez à concentrer {((int)total).ToString().ColorString(ColorConstants.White)} unité(s) de {selectedResource.type.ToDescription().ColorString(ColorConstants.White)} à une qualité {selectedGrade.ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);
+                  player.oid.SendServerMessage($"Vous parvenez à concentrer {((int)total).ToString().ColorString(ColorConstants.White)} unité(s) de {selectedResource.type.ToDescription().ColorString(ColorConstants.White)}", ColorConstants.Orange);
 
                   LoadMateriaList();
 
@@ -180,14 +172,14 @@ namespace NWN.Systems
           List<string> materiaIconList = new List<string>();
           List<string> quantityList = new List<string>();
           List<bool> enabledList = new List<bool>();
-          playerCraftResourceList = player.craftResourceStock.Where(c => c.type == resourceType && c.quantity > 0).OrderBy(c => c.grade);
+          playerCraftResourceList = player.craftResourceStock.Where(c => c.type == ResourceType.Influx && c.quantity > 0);
 
           foreach (CraftResource resource in playerCraftResourceList)
           {
             materiaIconList.Add(resource.iconString);
             materiaNamesList.Add($"{resource.name} (x{resource.quantity})");
             quantityList.Add(resource.quantity.ToString());
-            enabledList.Add(resource.grade < 8 && player.learnableSkills.ContainsKey(CustomSkill.MateriaGradeConcentration));
+            enabledList.Add(player.learnableSkills.ContainsKey(CustomSkill.MateriaGradeConcentration));
           }
 
           materiaIcon.SetBindValues(player.oid, nuiToken.Token, materiaIconList);

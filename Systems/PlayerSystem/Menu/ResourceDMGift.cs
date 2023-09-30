@@ -85,14 +85,14 @@ namespace NWN.Systems
                   if (int.TryParse(inputQuantity, out int quantity) && quantity > 0)
                   {
                     CraftResource resource = Craft.Collect.System.craftResourceArray[nuiEvent.ArrayIndex];
-                    CraftResource myResource = targetPlayer.craftResourceStock.FirstOrDefault(r => r.type == resource.type && r.grade == resource.grade);
+                    CraftResource myResource = targetPlayer.craftResourceStock.FirstOrDefault(r => r.type == resource.type);
 
                     if (myResource != null)
                       myResource.quantity += quantity;
                     else
                       targetPlayer.craftResourceStock.Add(new CraftResource(resource, quantity));
 
-                    LogUtils.LogMessage($"{player.oid.PlayerName} fait un don à {targetPlayer.oid.LoginCreature.Name} ({resource.type} {resource.grade} - {quantity})", LogUtils.LogType.DMAction);
+                    LogUtils.LogMessage($"{player.oid.PlayerName} fait un don à {targetPlayer.oid.LoginCreature.Name} ({resource.type} - {quantity})", LogUtils.LogType.DMAction);
 
                     player.oid.SendServerMessage($"Don de {quantity} unité(s) de {resource.name} à {targetPlayer.oid.LoginCreature.Name.ColorString(ColorConstants.White)} terminé avec succès !", new Color(32, 255, 32));
                     targetPlayer.oid.SendServerMessage($"{player.oid.LoginCreature.Name.ColorString(ColorConstants.White)} vient de vous faire don de {quantity} unité(s) de {resource.name}.", new Color(32, 255, 32));

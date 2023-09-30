@@ -284,7 +284,7 @@ namespace NWN.Systems
                     }
 
                     foreach (CraftResource resource in targetProposal)
-                      if (resource.quantity > targetPlayer.craftResourceStock.FirstOrDefault(r => r.type == resource.type && r.grade == resource.grade).quantity)
+                      if (resource.quantity > targetPlayer.craftResourceStock.FirstOrDefault(r => r.type == resource.type).quantity)
                       {
                         CloseWindow();
                         targetWindow.CloseWindow();
@@ -294,7 +294,7 @@ namespace NWN.Systems
                       }
 
                     foreach (CraftResource resource in targetWindow.targetProposal)
-                      if (resource.quantity > player.craftResourceStock.FirstOrDefault(r => r.type == resource.type && r.grade == resource.grade).quantity)
+                      if (resource.quantity > player.craftResourceStock.FirstOrDefault(r => r.type == resource.type).quantity)
                       {
                         CloseWindow();
                         targetWindow.CloseWindow();
@@ -310,26 +310,26 @@ namespace NWN.Systems
 
                     foreach (CraftResource resource in targetProposal)
                     {
-                      CraftResource myResource = player.craftResourceStock.FirstOrDefault(r => r.type == resource.type && r.grade == resource.grade);
+                      CraftResource myResource = player.craftResourceStock.FirstOrDefault(r => r.type == resource.type);
 
                       if (myResource != null)
                         myResource.quantity += resource.quantity;
                       else
                         player.craftResourceStock.Add(new CraftResource(resource, resource.quantity));
 
-                      targetPlayer.craftResourceStock.FirstOrDefault(r => r.type == resource.type && r.grade == resource.grade).quantity -= resource.quantity;
+                      targetPlayer.craftResourceStock.FirstOrDefault(r => r.type == resource.type).quantity -= resource.quantity;
                     }
 
                     foreach (CraftResource resource in targetWindow.targetProposal)
                     {
-                      CraftResource targetResource = targetPlayer.craftResourceStock.FirstOrDefault(r => r.type == resource.type && r.grade == resource.grade);
+                      CraftResource targetResource = targetPlayer.craftResourceStock.FirstOrDefault(r => r.type == resource.type);
 
                       if (targetResource != null)
                         targetResource.quantity += resource.quantity;
                       else
                         targetPlayer.craftResourceStock.Add(new CraftResource(resource, resource.quantity));
 
-                      player.craftResourceStock.FirstOrDefault(r => r.type == resource.type && r.grade == resource.grade).quantity -= resource.quantity;
+                      player.craftResourceStock.FirstOrDefault(r => r.type == resource.type).quantity -= resource.quantity;
                     }
 
                     player.oid.SendServerMessage($"Transaction avec {targetPlayer.oid.LoginCreature.Name.ColorString(ColorConstants.White)} terminée avec succès !", new Color(32, 255, 32));
@@ -376,7 +376,7 @@ namespace NWN.Systems
           List<string> resourceIconList = new List<string>();
           List<string> availableQuantityList = new List<string>();
           List<string> resourceQuantityList = new List<string>();
-          myResourceList = player.craftResourceStock.Where(r => r.quantity > 0).OrderBy(r => r.type).ThenBy(r => r.grade).ToList();
+          myResourceList = player.craftResourceStock.Where(r => r.quantity > 0).OrderBy(r => r.type).ToList();
 
           foreach (CraftResource resource in myResourceList)
           {

@@ -263,6 +263,7 @@ namespace NWN.Systems
       public void InitializePlayer()
       {
         InitializePlayerEvents();
+        InitializeItemEvents();
         InitializeSpellEvents();
         InitializePlayerAccount();
         InitializePlayerCharacter();
@@ -270,16 +271,6 @@ namespace NWN.Systems
       private void InitializePlayerEvents()
       {
         oid.OnServerCharacterSave += HandleBeforePlayerSave;
-        oid.LoginCreature.OnAcquireItem += ItemSystem.HandleUnacquirableItems;
-        oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireForceDurability;
-        oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquirePlayerCorpse;
-        oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireDMCreatedItem;
-        oid.LoginCreature.OnAcquireItem += ItemSystem.MergeStackableItem;
-        oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireItemSavePlayer;
-        oid.LoginCreature.OnUnacquireItem += ItemSystem.OnUnacquirePlayerCorpse;
-        oid.LoginCreature.OnUnacquireItem += ItemSystem.OnUnacquireItemSavePlayer;
-        oid.LoginCreature.OnItemEquip += ItemSystem.OnItemEquipBefore;
-        oid.LoginCreature.OnItemUse += ItemSystem.OnItemUseBefore;
         oid.OnPlayerDeath += OnDeathSoulReap;
         oid.OnPlayerDeath += HandlePlayerDeath;
         oid.LoginCreature.OnUseFeat += FeatSystem.OnUseFeatBefore;
@@ -287,13 +278,6 @@ namespace NWN.Systems
         oid.LoginCreature.OnCombatRoundStart += OnCombatRoundStart;
         oid.OnPartyEvent += Party.HandlePartyEvent;
         oid.OnClientLevelUpBegin += HandleOnClientLevelUp;
-        oid.LoginCreature.OnItemValidateEquip += ItemSystem.NoEquipRuinedItem;
-        oid.LoginCreature.OnItemValidateUse += ItemSystem.NoUseRuinedItem;
-        oid.LoginCreature.OnCombatModeToggle += HandleCombatModeOff;
-        oid.LoginCreature.OnInventoryGoldAdd += HandleGainedGold;
-        oid.LoginCreature.OnInventoryGoldRemove += HandleLostGold;
-        oid.LoginCreature.OnItemScrollLearn += HandleBeforeScrollLearn;
-        oid.LoginCreature.OnItemUnequip += ItemSystem.HandleUnequipItemBefore;
         oid.LoginCreature.OnUseSkill += HandleBeforeSkillUsed;
         oid.OnNuiEvent += HandleGenericNuiEvents;
         oid.OnMapPinAddPin += HandleMapPinAdded;
@@ -303,6 +287,28 @@ namespace NWN.Systems
         oid.LoginCreature.OnEffectRemove += HandleItemPropertyChecksOnEffectRemoved;
         oid.LoginCreature.OnStealthModeUpdate += HandleStealthMode;
         eventService.Subscribe<OnDMSpawnObject, DMEventFactory>(oid.LoginCreature, areaSystem.InitializeEventsAfterDMSpawnCreature, EventCallbackType.After);
+      }
+      private void InitializeItemEvents()
+      {
+        oid.LoginCreature.OnCreatureCheckProficiencies += ItemSystem.OnCheckProficiencies;
+        oid.LoginCreature.OnAcquireItem += ItemSystem.HandleUnacquirableItems;
+        oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireForceDurability;
+        oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquirePlayerCorpse;
+        oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireDMCreatedItem;
+        oid.LoginCreature.OnAcquireItem += ItemSystem.MergeStackableItem;
+        oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireItemSavePlayer;
+        oid.LoginCreature.OnUnacquireItem += ItemSystem.OnUnacquirePlayerCorpse;
+        oid.LoginCreature.OnUnacquireItem += ItemSystem.OnUnacquireItemSavePlayer;
+        oid.LoginCreature.OnItemValidateEquip += ItemSystem.NoEquipRuinedItem;
+        oid.LoginCreature.OnItemValidateUse += ItemSystem.NoUseRuinedItem;
+        oid.LoginCreature.OnItemUnequip += ItemSystem.HandleUnequipItemBefore;
+        oid.LoginCreature.OnItemEquip += ItemSystem.OnItemEquipBefore;
+        oid.LoginCreature.OnItemEquip += ItemSystem.OnItemEquipCheckArmorShieldProficiency;
+        oid.LoginCreature.OnItemUnequip += ItemSystem.OnItemUnEquipCheckArmorShieldProficiency;
+        oid.LoginCreature.OnItemUse += ItemSystem.OnItemUseBefore;
+        oid.LoginCreature.OnInventoryGoldAdd += HandleGainedGold;
+        oid.LoginCreature.OnInventoryGoldRemove += HandleLostGold;
+        oid.LoginCreature.OnItemScrollLearn += HandleBeforeScrollLearn;
       }
       private void InitializeSpellEvents()
       {
@@ -439,7 +445,7 @@ namespace NWN.Systems
           List<CraftResource.SerializableCraftResource> serializableCraftResource = JsonConvert.DeserializeObject<List<CraftResource.SerializableCraftResource>>(serializedCraftResources);
 
           foreach (var serializedMateria in serializableCraftResource)
-            craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == (ResourceType)serializedMateria.type && r.grade == serializedMateria.grade), serializedMateria.quantity));
+            craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == (ResourceType)serializedMateria.type), serializedMateria.quantity));
         });
 
         Task loadCraftJobTask = Task.Run(() =>

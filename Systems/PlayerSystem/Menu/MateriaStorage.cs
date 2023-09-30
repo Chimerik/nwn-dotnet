@@ -103,7 +103,7 @@ namespace NWN.Systems
                     ResourceType type = (ResourceType)Enum.Parse(typeof(ResourceType), item.GetObjectVariable<LocalVariableString>("CRAFT_RESOURCE").Value);
                     int grade = item.GetObjectVariable<LocalVariableInt>("CRAFT_GRADE").Value;
 
-                    CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == type && r.grade == grade);
+                    CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == type);
 
                     if (resource != null)
                     {
@@ -112,8 +112,7 @@ namespace NWN.Systems
                     }
                     else
                     {
-                      resource = Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == (ResourceType)Enum.Parse(typeof(ResourceType), item.GetObjectVariable<LocalVariableString>("CRAFT_RESOURCE").Value)
-                      && r.grade == item.GetObjectVariable<LocalVariableInt>("CRAFT_GRADE").Value);
+                      resource = Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == (ResourceType)Enum.Parse(typeof(ResourceType), item.GetObjectVariable<LocalVariableString>("CRAFT_RESOURCE").Value));
 
                       if (resource != null)
                       {

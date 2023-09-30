@@ -5,6 +5,7 @@ using System.Linq;
 using Anvil.API.Events;
 using NLog;
 using System;
+using System.Collections.Generic;
 
 namespace NWN.Systems
 {
@@ -64,7 +65,89 @@ namespace NWN.Systems
       player.SetMaxHP();
       player.endurance.additionnalMana = player.GetAdditionalMana();
     }
+    public static void OnItemEquipCheckArmorShieldProficiency(OnItemEquip onEquip)
+    {
+      NwCreature oPC = onEquip.EquippedBy;
+      NwItem oItem = onEquip.Item;
 
+      if (oPC is null || oItem is null || !PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
+        return;
+
+      switch(oItem.BaseItem.ItemType)
+      {
+        case BaseItemType.SmallShield:
+        case BaseItemType.LargeShield:
+        case BaseItemType.TowerShield:
+          if (!oPC.KnowsFeat(Feat.ShieldProficiency))
+          {
+            ApplyShieldArmorDisadvantageToPlayer(oPC);
+            player.oid.SendServerMessage("Malus d'absence de maîtrise des boucliers appliqué !");
+          }
+          break;
+
+        case BaseItemType.Armor:
+
+          if (oItem.BaseACValue > 0 && oItem.BaseACValue < 3)
+            if (!oPC.KnowsFeat(Feat.ArmorProficiencyLight))
+            {
+              ApplyShieldArmorDisadvantageToPlayer(oPC);
+              player.oid.SendServerMessage("Malus d'absence de maîtrise des armures légères appliqué !");
+            }
+
+          if (oItem.BaseACValue > 2 && oItem.BaseACValue < 6)
+            if (!oPC.KnowsFeat(Feat.ArmorProficiencyMedium))
+            {
+              ApplyShieldArmorDisadvantageToPlayer(oPC);
+              player.oid.SendServerMessage("Malus d'absence de maîtrise des armures intermédiaires appliqué !");
+            }
+
+          if (oItem.BaseACValue > 6)
+            if (!oPC.KnowsFeat(Feat.ArmorProficiencyHeavy))
+            {
+              ApplyShieldArmorDisadvantageToPlayer(oPC);
+              player.oid.SendServerMessage("Malus d'absence de maîtrise des armures lourdes appliqué !");
+            }
+
+          break;
+      }
+    }
+    //TODO : vérifier comment l'application se passe à la première connexion après reboot, puis aux connexions successives
+    public static void OnItemUnEquipCheckArmorShieldProficiency(OnItemUnequip onUnequip)
+    {
+      NwCreature oPC = onUnequip.Creature;
+      NwItem oItem = onUnequip.Item;
+
+      if (oPC is null || oItem is null)
+        return;
+
+      switch (oItem.BaseItem.ItemType) // TODO : Il faudra penser à faire le check de suppression d'avantage si le perso apprend la maîtrise au cas où il a une armure ou bouclier d'équipé
+      {
+        case BaseItemType.SmallShield:
+        case BaseItemType.LargeShield:
+        case BaseItemType.TowerShield:
+
+          if (!oPC.KnowsFeat(Feat.ShieldProficiency))
+            RemoveShieldArmorDisadvantageToPlayer(oPC); 
+
+          break;
+
+        case BaseItemType.Armor:
+
+          if (oItem.BaseACValue > 0 && oItem.BaseACValue < 3)
+            if (!oPC.KnowsFeat(Feat.ArmorProficiencyLight))
+              RemoveShieldArmorDisadvantageToPlayer(oPC);
+
+          if (oItem.BaseACValue > 2 && oItem.BaseACValue < 6)
+            if (!oPC.KnowsFeat(Feat.ArmorProficiencyMedium))
+              RemoveShieldArmorDisadvantageToPlayer(oPC);
+
+          if (oItem.BaseACValue > 6)
+            if (!oPC.KnowsFeat(Feat.ArmorProficiencyHeavy))
+              RemoveShieldArmorDisadvantageToPlayer(oPC);
+
+          break;
+      }
+    }
     public static void HandleUnequipItemBefore(OnItemUnequip onUnequip)
     {
       NwCreature oPC = onUnequip.Creature;
@@ -429,7 +512,7 @@ namespace NWN.Systems
     }
     public static void NoEquipRuinedItem(OnItemValidateEquip onItemValidateEquip)
     {
-      if (onItemValidateEquip.Item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasValue && onItemValidateEquip.Item.GetObjectVariable<LocalVariableInt>("_DURABILITY") <= 0)
+      if (onItemValidateEquip.Item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasValue && onItemValidateEquip.Item.GetObjectVariable<LocalVariableInt>("_DURABILITY") < 1)
       {
         onItemValidateEquip.Result = EquipValidationResult.Denied;
         onItemValidateEquip.UsedBy.ControllingPlayer.SendServerMessage($"{onItemValidateEquip.Item.Name} nécessite des réparations.", ColorConstants.Red);
@@ -437,8 +520,29 @@ namespace NWN.Systems
     }
     public static void NoUseRuinedItem(OnItemValidateUse onItemValidateUse)
     {
-      if (onItemValidateUse.Item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasValue && onItemValidateUse.Item.GetObjectVariable<LocalVariableInt>("_DURABILITY") <= 0)
+      if (onItemValidateUse.Item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasValue && onItemValidateUse.Item.GetObjectVariable<LocalVariableInt>("_DURABILITY") < 1)
         onItemValidateUse.CanUse = false;
+    }
+    public static void OnCheckProficiencies(OnCreatureCheckProficiencies onCheck)
+    {
+      if (onCheck.Item != null && onCheck.Item.BaseItem != null && onCheck.Item.BaseItem.EquipmentSlots != EquipmentSlots.None)
+        onCheck.ResultOverride = CheckProficiencyOverride.HasProficiency;
+    }
+    public static void ApplyShieldArmorDisadvantageToPlayer(NwCreature playerCreature)
+    {
+      if (!PlayerSystem.Players.TryGetValue(playerCreature, out PlayerSystem.Player player))
+        return;
+
+      playerCreature.OnSpellAction += SpellSystem.NoArmorShieldProficiencyOnSpellInput;
+      player.AddDisadvantage(new List<PlayerSystem.Advantage> { PlayerSystem.Advantage.SaveStrength, PlayerSystem.Advantage.SaveDexterity, PlayerSystem.Advantage.SaveConstitution, PlayerSystem.Advantage.SaveIntelligence, PlayerSystem.Advantage.SaveWisdom, PlayerSystem.Advantage.SaveCharisma, PlayerSystem.Advantage.SkillStrength, PlayerSystem.Advantage.SkillDexterity, PlayerSystem.Advantage.AttackStrength, PlayerSystem.Advantage.AttackDexterity });
+    }
+    public static void RemoveShieldArmorDisadvantageToPlayer(NwCreature playerCreature)
+    {
+      if (!PlayerSystem.Players.TryGetValue(playerCreature, out PlayerSystem.Player player))
+        return;
+
+      playerCreature.OnSpellAction -= SpellSystem.NoArmorShieldProficiencyOnSpellInput;
+      player.AddAdvantage(new List<PlayerSystem.Advantage> { PlayerSystem.Advantage.SaveStrength, PlayerSystem.Advantage.SaveDexterity, PlayerSystem.Advantage.SaveConstitution, PlayerSystem.Advantage.SaveIntelligence, PlayerSystem.Advantage.SaveWisdom, PlayerSystem.Advantage.SaveCharisma, PlayerSystem.Advantage.SkillStrength, PlayerSystem.Advantage.SkillDexterity, PlayerSystem.Advantage.AttackStrength, PlayerSystem.Advantage.AttackDexterity });
     }
   }
 }

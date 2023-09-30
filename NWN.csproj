@@ -53,8 +53,8 @@
         <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
         <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
-        <PackageReference Include="NWN.Core" Version="8193.35.6" />
-        <PackageReference Include="NWN.Native" Version="8193.35.6" />
+        <PackageReference Include="NWN.Core" Version="8193.35.15" />
+        <PackageReference Include="NWN.Native" Version="8193.35.9" />
     </ItemGroup>
 
     <ItemGroup>

@@ -6,8 +6,6 @@ using NWN.Core;
 using System.Numerics;
 using System.Collections.Generic;
 using NWN.Core.NWNX;
-using System.Runtime.InteropServices;
-using Anvil.API.Events;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
@@ -25,6 +23,9 @@ namespace NWN.Systems
     private readonly CExoString durabilityVariable = "_DURABILITY".ToExoString();
     private readonly CExoString blindEffectString = "CUSTOM_CONDITION_BLIND".ToExoString();
     //private readonly CExoString spellIdVariable = "_CURRENT_SPELL".ToExoString();
+
+    //_ZN12CNWSCreature15SavingThrowRollEhthjiti
+    // _ZN8CNWRules8RollDiceEhh
 
     [NativeFunction("_ZN17CNWSCreatureStats13GetDamageRollEP10CNWSObjectiiiii", null)]
     private delegate int GetDamageRollHook(void* thisPtr, void* pTarget, int bOffHand, int bCritical, int bSneakAttack, int bDeathAttack, int bForceMax);
@@ -64,6 +65,24 @@ namespace NWN.Systems
 
       CNWSCombatRound combatRound = creature.m_pcCombatRound;
       CNWSCombatAttackData attackData = combatRound.GetAttack(combatRound.m_nCurrentAttack);
+
+      //attack = creature.m_pStats.GetAttackModifierVersus(targetCreature) - 1 + proficiency bonus - STR MOD si mêlée - DEX MOD si ranged + STAT MOD de l'arme + 5 * combatRound.m_nCurrentAttack 
+      // Cas spécifique combat à deux armes : Donner à tous les joueurs les dons two-weapon fighting et ambidextry. Si l'arme est light, donner + 2 à toutes, sinon donner +4
+      // Light => l'arme est inférieure d'au moins une catégorie de taille à celle du personnage
+
+      LogUtils.LogMessage($"m_nAttackType : {attackData.m_nAttackType}", LogUtils.LogType.Combat);
+      LogUtils.LogMessage($"m_nCurrentAttack : {combatRound.m_nCurrentAttack}", LogUtils.LogType.Combat);
+
+      if (targetObject.m_nObjectType == (int)ObjectType.Creature)
+      {
+        CNWSCreature targetCreature = targetObject.AsNWSCreature();
+        LogUtils.LogMessage($"targetCreature AC {targetCreature.m_pStats.GetArmorClassVersus(creature)}", LogUtils.LogType.Combat);
+        LogUtils.LogMessage($"Attack : {creature.m_pStats.GetAttackModifierVersus(targetCreature)}", LogUtils.LogType.Combat);
+      }
+
+      //LogUtils.LogMessage($"melee attack bonus : {creature.m_pStats.GetMeleeAttackBonus()}", LogUtils.LogType.Combat);
+
+
 
       if (attackData.m_nAttackResult == 0 || attackData.m_nAttackResult == 4 || attackData.m_nAttackResult == 3)
         attackData.m_nAttackResult = 1;

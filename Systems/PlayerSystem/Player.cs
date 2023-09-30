@@ -67,6 +67,8 @@ namespace NWN.Systems
       public List<CustomDMVisualEffect> customDMVisualEffects = new();
       public List<NwGameObject> effectTargets = new();
 
+      public Dictionary<Advantage, int> advantages = new();
+
       private readonly SpellSystem spellSystem;
       private readonly AreaSystem areaSystem;
       private readonly FeedbackService feedbackService;
@@ -259,51 +261,6 @@ namespace NWN.Systems
         else
           return false;
       }
-      public async Task<bool> WaitForPlayerInputByte()
-      {
-        oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_AWAITING_PLAYER_INPUT").Value = 1;
-
-        oid.OnPlayerChat -= ChatSystem.HandlePlayerInputByte;
-        oid.OnPlayerChat += ChatSystem.HandlePlayerInputByte;
-
-        CancellationTokenSource tokenSource = new CancellationTokenSource();
-        Task awaitPlayerCancellation = NwTask.WaitUntil(() => !oid.IsValid || oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_PLAYER_INPUT_CANCELLED").HasValue, tokenSource.Token);
-        Task awaitPlayerInput = NwTask.WaitUntil(() => oid.IsValid && oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").HasValue, tokenSource.Token);
-
-        await NwTask.WhenAny(awaitPlayerInput, awaitPlayerCancellation);
-        tokenSource.Cancel();
-
-        if (oid.IsValid)
-          oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_PLAYER_INPUT_CANCELLED").Delete();
-
-        if (awaitPlayerInput.IsCompletedSuccessfully)
-          return true;
-        else
-          return false;
-      }
-      public async Task<bool> WaitForPlayerInputString()
-      {
-        this.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_AWAITING_PLAYER_INPUT").Value = 1;
-
-        this.oid.OnPlayerChat -= ChatSystem.HandlePlayerInputString;
-        this.oid.OnPlayerChat += ChatSystem.HandlePlayerInputString;
-
-        CancellationTokenSource tokenSource = new CancellationTokenSource();
-        Task awaitPlayerCancellation = NwTask.WaitUntil(() => !this.oid.IsValid || this.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_PLAYER_INPUT_CANCELLED").HasValue, tokenSource.Token);
-        Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.IsValid && this.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").HasValue, tokenSource.Token);
-
-        await NwTask.WhenAny(awaitPlayerInput, awaitPlayerCancellation);
-        tokenSource.Cancel();
-
-        if (this.oid.IsValid)
-          this.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_PLAYER_INPUT_CANCELLED").Delete();
-
-        if (awaitPlayerInput.IsCompletedSuccessfully)
-          return true;
-        else
-          return false;
-      }
-
       public async void HandleAsyncQueryFeedback(bool awaitedQuery, string messageOK, string messageKO)
       {
         await NwTask.SwitchToMainThread();
@@ -832,7 +789,7 @@ namespace NWN.Systems
         int grade = repairedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").HasValue ? repairedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value : 1;
 
         int materiaCost = (int)GetItemRepairMateriaCost(repairedItem, tool);
-        CraftResource resource = craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromItem(repairedItem) && r.grade == 1 && r.quantity >= materiaCost);
+        CraftResource resource = craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromItem(repairedItem) && r.quantity >= materiaCost);
         int availableQuantity = resource != null ? resource.quantity : 0;
 
         if (availableQuantity < materiaCost)
@@ -899,7 +856,7 @@ namespace NWN.Systems
         }
 
         int materiaCost = (int)(GetItemMateriaCost(blueprint, tool, grade) * (1 - (blueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value / 100)));
-        CraftResource resource = craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromBlueprint(blueprint) && r.grade == 1 && r.quantity >= materiaCost);
+        CraftResource resource = craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromBlueprint(blueprint) && r.quantity >= materiaCost);
         int availableQuantity = resource != null ? resource.quantity : 0;
 
         if (availableQuantity < materiaCost)
@@ -1131,15 +1088,14 @@ namespace NWN.Systems
       }
       public int GetMateriaYieldFromResource(int quantity, CraftResource resource)
       {
-        double reprocessingSkill = learnableSkills.ContainsKey(resource.reprocessingLearnable) ? 1.00 + 3 * learnableSkills[resource.reprocessingLearnable].totalPoints / 100 : 1.00;
+        /*double reprocessingSkill = learnableSkills.ContainsKey(resource.reprocessingLearnable) ? 1.00 + 3 * learnableSkills[resource.reprocessingLearnable].totalPoints / 100 : 1.00;
         double efficiencySkill = learnableSkills.ContainsKey(resource.reprocessingEfficiencyLearnable) ? 1.00 + 2 * learnableSkills[resource.reprocessingEfficiencyLearnable].totalPoints / 100 : 1.00;
         double reproGradeSkill = learnableSkills.ContainsKey(resource.reprocessingGradeLearnable) ? 1.00 + 2 * learnableSkills[resource.reprocessingGradeLearnable].totalPoints / 100 : 1.00;
         double connectionSkill = learnableSkills.ContainsKey(CustomSkill.ConnectionsPromenade) ? 0.95 + learnableSkills[CustomSkill.ConnectionsPromenade].totalPoints / 100 : 1.00;
         double expertSkill = learnableSkills.ContainsKey(resource.reprocessingExpertiseLearnable) ? 12 * learnableSkills[resource.reprocessingExpertiseLearnable].totalPoints / 100 : 0;
-        double total = 2 * quantity;
-        total -= quantity * resource.grade * 0.15 * expertSkill;
-        total *= 0.3 * reprocessingSkill * efficiencySkill * reproGradeSkill;
-        total *= connectionSkill;
+        */double total = 2 * quantity;
+        //total -= quantity * 0.15 * expertSkill;
+        ////total *= connectionSkill;
 
         return (int)total;
       }
@@ -1484,6 +1440,18 @@ namespace NWN.Systems
         attributeLevel += learnableSkills.ContainsKey((int)attribut + 3) ? learnableSkills[(int)attribut + 3].totalPoints : 0;
 
         return attributeLevel;
+      }
+      public void AddAdvantage(List<Advantage> advantageList)
+      {
+        foreach (Advantage advantage in advantageList)
+          if (!advantages.TryAdd(advantage, 1))
+            advantages[advantage] += 1;
+      }
+      public void AddDisadvantage(List<Advantage> disadvantageList)
+      {
+        foreach(Advantage disadvantage in disadvantageList) 
+          if (!advantages.TryAdd(disadvantage, -1))
+            advantages[disadvantage] -= 1;
       }
     }
   }

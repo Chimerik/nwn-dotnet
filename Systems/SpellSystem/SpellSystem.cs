@@ -239,6 +239,11 @@ namespace NWN.Systems
         }
       }
     }
+    public static void NoArmorShieldProficiencyOnSpellInput(OnSpellAction onSpellAction)
+    {
+      onSpellAction.Caster.LoginPlayer.SendServerMessage("Vous ne pouvez pas lancer de sort tant que vous êtes équipé d'une armure ou d'un bouclier dont vous n'avez pas la maîtrise.", ColorConstants.Red);
+      onSpellAction.PreventSpellCast = true;
+    }
 
     [ScriptHandler("spellhook")]
     private void HandleSpellHook(CallInfo callInfo)

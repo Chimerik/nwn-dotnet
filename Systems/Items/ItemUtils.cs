@@ -342,7 +342,7 @@ namespace NWN.Systems
       string damageTypeLabel = "";
 
       foreach (DamageType damageType in item.BaseItem.WeaponType)
-        damageTypeLabel += $"{ItemUtils.DisplayBaseDamageType(damageType)} / ";
+        damageTypeLabel += $"{DisplayBaseDamageType(damageType)} / ";
 
       return damageTypeLabel.Remove(damageTypeLabel.Length - 2);
     }

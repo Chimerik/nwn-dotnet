@@ -245,24 +245,24 @@ namespace NWN.Systems
     {
       if (Players.TryGetValue(onUsed.UsedBy, out Player player))
       {
-        if (!player.windows.ContainsKey("refinery")) player.windows.Add("refinery", new Player.RefineryWindow(player, ResourceType.Ore));
-        else ((Player.RefineryWindow)player.windows["refinery"]).CreateWindow(ResourceType.Ore);
+        if (!player.windows.ContainsKey("refinery")) player.windows.Add("refinery", new Player.RefineryWindow(player, ResourceType.Ingot));
+        else ((Player.RefineryWindow)player.windows["refinery"]).CreateWindow(ResourceType.Ingot);
       }
     }
     public static void OpenWoodworkWindow(PlaceableEvents.OnUsed onUsed)
     {
       if (Players.TryGetValue(onUsed.UsedBy, out Player player))
       {
-        if (!player.windows.ContainsKey("refinery")) player.windows.Add("refinery", new Player.RefineryWindow(player, ResourceType.Wood));
-        else ((Player.RefineryWindow)player.windows["refinery"]).CreateWindow(ResourceType.Wood);
+        if (!player.windows.ContainsKey("refinery")) player.windows.Add("refinery", new Player.RefineryWindow(player, ResourceType.Plank));
+        else ((Player.RefineryWindow)player.windows["refinery"]).CreateWindow(ResourceType.Plank);
       }
     }
     public static void OpenTanneryWindow(PlaceableEvents.OnUsed onUsed)
     {
       if (Players.TryGetValue(onUsed.UsedBy, out Player player))
       {
-        if (!player.windows.ContainsKey("refinery")) player.windows.Add("refinery", new Player.RefineryWindow(player, ResourceType.Pelt));
-        else ((Player.RefineryWindow)player.windows["refinery"]).CreateWindow(ResourceType.Pelt);
+        if (!player.windows.ContainsKey("refinery")) player.windows.Add("refinery", new Player.RefineryWindow(player, ResourceType.Leather));
+        else ((Player.RefineryWindow)player.windows["refinery"]).CreateWindow(ResourceType.Leather);
       }
     }
     public static void OpenWorkshopWindow(PlaceableEvents.OnUsed onUsed)

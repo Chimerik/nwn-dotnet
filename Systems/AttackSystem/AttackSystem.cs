@@ -34,7 +34,7 @@ namespace NWN.Systems
       bleeding.Tag = "CUSTOM_CONDITION_BLEEDING";
       bleeding.SubType = EffectSubType.Supernatural;
 
-      poison = Effect.RunAction(null, null, scriptHandleFactory.CreateUniqueHandler(IntervalPoison), TimeSpan.FromSeconds(1));
+      /*poison = Effect.RunAction(null, null, scriptHandleFactory.CreateUniqueHandler(IntervalPoison), TimeSpan.FromSeconds(1));
       poison = Effect.LinkEffects(poison, Effect.Icon((NwGameTables.EffectIconTable.GetRow(137)))); // TODO : ajouter effet visuel poison
       poison.Tag = "CUSTOM_CONDITION_POISON";
       poison.SubType = EffectSubType.Supernatural;
@@ -78,6 +78,7 @@ namespace NWN.Systems
       cracked = Effect.LinkEffects(cracked, Effect.Icon((NwGameTables.EffectIconTable.GetRow(139)))); // TODO : ajouter effet visuel cracked armor
       cracked.Tag = "CUSTOM_CONDITION_CRACKEDARMOR";
       cracked.SubType = EffectSubType.Supernatural;
+      */
     }
 
     public static Pipeline<Context> pipeline = new(

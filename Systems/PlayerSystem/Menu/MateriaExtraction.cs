@@ -26,7 +26,6 @@ namespace NWN.Systems
         private NwItem extractor { get; set; }
         private NwGameObject targetMateria { get; set; }
         private ScheduledTask extractionProgress { get; set; }
-        private ResourceType resourceType = ResourceType.Ore;
         private int resourceExtractionSkill = CustomSkill.OreExtraction;
         private int resourceExtractionSpeedSkill = CustomSkill.OreExtractionSpeed;
         private int resourceYieldSkill = CustomSkill.OreExtractionYield;
@@ -165,7 +164,7 @@ namespace NWN.Systems
               targetMateria.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value -= miningYield;
             }
 
-            CreateSelectedResourceInInventory(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == resourceType && r.grade == grade), miningYield);
+            CreateSelectedResourceInInventory(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == ResourceType.Influx), miningYield);
 
             foreach (Effect eff in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "_MINING_BEAM"))
               player.oid.LoginCreature.RemoveEffect(eff);
@@ -181,7 +180,6 @@ namespace NWN.Systems
           switch (type)
           {
             case "mineable_tree":
-              resourceType = ResourceType.Wood;
               resourceExtractionSkill = CustomSkill.WoodExtraction;
               resourceExtractionSpeedSkill = CustomSkill.WoodExtractionSpeed;
               resourceYieldSkill = CustomSkill.WoodExtractionYield;
@@ -192,7 +190,6 @@ namespace NWN.Systems
               break;
 
             case "mineable_animal":
-              resourceType = ResourceType.Pelt;
               resourceExtractionSkill = CustomSkill.PeltExtraction;
               resourceExtractionSpeedSkill = CustomSkill.PeltExtractionSpeed;
               resourceYieldSkill = CustomSkill.PeltExtractionYield;
@@ -388,7 +385,6 @@ namespace NWN.Systems
         {
           NwItem pcResource = NwItem.Create("craft_resource", player.oid.LoginCreature.Location);
           pcResource.GetObjectVariable<LocalVariableString>("CRAFT_RESOURCE").Value = selection.type.ToString();
-          pcResource.GetObjectVariable<LocalVariableInt>("CRAFT_GRADE").Value = selection.grade;
           pcResource.Name = selection.name;
           pcResource.Description = selection.description;
           pcResource.Weight = selection.weight;

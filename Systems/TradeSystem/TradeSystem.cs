@@ -252,12 +252,12 @@ namespace NWN.Systems
       {
         if (sellOrder.expirationDate < DateTime.Now)
         {
-          AddResourceToPlayerStock(sellOrder.sellerId, sellOrder.resourceType, sellOrder.resourceLevel, sellOrder.quantity,
-            $"Expiration de votre ordre de vente - {sellOrder.quantity} {sellOrder.resourceType.ToDescription()} {sellOrder.resourceLevel}",
-            $"Très honoré client,\n\n  La banque Skalsgard est au regret de vous annoncer l'expiration de votre ordre de vente de {sellOrder.quantity} {sellOrder.resourceType.ToDescription()} {sellOrder.resourceLevel}.\n\nLes ressources libérées sont de nouveau disponibles dans votre entrepôt.\n\nN'hésitez pas à renouveler votre ordre dès que possible (frais de gestion identiques).",
+          AddResourceToPlayerStock(sellOrder.sellerId, sellOrder.resourceType, sellOrder.quantity,
+            $"Expiration de votre ordre de vente - {sellOrder.quantity} {sellOrder.resourceType.ToDescription()}",
+            $"Très honoré client,\n\n  La banque Skalsgard est au regret de vous annoncer l'expiration de votre ordre de vente de {sellOrder.quantity} {sellOrder.resourceType.ToDescription()}.\n\nLes ressources libérées sont de nouveau disponibles dans votre entrepôt.\n\nN'hésitez pas à renouveler votre ordre dès que possible (frais de gestion identiques).",
             "Sell Order Expired");
 
-          Log.Info($"TRADE SYSTEM - Sell order expired of {sellOrder.quantity} {sellOrder.resourceType.ToDescription()} {sellOrder.resourceLevel} from {sellOrder.sellerId}");
+          Log.Info($"TRADE SYSTEM - Sell order expired of {sellOrder.quantity} {sellOrder.resourceType.ToDescription()} from {sellOrder.sellerId}");
         }
       }
 
@@ -277,14 +277,14 @@ namespace NWN.Systems
             buyer.bankGold += sellPrice;
 
             if (buyer.pcState != Player.PcState.Offline)
-              buyer.oid.SendServerMessage($"Votre ordre d'achat pour {StringUtils.ToWhitecolor(buyOrder.quantity)} {StringUtils.ToWhitecolor(buyOrder.resourceType.ToDescription())} {StringUtils.ToWhitecolor(buyOrder.resourceLevel)} a expiré. La banque Skalsgard a débloqué les fond immobilisés pour l'opération (solde {StringUtils.ToWhitecolor(buyer.bankGold)})", ColorConstants.Orange);
+              buyer.oid.SendServerMessage($"Votre ordre d'achat pour {StringUtils.ToWhitecolor(buyOrder.quantity)} {StringUtils.ToWhitecolor(buyOrder.resourceType.ToDescription())} a expiré. La banque Skalsgard a débloqué les fond immobilisés pour l'opération (solde  {StringUtils.ToWhitecolor(buyer.bankGold)}", ColorConstants.Orange);
           }
 
           UpdatePlayerBankAccount(buyOrder.buyerId, sellPrice, "Expiration de votre ordre d'achat",
-            $"Très honoré client,\n\n  La banque Skalsgard est au regret de vous annoncer que votre ordre d'achat de {buyOrder.quantity} {buyOrder.resourceType.ToDescription()} {buyOrder.resourceLevel} au prix unitaire de {buyOrder.unitPrice} a expiré.\n\nN'hésitez pas à la renouveller (frais de gestion identiques).",
+            $"Très honoré client,\n\n  La banque Skalsgard est au regret de vous annoncer que votre ordre d'achat de {buyOrder.quantity} {buyOrder.resourceType.ToDescription()} au prix unitaire de {buyOrder.unitPrice} a expiré.\n\nN'hésitez pas à la renouveller (frais de gestion identiques).",
             "Buy Order Expired");
 
-          Log.Info($"TRADE SYSTEM - Buy order expired of {buyOrder.quantity} {buyOrder.resourceType.ToDescription()} {buyOrder.resourceLevel} from {buyOrder.buyerId}");
+          Log.Info($"TRADE SYSTEM - Buy order expired of {buyOrder.quantity} {buyOrder.resourceType.ToDescription()} from {buyOrder.buyerId}");
         }
       }
 
@@ -316,16 +316,16 @@ namespace NWN.Systems
         new Mail("Banque Skalsgard", -1, "Très honoré client", auction.highestBidderId, $"Enchère {auction.itemName} - Emportée !", $"Très honoré client,\n\nLa banque Skalsgard est au heureuse de vous annoncer que vous remportez l'enchère pour {auction.itemName} à un prix de {auction.highestBid}.", DateTime.Now, false, DateTime.Now.AddMonths(3), false).SendMailToPlayer(auction.highestBidderId);
       }
     }
-    public static void AddResourceToPlayerStock(int characterId, ResourceType type, int grade, int quantity, string playerMessageTitle, string playerMessage, string logUseCase)
+    public static void AddResourceToPlayerStock(int characterId, ResourceType type, int quantity, string playerMessageTitle, string playerMessage, string logUseCase)
     {
       try
       {
         Player player = Players.FirstOrDefault(p => p.Value.characterId == characterId).Value;
-        CraftResource resource = Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == type && r.grade == grade);
+        CraftResource resource = Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == type);
 
         if (player != null)
         {
-          CraftResource playerResource = player.craftResourceStock.FirstOrDefault(r => r.type == type && r.grade == grade);
+          CraftResource playerResource = player.craftResourceStock.FirstOrDefault(r => r.type == type);
           int messageQuantity;
 
           if (playerResource != null)
@@ -349,7 +349,7 @@ namespace NWN.Systems
       {
         Utils.LogMessageToDMs($"{e.Message}\n\n" +
           $"{e.StackTrace}\n\n" +
-          $"characterId {characterId} - type {type} - grade {grade} - quantity {quantity}");
+          $"characterId {characterId} - type {type} - quantity {quantity}");
       }
     }
     public static async void ResolveSuccessfulAuction(Auction auction)
@@ -441,7 +441,7 @@ namespace NWN.Systems
         {
           List<SerializableCraftResource> serializableCraftResource = JsonConvert.DeserializeObject<List<SerializableCraftResource>>(serializedCraftResources);
 
-          SerializableCraftResource playerResource = serializableCraftResource.FirstOrDefault(r => r.type == (int)resource.type && r.grade == resource.grade);
+          SerializableCraftResource playerResource = serializableCraftResource.FirstOrDefault(r => r.type == (int)resource.type);
 
           if (playerResource != null)
             playerResource.quantity += quantity;

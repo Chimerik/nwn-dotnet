@@ -126,7 +126,7 @@ namespace NWN.Systems
       NwServer.Instance.ServerInfo.PlayOptions.RestoreSpellUses = false;
       NwServer.Instance.ServerInfo.PlayOptions.ShowDMJoinMessage = false;
 
-      ItemSystem.feedbackService.AddCombatLogMessageFilter(CombatLogMessage.ComplexAttack);
+      //ItemSystem.feedbackService.AddCombatLogMessageFilter(CombatLogMessage.ComplexAttack);
       ItemSystem.feedbackService.AddCombatLogMessageFilter(CombatLogMessage.Initiative);
 
       SetModuleTime();
@@ -446,15 +446,7 @@ namespace NWN.Systems
       NwModule.Instance.OnCreatureAttack += AttackSystem.HandleAttackEvent;
       NwModule.Instance.OnCreatureDamage += AttackSystem.HandleDamageEvent;
       //NwModule.Instance.OnEffectApply += OnPlayerEffectApplied;
-      NwModule.Instance.OnCreatureCheckProficiencies += OnCheckProficiencies;
     }
-
-    private void OnCheckProficiencies(OnCreatureCheckProficiencies onCheck)
-    {
-      if (onCheck.Item != null && onCheck.Item.BaseItem != null && onCheck.Item.BaseItem.EquipmentSlots != EquipmentSlots.None)
-        onCheck.ResultOverride = CheckProficiencyOverride.HasProficiency;
-    }
-
     private static void SetModuleTime()
     {
       var query = SqLiteUtils.SelectQuery("moduleInfo",
@@ -1261,7 +1253,7 @@ namespace NWN.Systems
     [ScriptHandler("on_opportunity")]
     private void HandleOpportunityAttack(CallInfo callInfo)
     {
-      EventsPlugin.SkipEvent();
+      //EventsPlugin.SkipEvent();
     }
   }
 }

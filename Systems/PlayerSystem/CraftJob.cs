@@ -20,9 +20,9 @@ namespace NWN.Systems
       { JobType.BlueprintResearchMaterialEfficiency, CompleteBlueprintMaterialResearch },
       { JobType.BlueprintResearchTimeEfficiency, CompleteBlueprintTimeResearch },
       { JobType.Enchantement, CompleteItemEnchantement },
-      { JobType.Mining, CompleteMining },
-      { JobType.WoodCutting, CompleteWoodCutting },
-      { JobType.Pelting, CompletePelting },
+      //{ JobType.Mining, CompleteMining },
+      //{ JobType.WoodCutting, CompleteWoodCutting },
+      //{ JobType.Pelting, CompletePelting },
     };
 
     public enum JobType
@@ -666,12 +666,12 @@ namespace NWN.Systems
         int grade = item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").HasValue ? item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value : 1;
         double quantity = player.GetItemRecycleGain(item);
 
-        CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == resourceType && r.grade == grade);
+        CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == resourceType);
 
         if (resource != null)
           resource.quantity += (int)quantity;
         else
-          player.craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == resourceType && r.grade == grade), (int)quantity));
+          player.craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == resourceType), (int)quantity));
 
         player.oid.SendServerMessage($"Le recyclage de : {item.Name.ColorString(ColorConstants.White)} vous rapporte {quantity.ToString().ColorString(ColorConstants.White)} unités de matéria de qualité {((int)grade).ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);
         player.oid.ApplyInstantVisualEffectToObject((VfxType)818, player.oid.ControlledCreature);
@@ -804,7 +804,7 @@ namespace NWN.Systems
 
       return ip.Tag;
     }
-    private static bool CompleteMining(Player player, bool completed)
+    /*private static bool CompleteMining(Player player, bool completed)
     {
       if (completed)
       {
@@ -855,7 +855,7 @@ namespace NWN.Systems
         miningYield = player.learnableSkills.ContainsKey(CustomSkill.WoodExtraction) ? miningYield * player.learnableSkills[CustomSkill.WoodExtraction].bonusMultiplier : miningYield;
         miningYield = player.learnableSkills.ContainsKey(CustomSkill.WoodExtractionYield) ? miningYield * player.learnableSkills[CustomSkill.WoodExtractionYield].bonusMultiplier : miningYield;
 
-        CraftResource resourceStock = player.craftResourceStock.FirstOrDefault(r => r.type == ResourceType.Wood && r.grade == 1);
+        CraftResource resourceStock = player.craftResourceStock.FirstOrDefault(r => r.type == ResourceType.Wood);
 
         if (resourceStock != null)
           resourceStock.quantity += (int)miningYield;
@@ -911,7 +911,7 @@ namespace NWN.Systems
       }
 
       return true;
-    }
+    }*/
     private static void HandleDamageModifierInscription(NwItem newItem, int learnableId)
     {
       switch(learnableId)
