@@ -14,6 +14,10 @@ namespace NWN.Systems
   public unsafe class NativeAttackHook
   {
     private readonly CExoString casterLevelVariable = "_CREATURE_CASTER_LEVEL".ToExoString();
+    private readonly CExoString isFinesseWeaponVariable = "_IS_FINESSE_WEAPON".ToExoString();
+    private readonly CExoString currentDualAttacksVariable = "_CURRENT_DUAL_ATTACK".ToExoString();
+    private readonly CExoString currentUnarmedExtraAttacksVariable = "_CURRENT_UNARMED_EXTRA_ATTACK".ToExoString();
+    private readonly CExoString isBonusActionAvailableVariable = "_BONUS_ACTION".ToExoString();
     private readonly CExoString minWeaponDamageVariable = "_MIN_WEAPON_DAMAGE".ToExoString();
     private readonly CExoString maxWeaponDamageVariable = "_MAX_WEAPON_DAMAGE".ToExoString();
     private readonly CExoString minCreatureDamageVariable = "_MIN_CREATURE_DAMAGE".ToExoString();
@@ -61,75 +65,120 @@ namespace NWN.Systems
       CNWSCreature creature = CNWSCreature.FromPointer(pCreature);
       CNWSObject targetObject = CNWSObject.FromPointer(pTarget);
 
+      LogUtils.LogMessage("--------------------------------------------------------------------", LogUtils.LogType.Combat);
       LogUtils.LogMessage($"{creature.m_pStats.GetFullName().ToExoLocString().GetSimple(0)} attacking {targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)}", LogUtils.LogType.Combat);
 
       CNWSCombatRound combatRound = creature.m_pcCombatRound;
       CNWSCombatAttackData attackData = combatRound.GetAttack(combatRound.m_nCurrentAttack);
 
-      //attack = creature.m_pStats.GetAttackModifierVersus(targetCreature) - 1 + proficiency bonus - STR MOD si mêlée - DEX MOD si ranged + STAT MOD de l'arme + 5 * combatRound.m_nCurrentAttack 
-      // Cas spécifique combat à deux armes : Donner à tous les joueurs les dons two-weapon fighting et ambidextry. Si l'arme est light, donner + 2 à toutes, sinon donner +4
-      // Light => l'arme est inférieure d'au moins une catégorie de taille à celle du personnage
+  //*** CALCUL DU BONUS D'ATTAQUE ***//
+      // On prend le bonus d'attaque calculé automatiquement par le jeu en fonction de la cible qui peut être une créature ou un placeable
+      int attackModifier = targetObject.m_nObjectType == (int)ObjectType.Creature 
+        ? creature.m_pStats.GetAttackModifierVersus(targetObject.AsNWSCreature()) 
+        : creature.m_pStats.GetAttackModifierVersus();
 
-      LogUtils.LogMessage($"m_nAttackType : {attackData.m_nAttackType}", LogUtils.LogType.Combat);
-      LogUtils.LogMessage($"m_nCurrentAttack : {combatRound.m_nCurrentAttack}", LogUtils.LogType.Combat);
+      LogUtils.LogMessage($"Attack Modifier versus : {attackModifier}", LogUtils.LogType.Combat);
 
-      if (targetObject.m_nObjectType == (int)ObjectType.Creature)
+      // Si l'arme utilisée pour attaquer est une arme de finesse, et que la créature a une meilleur DEX, alors on utilise la DEX pour attaquer
+      CNWSItem attackWeapon = combatRound.GetCurrentAttackWeapon(attackData.m_nWeaponAttackType);
+      Anvil.API.Ability attackStat = attackWeapon is null || ItemUtils.GetItemCategory(NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem).ItemType) != ItemUtils.ItemCategory.RangedWeapon 
+        ? Anvil.API.Ability.Strength : Anvil.API.Ability.Dexterity;
+
+      if (attackWeapon != null
+          && creature.m_pStats.GetDEXMod(1) > creature.m_pStats.m_nStrengthModifier
+          && attackWeapon.m_ScriptVars.GetInt(isFinesseWeaponVariable) != 0)
       {
-        CNWSCreature targetCreature = targetObject.AsNWSCreature();
-        LogUtils.LogMessage($"targetCreature AC {targetCreature.m_pStats.GetArmorClassVersus(creature)}", LogUtils.LogType.Combat);
-        LogUtils.LogMessage($"Attack : {creature.m_pStats.GetAttackModifierVersus(targetCreature)}", LogUtils.LogType.Combat);
+        attackModifier = creature.m_pStats.m_nStrengthModifier - creature.m_pStats.m_nStrengthModifier + creature.m_pStats.GetDEXMod(1);
+        attackStat = Anvil.API.Ability.Dexterity;
+      }
+      LogUtils.LogMessage($"Attack Modifier finesse : {attackModifier}", LogUtils.LogType.Combat);
+
+      // TODO : Dans certains cas, la STAT à utiliser pourra être INT, SAG ou CHA, à implémenter 
+
+      // On ajoute le bonus de maîtrise de la créature et on se débarrasse de la pénalité de 5 pour les attaques supplémentaires du round
+      int attackBonus = NativeUtils.GetWeaponProficiencyBonus(creature, attackWeapon) + attackModifier;
+
+      LogUtils.LogMessage($"+ Proficiency Bonus : {attackBonus}", LogUtils.LogType.Combat);
+
+      if (attackData.m_nWeaponAttackType != 6 && NativeUtils.IsDualWieldingLightWeapon(attackWeapon, creature.m_nCreatureSize, creature.m_pInventory.m_pEquipSlot[5].ToNwObject<NwItem>()))
+        attackBonus += 2;
+
+      if (combatRound.m_nCurrentAttack == 0)
+      {
+        creature.m_ScriptVars.SetInt(currentDualAttacksVariable, 0);
+        creature.m_ScriptVars.SetInt(currentUnarmedExtraAttacksVariable, 0);
       }
 
-      //LogUtils.LogMessage($"melee attack bonus : {creature.m_pStats.GetMeleeAttackBonus()}", LogUtils.LogType.Combat);
+      switch (attackData.m_nWeaponAttackType)
+      {
+        case 1:
+        case 3:
+        case 4:
+        case 5:
+        case 7:
+          attackBonus += 5 * combatRound.m_nCurrentAttack;
+            break;
+        case 2:
+          int currentDualAttack = creature.m_ScriptVars.GetInt(currentDualAttacksVariable);
+          attackBonus += 5 * currentDualAttack;
+          creature.m_ScriptVars.SetInt(currentDualAttacksVariable, currentDualAttack + 1);
 
+          int bonusAction = creature.m_ScriptVars.GetInt(isBonusActionAvailableVariable);
 
+          if (bonusAction > 0)
+            creature.m_ScriptVars.SetInt(isBonusActionAvailableVariable, bonusAction - 1);
+          else
+          {
+            attackData.m_nAttackResult = 4;
+            attackData.m_nMissedBy = 8;
 
-      if (attackData.m_nAttackResult == 0 || attackData.m_nAttackResult == 4 || attackData.m_nAttackResult == 3)
-        attackData.m_nAttackResult = 1;
+            NativeUtils.SendNativeServerMessage($"Main secondaire - Echec automatique - Pas d'action bonus disponible".ColorString(ColorConstants.Red), creature);
+            return;
+          }
+          break;
+        case 8:
+          int currentUnarmedExtraAttack = creature.m_ScriptVars.GetInt(currentUnarmedExtraAttacksVariable);
+          attackBonus += 5 * currentUnarmedExtraAttack;
+          creature.m_ScriptVars.SetInt(currentUnarmedExtraAttacksVariable, currentUnarmedExtraAttack + 1);
+          break;
+      }
+
+      LogUtils.LogMessage($"+ Multi-attack bonus : {attackBonus}", LogUtils.LogType.Combat);
+      LogUtils.LogMessage($"m_nWeaponAttackType : {attackData.m_nWeaponAttackType}", LogUtils.LogType.Combat);
+      LogUtils.LogMessage($"m_nCurrentAttack : {combatRound.m_nCurrentAttack}", LogUtils.LogType.Combat);
+      LogUtils.LogMessage($"Final Attack Bonus : {attackBonus}", LogUtils.LogType.Combat);
 
       if (targetObject.m_nObjectType == (int)ObjectType.Creature)
       {
         CNWSCreature targetCreature = targetObject.AsNWSCreature();
-        int skillBonusDodge = 0;
-        string logString = "";
+        int advantage = CreatureUtils.HasAdvantageAgainstTarget(creature, attackStat, targetCreature);
+        int attackRoll = Utils.RollAdvantage(advantage);
 
-        if (targetCreature.m_nCreatureSize < creature.m_nCreatureSize)
+        string hitString = "touchez".ColorString(new Color(32, 255, 32));
+        string rollString = $"{attackRoll} + {attackBonus} = {attackRoll + attackBonus}".ColorString(new Color(32, 255, 32));
+        string criticalString = "";
+        string advantageString = advantage == 0 ? "" : advantage > 0 ? "Avantage - ".ColorString(new Color(255, 215, 0)) : "Désavantage - ".ColorString(ColorConstants.Red);
+
+        if(attackRoll == 20) // TODO : certains items permettront de diminuer le range des critiques dans certaines conditions
         {
-          skillBonusDodge += 5;
-          logString += "+ 5 (Taille créature) ";
+          attackData.m_nAttackResult = 3;
+          criticalString = "CRITIQUE - ".ColorString(new Color(255, 215, 0));
         }
-
-        foreach(var eff in creature.m_appliedEffects)
-          if(eff.GetCustomTag() == blindEffectString) // 90 % miss chance if blinded
-          {
-            if (NwRandom.Roll(Utils.random, 100) < 11)
-            {
-              attackData.m_nAttackResult = 4;
-              attackData.m_nMissedBy = 8;
-              LogUtils.LogMessage("Attaque échouée - aveuglement", LogUtils.LogType.Combat);
-              return;
-            }
-
-            break;
-          }
-
-        int armorPenalty = unchecked((sbyte)targetCreature.m_pStats.m_nArmorCheckPenalty) < 0 ? 256 - targetCreature.m_pStats.m_nArmorCheckPenalty : targetCreature.m_pStats.m_nArmorCheckPenalty;
-        int shieldPenalty = unchecked((sbyte)targetCreature.m_pStats.m_nShieldCheckPenalty) < 0 ? 256 - targetCreature.m_pStats.m_nShieldCheckPenalty : targetCreature.m_pStats.m_nShieldCheckPenalty;
-        int dexScore = unchecked((sbyte)targetCreature.m_pStats.GetAbilityMod(1)) < 0 ? 256 - targetCreature.m_pStats.GetAbilityMod(1) : targetCreature.m_pStats.GetAbilityMod(1);
-        int dodgeRoll = NwRandom.Roll(Utils.random, 100);
-        int dodgeCalculations = dexScore + skillBonusDodge - armorPenalty - shieldPenalty;
-
-        LogUtils.LogMessage($"{logString} + {dexScore} (DEX) - {armorPenalty + shieldPenalty} (Pénalité d'armure) = {dodgeCalculations} VS {dodgeRoll}", LogUtils.LogType.Combat);
-        
-        if (dodgeRoll <= dodgeCalculations) // TODO : supprimer l'esquive passive pour la remplacer par une esquive active
+        else if (attackRoll > 1 && attackRoll + attackBonus > targetCreature.m_pStats.GetArmorClassVersus(creature)) 
+          attackData.m_nAttackResult = 1;
+        else
         {
           attackData.m_nAttackResult = 4;
           attackData.m_nMissedBy = 8;
-          LogUtils.LogMessage("Esquive réussie", LogUtils.LogType.Combat);
+          hitString = "manquez".ColorString(ColorConstants.Red);
+          rollString = rollString.StripColors().ColorString(ColorConstants.Red);
         }
-        else if (IsHitCritical(creature, targetCreature, combatRound.GetCurrentAttackWeapon(attackData.m_nWeaponAttackType)))
-          attackData.m_nAttackResult = 3;
+        
+        string targetName = $"{targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)}".ColorString(ColorConstants.Cyan);
+        NativeUtils.SendNativeServerMessage($"{advantageString}{criticalString}Vous {hitString} {targetName} {rollString}".ColorString(ColorConstants.Cyan), creature);
       }
+      else
+        attackData.m_nAttackResult = 7;
     }
     private int OnAddUseTalentOnObjectHook(void* pCreature, int talentType, int talentId, uint oidTarget, byte nMultiClass, uint oidItem, int nItemPropertyIndex, byte nCasterLevel, int nMetaType)
     {

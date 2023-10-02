@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using System.Reactive.Concurrency;
 using System.Threading.Tasks;
 
 using Anvil.API;
 using Anvil.API.Events;
-
+using NWN.Native.API;
 using NWN.Systems;
+using Ability = Anvil.API.Ability;
+using DamageType = Anvil.API.DamageType;
+using InventorySlot = Anvil.API.InventorySlot;
+using ItemProperty = Anvil.API.ItemProperty;
 
 namespace NWN
 {
@@ -149,6 +152,26 @@ namespace NWN
       creatureSpawnDictionary.TryAdd(creature.Tag, NwCreature.Deserialize(creature.Serialize()));
       spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value = creature.Tag;
       creature.Destroy();
+    }
+    public static int HasAdvantageAgainstTarget(CNWSCreature attacker, Ability attackStat, CNWSCreature target = null)
+    {
+      int advantage = 0;
+      
+      foreach(var eff in attacker.m_appliedEffects)
+      {
+        if ((EffectTrueType)eff.m_nType != EffectTrueType.RunScript)
+          continue;
+
+        if (eff.m_sCustomTag.CompareNoCase(StringUtils.shieldArmorDisadvantageEffectExoTag) > 0 && (attackStat == Ability.Strength || attackStat == Ability.Dexterity))
+        {
+          advantage -= 1;
+          LogUtils.LogMessage($"Advantage : {advantage}", LogUtils.LogType.Combat);
+        }
+      }
+
+      LogUtils.LogMessage($"Final Advantage : {advantage}", LogUtils.LogType.Combat);
+
+      return advantage;
     }
   }
 }

@@ -21,6 +21,30 @@ namespace NWN
       MailNotification = 1,
       MailDistantAccess = 2
     }
+    public static int RollAdvantage(int advantage)
+    {
+      int attackRoll = 0;
+      int tempAttackRoll;
+
+      if (advantage == 0)
+      {
+        attackRoll = NwRandom.Roll(random, 20);
+      }
+      else if (advantage > 0)
+      {
+        attackRoll = NwRandom.Roll(random, 20);
+        tempAttackRoll = NwRandom.Roll(random, 20);
+        attackRoll = attackRoll > tempAttackRoll ? attackRoll : tempAttackRoll;
+      }
+      else if (advantage < 0)
+      {
+        attackRoll = NwRandom.Roll(random, 20);
+        tempAttackRoll = NwRandom.Roll(random, 20);
+        attackRoll = attackRoll < tempAttackRoll ? attackRoll : tempAttackRoll;
+      }
+
+      return attackRoll;
+    }
     public static void LogMessageToDMs(string message)
     {
       ModuleSystem.Log.Info(message);

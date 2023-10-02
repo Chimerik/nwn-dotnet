@@ -1125,7 +1125,8 @@ namespace NWN.Systems
           case CustomInscription.Pénétration: bonusPenetration += 3; break;
         }
       }
-      int weaponProficiency = ctx.targetPlayer.GetWeaponMasteryLevel(ctx.attackWeapon) < ItemUtils.GetItemProficiencyRequirement(ctx.attackWeapon) ? 3 : 1;
+
+      int weaponProficiency = ctx.attackingPlayer.GetWeaponMasteryLevel(ctx.attackWeapon) < ItemUtils.GetItemProficiencyRequirement(ctx.attackWeapon) ? 3 : 1;
 
       if (vampirism)
       {

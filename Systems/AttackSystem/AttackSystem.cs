@@ -84,7 +84,6 @@ namespace NWN.Systems
     public static Pipeline<Context> pipeline = new(
       new Action<Context, Action>[]
       {
-        IsAttackDodged,
         ProcessDazed,
         ProcessBaseDamageTypeAndAttackWeapon,
         ProcessCriticalHit,
@@ -108,8 +107,8 @@ namespace NWN.Systems
     );
     public static void HandleAttackEvent(OnCreatureAttack onAttack)
     {
-      LogUtils.LogMessage($"Attack Event - Attacker {onAttack.Attacker.Name} - Target {onAttack.Target.Name} - Result {onAttack.AttackResult}" +
-        $" - Base damage {onAttack.DamageData.Base} - attack number {onAttack.AttackNumber} - attack type {onAttack.WeaponAttackType}", LogUtils.LogType.Combat);
+     // LogUtils.LogMessage($"Attack Event - Attacker {onAttack.Attacker.Name} - Target {onAttack.Target.Name} - Result {onAttack.AttackResult}" +
+       // $" - Base damage {onAttack.DamageData.Base} - attack number {onAttack.AttackNumber} - attack type {onAttack.WeaponAttackType}", LogUtils.LogType.Combat);
 
       if (onAttack.Target is not NwCreature oTarget)
         return;
@@ -125,13 +124,6 @@ namespace NWN.Systems
       oItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = -1;
       oPC.ControllingPlayer.SendServerMessage($"Il ne reste plus que des ruines de votre {oItem.Name.ColorString(ColorConstants.White)}. Des réparations s'imposent !", ColorConstants.Red);
       LogUtils.LogMessage("Objet de qualité artisanale ruiné : à réparer !", LogUtils.LogType.Durability);
-    }
-    private static void IsAttackDodged(Context ctx, Action next)
-    {
-      if (ctx.onAttack.AttackResult == AttackResult.Miss)
-        StringUtils.DisplayStringToAllPlayersNearTarget(ctx.oTarget, "Esquive", ColorConstants.White);
-        
-      //next();
     }
     private static void ProcessDazed(Context ctx, Action next)
     {
@@ -194,9 +186,38 @@ namespace NWN.Systems
     }
     private static void ProcessCriticalHit(Context ctx, Action next)
     {
+      // TODO : nouveau fonctionnement => roll une seconde fois les dégâts de l'arme et de la sournoise et les ajouter
       if (ctx.onAttack.AttackResult == AttackResult.CriticalHit)
       {
-        ctx.baseArmorPenetration += 20;
+        ctx.oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComBloodCrtRed));
+        StringUtils.DisplayStringToAllPlayersNearTarget(ctx.oTarget, "Critique", new Color(255, 215, 0));
+
+        int criticalDamage = 0;
+
+        if(ctx.attackWeapon is not null)
+        {
+          criticalDamage = NwRandom.Roll(Utils.random, ctx.attackWeapon.BaseItem.DieToRoll, ctx.attackWeapon.BaseItem.NumDamageDice);
+          criticalDamage += ctx.onAttack.SneakAttack == SneakAttack.SneakAttack 
+            ? NwRandom.Roll(Utils.random, 6, (int)Math.Ceiling((double)ctx.oAttacker.GetClassInfo(NwClass.FromClassType(ClassType.Monk)).Level / 2))
+            : 0;
+        }
+        else
+        {
+          int damageDice = ctx.oAttacker.GetClassInfo(NwClass.FromClassType(ClassType.Monk)).Level switch
+          {
+            1 or 2 or 3 or 4 => 4,
+            5 or 6 or 7 or 8 or 9 or 10 => 6,
+            11 or 12 or 13 or 14 or 15 or 16 => 8,
+            17 or 18 or 19 or 20 or 21 or 22 => 10,
+            _ => 1,
+          };
+
+          criticalDamage = NwRandom.Roll(Utils.random, damageDice);
+        }
+
+        Config.SetContextDamage(ctx, DamageType.BaseWeapon, Config.GetContextDamage(ctx, DamageType.BaseWeapon) + criticalDamage);
+
+        /*ctx.baseArmorPenetration += 20;
         ctx.oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComBloodCrtRed));
         StringUtils.DisplayStringToAllPlayersNearTarget(ctx.oTarget, "Critique", ColorConstants.Orange);
 
@@ -235,7 +256,7 @@ namespace NWN.Systems
 
           ctx.attackingPlayer.endurance.currentMana = ctx.attackingPlayer.endurance.currentMana + mana > ctx.attackingPlayer.endurance.maxMana ? ctx.attackingPlayer.endurance.maxMana : ctx.attackingPlayer.endurance.currentMana + mana;
           ctx.attackingPlayer.endurance.regenerableMana -= mana;
-        }
+        }*/
       }
 
       next();
@@ -452,8 +473,8 @@ namespace NWN.Systems
         ctx.baseArmorPenetration += 5;
 
       // Les armes perforantes disposent de 20 % de pénétration supplémentaire contre les armures lourdes
-      if (ctx.attackWeapon.BaseItem.WeaponType.Contains(DamageType.Piercing) && ctx.oTarget.GetItemInSlot(InventorySlot.Chest) is not null && ctx.oTarget.GetItemInSlot(InventorySlot.Chest).BaseACValue > 5)
-        ctx.baseArmorPenetration += 20;
+      /*if (ctx.attackWeapon.BaseItem.WeaponType.Contains(DamageType.Piercing) && ctx.oTarget.GetItemInSlot(InventorySlot.Chest) is not null && ctx.oTarget.GetItemInSlot(InventorySlot.Chest).BaseACValue > 5)
+        ctx.baseArmorPenetration += 20;*/
 
       if (ctx.attackingPlayer is not null && ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_NEXT_ATTACK").HasValue)
       {

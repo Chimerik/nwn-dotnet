@@ -126,8 +126,9 @@ namespace NWN.Systems
       NwServer.Instance.ServerInfo.PlayOptions.RestoreSpellUses = false;
       NwServer.Instance.ServerInfo.PlayOptions.ShowDMJoinMessage = false;
 
-      //ItemSystem.feedbackService.AddCombatLogMessageFilter(CombatLogMessage.ComplexAttack);
+      ItemSystem.feedbackService.AddCombatLogMessageFilter(CombatLogMessage.ComplexAttack);
       ItemSystem.feedbackService.AddCombatLogMessageFilter(CombatLogMessage.Initiative);
+      ItemSystem.feedbackService.AddFeedbackMessageFilter(FeedbackMessage.EquipSkillSpellModifiers);
 
       SetModuleTime();
       CheckIllegalItems();
@@ -440,11 +441,17 @@ namespace NWN.Systems
 
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_EMOTE_BEFORE", "on_input_emote");
       EventsPlugin.SubscribeEvent("NWNX_ON_COMBAT_ATTACK_OF_OPPORTUNITY_BEFORE", "on_opportunity");
-      //EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_AFTER", "event_has_feat");
+      EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_BEFORE", "on_dual_fight");
+      EventsPlugin.AddIDToWhitelist("NWNX_ON_HAS_FEAT", (int)Feat.TwoWeaponFighting);
+      EventsPlugin.AddIDToWhitelist("NWNX_ON_HAS_FEAT", (int)Feat.Ambidexterity);
+      // ImprovedTwoWeaponFighting donne une attaque supplémentaire avec l'off-hand pour une pénalité de -5 BA. A voir dans le cas de Thief qui dual fight avec 2 actions bonus
+      //EventsPlugin.AddIDToWhitelist("NWNX_ON_HAS_FEAT", (int)Feat.ImprovedTwoWeaponFighting);
 
+      NwModule.Instance.OnAcquireItem += ItemSystem.OnAcquireCheckFinesseProperty;
       NwModule.Instance.OnPlayerGuiEvent += PlayerSystem.HandleGuiEvents;
       NwModule.Instance.OnCreatureAttack += AttackSystem.HandleAttackEvent;
       NwModule.Instance.OnCreatureDamage += AttackSystem.HandleDamageEvent;
+      NwModule.Instance.OnCreatureCheckProficiencies += ItemSystem.OnCheckProficiencies;
       //NwModule.Instance.OnEffectApply += OnPlayerEffectApplied;
     }
     private static void SetModuleTime()
@@ -1254,6 +1261,12 @@ namespace NWN.Systems
     private void HandleOpportunityAttack(CallInfo callInfo)
     {
       //EventsPlugin.SkipEvent();
+    }
+    [ScriptHandler("on_dual_fight")]
+    private void AutoGiveDualFightFeats(CallInfo callInfo)
+    {
+      EventsPlugin.SetEventResult("1");
+      EventsPlugin.SkipEvent();
     }
   }
 }

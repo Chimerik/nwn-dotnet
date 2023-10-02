@@ -661,6 +661,12 @@ namespace NWN.Systems
             ipColorList.Add(ip.DurationType == EffectDuration.Permanent ? ColorConstants.White : ColorConstants.Blue);
           }
 
+          if(item.GetObjectVariable<LocalVariableInt>("_IS_FINESSE_WEAPON").HasValue)
+          {
+            ipNameList.Add("Finesse");
+            ipColorList.Add(ColorConstants.White);
+          }
+
           ipName.SetBindValues(player.oid, nuiToken.Token, ipNameList);
           ipColor.SetBindValues(player.oid, nuiToken.Token, ipColorList);
           listCount.SetBindValue(player.oid, nuiToken.Token, ipNameList.Count);

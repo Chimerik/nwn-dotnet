@@ -94,24 +94,12 @@ namespace NWN.Systems
         _ => ItemCategory.Invalid,
       };
     }
-    public static bool CanBeEquippedInLeftHand(BaseItemType baseItemType)
+    public static bool IsLightWeapon(NwBaseItem baseItem, CreatureSize creatureSize)
     {
-      return baseItemType switch
-      {
-        BaseItemType.Dagger or BaseItemType.Kama or BaseItemType.Kukri or BaseItemType.Sickle or BaseItemType.Shortsword or BaseItemType.Handaxe
-        or BaseItemType.LightFlail or BaseItemType.Torch or BaseItemType.SmallShield or BaseItemType.LargeShield or BaseItemType.TowerShield => true,
-        _ => false
-      };
-    }
-    public static bool IsFinesseWeapon(BaseItemType baseItemType)
-    {
-      return baseItemType switch
-      {
-        BaseItemType.Dagger or BaseItemType.Sickle or BaseItemType.Handaxe or BaseItemType.Quarterstaff or BaseItemType.Shortsword
-        or BaseItemType.Quarterstaff or BaseItemType.Scimitar or BaseItemType.Kama or BaseItemType.Rapier or BaseItemType.Kukri
-        or BaseItemType.Katana => true,
-        _ => false
-      };
+      return baseItem.NumDamageDice > 0
+        && baseItem.WeaponSize > BaseItemWeaponSize.Unknown
+        && creatureSize > CreatureSize.Invalid
+        && (int)baseItem.WeaponSize < (int)creatureSize;
     }
     public static bool IsVersatileWeapon(BaseItemType baseItemType)
     {
@@ -2385,6 +2373,72 @@ namespace NWN.Systems
         return 0;
 
       return item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value * 2 + 2;
+    }
+    public static List<Feat> GetItemProficiencies(BaseItemType itemType, int baseAC = -1)
+    {
+      List<Feat> featList = new();
+
+      switch(itemType)
+      {
+        case BaseItemType.Club:
+        case BaseItemType.Dagger:
+        case BaseItemType.Handaxe:
+        case BaseItemType.ShortSpear:
+        case BaseItemType.LightHammer:
+        case BaseItemType.LightMace:
+        case BaseItemType.Quarterstaff:
+        case BaseItemType.Sickle:
+        case BaseItemType.LightCrossbow:
+        case BaseItemType.Dart:
+        case BaseItemType.Shortbow:
+        case BaseItemType.MagicStaff:
+        case BaseItemType.LightFlail:
+        case BaseItemType.Morningstar:
+        case BaseItemType.Sling: featList.Add(Feat.WeaponProficiencySimple); break;
+        case BaseItemType.Battleaxe:
+        case BaseItemType.Rapier:
+        case BaseItemType.Greataxe:
+        case BaseItemType.Greatsword:
+        case BaseItemType.Scimitar:
+        case BaseItemType.Longbow:
+        case BaseItemType.Longsword:
+        case BaseItemType.Shortsword:
+        case BaseItemType.Halberd:
+        case BaseItemType.HeavyFlail:
+        case BaseItemType.ThrowingAxe:
+        case BaseItemType.Trident:
+        case BaseItemType.Warhammer:
+        case BaseItemType.HeavyCrossbow: featList.Add(Feat.WeaponProficiencyMartial); break;
+        case BaseItemType.Bastardsword:
+        case BaseItemType.Scythe:
+        case BaseItemType.Shuriken:
+        case BaseItemType.DireMace:
+        case BaseItemType.Doubleaxe:
+        case BaseItemType.DwarvenWaraxe:
+        case BaseItemType.TwoBladedSword:
+        case BaseItemType.Kama:
+        case BaseItemType.Katana:
+        case BaseItemType.Kukri:
+        case BaseItemType.Whip: featList.Add(Feat.WeaponProficiencyExotic); break;
+        case BaseItemType.SmallShield:
+        case BaseItemType.LargeShield:
+        case BaseItemType.TowerShield: featList.Add(Feat.ShieldProficiency); break;
+        case BaseItemType.Armor:
+          switch(baseAC)
+          {
+            case 1:
+            case 2: featList.Add(Feat.ArmorProficiencyLight); break;
+            case 3:
+            case 4:
+            case 5: featList.Add(Feat.ArmorProficiencyMedium); break;
+            case 6:
+            case 7:
+            case 8: featList.Add(Feat.ArmorProficiencyHeavy); break;
+          }
+          break;
+      }
+
+      return featList;
     }
   }
 }

@@ -17,6 +17,7 @@ namespace NWN.Systems
     private readonly ScriptHandleFactory scriptHandleFactory;
     public static ScriptCallbackHandle removeCoreHandle;
     private static Effect corePotionEffect;
+    private static Effect shieldArmorDisadvantageEffect;
     public ItemSystem(FeedbackService feedback, ScriptHandleFactory scriptFactory)
     {
       feedbackService = feedback;
@@ -29,6 +30,11 @@ namespace NWN.Systems
       corePotionEffect.Tag = "_CORE_EFFECT";
       corePotionEffect.SubType = EffectSubType.Supernatural;
 
+      shieldArmorDisadvantageEffect = Effect.RunAction();
+      shieldArmorDisadvantageEffect =  Effect.LinkEffects(shieldArmorDisadvantageEffect, Effect.Icon(NwGameTables.EffectIconTable.GetRow(34)));
+      shieldArmorDisadvantageEffect.Tag = StringUtils.shieldArmorDisadvantageEffectTag;
+      shieldArmorDisadvantageEffect.SubType = EffectSubType.Unyielding;
+
       //NwModule.Instance.OnAcquireItem += OnAcquireItem;
       //NwModule.Instance.OnUnacquireItem += OnUnacquireItem;
     }
@@ -40,7 +46,7 @@ namespace NWN.Systems
       if (oPC == null || oItem == null)
         return;
 
-      if (onItemEquip.Slot == InventorySlot.LeftHand && !ItemUtils.CanBeEquippedInLeftHand(oItem.BaseItem.ItemType))
+      if (onItemEquip.Slot == InventorySlot.LeftHand && !ItemUtils.IsLightWeapon(oItem.BaseItem, oPC.Size))
       {
         oPC.ControllingPlayer.SendServerMessage($"{StringUtils.ToWhitecolor(oItem.Name)} n'est pas une arme légère et ne peut être équipée dans la main gauche", ColorConstants.Red);
         onItemEquip.PreventEquip = true;
@@ -56,8 +62,8 @@ namespace NWN.Systems
         return;
       }
 
-      if(onItemEquip.Slot == InventorySlot.RightHand)
-        oPC.BaseAttackCount = ItemUtils.GetWeaponAttackPerRound(oItem.BaseItem.ItemType);
+      /*if(onItemEquip.Slot == InventorySlot.RightHand)
+        oPC.BaseAttackCount = ItemUtils.GetWeaponAttackPerRound(oItem.BaseItem.ItemType);*/
 
       if (!PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
         return;
@@ -78,37 +84,21 @@ namespace NWN.Systems
         case BaseItemType.SmallShield:
         case BaseItemType.LargeShield:
         case BaseItemType.TowerShield:
-          if (!oPC.KnowsFeat(Feat.ShieldProficiency))
-          {
-            ApplyShieldArmorDisadvantageToPlayer(oPC);
-            player.oid.SendServerMessage("Malus d'absence de maîtrise des boucliers appliqué !");
-          }
-          break;
-
         case BaseItemType.Armor:
 
-          if (oItem.BaseACValue > 0 && oItem.BaseACValue < 3)
-            if (!oPC.KnowsFeat(Feat.ArmorProficiencyLight))
-            {
-              ApplyShieldArmorDisadvantageToPlayer(oPC);
-              player.oid.SendServerMessage("Malus d'absence de maîtrise des armures légères appliqué !");
-            }
+          List<Feat> proficenciesRequirements = ItemUtils.GetItemProficiencies(oItem.BaseItem.ItemType, oItem.BaseACValue);
+          
+          if (proficenciesRequirements.Count < 1)
+            return;
 
-          if (oItem.BaseACValue > 2 && oItem.BaseACValue < 6)
-            if (!oPC.KnowsFeat(Feat.ArmorProficiencyMedium))
-            {
-              ApplyShieldArmorDisadvantageToPlayer(oPC);
-              player.oid.SendServerMessage("Malus d'absence de maîtrise des armures intermédiaires appliqué !");
-            }
+          foreach (Feat requiredProficiency in proficenciesRequirements)
+            if (oPC.KnowsFeat(requiredProficiency))
+              return;
 
-          if (oItem.BaseACValue > 6)
-            if (!oPC.KnowsFeat(Feat.ArmorProficiencyHeavy))
-            {
-              ApplyShieldArmorDisadvantageToPlayer(oPC);
-              player.oid.SendServerMessage("Malus d'absence de maîtrise des armures lourdes appliqué !");
-            }
+          ApplyShieldArmorDisadvantageToPlayer(oPC);
+          player.oid.SendServerMessage($"Vous ne maîtrisez pas le port de {StringUtils.ToWhitecolor(oItem.Name)}. Malus appliqué.", ColorConstants.Red);
 
-          break;
+          return;
       }
     }
     //TODO : vérifier comment l'application se passe à la première connexion après reboot, puis aux connexions successives
@@ -155,10 +145,10 @@ namespace NWN.Systems
 
       if (!oPC.ControllingPlayer.IsValid || !oItem.IsValid || oPC.Inventory.CheckFit(oItem))
       {
-        if (oPC.GetItemInSlot(InventorySlot.RightHand) is not null)
+        /*if (oPC.GetItemInSlot(InventorySlot.RightHand) is not null)
           oPC.BaseAttackCount = ItemUtils.GetWeaponAttackPerRound(oPC.GetItemInSlot(InventorySlot.RightHand).BaseItem.ItemType);
         else
-          oPC.BaseAttackCount = 3;
+          oPC.BaseAttackCount = 3;*/
 
         if (!PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
           return;
@@ -530,11 +520,8 @@ namespace NWN.Systems
     }
     public static void ApplyShieldArmorDisadvantageToPlayer(NwCreature playerCreature)
     {
-      if (!PlayerSystem.Players.TryGetValue(playerCreature, out PlayerSystem.Player player))
-        return;
-
       playerCreature.OnSpellAction += SpellSystem.NoArmorShieldProficiencyOnSpellInput;
-      player.AddDisadvantage(new List<PlayerSystem.Advantage> { PlayerSystem.Advantage.SaveStrength, PlayerSystem.Advantage.SaveDexterity, PlayerSystem.Advantage.SaveConstitution, PlayerSystem.Advantage.SaveIntelligence, PlayerSystem.Advantage.SaveWisdom, PlayerSystem.Advantage.SaveCharisma, PlayerSystem.Advantage.SkillStrength, PlayerSystem.Advantage.SkillDexterity, PlayerSystem.Advantage.AttackStrength, PlayerSystem.Advantage.AttackDexterity });
+      playerCreature.ApplyEffect(EffectDuration.Permanent, shieldArmorDisadvantageEffect);
     }
     public static void RemoveShieldArmorDisadvantageToPlayer(NwCreature playerCreature)
     {
@@ -542,7 +529,22 @@ namespace NWN.Systems
         return;
 
       playerCreature.OnSpellAction -= SpellSystem.NoArmorShieldProficiencyOnSpellInput;
-      player.AddAdvantage(new List<PlayerSystem.Advantage> { PlayerSystem.Advantage.SaveStrength, PlayerSystem.Advantage.SaveDexterity, PlayerSystem.Advantage.SaveConstitution, PlayerSystem.Advantage.SaveIntelligence, PlayerSystem.Advantage.SaveWisdom, PlayerSystem.Advantage.SaveCharisma, PlayerSystem.Advantage.SkillStrength, PlayerSystem.Advantage.SkillDexterity, PlayerSystem.Advantage.AttackStrength, PlayerSystem.Advantage.AttackDexterity });
+      playerCreature.RemoveEffect(shieldArmorDisadvantageEffect);
+    }
+    public static void OnAcquireCheckFinesseProperty(ModuleEvents.OnAcquireItem onAcquireItem)
+    {
+      switch(onAcquireItem.Item?.BaseItem.ItemType)
+      {
+        case BaseItemType.Shortsword:
+        case BaseItemType.Dart:
+        case BaseItemType.Rapier:
+        case BaseItemType.Scimitar:
+        case BaseItemType.Dagger:
+        case BaseItemType.Whip:
+          if (onAcquireItem.Item.GetObjectVariable<LocalVariableInt>("_IS_FINESSE_WEAPON").HasNothing)
+            onAcquireItem.Item.GetObjectVariable<LocalVariableInt>("_IS_FINESSE_WEAPON").Value = 1;
+          return;
+      }
     }
   }
 }

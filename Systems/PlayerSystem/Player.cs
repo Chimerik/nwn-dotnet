@@ -67,8 +67,6 @@ namespace NWN.Systems
       public List<CustomDMVisualEffect> customDMVisualEffects = new();
       public List<NwGameObject> effectTargets = new();
 
-      public Dictionary<Advantage, int> advantages = new();
-
       private readonly SpellSystem spellSystem;
       private readonly AreaSystem areaSystem;
       private readonly FeedbackService feedbackService;
@@ -387,7 +385,7 @@ namespace NWN.Systems
       {
         int masteryLevel = 0;
         BaseItemType baseItem = weapon is not null ? weapon.BaseItem.ItemType : BaseItemType.Gloves; // TODO : créer un item spécifique pour le combat à mains nues (doit occuper les deux mains et être invisible)
-
+        
         switch (baseItem)
         {
           case BaseItemType.Shortsword:
@@ -1440,18 +1438,6 @@ namespace NWN.Systems
         attributeLevel += learnableSkills.ContainsKey((int)attribut + 3) ? learnableSkills[(int)attribut + 3].totalPoints : 0;
 
         return attributeLevel;
-      }
-      public void AddAdvantage(List<Advantage> advantageList)
-      {
-        foreach (Advantage advantage in advantageList)
-          if (!advantages.TryAdd(advantage, 1))
-            advantages[advantage] += 1;
-      }
-      public void AddDisadvantage(List<Advantage> disadvantageList)
-      {
-        foreach(Advantage disadvantage in disadvantageList) 
-          if (!advantages.TryAdd(disadvantage, -1))
-            advantages[disadvantage] -= 1;
       }
     }
   }

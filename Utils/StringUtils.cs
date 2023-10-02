@@ -17,6 +17,9 @@ namespace NWN
 {
   public static class StringUtils
   {
+    public static readonly string shieldArmorDisadvantageEffectTag = "_DISADVANTAGE_SHIELD_ARMOR_PROFICIENCY";
+    public static readonly Native.API.CExoString shieldArmorDisadvantageEffectExoTag = "_DISADVANTAGE_SHIELD_ARMOR_PROFICIENCY".ToExoString();
+    public static readonly Native.API.CExoString prout = "Prout".ToExoString();
     public static JsonSerializerSettings settings = new() { TypeNameHandling = TypeNameHandling.All };
     public static string[] noReplyArray = { "Banque Skalsgard" };
 
@@ -138,7 +141,7 @@ namespace NWN
     public static void DisplayStringToAllPlayersNearTarget(NwCreature target, string message, Color color)
     {
       foreach (NwPlayer player in NwModule.Instance.Players)
-        if (player?.ControlledCreature?.Area == target?.Area && player?.ControlledCreature.DistanceSquared(target) < 1225)
+        if (player != target.ControllingPlayer && player?.ControlledCreature?.Area == target?.Area && player?.ControlledCreature.DistanceSquared(target) < 1225)
           player.DisplayFloatingTextStringOnCreature(target, message.ColorString(color));
     }
     public static double GetDrawListTextPositionScaledToUI(int uiScale)

@@ -62,10 +62,10 @@ namespace NWN.Systems
       if (player.oid.LoginCreature.GetObjectVariable<PersistentVariableBool>("_ALWAYS_WALK").HasValue)
         player.oid.ControlledCreature.AlwaysWalk = true;
 
-      if (player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand) is not null)
+      /*if (player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand) is not null)
         player.oid.LoginCreature.BaseAttackCount = ItemUtils.GetWeaponAttackPerRound(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand).BaseItem.ItemType);
       else
-        player.oid.LoginCreature.BaseAttackCount = 3;
+        player.oid.LoginCreature.BaseAttackCount = 3;*/
 
       if (oPC.IsDM)
         return;
@@ -290,7 +290,6 @@ namespace NWN.Systems
       }
       private void InitializeItemEvents()
       {
-        oid.LoginCreature.OnCreatureCheckProficiencies += ItemSystem.OnCheckProficiencies;
         oid.LoginCreature.OnAcquireItem += ItemSystem.HandleUnacquirableItems;
         oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireForceDurability;
         oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquirePlayerCorpse;
