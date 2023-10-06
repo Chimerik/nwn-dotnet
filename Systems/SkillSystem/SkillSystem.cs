@@ -171,8 +171,8 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomSkill.ImprovedWisdom, new LearnableSkill(CustomSkill.ImprovedWisdom, "Sagesse accrue", "Augmente la sagesse d'un point par niveau d'entraînement.", Category.MindBody, "ife_X2GrWis1", 4, 3, Ability.Constitution, Ability.Wisdom, Attribut.Invalid, Type.Invalid, false, HandleImproveAbility));
       learnableDictionary.Add(CustomSkill.ImprovedCharisma, new LearnableSkill(CustomSkill.ImprovedCharisma, "Charisme accrue", "Augmente le charisme d'un point par niveau d'entraînement.", Category.MindBody, "ife_X2GrCha1", 4, 3, Ability.Constitution, Ability.Charisma, Attribut.Invalid, Type.Invalid, false, HandleImproveAbility));
 
-      learnableDictionary.Add(CustomSkill.ImprovedHealth, new LearnableSkill(CustomSkill.ImprovedHealth, "Résilience", "Augmente les points de vie de de 1 * (Robustesse + modificateur de constitution de base) par niveau.\n\n Ce don est rétroactif.", Category.MindBody, "ife_X2GrCon1", 5, 2, Ability.Constitution, Ability.Charisma, Attribut.Invalid, Type.Invalid, false, HandleImproveHealth));
-      learnableDictionary.Add(CustomSkill.Toughness, new LearnableSkill(CustomSkill.Toughness, "Robustesse", "Augmente le multiplicateur d'augmentation des points de vie de un par niveau d'entraînement.\n\n Rétroactif.", Category.MindBody, "ife_tough", 5, 1, Ability.Constitution, Ability.Charisma, Attribut.Invalid, Type.Invalid, false, HandleImproveHealth));
+      learnableDictionary.Add(CustomSkill.ImprovedHealth, new LearnableSkill(CustomSkill.ImprovedHealth, "Résilience", "Augmente les points de vie de de 1 * (Robustesse + modificateur de constitution de base) par niveau.\n\n Ce don est rétroactif.", Category.MindBody, "ife_X2GrCon1", 5, 2, Ability.Constitution, Ability.Charisma, Attribut.Invalid, Type.Invalid));
+      learnableDictionary.Add(CustomSkill.Toughness, new LearnableSkill(CustomSkill.Toughness, "Robustesse", "Augmente le multiplicateur d'augmentation des points de vie de un par niveau d'entraînement.\n\n Rétroactif.", Category.MindBody, "ife_tough", 5, 1, Ability.Constitution, Ability.Charisma, Attribut.Invalid, Type.Invalid));
 
       learnableDictionary.Add(CustomSkill.ImprovedFortitude, new LearnableSkill(CustomSkill.ImprovedFortitude, "Vigueur renforcée", "Augmente le jet de vigueur d'un point par niveau d'entraînement.", Category.MindBody, "ife_X1Blood", 8, 1, Ability.Strength, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleImproveSavingThrow));
       learnableDictionary.Add(CustomSkill.ImprovedReflex, new LearnableSkill(CustomSkill.ImprovedReflex, "Réflexes renforcés", "Augmente le jet de réflexe d'un point par niveau d'entraînement.", Category.MindBody, "ife_X1Snake", 8, 1, Ability.Dexterity, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleImproveSavingThrow));
@@ -695,10 +695,10 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomSkill.InspirationScience, new LearnableSkill(CustomSkill.InspirationScience, "Magie d'inspiration - Science", "Votre niveau de maîtrise de la magie d'inspiration.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie d'inspiration.\n", Category.Magic, "ife_SeverA", 5, 4, Ability.Charisma, Ability.Intelligence));
       learnableDictionary.Add(CustomSkill.InspirationMaster, new LearnableSkill(CustomSkill.InspirationMaster, "Magie d'inspiration - Maître", "Votre niveau de maîtrise de la magie d'inspiration.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie d'inspiration.\n", Category.Magic, "ife_SeverA", 5, 5, Ability.Charisma, Ability.Intelligence));
 
-      learnableDictionary.Add(CustomSkill.EnergyStorage, new LearnableSkill(CustomSkill.EnergyStorage, "Optimisation d'énergie", "Votre niveau de maîtrise de l'optimisation d'énergie.\nChaque rang augmente la durée et l'efficacité des sorts liés à l'optimisation d'énergie.\nChaque rang augmente votre énergie maximum de 0.5 point par modificateur d'intelligence  de base.", Category.Magic, "ife_SeverA", 5, 2, Ability.Intelligence, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleImproveEnergyStorage));
-      learnableDictionary.Add(CustomSkill.EnergyStorageExpert, new LearnableSkill(CustomSkill.EnergyStorageExpert, "Optimisation d'énergie - Expert", "Votre niveau de maîtrise de l'optimisation d'énergie.\nChaque rang augmente la durée et l'efficacité des sorts liés à l'optimisation d'énergie.\nChaque rang augmente votre énergie maximum de 0.5 point par modificateur d'intelligence  de base.", Category.Magic, "ife_SeverA", 5, 3, Ability.Intelligence, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleImproveEnergyStorage));
-      learnableDictionary.Add(CustomSkill.EnergyStorageScience, new LearnableSkill(CustomSkill.EnergyStorageScience, "Optimisation d'énergie - Science", "Votre niveau de maîtrise de l'optimisation d'énergie.\nChaque rang augmente la durée et l'efficacité des sorts liés à l'optimisation d'énergie.\nChaque rang augmente votre énergie maximum de 0.5 point par modificateur d'intelligence  de base.", Category.Magic, "ife_SeverA", 5, 4, Ability.Intelligence, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleImproveEnergyStorage));
-      learnableDictionary.Add(CustomSkill.EnergyStorageMaster, new LearnableSkill(CustomSkill.EnergyStorageMaster, "Optimisation d'énergie - Maître", "Votre niveau de maîtrise de l'optimisation d'énergie.\nChaque rang augmente la durée et l'efficacité des sorts liés à l'optimisation d'énergien.\nChaque rang augmente votre énergie maximum de 0.5 point par modificateur d'intelligence  de base.", Category.Magic, "ife_SeverA", 5, 5, Ability.Intelligence, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleImproveEnergyStorage));
+      learnableDictionary.Add(CustomSkill.EnergyStorage, new LearnableSkill(CustomSkill.EnergyStorage, "Optimisation d'énergie", "Votre niveau de maîtrise de l'optimisation d'énergie.\nChaque rang augmente la durée et l'efficacité des sorts liés à l'optimisation d'énergie.\nChaque rang augmente votre énergie maximum de 0.5 point par modificateur d'intelligence  de base.", Category.Magic, "ife_SeverA", 5, 2, Ability.Intelligence, Ability.Constitution, Attribut.Invalid, Type.Invalid));
+      learnableDictionary.Add(CustomSkill.EnergyStorageExpert, new LearnableSkill(CustomSkill.EnergyStorageExpert, "Optimisation d'énergie - Expert", "Votre niveau de maîtrise de l'optimisation d'énergie.\nChaque rang augmente la durée et l'efficacité des sorts liés à l'optimisation d'énergie.\nChaque rang augmente votre énergie maximum de 0.5 point par modificateur d'intelligence  de base.", Category.Magic, "ife_SeverA", 5, 3, Ability.Intelligence, Ability.Constitution, Attribut.Invalid, Type.Invalid));
+      learnableDictionary.Add(CustomSkill.EnergyStorageScience, new LearnableSkill(CustomSkill.EnergyStorageScience, "Optimisation d'énergie - Science", "Votre niveau de maîtrise de l'optimisation d'énergie.\nChaque rang augmente la durée et l'efficacité des sorts liés à l'optimisation d'énergie.\nChaque rang augmente votre énergie maximum de 0.5 point par modificateur d'intelligence  de base.", Category.Magic, "ife_SeverA", 5, 4, Ability.Intelligence, Ability.Constitution, Attribut.Invalid, Type.Invalid));
+      learnableDictionary.Add(CustomSkill.EnergyStorageMaster, new LearnableSkill(CustomSkill.EnergyStorageMaster, "Optimisation d'énergie - Maître", "Votre niveau de maîtrise de l'optimisation d'énergie.\nChaque rang augmente la durée et l'efficacité des sorts liés à l'optimisation d'énergien.\nChaque rang augmente votre énergie maximum de 0.5 point par modificateur d'intelligence  de base.", Category.Magic, "ife_SeverA", 5, 5, Ability.Intelligence, Ability.Constitution, Attribut.Invalid, Type.Invalid));
 
       learnableDictionary.Add(CustomSkill.CriticalStrikes, new LearnableSkill(CustomSkill.CriticalStrikes, "Art critique", "Votre niveau de maîtrise des frappes critiques.\nChaque rang augmente la durée et l'efficacité des capacités liées aux frappes critiques.\nChaque rang donne + 1% de chance de coup critique (cappé par votre dextérité).\nPour chaque coup critique, vous gagnez 1 d'énergie jusqu'au rang 3, 2 d'énergie jusqu'au rang 8 et 3 d'énergie à partir du rang 13.", Category.Fight, "ife_SeverA", 5, 2, Ability.Dexterity, Ability.Intelligence));
       learnableDictionary.Add(CustomSkill.CriticalStrikesExpert, new LearnableSkill(CustomSkill.CriticalStrikesExpert, "Art critique - Expert", "Votre niveau de maîtrise des frappes critiques.\nChaque rang augmente la durée et l'efficacité des capacités liées aux frappes critiques.\nChaque rang donne + 1% de chance de coup critique (cappé par votre dextérité).\nPour chaque coup critique, vous gagnez 1 d'énergie jusqu'au rang 3, 2 d'énergie jusqu'au rang 8 et 3 d'énergie à partir du rang 13.", Category.Fight, "ife_SeverA", 5, 3, Ability.Dexterity, Ability.Intelligence));
@@ -1075,12 +1075,12 @@ namespace NWN.Systems
       //foreach(var learnable in learnableDictionary)
         //ModuleSystem.Log.Info($";{learnable.Value.name};{learnable.Value.description.Replace("\n", "")};{learnable.Value.multiplier};{learnable.Value.primaryAbility};{learnable.Value.secondaryAbility}") ;
     }
-    private static bool HandleImproveHealth(PlayerSystem.Player player, int customSkillId)
+    /*private static bool HandleImproveHealth(PlayerSystem.Player player, int customSkillId)
     {
       player.SetMaxHP();
 
       return true;
-    }
+    }*/
     private static bool HandleImproveAbility(PlayerSystem.Player player, int customSkillId)
     {
       //Log.Info($"improve ability triggered : {customSkillId}");
@@ -1094,7 +1094,7 @@ namespace NWN.Systems
           break;
         case CustomSkill.ImprovedConstitution:
           player.oid.LoginCreature.SetsRawAbilityScore(Ability.Constitution, (byte)(player.oid.LoginCreature.GetRawAbilityScore(Ability.Constitution) + 1));
-          HandleImproveHealth(player, CustomSkill.ImprovedHealth);
+          //HandleImproveHealth(player, CustomSkill.ImprovedHealth);
           break;
         case CustomSkill.ImprovedIntelligence:
           player.oid.LoginCreature.SetsRawAbilityScore(Ability.Intelligence, (byte)(player.oid.LoginCreature.GetRawAbilityScore(Ability.Intelligence) + 1));
@@ -1109,11 +1109,11 @@ namespace NWN.Systems
 
       return true;
     }
-    private static bool HandleImproveEnergyStorage(PlayerSystem.Player player, int customSkillId)
+    /*private static bool HandleImproveEnergyStorage(PlayerSystem.Player player, int customSkillId)
     {
       player.endurance.additionnalMana = player.GetAdditionalMana();
       return true;
-    }
+    }*/
     private static bool HandleBackground(PlayerSystem.Player player, int customSkillId)
     {
       switch (customSkillId)

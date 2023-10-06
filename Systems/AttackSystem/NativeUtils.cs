@@ -9,9 +9,12 @@ namespace NWN.Systems
   {
     public static int GetWeaponProficiencyBonus(CNWSCreature creature, CNWSItem weapon)
     {
+      if (weapon is null)
+        return GetProficiencyBonus(creature);
+
       List<Anvil.API.Feat> proficenciesRequirements = ItemUtils.GetItemProficiencies(NwBaseItem.FromItemId((int)weapon.m_nBaseItem).ItemType);
 
-      if (weapon is null || proficenciesRequirements.Count < 1)
+      if (proficenciesRequirements.Count < 1)
         return GetProficiencyBonus(creature);
 
       foreach (Anvil.API.Feat requiredProficiency in proficenciesRequirements)
@@ -54,6 +57,23 @@ namespace NWN.Systems
       pData.SetString(0, message.ToExoString());
       creature.SendFeedbackMessage(204, pData);
       GC.SuppressFinalize(pData);
+    }
+    public static int GetCritDamage(CNWSCreature attacker, CNWSItem attackWeapon, int bSneakAttack)
+    {
+      int damage = 0;
+
+      if (attackWeapon is not null)
+      {
+        if (bSneakAttack > 0) // Hé oui, dans DD5, on reroll les dégâts des sournoises
+          damage += NwRandom.Roll(Utils.random, 6, (int)Math.Ceiling((double)attacker.m_pStats.GetNumLevelsOfClass((byte)Native.API.ClassType.Rogue) / 2));
+
+        NwBaseItem baseWeapon = NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem);
+        damage += NwRandom.Roll(Utils.random, baseWeapon.DieToRoll, baseWeapon.NumDamageDice);
+      }
+      else
+        damage += CreatureUtils.GetUnarmedDamage(attacker.m_pStats.GetNumLevelsOfClass((byte)Native.API.ClassType.Monk));
+
+      return damage;
     }
   }
 }

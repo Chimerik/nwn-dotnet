@@ -8,7 +8,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(AttackSystem))]
   public partial class AttackSystem
   {
-    public static int GetDeepWoundModifiedDuration(PlayerSystem.Player player, NwGameObject targetObject, WeaponAttackType attackType, double duration)
+    /*public static int GetDeepWoundModifiedDuration(PlayerSystem.Player player, NwGameObject targetObject, WeaponAttackType attackType, double duration)
     {
       if (targetObject is not NwCreature targetCreature)
         return 0;
@@ -94,6 +94,6 @@ namespace NWN.Systems
     private static void DeepWoundReducedHealing(OnHeal onHeal)
     {
       onHeal.HealAmount = (int)Math.Round(onHeal.HealAmount * 0.80, MidpointRounding.ToEven);
-    }
+    }*/
   }
 }

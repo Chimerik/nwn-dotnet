@@ -107,7 +107,7 @@ namespace NWN.Systems
 
           if (ItemUtils.IsWeapon(item.BaseItem) || item.BaseItem.ItemType == BaseItemType.Gloves || item.BaseItem.ItemType == BaseItemType.Bracer)
           {
-            if((item.GetObjectVariable<LocalVariableInt>("_MIN_WEAPON_DAMAGE").HasNothing || item.GetObjectVariable<LocalVariableInt>("_MAX_WEAPON_DAMAGE").HasNothing))
+            /*if((item.GetObjectVariable<LocalVariableInt>("_MIN_WEAPON_DAMAGE").HasNothing || item.GetObjectVariable<LocalVariableInt>("_MAX_WEAPON_DAMAGE").HasNothing))
             {
               if(ItemUtils.itemDamageDictionary.ContainsKey(item.BaseItem.ItemType))
               {
@@ -129,19 +129,17 @@ namespace NWN.Systems
               minSkillDamage = 1;
 
             if (maxSkillDamage < 1)
-              maxSkillDamage = 1;
+              maxSkillDamage = 1;*/
 
             rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() 
             {
               new NuiSpacer(),
               new NuiButtonImage("ir_powerattack") { Height = 35, Width = 35, Tooltip = "Dégats" },
               new NuiSpacer() { Width = 5 },
-              new NuiLabel($"{minSkillDamage}-{maxSkillDamage} / {minDamage}-{maxDamage}") { Tooltip = "Effectif / Base : Vos dégâts effectifs peuvent être améliorés en entrainant la compétence spécifique à l'arme.", Height = 35, Width = 80, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle } ,
+              new NuiLabel($"{item.BaseItem.NumDamageDice}d{item.BaseItem.DieToRoll}") { Height = 35, Width = 80, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle } ,
               new NuiSpacer(),
               new NuiButtonImage("ir_moreattacks") { Height = 35, Width = 35, Tooltip = "Critiques" },
               new NuiSpacer() { Width = 5 },
-              new NuiLabel($"{maxSkillDamage} + 20 AP - {player.GetWeaponMasteryLevel(item) + 5} %") { Tooltip = "Vos chances de critiques peuvent être améliorées en entrainant la compétence de science du critique spécifique à l'arme", Height = 35, Width = 80, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle },
-              new NuiSpacer(),
               new NuiButtonImage("ir_sell02") { Height = 35, Width = 35, Tooltip = "Type de dégâts" },
               new NuiSpacer() { Width = 5 },
               new NuiLabel(ItemUtils.DisplayDamageType(item)) { Height = 35, Width = 100, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle },

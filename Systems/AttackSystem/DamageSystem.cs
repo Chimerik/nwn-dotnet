@@ -30,7 +30,7 @@ namespace NWN.Systems
     public static void HandleDamageEvent(OnCreatureDamage onDamage)
     {
       // TODO : prendre en compte le cas des pièges
-      if (onDamage.Target is null || onDamage.DamageData.Base > -1 || onDamage.Target is not NwCreature oTarget) // S'il ne s'agit pas d'un sort, alors le calcul des dégâts a déjà été traité lors de l'event d'attaque
+      if (onDamage.Target is null || onDamage.DamageData.GetDamageByType(DamageType.BaseWeapon) > -1 || onDamage.Target is not NwCreature oTarget) // S'il ne s'agit pas d'un sort, alors le calcul des dégâts a déjà été traité lors de l'event d'attaque
         return;
 
       LogUtils.LogMessage("Spell Damage Event", LogUtils.LogType.Combat);

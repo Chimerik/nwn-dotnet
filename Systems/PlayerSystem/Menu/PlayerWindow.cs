@@ -40,8 +40,8 @@ namespace NWN.Systems
           switch (windowId)
           {
             case "bodyAppearanceModifier": ((BodyAppearanceWindow)this).CreateWindow(((BodyAppearanceWindow)this).targetCreature); break;
-            case "healthBar": ((HealthBarWindow)this).CreateWindow(); break;
-            case "energyBar": ((EnergyBarWindow)this).CreateWindow(); break;
+            //case "healthBar": ((HealthBarWindow)this).CreateWindow(); break;
+            //case "energyBar": ((EnergyBarWindow)this).CreateWindow(); break;
           }
         }
       }

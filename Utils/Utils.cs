@@ -398,7 +398,7 @@ namespace NWN
       { "language", new MainMenuCommand("Langue", "Choisir la langue actuellement parlée par mon personnage", CommandRank.Public) },
       { "effectDispel", new MainMenuCommand("Dissiper mes effets de sorts", "", CommandRank.Public) },
       { "dispelAoE", new MainMenuCommand("Dissiper mes zones d'effets", "", CommandRank.Public) },
-      { "healthManaBars", new MainMenuCommand("Dé/Verrouiller l'affichage des barres de statuts", "", CommandRank.Public) },
+      //{ "healthManaBars", new MainMenuCommand("Dé/Verrouiller l'affichage des barres de statuts", "", CommandRank.Public) },
       { "grimoire", new MainMenuCommand("Gérer les grimoires", "Enregistrer ou charger un grimoire de sorts", CommandRank.Public) },
       { "quickbars", new MainMenuCommand("Gérer les barres de raccourcis", "Enregistrer ou charger une barre de raccourcis", CommandRank.Public) },
       { "commend", new MainMenuCommand("Recommander un joueur", "Recommander un joueur pour la qualité de son roleplay et son implication sur le module", CommandRank.Public) }, // TODO : Ajouter à OnExamine Player

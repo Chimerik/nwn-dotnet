@@ -254,7 +254,7 @@ namespace NWN.Systems
         oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireItemSavePlayer;
         oid.LoginCreature.OnUnacquireItem += ItemSystem.OnUnacquirePlayerCorpse;
         oid.LoginCreature.OnUnacquireItem += ItemSystem.OnUnacquireItemSavePlayer;
-        oid.LoginCreature.OnItemEquip += ItemSystem.OnItemEquipBefore;
+        oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipCancelIfInventoryFull;
         oid.LoginCreature.OnUseFeat += FeatSystem.OnUseFeatBefore;
         oid.OnNuiEvent += HandleGenericNuiEvents;
 
@@ -283,9 +283,9 @@ namespace NWN.Systems
         oid.OnMapPinAddPin += HandleMapPinAdded;
         oid.OnMapPinChangePin += HandleMapPinChanged;
         oid.OnMapPinDestroyPin += HandleMapPinDestroyed;
-        oid.LoginCreature.OnEffectApply += HandleItemPropertyChecksOnEffectApplied;
-        oid.LoginCreature.OnEffectRemove += HandleItemPropertyChecksOnEffectRemoved;
-        oid.LoginCreature.OnStealthModeUpdate += HandleStealthMode;
+        //oid.LoginCreature.OnEffectApply += HandleItemPropertyChecksOnEffectApplied;
+        //oid.LoginCreature.OnEffectRemove += HandleItemPropertyChecksOnEffectRemoved;
+        //oid.LoginCreature.OnStealthModeUpdate += HandleStealthMode;
         eventService.Subscribe<OnDMSpawnObject, DMEventFactory>(oid.LoginCreature, areaSystem.InitializeEventsAfterDMSpawnCreature, EventCallbackType.After);
       }
       private void InitializeItemEvents()
@@ -298,20 +298,23 @@ namespace NWN.Systems
         oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireItemSavePlayer;
         oid.LoginCreature.OnUnacquireItem += ItemSystem.OnUnacquirePlayerCorpse;
         oid.LoginCreature.OnUnacquireItem += ItemSystem.OnUnacquireItemSavePlayer;
-        oid.LoginCreature.OnItemValidateEquip += ItemSystem.NoEquipRuinedItem;
-        oid.LoginCreature.OnItemValidateUse += ItemSystem.NoUseRuinedItem;
-        oid.LoginCreature.OnItemUnequip += ItemSystem.HandleUnequipItemBefore;
-        oid.LoginCreature.OnItemEquip += ItemSystem.OnItemEquipBefore;
-        oid.LoginCreature.OnItemEquip += ItemSystem.OnItemEquipCheckArmorShieldProficiency;
-        oid.LoginCreature.OnItemUnequip += ItemSystem.OnItemUnEquipCheckArmorShieldProficiency;
-        oid.LoginCreature.OnItemUse += ItemSystem.OnItemUseBefore;
+        oid.LoginCreature.OnItemValidateEquip += ItemSystem.CancelRuinedItemEquip;
+        oid.LoginCreature.OnItemValidateUse += ItemSystem.CancelRuinedItemUse;
+        oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipCancelIfInventoryFull;
+        oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipCancelIfInventoryFull;
+        oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipOffHandWeapon;
+        oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipCheckArmorShieldProficiency;
+        oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipCheckArmorShieldProficiency;
+        oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireForceEquipCreatureSkin;
+        oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipForceEquipCreatureSkin;
+        oid.LoginCreature.OnItemUse += ItemSystem.OnItemUse;
         oid.LoginCreature.OnInventoryGoldAdd += HandleGainedGold;
         oid.LoginCreature.OnInventoryGoldRemove += HandleLostGold;
         oid.LoginCreature.OnItemScrollLearn += HandleBeforeScrollLearn;
       }
       private void InitializeSpellEvents()
       {
-        oid.LoginCreature.OnSpellAction += spellSystem.HandleSpellInput;
+        //oid.LoginCreature.OnSpellAction += spellSystem.HandleSpellInput;
         oid.LoginCreature.OnSpellAction += SpellSystem.HandleCraftOnSpellInput;
         //oid.LoginCreature.OnSpellBroadcast += spellSystem.HandleHearingSpellBroadcast;
         oid.LoginCreature.OnSpellCast += spellSystem.CheckIsDivinationBeforeSpellCast;
@@ -545,7 +548,7 @@ namespace NWN.Systems
         if (oid.LoginCreature.HP < 1)
           oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Death());
 
-        if (!windows.ContainsKey("healthBar")) windows.Add("healthBar", new HealthBarWindow(this));
+        /*if (!windows.ContainsKey("healthBar")) windows.Add("healthBar", new HealthBarWindow(this));
         else ((HealthBarWindow)windows["healthBar"]).CreateWindow();
 
         if (!windows.ContainsKey("energyBar")) windows.Add("energyBar", new EnergyBarWindow(this));
@@ -568,7 +571,7 @@ namespace NWN.Systems
         LogUtils.LogMessage($"{oid.LoginCreature.Name} application des effets du Mélange à la connexion : HP endurance {endurance.maxHP}, max HP {oid.LoginCreature.LevelInfo[0].HitDie + conModifier}, HP régénérable {endurance.regenerableHP}, max énergie {endurance.maxMana}, énergie régénérable {(int)endurance.regenerableMana}, se dissipe le {endurance.expirationDate}", LogUtils.LogType.EnduranceSystem);
 
         energyRegen = oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand)?.BaseItem.ItemType == BaseItemType.MagicStaff ? 4 : 2;
-        wasHPGreaterThan50 = oid.LoginCreature.HP > MaxHP / 2;
+        wasHPGreaterThan50 = oid.LoginCreature.HP > MaxHP / 2;*/
       }
       private void HandleLearnableInit()
       {

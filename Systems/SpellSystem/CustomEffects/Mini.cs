@@ -34,7 +34,7 @@ namespace NWN.Systems
     }
     private static void MiniMalus(OnCreatureDamage onDamage)
     {
-      onDamage.DamageData.Base = 1;
+      onDamage.DamageData.SetDamageByType(DamageType.BaseWeapon, 1);
     }
     private static void MiniMalusCure(CreatureEvents.OnSpellCastAt onSpellCastAt)
     {

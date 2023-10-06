@@ -156,22 +156,31 @@ namespace NWN
     public static int HasAdvantageAgainstTarget(CNWSCreature attacker, Ability attackStat, CNWSCreature target = null)
     {
       int advantage = 0;
-      
-      foreach(var eff in attacker.m_appliedEffects)
+
+      if (target is not null && attacker.m_vPosition.z > target.m_vPosition.z + 3)
+        advantage += 1;
+
+      foreach (var eff in attacker.m_appliedEffects)
       {
         if ((EffectTrueType)eff.m_nType != EffectTrueType.RunScript)
           continue;
 
         if (eff.m_sCustomTag.CompareNoCase(StringUtils.shieldArmorDisadvantageEffectExoTag) > 0 && (attackStat == Ability.Strength || attackStat == Ability.Dexterity))
-        {
           advantage -= 1;
-          LogUtils.LogMessage($"Advantage : {advantage}", LogUtils.LogType.Combat);
-        }
       }
 
-      LogUtils.LogMessage($"Final Advantage : {advantage}", LogUtils.LogType.Combat);
-
       return advantage;
+    }
+    public static int GetUnarmedDamage(int monkLevel)
+    {
+     return monkLevel switch
+      {
+        1 or 2 or 3 or 4 => 4,
+        5 or 6 or 7 or 8 or 9 or 10 => 6,
+        11 or 12 or 13 or 14 or 15 or 16 => 8,
+        17 or 18 or 19 or 20 or 21 or 22 => 10,
+        _ => 1,
+      };
     }
   }
 }

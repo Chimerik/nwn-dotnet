@@ -22,7 +22,7 @@ using System.Reflection;
 namespace NWN.Systems
 {
   [ServiceBinding(typeof(ModuleSystem))]
-  public class ModuleSystem
+  public partial class ModuleSystem
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public static readonly TranslationClient googleTranslationClient = TranslationClient.Create();
@@ -439,6 +439,7 @@ namespace NWN.Systems
       //EventsPlugin.SubscribeEvent("NWNX_ON_DM_POSSESS_FULL_POWER_BEFORE", "b_dm_possess");
       //EventsPlugin.SubscribeEvent("NWNX_ON_DM_POSSESS_BEFORE", "b_dm_possess");
 
+      EventsPlugin.SubscribeEvent("NWNX_ON_ITEM_DECREMENT_STACKSIZE_BEFORE", "on_ammo_used");
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_EMOTE_BEFORE", "on_input_emote");
       EventsPlugin.SubscribeEvent("NWNX_ON_COMBAT_ATTACK_OF_OPPORTUNITY_BEFORE", "on_opportunity");
       EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_BEFORE", "on_dual_fight");
@@ -449,9 +450,11 @@ namespace NWN.Systems
 
       NwModule.Instance.OnAcquireItem += ItemSystem.OnAcquireCheckFinesseProperty;
       NwModule.Instance.OnPlayerGuiEvent += PlayerSystem.HandleGuiEvents;
-      NwModule.Instance.OnCreatureAttack += AttackSystem.HandleAttackEvent;
-      NwModule.Instance.OnCreatureDamage += AttackSystem.HandleDamageEvent;
-      NwModule.Instance.OnCreatureCheckProficiencies += ItemSystem.OnCheckProficiencies;
+      //NwModule.Instance.OnCreatureAttack += AttackSystem.HandleAttackEvent;
+      //NwModule.Instance.OnCreatureDamage += AttackSystem.HandleDamageEvent;
+      NwModule.Instance.OnCreatureCheckProficiencies += ItemSystem.OverrideProficiencyCheck;
+      NwModule.Instance.OnItemEquip += ItemSystem.OnEquipHastWeapon;
+      NwModule.Instance.OnItemUnequip += ItemSystem.OnUnequipHastWeapon;
       //NwModule.Instance.OnEffectApply += OnPlayerEffectApplied;
     }
     private static void SetModuleTime()
@@ -992,11 +995,11 @@ namespace NWN.Systems
           HandleJobLoop(player);
           HandleLearnableLoop(player);
           HandleCheckAfkStatus(player);
-          HandlePassiveRegen(player);
-          HandleRegen(player);
-          HandleEnergyRegen(player);
-          HandleAdrenalineReset(player);
-          HandleHealthTriggeredItemProperty(player);
+          //HandlePassiveRegen(player);
+          //HandleRegen(player);
+          //HandleEnergyRegen(player);
+          //HandleAdrenalineReset(player);
+          //HandleHealthTriggeredItemProperty(player);
         }
       }
     }
@@ -1144,11 +1147,11 @@ namespace NWN.Systems
         }
       }
 
-      if (player.IsVampireWeapon(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand)))
+      /*if (player.IsVampireWeapon(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand)))
         player.healthRegen -= 1;
 
       if (player.IsVampireWeapon(player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand)))
-        player.healthRegen -= 1;
+        player.healthRegen -= 1;*/
 
       if (player.healthRegen < -19)
         player.healthRegen = -20;
@@ -1244,14 +1247,14 @@ namespace NWN.Systems
         LogUtils.LogMessage($"{player.oid.LoginCreature.Name} perd toute son adrénaline", LogUtils.LogType.Combat);
       }
     }
-    private static void HandleHealthTriggeredItemProperty(PlayerSystem.Player player)
+    /*private static void HandleHealthTriggeredItemProperty(PlayerSystem.Player player)
     {
       if (player.wasHPGreaterThan50 != player.oid.LoginCreature.HP > player.MaxHP / 2)
       {
         player.CheckForAdditionalMana();
         player.wasHPGreaterThan50 = player.oid.LoginCreature.HP > player.MaxHP / 2;
       }
-    }
+    }*/
     private static async void DelayedLocalVarDeletion(ObjectVariable local)
     {
       await NwTask.NextFrame();

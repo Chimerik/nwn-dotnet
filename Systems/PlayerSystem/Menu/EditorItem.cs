@@ -156,7 +156,11 @@ namespace NWN.Systems
 
                 case "addIP":
                   ItemPropertyTableEntry ipEntry = availableIPList[nuiEvent.ArrayIndex];
-                  var ip = ItemProperty.Custom(ipEntry, ipEntry.SubTypeTable?.GetRow(0) ?? null, ipEntry.CostTable?.GetRow(1) ?? null, ipEntry.Param1Table?.GetRow(0) ?? null);
+                  /*LogUtils.LogMessage($"ipEntry : {ipEntry}", LogUtils.LogType.Combat);
+                  LogUtils.LogMessage($"ipEntry?.SubTypeTable?.GetRow(0) ?? null : {ipEntry?.SubTypeTable?.GetRow(0) ?? null}", LogUtils.LogType.Combat);
+                  LogUtils.LogMessage($"ipEntry?.CostTable?.GetRow(1) ?? null : {ipEntry?.CostTable?.GetRow(0)}", LogUtils.LogType.Combat);
+                  LogUtils.LogMessage($"ipEntry?.Param1Table?.GetRow(0) ?? null : {ipEntry?.Param1Table?.GetRow(0) ?? null}", LogUtils.LogType.Combat);*/
+                  var ip = ItemProperty.Custom(ipEntry, ipEntry?.SubTypeTable?.GetRow(0) ?? null, ipEntry?.CostTable.Count > 0 ? ipEntry?.CostTable?.GetRow(1) : null, ipEntry?.Param1Table?.GetRow(0) ?? null);
                   targetItem.AddItemProperty(ip, EffectDuration.Permanent);
                   LoadItemPropertyBinding();
                   break;

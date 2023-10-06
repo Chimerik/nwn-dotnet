@@ -90,24 +90,24 @@ namespace NWN.Systems
     }
     public void HandleSpellInput(OnSpellAction onSpellAction)
     {
-      if (!Players.TryGetValue(onSpellAction.Caster, out Player player))
-        return;
+      //if (!Players.TryGetValue(onSpellAction.Caster, out Player player))
+        //return;
 
-      if (onSpellAction.IsFake || onSpellAction.IsInstant)
-        return;
+      //if (onSpellAction.IsFake || onSpellAction.IsInstant)
+        //return;
 
-      onSpellAction.PreventSpellCast = true;
+      //onSpellAction.PreventSpellCast = true;
 
-      double energyCost = SpellUtils.spellCostDictionary[onSpellAction.Spell][(int)SpellUtils.SpellData.EnergyCost];
-      int remainingCooldown = (int)Math.Round((player.oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>($"_SPELL_COOLDOWN_{onSpellAction.Spell.Id}").Value - DateTime.Now).TotalSeconds, MidpointRounding.ToEven);
+      //double energyCost = SpellUtils.spellCostDictionary[onSpellAction.Spell][(int)SpellUtils.SpellData.EnergyCost];
+      /*int remainingCooldown = (int)Math.Round((player.oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>($"_SPELL_COOLDOWN_{onSpellAction.Spell.Id}").Value - DateTime.Now).TotalSeconds, MidpointRounding.ToEven);
 
       if (remainingCooldown > 0)
       {
         player.oid.DisplayFloatingTextStringOnCreature(player.oid.ControlledCreature, $"{StringUtils.ToWhitecolor(onSpellAction.Spell.Name.ToString())} - Temps restant : {StringUtils.ToWhitecolor(remainingCooldown.ToString())}".ColorString(ColorConstants.Red));
         return;
-      }
+      }*/
 
-      if((SkillSystem.Type)SpellUtils.spellCostDictionary[onSpellAction.Spell][(int)SpellUtils.SpellData.Type] == SkillSystem.Type.Enchantement)
+      /*if((SkillSystem.Type)SpellUtils.spellCostDictionary[onSpellAction.Spell][(int)SpellUtils.SpellData.Type] == SkillSystem.Type.Enchantement)
       {
         int mysticismLevel = player.GetAttributeLevel(SkillSystem.Attribut.Mysticism);
         energyCost *= mysticismLevel * ((onSpellAction.Caster.GetAbilityScore(Ability.Charisma, true) - 10) / 2) / 100;
@@ -119,13 +119,13 @@ namespace NWN.Systems
       {
         player.oid.DisplayFloatingTextStringOnCreature(player.oid.ControlledCreature, $"{onSpellAction.Spell.Name.ToString()} - Energie manquante : {missingEnergy.ToString().ColorString(ColorConstants.Red)}");
         return;
-      }
+      }*/
 
-      _ = onSpellAction.Caster.ClearActionQueue();
+      //_ = onSpellAction.Caster.ClearActionQueue();
 
-      player.endurance.currentMana -= (int)Math.Round(energyCost, MidpointRounding.ToZero);
+      //player.endurance.currentMana -= (int)Math.Round(energyCost, MidpointRounding.ToZero);
 
-      HandleCastTime(onSpellAction, player);
+      //HandleCastTime(onSpellAction, player);
     }
     private static async void HandleCastTime(OnSpellAction spellAction, Player castingPlayer)
     {
@@ -241,7 +241,7 @@ namespace NWN.Systems
     }
     public static void NoArmorShieldProficiencyOnSpellInput(OnSpellAction onSpellAction)
     {
-      onSpellAction.Caster.LoginPlayer.SendServerMessage("Vous ne pouvez pas lancer de sort tant que vous êtes équipé d'une armure ou d'un bouclier dont vous n'avez pas la maîtrise.", ColorConstants.Red);
+      onSpellAction.Caster.LoginPlayer.SendServerMessage("Vous ne pouvez pas lancer de sort tant que vous êtes équipé d'une armure ou d'un bouclier que vous ne maîtrisez pas.", ColorConstants.Red);
       onSpellAction.PreventSpellCast = true;
     }
 

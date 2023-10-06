@@ -1260,7 +1260,7 @@ namespace NWN.Systems
 
         return skillScore;
       }
-      public void SetMaxHP()
+      /*public void SetMaxHP()
       {
         int improvedHealth = learnableSkills.ContainsKey(CustomSkill.ImprovedHealth) ? learnableSkills[CustomSkill.ImprovedHealth].currentLevel : 0;
         int toughness = learnableSkills.ContainsKey(CustomSkill.Toughness) ? learnableSkills[CustomSkill.Toughness].currentLevel : 0;
@@ -1429,7 +1429,7 @@ namespace NWN.Systems
       {
         SetMaxHP();
         endurance.additionnalMana = GetAdditionalMana();
-      }
+      }*/
       public int GetAttributeLevel(SkillSystem.Attribut attribut)
       {
         int attributeLevel = learnableSkills.ContainsKey((int)attribut) ? learnableSkills[(int)attribut].totalPoints : 0;

@@ -60,4 +60,8 @@
     <ItemGroup>
         <ProjectReference Include="..\Anvil\NWN.Anvil\NWN.Anvil.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Systems\ModuleSystem\Events\" />
+    </ItemGroup>
 </Project>

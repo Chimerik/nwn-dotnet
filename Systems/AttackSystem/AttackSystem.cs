@@ -186,36 +186,10 @@ namespace NWN.Systems
     }
     private static void ProcessCriticalHit(Context ctx, Action next)
     {
-      // TODO : nouveau fonctionnement => roll une seconde fois les dégâts de l'arme et de la sournoise et les ajouter
       if (ctx.onAttack.AttackResult == AttackResult.CriticalHit)
       {
         ctx.oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComBloodCrtRed));
         StringUtils.DisplayStringToAllPlayersNearTarget(ctx.oTarget, "Critique", new Color(255, 215, 0));
-
-        int criticalDamage = 0;
-
-        if(ctx.attackWeapon is not null)
-        {
-          criticalDamage = NwRandom.Roll(Utils.random, ctx.attackWeapon.BaseItem.DieToRoll, ctx.attackWeapon.BaseItem.NumDamageDice);
-          criticalDamage += ctx.onAttack.SneakAttack == SneakAttack.SneakAttack 
-            ? NwRandom.Roll(Utils.random, 6, (int)Math.Ceiling((double)ctx.oAttacker.GetClassInfo(NwClass.FromClassType(ClassType.Monk)).Level / 2))
-            : 0;
-        }
-        else
-        {
-          int damageDice = ctx.oAttacker.GetClassInfo(NwClass.FromClassType(ClassType.Monk)).Level switch
-          {
-            1 or 2 or 3 or 4 => 4,
-            5 or 6 or 7 or 8 or 9 or 10 => 6,
-            11 or 12 or 13 or 14 or 15 or 16 => 8,
-            17 or 18 or 19 or 20 or 21 or 22 => 10,
-            _ => 1,
-          };
-
-          criticalDamage = NwRandom.Roll(Utils.random, damageDice);
-        }
-
-        Config.SetContextDamage(ctx, DamageType.BaseWeapon, Config.GetContextDamage(ctx, DamageType.BaseWeapon) + criticalDamage);
 
         /*ctx.baseArmorPenetration += 20;
         ctx.oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComBloodCrtRed));

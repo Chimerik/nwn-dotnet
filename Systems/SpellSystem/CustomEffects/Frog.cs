@@ -64,10 +64,10 @@ namespace NWN.Systems
     }
     private static void FrogMalus(OnCreatureDamage onDamage)
     {
-      int damage = onDamage.DamageData.Base / 4;
+      int damage = onDamage.DamageData.GetDamageByType(DamageType.BaseWeapon) / 4;
       if (damage < 1)
         damage = 1;
-      onDamage.DamageData.Base = damage;
+      onDamage.DamageData.SetDamageByType(DamageType.BaseWeapon, damage);
     }
     private static void FrogSpellMalus(OnSpellCast onSpellCast)
     {

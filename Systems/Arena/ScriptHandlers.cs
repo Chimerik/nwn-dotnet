@@ -127,10 +127,10 @@ namespace NWN.Systems.Arena
     }
     private static void HandleDogAttack(OnCreatureDamage onAttack)
     {
-      if (!(onAttack.Target is NwCreature oTarget) || !oTarget.FlatFooted)
+      if (onAttack.Target is not NwCreature oTarget || !oTarget.FlatFooted)
         return;
 
-      if (oTarget.DoSkillCheck(Skill.Discipline, onAttack.DamageData.Base))
+      if (oTarget.DoSkillCheck(Skill.Discipline, onAttack.DamageData.GetDamageByType(DamageType.BaseWeapon)))
         return;
 
       oTarget.ApplyEffect(EffectDuration.Temporary, Effect.Knockdown(), NwTimeSpan.FromRounds(1));
@@ -140,7 +140,7 @@ namespace NWN.Systems.Arena
       if (!(onAttack.DamagedBy is NwCreature damager))
         return;
 
-      damager.ApplyEffect(EffectDuration.Instant, Effect.Heal(onAttack.DamageData.Base));
+      damager.ApplyEffect(EffectDuration.Instant, Effect.Heal(onAttack.DamageData.GetDamageByType(DamageType.BaseWeapon)));
       damager.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHealingM));
     }
     private static void HandleCrabAttack(OnCreatureDamage onAttack)
