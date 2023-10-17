@@ -51,6 +51,9 @@ namespace NWN.Systems
               myCommandList.Remove("commend");
           }
 
+          if (player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION").HasValue)
+            myCommandList.Remove("learnables");
+
           if (player.craftJob == null)
             myCommandList.Remove("currentJob");
 

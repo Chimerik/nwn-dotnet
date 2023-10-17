@@ -15,11 +15,16 @@ using NWN.Systems;
 
 namespace NWN
 {
-  public static class StringUtils
+  public static partial class StringUtils
   {
     public static readonly string shieldArmorDisadvantageEffectTag = "_DISADVANTAGE_SHIELD_ARMOR_PROFICIENCY";
     public static readonly Native.API.CExoString shieldArmorDisadvantageEffectExoTag = "_DISADVANTAGE_SHIELD_ARMOR_PROFICIENCY".ToExoString();
-    public static readonly Native.API.CExoString prout = "Prout".ToExoString();
+    public static readonly string threatenedEffectTag = "_THREATENED_EFFECT";
+    public static readonly Native.API.CExoString threatenedEffectExoTag = "_THREATENED_EFFECT".ToExoString();
+    public static readonly string frightenedEffectTag = "FRIGHTENED_";
+    public static readonly Native.API.CExoString frightenedEffectExoTag = "FRIGHTENED_".ToExoString();
+    public static readonly Native.API.CExoString exoDelimiter = "_".ToExoString();
+
     public static JsonSerializerSettings settings = new() { TypeNameHandling = TypeNameHandling.All };
     public static string[] noReplyArray = { "Banque Skalsgard" };
 
@@ -138,10 +143,11 @@ namespace NWN
     {
       return toColorWhite.ColorString(ColorConstants.White);
     }
-    public static void DisplayStringToAllPlayersNearTarget(NwCreature target, string message, Color color)
+    public static void DisplayStringToAllPlayersNearTarget(NwCreature target, string message, Color color, bool includeSelf = false)
     {
       foreach (NwPlayer player in NwModule.Instance.Players)
-        if (player != target.ControllingPlayer && player?.ControlledCreature?.Area == target?.Area && player?.ControlledCreature.DistanceSquared(target) < 1225)
+        if ((player != target.ControllingPlayer || (includeSelf && player == target.ControllingPlayer)) 
+          && player?.ControlledCreature?.Area == target?.Area && player?.ControlledCreature.DistanceSquared(target) < 1225)
           player.DisplayFloatingTextStringOnCreature(target, message.ColorString(color));
     }
     public static double GetDrawListTextPositionScaledToUI(int uiScale)

@@ -27,22 +27,23 @@ namespace NWN
       int tempAttackRoll;
 
       if (advantage == 0)
-      {
         attackRoll = NwRandom.Roll(random, 20);
-      }
       else if (advantage > 0)
       {
         attackRoll = NwRandom.Roll(random, 20);
         tempAttackRoll = NwRandom.Roll(random, 20);
+        LogUtils.LogMessage($"Jet d'attaque avec avantage : {attackRoll} et {tempAttackRoll}", LogUtils.LogType.Combat);
         attackRoll = attackRoll > tempAttackRoll ? attackRoll : tempAttackRoll;
       }
       else if (advantage < 0)
       {
         attackRoll = NwRandom.Roll(random, 20);
         tempAttackRoll = NwRandom.Roll(random, 20);
+        LogUtils.LogMessage($"Jet d'attaque avec désavantage : {attackRoll} et {tempAttackRoll}", LogUtils.LogType.Combat);
         attackRoll = attackRoll < tempAttackRoll ? attackRoll : tempAttackRoll;
       }
 
+      LogUtils.LogMessage($"Jet d'attaque : {attackRoll}", LogUtils.LogType.Combat);
       return attackRoll;
     }
     public static void LogMessageToDMs(string message)

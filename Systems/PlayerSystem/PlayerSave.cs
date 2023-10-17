@@ -80,7 +80,7 @@ namespace NWN.Systems
       {
         FixPolymorphBug();
 
-        if (oid.LoginCreature.Location.Area != null)
+        if (oid.LoginCreature.Location.Area is not null)
           location = oid.LoginCreature.Location;
 
         if (windowRectangles == null)
@@ -160,7 +160,7 @@ namespace NWN.Systems
       {
         DateTime elapsed = DateTime.Now;
 
-        string serializedLocation = location.Area != null ? SqLiteUtils.SerializeLocation(location) : SqLiteUtils.SerializeLocation(previousLocation);
+        string serializedLocation = location.Area is not null ? SqLiteUtils.SerializeLocation(location) : SqLiteUtils.SerializeLocation(previousLocation);
         string firstName = oid.LoginCreature.OriginalFirstName;
         string lastName = oid.LoginCreature.OriginalLastName;
         string health = oid.LoginCreature.HP.ToString();

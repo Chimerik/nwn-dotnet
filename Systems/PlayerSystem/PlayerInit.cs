@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using Anvil.API;
@@ -27,18 +26,7 @@ namespace NWN.Systems
       {
         player.oid = oPC;
         player.characterId = oPC.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value;
-
-        if (player.location.Area == null)
-        {
-          var query = SqLiteUtils.SelectQuery("playerCharacters",
-          new List<string>() { { "location" } },
-          new List<string[]>() { { new string[] { "rowid", player.characterId.ToString() } } });
-
-          foreach(var result in query)
-            player.location = SqLiteUtils.DeserializeLocation(result[0]);
-
-          player.TeleportPlayerToSavedLocation();
-        }
+        player.TeleportToSavedLocation();
 
         Task playerInitialized = NwTask.Run(async () =>
         {
@@ -46,6 +34,12 @@ namespace NWN.Systems
           player.FinalizePlayerData();
         });
       }
+
+      if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Sprint)))
+        player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.Sprint));
+
+      if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Disengage)))
+        player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.Disengage));
 
       player.oid.SetGuiPanelDisabled(GUIPanel.ExamineItem, true);
       player.oid.SetGuiPanelDisabled(GUIPanel.Journal, true);
@@ -62,24 +56,15 @@ namespace NWN.Systems
       if (player.oid.LoginCreature.GetObjectVariable<PersistentVariableBool>("_ALWAYS_WALK").HasValue)
         player.oid.ControlledCreature.AlwaysWalk = true;
 
-      /*if (player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand) is not null)
-        player.oid.LoginCreature.BaseAttackCount = ItemUtils.GetWeaponAttackPerRound(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand).BaseItem.ItemType);
-      else
-        player.oid.LoginCreature.BaseAttackCount = 3;*/
-
       if (oPC.IsDM)
         return;
 
       Utils.ResetVisualTransform(player.oid.ControlledCreature);
       player.pcState = Player.PcState.Offline;
-
-      foreach (Player connectedPlayer in Players.Values)
-        if(connectedPlayer.pcState != Player.PcState.Offline && connectedPlayer.TryGetOpenedWindow("playerList", out Player.PlayerWindow playerListWindow))
-          ((Player.PlayerListWindow)connectedPlayer.windows["playerList"]).UpdatePlayerList();
+      player.OnLoginRefreshPlayerList();
+      CreatureUtils.InitThreatRange(player.oid.LoginCreature);
 
       player.mapLoadingTime = DateTime.Now;
-
-      //player.HandleReinit();
     }
     public partial class Player
     {
@@ -111,139 +96,6 @@ namespace NWN.Systems
         else
           oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("accountId").Value = int.Parse(result.FirstOrDefault()[0]);
       }
-      public void InitializeNewCharacter()
-      {
-        oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_REINITIALISATION_DONE").Value = 1;
-
-        LogUtils.LogMessage($"{oid.PlayerName} vient de créer un nouveau personnage : {oid.LoginCreature.Name}", LogUtils.LogType.PlayerConnections);
-
-        int startingSP = 5000;
-        if (oid.LoginCreature.KnowsFeat(Feat.QuickToMaster))
-          startingSP += 500;
-
-        oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value = startingSP;
-
-        Location arrivalLocation = NwModule.Instance.StartingLocation;
-
-        if (NwModule.Instance.Areas.Any(a => a.Tag == "entry_scene"))
-        {
-          NwArea arrivalArea = NwArea.Create("intro_galere", $"entry_scene_{oid.CDKey}", $"La galère de {oid.LoginCreature.Name} (Bienvenue !)");
-          arrivalArea.OnExit += areaSystem.OnIntroAreaExit;
-          arrivalLocation = arrivalArea.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(o => o.Tag == "ENTRY_POINT").Location;
-
-          AreaSystem.ScheduleRockSpawn(arrivalArea, 0);
-          AreaSystem.ScheduleRockSpawn(arrivalArea, 1);
-
-          arrivalArea.SetAreaWind(new Vector3(1, 0, 0), 4, 0, 0);
-
-          foreach (NwPlaceable recif in arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().Where(o => o.Tag == "intro_recif"))
-            recif.VisibilityOverride = VisibilityMode.Hidden;
-
-          NwPlaceable tourbillon = arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(c => c.Tag == "intro_tourbillon");
-          tourbillon.VisibilityOverride = VisibilityMode.Hidden;
-          tourbillon.VisualTransform.Translation = new Vector3(tourbillon.VisualTransform.Translation.X, 115, tourbillon.VisualTransform.Translation.Z);
-
-          NwPlaceable introMirror = arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(o => o.Tag == "intro_mirror");
-          introMirror.OnLeftClick += PlaceableSystem.StartIntroMirrorDialog;
-
-          Task waitDefaultMapLoaded = NwTask.Run(async () =>
-          {
-            await NwTask.WaitUntilValueChanged(() => oid.LoginCreature.Location.Area);
-            oid.LoginCreature.Location = arrivalLocation;
-          });
-        }
-
-        Utils.DestroyInventory(oid.LoginCreature);
-
-        if (oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin) == null)
-        {
-          Task waitSkinCreated = NwTask.Run(async () =>
-          {
-            NwItem pcSkin = await NwItem.Create("peaudejoueur", oid.LoginCreature);
-            pcSkin.Name = $"Propriétés de {oid.LoginCreature.Name}";
-            oid.LoginCreature.RunEquip(pcSkin, InventorySlot.CreatureSkin);
-          });
-        }
-
-        SqLiteUtils.InsertQuery("playerCharacters",
-            new List<string[]>() { new string[] { "accountId", accountId.ToString() }, new string[] { "characterName", oid.LoginCreature.Name }, new string[] { "location", SqLiteUtils.SerializeLocation(arrivalLocation) }, new string[] { "menuOriginLeft", "50" }, new string[] { "currentHP", oid.LoginCreature.MaxHP.ToString() } });
-
-        var rowQuery = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, "SELECT last_insert_rowid()");
-        rowQuery.Execute();
-
-        oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value = rowQuery.Result.GetInt(0);
-
-        for (byte spellLevel = 0; spellLevel < 10; spellLevel++)
-          if(oid.LoginCreature.GetClassInfo((ClassType)43).KnownSpells.Count > 0)
-            oid.LoginCreature.GetClassInfo((ClassType)43).KnownSpells[spellLevel].Clear();
-
-        InitializeNewPlayerLearnableSkills();
-      }
-      private void InitializeNewPlayerLearnableSkills()
-      {
-        if (learnableSkills.ContainsKey(CustomSkill.ImprovedStrength))
-          return;
-
-        int startingLanguage = -1;
-
-        switch (oid.LoginCreature.Race.RacialType)
-        {
-          case RacialType.Dwarf:
-            startingLanguage = CustomSkill.Nain;
-            break;
-          case RacialType.Elf:
-          case RacialType.HalfElf:
-            startingLanguage = CustomSkill.Elfique;
-            break;
-          case RacialType.Halfling:
-            startingLanguage = CustomSkill.Halfelin;
-            break;
-          case RacialType.Gnome:
-            startingLanguage = CustomSkill.Gnome;
-            break;
-          case RacialType.HalfOrc:
-            startingLanguage = CustomSkill.Orc;
-            break;
-        }
-
-        if (startingLanguage > -1)
-        {
-          LearnableSkill language = new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[startingLanguage]);
-          learnableSkills.Add(startingLanguage, language);
-          language.LevelUp(this);
-        }
-
-        learnableSkills.Add(CustomSkill.ImprovedStrength, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedStrength]));
-        learnableSkills.Add(CustomSkill.ImprovedDexterity, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedDexterity]));
-        learnableSkills.Add(CustomSkill.ImprovedConstitution, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedConstitution]));
-        learnableSkills.Add(CustomSkill.ImprovedIntelligence, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedIntelligence]));
-        learnableSkills.Add(CustomSkill.ImprovedWisdom, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedWisdom]));
-        learnableSkills.Add(CustomSkill.ImprovedCharisma, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedCharisma]));
-
-        learnableSkills.Add(CustomSkill.ImprovedHealth, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedHealth]));
-        learnableSkills.Add(CustomSkill.Toughness, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Toughness]));
-
-        learnableSkills.Add(CustomSkill.ImprovedSpellSlot0, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedSpellSlot0]));
-        learnableSkills.Add(CustomSkill.ImprovedSpellSlot1, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedSpellSlot1]));
-
-        learnableSkills.Add(CustomSkill.LightArmorProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightArmorProficiency]));
-        learnableSkills.Add(CustomSkill.LightShieldProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightShieldProficiency]));
-
-        learnableSkills.Add(CustomSkill.Athletics, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Athletics]));
-        learnableSkills.Add(CustomSkill.Escamotage, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Escamotage]));
-        learnableSkills.Add(CustomSkill.Arcana, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Arcana]));
-        learnableSkills.Add(CustomSkill.History, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.History]));
-        learnableSkills.Add(CustomSkill.Nature, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Nature]));
-        learnableSkills.Add(CustomSkill.Religion, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Religion]));
-        learnableSkills.Add(CustomSkill.Investigation, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Investigation]));
-        learnableSkills.Add(CustomSkill.Insight, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Insight]));
-        learnableSkills.Add(CustomSkill.Medicine, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Medicine]));
-        learnableSkills.Add(CustomSkill.Perception, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Perception]));
-        learnableSkills.Add(CustomSkill.Deception, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Deception]));
-        learnableSkills.Add(CustomSkill.Intimidation, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Intimidation]));
-        learnableSkills.Add(CustomSkill.Persuasion, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Persuasion]));
-        learnableSkills.Add(CustomSkill.OpenLock, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.OpenLock]));
-      }
       public void InitializeDM()
       {
         oid.LoginCreature.OnAcquireItem += ItemSystem.HandleUnacquirableItems;
@@ -271,11 +123,11 @@ namespace NWN.Systems
       private void InitializePlayerEvents()
       {
         oid.OnServerCharacterSave += HandleBeforePlayerSave;
-        oid.OnPlayerDeath += OnDeathSoulReap;
         oid.OnPlayerDeath += HandlePlayerDeath;
         oid.LoginCreature.OnUseFeat += FeatSystem.OnUseFeatBefore;
         oid.OnCombatStatusChange += OnCombatStarted;
-        oid.LoginCreature.OnCombatRoundStart += OnCombatRoundStart;
+        oid.LoginCreature.OnCombatRoundStart += OnCombatStartForceHostility;
+        oid.LoginCreature.OnCombatRoundStart += OnCombatStartRefreshActions;
         oid.OnPartyEvent += Party.HandlePartyEvent;
         oid.OnClientLevelUpBegin += HandleOnClientLevelUp;
         oid.LoginCreature.OnUseSkill += HandleBeforeSkillUsed;
@@ -283,6 +135,8 @@ namespace NWN.Systems
         oid.OnMapPinAddPin += HandleMapPinAdded;
         oid.OnMapPinChangePin += HandleMapPinChanged;
         oid.OnMapPinDestroyPin += HandleMapPinDestroyed;
+        oid.OnDMPlayerDMLogin += OnDmLoginRemoveThreatRange;
+        oid.OnDMPlayerDMLogout += OnDmLogoutRemoveThreatRange;
         //oid.LoginCreature.OnEffectApply += HandleItemPropertyChecksOnEffectApplied;
         //oid.LoginCreature.OnEffectRemove += HandleItemPropertyChecksOnEffectRemoved;
         //oid.LoginCreature.OnStealthModeUpdate += HandleStealthMode;
@@ -308,6 +162,8 @@ namespace NWN.Systems
         oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireForceEquipCreatureSkin;
         oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipForceEquipCreatureSkin;
         oid.LoginCreature.OnItemUse += ItemSystem.OnItemUse;
+        oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipCheckThreatRange;
+        oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnequipCheckThreatRange;
         oid.LoginCreature.OnInventoryGoldAdd += HandleGainedGold;
         oid.LoginCreature.OnInventoryGoldRemove += HandleLostGold;
         oid.LoginCreature.OnItemScrollLearn += HandleBeforeScrollLearn;
@@ -534,12 +390,12 @@ namespace NWN.Systems
           return;
 
         HandleHealthPointInit();
-        HandleLearnableInit();
-        HandleJobInit();
+        InitializeLearnables();
+        InitializeJob();
         CheckPlayerConnectionInfo();
         HandleMailNotification();
-        RestoreCooledDownSpells();
-        HandleAdrenalineInit();
+        //RestoreCooledDownSpells();
+        //HandleAdrenalineInit();
         pcState = PcState.Online;
         oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
       }
@@ -573,28 +429,7 @@ namespace NWN.Systems
         energyRegen = oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand)?.BaseItem.ItemType == BaseItemType.MagicStaff ? 4 : 2;
         wasHPGreaterThan50 = oid.LoginCreature.HP > MaxHP / 2;*/
       }
-      private void HandleLearnableInit()
-      {
-        if (activeLearnable != null && activeLearnable.active && activeLearnable.spLastCalculation.HasValue)
-        {
-          activeLearnable.acquiredPoints += (DateTime.Now - activeLearnable.spLastCalculation).Value.TotalSeconds * GetSkillPointsPerSecond(activeLearnable);
-          if (!windows.ContainsKey("activeLearnable")) windows.Add("activeLearnable", new ActiveLearnableWindow(this));
-          else ((ActiveLearnableWindow)windows["activeLearnable"]).CreateWindow();
-        }
-      }
-      private void HandleJobInit()
-      {
-        if (craftJob != null)
-        {
-          if ((craftJob.type == JobType.Mining || craftJob.type == JobType.WoodCutting || craftJob.type == JobType.Pelting) && craftJob.progressLastCalculation.HasValue)
-          {
-            craftJob.remainingTime -= (DateTime.Now - craftJob.progressLastCalculation.Value).TotalSeconds;
-            craftJob.progressLastCalculation = null;
-          }
-          if (!windows.ContainsKey("activeCraftJob")) windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
-          else ((ActiveCraftJobWindow)windows["activeCraftJob"]).CreateWindow();
-        }
-      }
+      
       private void HandleMailNotification()
       {
         if (!subscriptions.Any(s => s.type == Utils.SubscriptionType.MailNotification))

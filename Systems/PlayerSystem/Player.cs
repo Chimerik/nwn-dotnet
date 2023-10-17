@@ -42,6 +42,10 @@ namespace NWN.Systems
       public Dictionary<int, LearnableSkill> learnableSkills = new();
       public Dictionary<int, LearnableSpell> learnableSpells = new();
       public int tempCurrentSkillPoint { get; set; }
+      public float guiHeight { get => oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight); }
+      public float guiWidth { get => oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth); }
+      public float guiScaledHeight => oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / (oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) / 100);
+      public float guiScaledWidth => oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) / (oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) / 100);
       public int MaxHP { get => oid.LoginCreature.LevelInfo[0].HitDie + ((oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2); }
       public double energyRegen { get; set; }
       public int healthRegen { get; set; }
@@ -164,11 +168,6 @@ namespace NWN.Systems
 
         emptyQBS.Param1 = (int)CustomFeats.CustomMenuEXIT;
         oid.ControlledCreature.SetQuickBarButton(3, emptyQBS);
-      }
-      public async void TeleportPlayerToSavedLocation()
-      {
-        await NwTask.WaitUntil(() => oid.LoginCreature.Location.Area != null);
-        oid.LoginCreature.Location = location;
       }
       /*public async void InitializePlayerOpenedWindows()
       {
@@ -379,219 +378,6 @@ namespace NWN.Systems
         {
           PlayerPlugin.ApplyLoopingVisualEffectToObject(oid.ControlledCreature, target, 173);
           target.GetObjectVariable<LocalVariableBool>("SPOTLIGHT_ON").Delete();
-        }
-      }
-      public int GetWeaponMasteryLevel(NwItem weapon)
-      {
-        int masteryLevel = 0;
-        BaseItemType baseItem = weapon is not null ? weapon.BaseItem.ItemType : BaseItemType.Gloves; // TODO : créer un item spécifique pour le combat à mains nues (doit occuper les deux mains et être invisible)
-        
-        switch (baseItem)
-        {
-          case BaseItemType.Shortsword:
-          case BaseItemType.Longsword:
-          case BaseItemType.Greatsword:
-          case BaseItemType.Bastardsword:
-          case BaseItemType.TwoBladedSword:
-          case BaseItemType.Katana:
-          case BaseItemType.Scimitar:
-
-            masteryLevel += learnableSkills.ContainsKey(CustomSkill.Swordmanship) ? learnableSkills[CustomSkill.Swordmanship].totalPoints : 0;
-            masteryLevel += learnableSkills.ContainsKey(CustomSkill.SwordmanshipExpert) ? learnableSkills[CustomSkill.SwordmanshipExpert].totalPoints : 0;
-            masteryLevel += learnableSkills.ContainsKey(CustomSkill.SwordmanshipScience) ? learnableSkills[CustomSkill.SwordmanshipScience].totalPoints : 0;
-            masteryLevel += learnableSkills.ContainsKey(CustomSkill.SwordmanshipMaster) ? learnableSkills[CustomSkill.SwordmanshipMaster].totalPoints : 0;
-
-            return masteryLevel;
-
-          case BaseItemType.Handaxe:
-          case BaseItemType.Battleaxe:
-          case BaseItemType.Greataxe:
-          case BaseItemType.Doubleaxe:
-          case BaseItemType.DwarvenWaraxe:
-
-            masteryLevel += learnableSkills.ContainsKey(CustomSkill.Axemanship) ? learnableSkills[CustomSkill.Axemanship].totalPoints : 0;
-            masteryLevel += learnableSkills.ContainsKey(CustomSkill.AxemanshipExpert) ? learnableSkills[CustomSkill.AxemanshipExpert].totalPoints : 0;
-            masteryLevel += learnableSkills.ContainsKey(CustomSkill.AxemanshipScience) ? learnableSkills[CustomSkill.AxemanshipScience].totalPoints : 0;
-            masteryLevel += learnableSkills.ContainsKey(CustomSkill.AxemanshipMaster) ? learnableSkills[CustomSkill.AxemanshipMaster].totalPoints : 0;
-
-            return masteryLevel;
-
-          case BaseItemType.Shortbow:
-          case BaseItemType.Longbow:
-          case BaseItemType.Sling:
-          case BaseItemType.Shuriken:
-          case BaseItemType.Dart:
-          case BaseItemType.LightCrossbow:
-          case BaseItemType.HeavyCrossbow:
-
-            masteryLevel += learnableSkills.ContainsKey(CustomSkill.Marksmanship) ? learnableSkills[CustomSkill.Marksmanship].totalPoints : 0;
-            masteryLevel += learnableSkills.ContainsKey(CustomSkill.MarksmanshipExpert) ? learnableSkills[CustomSkill.MarksmanshipExpert].totalPoints : 0;
-            masteryLevel += learnableSkills.ContainsKey(CustomSkill.MarksmanshipScience) ? learnableSkills[CustomSkill.MarksmanshipScience].totalPoints : 0;
-            masteryLevel += learnableSkills.ContainsKey(CustomSkill.MarksmanshipMaster) ? learnableSkills[CustomSkill.MarksmanshipMaster].totalPoints : 0;
-
-            return masteryLevel;
-
-          case BaseItemType.Club:
-          case BaseItemType.LightFlail:
-          case BaseItemType.LightHammer:
-          case BaseItemType.Morningstar:
-          case BaseItemType.Warhammer:
-          case BaseItemType.HeavyFlail:
-          case BaseItemType.DireMace:
-
-            masteryLevel += learnableSkills.ContainsKey(CustomSkill.Hammermanship) ? learnableSkills[CustomSkill.Hammermanship].totalPoints : 0;
-            masteryLevel += learnableSkills.ContainsKey(CustomSkill.HammermanshipExpert) ? learnableSkills[CustomSkill.HammermanshipExpert].totalPoints : 0;
-            masteryLevel += learnableSkills.ContainsKey(CustomSkill.HammermanshipScience) ? learnableSkills[CustomSkill.HammermanshipScience].totalPoints : 0;
-            masteryLevel += learnableSkills.ContainsKey(CustomSkill.HammermanshipMaster) ? learnableSkills[CustomSkill.HammermanshipMaster].totalPoints : 0;
-
-            return masteryLevel;
-
-          case BaseItemType.ShortSpear:
-          case BaseItemType.ThrowingAxe:
-
-            masteryLevel += learnableSkills.ContainsKey(CustomSkill.Spearmanship) ? learnableSkills[CustomSkill.Spearmanship].totalPoints : 0;
-            masteryLevel += learnableSkills.ContainsKey(CustomSkill.SpearmanshipExpert) ? learnableSkills[CustomSkill.SpearmanshipExpert].totalPoints : 0;
-            masteryLevel += learnableSkills.ContainsKey(CustomSkill.SpearmanshipScience) ? learnableSkills[CustomSkill.SpearmanshipScience].totalPoints : 0;
-            masteryLevel += learnableSkills.ContainsKey(CustomSkill.SpearmanshipMaster) ? learnableSkills[CustomSkill.SpearmanshipMaster].totalPoints : 0;
-
-            return masteryLevel;
-
-          case BaseItemType.Dagger:
-          case BaseItemType.Kama:
-          case BaseItemType.Kukri:
-
-            masteryLevel += learnableSkills.ContainsKey(CustomSkill.Daggermanship) ? learnableSkills[CustomSkill.Daggermanship].totalPoints : 0;
-            masteryLevel += learnableSkills.ContainsKey(CustomSkill.DaggermanshipExpert) ? learnableSkills[CustomSkill.DaggermanshipExpert].totalPoints : 0;
-            masteryLevel += learnableSkills.ContainsKey(CustomSkill.DaggermanshipScience) ? learnableSkills[CustomSkill.DaggermanshipScience].totalPoints : 0;
-            masteryLevel += learnableSkills.ContainsKey(CustomSkill.DaggermanshipMaster) ? learnableSkills[CustomSkill.DaggermanshipMaster].totalPoints : 0;
-
-            return masteryLevel;
-
-          case BaseItemType.Scythe:
-            masteryLevel += learnableSkills.ContainsKey(CustomSkill.Scythemanship) ? learnableSkills[CustomSkill.Scythemanship].totalPoints : 0;
-            masteryLevel += learnableSkills.ContainsKey(CustomSkill.ScythemanshipExpert) ? learnableSkills[CustomSkill.ScythemanshipExpert].totalPoints : 0;
-            masteryLevel += learnableSkills.ContainsKey(CustomSkill.ScythemanshipScience) ? learnableSkills[CustomSkill.ScythemanshipScience].totalPoints : 0;
-            masteryLevel += learnableSkills.ContainsKey(CustomSkill.ScythemanshipMaster) ? learnableSkills[CustomSkill.ScythemanshipMaster].totalPoints : 0;
-            return masteryLevel;
-
-            /* case BaseItemType.Halberd:
-               masteryLevel += learnableSkills.ContainsKey(CustomSkill.HalberdProficiency) ? learnableSkills[CustomSkill.HalberdProficiency].totalPoints : 0;
-               masteryLevel += learnableSkills.ContainsKey(CustomSkill.ImprovedHalberdProficiency) ? learnableSkills[CustomSkill.ImprovedHalberdProficiency].totalPoints : 0;
-               masteryLevel += learnableSkills.ContainsKey(CustomSkill.HalberdScience) ? learnableSkills[CustomSkill.HalberdScience].totalPoints : 0;
-               break;
-
-             case BaseItemType.MagicStaff:
-               masteryLevel += learnableSkills.ContainsKey(CustomSkill.MagicStaffProficiency) ? learnableSkills[CustomSkill.MagicStaffProficiency].totalPoints : 0;
-               masteryLevel += learnableSkills.ContainsKey(CustomSkill.ImprovedMagicStaffProficiency) ? learnableSkills[CustomSkill.ImprovedMagicStaffProficiency].totalPoints : 0;
-               masteryLevel += learnableSkills.ContainsKey(CustomSkill.MagicStaffScience) ? learnableSkills[CustomSkill.MagicStaffScience].totalPoints : 0;
-               break;
-
-             case BaseItemType.Quarterstaff:
-               masteryLevel += learnableSkills.ContainsKey(CustomSkill.QuarterStaffProficiency) ? learnableSkills[CustomSkill.QuarterStaffProficiency].totalPoints : 0;
-               masteryLevel += learnableSkills.ContainsKey(CustomSkill.ImprovedQuarterStaffProficiency) ? learnableSkills[CustomSkill.ImprovedQuarterStaffProficiency].totalPoints : 0;
-               masteryLevel += learnableSkills.ContainsKey(CustomSkill.QuarterStaffScience) ? learnableSkills[CustomSkill.QuarterStaffScience].totalPoints : 0;
-               break;
-             case BaseItemType.Rapier:
-               masteryLevel += learnableSkills.ContainsKey(CustomSkill.RapierProficiency) ? learnableSkills[CustomSkill.RapierProficiency].totalPoints : 0;
-               masteryLevel += learnableSkills.ContainsKey(CustomSkill.ImprovedRapierProficiency) ? learnableSkills[CustomSkill.ImprovedRapierProficiency].totalPoints : 0;
-               masteryLevel += learnableSkills.ContainsKey(CustomSkill.RapierScience) ? learnableSkills[CustomSkill.RapierScience].totalPoints : 0;
-               break;
-
-               case BaseItemType.Trident:
-                 masteryLevel += learnableSkills.ContainsKey(CustomSkill.TridentProficiency) ? learnableSkills[CustomSkill.TridentProficiency].totalPoints : 0;
-                 masteryLevel += learnableSkills.ContainsKey(CustomSkill.ImprovedTridentProficiency) ? learnableSkills[CustomSkill.ImprovedTridentProficiency].totalPoints : 0;
-                 masteryLevel += learnableSkills.ContainsKey(CustomSkill.TridentScience) ? learnableSkills[CustomSkill.TridentScience].totalPoints : 0;
-                 break;
-
-               case BaseItemType.Whip:
-                 masteryLevel += learnableSkills.ContainsKey(CustomSkill.WhipProficiency) ? learnableSkills[CustomSkill.WhipProficiency].totalPoints : 0;
-                 masteryLevel += learnableSkills.ContainsKey(CustomSkill.ImprovedWhipProficiency) ? learnableSkills[CustomSkill.ImprovedWhipProficiency].totalPoints : 0;
-                 masteryLevel += learnableSkills.ContainsKey(CustomSkill.WhipScience) ? learnableSkills[CustomSkill.WhipScience].totalPoints : 0;
-                 break;
-
-               case BaseItemType.Gloves:
-               case BaseItemType.Bracer:
-               default:
-                 masteryLevel += learnableSkills.ContainsKey(CustomSkill.UnharmedProficiency) ? learnableSkills[CustomSkill.UnharmedProficiency].totalPoints : 0;
-                 masteryLevel += learnableSkills.ContainsKey(CustomSkill.ImprovedUnharmedProficiency) ? learnableSkills[CustomSkill.ImprovedUnharmedProficiency].totalPoints : 0;
-                 masteryLevel += learnableSkills.ContainsKey(CustomSkill.UnharmedScience) ? learnableSkills[CustomSkill.UnharmedScience].totalPoints : 0;
-                 break;*/
-        }
-
-        return masteryLevel;
-      }
-      public int GetArmorProficiencyLevel(int baseACValue)
-      {
-        int skillPoints = 0;
-
-        switch(baseACValue)
-        {
-          default:
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.ClothingArmorProficiency) ? learnableSkills[CustomSkill.ClothingArmorProficiency].totalPoints : 0;
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.ExpertClothingArmorProficiency) ? learnableSkills[CustomSkill.ExpertClothingArmorProficiency].totalPoints : 0;
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.ScienceClothingArmorProficiency) ? learnableSkills[CustomSkill.ScienceClothingArmorProficiency].totalPoints : 0;
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.MasterClothingArmorProficiency) ? learnableSkills[CustomSkill.MasterClothingArmorProficiency].totalPoints : 0;
-            return skillPoints;
-          case 1:
-          case 2:
-          case 3:
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.LightArmorProficiency) ? learnableSkills[CustomSkill.LightArmorProficiency].totalPoints : 0;
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.ExpertLightArmorProficiency) ? learnableSkills[CustomSkill.ExpertLightArmorProficiency].totalPoints : 0;
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.ScienceLightArmorProficiency) ? learnableSkills[CustomSkill.ScienceLightArmorProficiency].totalPoints : 0;
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.MasterLightArmorProficiency) ? learnableSkills[CustomSkill.MasterLightArmorProficiency].totalPoints : 0;
-            return skillPoints;
-          case 4:
-          case 5:
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.MediumArmorProficiency) ? learnableSkills[CustomSkill.MediumArmorProficiency].totalPoints : 0;
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.ExpertMediumArmorProficiency) ? learnableSkills[CustomSkill.ExpertMediumArmorProficiency].totalPoints : 0;
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.ScienceMediumArmorProficiency) ? learnableSkills[CustomSkill.ScienceMediumArmorProficiency].totalPoints : 0;
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.MasterMediumArmorProficiency) ? learnableSkills[CustomSkill.MasterMediumArmorProficiency].totalPoints : 0;
-            return skillPoints;
-          case 6:
-          case 7:
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.HeavyArmorProficiency) ? learnableSkills[CustomSkill.HeavyArmorProficiency].totalPoints : 0;
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.ExpertHeavyArmorProficiency) ? learnableSkills[CustomSkill.ExpertHeavyArmorProficiency].totalPoints : 0;
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.ScienceHeavyArmorProficiency) ? learnableSkills[CustomSkill.ScienceHeavyArmorProficiency].totalPoints : 0;
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.MasterHeavyArmorProficiency) ? learnableSkills[CustomSkill.MasterHeavyArmorProficiency].totalPoints : 0;
-            return skillPoints;
-          case 8:
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.FullPlateProficiency) ? learnableSkills[CustomSkill.FullPlateProficiency].totalPoints : 0;
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.ExpertFullPlateProficiency) ? learnableSkills[CustomSkill.ExpertFullPlateProficiency].totalPoints : 0;
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.ScienceFullPlateProficiency) ? learnableSkills[CustomSkill.ScienceFullPlateProficiency].totalPoints : 0;
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.MasterFullPlateProficiency) ? learnableSkills[CustomSkill.MasterFullPlateProficiency].totalPoints : 0;
-            return skillPoints;
-        }
-      }
-      public int GetShieldProficiencyLevel(BaseItemType baseItem)
-      {
-        int skillPoints = 0;
-
-        switch(baseItem)
-        {
-          case BaseItemType.SmallShield:
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.LightShieldProficiency) ? learnableSkills[CustomSkill.LightShieldProficiency].totalPoints : 0;
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.ExpertLightShieldProficiency) ? learnableSkills[CustomSkill.ExpertLightShieldProficiency].totalPoints : 0;
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.ScienceLightShieldProficiency) ? learnableSkills[CustomSkill.ScienceLightShieldProficiency].totalPoints : 0;
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.MasterLightShieldProficiency) ? learnableSkills[CustomSkill.MasterLightShieldProficiency].totalPoints : 0;
-            return skillPoints;
-          case BaseItemType.LargeShield:
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.MediumShieldProficiency) ? learnableSkills[CustomSkill.MediumShieldProficiency].totalPoints : 0;
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.ExpertMediumShieldProficiency) ? learnableSkills[CustomSkill.ExpertMediumShieldProficiency].totalPoints : 0;
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.ScienceMediumShieldProficiency) ? learnableSkills[CustomSkill.ScienceMediumShieldProficiency].totalPoints : 0;
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.MasterMediumShieldProficiency) ? learnableSkills[CustomSkill.MasterMediumShieldProficiency].totalPoints : 0;
-            return skillPoints;
-          case BaseItemType.TowerShield:
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.HeavyShieldProficiency) ? learnableSkills[CustomSkill.HeavyShieldProficiency].totalPoints : 0;
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.ExpertHeavyShieldProficiency) ? learnableSkills[CustomSkill.ExpertHeavyShieldProficiency].totalPoints : 0;
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.ScienceHeavyShieldProficiency) ? learnableSkills[CustomSkill.ScienceHeavyShieldProficiency].totalPoints : 0;
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.MasterHeavyShieldProficiency) ? learnableSkills[CustomSkill.MasterHeavyShieldProficiency].totalPoints : 0;
-            return skillPoints;
-          default:
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.DualWieldDefenseProficiency) ? learnableSkills[CustomSkill.DualWieldDefenseProficiency].totalPoints : 0;
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.ExpertDualWieldDefenseProficiency) ? learnableSkills[CustomSkill.ExpertDualWieldDefenseProficiency].totalPoints : 0;
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.ScienceDualWieldDefenseProficiency) ? learnableSkills[CustomSkill.ScienceDualWieldDefenseProficiency].totalPoints : 0;
-            skillPoints += learnableSkills.ContainsKey(CustomSkill.MasterDualWieldDefenseProficiency) ? learnableSkills[CustomSkill.MasterDualWieldDefenseProficiency].totalPoints : 0;
-            return skillPoints;
         }
       }
       public double GetItemCraftTime(NwItem item, int materiaCost, NwItem tool = null)
@@ -1187,79 +973,6 @@ namespace NWN.Systems
 
         return skillScore;
       }
-      public int GetAirMagicSkillScore()
-      {
-        int skillScore = 0;
-
-        if (learnableSkills.ContainsKey(CustomSkill.AirMagic))
-          skillScore += learnableSkills[CustomSkill.AirMagic].totalPoints;
-
-        if (learnableSkills.ContainsKey(CustomSkill.AirMagicExpert))
-          skillScore += learnableSkills[CustomSkill.AirMagicExpert].totalPoints;
-
-        if (learnableSkills.ContainsKey(CustomSkill.AirMagicMaster))
-          skillScore += learnableSkills[CustomSkill.AirMagicMaster].totalPoints;
-
-        if (learnableSkills.ContainsKey(CustomSkill.AirMagicScience))
-          skillScore += learnableSkills[CustomSkill.AirMagicScience].totalPoints;
-
-        return skillScore;
-      }
-
-      public int GetFireMagicSkillScore()
-      {
-        int skillScore = 0;
-
-        if (learnableSkills.ContainsKey(CustomSkill.FireMagic))
-          skillScore += learnableSkills[CustomSkill.FireMagic].totalPoints;
-
-        if (learnableSkills.ContainsKey(CustomSkill.FireMagicExpert))
-          skillScore += learnableSkills[CustomSkill.FireMagicExpert].totalPoints;
-
-        if (learnableSkills.ContainsKey(CustomSkill.FireMagicMaster))
-          skillScore += learnableSkills[CustomSkill.FireMagicMaster].totalPoints;
-
-        if (learnableSkills.ContainsKey(CustomSkill.FireMagicScience))
-          skillScore += learnableSkills[CustomSkill.FireMagicScience].totalPoints;
-
-        return skillScore;
-      }
-      public int GetEarthMagicSkillScore()
-      {
-        int skillScore = 0;
-
-        if (learnableSkills.ContainsKey(CustomSkill.EarthMagic))
-          skillScore += learnableSkills[CustomSkill.EarthMagic].totalPoints;
-
-        if (learnableSkills.ContainsKey(CustomSkill.EarthMagicExpert))
-          skillScore += learnableSkills[CustomSkill.EarthMagicExpert].totalPoints;
-
-        if (learnableSkills.ContainsKey(CustomSkill.EarthMagicMaster))
-          skillScore += learnableSkills[CustomSkill.EarthMagicMaster].totalPoints;
-
-        if (learnableSkills.ContainsKey(CustomSkill.EarthMagicScience))
-          skillScore += learnableSkills[CustomSkill.EarthMagicScience].totalPoints;
-
-        return skillScore;
-      }
-      public int GetWaterMagicSkillScore()
-      {
-        int skillScore = 0;
-
-        if (learnableSkills.ContainsKey(CustomSkill.WaterMagic))
-          skillScore += learnableSkills[CustomSkill.WaterMagic].totalPoints;
-
-        if (learnableSkills.ContainsKey(CustomSkill.WaterMagicExpert))
-          skillScore += learnableSkills[CustomSkill.WaterMagicExpert].totalPoints;
-
-        if (learnableSkills.ContainsKey(CustomSkill.WaterMagicMaster))
-          skillScore += learnableSkills[CustomSkill.WaterMagicMaster].totalPoints;
-
-        if (learnableSkills.ContainsKey(CustomSkill.WaterMagicScience))
-          skillScore += learnableSkills[CustomSkill.WaterMagicScience].totalPoints;
-
-        return skillScore;
-      }
       /*public void SetMaxHP()
       {
         int improvedHealth = learnableSkills.ContainsKey(CustomSkill.ImprovedHealth) ? learnableSkills[CustomSkill.ImprovedHealth].currentLevel : 0;
@@ -1430,15 +1143,6 @@ namespace NWN.Systems
         SetMaxHP();
         endurance.additionnalMana = GetAdditionalMana();
       }*/
-      public int GetAttributeLevel(SkillSystem.Attribut attribut)
-      {
-        int attributeLevel = learnableSkills.ContainsKey((int)attribut) ? learnableSkills[(int)attribut].totalPoints : 0;
-        attributeLevel += learnableSkills.ContainsKey((int)attribut + 1) ? learnableSkills[(int)attribut + 1].totalPoints : 0;
-        attributeLevel += learnableSkills.ContainsKey((int)attribut + 2) ? learnableSkills[(int)attribut + 2].totalPoints : 0;
-        attributeLevel += learnableSkills.ContainsKey((int)attribut + 3) ? learnableSkills[(int)attribut + 3].totalPoints : 0;
-
-        return attributeLevel;
-      }
     }
   }
 }

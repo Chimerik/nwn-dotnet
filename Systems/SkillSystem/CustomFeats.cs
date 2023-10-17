@@ -1,4 +1,6 @@
-﻿namespace NWN.Systems
+﻿using Anvil.API;
+
+namespace NWN.Systems
 {
   public class CustomSkill
   {
@@ -31,7 +33,10 @@
     public const int WoodRepair = 1332;
     public const int LeatherRepair = 1333;
     public const int EnchantRepair = 1334;
-    
+
+    public const int Sprint = 1342;
+    public const int Disengage = 1343;
+
     public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -90,30 +95,13 @@
     public const int Wanderer = 20043;
     public const int Taken = 20044;
 
-    public const int OpenLock = 20045; // TODO : déverrouiller nécessite toujours des outils
-    public const int OpenLockExpert = 20046; 
-    public const int OpenLockScience = 20047;
-    public const int OpenLockMaster = 20048;
-    public const int Escamotage = 20049;
-    public const int EscamotageExpert = 20050;
-    public const int EscamotageScience = 20051;
-    public const int EscamotageMaster = 20052;
-    //public const int Concentration = 20049; // TODO : remplacer Concentration par un simple jet CON + SAG
-    public const int Arcana = 20053;
-    public const int ArcanaExpert = 20054;
-    public const int ArcanaScience = 20055;
-    public const int ArcanaMaster = 20056;
-
-    public const int History = 20057;
-    public const int HistoryExpert = 20058;
-    public const int HistoryScience = 20059;
-    public const int HistoryMaster = 20060;
-
-    public const int Nature = 20061;
-    public const int NatureExpert = 20063;
-    public const int NatureScience = 20064;
-    public const int NatureMaster = 20065;
-
+    public const int StrengthSavesProficiency = 20045;
+    public const int DexteritySavesProficiency = 20046;
+    public const int ConstitutionSavesProficiency = 20047;
+    public const int IntelligenceSavesProficiency = 20048;
+    public const int WisdomSavesProficiency = 20049;
+    public const int CharismaSavesProficiency = 20050;
+    
     public const int Elfique = 20067;
     public const int Nain = 20068;
     public const int Orc = 20069;
@@ -131,7 +119,6 @@
     public const int Voleur = 20081;
     public const int Gnome = 20082;
 
-    public const int ImprovedAttackBonus = 20083;
     public const int ImprovedSpellSlot0 = 20084;
     public const int ImprovedSpellSlot1 = 20085;
     public const int ImprovedSpellSlot2 = 20086;
@@ -142,12 +129,6 @@
     public const int ImprovedSpellSlot7 = 20091;
     public const int ImprovedSpellSlot8 = 20092;
     public const int ImprovedSpellSlot9 = 20093;
-    //public const int ImprovedCasterLevel = 20094; // Retiré, car désormais chaque sort dispose de son propre niveau. Pourra être remplacé par autre chose
-
-    public const int ImprovedFortitude = 20146;
-    public const int ImprovedReflex = 20147;
-    public const int ImprovedWill = 20148;
-    public const int ImprovedSavingThrowAll = 20149;
 
     public const int OreDetection = 20150;
     public const int WoodDetection = 20151;
@@ -347,49 +328,12 @@
     public const int UncannyDodge = 20368;
 
     public const int LightArmorProficiency = 20369;
-    public const int ExpertLightArmorProficiency = 20370;
-    public const int ScienceLightArmorProficiency = 20371;
-    public const int MasterLightArmorProficiency = 20373;
-
-    public const int MediumArmorProficiency = 20374;
-    public const int ExpertMediumArmorProficiency = 20375;
-    public const int ScienceMediumArmorProficiency = 20376;
-    public const int MasterMediumArmorProficiency = 20377;
-
-    public const int HeavyArmorProficiency = 20378;
-    public const int ExpertHeavyArmorProficiency = 20379;
-    public const int ScienceHeavyArmorProficiency = 20380;
-    public const int MasterHeavyArmorProficiency = 20381;
-
-    public const int FullPlateProficiency = 20382;
-    public const int ExpertFullPlateProficiency = 20383;
-    public const int ScienceFullPlateProficiency = 20384;
-    public const int MasterFullPlateProficiency = 20385;
-
-    public const int LightShieldProficiency = 20386;
-    public const int ExpertLightShieldProficiency = 20387;
-    public const int ScienceLightShieldProficiency = 20388;
-    public const int MasterLightShieldProficiency = 20389;
-
-    public const int MediumShieldProficiency = 20390;
-    public const int ExpertMediumShieldProficiency = 20391;
-    public const int ScienceMediumShieldProficiency = 20392;
-    public const int MasterMediumShieldProficiency = 20393;
-
-    public const int HeavyShieldProficiency = 20394;
-    public const int ExpertHeavyShieldProficiency = 20395;
-    public const int ScienceHeavyShieldProficiency = 20396;
-    public const int MasterHeavyShieldProficiency = 20397;
-
-    public const int DualWieldDefenseProficiency = 20398;
-    public const int ExpertDualWieldDefenseProficiency = 20399;
-    public const int ScienceDualWieldDefenseProficiency = 20400;
-    public const int MasterDualWieldDefenseProficiency = 20401;
-
-    public const int ClothingArmorProficiency = 20402;
-    public const int ExpertClothingArmorProficiency = 20403;
-    public const int ScienceClothingArmorProficiency = 20404;
-    public const int MasterClothingArmorProficiency = 20405;
+    public const int MediumArmorProficiency = 20370;
+    public const int HeavyArmorProficiency = 20371;
+    public const int ShieldProficiency = 20372;
+    public const int SimpleWeaponProficiency = 20373;
+    public const int MartialWeaponProficiency = 20374;
+    public const int ExoticWeaponProficiency = 20375;
 
     /*public const int UnharmedProficiency = 20387;
     public const int QuarterStaffProficiency = 20390;
@@ -415,250 +359,90 @@
     public const int CalligrapheFourbisseurScience = 20431;
     public const int CalligrapheFourbisseurExpert = 20432;
 
-    public const int AirMagic = 20433;
-    public const int AirMagicMaster = 20434;
-    public const int AirMagicScience = 20435;
-    public const int AirMagicExpert = 20436;
+    public const int AcrobaticsProficiency = 20433;
+    public const int AcrobaticsExpertise = 20434;
 
-    public const int FireMagic = 20437;
-    public const int FireMagicMaster = 20438;
-    public const int FireMagicScience = 20439;
-    public const int FireMagicExpert = 20440;
+    public const int AnimalHandlingProficiency = 20435;
+    public const int AnimalHandlingExpertise = 20436;
 
-    public const int EarthMagic = 20441;
-    public const int EarthMagicMaster = 20442;
-    public const int EarthMagicScience = 20443;
-    public const int EarthMagicExpert = 20444;
+    public const int ArcanaProficiency = 20437;
+    public const int ArcanaExpertise = 20438;
 
-    public const int WaterMagic = 20445;
-    public const int WaterMagicMaster = 20446;
-    public const int WaterMagicScience = 20447;
-    public const int WaterMagicExpert = 20448;
+    public const int AthleticsProficiency = 20439;
+    public const int AthleticsExpertise = 20440;
 
-    public const int Athletics = 20449;
-    public const int AthleticsMaster = 20450;
-    public const int AthleticsScience = 20451;
-    public const int AthleticsExpert = 20452;
+    public const int DeceptionProficiency = 20441;
+    public const int DeceptionExpertise = 20442;
 
-    public const int Axemanship = 20453;
-    public const int AxemanshipMaster = 20454;
-    public const int AxemanshipScience = 20455;
-    public const int AxemanshipExpert = 20456;
+    public const int HistoryProficiency = 20443;
+    public const int HistoryExpertise = 20444;
 
-    public const int Hammermanship = 20457;
-    public const int HammermanshipMaster = 20458;
-    public const int HammermanshipScience = 20459;
-    public const int HammermanshipExpert = 20460;
+    public const int InsightProficiency = 20445;
+    public const int InsightExpertise = 20446;
 
-    public const int Swordmanship = 20461;
-    public const int SwordmanshipMaster = 20462;
-    public const int SwordmanshipScience = 20463;
-    public const int SwordmanshipExpert = 20464;
+    public const int IntimidationProficiency = 20447;
+    public const int IntimidationExpertise = 20448;
 
-    public const int Tactics = 20465;
-    public const int TacticsMaster = 20466;
-    public const int TacticsScience = 20467;
-    public const int TacticsExpert = 20468;
+    public const int InvestigationProficiency = 20449;
+    public const int InvestigationExpertise = 20450;
 
-    public const int Expertise = 20469; // TODO : Réduit le coût en énergie des attaques de Ranger, de toucher et les skills rituels. Dépend de la sagesse
-    public const int ExpertiseMaster = 20470; // TODO : Réservé à ceux qui ont un rp de ranger / druide
-    public const int ExpertiseScience = 20471;
-    public const int ExpertiseExpert = 20472;
+    public const int MedicineProficiency = 20451;
+    public const int MedicineExpertise = 20452;
 
-    public const int Beast = 20473;
-    public const int BeastMaster = 20474;
-    public const int BeastScience = 20475;
-    public const int BeastExpert = 20476;
+    public const int NatureProficiency = 20453;
+    public const int NatureExpertise = 20454;
 
-    public const int Marksmanship = 20477;
-    public const int MarksmanshipMaster = 20478;
-    public const int MarksmanshipScience = 20479;
-    public const int MarksmanshipExpert = 20480;
+    public const int PerceptionProficiency = 20455;
+    public const int PerceptionExpertise = 20456;
 
-    public const int WildernessSurvival = 20481;
-    public const int WildernessSurvivalMaster = 20482;
-    public const int WildernessSurvivalScience = 20483;
-    public const int WildernessSurvivalExpert = 20484;
+    public const int PerformanceProficiency = 20457;
+    public const int PerformanceExpertise = 20458;
 
-    public const int HealingPrayers = 20485;
-    public const int HealingPrayersMaster = 20486;
-    public const int HealingPrayersScience = 20487;
-    public const int HealingPrayersExpert = 20488;
+    public const int PersuasionProficiency = 20459;
+    public const int PersuasionExpertise = 20460;
 
-    public const int ProtectionPrayers = 20489;
-    public const int ProtectionPrayersMaster = 20490;
-    public const int ProtectionPrayersScience = 20491;
-    public const int ProtectionPrayersExpert = 20492;
+    public const int ReligionProficiency = 20461;
+    public const int ReligionExpertise = 20462;
 
-    public const int SmitingPrayers = 20493;
-    public const int SmitingPrayersMaster = 20494;
-    public const int SmitingPrayersScience = 20495;
-    public const int SmitingPrayersExpert = 20496;
+    public const int SleightOfHandProficiency = 20463;
+    public const int SleightOfHandExpertise = 20464;
 
-    public const int SoulReaping = 20497; // TODO : Réservé à ceux qui ont un vrai rp de nécro
-    public const int SoulReapingMaster = 20498; // TODO : donne de l'énergie chaque fois qu'une créature proche meurt. Dépend de l'intelligence
-    public const int SoulReapingScience = 20499;
-    public const int SoulReapingExpert = 20500;
+    public const int StealthProficiency = 20465;
+    public const int StealthExpertise = 20466;
 
-    public const int BloodMagic = 20501;
-    public const int BloodMagicMaster = 20502;
-    public const int BloodMagicScience = 20503;
-    public const int BloodMagicExpert = 20504;
+    public const int SurvivalProficiency = 20467;
+    public const int SurvivalExpertise = 20468;
 
-    public const int Curses = 20505;
-    public const int CursesMaster = 20506;
-    public const int CursesScience = 20507;
-    public const int CursesExpert = 20508;
+    public const int Fighter = 20469;
+    public const int FighterChampion = 20470;
+    public const int FighterWarMaster = 20471;
+    public const int FighterEldritchKnight = 20472;
+    public const int FighterArcaneArcher = 20473;
 
-    public const int DeathMagic = 20509;
-    public const int DeathMagicMaster = 20510;
-    public const int DeathMagicScience = 20511;
-    public const int DeathMagicExpert = 20512;
+    public const int FighterSecondWind = 20474;
+    public const int FighterCombatStyleArchery = 20475;
+    public const int FighterCombatStyleDefense = 20476;
+    public const int FighterCombatStyleDuel = 20477;
+    public const int FighterCombatStyleTwoHanded = 20478;
+    public const int FighterCombatStyleProtection = 20479;
+    public const int FighterCombatStyleDualWield = 20480;
+    public const int FighterSurge = 20481; // 2 niveaux
+    public const int FighterBonusAttack = 20482; // 3 niveaux
+    public const int FighterInflexible = 20483; // 3 niveaux
 
-    public const int FastCasting = 20513; // TODO : Réservé à ceux qui ont un vrai rp d'enso
-    public const int FastCastingMaster = 20514; // TODO : Diminue le temps de cast des sorts et sceaux. Dépend du charisme
-    public const int FastCastingScience = 20515;
-    public const int FastCastingExpert = 20516;
+    public const int FighterChampionCritical = 20484; // 2 niveaux
+    public const int FighterChampionRemarkableAthlete = 20485;
+    public const int FighterChampionUltimateSurvivor = 20485;
 
-    public const int Domination = 20517;
-    public const int DominationMaster = 20518;
-    public const int DominationScience = 20519;
-    public const int DominationExpert = 20520;
-
-    public const int Illusion = 20521;
-    public const int IllusionMaster = 20522;
-    public const int IllusionScience = 20523;
-    public const int IllusionExpert = 20524;
-
-    public const int Inspiration = 20525;
-    public const int InspirationMaster = 20526;
-    public const int InspirationScience = 20527;
-    public const int InspirationExpert = 20528;
-
-    public const int EnergyStorage = 20529; // TODO : Réservé à ceux qui ont un vrai rp de mage
-    public const int EnergyStorageMaster = 20530; // TODO : Augmente l'énergie maximum
-    public const int EnergyStorageScience = 20531;
-    public const int EnergyStorageExpert = 20532;
-
-    public const int CriticalStrikes = 20533; // TODO : Augmente les chances de coups critiques en fonction de la dextérité. Les coups critiques rendent de l'énergie
-    public const int CriticalStrikesMaster = 20534; 
-    public const int CriticalStrikesScience = 20535;
-    public const int CriticalStrikesExpert = 20536;
-
-    public const int Daggermanship = 20537;
-    public const int DaggermanshipMaster = 20538;
-    public const int DaggermanshipScience = 20539;
-    public const int DaggermanshipExpert = 20540;
-
-    public const int DeadlyArts = 20541;
-    public const int DeadlyArtsMaster = 20542;
-    public const int DeadlyArtsScience = 20543;
-    public const int DeadlyArtsExpert = 20544;
-
-    public const int ShadowArts = 20545;
-    public const int ShadowArtsMaster = 20546;
-    public const int ShadowArtsScience = 20547;
-    public const int ShadowArtsExpert = 20548;
-
-    public const int SpawningPower = 20549; // TODO : Augmente la santé des créatures invoquées en fonction de la sagesse
-    public const int SpawningPowerMaster = 20550;
-    public const int SpawningPowerScience = 20551;
-    public const int SpawningPowerExpert = 20552;
-
-    public const int ChannelingMagic = 20553;
-    public const int ChannelingMagicMaster = 20554;
-    public const int ChannelingMagicScience = 20555;
-    public const int ChannelingMagicExpert = 20556;
-
-    public const int Communing = 20557;
-    public const int CommuningMaster = 20558;
-    public const int CommuningScience = 20559;
-    public const int CommuningExpert = 20560;
-
-    public const int RestorationMagic = 20561;
-    public const int RestorationMagicMaster = 20562;
-    public const int RestorationMagicScience = 20563;
-    public const int RestorationMagicExpert = 20564;
-
-    public const int Leadership = 20565; // TODO : Réservé à ceux qui ont un vrai rp de barde.
-    public const int LeadershipMaster = 20566; // TODO : Donne de l'énergie à l'utilisation de cris et de chants en fonction du charisme et du nombre d'alliés affectés
-    public const int LeadershipScience = 20567;
-    public const int LeadershipExpert = 20568;
-
-    public const int Command = 20569; 
-    public const int CommandMaster = 20570; 
-    public const int CommandScience = 20571;
-    public const int CommandExpert = 20572;
-
-    public const int Motivation = 20573;
-    public const int MotivationMaster = 20574;
-    public const int MotivationScience = 20575;
-    public const int MotivationExpert = 20576;
-
-    public const int Spearmanship = 20577;
-    public const int SpearmanshipMaster = 20578;
-    public const int SpearmanshipScience = 20579;
-    public const int SpearmanshipExpert = 20580;
-
-    public const int Mysticism = 20581; // TODO : Réduit le coût des enchantements divins
-    public const int MysticismMaster = 20582;
-    public const int MysticismScience = 20583;
-    public const int MysticismExpert = 20584;
-
-    public const int DivineProtection = 20585;
-    public const int DivineProtectionMaster = 20586;
-    public const int DivineProtectionScience = 20587;
-    public const int DivineProtectionExpert = 20588;
-
-    public const int DivineMight = 20589;
-    public const int DivineMightMaster = 20590;
-    public const int DivineMightScience = 20591;
-    public const int DivineMightExpert = 20592;
-
-    public const int Scythemanship = 20593;
-    public const int ScythemanshipMaster = 20594;
-    public const int ScythemanshipScience = 20595;
-    public const int ScythemanshipExpert = 20596;
-
-    public const int Religion = 20597;
-    public const int ReligionExpert = 20598;
-    public const int ReligionScience = 20599;
-    public const int ReligionMaster = 20600;
-
-    public const int Investigation = 20601;
-    public const int InvestigationExpert = 20602;
-    public const int InvestigationScience = 20603;
-    public const int InvestigationMaster = 20604;
-
-    public const int Insight = 20605;
-    public const int InsightExpert = 20606;
-    public const int InsightScience = 20607;
-    public const int InsightMaster = 20608;
-
-    public const int Medicine = 20609;
-    public const int MedicineExpert = 20610;
-    public const int MedicineScience = 20611;
-    public const int MedicineMaster = 20612;
-
-    public const int Perception = 20613;
-    public const int PerceptionExpert = 20614;
-    public const int PerceptionScience = 20615;
-    public const int PerceptionMaster = 20616;
-
-    public const int Deception = 20617;
-    public const int DeceptionExpert = 20618;
-    public const int DeceptionScience = 20619;
-    public const int DeceptionMaster = 20620;
-
-    public const int Intimidation = 20621;
-    public const int IntimidationExpert = 20622;
-    public const int IntimidationScience = 20623;
-    public const int IntimidationMaster = 20624;
-
-    public const int Persuasion = 20625;
-    public const int PersuasionExpert = 20626;
-    public const int PersuasionScience = 20627;
-    public const int PersuasionMaster = 20628;
+    public const int FighterWarMasterSuperiority = 20486; // 5 niveaux
+    
+    public const int FighterEldritchKnightBoundWeapon = 20486;
+    public const int FighterEldritchKnightWarMagic = 20487; // 2 niveaux
+    public const int FighterEldritchKnightEldritchStrike = 20488;
+    public const int FighterEldritchKnightArcaneRush = 20489;
+    
+    public const int FighterArcaneArcherArcaneShot = 20484; // 3 niveaux
+    public const int FighterArcaneArcherMagicArrow = 20485;    
 
     public const int Invalid = 65535;
   }

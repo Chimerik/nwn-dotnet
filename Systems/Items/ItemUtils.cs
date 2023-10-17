@@ -7,7 +7,7 @@ using NWN.Core;
 
 namespace NWN.Systems
 {
-  public static class ItemUtils
+  public static partial class ItemUtils
   {
     public static readonly int[] shopBasicMagicScrolls = new int[] { NWScript.IP_CONST_CASTSPELL_ACID_SPLASH_1, NWScript.IP_CONST_CASTSPELL_DAZE_1, NWScript.IP_CONST_CASTSPELL_ELECTRIC_JOLT_1, NWScript.IP_CONST_CASTSPELL_FLARE_1, NWScript.IP_CONST_CASTSPELL_RAY_OF_FROST_1, NWScript.IP_CONST_CASTSPELL_RESISTANCE_5, NWScript.IP_CONST_CASTSPELL_BURNING_HANDS_5, NWScript.IP_CONST_CASTSPELL_CHARM_PERSON_2, NWScript.IP_CONST_CASTSPELL_COLOR_SPRAY_2, NWScript.IP_CONST_CASTSPELL_ENDURE_ELEMENTS_2, NWScript.IP_CONST_CASTSPELL_EXPEDITIOUS_RETREAT_5, NWScript.IP_CONST_CASTSPELL_GREASE_2, 459, 478, 460, NWScript.IP_CONST_CASTSPELL_MAGE_ARMOR_2, NWScript.IP_CONST_CASTSPELL_MAGIC_MISSILE_5, NWScript.IP_CONST_CASTSPELL_NEGATIVE_ENERGY_RAY_5, NWScript.IP_CONST_CASTSPELL_RAY_OF_ENFEEBLEMENT_2, NWScript.IP_CONST_CASTSPELL_SCARE_2, 469, NWScript.IP_CONST_CASTSPELL_SHIELD_5, NWScript.IP_CONST_CASTSPELL_SLEEP_5, NWScript.IP_CONST_CASTSPELL_SUMMON_CREATURE_I_5, NWScript.IP_CONST_CASTSPELL_AMPLIFY_5, NWScript.IP_CONST_CASTSPELL_BALAGARNSIRONHORN_7, NWScript.IP_CONST_CASTSPELL_LESSER_DISPEL_5, NWScript.IP_CONST_CASTSPELL_CURE_MINOR_WOUNDS_1, NWScript.IP_CONST_CASTSPELL_INFLICT_MINOR_WOUNDS_1, NWScript.IP_CONST_CASTSPELL_VIRTUE_1, NWScript.IP_CONST_CASTSPELL_BANE_5, NWScript.IP_CONST_CASTSPELL_BLESS_2, NWScript.IP_CONST_CASTSPELL_CURE_LIGHT_WOUNDS_5, NWScript.IP_CONST_CASTSPELL_DIVINE_FAVOR_5, NWScript.IP_CONST_CASTSPELL_DOOM_5, NWScript.IP_CONST_CASTSPELL_ENTROPIC_SHIELD_5, NWScript.IP_CONST_CASTSPELL_INFLICT_LIGHT_WOUNDS_5, NWScript.IP_CONST_CASTSPELL_REMOVE_FEAR_2, NWScript.IP_CONST_CASTSPELL_SANCTUARY_2, NWScript.IP_CONST_CASTSPELL_SHIELD_OF_FAITH_5, NWScript.IP_CONST_CASTSPELL_CAMOFLAGE_5, NWScript.IP_CONST_CASTSPELL_ENTANGLE_5, NWScript.IP_CONST_CASTSPELL_MAGIC_FANG_5, 540, 541, 542, 543, 544, 583, 587, 591 };
     public static readonly BaseItemType[] leatherBasicWeaponBlueprints = new BaseItemType[] { BaseItemType.Belt, BaseItemType.Gloves, BaseItemType.Boots, BaseItemType.Cloak, BaseItemType.Whip };
@@ -1727,11 +1727,10 @@ namespace NWN.Systems
     }
     public static bool  GetItemHalvesCastTime(NwSpell spell, NwItem item)
     {
-      if (item is not null)
+      /*if (item is not null)
       {
         int fulguranceChance = 0;
         int spellAttribute = SpellUtils.spellCostDictionary[spell][(int)SpellUtils.SpellData.Attribute];
-        SkillSystem.Attribut itemAttribute = GetItemAttribute(item);
         
         for (int i = 0; i < item.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
         {
@@ -1755,7 +1754,7 @@ namespace NWN.Systems
 
         if (NwRandom.Roll(Utils.random, 100) < fulguranceChance)
           return true;
-      }
+      }*/
 
       return false;
     }
@@ -2358,14 +2357,6 @@ namespace NWN.Systems
         ipNames.Add($"+{pourfendeurVermine}% Dégâts contre la Vermine");
         ipColors.Add(ColorConstants.White);
       }
-    }
-    public static SkillSystem.Attribut GetItemAttribute(NwItem item)
-    {
-      for (int i = 0; i < item.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
-        if (Enum.IsDefined(typeof(SkillSystem.Attribut), item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value))
-          return (SkillSystem.Attribut)item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value;
-
-      return SkillSystem.Attribut.Invalid;
     }
     public static int GetItemProficiencyRequirement(NwItem item)
     {

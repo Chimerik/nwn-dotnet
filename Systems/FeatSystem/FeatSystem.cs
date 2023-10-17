@@ -14,7 +14,7 @@ namespace NWN.Systems
 
       int featId = onUseFeat.Feat.Id + 10000;
 
-      SkillSystem.Attribut featAttribute = SkillSystem.learnableDictionary[featId].attribut;
+      /*SkillSystem.Attribut featAttribute = SkillSystem.learnableDictionary[featId].attribut;
       int attributeLevel = player.GetAttributeLevel(featAttribute);
       int bonusAttributeChance = 0;
 
@@ -39,7 +39,7 @@ namespace NWN.Systems
       }
 
       if (NwRandom.Roll(Utils.random, 100) < bonusAttributeChance)
-        attributeLevel += 1;
+        attributeLevel += 1;*/
 
       switch (featId)
       {

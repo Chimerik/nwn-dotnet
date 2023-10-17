@@ -4,10 +4,6 @@ using Anvil.Services;
 using System.Linq;
 using NWN.Core;
 using System.Numerics;
-using System.Collections.Generic;
-using NWN.Core.NWNX;
-using static NWN.Systems.PlayerSystem;
-using Anvil.API.Events;
 using System;
 
 namespace NWN.Systems
@@ -16,6 +12,7 @@ namespace NWN.Systems
   public unsafe class NativeAttackHook
   {
     private readonly CExoString casterLevelVariable = "_CREATURE_CASTER_LEVEL".ToExoString();
+    public readonly CExoString casterCurrentSpellVariable = "_CURRENT_SPELL".ToExoString();
     private readonly CExoString isFinesseWeaponVariable = "_IS_FINESSE_WEAPON".ToExoString();
     private readonly CExoString currentDualAttacksVariable = "_CURRENT_DUAL_ATTACK".ToExoString();
     private readonly CExoString currentUnarmedExtraAttacksVariable = "_CURRENT_UNARMED_EXTRA_ATTACK".ToExoString();
@@ -69,8 +66,7 @@ namespace NWN.Systems
       CNWSObject targetObject = CNWSObject.FromPointer(pTarget);
       CNWSCreature targetCreature = targetObject.m_nObjectType == (int)ObjectType.Creature ? targetObject.AsNWSCreature() : null;
 
-      //LogUtils.LogMessage("--------------------------------------------------------------------", LogUtils.LogType.Combat);
-      LogUtils.LogMessage($"{creature.m_pStats.GetFullName().ToExoLocString().GetSimple(0)} attacking {targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)}", LogUtils.LogType.Combat);
+      LogUtils.LogMessage($"----- {creature.m_pStats.GetFullName().ToExoLocString().GetSimple(0)} attaque {targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)} -----", LogUtils.LogType.Combat);
 
       CNWSCombatRound combatRound = creature.m_pcCombatRound;
       CNWSCombatAttackData attackData = combatRound.GetAttack(combatRound.m_nCurrentAttack);
@@ -81,17 +77,16 @@ namespace NWN.Systems
       {
         attackData.m_nAttackResult = 3;
         NativeUtils.SendNativeServerMessage($"CRITIQUE AUTOMATIQUE - Armure en ruine ".ColorString(new Color(255, 215, 0)), targetCreature);
+        LogUtils.LogMessage($"Armure ruinée : critique automatique", LogUtils.LogType.Combat);
         return;
       }
 
-  //*** CALCUL DU BONUS D'ATTAQUE ***//
+      //*** CALCUL DU BONUS D'ATTAQUE ***//
       // On prend le bonus d'attaque calculé automatiquement par le jeu en fonction de la cible qui peut être une créature ou un placeable
-      int attackModifier = targetCreature is null 
-        ? creature.m_pStats.GetAttackModifierVersus() 
-        : creature.m_pStats.GetAttackModifierVersus(targetObject.AsNWSCreature());
+      int attackModifier = NativeUtils.GetAttackBonusVSTarget(creature, targetCreature, attackData.m_bRangedAttack);
 
-      //LogUtils.LogMessage($"Attack Modifier versus : {attackModifier}", LogUtils.LogType.Combat);
-
+      //CreatureUtils.TestGetInvi(creature, targetCreature);
+      
       // Si l'arme utilisée pour attaquer est une arme de finesse, et que la créature a une meilleur DEX, alors on utilise la DEX pour attaquer
       CNWSItem attackWeapon = combatRound.GetCurrentAttackWeapon(attackData.m_nWeaponAttackType);
       Anvil.API.Ability attackStat = Anvil.API.Ability.Strength;
@@ -105,8 +100,7 @@ namespace NWN.Systems
         && (attackWeapon is null || NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem).IsMonkWeapon))
         attackStat = dexBonus > strBonus ? Anvil.API.Ability.Dexterity : Anvil.API.Ability.Strength;
       else
-        attackStat = attackWeapon is null || ItemUtils.GetItemCategory(NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem).ItemType) != ItemUtils.ItemCategory.RangedWeapon 
-          ? Anvil.API.Ability.Strength : Anvil.API.Ability.Dexterity;
+        attackStat = attackWeapon is null || attackData.m_bRangedAttack < 1 ? Anvil.API.Ability.Strength : Anvil.API.Ability.Dexterity;
 
       if (attackWeapon != null
           && dexBonus > strBonus
@@ -115,16 +109,21 @@ namespace NWN.Systems
         attackModifier += -strBonus + dexBonus;
         attackStat = Anvil.API.Ability.Dexterity;
       }
-      
-      //LogUtils.LogMessage($"Attack Modifier finesse : {attackModifier}", LogUtils.LogType.Combat);
 
       // TODO : Dans certains cas, la STAT à utiliser pourra être INT, SAG ou CHA, à implémenter 
 
-      // On ajoute le bonus de maîtrise de la créature et on se débarrasse de la pénalité de 5 pour les attaques supplémentaires du round
-      int attackBonus = NativeUtils.GetWeaponProficiencyBonus(creature, attackWeapon) + attackModifier;
+      // On ajoute le bonus de maîtrise de la créature
+      int attackBonus = NativeUtils.GetCreatureWeaponProficiencyBonus(creature, attackWeapon);
 
-      //LogUtils.LogMessage($"+ Proficiency Bonus : {attackBonus}", LogUtils.LogType.Combat);
+      string logMessage = attackStat == Anvil.API.Ability.Strength
+        ? $"Bonus d'attaque contre la cible {attackModifier} dont {strBonus} de modificateur de force"
+        : $"Bonus d'attaque contre la cible {attackModifier} dont {dexBonus} du modificateur de dextérité";
 
+      LogUtils.LogMessage(logMessage, LogUtils.LogType.Combat);
+      LogUtils.LogMessage($"Bonus de maîtrise : {attackBonus}", LogUtils.LogType.Combat);
+      attackBonus += attackModifier;
+
+      // Si l'attaque n'est donnée par Haste et combat à deux armes, alors on compense le -2 du jeu de base
       if (attackData.m_nWeaponAttackType != 6 && NativeUtils.IsDualWieldingLightWeapon(attackWeapon, creature.m_nCreatureSize, creature.m_pInventory.m_pEquipSlot[5].ToNwObject<NwItem>()))
         attackBonus += 2;
 
@@ -134,25 +133,28 @@ namespace NWN.Systems
         creature.m_ScriptVars.SetInt(currentUnarmedExtraAttacksVariable, 0);
       }
 
+      // On compense le -5 du jeu de base pour les attaques supplémentaires du round
       switch (attackData.m_nWeaponAttackType)
       {
         case 1:
         case 3:
         case 4:
         case 5:
-        case 7:
-          attackBonus += 5 * combatRound.m_nCurrentAttack;
-            break;
+        case 7: attackBonus += 5 * combatRound.m_nCurrentAttack; break;
         case 2:
-          int currentDualAttack = creature.m_ScriptVars.GetInt(currentDualAttacksVariable);
-          attackBonus += 5 * currentDualAttack;
-          creature.m_ScriptVars.SetInt(currentDualAttacksVariable, currentDualAttack + 1);
 
+          // Combat à deux armes : si action bonus disponible, alors on l'utilise et on compense le -5 *nbAttack du jeu de base
           int bonusAction = creature.m_ScriptVars.GetInt(isBonusActionAvailableVariable);
 
           if (bonusAction > 0)
+          {
             creature.m_ScriptVars.SetInt(isBonusActionAvailableVariable, bonusAction - 1);
-          else
+
+            int currentDualAttack = creature.m_ScriptVars.GetInt(currentDualAttacksVariable);
+            attackBonus += 5 * currentDualAttack;
+            creature.m_ScriptVars.SetInt(currentDualAttacksVariable, currentDualAttack + 1);
+          }
+          else // Si pas de d'action bonus disponible, l'attaque échoue automatiquement
           {
             attackData.m_nAttackResult = 4;
             attackData.m_nMissedBy = 8;
@@ -168,35 +170,46 @@ namespace NWN.Systems
           break;
       }
 
-      /*LogUtils.LogMessage($"+ Multi-attack bonus : {attackBonus}", LogUtils.LogType.Combat);
-      LogUtils.LogMessage($"m_nWeaponAttackType : {attackData.m_nWeaponAttackType}", LogUtils.LogType.Combat);
-      LogUtils.LogMessage($"m_nCurrentAttack : {combatRound.m_nCurrentAttack}", LogUtils.LogType.Combat);
-      LogUtils.LogMessage($"Final Attack Bonus : {attackBonus}", LogUtils.LogType.Combat);*/
-
       if (targetCreature is not null)
       {
-        int advantage = CreatureUtils.HasAdvantageAgainstTarget(creature, attackStat, targetCreature);
+        int advantage = CreatureUtils.GetAdvantageAgainstTarget(creature, attackData, attackWeapon, attackStat, casterCurrentSpellVariable, targetCreature);
         int attackRoll = Utils.RollAdvantage(advantage);
-        short targetAC = targetCreature.m_pStats.GetArmorClassVersus(creature);
+        int targetAC = targetCreature.m_pStats.GetArmorClassVersus(creature) + CreatureUtils.OverrideSizeAttackAndACBonus(targetCreature); // On compense le bonus/malus de taille du jeu de base;
+
+        LogUtils.LogMessage($"CA de la cible : {targetAC}", LogUtils.LogType.Combat);
 
         string hitString = "touchez".ColorString(new Color(32, 255, 32));
         string rollString = $"{attackRoll} + {attackBonus} = {attackRoll + attackBonus}".ColorString(new Color(32, 255, 32));
         string criticalString = "";
         string advantageString = advantage == 0 ? "" : advantage > 0 ? "Avantage - ".ColorString(new Color(255, 215, 0)) : "Désavantage - ".ColorString(ColorConstants.Red);
 
-        if(attackRoll == 20) // TODO : certains items permettront d'augmenter la plage des critiques dans certaines conditions
+        if (attackRoll == 20) // TODO : certains items permettront d'augmenter la plage des critiques dans certaines conditions
         {
           attackData.m_nAttackResult = 3;
           criticalString = "CRITIQUE - ".ColorString(new Color(255, 215, 0));
+          LogUtils.LogMessage("Coup critique", LogUtils.LogType.Combat);
         }
-        else if (attackRoll > 1 && attackRoll + attackBonus > targetAC) 
-          attackData.m_nAttackResult = 1;
+        else if (attackRoll > 1 && attackRoll + attackBonus > targetAC)
+        {
+          if (attackData.m_bRangedAttack < 1 && targetCreature.m_appliedEffects.Any(e => (EffectTrueType)e.m_nType == EffectTrueType.SetState && e.GetInteger(0) == 8)) // Si la cible est paralysée, que l'attaque touche et est en mêlée, alors critique auto
+          {
+            attackData.m_nAttackResult = 3;
+            criticalString = "CRITIQUE - ".ColorString(new Color(255, 215, 0));
+            LogUtils.LogMessage("Coup critique", LogUtils.LogType.Combat);
+          }
+          else
+          {
+            attackData.m_nAttackResult = 1;
+            LogUtils.LogMessage($"Touché : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC}", LogUtils.LogType.Combat);
+          }
+        }
         else
         {
           attackData.m_nAttackResult = 4;
-          attackData.m_nMissedBy = (byte)(targetAC - attackRoll) > 8 ? (byte)Utils.random.Next(9) : (byte)(targetAC - attackRoll);
+          attackData.m_nMissedBy = (byte)(targetAC - attackRoll) > 8 ? (byte)Utils.random.Next(1, 9) : (byte)(targetAC - attackRoll);
           hitString = "manquez".ColorString(ColorConstants.Red);
           rollString = rollString.StripColors().ColorString(ColorConstants.Red);
+          LogUtils.LogMessage($"Manqué : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC}", LogUtils.LogType.Combat);
         }
         
         string targetName = $"{targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)}".ColorString(ColorConstants.Cyan);
@@ -275,7 +288,7 @@ namespace NWN.Systems
       if (attacker is null || targetObject is null || targetObject.m_bPlotObject == 1)
         return -1;
 
-      LogUtils.LogMessage($"Jet de dégâts : {creatureStats.GetFullName().ToExoLocString().GetSimple(0)} attaque {targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)}", LogUtils.LogType.Combat);
+      LogUtils.LogMessage($"----- Jet de dégâts : {creatureStats.GetFullName().ToExoLocString().GetSimple(0)} attaque {targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)} -----", LogUtils.LogType.Combat);
 
       CNWSCombatRound combatRound = attacker.m_pcCombatRound;
       CNWSCombatAttackData attackData = combatRound.GetAttack(combatRound.m_nCurrentAttack);
@@ -291,15 +304,29 @@ namespace NWN.Systems
         NwBaseItem baseWeapon = NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem);
         baseDamage += NwRandom.Roll(Utils.random, baseWeapon.DieToRoll, baseWeapon.NumDamageDice);
 
+        LogUtils.LogMessage($"{baseWeapon.Name.ToString()} - {baseWeapon.NumDamageDice}d{baseWeapon.DieToRoll} => {baseDamage}", LogUtils.LogType.Combat);
+
         // On ne peut faire des attaques sournoises qu'avec une arme
         if (bSneakAttack > 0)
-          baseDamage += NwRandom.Roll(Utils.random, 6, (int)Math.Ceiling((double)attacker.m_pStats.GetNumLevelsOfClass((byte)Native.API.ClassType.Rogue) / 2));
+        {
+          int sneakLevel = (int)Math.Ceiling((double)attacker.m_pStats.GetNumLevelsOfClass((byte)Native.API.ClassType.Rogue) / 2);
+          int sneakRoll = NwRandom.Roll(Utils.random, 6, sneakLevel);
+          baseDamage += sneakRoll;
+          LogUtils.LogMessage($"Sournoise - {sneakLevel}d{6} => {sneakRoll} - Total : {baseDamage}", LogUtils.LogType.Combat);
+        }
       }
       else
-        baseDamage += CreatureUtils.GetUnarmedDamage(attacker.m_pStats.GetNumLevelsOfClass((byte)Native.API.ClassType.Monk));
-
-      if(bCritical >  0)
-        baseDamage += NativeUtils.GetCritDamage(attacker, attackWeapon, bSneakAttack);
+      {
+        int unarmedDieToRoll = CreatureUtils.GetUnarmedDamage(attacker.m_pStats.GetNumLevelsOfClass((byte)Native.API.ClassType.Monk));
+        baseDamage += NwRandom.Roll(Utils.random, unarmedDieToRoll);
+        LogUtils.LogMessage($"Mains nues - 1d{unarmedDieToRoll} => {baseDamage}", LogUtils.LogType.Combat);
+      }
+      if (bCritical > 0)
+      {
+        int critDamage = NativeUtils.GetCritDamage(attacker, attackWeapon, bSneakAttack);
+        LogUtils.LogMessage($"Critique - Base {baseDamage} + crit {critDamage} = {baseDamage + critDamage}", LogUtils.LogType.Combat);
+        baseDamage += critDamage;
+      }
         
       // Ajout du bonus de caractéristique
       byte dexMod = creatureStats.m_nDexterityModifier;
@@ -308,22 +335,50 @@ namespace NWN.Systems
       int strBonus = strMod > 122 ? strMod - 255 : strMod;
       int damageBonus = 0;
 
-      if (ItemUtils.GetItemCategory(NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem).ItemType) == ItemUtils.ItemCategory.RangedWeapon)
+      if (attackData.m_bRangedAttack > 0)
+      {
         damageBonus += dexBonus;
+        LogUtils.LogMessage($"Arme à distance - Ajout Dextérité ({dexBonus})", LogUtils.LogType.Combat);
+      }
       else if (attacker.m_pStats.GetNumLevelsOfClass((byte)Native.API.ClassType.Monk) > 0 // Les moins utilisent leur caract la plus élevée à mains nues ou avec arme de moine
         && (attackWeapon is null || NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem).IsMonkWeapon))
-        damageBonus += dexBonus > strBonus ? dexBonus : strBonus;
-      else // Si arme de finesse et dextérité plus élevée, alors on utilise la dextérité
-        damageBonus += attackWeapon?.m_ScriptVars.GetInt(isFinesseWeaponVariable) != 0 && dexBonus > strBonus ? dexBonus : strBonus;
-
+      {
+        if (dexBonus > strBonus)
+        {
+          damageBonus += dexBonus;
+          LogUtils.LogMessage($"Moine - Ajout Dextérité ({dexBonus})", LogUtils.LogType.Combat);
+        }
+        else
+        {
+          damageBonus += strBonus;
+          LogUtils.LogMessage($"Moine - Ajout Force ({strBonus})", LogUtils.LogType.Combat);
+        }
+      }// Si arme de finesse et dextérité plus élevée, alors on utilise la dextérité
+      else if(attackWeapon?.m_ScriptVars.GetInt(isFinesseWeaponVariable) != 0 && dexBonus > strBonus)
+      {
+        damageBonus +=  dexBonus;
+        LogUtils.LogMessage($"Arme de finesse - Ajout Dextérité ({dexBonus})", LogUtils.LogType.Combat);
+      }
+      else
+      {
+        damageBonus += strBonus;
+        LogUtils.LogMessage($"Ajout Force ({strBonus})", LogUtils.LogType.Combat);
+      }
       // Pour l'attaque de la main secondaire, on n'ajoute le modificateur de caractéristique que s'il est négatif
-      if (bOffHand < 1 || (bOffHand > 0 && dexBonus < 0)) 
+      if (bOffHand < 1 || (bOffHand > 0 && dexBonus < 0))
         baseDamage += damageBonus;
+      else
+        LogUtils.LogMessage($"Main secondaire - Bonus de caractéristique non appliqué aux dégâts", LogUtils.LogType.Combat);
+
+      LogUtils.LogMessage($"Dégâts : {baseDamage}", LogUtils.LogType.Combat);
 
       // Application des réductions du jeu de base
       baseDamage = targetObject.DoDamageImmunity(attacker, baseDamage, damageFlags, 0, 1);
+      LogUtils.LogMessage($"Application des immunités de la cible - Dégats : {baseDamage}", LogUtils.LogType.Combat);
       baseDamage = targetObject.DoDamageResistance(attacker, baseDamage, damageFlags, 0, 1, 1);
+      LogUtils.LogMessage($"Application des résistances de la cible - Dégâts : {baseDamage}", LogUtils.LogType.Combat);
       baseDamage = targetObject.DoDamageReduction(attacker, baseDamage, attacker.CalculateDamagePower(targetObject, bOffHand), 0, 1);
+      LogUtils.LogMessage($"Application des réductions de la cible - Calcul Final - Dégâts : {baseDamage}", LogUtils.LogType.Combat);
 
       return baseDamage;
 

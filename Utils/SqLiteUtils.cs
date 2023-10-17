@@ -515,7 +515,7 @@ namespace NWN
         Dictionary<int, LearnableSkill.SerializableLearnableSkill> serializableSkills = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<int, LearnableSkill.SerializableLearnableSkill>>(serializedLearnableSkills);
 
         if (serializableSkills.TryGetValue(skillId, out LearnableSkill.SerializableLearnableSkill skill))
-          return skill.currentLevel + skill.bonusPoints;
+          return skill.currentLevel;// + skill.bonusPoints;
         else
           return 0;
       });

@@ -9,7 +9,7 @@ namespace NWN.Systems
 {
   public partial class PlayerSystem
   {
-    public static async void OnDeathSoulReap(ModuleEvents.OnPlayerDeath onPlayerDeath)
+    /*public static async void OnDeathSoulReap(ModuleEvents.OnPlayerDeath onPlayerDeath)
     {
       foreach (NwPlayer player in NwModule.Instance.Players)
         if (player?.ControlledCreature?.Area == onPlayerDeath.DeadPlayer.LoginCreature?.Area 
@@ -27,7 +27,7 @@ namespace NWN.Systems
           await NwTask.Delay(TimeSpan.FromSeconds(15));
           reaper.soulReapTriggers -= 1;
         }
-    }
+    }*/
     public static void HandlePlayerDeath(ModuleEvents.OnPlayerDeath onPlayerDeath)
     {
       if (Players.TryGetValue(onPlayerDeath.DeadPlayer.LoginCreature, out Player player))
@@ -132,6 +132,7 @@ namespace NWN.Systems
       public void Respawn()
       {
         DestroyPlayerCorpse();
+        CreatureUtils.InitThreatRange(oid.LoginCreature);
         oid.LoginCreature.Location = NwObject.FindObjectsWithTag<NwWaypoint>("WP_RESPAWN_DISPENSAIRE").FirstOrDefault()?.Location;
 
         bankGold -= 50;

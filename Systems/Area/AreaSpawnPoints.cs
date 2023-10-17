@@ -144,6 +144,7 @@ namespace NWN.Systems
       }
 
       creature.OnHeartbeat += CheckDistanceFromSpawn;
+      CreatureUtils.InitThreatRange(creature);
     }
 
     private void CheckDistanceFromSpawn(CreatureEvents.OnHeartbeat onHB)

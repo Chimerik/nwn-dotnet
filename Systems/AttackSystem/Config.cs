@@ -135,7 +135,7 @@ namespace NWN.Systems
     {
       damageData.SetDamageByType(damageType, value);
     }
-    public static void SetArmorValueFromArmorPiece(Context ctx)
+    /*public static void SetArmorValueFromArmorPiece(Context ctx)
     {
       if (ctx.targetPlayer is null || ctx.targetArmor is null || ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value < 1)
         return;
@@ -1170,6 +1170,6 @@ namespace NWN.Systems
 
       if (bluntDamage > -1)
         SetContextDamage(ctx, DamageType.Bludgeoning, (int)Math.Round(bluntDamage / weaponProficiency, MidpointRounding.ToEven));
-    }
+    }*/
   }
 }

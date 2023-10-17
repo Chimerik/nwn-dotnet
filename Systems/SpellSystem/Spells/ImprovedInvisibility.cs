@@ -23,7 +23,7 @@ namespace NWN.Systems
       Effect eLink = Effect.LinkEffects(eDur, eCover);
       eLink = Effect.LinkEffects(eLink, eVis);
 
-      eInvis = Effect.LinkEffects(eInvis, Effect.AreaOfEffect((PersistentVfxType)193, null, scriptHandleFactory.CreateUniqueHandler(HandleInvisibiltyHeartBeat)));  // 193 = AoE 20 m
+      //eInvis = Effect.LinkEffects(eInvis, Effect.AreaOfEffect((PersistentVfxType)193, null, scriptHandleFactory.CreateUniqueHandler(HandleInvisibiltyHeartBeat)));  // 193 = AoE 20 m
 
       if (onSpellCast.MetaMagicFeat == MetaMagic.Extend)
         nDuration = nDuration * 2; //Duration is +100%

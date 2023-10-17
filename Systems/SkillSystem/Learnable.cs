@@ -5,11 +5,16 @@ using Anvil.API;
 
 namespace NWN.Systems
 {
-  public abstract class Learnable
+  public abstract partial class Learnable
   {
     public int id { get; }
     public string name { get; }
-    public string description { get; }
+    private string _description;
+    public string description 
+    { 
+      get => _description.StartsWith("google") ? GetAsyncDescription().Result : _description; 
+      set => _description = value; 
+    }
     public string icon { get; }
     public int maxLevel { get; }
     public int multiplier { get; }
@@ -20,10 +25,8 @@ namespace NWN.Systems
     public int currentLevel { get; set; }
     public DateTime? spLastCalculation { get; set; }
     public double pointsToNextLevel { get; set; }
-    public SkillSystem.Attribut attribut { get; }
-    public SkillSystem.Type type { get; }
 
-    public Learnable(int id, string name, string description, string icon, int maxLevel, int multiplier, Ability primaryAbility, Ability secondaryAbility, SkillSystem.Attribut attribut, SkillSystem.Type type)
+    public Learnable(int id, string name, string description, string icon, int maxLevel, int multiplier, Ability primaryAbility, Ability secondaryAbility)
     {
       this.id = id;
       this.name = name;
@@ -33,8 +36,6 @@ namespace NWN.Systems
       this.multiplier = multiplier;
       this.primaryAbility = primaryAbility;
       this.secondaryAbility = secondaryAbility;
-      this.attribut = attribut;
-      this.type = type;
     }
     public Learnable(Learnable learnableBase)
     {
@@ -46,8 +47,6 @@ namespace NWN.Systems
       this.multiplier = learnableBase.multiplier;
       this.primaryAbility = learnableBase.primaryAbility;
       this.secondaryAbility = learnableBase.secondaryAbility;
-      this.attribut = attribut;
-      this.type = type;
     }
     public Learnable()
     {

@@ -32,11 +32,7 @@ namespace NWN.Systems
       this.spellSystem = spellSystem;
       this.areaSystem = areaSystem;
     }
-    public static void OnCombatRoundStart(OnCombatRoundStart onStartCombatRound)
-    {
-      if (onStartCombatRound.Target is NwCreature { IsPlayerControlled: true } oTarget)
-        oTarget.ControllingPlayer.SetPCReputation(false, onStartCombatRound.Creature.ControllingPlayer);
-    }
+    
     public static void HandleCombatModeOff(OnCombatModeToggle onCombatMode)
     {
       if (onCombatMode.NewMode == CombatMode.None && onCombatMode.Creature.GetObjectVariable<LocalVariableInt>("_ACTIVATED_TAUNT").HasValue) // Permet de conserver sa posture de combat après avoir utilisé taunt

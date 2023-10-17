@@ -61,8 +61,8 @@ namespace NWN.Systems
           modificationAllowed = (string.IsNullOrWhiteSpace(originalCrafterName) || originalCrafterName == player.oid.ControlledCreature.OriginalName)
             && (item.Possessor == player.oid.ControlledCreature || player.IsDm());
 
-          if(item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").HasValue && item.BaseItem.ItemType != BaseItemType.Amulet && item.BaseItem.ItemType != BaseItemType.Ring)
-            rootChildren.Add(new NuiLabel(GetItemRequirementText(item)) { Height = 30, Width = 580, Tooltip = GetItemRequirementTooltip(item), ForegroundColor = GetItemRequirementColor(item), HorizontalAlign = NuiHAlign.Left });
+          //if(item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").HasValue && item.BaseItem.ItemType != BaseItemType.Amulet && item.BaseItem.ItemType != BaseItemType.Ring)
+           // rootChildren.Add(new NuiLabel(GetItemRequirementText(item)) { Height = 30, Width = 580, Tooltip = GetItemRequirementTooltip(item), ForegroundColor = GetItemRequirementColor(item), HorizontalAlign = NuiHAlign.Left });
 
           NuiText descriptionWidget = new NuiText(itemDescription) { Height = 100, Width = 590 };
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { descriptionWidget } });
@@ -161,15 +161,15 @@ namespace NWN.Systems
           else if (item.BaseItem.ItemType == BaseItemType.Armor)
           {
             var armorEntry = Armor2da.armorTable[item.BaseACValue];
-            string armorProficiency = $"{player.GetArmorProficiencyLevel(item.BaseACValue) * 10} %";
+           // string armorProficiency = $"{player.GetArmorProficiencyLevel(item.BaseACValue) * 10} %";
 
             rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() 
             {
               new NuiSpacer(),
               new NuiButtonImage("ir_guard") { Height = 35, Width = 35, Tooltip = "Armure" },
               new NuiSpacer() { Width = 5 },
-              new NuiLabel(armorProficiency) { Tooltip = $"Votre niveau d'entrainement actuel vous permet de bénéficier de {armorProficiency} des bonus de CA de cette armure.", Height = 35, Width = 50, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle } ,
-              new NuiSpacer(),
+             // new NuiLabel(armorProficiency) { Tooltip = $"Votre niveau d'entrainement actuel vous permet de bénéficier de {armorProficiency} des bonus de CA de cette armure.", Height = 35, Width = 50, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle } ,
+              //new NuiSpacer(),
               new NuiButtonImage("ir_healme") { Height = 35, Width = 35, Tooltip = "Bonus de dextérité maximal" },
               new NuiSpacer() { Width = 5 },
               new NuiLabel($"{armorEntry.maxDex}") { Height = 35, Width = 35, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle },
@@ -198,15 +198,15 @@ namespace NWN.Systems
           }
           else if (item.BaseItem.ItemType == BaseItemType.SmallShield || item.BaseItem.ItemType == BaseItemType.LargeShield || item.BaseItem.ItemType == BaseItemType.TowerShield)
           {
-            string armorProficiency = $"{player.GetShieldProficiencyLevel(item.BaseItem.ItemType) * 10} %";
+            //string armorProficiency = $"{player.GetShieldProficiencyLevel(item.BaseItem.ItemType) * 10} %";
 
             rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() 
             {
               new NuiSpacer(),
               new NuiButtonImage("ir_guard") { Height = 35, Width = 35, Tooltip = "Armure" },
               new NuiSpacer() { Width = 5 },
-              new NuiLabel(armorProficiency) { Tooltip = $"Votre niveau d'entrainement actuel vous permet de bénéficier de {armorProficiency} des bonus de CA de ce bouclier.", Height = 35, Width = 50, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle } ,
-              new NuiSpacer(),
+              //new NuiLabel(armorProficiency) { Tooltip = $"Votre niveau d'entrainement actuel vous permet de bénéficier de {armorProficiency} des bonus de CA de ce bouclier.", Height = 35, Width = 50, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle } ,
+              //new NuiSpacer(),
               new NuiButtonImage("ief_slow") { Height = 35, Width = 35, Tooltip = "Pénalité d'armure" },
               new NuiSpacer() { Width = 5 },
               new NuiLabel(item.BaseItem.ArmorCheckPenalty.ToString()) { Height = 35, Width = 35, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle },
@@ -798,7 +798,7 @@ namespace NWN.Systems
           if (item.GetObjectVariable<LocalVariableInt>("_MIN_WEAPON_DAMAGE").HasValue)
             ItemUtils.GetWeaponProperties(item, ipNames, ipColors);
         }
-        private string GetItemRequirementTooltip(NwItem item)
+        /*private string GetItemRequirementTooltip(NwItem item)
         {
           int proficiencyLevel = 0;
 
@@ -896,8 +896,8 @@ namespace NWN.Systems
           }
 
           return requirementText += ItemUtils.GetItemProficiencyRequirement(item).ToString();
+      }*/
       }
     }
-  }
   }
 }

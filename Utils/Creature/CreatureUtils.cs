@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 
 using Anvil.API;
 using Anvil.API.Events;
-using NWN.Native.API;
 using NWN.Systems;
 using Ability = Anvil.API.Ability;
 using DamageType = Anvil.API.DamageType;
@@ -14,7 +13,7 @@ using ItemProperty = Anvil.API.ItemProperty;
 
 namespace NWN
 {
-  public static class CreatureUtils
+  public static partial class CreatureUtils
   {
     public static Dictionary<string, NwCreature> creatureSpawnDictionary = new();
     public static void OnMobPerception(CreatureEvents.OnPerception onPerception)
@@ -34,7 +33,7 @@ namespace NWN
           break;
       }
     }
-    public static async void OnMobDeathSoulReap(CreatureEvents.OnDeath onDeath)
+    /*public static async void OnMobDeathSoulReap(CreatureEvents.OnDeath onDeath)
     {
       foreach (NwPlayer player in NwModule.Instance.Players)
         if (player?.ControlledCreature?.Area == onDeath.KilledCreature?.Area
@@ -52,7 +51,7 @@ namespace NWN
           await NwTask.Delay(TimeSpan.FromSeconds(15));
           reaper.soulReapTriggers -= 1;
         }
-    }
+    }*/
     public static async void OnMobDeathResetSpawn(CreatureEvents.OnDeath onDeath)
     {
       ModuleSystem.Log.Info("On death triggered - OnMobDeathResetSpawn");
@@ -153,24 +152,6 @@ namespace NWN
       spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value = creature.Tag;
       creature.Destroy();
     }
-    public static int HasAdvantageAgainstTarget(CNWSCreature attacker, Ability attackStat, CNWSCreature target = null)
-    {
-      int advantage = 0;
-
-      if (target is not null && attacker.m_vPosition.z > target.m_vPosition.z + 3)
-        advantage += 1;
-
-      foreach (var eff in attacker.m_appliedEffects)
-      {
-        if ((EffectTrueType)eff.m_nType != EffectTrueType.RunScript)
-          continue;
-
-        if (eff.m_sCustomTag.CompareNoCase(StringUtils.shieldArmorDisadvantageEffectExoTag) > 0 && (attackStat == Ability.Strength || attackStat == Ability.Dexterity))
-          advantage -= 1;
-      }
-
-      return advantage;
-    }
     public static int GetUnarmedDamage(int monkLevel)
     {
      return monkLevel switch
@@ -181,6 +162,26 @@ namespace NWN
         17 or 18 or 19 or 20 or 21 or 22 => 10,
         _ => 1,
       };
+    }
+    public static int OverrideSizeAttackAndACBonus(Native.API.CNWSCreature attacker)
+    {
+      return (CreatureSize)attacker.m_nCreatureSize switch
+      {
+        CreatureSize.Tiny => -2,
+        CreatureSize.Small => -1,
+        CreatureSize.Medium => 0,
+        CreatureSize.Large => 1,
+        CreatureSize.Huge => 2,
+        _ => 0,
+      };
+    }
+    public static async void TestGetInvi(Native.API.CNWSCreature attacker, Native.API.CNWSCreature target)
+    {
+      //LogUtils.LogMessage($"movement rate {attacker.m_fMovementRateFactor}", LogUtils.LogType.Combat);
+      LogUtils.LogMessage($"movement rate NWNX {Core.NWNX.CreaturePlugin.GetMovementType(attacker.m_idSelf)}", LogUtils.LogType.Combat);
+
+      await NwTask.Delay(TimeSpan.FromSeconds(1));
+      TestGetInvi(attacker, target);
     }
   }
 }

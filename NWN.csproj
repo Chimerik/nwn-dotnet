@@ -33,12 +33,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Compile Remove="Systems\FeatSystem\Feats\**" />
-      <EmbeddedResource Remove="Systems\FeatSystem\Feats\**" />
-      <None Remove="Systems\FeatSystem\Feats\**" />
-    </ItemGroup>
-
-    <ItemGroup>
         <Compile Remove="Utils\TargetEvents.cs" />
     </ItemGroup>
 
@@ -63,5 +57,6 @@
 
     <ItemGroup>
       <Folder Include="Systems\ModuleSystem\Events\" />
+      <Folder Include="Systems\PlayerSystem\PlayerInit\NewPlayer\" />
     </ItemGroup>
 </Project>

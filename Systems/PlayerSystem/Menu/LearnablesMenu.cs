@@ -233,22 +233,6 @@ namespace NWN.Systems
             {
               if (learnable.currentLevel >= learnable.maxLevel)
                 canLearn = false;
-
-              if (canLearn)
-                foreach (var abilityPreReq in skill.abilityPrerequisites)
-                  if (target.oid.LoginCreature.GetAbilityScore(abilityPreReq.Key, true) < abilityPreReq.Value)
-                  {
-                    canLearn = false;
-                    break;
-                  }
-
-              if (canLearn)
-                foreach (var skillPreReq in skill.skillPrerequisites)
-                  if (target.learnableSkills[skillPreReq.Key].currentLevel < skillPreReq.Value)
-                  {
-                    canLearn = false;
-                    break;
-                  }
             }
             else if (learnable is LearnableSpell spell && !spell.canLearn)
               canLearn = false;

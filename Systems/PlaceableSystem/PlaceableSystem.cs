@@ -12,7 +12,7 @@ using System.Numerics;
 namespace NWN.Systems
 {
   [ServiceBinding(typeof(PlaceableSystem))]
-  public class PlaceableSystem
+  public partial class PlaceableSystem
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public readonly SchedulerService scheduler;
@@ -223,14 +223,6 @@ namespace NWN.Systems
         Utils.LogMessageToDMs($"ControlledCreature - {onClick.ClickedBy.ControlledCreature.Name}");
         Utils.LogMessageToDMs($"ControlledCreature - {onClick.ClickedBy.ControlledCreature.Inventory}");
         Utils.LogMessageToDMs($"ControlledCreature - {onClick.ClickedBy.ControlledCreature.Inventory.Items}");
-      }
-    }
-    public static void StartIntroMirrorDialog(PlaceableEvents.OnLeftClick onUsed)
-    {
-      if (Players.TryGetValue(onUsed.ClickedBy.LoginCreature, out Player player))
-      {
-        if (!player.windows.ContainsKey("introMirror")) player.windows.Add("introMirror", new Player.IntroMirroWindow(player));
-        else ((Player.IntroMirroWindow)player.windows["introMirror"]).CreateWindow();
       }
     }
     public static void StartBodyModifierDialog(PlaceableEvents.OnUsed onUsed)

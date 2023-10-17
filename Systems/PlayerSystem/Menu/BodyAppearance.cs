@@ -52,6 +52,7 @@ namespace NWN.Systems
           windowId = "bodyAppearanceModifier";
           
           rootColumn.Children = rootChildren;
+
           rootChildren.Add(new NuiRow { Height = 40, Children = new List<NuiElement> { new NuiSpacer { }, new NuiButton("Couleurs") { Id = "openColors", Height = 35, Width = 70 }, new NuiSpacer { } } });
 
           rootChildren.Add(new NuiRow()
@@ -311,24 +312,19 @@ namespace NWN.Systems
             return;
           }
 
-          if (nuiEvent.EventType == NuiEventType.Click && nuiEvent.ElementId == "openColors")
-          {
-            CloseWindow();
-
-            if (player.windows.ContainsKey("bodyColorsModifier"))
-              ((BodyColorWindow)player.windows["bodyColorsModifier"]).CreateWindow(targetCreature);
-            else
-              player.windows.Add("bodyColorsModifier", new BodyColorWindow(player, targetCreature));
-
-            return;
-          }
-
           switch(nuiEvent.EventType)
           {
             case NuiEventType.Click:
 
               switch (nuiEvent.ElementId)
               {
+                case "openColors":
+
+                  if (!player.windows.ContainsKey("bodyColorsModifier")) player.windows.Add("bodyColorsModifier", new BodyColorWindow(player, targetCreature));
+                  else ((BodyColorWindow)player.windows["bodyColorsModifier"]).CreateWindow(targetCreature);
+
+                  return;
+
                 case "sizeDecrease":
                   HandleSelectorChange(sizeSelection, Utils.sizeList, - 1);
 

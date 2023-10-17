@@ -26,262 +26,115 @@ namespace NWN.Systems
       [Description("Historique")]
       StartingTraits,
       [Description("Langage")]
-      Language
-    }
-    public enum Type
-    {
-      [Description("Sceau")]
-      Signet,
-      [Description("Posture")]
-      Stance,
-      [Description("Enchantement")]
-      Enchantement,
-      [Description("Maléfice")]
-      Hex,
-      [Description("Cri")]
-      Shout,
-      [Description("Chant")]
-      Chant,
-
-      Invalid = 65535
-    }
-
-    public enum Attribut
-    {
-      [Description("Athlétisme")]
-      Athletics = 50106,
-      [Description("Tactique")]
-      Tactics,
-      [Description("Maîtrise_de_l'épée")]
-      Swordmanship,
-      [Description("Maîtrise_de_la_hache")]
-      Axemanship,
-      [Description("Maîtrise_du_marteau")]
-      Hammermanship,
-      [Description("Acrobatie")]
-      Expertise,
-      [Description("Survie")]
-      WildnernessSurvival,
-      [Description("Adresse_au_tir")]
-      Marksmanship,
-      [Description("Dressage")]
-      BeastMastery,
-      [Description("Art_de_l'eau")]
-      WaterMagic,
-      [Description("Art_de_l'air")]
-      AirMagic,
-      [Description("Art_du_feu")]
-      FireMagic,
-      [Description("Art_de_la_terre")]
-      EarthMagic,
-      [Description("Concentration_Elémentaire")]
-      EnergyStorage,
-      [Description("Faveur_Divine")]
-      DivineFavor,
-      [Description("Art_curatif")]
-      HealingPrayers,
-      [Description("Art_protectif")]
-      ProtectionPrayers,
-      [Description("Châtiments")]
-      SmitingPrayers,
-      [Description("Moisson_des_âmes")]
-      SoulReaping,
-      [Description("Art_du_sang")]
-      BloodMagic,
-      [Description("Magie_de_la_mort")]
-      DeathMagic,
-      [Description("Malédictions")]
-      Curses,
-      [Description("Incatations_rapides")]
-      FastCasting,
-      [Description("Magie_de_domination")]
-      DominationMagic,
-      [Description("Magie_de_l'illusion")]
-      IllusionMagic,
-      [Description("InspirationMagic")]
-      InspirationMagic,
-      [Description("Art_critique")]
-      CriticalStrikes,
-      [Description("Maîtrise_de_la_dague")]
-      DaggerMastery,
-      [Description("Arts_mortels")]
-      DeadlyArts,
-      [Description("Art_des_ombres")]
-      ShadowArts,
-      [Description("Puissance_d'invocation")]
-      SpawningPower,
-      [Description("Communion")]
-      Communing,
-      [Description("Magie_de_restauration")]
-      RestorationMagic,
-      [Description("Canalisation")]
-      ChannelingMagic,
-      [Description("Rayonnement")]
-      Commandement,
-      [Description("Commandement")]
-      Leadership,
-      [Description("Performance")]
-      Motivation,
-      [Description("Maîtrise_du_jet")]
-      Spearmanship,
-      [Description("Mysticisme")]
-      Mysticism,
-      [Description("Bouclier_divine")]
-      DivineProtection,
-      [Description("Puissance_divine")]
-      DivineMight,
-      [Description("Maîtrise_de_la_faux")]
-      Scythemanship,
-      [Description("Histoire")]
-      History,
-      [Description("Religion")]
-      Religion,
-      [Description("Nature")]
-      Nature,
-      [Description("Médecine")]
-      Medicine,
-      [Description("Investigation")]
-      Investigation,
-      [Description("Intuition")]
-      Intuition,
-      [Description("Tromperie")]
-      Tromperie,
-      [Description("Intimidation")]
-      Intimidation,
-      [Description("Persuasion")]
-      Persusasion,
-      [Description("Escamotage")]
-      Escamotage,
-      [Description("Arcane")]
-      Arcane,
-      [Description("Perception")]
-      Perception,
-
-      Invalid = 65535
+      Language,
+      [Description("Classe")]
+      Class
     }
 
     public static readonly Dictionary<int, Learnable> learnableDictionary = new();
 
     public static void InitializeLearnables()
     {
-      learnableDictionary.Add(CustomSkill.ImprovedStrength, new LearnableSkill(CustomSkill.ImprovedStrength, "Force accrue", "Augmente la force d'un point par niveau d'entraînement.", Category.MindBody, "ife_X2GrStr1", 4, 3, Ability.Constitution, Ability.Strength, Attribut.Invalid, Type.Invalid, false, HandleImproveAbility));
-      learnableDictionary.Add(CustomSkill.ImprovedDexterity, new LearnableSkill(CustomSkill.ImprovedDexterity, "Dextérité accrue", "Augmente la dextérité d'un point par niveau d'entraînement.", Category.MindBody, "ife_X2GrDex1", 4, 3, Ability.Constitution, Ability.Dexterity, Attribut.Invalid, Type.Invalid, false, HandleImproveAbility));
-      learnableDictionary.Add(CustomSkill.ImprovedConstitution, new LearnableSkill(CustomSkill.ImprovedConstitution, "Constitution accrue", "Augmente la constitution d'un point par niveau d'entraînement.", Category.MindBody, "ife_X2GrCon1", 4, 3, Ability.Constitution, Ability.Charisma, Attribut.Invalid, Type.Invalid, false, HandleImproveAbility));
-      learnableDictionary.Add(CustomSkill.ImprovedIntelligence, new LearnableSkill(CustomSkill.ImprovedIntelligence, "Intelligence accrue", "Augmente l'intelligence d'un point par niveau d'entraînement.", Category.MindBody, "ife_X2GrInt1", 4, 3, Ability.Constitution, Ability.Intelligence, Attribut.Invalid, Type.Invalid, false, HandleImproveAbility));
-      learnableDictionary.Add(CustomSkill.ImprovedWisdom, new LearnableSkill(CustomSkill.ImprovedWisdom, "Sagesse accrue", "Augmente la sagesse d'un point par niveau d'entraînement.", Category.MindBody, "ife_X2GrWis1", 4, 3, Ability.Constitution, Ability.Wisdom, Attribut.Invalid, Type.Invalid, false, HandleImproveAbility));
-      learnableDictionary.Add(CustomSkill.ImprovedCharisma, new LearnableSkill(CustomSkill.ImprovedCharisma, "Charisme accrue", "Augmente le charisme d'un point par niveau d'entraînement.", Category.MindBody, "ife_X2GrCha1", 4, 3, Ability.Constitution, Ability.Charisma, Attribut.Invalid, Type.Invalid, false, HandleImproveAbility));
+      learnableDictionary.Add(CustomSkill.AcrobaticsProficiency, new LearnableSkill(CustomSkill.AcrobaticsProficiency, "Acrobatie - Maîtrise", "Un jet de Dextérité (Acrobatie) couvre toute tentative de garder l'équilibre dans les situations délicates, comme essayer de courir sur une plaque de glace, rester stable sur une corde raide ou rester debout sur le pont d'un navire lors d'une forte houle.\n\nLe DM peut également demander un jet de Dextérité (Acrobatie) si vous tenter d'effectuer des cascades acrobatiques, y compris des plongeons tonneaux, sauts périlleux ou des flips.\n\nNB : Cette compétence n'accorde aucun point de CA supplémentaire, contrairement au jeu de base.", Category.MindBody, "ife_SeverA", 1, 750, Ability.Dexterity, Ability.Constitution));
+      learnableDictionary.Add(CustomSkill.AcrobaticsExpertise, new LearnableSkill(CustomSkill.AcrobaticsExpertise, "Acrobatie - Expertise", "L'expertise permet de doubler votre bonus de maîtrise sur les jets effectués avec cette compétence", Category.MindBody, "ife_SeverA", 1, 1500, Ability.Dexterity, Ability.Constitution));
 
-      learnableDictionary.Add(CustomSkill.ImprovedHealth, new LearnableSkill(CustomSkill.ImprovedHealth, "Résilience", "Augmente les points de vie de de 1 * (Robustesse + modificateur de constitution de base) par niveau.\n\n Ce don est rétroactif.", Category.MindBody, "ife_X2GrCon1", 5, 2, Ability.Constitution, Ability.Charisma, Attribut.Invalid, Type.Invalid));
-      learnableDictionary.Add(CustomSkill.Toughness, new LearnableSkill(CustomSkill.Toughness, "Robustesse", "Augmente le multiplicateur d'augmentation des points de vie de un par niveau d'entraînement.\n\n Rétroactif.", Category.MindBody, "ife_tough", 5, 1, Ability.Constitution, Ability.Charisma, Attribut.Invalid, Type.Invalid));
+      learnableDictionary.Add(CustomSkill.AnimalHandlingProficiency, new LearnableSkill(CustomSkill.AnimalHandlingProficiency, "Dressage - Maîtrise", "Un jet de Sagesse (Dressage) couvre toute tentative de calmer un animal domestique, empêcher une monture d'être effrayée ou deviner les intentions d'un animal.", Category.MindBody, "ife_SeverA", 1, 750, Ability.Wisdom, Ability.Constitution));
+      learnableDictionary.Add(CustomSkill.AnimalHandlingExpertise, new LearnableSkill(CustomSkill.AnimalHandlingExpertise, "Dressage - Expertise", "L'expertise permet de doubler votre bonus de maîtrise sur les jets effectués avec cette compétence", Category.MindBody, "ife_SeverA", 1, 1500, Ability.Wisdom, Ability.Constitution));
 
-      learnableDictionary.Add(CustomSkill.ImprovedFortitude, new LearnableSkill(CustomSkill.ImprovedFortitude, "Vigueur renforcée", "Augmente le jet de vigueur d'un point par niveau d'entraînement.", Category.MindBody, "ife_X1Blood", 8, 1, Ability.Strength, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleImproveSavingThrow));
-      learnableDictionary.Add(CustomSkill.ImprovedReflex, new LearnableSkill(CustomSkill.ImprovedReflex, "Réflexes renforcés", "Augmente le jet de réflexe d'un point par niveau d'entraînement.", Category.MindBody, "ife_X1Snake", 8, 1, Ability.Dexterity, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleImproveSavingThrow));
-      learnableDictionary.Add(CustomSkill.ImprovedWill, new LearnableSkill(CustomSkill.ImprovedWill, "Volonté renforcée", "Augmente le jet de volonté d'un point par niveau d'entraînement.", Category.MindBody, "ife_X1Bull", 8, 1, Ability.Wisdom, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleImproveSavingThrow));
-
-      learnableDictionary.Add(CustomSkill.OpenLock, new LearnableSkill(CustomSkill.OpenLock, "Crochetage", NwSkill.FromSkillType(Skill.OpenLock).Description.ToString(), Category.MindBody, "isk_olock", 5, 1, Ability.Dexterity, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.OpenLockExpert, new LearnableSkill(CustomSkill.OpenLockExpert, "Crochetage - Expert", NwSkill.FromSkillType(Skill.OpenLock).Description.ToString(), Category.MindBody, "isk_olock", 5, 2, Ability.Dexterity, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.OpenLockScience, new LearnableSkill(CustomSkill.OpenLockScience, "Crochetage - Science", NwSkill.FromSkillType(Skill.OpenLock).Description.ToString(), Category.MindBody, "isk_olock", 5, 3, Ability.Dexterity, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.OpenLockMaster, new LearnableSkill(CustomSkill.OpenLockMaster, "Crochetage - Maître", NwSkill.FromSkillType(Skill.OpenLock).Description.ToString(), Category.MindBody, "isk_olock", 5, 4, Ability.Dexterity, Ability.Intelligence));
-
-      learnableDictionary.Add(CustomSkill.Escamotage, new LearnableSkill(CustomSkill.Escamotage, "Escamotage", "Un jet de Dextérité (Escamotage) couvre toute tentative un tour de passe-passe ou de supercherie manuelle, comme déposer quelque chose dans les poches de quelqu'un d'autre ou tenter de dissimuler un objet votre propre personne.\n\nUn jet de Dextérité (Escamotage) permet également de déterminer si vous parvenez à délester quelqu'un de son porte-monnaie ou lui faire les poches.\n\nCette compétence remplace Vol à la Tire.", Category.MindBody, "isk_pocket", 5, 2, Ability.Dexterity, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.EscamotageExpert, new LearnableSkill(CustomSkill.EscamotageExpert, "Escamotage - Expert", "Un jet de Dextérité (Escamotage) couvre toute tentative un tour de passe-passe ou de supercherie manuelle, comme déposer quelque chose dans les poches de quelqu'un d'autre ou tenter de dissimuler un objet votre propre personne.\n\nUn jet de Dextérité (Escamotage) permet également de déterminer si vous parvenez à délester quelqu'un de son porte-monnaie ou lui faire les poches.\n\nCette compétence remplace Vol à la Tire.", Category.MindBody, "isk_pocket", 5, 3, Ability.Dexterity, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.EscamotageScience, new LearnableSkill(CustomSkill.EscamotageScience, "Escamotage - Science", "Un jet de Dextérité (Escamotage) couvre toute tentative un tour de passe-passe ou de supercherie manuelle, comme déposer quelque chose dans les poches de quelqu'un d'autre ou tenter de dissimuler un objet votre propre personne.\n\nUn jet de Dextérité (Escamotage) permet également de déterminer si vous parvenez à délester quelqu'un de son porte-monnaie ou lui faire les poches.\n\nCette compétence remplace Vol à la Tire.", Category.MindBody, "isk_pocket", 5, 4, Ability.Dexterity, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.EscamotageMaster, new LearnableSkill(CustomSkill.EscamotageMaster, "Escamotage - Maître", "Un jet de Dextérité (Escamotage) couvre toute tentative un tour de passe-passe ou de supercherie manuelle, comme déposer quelque chose dans les poches de quelqu'un d'autre ou tenter de dissimuler un objet votre propre personne.\n\nUn jet de Dextérité (Escamotage) permet également de déterminer si vous parvenez à délester quelqu'un de son porte-monnaie ou lui faire les poches.\n\nCette compétence remplace Vol à la Tire.", Category.MindBody, "isk_pocket", 5, 5, Ability.Dexterity, Ability.Intelligence));
-
-      learnableDictionary.Add(CustomSkill.Arcana, new LearnableSkill(CustomSkill.Arcana, "Arcane", "Un jet d'Intelligence (Arcane) couvre toute tentative de se rappeler des connaissances sur les sorts, les objets magiques, les symboles ésotériques, les traditions magiques, les plans d'existence et les habitants de ces plans.", Category.MindBody, "isk_spellcraft", 5, 2, Ability.Intelligence, Ability.Wisdom));
-      learnableDictionary.Add(CustomSkill.ArcanaExpert, new LearnableSkill(CustomSkill.ArcanaExpert, "Arcane - Expert", "Un jet d'Intelligence (Arcane) couvre toute tentative de se rappeler des connaissances sur les sorts, les objets magiques, les symboles ésotériques, les traditions magiques, les plans d'existence et les habitants de ces plans.", Category.MindBody, "isk_spellcraft", 5, 3, Ability.Intelligence, Ability.Wisdom));
-      learnableDictionary.Add(CustomSkill.ArcanaScience, new LearnableSkill(CustomSkill.ArcanaScience, "Arcane - Science", "Un jet d'Intelligence (Arcane) couvre toute tentative de se rappeler des connaissances sur les sorts, les objets magiques, les symboles ésotériques, les traditions magiques, les plans d'existence et les habitants de ces plans.", Category.MindBody, "isk_spellcraft", 5, 4, Ability.Intelligence, Ability.Wisdom));
-      learnableDictionary.Add(CustomSkill.ArcanaMaster, new LearnableSkill(CustomSkill.ArcanaMaster, "Arcane - Maître", "Un jet d'Intelligence (Arcane) couvre toute tentative de se rappeler des connaissances sur les sorts, les objets magiques, les symboles ésotériques, les traditions magiques, les plans d'existence et les habitants de ces plans.", Category.MindBody, "isk_spellcraft", 5, 5, Ability.Intelligence, Ability.Wisdom));
-
-      learnableDictionary.Add(CustomSkill.History, new LearnableSkill(CustomSkill.History, "Histoire", "Un jet d'Intelligence (Histoire) couvre toute tentative de se souvenir de traditions, d'événements historiques, de personnages légendaires, d'anciens royaumes, de conflits passés, de guerres récentes et de civilisations perdues.", Category.MindBody, "ife_X1App", 5, 2, Ability.Intelligence, Ability.Wisdom));
-      learnableDictionary.Add(CustomSkill.HistoryExpert, new LearnableSkill(CustomSkill.HistoryExpert, "Histoire - Expert", "Un jet d'Intelligence (Histoire) couvre toute tentative de se souvenir de traditions, d'événements historiques, de personnages légendaires, d'anciens royaumes, de conflits passés, de guerres récentes et de civilisations perdues.", Category.MindBody, "ife_X1App", 5, 3, Ability.Intelligence, Ability.Wisdom));
-      learnableDictionary.Add(CustomSkill.HistoryScience, new LearnableSkill(CustomSkill.HistoryScience, "Histoire - Science", "Un jet d'Intelligence (Histoire) couvre toute tentative de se souvenir de traditions, d'événements historiques, de personnages légendaires, d'anciens royaumes, de conflits passés, de guerres récentes et de civilisations perdues.", Category.MindBody, "ife_X1App", 5, 4, Ability.Intelligence, Ability.Wisdom));
-      learnableDictionary.Add(CustomSkill.HistoryMaster, new LearnableSkill(CustomSkill.HistoryMaster, "Histoire - Maître", "Un jet d'Intelligence (Histoire) couvre toute tentative de se souvenir de traditions, d'événements historiques, de personnages légendaires, d'anciens royaumes, de conflits passés, de guerres récentes et de civilisations perdues.", Category.MindBody, "ife_X1App", 5, 5, Ability.Intelligence, Ability.Wisdom));
-
-      learnableDictionary.Add(CustomSkill.Nature, new LearnableSkill(CustomSkill.Nature, "Nature", "Un jet d'Intelligence (Nature) couvre toute tentative de se souvenir de connaissances sur le terrain, les plantes, les animaux, la météo et les cycles naturels.", Category.MindBody, "ife_X2GrWis1", 5, 2, Ability.Intelligence, Ability.Wisdom));
-      learnableDictionary.Add(CustomSkill.NatureExpert, new LearnableSkill(CustomSkill.NatureExpert, "Nature - Expert", "Un jet d'Intelligence (Nature) couvre toute tentative de se souvenir de connaissances sur le terrain, les plantes, les animaux, la météo et les cycles naturels.", Category.MindBody, "ife_X2GrWis1", 5, 3, Ability.Intelligence, Ability.Wisdom));
-      learnableDictionary.Add(CustomSkill.NatureScience, new LearnableSkill(CustomSkill.NatureScience, "Nature - Science", "Un jet d'Intelligence (Nature) couvre toute tentative de se souvenir de connaissances sur le terrain, les plantes, les animaux, la météo et les cycles naturels.", Category.MindBody, "ife_X2GrWis1", 5, 4, Ability.Intelligence, Ability.Wisdom));
-      learnableDictionary.Add(CustomSkill.NatureMaster, new LearnableSkill(CustomSkill.NatureMaster, "Nature - Maître", "Un jet d'Intelligence (Nature) couvre toute tentative de se souvenir de connaissances sur le terrain, les plantes, les animaux, la météo et les cycles naturels.", Category.MindBody, "ife_X2GrWis1", 5, 5, Ability.Intelligence, Ability.Wisdom));
-
-      learnableDictionary.Add(CustomSkill.Religion, new LearnableSkill(CustomSkill.Religion, "Religion", "Un jet d'Intelligence (Religion) couvre toute tentative de se souvenir des traditions concernant les divinités, les rites, les prières, les hiérarchies religieuses, les symboles sacrés et les pratiques des cultes.", Category.MindBody, "isk_lore", 5, 2, Ability.Intelligence, Ability.Wisdom));
-      learnableDictionary.Add(CustomSkill.ReligionExpert, new LearnableSkill(CustomSkill.ReligionExpert, "Religion - Expert", "Un jet d'Intelligence (Religion) couvre toute tentative de se souvenir des traditions concernant les divinités, les rites, les prières, les hiérarchies religieuses, les symboles sacrés et les pratiques des cultes.", Category.MindBody, "isk_lore", 5, 3, Ability.Intelligence, Ability.Wisdom));
-      learnableDictionary.Add(CustomSkill.ReligionScience, new LearnableSkill(CustomSkill.ReligionScience, "Religion - Science", "Un jet d'Intelligence (Religion) couvre toute tentative de se souvenir des traditions concernant les divinités, les rites, les prières, les hiérarchies religieuses, les symboles sacrés et les pratiques des cultes.", Category.MindBody, "isk_lore", 5, 4, Ability.Intelligence, Ability.Wisdom));
-      learnableDictionary.Add(CustomSkill.ReligionMaster, new LearnableSkill(CustomSkill.ReligionMaster, "Religion - Master", "Un jet d'Intelligence (Religion) couvre toute tentative de se souvenir des traditions concernant les divinités, les rites, les prières, les hiérarchies religieuses, les symboles sacrés et les pratiques des cultes.", Category.MindBody, "isk_lore", 5, 5, Ability.Intelligence, Ability.Wisdom));
+      learnableDictionary.Add(CustomSkill.ArcanaProficiency, new LearnableSkill(CustomSkill.ArcanaProficiency, "Arcane - Maîtrise", "Un jet d'Intelligence (Arcane) couvre toute tentative de se rappeler des connaissances sur les sorts, les objets magiques, les symboles ésotériques, les traditions magiques, les plans d'existence et les habitants de ces plans.", Category.MindBody, "isk_spellcraft", 1, 750, Ability.Intelligence, Ability.Wisdom));
+      learnableDictionary.Add(CustomSkill.ArcanaExpertise, new LearnableSkill(CustomSkill.ArcanaExpertise, "Arcane - Expertise", "L'expertise permet de doubler votre bonus de maîtrise sur les jets effectués avec cette compétence", Category.MindBody, "isk_spellcraft", 1, 1500, Ability.Intelligence, Ability.Wisdom));
       
-      learnableDictionary.Add(CustomSkill.Medicine, new LearnableSkill(CustomSkill.Medicine, "Médecine", "Un jet d'Intelligence (Médecine) couvre toute tentative de se souvenir de détails sur le fonctionnement du corps humain, sur des remèdes ou des poisons. Cette compétence est également utilisée afin de pratiquer des actes médicaux.", Category.MindBody, "isk_heal", 5, 2, Ability.Intelligence, Ability.Wisdom));
-      learnableDictionary.Add(CustomSkill.MedicineExpert, new LearnableSkill(CustomSkill.MedicineScience, "Médecine - Expert", "Un jet d'Intelligence (Médecine) couvre toute tentative de se souvenir de détails sur le fonctionnement du corps humain, sur des remèdes ou des poisons. Cette compétence est également utilisée afin de pratiquer des actes médicaux.", Category.MindBody, "isk_heal", 5, 3, Ability.Intelligence, Ability.Wisdom));
-      learnableDictionary.Add(CustomSkill.MedicineScience, new LearnableSkill(CustomSkill.MedicineScience, "Médecine - Science", "Un jet d'Intelligence (Médecine) couvre toute tentative de se souvenir de détails sur le fonctionnement du corps humain, sur des remèdes ou des poisons. Cette compétence est également utilisée afin de pratiquer des actes médicaux.", Category.MindBody, "isk_heal", 5, 4, Ability.Intelligence, Ability.Wisdom));
-      learnableDictionary.Add(CustomSkill.MedicineMaster, new LearnableSkill(CustomSkill.MedicineMaster, "Médecine - Master", "Un jet d'Intelligence (Médecine) couvre toute tentative de se souvenir de détails sur le fonctionnement du corps humain, sur des remèdes ou des poisons. Cette compétence est également utilisée afin de pratiquer des actes médicaux.", Category.MindBody, "isk_heal", 5, 5, Ability.Intelligence, Ability.Wisdom));
+      learnableDictionary.Add(CustomSkill.AthleticsProficiency, new LearnableSkill(CustomSkill.AthleticsProficiency, "Athlétisme - Maîtrise", "Un jet de Force (Athlétisme) couvre les difficultés physiques que vous rencontrez en grimpant, en sautant ou en nageant. Ce qui inclue les activités suivantes :\n- Vous essayez d'escalader une falaise abrupte ou glissante, d'éviter les dangers en escaladant un mur ou de vous accrocher à une surface pendant que quelque chose essaie de vous faire tomber\n- Vous essayez de sauter sur une distance inhabituellement longue ou de réaliser une cascade au milieu d'un saut\n-- Vous avez du mal à nager ou à rester à flot dans des courants dangereux, des vagues agitées par des tempêtes ou des zones d'algues épaisses. Ou une autre créature essaie de vous pousser ou de vous tirer sous l'eau ou d'interférer d'une autre manière avec votre nage", Category.MindBody, "ife_SeverA", 1, 750, Ability.Strength, Ability.Constitution));
+      learnableDictionary.Add(CustomSkill.AthleticsExpertise, new LearnableSkill(CustomSkill.AthleticsExpertise, "Athlétisme - Expertise", "L'expertise permet de doubler votre bonus de maîtrise sur les jets effectués avec cette compétence", Category.MindBody, "ife_SeverA", 1, 1500, Ability.Strength, Ability.Constitution));
 
-      learnableDictionary.Add(CustomSkill.Investigation, new LearnableSkill(CustomSkill.Investigation, "Investigation", "Un jet d'Intelligence (Investigation) couvre toute recherche d'indice et de déductions. Vous pouvez déduire l'emplacement d'un objet caché, discerner à partir de l'apparence d'une blessure quel type d'arme l'a infligée, ou déterminer le point le plus faible dans un tunnel qui pourrait provoquer son effondrement.\n L'examen d'anciens parchemins à la recherche d'un fragment de connaissance caché peut également nécessiter un jet d'Intelligence (Investigation).\n\nCette compétence remplace fouille pour la détection des pièges.", Category.MindBody, "isk_search", 5, 2, Ability.Intelligence, Ability.Wisdom));
-      learnableDictionary.Add(CustomSkill.InvestigationExpert, new LearnableSkill(CustomSkill.InvestigationExpert, "Investigation - Expert", "Un jet d'Intelligence (Investigation) couvre toute recherche d'indice et de déductions. Vous pouvez déduire l'emplacement d'un objet caché, discerner à partir de l'apparence d'une blessure quel type d'arme l'a infligée, ou déterminer le point le plus faible dans un tunnel qui pourrait provoquer son effondrement.\n L'examen d'anciens parchemins à la recherche d'un fragment de connaissance caché peut également nécessiter un jet d'Intelligence (Investigation).\n\nCette compétence remplace fouille pour la détection des pièges.", Category.MindBody, "isk_search", 5, 3, Ability.Intelligence, Ability.Wisdom));
-      learnableDictionary.Add(CustomSkill.InvestigationScience, new LearnableSkill(CustomSkill.InvestigationScience, "Investigation - Science", "Un jet d'Intelligence (Investigation) couvre toute recherche d'indice et de déductions. Vous pouvez déduire l'emplacement d'un objet caché, discerner à partir de l'apparence d'une blessure quel type d'arme l'a infligée, ou déterminer le point le plus faible dans un tunnel qui pourrait provoquer son effondrement.\n L'examen d'anciens parchemins à la recherche d'un fragment de connaissance caché peut également nécessiter un jet d'Intelligence (Investigation).\n\nCette compétence remplace fouille pour la détection des pièges.", Category.MindBody, "isk_search", 5, 4, Ability.Intelligence, Ability.Wisdom));
-      learnableDictionary.Add(CustomSkill.InvestigationMaster, new LearnableSkill(CustomSkill.InvestigationMaster, "Investigation - Master", "Un jet d'Intelligence (Investigation) couvre toute recherche d'indice et de déductions. Vous pouvez déduire l'emplacement d'un objet caché, discerner à partir de l'apparence d'une blessure quel type d'arme l'a infligée, ou déterminer le point le plus faible dans un tunnel qui pourrait provoquer son effondrement.\n L'examen d'anciens parchemins à la recherche d'un fragment de connaissance caché peut également nécessiter un jet d'Intelligence (Investigation).\n\nCette compétence remplace fouille pour la détection des pièges.", Category.MindBody, "isk_search", 5, 5, Ability.Intelligence, Ability.Wisdom));
+      learnableDictionary.Add(CustomSkill.DeceptionProficiency, new LearnableSkill(CustomSkill.DeceptionProficiency, "Tromperie - Maîtrise", "Un jet de Charisme (Tromperie) couvre toute tentative de cacher la vérité de manière convaincante, que ce soit verbalement ou par vos actions. Cette compétence permet de dissimuler les traces du mensonge dans votre voix et votre langage corporel.\nN'oubliez pas que dans la plupart des cas, en jeu, la crédibilité de vos paroles par rapport à la confiance accordée par vos interlocuteurs prime.\nDe base, vous ne parviendrez pas à faire croire à la garde que cette épée à deux mains pleine de sang n'est rien d'autre que l'appui d'un vieillard pour l'aider à marcher, même sur un très bon jet.", Category.MindBody, "isk_X2bluff", 1, 750, Ability.Charisma, Ability.Intelligence));
+      learnableDictionary.Add(CustomSkill.DeceptionExpertise, new LearnableSkill(CustomSkill.DeceptionExpertise, "Tromperie - Expertise", "L'expertise permet de doubler votre bonus de maîtrise sur les jets effectués avec cette compétence", Category.MindBody, "isk_X2bluff", 1, 1500, Ability.Charisma, Ability.Intelligence));
 
-      learnableDictionary.Add(CustomSkill.Insight, new LearnableSkill(CustomSkill.Insight, "Intuition", "Un jet de Sagesse (Intuition) couvre toute tentative de déterminer les véritables intentions d'une créature, par exemple lorsque vous souhaitez dévoiler un mensonge ou prédire le prochain mouvement de quelqu'un.\nIl s'agit principalement de glaner des indices dans le langage corporel, les changements de tons de la voix ou de manières.", Category.MindBody, "isk_listen", 5, 2, Ability.Wisdom, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.InsightExpert, new LearnableSkill(CustomSkill.InsightExpert, "Intuition - Expert", "Un jet de Sagesse (Intuition) couvre toute tentative de déterminer les véritables intentions d'une créature, par exemple lorsque vous souhaitez dévoiler un mensonge ou prédire le prochain mouvement de quelqu'un.\nIl s'agit principalement de glaner des indices dans le langage corporel, les changements de tons de la voix ou de manières.", Category.MindBody, "isk_listen", 5, 3, Ability.Wisdom, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.InsightScience, new LearnableSkill(CustomSkill.InsightScience, "Intuition - Science", "Un jet de Sagesse (Intuition) couvre toute tentative de déterminer les véritables intentions d'une créature, par exemple lorsque vous souhaitez dévoiler un mensonge ou prédire le prochain mouvement de quelqu'un.\nIl s'agit principalement de glaner des indices dans le langage corporel, les changements de tons de la voix ou de manières.", Category.MindBody, "isk_listen", 5, 4, Ability.Wisdom, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.InsightMaster, new LearnableSkill(CustomSkill.InsightMaster, "Intuition - Master", "Un jet de Sagesse (Intuition) couvre toute tentative de déterminer les véritables intentions d'une créature, par exemple lorsque vous souhaitez dévoiler un mensonge ou prédire le prochain mouvement de quelqu'un.\nIl s'agit principalement de glaner des indices dans le langage corporel, les changements de tons de la voix ou de manières.", Category.MindBody, "isk_listen", 5, 5, Ability.Wisdom, Ability.Intelligence));
+      learnableDictionary.Add(CustomSkill.HistoryProficiency, new LearnableSkill(CustomSkill.HistoryProficiency, "Histoire - Maîtrise", "Un jet d'Intelligence (Histoire) couvre toute tentative de se souvenir de traditions, d'événements historiques, de personnages légendaires, d'anciens royaumes, de conflits passés, de guerres récentes et de civilisations perdues.", Category.MindBody, "ife_X1App", 1, 750, Ability.Intelligence, Ability.Wisdom));
+      learnableDictionary.Add(CustomSkill.HistoryExpertise, new LearnableSkill(CustomSkill.HistoryExpertise, "Histoire - Expertise", "L'expertise permet de doubler votre bonus de maîtrise sur les jets effectués avec cette compétence", Category.MindBody, "ife_X1App", 1, 1500, Ability.Intelligence, Ability.Wisdom));
 
-      learnableDictionary.Add(CustomSkill.Perception, new LearnableSkill(CustomSkill.Perception, "Perception", "Un jet de Sagesse (Perception) couvre toute tentative de repérer, d'entendre ou de détecter la présence de quelque chose. Il mesure votre conscience générale de votre environnement et l'acuité de vos sens.\nPar exemple, vous pouvez essayer d'entendre une conversation à travers une porte fermée, d'écouter sous une fenêtre ouverte ou d'entendre des monstres se déplacer furtivement dans la forêt.\nVous pouvez aussi essayer de repérer des choses qui sont obscurcies ou faciles à manquer, qu'il s'agisse d'orcs embusqués sur une route, de voyous cachés dans l'ombre d'une ruelle ou de bougies sous une porte secrète fermée.", Category.MindBody, "isk_spot", 5, 2, Ability.Wisdom, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.PerceptionExpert, new LearnableSkill(CustomSkill.PerceptionExpert, "Perception - Expert", "Un jet de Sagesse (Perception) couvre toute tentative de repérer, d'entendre ou de détecter la présence de quelque chose. Il mesure votre conscience générale de votre environnement et l'acuité de vos sens.\nPar exemple, vous pouvez essayer d'entendre une conversation à travers une porte fermée, d'écouter sous une fenêtre ouverte ou d'entendre des monstres se déplacer furtivement dans la forêt.\nVous pouvez aussi essayer de repérer des choses qui sont obscurcies ou faciles à manquer, qu'il s'agisse d'orcs embusqués sur une route, de voyous cachés dans l'ombre d'une ruelle ou de bougies sous une porte secrète fermée.", Category.MindBody, "isk_spot", 5, 3, Ability.Wisdom, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.PerceptionScience, new LearnableSkill(CustomSkill.PerceptionScience, "Perception - Science", "Un jet de Sagesse (Perception) couvre toute tentative de repérer, d'entendre ou de détecter la présence de quelque chose. Il mesure votre conscience générale de votre environnement et l'acuité de vos sens.\nPar exemple, vous pouvez essayer d'entendre une conversation à travers une porte fermée, d'écouter sous une fenêtre ouverte ou d'entendre des monstres se déplacer furtivement dans la forêt.\nVous pouvez aussi essayer de repérer des choses qui sont obscurcies ou faciles à manquer, qu'il s'agisse d'orcs embusqués sur une route, de voyous cachés dans l'ombre d'une ruelle ou de bougies sous une porte secrète fermée.", Category.MindBody, "isk_spot", 5, 4, Ability.Wisdom, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.PerceptionMaster, new LearnableSkill(CustomSkill.PerceptionMaster, "Perception - Master", "Un jet de Sagesse (Perception) couvre toute tentative de repérer, d'entendre ou de détecter la présence de quelque chose. Il mesure votre conscience générale de votre environnement et l'acuité de vos sens.\nPar exemple, vous pouvez essayer d'entendre une conversation à travers une porte fermée, d'écouter sous une fenêtre ouverte ou d'entendre des monstres se déplacer furtivement dans la forêt.\nVous pouvez aussi essayer de repérer des choses qui sont obscurcies ou faciles à manquer, qu'il s'agisse d'orcs embusqués sur une route, de voyous cachés dans l'ombre d'une ruelle ou de bougies sous une porte secrète fermée.", Category.MindBody, "isk_spot", 5, 5, Ability.Wisdom, Ability.Intelligence));
+      learnableDictionary.Add(CustomSkill.InsightProficiency, new LearnableSkill(CustomSkill.InsightProficiency, "Intuition - Maîtrise", "Un jet de Sagesse (Intuition) couvre toute tentative de déterminer les véritables intentions d'une créature, par exemple lorsque vous souhaitez dévoiler un mensonge ou prédire le prochain mouvement de quelqu'un.\nIl s'agit principalement de glaner des indices dans le langage corporel, les changements de tons de la voix ou de manières.", Category.MindBody, "isk_listen", 1, 750, Ability.Wisdom, Ability.Intelligence));
+      learnableDictionary.Add(CustomSkill.InsightExpertise, new LearnableSkill(CustomSkill.InsightExpertise, "Intuition - Expertise", "L'expertise permet de doubler votre bonus de maîtrise sur les jets effectués avec cette compétence", Category.MindBody, "isk_listen", 1, 1500, Ability.Wisdom, Ability.Intelligence));
 
-      learnableDictionary.Add(CustomSkill.Deception, new LearnableSkill(CustomSkill.Deception, "Tromperie", "Un jet de Charisme (Tromperie) couvre toute tentative de cacher la vérité de manière convaincante, que ce soit verbalement ou par vos actions. Cette compétence permet de dissimuler les traces du mensonge dans votre voix et votre langage corporel.\nN'oubliez pas que dans la plupart des cas, en jeu, la crédibilité de vos paroles par rapport à la confiance accordée par vos interlocuteurs prime.\nDe base, vous ne parviendrez pas à faire croire à la garde que cette épée à deux mains pleine de sang n'est rien d'autre que l'appui d'un vieillard pour l'aider à marcher, même sur un très bon jet.", Category.MindBody, "isk_X2bluff", 5, 2, Ability.Charisma, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.DeceptionExpert, new LearnableSkill(CustomSkill.DeceptionExpert, "Tromperie - Expert", "Un jet de Charisme (Tromperie) couvre toute tentative de cacher la vérité de manière convaincante, que ce soit verbalement ou par vos actions. Cette compétence permet de dissimuler les traces du mensonge dans votre voix et votre langage corporel.\nN'oubliez pas que dans la plupart des cas, en jeu, la crédibilité de vos paroles par rapport à la confiance accordée par vos interlocuteurs prime.\nDe base, vous ne parviendrez pas à faire croire à la garde que cette épée à deux mains pleine de sang n'est rien d'autre que l'appui d'un vieillard pour l'aider à marcher, même sur un très bon jet.", Category.MindBody, "isk_X2bluff", 5, 3, Ability.Charisma, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.DeceptionScience, new LearnableSkill(CustomSkill.DeceptionScience, "Tromperie - Science", "Un jet de Charisme (Tromperie) couvre toute tentative de cacher la vérité de manière convaincante, que ce soit verbalement ou par vos actions. Cette compétence permet de dissimuler les traces du mensonge dans votre voix et votre langage corporel.\nN'oubliez pas que dans la plupart des cas, en jeu, la crédibilité de vos paroles par rapport à la confiance accordée par vos interlocuteurs prime.\nDe base, vous ne parviendrez pas à faire croire à la garde que cette épée à deux mains pleine de sang n'est rien d'autre que l'appui d'un vieillard pour l'aider à marcher, même sur un très bon jet.", Category.MindBody, "isk_X2bluff", 5, 4, Ability.Charisma, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.DeceptionMaster, new LearnableSkill(CustomSkill.DeceptionMaster, "Tromperie - Master", "Un jet de Charisme (Tromperie) couvre toute tentative de cacher la vérité de manière convaincante, que ce soit verbalement ou par vos actions. Cette compétence permet de dissimuler les traces du mensonge dans votre voix et votre langage corporel.\nN'oubliez pas que dans la plupart des cas, en jeu, la crédibilité de vos paroles par rapport à la confiance accordée par vos interlocuteurs prime.\nDe base, vous ne parviendrez pas à faire croire à la garde que cette épée à deux mains pleine de sang n'est rien d'autre que l'appui d'un vieillard pour l'aider à marcher, même sur un très bon jet.", Category.MindBody, "isk_X2bluff", 5, 5, Ability.Charisma, Ability.Intelligence));
+      learnableDictionary.Add(CustomSkill.IntimidationProficiency, new LearnableSkill(CustomSkill.IntimidationProficiency, "Intimidation - Maîtrise", "Un jet de Charisme (Intimidation) couvre toute tentative d'influencer quelqu'un par des menaces manifestes, des actions hostiles et de la violence physique.\nPar exemple, essayer de soutirer des informations d'un prisonnier, convaincre des voyous de reculer devant une confrontation ou utiliser un tesson de bouteille brisée pour convaincre un vizir ricanant de reconsidérer une décision.", Category.MindBody, "isk_X2Inti", 5, 2, Ability.Charisma, Ability.Strength));
+      learnableDictionary.Add(CustomSkill.IntimidationExpertise, new LearnableSkill(CustomSkill.IntimidationExpertise, "Intimidation - Expertise", "L'expertise permet de doubler votre bonus de maîtrise sur les jets effectués avec cette compétence", Category.MindBody, "isk_X2Inti", 5, 3, Ability.Charisma, Ability.Strength));
 
-      learnableDictionary.Add(CustomSkill.Intimidation, new LearnableSkill(CustomSkill.Intimidation, "Intimidation", "Un jet de Charisme (Intimidation) couvre toute tentative d'influencer quelqu'un par des menaces manifestes, des actions hostiles et de la violence physique.\nPar exemple, essayer de soutirer des informations d'un prisonnier, convaincre des voyous de reculer devant une confrontation ou utiliser un tesson de bouteille brisée pour convaincre un vizir ricanant de reconsidérer une décision.", Category.MindBody, "isk_X2Inti", 5, 2, Ability.Charisma, Ability.Strength));
-      learnableDictionary.Add(CustomSkill.IntimidationExpert, new LearnableSkill(CustomSkill.IntimidationExpert, "Intimidation - Expert", "Un jet de Charisme (Intimidation) couvre toute tentative d'influencer quelqu'un par des menaces manifestes, des actions hostiles et de la violence physique.\nPar exemple, essayer de soutirer des informations d'un prisonnier, convaincre des voyous de reculer devant une confrontation ou utiliser un tesson de bouteille brisée pour convaincre un vizir ricanant de reconsidérer une décision.", Category.MindBody, "isk_X2Inti", 5, 3, Ability.Charisma, Ability.Strength));
-      learnableDictionary.Add(CustomSkill.IntimidationScience, new LearnableSkill(CustomSkill.IntimidationScience, "Intimidation - Science", "Un jet de Charisme (Intimidation) couvre toute tentative d'influencer quelqu'un par des menaces manifestes, des actions hostiles et de la violence physique.\nPar exemple, essayer de soutirer des informations d'un prisonnier, convaincre des voyous de reculer devant une confrontation ou utiliser un tesson de bouteille brisée pour convaincre un vizir ricanant de reconsidérer une décision.", Category.MindBody, "isk_X2Inti", 5, 4, Ability.Charisma, Ability.Strength));
-      learnableDictionary.Add(CustomSkill.IntimidationMaster, new LearnableSkill(CustomSkill.IntimidationMaster, "Intimidation - Master", "Un jet de Charisme (Intimidation) couvre toute tentative d'influencer quelqu'un par des menaces manifestes, des actions hostiles et de la violence physique.\nPar exemple, essayer de soutirer des informations d'un prisonnier, convaincre des voyous de reculer devant une confrontation ou utiliser un tesson de bouteille brisée pour convaincre un vizir ricanant de reconsidérer une décision.", Category.MindBody, "isk_X2Inti", 5, 5, Ability.Charisma, Ability.Strength));
+      learnableDictionary.Add(CustomSkill.InvestigationProficiency, new LearnableSkill(CustomSkill.InvestigationProficiency, "Investigation - Maîtrise", "Un jet d'Intelligence (Investigation) couvre toute recherche d'indice et de déductions. Vous pouvez déduire l'emplacement d'un objet caché, discerner à partir de l'apparence d'une blessure quel type d'arme l'a infligée, ou déterminer le point le plus faible dans un tunnel qui pourrait provoquer son effondrement.\n L'examen d'anciens parchemins à la recherche d'un fragment de connaissance caché peut également nécessiter un jet d'Intelligence (Investigation).\n\nCette compétence remplace fouille pour la détection des pièges.", Category.MindBody, "isk_search", 1, 750, Ability.Intelligence, Ability.Wisdom));
+      learnableDictionary.Add(CustomSkill.InvestigationExpertise, new LearnableSkill(CustomSkill.InvestigationExpertise, "Investigation - Expertise", "Un jet d'Intelligence (Investigation) couvre toute recherche d'indice et de déductions. Vous pouvez déduire l'emplacement d'un objet caché, discerner à partir de l'apparence d'une blessure quel type d'arme l'a infligée, ou déterminer le point le plus faible dans un tunnel qui pourrait provoquer son effondrement.\n L'examen d'anciens parchemins à la recherche d'un fragment de connaissance caché peut également nécessiter un jet d'Intelligence (Investigation).\n\nCette compétence remplace fouille pour la détection des pièges.", Category.MindBody, "isk_search", 1, 1500, Ability.Intelligence, Ability.Wisdom));
 
-      learnableDictionary.Add(CustomSkill.Persuasion, new LearnableSkill(CustomSkill.Persuasion, "Persuasion", "Un jet de Charisme (Persuasion) couvre toute tentative d'influencer quelqu'un ou un groupe de personnes avec du tact, des grâces sociales ou une bonne nature.\nEn règle générale, la persuasion est utilisée lorsque vous agissez de bonne foi, pour favoriser des amitiés, faire des demandes cordiales ou faire preuve d'une étiquette appropriée.\nPar exemple : convaincre un chambellan de laisser votre groupe voir le roi, négocier la paix entre des tribus en guerre ou inspirer une foule de citadins.", Category.MindBody, "isk_persuade", 5, 2, Ability.Charisma, Ability.Wisdom));
-      learnableDictionary.Add(CustomSkill.PersuasionExpert, new LearnableSkill(CustomSkill.PersuasionExpert, "Persuasion - Expert", "Un jet de Charisme (Persuasion) couvre toute tentative d'influencer quelqu'un ou un groupe de personnes avec du tact, des grâces sociales ou une bonne nature.\nEn règle générale, la persuasion est utilisée lorsque vous agissez de bonne foi, pour favoriser des amitiés, faire des demandes cordiales ou faire preuve d'une étiquette appropriée.\nPar exemple : convaincre un chambellan de laisser votre groupe voir le roi, négocier la paix entre des tribus en guerre ou inspirer une foule de citadins.", Category.MindBody, "isk_persuade", 5, 3, Ability.Charisma, Ability.Wisdom));
-      learnableDictionary.Add(CustomSkill.PersuasionScience, new LearnableSkill(CustomSkill.PersuasionScience, "Persuasion - Science", "Un jet de Charisme (Persuasion) couvre toute tentative d'influencer quelqu'un ou un groupe de personnes avec du tact, des grâces sociales ou une bonne nature.\nEn règle générale, la persuasion est utilisée lorsque vous agissez de bonne foi, pour favoriser des amitiés, faire des demandes cordiales ou faire preuve d'une étiquette appropriée.\nPar exemple : convaincre un chambellan de laisser votre groupe voir le roi, négocier la paix entre des tribus en guerre ou inspirer une foule de citadins.", Category.MindBody, "isk_persuade", 5, 4, Ability.Charisma, Ability.Wisdom));
-      learnableDictionary.Add(CustomSkill.PersuasionMaster, new LearnableSkill(CustomSkill.PersuasionMaster, "Persuasion - Master", "Un jet de Charisme (Persuasion) couvre toute tentative d'influencer quelqu'un ou un groupe de personnes avec du tact, des grâces sociales ou une bonne nature.\nEn règle générale, la persuasion est utilisée lorsque vous agissez de bonne foi, pour favoriser des amitiés, faire des demandes cordiales ou faire preuve d'une étiquette appropriée.\nPar exemple : convaincre un chambellan de laisser votre groupe voir le roi, négocier la paix entre des tribus en guerre ou inspirer une foule de citadins.", Category.MindBody, "isk_persuade", 5, 5, Ability.Charisma, Ability.Wisdom));
+      learnableDictionary.Add(CustomSkill.MedicineProficiency, new LearnableSkill(CustomSkill.MedicineProficiency, "Médecine - Maîtrise", "Un jet d'Intelligence (Médecine) couvre toute tentative de se souvenir de détails sur le fonctionnement du corps humain, sur des remèdes ou des poisons. Cette compétence est également utilisée afin de pratiquer des actes médicaux.", Category.MindBody, "isk_heal", 1, 750, Ability.Intelligence, Ability.Wisdom));
+      learnableDictionary.Add(CustomSkill.MedicineExpertise, new LearnableSkill(CustomSkill.MedicineExpertise, "Médecine - Expertise", "L'expertise permet de doubler votre bonus de maîtrise sur les jets effectués avec cette compétence", Category.MindBody, "isk_heal", 1, 1500, Ability.Intelligence, Ability.Wisdom));
+
+      learnableDictionary.Add(CustomSkill.NatureProficiency, new LearnableSkill(CustomSkill.NatureProficiency, "Nature - Maîtrise", "Un jet d'Intelligence (Nature) couvre toute tentative de se souvenir de connaissances sur le terrain, les plantes, les animaux, la météo et les cycles naturels.", Category.MindBody, "ife_X2GrWis1", 1, 750, Ability.Intelligence, Ability.Wisdom));
+      learnableDictionary.Add(CustomSkill.NatureExpertise, new LearnableSkill(CustomSkill.NatureExpertise, "Nature - Expertise", "L'expertise permet de doubler votre bonus de maîtrise sur les jets effectués avec cette compétence", Category.MindBody, "ife_X2GrWis1", 1, 1500, Ability.Intelligence, Ability.Wisdom));
+
+      learnableDictionary.Add(CustomSkill.PerceptionProficiency, new LearnableSkill(CustomSkill.PerceptionProficiency, "Perception - Maîtrise", "Un jet de Sagesse (Perception) couvre toute tentative de repérer, d'entendre ou de détecter la présence de quelque chose. Il mesure votre conscience générale de votre environnement et l'acuité de vos sens.\nPar exemple, vous pouvez essayer d'entendre une conversation à travers une porte fermée, d'écouter sous une fenêtre ouverte ou d'entendre des monstres se déplacer furtivement dans la forêt.\nVous pouvez aussi essayer de repérer des choses qui sont obscurcies ou faciles à manquer, qu'il s'agisse d'orcs embusqués sur une route, de voyous cachés dans l'ombre d'une ruelle ou de bougies sous une porte secrète fermée.", Category.MindBody, "isk_spot", 1, 750, Ability.Wisdom, Ability.Intelligence));
+      learnableDictionary.Add(CustomSkill.PerceptionExpertise, new LearnableSkill(CustomSkill.PerceptionExpertise, "Perception - Expertise", "L'expertise permet de doubler votre bonus de maîtrise sur les jets effectués avec cette compétence", Category.MindBody, "isk_spot", 1, 1500, Ability.Wisdom, Ability.Intelligence));
+      
+      learnableDictionary.Add(CustomSkill.PerformanceProficiency, new LearnableSkill(CustomSkill.PerformanceProficiency, "Performance - Maîtrise", "Un jet de Charisme (Performance) couvre toute tentative de ravir un public avec de la musique, de la danse, du théâtre, des contes ou toute autre forme de divertissement.\n\nChaque rang augmente la durée et l'efficacité des capacités liées à l'encouragement des alliés.", Category.MindBody, "ife_SeverA", 1, 750, Ability.Charisma, Ability.Intelligence));
+      learnableDictionary.Add(CustomSkill.PerformanceExpertise, new LearnableSkill(CustomSkill.PerformanceExpertise, "Performance - Expertise", "L'expertise permet de doubler votre bonus de maîtrise sur les jets effectués avec cette compétence", Category.MindBody, "ife_SeverA", 1, 1500, Ability.Charisma, Ability.Intelligence));
+
+      learnableDictionary.Add(CustomSkill.PersuasionProficiency, new LearnableSkill(CustomSkill.PersuasionProficiency, "Persuasion - Maîtrise", "Un jet de Charisme (Persuasion) couvre toute tentative d'influencer quelqu'un ou un groupe de personnes avec du tact, des grâces sociales ou une bonne nature.\nEn règle générale, la persuasion est utilisée lorsque vous agissez de bonne foi, pour favoriser des amitiés, faire des demandes cordiales ou faire preuve d'une étiquette appropriée.\nPar exemple : convaincre un chambellan de laisser votre groupe voir le roi, négocier la paix entre des tribus en guerre ou inspirer une foule de citadins.", Category.MindBody, "isk_persuade", 1, 750, Ability.Charisma, Ability.Wisdom));
+      learnableDictionary.Add(CustomSkill.PersuasionExpertise, new LearnableSkill(CustomSkill.PersuasionExpertise, "Persuasion - Expertise", "L'expertise permet de doubler votre bonus de maîtrise sur les jets effectués avec cette compétence", Category.MindBody, "isk_persuade", 1, 1500, Ability.Charisma, Ability.Wisdom));
+
+      learnableDictionary.Add(CustomSkill.ReligionProficiency, new LearnableSkill(CustomSkill.ReligionProficiency, "Religion - Maîtrise", "Un jet d'Intelligence (Religion) couvre toute tentative de se souvenir des traditions concernant les divinités, les rites, les prières, les hiérarchies religieuses, les symboles sacrés et les pratiques des cultes.", Category.MindBody, "isk_lore", 1, 750, Ability.Intelligence, Ability.Wisdom));
+      learnableDictionary.Add(CustomSkill.ReligionExpertise, new LearnableSkill(CustomSkill.ReligionExpertise, "Religion - Expertise", "L'expertise permet de doubler votre bonus de maîtrise sur les jets effectués avec cette compétence", Category.MindBody, "isk_lore", 1, 1500, Ability.Intelligence, Ability.Wisdom));
+
+      learnableDictionary.Add(CustomSkill.SleightOfHandProficiency, new LearnableSkill(CustomSkill.SleightOfHandProficiency, "Escamotage - Maîtrise", "Un jet de Dextérité (Escamotage) couvre toute tentative un tour de passe-passe ou de supercherie manuelle, comme déposer quelque chose dans les poches de quelqu'un d'autre ou tenter de dissimuler un objet votre propre personne.\n\nUn jet de Dextérité (Escamotage) permet également de déterminer si vous parvenez à délester quelqu'un de son porte-monnaie ou lui faire les poches.\n\nCette compétence remplace Vol à la Tire.", Category.MindBody, "isk_pocket", 1, 750, Ability.Dexterity, Ability.Intelligence));
+      learnableDictionary.Add(CustomSkill.SleightOfHandExpertise, new LearnableSkill(CustomSkill.SleightOfHandExpertise, "Escamotage - Expertise", "L'expertise permet de doubler votre bonus de maîtrise sur les jets effectués avec cette compétence", Category.MindBody, "isk_pocket", 1, 1500, Ability.Dexterity, Ability.Intelligence));
+
+      learnableDictionary.Add(CustomSkill.StealthProficiency, new LearnableSkill(CustomSkill.StealthProficiency, "Furtivité - Maîtrise", "Un jet de Dextérité (Arts des ombres) couvre toute tentative de se dissimulation à l'œil et à l'oreille des ennemis : pour passer furtivement sous le nez des gardes, vous échapper sans vous faire remarquer ou prendre quelqu'un par surprise.\n\nCette compétence remplace à la fois Discrétion et Déplacement silencieux.\nContrairement au jeu de base, cet attribut ne vous permet pas de disparaître aux yeux des autres.\n\nChaque rang augmente la durée et l'efficacité des capacités liées à la dissimulation et à la furtivité.", Category.Fight, "ife_SeverA", 1, 750, Ability.Intelligence, Ability.Dexterity));
+      learnableDictionary.Add(CustomSkill.StealthExpertise, new LearnableSkill(CustomSkill.StealthExpertise, "Furtivité - Expertise", "L'expertise permet de doubler votre bonus de maîtrise sur les jets effectués avec cette compétence", Category.MindBody, "ife_SeverA", 1, 1500, Ability.Intelligence, Ability.Dexterity));
+
+      learnableDictionary.Add(CustomSkill.SurvivalProficiency, new LearnableSkill(CustomSkill.SurvivalProficiency, "Survie - Maîtrise", "Un jet de Sagesse (Survie) couvre toute tentative de suivre des traces, chasser du gibier sauvage, guider votre groupe à travers des friches gelées, identifier des signes indiquant que des ours-hiboux vivent à proximité, prédire la météo ou d'éviter les sables mouvants et autres dangers naturels.", Category.MindBody, "ife_SeverA", 1, 750, Ability.Wisdom, Ability.Constitution));
+      learnableDictionary.Add(CustomSkill.SurvivalExpertise, new LearnableSkill(CustomSkill.SurvivalExpertise, "Survie - Expertise", "L'expertise permet de doubler votre bonus de maîtrise sur les jets effectués avec cette compétence", Category.MindBody, "ife_SeverA", 1, 1500, Ability.Wisdom, Ability.Constitution));
+
+      learnableDictionary.Add(CustomSkill.StrengthSavesProficiency, new LearnableSkill(CustomSkill.StrengthSavesProficiency, "JDS Force - Maîtrise", "Permet d'ajouter votre bonus de maîtrise à vos jets de sauvegarde utilisant la force.", Category.MindBody, "ife_SeverA", 1, 5000, Ability.Strength, Ability.Constitution));
+      learnableDictionary.Add(CustomSkill.DexteritySavesProficiency, new LearnableSkill(CustomSkill.DexteritySavesProficiency, "JDS Dextérité - Maîtrise", "Permet d'ajouter votre bonus de maîtrise à vos jets de sauvegarde utilisant la dextérité.", Category.MindBody, "ife_SeverA", 1, 5000, Ability.Dexterity, Ability.Constitution));
+      learnableDictionary.Add(CustomSkill.ConstitutionSavesProficiency, new LearnableSkill(CustomSkill.ConstitutionSavesProficiency, "JDS Constitution - Maîtrise", "Permet d'ajouter votre bonus de maîtrise à vos jets de sauvegarde utilisant la constitution.", Category.MindBody, "ife_SeverA", 1, 5000, Ability.Constitution, Ability.Constitution));
+      learnableDictionary.Add(CustomSkill.IntelligenceSavesProficiency, new LearnableSkill(CustomSkill.IntelligenceSavesProficiency, "JDS Intelligence - Maîtrise", "Permet d'ajouter votre bonus de maîtrise à vos jets de sauvegarde utilisant l'intelligence.", Category.MindBody, "ife_SeverA", 1, 5000, Ability.Intelligence, Ability.Constitution));
+      learnableDictionary.Add(CustomSkill.WisdomSavesProficiency, new LearnableSkill(CustomSkill.WisdomSavesProficiency, "JDS Sagesse - Maîtrise", "Permet d'ajouter votre bonus de maîtrise à vos jets de sauvegarde utilisant la sagesse.", Category.MindBody, "ife_SeverA", 1, 5000, Ability.Wisdom, Ability.Constitution));
+      learnableDictionary.Add(CustomSkill.CharismaSavesProficiency, new LearnableSkill(CustomSkill.CharismaSavesProficiency, "JDS Charisma - Maîtrise", "Permet d'ajouter votre bonus de maîtrise à vos jets de sauvegarde utilisant le charisme.", Category.MindBody, "ife_SeverA", 1, 5000, Ability.Charisma, Ability.Constitution));
 
       learnableDictionary.Add(CustomSkill.UncannyDodge, new LearnableSkill(CustomSkill.UncannyDodge, "Esquive Instinctive", "Permet au personnage de réagir instinctivement, même face à un adversaire qu'il ne voit pas.\n\nSi le personnage réussi un jet de survie contre la tromperie d'un adversaire qui l'attaque de dos avec une arme de mêlée, alors le critique automatique sera annulé.", Category.Fight, "ife_uncdodge", 5, 3, Ability.Dexterity, Ability.Wisdom));
 
-      learnableDictionary.Add(CustomSkill.Acolyte, new LearnableSkill(CustomSkill.Acolyte, "Acolyte", "google1JU5_KaJTVhoy4PyGFo5sIBIPUbLWe6tMNENQ2kR2WFY", Category.StartingTraits, "Acolyte", 5, 1, Ability.Wisdom, Ability.Charisma, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.Anthropologist, new LearnableSkill(CustomSkill.Anthropologist, "Anthropologue", "google1KLiNxm_dHLbRh-dveP--LAfcIMHCjHhcX98a7xzZGOI", Category.StartingTraits, "Anthropologue", 5, 1, Ability.Wisdom, Ability.Intelligence, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.Archeologist, new LearnableSkill(CustomSkill.Archeologist, "Archéologue", "google1ULJttGDVkgc5vsk9DvzEJqG53Yuh_meh59T7TWkmpVs", Category.StartingTraits, "archeologist", 5, 1, Ability.Intelligence, Ability.Wisdom, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.CloisteredScholar, new LearnableSkill(CustomSkill.CloisteredScholar, "Erudit", "google1JHepuecYSMwwqwlxMitBMWEOvm5l1mgRaQiKI7In2G0", Category.StartingTraits, "Erudit", 5, 1, Ability.Wisdom, Ability.Intelligence, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.Sage, new LearnableSkill(CustomSkill.Sage, "Sage", "google1AdvUpfuXxrIdv35Go4poPSFFm_4tlVvzJK5cXmR_QMw", Category.StartingTraits, "Sage", 5, 1, Ability.Wisdom, Ability.Intelligence, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.Hermit, new LearnableSkill(CustomSkill.Hermit, "Ermite", "google1jPUik90zrJ7XhNVNILd0MhaWOmLqA9XRpQ8MTnNffBA", Category.StartingTraits, "Ermite", 5, 1, Ability.Wisdom, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.Wanderer, new LearnableSkill(CustomSkill.Wanderer, "Voyageur", "google1X2s8SwAG8I3AgDuB7Mo-yaWVpk3_AZmaXZtG2pDrdMc", Category.StartingTraits, "Voyageur", 5, 1, Ability.Constitution, Ability.Wisdom, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.Athlete, new LearnableSkill(CustomSkill.Athlete, "Athlète", "google15h9-KjZ0sjS1yvstLjLEf3mumjJ4Xq5E-pbmgfAv9Xw", Category.StartingTraits, "athlete", 5, 1, Ability.Strength, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.Outlander, new LearnableSkill(CustomSkill.Outlander, "Sauvage", "google1qm3URzCigQ_xIz-BPT4kjLdXhtvyfFBI5F9ZEuxvweQ", Category.StartingTraits, "Sauvage", 5, 1, Ability.Strength, Ability.Wisdom, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.Soldier, new LearnableSkill(CustomSkill.Soldier, "Soldat", "google1QKnLB4iEuX8pNmqPXDfV8SSSeDcsT0_9e5xMNsCLa0c", Category.StartingTraits, "Soldat", 5, 1, Ability.Strength, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.Mercenary, new LearnableSkill(CustomSkill.Mercenary, "Mercenaire", "google1vDKqHBxFtjmhn25r0dhVruaMgzfSWxFV7D2grdPtDso", Category.StartingTraits, "Mercenaire", 5, 1, Ability.Strength, Ability.Dexterity, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.FolkHero, new LearnableSkill(CustomSkill.FolkHero, "Héros du peuple", "google1S4BK_DoT2tnV1EjMYvvVTrg-mR0tI-3uRBCyry5twi0", Category.StartingTraits, "folk_hero", 5, 1, Ability.Strength, Ability.Dexterity, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.Sailor, new LearnableSkill(CustomSkill.Sailor, "Marin", "google15sc6ymheE3JJpcg8qR_ATyB5xxj-aZAc5Ei2XFcsHpE", Category.StartingTraits, "Marin", 5, 1, Ability.Dexterity, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.Shipwright, new LearnableSkill(CustomSkill.Shipwright, "Charpentier Naval", "google1pA026_rZo7PlCrpwbq3zJz2P_UCcyLxITX3EKabuXP4", Category.StartingTraits, "carpenter", 5, 1, Ability.Strength, Ability.Dexterity, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.Fisher, new LearnableSkill(CustomSkill.Fisher, "Pêcheur", "google19uXzfsD2RzNYb3ledV2CMHjEXrJCCCb6uYDlpIYmxmw", Category.StartingTraits, "fisher", 5, 1, Ability.Constitution, Ability.Wisdom, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.Marine, new LearnableSkill(CustomSkill.Marine, "Officier de la marine", "google1g4Hoj6WS1uAAcvpNyrTGju0Mh81H9aIecK9B---sAgk", Category.StartingTraits, "officer", 5, 1, Ability.Strength, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.Criminal, new LearnableSkill(CustomSkill.Criminal, "Criminel", "google1l0m9pkIcfVy37ZjPl9wEB7s-PD2OwRt9Tco_KUhT-xI", Category.StartingTraits, "Criminel", 5, 1, Ability.Dexterity, Ability.Strength, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.Charlatan, new LearnableSkill(CustomSkill.Charlatan, "Charlatan", "google1ps07V3Lbp18RMIwrkYYGGyxC3tk5L8Y97zpJHw0eqO8", Category.StartingTraits, "Charlatan", 5, 1, Ability.Charisma, Ability.Intelligence, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.Smuggler, new LearnableSkill(CustomSkill.Smuggler, "Contrebandier", "google1BRYovMiish9iFnN5Q77cW14vP6bGjO14m32NzGJFiV4", Category.StartingTraits, "contrebandier", 5, 1, Ability.Charisma, Ability.Dexterity, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.StreetUrchin, new LearnableSkill(CustomSkill.StreetUrchin, "Gosse des rues", "google1vtim0ITSkBzl5IlPGjhKuZOTCyBYA_GHLc8M09t1IoM", Category.StartingTraits, "urchin", 5, 1, Ability.Dexterity, Ability.Charisma, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.Gambler, new LearnableSkill(CustomSkill.Gambler, "Parieur", "google1HkPJH8uqCCn4k4J8HUh3g52v4TfAEFAYiFJlXYhEvuM", Category.StartingTraits, "parieur", 5, 1, Ability.Dexterity, Ability.Charisma, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.Entertainer, new LearnableSkill(CustomSkill.Entertainer, "Saltimbanque", "google1Y87LKyg4DLKdlzUcfFtMj7M1rkSh6yAXx6Cb6Q16Dug", Category.StartingTraits, "Saltimbanque", 5, 1, Ability.Charisma, Ability.Dexterity, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.CityWatch, new LearnableSkill(CustomSkill.CityWatch, "Agent du guet", "google1JmIBbWSJ6oec820F-4TYeShM43XAKtOtCz2vBf2lPT4", Category.StartingTraits, "guet", 5, 1, Ability.Strength, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.Investigator, new LearnableSkill(CustomSkill.Investigator, "Détective", "google1wMwqmw3jVGFAnQCDa-ayjqeKUL2QGXPyP7KIc7QoDy8", Category.StartingTraits, "detective", 5, 1, Ability.Dexterity, Ability.Intelligence, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.KnightOfTheOrder, new LearnableSkill(CustomSkill.KnightOfTheOrder, "Chevalier de l'Ordre", "google1psb8aH-EaKINYKif3XC-MG3mtTFgh-5MYAehcJnCxl4", Category.StartingTraits, "chevalier", 5, 1, Ability.Strength, Ability.Charisma, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.Noble, new LearnableSkill(CustomSkill.Noble, "Noble", "google1_KAkFnH9Ydt2s0ljOGvwn-7mo_Vk5PrqtqIwJZ48k-Q", Category.StartingTraits, "Noble", 5, 1, Ability.Charisma, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.Courtier, new LearnableSkill(CustomSkill.Courtier, "Courtisan", "google1B1C2bcvU9HBb-d2m1lnFhnHWN2a46hp3zWDb9nBZnJU", Category.StartingTraits, "Courtisan", 5, 1, Ability.Charisma, Ability.Intelligence, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.FailedMerchant, new LearnableSkill(CustomSkill.FailedMerchant, "Marchand ruiné", "google1-2AuXuxSW1PICZWicsGUcb8Sgh_rGTVUYc6eT2zWJO8", Category.StartingTraits, "ruined_merchant", 5, 1, Ability.Intelligence, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.Taken, new LearnableSkill(CustomSkill.Taken, "Captif", "google16_6ygOZjsfJF7Ngk5VZ9gSK_nlAz7kqy5-sSDlVVPxw", Category.StartingTraits, "Captif", 5, 1, Ability.Constitution, Ability.Dexterity, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.Heir, new LearnableSkill(CustomSkill.Heir, "Héritier", "google1_D4_FywpDXAJXABkhpuwMAUkg68dsRiU07p-9Q-XSiA", Category.StartingTraits, "heir", 5, 1, Ability.Charisma, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.Magistrate, new LearnableSkill(CustomSkill.Magistrate, "Magistrat", "google16w21xr6HgBE159pLr1Br0mf7T00zsIzonGdXTGekIYs", Category.StartingTraits, "Magristrat", 5, 1, Ability.Intelligence, Ability.Wisdom, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.AdventurerScion, new LearnableSkill(CustomSkill.AdventurerScion, "Héritier d'un célèbre aventurier", "google1S7UROAImbnZdGf5Q_CkScJ_gfmfRDBcHGhQ9LpqHoAg", Category.StartingTraits, "scion", 5, 1, Ability.Charisma, Ability.Dexterity, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.Refugee, new LearnableSkill(CustomSkill.Refugee, "Réfugié", "google1GCBVKWeDNR20kqOqKwIex8qlCbOltNmUpkblINEShYM", Category.StartingTraits, "refugee", 5, 1, Ability.Dexterity, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.Prisoner, new LearnableSkill(CustomSkill.Prisoner, "Prisonnier", "google1Qdyz-fNuGrqI64NYaAP6wmiQd7GhUz0-hqf5F-vrYps", Category.StartingTraits, "prisoner", 5, 1, Ability.Constitution, Ability.Charisma, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.HauntedOne, new LearnableSkill(CustomSkill.HauntedOne, "Tourmenté", "google1yrgm7p09M0_-Y4nDkxY7gtT1LaO1Av305zBDBoqe72M", Category.StartingTraits, "tormented", 5, 1, Ability.Constitution, Ability.Charisma, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.Faceless, new LearnableSkill(CustomSkill.Faceless, "Sans-visage", "google1ghCYrBt8e58F5QQB5gvyn294XZO7jHkdvSIYZfYgS9g", Category.StartingTraits, "faceless", 5, 1, Ability.Charisma, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleBackground));
-      learnableDictionary.Add(CustomSkill.SecretIdentity, new LearnableSkill(CustomSkill.SecretIdentity, "Identité Secrète", "google1EevCfGvIUXDSx2iEJwPMwN3BDuNGBMR_GSQKZqiIsYQ", Category.StartingTraits, "secret_identity", 5, 1, Ability.Charisma, Ability.Dexterity, Attribut.Invalid, Type.Invalid, false, HandleBackground));
+      learnableDictionary.Add(CustomSkill.Acolyte, new LearnableSkill(CustomSkill.Acolyte, "Acolyte", "google1JU5_KaJTVhoy4PyGFo5sIBIPUbLWe6tMNENQ2kR2WFY", Category.StartingTraits, "Acolyte", 1, 1, Ability.Wisdom, Ability.Charisma, HandleAcolyteBackground));
+      learnableDictionary.Add(CustomSkill.Anthropologist, new LearnableSkill(CustomSkill.Anthropologist, "Anthropologue", "google1KLiNxm_dHLbRh-dveP--LAfcIMHCjHhcX98a7xzZGOI", Category.StartingTraits, "Anthropologue", 1, 1, Ability.Wisdom, Ability.Intelligence, HandleAnthropologistBackground));
+      learnableDictionary.Add(CustomSkill.Archeologist, new LearnableSkill(CustomSkill.Archeologist, "Archéologue", "google1ULJttGDVkgc5vsk9DvzEJqG53Yuh_meh59T7TWkmpVs", Category.StartingTraits, "archeologist", 1, 1, Ability.Intelligence, Ability.Wisdom, HandleArcheologistBackground));
+      learnableDictionary.Add(CustomSkill.CloisteredScholar, new LearnableSkill(CustomSkill.CloisteredScholar, "Erudit", "google1JHepuecYSMwwqwlxMitBMWEOvm5l1mgRaQiKI7In2G0", Category.StartingTraits, "Erudit", 1, 1, Ability.Wisdom, Ability.Intelligence, HandleScholarBackground));
+      learnableDictionary.Add(CustomSkill.Sage, new LearnableSkill(CustomSkill.Sage, "Sage", "google1AdvUpfuXxrIdv35Go4poPSFFm_4tlVvzJK5cXmR_QMw", Category.StartingTraits, "Sage", 1, 1, Ability.Wisdom, Ability.Intelligence, HandleSageBackground));
+      learnableDictionary.Add(CustomSkill.Hermit, new LearnableSkill(CustomSkill.Hermit, "Ermite", "google1jPUik90zrJ7XhNVNILd0MhaWOmLqA9XRpQ8MTnNffBA", Category.StartingTraits, "Ermite", 1, 1, Ability.Wisdom, Ability.Constitution, HandleHermitBackground));
+      learnableDictionary.Add(CustomSkill.Wanderer, new LearnableSkill(CustomSkill.Wanderer, "Voyageur", "google1X2s8SwAG8I3AgDuB7Mo-yaWVpk3_AZmaXZtG2pDrdMc", Category.StartingTraits, "Voyageur", 1, 1, Ability.Constitution, Ability.Wisdom, HandleWandererBackground));
+      learnableDictionary.Add(CustomSkill.Athlete, new LearnableSkill(CustomSkill.Athlete, "Athlète", "google15h9-KjZ0sjS1yvstLjLEf3mumjJ4Xq5E-pbmgfAv9Xw", Category.StartingTraits, "athlete", 1, 1, Ability.Strength, Ability.Constitution, HandleAthleteBackground));
+      learnableDictionary.Add(CustomSkill.Outlander, new LearnableSkill(CustomSkill.Outlander, "Sauvage", "google1qm3URzCigQ_xIz-BPT4kjLdXhtvyfFBI5F9ZEuxvweQ", Category.StartingTraits, "Sauvage", 1, 1, Ability.Strength, Ability.Wisdom, HandleOutlanderBackground));
+      learnableDictionary.Add(CustomSkill.Soldier, new LearnableSkill(CustomSkill.Soldier, "Soldat", "google1QKnLB4iEuX8pNmqPXDfV8SSSeDcsT0_9e5xMNsCLa0c", Category.StartingTraits, "Soldat", 1, 1, Ability.Strength, Ability.Constitution, HandleSoldierBackground));
+      learnableDictionary.Add(CustomSkill.Mercenary, new LearnableSkill(CustomSkill.Mercenary, "Mercenaire", "google1vDKqHBxFtjmhn25r0dhVruaMgzfSWxFV7D2grdPtDso", Category.StartingTraits, "Mercenaire", 1, 1, Ability.Strength, Ability.Dexterity, HandleMercenaryBackground));
+      learnableDictionary.Add(CustomSkill.FolkHero, new LearnableSkill(CustomSkill.FolkHero, "Héros du peuple", "google1S4BK_DoT2tnV1EjMYvvVTrg-mR0tI-3uRBCyry5twi0", Category.StartingTraits, "folk_hero", 1, 1, Ability.Strength, Ability.Dexterity, HandleFolkHeroBackground));
+      learnableDictionary.Add(CustomSkill.Sailor, new LearnableSkill(CustomSkill.Sailor, "Marin", "google15sc6ymheE3JJpcg8qR_ATyB5xxj-aZAc5Ei2XFcsHpE", Category.StartingTraits, "Marin", 1, 1, Ability.Dexterity, Ability.Constitution, HandleSailorBackground));
+      learnableDictionary.Add(CustomSkill.Shipwright, new LearnableSkill(CustomSkill.Shipwright, "Charpentier Naval", "google1pA026_rZo7PlCrpwbq3zJz2P_UCcyLxITX3EKabuXP4", Category.StartingTraits, "carpenter", 1, 1, Ability.Strength, Ability.Dexterity, HandleShipwrightBackground));
+      learnableDictionary.Add(CustomSkill.Fisher, new LearnableSkill(CustomSkill.Fisher, "Pêcheur", "google19uXzfsD2RzNYb3ledV2CMHjEXrJCCCb6uYDlpIYmxmw", Category.StartingTraits, "fisher", 1, 1, Ability.Constitution, Ability.Wisdom, HandleFisherBackground));
+      learnableDictionary.Add(CustomSkill.Marine, new LearnableSkill(CustomSkill.Marine, "Officier de la marine", "google1g4Hoj6WS1uAAcvpNyrTGju0Mh81H9aIecK9B---sAgk", Category.StartingTraits, "officer", 1, 1, Ability.Strength, Ability.Constitution, HandleMarineBackground));
+      learnableDictionary.Add(CustomSkill.Criminal, new LearnableSkill(CustomSkill.Criminal, "Criminel", "google1l0m9pkIcfVy37ZjPl9wEB7s-PD2OwRt9Tco_KUhT-xI", Category.StartingTraits, "Criminel", 1, 1, Ability.Dexterity, Ability.Strength, HandleCriminalBackground));
+      learnableDictionary.Add(CustomSkill.Charlatan, new LearnableSkill(CustomSkill.Charlatan, "Charlatan", "google1ps07V3Lbp18RMIwrkYYGGyxC3tk5L8Y97zpJHw0eqO8", Category.StartingTraits, "Charlatan", 1, 1, Ability.Charisma, Ability.Intelligence, HandleCharlatanBackground));
+      learnableDictionary.Add(CustomSkill.Smuggler, new LearnableSkill(CustomSkill.Smuggler, "Contrebandier", "google1BRYovMiish9iFnN5Q77cW14vP6bGjO14m32NzGJFiV4", Category.StartingTraits, "contrebandier", 1, 1, Ability.Charisma, Ability.Dexterity, HandleSmugglerBackground));
+      learnableDictionary.Add(CustomSkill.StreetUrchin, new LearnableSkill(CustomSkill.StreetUrchin, "Gosse des rues", "google1vtim0ITSkBzl5IlPGjhKuZOTCyBYA_GHLc8M09t1IoM", Category.StartingTraits, "urchin", 1, 1, Ability.Dexterity, Ability.Charisma, HandleUrchinBackground));
+      learnableDictionary.Add(CustomSkill.Gambler, new LearnableSkill(CustomSkill.Gambler, "Parieur", "google1HkPJH8uqCCn4k4J8HUh3g52v4TfAEFAYiFJlXYhEvuM", Category.StartingTraits, "parieur", 1, 1, Ability.Dexterity, Ability.Charisma, HandleGamblerBackground));
+      learnableDictionary.Add(CustomSkill.Entertainer, new LearnableSkill(CustomSkill.Entertainer, "Saltimbanque", "google1Y87LKyg4DLKdlzUcfFtMj7M1rkSh6yAXx6Cb6Q16Dug", Category.StartingTraits, "Saltimbanque", 1, 1, Ability.Charisma, Ability.Dexterity, HandleEntertainerBackground));
+      learnableDictionary.Add(CustomSkill.CityWatch, new LearnableSkill(CustomSkill.CityWatch, "Agent du guet", "google1JmIBbWSJ6oec820F-4TYeShM43XAKtOtCz2vBf2lPT4", Category.StartingTraits, "guet", 1, 1, Ability.Strength, Ability.Constitution, HandleCityWatchBackground));
+      learnableDictionary.Add(CustomSkill.Investigator, new LearnableSkill(CustomSkill.Investigator, "Détective", "google1wMwqmw3jVGFAnQCDa-ayjqeKUL2QGXPyP7KIc7QoDy8", Category.StartingTraits, "detective", 1, 1, Ability.Dexterity, Ability.Intelligence, HandleInvestigatorBackground));
+      learnableDictionary.Add(CustomSkill.KnightOfTheOrder, new LearnableSkill(CustomSkill.KnightOfTheOrder, "Chevalier de l'Ordre", "google1psb8aH-EaKINYKif3XC-MG3mtTFgh-5MYAehcJnCxl4", Category.StartingTraits, "chevalier", 1, 1, Ability.Strength, Ability.Charisma, HandleKnightBackground));
+      learnableDictionary.Add(CustomSkill.Noble, new LearnableSkill(CustomSkill.Noble, "Noble", "google1_KAkFnH9Ydt2s0ljOGvwn-7mo_Vk5PrqtqIwJZ48k-Q", Category.StartingTraits, "Noble", 1, 1, Ability.Charisma, Ability.Constitution, HandleNobleBackground));
+      learnableDictionary.Add(CustomSkill.Courtier, new LearnableSkill(CustomSkill.Courtier, "Courtisan", "google1B1C2bcvU9HBb-d2m1lnFhnHWN2a46hp3zWDb9nBZnJU", Category.StartingTraits, "Courtisan", 1, 1, Ability.Charisma, Ability.Intelligence, HandleCourtierBackground));
+      learnableDictionary.Add(CustomSkill.FailedMerchant, new LearnableSkill(CustomSkill.FailedMerchant, "Marchand ruiné", "google1-2AuXuxSW1PICZWicsGUcb8Sgh_rGTVUYc6eT2zWJO8", Category.StartingTraits, "ruined_merchant", 1, 1, Ability.Intelligence, Ability.Constitution, HandleMerchantBackground));
+      learnableDictionary.Add(CustomSkill.Taken, new LearnableSkill(CustomSkill.Taken, "Captif", "google16_6ygOZjsfJF7Ngk5VZ9gSK_nlAz7kqy5-sSDlVVPxw", Category.StartingTraits, "Captif", 1, 1, Ability.Constitution, Ability.Dexterity, HandleTakenBackground));
+      learnableDictionary.Add(CustomSkill.Heir, new LearnableSkill(CustomSkill.Heir, "Héritier", "google1_D4_FywpDXAJXABkhpuwMAUkg68dsRiU07p-9Q-XSiA", Category.StartingTraits, "heir", 1, 1, Ability.Charisma, Ability.Constitution, HandleScionBackground));
+      learnableDictionary.Add(CustomSkill.Magistrate, new LearnableSkill(CustomSkill.Magistrate, "Magistrat", "google16w21xr6HgBE159pLr1Br0mf7T00zsIzonGdXTGekIYs", Category.StartingTraits, "Magristrat", 1, 1, Ability.Intelligence, Ability.Wisdom, HandleMagistrateBackground));
+      learnableDictionary.Add(CustomSkill.AdventurerScion, new LearnableSkill(CustomSkill.AdventurerScion, "Héritier d'un célèbre aventurier", "google1S7UROAImbnZdGf5Q_CkScJ_gfmfRDBcHGhQ9LpqHoAg", Category.StartingTraits, "scion", 1, 1, Ability.Charisma, Ability.Dexterity, HandleScionBackground));
+      learnableDictionary.Add(CustomSkill.Refugee, new LearnableSkill(CustomSkill.Refugee, "Réfugié", "google1GCBVKWeDNR20kqOqKwIex8qlCbOltNmUpkblINEShYM", Category.StartingTraits, "refugee", 1, 1, Ability.Dexterity, Ability.Constitution, HandleRefugeeBackground));
+      learnableDictionary.Add(CustomSkill.Prisoner, new LearnableSkill(CustomSkill.Prisoner, "Prisonnier", "google1Qdyz-fNuGrqI64NYaAP6wmiQd7GhUz0-hqf5F-vrYps", Category.StartingTraits, "prisoner", 1, 1, Ability.Constitution, Ability.Charisma, HandlePrisonerBackground));
+      learnableDictionary.Add(CustomSkill.HauntedOne, new LearnableSkill(CustomSkill.HauntedOne, "Tourmenté", "google1yrgm7p09M0_-Y4nDkxY7gtT1LaO1Av305zBDBoqe72M", Category.StartingTraits, "tormented", 1, 1, Ability.Constitution, Ability.Charisma, HandleHauntedBackground));
+      learnableDictionary.Add(CustomSkill.Faceless, new LearnableSkill(CustomSkill.Faceless, "Sans-visage", "google1ghCYrBt8e58F5QQB5gvyn294XZO7jHkdvSIYZfYgS9g", Category.StartingTraits, "faceless", 1, 1, Ability.Charisma, Ability.Constitution, HandleFacelessBackground));
+      learnableDictionary.Add(CustomSkill.SecretIdentity, new LearnableSkill(CustomSkill.SecretIdentity, "Identité Secrète", "google1EevCfGvIUXDSx2iEJwPMwN3BDuNGBMR_GSQKZqiIsYQ", Category.StartingTraits, "secret_identity", 1, 1, Ability.Charisma, Ability.Dexterity, HandleSecretBackground));
 
       learnableDictionary.Add(CustomSkill.Elfique, new LearnableSkill(CustomSkill.Elfique, "Elfique", "Permet de parler et comprendre l'elfique.", Category.Language, "icon_elf", 1, 763, Ability.Intelligence, Ability.Wisdom));
       learnableDictionary.Add(CustomSkill.Nain, new LearnableSkill(CustomSkill.Nain, "Nain", "Permet de parler et comprendre le nain.", Category.Language, "icon_elf", 1, 763, Ability.Intelligence, Ability.Wisdom));
@@ -303,50 +156,21 @@ namespace NWN.Systems
       //learnableDictionary.Add(CustomSkill.ImprovedAttackBonus, new LearnableSkill(CustomSkill.ImprovedAttackBonus, "Attaque améliorée", "Augmente la pénétration d'armure d'un point par niveau.", Category.Fight, "ife_tough", 12, 2, Ability.Constitution, Ability.Dexterity, false, HandleImproveAttack));
       //learnableDictionary.Add(CustomSkill.ImprovedCasterLevel, new LearnableSkill(CustomSkill.ImprovedCasterLevel, "Maîtrise des sorts", "Augmente le niveau de lanceur de sorts d'un point par niveau.", Category.Magic, "ife_tough", 12, 3, Ability.Constitution, Ability.Charisma));
 
-      learnableDictionary.Add(CustomSkill.ClothingArmorProficiency, new LearnableSkill(CustomSkill.ClothingArmorProficiency, "Entraînement au vêtement", "Votre capacité à exploiter des vêtements chargés d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par le vêtement, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_armor_l", 5, 1, Ability.Dexterity, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.ExpertClothingArmorProficiency, new LearnableSkill(CustomSkill.ExpertClothingArmorProficiency, "Entraînement au vêtement - Expert", "Votre capacité à exploiter des vêtements chargés d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par le vêtement, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_armor_l", 5, 2, Ability.Dexterity, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.ScienceClothingArmorProficiency, new LearnableSkill(CustomSkill.ScienceClothingArmorProficiency, "Entraînement au vêtement - Science", "Votre capacité à exploiter des vêtements chargés d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par le vêtement, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_armor_l", 5, 3, Ability.Dexterity, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.MasterClothingArmorProficiency, new LearnableSkill(CustomSkill.MasterClothingArmorProficiency, "Entraînement au vêtement - Maître", "Votre capacité à exploiter des vêtements chargés d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par le vêtement, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_armor_l", 5, 4, Ability.Dexterity, Ability.Constitution));
-      
-      learnableDictionary.Add(CustomSkill.LightArmorProficiency, new LearnableSkill(CustomSkill.LightArmorProficiency, "Entraînement à l'armure légère", "Votre capacité à exploiter des armures légères chargées d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par l'armure, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_armor_l", 5, 1, Ability.Dexterity, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.ExpertLightArmorProficiency, new LearnableSkill(CustomSkill.ExpertLightArmorProficiency, "Entraînement à l'armure légère - Expert", "Votre capacité à exploiter des armures légères chargées d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par l'armure, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_armor_l", 5, 2, Ability.Dexterity, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.ScienceLightArmorProficiency, new LearnableSkill(CustomSkill.ScienceLightArmorProficiency, "Entraînement à l'armure légère - Science", "Votre capacité à exploiter des armures légères chargées d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par l'armure, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_armor_l", 5, 3, Ability.Dexterity, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.MasterLightArmorProficiency, new LearnableSkill(CustomSkill.MasterLightArmorProficiency, "Entraînement à l'armure légère - Maître", "Votre capacité à exploiter des armures légères chargées d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par l'armure, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_armor_l", 5, 4, Ability.Dexterity, Ability.Constitution));
-      
-      learnableDictionary.Add(CustomSkill.MediumArmorProficiency, new LearnableSkill(CustomSkill.MediumArmorProficiency, "Entraînement à l'armure intermédiaire", "Votre capacité à exploiter des armures intermédiaires chargées d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par l'armure, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_armor_m", 5, 2, Ability.Constitution, Ability.Dexterity));
-      learnableDictionary.Add(CustomSkill.ExpertMediumArmorProficiency, new LearnableSkill(CustomSkill.ExpertMediumArmorProficiency, "Entraînement à l'armure intermédiaire - Expert", "Votre capacité à exploiter des armures intermédiaires chargées d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par l'armure, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_armor_m", 5, 3, Ability.Constitution, Ability.Dexterity));
-      learnableDictionary.Add(CustomSkill.ScienceMediumArmorProficiency, new LearnableSkill(CustomSkill.ScienceMediumArmorProficiency, "Entraînement à l'armure intermédiaire - Science", "Votre capacité à exploiter des armures intermédiaires chargées d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par l'armure, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_armor_m", 5, 4, Ability.Constitution, Ability.Dexterity));
-      learnableDictionary.Add(CustomSkill.MasterMediumArmorProficiency, new LearnableSkill(CustomSkill.MasterMediumArmorProficiency, "Entraînement à l'armure intermédiaire - Maître", "Votre capacité à exploiter des armures intermédiaires chargées d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par l'armure, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_armor_m", 5, 5, Ability.Constitution, Ability.Dexterity));
-      
-      learnableDictionary.Add(CustomSkill.HeavyArmorProficiency, new LearnableSkill(CustomSkill.HeavyArmorProficiency, "Entraînement à l'armure lourde", "Votre capacité à exploiter des armures lourdes chargées d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par l'armure, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_armor_h", 5, 3, Ability.Constitution, Ability.Strength));
-      learnableDictionary.Add(CustomSkill.ExpertHeavyArmorProficiency, new LearnableSkill(CustomSkill.ExpertHeavyArmorProficiency, "Entraînement à l'armure lourde - Expert", "Votre capacité à exploiter des armures lourdes chargées d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par l'armure, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_armor_h", 5, 4, Ability.Constitution, Ability.Strength));
-      learnableDictionary.Add(CustomSkill.ScienceHeavyArmorProficiency, new LearnableSkill(CustomSkill.ScienceHeavyArmorProficiency, "Entraînement à l'armure lourde - Scionce", "Votre capacité à exploiter des armures lourdes chargées d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par l'armure, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_armor_h", 5, 4, Ability.Constitution, Ability.Strength));
-      learnableDictionary.Add(CustomSkill.MasterHeavyArmorProficiency, new LearnableSkill(CustomSkill.MasterHeavyArmorProficiency, "Entraînement à l'armure lourde - Expert", "Votre capacité à exploiter des armures lourdes chargées d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par l'armure, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_armor_h", 5, 5, Ability.Constitution, Ability.Strength));
+      learnableDictionary.Add(CustomSkill.LightArmorProficiency, new LearnableSkill(CustomSkill.LightArmorProficiency, "Armure légère - Maîtrise", "Utiliser un bouclier en combat sans en avoir la maîtrise vous expose à un désavantage sur :\n-Tous les jets de forces et de dextérité\n- Tous les jets de sauvegarde\n- Tous les jets d'attaques utilisant la force ou la dextérité\n- L'impossibilité d'incanter des sorts", Category.Fight, "ife_armor_l", 1, 250, Ability.Dexterity, Ability.Constitution, HandleLightArmorProficiency));
+      learnableDictionary.Add(CustomSkill.MediumArmorProficiency, new LearnableSkill(CustomSkill.MediumArmorProficiency, "Armure intermédiaire - Maîtrise", "Utiliser un bouclier en combat sans en avoir la maîtrise vous expose à un désavantage sur :\n-Tous les jets de forces et de dextérité\n- Tous les jets de sauvegarde\n- Tous les jets d'attaques utilisant la force ou la dextérité\n- L'impossibilité d'incanter des sorts", Category.Fight, "ife_armor_m", 1, 500, Ability.Constitution, Ability.Dexterity, HandleMediumArmorProficiency));
+      learnableDictionary.Add(CustomSkill.HeavyArmorProficiency, new LearnableSkill(CustomSkill.HeavyArmorProficiency, "Armure lourde - Maîtrise", "Utiliser une armure lourde en combat sans en avoir la maîtrise vous expose à un désavantage sur :\n-Tous les jets de forces et de dextérité\n- Tous les jets de sauvegarde\n- Tous les jets d'attaques utilisant la force ou la dextérité\n- L'impossibilité d'incanter des sorts", Category.Fight, "ife_armor_h", 1, 750, Ability.Constitution, Ability.Strength, HandleHeavyArmorProficiency));
+      learnableDictionary.Add(CustomSkill.ShieldProficiency, new LearnableSkill(CustomSkill.ShieldProficiency, "Bouclier - Maîtrise", "Utiliser un bouclier en combat sans en avoir la maîtrise vous expose à un désavantage sur :\n-Tous les jets de forces et de dextérité\n- Tous les jets de sauvegarde\n- Tous les jets d'attaques utilisant la force ou la dextérité\n- L'impossibilité d'incanter des sorts", Category.Fight, "ife_sh_prof", 1, 250, Ability.Constitution, Ability.Strength, HandleShieldProficiency));
 
-      learnableDictionary.Add(CustomSkill.FullPlateProficiency, new LearnableSkill(CustomSkill.FullPlateProficiency, "Entraînement au harnois", "Votre capacité à exploiter des harnois chargées d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par le harnois, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_X2ArSkin", 5, 4, Ability.Constitution, Ability.Strength));
-      learnableDictionary.Add(CustomSkill.ExpertFullPlateProficiency, new LearnableSkill(CustomSkill.ExpertFullPlateProficiency, "Entraînement au harnois - Expert", "Votre capacité à exploiter des harnois chargées d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par le harnois, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_X2ArSkin", 5, 4, Ability.Constitution, Ability.Strength));
-      learnableDictionary.Add(CustomSkill.ScienceFullPlateProficiency, new LearnableSkill(CustomSkill.ScienceFullPlateProficiency, "Entraînement au harnois - Science", "Votre capacité à exploiter des harnois chargées d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par le harnois, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_X2ArSkin", 5, 5, Ability.Constitution, Ability.Strength));
-      learnableDictionary.Add(CustomSkill.MasterFullPlateProficiency, new LearnableSkill(CustomSkill.MasterFullPlateProficiency, "Entraînement au harnois - Maître", "Votre capacité à exploiter des harnois chargées d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par le harnois, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_X2ArSkin", 5, 5, Ability.Constitution, Ability.Strength));
+      learnableDictionary.Add(CustomSkill.SimpleWeaponProficiency, new LearnableSkill(CustomSkill.SimpleWeaponProficiency, "Arme simple - Maîtrise", "Vous permet d'ajouter votre bonus de maîtrise à vos attaques avec les armes simples, ainsi que d'utiliser leurs attaques spéciales.", Category.Fight, "ife_armor_l", 1, 250, Ability.Constitution, Ability.Dexterity, HandleSimpleWeaponProficiency));
+      learnableDictionary.Add(CustomSkill.MartialWeaponProficiency, new LearnableSkill(CustomSkill.MartialWeaponProficiency, "Arme martiale - Maîtrise", "Vous permet d'ajouter votre bonus de maîtrise à vos attaques avec les armes martiales, ainsi que d'utiliser leurs attaques spéciales.", Category.Fight, "ife_armor_l", 1, 500, Ability.Constitution, Ability.Strength, HandleMartialProficiency));
+      learnableDictionary.Add(CustomSkill.ExoticWeaponProficiency, new LearnableSkill(CustomSkill.ExoticWeaponProficiency, "Arme exotique - Maîtrise", "Vous permet d'ajouter votre bonus de maîtrise à vos attaques avec les armes exotiques, ainsi que d'utiliser leurs attaques spéciales.", Category.Fight, "ife_armor_l", 1, 750, Ability.Constitution, Ability.Strength, HandleExoticProficiency));
 
-      learnableDictionary.Add(CustomSkill.LightShieldProficiency, new LearnableSkill(CustomSkill.LightShieldProficiency, "Entraînement à la rondache", "Votre capacité à exploiter des rondaches chargées d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par la rondache, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_sh_prof", 5, 1, Ability.Constitution, Ability.Dexterity));
-      learnableDictionary.Add(CustomSkill.ExpertLightShieldProficiency, new LearnableSkill(CustomSkill.ExpertLightShieldProficiency, "Entraînement à la rondache - Expert", "Votre capacité à exploiter des rondaches chargées d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par la rondache, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_sh_prof", 5, 2, Ability.Constitution, Ability.Dexterity));
-      learnableDictionary.Add(CustomSkill.ScienceLightShieldProficiency, new LearnableSkill(CustomSkill.ScienceLightShieldProficiency, "Entraînement à la rondache - Science", "Votre capacité à exploiter des rondaches chargées d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par la rondache, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_sh_prof", 5, 3, Ability.Constitution, Ability.Dexterity));
-      learnableDictionary.Add(CustomSkill.MasterLightShieldProficiency, new LearnableSkill(CustomSkill.MasterLightShieldProficiency, "Entraînement à la rondache - Maître", "Votre capacité à exploiter des rondaches chargées d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par la rondache, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_sh_prof", 5, 4, Ability.Constitution, Ability.Dexterity));
-      
-      learnableDictionary.Add(CustomSkill.MediumShieldProficiency, new LearnableSkill(CustomSkill.MediumShieldProficiency, "Entraînement à l'écu", "Votre capacité à exploiter des écus chargés d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par l'écu, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_X1DivShl", 5, 2, Ability.Constitution, Ability.Strength));
-      learnableDictionary.Add(CustomSkill.ExpertMediumShieldProficiency, new LearnableSkill(CustomSkill.ExpertMediumShieldProficiency, "Entraînement à l'écu - Expert", "Votre capacité à exploiter des écus chargés d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par l'écu, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_X1DivShl", 5, 3, Ability.Constitution, Ability.Strength));
-      learnableDictionary.Add(CustomSkill.ScienceMediumShieldProficiency, new LearnableSkill(CustomSkill.ScienceMediumShieldProficiency, "Entraînement à l'écu - Science", "Votre capacité à exploiter des écus chargés d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par l'écu, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_X1DivShl", 5, 4, Ability.Constitution, Ability.Strength));
-      learnableDictionary.Add(CustomSkill.MasterMediumShieldProficiency, new LearnableSkill(CustomSkill.MasterMediumShieldProficiency, "Entraînement à l'écu - Maître", "Votre capacité à exploiter des écus chargés d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par l'écu, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_X1DivShl", 5, 5, Ability.Constitution, Ability.Strength));
+      // FIGHTER
 
-      learnableDictionary.Add(CustomSkill.HeavyShieldProficiency, new LearnableSkill(CustomSkill.HeavyShieldProficiency, "Entraînement au pavois", "Votre capacité à exploiter des pavois chargés d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par le pavois, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_x3_pdkhshld", 5, 3, Ability.Constitution, Ability.Strength));
-      learnableDictionary.Add(CustomSkill.ExpertHeavyShieldProficiency, new LearnableSkill(CustomSkill.ExpertHeavyShieldProficiency, "Entraînement au pavois - Expert", "Votre capacité à exploiter des pavois chargés d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par le pavois, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_x3_pdkhshld", 5, 4, Ability.Constitution, Ability.Strength));
-      learnableDictionary.Add(CustomSkill.ScienceHeavyShieldProficiency, new LearnableSkill(CustomSkill.ScienceHeavyShieldProficiency, "Entraînement au pavois - Science", "Votre capacité à exploiter des pavois chargés d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par le pavois, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_x3_pdkhshld", 5, 4, Ability.Constitution, Ability.Strength));
-      learnableDictionary.Add(CustomSkill.MasterHeavyShieldProficiency, new LearnableSkill(CustomSkill.MasterHeavyShieldProficiency, "Entraînement au pavois - Maître", "Votre capacité à exploiter des pavois chargés d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par le pavois, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_x3_pdkhshld", 5, 5, Ability.Constitution, Ability.Strength));
-      
-      learnableDictionary.Add(CustomSkill.DualWieldDefenseProficiency, new LearnableSkill(CustomSkill.DualWieldDefenseProficiency, "Défense ambidextre", "Votre capacité à exploiter une arme secondaire chargée d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par l'arme secondaire, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_x3_pdkhshld", 5, 2, Ability.Dexterity, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.ExpertDualWieldDefenseProficiency, new LearnableSkill(CustomSkill.ExpertDualWieldDefenseProficiency, "Défense ambidextre - Expert", "Votre capacité à exploiter une arme secondaire chargée d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par l'arme secondaire, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_x3_pdkhshld", 5, 3, Ability.Dexterity, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.ScienceDualWieldDefenseProficiency, new LearnableSkill(CustomSkill.ScienceDualWieldDefenseProficiency, "Défense ambidextre - Science", "Votre capacité à exploiter une arme secondaire chargée d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par l'arme secondaire, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_x3_pdkhshld", 5, 4, Ability.Dexterity, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.MasterDualWieldDefenseProficiency, new LearnableSkill(CustomSkill.MasterDualWieldDefenseProficiency, "Défense ambidextre - Maître", "Votre capacité à exploiter une arme secondaire chargée d'influx au combat.\n\nSi votre niveau d'entraînement est inférieur à celui requis par l'arme secondaire, vous ne serez capable d'exploiter que 30 % de ses capacités.", Category.Fight, "ife_x3_pdkhshld", 5, 5, Ability.Dexterity, Ability.Constitution));
+      learnableDictionary.Add(CustomSkill.Fighter, new LearnableSkill(CustomSkill.Fighter, "Guerrier", "Un humain équipé d'un harnois clinquant brandit son bouclier devant lui tout en fonçant vers des gobelins massés. Un elfe, derrière lui, vêtu d'une armure de cuir clouté, arrose ces mêmes gobelins avec les flèches qu'il décoche de son précieux arc. Le demi-orc à proximité lance des ordres, aidant les deux combattants à coordonner leur assaut au mieux. Un nain en cotte de mailles interpose son bouclier entre la massue d'un ogre et son compagnon, puis assène un coup mortel de côté. Son compagnon, un demi-elfe en armure d'écailles, fait virevolter deux cimeterres dans un tourbillon aveuglant tout en contournant l'ogre, à la recherche d'un point faible dans sa défense. Un combat de gladiateurs pour le spectacle dans une arène, un maître du trident avec son filet, entraîné à renverser ses ennemis et à se déplacer autour d'eux pour le plaisir et de la foule, et pour son propre avantage tactique.\r\n\r\nTous ces héros sont des guerriers, peut-être la classe de personnage la plus diversifiée de Dungeons & Dragons. Chevaliers menant une quête, seigneurs conquérants, champions royaux, fantassins d'élite, mercenaires endurcis et rois-bandits, tous partagent une maîtrise inégalée des armes et des armures ainsi qu'une connaissance approfondie des compétences de combat. Tous connaissent bien la mort, l'infligeant autant qu'ils lui font face.\n\nDes spécialistes complets\n\nLes guerriers apprennent l'essentiel de tous les styles de combat. Chaque guerrier peut balancer un coup de hache, parer avec une rapière, manier une épée longue ou une épée à deux mains, utiliser un arc et même piéger des adversaires dans un filet avec un certain degré d'habileté. De même, un guerrier connaît le maniement des boucliers et l'utilisation de toutes les formes d'armure. En plus de ce degré de familiarité de base, chaque guerrier se spécialise dans un certain style de combat. L'un sera concentré sur le tir à l'arc, un autre en combat avec deux armes à la fois et un autre augmentera ses compétences martiales avec de la magie. Cette combinaison de larges capacités générales et de spécialisations variées fait des guerriers les combattants supérieurs sur les champs de bataille et dans les donjons.\n\nEntraîné pour le danger\n\nChaque membre du gué de la cité, de la milice du village ou de l'armée de la reine n'est pas un guerrier. La plupart de ces troupes sont des soldats relativement peu formés avec seulement une connaissance de base du combat. Les soldats vétérans, les officiers militaires, les gardes du corps entraînés, les chevaliers dévoués et autres figures semblables sont des guerriers. Certains guerriers se sentent poussés à utiliser leur formation comme aventuriers. Fouiller des donjons, trucider des monstres et autres travaux dangereux communs pour les aventuriers est une seconde nature pour un guerrier, pas si différente de la vie qu'il ou elle a laissée derrière. Il y a de plus grands risques, peut-être, mais aussi de plus grandes récompenses ; peu de guerriers dans le gué de la cité ont l'occasion de découvrir une épée ardente par exemple.\n\nCréer un guerrier\n\nLorsque vous créez un guerrier, pensez aux éléments de l'historique de votre personnage : où avez-vous obtenu votre formation de combat, et qu’est-ce qui vous démarque des combattants lambda autour de vous ? Êtes-vous particulièrement impitoyable ? Avez-vous obtenu une aide spéciale d’un mentor, peut-être en raison de votre dévouement exceptionnel ? Qu'est-ce qui vous a poussé vers cette formation en premier lieu ? Une menace pour votre patrie, une soif de vengeance ou la nécessité de faire vos preuves sont autant de facteurs de vocation. Vous avez peut-être bénéficié d’une formation dans l'armée d'un noble ou dans une milice locale. Peut-être avez-vous été formé dans une école militaire où l’on vous a enseigné la stratégie, la tactique et l'histoire militaire. Êtes-vous autodidacte ? Avez-vous pris l'épée pour échapper à la vie de la ferme, ou suivez-vous une tradition familiale ? Où avez-vous obtenu vos armes et votre armure ? D’un fait d’armes ou s’agit-il d’objets de famille ? Ou peut-être avez-vous économisé pendant des années pour vous les acheter ? Votre armement est maintenant l’une de vos possessions les plus importantes, les seules choses qui vous séparent de l'étreinte de la mort.", Category.Class, "fighter", 12, 1, Ability.Strength, Ability.Dexterity, Fighter.LevelUp));
+      learnableDictionary.Add(CustomSkill.FighterSecondWind, new LearnableSkill(CustomSkill.FighterSecondWind, "Second Souffle", "Action bonus\nVous soigne de 1d10 + votre niveau de guerrier\nRécupération : repos court", Category.Fight, "ief_SecondWind", 1, 1, Ability.Constitution, Ability.Strength));
+
+      //learnableDictionary.Add(CustomSkill.FighterCombatStyles, new LearnableSkill(CustomSkill.FighterCombatStyles, "Choix - Style de combat", "Choississez un style de combat parmi Archerie, Défense, Duel, Arme à deux mains, Protection, Combat à deux armes.", Category.Fight, "ife_armor_l", 1, 10, Ability.Strength, Ability.Dexterity, Fighter.FighterLevelUp));
 
       /*learnableDictionary.Add(CustomSkill.UnharmedProficiency, new LearnableSkill(CustomSkill.UnharmedProficiency, "Entrainement au combat à mains nues", "Augmente les dégâts infligés à mains nues et augmente les probabilités de critique de 1 %.", Category.Fight, "ife_impcrit_Una", 5, 1, Ability.Constitution, Ability.Dexterity));
       learnableDictionary.Add(CustomSkill.QuarterStaffProficiency, new LearnableSkill(CustomSkill.QuarterStaffProficiency, "Entrainement au bâton", "Augmente les dégâts infligés avec un bâton et augmente les probabilités de critique de 1 %.", Category.Fight, "ife_wepfoc_Sta", 5, 1, Ability.Constitution, Ability.Dexterity));
@@ -356,16 +180,16 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomSkill.TridentProficiency, new LearnableSkill(CustomSkill.TridentProficiency, "Entrainement au trident", "Augmente les dégâts infligés avec un trident et augmente les probabilités de critique de 1 %.", Category.Fight, "ife_X2WFTri", 5, 2, Ability.Constitution, Ability.Strength));
       learnableDictionary.Add(CustomSkill.WhipProficiency, new LearnableSkill(CustomSkill.WhipProficiency, "Entrainement au fouet", "Augmente les dégâts infligés avec un fouet et augmente les probabilités de critique de 1 %.", Category.Fight, "ife_X2WFWhip", 5, 4, Ability.Constitution, Ability.Dexterity));
       */
-      learnableDictionary.Add(CustomSkill.ImprovedSpellSlot0, new LearnableSkill(CustomSkill.ImprovedSpellSlot0, "Emplacement Cercle 0", "Augmente le nombre d'emplacements de sorts de cercle 0 disponibles d'un par niveau.", Category.Magic, "ife_X2EnrRsC1", 10, 1, Ability.Charisma, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleAddedSpellSlot));
-      learnableDictionary.Add(CustomSkill.ImprovedSpellSlot1, new LearnableSkill(CustomSkill.ImprovedSpellSlot1, "Emplacement Cercle 1", "Augmente le nombre d'emplacements de sorts de cercle 1 disponibles d'un par niveau.", Category.Magic, "ife_X2EnrRsA1", 10, 2, Ability.Charisma, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleAddedSpellSlot));
-      learnableDictionary.Add(CustomSkill.ImprovedSpellSlot2, new LearnableSkill(CustomSkill.ImprovedSpellSlot2, "Emplacement Cercle 2", "Augmente le nombre d'emplacements de sorts de cercle 2 disponibles d'un par niveau.", Category.Magic, "ife_X2EnrRsF1", 10, 3, Ability.Charisma, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleAddedSpellSlot));
-      learnableDictionary.Add(CustomSkill.ImprovedSpellSlot3, new LearnableSkill(CustomSkill.ImprovedSpellSlot3, "Emplacement Cercle 3", "Augmente le nombre d'emplacements de sorts de cercle 3 disponibles d'un par niveau.", Category.Magic, "ife_X2EnrRsE1", 10, 4, Ability.Charisma, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleAddedSpellSlot));
-      learnableDictionary.Add(CustomSkill.ImprovedSpellSlot4, new LearnableSkill(CustomSkill.ImprovedSpellSlot4, "Emplacement Cercle 4", "Augmente le nombre d'emplacements de sorts de cercle 4 disponibles d'un par niveau.", Category.Magic, "ife_X2EnrRsS1", 10, 5, Ability.Charisma, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleAddedSpellSlot));
-      learnableDictionary.Add(CustomSkill.ImprovedSpellSlot5, new LearnableSkill(CustomSkill.ImprovedSpellSlot5, "Emplacement Cercle 5", "Augmente le nombre d'emplacements de sorts de cercle 5 disponibles d'un par niveau.", Category.Magic, "ife_X2EpSkFSpCr", 10, 6, Ability.Charisma, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleAddedSpellSlot));
-      learnableDictionary.Add(CustomSkill.ImprovedSpellSlot6, new LearnableSkill(CustomSkill.ImprovedSpellSlot6, "Emplacement Cercle 6", "Augmente le nombre d'emplacements de sorts de cercle 6 disponibles d'un par niveau.", Category.Magic, "ife_X2EpicFort", 10, 7, Ability.Charisma, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleAddedSpellSlot));
-      learnableDictionary.Add(CustomSkill.ImprovedSpellSlot7, new LearnableSkill(CustomSkill.ImprovedSpellSlot7, "Emplacement Cercle 7", "Augmente le nombre d'emplacements de sorts de cercle 7 disponibles d'un par niveau.", Category.Magic, "ife_X2EpicRefl", 10, 8, Ability.Charisma, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleAddedSpellSlot));
-      learnableDictionary.Add(CustomSkill.ImprovedSpellSlot8, new LearnableSkill(CustomSkill.ImprovedSpellSlot8, "Emplacement Cercle 8", "Augmente le nombre d'emplacements de sorts de cercle 8 disponibles d'un par niveau.", Category.Magic, "ife_X2EpicProw", 10, 9, Ability.Charisma, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleAddedSpellSlot));
-      learnableDictionary.Add(CustomSkill.ImprovedSpellSlot9, new LearnableSkill(CustomSkill.ImprovedSpellSlot9, "Emplacement Cercle 9", "Augmente le nombre d'emplacements de sorts de cercle 9 disponibles d'un par niveau.", Category.Magic, "ife_X2EpicRepu", 10, 10, Ability.Charisma, Ability.Constitution, Attribut.Invalid, Type.Invalid, false, HandleAddedSpellSlot));
+      learnableDictionary.Add(CustomSkill.ImprovedSpellSlot0, new LearnableSkill(CustomSkill.ImprovedSpellSlot0, "Emplacement Cercle 0", "Augmente le nombre d'emplacements de sorts de cercle 0 disponibles d'un par niveau.", Category.Magic, "ife_X2EnrRsC1", 10, 1, Ability.Charisma, Ability.Constitution, HandleAddedSpellSlot));
+      learnableDictionary.Add(CustomSkill.ImprovedSpellSlot1, new LearnableSkill(CustomSkill.ImprovedSpellSlot1, "Emplacement Cercle 1", "Augmente le nombre d'emplacements de sorts de cercle 1 disponibles d'un par niveau.", Category.Magic, "ife_X2EnrRsA1", 10, 2, Ability.Charisma, Ability.Constitution, HandleAddedSpellSlot));
+      learnableDictionary.Add(CustomSkill.ImprovedSpellSlot2, new LearnableSkill(CustomSkill.ImprovedSpellSlot2, "Emplacement Cercle 2", "Augmente le nombre d'emplacements de sorts de cercle 2 disponibles d'un par niveau.", Category.Magic, "ife_X2EnrRsF1", 10, 3, Ability.Charisma, Ability.Constitution, HandleAddedSpellSlot));
+      learnableDictionary.Add(CustomSkill.ImprovedSpellSlot3, new LearnableSkill(CustomSkill.ImprovedSpellSlot3, "Emplacement Cercle 3", "Augmente le nombre d'emplacements de sorts de cercle 3 disponibles d'un par niveau.", Category.Magic, "ife_X2EnrRsE1", 10, 4, Ability.Charisma, Ability.Constitution, HandleAddedSpellSlot));
+      learnableDictionary.Add(CustomSkill.ImprovedSpellSlot4, new LearnableSkill(CustomSkill.ImprovedSpellSlot4, "Emplacement Cercle 4", "Augmente le nombre d'emplacements de sorts de cercle 4 disponibles d'un par niveau.", Category.Magic, "ife_X2EnrRsS1", 10, 5, Ability.Charisma, Ability.Constitution, HandleAddedSpellSlot));
+      learnableDictionary.Add(CustomSkill.ImprovedSpellSlot5, new LearnableSkill(CustomSkill.ImprovedSpellSlot5, "Emplacement Cercle 5", "Augmente le nombre d'emplacements de sorts de cercle 5 disponibles d'un par niveau.", Category.Magic, "ife_X2EpSkFSpCr", 10, 6, Ability.Charisma, Ability.Constitution, HandleAddedSpellSlot));
+      learnableDictionary.Add(CustomSkill.ImprovedSpellSlot6, new LearnableSkill(CustomSkill.ImprovedSpellSlot6, "Emplacement Cercle 6", "Augmente le nombre d'emplacements de sorts de cercle 6 disponibles d'un par niveau.", Category.Magic, "ife_X2EpicFort", 10, 7, Ability.Charisma, Ability.Constitution, HandleAddedSpellSlot));
+      learnableDictionary.Add(CustomSkill.ImprovedSpellSlot7, new LearnableSkill(CustomSkill.ImprovedSpellSlot7, "Emplacement Cercle 7", "Augmente le nombre d'emplacements de sorts de cercle 7 disponibles d'un par niveau.", Category.Magic, "ife_X2EpicRefl", 10, 8, Ability.Charisma, Ability.Constitution, HandleAddedSpellSlot));
+      learnableDictionary.Add(CustomSkill.ImprovedSpellSlot8, new LearnableSkill(CustomSkill.ImprovedSpellSlot8, "Emplacement Cercle 8", "Augmente le nombre d'emplacements de sorts de cercle 8 disponibles d'un par niveau.", Category.Magic, "ife_X2EpicProw", 10, 9, Ability.Charisma, Ability.Constitution, HandleAddedSpellSlot));
+      learnableDictionary.Add(CustomSkill.ImprovedSpellSlot9, new LearnableSkill(CustomSkill.ImprovedSpellSlot9, "Emplacement Cercle 9", "Augmente le nombre d'emplacements de sorts de cercle 9 disponibles d'un par niveau.", Category.Magic, "ife_X2EpicRepu", 10, 10, Ability.Charisma, Ability.Constitution, HandleAddedSpellSlot));
 
       learnableDictionary.Add(CustomSkill.MateriaScanning, new LearnableSkill(CustomSkill.MateriaScanning, "Détection de matéria", "Permet l'utilisation des inscriptions de détection de matéria afin de trouver des dépôts de minerais riches en Substance.\nEn mode actif, chaque niveau augmente de 5 % la chance de révélation d'un dépôt de faible concentration et de 1 % celle de découvrir une qualité supérieure.\nChaque niveau augmente la précision de l'estimation de quantité de matéria du filon de 5 %.\nChaque niveau diminue de 5 % le temps de recherche nécessaire.", Category.Craft, "ife_X2EpicRepu", 5, 1, Ability.Wisdom, Ability.Intelligence));
 
@@ -575,213 +399,8 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomSkill.CraftKatana, new LearnableSkill(CustomSkill.CraftKatana, "Craft Katana", "Diminue le temps de fabrication, de réparation et le coût en matériaux de l'objet concerné de 1 % par niveau.", Category.Craft, "ife_X2EpicRepu", 10, 3, Ability.Strength, Ability.Constitution));
       learnableDictionary.Add(CustomSkill.CraftSpellScroll, new LearnableSkill(CustomSkill.CraftSpellScroll, "Craft Parchemin", "Diminue le temps de fabrication, de réparation et le coût en matériaux de l'objet concerné de 1 % par niveau.", Category.Craft, "ife_X2EpicRepu", 10, 2, Ability.Intelligence, Ability.Constitution));
 
-      // ATTRIBUTS
-      learnableDictionary.Add(CustomSkill.AirMagic, new LearnableSkill(CustomSkill.AirMagic, "Art de l'air", "Votre maîtrise des arcanes de l'air.\nChaque rang augmente la durée et l'efficacité de vos sorts liés à la magie de l'air.", Category.Magic, "ife_SeverA", 5, 2, Ability.Intelligence, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.AirMagicExpert, new LearnableSkill(CustomSkill.AirMagicExpert, "Art de l'air - Expert", "Votre maîtrise des arcanes de l'air.\nChaque rang augmente la durée et l'efficacité de vos sorts liés à la magie de l'air.", Category.Magic, "ife_SeverA", 5, 3, Ability.Intelligence, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.AirMagicScience, new LearnableSkill(CustomSkill.AirMagicScience, "Art de l'air - Science", "Votre maîtrise des arcanes de l'air.\nChaque rang augmente la durée et l'efficacité de vos sorts liés à la magie de l'air.", Category.Magic, "ife_SeverA", 5, 4, Ability.Intelligence, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.AirMagicMaster, new LearnableSkill(CustomSkill.AirMagicMaster, "Art de l'air - Maître", "Votre maîtrise des arcanes de l'air.\nChaque rang augmente la durée et l'efficacité de vos sorts liés à la magie de l'air.", Category.Magic, "ife_SeverA", 5, 5, Ability.Intelligence, Ability.Charisma));
-
-      learnableDictionary.Add(CustomSkill.FireMagic, new LearnableSkill(CustomSkill.FireMagic, "Art de feu", "Votre maîtrise des arcanes de feu.\nChaque rang augmente la durée et l'efficacité de vos sorts liés à la magie de feu.", Category.Magic, "ife_SeverA", 5, 2, Ability.Intelligence, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.FireMagicExpert, new LearnableSkill(CustomSkill.FireMagicExpert, "Art de feu - Expert", "Votre maîtrise des arcanes de feu.\nChaque rang augmente la durée et l'efficacité de vos sorts liés à la magie de feu.", Category.Magic, "ife_SeverA", 5, 3, Ability.Intelligence, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.FireMagicScience, new LearnableSkill(CustomSkill.FireMagicScience, "Art de feu - Science", "Votre maîtrise des arcanes de feu.\nChaque rang augmente la durée et l'efficacité de vos sorts liés à la magie de feu.", Category.Magic, "ife_SeverA", 5, 4, Ability.Intelligence, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.FireMagicMaster, new LearnableSkill(CustomSkill.FireMagicMaster, "Art de feu - Maître", "Votre maîtrise des arcanes de feu.\nChaque rang augmente la durée et l'efficacité de vos sorts liés à la magie de feu.", Category.Magic, "ife_SeverA", 5, 5, Ability.Intelligence, Ability.Charisma));
-
-      learnableDictionary.Add(CustomSkill.EarthMagic, new LearnableSkill(CustomSkill.EarthMagic, "Art de terre", "Votre maîtrise des arcanes de terre.\nChaque rang augmente la durée et l'efficacité de vos sorts liés à la magie de terre.", Category.Magic, "ife_SeverA", 5, 2, Ability.Intelligence, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.EarthMagicExpert, new LearnableSkill(CustomSkill.EarthMagicExpert, "Art de terre - Expert", "Votre maîtrise des arcanes de terre.\nChaque rang augmente la durée et l'efficacité de vos sorts liés à la magie de terre.", Category.Magic, "ife_SeverA", 5, 3, Ability.Intelligence, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.EarthMagicScience, new LearnableSkill(CustomSkill.EarthMagicScience, "Art de terre - Science", "Votre maîtrise des arcanes de terre.\nChaque rang augmente la durée et l'efficacité de vos sorts liés à la magie de terre.", Category.Magic, "ife_SeverA", 5, 4, Ability.Intelligence, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.EarthMagicMaster, new LearnableSkill(CustomSkill.EarthMagicMaster, "Art de terre - Maître", "Votre maîtrise des arcanes de terre.\nChaque rang augmente la durée et l'efficacité de vos sorts liés à la magie de terre.", Category.Magic, "ife_SeverA", 5, 5, Ability.Intelligence, Ability.Charisma));
-
-      learnableDictionary.Add(CustomSkill.WaterMagic, new LearnableSkill(CustomSkill.WaterMagic, "Art de l'eau", "Votre maîtrise des arcanes d'eau.\nChaque rang augmente la durée et l'efficacité de vos sorts liés à la magie de l'eau.", Category.Magic, "ife_SeverA", 5, 2, Ability.Intelligence, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.WaterMagicExpert, new LearnableSkill(CustomSkill.WaterMagicExpert, "Art de l'eau - Expert", "Votre maîtrise des arcanes d'eau.\nChaque rang augmente la durée et l'efficacité de vos sorts liés à la magie de l'eau.", Category.Magic, "ife_SeverA", 5, 3, Ability.Intelligence, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.WaterMagicScience, new LearnableSkill(CustomSkill.WaterMagicScience, "Art de l'eau - Science", "Votre maîtrise des arcanes d'eau.\nChaque rang augmente la durée et l'efficacité de vos sorts liés à la magie de l'eau.", Category.Magic, "ife_SeverA", 5, 4, Ability.Charisma, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.WaterMagicMaster, new LearnableSkill(CustomSkill.WaterMagicMaster, "Art de l'eau - Maître", "Votre maîtrise des arcanes d'eau.\nChaque rang augmente la durée et l'efficacité de vos sorts liés à la magie de l'eau.", Category.Magic, "ife_SeverA", 5, 5, Ability.Charisma, Ability.Charisma));
-
-      learnableDictionary.Add(CustomSkill.Athletics, new LearnableSkill(CustomSkill.Athletics, "Athlétisme", "Un jet de force (Athlétisme) couvre les difficultés physiques que vous rencontrez en grimpant, en sautant ou en nageant. Ce qui inclue les activités suivantes :\n- Vous essayez d'escalader une falaise abrupte ou glissante, d'éviter les dangers en escaladant un mur ou de vous accrocher à une surface pendant que quelque chose essaie de vous faire tomber.\n- Vous essayez de sauter sur une distance inhabituellement longue ou de réaliser une cascade au milieu d'un saut.\n- Vous avez du mal à nager ou à rester à glot dans des courants dangereux, des vagues agitées par des tempêtes ou des zones d'algues épaisses. Ou une autre créature essaie de vous pousser ou de tirer sous l'eau ou d'interférer d'une autre manière avec votre nage.\n\nChaque rang augmente de 4 % la pénétration d'armure par modificateur de force de base lorsque vous utilisez des capacités d'attaque.\nChaque rang augmente la durée et l'efficacité des compétences liées à l'athlétisme.", Category.Fight, "ife_SeverA", 5, 2, Ability.Strength, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.AthleticsExpert, new LearnableSkill(CustomSkill.AthleticsExpert, "Athlétisme - Expert", "Un jet de force (Athlétisme) couvre les difficultés physiques que vous rencontrez en grimpant, en sautant ou en nageant. Ce qui inclue les activités suivantes :\n- Vous essayez d'escalader une falaise abrupte ou glissante, d'éviter les dangers en escaladant un mur ou de vous accrocher à une surface pendant que quelque chose essaie de vous faire tomber.\n- Vous essayez de sauter sur une distance inhabituellement longue ou de réaliser une cascade au milieu d'un saut.\n- Vous avez du mal à nager ou à rester à glot dans des courants dangereux, des vagues agitées par des tempêtes ou des zones d'algues épaisses. Ou une autre créature essaie de vous pousser ou de tirer sous l'eau ou d'interférer d'une autre manière avec votre nage.\n\nChaque rang augmente de 4 % la pénétration d'armure par modificateur de force de base lorsque vous utilisez des capacités d'attaque.\nChaque rang augmente la durée et l'efficacité des compétences liées à l'athlétisme.", Category.Fight, "ife_SeverA", 5, 3, Ability.Strength, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.AthleticsScience, new LearnableSkill(CustomSkill.AthleticsScience, "Athlétisme - Science", "Un jet de force (Athlétisme) couvre les difficultés physiques que vous rencontrez en grimpant, en sautant ou en nageant. Ce qui inclue les activités suivantes :\n- Vous essayez d'escalader une falaise abrupte ou glissante, d'éviter les dangers en escaladant un mur ou de vous accrocher à une surface pendant que quelque chose essaie de vous faire tomber.\n- Vous essayez de sauter sur une distance inhabituellement longue ou de réaliser une cascade au milieu d'un saut.\n- Vous avez du mal à nager ou à rester à glot dans des courants dangereux, des vagues agitées par des tempêtes ou des zones d'algues épaisses. Ou une autre créature essaie de vous pousser ou de tirer sous l'eau ou d'interférer d'une autre manière avec votre nage.\n\nChaque rang augmente de 4 % la pénétration d'armure par modificateur de force de base lorsque vous utilisez des capacités d'attaque.\nChaque rang augmente la durée et l'efficacité des compétences liées à l'athlétisme.", Category.Fight, "ife_SeverA", 5, 4, Ability.Strength, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.AthleticsMaster, new LearnableSkill(CustomSkill.AthleticsMaster, "Athlétisme - Maître", "Un jet de force (Athlétisme) couvre les difficultés physiques que vous rencontrez en grimpant, en sautant ou en nageant. Ce qui inclue les activités suivantes :\n- Vous essayez d'escalader une falaise abrupte ou glissante, d'éviter les dangers en escaladant un mur ou de vous accrocher à une surface pendant que quelque chose essaie de vous faire tomber.\n- Vous essayez de sauter sur une distance inhabituellement longue ou de réaliser une cascade au milieu d'un saut.\n- Vous avez du mal à nager ou à rester à glot dans des courants dangereux, des vagues agitées par des tempêtes ou des zones d'algues épaisses. Ou une autre créature essaie de vous pousser ou de tirer sous l'eau ou d'interférer d'une autre manière avec votre nage.\n\nChaque rang augmente de 4 % la pénétration d'armure par modificateur de force de base lorsque vous utilisez des capacités d'attaque.\nChaque rang augmente la durée et l'efficacité des compétences liées à l'athlétisme.", Category.Fight, "ife_SeverA", 5, 5, Ability.Strength, Ability.Constitution));
-
-      learnableDictionary.Add(CustomSkill.Axemanship, new LearnableSkill(CustomSkill.Axemanship, "Maîtrise des haches", "Votre niveau de maîtrise des haches.\nChaque rang augmente les dégâts infligées avec les haches et leurs chances de critique de 1 %.\nChaque rang augmente la durée et l'efficacité des compétences liées aux haches.\n\nLes armes concernées par cet attribut sont :\n- La hachette\n- La hache d'arme\n-La grande hache\n- La hache double\n- La hache naine", Category.Fight, "ife_SeverA", 5, 2, Ability.Strength, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.AxemanshipExpert, new LearnableSkill(CustomSkill.AxemanshipExpert, "Maîtrise des haches - Expert", "Votre niveau de maîtrise des haches.\nChaque rang augmente les dégâts infligées avec les haches et leurs chances de critique de 1 %.\nChaque rang augmente la durée et l'efficacité des compétences liées aux haches.\n\nLes armes concernées par cet attribut sont :\n- La hachette\n- La hache d'arme\n-La grande hache\n- La hache double\n- La hache naine", Category.Fight, "ife_SeverA", 5, 3, Ability.Strength, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.AxemanshipScience, new LearnableSkill(CustomSkill.AxemanshipScience, "Maîtrise des haches - Science", "Votre niveau de maîtrise des haches.\nChaque rang augmente les dégâts infligées avec les haches et leurs chances de critique de 1 %.\nChaque rang augmente la durée et l'efficacité des compétences liées aux haches.\n\nLes armes concernées par cet attribut sont :\n- La hachette\n- La hache d'arme\n-La grande hache\n- La hache double\n- La hache naine", Category.Fight, "ife_SeverA", 5, 4, Ability.Strength, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.AxemanshipMaster, new LearnableSkill(CustomSkill.AxemanshipMaster, "Maîtrise des haches - Maître", "Votre niveau de maîtrise des haches.\nChaque rang augmente les dégâts infligées avec les haches et leurs chances de critique de 1 %.\nChaque rang augmente la durée et l'efficacité des compétences liées aux haches.\n\nLes armes concernées par cet attribut sont :\n- La hachette\n- La hache d'arme\n-La grande hache\n- La hache double\n- La hache naine", Category.Fight, "ife_SeverA", 5, 5, Ability.Strength, Ability.Constitution));
-
-      learnableDictionary.Add(CustomSkill.Hammermanship, new LearnableSkill(CustomSkill.Hammermanship, "Maîtrise des marteaux", "Votre niveau de maîtrise des armes contondantes.\nChaque rang augmente les dégâts infligés par les armes contondantes et leurs chances de critique de 1 %.\nChaque rang augmente la durée et l'efficacité des compétences liées aux armes contondantes.\n\nLes armes concernées par cet attribut sont : \n- Le gourdin\n- Le fléau léger\n- La masse\n- Le marteau léger\n- La morgenstern\n- Le marteau de guerre\nLe fléau lourd\n- La double masse", Category.Fight, "ife_SeverA", 5, 2, Ability.Strength, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.HammermanshipExpert, new LearnableSkill(CustomSkill.HammermanshipExpert, "Maîtrise des marteaux - Expert", "Votre niveau de maîtrise des armes contondantes.\nChaque rang augmente les dégâts infligés par les armes contondantes et leurs chances de critique de 1 %.\nChaque rang augmente la durée et l'efficacité des compétences liées aux armes contondantes.\n\nLes armes concernées par cet attribut sont : \n- Le gourdin\n- Le fléau léger\n- La masse\n- Le marteau léger\n- La morgenstern\n- Le marteau de guerre\nLe fléau lourd\n- La double masse", Category.Fight, "ife_SeverA", 5, 3, Ability.Strength, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.HammermanshipScience, new LearnableSkill(CustomSkill.HammermanshipScience, "Maîtrise des marteaux - Science", "Votre niveau de maîtrise des armes contondantes.\nChaque rang augmente les dégâts infligés par les armes contondantes et leurs chances de critique de 1 %.\nChaque rang augmente la durée et l'efficacité des compétences liées aux armes contondantes.\n\nLes armes concernées par cet attribut sont : \n- Le gourdin\n- Le fléau léger\n- La masse\n- Le marteau léger\n- La morgenstern\n- Le marteau de guerre\nLe fléau lourd\n- La double masse", Category.Fight, "ife_SeverA", 5, 4, Ability.Strength, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.HammermanshipMaster, new LearnableSkill(CustomSkill.HammermanshipMaster, "Maîtrise des marteaux - Maître", "Votre niveau de maîtrise des armes contondantes.\nChaque rang augmente les dégâts infligés par les armes contondantes et leurs chances de critique de 1 %.\nChaque rang augmente la durée et l'efficacité des compétences liées aux armes contondantes.\n\nLes armes concernées par cet attribut sont : \n- Le gourdin\n- Le fléau léger\n- La masse\n- Le marteau léger\n- La morgenstern\n- Le marteau de guerre\nLe fléau lourd\n- La double masse", Category.Fight, "ife_SeverA", 5, 5, Ability.Strength, Ability.Constitution));
-
-      learnableDictionary.Add(CustomSkill.Swordmanship, new LearnableSkill(CustomSkill.Swordmanship, "Maîtrise des épées", "Votre niveau de maîtrise des épées.\nChaque rang augmente les dégâts infligés avec les épées et leurs chances de critique de 1 %\nChaque rang augmente la durée et l'efficacité des compétences liées aux épées.\n\nArmes concernées par cet attribut : \n- Épée courte\n- Épée longue\n- Cimeterre\n- Épée bâtarde\n- Épée à deux mains\n- Épée double\n- Katana", Category.Fight, "ife_SeverA", 5, 2, Ability.Strength, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.SwordmanshipExpert, new LearnableSkill(CustomSkill.SwordmanshipExpert, "Maîtrise des épées - Expert", "Votre niveau de maîtrise des épées.\nChaque rang augmente les dégâts infligés avec les épées et leurs chances de critique de 1 %\nChaque rang augmente la durée et l'efficacité des compétences liées aux épées.\n\nArmes concernées par cet attribut : \n- Épée courte\n- Épée longue\n- Cimeterre\n- Épée bâtarde\n- Épée à deux mains\n- Épée double\n- Katana", Category.Fight, "ife_SeverA", 5, 3, Ability.Strength, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.SwordmanshipScience, new LearnableSkill(CustomSkill.SwordmanshipScience, "Maîtrise des épées - Science", "Votre niveau de maîtrise des épées.\nChaque rang augmente les dégâts infligés avec les épées et leurs chances de critique de 1 %\nChaque rang augmente la durée et l'efficacité des compétences liées  aux épées.\n\nArmes concernées par cet attribut : \n- Épée courte\n- Épée longue\n- Cimeterre\n- Épée bâtarde\n- Épée à deux mains\n- Épée double\n- Katana", Category.Fight, "ife_SeverA", 5, 4, Ability.Strength, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.SwordmanshipMaster, new LearnableSkill(CustomSkill.SwordmanshipMaster, "Maîtrise des épées - Maître", "Votre niveau de maîtrise des épées.\nChaque rang augmente les dégâts infligés avec les épées et leurs chances de critique de 1 %\nChaque rang augmente la durée et l'efficacité des compétences liées  aux épées.\n\nArmes concernées par cet attribut : \n- Épée courte\n- Épée longue\n- Cimeterre\n- Épée bâtarde\n- Épée à deux mains\n- Épée double\n- Katana", Category.Fight, "ife_SeverA", 5, 5, Ability.Strength, Ability.Constitution));
-
-      learnableDictionary.Add(CustomSkill.Tactics, new LearnableSkill(CustomSkill.Tactics, "Tactiques", "Votre niveau de maîtrise tactique.\nChaque rang augmente la durée et l'efficacité des compétences liées à la tactique.\n", Category.Fight, "ife_SeverA", 5, 2, Ability.Intelligence, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.TacticsExpert, new LearnableSkill(CustomSkill.TacticsExpert, "Tactiques - Expert", "Votre niveau de maîtrise tactique.\nChaque rang augmente la durée et l'efficacité des compétences liées à la tactique.\n", Category.Fight, "ife_SeverA", 5, 3, Ability.Intelligence, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.TacticsScience, new LearnableSkill(CustomSkill.TacticsScience, "Tactiques - Science", "Votre niveau de maîtrise tactique.\nChaque rang augmente la durée et l'efficacité des compétences liées à la tactique.\n", Category.Fight, "ife_SeverA", 5, 4, Ability.Intelligence, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.TacticsMaster, new LearnableSkill(CustomSkill.TacticsMaster, "Tactiques - Maître", "Votre niveau de maîtrise tactique.\nChaque rang augmente la durée et l'efficacité des compétences liées à la tactique.\n", Category.Fight, "ife_SeverA", 5, 5, Ability.Intelligence, Ability.Constitution));
-
-      learnableDictionary.Add(CustomSkill.Expertise, new LearnableSkill(CustomSkill.Expertise, "Acrobatie", "Un jet de Dextérité (Acrobatie) couvre toute tentative de garder l'équilibre dans les situations délicates, comme essayer de courir sur une plaque de glace, rester stable sur une corde raide ou rester debout sur le pont d'un navire lors d'une forte houle.\nLe DM peut également demander un jet de Dextérité (Acrobatie) si vous tenter d'effectuer des cascades acrobatiques, y compris des plongeons tonneaux, sauts périlleux ou des flips.\n\nChaque rang augmente la durée et l'efficacité des compétences liées à l'acrobatie et réduit de 4 % le coût des capacités liées à la survie en milieu sauvage.", Category.Fight, "ife_SeverA", 5, 2, Ability.Wisdom, Ability.Dexterity));
-      learnableDictionary.Add(CustomSkill.ExpertiseExpert, new LearnableSkill(CustomSkill.ExpertiseExpert, "Acrobatie - Expert", "Un jet de Dextérité (Acrobatie) couvre toute tentative de garder l'équilibre dans les situations délicates, comme essayer de courir sur une plaque de glace, rester stable sur une corde raide ou rester debout sur le pont d'un navire lors d'une forte houle.\nLe DM peut également demander un jet de Dextérité (Acrobatie) si vous tenter d'effectuer des cascades acrobatiques, y compris des plongeons tonneaux, sauts périlleux ou des flips.\n\nChaque rang augmente la durée et l'efficacité des compétences liées à l'acrobatie et réduit de 4 % le coût des capacités liées à la survie en milieu sauvage.", Category.Fight, "ife_SeverA", 5, 3, Ability.Wisdom, Ability.Dexterity));
-      learnableDictionary.Add(CustomSkill.ExpertiseScience, new LearnableSkill(CustomSkill.ExpertiseScience, "Acrobatie - Science", "Un jet de Dextérité (Acrobatie) couvre toute tentative de garder l'équilibre dans les situations délicates, comme essayer de courir sur une plaque de glace, rester stable sur une corde raide ou rester debout sur le pont d'un navire lors d'une forte houle.\nLe DM peut également demander un jet de Dextérité (Acrobatie) si vous tenter d'effectuer des cascades acrobatiques, y compris des plongeons tonneaux, sauts périlleux ou des flips.\n\nChaque rang augmente la durée et l'efficacité des compétences liées à l'acrobatie et réduit de 4 % le coût des capacités liées à la survie en milieu sauvage.", Category.Fight, "ife_SeverA", 5, 4, Ability.Wisdom, Ability.Dexterity));
-      learnableDictionary.Add(CustomSkill.ExpertiseMaster, new LearnableSkill(CustomSkill.ExpertiseMaster, "Acrobatie - Maître", "Un jet de Dextérité (Acrobatie) couvre toute tentative de garder l'équilibre dans les situations délicates, comme essayer de courir sur une plaque de glace, rester stable sur une corde raide ou rester debout sur le pont d'un navire lors d'une forte houle.\nLe DM peut également demander un jet de Dextérité (Acrobatie) si vous tenter d'effectuer des cascades acrobatiques, y compris des plongeons tonneaux, sauts périlleux ou des flips.\n\nChaque rang augmente la durée et l'efficacité des compétences liées à l'acrobatie et réduit de 4 % le coût des capacités liées à la survie en milieu sauvage.", Category.Fight, "ife_SeverA", 5, 5, Ability.Wisdom, Ability.Dexterity));
-
-      learnableDictionary.Add(CustomSkill.Beast, new LearnableSkill(CustomSkill.Beast, "Dressage", "Un jet de Sagesse (Dressage) couvre toute tentative de calmer un animal domestique, empêcher une monture d'être effrayée ou deviner les intentions d'un animal.\nLe rang de cet attribut symbolise également le lien qui vous unit à votre compagnon animal (si un animal s'est lié à votre personnage !).\n\nChaque rang augmente la durée et l'efficacité des compétences liées à votre relation avec les bêtes.\n", Category.Fight, "ife_SeverA", 5, 2, Ability.Wisdom, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.BeastExpert, new LearnableSkill(CustomSkill.BeastExpert, "Dressage - Expert", "Votre niveau d'entraînement avec votre compagnon animal et votre capacité à gérer les animaux domestiques.\nChaque rang augmente la durée et l'efficacité des compétences liées votre relation avec les bêtes.\n", Category.Fight, "ife_SeverA", 5, 3, Ability.Wisdom, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.BeastScience, new LearnableSkill(CustomSkill.BeastScience, "Dressage - Science", "Votre niveau d'entraînement avec votre compagnon animal et votre capacité à gérer les animaux domestiques.\nChaque rang augmente la durée et l'efficacité des compétences liées votre relation avec les bêtes.\n", Category.Fight, "ife_SeverA", 5, 4, Ability.Wisdom, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.BeastMaster, new LearnableSkill(CustomSkill.BeastMaster, "Dressage - Maître", "Votre niveau d'entraînement avec votre compagnon animal et votre capacité à gérer les animaux domestiques.\nChaque rang augmente la durée et l'efficacité des compétences liées à votre relation avec les bêtes.\n", Category.Fight, "ife_SeverA", 5, 5, Ability.Wisdom, Ability.Constitution));
-
-      learnableDictionary.Add(CustomSkill.Marksmanship, new LearnableSkill(CustomSkill.Marksmanship, "Adresse au tir", "Votre niveau d'adresse au tir.\nChaque rang augmente les dégâts infligés avec les armes à distance et leurs chances de critique de 1 %.\nChaque rang augmente la durée et l'efficacité des compétences liées aux armes à distance.\n\nArmes concernées par cet attribut : \n- Arc court\n- Arc long\n- Arbalète légère\n- Arbalète lourde\n- Dards\n- Fronde\n- Shuriken", Category.Fight, "ife_SeverA", 5, 2, Ability.Dexterity, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.MarksmanshipExpert, new LearnableSkill(CustomSkill.MarksmanshipExpert, "Adresse au tir - Expert", "Votre niveau d'adresse au tir.\nChaque rang augmente les dégâts infligés avec les armes à distance et leurs chances de critique de 1 %.\nChaque rang augmente la durée et l'efficacité des compétences liées aux armes à distance.\n\n- Arc court\n- Arc long\n- Arbalète légère\n- Arbalète lourde\n- Dards\n- Fronde\n- Shuriken", Category.Fight, "ife_SeverA", 5, 3, Ability.Dexterity, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.MarksmanshipScience, new LearnableSkill(CustomSkill.MarksmanshipScience, "Adresse au tir - Science", "Votre niveau d'adresse au tir.\nChaque rang augmente les dégâts infligés avec les armes à distance et leurs chances de critique de 1 %.\nChaque rang augmente la durée et l'efficacité des compétences liées aux armes à distance.\n\n- Arc court\n- Arc long\n- Arbalète légère\n- Arbalète lourde\n- Dards\n- Fronde\n- Shuriken", Category.Fight, "ife_SeverA", 5, 4, Ability.Dexterity, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.MarksmanshipMaster, new LearnableSkill(CustomSkill.MarksmanshipMaster, "Adresse au tir - Maître", "Votre niveau d'adresse au tir.\nChaque rang augmente les dégâts infligés avec les armes à distance et leurs chances de critique de 1 %.\nChaque rang augmente la durée et l'efficacité des compétences liées aux armes à distance.\n\n- Arc court\n- Arc long\n- Arbalète légère\n- Arbalète lourde\n- Dards\n- Fronde\n- Shuriken", Category.Fight, "ife_SeverA", 5, 5, Ability.Dexterity, Ability.Constitution));
-
-      learnableDictionary.Add(CustomSkill.WildernessSurvival, new LearnableSkill(CustomSkill.WildernessSurvival, "Survie", "Un jet de Sagesse (Survie) couvre toute tentative de suivre des traces, chasser du gibier sauvage, guider votre groupe à travers des friches gelées, identifier des signes indiquant que des ours-hiboux vivent à proximité, prédire la météo ou d'éviter les sables mouvants et autres dangers naturels.\n\nChaque rang augmente la durée et l'efficacité des capacités liées à la survie en milieu sauvage.", Category.Fight, "ife_SeverA", 5, 2, Ability.Wisdom, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.WildernessSurvivalExpert, new LearnableSkill(CustomSkill.WildernessSurvivalExpert, "Survie - Expert", "Un jet de Sagesse (Survie) couvre toute tentative de suivre des traces, chasser du gibier sauvage, guider votre groupe à travers des friches gelées, identifier des signes indiquant que des ours-hiboux vivent à proximité, prédire la météo ou d'éviter les sables mouvants et autres dangers naturels.\n\nChaque rang augmente la durée et l'efficacité des capacités liées à la survie en milieu sauvage.", Category.Fight, "ife_SeverA", 5, 3, Ability.Wisdom, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.WildernessSurvivalScience, new LearnableSkill(CustomSkill.WildernessSurvivalScience, "Survie - Science", "Un jet de Sagesse (Survie) couvre toute tentative de suivre des traces, chasser du gibier sauvage, guider votre groupe à travers des friches gelées, identifier des signes indiquant que des ours-hiboux vivent à proximité, prédire la météo ou d'éviter les sables mouvants et autres dangers naturels.\n\nChaque rang augmente la durée et l'efficacité des capacités liées à la survie en milieu sauvage.", Category.Fight, "ife_SeverA", 5, 4, Ability.Wisdom, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.WildernessSurvivalMaster, new LearnableSkill(CustomSkill.WildernessSurvivalMaster, "Survie - Maître", "Un jet de Sagesse (Survie) couvre toute tentative de suivre des traces, chasser du gibier sauvage, guider votre groupe à travers des friches gelées, identifier des signes indiquant que des ours-hiboux vivent à proximité, prédire la météo ou d'éviter les sables mouvants et autres dangers naturels.\n\nChaque rang augmente la durée et l'efficacité des capacités liées à la survie en milieu sauvage.", Category.Fight, "ife_SeverA", 5, 5, Ability.Wisdom, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.HealingPrayers, new LearnableSkill(CustomSkill.HealingPrayers, "Art curatif", "Votre niveau de maîtrise des arcanes de soin.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie de guérison.\n", Category.Magic, "ife_SeverA", 5, 2, Ability.Wisdom, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.HealingPrayersExpert, new LearnableSkill(CustomSkill.HealingPrayersExpert, "Art curatif - Expert", "Votre niveau de maîtrise des arcanes de soin.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie de guérison.\n", Category.Magic, "ife_SeverA", 5, 3, Ability.Wisdom, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.HealingPrayersScience, new LearnableSkill(CustomSkill.HealingPrayersScience, "Art curatif - Science", "Votre niveau de maîtrise des arcanes de soin.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie de guérison.\n", Category.Magic, "ife_SeverA", 5, 4, Ability.Wisdom, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.HealingPrayersMaster, new LearnableSkill(CustomSkill.HealingPrayersMaster, "Art curatif - Maître", "Votre niveau de maîtrise des arcanes de soin.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie de guérison.\n", Category.Magic, "ife_SeverA", 5, 5, Ability.Wisdom, Ability.Charisma));
-
-      learnableDictionary.Add(CustomSkill.ProtectionPrayers, new LearnableSkill(CustomSkill.ProtectionPrayers, "Art protectif", "Votre niveau de maîtrise des arcanes de protection.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie de protection.\n", Category.Magic, "ife_SeverA", 5, 2, Ability.Wisdom, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.ProtectionPrayersExpert, new LearnableSkill(CustomSkill.ProtectionPrayersExpert, "Art protectif - Expert", "Votre niveau de maîtrise des arcanes de protection.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie de protection.\n", Category.Magic, "ife_SeverA", 5, 3, Ability.Wisdom, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.ProtectionPrayersScience, new LearnableSkill(CustomSkill.ProtectionPrayersScience, "Art protectif - Science", "Votre niveau de maîtrise des arcanes de protection.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie de protection.\n", Category.Magic, "ife_SeverA", 5, 4, Ability.Wisdom, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.ProtectionPrayersMaster, new LearnableSkill(CustomSkill.ProtectionPrayersMaster, "Art protectif - Maître", "Votre niveau de maîtrise des arcanes de protection.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie de protection.\n", Category.Magic, "ife_SeverA", 5, 5, Ability.Wisdom, Ability.Charisma));
-
-      learnableDictionary.Add(CustomSkill.SmitingPrayers, new LearnableSkill(CustomSkill.SmitingPrayers, "Châtiments", "Votre niveau de maîtrise en magie de châtiment.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie de châtiment.\n", Category.Magic, "ife_SeverA", 5, 2, Ability.Wisdom, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.SmitingPrayersExpert, new LearnableSkill(CustomSkill.SmitingPrayersExpert, "Châtiments - Expert", "Votre niveau de maîtrise de la magie de châtiment.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie de châtiment.\n", Category.Magic, "ife_SeverA", 5, 3, Ability.Wisdom, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.SmitingPrayersScience, new LearnableSkill(CustomSkill.SmitingPrayersScience, "Châtiments - Science", "Votre niveau de maîtrise de la magie de châtiment.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie de châtiment.\n", Category.Magic, "ife_SeverA", 5, 4, Ability.Wisdom, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.SmitingPrayersMaster, new LearnableSkill(CustomSkill.SmitingPrayersMaster, "Châtiments - Maître", "Votre niveau de maîtrise de la magie de châtiment.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie de châtiment.\n", Category.Magic, "ife_SeverA", 5, 5, Ability.Wisdom, Ability.Charisma));
-
-      learnableDictionary.Add(CustomSkill.SoulReaping, new LearnableSkill(CustomSkill.SoulReaping, "Moisson des âmes", "Votre niveau de maîtrise en magie de moisson.\nChaque rang augmente la durée et l'efficacité des sorts liés à la moisson des âmes.\n\nChaque rang fait gagner 1 d'énergie à chaque mort d'une créature non invoquée à proximité.\n\nCet effet ne peut pas se produire plus que la moitié de votre modificateur d'intelligence de base toutes les 15 secondes.", Category.Magic, "ife_SeverA", 5, 2, Ability.Intelligence, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.SoulReapingExpert, new LearnableSkill(CustomSkill.SoulReapingExpert, "Moisson des âmes - Expert", "Votre niveau de maîtrise de la magie de moisson.\nChaque rang augmente la durée et l'efficacité des sorts liés à la moisson des âmes.\nChaque rang fait gagner 1 d'énergie à chaque mort d'une créature non invoquée à proximité.\n\nCet effet ne peut pas se produire plus que la moitié de votre modificateur d'intelligence de base toutes les 15 secondes.", Category.Magic, "ife_SeverA", 5, 3, Ability.Intelligence, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.SoulReapingScience, new LearnableSkill(CustomSkill.SoulReapingScience, "Moisson des âmes - Science", "Votre niveau de maîtrise de la magie de moisson.\nChaque rang augmente la durée et l'efficacité des sorts liés à la moisson des âmes.\nChaque rang fait gagner 1 d'énergie à chaque mort d'une créature non invoquée à proximité.\n\nCet effet ne peut pas se produire plus que la moitié de votre modificateur d'intelligence de base toutes les 15 secondes.", Category.Magic, "ife_SeverA", 5, 4, Ability.Intelligence, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.SoulReapingMaster, new LearnableSkill(CustomSkill.SoulReapingMaster, "Moisson des âmes - Maître", "Votre niveau de maîtrise de la magie de moisson.\nChaque rang augmente la durée et l'efficacité des sorts liés à la moisson des âmes.\nChaque rang fait gagner 1 d'énergie à chaque mort d'une créature non invoquée à proximité.\n\nCet effet ne peut pas se produire plus que la moitié de votre modificateur d'intelligence de base toutes les 15 secondes.", Category.Magic, "ife_SeverA", 5, 5, Ability.Intelligence, Ability.Charisma));
-
-      learnableDictionary.Add(CustomSkill.BloodMagic, new LearnableSkill(CustomSkill.BloodMagic, "Art du sang", "Votre niveau de maîtrise des arcanes du sang.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie du sang.\n", Category.Magic, "ife_SeverA", 5, 2, Ability.Intelligence, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.BloodMagicExpert, new LearnableSkill(CustomSkill.BloodMagicExpert, "Art du sang - Expert", "Votre niveau de maîtrise des arcanes du sang.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie du sang.\n", Category.Magic, "ife_SeverA", 5, 3, Ability.Intelligence, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.BloodMagicScience, new LearnableSkill(CustomSkill.BloodMagicScience, "Art du sang - Science", "Votre niveau de maîtrise des arcanes du sang.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie du sang.\n", Category.Magic, "ife_SeverA", 5, 4, Ability.Intelligence, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.BloodMagicMaster, new LearnableSkill(CustomSkill.BloodMagicMaster, "Art du sang - Maître", "Votre niveau de maîtrise des arcanes du sang.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie du sang.\n", Category.Magic, "ife_SeverA", 5, 5, Ability.Intelligence, Ability.Charisma));
-
-      learnableDictionary.Add(CustomSkill.Curses, new LearnableSkill(CustomSkill.Curses, "Malédictions", "Votre niveau de maîtrise en malédictions.\nChaque rang augmente la durée et l'efficacité des sorts liés aux malédictions.\n", Category.Magic, "ife_SeverA", 5, 2, Ability.Intelligence, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.CursesExpert, new LearnableSkill(CustomSkill.CursesExpert, "Malédictions - Expert", "Votre niveau de maîtrise en malédictions.\nChaque rang augmente la durée et l'efficacité des sorts liés aux malédictions.\n", Category.Magic, "ife_SeverA", 5, 3, Ability.Intelligence, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.CursesScience, new LearnableSkill(CustomSkill.CursesScience, "Malédictions - Science", "Votre niveau de maîtrise en malédictions.\nChaque rang augmente la durée et l'efficacité des sorts liés aux malédictions.\n", Category.Magic, "ife_SeverA", 5, 4, Ability.Intelligence, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.CursesMaster, new LearnableSkill(CustomSkill.CursesMaster, "Malédictions - Maître", "Votre niveau de maîtrise en malédictions.\nChaque rang augmente la durée et l'efficacité des sorts liés aux malédictions.\n", Category.Magic, "ife_SeverA", 5, 5, Ability.Intelligence, Ability.Charisma));
-
-      learnableDictionary.Add(CustomSkill.DeathMagic, new LearnableSkill(CustomSkill.DeathMagic, "Magie de la mort", "Votre niveau de maîtrise de la magie de la mort.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie de la mort.\n", Category.Magic, "ife_SeverA", 5, 2, Ability.Intelligence, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.DeathMagicExpert, new LearnableSkill(CustomSkill.DeathMagicExpert, "Magie de la mort - Expert", "Votre niveau de maîtrise de la magie de la mort.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie de la mort.\n", Category.Magic, "ife_SeverA", 5, 3, Ability.Intelligence, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.DeathMagicScience, new LearnableSkill(CustomSkill.DeathMagicScience, "Magie de la mort - Science", "Votre niveau de maîtrise de la magie de la mort.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie de la mort.\n", Category.Magic, "ife_SeverA", 5, 4, Ability.Intelligence, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.DeathMagicMaster, new LearnableSkill(CustomSkill.DeathMagicMaster, "Magie de la mort - Maître", "Votre niveau de maîtrise de la magie de la mort.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie de la mort.\n", Category.Magic, "ife_SeverA", 5, 5, Ability.Intelligence, Ability.Charisma));
-
-      learnableDictionary.Add(CustomSkill.FastCasting, new LearnableSkill(CustomSkill.FastCasting, "Incantations rapides", "Votre niveau de maîtrise des incantations.\nChaque rang augmente la durée et l'efficacité des sorts liés à l'incantation rapide.\nChaque rang diminue le temps d'incantation des vos sorts et sceaux de 1 % tous les deux points de modificateur de charisme de base.\n\nPas d'effet sur les capacités dont le temps d'incantation est déjà inférieur à 2 secondes et qui ne relèvent pas de la domination, l'illusion ou de l'inspiration.", Category.Magic, "ife_SeverA", 5, 2, Ability.Charisma, Ability.Dexterity));
-      learnableDictionary.Add(CustomSkill.FastCastingExpert, new LearnableSkill(CustomSkill.FastCastingExpert, "Incantations rapides - Expert", "Votre niveau de maîtrise des incantations.\nChaque rang augmente la durée et l'efficacité des sorts liés à l'incantation rapide.\nChaque rang diminue le temps d'incantation des vos sorts et sceaux de 1 % tous les deux points de modificateur de charisme de base.\n\nPas d'effet sur les capacités dont le temps d'incantation est déjà inférieur à 2 secondes et qui ne relèvent pas de la domination, l'illusion ou de l'inspiration.", Category.Magic, "ife_SeverA", 5, 3, Ability.Charisma, Ability.Dexterity));
-      learnableDictionary.Add(CustomSkill.FastCastingScience, new LearnableSkill(CustomSkill.FastCastingScience, "Incantations rapides - Science", "Votre niveau de maîtrise des incantations.\nChaque rang augmente la durée et l'efficacité des sorts liés à l'incantation rapide.\nChaque rang diminue le temps d'incantation des vos sorts et sceaux de 1 % tous les deux points de modificateur de charisme de base.\n\nPas d'effet sur les capacités dont le temps d'incantation est déjà inférieur à 2 secondes et qui ne relèvent pas de la domination, l'illusion ou de l'inspiration.", Category.Magic, "ife_SeverA", 5, 4, Ability.Charisma, Ability.Dexterity));
-      learnableDictionary.Add(CustomSkill.FastCastingMaster, new LearnableSkill(CustomSkill.FastCastingMaster, "Incantations rapides - Maître", "Votre niveau de maîtrise des incantations.\nChaque rang augmente la durée et l'efficacité des sorts liés à l'incantation rapide.\nChaque rang diminue le temps d'incantation des vos sorts et sceaux de 1 % tous les deux points de modificateur de charisme de base.\n\nPas d'effet sur les capacités dont le temps d'incantation est déjà inférieur à 2 secondes et qui ne relèvent pas de la domination, l'illusion ou de l'inspiration.", Category.Magic, "ife_SeverA", 5, 5, Ability.Charisma, Ability.Dexterity));
-
-      learnableDictionary.Add(CustomSkill.Domination, new LearnableSkill(CustomSkill.Domination, "Magie de domination", "Votre niveau de maîtrise de la magie de domination.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie de domination.\n", Category.Magic, "ife_SeverA", 5, 2, Ability.Charisma, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.DominationExpert, new LearnableSkill(CustomSkill.DominationExpert, "Magie de domination - Expert", "Votre niveau de maîtrise de la magie de domination.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie de domination.\n", Category.Magic, "ife_SeverA", 5, 3, Ability.Charisma, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.DominationScience, new LearnableSkill(CustomSkill.DominationScience, "Magie de domination - Science", "Votre niveau de maîtrise de la magie de domination.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie de domination.\n", Category.Magic, "ife_SeverA", 5, 4, Ability.Charisma, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.DominationMaster, new LearnableSkill(CustomSkill.DominationMaster, "Magie de domination - Maître", "Votre niveau de maîtrise de la magie de domination.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie de domination.\n", Category.Magic, "ife_SeverA", 5, 5, Ability.Charisma, Ability.Intelligence));
-
-      learnableDictionary.Add(CustomSkill.Illusion, new LearnableSkill(CustomSkill.Illusion, "Magie d'illusion", "Votre niveau de maîtrise de la magie d'illusion.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie d'illusion.\n", Category.Magic, "ife_SeverA", 5, 2, Ability.Charisma, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.IllusionExpert, new LearnableSkill(CustomSkill.IllusionExpert, "Magie d'illusion - Expert", "Votre niveau de maîtrise de la magie d'illusion.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie d'illusion.\n", Category.Magic, "ife_SeverA", 5, 3, Ability.Charisma, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.IllusionScience, new LearnableSkill(CustomSkill.IllusionScience, "Magie d'illusion - Science", "Votre niveau de maîtrise de la magie d'illusion.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie d'illusion.\n", Category.Magic, "ife_SeverA", 5, 4, Ability.Charisma, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.IllusionMaster, new LearnableSkill(CustomSkill.IllusionMaster, "Magie d'illusion - Maître", "Votre niveau de maîtrise de la magie d'illusion.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie d'illusion.\n", Category.Magic, "ife_SeverA", 5, 5, Ability.Charisma, Ability.Intelligence));
-
-      learnableDictionary.Add(CustomSkill.Inspiration, new LearnableSkill(CustomSkill.Inspiration, "Magie d'inspiration", "Votre niveau de maîtrise de la magie d'inspiration.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie d'inspiration.\n", Category.Magic, "ife_SeverA", 5, 2, Ability.Charisma, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.InspirationExpert, new LearnableSkill(CustomSkill.InspirationExpert, "Magie d'inspiration - Expert", "Votre niveau de maîtrise de la magie d'inspiration.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie d'inspiration.\n", Category.Magic, "ife_SeverA", 5, 3, Ability.Charisma, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.InspirationScience, new LearnableSkill(CustomSkill.InspirationScience, "Magie d'inspiration - Science", "Votre niveau de maîtrise de la magie d'inspiration.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie d'inspiration.\n", Category.Magic, "ife_SeverA", 5, 4, Ability.Charisma, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.InspirationMaster, new LearnableSkill(CustomSkill.InspirationMaster, "Magie d'inspiration - Maître", "Votre niveau de maîtrise de la magie d'inspiration.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie d'inspiration.\n", Category.Magic, "ife_SeverA", 5, 5, Ability.Charisma, Ability.Intelligence));
-
-      learnableDictionary.Add(CustomSkill.EnergyStorage, new LearnableSkill(CustomSkill.EnergyStorage, "Optimisation d'énergie", "Votre niveau de maîtrise de l'optimisation d'énergie.\nChaque rang augmente la durée et l'efficacité des sorts liés à l'optimisation d'énergie.\nChaque rang augmente votre énergie maximum de 0.5 point par modificateur d'intelligence  de base.", Category.Magic, "ife_SeverA", 5, 2, Ability.Intelligence, Ability.Constitution, Attribut.Invalid, Type.Invalid));
-      learnableDictionary.Add(CustomSkill.EnergyStorageExpert, new LearnableSkill(CustomSkill.EnergyStorageExpert, "Optimisation d'énergie - Expert", "Votre niveau de maîtrise de l'optimisation d'énergie.\nChaque rang augmente la durée et l'efficacité des sorts liés à l'optimisation d'énergie.\nChaque rang augmente votre énergie maximum de 0.5 point par modificateur d'intelligence  de base.", Category.Magic, "ife_SeverA", 5, 3, Ability.Intelligence, Ability.Constitution, Attribut.Invalid, Type.Invalid));
-      learnableDictionary.Add(CustomSkill.EnergyStorageScience, new LearnableSkill(CustomSkill.EnergyStorageScience, "Optimisation d'énergie - Science", "Votre niveau de maîtrise de l'optimisation d'énergie.\nChaque rang augmente la durée et l'efficacité des sorts liés à l'optimisation d'énergie.\nChaque rang augmente votre énergie maximum de 0.5 point par modificateur d'intelligence  de base.", Category.Magic, "ife_SeverA", 5, 4, Ability.Intelligence, Ability.Constitution, Attribut.Invalid, Type.Invalid));
-      learnableDictionary.Add(CustomSkill.EnergyStorageMaster, new LearnableSkill(CustomSkill.EnergyStorageMaster, "Optimisation d'énergie - Maître", "Votre niveau de maîtrise de l'optimisation d'énergie.\nChaque rang augmente la durée et l'efficacité des sorts liés à l'optimisation d'énergien.\nChaque rang augmente votre énergie maximum de 0.5 point par modificateur d'intelligence  de base.", Category.Magic, "ife_SeverA", 5, 5, Ability.Intelligence, Ability.Constitution, Attribut.Invalid, Type.Invalid));
-
-      learnableDictionary.Add(CustomSkill.CriticalStrikes, new LearnableSkill(CustomSkill.CriticalStrikes, "Art critique", "Votre niveau de maîtrise des frappes critiques.\nChaque rang augmente la durée et l'efficacité des capacités liées aux frappes critiques.\nChaque rang donne + 1% de chance de coup critique (cappé par votre dextérité).\nPour chaque coup critique, vous gagnez 1 d'énergie jusqu'au rang 3, 2 d'énergie jusqu'au rang 8 et 3 d'énergie à partir du rang 13.", Category.Fight, "ife_SeverA", 5, 2, Ability.Dexterity, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.CriticalStrikesExpert, new LearnableSkill(CustomSkill.CriticalStrikesExpert, "Art critique - Expert", "Votre niveau de maîtrise des frappes critiques.\nChaque rang augmente la durée et l'efficacité des capacités liées aux frappes critiques.\nChaque rang donne + 1% de chance de coup critique (cappé par votre dextérité).\nPour chaque coup critique, vous gagnez 1 d'énergie jusqu'au rang 3, 2 d'énergie jusqu'au rang 8 et 3 d'énergie à partir du rang 13.", Category.Fight, "ife_SeverA", 5, 3, Ability.Dexterity, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.CriticalStrikesScience, new LearnableSkill(CustomSkill.CriticalStrikesScience, "Art critique - Science", "Votre niveau de maîtrise des frappes critiques.\nChaque rang augmente la durée et l'efficacité des capacités liées aux frappes critiques.\nChaque rang donne + 1% de chance de coup critique (cappé par votre dextérité).\nPour chaque coup critique, vous gagnez 1 d'énergie jusqu'au rang 3, 2 d'énergie jusqu'au rang 8 et 3 d'énergie à partir du rang 13.", Category.Fight, "ife_SeverA", 5, 4, Ability.Dexterity, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.CriticalStrikesMaster, new LearnableSkill(CustomSkill.CriticalStrikesMaster, "Art critique - Maître", "Votre niveau de maîtrise des frappes critiques.\nChaque rang augmente la durée et l'efficacité des capacités liées aux frappes critiques.\nChaque rang donne + 1% de chance de coup critique (cappé par votre dextérité).\nPour chaque coup critique, vous gagnez 1 d'énergie jusqu'au rang 3, 2 d'énergie jusqu'au rang 8 et 3 d'énergie à partir du rang 13.", Category.Fight, "ife_SeverA", 5, 5, Ability.Dexterity, Ability.Intelligence));
-
-      learnableDictionary.Add(CustomSkill.Daggermanship, new LearnableSkill(CustomSkill.Daggermanship, "Maîtrise de la dague", "Votre niveau de maîtrise des armes à combo.\nChaque rang augmente les dégâts infligées par les armes à combo et leurs chances de coup critique de 1 %.\nChaque rang augmente la durée et l'efficacité des capacités liées à la maîtrise de la dague.\n\nLes armes concernées par cet attribut sont :\n- La dague\n- Le kama\n- Le kukri", Category.Magic, "ife_SeverA", 5, 2, Ability.Dexterity, Ability.Strength));
-      learnableDictionary.Add(CustomSkill.DaggermanshipExpert, new LearnableSkill(CustomSkill.DaggermanshipExpert, "Maîtrise de la dague - Expert", "Votre niveau de maîtrise des armes à combo.\nChaque rang augmente les dégâts infligées par les armes légères à combo et leurs chances de coup critique de 1 %.\nChaque rang augmente la durée et l'efficacité des capacités liées à la maîtrise de la dague.\n\nLes armes concernées par cet attribut sont :\n- La dague\n- Le kama\n- Le kukri", Category.Magic, "ife_SeverA", 5, 3, Ability.Dexterity, Ability.Strength));
-      learnableDictionary.Add(CustomSkill.DaggermanshipScience, new LearnableSkill(CustomSkill.DaggermanshipScience, "Maîtrise de la dague - Science", "Votre niveau de maîtrise des armes à combo.\nChaque rang augmente les dégâts infligées par les armes légères à combo et leurs chances de coup critique de 1 %.\nChaque rang augmente la durée et l'efficacité des capacités liées à la maîtrise de la dague.\n\nLes armes concernées par cet attribut sont :\n- La dague\n- Le kama\n- Le kukri", Category.Magic, "ife_SeverA", 5, 4, Ability.Dexterity, Ability.Strength));
-      learnableDictionary.Add(CustomSkill.DaggermanshipMaster, new LearnableSkill(CustomSkill.DaggermanshipMaster, "Maîtrise de la dague - Maître", "Votre niveau de maîtrise des armes à combo.\nChaque rang augmente les dégâts infligées par les armes légères à combo et leurs chances de coup critique de 1 %.\nChaque rang augmente la durée et l'efficacité des capacités liées à la maîtrise de la dague.\n\nLes armes concernées par cet attribut sont :\n- La dague\n- Le kama\n- Le kukri", Category.Magic, "ife_SeverA", 5, 5, Ability.Dexterity, Ability.Strength));
-
-      learnableDictionary.Add(CustomSkill.DeadlyArts, new LearnableSkill(CustomSkill.DeadlyArts, "Arts mortels", "Votre niveau de maîtrise des arts mortels.\nChaque rang augmente la durée et l'efficacité des capacités liées aux arts mortels.", Category.Fight, "ife_SeverA", 5, 2, Ability.Intelligence, Ability.Dexterity));
-      learnableDictionary.Add(CustomSkill.DeadlyArtsExpert, new LearnableSkill(CustomSkill.DeadlyArtsExpert, "Arts mortels - Expert", "Votre niveau de maîtrise des arts mortels.\nChaque rang augmente la durée et l'efficacité des capacités liées aux arts mortels.", Category.Fight, "ife_SeverA", 5, 3, Ability.Intelligence, Ability.Dexterity));
-      learnableDictionary.Add(CustomSkill.DeadlyArtsScience, new LearnableSkill(CustomSkill.DeadlyArtsScience, "Arts mortels - Science", "Votre niveau de maîtrise des arts mortels.\nChaque rang augmente la durée et l'efficacité des capacités liées aux arts mortels.", Category.Fight, "ife_SeverA", 5, 4, Ability.Intelligence, Ability.Dexterity));
-      learnableDictionary.Add(CustomSkill.DeadlyArtsMaster, new LearnableSkill(CustomSkill.DeadlyArtsMaster, "Arts mortels - Maître", "Votre niveau de maîtrise des arts mortels.\nChaque rang augmente la durée et l'efficacité des capacités liées aux arts mortels.", Category.Fight, "ife_SeverA", 5, 5, Ability.Intelligence, Ability.Dexterity));
-
-      learnableDictionary.Add(CustomSkill.ShadowArts, new LearnableSkill(CustomSkill.ShadowArts, "Arts des ombres", "Un jet de Dextérité (Arts des ombres) couvre toute tentative de se dissimulation à l'œil et à l'oreille des ennemis : pour passer furtivement sous le nez des gardes, vous échapper sans vous faire remarquer ou prendre quelqu'un par surprise.\n\nCette compétence remplace à la fois Discrétion et Déplacement silencieux.\nContrairement au jeu de base, cet attribut ne vous permet pas de disparaître aux yeux des autres.\n\nChaque rang augmente la durée et l'efficacité des capacités liées à la dissimulation et à la furtivité.", Category.Fight, "ife_SeverA", 5, 2, Ability.Intelligence, Ability.Dexterity));
-      learnableDictionary.Add(CustomSkill.ShadowArtsExpert, new LearnableSkill(CustomSkill.ShadowArtsExpert, "Arts des ombres - Expert", "Un jet de Dextérité (Arts des ombres) couvre toute tentative de se dissimulation à l'œil et à l'oreille des ennemis : pour passer furtivement sous le nez des gardes, vous échapper sans vous faire remarquer ou prendre quelqu'un par surprise.\n\nCette compétence remplace à la fois Discrétion et Déplacement silencieux.\nContrairement au jeu de base, cet attribut ne vous permet pas de disparaître aux yeux des autres.\n\nChaque rang augmente la durée et l'efficacité des capacités liées à la dissimulation et à la furtivité.", Category.Fight, "ife_SeverA", 5, 3, Ability.Intelligence, Ability.Dexterity));
-      learnableDictionary.Add(CustomSkill.ShadowArtsScience, new LearnableSkill(CustomSkill.ShadowArtsScience, "Arts des ombres - Science", "Un jet de Dextérité (Arts des ombres) couvre toute tentative de se dissimulation à l'œil et à l'oreille des ennemis : pour passer furtivement sous le nez des gardes, vous échapper sans vous faire remarquer ou prendre quelqu'un par surprise.\n\nCette compétence remplace à la fois Discrétion et Déplacement silencieux.\nContrairement au jeu de base, cet attribut ne vous permet pas de disparaître aux yeux des autres.\n\nChaque rang augmente la durée et l'efficacité des capacités liées à la dissimulation et à la furtivité.", Category.Fight, "ife_SeverA", 5, 4, Ability.Intelligence, Ability.Dexterity));
-      learnableDictionary.Add(CustomSkill.ShadowArtsMaster, new LearnableSkill(CustomSkill.ShadowArtsMaster, "Arts des ombres - Maître", "Un jet de Dextérité (Arts des ombres) couvre toute tentative de se dissimulation à l'œil et à l'oreille des ennemis : pour passer furtivement sous le nez des gardes, vous échapper sans vous faire remarquer ou prendre quelqu'un par surprise.\n\nCette compétence remplace à la fois Discrétion et Déplacement silencieux.\nContrairement au jeu de base, cet attribut ne vous permet pas de disparaître aux yeux des autres.\n\nChaque rang augmente la durée et l'efficacité des capacités liées à la dissimulation et à la furtivité.", Category.Fight, "ife_SeverA", 5, 5, Ability.Intelligence, Ability.Dexterity));
-
-      learnableDictionary.Add(CustomSkill.SpawningPower, new LearnableSkill(CustomSkill.SpawningPower, "Puissance d'invocation", "Votre niveau de maîtrise en puissance d'invocation.\nChaque rang augmente la durée et l'efficacité des sorts liés à la puissance d'invocation.\nChaque rang augmente de 4 % la santé des créatures invoquées.", Category.Magic, "ife_SeverA", 5, 2, Ability.Wisdom, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.SpawningPowerExpert, new LearnableSkill(CustomSkill.SpawningPowerExpert, "Puissance d'invocation - Expert", "Votre niveau de maîtrise en puissance d'invocation.\nChaque rang augmente la durée et l'efficacité des sorts liés à la puissance d'invocation.\nChaque rang augmente de 4 % la santé des créatures invoquées.", Category.Magic, "ife_SeverA", 5, 3, Ability.Wisdom, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.SpawningPowerScience, new LearnableSkill(CustomSkill.SpawningPowerScience, "Puissance d'invocation - Science", "Votre niveau de maîtrise en puissance d'invocation.\nChaque rang augmente la durée et l'efficacité des sorts liés à la puissance d'invocation.\nChaque rang augmente de 4 % la santé des créatures invoquées.", Category.Magic, "ife_SeverA", 5, 4, Ability.Wisdom, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.SpawningPowerMaster, new LearnableSkill(CustomSkill.SpawningPowerMaster, "Puissance d'invocation - Maître", "Votre niveau de maîtrise en puissance d'invocation.\nChaque rang augmente la durée et l'efficacité des sorts liés à la puissance d'invocation.\nChaque rang augmente de 4 % la santé des créatures invoquées.", Category.Magic, "ife_SeverA", 5, 5, Ability.Wisdom, Ability.Intelligence));
-
-      learnableDictionary.Add(CustomSkill.ChannelingMagic, new LearnableSkill(CustomSkill.ChannelingMagic, "Canalisation", "Votre niveau de maîtrise de la canalisation.\nChaque rang augmente la durée et l'efficacité des sorts liés à la canalisation.", Category.Magic, "ife_SeverA", 5, 2, Ability.Wisdom, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.ChannelingMagicExpert, new LearnableSkill(CustomSkill.ChannelingMagicExpert, "Canalisation - Expert", "Votre niveau de maîtrise de la canalisation.\nChaque rang augmente la durée et l'efficacité des sorts liés à la canalisation.", Category.Magic, "ife_SeverA", 5, 3, Ability.Wisdom, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.ChannelingMagicScience, new LearnableSkill(CustomSkill.ChannelingMagicScience, "Canalisation - Science", "Votre niveau de maîtrise de la canalisation.\nChaque rang augmente la durée et l'efficacité des sorts liés à la canalisation.", Category.Magic, "ife_SeverA", 5, 4, Ability.Wisdom, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.ChannelingMagicMaster, new LearnableSkill(CustomSkill.ChannelingMagicMaster, "Canalisation - Maître", "Votre niveau de maîtrise de la canalisation.\nChaque rang augmente la durée et l'efficacité des sorts liés à la canalisation.", Category.Magic, "ife_SeverA", 5, 5, Ability.Wisdom, Ability.Intelligence));
-
-      learnableDictionary.Add(CustomSkill.Communing, new LearnableSkill(CustomSkill.Communing, "Communion", "Votre niveau de maîtrise de la communion.\nChaque rang augmente la durée et l'efficacité des sorts liés à la communion.", Category.Magic, "ife_SeverA", 5, 2, Ability.Wisdom, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.CommuningExpert, new LearnableSkill(CustomSkill.CommuningExpert, "Communion - Expert", "Votre niveau de maîtrise de la communion.\nChaque rang augmente la durée et l'efficacité des sorts liés à la communion.", Category.Magic, "ife_SeverA", 5, 3, Ability.Wisdom, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.CommuningScience, new LearnableSkill(CustomSkill.CommuningScience, "Communion - Science", "Votre niveau de maîtrise de la communion.\nChaque rang augmente la durée et l'efficacité des sorts liés à la communion.", Category.Magic, "ife_SeverA", 5, 4, Ability.Wisdom, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.CommuningMaster, new LearnableSkill(CustomSkill.CommuningMaster, "Communion - Maître", "Votre niveau de maîtrise de la communion.\nChaque rang augmente la durée et l'efficacité des sorts liés à la communion.", Category.Magic, "ife_SeverA", 5, 5, Ability.Wisdom, Ability.Intelligence));
-
-      learnableDictionary.Add(CustomSkill.RestorationMagic, new LearnableSkill(CustomSkill.RestorationMagic, "Magie de restauration", "Votre niveau de maîtrise de la magie de restauration.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie de restauration.", Category.Magic, "ife_SeverA", 5, 2, Ability.Wisdom, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.RestorationMagicExpert, new LearnableSkill(CustomSkill.RestorationMagicExpert, "Magie de restauration - Expert", "Votre niveau de maîtrise de la magie de restauration.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie de restauration.", Category.Magic, "ife_SeverA", 5, 3, Ability.Wisdom, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.RestorationMagicScience, new LearnableSkill(CustomSkill.RestorationMagicScience, "Magie de restauration - Science", "Votre niveau de maîtrise de la magie de restauration.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie de restauration.", Category.Magic, "ife_SeverA", 5, 4, Ability.Wisdom, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.RestorationMagicMaster, new LearnableSkill(CustomSkill.RestorationMagicMaster, "Magie de restauration - Maître", "Votre niveau de maîtrise de la magie de restauration.\nChaque rang augmente la durée et l'efficacité des sorts liés à la magie de restauration.", Category.Magic, "ife_SeverA", 5, 5, Ability.Wisdom, Ability.Intelligence));
-
-      learnableDictionary.Add(CustomSkill.Leadership, new LearnableSkill(CustomSkill.Leadership, "Rayonnement", "Votre capacité à influencer les autres par votre seule présence, à vous faire remarquer et à vous imposer.\n\nChaque rang augmente la durée et l'efficacité des capacités liées au rayonnement.\nChaque rang de rayonnement vous donne 2 points d'énergie pour chaque allié affecté par vos chants ou cris (ne peut pas dépasser deux fois votre rang ou 3  fois votre modificateur de charisme de base).", Category.Magic, "ife_SeverA", 5, 2, Ability.Charisma, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.LeadershipExpert, new LearnableSkill(CustomSkill.LeadershipExpert, "Rayonnement - Expert", "Votre capacité à influencer les autres par votre seule présence, à vous faire remarquer et à vous imposer.\n\nChaque rang augmente la durée et l'efficacité des capacités liées au rayonnement.\nChaque rang de rayonnement vous donne 2 points d'énergie pour chaque allié affecté par vos chants ou cris (ne peut pas dépasser deux fois votre rang ou 3  fois votre modificateur de charisme de base). ", Category.Magic, "ife_SeverA", 5, 3, Ability.Charisma, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.LeadershipScience, new LearnableSkill(CustomSkill.LeadershipScience, "Rayonnement - Science", "Votre capacité à influencer les autres par votre seule présence, à vous faire remarquer et à vous imposer.\n\nChaque rang augmente la durée et l'efficacité des capacités liées au rayonnement.\nChaque rang de rayonnement vous donne 2 points d'énergie pour chaque allié affecté par vos chants ou cris (ne peut pas dépasser deux fois votre rang ou 3  fois votre modificateur de charisme de base). ", Category.Magic, "ife_SeverA", 5, 4, Ability.Charisma, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.LeadershipMaster, new LearnableSkill(CustomSkill.LeadershipMaster, "Rayonnement - Maître", "Votre capacité à influencer les autres par votre seule présence, à vous faire remarquer et à vous imposer.\n\nChaque rang augmente la durée et l'efficacité des capacités liées au rayonnement.\nChaque rang de rayonnement vous donne 2 points d'énergie pour chaque allié affecté par vos chants ou cris (ne peut pas dépasser deux fois votre rang ou 3  fois votre modificateur de charisme de base). ", Category.Magic, "ife_SeverA", 5, 5, Ability.Charisma, Ability.Intelligence));
-
-      learnableDictionary.Add(CustomSkill.Command, new LearnableSkill(CustomSkill.Command, "Commandement", "Votre niveau de maîtrise du commandement.\nChaque rang augmente la durée et l'efficacité des capacités liées au commandement.", Category.Magic, "ife_SeverA", 5, 2, Ability.Charisma, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.CommandExpert, new LearnableSkill(CustomSkill.CommandExpert, "Commandement - Expert", "Votre niveau de maîtrise du commandement.\nChaque rang augmente la durée et l'efficacité des capacités liées au commandement.", Category.Magic, "ife_SeverA", 5, 3, Ability.Charisma, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.CommandScience, new LearnableSkill(CustomSkill.CommandScience, "Commandement - Science", "Votre niveau de maîtrise du commandement.\nChaque rang augmente la durée et l'efficacité des capacités liées au commandement.", Category.Magic, "ife_SeverA", 5, 4, Ability.Charisma, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.CommandMaster, new LearnableSkill(CustomSkill.CommandMaster, "Commandement - Maître", "Votre niveau de maîtrise du commandement.\nChaque rang augmente la durée et l'efficacité des capacités liées au commandement.", Category.Magic, "ife_SeverA", 5, 5, Ability.Charisma, Ability.Intelligence));
-
-      learnableDictionary.Add(CustomSkill.Motivation, new LearnableSkill(CustomSkill.Motivation, "Performance", "Un jet de Charisme (Performance) couvre toute tentative de ravir un public avec de la musique, de la danse, du théâtre, des contes ou toute autre forme de divertissement.\n\nChaque rang augmente la durée et l'efficacité des capacités liées à l'encouragement des alliés.", Category.Magic, "ife_SeverA", 5, 2, Ability.Charisma, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.MotivationExpert, new LearnableSkill(CustomSkill.MotivationExpert, "Performance - Expert", "Un jet de Charisme (Performance) couvre toute tentative de ravir un public avec de la musique, de la danse, du théâtre, des contes ou toute autre forme de divertissement.\n\nChaque rang augmente la durée et l'efficacité des capacités liées à l'encouragement des alliés", Category.Magic, "ife_SeverA", 5, 3, Ability.Charisma, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.MotivationScience, new LearnableSkill(CustomSkill.MotivationScience, "Performance - Science", "Un jet de Charisme (Performance) couvre toute tentative de ravir un public avec de la musique, de la danse, du théâtre, des contes ou toute autre forme de divertissement.\n\nChaque rang augmente la durée et l'efficacité des capacités liées à l'encouragement des alliés.", Category.Magic, "ife_SeverA", 5, 4, Ability.Charisma, Ability.Intelligence));
-      learnableDictionary.Add(CustomSkill.MotivationMaster, new LearnableSkill(CustomSkill.MotivationMaster, "Performance - Maître", "Un jet de Charisme (Performance) couvre toute tentative de ravir un public avec de la musique, de la danse, du théâtre, des contes ou toute autre forme de divertissement.\n\nChaque rang augmente la durée et l'efficacité des capacités liées à l'encouragement des alliés.", Category.Magic, "ife_SeverA", 5, 5, Ability.Charisma, Ability.Intelligence));
-
-      learnableDictionary.Add(CustomSkill.Spearmanship, new LearnableSkill(CustomSkill.Spearmanship, "Maîtrise des armes de jet", "Votre niveau de maîtrise des armes de jet.\nChaque rang augmente les dégâts des armes de jet et leurs chances de critique de 1 %.\nChaque rang augmente la durée et l'efficacité des capacités liées aux armes de jet.\n\nLes armes concernées par cet attribut sont :\n- Le javelot (ex lance courte)\n- La hache de jet.", Category.Fight, "ife_SeverA", 5, 2, Ability.Dexterity, Ability.Strength));
-      learnableDictionary.Add(CustomSkill.SpearmanshipExpert, new LearnableSkill(CustomSkill.SpearmanshipExpert, "Maîtrise des armes de jet - Expert", "Votre niveau de maîtrise des armes de jet.\nChaque rang augmente les dégâts des armes de jet et leurs chances de critique de 1 %.\nChaque rang augmente la durée et l'efficacité des capacités liées aux armes de jet\n\nLes armes concernées par cet attribut sont :\n- Le javelot (ex lance courte)\n- La hache de jet.", Category.Fight, "ife_SeverA", 5, 3, Ability.Dexterity, Ability.Strength));
-      learnableDictionary.Add(CustomSkill.SpearmanshipScience, new LearnableSkill(CustomSkill.SpearmanshipScience, "Maîtrise des armes de jet - Science", "Votre niveau de maîtrise des armes de jet.\nChaque rang augmente les dégâts des armes de jet et leurs chances de critique de 1 %.\nChaque rang augmente la durée et l'efficacité des capacités liées aux armes de jet.\n\nLes armes concernées par cet attribut sont :\n- Le javelot (ex lance courte)\n- La hache de jet.", Category.Fight, "ife_SeverA", 5, 4, Ability.Dexterity, Ability.Strength));
-      learnableDictionary.Add(CustomSkill.SpearmanshipMaster, new LearnableSkill(CustomSkill.SpearmanshipMaster, "Maîtrise des armes de jet - Maître", "Votre niveau de maîtrise des armes de jet.\nChaque rang augmente les dégâts des armes de jet et leurs chances de critique de 1 %.\nChaque rang augmente la durée et l'efficacité des capacités liées aux armes de jet.\n\nLes armes concernées par cet attribut sont :\n- Le javelot (ex lance courte)\n- La hache de jet.", Category.Fight, "ife_SeverA", 5, 5, Ability.Dexterity, Ability.Strength));
-
-      learnableDictionary.Add(CustomSkill.Mysticism, new LearnableSkill(CustomSkill.Mysticism, "Mysticisme", "Votre niveau de maîtrise mystique.\nChaque rang augmente la durée et l'efficacité des capacités liées au mysticisme.\nChaque rang réduit le coût de vos sorts positifs (buff) de 1 % par modificateur de charisme de base.", Category.Magic, "ife_SeverA", 5, 2, Ability.Wisdom, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.MysticismExpert, new LearnableSkill(CustomSkill.MysticismExpert, "Mysticisme - Expert", "Votre niveau de maîtrise mystique.\nChaque rang augmente la durée et l'efficacité des capacités liées au mysticisme.\nChaque rang réduit le coût de vos sorts positifs (buff) de 1 % par modificateur de charisme de base.", Category.Magic, "ife_SeverA", 5, 3, Ability.Wisdom, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.MysticismScience, new LearnableSkill(CustomSkill.MysticismScience, "Mysticisme - Science", "Votre niveau de maîtrise mystique.\nChaque rang augmente la durée et l'efficacité des capacités liées au mysticisme.\nChaque rang réduit le coût de vos sorts positifs (buff) de 1 % par modificateur de charisme de base.", Category.Magic, "ife_SeverA", 5, 4, Ability.Wisdom, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.MysticismMaster, new LearnableSkill(CustomSkill.MysticismMaster, "Mysticisme - Maître", "Votre niveau de maîtrise mystique.\nChaque rang augmente la durée et l'efficacité des capacités liées au mysticisme.\nChaque rang réduit le coût de vos sorts positifs (buff) de 1 % par modificateur de charisme de base.", Category.Magic, "ife_SeverA", 5, 5, Ability.Wisdom, Ability.Charisma));
-
-      learnableDictionary.Add(CustomSkill.DivineProtection, new LearnableSkill(CustomSkill.DivineProtection, "Bouclier divin", "Votre niveau de maîtrise des protections divines.\nChaque rang augmente la durée et l'efficacité des sorts liés à la protection divine.", Category.Magic, "ife_SeverA", 5, 2, Ability.Wisdom, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.DivineProtectionExpert, new LearnableSkill(CustomSkill.DivineProtectionExpert, "Bouclier divin - Expert", "Votre niveau de maîtrise des protections divines.\nChaque rang augmente la durée et l'efficacité des sorts liés à la protection divine.", Category.Magic, "ife_SeverA", 5, 3, Ability.Wisdom, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.DivineProtectionScience, new LearnableSkill(CustomSkill.DivineProtectionScience, "Bouclier divin - Science", "Votre niveau de maîtrise des protections divines.\nChaque rang augmente la durée et l'efficacité des sorts liés à la protection divine.", Category.Magic, "ife_SeverA", 5, 4, Ability.Wisdom, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.DivineProtectionMaster, new LearnableSkill(CustomSkill.DivineProtectionMaster, "Bouclier divin - Maître", "Votre niveau de maîtrise des protections divines.\nChaque rang augmente la durée et l'efficacité des sorts liés à la protection divine.", Category.Magic, "ife_SeverA", 5, 5, Ability.Wisdom, Ability.Charisma));
-
-      learnableDictionary.Add(CustomSkill.DivineMight, new LearnableSkill(CustomSkill.DivineMight, "Puissance divine", "Votre niveau de maîtrise de la puissance divine.\nChaque rang augmente la durée et l'efficacité des sorts liés à la puissance divine.", Category.Magic, "ife_SeverA", 5, 2, Ability.Wisdom, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.DivineMightExpert, new LearnableSkill(CustomSkill.DivineMightExpert, "Puissance divine - Expert", "Votre niveau de maîtrise de la puissance divine.\nChaque rang augmente la durée et l'efficacité des sorts liés à la puissance divine.", Category.Magic, "ife_SeverA", 5, 3, Ability.Wisdom, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.DivineMightScience, new LearnableSkill(CustomSkill.DivineMightScience, "Puissance divine - Science", "Votre niveau de maîtrise de la puissance divine.\nChaque rang augmente la durée et l'efficacité des sorts liés à la puissance divine.", Category.Magic, "ife_SeverA", 5, 4, Ability.Wisdom, Ability.Charisma));
-      learnableDictionary.Add(CustomSkill.DivineMightMaster, new LearnableSkill(CustomSkill.DivineMightMaster, "Puissance divine - Maître", "Votre niveau de maîtrise de la puissance divine.\nChaque rang augmente la durée et l'efficacité des sorts liés à la puissance divine.", Category.Magic, "ife_SeverA", 5, 5, Ability.Wisdom, Ability.Charisma));
-
-      learnableDictionary.Add(CustomSkill.Scythemanship, new LearnableSkill(CustomSkill.Scythemanship, "Maîtrise de la faux", "Votre niveau de maîtrise de la faux.\nChaque rang augmente les dégâts infligés par les faux et leurs chances de critique de 1 %.\nChaque rang augmente la durée et l'efficacité des capacités liées à la faux.", Category.Magic, "ife_SeverA", 5, 2, Ability.Strength, Ability.Wisdom));
-      learnableDictionary.Add(CustomSkill.ScythemanshipExpert, new LearnableSkill(CustomSkill.ScythemanshipExpert, "Maîtrise de la faux - Expert", "Votre niveau de maîtrise de la faux.\nChaque rang augmente les dégâts infligés par les faux et leurs chances de critique de 1 %.\nChaque rang augmente la durée et l'efficacité des capacités liées à la faux.", Category.Magic, "ife_SeverA", 5, 3, Ability.Strength, Ability.Wisdom));
-      learnableDictionary.Add(CustomSkill.ScythemanshipScience, new LearnableSkill(CustomSkill.ScythemanshipScience, "Maîtrise de la faux - Science", "Votre niveau de maîtrise de la faux.\nChaque rang augmente les dégâts infligés par les faux et leurs chances de critique de 1 %.\nChaque rang augmente la durée et l'efficacité des capacités liées à la faux.", Category.Magic, "ife_SeverA", 5, 4, Ability.Strength, Ability.Wisdom));
-      learnableDictionary.Add(CustomSkill.ScythemanshipMaster, new LearnableSkill(CustomSkill.ScythemanshipMaster, "Maîtrise de la faux - Maître", "Votre niveau de maîtrise de la faux.\nChaque rang augmente les dégâts infligés par les faux et leurs chances de critique de 1 %.\nChaque rang augmente la durée et l'efficacité des capacités liées à la faux.", Category.Magic, "ife_SeverA", 5, 5, Ability.Strength, Ability.Wisdom));
-
       // COMBAT SKILLS
-      learnableDictionary.Add(CustomSkill.SeverArtery, new LearnableSkill(CustomSkill.SeverArtery, "Tranche-artère", "Adrénaline : 4\nAttaque à l'épée.\nInflige 5...21...25 secondes de saignement.", Category.Fight, "ife_SeverA", 5, 1, Ability.Strength, Ability.Dexterity, Attribut.Swordmanship, Type.Invalid, true));
+      learnableDictionary.Add(CustomSkill.SeverArtery, new LearnableSkill(CustomSkill.SeverArtery, "Tranche-artère", "Adrénaline : 4\nAttaque à l'épée.\nInflige 5...21...25 secondes de saignement.", Category.Fight, "ife_SeverA", 5, 1, Ability.Strength, Ability.Dexterity));
 
       // INSCRIPTIONS
       learnableDictionary.Add(CustomInscription.Cuirassé, new LearnableSkill(CustomInscription.Cuirassé, "Cuirassé", "Inscription de pièce d'armure\n\n+1 Armure et consomme un emplacement libre d'inscription.", Category.Inscription, "ife_X2EpicRepu", 5, 5, Ability.Charisma, Ability.Wisdom));
@@ -1081,6 +700,41 @@ namespace NWN.Systems
 
       return true;
     }*/
+    private static bool HandleLightArmorProficiency(PlayerSystem.Player player, int customSkillId)
+    {
+      player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.ArmorProficiencyLight));
+      return true;
+    }
+    private static bool HandleMediumArmorProficiency(PlayerSystem.Player player, int customSkillId)
+    {
+      player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.ArmorProficiencyMedium));
+      return true;
+    }
+    private static bool HandleHeavyArmorProficiency(PlayerSystem.Player player, int customSkillId)
+    {
+      player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.ArmorProficiencyHeavy));
+      return true;
+    }
+    private static bool HandleShieldProficiency(PlayerSystem.Player player, int customSkillId)
+    {
+      player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.ShieldProficiency));
+      return true;
+    }
+    private static bool HandleSimpleWeaponProficiency(PlayerSystem.Player player, int customSkillId)
+    {
+      player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.WeaponProficiencySimple));
+      return true;
+    }
+    private static bool HandleMartialProficiency(PlayerSystem.Player player, int customSkillId)
+    {
+      player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.WeaponProficiencyMartial));
+      return true;
+    }
+    private static bool HandleExoticProficiency(PlayerSystem.Player player, int customSkillId)
+    {
+      player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.WeaponProficiencyExotic));
+      return true;
+    }
     private static bool HandleImproveAbility(PlayerSystem.Player player, int customSkillId)
     {
       //Log.Info($"improve ability triggered : {customSkillId}");
@@ -1109,400 +763,514 @@ namespace NWN.Systems
 
       return true;
     }
-    /*private static bool HandleImproveEnergyStorage(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleAcolyteBackground(PlayerSystem.Player player, int customSkillId)
     {
-      player.endurance.additionnalMana = player.GetAdditionalMana();
-      return true;
-    }*/
-    private static bool HandleBackground(PlayerSystem.Player player, int customSkillId)
-    {
-      switch (customSkillId)
-      {
-        case CustomSkill.Acolyte:
-        case CustomSkill.Anthropologist:
-          if (!player.learnableSkills.ContainsKey(CustomSkill.Insight))
-            player.learnableSkills.Add(CustomSkill.Insight, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Insight]));
-          player.learnableSkills[CustomSkill.Insight].bonusPoints += 1;
+      if(player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency])))
+        player.learnableSkills[CustomSkill.InsightProficiency].LevelUp(player);
 
-          if (!player.learnableSkills.ContainsKey(CustomSkill.Religion))
-            player.learnableSkills.Add(CustomSkill.Religion, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Religion]));
-          player.learnableSkills[CustomSkill.Religion].bonusPoints += 1;
-          break;
+      player.learnableSkills[CustomSkill.InsightProficiency].source.Add(Category.StartingTraits);
 
-        case CustomSkill.Archeologist:
+      if(player.learnableSkills.TryAdd(CustomSkill.ReligionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ReligionProficiency])))
+      player.learnableSkills[CustomSkill.ReligionProficiency].LevelUp(player);
 
-          player.learnableSkills.TryAdd(CustomSkill.History, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.History]));
-          player.learnableSkills[CustomSkill.History].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.WildernessSurvival, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.WildernessSurvival]));
-          player.learnableSkills[CustomSkill.WildernessSurvival].bonusPoints += 1;
-          
-          break;
-
-        case CustomSkill.CloisteredScholar:
-
-          player.learnableSkills.TryAdd(CustomSkill.History, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.History]));
-          player.learnableSkills[CustomSkill.History].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.Arcana, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Arcana]));
-          player.learnableSkills[CustomSkill.Arcana].bonusPoints += 1;
-
-          if (!player.learnableSkills.ContainsKey(CustomSkill.Nature))
-            player.learnableSkills.Add(CustomSkill.Nature, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Nature]));
-          player.learnableSkills[CustomSkill.Nature].bonusPoints += 1;
-
-          if (!player.learnableSkills.ContainsKey(CustomSkill.Religion))
-            player.learnableSkills.Add(CustomSkill.Religion, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Religion]));
-          player.learnableSkills[CustomSkill.Religion].bonusPoints += 1;
-          break;
-
-        case CustomSkill.Sage:
-          if (!player.learnableSkills.ContainsKey(CustomSkill.History))
-            player.learnableSkills.Add(CustomSkill.History, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.History]));
-          player.learnableSkills[CustomSkill.History].bonusPoints += 1;
-
-          if (!player.learnableSkills.ContainsKey(CustomSkill.Arcana))
-            player.learnableSkills.Add(CustomSkill.Arcana, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Arcana]));
-          player.learnableSkills[CustomSkill.Arcana].bonusPoints += 1;
-
-          break;
-
-        case CustomSkill.Hermit:
-          if (!player.learnableSkills.ContainsKey(CustomSkill.Medicine))
-            player.learnableSkills.Add(CustomSkill.Medicine, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Medicine]));
-          player.learnableSkills[CustomSkill.Medicine].bonusPoints += 1;
-
-          if (!player.learnableSkills.ContainsKey(CustomSkill.Religion))
-            player.learnableSkills.Add(CustomSkill.Religion, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Religion]));
-          player.learnableSkills[CustomSkill.Religion].bonusPoints += 1;
-          break;
-
-        case CustomSkill.Wanderer:
-
-          player.learnableSkills.TryAdd(CustomSkill.WildernessSurvival, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.WildernessSurvival]));
-          player.learnableSkills[CustomSkill.WildernessSurvival].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.Persuasion, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Persuasion]));
-          player.learnableSkills[CustomSkill.Persuasion].bonusPoints += 1;
-
-          break;
-
-        case CustomSkill.Athlete:
-
-          player.learnableSkills.TryAdd(CustomSkill.Expertise, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Expertise]));
-          player.learnableSkills[CustomSkill.Expertise].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.Athletics, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Athletics]));
-          player.learnableSkills[CustomSkill.Athletics].bonusPoints += 1;
-
-          break;
-
-        case CustomSkill.Outlander:
-        case CustomSkill.Marine:
-
-          player.learnableSkills.TryAdd(CustomSkill.WildernessSurvival, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.WildernessSurvival]));
-          player.learnableSkills[CustomSkill.WildernessSurvival].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.Athletics, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Athletics]));
-          player.learnableSkills[CustomSkill.Athletics].bonusPoints += 1;
-
-          break;
-
-        case CustomSkill.Soldier:
-
-          player.learnableSkills.TryAdd(CustomSkill.Intimidation, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Intimidation]));
-          player.learnableSkills[CustomSkill.Intimidation].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.Athletics, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Athletics]));
-          player.learnableSkills[CustomSkill.Athletics].bonusPoints += 1;
-
-          break;
-
-        case CustomSkill.Mercenary:
-
-          player.learnableSkills.TryAdd(CustomSkill.Athletics, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Athletics]));
-          player.learnableSkills[CustomSkill.Athletics].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.Persuasion, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Persuasion]));
-          player.learnableSkills[CustomSkill.Persuasion].bonusPoints += 1;
-
-          break;
-
-        case CustomSkill.FolkHero:
-
-          player.learnableSkills.TryAdd(CustomSkill.Beast, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Beast]));
-          player.learnableSkills[CustomSkill.Beast].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.WildernessSurvival, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.WildernessSurvival]));
-          player.learnableSkills[CustomSkill.WildernessSurvival].bonusPoints += 1;
-
-          break;
-
-        case CustomSkill.Sailor:
-
-          player.learnableSkills.TryAdd(CustomSkill.Athletics, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Athletics]));
-          player.learnableSkills[CustomSkill.Athletics].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.Perception, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Perception]));
-          player.learnableSkills[CustomSkill.Perception].bonusPoints += 1;
-
-          break;
-
-        case CustomSkill.Shipwright:
-
-          player.learnableSkills.TryAdd(CustomSkill.History, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.History]));
-          player.learnableSkills[CustomSkill.History].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.Perception, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Perception]));
-          player.learnableSkills[CustomSkill.Perception].bonusPoints += 1;
-
-          // TODO : Accès gratuit à l'artisanat charpentier + 1 point de compétence bonus, uniquement si l'utilisateur ne connait pas déjà l'artisanat charpentier
-          break;
-
-        case CustomSkill.Fisher:
-
-          player.learnableSkills.TryAdd(CustomSkill.History, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.History]));
-          player.learnableSkills[CustomSkill.History].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.WildernessSurvival, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.WildernessSurvival]));
-          player.learnableSkills[CustomSkill.WildernessSurvival].bonusPoints += 1;
-
-          // TODO : Accès gratuit à l'artisanat pêcheur + 1 point de compétence bonus, uniquement si l'utilisateur ne connait pas déjà l'artisanat pêcheur
-          break;
-
-        case CustomSkill.Criminal:
-
-          player.learnableSkills.TryAdd(CustomSkill.Deception, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Deception]));
-          player.learnableSkills[CustomSkill.Deception].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.ShadowArts, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ShadowArts]));
-          player.learnableSkills[CustomSkill.ShadowArts].bonusPoints += 1;
-
-          break;
-
-        case CustomSkill.Charlatan:
-
-          if (!player.learnableSkills.ContainsKey(CustomSkill.Deception))
-            player.learnableSkills.Add(CustomSkill.Deception, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Deception]));
-          player.learnableSkills[CustomSkill.Deception].bonusPoints += 1;
-
-          if (!player.learnableSkills.ContainsKey(CustomSkill.Escamotage))
-            player.learnableSkills.Add(CustomSkill.Escamotage, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Escamotage]));
-          player.learnableSkills[CustomSkill.Escamotage].bonusPoints += 1;
-
-          break;
-
-        case CustomSkill.Smuggler:
-
-          player.learnableSkills.TryAdd(CustomSkill.Deception, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Deception]));
-          player.learnableSkills[CustomSkill.Deception].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.Athletics, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Athletics]));
-          player.learnableSkills[CustomSkill.Athletics].bonusPoints += 1;
-
-          break;
-
-        case CustomSkill.StreetUrchin:
-
-          player.learnableSkills.TryAdd(CustomSkill.Escamotage, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Escamotage]));
-          player.learnableSkills[CustomSkill.Escamotage].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.ShadowArts, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ShadowArts]));
-          player.learnableSkills[CustomSkill.ShadowArts].bonusPoints += 1;
-
-          break;
-
-        case CustomSkill.Gambler:
-
-          player.learnableSkills.TryAdd(CustomSkill.Deception, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Deception]));
-          player.learnableSkills[CustomSkill.Deception].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.Insight, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Insight]));
-          player.learnableSkills[CustomSkill.Insight].bonusPoints += 1;
-
-          break;
-
-        case CustomSkill.Entertainer:
-
-          player.learnableSkills.TryAdd(CustomSkill.Leadership, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Leadership]));
-          player.learnableSkills[CustomSkill.Leadership].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.Motivation, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Motivation]));
-          player.learnableSkills[CustomSkill.Motivation].bonusPoints += 1;
-
-          break;
-
-        case CustomSkill.CityWatch:
-
-          player.learnableSkills.TryAdd(CustomSkill.Athletics, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Athletics]));
-          player.learnableSkills[CustomSkill.Athletics].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.Insight, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Insight]));
-          player.learnableSkills[CustomSkill.Insight].bonusPoints += 1;
-
-          break;
-
-        case CustomSkill.Investigator:
-
-          player.learnableSkills.TryAdd(CustomSkill.Investigation, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Investigation]));
-          player.learnableSkills[CustomSkill.Investigation].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.Insight, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Insight]));
-          player.learnableSkills[CustomSkill.Insight].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.Perception, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Perception]));
-          player.learnableSkills[CustomSkill.Perception].bonusPoints += 1;
-
-          break;
-
-        case CustomSkill.KnightOfTheOrder:
-
-          player.learnableSkills.TryAdd(CustomSkill.Persuasion, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Persuasion]));
-          player.learnableSkills[CustomSkill.Persuasion].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.History, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.History]));
-          player.learnableSkills[CustomSkill.History].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.Religion, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Religion]));
-          player.learnableSkills[CustomSkill.Religion].bonusPoints += 1;
-
-          break;
-
-        case CustomSkill.Noble:
-
-          player.learnableSkills.TryAdd(CustomSkill.Persuasion, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Persuasion]));
-          player.learnableSkills[CustomSkill.Persuasion].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.History, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.History]));
-          player.learnableSkills[CustomSkill.History].bonusPoints += 1;
-
-          break;
-
-        case CustomSkill.Courtier:
-
-          player.learnableSkills.TryAdd(CustomSkill.Persuasion, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Persuasion]));
-          player.learnableSkills[CustomSkill.Persuasion].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.Insight, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Insight]));
-          player.learnableSkills[CustomSkill.Insight].bonusPoints += 1;
-
-          break;
-
-        case CustomSkill.FailedMerchant:
-
-          player.learnableSkills.TryAdd(CustomSkill.Persuasion, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Persuasion]));
-          player.learnableSkills[CustomSkill.Persuasion].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.Investigation, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Investigation]));
-          player.learnableSkills[CustomSkill.Investigation].bonusPoints += 1;
-
-          break;
-
-        case CustomSkill.Taken:
-        case CustomSkill.Refugee:
-
-          player.learnableSkills.TryAdd(CustomSkill.Nature, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Nature]));
-          player.learnableSkills[CustomSkill.Nature].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.WildernessSurvival, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.WildernessSurvival]));
-          player.learnableSkills[CustomSkill.WildernessSurvival].bonusPoints += 1;
-
-          break;
-
-        case CustomSkill.Heir:
-
-          player.learnableSkills.TryAdd(CustomSkill.Arcana, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Arcana]));
-          player.learnableSkills[CustomSkill.Arcana].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.WildernessSurvival, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.WildernessSurvival]));
-          player.learnableSkills[CustomSkill.WildernessSurvival].bonusPoints += 1;
-          break;
-
-        case CustomSkill.HauntedOne:
-
-          player.learnableSkills.TryAdd(CustomSkill.Arcana, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Arcana]));
-          player.learnableSkills[CustomSkill.Arcana].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.Investigation, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Investigation]));
-          player.learnableSkills[CustomSkill.Investigation].bonusPoints += 1;
-
-          break;
-
-        case CustomSkill.Magistrate:
-
-          player.learnableSkills.TryAdd(CustomSkill.Insight, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Insight]));
-          player.learnableSkills[CustomSkill.Insight].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.Intimidation, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Intimidation]));
-          player.learnableSkills[CustomSkill.Intimidation].bonusPoints += 1;
-
-          break;
-
-        case CustomSkill.Faceless:
-
-          player.learnableSkills.TryAdd(CustomSkill.Deception, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Deception]));
-          player.learnableSkills[CustomSkill.Deception].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.Intimidation, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Intimidation]));
-          player.learnableSkills[CustomSkill.Intimidation].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.Motivation, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Motivation]));
-          player.learnableSkills[CustomSkill.Motivation].bonusPoints += 1;
-
-          break;
-
-        case CustomSkill.SecretIdentity:
-
-          player.learnableSkills.TryAdd(CustomSkill.Deception, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Deception]));
-          player.learnableSkills[CustomSkill.Deception].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.ShadowArts, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ShadowArts]));
-          player.learnableSkills[CustomSkill.ShadowArts].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.Motivation, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Motivation]));
-          player.learnableSkills[CustomSkill.Motivation].bonusPoints += 1;
-
-          break;
-
-        case CustomSkill.AdventurerScion:
-
-          player.learnableSkills.TryAdd(CustomSkill.Motivation, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Motivation]));
-          player.learnableSkills[CustomSkill.Motivation].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.Perception, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Perception]));
-          player.learnableSkills[CustomSkill.Perception].bonusPoints += 1;
-          break;
-
-        case CustomSkill.Prisoner:
-
-          player.learnableSkills.TryAdd(CustomSkill.Perception, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Perception]));
-          player.learnableSkills[CustomSkill.Perception].bonusPoints += 1;
-
-          player.learnableSkills.TryAdd(CustomSkill.Deception, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Deception]));
-          player.learnableSkills[CustomSkill.Deception].bonusPoints += 1;
-
-          break;
-      }
+      player.learnableSkills[CustomSkill.ReligionProficiency].source.Add(Category.StartingTraits);
 
       return true;
     }
-    private static bool HandleImproveSavingThrow(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleAnthropologistBackground(PlayerSystem.Player player, int customSkillId)
     {
-      switch (customSkillId)
-      {
-        case CustomSkill.ImprovedFortitude:
-          player.oid.LoginCreature.SetBaseSavingThrow(SavingThrow.Fortitude, (sbyte)(player.oid.LoginCreature.GetBaseSavingThrow(SavingThrow.Fortitude) + 1));
-          break;
-        case CustomSkill.ImprovedReflex:
-          player.oid.LoginCreature.SetBaseSavingThrow(SavingThrow.Reflex, (sbyte)(player.oid.LoginCreature.GetBaseSavingThrow(SavingThrow.Reflex) + 1));
-          break;
-        case CustomSkill.ImprovedWill:
-          player.oid.LoginCreature.SetBaseSavingThrow(SavingThrow.Will, (sbyte)(player.oid.LoginCreature.GetBaseSavingThrow(SavingThrow.Will) + 1));
-          break;
-        case CustomSkill.ImprovedSavingThrowAll:
-          player.oid.LoginCreature.SetBaseSavingThrow(SavingThrow.All, (sbyte)(player.oid.LoginCreature.GetBaseSavingThrow(SavingThrow.All) + 1));
-          break;
-      }
+      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency])))
+      player.learnableSkills[CustomSkill.InsightProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.InsightProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.HistoryProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HistoryProficiency])))
+      player.learnableSkills[CustomSkill.HistoryProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.HistoryProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleArcheologistBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency])))
+      player.learnableSkills[CustomSkill.InsightProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.InsightProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.IntimidationProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.IntimidationProficiency])))
+      player.learnableSkills[CustomSkill.IntimidationProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.IntimidationProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleScholarBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.HistoryProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HistoryProficiency])))
+      player.learnableSkills[CustomSkill.HistoryProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.HistoryProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.NatureProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.NatureProficiency])))
+      player.learnableSkills[CustomSkill.NatureProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.NatureProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleSageBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.HistoryProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HistoryProficiency])))
+      player.learnableSkills[CustomSkill.HistoryProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.HistoryProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.ArcanaProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ArcanaProficiency])))
+      player.learnableSkills[CustomSkill.ArcanaProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.ArcanaProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleHermitBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.MedicineProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MedicineProficiency])))
+      player.learnableSkills[CustomSkill.MedicineProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.MedicineProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.ReligionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ReligionProficiency])))
+      player.learnableSkills[CustomSkill.ReligionProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.ReligionProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleWandererBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency])))
+      player.learnableSkills[CustomSkill.SurvivalProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.SurvivalProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.PersuasionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PersuasionProficiency])))
+      player.learnableSkills[CustomSkill.PersuasionProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.PersuasionProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleAthleteBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.AcrobaticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AcrobaticsProficiency])))
+      player.learnableSkills[CustomSkill.AcrobaticsProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.AcrobaticsProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.AthleticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AthleticsProficiency])))
+      player.learnableSkills[CustomSkill.AthleticsProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.AthleticsProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleOutlanderBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.AthleticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AthleticsProficiency])))
+      player.learnableSkills[CustomSkill.AthleticsProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.AthleticsProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency])))
+      player.learnableSkills[CustomSkill.SurvivalProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.SurvivalProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleSoldierBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.AthleticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AthleticsProficiency])))
+      player.learnableSkills[CustomSkill.AthleticsProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.AthleticsProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.IntimidationProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.IntimidationProficiency])))
+      player.learnableSkills[CustomSkill.IntimidationProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.IntimidationProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleMercenaryBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.AthleticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AthleticsProficiency])))
+      player.learnableSkills[CustomSkill.AthleticsProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.AthleticsProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.PersuasionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PersuasionProficiency])))
+      player.learnableSkills[CustomSkill.PersuasionProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.PersuasionProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleFolkHeroBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.AnimalHandlingProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AnimalHandlingProficiency])))
+      player.learnableSkills[CustomSkill.AnimalHandlingProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.AnimalHandlingProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency])))
+      player.learnableSkills[CustomSkill.SurvivalProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.SurvivalProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleSailorBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.AthleticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AthleticsProficiency])))
+      player.learnableSkills[CustomSkill.AthleticsProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.AthleticsProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.PerceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PerceptionProficiency])))
+      player.learnableSkills[CustomSkill.PerceptionProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.PerceptionProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleShipwrightBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.HistoryProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HistoryProficiency])))
+      player.learnableSkills[CustomSkill.HistoryProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.HistoryProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.PerceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PerceptionProficiency])))
+      player.learnableSkills[CustomSkill.PerceptionProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.PerceptionProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleFisherBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.MedicineProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MedicineProficiency])))
+      player.learnableSkills[CustomSkill.MedicineProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.MedicineProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency])))
+      player.learnableSkills[CustomSkill.SurvivalProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.SurvivalProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleMarineBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.PerceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PerceptionProficiency])))
+      player.learnableSkills[CustomSkill.PerceptionProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.PerceptionProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency])))
+      player.learnableSkills[CustomSkill.SurvivalProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.SurvivalProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleCriminalBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency])))
+      player.learnableSkills[CustomSkill.DeceptionProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.DeceptionProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.StealthProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.StealthProficiency])))
+      player.learnableSkills[CustomSkill.StealthProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.StealthProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleCharlatanBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency])))
+      player.learnableSkills[CustomSkill.DeceptionProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.DeceptionProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.SleightOfHandProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SleightOfHandProficiency])))
+      player.learnableSkills[CustomSkill.SleightOfHandProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.SleightOfHandProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleSmugglerBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency])))
+      player.learnableSkills[CustomSkill.DeceptionProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.DeceptionProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.AthleticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AthleticsProficiency])))
+      player.learnableSkills[CustomSkill.AthleticsProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.AthleticsProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleUrchinBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.SleightOfHandProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SleightOfHandProficiency])))
+      player.learnableSkills[CustomSkill.SleightOfHandProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.SleightOfHandProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.StealthProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.StealthProficiency])))
+      player.learnableSkills[CustomSkill.StealthProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.StealthProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleGamblerBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency])))
+      player.learnableSkills[CustomSkill.DeceptionProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.DeceptionProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency])))
+      player.learnableSkills[CustomSkill.InsightProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.InsightProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleEntertainerBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.PerformanceProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PerformanceProficiency])))
+      player.learnableSkills[CustomSkill.PerformanceProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.PerformanceProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.AcrobaticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AcrobaticsProficiency])))
+      player.learnableSkills[CustomSkill.AcrobaticsProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.AcrobaticsProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleCityWatchBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.AthleticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AthleticsProficiency])))
+      player.learnableSkills[CustomSkill.AthleticsProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.AthleticsProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency])))
+      player.learnableSkills[CustomSkill.InsightProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.InsightProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleInvestigatorBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.InvestigationProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InvestigationProficiency])))
+      player.learnableSkills[CustomSkill.InvestigationProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.InvestigationProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency])))
+      player.learnableSkills[CustomSkill.InsightProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.InsightProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleKnightBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.PersuasionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PersuasionProficiency])))
+      player.learnableSkills[CustomSkill.PersuasionProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.PersuasionProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.ReligionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ReligionProficiency])))
+      player.learnableSkills[CustomSkill.ReligionProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.ReligionProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleNobleBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.PersuasionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PersuasionProficiency])))
+      player.learnableSkills[CustomSkill.PersuasionProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.PersuasionProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.HistoryProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HistoryProficiency])))
+      player.learnableSkills[CustomSkill.HistoryProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.HistoryProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleCourtierBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.PersuasionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PersuasionProficiency])))
+      player.learnableSkills[CustomSkill.PersuasionProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.PersuasionProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.NatureProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.NatureProficiency])))
+      player.learnableSkills[CustomSkill.NatureProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.NatureProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleMerchantBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.PersuasionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PersuasionProficiency])))
+      player.learnableSkills[CustomSkill.PersuasionProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.PersuasionProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.InvestigationProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InvestigationProficiency])))
+      player.learnableSkills[CustomSkill.InvestigationProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.InvestigationProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleTakenBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.NatureProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.NatureProficiency])))
+      player.learnableSkills[CustomSkill.NatureProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.NatureProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency])))
+      player.learnableSkills[CustomSkill.SurvivalProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.SurvivalProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleScionBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.ArcanaProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ArcanaProficiency])))
+      player.learnableSkills[CustomSkill.ArcanaProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.ArcanaProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency])))
+      player.learnableSkills[CustomSkill.SurvivalProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.SurvivalProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleMagistrateBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency])))
+      player.learnableSkills[CustomSkill.InsightProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.InsightProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.IntimidationExpertise, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.IntimidationExpertise])))
+      player.learnableSkills[CustomSkill.IntimidationExpertise].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.IntimidationProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleRefugeeBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency])))
+      player.learnableSkills[CustomSkill.InsightProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.InsightProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency])))
+      player.learnableSkills[CustomSkill.SurvivalProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.SurvivalProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandlePrisonerBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency])))
+      player.learnableSkills[CustomSkill.DeceptionProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.DeceptionProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.PerceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PerceptionProficiency])))
+      player.learnableSkills[CustomSkill.PerceptionProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.PerceptionProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleHauntedBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.ArcanaProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ArcanaProficiency])))
+      player.learnableSkills[CustomSkill.ArcanaProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.ArcanaProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.InvestigationProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InvestigationProficiency])))
+      player.learnableSkills[CustomSkill.InvestigationProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.InvestigationProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleFacelessBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency])))
+      player.learnableSkills[CustomSkill.DeceptionProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.DeceptionProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.IntimidationProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.IntimidationProficiency])))
+      player.learnableSkills[CustomSkill.IntimidationProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.IntimidationProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+    private static bool HandleSecretBackground(PlayerSystem.Player player, int customSkillId)
+    {
+      if (player.learnableSkills.TryAdd(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency])))
+      player.learnableSkills[CustomSkill.DeceptionProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.DeceptionProficiency].source.Add(Category.StartingTraits);
+
+      if (player.learnableSkills.TryAdd(CustomSkill.PerformanceProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PerformanceProficiency])))
+      player.learnableSkills[CustomSkill.PerformanceProficiency].LevelUp(player);
+
+      player.learnableSkills[CustomSkill.PerformanceProficiency].source.Add(Category.StartingTraits);
+
+      return true;
+    }
+
+    private static bool HandleWarriorCombatStyle(PlayerSystem.Player player, int customSkillId)
+    {
+      // TODO : ouvrir une fenêtre pour proposer un choix parmi les styles de combat en excluant les styles déjà connus par le personnage
 
       return true;
     }

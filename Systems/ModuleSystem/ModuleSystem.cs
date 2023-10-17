@@ -105,7 +105,7 @@ namespace NWN.Systems
       //NwModule.Instance.SetEventScript((EventScriptType)NWScript.EVENT_SCRIPT_MODULE_ON_PLAYER_TILE_ACTION, "on_tile_action");
       
       string serverName = "FR] Les Larmes des Erylies";
-      NwServer.Instance.ServerInfo.ModuleName = "Demo technique ouverte";
+      NwServer.Instance.ServerInfo.ModuleName = "Closed alpha";
 
       switch (Config.env)
       {
@@ -135,7 +135,7 @@ namespace NWN.Systems
       RestorePlayerCorpseFromDatabase();
       RestoreResourceBlocksFromDatabase();
       LoadHeadLists();
-      InitializeTlkOverrides();
+      StringUtils.InitializeTlkOverrides();
 
       TimeSpan nextActivation = DateTime.Now.Hour < 5 ? new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 5, 0, 0) - DateTime.Now : DateTime.Now.AddDays(1).AddHours(-(DateTime.Now.Hour - 5)) - DateTime.Now;
 
@@ -213,6 +213,8 @@ namespace NWN.Systems
 
       foreach(var mdl in array)
         Log.Info($";{mdl};{NWScript.ResManGetAliasFor(mdl, NWScript.RESTYPE_MDL)}");*/
+
+      //Log.Info($"----------------------vff_expdlos10 : {NWScript.ResManGetAliasFor("vff_expdlos10", NWScript.RESTYPE_MDL)}");      
     }
     private void MakeInventoryUndroppable(CreatureEvents.OnDeath onDeath)
     {
@@ -258,52 +260,6 @@ namespace NWN.Systems
               $"{e.Message}\n" +
               $"{e.StackTrace}");
       }
-    }
-    private static void InitializeTlkOverrides()
-    {
-      StrRef tlkEntry = StrRef.FromCustomTlk(190050); 
-      tlkEntry.Override = "Mélange";
-
-      tlkEntry = StrRef.FromCustomTlk(190051);
-      tlkEntry.Override = "Tranche-artère";
-
-      tlkEntry = StrRef.FromCustomTlk(190052);
-      tlkEntry.Override = "Adrénaline : 4\nAttaque à l'épée.\nInflige 5...21...25 secondes de saignement.";
-
-      tlkEntry = StrRef.FromCustomTlk(190053);
-      tlkEntry.Override = "Saignement";
-
-      tlkEntry = StrRef.FromCustomTlk(190054);
-      tlkEntry.Override = "Brûlure";
-
-      tlkEntry = StrRef.FromCustomTlk(190055);
-      tlkEntry.Override = "Infirmité";
-
-      tlkEntry = StrRef.FromCustomTlk(190056);
-      tlkEntry.Override = "Blessure profonde";
-
-      tlkEntry = StrRef.FromCustomTlk(190057);
-      tlkEntry.Override = "Maladie";
-
-      tlkEntry = StrRef.FromCustomTlk(190058);
-      tlkEntry.Override = "Empoisonnement";
-
-      tlkEntry = StrRef.FromCustomTlk(190059);
-      tlkEntry.Override = "Faiblesse";
-
-      tlkEntry = StrRef.FromCustomTlk(190060);
-      tlkEntry.Override = "Armure brisée";
-
-      tlkEntry = StrRef.FromCustomTlk(190061);
-      tlkEntry.Override = "Aveuglement";
-
-      tlkEntry = StrRef.FromCustomTlk(190062);
-      tlkEntry.Override = "Etourdissement";
-
-      tlkEntry = StrRef.FromCustomTlk(1382);
-      tlkEntry.Override = "Souffle de guérison";
-
-      
     }
     /*private static async void ReadGDocLine()
     {
@@ -441,7 +397,7 @@ namespace NWN.Systems
 
       EventsPlugin.SubscribeEvent("NWNX_ON_ITEM_DECREMENT_STACKSIZE_BEFORE", "on_ammo_used");
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_EMOTE_BEFORE", "on_input_emote");
-      EventsPlugin.SubscribeEvent("NWNX_ON_COMBAT_ATTACK_OF_OPPORTUNITY_BEFORE", "on_opportunity");
+      EventsPlugin.SubscribeEvent("NWNX_ON_BROADCAST_ATTACK_OF_OPPORTUNITY_BEFORE", "on_opportunity");
       EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_BEFORE", "on_dual_fight");
       EventsPlugin.AddIDToWhitelist("NWNX_ON_HAS_FEAT", (int)Feat.TwoWeaponFighting);
       EventsPlugin.AddIDToWhitelist("NWNX_ON_HAS_FEAT", (int)Feat.Ambidexterity);
@@ -455,6 +411,10 @@ namespace NWN.Systems
       NwModule.Instance.OnCreatureCheckProficiencies += ItemSystem.OverrideProficiencyCheck;
       NwModule.Instance.OnItemEquip += ItemSystem.OnEquipHastWeapon;
       NwModule.Instance.OnItemUnequip += ItemSystem.OnUnequipHastWeapon;
+
+      NwModule.Instance.OnEffectApply += EffectSystem.OnIncapacitatedRemoveThreatRange;
+      NwModule.Instance.OnEffectRemove += EffectSystem.OnRecoveryAddThreatRange;
+      
       //NwModule.Instance.OnEffectApply += OnPlayerEffectApplied;
     }
     private static void SetModuleTime()
@@ -1263,13 +1223,43 @@ namespace NWN.Systems
     [ScriptHandler("on_opportunity")]
     private void HandleOpportunityAttack(CallInfo callInfo)
     {
-      //EventsPlugin.SkipEvent();
+      if (EventsPlugin.GetEventData("MOVEMENT") != "1" || callInfo.ObjectSelf.GetObjectVariable<LocalVariableInt>("_CURRENT_SPELL").HasValue)
+      {
+        EventsPlugin.SkipEvent();
+        return; 
+      }
+
+      NwCreature target = uint.TryParse(EventsPlugin.GetEventData("TARGET_OBJECT_ID"), out uint targetID)
+        ? targetID.ToNwObject<NwCreature>() : null;
+
+      if (target is not null && target.ActiveEffects.Any(e => e.Tag == "_EFFECT_DISENGAGE"))
+      {
+        EventsPlugin.SkipEvent();
+        return;
+      }
+
+      if (callInfo.ObjectSelf is NwCreature creature && creature.IsLoginPlayerCharacter)
+      {
+        if (creature.GetObjectVariable<LocalVariableInt>("_REACTION").Value < 1)
+          EventsPlugin.SkipEvent();
+        else
+          creature.GetObjectVariable<LocalVariableInt>("_REACTION").Value -= 1;
+      }
     }
     [ScriptHandler("on_dual_fight")]
     private void AutoGiveDualFightFeats(CallInfo callInfo)
     {
       EventsPlugin.SetEventResult("1");
       EventsPlugin.SkipEvent();
+
+      /*switch((Feat)int.Parse(EventsPlugin.GetEventData("FEAT_ID")))
+      {
+        case Feat.Ambidexterity:
+        case Feat.TwoWeaponFighting:
+          EventsPlugin.SetEventResult("1");
+          EventsPlugin.SkipEvent();
+          break;
+      }*/
     }
   }
 }

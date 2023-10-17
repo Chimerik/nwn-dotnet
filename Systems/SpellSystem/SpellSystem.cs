@@ -90,11 +90,13 @@ namespace NWN.Systems
     }
     public void HandleSpellInput(OnSpellAction onSpellAction)
     {
+      onSpellAction.Caster.GetObjectVariable<LocalVariableInt>("_CURRENT_SPELL").Value = onSpellAction.Spell.Id;
+
       //if (!Players.TryGetValue(onSpellAction.Caster, out Player player))
-        //return;
+      //return;
 
       //if (onSpellAction.IsFake || onSpellAction.IsInstant)
-        //return;
+      //return;
 
       //onSpellAction.PreventSpellCast = true;
 
@@ -127,7 +129,7 @@ namespace NWN.Systems
 
       //HandleCastTime(onSpellAction, player);
     }
-    private static async void HandleCastTime(OnSpellAction spellAction, Player castingPlayer)
+    /*private static async void HandleCastTime(OnSpellAction spellAction, Player castingPlayer)
     {
       Location targetLocation = spellAction.IsAreaTarget ? Location.Create(spellAction.Caster.Area, spellAction.TargetPosition, spellAction.Caster.Rotation) : null;
       Vector3 previousPosition = spellAction.Caster.Position;
@@ -171,14 +173,13 @@ namespace NWN.Systems
         await spellAction.Caster.ActionCastSpellAt(spellAction.Spell, spellAction.TargetObject, spellAction.MetaMagic, true, 0, ProjectilePathType.Default, true);
 
       spellAction.Caster.GetObjectVariable<LocalVariableInt>("_CURRENT_SPELL").Value = spellAction.Spell.Id;
-    }
-    private static double GetCastTime(Player player, NwSpell spell)
+    }*/
+    /*private static double GetCastTime(Player player, NwSpell spell)
     {
       double castTime = spell.ConjureTime.TotalMilliseconds;
 
       if (SpellUtils.spellCostDictionary[spell][3] != (int)SkillSystem.Type.Signet)
       {
-
         foreach (var eff in player.oid.LoginCreature.ActiveEffects)
           if (eff.Tag == "CUSTOM_CONDITION_DAZED")
           {
@@ -219,7 +220,7 @@ namespace NWN.Systems
       }
 
       return castTime / 1.5;      
-    }
+    }*/
     public static void HandleCraftOnSpellInput(OnSpellAction onSpellAction)
     {
       if (onSpellAction.Spell.ImpactScript == "on_ench_cast")
@@ -245,7 +246,7 @@ namespace NWN.Systems
       onSpellAction.PreventSpellCast = true;
     }
 
-    [ScriptHandler("spellhook")]
+    [ScriptHandler("spellhook")] // TODO : Dans le cas des sorts de contact, appliquer un désavantage si le lancer est menacé en mêlée
     private void HandleSpellHook(CallInfo callInfo)
     {
       SpellEvents.OnSpellCast onSpellCast = new SpellEvents.OnSpellCast();
@@ -272,33 +273,9 @@ namespace NWN.Systems
 
       double durationModifier = 1;
 
-      if (SpellUtils.spellCostDictionary[onSpellCast.Spell][(int)SpellUtils.SpellData.Type] == (int)SkillSystem.Type.Enchantement)
-      {
-        durationModifier += SpellUtils.GetIncreaseDurationFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.Neck), CustomInscription.Extension);
-        durationModifier += SpellUtils.GetIncreaseDurationFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftRing), CustomInscription.Extension);
-        durationModifier += SpellUtils.GetIncreaseDurationFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightRing), CustomInscription.Extension);
-      }
-
-      SkillSystem.Attribut spellAttribute = (SkillSystem.Attribut)SpellUtils.spellCostDictionary[onSpellCast.Spell][(int)SpellUtils.SpellData.Attribute];
-      int attributeLevel = player.GetAttributeLevel(spellAttribute); 
-      int bonusAttributeChance = 0;
-
       NwItem castItem = player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
 
-      if(castItem is not null && ItemUtils.GetItemAttribute(castItem) == spellAttribute)
-        for (int i = 0; i < castItem.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
-          if (castItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value == CustomInscription.Maîtrise)
-            bonusAttributeChance += 3;
-
       castItem = player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand);
-
-      if (castItem is not null && ItemUtils.GetItemAttribute(castItem) == spellAttribute)
-        for (int i = 0; i < castItem.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
-          if (castItem.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value == CustomInscription.Maîtrise)
-            bonusAttributeChance += 3;
-
-      if (NwRandom.Roll(Utils.random, 100) < bonusAttributeChance)
-        attributeLevel += 1;
 
       switch (onSpellCast.Spell.SpellType)
       {
@@ -337,10 +314,10 @@ namespace NWN.Systems
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
-        case Spell.Virtue:
-          HealingBreeze(onSpellCast, durationModifier, attributeLevel);
+       /* case Spell.Virtue:
+          HealingBreeze(onSpellCast, durationModifier);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
-          break;
+          break;*/
 
         case Spell.RaiseDead:
         case Spell.Resurrection:
@@ -357,40 +334,9 @@ namespace NWN.Systems
           ImprovedInvisibility(onSpellCast);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
-      }
-
-      switch((SkillSystem.Type)SpellUtils.spellCostDictionary[onSpellCast.Spell][(int)SpellUtils.SpellData.Type])
-      {
-        case SkillSystem.Type.Shout:
-        case SkillSystem.Type.Chant:
-
-          List<NwCreature> targetList = new();
-
-          foreach(NwCreature partyMember in castingCreature.Faction.GetMembers())
-            if(castingCreature?.Area == partyMember?.Area && castingCreature.DistanceSquared(partyMember) < 900)
-              targetList.Add(partyMember);
-
-          if (player.endurance.regenerableMana > 0 && player.endurance.currentMana < player.endurance.maxMana)
-          {
-
-            int leadershipLevel = 2 * player.GetAttributeLevel(SkillSystem.Attribut.Leadership);
-            int mana = 2 * targetList.Count;
-            int charismaModifier = 3 * (castingCreature.GetAbilityScore(Ability.Charisma, true) - 10) / 2;
-            mana = leadershipLevel > charismaModifier
-              ? mana > charismaModifier ? charismaModifier : mana
-              : mana > leadershipLevel ? leadershipLevel : mana;
-
-            player.endurance.currentMana = mana + player.endurance.currentMana > player.endurance.maxMana ? player.endurance.maxMana : mana + player.endurance.currentMana;
-            player.endurance.regenerableMana -= mana;
-          }
-
-          switch (onSpellCast.Spell.SpellType)
-          {
-            case Spell.WarCry:
-              // TODO : on appelle la routine du sort en lui fournissant la liste des créatures affectées
-              break;
-          }
-
+        case Spell.FleshToStone:
+          Petrify(onSpellCast);
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
       }
 
@@ -439,27 +385,10 @@ namespace NWN.Systems
         if (spellSlot.Spell == onSpellCast.Spell)
           spellSlot.IsReady = false;
 
-      int cooldown = SpellUtils.spellCostDictionary[onSpellCast.Spell][1];
+      /*int cooldown = SpellUtils.spellCostDictionary[onSpellCast.Spell][1];
 
       StartSpellCooldown(caster, onSpellCast.Spell, cooldown, player);
-      WaitCooldownToRestoreSpell(caster, onSpellCast.Spell, cooldown);
-
-      switch((SkillSystem.Attribut)SpellUtils.spellCostDictionary[onSpellCast.Spell][(int)SpellUtils.SpellData.Attribute])
-      {
-        case SkillSystem.Attribut.DivineFavor:
-        case SkillSystem.Attribut.ProtectionPrayers:
-        case SkillSystem.Attribut.HealingPrayers:
-
-          int divineFavorLevel = player.GetAttributeLevel(SkillSystem.Attribut.DivineFavor);
-
-          if(divineFavorLevel > 0)
-          {
-            int healAmount = divineFavorLevel * caster.GetAbilityModifier(Ability.Wisdom) / 8;
-            StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{healAmount} (Faveur Divine)", ColorConstants.Cyan);
-          }
-
-          break;
-      }
+      WaitCooldownToRestoreSpell(caster, onSpellCast.Spell, cooldown);*/
     }
     private void DelayedTagAoE(Player player)
     {
@@ -628,12 +557,12 @@ namespace NWN.Systems
       OnInvisMarkerPositionChanged(oPC, silhouette);
     }
 
-    [ScriptHandler("nw_s0_invspha")]
+    /*[ScriptHandler("nw_s0_invspha")]
     private void OnInviSphereEnter(CallInfo callInfo)
     {
       if (NWScript.GetEnteringObject().ToNwObject() is NwCreature oTarget)
       {
-        Effect eInvis = Effect.Invisibility(InvisibilityType.Normal);
+        Effect eInvis = Effect.Invisibility(InvisibilityTypef.Normal);
         Effect eVis = Effect.VisualEffect(VfxType.DurInvisibility);
         Effect eDur = Effect.VisualEffect(VfxType.DurCessatePositive);
         Effect eLink = Effect.LinkEffects(eInvis, eVis);
@@ -649,9 +578,9 @@ namespace NWN.Systems
           oTarget.ApplyEffect(EffectDuration.Permanent, eLink);
         }
       }
-    }
+    }*/
 
-    [ScriptHandler("nw_s0_invsphb")]
+    /*[ScriptHandler("nw_s0_invsphb")]
     private void OnInviSphereExit(CallInfo callInfo)
     {
       if (NWScript.GetExitingObject().ToNwObject() is NwCreature oTarget)
@@ -661,7 +590,7 @@ namespace NWN.Systems
         foreach (Effect eff in oTarget.ActiveEffects.Where(e => e.EffectType == EffectType.Invisibility && e.Spell.SpellType == Spell.InvisibilitySphere && e.Creator == inviSphere.Creator))
           oTarget.RemoveEffect(eff);
       }
-    }
+    }*/
 
     /*[ScriptHandler("frog_on")]
     private void OnFrogEffectApplied(CallInfo callInfo)

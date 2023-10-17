@@ -12,13 +12,16 @@ namespace NWN.Systems
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public readonly EnforceLegalCharacterService elcService;
-    public ELCSystem(EnforceLegalCharacterService elcService)
+    public readonly AreaSystem areaSystem;
+    public ELCSystem(EnforceLegalCharacterService elcService, AreaSystem areaSystem)
     {
       this.elcService = elcService;
       elcService.EnforceDefaultEventScripts = true;
       elcService.EnforceEmptyDialog = true;
       elcService.OnValidationFailure += onELCValidationFailure;
       elcService.OnValidationSuccess += onELCValidationSuccess;
+      this.areaSystem = areaSystem;
+
     }
     private void onELCValidationSuccess(OnELCValidationSuccess onELCSuccess)
     {
@@ -34,8 +37,14 @@ namespace NWN.Systems
         {
           Location spawnLoc = SqLiteUtils.DeserializeLocation(result[0]);
 
-          if (spawnLoc.Area == null)
+          if (spawnLoc.Area is null)
+          {
+            if(onELCSuccess.Player.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION").HasValue)
+              onELCSuccess.Player.SpawnLocation = PlayerSystem.CreateIntroScene(onELCSuccess.Player, areaSystem);
+
             return;
+          }
+            
 
           onELCSuccess.Player.SpawnLocation = spawnLoc;
         }

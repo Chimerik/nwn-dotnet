@@ -808,7 +808,6 @@ namespace NWN.Systems
                     }
                     else
                     {
-                      targetCreature.OnDeath -= CreatureUtils.OnMobDeathSoulReap;
                       targetCreature.OnDeath -= CreatureUtils.OnMobDeathResetSpawn;
                       HandlePermanentSpawnDeletion();
                       player.oid.SendServerMessage($"{targetCreature.Name.ColorString(ColorConstants.White)} a été retiré du système de spawn.", ColorConstants.Orange);

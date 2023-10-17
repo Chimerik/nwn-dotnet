@@ -100,7 +100,7 @@ namespace NWN.Systems
         ProcessDamageCalculations,
         ProcessAdrenaline,
         ProcessSpecialAttack,
-        ProcessDoubleStrike,
+        //ProcessDoubleStrike,
         ProcessAttackerItemDurability,
         ProcessTargetItemDurability,
       }
@@ -112,7 +112,7 @@ namespace NWN.Systems
 
       if (onAttack.Target is not NwCreature oTarget)
         return;
-
+      
       pipeline.Execute(new Context(
         onAttack: onAttack,
         oTarget: oTarget
@@ -189,7 +189,7 @@ namespace NWN.Systems
       if (ctx.onAttack.AttackResult == AttackResult.CriticalHit)
       {
         ctx.oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComBloodCrtRed));
-        StringUtils.DisplayStringToAllPlayersNearTarget(ctx.oTarget, "Critique", new Color(255, 215, 0));
+        StringUtils.DisplayStringToAllPlayersNearTarget(ctx.oTarget, "Critique", StringUtils.gold);
 
         /*ctx.baseArmorPenetration += 20;
         ctx.oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComBloodCrtRed));
@@ -443,14 +443,14 @@ namespace NWN.Systems
     }
     private static void ProcessBaseArmorPenetration(Context ctx, Action next)
     {
-      if (ctx.oAttacker.IsFlanking(ctx.oTarget))
-        ctx.baseArmorPenetration += 5;
+     // if (ctx.oAttacker.IsFlanking(ctx.oTarget))
+       // ctx.baseArmorPenetration += 5;
 
       // Les armes perforantes disposent de 20 % de pénétration supplémentaire contre les armures lourdes
       /*if (ctx.attackWeapon.BaseItem.WeaponType.Contains(DamageType.Piercing) && ctx.oTarget.GetItemInSlot(InventorySlot.Chest) is not null && ctx.oTarget.GetItemInSlot(InventorySlot.Chest).BaseACValue > 5)
         ctx.baseArmorPenetration += 20;*/
 
-      if (ctx.attackingPlayer is not null && ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_NEXT_ATTACK").HasValue)
+     /* if (ctx.attackingPlayer is not null && ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_NEXT_ATTACK").HasValue)
       {
         int athleticsLevel = ctx.attackingPlayer.learnableSkills.ContainsKey(CustomSkill.Athletics) ? ctx.attackingPlayer.learnableSkills[CustomSkill.Athletics].totalPoints : 0;
         athleticsLevel += ctx.attackingPlayer.learnableSkills.ContainsKey(CustomSkill.AthleticsExpert) ? ctx.attackingPlayer.learnableSkills[CustomSkill.AthleticsExpert].totalPoints : 0;
@@ -459,7 +459,7 @@ namespace NWN.Systems
         athleticsLevel = athleticsLevel > (ctx.oAttacker.GetAbilityScore(Ability.Strength, true) - 10) / 2 ? (ctx.oAttacker.GetAbilityScore(Ability.Strength, true) - 10) / 2 : athleticsLevel;
 
         ctx.baseArmorPenetration += athleticsLevel * 4;
-      }
+      }*/
 
       next();
     }
@@ -600,7 +600,7 @@ namespace NWN.Systems
     }
     private static void ProcessTargetSpecificAC(Context ctx, Action next)
     {
-      Config.SetArmorValueFromArmorPiece(ctx);
+      //Config.SetArmorValueFromArmorPiece(ctx);
       // TODO : Gérer les EFFECT qui ajoutent de l'armure (nécessite la refacto des sorts)
 
       /*if (ctx.targetArmor != null && ctx.targetArmor.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > -1)
@@ -654,9 +654,9 @@ namespace NWN.Systems
     }
     private static void ProcessTargetShieldAC(Context ctx, Action next)
     {
-      Config.SetArmorValueFromShield(ctx);
-      Config.GetArmorValueFromWeapon(ctx, ctx.oTarget.GetItemInSlot(InventorySlot.RightHand));
-      Config.GetArmorValueFromWeapon(ctx, ctx.oTarget.GetItemInSlot(InventorySlot.LeftHand));
+      //Config.SetArmorValueFromShield(ctx);
+      //Config.GetArmorValueFromWeapon(ctx, ctx.oTarget.GetItemInSlot(InventorySlot.RightHand));
+      //Config.GetArmorValueFromWeapon(ctx, ctx.oTarget.GetItemInSlot(InventorySlot.LeftHand));
       /*NwItem targetShield = ctx.oTarget.GetItemInSlot(InventorySlot.LeftHand);
 
       if (targetShield != null && targetShield.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value < 1) // Même si l'objet n'est pas à proprement parler un bouclier, tout item dans la main gauche procure un bonus de protection global
@@ -708,7 +708,7 @@ namespace NWN.Systems
     }
     private static void ProcessDamageFromWeaponInscriptions(Context ctx, Action next)
     {
-      Config.SetDamageValueFromWeapon(ctx);
+      //Config.SetDamageValueFromWeapon(ctx);
       next();
     }
     private static void ProcessWeakness(Context ctx, Action next)
@@ -761,19 +761,19 @@ namespace NWN.Systems
         if (targetAC < 0) targetAC = 0;
 
         double initialDamage = Config.GetContextDamage(ctx, damageType);
-        double skillModifier = damageType == DamageType.BaseWeapon && ctx.attackingPlayer is not null ? ctx.attackingPlayer.GetWeaponMasteryLevel(ctx.attackWeapon) : 0;
-        double modifiedDamage = initialDamage * Utils.GetDamageMultiplier(targetAC, skillModifier);
+        //double skillModifier = damageType == DamageType.BaseWeapon && ctx.attackingPlayer is not null ? ctx.attackingPlayer.GetWeaponMasteryLevel(ctx.attackWeapon) : 0;
+        //double modifiedDamage = initialDamage * Utils.GetDamageMultiplier(targetAC, skillModifier);
 
         if (ctx.oTarget.Tag == "damage_trainer" && ctx.oAttacker.IsPlayerControlled)
         {
-          ctx.oAttacker.ControllingPlayer.SendServerMessage($"Initial : {damageType.ToString().ColorString(ColorConstants.White)} - {initialDamage.ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);
-          ctx.oAttacker.ControllingPlayer.SendServerMessage($"Armure totale vs {damageType.ToString().ColorString(ColorConstants.White)} : {targetAC.ToString().ColorString(ColorConstants.White)} - Dégâts {string.Format("{0:0}", (int)modifiedDamage).ColorString(ColorConstants.White)}", ColorConstants.Orange);
-          ctx.oAttacker.ControllingPlayer.SendServerMessage($"Réduction : {string.Format("{0:0.000}", ((initialDamage - modifiedDamage) / modifiedDamage) * 100).ColorString(ColorConstants.White)}%", ColorConstants.Orange);
+          //ctx.oAttacker.ControllingPlayer.SendServerMessage($"Initial : {damageType.ToString().ColorString(ColorConstants.White)} - {initialDamage.ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);
+          //ctx.oAttacker.ControllingPlayer.SendServerMessage($"Armure totale vs {damageType.ToString().ColorString(ColorConstants.White)} : {targetAC.ToString().ColorString(ColorConstants.White)} - Dégâts {string.Format("{0:0}", (int)modifiedDamage).ColorString(ColorConstants.White)}", ColorConstants.Orange);
+          //ctx.oAttacker.ControllingPlayer.SendServerMessage($"Réduction : {string.Format("{0:0.000}", ((initialDamage - modifiedDamage) / modifiedDamage) * 100).ColorString(ColorConstants.White)}%", ColorConstants.Orange);
         }
 
-        modifiedDamage = Math.Round(modifiedDamage, MidpointRounding.ToEven);
-        Config.SetContextDamage(ctx, damageType, (int)modifiedDamage);
-        LogUtils.LogMessage($"Final : {damageType} - AC {targetAC} - Initial {initialDamage} - Final Damage {modifiedDamage}", LogUtils.LogType.Combat);
+        //modifiedDamage = Math.Round(modifiedDamage, MidpointRounding.ToEven);
+        //Config.SetContextDamage(ctx, damageType, (int)modifiedDamage);
+        //LogUtils.LogMessage($"Final : {damageType} - AC {targetAC} - Initial {initialDamage} - Final Damage {modifiedDamage}", LogUtils.LogType.Combat);
       }
 
       if(ctx.physicalReduction > 0)
@@ -797,22 +797,10 @@ namespace NWN.Systems
         int skillId = ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_NEXT_ATTACK").Value;
         NwFeat usedFeat = NwFeat.FromFeatId(skillId - 10000);
 
-        SkillSystem.Attribut attackAttribute = SkillSystem.learnableDictionary[skillId].attribut;
-        int attributeLevel = ctx.attackingPlayer.GetAttributeLevel(attackAttribute);
-        int bonusAttributeChance = 0;
-
-        if (ctx.attackWeapon is not null && ItemUtils.GetItemAttribute(ctx.attackWeapon) == attackAttribute)
-          for (int i = 0; i < ctx.attackWeapon.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
-            if (ctx.attackWeapon.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value == CustomInscription.Maîtrise)
-              bonusAttributeChance += 3;
-
-        if (NwRandom.Roll(Utils.random, 100) < bonusAttributeChance)
-          attributeLevel += 1;
-
         switch (skillId)
         {
           case CustomSkill.SeverArtery:
-            SeverArtery(ctx.attackingPlayer, ctx.oTarget, ctx.onAttack.WeaponAttackType, attributeLevel);
+            SeverArtery(ctx.attackingPlayer, ctx.oTarget, ctx.onAttack.WeaponAttackType);
             break;
         }
 
@@ -896,7 +884,7 @@ namespace NWN.Systems
 
       next();
     }
-    private static void ProcessDoubleStrike(Context ctx, Action next)
+    /*private static void ProcessDoubleStrike(Context ctx, Action next)
     {
       NwItem leftSlot = ctx.oAttacker.GetItemInSlot(InventorySlot.LeftHand);
 
@@ -948,7 +936,7 @@ namespace NWN.Systems
       }
 
       next();
-    }
+    }*/
     private static void ProcessAttackerItemDurability(Context ctx, Action next)
     {
       if (ctx.attackWeapon is not null &&  ctx.attackingPlayer is not null)

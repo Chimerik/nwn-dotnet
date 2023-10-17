@@ -308,18 +308,15 @@ namespace NWN.Systems
 
         private void LoadButtons()
         {
-          rootChildren.Add(new NuiRow()
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
           {
-            Children = new List<NuiElement>()
-            {
               new NuiSpacer(),
               new NuiButton("Base") { Id = "base", Height = 35, Width = 90 },
               new NuiButton("Propriétés") { Id = "properties", Height = 35, Width = 90, Enabled = visibilityDM },
               new NuiButton("Description") { Id = "description", Height = 35, Width = 90 },
               new NuiButton("Variables") { Id = "variables", Height = 35, Width = 90, Enabled = visibilityDM },
               new NuiSpacer()
-            }
-          });
+          } });
         }
 
         private void LoadBaseLayout()

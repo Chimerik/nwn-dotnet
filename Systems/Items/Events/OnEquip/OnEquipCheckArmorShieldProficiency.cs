@@ -29,6 +29,7 @@ namespace NWN.Systems
           if (proficenciesRequirements.Contains(Feat.ArmorProficiencyHeavy) && oPC.GetAbilityScore(Ability.Strength) < 15)
           {
             oPC.ApplyEffect(EffectDuration.Permanent, slow);
+            oPC.OnHeartbeat -= OnHeartbeatCheckHeavyArmorSlow;
             oPC.OnHeartbeat += OnHeartbeatCheckHeavyArmorSlow;
           }
 
