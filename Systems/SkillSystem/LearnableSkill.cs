@@ -69,12 +69,15 @@ namespace NWN.Systems
         currentLevel = learnableBase.currentLevel;
         spLastCalculation = learnableBase.spLastCalculation;
 
-        List<int> newSource = new();
+        if (learnableBase.source is not null)
+        {
+          List<int> newSource = new();
 
-        foreach(var skill in learnableBase?.source)
-          newSource.Add((int)skill);
+          foreach (var skill in learnableBase.source)
+            newSource.Add((int)skill);
 
-        source = newSource;
+          source = newSource;
+        }
       }
     }
 

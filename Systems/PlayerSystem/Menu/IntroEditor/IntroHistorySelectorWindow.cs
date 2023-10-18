@@ -19,12 +19,17 @@ namespace NWN.Systems
         private readonly NuiBind<string> validationText = new("validationText");
         private readonly NuiBind<bool> validationEnabled = new("validationEnabled");
 
+        private readonly NuiBind<bool> encouraged = new("encouraged");
+        private readonly NuiBind<Color> color = new("color");
+
         private readonly NuiBind<int> listCount = new("listCount");
         private readonly NuiBind<string> icon = new("icon");
         private readonly NuiBind<string> skillName = new("skillName");
 
         private IEnumerable<Learnable> currentList;
         private Learnable selectedLearnable;
+        private int validatedLearnableId;
+        private bool loadingDescription = false;
 
         public IntroHistorySelectorWindow(Player player) : base(player)
         {
@@ -33,9 +38,9 @@ namespace NWN.Systems
 
           List<NuiListTemplateCell> learnableTemplate = new List<NuiListTemplateCell>
           {
-            new NuiListTemplateCell(new NuiButtonImage(icon) { Id = "select", Tooltip = skillName, Height = 40, Width = 40 }) { Width = 40 },
-            new NuiListTemplateCell(new NuiLabel(skillName) { Width = 200, Id = "select", Tooltip = skillName, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }) { Width = 220 },
-            new NuiListTemplateCell(new NuiButtonImage("select_right") { Id = "select", Tooltip = skillName, Height = 40, Width = 40 }) { Width = 40 },
+            new NuiListTemplateCell(new NuiButtonImage(icon) { Id = "select", Tooltip = skillName, Encouraged = encouraged, Height = 40, Width = 40 }) { Width = 40 },
+            new NuiListTemplateCell(new NuiLabel(skillName) { Width = 200, Id = "select", ForegroundColor = color, Encouraged = encouraged, Tooltip = skillName, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }) { Width = 220 },
+            new NuiListTemplateCell(new NuiButtonImage("select_right") { Id = "select", Tooltip = skillName, Encouraged = encouraged, Height = 40, Width = 40 }) { Width = 40 },
             new NuiListTemplateCell(new NuiSpacer())
           };
 
@@ -58,7 +63,7 @@ namespace NWN.Systems
             {
               new NuiRow() { Children = new List<NuiElement>() { new NuiLabel(selectedItemTitle) { Height = 40, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle } } },
               new NuiRow() { Children = new List<NuiElement>() { new NuiText(selectedItemDescription) {  } } },
-              new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiButton(validationText) { Id = "validate", Height = 40, Enabled = validationEnabled }, new NuiSpacer() } }
+              new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiButton(validationText) { Id = "validate", Height = 40, Width = player.guiScaledWidth * 0.6f - 370, Enabled = validationEnabled }, new NuiSpacer() } }
             }, Width = player.guiScaledWidth * 0.6f - 370 }
           } });
 
@@ -66,8 +71,14 @@ namespace NWN.Systems
         }
         public void CreateWindow()
         {
-          NuiRect windowRectangle = new NuiRect(player.guiWidth * 0.2f, player.guiHeight * 0.05f,
-            player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f);
+          validatedLearnableId = player.learnableSkills.Any(l => l.Value.category == SkillSystem.Category.StartingTraits)
+            ? player.learnableSkills.FirstOrDefault(l => l.Value.category == SkillSystem.Category.StartingTraits).Value.id
+            : -1;
+
+          NuiRect savedRectangle = player.windowRectangles[windowId];
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) 
+            ? new NuiRect(savedRectangle.X, savedRectangle.Y, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f) 
+            : new NuiRect(player.guiWidth * 0.2f, player.guiHeight * 0.05f, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f);
 
           window = new NuiWindow(rootColumn, "Choisissez votre origine")
           {
@@ -103,6 +114,11 @@ namespace NWN.Systems
               {
                 case "select":
 
+                  if (loadingDescription || selectedLearnable == currentList.ElementAt(nuiEvent.ArrayIndex))
+                    return;
+
+                  loadingDescription = true;
+
                   selectedLearnable = currentList.ElementAt(nuiEvent.ArrayIndex);
                   selectedItemTitle.SetBindValue(player.oid, nuiToken.Token, selectedLearnable.name);
 
@@ -119,16 +135,19 @@ namespace NWN.Systems
 
                   string description = selectedLearnable.description;
                   await NwTask.SwitchToMainThread();
+                  loadingDescription = false;
 
                   selectedItemDescription.SetBindValue(player.oid, nuiToken.Token, description);
+                  LoadLearnableList(currentList);
 
-                  break;
+                  return;
 
                 case "validate":
   
                   RemovePreviousHistory();
 
                   validationEnabled.SetBindValue(player.oid, nuiToken.Token, false);
+                  validatedLearnableId = selectedLearnable.id;
 
                   player.learnableSkills.TryAdd(selectedLearnable.id, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[selectedLearnable.id], (int)SkillSystem.Category.StartingTraits));
                   player.learnableSkills[selectedLearnable.id].LevelUp(player);
@@ -137,7 +156,9 @@ namespace NWN.Systems
                   player.oid.SendServerMessage($"L'origine {StringUtils.ToWhitecolor(selectedLearnable.name)} vous a bien été affectée !", ColorConstants.Orange);
 
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_ORIGIN").Delete();
-                  break;
+                  LoadLearnableList(currentList);
+
+                  return;
 
                 case "welcome":
 
@@ -152,10 +173,10 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.ContainsKey("introHistorySelector")) player.windows.Add("introHistorySelector", new IntroBodyAppearanceWindow(player, player.oid.LoginCreature));
-                  else ((IntroBodyAppearanceWindow)player.windows["introHistorySelector"]).CreateWindow(player.oid.LoginCreature);
+                  if (!player.windows.ContainsKey("bodyColorsModifier")) player.windows.Add("bodyColorsModifier", new BodyColorWindow(player, player.oid.LoginCreature));
+                  else ((BodyColorWindow)player.windows["bodyColorsModifier"]).CreateWindow(player.oid.LoginCreature);
 
-                  break;
+                  return;
 
                 case "class":
 
@@ -176,25 +197,35 @@ namespace NWN.Systems
                   return;
               }
 
-              break;
+              return;
           }
         }
         private void LoadLearnableList(IEnumerable<Learnable> filteredList)
         {
-          List<string> iconList = new List<string>();
-          List<string> skillNameList = new List<string>();
+          List<string> iconList = new();
+          List<string> skillNameList = new();
+          List<Color> colorList = new();
+          List<bool> encouragedList = new();
 
           foreach (Learnable learnable in filteredList)
           {
             iconList.Add(learnable.icon);
             skillNameList.Add(learnable.name);
+            encouragedList.Add(validatedLearnableId == learnable.id);
+
+            if (selectedLearnable is not null)
+              colorList.Add(selectedLearnable == learnable ? ColorConstants.White : ColorConstants.Gray);
+            else
+              colorList.Add(ColorConstants.White);
           }
 
           icon.SetBindValues(player.oid, nuiToken.Token, iconList);
           skillName.SetBindValues(player.oid, nuiToken.Token, skillNameList);
+          color.SetBindValues(player.oid, nuiToken.Token, colorList);
+          encouraged.SetBindValues(player.oid, nuiToken.Token, encouragedList);
           listCount.SetBindValue(player.oid, nuiToken.Token, filteredList.Count());
         }
-        private void RemovePreviousHistory()
+        private void RemovePreviousHistory()  
         {
           List<LearnableSkill> profienciesToRemove = new();
 

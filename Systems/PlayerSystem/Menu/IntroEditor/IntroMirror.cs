@@ -37,8 +37,10 @@ namespace NWN.Systems
         }
         public void CreateWindow()
         {
-          NuiRect windowRectangle = new NuiRect(player.guiWidth * 0.25f, player.guiHeight * 0.15f,
-            player.guiScaledWidth  * 0.5f, player.guiScaledHeight * 0.3f);
+          NuiRect savedRectangle = player.windowRectangles[windowId];
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId)
+            ? new NuiRect(savedRectangle.X, savedRectangle.Y, player.guiScaledWidth * 0.5f, player.guiScaledHeight * 0.3f)
+            : new NuiRect(player.guiWidth * 0.25f, player.guiHeight * 0.15f, player.guiScaledWidth * 0.5f, player.guiScaledHeight * 0.3f);
 
           window = new NuiWindow(rootColumn, "Votre reflet - Editeur de personnage")
           {
@@ -70,8 +72,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.ContainsKey("bodyAppearanceModifier")) player.windows.Add("bodyAppearanceModifier", new IntroBodyAppearanceWindow(player, player.oid.LoginCreature));
-                  else ((IntroBodyAppearanceWindow)player.windows["bodyAppearanceModifier"]).CreateWindow(player.oid.LoginCreature);
+                  if (!player.windows.ContainsKey("bodyColorsModifier")) player.windows.Add("bodyColorsModifier", new BodyColorWindow(player, player.oid.LoginCreature));
+                  else ((BodyColorWindow)player.windows["bodyColorsModifier"]).CreateWindow(player.oid.LoginCreature);
 
                   break;
 

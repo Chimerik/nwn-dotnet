@@ -136,8 +136,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.ContainsKey("introHistorySelector")) player.windows.Add("introHistorySelector", new IntroBodyAppearanceWindow(player, player.oid.LoginCreature));
-                  else ((IntroBodyAppearanceWindow)player.windows["introHistorySelector"]).CreateWindow(player.oid.LoginCreature);
+                  if (!player.windows.ContainsKey("bodyColorsModifier")) player.windows.Add("bodyColorsModifier", new BodyColorWindow(player, player.oid.LoginCreature));
+                  else ((BodyColorWindow)player.windows["bodyColorsModifier"]).CreateWindow(player.oid.LoginCreature);
 
                   break;
 
