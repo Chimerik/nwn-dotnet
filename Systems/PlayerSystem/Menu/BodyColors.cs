@@ -49,11 +49,12 @@ namespace NWN.Systems
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
           {
             new NuiSpacer(),
-            new NuiButton("Accueil") { Id = "welcome", Height = 35, Width = 120, ForegroundColor = ColorConstants.Gray },
-            new NuiButton("Apparence") { Id = "beauty", Height = 35, Width = 120, ForegroundColor = ColorConstants.Gray },
-            new NuiButton("Historique") { Id = "histo", Height = 35, Width = 120, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_ORIGIN").HasValue },
-            new NuiButton("Classe") { Id = "class", Height = 35, Width = 120 , Encouraged = player.oid.LoginCreature.GetObjectVariable < PersistentVariableInt >("_IN_CHARACTER_CREATION_CLASS").HasValue},
-            new NuiButton("Caractéristiques") { Id = "stats", Height = 35, Width = 120, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_STATS").HasValue },
+            new NuiButton("Accueil") { Id = "welcome", Height = 35, Width = 90, ForegroundColor = ColorConstants.Gray },
+            new NuiButton("Apparence") { Id = "beauty", Height = 35, Width = 90, ForegroundColor = ColorConstants.Gray },
+            new NuiButton("Race") { Id = "race", Height = 35, Width = 90, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_RACE").HasValue },
+            new NuiButton("Origine") { Id = "histo", Height = 35, Width = 90, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_ORIGIN").HasValue },
+            new NuiButton("Classe") { Id = "class", Height = 35, Width = 90 , Encouraged = player.oid.LoginCreature.GetObjectVariable < PersistentVariableInt >("_IN_CHARACTER_CREATION_CLASS").HasValue},
+            new NuiButton("Stats") { Id = "stats", Height = 35, Width = 90, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_STATS").HasValue },
             new NuiSpacer()
           } });
 
@@ -223,6 +224,15 @@ namespace NWN.Systems
 
                   return;
 
+                case "race":
+
+                  CloseWindow();
+
+                  if (!player.windows.ContainsKey("introRaceSelector")) player.windows.Add("introRaceSelector", new IntroRaceSelectorWindow(player));
+                  else ((IntroRaceSelectorWindow)player.windows["introRaceSelector"]).CreateWindow();
+
+                  return;
+
                 case "histo":
 
                   CloseWindow();
@@ -230,7 +240,7 @@ namespace NWN.Systems
                   if (!player.windows.ContainsKey("introHistorySelector")) player.windows.Add("introHistorySelector", new IntroHistorySelectorWindow(player));
                   else ((IntroHistorySelectorWindow)player.windows["introHistorySelector"]).CreateWindow();
 
-                  break;
+                  return;
 
                 case "class":
 

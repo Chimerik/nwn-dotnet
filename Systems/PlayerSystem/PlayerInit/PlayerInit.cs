@@ -9,6 +9,7 @@ using Anvil.Services;
 using Microsoft.Data.Sqlite;
 
 using Newtonsoft.Json;
+using static Anvil.API.Events.ModuleEvents;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace NWN.Systems
@@ -207,7 +208,7 @@ namespace NWN.Systems
         var query = SqLiteUtils.SelectQuery("playerCharacters",
             new List<string>() { { "location" }, { "currentHP" }, { "bankGold" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" },
               { "alchemyCauldron" }, { "serializedLearnableSkills" }, { "serializedLearnableSpells" }, { "explorationState" }, { "materialStorage" }, { "craftJob" },
-              { "grimoires" }, { "quickbars" }, { "itemAppearances" }, { "descriptions" }, { "currentSkillPoints" }, { "mails" }, { "subscriptions" }, { "endurance" } },
+              { "grimoires" }, { "quickbars" }, { "itemAppearances" }, { "descriptions" }, { "mails" }, { "subscriptions" }, { "endurance" } },
             new List<string[]>() { { new string[] { "rowid", characterId.ToString() } } });
 
         foreach (var result in query)
@@ -228,10 +229,9 @@ namespace NWN.Systems
           string serializedQuickbars = result[13];
           string serializedItemAppearances = result[14];
           string serializedDescriptions = result[15];
-          tempCurrentSkillPoint = int.TryParse(result[16], out int skill) ? skill : 0;
-          string serializedMails = result[17];
-          string serializedSubscriptions = result[18];
-          string serializedEndurance = result[19];
+          string serializedMails = result[16];
+          string serializedSubscriptions = result[17];
+          string serializedEndurance = result[18];
 
           InitializePlayerAsync(serializedCauldron, serializedExploration, serializedLearnableSkills, serializedLearnableSpells, serializedCraftResources, serializedCraftJob, serializedGrimoires, serializedQuickbars, serializedItemAppearances, serializedDescriptions, serializedMails, serializedSubscriptions, serializedEndurance);
         }
@@ -394,6 +394,12 @@ namespace NWN.Systems
         InitializeJob();
         CheckPlayerConnectionInfo();
         HandleMailNotification();
+        ApplyElvenSleepImmunity();
+        ApplyWoodElfSpeed();
+        ApplyDrowLightSensitivity();
+        ApplyHumanVersatility();
+        ApplyHalfOrcEndurance();
+
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();
         pcState = PcState.Online;

@@ -2365,41 +2365,59 @@ namespace NWN.Systems
 
       return item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value * 2 + 2;
     }
-    public static List<Feat> GetItemProficiencies(BaseItemType itemType, int baseAC = -1)
+    public static List<int> GetItemProficiencies(BaseItemType itemType, int baseAC = -1)
     {
-      List<Feat> featList = new();
+      List<int> featList = new();
 
       switch(itemType)
       {
         case BaseItemType.Club:
         case BaseItemType.Dagger:
         case BaseItemType.Handaxe:
-        case BaseItemType.ShortSpear:
         case BaseItemType.LightHammer:
         case BaseItemType.LightMace:
         case BaseItemType.Quarterstaff:
         case BaseItemType.Sickle:
         case BaseItemType.LightCrossbow:
         case BaseItemType.Dart:
-        case BaseItemType.Shortbow:
         case BaseItemType.MagicStaff:
         case BaseItemType.LightFlail:
         case BaseItemType.Morningstar:
-        case BaseItemType.Sling: featList.Add(Feat.WeaponProficiencySimple); break;
+        case BaseItemType.Sling: featList.Add((int)Feat.WeaponProficiencySimple); break;
+        case BaseItemType.ShortSpear:
+          featList.Add((int)Feat.WeaponProficiencySimple);
+          featList.Add(CustomSkill.SpearProficiency);
+          break;
+        case BaseItemType.Shortbow:
+          featList.Add((int)Feat.WeaponProficiencySimple);
+          featList.Add(CustomSkill.ShortBowProficiency);
+          break;
         case BaseItemType.Battleaxe:
-        case BaseItemType.Rapier:
         case BaseItemType.Greataxe:
         case BaseItemType.Greatsword:
         case BaseItemType.Scimitar:
-        case BaseItemType.Longbow:
-        case BaseItemType.Longsword:
-        case BaseItemType.Shortsword:
         case BaseItemType.Halberd:
         case BaseItemType.HeavyFlail:
         case BaseItemType.ThrowingAxe:
         case BaseItemType.Trident:
         case BaseItemType.Warhammer:
-        case BaseItemType.HeavyCrossbow: featList.Add(Feat.WeaponProficiencyMartial); break;
+        case BaseItemType.HeavyCrossbow: featList.Add((int)Feat.WeaponProficiencyMartial); break;
+        case BaseItemType.Rapier:
+          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.RapierProficiency);
+          break;
+        case BaseItemType.Shortsword:
+          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.ShortSwordProficiency);
+          break;
+        case BaseItemType.Longsword:
+          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.LongSwordProficiency);
+          break;
+            case BaseItemType.Longbow:
+          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.LongBowProficiency);
+          break;
         case BaseItemType.Bastardsword:
         case BaseItemType.Scythe:
         case BaseItemType.Shuriken:
@@ -2410,21 +2428,21 @@ namespace NWN.Systems
         case BaseItemType.Kama:
         case BaseItemType.Katana:
         case BaseItemType.Kukri:
-        case BaseItemType.Whip: featList.Add(Feat.WeaponProficiencyExotic); break;
+        case BaseItemType.Whip: featList.Add((int)Feat.WeaponProficiencyExotic); break;
         case BaseItemType.SmallShield:
         case BaseItemType.LargeShield:
-        case BaseItemType.TowerShield: featList.Add(Feat.ShieldProficiency); break;
+        case BaseItemType.TowerShield: featList.Add((int)Feat.ShieldProficiency); break;
         case BaseItemType.Armor:
           switch(baseAC)
           {
             case 1:
-            case 2: featList.Add(Feat.ArmorProficiencyLight); break;
+            case 2: featList.Add((int)Feat.ArmorProficiencyLight); break;
             case 3:
             case 4:
-            case 5: featList.Add(Feat.ArmorProficiencyMedium); break;
+            case 5: featList.Add((int)Feat.ArmorProficiencyMedium); break;
             case 6:
             case 7:
-            case 8: featList.Add(Feat.ArmorProficiencyHeavy); break;
+            case 8: featList.Add((int)Feat.ArmorProficiencyHeavy); break;
           }
           break;
       }

@@ -174,6 +174,7 @@ namespace NWN.Systems
       {
         int advantage = CreatureUtils.GetAdvantageAgainstTarget(creature, attackData, attackWeapon, attackStat, casterCurrentSpellVariable, targetCreature);
         int attackRoll = Utils.RollAdvantage(advantage);
+        attackRoll = NativeUtils.HandleHalflingLuck(creature, attackRoll);
         int targetAC = targetCreature.m_pStats.GetArmorClassVersus(creature) + CreatureUtils.OverrideSizeAttackAndACBonus(targetCreature); // On compense le bonus/malus de taille du jeu de base;
 
         LogUtils.LogMessage($"CA de la cible : {targetAC}", LogUtils.LogType.Combat);
@@ -321,9 +322,10 @@ namespace NWN.Systems
         baseDamage += NwRandom.Roll(Utils.random, unarmedDieToRoll);
         LogUtils.LogMessage($"Mains nues - 1d{unarmedDieToRoll} => {baseDamage}", LogUtils.LogType.Combat);
       }
+
       if (bCritical > 0)
       {
-        int critDamage = NativeUtils.GetCritDamage(attacker, attackWeapon, bSneakAttack);
+        int critDamage = NativeUtils.GetCritDamage(attacker, attackWeapon, attackData, bSneakAttack);
         LogUtils.LogMessage($"Critique - Base {baseDamage} + crit {critDamage} = {baseDamage + critDamage}", LogUtils.LogType.Combat);
         baseDamage += critDamage;
       }

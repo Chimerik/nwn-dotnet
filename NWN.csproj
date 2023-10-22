@@ -57,6 +57,7 @@
 
     <ItemGroup>
       <Folder Include="Systems\ModuleSystem\Events\" />
+      <Folder Include="Systems\PlayerSystem\PlayerInit\NewCharacter\IntroEditor\Utils\" />
       <Folder Include="Systems\PlayerSystem\PlayerInit\NewPlayer\" />
     </ItemGroup>
 </Project>

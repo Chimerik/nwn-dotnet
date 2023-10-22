@@ -14,6 +14,7 @@ namespace NWN
         { "blinded", false },
         { "poisoned", false },
         { "frightened", false },
+        { "drowLightSensitivity", false },
       };
 
       foreach (var eff in attacker.m_appliedEffects)
@@ -22,6 +23,7 @@ namespace NWN
         disadvantageDictionary["blinded"] = disadvantageDictionary["blinded"] || GetBlindedDisadvantage(eff);
         disadvantageDictionary["poisoned"] = disadvantageDictionary["poisoned"] || GetPoisonedDisadvantage(eff);
         disadvantageDictionary["frightened"] = disadvantageDictionary["frightened"] || GetFrightenedDisadvantage(eff, targetId);
+        disadvantageDictionary["drowLightSensitivity"] = disadvantageDictionary["drowLightSensitivity"] || GetDrowLightSensitivityDisadvantage(eff);
       }
 
       return -disadvantageDictionary.Count(v => v.Value);

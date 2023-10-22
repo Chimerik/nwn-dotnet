@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Anvil.API;
 using NWN.Core.NWNX;
+using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
 {
@@ -45,11 +46,20 @@ namespace NWN.Systems
           if (player.oid.LoginCreature.Classes[0]?.Class.ClassType == (ClassType)43)
           {
             foreach (Learnable learnable in startingPackage.freeLearnables)
-              if (player.learnableSkills.TryAdd(learnable.id, new LearnableSkill((LearnableSkill)learnable, (int)SkillSystem.Category.Class)))
+            {
+              if (player.learnableSkills.TryAdd(learnable.id, new LearnableSkill((LearnableSkill)learnable)))
                 player.learnableSkills[learnable.id].LevelUp(player);
 
+              player.learnableSkills[learnable.id].source.Add(Category.Class);
+            }
+
+
+
             foreach (Learnable learnable in startingPackage.learnables)
-              player.learnableSkills.TryAdd(learnable.id, new LearnableSkill((LearnableSkill)learnable, (int)SkillSystem.Category.Class));
+            {
+              player.learnableSkills.TryAdd(learnable.id, new LearnableSkill((LearnableSkill)learnable));
+              player.learnableSkills[learnable.id].source.Add(Category.Class);
+            }
 
             // TODO : Demander de choisir deux skills parmi la liste
 
@@ -59,7 +69,7 @@ namespace NWN.Systems
             player.oid.LoginCreature.LevelUp(NwClass.FromClassType(ClassType.Fighter), 1);
 
           // On donne les autres capacités de niveau 1
-          if (player.learnableSkills.TryAdd(CustomSkill.FighterSecondWind, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.FighterSecondWind], (int)SkillSystem.Category.Class)))
+          if (player.learnableSkills.TryAdd(CustomSkill.FighterSecondWind, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterSecondWind], (int)SkillSystem.Category.Class)))
             player.learnableSkills[CustomSkill.FighterSecondWind].LevelUp(player);
 
           // TODO : Donner le choix d'une style de combat
@@ -70,8 +80,10 @@ namespace NWN.Systems
 
           player.oid.LoginCreature.LevelUp(NwClass.FromClassType(ClassType.Fighter), 1);
 
-          if (player.learnableSkills.TryAdd(CustomSkill.FighterSurge, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.FighterSurge], (int)SkillSystem.Category.Class)))
-            player.learnableSkills[CustomSkill.FighterSurge].LevelUp(player);  
+          if (player.learnableSkills.TryAdd(CustomSkill.FighterSurge, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterSurge])))
+            player.learnableSkills[CustomSkill.FighterSurge].LevelUp(player);
+
+          player.learnableSkills[CustomSkill.FighterSurge].source.Add(Category.Class);
 
           break;
 

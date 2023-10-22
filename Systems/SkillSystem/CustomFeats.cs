@@ -1,6 +1,4 @@
-﻿using Anvil.API;
-
-namespace NWN.Systems
+﻿namespace NWN.Systems
 {
   public class CustomSkill
   {
@@ -334,6 +332,21 @@ namespace NWN.Systems
     public const int SimpleWeaponProficiency = 20373;
     public const int MartialWeaponProficiency = 20374;
     public const int ExoticWeaponProficiency = 20375;
+
+    public const int SpearProficiency = 20376;
+    public const int LongSwordProficiency = 20377;
+    public const int ShortSwordProficiency = 20378;
+    public const int LongBowProficiency = 20379;
+    public const int ShortBowProficiency = 20380;
+    public const int RapierProficiency = 20381;
+    public const int LightHammerProficiency = 20382;
+    public const int WarHammerProficiency = 20383;
+    public const int HandAxeProficiency = 20384;
+    public const int WarAxeProficiency = 20385;
+    public const int DwarvenAxeProficiency = 20386;
+
+    public const int HumanVersatility = 20387;
+    public const int HighElfLanguage = 20388;
 
     /*public const int UnharmedProficiency = 20387;
     public const int QuarterStaffProficiency = 20390;

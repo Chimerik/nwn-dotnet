@@ -79,6 +79,63 @@ namespace NWN
 
       tlkEntry = StrRef.FromCustomTlk(190071);
       tlkEntry.Override = "Action gratuite\nVous bénéficiez d'une attaque supplémentaire\nDurée & Cooldown : 10 rounds\nRécupération : repos court";
+
+      tlkEntry = StrRef.FromCustomTlk(190072);
+      tlkEntry.Override = "Haut-Elfe";
+
+      tlkEntry = StrRef.FromCustomTlk(190073);
+      tlkEntry.Override = "Elfe des bois";
+
+      tlkEntry = StrRef.FromCustomTlk(190074);
+      tlkEntry.Override = "Drow";
+
+      tlkEntry = StrRef.FromCustomTlk(190075);
+      tlkEntry.Override = "Demi Haut-Elfe";
+
+      tlkEntry = StrRef.FromCustomTlk(190076);
+      tlkEntry.Override = "Demi Elfe des bois";
+
+      tlkEntry = StrRef.FromCustomTlk(190077);
+      tlkEntry.Override = "Demi Drow";
+
+      tlkEntry = StrRef.FromCustomTlk(190078);
+      tlkEntry.Override = "Hyper-sensibilité lumineuse";
+
+      tlkEntry = StrRef.FromCustomTlk(190079);
+      tlkEntry.Override = "Demi Orc : Endurance Implacable";
+
+      tlkEntry = StrRef.FromCustomTlk(190080);
+      tlkEntry.Override = "Nain d'or";
+
+      tlkEntry = StrRef.FromCustomTlk(190081);
+      tlkEntry.Override = "Nain d'écu";
+
+      tlkEntry = StrRef.FromCustomTlk(190082);
+      tlkEntry.Override = "Duergar";
+
+      tlkEntry = StrRef.FromCustomTlk(190083);
+      tlkEntry.Override = "Halfelin Pied-Léger";
+
+      tlkEntry = StrRef.FromCustomTlk(190084);
+      tlkEntry.Override = "Halfelin Coeur-Vaillant";
+
+      tlkEntry = StrRef.FromCustomTlk(190085);
+      tlkEntry.Override = "Gnome des profondeurs";
+
+      tlkEntry = StrRef.FromCustomTlk(190086);
+      tlkEntry.Override = "Gnome des forêts";
+
+      tlkEntry = StrRef.FromCustomTlk(190087);
+      tlkEntry.Override = "Gnome des roches";
+
+      tlkEntry = StrRef.FromCustomTlk(190088);
+      tlkEntry.Override = "Tieffelin - Asmodeus";
+
+      tlkEntry = StrRef.FromCustomTlk(190089);
+      tlkEntry.Override = "Tieffelin - Méphisto";
+
+      tlkEntry = StrRef.FromCustomTlk(190090);
+      tlkEntry.Override = "Thieffelin - Zariel";
     }
   }
 }

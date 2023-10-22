@@ -234,7 +234,7 @@ namespace NWN.Systems
           new string[] { "pveArenaCurrentPoints", pveArena.currentPoints.ToString() }, new string[] { "menuOriginTop", menu.originTop.ToString() },
           new string[] { "menuOriginLeft", menu.originLeft.ToString() }, new string[] { "alchemyCauldron", serializeAlchemyCauldron.Result },
           new string[] { "serializedLearnableSkills", serializeLearnableSkills.Result }, new string[] { "serializedLearnableSpells", serializeLearnableSpells.Result },
-          new string[] { "explorationState", serializeExplorationState.Result }, new string[] { "quickbars", serializeQuickbars.Result }, new string[] { "currentSkillPoints", tempCurrentSkillPoint.ToString() },
+          new string[] { "explorationState", serializeExplorationState.Result }, new string[] { "quickbars", serializeQuickbars.Result },
           new string[] { "itemAppearances", serializeItemAppearances.Result }, new string[] { "descriptions", serializeDescriptions.Result },
           new string[] { "craftJob", serializeJob.Result  }, new string[] { "materialStorage", serializeCraftResource.Result }, new string[] { "grimoires", serializeGrimoires.Result },
           new string[] { "mails", serializeMails.Result  }, new string[] { "subscriptions", serializeSubscriptions.Result  }, new string[] { "endurance", serializeEndurance.Result } },

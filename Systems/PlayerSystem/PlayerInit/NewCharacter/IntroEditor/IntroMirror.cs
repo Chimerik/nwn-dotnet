@@ -24,10 +24,11 @@ namespace NWN.Systems
           {
             new NuiSpacer(),
             new NuiButton("Accueil") { Id = "welcome", Height = 35, Width = 90, ForegroundColor = ColorConstants.Gray },
-            new NuiButton("Apparence") { Id = "beauty", Height = 35, Width = 120, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_APPEARANCE").HasValue },
-            new NuiButton("Historique") { Id = "histo", Height = 35, Width = 120, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_ORIGIN").HasValue },
-            new NuiButton("Classe") { Id = "class", Height = 35, Width = 120, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_CLASS").HasValue },
-            new NuiButton("Caractéristiques") { Id = "stats", Height = 35, Width = 120 , Encouraged = player.oid.LoginCreature.GetObjectVariable < PersistentVariableInt >("_IN_CHARACTER_CREATION_STATS").HasValue},
+            new NuiButton("Apparence") { Id = "beauty", Height = 35, Width = 90, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_APPEARANCE").HasValue },
+            new NuiButton("Race") { Id = "race", Height = 35, Width = 90, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_RACE").HasValue },
+            new NuiButton("Origine") { Id = "histo", Height = 35, Width = 90, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_ORIGIN").HasValue },
+            new NuiButton("Classe") { Id = "class", Height = 35, Width = 90, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_CLASS").HasValue },
+            new NuiButton("Stats") { Id = "stats", Height = 35, Width = 90 , Encouraged = player.oid.LoginCreature.GetObjectVariable < PersistentVariableInt >("_IN_CHARACTER_CREATION_STATS").HasValue},
             new NuiSpacer()
           } });
 
@@ -37,10 +38,7 @@ namespace NWN.Systems
         }
         public void CreateWindow()
         {
-          NuiRect savedRectangle = player.windowRectangles[windowId];
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId)
-            ? new NuiRect(savedRectangle.X, savedRectangle.Y, player.guiScaledWidth * 0.5f, player.guiScaledHeight * 0.3f)
-            : new NuiRect(player.guiWidth * 0.25f, player.guiHeight * 0.15f, player.guiScaledWidth * 0.5f, player.guiScaledHeight * 0.3f);
+          NuiRect savedRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(player.guiWidth * 0.25f, player.guiHeight * 0.15f, player.guiScaledWidth * 0.5f, player.guiScaledHeight * 0.3f);
 
           window = new NuiWindow(rootColumn, "Votre reflet - Editeur de personnage")
           {
@@ -56,7 +54,7 @@ namespace NWN.Systems
           {
             nuiToken = tempToken;
             nuiToken.OnNuiEvent += HandleIntroMirrorEvents;            
-            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindValue(player.oid, nuiToken.Token, new NuiRect(savedRectangle.X, savedRectangle.Y, player.guiScaledWidth * 0.5f, player.guiScaledHeight * 0.3f));
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
           }
         }
@@ -83,6 +81,15 @@ namespace NWN.Systems
 
                   if (!player.windows.ContainsKey("introClassSelector")) player.windows.Add("introClassSelector", new IntroClassSelectorWindow(player));
                   else ((IntroClassSelectorWindow)player.windows["introClassSelector"]).CreateWindow();
+
+                  break;
+
+                case "race":
+
+                  CloseWindow();
+
+                  if (!player.windows.ContainsKey("introRaceSelector")) player.windows.Add("introRaceSelector", new IntroRaceSelectorWindow(player));
+                  else ((IntroRaceSelectorWindow)player.windows["introRaceSelector"]).CreateWindow();
 
                   break;
 

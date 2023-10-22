@@ -6,20 +6,21 @@ namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static int GetCritDamage(CNWSCreature attacker, CNWSItem attackWeapon, int bSneakAttack)
+    public static int GetCritDamage(CNWSCreature attacker, CNWSItem attackWeapon, CNWSCombatAttackData attackData, int bSneakAttack)
     {
       LogUtils.LogMessage($"Ajout des dégâts du coup critique", LogUtils.LogType.Combat);
 
       return attackWeapon is not null 
-        ? GetWeaponCritDamage(attacker, attackWeapon, bSneakAttack) 
+        ? GetWeaponCritDamage(attacker, attackWeapon, attackData, bSneakAttack) 
         : GetUnarmedCritDamage(attacker);
     }
-    public static int GetWeaponCritDamage(CNWSCreature attacker, CNWSItem attackWeapon, int bSneakAttack)
+    public static int GetWeaponCritDamage(CNWSCreature attacker, CNWSItem attackWeapon, CNWSCombatAttackData attackData, int bSneakAttack)
     {
       NwBaseItem baseWeapon = NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem);
-      int damage = NwRandom.Roll(Utils.random, baseWeapon.DieToRoll, baseWeapon.NumDamageDice);
+      byte numDice = attacker.m_pStats.m_nRace == CustomRace.HalfOrc && attackData.m_bRangedAttack < 1 ? (byte)(baseWeapon.NumDamageDice + 1) : baseWeapon.NumDamageDice;
+      int damage = NwRandom.Roll(Utils.random, baseWeapon.DieToRoll, numDice);
 
-      LogUtils.LogMessage($"{baseWeapon.Name.ToString()} - {baseWeapon.NumDamageDice}d{baseWeapon.DieToRoll} => {damage}", LogUtils.LogType.Combat);
+      LogUtils.LogMessage($"{baseWeapon.Name.ToString()} - {baseWeapon.NumDamageDice}d{numDice} => {damage}", LogUtils.LogType.Combat);
 
       if (bSneakAttack > 0)
         damage += GetSneakAttackCritDamage(attacker);

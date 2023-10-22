@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using Anvil.API.Events;
 
 namespace NWN.Systems
@@ -8,10 +9,9 @@ namespace NWN.Systems
     private static void OnHeartbeatCheckHeavyArmorSlow(CreatureEvents.OnHeartbeat onHB)
     {
       if(onHB.Creature.GetAbilityScore(Ability.Strength) > 14)
-      {
-        onHB.Creature.RemoveEffect(slow);
-        onHB.Creature.OnHeartbeat -= OnHeartbeatCheckHeavyArmorSlow;
-      }
+        onHB.Creature.RemoveEffect(EffectSystem.heavyArmorSlow);
+      else if(!onHB.Creature.ActiveEffects.Any(e => e.Tag == EffectSystem.heavyArmorSlow.Tag))
+        onHB.Creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.heavyArmorSlow);
     }
   }
 }

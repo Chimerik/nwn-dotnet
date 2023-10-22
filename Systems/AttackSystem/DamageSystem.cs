@@ -4,6 +4,8 @@ using Anvil.API.Events;
 using System;
 using Action = System.Action;
 using Context = NWN.Systems.Config.Context;
+using System.Linq;
+using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
@@ -13,38 +15,54 @@ namespace NWN.Systems
     public static readonly Pipeline<Context> damagePipeline = new(
       new Action<Context, Action>[]
       {
-            ProcessTargetDamageAbsorption,
+            //ProcessTargetDamageAbsorption,
             //ProcessBaseArmorSpellPenetration,
             //ProcessBonusArmorSpellPenetration,
-            ProcessSpellAttackPosition,
-            ProcessArmorSlotHit,
-            ProcessTargetSpecificAC,
-            ProcessTargetShieldAC,
-            ProcessArmorPenetrationCalculations,
+            //ProcessSpellAttackPosition,
+            //ProcessArmorSlotHit,
+            //ProcessTargetSpecificAC,
+            //ProcessTargetShieldAC,
+            //ProcessArmorPenetrationCalculations,
             //ProcessDamageFromMagicStaffInscriptions,
-            ProcessDamageCalculations,
-            ProcessAdrenaline,
-            ProcessTargetItemDurability,
+            //ProcessDamageCalculations,
+            //ProcessAdrenaline,
+            //ProcessTargetItemDurability,
       }
     );
     public static void HandleDamageEvent(OnCreatureDamage onDamage)
     {
+      if(onDamage.Target is NwCreature target && target.ActiveEffects.Any(e => e.Tag == EffectSystem.enduranceImplacable.Tag))
+      {
+        int totalDamage = 0;
+
+        foreach (DamageType damageType in (DamageType[])Enum.GetValues(typeof(DamageType)))
+          totalDamage += onDamage.DamageData.GetDamageByType(damageType) > -1 
+            ? onDamage.DamageData.GetDamageByType(damageType) : 0;
+
+        if(target.HP <= totalDamage)
+        {
+          target.ApplyEffect(EffectDuration.Temporary, Effect.TemporaryHitpoints(totalDamage - target.HP + 1), TimeSpan.FromSeconds(6));
+          target.RemoveEffect(EffectSystem.enduranceImplacable);
+          target.GetObjectVariable<PersistentVariableInt>("_HALFORC_ENDURANCE").Delete();
+        }
+      }
+
       // TODO : prendre en compte le cas des pièges
-      if (onDamage.Target is null || onDamage.DamageData.GetDamageByType(DamageType.BaseWeapon) > -1 || onDamage.Target is not NwCreature oTarget) // S'il ne s'agit pas d'un sort, alors le calcul des dégâts a déjà été traité lors de l'event d'attaque
-        return;
+      //if (onDamage.Target is null || onDamage.DamageData.GetDamageByType(DamageType.BaseWeapon) > -1 || onDamage.Target is not NwCreature oTarget) // S'il ne s'agit pas d'un sort, alors le calcul des dégâts a déjà été traité lors de l'event d'attaque
+        //return;
 
-      LogUtils.LogMessage("Spell Damage Event", LogUtils.LogType.Combat);
+      //LogUtils.LogMessage("Spell Damage Event", LogUtils.LogType.Combat);
 
-      if (onDamage.DamagedBy is not null)
-        LogUtils.LogMessage($"Attaquant : {onDamage.DamagedBy.Name}", LogUtils.LogType.Combat);
-      else
-        LogUtils.LogMessage("Attention - Cas où l'attaquant est null", LogUtils.LogType.Combat);
+      //if (onDamage.DamagedBy is not null)
+        //LogUtils.LogMessage($"Attaquant : {onDamage.DamagedBy.Name}", LogUtils.LogType.Combat);
+      //else
+        //LogUtils.LogMessage("Attention - Cas où l'attaquant est null", LogUtils.LogType.Combat);
 
-      damagePipeline.Execute(new Context(
-        onAttack: null,
-        oTarget: oTarget,
-        onDamage: onDamage
-      ));
+      //damagePipeline.Execute(new Context(
+        //onAttack: null,
+        //oTarget: oTarget,
+        //onDamage: onDamage
+      //));
 
       /*if (onDamage.Target.GetObjectVariable<LocalVariableInt>("_IS_GNOME_MECH").HasValue && onDamage.DamageData.Electrical > 0)
       {

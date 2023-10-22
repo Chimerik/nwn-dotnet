@@ -1,11 +1,10 @@
 ﻿using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
-using System.Linq;
-using NLog;
 using System;
 using System.Numerics;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NWN.Systems
 {
@@ -52,6 +51,7 @@ namespace NWN.Systems
       foreach (NwArea area in NwModule.Instance.Areas)
       {
         area.OnEnter += OnAreaEnter;
+        area.OnEnter += OnEnterApplyDrowLightSensitivity;
         area.OnExit += OnAreaExit;
         area.OnHeartbeat += OnAreaHeartbeat;
         area.RestingAllowed = false;

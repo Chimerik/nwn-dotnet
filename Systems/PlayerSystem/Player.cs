@@ -41,7 +41,6 @@ namespace NWN.Systems
       public Dictionary<uint, Player> blocked = new();
       public Dictionary<int, LearnableSkill> learnableSkills = new();
       public Dictionary<int, LearnableSpell> learnableSpells = new();
-      public int tempCurrentSkillPoint { get; set; }
       public float guiHeight { get => oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight); }
       public float guiWidth { get => oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth); }
       public float guiScaledHeight => oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / (oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) / 100);

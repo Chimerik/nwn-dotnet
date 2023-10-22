@@ -47,7 +47,10 @@ namespace NWN.Systems
       pointsToNextLevel = 250 * multiplier * Math.Pow(5, currentLevel);
       spLastCalculation = serializableBase.spLastCalculation;
       skillEffect = learnableBase.skillEffect;
-      source = learnableBase.source;
+      source = new();
+
+      foreach(int sourceId in serializableBase.source)
+        source.Add((SkillSystem.Category)sourceId);
     }
 
     public class SerializableLearnableSkill

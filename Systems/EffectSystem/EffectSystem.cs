@@ -1,6 +1,4 @@
-﻿using Anvil.API;
-using Anvil.API.Events;
-using Anvil.Services;
+﻿using Anvil.Services;
 
 namespace NWN.Systems
 {
@@ -14,6 +12,13 @@ namespace NWN.Systems
       scriptHandleFactory = scriptFactory;
 
       InitThreatenedEffect();
+      InitElvenSleepImmunityEffect();
+      InitDrowLightSensitivityEffect();
+      InitWoodElfSpeedEffect();
+      InitHalfOrcEnduranceEffect();
+      InitDwarfSlowEffect();
+      InitShieldArmorDisadvantageEffect();
+      InitHeavyArmorSlowEffect();
     }
   }
 }

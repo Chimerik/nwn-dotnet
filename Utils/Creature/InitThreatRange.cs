@@ -8,7 +8,7 @@ namespace NWN
   {
     public static void InitThreatRange(NwCreature creature)
     {
-      if (creature.ActiveEffects.Any(e => e == EffectSystem.threatAoE))
+      if (creature.ActiveEffects.Any(e => e.Tag == EffectSystem.threatAoE.Tag))
         return;
 
       creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.threatAoE);

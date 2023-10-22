@@ -401,13 +401,17 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_BEFORE", "on_dual_fight");
       EventsPlugin.AddIDToWhitelist("NWNX_ON_HAS_FEAT", (int)Feat.TwoWeaponFighting);
       EventsPlugin.AddIDToWhitelist("NWNX_ON_HAS_FEAT", (int)Feat.Ambidexterity);
+
+      EventsPlugin.SubscribeEvent("NWNX_ON_CALENDAR_DUSK", "remov_drowsensi");
+      EventsPlugin.SubscribeEvent("NWNX_ON_CALENDAR_DUSK", "apply_drow_sensi");
+
       // ImprovedTwoWeaponFighting donne une attaque supplémentaire avec l'off-hand pour une pénalité de -5 BA. A voir dans le cas de Thief qui dual fight avec 2 actions bonus
       //EventsPlugin.AddIDToWhitelist("NWNX_ON_HAS_FEAT", (int)Feat.ImprovedTwoWeaponFighting);
 
       NwModule.Instance.OnAcquireItem += ItemSystem.OnAcquireCheckFinesseProperty;
       NwModule.Instance.OnPlayerGuiEvent += PlayerSystem.HandleGuiEvents;
       //NwModule.Instance.OnCreatureAttack += AttackSystem.HandleAttackEvent;
-      //NwModule.Instance.OnCreatureDamage += AttackSystem.HandleDamageEvent;
+      NwModule.Instance.OnCreatureDamage += AttackSystem.HandleDamageEvent;
       NwModule.Instance.OnCreatureCheckProficiencies += ItemSystem.OverrideProficiencyCheck;
       NwModule.Instance.OnItemEquip += ItemSystem.OnEquipHastWeapon;
       NwModule.Instance.OnItemUnequip += ItemSystem.OnUnequipHastWeapon;
@@ -778,6 +782,10 @@ namespace NWN.Systems
         Utils.tradeMaterialList.Add(new NuiComboEntry(resource.name, j));
         j++;
       }
+
+      Utils.skilList.Add(new NuiComboEntry("", -1));
+      foreach (Learnable learnable in SkillSystem.learnableDictionary.Values.Where(l => l is LearnableSkill skill && skill.category == SkillSystem.Category.Skill))
+        Utils.skilList.Add(new NuiComboEntry(learnable.name, learnable.id));
     }
     private static async void LoadMailReceiverList()
     {

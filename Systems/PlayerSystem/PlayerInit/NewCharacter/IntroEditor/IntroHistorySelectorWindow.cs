@@ -16,6 +16,8 @@ namespace NWN.Systems
         private readonly List<NuiElement> rootChildren = new();
         private readonly NuiBind<string> selectedItemTitle = new("selectedItemTitle");
         private readonly NuiBind<string> selectedItemDescription = new("selectedItemDescription");
+        private readonly NuiBind<string> selectedItemIcon = new("selectedItemIcon");
+
         private readonly NuiBind<string> validationText = new("validationText");
         private readonly NuiBind<bool> validationEnabled = new("validationEnabled");
 
@@ -36,6 +38,8 @@ namespace NWN.Systems
           windowId = "introHistorySelector";
           rootColumn.Children = rootChildren;
 
+          // TODO : Est-ce que ce serait pas mieux de mettre à jour en async toutes les descriptions de learnables ? Genre toutes les heures + une commande Discord pour forcer la synchro
+
           List<NuiListTemplateCell> learnableTemplate = new List<NuiListTemplateCell>
           {
             new NuiListTemplateCell(new NuiButtonImage(icon) { Id = "select", Tooltip = skillName, Encouraged = encouraged, Height = 40, Width = 40 }) { Width = 40 },
@@ -47,11 +51,12 @@ namespace NWN.Systems
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
           {
             new NuiSpacer(),
-            new NuiButton("Accueil") { Id = "welcome", Height = 35, Width = 120, ForegroundColor = ColorConstants.Gray },
-            new NuiButton("Apparence") { Id = "beauty", Height = 35, Width = 120, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_APPEARANCE").HasValue },
-            new NuiButton("Historique") { Id = "histo", Height = 35, Width = 120, ForegroundColor = ColorConstants.Gray },
-            new NuiButton("Classe") { Id = "class", Height = 35, Width = 120, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_CLASS").HasValue },
-            new NuiButton("Caractéristiques") { Id = "stats", Height = 35, Width = 120, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_STATS").HasValue },
+            new NuiButton("Accueil") { Id = "welcome", Height = 35, Width = 90, ForegroundColor = ColorConstants.Gray },
+            new NuiButton("Apparence") { Id = "beauty", Height = 35, Width = 90, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_APPEARANCE").HasValue },
+            new NuiButton("Race") { Id = "race", Height = 35, Width = 90, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_RACE").HasValue },
+            new NuiButton("Origine") { Id = "histo", Height = 35, Width = 90, ForegroundColor = ColorConstants.Gray },
+            new NuiButton("Classe") { Id = "class", Height = 35, Width = 90, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_CLASS").HasValue },
+            new NuiButton("Stats") { Id = "stats", Height = 35, Width = 90, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_STATS").HasValue },
             new NuiSpacer()
           } });
 
@@ -61,7 +66,13 @@ namespace NWN.Systems
             new NuiSpacer(),
             new NuiColumn() { Children = new List<NuiElement>() 
             {
-              new NuiRow() { Children = new List<NuiElement>() { new NuiLabel(selectedItemTitle) { Height = 40, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle } } },
+              new NuiRow() { Children = new List<NuiElement>() 
+              {
+                new NuiSpacer(),
+                new NuiButtonImage(selectedItemIcon) { Height = 40, Width = 40 },
+                new NuiLabel(selectedItemTitle) { Height = 40, Width = 200, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+                new NuiSpacer()
+              } },
               new NuiRow() { Children = new List<NuiElement>() { new NuiText(selectedItemDescription) {  } } },
               new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiButton(validationText) { Id = "validate", Height = 40, Width = player.guiScaledWidth * 0.6f - 370, Enabled = validationEnabled }, new NuiSpacer() } }
             }, Width = player.guiScaledWidth * 0.6f - 370 }
@@ -75,11 +86,7 @@ namespace NWN.Systems
             ? player.learnableSkills.FirstOrDefault(l => l.Value.category == SkillSystem.Category.StartingTraits).Value.id
             : -1;
 
-          NuiRect savedRectangle = player.windowRectangles[windowId];
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) 
-            ? new NuiRect(savedRectangle.X, savedRectangle.Y, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f) 
-            : new NuiRect(player.guiWidth * 0.2f, player.guiHeight * 0.05f, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f);
-
+          NuiRect savedRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(player.guiWidth * 0.2f, player.guiHeight * 0.05f, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f);
           window = new NuiWindow(rootColumn, "Choisissez votre origine")
           {
             Geometry = geometry,
@@ -95,9 +102,10 @@ namespace NWN.Systems
 
             selectedItemTitle.SetBindValue(player.oid, nuiToken.Token, "");
             selectedItemDescription.SetBindValue(player.oid, nuiToken.Token, "Sélectionner une origine pour afficher ses détails.\n\nAttention, lorsque vous aurez quitté ce navire, ce choix deviendra définitif.");
+            selectedItemIcon.SetBindValue(player.oid, nuiToken.Token, "ir_examine");
             validationEnabled.SetBindValue(player.oid, nuiToken.Token, false);
 
-            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindValue(player.oid, nuiToken.Token, new NuiRect(savedRectangle.X, savedRectangle.Y, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f));
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
             currentList = SkillSystem.learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == SkillSystem.Category.StartingTraits).OrderBy(s => s.name);
@@ -121,6 +129,7 @@ namespace NWN.Systems
 
                   selectedLearnable = currentList.ElementAt(nuiEvent.ArrayIndex);
                   selectedItemTitle.SetBindValue(player.oid, nuiToken.Token, selectedLearnable.name);
+                  selectedItemIcon.SetBindValue(player.oid, nuiToken.Token, selectedLearnable.icon);
 
                   if (player.learnableSkills.ContainsKey(selectedLearnable.id))
                   {
@@ -178,6 +187,15 @@ namespace NWN.Systems
 
                   return;
 
+                case "race":
+
+                  CloseWindow();
+
+                  if (!player.windows.ContainsKey("introRaceSelector")) player.windows.Add("introRaceSelector", new IntroRaceSelectorWindow(player));
+                  else ((IntroRaceSelectorWindow)player.windows["introRaceSelector"]).CreateWindow();
+
+                  break;
+
                 case "class":
 
                   CloseWindow();
@@ -229,8 +247,8 @@ namespace NWN.Systems
         {
           List<LearnableSkill> profienciesToRemove = new();
 
-          foreach (var skill in player.learnableSkills.Where(l => l.Value.source.Any(s => s == SkillSystem.Category.StartingTraits)))
-            profienciesToRemove.Add(skill.Value);
+          foreach (var skill in player.learnableSkills.Values.Where(l => l.source.Any(s => s == SkillSystem.Category.StartingTraits)))
+            profienciesToRemove.Add(skill);
 
           foreach (var proficiency in profienciesToRemove)
           { 

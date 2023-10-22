@@ -103,19 +103,19 @@ namespace NWN.Systems
       player.activeLearnable = this;
       spLastCalculation = DateTime.Now;
 
-      if (player.tempCurrentSkillPoint > 0)
-      {
-        if (pointsToNextLevel < player.tempCurrentSkillPoint)
-        {
-          acquiredPoints += pointsToNextLevel;
-          player.tempCurrentSkillPoint -= (int)pointsToNextLevel;
-        }
-        else
-        {
-          acquiredPoints += player.tempCurrentSkillPoint;
-          player.tempCurrentSkillPoint = 0;
-        } 
-      }
+      if (this is LearnableSkill language && language.category == SkillSystem.Category.Language && acquiredPoints <= 0
+        && (player.learnableSkills.ContainsKey(CustomSkill.HumanVersatility) || player.learnableSkills.ContainsKey(CustomSkill.HighElfLanguage))
+        && !player.learnableSkills.Any(s => s.Value.category == SkillSystem.Category.Language && s.Value.currentLevel > 0))
+        acquiredPoints += pointsToNextLevel / 2;
+
+      if(id == CustomSkill.DwarvenAxeProficiency && acquiredPoints <= 0 && player.oid.LoginCreature.Race.Id == CustomRace.Dwarf 
+        || player.oid.LoginCreature.Race.Id == CustomRace.GoldDwarf || player.oid.LoginCreature.Race.Id == CustomRace.ShieldDwarf
+        || player.oid.LoginCreature.Race.Id == CustomRace.Duergar)
+        acquiredPoints += pointsToNextLevel / 2;
+
+      if (id == CustomSkill.Infernal && acquiredPoints <= 0 && player.oid.LoginCreature.Race.Id == CustomRace.AsmodeusThiefling
+        || player.oid.LoginCreature.Race.Id == CustomRace.MephistoThiefling || player.oid.LoginCreature.Race.Id == CustomRace.ZarielThiefling)
+        acquiredPoints += pointsToNextLevel / 2;
     }
   }
 }
