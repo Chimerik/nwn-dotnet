@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.Metrics;
+﻿using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using Anvil.API;
 using static NWN.Systems.SkillSystem;
 
@@ -8,7 +9,7 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      private void ApplyHighElfPackage()
+      private void ApplyHighElfPackage(int bonusSelection)
       {
         if (learnableSkills.TryAdd(CustomSkill.Elfique, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Elfique])))
           learnableSkills[CustomSkill.Elfique].LevelUp(this);
@@ -44,6 +45,15 @@ namespace NWN.Systems
           learnableSkills[CustomSkill.ShortBowProficiency].LevelUp(this);
 
         learnableSkills[CustomSkill.ShortBowProficiency].source.Add(Category.Race);
+
+        if (bonusSelection > -1)
+        {        
+          NwFeat feat = NwSpell.FromSpellId(bonusSelection).FeatReference;
+          if (learnableSkills.TryAdd(feat.Id, new LearnableSkill((LearnableSkill)learnableDictionary[feat.Id])))
+            learnableSkills[feat.Id].LevelUp(this);
+
+          learnableSkills[feat.Id].source.Add(Category.Race);
+        }
 
         ApplyElvenSleepImmunity();
 

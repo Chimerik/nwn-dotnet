@@ -14,14 +14,10 @@ namespace NWN.Systems
 
         learnableSkills[CustomSkill.Gnome].source.Add(Category.Race);
 
-        if (learnableSkills.TryAdd(CustomSkill.StealthProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.StealthProficiency])))
-          learnableSkills[CustomSkill.StealthProficiency].LevelUp(this);
-
-        learnableSkills[CustomSkill.StealthProficiency].source.Add(Category.Race);
-
         oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.dwarfSlow);
 
         // TODO : Penser à gérer l'avantage sur les JDS d'intelligence, sagesse, charisme
+        // TODO : Penser à gérer l'avantage sur les jets de Furtivité
       }
     }
   }

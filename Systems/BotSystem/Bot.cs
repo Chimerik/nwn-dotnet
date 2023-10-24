@@ -163,11 +163,11 @@ namespace NWN.Systems
       /*try
       {
         var guildCommand = new SlashCommandBuilder()
-        .WithName("refresh_creature_stats")
-        .WithDescription("Met à jour les stats des créatures")
-        .WithDefaultMemberPermissions(GuildPermission.MentionEveryone);
-        .AddOption("titre", ApplicationCommandOptionType.String, "Titre", isRequired: true)
-        .AddOption("contenu", ApplicationCommandOptionType.String, "Demande", isRequired: true);
+        .WithName("refresh_descriptions")
+        .WithDescription("Met à jour les descriptions des classes, races et compétences")
+        .WithDefaultMemberPermissions(GuildPermission.Administrator);
+        //.AddOption("titre", ApplicationCommandOptionType.String, "Titre", isRequired: true)
+        //.AddOption("contenu", ApplicationCommandOptionType.String, "Demande", isRequired: true);
 
         var slash = guildCommand.Build();
         await discordServer.CreateApplicationCommandAsync(slash);
@@ -321,6 +321,9 @@ namespace NWN.Systems
         case "staff_demande": // droit général
           await BotSystem.ExecutePlayerRequestCommand(command);
           break;
+        case "refresh_descriptions": // droit admin
+          await BotSystem.ExecuteRefreshLearnableDescriptionsCommand(command);
+            break;
       }
     }
   }

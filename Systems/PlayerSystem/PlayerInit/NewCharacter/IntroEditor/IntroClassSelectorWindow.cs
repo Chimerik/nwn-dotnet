@@ -19,6 +19,7 @@ namespace NWN.Systems
         private readonly NuiBind<string> selectedItemTitle = new("selectedItemTitle");
         private readonly NuiBind<string> selectedItemDescription = new("selectedItemDescription");
         private readonly NuiBind<string> selectedItemIcon = new("selectedItemIcon");
+        private readonly NuiBind<bool> selectedItemVisibility = new("selectedItemVisibility");
 
         private readonly NuiBind<string> validationText = new("validationText");
         private readonly NuiBind<bool> validationEnabled = new("validationEnabled");
@@ -67,8 +68,8 @@ namespace NWN.Systems
               new NuiRow() { Children = new List<NuiElement>() 
               {
                 new NuiSpacer(),
-                new NuiButtonImage(selectedItemIcon) { Height = 40, Width = 40 },
-                new NuiLabel(selectedItemTitle) { Height = 40, Width = 200, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+                new NuiButtonImage(selectedItemIcon) { Height = 40, Width = 40, Visible = selectedItemVisibility },
+                new NuiLabel(selectedItemTitle) { Height = 40, Width = 200, Visible = selectedItemVisibility, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
                 new NuiSpacer()
               } },
               new NuiRow() { Children = new List<NuiElement>() { new NuiText(selectedItemDescription) {  } } },
@@ -104,7 +105,7 @@ namespace NWN.Systems
             selectedItemTitle.SetBindValue(player.oid, nuiToken.Token, "");
             selectedItemDescription.SetBindValue(player.oid, nuiToken.Token, "Sélectionner une classe pour afficher ses détails.\n\nAttention, lorsque vous aurez quitté ce navire, ce choix deviendra définitif.");
             selectedItemIcon.SetBindValue(player.oid, nuiToken.Token, "ir_examine");
-            
+            selectedItemVisibility.SetBindValue(player.oid, nuiToken.Token, false);
             validationEnabled.SetBindValue(player.oid, nuiToken.Token, false);
 
             geometry.SetBindValue(player.oid, nuiToken.Token, new NuiRect(savedRectangle.X, savedRectangle.Y, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f));
@@ -124,6 +125,8 @@ namespace NWN.Systems
               switch(nuiEvent.ElementId)
               {
                 case "select":
+
+                  selectedItemVisibility.SetBindValue(player.oid, nuiToken.Token, true);
 
                   if (selectedLearnable == currentList.ElementAt(nuiEvent.ArrayIndex))
                     return;
@@ -245,6 +248,8 @@ namespace NWN.Systems
         private void RemovePreviousClass()
         {
           List<LearnableSkill> profienciesToRemove = new();
+
+          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.FighterSecondWind));
 
           foreach (var skill in player.learnableSkills.Where(l => l.Value.source.Any(s => s == SkillSystem.Category.Class)))
             profienciesToRemove.Add(skill.Value);

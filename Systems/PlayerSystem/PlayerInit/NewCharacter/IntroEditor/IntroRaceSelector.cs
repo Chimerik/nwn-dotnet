@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using Anvil.API;
 using Anvil.API.Events;
 
@@ -17,6 +16,7 @@ namespace NWN.Systems
         private readonly NuiBind<string> selectedItemTitle = new("selectedItemTitle");
         private readonly NuiBind<string> selectedItemDescription = new("selectedItemDescription");
         private readonly NuiBind<string> selectedItemIcon = new("selectedItemIcon");
+        private readonly NuiBind<bool> selectedItemVisibility = new("selectedItemVisibility");
 
         private readonly NuiBind<string> validationText = new("validationText");
         private readonly NuiBind<bool> validationEnabled = new("validationEnabled");
@@ -30,6 +30,7 @@ namespace NWN.Systems
 
         private readonly NuiBind<int> selectedBonusSkill = new("selectedBonusSkill");
         private readonly NuiBind<bool> visibleBonusSkill = new("visibleBonusSkill");
+        private readonly NuiBind<List<NuiComboEntry>> bonusSelectionList = new("bonusSelectionList");
 
         private IEnumerable<RaceEntry> currentList;
         private NwRace selectedRace;
@@ -70,12 +71,12 @@ namespace NWN.Systems
               new NuiRow() { Children = new List<NuiElement>()
               {
                 new NuiSpacer(),
-                new NuiButtonImage(selectedItemIcon) { Height = 40, Width = 40 },
-                new NuiLabel(selectedItemTitle) { Height = 40, Width = 200, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+                new NuiButtonImage(selectedItemIcon) { Height = 40, Width = 40, Visible = selectedItemVisibility },
+                new NuiLabel(selectedItemTitle) { Height = 40, Width = 200, Visible = selectedItemVisibility, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
                 new NuiSpacer()
               } },
-              new NuiRow() { Children = new List<NuiElement>() { new NuiText(selectedItemDescription) {  } } },
-              new NuiRow() { Children = new List<NuiElement>() { new NuiCombo() { Id = "comboBonusSkill", Entries = Utils.skilList, Selected = selectedBonusSkill,  Visible = visibleBonusSkill, Tooltip = "Humain : compétence bonus", Height = 40 } } },
+              new NuiRow() { Children = new List<NuiElement>() { new NuiCombo() { Entries = bonusSelectionList, Selected = selectedBonusSkill, Visible = visibleBonusSkill, Height = 40, Width = player.guiScaledWidth * 0.6f - 370 } } },
+              new NuiRow() { Children = new List<NuiElement>() { new NuiText(selectedItemDescription) { } } },
               new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiButton(validationText) { Id = "validate", Height = 40, Width = player.guiScaledWidth * 0.6f - 370, Enabled = validationEnabled }, new NuiSpacer() } }
             }, Width = player.guiScaledWidth * 0.6f - 370 }
           } });
@@ -103,12 +104,14 @@ namespace NWN.Systems
             selectedItemTitle.SetBindValue(player.oid, nuiToken.Token, "");
             selectedItemDescription.SetBindValue(player.oid, nuiToken.Token, "Sélectionner une race pour afficher ses détails.\n\nAttention, lorsque vous aurez quitté ce navire, ce choix deviendra définitif.");
             selectedItemIcon.SetBindValue(player.oid, nuiToken.Token, "ir_examine");
-            
+            selectedItemVisibility.SetBindValue(player.oid, nuiToken.Token, false);
+
             validationEnabled.SetBindValue(player.oid, nuiToken.Token, false);
 
             selectedBonusSkill.SetBindValue(player.oid, nuiToken.Token, -1);
             selectedBonusSkill.SetBindWatch(player.oid, nuiToken.Token, true);
             visibleBonusSkill.SetBindValue(player.oid, nuiToken.Token, false);
+            bonusSelectionList.SetBindValue(player.oid, nuiToken.Token, Utils.skillList);
 
             geometry.SetBindValue(player.oid, nuiToken.Token, new NuiRect(savedRectangle.X, savedRectangle.Y, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f));
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
@@ -127,6 +130,8 @@ namespace NWN.Systems
               {
                 case "select":
 
+                  selectedItemVisibility.SetBindValue(player.oid, nuiToken.Token, true);
+
                   if (selectedRace?.Id == currentList.ElementAt(nuiEvent.ArrayIndex).RowIndex)
                     return;
 
@@ -139,6 +144,7 @@ namespace NWN.Systems
                   if (selectedRace.RacialType == RacialType.Human)
                   {
                     visibleBonusSkill.SetBindValue(player.oid, nuiToken.Token, true);
+                    bonusSelectionList.SetBindValue(player.oid, nuiToken.Token, Utils.skillList);
 
                     LearnableSkill bonusSkill = player.learnableSkills.Values.FirstOrDefault(s => s.category == SkillSystem.Category.Skill && s.source.Any(so => so == SkillSystem.Category.Race));
                     selectedBonusSkill.SetBindValue(player.oid, nuiToken.Token, bonusSkill is not null ? bonusSkill.id : -1);
@@ -153,6 +159,25 @@ namespace NWN.Systems
                       validationEnabled.SetBindValue(player.oid, nuiToken.Token, false);
                       validationText.SetBindValue(player.oid, nuiToken.Token, "Humain : Veuillez sélectionner une compétence bonus");
                     }                    
+                  }
+                  else if(selectedRace.Id == CustomRace.HighElf || selectedRace.Id == CustomRace.HighHalfElf)
+                  {
+                    visibleBonusSkill.SetBindValue(player.oid, nuiToken.Token, true);
+                    bonusSelectionList.SetBindValue(player.oid, nuiToken.Token, Utils.mageCanTripList);
+
+                    LearnableSkill bonusSkill = player.learnableSkills.Values.FirstOrDefault(s => s.category == SkillSystem.Category.Magic && s.source.Any(so => so == SkillSystem.Category.Race));
+                    selectedBonusSkill.SetBindValue(player.oid, nuiToken.Token, bonusSkill is not null ? bonusSkill.id : -1);
+
+                    if (selectedBonusSkill.GetBindValue(player.oid, nuiToken.Token) > -1)
+                    {
+                      validationEnabled.SetBindValue(player.oid, nuiToken.Token, true);
+                      validationText.SetBindValue(player.oid, nuiToken.Token, $"Valider le choix : {selectedRace.Name}");
+                    }
+                    else
+                    {
+                      validationEnabled.SetBindValue(player.oid, nuiToken.Token, false);
+                      validationText.SetBindValue(player.oid, nuiToken.Token, $"{selectedRace.Name} : Veuillez sélectionner un tour de magie bonus");
+                    }
                   }
                   else if (player.oid.LoginCreature.Race.Id == selectedRace.Id)
                   {
@@ -175,7 +200,7 @@ namespace NWN.Systems
                   RemovePreviousHistory();
 
                   validationEnabled.SetBindValue(player.oid, nuiToken.Token, false);
-                  player.ApplyRacePackage(selectedRace);
+                  player.ApplyRacePackage(selectedRace, selectedBonusSkill.GetBindValue(player.oid, nuiToken.Token));
 
                   validationText.SetBindValue(player.oid, nuiToken.Token, $"Vous êtes désormais {selectedRace.Name}");
                   player.oid.SendServerMessage($"La race {StringUtils.ToWhitecolor(selectedRace.Name)} vous a bien été affectée !", ColorConstants.Orange);
@@ -242,7 +267,12 @@ namespace NWN.Systems
                   if(selectedBonusSkill.GetBindValue(player.oid, nuiToken.Token) > -1) 
                   {
                     validationEnabled.SetBindValue(player.oid, nuiToken.Token, true);
-                    validationText.SetBindValue(player.oid, nuiToken.Token, "Valider le choix : Humain");
+                    validationText.SetBindValue(player.oid, nuiToken.Token, $"Valider le choix : {selectedRace.Name}");
+                  }
+                  else
+                  {
+                    validationEnabled.SetBindValue(player.oid, nuiToken.Token, false);
+                    validationText.SetBindValue(player.oid, nuiToken.Token, $"{selectedRace.Name} : Veuillez sélectionner une compétence bonus");
                   }
                   
                   return;
@@ -303,6 +333,8 @@ namespace NWN.Systems
           player.oid.LoginCreature.RemoveEffect(EffectSystem.woodElfSpeed);
           player.oid.LoginCreature.RemoveEffect(EffectSystem.enduranceImplacable);
           player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_HALFORC_ENDURANCE").Delete();
+
+          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.RayOfFrost));
 
           foreach (ItemProperty ip in player.oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties)
             if (ip.Property.PropertyType == ItemPropertyType.ImmunityDamageType)

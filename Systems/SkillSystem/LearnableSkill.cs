@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 using Anvil.API;
 
@@ -18,8 +17,8 @@ namespace NWN.Systems
 
 
     public LearnableSkill(int id, string name, string description, SkillSystem.Category category, string icon, int maxLevel, int multiplier, Ability primaryAbility,
-      Ability secondaryAbility, Func<PlayerSystem.Player, int, bool> skillEffect = null) 
-      : base(id, name, description, icon, maxLevel, multiplier, primaryAbility, secondaryAbility)
+      Ability secondaryAbility, Func<PlayerSystem.Player, int, bool> skillEffect = null, string descriptionLink = "") 
+      : base(id, name, description, icon, maxLevel, multiplier, primaryAbility, secondaryAbility, descriptionLink)
     {
       this.category = category;
       this.skillEffect = skillEffect;

@@ -9,11 +9,6 @@ namespace NWN.Systems
     {
       private void ApplyLightFootPackage()
       {
-        if (learnableSkills.TryAdd(CustomSkill.StealthProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.StealthProficiency])))
-          learnableSkills[CustomSkill.StealthProficiency].LevelUp(this);
-
-        learnableSkills[CustomSkill.StealthProficiency].source.Add(Category.Race);
-
         if (learnableSkills.TryAdd(CustomSkill.Halfelin, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Halfelin])))
           learnableSkills[CustomSkill.Halfelin].LevelUp(this);
 
@@ -21,6 +16,7 @@ namespace NWN.Systems
 
         oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.dwarfSlow);
 
+        // TODO : Penser à gérer l'avantage sur les jets de Furtivité
         // TODO : Penser à gérer l'avantage sur les JDS contre la peur et la terreur
         // TODO : Penser à gérer le rejeu des jets de compétences ou de sauvegarde en cas de 1 
       }

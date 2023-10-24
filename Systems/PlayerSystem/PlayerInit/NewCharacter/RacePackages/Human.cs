@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      private void ApplyHumanPackage()
+      private void ApplyHumanPackage(int bonusSelection)
       {
         if (learnableSkills.TryAdd(CustomSkill.LightArmorProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.LightArmorProficiency])))
           learnableSkills[CustomSkill.LightArmorProficiency].LevelUp(this);
@@ -29,6 +29,14 @@ namespace NWN.Systems
 
         learnableSkills[CustomSkill.HumanVersatility].source.Add(Category.Race);
 
+        if (bonusSelection > -1)
+        {
+          if (learnableSkills.TryAdd(Utils.skillList[bonusSelection].Value, new LearnableSkill((LearnableSkill)learnableDictionary[Utils.skillList[bonusSelection].Value])))
+            learnableSkills[Utils.skillList[bonusSelection].Value].LevelUp(this);
+
+          learnableSkills[Utils.skillList[bonusSelection].Value].source.Add(Category.Race);
+        }
+        
         oid.LoginCreature.OnAcquireItem -= ItemSystem.OnAcquireCheckHumanVersatility;
         oid.LoginCreature.OnUnacquireItem -= ItemSystem.OnUnAcquireCheckHumanVersatility;
         oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireCheckHumanVersatility;

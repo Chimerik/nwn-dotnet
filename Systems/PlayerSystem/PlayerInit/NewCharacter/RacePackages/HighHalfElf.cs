@@ -8,7 +8,7 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      private void ApplyHighHalfElfPackage()
+      private void ApplyHighHalfElfPackage(int bonusSelection)
       {
         if (learnableSkills.TryAdd(CustomSkill.LightArmorProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.LightArmorProficiency])))
           learnableSkills[CustomSkill.LightArmorProficiency].LevelUp(this);
@@ -34,6 +34,15 @@ namespace NWN.Systems
           learnableSkills[CustomSkill.HighElfLanguage].LevelUp(this);
 
         learnableSkills[CustomSkill.HighElfLanguage].source.Add(Category.Race);
+
+        if (bonusSelection > -1)
+        {
+          NwFeat feat = NwSpell.FromSpellId(bonusSelection).FeatReference;
+          if (learnableSkills.TryAdd(feat.Id, new LearnableSkill((LearnableSkill)learnableDictionary[feat.Id])))
+            learnableSkills[feat.Id].LevelUp(this);
+
+          learnableSkills[feat.Id].source.Add(Category.Race);
+        }
 
         ApplyElvenSleepImmunity();
 

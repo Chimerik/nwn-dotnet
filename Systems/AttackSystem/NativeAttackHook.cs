@@ -12,21 +12,12 @@ namespace NWN.Systems
   public unsafe class NativeAttackHook
   {
     private readonly CExoString casterLevelVariable = "_CREATURE_CASTER_LEVEL".ToExoString();
-    public readonly CExoString casterCurrentSpellVariable = "_CURRENT_SPELL".ToExoString();
     private readonly CExoString isFinesseWeaponVariable = "_IS_FINESSE_WEAPON".ToExoString();
     private readonly CExoString currentDualAttacksVariable = "_CURRENT_DUAL_ATTACK".ToExoString();
     private readonly CExoString currentUnarmedExtraAttacksVariable = "_CURRENT_UNARMED_EXTRA_ATTACK".ToExoString();
     private readonly CExoString isBonusActionAvailableVariable = "_BONUS_ACTION".ToExoString();
-    //private readonly CExoString minWeaponDamageVariable = "_MIN_WEAPON_DAMAGE".ToExoString();
-    //private readonly CExoString maxWeaponDamageVariable = "_MAX_WEAPON_DAMAGE".ToExoString();
-    //private readonly CExoString minCreatureDamageVariable = "_MIN_CREATURE_DAMAGE".ToExoString();
-    //private readonly CExoString maxCreatureDamageVariable = "_MAX_CREATURE_DAMAGE".ToExoString();
-    private readonly CExoString critChanceVariable = "_ADD_CRIT_CHANCE".ToExoString();
-    //private readonly CExoString itemGradeVariable = "_ITEM_GRADE".ToExoString();
     private readonly CExoString durabilityVariable = "_DURABILITY".ToExoString();
     private readonly CExoString maxDurabilityVariable = "_MAX_DURABILITY".ToExoString();
-    //private readonly CExoString blindEffectString = "CUSTOM_CONDITION_BLIND".ToExoString();
-    //private readonly CExoString spellIdVariable = "_CURRENT_SPELL".ToExoString();
 
     //_ZN12CNWSCreature15SavingThrowRollEhthjiti
     // _ZN8CNWRules8RollDiceEhh
@@ -84,8 +75,6 @@ namespace NWN.Systems
       //*** CALCUL DU BONUS D'ATTAQUE ***//
       // On prend le bonus d'attaque calculé automatiquement par le jeu en fonction de la cible qui peut être une créature ou un placeable
       int attackModifier = NativeUtils.GetAttackBonusVSTarget(creature, targetCreature, attackData.m_bRangedAttack);
-
-      //CreatureUtils.TestGetInvi(creature, targetCreature);
       
       // Si l'arme utilisée pour attaquer est une arme de finesse, et que la créature a une meilleur DEX, alors on utilise la DEX pour attaquer
       CNWSItem attackWeapon = combatRound.GetCurrentAttackWeapon(attackData.m_nWeaponAttackType);
@@ -172,9 +161,8 @@ namespace NWN.Systems
 
       if (targetCreature is not null)
       {
-        int advantage = CreatureUtils.GetAdvantageAgainstTarget(creature, attackData, attackWeapon, attackStat, casterCurrentSpellVariable, targetCreature);
-        int attackRoll = Utils.RollAdvantage(advantage);
-        attackRoll = NativeUtils.HandleHalflingLuck(creature, attackRoll);
+        int advantage = CreatureUtils.GetAdvantageAgainstTarget(creature, attackData, attackWeapon, attackStat, targetCreature);
+        int attackRoll = NativeUtils.HandleHalflingLuck(creature, Utils.RollAdvantage(advantage));
         int targetAC = targetCreature.m_pStats.GetArmorClassVersus(creature) + CreatureUtils.OverrideSizeAttackAndACBonus(targetCreature); // On compense le bonus/malus de taille du jeu de base;
 
         LogUtils.LogMessage($"CA de la cible : {targetAC}", LogUtils.LogType.Combat);
@@ -182,12 +170,12 @@ namespace NWN.Systems
         string hitString = "touchez".ColorString(new Color(32, 255, 32));
         string rollString = $"{attackRoll} + {attackBonus} = {attackRoll + attackBonus}".ColorString(new Color(32, 255, 32));
         string criticalString = "";
-        string advantageString = advantage == 0 ? "" : advantage > 0 ? "Avantage - ".ColorString(new Color(255, 215, 0)) : "Désavantage - ".ColorString(ColorConstants.Red);
+        string advantageString = advantage == 0 ? "" : advantage > 0 ? "Avantage - ".ColorString(StringUtils.gold) : "Désavantage - ".ColorString(ColorConstants.Red);
 
         if (attackRoll == 20) // TODO : certains items permettront d'augmenter la plage des critiques dans certaines conditions
         {
           attackData.m_nAttackResult = 3;
-          criticalString = "CRITIQUE - ".ColorString(new Color(255, 215, 0));
+          criticalString = "CRITIQUE - ".ColorString(StringUtils.gold);
           LogUtils.LogMessage("Coup critique", LogUtils.LogType.Combat);
         }
         else if (attackRoll > 1 && attackRoll + attackBonus > targetAC)

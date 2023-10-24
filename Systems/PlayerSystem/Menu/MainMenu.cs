@@ -88,7 +88,7 @@ namespace NWN.Systems
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
             
-            if (!AreaDescriptionExists(player.oid))
+            if (!AreaSystem.areaDescriptions.ContainsKey(player.oid.ControlledCreature?.Area.Name))
               myCommandList.Remove("examineArea");
             else
               myCommandList.TryAdd("examineArea", Utils.mainMenuCommands["examineArea"]);

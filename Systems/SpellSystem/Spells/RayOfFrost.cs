@@ -10,25 +10,37 @@ namespace NWN.Systems
   {
     public static void RayOfFrost(SpellEvents.OnSpellCast onSpellCast)
     {
-      if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oCaster))
+      if (onSpellCast.Caster is not NwCreature oCaster)
         return;
 
-      int nCasterLevel = oCaster.LastSpellCasterLevel;
-
       SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell.SpellType);
+      onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpFrostS));
+      onSpellCast.TargetObject.ApplyEffect(EffectDuration.Temporary, Effect.Beam(VfxType.BeamCold, oCaster, BodyNode.Hand), TimeSpan.FromSeconds(1.7));
 
-      Effect eVis = Effect.VisualEffect(VfxType.ImpFrostS);
-      Effect eRay = Effect.Beam(VfxType.BeamCold, oCaster, BodyNode.Hand);
+      int nbDice = 1;
 
-      if (oCaster.CheckResistSpell(onSpellCast.TargetObject) == ResistSpellResult.Failed)
+      if (oCaster.LastSpellCasterLevel > 16)
+        nbDice = 4;
+      else if (oCaster.LastSpellCasterLevel > 10)
+        nbDice = 3;
+      if (oCaster.LastSpellCasterLevel > 4)
+        nbDice = 2;
+
+      Ability spellCastingAbility = oCaster.GetAbilityModifier(Ability.Intelligence) > oCaster.GetAbilityModifier(Ability.Charisma)
+            ? Ability.Intelligence : Ability.Charisma;
+
+      switch(SpellUtils.GetSpellAttackRoll(onSpellCast, oCaster, spellCastingAbility))
       {
-        int nDamage = SpellUtils.MaximizeOrEmpower(4, 1 + nCasterLevel / 6, onSpellCast.MetaMagicFeat);
-        Effect eDam = Effect.Damage(nDamage, DamageType.Cold);
-        onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, eVis);
-        onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, eDam);
+        case TouchAttackResult.CriticalHit: nbDice *= 2; break;
+        case TouchAttackResult.Hit: break;
+        default: return;
       }
 
-      onSpellCast.TargetObject.ApplyEffect(EffectDuration.Temporary, eRay, TimeSpan.FromSeconds(1.7));
+      int damage = Utils.random.Roll(8, nbDice);
+      //int nDamage = SpellUtils.MaximizeOrEmpower(4, 1 + nCasterLevel / 6, onSpellCast.MetaMagicFeat);
+      onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, Effect.Damage(damage, DamageType.Cold));
+      onSpellCast.TargetObject.ApplyEffect(EffectDuration.Temporary, Effect.MovementSpeedDecrease(30), NwTimeSpan.FromRounds(1));
+      LogUtils.LogMessage($"Dégâts : {nbDice}d8 (caster lvl {oCaster.LastSpellCasterLevel}) = {damage}", LogUtils.LogType.Combat);
     }
   }
 }

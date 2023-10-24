@@ -6,18 +6,18 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      private void ApplyRacePackage(NwRace race)
+      private void ApplyRacePackage(NwRace race, int bonusSelection)
       {
         oid.LoginCreature.Race = race;
         oid.LoginCreature.Appearance = NwGameTables.AppearanceTable[Races2da.raceTable[race.Id].appearanceId];
 
         switch (race.Id)
         {
-          case CustomRace.Human: ApplyHumanPackage(); return;
-          case CustomRace.HighElf: ApplyHighElfPackage(); return;
+          case CustomRace.Human: ApplyHumanPackage(bonusSelection); return;
+          case CustomRace.HighElf: ApplyHighElfPackage(bonusSelection); return;
           case CustomRace.WoodElf: ApplyWoodElfPackage(); return;
           case CustomRace.Drow: ApplyDrowPackage(); return;
-          case CustomRace.HighHalfElf: ApplyHighHalfElfPackage(); return;
+          case CustomRace.HighHalfElf: ApplyHighHalfElfPackage(bonusSelection); return;
           case CustomRace.WoodHalfElf: ApplyWoodHalfElfPackage(); return;
           case CustomRace.DrowHalfElf: ApplyDrowHalfElfPackage(); return;
           case CustomRace.HalfOrc: ApplyHalfOrcPackage(); return;

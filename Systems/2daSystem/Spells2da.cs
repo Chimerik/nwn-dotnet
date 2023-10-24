@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using Anvil.Services;
 
 namespace NWN.Systems
@@ -6,27 +7,20 @@ namespace NWN.Systems
   public sealed class SpellEntry : ITwoDimArrayEntry
   {
     public int RowIndex { get; init; }
-    public int energyCost { get; private set; }
-    public int cooldown { get; private set; }
-    public int attribute { get; private set; }
-    public int type { get; private set; }
+    public StrRef tlkEntry { get; private set; }
+    public string googleDocId { get; private set; }
 
     public void InterpretEntry(TwoDimArrayEntry entry)
     {
-      energyCost = entry.GetInt("ImmunityType").GetValueOrDefault(0);
-      cooldown = entry.GetInt("ItemImmunity").GetValueOrDefault(0);
-      type = entry.GetInt("AltMessage").GetValueOrDefault(0);
-      attribute = entry.GetInt("Category").GetValueOrDefault(0);
+      StrRef nameEntry = entry.GetStrRef("Name").GetValueOrDefault(StrRef.FromCustomTlk(0));
 
-      StrRef tlkEntry = entry.GetStrRef("Name").GetValueOrDefault(StrRef.FromCustomTlk(0));
+      if (nameEntry.Id > 0 && string.IsNullOrEmpty(nameEntry.ToString()))
+        nameEntry.Override = StringUtils.ConvertToUTF8(entry.GetString("Label"));
 
-      if (tlkEntry.Id > 0 && string.IsNullOrEmpty(tlkEntry.ToString()))
-        tlkEntry.Override = StringUtils.ConvertToUTF8(entry.GetString("Label"));
+      googleDocId = entry.GetString("Description");
 
-      tlkEntry = entry.GetStrRef("SpellDesc").GetValueOrDefault(StrRef.FromCustomTlk(0));
-
-      if (tlkEntry.Id > 0 && string.IsNullOrEmpty(tlkEntry.ToString()))
-        tlkEntry.Override = StringUtils.ConvertToUTF8(entry.GetString("Description")).Replace("$", "\n");
+      if(!string.IsNullOrEmpty(googleDocId))
+        tlkEntry = entry.GetStrRef("SpellDesc").GetValueOrDefault(StrRef.FromCustomTlk(0));
     }
   }
 
@@ -37,8 +31,16 @@ namespace NWN.Systems
 
     public Spells2da()
     {
+      Utils.mageCanTripList.Add(new NuiComboEntry("Haut-Elfe : Sélection d'un tour de magie", -1));
+
       foreach (var entry in spellTable)
-        SpellUtils.spellCostDictionary.Add(NwSpell.FromSpellId(entry.RowIndex), new int[] { entry.energyCost, entry.cooldown, entry.attribute, entry.type });
+      {
+        NwSpell spell = NwSpell.FromSpellId(entry.RowIndex);
+        if(spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Wizard)) == 0)
+          Utils.mageCanTripList.Add(new NuiComboEntry(spell.Name.ToString(), spell.Id));
+      }
+
+      SpellUtils.UpdateSpellDescriptionTable();
     }
   }
 }

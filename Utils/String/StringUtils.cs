@@ -107,16 +107,17 @@ namespace NWN
     public static async Task<string> DownloadGoogleDocFromName(string fileName)
     {
       var request = ModuleSystem.googleDriveService.Files.List();
-      request.Q = $"name = '{fileName}'";
-      var files = request.Execute().Files;
+      request.Q = $"name = '{fileName.Replace("'", "\\'")}'"; // La brumfileName.reple
+      ModuleSystem.Log.Info($"request Q : {request.Q}");
+      var searchRequest = await request.ExecuteAsync();
 
-      if(files.Count < 1)
+      if(searchRequest.Files.Count < 1)
       {
         Utils.LogMessageToDMs($"GDoc introuvable : {fileName}");
         return "";
       }
       
-      var exportRequest = ModuleSystem.googleDriveService.Files.Export(files.FirstOrDefault().Id, "text/plain");
+      var exportRequest = ModuleSystem.googleDriveService.Files.Export(searchRequest.Files.FirstOrDefault().Id, "text/plain");
       using var stream = new MemoryStream();
       await exportRequest.DownloadAsync(stream);
       stream.Position = 0;

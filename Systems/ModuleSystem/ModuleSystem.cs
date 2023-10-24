@@ -142,6 +142,8 @@ namespace NWN.Systems
       scheduler.ScheduleRepeating(HandlePlayerLoop, TimeSpan.FromSeconds(1));
       scheduler.ScheduleRepeating(HandleSaveDate, TimeSpan.FromMinutes(1));
       scheduler.ScheduleRepeating(HandleMateriaGrowth, TimeSpan.FromHours(1));
+      scheduler.ScheduleRepeating(SkillSystem.RefreshLearnableDescriptions, TimeSpan.FromHours(1));
+      scheduler.ScheduleRepeating(AreaUtils.RefreshAreaDescriptions, TimeSpan.FromHours(1));
       scheduler.ScheduleRepeating(SpawnCollectableResources, TimeSpan.FromHours(24), nextActivation);
       scheduler.ScheduleRepeating(HandleSubscriptionDues, TimeSpan.FromHours(24), nextActivation);
 
@@ -783,9 +785,9 @@ namespace NWN.Systems
         j++;
       }
 
-      Utils.skilList.Add(new NuiComboEntry("", -1));
+      Utils.skillList.Add(new NuiComboEntry("Humain : Sélection d'une compétence bonus", -1));
       foreach (Learnable learnable in SkillSystem.learnableDictionary.Values.Where(l => l is LearnableSkill skill && skill.category == SkillSystem.Category.Skill))
-        Utils.skilList.Add(new NuiComboEntry(learnable.name, learnable.id));
+        Utils.skillList.Add(new NuiComboEntry(learnable.name, learnable.id));
     }
     private static async void LoadMailReceiverList()
     {

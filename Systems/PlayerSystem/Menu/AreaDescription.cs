@@ -10,9 +10,9 @@ namespace NWN.Systems
     {
       public class AreaDescriptionWindow : PlayerWindow
       {
-        private readonly NuiGroup rootGroup = new NuiGroup() { Id = "areaGroup", Border = true };
-        private readonly NuiColumn rootColumn = new NuiColumn();
-        private readonly List<NuiElement> rootChidren = new List<NuiElement>();
+        private readonly NuiGroup rootGroup = new() { Id = "areaGroup", Border = true };
+        private readonly NuiColumn rootColumn = new();
+        private readonly List<NuiElement> rootChidren = new();
 
         public AreaDescriptionWindow(Player player, NwArea area) : base(player)
         {
@@ -23,13 +23,11 @@ namespace NWN.Systems
 
           CreateWindow(area);
         }
-        public async void CreateWindow(NwArea area)
+        public void CreateWindow(NwArea area)
         {
           rootChidren.Clear();
 
-          string areaDescription = await StringUtils.DownloadGoogleDocFromName(area.Name);
-
-          await NwTask.SwitchToMainThread();
+          string areaDescription = AreaSystem.areaDescriptions[area.Name];
 
           rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiRow() { Children = new List<NuiElement>() { new NuiText(areaDescription) } } } });
 

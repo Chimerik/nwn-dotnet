@@ -34,6 +34,9 @@
 
     public const int Sprint = 1342;
     public const int Disengage = 1343;
+    public const int FighterSecondWind = 1344;
+    public const int FighterSurge = 1345; // 2 niveaux
+    public const int RayOfFrost = 1346;
 
     public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -348,16 +351,6 @@
     public const int HumanVersatility = 20387;
     public const int HighElfLanguage = 20388;
 
-    /*public const int UnharmedProficiency = 20387;
-    public const int QuarterStaffProficiency = 20390;
-    public const int MagicStaffProficiency = 20391;
-
-    public const int HalberdProficiency = 20401;
-    public const int RapierProficiency = 20405;
-    public const int TridentProficiency = 20408;
-
-    public const int WhipProficiency = 20418;*/
-
     public const int CalligrapheArmurierExpert = 20420;
     public const int CalligrapheBlindeur = 20421;
     public const int CalligrapheBlindeurMaitre = 20422;
@@ -432,14 +425,12 @@
     public const int FighterEldritchKnight = 20472;
     public const int FighterArcaneArcher = 20473;
 
-    public const int FighterSecondWind = 20474;
     public const int FighterCombatStyleArchery = 20475;
     public const int FighterCombatStyleDefense = 20476;
     public const int FighterCombatStyleDuel = 20477;
     public const int FighterCombatStyleTwoHanded = 20478;
     public const int FighterCombatStyleProtection = 20479;
     public const int FighterCombatStyleDualWield = 20480;
-    public const int FighterSurge = 20481; // 2 niveaux
     public const int FighterBonusAttack = 20482; // 3 niveaux
     public const int FighterInflexible = 20483; // 3 niveaux
 
@@ -455,7 +446,8 @@
     public const int FighterEldritchKnightArcaneRush = 20489;
     
     public const int FighterArcaneArcherArcaneShot = 20484; // 3 niveaux
-    public const int FighterArcaneArcherMagicArrow = 20485;    
+    public const int FighterArcaneArcherMagicArrow = 20485;
+
 
     public const int Invalid = 65535;
   }

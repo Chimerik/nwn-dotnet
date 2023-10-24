@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace NWN.Systems
 {
-  public static class SpellUtils
+  public static partial class SpellUtils
   {
     public enum SpellData
     {
@@ -16,7 +16,6 @@ namespace NWN.Systems
       Type = 3
     }
 
-    public static readonly Dictionary<NwSpell, int[]> spellCostDictionary = new();
     public static readonly Dictionary<int, ItemProperty[]> enchantementCategories = new()
     {
       //NIVEAU 0

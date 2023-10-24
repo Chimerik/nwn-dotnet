@@ -10,28 +10,28 @@ namespace NWN.Systems
     private static readonly StartingPackage startingPackage = new(
       new List<Learnable>()
       { 
-        SkillSystem.learnableDictionary[CustomSkill.LightArmorProficiency],
-        SkillSystem.learnableDictionary[CustomSkill.MediumArmorProficiency],
-        SkillSystem.learnableDictionary[CustomSkill.ShieldProficiency],
-        SkillSystem.learnableDictionary[CustomSkill.SimpleWeaponProficiency],
-        SkillSystem.learnableDictionary[CustomSkill.StrengthSavesProficiency],
-        SkillSystem.learnableDictionary[CustomSkill.ConstitutionSavesProficiency],
+        learnableDictionary[CustomSkill.LightArmorProficiency],
+        learnableDictionary[CustomSkill.MediumArmorProficiency],
+        learnableDictionary[CustomSkill.ShieldProficiency],
+        learnableDictionary[CustomSkill.SimpleWeaponProficiency],
+        learnableDictionary[CustomSkill.StrengthSavesProficiency],
+        learnableDictionary[CustomSkill.ConstitutionSavesProficiency],
       },
       new List<Learnable>()
       {
-        SkillSystem.learnableDictionary[CustomSkill.HeavyArmorProficiency],
-        SkillSystem.learnableDictionary[CustomSkill.MartialWeaponProficiency]
+        learnableDictionary[CustomSkill.HeavyArmorProficiency],
+        learnableDictionary[CustomSkill.MartialWeaponProficiency]
       },
       new List<Learnable>()
       {
-        SkillSystem.learnableDictionary[CustomSkill.AcrobaticsProficiency],
-        SkillSystem.learnableDictionary[CustomSkill.AnimalHandlingProficiency],
-        SkillSystem.learnableDictionary[CustomSkill.AthleticsProficiency],
-        SkillSystem.learnableDictionary[CustomSkill.HistoryProficiency],
-        SkillSystem.learnableDictionary[CustomSkill.InsightProficiency],
-        SkillSystem.learnableDictionary[CustomSkill.IntimidationProficiency],
-        SkillSystem.learnableDictionary[CustomSkill.PerceptionProficiency],
-        SkillSystem.learnableDictionary[CustomSkill.SurvivalProficiency],
+        learnableDictionary[CustomSkill.AcrobaticsProficiency],
+        learnableDictionary[CustomSkill.AnimalHandlingProficiency],
+        learnableDictionary[CustomSkill.AthleticsProficiency],
+        learnableDictionary[CustomSkill.HistoryProficiency],
+        learnableDictionary[CustomSkill.InsightProficiency],
+        learnableDictionary[CustomSkill.IntimidationProficiency],
+        learnableDictionary[CustomSkill.PerceptionProficiency],
+        learnableDictionary[CustomSkill.SurvivalProficiency],
       },
       2
     );

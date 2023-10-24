@@ -444,7 +444,8 @@ namespace NWN
     public static List<PaletteEntry> placeablePaletteList = new();
     public static NuiBind<string>[] paletteColorBindings = new NuiBind<string>[256];
     public static List<Rumor> rumors = new();
-    public static readonly List<NuiComboEntry> skilList = new();
+    public static readonly List<NuiComboEntry> skillList = new();
+    public static readonly List<NuiComboEntry> mageCanTripList = new();
 
     public static readonly List<string> colorPaletteLeather = new();
     public static readonly List<string> colorPaletteMetal = new();

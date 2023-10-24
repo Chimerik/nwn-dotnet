@@ -6,7 +6,7 @@ namespace NWN
 {
   public static partial class CreatureUtils
   {
-    public static int GetAttackerAdvantageEffects(Native.API.CNWSCreature attacker, uint targetId, Ability attackStat)
+    public static int GetAttackerAdvantageEffects(Native.API.CNWSCreature attacker, Native.API.CNWSCreature targetId, Ability attackStat)
     {
       Dictionary<string, bool> disadvantageDictionary = new()
       { 
@@ -22,7 +22,7 @@ namespace NWN
         disadvantageDictionary["armorShield"] = disadvantageDictionary["armorShield"] || GetArmorShieldDisadvantage(eff, attackStat);
         disadvantageDictionary["blinded"] = disadvantageDictionary["blinded"] || GetBlindedDisadvantage(eff);
         disadvantageDictionary["poisoned"] = disadvantageDictionary["poisoned"] || GetPoisonedDisadvantage(eff);
-        disadvantageDictionary["frightened"] = disadvantageDictionary["frightened"] || GetFrightenedDisadvantage(eff, targetId);
+        disadvantageDictionary["frightened"] = disadvantageDictionary["frightened"] || GetFrightenedDisadvantage(eff, targetId.m_idSelf);
         disadvantageDictionary["drowLightSensitivity"] = disadvantageDictionary["drowLightSensitivity"] || GetDrowLightSensitivityDisadvantage(eff);
       }
 

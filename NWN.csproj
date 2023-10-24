@@ -39,11 +39,11 @@
     <ItemGroup>
         <PackageReference Include="Discord.Net" Version="3.9.0" />
         <PackageReference Include="Google.Api.Gax" Version="4.4.0" />
-        <PackageReference Include="Google.Apis" Version="1.60.0" />
-        <PackageReference Include="Google.Apis.Auth" Version="1.60.0" />
-        <PackageReference Include="Google.Apis.Drive.v3" Version="1.60.0.3082" />
+        <PackageReference Include="Google.Apis" Version="1.62.1" />
+        <PackageReference Include="Google.Apis.Auth" Version="1.62.1" />
+        <PackageReference Include="Google.Apis.Drive.v3" Version="1.62.0.3155" />
         <PackageReference Include="Google.Cloud.Translation.V2" Version="3.2.0" />
-        <PackageReference Include="Microsoft.Data.Sqlite" Version="7.0.7" />
+        <PackageReference Include="Microsoft.Data.Sqlite" Version="7.0.13" />
         <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
         <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />

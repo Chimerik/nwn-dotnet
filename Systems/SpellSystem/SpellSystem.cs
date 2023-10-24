@@ -11,7 +11,6 @@ using System;
 using System.Collections.Generic;
 using NWN.Systems.Arena;
 using static NWN.Systems.PlayerSystem;
-using System.Numerics;
 
 namespace NWN.Systems
 {
@@ -250,7 +249,9 @@ namespace NWN.Systems
     private void HandleSpellHook(CallInfo callInfo)
     {
       SpellEvents.OnSpellCast onSpellCast = new SpellEvents.OnSpellCast();
-      HandleSpellDamageLocalisation(onSpellCast.Spell.SpellType, onSpellCast.Caster);
+      //HandleSpellDamageLocalisation(onSpellCast.Spell.SpellType, onSpellCast.Caster);
+
+      LogUtils.LogMessage($"----- {onSpellCast.Caster.Name} lance {onSpellCast.Spell.Name.ToString()} sur {onSpellCast.TargetObject?.Name} -----", LogUtils.LogType.Combat);
 
       if (callInfo.ObjectSelf is not NwCreature castingCreature)
         return;
@@ -269,9 +270,7 @@ namespace NWN.Systems
         oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
       }*/
 
-      HandleCasterLevel(onSpellCast, player);
-
-      double durationModifier = 1;
+      //HandleCasterLevel(onSpellCast, player);
 
       NwItem castItem = player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
 
@@ -370,8 +369,7 @@ namespace NWN.Systems
           CreaturePlugin.SetCasterLevelOverride(castingCreature, (int)castingClass, (int)castingCreature.ChallengeRating);
       }
 
-      int[] spellCosts = SpellUtils.spellCostDictionary[onSpellCast.Spell];
-      LogUtils.LogMessage($"{castingCreature.Name} lance {onSpellCast.Spell.Name.ToString()} (CL {CreaturePlugin.GetCasterLevelOverride(castingCreature, (int)castingClass)} - Cost/CD {spellCosts[0]}/{spellCosts[1]})", LogUtils.LogType.Combat);
+      LogUtils.LogMessage($"{castingCreature.Name} lance {onSpellCast.Spell.Name.ToString()} (CL {CreaturePlugin.GetCasterLevelOverride(castingCreature, (int)castingClass)})", LogUtils.LogType.Combat);
       NWScript.DelayCommand(0.0f, () => DelayedSpellHook(onSpellCast, player));
     }
     private void DelayedSpellHook(SpellEvents.OnSpellCast onSpellCast, Player player)
@@ -877,7 +875,7 @@ namespace NWN.Systems
     {
       NwPlayer oPC = onUsed.ClickedBy;
 
-      if (PlayerSystem.Players.TryGetValue(oPC.LoginCreature, out PlayerSystem.Player player))
+      if (Players.TryGetValue(oPC.LoginCreature, out Player player))
       {
         if (player.oid.LoginCreature.Area.FindObjectsOfTypeInArea<NwCreature>().Any(c => c.GetObjectVariable<LocalVariableInt>("_IS_PVE_ARENA_CREATURE").HasValue))
           ArenaMenu.DrawRunAwayPage(player);
@@ -887,7 +885,7 @@ namespace NWN.Systems
     }
     public void OnExitArena(AreaEvents.OnExit onExit)
     {
-      if (onExit.ExitingObject is not NwCreature creature || !PlayerSystem.Players.TryGetValue(onExit.ExitingObject, out PlayerSystem.Player player))
+      if (onExit.ExitingObject is not NwCreature creature || !Players.TryGetValue(onExit.ExitingObject, out PlayerSystem.Player player))
         return;
 
       AreaSystem.CloseWindows(player);

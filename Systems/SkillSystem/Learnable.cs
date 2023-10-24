@@ -9,12 +9,8 @@ namespace NWN.Systems
   {
     public int id { get; }
     public string name { get; }
-    private string _description;
-    public string description 
-    { 
-      get => _description.StartsWith("google") ? GetAsyncDescription().Result : _description; 
-      set => _description = value; 
-    }
+    public string description { get; set; }
+    public string descriptionLink { get; }
     public string icon { get; }
     public int maxLevel { get; }
     public int multiplier { get; }
@@ -26,7 +22,7 @@ namespace NWN.Systems
     public DateTime? spLastCalculation { get; set; }
     public double pointsToNextLevel { get; set; }
 
-    public Learnable(int id, string name, string description, string icon, int maxLevel, int multiplier, Ability primaryAbility, Ability secondaryAbility)
+    public Learnable(int id, string name, string description, string icon, int maxLevel, int multiplier, Ability primaryAbility, Ability secondaryAbility, string descriptionLink = "")
     {
       this.id = id;
       this.name = name;
@@ -36,6 +32,8 @@ namespace NWN.Systems
       this.multiplier = multiplier;
       this.primaryAbility = primaryAbility;
       this.secondaryAbility = secondaryAbility;
+      this.descriptionLink = descriptionLink;
+
     }
     public Learnable(Learnable learnableBase)
     {
@@ -47,6 +45,7 @@ namespace NWN.Systems
       this.multiplier = learnableBase.multiplier;
       this.primaryAbility = learnableBase.primaryAbility;
       this.secondaryAbility = learnableBase.secondaryAbility;
+      this.descriptionLink = learnableBase.descriptionLink;
     }
     public Learnable()
     {

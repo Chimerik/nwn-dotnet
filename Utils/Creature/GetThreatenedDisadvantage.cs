@@ -5,9 +5,9 @@ namespace NWN
 {
   public static partial class CreatureUtils
   {
-    public static int GetThreatenedDisadvantage(CNWSCreature attacker, CNWSCombatAttackData attackData, CExoString spellCastVariable)
+    public static int GetThreatenedDisadvantage(CNWSCreature attacker, int isRangedAttack)
     {
-      return attackData.m_bRangedAttack < 1 || !attacker.m_appliedEffects.Any(e => e.m_sCustomTag == StringUtils.threatenedEffectExoTag)
+      return isRangedAttack < 1 || !attacker.m_appliedEffects.Any(e => e.m_sCustomTag == StringUtils.threatenedEffectExoTag)
       ? 0 : -1;
 
       /*foreach (var gameObject in attacker.GetArea().m_aGameObjects)
