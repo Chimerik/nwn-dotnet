@@ -250,8 +250,11 @@ namespace NWN.Systems
     {
       SpellEvents.OnSpellCast onSpellCast = new SpellEvents.OnSpellCast();
       //HandleSpellDamageLocalisation(onSpellCast.Spell.SpellType, onSpellCast.Caster);
-
-      LogUtils.LogMessage($"----- {onSpellCast.Caster.Name} lance {onSpellCast.Spell.Name.ToString()} sur {onSpellCast.TargetObject?.Name} -----", LogUtils.LogType.Combat);
+      
+      if(onSpellCast.TargetObject is not null)
+        LogUtils.LogMessage($"----- {onSpellCast.Caster.Name} lance {onSpellCast.Spell.Name.ToString()} sur {onSpellCast.TargetObject.Name} -----", LogUtils.LogType.Combat);
+      else
+        LogUtils.LogMessage($"----- {onSpellCast.Caster.Name} lance {onSpellCast.Spell.Name.ToString()} en mode AoE -----", LogUtils.LogType.Combat);
 
       if (callInfo.ObjectSelf is not NwCreature castingCreature)
         return;
@@ -279,7 +282,7 @@ namespace NWN.Systems
       switch (onSpellCast.Spell.SpellType)
       {
         case Spell.AcidSplash:
-          new AcidSplash(onSpellCast);
+          AcidSplash(onSpellCast);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -289,7 +292,7 @@ namespace NWN.Systems
           break;
 
         case Spell.ElectricJolt:
-          new EletricJolt(onSpellCast);
+          ElectricJolt(onSpellCast);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -299,7 +302,7 @@ namespace NWN.Systems
           break;
 
         case Spell.Light:
-          new Light(onSpellCast);
+          Light(onSpellCast);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -335,6 +338,14 @@ namespace NWN.Systems
           break;
         case Spell.FleshToStone:
           Petrify(onSpellCast);
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+      }
+
+      switch (onSpellCast.Spell.Id)
+      {
+        case CustomSpell.BladeWard:
+          BladeWard(onSpellCast);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
       }

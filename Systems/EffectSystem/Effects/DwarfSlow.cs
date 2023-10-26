@@ -9,6 +9,7 @@ namespace NWN.Systems
     public static void InitDwarfSlowEffect()
     {
       dwarfSlow = Effect.MovementSpeedDecrease(10);
+      dwarfSlow.ShowIcon = false;
       dwarfSlow.SubType = EffectSubType.Unyielding;
     }
   }

@@ -37,6 +37,11 @@
     public const int FighterSecondWind = 1344;
     public const int FighterSurge = 1345; // 2 niveaux
     public const int RayOfFrost = 1346;
+    public const int AcidSplash = 1347;
+    public const int ElectricJolt = 1348;
+    public const int BladeWard = 1349;
+    public const int FireBolt = 1350;
+    public const int Friends = 1351;
 
     public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;

@@ -1,12 +1,11 @@
-﻿using System.ComponentModel;
-using Anvil.API;
+﻿using Anvil.API;
 using Anvil.API.Events;
 
 namespace NWN.Systems
 {
   public static partial class SpellUtils
   {
-    public static TouchAttackResult GetSpellAttackRoll(SpellEvents.OnSpellCast onCast, NwCreature caster, Ability spellCastingAbility)
+    public static TouchAttackResult GetSpellAttackRoll(SpellEvents.OnSpellCast onCast, NwCreature caster, Ability spellCastingAbility, int isRangedSpell = 1)
     {
       TouchAttackResult result = TouchAttackResult.Hit;
 
@@ -21,7 +20,7 @@ namespace NWN.Systems
 
           attackModifier += caster.GetAbilityModifier(spellCastingAbility);
 
-          int advantage = CreatureUtils.GetSpellAttackAdvantageAgainstTarget(caster, 1, target, spellCastingAbility);
+          int advantage = CreatureUtils.GetSpellAttackAdvantageAgainstTarget(caster, onCast.Spell, isRangedSpell, target, spellCastingAbility);
           int attackRoll = NativeUtils.HandleHalflingLuck(caster, Utils.RollAdvantage(advantage));
           int targetAC = target.GetArmorClassVersus(caster) + CreatureUtils.OverrideSizeAttackAndACBonus(target); // On compense le bonus/malus de taille du jeu de base;
           int totalAttack = attackRoll + attackModifier;

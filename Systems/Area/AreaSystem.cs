@@ -12,6 +12,7 @@ namespace NWN.Systems
   public partial class AreaSystem
   {
     public static readonly Dictionary<string, string> areaDescriptions = new();
+    public static readonly List<string> areaDescriptionsToDownload = new();
     private static readonly int[] rockRandomAppearances = new int[] { 1603, 4480, 4481, 5266, 5267, 5268, 5269, 14669, 14670, 14671, 14672, 14673, 14674, 14675, 14676, 14677, 14678 };
     private readonly DialogSystem dialogSystem;
     private readonly ScriptHandleFactory scriptHandleFactory;
@@ -56,7 +57,7 @@ namespace NWN.Systems
         area.OnExit += OnAreaExit;
         area.OnHeartbeat += OnAreaHeartbeat;
         area.RestingAllowed = false;
-        AreaUtils.LoadAreaDescription(area);
+        areaDescriptionsToDownload.Add(area.Name);
 
         if(areaMusics.ContainsKey(area.Tag))
         {
@@ -92,6 +93,9 @@ namespace NWN.Systems
 
       SerializeCreaturesAndCreateSpawn(creatureToSerialize);
       InitializeBankPlaceableNames();
+
+      foreach (string areaName in areaDescriptionsToDownload)
+        AreaUtils.LoadAreaDescription(areaName);
     }
     private static void SerializeCreaturesAndCreateSpawn(List<NwCreature> creatureList)
     {

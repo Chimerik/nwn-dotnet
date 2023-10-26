@@ -1,4 +1,5 @@
 ﻿using Anvil.API;
+using NWN.Systems;
 
 namespace NWN
 {
@@ -6,7 +7,7 @@ namespace NWN
   {
     public static bool GetArmorShieldDisadvantage(Native.API.CGameEffect eff, Ability attackStat)
     {
-      return eff.m_sCustomTag.CompareNoCase(StringUtils.shieldArmorDisadvantageEffectExoTag) > 0 
+      return eff.m_sCustomTag.CompareNoCase(EffectSystem.shieldArmorDisadvantageEffectExoTag) > 0 
         && (attackStat == Ability.Strength || attackStat == Ability.Dexterity);
     }
   }

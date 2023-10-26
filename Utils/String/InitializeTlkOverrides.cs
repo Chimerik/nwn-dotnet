@@ -194,6 +194,9 @@ namespace NWN
 
       tlkEntry = StrRef.FromCustomTlk(190109);
       tlkEntry.Override = await DownloadGoogleDoc("1ll6A-ekXUXKj0crQrAYLRtn6HowvnXCo8JprxzKLpu8");
+
+      tlkEntry = StrRef.FromCustomTlk(190110);
+      tlkEntry.Override = "Protection contre les lames";
     }
   }
 }

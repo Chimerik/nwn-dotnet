@@ -17,14 +17,6 @@ namespace NWN
 {
   public static partial class StringUtils
   {
-    public static readonly string shieldArmorDisadvantageEffectTag = "_DISADVANTAGE_SHIELD_ARMOR_PROFICIENCY";
-    public static readonly Native.API.CExoString shieldArmorDisadvantageEffectExoTag = "_DISADVANTAGE_SHIELD_ARMOR_PROFICIENCY".ToExoString();
-    public static readonly string threatenedEffectTag = "_THREATENED_EFFECT";
-    public static readonly Native.API.CExoString threatenedEffectExoTag = "_THREATENED_EFFECT".ToExoString();
-    public static readonly string frightenedEffectTag = "FRIGHTENED_";
-    public static readonly Native.API.CExoString frightenedEffectExoTag = "FRIGHTENED_".ToExoString();
-    public static readonly Native.API.CExoString exoDelimiter = "_".ToExoString();
-
     public static JsonSerializerSettings settings = new() { TypeNameHandling = TypeNameHandling.All };
     public static string[] noReplyArray = { "Banque Skalsgard" };
 
@@ -107,13 +99,13 @@ namespace NWN
     public static async Task<string> DownloadGoogleDocFromName(string fileName)
     {
       var request = ModuleSystem.googleDriveService.Files.List();
-      request.Q = $"name = '{fileName.Replace("'", "\\'")}'"; // La brumfileName.reple
-      ModuleSystem.Log.Info($"request Q : {request.Q}");
+      request.Q = $"name = '{fileName.Replace("'", "\\'")}'";
+
       var searchRequest = await request.ExecuteAsync();
 
       if(searchRequest.Files.Count < 1)
       {
-        Utils.LogMessageToDMs($"GDoc introuvable : {fileName}");
+        //Utils.LogMessageToDMs($"GDoc introuvable : {fileName}");
         return "";
       }
       
@@ -135,6 +127,10 @@ namespace NWN
         return "";
 
       return Encoding.UTF8.GetString(Encoding.GetEncoding("iso-8859-1").GetBytes(toConvert));
+    }
+    public static string IntToColor(int toColor, Color color)
+    {
+      return toColor.ToString().ColorString(color);
     }
     public static string ToWhitecolor(int toColorWhite)
     {

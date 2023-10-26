@@ -1,4 +1,5 @@
 ﻿using NWN.Native.API;
+using NWN.Systems;
 using System.Linq;
 
 namespace NWN
@@ -7,7 +8,7 @@ namespace NWN
   {
     public static int GetThreatenedDisadvantage(CNWSCreature attacker, int isRangedAttack)
     {
-      return isRangedAttack < 1 || !attacker.m_appliedEffects.Any(e => e.m_sCustomTag == StringUtils.threatenedEffectExoTag)
+      return isRangedAttack < 1 || !attacker.m_appliedEffects.Any(e => e.m_sCustomTag == EffectSystem.threatenedEffectExoTag)
       ? 0 : -1;
 
       /*foreach (var gameObject in attacker.GetArea().m_aGameObjects)

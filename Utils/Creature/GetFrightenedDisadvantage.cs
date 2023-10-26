@@ -1,5 +1,6 @@
 ﻿using Anvil.API;
 using NWN.Native.API;
+using NWN.Systems;
 
 namespace NWN
 {
@@ -9,8 +10,8 @@ namespace NWN
     {
       var compString = eff.m_sCustomTag.ToExoLocString().GetSimple(0);
 
-      return compString.ComparePrefixNoCase(StringUtils.frightenedEffectExoTag, StringUtils.frightenedEffectExoTag.GetLength()) > 0 
-        ? (uint)compString.Split(StringUtils.exoDelimiter)[1].AsINT() == targetId 
+      return compString.ComparePrefixNoCase(EffectSystem.frightenedEffectExoTag, EffectSystem.frightenedEffectExoTag.GetLength()) > 0 
+        ? (uint)compString.Split(EffectSystem.exoDelimiter)[1].AsINT() == targetId 
         ? true : false
         : false;        
     }

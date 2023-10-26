@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.Metrics;
-using Anvil.API;
+﻿using Anvil.API;
 using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems

@@ -1,19 +1,16 @@
-﻿using Anvil.API;
-using NWN.Systems;
-
-namespace NWN
+﻿namespace NWN.Systems
 {
   public static partial class AreaUtils
   {
-    public static async void LoadAreaDescription(NwArea area)
+    public static async void LoadAreaDescription(string areaName)
     {
-      string description = await StringUtils.DownloadGoogleDocFromName(area.Name);
+      string description = await StringUtils.DownloadGoogleDocFromName(areaName);
 
       if (string.IsNullOrEmpty(description))
         return;
 
-      if (!AreaSystem.areaDescriptions.TryAdd(area.Name, description))
-        AreaSystem.areaDescriptions[area.Name] = description;
+      if (!AreaSystem.areaDescriptions.TryAdd(areaName, description))
+        AreaSystem.areaDescriptions[areaName] = description;
     }
   }
 }

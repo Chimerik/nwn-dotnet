@@ -9,6 +9,7 @@ namespace NWN.Systems
     public static void InitElvenSleepImmunityEffect()
     {
       sleepImmunity = Effect.Immunity(ImmunityType.Sleep);
+      sleepImmunity.ShowIcon = false;
       sleepImmunity.SubType = EffectSubType.Unyielding;
       sleepImmunity.Tag = "_ELVEN_SLEEP_IMMUNITY_EFFECt";
     }

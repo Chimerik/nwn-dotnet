@@ -335,6 +335,11 @@ namespace NWN.Systems
           player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_HALFORC_ENDURANCE").Delete();
 
           player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.RayOfFrost));
+          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.AcidSplash));
+          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.ElectricJolt));
+          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.BladeWard));
+          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.FireBolt));
+          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.Friends));
 
           foreach (ItemProperty ip in player.oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties)
             if (ip.Property.PropertyType == ItemPropertyType.ImmunityDamageType)

@@ -5,7 +5,6 @@ using System.Numerics;
 using System.Linq;
 using Anvil.API;
 using System.Collections.Generic;
-using NLog;
 using NWN.Core;
 using NWN.Core.NWNX;
 using System.Diagnostics;
@@ -32,18 +31,18 @@ namespace NWN
       {
         attackRoll = NwRandom.Roll(random, 20);
         tempAttackRoll = NwRandom.Roll(random, 20);
-        LogUtils.LogMessage($"Jet d'attaque avec avantage : {attackRoll} et {tempAttackRoll}", LogUtils.LogType.Combat);
+        LogUtils.LogMessage($"Jet avec avantage : {attackRoll} et {tempAttackRoll}", LogUtils.LogType.Combat);
         attackRoll = attackRoll > tempAttackRoll ? attackRoll : tempAttackRoll;
       }
       else if (advantage < 0)
       {
         attackRoll = NwRandom.Roll(random, 20);
         tempAttackRoll = NwRandom.Roll(random, 20);
-        LogUtils.LogMessage($"Jet d'attaque avec désavantage : {attackRoll} et {tempAttackRoll}", LogUtils.LogType.Combat);
+        LogUtils.LogMessage($"Jet avec désavantage : {attackRoll} et {tempAttackRoll}", LogUtils.LogType.Combat);
         attackRoll = attackRoll < tempAttackRoll ? attackRoll : tempAttackRoll;
       }
 
-      LogUtils.LogMessage($"Jet d'attaque : {attackRoll}", LogUtils.LogType.Combat);
+      LogUtils.LogMessage($"Jet : {attackRoll}", LogUtils.LogType.Combat);
       return attackRoll;
     }
     public static void LogMessageToDMs(string message)

@@ -27,7 +27,7 @@ namespace NWN
 
       return advantage;
     }
-    public static int GetSpellAttackAdvantageAgainstTarget(NwCreature attacker, int isRangedSpell, NwCreature target, Ability spellCastingAbility)
+    public static int GetSpellAttackAdvantageAgainstTarget(NwCreature attacker, NwSpell spell, int isRangedSpell, NwCreature target, Ability spellCastingAbility)
     {
       int advantage = 0;
 
@@ -38,6 +38,9 @@ namespace NWN
       advantage += GetThreatenedDisadvantage(attacker, isRangedSpell);
       advantage += GetInvisibleTargetDisadvantage(attacker, target);
       advantage += GetInvisibleAttackerAdvantage(attacker, target);
+
+      if(spell.SpellType == Spell.ElectricJolt)
+        advantage += GetMetallicArmorAdvantage(target);
 
       return advantage;
     }
