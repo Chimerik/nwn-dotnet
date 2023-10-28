@@ -25,7 +25,10 @@ namespace NWN.Systems
 
         learnableSkills[CustomSkill.ShortSwordProficiency].source.Add(Category.Race);
 
-        // TODO : Magie Drow
+        if (learnableSkills.TryAdd(CustomSkill.LightDrow, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.LightDrow])))
+          learnableSkills[CustomSkill.LightDrow].LevelUp(this);
+
+        learnableSkills[CustomSkill.LightDrow].source.Add(Category.Race);
       }
     }
   }

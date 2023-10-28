@@ -16,18 +16,6 @@ namespace NWN.Systems
     public EffectSystem(ScriptHandleFactory scriptFactory)
     {
       scriptHandleFactory = scriptFactory;
-
-      InitAbilityDisadvantageEffect();
-      InitAbilityAdvantageEffect();
-      InitNoReactionsEffect();
-      InitThreatenedEffect();
-      InitElvenSleepImmunityEffect();
-      InitDrowLightSensitivityEffect();
-      InitWoodElfSpeedEffect();
-      InitHalfOrcEnduranceEffect();
-      InitDwarfSlowEffect();
-      InitShieldArmorDisadvantageEffect();
-      InitHeavyArmorSlowEffect();
     }
   }
 }

@@ -42,6 +42,16 @@
     public const int BladeWard = 1349;
     public const int FireBolt = 1350;
     public const int Friends = 1351;
+    public const int BoneChill = 1352;
+    public const int TrueStrike = 1353;
+    public const int PoisonSpray = 1354;
+    public const int Light = 1355;
+    public const int LightDrow = 1356;
+    public const int FaerieFireDrow = 1357;
+    public const int DarknessDrow = 1358;
+    public const int InvisibilityDuergar = 1359;
+    public const int EnlargeDuergar = 1360;
+    public const int SpeakAnimalGnome = 1361;
 
     public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;

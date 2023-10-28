@@ -1,14 +1,10 @@
 ﻿using Anvil.API;
 using Anvil.API.Events;
-using NLog.Targets;
-using static Anvil.API.Events.SpellEvents;
-using static NWN.Native.API.CVirtualMachineScript.JmpData;
-
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void Light(SpellEvents.OnSpellCast onSpellCast)
+    public static void Light(SpellEvents.OnSpellCast onSpellCast, SpellEntry spellEntry)
     {
       if (onSpellCast.Caster is not NwCreature oCaster)
         return;
@@ -31,23 +27,11 @@ namespace NWN.Systems
       {
         if (targetCreature.IsReactionTypeHostile(oCaster))
         {
-          SpellEntry spellEntry = Spells2da.spellTable[onSpellCast.Spell.Id];
           SpellConfig.SavingThrowFeedback feedback = new();
-          int spellDC = SpellUtils.GetCasterSpellDC(oCaster);
-          int advantage = 0;
-          bool targetHandled = false;
-
-          foreach (var eff in targetCreature.ActiveEffects)
-          {
-            targetHandled = SpellUtils.HandleSpellTargetIncapacitated(oCaster, targetCreature, eff.EffectType, spellEntry);
-
-            if (targetHandled)
-              break;
-
-            advantage += SpellUtils.GetAbilityAdvantageFromEffect(spellEntry.savingThrowAbility, eff.Tag);
-          }
-
-          if (!targetHandled)
+          int spellDC = SpellUtils.GetCasterSpellDC(oCaster, onSpellCast.Spell);
+          int advantage = CreatureUtils.GetCreatureAbilityAdvantage(targetCreature, spellEntry, SpellConfig.SpellEffectType.Invalid, oCaster);
+          
+          if (advantage < 900)
           {
             int totalSave = SpellUtils.GetSavingThrowRoll(targetCreature, spellEntry, advantage, feedback);
             bool saveFailed = totalSave < spellDC;

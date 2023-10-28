@@ -11,9 +11,7 @@ namespace NWN.Systems
       if (callInfo.ObjectSelf is not NwCreature creature)
         return;
 
-      Effect disengage = Effect.Icon(NwGameTables.EffectIconTable.GetRow(143));
-      disengage.Tag = "_EFFECT_DISENGAGE";
-      creature.ApplyEffect(EffectDuration.Temporary, disengage, NwTimeSpan.FromRounds(1));
+      creature.ApplyEffect(EffectDuration.Temporary, EffectSystem.disengageEffect, NwTimeSpan.FromRounds(1));
       StringUtils.DisplayStringToAllPlayersNearTarget(creature, "Désengagement", StringUtils.gold, true);
     }
   }

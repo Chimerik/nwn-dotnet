@@ -15,6 +15,7 @@ namespace NWN
         { "uncounscious", false },
         { "paralyzed", false },
         { "petrified", false },
+        { "faerieFire", false },
       };
 
       foreach (var eff in target.m_appliedEffects)
@@ -24,6 +25,7 @@ namespace NWN
         advantageDictionary["uncounscious"] = advantageDictionary["uncounscious"] || GetTargetUncounsciousAdvantage(eff);
         advantageDictionary["paralyzed"] = advantageDictionary["paralyzed"] || GetTargetParalyzedAdvantage(eff);
         advantageDictionary["petrified"] = advantageDictionary["petrified"] || GetTargetPetrifiedAdvantage(eff);
+        advantageDictionary["faerieFire"] = advantageDictionary["faerieFire"] || GetTargetFaerieFireAdvantage(eff);
       }
 
       // TODO : si la cible est sous l'effet de l'action "esquivez", l'attaquant a un désavantage

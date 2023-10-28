@@ -89,7 +89,7 @@ namespace NWN.Systems
     }
     public void HandleSpellInput(OnSpellAction onSpellAction)
     {
-      onSpellAction.Caster.GetObjectVariable<LocalVariableInt>("_CURRENT_SPELL").Value = onSpellAction.Spell.Id;
+      onSpellAction.Caster.GetObjectVariable<LocalVariableInt>(SpellConfig.CurrentSpellVariable).Value = onSpellAction.Spell.Id;
 
       //if (!Players.TryGetValue(onSpellAction.Caster, out Player player))
       //return;
@@ -128,101 +128,113 @@ namespace NWN.Systems
 
       //HandleCastTime(onSpellAction, player);
     }
-    /*private static async void HandleCastTime(OnSpellAction spellAction, Player castingPlayer)
+    public void HandleSpellInputBlinded(OnSpellAction onSpellAction)
     {
-      Location targetLocation = spellAction.IsAreaTarget ? Location.Create(spellAction.Caster.Area, spellAction.TargetPosition, spellAction.Caster.Rotation) : null;
-      Vector3 previousPosition = spellAction.Caster.Position;
-
-      double castTime = GetCastTime(castingPlayer, spellAction.Spell);
-
-      if (spellAction.IsAreaTarget)
-        await spellAction.Caster.ActionCastFakeSpellAt(spellAction.Spell, targetLocation);
-      else
-        await spellAction.Caster.ActionCastFakeSpellAt(spellAction.Spell, spellAction.TargetObject);
-
-      foreach (NwPlayer player in NwModule.Instance.Players)
-        if (player?.ControlledCreature?.Area == spellAction.Caster?.Area && player.ControlledCreature.IsCreatureHeard(spellAction.Caster))
-          player.DisplayFloatingTextStringOnCreature(spellAction.Caster, StringUtils.ToWhitecolor($"{spellAction.Caster.Name.ColorString(ColorConstants.Cyan)} incante {spellAction.Spell.Name.ToString().ColorString(ColorConstants.Purple)}"));
-
-
-      CancellationTokenSource tokenSource = new CancellationTokenSource();
-
-      Task spellinterrupted = NwTask.WaitUntil(() => !spellAction.Caster.IsValid 
-      || spellAction.Caster.GetObjectVariable<LocalVariableInt>("_CURRENT_SPELL").HasValue
-      || spellAction.Caster.GetObjectVariable<LocalVariableInt>("_INTERRUPTED").HasValue
-      || (spellAction.TargetObject is null && !spellAction.IsAreaTarget)
-      || previousPosition.X != spellAction.Caster.Position.X || previousPosition.Y != spellAction.Caster.Position.Y
-      || (spellAction.TargetObject is not null && spellAction.TargetObject.Area != spellAction.Caster.Area), tokenSource.Token);
-      Task castTimer = NwTask.Delay(TimeSpan.FromMilliseconds(castTime), tokenSource.Token);
-
-      await NwTask.WhenAny(spellinterrupted, castTimer);
-      tokenSource.Cancel();
-
-      if (spellinterrupted.IsCompletedSuccessfully)
-      {
-        if(spellAction.Caster.IsValid)
-          spellAction.Caster.GetObjectVariable<LocalVariableInt>("_INTERRUPTED").Delete();
-
+      if (onSpellAction.TargetObject is not NwGameObject target 
+        || (!onSpellAction.Caster.ActiveEffects.Any(e => e.EffectType == EffectType.Blindness || e.EffectType == EffectType.Darkness)
+        && !target.ActiveEffects.Any(e => e.EffectType == EffectType.Darkness))
+        || target.DistanceSquared(onSpellAction.Caster) < 9)
         return;
-      }
 
-      if (spellAction.IsAreaTarget)
-        await spellAction.Caster.ActionCastSpellAt(spellAction.Spell, targetLocation, spellAction.MetaMagic, true, ProjectilePathType.Default, true);
-      else
-        await spellAction.Caster.ActionCastSpellAt(spellAction.Spell, spellAction.TargetObject, spellAction.MetaMagic, true, 0, ProjectilePathType.Default, true);
-
-      spellAction.Caster.GetObjectVariable<LocalVariableInt>("_CURRENT_SPELL").Value = spellAction.Spell.Id;
-    }*/
-    /*private static double GetCastTime(Player player, NwSpell spell)
-    {
-      double castTime = spell.ConjureTime.TotalMilliseconds;
-
-      if (SpellUtils.spellCostDictionary[spell][3] != (int)SkillSystem.Type.Signet)
+      onSpellAction.PreventSpellCast = true;
+      string distance = "3m".ColorString(ColorConstants.White);
+      onSpellAction.Caster.LoginPlayer?.SendServerMessage($"Vous devez vous situer à moins de {distance} de cette cible pour l'atteindre", ColorConstants.Red);
+    }
+    /*private static async void HandleCastTime(OnSpellAction spellAction, Player castingPlayer)
       {
-        foreach (var eff in player.oid.LoginCreature.ActiveEffects)
-          if (eff.Tag == "CUSTOM_CONDITION_DAZED")
+        Location targetLocation = spellAction.IsAreaTarget ? Location.Create(spellAction.Caster.Area, spellAction.TargetPosition, spellAction.Caster.Rotation) : null;
+        Vector3 previousPosition = spellAction.Caster.Position;
+
+        double castTime = GetCastTime(castingPlayer, spellAction.Spell);
+
+        if (spellAction.IsAreaTarget)
+          await spellAction.Caster.ActionCastFakeSpellAt(spellAction.Spell, targetLocation);
+        else
+          await spellAction.Caster.ActionCastFakeSpellAt(spellAction.Spell, spellAction.TargetObject);
+
+        foreach (NwPlayer player in NwModule.Instance.Players)
+          if (player?.ControlledCreature?.Area == spellAction.Caster?.Area && player.ControlledCreature.IsCreatureHeard(spellAction.Caster))
+            player.DisplayFloatingTextStringOnCreature(spellAction.Caster, StringUtils.ToWhitecolor($"{spellAction.Caster.Name.ColorString(ColorConstants.Cyan)} incante {spellAction.Spell.Name.ToString().ColorString(ColorConstants.Purple)}"));
+
+
+        CancellationTokenSource tokenSource = new CancellationTokenSource();
+
+        Task spellinterrupted = NwTask.WaitUntil(() => !spellAction.Caster.IsValid 
+        || spellAction.Caster.GetObjectVariable<LocalVariableInt>("_CURRENT_SPELL").HasValue
+        || spellAction.Caster.GetObjectVariable<LocalVariableInt>("_INTERRUPTED").HasValue
+        || (spellAction.TargetObject is null && !spellAction.IsAreaTarget)
+        || previousPosition.X != spellAction.Caster.Position.X || previousPosition.Y != spellAction.Caster.Position.Y
+        || (spellAction.TargetObject is not null && spellAction.TargetObject.Area != spellAction.Caster.Area), tokenSource.Token);
+        Task castTimer = NwTask.Delay(TimeSpan.FromMilliseconds(castTime), tokenSource.Token);
+
+        await NwTask.WhenAny(spellinterrupted, castTimer);
+        tokenSource.Cancel();
+
+        if (spellinterrupted.IsCompletedSuccessfully)
+        {
+          if(spellAction.Caster.IsValid)
+            spellAction.Caster.GetObjectVariable<LocalVariableInt>("_INTERRUPTED").Delete();
+
+          return;
+        }
+
+        if (spellAction.IsAreaTarget)
+          await spellAction.Caster.ActionCastSpellAt(spellAction.Spell, targetLocation, spellAction.MetaMagic, true, ProjectilePathType.Default, true);
+        else
+          await spellAction.Caster.ActionCastSpellAt(spellAction.Spell, spellAction.TargetObject, spellAction.MetaMagic, true, 0, ProjectilePathType.Default, true);
+
+        spellAction.Caster.GetObjectVariable<LocalVariableInt>("_CURRENT_SPELL").Value = spellAction.Spell.Id;
+      }*/
+      /*private static double GetCastTime(Player player, NwSpell spell)
+      {
+        double castTime = spell.ConjureTime.TotalMilliseconds;
+
+        if (SpellUtils.spellCostDictionary[spell][3] != (int)SkillSystem.Type.Signet)
+        {
+          foreach (var eff in player.oid.LoginCreature.ActiveEffects)
+            if (eff.Tag == "CUSTOM_CONDITION_DAZED")
+            {
+              castTime *= 2;
+              break;
+            }
+
+          if (ItemUtils.GetItemHalvesCastTime(spell, player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand)))
+            castTime /= 2;
+
+          if (ItemUtils.GetItemHalvesCastTime(spell, player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand)))
+            castTime /= 2;
+
+          if (spell.SpellSchool == SpellSchool.Necromancy) // TODO : configurer tous les sorts exploitant des cadavres comme étant de l'école nécromancie
           {
-            castTime *= 2;
-            break;
+            castTime -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.Neck), CustomInscription.Ensanglanté);
+            castTime -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftRing), CustomInscription.Ensanglanté);
+            castTime -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightRing), CustomInscription.Ensanglanté);
           }
 
-        if (ItemUtils.GetItemHalvesCastTime(spell, player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand)))
-          castTime /= 2;
-
-        if (ItemUtils.GetItemHalvesCastTime(spell, player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand)))
-          castTime /= 2;
-
-        if (spell.SpellSchool == SpellSchool.Necromancy) // TODO : configurer tous les sorts exploitant des cadavres comme étant de l'école nécromancie
-        {
-          castTime -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.Neck), CustomInscription.Ensanglanté);
-          castTime -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftRing), CustomInscription.Ensanglanté);
-          castTime -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightRing), CustomInscription.Ensanglanté);
+          if (spell.SpellSchool == SpellSchool.Conjuration) // TODO : configurer tous les sorts d'invocation comme étant de l'école conjuration
+          {
+            castTime -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.Neck), CustomInscription.Invocateur);
+            castTime -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftRing), CustomInscription.Invocateur);
+            castTime -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightRing), CustomInscription.Invocateur);
+          }
         }
 
-        if (spell.SpellSchool == SpellSchool.Conjuration) // TODO : configurer tous les sorts d'invocation comme étant de l'école conjuration
+        int fastCastLevel = player.GetAttributeLevel(SkillSystem.Attribut.FastCasting);
+
+        if(fastCastLevel > 0 && (castTime > 2000 
+          || SpellUtils.spellCostDictionary[spell][(int)SpellUtils.SpellData.Attribute] == (int)SkillSystem.Attribut.DominationMagic
+          || SpellUtils.spellCostDictionary[spell][(int)SpellUtils.SpellData.Attribute] == (int)SkillSystem.Attribut.FastCasting
+          || SpellUtils.spellCostDictionary[spell][(int)SpellUtils.SpellData.Attribute] == (int)SkillSystem.Attribut.InspirationMagic
+          || SpellUtils.spellCostDictionary[spell][(int)SpellUtils.SpellData.Attribute] == (int)SkillSystem.Attribut.IllusionMagic))
         {
-          castTime -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.Neck), CustomInscription.Invocateur);
-          castTime -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftRing), CustomInscription.Invocateur);
-          castTime -= 0.02 * SpellUtils.GetReduceCastTimeFromItem(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightRing), CustomInscription.Invocateur);
+          castTime -= fastCastLevel * (player.oid.LoginCreature.GetAbilityScore(Ability.Charisma) - 10) / 400;
         }
-      }
 
-      int fastCastLevel = player.GetAttributeLevel(SkillSystem.Attribut.FastCasting);
-
-      if(fastCastLevel > 0 && (castTime > 2000 
-        || SpellUtils.spellCostDictionary[spell][(int)SpellUtils.SpellData.Attribute] == (int)SkillSystem.Attribut.DominationMagic
-        || SpellUtils.spellCostDictionary[spell][(int)SpellUtils.SpellData.Attribute] == (int)SkillSystem.Attribut.FastCasting
-        || SpellUtils.spellCostDictionary[spell][(int)SpellUtils.SpellData.Attribute] == (int)SkillSystem.Attribut.InspirationMagic
-        || SpellUtils.spellCostDictionary[spell][(int)SpellUtils.SpellData.Attribute] == (int)SkillSystem.Attribut.IllusionMagic))
-      {
-        castTime -= fastCastLevel * (player.oid.LoginCreature.GetAbilityScore(Ability.Charisma) - 10) / 400;
-      }
-
-      return castTime / 1.5;      
-    }*/
-    public static void HandleCraftOnSpellInput(OnSpellAction onSpellAction)
+        return castTime / 1.5;      
+      }*/
+      public static void HandleCraftOnSpellInput(OnSpellAction onSpellAction)
     {
-      if (onSpellAction.Spell.ImpactScript == "on_ench_cast")
+      if (onSpellAction.Spell.Id == CustomSpell.Calligraphie)
       {
         if (!(Players.TryGetValue(onSpellAction.Caster, out Player player)) || player.craftJob != null)
         {
@@ -250,8 +262,8 @@ namespace NWN.Systems
     {
       SpellEvents.OnSpellCast onSpellCast = new SpellEvents.OnSpellCast();
       //HandleSpellDamageLocalisation(onSpellCast.Spell.SpellType, onSpellCast.Caster);
-      
-      if(onSpellCast.TargetObject is not null)
+
+      if (onSpellCast.TargetObject is not null)
         LogUtils.LogMessage($"----- {onSpellCast.Caster.Name} lance {onSpellCast.Spell.Name.ToString()} sur {onSpellCast.TargetObject.Name} -----", LogUtils.LogType.Combat);
       else
         LogUtils.LogMessage($"----- {onSpellCast.Caster.Name} lance {onSpellCast.Spell.Name.ToString()} en mode AoE -----", LogUtils.LogType.Combat);
@@ -267,22 +279,21 @@ namespace NWN.Systems
         return;
       }
 
-      /*if (onSpellCast.Spell.ImpactScript == "on_ench_cast")
-      {
-        Enchantement(onSpellCast, player);
-        oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
-      }*/
+      foreach (var eff in onSpellCast.Caster.ActiveEffects)
+        if (eff.EffectType == EffectType.Invisibility)
+          onSpellCast.Caster.RemoveEffect(eff);
+
+      SpellEntry spellEntry = Spells2da.spellTable[onSpellCast.Spell.Id];
+
+      if (spellEntry.requiresConcentration && castingCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.ConcentrationEffectTag))
+        SpellUtils.DispelConcentrationEffects(castingCreature);
 
       //HandleCasterLevel(onSpellCast, player);
-
-      NwItem castItem = player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
-
-      castItem = player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand);
 
       switch (onSpellCast.Spell.SpellType)
       {
         case Spell.AcidSplash:
-          AcidSplash(onSpellCast);
+          AcidSplash(onSpellCast, spellEntry);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -302,12 +313,12 @@ namespace NWN.Systems
           break;
 
         case Spell.Light:
-          Light(onSpellCast);
+          Light(onSpellCast, spellEntry);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case Spell.RayOfFrost:
-          RayOfFrost(onSpellCast);
+          RayOfFrost(onSpellCast, spellEntry);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -316,10 +327,15 @@ namespace NWN.Systems
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
-       /* case Spell.Virtue:
-          HealingBreeze(onSpellCast, durationModifier);
+        case Spell.TrueStrike:
+          TrueStrike(onSpellCast, spellEntry);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
-          break;*/
+          break;
+
+        /* case Spell.Virtue:
+           HealingBreeze(onSpellCast, durationModifier);
+           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+           break;*/
 
         case Spell.RaiseDead:
         case Spell.Resurrection:
@@ -328,7 +344,7 @@ namespace NWN.Systems
           break;
 
         case Spell.Invisibility:
-          Invisibility(onSpellCast);
+          Invisibility(onSpellCast, spellEntry);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -336,8 +352,14 @@ namespace NWN.Systems
           ImprovedInvisibility(onSpellCast);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
+
         case Spell.FleshToStone:
           Petrify(onSpellCast);
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.Darkness:
+          Darkness(onSpellCast, spellEntry);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
       }
@@ -345,12 +367,47 @@ namespace NWN.Systems
       switch (onSpellCast.Spell.Id)
       {
         case CustomSpell.BladeWard:
-          BladeWard(onSpellCast);
+          BladeWard(onSpellCast, spellEntry);
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.FireBolt:
+          FireBolt(onSpellCast);
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.Friends:
+          Friends(onSpellCast, spellEntry);
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.BoneChill:
+          BoneChill(onSpellCast, spellEntry);
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.PoisonSpray:
+          PoisonSpray(onSpellCast, spellEntry);
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.FaerieFire:
+          FaerieFire(onSpellCast, spellEntry);
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.Enlarge:
+          Enlarge(onSpellCast, spellEntry);
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.SpeakAnimal:
+          SpeakAnimal(onSpellCast, spellEntry);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
       }
 
-      castingCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_SPELL").Delete();
+      castingCreature.GetObjectVariable<LocalVariableInt>(SpellConfig.CurrentSpellVariable).Delete();
       castingCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
       NWScript.DelayCommand(0.0f, () => DelayedTagAoE(player));
     }
@@ -427,7 +484,7 @@ namespace NWN.Systems
     }
     public void HandleCraftEnchantementCast(OnSpellCast onSpellCast)
     {
-      if (onSpellCast.Caster is not NwCreature oPC || !Players.TryGetValue(oPC, out Player player) || onSpellCast.Spell.ImpactScript != "on_ench_cast")
+      if (onSpellCast.Caster is not NwCreature oPC || !Players.TryGetValue(oPC, out Player player) || onSpellCast.Spell.Id != CustomSpell.Calligraphie)
         return;
 
       Enchantement(onSpellCast, player);

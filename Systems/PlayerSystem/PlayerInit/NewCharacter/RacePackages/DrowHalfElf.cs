@@ -33,7 +33,10 @@ namespace NWN.Systems
 
         learnableSkills[CustomSkill.HighElfLanguage].source.Add(Category.Race);
 
-        // TODO : implémenter magie drow
+        if (learnableSkills.TryAdd(CustomSkill.LightDrow, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.LightDrow])))
+          learnableSkills[CustomSkill.LightDrow].LevelUp(this);
+
+        learnableSkills[CustomSkill.LightDrow].source.Add(Category.Race);
       }
     }
   }

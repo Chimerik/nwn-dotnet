@@ -35,11 +35,8 @@ namespace NWN.Systems
         learnableSkills[CustomSkill.Nain].source.Add(Category.Race);
 
         oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.dwarfSlow);
-
         oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.Toughness));
-
-        // TODO : Penser à gérer l'avantage sur les JDS contre le poison
-        //oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin).AddItemProperty(ItemProperty.DamageImmunity(IPDamageType.Poison, IPDamageImmunityType.Immunity50Pct), EffectDuration.Permanent);
+        oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin).AddItemProperty(ItemProperty.DamageImmunity((IPDamageType)CustomItemPropertiesDamageType.Poison, IPDamageImmunityType.Immunity50Pct), EffectDuration.Permanent);
       }
     }
   }

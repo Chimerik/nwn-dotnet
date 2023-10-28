@@ -35,8 +35,6 @@ namespace NWN.Systems
         private IEnumerable<RaceEntry> currentList;
         private NwRace selectedRace;
 
-        //private bool loadingDescription = false;
-
         public IntroRaceSelectorWindow(Player player) : base(player)
         {
           windowId = "introRaceSelector";
@@ -332,7 +330,7 @@ namespace NWN.Systems
           player.oid.LoginCreature.RemoveEffect(EffectSystem.lightSensitivity);
           player.oid.LoginCreature.RemoveEffect(EffectSystem.woodElfSpeed);
           player.oid.LoginCreature.RemoveEffect(EffectSystem.enduranceImplacable);
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_HALFORC_ENDURANCE").Delete();
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(EffectSystem.EnduranceImplacableVariable).Delete();
 
           player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.RayOfFrost));
           player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.AcidSplash));
@@ -340,6 +338,12 @@ namespace NWN.Systems
           player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.BladeWard));
           player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.FireBolt));
           player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.Friends));
+          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.BoneChill));
+          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.TrueStrike));
+          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.PoisonSpray));
+          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.Light));
+          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.LightDrow));
+
 
           foreach (ItemProperty ip in player.oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties)
             if (ip.Property.PropertyType == ItemPropertyType.ImmunityDamageType)

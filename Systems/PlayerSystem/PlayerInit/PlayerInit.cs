@@ -172,6 +172,7 @@ namespace NWN.Systems
       private void InitializeSpellEvents()
       {
         //oid.LoginCreature.OnSpellAction += spellSystem.HandleSpellInput;
+        oid.LoginCreature.OnSpellAction += spellSystem.HandleSpellInputBlinded;
         oid.LoginCreature.OnSpellAction += SpellSystem.HandleCraftOnSpellInput;
         //oid.LoginCreature.OnSpellBroadcast += spellSystem.HandleHearingSpellBroadcast;
         oid.LoginCreature.OnSpellCast += spellSystem.CheckIsDivinationBeforeSpellCast;
@@ -402,6 +403,8 @@ namespace NWN.Systems
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();
+        //oid.LoginCreature.OnHeal -= SpellSystem.PreventHeal;
+        //oid.LoginCreature.OnEffectApply -= EffectSystem.CheckFaerieFire;
         pcState = PcState.Online;
         oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
       }

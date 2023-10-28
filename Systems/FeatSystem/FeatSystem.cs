@@ -12,6 +12,13 @@ namespace NWN.Systems
       if (!PlayerSystem.Players.TryGetValue(onUseFeat.Creature.ControllingPlayer.LoginCreature, out PlayerSystem.Player player))
         return;
 
+      switch (onUseFeat.Feat.Id)
+      {
+        case CustomSkill.EnlargeDuergar:
+          onUseFeat.Creature.GetObjectVariable<LocalVariableInt>("_ENLARGE_DUERGAR").Value = 1;
+          return;
+      }
+
       int featId = onUseFeat.Feat.Id + 10000;
 
       /*SkillSystem.Attribut featAttribute = SkillSystem.learnableDictionary[featId].attribut;

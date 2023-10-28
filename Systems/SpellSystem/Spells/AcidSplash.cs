@@ -5,34 +5,22 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void AcidSplash(SpellEvents.OnSpellCast onSpellCast)
+    public static void AcidSplash(SpellEvents.OnSpellCast onSpellCast, SpellEntry spellEntry)
     {
       if (onSpellCast.Caster is not NwCreature oCaster)
         return;
 
       SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell.SpellType);
-      SpellEntry spellEntry = Spells2da.spellTable[onSpellCast.Spell.Id];
       SpellConfig.SavingThrowFeedback feedback = new();
-      int spellDC = SpellUtils.GetCasterSpellDC(oCaster);
+      int spellDC = SpellUtils.GetCasterSpellDC(oCaster, onSpellCast.Spell);
       
       onSpellCast.TargetLocation.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfGasExplosionAcid));
 
       foreach (NwCreature target in onSpellCast.TargetLocation.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, spellEntry.aoESize, false))
       {
-        int advantage = 0;
-        bool targetHandled = false;
+        int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, spellEntry, SpellConfig.SpellEffectType.Invalid, oCaster);
 
-        foreach (var eff in target.ActiveEffects)
-        {
-          targetHandled = SpellUtils.HandleSpellTargetIncapacitated(oCaster, target, eff.EffectType, spellEntry);
-
-          if (targetHandled)
-            break;
-
-          advantage += SpellUtils.GetAbilityAdvantageFromEffect(spellEntry.savingThrowAbility, eff.Tag);
-        }
-
-        if (targetHandled)
+        if (advantage < 900)
           continue;
 
         int totalSave = SpellUtils.GetSavingThrowRoll(target, spellEntry, advantage, feedback);

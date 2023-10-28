@@ -264,14 +264,22 @@ namespace NWN.Systems
                   HandleSelectorChange(sizeSelection, Utils.sizeList, -1);
 
                   if (float.TryParse(Utils.sizeList[sizeSelection.GetBindValue(player.oid, nuiToken.Token)].Label.Replace("x", ""), out float newSize))
+                  {
                     targetCreature.VisualTransform.Scale = newSize;
+                    targetCreature.GetObjectVariable<PersistentVariableFloat>("_ORIGINAL_SIZE").Value = newSize;
+                  }
+
                   return;
 
                 case "sizeIncrease":
                   HandleSelectorChange(sizeSelection, Utils.sizeList, 1);
 
                   if (float.TryParse(Utils.sizeList[sizeSelection.GetBindValue(player.oid, nuiToken.Token)].Label.Replace("x", ""), out float newScale))
+                  {
                     targetCreature.VisualTransform.Scale = newScale;
+                    targetCreature.GetObjectVariable<PersistentVariableFloat>("_ORIGINAL_SIZE").Value = newScale;
+                  }
+
                   return;
 
                 case "headDecrease":
@@ -307,7 +315,11 @@ namespace NWN.Systems
 
                 case "sizeSelection":
                   if (float.TryParse(Utils.sizeList[sizeSelection.GetBindValue(player.oid, nuiToken.Token)].Label.Replace("x", ""), out float newScale))
+                  {
                     targetCreature.VisualTransform.Scale = newScale;
+                    targetCreature.GetObjectVariable<PersistentVariableFloat>("_ORIGINAL_SIZE").Value = newScale;
+                  }
+
                   return;
 
                 case "channelSelection":

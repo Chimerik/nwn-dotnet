@@ -96,6 +96,8 @@ namespace NWN.Systems
           break;
       }
 
+      player.GiveRacialBonusOnLevelUp();
+
       return true;
     }
   }

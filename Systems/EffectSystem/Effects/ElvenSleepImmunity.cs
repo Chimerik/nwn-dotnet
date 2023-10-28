@@ -4,14 +4,17 @@ namespace NWN.Systems
 {
   public partial class EffectSystem
   {
-    public static Effect sleepImmunity;
-
-    public static void InitElvenSleepImmunityEffect()
+    public const string SleepImmunityEffectTag = "_ELVEN_SLEEP_IMMUNITY_EFFECT";
+    public static Effect sleepImmunity
     {
-      sleepImmunity = Effect.Immunity(ImmunityType.Sleep);
-      sleepImmunity.ShowIcon = false;
-      sleepImmunity.SubType = EffectSubType.Unyielding;
-      sleepImmunity.Tag = "_ELVEN_SLEEP_IMMUNITY_EFFECt";
+      get
+      {
+        Effect eff = Effect.Immunity(ImmunityType.Sleep);
+        eff.ShowIcon = false;
+        eff.Tag = SleepImmunityEffectTag;
+        eff.SubType = EffectSubType.Unyielding;
+        return eff;
+      }
     }
   }
 }

@@ -22,7 +22,7 @@ namespace NWN.Systems
         learnableSkills[CustomSkill.IntimidationProficiency].source.Add(Category.Race);
 
         oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.enduranceImplacable);
-        oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_HALFORC_ENDURANCE").Value = 1;
+        oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(EffectSystem.EnduranceImplacableVariable).Value = 1;
       }
     }
   }

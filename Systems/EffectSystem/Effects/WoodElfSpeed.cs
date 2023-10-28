@@ -4,15 +4,16 @@ namespace NWN.Systems
 {
   public partial class EffectSystem
   {
-    public static Effect woodElfSpeed;
-    public static readonly string woodElfEffectTag = "_WOODELF_SPEED_EFFECT";
-
-    public static void InitWoodElfSpeedEffect()
+    public static Effect woodElfSpeed
     {
-      woodElfSpeed = Effect.MovementSpeedIncrease(10);
-      woodElfSpeed.ShowIcon = false;
-      woodElfSpeed.SubType = EffectSubType.Unyielding;
-      woodElfSpeed.Tag = woodElfEffectTag;
+      get
+      {
+        Effect eff = Effect.MovementSpeedIncrease(10);
+        eff.Tag = woodElfEffectTag;
+        eff.SubType = EffectSubType.Unyielding;
+        return eff;
+      }
     }
+    public static readonly string woodElfEffectTag = "_WOODELF_SPEED_EFFECT";
   }
 }

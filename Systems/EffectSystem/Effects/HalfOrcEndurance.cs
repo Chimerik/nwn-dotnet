@@ -4,14 +4,17 @@ namespace NWN.Systems
 {
   public partial class EffectSystem
   {
-    public static Effect enduranceImplacable;
-    public static readonly string enduranceImplacableEffectTag = "_HALFORC_ENDURANCE_EFFECT";
-
-    public static void InitHalfOrcEnduranceEffect()
+    public static Effect enduranceImplacable
     {
-      enduranceImplacable = Effect.LinkEffects(Effect.RunAction(), Effect.Icon(NwGameTables.EffectIconTable.GetRow(146)));
-      enduranceImplacable.SubType = EffectSubType.Unyielding;
-      enduranceImplacable.Tag = enduranceImplacableEffectTag;
+      get
+      {
+        Effect eff = Effect.LinkEffects(Effect.RunAction(), Effect.Icon(NwGameTables.EffectIconTable.GetRow(146)));
+        eff.Tag = EnduranceImplacableEffectTag;
+        eff.SubType = EffectSubType.Unyielding;
+        return eff;
+      }
     }
+    public const string EnduranceImplacableEffectTag = "_HALFORC_ENDURANCE_EFFECT";
+    public const string EnduranceImplacableVariable = "_HALFORC_ENDURANCE";
   }
 }

@@ -1,30 +1,22 @@
-﻿using Anvil.API;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Anvil.API;
 using Anvil.API.Events;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    private static void Invisibility(SpellEvents.OnSpellCast onSpellCast)
+    private static void Invisibility(SpellEvents.OnSpellCast onSpellCast, SpellEntry spellEntry)
     {
-      if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oCaster))
+      if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } caster))
         return;
 
-      int nCasterLevel = oCaster.LastSpellCasterLevel;
+      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, caster, onSpellCast.Spell.SpellType, false);
 
-      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell.SpellType, false);
+      onSpellCast.TargetObject.ApplyEffect(EffectDuration.Temporary, Effect.LinkEffects(Effect.Invisibility(InvisibilityType.Normal), Effect.VisualEffect(VfxType.DurCessatePositive)), NwTimeSpan.FromRounds(spellEntry.duration));
 
-      int nDuration = nCasterLevel;
-      Effect eInvis = Effect.Invisibility(InvisibilityType.Normal);
-      Effect eDur = Effect.VisualEffect(VfxType.DurCessatePositive);
-      Effect eLink = Effect.LinkEffects(eInvis, eDur);
-
-      //Link = Effect.LinkEffects(eLink, Effect.AreaOfEffect((PersistentVfxType)193, null, scriptHandleFactory.CreateUniqueHandler(HandleInvisibiltyHeartBeat)));  // 193 = AoE 20 m
-
-      if (onSpellCast.MetaMagicFeat == MetaMagic.Extend)
-        nDuration *= 2; //Duration is +100%
-
-      onSpellCast.TargetObject.ApplyEffect(EffectDuration.Temporary, eInvis, NwTimeSpan.FromRounds(nDuration));
+      EffectSystem.ApplyConcentrationEffect(caster, onSpellCast.Spell.Id, new List<NwGameObject> { onSpellCast.TargetObject }, spellEntry.duration);
     }
   }
 }

@@ -418,9 +418,15 @@ namespace NWN.Systems
       NwModule.Instance.OnItemEquip += ItemSystem.OnEquipHastWeapon;
       NwModule.Instance.OnItemUnequip += ItemSystem.OnUnequipHastWeapon;
 
+      NwModule.Instance.OnCombatStatusChange += PlayerSystem.OnCombatEndRestoreDuergarInvisibility;
+
       NwModule.Instance.OnEffectApply += EffectSystem.OnIncapacitatedRemoveThreatRange;
       NwModule.Instance.OnEffectRemove += EffectSystem.OnRecoveryAddThreatRange;
-      
+      NwModule.Instance.OnEffectRemove += EffectSystem.OnRemoveConcentration;
+      NwModule.Instance.OnEffectApply += EffectSystem.OnIncapacitatedRemoveConcentration;
+      NwModule.Instance.OnEffectRemove += EffectSystem.OnRemoveBoneChill;
+      NwModule.Instance.OnEffectRemove += EffectSystem.OnRemoveFaerieFire;
+      NwModule.Instance.OnEffectRemove += EffectSystem.OnRemoveEnlarge;
       //NwModule.Instance.OnEffectApply += OnPlayerEffectApplied;
     }
     private static void SetModuleTime()
@@ -1233,7 +1239,7 @@ namespace NWN.Systems
     [ScriptHandler("on_opportunity")]
     private void HandleOpportunityAttack(CallInfo callInfo)
     {
-      if (EventsPlugin.GetEventData("MOVEMENT") != "1" || callInfo.ObjectSelf.GetObjectVariable<LocalVariableInt>("_CURRENT_SPELL").HasValue)
+      if (EventsPlugin.GetEventData("MOVEMENT") != "1" || callInfo.ObjectSelf.GetObjectVariable<LocalVariableInt>(SpellConfig.CurrentSpellVariable).HasValue)
       {
         EventsPlugin.SkipEvent();
         return; 
@@ -1242,7 +1248,7 @@ namespace NWN.Systems
       NwCreature target = uint.TryParse(EventsPlugin.GetEventData("TARGET_OBJECT_ID"), out uint targetID)
         ? targetID.ToNwObject<NwCreature>() : null;
 
-      if (target is not null && target.ActiveEffects.Any(e => e.Tag == "_EFFECT_DISENGAGE"))
+      if (target is not null && target.ActiveEffects.Any(e => e.Tag == EffectSystem.DisengageffectTag))
       {
         EventsPlugin.SkipEvent();
         return;

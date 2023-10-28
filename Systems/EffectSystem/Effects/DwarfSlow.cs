@@ -4,13 +4,15 @@ namespace NWN.Systems
 {
   public partial class EffectSystem
   {
-    public static Effect dwarfSlow;
-
-    public static void InitDwarfSlowEffect()
+    public static Effect dwarfSlow
     {
-      dwarfSlow = Effect.MovementSpeedDecrease(10);
-      dwarfSlow.ShowIcon = false;
-      dwarfSlow.SubType = EffectSubType.Unyielding;
+      get
+      {
+        Effect eff = Effect.MovementSpeedDecrease(10);
+        dwarfSlow.ShowIcon = false;
+        eff.SubType = EffectSubType.Unyielding;
+        return eff;
+      }
     }
   }
 }

@@ -31,21 +31,8 @@ namespace NWN.Systems
     );
     public static void HandleDamageEvent(OnCreatureDamage onDamage)
     {
-      if(onDamage.Target is NwCreature target && target.ActiveEffects.Any(e => e.Tag == EffectSystem.enduranceImplacable.Tag))
-      {
-        int totalDamage = 0;
-
-        foreach (DamageType damageType in (DamageType[])Enum.GetValues(typeof(DamageType)))
-          totalDamage += onDamage.DamageData.GetDamageByType(damageType) > -1 
-            ? onDamage.DamageData.GetDamageByType(damageType) : 0;
-
-        if(target.HP <= totalDamage)
-        {
-          target.ApplyEffect(EffectDuration.Temporary, Effect.TemporaryHitpoints(totalDamage - target.HP + 1), TimeSpan.FromSeconds(6));
-          target.RemoveEffect(EffectSystem.enduranceImplacable);
-          target.GetObjectVariable<PersistentVariableInt>("_HALFORC_ENDURANCE").Delete();
-        }
-      }
+      DamageUtils.HandleImplacableEndurance(onDamage);
+      DamageUtils.HandleConcentration(onDamage);
 
       // TODO : prendre en compte le cas des pièges
       //if (onDamage.Target is null || onDamage.DamageData.GetDamageByType(DamageType.BaseWeapon) > -1 || onDamage.Target is not NwCreature oTarget) // S'il ne s'agit pas d'un sort, alors le calcul des dégâts a déjà été traité lors de l'event d'attaque

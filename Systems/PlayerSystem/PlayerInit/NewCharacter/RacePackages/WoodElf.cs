@@ -42,8 +42,6 @@ namespace NWN.Systems
 
         ApplyElvenSleepImmunity();
         ApplyWoodElfSpeed();
-
-        // TODO : Ascendance féerique : Avantage sur les jets de sauvegarde contre les effets de charme - Penser à ajouter l'avantage au moment de refaire les sorts avec Charme
       }
     }
   }

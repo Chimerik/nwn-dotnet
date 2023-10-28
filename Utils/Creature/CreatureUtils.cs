@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Anvil.API;
 using Anvil.API.Events;
 using NWN.Systems;
-using Ability = Anvil.API.Ability;
 using DamageType = Anvil.API.DamageType;
 using InventorySlot = Anvil.API.InventorySlot;
 using ItemProperty = Anvil.API.ItemProperty;

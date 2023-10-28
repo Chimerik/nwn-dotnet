@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     public static void OnIncapacitatedRemoveThreatRange(OnEffectApply onEffect)
     {
-      if (!EffectUtils.IsIncapacitatingEffect(onEffect.Effect.EffectType) || onEffect.Object is not NwCreature creature)
+      if (onEffect.Object is not NwCreature creature || !EffectUtils.IsCannotThreatenEffect(onEffect.Effect.EffectType))
         return;
 
       creature.RemoveEffect(threatAoE);

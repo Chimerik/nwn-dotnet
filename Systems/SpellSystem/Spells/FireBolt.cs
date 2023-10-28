@@ -15,14 +15,7 @@ namespace NWN.Systems
       onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpFlameS));
       onSpellCast.TargetObject.ApplyEffect(EffectDuration.Temporary, Effect.Beam(VfxType.BeamFire, oCaster, BodyNode.Hand), TimeSpan.FromSeconds(1.7));
 
-      int nbDice = 1;
-      
-      if (oCaster.LastSpellCasterLevel > 16)
-        nbDice = 4;
-      else if (oCaster.LastSpellCasterLevel > 10)
-        nbDice = 3;
-      if (oCaster.LastSpellCasterLevel > 4)
-        nbDice = 2;
+      int nbDice = SpellUtils.GetSpellDamageDiceNumber(oCaster, onSpellCast.Spell);
 
       Ability spellCastingAbility = oCaster.GetAbilityModifier(Ability.Intelligence) > oCaster.GetAbilityModifier(Ability.Charisma)
             ? Ability.Intelligence : Ability.Charisma;
@@ -34,10 +27,7 @@ namespace NWN.Systems
         default: return;
       }
 
-      int damage = Utils.random.Roll(Spells2da.spellTable[onSpellCast.Spell.Id].damageDice, nbDice);
-      //int nDamage = SpellUtils.MaximizeOrEmpower(4, 1 + nCasterLevel / 6, onSpellCast.MetaMagicFeat);
-      onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, Effect.Damage(damage, DamageType.Fire));
-      LogUtils.LogMessage($"Dégâts : {nbDice}{Spells2da.spellTable[onSpellCast.Spell.Id].damageDice} (caster lvl {oCaster.LastSpellCasterLevel}) = {damage}", LogUtils.LogType.Combat);
+      SpellUtils.DealSpellDamage(onSpellCast.TargetObject, oCaster.LastSpellCasterLevel, Spells2da.spellTable[onSpellCast.Spell.Id].damageDice, nbDice, DamageType.Fire, VfxType.ImpFlameS);
     }
   }
 }

@@ -197,6 +197,48 @@ namespace NWN
 
       tlkEntry = StrRef.FromCustomTlk(190110);
       tlkEntry.Override = "Protection contre les lames";
+
+      tlkEntry = StrRef.FromCustomTlk(190116);
+      tlkEntry.Override = "Concentration";
+
+      tlkEntry = StrRef.FromCustomTlk(190119);
+      tlkEntry.Override = "Nécrotique";
+
+      tlkEntry = StrRef.FromCustomTlk(190120);
+      tlkEntry.Override = "<CUSTOM0> Nécrotique";
+
+      tlkEntry = StrRef.FromCustomTlk(190121);
+      tlkEntry.Override = "Poison";
+
+      tlkEntry = StrRef.FromCustomTlk(190122);
+      tlkEntry.Override = "<CUSTOM0> Poison";
+
+      tlkEntry = StrRef.FromCustomTlk(190123);
+      tlkEntry.Override = "Psychique";
+
+      tlkEntry = StrRef.FromCustomTlk(190124);
+      tlkEntry.Override = "<CUSTOM0> Psychique";
+
+      tlkEntry = StrRef.FromCustomTlk(190125);
+      tlkEntry.Override = "Force";
+
+      tlkEntry = StrRef.FromCustomTlk(190126);
+      tlkEntry.Override = "<CUSTOM0> Force";
+
+      tlkEntry = StrRef.FromCustomTlk(190127);
+      tlkEntry.Override = "Radiant";
+
+      tlkEntry = StrRef.FromCustomTlk(190128);
+      tlkEntry.Override = "<CUSTOM0> Radiant";
+
+      tlkEntry = StrRef.FromCustomTlk(190129);
+      tlkEntry.Override = "Tonnerre";
+
+      tlkEntry = StrRef.FromCustomTlk(190130);
+      tlkEntry.Override = "<CUSTOM0> Tonnerre";
+
+      tlkEntry = StrRef.FromCustomTlk(190136);
+      tlkEntry.Override = "Communication Animale";
     }
   }
 }

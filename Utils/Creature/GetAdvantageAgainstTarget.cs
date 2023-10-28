@@ -39,7 +39,7 @@ namespace NWN
       advantage += GetInvisibleTargetDisadvantage(attacker, target);
       advantage += GetInvisibleAttackerAdvantage(attacker, target);
 
-      if(spell.SpellType == Spell.ElectricJolt)
+      if (spell.SpellType == Spell.ElectricJolt)
         advantage += GetMetallicArmorAdvantage(target);
 
       return advantage;

@@ -8,8 +8,8 @@ namespace NWN.Systems
   {
     public static void OnRecoveryAddThreatRange(OnEffectRemove onEffect)
     {
-      if (!EffectUtils.IsIncapacitatingEffect(onEffect.Effect.EffectType) || onEffect.Object is not NwCreature creature 
-        || creature.ActiveEffects.Any(e => EffectUtils.IsIncapacitatingEffect(e.EffectType)))
+      if (!EffectUtils.IsCannotThreatenEffect(onEffect.Effect.EffectType) || onEffect.Object is not NwCreature creature 
+        || creature.ActiveEffects.Any(e => EffectUtils.IsCannotThreatenEffect(e.EffectType)))
         return;
 
       CreatureUtils.InitThreatRange(creature);

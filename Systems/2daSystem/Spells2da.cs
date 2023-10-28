@@ -10,13 +10,17 @@ namespace NWN.Systems
     public string googleDocId { get; private set; }
     public int aoESize { get; private set; }
     public int damageDice { get; private set; }
+    public int duration { get; private set; }
+    public bool requiresConcentration { get; private set; }
     public Ability savingThrowAbility { get; private set; }
 
     public void InterpretEntry(TwoDimArrayEntry entry)
     {
       aoESize = entry.GetInt("TargetSizeX").GetValueOrDefault(0);
       damageDice = entry.GetInt("DamageDice").GetValueOrDefault(0);
+      duration = entry.GetInt("Duration").GetValueOrDefault(0);
       savingThrowAbility = (Ability)entry.GetInt("SavingThrow").GetValueOrDefault(-1);
+      requiresConcentration = entry.GetInt("UseConcentration").GetValueOrDefault(0) == 2;
 
       StrRef nameEntry = entry.GetStrRef("Name").GetValueOrDefault(StrRef.FromCustomTlk(0));
 

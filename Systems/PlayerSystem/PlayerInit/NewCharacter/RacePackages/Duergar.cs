@@ -37,7 +37,6 @@ namespace NWN.Systems
         oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.dwarfSlow);
 
         // TODO : Penser à gérer l'avantage sur les JDS contre les illusions, les charmes et la paralysie
-        // TODO : Magie Duergar : penser à donner enlarge au level 3 et invisibility au level 5
       }
     }
   }

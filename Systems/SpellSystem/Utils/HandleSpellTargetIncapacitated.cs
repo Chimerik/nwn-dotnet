@@ -19,6 +19,11 @@ namespace NWN.Systems
           case Spell.Light: SpellSystem.ApplyLightEffect(target); return true;
         }
 
+        switch (NwSpell.FromSpellId(spellEntry.RowIndex).Id)
+        {
+          case CustomSpell.FaerieFire: SpellSystem.ApplyFaerieFireEffect(target, spellEntry); return true;
+        }
+
         DealSpellDamage(target, caster.LastSpellCasterLevel, spellEntry.damageDice, GetSpellDamageDiceNumber(caster, spell), DamageType.Acid, VfxType.ImpAcidS);
 
         return true;

@@ -15,9 +15,6 @@ namespace NWN.Systems
         learnableSkills[CustomSkill.Gnome].source.Add(Category.Race);
 
         oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.dwarfSlow);
-
-        // TODO : Penser à gérer l'avantage sur les JDS d'intelligence, sagesse, charisme
-        // TODO : Ajout du sort : "Parler avec les animaux"
       }
     }
   }

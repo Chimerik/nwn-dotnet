@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       private void ApplyHalfOrcEndurance()
       {
-          if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_HALFORC_ENDURANCE").HasValue
+          if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(EffectSystem.EnduranceImplacableVariable).HasValue
           && !oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.enduranceImplacable.Tag))
             oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.enduranceImplacable);
       }

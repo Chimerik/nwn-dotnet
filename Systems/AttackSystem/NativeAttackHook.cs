@@ -67,8 +67,20 @@ namespace NWN.Systems
         && targetArmor.m_ScriptVars.GetInt(maxDurabilityVariable) > 0 && targetArmor.m_ScriptVars.GetInt(durabilityVariable) < 1)
       {
         attackData.m_nAttackResult = 3;
-        NativeUtils.SendNativeServerMessage($"CRITIQUE AUTOMATIQUE - Armure en ruine ".ColorString(new Color(255, 215, 0)), targetCreature);
+        NativeUtils.SendNativeServerMessage($"CRITIQUE AUTOMATIQUE - Armure en ruine ".ColorString(StringUtils.gold), targetCreature);
         LogUtils.LogMessage($"Armure ruinée : critique automatique", LogUtils.LogType.Combat);
+        return;
+      }
+
+      if(targetCreature is not null && attackData.m_bRangedAttack > 0 && creature.m_bPlayerCharacter > 0 
+        && (creature.m_appliedEffects.Any(e => (EffectTrueType)e.m_nType == EffectTrueType.Blindness || (EffectTrueType)e.m_nType == EffectTrueType.Darkness)
+        || targetCreature.m_appliedEffects.Any(e => (EffectTrueType)e.m_nType == EffectTrueType.Darkness))
+        && Vector3.Distance(creature.m_vPosition.ToManagedVector(), targetCreature.m_vPosition.ToManagedVector()) > 3)
+      {
+        attackData.m_nAttackResult = 4;
+        attackData.m_nMissedBy = 2;
+        NativeUtils.SendNativeServerMessage($"ECHEC AUTOMATIQUE - Cible à plus de 3m".ColorString(ColorConstants.Red), creature);
+        LogUtils.LogMessage($"Attaquant aveuglé et cible à plus de 3m : échec automatique", LogUtils.LogType.Combat);
         return;
       }
 

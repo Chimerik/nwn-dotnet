@@ -15,18 +15,27 @@ namespace NWN
         { "poisoned", false },
         { "frightened", false },
         { "drowLightSensitivity", false },
+        { "boneChillDisadvantage", false },
+      };
+
+      Dictionary<string, bool> advantageDictionary = new()
+      {
+        { "trueStrikeAdvantage", false },
       };
 
       foreach (var eff in attacker.m_appliedEffects)
       {
+        advantageDictionary["trueStrikeAdvantage"] = advantageDictionary["trueStrikeAdvantage"] || GetTrueStrikeAdvantage(eff);
+
         disadvantageDictionary["armorShield"] = disadvantageDictionary["armorShield"] || GetArmorShieldDisadvantage(eff, attackStat);
+        disadvantageDictionary["boneChillDisadvantage"] = disadvantageDictionary["boneChillDisadvantage"] || GetBoneChillDisadvantage(attacker, eff);
         disadvantageDictionary["blinded"] = disadvantageDictionary["blinded"] || GetBlindedDisadvantage(eff);
         disadvantageDictionary["poisoned"] = disadvantageDictionary["poisoned"] || GetPoisonedDisadvantage(eff);
         disadvantageDictionary["frightened"] = disadvantageDictionary["frightened"] || GetFrightenedDisadvantage(eff, targetId.m_idSelf);
         disadvantageDictionary["drowLightSensitivity"] = disadvantageDictionary["drowLightSensitivity"] || GetDrowLightSensitivityDisadvantage(eff);
       }
 
-      return -disadvantageDictionary.Count(v => v.Value);
+      return -disadvantageDictionary.Count(v => v.Value) + advantageDictionary.Count(v => v.Value);
     }
   }
 }

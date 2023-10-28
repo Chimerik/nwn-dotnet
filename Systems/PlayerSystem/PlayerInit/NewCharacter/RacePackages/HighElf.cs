@@ -54,11 +54,6 @@ namespace NWN.Systems
         }
 
         ApplyElvenSleepImmunity();
-
-        // TODO : Ascendance féerique : Avantage sur les jets de sauvegarde contre les effets de charme - Penser à ajouter l'avantage au moment de refaire les sorts avec Charme
-        // TODO : Choisit un tour de magie supplémentaire (int)
-          // Transformer les cantrips en feat
-          // Afficher la liste des cantrips et permettre d'en sélectionner un
       }
     }
   }

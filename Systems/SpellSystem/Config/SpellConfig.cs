@@ -1,10 +1,9 @@
-﻿using Anvil.API;
-
-namespace NWN.Systems
+﻿namespace NWN.Systems
 {
   public static partial class SpellConfig
   {
     public const int BaseSpellDC = 8;
+    public const string CurrentSpellVariable = "_CURRENT_SPELL";
 
     public class SavingThrowFeedback
     {

@@ -1,8 +1,9 @@
 ﻿using Anvil.API;
+using NWN.Systems;
 
-namespace NWN.Systems
+namespace NWN
 {
-  public static partial class SpellUtils
+  public static partial class CreatureUtils
   {
     public static int GetAbilityAdvantageFromEffect(Ability ability, string effectTag)
     {
