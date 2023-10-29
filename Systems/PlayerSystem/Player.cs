@@ -537,7 +537,7 @@ namespace NWN.Systems
           "forge" => CustomSkill.Blacksmith,
           "scierie" => CustomSkill.Woodworker,
           "tannerie" => CustomSkill.Tanner,
-          "alchemy" => CustomSkill.Alchemist,
+          //"alchemy" => CustomSkill.Alchemist,
           _ => -1,
         };
       }

@@ -9,12 +9,12 @@ namespace NWN.Systems
     {
       private void ApplyZarielPackage()
       {
+        if (learnableSkills.TryAdd(CustomSkill.Thaumaturgy, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Thaumaturgy])))
+          learnableSkills[CustomSkill.Thaumaturgy].LevelUp(this);
+
+        learnableSkills[CustomSkill.Thaumaturgy].source.Add(Category.Race);
+
         oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin).AddItemProperty(ItemProperty.DamageImmunity(IPDamageType.Fire, IPDamageImmunityType.Immunity50Pct), EffectDuration.Permanent);
-      
-        // TODO : Penser à gérer les sorts 
-        // Level 1 : Thaumaturgy
-        // Level 3 : Searing Smite
-        // Level 5 : Branding Smite
       }
     }
   }

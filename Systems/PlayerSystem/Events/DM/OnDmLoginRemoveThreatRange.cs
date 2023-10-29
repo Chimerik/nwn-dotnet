@@ -6,7 +6,9 @@ namespace NWN.Systems
   {
     public static void OnDmLoginRemoveThreatRange(OnDMPlayerDMLogin onLogin)
     {
-      onLogin.DungeonMaster.LoginCreature.RemoveEffect(EffectSystem.threatAoE); 
+      foreach(var eff in onLogin.DungeonMaster.LoginCreature.ActiveEffects)
+        if(eff.Tag == EffectSystem.ThreatenedAoETag)
+          onLogin.DungeonMaster.LoginCreature.RemoveEffect(eff); 
     }
   }
 }

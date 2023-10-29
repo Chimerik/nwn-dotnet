@@ -14,6 +14,6 @@ namespace NWN.Systems
         return eff;
       }
     }
-    public static readonly string woodElfEffectTag = "_WOODELF_SPEED_EFFECT";
+    public const string woodElfEffectTag = "_WOODELF_SPEED_EFFECT";
   }
 }

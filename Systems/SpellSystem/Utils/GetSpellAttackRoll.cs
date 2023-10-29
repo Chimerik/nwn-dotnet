@@ -1,16 +1,16 @@
 ﻿using Anvil.API;
-using Anvil.API.Events;
 
 namespace NWN.Systems
 {
   public static partial class SpellUtils
   {
-    public static TouchAttackResult GetSpellAttackRoll(SpellEvents.OnSpellCast onCast, NwCreature caster, Ability spellCastingAbility, int isRangedSpell = 1)
+    public static TouchAttackResult GetSpellAttackRoll(NwGameObject targetObject, NwCreature caster, NwSpell spell, Ability spellCastingAbility, int isRangedSpell = 1)
     {
       TouchAttackResult result = TouchAttackResult.Hit;
 
-      if (onCast.TargetObject is NwCreature target)
-      {
+      if (targetObject is not NwCreature target)
+        return result;
+
         bool criticalHit = IsSpellAttackAutoCrit(target);
         if (!criticalHit)
         {
@@ -20,7 +20,7 @@ namespace NWN.Systems
 
           attackModifier += caster.GetAbilityModifier(spellCastingAbility);
 
-          int advantage = CreatureUtils.GetSpellAttackAdvantageAgainstTarget(caster, onCast.Spell, isRangedSpell, target, spellCastingAbility);
+          int advantage = CreatureUtils.GetSpellAttackAdvantageAgainstTarget(caster, spell, isRangedSpell, target, spellCastingAbility);
           int attackRoll = NativeUtils.HandleHalflingLuck(caster, Utils.RollAdvantage(advantage));
           int targetAC = target.GetArmorClassVersus(caster) + CreatureUtils.OverrideSizeAttackAndACBonus(target); // On compense le bonus/malus de taille du jeu de base;
           int totalAttack = attackRoll + attackModifier;
@@ -54,7 +54,6 @@ namespace NWN.Systems
 
           caster.LoginPlayer?.SendServerMessage($"{advantageString}{criticalString}Vous {hitString} {target.Name.ColorString(ColorConstants.Cyan)} {rollString}".ColorString(ColorConstants.Cyan));
         }
-      }
 
       return result;
     }

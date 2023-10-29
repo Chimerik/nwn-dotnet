@@ -7,9 +7,9 @@ namespace NWN.Systems
 {
   public static partial class DamageUtils
   {
-    public static void HandleConcentration(OnCreatureDamage onDamage)
+    public static void HandleConcentration(OnCreatureDamage onDamage, NwCreature target)
     {
-      if (onDamage.Target is not NwCreature target || !target.ActiveEffects.Any(e => e.Tag == EffectSystem.concentration.Tag))
+      if (!target.ActiveEffects.Any(e => e.Tag == EffectSystem.concentration.Tag))
         return;
 
       SpellConfig.SavingThrowFeedback feedback = new();

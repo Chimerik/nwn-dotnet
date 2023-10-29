@@ -10,6 +10,7 @@ using Microsoft.Data.Sqlite;
 
 using Newtonsoft.Json;
 using static Anvil.API.Events.ModuleEvents;
+using static NWN.Systems.PlayerSystem;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace NWN.Systems
@@ -127,8 +128,8 @@ namespace NWN.Systems
         oid.OnPlayerDeath += HandlePlayerDeath;
         oid.LoginCreature.OnUseFeat += FeatSystem.OnUseFeatBefore;
         oid.OnCombatStatusChange += OnCombatStarted;
+        oid.LoginCreature.OnHeartbeat += CreatureUtils.OnHeartbeatRefreshActions;
         oid.LoginCreature.OnCombatRoundStart += OnCombatStartForceHostility;
-        oid.LoginCreature.OnCombatRoundStart += OnCombatStartRefreshActions;
         oid.OnPartyEvent += Party.HandlePartyEvent;
         oid.OnClientLevelUpBegin += HandleOnClientLevelUp;
         oid.LoginCreature.OnUseSkill += HandleBeforeSkillUsed;
@@ -172,6 +173,7 @@ namespace NWN.Systems
       private void InitializeSpellEvents()
       {
         //oid.LoginCreature.OnSpellAction += spellSystem.HandleSpellInput;
+        oid.LoginCreature.OnSpellAction += spellSystem.OnBonusActionSpell;
         oid.LoginCreature.OnSpellAction += spellSystem.HandleSpellInputBlinded;
         oid.LoginCreature.OnSpellAction += SpellSystem.HandleCraftOnSpellInput;
         //oid.LoginCreature.OnSpellBroadcast += spellSystem.HandleHearingSpellBroadcast;
@@ -405,6 +407,11 @@ namespace NWN.Systems
         //HandleAdrenalineInit();
         //oid.LoginCreature.OnHeal -= SpellSystem.PreventHeal;
         //oid.LoginCreature.OnEffectApply -= EffectSystem.CheckFaerieFire;
+
+        if(oid.LoginCreature.GetObjectVariable<LocalVariableInt>(EffectSystem.ConcentrationSpellIdString).Value != CustomSpell.FlameBlade
+          && oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand)?.Tag == "_TEMP_FLAME_BLADE")
+            oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand).Destroy();
+
         pcState = PcState.Online;
         oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
       }

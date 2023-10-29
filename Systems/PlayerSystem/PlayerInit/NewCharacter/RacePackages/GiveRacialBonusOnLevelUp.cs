@@ -44,10 +44,10 @@ namespace NWN.Systems
             {
               case 3:
 
-                /*if (learnableSkills.TryAdd(CustomSkill.FaerieFireDrow, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FaerieFireDrow])))
-                  learnableSkills[CustomSkill.FaerieFireDrow].LevelUp(this);
+                if (learnableSkills.TryAdd(CustomSkill.HellishRebuke, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HellishRebuke])))
+                  learnableSkills[CustomSkill.HellishRebuke].LevelUp(this);
 
-                learnableSkills[CustomSkill.FaerieFireDrow].source.Add(Category.Race);*/
+                learnableSkills[CustomSkill.HellishRebuke].source.Add(Category.Race);
 
                 break;
 
@@ -57,6 +57,56 @@ namespace NWN.Systems
                   learnableSkills[CustomSkill.DarknessDrow].LevelUp(this);
 
                 learnableSkills[CustomSkill.DarknessDrow].source.Add(Category.Race);
+
+                break;
+            }
+
+            break;
+
+          case CustomRace.MephistoThiefling:
+
+            switch (oid.LoginCreature.Level)
+            {
+              case 3:
+
+                if (learnableSkills.TryAdd(CustomSkill.BurningHands, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BurningHands])))
+                  learnableSkills[CustomSkill.BurningHands].LevelUp(this);
+
+                learnableSkills[CustomSkill.BurningHands].source.Add(Category.Race);
+
+                break;
+
+              case 5:
+
+                if (learnableSkills.TryAdd(CustomSkill.FlameBlade, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FlameBlade])))
+                  learnableSkills[CustomSkill.FlameBlade].LevelUp(this);
+
+                learnableSkills[CustomSkill.FlameBlade].source.Add(Category.Race);
+
+                break;
+            }
+
+            break;
+
+          case CustomRace.ZarielThiefling:
+
+            switch (oid.LoginCreature.Level)
+            {
+              case 3:
+
+                if (learnableSkills.TryAdd(CustomSkill.SearingSmite, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SearingSmite])))
+                  learnableSkills[CustomSkill.SearingSmite].LevelUp(this);
+
+                learnableSkills[CustomSkill.SearingSmite].source.Add(Category.Race);
+
+                break;
+
+              case 5:
+
+                if (learnableSkills.TryAdd(CustomSkill.BrandingSmite, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BrandingSmite])))
+                  learnableSkills[CustomSkill.BrandingSmite].LevelUp(this);
+
+                learnableSkills[CustomSkill.BrandingSmite].source.Add(Category.Race);
 
                 break;
             }

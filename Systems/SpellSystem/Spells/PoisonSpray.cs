@@ -23,7 +23,7 @@ namespace NWN.Systems
       SpellUtils.SendSavingThrowFeedbackMessage(oCaster, target, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);
 
       if (saveFailed) 
-        SpellUtils.DealSpellDamage(target, oCaster.LastSpellCasterLevel, Spells2da.spellTable[onSpellCast.Spell.Id].damageDice, SpellUtils.GetSpellDamageDiceNumber(oCaster, onSpellCast.Spell), CustomDamageType.Poison, VfxType.ImpPoisonS);
+        SpellUtils.DealSpellDamage(target, oCaster.LastSpellCasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(oCaster, onSpellCast.Spell));
     }
   }
 }

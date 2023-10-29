@@ -29,6 +29,8 @@ namespace NWN.Systems
           learnableSkills[CustomSkill.LightDrow].LevelUp(this);
 
         learnableSkills[CustomSkill.LightDrow].source.Add(Category.Race);
+
+        // TODO : proficiency hand crossbow
       }
     }
   }

@@ -4,6 +4,7 @@ namespace NWN.Systems
 {
   public partial class EffectSystem
   {
+    public const string DwarfSlowEffectTag = "_DWARF_SLOW_EFFECT";
     public static Effect dwarfSlow
     {
       get

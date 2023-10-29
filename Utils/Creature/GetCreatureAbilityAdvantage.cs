@@ -13,9 +13,17 @@ namespace NWN
 
       foreach (var eff in creature.ActiveEffects)
       {
-        if (ability == Ability.Dexterity)
-          if (SpellUtils.HandleSpellTargetIncapacitated(caster, creature, eff.EffectType, spellEntry))
-            return -1000;
+        switch(ability)
+        {
+          case Ability.Strength:
+          case Ability.Dexterity:
+
+            if (SpellUtils.HandleSpellTargetIncapacitated(caster, creature, eff.EffectType, spellEntry))
+              return -1000;
+
+            break;
+        }  
+          
 
         advantage += GetAbilityAdvantageFromEffect(ability, eff.Tag);
       }

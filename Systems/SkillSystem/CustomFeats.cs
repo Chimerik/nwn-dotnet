@@ -52,13 +52,21 @@
     public const int InvisibilityDuergar = 1359;
     public const int EnlargeDuergar = 1360;
     public const int SpeakAnimalGnome = 1361;
+    public const int ProduceFlame = 1362;
+    public const int HellishRebuke = 1363;
+    public const int MageHand = 1364;
+    public const int BurningHands = 1365;
+    public const int FlameBlade = 1366;
+    public const int Thaumaturgy = 1367;
+    public const int SearingSmite = 1368;
+    public const int BrandingSmite = 1367;
 
-    public const int AlchemistEfficiency = 1336;
+    /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
     public const int Alchemist = 1339;
     public const int AlchemistAware = 1340;
-    public const int AlchemistAccurate = 1341;
+    public const int AlchemistAccurate = 1341;*/
 
     public const int TwoWeaponFighting = 10041;
     public const int WeaponFinesse = 10042;

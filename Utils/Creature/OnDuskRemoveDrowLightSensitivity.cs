@@ -10,8 +10,19 @@ namespace NWN.Systems
     private void OnDuskRemoveDrowLightSensitivity()
     {
       foreach (NwPlayer player in NwModule.Instance.Players)
-        if (player.LoginCreature.Race.Id == CustomRace.Drow)
-          player.LoginCreature.RemoveEffect(EffectSystem.lightSensitivity);
+      {
+        switch(player.LoginCreature.Race.Id)
+        {
+          case CustomRace.Drow:
+          case CustomRace.Duergar:
+
+            foreach(var eff in player.LoginCreature.ActiveEffects)
+              if(eff.Tag == EffectSystem.lightSensitivityEffectTag)
+                player.LoginCreature.RemoveEffect(eff);
+
+            break;
+        }          
+      }
     }
   }
 }

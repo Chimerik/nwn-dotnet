@@ -67,6 +67,7 @@ namespace NWN.Systems
     private async void InitializeCreatureEvents(NwCreature creature)
     {
       creature.OnHeartbeat += CheckIfNoPlayerAround;
+      creature.OnHeartbeat += CreatureUtils.OnHeartbeatRefreshActions;
       creature.OnDeath += CreatureUtils.MakeInventoryUndroppable;
       creature.OnDeath += CreatureUtils.OnMobDeathResetSpawn;
       

@@ -18,7 +18,7 @@ namespace NWN.Systems
       Ability spellCastingAbility = oCaster.GetAbilityModifier(Ability.Intelligence) > oCaster.GetAbilityModifier(Ability.Charisma)
             ? Ability.Intelligence : Ability.Charisma;
 
-      switch(SpellUtils.GetSpellAttackRoll(onSpellCast, oCaster, spellCastingAbility))
+      switch(SpellUtils.GetSpellAttackRoll(onSpellCast.TargetObject, oCaster, onSpellCast.Spell, spellCastingAbility))
       {
         case TouchAttackResult.CriticalHit: nbDice *= 2; break;
         case TouchAttackResult.Hit: break;
@@ -27,7 +27,7 @@ namespace NWN.Systems
 
       onSpellCast.TargetObject.OnHeal += PreventHeal;
       onSpellCast.TargetObject.ApplyEffect(EffectDuration.Temporary, EffectSystem.boneChillEffect, NwTimeSpan.FromRounds(spellEntry.duration));
-      SpellUtils.DealSpellDamage(onSpellCast.TargetObject, oCaster.LastSpellCasterLevel, Spells2da.spellTable[onSpellCast.Spell.Id].damageDice, nbDice, CustomDamageType.Necrotic, VfxType.ImpNegativeEnergy);
+      SpellUtils.DealSpellDamage(onSpellCast.TargetObject, oCaster.LastSpellCasterLevel, spellEntry, nbDice);
     }
   }
 }

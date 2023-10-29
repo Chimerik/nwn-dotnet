@@ -264,9 +264,9 @@ namespace NWN.Systems
       //HandleSpellDamageLocalisation(onSpellCast.Spell.SpellType, onSpellCast.Caster);
 
       if (onSpellCast.TargetObject is not null)
-        LogUtils.LogMessage($"----- {onSpellCast.Caster.Name} lance {onSpellCast.Spell.Name.ToString()} sur {onSpellCast.TargetObject.Name} -----", LogUtils.LogType.Combat);
+        LogUtils.LogMessage($"----- {onSpellCast.Caster.Name} lance {onSpellCast.Spell.Name.ToString()} (id {onSpellCast.Spell.Id}) sur {onSpellCast.TargetObject.Name} -----", LogUtils.LogType.Combat);
       else
-        LogUtils.LogMessage($"----- {onSpellCast.Caster.Name} lance {onSpellCast.Spell.Name.ToString()} en mode AoE -----", LogUtils.LogType.Combat);
+        LogUtils.LogMessage($"----- {onSpellCast.Caster.Name} lance {onSpellCast.Spell.Name.ToString()} (id {onSpellCast.Spell.Id}) en mode AoE -----", LogUtils.LogType.Combat);
 
       if (callInfo.ObjectSelf is not NwCreature castingCreature)
         return;
@@ -303,7 +303,7 @@ namespace NWN.Systems
           break;
 
         case Spell.ElectricJolt:
-          ElectricJolt(onSpellCast);
+          ElectricJolt(onSpellCast, spellEntry);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -362,6 +362,11 @@ namespace NWN.Systems
           Darkness(onSpellCast, spellEntry);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
+
+        case Spell.BurningHands:
+          BurningHands(onSpellCast, spellEntry);
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
       }
 
       switch (onSpellCast.Spell.Id)
@@ -372,7 +377,7 @@ namespace NWN.Systems
           break;
 
         case CustomSpell.FireBolt:
-          FireBolt(onSpellCast);
+          FireBolt(onSpellCast, spellEntry);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -403,6 +408,21 @@ namespace NWN.Systems
 
         case CustomSpell.SpeakAnimal:
           SpeakAnimal(onSpellCast, spellEntry);
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.ProduceFlame:
+          ProduceFlame(onSpellCast, spellEntry);
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.MageHand:
+          MageHand(onSpellCast);
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.Thaumaturgy:
+          Thaumaturgy(onSpellCast);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
       }

@@ -1,6 +1,4 @@
-﻿using System;
-using Anvil.API.Events;
-using Anvil.Services;
+﻿using Anvil.API.Events;
 
 namespace NWN.Systems
 {

@@ -11,5 +11,12 @@
     public const int FaerieFire = 848;
     public const int Enlarge = 849;
     public const int SpeakAnimal = 850;
+    public const int ProduceFlame = 851;
+    public const int HellishRebuke = 852;
+    public const int MageHand = 853;
+    public const int FlameBlade = 854;
+    public const int Thaumaturgy = 855;
+    public const int SearingSmite = 856;
+    public const int BrandingSmite = 857;
   }
 }

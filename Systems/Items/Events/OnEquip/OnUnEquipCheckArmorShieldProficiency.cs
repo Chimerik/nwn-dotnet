@@ -42,7 +42,10 @@ namespace NWN.Systems
 
             if (oPC.GetAbilityScore(Ability.Strength) < 15)
             {
-              oPC.RemoveEffect(EffectSystem.heavyArmorSlow);
+              foreach (var eff in oPC.ActiveEffects)
+                if (eff.Tag == EffectSystem.heavyArmorSlowEffectTag)
+                  oPC.RemoveEffect(eff);
+
               oPC.OnHeartbeat -= OnHeartbeatCheckHeavyArmorSlow;
             }
           }
@@ -56,7 +59,10 @@ namespace NWN.Systems
         return;
 
       playerCreature.OnSpellAction -= SpellSystem.NoArmorShieldProficiencyOnSpellInput;
-      playerCreature.RemoveEffect(EffectSystem.shieldArmorDisadvantage);
+
+      foreach(var eff in playerCreature.ActiveEffects)
+        if(eff.Tag == EffectSystem.ShieldArmorDisadvantageEffectTag)
+          playerCreature.RemoveEffect(eff);
     }
   }
 }

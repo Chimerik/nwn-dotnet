@@ -14,7 +14,9 @@ namespace NWN.Systems
       if (oCreature is null || oItem is null || oCreature.GetItemInSlot(InventorySlot.RightHand) is null)
         return;
 
-      oCreature.RemoveEffect(EffectSystem.threatAoE);
+      foreach(var eff in oCreature.ActiveEffects)
+        if(eff.Tag == EffectSystem.ThreatenedAoETag)
+          oCreature.RemoveEffect(eff);
     }
   }
 }

@@ -1,4 +1,5 @@
 ﻿using Anvil.API;
+using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
 {
@@ -8,6 +9,11 @@ namespace NWN.Systems
     {
       private void ApplyMephistoPackage()
       {
+        if (learnableSkills.TryAdd(CustomSkill.FlameBlade, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FlameBlade])))
+          learnableSkills[CustomSkill.FlameBlade].LevelUp(this);
+
+        learnableSkills[CustomSkill.FlameBlade].source.Add(Category.Race);
+
         oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin).AddItemProperty(ItemProperty.DamageImmunity(IPDamageType.Fire, IPDamageImmunityType.Immunity50Pct), EffectDuration.Permanent);
       
         // TODO : Penser à gérer les sorts 

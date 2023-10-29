@@ -7,7 +7,6 @@ namespace NWN.Systems
   {
     public static int GetSpellDamageDiceNumber(NwCreature caster, NwSpell spell)
     {
-
       if (spell.InnateSpellLevel < 1)
       {
         if (caster.Level > 16)
@@ -19,8 +18,8 @@ namespace NWN.Systems
         else
           return 1;
       }
-
-      return 1;
+      else
+        return Spells2da.spellTable[spell.Id].numDice; // TODO : Il faudra gérer le upcast
     }
   }
 }

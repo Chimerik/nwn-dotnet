@@ -412,7 +412,7 @@ namespace NWN.Systems
 
       NwModule.Instance.OnAcquireItem += ItemSystem.OnAcquireCheckFinesseProperty;
       NwModule.Instance.OnPlayerGuiEvent += PlayerSystem.HandleGuiEvents;
-      //NwModule.Instance.OnCreatureAttack += AttackSystem.HandleAttackEvent;
+      NwModule.Instance.OnCreatureAttack += AttackSystem.HandleAttackEvent;
       NwModule.Instance.OnCreatureDamage += AttackSystem.HandleDamageEvent;
       NwModule.Instance.OnCreatureCheckProficiencies += ItemSystem.OverrideProficiencyCheck;
       NwModule.Instance.OnItemEquip += ItemSystem.OnEquipHastWeapon;
@@ -452,7 +452,7 @@ namespace NWN.Systems
         new List<string[]>() { new string[] { "year", NwDateTime.Now.Year.ToString() }, { new string[] { "month", NwDateTime.Now.Month.ToString() } }, { new string[] { "day", NwDateTime.Now.DayInTenday.ToString() } }, { new string[] { "hour", NwDateTime.Now.Hour.ToString() } }, { new string[] { "minute", NwDateTime.Now.Minute.ToString() } }, { new string[] { "second", NwDateTime.Now.Second.ToString() } } },
         new List<string[]>() { new string[] { "ROWID", "1" } });
     }
-    public static async void CheckIllegalItems()// Permet de contrôler que les joueurs n'importent pas des items pétés en important des maps
+    public static void CheckIllegalItems()// Permet de contrôler que les joueurs n'importent pas des items pétés en important des maps
     {
       foreach (NwItem item in NwObject.FindObjectsOfType<NwItem>()) // penser à la faire également lors de la création d'une zone dynamique
       { 
@@ -1254,12 +1254,12 @@ namespace NWN.Systems
         return;
       }
 
-      if (callInfo.ObjectSelf is NwCreature creature && creature.IsLoginPlayerCharacter)
+      if (callInfo.ObjectSelf is NwCreature creature)
       {
-        if (creature.GetObjectVariable<LocalVariableInt>("_REACTION").Value < 1)
+        if (creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value < 1)
           EventsPlugin.SkipEvent();
         else
-          creature.GetObjectVariable<LocalVariableInt>("_REACTION").Value -= 1;
+          creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value -= 1;
       }
     }
     [ScriptHandler("on_dual_fight")]

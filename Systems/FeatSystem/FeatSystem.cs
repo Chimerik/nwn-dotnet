@@ -17,6 +17,11 @@ namespace NWN.Systems
         case CustomSkill.EnlargeDuergar:
           onUseFeat.Creature.GetObjectVariable<LocalVariableInt>("_ENLARGE_DUERGAR").Value = 1;
           return;
+
+        case CustomSkill.HellishRebuke:
+          HellishRebuke(onUseFeat.Creature);
+          onUseFeat.PreventFeatUse = true;
+          return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

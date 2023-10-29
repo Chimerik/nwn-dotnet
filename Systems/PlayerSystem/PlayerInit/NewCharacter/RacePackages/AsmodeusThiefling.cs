@@ -1,4 +1,5 @@
 ﻿using Anvil.API;
+using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
 {
@@ -8,12 +9,12 @@ namespace NWN.Systems
     {
       private void ApplyAsmodeusPackage()
       {
+        if (learnableSkills.TryAdd(CustomSkill.ProduceFlame, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ProduceFlame])))
+          learnableSkills[CustomSkill.ProduceFlame].LevelUp(this);
+
+        learnableSkills[CustomSkill.ProduceFlame].source.Add(Category.Race);
+
         oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin).AddItemProperty(ItemProperty.DamageImmunity(IPDamageType.Fire, IPDamageImmunityType.Immunity50Pct), EffectDuration.Permanent);
-      
-        // TODO : Penser à gérer les sorts 
-        // Level 1 : Produce Flame
-        // Level 3 : Hellish Rebuke
-        // Level 5 : Ténèbres
       }
     }
   }

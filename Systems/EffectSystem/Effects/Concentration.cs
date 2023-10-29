@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
+using Google.Apis.Util;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -13,6 +16,7 @@ namespace NWN.Systems
         Effect eff = Effect.LinkEffects(Effect.RunAction(), Effect.Icon(NwGameTables.EffectIconTable.GetRow(148)), Effect.VisualEffect(VfxType.DurCessateNeutral));
         eff.Tag = ConcentrationEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+
         return eff;
       }
     }
@@ -29,9 +33,9 @@ namespace NWN.Systems
         tlkEntry.SetPlayerOverride(caster.ControllingPlayer, $"Concentration : {NwSpell.FromSpellId(spellId).Name}");
 
       if (duration > 0)
-        caster.ApplyEffect(EffectDuration.Temporary, concentration, NwTimeSpan.FromRounds(duration));
+        NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, concentration, NwTimeSpan.FromRounds(duration)));
       else
-        caster.ApplyEffect(EffectDuration.Permanent, concentration);
+        NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, concentration));
 
       int targetNumber = 1;
 
@@ -61,15 +65,39 @@ namespace NWN.Systems
           i++;
           continue;
         }
+        
+        if (target.GetObjectVariable<LocalVariableInt>(ConcentrationSpellIdString).Value == CustomSpell.FlameBlade && target is NwCreature creature)
+        {
+          if (creature.GetItemInSlot(InventorySlot.RightHand)?.Tag == "_TEMP_FLAME_BLADE")
+            creature.GetItemInSlot(InventorySlot.RightHand).Destroy();
+
+          creature.DecrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.FlameBlade));
+          return;
+        }
+
+        //ModuleSystem.Log.Info($"removing concentration effects on : {target.Name}");
 
         foreach (var eff in target.ActiveEffects)
         {
-          if (eff.Creator == onEffect.Object
-            && onEffect.Object.GetObjectVariable<LocalVariableInt>(ConcentrationSpellIdString).Value == eff.Spell.Id)
-          {
-            target.RemoveEffect(eff);
-            onEffect.Object.GetObjectVariable<LocalVariableObject<NwGameObject>>($"{ConcentrationTargetString}_{i}").Delete();
-          }
+          /*ModuleSystem.Log.Info($"effect: {eff.Tag}");
+
+          if (eff.Creator is null)
+            ModuleSystem.Log.Info($"effect creator: ");
+          else
+            ModuleSystem.Log.Info($"effect creator: {eff.Creator.Name}");
+
+          if (eff.Spell is null)
+            ModuleSystem.Log.Info($"effect spell: ");
+          else
+            ModuleSystem.Log.Info($"effect spell: {NwSpell.FromSpellId(eff.Spell.Id).Name.ToString()}");*/
+
+          if (eff.Spell is null || eff.Creator != onEffect.Object
+            || onEffect.Object.GetObjectVariable<LocalVariableInt>(ConcentrationSpellIdString).Value != eff.Spell.Id)
+            continue;
+
+          //ModuleSystem.Log.Info($"effect removed: {eff.Tag}");
+          target.RemoveEffect(eff);
+          onEffect.Object.GetObjectVariable<LocalVariableObject<NwGameObject>>($"{ConcentrationTargetString}_{i}").Delete();
         }
 
         i++;

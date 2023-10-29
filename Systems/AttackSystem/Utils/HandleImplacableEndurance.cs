@@ -7,22 +7,26 @@ namespace NWN.Systems
 {
   public static partial class DamageUtils
   {
-    public static void HandleImplacableEndurance(OnCreatureDamage onDamage)
+    public static void HandleImplacableEndurance(OnCreatureDamage onDamage, NwCreature target)
     {
-      if(onDamage.Target is NwCreature target && target.ActiveEffects.Any(e => e.Tag == EffectSystem.enduranceImplacable.Tag))
+      if (!target.ActiveEffects.Any(e => e.Tag == EffectSystem.EnduranceImplacableEffectTag))
+        return;
+
+      int totalDamage = 0;
+
+      foreach (DamageType damageType in (DamageType[])Enum.GetValues(typeof(DamageType)))
+        totalDamage += onDamage.DamageData.GetDamageByType(damageType) > -1 
+          ? onDamage.DamageData.GetDamageByType(damageType) : 0;
+
+      if(target.HP <= totalDamage)
       {
-        int totalDamage = 0;
+        target.ApplyEffect(EffectDuration.Temporary, Effect.TemporaryHitpoints(totalDamage - target.HP + 1), TimeSpan.FromSeconds(6));
+          
+        foreach(var eff in target.ActiveEffects)
+          if(eff.Tag == EffectSystem.EnduranceImplacableEffectTag)
+            target.RemoveEffect(eff);
 
-        foreach (DamageType damageType in (DamageType[])Enum.GetValues(typeof(DamageType)))
-          totalDamage += onDamage.DamageData.GetDamageByType(damageType) > -1 
-            ? onDamage.DamageData.GetDamageByType(damageType) : 0;
-
-        if(target.HP <= totalDamage)
-        {
-          target.ApplyEffect(EffectDuration.Temporary, Effect.TemporaryHitpoints(totalDamage - target.HP + 1), TimeSpan.FromSeconds(6));
-          target.RemoveEffect(EffectSystem.enduranceImplacable);
-          target.GetObjectVariable<PersistentVariableInt>(EffectSystem.EnduranceImplacableVariable).Delete();
-        }
+        target.GetObjectVariable<PersistentVariableInt>(EffectSystem.EnduranceImplacableVariable).Delete();
       }
     }
   }

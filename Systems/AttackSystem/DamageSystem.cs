@@ -31,24 +31,30 @@ namespace NWN.Systems
     );
     public static void HandleDamageEvent(OnCreatureDamage onDamage)
     {
-      DamageUtils.HandleImplacableEndurance(onDamage);
-      DamageUtils.HandleConcentration(onDamage);
+      if (onDamage.Target is not NwCreature target)
+        return;
+
+      DamageUtils.HandleImplacableEndurance(onDamage, target);
+      DamageUtils.HandleConcentration(onDamage, target);
+
+      if (onDamage.DamagedBy is NwCreature damager && target != damager)
+        DamageUtils.HandleHellishRebuke(target, damager);
 
       // TODO : prendre en compte le cas des pièges
       //if (onDamage.Target is null || onDamage.DamageData.GetDamageByType(DamageType.BaseWeapon) > -1 || onDamage.Target is not NwCreature oTarget) // S'il ne s'agit pas d'un sort, alors le calcul des dégâts a déjà été traité lors de l'event d'attaque
-        //return;
+      //return;
 
       //LogUtils.LogMessage("Spell Damage Event", LogUtils.LogType.Combat);
 
       //if (onDamage.DamagedBy is not null)
-        //LogUtils.LogMessage($"Attaquant : {onDamage.DamagedBy.Name}", LogUtils.LogType.Combat);
+      //LogUtils.LogMessage($"Attaquant : {onDamage.DamagedBy.Name}", LogUtils.LogType.Combat);
       //else
-        //LogUtils.LogMessage("Attention - Cas où l'attaquant est null", LogUtils.LogType.Combat);
+      //LogUtils.LogMessage("Attention - Cas où l'attaquant est null", LogUtils.LogType.Combat);
 
       //damagePipeline.Execute(new Context(
-        //onAttack: null,
-        //oTarget: oTarget,
-        //onDamage: onDamage
+      //onAttack: null,
+      //oTarget: oTarget,
+      //onDamage: onDamage
       //));
 
       /*if (onDamage.Target.GetObjectVariable<LocalVariableInt>("_IS_GNOME_MECH").HasValue && onDamage.DamageData.Electrical > 0)

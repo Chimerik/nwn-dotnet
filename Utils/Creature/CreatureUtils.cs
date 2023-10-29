@@ -14,6 +14,8 @@ namespace NWN
 {
   public static partial class CreatureUtils
   {
+    public const string ReactionVariable = "_REACTION";
+    public const string BonusActionVariable = "_BONUS_ACTION";
     public static Dictionary<string, NwCreature> creatureSpawnDictionary = new();
     public static void OnMobPerception(CreatureEvents.OnPerception onPerception)
     {

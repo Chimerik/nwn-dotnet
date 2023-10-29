@@ -57,6 +57,8 @@ namespace NWN
       {
         Ability.Strength => "Force",
         Ability.Dexterity => "Dextérité",
+        Ability.Constitution => "Constitution",
+        Ability.Intelligence => "Intelligence",
         Ability.Wisdom => "Sagesse",
         Ability.Charisma => "Charisme",
         _ => ability.ToString(),
@@ -146,6 +148,20 @@ namespace NWN
         if ((player != target.ControllingPlayer || (includeSelf && player == target.ControllingPlayer)) 
           && player?.ControlledCreature?.Area == target?.Area && player?.ControlledCreature.DistanceSquared(target) < 1225)
           player.DisplayFloatingTextStringOnCreature(target, message.ColorString(color));
+    }
+    public static void ForceBroadcastSpellCasting(NwCreature caster, NwSpell spell, NwCreature target = null)
+    {
+      foreach (NwPlayer player in NwModule.Instance.Players)
+      {
+        if (player?.ControlledCreature?.Area == caster?.Area && player?.ControlledCreature.DistanceSquared(caster) < 1225)
+        {
+          if (target is null)
+            player.SendServerMessage($"{caster.Name.ColorString(ColorConstants.Cyan)} incante {spell.Name.ToString().ColorString(brightPurple)}", ColorConstants.Orange);
+          else
+            player.SendServerMessage($"{caster.Name.ColorString(ColorConstants.Cyan)} incante {spell.Name.ToString().ColorString(brightPurple)} sur {target.Name.ColorString(ColorConstants.Cyan)}", ColorConstants.Orange);
+        }
+      }
+      
     }
     public static double GetDrawListTextPositionScaledToUI(int uiScale)
     {

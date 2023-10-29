@@ -325,11 +325,18 @@ namespace NWN.Systems
 
           player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatType(Feat.Toughness));
 
-          player.oid.LoginCreature.RemoveEffect(EffectSystem.dwarfSlow);
-          player.oid.LoginCreature.RemoveEffect(EffectSystem.sleepImmunity);
-          player.oid.LoginCreature.RemoveEffect(EffectSystem.lightSensitivity);
-          player.oid.LoginCreature.RemoveEffect(EffectSystem.woodElfSpeed);
-          player.oid.LoginCreature.RemoveEffect(EffectSystem.enduranceImplacable);
+          foreach (var eff in player.oid.LoginCreature.ActiveEffects)
+          {
+            switch(eff.Tag)
+            {
+              case EffectSystem.DwarfSlowEffectTag:
+              case EffectSystem.SleepImmunityEffectTag:
+              case EffectSystem.lightSensitivityEffectTag:
+              case EffectSystem.woodElfEffectTag:
+              case EffectSystem.EnduranceImplacableEffectTag: player.oid.LoginCreature.RemoveEffect(eff); break;
+            }
+          }
+
           player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(EffectSystem.EnduranceImplacableVariable).Delete();
 
           player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.RayOfFrost));
