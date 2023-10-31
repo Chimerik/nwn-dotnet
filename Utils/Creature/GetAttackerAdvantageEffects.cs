@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Anvil.API;
+using NWN.Systems;
 
 namespace NWN
 {
@@ -25,7 +26,7 @@ namespace NWN
 
       foreach (var eff in attacker.m_appliedEffects)
       {
-        advantageDictionary["trueStrikeAdvantage"] = advantageDictionary["trueStrikeAdvantage"] || GetTrueStrikeAdvantage(eff);
+        advantageDictionary["trueStrikeAdvantage"] = advantageDictionary["trueStrikeAdvantage"] || eff.m_sCustomTag.CompareNoCase(EffectSystem.trueStrikeEffectExoTag) > 0;
 
         disadvantageDictionary["armorShield"] = disadvantageDictionary["armorShield"] || GetArmorShieldDisadvantage(eff, attackStat);
         disadvantageDictionary["boneChillDisadvantage"] = disadvantageDictionary["boneChillDisadvantage"] || GetBoneChillDisadvantage(attacker, eff);

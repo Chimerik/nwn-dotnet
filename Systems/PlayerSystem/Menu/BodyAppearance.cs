@@ -328,14 +328,14 @@ namespace NWN.Systems
                 case "sizeDecrease":
                   HandleSelectorChange(sizeSelection, Utils.sizeList, - 1);
 
-                  if(float.TryParse(Utils.sizeList[sizeSelection.GetBindValue(player.oid, nuiToken.Token)].Label.Replace("x", ""), out float newSize))
+                  if(float.TryParse(Utils.sizeList[sizeSelection.GetBindValue(player.oid, nuiToken.Token)].Label.Replace("Taille : x", ""), out float newSize))
                     targetCreature.VisualTransform.Scale = newSize;
                   break;
 
                 case "sizeIncrease":
                   HandleSelectorChange(sizeSelection, Utils.sizeList, 1);
 
-                  if (float.TryParse(Utils.sizeList[sizeSelection.GetBindValue(player.oid, nuiToken.Token)].Label.Replace("x", ""), out float newScale))
+                  if (float.TryParse(Utils.sizeList[sizeSelection.GetBindValue(player.oid, nuiToken.Token)].Label.Replace("Taille : x", ""), out float newScale))
                     targetCreature.VisualTransform.Scale = newScale;
                   break;
 
@@ -361,7 +361,7 @@ namespace NWN.Systems
                   break;
 
                 case "sizeSelection":
-                  if (float.TryParse(Utils.sizeList[sizeSelection.GetBindValue(player.oid, nuiToken.Token)].Label.Replace("x", ""), out float newScale))
+                  if (float.TryParse(Utils.sizeList[sizeSelection.GetBindValue(player.oid, nuiToken.Token)].Label.Replace("Taille : x", ""), out float newScale))
                     targetCreature.VisualTransform.Scale = newScale;
                   break;
 

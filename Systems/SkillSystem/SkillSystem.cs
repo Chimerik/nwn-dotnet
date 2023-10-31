@@ -4,8 +4,6 @@ using NLog;
 using Anvil.API;
 using System.ComponentModel;
 using System.Threading.Tasks;
-using System.Linq;
-
 namespace NWN.Systems
 {
   public static partial class SkillSystem
@@ -123,6 +121,7 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomSkill.HandAxeProficiency, new LearnableSkill(CustomSkill.HandAxeProficiency, "Hachette - Maîtrise", "Vous permet d'ajouter votre bonus de maîtrise à vos attaques avec ce type d'arme, ainsi que d'utiliser leurs attaques spéciales.", Category.Fight, "ife_armor_l", 1, 750, Ability.Constitution, Ability.Strength));
       learnableDictionary.Add(CustomSkill.WarAxeProficiency, new LearnableSkill(CustomSkill.WarAxeProficiency, "Hache de bataille - Maîtrise", "Vous permet d'ajouter votre bonus de maîtrise à vos attaques avec ce type d'arme, ainsi que d'utiliser leurs attaques spéciales.", Category.Fight, "ife_armor_l", 1, 750, Ability.Constitution, Ability.Strength));
       learnableDictionary.Add(CustomSkill.DwarvenAxeProficiency, new LearnableSkill(CustomSkill.DwarvenAxeProficiency, "Hache naine - Maîtrise", "Vous permet d'ajouter votre bonus de maîtrise à vos attaques avec ce type d'arme, ainsi que d'utiliser leurs attaques spéciales.", Category.Fight, "ife_armor_l", 1, 750, Ability.Constitution, Ability.Strength));
+      learnableDictionary.Add(CustomSkill.ShurikenProficiency, new LearnableSkill(CustomSkill.ShurikenProficiency, "Shuriken - Maîtrise", "Vous permet d'ajouter votre bonus de maîtrise à vos attaques avec ce type d'arme, ainsi que d'utiliser leurs attaques spéciales.", Category.Fight, "ife_armor_l", 1, 750, Ability.Constitution, Ability.Dexterity));
 
       learnableDictionary.Add(CustomSkill.UncannyDodge, new LearnableSkill(CustomSkill.UncannyDodge, "Esquive Instinctive", "Permet au personnage de réagir instinctivement, même face à un adversaire qu'il ne voit pas.\n\nSi le personnage réussi un jet de survie contre la tromperie d'un adversaire qui l'attaque de dos avec une arme de mêlée, alors le critique automatique sera annulé.", Category.Fight, "ife_uncdodge", 5, 3, Ability.Dexterity, Ability.Wisdom));
 

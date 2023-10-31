@@ -52,8 +52,9 @@ namespace NWN.Systems
           {
             new NuiSpacer(),
             new NuiButton("Accueil") { Id = "welcome", Height = 35, Width = 90, ForegroundColor = ColorConstants.Gray },
-            new NuiButton("Apparence") { Id = "beauty", Height = 35, Width = 90, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_APPEARANCE").HasValue },
             new NuiButton("Race") { Id = "race", Height = 35, Width = 90, ForegroundColor = ColorConstants.Gray  },
+            new NuiButton("Portrait") { Id = "portrait", Height = 35, Width = 70, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_PORTRAIT").HasValue },
+            new NuiButton("Couleurs") { Id = "beauty", Height = 35, Width = 90, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_APPEARANCE").HasValue },
             new NuiButton("Origine") { Id = "histo", Height = 35, Width = 90, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_ORIGIN").HasValue },
             new NuiButton("Classe") { Id = "class", Height = 35, Width = 90, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_CLASS").HasValue },
             new NuiButton("Stats") { Id = "stats", Height = 35, Width = 90, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_STATS").HasValue },
@@ -197,6 +198,9 @@ namespace NWN.Systems
 
                   RemovePreviousHistory();
 
+                  if (selectedRace.Id == CustomRace.AsmodeusThiefling || selectedRace.Id == CustomRace.MephistoThiefling || selectedRace.Id == CustomRace.ZarielThiefling)
+                    player.oid.LoginCreature.TailType = CreatureTailType.Devil;
+
                   validationEnabled.SetBindValue(player.oid, nuiToken.Token, false);
                   player.ApplyRacePackage(selectedRace, selectedBonusSkill.GetBindValue(player.oid, nuiToken.Token));
 
@@ -243,6 +247,15 @@ namespace NWN.Systems
                   else ((IntroClassSelectorWindow)player.windows["introClassSelector"]).CreateWindow();
 
                   return;
+
+                case "portrait":
+
+                  CloseWindow();
+
+                  if (!player.windows.ContainsKey("introPortrait")) player.windows.Add("introPortrait", new IntroPortraitWindow(player));
+                  else ((IntroPortraitWindow)player.windows["introPortrait"]).CreateWindow();
+
+                  break;
 
                 case "stats":
 
@@ -350,6 +363,8 @@ namespace NWN.Systems
           player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.PoisonSpray));
           player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.Light));
           player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.LightDrow));
+
+          player.oid.LoginCreature.TailType = CreatureTailType.None;
 
 
           foreach (ItemProperty ip in player.oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties)

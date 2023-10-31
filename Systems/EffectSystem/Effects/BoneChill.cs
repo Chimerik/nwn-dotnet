@@ -17,12 +17,5 @@ namespace NWN.Systems
         return eff;
       }
     }
-    public static void OnRemoveBoneChill(OnEffectRemove onEffect)
-    {
-      if (!onEffect.Effect.IsValid || onEffect.Effect.Tag != boneChillEffectTag || onEffect.Object is not NwGameObject target)
-        return;
-
-      target.OnHeal -= SpellSystem.PreventHeal;
-    }
   }
 }

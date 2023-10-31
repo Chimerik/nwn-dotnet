@@ -37,11 +37,13 @@ namespace NWN.Systems
       
       foreach (var portrait in portraitsTable)
         if (!string.IsNullOrEmpty(portrait.resRef))
-          try { portraitFilteredEntries[portrait.racialType, portrait.gender].Add(portrait.mediumPortrait); }
+          try 
+          { 
+            portraitFilteredEntries[portrait.racialType, portrait.gender].Add(portrait.mediumPortrait); 
+          }
           catch(Exception)
           {
-            portraitFilteredEntries[portrait.racialType, portrait.gender] = new();
-            portraitFilteredEntries[portrait.racialType, portrait.gender].Add(portrait.mediumPortrait);
+            portraitFilteredEntries[portrait.racialType, portrait.gender] = new() { portrait.mediumPortrait };
           }    
     }
   }

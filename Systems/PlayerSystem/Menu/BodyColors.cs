@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 using Anvil.API;
@@ -20,12 +19,6 @@ namespace NWN.Systems
         private readonly List<NuiElement> rootChildren = new();
         private readonly NuiBind<string> currentColor = new ("currentColor");
         private readonly NuiBind<int> channelSelection = new ("channelSelection");
-        private readonly NuiBind<int> headSelection = new("headSelection");
-        private readonly NuiBind<int> sizeSelection = new("sizeSelection");
-        private readonly NuiBind<int> genderSelection = new("genderSelection");
-
-        private readonly NuiBind<List<NuiComboEntry>> headList = new("headList");
-        private List<NuiComboEntry> headPlaceholderList;
 
         private readonly NuiBind<string>[] colorBindings = new NuiBind<string>[176];
 
@@ -49,18 +42,19 @@ namespace NWN.Systems
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
           {
             new NuiSpacer(),
-            new NuiButton("Accueil") { Id = "welcome", Height = 35, Width = 90, ForegroundColor = ColorConstants.Gray },
-            new NuiButton("Apparence") { Id = "beauty", Height = 35, Width = 90, ForegroundColor = ColorConstants.Gray },
-            new NuiButton("Race") { Id = "race", Height = 35, Width = 90, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_RACE").HasValue },
-            new NuiButton("Origine") { Id = "histo", Height = 35, Width = 90, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_ORIGIN").HasValue },
-            new NuiButton("Classe") { Id = "class", Height = 35, Width = 90 , Encouraged = player.oid.LoginCreature.GetObjectVariable < PersistentVariableInt >("_IN_CHARACTER_CREATION_CLASS").HasValue},
-            new NuiButton("Stats") { Id = "stats", Height = 35, Width = 90, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_STATS").HasValue },
+            new NuiButton("Accueil") { Id = "welcome", Height = 35, Width = 70, ForegroundColor = ColorConstants.Gray },
+            new NuiButton("Race") { Id = "race", Height = 35, Width = 70, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_RACE").HasValue },
+            new NuiButton("Portrait") { Id = "portrait", Height = 35, Width = 70, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_PORTRAIT").HasValue },
+            new NuiButton("Couleurs") { Id = "beauty", Height = 35, Width = 70, ForegroundColor = ColorConstants.Gray },
+            new NuiButton("Origine") { Id = "histo", Height = 35, Width = 70, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_ORIGIN").HasValue },
+            new NuiButton("Classe") { Id = "class", Height = 35, Width = 70 , Encouraged = player.oid.LoginCreature.GetObjectVariable < PersistentVariableInt >("_IN_CHARACTER_CREATION_CLASS").HasValue},
+            new NuiButton("Stats") { Id = "stats", Height = 35, Width = 70, Encouraged = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_STATS").HasValue },
             new NuiSpacer()
           } });
 
           int nbButton = 0;
 
-          NuiColumn colorColumn = new NuiColumn() { Children = new List<NuiElement>() { new NuiRow() { Children = new List<NuiElement>
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>
           {
             new NuiSpacer(),
             new NuiLabel("Actuelle") { Width = 65, Height = 35, VerticalAlign = NuiVAlign.Middle },
@@ -72,40 +66,6 @@ namespace NWN.Systems
               Selected = channelSelection
             },
             new NuiSpacer()
-          } } } };
-
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() 
-          {
-            colorColumn,
-            new NuiColumn() { Children = new List<NuiElement>() 
-            {
-              new NuiRow() { Height = 25, Children = new List<NuiElement> 
-              { 
-                new NuiSpacer(),
-                new NuiLabel("Genre") { Width = 50, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
-                new NuiCombo(){ Entries = new List<NuiComboEntry> { new NuiComboEntry("Féminin", 0), new NuiComboEntry("Masculin", 1) }, Selected = genderSelection, Width = 150, Margin = 0.0f },
-                new NuiSpacer()
-              } },
-              new NuiRow() { Height = 25, Children = new List<NuiElement> { new NuiSpacer(), new NuiLabel("Taille") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }, new NuiSpacer() } },
-              new NuiRow() { Height = 25, Margin = 0.0f, Children = new List<NuiElement>
-              {
-                new NuiSpacer(),
-                new NuiButton("<") { Id = "sizeDecrease", Width = 35, Margin = 0.0f },
-                new NuiCombo(){ Entries = Utils.sizeList, Selected = sizeSelection, Width = 150, Margin = 0.0f },
-                new NuiButton(">") { Id = "sizeIncrease", Width = 35, Margin = 0.0f },
-                new NuiSpacer()
-              } },
-              new NuiRow() { Height = 25, Children = new List<NuiElement> { new NuiSpacer(), new NuiLabel("Tête") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }, new NuiSpacer() } },
-              new NuiRow() { Height = 25, Margin = 0.0f, Children = new List<NuiElement>
-              {
-                new NuiSpacer(),
-                new NuiButton("<") { Id = "headDecrease", Width = 35, Margin = 0.0f },
-                new NuiCombo(){ Entries = headList, Selected = headSelection, Width = 150, Margin = 0.0f },
-                new NuiButton(">") { Id = "headIncrease", Width = 35, Margin = 0.0f },
-                new NuiSpacer()
-              } },
-              new NuiSpacer()
-            } }
           } });
 
           for (int i = 0; i < 11; i++)
@@ -127,7 +87,7 @@ namespace NWN.Systems
             }
 
             row.Children = rowChildren;
-            colorColumn.Children.Add(row);
+            rootChildren.Add(row);
           }
 
           rootColumn = new NuiColumn { Children = rootChildren };
@@ -142,10 +102,7 @@ namespace NWN.Systems
           if (IsOpen)
             CloseWindow();
 
-          NuiRect savedRectangle = player.windowRectangles[windowId];
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId)
-            ? new NuiRect(savedRectangle.X, savedRectangle.Y, player.guiScaledWidth * 0.55f, player.guiScaledHeight * 0.6f)
-            : new NuiRect(player.guiWidth * 0.25f, player.guiHeight * 0.15f, player.guiScaledWidth * 0.55f, player.guiScaledHeight * 0.6f);
+          NuiRect savedRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(player.guiWidth * 0.25f, player.guiHeight * 0.15f, player.guiScaledWidth * 0.4f, player.guiScaledHeight * 0.60f);
 
           window = new NuiWindow(rootColumn, "Vous contemplez votre reflet dans le miroir")
           {
@@ -167,22 +124,11 @@ namespace NWN.Systems
               nuiToken = tempToken;
               nuiToken.OnNuiEvent += HandleBodyColorsEvents;
 
-              headPlaceholderList = ModuleSystem.headModels.FirstOrDefault(h => h.gender == targetCreature.Gender && h.appearanceRow == targetCreature.Appearance.RowIndex).heads;
-              headList.SetBindValue(player.oid, nuiToken.Token, headPlaceholderList);
-
-              headSelection.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetCreatureBodyPart(CreaturePart.Head));
-              sizeSelection.SetBindValue(player.oid, nuiToken.Token, (int)targetCreature.VisualTransform.Scale * 100 - 75);
-              genderSelection.SetBindValue(player.oid, nuiToken.Token, 1);
-
-              headSelection.SetBindWatch(player.oid, nuiToken.Token, true);
-              sizeSelection.SetBindWatch(player.oid, nuiToken.Token, true);
-              genderSelection.SetBindWatch(player.oid, nuiToken.Token, true);
-
               currentColor.SetBindValue(player.oid, nuiToken.Token, $"hair{targetCreature.GetColor(ColorChannel.Hair) + 1}");
               channelSelection.SetBindValue(player.oid, nuiToken.Token, 1);
               channelSelection.SetBindWatch(player.oid, nuiToken.Token, true);
 
-              geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+              geometry.SetBindValue(player.oid, nuiToken.Token, new NuiRect(savedRectangle.X, savedRectangle.Y, player.guiScaledWidth * 0.4f, player.guiScaledHeight * 0.6f));
               geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
               for (int i = 0; i < 176; i++)
@@ -242,6 +188,15 @@ namespace NWN.Systems
 
                   return;
 
+                case "portrait":
+
+                  CloseWindow();
+
+                  if (!player.windows.ContainsKey("introPortrait")) player.windows.Add("introPortrait", new IntroPortraitWindow(player));
+                  else ((IntroPortraitWindow)player.windows["introPortrait"]).CreateWindow();
+
+                  return;
+
                 case "class":
 
                   CloseWindow();
@@ -260,37 +215,6 @@ namespace NWN.Systems
 
                   return;
 
-                case "sizeDecrease":
-                  HandleSelectorChange(sizeSelection, Utils.sizeList, -1);
-
-                  if (float.TryParse(Utils.sizeList[sizeSelection.GetBindValue(player.oid, nuiToken.Token)].Label.Replace("x", ""), out float newSize))
-                  {
-                    targetCreature.VisualTransform.Scale = newSize;
-                    targetCreature.GetObjectVariable<PersistentVariableFloat>("_ORIGINAL_SIZE").Value = newSize;
-                  }
-
-                  return;
-
-                case "sizeIncrease":
-                  HandleSelectorChange(sizeSelection, Utils.sizeList, 1);
-
-                  if (float.TryParse(Utils.sizeList[sizeSelection.GetBindValue(player.oid, nuiToken.Token)].Label.Replace("x", ""), out float newScale))
-                  {
-                    targetCreature.VisualTransform.Scale = newScale;
-                    targetCreature.GetObjectVariable<PersistentVariableFloat>("_ORIGINAL_SIZE").Value = newScale;
-                  }
-
-                  return;
-
-                case "headDecrease":
-                  HandleSelectorChange(headSelection, headPlaceholderList, -1);
-                  targetCreature.SetCreatureBodyPart(CreaturePart.Head, headSelection.GetBindValue(player.oid, nuiToken.Token));
-                  return;
-
-                case "headIncrease":
-                  HandleSelectorChange(headSelection, headPlaceholderList, 1);
-                  targetCreature.SetCreatureBodyPart(CreaturePart.Head, headSelection.GetBindValue(player.oid, nuiToken.Token));
-                  return;
               }
 
               if (nuiEvent.ElementId is null)
@@ -310,18 +234,6 @@ namespace NWN.Systems
 
               switch (nuiEvent.ElementId)
               {
-                case "genderSelection": targetCreature.Gender = genderSelection.GetBindValue(player.oid, nuiToken.Token) > 0 ? Gender.Male: Gender.Female; return;
-                case "headSelection": targetCreature.SetCreatureBodyPart(CreaturePart.Head, headSelection.GetBindValue(player.oid, nuiToken.Token)); return;
-
-                case "sizeSelection":
-                  if (float.TryParse(Utils.sizeList[sizeSelection.GetBindValue(player.oid, nuiToken.Token)].Label.Replace("x", ""), out float newScale))
-                  {
-                    targetCreature.VisualTransform.Scale = newScale;
-                    targetCreature.GetObjectVariable<PersistentVariableFloat>("_ORIGINAL_SIZE").Value = newScale;
-                  }
-
-                  return;
-
                 case "channelSelection":
 
                   string channelChoice = "hair";
@@ -340,21 +252,6 @@ namespace NWN.Systems
 
               return;
           }
-        }
-        private void HandleSelectorChange(NuiBind<int> selector, List<NuiComboEntry> list, int change)
-        {
-          selector.SetBindWatch(player.oid, nuiToken.Token, false);
-
-          int newValue = list.IndexOf(list.FirstOrDefault(p => p.Value == selector.GetBindValue(player.oid, nuiToken.Token))) + change;
-
-          if (newValue >= list.Count)
-            newValue = 0;
-
-          if (newValue < 0)
-            newValue = list.Count - 1;
-
-          selector.SetBindValue(player.oid, nuiToken.Token, list[newValue].Value);
-          selector.SetBindWatch(player.oid, nuiToken.Token, true);
         }
       }
     }

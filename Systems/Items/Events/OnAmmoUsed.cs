@@ -15,6 +15,8 @@ namespace NWN.Systems
         case BaseItemType.Arrow:
         case BaseItemType.Bolt:
         case BaseItemType.Bullet:
+        case BaseItemType.Shuriken:
+        case BaseItemType.ThrowingAxe:
           EventsPlugin.SkipEvent();
           break;
       }

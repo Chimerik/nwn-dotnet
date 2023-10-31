@@ -59,7 +59,8 @@
     public const int FlameBlade = 1366;
     public const int Thaumaturgy = 1367;
     public const int SearingSmite = 1368;
-    public const int BrandingSmite = 1367;
+    public const int BrandingSmite = 1369;
+    public const int Dodge = 1370;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -370,9 +371,10 @@
     public const int HandAxeProficiency = 20384;
     public const int WarAxeProficiency = 20385;
     public const int DwarvenAxeProficiency = 20386;
+    public const int ShurikenProficiency = 20387;
 
-    public const int HumanVersatility = 20387;
-    public const int HighElfLanguage = 20388;
+    public const int HumanVersatility = 20388;
+    public const int HighElfLanguage = 20389;
 
     public const int CalligrapheArmurierExpert = 20420;
     public const int CalligrapheBlindeur = 20421;

@@ -171,6 +171,12 @@ namespace NWN.Systems
           break;
       }
 
+      if(attackWeapon.m_nBaseItem == (uint)BaseItemType.Shuriken && creature.m_ScriptVars.GetInt(isBonusActionAvailableVariable) > 0)
+      {
+        combatRound.AddAttackOfOpportunity(targetCreature.m_idSelf);
+        creature.m_ScriptVars.SetInt(isBonusActionAvailableVariable, creature.m_ScriptVars.GetInt(isBonusActionAvailableVariable) - 1);
+      }
+         
       if (targetCreature is not null)
       {
         int advantage = CreatureUtils.GetAdvantageAgainstTarget(creature, attackData, attackWeapon, attackStat, targetCreature);

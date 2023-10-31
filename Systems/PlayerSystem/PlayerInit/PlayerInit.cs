@@ -43,6 +43,9 @@ namespace NWN.Systems
       if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Disengage)))
         player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.Disengage));
 
+      if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Dodge)))
+        player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.Dodge));
+
       player.oid.SetGuiPanelDisabled(GUIPanel.ExamineItem, true);
       player.oid.SetGuiPanelDisabled(GUIPanel.Journal, true);
       player.oid.SetGuiPanelDisabled(GUIPanel.PlayerList, true);
@@ -175,6 +178,7 @@ namespace NWN.Systems
         //oid.LoginCreature.OnSpellAction += spellSystem.HandleSpellInput;
         oid.LoginCreature.OnSpellAction += spellSystem.OnBonusActionSpell;
         oid.LoginCreature.OnSpellAction += spellSystem.HandleSpellInputBlinded;
+        oid.LoginCreature.OnSpellAction += spellSystem.OnSpellInputDodging;
         oid.LoginCreature.OnSpellAction += SpellSystem.HandleCraftOnSpellInput;
         //oid.LoginCreature.OnSpellBroadcast += spellSystem.HandleHearingSpellBroadcast;
         oid.LoginCreature.OnSpellCast += spellSystem.CheckIsDivinationBeforeSpellCast;

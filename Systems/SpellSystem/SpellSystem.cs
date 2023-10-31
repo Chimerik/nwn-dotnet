@@ -128,18 +128,6 @@ namespace NWN.Systems
 
       //HandleCastTime(onSpellAction, player);
     }
-    public void HandleSpellInputBlinded(OnSpellAction onSpellAction)
-    {
-      if (onSpellAction.TargetObject is not NwGameObject target 
-        || (!onSpellAction.Caster.ActiveEffects.Any(e => e.EffectType == EffectType.Blindness || e.EffectType == EffectType.Darkness)
-        && !target.ActiveEffects.Any(e => e.EffectType == EffectType.Darkness))
-        || target.DistanceSquared(onSpellAction.Caster) < 9)
-        return;
-
-      onSpellAction.PreventSpellCast = true;
-      string distance = "3m".ColorString(ColorConstants.White);
-      onSpellAction.Caster.LoginPlayer?.SendServerMessage($"Vous devez vous situer à moins de {distance} de cette cible pour l'atteindre", ColorConstants.Red);
-    }
     /*private static async void HandleCastTime(OnSpellAction spellAction, Player castingPlayer)
       {
         Location targetLocation = spellAction.IsAreaTarget ? Location.Create(spellAction.Caster.Area, spellAction.TargetPosition, spellAction.Caster.Rotation) : null;

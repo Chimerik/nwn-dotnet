@@ -114,6 +114,10 @@ namespace NWN.Systems
       if (onAttack.Target is not NwCreature target)
         return;
 
+      foreach(var eff in onAttack.Attacker.ActiveEffects)
+        if (eff.Tag == EffectSystem.DodgeEffectTag)
+          onAttack.Attacker.RemoveEffect(eff);
+
       NwItem weapon = onAttack.Attacker.GetItemInSlot(InventorySlot.RightHand);
 
       switch (onAttack.AttackResult)

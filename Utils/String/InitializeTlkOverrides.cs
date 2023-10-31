@@ -239,6 +239,15 @@ namespace NWN
 
       tlkEntry = StrRef.FromCustomTlk(190136);
       tlkEntry.Override = "Communication Animale";
+
+      tlkEntry = StrRef.FromCustomTlk(190151);
+      tlkEntry.Override = "Mode Esquive";
+
+      tlkEntry = StrRef.FromCustomTlk(190152);
+      tlkEntry.Override = "Vous vous concentrer uniquement sur l'esquive au détriment de toute attaque.\n\nLes jets d'attaque qui vous ciblent subissent un désavantage, vos jets de sauvegarde de dextérité ont un avantage.\n\nVous perdez cet effet i vous êtes incapable d'agir, que votre capacité de déplacement tombe à 0, que vous attaquez ou lancez un sort.";
+
+      tlkEntry = StrRef.FromCustomTlk(190153);
+      tlkEntry.Override = "Arbalète de poing";
     }
   }
 }

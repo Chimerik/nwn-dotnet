@@ -18,8 +18,15 @@ namespace NWN
         { "faerieFire", false },
       };
 
+      Dictionary<string, bool> disadvantageDictionary = new()
+      {
+        { "targetDodge", false },
+      };
+
       foreach (var eff in target.m_appliedEffects)
       {
+        disadvantageDictionary["targetDodge"] = disadvantageDictionary["targetDodge"] || GetTargetDodgingDisadvantage(eff);
+
         advantageDictionary["blinded"] = advantageDictionary["blinded"] || GetTargetBlindedAdvantage(eff);
         advantageDictionary["stunned"] = advantageDictionary["stunned"] || GetTargetStunnedAdvantage(eff);
         advantageDictionary["uncounscious"] = advantageDictionary["uncounscious"] || GetTargetUncounsciousAdvantage(eff);
@@ -30,7 +37,7 @@ namespace NWN
 
       // TODO : si la cible est sous l'effet de l'action "esquivez", l'attaquant a un désavantage
 
-      return advantageDictionary.Count(s => s.Value);
+      return -disadvantageDictionary.Count(v => v.Value) + advantageDictionary.Count(v => v.Value);
     }
   }
 }

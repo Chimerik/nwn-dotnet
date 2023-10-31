@@ -1,4 +1,6 @@
-﻿using Anvil.API;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Anvil.API;
 using NWN.Systems;
 using static NWN.Systems.SpellConfig;
 
@@ -8,24 +10,40 @@ namespace NWN
   {
     public static int GetCreatureAbilityAdvantage(NwCreature creature, SpellEntry spellEntry, SpellEffectType effectType = SpellEffectType.Invalid, NwCreature caster = null)
     {
+      Dictionary<string, bool> disadvantageDictionary = new()
+      {
+        { EffectSystem.ShieldArmorDisadvantageEffectTag, false } ,
+      };
+
+      Dictionary<string, bool> advantageDictionary = new()
+      {
+        { EffectSystem.EnlargeEffectTag, false },
+        { EffectSystem.DodgeEffectTag, false },
+      };
+
       Ability ability = spellEntry.savingThrowAbility;
       int advantage = 0;
 
       foreach (var eff in creature.ActiveEffects)
       {
+        if ((ability == Ability.Strength || ability == Ability.Dexterity)
+              && SpellUtils.HandleSpellTargetIncapacitated(caster, creature, eff.EffectType, spellEntry))
+          return -1000;
+
         switch(ability)
         {
           case Ability.Strength:
-          case Ability.Dexterity:
+            advantageDictionary[eff.Tag] = advantageDictionary[eff.Tag] || EffectSystem.EnlargeEffectTag == eff.Tag;
 
-            if (SpellUtils.HandleSpellTargetIncapacitated(caster, creature, eff.EffectType, spellEntry))
-              return -1000;
-
+            disadvantageDictionary[eff.Tag] = disadvantageDictionary[eff.Tag] || EffectSystem.ShieldArmorDisadvantageEffectTag == eff.Tag;
             break;
-        }  
-          
 
-        advantage += GetAbilityAdvantageFromEffect(ability, eff.Tag);
+          case Ability.Dexterity:
+            advantageDictionary[eff.Tag] = advantageDictionary[eff.Tag] || EffectSystem.DodgeEffectTag == eff.Tag;
+
+            disadvantageDictionary[eff.Tag] = disadvantageDictionary[eff.Tag] || EffectSystem.ShieldArmorDisadvantageEffectTag == eff.Tag;
+            break;
+        }
       }
 
       switch(ability)
@@ -49,7 +67,7 @@ namespace NWN
             || creature.Race.Id == CustomRace.StrongheartHalfling)
             advantage += 1;
 
-          return advantage;
+          break;
 
         case SpellEffectType.Charm:
 
@@ -58,7 +76,7 @@ namespace NWN
             || creature.Race.Id == CustomRace.Duergar)
             advantage += 1;
 
-          return advantage;
+          break;
 
         case SpellEffectType.Fear:
         case SpellEffectType.Terror:
@@ -66,7 +84,7 @@ namespace NWN
           if (creature.Race.Id == CustomRace.StrongheartHalfling || creature.Race.Id == CustomRace.LightfootHalfling)
             advantage += 1;
 
-          return advantage;
+          break;
 
         case SpellEffectType.Paralysis:
         case SpellEffectType.Illusion:
@@ -74,11 +92,10 @@ namespace NWN
           if (creature.Race.Id == CustomRace.Duergar)
             advantage += 1;
 
-          return advantage;
-
+          break;
       }
 
-      return advantage;
+      return -disadvantageDictionary.Count(v => v.Value) + advantageDictionary.Count(v => v.Value) + advantage;
     }
   }
 }

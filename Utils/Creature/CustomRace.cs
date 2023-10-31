@@ -5,9 +5,10 @@ namespace NWN
   public class CustomRace
   {
     public const int Dwarf = (int)RacialType.Dwarf;
-    public const int Elf = (int)RacialType.Gnome;
+    public const int Elf = (int)RacialType.Elf;
+    public const int Gnome = (int)RacialType.Gnome;
     public const int Halfling = (int)RacialType.Halfling;
-    public const int HalfElf = (int)RacialType.Halfling;
+    public const int HalfElf = (int)RacialType.HalfElf;
     public const int HalfOrc = (int)RacialType.HalfOrc;
     public const int Human = (int)RacialType.Human;
     public const int Aberration = (int)RacialType.Aberration;

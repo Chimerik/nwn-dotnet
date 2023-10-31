@@ -405,8 +405,8 @@ namespace NWN.Systems
       EventsPlugin.AddIDToWhitelist("NWNX_ON_HAS_FEAT", (int)Feat.Ambidexterity);
 
       EventsPlugin.SubscribeEvent("NWNX_ON_CALENDAR_DUSK", "remov_drowsensi");
-      EventsPlugin.SubscribeEvent("NWNX_ON_CALENDAR_DUSK", "apply_drow_sensi");
-
+      EventsPlugin.SubscribeEvent("NWNX_ON_CALENDAR_DAWN", "apply_drow_sensi");
+      
       // ImprovedTwoWeaponFighting donne une attaque supplémentaire avec l'off-hand pour une pénalité de -5 BA. A voir dans le cas de Thief qui dual fight avec 2 actions bonus
       //EventsPlugin.AddIDToWhitelist("NWNX_ON_HAS_FEAT", (int)Feat.ImprovedTwoWeaponFighting);
 
@@ -421,13 +421,9 @@ namespace NWN.Systems
       NwModule.Instance.OnCombatStatusChange += PlayerSystem.OnCombatEndRestoreDuergarInvisibility;
 
       NwModule.Instance.OnEffectApply += EffectSystem.OnIncapacitatedRemoveThreatRange;
-      NwModule.Instance.OnEffectRemove += EffectSystem.OnRecoveryAddThreatRange;
-      NwModule.Instance.OnEffectRemove += EffectSystem.OnRemoveConcentration;
       NwModule.Instance.OnEffectApply += EffectSystem.OnIncapacitatedRemoveConcentration;
-      NwModule.Instance.OnEffectRemove += EffectSystem.OnRemoveBoneChill;
-      NwModule.Instance.OnEffectRemove += EffectSystem.OnRemoveFaerieFire;
-      NwModule.Instance.OnEffectRemove += EffectSystem.OnRemoveEnlarge;
-      //NwModule.Instance.OnEffectApply += OnPlayerEffectApplied;
+
+      NwModule.Instance.OnEffectRemove += EffectSystem.OnEffectRemoved;
     }
     private static void SetModuleTime()
     {
@@ -643,46 +639,46 @@ namespace NWN.Systems
         string search = i.ToString().PadLeft(3, '0');
 
         if (NWScript.ResManGetAliasFor($"pMD0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
-          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Dwarf && h.gender == Gender.Male).heads.Add(new NuiComboEntry(i.ToString(), i));
+          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Dwarf && h.gender == Gender.Male).heads.Add(new NuiComboEntry($"Tête : {i}", i));
 
         if (NWScript.ResManGetAliasFor($"pFD0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
-          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Dwarf && h.gender == Gender.Female).heads.Add(new NuiComboEntry(i.ToString(), i));
+          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Dwarf && h.gender == Gender.Female).heads.Add(new NuiComboEntry($"Tête : {i}", i));
 
         if (NWScript.ResManGetAliasFor($"pME0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
-          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Elf && h.gender == Gender.Male).heads.Add(new NuiComboEntry(i.ToString(), i));
+          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Elf && h.gender == Gender.Male).heads.Add(new NuiComboEntry($"Tête : {i}", i));
 
         if (NWScript.ResManGetAliasFor($"pFE0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
-          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Elf && h.gender == Gender.Female).heads.Add(new NuiComboEntry(i.ToString(), i));
+          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Elf && h.gender == Gender.Female).heads.Add(new NuiComboEntry($"Tête : {i}", i));
 
         if (NWScript.ResManGetAliasFor($"pMG0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
-          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Gnome && h.gender == Gender.Male).heads.Add(new NuiComboEntry(i.ToString(), i));
+          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Gnome && h.gender == Gender.Male).heads.Add(new NuiComboEntry($"Tête : {i}", i));
 
         if (NWScript.ResManGetAliasFor($"pFG0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
-          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Gnome && h.gender == Gender.Female).heads.Add(new NuiComboEntry(i.ToString(), i));
+          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Gnome && h.gender == Gender.Female).heads.Add(new NuiComboEntry($"Tête : {i}", i));
 
         if (NWScript.ResManGetAliasFor($"pMA0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
-          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Halfling && h.gender == Gender.Male).heads.Add(new NuiComboEntry(i.ToString(), i));
+          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Halfling && h.gender == Gender.Male).heads.Add(new NuiComboEntry($"Tête : {i}", i));
 
         if (NWScript.ResManGetAliasFor($"pFA0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
-          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Halfling && h.gender == Gender.Female).heads.Add(new NuiComboEntry(i.ToString(), i));
+          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Halfling && h.gender == Gender.Female).heads.Add(new NuiComboEntry($"Tête : {i}", i));
 
         if (NWScript.ResManGetAliasFor($"pMH0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
         {
-          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Human && h.gender == Gender.Male).heads.Add(new NuiComboEntry(i.ToString(), i));
-          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.HalfElf && h.gender == Gender.Male).heads.Add(new NuiComboEntry(i.ToString(), i));
+          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Human && h.gender == Gender.Male).heads.Add(new NuiComboEntry($"Tête : {i}", i));
+          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.HalfElf && h.gender == Gender.Male).heads.Add(new NuiComboEntry($"Tête : {i}", i));
         }
 
         if (NWScript.ResManGetAliasFor($"pFH0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
         {
-          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Human && h.gender == Gender.Female).heads.Add(new NuiComboEntry(i.ToString(), i));
-          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.HalfElf && h.gender == Gender.Female).heads.Add(new NuiComboEntry(i.ToString(), i));
+          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Human && h.gender == Gender.Female).heads.Add(new NuiComboEntry($"Tête : {i}", i));
+          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.HalfElf && h.gender == Gender.Female).heads.Add(new NuiComboEntry($"Tête : {i}", i));
         }
 
         if (NWScript.ResManGetAliasFor($"pMO0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
-          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.HalfOrc && h.gender == Gender.Male).heads.Add(new NuiComboEntry(i.ToString(), i));
+          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.HalfOrc && h.gender == Gender.Male).heads.Add(new NuiComboEntry($"Tête : {i}", i));
 
         if (NWScript.ResManGetAliasFor($"pFO0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
-          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.HalfOrc && h.gender == Gender.Female).heads.Add(new NuiComboEntry(i.ToString(), i));
+          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.HalfOrc && h.gender == Gender.Female).heads.Add(new NuiComboEntry($"Tête : {i}", i));
       }
     }
     private void OnPlayerEffectApplied(OnEffectApply effectApplied)
@@ -738,7 +734,7 @@ namespace NWN.Systems
         Utils.movementRateList.Add(new NuiComboEntry(movement.ToString(), (int)movement));
      
       for (int i = 0; i < 51; i++)
-        Utils.sizeList.Add(new NuiComboEntry($"x{((float)(i + 75)) / 100}", i));
+        Utils.sizeList.Add(new NuiComboEntry($"Taille : x{((float)(i + 75)) / 100}", i));
       
       for (int i = 0; i < 256; i++)
       {

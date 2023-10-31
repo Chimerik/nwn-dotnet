@@ -22,6 +22,10 @@ namespace NWN.Systems
           HellishRebuke(onUseFeat.Creature);
           onUseFeat.PreventFeatUse = true;
           return;
+
+        case CustomSkill.Sprint: onUseFeat.Creature.ApplyEffect(EffectDuration.Temporary, EffectSystem.sprintEffect, NwTimeSpan.FromRounds(2)); return;
+        case CustomSkill.Disengage: onUseFeat.Creature.ApplyEffect(EffectDuration.Temporary, EffectSystem.disengageEffect, NwTimeSpan.FromRounds(2)); return;
+        case CustomSkill.Dodge: Dodge(onUseFeat.Creature); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

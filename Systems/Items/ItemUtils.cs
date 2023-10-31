@@ -2418,9 +2418,12 @@ namespace NWN.Systems
           featList.Add((int)Feat.WeaponProficiencyMartial);
           featList.Add(CustomSkill.LongBowProficiency);
           break;
+        case BaseItemType.Shuriken:
+          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.ShurikenProficiency);
+          break;
         case BaseItemType.Bastardsword:
         case BaseItemType.Scythe:
-        case BaseItemType.Shuriken:
         case BaseItemType.DireMace:
         case BaseItemType.Doubleaxe:
         case BaseItemType.DwarvenWaraxe:

@@ -49,7 +49,7 @@ namespace NWN.Systems
     }
     public static void OnRemoveConcentration(OnEffectRemove onEffect)
     {
-      if (!onEffect.Effect.IsValid || onEffect.Effect.Tag != ConcentrationEffectTag || onEffect.Effect.EffectType != EffectType.RunScript)
+      if(onEffect.Effect.EffectType != EffectType.RunScript)
         return;
 
       int i = 1;

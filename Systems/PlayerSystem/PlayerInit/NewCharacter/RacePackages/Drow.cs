@@ -25,6 +25,11 @@ namespace NWN.Systems
 
         learnableSkills[CustomSkill.ShortSwordProficiency].source.Add(Category.Race);
 
+        if (learnableSkills.TryAdd(CustomSkill.ShurikenProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ShurikenProficiency])))
+          learnableSkills[CustomSkill.ShurikenProficiency].LevelUp(this);
+
+        learnableSkills[CustomSkill.ShurikenProficiency].source.Add(Category.Race);
+
         if (learnableSkills.TryAdd(CustomSkill.LightDrow, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.LightDrow])))
           learnableSkills[CustomSkill.LightDrow].LevelUp(this);
 

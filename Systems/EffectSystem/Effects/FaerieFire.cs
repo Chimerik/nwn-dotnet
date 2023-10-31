@@ -32,12 +32,5 @@ namespace NWN.Systems
           return;
         }
     }
-    public static void OnRemoveFaerieFire(OnEffectRemove onEffect)
-    {
-      if (!onEffect.Effect.IsValid || onEffect.Effect.Tag != faerieFireEffectTag || onEffect.Object is not NwGameObject target)
-        return;
-
-      target.OnEffectApply -= CheckFaerieFire;
-    }
   }
 }

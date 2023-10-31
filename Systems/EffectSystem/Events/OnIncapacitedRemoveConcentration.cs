@@ -11,6 +11,15 @@ namespace NWN.Systems
         return;
 
       SpellUtils.DispelConcentrationEffects(creature);
+
+      foreach (var eff in creature.ActiveEffects)
+      {
+        if (eff.Tag == DisengageffectTag || eff.Tag == SprintEffectTag)
+          continue;
+
+        if (eff.Tag == DodgeEffectTag)
+          creature.RemoveEffect(eff);
+      }
     }
   }
 }
