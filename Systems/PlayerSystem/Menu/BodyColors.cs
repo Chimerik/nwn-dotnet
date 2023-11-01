@@ -210,8 +210,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.ContainsKey("introLearnables")) player.windows.Add("introLearnables", new IntroLearnableWindow(player));
-                  else ((IntroLearnableWindow)player.windows["introLearnables"]).CreateWindow();
+                  if (!player.windows.ContainsKey("introAbilities")) player.windows.Add("introAbilities", new IntroAbilitiesWindow(player));
+                  else ((IntroAbilitiesWindow)player.windows["introAbilities"]).CreateWindow();
 
                   return;
 

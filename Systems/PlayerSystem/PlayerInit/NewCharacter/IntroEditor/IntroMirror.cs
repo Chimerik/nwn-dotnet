@@ -49,7 +49,7 @@ namespace NWN.Systems
              new NuiTextEdit("Prénom", prenom, 15, false) { Width = 120 },
              new NuiTextEdit("Nom", name, 15, false) { Width = 120 },
              new NuiCombo(){ Entries = new List<NuiComboEntry> { new NuiComboEntry("Féminin", 1), new NuiComboEntry("Masculin", 0) }, Selected = genderSelection, Width = 100, Margin = 0.0f },
-             new NuiCombo(){ Entries = voiceList, Selected = voiceSelection, Width = 155, Margin = 0.0f },
+             new NuiCombo(){ Entries = voiceList, Selected = voiceSelection, Width = 160, Margin = 0.0f },
           } });
 
           rootChildren.Add(new NuiRow() { Margin = 0.0f, Children = new List<NuiElement>()
@@ -170,8 +170,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.ContainsKey("introLearnables")) player.windows.Add("introLearnables", new IntroLearnableWindow(player));
-                  else ((IntroLearnableWindow)player.windows["introLearnables"]).CreateWindow();
+                  if (!player.windows.ContainsKey("introAbilities")) player.windows.Add("introAbilities", new IntroAbilitiesWindow(player));
+                  else ((IntroAbilitiesWindow)player.windows["introAbilities"]).CreateWindow();
 
                   break;
 

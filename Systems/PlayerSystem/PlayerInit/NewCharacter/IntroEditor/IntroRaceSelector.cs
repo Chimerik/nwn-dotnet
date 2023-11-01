@@ -87,7 +87,7 @@ namespace NWN.Systems
           selectedRace = null;
 
           NuiRect savedRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(player.guiWidth * 0.2f, player.guiHeight * 0.05f, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f);
-          window = new NuiWindow(rootColumn, "Choisissez votre race")
+          window = new NuiWindow(rootColumn, "Votre reflet - Choississez votre race")
           {
             Geometry = geometry,
             Closable = true,
@@ -261,8 +261,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.ContainsKey("introLearnables")) player.windows.Add("introLearnables", new IntroLearnableWindow(player));
-                  else ((IntroLearnableWindow)player.windows["introLearnables"]).CreateWindow();
+                  if (!player.windows.ContainsKey("introAbilities")) player.windows.Add("introAbilities", new IntroAbilitiesWindow(player));
+                  else ((IntroAbilitiesWindow)player.windows["introAbilities"]).CreateWindow();
                   
                   return;
               }
