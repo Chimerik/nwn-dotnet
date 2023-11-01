@@ -12,9 +12,7 @@ namespace NWN.Systems
         LogUtils.LogMessage($"{oid.PlayerName} vient de créer un nouveau personnage : {oid.LoginCreature.Name}", LogUtils.LogType.PlayerConnections);
 
         oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION").Value = 1;
-        oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_NAME").Value = 1;
         oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_RACE").Value = 1;
-        oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_GENDER").Value = 1;
         oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_PORTRAIT").Value = 1;
         oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_APPEARANCE").Value = 1;
         oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_ORIGIN").Value = 1;
@@ -28,7 +26,7 @@ namespace NWN.Systems
         for (int i = 0; i < 6; i++)
         {
           oid.LoginCreature.GetObjectVariable<PersistentVariableInt>($"_CHARACTER_SET_ABILITY_{i}").Value = 8;
-          oid.LoginCreature.SetsRawAbilityScore((Ability)i, 10);
+          oid.LoginCreature.SetsRawAbilityScore((Ability)i, 8);
         }
 
         Utils.DestroyInventory(oid.LoginCreature);

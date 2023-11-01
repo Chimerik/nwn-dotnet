@@ -40,9 +40,10 @@ namespace NWN.Systems
             new NuiListTemplateCell(new NuiSpacer()),
             new NuiListTemplateCell(new NuiButtonImage(icon)) { Width = 40 },
             new NuiListTemplateCell(new NuiLabel(abilityName) { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }) { Width = 120 },
-            new NuiListTemplateCell(new NuiButton("<") { Id = "abilityDecrease", Margin = 0.0f }) { Width = 40 },
+            new NuiListTemplateCell(new NuiButton("<") { Id = "abilityDecrease" }) { Width = 40 },
             new NuiListTemplateCell(new NuiLabel(abilityLevel) { Margin = 0.0f, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }) { Width = 40 },
-            new NuiListTemplateCell(new NuiButton(">") { Id = "abilityIncrease", Margin = 0.0f }) { Width = 40 },
+            new NuiListTemplateCell(new NuiButton(">") { Id = "abilityIncrease" }) { Width = 40 },
+            new NuiListTemplateCell(new NuiSpacer()),
             new NuiListTemplateCell(new NuiCheck("", bonus2Checked) { Tooltip = "Attribuer le bonus de +2 à cette caractéristique", Margin = 0.0f }) { Width = 40 },
             new NuiListTemplateCell(new NuiCheck("", bonus1Checked) { Tooltip = "Attribuer le bonus de +1 à cette caractéristique", Margin = 0.0f }) { Width = 40 },
             new NuiListTemplateCell(new NuiSpacer())
@@ -257,7 +258,7 @@ namespace NWN.Systems
           int mainBonus = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_CHARACTER_CHOSEN_MAIN_BONUS").Value;
           int secondaryBonus = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_CHARACTER_CHOSEN_SECONDARY_BONUS").Value;
 
-          availableStats.SetBindValue(player.oid, nuiToken.Token, player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_CHARACTER_REMAINING_ABILITY_POINTS").Value.ToString());
+          availableStats.SetBindValue(player.oid, nuiToken.Token, $"Points à dépenser : {player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_CHARACTER_REMAINING_ABILITY_POINTS").Value}");
 
           for (int i = 0; i < 6; i++)
           {

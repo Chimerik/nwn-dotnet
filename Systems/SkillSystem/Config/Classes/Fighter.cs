@@ -7,6 +7,18 @@ namespace NWN.Systems
 {
   public static class Fighter
   {
+    public static readonly List<int> availableSkills = new() 
+    { 
+      CustomSkill.AcrobaticsProficiency, 
+      CustomSkill.AnimalHandlingProficiency, 
+      CustomSkill.AthleticsProficiency, 
+      CustomSkill.HistoryProficiency,
+      CustomSkill.InsightProficiency,
+      CustomSkill.IntimidationProficiency,
+      CustomSkill.PerceptionProficiency,
+      CustomSkill.SurvivalProficiency
+    };
+
     private static readonly StartingPackage startingPackage = new(
       new List<Learnable>()
       { 
@@ -69,8 +81,10 @@ namespace NWN.Systems
             player.oid.LoginCreature.LevelUp(NwClass.FromClassType(ClassType.Fighter), 1);
 
           // On donne les autres capacités de niveau 1
-          if (player.learnableSkills.TryAdd(CustomSkill.FighterSecondWind, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterSecondWind], (int)SkillSystem.Category.Class)))
+           if (player.learnableSkills.TryAdd(CustomSkill.FighterSecondWind, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterSecondWind])))
             player.learnableSkills[CustomSkill.FighterSecondWind].LevelUp(player);
+
+          player.learnableSkills[CustomSkill.FighterSecondWind].source.Add(Category.Class);
 
           // TODO : Donner le choix d'une style de combat
 
@@ -96,6 +110,7 @@ namespace NWN.Systems
           break;
       }
 
+      player.RollClassHitDie(customSkillId, CustomClass.Fighter);
       player.GiveRacialBonusOnLevelUp();
 
       return true;

@@ -107,6 +107,8 @@ namespace NWN.Systems
         oPC.LoginCreature.RunEquip(rags, InventorySlot.Chest);
         oPC.LoginCreature.Location = ((NwWaypoint)NwObject.FindObjectsWithTag("WP_START_NEW_CHAR").FirstOrDefault()).Location;
 
+        oPC.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION").Delete();
+
         await NwTask.WaitUntil(() => oPC.LoginCreature.Location.Area != null);
         await oPC.LoginCreature.PlayAnimation(Animation.LoopingDeadBack, 1, true, TimeSpan.FromSeconds(99999999));
 

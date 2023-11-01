@@ -233,12 +233,14 @@ namespace NWN.Systems
                   
                   player.oid.LoginCreature.OriginalFirstName = prenom.GetBindValue(player.oid, nuiToken.Token);
                   player.oid.LoginCreature.Name = $"{player.oid.LoginCreature.OriginalFirstName} {player.oid.LoginCreature.OriginalLastName}";
+                  player.oid.LoginCreature.Area.Name = $"La galère de {player.oid.LoginCreature.Name}";
                   break;
 
                 case "name": 
                   
                   player.oid.LoginCreature.OriginalLastName = name.GetBindValue(player.oid, nuiToken.Token);
                   player.oid.LoginCreature.Name = $"{player.oid.LoginCreature.OriginalFirstName} {player.oid.LoginCreature.OriginalLastName}";
+                  player.oid.LoginCreature.Area.Name = $"La galère de {player.oid.LoginCreature.Name}";
                   break;
 
                 case "description": player.oid.LoginCreature.Description = description.GetBindValue(player.oid, nuiToken.Token); break;
