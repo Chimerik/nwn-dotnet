@@ -31,10 +31,10 @@ namespace NWN.Systems
 
         if (bonusSelection > -1)
         {
-          if (learnableSkills.TryAdd(Utils.skillList[bonusSelection].Value, new LearnableSkill((LearnableSkill)learnableDictionary[Utils.skillList[bonusSelection].Value])))
-            learnableSkills[Utils.skillList[bonusSelection].Value].LevelUp(this);
+          if (learnableSkills.TryAdd(bonusSelection, new LearnableSkill((LearnableSkill)learnableDictionary[bonusSelection])))
+            learnableSkills[bonusSelection].LevelUp(this);
 
-          learnableSkills[Utils.skillList[bonusSelection].Value].source.Add(Category.Race);
+          learnableSkills[bonusSelection].source.Add(Category.Race);
         }
         
         oid.LoginCreature.OnAcquireItem -= ItemSystem.OnAcquireCheckHumanVersatility;

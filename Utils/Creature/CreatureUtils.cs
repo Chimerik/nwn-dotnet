@@ -16,7 +16,8 @@ namespace NWN
   {
     public const string ReactionVariable = "_REACTION";
     public const string BonusActionVariable = "_BONUS_ACTION";
-    public static Dictionary<string, NwCreature> creatureSpawnDictionary = new();
+    public const string OriginalSizeVariable = "_ORIGINAL_SIZE";
+    public readonly static Dictionary<string, NwCreature> creatureSpawnDictionary = new();
     public static void OnMobPerception(CreatureEvents.OnPerception onPerception)
     {
       if (!onPerception.Creature.IsEnemy(onPerception.PerceivedCreature) || onPerception.Creature.IsInCombat)
@@ -162,18 +163,6 @@ namespace NWN
         11 or 12 or 13 or 14 or 15 or 16 => 8,
         17 or 18 or 19 or 20 or 21 or 22 => 10,
         _ => 1,
-      };
-    }
-    public static int OverrideSizeAttackAndACBonus(Native.API.CNWSCreature attacker)
-    {
-      return (CreatureSize)attacker.m_nCreatureSize switch
-      {
-        CreatureSize.Tiny => -2,
-        CreatureSize.Small => -1,
-        CreatureSize.Medium => 0,
-        CreatureSize.Large => 1,
-        CreatureSize.Huge => 2,
-        _ => 0,
       };
     }
     public static async void TestGetInvi(Native.API.CNWSCreature attacker, Native.API.CNWSCreature target)

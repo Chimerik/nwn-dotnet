@@ -45,7 +45,7 @@ namespace NWN.Systems
         learnableSkills[CustomSkill.ShortBowProficiency].source.Add(Category.Race);
 
         if (bonusSelection > -1)
-        {        
+        {
           NwFeat feat = NwSpell.FromSpellId(bonusSelection).FeatReference;
           if (learnableSkills.TryAdd(feat.Id, new LearnableSkill((LearnableSkill)learnableDictionary[feat.Id])))
             learnableSkills[feat.Id].LevelUp(this);

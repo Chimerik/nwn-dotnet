@@ -24,7 +24,7 @@ namespace NWN.Systems
         private readonly NuiBind<string> portraits7 = new("portraits7");
 
         private readonly NuiBind<int> listCount = new("listCount");
-
+        private string portraitResRef;
 
         public IntroPortraitWindow(Player player) : base(player)
         {
@@ -91,6 +91,15 @@ namespace NWN.Systems
 
               switch (nuiEvent.ElementId)
               {
+                case "welcome":
+
+                  CloseWindow();
+
+                  if (!player.windows.ContainsKey("bodyAppearanceModifier")) player.windows.Add("bodyAppearanceModifier", new IntroMirrorWindow(player));
+                  else ((IntroMirrorWindow)player.windows["bodyAppearanceModifier"]).CreateWindow();
+
+                  return;
+
                 case "beauty":
 
                   CloseWindow();
@@ -137,45 +146,88 @@ namespace NWN.Systems
                   break;
 
                 case "portraitSelect1":
-                  player.oid.LoginCreature.PortraitResRef = portraits1.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex];
-                  player.oid.LoginCreature.PortraitResRef = player.oid.LoginCreature.PortraitResRef.Remove(player.oid.LoginCreature.PortraitResRef.Length - 1);
-                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_PORTRAIT").Delete();
+
+                  portraitResRef = portraits1.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex];
+                  
+                  if (!string.IsNullOrEmpty(portraitResRef))
+                  {
+                    player.oid.LoginCreature.PortraitResRef = portraitResRef.Remove(portraitResRef.Length - 1);
+                    player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_PORTRAIT").Delete();
+                  }
+
                   break;
 
                 case "portraitSelect2":
-                  player.oid.LoginCreature.PortraitResRef = portraits2.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex];
-                  player.oid.LoginCreature.PortraitResRef = player.oid.LoginCreature.PortraitResRef.Remove(player.oid.LoginCreature.PortraitResRef.Length - 1);
-                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_PORTRAIT").Delete();
+                  
+                    portraitResRef = portraits2.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex];
+
+                  if (!string.IsNullOrEmpty(portraitResRef))
+                  {
+                    player.oid.LoginCreature.PortraitResRef = portraitResRef.Remove(portraitResRef.Length - 1);
+                    player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_PORTRAIT").Delete();
+                  }
                   break;
 
                 case "portraitSelect3":
-                  player.oid.LoginCreature.PortraitResRef = portraits3.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex];
-                  player.oid.LoginCreature.PortraitResRef = player.oid.LoginCreature.PortraitResRef.Remove(player.oid.LoginCreature.PortraitResRef.Length - 1);
-                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_PORTRAIT").Delete();
+
+                  portraitResRef = portraits1.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex];
+
+                  if (!string.IsNullOrEmpty(portraitResRef))
+                  {
+                    player.oid.LoginCreature.PortraitResRef = portraitResRef.Remove(portraitResRef.Length - 1);
+                    player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_PORTRAIT").Delete();
+                  }
+                  
                   break;
 
                 case "portraitSelect4":
-                  player.oid.LoginCreature.PortraitResRef = portraits4.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex];
-                  player.oid.LoginCreature.PortraitResRef = player.oid.LoginCreature.PortraitResRef.Remove(player.oid.LoginCreature.PortraitResRef.Length - 1);
-                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_PORTRAIT").Delete();
+
+                  portraitResRef = portraits4.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex];
+
+                  if (!string.IsNullOrEmpty(portraitResRef))
+                  {
+                    player.oid.LoginCreature.PortraitResRef = portraitResRef.Remove(portraitResRef.Length - 1);
+                    ModuleSystem.Log.Info(player.oid.LoginCreature.PortraitResRef);
+                    player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_PORTRAIT").Delete();
+                  }
+                  
                   break;
 
                 case "portraitSelect5":
-                  player.oid.LoginCreature.PortraitResRef = portraits5.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex];
-                  player.oid.LoginCreature.PortraitResRef = player.oid.LoginCreature.PortraitResRef.Remove(player.oid.LoginCreature.PortraitResRef.Length - 1);
-                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_PORTRAIT").Delete();
+
+                  portraitResRef = portraits5.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex];
+
+                  if (!string.IsNullOrEmpty(portraitResRef))
+                  {
+                    player.oid.LoginCreature.PortraitResRef = portraitResRef.Remove(portraitResRef.Length - 1);
+                    ModuleSystem.Log.Info(player.oid.LoginCreature.PortraitResRef);
+                    player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_PORTRAIT").Delete();
+                  }
+
                   break;
 
                 case "portraitSelect6":
-                  player.oid.LoginCreature.PortraitResRef = portraits6.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex];
-                  player.oid.LoginCreature.PortraitResRef = player.oid.LoginCreature.PortraitResRef.Remove(player.oid.LoginCreature.PortraitResRef.Length - 1);
-                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_PORTRAIT").Delete();
+
+                  portraitResRef = portraits6.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex];
+
+                  if (!string.IsNullOrEmpty(portraitResRef))
+                  {
+                    player.oid.LoginCreature.PortraitResRef = portraitResRef.Remove(portraitResRef.Length - 1);
+                    player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_PORTRAIT").Delete();
+                  }
+
                   break;
 
                 case "portraitSelect7":
-                  player.oid.LoginCreature.PortraitResRef = portraits7.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex];
-                  player.oid.LoginCreature.PortraitResRef = player.oid.LoginCreature.PortraitResRef.Remove(player.oid.LoginCreature.PortraitResRef.Length - 1);
-                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_PORTRAIT").Delete();
+
+                  portraitResRef = portraits7.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex];
+
+                  if (!string.IsNullOrEmpty(portraitResRef))
+                  {
+                    player.oid.LoginCreature.PortraitResRef = portraitResRef.Remove(portraitResRef.Length - 1);
+                    player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_PORTRAIT").Delete();
+                  }
+
                   break;
               }
 
@@ -185,7 +237,20 @@ namespace NWN.Systems
         private void UpdatePortraitList()
         {
           List<string>[] portraitList = new List<string>[] { new(), new(), new(), new(), new(), new(), new() };
-          List<string> portraitTable = Portraits2da.portraitFilteredEntries[GetBaseRaceIdFromCustomRace((int)player.oid.LoginCreature.Race.Id), (int)player.oid.LoginCreature.Gender];
+          List<string> portraitTable = new();
+
+          if (Portraits2da.playerCustomPortraits.ContainsKey(player.oid.PlayerName))
+            portraitTable.AddRange(Portraits2da.playerCustomPortraits[player.oid.PlayerName]);
+
+          int baseRaceId = GetBaseRaceIdFromCustomRace(player.oid.LoginCreature.Race.Id);
+
+          portraitTable.AddRange(Portraits2da.portraitFilteredEntries[baseRaceId, (int)player.oid.LoginCreature.Gender]);
+
+          if(baseRaceId == CustomRace.HalfElf)
+          {
+            portraitTable.AddRange(Portraits2da.portraitFilteredEntries[CustomRace.Human, (int)player.oid.LoginCreature.Gender]);
+            portraitTable.AddRange(Portraits2da.portraitFilteredEntries[CustomRace.Elf, (int)player.oid.LoginCreature.Gender]);
+          }
 
           if (portraitTable != null)
             for (int i = 0; i < portraitTable.Count; i += 7)

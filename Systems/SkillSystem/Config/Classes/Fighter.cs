@@ -50,12 +50,14 @@ namespace NWN.Systems
 
     public static bool LevelUp(PlayerSystem.Player player, int customSkillId)
     {
-      switch(player.learnableSkills[customSkillId].currentLevel)
+      LearnableSkill playerClass = player.learnableSkills[customSkillId];
+
+      switch(playerClass.currentLevel)
       {
         case 1:
 
           // Si c'est le tout premier niveau, on donne le starting package
-          if (player.oid.LoginCreature.Classes[0]?.Class.ClassType == (ClassType)43)
+          if (player.oid.LoginCreature.Level < 2)
           {
             foreach (Learnable learnable in startingPackage.freeLearnables)
             {
@@ -65,20 +67,16 @@ namespace NWN.Systems
               player.learnableSkills[learnable.id].source.Add(Category.Class);
             }
 
-
-
             foreach (Learnable learnable in startingPackage.learnables)
             {
               player.learnableSkills.TryAdd(learnable.id, new LearnableSkill((LearnableSkill)learnable));
               player.learnableSkills[learnable.id].source.Add(Category.Class);
             }
 
-            // TODO : Demander de choisir deux skills parmi la liste
-
             CreaturePlugin.SetClassByPosition(player.oid.LoginCreature, 0, (int)ClassType.Fighter);
           }
           else
-            player.oid.LoginCreature.LevelUp(NwClass.FromClassType(ClassType.Fighter), 1);
+            CreaturePlugin.SetClassByPosition(player.oid.LoginCreature, player.oid.LoginCreature.Classes.Count, (int)ClassType.Fighter);
 
           // On donne les autres capacités de niveau 1
            if (player.learnableSkills.TryAdd(CustomSkill.FighterSecondWind, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterSecondWind])))
@@ -86,13 +84,16 @@ namespace NWN.Systems
 
           player.learnableSkills[CustomSkill.FighterSecondWind].source.Add(Category.Class);
 
-          // TODO : Donner le choix d'une style de combat
+          int chosenStyle = player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CHOSEN_FIGHTER_STYLE").Value;
+
+          if (player.learnableSkills.TryAdd(chosenStyle, new LearnableSkill((LearnableSkill)learnableDictionary[chosenStyle])))
+            player.learnableSkills[chosenStyle].LevelUp(player);
+
+          player.learnableSkills[chosenStyle].source.Add(Category.Class);
 
           break;
 
         case 2:
-
-          player.oid.LoginCreature.LevelUp(NwClass.FromClassType(ClassType.Fighter), 1);
 
           if (player.learnableSkills.TryAdd(CustomSkill.FighterSurge, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterSurge])))
             player.learnableSkills[CustomSkill.FighterSurge].LevelUp(player);
@@ -103,17 +104,42 @@ namespace NWN.Systems
 
         case 3:
 
-          player.oid.LoginCreature.LevelUp(NwClass.FromClassType(ClassType.Fighter), 1);
-
           // TODO : Donner le choix d'un archétype martial
 
           break;
+      }
+
+      if(playerClass.currentLevel > 1)
+      {
+        int classPosition = GetFighterClassPosition(player);
+
+        if (classPosition < 0)
+          LogUtils.LogMessage($"LEVEL UP ERROR - {player.oid.LoginCreature.Name} ({player.oid.PlayerName}) - Impossible de trouver la classe Guerrier - Level up {playerClass.currentLevel}", LogUtils.LogType.PlayerSaveSystem);
+        else
+          CreaturePlugin.SetLevelByPosition(player.oid.LoginCreature, classPosition, playerClass.currentLevel);
       }
 
       player.RollClassHitDie(customSkillId, CustomClass.Fighter);
       player.GiveRacialBonusOnLevelUp();
 
       return true;
+    }
+
+    private static int GetFighterClassPosition(PlayerSystem.Player player)
+    {
+      for (int i = 0; i < player.oid.LoginCreature.Classes.Count; i++)
+      {
+        switch (player.oid.LoginCreature.Classes[i].Class.Id)
+        {
+          case CustomClass.Fighter:
+          case CustomClass.Warmaster:
+          case CustomClass.Champion:
+          case CustomClass.EldritchKnight:
+          case CustomClass.ArcaneArcher: return i;
+        }
+      }
+
+      return -1;
     }
   }
 }

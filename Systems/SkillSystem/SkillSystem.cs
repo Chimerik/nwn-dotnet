@@ -31,7 +31,11 @@ namespace NWN.Systems
       [Description("Race")]
       Race,
       [Description("Compétence")]
-      Skill
+      Skill,
+      [Description("Style_de_combat")]
+      FightingStyle,
+      [Description("Dons")]
+      Feat
     }
 
     public static readonly Dictionary<int, Learnable> learnableDictionary = new();
@@ -157,7 +161,7 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomSkill.FailedMerchant, new LearnableSkill(CustomSkill.FailedMerchant, "Marchand ruiné", "", Category.StartingTraits, "ruined_merchant", 1, 1, Ability.Intelligence, Ability.Constitution, HandleMerchantBackground, "1-2AuXuxSW1PICZWicsGUcb8Sgh_rGTVUYc6eT2zWJO8"));
       learnableDictionary.Add(CustomSkill.Taken, new LearnableSkill(CustomSkill.Taken, "Captif", "", Category.StartingTraits, "Captif", 1, 1, Ability.Constitution, Ability.Dexterity, HandleTakenBackground, "16_6ygOZjsfJF7Ngk5VZ9gSK_nlAz7kqy5-sSDlVVPxw"));
       learnableDictionary.Add(CustomSkill.Heir, new LearnableSkill(CustomSkill.Heir, "Héritier", "", Category.StartingTraits, "heir", 1, 1, Ability.Charisma, Ability.Constitution, HandleScionBackground, "1_D4_FywpDXAJXABkhpuwMAUkg68dsRiU07p-9Q-XSiA"));
-      learnableDictionary.Add(CustomSkill.Magistrate, new LearnableSkill(CustomSkill.Magistrate, "Magistrat", "", Category.StartingTraits, "Magristrat", 1, 1, Ability.Intelligence, Ability.Wisdom, HandleMagistrateBackground, "16w21xr6HgBE159pLr1Br0mf7T00zsIzonGdXTGekIYs"));
+      learnableDictionary.Add(CustomSkill.Magistrate, new LearnableSkill(CustomSkill.Magistrate, "Magistrat", "", Category.StartingTraits, "Magistrat", 1, 1, Ability.Intelligence, Ability.Wisdom, HandleMagistrateBackground, "16w21xr6HgBE159pLr1Br0mf7T00zsIzonGdXTGekIYs"));
       learnableDictionary.Add(CustomSkill.AdventurerScion, new LearnableSkill(CustomSkill.AdventurerScion, "Héritier d'un célèbre aventurier", "", Category.StartingTraits, "scion", 1, 1, Ability.Charisma, Ability.Dexterity, HandleScionBackground, "1S7UROAImbnZdGf5Q_CkScJ_gfmfRDBcHGhQ9LpqHoAg"));
       learnableDictionary.Add(CustomSkill.Refugee, new LearnableSkill(CustomSkill.Refugee, "Réfugié", "", Category.StartingTraits, "refugee", 1, 1, Ability.Dexterity, Ability.Constitution, HandleRefugeeBackground, "1GCBVKWeDNR20kqOqKwIex8qlCbOltNmUpkblINEShYM"));
       learnableDictionary.Add(CustomSkill.Prisoner, new LearnableSkill(CustomSkill.Prisoner, "Prisonnier", "", Category.StartingTraits, "prisoner", 1, 1, Ability.Constitution, Ability.Charisma, HandlePrisonerBackground, "1Qdyz-fNuGrqI64NYaAP6wmiQd7GhUz0-hqf5F-vrYps"));
@@ -187,6 +191,11 @@ namespace NWN.Systems
       //learnableDictionary.Add(CustomSkill.ImprovedAttackBonus, new LearnableSkill(CustomSkill.ImprovedAttackBonus, "Attaque améliorée", "Augmente la pénétration d'armure d'un point par niveau.", Category.Fight, "ife_tough", 12, 2, Ability.Constitution, Ability.Dexterity, false, HandleImproveAttack));
       //learnableDictionary.Add(CustomSkill.ImprovedCasterLevel, new LearnableSkill(CustomSkill.ImprovedCasterLevel, "Maîtrise des sorts", "Augmente le niveau de lanceur de sorts d'un point par niveau.", Category.Magic, "ife_tough", 12, 3, Ability.Constitution, Ability.Charisma));
 
+      // FEATS
+
+      learnableDictionary.Add(CustomSkill.AbilityImprovement, new LearnableSkill(CustomSkill.AbilityImprovement, "Amélioration de caractéristiques", "Choisissez une caractéristique à laquelle ajouter un bonus de +2 ou deux caractéristiques auxquelles ajouter un bonus de +1.\n\nCe don ne vous permet pas d'aller au-delà de 20 dans une même caractéristique.", Category.Race, "ife_aurabrave", 3, 5, Ability.Intelligence, Ability.Constitution));
+      learnableDictionary.Add(CustomSkill.Actor, new LearnableSkill(CustomSkill.Actor, "Comédien", "Vous gagnez un point de charisme (maximum 20).\n\nVous avez un avantage en Tromperie et Représentation lorsque vous tenter de vous faire passer pour une autre personne.\n\nVous pouvez imiter le discours d'une autre personne ou les sons émis par d'autres créatures. Vous devez avoir entendu la personne qui parle, ou entendu la créature émettre le son, pendant au moins 1 minute. Un jet réussi d'Intuition contre votre jet de Tromperie permet à celui qui écoute de déterminer qu'il s'agit d'une imitation.", Category.Feat, "ife_emptybod", 1, 5, Ability.Charisma, Ability.Dexterity));
+
       // RACES
       // HUMAN
 
@@ -201,7 +210,13 @@ namespace NWN.Systems
 
       learnableDictionary.Add(CustomSkill.Fighter, new LearnableSkill(CustomSkill.Fighter, "Guerrier", "", Category.Class, "fighter", 12, 1, Ability.Strength, Ability.Dexterity, Fighter.LevelUp, "14508VWlYNEYcZoXhO4vUo81s4AHbUOgJ6Rjh9nt86Ys"));
       learnableDictionary.Add(CustomSkill.FighterSecondWind, new LearnableSkill(CustomSkill.FighterSecondWind, "Second Souffle", "Action bonus\nVous soigne de 1d10 + votre niveau de guerrier\nRécupération : repos court", Category.Fight, "ief_SecondWind", 1, 1, Ability.Constitution, Ability.Strength, LearnActivableFeat));
-      learnableDictionary.Add(CustomSkill.FighterSurge, new LearnableSkill(CustomSkill.FighterSurge, "Fougue", "Action gratuite\nVous bénéficiez d'une attaque supplémentaire.\nDurée et cooldown : 10 rounds\nRécupération : repos court", Category.Fight, "ief_SecondWind", 1, 1, Ability.Constitution, Ability.Strength, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.FighterCombatStyleArchery, new LearnableSkill(CustomSkill.FighterCombatStyleArchery, "Style de combat - Archerie", "Passif\nBonus d'attaque de +2 pour toutes les attaques effectuées avec une arme à distance.", Category.FightingStyle, "ief_Archery", 1, 1, Ability.Dexterity, Ability.Constitution));
+      learnableDictionary.Add(CustomSkill.FighterCombatStyleDefense, new LearnableSkill(CustomSkill.FighterCombatStyleDefense, "Style de combat - Défense", "Passif\nBonus de +1 de CA tant que vous portez une armure.", Category.FightingStyle, "ief_Defense", 1, 1, Ability.Constitution, Ability.Strength));
+      learnableDictionary.Add(CustomSkill.FighterCombatStyleDuel, new LearnableSkill(CustomSkill.FighterCombatStyleDuel, "Style de combat - Duel", "Passif\nBonus de +2 dégâts lorsque vous utilisez une arme de mêlée à une main et que vous ne tenez pas d'arme dans votre autre main.\n\nNe fonctionne pas si vous utilisez une arme versatile en mode deux mains", Category.FightingStyle, "ief_Duel", 1, 1, Ability.Dexterity, Ability.Constitution));
+      learnableDictionary.Add(CustomSkill.FighterCombatStyleTwoHanded, new LearnableSkill(CustomSkill.FighterCombatStyleTwoHanded, "Style de combat - Deux mains", "Passif\nSi vous faites un 1 ou un 2 sur un jet de dégâts pour une attaque effectuée avec une arme à deux mains, vous relancez ce jet.", Category.FightingStyle, "ief_GreatWeapon", 1, 1, Ability.Strength, Ability.Constitution));
+      learnableDictionary.Add(CustomSkill.FighterCombatStyleProtection, new LearnableSkill(CustomSkill.FighterCombatStyleProtection, "Style de combat - Protection", "Passif\nLorsque vous utilisez un bouclier, infligez un désavantage aux ennemis qui attaquent vos alliés situés à portée de mêlée.\n\nVous devez être en mesure de voir l'attaquant pour que l'effet s'applique.", Category.FightingStyle, "ief_Protection", 1, 1, Ability.Strength, Ability.Constitution, HandleProtectionStyle));
+      learnableDictionary.Add(CustomSkill.FighterCombatStyleDualWield, new LearnableSkill(CustomSkill.FighterCombatStyleDualWield, "Style de combat - Deux armes", "Passif\nLorsque vous effectuez une attaque avec votre main secondaire, ajoutez votre modificateur de caractéristiques aux dégâts de l'attaque.", Category.FightingStyle, "ief_TwoWeapon", 1, 1, Ability.Dexterity, Ability.Constitution));
+      learnableDictionary.Add(CustomSkill.FighterSurge, new LearnableSkill(CustomSkill.FighterSurge, "Fougue Martiale", "Action gratuite\nVous bénéficiez d'une attaque supplémentaire.\nDurée et cooldown : 10 rounds\nRécupération : repos court", Category.Fight, "ief_SecondWind", 1, 1, Ability.Constitution, Ability.Strength, LearnActivableFeat));
       //learnableDictionary.Add(CustomSkill.FighterCombatStyles, new LearnableSkill(CustomSkill.FighterCombatStyles, "Choix - Style de combat", "Choississez un style de combat parmi Archerie, Défense, Duel, Arme à deux mains, Protection, Combat à deux armes.", Category.Fight, "ife_armor_l", 1, 10, Ability.Strength, Ability.Dexterity, Fighter.FighterLevelUp));
 
       // SPELLS
@@ -1239,8 +1254,8 @@ namespace NWN.Systems
 
       player.learnableSkills[CustomSkill.InsightProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.IntimidationExpertise, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.IntimidationExpertise])))
-      player.learnableSkills[CustomSkill.IntimidationExpertise].LevelUp(player);
+      if (player.learnableSkills.TryAdd(CustomSkill.IntimidationProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.IntimidationProficiency])))
+      player.learnableSkills[CustomSkill.IntimidationProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.IntimidationProficiency].source.Add(Category.StartingTraits);
 
@@ -1320,6 +1335,13 @@ namespace NWN.Systems
     private static bool HandleWarriorCombatStyle(PlayerSystem.Player player, int customSkillId)
     {
       // TODO : ouvrir une fenêtre pour proposer un choix parmi les styles de combat en excluant les styles déjà connus par le personnage
+
+      return true;
+    }
+    private static bool HandleProtectionStyle(PlayerSystem.Player player, int customSkillId)
+    {
+      player.oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipApplyProtectionStyle;
+      player.oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipRemoveProtectionStyle;
 
       return true;
     }

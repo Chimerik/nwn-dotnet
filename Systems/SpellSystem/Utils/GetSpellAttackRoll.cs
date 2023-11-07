@@ -22,7 +22,7 @@ namespace NWN.Systems
 
           int advantage = CreatureUtils.GetSpellAttackAdvantageAgainstTarget(caster, spell, isRangedSpell, target, spellCastingAbility);
           int attackRoll = NativeUtils.HandleHalflingLuck(caster, Utils.RollAdvantage(advantage));
-          int targetAC = target.GetArmorClassVersus(caster) + CreatureUtils.OverrideSizeAttackAndACBonus(target); // On compense le bonus/malus de taille du jeu de base;
+          int targetAC = target.GetArmorClassVersus(caster);
           int totalAttack = attackRoll + attackModifier;
 
           LogUtils.LogMessage($"Bonus d'attaque contre la cible {attackModifier} dont {caster.GetAbilityModifier(spellCastingAbility)} du modificateur de {spellCastingAbility.ToString()} et {proficiencyBonus} du bonus de maîtrise", LogUtils.LogType.Combat);

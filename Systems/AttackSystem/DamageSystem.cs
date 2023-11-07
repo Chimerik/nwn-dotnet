@@ -40,6 +40,8 @@ namespace NWN.Systems
       if (onDamage.DamagedBy is NwCreature damager && target != damager)
         DamageUtils.HandleHellishRebuke(target, damager);
 
+
+
       // TODO : prendre en compte le cas des pièges
       //if (onDamage.Target is null || onDamage.DamageData.GetDamageByType(DamageType.BaseWeapon) > -1 || onDamage.Target is not NwCreature oTarget) // S'il ne s'agit pas d'un sort, alors le calcul des dégâts a déjà été traité lors de l'event d'attaque
       //return;

@@ -26,8 +26,8 @@ namespace NWN.Systems
         {
           new NuiComboEntry("Cheveux", 1),
           new NuiComboEntry("Peau", 0),
-          new NuiComboEntry("Yeux / Tattoo 1", 3),
-          new NuiComboEntry("Lèvres / Tattoo 2", 2),
+          new NuiComboEntry("Yeux", 3),
+          new NuiComboEntry("Lèvres", 2),
         };
 
         private NwCreature targetCreature;
@@ -241,7 +241,9 @@ namespace NWN.Systems
                   if (selectedChannel != ColorChannel.Hair)
                     channelChoice = "skin";
 
-                  for (int i = 0; i < 4; i++)
+                  ModuleSystem.Log.Info($"channelChoice : {channelChoice}");
+
+                  for (int i = 0; i < 56; i++)
                     colorBindings[i].SetBindValue(player.oid, nuiToken.Token, NWScript.ResManGetAliasFor($"{channelChoice}{i + 1}", NWScript.RESTYPE_TGA) != "" ? $"{channelChoice}{i + 1}" : $"leather{i + 1}");
 
                   int newCurrentColor = targetCreature.GetColor(selectedChannel) + 1;

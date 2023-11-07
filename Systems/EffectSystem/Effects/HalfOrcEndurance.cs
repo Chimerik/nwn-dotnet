@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.RunAction(), Effect.Icon(NwGameTables.EffectIconTable.GetRow(146)));
+        Effect eff = Effect.Icon(NwGameTables.EffectIconTable.GetRow(146));
         eff.Tag = EnduranceImplacableEffectTag;
         eff.SubType = EffectSubType.Unyielding;
         return eff;

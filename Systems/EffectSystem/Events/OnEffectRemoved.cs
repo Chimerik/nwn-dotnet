@@ -15,7 +15,7 @@ namespace NWN.Systems
       switch (onEffect.Effect.Tag)
       {
         case ConcentrationEffectTag: OnRemoveConcentration(onEffect); return;
-        case EnlargeEffectTag: target.VisualTransform.Lerp(new VisualTransformLerpSettings { LerpType = VisualTransformLerpType.EaseIn, Duration = TimeSpan.FromSeconds(2), PauseWithGame = true }, transform => { transform.Scale = target.GetObjectVariable<PersistentVariableFloat>("_ORIGINAL_SIZE").Value; }); return;
+        case EnlargeEffectTag: target.VisualTransform.Lerp(new VisualTransformLerpSettings { LerpType = VisualTransformLerpType.EaseIn, Duration = TimeSpan.FromSeconds(2), PauseWithGame = true }, transform => { transform.Scale = target.GetObjectVariable<PersistentVariableFloat>(CreatureUtils.OriginalSizeVariable).Value; }); return;
         case faerieFireEffectTag: target.OnEffectApply -= CheckFaerieFire; return;
         case boneChillEffectTag: target.OnHeal -= SpellSystem.PreventHeal; return;
       }

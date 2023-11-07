@@ -10,7 +10,8 @@ namespace NWN.Systems
       get
       {
         Effect eff = Effect.MovementSpeedDecrease(10);
-        dwarfSlow.ShowIcon = false;
+        eff.ShowIcon = false;
+        eff.Tag = DwarfSlowEffectTag;
         eff.SubType = EffectSubType.Unyielding;
         return eff;
       }

@@ -37,6 +37,8 @@ namespace NWN.Systems
         private readonly NuiBind<int> selectedSkill2 = new("selectedSkill2");
         private readonly NuiBind<List<NuiComboEntry>> skillSelection2 = new("skillSelection2");
 
+        private readonly NuiBind<int> selectedCombatStyle = new("selectedCombatStyle");
+
         private IEnumerable<Learnable> currentList;
         private Learnable selectedLearnable;
         private int validatedLearnableId;
@@ -45,6 +47,11 @@ namespace NWN.Systems
         {
           windowId = "introClassSelector";
           rootColumn.Children = rootChildren;
+
+          List<NuiComboEntry> styles = new();
+
+          foreach (var style in learnableDictionary.Values.Where(s => s is LearnableSkill skill && skill.category == Category.FightingStyle))
+            styles.Add(new NuiComboEntry(style.name, style.id));
 
           List<NuiListTemplateCell> learnableTemplate = new List<NuiListTemplateCell>
           {
@@ -82,8 +89,14 @@ namespace NWN.Systems
               new NuiRow() { Children = new List<NuiElement>() 
               { 
                 new NuiSpacer(),
-                new NuiCombo() { Entries = skillSelection1, Selected = selectedSkill1, Visible = selectedItemVisibility, Height = 40, Width = player.guiScaledWidth * 0.6f - 575 },
-                new NuiCombo() { Entries = skillSelection2, Selected = selectedSkill2, Visible = selectedItemVisibility, Height = 40, Width = player.guiScaledWidth * 0.6f - 575 },
+                new NuiCombo() { Entries = skillSelection1, Selected = selectedSkill1, Visible = selectedItemVisibility, Height = 40, Width = (player.guiScaledWidth * 0.6f - 380) / 2 },
+                new NuiCombo() { Entries = skillSelection2, Selected = selectedSkill2, Visible = selectedItemVisibility, Height = 40, Width = (player.guiScaledWidth * 0.6f - 380) / 2 },
+                new NuiSpacer()
+              } },
+              new NuiRow() { Children = new List<NuiElement>()
+              {
+                new NuiSpacer(),
+                new NuiCombo() { Entries = styles, Selected = selectedCombatStyle, Visible = selectedItemVisibility, Height = 40, Width = (player.guiScaledWidth * 0.6f - 380) / 1.5f },
                 new NuiSpacer()
               } },
               new NuiRow() { Children = new List<NuiElement>() { new NuiText(selectedItemDescription) } },
@@ -100,6 +113,7 @@ namespace NWN.Systems
           : -1;
 
           NuiRect savedRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(player.guiWidth * 0.2f, player.guiHeight * 0.05f, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f);
+          selectedLearnable = null;
 
           window = new NuiWindow(rootColumn, "Choisissez votre classe initiale")
           {
@@ -122,10 +136,13 @@ namespace NWN.Systems
             selectedItemVisibility.SetBindValue(player.oid, nuiToken.Token, false);
             validationEnabled.SetBindValue(player.oid, nuiToken.Token, false);
 
+            selectedCombatStyle.SetBindValue(player.oid, nuiToken.Token, -1);
             selectedSkill1.SetBindValue(player.oid, nuiToken.Token, -1);
             selectedSkill2.SetBindValue(player.oid, nuiToken.Token, -1);
             skillSelection1.SetBindValue(player.oid, nuiToken.Token, new List<NuiComboEntry>());
             skillSelection2.SetBindValue(player.oid, nuiToken.Token, new List<NuiComboEntry>());
+
+            selectedCombatStyle.SetBindWatch(player.oid, nuiToken.Token, true);
 
             geometry.SetBindValue(player.oid, nuiToken.Token, new NuiRect(savedRectangle.X, savedRectangle.Y, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f));
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
@@ -166,6 +183,10 @@ namespace NWN.Systems
                     validationText.SetBindValue(player.oid, nuiToken.Token, $"Valider la classe {selectedLearnable.name}");
                   }
 
+                  LearnableSkill style = player.learnableSkills.Values.FirstOrDefault(s => s is LearnableSkill style && style.category == Category.FightingStyle);
+                  if (style is not null)
+                    selectedCombatStyle.SetBindValue(player.oid, nuiToken.Token, style.id);
+
                   InitSelectableSkills();
                   LoadLearnableList(currentList);
 
@@ -178,7 +199,9 @@ namespace NWN.Systems
                   validationEnabled.SetBindValue(player.oid, nuiToken.Token, false);
                   validatedLearnableId = selectedLearnable.id;
 
-                  if (player.learnableSkills.TryAdd(selectedLearnable.id, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[selectedLearnable.id], (int)SkillSystem.Category.Class)))
+                  player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CHOSEN_FIGHTER_STYLE").Value = selectedCombatStyle.GetBindValue(player.oid, nuiToken.Token);
+
+                  if (player.learnableSkills.TryAdd(selectedLearnable.id, new LearnableSkill((LearnableSkill)learnableDictionary[selectedLearnable.id], (int)Category.Class)))
                     player.learnableSkills[selectedLearnable.id].LevelUp(player);
 
                   CreaturePlugin.SetClassByPosition(player.oid.LoginCreature, 0, Classes2da.classTable.FirstOrDefault(c => c.classLearnableId == validatedLearnableId).RowIndex);
@@ -264,6 +287,7 @@ namespace NWN.Systems
               {
                 case "selectedSkill1":
                 case "selectedSkill2": LoadSelectableSkills(); break;
+                case "selectedCombatStyle": validationEnabled.SetBindValue(player.oid, nuiToken.Token, true);break;
               }
 
               break;
@@ -348,6 +372,8 @@ namespace NWN.Systems
         }
         private void LoadSelectableSkills()
         {
+          validationEnabled.SetBindValue(player.oid, nuiToken.Token, true);
+
           selectedSkill1.SetBindWatch(player.oid, nuiToken.Token, false);
           selectedSkill2.SetBindWatch(player.oid, nuiToken.Token, false);
 

@@ -346,6 +346,12 @@ namespace NWN.Systems
           EffectIconTableEntry nEffectIcon = guiEvent.EffectIcon;
           EffectType nIconEffectType = EffectIconToEffectType(nEffectIcon.RowIndex);
 
+          if (nEffectIcon.RowIndex == 148) // concentration
+          {
+            if (!player.windows.ContainsKey("removeConcentration")) player.windows.Add("removeConcentration", new Player.RemoveConcentrationWindow(player));
+            else ((Player.RemoveConcentrationWindow)player.windows["removeConcentration"]).CreateWindow();
+          }
+
           if (nIconEffectType == EffectType.InvalidEffect)
             return;
 

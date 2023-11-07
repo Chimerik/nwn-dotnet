@@ -32,7 +32,6 @@ namespace NWN.Systems
         private IEnumerable<Learnable> currentList;
         private Learnable selectedLearnable;
         private int validatedLearnableId;
-        private bool loadingDescription = false;
 
         public IntroHistorySelectorWindow(Player player) : base(player)
         {
@@ -115,7 +114,7 @@ namespace NWN.Systems
             LoadLearnableList(currentList);
           }
         }
-        private async void HandleLearnableEvents(ModuleEvents.OnNuiEvent nuiEvent)
+        private void HandleLearnableEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
           switch (nuiEvent.EventType)
           {
@@ -127,10 +126,8 @@ namespace NWN.Systems
 
                   selectedItemVisibility.SetBindValue(player.oid, nuiToken.Token, true);
 
-                  if (loadingDescription || selectedLearnable == currentList.ElementAt(nuiEvent.ArrayIndex))
+                  if (selectedLearnable == currentList.ElementAt(nuiEvent.ArrayIndex))
                     return;
-
-                  loadingDescription = true;
 
                   selectedLearnable = currentList.ElementAt(nuiEvent.ArrayIndex);
                   selectedItemTitle.SetBindValue(player.oid, nuiToken.Token, selectedLearnable.name);
@@ -147,11 +144,7 @@ namespace NWN.Systems
                     validationText.SetBindValue(player.oid, nuiToken.Token, $"Valider l'origine {selectedLearnable.name}");
                   }
 
-                  string description = selectedLearnable.description;
-                  await NwTask.SwitchToMainThread();
-                  loadingDescription = false;
-
-                  selectedItemDescription.SetBindValue(player.oid, nuiToken.Token, description);
+                  selectedItemDescription.SetBindValue(player.oid, nuiToken.Token, selectedLearnable.description);
                   LoadLearnableList(currentList);
 
                   return;

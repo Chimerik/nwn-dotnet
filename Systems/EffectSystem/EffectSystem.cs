@@ -7,8 +7,8 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
 
-    public static readonly string frightenedEffectTag = "FRIGHTENED_";
-    public static readonly Native.API.CExoString frightenedEffectExoTag = "FRIGHTENED_".ToExoString();
+    public static readonly string frightenedEffectTag = "_FRIGHTENED_EFFECT";
+    public static readonly Native.API.CExoString frightenedEffectExoTag = "_FRIGHTENED_EFFECT".ToExoString();
     public static readonly Native.API.CExoString exoDelimiter = "_".ToExoString();
 
     private static ScriptHandleFactory scriptHandleFactory;
@@ -16,6 +16,8 @@ namespace NWN.Systems
     public EffectSystem(ScriptHandleFactory scriptFactory)
     {
       scriptHandleFactory = scriptFactory;
+      onEnterProtectionStyleCallback = scriptHandleFactory.CreateUniqueHandler(onEnterProtectionStyle);
+      onExitProtectionStyleCallback = scriptHandleFactory.CreateUniqueHandler(onExitProtectionStyle);
     }
   }
 }

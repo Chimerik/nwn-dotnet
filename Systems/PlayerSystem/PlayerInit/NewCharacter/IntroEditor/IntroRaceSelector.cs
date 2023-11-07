@@ -2,6 +2,7 @@
 using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
+using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
@@ -143,7 +144,7 @@ namespace NWN.Systems
                   if (selectedRace.RacialType == RacialType.Human)
                   {
                     visibleBonusSkill.SetBindValue(player.oid, nuiToken.Token, true);
-                    bonusSelectionList.SetBindValue(player.oid, nuiToken.Token, Utils.skillList);
+                    LoadBonusList(Utils.skillList);
 
                     LearnableSkill bonusSkill = player.learnableSkills.Values.FirstOrDefault(s => s.category == SkillSystem.Category.Skill && s.source.Any(so => so == SkillSystem.Category.Race));
                     selectedBonusSkill.SetBindValue(player.oid, nuiToken.Token, bonusSkill is not null ? bonusSkill.id : -1);
@@ -162,7 +163,7 @@ namespace NWN.Systems
                   else if(selectedRace.Id == CustomRace.HighElf || selectedRace.Id == CustomRace.HighHalfElf)
                   {
                     visibleBonusSkill.SetBindValue(player.oid, nuiToken.Token, true);
-                    bonusSelectionList.SetBindValue(player.oid, nuiToken.Token, Utils.mageCanTripList);
+                    LoadBonusList(Utils.mageCanTripList);
 
                     LearnableSkill bonusSkill = player.learnableSkills.Values.FirstOrDefault(s => s.category == SkillSystem.Category.Magic && s.source.Any(so => so == SkillSystem.Category.Race));
                     selectedBonusSkill.SetBindValue(player.oid, nuiToken.Token, bonusSkill is not null ? bonusSkill.id : -1);
@@ -370,6 +371,16 @@ namespace NWN.Systems
           foreach (ItemProperty ip in player.oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties)
             if (ip.Property.PropertyType == ItemPropertyType.ImmunityDamageType)
               player.oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin).RemoveItemProperty(ip);
+        }
+        private void LoadBonusList(IEnumerable<NuiComboEntry> list)
+        {
+          List<NuiComboEntry> tempBonusList = new();
+
+          foreach (var skill in list)
+            if (!player.learnableSkills.ContainsKey(skill.Value))
+              tempBonusList.Add(skill);
+
+          bonusSelectionList.SetBindValue(player.oid, nuiToken.Token, tempBonusList);
         }
       }
     }

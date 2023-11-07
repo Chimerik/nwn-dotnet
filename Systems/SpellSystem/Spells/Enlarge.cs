@@ -14,10 +14,10 @@ namespace NWN.Systems
 
       SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, caster, onSpellCast.Spell.SpellType);
 
-      if(onSpellCast.TargetObject.GetObjectVariable<PersistentVariableFloat>("_ORIGINAL_SIZE").HasNothing)
-        onSpellCast.TargetObject.GetObjectVariable<PersistentVariableFloat>("_ORIGINAL_SIZE").Value = onSpellCast.TargetObject.VisualTransform.Scale;
+      if(onSpellCast.TargetObject.GetObjectVariable<PersistentVariableFloat>(CreatureUtils.OriginalSizeVariable).HasNothing)
+        onSpellCast.TargetObject.GetObjectVariable<PersistentVariableFloat>(CreatureUtils.OriginalSizeVariable).Value = onSpellCast.TargetObject.VisualTransform.Scale;
 
-      onSpellCast.TargetObject.VisualTransform.Lerp(new VisualTransformLerpSettings { LerpType = VisualTransformLerpType.EaseIn, Duration = TimeSpan.FromSeconds(2), PauseWithGame = true }, transform => { transform.Scale = onSpellCast.TargetObject.GetObjectVariable<PersistentVariableFloat>("_ORIGINAL_SIZE").Value * 2; });
+      onSpellCast.TargetObject.VisualTransform.Lerp(new VisualTransformLerpSettings { LerpType = VisualTransformLerpType.EaseIn, Duration = TimeSpan.FromSeconds(2), PauseWithGame = true }, transform => { transform.Scale = onSpellCast.TargetObject.GetObjectVariable<PersistentVariableFloat>(CreatureUtils.OriginalSizeVariable).Value * 2; });
       onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpImproveAbilityScore));
       onSpellCast.TargetObject.ApplyEffect(EffectDuration.Temporary, EffectSystem.enlargeEffect, NwTimeSpan.FromRounds(spellEntry.duration));
 

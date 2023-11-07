@@ -177,7 +177,7 @@ namespace NWN.Systems
                   if (currentStatIncrease > 14)
                     return;
 
-                  int pointCost = currentStatIncrease > 13 ? 2 : 1;
+                  int pointCost = currentStatIncrease > 12 ? 2 : 1;
 
                   if (pointCost > player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_CHARACTER_REMAINING_ABILITY_POINTS").Value)
                     return;

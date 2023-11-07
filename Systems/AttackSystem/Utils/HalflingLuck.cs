@@ -7,8 +7,13 @@ namespace NWN.Systems
   {
     public static int HandleHalflingLuck(CNWSCreature creature, int attackRoll)
     {
-      return attackRoll < 2 && (creature.m_pStats.m_nRace == CustomRace.LightfootHalfling || creature.m_pStats.m_nRace == CustomRace.StrongheartHalfling)
-        ? NwRandom.Roll(Utils.random, 20) : attackRoll;
+      if(attackRoll < 2 && (creature.m_pStats.m_nRace == CustomRace.LightfootHalfling || creature.m_pStats.m_nRace == CustomRace.StrongheartHalfling))
+      {
+        SendNativeServerMessage("Chance hafeline : jet relancé !".ColorString(StringUtils.gold), creature);
+        return NwRandom.Roll(Utils.random, 20);
+      }
+      else
+        return attackRoll;
     }
   }
 }

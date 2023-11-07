@@ -63,6 +63,8 @@ namespace NWN.Systems
       CNWSCombatAttackData attackData = combatRound.GetAttack(combatRound.m_nCurrentAttack);
       CNWSItem targetArmor = targetCreature.m_pInventory.GetItemInSlot((uint)EquipmentSlot.Chest);
 
+      //NativeUtils.SendNativeServerMessage($"Current attack : {combatRound.m_nCurrentAttack}".ColorString(StringUtils.gold), creature);
+
       if (targetCreature is not null && targetCreature.m_bPlayerCharacter > 0 && targetArmor is not null
         && targetArmor.m_ScriptVars.GetInt(maxDurabilityVariable) > 0 && targetArmor.m_ScriptVars.GetInt(durabilityVariable) < 1)
       {
@@ -86,8 +88,8 @@ namespace NWN.Systems
 
       //*** CALCUL DU BONUS D'ATTAQUE ***//
       // On prend le bonus d'attaque calculé automatiquement par le jeu en fonction de la cible qui peut être une créature ou un placeable
-      int attackModifier = NativeUtils.GetAttackBonusVSTarget(creature, targetCreature, attackData.m_bRangedAttack);
-      
+      int attackModifier = targetCreature is null ? creature.m_pStats.GetAttackModifierVersus() : NativeUtils.GetAttackBonus(creature, targetCreature, attackData);
+
       // Si l'arme utilisée pour attaquer est une arme de finesse, et que la créature a une meilleur DEX, alors on utilise la DEX pour attaquer
       CNWSItem attackWeapon = combatRound.GetCurrentAttackWeapon(attackData.m_nWeaponAttackType);
       Anvil.API.Ability attackStat = Anvil.API.Ability.Strength;
@@ -125,8 +127,8 @@ namespace NWN.Systems
       attackBonus += attackModifier;
 
       // Si l'attaque n'est donnée par Haste et combat à deux armes, alors on compense le -2 du jeu de base
-      if (attackData.m_nWeaponAttackType != 6 && NativeUtils.IsDualWieldingLightWeapon(attackWeapon, creature.m_nCreatureSize, creature.m_pInventory.m_pEquipSlot[5].ToNwObject<NwItem>()))
-        attackBonus += 2;
+      /*if (attackData.m_nWeaponAttackType != 6 && NativeUtils.IsDualWieldingLightWeapon(attackWeapon, creature.m_nCreatureSize, creature.m_pInventory.m_pEquipSlot[5].ToNwObject<NwItem>()))
+        attackBonus += 2;*/
 
       if (combatRound.m_nCurrentAttack == 0)
       {
@@ -134,8 +136,23 @@ namespace NWN.Systems
         creature.m_ScriptVars.SetInt(currentUnarmedExtraAttacksVariable, 0);
       }
 
+      if(attackData.m_nWeaponAttackType == 2) // combat à deux armes
+      {
+        int bonusAction = creature.m_ScriptVars.GetInt(isBonusActionAvailableVariable);
+
+        if (bonusAction > 0) // L'attaque supplémentaire consomme l'action bonus du personnage
+          creature.m_ScriptVars.SetInt(isBonusActionAvailableVariable, bonusAction - 1);
+        else // Si pas d'action bonus dispo, auto miss
+        {
+          attackData.m_nAttackResult = 4;
+          attackData.m_nMissedBy = 8;
+
+          NativeUtils.SendNativeServerMessage($"Main secondaire - Echec automatique - Pas d'action bonus disponible".ColorString(ColorConstants.Red), creature);
+        }
+      }
+
       // On compense le -5 du jeu de base pour les attaques supplémentaires du round
-      switch (attackData.m_nWeaponAttackType)
+      /*switch (attackData.m_nWeaponAttackType)
       {
         case 1:
         case 3:
@@ -169,19 +186,20 @@ namespace NWN.Systems
           attackBonus += 5 * currentUnarmedExtraAttack;
           creature.m_ScriptVars.SetInt(currentUnarmedExtraAttacksVariable, currentUnarmedExtraAttack + 1);
           break;
-      }
-
-      if(attackWeapon.m_nBaseItem == (uint)BaseItemType.Shuriken && creature.m_ScriptVars.GetInt(isBonusActionAvailableVariable) > 0)
+      }*/
+      
+      // TODO : l'attaque supplémentaire de la handcrossbow (shuriken) sera conditionnée au don Crossbow Expert
+      /*if(attackWeapon is not null && attackWeapon.m_nBaseItem == (uint)BaseItemType.Shuriken && creature.m_ScriptVars.GetInt(isBonusActionAvailableVariable) > 0)
       {
         combatRound.AddAttackOfOpportunity(targetCreature.m_idSelf);
         creature.m_ScriptVars.SetInt(isBonusActionAvailableVariable, creature.m_ScriptVars.GetInt(isBonusActionAvailableVariable) - 1);
-      }
+      }*/
          
       if (targetCreature is not null)
       {
         int advantage = CreatureUtils.GetAdvantageAgainstTarget(creature, attackData, attackWeapon, attackStat, targetCreature);
         int attackRoll = NativeUtils.HandleHalflingLuck(creature, Utils.RollAdvantage(advantage));
-        int targetAC = targetCreature.m_pStats.GetArmorClassVersus(creature) + CreatureUtils.OverrideSizeAttackAndACBonus(targetCreature); // On compense le bonus/malus de taille du jeu de base;
+        int targetAC  = NativeUtils.GetCreatureAC(targetCreature, creature);
 
         LogUtils.LogMessage($"CA de la cible : {targetAC}", LogUtils.LogType.Combat);
 
@@ -309,8 +327,8 @@ namespace NWN.Systems
           return -1;
 
         NwBaseItem baseWeapon = NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem);
-        baseDamage += NwRandom.Roll(Utils.random, baseWeapon.DieToRoll, baseWeapon.NumDamageDice);
-
+        baseDamage += NativeUtils.HandleGreatWeaponStyle(attacker, baseWeapon, NwRandom.Roll(Utils.random, baseWeapon.DieToRoll, baseWeapon.NumDamageDice));
+        
         LogUtils.LogMessage($"{baseWeapon.Name.ToString()} - {baseWeapon.NumDamageDice}d{baseWeapon.DieToRoll} => {baseDamage}", LogUtils.LogType.Combat);
 
         // On ne peut faire des attaques sournoises qu'avec une arme
@@ -373,7 +391,7 @@ namespace NWN.Systems
         LogUtils.LogMessage($"Ajout Force ({strBonus})", LogUtils.LogType.Combat);
       }
       // Pour l'attaque de la main secondaire, on n'ajoute le modificateur de caractéristique que s'il est négatif
-      if (bOffHand < 1 || (bOffHand > 0 && dexBonus < 0))
+      if (bOffHand < 1 || NativeUtils.HasTwoWeaponStyle(attacker) || (bOffHand > 0 && dexBonus < 0))
         baseDamage += damageBonus;
       else
         LogUtils.LogMessage($"Main secondaire - Bonus de caractéristique non appliqué aux dégâts", LogUtils.LogType.Combat);
@@ -387,7 +405,7 @@ namespace NWN.Systems
       LogUtils.LogMessage($"Application des résistances de la cible - Dégâts : {baseDamage}", LogUtils.LogType.Combat);
       baseDamage = targetObject.DoDamageReduction(attacker, baseDamage, attacker.CalculateDamagePower(targetObject, bOffHand), 0, 1);
       LogUtils.LogMessage($"Application des réductions de la cible - Calcul Final - Dégâts : {baseDamage}", LogUtils.LogType.Combat);
-
+      
       return baseDamage;
 
       // ANCIEN SYSTEME guild wars

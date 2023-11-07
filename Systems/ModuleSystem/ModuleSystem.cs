@@ -137,15 +137,19 @@ namespace NWN.Systems
       LoadHeadLists();
       StringUtils.InitializeTlkOverrides();
 
-      TimeSpan nextActivation = DateTime.Now.Hour < 5 ? new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 5, 0, 0) - DateTime.Now : DateTime.Now.AddDays(1).AddHours(-(DateTime.Now.Hour - 5)) - DateTime.Now;
+      TimeSpan activationOn5AM = DateTime.Now.Hour < 5 ? new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 5, 0, 0) - DateTime.Now : DateTime.Now.AddDays(1).AddHours(-(DateTime.Now.Hour - 5)) - DateTime.Now;
+      TimeSpan activationOn6AM = DateTime.Now.Hour < 6 ? new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 6, 0, 0) - DateTime.Now : DateTime.Now.AddDays(1).AddHours(-(DateTime.Now.Hour - 6)) - DateTime.Now;
+
+      LogUtils.LogMessage($"Prochain reboot programmé à : {DateTime.Now.Add(activationOn5AM)}", LogUtils.LogType.ModuleAdministration);
 
       scheduler.ScheduleRepeating(HandlePlayerLoop, TimeSpan.FromSeconds(1));
       scheduler.ScheduleRepeating(HandleSaveDate, TimeSpan.FromMinutes(1));
       scheduler.ScheduleRepeating(HandleMateriaGrowth, TimeSpan.FromHours(1));
       scheduler.ScheduleRepeating(SkillSystem.RefreshLearnableDescriptions, TimeSpan.FromHours(1));
       scheduler.ScheduleRepeating(AreaUtils.RefreshAreaDescriptions, TimeSpan.FromHours(1));
-      scheduler.ScheduleRepeating(SpawnCollectableResources, TimeSpan.FromHours(24), nextActivation);
-      scheduler.ScheduleRepeating(HandleSubscriptionDues, TimeSpan.FromHours(24), nextActivation);
+      scheduler.ScheduleRepeating(DailyReboot, activationOn5AM);
+      scheduler.ScheduleRepeating(SpawnCollectableResources, activationOn6AM);
+      scheduler.ScheduleRepeating(HandleSubscriptionDues, activationOn6AM);
 
       placeholderTemplate = NwObject.FindObjectsWithTag<NwCreature>("damage_trainer").FirstOrDefault();
       placeholderTemplate = placeholderTemplate?.Clone(placeholderTemplate?.Location);
@@ -400,9 +404,10 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_ITEM_DECREMENT_STACKSIZE_BEFORE", "on_ammo_used");
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_EMOTE_BEFORE", "on_input_emote");
       EventsPlugin.SubscribeEvent("NWNX_ON_BROADCAST_ATTACK_OF_OPPORTUNITY_BEFORE", "on_opportunity");
-      EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_BEFORE", "on_dual_fight");
-      EventsPlugin.AddIDToWhitelist("NWNX_ON_HAS_FEAT", (int)Feat.TwoWeaponFighting);
-      EventsPlugin.AddIDToWhitelist("NWNX_ON_HAS_FEAT", (int)Feat.Ambidexterity);
+      
+      //EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_BEFORE", "on_dual_fight");
+      //EventsPlugin.AddIDToWhitelist("NWNX_ON_HAS_FEAT", (int)Feat.TwoWeaponFighting);
+      //EventsPlugin.AddIDToWhitelist("NWNX_ON_HAS_FEAT", (int)Feat.Ambidexterity);
 
       EventsPlugin.SubscribeEvent("NWNX_ON_CALENDAR_DUSK", "remov_drowsensi");
       EventsPlugin.SubscribeEvent("NWNX_ON_CALENDAR_DAWN", "apply_drow_sensi");
@@ -1258,7 +1263,7 @@ namespace NWN.Systems
           creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value -= 1;
       }
     }
-    [ScriptHandler("on_dual_fight")]
+    /*[ScriptHandler("on_dual_fight")]
     private void AutoGiveDualFightFeats(CallInfo callInfo)
     {
       EventsPlugin.SetEventResult("1");
@@ -1272,6 +1277,6 @@ namespace NWN.Systems
           EventsPlugin.SkipEvent();
           break;
       }*/
-    }
+    //}
   }
 }

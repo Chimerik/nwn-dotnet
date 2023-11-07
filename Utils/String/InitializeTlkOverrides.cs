@@ -239,6 +239,18 @@ namespace NWN
 
       tlkEntry = StrRef.FromCustomTlk(190152);
       tlkEntry.Override = "Vous vous concentrer uniquement sur l'esquive au détriment de toute attaque.\n\nLes jets d'attaque qui vous ciblent subissent un désavantage, vos jets de sauvegarde de dextérité ont un avantage.\n\nVous perdez cet effet i vous êtes incapable d'agir, que votre capacité de déplacement tombe à 0, que vous attaquez ou lancez un sort.";
+
+      tlkEntry = StrRef.FromCustomTlk(190153);
+      tlkEntry.Override = "LISEZ-MOI";
+     
+      tlkEntry = StrRef.FromCustomTlk(190154);
+      tlkEntry.Override = "Les choix de races, de classe et de caractéristiques de cette partie de l'interface sont inutiles.\n\nEn jeu, un miroir vous permettra d'accéder à des options de personnalisation approfondies.\n\nIl vous faudra alors valider toutes les étapes avant que le capitaine ne vous autorise à poursuivre votre voyage.";
+
+      tlkEntry = StrRef.FromCustomTlk(190155);
+      tlkEntry.Override = "Les Larmes des Erylies - Editeur de personnage";
+
+      tlkEntry = StrRef.FromCustomTlk(190156);
+      tlkEntry.Override = "Style de combat - Protection";
     }
   }
 }

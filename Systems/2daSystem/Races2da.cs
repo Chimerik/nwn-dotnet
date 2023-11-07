@@ -13,7 +13,7 @@ namespace NWN.Systems
     public int appearanceId { get; private set; }
     public void InterpretEntry(TwoDimArrayEntry entry)
     {
-      isPlayableRace = entry.GetBool("PlayerRace").GetValueOrDefault(false);
+      isPlayableRace = entry.GetBool("PlayableRace").GetValueOrDefault(false);
       icon = entry.GetString("Icon");
       appearanceId = entry.GetInt("Appearance").GetValueOrDefault(-1);
     }

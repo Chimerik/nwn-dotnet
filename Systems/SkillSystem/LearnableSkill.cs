@@ -48,8 +48,9 @@ namespace NWN.Systems
       skillEffect = learnableBase.skillEffect;
       source = new();
 
-      foreach(int sourceId in serializableBase.source)
-        source.Add((SkillSystem.Category)sourceId);
+      if(serializableBase.source is not null)
+        foreach(int sourceId in serializableBase.source)
+          source.Add((SkillSystem.Category)sourceId);
     }
 
     public class SerializableLearnableSkill

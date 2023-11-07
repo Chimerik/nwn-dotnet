@@ -11,6 +11,7 @@ namespace NWN.Systems
   {
     public string resRef { get; private set; }
     public string mediumPortrait { get; private set; }
+    public string player { get; private set; }
     public int gender { get; private set; }
     public int racialType { get; private set; }
 
@@ -20,6 +21,7 @@ namespace NWN.Systems
     public void InterpretEntry(TwoDimArrayEntry entry)
     {
       resRef = entry.GetString("BaseResRef");
+      player = entry.GetString("Player");
       mediumPortrait = $"po_{resRef}m";
       gender = entry.GetInt("Sex").GetValueOrDefault(4);
       racialType = entry.GetInt("Race").GetValueOrDefault(28);
@@ -31,20 +33,31 @@ namespace NWN.Systems
   {
     public static readonly TwoDimArray<PortraitEntry> portraitsTable = NwGameTables.GetTable<PortraitEntry>("portraits.2da");
     public static readonly List<string>[,] portraitFilteredEntries = new List<string>[30, 5];
+    public static readonly Dictionary<string, List<string>> playerCustomPortraits = new();
     public Portraits2da(ModuleSystem _)
     {
       //portraitEntries = portraitsTable.Where(p => !string.IsNullOrEmpty(p.resRef));
-      
+
       foreach (var portrait in portraitsTable)
         if (!string.IsNullOrEmpty(portrait.resRef))
-          try 
-          { 
-            portraitFilteredEntries[portrait.racialType, portrait.gender].Add(portrait.mediumPortrait); 
+        {
+          try
+          {
+            portraitFilteredEntries[portrait.racialType, portrait.gender].Add(portrait.mediumPortrait);
           }
-          catch(Exception)
+          catch (Exception)
           {
             portraitFilteredEntries[portrait.racialType, portrait.gender] = new() { portrait.mediumPortrait };
-          }    
+          }
+
+          if (!string.IsNullOrEmpty(portrait.player))
+          {
+            if(!playerCustomPortraits.ContainsKey(portrait.player))
+              playerCustomPortraits.Add(portrait.player, new List<string>() { portrait.mediumPortrait });
+            else
+              playerCustomPortraits[portrait.player].Add(portrait.mediumPortrait);
+          }
+        }
     }
   }
 }

@@ -15,8 +15,7 @@ namespace NWN.Systems
         return;
 
       onSpellAction.PreventSpellCast = true;
-      string distance = "3m".ColorString(ColorConstants.White);
-      onSpellAction.Caster.LoginPlayer?.SendServerMessage($"Vous devez vous situer à moins de {distance} de cette cible pour l'atteindre", ColorConstants.Red);
+      onSpellAction.Caster.LoginPlayer?.SendServerMessage($"Vous devez vous situer à moins de {"3m".ColorString(ColorConstants.White)} de cette cible pour l'atteindre", ColorConstants.Red);
     }
   }
 }

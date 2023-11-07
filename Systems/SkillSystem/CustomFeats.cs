@@ -473,6 +473,8 @@
     public const int FighterArcaneArcherArcaneShot = 20484; // 3 niveaux
     public const int FighterArcaneArcherMagicArrow = 20485;
 
+    public const int AbilityImprovement = 20486;
+    public const int Actor = 20487;
 
     public const int Invalid = 65535;
   }

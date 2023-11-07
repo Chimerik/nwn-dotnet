@@ -19,7 +19,8 @@ namespace NWN.Systems
         protected NuiWindow window { get; set; }
         public NuiWindowToken nuiToken { get; set; }
         public bool IsOpen { get; set; }
-        protected NuiRect rectangle { get; set; }
+        protected float windowWidth;
+        protected float windowHeight;
 
         public PlayerWindow(Player player)
         {

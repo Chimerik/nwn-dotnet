@@ -43,6 +43,7 @@ namespace NWN.Systems
       _client.UserJoined += UpdateUserList;
       _client.UserLeft += UpdateUserListOnLeave;
       _client.Disconnected += OnDiscordDisconnected;
+      _client.ButtonExecuted += OnButtonClick;
 
       requestForumPermissions = requestForumPermissions.Modify(PermValue.Deny, PermValue.Deny, PermValue.Allow, PermValue.Allow, PermValue.Allow, PermValue.Deny, PermValue.Deny, PermValue.Allow, PermValue.Allow, PermValue.Allow, PermValue.Deny
         , PermValue.Allow);
@@ -163,11 +164,11 @@ namespace NWN.Systems
       /*try
       {
         var guildCommand = new SlashCommandBuilder()
-        .WithName("refresh_descriptions")
-        .WithDescription("Met à jour les descriptions des classes, races et compétences")
-        .WithDefaultMemberPermissions(GuildPermission.Administrator);
-        //.AddOption("titre", ApplicationCommandOptionType.String, "Titre", isRequired: true)
-        //.AddOption("contenu", ApplicationCommandOptionType.String, "Demande", isRequired: true);
+        .WithName("portrait_perso")
+        .WithDescription("Demande d'intégration d'un nouveau portrait personnalisé")
+        .WithDefaultMemberPermissions(GuildPermission.SendMessages)
+        .AddOption("compte", ApplicationCommandOptionType.String, "Nom de compte joueur (ex : Chim)", isRequired: true)
+        .AddOption("portrait", ApplicationCommandOptionType.Attachment, "Image perso (format 64x128)", isRequired: true);
 
         var slash = guildCommand.Build();
         await discordServer.CreateApplicationCommandAsync(slash);
@@ -176,7 +177,7 @@ namespace NWN.Systems
       {
         Utils.LogMessageToDMs(exception.Message + exception.StackTrace);
       }*/
-
+      
       //CreateAllSlashCommand();
     }
     private static void CreateAllSlashCommand()
@@ -317,6 +318,9 @@ namespace NWN.Systems
           break;
         case "annonce": // droit staff
           await BotSystem.ExecuteBroadcastAnnouncementCommand(command);
+          break;
+        case "portrait_perso": // droit staff
+          await BotSystem.ExecuteUploadCustomCommand(command);
           break;
         case "staff_demande": // droit général
           await BotSystem.ExecutePlayerRequestCommand(command);
