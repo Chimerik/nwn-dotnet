@@ -16,6 +16,12 @@ namespace NWN.Systems
     [ScriptHandler("intro_start")]
     public void StartEntryScene(CallInfo callInfo)
     {
+      // TODO : a supprimer lorsqu'on réactivera la scène d'intro
+
+      NwPlayer canceledPlayer = NWScript.GetLastSpeaker().ToNwObject<NwCreature>().ControllingPlayer;
+      canceledPlayer.SendServerMessage("C'est tout pour le moment, la scène d'introduction est désactivée le temps que nous mettions les touches finales aux maps du module !");
+      return;
+
       NwCreature captain = (NwCreature)callInfo.ObjectSelf;
       NwArea area = captain.Area;
 

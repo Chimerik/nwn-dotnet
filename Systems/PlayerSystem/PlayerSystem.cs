@@ -241,7 +241,7 @@ namespace NWN.Systems
       LogUtils.LogMessage($"{onLevelUp.Player.LoginCreature.Name} vient d'essayer de level up.", LogUtils.LogType.ModuleAdministration);
       onLevelUp.Player.LoginCreature.Xp = 1;
     }
-    public static void HandleGuiEvents(ModuleEvents.OnPlayerGuiEvent guiEvent)
+    public static async void HandleGuiEvents(ModuleEvents.OnPlayerGuiEvent guiEvent)
     {
       NwPlayer oPC = guiEvent.Player;
       oPC.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
@@ -279,13 +279,23 @@ namespace NWN.Systems
             case GUIPanel.Journal:
 
               if (!player.windows.ContainsKey("mainMenu")) player.windows.Add("mainMenu", new Player.MainMenuWindow(player));
+              else if (((Player.MainMenuWindow)player.windows["mainMenu"]).IsOpen)
+              {
+                await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+                ((Player.MainMenuWindow)player.windows["mainMenu"]).CloseWindow();
+              }
               else ((Player.MainMenuWindow)player.windows["mainMenu"]).CreateWindow();
 
               return;
 
             case GUIPanel.PlayerList:
-
+              
               if (!player.windows.ContainsKey("playerList")) player.windows.Add("playerList", new Player.PlayerListWindow(player));
+              else if (((Player.PlayerListWindow)player.windows["playerList"]).IsOpen)
+              {
+                await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+                ((Player.PlayerListWindow)player.windows["playerList"]).CloseWindow();
+              }
               else ((Player.PlayerListWindow)player.windows["playerList"]).CreateWindow();
 
               return;

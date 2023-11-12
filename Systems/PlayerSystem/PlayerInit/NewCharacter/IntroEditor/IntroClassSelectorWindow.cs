@@ -349,20 +349,31 @@ namespace NWN.Systems
 
               foreach(int skill in Fighter.availableSkills)
               {
-                if (!player.learnableSkills.ContainsKey(skill))
+                if (!player.learnableSkills.ContainsKey(skill) || player.learnableSkills[skill].source.Any(so => so == Category.Class))
                 {
                   skillList1.Add(new NuiComboEntry(learnableDictionary[skill].name, skill));
                   skillList2.Add(new NuiComboEntry(learnableDictionary[skill].name, skill));
                 }
               }
 
-              skillList1.RemoveAt(1);
-              skillSelection1.SetBindValue(player.oid, nuiToken.Token, skillList1);
-              selectedSkill1.SetBindValue(player.oid, nuiToken.Token, skillList1.First().Value);
+              var bonusSkills = player.learnableSkills.Values.Where(s => s.category == Category.Skill && s.source.Any(so => so == Category.Class));
 
-              skillList2.RemoveAt(0);
+              if(bonusSkills.Count() > 1)
+              {
+                skillList1.Remove(skillList1.First(s => s.Value == bonusSkills.ElementAt(1).id));
+                skillList2.Remove(skillList2.First(s => s.Value == bonusSkills.ElementAt(0).id));
+              }
+              else
+              {
+                skillList1.RemoveAt(1);
+                skillList2.RemoveAt(0);
+              }
+
+              skillSelection1.SetBindValue(player.oid, nuiToken.Token, skillList1);
+              selectedSkill1.SetBindValue(player.oid, nuiToken.Token, bonusSkills.Any() ? bonusSkills.ElementAt(0).id : skillList1.First().Value);
+
               skillSelection2.SetBindValue(player.oid, nuiToken.Token, skillList2);
-              selectedSkill2.SetBindValue(player.oid, nuiToken.Token, skillList2.First().Value);
+              selectedSkill2.SetBindValue(player.oid, nuiToken.Token, bonusSkills.Count() > 1 ? bonusSkills.ElementAt(1).id : skillList2.First().Value);
 
               break;
           }
@@ -386,7 +397,7 @@ namespace NWN.Systems
 
               foreach (int skill in Fighter.availableSkills)
               {
-                if (!player.learnableSkills.ContainsKey(skill))
+                if (!player.learnableSkills.ContainsKey(skill) || player.learnableSkills[skill].source.Any(so => so == Category.Class))
                 {
                   skillList1.Add(new NuiComboEntry(learnableDictionary[skill].name, skill));
                   skillList2.Add(new NuiComboEntry(learnableDictionary[skill].name, skill));

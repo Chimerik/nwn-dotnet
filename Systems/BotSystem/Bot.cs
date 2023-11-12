@@ -40,7 +40,7 @@ namespace NWN.Systems
       _client.SlashCommandExecuted += SlashCommandHandler;
       _client.Ready += OnDiscordConnected;
       _client.GuildMembersDownloaded += OnUsersDownloaded;
-      _client.UserJoined += UpdateUserList;
+      _client.UserJoined += OnUserJoinUpdateUserList;
       _client.UserLeft += UpdateUserListOnLeave;
       _client.Disconnected += OnDiscordDisconnected;
       _client.ButtonExecuted += OnButtonClick;
@@ -55,25 +55,6 @@ namespace NWN.Systems
     {
       ModuleSystem.Log.Info($"{DateTime.Now,-19} [{message.Severity,8}] {message.Source}: {message.Message} {message.Exception}");
       return Task.CompletedTask;
-    }
-    private static async Task UpdateUserList(SocketGuildUser data)
-    {
-      await _client.DownloadUsersAsync(new List<IGuild> { { discordServer } });
-
-      if (data.IsBot)
-        return;
-
-      await data.AddRoleAsync(1026507902074245216);
-      await playerGeneralChannel.SendMessageAsync($"Bonjour {data.Mention} et bienvenue sur le Discord des Larmes des Erylies.\n\n Pour commencer, n'hésite pas à consulter notre livre du joueur : \n https://docs.google.com/document/d/1ammPGnH-sVjNHnJHCMAm_khbe8mBqTPFeCfqCvJt7ig/edit?usp=sharing");
-
-      if (!forumCategory.Channels.Any(c => c.Name == data.Username.ToLower().Replace(" ", "-")))
-      {
-        var chan = await discordServer.CreateForumChannelAsync(data.Username, f => { f.CategoryId = forumCategory.Id; } );
-        await chan.AddPermissionOverwriteAsync(data, requestForumPermissions);
-        await chan.CreatePostAsync("Suivi personnalisé", ThreadArchiveDuration.OneWeek, null, $"Bonjour {data.Mention} !\n\n" +
-          $"Bienvenue sur ton forum personnalisé de suivi de joueur. Ce forum et les sujets qu'il contient ne sont visibles que pour toi et le staff.\n\n" +
-          $"Cela permettra donc de nous faire parvenir tes demandes RP et d'en suivre l'avancement, ainsi que de tenir au courant le staff des derniers développements de ton personnage !");
-      }
     }
     private static async Task UpdateUserListOnLeave(SocketGuild guild, SocketUser user)
     {
@@ -123,10 +104,9 @@ namespace NWN.Systems
       staffGeneralChannel = _client.GetChannel(680072044364562532) as IMessageChannel;
       playerGeneralChannel = _client.GetChannel(1026545572099924088) as IMessageChannel;
       logChannel = _client.GetChannel(703964971549196339) as IMessageChannel;
-      forumCategory = discordServer.GetCategoryChannel(1031290085154500739);
       logForum = discordServer.GetForumChannel(1084562366794043453);
       chatLogForum = discordServer.GetForumChannel(1091614035335729213);
-
+      
       chimDiscordUser = _client.GetUser(232218662080086017);
       bigbyDiscordUser = _client.GetUser(225961076448034817);
 
@@ -164,11 +144,9 @@ namespace NWN.Systems
       /*try
       {
         var guildCommand = new SlashCommandBuilder()
-        .WithName("portrait_perso")
-        .WithDescription("Demande d'intégration d'un nouveau portrait personnalisé")
-        .WithDefaultMemberPermissions(GuildPermission.SendMessages)
-        .AddOption("compte", ApplicationCommandOptionType.String, "Nom de compte joueur (ex : Chim)", isRequired: true)
-        .AddOption("portrait", ApplicationCommandOptionType.Attachment, "Image perso (format 64x128)", isRequired: true);
+        .WithName("create_forums")
+        .WithDescription("Force la création des forums joueurs persos")
+        .WithDefaultMemberPermissions(GuildPermission.Administrator);
 
         var slash = guildCommand.Build();
         await discordServer.CreateApplicationCommandAsync(slash);
@@ -204,6 +182,7 @@ namespace NWN.Systems
       CreateSlashCommand("rumeur_lire", "Lire une rumeur", GuildPermission.MentionEveryone, "rumeur", "Identifiant de la rumeur", ApplicationCommandOptionType.Integer);
       CreateSlashCommand("reboot", "Reboot le module", GuildPermission.Administrator);
       CreateSlashCommand("refill", "Refill ressources", GuildPermission.Administrator);
+      CreateSlashCommand("create_forums", "Force la synchro des forums joueurs", GuildPermission.Administrator);
       CreateSlashCommand("register", "Lier son compte Discord et Never", GuildPermission.SendMessages, "public_key", "Votre clef publique Never", ApplicationCommandOptionType.String);
       CreateSlashCommand("quiestla", "Combien sommes nous actuellement en jeu ?", GuildPermission.SendMessages);
       CreateSlashCommand("joueurs_liste", "Obtenir la liste des joueurs connectés", GuildPermission.MentionEveryone);
@@ -302,6 +281,9 @@ namespace NWN.Systems
           break;
         case "refill": // droit admin
           await BotSystem.ExecuteRefillCommand(command);
+          break;
+        case "create_forums": // droit admin
+          await ExecuteForceForumsCommand(command);
           break;
         case "register": // droit général
           await BotSystem.ExecuteRegisterDiscordId(command);

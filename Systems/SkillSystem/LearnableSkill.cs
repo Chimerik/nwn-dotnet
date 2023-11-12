@@ -13,7 +13,8 @@ namespace NWN.Systems
     public int totalPoints { get { return currentLevel /*+ bonusPoints*/; } }
     public double bonusMultiplier { get { return 1 + (totalPoints / 100); } }
     public double bonusReduction { get { return 1 - (totalPoints / 100); } }
-    
+    public int levelTaken { get; }
+    public Dictionary<int, int[]> featOptions { get; }
 
 
     public LearnableSkill(int id, string name, string description, SkillSystem.Category category, string icon, int maxLevel, int multiplier, Ability primaryAbility,
@@ -23,7 +24,7 @@ namespace NWN.Systems
       this.category = category;
       this.skillEffect = skillEffect;
     }
-    public LearnableSkill(LearnableSkill learnableBase, int skillSource = -1, bool active = false, double acquiredSP = 0, int currentLevel = 0) : base(learnableBase)
+    public LearnableSkill(LearnableSkill learnableBase, int skillSource = -1, bool active = false, double acquiredSP = 0, int currentLevel = 0, int levelTaken = 0, Dictionary<int, int[]> featOptions = null) : base(learnableBase)
     {
       this.category = learnableBase.category;
       this.skillEffect = learnableBase.skillEffect;
@@ -31,6 +32,8 @@ namespace NWN.Systems
       this.acquiredPoints = acquiredSP;
       this.currentLevel = currentLevel;
       this.pointsToNextLevel = 250 * multiplier * Math.Pow(5, currentLevel);
+      this.levelTaken = levelTaken;
+      this.featOptions = featOptions;
       this.source = new();
 
       if (skillSource > -1)
@@ -46,6 +49,8 @@ namespace NWN.Systems
       pointsToNextLevel = 250 * multiplier * Math.Pow(5, currentLevel);
       spLastCalculation = serializableBase.spLastCalculation;
       skillEffect = learnableBase.skillEffect;
+      levelTaken = serializableBase.levelTaken;
+      featOptions = serializableBase.featOptions;
       source = new();
 
       if(serializableBase.source is not null)
@@ -58,6 +63,8 @@ namespace NWN.Systems
       public bool active { get; set; }
       public double acquiredPoints { get; set; }
       public int currentLevel { get; set; }
+      public int levelTaken { get; set; }
+      public Dictionary<int, int[]> featOptions { get; set; }
       public List<int> source { get; set; }
       public DateTime? spLastCalculation { get; set; }
 
@@ -70,6 +77,8 @@ namespace NWN.Systems
         active = learnableBase.active;
         acquiredPoints = learnableBase.acquiredPoints;
         currentLevel = learnableBase.currentLevel;
+        levelTaken = learnableBase.levelTaken;
+        featOptions = learnableBase.featOptions;
         spLastCalculation = learnableBase.spLastCalculation;
 
         if (learnableBase.source is not null)

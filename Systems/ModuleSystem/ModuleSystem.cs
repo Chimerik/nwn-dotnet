@@ -137,10 +137,10 @@ namespace NWN.Systems
       LoadHeadLists();
       StringUtils.InitializeTlkOverrides();
 
-      TimeSpan activationOn5AM = DateTime.Now.Hour < 5 ? new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 5, 0, 0) - DateTime.Now : DateTime.Now.AddDays(1).AddHours(-(DateTime.Now.Hour - 5)) - DateTime.Now;
-      TimeSpan activationOn6AM = DateTime.Now.Hour < 6 ? new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 6, 0, 0) - DateTime.Now : DateTime.Now.AddDays(1).AddHours(-(DateTime.Now.Hour - 6)) - DateTime.Now;
+      TimeSpan activationOn5AM = DateTime.Now.Hour < 4 ? new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 4, 0, 0) - DateTime.Now : DateTime.Now.AddDays(1).AddHours(-(DateTime.Now.Hour - 4)).AddMinutes(-DateTime.Now.Minute).AddSeconds(-DateTime.Now.Second) - DateTime.Now;
+      TimeSpan activationOn6AM = DateTime.Now.Hour < 5 ? new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 5, 0, 0) - DateTime.Now : DateTime.Now.AddDays(1).AddHours(-(DateTime.Now.Hour - 5)).AddMinutes(-DateTime.Now.Minute).AddSeconds(-DateTime.Now.Second) - DateTime.Now;
 
-      LogUtils.LogMessage($"Prochain reboot programmé à : {DateTime.Now.Add(activationOn5AM)}", LogUtils.LogType.ModuleAdministration);
+      LogUtils.LogMessage($"Prochain reboot programmé à : {DateTime.Now.Add(activationOn5AM).AddHours(1)}", LogUtils.LogType.ModuleAdministration);
 
       scheduler.ScheduleRepeating(HandlePlayerLoop, TimeSpan.FromSeconds(1));
       scheduler.ScheduleRepeating(HandleSaveDate, TimeSpan.FromMinutes(1));

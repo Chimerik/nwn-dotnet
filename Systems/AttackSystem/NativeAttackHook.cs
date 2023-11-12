@@ -61,7 +61,7 @@ namespace NWN.Systems
 
       CNWSCombatRound combatRound = creature.m_pcCombatRound;
       CNWSCombatAttackData attackData = combatRound.GetAttack(combatRound.m_nCurrentAttack);
-      CNWSItem targetArmor = targetCreature.m_pInventory.GetItemInSlot((uint)EquipmentSlot.Chest);
+      CNWSItem targetArmor = targetCreature?.m_pInventory.GetItemInSlot((uint)EquipmentSlot.Chest);
 
       //NativeUtils.SendNativeServerMessage($"Current attack : {combatRound.m_nCurrentAttack}".ColorString(StringUtils.gold), creature);
 

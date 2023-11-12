@@ -29,7 +29,7 @@ namespace NWN.Systems
               img.Mutate(c => c.Rotate(RotateMode.Rotate180));
               await img.SaveAsTgaAsync($"../../../.local/share/Neverwinter Nights/development/po_{resName}m.tga");
 
-              await File.AppendAllTextAsync($"../../../.local/share/Neverwinter Nights/development/portraits.2da", $"\n{resName} {resName} **** **** **** **** **** {splitCommand[1]}");
+              await File.AppendAllTextAsync($"../../../.local/share/Neverwinter Nights/development/portraits.2da", $"\n{resName} {resName} **** **** **** 1 **** {splitCommand[1]}");
               File.Delete(file);
             }
 

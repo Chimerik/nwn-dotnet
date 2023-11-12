@@ -10,6 +10,7 @@ using Microsoft.Data.Sqlite;
 
 using Newtonsoft.Json;
 using NWN.Core;
+using static NWN.Systems.PlayerSystem;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace NWN.Systems
@@ -412,7 +413,13 @@ namespace NWN.Systems
         //oid.LoginCreature.OnHeal -= SpellSystem.PreventHeal;
         //oid.LoginCreature.OnEffectApply -= EffectSystem.CheckFaerieFire;
 
-        if(oid.LoginCreature.GetObjectVariable<LocalVariableInt>(EffectSystem.ConcentrationSpellIdString).Value != CustomSpell.FlameBlade
+        if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_ABILITY_IMPROVEMENT_FEAT").HasValue)
+        {
+          if (!windows.ContainsKey("abilityImprovement")) windows.Add("abilityImprovement", new AbilityImprovementWindow(this));
+          else ((AbilityImprovementWindow)windows["abilityImprovement"]).CreateWindow();
+        }
+
+        if (oid.LoginCreature.GetObjectVariable<LocalVariableInt>(EffectSystem.ConcentrationSpellIdString).Value != CustomSpell.FlameBlade
           && oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand)?.Tag == "_TEMP_FLAME_BLADE")
             oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand).Destroy();
 

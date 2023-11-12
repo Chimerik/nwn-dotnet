@@ -30,7 +30,7 @@ namespace NWN.Systems
       bonusAction = entry.GetInt("ActionType").GetValueOrDefault(0);
       savingThrowAbility = (Ability)entry.GetInt("SavingThrow").GetValueOrDefault(-1);
       requiresConcentration = entry.GetInt("UseConcentration").GetValueOrDefault(0) == 2;
-      requiresSomatic = entry.GetString("VS").Contains('s');
+      requiresSomatic = entry.GetString("VS")?.Contains('s') ?? false;
 
       StrRef nameEntry = entry.GetStrRef("Name").GetValueOrDefault(StrRef.FromCustomTlk(0));
 
@@ -57,7 +57,7 @@ namespace NWN.Systems
       {
         NwSpell spell = NwSpell.FromSpellId(entry.RowIndex);
         if(spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Wizard)) == 0)
-          Utils.mageCanTripList.Add(new NuiComboEntry(spell.Name.ToString(), spell.Id));
+          Utils.mageCanTripList.Add(new NuiComboEntry(spell.Name.ToString(), spell.FeatReference.Id));
       }
 
       SpellUtils.UpdateSpellDescriptionTable();

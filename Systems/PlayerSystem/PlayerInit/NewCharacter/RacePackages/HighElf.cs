@@ -46,7 +46,7 @@ namespace NWN.Systems
 
         if (bonusSelection > -1)
         {
-          NwFeat feat = NwSpell.FromSpellId(bonusSelection).FeatReference;
+          NwFeat feat = NwFeat.FromFeatId(bonusSelection);
           if (learnableSkills.TryAdd(feat.Id, new LearnableSkill((LearnableSkill)learnableDictionary[feat.Id])))
             learnableSkills[feat.Id].LevelUp(this);
 

@@ -46,7 +46,6 @@ namespace NWN.Systems
 
             languageList.SetBindValue(player.oid, nuiToken.Token, GetPlayerLanguageList());
             languageSelection.SetBindValue(player.oid, nuiToken.Token, player.currentLanguage);
-
             languageSelection.SetBindWatch(player.oid, nuiToken.Token, true);
 
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
@@ -55,13 +54,14 @@ namespace NWN.Systems
         }
         private List<NuiComboEntry> GetPlayerLanguageList()
         {
-          List<NuiComboEntry> languageList = new List<NuiComboEntry>();
-
-          languageList.Add(new NuiComboEntry("Commun", 0));
+          List<NuiComboEntry> languageList = new() { new NuiComboEntry("Commun", 0) };
 
           foreach (var language in player.learnableSkills.Values)
+          {
             if (language.category == SkillSystem.Category.Language && language.currentLevel > 0)
               languageList.Add(new NuiComboEntry(language.name, language.id));
+              
+          }
 
           return languageList;
         }

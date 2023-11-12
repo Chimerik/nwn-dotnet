@@ -2,7 +2,6 @@
 using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
-using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
@@ -167,6 +166,9 @@ namespace NWN.Systems
 
                     LearnableSkill bonusSkill = player.learnableSkills.Values.FirstOrDefault(s => s.category == SkillSystem.Category.Magic && s.source.Any(so => so == SkillSystem.Category.Race));
                     selectedBonusSkill.SetBindValue(player.oid, nuiToken.Token, bonusSkill is not null ? bonusSkill.id : -1);
+
+                    if (bonusSkill is not null)
+                      ModuleSystem.Log.Info($"{bonusSkill.name} -");
 
                     if (selectedBonusSkill.GetBindValue(player.oid, nuiToken.Token) > -1)
                     {
@@ -377,7 +379,7 @@ namespace NWN.Systems
           List<NuiComboEntry> tempBonusList = new();
 
           foreach (var skill in list)
-            if (!player.learnableSkills.ContainsKey(skill.Value))
+            if (!player.learnableSkills.ContainsKey(skill.Value) || player.learnableSkills[skill.Value].source.Any(so => so == SkillSystem.Category.Race))
               tempBonusList.Add(skill);
 
           bonusSelectionList.SetBindValue(player.oid, nuiToken.Token, tempBonusList);

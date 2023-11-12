@@ -83,6 +83,9 @@ namespace NWN.Systems
         }
         public void CreateWindow()
         {
+
+          selectedLearnable = null;
+
           validatedLearnableId = player.learnableSkills.Any(l => l.Value.category == SkillSystem.Category.StartingTraits)
             ? player.learnableSkills.FirstOrDefault(l => l.Value.category == SkillSystem.Category.StartingTraits).Value.id
             : -1;

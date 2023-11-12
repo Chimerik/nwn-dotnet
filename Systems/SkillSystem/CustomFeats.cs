@@ -475,6 +475,7 @@
 
     public const int AbilityImprovement = 20486;
     public const int Actor = 20487;
+    public const int Vigilant = 20488;
 
     public const int Invalid = 65535;
   }

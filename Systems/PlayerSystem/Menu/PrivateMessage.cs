@@ -6,9 +6,6 @@ using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
 
-using static System.Net.Mime.MediaTypeNames;
-using static Anvil.API.Events.ModuleEvents;
-
 namespace NWN.Systems
 {
   public partial class PlayerSystem
@@ -44,7 +41,7 @@ namespace NWN.Systems
 
         public void CreateWindow()
         {
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) && player.windowRectangles[windowId].Width > 0 && player.windowRectangles[windowId].Width < player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.7f, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 3);
+          NuiRect savedRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(0, 0, player.guiScaledWidth * 0.4f, player.guiScaledHeight * 0.3f);
 
           window = new NuiWindow(rootColumn, windowId)
           {
@@ -64,7 +61,7 @@ namespace NWN.Systems
             writingChat.SetBindValue(player.oid, nuiToken.Token, "");
 
             writingChat.SetBindWatch(player.oid, nuiToken.Token, true);
-            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindValue(player.oid, nuiToken.Token, savedRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
             UpdateChat();

@@ -11,7 +11,7 @@ namespace NWN.Systems
   {
     private async void DailyReboot()
     {
-      LogUtils.LogMessage($"Début de la séquence de reboot quotidient", LogUtils.LogType.ModuleAdministration);
+      LogUtils.LogMessage($"Début de la séquence de reboot quotidienne", LogUtils.LogType.ModuleAdministration);
 
       foreach (NwPlayer connectingPlayer in NwModule.Instance.Players.Where(p => p.LoginCreature == null))
         connectingPlayer.BootPlayer("Navré, le module est en cours de redémarrage. Vous pourrez vous reconnecter dans une minute.");

@@ -17,7 +17,7 @@ namespace NWN.Systems
       if (!NwModule.Instance.Areas.Any(a => a.Tag == "entry_scene"))
         return NwModule.Instance.StartingLocation;
 
-      NwArea arrivalArea = NwArea.Create("intro_galere", $"entry_scene_{player.CDKey}", $"La galère de {player.PlayerName} (Bienvenue !)");
+      NwArea arrivalArea = NwArea.Create("intro_galere", $"entry_scene_{player.CDKey}", $"La galère de {player.LoginCreature.OriginalName} (Bienvenue !)");
       arrivalArea.OnExit += areaSystem.OnIntroAreaExit;
 
       arrivalArea.FindObjectsOfTypeInArea<NwCreature>().FirstOrDefault(c => c.Tag == "CapitaineMarco").OnConversation += OnConversationIntroCaptain;
