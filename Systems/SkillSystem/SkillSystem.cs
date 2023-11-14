@@ -4,6 +4,10 @@ using NLog;
 using Anvil.API;
 using System.ComponentModel;
 using System.Threading.Tasks;
+using NWN.Core;
+using System.Security.Cryptography;
+using System.Linq;
+
 namespace NWN.Systems
 {
   public static partial class SkillSystem
@@ -188,14 +192,17 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomSkill.Voleur, new LearnableSkill(CustomSkill.Voleur, "Voleur", "Permet de parler et comprendre le langage des voleurs.", Category.Language, "icon_elf", 1, 763, Ability.Intelligence, Ability.Wisdom));
       learnableDictionary.Add(CustomSkill.Gnome, new LearnableSkill(CustomSkill.Gnome, "Gnome", "Permet de parler et comprendre le gnome.", Category.Language, "icon_elf", 1, 763, Ability.Intelligence, Ability.Wisdom));
 
-      //learnableDictionary.Add(CustomSkill.ImprovedAttackBonus, new LearnableSkill(CustomSkill.ImprovedAttackBonus, "Attaque améliorée", "Augmente la pénétration d'armure d'un point par niveau.", Category.Fight, "ife_tough", 12, 2, Ability.Constitution, Ability.Dexterity, false, HandleImproveAttack));
-      //learnableDictionary.Add(CustomSkill.ImprovedCasterLevel, new LearnableSkill(CustomSkill.ImprovedCasterLevel, "Maîtrise des sorts", "Augmente le niveau de lanceur de sorts d'un point par niveau.", Category.Magic, "ife_tough", 12, 3, Ability.Constitution, Ability.Charisma));
-
       // FEATS
 
       learnableDictionary.Add(CustomSkill.AbilityImprovement, new LearnableSkill(CustomSkill.AbilityImprovement, "Amélioration de caractéristiques", "Choisissez une caractéristique à laquelle ajouter un bonus de +2 ou deux caractéristiques auxquelles ajouter un bonus de +1.\n\nCe don ne vous permet pas d'aller au-delà de 20 dans une même caractéristique.", Category.Race, "ife_aurabrave", 1, 5, Ability.Constitution, Ability.Intelligence, OnAbilityImprovement));
       learnableDictionary.Add(CustomSkill.Actor, new LearnableSkill(CustomSkill.Actor, "Vigilant", "Vous gagnez un point de charisme (maximum 20).\n\nVous avez un avantage en Tromperie et Représentation lorsque vous tenter de vous faire passer pour une autre personne.\n\nVous pouvez imiter le discours d'une autre personne ou les sons émis par d'autres créatures. Vous devez avoir entendu la personne qui parle, ou entendu la créature émettre le son, pendant au moins 1 minute. Un jet réussi d'Intuition contre votre jet de Tromperie permet à celui qui écoute de déterminer qu'il s'agit d'une imitation.", Category.Feat, "ife_emptybod", 1, 5, Ability.Charisma, Ability.Dexterity, OnLearnActor));
       learnableDictionary.Add(CustomSkill.Vigilant, new LearnableSkill(CustomSkill.Vigilant, "Vigilant", "Toujours en train de guetter le danger, vous gagnez les effets ci-dessous :\n- Vous ne pouvez pas être surpris\nLes créatures que vous ne pouvez pas voir ne bénéficient pas d'un avantage lorsqu'elles vous attaquent", Category.Feat, "is_Vigilant", 1, 5, Ability.Wisdom, Ability.Dexterity));
+      learnableDictionary.Add(CustomSkill.Sportif, new LearnableSkill(CustomSkill.Sportif, "Sportif", "Vous avez suivi une intense formation physique. Vous bénéficiez des effets ci-dessous :\n- +1 Force ou Dextérité (max 20)\n-  Lorsque vous êtes renversé, vous restez au sol deux fois moins longtemps\n- Escalader ne vous coûte pas de mouvement supplémentaire\n- Vous pouvez faire un saut en longueur ou en hauteur avec seulement 1,50 mètre d'élan, au lieu de 3 mètres", Category.Feat, "is_Sportif", 1, 5, Ability.Strength, Ability.Dexterity, OnLearnSportif));
+      learnableDictionary.Add(CustomSkill.Chargeur, new LearnableSkill(CustomSkill.Chargeur, "Chargeur", "Lorsque vous utilisez l'action \"Sprint\" et que vous vous déplacez de plus de trois mètres, vous utilisez automatiquement votre action bonus, si vous en avez une, pour gagner +5 sur votre prochaine attaque.", Category.Feat, "is_Charger", 1, 5, Ability.Strength, Ability.Dexterity));
+      learnableDictionary.Add(CustomSkill.MaitreArbaletrier, new LearnableSkill(CustomSkill.MaitreArbaletrier, "Maître Arbalétrier", "Grâce à votre longue pratique de l'arbalète, vous bénéficiez des effets ci-dessous :\n- Vous ignorez la propriété de chargement des arbalètes que vous maitrisez\n- Vous ne subissez plus de désavantage sur vos jets d'attaque à distance à l'arbalète si une créature hostile se trouve engagée en mêlée avec vous\n- Double la durée des Plaies Béantes infligées par vos Tirs Perçants\n- Lorsque vous attaquez avec une arbalète de poing (remplacée en jeu par le shuriken), vous utilisez automatiquement votre action bonus (si vous en avez une disponible) pour effectuer une attaque supplémentaire", Category.Feat, "is_ArbaMaster", 1, 5, Ability.Dexterity, Ability.Constitution, OnLearnMaitreArbaletrier));
+      learnableDictionary.Add(CustomSkill.DuellisteDefensif, new LearnableSkill(CustomSkill.DuellisteDefensif, "Duelliste Défensif", "Lorsque vous tenez une arme de finesse que vous maîtrisez, la prochaine fois qu'une créature vous touche avec une attaque de mêlée, vous utilisez votre réaction pour ajouter votre bonus de maîtrise à votre CA pour cette attaque, ce qui pourrait vous permettre de parer l'attaque.", Category.Feat, "is_DefDuel", 1, 5, Ability.Dexterity, Ability.Constitution, OnLearnDefensiveDuellist));
+      learnableDictionary.Add(CustomSkill.AmbiMaster, new LearnableSkill(CustomSkill.AmbiMaster, "Maître Ambidextre", "Vous maîtrisez le combat à deux armes et bénéficiez des effets ci-dessous :\n- Vous gagnez un bonus de +1 à la CA si vous tenez une arme de mêlée dans chaque main\n- Vous pouvez utiliser le combat à deux armes même si les armes de corps à corps à une main que vous tenez ne sont pas légères. Ne s'applique pas aux armes Lourdes\n- Vous pouvez dégainer ou rengainer deux armes à une main en une seule action alors qu'il vous en faudrait normalement deux.", Category.Feat, "is_AmbiMaster", 1, 5, Ability.Dexterity, Ability.Constitution, OnLearnAmbiMaster));
+      learnableDictionary.Add(CustomSkill.DungeonExpert, new LearnableSkill(CustomSkill.DungeonExpert, "Expert en donjons", "Vigilant face aux pièges cachés et portes secrètes que l'on trouve dans de nombreux donjons, vous obtenez les bénéfices ci-dessous :\n- Vous avez un avantage aux jets de Sagesse (Perception) et Intelligence (Investigation) effectués pour détecter la présence de portes secrètes\n- Vous avez un avantage aux jets de sauvegarde pour éviter ou résister aux pièges\n- Vous obtenez la résistance aux dégâts infligés par les pièges\n- Vous ne subissez pas de malus sur vos jets de Sagesse (Perception) passifs lorsque vous vous déplacez rapidement", Category.Feat, "is_DungeonExpert", 1, 5, Ability.Dexterity, Ability.Wisdom, OnLearnDungeonExpert));
 
       // RACES
       // HUMAN
@@ -1336,13 +1343,6 @@ namespace NWN.Systems
     private static bool HandleWarriorCombatStyle(PlayerSystem.Player player, int customSkillId)
     {
       // TODO : ouvrir une fenêtre pour proposer un choix parmi les styles de combat en excluant les styles déjà connus par le personnage
-
-      return true;
-    }
-    private static bool HandleProtectionStyle(PlayerSystem.Player player, int customSkillId)
-    {
-      player.oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipApplyProtectionStyle;
-      player.oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipRemoveProtectionStyle;
 
       return true;
     }

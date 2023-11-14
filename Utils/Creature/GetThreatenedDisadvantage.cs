@@ -1,15 +1,25 @@
-﻿using NWN.Native.API;
+﻿using Anvil.API;
+using NWN.Native.API;
 using NWN.Systems;
 using System.Linq;
+using Feat = NWN.Native.API.Feat;
 
 namespace NWN
 {
   public static partial class CreatureUtils
   {
-    public static int GetThreatenedDisadvantage(CNWSCreature attacker, int isRangedAttack)
+    public static int GetThreatenedDisadvantage(CNWSCreature attacker, int isRangedAttack, CNWSItem attackWeapon = null)
     {
-      return isRangedAttack < 1 || !attacker.m_appliedEffects.Any(e => e.m_sCustomTag == EffectSystem.threatenedEffectExoTag)
-      ? 0 : -1;
+      var isCrossbowAttack = (BaseItemType)attackWeapon?.m_nBaseItem switch
+      {
+        BaseItemType.LightCrossbow or BaseItemType.HeavyCrossbow or BaseItemType.Shuriken => true,
+        _ => false,
+      };
+
+      return isRangedAttack < 1 || (isCrossbowAttack && attacker.m_pStats.HasFeat((ushort)Feat.PointBlankShot) > 1)
+        || !attacker.m_appliedEffects.Any(e => e.m_sCustomTag == EffectSystem.threatenedEffectExoTag)
+        ? 0 
+        : -1;
 
       /*foreach (var gameObject in attacker.GetArea().m_aGameObjects)
       {

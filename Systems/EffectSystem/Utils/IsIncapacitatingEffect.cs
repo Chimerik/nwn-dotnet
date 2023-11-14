@@ -1,12 +1,16 @@
 ﻿using Anvil.API;
+using NWN.Systems;
 
 namespace NWN
 {
   public static partial class EffectUtils
   {
-    public static bool IsIncapacitatingEffect(EffectType eff) // TODO : Il manque l'effet Knockdown, peut-être à appliquer avec un tag ?
+    public static bool IsIncapacitatingEffect(Effect eff)
     {
-      return eff switch
+      if (eff.Tag == EffectSystem.KnockdownEffectTag)
+        return true;
+
+      return eff.EffectType switch
       {
         EffectType.Charmed or EffectType.Confused or EffectType.CutsceneImmobilize 
         or EffectType.CutsceneParalyze or EffectType.Dazed or EffectType.Dominated

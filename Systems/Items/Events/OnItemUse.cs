@@ -32,10 +32,10 @@ namespace NWN.Systems
         switch (oTarget.Tag)
         {
           // Utilisation en mode extraction
-          case "mineable_materia": HandleOnTargetMineableMateria(onUse); return;
+          case "mineable_materia": HandleOnTargetMineableMateria(onUse); break;
           case "forge":
           case "scierie":
-          case "tannerie": HandleOnTargetCraftWorkshop(onUse); return;
+          case "tannerie": HandleOnTargetCraftWorkshop(onUse); break;
         }
       }
       else // Utilisation en mode scanner ?

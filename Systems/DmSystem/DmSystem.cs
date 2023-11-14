@@ -10,6 +10,7 @@ namespace NWN.Systems
     public DmSystem(PlaceableSystem placeableSystem, EventService eventService)
     {
       eventService.SubscribeAll<OnDMSpawnObject, DMEventFactory>(HandleAfterDmSpawnObject, EventCallbackType.After);
+      eventService.SubscribeAll<OnDMSpawnTrapOnObject, DMEventFactory>(HandleAfterDmSpawnTrapOnObject, EventCallbackType.After);
       NwModule.Instance.OnDMJumpTargetToPoint += HandleAfterDmJumpTarget;
       NwModule.Instance.OnDMJumpAllPlayersToPoint += HandleBeforeDMJumpAllPlayers;
       NwModule.Instance.OnDMGiveXP += HandleBeforeDmGiveXP;
@@ -23,8 +24,19 @@ namespace NWN.Systems
         oItem.GetObjectVariable<LocalVariableString>("DM_ITEM_CREATED_BY").Value = onSpawn.DungeonMaster.PlayerName;
         LogUtils.LogMessage($"{onSpawn.DungeonMaster.PlayerName} créé {oItem.Name}", LogUtils.LogType.DMAction);
       }
-      else if(onSpawn.SpawnedObject is NwCreature creature)
+      else if (onSpawn.SpawnedObject is NwCreature creature)
         creature.OnDeath += CreatureUtils.MakeInventoryUndroppable;
+      else if (onSpawn.SpawnedObject is NwTrigger trigger)
+        trigger.OnTrapTriggered += PlaceableSystem.OnTrapTriggered;
+    }
+    public static void HandleAfterDmSpawnTrapOnObject(OnDMSpawnTrapOnObject onSpawn)
+    {
+      if (onSpawn.Target is NwPlaceable plc)
+      {
+        plc.OnTrapTriggered += PlaceableSystem.OnTrapTriggered;
+      }
+      else if (onSpawn.Target is NwDoor door)
+        door.OnTrapTriggered += PlaceableSystem.OnTrapTriggered;
     }
     public static void HandleAfterDmJumpTarget(OnDMJumpTargetToPoint onJump)
     {

@@ -55,6 +55,9 @@ namespace NWN.Systems
           plc.VisibilityOverride = VisibilityMode.AlwaysVisible;
         else if (!plc.Useable && plc.AnimationState != AnimationState.PlaceableActivated)
           plc.IsStatic = true;
+
+        if(plc.IsTrapped)
+          plc.OnTrapTriggered += OnTrapTriggered;
       }
 
       foreach (NwDoor door in NwObject.FindObjectsOfType<NwDoor>())
@@ -72,7 +75,14 @@ namespace NWN.Systems
 
         if (door.VisualTransform.Scale != 1 || door.VisualTransform.Translation != Vector3.Zero || door.VisualTransform.Rotation != Vector3.Zero)
           door.VisibilityOverride = VisibilityMode.AlwaysVisible;
+
+        if (door.IsTrapped)
+          door.OnTrapTriggered += OnTrapTriggered;
       }
+
+      foreach (NwTrigger trigger in NwObject.FindObjectsOfType<NwTrigger>())
+        if (trigger.IsTrapped)
+          trigger.OnTrapTriggered += OnTrapTriggered;
 
       foreach (NwCreature corpse in NwObject.FindObjectsWithTag<NwCreature>("dead_wererat"))
       {

@@ -476,6 +476,12 @@
     public const int AbilityImprovement = 20486;
     public const int Actor = 20487;
     public const int Vigilant = 20488;
+    public const int Sportif = 20489;
+    public const int Chargeur = 20490;
+    public const int MaitreArbaletrier = 20491;
+    public const int DuellisteDefensif = 20492;
+    public const int AmbiMaster = 20493;
+    public const int DungeonExpert = 20494;
 
     public const int Invalid = 65535;
   }

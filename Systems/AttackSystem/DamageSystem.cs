@@ -4,7 +4,6 @@ using Anvil.API.Events;
 using System;
 using Action = System.Action;
 using Context = NWN.Systems.Config.Context;
-using System.Linq;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
@@ -34,13 +33,22 @@ namespace NWN.Systems
       if (onDamage.Target is not NwCreature target)
         return;
 
+      if(target.KnowsFeat(NwFeat.FromFeatType(Feat.KeenSense)) && (onDamage.DamagedBy is NwPlaceable || onDamage.DamagedBy is NwDoor || onDamage.DamagedBy is NwTrigger))
+      {
+        foreach (DamageType damageType in (DamageType[])Enum.GetValues(typeof(DamageType)))
+          if (onDamage.DamageData.GetDamageByType(damageType) > -1)
+            onDamage.DamageData.SetDamageByType(damageType, (int)Math.Round((double)onDamage.DamageData.GetDamageByType(damageType) / 2, MidpointRounding.ToEven));
+
+        target?.LoginPlayer.DisplayFloatingTextStringOnCreature(target, "Expert en donjons".ColorString(StringUtils.gold));
+      }
+      
       DamageUtils.HandleImplacableEndurance(onDamage, target);
       DamageUtils.HandleConcentration(onDamage, target);
 
       if (onDamage.DamagedBy is NwCreature damager && target != damager)
         DamageUtils.HandleHellishRebuke(target, damager);
 
-
+      
 
       // TODO : prendre en compte le cas des pièges
       //if (onDamage.Target is null || onDamage.DamageData.GetDamageByType(DamageType.BaseWeapon) > -1 || onDamage.Target is not NwCreature oTarget) // S'il ne s'agit pas d'un sort, alors le calcul des dégâts a déjà été traité lors de l'event d'attaque

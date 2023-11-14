@@ -21,7 +21,7 @@ namespace NWN
       advantage += GetTargetAdvantageEffects(target);
       advantage += GetSmallCreaturesHeavyWeaponDisadvantage(attacker, weaponType);
       advantage += GetRangedWeaponDistanceDisadvantage(attacker, attackData.m_bRangedAttack, weaponType, target);
-      advantage += GetThreatenedDisadvantage(attacker, attackData.m_bRangedAttack);
+      advantage += GetThreatenedDisadvantage(attacker, attackData.m_bRangedAttack, attackWeapon);
       advantage += GetInvisibleTargetDisadvantage(attacker, target);
       advantage += GetInvisibleAttackerAdvantage(attacker, target);
 

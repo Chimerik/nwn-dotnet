@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using Anvil.API;
 using Anvil.API.Events;
+using NWN.Native.API;
 using NWN.Systems;
 using DamageType = Anvil.API.DamageType;
 using InventorySlot = Anvil.API.InventorySlot;
@@ -15,6 +16,7 @@ namespace NWN
   public static partial class CreatureUtils
   {
     public const string ReactionVariable = "_REACTION";
+    public readonly static CExoString ReactionVariableExo = "_REACTION".ToExoString();
     public const string BonusActionVariable = "_BONUS_ACTION";
     public const string OriginalSizeVariable = "_ORIGINAL_SIZE";
     public readonly static Dictionary<string, NwCreature> creatureSpawnDictionary = new();

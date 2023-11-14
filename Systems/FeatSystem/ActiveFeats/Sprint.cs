@@ -5,10 +5,13 @@ namespace NWN.Systems
 {
   public partial class FeatSystem
   {
-    private static async void Sprint(NwCreature caster)
+    private static async void Sprint(NwCreature caster, PlayerSystem.Player player)
     {
       await NwTask.Delay(TimeSpan.FromSeconds(3));
-      caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.dodgeEffect, NwTimeSpan.FromRounds(1));
+      caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.sprintEffect, NwTimeSpan.FromRounds(1));
+
+      if (player.learnableSkills.ContainsKey(CustomSkill.Chargeur))
+        caster.GetObjectVariable<LocalVariableLocation>("_CHARGER_INITIAL_LOCATION").Value = caster.Location;
     }
   }
 }

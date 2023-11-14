@@ -5,6 +5,7 @@ using System.Linq;
 using NWN.Core;
 using System.Numerics;
 using System;
+using Feat = NWN.Native.API.Feat;
 
 namespace NWN.Systems
 {
@@ -189,11 +190,14 @@ namespace NWN.Systems
       }*/
       
       // TODO : l'attaque supplémentaire de la handcrossbow (shuriken) sera conditionnée au don Crossbow Expert
-      /*if(attackWeapon is not null && attackWeapon.m_nBaseItem == (uint)BaseItemType.Shuriken && creature.m_ScriptVars.GetInt(isBonusActionAvailableVariable) > 0)
+      if(attackWeapon is not null && attackWeapon.m_nBaseItem == (uint)BaseItemType.Shuriken 
+        && creature.m_pStats.HasFeat((ushort)Feat.RapidReload) > 1
+        && creature.m_ScriptVars.GetInt(isBonusActionAvailableVariable) > 0)
       {
         combatRound.AddAttackOfOpportunity(targetCreature.m_idSelf);
         creature.m_ScriptVars.SetInt(isBonusActionAvailableVariable, creature.m_ScriptVars.GetInt(isBonusActionAvailableVariable) - 1);
-      }*/
+        NativeUtils.SendNativeServerMessage($"Maître arbalétrier - Attaque supplémentaire !".ColorString(StringUtils.gold), creature);
+      }
          
       if (targetCreature is not null)
       {
@@ -207,6 +211,7 @@ namespace NWN.Systems
         string rollString = $"{attackRoll} + {attackBonus} = {attackRoll + attackBonus}".ColorString(new Color(32, 255, 32));
         string criticalString = "";
         string advantageString = advantage == 0 ? "" : advantage > 0 ? "Avantage - ".ColorString(StringUtils.gold) : "Désavantage - ".ColorString(ColorConstants.Red);
+        int totalAttack = attackRoll + attackBonus;
 
         if (attackRoll == 20) // TODO : certains items permettront d'augmenter la plage des critiques dans certaines conditions
         {
@@ -214,7 +219,7 @@ namespace NWN.Systems
           criticalString = "CRITIQUE - ".ColorString(StringUtils.gold);
           LogUtils.LogMessage("Coup critique", LogUtils.LogType.Combat);
         }
-        else if (attackRoll > 1 && attackRoll + attackBonus > targetAC)
+        else if (attackRoll > 1 && totalAttack > targetAC)
         {
           if (attackData.m_bRangedAttack < 1 && targetCreature.m_appliedEffects.Any(e => (EffectTrueType)e.m_nType == EffectTrueType.SetState && e.GetInteger(0) == 8)) // Si la cible est paralysée, que l'attaque touche et est en mêlée, alors critique auto
           {
@@ -224,8 +229,22 @@ namespace NWN.Systems
           }
           else
           {
-            attackData.m_nAttackResult = 1;
-            LogUtils.LogMessage($"Touché : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC}", LogUtils.LogType.Combat);
+            int defensiveDuellistBonus = NativeUtils.GetDefensiveDuellistBonus(targetCreature, attackData.m_bRangedAttack);
+            
+            if (totalAttack > targetAC + defensiveDuellistBonus)
+            {
+              attackData.m_nAttackResult = 1;
+              LogUtils.LogMessage($"Touché : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC + defensiveDuellistBonus}", LogUtils.LogType.Combat);
+            }
+            else
+            {
+              attackData.m_nAttackResult = 4;
+              attackData.m_nMissedBy = (byte)(targetAC - attackRoll) > 8 ? (byte)Utils.random.Next(1, 9) : (byte)(targetAC - attackRoll);
+              hitString = "manquez".ColorString(ColorConstants.Red);
+              rollString = rollString.StripColors().ColorString(ColorConstants.Red);
+              NativeUtils.SendNativeServerMessage($"Duelliste défensif activé !".ColorString(ColorConstants.Orange), creature);
+              LogUtils.LogMessage($"Manqué : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC + defensiveDuellistBonus}", LogUtils.LogType.Combat);
+            }
           }
         }
         else

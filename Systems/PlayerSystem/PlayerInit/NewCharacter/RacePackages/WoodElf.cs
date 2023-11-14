@@ -10,6 +10,11 @@ namespace NWN.Systems
     {
       private void ApplyWoodElfPackage()
       {
+        if (learnableSkills.TryAdd(CustomSkill.Elfique, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Elfique])))
+          learnableSkills[CustomSkill.Elfique].LevelUp(this);
+
+        learnableSkills[CustomSkill.Elfique].source.Add(Category.Race);
+
         if (learnableSkills.TryAdd(CustomSkill.PerceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PerceptionProficiency])))
           learnableSkills[CustomSkill.PerceptionProficiency].LevelUp(this);
 

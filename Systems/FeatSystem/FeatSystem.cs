@@ -23,7 +23,7 @@ namespace NWN.Systems
           onUseFeat.PreventFeatUse = true;
           return;
 
-        case CustomSkill.Sprint: Sprint(onUseFeat.Creature); return;
+        case CustomSkill.Sprint: Sprint(onUseFeat.Creature, player); return;
         case CustomSkill.Disengage: Disengage(onUseFeat.Creature); return;
         case CustomSkill.Dodge: Dodge(onUseFeat.Creature); return;
         case CustomSkill.FighterSecondWind: SecondWind(onUseFeat.Creature); return;

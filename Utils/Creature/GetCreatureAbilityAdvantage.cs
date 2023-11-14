@@ -27,7 +27,7 @@ namespace NWN
       foreach (var eff in creature.ActiveEffects)
       {
         if ((ability == Ability.Strength || ability == Ability.Dexterity)
-              && SpellUtils.HandleSpellTargetIncapacitated(caster, creature, eff.EffectType, spellEntry))
+              && SpellUtils.HandleSpellTargetIncapacitated(caster, creature, eff, spellEntry))
           return -1000;
 
         switch(ability)

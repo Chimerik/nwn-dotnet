@@ -236,12 +236,14 @@ namespace NWN.Systems
               {
                 case "channelSelection":
 
-                  string channelChoice = "hair";
                   ColorChannel selectedChannel = (ColorChannel)channelSelection.GetBindValue(player.oid, nuiToken.Token);
-                  if (selectedChannel != ColorChannel.Hair)
-                    channelChoice = "skin";
 
-                  ModuleSystem.Log.Info($"channelChoice : {channelChoice}");
+                  string channelChoice = selectedChannel switch
+                  {
+                    ColorChannel.Hair => "hair",
+                    ColorChannel.Skin => "skin",
+                    _ => "leather",
+                  };
 
                   for (int i = 0; i < 56; i++)
                     colorBindings[i].SetBindValue(player.oid, nuiToken.Token, NWScript.ResManGetAliasFor($"{channelChoice}{i + 1}", NWScript.RESTYPE_TGA) != "" ? $"{channelChoice}{i + 1}" : $"leather{i + 1}");

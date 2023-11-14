@@ -366,9 +366,11 @@ namespace NWN.Systems
           player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.PoisonSpray));
           player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.Light));
           player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.LightDrow));
+          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.ProduceFlame));
+          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.FlameBlade));
+          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.Thaumaturgy));
 
           player.oid.LoginCreature.TailType = CreatureTailType.None;
-
 
           foreach (ItemProperty ip in player.oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties)
             if (ip.Property.PropertyType == ItemPropertyType.ImmunityDamageType)

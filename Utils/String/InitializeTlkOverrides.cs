@@ -251,6 +251,9 @@ namespace NWN
 
       tlkEntry = StrRef.FromCustomTlk(190156);
       tlkEntry.Override = "Style de combat - Protection";
+
+      tlkEntry = StrRef.FromCustomTlk(190157);
+      tlkEntry.Override = "Maître Ambidextre";
     }
   }
 }

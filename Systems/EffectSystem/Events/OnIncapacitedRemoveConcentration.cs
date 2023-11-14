@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     public static void OnIncapacitatedRemoveConcentration(OnEffectApply onEffect)
     {
-      if (onEffect.Object is not NwCreature creature || !EffectUtils.IsIncapacitatingEffect(onEffect.Effect.EffectType))
+      if (onEffect.Object is not NwCreature creature || !EffectUtils.IsIncapacitatingEffect(onEffect.Effect))
         return;
 
       SpellUtils.DispelConcentrationEffects(creature);

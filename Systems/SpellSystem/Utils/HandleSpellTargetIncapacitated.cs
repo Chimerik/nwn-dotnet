@@ -4,12 +4,12 @@ namespace NWN.Systems
 {
   public static partial class SpellUtils
   {
-    public static bool HandleSpellTargetIncapacitated(NwCreature caster, NwCreature target, EffectType effectType, SpellEntry spellEntry)
+    public static bool HandleSpellTargetIncapacitated(NwCreature caster, NwCreature target, Effect effect, SpellEntry spellEntry)
     {
       if (spellEntry.savingThrowAbility != Ability.Dexterity && spellEntry.savingThrowAbility != Ability.Strength)
         return false;
 
-      if (EffectUtils.IsIncapacitatingEffect(effectType))
+      if (EffectUtils.IsIncapacitatingEffect(effect))
       {
         NwSpell spell = NwSpell.FromSpellId(spellEntry.RowIndex);
         SendSaveAutoFailMessage(caster, target, spell.Name.ToString(), StringUtils.TranslateAttributeToFrench(spellEntry.savingThrowAbility));

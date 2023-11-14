@@ -50,11 +50,6 @@ namespace NWN.Systems
 
     public ModuleSystem(SchedulerService schedulerService)
     {
-      /*NwCreature victim = NwCreature.Create("nw_chicken", NwModule.Instance.StartingLocation, false, "test_victim");
-      Log.Info($"-------------------------------{victim.Name}-{victim.HP}-------------------------------------------------");
-      victim.OnDeath += MakeInventoryUndroppable;
-      victim.ApplyEffect(EffectDuration.Instant, Effect.Death(false, false));*/
-
       // Ces deux lignes permettent de résoudre le conflit entre le sqlite du jeu de base et le sqlite de .net que j'utilise
       NativeLibrary.SetDllImportResolver(typeof(SQLite3Provider_e_sqlite3).Assembly, ResolveFromNwServer);
       Marshal.PrelinkAll(typeof(SQLite3Provider_e_sqlite3));
@@ -411,7 +406,9 @@ namespace NWN.Systems
 
       EventsPlugin.SubscribeEvent("NWNX_ON_CALENDAR_DUSK", "remov_drowsensi");
       EventsPlugin.SubscribeEvent("NWNX_ON_CALENDAR_DAWN", "apply_drow_sensi");
-      
+
+      EventsPlugin.SubscribeEvent("NWNX_ON_TRAP_SET_AFTER", "on_set_trap");
+
       // ImprovedTwoWeaponFighting donne une attaque supplémentaire avec l'off-hand pour une pénalité de -5 BA. A voir dans le cas de Thief qui dual fight avec 2 actions bonus
       //EventsPlugin.AddIDToWhitelist("NWNX_ON_HAS_FEAT", (int)Feat.ImprovedTwoWeaponFighting);
 

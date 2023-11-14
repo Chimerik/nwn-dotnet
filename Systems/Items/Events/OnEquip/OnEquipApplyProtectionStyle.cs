@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
 using NWN.Core;
@@ -13,7 +12,7 @@ namespace NWN.Systems
       NwCreature oPC = onEquip.EquippedBy;
       NwItem shield = oPC.GetItemInSlot(InventorySlot.LeftHand);
 
-      if (oPC is null || shield is null || oPC.ActiveEffects.Any(e => e.Tag == EffectSystem.ProtectionStyleAuraEffectTag))
+      if (onEquip.Slot != InventorySlot.LeftHand || oPC.ActiveEffects.Any(e => e.Tag == EffectSystem.ProtectionStyleAuraEffectTag))
         return;
 
       switch(shield.BaseItem.ItemType)
@@ -28,19 +27,10 @@ namespace NWN.Systems
       NwCreature oPC = onUnEquip.Creature;
       NwItem shield = onUnEquip.Item;
 
-      if (oPC is null || shield is null || !oPC.ActiveEffects.Any(e => e.Tag == EffectSystem.ProtectionStyleAuraEffectTag))
+      if (oPC.GetSlotFromItem(shield) != EquipmentSlots.LeftHand || !oPC.ActiveEffects.Any(e => e.Tag == EffectSystem.ProtectionStyleAuraEffectTag))
         return;
 
-      switch (shield.BaseItem.ItemType)
-      {
-        case BaseItemType.SmallShield:
-        case BaseItemType.LargeShield:
-        case BaseItemType.TowerShield: 
-          foreach(var eff in oPC.ActiveEffects)
-            if(eff.Tag == EffectSystem.ProtectionStyleAuraEffectTag)
-              oPC.RemoveEffect(eff);
-          break;
-      }
+      EffectUtils.RemoveTaggedEffect(oPC, EffectSystem.ProtectionStyleAuraEffectTag);
     }
   }
 }

@@ -9,8 +9,6 @@ using Anvil.Services;
 using Microsoft.Data.Sqlite;
 
 using Newtonsoft.Json;
-using NWN.Core;
-using static NWN.Systems.PlayerSystem;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace NWN.Systems
@@ -407,46 +405,19 @@ namespace NWN.Systems
         ApplyDrowLightSensitivity();
         ApplyHumanVersatility();
         ApplyHalfOrcEndurance();
+        InitializeAbilityImprovementFeat();
+        InitializeBonusAbilityChoice();
+        ResetFlameBlade();
+        ResetSize();
+        ApplyProtectionStyle();
+        ApplyAmbiMaster();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();
         //oid.LoginCreature.OnHeal -= SpellSystem.PreventHeal;
         //oid.LoginCreature.OnEffectApply -= EffectSystem.CheckFaerieFire;
 
-        if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_ABILITY_IMPROVEMENT_FEAT").HasValue)
-        {
-          if (!windows.ContainsKey("abilityImprovement")) windows.Add("abilityImprovement", new AbilityImprovementWindow(this));
-          else ((AbilityImprovementWindow)windows["abilityImprovement"]).CreateWindow();
-        }
-
-        if (oid.LoginCreature.GetObjectVariable<LocalVariableInt>(EffectSystem.ConcentrationSpellIdString).Value != CustomSpell.FlameBlade
-          && oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand)?.Tag == "_TEMP_FLAME_BLADE")
-            oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand).Destroy();
-
-        if (oid.LoginCreature.GetObjectVariable<PersistentVariableFloat>(CreatureUtils.OriginalSizeVariable).HasValue &&
-          oid.LoginCreature.GetObjectVariable<PersistentVariableFloat>(CreatureUtils.OriginalSizeVariable).Value != oid.LoginCreature.VisualTransform.Scale
-          && !oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.EnlargeEffectTag))
-          oid.LoginCreature.VisualTransform.Scale = oid.LoginCreature.GetObjectVariable<PersistentVariableFloat>(CreatureUtils.OriginalSizeVariable).Value;
-
-        if(learnableSkills.TryGetValue(CustomSkill.FighterCombatStyleProtection, out var protection) && protection.currentLevel > 0)
-        {
-          oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipApplyProtectionStyle;
-          oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipRemoveProtectionStyle;
-          oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipApplyProtectionStyle;
-          oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipRemoveProtectionStyle;
-
-          switch(oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand)?.BaseItem.ItemType)
-          {
-            case BaseItemType.SmallShield:
-            case BaseItemType.LargeShield:
-            case BaseItemType.TowerShield:
-              if (!oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.ProtectionStyleEffectTag))
-                NWScript.AssignCommand(oid.LoginCreature, () => oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.protectionStyleAura));
-              break;
-          }
-        }
-
-          pcState = PcState.Online;
+        pcState = PcState.Online;
         oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
       }
       private void HandleHealthPointInit()
