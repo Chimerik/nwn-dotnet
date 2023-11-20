@@ -38,7 +38,7 @@ namespace NWN.Systems
           disadvantageDictionary[EffectSystem.ShieldArmorDisadvantageEffectTag] = disadvantageDictionary[EffectSystem.ShieldArmorDisadvantageEffectTag] || EffectSystem.ShieldArmorDisadvantageEffectTag == eff.Tag;
         }
 
-        int advantage = -disadvantageDictionary.Count(v => v.Value) + advantageDictionary.Count(v => v.Value) + creature.KnowsFeat(Feat.KeenSense).ToInt();
+        int advantage = -disadvantageDictionary.Count(v => v.Value) + advantageDictionary.Count(v => v.Value) + creature.KnowsFeat(Feat.KeenSense).ToInt() + (creature.Race.Id == CustomRace.Duergar).ToInt();
         int proficiencyBonus = SpellUtils.GetSavingThrowProficiencyBonus(creature, Ability.Dexterity);
         int saveRoll = NativeUtils.HandleHalflingLuck(creature, Utils.RollAdvantage(advantage));
         int totalSave = saveRoll + proficiencyBonus;
@@ -47,6 +47,8 @@ namespace NWN.Systems
 
         if (saveFailed)
           NWScript.AssignCommand(trap, () => creature.ApplyEffect(EffectDuration.Temporary, Effect.Paralyze(), TimeSpan.FromSeconds(entry.duration)));
+        else
+          damage /= 2;
 
         if (creature.KnowsFeat(Feat.KeenSense))
         {

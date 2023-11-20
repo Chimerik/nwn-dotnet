@@ -19,6 +19,10 @@ namespace NWN.Systems
         case TrapBaseType.AverageHoly:
         case TrapBaseType.StrongHoly: 
         case TrapBaseType.DeadlyHoly:
+        case TrapBaseType.MinorAcidSplash:
+        case TrapBaseType.AverageAcidSplash:
+        case TrapBaseType.StrongAcidSplash:
+        case TrapBaseType.DeadlyAcidSplash:
           SpikeTrap(targets, trap, trapTable.GetRow((int)type)); return;
         case TrapBaseType.MinorAcid:
         case TrapBaseType.AverageAcid:
@@ -31,16 +35,31 @@ namespace NWN.Systems
         case TrapBaseType.MinorFire:
         case TrapBaseType.AverageFire:
         case TrapBaseType.StrongFire:
-        case TrapBaseType.DeadlyFire: FireTrap(trap, trapTable.GetRow((int)type)); return;
+        case TrapBaseType.DeadlyFire:
+        case TrapBaseType.EpicFire: FireTrap(trap, trapTable.GetRow((int)type)); return;
         case TrapBaseType.MinorElectrical:
         case TrapBaseType.AverageElectrical:
         case TrapBaseType.StrongElectrical:
-        case TrapBaseType.DeadlyElectrical: ElecTrap(trap, trapTable.GetRow((int)type)); return;
+        case TrapBaseType.DeadlyElectrical: 
+        case TrapBaseType.EpicElectrical: ElecTrap(trap, trapTable.GetRow((int)type)); return;
         case TrapBaseType.MinorGas:
         case TrapBaseType.AverageGas:
         case TrapBaseType.StrongGas:
         case TrapBaseType.DeadlyGas: GasTrap(trap, trapTable.GetRow((int)type)); return;
-
+        case TrapBaseType.MinorFrost:
+        case TrapBaseType.AverageFrost:
+        case TrapBaseType.StrongFrost:
+        case TrapBaseType.DeadlyFrost:
+        case TrapBaseType.EpicFrost: FrostTrap(targets, trap, trapTable.GetRow((int)type)); return;
+        case TrapBaseType.MinorNegative:
+        case TrapBaseType.AverageNegative:
+        case TrapBaseType.StrongNegative:
+        case TrapBaseType.DeadlyNegative: NecroticTrap(targets, trap, trapTable.GetRow((int)type)); return;
+        case TrapBaseType.MinorSonic:
+        case TrapBaseType.AverageSonic:
+        case TrapBaseType.StrongSonic:
+        case TrapBaseType.DeadlySonic:
+        case TrapBaseType.EpicSonic: SonicTrap(trap, trapTable.GetRow((int)type)); return;
       }
     }
   }
