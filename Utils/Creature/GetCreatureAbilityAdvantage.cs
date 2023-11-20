@@ -33,15 +33,15 @@ namespace NWN
         switch(ability)
         {
           case Ability.Strength:
-            advantageDictionary[eff.Tag] = advantageDictionary[eff.Tag] || EffectSystem.EnlargeEffectTag == eff.Tag;
+            advantageDictionary[EffectSystem.EnlargeEffectTag] = advantageDictionary[EffectSystem.EnlargeEffectTag] || EffectSystem.EnlargeEffectTag == eff.Tag;
 
-            disadvantageDictionary[eff.Tag] = disadvantageDictionary[eff.Tag] || EffectSystem.ShieldArmorDisadvantageEffectTag == eff.Tag;
+            disadvantageDictionary[EffectSystem.ShieldArmorDisadvantageEffectTag] = disadvantageDictionary[EffectSystem.ShieldArmorDisadvantageEffectTag] || EffectSystem.ShieldArmorDisadvantageEffectTag == eff.Tag;
             break;
 
           case Ability.Dexterity:
-            advantageDictionary[eff.Tag] = advantageDictionary[eff.Tag] || EffectSystem.DodgeEffectTag == eff.Tag;
+            advantageDictionary[EffectSystem.DodgeEffectTag] = advantageDictionary[EffectSystem.DodgeEffectTag] || EffectSystem.DodgeEffectTag == eff.Tag;
 
-            disadvantageDictionary[eff.Tag] = disadvantageDictionary[eff.Tag] || EffectSystem.ShieldArmorDisadvantageEffectTag == eff.Tag;
+            disadvantageDictionary[EffectSystem.ShieldArmorDisadvantageEffectTag] = disadvantageDictionary[EffectSystem.ShieldArmorDisadvantageEffectTag] || EffectSystem.ShieldArmorDisadvantageEffectTag == eff.Tag;
             break;
         }
       }

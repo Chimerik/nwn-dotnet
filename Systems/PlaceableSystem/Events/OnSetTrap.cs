@@ -8,7 +8,7 @@ namespace NWN.Systems
   public partial class PlaceableSystem
   {
     [ScriptHandler("on_set_trap")]
-    public static void OnSetTrap(CallInfo callInfo)
+    public void OnSetTrap(CallInfo callInfo)
     {
       var trap = NWScript.StringToObject(EventsPlugin.GetEventData("TRAP_OBJECT_ID")).ToNwObject<NwGameObject>();
 

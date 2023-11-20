@@ -32,15 +32,6 @@ namespace NWN.Systems
     {
       if (onDamage.Target is not NwCreature target)
         return;
-
-      if(target.KnowsFeat(NwFeat.FromFeatType(Feat.KeenSense)) && (onDamage.DamagedBy is NwPlaceable || onDamage.DamagedBy is NwDoor || onDamage.DamagedBy is NwTrigger))
-      {
-        foreach (DamageType damageType in (DamageType[])Enum.GetValues(typeof(DamageType)))
-          if (onDamage.DamageData.GetDamageByType(damageType) > -1)
-            onDamage.DamageData.SetDamageByType(damageType, (int)Math.Round((double)onDamage.DamageData.GetDamageByType(damageType) / 2, MidpointRounding.ToEven));
-
-        target?.LoginPlayer.DisplayFloatingTextStringOnCreature(target, "Expert en donjons".ColorString(StringUtils.gold));
-      }
       
       DamageUtils.HandleImplacableEndurance(onDamage, target);
       DamageUtils.HandleConcentration(onDamage, target);

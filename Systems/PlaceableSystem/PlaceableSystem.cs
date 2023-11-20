@@ -14,11 +14,13 @@ namespace NWN.Systems
   [ServiceBinding(typeof(PlaceableSystem))]
   public partial class PlaceableSystem
   {
-    public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public readonly SchedulerService scheduler;
-    public PlaceableSystem(SchedulerService schedulerService)
+    public static readonly TwoDimArray<TrapEntry> trapTable = NwGameTables.GetTable<TrapEntry>("traps.2da");
+    public static ScriptCallbackHandle gasTrapHandler;
+    public PlaceableSystem(SchedulerService schedulerService, ScriptHandleFactory scriptHandleFactory)
     {
       scheduler = schedulerService;
+      gasTrapHandler = scriptHandleFactory.CreateUniqueHandler(OnEnterGasTrap);
 
       foreach (NwPlaceable plc in NwObject.FindObjectsOfType<NwPlaceable>())
       {

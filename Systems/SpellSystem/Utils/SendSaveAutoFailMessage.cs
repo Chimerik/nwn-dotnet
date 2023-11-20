@@ -6,11 +6,10 @@ namespace NWN.Systems
   {
     public static void SendSaveAutoFailMessage(NwCreature caster, NwCreature target, string spellName, string abilityName)
     {
-      string autoFail = "ECHEC AUTOMATIQUE".ColorString(ColorConstants.Red);
-      caster.LoginPlayer?.SendServerMessage($"{target.Name.ColorString(ColorConstants.Cyan)} - JDS {abilityName} vs {spellName} : {autoFail}".ColorString(ColorConstants.Orange));
+      caster.LoginPlayer?.SendServerMessage($"{target.Name.ColorString(ColorConstants.Cyan)} - JDS {abilityName} vs {spellName} : {"ECHEC AUTOMATIQUE".ColorString(ColorConstants.Red)}".ColorString(ColorConstants.Orange));
 
       if (target != caster)
-        target.LoginPlayer?.SendServerMessage($"{caster.Name.ColorString(ColorConstants.Cyan)} - JDS {abilityName} vs {spellName} : {autoFail}".ColorString(ColorConstants.Orange));
+        target.LoginPlayer?.SendServerMessage($"{caster.Name.ColorString(ColorConstants.Cyan)} - JDS {abilityName} vs {spellName} : {"ECHEC AUTOMATIQUE".ColorString(ColorConstants.Red)}".ColorString(ColorConstants.Orange));
     }
   }
 }

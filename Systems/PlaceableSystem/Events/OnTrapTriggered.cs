@@ -1,4 +1,7 @@
-﻿using Anvil.API.Events;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Anvil.API;
+using Anvil.API.Events;
 
 namespace NWN.Systems
 {
@@ -6,15 +9,17 @@ namespace NWN.Systems
   {
     public static void OnTrapTriggered(DoorEvents.OnTrapTriggered onTrap)
     {
-      // JDS + dégâts + avantage si expert en donjon
+      if(onTrap.TriggeredBy is NwCreature target)
+        HandleTrapTriggered(new List<NwCreature> { target }, onTrap.Door.TrapBaseType, onTrap.Door);
     }
     public static void OnTrapTriggered(PlaceableEvents.OnTrapTriggered onTrap)
     {
-      // JDS + dégâts + avantage si expert en donjon
+      if (onTrap.TriggeredBy is NwCreature target)
+        HandleTrapTriggered(new List<NwCreature> { target }, onTrap.Placeable.TrapBaseType, onTrap.Placeable);
     }
     public static void OnTrapTriggered(TriggerEvents.OnTrapTriggered onTrap)
     {
-      // JDS + dégâts + avantage si expert en donjon
+      HandleTrapTriggered(onTrap.Trigger.GetObjectsInTrigger<NwCreature>().ToList(), onTrap.Trigger.TrapBaseType, onTrap.Trigger);
     }
   }
 }
