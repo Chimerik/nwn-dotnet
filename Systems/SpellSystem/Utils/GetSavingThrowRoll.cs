@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     public static int GetSavingThrowRoll(NwCreature target, SpellEntry spellEntry, int advantage, SpellConfig.SavingThrowFeedback feedback)
     {
-      int proficiencyBonus = GetSavingThrowProficiencyBonus(target, spellEntry);
+      int proficiencyBonus = GetSavingThrowProficiencyBonus(target, spellEntry) + ItemUtils.GetShieldMasterBonusSave(target, spellEntry.savingThrowAbility);
       int saveRoll = NativeUtils.HandleHalflingLuck(target, Utils.RollAdvantage(advantage));
 
       feedback.dexProficiencyBonus = proficiencyBonus;

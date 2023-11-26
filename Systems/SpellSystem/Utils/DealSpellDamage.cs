@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Security.AccessControl;
 using Anvil.API;
 using NWN.Core;
 
@@ -19,6 +20,8 @@ namespace NWN.Systems
         int roll = NwRandom.Roll(Utils.random, spellEntry.damageDice);
         damage += isElementalist && roll < 2 ? 2 : roll;
       }
+
+      damage = ItemUtils.GetShieldMasterReducedDamage(target, damage, saveFailed, spellEntry.savingThrowAbility);
 
       if (!saveFailed)
         damage /= 2;

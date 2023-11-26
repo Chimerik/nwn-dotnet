@@ -418,6 +418,8 @@ namespace NWN.Systems
 
       LogUtils.LogMessage($"Dégâts : {baseDamage}", LogUtils.LogType.Combat);
 
+      baseDamage -= NativeUtils.HandleMaitreArmureLourde(targetObject);
+
       // Application des réductions du jeu de base
       baseDamage = targetObject.DoDamageImmunity(attacker, baseDamage, damageFlags, 0, 1);
       LogUtils.LogMessage($"Application des immunités de la cible - Dégats : {baseDamage}", LogUtils.LogType.Combat);

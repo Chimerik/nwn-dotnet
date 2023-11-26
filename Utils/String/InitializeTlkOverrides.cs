@@ -257,6 +257,9 @@ namespace NWN
 
       tlkEntry = StrRef.FromCustomTlk(190158);
       tlkEntry.Override = "Cogneur Lourd";
+
+      tlkEntry = StrRef.FromCustomTlk(190162);
+      tlkEntry.Override = "Cogneur Lourd";
     }
   }
 }

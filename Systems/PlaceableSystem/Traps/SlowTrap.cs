@@ -38,7 +38,7 @@ namespace NWN.Systems
         }
 
         int advantage = -disadvantageDictionary.Count(v => v.Value) + advantageDictionary.Count(v => v.Value) + creature.KnowsFeat(Feat.KeenSense).ToInt();
-        int proficiencyBonus = SpellUtils.GetSavingThrowProficiencyBonus(creature, Ability.Dexterity);
+        int proficiencyBonus = SpellUtils.GetSavingThrowProficiencyBonus(creature, Ability.Dexterity) + ItemUtils.GetShieldMasterBonusSave(creature, Ability.Dexterity);
         int saveRoll = NativeUtils.HandleHalflingLuck(creature, Utils.RollAdvantage(advantage));
         int totalSave = saveRoll + proficiencyBonus;
         bool saveFailed = totalSave < entry.baseDC; // TODO : Variabiliser le DD selon la compétence de celui qui a posé le piège

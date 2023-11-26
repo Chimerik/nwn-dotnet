@@ -2434,8 +2434,8 @@ namespace NWN.Systems
         case BaseItemType.Kukri:
         case BaseItemType.Whip: featList.Add((int)Feat.WeaponProficiencyExotic); break;
         case BaseItemType.SmallShield:
-        case BaseItemType.LargeShield:
-        case BaseItemType.TowerShield: featList.Add((int)Feat.ShieldProficiency); break;
+        case BaseItemType.LargeShield: featList.Add((int)Feat.ShieldProficiency); break;
+        case BaseItemType.TowerShield: featList.Add(CustomSkill.MaitreBouclier); break;
         case BaseItemType.Armor:
           switch(baseAC)
           {

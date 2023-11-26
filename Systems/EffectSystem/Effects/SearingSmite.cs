@@ -48,7 +48,7 @@ namespace NWN.Systems
         else
         {
           foreach (var eff in onHB.Creature.ActiveEffects)
-            if (eff.Tag == EffectSystem.searingSmiteBurnEffectTag)
+            if (eff.Tag == searingSmiteBurnEffectTag)
               onHB.Creature.RemoveEffect(eff);
 
           onHB.Creature.OnHeartbeat -= OnSearingSmiteBurn;

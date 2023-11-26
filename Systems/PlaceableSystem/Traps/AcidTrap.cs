@@ -39,11 +39,13 @@ namespace NWN.Systems
         }
 
         int advantage = -disadvantageDictionary.Count(v => v.Value) + advantageDictionary.Count(v => v.Value) + creature.KnowsFeat(Feat.KeenSense).ToInt() + (creature.Race.Id == CustomRace.Duergar).ToInt();
-        int proficiencyBonus = SpellUtils.GetSavingThrowProficiencyBonus(creature, Ability.Dexterity);
+        int proficiencyBonus = SpellUtils.GetSavingThrowProficiencyBonus(creature, Ability.Dexterity) + ItemUtils.GetShieldMasterBonusSave(creature, Ability.Dexterity);
         int saveRoll = NativeUtils.HandleHalflingLuck(creature, Utils.RollAdvantage(advantage));
         int totalSave = saveRoll + proficiencyBonus;
         int damage = NwRandom.Roll(Utils.random, entry.damageDice, entry.numDice); // TODO : Variabiliser les dégâts selon la compétence de l'artisan
         bool saveFailed = totalSave < entry.baseDC; // TODO : Variabiliser le DD selon la compétence de celui qui a posé le piège
+
+        damage = ItemUtils.GetShieldMasterReducedDamage(creature, damage, saveFailed);
 
         if (saveFailed)
           NWScript.AssignCommand(trap, () => creature.ApplyEffect(EffectDuration.Temporary, Effect.Paralyze(), TimeSpan.FromSeconds(entry.duration)));

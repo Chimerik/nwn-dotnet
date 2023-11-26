@@ -413,6 +413,7 @@ namespace NWN.Systems
         ApplyAmbiMaster();
         ApplyCrossbowMaster();
         ApplyCogneurLourd();
+        ApplyMaitreArmureIntermediaire();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

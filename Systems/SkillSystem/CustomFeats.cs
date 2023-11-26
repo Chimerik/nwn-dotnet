@@ -62,6 +62,8 @@
     public const int BrandingSmite = 1369;
     public const int Dodge = 1370;
     public const int CogneurLourd = 1371;
+    public const int MaitreArmureLourde = 1372;
+    public const int MaitreBouclier = 1373;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -485,6 +487,10 @@
     public const int DungeonExpert = 20494;
     public const int Gaillard = 20495;
     public const int Elementaliste = 20496;
+    public const int ProtectionLegere = 20497;
+    public const int ProtectionIntermediaire = 20498;
+    public const int ProtectionLourde = 20499;
+    public const int MaitreArmureIntermediaire = 20500;
 
     public const int Invalid = 65535;
   }
