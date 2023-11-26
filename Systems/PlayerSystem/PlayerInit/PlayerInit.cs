@@ -411,6 +411,8 @@ namespace NWN.Systems
         ResetSize();
         ApplyProtectionStyle();
         ApplyAmbiMaster();
+        ApplyCrossbowMaster();
+        ApplyCogneurLourd();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

@@ -8,6 +8,7 @@ namespace NWN.Systems
     {
       await NwTask.NextFrame();
       caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.dodgeEffect, NwTimeSpan.FromRounds(2));
+      caster.OnCreatureAttack += CreatureUtils.OnAttackRemoveDodge;
     }
   }
 }

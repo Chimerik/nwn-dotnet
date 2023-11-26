@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics.Metrics;
-using Anvil.API;
+﻿using Anvil.API;
 using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
@@ -23,6 +21,7 @@ namespace NWN.Systems
 
         oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.enduranceImplacable);
         oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(EffectSystem.EnduranceImplacableVariable).Value = 1;
+        oid.LoginCreature.OnDamaged += CreatureUtils.HandleImplacableEndurance;
       }
     }
   }

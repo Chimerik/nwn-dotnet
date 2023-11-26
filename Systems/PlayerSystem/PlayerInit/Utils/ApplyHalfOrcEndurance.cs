@@ -9,9 +9,13 @@ namespace NWN.Systems
     {
       private void ApplyHalfOrcEndurance()
       {
-          if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(EffectSystem.EnduranceImplacableVariable).HasValue
-          && !oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.enduranceImplacable.Tag))
-            oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.enduranceImplacable);
+        if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(EffectSystem.EnduranceImplacableVariable).HasValue
+        && !oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.enduranceImplacable.Tag))
+        {
+          oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.enduranceImplacable);
+          oid.LoginCreature.OnDamaged -= CreatureUtils.HandleImplacableEndurance;
+          oid.LoginCreature.OnDamaged += CreatureUtils.HandleImplacableEndurance;
+        }
       }
     }
   }

@@ -11,10 +11,16 @@ namespace NWN.Systems
       {
         foreach (var effect in caster.ActiveEffects)
           if (effect.Tag == EffectSystem.HellishRebukeEffectTag)
+          {
             caster.RemoveEffect(effect);
+            caster.OnDamaged -= CreatureUtils.OnDamageHellishRebuke;
+          }
       }
       else
+      {
         caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.hellishRebukeEffect);
+        caster.OnDamaged += CreatureUtils.OnDamageHellishRebuke;
+      }
     }
   }
 }

@@ -254,6 +254,9 @@ namespace NWN
 
       tlkEntry = StrRef.FromCustomTlk(190157);
       tlkEntry.Override = "Maître Ambidextre";
+
+      tlkEntry = StrRef.FromCustomTlk(190158);
+      tlkEntry.Override = "Cogneur Lourd";
     }
   }
 }

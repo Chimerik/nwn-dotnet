@@ -8,7 +8,7 @@ namespace NWN.Systems
     private static async void Disengage(NwCreature caster)
     {
       await NwTask.Delay(TimeSpan.FromSeconds(3));
-      caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.dodgeEffect, NwTimeSpan.FromRounds(1));
+      caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.disengageEffect, NwTimeSpan.FromRounds(1));
     }
   }
 }

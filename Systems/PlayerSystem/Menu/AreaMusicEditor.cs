@@ -24,11 +24,11 @@ namespace NWN.Systems
         private readonly NuiBind<string> musicNames = new("musicNames");
         private readonly NuiBind<int> listCount = new("listCount");
         private readonly NuiBind<int> musicTypeSelected = new("musicTypeSelected");
-        private readonly List<NuiComboEntry> musicTypeCombo = new List<NuiComboEntry>()
+        private readonly List<NuiComboEntry> musicTypeCombo = new()
         {
-          new NuiComboEntry("Ambiance jour", 0),
-          new NuiComboEntry("Ambiance nuit", 1),
-          new NuiComboEntry("Combat", 2)
+          new("Ambiance jour", 0),
+          new("Ambiance nuit", 1),
+          new("Combat", 2)
         };
         IEnumerable<AmbientMusicEntry> songList { get; set; }
         private NwArea area { get; set; }

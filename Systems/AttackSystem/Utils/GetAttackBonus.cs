@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Linq;
+using System.Numerics;
 using Anvil.API;
 using NWN.Native.API;
 
@@ -22,6 +23,12 @@ namespace NWN.Systems
       {
         attackBonus += 5;
         attacker.m_pStats.m_pBaseCreature.m_ScriptVars.SetInt("_CHARGER_ACTIVATED".ToExoString(), 1);
+      }
+
+      if (IsCogneurLourd(attacker, attackData))
+      {
+        attackBonus -= 5;
+        LogUtils.LogMessage($"Cogneur Lourd : -5 BA", LogUtils.LogType.Combat);
       }
 
       return attackBonus;

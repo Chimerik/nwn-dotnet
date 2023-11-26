@@ -1,18 +1,31 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using NWN.Core;
 
 namespace NWN.Systems
 {
   public static partial class SpellUtils
   {
-    public static void DealSpellDamage(NwGameObject target, int casterLevel, SpellEntry spellEntry, int nbDices, bool saveFailed = true, NwCreature caster = null)
+    public static void DealSpellDamage(NwGameObject target, int casterLevel, SpellEntry spellEntry, int nbDices, NwCreature caster, bool saveFailed = true)
     {
-      int damage = Utils.random.Roll(spellEntry.damageDice, nbDices);
+      bool isElementalist = PlayerSystem.Players.TryGetValue(caster, out PlayerSystem.Player player)
+        && player.learnableSkills.TryGetValue(CustomSkill.Elementaliste, out LearnableSkill elementalist)
+        && elementalist.featOptions.Any(e => e.Value.Any(d => d == (int)spellEntry.damageType));
+
+      int damage = 0;
+
+      for(int i = 0; i < nbDices; i++) 
+      {
+        int roll = NwRandom.Roll(Utils.random, spellEntry.damageDice);
+        damage += isElementalist && roll < 2 ? 2 : roll;
+      }
 
       if (!saveFailed)
         damage /= 2;
 
       //int nDamage = SpellUtils.MaximizeOrEmpower(iDamage, 1 + nCasterLevel / 6, onSpellCast.MetaMagicFeat);
+
+      damage = HandleResistanceBypass(target, isElementalist, damage, spellEntry);
 
       if (caster is not null)
         NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(spellEntry.damageVFX), Effect.Damage(damage, spellEntry.damageType))));

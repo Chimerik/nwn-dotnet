@@ -1,6 +1,5 @@
 ﻿using Anvil.API;
 using NWN.Native.API;
-using CreatureSize = Anvil.API.CreatureSize;
 
 namespace NWN.Systems
 {
@@ -8,7 +7,7 @@ namespace NWN.Systems
   {
     public static int HandleGreatWeaponStyle(CNWSCreature creature, NwBaseItem baseWeapon, int damageRoll)
     {
-      if (damageRoll < 3 && ItemUtils.IsTwoHandedWeapon(baseWeapon, (CreatureSize)creature.m_nCreatureSize)
+      if (damageRoll < 3 && IsGreatWeaponStyle(baseWeapon, creature)
         && PlayerSystem.Players.TryGetValue(creature.m_idSelf, out PlayerSystem.Player player)
         && player.learnableSkills.TryGetValue(CustomSkill.FighterCombatStyleTwoHanded, out LearnableSkill defense)
         && defense.currentLevel > 0)

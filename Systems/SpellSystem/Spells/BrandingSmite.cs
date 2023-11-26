@@ -14,6 +14,9 @@ namespace NWN.Systems
       NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.brandingSmiteAttack, NwTimeSpan.FromRounds(spellEntry.duration)));
       EffectSystem.ApplyConcentrationEffect(caster, spell.Id, new List<NwGameObject> { caster }, spellEntry.duration);
 
+      caster.OnCreatureAttack -= CreatureUtils.OnAttackBrandingSmite;
+      caster.OnCreatureAttack += CreatureUtils.OnAttackBrandingSmite;
+
       caster.DecrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.BrandingSmite));
     }
   }

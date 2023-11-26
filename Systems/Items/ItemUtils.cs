@@ -237,8 +237,9 @@ namespace NWN.Systems
         IPDamageType.Negative => DamageType.Negative,
         IPDamageType.Positive => DamageType.Positive,
         IPDamageType.Sonic => DamageType.Sonic,
-        IPDamageType.Physical => (DamageType)8192,// Physical
-        (IPDamageType)14 => (DamageType)16384,// Elemental
+        (IPDamageType)15 => CustomDamageType.Poison,
+        (IPDamageType)16 => CustomDamageType.Necrotic,
+        (IPDamageType)17 => CustomDamageType.Psychic,
         _ => DamageType.Slashing,
       };
     }

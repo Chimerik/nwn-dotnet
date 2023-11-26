@@ -16,14 +16,23 @@ namespace NWN
       int advantage = 0;
 
       advantage += GetHighGroundAdvantage(attacker, attackData.m_bRangedAttack, target);
+      //LogUtils.LogMessage($"GetHighGroundAdvantage : {advantage}", LogUtils.LogType.Combat);
       advantage += GetKnockdownAdvantage(attackData.m_bRangedAttack, target);
+      //LogUtils.LogMessage($"GetKnockdownAdvantage : {advantage}", LogUtils.LogType.Combat);
       advantage += GetAttackerAdvantageEffects(attacker, target, attackStat);
+      //LogUtils.LogMessage($"GetAttackerAdvantageEffects : {advantage}", LogUtils.LogType.Combat);
       advantage += GetTargetAdvantageEffects(target);
+      //LogUtils.LogMessage($"GetTargetAdvantageEffects : {advantage}", LogUtils.LogType.Combat);
       advantage += GetSmallCreaturesHeavyWeaponDisadvantage(attacker, weaponType);
+      //LogUtils.LogMessage($"GetSmallCreaturesHeavyWeaponDisadvantage : {advantage}", LogUtils.LogType.Combat);
       advantage += GetRangedWeaponDistanceDisadvantage(attacker, attackData.m_bRangedAttack, weaponType, target);
+      //LogUtils.LogMessage($"GetRangedWeaponDistanceDisadvantage : {advantage}", LogUtils.LogType.Combat);
       advantage += GetThreatenedDisadvantage(attacker, attackData.m_bRangedAttack, attackWeapon);
+      //LogUtils.LogMessage($"GetThreatenedDisadvantage : {advantage}", LogUtils.LogType.Combat);
       advantage += GetInvisibleTargetDisadvantage(attacker, target);
+      //LogUtils.LogMessage($"GetInvisibleTargetDisadvantage : {advantage}", LogUtils.LogType.Combat);
       advantage += GetInvisibleAttackerAdvantage(attacker, target);
+      //LogUtils.LogMessage($"GetInvisibleAttackerAdvantage : {advantage}", LogUtils.LogType.Combat);
 
       return advantage;
     }

@@ -17,9 +17,9 @@ namespace NWN.Systems
         return GetCreatureProficiencyBonus(creature);
 
       foreach (int requiredProficiency in proficenciesRequirements)
-        if (creature.m_pStats.HasFeat((ushort)requiredProficiency) > 0
-          || (creature.m_bPlayerCharacter > 0 && PlayerSystem.Players.TryGetValue(creature.m_idSelf, out PlayerSystem.Player player)
-              && player.learnableSkills.TryGetValue(requiredProficiency, out LearnableSkill proficiency) && proficiency.currentLevel > 0) )
+        if (creature.m_pStats.HasFeat((ushort)requiredProficiency).ToBool()
+          || (creature.m_bPlayerCharacter.ToBool() && PlayerSystem.Players.TryGetValue(creature.m_idSelf, out PlayerSystem.Player player)
+              && player.learnableSkills.TryGetValue(requiredProficiency, out LearnableSkill proficiency) && proficiency.currentLevel.ToBool()) )
           return GetCreatureProficiencyBonus(creature);
 
       return 0;

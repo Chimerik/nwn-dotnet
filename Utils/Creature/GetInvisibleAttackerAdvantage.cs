@@ -8,7 +8,7 @@ namespace NWN
   {
     public static int GetInvisibleAttackerAdvantage(CNWSCreature attacker, CNWSCreature target)
     {
-      if(target.m_pStats.HasFeat(CustomSkill.Vigilant) > 0)
+      if(target.m_pStats.HasFeat(CustomSkill.Vigilant).ToBool())
         return 0;
 
       return (target.GetVisibleListElement(attacker.m_idSelf) is null

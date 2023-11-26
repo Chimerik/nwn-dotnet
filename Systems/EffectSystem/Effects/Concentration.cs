@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
-using Google.Apis.Util;
 using NWN.Core;
 
 namespace NWN.Systems
@@ -46,6 +44,7 @@ namespace NWN.Systems
       }
 
       caster.GetObjectVariable<LocalVariableInt>(ConcentrationSpellIdString).Value = spellId;
+      caster.OnDamaged += CreatureUtils.OnDamageConcentration;
     }
     public static void OnRemoveConcentration(OnEffectRemove onEffect)
     {
@@ -104,6 +103,7 @@ namespace NWN.Systems
       }
 
       onEffect.Object.GetObjectVariable<LocalVariableInt>(ConcentrationSpellIdString).Delete();
+      ((NwCreature)onEffect.Object).OnDamaged -= CreatureUtils.OnDamageConcentration;
     }
   }
 }

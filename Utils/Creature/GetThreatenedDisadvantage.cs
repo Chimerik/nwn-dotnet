@@ -10,13 +10,18 @@ namespace NWN
   {
     public static int GetThreatenedDisadvantage(CNWSCreature attacker, int isRangedAttack, CNWSItem attackWeapon = null)
     {
-      var isCrossbowAttack = (BaseItemType)attackWeapon?.m_nBaseItem switch
-      {
-        BaseItemType.LightCrossbow or BaseItemType.HeavyCrossbow or BaseItemType.Shuriken => true,
-        _ => false,
-      };
+      var isCrossbowAttack = false;
 
-      return isRangedAttack < 1 || (isCrossbowAttack && attacker.m_pStats.HasFeat((ushort)Feat.PointBlankShot) > 1)
+      if (attackWeapon is not null)
+      {
+        isCrossbowAttack = (BaseItemType)attackWeapon?.m_nBaseItem switch
+        {
+          BaseItemType.LightCrossbow or BaseItemType.HeavyCrossbow or BaseItemType.Shuriken => true,
+          _ => false,
+        };
+      }
+      
+      return isRangedAttack < 1 || (isCrossbowAttack && attacker.m_pStats.HasFeat((ushort)Feat.PointBlankShot).ToBool())
         || !attacker.m_appliedEffects.Any(e => e.m_sCustomTag == EffectSystem.threatenedEffectExoTag)
         ? 0 
         : -1;

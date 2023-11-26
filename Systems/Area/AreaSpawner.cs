@@ -70,7 +70,16 @@ namespace NWN.Systems
       creature.OnHeartbeat += CreatureUtils.OnHeartbeatRefreshActions;
       creature.OnDeath += CreatureUtils.MakeInventoryUndroppable;
       creature.OnDeath += CreatureUtils.OnMobDeathResetSpawn;
-      
+
+      if (creature.Race.RacialType == RacialType.HalfOrc)
+        creature.OnDamaged += CreatureUtils.HandleImplacableEndurance;
+
+      if (creature.KnowsFeat(Feat.RapidReload))
+        creature.OnCreatureAttack += CreatureUtils.OnAttackCrossbowMaster;
+
+      if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.CogneurLourd)))
+        creature.OnCreatureAttack += CreatureUtils.OnAttackCogneurLourd;
+
       var creatureLoop = scheduler.ScheduleRepeating(() => CreatureUtils.CreatureHealthRegenLoop(creature), TimeSpan.FromSeconds(1));
 
       await NwTask.WaitUntil(() => creature == null || !creature.IsValid);

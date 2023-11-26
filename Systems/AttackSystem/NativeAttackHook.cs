@@ -5,7 +5,6 @@ using System.Linq;
 using NWN.Core;
 using System.Numerics;
 using System;
-using Feat = NWN.Native.API.Feat;
 
 namespace NWN.Systems
 {
@@ -16,7 +15,6 @@ namespace NWN.Systems
     private readonly CExoString isFinesseWeaponVariable = "_IS_FINESSE_WEAPON".ToExoString();
     private readonly CExoString currentDualAttacksVariable = "_CURRENT_DUAL_ATTACK".ToExoString();
     private readonly CExoString currentUnarmedExtraAttacksVariable = "_CURRENT_UNARMED_EXTRA_ATTACK".ToExoString();
-    private readonly CExoString isBonusActionAvailableVariable = "_BONUS_ACTION".ToExoString();
     private readonly CExoString durabilityVariable = "_DURABILITY".ToExoString();
     private readonly CExoString maxDurabilityVariable = "_MAX_DURABILITY".ToExoString();
 
@@ -90,6 +88,7 @@ namespace NWN.Systems
       //*** CALCUL DU BONUS D'ATTAQUE ***//
       // On prend le bonus d'attaque calculé automatiquement par le jeu en fonction de la cible qui peut être une créature ou un placeable
       int attackModifier = targetCreature is null ? creature.m_pStats.GetAttackModifierVersus() : NativeUtils.GetAttackBonus(creature, targetCreature, attackData);
+      attackModifier -= 5;
 
       // Si l'arme utilisée pour attaquer est une arme de finesse, et que la créature a une meilleur DEX, alors on utilise la DEX pour attaquer
       CNWSItem attackWeapon = combatRound.GetCurrentAttackWeapon(attackData.m_nWeaponAttackType);
@@ -119,6 +118,8 @@ namespace NWN.Systems
       // On ajoute le bonus de maîtrise de la créature
       int attackBonus = NativeUtils.GetCreatureWeaponProficiencyBonus(creature, attackWeapon);
 
+      NativeUtils.HandleCrossbowMaster(creature, attackWeapon, attackBonus);
+
       string logMessage = attackStat == Anvil.API.Ability.Strength
         ? $"Bonus d'attaque contre la cible {attackModifier} dont {strBonus} de modificateur de force"
         : $"Bonus d'attaque contre la cible {attackModifier} dont {dexBonus} du modificateur de dextérité";
@@ -127,22 +128,24 @@ namespace NWN.Systems
       LogUtils.LogMessage($"Bonus de maîtrise : {attackBonus}", LogUtils.LogType.Combat);
       attackBonus += attackModifier;
 
+      //LogUtils.LogMessage($"Current flurry attack : {combatRound.m_nCurrentAttack}", LogUtils.LogType.Combat);
+
       // Si l'attaque n'est donnée par Haste et combat à deux armes, alors on compense le -2 du jeu de base
       /*if (attackData.m_nWeaponAttackType != 6 && NativeUtils.IsDualWieldingLightWeapon(attackWeapon, creature.m_nCreatureSize, creature.m_pInventory.m_pEquipSlot[5].ToNwObject<NwItem>()))
         attackBonus += 2;*/
 
-      if (combatRound.m_nCurrentAttack == 0)
+      /*if (combatRound.m_nCurrentAttack == 0)
       {
         creature.m_ScriptVars.SetInt(currentDualAttacksVariable, 0);
         creature.m_ScriptVars.SetInt(currentUnarmedExtraAttacksVariable, 0);
-      }
+      }*/
 
-      if(attackData.m_nWeaponAttackType == 2) // combat à deux armes
+      if (attackData.m_nWeaponAttackType == 2) // combat à deux armes
       {
-        int bonusAction = creature.m_ScriptVars.GetInt(isBonusActionAvailableVariable);
+        int bonusAction = creature.m_ScriptVars.GetInt(Config.isBonusActionAvailableVariable);
 
         if (bonusAction > 0) // L'attaque supplémentaire consomme l'action bonus du personnage
-          creature.m_ScriptVars.SetInt(isBonusActionAvailableVariable, bonusAction - 1);
+          creature.m_ScriptVars.SetInt(Config.isBonusActionAvailableVariable, bonusAction - 1);
         else // Si pas d'action bonus dispo, auto miss
         {
           attackData.m_nAttackResult = 4;
@@ -188,17 +191,7 @@ namespace NWN.Systems
           creature.m_ScriptVars.SetInt(currentUnarmedExtraAttacksVariable, currentUnarmedExtraAttack + 1);
           break;
       }*/
-      
-      // TODO : l'attaque supplémentaire de la handcrossbow (shuriken) sera conditionnée au don Crossbow Expert
-      if(attackWeapon is not null && attackWeapon.m_nBaseItem == (uint)BaseItemType.Shuriken 
-        && creature.m_pStats.HasFeat((ushort)Feat.RapidReload) > 1
-        && creature.m_ScriptVars.GetInt(isBonusActionAvailableVariable) > 0)
-      {
-        combatRound.AddAttackOfOpportunity(targetCreature.m_idSelf);
-        creature.m_ScriptVars.SetInt(isBonusActionAvailableVariable, creature.m_ScriptVars.GetInt(isBonusActionAvailableVariable) - 1);
-        NativeUtils.SendNativeServerMessage($"Maître arbalétrier - Attaque supplémentaire !".ColorString(StringUtils.gold), creature);
-      }
-         
+
       if (targetCreature is not null)
       {
         int advantage = CreatureUtils.GetAdvantageAgainstTarget(creature, attackData, attackWeapon, attackStat, targetCreature);
@@ -218,6 +211,7 @@ namespace NWN.Systems
           attackData.m_nAttackResult = 3;
           criticalString = "CRITIQUE - ".ColorString(StringUtils.gold);
           LogUtils.LogMessage("Coup critique", LogUtils.LogType.Combat);
+          NativeUtils.HandleCogneurLourdBonusAttack(creature, attackData, attackWeapon);
         }
         else if (attackRoll > 1 && totalAttack > targetAC)
         {
@@ -358,6 +352,12 @@ namespace NWN.Systems
           baseDamage += sneakRoll;
           LogUtils.LogMessage($"Sournoise - {sneakLevel}d{6} => {sneakRoll} - Total : {baseDamage}", LogUtils.LogType.Combat);
         }
+
+        if (NativeUtils.IsCogneurLourd(attacker, attackData))
+        {
+          baseDamage += 10;
+          LogUtils.LogMessage($"Cogneur Lourd : +10 dégâts", LogUtils.LogType.Combat);
+        }
       }
       else
       {
@@ -399,7 +399,8 @@ namespace NWN.Systems
           LogUtils.LogMessage($"Moine - Ajout Force ({strBonus})", LogUtils.LogType.Combat);
         }
       }// Si arme de finesse et dextérité plus élevée, alors on utilise la dextérité
-      else if(attackWeapon?.m_ScriptVars.GetInt(isFinesseWeaponVariable) != 0 && dexBonus > strBonus)
+      else if(attackWeapon is not null &&  attackWeapon.m_ScriptVars.GetInt(isFinesseWeaponVariable) != 0 
+        && dexBonus > strBonus)
       {
         damageBonus +=  dexBonus;
         LogUtils.LogMessage($"Arme de finesse - Ajout Dextérité ({dexBonus})", LogUtils.LogType.Combat);
@@ -424,7 +425,10 @@ namespace NWN.Systems
       LogUtils.LogMessage($"Application des résistances de la cible - Dégâts : {baseDamage}", LogUtils.LogType.Combat);
       baseDamage = targetObject.DoDamageReduction(attacker, baseDamage, attacker.CalculateDamagePower(targetObject, bOffHand), 0, 1);
       LogUtils.LogMessage($"Application des réductions de la cible - Calcul Final - Dégâts : {baseDamage}", LogUtils.LogType.Combat);
-      
+
+      if (targetObject.m_nCurrentHitPoints <= baseDamage)
+        NativeUtils.HandleCogneurLourdBonusAttack(attacker, attackData, attackWeapon);
+
       return baseDamage;
 
       // ANCIEN SYSTEME guild wars

@@ -28,7 +28,7 @@ namespace NWN.Systems
       }
 
       onSpellCast.TargetObject.ApplyEffect(EffectDuration.Temporary, Effect.MovementSpeedDecrease(30), NwTimeSpan.FromRounds(spellEntry.duration));
-      SpellUtils.DealSpellDamage(onSpellCast.TargetObject, oCaster.LastSpellCasterLevel, spellEntry, nbDice);
+      SpellUtils.DealSpellDamage(onSpellCast.TargetObject, oCaster.LastSpellCasterLevel, spellEntry, nbDice, oCaster);
     }
   }
 }

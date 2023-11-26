@@ -11,7 +11,11 @@ namespace NWN.Systems
       caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.sprintEffect, NwTimeSpan.FromRounds(1));
 
       if (player.learnableSkills.ContainsKey(CustomSkill.Chargeur))
+      {
         caster.GetObjectVariable<LocalVariableLocation>("_CHARGER_INITIAL_LOCATION").Value = caster.Location;
+        caster.OnCreatureAttack -= CreatureUtils.OnAttackCharge;
+        caster.OnCreatureAttack += CreatureUtils.OnAttackCharge;
+      }
     }
   }
 }

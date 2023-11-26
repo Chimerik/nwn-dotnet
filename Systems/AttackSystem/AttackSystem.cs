@@ -111,68 +111,6 @@ namespace NWN.Systems
      // LogUtils.LogMessage($"Attack Event - Attacker {onAttack.Attacker.Name} - Target {onAttack.Target.Name} - Result {onAttack.AttackResult}" +
        // $" - Base damage {onAttack.DamageData.Base} - attack number {onAttack.AttackNumber} - attack type {onAttack.WeaponAttackType}", LogUtils.LogType.Combat);
 
-      if (onAttack.Target is not NwCreature target)
-        return;
-
-      foreach(var eff in onAttack.Attacker.ActiveEffects)
-        if (eff.Tag == EffectSystem.DodgeEffectTag)
-          onAttack.Attacker.RemoveEffect(eff);
-
-      NwItem weapon = onAttack.Attacker.GetItemInSlot(InventorySlot.RightHand);
-
-      switch (onAttack.AttackResult)
-      {
-        case AttackResult.Hit:
-        case AttackResult.CriticalHit:
-        case AttackResult.AutomaticHit:
-
-          if (weapon is not null && ItemUtils.IsMeleeWeapon(weapon.BaseItem.ItemType) && onAttack.Attacker.ActiveEffects.Any(e => e.Tag == EffectSystem.searingSmiteAttackEffectTag))
-          {
-            NWScript.AssignCommand(onAttack.Attacker, () => target.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.Damage(NwRandom.Roll(Utils.random, 6), DamageType.Fire), Effect.VisualEffect(VfxType.ImpFlameS))));
-            NWScript.AssignCommand(onAttack.Attacker, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.searingSmiteBurn, NwTimeSpan.FromRounds(Spells2da.spellTable[CustomSpell.SearingSmite].duration)));
-
-            target.OnHeartbeat -= EffectSystem.OnSearingSmiteBurn;
-            target.OnHeartbeat += EffectSystem.OnSearingSmiteBurn;
-
-            SpellUtils.DispelConcentrationEffects(onAttack.Attacker);
-          }
-
-          if(onAttack.Attacker.ActiveEffects.Any(e => e.Tag == EffectSystem.BrandingSmiteAttackEffectTag))
-          {
-            NWScript.AssignCommand(onAttack.Attacker, () => target.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.Damage(NwRandom.Roll(Utils.random, 6, 2), DamageType.Divine), Effect.VisualEffect(VfxType.ImpDivineStrikeHoly))));
-            NWScript.AssignCommand(onAttack.Attacker, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.brandingSmiteReveal, NwTimeSpan.FromRounds(Spells2da.spellTable[CustomSpell.BrandingSmite].duration)));
-
-            target.OnStealthModeUpdate -= EffectSystem.OnBrandingSmiteReveal;
-            target.OnStealthModeUpdate += EffectSystem.OnBrandingSmiteReveal;
-
-            target.OnEffectApply -= EffectSystem.OnBrandingSmiteReveal;
-            target.OnEffectApply += EffectSystem.OnBrandingSmiteReveal;
-
-            target.OnEffectRemove -= EffectSystem.OnBrandingSmiteReveal;
-            target.OnEffectRemove += EffectSystem.OnBrandingSmiteReveal;
-
-            foreach (var eff in target.ActiveEffects)
-            {
-              switch(eff.EffectType)
-              {
-                case EffectType.Invisibility:
-                case EffectType.ImprovedInvisibility: target.RemoveEffect(eff); break;
-              }
-            }
-
-            SpellUtils.DispelConcentrationEffects(onAttack.Attacker);
-          }
-
-          break;
-      }
-
-      if(onAttack.Attacker.GetObjectVariable<LocalVariableLocation>("_CHARGER_ACTIVATED").HasValue)
-      {
-        StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Bonus de charge", ColorConstants.Orange, true);
-        onAttack.Attacker.GetObjectVariable<LocalVariableLocation>("_CHARGER_INITIAL_LOCATION").Delete();
-        onAttack.Attacker.GetObjectVariable<LocalVariableLocation>("_CHARGER_ACTIVATED").Delete();
-      }
-
       /*pipeline.Execute(new Context(
         onAttack: onAttack,
         oTarget: oTarget

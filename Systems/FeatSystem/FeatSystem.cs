@@ -28,6 +28,7 @@ namespace NWN.Systems
         case CustomSkill.Dodge: Dodge(onUseFeat.Creature); return;
         case CustomSkill.FighterSecondWind: SecondWind(onUseFeat.Creature); return;
         case CustomSkill.FighterSurge: ActionSurge(onUseFeat.Creature); return;
+        case CustomSkill.CogneurLourd: CogneurLourd(onUseFeat.Creature); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

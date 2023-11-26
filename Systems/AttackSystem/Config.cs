@@ -1,14 +1,16 @@
 ﻿
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
+using NWN.Native.API;
+using DamageType = Anvil.API.DamageType;
+using InventorySlot = Anvil.API.InventorySlot;
 
 namespace NWN.Systems
 {
   public static partial class Config
   {
+    public static readonly CExoString isBonusActionAvailableVariable = "_BONUS_ACTION".ToExoString();
     public class Context
     {
       public OnCreatureAttack onAttack { get; set; }

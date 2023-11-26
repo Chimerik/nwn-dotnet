@@ -28,7 +28,7 @@ namespace NWN.Systems
       onSpellCast.TargetObject.ApplyEffect(EffectDuration.Temporary, EffectSystem.noReactions, NwTimeSpan.FromRounds(1)) ;
       onSpellCast.TargetObject.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value = 0;
 
-      SpellUtils.DealSpellDamage(onSpellCast.TargetObject, caster.LastSpellCasterLevel, spellEntry, nbDice);
+      SpellUtils.DealSpellDamage(onSpellCast.TargetObject, caster.LastSpellCasterLevel, spellEntry, nbDice, caster);
     }
   }
 }

@@ -25,7 +25,7 @@ namespace NWN.Systems
         bool saveFailed = totalSave < spellDC;
 
         SpellUtils.SendSavingThrowFeedbackMessage(oCaster, target, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);
-        SpellUtils.DealSpellDamage(target, oCaster.LastSpellCasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(oCaster, onSpellCast.Spell), saveFailed);
+        SpellUtils.DealSpellDamage(target, oCaster.LastSpellCasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(oCaster, onSpellCast.Spell), oCaster, saveFailed);
       }
     }
   }

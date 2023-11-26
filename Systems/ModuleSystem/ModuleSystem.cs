@@ -414,8 +414,8 @@ namespace NWN.Systems
 
       NwModule.Instance.OnAcquireItem += ItemSystem.OnAcquireCheckFinesseProperty;
       NwModule.Instance.OnPlayerGuiEvent += PlayerSystem.HandleGuiEvents;
-      NwModule.Instance.OnCreatureAttack += AttackSystem.HandleAttackEvent;
-      NwModule.Instance.OnCreatureDamage += AttackSystem.HandleDamageEvent;
+      //NwModule.Instance.OnCreatureAttack += AttackSystem.HandleAttackEvent;
+      //NwModule.Instance.OnCreatureDamage += AttackSystem.HandleDamageEvent;
       NwModule.Instance.OnCreatureCheckProficiencies += ItemSystem.OverrideProficiencyCheck;
       NwModule.Instance.OnItemEquip += ItemSystem.OnEquipHastWeapon;
       NwModule.Instance.OnItemUnequip += ItemSystem.OnUnequipHastWeapon;

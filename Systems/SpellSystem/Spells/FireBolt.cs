@@ -25,7 +25,7 @@ namespace NWN.Systems
         default: return;
       }
 
-      SpellUtils.DealSpellDamage(onSpellCast.TargetObject, oCaster.LastSpellCasterLevel, spellEntry, nbDice);
+      SpellUtils.DealSpellDamage(onSpellCast.TargetObject, oCaster.LastSpellCasterLevel, spellEntry, nbDice, oCaster);
     }
   }
 }
