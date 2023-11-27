@@ -15,6 +15,12 @@ namespace NWN
       int totalDamage = onDamage.DamageAmount / 2;
       concentrationDC = concentrationDC > totalDamage ? concentrationDC : totalDamage;
 
+      if(onDamage.Creature.GetObjectVariable<LocalVariableInt>("_CONCENTRATION_DISADVANTAGE").HasValue)
+      {
+        advantage -= 1;
+        onDamage.Creature.GetObjectVariable<LocalVariableInt>("_CONCENTRATION_DISADVANTAGE").Delete();
+      }
+
       int totalSave = SpellUtils.GetConcentrationSaveRoll(onDamage.Creature, advantage, feedback);
       if (totalSave < concentrationDC)
       {

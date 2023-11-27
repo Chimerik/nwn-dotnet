@@ -95,6 +95,10 @@ namespace NWN
           break;
       }
 
+      if(caster is not null && creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TueurDeMage))
+        && creature.DistanceSquared(caster) < 7)
+        advantage += 1;
+
       return -disadvantageDictionary.Count(v => v.Value) + advantageDictionary.Count(v => v.Value) + advantage;
     }
   }

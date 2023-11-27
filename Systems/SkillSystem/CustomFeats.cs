@@ -64,6 +64,7 @@
     public const int CogneurLourd = 1371;
     public const int MaitreArmureLourde = 1372;
     public const int MaitreBouclier = 1373;
+    public const int TueurDeMage = 1374;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;

@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Anvil.API;
+﻿using Anvil.API;
 using Anvil.API.Events;
 
 namespace NWN.Systems
@@ -11,7 +10,7 @@ namespace NWN.Systems
       NwItem offHand = onSpellAction.Caster.GetItemInSlot(InventorySlot.LeftHand);
       NwItem rightHand = onSpellAction.Caster.GetItemInSlot(InventorySlot.RightHand);
 
-      if (offHand is null && !ItemUtils.IsTwoHandedWeapon(rightHand.BaseItem, onSpellAction.Caster.Size))
+      if (rightHand is null || (offHand is null && !ItemUtils.IsTwoHandedWeapon(rightHand.BaseItem, onSpellAction.Caster.Size)))
         return;
 
       onSpellAction.PreventSpellCast = true;

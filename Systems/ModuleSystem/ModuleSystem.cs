@@ -18,6 +18,7 @@ using Microsoft.Data.Sqlite;
 using System.Runtime.InteropServices;
 using SQLitePCL;
 using System.Reflection;
+using Action = Anvil.API.Action;
 
 namespace NWN.Systems
 {
@@ -398,7 +399,7 @@ namespace NWN.Systems
 
       EventsPlugin.SubscribeEvent("NWNX_ON_ITEM_DECREMENT_STACKSIZE_BEFORE", "on_ammo_used");
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_EMOTE_BEFORE", "on_input_emote");
-      EventsPlugin.SubscribeEvent("NWNX_ON_BROADCAST_ATTACK_OF_OPPORTUNITY_BEFORE", "on_opportunity");
+      EventsPlugin.SubscribeEvent("NWNX_ON_COMBAT_ATTACK_OF_OPPORTUNITY_BEFORE", "on_opportunity");
       
       //EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_BEFORE", "on_dual_fight");
       //EventsPlugin.AddIDToWhitelist("NWNX_ON_HAS_FEAT", (int)Feat.TwoWeaponFighting);
@@ -1235,30 +1236,58 @@ namespace NWN.Systems
       local.Delete();
     }
     [ScriptHandler("on_opportunity")]
-    private void HandleOpportunityAttack(CallInfo callInfo)
+    private void HandleCombatAOO(CallInfo callInfo)
     {
-      if (EventsPlugin.GetEventData("MOVEMENT") != "1" || callInfo.ObjectSelf.GetObjectVariable<LocalVariableInt>(SpellConfig.CurrentSpellVariable).HasValue)
-      {
-        EventsPlugin.SkipEvent();
-        return; 
-      }
+      NwCreature target = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID")).ToNwObject<NwCreature>();
 
-      NwCreature target = uint.TryParse(EventsPlugin.GetEventData("TARGET_OBJECT_ID"), out uint targetID)
-        ? targetID.ToNwObject<NwCreature>() : null;
+      if (callInfo.ObjectSelf is not NwCreature creature || target is null)
+        return;
 
-      if (target is not null && target.ActiveEffects.Any(e => e.Tag == EffectSystem.DisengageffectTag))
+      //Log.Info($"-----------------------Opportunity attack from {creature.Name} target {target.Name} ---------------------");
+
+      if (creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value < 1)
       {
         EventsPlugin.SkipEvent();
         return;
       }
 
-      if (callInfo.ObjectSelf is NwCreature creature)
+      if (creature.CurrentAction == Action.CastSpell) 
       {
-        if (creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value < 1)
-          EventsPlugin.SkipEvent();
-        else
-          creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value -= 1;
+        EventsPlugin.SkipEvent();
+        return;
       }
+      
+      if (target.MovementType != MovementType.Stationary)
+      {
+        if (target.ActiveEffects.Any(e => e.Tag == EffectSystem.DisengageffectTag))
+        {
+          EventsPlugin.SkipEvent();
+          return;
+        }
+      }
+      else
+      {
+        switch (target.CurrentAction)
+        {
+          case Action.CastSpell:
+
+            if (!creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TueurDeMage)))
+            {
+              EventsPlugin.SkipEvent();
+              return;
+            }
+
+            break;
+
+          default:
+            EventsPlugin.SkipEvent();
+            return;
+        }
+      }
+
+      creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value -= 1;
+      StringUtils.DisplayStringToAllPlayersNearTarget(creature, "Attaque d'opportunité", StringUtils.gold, true);
+      EventsPlugin.SetEventResult("1");
     }
     /*[ScriptHandler("on_dual_fight")]
     private void AutoGiveDualFightFeats(CallInfo callInfo)

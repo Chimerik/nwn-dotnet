@@ -414,6 +414,7 @@ namespace NWN.Systems
         ApplyCrossbowMaster();
         ApplyCogneurLourd();
         ApplyMaitreArmureIntermediaire();
+        ApplyTueurDeMage();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

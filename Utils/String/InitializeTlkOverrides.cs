@@ -259,7 +259,10 @@ namespace NWN
       tlkEntry.Override = "Cogneur Lourd";
 
       tlkEntry = StrRef.FromCustomTlk(190162);
-      tlkEntry.Override = "Cogneur Lourd";
+      tlkEntry.Override = "Maître des boucliers";
+
+      tlkEntry = StrRef.FromCustomTlk(190164);
+      tlkEntry.Override = "Tueur de mage";
     }
   }
 }

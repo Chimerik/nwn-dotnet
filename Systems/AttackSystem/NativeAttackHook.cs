@@ -55,11 +55,11 @@ namespace NWN.Systems
       CNWSCreature creature = CNWSCreature.FromPointer(pCreature);
       CNWSObject targetObject = CNWSObject.FromPointer(pTarget);
       CNWSCreature targetCreature = targetObject.m_nObjectType == (int)ObjectType.Creature ? targetObject.AsNWSCreature() : null;
-
-      LogUtils.LogMessage($"----- {creature.m_pStats.GetFullName().ToExoLocString().GetSimple(0)} attaque {targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)} -----", LogUtils.LogType.Combat);
-
       CNWSCombatRound combatRound = creature.m_pcCombatRound;
       CNWSCombatAttackData attackData = combatRound.GetAttack(combatRound.m_nCurrentAttack);
+
+      LogUtils.LogMessage($"----- {creature.m_pStats.GetFullName().ToExoLocString().GetSimple(0)} attaque {targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)} - type {attackData.m_nAttackType} - nb {combatRound.m_nCurrentAttack} -----", LogUtils.LogType.Combat);
+
       CNWSItem targetArmor = targetCreature?.m_pInventory.GetItemInSlot((uint)EquipmentSlot.Chest);
 
       //NativeUtils.SendNativeServerMessage($"Current attack : {combatRound.m_nCurrentAttack}".ColorString(StringUtils.gold), creature);
@@ -72,8 +72,8 @@ namespace NWN.Systems
         LogUtils.LogMessage($"Armure ruinée : critique automatique", LogUtils.LogType.Combat);
         return;
       }
-
-      if(targetCreature is not null && attackData.m_bRangedAttack > 0 && creature.m_bPlayerCharacter > 0 
+      
+      if (targetCreature is not null && attackData.m_bRangedAttack > 0 && creature.m_bPlayerCharacter > 0 
         && (creature.m_appliedEffects.Any(e => (EffectTrueType)e.m_nType == EffectTrueType.Blindness || (EffectTrueType)e.m_nType == EffectTrueType.Darkness)
         || targetCreature.m_appliedEffects.Any(e => (EffectTrueType)e.m_nType == EffectTrueType.Darkness))
         && Vector3.Distance(creature.m_vPosition.ToManagedVector(), targetCreature.m_vPosition.ToManagedVector()) > 3)
@@ -124,8 +124,8 @@ namespace NWN.Systems
         ? $"Bonus d'attaque contre la cible {attackModifier} dont {strBonus} de modificateur de force"
         : $"Bonus d'attaque contre la cible {attackModifier} dont {dexBonus} du modificateur de dextérité";
 
-      LogUtils.LogMessage(logMessage, LogUtils.LogType.Combat);
-      LogUtils.LogMessage($"Bonus de maîtrise : {attackBonus}", LogUtils.LogType.Combat);
+      //LogUtils.LogMessage(logMessage, LogUtils.LogType.Combat);
+      //LogUtils.LogMessage($"Bonus de maîtrise : {attackBonus}", LogUtils.LogType.Combat);
       attackBonus += attackModifier;
 
       //LogUtils.LogMessage($"Current flurry attack : {combatRound.m_nCurrentAttack}", LogUtils.LogType.Combat);
@@ -198,7 +198,7 @@ namespace NWN.Systems
         int attackRoll = NativeUtils.HandleHalflingLuck(creature, Utils.RollAdvantage(advantage));
         int targetAC  = NativeUtils.GetCreatureAC(targetCreature, creature);
 
-        LogUtils.LogMessage($"CA de la cible : {targetAC}", LogUtils.LogType.Combat);
+        //LogUtils.LogMessage($"CA de la cible : {targetAC}", LogUtils.LogType.Combat);
 
         string hitString = "touchez".ColorString(new Color(32, 255, 32));
         string rollString = $"{attackRoll} + {attackBonus} = {attackRoll + attackBonus}".ColorString(new Color(32, 255, 32));
@@ -210,7 +210,7 @@ namespace NWN.Systems
         {
           attackData.m_nAttackResult = 3;
           criticalString = "CRITIQUE - ".ColorString(StringUtils.gold);
-          LogUtils.LogMessage("Coup critique", LogUtils.LogType.Combat);
+          //LogUtils.LogMessage("Coup critique", LogUtils.LogType.Combat);
           NativeUtils.HandleCogneurLourdBonusAttack(creature, attackData, attackWeapon);
         }
         else if (attackRoll > 1 && totalAttack > targetAC)
@@ -219,7 +219,7 @@ namespace NWN.Systems
           {
             attackData.m_nAttackResult = 3;
             criticalString = "CRITIQUE - ".ColorString(new Color(255, 215, 0));
-            LogUtils.LogMessage("Coup critique", LogUtils.LogType.Combat);
+            //LogUtils.LogMessage("Coup critique", LogUtils.LogType.Combat);
           }
           else
           {
@@ -228,7 +228,7 @@ namespace NWN.Systems
             if (totalAttack > targetAC + defensiveDuellistBonus)
             {
               attackData.m_nAttackResult = 1;
-              LogUtils.LogMessage($"Touché : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC + defensiveDuellistBonus}", LogUtils.LogType.Combat);
+              //LogUtils.LogMessage($"Touché : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC + defensiveDuellistBonus}", LogUtils.LogType.Combat);
             }
             else
             {
@@ -237,7 +237,7 @@ namespace NWN.Systems
               hitString = "manquez".ColorString(ColorConstants.Red);
               rollString = rollString.StripColors().ColorString(ColorConstants.Red);
               NativeUtils.SendNativeServerMessage($"Duelliste défensif activé !".ColorString(ColorConstants.Orange), creature);
-              LogUtils.LogMessage($"Manqué : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC + defensiveDuellistBonus}", LogUtils.LogType.Combat);
+              //LogUtils.LogMessage($"Manqué : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC + defensiveDuellistBonus}", LogUtils.LogType.Combat);
             }
           }
         }
@@ -247,7 +247,7 @@ namespace NWN.Systems
           attackData.m_nMissedBy = (byte)(targetAC - attackRoll) > 8 ? (byte)Utils.random.Next(1, 9) : (byte)(targetAC - attackRoll);
           hitString = "manquez".ColorString(ColorConstants.Red);
           rollString = rollString.StripColors().ColorString(ColorConstants.Red);
-          LogUtils.LogMessage($"Manqué : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC}", LogUtils.LogType.Combat);
+          //LogUtils.LogMessage($"Manqué : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC}", LogUtils.LogType.Combat);
         }
         
         string targetName = $"{targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)}".ColorString(ColorConstants.Cyan);
@@ -342,7 +342,7 @@ namespace NWN.Systems
         NwBaseItem baseWeapon = NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem);
         baseDamage += NativeUtils.HandleGreatWeaponStyle(attacker, baseWeapon, NwRandom.Roll(Utils.random, baseWeapon.DieToRoll, baseWeapon.NumDamageDice));
         
-        LogUtils.LogMessage($"{baseWeapon.Name.ToString()} - {baseWeapon.NumDamageDice}d{baseWeapon.DieToRoll} => {baseDamage}", LogUtils.LogType.Combat);
+        //LogUtils.LogMessage($"{baseWeapon.Name.ToString()} - {baseWeapon.NumDamageDice}d{baseWeapon.DieToRoll} => {baseDamage}", LogUtils.LogType.Combat);
 
         // On ne peut faire des attaques sournoises qu'avec une arme
         if (bSneakAttack > 0)
@@ -350,26 +350,26 @@ namespace NWN.Systems
           int sneakLevel = (int)Math.Ceiling((double)attacker.m_pStats.GetNumLevelsOfClass((byte)Native.API.ClassType.Rogue) / 2);
           int sneakRoll = NwRandom.Roll(Utils.random, 6, sneakLevel);
           baseDamage += sneakRoll;
-          LogUtils.LogMessage($"Sournoise - {sneakLevel}d{6} => {sneakRoll} - Total : {baseDamage}", LogUtils.LogType.Combat);
+          //LogUtils.LogMessage($"Sournoise - {sneakLevel}d{6} => {sneakRoll} - Total : {baseDamage}", LogUtils.LogType.Combat);
         }
 
         if (NativeUtils.IsCogneurLourd(attacker, attackData))
         {
           baseDamage += 10;
-          LogUtils.LogMessage($"Cogneur Lourd : +10 dégâts", LogUtils.LogType.Combat);
+          //LogUtils.LogMessage($"Cogneur Lourd : +10 dégâts", LogUtils.LogType.Combat);
         }
       }
       else
       {
         int unarmedDieToRoll = CreatureUtils.GetUnarmedDamage(attacker.m_pStats.GetNumLevelsOfClass((byte)Native.API.ClassType.Monk));
         baseDamage += NwRandom.Roll(Utils.random, unarmedDieToRoll);
-        LogUtils.LogMessage($"Mains nues - 1d{unarmedDieToRoll} => {baseDamage}", LogUtils.LogType.Combat);
+        //LogUtils.LogMessage($"Mains nues - 1d{unarmedDieToRoll} => {baseDamage}", LogUtils.LogType.Combat);
       }
 
       if (bCritical > 0)
       {
         int critDamage = NativeUtils.GetCritDamage(attacker, attackWeapon, attackData, bSneakAttack);
-        LogUtils.LogMessage($"Critique - Base {baseDamage} + crit {critDamage} = {baseDamage + critDamage}", LogUtils.LogType.Combat);
+        //LogUtils.LogMessage($"Critique - Base {baseDamage} + crit {critDamage} = {baseDamage + critDamage}", LogUtils.LogType.Combat);
         baseDamage += critDamage;
       }
         
@@ -383,7 +383,7 @@ namespace NWN.Systems
       if (attackData.m_bRangedAttack > 0)
       {
         damageBonus += dexBonus;
-        LogUtils.LogMessage($"Arme à distance - Ajout Dextérité ({dexBonus})", LogUtils.LogType.Combat);
+        //LogUtils.LogMessage($"Arme à distance - Ajout Dextérité ({dexBonus})", LogUtils.LogType.Combat);
       }
       else if (attacker.m_pStats.GetNumLevelsOfClass((byte)Native.API.ClassType.Monk) > 0 // Les moins utilisent leur caract la plus élevée à mains nues ou avec arme de moine
         && (attackWeapon is null || NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem).IsMonkWeapon))
@@ -391,42 +391,42 @@ namespace NWN.Systems
         if (dexBonus > strBonus)
         {
           damageBonus += dexBonus;
-          LogUtils.LogMessage($"Moine - Ajout Dextérité ({dexBonus})", LogUtils.LogType.Combat);
+          //LogUtils.LogMessage($"Moine - Ajout Dextérité ({dexBonus})", LogUtils.LogType.Combat);
         }
         else
         {
           damageBonus += strBonus;
-          LogUtils.LogMessage($"Moine - Ajout Force ({strBonus})", LogUtils.LogType.Combat);
+          //LogUtils.LogMessage($"Moine - Ajout Force ({strBonus})", LogUtils.LogType.Combat);
         }
       }// Si arme de finesse et dextérité plus élevée, alors on utilise la dextérité
       else if(attackWeapon is not null &&  attackWeapon.m_ScriptVars.GetInt(isFinesseWeaponVariable) != 0 
         && dexBonus > strBonus)
       {
         damageBonus +=  dexBonus;
-        LogUtils.LogMessage($"Arme de finesse - Ajout Dextérité ({dexBonus})", LogUtils.LogType.Combat);
+        //LogUtils.LogMessage($"Arme de finesse - Ajout Dextérité ({dexBonus})", LogUtils.LogType.Combat);
       }
       else
       {
         damageBonus += strBonus;
-        LogUtils.LogMessage($"Ajout Force ({strBonus})", LogUtils.LogType.Combat);
+        //LogUtils.LogMessage($"Ajout Force ({strBonus})", LogUtils.LogType.Combat);
       }
       // Pour l'attaque de la main secondaire, on n'ajoute le modificateur de caractéristique que s'il est négatif
       if (bOffHand < 1 || NativeUtils.HasTwoWeaponStyle(attacker) || (bOffHand > 0 && dexBonus < 0))
         baseDamage += damageBonus;
-      else
+      /*else
         LogUtils.LogMessage($"Main secondaire - Bonus de caractéristique non appliqué aux dégâts", LogUtils.LogType.Combat);
 
-      LogUtils.LogMessage($"Dégâts : {baseDamage}", LogUtils.LogType.Combat);
+      LogUtils.LogMessage($"Dégâts : {baseDamage}", LogUtils.LogType.Combat);*/
 
       baseDamage -= NativeUtils.HandleMaitreArmureLourde(targetObject);
 
       // Application des réductions du jeu de base
       baseDamage = targetObject.DoDamageImmunity(attacker, baseDamage, damageFlags, 0, 1);
-      LogUtils.LogMessage($"Application des immunités de la cible - Dégats : {baseDamage}", LogUtils.LogType.Combat);
+      //LogUtils.LogMessage($"Application des immunités de la cible - Dégats : {baseDamage}", LogUtils.LogType.Combat);
       baseDamage = targetObject.DoDamageResistance(attacker, baseDamage, damageFlags, 0, 1, 1);
-      LogUtils.LogMessage($"Application des résistances de la cible - Dégâts : {baseDamage}", LogUtils.LogType.Combat);
+      //LogUtils.LogMessage($"Application des résistances de la cible - Dégâts : {baseDamage}", LogUtils.LogType.Combat);
       baseDamage = targetObject.DoDamageReduction(attacker, baseDamage, attacker.CalculateDamagePower(targetObject, bOffHand), 0, 1);
-      LogUtils.LogMessage($"Application des réductions de la cible - Calcul Final - Dégâts : {baseDamage}", LogUtils.LogType.Combat);
+      //LogUtils.LogMessage($"Application des réductions de la cible - Calcul Final - Dégâts : {baseDamage}", LogUtils.LogType.Combat);
 
       if (targetObject.m_nCurrentHitPoints <= baseDamage)
         NativeUtils.HandleCogneurLourdBonusAttack(attacker, attackData, attackWeapon);

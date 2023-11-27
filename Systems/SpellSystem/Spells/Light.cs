@@ -31,7 +31,7 @@ namespace NWN.Systems
           int spellDC = SpellUtils.GetCasterSpellDC(oCaster, onSpellCast.Spell);
           int advantage = CreatureUtils.GetCreatureAbilityAdvantage(targetCreature, spellEntry, SpellConfig.SpellEffectType.Invalid, oCaster);
           
-          if (advantage < 900)
+          if (advantage < -900)
           {
             int totalSave = SpellUtils.GetSavingThrowRoll(targetCreature, spellEntry, advantage, feedback);
             bool saveFailed = totalSave < spellDC;
