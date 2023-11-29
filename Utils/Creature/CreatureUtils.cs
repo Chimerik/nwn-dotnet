@@ -16,10 +16,15 @@ namespace NWN
   public static partial class CreatureUtils
   {
     public const string ReactionVariable = "_REACTION";
-    public readonly static CExoString ReactionVariableExo = "_REACTION".ToExoString();
+    public static readonly CExoString ReactionVariableExo = "_REACTION".ToExoString();
     public const string BonusActionVariable = "_BONUS_ACTION";
+    public const string HastMasterCooldownVariable = "_HAST_MASTER_IN_COOLDOWN";
+    public static readonly CExoString HastMasterCooldownVariableExo = "_HAST_MASTER_IN_COOLDOWN".ToExoString();
+    public static readonly CExoString HastMasterSpecialAttackExo = "_HAST_MASTER_SPECIAL_ATTACK".ToExoString();
+    public const string HastMasterOpportunityVariable = "_HAST_MASTER_OPPORTUNITY";
+    public readonly static CExoString HastMasterOpportunityVariableExo = "_HAST_MASTER_OPPORTUNITY".ToExoString();
     public const string OriginalSizeVariable = "_ORIGINAL_SIZE";
-    public readonly static Dictionary<string, NwCreature> creatureSpawnDictionary = new();
+    public static readonly Dictionary<string, NwCreature> creatureSpawnDictionary = new();
     public static void OnMobPerception(CreatureEvents.OnPerception onPerception)
     {
       if (!onPerception.Creature.IsEnemy(onPerception.PerceivedCreature) || onPerception.Creature.IsInCombat)

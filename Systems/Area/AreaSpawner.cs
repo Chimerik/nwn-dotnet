@@ -74,12 +74,6 @@ namespace NWN.Systems
       if (creature.Race.RacialType == RacialType.HalfOrc)
         creature.OnDamaged += CreatureUtils.HandleImplacableEndurance;
 
-      if (creature.KnowsFeat(Feat.RapidReload))
-        creature.OnCreatureAttack += CreatureUtils.OnAttackCrossbowMaster;
-
-      if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.CogneurLourd)))
-        creature.OnCreatureAttack += CreatureUtils.OnAttackCogneurLourd;
-
       if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TueurDeMage)))
         creature.OnCreatureAttack += CreatureUtils.OnAttackTueurDeMage;
 

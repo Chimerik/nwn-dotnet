@@ -20,9 +20,9 @@ namespace NWN
           _ => false,
         };
       }
-      
-      return isRangedAttack < 1 || (isCrossbowAttack && attacker.m_pStats.HasFeat((ushort)Feat.PointBlankShot).ToBool())
-        || !attacker.m_appliedEffects.Any(e => e.m_sCustomTag == EffectSystem.threatenedEffectExoTag)
+
+      return !isRangedAttack.ToBool() || (isCrossbowAttack && attacker.m_pStats.HasFeat((ushort)Feat.PointBlankShot).ToBool())
+        || !attacker.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.threatenedEffectExoTag).ToBool())
         ? 0 
         : -1;
 

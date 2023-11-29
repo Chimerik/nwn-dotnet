@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.MovementSpeedIncrease(10);
+        Effect eff = Effect.MovementSpeedIncrease(5);
         eff.Tag = woodElfEffectTag;
         eff.SubType = EffectSubType.Unyielding;
         return eff;

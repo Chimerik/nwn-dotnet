@@ -11,7 +11,7 @@ namespace NWN.Systems
       CNWSItem attackWeapon = attacker.m_pcCombatRound.GetCurrentAttackWeapon(attackData.m_nWeaponAttackType);
 
       return attackWeapon is not null 
-        && attacker.m_appliedEffects.Any(e => e.m_sCustomTag == EffectSystem.CogneurLourdExoTag)
+        && attacker.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.CogneurLourdExoTag).ToBool())
         && IsGreatWeaponStyle(NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem), attacker)
         && GetCreatureWeaponProficiencyBonus(attacker, attackWeapon) > 1;
     }

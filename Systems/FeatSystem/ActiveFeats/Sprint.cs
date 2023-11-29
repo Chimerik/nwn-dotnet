@@ -16,6 +16,9 @@ namespace NWN.Systems
         caster.OnCreatureAttack -= CreatureUtils.OnAttackCharge;
         caster.OnCreatureAttack += CreatureUtils.OnAttackCharge;
       }
+
+      if(player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Mobile)))
+        caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.sprintMobileEffect, NwTimeSpan.FromRounds(1));
     }
   }
 }

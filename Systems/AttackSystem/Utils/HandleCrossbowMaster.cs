@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Numerics;
+using Anvil.API;
 using NWN.Native.API;
 using Feat = Anvil.API.Feat;
 
@@ -6,13 +7,13 @@ namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static void HandleCrossbowMaster(CNWSCreature attacker, CNWSItem attackWeapon, int proficiency)
+    public static void HandleCrossbowMaster(CNWSCreature attacker, CNWSObject target, CNWSCombatRound combatRound, int proficiency)
     {
-      if (attackWeapon is not null && proficiency > 0 && attackWeapon.m_nBaseItem == (uint)BaseItemType.Shuriken
+      if (combatRound.GetCurrentAttackWeapon() is not null && proficiency > 0 && combatRound.GetCurrentAttackWeapon().m_nBaseItem == (uint)BaseItemType.Shuriken
         && attacker.m_pStats.HasFeat((ushort)Feat.RapidReload).ToBool()
         && attacker.m_ScriptVars.GetInt(Config.isBonusActionAvailableVariable).ToBool())
       {
-        attacker.m_ScriptVars.SetInt(EffectSystem.CrossBowMasterExoTag, 1);
+        combatRound.AddCleaveAttack(target.m_idSelf);
         attacker.m_ScriptVars.SetInt(Config.isBonusActionAvailableVariable, attacker.m_ScriptVars.GetInt(Config.isBonusActionAvailableVariable) - 1);
       }
     }

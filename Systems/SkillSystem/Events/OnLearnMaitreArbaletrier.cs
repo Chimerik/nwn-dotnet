@@ -8,8 +8,6 @@ namespace NWN.Systems
     {
       player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.RapidReload));
       player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.PointBlankShot));
-      player.oid.LoginCreature.OnCreatureAttack -= CreatureUtils.OnAttackCrossbowMaster;
-      player.oid.LoginCreature.OnCreatureAttack += CreatureUtils.OnAttackCrossbowMaster;
       return true;
     }
   }

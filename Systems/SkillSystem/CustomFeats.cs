@@ -65,6 +65,10 @@
     public const int MaitreArmureLourde = 1372;
     public const int MaitreBouclier = 1373;
     public const int TueurDeMage = 1374;
+    public const int Mobile = 1375;
+    public const int AgresseurSauvage = 1376;
+    public const int HastMaster = 1377;
+    public const int MaitreArbaletrier = 1378;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -482,7 +486,7 @@
     public const int Vigilant = 20488;
     public const int Sportif = 20489;
     public const int Chargeur = 20490;
-    public const int MaitreArbaletrier = 20491;
+    
     public const int DuellisteDefensif = 20492;
     public const int AmbiMaster = 20493;
     public const int DungeonExpert = 20494;
@@ -492,6 +496,7 @@
     public const int ProtectionIntermediaire = 20498;
     public const int ProtectionLourde = 20499;
     public const int MaitreArmureIntermediaire = 20500;
+    public const int Resilient = 20501;
 
     public const int Invalid = 65535;
   }

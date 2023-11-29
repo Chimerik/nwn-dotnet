@@ -411,10 +411,9 @@ namespace NWN.Systems
         ResetSize();
         ApplyProtectionStyle();
         ApplyAmbiMaster();
-        ApplyCrossbowMaster();
-        ApplyCogneurLourd();
         ApplyMaitreArmureIntermediaire();
         ApplyTueurDeMage();
+        ApplyMobile();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

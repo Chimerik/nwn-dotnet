@@ -16,6 +16,12 @@ namespace NWN.Systems
     }
     public static int GetWeaponCritDamage(CNWSCreature attacker, CNWSItem attackWeapon, CNWSCombatAttackData attackData, int bSneakAttack)
     {
+      if (attackData.m_nAttackType == 6 && attacker.m_ScriptVars.GetInt(CreatureUtils.HastMasterSpecialAttackExo).ToBool())
+      {
+        attacker.m_ScriptVars.DestroyInt(CreatureUtils.HastMasterSpecialAttackExo);
+        return NwRandom.Roll(Utils.random, 4, 1);
+      }
+
       NwBaseItem baseWeapon = NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem);
       byte numDice = attacker.m_pStats.m_nRace == CustomRace.HalfOrc && attackData.m_bRangedAttack < 1 ? (byte)(baseWeapon.NumDamageDice + 1) : baseWeapon.NumDamageDice;
       int damage = NwRandom.Roll(Utils.random, baseWeapon.DieToRoll, numDice);

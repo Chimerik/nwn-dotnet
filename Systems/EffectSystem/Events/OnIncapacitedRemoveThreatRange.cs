@@ -10,7 +10,9 @@ namespace NWN.Systems
       if (onEffect.Object is not NwCreature creature || !EffectUtils.IsCannotThreatenEffect(onEffect.Effect.EffectType))
         return;
 
-      creature.RemoveEffect(threatAoE);
+      foreach (var eff in creature.ActiveEffects)
+        if(eff.Tag == ThreatenedAoETag)
+          creature.RemoveEffect(eff);
     }
   }
 }

@@ -26,8 +26,9 @@ namespace NWN.Systems
         private readonly NuiBind<int> rowCount = new("rowCount");
 
         private int selectedAbility;
+        private bool giveSaveProficiency;
 
-        public AbilityBonusChoiceWindow(Player player, List<Ability> abilityChoice) : base(player)
+        public AbilityBonusChoiceWindow(Player player, List<Ability> abilityChoice, bool giveSaveProficiency = false) : base(player)
         {
           windowId = "abilityBonusChoice";
           rootColumn.Children = rootChildren;
@@ -47,10 +48,11 @@ namespace NWN.Systems
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiList(abilitiesTemplate, rowCount) { RowHeight = 40, Scrollbars = NuiScrollbars.None } } });
           rootChildren.Add(new NuiRow() { Margin = 0.0f, Height = 35, Children = new List<NuiElement>() { new NuiSpacer(), new NuiButton("Valider") { Id = "validate", Width = 80, Enabled = enabled, Encouraged = enabled }, new NuiSpacer() } });
           
-          CreateWindow(abilityChoice);
+          CreateWindow(abilityChoice, giveSaveProficiency);
         }
-        public void CreateWindow(List<Ability> abilitychoice)
+        public void CreateWindow(List<Ability> abilitychoice, bool giveSaveProficiency = false)
         {
+          this.giveSaveProficiency = giveSaveProficiency;
           availableAbilities.Clear();
           availableAbilities.AddRange(abilitychoice);
 
@@ -105,6 +107,33 @@ namespace NWN.Systems
 
                   foreach (var stat in availableAbilities)
                     player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>($"_IN_ABILITY_BONUS_CHOICE_FEAT_{(int)stat}").Delete();
+
+                  if (giveSaveProficiency)
+                  {
+                    var saveSkill = ability switch
+                    {
+                      Ability.Strength => CustomSkill.StrengthSavesProficiency,
+                      Ability.Dexterity => CustomSkill.DexteritySavesProficiency,
+                      Ability.Intelligence => CustomSkill.IntelligenceSavesProficiency,
+                      Ability.Wisdom => CustomSkill.WisdomSavesProficiency,
+                      Ability.Charisma => CustomSkill.CharismaSavesProficiency,
+                      _ => CustomSkill.ConstitutionSavesProficiency,
+                    };
+
+                    if (player.learnableSkills.TryGetValue(saveSkill, out LearnableSkill saveLearnable))
+                    {
+                      if (saveLearnable.currentLevel < 1)
+                      {
+                        saveLearnable.currentLevel = 0;
+                        saveLearnable.LevelUp(player);
+                      }
+                    }
+                    else
+                    {
+                      player.learnableSkills.Add(saveSkill, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[saveSkill]));
+                      player.learnableSkills[saveSkill].LevelUp(player);
+                    }
+                  }
 
                   player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpImproveAbilityScore));
 

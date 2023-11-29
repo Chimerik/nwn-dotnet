@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Anvil.API;
+using NWN.Core;
 using NWN.Systems;
 
 namespace NWN
@@ -8,10 +9,10 @@ namespace NWN
   {
     public static void InitThreatRange(NwCreature creature)
     {
-      if (creature.ActiveEffects.Any(e => e.Tag == EffectSystem.threatAoE.Tag))
+      if (creature.ActiveEffects.Any(e => e.Tag == EffectSystem.ThreatenedAoETag))
         return;
 
-      creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.threatAoE);
+      NWScript.AssignCommand(creature, () => creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.threatAoE));
     }
   }
 }

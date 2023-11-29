@@ -19,7 +19,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.RunAction(null, null, null), Effect.Icon(NwGameTables.EffectIconTable.GetRow(144)));
+        Effect eff = Effect.LinkEffects(Effect.Icon(NwGameTables.EffectIconTable.GetRow(144)));
         eff.Tag = ThreatenedEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

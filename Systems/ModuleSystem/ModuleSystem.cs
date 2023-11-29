@@ -123,6 +123,7 @@ namespace NWN.Systems
       NwServer.Instance.ServerInfo.PlayOptions.ShowDMJoinMessage = false;
 
       ItemSystem.feedbackService.AddCombatLogMessageFilter(CombatLogMessage.ComplexAttack);
+      ItemSystem.feedbackService.AddCombatLogMessageFilter(CombatLogMessage.SpecialAttack);
       ItemSystem.feedbackService.AddCombatLogMessageFilter(CombatLogMessage.Initiative);
       ItemSystem.feedbackService.AddFeedbackMessageFilter(FeedbackMessage.EquipSkillSpellModifiers);
 
@@ -1284,6 +1285,14 @@ namespace NWN.Systems
             return;
         }
       }
+
+      foreach(var eff in target.ActiveEffects)
+        if(eff.Tag ==  EffectSystem.mobileDebuffEffectTag && eff.Creator == creature)
+        {
+          StringUtils.DisplayStringToAllPlayersNearTarget(target, "Mobile debuff", ColorConstants.Red, true);
+          EventsPlugin.SkipEvent();
+          return;
+        }
 
       creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value -= 1;
       StringUtils.DisplayStringToAllPlayersNearTarget(creature, "Attaque d'opportunité", StringUtils.gold, true);

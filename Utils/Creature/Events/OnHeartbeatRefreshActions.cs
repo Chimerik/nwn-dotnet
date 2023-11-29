@@ -10,6 +10,7 @@ namespace NWN
     public static void OnHeartbeatRefreshActions(CreatureEvents.OnHeartbeat onHB)
     {
       onHB.Creature.GetObjectVariable<LocalVariableInt>(BonusActionVariable).Value = 1;
+      onHB.Creature.GetObjectVariable<LocalVariableInt>(HastMasterCooldownVariable).Delete();
 
       if (onHB.Creature.ActiveEffects.Any(e => e.Tag == EffectSystem.noReactionsEffectTag))
         return;

@@ -263,6 +263,15 @@ namespace NWN
 
       tlkEntry = StrRef.FromCustomTlk(190164);
       tlkEntry.Override = "Tueur de mage";
+
+      tlkEntry = StrRef.FromCustomTlk(190165);
+      tlkEntry.Override = "Mobile";
+
+      tlkEntry = StrRef.FromCustomTlk(190167);
+      tlkEntry.Override = "Agresseur Sauvage";
+
+      tlkEntry = StrRef.FromCustomTlk(190169);
+      tlkEntry.Override = "Maître d'Hast";
     }
   }
 }

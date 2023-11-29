@@ -8,10 +8,19 @@ namespace NWN.Systems
   {
     public static bool OnLearnSportif(PlayerSystem.Player player, int customSkillId)
     {
-      List<Ability> abilities = new List<Ability>() { Ability.Strength, Ability.Dexterity };
+      List<Ability> abilities = new();
 
-      if (!player.windows.TryGetValue("abilityBonusChoice", out var value)) player.windows.Add("abilityBonusChoice", new AbilityBonusChoiceWindow(player, abilities));
-      else ((AbilityBonusChoiceWindow)value).CreateWindow(abilities);
+      if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Strength) < 20)
+        abilities.Add(Ability.Strength);
+
+      if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Dexterity) < 20)
+        abilities.Add(Ability.Dexterity);
+
+      if (abilities.Count > 0)
+      {
+        if (!player.windows.TryGetValue("abilityBonusChoice", out var value)) player.windows.Add("abilityBonusChoice", new AbilityBonusChoiceWindow(player, abilities));
+        else ((AbilityBonusChoiceWindow)value).CreateWindow(abilities);
+      }
 
       return true;
     }

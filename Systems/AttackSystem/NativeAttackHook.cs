@@ -13,8 +13,6 @@ namespace NWN.Systems
   {
     private readonly CExoString casterLevelVariable = "_CREATURE_CASTER_LEVEL".ToExoString();
     private readonly CExoString isFinesseWeaponVariable = "_IS_FINESSE_WEAPON".ToExoString();
-    private readonly CExoString currentDualAttacksVariable = "_CURRENT_DUAL_ATTACK".ToExoString();
-    private readonly CExoString currentUnarmedExtraAttacksVariable = "_CURRENT_UNARMED_EXTRA_ATTACK".ToExoString();
     private readonly CExoString durabilityVariable = "_DURABILITY".ToExoString();
     private readonly CExoString maxDurabilityVariable = "_MAX_DURABILITY".ToExoString();
 
@@ -57,13 +55,13 @@ namespace NWN.Systems
       CNWSCreature targetCreature = targetObject.m_nObjectType == (int)ObjectType.Creature ? targetObject.AsNWSCreature() : null;
       CNWSCombatRound combatRound = creature.m_pcCombatRound;
       CNWSCombatAttackData attackData = combatRound.GetAttack(combatRound.m_nCurrentAttack);
-
+      
       LogUtils.LogMessage($"----- {creature.m_pStats.GetFullName().ToExoLocString().GetSimple(0)} attaque {targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)} - type {attackData.m_nAttackType} - nb {combatRound.m_nCurrentAttack} -----", LogUtils.LogType.Combat);
 
       CNWSItem targetArmor = targetCreature?.m_pInventory.GetItemInSlot((uint)EquipmentSlot.Chest);
 
       //NativeUtils.SendNativeServerMessage($"Current attack : {combatRound.m_nCurrentAttack}".ColorString(StringUtils.gold), creature);
-
+      
       if (targetCreature is not null && targetCreature.m_bPlayerCharacter > 0 && targetArmor is not null
         && targetArmor.m_ScriptVars.GetInt(maxDurabilityVariable) > 0 && targetArmor.m_ScriptVars.GetInt(durabilityVariable) < 1)
       {
@@ -118,7 +116,7 @@ namespace NWN.Systems
       // On ajoute le bonus de maîtrise de la créature
       int attackBonus = NativeUtils.GetCreatureWeaponProficiencyBonus(creature, attackWeapon);
 
-      NativeUtils.HandleCrossbowMaster(creature, attackWeapon, attackBonus);
+      NativeUtils.HandleCrossbowMaster(creature, targetObject, combatRound, attackBonus);
 
       string logMessage = attackStat == Anvil.API.Ability.Strength
         ? $"Bonus d'attaque contre la cible {attackModifier} dont {strBonus} de modificateur de force"
@@ -211,7 +209,6 @@ namespace NWN.Systems
           attackData.m_nAttackResult = 3;
           criticalString = "CRITIQUE - ".ColorString(StringUtils.gold);
           //LogUtils.LogMessage("Coup critique", LogUtils.LogType.Combat);
-          NativeUtils.HandleCogneurLourdBonusAttack(creature, attackData, attackWeapon);
         }
         else if (attackRoll > 1 && totalAttack > targetAC)
         {
@@ -255,6 +252,8 @@ namespace NWN.Systems
       }
       else
         attackData.m_nAttackResult = 7;
+
+      NativeUtils.HandleHastMaster(creature, targetObject, combatRound);
     }
     private int OnAddUseTalentOnObjectHook(void* pCreature, int talentType, int talentId, uint oidTarget, byte nMultiClass, uint oidItem, int nItemPropertyIndex, byte nCasterLevel, int nMetaType)
     {
@@ -340,7 +339,17 @@ namespace NWN.Systems
           return -1;
 
         NwBaseItem baseWeapon = NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem);
-        baseDamage += NativeUtils.HandleGreatWeaponStyle(attacker, baseWeapon, NwRandom.Roll(Utils.random, baseWeapon.DieToRoll, baseWeapon.NumDamageDice));
+
+        if(attackData.m_nAttackType == 6 && attacker.m_ScriptVars.GetInt(CreatureUtils.HastMasterSpecialAttackExo).ToBool())
+        {
+          baseDamage = NwRandom.Roll(Utils.random, 4, 1);
+
+          if(!bCritical.ToBool())
+            attacker.m_ScriptVars.DestroyInt(CreatureUtils.HastMasterSpecialAttackExo);
+        }
+        else
+          baseDamage += NativeUtils.HandleGreatWeaponStyle(attacker, baseWeapon, 
+            NativeUtils.HandleSavageAttacker(attacker, baseWeapon, attackData.m_bRangedAttack.ToBool()));
         
         //LogUtils.LogMessage($"{baseWeapon.Name.ToString()} - {baseWeapon.NumDamageDice}d{baseWeapon.DieToRoll} => {baseDamage}", LogUtils.LogType.Combat);
 
@@ -428,8 +437,7 @@ namespace NWN.Systems
       baseDamage = targetObject.DoDamageReduction(attacker, baseDamage, attacker.CalculateDamagePower(targetObject, bOffHand), 0, 1);
       //LogUtils.LogMessage($"Application des réductions de la cible - Calcul Final - Dégâts : {baseDamage}", LogUtils.LogType.Combat);
 
-      if (targetObject.m_nCurrentHitPoints <= baseDamage)
-        NativeUtils.HandleCogneurLourdBonusAttack(attacker, attackData, attackWeapon);
+      NativeUtils.HandleCogneurLourdBonusAttack(attacker, targetObject, combatRound, attackData, baseDamage);
 
       return baseDamage;
 
