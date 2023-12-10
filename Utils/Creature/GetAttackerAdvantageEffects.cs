@@ -23,11 +23,13 @@ namespace NWN
       Dictionary<string, bool> advantageDictionary = new()
       {
         { "trueStrikeAdvantage", false },
+        { "broyeur", false },
       };
 
       foreach (var eff in attacker.m_appliedEffects)
       {
-        advantageDictionary["trueStrikeAdvantage"] = advantageDictionary["trueStrikeAdvantage"] || eff.m_sCustomTag.CompareNoCase(EffectSystem.trueStrikeEffectExoTag) > 0;
+        advantageDictionary["trueStrikeAdvantage"] = advantageDictionary["trueStrikeAdvantage"] || eff.m_sCustomTag.CompareNoCase(EffectSystem.trueStrikeEffectExoTag).ToBool();
+        advantageDictionary["broyeur"] = advantageDictionary["broyeur"] || eff.m_sCustomTag.CompareNoCase(EffectSystem.BroyeurEffectExoTag).ToBool();
 
         disadvantageDictionary["armorShield"] = disadvantageDictionary["armorShield"] || GetArmorShieldDisadvantage(eff, attackStat);
         disadvantageDictionary["boneChillDisadvantage"] = disadvantageDictionary["boneChillDisadvantage"] || GetBoneChillDisadvantage(attacker, eff);

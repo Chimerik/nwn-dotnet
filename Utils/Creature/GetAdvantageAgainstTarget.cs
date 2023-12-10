@@ -15,24 +15,34 @@ namespace NWN
       BaseItemType weaponType = attackWeapon is not null ? NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem).ItemType : BaseItemType.Invalid;
       int advantage = 0;
 
-      advantage += GetHighGroundAdvantage(attacker, attackData.m_bRangedAttack, target);
-      //LogUtils.LogMessage($"GetHighGroundAdvantage : {advantage}", LogUtils.LogType.Combat);
-      advantage += GetKnockdownAdvantage(attackData.m_bRangedAttack, target);
-      //LogUtils.LogMessage($"GetKnockdownAdvantage : {advantage}", LogUtils.LogType.Combat);
-      advantage += GetAttackerAdvantageEffects(attacker, target, attackStat);
-      //LogUtils.LogMessage($"GetAttackerAdvantageEffects : {advantage}", LogUtils.LogType.Combat);
-      advantage += GetTargetAdvantageEffects(target);
-      //LogUtils.LogMessage($"GetTargetAdvantageEffects : {advantage}", LogUtils.LogType.Combat);
+      if (target is not null)
+      {
+        if (attackData.m_bRangedAttack.ToBool())
+        {
+          advantage += GetHighGroundAdvantage(attacker, target);
+          //LogUtils.LogMessage($"GetHighGroundAdvantage : {advantage}", LogUtils.LogType.Combat);
+          advantage += GetRangedWeaponDistanceDisadvantage(attacker, weaponType, target);
+          //LogUtils.LogMessage($"GetRangedWeaponDistanceDisadvantage : {advantage}", LogUtils.LogType.Combat);
+          advantage += GetThreatenedDisadvantage(attacker, attackWeapon);
+          //LogUtils.LogMessage($"GetThreatenedDisadvantage : {advantage}", LogUtils.LogType.Combat);
+        }
+
+        advantage += GetKnockdownAdvantage(attackData.m_bRangedAttack, target);
+        //LogUtils.LogMessage($"GetKnockdownAdvantage : {advantage}", LogUtils.LogType.Combat);
+        advantage += GetAttackerAdvantageEffects(attacker, target, attackStat);
+        //LogUtils.LogMessage($"GetAttackerAdvantageEffects : {advantage}", LogUtils.LogType.Combat);
+        advantage += GetTargetAdvantageEffects(target);
+        //LogUtils.LogMessage($"GetTargetAdvantageEffects : {advantage}", LogUtils.LogType.Combat);
+        advantage += GetInvisibleTargetDisadvantage(attacker, target);
+        //LogUtils.LogMessage($"GetInvisibleTargetDisadvantage : {advantage}", LogUtils.LogType.Combat);
+        advantage += GetInvisibleAttackerAdvantage(attacker, target);
+        //LogUtils.LogMessage($"GetInvisibleAttackerAdvantage : {advantage}", LogUtils.LogType.Combat);
+      }
+
       advantage += GetSmallCreaturesHeavyWeaponDisadvantage(attacker, weaponType);
       //LogUtils.LogMessage($"GetSmallCreaturesHeavyWeaponDisadvantage : {advantage}", LogUtils.LogType.Combat);
-      advantage += GetRangedWeaponDistanceDisadvantage(attacker, attackData.m_bRangedAttack, weaponType, target);
-      //LogUtils.LogMessage($"GetRangedWeaponDistanceDisadvantage : {advantage}", LogUtils.LogType.Combat);
-      advantage += GetThreatenedDisadvantage(attacker, attackData.m_bRangedAttack, attackWeapon);
-      //LogUtils.LogMessage($"GetThreatenedDisadvantage : {advantage}", LogUtils.LogType.Combat);
-      advantage += GetInvisibleTargetDisadvantage(attacker, target);
-      //LogUtils.LogMessage($"GetInvisibleTargetDisadvantage : {advantage}", LogUtils.LogType.Combat);
-      advantage += GetInvisibleAttackerAdvantage(attacker, target);
-      //LogUtils.LogMessage($"GetInvisibleAttackerAdvantage : {advantage}", LogUtils.LogType.Combat);
+      advantage += GetSentinelleOpportunityAdvantage(attacker, attackData);
+      //LogUtils.LogMessage($"GetSentinelleOpportunityAdvantage : {advantage}", LogUtils.LogType.Combat);
 
       return advantage;
     }
@@ -40,16 +50,23 @@ namespace NWN
     {
       int advantage = 0;
 
-      advantage += GetHighGroundAdvantage(attacker, isRangedSpell, target);
-      advantage += GetKnockdownAdvantage(isRangedSpell, target);
-      advantage += GetAttackerAdvantageEffects(attacker, target, spellCastingAbility);
-      advantage += GetTargetAdvantageEffects(target);
-      advantage += GetThreatenedDisadvantage(attacker, isRangedSpell);
-      advantage += GetInvisibleTargetDisadvantage(attacker, target);
-      advantage += GetInvisibleAttackerAdvantage(attacker, target);
+      if (target is not null)
+      {
+        if (isRangedSpell.ToBool())
+        {
+          advantage += GetHighGroundAdvantage(attacker, target);
+          advantage += GetThreatenedDisadvantage(attacker);
+        }
 
-      if (spell.SpellType == Spell.ElectricJolt)
-        advantage += GetMetallicArmorAdvantage(target);
+        advantage += GetKnockdownAdvantage(isRangedSpell, target);
+        advantage += GetAttackerAdvantageEffects(attacker, target, spellCastingAbility);
+        advantage += GetTargetAdvantageEffects(target);
+        advantage += GetInvisibleTargetDisadvantage(attacker, target);
+        advantage += GetInvisibleAttackerAdvantage(attacker, target);
+
+        if (spell.SpellType == Spell.ElectricJolt)
+          advantage += GetMetallicArmorAdvantage(target);
+      }
 
       return advantage;
     }

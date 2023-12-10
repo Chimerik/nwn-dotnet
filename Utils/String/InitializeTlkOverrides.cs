@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Formats.Tar;
+using Anvil.API;
 
 namespace NWN
 {
@@ -6,272 +7,109 @@ namespace NWN
   {
     public static async void InitializeTlkOverrides()
     {
-      StrRef tlkEntry = StrRef.FromCustomTlk(190050);
-      tlkEntry.Override = "Mélange";
-
-      tlkEntry = StrRef.FromCustomTlk(190051);
-      tlkEntry.Override = "Tranche-artère";
-
-      tlkEntry = StrRef.FromCustomTlk(190052);
-      tlkEntry.Override = "Adrénaline : 4\nAttaque à l'épée.\nInflige 5...21...25 secondes de saignement.";
-
-      tlkEntry = StrRef.FromCustomTlk(190053);
-      tlkEntry.Override = "Saignement";
-
-      tlkEntry = StrRef.FromCustomTlk(190054);
-      tlkEntry.Override = "Brûlure";
-
-      tlkEntry = StrRef.FromCustomTlk(190055);
-      tlkEntry.Override = "Infirmité";
-
-      tlkEntry = StrRef.FromCustomTlk(190056);
-      tlkEntry.Override = "Blessure profonde";
-
-      tlkEntry = StrRef.FromCustomTlk(190057);
-      tlkEntry.Override = "Maladie";
-
-      tlkEntry = StrRef.FromCustomTlk(190058);
-      tlkEntry.Override = "Empoisonnement";
-
-      tlkEntry = StrRef.FromCustomTlk(190059);
-      tlkEntry.Override = "Faiblesse";
-
-      tlkEntry = StrRef.FromCustomTlk(190060);
-      tlkEntry.Override = "Armure brisée";
-
-      tlkEntry = StrRef.FromCustomTlk(190061);
-      tlkEntry.Override = "Aveuglement";
-
-      tlkEntry = StrRef.FromCustomTlk(190062);
-      tlkEntry.Override = "Etourdissement";
-
-      tlkEntry = StrRef.FromCustomTlk(1382);
-      tlkEntry.Override = "Souffle de guérison";
-
-      tlkEntry = StrRef.FromCustomTlk(190063);
-      tlkEntry.Override = "Sprint";
-
-      tlkEntry = StrRef.FromCustomTlk(190064);
-      tlkEntry.Override = "Action qui permet de doubler votre vitesse de déplacement pendant 1 round.";
-
-      tlkEntry = StrRef.FromCustomTlk(190065);
-      tlkEntry.Override = "Désengagement";
-
-      tlkEntry = StrRef.FromCustomTlk(190066);
-      tlkEntry.Override = "Se désengager permet de se déplacer sans subir d'attaque d'opportunité pendant 1 round.";
-
-      tlkEntry = StrRef.FromCustomTlk(190067);
-      tlkEntry.Override = "Menacé";
-
-      tlkEntry = StrRef.FromCustomTlk(190068);
-      tlkEntry.Override = "Second Souffle";
-
-      tlkEntry = StrRef.FromCustomTlk(190069);
-      tlkEntry.Override = "Action bonus\nVous soigne de 1d10 + votre niveau de guerrier\nRécupération : repos court";
-
-      tlkEntry = StrRef.FromCustomTlk(190070);
-      tlkEntry.Override = "Fougue";
-
-      tlkEntry = StrRef.FromCustomTlk(190071);
-      tlkEntry.Override = "Action gratuite\nVous bénéficiez d'une attaque supplémentaire\nDurée & Cooldown : 10 rounds\nRécupération : repos court";
-
-      tlkEntry = StrRef.FromCustomTlk(190072);
-      tlkEntry.Override = "Haut-Elfe";
-
-      tlkEntry = StrRef.FromCustomTlk(190073);
-      tlkEntry.Override = "Elfe des bois";
-
-      tlkEntry = StrRef.FromCustomTlk(190074);
-      tlkEntry.Override = "Drow";
-
-      tlkEntry = StrRef.FromCustomTlk(190075);
-      tlkEntry.Override = "Demi Haut-Elfe";
-
-      tlkEntry = StrRef.FromCustomTlk(190076);
-      tlkEntry.Override = "Demi Elfe des bois";
-
-      tlkEntry = StrRef.FromCustomTlk(190077);
-      tlkEntry.Override = "Demi Drow";
-
-      tlkEntry = StrRef.FromCustomTlk(190078);
-      tlkEntry.Override = "Hyper-sensibilité lumineuse";
-
-      tlkEntry = StrRef.FromCustomTlk(190079);
-      tlkEntry.Override = "Demi Orc : Endurance Implacable";
-
-      tlkEntry = StrRef.FromCustomTlk(190080);
-      tlkEntry.Override = "Nain d'or";
-
-      tlkEntry = StrRef.FromCustomTlk(190081);
-      tlkEntry.Override = "Nain d'écu";
-
-      tlkEntry = StrRef.FromCustomTlk(190082);
-      tlkEntry.Override = "Duergar";
-
-      tlkEntry = StrRef.FromCustomTlk(190083);
-      tlkEntry.Override = "Halfelin Pied-Léger";
-
-      tlkEntry = StrRef.FromCustomTlk(190084);
-      tlkEntry.Override = "Halfelin Coeur-Vaillant";
-
-      tlkEntry = StrRef.FromCustomTlk(190085);
-      tlkEntry.Override = "Gnome des profondeurs";
-
-      tlkEntry = StrRef.FromCustomTlk(190086);
-      tlkEntry.Override = "Gnome des forêts";
-
-      tlkEntry = StrRef.FromCustomTlk(190087);
-      tlkEntry.Override = "Gnome des roches";
-
-      tlkEntry = StrRef.FromCustomTlk(190088);
-      tlkEntry.Override = "Tieffelin - Asmodeus";
-
-      tlkEntry = StrRef.FromCustomTlk(190089);
-      tlkEntry.Override = "Tieffelin - Méphisto";
-
-      tlkEntry = StrRef.FromCustomTlk(190090);
-      tlkEntry.Override = "Tieffelin - Zariel";
-
-      tlkEntry = StrRef.FromCustomTlk(190091);
-      tlkEntry.Override = await DownloadGoogleDoc("1sUqHix9bOocebunN6481Ea9Qyka8cGrm9_jDneflSyo");
-
-      tlkEntry = StrRef.FromCustomTlk(190092);
-      tlkEntry.Override = await DownloadGoogleDoc("1Eiq8eipvoCHp3gtynjwfzZhUUkQaaaJEE8bmmgBwuSs");
-      
-      tlkEntry = StrRef.FromCustomTlk(190093);
-      tlkEntry.Override = await DownloadGoogleDoc("1OPhIPceDp4BxYhHT9ewznlcWuN2svohIt_bB6RLMXQI");
-      
-      tlkEntry = StrRef.FromCustomTlk(190094);
-      tlkEntry.Override = await DownloadGoogleDoc("1Uegi0SIF00tLWQfB5kNvaNTBfoIq1Eo0vFktiAatiL0");
-      
-      tlkEntry = StrRef.FromCustomTlk(190095);
-      tlkEntry.Override = await DownloadGoogleDoc("1Zty6S_4FW7gprPWM9zyijAHD3xIeGKsUiRu9qkYSmFI");
-
-      tlkEntry = StrRef.FromCustomTlk(190096);
-      tlkEntry.Override = await DownloadGoogleDoc("1yYb8KC3izRmxApxQj6BIQD8diUpunnzbKnpBNAitk-U");
-
-      tlkEntry = StrRef.FromCustomTlk(190097);
-      tlkEntry.Override = await DownloadGoogleDoc("1h56nnvKQ7nZW240V-MEPkHkSd8hZ3amw7hnkKR_OHpk");
-
-      tlkEntry = StrRef.FromCustomTlk(190098);
-      tlkEntry.Override = await DownloadGoogleDoc("12WVf_85P08bLsNlSyxSrFW24xrxjVaEm5_WRZ0w6o8I");
-
-      tlkEntry = StrRef.FromCustomTlk(190099);
-      tlkEntry.Override = await DownloadGoogleDoc("1MQS77YVL1AFYDoeKZbTMax64AlKkt_ro5SpcFqLEDeM");
-
-      tlkEntry = StrRef.FromCustomTlk(190100);
-      tlkEntry.Override = await DownloadGoogleDoc("19jne6SUXvG-iU20seboUSIQD8p-RFm2ZX56gQEqbt-s");
-
-      tlkEntry = StrRef.FromCustomTlk(190101);
-      tlkEntry.Override = await DownloadGoogleDoc("1rC8V0TIIITtONIU7v3oibrCI0-sTXiMT21xBcyF21Ww");
-
-      tlkEntry = StrRef.FromCustomTlk(190102);
-      tlkEntry.Override = await DownloadGoogleDoc("174R6FNW5dO_GxVQyqvndCm0vTnyZ6sTqlDtKVcFSklA");
-
-      tlkEntry = StrRef.FromCustomTlk(190103);
-      tlkEntry.Override = await DownloadGoogleDoc("1m5JzqgayChh6D64b6L53AqqoJvyhjt0gLKdHhUIRh94");
-
-      tlkEntry = StrRef.FromCustomTlk(190104);
-      tlkEntry.Override = await DownloadGoogleDoc("1Gtoy2ELVBlY1l8YaSqiFp4GUKgPbDqRyNZLFxD-7lYU");
-
-      tlkEntry = StrRef.FromCustomTlk(190105);
-      tlkEntry.Override = await DownloadGoogleDoc("1HTCpVKh_FQqvdLfVWLy8P2--tucvL6k1ipUYngL1uto");
-
-      tlkEntry = StrRef.FromCustomTlk(190106);
-      tlkEntry.Override = await DownloadGoogleDoc("17lww5fKedFXoigqIlyTBdyM_-Id9MRKp4qs-HkmYX-0");
-
-      tlkEntry = StrRef.FromCustomTlk(190107);
-      tlkEntry.Override = await DownloadGoogleDoc("1lELBdXP7nR8oa_EWDh0DlMk9rtZUxtZ1vt-7Yuk8xFg");
-
-      tlkEntry = StrRef.FromCustomTlk(190108);
-      tlkEntry.Override = await DownloadGoogleDoc("1ReBm1WQocMnbz0yKQV_cRtd73N2YwXQXvl0Iv44LAhg");
-
-      tlkEntry = StrRef.FromCustomTlk(190109);
-      tlkEntry.Override = await DownloadGoogleDoc("1ll6A-ekXUXKj0crQrAYLRtn6HowvnXCo8JprxzKLpu8");
-
-      tlkEntry = StrRef.FromCustomTlk(190110);
-      tlkEntry.Override = "Protection contre les lames";
-
-      tlkEntry = StrRef.FromCustomTlk(190116);
-      tlkEntry.Override = "Concentration";
-
-      tlkEntry = StrRef.FromCustomTlk(190119);
-      tlkEntry.Override = "Nécrotique";
-
-      tlkEntry = StrRef.FromCustomTlk(190120);
-      tlkEntry.Override = "<CUSTOM0> Nécrotique";
-
-      tlkEntry = StrRef.FromCustomTlk(190121);
-      tlkEntry.Override = "Poison";
-
-      tlkEntry = StrRef.FromCustomTlk(190122);
-      tlkEntry.Override = "<CUSTOM0> Poison";
-
-      tlkEntry = StrRef.FromCustomTlk(190123);
-      tlkEntry.Override = "Psychique";
-
-      tlkEntry = StrRef.FromCustomTlk(190124);
-      tlkEntry.Override = "<CUSTOM0> Psychique";
-
-      tlkEntry = StrRef.FromCustomTlk(190125);
-      tlkEntry.Override = "Force";
-
-      tlkEntry = StrRef.FromCustomTlk(190126);
-      tlkEntry.Override = "<CUSTOM0> Force";
-
-      tlkEntry = StrRef.FromCustomTlk(190127);
-      tlkEntry.Override = "Radiant";
-
-      tlkEntry = StrRef.FromCustomTlk(190128);
-      tlkEntry.Override = "<CUSTOM0> Radiant";
-
-      tlkEntry = StrRef.FromCustomTlk(190129);
-      tlkEntry.Override = "Tonnerre";
-
-      tlkEntry = StrRef.FromCustomTlk(190130);
-      tlkEntry.Override = "<CUSTOM0> Tonnerre";
-
-      tlkEntry = StrRef.FromCustomTlk(190136);
-      tlkEntry.Override = "Communication Animale";
-
-      tlkEntry = StrRef.FromCustomTlk(190151);
-      tlkEntry.Override = "Mode Esquive";
-
-      tlkEntry = StrRef.FromCustomTlk(190152);
-      tlkEntry.Override = "Vous vous concentrer uniquement sur l'esquive au détriment de toute attaque.\n\nLes jets d'attaque qui vous ciblent subissent un désavantage, vos jets de sauvegarde de dextérité ont un avantage.\n\nVous perdez cet effet si vous êtes incapable d'agir, que votre capacité de déplacement tombe à 0, que vous attaquez ou lancez un sort.";
-
-      tlkEntry = StrRef.FromCustomTlk(190153);
-      tlkEntry.Override = "LISEZ-MOI";
-     
-      tlkEntry = StrRef.FromCustomTlk(190154);
-      tlkEntry.Override = "Les choix de races, de classe et de caractéristiques de cette partie de l'interface sont inutiles.\n\nEn jeu, un miroir vous permettra d'accéder à des options de personnalisation approfondies.\n\nIl vous faudra alors valider toutes les étapes avant que le capitaine ne vous autorise à poursuivre votre voyage.";
-
-      tlkEntry = StrRef.FromCustomTlk(190155);
-      tlkEntry.Override = "Les Larmes des Erylies - Editeur de personnage";
-
-      tlkEntry = StrRef.FromCustomTlk(190156);
-      tlkEntry.Override = "Style de combat - Protection";
-
-      tlkEntry = StrRef.FromCustomTlk(190157);
-      tlkEntry.Override = "Maître Ambidextre";
-
-      tlkEntry = StrRef.FromCustomTlk(190158);
-      tlkEntry.Override = "Cogneur Lourd";
-
-      tlkEntry = StrRef.FromCustomTlk(190162);
-      tlkEntry.Override = "Maître des boucliers";
-
-      tlkEntry = StrRef.FromCustomTlk(190164);
-      tlkEntry.Override = "Tueur de mage";
-
-      tlkEntry = StrRef.FromCustomTlk(190165);
-      tlkEntry.Override = "Mobile";
-
-      tlkEntry = StrRef.FromCustomTlk(190167);
-      tlkEntry.Override = "Agresseur Sauvage";
-
-      tlkEntry = StrRef.FromCustomTlk(190169);
-      tlkEntry.Override = "Maître d'Hast";
+      OverrideTlkEntry(1382, "Souffle de guérison");
+      OverrideTlkEntry(190050, "Mélange");
+      OverrideTlkEntry(190051, "Tranche-artère");
+      OverrideTlkEntry(190052, "Adrénaline : 4\nAttaque à l'épée.\nInflige 5...21...25 secondes de saignement.");
+      OverrideTlkEntry(190053, "Saignement");
+      OverrideTlkEntry(190054, "Brûlure");
+      OverrideTlkEntry(190055, "Infirmité");
+      OverrideTlkEntry(190056, "Blessure profonde");
+      OverrideTlkEntry(190057, "Maladie");
+      OverrideTlkEntry(190058, "Empoisonnement");
+      OverrideTlkEntry(190059, "Faiblesse");
+      OverrideTlkEntry(190060, "Armure brisée");
+      OverrideTlkEntry(190061, "Aveuglement");
+      OverrideTlkEntry(190062, "Etourdissement");
+      OverrideTlkEntry(190063, "Sprint");
+      OverrideTlkEntry(190064, "Action qui permet de doubler votre vitesse de déplacement pendant 1 round.");
+      OverrideTlkEntry(190065, "Désengagement");
+      OverrideTlkEntry(190066, "Se désengager permet de se déplacer sans subir d'attaque d'opportunité pendant 1 round.");
+      OverrideTlkEntry(190067, "Menacé");
+      OverrideTlkEntry(190068, "Second Souffle");
+      OverrideTlkEntry(190069, "Action bonus\nVous soigne de 1d10 + votre niveau de guerrier\nRécupération : repos court");
+      OverrideTlkEntry(190070, "Fougue");
+      OverrideTlkEntry(190071, "Action gratuite\nVous bénéficiez d'une attaque supplémentaire\nDurée & Cooldown : 10 rounds\nRécupération : repos court");
+      OverrideTlkEntry(190072, "Haut-Elfe");
+      OverrideTlkEntry(190073, "Elfe des bois");
+      OverrideTlkEntry(190074, "Drow");
+      OverrideTlkEntry(190075, "Demi Haut-Elfe");
+      OverrideTlkEntry(190076, "Demi Drow");
+      OverrideTlkEntry(190077, "Hyper-sensibilité lumineuse");
+      OverrideTlkEntry(190078, "Demi Orc : Endurance Implacable");
+      OverrideTlkEntry(190079, "Nain d'or");
+      OverrideTlkEntry(190080, "Nain d'écu");
+      OverrideTlkEntry(190081, "Duergar");
+      OverrideTlkEntry(190082, "Demi Elfe des bois");
+      OverrideTlkEntry(190083, "Halfelin Pied-Léger");
+      OverrideTlkEntry(190084, "Halfelin Coeur-Vaillant");
+      OverrideTlkEntry(190085, "Gnome des profondeurs");
+      OverrideTlkEntry(190086, "Gnome des forêts");
+      OverrideTlkEntry(190088, "Tieffelin - Asmodeus");
+      OverrideTlkEntry(190089, "Tieffelin - Méphisto");
+      OverrideTlkEntry(190090, "Tieffelin - Zariel");
+      OverrideTlkEntryAsync(190091, "1sUqHix9bOocebunN6481Ea9Qyka8cGrm9_jDneflSyo");
+      OverrideTlkEntryAsync(190092, "1Eiq8eipvoCHp3gtynjwfzZhUUkQaaaJEE8bmmgBwuSs");
+      OverrideTlkEntryAsync(190093, "1OPhIPceDp4BxYhHT9ewznlcWuN2svohIt_bB6RLMXQI");
+      OverrideTlkEntryAsync(190094, "1Uegi0SIF00tLWQfB5kNvaNTBfoIq1Eo0vFktiAatiL0");
+      OverrideTlkEntryAsync(190095, "1Zty6S_4FW7gprPWM9zyijAHD3xIeGKsUiRu9qkYSmFI");
+      OverrideTlkEntryAsync(190096, "1yYb8KC3izRmxApxQj6BIQD8diUpunnzbKnpBNAitk-U");
+      OverrideTlkEntryAsync(190097, "1h56nnvKQ7nZW240V-MEPkHkSd8hZ3amw7hnkKR_OHpk");
+      OverrideTlkEntryAsync(190098, "12WVf_85P08bLsNlSyxSrFW24xrxjVaEm5_WRZ0w6o8I");
+      OverrideTlkEntryAsync(190099, "1MQS77YVL1AFYDoeKZbTMax64AlKkt_ro5SpcFqLEDeM");
+      OverrideTlkEntryAsync(190100, "19jne6SUXvG-iU20seboUSIQD8p-RFm2ZX56gQEqbt-s");
+      OverrideTlkEntryAsync(190101, "1rC8V0TIIITtONIU7v3oibrCI0-sTXiMT21xBcyF21Ww");
+      OverrideTlkEntryAsync(190102, "174R6FNW5dO_GxVQyqvndCm0vTnyZ6sTqlDtKVcFSklA");
+      OverrideTlkEntryAsync(190103, "1m5JzqgayChh6D64b6L53AqqoJvyhjt0gLKdHhUIRh94");
+      OverrideTlkEntryAsync(190104, "1Gtoy2ELVBlY1l8YaSqiFp4GUKgPbDqRyNZLFxD-7lYU");
+      OverrideTlkEntryAsync(190105, "1HTCpVKh_FQqvdLfVWLy8P2--tucvL6k1ipUYngL1uto");
+      OverrideTlkEntryAsync(190106, "17lww5fKedFXoigqIlyTBdyM_-Id9MRKp4qs-HkmYX-0");
+      OverrideTlkEntryAsync(190107, "1lELBdXP7nR8oa_EWDh0DlMk9rtZUxtZ1vt-7Yuk8xFg");
+      OverrideTlkEntryAsync(190108, "1ReBm1WQocMnbz0yKQV_cRtd73N2YwXQXvl0Iv44LAhg");
+      OverrideTlkEntryAsync(190109, "1ll6A-ekXUXKj0crQrAYLRtn6HowvnXCo8JprxzKLpu8");
+      OverrideTlkEntry(190110, "Protection contre les lames");
+      OverrideTlkEntry(190116, "Concentration");
+      OverrideTlkEntry(190119, "Nécrotique");
+      OverrideTlkEntry(190120, "<CUSTOM0> Nécrotique");
+      OverrideTlkEntry(190121, "Poison");
+      OverrideTlkEntry(190122, "<CUSTOM0> Poison");
+      OverrideTlkEntry(190123, "Psychique");
+      OverrideTlkEntry(190124, "<CUSTOM0> Psychique");
+      OverrideTlkEntry(190125, "Force");
+      OverrideTlkEntry(190126, "<CUSTOM0> Force");
+      OverrideTlkEntry(190127, "Radiant");
+      OverrideTlkEntry(190128, "<CUSTOM0> Radiant");
+      OverrideTlkEntry(190129, "<Tonnerre");
+      OverrideTlkEntry(190130, "<CUSTOM0> Tonnerre");
+      OverrideTlkEntry(190131, "<CUSTOM0> Force");
+      OverrideTlkEntry(190132, "<CUSTOM0> Force");
+      OverrideTlkEntry(190133, "<CUSTOM0> Force");
+      OverrideTlkEntry(190136, "Communication Animale");
+      OverrideTlkEntry(190151, "Mode Esquive");
+      OverrideTlkEntry(190152, "Vous vous concentrer uniquement sur l'esquive au détriment de toute attaque.\n\nLes jets d'attaque qui vous ciblent subissent un désavantage, vos jets de sauvegarde de dextérité ont un avantage.\n\nVous perdez cet effet si vous êtes incapable d'agir, que votre capacité de déplacement tombe à 0, que vous attaquez ou lancez un sort.");
+      OverrideTlkEntry(190153, "LISEZ-MOI");
+      OverrideTlkEntry(190154, "Les choix de races, de classe et de caractéristiques de cette partie de l'interface sont inutiles.\n\nEn jeu, un miroir vous permettra d'accéder à des options de personnalisation approfondies.\n\nIl vous faudra alors valider toutes les étapes avant que le capitaine ne vous autorise à poursuivre votre voyage.");
+      OverrideTlkEntry(190155, "Les Larmes des Erylies - Editeur de personnage");
+      OverrideTlkEntry(190156, "Style de combat - Protection");
+      OverrideTlkEntry(190157, "Maître Ambidextre");
+      OverrideTlkEntry(190158, "Cogneur Lourd");
+      OverrideTlkEntry(190162, "Maître des boucliers");
+      OverrideTlkEntry(190164, "Tueur de mage");
+      OverrideTlkEntry(190165, "Mobile");
+      OverrideTlkEntry(190167, "Agresseur Sauvage");
+      OverrideTlkEntry(190169, "Maître d'Hast");
+      OverrideTlkEntry(190175, "Tireur d'Elite");
+      OverrideTlkEntry(190177, "Bagarreur de taverne");
+      OverrideTlkEntry(190179, "Mage de guerre");
+    }
+
+    private static void OverrideTlkEntry(uint entry, string text)
+    {
+      StrRef.FromCustomTlk(entry).Override = text;
+    }
+    private static async void OverrideTlkEntryAsync(uint entry, string text)
+    {
+      StrRef.FromCustomTlk(entry).Override = await DownloadGoogleDoc(text);
     }
   }
 }

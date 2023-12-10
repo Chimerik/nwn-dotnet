@@ -45,7 +45,7 @@ namespace NWN.Systems
     }
     public static int GetUnarmedCritDamage(CNWSCreature attacker)
     {
-      int unarmedDieToRoll = CreatureUtils.GetUnarmedDamage(attacker.m_pStats.GetNumLevelsOfClass((byte)Native.API.ClassType.Monk));
+      int unarmedDieToRoll = CreatureUtils.GetUnarmedDamage(attacker.m_pStats);
       int damage = NwRandom.Roll(Utils.random, unarmedDieToRoll);
 
       LogUtils.LogMessage($"Critique - Mains nues - 1d{unarmedDieToRoll} => {damage}", LogUtils.LogType.Combat);

@@ -402,6 +402,7 @@ namespace NWN.Systems
         HandleMailNotification();
         ApplyElvenSleepImmunity();
         ApplyWoodElfSpeed();
+        ApplySmallRaceSlow();
         ApplyDrowLightSensitivity();
         ApplyHumanVersatility();
         ApplyHalfOrcEndurance();
@@ -413,7 +414,9 @@ namespace NWN.Systems
         ApplyAmbiMaster();
         ApplyMaitreArmureIntermediaire();
         ApplyTueurDeMage();
+        ApplySentinelle();
         ApplyMobile();
+        ApplyBroyeur();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

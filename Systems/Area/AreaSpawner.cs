@@ -77,6 +77,12 @@ namespace NWN.Systems
       if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TueurDeMage)))
         creature.OnCreatureAttack += CreatureUtils.OnAttackTueurDeMage;
 
+      if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Sentinelle)))
+        creature.OnCreatureAttack += CreatureUtils.OnAttackSentinelle;
+
+      if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Broyeur)))
+        creature.OnCreatureAttack += CreatureUtils.OnAttackBroyeur;
+
       var creatureLoop = scheduler.ScheduleRepeating(() => CreatureUtils.CreatureHealthRegenLoop(creature), TimeSpan.FromSeconds(1));
 
       await NwTask.WaitUntil(() => creature == null || !creature.IsValid);

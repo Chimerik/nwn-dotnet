@@ -14,7 +14,7 @@ namespace NWN.Systems
           case CustomRace.WoodElf:
           case CustomRace.WoodHalfElf:
 
-            if (!oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.woodElfSpeed.Tag))
+            if (!oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.woodElfEffectTag))
               oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.woodElfSpeed);
 
             return;

@@ -11,6 +11,7 @@ namespace NWN
     {
       SpellConfig.SavingThrowFeedback feedback = new();
       int advantage = GetCreatureAbilityAdvantage(onDamage.Creature, Spells2da.spellTable[CustomSpell.PoisonSpray]); // je force sur poison spray pour avoir l'ability constitution
+      advantage += onDamage.Creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.MageDeGuerre)) ? 1 : 0;
       int concentrationDC = 10;
       int totalDamage = onDamage.DamageAmount / 2;
       concentrationDC = concentrationDC > totalDamage ? concentrationDC : totalDamage;

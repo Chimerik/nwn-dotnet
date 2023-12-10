@@ -69,6 +69,11 @@
     public const int AgresseurSauvage = 1376;
     public const int HastMaster = 1377;
     public const int MaitreArbaletrier = 1378;
+    public const int Sentinelle = 1379;
+    public const int TireurDelite = 1380;
+    public const int BagarreurDeTaverne = 1381;
+    public const int MageDeGuerre = 1381;
+    public const int Broyeur = 1382;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -497,6 +502,10 @@
     public const int ProtectionLourde = 20499;
     public const int MaitreArmureIntermediaire = 20500;
     public const int Resilient = 20501;
+    public const int AgiliteDesCourtsSurPattes = 20502;
+    public const int Robuste = 20503;
+    public const int ConstitutionInfernale = 20504;
+    public const int FureurOrc = 20505;
 
     public const int Invalid = 65535;
   }

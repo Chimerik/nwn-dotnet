@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Anvil.API;
 using NWN.Native.API;
 
 namespace NWN
@@ -8,7 +9,7 @@ namespace NWN
     public static int GetKnockdownAdvantage(int rangedAttack, CNWSCreature target)
     {
       return target.m_appliedEffects.Any(e => (EffectTrueType)e.m_nType == EffectTrueType.Knockdown) 
-        ? rangedAttack > 0 ? -1 : 1
+        ? rangedAttack.ToBool() ? -1 : 1
         : 0;
     }
   }

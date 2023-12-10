@@ -8,7 +8,7 @@ namespace NWN
 {
   public static partial class CreatureUtils
   {
-    public static int GetThreatenedDisadvantage(CNWSCreature attacker, int isRangedAttack, CNWSItem attackWeapon = null)
+    public static int GetThreatenedDisadvantage(CNWSCreature attacker, CNWSItem attackWeapon = null)
     {
       var isCrossbowAttack = false;
 
@@ -21,7 +21,7 @@ namespace NWN
         };
       }
 
-      return !isRangedAttack.ToBool() || (isCrossbowAttack && attacker.m_pStats.HasFeat((ushort)Feat.PointBlankShot).ToBool())
+      return (isCrossbowAttack && attacker.m_pStats.HasFeat((ushort)Feat.PointBlankShot).ToBool())
         || !attacker.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.threatenedEffectExoTag).ToBool())
         ? 0 
         : -1;

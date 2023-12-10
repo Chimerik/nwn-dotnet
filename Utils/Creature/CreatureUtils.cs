@@ -23,7 +23,17 @@ namespace NWN
     public static readonly CExoString HastMasterSpecialAttackExo = "_HAST_MASTER_SPECIAL_ATTACK".ToExoString();
     public const string HastMasterOpportunityVariable = "_HAST_MASTER_OPPORTUNITY";
     public readonly static CExoString HastMasterOpportunityVariableExo = "_HAST_MASTER_OPPORTUNITY".ToExoString();
+    public const string SentinelleOpportunityVariable = "_SENTINELLE_OPPORTUNITY";
+    public readonly static CExoString SentinelleOpportunityVariableExo = "_SENTINELLE_OPPORTUNITY".ToExoString();
+    public const string SentinelleOpportunityTargetVariable = "_SENTINELLE_OPPORTUNITY_TARGET";
+    public readonly static CExoString SentinelleOpportunityTargetVariableExo = "_SENTINELLE_OPPORTUNITY_TARGET".ToExoString();
+    public const string FureurOrcBonusDamageVariable = "_FUREUR_ORC_DAMAGE";
+    public readonly static CExoString FureurOrcBonusDamageVariableExo = "_FUREUR_ORC_DAMAGE".ToExoString();
+    public const string FureurOrcBonusAttackVariable = "_FUREUR_ORC_ATTACK";
+    public readonly static CExoString FureurOrcBonusAttackVariableExo = "_FUREUR_ORC_ATTACK".ToExoString();
+
     public const string OriginalSizeVariable = "_ORIGINAL_SIZE";
+
     public static readonly Dictionary<string, NwCreature> creatureSpawnDictionary = new();
     public static void OnMobPerception(CreatureEvents.OnPerception onPerception)
     {
@@ -161,8 +171,13 @@ namespace NWN
       spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value = creature.Tag;
       creature.Destroy();
     }
-    public static int GetUnarmedDamage(int monkLevel)
+    public static int GetUnarmedDamage(CNWSCreatureStats stats)
     {
+      int monkLevel = stats.GetNumLevelsOfClass((byte)Native.API.ClassType.Monk);
+
+      if (monkLevel < 1 && stats.HasFeat(CustomSkill.BagarreurDeTaverne).ToBool())
+        return 4;
+
      return monkLevel switch
       {
         1 or 2 or 3 or 4 => 4,

@@ -30,6 +30,11 @@ namespace NWN.Systems
         attackBonus -= 5;
         LogUtils.LogMessage($"Cogneur Lourd : -5 BA", LogUtils.LogType.Combat);
       }
+      else if (IsTireurDelite(attacker, attackData))
+      {
+        attackBonus -= 5;
+        LogUtils.LogMessage($"Tireur d'élite : -5 BA", LogUtils.LogType.Combat);
+      }
 
       return attackBonus;
     }

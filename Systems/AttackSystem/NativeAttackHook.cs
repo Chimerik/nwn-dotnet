@@ -204,7 +204,7 @@ namespace NWN.Systems
         string advantageString = advantage == 0 ? "" : advantage > 0 ? "Avantage - ".ColorString(StringUtils.gold) : "Désavantage - ".ColorString(ColorConstants.Red);
         int totalAttack = attackRoll + attackBonus;
 
-        if (attackRoll == 20) // TODO : certains items permettront d'augmenter la plage des critiques dans certaines conditions
+        if (attackRoll >= NativeUtils.GetCriticalRange(creature, attackWeapon, attackData))
         {
           attackData.m_nAttackResult = 3;
           criticalString = "CRITIQUE - ".ColorString(StringUtils.gold);
@@ -249,6 +249,10 @@ namespace NWN.Systems
         
         string targetName = $"{targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)}".ColorString(ColorConstants.Cyan);
         NativeUtils.SendNativeServerMessage($"{advantageString}{criticalString}Vous {hitString} {targetName} {rollString}".ColorString(ColorConstants.Cyan), creature);
+
+        NativeUtils.HandleSentinelleOpportunityTarget(creature, combatRound);
+        NativeUtils.HandleSentinelle(creature, targetCreature, combatRound);
+        NativeUtils.HandleFureurOrc(creature, targetCreature, combatRound);
       }
       else
         attackData.m_nAttackResult = 7;
@@ -367,10 +371,15 @@ namespace NWN.Systems
           baseDamage += 10;
           //LogUtils.LogMessage($"Cogneur Lourd : +10 dégâts", LogUtils.LogType.Combat);
         }
+        else if (NativeUtils.IsTireurDelite(attacker, attackData))
+        {
+          baseDamage += 10;
+          //LogUtils.LogMessage($"Cogneur Lourd : +10 dégâts", LogUtils.LogType.Combat);
+        }
       }
       else
       {
-        int unarmedDieToRoll = CreatureUtils.GetUnarmedDamage(attacker.m_pStats.GetNumLevelsOfClass((byte)Native.API.ClassType.Monk));
+        int unarmedDieToRoll = CreatureUtils.GetUnarmedDamage(attacker.m_pStats);
         baseDamage += NwRandom.Roll(Utils.random, unarmedDieToRoll);
         //LogUtils.LogMessage($"Mains nues - 1d{unarmedDieToRoll} => {baseDamage}", LogUtils.LogType.Combat);
       }
@@ -427,6 +436,7 @@ namespace NWN.Systems
 
       LogUtils.LogMessage($"Dégâts : {baseDamage}", LogUtils.LogType.Combat);*/
 
+      baseDamage += NativeUtils.HandleBagarreurDeTaverne(attacker, attackWeapon, strBonus);
       baseDamage -= NativeUtils.HandleMaitreArmureLourde(targetObject);
 
       // Application des réductions du jeu de base

@@ -10,7 +10,7 @@ namespace NWN.Systems
       NwItem offHand = onSpellAction.Caster.GetItemInSlot(InventorySlot.LeftHand);
       NwItem rightHand = onSpellAction.Caster.GetItemInSlot(InventorySlot.RightHand);
 
-      if (rightHand is null || (offHand is null && !ItemUtils.IsTwoHandedWeapon(rightHand.BaseItem, onSpellAction.Caster.Size)))
+      if (onSpellAction.Caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.MageDeGuerre)) || rightHand is null || (offHand is null && !ItemUtils.IsTwoHandedWeapon(rightHand.BaseItem, onSpellAction.Caster.Size)))
         return;
 
       onSpellAction.PreventSpellCast = true;

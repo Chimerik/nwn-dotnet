@@ -8,9 +8,9 @@ namespace NWN
 {
   public static partial class CreatureUtils
   {
-    public static int GetRangedWeaponDistanceDisadvantage(CNWSCreature attacker, int isRangedAttack, BaseItemType weaponType, CNWSCreature target)
+    public static int GetRangedWeaponDistanceDisadvantage(CNWSCreature attacker, BaseItemType weaponType, CNWSCreature target)
     {
-      return isRangedAttack < 1 || target is null 
+      return target.m_pStats.HasFeat(CustomSkill.TireurDelite).ToBool()
         || ItemUtils.IsRangedWeaponInOptimalRange(weaponType, Vector3.Distance(attacker.m_vPosition.ToManagedVector(), target.m_vPosition.ToManagedVector()))
         ? 0 : -1;
     }

@@ -16,6 +16,7 @@ namespace NWN.Systems
       {
         combatRound.AddCleaveAttack(attacker.m_ScriptVars.GetObject(CreatureUtils.HastMasterOpportunityVariableExo));
         attacker.m_ScriptVars.DestroyObject(CreatureUtils.HastMasterOpportunityVariableExo);
+        attacker.m_ScriptVars.SetInt(CreatureUtils.SentinelleOpportunityVariableExo, 1);
       }
 
       if (!attacker.m_ScriptVars.GetInt(CreatureUtils.HastMasterCooldownVariableExo).ToBool())

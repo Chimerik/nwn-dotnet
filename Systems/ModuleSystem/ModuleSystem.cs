@@ -1262,8 +1262,13 @@ namespace NWN.Systems
       {
         if (target.ActiveEffects.Any(e => e.Tag == EffectSystem.DisengageffectTag))
         {
-          EventsPlugin.SkipEvent();
-          return;
+          if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Sentinelle)))
+            StringUtils.DisplayStringToAllPlayersNearTarget(creature, "Sentinelle", StringUtils.gold, true);
+          else
+          {
+            EventsPlugin.SkipEvent();
+            return;
+          }
         }
       }
       else
@@ -1294,9 +1299,21 @@ namespace NWN.Systems
           return;
         }
 
-      creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value -= 1;
-      StringUtils.DisplayStringToAllPlayersNearTarget(creature, "Attaque d'opportunité", StringUtils.gold, true);
-      EventsPlugin.SetEventResult("1");
+      if(creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.MageDeGuerre))
+        && creature.ActiveEffects.Any(e => e.Tag == EffectSystem.MageDeGuerreEffectTag))
+      {
+        creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value -= 1;
+        StringUtils.DisplayStringToAllPlayersNearTarget(creature, "Attaque d'opportunité - Mage de guerre", StringUtils.gold, true);
+        _ = creature.ActionCastSpellAt(NwSpell.FromSpellType(Spell.ElectricJolt), target, instant:true);
+        EventsPlugin.SkipEvent();
+        return;
+      }
+      else
+      {
+        creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value -= 1;
+        StringUtils.DisplayStringToAllPlayersNearTarget(creature, "Attaque d'opportunité", StringUtils.gold, true);
+        EventsPlugin.SetEventResult("1");
+      }
     }
     /*[ScriptHandler("on_dual_fight")]
     private void AutoGiveDualFightFeats(CallInfo callInfo)

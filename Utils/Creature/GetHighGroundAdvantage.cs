@@ -1,15 +1,25 @@
-﻿using NWN.Native.API;
+﻿using Anvil.API;
+using NWN.Native.API;
+using NWN.Systems;
 
 namespace NWN
 {
   public static partial class CreatureUtils
   {
-    public static int GetHighGroundAdvantage(CNWSCreature attacker, int isRangedAttack, CNWSCreature target = null)
+    public static int GetHighGroundAdvantage(CNWSCreature attacker, CNWSCreature target)
     {
-      return target is null || isRangedAttack < 1 || attacker.m_vPosition.z < target.m_vPosition.z + 3
-        ? target is null || isRangedAttack < 1 || target.m_vPosition.z < attacker.m_vPosition.z + 3 
-        ? 0 : -1 
-        : 1;
+      float distance = attacker.m_vPosition.z - target.m_vPosition.z;
+
+      if (distance > 3)
+        return 1;
+
+      if (attacker.m_pStats.HasFeat(CustomSkill.TireurDelite).ToBool())
+        return 0;
+
+      if (distance < -3)
+        return -1;
+
+      return 0;
     }
   }
 }
