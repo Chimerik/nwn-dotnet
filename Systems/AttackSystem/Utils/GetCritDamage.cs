@@ -23,10 +23,7 @@ namespace NWN.Systems
       }
 
       NwBaseItem baseWeapon = NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem);
-      byte numDice = attacker.m_pStats.m_nRace == CustomRace.HalfOrc && attackData.m_bRangedAttack < 1 ? (byte)(baseWeapon.NumDamageDice + 1) : baseWeapon.NumDamageDice;
-      int damage = NwRandom.Roll(Utils.random, baseWeapon.DieToRoll, numDice);
-
-      LogUtils.LogMessage($"{baseWeapon.Name.ToString()} - {baseWeapon.NumDamageDice}d{numDice} => {damage}", LogUtils.LogType.Combat);
+      int damage = RollWeaponDamage(attacker, baseWeapon, attackData, true);
 
       if (bSneakAttack > 0)
         damage += GetSneakAttackCritDamage(attacker);

@@ -7,7 +7,7 @@ namespace NWN
   {
     public static bool GetArmorShieldDisadvantage(Native.API.CGameEffect eff, Ability attackStat)
     {
-      return eff.m_sCustomTag.CompareNoCase(EffectSystem.shieldArmorDisadvantageEffectExoTag) > 0 
+      return eff.m_sCustomTag.CompareNoCase(EffectSystem.shieldArmorDisadvantageEffectExoTag).ToBool()
         && (attackStat == Ability.Strength || attackStat == Ability.Dexterity);
     }
   }

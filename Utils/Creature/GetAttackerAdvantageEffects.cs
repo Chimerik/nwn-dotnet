@@ -18,6 +18,7 @@ namespace NWN
         { "drowLightSensitivity", false },
         { "boneChillDisadvantage", false },
         { "protectionStyle", false },
+        { "pourfendeur", false },
       };
 
       Dictionary<string, bool> advantageDictionary = new()
@@ -38,6 +39,7 @@ namespace NWN
         disadvantageDictionary["frightened"] = disadvantageDictionary["frightened"] || GetFrightenedDisadvantage(eff, targetId.m_idSelf);
         disadvantageDictionary["drowLightSensitivity"] = disadvantageDictionary["drowLightSensitivity"] || GetDrowLightSensitivityDisadvantage(eff);
         disadvantageDictionary["protectionStyle"] = disadvantageDictionary["protectionStyle"] || GetProtectionStyleDisadvantage(eff);
+        disadvantageDictionary["pourfendeur"] = disadvantageDictionary["pourfendeur"] || GetPourfendeurDisadvantage(eff);
       }
 
       return -disadvantageDictionary.Count(v => v.Value) + advantageDictionary.Count(v => v.Value);

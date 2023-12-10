@@ -101,6 +101,9 @@ namespace NWN
       OverrideTlkEntry(190175, "Tireur d'Elite");
       OverrideTlkEntry(190177, "Bagarreur de taverne");
       OverrideTlkEntry(190179, "Mage de guerre");
+      OverrideTlkEntry(190187, "Pourfendeur");
+      OverrideTlkEntry(190188, "Pourfendeur - Infirmité");
+      OverrideTlkEntry(190189, "Pourfendeur - Désavantage");
     }
 
     private static void OverrideTlkEntry(uint entry, string text)

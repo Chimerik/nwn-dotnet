@@ -83,6 +83,11 @@ namespace NWN.Systems
       if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Broyeur)))
         creature.OnCreatureAttack += CreatureUtils.OnAttackBroyeur;
 
+      if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Pourfendeur)))
+      {
+        creature.OnCreatureAttack += CreatureUtils.OnAttackPourfendeur;
+        creature.OnCreatureDamage += CreatureUtils.OnDamagePourfendeur;
+      }
       var creatureLoop = scheduler.ScheduleRepeating(() => CreatureUtils.CreatureHealthRegenLoop(creature), TimeSpan.FromSeconds(1));
 
       await NwTask.WaitUntil(() => creature == null || !creature.IsValid);

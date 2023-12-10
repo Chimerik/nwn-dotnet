@@ -20,7 +20,7 @@ namespace NWN.Systems
 
       switch(SpellUtils.GetSpellAttackRoll(onSpellCast.TargetObject, oCaster, onSpellCast.Spell, spellCastingAbility))
       {
-        case TouchAttackResult.CriticalHit: nbDice *= 2; break;
+        case TouchAttackResult.CriticalHit: SpellUtils.GetCriticalSpellDamageDiceNumber(oCaster, spellEntry, nbDice); ; break;
         case TouchAttackResult.Hit: break;
         default: return;
       }

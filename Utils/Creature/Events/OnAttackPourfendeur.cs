@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
 using NWN.Systems;
@@ -7,7 +8,7 @@ namespace NWN
 {
   public static partial class CreatureUtils
   {
-    public static void OnAttackBroyeur(OnCreatureAttack onAttack)
+    public static void OnAttackPourfendeur(OnCreatureAttack onAttack)
     {
       NwItem weapon = null;
 
@@ -31,12 +32,11 @@ namespace NWN
           break;
       }
 
-      if (onAttack.AttackResult == AttackResult.CriticalHit // Critical Hit
-        && !onAttack.IsRangedAttack
-        && weapon is not null
-        && onAttack.Attacker.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Broyeur))
-        && weapon.BaseItem.WeaponType.Any(d => d == Anvil.API.DamageType.Bludgeoning))
-        onAttack.Attacker.ApplyEffect(EffectDuration.Temporary, EffectSystem.BroyeurEffect, NwTimeSpan.FromRounds(1));
+      if(weapon is not null && weapon.BaseItem.WeaponType.Any(d => d == DamageType.Slashing))
+        onAttack.Attacker.GetObjectVariable<LocalVariableInt>("_POURFENDEUR_SLASH").Value = 1;
+
+      if (onAttack.AttackResult == AttackResult.CriticalHit)
+        onAttack.Attacker.GetObjectVariable<LocalVariableInt>("_POURFENDEUR_CRIT").Value = 1;
     }
   }
 }

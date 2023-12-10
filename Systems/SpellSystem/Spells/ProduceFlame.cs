@@ -34,7 +34,7 @@ namespace NWN.Systems
 
       switch(SpellUtils.GetSpellAttackRoll(onSpellCast.TargetObject, caster, onSpellCast.Spell, Ability.Wisdom))
       {
-        case TouchAttackResult.CriticalHit: nbDice *= 2; break;
+        case TouchAttackResult.CriticalHit: SpellUtils.GetCriticalSpellDamageDiceNumber(caster, spellEntry, nbDice); ; break;
         case TouchAttackResult.Hit: break;
         default: return;
       }

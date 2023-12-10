@@ -18,7 +18,12 @@ namespace NWN.Systems
       for(int i = 0; i < nbDices; i++) 
       {
         int roll = NwRandom.Roll(Utils.random, spellEntry.damageDice);
-        damage += isElementalist && roll < 2 ? 2 : roll;
+        roll = isElementalist && roll < 2 ? 2 : roll;
+
+        if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Empaleur)) && spellEntry.damageType == DamageType.Piercing)
+          roll = roll < 3 ? NwRandom.Roll(Utils.random, spellEntry.damageDice) : roll;
+
+        damage += roll;
       }
 
       damage = ItemUtils.GetShieldMasterReducedDamage(target, damage, saveFailed, spellEntry.savingThrowAbility);

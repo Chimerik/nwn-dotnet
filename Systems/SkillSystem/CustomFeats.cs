@@ -72,8 +72,13 @@
     public const int Sentinelle = 1379;
     public const int TireurDelite = 1380;
     public const int BagarreurDeTaverne = 1381;
-    public const int MageDeGuerre = 1381;
-    public const int Broyeur = 1382;
+    public const int MageDeGuerre = 1382;
+    public const int Broyeur = 1383;
+    public const int FureurOrc = 1384;
+    public const int Pourfendeur = 1385;
+    public const int Empaleur = 1386;
+    public const int FighterCombatStyleTwoHanded = 1387;
+    public const int Elementaliste = 1388;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -466,7 +471,6 @@
     public const int FighterCombatStyleArchery = 20475;
     public const int FighterCombatStyleDefense = 20476;
     public const int FighterCombatStyleDuel = 20477;
-    public const int FighterCombatStyleTwoHanded = 20478;
     public const int FighterCombatStyleProtection = 20479;
     public const int FighterCombatStyleDualWield = 20480;
     public const int FighterBonusAttack = 20482; // 3 niveaux
@@ -474,7 +478,6 @@
 
     public const int FighterChampionCritical = 20484; // 2 niveaux
     public const int FighterChampionRemarkableAthlete = 20485;
-    public const int FighterChampionUltimateSurvivor = 20485;
 
     public const int FighterWarMasterSuperiority = 20486; // 5 niveaux
     
@@ -496,16 +499,14 @@
     public const int AmbiMaster = 20493;
     public const int DungeonExpert = 20494;
     public const int Gaillard = 20495;
-    public const int Elementaliste = 20496;
-    public const int ProtectionLegere = 20497;
-    public const int ProtectionIntermediaire = 20498;
-    public const int ProtectionLourde = 20499;
-    public const int MaitreArmureIntermediaire = 20500;
-    public const int Resilient = 20501;
-    public const int AgiliteDesCourtsSurPattes = 20502;
-    public const int Robuste = 20503;
-    public const int ConstitutionInfernale = 20504;
-    public const int FureurOrc = 20505;
+    public const int ProtectionLegere = 20496;
+    public const int ProtectionIntermediaire = 20497;
+    public const int ProtectionLourde = 20498;
+    public const int MaitreArmureIntermediaire = 20499;
+    public const int Resilient = 20500;
+    public const int AgiliteDesCourtsSurPattes = 20501;
+    public const int Robuste = 20502;
+    public const int ConstitutionInfernale = 20503;
 
     public const int Invalid = 65535;
   }

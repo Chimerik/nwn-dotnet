@@ -352,8 +352,7 @@ namespace NWN.Systems
             attacker.m_ScriptVars.DestroyInt(CreatureUtils.HastMasterSpecialAttackExo);
         }
         else
-          baseDamage += NativeUtils.HandleGreatWeaponStyle(attacker, baseWeapon, 
-            NativeUtils.HandleSavageAttacker(attacker, baseWeapon, attackData.m_bRangedAttack.ToBool()));
+          baseDamage += NativeUtils.RollWeaponDamage(attacker, baseWeapon, attackData);
         
         //LogUtils.LogMessage($"{baseWeapon.Name.ToString()} - {baseWeapon.NumDamageDice}d{baseWeapon.DieToRoll} => {baseDamage}", LogUtils.LogType.Combat);
 

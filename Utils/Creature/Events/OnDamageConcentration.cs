@@ -1,5 +1,4 @@
-﻿using System;
-using Anvil.API.Events;
+﻿using Anvil.API.Events;
 using Anvil.API;
 using NWN.Systems;
 
@@ -15,7 +14,7 @@ namespace NWN
       int concentrationDC = 10;
       int totalDamage = onDamage.DamageAmount / 2;
       concentrationDC = concentrationDC > totalDamage ? concentrationDC : totalDamage;
-
+      
       if(onDamage.Creature.GetObjectVariable<LocalVariableInt>("_CONCENTRATION_DISADVANTAGE").HasValue)
       {
         advantage -= 1;

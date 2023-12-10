@@ -417,6 +417,7 @@ namespace NWN.Systems
         ApplySentinelle();
         ApplyMobile();
         ApplyBroyeur();
+        ApplyPourfendeur();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();
