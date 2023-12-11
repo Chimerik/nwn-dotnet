@@ -6,8 +6,8 @@ namespace NWN.Systems
   {
     public static bool OnLearnRobuste(PlayerSystem.Player player, int customSkillId)
     {
-      foreach (var level in player.oid.LoginCreature.LevelInfo)
-        level.HitDie += 2;
+      if (!player.oid.LoginCreature.KnowsFeat(Feat.Toughness))
+        player.oid.LoginCreature.AddFeat(Feat.Toughness);
 
       return true;
     }

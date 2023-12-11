@@ -12,7 +12,6 @@ namespace NWN.Systems
   public unsafe class NativeAttackHook
   {
     private readonly CExoString casterLevelVariable = "_CREATURE_CASTER_LEVEL".ToExoString();
-    private readonly CExoString isFinesseWeaponVariable = "_IS_FINESSE_WEAPON".ToExoString();
     private readonly CExoString durabilityVariable = "_DURABILITY".ToExoString();
     private readonly CExoString maxDurabilityVariable = "_MAX_DURABILITY".ToExoString();
 
@@ -105,7 +104,7 @@ namespace NWN.Systems
 
       if (attackWeapon != null
           && dexBonus > strBonus
-          && attackWeapon.m_ScriptVars.GetInt(isFinesseWeaponVariable) != 0)
+          && attackWeapon.m_ScriptVars.GetInt(ItemConfig.isFinesseWeaponCExoVariable) != 0)
       {
         attackModifier += -strBonus + dexBonus;
         attackStat = Anvil.API.Ability.Dexterity;
@@ -416,7 +415,7 @@ namespace NWN.Systems
           //LogUtils.LogMessage($"Moine - Ajout Force ({strBonus})", LogUtils.LogType.Combat);
         }
       }// Si arme de finesse et dextérité plus élevée, alors on utilise la dextérité
-      else if(attackWeapon is not null &&  attackWeapon.m_ScriptVars.GetInt(isFinesseWeaponVariable) != 0 
+      else if(attackWeapon is not null &&  attackWeapon.m_ScriptVars.GetInt(ItemConfig.isFinesseWeaponCExoVariable) != 0 
         && dexBonus > strBonus)
       {
         damageBonus +=  dexBonus;

@@ -6,7 +6,6 @@ namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    private static readonly CExoString isFinesseWeaponVariable = "_IS_FINESSE_WEAPON".ToExoString();
     public static int GetDefensiveDuellistBonus(CNWSCreature target, int rangedAttack)
     {
       if(rangedAttack.ToBool() || !target.m_pStats.HasFeat((ushort)Feat.PrestigeDefensiveAwareness1).ToBool()
@@ -15,9 +14,9 @@ namespace NWN.Systems
       
       CNWSItem weapon = target?.m_pInventory.GetItemInSlot((uint)EquipmentSlot.RightHand);
 
-      if (weapon is null || !weapon.m_ScriptVars.GetInt(isFinesseWeaponVariable).ToBool())
+      if (weapon is null || !weapon.m_ScriptVars.GetInt(ItemConfig.isFinesseWeaponCExoVariable).ToBool())
         weapon = target?.m_pInventory.GetItemInSlot((uint)EquipmentSlot.LeftHand);
-      if (weapon is null || !weapon.m_ScriptVars.GetInt(isFinesseWeaponVariable).ToBool())
+      if (weapon is null || !weapon.m_ScriptVars.GetInt(ItemConfig.isFinesseWeaponCExoVariable).ToBool())
         return 0;
 
       target.m_ScriptVars.SetInt(CreatureUtils.ReactionVariableExo, target.m_ScriptVars.GetInt(CreatureUtils.ReactionVariableExo) - 1);

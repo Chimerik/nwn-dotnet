@@ -191,8 +191,7 @@ namespace NWN.Systems
       {
         //Log.Info($"{creature.Name} is on reset position !");
         creature.AiLevel = AiLevel.Default;
-        foreach (Effect eff in creature.ActiveEffects.Where(e => e.Tag == "mob_reset_regen"))
-          creature.RemoveEffect(eff);
+        EffectUtils.RemoveTaggedEffect(creature, "mob_reset_regen");
       }
 
       return ScriptHandleResult.Handled;

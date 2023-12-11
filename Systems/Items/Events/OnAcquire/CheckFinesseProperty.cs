@@ -15,8 +15,8 @@ namespace NWN.Systems
         case BaseItemType.Scimitar:
         case BaseItemType.Dagger:
         case BaseItemType.Whip:
-          if (onAcquireItem.Item.GetObjectVariable<LocalVariableInt>("_IS_FINESSE_WEAPON").HasNothing)
-            onAcquireItem.Item.GetObjectVariable<LocalVariableInt>("_IS_FINESSE_WEAPON").Value = 1;
+          if (onAcquireItem.Item.GetObjectVariable<LocalVariableInt>(ItemConfig.IsFinesseWeaponVariable).HasNothing)
+            onAcquireItem.Item.GetObjectVariable<LocalVariableInt>(ItemConfig.IsFinesseWeaponVariable).Value = 1;
           return;
       }
     }

@@ -16,11 +16,20 @@ namespace NWN.Systems
         return;
 
       if (trap is NwPlaceable plc)
+      {
         plc.OnTrapTriggered += OnTrapTriggered;
-      else if(trap is NwDoor door)
+        plc.TrapDetectable = false;
+      }
+      else if (trap is NwDoor door)
+      {
         door.OnTrapTriggered += OnTrapTriggered;
-      else if(trap is NwTrigger trigger)
+        door.TrapDetectable = false;
+      }
+      else if (trap is NwTrigger trigger)
+      {
         trigger.OnTrapTriggered += OnTrapTriggered;
+        trigger.TrapDetectable = false;
+      }
     }
   }
 }

@@ -8,11 +8,7 @@ namespace NWN.Systems
     private static void CogneurLourd(NwCreature caster)
     {
       if (caster.ActiveEffects.Any(e => e.Tag == EffectSystem.CogneurLourdEffectTag))
-      {
-        foreach (var effect in caster.ActiveEffects)
-          if (effect.Tag == EffectSystem.CogneurLourdEffectTag)
-            caster.RemoveEffect(effect);
-      }
+        EffectUtils.RemoveTaggedEffect(caster, EffectSystem.CogneurLourdEffectTag);
       else
         caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.cogneurLourdEffect);
     }

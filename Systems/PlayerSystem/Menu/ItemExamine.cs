@@ -659,7 +659,7 @@ namespace NWN.Systems
             ipColorList.Add(ip.DurationType == EffectDuration.Permanent ? ColorConstants.White : ColorConstants.Blue);
           }
 
-          if(item.GetObjectVariable<LocalVariableInt>("_IS_FINESSE_WEAPON").HasValue)
+          if(item.GetObjectVariable<LocalVariableInt>(ItemConfig.IsFinesseWeaponVariable).HasValue)
           {
             ipNameList.Add("Finesse");
             ipColorList.Add(ColorConstants.White);

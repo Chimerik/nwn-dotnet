@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Security.Cryptography;
 
 namespace NWN.Systems
 {
@@ -88,6 +89,21 @@ namespace NWN.Systems
         creature.OnCreatureAttack += CreatureUtils.OnAttackPourfendeur;
         creature.OnCreatureDamage += CreatureUtils.OnDamagePourfendeur;
       }
+
+      if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.LameDoutretombe)))
+      {
+        creature.OnItemUnequip -= ItemSystem.OnUnEquipRemoveLameDoutretombe;
+        creature.OnItemEquip += ItemSystem.OnEquipApplyLameDoutretombe;
+        creature.OnItemUnequip += ItemSystem.OnUnEquipRemoveLameDoutretombe;
+
+        if (creature.GetItemInSlot(InventorySlot.RightHand)?.BaseItem.ItemType == BaseItemType.TwoBladedSword
+          && !creature.ActiveEffects.Any(e => e.Tag == EffectSystem.LameDoutretombeEffectTag))
+        {
+          creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.lameDoutretombe);
+          creature.GetItemInSlot(InventorySlot.RightHand).GetObjectVariable<LocalVariableInt>(ItemConfig.IsFinesseWeaponVariable).Value = 1;
+        }
+      }
+
       var creatureLoop = scheduler.ScheduleRepeating(() => CreatureUtils.CreatureHealthRegenLoop(creature), TimeSpan.FromSeconds(1));
 
       await NwTask.WaitUntil(() => creature == null || !creature.IsValid);

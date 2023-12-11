@@ -11,8 +11,8 @@ namespace NWN.Systems
       {
         if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_ABILITY_IMPROVEMENT_FEAT").HasValue)
         {
-          if (!windows.ContainsKey("abilityImprovement")) windows.Add("abilityImprovement", new AbilityImprovementWindow(this));
-          else ((AbilityImprovementWindow)windows["abilityImprovement"]).CreateWindow();
+          if (!windows.TryGetValue("abilityImprovement", out var value)) windows.Add("abilityImprovement", new AbilityImprovementWindow(this));
+          else ((AbilityImprovementWindow)value).CreateWindow();
         }
       }
     }

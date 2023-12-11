@@ -8,10 +8,7 @@ namespace NWN.Systems
     {
       public static void CureFrog(NwPlayer oPC)
       {
-        foreach (Effect arenaMalus in oPC.ControlledCreature.ActiveEffects)
-          if(arenaMalus.Tag == "CUSTOM_EFFECT_FROG")
-            oPC.ControlledCreature.RemoveEffect(arenaMalus);
-
+        EffectUtils.RemoveTaggedEffect(oPC.ControlledCreature, "CUSTOM_EFFECT_FROG");
         oPC.ControlledCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpRemoveCondition));
       }
     }

@@ -27,16 +27,23 @@ namespace NWN.Systems
       else if (onSpawn.SpawnedObject is NwCreature creature)
         creature.OnDeath += CreatureUtils.MakeInventoryUndroppable;
       else if (onSpawn.SpawnedObject is NwTrigger trigger)
+      {
         trigger.OnTrapTriggered += PlaceableSystem.OnTrapTriggered;
+        trigger.TrapDetectable = false;
+      }
     }
     public static void HandleAfterDmSpawnTrapOnObject(OnDMSpawnTrapOnObject onSpawn)
     {
       if (onSpawn.Target is NwPlaceable plc)
       {
         plc.OnTrapTriggered += PlaceableSystem.OnTrapTriggered;
+        plc.TrapDetectable = false;
       }
       else if (onSpawn.Target is NwDoor door)
+      {
         door.OnTrapTriggered += PlaceableSystem.OnTrapTriggered;
+        door.TrapDetectable = false;
+      }
     }
     public static void HandleAfterDmJumpTarget(OnDMJumpTargetToPoint onJump)
     {

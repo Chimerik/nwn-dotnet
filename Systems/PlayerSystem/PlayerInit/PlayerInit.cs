@@ -130,6 +130,7 @@ namespace NWN.Systems
         oid.LoginCreature.OnUseFeat += FeatSystem.OnUseFeatBefore;
         oid.OnCombatStatusChange += OnCombatStarted;
         oid.LoginCreature.OnHeartbeat += CreatureUtils.OnHeartbeatRefreshActions;
+        oid.LoginCreature.OnHeartbeat += OnHeartbeatDetectTrap;
         oid.LoginCreature.OnCombatRoundStart += OnCombatStartForceHostility;
         oid.OnPartyEvent += Party.HandlePartyEvent;
         oid.OnClientLevelUpBegin += HandleOnClientLevelUp;
@@ -408,6 +409,8 @@ namespace NWN.Systems
         ApplyHalfOrcEndurance();
         InitializeAbilityImprovementFeat();
         InitializeBonusAbilityChoice();
+        InitializeElementalistChoice();
+        InitializeMartialInitiateChoice();
         ResetFlameBlade();
         ResetSize();
         ApplyProtectionStyle();
@@ -418,6 +421,7 @@ namespace NWN.Systems
         ApplyMobile();
         ApplyBroyeur();
         ApplyPourfendeur();
+        ApplyLameDoutretombe();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

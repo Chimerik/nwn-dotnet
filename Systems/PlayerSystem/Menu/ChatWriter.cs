@@ -146,10 +146,7 @@ namespace NWN.Systems
 
                   break;
 
-                case NuiEventType.Blur:
-                  foreach (Effect eff in nuiEvent.Player.ControlledCreature.ActiveEffects.Where(e => e.Tag == "VFX_SPEAKING_MARK"))
-                    nuiEvent.Player.ControlledCreature.RemoveEffect(eff);
-                  break;
+                case NuiEventType.Blur: EffectUtils.RemoveTaggedEffect(nuiEvent.Player.ControlledCreature, "VFX_SPEAKING_MARK"); break;
               }
 
               break;
@@ -170,9 +167,7 @@ namespace NWN.Systems
               {
                 if (isChatHRP)
                 {
-                  foreach (Effect eff in nuiEvent.Player.ControlledCreature.ActiveEffects.Where(e => e.Tag == "VFX_SPEAKING_MARK"))
-                    nuiEvent.Player.ControlledCreature.RemoveEffect(eff);
-
+                  EffectUtils.RemoveTaggedEffect(nuiEvent.Player.ControlledCreature, "VFX_SPEAKING_MARK");
                   Effect visualMark = Effect.VisualEffect((VfxType)1248);
                   visualMark.Tag = "VFX_SPEAKING_MARK";
                   visualMark.SubType = EffectSubType.Supernatural;
@@ -185,8 +180,7 @@ namespace NWN.Systems
               {
                 if (!isChatHRP)
                 {
-                  foreach (Effect eff in nuiEvent.Player.ControlledCreature.ActiveEffects.Where(e => e.Tag == "VFX_SPEAKING_MARK"))
-                    nuiEvent.Player.ControlledCreature.RemoveEffect(eff);
+                  EffectUtils.RemoveTaggedEffect(nuiEvent.Player.ControlledCreature, "VFX_SPEAKING_MARK");
 
                   Effect visualMark = Effect.VisualEffect((VfxType)1249);
                   visualMark.Tag = "VFX_SPEAKING_MARK";
@@ -209,8 +203,7 @@ namespace NWN.Systems
 
                     ChatWriterSendMessage(chatText, channel.GetBindValue(nuiEvent.Player, nuiToken.Token));
 
-                    foreach (Effect eff in nuiEvent.Player.ControlledCreature.ActiveEffects.Where(e => e.Tag == "VFX_SPEAKING_MARK"))
-                      nuiEvent.Player.ControlledCreature.RemoveEffect(eff);
+                    EffectUtils.RemoveTaggedEffect(nuiEvent.Player.ControlledCreature, "VFX_SPEAKING_MARK");
 
                     writingChat.SetBindWatch(nuiEvent.Player, nuiToken.Token, false);
                     writingChat.SetBindValue(nuiEvent.Player, nuiToken.Token, "");
