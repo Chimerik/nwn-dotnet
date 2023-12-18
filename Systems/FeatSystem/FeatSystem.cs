@@ -32,6 +32,8 @@ namespace NWN.Systems
         case CustomSkill.TireurDelite: TireurDelite(onUseFeat.Creature); return;
         case CustomSkill.MageDeGuerre: MageDeGuerre(onUseFeat.Creature); return;
         case CustomSkill.FureurOrc: FureurOrc(onUseFeat.Creature); return;
+        case CustomSkill.AgressionOrc: AgressionOrc(onUseFeat.Creature, onUseFeat.TargetObject); return;
+        case CustomSkill.MeneurExaltant: MeneurExaltant(onUseFeat.Creature); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

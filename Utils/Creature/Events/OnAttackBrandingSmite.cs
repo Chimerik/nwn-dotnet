@@ -27,9 +27,6 @@ namespace NWN
             target.OnEffectApply -= EffectSystem.OnBrandingSmiteReveal;
             target.OnEffectApply += EffectSystem.OnBrandingSmiteReveal;
 
-            target.OnEffectRemove -= EffectSystem.OnBrandingSmiteReveal;
-            target.OnEffectRemove += EffectSystem.OnBrandingSmiteReveal;
-
             foreach (var eff in target.ActiveEffects)
             {
               switch (eff.EffectType)

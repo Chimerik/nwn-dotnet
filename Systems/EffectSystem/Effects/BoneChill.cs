@@ -1,20 +1,34 @@
 ﻿using Anvil.API;
+using Anvil.API.Events;
+using Anvil.Services;
 
 namespace NWN.Systems
 {
   public partial class EffectSystem
   {
+    private static ScriptCallbackHandle onRemoveBoneChillCallback;
     public const string boneChillEffectTag = "_BONE_CHILL_EFFECT";
     public static readonly Native.API.CExoString boneChillEffectExoTag = "_BONE_CHILL_EFFECT".ToExoString();
     public static Effect boneChillEffect
     {
       get
       {
-        Effect eff = Effect.VisualEffect(VfxType.DurBigbysInterposingHand);
+        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurBigbysInterposingHand), Effect.RunAction(onRemovedHandle: onRemoveBoneChillCallback));
         eff.Tag = boneChillEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;
       }
+    }
+    private static ScriptHandleResult OnRemoveBoneChill(CallInfo callInfo)
+    {
+      EffectRunScriptEvent eventData = new EffectRunScriptEvent();
+
+      if (eventData.EffectTarget is not NwGameObject target)
+        return ScriptHandleResult.Handled;
+
+      target.OnHeal -= SpellSystem.PreventHeal;
+
+      return ScriptHandleResult.Handled;
     }
   }
 }

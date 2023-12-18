@@ -1,12 +1,12 @@
-﻿using System.Linq;
-using Anvil.API;
+﻿using Anvil.API;
 using Anvil.API.Events;
-using NWN.Native.API;
+using Anvil.Services;
 
 namespace NWN.Systems
 {
   public partial class EffectSystem
   {
+    private static ScriptCallbackHandle onRemoveBrandingSmiteRevealCallback;
     public const string BrandingSmiteAttackEffectTag = "_BRANDING_SMITE_ATTACK_EFFECT";
     public static Effect brandingSmiteAttack
     {
@@ -23,7 +23,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.RunAction();
+        Effect eff = Effect.RunAction(onRemovedHandle: onRemoveBrandingSmiteRevealCallback);
         eff.Tag = BrandingSmiteRevealEffectTag;
         eff.Spell = NwSpell.FromSpellId(CustomSpell.BrandingSmite);
         return eff;
@@ -42,14 +42,17 @@ namespace NWN.Systems
         case EffectType.ImprovedInvisibility: onEffect.PreventApply = true; break;
       }
     }
-    public static void OnBrandingSmiteReveal(OnEffectRemove onEffect)
+    private static ScriptHandleResult OnRemoveBrandingSmite(CallInfo callInfo)
     {
-      if (onEffect.Object is not NwCreature creature)
-        return;
+      EffectRunScriptEvent eventData = new EffectRunScriptEvent();
+
+      if (eventData.EffectTarget is not NwCreature creature)
+        return ScriptHandleResult.Handled;
 
       creature.OnStealthModeUpdate -= OnBrandingSmiteReveal;
       creature.OnEffectApply -= OnBrandingSmiteReveal;
-      creature.OnEffectRemove -= OnBrandingSmiteReveal;
+
+      return ScriptHandleResult.Handled;
     }
   }
 }

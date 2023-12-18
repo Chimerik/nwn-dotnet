@@ -1,17 +1,20 @@
 ﻿using Anvil.API;
 using Anvil.API.Events;
+using Anvil.Services;
 
 namespace NWN.Systems
 {
   public partial class EffectSystem
   {
+    private static ScriptCallbackHandle onRemoveFaerieFireCallback;
     public const string faerieFireEffectTag = "_FAERIE_FIRE_EFFECT";
     public static readonly Native.API.CExoString faerieFireEffectExoTag = "_FAERIE_FIRE_EFFECT".ToExoString();
     public static Effect faerieFireEffect
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurCessateNegative), Effect.VisualEffect(VfxType.DurGlowLightBlue));
+        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurCessateNegative), 
+          Effect.VisualEffect(VfxType.DurGlowLightBlue), Effect.RunAction(onRemovedHandle: onRemoveFaerieFireCallback));
         eff.Tag = faerieFireEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;
@@ -31,6 +34,17 @@ namespace NWN.Systems
           onEffect.PreventApply = true;
           return;
         }
+    }
+    private static ScriptHandleResult OnRemoveFaerieFire(CallInfo callInfo)
+    {
+      EffectRunScriptEvent eventData = new EffectRunScriptEvent();
+
+      if (eventData.EffectTarget is not NwGameObject target)
+        return ScriptHandleResult.Handled;
+
+      target.OnEffectApply -= CheckFaerieFire;
+
+      return ScriptHandleResult.Handled;
     }
   }
 }

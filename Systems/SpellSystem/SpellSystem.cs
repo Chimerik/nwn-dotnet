@@ -276,6 +276,11 @@ namespace NWN.Systems
       if (spellEntry.requiresConcentration && castingCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.ConcentrationEffectTag))
         SpellUtils.DispelConcentrationEffects(castingCreature);
 
+      if (castingCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.FlammesDePhlegetos)) && spellEntry.damageType == DamageType.Fire)
+      {
+        castingCreature.ApplyEffect(EffectDuration.Temporary, Effect.DamageShield(0, DamageBonus.Plus1d4, DamageType.Fire), NwTimeSpan.FromRounds(1));
+        StringUtils.DisplayStringToAllPlayersNearTarget(castingCreature, "Flammes de Phlégétos", ColorConstants.Orange, true);
+      }
       //HandleCasterLevel(onSpellCast, player);
 
       switch (onSpellCast.Spell.SpellType)
@@ -583,7 +588,7 @@ namespace NWN.Systems
 
         if (NWScript.GetDetectMode(oSpotter) == 2)
           iListencheck -= 10;
-
+        
         if (iMoveSilentlyCheck >= iListencheck)
         {
           if (invisMarker != null)

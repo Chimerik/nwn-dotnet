@@ -14,14 +14,25 @@ namespace NWN.Systems
         && elementalist.featOptions.Any(e => e.Value.Any(d => d == (int)spellEntry.damageType));
 
       int damage = 0;
-
+      
       for(int i = 0; i < nbDices; i++) 
       {
         int roll = NwRandom.Roll(Utils.random, spellEntry.damageDice);
-        roll = isElementalist && roll < 2 ? 2 : roll;
 
-        if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Empaleur)) && spellEntry.damageType == DamageType.Piercing)
-          roll = roll < 3 ? NwRandom.Roll(Utils.random, spellEntry.damageDice) : roll;
+        switch(spellEntry.damageType)
+        {
+          case DamageType.Piercing:
+            if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Empaleur)))
+              roll = roll < 3 ? NwRandom.Roll(Utils.random, spellEntry.damageDice) : roll;
+            break;
+
+          case DamageType.Fire:
+            if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.FlammesDePhlegetos)))
+              roll = roll < 2 ? NwRandom.Roll(Utils.random, spellEntry.damageDice) : roll;
+            break;
+        }
+
+        roll = isElementalist && roll < 2 ? 2 : roll;
 
         damage += roll;
       }

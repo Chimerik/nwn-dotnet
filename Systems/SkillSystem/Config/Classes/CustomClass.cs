@@ -8,6 +8,5 @@
     public const byte Warmaster = 45;
     public const byte EldritchKnight = 46;
     public const byte ArcaneArcher = 47;
-  
   }
 }

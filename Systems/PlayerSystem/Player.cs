@@ -290,6 +290,16 @@ namespace NWN.Systems
             break;
         }
 
+        if(learnable is LearnableSkill language && language.category == SkillSystem.Category.Language)
+        {
+          if(learnableSkills.ContainsKey(CustomSkill.Prodige))
+            pointsPerSecond *= 1.25;
+
+          if (learnableSkills.ContainsKey(CustomSkill.Linguiste))
+            pointsPerSecond *= 1.5;
+        }
+          
+
         if (pcState == PcState.Offline)
         {
           pointsPerSecond *= 0.6;
@@ -298,8 +308,8 @@ namespace NWN.Systems
         else if (pcState == PcState.AFK)
           pointsPerSecond *= 0.8;
 
-        if (oid.LoginCreature.KnowsFeat(Feat.QuickToMaster))
-          pointsPerSecond *= 1.1;
+        /*if (oid.LoginCreature.KnowsFeat(Feat.QuickToMaster))
+          pointsPerSecond *= 1.1;*/
 
         //Log.Info($"SP CALCULATION - {player.oid.Name} - {SP} SP.");
 
