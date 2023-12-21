@@ -499,7 +499,8 @@ namespace NWN.Systems
               case "skillbook_learn":
 
                 int learnableId = item.GetObjectVariable<LocalVariableInt>("_SKILL_ID").Value;
-                player.learnableSkills.Add(learnableId, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[learnableId]));
+                LearnableSkill learnable = player.ApplyLearningDiscout(new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[learnableId]));
+                player.learnableSkills.Add(learnableId, learnable);
                 player.oid.SendServerMessage("Vous venez d'ajouter une nouvelle compétence à votre livre d'apprentissage !", ColorConstants.Rose);
 
                 CloseWindow();

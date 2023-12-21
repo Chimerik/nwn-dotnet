@@ -12,6 +12,14 @@ namespace NWN.Systems
       if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.LameDoutretombe)))
         player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.LameDoutretombe));
 
+      if (!player.learnableSkills.ContainsKey(CustomSkill.DoubleBladeProficiency))
+        player.learnableSkills.Add(CustomSkill.DoubleBladeProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DoubleBladeProficiency]));
+
+      LearnableSkill doubleBlade = player.learnableSkills[CustomSkill.DoubleBladeProficiency];
+
+      if (doubleBlade.currentLevel < 1)
+        doubleBlade.acquiredPoints += doubleBlade.pointsToNextLevel / 4;
+
       List<Ability> abilities = new();
 
       if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Strength) < 20)

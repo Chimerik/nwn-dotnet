@@ -288,17 +288,7 @@ namespace NWN.Systems
           case 100:
             pointsPerSecond *= 10.0;
             break;
-        }
-
-        if(learnable is LearnableSkill language && language.category == SkillSystem.Category.Language)
-        {
-          if(learnableSkills.ContainsKey(CustomSkill.Prodige))
-            pointsPerSecond *= 1.25;
-
-          if (learnableSkills.ContainsKey(CustomSkill.Linguiste))
-            pointsPerSecond *= 1.5;
-        }
-          
+        }          
 
         if (pcState == PcState.Offline)
         {

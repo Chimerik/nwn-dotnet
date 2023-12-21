@@ -105,7 +105,9 @@ namespace NWN.Systems
     {
       return baseItemType switch
       {
-        BaseItemType.Club or BaseItemType.Bastardsword or BaseItemType.DwarvenWaraxe or BaseItemType.Katana => true,
+        BaseItemType.Club or BaseItemType.Bastardsword or BaseItemType.DwarvenWaraxe or BaseItemType.Katana 
+        or BaseItemType.Quarterstaff or BaseItemType.ShortSpear or BaseItemType.Longsword or BaseItemType.Battleaxe
+        or BaseItemType.Warhammer or BaseItemType.Trident => true,
         _ => false
       };
     }
@@ -2373,18 +2375,57 @@ namespace NWN.Systems
       switch(itemType)
       {
         case BaseItemType.Club:
+          featList.Add((int)Feat.WeaponProficiencySimple);
+          featList.Add(CustomSkill.ClubProficiency);
+          break;
         case BaseItemType.Dagger:
+          featList.Add((int)Feat.WeaponProficiencySimple);
+          featList.Add(CustomSkill.DaggerProficiency);
+          break;
         case BaseItemType.Handaxe:
+            featList.Add((int)Feat.WeaponProficiencySimple);
+          featList.Add(CustomSkill.HandAxeProficiency);
+          break;
         case BaseItemType.LightHammer:
+          featList.Add((int)Feat.WeaponProficiencySimple);
+          featList.Add(CustomSkill.LightHammerProficiency);
+          break;
         case BaseItemType.LightMace:
+          featList.Add((int)Feat.WeaponProficiencySimple);
+          featList.Add(CustomSkill.LightMaceProficiency);
+          break;
         case BaseItemType.Quarterstaff:
+          featList.Add((int)Feat.WeaponProficiencySimple);
+          featList.Add(CustomSkill.QuarterstaffProficiency);
+          break;
         case BaseItemType.Sickle:
+          featList.Add((int)Feat.WeaponProficiencySimple);
+          featList.Add(CustomSkill.SickleProficiency);
+          break;
         case BaseItemType.LightCrossbow:
+          featList.Add((int)Feat.WeaponProficiencySimple);
+          featList.Add(CustomSkill.LightCrossbowProficiency);
+          break;
         case BaseItemType.Dart:
+          featList.Add((int)Feat.WeaponProficiencySimple);
+          featList.Add(CustomSkill.DartProficiency);
+          break;
         case BaseItemType.MagicStaff:
+          featList.Add((int)Feat.WeaponProficiencySimple);
+          featList.Add(CustomSkill.MagicStaffProficiency);
+          break;
         case BaseItemType.LightFlail:
+          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.LightFlailProficiency);
+          break;
         case BaseItemType.Morningstar:
-        case BaseItemType.Sling: featList.Add((int)Feat.WeaponProficiencySimple); break;
+          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.MorningstarProficiency);
+          break;
+        case BaseItemType.Sling:
+          featList.Add((int)Feat.WeaponProficiencySimple);
+          featList.Add(CustomSkill.SlingProficiency);
+          break;
         case BaseItemType.ShortSpear:
           featList.Add((int)Feat.WeaponProficiencySimple);
           featList.Add(CustomSkill.SpearProficiency);
@@ -2394,15 +2435,45 @@ namespace NWN.Systems
           featList.Add(CustomSkill.ShortBowProficiency);
           break;
         case BaseItemType.Battleaxe:
+          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.BattleaxeProficiency);
+          break;
         case BaseItemType.Greataxe:
+          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.GreataxeProficiency);
+          break;
         case BaseItemType.Greatsword:
+          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.GreatswordProficiency);
+          break;
         case BaseItemType.Scimitar:
+          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.ScimitarProficiency);
+          break;
         case BaseItemType.Halberd:
+          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.HalberdProficiency);
+          break;
         case BaseItemType.HeavyFlail:
+          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.HeavyFlailProficiency);
+          break;
         case BaseItemType.ThrowingAxe:
+          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.ThrowingAxeProficiency);
+          break;
         case BaseItemType.Trident:
+          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.TridentProficiency);
+          break;
         case BaseItemType.Warhammer:
-        case BaseItemType.HeavyCrossbow: featList.Add((int)Feat.WeaponProficiencyMartial); break;
+          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.WarHammerProficiency);
+          break;
+        case BaseItemType.HeavyCrossbow:
+          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.HeavyCrossbowProficiency);
+          break;
         case BaseItemType.Rapier:
           featList.Add((int)Feat.WeaponProficiencyMartial);
           featList.Add(CustomSkill.RapierProficiency);
@@ -2423,16 +2494,20 @@ namespace NWN.Systems
           featList.Add((int)Feat.WeaponProficiencyMartial);
           featList.Add(CustomSkill.ShurikenProficiency);
           break;
-        case BaseItemType.Bastardsword:
-        case BaseItemType.Scythe:
-        case BaseItemType.DireMace:
-        case BaseItemType.Doubleaxe:
-        case BaseItemType.DwarvenWaraxe:
-        case BaseItemType.TwoBladedSword:
-        case BaseItemType.Kama:
-        case BaseItemType.Katana:
-        case BaseItemType.Kukri:
-        case BaseItemType.Whip: featList.Add((int)Feat.WeaponProficiencyExotic); break;
+        case BaseItemType.Whip:
+          featList.Add((int)Feat.WeaponProficiencyMartial); 
+          featList.Add(CustomSkill.WhipProficiency); 
+          break;
+        case BaseItemType.Bastardsword: featList.Add(CustomSkill.BastardswordProficiency); break;
+        case BaseItemType.Scythe: featList.Add(CustomSkill.ScytheProficiency); break;
+        case BaseItemType.DireMace: featList.Add(CustomSkill.DireMaceProficiency); break;
+        case BaseItemType.Doubleaxe: featList.Add(CustomSkill.DoubleAxeProficiency); break;
+        case BaseItemType.DwarvenWaraxe: featList.Add(CustomSkill.DwarvenAxeProficiency); break;
+        case BaseItemType.TwoBladedSword: featList.Add(CustomSkill.DoubleBladeProficiency); break;
+        case BaseItemType.Kama: featList.Add(CustomSkill.KamaProficiency); break;
+        case BaseItemType.Katana: featList.Add(CustomSkill.KatanaProficiency); break;
+        case BaseItemType.Kukri: featList.Add(CustomSkill.KukriProficiency); break;
+        
         case BaseItemType.SmallShield:
         case BaseItemType.LargeShield: featList.Add((int)Feat.ShieldProficiency); break;
         case BaseItemType.TowerShield: featList.Add(CustomSkill.MaitreBouclier); break;

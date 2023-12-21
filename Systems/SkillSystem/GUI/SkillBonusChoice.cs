@@ -91,9 +91,6 @@ namespace NWN.Systems
                   player.learnableSkills[selection].LevelUp(player);
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_CHOICE_FEAT").Delete();
 
-                  if (!player.windows.TryGetValue("expertiseBonusChoice", out var expertise)) player.windows.Add("expertiseBonusChoice", new ExpertiseBonusChoiceWindow(player, player.oid.LoginCreature.Level, sourceFeat));
-                  else ((ExpertiseBonusChoiceWindow)expertise).CreateWindow(player.oid.LoginCreature.Level, sourceFeat);
-
                   return;
               }
 

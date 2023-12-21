@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Anvil.API;
 using static NWN.Systems.PlayerSystem.Player;
 
@@ -7,13 +6,12 @@ namespace NWN.Systems
 {
   public static partial class SkillSystem
   {
-    public static bool OnLearnExpert(PlayerSystem.Player player, int customSkillId)
+    public static bool OnLearnDetermination(PlayerSystem.Player player, int customSkillId)
     {
-      foreach (var learnable in player.learnableSkills.Values.Where(s => (s.category == Category.Skill 
-      || s.category == Category.Expertise) && s.currentLevel < 1))
-        learnable.acquiredPoints += learnable.pointsToNextLevel / 4;
+      if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Determination)))
+        player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.Determination));
 
-      List<Ability> abilities = new();
+      List <Ability> abilities = new();
 
       if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Strength) < 20)
         abilities.Add(Ability.Strength);

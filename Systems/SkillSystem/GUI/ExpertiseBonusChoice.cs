@@ -91,41 +91,10 @@ namespace NWN.Systems
                   player.learnableSkills[selection].LevelUp(player);
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_EXPERTISE_BONUS_CHOICE_FEAT").Delete();
 
-                  if (sourceFeat == CustomSkill.Expert)
-                    HandleExpertStatBonus();
-
                   return;
               }
 
               break;
-          }
-        }
-        private void HandleExpertStatBonus()
-        {
-          List<Ability> abilities = new();
-
-          if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Strength) < 20)
-            abilities.Add(Ability.Strength);
-
-          if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Dexterity) < 20)
-            abilities.Add(Ability.Dexterity);
-
-          if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Constitution) < 20)
-            abilities.Add(Ability.Constitution);
-
-          if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Intelligence) < 20)
-            abilities.Add(Ability.Intelligence);
-
-          if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Wisdom) < 20)
-            abilities.Add(Ability.Wisdom);
-
-          if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Charisma) < 20)
-            abilities.Add(Ability.Charisma);
-
-          if (abilities.Count > 0)
-          {
-            if (!player.windows.TryGetValue("abilityBonusChoice", out var value)) player.windows.Add("abilityBonusChoice", new AbilityBonusChoiceWindow(player, abilities));
-            else ((AbilityBonusChoiceWindow)value).CreateWindow(abilities);
           }
         }
       }
