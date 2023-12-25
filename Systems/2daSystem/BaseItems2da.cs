@@ -4,8 +4,6 @@ using System.Linq;
 using Anvil.API;
 using Anvil.Services;
 
-using NWN.Core;
-
 namespace NWN.Systems
 {
   public sealed class BaseItemEntry : ITwoDimArrayEntry

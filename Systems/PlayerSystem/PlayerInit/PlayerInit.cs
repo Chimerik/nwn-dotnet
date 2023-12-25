@@ -413,6 +413,7 @@ namespace NWN.Systems
         InitializeMartialInitiateChoice();
         InitializeBonusSkillChoice();
         InitializeBonusExpertiseChoice();
+        InitializeWeaponMasterChoice();
         ResetFlameBlade();
         ResetSize();
         ApplyProtectionStyle();
