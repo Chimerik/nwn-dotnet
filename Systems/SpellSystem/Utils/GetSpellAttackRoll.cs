@@ -21,7 +21,7 @@ namespace NWN.Systems
           attackModifier += caster.GetAbilityModifier(spellCastingAbility);
 
           int advantage = CreatureUtils.GetSpellAttackAdvantageAgainstTarget(caster, spell, isRangedSpell, target, spellCastingAbility);
-          int attackRoll = NativeUtils.HandleHalflingLuck(caster, Utils.RollAdvantage(advantage));
+          int attackRoll = NativeUtils.GetAttackRoll(caster, advantage, spellCastingAbility);
           int targetAC = target.GetArmorClassVersus(caster);
           int totalAttack = attackRoll + attackModifier;
 

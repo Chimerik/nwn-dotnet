@@ -11,6 +11,7 @@ namespace NWN.Systems
         if (creature.HP < 1 || creature.IsReactionTypeHostile(caster) || creature.GetObjectVariable<LocalVariableInt>("_MENEUR_EXALTANT_BUFF").HasValue)
           continue;
 
+        creature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHolyAid));
         creature.ApplyEffect(EffectDuration.Permanent, Effect.TemporaryHitpoints(caster.Level + caster.GetAbilityModifier(Ability.Charisma)));
         creature.GetObjectVariable<LocalVariableInt>("_MENEUR_EXALTANT_BUFF").Value = 1;
       }

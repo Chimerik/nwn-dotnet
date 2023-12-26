@@ -192,8 +192,16 @@ namespace NWN.Systems
       if (targetCreature is not null)
       {
         int advantage = CreatureUtils.GetAdvantageAgainstTarget(creature, attackData, attackWeapon, attackStat, targetCreature);
-        int attackRoll = NativeUtils.HandleHalflingLuck(creature, Utils.RollAdvantage(advantage));
+        int attackRoll = NativeUtils.GetAttackRoll(creature, advantage, attackStat);
         int targetAC  = NativeUtils.GetCreatureAC(targetCreature, creature);
+        bool isCriticalHit = attackRoll >= NativeUtils.GetCriticalRange(creature, attackWeapon, attackData);
+
+        if (isCriticalHit && targetCreature.m_ScriptVars.GetInt(CreatureUtils.SecondeChanceVariableExo).ToBool())
+        {
+          attackRoll = NativeUtils.GetAttackRoll(creature, advantage, attackStat);
+          isCriticalHit = attackRoll >= NativeUtils.GetCriticalRange(creature, attackWeapon, attackData);
+          NativeUtils.SendNativeServerMessage("Seconde chance".ColorString(StringUtils.gold), targetCreature);
+        }
 
         //LogUtils.LogMessage($"CA de la cible : {targetAC}", LogUtils.LogType.Combat);
 
@@ -202,8 +210,10 @@ namespace NWN.Systems
         string criticalString = "";
         string advantageString = advantage == 0 ? "" : advantage > 0 ? "Avantage - ".ColorString(StringUtils.gold) : "Désavantage - ".ColorString(ColorConstants.Red);
         int totalAttack = attackRoll + attackBonus;
+        
+        
 
-        if (attackRoll >= NativeUtils.GetCriticalRange(creature, attackWeapon, attackData))
+        if (isCriticalHit)
         {
           attackData.m_nAttackResult = 3;
           criticalString = "CRITIQUE - ".ColorString(StringUtils.gold);

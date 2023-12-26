@@ -6,7 +6,7 @@ namespace NWN.Systems
 {
   public static partial class SkillSystem
   {
-    public static bool HandleProtectionStyle(PlayerSystem.Player player, int customSkillId)
+    public static bool OnLearnProtectionStyle(PlayerSystem.Player player, int customSkillId)
     {
       player.oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipApplyProtectionStyle;
       player.oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipRemoveProtectionStyle;

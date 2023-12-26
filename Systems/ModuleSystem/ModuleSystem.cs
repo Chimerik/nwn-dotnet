@@ -398,14 +398,16 @@ namespace NWN.Systems
       //EventsPlugin.SubscribeEvent("NWNX_ON_DM_POSSESS_FULL_POWER_BEFORE", "b_dm_possess");
       //EventsPlugin.SubscribeEvent("NWNX_ON_DM_POSSESS_BEFORE", "b_dm_possess");
 
+      EventsPlugin.SubscribeEvent("NWNX_ON_COMBAT_ENTER_BEFORE", "on_combat_enter");
+
       EventsPlugin.SubscribeEvent("NWNX_ON_ITEM_DECREMENT_STACKSIZE_BEFORE", "on_ammo_used");
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_EMOTE_BEFORE", "on_input_emote");
       EventsPlugin.SubscribeEvent("NWNX_ON_COMBAT_ATTACK_OF_OPPORTUNITY_BEFORE", "on_opportunity");
-      
+
       //EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_BEFORE", "on_dual_fight");
       //EventsPlugin.AddIDToWhitelist("NWNX_ON_HAS_FEAT", (int)Feat.TwoWeaponFighting);
       //EventsPlugin.AddIDToWhitelist("NWNX_ON_HAS_FEAT", (int)Feat.Ambidexterity);
-
+      
       EventsPlugin.SubscribeEvent("NWNX_ON_CALENDAR_DUSK", "remov_drowsensi");
       EventsPlugin.SubscribeEvent("NWNX_ON_CALENDAR_DAWN", "apply_drow_sensi");
 
@@ -1314,6 +1316,12 @@ namespace NWN.Systems
         StringUtils.DisplayStringToAllPlayersNearTarget(creature, "Attaque d'opportunité", StringUtils.gold, true);
         EventsPlugin.SetEventResult("1");
       }
+    }
+    [ScriptHandler("on_combat_enter")]
+    private void OnCombatEnter(CallInfo callInfo)
+    {
+      if (callInfo.ObjectSelf is NwCreature creature && creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.SecondeChance)))
+        creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.SecondeChanceVariable).Value = 1;
     }
     /*[ScriptHandler("on_dual_fight")]
     private void AutoGiveDualFightFeats(CallInfo callInfo)

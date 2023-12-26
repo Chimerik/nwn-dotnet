@@ -84,6 +84,9 @@
     public const int MeneurExaltant = 1391;
     public const int AgressionOrc = 1392;
     public const int Determination = 1393;
+    public const int PrecisionElfique = 1394;
+    public const int SecondeChance = 1395;
+    public const int Chanceux = 1396;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -398,23 +401,23 @@
     public const int DoubleBladeProficiency = 20388;
     public const int ClubProficiency = 20389;
     public const int DaggerProficiency = 20390;
-    public const int DoubleAxeProficiency = 20392;
-    public const int QuarterstaffProficiency = 20393;
-    public const int LightMaceProficiency = 20394;
-    public const int SickleProficiency = 20395;
-    public const int LightCrossbowProficiency = 20396;
-    public const int DartProficiency = 20397;
-    public const int MagicStaffProficiency = 20398;
-    public const int LightFlailProficiency = 20399;
-    public const int MorningstarProficiency = 20400;
-    public const int SlingProficiency = 20401;
-    public const int BattleaxeProficiency = 20402;
-    public const int GreataxeProficiency = 20403;
-    public const int GreatswordProficiency = 20404;
-    public const int ScimitarProficiency = 20405;
-    public const int HalberdProficiency = 20406;
-    public const int HeavyFlailProficiency = 20407;
-    public const int ThrowingAxeProficiency = 20408;
+    public const int DoubleAxeProficiency = 20391;
+    public const int QuarterstaffProficiency = 20392;
+    public const int LightMaceProficiency = 20393;
+    public const int SickleProficiency = 20394;
+    public const int LightCrossbowProficiency = 20395;
+    public const int DartProficiency = 20396;
+    public const int MagicStaffProficiency = 20397;
+    public const int LightFlailProficiency = 20398;
+    public const int MorningstarProficiency = 20399;
+    public const int SlingProficiency = 20400;
+    public const int BattleaxeProficiency = 20401;
+    public const int GreataxeProficiency = 20402;
+    public const int GreatswordProficiency = 20403;
+    public const int ScimitarProficiency = 20404;
+    public const int HalberdProficiency = 20405;
+    public const int HeavyFlailProficiency = 20406;
+    public const int ThrowingAxeProficiency = 20407;
     public const int TridentProficiency = 20408;
     public const int WhipProficiency = 20409;
     public const int HeavyCrossbowProficiency = 20410;
@@ -552,6 +555,8 @@
     public const int Linguiste = 20511;    
     public const int Doue = 20512;    
     public const int MaitreDarme = 20513;
+    public const int ChanceDebordante = 20514;
+    
 
     public const int Invalid = 65535;
   }

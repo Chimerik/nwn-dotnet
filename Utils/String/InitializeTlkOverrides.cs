@@ -105,6 +105,7 @@ namespace NWN
       OverrideTlkEntry(190188, "Pourfendeur - Infirmité");
       OverrideTlkEntry(190189, "Pourfendeur - Désavantage");
       OverrideTlkEntry(190194, "Lame D'outretombe");
+      OverrideTlkEntry(190208, "Chanceux");
     }
 
     private static void OverrideTlkEntry(uint entry, string text)

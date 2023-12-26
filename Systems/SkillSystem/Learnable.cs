@@ -65,6 +65,12 @@ namespace NWN.Systems
     }
     public async void LevelUpWrapper(PlayerSystem.Player player)
     {
+      if (currentLevel >= maxLevel)
+      {
+        player.oid.SendServerMessage($"Vous maîtrisez déjà {name}, impossible d'en apprendre davantage.");
+        return;
+      }
+
       if (this is LearnableSkill skill)
       {
         skill.LevelUp(player);

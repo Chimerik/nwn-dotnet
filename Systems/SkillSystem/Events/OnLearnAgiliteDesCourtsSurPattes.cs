@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Security.Cryptography;
 using Anvil.API;
-using Discord;
 using static NWN.Systems.PlayerSystem.Player;
 
 namespace NWN.Systems
@@ -10,7 +8,7 @@ namespace NWN.Systems
   {
     public static bool OnLearnAgiliteDesCourtsSurPattes(PlayerSystem.Player player, int customSkillId)
     {
-      List<Ability> abilities = new();
+      List <Ability> abilities = new();
 
       if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Strength) < 20)
         abilities.Add(Ability.Strength);
@@ -36,7 +34,7 @@ namespace NWN.Systems
       }
 
       foreach (var eff in player.oid.LoginCreature.ActiveEffects)
-        if(eff.Tag == EffectSystem.DwarfSlowEffectTag)
+        if (eff.Tag == EffectSystem.DwarfSlowEffectTag)
           player.oid.LoginCreature.RemoveEffect(eff);
 
       return true;

@@ -34,6 +34,7 @@ namespace NWN.Systems
         case CustomSkill.FureurOrc: FureurOrc(onUseFeat.Creature); return;
         case CustomSkill.AgressionOrc: AgressionOrc(onUseFeat.Creature, onUseFeat.TargetObject); return;
         case CustomSkill.MeneurExaltant: MeneurExaltant(onUseFeat.Creature); return;
+        case CustomSkill.Chanceux: Chanceux(onUseFeat.Creature); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

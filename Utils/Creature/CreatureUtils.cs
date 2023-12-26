@@ -31,6 +31,8 @@ namespace NWN
     public readonly static CExoString FureurOrcBonusDamageVariableExo = "_FUREUR_ORC_DAMAGE".ToExoString();
     public const string FureurOrcBonusAttackVariable = "_FUREUR_ORC_ATTACK";
     public readonly static CExoString FureurOrcBonusAttackVariableExo = "_FUREUR_ORC_ATTACK".ToExoString();
+    public const string SecondeChanceVariable = "_FEAT_SECONDE_CHANCE";
+    public readonly static CExoString SecondeChanceVariableExo = "_FEAT_SECONDE_CHANCE".ToExoString();
 
     public const string OriginalSizeVariable = "_ORIGINAL_SIZE";
 

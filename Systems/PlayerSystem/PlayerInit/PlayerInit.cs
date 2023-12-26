@@ -425,6 +425,7 @@ namespace NWN.Systems
         ApplyBroyeur();
         ApplyPourfendeur();
         ApplyLameDoutretombe();
+        ApplyChanceDebordante();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

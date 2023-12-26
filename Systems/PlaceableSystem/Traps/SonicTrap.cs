@@ -14,7 +14,7 @@ namespace NWN.Systems
       {
         int advantage = creature.KnowsFeat(Feat.KeenSense).ToInt() + (creature.Race.Id == CustomRace.RockGnome || creature.Race.Id == CustomRace.ForestGnome|| creature.Race.Id == CustomRace.DeepGnome).ToInt();
         int proficiencyBonus = SpellUtils.GetSavingThrowProficiencyBonus(creature, Ability.Wisdom);
-        int saveRoll = NativeUtils.HandleHalflingLuck(creature, Utils.RollAdvantage(advantage));
+        int saveRoll = NativeUtils.HandleHalflingLuck(creature, NativeUtils.HandleChanceDebordante(creature, Utils.RollAdvantage(advantage)));
         int totalSave = saveRoll + proficiencyBonus;
         bool saveFailed = totalSave < entry.baseDC; // TODO : Variabiliser le DD selon la compétence de celui qui a posé le piège
         int damage = NwRandom.Roll(Utils.random, entry.damageDice, entry.numDice); // TODO : Variabiliser les dégâts selon la compétence de l'artisan
