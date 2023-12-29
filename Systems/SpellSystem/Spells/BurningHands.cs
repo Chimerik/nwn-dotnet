@@ -16,12 +16,12 @@ namespace NWN.Systems
 
       foreach (NwCreature target in onSpellCast.TargetLocation.GetObjectsInShapeByType<NwCreature>(Shape.SpellCone, 5, false))
       {
-        int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, spellEntry, SpellConfig.SpellEffectType.Invalid, oCaster);
+        int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid, oCaster);
 
         if (advantage < -900)
           continue;
 
-        int totalSave = SpellUtils.GetSavingThrowRoll(target, spellEntry, advantage, feedback);
+        int totalSave = SpellUtils.GetSavingThrowRoll(target, spellEntry.savingThrowAbility, spellDC, advantage, feedback);
         bool saveFailed = totalSave < spellDC;
 
         SpellUtils.SendSavingThrowFeedbackMessage(oCaster, target, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);

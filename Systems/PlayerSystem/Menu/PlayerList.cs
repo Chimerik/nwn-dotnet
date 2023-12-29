@@ -291,7 +291,7 @@ namespace NWN.Systems
                     player.mutedList.Remove(0);
                     player.oid.SendServerMessage("Vous réactivez désormais la réception globale des mps. Vous ne recevrez cependant pas ceux que vous bloquez individuellement.", ColorConstants.Blue);
                     globalMuteIcon.SetBindValue(player.oid, nuiToken.Token, "ief_darkvis");
-                    globalMuteTooltip.SetBindValue(player.oid, nuiToken.Token, "Réactiver la réception globale de MPs. Ceux que vous avez sélectionné individuellement resteront cependant bloqués.");
+                    globalMuteTooltip.SetBindValue(player.oid, nuiToken.Token, "Bloquer la réception globale de MPs. Ceux que vous avez sélectionné individuellement resteront cependant bloqués.");
                   }
 
                   player.oid.ExportCharacter();

@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       if (saveType == Ability.Dexterity && target is NwCreature creature
         && creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.MaitreBouclier))
-        && creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).HasValue)
+        && creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ShieldMasterCooldownVariable).HasNothing)
       {
         switch (creature.GetItemInSlot(InventorySlot.LeftHand)?.BaseItem.ItemType)
         {
@@ -16,7 +16,8 @@ namespace NWN.Systems
           case BaseItemType.LargeShield:
           case BaseItemType.TowerShield:
 
-            creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Delete();
+            creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ShieldMasterCooldownVariable).Value = 1;
+            ShieldMasterCooldown(creature);
 
             if (!saveFailed)
             {
@@ -33,6 +34,11 @@ namespace NWN.Systems
       }
 
       return damage;
+    }
+    private static async void ShieldMasterCooldown(NwCreature creature)
+    {
+      await NwTask.Delay(NwTimeSpan.FromRounds(1));
+      creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ShieldMasterCooldownVariable).Delete();
     }
   }
 }

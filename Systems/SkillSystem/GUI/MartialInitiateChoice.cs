@@ -34,16 +34,16 @@ namespace NWN.Systems
         public void CreateWindow(int level)
         {
           acquiredLevel = level;
-          //player.learnableSkills[CustomSkill.Elementaliste].featOptions.Values
-          foreach (var style in SkillSystem.learnableDictionary.Values.Where(s => ((LearnableSkill)s).category == SkillSystem.Category.FightingStyle))
-            if (!player.learnableSkills.ContainsKey(style.id))
+
+          foreach (var style in SkillSystem.learnableDictionary.Values.Where(s => ((LearnableSkill)s).category == SkillSystem.Category.FightingStyle
+            && !player.learnableSkills.ContainsKey(s.id)))
               styleList.Add(new NuiComboEntry(style.name, style.id));
 
           player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_MARTIAL_INITIATE_CHOICE_FEAT").Value = 1;
 
-          NuiRect savedRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(player.guiScaledWidth * 0.4f, player.guiHeight * 0.15f, player.guiScaledWidth * 0.4f, player.guiScaledHeight * 0.55f);
+          NuiRect savedRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(player.guiScaledWidth * 0.4f, player.guiHeight * 0.15f, player.guiScaledWidth * 0.4f, player.guiScaledHeight * 0.55f);
 
-          window = new NuiWindow(rootColumn, "Initié Martial - Choisissez un style de combat")
+          window = new NuiWindow(rootColumn, "Choisissez un style de combat")
           {
             Geometry = geometry,
             Resizable = false,
@@ -56,7 +56,7 @@ namespace NWN.Systems
           if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
             nuiToken = tempToken;
-            nuiToken.OnNuiEvent += HandleElementalistChoiceEvents;
+            nuiToken.OnNuiEvent += HandleFightingStyleChoiceEvents;
 
             styles.SetBindValue(player.oid, nuiToken.Token, styleList);
             selectedStyle.SetBindValue(player.oid, nuiToken.Token, styleList.FirstOrDefault().Value);
@@ -65,7 +65,7 @@ namespace NWN.Systems
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
           }
         }
-        private void HandleElementalistChoiceEvents(ModuleEvents.OnNuiEvent nuiEvent)
+        private void HandleFightingStyleChoiceEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
           switch (nuiEvent.EventType)
           {

@@ -87,6 +87,18 @@
     public const int PrecisionElfique = 1394;
     public const int SecondeChance = 1395;
     public const int Chanceux = 1396;
+    public const int ArcaneArcherPrestidigitation = 1397;
+    public const int ArcaneArcherDruidisme = 1398;
+    public const int Prestidigitation = 1399;
+    public const int Druidisme = 1400;
+    public const int ArcaneArcherTirAffaiblissant = 1401;
+    public const int ArcaneArcherTirAgrippant = 1402;
+    public const int ArcaneArcherTirBannissement = 1403;
+    public const int ArcaneArcherTirChercheur = 1404;
+    public const int ArcaneArcherTirOmbres = 1405;
+    public const int ArcaneArcherTirEnvoutant = 1406;
+    public const int ArcaneArcherTirExplosif = 1406;
+    public const int ArcaneArcherTirPerforant = 1407;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -512,10 +524,13 @@
     public const int FighterCombatStyleProtection = 20479;
     public const int FighterCombatStyleDualWield = 20480;
     public const int FighterBonusAttack = 20482; // 3 niveaux
-    public const int FighterInflexible = 20483; // 3 niveaux
+    public const int FighterInflexible = 20483;
 
     public const int FighterChampionCritical = 20484; // 2 niveaux
     public const int FighterChampionRemarkableAthlete = 20485;
+    public const int FighterChampionBonusCombatStyle = 20486;
+    public const int FighterChampionImprovedCritical = 20487; // 2 niveaux
+    public const int FighterChampionUltimeSurvivant = 20488; // 2 niveaux
 
     public const int FighterWarMasterSuperiority = 20486; // 5 niveaux
     
@@ -556,7 +571,8 @@
     public const int Doue = 20512;    
     public const int MaitreDarme = 20513;
     public const int ChanceDebordante = 20514;
-    
+    public const int VigueurNaine = 20515;    
+    public const int Healer = 20516;    
 
     public const int Invalid = 65535;
   }

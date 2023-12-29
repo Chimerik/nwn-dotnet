@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHolyAid));
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name} utilise chanceux afin de bénéficier d'un avantage", StringUtils.gold, true);
-      caster.DecrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.Chanceux));      
+      FeatUtils.DecrementFeatUses(caster, CustomSkill.Chanceux);      
     }
   }
 }

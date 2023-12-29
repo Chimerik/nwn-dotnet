@@ -5,10 +5,10 @@ namespace NWN.Systems
 {
   public partial class EffectSystem
   {
-    public static void OnRecoveryAddThreatRange(NwCreature target, EffectType effectType)
+    public static void OnRecoveryAddThreatRange(NwCreature target, Effect effect)
     {
-      if (!EffectUtils.IsCannotThreatenEffect(effectType)
-        || target.ActiveEffects.Any(e => EffectUtils.IsCannotThreatenEffect(e.EffectType)))
+      if (!EffectUtils.IsIncapacitatingEffect(effect)
+        || target.ActiveEffects.Any(e => EffectUtils.IsIncapacitatingEffect(e)))
         return;
 
       CreatureUtils.InitThreatRange(target);

@@ -10,7 +10,7 @@ namespace NWN.Systems
       if (caster.CurrentAction == Action.AttackObject && ItemUtils.IsMeleeWeapon(caster.GetItemInSlot(InventorySlot.RightHand)?.BaseItem))
       {
         caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.FureurOrcBonusDamageVariable).Value = 1;
-        caster.DecrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.FureurOrc));
+        FeatUtils.DecrementFeatUses(caster, CustomSkill.FureurOrc);
         StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Fureur Orc", StringUtils.gold, true);
       }
       else

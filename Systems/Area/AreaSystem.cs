@@ -59,16 +59,16 @@ namespace NWN.Systems
         area.RestingAllowed = false;
         areaDescriptionsToDownload.Add(area.Name);
 
-        if(areaMusics.ContainsKey(area.Tag))
+        if(areaMusics.TryGetValue(area.Tag, out var music))
         {
-          int[] musicTab = areaMusics[area.Tag];
+          int[] musicTab = music;
           area.MusicBackgroundDayTrack = musicTab[0];
           area.MusicBackgroundNightTrack = musicTab[1];
           area.MusicBattleTrack = musicTab[2];
         }
 
-        if (areaLoadScreens.ContainsKey(area.Tag))
-          area.LoadScreen = NwGameTables.LoadScreenTable.GetRow(areaLoadScreens[area.Tag]);
+        if (areaLoadScreens.TryGetValue(area.Tag, out var loadScreen))
+          area.LoadScreen = NwGameTables.LoadScreenTable.GetRow(loadScreen);
 
         DoAreaSpecificInitialisation(area);
 

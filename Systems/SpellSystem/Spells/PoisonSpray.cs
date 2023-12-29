@@ -16,8 +16,8 @@ namespace NWN.Systems
 
       target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPoisonS));
 
-      int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, spellEntry, SpellConfig.SpellEffectType.Poison);
-      int totalSave = SpellUtils.GetSavingThrowRoll(target, spellEntry, advantage, feedback);
+      int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Poison);
+      int totalSave = SpellUtils.GetSavingThrowRoll(target, spellEntry.savingThrowAbility, spellDC, advantage, feedback);
       bool saveFailed = totalSave < spellDC;
 
       SpellUtils.SendSavingThrowFeedbackMessage(oCaster, target, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);

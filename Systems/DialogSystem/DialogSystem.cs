@@ -8,7 +8,7 @@ using System.Linq;
 namespace NWN.Systems
 {
   [ServiceBinding(typeof(DialogSystem))]
-  public class DialogSystem
+  public partial class DialogSystem
   {
     public readonly Logger Log = LogManager.GetCurrentClassLogger();
     private byte[] forgeTool;

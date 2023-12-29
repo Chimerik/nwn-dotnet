@@ -7,15 +7,18 @@ namespace NWN
 {
   public static partial class CreatureUtils
   {
-    public static void OnHeartbeatRefreshActions(CreatureEvents.OnHeartbeat onHB)
+    public static void OnHeartbeatRefreshActions(ModuleEvents.OnHeartbeat onHB)
     {
-      onHB.Creature.GetObjectVariable<LocalVariableInt>(BonusActionVariable).Value = 1;
-      onHB.Creature.GetObjectVariable<LocalVariableInt>(HastMasterCooldownVariable).Delete();
+      foreach (var creature in NwObject.FindObjectsOfType<NwCreature>())
+      {
+        creature.GetObjectVariable<LocalVariableInt>(BonusActionVariable).Value = 1;
+        creature.GetObjectVariable<LocalVariableInt>(HastMasterCooldownVariable).Delete();
 
-      if (onHB.Creature.ActiveEffects.Any(e => e.Tag == EffectSystem.noReactionsEffectTag))
-        return;
+        if (creature.ActiveEffects.Any(e => e.Tag == EffectSystem.noReactionsEffectTag))
+          continue;
 
-      onHB.Creature.GetObjectVariable<LocalVariableInt>(ReactionVariable).Value = 1;
+        creature.GetObjectVariable<LocalVariableInt>(ReactionVariable).Value = 1;
+      }
     }
   }
 }

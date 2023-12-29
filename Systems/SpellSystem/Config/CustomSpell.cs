@@ -3,6 +3,8 @@
   public class CustomSpell
   {
     public const int Calligraphie = 840;
+    public const int Sprint = 841;    
+    public const int Disengage = 842;    
     public const int BladeWard = 843;
     public const int FireBolt = 844;
     public const int Friends = 845;
@@ -18,5 +20,8 @@
     public const int Thaumaturgy = 855;
     public const int SearingSmite = 856;
     public const int BrandingSmite = 857;
+    public const int Dodge = 858;
+    public const int Prestidigitation = 860;
+    public const int Druidisme = 861;
   }
 }

@@ -6,9 +6,6 @@ namespace NWN.Systems
   {
     public static bool HandleSpellTargetIncapacitated(NwCreature caster, NwCreature target, Effect effect, SpellEntry spellEntry)
     {
-      if (spellEntry.savingThrowAbility != Ability.Dexterity && spellEntry.savingThrowAbility != Ability.Strength)
-        return false;
-
       if (EffectUtils.IsIncapacitatingEffect(effect))
       {
         NwSpell spell = NwSpell.FromSpellId(spellEntry.RowIndex);

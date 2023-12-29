@@ -16,7 +16,7 @@ namespace NWN.Systems
         creature.GetObjectVariable<LocalVariableInt>("_MENEUR_EXALTANT_BUFF").Value = 1;
       }
 
-      caster.DecrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.MeneurExaltant));
+      FeatUtils.DecrementFeatUses(caster, CustomSkill.MeneurExaltant);
     }
   }
 }

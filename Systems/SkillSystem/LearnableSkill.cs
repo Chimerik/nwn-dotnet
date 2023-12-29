@@ -15,19 +15,25 @@ namespace NWN.Systems
     public double bonusReduction { get { return 1 - (totalPoints / 100); } }
     public int levelTaken { get; }
     public Dictionary<int, int[]> featOptions { get; }
+    public List<int> racePrerequiste { get; }
+    public List<int> learnablePrerequiste { get; }
 
 
     public LearnableSkill(int id, string name, string description, SkillSystem.Category category, string icon, int maxLevel, int multiplier, Ability primaryAbility,
-      Ability secondaryAbility, Func<PlayerSystem.Player, int, bool> skillEffect = null, string descriptionLink = "") 
+      Ability secondaryAbility, Func<PlayerSystem.Player, int, bool> skillEffect = null, string descriptionLink = "", List<int> racePrerequiste = null, List<int> learnablePrerequiste = null) 
       : base(id, name, description, icon, maxLevel, multiplier, primaryAbility, secondaryAbility, descriptionLink)
     {
       this.category = category;
       this.skillEffect = skillEffect;
+      this.racePrerequiste = racePrerequiste;
+      this.learnablePrerequiste = learnablePrerequiste;
     }
     public LearnableSkill(LearnableSkill learnableBase, int skillSource = -1, bool active = false, double acquiredSP = 0, int currentLevel = 0, int levelTaken = 0, Dictionary<int, int[]> featOptions = null) : base(learnableBase)
     {
       this.category = learnableBase.category;
       this.skillEffect = learnableBase.skillEffect;
+      this.racePrerequiste = learnableBase.racePrerequiste;
+      this.learnablePrerequiste = learnableBase.learnablePrerequiste;
       this.active = active;
       this.acquiredPoints = acquiredSP;
       this.currentLevel = currentLevel;

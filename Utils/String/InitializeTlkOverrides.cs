@@ -86,7 +86,7 @@ namespace NWN
       OverrideTlkEntry(190133, "<CUSTOM0> Force");
       OverrideTlkEntry(190136, "Communication Animale");
       OverrideTlkEntry(190151, "Mode Esquive");
-      OverrideTlkEntry(190152, "Vous vous concentrer uniquement sur l'esquive au détriment de toute attaque.\n\nLes jets d'attaque qui vous ciblent subissent un désavantage, vos jets de sauvegarde de dextérité ont un avantage.\n\nVous perdez cet effet si vous êtes incapable d'agir, que votre capacité de déplacement tombe à 0, que vous attaquez ou lancez un sort.");
+      OverrideTlkEntry(190152, "Pendant un round, vous vous concentrez uniquement sur l'esquive au détriment de toute attaque.\n\nLes jets d'attaque qui vous ciblent subissent un désavantage, vos jets de sauvegarde de dextérité ont un avantage.\n\nVous perdez cet effet si vous êtes incapable d'agir, que votre capacité de déplacement tombe à 0, que vous attaquez ou lancez un sort.");
       OverrideTlkEntry(190153, "LISEZ-MOI");
       OverrideTlkEntry(190154, "Les choix de races, de classe et de caractéristiques de cette partie de l'interface sont inutiles.\n\nEn jeu, un miroir vous permettra d'accéder à des options de personnalisation approfondies.\n\nIl vous faudra alors valider toutes les étapes avant que le capitaine ne vous autorise à poursuivre votre voyage.");
       OverrideTlkEntry(190155, "Les Larmes des Erylies - Editeur de personnage");

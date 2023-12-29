@@ -69,6 +69,8 @@ namespace NWN.Systems
           });
 
           return;
+
+        case "CapitaineMarco": creature.OnConversation += DialogSystem.OnConversationIntroCaptain; return;
       }
 
       string spawnType = spawnPoint.GetObjectVariable<LocalVariableString>("_SPAWN_TYPE").Value;

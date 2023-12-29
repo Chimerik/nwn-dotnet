@@ -29,11 +29,11 @@ namespace NWN.Systems
         {
           SpellConfig.SavingThrowFeedback feedback = new();
           int spellDC = SpellUtils.GetCasterSpellDC(oCaster, onSpellCast.Spell);
-          int advantage = CreatureUtils.GetCreatureAbilityAdvantage(targetCreature, spellEntry, SpellConfig.SpellEffectType.Invalid, oCaster);
+          int advantage = CreatureUtils.GetCreatureAbilityAdvantage(targetCreature, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid, oCaster);
           
           if (advantage < -900)
           {
-            int totalSave = SpellUtils.GetSavingThrowRoll(targetCreature, spellEntry, advantage, feedback);
+            int totalSave = SpellUtils.GetSavingThrowRoll(targetCreature, spellEntry.savingThrowAbility, spellDC, advantage, feedback);
             bool saveFailed = totalSave < spellDC;
 
             SpellUtils.SendSavingThrowFeedbackMessage(oCaster, targetCreature, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);

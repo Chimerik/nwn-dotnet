@@ -20,7 +20,7 @@ namespace NWN.Systems
         case boneChillEffectTag: target.OnHeal -= SpellSystem.PreventHeal; return;
       }*/
 
-      OnRecoveryAddThreatRange(target, onEffect.Effect.EffectType);
+      OnRecoveryAddThreatRange(target, onEffect.Effect);
     }
   }
 }

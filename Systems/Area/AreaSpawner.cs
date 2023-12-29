@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Security.Cryptography;
 
 namespace NWN.Systems
 {
@@ -26,9 +25,9 @@ namespace NWN.Systems
 
         spawnPoint.GetObjectVariable<LocalVariableBool>("_SPAWN_COOLDOWN").Value = true;
 
-        if (CreatureUtils.creatureSpawnDictionary.ContainsKey(spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value))
+        if (CreatureUtils.creatureSpawnDictionary.TryGetValue(spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value, out var value))
         {
-          NwCreature creature = CreatureUtils.creatureSpawnDictionary[spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value].Clone(spawnPoint.Location);
+          NwCreature creature = value.Clone(spawnPoint.Location);
           InitializeCreatureEvents(creature);
           InitializeGenericVariables(creature, spawnPoint);
           HandleSpawnSpecificBehaviour(creature, spawnPoint);
@@ -68,7 +67,7 @@ namespace NWN.Systems
     private async void InitializeCreatureEvents(NwCreature creature)
     {
       creature.OnHeartbeat += CheckIfNoPlayerAround;
-      creature.OnHeartbeat += CreatureUtils.OnHeartbeatRefreshActions;
+      //creature.OnHeartbeat += CreatureUtils.OnHeartbeatRefreshActions;
       creature.OnDeath += CreatureUtils.MakeInventoryUndroppable;
       creature.OnDeath += CreatureUtils.OnMobDeathResetSpawn;
 

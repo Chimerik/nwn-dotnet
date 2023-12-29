@@ -16,7 +16,7 @@ namespace NWN.Systems
         || c.ClassInfo.Class.Id == CustomClass.ArcaneArcher || c.ClassInfo.Class.Id == CustomClass.Warmaster);
         caster.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.Heal(NwRandom.Roll(Utils.random, 10, 1) + fighterLevel), Effect.VisualEffect(VfxType.ImpHealingM)));
 
-        caster.DecrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.FighterSecondWind));
+        FeatUtils.DecrementFeatUses(caster, CustomSkill.FighterSecondWind);
 
         StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} utilise {"Second Souffle".ColorString(ColorConstants.White)}", ColorConstants.Orange, true);
       }

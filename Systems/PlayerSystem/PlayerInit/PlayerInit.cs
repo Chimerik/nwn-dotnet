@@ -129,8 +129,7 @@ namespace NWN.Systems
         oid.OnPlayerDeath += HandlePlayerDeath;
         oid.LoginCreature.OnUseFeat += FeatSystem.OnUseFeatBefore;
         oid.OnCombatStatusChange += OnCombatStarted;
-        oid.LoginCreature.OnHeartbeat += CreatureUtils.OnHeartbeatRefreshActions;
-        oid.LoginCreature.OnHeartbeat += OnHeartbeatDetectTrap;
+        //oid.LoginCreature.OnHeartbeat += CreatureUtils.OnHeartbeatRefreshActions;
         oid.LoginCreature.OnCombatRoundStart += OnCombatStartForceHostility;
         oid.OnPartyEvent += Party.HandlePartyEvent;
         oid.OnClientLevelUpBegin += HandleOnClientLevelUp;
@@ -178,7 +177,6 @@ namespace NWN.Systems
         oid.LoginCreature.OnSpellAction += spellSystem.OnBonusActionSpell;
         oid.LoginCreature.OnSpellAction += spellSystem.HandleSpellInputBlinded;
         oid.LoginCreature.OnSpellAction += spellSystem.CancelSomaticSpellIfOffHandBusy;
-        oid.LoginCreature.OnSpellAction += spellSystem.OnSpellInputDodging;
         oid.LoginCreature.OnSpellAction += SpellSystem.HandleCraftOnSpellInput;
         //oid.LoginCreature.OnSpellBroadcast += spellSystem.HandleHearingSpellBroadcast;
         oid.LoginCreature.OnSpellCast += spellSystem.CheckIsDivinationBeforeSpellCast;
@@ -412,8 +410,8 @@ namespace NWN.Systems
         InitializeElementalistChoice();
         InitializeMartialInitiateChoice();
         InitializeBonusSkillChoice();
-        InitializeBonusExpertiseChoice();
         InitializeWeaponMasterChoice();
+        InitializeFeatChoice();
         ResetFlameBlade();
         ResetSize();
         ApplyProtectionStyle();
@@ -426,11 +424,15 @@ namespace NWN.Systems
         ApplyPourfendeur();
         ApplyLameDoutretombe();
         ApplyChanceDebordante();
+        ApplyUltimeSurvivant();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();
         //oid.LoginCreature.OnHeal -= SpellSystem.PreventHeal;
         //oid.LoginCreature.OnEffectApply -= EffectSystem.CheckFaerieFire;
+
+        oid.LoginCreature.OnHeartbeat -= OnHeartbeatDetectTrap;
+        oid.LoginCreature.OnHeartbeat += OnHeartbeatDetectTrap;
 
         pcState = PcState.Online;
         oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;

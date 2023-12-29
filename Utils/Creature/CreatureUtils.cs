@@ -33,7 +33,9 @@ namespace NWN
     public readonly static CExoString FureurOrcBonusAttackVariableExo = "_FUREUR_ORC_ATTACK".ToExoString();
     public const string SecondeChanceVariable = "_FEAT_SECONDE_CHANCE";
     public readonly static CExoString SecondeChanceVariableExo = "_FEAT_SECONDE_CHANCE".ToExoString();
+    public const string ShieldMasterCooldownVariable = "_FEAT_SHIELDMASTER_COOLDOWN";
 
+    public const string VigueurNaineHDVariable = "_FEAT_VIGUEUR_NAINE_HD";
     public const string OriginalSizeVariable = "_ORIGINAL_SIZE";
 
     public static readonly Dictionary<string, NwCreature> creatureSpawnDictionary = new();

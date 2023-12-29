@@ -24,6 +24,7 @@ namespace NWN.Systems
           int attackRoll = NativeUtils.GetAttackRoll(caster, advantage, spellCastingAbility);
           int targetAC = target.GetArmorClassVersus(caster);
           int totalAttack = attackRoll + attackModifier;
+          int criticalRange = GetSpellCriticalRange(caster);
 
           LogUtils.LogMessage($"Bonus d'attaque contre la cible {attackModifier} dont {caster.GetAbilityModifier(spellCastingAbility)} du modificateur de {spellCastingAbility.ToString()} et {proficiencyBonus} du bonus de maîtrise", LogUtils.LogType.Combat);
           LogUtils.LogMessage($"CA de la cible : {targetAC}", LogUtils.LogType.Combat);
@@ -33,7 +34,7 @@ namespace NWN.Systems
           string criticalString = "";
           string advantageString = advantage == 0 ? "" : advantage > 0 ? "Avantage - ".ColorString(StringUtils.gold) : "Désavantage - ".ColorString(ColorConstants.Red);
 
-          if (attackRoll == 20 || criticalHit) // TODO : certains items permettront d'augmenter la plage des critiques dans certaines conditions
+          if (attackRoll >= criticalRange || criticalHit)
           {
             result = TouchAttackResult.CriticalHit;
             criticalString = "CRITIQUE - ".ColorString(StringUtils.gold);

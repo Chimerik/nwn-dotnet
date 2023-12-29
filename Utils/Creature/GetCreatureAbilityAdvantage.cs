@@ -8,7 +8,7 @@ namespace NWN
 {
   public static partial class CreatureUtils
   {
-    public static int GetCreatureAbilityAdvantage(NwCreature creature, SpellEntry spellEntry, SpellEffectType effectType = SpellEffectType.Invalid, NwCreature caster = null)
+    public static int GetCreatureAbilityAdvantage(NwCreature creature, Ability ability, SpellEntry spellEntry = null, SpellEffectType effectType = SpellEffectType.Invalid, NwCreature caster = null)
     {
       Dictionary<string, bool> disadvantageDictionary = new()
       {
@@ -21,24 +21,27 @@ namespace NWN
         { EffectSystem.DodgeEffectTag, false },
       };
 
-      Ability ability = spellEntry.savingThrowAbility;
       int advantage = 0;
 
       foreach (var eff in creature.ActiveEffects)
       {
-        if ((ability == Ability.Strength || ability == Ability.Dexterity)
-              && SpellUtils.HandleSpellTargetIncapacitated(caster, creature, eff, spellEntry))
-          return -1000;
-
         switch(ability)
         {
           case Ability.Strength:
+
+            if (spellEntry is not null && SpellUtils.HandleSpellTargetIncapacitated(caster, creature, eff, spellEntry))
+              return -1000;
+
             advantageDictionary[EffectSystem.EnlargeEffectTag] = advantageDictionary[EffectSystem.EnlargeEffectTag] || EffectSystem.EnlargeEffectTag == eff.Tag;
 
             disadvantageDictionary[EffectSystem.ShieldArmorDisadvantageEffectTag] = disadvantageDictionary[EffectSystem.ShieldArmorDisadvantageEffectTag] || EffectSystem.ShieldArmorDisadvantageEffectTag == eff.Tag;
             break;
 
           case Ability.Dexterity:
+
+            if (spellEntry is not null && SpellUtils.HandleSpellTargetIncapacitated(caster, creature, eff, spellEntry))
+              return -1000;
+
             advantageDictionary[EffectSystem.DodgeEffectTag] = advantageDictionary[EffectSystem.DodgeEffectTag] || EffectSystem.DodgeEffectTag == eff.Tag;
 
             disadvantageDictionary[EffectSystem.ShieldArmorDisadvantageEffectTag] = disadvantageDictionary[EffectSystem.ShieldArmorDisadvantageEffectTag] || EffectSystem.ShieldArmorDisadvantageEffectTag == eff.Tag;

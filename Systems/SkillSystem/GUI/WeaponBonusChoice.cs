@@ -110,6 +110,12 @@ namespace NWN.Systems
               {
                 case "validate":
 
+                  if (weaponsChecked > 4)
+                  {
+                    player.oid.SendServerMessage($"Veuillez sélectionner jusqu'à 4 maîtrises maximum");
+                    return;
+                  }
+
                   if (weaponsChecked > 3 || weaponProficiencies.Count == weaponsChecked || weaponProficiencies.Count < 1)
                   {
                     CloseWindow();
@@ -294,6 +300,8 @@ namespace NWN.Systems
               weaponsChecked++;
               weaponCheckList.Add(true);
             }
+            else
+              weaponCheckList.Add(false);
           }
 
           weaponName.SetBindValues(player.oid, nuiToken.Token, weaponNameList);

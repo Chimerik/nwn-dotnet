@@ -11,16 +11,10 @@ namespace NWN.Systems
         return;
 
       int perceptionRoll;
-      int perceptionSkill = onHB.Creature.GetAbilityModifier(Ability.Wisdom);
+      int perceptionSkill = CreatureUtils.GetSkillScore(onHB.Creature, Ability.Wisdom, CustomSkill.PerceptionProficiency);
 
       if (player.learnableSkills.TryGetValue(CustomSkill.Observateur, out LearnableSkill observateur) && observateur.currentLevel > 0)
         perceptionSkill += 5;
-
-        if (player.learnableSkills.TryGetValue(CustomSkill.PerceptionProficiency, out LearnableSkill learnable) && learnable.currentLevel > 0)
-        perceptionSkill += NativeUtils.GetCreatureProficiencyBonus(onHB.Creature);
-
-      if (player.learnableSkills.TryGetValue(CustomSkill.PerceptionExpertise, out LearnableSkill expertise) && expertise.currentLevel > 0)
-        perceptionSkill *= 2;
 
       if (!onHB.Creature.DetectModeActive)
         perceptionSkill /= 2;

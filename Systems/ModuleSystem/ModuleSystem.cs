@@ -415,9 +415,11 @@ namespace NWN.Systems
 
       // ImprovedTwoWeaponFighting donne une attaque supplémentaire avec l'off-hand pour une pénalité de -5 BA. A voir dans le cas de Thief qui dual fight avec 2 actions bonus
       //EventsPlugin.AddIDToWhitelist("NWNX_ON_HAS_FEAT", (int)Feat.ImprovedTwoWeaponFighting);
-
+      
       NwModule.Instance.OnAcquireItem += ItemSystem.OnAcquireCheckFinesseProperty;
       NwModule.Instance.OnPlayerGuiEvent += PlayerSystem.HandleGuiEvents;
+      NwModule.Instance.OnHeartbeat += CreatureUtils.OnHeartbeatRefreshActions;
+      //NwModule.Instance.OnPlayerRest += PlayerSystem.OnRest;
       //NwModule.Instance.OnCreatureAttack += AttackSystem.HandleAttackEvent;
       //NwModule.Instance.OnCreatureDamage += AttackSystem.HandleDamageEvent;
       NwModule.Instance.OnCreatureCheckProficiencies += ItemSystem.OverrideProficiencyCheck;

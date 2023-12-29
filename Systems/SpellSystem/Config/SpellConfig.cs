@@ -7,7 +7,7 @@
 
     public class SavingThrowFeedback
     {
-      public int dexProficiencyBonus { get; set; }
+      public int proficiencyBonus { get; set; }
       public int saveRoll { get; set; }
 
       public SavingThrowFeedback()

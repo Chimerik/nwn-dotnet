@@ -12,6 +12,7 @@ namespace NWN
           onAttack.Attacker.RemoveEffect(eff);
 
       onAttack.Attacker.OnCreatureAttack -= OnAttackRemoveDodge;
+      onAttack.Attacker.OnSpellAction -= SpellSystem.OnSpellInputRemoveDodge;
     }
   }
 }
