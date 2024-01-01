@@ -82,14 +82,14 @@ namespace NWN.Systems
         return;
       }
 
-      //*** CALCUL DU BONUS D'ATTAQUE ***//
-      // On prend le bonus d'attaque calculé automatiquement par le jeu en fonction de la cible qui peut être une créature ou un placeable
-      int attackModifier = targetCreature is null ? creature.m_pStats.GetAttackModifierVersus() : NativeUtils.GetAttackBonus(creature, targetCreature, attackData);
-      attackModifier -= 5;
-
       // Si l'arme utilisée pour attaquer est une arme de finesse, et que la créature a une meilleur DEX, alors on utilise la DEX pour attaquer
       CNWSItem attackWeapon = combatRound.GetCurrentAttackWeapon(attackData.m_nWeaponAttackType);
       Anvil.API.Ability attackStat = Anvil.API.Ability.Strength;
+
+      //*** CALCUL DU BONUS D'ATTAQUE ***//
+      // On prend le bonus d'attaque calculé automatiquement par le jeu en fonction de la cible qui peut être une créature ou un placeable
+      int attackModifier = targetCreature is null ? creature.m_pStats.GetAttackModifierVersus() : NativeUtils.GetAttackBonus(creature, targetCreature, attackData, attackWeapon);
+      attackModifier -= 5;
 
       byte dexMod = creature.m_pStats.m_nDexterityModifier;
       byte strMod = creature.m_pStats.m_nStrengthModifier;
@@ -230,7 +230,7 @@ namespace NWN.Systems
           else
           {
             int defensiveDuellistBonus = NativeUtils.GetDefensiveDuellistBonus(targetCreature, attackData.m_bRangedAttack);
-            
+
             if (totalAttack > targetAC + defensiveDuellistBonus)
             {
               attackData.m_nAttackResult = 1;
@@ -238,12 +238,22 @@ namespace NWN.Systems
             }
             else
             {
-              attackData.m_nAttackResult = 4;
-              attackData.m_nMissedBy = (byte)(targetAC - attackRoll) > 8 ? (byte)Utils.random.Next(1, 9) : (byte)(targetAC - attackRoll);
-              hitString = "manquez".ColorString(ColorConstants.Red);
-              rollString = rollString.StripColors().ColorString(ColorConstants.Red);
-              NativeUtils.SendNativeServerMessage($"Duelliste défensif activé !".ColorString(ColorConstants.Orange), creature);
-              //LogUtils.LogMessage($"Manqué : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC + defensiveDuellistBonus}", LogUtils.LogType.Combat);
+              if (creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreTypeVariableExo) == CustomSkill.WarMasterAttaquePrecise
+                && totalAttack + creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreDiceVariableExo) > targetAC + defensiveDuellistBonus)
+              {
+                attackData.m_nAttackResult = 1;
+                creature.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreTypeVariableExo);
+                creature.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreDiceVariableExo);
+              }
+              else
+              {
+                attackData.m_nAttackResult = 4;
+                attackData.m_nMissedBy = (byte)(targetAC - attackRoll) > 8 ? (byte)Utils.random.Next(1, 9) : (byte)(targetAC - attackRoll);
+                hitString = "manquez".ColorString(ColorConstants.Red);
+                rollString = rollString.StripColors().ColorString(ColorConstants.Red);
+                NativeUtils.SendNativeServerMessage($"Duelliste défensif activé !".ColorString(ColorConstants.Orange), creature);
+                //LogUtils.LogMessage($"Manqué : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC + defensiveDuellistBonus}", LogUtils.LogType.Combat);
+              }
             }
           }
         }
@@ -262,11 +272,13 @@ namespace NWN.Systems
         NativeUtils.HandleSentinelleOpportunityTarget(creature, combatRound);
         NativeUtils.HandleSentinelle(creature, targetCreature, combatRound);
         NativeUtils.HandleFureurOrc(creature, targetCreature, combatRound);
+        NativeUtils.HandleDiversion(creature, attackData, targetCreature);
       }
       else
         attackData.m_nAttackResult = 7;
 
       NativeUtils.HandleHastMaster(creature, targetObject, combatRound);
+      NativeUtils.HandleBalayage(creature, combatRound);
     }
     private int OnAddUseTalentOnObjectHook(void* pCreature, int talentType, int talentId, uint oidTarget, byte nMultiClass, uint oidItem, int nItemPropertyIndex, byte nCasterLevel, int nMetaType)
     {
@@ -374,12 +386,12 @@ namespace NWN.Systems
           //LogUtils.LogMessage($"Sournoise - {sneakLevel}d{6} => {sneakRoll} - Total : {baseDamage}", LogUtils.LogType.Combat);
         }
 
-        if (NativeUtils.IsCogneurLourd(attacker, attackData))
+        if (NativeUtils.IsCogneurLourd(attacker, attackWeapon))
         {
           baseDamage += 10;
           //LogUtils.LogMessage($"Cogneur Lourd : +10 dégâts", LogUtils.LogType.Combat);
         }
-        else if (NativeUtils.IsTireurDelite(attacker, attackData))
+        else if (NativeUtils.IsTireurDelite(attacker, attackData, attackWeapon))
         {
           baseDamage += 10;
           //LogUtils.LogMessage($"Cogneur Lourd : +10 dégâts", LogUtils.LogType.Combat);
@@ -447,6 +459,9 @@ namespace NWN.Systems
       baseDamage += NativeUtils.HandleBagarreurDeTaverne(attacker, attackWeapon, strBonus);
       baseDamage -= NativeUtils.HandleMaitreArmureLourde(targetObject);
 
+      if (attacker.m_ScriptVars.GetInt(CreatureUtils.TirAffaiblissantVariableExo).ToBool())
+        baseDamage /= 2;
+
       // Application des réductions du jeu de base
       baseDamage = targetObject.DoDamageImmunity(attacker, baseDamage, damageFlags, 0, 1);
       //LogUtils.LogMessage($"Application des immunités de la cible - Dégats : {baseDamage}", LogUtils.LogType.Combat);
@@ -456,6 +471,10 @@ namespace NWN.Systems
       //LogUtils.LogMessage($"Application des réductions de la cible - Calcul Final - Dégâts : {baseDamage}", LogUtils.LogType.Combat);
 
       NativeUtils.HandleCogneurLourdBonusAttack(attacker, targetObject, combatRound, attackData, baseDamage);
+      NativeUtils.HandleArcaneArcherTirIncurveBonusAttack(attacker, combatRound);
+
+      attacker.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreTypeVariableExo);
+      attacker.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreDiceVariableExo);
 
       return baseDamage;
 

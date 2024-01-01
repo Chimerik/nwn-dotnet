@@ -40,6 +40,24 @@ namespace NWN.Systems
         case CustomSkill.AgressionOrc: AgressionOrc(onUseFeat.Creature, onUseFeat.TargetObject); return;
         case CustomSkill.MeneurExaltant: MeneurExaltant(onUseFeat.Creature); return;
         case CustomSkill.Chanceux: Chanceux(onUseFeat.Creature); return;
+
+        case CustomSkill.ArcaneArcherTirAffaiblissant:
+        case CustomSkill.ArcaneArcherTirAgrippant:
+        case CustomSkill.ArcaneArcherTirBannissement:
+        case CustomSkill.ArcaneArcherTirEnvoutant:
+        case CustomSkill.ArcaneArcherTirExplosif:
+        case CustomSkill.ArcaneArcherTirOmbres: TirArcanique(onUseFeat.Creature, onUseFeat.Feat.Id); return;
+        case CustomSkill.ArcaneArcherTirIncurve: TirIncurve(onUseFeat.Creature); return;
+        case CustomSkill.ArcaneArcherTirChercheur: CreatureUtils.HandleTirChercheur(onUseFeat.Creature); return;
+        case CustomSkill.ArcaneArcherTirPerforant: CreatureUtils.HandleTirPerforant(onUseFeat.Creature); return;
+
+        case CustomSkill.WarMasterAttaqueMenacante: AttaqueMenacante(onUseFeat.Creature); return;
+        case CustomSkill.WarMasterAttaquePrecise: AttaquePrecise(onUseFeat.Creature); return;
+        case CustomSkill.WarMasterBalayage: Balayage(onUseFeat.Creature); return;
+        case CustomSkill.WarMasterRenversement: Renversement(onUseFeat.Creature); return;
+        case CustomSkill.WarMasterDesarmement: Desarmement(onUseFeat.Creature); return;
+        case CustomSkill.WarMasterDiversion: Diversion(onUseFeat.Creature); return;
+
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

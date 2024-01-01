@@ -8,7 +8,7 @@ namespace NWN.Systems
   public static partial class NativeUtils
   {
     private static readonly CExoString chargerVariable = "_CHARGER_INITIAL_LOCATION".ToExoString();
-    public static int GetAttackBonus(CNWSCreature attacker, CNWSCreature target, CNWSCombatAttackData attackData)
+    public static int GetAttackBonus(CNWSCreature attacker, CNWSCreature target, CNWSCombatAttackData attackData, CNWSItem weapon)
     {
       int attackBonus = attacker.m_pStats.GetAttackModifierVersus(target);
 
@@ -25,15 +25,18 @@ namespace NWN.Systems
         attacker.m_pStats.m_pBaseCreature.m_ScriptVars.SetInt("_CHARGER_ACTIVATED".ToExoString(), 1);
       }
 
-      if (IsCogneurLourd(attacker, attackData))
+      if (weapon is not null)
       {
-        attackBonus -= 5;
-        LogUtils.LogMessage($"Cogneur Lourd : -5 BA", LogUtils.LogType.Combat);
-      }
-      else if (IsTireurDelite(attacker, attackData))
-      {
-        attackBonus -= 5;
-        LogUtils.LogMessage($"Tireur d'élite : -5 BA", LogUtils.LogType.Combat);
+        if (IsCogneurLourd(attacker, weapon))
+        {
+          attackBonus -= 5;
+          LogUtils.LogMessage($"Cogneur Lourd : -5 BA", LogUtils.LogType.Combat);
+        }
+        else if (IsTireurDelite(attacker, attackData, weapon))
+        {
+          attackBonus -= 5;
+          LogUtils.LogMessage($"Tireur d'élite : -5 BA", LogUtils.LogType.Combat);
+        }
       }
 
       return attackBonus;

@@ -20,32 +20,42 @@ namespace NWN.Systems
 
           break;
 
+        case 7:
+
+          player.learnableSkills.TryAdd(CustomSkill.ArcaneArcherTirIncurve, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ArcaneArcherTirIncurve]));
+          player.learnableSkills[CustomSkill.ArcaneArcherTirIncurve].LevelUp(player);
+          player.learnableSkills[CustomSkill.ArcaneArcherTirIncurve].source.Add(Category.Class);
+
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_CHOICE_FEAT").Value = CustomSkill.FighterArcaneArcher;
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_OPTION_CHOICE_FEAT").Value = (int)SkillConfig.SkillOptionType.ArcaneShot;
+          player.InitializeBonusSkillChoice();
+
+          break;
+
         case 10:
 
-          player.learnableSkills.TryAdd(CustomSkill.FighterChampionBonusCombatStyle, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterChampionBonusCombatStyle]));
-          player.learnableSkills[CustomSkill.FighterChampionBonusCombatStyle].LevelUp(player);
-          player.learnableSkills[CustomSkill.FighterChampionBonusCombatStyle].source.Add(Category.Class);
-
-          if (!player.windows.TryGetValue("martialInitiateChoice", out var value)) player.windows.Add("martialInitiateChoice", new MartialInitiateChoiceWindow(player, player.oid.LoginCreature.Level));
-          else ((MartialInitiateChoiceWindow)value).CreateWindow(player.oid.LoginCreature.Level);
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_CHOICE_FEAT").Value = CustomSkill.FighterArcaneArcher;
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_OPTION_CHOICE_FEAT").Value = (int)SkillConfig.SkillOptionType.ArcaneShot;
+          player.InitializeBonusSkillChoice();
 
           break;
 
         case 15:
 
-          player.learnableSkills.TryAdd(CustomSkill.FighterChampionImprovedCritical, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterChampionImprovedCritical]));
-          player.learnableSkills[CustomSkill.FighterChampionImprovedCritical].LevelUp(player);
+          player.oid.OnCombatStatusChange -= FighterUtils.OnCombatArcaneArcherRecoverTirArcanique;
+          player.oid.OnCombatStatusChange += FighterUtils.OnCombatArcaneArcherRecoverTirArcanique;
+
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_CHOICE_FEAT").Value = CustomSkill.FighterArcaneArcher;
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_OPTION_CHOICE_FEAT").Value = (int)SkillConfig.SkillOptionType.ArcaneShot;
+          player.InitializeBonusSkillChoice();
 
           break;
 
         case 18:
 
-          player.learnableSkills.TryAdd(CustomSkill.FighterChampionUltimeSurvivant, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterChampionUltimeSurvivant]));
-          player.learnableSkills[CustomSkill.FighterChampionUltimeSurvivant].LevelUp(player);
-          player.learnableSkills[CustomSkill.FighterChampionUltimeSurvivant].source.Add(Category.Class);
-
-          player.oid.LoginCreature.OnHeartbeat -= FighterUtils.OnHeartbeatUltimeSurvivant;
-          player.oid.LoginCreature.OnHeartbeat += FighterUtils.OnHeartbeatUltimeSurvivant;
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_CHOICE_FEAT").Value = CustomSkill.FighterArcaneArcher;
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_OPTION_CHOICE_FEAT").Value = (int)SkillConfig.SkillOptionType.ArcaneShot;
+          player.InitializeBonusSkillChoice();
 
           break;
       }

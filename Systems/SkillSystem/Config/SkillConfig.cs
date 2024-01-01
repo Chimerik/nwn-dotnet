@@ -5,8 +5,9 @@
     public enum SkillOptionType
     {
       Proficiency,
-      Expertise,
-      Cantrip
+      Cantrip,
+      ArcaneShot,
+      Expertise
     }
   }
 }

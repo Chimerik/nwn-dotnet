@@ -35,6 +35,23 @@ namespace NWN
     public readonly static CExoString SecondeChanceVariableExo = "_FEAT_SECONDE_CHANCE".ToExoString();
     public const string ShieldMasterCooldownVariable = "_FEAT_SHIELDMASTER_COOLDOWN";
 
+    public const string TirArcaniqueVariable = "_TIR_ARCANIQUE";
+    public const string TirChercheurVariable = "_TIR_CHERCHEUR";
+    public const string TirAffaiblissantVariable = "_TIR_AFFAIBLISSANT";
+    public readonly static CExoString TirAffaiblissantVariableExo = TirAffaiblissantVariable.ToExoString();
+    public const string TirAgrippantVariable = "_TIR_AGRIPPANT";
+    public const string TirIncurveVariable = "_TIR_INCURVE";
+    public readonly static CExoString TirIncurveVariableExo = TirIncurveVariable.ToExoString();
+
+    public const string ManoeuvreTypeVariable = "_MANOEUVRE_TYPE";
+    public readonly static CExoString ManoeuvreTypeVariableExo = ManoeuvreTypeVariable.ToExoString();
+    public const string ManoeuvreDiceVariable = "_MANOEUVRE_DICE";
+    public readonly static CExoString ManoeuvreDiceVariableExo = ManoeuvreDiceVariable.ToExoString();
+    public const string ManoeuvreBalayageTargetVariable = "_MANOEUVRE_BALAYAGE_TARGET";
+    public readonly static CExoString ManoeuvreBalayageTargetVariableExo = ManoeuvreBalayageTargetVariable.ToExoString();
+    public readonly static CExoString ManoeuvreDiversionVariableExo = "_MANOEUVRE_DIVERSION".ToExoString();
+    public readonly static CExoString ManoeuvreDiversionExpiredVariableExo = "_MANOEUVRE_DIVERSION_EXPIRED".ToExoString();
+
     public const string VigueurNaineHDVariable = "_FEAT_VIGUEUR_NAINE_HD";
     public const string OriginalSizeVariable = "_ORIGINAL_SIZE";
 

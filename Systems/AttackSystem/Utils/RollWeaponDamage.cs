@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Anvil.API;
+﻿using Anvil.API;
 using NWN.Native.API;
 
 namespace NWN.Systems
@@ -8,7 +7,8 @@ namespace NWN.Systems
   {
     public static int RollWeaponDamage(CNWSCreature creature, NwBaseItem weapon, CNWSCombatAttackData attackData, bool isCriticalRoll = false)
     {
-      int dieToRoll = ItemUtils.IsVersatileWeapon(weapon.ItemType) ? weapon.DieToRoll + 2 : weapon.DieToRoll;
+      int dieToRoll = ItemUtils.IsVersatileWeapon(weapon.ItemType) && creature.m_pInventory.GetItemInSlot((uint)Native.API.InventorySlot.LeftHand) is null
+        ? weapon.DieToRoll + 2 : weapon.DieToRoll;
 
       int numDamageDice = weapon.NumDamageDice 
         + GetFureurOrcBonus(creature) 
@@ -17,6 +17,7 @@ namespace NWN.Systems
 
       int damage = HandleWeaponDamageRerolls(creature, weapon, numDamageDice, dieToRoll);
       damage = HandleSavageAttacker(creature, weapon, attackData, numDamageDice, damage, dieToRoll);
+      damage += GetSuperiorityDiceDamage(creature);
 
       LogUtils.LogMessage($"{weapon.Name.ToString()} - {numDamageDice}d{dieToRoll} => {damage}", LogUtils.LogType.Combat);
 

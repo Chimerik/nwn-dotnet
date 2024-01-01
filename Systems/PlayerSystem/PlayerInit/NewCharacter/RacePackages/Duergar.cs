@@ -9,6 +9,9 @@ namespace NWN.Systems
     {
       private void ApplyDuergarPackage()
       {
+        oid.OnCombatStatusChange -= OnCombatEndRestoreDuergarInvisibility;
+        oid.OnCombatStatusChange += OnCombatEndRestoreDuergarInvisibility;
+
         if (learnableSkills.TryAdd(CustomSkill.LightHammerProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.LightHammerProficiency])))
           learnableSkills[CustomSkill.LightHammerProficiency].LevelUp(this);
 

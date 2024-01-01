@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Anvil.API;
 
 namespace NWN.Systems
@@ -41,14 +42,18 @@ namespace NWN.Systems
                     skillList.Add(new NuiComboEntry("Druidisme - Tour de magie", CustomSkill.ArcaneArcherDruidisme));
 
                   break;
+
+                case SkillConfig.SkillOptionType.ArcaneShot:
+
+                  foreach (var arcaneShot in SkillSystem.learnableDictionary.Values.Where(l => ((LearnableSkill)l).category == SkillSystem.Category.TirArcanique))
+                    if(!learnableSkills.TryGetValue(arcaneShot.id, out LearnableSkill learnable) || learnable.currentLevel < 1)
+                      skillList.Add(new NuiComboEntry(arcaneShot.name, arcaneShot.id));
+
+                  break;
               }
 
               break;
           }
-
-          /*foreach (var skill in SkillSystem.learnableDictionary.Values.Where(s => ((LearnableSkill)s).category == SkillSystem.Category.Skill))
-            if (!player.learnableSkills.TryGetValue(skill.id, out LearnableSkill value) || value.currentLevel < 1)
-              skillList.Add(new NuiComboEntry(skill.name, skill.id));*/
 
           if (skillList.Count < 1)
             return;

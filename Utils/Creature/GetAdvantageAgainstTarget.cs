@@ -37,6 +37,8 @@ namespace NWN
         //LogUtils.LogMessage($"GetInvisibleTargetDisadvantage : {advantage}", LogUtils.LogType.Combat);
         advantage += GetInvisibleAttackerAdvantage(attacker, target);
         //LogUtils.LogMessage($"GetInvisibleAttackerAdvantage : {advantage}", LogUtils.LogType.Combat);
+        advantage += GetDiversionTargetAdvantage(attacker, target);
+        //LogUtils.LogMessage($"GetDiversionTargetAdvantage : {advantage}", LogUtils.LogType.Combat);
       }
 
       advantage += GetSmallCreaturesHeavyWeaponDisadvantage(attacker, weaponType);
@@ -63,6 +65,7 @@ namespace NWN
         advantage += GetTargetAdvantageEffects(target);
         advantage += GetInvisibleTargetDisadvantage(attacker, target);
         advantage += GetInvisibleAttackerAdvantage(attacker, target);
+        advantage += GetDiversionTargetAdvantage(attacker, target);
 
         if (spell.SpellType == Spell.ElectricJolt)
           advantage += GetMetallicArmorAdvantage(target);

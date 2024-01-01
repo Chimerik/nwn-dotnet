@@ -91,14 +91,33 @@
     public const int ArcaneArcherDruidisme = 1398;
     public const int Prestidigitation = 1399;
     public const int Druidisme = 1400;
+
     public const int ArcaneArcherTirAffaiblissant = 1401;
     public const int ArcaneArcherTirAgrippant = 1402;
     public const int ArcaneArcherTirBannissement = 1403;
     public const int ArcaneArcherTirChercheur = 1404;
     public const int ArcaneArcherTirOmbres = 1405;
     public const int ArcaneArcherTirEnvoutant = 1406;
-    public const int ArcaneArcherTirExplosif = 1406;
-    public const int ArcaneArcherTirPerforant = 1407;
+    public const int ArcaneArcherTirExplosif = 1407;
+    public const int ArcaneArcherTirPerforant = 1408;
+    public const int ArcaneArcherTirIncurve = 1409;
+
+    public const int WarMasterAttaqueMenacante = 1410;
+    public const int WarMasterAttaquePrecise = 1411;
+    public const int WarMasterBalayage = 1412;
+    public const int WarMasterRenversement = 1413;
+    public const int WarMasterDesarmement = 1414;
+    public const int WarMasterDiversion = 1415;
+    public const int WarMasterFeinte = 1416;
+    public const int WarMasterInstruction = 1417;
+    public const int WarMasterJeuDeJambe = 1418;
+    public const int WarMasterManoeuvreTactique = 1419;
+    public const int WarMasterParade = 1420;
+    public const int WarMasterProvocation = 1421;
+    public const int WarMasterRalliement = 1422;
+    public const int WarMasterRiposte = 1423;
+    public const int WarMasterEvaluationTactique = 1424;
+    public const int WarMasterObservation = 1425;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -528,20 +547,12 @@
 
     public const int FighterChampionCritical = 20484; // 2 niveaux
     public const int FighterChampionRemarkableAthlete = 20485;
-    public const int FighterChampionBonusCombatStyle = 20486;
-    public const int FighterChampionImprovedCritical = 20487; // 2 niveaux
-    public const int FighterChampionUltimeSurvivant = 20488; // 2 niveaux
-
-    public const int FighterWarMasterSuperiority = 20486; // 5 niveaux
     
-    public const int FighterEldritchKnightBoundWeapon = 20486;
+    /*public const int FighterEldritchKnightBoundWeapon = 20486;
     public const int FighterEldritchKnightWarMagic = 20487; // 2 niveaux
     public const int FighterEldritchKnightEldritchStrike = 20488;
-    public const int FighterEldritchKnightArcaneRush = 20489;
-    
-    public const int FighterArcaneArcherArcaneShot = 20484; // 3 niveaux
-    public const int FighterArcaneArcherMagicArrow = 20485;
-
+    public const int FighterEldritchKnightArcaneRush = 20489;*/
+  
     public const int AbilityImprovement = 20486;
     public const int Actor = 20487;
     public const int Vigilant = 20488;
@@ -572,7 +583,11 @@
     public const int MaitreDarme = 20513;
     public const int ChanceDebordante = 20514;
     public const int VigueurNaine = 20515;    
-    public const int Healer = 20516;    
+    public const int Healer = 20516;
+
+    public const int FighterChampionBonusCombatStyle = 20517;
+    public const int FighterChampionImprovedCritical = 20518; // 2 niveaux
+    public const int FighterChampionUltimeSurvivant = 20519; // 2 niveaux
 
     public const int Invalid = 65535;
   }

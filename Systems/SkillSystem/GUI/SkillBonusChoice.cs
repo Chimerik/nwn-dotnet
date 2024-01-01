@@ -86,11 +86,26 @@ namespace NWN.Systems
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_OPTION_CHOICE_FEAT").Delete();
 
 
-                  if(sourceFeat == CustomSkill.FighterArcaneArcher && (SkillConfig.SkillOptionType)featOption == SkillConfig.SkillOptionType.Proficiency)
+                  switch(sourceFeat)
                   {
-                    player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_CHOICE_FEAT").Value = CustomSkill.FighterArcaneArcher;
-                    player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_OPTION_CHOICE_FEAT").Value = (int)SkillConfig.SkillOptionType.Cantrip;
-                    player.InitializeBonusSkillChoice();
+                    case CustomSkill.FighterArcaneArcher:
+
+                      switch((SkillConfig.SkillOptionType)featOption)
+                      {
+                        case SkillConfig.SkillOptionType.Proficiency:
+                          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_CHOICE_FEAT").Value = CustomSkill.FighterArcaneArcher;
+                          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_OPTION_CHOICE_FEAT").Value = (int)SkillConfig.SkillOptionType.Cantrip;
+                          player.InitializeBonusSkillChoice();
+                          break;
+
+                        case SkillConfig.SkillOptionType.Cantrip:
+                          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_CHOICE_FEAT").Value = CustomSkill.FighterArcaneArcher;
+                          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_OPTION_CHOICE_FEAT").Value = (int)SkillConfig.SkillOptionType.ArcaneShot;
+                          player.InitializeBonusSkillChoice();
+                          break;
+                      }
+
+                      break;
                   }
 
                   return;

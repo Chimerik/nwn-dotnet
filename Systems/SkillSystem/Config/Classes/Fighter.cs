@@ -60,6 +60,7 @@ namespace NWN.Systems
       {
         case CustomSkill.FighterChampion: HandleChampionLevelUp(player, playerClass.currentLevel); break;
         case CustomSkill.FighterArcaneArcher: HandleArcherMageLevelUp(player, playerClass.currentLevel); break;
+        case CustomSkill.FighterWarMaster: HandleWarMasterLevelUp(player, playerClass.currentLevel); break;
 
 
       }

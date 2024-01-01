@@ -336,6 +336,7 @@ namespace NWN.Systems
               proficiency.source.Remove(SkillSystem.Category.Race);
           }
 
+          player.oid.OnCombatStatusChange -= OnCombatEndRestoreDuergarInvisibility;
           player.oid.LoginCreature.OnAcquireItem -= ItemSystem.OnAcquireCheckHumanVersatility;
           player.oid.LoginCreature.OnUnacquireItem -= ItemSystem.OnUnAcquireCheckHumanVersatility;
 

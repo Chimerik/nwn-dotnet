@@ -24,6 +24,7 @@ namespace NWN.Systems
 
       NwBaseItem baseWeapon = NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem);
       int damage = RollWeaponDamage(attacker, baseWeapon, attackData, true);
+      damage += GetSuperiorityDiceDamage(attacker);
 
       if (bSneakAttack > 0)
         damage += GetSneakAttackCritDamage(attacker);

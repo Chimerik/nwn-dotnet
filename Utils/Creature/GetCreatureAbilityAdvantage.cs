@@ -13,6 +13,7 @@ namespace NWN
       Dictionary<string, bool> disadvantageDictionary = new()
       {
         { EffectSystem.ShieldArmorDisadvantageEffectTag, false } ,
+        { EffectSystem.FrightenedEffectTag, false } ,
       };
 
       Dictionary<string, bool> advantageDictionary = new()
@@ -25,7 +26,9 @@ namespace NWN
 
       foreach (var eff in creature.ActiveEffects)
       {
-        switch(ability)
+        disadvantageDictionary[EffectSystem.FrightenedEffectTag] = disadvantageDictionary[EffectSystem.FrightenedEffectTag] || EffectSystem.FrightenedEffectTag == eff.Tag;
+
+        switch (ability)
         {
           case Ability.Strength:
 

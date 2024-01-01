@@ -1,0 +1,74 @@
+﻿using Anvil.API.Events;
+using Anvil.API;
+using NativeUtils = NWN.Systems.NativeUtils;
+using NWN.Systems;
+using NWN.Core;
+
+namespace NWN
+{
+  public static partial class CreatureUtils
+  {
+    public static void HandleTirChercheur(NwCreature caster)
+    {
+      if (caster.GetObjectVariable<LocalVariableObject<NwCreature>>(TirChercheurVariable).HasNothing)
+      {
+        caster.LoginPlayer?.EnterTargetMode(SelectTirChercheurTarget, Config.selectCreatureTargetMode);
+        caster.LoginPlayer?.SendServerMessage("Tête chercheuse - Veuillez choisir une cible", ColorConstants.Orange);
+      }
+      else
+      {
+        NwCreature target = caster.GetObjectVariable<LocalVariableObject<NwCreature>>(TirChercheurVariable).Value;
+
+        if (target is not null && target.IsValid)
+          DealTirChercheurDamage(caster, target);
+        else
+          caster.LoginPlayer?.SendServerMessage("Tête chercheuse - La cible sélectionnée n'est plus valide", ColorConstants.Red);
+      }
+    }
+    private static void SelectTirChercheurTarget(ModuleEvents.OnPlayerTarget selection)
+    {
+      if (selection.IsCancelled || selection.TargetObject is not NwCreature creature || creature is null || !creature.IsValid)
+        return;
+
+      selection.Player.LoginCreature.GetObjectVariable<LocalVariableObject<NwCreature>>(TirChercheurVariable).Value = creature;
+      selection.Player.SendServerMessage($"Tête chercheuse - cible : {StringUtils.ToWhitecolor(creature.Name)}", StringUtils.brightGreen);
+
+      TirChercheurExpiration(selection.Player.LoginCreature, creature);
+    }
+    private static async void TirChercheurExpiration(NwCreature caster, NwCreature target)
+    {
+      await NwTask.Delay(NwTimeSpan.FromTurns(1));
+
+      if (caster.GetObjectVariable<LocalVariableObject<NwCreature>>(TirChercheurVariable).Value == target)
+        caster.GetObjectVariable<LocalVariableObject<NwCreature>>(TirChercheurVariable).Delete();
+    }
+    private static void DealTirChercheurDamage(NwCreature caster, NwCreature target)
+    {
+      SpellConfig.SavingThrowFeedback feedback = new();
+      int tirDC = 8 + NativeUtils.GetCreatureProficiencyBonus(caster) + caster.GetAbilityModifier(Ability.Intelligence);
+      int advantage = GetCreatureAbilityAdvantage(target, Ability.Dexterity);
+      int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Dexterity, tirDC, advantage, feedback);
+      bool saveFailed = totalSave < tirDC;
+
+      SpellUtils.SendSavingThrowFeedbackMessage(caster, target, feedback, advantage, tirDC, totalSave, saveFailed, Ability.Constitution);
+
+      NwBaseItem weapon = caster.GetItemInSlot(InventorySlot.RightHand)?.BaseItem;
+      int damage = NativeUtils.HandleWeaponDamageRerolls(caster, weapon, weapon.NumDamageDice, weapon.DieToRoll);
+      damage /= saveFailed ? 2 : 1;
+
+      NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant,
+        Effect.Damage(damage, DamageType.Piercing)));
+
+      int forceDamage = caster.GetClassInfo(NwClass.FromClassId(CustomClass.ArcaneArcher))?.Level < 18
+        ? NwRandom.Roll(Utils.random, 6, 2) : NwRandom.Roll(Utils.random, 6, 4);
+
+      forceDamage /= saveFailed ? 2 : 1;
+
+      NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant,
+        Effect.Damage(forceDamage, DamageType.Magical)));
+
+      FeatUtils.DecrementTirArcanique(caster);
+      StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Tir Chercheur", StringUtils.gold, true);
+    }
+  }
+}

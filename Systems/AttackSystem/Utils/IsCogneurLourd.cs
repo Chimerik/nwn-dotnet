@@ -6,14 +6,11 @@ namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static bool IsCogneurLourd(CNWSCreature attacker, CNWSCombatAttackData attackData)
+    public static bool IsCogneurLourd(CNWSCreature attacker, CNWSItem weapon)
     {
-      CNWSItem attackWeapon = attacker.m_pcCombatRound.GetCurrentAttackWeapon(attackData.m_nWeaponAttackType);
-
-      return attackWeapon is not null 
-        && attacker.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.CogneurLourdExoTag).ToBool())
-        && IsGreatWeaponStyle(NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem), attacker)
-        && GetCreatureWeaponProficiencyBonus(attacker, attackWeapon) > 1;
+      return attacker.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.CogneurLourdExoTag).ToBool())
+        && IsGreatWeaponStyle(NwBaseItem.FromItemId((int)weapon.m_nBaseItem), attacker)
+        && GetCreatureWeaponProficiencyBonus(attacker, weapon) > 1;
     }
   }
 }

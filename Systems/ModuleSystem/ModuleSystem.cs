@@ -400,6 +400,9 @@ namespace NWN.Systems
 
       EventsPlugin.SubscribeEvent("NWNX_ON_COMBAT_ENTER_BEFORE", "on_combat_enter");
 
+      EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "on_charm_attack");
+      EventsPlugin.ToggleDispatchListMode("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "on_charm_attack", 1);
+
       EventsPlugin.SubscribeEvent("NWNX_ON_ITEM_DECREMENT_STACKSIZE_BEFORE", "on_ammo_used");
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_EMOTE_BEFORE", "on_input_emote");
       EventsPlugin.SubscribeEvent("NWNX_ON_COMBAT_ATTACK_OF_OPPORTUNITY_BEFORE", "on_opportunity");
@@ -425,8 +428,6 @@ namespace NWN.Systems
       NwModule.Instance.OnCreatureCheckProficiencies += ItemSystem.OverrideProficiencyCheck;
       NwModule.Instance.OnItemEquip += ItemSystem.OnEquipHastWeapon;
       NwModule.Instance.OnItemUnequip += ItemSystem.OnUnequipHastWeapon;
-
-      NwModule.Instance.OnCombatStatusChange += PlayerSystem.OnCombatEndRestoreDuergarInvisibility;
 
       NwModule.Instance.OnEffectApply += EffectSystem.OnIncapacitatedRemoveThreatRange;
       NwModule.Instance.OnEffectApply += EffectSystem.OnIncapacitatedRemoveConcentration;

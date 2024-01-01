@@ -6,9 +6,6 @@ namespace NWN.Systems
   [ServiceBinding(typeof(EffectSystem))]
   public partial class EffectSystem
   {
-
-    public static readonly string frightenedEffectTag = "_FRIGHTENED_EFFECT";
-    public static readonly Native.API.CExoString frightenedEffectExoTag = "_FRIGHTENED_EFFECT".ToExoString();
     public static readonly Native.API.CExoString exoDelimiter = "_".ToExoString();
 
     private static ScriptHandleFactory scriptHandleFactory;
@@ -33,6 +30,15 @@ namespace NWN.Systems
       onRemoveFaerieFireCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveFaerieFire);
 
       onRemoveBoneChillCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveBoneChill);
+
+      onRemoveTirBannissementCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveTirBannissement);
+
+      onRemoveTirAffaiblissantCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveTirAffaiblissant);
+
+      onApplyCharmCallback = scriptHandleFactory.CreateUniqueHandler(OnApplyCharm); 
+      onRemoveCharmCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveCharm);
+
+      onIntervalTirAgrippantCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalTirAgrippant);
     }
   }
 }

@@ -6,13 +6,11 @@ namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static bool IsTireurDelite(CNWSCreature attacker, CNWSCombatAttackData attackData)
+    public static bool IsTireurDelite(CNWSCreature attacker, CNWSCombatAttackData attackData, CNWSItem weapon)
     {
-      CNWSItem attackWeapon = attacker.m_pcCombatRound.GetCurrentAttackWeapon(attackData.m_nWeaponAttackType);
-
-      return attackWeapon is not null && attackData.m_bRangedAttack.ToBool()
+      return attackData.m_bRangedAttack.ToBool()
         && attacker.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.TireurDeliteExoTag).ToBool())
-        && GetCreatureWeaponProficiencyBonus(attacker, attackWeapon) > 1;
+        && GetCreatureWeaponProficiencyBonus(attacker, weapon) > 1;
     }
   }
 }
