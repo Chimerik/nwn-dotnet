@@ -5,14 +5,12 @@ namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static int HandleMaitreArmureLourde(CNWSObject target)
+    public static int HandleMaitreArmureLourde(CNWSCreature target)
     {
-      CNWSCreature targetCreature = target.m_nObjectType == (int)ObjectType.Creature ? target.AsNWSCreature() : null;
-
-      if (targetCreature is null || !targetCreature.m_pStats.HasFeat(CustomSkill.MaitreArmureLourde).ToBool())
+      if (!target.m_pStats.HasFeat(CustomSkill.MaitreArmureLourde).ToBool())
         return 0;
 
-      CNWSItem armor = targetCreature.m_pInventory.GetItemInSlot((uint)Native.API.InventorySlot.Chest);
+      CNWSItem armor = target.m_pInventory.GetItemInSlot((uint)Native.API.InventorySlot.Chest);
       
       if(armor is null || armor.m_nArmorValue < 16)
         return 0;

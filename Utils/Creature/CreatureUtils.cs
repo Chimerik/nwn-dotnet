@@ -16,23 +16,24 @@ namespace NWN
   public static partial class CreatureUtils
   {
     public const string ReactionVariable = "_REACTION";
-    public static readonly CExoString ReactionVariableExo = "_REACTION".ToExoString();
+    public static readonly CExoString ReactionVariableExo = ReactionVariable.ToExoString();
     public const string BonusActionVariable = "_BONUS_ACTION";
+    public static readonly CExoString BonusActionVariableExo = BonusActionVariable.ToExoString();
     public const string HastMasterCooldownVariable = "_HAST_MASTER_IN_COOLDOWN";
-    public static readonly CExoString HastMasterCooldownVariableExo = "_HAST_MASTER_IN_COOLDOWN".ToExoString();
+    public static readonly CExoString HastMasterCooldownVariableExo = HastMasterCooldownVariable.ToExoString();
     public static readonly CExoString HastMasterSpecialAttackExo = "_HAST_MASTER_SPECIAL_ATTACK".ToExoString();
     public const string HastMasterOpportunityVariable = "_HAST_MASTER_OPPORTUNITY";
-    public readonly static CExoString HastMasterOpportunityVariableExo = "_HAST_MASTER_OPPORTUNITY".ToExoString();
+    public readonly static CExoString HastMasterOpportunityVariableExo = HastMasterOpportunityVariable.ToExoString();
     public const string SentinelleOpportunityVariable = "_SENTINELLE_OPPORTUNITY";
-    public readonly static CExoString SentinelleOpportunityVariableExo = "_SENTINELLE_OPPORTUNITY".ToExoString();
+    public readonly static CExoString SentinelleOpportunityVariableExo = SentinelleOpportunityVariable.ToExoString();
     public const string SentinelleOpportunityTargetVariable = "_SENTINELLE_OPPORTUNITY_TARGET";
-    public readonly static CExoString SentinelleOpportunityTargetVariableExo = "_SENTINELLE_OPPORTUNITY_TARGET".ToExoString();
+    public readonly static CExoString SentinelleOpportunityTargetVariableExo = SentinelleOpportunityTargetVariable.ToExoString();
     public const string FureurOrcBonusDamageVariable = "_FUREUR_ORC_DAMAGE";
-    public readonly static CExoString FureurOrcBonusDamageVariableExo = "_FUREUR_ORC_DAMAGE".ToExoString();
+    public readonly static CExoString FureurOrcBonusDamageVariableExo = FureurOrcBonusDamageVariable.ToExoString();
     public const string FureurOrcBonusAttackVariable = "_FUREUR_ORC_ATTACK";
-    public readonly static CExoString FureurOrcBonusAttackVariableExo = "_FUREUR_ORC_ATTACK".ToExoString();
+    public readonly static CExoString FureurOrcBonusAttackVariableExo = FureurOrcBonusAttackVariable.ToExoString();
     public const string SecondeChanceVariable = "_FEAT_SECONDE_CHANCE";
-    public readonly static CExoString SecondeChanceVariableExo = "_FEAT_SECONDE_CHANCE".ToExoString();
+    public readonly static CExoString SecondeChanceVariableExo = SecondeChanceVariable.ToExoString();
     public const string ShieldMasterCooldownVariable = "_FEAT_SHIELDMASTER_COOLDOWN";
 
     public const string TirArcaniqueVariable = "_TIR_ARCANIQUE";
@@ -51,6 +52,7 @@ namespace NWN
     public readonly static CExoString ManoeuvreBalayageTargetVariableExo = ManoeuvreBalayageTargetVariable.ToExoString();
     public readonly static CExoString ManoeuvreDiversionVariableExo = "_MANOEUVRE_DIVERSION".ToExoString();
     public readonly static CExoString ManoeuvreDiversionExpiredVariableExo = "_MANOEUVRE_DIVERSION_EXPIRED".ToExoString();
+    public readonly static CExoString ManoeuvreRiposteVariableExo = "_MANOEUVRE_RIPOSTE".ToExoString();
 
     public const string VigueurNaineHDVariable = "_FEAT_VIGUEUR_NAINE_HD";
     public const string OriginalSizeVariable = "_ORIGINAL_SIZE";

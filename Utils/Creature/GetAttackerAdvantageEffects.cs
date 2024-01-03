@@ -19,6 +19,7 @@ namespace NWN
         { "boneChillDisadvantage", false },
         { "protectionStyle", false },
         { "pourfendeur", false },
+        { EffectSystem.ProvocationEffectTag, false },
       };
 
       Dictionary<string, bool> advantageDictionary = new()
@@ -40,6 +41,7 @@ namespace NWN
         disadvantageDictionary["drowLightSensitivity"] = disadvantageDictionary["drowLightSensitivity"] || GetDrowLightSensitivityDisadvantage(eff);
         disadvantageDictionary["protectionStyle"] = disadvantageDictionary["protectionStyle"] || GetProtectionStyleDisadvantage(eff);
         disadvantageDictionary["pourfendeur"] = disadvantageDictionary["pourfendeur"] || GetPourfendeurDisadvantage(eff);
+        disadvantageDictionary[EffectSystem.ProvocationEffectTag] = disadvantageDictionary[EffectSystem.ProvocationEffectTag] || GetProvocationDisadvantage(eff, targetId.m_idSelf);
       }
 
       return -disadvantageDictionary.Count(v => v.Value) + advantageDictionary.Count(v => v.Value);

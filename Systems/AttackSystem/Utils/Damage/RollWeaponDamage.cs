@@ -17,7 +17,7 @@ namespace NWN.Systems
 
       int damage = HandleWeaponDamageRerolls(creature, weapon, numDamageDice, dieToRoll);
       damage = HandleSavageAttacker(creature, weapon, attackData, numDamageDice, damage, dieToRoll);
-      damage += GetSuperiorityDiceDamage(creature);
+      damage += GetSuperiorityDiceDamage(creature, attackData);
 
       LogUtils.LogMessage($"{weapon.Name.ToString()} - {numDamageDice}d{dieToRoll} => {damage}", LogUtils.LogType.Combat);
 

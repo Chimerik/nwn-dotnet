@@ -26,6 +26,8 @@ namespace NWN
           advantage += GetThreatenedDisadvantage(attacker, attackWeapon);
           //LogUtils.LogMessage($"GetThreatenedDisadvantage : {advantage}", LogUtils.LogType.Combat);
         }
+        else
+          advantage += GetJeuDeJambeAttackerDisadvantage(target);
 
         advantage += GetKnockdownAdvantage(attackData.m_bRangedAttack, target);
         //LogUtils.LogMessage($"GetKnockdownAdvantage : {advantage}", LogUtils.LogType.Combat);
@@ -38,6 +40,8 @@ namespace NWN
         advantage += GetInvisibleAttackerAdvantage(attacker, target);
         //LogUtils.LogMessage($"GetInvisibleAttackerAdvantage : {advantage}", LogUtils.LogType.Combat);
         advantage += GetDiversionTargetAdvantage(attacker, target);
+        //LogUtils.LogMessage($"GetDiversionTargetAdvantage : {advantage}", LogUtils.LogType.Combat);
+        advantage += GetFeinteAttackerAdvantage(attacker);
         //LogUtils.LogMessage($"GetDiversionTargetAdvantage : {advantage}", LogUtils.LogType.Combat);
       }
 
@@ -66,6 +70,7 @@ namespace NWN
         advantage += GetInvisibleTargetDisadvantage(attacker, target);
         advantage += GetInvisibleAttackerAdvantage(attacker, target);
         advantage += GetDiversionTargetAdvantage(attacker, target);
+        advantage += GetFeinteAttackerAdvantage(attacker);
 
         if (spell.SpellType == Spell.ElectricJolt)
           advantage += GetMetallicArmorAdvantage(target);

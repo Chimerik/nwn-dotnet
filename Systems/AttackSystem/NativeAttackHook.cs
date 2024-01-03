@@ -253,6 +253,7 @@ namespace NWN.Systems
                 rollString = rollString.StripColors().ColorString(ColorConstants.Red);
                 NativeUtils.SendNativeServerMessage($"Duelliste défensif activé !".ColorString(ColorConstants.Orange), creature);
                 //LogUtils.LogMessage($"Manqué : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC + defensiveDuellistBonus}", LogUtils.LogType.Combat);
+                NativeUtils.HandleRiposte(creature, targetCreature, attackData);
               }
             }
           }
@@ -279,6 +280,7 @@ namespace NWN.Systems
 
       NativeUtils.HandleHastMaster(creature, targetObject, combatRound);
       NativeUtils.HandleBalayage(creature, combatRound);
+      NativeUtils.HandleRiposteBonusAttack(creature, combatRound, attackData);
     }
     private int OnAddUseTalentOnObjectHook(void* pCreature, int talentType, int talentId, uint oidTarget, byte nMultiClass, uint oidItem, int nItemPropertyIndex, byte nCasterLevel, int nMetaType)
     {
@@ -457,7 +459,15 @@ namespace NWN.Systems
       LogUtils.LogMessage($"Dégâts : {baseDamage}", LogUtils.LogType.Combat);*/
 
       baseDamage += NativeUtils.HandleBagarreurDeTaverne(attacker, attackWeapon, strBonus);
-      baseDamage -= NativeUtils.HandleMaitreArmureLourde(targetObject);
+
+      CNWSCreature targetCreature = targetObject.m_nObjectType == (int)ObjectType.Creature ? targetObject.AsNWSCreature() : null;
+
+      if (targetCreature is not null)
+      {
+        baseDamage -= NativeUtils.HandleMaitreArmureLourde(targetCreature);
+        baseDamage -= NativeUtils.HandleParade(targetCreature);
+      }
+      
 
       if (attacker.m_ScriptVars.GetInt(CreatureUtils.TirAffaiblissantVariableExo).ToBool())
         baseDamage /= 2;
@@ -475,6 +485,9 @@ namespace NWN.Systems
 
       attacker.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreTypeVariableExo);
       attacker.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreDiceVariableExo);
+
+      if (attackData.m_nAttackType == 6 && attacker.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreRiposteVariableExo).ToBool())
+        attacker.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreRiposteVariableExo);
 
       return baseDamage;
 

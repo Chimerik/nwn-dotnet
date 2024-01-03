@@ -57,7 +57,15 @@ namespace NWN.Systems
         case CustomSkill.WarMasterRenversement: Renversement(onUseFeat.Creature); return;
         case CustomSkill.WarMasterDesarmement: Desarmement(onUseFeat.Creature); return;
         case CustomSkill.WarMasterDiversion: Diversion(onUseFeat.Creature); return;
-
+        case CustomSkill.WarMasterFeinte: Feinte(onUseFeat.Creature); return;
+        case CustomSkill.WarMasterInstruction: Instruction(onUseFeat.Creature, onUseFeat.TargetObject); return;
+        case CustomSkill.WarMasterJeuDeJambe: JeuDeJambe(onUseFeat.Creature); return;
+        case CustomSkill.WarMasterManoeuvreTactique: ManoeuvreTactique(onUseFeat.Creature, onUseFeat.TargetObject); return;
+        case CustomSkill.WarMasterParade: Parade(onUseFeat.Creature); return;
+        case CustomSkill.WarMasterProvocation: Provocation(onUseFeat.Creature); return;
+        case CustomSkill.WarMasterRalliement: Ralliement(onUseFeat.Creature, onUseFeat.TargetObject); return;
+        case CustomSkill.WarMasterRiposte: Riposte(onUseFeat.Creature); return;
+        case CustomSkill.WarMasterObservation: Observation(onUseFeat.Creature, onUseFeat.TargetObject); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

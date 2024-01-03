@@ -16,7 +16,7 @@ namespace NWN
       if (target is not null && target.DistanceSquared(onAttack.Attacker) < 10)
       {
         onAttack.Attacker.GetObjectVariable<LocalVariableObject<NwCreature>>(ManoeuvreBalayageTargetVariable).Value = target;
-        StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Balayage", ColorConstants.Red);
+        StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Balayage", ColorConstants.Red, true);
       }
     }
   }

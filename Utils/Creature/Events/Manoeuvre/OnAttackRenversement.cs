@@ -26,7 +26,7 @@ namespace NWN
           else
             EffectSystem.ApplyKnockdown(onAttack.Attacker, target);
 
-          StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Renversement", ColorConstants.Red);
+          StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Renversement", ColorConstants.Red, true);
 
           break;
       }

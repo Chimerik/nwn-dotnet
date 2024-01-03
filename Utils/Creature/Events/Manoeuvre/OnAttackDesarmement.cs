@@ -35,7 +35,7 @@ namespace NWN
             
           }
 
-          StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Désarmement", ColorConstants.Red);
+          StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Désarmement", ColorConstants.Red, true);
 
           break;
       }

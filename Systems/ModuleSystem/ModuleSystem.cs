@@ -422,7 +422,7 @@ namespace NWN.Systems
       NwModule.Instance.OnAcquireItem += ItemSystem.OnAcquireCheckFinesseProperty;
       NwModule.Instance.OnPlayerGuiEvent += PlayerSystem.HandleGuiEvents;
       NwModule.Instance.OnHeartbeat += CreatureUtils.OnHeartbeatRefreshActions;
-      //NwModule.Instance.OnPlayerRest += PlayerSystem.OnRest;
+      NwModule.Instance.OnPlayerRest += PlayerSystem.OnRest;
       //NwModule.Instance.OnCreatureAttack += AttackSystem.HandleAttackEvent;
       //NwModule.Instance.OnCreatureDamage += AttackSystem.HandleDamageEvent;
       NwModule.Instance.OnCreatureCheckProficiencies += ItemSystem.OverrideProficiencyCheck;
@@ -1265,7 +1265,7 @@ namespace NWN.Systems
       
       if (target.MovementType != MovementType.Stationary)
       {
-        if (target.ActiveEffects.Any(e => e.Tag == EffectSystem.DisengageffectTag))
+        if (target.ActiveEffects.Any(e => e.Tag == EffectSystem.DisengageffectTag || e.Tag == EffectSystem.ManoeuvreTactiqueEffectTag))
         {
           if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Sentinelle)))
             StringUtils.DisplayStringToAllPlayersNearTarget(creature, "Sentinelle", StringUtils.gold, true);

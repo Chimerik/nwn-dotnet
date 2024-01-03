@@ -19,42 +19,32 @@ namespace NWN.Systems
 
         case 7:
 
-          player.learnableSkills.TryAdd(CustomSkill.ArcaneArcherTirIncurve, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ArcaneArcherTirIncurve]));
-          player.learnableSkills[CustomSkill.ArcaneArcherTirIncurve].LevelUp(player);
-          player.learnableSkills[CustomSkill.ArcaneArcherTirIncurve].source.Add(Category.Class);
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_MANOEUVRE_CHOICE").Value = 2;
+          player.InitializeManoeuvreChoice();
 
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_CHOICE_FEAT").Value = CustomSkill.FighterArcaneArcher;
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_OPTION_CHOICE_FEAT").Value = (int)SkillConfig.SkillOptionType.ArcaneShot;
-          player.InitializeBonusSkillChoice();
+          player.learnableSkills.TryAdd(CustomSkill.WarMasterObservation, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.WarMasterObservation]));
+          player.learnableSkills[CustomSkill.WarMasterObservation].LevelUp(player);
+          player.learnableSkills[CustomSkill.WarMasterObservation].source.Add(Category.Class);
 
           break;
 
-        case 10:
+        case 11:
 
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_CHOICE_FEAT").Value = CustomSkill.FighterArcaneArcher;
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_OPTION_CHOICE_FEAT").Value = (int)SkillConfig.SkillOptionType.ArcaneShot;
-          player.InitializeBonusSkillChoice();
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_MANOEUVRE_CHOICE").Value = 2;
+          player.InitializeManoeuvreChoice();
 
           break;
 
         case 15:
 
-          player.oid.OnCombatStatusChange -= FighterUtils.OnCombatArcaneArcherRecoverTirArcanique;
-          player.oid.OnCombatStatusChange += FighterUtils.OnCombatArcaneArcherRecoverTirArcanique;
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_MANOEUVRE_CHOICE").Value = 2;
+          player.InitializeManoeuvreChoice();
 
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_CHOICE_FEAT").Value = CustomSkill.FighterArcaneArcher;
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_OPTION_CHOICE_FEAT").Value = (int)SkillConfig.SkillOptionType.ArcaneShot;
-          player.InitializeBonusSkillChoice();
-
-          break;
-
-        case 18:
-
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_CHOICE_FEAT").Value = CustomSkill.FighterArcaneArcher;
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_OPTION_CHOICE_FEAT").Value = (int)SkillConfig.SkillOptionType.ArcaneShot;
-          player.InitializeBonusSkillChoice();
+          player.oid.OnCombatStatusChange -= FighterUtils.OnCombatWarMasterRecoverManoeuvre;
+          player.oid.OnCombatStatusChange += FighterUtils.OnCombatWarMasterRecoverManoeuvre;
 
           break;
+
       }
     }
   }

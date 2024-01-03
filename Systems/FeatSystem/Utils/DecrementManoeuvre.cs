@@ -5,17 +5,23 @@ namespace NWN
 {
   public static partial class FeatUtils
   {
-    public static void DecrementTirArcanique(NwCreature creature)
+    public static void DecrementManoeuvre(NwCreature creature)
     {
-      DecrementFeatUses(creature, CustomSkill.ArcaneArcherTirAffaiblissant);
-      DecrementFeatUses(creature, CustomSkill.ArcaneArcherTirAgrippant);
-      DecrementFeatUses(creature, CustomSkill.ArcaneArcherTirBannissement);
-      DecrementFeatUses(creature, CustomSkill.ArcaneArcherTirChercheur);
-      DecrementFeatUses(creature, CustomSkill.ArcaneArcherTirExplosif);
-      DecrementFeatUses(creature, CustomSkill.ArcaneArcherTirOmbres);
-      DecrementFeatUses(creature, CustomSkill.ArcaneArcherTirPerforant);
-      DecrementFeatUses(creature, CustomSkill.ArcaneArcherTirAffaiblissant);
-      DecrementFeatUses(creature, CustomSkill.ArcaneArcherTirEnvoutant);      
+      DecrementFeatUses(creature, CustomSkill.WarMasterAttaqueMenacante);
+      DecrementFeatUses(creature, CustomSkill.WarMasterAttaquePrecise);
+      DecrementFeatUses(creature, CustomSkill.WarMasterBalayage);
+      DecrementFeatUses(creature, CustomSkill.WarMasterRenversement);
+      DecrementFeatUses(creature, CustomSkill.WarMasterDesarmement);
+      DecrementFeatUses(creature, CustomSkill.WarMasterDiversion);
+      DecrementFeatUses(creature, CustomSkill.WarMasterFeinte);
+      DecrementFeatUses(creature, CustomSkill.WarMasterInstruction);
+      DecrementFeatUses(creature, CustomSkill.WarMasterJeuDeJambe);      
+      DecrementFeatUses(creature, CustomSkill.WarMasterManoeuvreTactique);      
+      DecrementFeatUses(creature, CustomSkill.WarMasterParade);      
+      DecrementFeatUses(creature, CustomSkill.WarMasterProvocation);      
+      DecrementFeatUses(creature, CustomSkill.WarMasterRalliement);      
+      DecrementFeatUses(creature, CustomSkill.WarMasterRiposte);      
+      DecrementFeatUses(creature, CustomSkill.WarMasterEvaluationTactique);      
     }
   }
 }

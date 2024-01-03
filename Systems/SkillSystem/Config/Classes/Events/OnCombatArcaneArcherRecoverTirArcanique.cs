@@ -8,17 +8,11 @@ namespace NWN.Systems
   {
     public static void OnCombatArcaneArcherRecoverTirArcanique(OnCombatStatusChange onStatus)
     {
-      if(onStatus.CombatStatus == CombatStatus.EnterCombat && onStatus.Player.LoginCreature.GetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.ArcaneArcherTirAffaiblissant)) < 1)
+      if(onStatus.CombatStatus == CombatStatus.EnterCombat && PlayerSystem.Players.TryGetValue(onStatus.Player.LoginCreature, out PlayerSystem.Player player))
       {
-        onStatus.Player.LoginCreature.IncrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.ArcaneArcherTirAffaiblissant));
-        onStatus.Player.LoginCreature.IncrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.ArcaneArcherTirAgrippant));
-        onStatus.Player.LoginCreature.IncrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.ArcaneArcherTirBannissement));
-        onStatus.Player.LoginCreature.IncrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.ArcaneArcherTirChercheur));
-        onStatus.Player.LoginCreature.IncrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.ArcaneArcherTirExplosif));
-        onStatus.Player.LoginCreature.IncrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.ArcaneArcherTirOmbres));
-        onStatus.Player.LoginCreature.IncrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.ArcaneArcherTirPerforant));
-        onStatus.Player.LoginCreature.IncrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.ArcaneArcherTirAffaiblissant));
-        onStatus.Player.LoginCreature.IncrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.ArcaneArcherTirEnvoutant));
+        foreach(var tirArcanique in player.learnableSkills.Values.Where(t => t.category == SkillSystem.Category.TirArcanique && t.currentLevel > 0))
+          if(onStatus.Player.LoginCreature.GetFeatRemainingUses(NwFeat.FromFeatId(tirArcanique.id)) < 1)
+            onStatus.Player.LoginCreature.IncrementRemainingFeatUses(NwFeat.FromFeatId(tirArcanique.id));
       }
     }
   }
