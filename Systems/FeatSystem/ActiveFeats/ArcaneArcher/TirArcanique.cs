@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System;
+using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -8,9 +9,16 @@ namespace NWN.Systems
     {
       if (ItemUtils.HasBowEquipped(caster.GetItemInSlot(InventorySlot.RightHand)?.BaseItem.ItemType))
       {
-        caster.OnCreatureAttack += CreatureUtils.OnAttackTirArcanique;
-        caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.TirArcaniqueVariable).Value = tirId;
-        FeatUtils.DecrementTirArcanique(caster);
+        if (caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.TirArcaniqueCooldownVariable).HasNothing)
+        {
+          caster.OnCreatureAttack += CreatureUtils.OnAttackTirArcanique;
+          caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.TirArcaniqueVariable).Value = tirId;
+          caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.TirArcaniqueVariable).Value = tirId;
+          FeatUtils.DecrementTirArcanique(caster);
+          StringUtils.DelayLocalVariableDeletion<LocalVariableInt>(caster, CreatureUtils.TirArcaniqueCooldownVariable, NwTimeSpan.FromRounds(1));
+        }
+        else
+          caster.LoginPlayer?.SendServerMessage("Tir arcanique limité à un par round", ColorConstants.Red);
       }
       else
         caster.LoginPlayer?.SendServerMessage("Vous devez être équipé d'un arc", ColorConstants.Red);

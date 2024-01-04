@@ -10,7 +10,7 @@ namespace NWN
   {
     public static void HandleTirEnvoutant(OnCreatureAttack onDamage)
     {
-      int damage = onDamage.Attacker.GetClassInfo(NwClass.FromClassId(CustomClass.ArcaneArcher))?.Level < 18
+      int damage = onDamage.Attacker.GetClassInfo(NwClass.FromClassId(CustomClass.Fighter))?.Level < 18
         ? NwRandom.Roll(Utils.random, 6, 2) : NwRandom.Roll(Utils.random, 6, 4);
 
       NWScript.AssignCommand(onDamage.Attacker, () => onDamage.Target.ApplyEffect(EffectDuration.Instant,

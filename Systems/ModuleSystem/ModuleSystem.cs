@@ -422,7 +422,7 @@ namespace NWN.Systems
       NwModule.Instance.OnAcquireItem += ItemSystem.OnAcquireCheckFinesseProperty;
       NwModule.Instance.OnPlayerGuiEvent += PlayerSystem.HandleGuiEvents;
       NwModule.Instance.OnHeartbeat += CreatureUtils.OnHeartbeatRefreshActions;
-      NwModule.Instance.OnPlayerRest += PlayerSystem.OnRest;
+      //NwModule.Instance.OnPlayerRest += PlayerSystem.OnRest;
       //NwModule.Instance.OnCreatureAttack += AttackSystem.HandleAttackEvent;
       //NwModule.Instance.OnCreatureDamage += AttackSystem.HandleDamageEvent;
       NwModule.Instance.OnCreatureCheckProficiencies += ItemSystem.OverrideProficiencyCheck;

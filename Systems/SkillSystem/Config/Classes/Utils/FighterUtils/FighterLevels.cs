@@ -57,7 +57,10 @@ namespace NWN.Systems
 
         case 3:
 
-          // TODO : Donner le choix d'un archétype martial
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value = CustomSkill.Fighter;
+
+          if (!player.windows.TryGetValue("subClassSelection", out var value)) player.windows.Add("subClassSelection", new SubClassSelectionWindow(player));
+          else ((SubClassSelectionWindow)value).CreateWindow();
 
           break;
 

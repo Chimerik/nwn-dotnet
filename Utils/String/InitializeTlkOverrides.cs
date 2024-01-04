@@ -5,7 +5,7 @@ namespace NWN
 {
   public static partial class StringUtils
   {
-    public static async void InitializeTlkOverrides()
+    public static void InitializeTlkOverrides()
     {
       OverrideTlkEntry(1382, "Souffle de guérison");
       OverrideTlkEntry(190050, "Mélange");

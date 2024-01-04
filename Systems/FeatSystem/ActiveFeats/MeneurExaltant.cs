@@ -8,12 +8,12 @@ namespace NWN.Systems
     {
       foreach(var creature in caster.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 6, false))
       {
-        if (creature.HP < 1 || creature.IsReactionTypeHostile(caster) || creature.GetObjectVariable<LocalVariableInt>("_MENEUR_EXALTANT_BUFF").HasValue)
+        if (creature.HP < 1 || creature.IsReactionTypeHostile(caster) || creature.GetObjectVariable<PersistentVariableInt>(CreatureUtils.MeneurExaltantVariable).HasValue)
           continue;
 
         creature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHolyAid));
         creature.ApplyEffect(EffectDuration.Permanent, Effect.TemporaryHitpoints(caster.Level + caster.GetAbilityModifier(Ability.Charisma)));
-        creature.GetObjectVariable<LocalVariableInt>("_MENEUR_EXALTANT_BUFF").Value = 1;
+        creature.GetObjectVariable<PersistentVariableInt>(CreatureUtils.MeneurExaltantVariable).Value = 1;
       }
 
       FeatUtils.DecrementFeatUses(caster, CustomSkill.MeneurExaltant);

@@ -382,6 +382,8 @@ namespace NWN
 
     public static readonly Dictionary<string, MainMenuCommand> mainMenuCommands = new()
     {
+      { "shortRest", new MainMenuCommand("Simuler un repos court (alpha)", "", CommandRank.Public) },
+      { "longRest", new MainMenuCommand("Simuler un repos long (alpha)", "", CommandRank.Public) },
       { "dm", new MainMenuCommand("Mode DM", "", CommandRank.Admin) },
       { "creaturePalette", new MainMenuCommand("Palette des créatures", "", CommandRank.DM) },
       { "itemPalette", new MainMenuCommand("Palette des objets", "", CommandRank.DM) },
@@ -417,7 +419,7 @@ namespace NWN
       { "areaLoadScreenEditor", new MainMenuCommand("Modifier l'écran de chargement de la zone", "", CommandRank.DM) },
       { "reboot", new MainMenuCommand("Reboot", "", CommandRank.Admin) },
       { "refill", new MainMenuCommand("Refill ressources", "", CommandRank.Admin) },
-      { "instantLearn", new MainMenuCommand("Instant Learn", "", CommandRank.Admin) }, // TODO : Ajouter à OnExamine Player
+      { "instantLearn", new MainMenuCommand("Instant Learn (alpha)", "", CommandRank.Public) }, // TODO : Ajouter à OnExamine Player => Temporairement accessible à tout le monde pendant la BETA
       { "instantCraft", new MainMenuCommand("Instant Craft", "", CommandRank.Admin) }, // TODO : Ajouter à OnExamine Player
       { "giveResources", new MainMenuCommand("Don de ressources", "", CommandRank.Admin) }, // TODO : Ajouter à OnExamine Player
       { "giveSkillbook", new MainMenuCommand("Don de skillbook", "", CommandRank.Admin) }, // TODO : Ajouter à OnExamine Player
@@ -520,7 +522,7 @@ namespace NWN
     }
     public static NuiRect GetDrawListTextScaleFromPlayerUI(PlayerSystem.Player player)
     {
-      return new(0, 0/*player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) * 0.234f*/, 500, 60);
+      return new(0, 20/*player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) * 0.234f*/, 500, 60);
     }
     public static int GetResTypeFromFileExtension(string extension, string fileName)
     {

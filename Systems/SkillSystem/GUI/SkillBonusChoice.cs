@@ -97,12 +97,6 @@ namespace NWN.Systems
                           player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_OPTION_CHOICE_FEAT").Value = (int)SkillConfig.SkillOptionType.Cantrip;
                           player.InitializeBonusSkillChoice();
                           break;
-
-                        case SkillConfig.SkillOptionType.Cantrip:
-                          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_CHOICE_FEAT").Value = CustomSkill.FighterArcaneArcher;
-                          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_OPTION_CHOICE_FEAT").Value = (int)SkillConfig.SkillOptionType.ArcaneShot;
-                          player.InitializeBonusSkillChoice();
-                          break;
                       }
 
                       break;

@@ -44,7 +44,7 @@ namespace NWN.Systems
 
         if (saveFailed)
         {
-          int damage = attacker.GetClassInfo(NwClass.FromClassId(CustomClass.ArcaneArcher))?.Level < 18
+          int damage = attacker.GetClassInfo(NwClass.FromClassId(CustomClass.Fighter))?.Level < 18
             ? NwRandom.Roll(Utils.random, 6, 2) : NwRandom.Roll(Utils.random, 6, 4);
 
           NWScript.AssignCommand(attacker, () => target.ApplyEffect(EffectDuration.Instant,

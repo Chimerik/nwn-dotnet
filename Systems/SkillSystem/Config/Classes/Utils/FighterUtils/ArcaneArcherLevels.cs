@@ -1,8 +1,11 @@
 ﻿using Anvil.API;
+using NWN.Core.NWNX;
+using System.Linq;
 using System.Security.Cryptography;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.PlayerSystem.Player;
 using static NWN.Systems.SkillSystem;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace NWN.Systems
 {
@@ -14,9 +17,12 @@ namespace NWN.Systems
       {
         case 3:
 
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_CHOICE_FEAT").Value = CustomSkill.FighterArcaneArcher;
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_OPTION_CHOICE_FEAT").Value = (int)SkillConfig.SkillOptionType.Proficiency;
-          player.InitializeBonusSkillChoice();
+          new StrRef(8).SetPlayerOverride(player.oid, "Archer-Mage");
+
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_TIR_ARCANIQUE_CHOICE").Value = 2;
+
+          if (!player.windows.TryGetValue("tirArcaniqueChoice", out var value)) player.windows.Add("tirArcaniqueChoice", new TirArcaniqueChoiceWindow(player, 2));
+          else ((TirArcaniqueChoiceWindow)value).CreateWindow(2);
 
           break;
 
@@ -26,17 +32,19 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.ArcaneArcherTirIncurve].LevelUp(player);
           player.learnableSkills[CustomSkill.ArcaneArcherTirIncurve].source.Add(Category.Class);
 
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_CHOICE_FEAT").Value = CustomSkill.FighterArcaneArcher;
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_OPTION_CHOICE_FEAT").Value = (int)SkillConfig.SkillOptionType.ArcaneShot;
-          player.InitializeBonusSkillChoice();
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_TIR_ARCANIQUE_CHOICE").Value = 1;
+
+          if (!player.windows.TryGetValue("tirArcaniqueChoice", out var window)) player.windows.Add("tirArcaniqueChoice", new TirArcaniqueChoiceWindow(player));
+          else ((TirArcaniqueChoiceWindow)window).CreateWindow();
 
           break;
 
         case 10:
 
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_CHOICE_FEAT").Value = CustomSkill.FighterArcaneArcher;
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_OPTION_CHOICE_FEAT").Value = (int)SkillConfig.SkillOptionType.ArcaneShot;
-          player.InitializeBonusSkillChoice();
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_TIR_ARCANIQUE_CHOICE").Value = 1;
+
+          if (!player.windows.TryGetValue("tirArcaniqueChoice", out var tirArca)) player.windows.Add("tirArcaniqueChoice", new TirArcaniqueChoiceWindow(player));
+          else ((TirArcaniqueChoiceWindow)tirArca).CreateWindow();
 
           break;
 
@@ -45,17 +53,19 @@ namespace NWN.Systems
           player.oid.OnCombatStatusChange -= FighterUtils.OnCombatArcaneArcherRecoverTirArcanique;
           player.oid.OnCombatStatusChange += FighterUtils.OnCombatArcaneArcherRecoverTirArcanique;
 
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_CHOICE_FEAT").Value = CustomSkill.FighterArcaneArcher;
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_OPTION_CHOICE_FEAT").Value = (int)SkillConfig.SkillOptionType.ArcaneShot;
-          player.InitializeBonusSkillChoice();
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_TIR_ARCANIQUE_CHOICE").Value = 1;
+
+          if (!player.windows.TryGetValue("tirArcaniqueChoice", out var tirArcanique)) player.windows.Add("tirArcaniqueChoice", new TirArcaniqueChoiceWindow(player));
+          else ((TirArcaniqueChoiceWindow)tirArcanique).CreateWindow();
 
           break;
 
         case 18:
 
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_CHOICE_FEAT").Value = CustomSkill.FighterArcaneArcher;
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_OPTION_CHOICE_FEAT").Value = (int)SkillConfig.SkillOptionType.ArcaneShot;
-          player.InitializeBonusSkillChoice();
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_TIR_ARCANIQUE_CHOICE").Value = 1;
+
+          if (!player.windows.TryGetValue("tirArcaniqueChoice", out var tirArcani)) player.windows.Add("tirArcaniqueChoice", new TirArcaniqueChoiceWindow(player));
+          else ((TirArcaniqueChoiceWindow)tirArcani).CreateWindow();
 
           break;
       }

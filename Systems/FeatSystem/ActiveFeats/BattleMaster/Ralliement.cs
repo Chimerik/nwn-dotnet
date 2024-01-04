@@ -28,7 +28,7 @@ namespace NWN.Systems
 
       caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value -= 1;
 
-      int warMasterLevel = caster.GetClassInfo(NwClass.FromClassId(CustomClass.Warmaster)).Level;
+      int warMasterLevel = caster.GetClassInfo(NwClass.FromClassId(CustomClass.Fighter)).Level;
       int superiorityDice = warMasterLevel > 9 ? warMasterLevel > 17 ? 10 : 12 : 8;
       int temporaryHP = NwRandom.Roll(Utils.random, superiorityDice) + caster.GetAbilityModifier(Ability.Charisma);
       List<int> highestHPList = new();

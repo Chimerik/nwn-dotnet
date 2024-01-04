@@ -14,7 +14,6 @@ namespace NWN
       DecrementFeatUses(creature, CustomSkill.ArcaneArcherTirExplosif);
       DecrementFeatUses(creature, CustomSkill.ArcaneArcherTirOmbres);
       DecrementFeatUses(creature, CustomSkill.ArcaneArcherTirPerforant);
-      DecrementFeatUses(creature, CustomSkill.ArcaneArcherTirAffaiblissant);
       DecrementFeatUses(creature, CustomSkill.ArcaneArcherTirEnvoutant);      
     }
   }

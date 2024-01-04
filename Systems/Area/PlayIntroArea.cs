@@ -19,8 +19,8 @@ namespace NWN.Systems
       // TODO : a supprimer lorsqu'on réactivera la scène d'intro
 
       NwPlayer canceledPlayer = NWScript.GetLastSpeaker().ToNwObject<NwCreature>().ControllingPlayer;
-      canceledPlayer.SendServerMessage("C'est tout pour le moment, la scène d'introduction est désactivée le temps que nous mettions les touches finales aux maps du module !");
-      return;
+      //canceledPlayer.SendServerMessage("C'est tout pour le moment, la scène d'introduction est désactivée le temps que nous mettions les touches finales aux maps du module !");
+      //return;
 
       NwCreature captain = (NwCreature)callInfo.ObjectSelf;
       NwArea area = captain.Area;
@@ -112,7 +112,6 @@ namespace NWN.Systems
         //rags.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
         oPC.LoginCreature.RunEquip(rags, InventorySlot.Chest);
         oPC.LoginCreature.Location = ((NwWaypoint)NwObject.FindObjectsWithTag("WP_START_NEW_CHAR").FirstOrDefault()).Location;
-
         oPC.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION").Delete();
 
         await NwTask.WaitUntil(() => oPC.LoginCreature.Location.Area != null);
@@ -120,8 +119,8 @@ namespace NWN.Systems
 
         if (PlayerSystem.Players.TryGetValue(oPC.LoginCreature, out PlayerSystem.Player player))
         {
-          if (!player.windows.ContainsKey("areaDescription")) player.windows.Add("areaDescription", new PlayerSystem.Player.AreaDescriptionWindow(player, NwModule.Instance.Areas.FirstOrDefault(a => a.Tag == "entry_scene")));
-          else ((PlayerSystem.Player.AreaDescriptionWindow)player.windows["areaDescription"]).CreateWindow(NwModule.Instance.Areas.FirstOrDefault(a => a.Tag == "entry_scene"));
+          if (!player.windows.TryGetValue("areaDescription", out var value)) player.windows.Add("areaDescription", new PlayerSystem.Player.AreaDescriptionWindow(player, NwModule.Instance.Areas.FirstOrDefault(a => a.Tag == "entry_scene")));
+          else ((PlayerSystem.Player.AreaDescriptionWindow)value).CreateWindow(NwModule.Instance.Areas.FirstOrDefault(a => a.Tag == "entry_scene"));
         }
         //oPC.FloatingTextString("En dehors des épaves de navires éparpillées tout autour de vous, la plage sur laquelle vous avez atterri semble étrangement calme et agréable. Nulle trace de votre équipage ou des biens que vous aviez emportés. Devant vous se dressent les murailles d'une ville ancienne et délabrée. Qu'allez-vous faire maintenant ?".ColorString(ColorConstants.Silver), false);
       });

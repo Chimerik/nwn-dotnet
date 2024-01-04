@@ -59,16 +59,16 @@ namespace NWN.Systems
 
           List<NuiListTemplateCell> learnableTemplate = new List<NuiListTemplateCell>
           {
-            new NuiListTemplateCell(new NuiButtonImage(icon) { Id = "description", Tooltip = "Description", Height = 40, Width = 40 }) { Width = 40 },
-            new NuiListTemplateCell(new NuiLabel(skillName)
+            new(new NuiButtonImage(icon) { Id = "description", Tooltip = "Description", Height = 40, Width = 40 }) { Width = 40 },
+            new(new NuiLabel(skillName)
             {
               Width = 160, Id = "description", Tooltip = skillName,
               DrawList = new List<NuiDrawListItem>() { new NuiDrawListText(white, drawListRect, remainingTime) }
             }) { Width = 160 },
-            new NuiListTemplateCell(new NuiLabel("Niveau/Max") { Id = "description", Width = 90,
+            new(new NuiLabel("Niveau/Max") { Id = "description", Width = 90,
               DrawList = new List<NuiDrawListItem>() { new NuiDrawListText(white, drawListRect, level) }
             } ) { Width = 90 },
-            new NuiListTemplateCell(new NuiButton(learnButtonText) { Id = "learn", Enabled = learnButtonEnabled, Tooltip = "Remplace l'apprentissage actif. L'avancement de l'apprentissage précédent sera sauvegardé.", Height = 40, Width = 90 }) { Width = 90 }
+            new(new NuiButton(learnButtonText) { Id = "learn", Enabled = learnButtonEnabled, Tooltip = "Remplace l'apprentissage actif. L'avancement de l'apprentissage précédent sera sauvegardé.", Height = 40, Width = 90 }) { Width = 90 }
           };
 
           rootColumn = new NuiColumn() { Children = new List<NuiElement>()

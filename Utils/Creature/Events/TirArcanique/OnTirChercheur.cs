@@ -10,20 +10,33 @@ namespace NWN
   {
     public static void HandleTirChercheur(NwCreature caster)
     {
-      if (caster.GetObjectVariable<LocalVariableObject<NwCreature>>(TirChercheurVariable).HasNothing)
+      if (ItemUtils.HasBowEquipped(caster.GetItemInSlot(InventorySlot.RightHand)?.BaseItem.ItemType))
       {
-        caster.LoginPlayer?.EnterTargetMode(SelectTirChercheurTarget, Config.selectCreatureTargetMode);
-        caster.LoginPlayer?.SendServerMessage("Tête chercheuse - Veuillez choisir une cible", ColorConstants.Orange);
+        if (caster.GetObjectVariable<LocalVariableObject<NwCreature>>(TirChercheurVariable).HasNothing)
+        {
+          caster.LoginPlayer?.EnterTargetMode(SelectTirChercheurTarget, Config.attackCreatureTargetMode);
+          caster.LoginPlayer?.SendServerMessage("Tête chercheuse - Veuillez choisir une cible", ColorConstants.Orange);
+        }
+        else
+        {
+          NwCreature target = caster.GetObjectVariable<LocalVariableObject<NwCreature>>(TirChercheurVariable).Value;
+
+          if (target is not null && target.IsValid)
+          {
+            if (caster.GetObjectVariable<LocalVariableInt>(TirArcaniqueCooldownVariable).HasNothing)
+            {
+              DealTirChercheurDamage(caster, target);
+              StringUtils.DelayLocalVariableDeletion<LocalVariableInt>(caster, TirArcaniqueCooldownVariable, NwTimeSpan.FromRounds(1));
+            }
+            else
+              caster.LoginPlayer?.SendServerMessage("Tir arcanique limité à un par round", ColorConstants.Red);
+          }
+          else
+            caster.LoginPlayer?.SendServerMessage("Tête chercheuse - La cible sélectionnée n'est plus valide", ColorConstants.Red);
+        }
       }
       else
-      {
-        NwCreature target = caster.GetObjectVariable<LocalVariableObject<NwCreature>>(TirChercheurVariable).Value;
-
-        if (target is not null && target.IsValid)
-          DealTirChercheurDamage(caster, target);
-        else
-          caster.LoginPlayer?.SendServerMessage("Tête chercheuse - La cible sélectionnée n'est plus valide", ColorConstants.Red);
-      }
+        caster.LoginPlayer?.SendServerMessage("Vous devez être équipé d'un arc", ColorConstants.Red);
     }
     private static void SelectTirChercheurTarget(ModuleEvents.OnPlayerTarget selection)
     {
@@ -59,7 +72,7 @@ namespace NWN
       NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant,
         Effect.Damage(damage, DamageType.Piercing)));
 
-      int forceDamage = caster.GetClassInfo(NwClass.FromClassId(CustomClass.ArcaneArcher))?.Level < 18
+      int forceDamage = caster.GetClassInfo(NwClass.FromClassId(CustomClass.Fighter))?.Level < 18
         ? NwRandom.Roll(Utils.random, 6, 2) : NwRandom.Roll(Utils.random, 6, 4);
 
       forceDamage /= saveFailed ? 2 : 1;

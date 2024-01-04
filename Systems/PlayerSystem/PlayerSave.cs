@@ -38,8 +38,6 @@ namespace NWN.Systems
       }
       else
         player.HandlePlayerSave();
-
-      
     }
     public partial class Player
     {

@@ -1,4 +1,6 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
+using NWN.Core.NWNX;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.SkillSystem;
 
@@ -11,6 +13,8 @@ namespace NWN.Systems
       switch (level)
       {
         case 3:
+
+          new StrRef(8).SetPlayerOverride(player.oid, "Maître de Guerre");
 
           player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_MANOEUVRE_CHOICE").Value = 3;
           player.InitializeManoeuvreChoice();

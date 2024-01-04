@@ -11,7 +11,7 @@ namespace NWN.Systems
         caster.OnCreatureAttack -= CreatureUtils.OnAttackRenversement;
         caster.OnCreatureAttack += CreatureUtils.OnAttackRenversement;
 
-        int warMasterLevel = caster.GetClassInfo(NwClass.FromClassId(CustomClass.Warmaster)).Level;
+        int warMasterLevel = caster.GetClassInfo(NwClass.FromClassId(CustomClass.Fighter)).Level;
         int superiorityDice = warMasterLevel > 9 ? warMasterLevel > 17 ? 10 : 12 : 8;
 
         caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ManoeuvreTypeVariable).Value = CustomSkill.WarMasterRenversement;

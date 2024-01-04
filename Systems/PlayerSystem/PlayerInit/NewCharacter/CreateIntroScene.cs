@@ -22,7 +22,7 @@ namespace NWN.Systems
         arrivalArea.OnExit += areaSystem.OnIntroAreaExit;
         arrivalArea.OnEnter -= areaSystem.OnAreaEnter;
         arrivalArea.OnEnter += areaSystem.OnAreaEnter;
-        arrivalArea.RestingAllowed = true;
+        arrivalArea.RestingAllowed = false;
 
         InitializeIntroAreaObjects(arrivalArea);
 

@@ -37,6 +37,7 @@ namespace NWN
     public const string ShieldMasterCooldownVariable = "_FEAT_SHIELDMASTER_COOLDOWN";
 
     public const string TirArcaniqueVariable = "_TIR_ARCANIQUE";
+    public const string TirArcaniqueCooldownVariable = "_TIR_ARCANIQUE_COOLDOWN";
     public const string TirChercheurVariable = "_TIR_CHERCHEUR";
     public const string TirAffaiblissantVariable = "_TIR_AFFAIBLISSANT";
     public readonly static CExoString TirAffaiblissantVariableExo = TirAffaiblissantVariable.ToExoString();
@@ -55,6 +56,7 @@ namespace NWN
     public readonly static CExoString ManoeuvreRiposteVariableExo = "_MANOEUVRE_RIPOSTE".ToExoString();
 
     public const string VigueurNaineHDVariable = "_FEAT_VIGUEUR_NAINE_HD";
+    public const string MeneurExaltantVariable = "_MENEUR_EXALTANT_BUFF";
     public const string OriginalSizeVariable = "_ORIGINAL_SIZE";
 
     public static readonly Dictionary<string, NwCreature> creatureSpawnDictionary = new();

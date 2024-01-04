@@ -395,6 +395,7 @@ namespace NWN.Systems
           return;
 
         HandleHealthPointInit();
+        InitializePlayerTlk();
         InitializeLearnables();
         InitializeJob();
         CheckPlayerConnectionInfo();
@@ -412,7 +413,9 @@ namespace NWN.Systems
         InitializeBonusSkillChoice();
         InitializeWeaponMasterChoice();
         InitializeFeatChoice();
+        InitializeSubClassChoice();
         InitializeManoeuvreChoice();
+        InitializeTirArcaniqueChoice();
         ResetFlameBlade();
         ResetSize();
         ApplyProtectionStyle();

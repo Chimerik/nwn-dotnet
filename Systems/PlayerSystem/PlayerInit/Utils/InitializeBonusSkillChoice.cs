@@ -42,14 +42,6 @@ namespace NWN.Systems
                     skillList.Add(new NuiComboEntry("Druidisme - Tour de magie", CustomSkill.ArcaneArcherDruidisme));
 
                   break;
-
-                case SkillConfig.SkillOptionType.ArcaneShot:
-
-                  foreach (var arcaneShot in SkillSystem.learnableDictionary.Values.Where(l => ((LearnableSkill)l).category == SkillSystem.Category.TirArcanique))
-                    if(!learnableSkills.TryGetValue(arcaneShot.id, out LearnableSkill learnable) || learnable.currentLevel < 1)
-                      skillList.Add(new NuiComboEntry(arcaneShot.name, arcaneShot.id));
-
-                  break;
               }
 
               break;

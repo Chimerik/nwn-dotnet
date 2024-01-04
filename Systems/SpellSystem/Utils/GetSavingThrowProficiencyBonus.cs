@@ -19,8 +19,8 @@ namespace NWN.Systems
             case Ability.Strength:
             case Ability.Dexterity:
             case Ability.Constitution:
-
-              if (target.GetClassInfo(NwClass.FromClassId(CustomClass.Champion))?.Level > 6)
+              
+              if (player.learnableSkills.TryGetValue(CustomClass.Champion, out LearnableSkill champion) && champion.currentLevel > 6)
                 return (int)Math.Round((double)(NativeUtils.GetCreatureProficiencyBonus(target) / 2), MidpointRounding.AwayFromZero);
               
               break;

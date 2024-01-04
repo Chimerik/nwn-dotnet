@@ -1,4 +1,7 @@
-﻿using static NWN.Systems.PlayerSystem;
+﻿using Anvil.API;
+using NWN.Core.NWNX;
+using System.Linq;
+using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.PlayerSystem.Player;
 using static NWN.Systems.SkillSystem;
 
@@ -11,6 +14,8 @@ namespace NWN.Systems
       switch (level)
       {
         case 3:
+
+          new StrRef(8).SetPlayerOverride(player.oid, "Champion");
 
           player.learnableSkills.TryAdd(CustomSkill.FighterChampionImprovedCritical, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterChampionImprovedCritical]));
           player.learnableSkills[CustomSkill.FighterChampionImprovedCritical].LevelUp(player);

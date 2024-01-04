@@ -14,6 +14,8 @@ namespace NWN.Systems
 
       switch (onUseFeat.Feat.Id)
       {
+        //case CustomSkill.Determination: SecondWind(onUseFeat.Creature); return;
+
         case CustomSkill.EnlargeDuergar:
           onUseFeat.Creature.GetObjectVariable<LocalVariableInt>("_ENLARGE_DUERGAR").Value = 1;
           return;

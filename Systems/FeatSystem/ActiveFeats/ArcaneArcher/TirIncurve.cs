@@ -10,7 +10,7 @@ namespace NWN.Systems
       {
         if(caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value > 0) 
         {
-          caster.LoginPlayer?.EnterTargetMode(SelectTirIncurveTarget, Config.selectCreatureTargetMode);
+          caster.LoginPlayer?.EnterTargetMode(SelectTirIncurveTarget, Config.attackCreatureTargetMode);
           caster.LoginPlayer?.SendServerMessage("Tir Incurvé - Veuillez choisir une cible", ColorConstants.Orange);
         }
         else

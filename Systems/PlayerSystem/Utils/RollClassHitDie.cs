@@ -6,12 +6,10 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      public void RollClassHitDie(int skillId, byte classId)
+      public byte RollClassHitDie(int skillId, byte classId, int conMod)
       {
         byte hitDie = NwClass.FromClassId(classId).HitDie;
-
-        oid.LoginCreature.LevelInfo[oid.LoginCreature.LevelInfo.Count - 1].HitDie
-          = learnableSkills[skillId].currentLevel < 2 ? (byte)(hitDie) : (byte)(Utils.random.Next(hitDie / 2 + 1, hitDie + 1));
+        return learnableSkills[skillId].currentLevel < 2 ? (byte)(hitDie + conMod) : (byte)(Utils.random.Next(hitDie / 2 + 1, hitDie + 1) + conMod);
       }
     }
   }

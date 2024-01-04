@@ -10,7 +10,7 @@ namespace NWN
   {
     public static void HandleTirBannissement(OnCreatureAttack onDamage)
     {
-      if (onDamage.Attacker.GetClassInfo(NwClass.FromClassId(CustomClass.ArcaneArcher))?.Level > 17)
+      if (onDamage.Attacker.GetClassInfo(NwClass.FromClassId(CustomClass.Fighter))?.Level > 17)
         NWScript.AssignCommand(onDamage.Attacker, () => onDamage.Target.ApplyEffect(EffectDuration.Instant,
           Effect.Damage(NwRandom.Roll(Utils.random, 6, 2), DamageType.Magical)));
 

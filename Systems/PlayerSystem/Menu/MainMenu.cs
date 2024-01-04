@@ -294,25 +294,25 @@ namespace NWN.Systems
 
                   case "instantLearn":
                     player.oid.SendServerMessage("Veuillez sélectionner la cible de l'apprentissage instantanné.");
-                    player.oid.EnterTargetMode(SelectLearnTarget, Config.selectItemTargetMode);
+                    player.oid.EnterTargetMode(SelectLearnTarget, Config.selectCreatureTargetMode);
                     CloseWindow();
                     break;
 
                   case "instantCraft":
                     player.oid.SendServerMessage("Veuillez sélectionner la cible du craft instantanné.");
-                    player.oid.EnterTargetMode(SelectCraftTarget, Config.selectItemTargetMode);
+                    player.oid.EnterTargetMode(SelectCraftTarget, Config.selectCreatureTargetMode);
                     CloseWindow();
                     break;
 
                   case "giveResources":
                     player.oid.SendServerMessage("Veuillez sélectionner la cible du don.");
-                    player.oid.EnterTargetMode(SelectGiveResourcesTarget, Config.selectItemTargetMode);
+                    player.oid.EnterTargetMode(SelectGiveResourcesTarget, Config.selectCreatureTargetMode);
                     CloseWindow();
                     break;
 
                   case "giveSkillbook":
                     player.oid.SendServerMessage("Veuillez sélectionner la cible du don.");
-                    player.oid.EnterTargetMode(SelectGiveSkillbookTarget, Config.selectItemTargetMode);
+                    player.oid.EnterTargetMode(SelectGiveSkillbookTarget, Config.selectCreatureTargetMode);
                     CloseWindow();
                     break;
 
@@ -468,6 +468,50 @@ namespace NWN.Systems
                     else ((LootEditorWindow)player.windows["lootEditor"]).CreateWindow();
 
                     CloseWindow();
+
+                    break;
+
+                  case "shortRest":
+
+                    // TODO : limiter à deux shortRest par LongRest
+
+                    player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Heal(player.oid.LoginCreature.MaxHP / 2));
+                    player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(CreatureUtils.MeneurExaltantVariable).Delete();
+                    FighterUtils.RestoreManoeuvres(player.oid.LoginCreature);
+                    FighterUtils.RestoreTirArcanique(player.oid.LoginCreature);
+
+                    byte fighterLevel = player.oid.LoginCreature.Classes.FirstOrDefault(c => c.Class.Id == CustomClass.Fighter
+                            || c.Class.Id == CustomClass.ArcaneArcher || c.Class.Id == CustomClass.Champion || c.Class.Id == CustomClass.Warmaster).Level;
+
+                    foreach (var skill in player.learnableSkills.Values.Where(l => l.category == SkillSystem.Category.Feat && l.currentLevel > 0 && l.restoreOnShortRest))
+                    {
+                      byte nbCharge = 1;
+
+                      switch(skill.id)
+                      {
+                        case CustomSkill.VigueurNaine: 
+                          player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>(CreatureUtils.VigueurNaineHDVariable).Value = player.oid.LoginCreature.Level;
+                          return;
+                      }
+
+                      player.oid.LoginCreature.SetFeatRemainingUses(NwFeat.FromFeatId(skill.id), nbCharge);
+                    }
+
+                    break;
+
+
+                  case "longRest": 
+                    
+                    player.oid.LoginCreature.ForceRest();
+                    player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(CreatureUtils.MeneurExaltantVariable).Delete();
+                    FighterUtils.RestoreManoeuvres(player.oid.LoginCreature);
+                    FighterUtils.RestoreTirArcanique(player.oid.LoginCreature);
+
+                    if (player.oid.LoginCreature.Race.Id == CustomRace.HalfOrc)
+                    {
+                      player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(EffectSystem.EnduranceImplacableVariable).Value = 1;
+                      player.ApplyHalfOrcEndurance();
+                    }
 
                     break;
                 }
