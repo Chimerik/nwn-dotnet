@@ -7,15 +7,12 @@ namespace NWN.Systems
   {
     public static int HandleInflexible(NwCreature creature, int saveRoll)
     {
-      var classes = creature.Classes.Where(c => c.Class.Id == CustomClass.Fighter || c.Class.Id == CustomClass.Champion
-      || c.Class.Id == CustomClass.ArcaneArcher || c.Class.Id == CustomClass.Warmaster || c.Class.Id == CustomClass.EldritchKnight);
+      int? fighterLevel = creature.GetClassInfo(NwClass.FromClassId(CustomClass.Fighter))?.Level;
 
-      int fighterLevel = classes.Sum(c => c.Level);
-
-      if (fighterLevel < 9)
+      if (!fighterLevel.HasValue || fighterLevel.Value < 9)
         return saveRoll;
 
-      return NwRandom.Roll(Utils.random, 20) - fighterLevel < 13 ? 2 : fighterLevel < 17 ? 1 : 0;
+      return NwRandom.Roll(Utils.random, 20) - fighterLevel.Value < 13 ? 2 : fighterLevel.Value < 17 ? 1 : 0;
     }
   }
 }

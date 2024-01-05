@@ -14,7 +14,7 @@ namespace NWN.Systems
       SpellConfig.SavingThrowFeedback feedback = new();
       int spellDC = SpellUtils.GetCasterSpellDC(oCaster, onSpellCast.Spell);
 
-      foreach (NwCreature target in onSpellCast.TargetLocation.GetObjectsInShapeByType<NwCreature>(Shape.SpellCone, 5, false))
+      foreach (NwCreature target in onSpellCast.TargetLocation.GetObjectsInShapeByType<NwCreature>(Shape.SpellCone, 5, false, oCaster.Location.Position))
       {
         int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid, oCaster);
 

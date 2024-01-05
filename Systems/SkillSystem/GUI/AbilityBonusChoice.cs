@@ -130,7 +130,7 @@ namespace NWN.Systems
                     }
                     else
                     {
-                      player.learnableSkills.Add(saveSkill, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[saveSkill]));
+                      player.learnableSkills.Add(saveSkill, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[saveSkill], player));
                       player.learnableSkills[saveSkill].LevelUp(player);
                     }
                   }

@@ -29,7 +29,7 @@ namespace NWN.Systems
       }
       else
       {
-        player.learnableSkills.Add(CustomSkill.AcrobaticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AcrobaticsProficiency]));
+        player.learnableSkills.Add(CustomSkill.AcrobaticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AcrobaticsProficiency], player));
         player.learnableSkills[CustomSkill.AcrobaticsProficiency].LevelUp(player);
       }
 

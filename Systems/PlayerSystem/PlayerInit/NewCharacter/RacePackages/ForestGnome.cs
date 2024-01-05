@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       private void ApplyForestGnomePackage()
       {
-        if (learnableSkills.TryAdd(CustomSkill.Gnome, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Gnome])))
+        if (learnableSkills.TryAdd(CustomSkill.Gnome, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Gnome], this)))
           learnableSkills[CustomSkill.Gnome].LevelUp(this);
 
         learnableSkills[CustomSkill.Gnome].source.Add(Category.Race);

@@ -298,10 +298,7 @@ namespace NWN.Systems
         else if (pcState == PcState.AFK)
           pointsPerSecond *= 0.8;
 
-        /*if (oid.LoginCreature.KnowsFeat(Feat.QuickToMaster))
-          pointsPerSecond *= 1.1;*/
-
-        //Log.Info($"SP CALCULATION - {player.oid.Name} - {SP} SP.");
+        //ModuleSystem.Log.Info($"SP CALCULATION - {oid.LoginCreature.Name} - {pointsPerSecond} SP.");
 
         return pointsPerSecond;
       }

@@ -68,7 +68,7 @@ namespace NWN.Systems
         }
         public void CreateWindow()
         {
-          NuiRect savedRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(player.guiScaledWidth * 0.3f, player.guiHeight * 0.25f, player.guiScaledWidth * 0.4f, player.guiScaledHeight * 0.55f);
+          NuiRect savedRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(player.guiScaledWidth * 0.3f, player.guiHeight * 0.25f, player.guiScaledWidth * 0.4f, player.guiScaledHeight * 0.55f);
 
           window = new NuiWindow(rootColumn, "Votre reflet - Choisissez vos caractéristiques")
           {
@@ -156,7 +156,7 @@ namespace NWN.Systems
                 case "abilityDecrease":
 
                   int currentStatDecrease = levels[nuiEvent.ArrayIndex] - abilities1[nuiEvent.ArrayIndex].ToInt() - abilities2[nuiEvent.ArrayIndex].ToInt() * 2;
-
+                  
                   if (currentStatDecrease < 9)
                     return;
 
@@ -164,7 +164,7 @@ namespace NWN.Systems
 
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_CHARACTER_REMAINING_ABILITY_POINTS").Value += pointGained;
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>($"_CHARACTER_SET_ABILITY_{nuiEvent.ArrayIndex}").Value -= 1;
-                  player.oid.LoginCreature.SetsRawAbilityScore((Ability)nuiEvent.ArrayIndex, (byte)player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>($"_CHARACTER_SET_ABILITY_{nuiEvent.ArrayIndex}").Value);
+                  player.oid.LoginCreature.SetsRawAbilityScore((Ability)nuiEvent.ArrayIndex, (byte)(player.oid.LoginCreature.GetRawAbilityScore((Ability)nuiEvent.ArrayIndex) - 1));
 
                   LoadAbilityList();
 
@@ -184,7 +184,7 @@ namespace NWN.Systems
 
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_CHARACTER_REMAINING_ABILITY_POINTS").Value -= pointCost;
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>($"_CHARACTER_SET_ABILITY_{nuiEvent.ArrayIndex}").Value += 1;
-                  player.oid.LoginCreature.SetsRawAbilityScore((Ability)nuiEvent.ArrayIndex, (byte)player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>($"_CHARACTER_SET_ABILITY_{nuiEvent.ArrayIndex}").Value);
+                  player.oid.LoginCreature.SetsRawAbilityScore((Ability)nuiEvent.ArrayIndex, (byte)(player.oid.LoginCreature.GetRawAbilityScore((Ability)nuiEvent.ArrayIndex) + 1));
 
                   LoadAbilityList();
 

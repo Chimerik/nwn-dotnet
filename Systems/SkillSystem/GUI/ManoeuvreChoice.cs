@@ -31,7 +31,7 @@ namespace NWN.Systems
           {
             new(new NuiSpacer()),
             new(new NuiButtonImage(icon) { Id = "description" }) { Width = 40 },
-            new(new NuiLabel(weaponName) { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }) { Width = 120 },
+            new(new NuiLabel(weaponName) { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }) { Width = 160 },
             new(new NuiCheck("", weaponChecked) { Tooltip = "Apprendre la maîtrise de cette manoeuvre", Margin = 0.0f }) { Width = 40 },
             new(new NuiSpacer())
           };
@@ -111,7 +111,7 @@ namespace NWN.Systems
 
                     foreach (var learnable in toLearn)
                     {
-                      player.learnableSkills.TryAdd(learnable.id, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[learnable.id], (int)SkillSystem.Category.Class));
+                      player.learnableSkills.TryAdd(learnable.id, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[learnable.id], player, (int)SkillSystem.Category.Class));
                       player.learnableSkills[learnable.id].LevelUp(player);
                     }
 

@@ -11,6 +11,7 @@ namespace NWN.Systems
       {
         if (caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.TirArcaniqueCooldownVariable).HasNothing)
         {
+          caster.OnCreatureAttack -= CreatureUtils.OnAttackTirArcanique;
           caster.OnCreatureAttack += CreatureUtils.OnAttackTirArcanique;
           caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.TirArcaniqueVariable).Value = tirId;
           caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.TirArcaniqueVariable).Value = tirId;

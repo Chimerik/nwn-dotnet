@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       private void ApplyZarielPackage()
       {
-        if (learnableSkills.TryAdd(CustomSkill.Thaumaturgy, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Thaumaturgy])))
+        if (learnableSkills.TryAdd(CustomSkill.Thaumaturgy, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Thaumaturgy], this)))
           learnableSkills[CustomSkill.Thaumaturgy].LevelUp(this);
 
         learnableSkills[CustomSkill.Thaumaturgy].source.Add(Category.Race);

@@ -19,7 +19,7 @@ namespace NWN.Systems
             {
               case 3:
 
-                if (learnableSkills.TryAdd(CustomSkill.FaerieFireDrow, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FaerieFireDrow])))
+                if (learnableSkills.TryAdd(CustomSkill.FaerieFireDrow, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FaerieFireDrow], this)))
                   learnableSkills[CustomSkill.FaerieFireDrow].LevelUp(this);
 
                 learnableSkills[CustomSkill.FaerieFireDrow].source.Add(Category.Race);
@@ -28,7 +28,7 @@ namespace NWN.Systems
 
               case 5:
 
-                if (learnableSkills.TryAdd(CustomSkill.DarknessDrow, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DarknessDrow])))
+                if (learnableSkills.TryAdd(CustomSkill.DarknessDrow, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DarknessDrow], this)))
                   learnableSkills[CustomSkill.DarknessDrow].LevelUp(this);
 
                 learnableSkills[CustomSkill.DarknessDrow].source.Add(Category.Race);
@@ -44,7 +44,7 @@ namespace NWN.Systems
             {
               case 3:
 
-                if (learnableSkills.TryAdd(CustomSkill.HellishRebuke, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HellishRebuke])))
+                if (learnableSkills.TryAdd(CustomSkill.HellishRebuke, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HellishRebuke], this)))
                   learnableSkills[CustomSkill.HellishRebuke].LevelUp(this);
 
                 learnableSkills[CustomSkill.HellishRebuke].source.Add(Category.Race);
@@ -53,7 +53,7 @@ namespace NWN.Systems
 
               case 5:
 
-                if (learnableSkills.TryAdd(CustomSkill.DarknessDrow, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DarknessDrow])))
+                if (learnableSkills.TryAdd(CustomSkill.DarknessDrow, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DarknessDrow], this)))
                   learnableSkills[CustomSkill.DarknessDrow].LevelUp(this);
 
                 learnableSkills[CustomSkill.DarknessDrow].source.Add(Category.Race);
@@ -69,7 +69,7 @@ namespace NWN.Systems
             {
               case 3:
 
-                if (learnableSkills.TryAdd(CustomSkill.BurningHands, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BurningHands])))
+                if (learnableSkills.TryAdd(CustomSkill.BurningHands, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BurningHands], this)))
                   learnableSkills[CustomSkill.BurningHands].LevelUp(this);
 
                 learnableSkills[CustomSkill.BurningHands].source.Add(Category.Race);
@@ -78,7 +78,7 @@ namespace NWN.Systems
 
               case 5:
 
-                if (learnableSkills.TryAdd(CustomSkill.FlameBlade, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FlameBlade])))
+                if (learnableSkills.TryAdd(CustomSkill.FlameBlade, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FlameBlade], this)))
                   learnableSkills[CustomSkill.FlameBlade].LevelUp(this);
 
                 learnableSkills[CustomSkill.FlameBlade].source.Add(Category.Race);
@@ -94,7 +94,7 @@ namespace NWN.Systems
             {
               case 3:
 
-                if (learnableSkills.TryAdd(CustomSkill.SearingSmite, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SearingSmite])))
+                if (learnableSkills.TryAdd(CustomSkill.SearingSmite, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SearingSmite], this)))
                   learnableSkills[CustomSkill.SearingSmite].LevelUp(this);
 
                 learnableSkills[CustomSkill.SearingSmite].source.Add(Category.Race);
@@ -103,7 +103,7 @@ namespace NWN.Systems
 
               case 5:
 
-                if (learnableSkills.TryAdd(CustomSkill.BrandingSmite, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BrandingSmite])))
+                if (learnableSkills.TryAdd(CustomSkill.BrandingSmite, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BrandingSmite], this)))
                   learnableSkills[CustomSkill.BrandingSmite].LevelUp(this);
 
                 learnableSkills[CustomSkill.BrandingSmite].source.Add(Category.Race);
@@ -119,7 +119,7 @@ namespace NWN.Systems
             {
               case 3:
 
-                if (learnableSkills.TryAdd(CustomSkill.EnlargeDuergar, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.EnlargeDuergar])))
+                if (learnableSkills.TryAdd(CustomSkill.EnlargeDuergar, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.EnlargeDuergar], this)))
                   learnableSkills[CustomSkill.EnlargeDuergar].LevelUp(this);
 
                 learnableSkills[CustomSkill.EnlargeDuergar].source.Add(Category.Race);
@@ -128,7 +128,7 @@ namespace NWN.Systems
 
               case 5:
 
-                if (learnableSkills.TryAdd(CustomSkill.InvisibilityDuergar, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InvisibilityDuergar])))
+                if (learnableSkills.TryAdd(CustomSkill.InvisibilityDuergar, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InvisibilityDuergar], this)))
                   learnableSkills[CustomSkill.InvisibilityDuergar].LevelUp(this);
 
                 learnableSkills[CustomSkill.InvisibilityDuergar].source.Add(Category.Race);

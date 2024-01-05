@@ -26,7 +26,7 @@ namespace NWN.Systems
           player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_MANOEUVRE_CHOICE").Value = 2;
           player.InitializeManoeuvreChoice();
 
-          player.learnableSkills.TryAdd(CustomSkill.WarMasterObservation, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.WarMasterObservation]));
+          player.learnableSkills.TryAdd(CustomSkill.WarMasterObservation, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.WarMasterObservation], player));
           player.learnableSkills[CustomSkill.WarMasterObservation].LevelUp(player);
           player.learnableSkills[CustomSkill.WarMasterObservation].source.Add(Category.Class);
 

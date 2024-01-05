@@ -480,9 +480,6 @@ namespace NWN.Systems
                     FighterUtils.RestoreManoeuvres(player.oid.LoginCreature);
                     FighterUtils.RestoreTirArcanique(player.oid.LoginCreature);
 
-                    byte fighterLevel = player.oid.LoginCreature.Classes.FirstOrDefault(c => c.Class.Id == CustomClass.Fighter
-                            || c.Class.Id == CustomClass.ArcaneArcher || c.Class.Id == CustomClass.Champion || c.Class.Id == CustomClass.Warmaster).Level;
-
                     foreach (var skill in player.learnableSkills.Values.Where(l => l.category == SkillSystem.Category.Feat && l.currentLevel > 0 && l.restoreOnShortRest))
                     {
                       byte nbCharge = 1;

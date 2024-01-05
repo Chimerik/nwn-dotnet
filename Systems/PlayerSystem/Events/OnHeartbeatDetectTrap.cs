@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     public static void OnHeartbeatDetectTrap(CreatureEvents.OnHeartbeat onHB)
     {
-      if (!Players.TryGetValue(onHB.Creature, out Player player))
+      if (onHB.Creature.Location is null || !Players.TryGetValue(onHB.Creature, out Player player))
         return;
 
       int perceptionRoll;

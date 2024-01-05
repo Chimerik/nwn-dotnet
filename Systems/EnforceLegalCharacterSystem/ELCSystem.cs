@@ -44,7 +44,9 @@ namespace NWN.Systems
 
             return;
           }
-            
+          else
+            onELCSuccess.Player.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION").Delete();
+
 
           onELCSuccess.Player.SpawnLocation = spawnLoc;
         }

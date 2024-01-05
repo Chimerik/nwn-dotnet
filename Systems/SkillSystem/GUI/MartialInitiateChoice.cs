@@ -78,7 +78,7 @@ namespace NWN.Systems
                   CloseWindow();
                   int selection = selectedStyle.GetBindValue(player.oid, nuiToken.Token);
                   player.learnableSkills[CustomSkill.MartialInitiate].featOptions.Add(acquiredLevel, new int[] { selection } );
-                  player.learnableSkills.Add(selection, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[selection]));
+                  player.learnableSkills.Add(selection, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[selection], player));
                   player.learnableSkills[selection].LevelUp(player);
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_MARTIAL_INITIATE_CHOICE_FEAT").Delete();
 

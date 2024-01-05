@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     public static async void RestoreManoeuvres(NwCreature creature)
     {
-      byte? level = creature.Classes.FirstOrDefault(c => c.Class.Id == CustomClass.Warmaster)?.Level;
+      byte? level = creature.Classes.FirstOrDefault(c => c.Class.Id == CustomClass.Fighter)?.Level;
 
       if (!level.HasValue)
         return;

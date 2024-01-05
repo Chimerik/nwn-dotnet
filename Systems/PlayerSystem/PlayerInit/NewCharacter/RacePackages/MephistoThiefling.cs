@@ -9,10 +9,10 @@ namespace NWN.Systems
     {
       private void ApplyMephistoPackage()
       {
-        if (learnableSkills.TryAdd(CustomSkill.FlameBlade, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FlameBlade])))
-          learnableSkills[CustomSkill.FlameBlade].LevelUp(this);
+        if (learnableSkills.TryAdd(CustomSkill.MageHand, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MageHand], this)))
+          learnableSkills[CustomSkill.MageHand].LevelUp(this);
 
-        learnableSkills[CustomSkill.FlameBlade].source.Add(Category.Race);
+        learnableSkills[CustomSkill.MageHand].source.Add(Category.Race);
 
         oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin).AddItemProperty(ItemProperty.DamageImmunity(IPDamageType.Fire, IPDamageImmunityType.Immunity50Pct), EffectDuration.Permanent);
       

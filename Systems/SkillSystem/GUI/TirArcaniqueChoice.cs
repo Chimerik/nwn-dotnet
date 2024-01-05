@@ -111,7 +111,7 @@ namespace NWN.Systems
 
                     foreach(var learnable in  toLearn)
                     {
-                      player.learnableSkills.TryAdd(learnable.id, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[learnable.id], (int)SkillSystem.Category.Class));
+                      player.learnableSkills.TryAdd(learnable.id, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[learnable.id], player, (int)SkillSystem.Category.Class));
                       player.learnableSkills[learnable.id].LevelUp(player);
                     }
 

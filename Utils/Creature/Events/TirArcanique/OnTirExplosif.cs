@@ -1,7 +1,5 @@
 ﻿using Anvil.API.Events;
 using Anvil.API;
-using NativeUtils = NWN.Systems.NativeUtils;
-using NWN.Systems;
 using NWN.Core;
 
 namespace NWN
@@ -14,11 +12,11 @@ namespace NWN
         ? NwRandom.Roll(Utils.random, 6, 2) : NwRandom.Roll(Utils.random, 6, 4);
 
       NWScript.AssignCommand(onDamage.Attacker, () => onDamage.Target.ApplyEffect(EffectDuration.Instant,
-        Effect.VisualEffect(VfxType.FnfMysticalExplosion)));
+        Effect.VisualEffect(VfxType.FnfGasExplosionFire)));
 
       foreach(var creature in onDamage.Target.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 3, false))
       {
-        NWScript.AssignCommand(onDamage.Attacker, () => onDamage.Target.ApplyEffect(EffectDuration.Instant,
+        NWScript.AssignCommand(onDamage.Attacker, () => creature.ApplyEffect(EffectDuration.Instant,
           Effect.Damage(damage, DamageType.Magical)));
       }
 

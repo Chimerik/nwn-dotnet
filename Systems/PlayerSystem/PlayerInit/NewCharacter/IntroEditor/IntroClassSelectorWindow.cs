@@ -201,17 +201,17 @@ namespace NWN.Systems
 
                   player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CHOSEN_FIGHTER_STYLE").Value = selectedCombatStyle.GetBindValue(player.oid, nuiToken.Token);
 
-                  if (player.learnableSkills.TryAdd(selectedLearnable.id, new LearnableSkill((LearnableSkill)learnableDictionary[selectedLearnable.id], (int)Category.Class)))
+                  if (player.learnableSkills.TryAdd(selectedLearnable.id, new LearnableSkill((LearnableSkill)learnableDictionary[selectedLearnable.id], player, (int)Category.Class)))
                     player.learnableSkills[selectedLearnable.id].LevelUp(player);
 
                   CreaturePlugin.SetClassByPosition(player.oid.LoginCreature, 0, Classes2da.classTable.FirstOrDefault(c => c.classLearnableId == validatedLearnableId).RowIndex);
 
-                  if (player.learnableSkills.TryAdd(selectedSkill1.GetBindValue(player.oid, nuiToken.Token), new LearnableSkill((LearnableSkill)learnableDictionary[selectedSkill1.GetBindValue(player.oid, nuiToken.Token)])))
+                  if (player.learnableSkills.TryAdd(selectedSkill1.GetBindValue(player.oid, nuiToken.Token), new LearnableSkill((LearnableSkill)learnableDictionary[selectedSkill1.GetBindValue(player.oid, nuiToken.Token)], player)))
                     player.learnableSkills[selectedSkill1.GetBindValue(player.oid, nuiToken.Token)].LevelUp(player);
 
                   player.learnableSkills[selectedSkill1.GetBindValue(player.oid, nuiToken.Token)].source.Add(Category.Class);
 
-                  if (player.learnableSkills.TryAdd(selectedSkill2.GetBindValue(player.oid, nuiToken.Token), new LearnableSkill((LearnableSkill)learnableDictionary[selectedSkill2.GetBindValue(player.oid, nuiToken.Token)])))
+                  if (player.learnableSkills.TryAdd(selectedSkill2.GetBindValue(player.oid, nuiToken.Token), new LearnableSkill((LearnableSkill)learnableDictionary[selectedSkill2.GetBindValue(player.oid, nuiToken.Token)], player)))
                     player.learnableSkills[selectedSkill2.GetBindValue(player.oid, nuiToken.Token)].LevelUp(player);
 
                   player.learnableSkills[selectedSkill2.GetBindValue(player.oid, nuiToken.Token)].source.Add(Category.Class);

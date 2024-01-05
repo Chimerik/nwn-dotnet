@@ -225,6 +225,9 @@ namespace NWN.Systems
           {
             iconList.Add(learnable.icon);
             skillNameList.Add(learnable.name);
+            ModuleSystem.Log.Info($"learnable : {learnable.name} - {learnable.pointsToNextLevel} - {learnable.acquiredPoints} - {player.GetSkillPointsPerSecond(learnable)}");
+            ModuleSystem.Log.Info($"TimeSpan.FromSeconds((pointsToNextLevel - acquiredPoints) / player.GetSkillPointsPerSecond(this)) : {((learnable.pointsToNextLevel - learnable.acquiredPoints) / player.GetSkillPointsPerSecond(learnable))}");
+            
             remainingTimeList.Add(learnable.GetReadableTimeSpanToNextLevel(target));
             levelList.Add($"{learnable.currentLevel}/{learnable.maxLevel}");
             bool canLearn = true;

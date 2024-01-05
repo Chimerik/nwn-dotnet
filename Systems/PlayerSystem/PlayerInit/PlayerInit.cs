@@ -9,6 +9,7 @@ using Anvil.Services;
 using Microsoft.Data.Sqlite;
 
 using Newtonsoft.Json;
+using static NWN.Systems.PlayerSystem;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace NWN.Systems
@@ -270,7 +271,7 @@ namespace NWN.Systems
           {
             if (SkillSystem.learnableDictionary.ContainsKey(kvp.Key))
             {
-              LearnableSkill skill = new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[kvp.Key], kvp.Value);
+              LearnableSkill skill = new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[kvp.Key], kvp.Value, this);
 
               if (skill.active)
                 activeLearnable = skill;
@@ -278,7 +279,7 @@ namespace NWN.Systems
               learnableSkills.TryAdd(kvp.Key, skill);
             }
             else
-              LogUtils.LogMessage($"SKILL SYSTEM - INVALID SKILL KEY {kvp.Key} REMOVED FROM {this.characterId} ({this.accountId})", LogUtils.LogType.Learnables);
+              LogUtils.LogMessage($"SKILL SYSTEM - INVALID SKILL KEY {kvp.Key} REMOVED FROM {characterId} ({accountId})", LogUtils.LogType.Learnables);
           }
         });
 

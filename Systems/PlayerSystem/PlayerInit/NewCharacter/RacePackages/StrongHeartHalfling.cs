@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       private void ApplyStrongHeartPackage()
       {
-        if (learnableSkills.TryAdd(CustomSkill.Halfelin, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Halfelin])))
+        if (learnableSkills.TryAdd(CustomSkill.Halfelin, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Halfelin], this)))
           learnableSkills[CustomSkill.Halfelin].LevelUp(this);
 
         learnableSkills[CustomSkill.Halfelin].source.Add(Category.Race);

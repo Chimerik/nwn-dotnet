@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     public static async void RestoreTirArcanique(NwCreature creature)
     {
-      byte? level = creature.Classes.FirstOrDefault(c => c.Class.Id == CustomClass.ArcaneArcher)?.Level;
+      byte? level = creature.Classes.FirstOrDefault(c => c.Class.Id == CustomClass.Fighter)?.Level;
 
       if (!level.HasValue)
         return;

@@ -21,13 +21,13 @@ namespace NWN.Systems
         }
         else
         {
-          player.learnableSkills.Add(CustomSkill.DeceptionExpertise, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionExpertise]));
+          player.learnableSkills.Add(CustomSkill.DeceptionExpertise, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionExpertise], player));
           player.learnableSkills[CustomSkill.DeceptionExpertise].LevelUp(player);
         }
       }
       else
       {
-        player.learnableSkills.Add(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency]));
+        player.learnableSkills.Add(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency], player));
         player.learnableSkills[CustomSkill.DeceptionProficiency].LevelUp(player);
       }
 
@@ -42,13 +42,13 @@ namespace NWN.Systems
         }
         else
         {
-          player.learnableSkills.Add(CustomSkill.PersuasionExpertise, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PersuasionExpertise]));
+          player.learnableSkills.Add(CustomSkill.PersuasionExpertise, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PersuasionExpertise], player));
           player.learnableSkills[CustomSkill.PersuasionExpertise].LevelUp(player);
         }
       }
       else
       {
-        player.learnableSkills.Add(CustomSkill.PersuasionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PersuasionProficiency]));
+        player.learnableSkills.Add(CustomSkill.PersuasionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PersuasionProficiency], player));
         player.learnableSkills[CustomSkill.PersuasionProficiency].LevelUp(player);
       }
 

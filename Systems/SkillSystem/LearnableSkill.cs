@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Anvil.API;
 using NWN.Core;
+using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
@@ -16,7 +17,7 @@ namespace NWN.Systems
     public double bonusReduction { get { return 1 - (totalPoints / 100); } }
     public int levelTaken { get; }
     public bool restoreOnShortRest { get; }
-    public Dictionary<int, int[]> featOptions { get; }
+    public Dictionary<int, int[]> featOptions { get; set; }
     public List<int> racePrerequiste { get; }
     public List<int> learnablePrerequiste { get; }
 
@@ -31,7 +32,7 @@ namespace NWN.Systems
       this.learnablePrerequiste = learnablePrerequiste;
       this.restoreOnShortRest = restoreOnShortRest;
     }
-    public LearnableSkill(LearnableSkill learnableBase, int skillSource = -1, bool active = false, double acquiredSP = 0, int currentLevel = 0, int levelTaken = 0, Dictionary<int, int[]> featOptions = null, bool restoreOnShortRest = false) : base(learnableBase)
+    public LearnableSkill(LearnableSkill learnableBase, Player player, int skillSource = -1, bool active = false, double acquiredSP = 0, int currentLevel = 0, int levelTaken = 0, Dictionary<int, int[]> featOptions = null, bool restoreOnShortRest = false) : base(learnableBase)
     {
       this.category = learnableBase.category;
       this.skillEffect = learnableBase.skillEffect;
@@ -40,7 +41,7 @@ namespace NWN.Systems
       this.active = active;
       this.acquiredPoints = acquiredSP;
       this.currentLevel = currentLevel;
-      this.pointsToNextLevel = 250 * multiplier * Math.Pow(5, currentLevel);
+      this.pointsToNextLevel = GetPointsToLevelUp(player);
       this.levelTaken = levelTaken;
       this.featOptions = featOptions;
       this.restoreOnShortRest = restoreOnShortRest;
@@ -49,14 +50,14 @@ namespace NWN.Systems
       if (skillSource > -1)
         source.Add((SkillSystem.Category)skillSource);
     }
-    public LearnableSkill(LearnableSkill learnableBase, SerializableLearnableSkill serializableBase) 
+    public LearnableSkill(LearnableSkill learnableBase, SerializableLearnableSkill serializableBase, Player player) 
       : base(learnableBase)
     {
       category = learnableBase.category;
       active = serializableBase.active;
       acquiredPoints = serializableBase.acquiredPoints;
       currentLevel = serializableBase.currentLevel;
-      pointsToNextLevel = 250 * multiplier * Math.Pow(5, currentLevel);
+      pointsToNextLevel = GetPointsToLevelUp(player);
       spLastCalculation = serializableBase.spLastCalculation;
       skillEffect = learnableBase.skillEffect;
       levelTaken = serializableBase.levelTaken;
@@ -106,7 +107,7 @@ namespace NWN.Systems
       }
     }
 
-    public void LevelUp(PlayerSystem.Player player)
+    public void LevelUp(Player player)
     {
       acquiredPoints = pointsToNextLevel;
       currentLevel += 1;
@@ -115,9 +116,9 @@ namespace NWN.Systems
       skillEffect?.Invoke(player, id);
       pointsToNextLevel = GetPointsToLevelUp(player);
 
-      if (player.TryGetOpenedWindow("activeLearnable", out PlayerSystem.Player.PlayerWindow activeLearnableWindow))
+      if (player.TryGetOpenedWindow("activeLearnable", out Player.PlayerWindow activeLearnableWindow))
       {
-        PlayerSystem.Player.ActiveLearnableWindow window = (PlayerSystem.Player.ActiveLearnableWindow)activeLearnableWindow;
+        Player.ActiveLearnableWindow window = (Player.ActiveLearnableWindow)activeLearnableWindow;
         window.timeLeft.SetBindValue(player.oid, window.nuiToken.Token, "Apprentissage terminé");
         window.level.SetBindValue(player.oid, window.nuiToken.Token, $"{currentLevel}/{maxLevel}");
       }
@@ -139,31 +140,31 @@ namespace NWN.Systems
         case SkillSystem.Category.FighterSubClass:
 
           double multiClassMultiplier = player.oid.LoginCreature.Level > 11 
-            ? player.oid.LoginCreature.Classes.Distinct().Count() * 1.5  : 1;
+            ? player.oid.LoginCreature.Classes.Distinct().Count() * 1.5 : 1;
 
           return player.oid.LoginCreature.Level switch
           {
-            1 => 300 * multiClassMultiplier,
-            2 => 900 * multiClassMultiplier,
-            3 => 2700 * multiClassMultiplier,
-            4 => 6500 * multiClassMultiplier,
-            5 => 14000 * multiClassMultiplier,
-            6 => 23000 * multiClassMultiplier,
-            7 => 34000 * multiClassMultiplier,
-            8 => 48000 * multiClassMultiplier,
-            9 => 64000 * multiClassMultiplier,
-            10 => 85000 * multiClassMultiplier,
-            11 => 100000 * multiClassMultiplier,
-            12 => 120000 * multiClassMultiplier,
-            13 => 140000 * multiClassMultiplier,
-            14 => 165000 * multiClassMultiplier,
-            15 => 195000 * multiClassMultiplier,
-            16 => 225000 * multiClassMultiplier,
-            17 => 265000 * multiClassMultiplier,
-            18 => 305000 * multiClassMultiplier,
-            19 => 355000 * multiClassMultiplier,
-            20 => 408250 * multiClassMultiplier,
-            _ => 408250 * multiClassMultiplier * 1.15 * (player.oid.LoginCreature.Level - 20),
+            1 => 8640 * multiClassMultiplier,
+            2 => 26000 * multiClassMultiplier,
+            3 => 80000 * multiClassMultiplier,
+            4 => 190000 * multiClassMultiplier,
+            5 => 405000 * multiClassMultiplier,
+            6 => 660000 * multiClassMultiplier,
+            7 => 980000 * multiClassMultiplier,
+            8 => 1380000 * multiClassMultiplier,
+            9 => 1840000 * multiClassMultiplier,
+            10 => 2450000 * multiClassMultiplier,
+            11 => 2880000 * multiClassMultiplier,
+            12 => 3456000 * multiClassMultiplier,
+            13 => 4032000 * multiClassMultiplier,
+            14 => 4752000 * multiClassMultiplier,
+            15 => 5616000 * multiClassMultiplier,
+            16 => 6480000 * multiClassMultiplier,
+            17 => 7632000 * multiClassMultiplier,
+            18 => 8784000 * multiClassMultiplier,
+            19 => 10224000 * multiClassMultiplier,
+            20 => 11760000 * multiClassMultiplier,
+            _ => 11760000 * multiClassMultiplier * 1.15 * (player.oid.LoginCreature.Level - 20),
           };
         default:
           return 250 * multiplier * Math.Pow(5, currentLevel);

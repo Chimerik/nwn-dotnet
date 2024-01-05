@@ -433,6 +433,11 @@ namespace NWN.Systems
           Dodge(onSpellCast, player);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
+
+        case CustomSpell.TirPerforant:
+          TirPerforant(onSpellCast, spellEntry);
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
       }
 
       castingCreature.GetObjectVariable<LocalVariableInt>(SpellConfig.CurrentSpellVariable).Delete();

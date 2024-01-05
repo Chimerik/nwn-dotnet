@@ -2,6 +2,7 @@
 using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
+using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
 {
@@ -27,7 +28,7 @@ namespace NWN.Systems
           windowId = "skillBonusChoice";
           rootColumn.Children = rootChildren;
 
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiCombo() { Entries = skills, Selected = selectedSkill } } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiCombo() { Entries = skills, Selected = selectedSkill, Width = 200 }, new NuiSpacer() } });
           rootChildren.Add(new NuiRow() { Margin = 0.0f, Height = 35, Children = new List<NuiElement>() { new NuiSpacer(), new NuiButton("Valider") { Id = "validate", Width = 80, Encouraged = enabled }, new NuiSpacer() } });
           
           CreateWindow(level, source, option, skillList);
@@ -40,9 +41,9 @@ namespace NWN.Systems
 
           player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_CHOICE_FEAT").Value = source;
 
-          NuiRect savedRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(player.guiScaledWidth * 0.4f, player.guiHeight * 0.15f, player.guiScaledWidth * 0.4f, player.guiScaledHeight * 0.55f);
+          NuiRect savedRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(player.guiScaledWidth * 0.7f, player.guiHeight * 0.15f, player.guiScaledWidth * 0.3f, player.guiScaledHeight * 0.18f);
 
-          window = new NuiWindow(rootColumn, $"{SkillSystem.learnableDictionary[source].name} - Choisissez une maîtrise")
+          window = new NuiWindow(rootColumn, $"{learnableDictionary[source].name} - Choisissez une maîtrise")
           {
             Geometry = geometry,
             Resizable = false,
@@ -59,8 +60,7 @@ namespace NWN.Systems
 
             skills.SetBindValue(player.oid, nuiToken.Token, skillList);
             selectedSkill.SetBindValue(player.oid, nuiToken.Token, skillList.FirstOrDefault().Value);
-
-            geometry.SetBindValue(player.oid, nuiToken.Token, new NuiRect(savedRectangle.X, savedRectangle.Y, player.guiScaledWidth * 0.4f, player.guiScaledHeight * 0.55f));
+            geometry.SetBindValue(player.oid, nuiToken.Token, new NuiRect(savedRectangle.X, savedRectangle.Y, player.guiScaledWidth * 0.3f, player.guiScaledHeight * 0.18f));
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
           }
         }
@@ -74,17 +74,14 @@ namespace NWN.Systems
               {
                 case "validate":
 
-                  CloseWindow();
                   int selection = selectedSkill.GetBindValue(player.oid, nuiToken.Token);
 
-                  if (!player.learnableSkills[sourceFeat].featOptions.ContainsKey(acquiredLevel))
-                    player.learnableSkills[sourceFeat].featOptions.Add(acquiredLevel, new int[] { -1, -1, -1 });
-
-                  player.learnableSkills[sourceFeat].featOptions[acquiredLevel][featOption] = selection;
+                  player.learnableSkills.TryAdd(selection, new LearnableSkill((LearnableSkill)learnableDictionary[selection], player));
                   player.learnableSkills[selection].LevelUp(player);
+                  player.learnableSkills[selection].source.Add(Category.Class);
+
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_CHOICE_FEAT").Delete();
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_OPTION_CHOICE_FEAT").Delete();
-
 
                   switch(sourceFeat)
                   {
@@ -101,6 +98,8 @@ namespace NWN.Systems
 
                       break;
                   }
+
+                  CloseWindow();
 
                   return;
               }

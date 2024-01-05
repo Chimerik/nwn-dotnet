@@ -956,12 +956,12 @@ namespace NWN.Systems
     }
     private static bool HandleAcolyteBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if(player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency])))
+      if(player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency], player)))
         player.learnableSkills[CustomSkill.InsightProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.InsightProficiency].source.Add(Category.StartingTraits);
 
-      if(player.learnableSkills.TryAdd(CustomSkill.ReligionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ReligionProficiency])))
+      if(player.learnableSkills.TryAdd(CustomSkill.ReligionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ReligionProficiency], player)))
       player.learnableSkills[CustomSkill.ReligionProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.ReligionProficiency].source.Add(Category.StartingTraits);
@@ -970,12 +970,12 @@ namespace NWN.Systems
     }
     private static bool HandleAnthropologistBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency], player)))
       player.learnableSkills[CustomSkill.InsightProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.InsightProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.HistoryProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HistoryProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.HistoryProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HistoryProficiency], player)))
       player.learnableSkills[CustomSkill.HistoryProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.HistoryProficiency].source.Add(Category.StartingTraits);
@@ -984,12 +984,12 @@ namespace NWN.Systems
     }
     private static bool HandleArcheologistBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency], player)))
       player.learnableSkills[CustomSkill.InsightProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.InsightProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.IntimidationProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.IntimidationProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.IntimidationProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.IntimidationProficiency], player)))
       player.learnableSkills[CustomSkill.IntimidationProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.IntimidationProficiency].source.Add(Category.StartingTraits);
@@ -998,12 +998,12 @@ namespace NWN.Systems
     }
     private static bool HandleScholarBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.HistoryProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HistoryProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.HistoryProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HistoryProficiency], player)))
       player.learnableSkills[CustomSkill.HistoryProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.HistoryProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.NatureProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.NatureProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.NatureProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.NatureProficiency], player)))
       player.learnableSkills[CustomSkill.NatureProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.NatureProficiency].source.Add(Category.StartingTraits);
@@ -1012,12 +1012,12 @@ namespace NWN.Systems
     }
     private static bool HandleSageBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.HistoryProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HistoryProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.HistoryProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HistoryProficiency], player)))
       player.learnableSkills[CustomSkill.HistoryProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.HistoryProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.ArcanaProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ArcanaProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.ArcanaProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ArcanaProficiency], player)))
       player.learnableSkills[CustomSkill.ArcanaProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.ArcanaProficiency].source.Add(Category.StartingTraits);
@@ -1026,12 +1026,12 @@ namespace NWN.Systems
     }
     private static bool HandleHermitBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.MedicineProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MedicineProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.MedicineProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MedicineProficiency], player)))
       player.learnableSkills[CustomSkill.MedicineProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.MedicineProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.ReligionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ReligionProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.ReligionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ReligionProficiency], player)))
       player.learnableSkills[CustomSkill.ReligionProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.ReligionProficiency].source.Add(Category.StartingTraits);
@@ -1040,12 +1040,12 @@ namespace NWN.Systems
     }
     private static bool HandleWandererBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency], player)))
       player.learnableSkills[CustomSkill.SurvivalProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.SurvivalProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.PersuasionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PersuasionProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.PersuasionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PersuasionProficiency], player)))
       player.learnableSkills[CustomSkill.PersuasionProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.PersuasionProficiency].source.Add(Category.StartingTraits);
@@ -1054,12 +1054,12 @@ namespace NWN.Systems
     }
     private static bool HandleAthleteBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.AcrobaticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AcrobaticsProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.AcrobaticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AcrobaticsProficiency], player)))
       player.learnableSkills[CustomSkill.AcrobaticsProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.AcrobaticsProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.AthleticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AthleticsProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.AthleticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AthleticsProficiency], player)))
       player.learnableSkills[CustomSkill.AthleticsProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.AthleticsProficiency].source.Add(Category.StartingTraits);
@@ -1068,12 +1068,12 @@ namespace NWN.Systems
     }
     private static bool HandleOutlanderBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.AthleticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AthleticsProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.AthleticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AthleticsProficiency], player)))
       player.learnableSkills[CustomSkill.AthleticsProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.AthleticsProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency], player)))
       player.learnableSkills[CustomSkill.SurvivalProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.SurvivalProficiency].source.Add(Category.StartingTraits);
@@ -1082,12 +1082,12 @@ namespace NWN.Systems
     }
     private static bool HandleSoldierBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.AthleticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AthleticsProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.AthleticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AthleticsProficiency], player)))
       player.learnableSkills[CustomSkill.AthleticsProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.AthleticsProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.IntimidationProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.IntimidationProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.IntimidationProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.IntimidationProficiency], player)))
       player.learnableSkills[CustomSkill.IntimidationProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.IntimidationProficiency].source.Add(Category.StartingTraits);
@@ -1096,12 +1096,12 @@ namespace NWN.Systems
     }
     private static bool HandleMercenaryBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.AthleticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AthleticsProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.AthleticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AthleticsProficiency], player)))
       player.learnableSkills[CustomSkill.AthleticsProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.AthleticsProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.PersuasionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PersuasionProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.PersuasionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PersuasionProficiency], player)))
       player.learnableSkills[CustomSkill.PersuasionProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.PersuasionProficiency].source.Add(Category.StartingTraits);
@@ -1110,12 +1110,12 @@ namespace NWN.Systems
     }
     private static bool HandleFolkHeroBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.AnimalHandlingProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AnimalHandlingProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.AnimalHandlingProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AnimalHandlingProficiency], player)))
       player.learnableSkills[CustomSkill.AnimalHandlingProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.AnimalHandlingProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency], player)))
       player.learnableSkills[CustomSkill.SurvivalProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.SurvivalProficiency].source.Add(Category.StartingTraits);
@@ -1124,12 +1124,12 @@ namespace NWN.Systems
     }
     private static bool HandleSailorBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.AthleticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AthleticsProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.AthleticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AthleticsProficiency], player)))
       player.learnableSkills[CustomSkill.AthleticsProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.AthleticsProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.PerceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PerceptionProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.PerceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PerceptionProficiency], player)))
       player.learnableSkills[CustomSkill.PerceptionProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.PerceptionProficiency].source.Add(Category.StartingTraits);
@@ -1138,12 +1138,12 @@ namespace NWN.Systems
     }
     private static bool HandleShipwrightBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.HistoryProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HistoryProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.HistoryProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HistoryProficiency], player)))
       player.learnableSkills[CustomSkill.HistoryProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.HistoryProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.PerceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PerceptionProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.PerceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PerceptionProficiency], player)))
       player.learnableSkills[CustomSkill.PerceptionProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.PerceptionProficiency].source.Add(Category.StartingTraits);
@@ -1152,12 +1152,12 @@ namespace NWN.Systems
     }
     private static bool HandleFisherBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.MedicineProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MedicineProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.MedicineProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MedicineProficiency], player)))
       player.learnableSkills[CustomSkill.MedicineProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.MedicineProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency], player)))
       player.learnableSkills[CustomSkill.SurvivalProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.SurvivalProficiency].source.Add(Category.StartingTraits);
@@ -1166,12 +1166,12 @@ namespace NWN.Systems
     }
     private static bool HandleMarineBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.PerceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PerceptionProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.PerceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PerceptionProficiency], player)))
       player.learnableSkills[CustomSkill.PerceptionProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.PerceptionProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency], player)))
       player.learnableSkills[CustomSkill.SurvivalProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.SurvivalProficiency].source.Add(Category.StartingTraits);
@@ -1180,12 +1180,12 @@ namespace NWN.Systems
     }
     private static bool HandleCriminalBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency], player)))
       player.learnableSkills[CustomSkill.DeceptionProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.DeceptionProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.StealthProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.StealthProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.StealthProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.StealthProficiency], player)))
       player.learnableSkills[CustomSkill.StealthProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.StealthProficiency].source.Add(Category.StartingTraits);
@@ -1194,12 +1194,12 @@ namespace NWN.Systems
     }
     private static bool HandleCharlatanBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency], player)))
       player.learnableSkills[CustomSkill.DeceptionProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.DeceptionProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.SleightOfHandProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SleightOfHandProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.SleightOfHandProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SleightOfHandProficiency], player)))
       player.learnableSkills[CustomSkill.SleightOfHandProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.SleightOfHandProficiency].source.Add(Category.StartingTraits);
@@ -1208,12 +1208,12 @@ namespace NWN.Systems
     }
     private static bool HandleSmugglerBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency], player)))
       player.learnableSkills[CustomSkill.DeceptionProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.DeceptionProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.AthleticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AthleticsProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.AthleticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AthleticsProficiency], player)))
       player.learnableSkills[CustomSkill.AthleticsProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.AthleticsProficiency].source.Add(Category.StartingTraits);
@@ -1222,12 +1222,12 @@ namespace NWN.Systems
     }
     private static bool HandleUrchinBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.SleightOfHandProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SleightOfHandProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.SleightOfHandProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SleightOfHandProficiency], player)))
       player.learnableSkills[CustomSkill.SleightOfHandProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.SleightOfHandProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.StealthProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.StealthProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.StealthProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.StealthProficiency], player)))
       player.learnableSkills[CustomSkill.StealthProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.StealthProficiency].source.Add(Category.StartingTraits);
@@ -1236,12 +1236,12 @@ namespace NWN.Systems
     }
     private static bool HandleGamblerBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency], player)))
       player.learnableSkills[CustomSkill.DeceptionProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.DeceptionProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency], player)))
       player.learnableSkills[CustomSkill.InsightProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.InsightProficiency].source.Add(Category.StartingTraits);
@@ -1250,12 +1250,12 @@ namespace NWN.Systems
     }
     private static bool HandleEntertainerBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.PerformanceProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PerformanceProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.PerformanceProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PerformanceProficiency], player)))
       player.learnableSkills[CustomSkill.PerformanceProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.PerformanceProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.AcrobaticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AcrobaticsProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.AcrobaticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AcrobaticsProficiency], player)))
       player.learnableSkills[CustomSkill.AcrobaticsProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.AcrobaticsProficiency].source.Add(Category.StartingTraits);
@@ -1264,12 +1264,12 @@ namespace NWN.Systems
     }
     private static bool HandleCityWatchBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.AthleticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AthleticsProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.AthleticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AthleticsProficiency], player)))
       player.learnableSkills[CustomSkill.AthleticsProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.AthleticsProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency], player)))
       player.learnableSkills[CustomSkill.InsightProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.InsightProficiency].source.Add(Category.StartingTraits);
@@ -1278,12 +1278,12 @@ namespace NWN.Systems
     }
     private static bool HandleInvestigatorBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.InvestigationProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InvestigationProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.InvestigationProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InvestigationProficiency], player)))
       player.learnableSkills[CustomSkill.InvestigationProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.InvestigationProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency], player)))
       player.learnableSkills[CustomSkill.InsightProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.InsightProficiency].source.Add(Category.StartingTraits);
@@ -1292,12 +1292,12 @@ namespace NWN.Systems
     }
     private static bool HandleKnightBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.PersuasionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PersuasionProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.PersuasionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PersuasionProficiency], player)))
       player.learnableSkills[CustomSkill.PersuasionProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.PersuasionProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.ReligionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ReligionProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.ReligionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ReligionProficiency], player)))
       player.learnableSkills[CustomSkill.ReligionProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.ReligionProficiency].source.Add(Category.StartingTraits);
@@ -1306,12 +1306,12 @@ namespace NWN.Systems
     }
     private static bool HandleNobleBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.PersuasionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PersuasionProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.PersuasionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PersuasionProficiency], player)))
       player.learnableSkills[CustomSkill.PersuasionProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.PersuasionProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.HistoryProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HistoryProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.HistoryProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HistoryProficiency], player)))
       player.learnableSkills[CustomSkill.HistoryProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.HistoryProficiency].source.Add(Category.StartingTraits);
@@ -1320,12 +1320,12 @@ namespace NWN.Systems
     }
     private static bool HandleCourtierBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.PersuasionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PersuasionProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.PersuasionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PersuasionProficiency], player)))
       player.learnableSkills[CustomSkill.PersuasionProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.PersuasionProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.NatureProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.NatureProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.NatureProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.NatureProficiency], player)))
       player.learnableSkills[CustomSkill.NatureProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.NatureProficiency].source.Add(Category.StartingTraits);
@@ -1334,12 +1334,12 @@ namespace NWN.Systems
     }
     private static bool HandleMerchantBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.PersuasionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PersuasionProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.PersuasionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PersuasionProficiency], player)))
       player.learnableSkills[CustomSkill.PersuasionProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.PersuasionProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.InvestigationProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InvestigationProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.InvestigationProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InvestigationProficiency], player)))
       player.learnableSkills[CustomSkill.InvestigationProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.InvestigationProficiency].source.Add(Category.StartingTraits);
@@ -1348,12 +1348,12 @@ namespace NWN.Systems
     }
     private static bool HandleTakenBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.NatureProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.NatureProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.NatureProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.NatureProficiency], player)))
       player.learnableSkills[CustomSkill.NatureProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.NatureProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency], player)))
       player.learnableSkills[CustomSkill.SurvivalProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.SurvivalProficiency].source.Add(Category.StartingTraits);
@@ -1362,12 +1362,12 @@ namespace NWN.Systems
     }
     private static bool HandleScionBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.ArcanaProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ArcanaProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.ArcanaProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ArcanaProficiency], player)))
       player.learnableSkills[CustomSkill.ArcanaProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.ArcanaProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency], player)))
       player.learnableSkills[CustomSkill.SurvivalProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.SurvivalProficiency].source.Add(Category.StartingTraits);
@@ -1376,12 +1376,12 @@ namespace NWN.Systems
     }
     private static bool HandleMagistrateBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency], player)))
       player.learnableSkills[CustomSkill.InsightProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.InsightProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.IntimidationProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.IntimidationProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.IntimidationProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.IntimidationProficiency], player)))
       player.learnableSkills[CustomSkill.IntimidationProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.IntimidationProficiency].source.Add(Category.StartingTraits);
@@ -1390,12 +1390,12 @@ namespace NWN.Systems
     }
     private static bool HandleRefugeeBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency], player)))
       player.learnableSkills[CustomSkill.InsightProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.InsightProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency], player)))
       player.learnableSkills[CustomSkill.SurvivalProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.SurvivalProficiency].source.Add(Category.StartingTraits);
@@ -1404,12 +1404,12 @@ namespace NWN.Systems
     }
     private static bool HandlePrisonerBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency], player)))
       player.learnableSkills[CustomSkill.DeceptionProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.DeceptionProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.PerceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PerceptionProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.PerceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PerceptionProficiency], player)))
       player.learnableSkills[CustomSkill.PerceptionProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.PerceptionProficiency].source.Add(Category.StartingTraits);
@@ -1418,12 +1418,12 @@ namespace NWN.Systems
     }
     private static bool HandleHauntedBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.ArcanaProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ArcanaProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.ArcanaProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ArcanaProficiency], player)))
       player.learnableSkills[CustomSkill.ArcanaProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.ArcanaProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.InvestigationProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InvestigationProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.InvestigationProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InvestigationProficiency], player)))
       player.learnableSkills[CustomSkill.InvestigationProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.InvestigationProficiency].source.Add(Category.StartingTraits);
@@ -1432,12 +1432,12 @@ namespace NWN.Systems
     }
     private static bool HandleFacelessBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency], player)))
       player.learnableSkills[CustomSkill.DeceptionProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.DeceptionProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.IntimidationProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.IntimidationProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.IntimidationProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.IntimidationProficiency], player)))
       player.learnableSkills[CustomSkill.IntimidationProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.IntimidationProficiency].source.Add(Category.StartingTraits);
@@ -1446,12 +1446,12 @@ namespace NWN.Systems
     }
     private static bool HandleSecretBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency], player)))
       player.learnableSkills[CustomSkill.DeceptionProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.DeceptionProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.PerformanceProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PerformanceProficiency])))
+      if (player.learnableSkills.TryAdd(CustomSkill.PerformanceProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PerformanceProficiency], player)))
       player.learnableSkills[CustomSkill.PerformanceProficiency].LevelUp(player);
 
       player.learnableSkills[CustomSkill.PerformanceProficiency].source.Add(Category.StartingTraits);

@@ -159,7 +159,7 @@ namespace NWN.Systems
                   validationEnabled.SetBindValue(player.oid, nuiToken.Token, false);
                   validatedLearnableId = selectedLearnable.id;
 
-                  player.learnableSkills.TryAdd(selectedLearnable.id, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[selectedLearnable.id], (int)SkillSystem.Category.StartingTraits));
+                  player.learnableSkills.TryAdd(selectedLearnable.id, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[selectedLearnable.id], player, (int)SkillSystem.Category.StartingTraits));
                   player.learnableSkills[selectedLearnable.id].LevelUp(player);
 
                   validationText.SetBindValue(player.oid, nuiToken.Token, $"Votre origine est désormais : {selectedLearnable.name}");

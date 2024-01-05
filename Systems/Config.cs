@@ -136,7 +136,7 @@ namespace NWN.Systems
 
     public static readonly TargetModeSettings selectLocationTargetMode = new()
     {
-      ValidTargets = ObjectTypes.All,
+      ValidTargets = ObjectTypes.Creature | ObjectTypes.Door | ObjectTypes.Waypoint | ObjectTypes.Trigger | ObjectTypes.AreaOfEffect | ObjectTypes.Placeable | ObjectTypes.Placeable | ObjectTypes.Tile,
       CursorType = MouseCursor.Attack,
       BadCursorType = MouseCursor.NoAttack
     };

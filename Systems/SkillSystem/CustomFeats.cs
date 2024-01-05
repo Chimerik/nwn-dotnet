@@ -545,7 +545,6 @@
     public const int FighterBonusAttack = 20482; // 3 niveaux
     public const int FighterInflexible = 20483;
 
-    public const int FighterChampionCritical = 20484; // 2 niveaux
     public const int FighterChampionRemarkableAthlete = 20485;
     
     /*public const int FighterEldritchKnightBoundWeapon = 20486;

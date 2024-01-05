@@ -28,7 +28,7 @@ namespace NWN.Systems
 
         case 7:
 
-          player.learnableSkills.TryAdd(CustomSkill.ArcaneArcherTirIncurve, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ArcaneArcherTirIncurve]));
+          player.learnableSkills.TryAdd(CustomSkill.ArcaneArcherTirIncurve, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ArcaneArcherTirIncurve], player));
           player.learnableSkills[CustomSkill.ArcaneArcherTirIncurve].LevelUp(player);
           player.learnableSkills[CustomSkill.ArcaneArcherTirIncurve].source.Add(Category.Class);
 

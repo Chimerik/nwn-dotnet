@@ -17,7 +17,7 @@ namespace NWN.Systems
 
           new StrRef(8).SetPlayerOverride(player.oid, "Champion");
 
-          player.learnableSkills.TryAdd(CustomSkill.FighterChampionImprovedCritical, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterChampionImprovedCritical]));
+          player.learnableSkills.TryAdd(CustomSkill.FighterChampionImprovedCritical, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterChampionImprovedCritical], player));
           player.learnableSkills[CustomSkill.FighterChampionImprovedCritical].LevelUp(player);
           player.learnableSkills[CustomSkill.FighterChampionImprovedCritical].source.Add(Category.Class);
 
@@ -25,7 +25,7 @@ namespace NWN.Systems
 
         case 7:
 
-          player.learnableSkills.TryAdd(CustomSkill.FighterChampionRemarkableAthlete, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterChampionRemarkableAthlete]));
+          player.learnableSkills.TryAdd(CustomSkill.FighterChampionRemarkableAthlete, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterChampionRemarkableAthlete], player));
           player.learnableSkills[CustomSkill.FighterChampionRemarkableAthlete].LevelUp(player);
           player.learnableSkills[CustomSkill.FighterChampionRemarkableAthlete].source.Add(Category.Class);
 
@@ -33,7 +33,7 @@ namespace NWN.Systems
 
         case 10:
 
-          player.learnableSkills.TryAdd(CustomSkill.FighterChampionBonusCombatStyle, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterChampionBonusCombatStyle]));
+          player.learnableSkills.TryAdd(CustomSkill.FighterChampionBonusCombatStyle, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterChampionBonusCombatStyle], player));
           player.learnableSkills[CustomSkill.FighterChampionBonusCombatStyle].LevelUp(player);
           player.learnableSkills[CustomSkill.FighterChampionBonusCombatStyle].source.Add(Category.Class);
 
@@ -44,14 +44,14 @@ namespace NWN.Systems
 
         case 15:
 
-          player.learnableSkills.TryAdd(CustomSkill.FighterChampionImprovedCritical, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterChampionImprovedCritical]));
+          player.learnableSkills.TryAdd(CustomSkill.FighterChampionImprovedCritical, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterChampionImprovedCritical], player));
           player.learnableSkills[CustomSkill.FighterChampionImprovedCritical].LevelUp(player);
 
           break;
 
         case 18:
 
-          player.learnableSkills.TryAdd(CustomSkill.FighterChampionUltimeSurvivant, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterChampionUltimeSurvivant]));
+          player.learnableSkills.TryAdd(CustomSkill.FighterChampionUltimeSurvivant, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterChampionUltimeSurvivant], player));
           player.learnableSkills[CustomSkill.FighterChampionUltimeSurvivant].LevelUp(player);
           player.learnableSkills[CustomSkill.FighterChampionUltimeSurvivant].source.Add(Category.Class);
 

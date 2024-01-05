@@ -13,7 +13,7 @@ namespace NWN.Systems
         player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.LameDoutretombe));
 
       if (!player.learnableSkills.ContainsKey(CustomSkill.DoubleBladeProficiency))
-        player.learnableSkills.Add(CustomSkill.DoubleBladeProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DoubleBladeProficiency]));
+        player.learnableSkills.Add(CustomSkill.DoubleBladeProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DoubleBladeProficiency], player));
 
       LearnableSkill doubleBlade = player.learnableSkills[CustomSkill.DoubleBladeProficiency];
 

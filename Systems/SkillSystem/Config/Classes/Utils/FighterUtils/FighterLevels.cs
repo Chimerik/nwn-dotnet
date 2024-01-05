@@ -19,7 +19,7 @@ namespace NWN.Systems
           {
             foreach (Learnable learnable in startingPackage.freeLearnables)
             {
-              if (player.learnableSkills.TryAdd(learnable.id, new LearnableSkill((LearnableSkill)learnable)))
+              if (player.learnableSkills.TryAdd(learnable.id, new LearnableSkill((LearnableSkill)learnable, player)))
                 player.learnableSkills[learnable.id].LevelUp(player);
 
               player.learnableSkills[learnable.id].source.Add(Category.Class);
@@ -27,7 +27,7 @@ namespace NWN.Systems
 
             foreach (Learnable learnable in startingPackage.learnables)
             {
-              player.learnableSkills.TryAdd(learnable.id, new LearnableSkill((LearnableSkill)learnable));
+              player.learnableSkills.TryAdd(learnable.id, new LearnableSkill((LearnableSkill)learnable, player));
               player.learnableSkills[learnable.id].source.Add(Category.Class);
             }
 
@@ -37,19 +37,19 @@ namespace NWN.Systems
             CreaturePlugin.SetClassByPosition(player.oid.LoginCreature, player.oid.LoginCreature.Classes.Count, (int)ClassType.Fighter);
 
           // On donne les autres capacités de niveau 1
-          player.learnableSkills.TryAdd(CustomSkill.FighterSecondWind, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterSecondWind]));
+          player.learnableSkills.TryAdd(CustomSkill.FighterSecondWind, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterSecondWind], player));
           player.learnableSkills[CustomSkill.FighterSecondWind].LevelUp(player);
           player.learnableSkills[CustomSkill.FighterSecondWind].source.Add(Category.Class);
           int chosenStyle = player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CHOSEN_FIGHTER_STYLE").Value;
 
-          player.learnableSkills.TryAdd(chosenStyle, new LearnableSkill((LearnableSkill)learnableDictionary[chosenStyle]));
+          player.learnableSkills.TryAdd(chosenStyle, new LearnableSkill((LearnableSkill)learnableDictionary[chosenStyle], player));
           player.learnableSkills[chosenStyle].LevelUp(player);
           player.learnableSkills[chosenStyle].source.Add(Category.Class);
 
           break;
         case 2:
 
-          player.learnableSkills.TryAdd(CustomSkill.FighterSurge, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterSurge]));
+          player.learnableSkills.TryAdd(CustomSkill.FighterSurge, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterSurge], player));
           player.learnableSkills[CustomSkill.FighterSurge].LevelUp(player);
           player.learnableSkills[CustomSkill.FighterSurge].source.Add(Category.Class);
 
@@ -73,7 +73,7 @@ namespace NWN.Systems
 
         case 5:
 
-          player.learnableSkills.TryAdd(CustomSkill.FighterBonusAttack, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterBonusAttack]));
+          player.learnableSkills.TryAdd(CustomSkill.FighterBonusAttack, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterBonusAttack], player));
           player.learnableSkills[CustomSkill.FighterBonusAttack].LevelUp(player);
           player.learnableSkills[CustomSkill.FighterBonusAttack].source.Add(Category.Class);
 
@@ -95,7 +95,7 @@ namespace NWN.Systems
 
         case 9:
 
-          player.learnableSkills.TryAdd(CustomSkill.FighterInflexible, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterInflexible]));
+          player.learnableSkills.TryAdd(CustomSkill.FighterInflexible, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterInflexible], player));
           player.learnableSkills[CustomSkill.FighterInflexible].LevelUp(player);
           player.learnableSkills[CustomSkill.FighterInflexible].source.Add(Category.Class);
 
@@ -103,7 +103,7 @@ namespace NWN.Systems
 
         case 11:
 
-          player.learnableSkills.TryAdd(CustomSkill.FighterBonusAttack, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterBonusAttack]));
+          player.learnableSkills.TryAdd(CustomSkill.FighterBonusAttack, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterBonusAttack], player));
           player.learnableSkills[CustomSkill.FighterBonusAttack].LevelUp(player);
 
           player.oid.LoginCreature.BaseAttackBonus += 1;
@@ -119,24 +119,24 @@ namespace NWN.Systems
 
         case 13:
 
-          player.learnableSkills.TryAdd(CustomSkill.FighterInflexible, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterInflexible]));
+          player.learnableSkills.TryAdd(CustomSkill.FighterInflexible, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterInflexible], player));
           player.learnableSkills[CustomSkill.FighterInflexible].LevelUp(player);
 
           break;
 
         case 17:
 
-          player.learnableSkills.TryAdd(CustomSkill.FighterInflexible, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterInflexible]));
+          player.learnableSkills.TryAdd(CustomSkill.FighterInflexible, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterInflexible], player));
           player.learnableSkills[CustomSkill.FighterInflexible].LevelUp(player);
 
-          player.learnableSkills.TryAdd(CustomSkill.FighterSurge, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterSurge]));
+          player.learnableSkills.TryAdd(CustomSkill.FighterSurge, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterSurge], player));
           player.learnableSkills[CustomSkill.FighterSurge].LevelUp(player);
 
           break;
 
         case 20:
 
-          player.learnableSkills.TryAdd(CustomSkill.FighterBonusAttack, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterBonusAttack]));
+          player.learnableSkills.TryAdd(CustomSkill.FighterBonusAttack, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterBonusAttack], player));
           player.learnableSkills[CustomSkill.FighterBonusAttack].LevelUp(player);
 
           player.oid.LoginCreature.BaseAttackBonus += 1;

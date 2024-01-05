@@ -38,9 +38,7 @@ namespace NWN.Systems
       }
 
       damage = ItemUtils.GetShieldMasterReducedDamage(target, damage, saveFailed, spellEntry.savingThrowAbility);
-
-      if (!saveFailed)
-        damage /= 2;
+      damage /= saveFailed ? 1 : 2;
 
       //int nDamage = SpellUtils.MaximizeOrEmpower(iDamage, 1 + nCasterLevel / 6, onSpellCast.MetaMagicFeat);
 

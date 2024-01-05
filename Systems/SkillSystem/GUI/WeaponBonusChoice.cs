@@ -131,127 +131,127 @@ namespace NWN.Systems
                       switch (NwBaseItem.FromItemId(weaponProficiencies[weapon])?.ItemType)
                       {
                         case BaseItemType.Club:
-                          player.learnableSkills.TryAdd(CustomSkill.ClubProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ClubProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.ClubProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ClubProficiency], player));
                           player.learnableSkills[CustomSkill.ClubProficiency].LevelUp(player);
                           break;
                         case BaseItemType.Dagger:
-                          player.learnableSkills.TryAdd(CustomSkill.DaggerProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.DaggerProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.DaggerProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.DaggerProficiency], player));
                           player.learnableSkills[CustomSkill.DaggerProficiency].LevelUp(player);
                           break;
                         case BaseItemType.Handaxe:
-                          player.learnableSkills.TryAdd(CustomSkill.HandAxeProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.HandAxeProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.HandAxeProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.HandAxeProficiency], player));
                           player.learnableSkills[CustomSkill.HandAxeProficiency].LevelUp(player);
                           break;
                         case BaseItemType.LightHammer:
-                          player.learnableSkills.TryAdd(CustomSkill.LightHammerProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightHammerProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.LightHammerProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightHammerProficiency], player));
                           player.learnableSkills[CustomSkill.LightHammerProficiency].LevelUp(player);
                           break;
                         case BaseItemType.LightMace:
-                          player.learnableSkills.TryAdd(CustomSkill.LightMaceProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightMaceProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.LightMaceProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightMaceProficiency], player));
                           player.learnableSkills[CustomSkill.LightMaceProficiency].LevelUp(player);
                           break;
                         case BaseItemType.Quarterstaff:
-                          player.learnableSkills.TryAdd(CustomSkill.QuarterstaffProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.QuarterstaffProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.QuarterstaffProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.QuarterstaffProficiency], player));
                           player.learnableSkills[CustomSkill.QuarterstaffProficiency].LevelUp(player);
                           break;
                         case BaseItemType.Sickle:
-                          player.learnableSkills.TryAdd(CustomSkill.SickleProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.SickleProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.SickleProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.SickleProficiency], player));
                           player.learnableSkills[CustomSkill.SickleProficiency].LevelUp(player);
                           break;
                         case BaseItemType.LightCrossbow:
-                          player.learnableSkills.TryAdd(CustomSkill.LightCrossbowProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightCrossbowProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.LightCrossbowProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightCrossbowProficiency], player));
                           player.learnableSkills[CustomSkill.LightCrossbowProficiency].LevelUp(player);
                           break;
                         case BaseItemType.Dart:
-                          player.learnableSkills.TryAdd(CustomSkill.DartProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.DartProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.DartProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.DartProficiency], player));
                           player.learnableSkills[CustomSkill.DartProficiency].LevelUp(player);
                           break;
                         case BaseItemType.MagicStaff:
-                          player.learnableSkills.TryAdd(CustomSkill.MagicStaffProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.MagicStaffProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.MagicStaffProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.MagicStaffProficiency], player));
                           player.learnableSkills[CustomSkill.MagicStaffProficiency].LevelUp(player);
                           break;
                         case BaseItemType.LightFlail:
-                          player.learnableSkills.TryAdd(CustomSkill.LightFlailProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightFlailProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.LightFlailProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightFlailProficiency], player));
                           player.learnableSkills[CustomSkill.LightFlailProficiency].LevelUp(player);
                           break;
                         case BaseItemType.Morningstar:
-                          player.learnableSkills.TryAdd(CustomSkill.MorningstarProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.MorningstarProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.MorningstarProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.MorningstarProficiency], player));
                           player.learnableSkills[CustomSkill.MorningstarProficiency].LevelUp(player);
                           break;
                         case BaseItemType.Sling:
-                          player.learnableSkills.TryAdd(CustomSkill.SlingProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.SlingProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.SlingProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.SlingProficiency], player));
                           player.learnableSkills[CustomSkill.SlingProficiency].LevelUp(player);
                           break;
                         case BaseItemType.ShortSpear:
-                          player.learnableSkills.TryAdd(CustomSkill.SpearProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.SpearProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.SpearProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.SpearProficiency], player));
                           player.learnableSkills[CustomSkill.SpearProficiency].LevelUp(player);
                           break;
                         case BaseItemType.Shortbow:
-                          player.learnableSkills.TryAdd(CustomSkill.ShortBowProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ShortBowProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.ShortBowProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ShortBowProficiency], player));
                           player.learnableSkills[CustomSkill.ShortBowProficiency].LevelUp(player);
                           break;
                         case BaseItemType.Battleaxe:
-                          player.learnableSkills.TryAdd(CustomSkill.BattleaxeProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.BattleaxeProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.BattleaxeProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.BattleaxeProficiency], player));
                           player.learnableSkills[CustomSkill.BattleaxeProficiency].LevelUp(player);
                           break;
                         case BaseItemType.Greataxe:
-                          player.learnableSkills.TryAdd(CustomSkill.GreataxeProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.GreataxeProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.GreataxeProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.GreataxeProficiency], player));
                           player.learnableSkills[CustomSkill.GreataxeProficiency].LevelUp(player);
                           break;
                         case BaseItemType.Greatsword:
-                          player.learnableSkills.TryAdd(CustomSkill.GreatswordProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.GreatswordProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.GreatswordProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.GreatswordProficiency], player));
                           player.learnableSkills[CustomSkill.GreatswordProficiency].LevelUp(player);
                           break;
                         case BaseItemType.Scimitar:
-                          player.learnableSkills.TryAdd(CustomSkill.ScimitarProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ScimitarProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.ScimitarProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ScimitarProficiency], player));
                           player.learnableSkills[CustomSkill.ScimitarProficiency].LevelUp(player);
                           break;
                         case BaseItemType.Halberd:
-                          player.learnableSkills.TryAdd(CustomSkill.HalberdProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.HalberdProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.HalberdProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.HalberdProficiency], player));
                           player.learnableSkills[CustomSkill.HalberdProficiency].LevelUp(player);
                           break;
                         case BaseItemType.HeavyFlail:
-                          player.learnableSkills.TryAdd(CustomSkill.HeavyFlailProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.HeavyFlailProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.HeavyFlailProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.HeavyFlailProficiency], player));
                           player.learnableSkills[CustomSkill.HeavyFlailProficiency].LevelUp(player);
                           break;
                         case BaseItemType.ThrowingAxe:
-                          player.learnableSkills.TryAdd(CustomSkill.ThrowingAxeProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ThrowingAxeProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.ThrowingAxeProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ThrowingAxeProficiency], player));
                           player.learnableSkills[CustomSkill.ThrowingAxeProficiency].LevelUp(player);
                           break;
                         case BaseItemType.Trident:
-                          player.learnableSkills.TryAdd(CustomSkill.TridentProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.TridentProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.TridentProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.TridentProficiency], player));
                           player.learnableSkills[CustomSkill.TridentProficiency].LevelUp(player);
                           break;
                         case BaseItemType.Warhammer:
-                          player.learnableSkills.TryAdd(CustomSkill.WarHammerProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.WarHammerProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.WarHammerProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.WarHammerProficiency], player));
                           player.learnableSkills[CustomSkill.WarHammerProficiency].LevelUp(player);
                           break;
                         case BaseItemType.HeavyCrossbow:
-                          player.learnableSkills.TryAdd(CustomSkill.HeavyCrossbowProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.HeavyCrossbowProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.HeavyCrossbowProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.HeavyCrossbowProficiency], player));
                           player.learnableSkills[CustomSkill.HeavyCrossbowProficiency].LevelUp(player);
                           break;
                         case BaseItemType.Rapier:
-                          player.learnableSkills.TryAdd(CustomSkill.RapierProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.RapierProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.RapierProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.RapierProficiency], player));
                           player.learnableSkills[CustomSkill.RapierProficiency].LevelUp(player);
                           break;
                         case BaseItemType.Shortsword:
-                          player.learnableSkills.TryAdd(CustomSkill.ShortSwordProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ShortSwordProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.ShortSwordProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ShortSwordProficiency], player));
                           player.learnableSkills[CustomSkill.ShortSwordProficiency].LevelUp(player);
                           break;
                         case BaseItemType.Longsword:
-                          player.learnableSkills.TryAdd(CustomSkill.LongSwordProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LongSwordProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.LongSwordProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LongSwordProficiency], player));
                           player.learnableSkills[CustomSkill.LongSwordProficiency].LevelUp(player);
                           break;
                         case BaseItemType.Longbow:
-                          player.learnableSkills.TryAdd(CustomSkill.LongBowProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LongBowProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.LongBowProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LongBowProficiency], player));
                           player.learnableSkills[CustomSkill.LongBowProficiency].LevelUp(player);
                           break;
                         case BaseItemType.Shuriken:
-                          player.learnableSkills.TryAdd(CustomSkill.ShurikenProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ShurikenProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.ShurikenProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ShurikenProficiency], player));
                           player.learnableSkills[CustomSkill.ShurikenProficiency].LevelUp(player);
                           break;
                         case BaseItemType.Whip:
-                          player.learnableSkills.TryAdd(CustomSkill.WhipProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.WhipProficiency]));
+                          player.learnableSkills.TryAdd(CustomSkill.WhipProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.WhipProficiency], player));
                           player.learnableSkills[CustomSkill.WhipProficiency].LevelUp(player);
                           break;
                       }

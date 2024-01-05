@@ -1,6 +1,6 @@
-﻿using System.Linq;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Anvil.API;
-using NWN.Native.API;
 
 namespace NWN.Systems
 {
@@ -8,12 +8,10 @@ namespace NWN.Systems
   {
     public static int GetSpellCriticalRange(NwCreature creature)
     {
-      byte? championLevel = creature.Classes.FirstOrDefault(c => c.Class.Id == CustomClass.Champion)?.Level;
-
-      if (!championLevel.HasValue || championLevel.Value < 3)
+      if (!PlayerSystem.Players.TryGetValue(creature, out var player) || player.learnableSkills.TryGetValue(CustomSkill.FighterChampion, out var champion))
         return 20;
 
-      return championLevel.Value < 15 ? 19 : 18;
+      return champion.currentLevel > 14 ? 18 : champion.currentLevel > 2 ? 19 : 20;
     }
   }
 }

@@ -1,4 +1,5 @@
 ﻿using Anvil.API;
+using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
@@ -9,7 +10,7 @@ namespace NWN.Systems
     {
       private void ApplyAsmodeusPackage()
       {
-        if (learnableSkills.TryAdd(CustomSkill.ProduceFlame, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ProduceFlame])))
+        if (learnableSkills.TryAdd(CustomSkill.ProduceFlame, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ProduceFlame], this)))
           learnableSkills[CustomSkill.ProduceFlame].LevelUp(this);
 
         learnableSkills[CustomSkill.ProduceFlame].source.Add(Category.Race);

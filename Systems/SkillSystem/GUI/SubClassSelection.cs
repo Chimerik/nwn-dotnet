@@ -139,7 +139,7 @@ namespace NWN.Systems
 
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Delete();
 
-                  if (player.learnableSkills.TryAdd(selectedLearnable.id, new LearnableSkill((LearnableSkill)learnableDictionary[selectedLearnable.id], levelTaken: player.oid.LoginCreature.Level)))
+                  if (player.learnableSkills.TryAdd(selectedLearnable.id, new LearnableSkill((LearnableSkill)learnableDictionary[selectedLearnable.id], player, levelTaken: player.oid.LoginCreature.Level)))
                     player.learnableSkills[selectedLearnable.id].currentLevel = 3;
 
                   switch(selectedLearnable.id)
