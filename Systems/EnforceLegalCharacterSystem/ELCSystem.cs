@@ -21,7 +21,6 @@ namespace NWN.Systems
       elcService.OnValidationFailure += onELCValidationFailure;
       elcService.OnValidationSuccess += onELCValidationSuccess;
       this.areaSystem = areaSystem;
-
     }
     private void onELCValidationSuccess(OnELCValidationSuccess onELCSuccess)
     {

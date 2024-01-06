@@ -22,9 +22,7 @@ namespace NWN.Systems
 
         private readonly NuiBind<string> validationText = new("validationText");
         private readonly NuiBind<bool> validationEnabled = new("validationEnabled");
-
         private readonly NuiBind<bool> encouraged = new("encouraged");
-        private readonly NuiBind<Color> color = new("color");
 
         private readonly NuiBind<int> listCount = new("listCount");
         private readonly NuiBind<string> icon = new("icon");
@@ -41,7 +39,7 @@ namespace NWN.Systems
           List<NuiListTemplateCell> learnableTemplate = new List<NuiListTemplateCell>
           {
             new(new NuiButtonImage(icon) { Id = "select", Tooltip = skillName, Encouraged = encouraged, Height = 40, Width = 40 }) { Width = 40 },
-            new(new NuiLabel(skillName) { Width = 200, Id = "select", ForegroundColor = color, Encouraged = encouraged, Tooltip = skillName, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }) { Width = 220 },
+            new(new NuiLabel(skillName) { Width = 200, Id = "select", ForegroundColor = ColorConstants.White, Encouraged = encouraged, Tooltip = skillName, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }) { Width = 220 },
             new(new NuiButtonImage("select_right") { Id = "select", Tooltip = skillName, Encouraged = encouraged, Height = 40, Width = 40 }) { Width = 40 },
             new(new NuiSpacer())
           };
@@ -143,7 +141,7 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_IN_FEAT_SELECTION").Delete();
+                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_FEAT_SELECTION").Delete();
 
                   if (player.learnableSkills.TryAdd(selectedLearnable.id, new LearnableSkill((LearnableSkill)learnableDictionary[selectedLearnable.id], player, levelTaken: player.oid.LoginCreature.Level)))
                     player.learnableSkills[selectedLearnable.id].LevelUp(player);
@@ -160,29 +158,17 @@ namespace NWN.Systems
         {
           List<string> iconList = new List<string>();
           List<string> skillNameList = new List<string>();
-          List<Color> colorList = new();
           List<bool> encouragedList = new();
 
           foreach (Learnable learnable in filteredList)
           {
             iconList.Add(learnable.icon);
             skillNameList.Add(learnable.name);
-
-            if (selectedLearnable is not null)
-            {
-              encouragedList.Add(selectedLearnable == learnable);
-              colorList.Add(selectedLearnable == learnable ? ColorConstants.White : ColorConstants.Gray);
-            }
-            else
-            {
-              colorList.Add(ColorConstants.White);
-              encouragedList.Add(false);
-            }
+            encouragedList.Add(selectedLearnable is not null && selectedLearnable == learnable);
           }
 
           icon.SetBindValues(player.oid, nuiToken.Token, iconList);
           skillName.SetBindValues(player.oid, nuiToken.Token, skillNameList);
-          color.SetBindValues(player.oid, nuiToken.Token, colorList);
           encouraged.SetBindValues(player.oid, nuiToken.Token, encouragedList);
           listCount.SetBindValue(player.oid, nuiToken.Token, filteredList.Count());
         }

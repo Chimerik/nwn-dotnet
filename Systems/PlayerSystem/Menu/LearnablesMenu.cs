@@ -17,7 +17,7 @@ namespace NWN.Systems
         //bool refreshOn { get; set; }
         private readonly NuiColumn rootColumn;
         private readonly NuiBind<List<NuiComboEntry>> categories = new("categories");
-        private readonly List<NuiComboEntry> skillCategories;
+        private readonly List<NuiComboEntry> skillCategories = new();
 
         private readonly List<NuiComboEntry> spellCategories = new()
           {
@@ -84,15 +84,16 @@ namespace NWN.Systems
             new NuiList(learnableTemplate, listCount) { RowHeight = 40, Width = 420 },
           } };
 
-          skillCategories = new List<NuiComboEntry>();
-          foreach (var cat in (SkillSystem.Category[])Enum.GetValues(typeof(SkillSystem.Category)))
-            skillCategories.Add(new NuiComboEntry(cat.ToDescription(), (int)cat));
-
           CreateWindow(target);
         }
         public void CreateWindow(Player playerTarget = null)
         {
           //refreshOn = false;
+          target = playerTarget ?? player;
+          skillCategories.Clear();
+
+          foreach (var cat in target.learnableSkills.Values.GroupBy(l => l.category))
+            skillCategories.Add(new NuiComboEntry(cat.Key.ToDescription(), (int)cat.Key));
 
           window = new NuiWindow(rootColumn, "Journal d'apprentissage")
           {
@@ -109,7 +110,6 @@ namespace NWN.Systems
             nuiToken = tempToken;
             nuiToken.OnNuiEvent += HandleLearnableEvents;
 
-            target = playerTarget != null ? playerTarget : player;
             isReadOnly = playerTarget != null;
 
             drawListRect.SetBindValue(player.oid, nuiToken.Token, Utils.GetDrawListTextScaleFromPlayerUI(player));
@@ -130,8 +130,8 @@ namespace NWN.Systems
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
             if (target.activeLearnable != null && target.activeLearnable.active && !player.TryGetOpenedWindow("activeLearnable", out PlayerWindow activeWindow))
-              if (!player.windows.ContainsKey("activeLearnable")) player.windows.Add("activeLearnable", new ActiveLearnableWindow(player, target));
-              else ((ActiveLearnableWindow)player.windows["activeLearnable"]).CreateWindow(target);
+              if (!player.windows.TryGetValue("activeLearnable", out var value)) player.windows.Add("activeLearnable", new ActiveLearnableWindow(player, target));
+              else ((ActiveLearnableWindow)value).CreateWindow(target);
 
             currentList = target.learnableSkills.Values.Where(s => s.category == SkillSystem.Category.MindBody);
             LoadLearnableList(currentList);
@@ -225,14 +225,11 @@ namespace NWN.Systems
           {
             iconList.Add(learnable.icon);
             skillNameList.Add(learnable.name);
-            ModuleSystem.Log.Info($"learnable : {learnable.name} - {learnable.pointsToNextLevel} - {learnable.acquiredPoints} - {player.GetSkillPointsPerSecond(learnable)}");
-            ModuleSystem.Log.Info($"TimeSpan.FromSeconds((pointsToNextLevel - acquiredPoints) / player.GetSkillPointsPerSecond(this)) : {((learnable.pointsToNextLevel - learnable.acquiredPoints) / player.GetSkillPointsPerSecond(learnable))}");
-            
             remainingTimeList.Add(learnable.GetReadableTimeSpanToNextLevel(target));
             levelList.Add($"{learnable.currentLevel}/{learnable.maxLevel}");
             bool canLearn = true;
 
-            if (learnable is LearnableSkill skill)
+            if (learnable is LearnableSkill)
             {
               if (learnable.currentLevel >= learnable.maxLevel)
                 canLearn = false;

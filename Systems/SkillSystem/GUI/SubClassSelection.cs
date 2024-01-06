@@ -137,8 +137,6 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Delete();
-
                   if (player.learnableSkills.TryAdd(selectedLearnable.id, new LearnableSkill((LearnableSkill)learnableDictionary[selectedLearnable.id], player, levelTaken: player.oid.LoginCreature.Level)))
                     player.learnableSkills[selectedLearnable.id].currentLevel = 3;
 
@@ -149,6 +147,8 @@ namespace NWN.Systems
                     case CustomSkill.FighterChampion: Fighter.HandleChampionLevelUp(player, 3); break;
                   }
 
+                  player.learnableSkills.Remove(player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value);
+                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Delete();
                   player.oid.SendServerMessage($"Vous adoptez l'archétype de classe {StringUtils.ToWhitecolor(selectedLearnable.name)} !", ColorConstants.Orange);
 
                   break;
