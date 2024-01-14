@@ -7,7 +7,13 @@ namespace NWN
   {
     public static bool GetPourfendeurDisadvantage(Native.API.CGameEffect eff)
     {
-      return eff.m_sCustomTag.CompareNoCase(EffectSystem.PourfendeurDisadvantageEffectExoTag).ToBool();
+      if(eff.m_sCustomTag.CompareNoCase(EffectSystem.PourfendeurDisadvantageEffectExoTag).ToBool())
+      {
+        LogUtils.LogMessage("Désavantage - Affecté par Pourfendeur", LogUtils.LogType.Combat);
+        return true;
+      }
+      else
+        return false;
     }
   }
 }

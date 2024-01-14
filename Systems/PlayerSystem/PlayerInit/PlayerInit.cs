@@ -244,6 +244,9 @@ namespace NWN.Systems
       }
       private async void InitializePlayerAsync(string serializedCauldron, string serializedExploration, string serializedLearnableSkills, string serializedLearnableSpells, string serializedCraftResources, string serializedCraftJob, string serializedGrimoires, string serializedQuickbars, string serializedItemAppearances, string serializedDescriptions, string serializedMails, string serializedSubscriptions, string serializedEndurance)
       {
+        int playerLevel = oid.LoginCreature.Level;
+        int multiClassMultiplier = oid.LoginCreature.Classes.Distinct().Count();
+
         Task loadCauldronTask = Task.Run(() =>
         {
           if (string.IsNullOrEmpty(serializedCauldron) || serializedCauldron == "null")
@@ -269,9 +272,9 @@ namespace NWN.Systems
 
           foreach (var kvp in serializableSkills)
           {
-            if (SkillSystem.learnableDictionary.ContainsKey(kvp.Key))
+            if (SkillSystem.learnableDictionary.TryGetValue(kvp.Key, out var value))
             {
-              LearnableSkill skill = new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[kvp.Key], kvp.Value, this);
+              LearnableSkill skill = new LearnableSkill((LearnableSkill)value, kvp.Value, this, playerLevel, multiClassMultiplier);
 
               if (skill.active)
                 activeLearnable = skill;
@@ -427,9 +430,11 @@ namespace NWN.Systems
         ApplyMobile();
         ApplyBroyeur();
         ApplyPourfendeur();
+        ApplyFightingStyleDuel();
         ApplyLameDoutretombe();
         ApplyChanceDebordante();
         ApplyUltimeSurvivant();
+        ApplyShieldArmorMalus();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

@@ -7,7 +7,13 @@ namespace NWN
   {
     public static int GetJeuDeJambeAttackerDisadvantage(CNWSCreature target)
     {
-      return target.m_ScriptVars.GetInt(ManoeuvreTypeVariableExo) == CustomSkill.WarMasterJeuDeJambe ? -1 : 0;
+      if (target.m_ScriptVars.GetInt(ManoeuvreTypeVariableExo) == CustomSkill.WarMasterJeuDeJambe)
+      {
+        LogUtils.LogMessage($"Désavantage - Attaque de mêlée sur une cible en mode Jeu de Jambe", LogUtils.LogType.Combat);
+        return -1;
+      }
+      else
+        return 0;
     }
   }
 }

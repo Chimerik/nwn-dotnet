@@ -203,8 +203,6 @@ namespace NWN.Systems
           NativeUtils.SendNativeServerMessage("Seconde chance".ColorString(StringUtils.gold), targetCreature);
         }
 
-        //LogUtils.LogMessage($"CA de la cible : {targetAC}", LogUtils.LogType.Combat);
-
         string hitString = "touchez".ColorString(new Color(32, 255, 32));
         string rollString = $"{attackRoll} + {attackBonus} = {attackRoll + attackBonus}".ColorString(new Color(32, 255, 32));
         string criticalString = "";

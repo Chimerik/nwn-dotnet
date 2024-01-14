@@ -294,10 +294,10 @@ namespace NWN.Systems
         case "joueurs_liste": // droit admin & staff
           await BotSystem.ExecuteGetConnectedPlayersCommand(command, true);
           break;
-        case "refresh_creature_stats": // droit admin & staff
+        /*case "refresh_creature_stats": // droit admin & staff
           Config.creatureStats.Clear();
           ModuleSystem.InitializeCreatureStats();
-          break;
+          break;*/
         case "annonce": // droit staff
           await BotSystem.ExecuteBroadcastAnnouncementCommand(command);
           break;

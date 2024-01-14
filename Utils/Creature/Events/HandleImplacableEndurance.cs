@@ -9,9 +9,10 @@ namespace NWN
   {
     public static void HandleImplacableEndurance(CreatureEvents.OnDamaged onDamage)
     {
-      if (onDamage.Creature.HP <= onDamage.DamageAmount)
+      if (onDamage.Creature.HP - onDamage.DamageAmount < 1)
       {
-        onDamage.Creature.ApplyEffect(EffectDuration.Temporary, Effect.TemporaryHitpoints(onDamage.DamageAmount - onDamage.Creature.HP + 1), TimeSpan.FromSeconds(6));
+        //onDamage.Creature.ApplyEffect(EffectDuration.Temporary, Effect.TemporaryHitpoints(onDamage.DamageAmount - onDamage.Creature.HP + 1), TimeSpan.FromSeconds(6));
+        onDamage.Creature.HP = 1;
 
         foreach (var eff in onDamage.Creature.ActiveEffects)
           if (eff.Tag == EffectSystem.EnduranceImplacableEffectTag)
@@ -27,6 +28,8 @@ namespace NWN
 
         onDamage.Creature.GetObjectVariable<PersistentVariableInt>(EffectSystem.EnduranceImplacableVariable).Delete();
         onDamage.Creature.OnDamaged -= HandleImplacableEndurance;
+
+        StringUtils.DisplayStringToAllPlayersNearTarget(onDamage.Creature, "Endurance Implacable", StringUtils.gold, true);
       }
     }
   }

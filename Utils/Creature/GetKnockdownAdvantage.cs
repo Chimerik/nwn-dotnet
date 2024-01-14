@@ -8,9 +8,21 @@ namespace NWN
   {
     public static int GetKnockdownAdvantage(int rangedAttack, CNWSCreature target)
     {
-      return target.m_appliedEffects.Any(e => (EffectTrueType)e.m_nType == EffectTrueType.Knockdown) 
-        ? rangedAttack.ToBool() ? -1 : 1
-        : 0;
+      if (target.m_appliedEffects.Any(e => (EffectTrueType)e.m_nType == EffectTrueType.Knockdown))
+      {
+        if(rangedAttack.ToBool())
+        {
+          LogUtils.LogMessage($"Désavantage - Attaque à distance sur une cible à terre", LogUtils.LogType.Combat);
+          return -1;
+        }
+        else 
+        {
+          LogUtils.LogMessage($"Avantage - Attaque de mêlée sur une cible à terre", LogUtils.LogType.Combat);
+          return 1;
+        }
+      }
+      else
+        return 0;      
     }
   }
 }

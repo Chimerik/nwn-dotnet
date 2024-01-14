@@ -1,6 +1,4 @@
 ﻿using Anvil.API;
-using NWN.Core.NWNX;
-using System.Linq;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.PlayerSystem.Player;
 using static NWN.Systems.SkillSystem;

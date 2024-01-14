@@ -4,6 +4,7 @@ using NLog;
 using Anvil.API;
 using System.ComponentModel;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace NWN.Systems
 {
@@ -228,7 +229,7 @@ namespace NWN.Systems
 
       // FEATS
 
-      learnableDictionary.Add(CustomSkill.AbilityImprovement, new LearnableSkill(CustomSkill.AbilityImprovement, "Amélioration de caractéristiques", "Choisissez une caractéristique à laquelle ajouter un bonus de +2 ou deux caractéristiques auxquelles ajouter un bonus de +1.\n\nCe don ne vous permet pas d'aller au-delà de 20 dans une même caractéristique.", Category.Race, "ife_aurabrave", 1, 5, Ability.Constitution, Ability.Intelligence, OnAbilityImprovement));
+      learnableDictionary.Add(CustomSkill.AbilityImprovement, new LearnableSkill(CustomSkill.AbilityImprovement, "Amélioration de caractéristiques", "Choisissez une caractéristique à laquelle ajouter un bonus de +2 ou deux caractéristiques auxquelles ajouter un bonus de +1.\n\nCe don ne vous permet pas d'aller au-delà de 20 dans une même caractéristique.", Category.Race, "ife_aurabrave", 20, 5, Ability.Constitution, Ability.Intelligence, OnAbilityImprovement));
       learnableDictionary.Add(CustomSkill.Actor, new LearnableSkill(CustomSkill.Actor, "Vigilant", "Vous gagnez un point de charisme (maximum 20).\n\nVous avez un avantage en Tromperie et Représentation lorsque vous tenter de vous faire passer pour une autre personne.\n\nVous pouvez imiter le discours d'une autre personne ou les sons émis par d'autres créatures. Vous devez avoir entendu la personne qui parle, ou entendu la créature émettre le son, pendant au moins 1 minute. Un jet réussi d'Intuition contre votre jet de Tromperie permet à celui qui écoute de déterminer qu'il s'agit d'une imitation.", Category.Feat, "ife_emptybod", 1, 5, Ability.Charisma, Ability.Dexterity, OnLearnActor));
       learnableDictionary.Add(CustomSkill.Vigilant, new LearnableSkill(CustomSkill.Vigilant, "Vigilant", "Toujours en train de guetter le danger, vous gagnez les effets ci-dessous :\n- Vous ne pouvez pas être surpris\nLes créatures que vous ne pouvez pas voir ne bénéficient pas d'un avantage lorsqu'elles vous attaquent", Category.Feat, "is_Vigilant", 1, 5, Ability.Wisdom, Ability.Dexterity));
       learnableDictionary.Add(CustomSkill.Sportif, new LearnableSkill(CustomSkill.Sportif, "Sportif", "Vous avez suivi une intense formation physique. Vous bénéficiez des effets ci-dessous :\n- +1 Force ou Dextérité (max 20)\n-  Lorsque vous êtes renversé, vous restez au sol deux fois moins longtemps\n- Escalader ne vous coûte pas de mouvement supplémentaire\n- Vous pouvez faire un saut en longueur ou en hauteur avec seulement 1,50 mètre d'élan, au lieu de 3 mètres", Category.Feat, "is_Sportif", 1, 5, Ability.Strength, Ability.Dexterity, OnLearnSportif));
@@ -296,20 +297,20 @@ namespace NWN.Systems
       // FIGHTER
 
       learnableDictionary.Add(CustomSkill.Fighter, new LearnableSkill(CustomSkill.Fighter, "Guerrier", "", Category.Class, "fighter", 20, 1, Ability.Strength, Ability.Dexterity, Fighter.LevelUp, "14508VWlYNEYcZoXhO4vUo81s4AHbUOgJ6Rjh9nt86Ys"));
-      learnableDictionary.Add(CustomSkill.FighterSecondWind, new LearnableSkill(CustomSkill.FighterSecondWind, "Second Souffle", "Action bonus\nVous soigne de 1d10 + votre niveau de guerrier\nRécupération : repos court", Category.Fight, "ief_SecondWind", 1, 1, Ability.Constitution, Ability.Strength, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.FighterSecondWind, new LearnableSkill(CustomSkill.FighterSecondWind, "Second Souffle", "Action bonus\nVous soigne de 1d10 + votre niveau de guerrier\nRécupération : repos court", Category.Fight, "ief_SecondWind", 1, 1, Ability.Constitution, Ability.Strength, LearnActivableFeat, restoreOnShortRest:true));
       learnableDictionary.Add(CustomSkill.FighterCombatStyleArchery, new LearnableSkill(CustomSkill.FighterCombatStyleArchery, "Style de combat - Archerie", "Passif\nBonus d'attaque de +2 pour toutes les attaques effectuées avec une arme à distance.", Category.FightingStyle, "ief_Archery", 1, 1, Ability.Dexterity, Ability.Constitution));
       learnableDictionary.Add(CustomSkill.FighterCombatStyleDefense, new LearnableSkill(CustomSkill.FighterCombatStyleDefense, "Style de combat - Défense", "Passif\nBonus de +1 de CA tant que vous portez une armure.", Category.FightingStyle, "ief_Defense", 1, 1, Ability.Constitution, Ability.Strength));
-      learnableDictionary.Add(CustomSkill.FighterCombatStyleDuel, new LearnableSkill(CustomSkill.FighterCombatStyleDuel, "Style de combat - Duel", "Passif\nBonus de +2 dégâts lorsque vous utilisez une arme de mêlée à une main et que vous ne tenez pas d'arme dans votre autre main.\n\nNe fonctionne pas si vous utilisez une arme versatile en mode deux mains", Category.FightingStyle, "ief_Duel", 1, 1, Ability.Dexterity, Ability.Constitution));
+      learnableDictionary.Add(CustomSkill.FighterCombatStyleDuel, new LearnableSkill(CustomSkill.FighterCombatStyleDuel, "Style de combat - Duel", "Passif\nBonus de +2 dégâts lorsque vous utilisez une arme de mêlée à une main et que vous ne tenez pas d'arme dans votre autre main.\n\nNe fonctionne pas si vous utilisez une arme versatile en mode deux mains", Category.FightingStyle, "ief_Duel", 1, 1, Ability.Dexterity, Ability.Constitution, OnLearnFightingStyleDuel));
       learnableDictionary.Add(CustomSkill.FighterCombatStyleTwoHanded, new LearnableSkill(CustomSkill.FighterCombatStyleTwoHanded, "Style de combat - Deux mains", "Passif\nSi vous faites un 1 ou un 2 sur un jet de dégâts pour une attaque effectuée avec une arme à deux mains, vous relancez ce jet.", Category.FightingStyle, "is_GreatWeapon", 1, 1, Ability.Strength, Ability.Constitution, LearnActivableFeat));
       learnableDictionary.Add(CustomSkill.FighterCombatStyleProtection, new LearnableSkill(CustomSkill.FighterCombatStyleProtection, "Style de combat - Protection", "Passif\nLorsque vous utilisez un bouclier, infligez un désavantage aux ennemis qui attaquent vos alliés situés à portée de mêlée.\n\nVous devez être en mesure de voir l'attaquant pour que l'effet s'applique.", Category.FightingStyle, "ief_Protection", 1, 1, Ability.Strength, Ability.Constitution, OnLearnProtectionStyle));
       learnableDictionary.Add(CustomSkill.FighterCombatStyleDualWield, new LearnableSkill(CustomSkill.FighterCombatStyleDualWield, "Style de combat - Deux armes", "Passif\nLorsque vous effectuez une attaque avec votre main secondaire, ajoutez votre modificateur de caractéristiques aux dégâts de l'attaque.", Category.FightingStyle, "ief_TwoWeapon", 1, 1, Ability.Dexterity, Ability.Constitution));
-      learnableDictionary.Add(CustomSkill.FighterSurge, new LearnableSkill(CustomSkill.FighterSurge, "Fougue Martiale", "Action gratuite\nVous bénéficiez d'une attaque supplémentaire.\nDurée et cooldown : 10 rounds\nRécupération : repos court\n\nVous obtenez une seconde charge au niveau 17", Category.Fight, "ief_SecondWind", 1, 2, Ability.Constitution, Ability.Strength, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.FighterSurge, new LearnableSkill(CustomSkill.FighterSurge, "Fougue Martiale", "Action gratuite\nVous bénéficiez d'une attaque supplémentaire.\nDurée et cooldown : 10 rounds\nRécupération : repos court\n\nVous obtenez une seconde charge au niveau 17", Category.Fight, "ief_SecondWind", 1, 2, Ability.Constitution, Ability.Strength, LearnActivableFeat, restoreOnShortRest: true));
       learnableDictionary.Add(CustomSkill.FighterBonusAttack, new LearnableSkill(CustomSkill.FighterBonusAttack, "Guerrier - Attaque bonus", "Votre niveau de guerrier vous permet de bénéficier d'attaques supplémentaires aux niveaux 5, 11 et 20", Category.Fight, "is_ExtraAttack", 1, 3, Ability.Strength, Ability.Dexterity));
       learnableDictionary.Add(CustomSkill.FighterInflexible, new LearnableSkill(CustomSkill.FighterInflexible, "Inflexibilité", "Lorsque vous échouez un JDS, lancez un nouveau jet avec un malus de 2 (1 au niveau 13 et 0 au niveau 17)", Category.Fight, "is_Inflexible", 1, 3, Ability.Strength, Ability.Wisdom));
 
       learnableDictionary.Add(CustomSkill.FighterChampion, new LearnableSkill(CustomSkill.FighterChampion, "Champion", "", Category.FighterSubClass, "champion", 20, 1, Ability.Strength, Ability.Dexterity, Fighter.LevelUp, "1Qw48sfNLCHaHY0VFvhkfdkBPjkBqldUD3yBd9OVUelE"));
       learnableDictionary.Add(CustomSkill.FighterChampionBonusCombatStyle, new LearnableSkill(CustomSkill.FighterChampionBonusCombatStyle, "Champion - Style de combat supplémentaire", "Vous maîtrisez un style de combat supplémentaire", Category.Fight, "champion", 1, 1, Ability.Strength, Ability.Dexterity));
-      learnableDictionary.Add(CustomSkill.FighterChampionImprovedCritical, new LearnableSkill(CustomSkill.FighterChampionImprovedCritical, "Champion - Coup Critique Supérieur", "Vous avez besoin d'un dé moins élevé pour porter des coups critiques (1 au level 3, 2 au level 15).\n\nStack avec les effets similaires", Category.Fight, "is_ImprovedCrit", 1, 2, Ability.Strength, Ability.Dexterity));
+      learnableDictionary.Add(CustomSkill.FighterChampionImprovedCritical, new LearnableSkill(CustomSkill.FighterChampionImprovedCritical, "Champion - Coup Critique Supérieur", "Vous avez besoin d'un dé moins élevé pour porter des coups critiques (1 au level 3, 2 au level 15).\n\nStack avec les effets similaires", Category.Fight, "is_ImprovedCrit", 1, 2, Ability.Strength, Ability.Dexterity, LearnActivableFeat));
       learnableDictionary.Add(CustomSkill.FighterChampionRemarkableAthlete, new LearnableSkill(CustomSkill.FighterChampionRemarkableAthlete, "Champion - Athlète accompli", "Vous ajoutez la moitié de votre bonus de maîtrise (arrondi supérieur) aux jets de STR, DEX, CON dont vous n'avez pas la maîtrise", Category.Fight, "is_RemarkAthlete", 1, 1, Ability.Strength, Ability.Dexterity));
       learnableDictionary.Add(CustomSkill.FighterChampionUltimeSurvivant, new LearnableSkill(CustomSkill.FighterChampionUltimeSurvivant, "Champion - Ultime Survivant", "S'il vous reste moins de de la moitié de vos points de vie et que vous n'êtes pas KO, vous récupérez 5 + modificateur CON PV à chaque début de round", Category.Fight, "is_UltimSurvivor", 1, 2, Ability.Constitution, Ability.Strength));
 
@@ -899,11 +900,23 @@ namespace NWN.Systems
     private static bool HandleMediumArmorProficiency(PlayerSystem.Player player, int customSkillId)
     {
       player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.ArmorProficiencyMedium));
+
+      if (player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.ShieldArmorDisadvantageEffectTag))
+      {
+        NwItem armor = player.oid.LoginCreature.GetItemInSlot(InventorySlot.Chest);
+
+        if (armor is not null && armor.BaseACValue > 5 && !player.oid.LoginCreature.KnowsFeat(Feat.ArmorProficiencyHeavy))
+          return true;
+
+        EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.ShieldArmorDisadvantageEffectTag);
+      }
+
       return true;
     }
     private static bool HandleHeavyArmorProficiency(PlayerSystem.Player player, int customSkillId)
     {
       player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.ArmorProficiencyHeavy));
+      EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.ShieldArmorDisadvantageEffectTag);
       return true;
     }
     private static bool HandleShieldProficiency(PlayerSystem.Player player, int customSkillId)

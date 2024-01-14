@@ -118,6 +118,7 @@
     public const int WarMasterRiposte = 1423;
     public const int WarMasterEvaluationTactique = 1424;
     public const int WarMasterObservation = 1425;
+    public const int FighterChampionImprovedCritical = 1426;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -585,7 +586,6 @@
     public const int Healer = 20516;
 
     public const int FighterChampionBonusCombatStyle = 20517;
-    public const int FighterChampionImprovedCritical = 20518; // 2 niveaux
     public const int FighterChampionUltimeSurvivant = 20519; // 2 niveaux
 
     public const int Invalid = 65535;

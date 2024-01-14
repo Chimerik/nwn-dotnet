@@ -6,10 +6,15 @@ namespace NWN
   {
     public static int GetInvisibleTargetDisadvantage(CNWSCreature attacker, CNWSCreature target)
     {
-      return (attacker.GetVisibleListElement(target.m_idSelf) is null
+      if (attacker.GetVisibleListElement(target.m_idSelf) is null
         || attacker.GetVisibleListElement(target.m_idSelf).m_bSeen < 1
         || attacker.GetVisibleListElement(target.m_idSelf).m_bInvisible > 0)
-        ? -1 : 0;
+      {
+        LogUtils.LogMessage("Désavantage - Cible non visible", LogUtils.LogType.Combat);
+        return -1;
+      }
+      else 
+        return 0;
     }
   }
 }

@@ -1,4 +1,6 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
+using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
@@ -35,7 +37,7 @@ namespace NWN.Systems
         learnableSkills[CustomSkill.Nain].source.Add(Category.Race);
 
         oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.dwarfSlow);
-        oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.Toughness));
+        oid.LoginCreature.LevelInfo.FirstOrDefault().HitDie += 1;
         oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin).AddItemProperty(ItemProperty.DamageImmunity((IPDamageType)CustomItemPropertiesDamageType.Poison, IPDamageImmunityType.Immunity50Pct), EffectDuration.Permanent);
       }
     }

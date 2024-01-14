@@ -12,6 +12,7 @@ namespace NWN
 
       ExpireDiversion(attacker);
 
+      LogUtils.LogMessage("Avantage - Cible affectée par Diversion", LogUtils.LogType.Combat);
       return 1;
     }
     private static async void ExpireDiversion(CNWSCreature attacker)

@@ -11,6 +11,7 @@ namespace NWN
         && attacker.m_ScriptVars.GetInt(BonusActionVariableExo) > 0)
       {
         attacker.m_ScriptVars.SetInt(BonusActionVariableExo, attacker.m_ScriptVars.GetInt(BonusActionVariableExo) - 1);
+        LogUtils.LogMessage("Avantage - Feinte", LogUtils.LogType.Combat);
         return 1;
       }
 

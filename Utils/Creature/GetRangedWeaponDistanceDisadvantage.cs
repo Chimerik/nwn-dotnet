@@ -10,9 +10,16 @@ namespace NWN
   {
     public static int GetRangedWeaponDistanceDisadvantage(CNWSCreature attacker, BaseItemType weaponType, CNWSCreature target)
     {
-      return target.m_pStats.HasFeat(CustomSkill.TireurDelite).ToBool()
-        || ItemUtils.IsRangedWeaponInOptimalRange(weaponType, Vector3.Distance(attacker.m_vPosition.ToManagedVector(), target.m_vPosition.ToManagedVector()))
-        ? 0 : -1;
+      if(target.m_pStats.HasFeat(CustomSkill.TireurDelite).ToBool()
+        || ItemUtils.IsRangedWeaponInOptimalRange(weaponType, Vector3.Distance(attacker.m_vPosition.ToManagedVector(), target.m_vPosition.ToManagedVector())))
+      {
+        return 0;
+      }
+      else
+      {
+        LogUtils.LogMessage($"Désavantage - Attaque à distance hors de la portée optimale", LogUtils.LogType.Combat);
+        return -1;
+      }
     }
   }
 }

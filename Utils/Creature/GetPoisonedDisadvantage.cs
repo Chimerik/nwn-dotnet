@@ -8,7 +8,13 @@ namespace NWN
   {
     public static bool GetPoisonedDisadvantage(CGameEffect eff)
     {
-      return (EffectTrueType)eff.m_nType == EffectTrueType.Poison;
+      if((EffectTrueType)eff.m_nType == EffectTrueType.Poison)
+      {
+        LogUtils.LogMessage("Désavantage - Attaquant empoisonné", LogUtils.LogType.Combat);
+        return true;
+      }
+      else 
+        return false;
     }
   }
 }

@@ -384,6 +384,7 @@ namespace NWN
     {
       { "shortRest", new MainMenuCommand("Simuler un repos court (alpha)", "", CommandRank.Public) },
       { "longRest", new MainMenuCommand("Simuler un repos long (alpha)", "", CommandRank.Public) },
+      { "sacrificeHP", new MainMenuCommand("Perdre 20 % de points de vie (alpha)", "", CommandRank.Public) },
       { "dm", new MainMenuCommand("Mode DM", "", CommandRank.Admin) },
       { "creaturePalette", new MainMenuCommand("Palette des créatures", "", CommandRank.DM) },
       { "itemPalette", new MainMenuCommand("Palette des objets", "", CommandRank.DM) },

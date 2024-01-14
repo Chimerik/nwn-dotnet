@@ -10,44 +10,54 @@ namespace NWN.Systems
     {
       NwCreature oPC = onEquip.EquippedBy;
       NwItem oItem = onEquip.Item;
+      NwItem swappedItem = oPC.GetItemInSlot(onEquip.Slot);
+
+      ModuleSystem.Log.Info($"Equipped : {oItem.Name} - {oItem.BaseItem.ItemType}");
 
       if (oPC is null || oItem is null)
         return;
+
+      if (swappedItem is not null)
+      {
+
+        ModuleSystem.Log.Info($"Swapped : {swappedItem.Name} - {swappedItem.BaseItem.ItemType}");
+
+        switch (swappedItem.BaseItem.ItemType)
+        {
+          case BaseItemType.SmallShield:
+          case BaseItemType.LargeShield:
+          case BaseItemType.TowerShield: 
+            
+            if(!ItemUtils.CheckArmorShieldProficiency(oPC, oPC.GetItemInSlot(InventorySlot.Chest)))
+            {
+              oPC.OnSpellAction -= SpellSystem.NoArmorShieldProficiencyOnSpellInput;
+              EffectUtils.RemoveTaggedEffect(oPC, EffectSystem.ShieldArmorDisadvantageEffectTag);
+            }
+
+            break;
+
+          case BaseItemType.Armor:
+
+            if(!ItemUtils.CheckArmorShieldProficiency(oPC, oPC.GetItemInSlot(InventorySlot.LeftHand)))
+            {
+              oPC.OnSpellAction -= SpellSystem.NoArmorShieldProficiencyOnSpellInput;
+              EffectUtils.RemoveTaggedEffect(oPC, EffectSystem.ShieldArmorDisadvantageEffectTag);
+            }
+
+            oPC.OnHeartbeat -= OnHeartbeatCheckHeavyArmorSlow;
+            EffectUtils.RemoveTaggedEffect(oPC, EffectSystem.heavyArmorSlowEffectTag);
+
+            break;
+        }
+      }
 
       switch (oItem.BaseItem.ItemType)
       {
         case BaseItemType.SmallShield:
         case BaseItemType.LargeShield:
         case BaseItemType.TowerShield:
-        case BaseItemType.Armor:
-
-          List<int> proficenciesRequirements = ItemUtils.GetItemProficiencies(oItem.BaseItem.ItemType, oItem.BaseACValue);
-
-          if (proficenciesRequirements.Count < 1)
-            return;
-
-          if (oPC.Race.Id != CustomRace.Duergar && oPC.Race.Id != CustomRace.Dwarf && oPC.Race.Id != CustomRace.ShieldDwarf && oPC.Race.Id != CustomRace.GoldDwarf
-            && proficenciesRequirements.Contains((int)Feat.ArmorProficiencyHeavy) && oPC.GetAbilityScore(Ability.Strength) < 15)
-          {
-            oPC.ApplyEffect(EffectDuration.Permanent, EffectSystem.heavyArmorSlow);
-            oPC.OnHeartbeat -= OnHeartbeatCheckHeavyArmorSlow;
-            oPC.OnHeartbeat += OnHeartbeatCheckHeavyArmorSlow;
-          }
-
-          foreach (int requiredProficiency in proficenciesRequirements)
-            if (oPC.KnowsFeat(NwFeat.FromFeatId(requiredProficiency)))
-              return;
-
-          ApplyShieldArmorDisadvantageToPlayer(oPC);
-          oPC.LoginPlayer.SendServerMessage($"Vous ne maîtrisez pas le port de {StringUtils.ToWhitecolor(oItem.Name)}. Malus appliqué.", ColorConstants.Red);
-
-          return;
+        case BaseItemType.Armor: ItemUtils.CheckArmorShieldProficiency(oPC, oItem); break;
       }
-    }
-    public static void ApplyShieldArmorDisadvantageToPlayer(NwCreature playerCreature)
-    {
-      playerCreature.OnSpellAction += SpellSystem.NoArmorShieldProficiencyOnSpellInput;
-      playerCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.shieldArmorDisadvantage);
     }
   }
 }

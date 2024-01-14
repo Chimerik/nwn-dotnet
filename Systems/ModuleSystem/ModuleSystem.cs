@@ -63,7 +63,7 @@ namespace NWN.Systems
 
       CreateDatabase();
       InitializeEvents();
-      InitializeCreatureStats();
+      //InitializeCreatureStats();
 
       SkillSystem.InitializeLearnables();
       LoadModulePalette();
@@ -224,7 +224,7 @@ namespace NWN.Systems
       Log.Info("On death triggered - make inventory undroppable");
       //ItemUtils.MakeCreatureInventoryUndroppable(onDeath.KilledCreature);
     }
-    public static async void InitializeCreatureStats()
+    /*public static async void InitializeCreatureStats()
     {
       try
       {
@@ -263,7 +263,7 @@ namespace NWN.Systems
               $"{e.Message}\n" +
               $"{e.StackTrace}");
       }
-    }
+    }*/
     /*private static async void ReadGDocLine()
     {
       var request = googleDriveService.Files.Export("1Q21R9JZdbajKK9S2F1pesHZo2Gh-zeO3LuXt7XAMJXY", "text/csv");

@@ -1,16 +1,13 @@
-﻿using System;
-using System.Linq;
-using Anvil.API;
+﻿using Anvil.API;
 using Anvil.API.Events;
 
 namespace NWN.Systems
 {
   public static partial class DamageUtils
   {
-    public static void HandleDuellingDamage(OnCreatureDamage onDamage, NwCreature damager)
+    public static void HandleDuellingDamage(OnCreatureDamage onDamage)
     {
-      if (onDamage.DamageData.GetDamageByType(DamageType.BaseWeapon) < 0 || !PlayerSystem.Players.TryGetValue(damager, out PlayerSystem.Player player)
-        || !player.learnableSkills.TryGetValue(CustomSkill.FighterCombatStyleDuel, out LearnableSkill duel) || duel.currentLevel < 1)
+      if (onDamage.DamageData.GetDamageByType(DamageType.BaseWeapon) < 0 || onDamage.DamagedBy is not NwCreature damager)
         return;
 
       NwItem weapon = damager.GetItemInSlot(InventorySlot.RightHand);

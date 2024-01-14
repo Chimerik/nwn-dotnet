@@ -6,7 +6,13 @@ namespace NWN
   {
     public static bool GetTargetStunnedAdvantage(CGameEffect eff)
     {
-      return (EffectTrueType)eff.m_nType == EffectTrueType.SetState && eff.GetInteger(0) == 6;
+      if((EffectTrueType)eff.m_nType == EffectTrueType.SetState && eff.GetInteger(0) == 6)
+      {
+        LogUtils.LogMessage("Avantage - Cible étourdie", LogUtils.LogType.Combat);
+        return true;
+      }
+      else
+        return false;
     }
   }
 }

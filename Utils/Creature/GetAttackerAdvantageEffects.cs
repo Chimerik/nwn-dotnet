@@ -11,36 +11,34 @@ namespace NWN
     {
       Dictionary<string, bool> disadvantageDictionary = new()
       { 
-        { "armorShield", false } ,
+        { EffectSystem.ShieldArmorDisadvantageEffectTag, false } ,
         { "blinded", false },
         { "poisoned", false },
         { "frightened", false },
-        { "drowLightSensitivity", false },
-        { "boneChillDisadvantage", false },
-        { "protectionStyle", false },
-        { "pourfendeur", false },
+        { EffectSystem.lightSensitivityEffectTag, false },
+        { EffectSystem.boneChillEffectTag, false },
+        { EffectSystem.PourfendeurDisadvantageEffectTag, false },
         { EffectSystem.ProvocationEffectTag, false },
       };
 
       Dictionary<string, bool> advantageDictionary = new()
       {
-        { "trueStrikeAdvantage", false },
-        { "broyeur", false },
+        { EffectSystem.trueStrikeEffectTag, false },
+        { EffectSystem.BroyeurEffectTag, false },
       };
 
       foreach (var eff in attacker.m_appliedEffects)
       {
-        advantageDictionary["trueStrikeAdvantage"] = advantageDictionary["trueStrikeAdvantage"] || eff.m_sCustomTag.CompareNoCase(EffectSystem.trueStrikeEffectExoTag).ToBool();
-        advantageDictionary["broyeur"] = advantageDictionary["broyeur"] || eff.m_sCustomTag.CompareNoCase(EffectSystem.BroyeurEffectExoTag).ToBool();
+        advantageDictionary[EffectSystem.trueStrikeEffectTag] = advantageDictionary[EffectSystem.trueStrikeEffectTag] || GetTrueStrikeAdvantage(eff);
+        advantageDictionary[EffectSystem.BroyeurEffectTag] = advantageDictionary[EffectSystem.BroyeurEffectTag] || GetBroyeurAdvantage(eff);
 
-        disadvantageDictionary["armorShield"] = disadvantageDictionary["armorShield"] || GetArmorShieldDisadvantage(eff, attackStat);
-        disadvantageDictionary["boneChillDisadvantage"] = disadvantageDictionary["boneChillDisadvantage"] || GetBoneChillDisadvantage(attacker, eff);
+        disadvantageDictionary[EffectSystem.ShieldArmorDisadvantageEffectTag] = disadvantageDictionary[EffectSystem.ShieldArmorDisadvantageEffectTag] || GetArmorShieldDisadvantage(eff, attackStat);
+        disadvantageDictionary[EffectSystem.boneChillEffectTag] = disadvantageDictionary[EffectSystem.boneChillEffectTag] || GetBoneChillDisadvantage(attacker, eff);
         disadvantageDictionary["blinded"] = disadvantageDictionary["blinded"] || GetBlindedDisadvantage(eff);
         disadvantageDictionary["poisoned"] = disadvantageDictionary["poisoned"] || GetPoisonedDisadvantage(eff);
         disadvantageDictionary["frightened"] = disadvantageDictionary["frightened"] || GetFrightenedDisadvantage(eff, targetId.m_idSelf);
-        disadvantageDictionary["drowLightSensitivity"] = disadvantageDictionary["drowLightSensitivity"] || GetDrowLightSensitivityDisadvantage(eff);
-        disadvantageDictionary["protectionStyle"] = disadvantageDictionary["protectionStyle"] || GetProtectionStyleDisadvantage(eff);
-        disadvantageDictionary["pourfendeur"] = disadvantageDictionary["pourfendeur"] || GetPourfendeurDisadvantage(eff);
+        disadvantageDictionary[EffectSystem.lightSensitivityEffectTag] = disadvantageDictionary[EffectSystem.lightSensitivityEffectTag] || GetDrowLightSensitivityDisadvantage(eff);
+        disadvantageDictionary[EffectSystem.PourfendeurDisadvantageEffectTag] = disadvantageDictionary[EffectSystem.PourfendeurDisadvantageEffectTag] || GetPourfendeurDisadvantage(eff);
         disadvantageDictionary[EffectSystem.ProvocationEffectTag] = disadvantageDictionary[EffectSystem.ProvocationEffectTag] || GetProvocationDisadvantage(eff, targetId.m_idSelf);
       }
 

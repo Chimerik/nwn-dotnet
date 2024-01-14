@@ -77,7 +77,7 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.FighterBonusAttack].LevelUp(player);
           player.learnableSkills[CustomSkill.FighterBonusAttack].source.Add(Category.Class);
 
-          player.oid.LoginCreature.BaseAttackBonus += 1; break;
+          player.oid.LoginCreature.BaseAttackCount += 1; break;
 
         case 6:
 
@@ -106,7 +106,7 @@ namespace NWN.Systems
           player.learnableSkills.TryAdd(CustomSkill.FighterBonusAttack, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterBonusAttack], player));
           player.learnableSkills[CustomSkill.FighterBonusAttack].LevelUp(player);
 
-          player.oid.LoginCreature.BaseAttackBonus += 1;
+          player.oid.LoginCreature.BaseAttackCount += 1;
 
           break;
 
@@ -139,7 +139,7 @@ namespace NWN.Systems
           player.learnableSkills.TryAdd(CustomSkill.FighterBonusAttack, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterBonusAttack], player));
           player.learnableSkills[CustomSkill.FighterBonusAttack].LevelUp(player);
 
-          player.oid.LoginCreature.BaseAttackBonus += 1;
+          player.oid.LoginCreature.BaseAttackCount += 1;
 
           break;
       }

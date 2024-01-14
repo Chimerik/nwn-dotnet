@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -8,6 +9,9 @@ namespace NWN.Systems
     {
       private void ApplyRacePackage(NwRace race, int bonusSelection)
       {
+        if(oid.LoginCreature.Race.Id == CustomRace.GoldDwarf)
+          oid.LoginCreature.LevelInfo.FirstOrDefault().HitDie -= 1;
+
         oid.LoginCreature.Race = race;
         oid.LoginCreature.Appearance = NwGameTables.AppearanceTable[Races2da.raceTable[race.Id].appearanceId];
 

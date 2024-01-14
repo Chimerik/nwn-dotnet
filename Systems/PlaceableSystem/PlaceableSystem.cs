@@ -105,8 +105,6 @@ namespace NWN.Systems
       {
         trainer.MaxHP = 9999;
         trainer.HP = 9999;
-        trainer.BaseAC = (sbyte)trainer.GetObjectVariable<LocalVariableInt>("AC").Value;
-
         trainer.OnConversation += HandleCancelStatueConversation;
         trainer.OnSpawn += HandleSpawnTrainingDummy;
         trainer.OnDamaged += HandleTrainingDummyDamaged;

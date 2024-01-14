@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.RunAction(), Effect.Icon(NwGameTables.EffectIconTable.GetRow(34)));
+        Effect eff = Effect.LinkEffects(Effect.RunAction(), Effect.Icon(EffectIcon.AttackDecrease));
         eff.Tag = ShieldArmorDisadvantageEffectTag;
         eff.SubType = EffectSubType.Unyielding;
         return eff;

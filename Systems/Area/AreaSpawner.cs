@@ -31,7 +31,7 @@ namespace NWN.Systems
           InitializeCreatureEvents(creature);
           InitializeGenericVariables(creature, spawnPoint);
           HandleSpawnSpecificBehaviour(creature, spawnPoint);
-          InitializeCreatureStats(creature);
+          //InitializeCreatureStats(creature);
           //creature.ApplyEffect(EffectDuration.Instant, Effect.Death(false, false));
           //creature.ApplyEffect(EffectDuration.Permanent, Effect.CutsceneParalyze());
         }
@@ -126,7 +126,7 @@ namespace NWN.Systems
         spawnPoint.GetObjectVariable<LocalVariableLocation>("_CREATURE_ROTATION").HasValue ? spawnPoint.GetObjectVariable<LocalVariableLocation>("_CREATURE_ROTATION").Value.Position : Vector3.Zero,
         spawnPoint.GetObjectVariable<LocalVariableInt>("_CREATURE_APPEARANCE").Value);
     }
-    private static void InitializeCreatureStats(NwCreature creature)
+    /*private static void InitializeCreatureStats(NwCreature creature)
     {
       // HP - Min damage - Max damage - Crit chance - AC - Nb attacks
       if (creature.GetObjectVariable<LocalVariableInt>("_MIN_CREATURE_DAMAGE").HasValue)
@@ -142,6 +142,6 @@ namespace NWN.Systems
         CreaturePlugin.SetBaseAC(creature, stats.AC);
         creature.BaseAttackCount = stats.nbAttacks;
       }
-    }
+    }*/
   }
 }

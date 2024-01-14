@@ -11,13 +11,19 @@ namespace NWN
       float distance = attacker.m_vPosition.z - target.m_vPosition.z;
 
       if (distance > 3)
+      {
+        LogUtils.LogMessage($"Avantage - Attaque à distance en surélévation", LogUtils.LogType.Combat);
         return 1;
+      }
 
       if (attacker.m_pStats.HasFeat(CustomSkill.TireurDelite).ToBool())
         return 0;
 
       if (distance < -3)
+      {
+        LogUtils.LogMessage($"Désavantage - Attaque à distance en sousélévation", LogUtils.LogType.Combat);
         return -1;
+      }
 
       return 0;
     }

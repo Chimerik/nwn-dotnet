@@ -16,27 +16,27 @@ namespace NWN
         { "uncounscious", false },
         { "paralyzed", false },
         { "petrified", false },
-        { "faerieFire", false },
+        { EffectSystem.faerieFireEffectTag, false },
       };
 
       Dictionary<string, bool> disadvantageDictionary = new()
       {
-        { "targetDodge", false },
+        { EffectSystem.DodgeEffectTag, false },
+        { EffectSystem.ProtectionStyleEffectTag, false },
       };
 
       foreach (var eff in target.m_appliedEffects)
       {
-        disadvantageDictionary["targetDodge"] = disadvantageDictionary["targetDodge"] || GetTargetDodgingDisadvantage(eff);
+        disadvantageDictionary[EffectSystem.DodgeEffectTag] = disadvantageDictionary[EffectSystem.DodgeEffectTag] || GetTargetDodgingDisadvantage(eff);
+        disadvantageDictionary[EffectSystem.ProtectionStyleEffectTag] = disadvantageDictionary[EffectSystem.ProtectionStyleEffectTag] || GetProtectionStyleDisadvantage(eff);
 
         advantageDictionary["blinded"] = advantageDictionary["blinded"] || GetTargetBlindedAdvantage(eff);
         advantageDictionary["stunned"] = advantageDictionary["stunned"] || GetTargetStunnedAdvantage(eff);
         advantageDictionary["uncounscious"] = advantageDictionary["uncounscious"] || GetTargetUncounsciousAdvantage(eff);
         advantageDictionary["paralyzed"] = advantageDictionary["paralyzed"] || GetTargetParalyzedAdvantage(eff);
         advantageDictionary["petrified"] = advantageDictionary["petrified"] || GetTargetPetrifiedAdvantage(eff);
-        advantageDictionary["faerieFire"] = advantageDictionary["faerieFire"] || GetTargetFaerieFireAdvantage(eff);
+        advantageDictionary[EffectSystem.faerieFireEffectTag] = advantageDictionary[EffectSystem.faerieFireEffectTag] || GetTargetFaerieFireAdvantage(eff);
       }
-
-      // TODO : si la cible est sous l'effet de l'action "esquivez", l'attaquant a un désavantage
 
       return -disadvantageDictionary.Count(v => v.Value) + advantageDictionary.Count(v => v.Value);
     }

@@ -6,16 +6,20 @@ namespace NWN.Systems
 {
   public partial class ItemSystem
   {
-    private static void OnHeartbeatCheckHeavyArmorSlow(CreatureEvents.OnHeartbeat onHB)
+    public static void OnHeartbeatCheckHeavyArmorSlow(CreatureEvents.OnHeartbeat onHB)
     {
       if(onHB.Creature.GetAbilityScore(Ability.Strength) > 14)
-      {
-        foreach(var eff in onHB.Creature.ActiveEffects)
-          if(eff.Tag == EffectSystem.heavyArmorSlowEffectTag)
-            onHB.Creature.RemoveEffect(eff);
-      }
+        EffectUtils.RemoveTaggedEffect(onHB.Creature, EffectSystem.heavyArmorSlowEffectTag);
       else if(!onHB.Creature.ActiveEffects.Any(e => e.Tag == EffectSystem.heavyArmorSlow.Tag))
         onHB.Creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.heavyArmorSlow);
+
+      NwItem armor = onHB.Creature.GetItemInSlot(InventorySlot.Chest);
+
+      if (armor is null || armor.BaseACValue < 6 || onHB.Creature.KnowsFeat(Feat.ArmorProficiencyHeavy))
+      {
+        EffectUtils.RemoveTaggedEffect(onHB.Creature, EffectSystem.heavyArmorSlowEffectTag);
+        onHB.Creature.OnHeartbeat -= OnHeartbeatCheckHeavyArmorSlow;
+      }
     }
   }
 }

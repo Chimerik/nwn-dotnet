@@ -340,8 +340,6 @@ namespace NWN.Systems
           player.oid.LoginCreature.OnAcquireItem -= ItemSystem.OnAcquireCheckHumanVersatility;
           player.oid.LoginCreature.OnUnacquireItem -= ItemSystem.OnUnAcquireCheckHumanVersatility;
 
-          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatType(Feat.Toughness));
-
           foreach (var eff in player.oid.LoginCreature.ActiveEffects)
           {
             switch(eff.Tag)

@@ -8,10 +8,14 @@ namespace NWN
   {
     public static int GetSmallCreaturesHeavyWeaponDisadvantage(CNWSCreature attacker, BaseItemType weaponType)
     {
-
-      return (attacker.m_nCreatureSize < (int)CreatureSize.Medium || attacker.m_pStats.m_nRace == (int)RacialType.Gnome
-        || attacker.m_pStats.m_nRace == (int)RacialType.Halfling) && ItemUtils.IsHeavyWeapon(weaponType)
-      ? -1 : 0;
+      if ((attacker.m_nCreatureSize < (int)CreatureSize.Medium || attacker.m_pStats.m_nRace == (int)RacialType.Gnome
+        || attacker.m_pStats.m_nRace == (int)RacialType.Halfling) && ItemUtils.IsHeavyWeapon(weaponType))
+      {
+        LogUtils.LogMessage("Désavantage - Créature de petite taille maniant une arme lourde", LogUtils.LogType.Combat);
+        return -1;
+      }
+      else
+        return 0;
     }
   }
 }

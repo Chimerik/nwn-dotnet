@@ -8,20 +8,33 @@ namespace NWN.Systems
   {
     public static void OnAcquireCheckHumanVersatility(OnAcquireItem onAcquireItem)
     {
-      if (!PlayerSystem.Players.TryGetValue(onAcquireItem.AcquiredBy, out PlayerSystem.Player player)
-        || !player.learnableSkills.TryGetValue(CustomSkill.HumanVersatility, out LearnableSkill versatility) || versatility.currentLevel < 1)
+      NwItem item = onAcquireItem.Item;
+
+      if (item is null || item.Weight == 0)
         return;
 
-      onAcquireItem.Item.GetObjectVariable<LocalVariableString>("_ITEM_WEIGHT_PRE_VERSATILITY").Value = onAcquireItem.Item.Weight.ToString();
-      onAcquireItem.Item.Weight = (int)Math.Round(((double)onAcquireItem.Item.Weight * 0.75), MidpointRounding.ToEven);
+      item.GetObjectVariable<LocalVariableFloat>("_ITEM_WEIGHT_PRE_VERSATILITY").Value = (float)item.Weight / item.StackSize;
+      ModuleSystem.Log.Info($"weight before : {item.Weight}");
+      decimal newWeigth = item.Weight / item.StackSize * (decimal)0.75;
+
+      if (newWeigth < (decimal)0.1)
+        newWeigth = (decimal)0.1;
+
+      item.Weight = newWeigth;
+      ModuleSystem.Log.Info($"weight after : {item.Weight}");
     }
     public static void OnUnAcquireCheckHumanVersatility(OnUnacquireItem onUnacqItem)
     {
-      if (!PlayerSystem.Players.TryGetValue(onUnacqItem.LostBy, out PlayerSystem.Player player)
-        || !player.learnableSkills.TryGetValue(CustomSkill.HumanVersatility, out LearnableSkill versatility) || versatility.currentLevel < 1)
+      NwItem item = onUnacqItem.Item;
+
+      if (item is null || item.GetObjectVariable<LocalVariableString>("_ITEM_WEIGHT_PRE_VERSATILITY").HasNothing)
         return;
 
-      onUnacqItem.Item.Weight = decimal.Parse(onUnacqItem.Item.GetObjectVariable<LocalVariableString>("_ITEM_WEIGHT_PRE_VERSATILITY").Value);
+      ModuleSystem.Log.Info($"weight variable : {item.GetObjectVariable<LocalVariableFloat>("_ITEM_WEIGHT_PRE_VERSATILITY").Value}");
+      ModuleSystem.Log.Info($"weight variable converted: {(decimal)item.GetObjectVariable<LocalVariableFloat>("_ITEM_WEIGHT_PRE_VERSATILITY").Value}");
+      item.Weight = (decimal)item.GetObjectVariable<LocalVariableFloat>("_ITEM_WEIGHT_PRE_VERSATILITY").Value;
+      item.GetObjectVariable<LocalVariableFloat>("_ITEM_WEIGHT_PRE_VERSATILITY").Delete();
+      ModuleSystem.Log.Info($"weight after : {item.Weight}");
     }
   }
 }

@@ -6,7 +6,13 @@ namespace NWN
   {
     public static bool GetTargetPetrifiedAdvantage(CGameEffect eff)
     {
-      return (EffectTrueType)eff.m_nType == EffectTrueType.Petrify;
+      if ((EffectTrueType)eff.m_nType == EffectTrueType.Petrify)
+      {
+        LogUtils.LogMessage("Avantage - Cible pétrifiée", LogUtils.LogType.Combat);
+        return true;
+      }
+      else 
+        return false;
     }
   }
 }

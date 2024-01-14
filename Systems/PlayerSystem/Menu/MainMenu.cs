@@ -471,6 +471,8 @@ namespace NWN.Systems
 
                     break;
 
+                  case "sacrificeHP": NWScript.AssignCommand(player.oid.ControlledCreature, () => player.oid.ControlledCreature.ApplyEffect(EffectDuration.Instant, Effect.Damage((int)(player.oid.ControlledCreature.MaxHP * 0.2)))); break;
+
                   case "shortRest":
 
                     // TODO : limiter à deux shortRest par LongRest
@@ -480,7 +482,7 @@ namespace NWN.Systems
                     FighterUtils.RestoreManoeuvres(player.oid.LoginCreature);
                     FighterUtils.RestoreTirArcanique(player.oid.LoginCreature);
 
-                    foreach (var skill in player.learnableSkills.Values.Where(l => l.category == SkillSystem.Category.Feat && l.currentLevel > 0 && l.restoreOnShortRest))
+                    foreach (var skill in player.learnableSkills.Values.Where(l => l.restoreOnShortRest && l.currentLevel > 0))
                     {
                       byte nbCharge = 1;
 
@@ -489,6 +491,11 @@ namespace NWN.Systems
                         case CustomSkill.VigueurNaine: 
                           player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>(CreatureUtils.VigueurNaineHDVariable).Value = player.oid.LoginCreature.Level;
                           return;
+
+                        case CustomSkill.FighterSurge:
+                          if (player.oid.LoginCreature.GetClassInfo(NwClass.FromClassId(CustomClass.Fighter)).Level > 16)
+                            nbCharge++;
+                          break;
                       }
 
                       player.oid.LoginCreature.SetFeatRemainingUses(NwFeat.FromFeatId(skill.id), nbCharge);

@@ -8,7 +8,13 @@ namespace NWN
   {
     public static bool GetProtectionStyleDisadvantage(CGameEffect eff)
     {
-      return eff.m_sCustomTag.CompareNoCase(EffectSystem.ProtectionStyleEffectExoTag).ToBool();
+      if (eff.m_sCustomTag.CompareNoCase(EffectSystem.ProtectionStyleEffectExoTag).ToBool())
+      {
+        LogUtils.LogMessage("Désavantage - Cible sous Protection (Guerrier)", LogUtils.LogType.Combat);
+        return true;
+      }
+      else
+        return false;
     }
   }
 }

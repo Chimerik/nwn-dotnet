@@ -21,10 +21,17 @@ namespace NWN
         };
       }
 
-      return (isCrossbowAttack && attacker.m_pStats.HasFeat((ushort)Feat.PointBlankShot).ToBool())
-        || !attacker.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.threatenedEffectExoTag).ToBool())
-        ? 0 
-        : -1;
+      if((isCrossbowAttack && attacker.m_pStats.HasFeat((ushort)Feat.PointBlankShot).ToBool())
+        || !attacker.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.threatenedEffectExoTag).ToBool()))
+      {
+        return 0;
+      }
+      else
+      {
+        LogUtils.LogMessage($"Désavantage - Attaque à distance en étant menacé en mêlée", LogUtils.LogType.Combat);
+        return -1;
+      }
+
 
       /*foreach (var gameObject in attacker.GetArea().m_aGameObjects)
       {

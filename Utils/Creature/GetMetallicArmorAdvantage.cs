@@ -4,10 +4,19 @@ namespace NWN
 {
   public static partial class CreatureUtils
   {
-    public static int GetMetallicArmorAdvantage(NwCreature target)
+    public static int GetMetallicArmorAdvantage(NwCreature target, NwSpell spell)
     {
-      NwItem armor = target.GetItemInSlot(InventorySlot.Chest);
-      return armor is null || armor.BaseACValue < 5 ? 0 : 1;
+      if (spell.SpellType == Spell.ElectricJolt)
+      {
+        NwItem armor = target.GetItemInSlot(InventorySlot.Chest);
+        if (armor is not null && armor.BaseACValue > 4)
+        {
+          LogUtils.LogMessage("Avantage - Poigne électrique sur armure métallique", LogUtils.LogType.Combat);
+          return 1;
+        }
+      }
+
+      return 0;
     }
   }
 }

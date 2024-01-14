@@ -20,35 +20,23 @@ namespace NWN
         if (attackData.m_bRangedAttack.ToBool())
         {
           advantage += GetHighGroundAdvantage(attacker, target);
-          //LogUtils.LogMessage($"GetHighGroundAdvantage : {advantage}", LogUtils.LogType.Combat);
           advantage += GetRangedWeaponDistanceDisadvantage(attacker, weaponType, target);
-          //LogUtils.LogMessage($"GetRangedWeaponDistanceDisadvantage : {advantage}", LogUtils.LogType.Combat);
           advantage += GetThreatenedDisadvantage(attacker, attackWeapon);
-          //LogUtils.LogMessage($"GetThreatenedDisadvantage : {advantage}", LogUtils.LogType.Combat);
         }
         else
           advantage += GetJeuDeJambeAttackerDisadvantage(target);
 
         advantage += GetKnockdownAdvantage(attackData.m_bRangedAttack, target);
-        //LogUtils.LogMessage($"GetKnockdownAdvantage : {advantage}", LogUtils.LogType.Combat);
         advantage += GetAttackerAdvantageEffects(attacker, target, attackStat);
-        //LogUtils.LogMessage($"GetAttackerAdvantageEffects : {advantage}", LogUtils.LogType.Combat);
         advantage += GetTargetAdvantageEffects(target);
-        //LogUtils.LogMessage($"GetTargetAdvantageEffects : {advantage}", LogUtils.LogType.Combat);
         advantage += GetInvisibleTargetDisadvantage(attacker, target);
-        //LogUtils.LogMessage($"GetInvisibleTargetDisadvantage : {advantage}", LogUtils.LogType.Combat);
         advantage += GetInvisibleAttackerAdvantage(attacker, target);
-        //LogUtils.LogMessage($"GetInvisibleAttackerAdvantage : {advantage}", LogUtils.LogType.Combat);
         advantage += GetDiversionTargetAdvantage(attacker, target);
-        //LogUtils.LogMessage($"GetDiversionTargetAdvantage : {advantage}", LogUtils.LogType.Combat);
         advantage += GetFeinteAttackerAdvantage(attacker);
-        //LogUtils.LogMessage($"GetDiversionTargetAdvantage : {advantage}", LogUtils.LogType.Combat);
       }
 
       advantage += GetSmallCreaturesHeavyWeaponDisadvantage(attacker, weaponType);
-      //LogUtils.LogMessage($"GetSmallCreaturesHeavyWeaponDisadvantage : {advantage}", LogUtils.LogType.Combat);
       advantage += GetSentinelleOpportunityAdvantage(attacker, attackData);
-      //LogUtils.LogMessage($"GetSentinelleOpportunityAdvantage : {advantage}", LogUtils.LogType.Combat);
 
       return advantage;
     }
@@ -71,9 +59,7 @@ namespace NWN
         advantage += GetInvisibleAttackerAdvantage(attacker, target);
         advantage += GetDiversionTargetAdvantage(attacker, target);
         advantage += GetFeinteAttackerAdvantage(attacker);
-
-        if (spell.SpellType == Spell.ElectricJolt)
-          advantage += GetMetallicArmorAdvantage(target);
+        advantage += GetMetallicArmorAdvantage(target, spell);
       }
 
       return advantage;

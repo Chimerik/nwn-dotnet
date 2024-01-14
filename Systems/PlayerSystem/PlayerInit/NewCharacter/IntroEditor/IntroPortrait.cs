@@ -170,7 +170,7 @@ namespace NWN.Systems
 
                 case "portraitSelect3":
 
-                  portraitResRef = portraits1.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex];
+                  portraitResRef = portraits3.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex];
 
                   if (!string.IsNullOrEmpty(portraitResRef))
                   {

@@ -11,10 +11,15 @@ namespace NWN
       if(target.m_pStats.HasFeat(CustomSkill.Vigilant).ToBool())
         return 0;
 
-      return (target.GetVisibleListElement(attacker.m_idSelf) is null
+      if (target.GetVisibleListElement(attacker.m_idSelf) is null
         || target.GetVisibleListElement(attacker.m_idSelf).m_bSeen < 1
         || target.GetVisibleListElement(attacker.m_idSelf).m_bInvisible > 0)
-        ? 1 : 0;
+      {
+        LogUtils.LogMessage("Avantage - Attaquant non visible", LogUtils.LogType.Combat);
+        return 1;
+      }
+      else
+        return 0;
     }
   }
 }

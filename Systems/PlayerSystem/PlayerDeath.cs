@@ -34,7 +34,10 @@ namespace NWN.Systems
       {
         onPlayerDeath.DeadPlayer.SendServerMessage("Tout se brouille autour de vous. Avant de perdre connaissance, vous sentez comme un étrange maëlstrom vous aspirer.");
 
-        Location playerDeathLocation = player.oid.LoginCreature.Location;
+        onPlayerDeath.DeadPlayer.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Resurrection());
+        onPlayerDeath.DeadPlayer.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Heal(onPlayerDeath.DeadPlayer.LoginCreature.MaxHP));
+
+        /*Location playerDeathLocation = player.oid.LoginCreature.Location;
         
         Task handleDeath = NwTask.Run(async () =>
         {
@@ -46,7 +49,7 @@ namespace NWN.Systems
           player.oid.SendServerMessage($"{player.oid.LoginCreature.Gold.ToString().ColorString(ColorConstants.White)} pièces d'or ont été abandonnées sur place !", ColorConstants.Red);
           player.oid.LoginCreature.Gold = 0;
           player.StripPlayerOfCraftResources();
-        });
+        });*/
       }
     }
     public static void SetupPCCorpse(NwCreature oPCCorpse)

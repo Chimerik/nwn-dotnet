@@ -10,19 +10,24 @@ namespace NWN.Systems
     {
       int criticalRange = 20;
       
-      if(weapon is not null 
-        && !data.m_bRangedAttack.ToBool() 
-        && creature.m_pStats.HasFeat(CustomSkill.Broyeur).ToBool() 
-        && NwBaseItem.FromItemId((int)weapon.m_nBaseItem).WeaponType.Any(d => d == Anvil.API.DamageType.Bludgeoning)) 
-        criticalRange -= 1;
-
-      for (byte i = 0; i < creature.m_pStats.m_nNumMultiClasses; i++)
+      if(weapon is not null)
       {
-        CNWSCreatureStats_ClassInfo classInfo = creature.m_pStats.GetClassInfo(i);
-        if (classInfo.m_nClass == CustomClass.Champion)
+        if(!data.m_bRangedAttack.ToBool()
+          && creature.m_pStats.HasFeat(CustomSkill.Broyeur).ToBool()
+          && NwBaseItem.FromItemId((int)weapon.m_nBaseItem).WeaponType.Any(d => d == Anvil.API.DamageType.Bludgeoning))
+          criticalRange -= 1;
+
+        if (creature.m_pStats.HasFeat(CustomSkill.FighterChampionImprovedCritical).ToBool())
         {
-          criticalRange -= classInfo.m_nLevel < 15 ? 1 : 2;
-          break;
+          for (byte i = 0; i < creature.m_pStats.m_nNumMultiClasses; i++)
+          {
+            CNWSCreatureStats_ClassInfo classInfo = creature.m_pStats.GetClassInfo(i);
+            if (classInfo.m_nClass == CustomClass.Fighter)
+            {
+              criticalRange -= classInfo.m_nLevel < 15 ? 1 : 2;
+              break;
+            }
+          }
         }
       }
 

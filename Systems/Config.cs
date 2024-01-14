@@ -43,7 +43,7 @@ namespace NWN.Systems
 
     // CREATURES
 
-    public static Dictionary<string, CreatureStats> creatureStats = new();
+    //public static readonly Dictionary<string, CreatureStats> creatureStats = new();
 
     // LOOT
 

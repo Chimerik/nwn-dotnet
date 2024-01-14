@@ -23,7 +23,7 @@ namespace NWN.Systems
 
 
     public LearnableSkill(int id, string name, string description, SkillSystem.Category category, string icon, int maxLevel, int multiplier, Ability primaryAbility,
-      Ability secondaryAbility, Func<PlayerSystem.Player, int, bool> skillEffect = null, string descriptionLink = "", List<int> racePrerequiste = null, List<int> learnablePrerequiste = null, bool restoreOnShortRest = false) 
+      Ability secondaryAbility, Func<Player, int, bool> skillEffect = null, string descriptionLink = "", List<int> racePrerequiste = null, List<int> learnablePrerequiste = null, bool restoreOnShortRest = false) 
       : base(id, name, description, icon, maxLevel, multiplier, primaryAbility, secondaryAbility, descriptionLink)
     {
       this.category = category;
@@ -50,19 +50,19 @@ namespace NWN.Systems
       if (skillSource > -1)
         source.Add((SkillSystem.Category)skillSource);
     }
-    public LearnableSkill(LearnableSkill learnableBase, SerializableLearnableSkill serializableBase, Player player) 
+    public LearnableSkill(LearnableSkill learnableBase, SerializableLearnableSkill serializableBase, Player player, int playerLevel = 0, int multiClassMultiplier = 0) 
       : base(learnableBase)
     {
       category = learnableBase.category;
       active = serializableBase.active;
       acquiredPoints = serializableBase.acquiredPoints;
       currentLevel = serializableBase.currentLevel;
-      pointsToNextLevel = GetPointsToLevelUp(player);
+      pointsToNextLevel = GetPointsToLevelUp(player, playerLevel, multiClassMultiplier);
       spLastCalculation = serializableBase.spLastCalculation;
       skillEffect = learnableBase.skillEffect;
       levelTaken = serializableBase.levelTaken;
       featOptions = serializableBase.featOptions;
-      restoreOnShortRest = serializableBase.restoreOnShortRest;
+      restoreOnShortRest = learnableBase.restoreOnShortRest;
       source = new();
 
       if(serializableBase.source is not null)
@@ -76,7 +76,6 @@ namespace NWN.Systems
       public double acquiredPoints { get; set; }
       public int currentLevel { get; set; }
       public int levelTaken { get; set; }
-      public bool restoreOnShortRest { get; set; }
       public Dictionary<int, int[]> featOptions { get; set; }
       public List<int> source { get; set; }
       public DateTime? spLastCalculation { get; set; }
@@ -93,7 +92,6 @@ namespace NWN.Systems
         levelTaken = learnableBase.levelTaken;
         featOptions = learnableBase.featOptions;
         spLastCalculation = learnableBase.spLastCalculation;
-        restoreOnShortRest = learnableBase.restoreOnShortRest;
 
         if (learnableBase.source is not null)
         {
@@ -123,26 +121,31 @@ namespace NWN.Systems
         window.level.SetBindValue(player.oid, window.nuiToken.Token, $"{currentLevel}/{maxLevel}");
       }
 
-      if (player.TryGetOpenedWindow("learnables", out PlayerSystem.Player.PlayerWindow learnableWindow))
+      if (player.TryGetOpenedWindow("learnables", out Player.PlayerWindow learnableWindow))
       {
-        PlayerSystem.Player.LearnableWindow window = (PlayerSystem.Player.LearnableWindow)learnableWindow;
+        Player.LearnableWindow window = (Player.LearnableWindow)learnableWindow;
         window.LoadLearnableList(window.currentList);
       }
       
       player.oid.ExportCharacter();
       LogUtils.LogMessage($"{player.oid.LoginCreature.Name} maîtrise {name} niveau {currentLevel}", LogUtils.LogType.Learnables);
     }
-    private double GetPointsToLevelUp(PlayerSystem.Player player)
+    private double GetPointsToLevelUp(Player player, int playerLevel = 0, int multiClassCount = 0)
     {
       switch(category)
       {
         case SkillSystem.Category.Class:
         case SkillSystem.Category.FighterSubClass:
 
-          double multiClassMultiplier = player.oid.LoginCreature.Level > 11 
-            ? player.oid.LoginCreature.Classes.Distinct().Count() * 1.5 : 1;
+          if (playerLevel < 1)
+            playerLevel = player.oid.LoginCreature.Level;
 
-          return player.oid.LoginCreature.Level switch
+          if (multiClassCount < 1)
+            multiClassCount = player.oid.LoginCreature.Classes.Distinct().Count();
+
+          double multiClassMultiplier = playerLevel > 11 ? multiClassCount * 1.5 : 1;
+
+          return playerLevel switch
           {
             1 => 8640 * multiClassMultiplier,
             2 => 26000 * multiClassMultiplier,
@@ -164,7 +167,7 @@ namespace NWN.Systems
             18 => 8784000 * multiClassMultiplier,
             19 => 10224000 * multiClassMultiplier,
             20 => 11760000 * multiClassMultiplier,
-            _ => 11760000 * multiClassMultiplier * 1.15 * (player.oid.LoginCreature.Level - 20),
+            _ => 11760000 * multiClassMultiplier * 1.15 * (playerLevel - 20),
           };
         default:
           return 250 * multiplier * Math.Pow(5, currentLevel);

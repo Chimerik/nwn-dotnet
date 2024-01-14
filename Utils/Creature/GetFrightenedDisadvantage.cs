@@ -8,8 +8,14 @@ namespace NWN
   {
     public static bool GetFrightenedDisadvantage(CGameEffect eff, uint targetId)
     {
-      return eff.m_sCustomTag.ToExoLocString().GetSimple(0).ComparePrefixNoCase(EffectSystem.frightenedEffectExoTag, EffectSystem.frightenedEffectExoTag.GetLength()).ToBool()
-        && eff.m_oidCreator == targetId;        
+      if(eff.m_sCustomTag.ToExoLocString().GetSimple(0).ComparePrefixNoCase(EffectSystem.frightenedEffectExoTag, EffectSystem.frightenedEffectExoTag.GetLength()).ToBool()
+        && eff.m_oidCreator == targetId)
+      {
+        LogUtils.LogMessage("Désavantage - Attaquant effrayé par la cible", LogUtils.LogType.Combat);
+        return true;
+      }
+      else
+        return false;        
     }
   }
 }
