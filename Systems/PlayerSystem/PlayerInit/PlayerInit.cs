@@ -403,6 +403,7 @@ namespace NWN.Systems
         InitializeLearnables();
         InitializeJob();
         CheckPlayerConnectionInfo();
+        InitializeNumAttackPerRound();
         HandleMailNotification();
         ApplyElvenSleepImmunity();
         ApplyWoodElfSpeed();
@@ -430,11 +431,11 @@ namespace NWN.Systems
         ApplyMobile();
         ApplyBroyeur();
         ApplyPourfendeur();
-        ApplyFightingStyleDuel();
         ApplyLameDoutretombe();
         ApplyChanceDebordante();
         ApplyUltimeSurvivant();
         ApplyShieldArmorMalus();
+        ApplyUnarmoredDefence();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

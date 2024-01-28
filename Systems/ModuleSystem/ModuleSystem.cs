@@ -1262,6 +1262,8 @@ namespace NWN.Systems
         EventsPlugin.SkipEvent();
         return;
       }
+
+      string option = "";
       
       if (target.MovementType != MovementType.Stationary)
       {
@@ -1287,6 +1289,8 @@ namespace NWN.Systems
               EventsPlugin.SkipEvent();
               return;
             }
+            else
+              option = " - Tueur de mage".ColorString(StringUtils.gold);
 
             break;
 
@@ -1316,7 +1320,7 @@ namespace NWN.Systems
       else
       {
         creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value -= 1;
-        StringUtils.DisplayStringToAllPlayersNearTarget(creature, "Attaque d'opportunité", StringUtils.gold, true);
+        StringUtils.DisplayStringToAllPlayersNearTarget(creature, $"Attaque d'opportunité{option}", StringUtils.gold, true);
         EventsPlugin.SetEventResult("1");
       }
     }

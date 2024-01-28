@@ -13,11 +13,13 @@ namespace NWN.Systems
       int numDamageDice = weapon.NumDamageDice 
         + GetFureurOrcBonus(creature) 
         + GetOrcCriticalBonus(creature, attackData, isCriticalRoll)
-        + GetEmpaleurCriticalBonus(creature, weapon, isCriticalRoll);
+        + GetEmpaleurCriticalBonus(creature, weapon, isCriticalRoll)
+        + GetBarbarianBrutalCriticalBonus(creature, attackData.m_bRangedAttack.ToBool(), isCriticalRoll);
 
       int damage = HandleWeaponDamageRerolls(creature, weapon, numDamageDice, dieToRoll);
       damage = HandleSavageAttacker(creature, weapon, attackData, numDamageDice, damage, dieToRoll);
       damage += GetSuperiorityDiceDamage(creature, attackData);
+      damage += GetBarbarianRageBonusDamage(creature, attackData);
 
       LogUtils.LogMessage($"{weapon.Name.ToString()} - {numDamageDice}d{dieToRoll} => {damage}", LogUtils.LogType.Combat);
 

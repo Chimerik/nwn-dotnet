@@ -6,15 +6,15 @@ namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static int GetCritDamage(CNWSCreature attacker, CNWSItem attackWeapon, CNWSCombatAttackData attackData, int bSneakAttack)
+    public static int GetCritDamage(CNWSCreature attacker, CNWSItem attackWeapon, CNWSCombatAttackData attackData, int bSneakAttack, bool isDuelFightingStyle)
     {
       LogUtils.LogMessage($"Ajout des dégâts du coup critique", LogUtils.LogType.Combat);
 
       return attackWeapon is not null 
-        ? GetWeaponCritDamage(attacker, attackWeapon, attackData, bSneakAttack) 
+        ? GetWeaponCritDamage(attacker, attackWeapon, attackData, bSneakAttack, isDuelFightingStyle) 
         : GetUnarmedCritDamage(attacker);
     }
-    public static int GetWeaponCritDamage(CNWSCreature attacker, CNWSItem attackWeapon, CNWSCombatAttackData attackData, int bSneakAttack)
+    public static int GetWeaponCritDamage(CNWSCreature attacker, CNWSItem attackWeapon, CNWSCombatAttackData attackData, int bSneakAttack, bool isDuelFightingStyle)
     {
       if (attackData.m_nAttackType == 6 && attacker.m_ScriptVars.GetInt(CreatureUtils.HastMasterSpecialAttackExo).ToBool())
       {
@@ -24,7 +24,7 @@ namespace NWN.Systems
 
       NwBaseItem baseWeapon = NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem);
       int damage = RollWeaponDamage(attacker, baseWeapon, attackData, true);
-      damage += GetSuperiorityDiceDamage(attacker, attackData);
+      damage += isDuelFightingStyle ? 2 : 0;
 
       if (bSneakAttack > 0)
         damage += GetSneakAttackCritDamage(attacker);

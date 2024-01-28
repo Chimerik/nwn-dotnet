@@ -23,6 +23,14 @@ namespace NWN.Systems
         private readonly NuiBind<string> portraits6 = new("portraits6");
         private readonly NuiBind<string> portraits7 = new("portraits7");
 
+        private readonly NuiBind<bool> visible1 = new("visible1");
+        private readonly NuiBind<bool> visible2 = new("visible2");
+        private readonly NuiBind<bool> visible3 = new("visible3");
+        private readonly NuiBind<bool> visible4 = new("visible4");
+        private readonly NuiBind<bool> visible5 = new("visible5");
+        private readonly NuiBind<bool> visible6 = new("visible6");
+        private readonly NuiBind<bool> visible7 = new("visible7");
+
         private readonly NuiBind<int> listCount = new("listCount");
         private string portraitResRef;
 
@@ -32,13 +40,13 @@ namespace NWN.Systems
           rootColumn.Children = rootChildren;
 
           rowTemplate.Add(new NuiListTemplateCell(new NuiSpacer()) { VariableSize = true });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(portraits1) { Id = "portraitSelect1", Tooltip = portraits1 }) { Width = 64 });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(portraits2) { Id = "portraitSelect2", Tooltip = portraits2 }) { Width = 64 });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(portraits3) { Id = "portraitSelect3", Tooltip = portraits3 }) { Width = 64 });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(portraits4) { Id = "portraitSelect4", Tooltip = portraits4 }) { Width = 64 });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(portraits5) { Id = "portraitSelect5", Tooltip = portraits5 }) { Width = 64 });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(portraits6) { Id = "portraitSelect6", Tooltip = portraits6 }) { Width = 64 });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(portraits7) { Id = "portraitSelect7", Tooltip = portraits7 }) { Width = 64 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(portraits1) { Id = "portraitSelect1", Tooltip = portraits1, Visible = visible1 }) { Width = 64 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(portraits2) { Id = "portraitSelect2", Tooltip = portraits2, Visible = visible2 }) { Width = 64 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(portraits3) { Id = "portraitSelect3", Tooltip = portraits3, Visible = visible3 }) { Width = 64 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(portraits4) { Id = "portraitSelect4", Tooltip = portraits4, Visible = visible4 }) { Width = 64 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(portraits5) { Id = "portraitSelect5", Tooltip = portraits5, Visible = visible5 }) { Width = 64 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(portraits6) { Id = "portraitSelect6", Tooltip = portraits6, Visible = visible6 }) { Width = 64 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(portraits7) { Id = "portraitSelect7", Tooltip = portraits7, Visible = visible7 }) { Width = 64 });
           rowTemplate.Add(new NuiListTemplateCell(new NuiSpacer()) { VariableSize = true });
 
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
@@ -237,10 +245,11 @@ namespace NWN.Systems
         private void UpdatePortraitList()
         {
           List<string>[] portraitList = new List<string>[] { new(), new(), new(), new(), new(), new(), new() };
+          List<bool>[] portraitVisibility = new List<bool>[] { new(), new(), new(), new(), new(), new(), new() };
           List<string> portraitTable = new();
 
-          if (Portraits2da.playerCustomPortraits.ContainsKey(player.oid.PlayerName))
-            portraitTable.AddRange(Portraits2da.playerCustomPortraits[player.oid.PlayerName]);
+          if (Portraits2da.playerCustomPortraits.TryGetValue(player.oid.PlayerName, out var value))
+            portraitTable.AddRange(value);
 
           int baseRaceId = GetBaseRaceIdFromCustomRace(player.oid.LoginCreature.Race.Id);
 
@@ -255,8 +264,16 @@ namespace NWN.Systems
           if (portraitTable != null)
             for (int i = 0; i < portraitTable.Count; i += 7)
               for (int j = 0; j < 7; j++)
-                try { portraitList[j].Add(portraitTable[i + j]); }
-                catch (Exception) { portraitList[j].Add(""); }
+                try 
+                {
+                  portraitVisibility[j].Add(true);
+                  portraitList[j].Add(portraitTable[i + j]); 
+                }
+                catch (Exception) 
+                {
+                  portraitVisibility[j].Add(false);
+                  portraitList[j].Add(""); 
+                }
 
           portraits1.SetBindValues(player.oid, nuiToken.Token, portraitList[0]);
           portraits2.SetBindValues(player.oid, nuiToken.Token, portraitList[1]);
@@ -265,6 +282,15 @@ namespace NWN.Systems
           portraits5.SetBindValues(player.oid, nuiToken.Token, portraitList[4]);
           portraits6.SetBindValues(player.oid, nuiToken.Token, portraitList[5]);
           portraits7.SetBindValues(player.oid, nuiToken.Token, portraitList[6]);
+
+          visible1.SetBindValues(player.oid, nuiToken.Token, portraitVisibility[0]);
+          visible2.SetBindValues(player.oid, nuiToken.Token, portraitVisibility[1]);
+          visible3.SetBindValues(player.oid, nuiToken.Token, portraitVisibility[2]);
+          visible4.SetBindValues(player.oid, nuiToken.Token, portraitVisibility[3]);
+          visible5.SetBindValues(player.oid, nuiToken.Token, portraitVisibility[4]);
+          visible6.SetBindValues(player.oid, nuiToken.Token, portraitVisibility[5]);
+          visible7.SetBindValues(player.oid, nuiToken.Token, portraitVisibility[6]);
+
           listCount.SetBindValue(player.oid, nuiToken.Token, portraitList[0].Count);
         }
         private int GetBaseRaceIdFromCustomRace(int customRace)

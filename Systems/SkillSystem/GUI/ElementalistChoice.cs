@@ -47,7 +47,7 @@ namespace NWN.Systems
 
           player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_ELEMENTALIST_CHOICE_FEAT").Value = 1;
 
-          NuiRect savedRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(player.guiScaledWidth * 0.4f, player.guiHeight * 0.15f, player.guiScaledWidth * 0.4f, player.guiScaledHeight * 0.55f);
+          NuiRect savedRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(player.guiScaledWidth * 0.4f, player.guiHeight * 0.15f, player.guiScaledWidth * 0.4f, player.guiScaledHeight * 0.55f);
 
           window = new NuiWindow(rootColumn, "Don élémentaliste - Choisissez un type de dégâts")
           {
@@ -81,9 +81,10 @@ namespace NWN.Systems
               {
                 case "validate":
 
-                  CloseWindow();
                   player.learnableSkills[CustomSkill.Elementaliste].featOptions.Add(acquiredLevel, new int[] {selectedDamage.GetBindValue(player.oid, nuiToken.Token)} );
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_ELEMENTALIST_CHOICE_FEAT").Delete();
+
+                  CloseWindow();
 
                   return;
               }

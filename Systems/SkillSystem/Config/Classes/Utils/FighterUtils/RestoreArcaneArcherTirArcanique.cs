@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Anvil.API;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -7,7 +6,7 @@ namespace NWN.Systems
   {
     public static async void RestoreTirArcanique(NwCreature creature)
     {
-      byte? level = creature.Classes.FirstOrDefault(c => c.Class.Id == CustomClass.Fighter)?.Level;
+      byte? level = creature.GetClassInfo(NwClass.FromClassType(ClassType.Fighter))?.Level;
 
       if (!level.HasValue)
         return;

@@ -8,13 +8,13 @@ namespace NWN.Systems
   {
     public static bool OnLearnBroyeur(PlayerSystem.Player player, int customSkillId)
     {
-      List<Ability> abilities = new();
+      List<NuiComboEntry> abilities = new();
 
       if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Strength) < 20)
-        abilities.Add(Ability.Strength);
+        abilities.Add(new("Force", (int)Ability.Strength));
 
       if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Constitution) < 20)
-        abilities.Add(Ability.Constitution);
+        abilities.Add(new("Constitution", (int)Ability.Constitution));
 
       if (abilities.Count > 0)
       {

@@ -67,6 +67,8 @@ namespace NWN.Systems
         case CustomSkill.WarMasterRalliement: Ralliement(onUseFeat.Creature, onUseFeat.TargetObject); return;
         case CustomSkill.WarMasterRiposte: Riposte(onUseFeat.Creature); return;
         case CustomSkill.WarMasterObservation: Observation(onUseFeat.Creature, onUseFeat.TargetObject); return;
+
+        case CustomSkill.BarbarianRecklessAttack: RecklessAttack(onUseFeat.Creature); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

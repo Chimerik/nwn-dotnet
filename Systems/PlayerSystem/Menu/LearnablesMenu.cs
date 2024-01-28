@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 using Anvil.API;
@@ -269,6 +268,17 @@ namespace NWN.Systems
             currentList = currentList.Where(s => s.name.ToLower().Contains(currentSearch));
 
           LoadLearnableList(currentList);
+        }
+        public void RefreshCategories(SkillSystem.Category category)
+        {
+          skillCategories.Clear();
+
+          foreach (var cat in player.learnableSkills.Values.GroupBy(l => l.category))
+            skillCategories.Add(new NuiComboEntry(cat.Key.ToDescription(), (int)cat.Key));
+
+          categories.SetBindValue(player.oid, nuiToken.Token, skillCategories);
+
+          selectedCategory.SetBindValue(player.oid, nuiToken.Token, (int)category);
         }
       }
     }

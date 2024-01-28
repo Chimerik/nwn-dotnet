@@ -39,6 +39,9 @@ namespace NWN.Systems
       onRemoveCharmCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveCharm);
 
       onIntervalTirAgrippantCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalTirAgrippant);
+
+      onIntervalBarbarianRageCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalBarbarianRage);
+      onRemoveBarbarianRageCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveBarbarianRage);
     }
   }
 }

@@ -11,25 +11,25 @@ namespace NWN.Systems
       if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Determination)))
         player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.Determination));
 
-      List <Ability> abilities = new();
+      List <NuiComboEntry> abilities = new();
 
       if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Strength) < 20)
-        abilities.Add(Ability.Strength);
+        abilities.Add(new("Force", (int)Ability.Strength));
 
       if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Dexterity) < 20)
-        abilities.Add(Ability.Dexterity);
+        abilities.Add(new("Dextérité", (int)Ability.Dexterity));
 
       if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Constitution) < 20)
-        abilities.Add(Ability.Constitution);
+        abilities.Add(new("Constitution", (int)Ability.Constitution));
 
       if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Intelligence) < 20)
-        abilities.Add(Ability.Intelligence);
+        abilities.Add(new("Intelligence", (int)Ability.Intelligence));
 
       if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Wisdom) < 20)
-        abilities.Add(Ability.Wisdom);
+        abilities.Add(new("Sagesse", (int)Ability.Wisdom));
 
       if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Charisma) < 20)
-        abilities.Add(Ability.Charisma);
+        abilities.Add(new("Charisme", (int)Ability.Charisma));
 
       if (abilities.Count > 0)
       {

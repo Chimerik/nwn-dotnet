@@ -107,7 +107,6 @@ namespace NWN.Systems
                   if (toLearn.Count == nbManoeuvres || manoeuvres.Count == toLearn.Count || manoeuvres.Count < 1)
                   {
                     player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_MANOEUVRE_CHOICE").Delete();
-                    CloseWindow();
 
                     foreach (var learnable in toLearn)
                     {
@@ -116,6 +115,8 @@ namespace NWN.Systems
                     }
 
                     player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpImproveAbilityScore));
+
+                    CloseWindow();
                   }
                   else
                   {

@@ -11,60 +11,37 @@ namespace NWN.Systems
     {
       public class AbilityBonusChoiceWindow : PlayerWindow
       {
-        private readonly List<Ability> availableAbilities = new();
-        private readonly string[] icons = new string[] { "strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma" };
-        private readonly string[] names = new string[] { "Force", "Dextérité", "Constitution", "Intelligence", "Sagesse", "Charisme" };
+        private readonly NuiBind<List<NuiComboEntry>> availableAbilities = new("availableAbilities");
 
         private readonly NuiColumn rootColumn = new();
         private readonly List<NuiElement> rootChildren = new();
 
-        private readonly NuiBind<string> icon = new("icon");
-        private readonly NuiBind<string> abilityName = new("abilityName");
-        private readonly NuiBind<string> abilityLevel = new("abilityLevel");
-        private readonly NuiBind<bool> bonusChecked = new("bonusChecked");
+        private readonly NuiBind<int> selectedAbility = new("selectedAbility");
         private readonly NuiBind<bool> enabled = new("enabled");
-        private readonly NuiBind<int> rowCount = new("rowCount");
 
-        private int selectedAbility;
         private bool giveSaveProficiency;
 
-        public AbilityBonusChoiceWindow(Player player, List<Ability> abilityChoice, bool giveSaveProficiency = false) : base(player)
+        public AbilityBonusChoiceWindow(Player player, List<NuiComboEntry> abilityChoice, bool giveSaveProficiency = false) : base(player)
         {
           windowId = "abilityBonusChoice";
           rootColumn.Children = rootChildren;
 
-          List<NuiListTemplateCell> abilitiesTemplate = new List<NuiListTemplateCell>
-          {
-            new NuiListTemplateCell(new NuiSpacer()),
-            new NuiListTemplateCell(new NuiButtonImage(icon)) { Width = 40 },
-            new NuiListTemplateCell(new NuiLabel(abilityName) { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }) { Width = 120 },
-            new NuiListTemplateCell(new NuiLabel(abilityLevel) { Margin = 0.0f, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }) { Width = 40 },
-            new NuiListTemplateCell(new NuiSpacer()),
-            new NuiListTemplateCell(new NuiCheck("", bonusChecked) { Tooltip = "Attribuer un bonus de +1 à cette caractéristique", Margin = 0.0f }) { Width = 40 },
-            new NuiListTemplateCell(new NuiSpacer())
-          };
-
-          rootChildren.Add(new NuiRow() { Margin = 0.0f, Height = 35, Children = new List<NuiElement>() { new NuiLabel("Attribuez +1 à une caractéristique de cette liste (max 20)") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle } } });
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiList(abilitiesTemplate, rowCount) { RowHeight = 40, Scrollbars = NuiScrollbars.None } } });
-          rootChildren.Add(new NuiRow() { Margin = 0.0f, Height = 35, Children = new List<NuiElement>() { new NuiSpacer(), new NuiButton("Valider") { Id = "validate", Width = 80, Enabled = enabled, Encouraged = enabled }, new NuiSpacer() } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiCombo() { Entries = availableAbilities, Selected = selectedAbility } } });
+          rootChildren.Add(new NuiRow() { Margin = 0.0f, Height = 35, Children = new List<NuiElement>() { new NuiSpacer(), new NuiButton("Valider") { Id = "validate", Width = 80, Encouraged = enabled }, new NuiSpacer() } });
           
           CreateWindow(abilityChoice, giveSaveProficiency);
         }
-        public void CreateWindow(List<Ability> abilitychoice, bool giveSaveProficiency = false)
+        public void CreateWindow(List<NuiComboEntry> abilitychoice, bool giveSaveProficiency = false)
         {
-          this.giveSaveProficiency = giveSaveProficiency;
-          availableAbilities.Clear();
-          availableAbilities.AddRange(abilitychoice);
-
           player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_ABILITY_BONUS_CHOICE_FEAT").Value = 1;
 
-          foreach(var ability in availableAbilities)
-            player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>($"_IN_ABILITY_BONUS_CHOICE_FEAT_{(int)ability}").Value = (int)ability;
+          foreach(var ability in abilitychoice)
+            player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>($"_IN_ABILITY_BONUS_CHOICE_FEAT_{ability.Value}").Value = ability.Value;
 
 
-          NuiRect savedRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(player.guiScaledWidth * 0.4f, player.guiHeight * 0.15f, player.guiScaledWidth * 0.4f, player.guiScaledHeight * 0.55f);
+          NuiRect savedRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(player.guiScaledWidth * 0.4f, player.guiHeight * 0.15f, player.guiScaledWidth * 0.4f, player.guiScaledHeight * 0.55f);
 
-          window = new NuiWindow(rootColumn, "Don - Amélioration de caractéristiques")
+          window = new NuiWindow(rootColumn, "Choisissez une caractéristique à augmenter de 1 (max 20)")
           {
             Geometry = geometry,
             Resizable = false,
@@ -79,8 +56,10 @@ namespace NWN.Systems
             nuiToken = tempToken;
             nuiToken.OnNuiEvent += HandleAbilityImprovementEvents;
 
-            LoadAbilityList();
-
+            availableAbilities.SetBindValue(player.oid, nuiToken.Token, abilitychoice);
+            ModuleSystem.Log.Info($"bind : {abilitychoice.FirstOrDefault().Value}");
+            selectedAbility.SetBindValue(player.oid, nuiToken.Token, abilitychoice.FirstOrDefault().Value);
+            ModuleSystem.Log.Info($"selected : {selectedAbility.GetBindValue(player.oid, nuiToken.Token)}");
             geometry.SetBindValue(player.oid, nuiToken.Token, new NuiRect(savedRectangle.X, savedRectangle.Y, player.guiScaledWidth * 0.4f, player.guiScaledHeight * 0.55f));
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
           }
@@ -95,9 +74,7 @@ namespace NWN.Systems
               {
                 case "validate":
 
-                  CloseWindow();
-
-                  Ability ability = availableAbilities[selectedAbility];
+                  Ability ability = (Ability)selectedAbility.GetBindValue(player.oid, nuiToken.Token);
 
                   player.oid.LoginCreature.SetsRawAbilityScore(ability, (byte)(player.oid.LoginCreature.GetRawAbilityScore(ability) + 1 < 20
                     ? player.oid.LoginCreature.GetRawAbilityScore(ability) + 1
@@ -105,8 +82,8 @@ namespace NWN.Systems
                   
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_ABILITY_BONUS_CHOICE_FEAT").Delete();
 
-                  foreach (var stat in availableAbilities)
-                    player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>($"_IN_ABILITY_BONUS_CHOICE_FEAT_{(int)stat}").Delete();
+                  for (int i = 0; i < 6; i++)
+                    player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>($"_IN_ABILITY_BONUS_CHOICE_FEAT_{i}").Delete();
 
                   if (giveSaveProficiency)
                   {
@@ -137,55 +114,14 @@ namespace NWN.Systems
 
                   player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpImproveAbilityScore));
 
+                  CloseWindow();
+
                   return;
               }
 
               break;
 
-            case NuiEventType.Watch:
-
-              switch (nuiEvent.ElementId)
-              {
-                case "bonusChecked": LoadAbilityList(nuiEvent.ArrayIndex); break;
-              }
-
-              break;
-
           }
-        }
-        private void LoadAbilityList(int indexChecked = -1)
-        {
-          selectedAbility = indexChecked;
-          bonusChecked.SetBindWatch(player.oid, nuiToken.Token, false);
-
-          List<string> abilityNamesList = new();
-          List<string> abilityIconsList = new();
-          List<int> abilityLevelList = new();
-          List<bool> abilityCheckList = new();
-
-          foreach(var ability in availableAbilities)
-          {
-            int stat = (int)ability;
-            abilityNamesList.Add(names[stat]);
-            abilityIconsList.Add(icons[stat]);
-            abilityCheckList.Add(stat == indexChecked);
-            abilityLevelList.Add(player.oid.LoginCreature.GetRawAbilityScore(ability) + (stat == indexChecked).ToInt() < 20
-              ? player.oid.LoginCreature.GetRawAbilityScore(ability) + (stat == indexChecked).ToInt()
-              : 20);
-          }
-
-          icon.SetBindValues(player.oid, nuiToken.Token, abilityIconsList);
-          abilityName.SetBindValues(player.oid, nuiToken.Token, abilityNamesList);
-          abilityLevel.SetBindValues(player.oid, nuiToken.Token, abilityLevelList.Select(x => x.ToString()).ToArray());
-          bonusChecked.SetBindValues(player.oid, nuiToken.Token, abilityCheckList);
-          rowCount.SetBindValue(player.oid, nuiToken.Token, availableAbilities.Count);
-
-          bonusChecked.SetBindWatch(player.oid, nuiToken.Token, true);
-
-          if (selectedAbility > -1)
-            enabled.SetBindValue(player.oid, nuiToken.Token, true);
-          else
-            enabled.SetBindValue(player.oid, nuiToken.Token, false);
         }
       }
     }

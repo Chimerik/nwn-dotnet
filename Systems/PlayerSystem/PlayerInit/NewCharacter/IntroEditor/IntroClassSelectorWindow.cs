@@ -332,7 +332,7 @@ namespace NWN.Systems
             if (proficiency.source.Count < 2)
               player.learnableSkills.Remove(proficiency.id);
             else
-              proficiency.source.Remove(SkillSystem.Category.Class);
+              proficiency.source.Remove(Category.Class);
           }
         }
         private void InitSelectableSkills()
@@ -347,12 +347,12 @@ namespace NWN.Systems
           {
             case CustomSkill.Fighter:
 
-              foreach(int skill in Fighter.availableSkills)
+              foreach(var learnable in Fighter.startingPackage.skillChoiceList)
               {
-                if (!player.learnableSkills.ContainsKey(skill) || player.learnableSkills[skill].source.Any(so => so == Category.Class))
+                if (!player.learnableSkills.TryGetValue(learnable.id, out var value) || value.source.Any(so => so == Category.Class))
                 {
-                  skillList1.Add(new NuiComboEntry(learnableDictionary[skill].name, skill));
-                  skillList2.Add(new NuiComboEntry(learnableDictionary[skill].name, skill));
+                  skillList1.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
+                  skillList2.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
                 }
               }
 
@@ -395,12 +395,12 @@ namespace NWN.Systems
           {
             case CustomSkill.Fighter:
 
-              foreach (int skill in Fighter.availableSkills)
+              foreach (var learnable in Fighter.startingPackage.skillChoiceList)
               {
-                if (!player.learnableSkills.ContainsKey(skill) || player.learnableSkills[skill].source.Any(so => so == Category.Class))
+                if (!player.learnableSkills.TryGetValue(learnable.id, out var value) || value.source.Any(so => so == Category.Class))
                 {
-                  skillList1.Add(new NuiComboEntry(learnableDictionary[skill].name, skill));
-                  skillList2.Add(new NuiComboEntry(learnableDictionary[skill].name, skill));
+                  skillList1.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
+                  skillList2.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
                 }
               }
 

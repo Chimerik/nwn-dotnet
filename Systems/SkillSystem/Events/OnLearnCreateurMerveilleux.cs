@@ -8,13 +8,13 @@ namespace NWN.Systems
   {
     public static bool OnLearnCreateurMerveilleux(PlayerSystem.Player player, int customSkillId)
     {
-      List<Ability> abilities = new();
+      List<NuiComboEntry> abilities = new();
 
       if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Dexterity) < 20)
-        abilities.Add(Ability.Dexterity);
+        abilities.Add(new("Dextérité", (int)Ability.Dexterity));
 
       if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Intelligence) < 20)
-        abilities.Add(Ability.Intelligence);
+        abilities.Add(new("Intelligence", (int)Ability.Intelligence));
 
       if (abilities.Count > 0)
       {

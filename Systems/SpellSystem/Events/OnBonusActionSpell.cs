@@ -22,10 +22,7 @@ namespace NWN.Systems
           bool flameBladeRecast = false;
 
           if (onSpell.Spell.Id == CustomSpell.FlameBlade && onSpell.Caster.GetObjectVariable<LocalVariableInt>(EffectSystem.ConcentrationSpellIdString).Value == CustomSpell.FlameBlade)
-          {
-            flameBladeRecast = true;
-            // TODO : Si on recast Flame Blade, alors on ne compte pas un nouvel emplacement de sort
-          }
+            flameBladeRecast = true; // TODO : Si on recast Flame Blade, alors on ne compte pas un nouvel emplacement de sort
 
           if (!flameBladeRecast && spellEntry.requiresConcentration 
             && onSpell.Caster.ActiveEffects.Any(e => e.Tag == EffectSystem.ConcentrationEffectTag))
@@ -36,6 +33,7 @@ namespace NWN.Systems
             case CustomSpell.FlameBlade: FlameBlade(onSpell.Caster, onSpell.Spell, spellEntry, flameBladeRecast); break;
             case CustomSpell.SearingSmite: SearingSmite(onSpell.Caster, onSpell.Spell, spellEntry); break;
             case CustomSpell.BrandingSmite: BrandingSmite(onSpell.Caster, onSpell.Spell, spellEntry); break;
+            case (int)Spell.AbilityBarbarianRage: BarbarianRage(onSpell.Caster, onSpell.Spell, spellEntry); break;
           }
 
           onSpell.Caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value -= 1;

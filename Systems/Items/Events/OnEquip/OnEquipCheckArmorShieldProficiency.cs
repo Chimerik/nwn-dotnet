@@ -12,16 +12,11 @@ namespace NWN.Systems
       NwItem oItem = onEquip.Item;
       NwItem swappedItem = oPC.GetItemInSlot(onEquip.Slot);
 
-      ModuleSystem.Log.Info($"Equipped : {oItem.Name} - {oItem.BaseItem.ItemType}");
-
       if (oPC is null || oItem is null)
         return;
 
       if (swappedItem is not null)
       {
-
-        ModuleSystem.Log.Info($"Swapped : {swappedItem.Name} - {swappedItem.BaseItem.ItemType}");
-
         switch (swappedItem.BaseItem.ItemType)
         {
           case BaseItemType.SmallShield:

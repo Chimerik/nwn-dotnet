@@ -10,8 +10,10 @@ namespace NWN.Systems
       {
         if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_MARTIAL_INITIATE_CHOICE_FEAT").HasValue)
         {
-          if (!windows.TryGetValue("martialInitiateChoice", out var value)) windows.Add("martialInitiateChoice", new MartialInitiateChoiceWindow(this, oid.LoginCreature.Level));
-          else ((MartialInitiateChoiceWindow)value).CreateWindow(oid.LoginCreature.Level);
+          bool gainedFromChampion = oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_MARTIAL_INITIATE_CHOICE_FEAT").Value == 2;
+
+          if (!windows.TryGetValue("martialInitiateChoice", out var value)) windows.Add("martialInitiateChoice", new MartialInitiateChoiceWindow(this, oid.LoginCreature.Level, gainedFromChampion));
+          else ((MartialInitiateChoiceWindow)value).CreateWindow(oid.LoginCreature.Level, gainedFromChampion);
         }
       }
     }

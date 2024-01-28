@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Anvil.API;
+﻿using Anvil.API;
 using Anvil.API.Events;
 
 namespace NWN.Systems
@@ -10,8 +9,6 @@ namespace NWN.Systems
     {
       NwCreature oPC = onUnequip.Creature;
       NwItem oItem = onUnequip.Item;
-
-      ModuleSystem.Log.Info($"unequipped : {oItem.Name} - {oItem.BaseItem.ItemType}");
 
       if (oPC is null || oItem is null)
         return;

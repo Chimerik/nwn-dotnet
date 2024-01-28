@@ -1,7 +1,5 @@
 ﻿using System.Threading.Tasks;
 using Discord.WebSocket;
-using System.Linq;
-using Discord;
 
 namespace NWN.Systems
 {

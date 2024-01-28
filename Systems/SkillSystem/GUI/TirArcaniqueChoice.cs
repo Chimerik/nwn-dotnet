@@ -107,7 +107,6 @@ namespace NWN.Systems
                   if (toLearn.Count == nbManoeuvres || manoeuvres.Count == toLearn.Count || manoeuvres.Count < 1)
                   {
                     player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_TIR_ARCANIQUE_CHOICE").Delete();
-                    CloseWindow();
 
                     foreach(var learnable in  toLearn)
                     {
@@ -123,6 +122,8 @@ namespace NWN.Systems
                       player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_OPTION_CHOICE_FEAT").Value = (int)SkillConfig.SkillOptionType.Proficiency;
                       player.InitializeBonusSkillChoice();
                     }
+
+                    CloseWindow();
                   }
                   else
                   {

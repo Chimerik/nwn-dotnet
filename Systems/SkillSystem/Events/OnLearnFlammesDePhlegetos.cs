@@ -13,13 +13,13 @@ namespace NWN.Systems
       if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.FlammesDePhlegetos)))
         player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.FlammesDePhlegetos));
 
-      List<Ability> abilities = new();
+      List<NuiComboEntry> abilities = new();
 
       if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Intelligence) < 20)
-        abilities.Add(Ability.Intelligence);
+        abilities.Add(new("Intelligence", (int)Ability.Intelligence));
 
       if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Charisma) < 20)
-        abilities.Add(Ability.Charisma);
+        abilities.Add(new("Charisme", (int)Ability.Charisma));
 
       if (abilities.Count > 0)
       {

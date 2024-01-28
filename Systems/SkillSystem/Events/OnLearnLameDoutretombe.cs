@@ -18,15 +18,15 @@ namespace NWN.Systems
       LearnableSkill doubleBlade = player.learnableSkills[CustomSkill.DoubleBladeProficiency];
 
       if (doubleBlade.currentLevel < 1)
-        doubleBlade.acquiredPoints += doubleBlade.pointsToNextLevel / 4;
+        doubleBlade.acquiredPoints += (doubleBlade.pointsToNextLevel - doubleBlade.acquiredPoints) / 4;
 
-      List<Ability> abilities = new();
+      List<NuiComboEntry> abilities = new();
 
       if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Strength) < 20)
-        abilities.Add(Ability.Strength);
+        abilities.Add(new("Force", (int)Ability.Strength));
 
       if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Dexterity) < 20)
-        abilities.Add(Ability.Dexterity);
+        abilities.Add(new("Dextérité", (int)Ability.Dexterity));
 
       if (abilities.Count > 0)
       {

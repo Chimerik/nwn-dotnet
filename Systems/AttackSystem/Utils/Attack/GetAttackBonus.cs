@@ -1,6 +1,6 @@
-﻿using System.Linq;
-using System.Numerics;
+﻿using System.Numerics;
 using Anvil.API;
+using NWN.Core;
 using NWN.Native.API;
 
 namespace NWN.Systems
@@ -12,17 +12,19 @@ namespace NWN.Systems
     {
       int attackBonus = attacker.m_pStats.GetAttackModifierVersus(target);
 
-      if (attackData.m_bRangedAttack > 1 && PlayerSystem.Players.TryGetValue(attacker.m_idSelf, out PlayerSystem.Player player)
-        && player.learnableSkills.TryGetValue(CustomSkill.FighterCombatStyleArchery, out LearnableSkill archery)
-        && archery.currentLevel > 0)
+      if (attackData.m_bRangedAttack.ToBool() && attacker.m_pStats.HasFeat(CustomSkill.FighterCombatStyleArchery).ToBool())
+      {
         attackBonus += 2;
+        LogUtils.LogMessage($"Style de combat archerie : +2 BA", LogUtils.LogType.Combat);
+      }
 
       var initiaLocation = attacker.m_pStats.m_pBaseCreature.m_ScriptVars.GetLocation(chargerVariable);
-
-      if (initiaLocation is not null && Vector3.Distance(initiaLocation.m_vPosition.ToManagedVector(), attacker.m_vPosition.ToManagedVector()) > 3)
+      
+      if (initiaLocation.m_oArea != NWScript.OBJECT_INVALID && Vector3.Distance(initiaLocation.m_vPosition.ToManagedVector(), attacker.m_vPosition.ToManagedVector()) > 3)
       {
         attackBonus += 5;
         attacker.m_pStats.m_pBaseCreature.m_ScriptVars.SetInt("_CHARGER_ACTIVATED".ToExoString(), 1);
+        LogUtils.LogMessage($"Chargeur : +5 BA", LogUtils.LogType.Combat);
       }
 
       if (weapon is not null)

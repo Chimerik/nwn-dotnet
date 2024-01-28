@@ -141,14 +141,14 @@ namespace NWN.Systems
 
                 case "validate":
 
-                  CloseWindow();
-
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_FEAT_SELECTION").Delete();
 
                   if (player.learnableSkills.TryAdd(selectedLearnable.id, new LearnableSkill((LearnableSkill)learnableDictionary[selectedLearnable.id], player, levelTaken: player.oid.LoginCreature.Level)))
                     player.learnableSkills[selectedLearnable.id].LevelUp(player);
 
                   player.oid.SendServerMessage($"Vous avez acquis le don {StringUtils.ToWhitecolor(selectedLearnable.name)} !", ColorConstants.Orange);
+
+                  CloseWindow();
 
                   break;
               }

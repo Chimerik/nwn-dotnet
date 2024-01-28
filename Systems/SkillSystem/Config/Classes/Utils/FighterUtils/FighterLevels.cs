@@ -8,7 +8,7 @@ namespace NWN.Systems
 {
   public static partial class Fighter
   {
-    public static void HandleFighterLevelUp(Player player, int level)
+    public static void HandleFighterLevelUp(Player player, int level, LearnableSkill playerClass)
     {
       switch (level)
       {
@@ -29,9 +29,12 @@ namespace NWN.Systems
             {
               player.learnableSkills.TryAdd(learnable.id, new LearnableSkill((LearnableSkill)learnable, player));
               player.learnableSkills[learnable.id].source.Add(Category.Class);
+
+              learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 4;
             }
 
             CreaturePlugin.SetClassByPosition(player.oid.LoginCreature, 0, (int)ClassType.Fighter);
+            playerClass.acquiredPoints = 0;
           }
           else
             CreaturePlugin.SetClassByPosition(player.oid.LoginCreature, player.oid.LoginCreature.Classes.Count, (int)ClassType.Fighter);

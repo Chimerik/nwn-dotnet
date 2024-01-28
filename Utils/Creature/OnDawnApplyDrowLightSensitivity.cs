@@ -11,6 +11,9 @@ namespace NWN.Systems
     {
       foreach (NwPlayer player in NwModule.Instance.Players)
       {
+        if (!player.LoginCreature.IsValid)
+          continue;
+
         switch(player.LoginCreature.Race.Id)
         {
           case CustomRace.Drow:

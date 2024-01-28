@@ -6,6 +6,9 @@
     // Les compétences customs passives sont numérotées à partir de 20000 afin de laisser suffisament de marge pour pouvoir ajouter des actifs sans tout retoucher
     // Les inscriptions sont numérotées à partir de 50000 afin d'éviter les collions avec les CustomSkills
 
+    public const int BarbarianFastMovement = 194;
+    public const int BarbarianRage = 293;
+
     public const int CustomMenuUP = 1132;
     public const int CustomMenuDOWN = 1133;
     public const int CustomMenuSELECT = 1134;
@@ -35,7 +38,7 @@
     public const int Sprint = 1342;
     public const int Disengage = 1343;
     public const int FighterSecondWind = 1344;
-    public const int FighterSurge = 1345; // 2 niveaux
+    public const int FighterSurge = 1345;
     public const int RayOfFrost = 1346;
     public const int AcidSplash = 1347;
     public const int ElectricJolt = 1348;
@@ -119,6 +122,11 @@
     public const int WarMasterEvaluationTactique = 1424;
     public const int WarMasterObservation = 1425;
     public const int FighterChampionImprovedCritical = 1426;
+
+    public const int FighterCombatStyleArchery = 1427;
+    public const int FighterCombatStyleDuel = 1428;
+
+    public const int BarbarianRecklessAttack = 1429;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -538,9 +546,7 @@
     public const int FighterEldritchKnight = 20472;
     public const int FighterArcaneArcher = 20473;
 
-    public const int FighterCombatStyleArchery = 20475;
     public const int FighterCombatStyleDefense = 20476;
-    public const int FighterCombatStyleDuel = 20477;
     public const int FighterCombatStyleProtection = 20479;
     public const int FighterCombatStyleDualWield = 20480;
     public const int FighterBonusAttack = 20482; // 3 niveaux
@@ -587,6 +593,16 @@
 
     public const int FighterChampionBonusCombatStyle = 20517;
     public const int FighterChampionUltimeSurvivant = 20519; // 2 niveaux
+
+    public const int Barbarian = 20520;
+    public const int BarbarianUnarmoredDefence = 20521;
+    public const int BarbarianBonusAttack = 20522;
+    public const int BarbarianInstinctSauvage = 20523;
+    public const int BarbarianCritiqueBrutal = 20524;
+    public const int BarbarianRageImplacable = 20525;
+    public const int BarbarianRagePersistante = 20526;
+    public const int BarbarianPuissanceIndomptable = 20527;
+    public const int BarbarianChampionPrimitif = 20528;
 
     public const int Invalid = 65535;
   }

@@ -97,8 +97,6 @@ namespace NWN.Systems
               {
                 case "validate":
 
-                  CloseWindow();
-
                   Ability ability;
 
                   if(player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_CHARACTER_CHOSEN_+2_BONUS").Value > -1)
@@ -127,6 +125,8 @@ namespace NWN.Systems
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_ABILITY_IMPROVEMENT_FEAT").Delete();
 
                   player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpImproveAbilityScore));
+
+                  CloseWindow();
 
                   return;
               }

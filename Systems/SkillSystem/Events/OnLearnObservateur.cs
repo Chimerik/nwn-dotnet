@@ -8,13 +8,13 @@ namespace NWN.Systems
   {
     public static bool OnLearnObservateur(PlayerSystem.Player player, int customSkillId)
     {
-      List <Ability> abilities = new();
+      List <NuiComboEntry> abilities = new();
 
       if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Intelligence) < 20)
-        abilities.Add(Ability.Intelligence);
+        abilities.Add(new("Intelligence", (int)Ability.Intelligence));
 
       if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Wisdom) < 20)
-        abilities.Add(Ability.Wisdom);
+        abilities.Add(new("Sagesse", (int)Ability.Wisdom));
 
       if (abilities.Count > 0)
       {

@@ -28,7 +28,7 @@ namespace NWN.Systems
           windowId = "weaponAppearanceModifier";
           rootColumn.Children = rootChildren;
 
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiButton("Nom & Description") { Id = "loadItemNameEditor", Width = 150, Height = 50 } } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiButton("Nom & Description") { Id = "loadItemNameEditor", Width = 150, Height = 50 }, new NuiSpacer() } });
 
           rootChildren.Add(new NuiRow() { Height = 20, Margin = 0.0f,  Children = new List<NuiElement>()
           {
@@ -41,7 +41,7 @@ namespace NWN.Systems
           {
             new NuiSpacer(),
             new NuiButton("<") { Id = "topDecrease", Height = 20, Width = 20, Margin = 0.0f },
-            new NuiCombo(){ Entries = topModelList, Selected = topModelSelection, Height = 20, Width = 60, Margin = 0.0f },
+            new NuiCombo(){ Entries = topModelList, Selected = topModelSelection, Height = 20, Width = 80, Margin = 0.0f },
             new NuiButton(">") { Id = "topIncrease", Height = 20, Width = 20, Margin = 0.0f },
             new NuiSpacer()
           } });
@@ -50,7 +50,7 @@ namespace NWN.Systems
           {
             new NuiSpacer(),
             new NuiButton("<") { Id = "midDecrease", Height = 20, Width = 20, Margin = 0.0f },
-            new NuiCombo(){ Entries = midModelList, Selected = midModelSelection, Height = 20, Width = 60, Margin = 0.0f },
+            new NuiCombo(){ Entries = midModelList, Selected = midModelSelection, Height = 20, Width = 80, Margin = 0.0f },
             new NuiButton(">") { Id = "midIncrease", Height = 20, Width = 20, Margin = 0.0f },
             new NuiSpacer()
           } });
@@ -59,7 +59,7 @@ namespace NWN.Systems
           {
             new NuiSpacer(),
             new NuiButton("<") { Id = "botDecrease", Height = 20, Width = 20, Margin = 0.0f },
-            new NuiCombo(){ Entries = botModelList, Selected = botModelSelection, Height = 20, Width = 60, Margin = 0.0f },
+            new NuiCombo(){ Entries = botModelList, Selected = botModelSelection, Height = 20, Width = 80, Margin = 0.0f },
             new NuiButton(">") { Id = "botIncrease", Height = 20, Width = 20, Margin = 0.0f },
             new NuiSpacer()
           } });
@@ -71,7 +71,7 @@ namespace NWN.Systems
           this.item = item;
           player.DisableItemAppearanceFeedbackMessages();
 
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) / 8, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 250, 150);
+          NuiRect windowRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) / 8, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 250, 150);
 
           window = new NuiWindow(rootColumn, $"Modifier l'apparence de {item.Name}")
           {

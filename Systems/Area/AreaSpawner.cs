@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Security.Cryptography;
 
 namespace NWN.Systems
 {
@@ -103,6 +104,24 @@ namespace NWN.Systems
         }
       }
 
+      if (creature.GetClassInfo(NwClass.FromClassId(CustomClass.Barbarian))?.Level > 0)
+      {
+        creature.OnItemEquip -= ItemSystem.OnEquipUnarmoredDefence;
+        creature.OnItemUnequip -= ItemSystem.OnUnEquipUnarmoredDefence;
+        creature.OnItemEquip += ItemSystem.OnEquipUnarmoredDefence;
+        creature.OnItemUnequip += ItemSystem.OnUnEquipUnarmoredDefence;
+
+        NwItem armor = creature.GetItemInSlot(InventorySlot.Chest);
+
+        if (armor is null || armor.BaseACValue < 1)
+        {
+          creature.OnHeartbeat -= CreatureUtils.OnHeartBeatCheckUnarmoredDefence;
+          creature.OnHeartbeat += CreatureUtils.OnHeartBeatCheckUnarmoredDefence;
+
+          if (creature.GetAbilityModifier(Ability.Constitution) > 0)
+            creature.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetUnarmoredDefenseEffect(creature.GetAbilityModifier(Ability.Constitution)), NwTimeSpan.FromRounds(1));
+        }
+      }
       var creatureLoop = scheduler.ScheduleRepeating(() => CreatureUtils.CreatureHealthRegenLoop(creature), TimeSpan.FromSeconds(1));
 
       await NwTask.WaitUntil(() => creature == null || !creature.IsValid);

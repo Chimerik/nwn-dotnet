@@ -501,6 +501,9 @@ namespace NWN.Systems
                       player.oid.LoginCreature.SetFeatRemainingUses(NwFeat.FromFeatId(skill.id), nbCharge);
                     }
 
+                    BarbarianUtils.RestoreImplacableRage(player.oid.LoginCreature);
+                    player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_RAGE_IMPLACABLE_DD").Value = 10;
+
                     break;
 
 
@@ -510,6 +513,7 @@ namespace NWN.Systems
                     player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(CreatureUtils.MeneurExaltantVariable).Delete();
                     FighterUtils.RestoreManoeuvres(player.oid.LoginCreature);
                     FighterUtils.RestoreTirArcanique(player.oid.LoginCreature);
+                    BarbarianUtils.RestoreBarbarianRage(player.oid.LoginCreature);
 
                     if (player.oid.LoginCreature.Race.Id == CustomRace.HalfOrc)
                     {

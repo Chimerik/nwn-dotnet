@@ -11,16 +11,16 @@ namespace NWN.Systems
       if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.SecondeChance)))
         player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.SecondeChance));
 
-      List<Ability> abilities = new();
+      List<NuiComboEntry> abilities = new();
 
       if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Dexterity) < 20)
-        abilities.Add(Ability.Dexterity);
+        abilities.Add(new("Dextérité", (int)Ability.Dexterity));
 
       if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Constitution) < 20)
-        abilities.Add(Ability.Constitution);
+        abilities.Add(new("Constitution", (int)Ability.Constitution));
 
       if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Charisma) < 20)
-        abilities.Add(Ability.Charisma);
+        abilities.Add(new("Charisme", (int)Ability.Charisma));
 
       if (abilities.Count > 0)
       {

@@ -73,7 +73,7 @@ namespace NWN.Systems
       if (targetCreature is not null && attackData.m_bRangedAttack > 0 && creature.m_bPlayerCharacter > 0 
         && (creature.m_appliedEffects.Any(e => (EffectTrueType)e.m_nType == EffectTrueType.Blindness || (EffectTrueType)e.m_nType == EffectTrueType.Darkness)
         || targetCreature.m_appliedEffects.Any(e => (EffectTrueType)e.m_nType == EffectTrueType.Darkness))
-        && Vector3.Distance(creature.m_vPosition.ToManagedVector(), targetCreature.m_vPosition.ToManagedVector()) > 3)
+        && Vector3.DistanceSquared(creature.m_vPosition.ToManagedVector(), targetCreature.m_vPosition.ToManagedVector()) > 9)
       {
         attackData.m_nAttackResult = 4;
         attackData.m_nMissedBy = 2;
@@ -89,7 +89,8 @@ namespace NWN.Systems
       //*** CALCUL DU BONUS D'ATTAQUE ***//
       // On prend le bonus d'attaque calculé automatiquement par le jeu en fonction de la cible qui peut être une créature ou un placeable
       int attackModifier = targetCreature is null ? creature.m_pStats.GetAttackModifierVersus() : NativeUtils.GetAttackBonus(creature, targetCreature, attackData, attackWeapon);
-      attackModifier -= 5;
+      LogUtils.LogMessage($"attackModifier {attackModifier}", LogUtils.LogType.Combat);
+      //attackModifier -= 5; Je ne me souviens plus ce que -5 fait ici. Je le commente pour l'instant, mais probablement à supprimer
 
       byte dexMod = creature.m_pStats.m_nDexterityModifier;
       byte strMod = creature.m_pStats.m_nStrengthModifier;
@@ -114,6 +115,11 @@ namespace NWN.Systems
 
       // On ajoute le bonus de maîtrise de la créature
       int attackBonus = NativeUtils.GetCreatureWeaponProficiencyBonus(creature, attackWeapon);
+
+      LogUtils.LogMessage($"Bonus de maîtrise {attackBonus}", LogUtils.LogType.Combat);
+
+      if(attackBonus < 1)
+        LogUtils.LogMessage("Arme non maîtrisée", LogUtils.LogType.Combat);
 
       NativeUtils.HandleCrossbowMaster(creature, targetObject, combatRound, attackBonus);
 
@@ -209,8 +215,6 @@ namespace NWN.Systems
         string advantageString = advantage == 0 ? "" : advantage > 0 ? "Avantage - ".ColorString(StringUtils.gold) : "Désavantage - ".ColorString(ColorConstants.Red);
         int totalAttack = attackRoll + attackBonus;
         
-        
-
         if (isCriticalHit)
         {
           attackData.m_nAttackResult = 3;
@@ -266,7 +270,9 @@ namespace NWN.Systems
         }
         
         string targetName = $"{targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)}".ColorString(ColorConstants.Cyan);
+        string attackerName = $"{creature.GetFirstName().GetSimple(0)} {creature.GetLastName().GetSimple(0)}".ColorString(ColorConstants.Cyan);
         NativeUtils.SendNativeServerMessage($"{advantageString}{criticalString}Vous {hitString} {targetName} {rollString}".ColorString(ColorConstants.Cyan), creature);
+        NativeUtils.BroadcastNativeServerMessage($"{advantageString}{criticalString}{attackerName} {hitString.Replace("z", "")} {targetName} {rollString}".ColorString(ColorConstants.Cyan), creature);
 
         NativeUtils.HandleSentinelleOpportunityTarget(creature, combatRound);
         NativeUtils.HandleSentinelle(creature, targetCreature, combatRound);
@@ -356,6 +362,7 @@ namespace NWN.Systems
       CNWSCombatAttackData attackData = combatRound.GetAttack(combatRound.m_nCurrentAttack);
       CNWSItem attackWeapon = combatRound.GetCurrentAttackWeapon(attackData.m_nWeaponAttackType);
       int baseDamage = 0;
+      bool isDuelFightingStyle = false;
 
       // Jet de dégâts de l'arme
       if (attackWeapon is not null)
@@ -365,15 +372,19 @@ namespace NWN.Systems
 
         NwBaseItem baseWeapon = NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem);
 
-        if(attackData.m_nAttackType == 6 && attacker.m_ScriptVars.GetInt(CreatureUtils.HastMasterSpecialAttackExo).ToBool())
+        if (attackData.m_nAttackType == 6 && attacker.m_ScriptVars.GetInt(CreatureUtils.HastMasterSpecialAttackExo).ToBool())
         {
           baseDamage = NwRandom.Roll(Utils.random, 4, 1);
 
-          if(!bCritical.ToBool())
+          if (!bCritical.ToBool())
             attacker.m_ScriptVars.DestroyInt(CreatureUtils.HastMasterSpecialAttackExo);
         }
         else
+        {
           baseDamage += NativeUtils.RollWeaponDamage(attacker, baseWeapon, attackData);
+          isDuelFightingStyle = NativeUtils.IsDuelFightingStyle(attacker, baseWeapon, attackData);
+          baseDamage += isDuelFightingStyle ? 2 : 0;
+        }
         
         //LogUtils.LogMessage($"{baseWeapon.Name.ToString()} - {baseWeapon.NumDamageDice}d{baseWeapon.DieToRoll} => {baseDamage}", LogUtils.LogType.Combat);
 
@@ -406,7 +417,7 @@ namespace NWN.Systems
 
       if (bCritical > 0)
       {
-        int critDamage = NativeUtils.GetCritDamage(attacker, attackWeapon, attackData, bSneakAttack);
+        int critDamage = NativeUtils.GetCritDamage(attacker, attackWeapon, attackData, bSneakAttack, isDuelFightingStyle);
         //LogUtils.LogMessage($"Critique - Base {baseDamage} + crit {critDamage} = {baseDamage + critDamage}", LogUtils.LogType.Combat);
         baseDamage += critDamage;
       }

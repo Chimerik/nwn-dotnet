@@ -151,14 +151,13 @@ namespace NWN.Systems
 
     private void CheckDistanceFromSpawn(CreatureEvents.OnHeartbeat onHB)
     {
-      //Log.Info("start checking distance from spawn");
       if (onHB.Creature.GetObjectVariable<LocalVariableObject<NwWaypoint>>("_SPAWN").Value.DistanceSquared(onHB.Creature) < 1600)
       {
         //Log.Info("end checking distance from spawn");
         return;
       }
 
-      onHB.Creature.AiLevel = AiLevel.VeryLow;
+      onHB.Creature.GetObjectVariable<LocalVariableInt>("IS_RESETTING").Value = 1;
       _ = onHB.Creature.ClearActionQueue();
       _ = onHB.Creature.ActionForceMoveTo(onHB.Creature.GetObjectVariable<LocalVariableObject<NwWaypoint>>("_SPAWN").Value, true, 0, TimeSpan.FromSeconds(30));
 
@@ -192,7 +191,7 @@ namespace NWN.Systems
       if (creature.DistanceSquared(creature.GetObjectVariable<LocalVariableObject<NwWaypoint>>("_SPAWN").Value) < 1)
       {
         //Log.Info($"{creature.Name} is on reset position !");
-        creature.AiLevel = AiLevel.Default;
+        creature.GetObjectVariable<LocalVariableInt>("IS_RESETTING").Delete();
         EffectUtils.RemoveTaggedEffect(creature, "mob_reset_regen");
       }
 

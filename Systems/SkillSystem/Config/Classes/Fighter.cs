@@ -1,27 +1,13 @@
 ﻿using System.Collections.Generic;
 using Anvil.API;
-using NWN.Core.NWNX;
 using static NWN.Systems.PlayerSystem;
-using static NWN.Systems.PlayerSystem.Player;
 using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
 {
   public static partial class Fighter
   {
-    public static readonly List<int> availableSkills = new() 
-    { 
-      CustomSkill.AcrobaticsProficiency, 
-      CustomSkill.AnimalHandlingProficiency, 
-      CustomSkill.AthleticsProficiency, 
-      CustomSkill.HistoryProficiency,
-      CustomSkill.InsightProficiency,
-      CustomSkill.IntimidationProficiency,
-      CustomSkill.PerceptionProficiency,
-      CustomSkill.SurvivalProficiency
-    };
-
-    private static readonly StartingPackage startingPackage = new(
+    public static readonly StartingPackage startingPackage = new(
       new List<Learnable>()
       { 
         learnableDictionary[CustomSkill.LightArmorProficiency],
@@ -34,7 +20,24 @@ namespace NWN.Systems
       new List<Learnable>()
       {
         learnableDictionary[CustomSkill.HeavyArmorProficiency],
-        learnableDictionary[CustomSkill.MartialWeaponProficiency]
+        learnableDictionary[CustomSkill.LightFlailProficiency],
+        learnableDictionary[CustomSkill.MorningstarProficiency],
+        learnableDictionary[CustomSkill.BattleaxeProficiency],
+        learnableDictionary[CustomSkill.GreataxeProficiency],
+        learnableDictionary[CustomSkill.GreatswordProficiency],
+        learnableDictionary[CustomSkill.ScimitarProficiency],
+        learnableDictionary[CustomSkill.HalberdProficiency],
+        learnableDictionary[CustomSkill.HeavyFlailProficiency],
+        learnableDictionary[CustomSkill.ThrowingAxeProficiency],
+        learnableDictionary[CustomSkill.TridentProficiency],
+        learnableDictionary[CustomSkill.WarHammerProficiency],
+        learnableDictionary[CustomSkill.HeavyCrossbowProficiency],
+        learnableDictionary[CustomSkill.RapierProficiency],
+        learnableDictionary[CustomSkill.ShortSwordProficiency],
+        learnableDictionary[CustomSkill.LongSwordProficiency],
+        learnableDictionary[CustomSkill.LongBowProficiency],
+        learnableDictionary[CustomSkill.ShurikenProficiency],
+        learnableDictionary[CustomSkill.WhipProficiency],
       },
       new List<Learnable>()
       {
@@ -54,7 +57,7 @@ namespace NWN.Systems
     {
       LearnableSkill playerClass = player.learnableSkills[customSkillId];
 
-      HandleFighterLevelUp(player, playerClass.currentLevel);
+      HandleFighterLevelUp(player, playerClass.currentLevel, playerClass);
 
       switch (customSkillId)
       {

@@ -25,12 +25,14 @@ namespace NWN
       {
         { EffectSystem.trueStrikeEffectTag, false },
         { EffectSystem.BroyeurEffectTag, false },
+        { EffectSystem.RecklessAttackEffectTag, false },
       };
 
       foreach (var eff in attacker.m_appliedEffects)
       {
         advantageDictionary[EffectSystem.trueStrikeEffectTag] = advantageDictionary[EffectSystem.trueStrikeEffectTag] || GetTrueStrikeAdvantage(eff);
         advantageDictionary[EffectSystem.BroyeurEffectTag] = advantageDictionary[EffectSystem.BroyeurEffectTag] || GetBroyeurAdvantage(eff);
+        advantageDictionary[EffectSystem.RecklessAttackEffectTag] = advantageDictionary[EffectSystem.RecklessAttackEffectTag] || GetRecklessAttackAdvantage(eff);
 
         disadvantageDictionary[EffectSystem.ShieldArmorDisadvantageEffectTag] = disadvantageDictionary[EffectSystem.ShieldArmorDisadvantageEffectTag] || GetArmorShieldDisadvantage(eff, attackStat);
         disadvantageDictionary[EffectSystem.boneChillEffectTag] = disadvantageDictionary[EffectSystem.boneChillEffectTag] || GetBoneChillDisadvantage(attacker, eff);

@@ -11,6 +11,9 @@ namespace NWN.Systems
       saveRoll = NativeUtils.HandleChanceDebordante(target, saveRoll);
       saveRoll = NativeUtils.HandleHalflingLuck(target, saveRoll);
 
+      if(ability == Ability.Strength)
+        saveRoll = BarbarianUtils.HandleBarbarianPuissanceIndomptable(target, saveRoll);
+
       if (saveRoll < saveDC)
         saveRoll = FighterUtils.HandleInflexible(target, saveRoll);
 

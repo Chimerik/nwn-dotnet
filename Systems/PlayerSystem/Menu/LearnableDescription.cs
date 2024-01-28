@@ -31,7 +31,7 @@ namespace NWN.Systems
 
           rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() {
             new NuiSpacer(),
-            new NuiButtonImage(icon) { Id = "inscription", Tooltip = "Sélectionner un objet sur lequel calligraphier cette inscription", Height = 35, Width = 35, Enabled = enabled },
+            new NuiButtonImage(icon) { Id = "inscription", Tooltip = name /*"Sélectionner un objet sur lequel calligraphier cette inscription"*/, Height = 35, Width = 35, Enabled = enabled },
             new NuiSpacer()
           }});
 
@@ -63,12 +63,12 @@ namespace NWN.Systems
           if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
             nuiToken = tempToken;
-            nuiToken.OnNuiEvent += HandleInscriptionEvents;
+            //nuiToken.OnNuiEvent += HandleInscriptionEvents;
 
             learnable = SkillSystem.learnableDictionary[learnableId];
 
             icon.SetBindValue(player.oid, nuiToken.Token, learnable.icon);
-            LoadDescription();
+            description.SetBindValue(player.oid, nuiToken.Token, learnable.description);
             name.SetBindValue(player.oid, nuiToken.Token, learnable.name);
             primaryAbilityIcon.SetBindValue(player.oid, nuiToken.Token, StringUtils.GetAttributeIcon(learnable.primaryAbility));
             secondaryAbilityIcon.SetBindValue(player.oid, nuiToken.Token, StringUtils.GetAttributeIcon(learnable.secondaryAbility));
@@ -82,17 +82,6 @@ namespace NWN.Systems
           }
           else
             player.oid.SendServerMessage($"Impossible d'ouvrir la fenêtre {window.Title}. Celle-ci est-elle déjà ouverte ?", ColorConstants.Orange);
-        }
-        private async void LoadDescription()
-        {
-          if (learnable.description.StartsWith("google"))
-          {
-            string googleDesc = await StringUtils.DownloadGoogleDoc(learnable.description.Replace("google", ""));
-            await NwTask.SwitchToMainThread();
-            description.SetBindValue(player.oid, nuiToken.Token, googleDesc);
-          }
-          else
-            description.SetBindValue(player.oid, nuiToken.Token, learnable.description);
         }
         private void HandleInscriptionEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {

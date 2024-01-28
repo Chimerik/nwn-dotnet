@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Anvil.API;
-using NWN.Core;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
@@ -11,7 +10,7 @@ namespace NWN.Systems
   {
     public SkillSystem.Category category { get; }
     public List<SkillSystem.Category> source { get; }
-    private Func<PlayerSystem.Player, int, bool> skillEffect { get; }
+    private Func<Player, int, bool> skillEffect { get; }
     public int totalPoints { get { return currentLevel /*+ bonusPoints*/; } }
     public double bonusMultiplier { get { return 1 + (totalPoints / 100); } }
     public double bonusReduction { get { return 1 - (totalPoints / 100); } }

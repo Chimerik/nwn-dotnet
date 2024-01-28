@@ -135,8 +135,6 @@ namespace NWN.Systems
 
                 case "validate":
 
-                  CloseWindow();
-
                   if (player.learnableSkills.TryAdd(selectedLearnable.id, new LearnableSkill((LearnableSkill)learnableDictionary[selectedLearnable.id], player, levelTaken: player.oid.LoginCreature.Level)))
                     player.learnableSkills[selectedLearnable.id].currentLevel = 3;
 
@@ -150,6 +148,16 @@ namespace NWN.Systems
                   player.learnableSkills.Remove(player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value);
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Delete();
                   player.oid.SendServerMessage($"Vous adoptez l'archétype de classe {StringUtils.ToWhitecolor(selectedLearnable.name)} !", ColorConstants.Orange);
+
+                  if (player.TryGetOpenedWindow("learnables", out PlayerWindow learnableWindow))
+                  {
+                    LearnableWindow window = (LearnableWindow)learnableWindow;
+
+                    window.RefreshCategories(Category.FighterSubClass);
+                    window.LoadLearnableList(window.currentList);
+                  }
+
+                  CloseWindow();
 
                   break;
               }

@@ -20,6 +20,7 @@ namespace NWN
       {
         { EffectSystem.EnlargeEffectTag, false },
         { EffectSystem.DodgeEffectTag, false },
+        { EffectSystem.BarbarianRageEffectTag, false },
       };
 
       int advantage = 0;
@@ -36,6 +37,7 @@ namespace NWN
               return -1000;
 
             advantageDictionary[EffectSystem.EnlargeEffectTag] = advantageDictionary[EffectSystem.EnlargeEffectTag] || EffectSystem.EnlargeEffectTag == eff.Tag;
+            advantageDictionary[EffectSystem.BarbarianRageEffectTag] = advantageDictionary[EffectSystem.BarbarianRageEffectTag] || EffectSystem.BarbarianRageEffectTag == eff.Tag;
 
             disadvantageDictionary[EffectSystem.ShieldArmorDisadvantageEffectTag] = disadvantageDictionary[EffectSystem.ShieldArmorDisadvantageEffectTag] || EffectSystem.ShieldArmorDisadvantageEffectTag == eff.Tag;
             break;
@@ -54,6 +56,13 @@ namespace NWN
 
       switch(ability)
       {
+        case Ability.Dexterity:
+
+          if (creature.GetClassInfo(NwClass.FromClassType(ClassType.Barbarian))?.Level > 1 && !creature.ActiveEffects.Any(e => e.EffectType == EffectType.Blindness || e.EffectType == EffectType.Deaf))
+            advantage += 1;
+
+          break;
+
         case Ability.Intelligence:
         case Ability.Wisdom:
         case Ability.Charisma:

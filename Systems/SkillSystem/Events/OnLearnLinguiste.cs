@@ -12,7 +12,7 @@ namespace NWN.Systems
         player.oid.LoginCreature.SetsRawAbilityScore(Ability.Intelligence, (byte)(rawIntelligence + 1));
 
       foreach (var langue in player.learnableSkills.Values.Where(s => s.category == Category.Language))
-        langue.acquiredPoints += langue.pointsToNextLevel / 2;
+        langue.acquiredPoints += (langue.pointsToNextLevel - langue.acquiredPoints) / 2;
 
       return true;
     }
