@@ -20,7 +20,7 @@ namespace NWN.Systems
         oPC.OnHeartbeat += CreatureUtils.OnHeartBeatCheckUnarmoredDefence;
 
         if (oPC.GetAbilityModifier(Ability.Constitution) > 0)
-          oPC.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetUnarmoredDefenseEffect(oPC.GetAbilityModifier(Ability.Constitution)), NwTimeSpan.FromRounds(1));
+          oPC.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetUnarmoredDefenseEffect(oPC.GetAbilityModifier(Ability.Constitution)));
       }
     }
   }

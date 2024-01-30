@@ -13,6 +13,7 @@ namespace NWN.Systems
       classLearnableId = RowIndex switch
       {
         (int)ClassType.Fighter => CustomSkill.Fighter,
+        (int)ClassType.Barbarian => CustomSkill.Barbarian,
         _ => CustomSkill.Invalid,
       };
     }

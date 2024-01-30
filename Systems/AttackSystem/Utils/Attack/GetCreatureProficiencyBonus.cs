@@ -6,12 +6,18 @@ namespace NWN.Systems
   {
     public static int GetCreatureProficiencyBonus(CNWSCreature creature)
     {
-      return creature.m_pStats.GetLevel() switch
-      {
-        0 or 1 or 2 or 3 or 4 => 2,
-        5 or 6 or 7 or 8 => 3,
-        _ => 4,
-      };
+      byte level = creature.m_pStats.GetLevel();
+
+      if (level < 5)
+        return 2;
+      else if (level < 9)
+        return 3;
+      else if (level < 13)
+        return 4;
+      else if (level < 17)
+        return 5;
+      else
+        return 6;
     }
   }
 }

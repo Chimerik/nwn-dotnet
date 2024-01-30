@@ -34,6 +34,12 @@ namespace NWN.Systems
       target.OnSpellAction -= SpellSystem.CancelSpellBarbarianRage;
       target.OnDamaged -= CreatureUtils.OnDamagedRageImplacable;
 
+      if (target.KnowsFeat(NwFeat.FromFeatId(CustomSkill.BersekerFrenziedStrike)))
+      {
+        target.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.BersekerFrenziedStrike), 0);
+        target.GetObjectVariable<LocalVariableInt>(CreatureUtils.FrappeFrenetiqueMalusVariable).Delete();
+      }
+
       return ScriptHandleResult.Handled;
     }
     private static ScriptHandleResult OnIntervalBarbarianRage(CallInfo callInfo)

@@ -5,6 +5,7 @@ using System.Linq;
 using NWN.Core;
 using System.Numerics;
 using System;
+using System.Reflection.Metadata;
 
 namespace NWN.Systems
 {
@@ -54,8 +55,11 @@ namespace NWN.Systems
       CNWSCreature targetCreature = targetObject.m_nObjectType == (int)ObjectType.Creature ? targetObject.AsNWSCreature() : null;
       CNWSCombatRound combatRound = creature.m_pcCombatRound;
       CNWSCombatAttackData attackData = combatRound.GetAttack(combatRound.m_nCurrentAttack);
-      
-      LogUtils.LogMessage($"----- {creature.m_pStats.GetFullName().ToExoLocString().GetSimple(0)} attaque {targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)} - type {attackData.m_nAttackType} - nb {combatRound.m_nCurrentAttack} -----", LogUtils.LogType.Combat);
+
+      string targetName = $"{targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)}";
+      string attackerName = $"{creature.GetFirstName().GetSimple(0)} {creature.GetLastName().GetSimple(0)}";
+
+      LogUtils.LogMessage($"----- {attackerName} attaque {targetName} - type {attackData.m_nAttackType} - nb {combatRound.m_nCurrentAttack} -----", LogUtils.LogType.Combat);
 
       CNWSItem targetArmor = targetCreature?.m_pInventory.GetItemInSlot((uint)EquipmentSlot.Chest);
 
@@ -121,7 +125,7 @@ namespace NWN.Systems
       if(attackBonus < 1)
         LogUtils.LogMessage("Arme non maîtrisée", LogUtils.LogType.Combat);
 
-      NativeUtils.HandleCrossbowMaster(creature, targetObject, combatRound, attackBonus);
+      NativeUtils.HandleCrossbowMaster(creature, targetObject, combatRound, attackBonus, attackerName);
 
       string logMessage = attackStat == Anvil.API.Ability.Strength
         ? $"Bonus d'attaque contre la cible {attackModifier} dont {strBonus} de modificateur de force"
@@ -268,23 +272,23 @@ namespace NWN.Systems
           rollString = rollString.StripColors().ColorString(ColorConstants.Red);
           //LogUtils.LogMessage($"Manqué : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC}", LogUtils.LogType.Combat);
         }
-        
-        string targetName = $"{targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)}".ColorString(ColorConstants.Cyan);
-        string attackerName = $"{creature.GetFirstName().GetSimple(0)} {creature.GetLastName().GetSimple(0)}".ColorString(ColorConstants.Cyan);
-        NativeUtils.SendNativeServerMessage($"{advantageString}{criticalString}Vous {hitString} {targetName} {rollString}".ColorString(ColorConstants.Cyan), creature);
-        NativeUtils.BroadcastNativeServerMessage($"{advantageString}{criticalString}{attackerName} {hitString.Replace("z", "")} {targetName} {rollString}".ColorString(ColorConstants.Cyan), creature);
 
-        NativeUtils.HandleSentinelleOpportunityTarget(creature, combatRound);
+        NativeUtils.SendNativeServerMessage($"{advantageString}{criticalString}Vous {hitString} {targetName.ColorString(ColorConstants.Cyan)} {rollString}".ColorString(ColorConstants.Cyan), creature);
+        NativeUtils.BroadcastNativeServerMessage($"{advantageString}{criticalString}{attackerName.ColorString(ColorConstants.Cyan)} {hitString.Replace("z", "")} {targetName.ColorString(ColorConstants.Cyan)} {rollString}".ColorString(ColorConstants.Cyan), creature, true);
+
+        NativeUtils.HandleSentinelleOpportunityTarget(creature, combatRound, attackerName);
         NativeUtils.HandleSentinelle(creature, targetCreature, combatRound);
-        NativeUtils.HandleFureurOrc(creature, targetCreature, combatRound);
+        NativeUtils.HandleFureurOrc(creature, targetCreature, combatRound, attackerName);
         NativeUtils.HandleDiversion(creature, attackData, targetCreature);
       }
       else
         attackData.m_nAttackResult = 7;
 
-      NativeUtils.HandleHastMaster(creature, targetObject, combatRound);
-      NativeUtils.HandleBalayage(creature, combatRound);
-      NativeUtils.HandleRiposteBonusAttack(creature, combatRound, attackData);
+      NativeUtils.HandleHastMaster(creature, targetObject, combatRound, attackerName);
+      NativeUtils.HandleBalayage(creature, combatRound, attackerName);
+      NativeUtils.HandleRiposteBonusAttack(creature, combatRound, attackData, attackerName);
+      NativeUtils.HandleFrappeFrenetiqueBonusAttack(creature, targetObject, combatRound, attackData, attackerName);
+      NativeUtils.HandleBersekerRepresaillesBonusAttack(creature, combatRound, attackData, attackerName);
     }
     private int OnAddUseTalentOnObjectHook(void* pCreature, int talentType, int talentId, uint oidTarget, byte nMultiClass, uint oidItem, int nItemPropertyIndex, byte nCasterLevel, int nMetaType)
     {
@@ -355,6 +359,8 @@ namespace NWN.Systems
 
       if (attacker is null || targetObject is null || targetObject.m_bPlotObject == 1)
         return -1;
+
+      string attackerName = $"{creatureStats.GetFullName().ToExoLocString().GetSimple(0)}"; 
 
       LogUtils.LogMessage($"----- Jet de dégâts : {creatureStats.GetFullName().ToExoLocString().GetSimple(0)} attaque {targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)} -----", LogUtils.LogType.Combat);
 
@@ -489,14 +495,16 @@ namespace NWN.Systems
       baseDamage = targetObject.DoDamageReduction(attacker, baseDamage, attacker.CalculateDamagePower(targetObject, bOffHand), 0, 1);
       //LogUtils.LogMessage($"Application des réductions de la cible - Calcul Final - Dégâts : {baseDamage}", LogUtils.LogType.Combat);
 
-      NativeUtils.HandleCogneurLourdBonusAttack(attacker, targetObject, combatRound, attackData, baseDamage);
-      NativeUtils.HandleArcaneArcherTirIncurveBonusAttack(attacker, combatRound);
+      NativeUtils.HandleCogneurLourdBonusAttack(attacker, targetObject, combatRound, attackData, baseDamage, attackerName);
+      NativeUtils.HandleArcaneArcherTirIncurveBonusAttack(attacker, combatRound, attackerName);
 
       attacker.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreTypeVariableExo);
       attacker.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreDiceVariableExo);
 
       if (attackData.m_nAttackType == 6 && attacker.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreRiposteVariableExo).ToBool())
         attacker.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreRiposteVariableExo);
+
+      NativeUtils.HandleBersekerRepresailles(attacker, targetCreature);
 
       return baseDamage;
 

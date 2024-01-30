@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using Anvil.API.Events;
 using NWN.Systems;
 
@@ -10,13 +11,16 @@ namespace NWN
     {
       NwItem armor = onHB.Creature.GetItemInSlot(InventorySlot.Chest);
 
-      if (armor is null || armor.BaseACValue < 1)
+      if (onHB.Creature.GetClassInfo(NwClass.FromClassId(CustomClass.Barbarian))?.Level > 0 && (armor is null || armor.BaseACValue < 1))
       {
-        if(onHB.Creature.GetAbilityModifier(Ability.Constitution) > 0)
-          onHB.Creature.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetUnarmoredDefenseEffect(onHB.Creature.GetAbilityModifier(Ability.Constitution)), NwTimeSpan.FromRounds(1));
+        if (onHB.Creature.GetAbilityModifier(Ability.Constitution) > 0 && !onHB.Creature.ActiveEffects.Any(e => e.Tag == EffectSystem.UnarmoredDefenceEffectTag))
+          onHB.Creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetUnarmoredDefenseEffect(onHB.Creature.GetAbilityModifier(Ability.Constitution)));
       }
       else
+      {
         onHB.Creature.OnHeartbeat -= OnHeartBeatCheckUnarmoredDefence;
+        EffectUtils.RemoveTaggedEffect(onHB.Creature, EffectSystem.UnarmoredDefenceEffectTag);
+      }
     }
   }
 }

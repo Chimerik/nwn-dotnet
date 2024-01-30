@@ -55,13 +55,13 @@ namespace NWN.Systems
       LearnableSkill playerClass = player.learnableSkills[customSkillId];
 
       HandleBarbarianLevelUp(player, playerClass.currentLevel, playerClass);
-
-      /*switch (customSkillId)
+      ModuleSystem.Log.Info($"customSkillId : {customSkillId}");
+      switch (customSkillId)
       {
-        case CustomSkill.FighterChampion: HandleBersekerLevelUp(player, playerClass.currentLevel); break;
-        case CustomSkill.FighterArcaneArcher: HandleTotemLevelUp(player, playerClass.currentLevel); break;
-        case CustomSkill.FighterWarMaster: HandleMagieSauvageLevelUp(player, playerClass.currentLevel); break;
-      }*/
+        case CustomSkill.BarbarianBerseker: HandleBersekerLevelUp(player, playerClass.currentLevel); break;
+        //case CustomSkill.FighterArcaneArcher: HandleTotemLevelUp(player, playerClass.currentLevel); break;
+        //case CustomSkill.FighterWarMaster: HandleMagieSauvageLevelUp(player, playerClass.currentLevel); break;
+      }
 
       if(playerClass.currentLevel > 1)
         player.oid.LoginCreature.ForceLevelUp(CustomClass.Barbarian, player.RollClassHitDie(customSkillId, CustomClass.Barbarian, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));

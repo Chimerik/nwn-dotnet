@@ -16,19 +16,13 @@ namespace NWN.Systems
     [ScriptHandler("intro_start")]
     public void StartEntryScene(CallInfo callInfo)
     {
-      // TODO : a supprimer lorsqu'on réactivera la scène d'intro
-
-      NwPlayer canceledPlayer = NWScript.GetLastSpeaker().ToNwObject<NwCreature>().ControllingPlayer;
-      //canceledPlayer.SendServerMessage("C'est tout pour le moment, la scène d'introduction est désactivée le temps que nous mettions les touches finales aux maps du module !");
-      //return;
-
-      NwCreature captain = (NwCreature)callInfo.ObjectSelf;
-      NwArea area = captain.Area;
-
-      area.GetObjectVariable<LocalVariableBool>("_STOP_INTRO_ROCK_SPAWN").Value = true;
-
       NwPlayer player = NWScript.GetLastSpeaker().ToNwObject<NwCreature>().ControllingPlayer;
       _ = player.SetCameraFacing(180, 65, 20);
+
+      NwArea area = player.ControlledCreature.Area;
+      NwCreature captain = area.FindObjectsOfTypeInArea<NwCreature>().FirstOrDefault(c => c.Tag == "CapitaineMarco");
+
+      area.GetObjectVariable<LocalVariableBool>("_STOP_INTRO_ROCK_SPAWN").Value = true;
 
       captain.DialogResRef = "";
       _ = captain.SpeakString("Des récifs ! Accrochez-vous, va falloir manoeuvrer serré !");

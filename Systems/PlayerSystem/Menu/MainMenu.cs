@@ -521,6 +521,9 @@ namespace NWN.Systems
                       player.ApplyHalfOrcEndurance();
                     }
 
+                    if (player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.BersekerFrenziedStrike)))
+                      player.oid.LoginCreature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.BersekerFrenziedStrike), 0);
+
                     break;
                 }
                 break;

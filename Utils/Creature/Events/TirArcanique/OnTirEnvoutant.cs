@@ -18,13 +18,20 @@ namespace NWN
 
       if (onDamage.Target is NwCreature target)
       {
-        SpellConfig.SavingThrowFeedback feedback = new();
-        int tirDC = 8 + NativeUtils.GetCreatureProficiencyBonus(onDamage.Attacker) + onDamage.Attacker.GetAbilityModifier(Ability.Intelligence);
-        int advantage = GetCreatureAbilityAdvantage(target, Ability.Wisdom);
-        int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Wisdom, tirDC, advantage, feedback);
-        bool saveFailed = totalSave < tirDC;
+        bool saveFailed = false;
 
-        SpellUtils.SendSavingThrowFeedbackMessage(onDamage.Attacker, target, feedback, advantage, tirDC, totalSave, saveFailed, Ability.Constitution);
+        if (!EffectSystem.IsCharmeImmune(target))
+        {
+          SpellConfig.SavingThrowFeedback feedback = new();
+          int tirDC = 8 + NativeUtils.GetCreatureProficiencyBonus(onDamage.Attacker) + onDamage.Attacker.GetAbilityModifier(Ability.Intelligence);
+          int advantage = GetCreatureAbilityAdvantage(target, Ability.Wisdom, effectType: SpellConfig.SpellEffectType.Charm);
+          int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Wisdom, tirDC, advantage, feedback);
+          saveFailed = totalSave < tirDC;
+
+          SpellUtils.SendSavingThrowFeedbackMessage(onDamage.Attacker, target, feedback, advantage, tirDC, totalSave, saveFailed, Ability.Constitution);
+        }
+        else
+          onDamage.Attacker.LoginPlayer?.SendServerMessage($"{StringUtils.ToWhitecolor(target.Name)} est immunisé à votre effet de charme", ColorConstants.Orange);
 
         if (saveFailed)
         {

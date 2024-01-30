@@ -266,11 +266,13 @@ namespace NWN.Systems
               for (int j = 0; j < 7; j++)
                 try 
                 {
+                  ModuleSystem.Log.Info($"intro portrait : {portraitTable[i + j]} : visible {true}");
                   portraitVisibility[j].Add(true);
                   portraitList[j].Add(portraitTable[i + j]); 
                 }
                 catch (Exception) 
                 {
+                  ModuleSystem.Log.Info($"intro portrait : {i} {j} : visible {false}");
                   portraitVisibility[j].Add(false);
                   portraitList[j].Add(""); 
                 }

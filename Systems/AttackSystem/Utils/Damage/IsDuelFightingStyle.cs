@@ -13,9 +13,8 @@ namespace NWN.Systems
         return false;
 
       var offHandWeapon = creature.m_pInventory.GetItemInSlot((uint)Native.API.InventorySlot.LeftHand);
-      var baseOffHand = NwBaseItem.FromItemId((int)offHandWeapon.m_nBaseItem);
 
-      if ((ItemUtils.IsVersatileWeapon(weapon.ItemType) && offHandWeapon is null) || (offHandWeapon is not null && ItemUtils.IsWeapon(baseOffHand)))
+      if ((ItemUtils.IsVersatileWeapon(weapon.ItemType) && offHandWeapon is null) || (offHandWeapon is not null && ItemUtils.IsWeapon(NwBaseItem.FromItemId((int)offHandWeapon.m_nBaseItem))))
         return false;
 
       LogUtils.LogMessage($"Style de combat duel, +2 dégâts appliqués", LogUtils.LogType.Combat);

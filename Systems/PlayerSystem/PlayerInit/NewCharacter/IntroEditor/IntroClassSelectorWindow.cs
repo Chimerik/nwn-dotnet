@@ -20,6 +20,7 @@ namespace NWN.Systems
         private readonly NuiBind<string> selectedItemDescription = new("selectedItemDescription");
         private readonly NuiBind<string> selectedItemIcon = new("selectedItemIcon");
         private readonly NuiBind<bool> selectedItemVisibility = new("selectedItemVisibility");
+        private readonly NuiBind<bool> selectedTitleVisibility = new("selectedTitleVisibility");
 
         private readonly NuiBind<string> validationText = new("validationText");
         private readonly NuiBind<bool> validationEnabled = new("validationEnabled");
@@ -82,8 +83,8 @@ namespace NWN.Systems
               new NuiRow() { Children = new List<NuiElement>() 
               {
                 new NuiSpacer(),
-                new NuiButtonImage(selectedItemIcon) { Height = 40, Width = 40, Visible = selectedItemVisibility },
-                new NuiLabel(selectedItemTitle) { Height = 40, Width = 200, Visible = selectedItemVisibility, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+                new NuiButtonImage(selectedItemIcon) { Height = 40, Width = 40, Visible = selectedTitleVisibility },
+                new NuiLabel(selectedItemTitle) { Height = 40, Width = 200, Visible = selectedTitleVisibility, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
                 new NuiSpacer()
               } },
               new NuiRow() { Children = new List<NuiElement>() 
@@ -134,6 +135,7 @@ namespace NWN.Systems
             selectedItemDescription.SetBindValue(player.oid, nuiToken.Token, "Sélectionner une classe pour afficher ses détails.\n\nAttention, lorsque vous aurez quitté ce navire, ce choix deviendra définitif.");
             selectedItemIcon.SetBindValue(player.oid, nuiToken.Token, "ir_examine");
             selectedItemVisibility.SetBindValue(player.oid, nuiToken.Token, false);
+            selectedTitleVisibility.SetBindValue(player.oid, nuiToken.Token, false);
             validationEnabled.SetBindValue(player.oid, nuiToken.Token, false);
 
             selectedCombatStyle.SetBindValue(player.oid, nuiToken.Token, -1);
@@ -162,8 +164,6 @@ namespace NWN.Systems
               {
                 case "select":
 
-                  selectedItemVisibility.SetBindValue(player.oid, nuiToken.Token, true);
-
                   if (selectedLearnable == currentList.ElementAt(nuiEvent.ArrayIndex))
                     return;
 
@@ -171,6 +171,22 @@ namespace NWN.Systems
                   selectedItemTitle.SetBindValue(player.oid, nuiToken.Token, selectedLearnable.name);
                   selectedItemDescription.SetBindValue(player.oid, nuiToken.Token, selectedLearnable.description);
                   selectedItemIcon.SetBindValue(player.oid, nuiToken.Token, selectedLearnable.icon);
+                  selectedTitleVisibility.SetBindValue(player.oid, nuiToken.Token, true);
+
+                  if (selectedLearnable.id == CustomSkill.Fighter)
+                  {
+                    selectedItemVisibility.SetBindValue(player.oid, nuiToken.Token, true);
+
+                    LearnableSkill style = player.learnableSkills.Values.FirstOrDefault(s => s is LearnableSkill style && style.category == Category.FightingStyle);
+                    if (style is not null)
+                      selectedCombatStyle.SetBindValue(player.oid, nuiToken.Token, style.id);
+                    else
+                      selectedCombatStyle.SetBindValue(player.oid, nuiToken.Token, CustomSkill.FighterCombatStyleArchery);
+
+                    InitSelectableSkills();
+                  }
+                  else
+                    selectedItemVisibility.SetBindValue(player.oid, nuiToken.Token, false);
 
                   if (player.learnableSkills.ContainsKey(selectedLearnable.id))
                   {
@@ -183,11 +199,6 @@ namespace NWN.Systems
                     validationText.SetBindValue(player.oid, nuiToken.Token, $"Valider la classe {selectedLearnable.name}");
                   }
 
-                  LearnableSkill style = player.learnableSkills.Values.FirstOrDefault(s => s is LearnableSkill style && style.category == Category.FightingStyle);
-                  if (style is not null)
-                    selectedCombatStyle.SetBindValue(player.oid, nuiToken.Token, style.id);
-
-                  InitSelectableSkills();
                   LoadLearnableList(currentList);
 
                   break;
@@ -199,22 +210,25 @@ namespace NWN.Systems
                   validationEnabled.SetBindValue(player.oid, nuiToken.Token, false);
                   validatedLearnableId = selectedLearnable.id;
 
-                  player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CHOSEN_FIGHTER_STYLE").Value = selectedCombatStyle.GetBindValue(player.oid, nuiToken.Token);
+                  if (validatedLearnableId == CustomSkill.Fighter)
+                  {
+                    player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CHOSEN_FIGHTER_STYLE").Value = selectedCombatStyle.GetBindValue(player.oid, nuiToken.Token);
 
-                  if (player.learnableSkills.TryAdd(selectedLearnable.id, new LearnableSkill((LearnableSkill)learnableDictionary[selectedLearnable.id], player, (int)Category.Class)))
-                    player.learnableSkills[selectedLearnable.id].LevelUp(player);
+                    if (player.learnableSkills.TryAdd(selectedSkill1.GetBindValue(player.oid, nuiToken.Token), new LearnableSkill((LearnableSkill)learnableDictionary[selectedSkill1.GetBindValue(player.oid, nuiToken.Token)], player)))
+                      player.learnableSkills[selectedSkill1.GetBindValue(player.oid, nuiToken.Token)].LevelUp(player);
+
+                    player.learnableSkills[selectedSkill1.GetBindValue(player.oid, nuiToken.Token)].source.Add(Category.Class);
+
+                    if (player.learnableSkills.TryAdd(selectedSkill2.GetBindValue(player.oid, nuiToken.Token), new LearnableSkill((LearnableSkill)learnableDictionary[selectedSkill2.GetBindValue(player.oid, nuiToken.Token)], player)))
+                      player.learnableSkills[selectedSkill2.GetBindValue(player.oid, nuiToken.Token)].LevelUp(player);
+
+                    player.learnableSkills[selectedSkill2.GetBindValue(player.oid, nuiToken.Token)].source.Add(Category.Class);
+                  }
+
+                  player.learnableSkills.TryAdd(selectedLearnable.id, new LearnableSkill((LearnableSkill)learnableDictionary[selectedLearnable.id], player, (int)Category.Class));
+                  player.learnableSkills[selectedLearnable.id].LevelUp(player);
 
                   CreaturePlugin.SetClassByPosition(player.oid.LoginCreature, 0, Classes2da.classTable.FirstOrDefault(c => c.classLearnableId == validatedLearnableId).RowIndex);
-
-                  if (player.learnableSkills.TryAdd(selectedSkill1.GetBindValue(player.oid, nuiToken.Token), new LearnableSkill((LearnableSkill)learnableDictionary[selectedSkill1.GetBindValue(player.oid, nuiToken.Token)], player)))
-                    player.learnableSkills[selectedSkill1.GetBindValue(player.oid, nuiToken.Token)].LevelUp(player);
-
-                  player.learnableSkills[selectedSkill1.GetBindValue(player.oid, nuiToken.Token)].source.Add(Category.Class);
-
-                  if (player.learnableSkills.TryAdd(selectedSkill2.GetBindValue(player.oid, nuiToken.Token), new LearnableSkill((LearnableSkill)learnableDictionary[selectedSkill2.GetBindValue(player.oid, nuiToken.Token)], player)))
-                    player.learnableSkills[selectedSkill2.GetBindValue(player.oid, nuiToken.Token)].LevelUp(player);
-
-                  player.learnableSkills[selectedSkill2.GetBindValue(player.oid, nuiToken.Token)].source.Add(Category.Class);
 
                   validationText.SetBindValue(player.oid, nuiToken.Token, $"Votre classe est désormais : {selectedLearnable.name}");
                   player.oid.SendServerMessage($"Votre classe initiale est désormais {StringUtils.ToWhitecolor(selectedLearnable.name)} !", ColorConstants.Orange);

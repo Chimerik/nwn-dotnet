@@ -24,5 +24,6 @@
     public const int Prestidigitation = 860;
     public const int Druidisme = 861;
     public const int TirPerforant = 862;
+    public const int PresenceIntimidante = 863;
   }
 }

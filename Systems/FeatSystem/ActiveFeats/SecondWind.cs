@@ -11,7 +11,7 @@ namespace NWN.Systems
       {
         caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value -= 1;
 
-        int fighterLevel = caster.LevelInfo.Count(c => c.ClassInfo.Class.Id == CustomClass.Fighter);
+        int fighterLevel = caster.GetClassInfo(NwClass.FromClassType(ClassType.Fighter)).Level;
         caster.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.Heal(NwRandom.Roll(Utils.random, 10, 1) + fighterLevel), Effect.VisualEffect(VfxType.ImpHealingM)));
 
         FeatUtils.DecrementFeatUses(caster, CustomSkill.FighterSecondWind);

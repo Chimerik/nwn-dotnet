@@ -19,6 +19,8 @@ namespace NWN
     public static readonly CExoString ReactionVariableExo = ReactionVariable.ToExoString();
     public const string BonusActionVariable = "_BONUS_ACTION";
     public static readonly CExoString BonusActionVariableExo = BonusActionVariable.ToExoString();
+    public const string BersekerRepresaillesVariable = "_BERSEKER_REPRESAILLES";
+    public static readonly CExoString BersekerRepresaillesVariableExo = BersekerRepresaillesVariable.ToExoString();
     public const string HastMasterCooldownVariable = "_HAST_MASTER_IN_COOLDOWN";
     public static readonly CExoString HastMasterCooldownVariableExo = HastMasterCooldownVariable.ToExoString();
     public static readonly CExoString HastMasterSpecialAttackExo = "_HAST_MASTER_SPECIAL_ATTACK".ToExoString();
@@ -54,6 +56,12 @@ namespace NWN
     public readonly static CExoString ManoeuvreDiversionVariableExo = "_MANOEUVRE_DIVERSION".ToExoString();
     public readonly static CExoString ManoeuvreDiversionExpiredVariableExo = "_MANOEUVRE_DIVERSION_EXPIRED".ToExoString();
     public readonly static CExoString ManoeuvreRiposteVariableExo = "_MANOEUVRE_RIPOSTE".ToExoString();
+
+    public const string FrappeFrenetiqueVariable = "_FRAPPE_FRENETIQUE_BONUS";
+    public readonly static CExoString FrappeFrenetiqueVariableExo = FrappeFrenetiqueVariable.ToExoString();
+
+    public const string FrappeFrenetiqueMalusVariable = "_FRAPPE_FRENETIQUE_MALUS";
+    public readonly static CExoString FrappeFrenetiqueMalusVariableExo = FrappeFrenetiqueMalusVariable.ToExoString();
 
     public const string VigueurNaineHDVariable = "_FEAT_VIGUEUR_NAINE_HD";
     public const string MeneurExaltantVariable = "_MENEUR_EXALTANT_BUFF";

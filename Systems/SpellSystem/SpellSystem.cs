@@ -438,6 +438,11 @@ namespace NWN.Systems
           TirPerforant(onSpellCast, spellEntry);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
+
+        case CustomSpell.PresenceIntimidante:
+          PresenceIntimidante(onSpellCast, player);
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
       }
 
       castingCreature.GetObjectVariable<LocalVariableInt>(SpellConfig.CurrentSpellVariable).Delete();

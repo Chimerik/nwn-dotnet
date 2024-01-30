@@ -14,7 +14,6 @@ namespace NWN.Systems
         target.m_ScriptVars.SetInt(CreatureUtils.ReactionVariableExo, target.m_ScriptVars.GetInt(CreatureUtils.ReactionVariableExo) - 1);
         target.m_ScriptVars.SetObject(CreatureUtils.ManoeuvreRiposteVariableExo, attacker.m_idSelf);
       }
-        //combatRound.AddCleaveAttack(target.m_idSelf);
     }
   }
 }

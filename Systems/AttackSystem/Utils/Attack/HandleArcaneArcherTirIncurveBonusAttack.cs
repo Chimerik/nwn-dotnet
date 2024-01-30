@@ -6,12 +6,15 @@ namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static void HandleArcaneArcherTirIncurveBonusAttack(CNWSCreature attacker, CNWSCombatRound combatRound)
+    public static void HandleArcaneArcherTirIncurveBonusAttack(CNWSCreature attacker, CNWSCombatRound combatRound, string attackerName)
     {
       var target = NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(attacker.m_ScriptVars.GetObject(CreatureUtils.TirIncurveVariableExo));
 
       if (target is null)
         return;
+
+      string targetName = $"{target.GetFirstName().GetSimple(0)} {target.GetLastName().GetSimple(0)}".ColorString(ColorConstants.Cyan);
+      BroadcastNativeServerMessage($"{attackerName.ColorString(ColorConstants.Cyan)} courbe son tir vers {targetName}", attacker);
 
       combatRound.AddCleaveAttack(target.m_idSelf);
       attacker.m_ScriptVars.DestroyObject(CreatureUtils.TirIncurveVariableExo);

@@ -74,16 +74,13 @@ namespace NWN
       OverrideTlkEntry(190128, "<CUSTOM0> Radiant");
       OverrideTlkEntry(190129, "<Tonnerre");
       OverrideTlkEntry(190130, "<CUSTOM0> Tonnerre");
-      OverrideTlkEntry(190131, "<CUSTOM0> Force");
-      OverrideTlkEntry(190132, "<CUSTOM0> Force");
-      OverrideTlkEntry(190133, "<CUSTOM0> Force");
       OverrideTlkEntry(190153, "LISEZ-MOI");
       OverrideTlkEntry(190154, "Les choix de races, de classe et de caractéristiques de cette partie de l'interface sont inutiles.\n\nEn jeu, un miroir vous permettra d'accéder à des options de personnalisation approfondies.\n\nIl vous faudra alors valider toutes les étapes avant que le capitaine ne vous autorise à poursuivre votre voyage.");
       OverrideTlkEntry(190155, "Les Larmes des Erylies - Editeur de personnage");
 
       foreach(var entry in Feats2da.featTable)
       {
-        if(entry.spellId < 0 && SkillSystem.learnableDictionary.TryGetValue(entry.RowIndex, out var learnable))
+        if(entry.spellId < 0 && SkillSystem.learnableDictionary.TryGetValue(entry.RowIndex, out var learnable) && learnable is LearnableSkill)
         {
           StrRef name = entry.nameTlkEntry;
           name.Override = learnable.name;

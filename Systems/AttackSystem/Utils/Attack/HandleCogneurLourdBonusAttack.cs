@@ -6,7 +6,7 @@ namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static void HandleCogneurLourdBonusAttack(CNWSCreature attacker, CNWSObject target, CNWSCombatRound combatRound, CNWSCombatAttackData attackData, int damageDealt)
+    public static void HandleCogneurLourdBonusAttack(CNWSCreature attacker, CNWSObject target, CNWSCombatRound combatRound, CNWSCombatAttackData attackData, int damageDealt, string attackerName)
     {
       if (attackData.m_nAttackResult != 3 && target.m_nCurrentHitPoints > damageDealt)
         return;
@@ -40,14 +40,18 @@ namespace NWN.Systems
             if (Vector3.Distance(attacker.m_vPosition.ToManagedVector(), creature.m_vPosition.ToManagedVector()) > 3)
               continue;
 
-            SendNativeServerMessage("Cogneur Lourd - Attaque supplémentaire".ColorString(StringUtils.gold), attacker);
+            string targetName = $"{target.GetFirstName().GetSimple(0)} {target.GetLastName().GetSimple(0)}".ColorString(ColorConstants.Cyan);
+            BroadcastNativeServerMessage($"{attackerName.ColorString(ColorConstants.Cyan)} cogneur lourd contre {targetName}", attacker);
+
             combatRound.AddCleaveAttack(target.m_idSelf);
             attacker.m_ScriptVars.SetInt(Config.isBonusActionAvailableVariable, attacker.m_ScriptVars.GetInt(Config.isBonusActionAvailableVariable) - 1);
           }
         }
         else
         {
-          SendNativeServerMessage("Cogneur Lourd - Attaque supplémentaire".ColorString(StringUtils.gold), attacker);
+          string targetName = $"{target.GetFirstName().GetSimple(0)} {target.GetLastName().GetSimple(0)}".ColorString(ColorConstants.Cyan);
+          BroadcastNativeServerMessage($"{attackerName.ColorString(ColorConstants.Cyan)} cogneur lourd contre {targetName}", attacker);
+
           combatRound.AddCleaveAttack(target.m_idSelf);
           attacker.m_ScriptVars.SetInt(Config.isBonusActionAvailableVariable, attacker.m_ScriptVars.GetInt(Config.isBonusActionAvailableVariable) - 1);
         }

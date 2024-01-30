@@ -69,6 +69,7 @@ namespace NWN.Systems
         case CustomSkill.WarMasterObservation: Observation(onUseFeat.Creature, onUseFeat.TargetObject); return;
 
         case CustomSkill.BarbarianRecklessAttack: RecklessAttack(onUseFeat.Creature); return;
+        case CustomSkill.BersekerFrenziedStrike: FrappeFrenetique(onUseFeat.Creature); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

@@ -5,15 +5,17 @@ namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static void HandleRiposteBonusAttack(CNWSCreature attacker, CNWSCombatRound round, CNWSCombatAttackData data)
+    public static void HandleRiposteBonusAttack(CNWSCreature attacker, CNWSCombatRound round, CNWSCombatAttackData data, string attackerName)
     {
-      if (!data.m_bRangedAttack.ToBool() && attacker.m_nCurrentAction == (ushort)Action.AttackObject
-         && attacker.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreRiposteVariableExo).ToBool())
+      if (!data.m_bRangedAttack.ToBool() && attacker.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreRiposteVariableExo).ToBool())
       {
         var target = NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(attacker.m_ScriptVars.GetObject(CreatureUtils.ManoeuvreRiposteVariableExo));
 
         if (target is null)
           return;
+
+        string targetName = $"{target.GetFirstName().GetSimple(0)} {target.GetLastName().GetSimple(0)}".ColorString(ColorConstants.Cyan);
+        BroadcastNativeServerMessage($"{attackerName.ColorString(ColorConstants.Cyan)} riposte contre {targetName}", attacker);
 
         round.AddCleaveAttack(target.m_idSelf);
       }

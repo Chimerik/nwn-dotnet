@@ -11,16 +11,24 @@ namespace NWN.Systems
   {
     private static ScriptCallbackHandle onApplyCharmCallback;
     private static ScriptCallbackHandle onRemoveCharmCallback;
-    public const string charmEffectTag = "_CHARM_EFFECT";
+    public const string CharmEffectTag = "_CHARM_EFFECT";
     public static Effect charmEffect
     {
       get
       {
         Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurMindAffectingNegative), Effect.RunAction(onAppliedHandle: onApplyCharmCallback, onRemovedHandle: onRemoveCharmCallback));
-        eff.Tag = charmEffectTag;
+        eff.Tag = CharmEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;
       }
+    }
+    public static bool IsCharmeImmune(NwCreature target)
+    {
+      if (target.KnowsFeat(NwFeat.FromFeatId(CustomSkill.BersekerRageAveugle))
+        && target.ActiveEffects.Any(e => e.Tag == BarbarianRageEffectTag))
+        return true;
+
+      return false;
     }
     private static ScriptHandleResult OnApplyCharm(CallInfo callInfo)
     {
@@ -64,7 +72,7 @@ namespace NWN.Systems
       if (callInfo.ObjectSelf is not NwCreature creature)
         return;
 
-      if(creature.ActiveEffects.Any(e => e.Tag == charmEffectTag 
+      if(creature.ActiveEffects.Any(e => e.Tag == CharmEffectTag 
         && NWScript.StringToObject(EventsPlugin.GetEventData("TARGET")) == e.Creator))
       {
         EventsPlugin.SkipEvent();

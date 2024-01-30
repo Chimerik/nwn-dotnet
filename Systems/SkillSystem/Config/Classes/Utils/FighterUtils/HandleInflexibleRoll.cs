@@ -12,7 +12,10 @@ namespace NWN.Systems
       if (!fighterLevel.HasValue || fighterLevel.Value < 9)
         return saveRoll;
 
-      return NwRandom.Roll(Utils.random, 20) - fighterLevel.Value < 13 ? 2 : fighterLevel.Value < 17 ? 1 : 0;
+      int reroll = NwRandom.Roll(Utils.random, 20) - fighterLevel.Value < 13 ? 2 : fighterLevel.Value < 17 ? 1 : 0;
+      LogUtils.LogMessage($"Echec JDS => Inflexible rerolled => {reroll}", LogUtils.LogType.Combat);
+
+      return reroll;
     }
   }
 }

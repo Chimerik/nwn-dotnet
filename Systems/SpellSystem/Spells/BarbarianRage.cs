@@ -32,7 +32,7 @@ namespace NWN.Systems
 
       caster.GetItemInSlot(InventorySlot.CreatureSkin).AddItemProperty(physicalResistance, EffectDuration.Temporary, NwTimeSpan.FromRounds(10));
 
-      NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.barbarianRageEffect, NwTimeSpan.FromRounds(spellEntry.duration)));
+      caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.barbarianRageEffect, NwTimeSpan.FromRounds(spellEntry.duration));
 
       byte barbarianLevel = caster.GetClassInfo(NwClass.FromClassType(ClassType.Barbarian)).Level;
 
@@ -58,8 +58,19 @@ namespace NWN.Systems
 
       SpellUtils.DispelConcentrationEffects(caster);
 
-      if(caster.GetClassInfo(NwClass.FromClassType(ClassType.Barbarian))?.Level < 20)
-        caster.DecrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.SearingSmite));
+      if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.BersekerFrenziedStrike)))
+        caster.IncrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.BersekerFrenziedStrike));
+
+      if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.BersekerRageAveugle)))
+        foreach(var eff in caster.ActiveEffects)
+          switch(eff.Tag)
+          {
+            case EffectSystem.CharmEffectTag:
+            case EffectSystem.FrightenedEffectTag: caster.RemoveEffect(eff); break;
+          }
+
+      if (caster.GetClassInfo(NwClass.FromClassType(ClassType.Barbarian))?.Level < 20)
+        caster.DecrementRemainingFeatUses(Feat.BarbarianRage);
     }
   }
 }

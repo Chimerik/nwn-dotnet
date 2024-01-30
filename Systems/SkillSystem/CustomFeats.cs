@@ -6,9 +6,6 @@
     // Les compétences customs passives sont numérotées à partir de 20000 afin de laisser suffisament de marge pour pouvoir ajouter des actifs sans tout retoucher
     // Les inscriptions sont numérotées à partir de 50000 afin d'éviter les collions avec les CustomSkills
 
-    public const int BarbarianFastMovement = 194;
-    public const int BarbarianRage = 293;
-
     public const int CustomMenuUP = 1132;
     public const int CustomMenuDOWN = 1133;
     public const int CustomMenuSELECT = 1134;
@@ -127,6 +124,10 @@
     public const int FighterCombatStyleDuel = 1428;
 
     public const int BarbarianRecklessAttack = 1429;
+    public const int BersekerFrenziedStrike = 1430;
+    public const int BersekerRageAveugle = 1431;
+    public const int BersekerRepresailles = 1432;
+    public const int BersekerPresenceIntimidante = 1433;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -603,6 +604,10 @@
     public const int BarbarianRagePersistante = 20526;
     public const int BarbarianPuissanceIndomptable = 20527;
     public const int BarbarianChampionPrimitif = 20528;
+    public const int BarbarianFastMovement = 20529;
+    public const int BarbarianRage = 20530;
+
+    public const int BarbarianBerseker = 20531;
 
     public const int Invalid = 65535;
   }

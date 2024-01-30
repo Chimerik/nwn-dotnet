@@ -27,7 +27,7 @@ namespace NWN.Systems
           rootColumn.Children = rootChildren;
 
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiCombo() { Entries = styles, Selected = selectedStyle } } });
-          rootChildren.Add(new NuiRow() { Margin = 0.0f, Height = 35, Children = new List<NuiElement>() { new NuiSpacer(), new NuiButton("Valider") { Id = "validate", Width = 80, Encouraged = enabled }, new NuiSpacer() } });
+          rootChildren.Add(new NuiRow() { Margin = 0.0f, Height = 35, Children = new List<NuiElement>() { new NuiSpacer(), new NuiButton("Valider") { Id = "validate", Width = 160, Encouraged = enabled }, new NuiSpacer() } });
           
           CreateWindow(level, gainedFromChampion);
         }
@@ -42,7 +42,7 @@ namespace NWN.Systems
 
           player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_MARTIAL_INITIATE_CHOICE_FEAT").Value = gainedFromChampion ? 1 : 2;
 
-          NuiRect savedRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(player.guiScaledWidth * 0.4f, player.guiHeight * 0.15f, player.guiScaledWidth * 0.4f, player.guiScaledHeight * 0.55f);
+          NuiRect savedRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(player.guiScaledWidth * 0.4f, player.guiHeight * 0.15f, player.guiScaledWidth * 0.3f, player.guiScaledHeight * 0.20f);
 
           window = new NuiWindow(rootColumn, "Choisissez un style de combat")
           {

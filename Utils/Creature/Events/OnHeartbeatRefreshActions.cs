@@ -14,6 +14,9 @@ namespace NWN
         creature.GetObjectVariable<LocalVariableInt>(BonusActionVariable).Value = 1;
         creature.GetObjectVariable<LocalVariableInt>(HastMasterCooldownVariable).Delete();
 
+        if(creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.BersekerRepresailles)))
+          creature.GetObjectVariable<LocalVariableInt>(BersekerRepresaillesVariable).Value = 1;
+
         if (creature.ActiveEffects.Any(e => e.Tag == EffectSystem.noReactionsEffectTag))
           continue;
 

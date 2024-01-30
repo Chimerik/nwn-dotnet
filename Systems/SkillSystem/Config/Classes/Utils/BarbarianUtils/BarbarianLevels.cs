@@ -50,12 +50,20 @@ namespace NWN.Systems
 
           break;
 
+        case 2:
+
+          player.learnableSkills.TryAdd(CustomSkill.BarbarianRecklessAttack, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BarbarianRecklessAttack], player));
+          player.learnableSkills[CustomSkill.BarbarianRecklessAttack].LevelUp(player);
+          player.learnableSkills[CustomSkill.BarbarianRecklessAttack].source.Add(Category.Class);
+
+          break;
+
         case 3:
 
-          /*player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value = CustomSkill.Barbarian;
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value = CustomSkill.Barbarian;
 
           if (!player.windows.TryGetValue("subClassSelection", out var value)) player.windows.Add("subClassSelection", new SubClassSelectionWindow(player));
-          else ((SubClassSelectionWindow)value).CreateWindow();*/
+          else ((SubClassSelectionWindow)value).CreateWindow();
 
           break;
 

@@ -9,6 +9,7 @@ namespace NWN.Systems
     public void OnBonusActionSpell(OnSpellAction onSpell)
     {
       SpellEntry spellEntry = Spells2da.spellTable[onSpell.Spell.Id];
+      ModuleSystem.Log.Info($"spell : {spellEntry.RowIndex}");
 
       if (spellEntry.bonusAction == 1)
       {

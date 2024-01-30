@@ -71,7 +71,7 @@ namespace NWN.Systems
           NuiRect savedRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(player.guiWidth * 0.2f, player.guiHeight * 0.05f, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f);
           selectedLearnable = null;
 
-          window = new NuiWindow(rootColumn, "Choisissez un archétype de classe")
+          window = new NuiWindow(rootColumn, "Choisissez une voie")
           {
             Geometry = geometry,
             Resizable = false,
@@ -87,7 +87,7 @@ namespace NWN.Systems
             nuiToken.OnNuiEvent += HandleLearnableEvents;
 
             selectedItemTitle.SetBindValue(player.oid, nuiToken.Token, "");
-            selectedItemDescription.SetBindValue(player.oid, nuiToken.Token, "Sélectionner un archétype pour afficher ses détails.\n\nAttention, le choix est définitif.");
+            selectedItemDescription.SetBindValue(player.oid, nuiToken.Token, "Sélectionner une voie pour afficher ses détails.\n\nAttention, le choix est définitif.");
             selectedItemIcon.SetBindValue(player.oid, nuiToken.Token, "ir_examine");
             selectedItemVisibility.SetBindValue(player.oid, nuiToken.Token, false);
             validationEnabled.SetBindValue(player.oid, nuiToken.Token, false);
@@ -127,7 +127,7 @@ namespace NWN.Systems
                   selectedItemIcon.SetBindValue(player.oid, nuiToken.Token, selectedLearnable.icon);
 
                   validationEnabled.SetBindValue(player.oid, nuiToken.Token, true);
-                  validationText.SetBindValue(player.oid, nuiToken.Token, $"Valider l'archétype {selectedLearnable.name}");
+                  validationText.SetBindValue(player.oid, nuiToken.Token, $"Valider la voie {selectedLearnable.name}");
 
                   LoadLearnableList(currentList);
 
@@ -143,11 +143,12 @@ namespace NWN.Systems
                     case CustomSkill.FighterArcaneArcher: Fighter.HandleArcherMageLevelUp(player, 3); break;
                     case CustomSkill.FighterWarMaster: Fighter.HandleWarMasterLevelUp(player, 3); break;
                     case CustomSkill.FighterChampion: Fighter.HandleChampionLevelUp(player, 3); break;
+                    case CustomSkill.BarbarianBerseker: Barbarian.HandleBersekerLevelUp(player, 3); break;
                   }
 
                   player.learnableSkills.Remove(player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value);
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Delete();
-                  player.oid.SendServerMessage($"Vous adoptez l'archétype de classe {StringUtils.ToWhitecolor(selectedLearnable.name)} !", ColorConstants.Orange);
+                  player.oid.SendServerMessage($"Vous adoptez la voie {StringUtils.ToWhitecolor(selectedLearnable.name)} !", ColorConstants.Orange);
 
                   if (player.TryGetOpenedWindow("learnables", out PlayerWindow learnableWindow))
                   {
@@ -170,6 +171,7 @@ namespace NWN.Systems
           return player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value switch
           {
             CustomSkill.Fighter => learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.FighterSubClass),
+            CustomSkill.Barbarian => learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.BarbarianSubClass),
             _ => null,
           };
         }

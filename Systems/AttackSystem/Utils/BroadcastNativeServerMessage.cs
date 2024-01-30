@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Numerics;
 using Anvil.API;
-using Anvil.Native;
 using NWN.Native.API;
 
 namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static void BroadcastNativeServerMessage(string message, CNWSCreature creature)
+    public static void BroadcastNativeServerMessage(string message, CNWSCreature creature, bool ignoreSelf = false)
     {
       CExoLinkedListCNWSClient playerList = NWNXLib.AppManager().m_pServerExoApp.m_pcExoAppInternal.m_pNWSPlayerList;
 
@@ -16,7 +15,7 @@ namespace NWN.Systems
       {
         CNWSPlayer player = playerList.GetAtPos(node).AsNWSPlayer();
 
-        if (player.m_oidNWSObject == creature.m_idSelf)
+        if (ignoreSelf && player.m_oidNWSObject == creature.m_idSelf)
           continue;
 
         CNWSCreature playerCreature = NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(player.m_oidNWSObject);

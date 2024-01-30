@@ -31,11 +31,12 @@ namespace NWN.Systems
 
       if (onSpellCast.TargetObject is NwCreature targetCreature)
       {
-        int hitDice = 0;
+        int hitDice;
+
         if (targetCreature.IsLoginPlayerCharacter && PlayerSystem.Players.TryGetValue(targetCreature, out PlayerSystem.Player player))
-          hitDice = player.learnableSkills.ContainsKey(CustomSkill.ImprovedHealth) ? player.learnableSkills[CustomSkill.ImprovedHealth].totalPoints : 1;
+          hitDice = player.learnableSkills.TryGetValue(CustomSkill.ImprovedHealth, out var value) ? value.totalPoints : 1;
         else
-          hitDice = targetCreature.LevelInfo.Count;
+          hitDice = targetCreature.Level;
 
         if (hitDice <= 5 + nCasterLevel / 6
           && oCaster.CheckResistSpell(targetCreature) == ResistSpellResult.Failed

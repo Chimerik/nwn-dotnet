@@ -21,14 +21,21 @@ namespace NWN
 
           onAttack.Attacker.OnCreatureAttack -= OnAttackMenacante;
 
-          SpellConfig.SavingThrowFeedback feedback = new();
-          int attackerModifier = onAttack.Attacker.GetAbilityModifier(Ability.Strength) > onAttack.Attacker.GetAbilityModifier(Ability.Dexterity) ? onAttack.Attacker.GetAbilityModifier(Ability.Strength) : onAttack.Attacker.GetAbilityModifier(Ability.Dexterity);
-          int tirDC = 8 + NativeUtils.GetCreatureProficiencyBonus(onAttack.Attacker) + attackerModifier;
-          int advantage = GetCreatureAbilityAdvantage(target, Ability.Wisdom);
-          int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Wisdom, tirDC, advantage, feedback);
-          bool saveFailed = totalSave < tirDC;
+          bool saveFailed = false;
 
-          SpellUtils.SendSavingThrowFeedbackMessage(onAttack.Attacker, target, feedback, advantage, tirDC, totalSave, saveFailed, Ability.Wisdom);
+          if (!EffectSystem.IsFrightImmune(target))
+          {
+            SpellConfig.SavingThrowFeedback feedback = new();
+            int attackerModifier = onAttack.Attacker.GetAbilityModifier(Ability.Strength) > onAttack.Attacker.GetAbilityModifier(Ability.Dexterity) ? onAttack.Attacker.GetAbilityModifier(Ability.Strength) : onAttack.Attacker.GetAbilityModifier(Ability.Dexterity);
+            int tirDC = 8 + NativeUtils.GetCreatureProficiencyBonus(onAttack.Attacker) + attackerModifier;
+            int advantage = GetCreatureAbilityAdvantage(target, Ability.Wisdom);
+            int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Wisdom, tirDC, advantage, feedback);
+            saveFailed = totalSave < tirDC;
+
+            SpellUtils.SendSavingThrowFeedbackMessage(onAttack.Attacker, target, feedback, advantage, tirDC, totalSave, saveFailed, Ability.Wisdom);
+          }
+          else
+            onAttack.Attacker.LoginPlayer?.SendServerMessage($"{StringUtils.ToWhitecolor(target.Name)} ne peut pas être effrayé", ColorConstants.Orange);
 
           if (saveFailed)
           {

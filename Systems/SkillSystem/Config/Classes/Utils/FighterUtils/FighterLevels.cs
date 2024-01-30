@@ -44,7 +44,7 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.FighterSecondWind].LevelUp(player);
           player.learnableSkills[CustomSkill.FighterSecondWind].source.Add(Category.Class);
           int chosenStyle = player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CHOSEN_FIGHTER_STYLE").Value;
-
+          
           player.learnableSkills.TryAdd(chosenStyle, new LearnableSkill((LearnableSkill)learnableDictionary[chosenStyle], player));
           player.learnableSkills[chosenStyle].LevelUp(player);
           player.learnableSkills[chosenStyle].source.Add(Category.Class);
@@ -127,6 +127,20 @@ namespace NWN.Systems
 
           break;
 
+        case 14:
+
+          if (!player.windows.TryGetValue("featSelection", out var feat14)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
+          else ((FeatSelectionWindow)feat14).CreateWindow();
+
+          break;
+
+        case 16:
+
+          if (!player.windows.TryGetValue("featSelection", out var feat16)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
+          else ((FeatSelectionWindow)feat16).CreateWindow();
+
+          break;
+
         case 17:
 
           player.learnableSkills.TryAdd(CustomSkill.FighterInflexible, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterInflexible], player));
@@ -134,6 +148,13 @@ namespace NWN.Systems
 
           player.learnableSkills.TryAdd(CustomSkill.FighterSurge, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterSurge], player));
           player.learnableSkills[CustomSkill.FighterSurge].LevelUp(player);
+
+          break;
+
+        case 19:
+
+          if (!player.windows.TryGetValue("featSelection", out var feat19)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
+          else ((FeatSelectionWindow)feat19).CreateWindow();
 
           break;
 

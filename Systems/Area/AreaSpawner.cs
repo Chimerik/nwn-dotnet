@@ -119,7 +119,7 @@ namespace NWN.Systems
           creature.OnHeartbeat += CreatureUtils.OnHeartBeatCheckUnarmoredDefence;
 
           if (creature.GetAbilityModifier(Ability.Constitution) > 0)
-            creature.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetUnarmoredDefenseEffect(creature.GetAbilityModifier(Ability.Constitution)), NwTimeSpan.FromRounds(1));
+            creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetUnarmoredDefenseEffect(creature.GetAbilityModifier(Ability.Constitution)));
         }
       }
       var creatureLoop = scheduler.ScheduleRepeating(() => CreatureUtils.CreatureHealthRegenLoop(creature), TimeSpan.FromSeconds(1));

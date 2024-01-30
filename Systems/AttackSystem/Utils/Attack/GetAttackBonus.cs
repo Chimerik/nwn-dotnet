@@ -15,7 +15,7 @@ namespace NWN.Systems
       if (attackData.m_bRangedAttack.ToBool() && attacker.m_pStats.HasFeat(CustomSkill.FighterCombatStyleArchery).ToBool())
       {
         attackBonus += 2;
-        LogUtils.LogMessage($"Style de combat archerie : +2 BA", LogUtils.LogType.Combat);
+        LogUtils.LogMessage("Style de combat archerie : +2 BA", LogUtils.LogType.Combat);
       }
 
       var initiaLocation = attacker.m_pStats.m_pBaseCreature.m_ScriptVars.GetLocation(chargerVariable);
@@ -24,7 +24,7 @@ namespace NWN.Systems
       {
         attackBonus += 5;
         attacker.m_pStats.m_pBaseCreature.m_ScriptVars.SetInt("_CHARGER_ACTIVATED".ToExoString(), 1);
-        LogUtils.LogMessage($"Chargeur : +5 BA", LogUtils.LogType.Combat);
+        LogUtils.LogMessage("Chargeur : +5 BA", LogUtils.LogType.Combat);
       }
 
       if (weapon is not null)
@@ -32,15 +32,22 @@ namespace NWN.Systems
         if (IsCogneurLourd(attacker, weapon))
         {
           attackBonus -= 5;
-          LogUtils.LogMessage($"Cogneur Lourd : -5 BA", LogUtils.LogType.Combat);
+          LogUtils.LogMessage("Cogneur Lourd : -5 BA", LogUtils.LogType.Combat);
         }
         else if (IsTireurDelite(attacker, attackData, weapon))
         {
           attackBonus -= 5;
-          LogUtils.LogMessage($"Tireur d'élite : -5 BA", LogUtils.LogType.Combat);
+          LogUtils.LogMessage("Tireur d'élite : -5 BA", LogUtils.LogType.Combat);
         }
       }
 
+      int frappeFrenetiqueMalus = attacker.m_pStats.m_pBaseCreature.m_ScriptVars.GetInt(CreatureUtils.FrappeFrenetiqueMalusVariableExo);
+      if(frappeFrenetiqueMalus > 0)
+      {
+        attackBonus -= frappeFrenetiqueMalus;
+        LogUtils.LogMessage($"Frappe Frénétique : - {frappeFrenetiqueMalus} BA", LogUtils.LogType.Combat);
+      }
+      
       return attackBonus;
     }
   }
