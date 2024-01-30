@@ -28,6 +28,7 @@ namespace NWN.Systems
       }
 
       EffectSystem.ApplyKnockdown(caster, targetCreature);
+      CreatureUtils.HandleBonusActionCooldown(caster);
     }
   }
 }

@@ -44,6 +44,7 @@ namespace NWN.Systems
 
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"Instruction ({target.Name})", StringUtils.gold);
       FeatUtils.DecrementManoeuvre(caster);
+      CreatureUtils.HandleBonusActionCooldown(caster);
     }
   }
 }

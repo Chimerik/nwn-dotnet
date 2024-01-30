@@ -175,7 +175,6 @@ namespace NWN.Systems
       private void InitializeSpellEvents()
       {
         //oid.LoginCreature.OnSpellAction += spellSystem.HandleSpellInput;
-        oid.LoginCreature.OnSpellAction += spellSystem.OnBonusActionSpell;
         oid.LoginCreature.OnSpellAction += spellSystem.HandleSpellInputBlinded;
         oid.LoginCreature.OnSpellAction += spellSystem.CancelSomaticSpellIfOffHandBusy;
         oid.LoginCreature.OnSpellAction += SpellSystem.HandleCraftOnSpellInput;

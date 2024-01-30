@@ -11,7 +11,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.MovementSpeedIncrease(50), Effect.RunAction());
+        Effect eff = Effect.LinkEffects(Effect.MovementSpeedIncrease(50), Effect.RunAction(onRemovedHandle:onRemoveAgressionOrcCallback));
         eff.Tag = SprintEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

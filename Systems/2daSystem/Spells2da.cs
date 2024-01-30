@@ -14,7 +14,7 @@ namespace NWN.Systems
     public int numDice { get; private set; }
     public VfxType damageVFX { get; private set; }
     public int duration { get; private set; }
-    public int bonusAction { get; private set; }
+    public bool isBonusAction { get; private set; }
     public bool requiresConcentration { get; private set; }
     public Ability savingThrowAbility { get; private set; }
     public bool requiresSomatic { get; private set; }
@@ -27,7 +27,7 @@ namespace NWN.Systems
       damageDice = entry.GetInt("DamageDice").GetValueOrDefault(0);
       numDice = entry.GetInt("NumDice").GetValueOrDefault(0);
       duration = entry.GetInt("Duration").GetValueOrDefault(0);
-      bonusAction = entry.GetInt("ActionType").GetValueOrDefault(0);
+      isBonusAction = entry.GetInt("ActionType").GetValueOrDefault(0).ToBool();
       savingThrowAbility = (Ability)entry.GetInt("SavingThrow").GetValueOrDefault(-1);
       requiresConcentration = entry.GetInt("UseConcentration").GetValueOrDefault(0) == 2;
       requiresSomatic = entry.GetString("VS")?.Contains('s') ?? false;

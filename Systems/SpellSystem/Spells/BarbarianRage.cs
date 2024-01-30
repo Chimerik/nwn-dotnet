@@ -69,8 +69,12 @@ namespace NWN.Systems
             case EffectSystem.FrightenedEffectTag: caster.RemoveEffect(eff); break;
           }
 
+      ModuleSystem.Log.Info($"------------{caster.GetFeatRemainingUses(Feat.BarbarianRage)}---------------");
+
       if (caster.GetClassInfo(NwClass.FromClassType(ClassType.Barbarian))?.Level < 20)
-        caster.DecrementRemainingFeatUses(Feat.BarbarianRage);
+        FeatUtils.DecrementFeatUses(caster, (int)Feat.BarbarianRage);
+
+      CreatureUtils.HandleBonusActionCooldown(caster);
     }
   }
 }

@@ -1,10 +1,13 @@
-﻿using Anvil.API;
+﻿using System;
+using System.Linq;
+using Anvil.API;
+using NWN.Native.API;
 
 namespace NWN.Systems
 {
   public partial class FeatSystem
   {
-    private static void AgressionOrc(NwCreature caster, NwGameObject targetObject)
+    private static async void AgressionOrc(NwCreature caster, NwGameObject targetObject)
     {
       if (targetObject is not NwCreature targetCreature)
       {
@@ -19,11 +22,17 @@ namespace NWN.Systems
       }
 
       caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value -= 1;
-      _ = caster.ActionAttackTarget(targetCreature);
-      caster.Commandable = false;
+      _ = caster.ClearActionQueue();
+      _ = caster.AddActionToQueue(() => caster.ActionForceMoveTo(targetObject, true));
+      _ = caster.AddActionToQueue(() => caster.ActionAttackTarget(targetObject));
+
       caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.agressionOrc, NwTimeSpan.FromRounds(1));
 
+      CreatureUtils.HandleBonusActionCooldown(caster);
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Agression", ColorConstants.Red, true);
+
+      await NwTask.NextFrame();
+      caster.Commandable = false;
     }
   }
 }

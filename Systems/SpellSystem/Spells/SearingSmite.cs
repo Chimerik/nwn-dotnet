@@ -17,7 +17,8 @@ namespace NWN.Systems
       caster.OnCreatureAttack -= CreatureUtils.OnAttackSearingSmite;
       caster.OnCreatureAttack += CreatureUtils.OnAttackSearingSmite;
 
-      caster.DecrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.SearingSmite));
+      FeatUtils.DecrementFeatUses(caster, CustomSkill.SearingSmite);
+      CreatureUtils.HandleBonusActionCooldown(caster);
     }
   }
 }

@@ -17,6 +17,8 @@ namespace NWN.Systems
         FeatUtils.DecrementFeatUses(caster, CustomSkill.FighterSecondWind);
 
         StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} utilise {"Second Souffle".ColorString(ColorConstants.White)}", ColorConstants.Orange, true);
+
+        CreatureUtils.HandleBonusActionCooldown(caster);
       }
       else
         caster?.LoginPlayer?.SendServerMessage("Vous avez déjà utilisé toutes vos actions bonus pour ce round !", ColorConstants.Orange);

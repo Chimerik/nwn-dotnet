@@ -17,7 +17,8 @@ namespace NWN.Systems
       caster.OnCreatureAttack -= CreatureUtils.OnAttackBrandingSmite;
       caster.OnCreatureAttack += CreatureUtils.OnAttackBrandingSmite;
 
-      caster.DecrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.BrandingSmite));
+      FeatUtils.DecrementFeatUses(caster, CustomSkill.BrandingSmite);
+      CreatureUtils.HandleBonusActionCooldown(caster);
     }
   }
 }

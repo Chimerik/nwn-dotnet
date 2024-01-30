@@ -32,6 +32,7 @@ namespace NWN.Systems
 
       selection.Player.LoginCreature.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.TirIncurveVariable).Value = creature;
       selection.Player.LoginCreature.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value -= 1;
+      CreatureUtils.HandleBonusActionCooldown(selection.Player.LoginCreature);
 
       StringUtils.DisplayStringToAllPlayersNearTarget(selection.Player.ControlledCreature, "Tir incurvé", StringUtils.gold, true);
     }

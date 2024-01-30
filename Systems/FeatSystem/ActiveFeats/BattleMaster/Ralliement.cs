@@ -44,6 +44,7 @@ namespace NWN.Systems
 
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"Ralliement ({target.Name})", StringUtils.gold);
       FeatUtils.DecrementManoeuvre(caster);
+      CreatureUtils.HandleBonusActionCooldown(caster);
     }
   }
 }
