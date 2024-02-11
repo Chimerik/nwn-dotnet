@@ -15,16 +15,9 @@ namespace NWN.Systems
 
           new StrRef(5213).SetPlayerOverride(player.oid, "Magie Sauvage");
 
-          player.learnableSkills.TryAdd(CustomSkill.TotemSpeakAnimal, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.TotemSpeakAnimal], player));
-          player.learnableSkills[CustomSkill.TotemSpeakAnimal].LevelUp(player);
-          player.learnableSkills[CustomSkill.TotemSpeakAnimal].source.Add(Category.Class);
-
-          player.learnableSkills.TryAdd(CustomSkill.TotemSensAnimal, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.TotemSensAnimal], player));
-          player.learnableSkills[CustomSkill.TotemSensAnimal].LevelUp(player);
-          player.learnableSkills[CustomSkill.TotemSensAnimal].source.Add(Category.Class);
-
-          if (!player.windows.TryGetValue("espritTotemSelection", out var value)) player.windows.Add("espritTotemSelection", new EspritTotemSelectionWindow(player));
-          else ((EspritTotemSelectionWindow)value).CreateWindow();
+          player.learnableSkills.TryAdd(CustomSkill.WildMagicSense, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.WildMagicSense], player));
+          player.learnableSkills[CustomSkill.WildMagicSense].LevelUp(player);
+          player.learnableSkills[CustomSkill.WildMagicSense].source.Add(Category.Class);
 
           break;
 

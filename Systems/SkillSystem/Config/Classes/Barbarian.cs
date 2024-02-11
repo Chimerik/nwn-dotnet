@@ -60,7 +60,7 @@ namespace NWN.Systems
       {
         case CustomSkill.BarbarianBerseker: HandleBersekerLevelUp(player, playerClass.currentLevel); break;
         case CustomSkill.BarbarianTotem: HandleTotemLevelUp(player, playerClass.currentLevel); break;
-        case CustomSkill.BarbarianWildMagic: HandleMagieSauvageLevelUp(player, playerClass.currentLevel); break;
+        case CustomSkill.BarbarianWildMagic: HandleWildMagicLevelUp(player, playerClass.currentLevel); break;
       }
 
       if(playerClass.currentLevel > 1)

@@ -115,10 +115,13 @@ namespace NWN.Systems
       if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemEspritLoup)))
         caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.wolfTotemAura, NwTimeSpan.FromRounds(10));
 
-      bool freeRageRoll = BarbarianUtils.IsRatelTriggered(caster) ? Utils.random.Next(0, 2).ToBool() : false;
+      bool freeRageRoll = BarbarianUtils.IsRatelTriggered(caster) && Utils.random.Next(0, 2).ToBool();
         
       if (caster.GetClassInfo(NwClass.FromClassType(ClassType.Barbarian))?.Level < 20 || freeRageRoll)
         FeatUtils.DecrementFeatUses(caster, (int)Feat.BarbarianRage);
+
+      if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.WildMagicSense)))
+        HandleWildMagicRage(caster);
 
       CreatureUtils.HandleBonusActionCooldown(caster);
     }

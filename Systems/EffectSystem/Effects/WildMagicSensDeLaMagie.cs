@@ -26,7 +26,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.AreaOfEffect((PersistentVfxType)184, onEnterHandle: onEnterWildMagicAwarenessCallback, onExitHandle: onExitWildMagicAwarenessCallback);
+        Effect eff = Effect.AreaOfEffect((PersistentVfxType)185, onEnterHandle: onEnterWildMagicAwarenessCallback, onExitHandle: onExitWildMagicAwarenessCallback);
         eff.Tag = SensDeLaMagieAuraEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

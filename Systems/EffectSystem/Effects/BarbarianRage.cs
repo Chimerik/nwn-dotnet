@@ -76,6 +76,12 @@ namespace NWN.Systems
         target.GetObjectVariable<LocalVariableInt>(CreatureUtils.FrappeFrenetiqueMalusVariable).Delete();
       }
 
+      if (target.KnowsFeat(NwFeat.FromFeatId(CustomSkill.WildMagicSense)))
+        foreach (var eff in target.ActiveEffects)
+          if (eff.Tag == WildMagicEspritIntangibleEffectTag || eff.Tag == WildMagicRayonDeLumiereEffectTag || eff.Tag == wildMagicRepresaillesEffectTag
+            || eff.Tag == LumieresProtectricesAuraEffectTag)
+            target.RemoveEffect(eff);
+
       NwItem skin = target.GetItemInSlot(InventorySlot.CreatureSkin);
 
       if (skin is not null)
