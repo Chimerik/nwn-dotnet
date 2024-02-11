@@ -45,6 +45,22 @@ namespace NWN.Systems
               }
 
               break;
+
+            case CustomSkill.TotemLienTigre:
+
+              if (!learnableSkills.TryGetValue(CustomSkill.AthleticsProficiency, out LearnableSkill athle) || athle.currentLevel < 1)
+                skillList.Add(new NuiComboEntry("Athlétisme - Maîtrise", CustomSkill.AthleticsProficiency));
+
+              if (!learnableSkills.TryGetValue(CustomSkill.AcrobaticsProficiency, out LearnableSkill acro) || acro.currentLevel < 1)
+                skillList.Add(new NuiComboEntry("Acrobatie - Maîtrise", CustomSkill.AcrobaticsProficiency));
+
+              if (!learnableSkills.TryGetValue(CustomSkill.StealthProficiency, out LearnableSkill stealth) || stealth.currentLevel < 1)
+                skillList.Add(new NuiComboEntry("Furtivité - Maîtrise", CustomSkill.StealthProficiency));
+
+              if (!learnableSkills.TryGetValue(CustomSkill.SurvivalProficiency, out LearnableSkill survie) || survie.currentLevel < 1)
+                skillList.Add(new NuiComboEntry("Survie - Maîtrise", CustomSkill.SurvivalProficiency)); 
+
+              break;
           }
 
           if (skillList.Count < 1)

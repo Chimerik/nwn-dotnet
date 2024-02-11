@@ -38,7 +38,7 @@ namespace NWN.Systems
 
         int spellDC = SpellUtils.GetCasterSpellDC(caster, spell) + 10;
         int advantage = CreatureUtils.GetCreatureAbilityAdvantage(onHB.Creature, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid);
-        int totalSave = SpellUtils.GetSavingThrowRoll(onHB.Creature, spellEntry.savingThrowAbility, spellDC, advantage, feedback);
+        int totalSave = SpellUtils.GetSavingThrowRoll(onHB.Creature, spellEntry.savingThrowAbility, spellDC, advantage, feedback, true);
         bool saveFailed = totalSave < spellDC;
 
         SpellUtils.SendSavingThrowFeedbackMessage(caster, onHB.Creature, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);

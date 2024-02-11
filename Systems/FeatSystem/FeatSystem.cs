@@ -30,7 +30,7 @@ namespace NWN.Systems
           onUseFeat.PreventFeatUse = true;
           return;
 
-        //case CustomSkill.Sprint: Sprint(onUseFeat.Creature, player); return;
+        case CustomSkill.Sprint: Sprint(onUseFeat.Creature); return;
         //case CustomSkill.Disengage: Disengage(onUseFeat.Creature); return;
         //case CustomSkill.Dodge: Dodge(onUseFeat.Creature, player); return;
         case CustomSkill.FighterSecondWind: SecondWind(onUseFeat.Creature); return;
@@ -70,6 +70,10 @@ namespace NWN.Systems
 
         case CustomSkill.BarbarianRecklessAttack: RecklessAttack(onUseFeat.Creature); return;
         case CustomSkill.BersekerFrenziedStrike: FrappeFrenetique(onUseFeat.Creature); return;
+        case CustomSkill.TotemFerociteIndomptable: FerociteIndomptable(onUseFeat.Creature); return;
+        case CustomSkill.TotemAspectTigre: AspectTigre(onUseFeat.Creature); return;
+        case CustomSkill.TotemLienElan: LienElan(onUseFeat.Creature); return;
+        case CustomSkill.WildMagicSense: SensDeLaMagie(onUseFeat.Creature); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

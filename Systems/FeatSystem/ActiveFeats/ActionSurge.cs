@@ -8,7 +8,10 @@ namespace NWN.Systems
     private static void ActionSurge(NwCreature caster)
     {
       if (caster.ActiveEffects.Any(e => e.Tag == EffectSystem.ActionSurgeEffectTag))
+      {
+        caster.LoginPlayer?.SendServerMessage("Vous bénéficiez déjà de cet effet", ColorConstants.Orange);
         return;
+      }
 
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSuperHeroism));
       caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.actionSurgeEffect, NwTimeSpan.FromRounds(10));

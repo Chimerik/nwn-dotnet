@@ -13,11 +13,8 @@ namespace NWN
       NwCreature target = onAttack.Attacker.GetNearestCreatures(CreatureTypeFilter.Alive(true), CreatureTypeFilter.Perception(PerceptionType.Seen),
         CreatureTypeFilter.Reputation(ReputationType.Enemy)).FirstOrDefault(t => t != onAttack.Target);
 
-      if (target is not null && target.DistanceSquared(onAttack.Attacker) < 10)
-      {
+      if (target is not null && target.DistanceSquared(onAttack.Attacker) < 9)
         onAttack.Attacker.GetObjectVariable<LocalVariableObject<NwCreature>>(ManoeuvreBalayageTargetVariable).Value = target;
-        StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Balayage", ColorConstants.Red, true);
-      }
     }
   }
 }

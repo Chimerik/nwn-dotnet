@@ -33,7 +33,7 @@ namespace NWN.Systems
           
           if (advantage < -900)
           {
-            int totalSave = SpellUtils.GetSavingThrowRoll(targetCreature, spellEntry.savingThrowAbility, spellDC, advantage, feedback);
+            int totalSave = SpellUtils.GetSavingThrowRoll(targetCreature, spellEntry.savingThrowAbility, spellDC, advantage, feedback, true);
             bool saveFailed = totalSave < spellDC;
 
             SpellUtils.SendSavingThrowFeedbackMessage(oCaster, targetCreature, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);

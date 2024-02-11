@@ -1,5 +1,4 @@
 ﻿using Anvil.API;
-using System;
 using static Anvil.API.Events.ModuleEvents;
 
 namespace NWN.Systems
@@ -10,18 +9,22 @@ namespace NWN.Systems
     {
       NwItem item = onAcquireItem.Item;
 
-      if (item is null || item.Weight == 0)
+      if (item is null || item.Weight == 0 || onAcquireItem.AcquiredBy is not NwCreature creature)
         return;
 
       item.GetObjectVariable<LocalVariableFloat>("_ITEM_WEIGHT_PRE_VERSATILITY").Value = (float)item.Weight / item.StackSize;
-      ModuleSystem.Log.Info($"weight before : {item.Weight}");
-      decimal newWeigth = item.Weight / item.StackSize * (decimal)0.75;
+      decimal newWeigth = item.Weight / item.StackSize;
+
+      if (creature.Race.RacialType == RacialType.Human)
+        newWeigth *= (decimal)0.75;
+
+      if(creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemAspectOurs)))
+        newWeigth *= (decimal)0.5;
 
       if (newWeigth < (decimal)0.1)
         newWeigth = (decimal)0.1;
 
       item.Weight = newWeigth;
-      ModuleSystem.Log.Info($"weight after : {item.Weight}");
     }
     public static void OnUnAcquireCheckHumanVersatility(OnUnacquireItem onUnacqItem)
     {
@@ -30,11 +33,8 @@ namespace NWN.Systems
       if (item is null || item.GetObjectVariable<LocalVariableString>("_ITEM_WEIGHT_PRE_VERSATILITY").HasNothing)
         return;
 
-      ModuleSystem.Log.Info($"weight variable : {item.GetObjectVariable<LocalVariableFloat>("_ITEM_WEIGHT_PRE_VERSATILITY").Value}");
-      ModuleSystem.Log.Info($"weight variable converted: {(decimal)item.GetObjectVariable<LocalVariableFloat>("_ITEM_WEIGHT_PRE_VERSATILITY").Value}");
       item.Weight = (decimal)item.GetObjectVariable<LocalVariableFloat>("_ITEM_WEIGHT_PRE_VERSATILITY").Value;
       item.GetObjectVariable<LocalVariableFloat>("_ITEM_WEIGHT_PRE_VERSATILITY").Delete();
-      ModuleSystem.Log.Info($"weight after : {item.Weight}");
     }
   }
 }

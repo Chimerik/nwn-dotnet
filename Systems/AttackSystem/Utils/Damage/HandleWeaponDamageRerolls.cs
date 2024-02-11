@@ -15,12 +15,21 @@ namespace NWN.Systems
         int roll = NwRandom.Roll(Utils.random, dieToRoll, 1);
 
         if (creature.m_pStats.HasFeat(CustomSkill.FighterCombatStyleTwoHanded).ToBool()
-          && IsGreatWeaponStyle(weapon, creature))
-          roll = roll < 3 ? NwRandom.Roll(Utils.random, dieToRoll) : roll;
-
-        if (creature.m_pStats.HasFeat(CustomSkill.Empaleur).ToBool()
-        && weapon.WeaponType.Any(d => d == Anvil.API.DamageType.Piercing))
-          roll = roll < 3 ? NwRandom.Roll(Utils.random, dieToRoll) : roll;
+          && IsGreatWeaponStyle(weapon, creature)
+          && roll < 3)
+        {
+          int reroll = NwRandom.Roll(Utils.random, dieToRoll);
+          LogUtils.LogMessage($"rolled {roll} - Great Weapon Style rerolled {reroll}", LogUtils.LogType.Combat);
+          roll = reroll;
+        }
+        else if (creature.m_pStats.HasFeat(CustomSkill.Empaleur).ToBool()
+        && weapon.WeaponType.Any(d => d == Anvil.API.DamageType.Piercing)
+        && roll < 3)
+        {
+          int reroll = NwRandom.Roll(Utils.random, dieToRoll);
+          LogUtils.LogMessage($"rolled {roll} - Empaleur rerolled {reroll}", LogUtils.LogType.Combat);
+          roll = reroll;
+        }
 
         damage += roll;
       }

@@ -25,14 +25,54 @@ namespace NWN.Systems
       }
 
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpImproveAbilityScore));
-
-      ItemProperty physicalResistance = ItemProperty.DamageImmunity(IPDamageType.Physical, IPDamageImmunityType.Immunity50Pct);
-      physicalResistance.Creator = caster;
-      physicalResistance.Tag = "BARBARIAN_RAGE";
-
-      caster.GetItemInSlot(InventorySlot.CreatureSkin).AddItemProperty(physicalResistance, EffectDuration.Temporary, NwTimeSpan.FromRounds(10));
-
       caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.barbarianRageEffect, NwTimeSpan.FromRounds(spellEntry.duration));
+
+      if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemHurlementGalvanisant)))
+        caster.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.TotemHurlementGalvanisant), 100);
+
+      if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemAspectTigre)))
+        caster.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.TotemAspectTigre), 100);
+
+      if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemLienElan)))
+        caster.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.TotemLienElan), 100);
+
+      if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemLienOurs)))
+        caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.totemLienOursAura, NwTimeSpan.FromRounds(10));
+
+      if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemLienLoup)))
+      {
+        caster.OnCreatureAttack -= CreatureUtils.OnAttackLoupKnockdown;
+        caster.OnCreatureAttack += CreatureUtils.OnAttackLoupKnockdown;
+      }
+
+      NwItem skin = caster.GetItemInSlot(InventorySlot.CreatureSkin);
+
+      if (skin is not null)
+      {
+        if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemEspritOurs)))
+        {
+          caster.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.TotemFerociteIndomptable), 1);
+
+          for (int i = 0; i < 17; i++)
+          {
+            ItemProperty bearResistance = ItemProperty.DamageImmunity((IPDamageType)i, IPDamageImmunityType.Immunity50Pct);
+            bearResistance.Creator = caster;
+            bearResistance.Tag = EffectSystem.BarbarianRageItemPropertyTag;
+
+            skin.AddItemProperty(bearResistance, EffectDuration.Temporary, NwTimeSpan.FromRounds(10));
+          }
+        }
+        else
+        {
+          ItemProperty physicalResistance = ItemProperty.DamageImmunity(IPDamageType.Physical, IPDamageImmunityType.Immunity50Pct);
+          physicalResistance.Creator = caster;
+          physicalResistance.Tag = EffectSystem.BarbarianRageItemPropertyTag;
+
+          skin.AddItemProperty(physicalResistance, EffectDuration.Temporary, NwTimeSpan.FromRounds(10));
+        }
+      }
+      else
+        LogUtils.LogMessage($"ERREUR - {caster.Name} ({caster.LoginPlayer?.PlayerName}) ne dispose pas de peau de créature", LogUtils.LogType.IllegalItems);
 
       byte barbarianLevel = caster.GetClassInfo(NwClass.FromClassType(ClassType.Barbarian)).Level;
 
@@ -69,9 +109,15 @@ namespace NWN.Systems
             case EffectSystem.FrightenedEffectTag: caster.RemoveEffect(eff); break;
           }
 
-      ModuleSystem.Log.Info($"------------{caster.GetFeatRemainingUses(Feat.BarbarianRage)}---------------");
+      if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemEspritElan)))
+        caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.elkTotemSpeed, NwTimeSpan.FromRounds(10));
 
-      if (caster.GetClassInfo(NwClass.FromClassType(ClassType.Barbarian))?.Level < 20)
+      if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemEspritLoup)))
+        caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.wolfTotemAura, NwTimeSpan.FromRounds(10));
+
+      bool freeRageRoll = BarbarianUtils.IsRatelTriggered(caster) ? Utils.random.Next(0, 2).ToBool() : false;
+        
+      if (caster.GetClassInfo(NwClass.FromClassType(ClassType.Barbarian))?.Level < 20 || freeRageRoll)
         FeatUtils.DecrementFeatUses(caster, (int)Feat.BarbarianRage);
 
       CreatureUtils.HandleBonusActionCooldown(caster);

@@ -47,6 +47,8 @@ namespace NWN.Systems
         bool saveFailed = totalSave < entry.baseDC; // TODO : Variabiliser le DD selon la compétence de celui qui a posé le piège
         int damage = NwRandom.Roll(Utils.random, entry.damageDice, entry.numDice); // TODO : Variabiliser les dégâts selon la compétence de l'artisan
 
+        LogUtils.LogMessage($"Dégâts initiaux : {damage}", LogUtils.LogType.Traps);
+
         damage = ItemUtils.GetShieldMasterReducedDamage(creature, damage, saveFailed);
 
         creature.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(entry.damageVFX));

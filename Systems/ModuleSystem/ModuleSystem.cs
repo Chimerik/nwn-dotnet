@@ -1241,6 +1241,7 @@ namespace NWN.Systems
       await NwTask.NextFrame();
       local.Delete();
     }
+
     [ScriptHandler("on_opportunity")]
     private void HandleCombatAOO(CallInfo callInfo)
     {
@@ -1258,6 +1259,12 @@ namespace NWN.Systems
       }
 
       if (creature.CurrentAction == Action.CastSpell) 
+      {
+        EventsPlugin.SkipEvent();
+        return;
+      }
+
+      if(creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemEspritAigle)) && creature.ActiveEffects.Any(e => e.Tag == EffectSystem.BarbarianRageEffectTag))
       {
         EventsPlugin.SkipEvent();
         return;

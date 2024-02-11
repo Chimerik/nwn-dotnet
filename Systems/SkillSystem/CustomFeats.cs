@@ -129,6 +129,36 @@
     public const int BersekerRepresailles = 1432;
     public const int BersekerPresenceIntimidante = 1433;
 
+    public const int TotemSpeakAnimal = 1434;
+    public const int TotemSensAnimal = 1435;
+    public const int TotemEspritOurs = 1436;
+    public const int TotemFerociteIndomptable = 1437;
+    public const int TotemEspritAigle = 1438;
+    public const int TotemEspritLoup = 1439;
+    public const int TotemHurlementGalvanisant = 1440;
+    public const int TotemEspritElan = 1441;
+
+    public const int Chargeur = 1442;
+
+    public const int TotemAspectOurs = 1443;
+    public const int TotemAspectAigle = 1444;
+    public const int TotemAspectLoup = 1445;
+    public const int TotemAspectElan = 1446;
+    public const int TotemAspectCrocodile = 1447;
+    public const int TotemAspectRatel = 1448;
+    public const int TotemAspectEtalon = 1449;
+    public const int TotemAspectTigre = 1450;
+    public const int TotemAspectGlouton = 1451;
+
+    public const int TotemCommunionAvecLaNature = 1452;
+
+    public const int TotemLienLoup = 1453;
+    public const int TotemLienElan = 1454;  
+    public const int TotemLienTigre = 1455;
+    public const int TotemLienOurs = 1456;
+
+    public const int WildMagicSense = 1457;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -564,7 +594,6 @@
     public const int Actor = 20487;
     public const int Vigilant = 20488;
     public const int Sportif = 20489;
-    public const int Chargeur = 20490;
     
     public const int DuellisteDefensif = 20492;
     public const int AmbiMaster = 20493;
@@ -608,6 +637,8 @@
     public const int BarbarianRage = 20530;
 
     public const int BarbarianBerseker = 20531;
+    public const int BarbarianTotem = 20532;
+    public const int BarbarianWildMagic = 20533;
 
     public const int Invalid = 65535;
   }

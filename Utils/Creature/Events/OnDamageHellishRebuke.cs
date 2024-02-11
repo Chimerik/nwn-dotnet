@@ -32,7 +32,7 @@ namespace NWN
       SpellConfig.SavingThrowFeedback feedback = new();
       int spellDC = SpellUtils.GetCasterSpellDC(onDamage.Creature, spell);
       int advantage = GetCreatureAbilityAdvantage(damager, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid);
-      int totalSave = SpellUtils.GetSavingThrowRoll(onDamage.Creature, spellEntry.savingThrowAbility, spellDC, advantage, feedback);
+      int totalSave = SpellUtils.GetSavingThrowRoll(onDamage.Creature, spellEntry.savingThrowAbility, spellDC, advantage, feedback, true);
       bool saveFailed = totalSave < spellDC;
 
       SpellUtils.SendSavingThrowFeedbackMessage(onDamage.Creature, damager, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);

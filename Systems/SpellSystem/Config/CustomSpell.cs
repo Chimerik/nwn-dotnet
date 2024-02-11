@@ -25,5 +25,8 @@
     public const int Druidisme = 861;
     public const int TirPerforant = 862;
     public const int PresenceIntimidante = 863;
+    public const int SensAnimal = 864;
+    public const int HurlementGalvanisant = 865;
+    public const int CommunionAvecLaNature = 865;
   }
 }

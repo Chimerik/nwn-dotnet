@@ -10,6 +10,7 @@
       Terror,
       Paralysis,
       Illusion,
+      Knockdown,
 
       Invalid
     }

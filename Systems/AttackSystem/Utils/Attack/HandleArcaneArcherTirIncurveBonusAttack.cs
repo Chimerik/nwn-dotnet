@@ -16,7 +16,7 @@ namespace NWN.Systems
       string targetName = $"{target.GetFirstName().GetSimple(0)} {target.GetLastName().GetSimple(0)}".ColorString(ColorConstants.Cyan);
       BroadcastNativeServerMessage($"{attackerName.ColorString(ColorConstants.Cyan)} courbe son tir vers {targetName}", attacker);
 
-      combatRound.AddCleaveAttack(target.m_idSelf);
+      combatRound.AddWhirlwindAttack(target.m_idSelf, 1);
       attacker.m_ScriptVars.DestroyObject(CreatureUtils.TirIncurveVariableExo);
     }
   }

@@ -1,4 +1,6 @@
-﻿namespace NWN.Systems
+﻿using Anvil.API;
+
+namespace NWN.Systems
 {
   public partial class PlayerSystem
   {
@@ -9,7 +11,8 @@
         oid.LoginCreature.OnAcquireItem -= ItemSystem.OnAcquireCheckHumanVersatility;
         oid.LoginCreature.OnUnacquireItem -= ItemSystem.OnUnAcquireCheckHumanVersatility;
 
-        if (learnableSkills.TryGetValue(CustomSkill.HumanVersatility, out LearnableSkill versatility) && versatility.currentLevel > 0)
+        if (oid.LoginCreature.Race.RacialType == RacialType.Human 
+          || oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemAspectOurs)))
         {
           oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireCheckHumanVersatility;
           oid.LoginCreature.OnUnacquireItem += ItemSystem.OnUnAcquireCheckHumanVersatility;

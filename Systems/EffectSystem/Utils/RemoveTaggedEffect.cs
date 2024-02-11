@@ -4,11 +4,11 @@ namespace NWN
 {
   public static partial class EffectUtils
   {
-    public static void RemoveTaggedEffect(NwCreature creature, string effectTag)
+    public static void RemoveTaggedEffect(NwGameObject target, string effectTag)
     {
-      foreach (var eff in creature.ActiveEffects)
+      foreach (var eff in target.ActiveEffects)
         if (eff.Tag == effectTag)
-          creature.RemoveEffect(eff);
+          target.RemoveEffect(eff);
     }
   }
 }

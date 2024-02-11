@@ -40,11 +40,29 @@ namespace NWN.Systems
 
       onIntervalTirAgrippantCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalTirAgrippant);
 
+      onIntervalSaignementCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalSaignement);
+      onRemoveSaignementCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveSaignement);
+
       onIntervalBarbarianRageCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalBarbarianRage);
       onRemoveBarbarianRageCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveBarbarianRage);
 
-      onIntervalPresenceIntimidanteCallback = scriptHandleFactory.CreateUniqueHandler(onIntervalPresenceIntimidante);
-      onEnterPresenceIntimidanteStyleCallback = scriptHandleFactory.CreateUniqueHandler(onEnterPresenceIntimidante);
+      onEnterWolfTotemAuraCallback = scriptHandleFactory.CreateUniqueHandler(onEnterWolfTotemAura);
+      onExitWolfTotemAuraCallback = scriptHandleFactory.CreateUniqueHandler(onExitWolfTotemAura);
+
+      onEnterElkAspectAuraCallback = scriptHandleFactory.CreateUniqueHandler(onEnterElkAspectAura);
+      onExitElkAspectAuraCallback = scriptHandleFactory.CreateUniqueHandler(onExitElkAspectAura);
+
+      onEnterWolfAspectAuraCallback = scriptHandleFactory.CreateUniqueHandler(onEnterWolfAspectAura);
+      onExitWolfAspectAuraCallback = scriptHandleFactory.CreateUniqueHandler(onExitWolfAspectAura);
+
+      onEnterTotemLienOursCallback = scriptHandleFactory.CreateUniqueHandler(onEnterTotemLlienOursAura);
+      onExitTotemLienOursCallback = scriptHandleFactory.CreateUniqueHandler(onExitTotemLienOursAura);
+
+      onEnterTotemLienElanCallback = scriptHandleFactory.CreateUniqueHandler(onEnterTotemLienElanAura);
+      onRemoveTotemLienElanCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveTotemLienElanAura);
+
+      onEnterWildMagicAwarenessCallback = scriptHandleFactory.CreateUniqueHandler(onEnterWildMagicAwarenessAura);
+      onExitWildMagicAwarenessCallback = scriptHandleFactory.CreateUniqueHandler(onExitWildMagicAwarenessAura);
     }
   }
 }

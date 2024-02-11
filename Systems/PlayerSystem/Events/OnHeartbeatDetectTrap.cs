@@ -19,6 +19,9 @@ namespace NWN.Systems
       if (!onHB.Creature.DetectModeActive)
         perceptionSkill /= 2;
 
+      perceptionRoll = Utils.RollAdvantage(CreatureUtils.GetCreatureSkillAdvantage(onHB.Creature, CustomSkill.PerceptionProficiency)
+            + CreatureUtils.GetCreatureAbilityAdvantage(onHB.Creature, Ability.Wisdom), false);
+
       foreach (var trap in onHB.Creature.Location.GetObjectsInShapeByType<NwGameObject>(Shape.Sphere, 
         onHB.Creature.DetectModeActive || onHB.Creature.KnowsFeat(Feat.KeenSense) ? 6.66f : 3.33f, true))
       {
@@ -26,8 +29,6 @@ namespace NWN.Systems
         {
           if (!plc.IsTrapped || plc.IsTrapDetectedBy(onHB.Creature))
             continue;
-
-          perceptionRoll = NwRandom.Roll(Utils.random, 20);
 
           if (plc.TrapDetectDC < perceptionRoll +perceptionSkill)
             plc.SetTrapDetectedBy(true, onHB.Creature);
@@ -37,8 +38,6 @@ namespace NWN.Systems
           if (!door.IsTrapped || door.IsTrapDetectedBy(onHB.Creature))
             continue;
 
-          perceptionRoll = NwRandom.Roll(Utils.random, 20);
-
           if (door.TrapDetectDC < perceptionRoll + perceptionSkill)
             door.SetTrapDetectedBy(true, onHB.Creature);
         }
@@ -46,8 +45,6 @@ namespace NWN.Systems
         {
           if(!trigger.IsTrapped || trigger.IsTrapDetectedBy(onHB.Creature))
             continue;
-
-          perceptionRoll = NwRandom.Roll(Utils.random, 20);
 
           if (trigger.TrapDetectDC < perceptionRoll + perceptionSkill)
             trigger.SetTrapDetectedBy(true, onHB.Creature);

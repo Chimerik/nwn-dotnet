@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using Anvil.API;
-using NWN.Native.API;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {

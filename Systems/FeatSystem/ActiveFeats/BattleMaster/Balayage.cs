@@ -10,9 +10,10 @@ namespace NWN.Systems
 
       if (weapon is not null && weapon.BaseItem.NumDamageDice > 0 && !weapon.IsRangedWeapon)
       {
-        caster.OnCreatureAttack -= CreatureUtils.OnAttackBalayage;
-        caster.OnCreatureAttack += CreatureUtils.OnAttackBalayage;
+        //caster.OnCreatureAttack -= CreatureUtils.OnAttackBalayage;
+        //caster.OnCreatureAttack += CreatureUtils.OnAttackBalayage;
 
+        caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ManoeuvreBalayageTargetVariable).Value = 1;
         FeatUtils.DecrementManoeuvre(caster);
       }
       else

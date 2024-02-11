@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Anvil.API;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -12,7 +11,8 @@ namespace NWN.Systems
       if (!fighterLevel.HasValue || fighterLevel.Value < 9)
         return saveRoll;
 
-      int reroll = NwRandom.Roll(Utils.random, 20) - fighterLevel.Value < 13 ? 2 : fighterLevel.Value < 17 ? 1 : 0;
+      int malus = fighterLevel.Value < 13 ? 2 : fighterLevel.Value < 17 ? 1 : 0;
+      int reroll = NwRandom.Roll(Utils.random, 20) - malus;
       LogUtils.LogMessage($"Echec JDS => Inflexible rerolled => {reroll}", LogUtils.LogType.Combat);
 
       return reroll;

@@ -17,7 +17,7 @@ namespace NWN.Systems
         string targetName = $"{target.GetFirstName().GetSimple(0)} {target.GetLastName().GetSimple(0)}".ColorString(ColorConstants.Cyan);
         BroadcastNativeServerMessage($"{attackerName.ColorString(ColorConstants.Cyan)} représailles contre {targetName}", attacker);
 
-        round.AddCleaveAttack(target.m_idSelf);
+        round.AddWhirlwindAttack(target.m_idSelf, 1);
       }
     }
   }

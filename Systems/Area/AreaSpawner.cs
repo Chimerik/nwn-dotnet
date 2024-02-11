@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Security.Cryptography;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace NWN.Systems
 {
@@ -84,6 +85,9 @@ namespace NWN.Systems
       if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Broyeur)))
         creature.OnCreatureAttack += CreatureUtils.OnAttackBroyeur;
 
+      if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemAspectGlouton)))
+        creature.OnCreatureAttack += CreatureUtils.OnAttackAspectGlouton;
+
       if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Pourfendeur)))
       {
         creature.OnCreatureAttack += CreatureUtils.OnAttackPourfendeur;
@@ -122,6 +126,10 @@ namespace NWN.Systems
             creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetUnarmoredDefenseEffect(creature.GetAbilityModifier(Ability.Constitution)));
         }
       }
+
+      if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemAspectElan)))
+        creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.elkAspectAura);
+
       var creatureLoop = scheduler.ScheduleRepeating(() => CreatureUtils.CreatureHealthRegenLoop(creature), TimeSpan.FromSeconds(1));
 
       await NwTask.WaitUntil(() => creature == null || !creature.IsValid);

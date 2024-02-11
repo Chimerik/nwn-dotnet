@@ -17,7 +17,7 @@ namespace NWN.Systems
         string targetName = $"{target.GetFirstName().GetSimple(0)} {target.GetLastName().GetSimple(0)}".ColorString(ColorConstants.Cyan);
         BroadcastNativeServerMessage($"Opportunité du maître d'Hast {attackerName.ColorString(ColorConstants.Cyan)} contre {targetName}", attacker);
 
-        combatRound.AddCleaveAttack(attacker.m_ScriptVars.GetObject(CreatureUtils.HastMasterOpportunityVariableExo));
+        combatRound.AddWhirlwindAttack(attacker.m_ScriptVars.GetObject(CreatureUtils.HastMasterOpportunityVariableExo), 1);
         attacker.m_ScriptVars.DestroyObject(CreatureUtils.HastMasterOpportunityVariableExo);
         attacker.m_ScriptVars.SetInt(CreatureUtils.SentinelleOpportunityVariableExo, 1);
       }

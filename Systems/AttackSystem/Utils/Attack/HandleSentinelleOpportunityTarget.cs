@@ -1,5 +1,4 @@
 ﻿using Anvil.API;
-using NWN.Core;
 using NWN.Native.API;
 
 namespace NWN.Systems
@@ -10,13 +9,13 @@ namespace NWN.Systems
     {
       var target = NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(attacker.m_ScriptVars.GetObject(CreatureUtils.ManoeuvreBalayageTargetVariableExo));
 
-      if (target is null || !NWScript.GetIsObjectValid(target.m_idSelf).ToBool())
+      if (target is null || target.m_idSelf == 0x7F000000) // OBJECT_INVALID
         return;
 
       string targetName = $"{target.GetFirstName().GetSimple(0)} {target.GetLastName().GetSimple(0)}".ColorString(ColorConstants.Cyan);
       BroadcastNativeServerMessage($"Frappe sentinelle de {attackerName.ColorString(ColorConstants.Cyan)} contre {targetName}", attacker);
 
-      combatRound.AddCleaveAttack(target.m_idSelf);
+      combatRound.AddWhirlwindAttack(target.m_idSelf, 1);
       attacker.m_ScriptVars.DestroyObject(CreatureUtils.SentinelleOpportunityTargetVariableExo);
     }
   }

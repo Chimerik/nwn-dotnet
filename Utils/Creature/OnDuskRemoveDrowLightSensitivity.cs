@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Security.Cryptography;
 using Anvil.API;
 using Anvil.Services;
 
@@ -11,17 +12,20 @@ namespace NWN.Systems
     {
       foreach (NwPlayer player in NwModule.Instance.Players)
       {
-        switch(player.LoginCreature.Race.Id)
+        if (player.LoginCreature is not null)
         {
-          case CustomRace.Drow:
-          case CustomRace.Duergar:
+          switch (player.LoginCreature.Race.Id)
+          {
+            case CustomRace.Drow:
+            case CustomRace.Duergar:
 
-            foreach(var eff in player.LoginCreature.ActiveEffects)
-              if(eff.Tag == EffectSystem.lightSensitivityEffectTag)
-                player.LoginCreature.RemoveEffect(eff);
+              foreach (var eff in player.LoginCreature.ActiveEffects)
+                if (eff.Tag == EffectSystem.lightSensitivityEffectTag)
+                  player.LoginCreature.RemoveEffect(eff);
 
-            break;
-        }          
+              break;
+          }
+        }
       }
     }
   }

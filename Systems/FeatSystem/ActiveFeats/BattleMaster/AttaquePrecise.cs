@@ -13,9 +13,8 @@ namespace NWN.Systems
 
         caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ManoeuvreTypeVariable).Value = CustomSkill.WarMasterAttaquePrecise;
         caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ManoeuvreDiceVariable).Value = superiorityDice;
-
-        StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Attaque Précise", StringUtils.gold);
-
+        
+        caster.LoginPlayer?.SendServerMessage("Vous préparez une attaque précise", ColorConstants.Orange);
         FeatUtils.DecrementManoeuvre(caster);
       }
       else

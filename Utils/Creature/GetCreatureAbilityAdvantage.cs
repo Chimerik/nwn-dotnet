@@ -14,6 +14,7 @@ namespace NWN
       {
         { EffectSystem.ShieldArmorDisadvantageEffectTag, false } ,
         { EffectSystem.FrightenedEffectTag, false } ,
+        { EffectSystem.SaignementEffectTag, false } ,
       };
 
       Dictionary<string, bool> advantageDictionary = new()
@@ -51,11 +52,22 @@ namespace NWN
 
             disadvantageDictionary[EffectSystem.ShieldArmorDisadvantageEffectTag] = disadvantageDictionary[EffectSystem.ShieldArmorDisadvantageEffectTag] || EffectSystem.ShieldArmorDisadvantageEffectTag == eff.Tag;
             break;
+
+          case Ability.Constitution:
+            disadvantageDictionary[EffectSystem.SaignementEffectTag] = disadvantageDictionary[EffectSystem.SaignementEffectTag] || EffectSystem.SaignementEffectTag == eff.Tag;
+            break;
         }
       }
 
       switch(ability)
       {
+        case Ability.Strength:
+
+          if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemAspectOurs)))
+            advantage += 1;
+
+          break;
+
         case Ability.Dexterity:
 
           if (creature.GetClassInfo(NwClass.FromClassType(ClassType.Barbarian))?.Level > 1 && !creature.ActiveEffects.Any(e => e.EffectType == EffectType.Blindness || e.EffectType == EffectType.Deaf))
@@ -105,6 +117,13 @@ namespace NWN
         case SpellEffectType.Illusion:
 
           if (creature.Race.Id == CustomRace.Duergar)
+            advantage += 1;
+
+          break;
+
+        case SpellEffectType.Knockdown:
+
+          if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemAspectCrocodile)))
             advantage += 1;
 
           break;

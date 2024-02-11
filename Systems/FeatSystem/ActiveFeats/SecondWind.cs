@@ -1,11 +1,10 @@
-﻿using System.Linq;
-using Anvil.API;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {
   public partial class FeatSystem
   {
-    private static void SecondWind(NwCreature caster)
+    private static async void SecondWind(NwCreature caster)
     {
       if (caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value > 0)
       {
@@ -18,10 +17,11 @@ namespace NWN.Systems
 
         StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} utilise {"Second Souffle".ColorString(ColorConstants.White)}", ColorConstants.Orange, true);
 
+        await NwTask.NextFrame();
         CreatureUtils.HandleBonusActionCooldown(caster);
       }
       else
-        caster?.LoginPlayer?.SendServerMessage("Vous avez déjà utilisé toutes vos actions bonus pour ce round !", ColorConstants.Orange);
+        caster?.LoginPlayer?.SendServerMessage("Aucune action bonus disponible", ColorConstants.Orange);
     }
   }
 }

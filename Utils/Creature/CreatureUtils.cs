@@ -60,6 +60,16 @@ namespace NWN
     public const string FrappeFrenetiqueVariable = "_FRAPPE_FRENETIQUE_BONUS";
     public readonly static CExoString FrappeFrenetiqueVariableExo = FrappeFrenetiqueVariable.ToExoString();
 
+    public const string AspectTigreVariable = "_ASPECT_TIGRE";
+    public readonly static CExoString AspectTigreVariableExo = AspectTigreVariable.ToExoString();
+
+    public const string AspectTigreMalusVariable = "_ASPECT_TIGRE_MALUS";
+    public readonly static CExoString AspectTigreMalusVariableExo = AspectTigreMalusVariable.ToExoString();
+
+    public const string TigerAspectBleedVariable = "_APPLY_BLEED";
+    public const string ApplyBleedVariable = "_APPLY_BLEED";
+    public readonly static CExoString ApplyBleedVariableExo = ApplyBleedVariable.ToExoString();
+
     public const string FrappeFrenetiqueMalusVariable = "_FRAPPE_FRENETIQUE_MALUS";
     public readonly static CExoString FrappeFrenetiqueMalusVariableExo = FrappeFrenetiqueMalusVariable.ToExoString();
 

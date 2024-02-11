@@ -16,36 +16,17 @@ namespace NWN.Systems
       {
         if (target.m_nCurrentHitPoints - damageDealt < 1)
         {
-          foreach (var gameObject in attacker.GetArea().m_aGameObjects)
-          {
-            if (gameObject == attacker.m_idSelf || gameObject == target.m_idSelf)
-              continue;
+          var newTarget = NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(attacker.GetNearestEnemy(3, target.m_idSelf, 1, 1));
 
-            var creature = NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(gameObject);
+          if (newTarget is null || newTarget.m_idSelf == 0x7F000000) // OBJECT_INVALID
+            return;
 
-            if (creature is null || creature.m_nCurrentHitPoints < 1)
-              continue;
+          string targetName = $"{newTarget.GetFirstName().GetSimple(0)} {newTarget.GetLastName().GetSimple(0)}".ColorString(ColorConstants.Cyan);
+          BroadcastNativeServerMessage($"{attackerName.ColorString(ColorConstants.Cyan)} cogneur lourd contre {targetName}", attacker);
 
-            if (creature.m_bPlayerCharacter > 0)
-            {
-              if (creature.GetPVPReputation(attacker.m_idSelf) > 49)
-                continue;
-            }
-            else
-            {
-              if (attacker.GetCreatureReputation(creature.m_idSelf, creature.m_nOriginalFactionId, 0) > 49)
-                continue;
-            }
+          combatRound.AddWhirlwindAttack(newTarget.m_idSelf, 1);
+          attacker.m_ScriptVars.SetInt(Config.isBonusActionAvailableVariable, attacker.m_ScriptVars.GetInt(Config.isBonusActionAvailableVariable) - 1);
 
-            if (Vector3.Distance(attacker.m_vPosition.ToManagedVector(), creature.m_vPosition.ToManagedVector()) > 3)
-              continue;
-
-            string targetName = $"{target.GetFirstName().GetSimple(0)} {target.GetLastName().GetSimple(0)}".ColorString(ColorConstants.Cyan);
-            BroadcastNativeServerMessage($"{attackerName.ColorString(ColorConstants.Cyan)} cogneur lourd contre {targetName}", attacker);
-
-            combatRound.AddCleaveAttack(target.m_idSelf);
-            attacker.m_ScriptVars.SetInt(Config.isBonusActionAvailableVariable, attacker.m_ScriptVars.GetInt(Config.isBonusActionAvailableVariable) - 1);
-          }
         }
         else
         {

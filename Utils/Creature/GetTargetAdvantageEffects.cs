@@ -18,6 +18,7 @@ namespace NWN
         { "petrified", false },
         { EffectSystem.faerieFireEffectTag, false },
         { EffectSystem.RecklessAttackEffectTag, false },
+        { EffectSystem.WolfTotemEffectTag, false },
       };
 
       Dictionary<string, bool> disadvantageDictionary = new()
@@ -38,6 +39,7 @@ namespace NWN
         advantageDictionary["petrified"] = advantageDictionary["petrified"] || GetTargetPetrifiedAdvantage(eff);
         advantageDictionary[EffectSystem.faerieFireEffectTag] = advantageDictionary[EffectSystem.faerieFireEffectTag] || GetTargetFaerieFireAdvantage(eff);
         advantageDictionary[EffectSystem.RecklessAttackEffectTag] = advantageDictionary[EffectSystem.RecklessAttackEffectTag] || GetAgainstRecklessAttackAdvantage(eff);
+        advantageDictionary[EffectSystem.WolfTotemEffectTag] = advantageDictionary[EffectSystem.WolfTotemEffectTag] || GetWolfTotemAttackAdvantage(eff);
       }
 
       return -disadvantageDictionary.Count(v => v.Value) + advantageDictionary.Count(v => v.Value);

@@ -420,6 +420,9 @@ namespace NWN.Systems
         InitializeSubClassChoice();
         InitializeManoeuvreChoice();
         InitializeTirArcaniqueChoice();
+        InitializeEspritTotemChoice();
+        InitializeAspectTotemChoice();
+        InitializeLienTotemChoice();
         ResetFlameBlade();
         ResetSize();
         ApplyProtectionStyle();
@@ -435,6 +438,9 @@ namespace NWN.Systems
         ApplyUltimeSurvivant();
         ApplyShieldArmorMalus();
         ApplyUnarmoredDefence();
+        InitializeActionSurge();
+        ApplyElkAspect();
+        ApplyGloutonAspect();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

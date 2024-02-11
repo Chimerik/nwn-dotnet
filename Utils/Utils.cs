@@ -20,7 +20,7 @@ namespace NWN
       MailNotification = 1,
       MailDistantAccess = 2
     }
-    public static int RollAdvantage(int advantage)
+    public static int RollAdvantage(int advantage, bool displayLogs = true)
     {
       int attackRoll = 0;
       int tempAttackRoll;
@@ -31,18 +31,26 @@ namespace NWN
       {
         attackRoll = NwRandom.Roll(random, 20);
         tempAttackRoll = NwRandom.Roll(random, 20);
-        LogUtils.LogMessage($"Jet avec avantage : {attackRoll} et {tempAttackRoll}", LogUtils.LogType.Combat);
+
+        if(displayLogs)
+          LogUtils.LogMessage($"Jet avec avantage : {attackRoll} et {tempAttackRoll}", LogUtils.LogType.Combat);
+        
         attackRoll = attackRoll > tempAttackRoll ? attackRoll : tempAttackRoll;
       }
       else if (advantage < 0)
       {
         attackRoll = NwRandom.Roll(random, 20);
         tempAttackRoll = NwRandom.Roll(random, 20);
-        LogUtils.LogMessage($"Jet avec désavantage : {attackRoll} et {tempAttackRoll}", LogUtils.LogType.Combat);
+
+        if (displayLogs)
+          LogUtils.LogMessage($"Jet avec désavantage : {attackRoll} et {tempAttackRoll}", LogUtils.LogType.Combat);
+        
         attackRoll = attackRoll < tempAttackRoll ? attackRoll : tempAttackRoll;
       }
 
-      LogUtils.LogMessage($"Jet : {attackRoll}", LogUtils.LogType.Combat);
+      if (displayLogs)
+        LogUtils.LogMessage($"Jet : {attackRoll}", LogUtils.LogType.Combat);
+
       return attackRoll;
     }
     public static void LogMessageToDMs(string message)

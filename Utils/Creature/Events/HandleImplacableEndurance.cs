@@ -9,7 +9,7 @@ namespace NWN
   {
     public static void HandleImplacableEndurance(CreatureEvents.OnDamaged onDamage)
     {
-      if (onDamage.Creature.HP - onDamage.DamageAmount < 1)
+      if (onDamage.Creature.HP < 1)
       {
         //onDamage.Creature.ApplyEffect(EffectDuration.Temporary, Effect.TemporaryHitpoints(onDamage.DamageAmount - onDamage.Creature.HP + 1), TimeSpan.FromSeconds(6));
         onDamage.Creature.HP = 1;

@@ -7,7 +7,7 @@ namespace NWN
   public static partial class CreatureUtils
   {
     public static bool GetSkillDuelResult(NwCreature attacker, NwCreature target, List<Ability> attackerAbilities,
-      List<Ability> targetAbilities, List<int> attackerSkills, List<int> targetSkills)
+      List<Ability> targetAbilities, List<int> attackerSkills, List<int> targetSkills, SpellConfig.SpellEffectType effectType = SpellConfig.SpellEffectType.Invalid)
     {
       int attackerScore = 0;
       Ability attackerAbility = Ability.Strength;
@@ -34,7 +34,7 @@ namespace NWN
       }
 
       int attackerAdvantage = GetCreatureAbilityAdvantage(attacker, attackerAbility);
-      int targetAdvantage = GetCreatureAbilityAdvantage(target, targetAbility);
+      int targetAdvantage = GetCreatureAbilityAdvantage(target, targetAbility, effectType: SpellConfig.SpellEffectType.Knockdown);
 
       int attackerRoll = Utils.RollAdvantage(attackerAdvantage);
       int targetRoll = Utils.RollAdvantage(targetAdvantage);
@@ -48,7 +48,7 @@ namespace NWN
 
       string rollString = $"JDS {StringUtils.TranslateAttributeToFrench(targetAbility)}{targetAdvantageString} {StringUtils.IntToColor(targetRoll, hitColor)} + {StringUtils.IntToColor(targetScore, hitColor)} = {StringUtils.IntToColor(targetRoll + targetScore, hitColor)} vs DD {StringUtils.IntToColor(attackerRoll + attackerScore, hitColor)}";
 
-      attacker.LoginPlayer?.SendServerMessage($"{target.Name.ColorString(ColorConstants.Cyan)} - {rollString} {hitString}".ColorString(ColorConstants.Orange));
+      attacker.LoginPlayer?.SendServerMessage($"{target.Name.ColorString(ColorConstants.Cyan)} - {attackerAdvantageString}{rollString} {hitString}".ColorString(ColorConstants.Orange));
       target.LoginPlayer?.SendServerMessage($"{attacker.Name.ColorString(ColorConstants.Cyan)} - {targetAdvantageString}{rollString} {hitString}".ColorString(ColorConstants.Orange));
 
 

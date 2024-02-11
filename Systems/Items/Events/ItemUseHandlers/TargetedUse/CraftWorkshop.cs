@@ -24,8 +24,8 @@ namespace NWN.Systems
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemNotEquipped, onUse.UsedBy.ControllingPlayer);
           onUse.PreventUseItem = true;
 
-          if (!player.windows.ContainsKey("craftWorkshop")) player.windows.Add("craftWorkshop", new PlayerSystem.Player.WorkshopWindow(player, onUse.TargetObject.Tag, onUse.Item));
-          else ((PlayerSystem.Player.WorkshopWindow)player.windows["craftWorkshop"]).CreateWindow(onUse.TargetObject.Tag, onUse.Item);
+          if (!player.windows.TryGetValue("craftWorkshop", out var value)) player.windows.Add("craftWorkshop", new PlayerSystem.Player.WorkshopWindow(player, onUse.TargetObject.Tag, onUse.Item));
+          else ((PlayerSystem.Player.WorkshopWindow)value).CreateWindow(onUse.TargetObject.Tag, onUse.Item);
 
           break;
         }
