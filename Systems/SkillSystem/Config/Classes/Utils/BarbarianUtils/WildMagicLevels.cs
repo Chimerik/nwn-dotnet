@@ -19,20 +19,27 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.WildMagicSense].LevelUp(player);
           player.learnableSkills[CustomSkill.WildMagicSense].source.Add(Category.Class);
 
+          player.learnableSkills.TryAdd(CustomSkill.WildMagicTeleportation, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.WildMagicTeleportation], player));
+          player.learnableSkills[CustomSkill.WildMagicTeleportation].LevelUp(player);
+          player.learnableSkills[CustomSkill.WildMagicTeleportation].source.Add(Category.Class);
+
           break;
 
         case 6:
 
-          if (!player.windows.TryGetValue("aspectTotemSelection", out var aspect)) player.windows.Add("aspectTotemSelection", new AspectTotemSelectionWindow(player));
-          else ((AspectTotemSelectionWindow)aspect).CreateWindow();
+          player.learnableSkills.TryAdd(CustomSkill.WildMagicMagieGalvanisanteBienfait, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.WildMagicMagieGalvanisanteBienfait], player));
+          player.learnableSkills[CustomSkill.WildMagicMagieGalvanisanteBienfait].LevelUp(player);
+          player.learnableSkills[CustomSkill.WildMagicMagieGalvanisanteBienfait].source.Add(Category.Class);
+
+          player.learnableSkills.TryAdd(CustomSkill.WildMagicMagieGalvanisanteRecuperation, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.WildMagicMagieGalvanisanteRecuperation], player));
+          player.learnableSkills[CustomSkill.WildMagicMagieGalvanisanteRecuperation].LevelUp(player);
+          player.learnableSkills[CustomSkill.WildMagicMagieGalvanisanteRecuperation].source.Add(Category.Class);
 
           break;
 
-        case 10:
+        case 14:
 
-          player.learnableSkills.TryAdd(CustomSkill.TotemCommunionAvecLaNature, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.TotemCommunionAvecLaNature], player));
-          player.learnableSkills[CustomSkill.TotemCommunionAvecLaNature].LevelUp(player);
-          player.learnableSkills[CustomSkill.TotemCommunionAvecLaNature].source.Add(Category.Class);
+          // TODO : table de priorité des effets de magie sauvage
 
           break;
       }

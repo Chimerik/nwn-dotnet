@@ -121,7 +121,12 @@ namespace NWN.Systems
         FeatUtils.DecrementFeatUses(caster, (int)Feat.BarbarianRage);
 
       if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.WildMagicSense)))
+      {
         HandleWildMagicRage(caster);
+
+        if (caster.GetClassInfo(NwClass.FromClassType(ClassType.Barbarian))?.Level > 9)
+          caster.OnDamaged += BarbarianUtils.OnDamagedWildMagic;
+      }
 
       CreatureUtils.HandleBonusActionCooldown(caster);
     }

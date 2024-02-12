@@ -34,6 +34,7 @@ namespace NWN.Systems
       target.OnItemEquip -= ItemSystem.OnEquipBarbarianRage;
       target.OnSpellAction -= SpellSystem.CancelSpellBarbarianRage;
       target.OnDamaged -= CreatureUtils.OnDamagedRageImplacable;
+      target.OnDamaged -= BarbarianUtils.OnDamagedWildMagic;
 
       target.GetObjectVariable<LocalVariableInt>(CreatureUtils.AspectTigreVariable).Delete();
 
@@ -77,10 +78,14 @@ namespace NWN.Systems
       }
 
       if (target.KnowsFeat(NwFeat.FromFeatId(CustomSkill.WildMagicSense)))
+      {
         foreach (var eff in target.ActiveEffects)
           if (eff.Tag == WildMagicEspritIntangibleEffectTag || eff.Tag == WildMagicRayonDeLumiereEffectTag || eff.Tag == wildMagicRepresaillesEffectTag
             || eff.Tag == LumieresProtectricesAuraEffectTag)
             target.RemoveEffect(eff);
+
+        target.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WildMagicTeleportation), 0);
+      }
 
       NwItem skin = target.GetItemInSlot(InventorySlot.CreatureSkin);
 

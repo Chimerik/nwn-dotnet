@@ -11,8 +11,15 @@ namespace NWN.Systems
         + target.GetAbilityModifier(ability)
         + ItemUtils.GetShieldMasterBonusSave(target, ability);
 
-      if(fromSpell && target.ActiveEffects.Any(e => e.Tag == EffectSystem.SensDeLaMagieEffectTag))
-        proficiencyBonus += NativeUtils.GetCreatureProficiencyBonus(target);
+      if(target.ActiveEffects.Any(e => e.Tag == EffectSystem.SensDeLaMagieEffectTag))
+        foreach(var eff in target.ActiveEffects)
+        {
+          switch(eff.Tag) 
+          {
+            case EffectSystem.SensDeLaMagieEffectTag: if(fromSpell) proficiencyBonus += NativeUtils.GetCreatureProficiencyBonus(target); break;
+            case EffectSystem.WildMagicBienfaitEffectTag: proficiencyBonus += NwRandom.Roll(Utils.random, 4); break;
+          }
+        }
 
       int saveRoll = Utils.RollAdvantage(advantage);
       saveRoll = NativeUtils.HandleChanceDebordante(target, saveRoll);

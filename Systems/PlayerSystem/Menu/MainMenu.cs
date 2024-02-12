@@ -528,9 +528,17 @@ namespace NWN.Systems
                     && player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Fighter))?.Level < 17)
                       player.oid.LoginCreature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.FighterSurge), 1);
 
-                    if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.WildMagicSense)))
+                    if (player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.WildMagicSense)))
+                    {
                       player.oid.LoginCreature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WildMagicSense), (byte)NativeUtils.GetCreatureProficiencyBonus(player.oid.LoginCreature));
+                      player.oid.LoginCreature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WildMagicTeleportation), 0);
 
+                      if (player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.WildMagicMagieGalvanisanteBienfait)))
+                        player.oid.LoginCreature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WildMagicMagieGalvanisanteBienfait), (byte)NativeUtils.GetCreatureProficiencyBonus(player.oid.LoginCreature));
+
+                      if (player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.WildMagicMagieGalvanisanteRecuperation)))
+                        player.oid.LoginCreature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WildMagicMagieGalvanisanteRecuperation), (byte)NativeUtils.GetCreatureProficiencyBonus(player.oid.LoginCreature));
+                    }
                     break;
                 }
                 break;

@@ -15,7 +15,7 @@ namespace NWN.Systems
         case 5: caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.wildMagicLumieresProtectrices, NwTimeSpan.FromRounds(10)); break;
         case 6: WildMagicArmeInfusee(caster); break;
         case 7: caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.wildMagicCroissanceVegetale, NwTimeSpan.FromRounds(10)); break;
-        case 8: /*WildMagicTeleportation(caster);*/ break;
+        case 8: caster.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WildMagicTeleportation), 1); break;
       }
     }
   }

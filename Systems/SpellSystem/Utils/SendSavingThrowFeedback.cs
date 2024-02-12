@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -16,6 +17,16 @@ namespace NWN.Systems
 
       if (target != caster)
         target.LoginPlayer?.SendServerMessage($"{caster.Name.ColorString(ColorConstants.Cyan)} - {advantageString}{rollString} {hitString}".ColorString(ColorConstants.Orange));
+
+      if(saveFailed && caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.WildMagicMagieGalvanisanteBienfait)) 
+        && caster.GetClassInfo(NwClass.FromClassType(ClassType.Barbarian))?.Level > 9
+        && caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value > 0
+        && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.BarbarianRageEffectTag))
+      {
+        BarbarianUtils.DispelWildMagicEffects(caster);
+        SpellSystem.HandleWildMagicRage(caster);
+        caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value -= 1;
+      }
     }
   }
 }

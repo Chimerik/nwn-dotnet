@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Anvil.API;
 using NWN.Systems;
 using NativeUtils = NWN.Systems.NativeUtils;
@@ -35,10 +36,15 @@ namespace NWN
           }
         }
 
-        return score + creature.GetAbilityModifier(ability);
+        score += creature.GetAbilityModifier(ability);
       }
 
-      return score += NativeUtils.GetCreatureProficiencyBonus(creature);
+      score += NativeUtils.GetCreatureProficiencyBonus(creature);
+
+      if (creature.ActiveEffects.Any(e => e.Tag == EffectSystem.WildMagicBienfaitEffectTag))
+        score += NwRandom.Roll(Utils.random, 4);
+
+      return score;
     }
   }
 }

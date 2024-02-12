@@ -74,6 +74,9 @@ namespace NWN.Systems
         case CustomSkill.TotemAspectTigre: AspectTigre(onUseFeat.Creature); return;
         case CustomSkill.TotemLienElan: LienElan(onUseFeat.Creature); return;
         case CustomSkill.WildMagicSense: SensDeLaMagie(onUseFeat.Creature); return;
+        case CustomSkill.WildMagicTeleportation: Teleportation(onUseFeat.Creature); return;
+        case CustomSkill.WildMagicMagieGalvanisanteBienfait: Bienfait(onUseFeat.Creature, onUseFeat.TargetObject); return;
+        case CustomSkill.WildMagicMagieGalvanisanteRecuperation: Recuperation(onUseFeat.Creature, onUseFeat.TargetObject); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

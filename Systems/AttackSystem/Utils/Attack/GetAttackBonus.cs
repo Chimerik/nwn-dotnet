@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Linq;
+using System.Numerics;
 using Anvil.API;
 using NWN.Core;
 using NWN.Native.API;
@@ -39,6 +40,13 @@ namespace NWN.Systems
           attackBonus -= 5;
           LogUtils.LogMessage("Tireur d'élite : -5 BA", LogUtils.LogType.Combat);
         }
+      }
+
+      if(attacker.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.RecklessAttackEffectExoTag).ToBool()))
+      {
+        int boonBonus = NwRandom.Roll(Utils.random, 4);
+        attackBonus += boonBonus;
+        LogUtils.LogMessage($"Magie Sauvage : +{boonBonus} BA", LogUtils.LogType.Combat);
       }
 
       int frappeFrenetiqueMalus = attacker.m_pStats.m_pBaseCreature.m_ScriptVars.GetInt(CreatureUtils.FrappeFrenetiqueMalusVariableExo);
