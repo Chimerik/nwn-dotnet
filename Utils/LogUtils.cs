@@ -36,7 +36,6 @@ namespace NWN
       PlayerDeath,
       DMAction,
       LootSystem,
-      Traps
     }
 
     public static readonly Dictionary<LogType, Queue<string>> logPile = new();

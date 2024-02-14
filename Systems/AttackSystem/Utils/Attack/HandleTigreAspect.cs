@@ -25,6 +25,7 @@ namespace NWN.Systems
         string targetName = $"{target.GetFirstName().GetSimple(0)} {target.GetLastName().GetSimple(0)}".ColorString(ColorConstants.Cyan);
         BroadcastNativeServerMessage($"{attackerName.ColorString(ColorConstants.Cyan)} rage du tigre {targetName}", attacker);
         combatRound.AddWhirlwindAttack(target.m_idSelf, 1);
+        LogUtils.LogMessage($"Attaque supplémentaire - Rage du tigre", LogUtils.LogType.Combat);
       }
 
       if (attacker.m_ScriptVars.GetInt(CreatureUtils.AspectTigreMalusVariableExo).ToBool())

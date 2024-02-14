@@ -19,6 +19,8 @@ namespace NWN
     public static readonly CExoString ReactionVariableExo = ReactionVariable.ToExoString();
     public const string BonusActionVariable = "_BONUS_ACTION";
     public static readonly CExoString BonusActionVariableExo = BonusActionVariable.ToExoString();
+    public const string OpportunityAttackTypeVariable = "_OPPORTUNITY_ATTACK_TYPE";
+    public static readonly CExoString OpportunityAttackTypeVariableExo = OpportunityAttackTypeVariable.ToExoString();
     public const string BersekerRepresaillesVariable = "_BERSEKER_REPRESAILLES";
     public static readonly CExoString BersekerRepresaillesVariableExo = BersekerRepresaillesVariable.ToExoString();
     public const string HastMasterCooldownVariable = "_HAST_MASTER_IN_COOLDOWN";

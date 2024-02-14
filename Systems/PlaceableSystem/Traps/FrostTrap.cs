@@ -21,6 +21,7 @@ namespace NWN.Systems
       {
         damage /= 2;
         creature?.LoginPlayer.DisplayFloatingTextStringOnCreature(creature, "Expert en donjons".ColorString(StringUtils.gold));
+        LogUtils.LogMessage($"{creature.Name} - Expert en donjons - Résistance aux dégâts du piège", LogUtils.LogType.Combat);
       }
 
       if (creature.IsLoginPlayerCharacter)

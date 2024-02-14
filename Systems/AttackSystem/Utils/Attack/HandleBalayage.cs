@@ -28,6 +28,7 @@ namespace NWN.Systems
     private static async void DelayMessage(string attackerName, string targetName, CNWSCreature attacker)
     {
       await NwTask.Delay(TimeSpan.FromSeconds(0.8));
+      LogUtils.LogMessage($"Attaque supplémentaire - Balayage", LogUtils.LogType.Combat);
       BroadcastNativeServerMessage($"{attackerName.ColorString(ColorConstants.Cyan)} balaye {targetName}", attacker);
     }
   }

@@ -18,6 +18,8 @@ namespace NWN.Systems
 
         combatRound.AddCleaveAttack(target.m_idSelf);
         attacker.m_ScriptVars.SetInt(Config.isBonusActionAvailableVariable, attacker.m_ScriptVars.GetInt(Config.isBonusActionAvailableVariable) - 1);
+
+        LogUtils.LogMessage($"Attaque supplémentaire - Maître arbalétrier", LogUtils.LogType.Combat);
       }
     }
   }

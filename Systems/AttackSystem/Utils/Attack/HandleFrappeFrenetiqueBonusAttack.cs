@@ -14,6 +14,8 @@ namespace NWN.Systems
 
         round.AddCleaveAttack(target.m_idSelf);
         attacker.m_ScriptVars.DestroyInt(CreatureUtils.FrappeFrenetiqueVariableExo);
+
+        LogUtils.LogMessage($"Attaque supplémentaire - Frappe frénétique", LogUtils.LogType.Combat);
       }
 
     }

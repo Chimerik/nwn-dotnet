@@ -58,7 +58,7 @@ namespace NWN.Systems
       string targetName = $"{targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)}";
       string attackerName = $"{creature.GetFirstName().GetSimple(0)} {creature.GetLastName().GetSimple(0)}";
 
-      LogUtils.LogMessage($"----- {attackerName} attaque {targetName} ({targetObject.m_idSelf}) - type {attackData.m_nAttackType} - nb {combatRound.m_nCurrentAttack} -----", LogUtils.LogType.Combat);
+      LogUtils.LogMessage($"----- {attackerName} attaque {targetName} - type {attackData.m_nAttackType} - nb {combatRound.m_nCurrentAttack} -----", LogUtils.LogType.Combat);
       
       CNWSItem targetArmor = targetCreature?.m_pInventory.GetItemInSlot((uint)EquipmentSlot.Chest);
 
@@ -158,7 +158,13 @@ namespace NWN.Systems
         }
       }
 
-      string opportunityString = attackData.m_nAttackType == 6 ? "Attaque d'opportunité - " : ""; // 6 = attaque d'opportunité
+      string opportunityString = "";
+
+      if(attackData.m_nAttackType == 65002) // 65002 = attaque d'opportunité
+      {
+        opportunityString = $"Attaque d'opportunité {creature.m_ScriptVars.GetString(CreatureUtils.OpportunityAttackTypeVariableExo)}- ";
+        creature.m_ScriptVars.DestroyString(CreatureUtils.OpportunityAttackTypeVariableExo);
+      }
 
       if (targetCreature is not null)
       {
@@ -179,7 +185,14 @@ namespace NWN.Systems
         string criticalString = "";
         string advantageString = advantage == 0 ? "" : advantage > 0 ? "Avantage - ".ColorString(StringUtils.gold) : "Désavantage - ".ColorString(ColorConstants.Red);
         int totalAttack = attackRoll + attackBonus;
-        
+        int defensiveDuellistBonus = NativeUtils.GetDefensiveDuellistBonus(targetCreature, attackData.m_bRangedAttack);
+        int superiorityDiceBonus = 0;
+
+        if (creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreTypeVariableExo) == CustomSkill.WarMasterAttaquePrecise)
+        {
+          superiorityDiceBonus = NwRandom.Roll(Utils.random, creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreDiceVariableExo));
+          LogUtils.LogMessage($"Attaque précise : dé de supériorité +{superiorityDiceBonus}", LogUtils.LogType.Combat);
+        }
         if (isCriticalHit)
         {
           attackData.m_nAttackResult = 3;
@@ -196,8 +209,6 @@ namespace NWN.Systems
           }
           else
           {
-            int defensiveDuellistBonus = NativeUtils.GetDefensiveDuellistBonus(targetCreature, attackData.m_bRangedAttack);
-
             if (totalAttack > targetAC + defensiveDuellistBonus)
             {
               attackData.m_nAttackResult = 1;
@@ -205,33 +216,28 @@ namespace NWN.Systems
             }
             else
             {
-              if (creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreTypeVariableExo) == CustomSkill.WarMasterAttaquePrecise
-                && totalAttack + creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreDiceVariableExo) > targetAC + defensiveDuellistBonus)
-              {
-                int superiorityDiceBonus = creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreDiceVariableExo);
-                attackBonus += superiorityDiceBonus;
-                rollString = $"{attackRoll} + {attackBonus} = {attackRoll + attackBonus}".ColorString(new Color(32, 255, 32));
-
-                attackData.m_nAttackResult = 1;
-                creature.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreTypeVariableExo);
-                creature.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreDiceVariableExo);
-
-                LogUtils.LogMessage($"Attaque précise : dé de supériorité +{superiorityDiceBonus}", LogUtils.LogType.Combat);
-                LogUtils.LogMessage($"Touché : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC + defensiveDuellistBonus}", LogUtils.LogType.Combat);
-                NativeUtils.BroadcastNativeServerMessage("Attaque précise".ColorString(StringUtils.gold), creature);
-              }
-              else
-              {
-                attackData.m_nAttackResult = 4;
-                attackData.m_nMissedBy = (byte)(targetAC - attackRoll) > 8 ? (byte)Utils.random.Next(1, 9) : (byte)(targetAC - attackRoll);
-                hitString = "manquez".ColorString(ColorConstants.Red);
-                rollString = rollString.StripColors().ColorString(ColorConstants.Red);
-                NativeUtils.SendNativeServerMessage($"Duelliste défensif activé !".ColorString(ColorConstants.Orange), creature);
-                LogUtils.LogMessage($"Manqué : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC + defensiveDuellistBonus}", LogUtils.LogType.Combat);
-                NativeUtils.HandleRiposte(creature, targetCreature, attackData);
-              }
+              attackData.m_nAttackResult = 4;
+              attackData.m_nMissedBy = (byte)(targetAC - attackRoll) > 8 ? (byte)Utils.random.Next(1, 9) : (byte)(targetAC - attackRoll);
+              hitString = "manquez".ColorString(ColorConstants.Red);
+              rollString = rollString.StripColors().ColorString(ColorConstants.Red);
+              NativeUtils.SendNativeServerMessage($"Duelliste défensif activé !".ColorString(ColorConstants.Orange), creature);
+              LogUtils.LogMessage($"Manqué : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC + defensiveDuellistBonus}", LogUtils.LogType.Combat);
+              NativeUtils.HandleRiposte(creature, targetCreature, attackData);
             }
           }
+        }
+        else if(attackRoll > 1 && superiorityDiceBonus > 0 && totalAttack + superiorityDiceBonus > targetAC + defensiveDuellistBonus)
+        {
+            attackBonus += superiorityDiceBonus;
+            rollString = $"{attackRoll} + {attackBonus} = {attackRoll + attackBonus}".ColorString(new Color(32, 255, 32));
+
+            attackData.m_nAttackResult = 1;
+            creature.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreTypeVariableExo);
+            creature.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreDiceVariableExo);
+
+            LogUtils.LogMessage($"Attaque précise : dé de supériorité +{superiorityDiceBonus}", LogUtils.LogType.Combat);
+            LogUtils.LogMessage($"Touché : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC + defensiveDuellistBonus}", LogUtils.LogType.Combat);
+            NativeUtils.BroadcastNativeServerMessage("Attaque précise".ColorString(StringUtils.gold), creature);
         }
         else
         {
@@ -352,7 +358,7 @@ namespace NWN.Systems
 
         NwBaseItem baseWeapon = NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem);
 
-        if (attackData.m_nAttackType == 6 && attacker.m_ScriptVars.GetInt(CreatureUtils.HastMasterSpecialAttackExo).ToBool())
+        if (attackData.m_nAttackType == 65002 && attacker.m_ScriptVars.GetInt(CreatureUtils.HastMasterSpecialAttackExo).ToBool())
         {
           baseDamage = NwRandom.Roll(Utils.random, 4, 1);
 
@@ -365,9 +371,7 @@ namespace NWN.Systems
           isDuelFightingStyle = NativeUtils.IsDuelFightingStyle(attacker, baseWeapon, attackData);
           baseDamage += isDuelFightingStyle ? 2 : 0;
         }
-        
-        LogUtils.LogMessage($"{baseWeapon.Name.ToString()} - {baseWeapon.NumDamageDice}d{baseWeapon.DieToRoll} => {baseDamage}", LogUtils.LogType.Combat);
-
+       
         // On ne peut faire des attaques sournoises qu'avec une arme
         if (bSneakAttack > 0)
         {
@@ -480,7 +484,7 @@ namespace NWN.Systems
       attacker.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreTypeVariableExo);
       attacker.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreDiceVariableExo);
 
-      if (attackData.m_nAttackType == 6 && attacker.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreRiposteVariableExo).ToBool())
+      if (attackData.m_nAttackType == 65002 && attacker.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreRiposteVariableExo).ToBool())
         attacker.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreRiposteVariableExo);
 
       NativeUtils.HandleBersekerRepresailles(attacker, targetCreature);

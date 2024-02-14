@@ -44,7 +44,7 @@ namespace NWN.Systems
       int damage = NwRandom.Roll(Utils.random, entry.damageDice, entry.numDice); // TODO : Variabiliser les dégâts selon la compétence de l'artisan
       bool saveFailed = totalSave < entry.baseDC; // TODO : Variabiliser le DD selon la compétence de celui qui a posé le piège
 
-      LogUtils.LogMessage($"Dégâts initiaux : {damage}", LogUtils.LogType.Traps);
+      LogUtils.LogMessage($"Dégâts initiaux : {damage}", LogUtils.LogType.Combat);
 
       damage = ItemUtils.GetShieldMasterReducedDamage(creature, damage, saveFailed);
 
@@ -55,6 +55,7 @@ namespace NWN.Systems
       {
         damage /= 2;
         creature?.LoginPlayer.DisplayFloatingTextStringOnCreature(creature, "Expert en donjons".ColorString(StringUtils.gold));
+        LogUtils.LogMessage($"{creature.Name} - Expert en donjons - Résistance aux dégâts du piège", LogUtils.LogType.Combat);
       }
 
       if (creature.IsLoginPlayerCharacter)

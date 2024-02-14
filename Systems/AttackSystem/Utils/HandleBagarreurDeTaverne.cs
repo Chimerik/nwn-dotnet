@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     public static int HandleBagarreurDeTaverne(CNWSCreature creature, CNWSItem weapon, int strBonus)
     {
-      if (weapon is not null || strBonus < 1 || creature.m_pStats.HasFeat(CustomSkill.BagarreurDeTaverne).ToBool())
+      if (weapon is not null || strBonus < 1 || !creature.m_pStats.HasFeat(CustomSkill.BagarreurDeTaverne).ToBool())
         return 0;
 
       return strBonus;

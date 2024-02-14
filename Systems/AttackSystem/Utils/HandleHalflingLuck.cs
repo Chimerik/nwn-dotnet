@@ -11,7 +11,11 @@ namespace NWN.Systems
         && (creature.m_pStats.m_nRace == CustomRace.LightfootHalfling || creature.m_pStats.m_nRace == CustomRace.StrongheartHalfling))
       {
         SendNativeServerMessage("Chance hafeline".ColorString(StringUtils.gold), creature);
-        return NwRandom.Roll(Utils.random, 20);
+
+        int reroll = NwRandom.Roll(Utils.random, 20);
+        LogUtils.LogMessage($"Chance halfeline reroll : {reroll}", LogUtils.LogType.Combat);
+        
+        return reroll;
       }
       else
         return attackRoll;

@@ -1264,20 +1264,16 @@ namespace NWN.Systems
         return;
       }
 
-      if(creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemEspritAigle)) && creature.ActiveEffects.Any(e => e.Tag == EffectSystem.BarbarianRageEffectTag))
-      {
-        EventsPlugin.SkipEvent();
-        return;
-      }
-
-      string option = "";
+      //string option = "";
       
       if (target.MovementType != MovementType.Stationary)
       {
-        if (target.ActiveEffects.Any(e => e.Tag == EffectSystem.DisengageffectTag || e.Tag == EffectSystem.ManoeuvreTactiqueEffectTag))
+        if ((creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemEspritAigle)) && creature.ActiveEffects.Any(e => e.Tag == EffectSystem.BarbarianRageEffectTag))
+          || target.ActiveEffects.Any(e => e.Tag == EffectSystem.DisengageffectTag || e.Tag == EffectSystem.ManoeuvreTactiqueEffectTag))
         {
           if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Sentinelle)))
-            StringUtils.DisplayStringToAllPlayersNearTarget(creature, "Sentinelle", StringUtils.gold, true);
+            creature.GetObjectVariable<LocalVariableString>(CreatureUtils.OpportunityAttackTypeVariable).Value = "(Sentinelle) ";
+          //StringUtils.DisplayStringToAllPlayersNearTarget(creature, "Sentinelle", StringUtils.gold, true);
           else
           {
             EventsPlugin.SkipEvent();
@@ -1297,7 +1293,8 @@ namespace NWN.Systems
               return;
             }
             else
-              option = " - Tueur de mage".ColorString(StringUtils.gold);
+              creature.GetObjectVariable<LocalVariableString>(CreatureUtils.OpportunityAttackTypeVariable).Value = "(Tueur de mage) ";
+            //option = " - Tueur de mage".ColorString(StringUtils.gold);
 
             break;
 
@@ -1319,7 +1316,8 @@ namespace NWN.Systems
         && creature.ActiveEffects.Any(e => e.Tag == EffectSystem.MageDeGuerreEffectTag))
       {
         creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value -= 1;
-        StringUtils.DisplayStringToAllPlayersNearTarget(creature, "Attaque d'opportunité - Mage de guerre", StringUtils.gold, true);
+        creature.GetObjectVariable<LocalVariableString>(CreatureUtils.OpportunityAttackTypeVariable).Value = "(Mage de guerre) ";
+        //StringUtils.DisplayStringToAllPlayersNearTarget(creature, "Attaque d'opportunité - Mage de guerre", StringUtils.gold, true);
         _ = creature.ActionCastSpellAt(NwSpell.FromSpellType(Spell.ElectricJolt), target, instant:true);
         EventsPlugin.SkipEvent();
         return;
@@ -1327,7 +1325,7 @@ namespace NWN.Systems
       else
       {
         creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value -= 1;
-        StringUtils.DisplayStringToAllPlayersNearTarget(creature, $"Attaque d'opportunité{option}", StringUtils.gold, true);
+        //StringUtils.DisplayStringToAllPlayersNearTarget(creature, $"Attaque d'opportunité{option}", StringUtils.gold, true);
         EventsPlugin.SetEventResult("1");
       }
     }

@@ -18,6 +18,7 @@ namespace NWN.Systems
         BroadcastNativeServerMessage($"{attackerName.ColorString(ColorConstants.Cyan)} riposte contre {targetName}", attacker);
 
         round.AddWhirlwindAttack(target.m_idSelf, 1);
+        LogUtils.LogMessage($"Attaque supplémentaire - Riposte", LogUtils.LogType.Combat);
       }
 
     }

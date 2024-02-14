@@ -18,6 +18,7 @@ namespace NWN.Systems
 
       combatRound.AddWhirlwindAttack(target.m_idSelf, 1);
       attacker.m_ScriptVars.DestroyObject(CreatureUtils.TirIncurveVariableExo);
+      LogUtils.LogMessage($"Attaque supplémentaire - Tir incurvé", LogUtils.LogType.Combat);
     }
   }
 }

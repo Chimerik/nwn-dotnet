@@ -27,6 +27,7 @@ namespace NWN.Systems
           combatRound.AddWhirlwindAttack(newTarget.m_idSelf, 1);
           attacker.m_ScriptVars.SetInt(Config.isBonusActionAvailableVariable, attacker.m_ScriptVars.GetInt(Config.isBonusActionAvailableVariable) - 1);
 
+          LogUtils.LogMessage($"Attaque supplémentaire - Cogneur Lourd", LogUtils.LogType.Combat);
         }
         else
         {
@@ -35,6 +36,8 @@ namespace NWN.Systems
 
           combatRound.AddCleaveAttack(target.m_idSelf);
           attacker.m_ScriptVars.SetInt(Config.isBonusActionAvailableVariable, attacker.m_ScriptVars.GetInt(Config.isBonusActionAvailableVariable) - 1);
+
+          LogUtils.LogMessage($"Attaque supplémentaire - Cogneur Lourd", LogUtils.LogType.Combat);
         }
       }
     }

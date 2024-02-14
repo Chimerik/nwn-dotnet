@@ -17,6 +17,7 @@ namespace NWN.Systems
 
       combatRound.AddWhirlwindAttack(target.m_idSelf, 1);
       attacker.m_ScriptVars.DestroyObject(CreatureUtils.SentinelleOpportunityTargetVariableExo);
+      LogUtils.LogMessage($"Attaque supplémentaire - Sentinelle", LogUtils.LogType.Combat);
     }
   }
 }

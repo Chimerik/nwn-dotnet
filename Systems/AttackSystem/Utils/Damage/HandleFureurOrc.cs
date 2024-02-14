@@ -14,6 +14,8 @@ namespace NWN.Systems
 
         attacker.m_ScriptVars.DestroyInt(CreatureUtils.FureurOrcBonusAttackVariableExo);
         combatRound.AddCleaveAttack(target.m_idSelf);
+
+        LogUtils.LogMessage($"Attaque supplémentaire - Fureur Orc", LogUtils.LogType.Combat);
       }
     }
   }

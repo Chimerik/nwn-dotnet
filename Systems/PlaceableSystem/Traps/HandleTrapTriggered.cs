@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       foreach (var creature in targets)
       {
-        LogUtils.LogMessage($"----- {creature.Name} déclenche le piège {trap.Name} ({type})  -----", LogUtils.LogType.Traps);
+        LogUtils.LogMessage($"----- {creature.Name} déclenche le piège {trap.Name} ({type})  -----", LogUtils.LogType.Combat);
         // JDS + dégâts + avantage si expert en donjon
 
         switch (type)
