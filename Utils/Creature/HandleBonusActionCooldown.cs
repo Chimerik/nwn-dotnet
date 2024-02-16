@@ -12,6 +12,12 @@ namespace NWN
       {
         foreach (var feat in creature.Feats.Where(f => f.TalentMaxCR.ToBool()))
         {
+          switch(feat.Id)
+          {
+            case CustomSkill.WarMasterFeinte:
+            case CustomSkill.WarMasterInstruction: continue;
+          }
+
           if (feat.UsesPerDay > 0 && creature.GetFeatRemainingUses(feat) > 0)
           {
             creature.GetObjectVariable<LocalVariableInt>($"_FEAT_REMAINING_USE_{feat.Id}").Value = creature.GetFeatRemainingUses(feat);

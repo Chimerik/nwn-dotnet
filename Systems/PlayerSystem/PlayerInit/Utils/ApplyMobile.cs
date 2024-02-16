@@ -10,11 +10,14 @@ namespace NWN.Systems
     {
       private void ApplyMobile()
       {
-        if (!oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.mobileEffectTag))
-          oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.mobile);
+        if (oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Mobile)))
+        {
+          if (!oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.mobileEffectTag))
+            oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.mobile);
 
-        oid.LoginCreature.OnCreatureAttack -= CreatureUtils.OnAttackMobile;
-        oid.LoginCreature.OnCreatureAttack += CreatureUtils.OnAttackMobile;
+          oid.LoginCreature.OnCreatureAttack -= CreatureUtils.OnAttackMobile;
+          oid.LoginCreature.OnCreatureAttack += CreatureUtils.OnAttackMobile;
+        }
       }
     }
   }

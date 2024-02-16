@@ -17,11 +17,7 @@ namespace NWN.Systems
       caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.sprintEffect, NwTimeSpan.FromRounds(1));
 
       if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Chargeur)))
-      {
         caster.GetObjectVariable<LocalVariableLocation>("_CHARGER_INITIAL_LOCATION").Value = caster.Location;
-        caster.OnCreatureAttack -= CreatureUtils.OnAttackCharge;
-        caster.OnCreatureAttack += CreatureUtils.OnAttackCharge;
-      }
 
       if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Mobile)))
         caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.sprintMobileEffect, NwTimeSpan.FromRounds(1));

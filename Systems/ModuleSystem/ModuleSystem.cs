@@ -1304,13 +1304,12 @@ namespace NWN.Systems
         }
       }
 
-      foreach(var eff in target.ActiveEffects)
-        if(eff.Tag ==  EffectSystem.mobileDebuffEffectTag && eff.Creator == creature)
-        {
-          StringUtils.DisplayStringToAllPlayersNearTarget(target, "Mobile debuff", ColorConstants.Red, true);
-          EventsPlugin.SkipEvent();
-          return;
-        }
+      if (creature.ActiveEffects.Any(e => e.Tag == EffectSystem.mobileDebuffEffectTag && e.Creator == target))
+      {
+        StringUtils.DisplayStringToAllPlayersNearTarget(creature, "Mobile : Attaque d'opportunité annulée", ColorConstants.Red, true);
+        EventsPlugin.SkipEvent();
+        return;
+      }
 
       if(creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.MageDeGuerre))
         && creature.ActiveEffects.Any(e => e.Tag == EffectSystem.MageDeGuerreEffectTag))

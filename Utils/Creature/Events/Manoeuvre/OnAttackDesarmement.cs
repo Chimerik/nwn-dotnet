@@ -1,7 +1,6 @@
 ﻿using Anvil.API.Events;
 using Anvil.API;
 using NWN.Systems;
-using NWN.Core;
 using NativeUtils = NWN.Systems.NativeUtils;
 
 namespace NWN
@@ -28,31 +27,25 @@ namespace NWN
           int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Strength, tirDC, advantage, feedback);
           bool saveFailed = totalSave < tirDC;
 
-          SpellUtils.SendSavingThrowFeedbackMessage(onAttack.Attacker, target, feedback, advantage, tirDC, totalSave, saveFailed, Ability.Wisdom);
+          SpellUtils.SendSavingThrowFeedbackMessage(onAttack.Attacker, target, feedback, advantage, tirDC, totalSave, saveFailed, Ability.Strength);
+
+          saveFailed = true;
 
           if (saveFailed)
           {
-            
+            NwItem weapon = target.GetItemInSlot(InventorySlot.RightHand);
+
+            if (weapon is not null)
+              target.RunUnequip(weapon);
+
+            target.OnItemEquip -= ItemSystem.OnEquipDesarmement;
+            target.OnItemEquip += ItemSystem.OnEquipDesarmement;
           }
 
           StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Désarmement", ColorConstants.Red, true);
 
           break;
       }
-    }
-    private static async void ExpireDisarmEffect(NwCreature target)
-    {
-      NwItem weapon = target.GetItemInSlot(InventorySlot.RightHand);
-
-      if (weapon is not null)
-        target.RunUnequip(weapon);
-
-      target.OnItemEquip -= ItemSystem.OnEquipDesarmement;
-      target.OnItemEquip += ItemSystem.OnEquipDesarmement;
-
-      await NwTask.Delay(NwTimeSpan.FromRounds(1));
-
-      target.OnItemEquip -= ItemSystem.OnEquipDesarmement;
     }
   }
 }

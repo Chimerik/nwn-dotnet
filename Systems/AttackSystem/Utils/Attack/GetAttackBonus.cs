@@ -20,13 +20,15 @@ namespace NWN.Systems
       }
 
       var initiaLocation = attacker.m_pStats.m_pBaseCreature.m_ScriptVars.GetLocation(chargerVariable);
-      
-      if (initiaLocation.m_oArea != NWScript.OBJECT_INVALID && Vector3.Distance(initiaLocation.m_vPosition.ToManagedVector(), attacker.m_vPosition.ToManagedVector()) > 3)
+
+      if (initiaLocation.m_oArea != NWScript.OBJECT_INVALID && Vector3.DistanceSquared(initiaLocation.m_vPosition.ToManagedVector(), attacker.m_vPosition.ToManagedVector()) > 9)
       {
         attackBonus += 5;
-        attacker.m_pStats.m_pBaseCreature.m_ScriptVars.SetInt("_CHARGER_ACTIVATED".ToExoString(), 1);
+        BroadcastNativeServerMessage("Charge !".ColorString(ColorConstants.Orange), attacker);
         LogUtils.LogMessage("Chargeur : +5 BA", LogUtils.LogType.Combat);
       }
+
+      attacker.m_pStats.m_pBaseCreature.m_ScriptVars.DestroyLocation(chargerVariable);
 
       if (weapon is not null)
       {

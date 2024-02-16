@@ -6,6 +6,12 @@ namespace NWN.Systems
   {
     private static void Feinte(NwCreature caster)
     {
+      if (caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value < 1)
+      {
+        caster.ControllingPlayer?.SendServerMessage("Vous ne disposez plus d'action bonus", ColorConstants.Red);
+        return;
+      }
+
       if (caster.GetItemInSlot(InventorySlot.RightHand)?.BaseItem.NumDamageDice > 0)
       {
         int warMasterLevel = caster.GetClassInfo(NwClass.FromClassId(CustomClass.Fighter)).Level;
@@ -13,8 +19,9 @@ namespace NWN.Systems
 
         caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ManoeuvreTypeVariable).Value = CustomSkill.WarMasterFeinte;
         caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ManoeuvreDiceVariable).Value = superiorityDice;
+        caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value -= 1;
 
-        StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Feinte", StringUtils.gold);
+        StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Feinte", StringUtils.gold, true);
 
         FeatUtils.DecrementManoeuvre(caster);
       }

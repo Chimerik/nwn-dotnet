@@ -23,8 +23,6 @@ namespace NWN
           advantage += GetRangedWeaponDistanceDisadvantage(attacker, weaponType, target);
           advantage += GetThreatenedDisadvantage(attacker, attackWeapon);
         }
-        else
-          advantage += GetJeuDeJambeAttackerDisadvantage(target);
 
         advantage += GetKnockdownAdvantage(attackData.m_bRangedAttack, target);
         advantage += GetAttackerAdvantageEffects(attacker, target, attackStat);

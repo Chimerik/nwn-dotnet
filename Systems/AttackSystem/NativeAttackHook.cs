@@ -91,7 +91,6 @@ namespace NWN.Systems
       // On prend le bonus d'attaque calculé automatiquement par le jeu en fonction de la cible qui peut être une créature ou un placeable
       int attackModifier = targetCreature is null ? creature.m_pStats.GetAttackModifierVersus() : NativeUtils.GetAttackBonus(creature, targetCreature, attackData, attackWeapon);
       LogUtils.LogMessage($"attackModifier {attackModifier}", LogUtils.LogType.Combat);
-      //attackModifier -= 5; Je ne me souviens plus ce que -5 fait ici. Je le commente pour l'instant, mais probablement à supprimer
 
       byte dexMod = creature.m_pStats.m_nDexterityModifier;
       byte strMod = creature.m_pStats.m_nStrengthModifier;
@@ -123,7 +122,7 @@ namespace NWN.Systems
       // On ajoute le bonus de maîtrise de la créature
       int attackBonus = NativeUtils.GetCreatureWeaponProficiencyBonus(creature, attackWeapon);
 
-      LogUtils.LogMessage($"Bonus de maîtrise {attackBonus} ({(attackBonus < 1 ? "Arme non maîtrisée" : "")})", LogUtils.LogType.Combat);
+      LogUtils.LogMessage($"Bonus de maîtrise {attackBonus} {(attackBonus < 1 ? "(Arme non maîtrisée)" : "")}", LogUtils.LogType.Combat);
 
       NativeUtils.HandleCrossbowMaster(creature, targetObject, combatRound, attackBonus, attackerName);
 
@@ -193,6 +192,7 @@ namespace NWN.Systems
           superiorityDiceBonus = NwRandom.Roll(Utils.random, creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreDiceVariableExo));
           LogUtils.LogMessage($"Attaque précise : dé de supériorité +{superiorityDiceBonus}", LogUtils.LogType.Combat);
         }
+
         if (isCriticalHit)
         {
           attackData.m_nAttackResult = 3;
@@ -237,7 +237,7 @@ namespace NWN.Systems
 
             LogUtils.LogMessage($"Attaque précise : dé de supériorité +{superiorityDiceBonus}", LogUtils.LogType.Combat);
             LogUtils.LogMessage($"Touché : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC + defensiveDuellistBonus}", LogUtils.LogType.Combat);
-            NativeUtils.BroadcastNativeServerMessage("Attaque précise".ColorString(StringUtils.gold), creature);
+            NativeUtils.BroadcastNativeServerMessage($"Attaque précise (+{superiorityDiceBonus})".ColorString(StringUtils.gold), creature);
         }
         else
         {
@@ -481,8 +481,11 @@ namespace NWN.Systems
       NativeUtils.HandleCogneurLourdBonusAttack(attacker, targetObject, combatRound, attackData, baseDamage, attackerName);
       NativeUtils.HandleArcaneArcherTirIncurveBonusAttack(attacker, combatRound, attackerName);
 
-      attacker.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreTypeVariableExo);
-      attacker.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreDiceVariableExo);
+      if (attacker.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreTypeVariableExo) != CustomSkill.WarMasterAttaquePrecise)
+      {
+        attacker.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreTypeVariableExo);
+        attacker.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreDiceVariableExo);
+      }
 
       if (attackData.m_nAttackType == 65002 && attacker.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreRiposteVariableExo).ToBool())
         attacker.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreRiposteVariableExo);

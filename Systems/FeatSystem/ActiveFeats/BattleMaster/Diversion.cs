@@ -14,7 +14,7 @@ namespace NWN.Systems
         caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ManoeuvreTypeVariable).Value = CustomSkill.WarMasterDiversion;
         caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ManoeuvreDiceVariable).Value = superiorityDice;
 
-        StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Diversion", StringUtils.gold);
+        StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Diversion", StringUtils.gold, true);
 
         FeatUtils.DecrementManoeuvre(caster);
       }

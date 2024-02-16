@@ -6,9 +6,9 @@ namespace NWN.Systems
   {
     private static void JeuDeJambe(NwCreature caster)
     {
-      caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ManoeuvreTypeVariable).Value = CustomSkill.WarMasterJeuDeJambe;
+      caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.jeuDeJambe, NwTimeSpan.FromRounds(1));
 
-      StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Jeu de Jambe", StringUtils.gold);
+      StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Jeu de Jambe", StringUtils.gold, true);
       FeatUtils.DecrementManoeuvre(caster);
     }
   }

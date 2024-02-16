@@ -10,8 +10,9 @@ namespace NWN.Systems
       if (data.m_nAttackType == 6 && creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreTypeVariableExo) == CustomSkill.WarMasterRiposte
         && creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreRiposteVariableExo).ToBool())
       {
-        int superiorityRoll = NwRandom.Roll(Utils.random, creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreDiceVariableExo));
-        LogUtils.LogMessage($"Ajout dé de supériorité : +{superiorityRoll}", LogUtils.LogType.Combat);
+        int superiorityDice = creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreDiceVariableExo);
+        int superiorityRoll = NwRandom.Roll(Utils.random, superiorityDice);
+        LogUtils.LogMessage($"Ajout dé de supériorité (1d{superiorityDice}) : +{superiorityRoll}", LogUtils.LogType.Combat);
         return superiorityRoll;
       }
 
@@ -24,8 +25,9 @@ namespace NWN.Systems
         case CustomSkill.WarMasterInstruction:
         case CustomSkill.WarMasterProvocation:
 
-          int superiorityRoll = NwRandom.Roll(Utils.random, creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreDiceVariableExo));
-          LogUtils.LogMessage($"Ajout dé de supériorité : +{superiorityRoll}", LogUtils.LogType.Combat);
+          int superiorityDice = creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreDiceVariableExo);
+          int superiorityRoll = NwRandom.Roll(Utils.random, superiorityDice);
+          LogUtils.LogMessage($"Ajout dé de supériorité (1d{superiorityDice}) : +{superiorityRoll}", LogUtils.LogType.Combat);
           return superiorityRoll;
 
         default: return 0;

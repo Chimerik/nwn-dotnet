@@ -25,12 +25,14 @@ namespace NWN
       {
         { EffectSystem.DodgeEffectTag, false },
         { EffectSystem.ProtectionStyleEffectTag, false },
+        { EffectSystem.JeuDeJambeEffectTag, false },
       };
 
       foreach (var eff in target.m_appliedEffects)
       {
         disadvantageDictionary[EffectSystem.DodgeEffectTag] = disadvantageDictionary[EffectSystem.DodgeEffectTag] || GetTargetDodgingDisadvantage(eff);
         disadvantageDictionary[EffectSystem.ProtectionStyleEffectTag] = disadvantageDictionary[EffectSystem.ProtectionStyleEffectTag] || GetProtectionStyleDisadvantage(eff);
+        disadvantageDictionary[EffectSystem.JeuDeJambeEffectTag] = disadvantageDictionary[EffectSystem.JeuDeJambeEffectTag] || GetJeuDeJambeDisadvantage(eff);
 
         advantageDictionary["blinded"] = advantageDictionary["blinded"] || GetTargetBlindedAdvantage(eff);
         advantageDictionary["stunned"] = advantageDictionary["stunned"] || GetTargetStunnedAdvantage(eff);

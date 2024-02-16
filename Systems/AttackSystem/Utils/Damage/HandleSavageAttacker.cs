@@ -10,7 +10,9 @@ namespace NWN.Systems
       if (!attackData.m_bRangedAttack.ToBool() && creature.m_pStats.HasFeat(CustomSkill.AgresseurSauvage).ToBool())
       {
         int secondaryDamageRoll = HandleWeaponDamageRerolls(creature, weapon, numDamageDice, dieToRoll);
-        return damage > secondaryDamageRoll ? damage : secondaryDamageRoll;
+        int reroll = damage > secondaryDamageRoll ? damage : secondaryDamageRoll;
+        LogUtils.LogMessage($"Agresseur Sauvage reroll {damage} vs {secondaryDamageRoll} = {reroll}", LogUtils.LogType.Combat);
+        return reroll;
       }
 
       return damage;

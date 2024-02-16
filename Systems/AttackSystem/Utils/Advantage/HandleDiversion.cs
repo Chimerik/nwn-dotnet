@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System;
+using Anvil.API;
 using NWN.Native.API;
 
 namespace NWN.Systems
@@ -18,13 +19,15 @@ namespace NWN.Systems
     }
     private static async void ExpireDiversion(CNWSCreature attacker, CNWSCreature target)
     {
+      await NwTask.NextFrame();
+
       attacker.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreTypeVariableExo);
       attacker.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreDiceVariableExo);
 
       target.m_ScriptVars.SetInt(CreatureUtils.ManoeuvreDiversionVariableExo, 1);
       attacker.m_ScriptVars.SetInt(CreatureUtils.ManoeuvreDiversionExpiredVariableExo, 1);
 
-      await NwTask.Delay(NwTimeSpan.FromRounds(1));
+      await NwTask.Delay(TimeSpan.FromSeconds(6));
 
       target.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreDiversionVariableExo);
       attacker.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreDiversionExpiredVariableExo);
