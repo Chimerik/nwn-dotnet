@@ -6,9 +6,9 @@ using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
 {
-  public static partial class Fighter
+  public static partial class Rogue
   {
-    public static void HandleFighterLevelUp(Player player, int level, LearnableSkill playerClass)
+    public static void HandleRogueLevelUp(Player player, int level, LearnableSkill playerClass)
     {
       switch (level)
       {
@@ -33,39 +33,30 @@ namespace NWN.Systems
               learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 4;
             }
 
-            CreaturePlugin.SetClassByPosition(player.oid.LoginCreature, 0, (int)ClassType.Fighter);
+            CreaturePlugin.SetClassByPosition(player.oid.LoginCreature, 0, (int)ClassType.Rogue);
             playerClass.acquiredPoints = 0;
           }
           else
-            CreaturePlugin.SetClassByPosition(player.oid.LoginCreature, player.oid.LoginCreature.Classes.Count, (int)ClassType.Fighter);
+            CreaturePlugin.SetClassByPosition(player.oid.LoginCreature, player.oid.LoginCreature.Classes.Count, (int)ClassType.Rogue);
 
           // On donne les autres capacités de niveau 1
-          player.learnableSkills.TryAdd(CustomSkill.FighterSecondWind, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterSecondWind], player));
-          player.learnableSkills[CustomSkill.FighterSecondWind].LevelUp(player);
-          player.learnableSkills[CustomSkill.FighterSecondWind].source.Add(Category.Class);
+          if (!player.oid.LoginCreature.KnowsFeat(Feat.SneakAttack))
+            player.oid.LoginCreature.AddFeat(Feat.SneakAttack);
 
-          int chosenStyle = player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CHOSEN_FIGHTER_STYLE").Value;
-          
-          player.learnableSkills.TryAdd(chosenStyle, new LearnableSkill((LearnableSkill)learnableDictionary[chosenStyle], player));
-          player.learnableSkills[chosenStyle].LevelUp(player);
-          player.learnableSkills[chosenStyle].source.Add(Category.Class);
-
-          break;
-
-        case 2:
-
-          player.learnableSkills.TryAdd(CustomSkill.FighterSurge, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterSurge], player));
-          player.learnableSkills[CustomSkill.FighterSurge].LevelUp(player);
-          player.learnableSkills[CustomSkill.FighterSurge].source.Add(Category.Class);
+          if (!player.windows.TryGetValue("expertiseChoice", out var expertise)) player.windows.Add("expertiseChoice", new ExpertiseChoiceWindow(player));
+          else ((ExpertiseChoiceWindow)expertise).CreateWindow();
 
           break;
 
         case 3:
 
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value = CustomSkill.Fighter;
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value = CustomSkill.Rogue;
 
           if (!player.windows.TryGetValue("subClassSelection", out var value)) player.windows.Add("subClassSelection", new SubClassSelectionWindow(player));
           else ((SubClassSelectionWindow)value).CreateWindow();
+
+          if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat))
+            player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat);
 
           break;
 
@@ -82,12 +73,24 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.FighterBonusAttack].LevelUp(player);
           player.learnableSkills[CustomSkill.FighterBonusAttack].source.Add(Category.Class);
 
-          player.oid.LoginCreature.BaseAttackCount += 1; break;
+          player.oid.LoginCreature.BaseAttackCount += 1; 
+
+          if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat))
+            player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat);
+
+          break;
 
         case 6:
 
           if (!player.windows.TryGetValue("featSelection", out var feat6)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
           else ((FeatSelectionWindow)feat6).CreateWindow();
+
+          break;
+
+        case 7:
+
+          if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat))
+            player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat);
 
           break;
 
@@ -104,6 +107,9 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.FighterInflexible].LevelUp(player);
           player.learnableSkills[CustomSkill.FighterInflexible].source.Add(Category.Class);
 
+          if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat))
+            player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat);
+
           break;
 
         case 11:
@@ -112,6 +118,9 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.FighterBonusAttack].LevelUp(player);
 
           player.oid.LoginCreature.BaseAttackCount += 1;
+
+          if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat))
+            player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat);
 
           break;
 
@@ -127,12 +136,22 @@ namespace NWN.Systems
           player.learnableSkills.TryAdd(CustomSkill.FighterInflexible, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterInflexible], player));
           player.learnableSkills[CustomSkill.FighterInflexible].LevelUp(player);
 
+          if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat))
+            player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat);
+
           break;
 
         case 14:
 
           if (!player.windows.TryGetValue("featSelection", out var feat14)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
           else ((FeatSelectionWindow)feat14).CreateWindow();
+
+          break;
+
+        case 15:
+
+          if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat))
+            player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat);
 
           break;
 
@@ -151,12 +170,18 @@ namespace NWN.Systems
           player.learnableSkills.TryAdd(CustomSkill.FighterSurge, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterSurge], player));
           player.learnableSkills[CustomSkill.FighterSurge].LevelUp(player);
 
+          if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat))
+            player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat);
+
           break;
 
         case 19:
 
           if (!player.windows.TryGetValue("featSelection", out var feat19)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
           else ((FeatSelectionWindow)feat19).CreateWindow();
+
+          if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat))
+            player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat);
 
           break;
 

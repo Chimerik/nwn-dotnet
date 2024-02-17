@@ -45,6 +45,9 @@ namespace NWN.Systems
       if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Dodge)))
         player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.Dodge));
 
+      if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Stealth)))
+        player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.Stealth));
+
       player.oid.SetGuiPanelDisabled(GUIPanel.ExamineItem, true);
       player.oid.SetGuiPanelDisabled(GUIPanel.Journal, true);
       player.oid.SetGuiPanelDisabled(GUIPanel.PlayerList, true);
@@ -130,7 +133,6 @@ namespace NWN.Systems
         oid.OnPlayerDeath += HandlePlayerDeath;
         oid.LoginCreature.OnUseFeat += FeatSystem.OnUseFeatBefore;
         oid.OnCombatStatusChange += OnCombatStarted;
-        //oid.LoginCreature.OnHeartbeat += CreatureUtils.OnHeartbeatRefreshActions;
         oid.LoginCreature.OnCombatRoundStart += OnCombatStartForceHostility;
         oid.OnPartyEvent += Party.HandlePartyEvent;
         oid.OnClientLevelUpBegin += HandleOnClientLevelUp;
@@ -141,9 +143,11 @@ namespace NWN.Systems
         oid.OnMapPinDestroyPin += HandleMapPinDestroyed;
         oid.OnDMPlayerDMLogin += OnDmLoginRemoveThreatRange;
         oid.OnDMPlayerDMLogout += OnDmLogoutRemoveThreatRange;
+        oid.LoginCreature.OnStealthModeUpdate += OnStealth;
+
         //oid.LoginCreature.OnEffectApply += HandleItemPropertyChecksOnEffectApplied;
         //oid.LoginCreature.OnEffectRemove += HandleItemPropertyChecksOnEffectRemoved;
-        //oid.LoginCreature.OnStealthModeUpdate += HandleStealthMode;
+        //eventService.Subscribe<OnUseFeat, OnUseFeat.Factory>(oid.LoginCreature, FeatSystem.OnUseFeatAfter, EventCallbackType.After);
         eventService.Subscribe<OnDMSpawnObject, DMEventFactory>(oid.LoginCreature, areaSystem.InitializeEventsAfterDMSpawnCreature, EventCallbackType.After);
       }
       private void InitializeItemEvents()
@@ -419,6 +423,7 @@ namespace NWN.Systems
         InitializeFeatChoice();
         InitializeSubClassChoice();
         InitializeManoeuvreChoice();
+        InitializeExpertiseChoice();
         InitializeTirArcaniqueChoice();
         InitializeEspritTotemChoice();
         InitializeAspectTotemChoice();

@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Linq;
+using System.Numerics;
 using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
@@ -44,7 +45,7 @@ namespace NWN.Systems
 
         if (saveFailed)
         {
-          int damage = attacker.GetClassInfo(NwClass.FromClassId(CustomClass.Fighter))?.Level < 18
+          int damage = attacker.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level < 18)
             ? NwRandom.Roll(Utils.random, 6, 2) : NwRandom.Roll(Utils.random, 6, 4);
 
           NWScript.AssignCommand(attacker, () => target.ApplyEffect(EffectDuration.Instant,

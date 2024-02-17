@@ -3,6 +3,7 @@ using Anvil.API;
 using NativeUtils = NWN.Systems.NativeUtils;
 using NWN.Systems;
 using NWN.Core;
+using System.Linq;
 
 namespace NWN
 {
@@ -10,7 +11,7 @@ namespace NWN
   {
     public static void HandleTirBannissement(OnCreatureAttack onDamage)
     {
-      if (onDamage.Attacker.GetClassInfo(NwClass.FromClassId(CustomClass.Fighter))?.Level > 17)
+      if (onDamage.Attacker.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level > 17))
         NWScript.AssignCommand(onDamage.Attacker, () => onDamage.Target.ApplyEffect(EffectDuration.Instant,
           Effect.Damage(NwRandom.Roll(Utils.random, 6, 2), DamageType.Magical)));
 

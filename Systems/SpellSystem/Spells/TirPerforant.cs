@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using Anvil.API.Events;
 using NWN.Core;
 
@@ -22,7 +23,7 @@ namespace NWN.Systems
       SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, caster, onSpellCast.Spell.SpellType);
       SpellConfig.SavingThrowFeedback feedback = new();
       int spellDC = 8 + NativeUtils.GetCreatureProficiencyBonus(caster) + caster.GetAbilityModifier(Ability.Intelligence);
-      int nbDice = caster.GetClassInfo(NwClass.FromClassId(CustomClass.Fighter))?.Level < 18 ? 2 : 4;
+      int nbDice = caster.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level < 18) ? 2 : 4;
 
       ModuleSystem.Log.Info($"onSpellCast.TargetLocation : {onSpellCast.TargetLocation}");
 

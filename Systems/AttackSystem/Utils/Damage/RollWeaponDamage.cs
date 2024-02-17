@@ -18,10 +18,11 @@ namespace NWN.Systems
 
       int damage = HandleWeaponDamageRerolls(creature, weapon, numDamageDice, dieToRoll);
       damage = HandleSavageAttacker(creature, weapon, attackData, numDamageDice, damage, dieToRoll);
-      damage += GetSuperiorityDiceDamage(creature, attackData);
-      damage += GetBarbarianRageBonusDamage(creature, attackData);
 
       LogUtils.LogMessage($"{weapon.Name.ToString()} - {numDamageDice}d{dieToRoll} => {damage}", LogUtils.LogType.Combat);
+
+      damage += GetSuperiorityDiceDamage(creature, attackData);
+      damage += GetBarbarianRageBonusDamage(creature, attackData);
 
       return damage;
     }

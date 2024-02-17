@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using Anvil.API;
 using NWN.Core;
 
@@ -38,8 +39,8 @@ namespace NWN.Systems
 
       SpellConfig.SavingThrowFeedback feedback = new();
       int advantage = -disadvantageDictionary.Count(v => v.Value) + advantageDictionary.Count(v => v.Value) + creature.KnowsFeat(Feat.KeenSense).ToInt() + (creature.Race.Id == CustomRace.Duergar).ToInt();
-        
-      if(creature.GetClassInfo(NwClass.FromClassType(ClassType.Barbarian))?.Level > 1 && !creature.ActiveEffects.Any(e => e.EffectType == EffectType.Blindness || e.EffectType == EffectType.Deaf))
+
+      if (creature.Classes.Any(c => c.Class.ClassType == ClassType.Barbarian && c.Level > 1) && !creature.ActiveEffects.Any(e => e.EffectType == EffectType.Blindness || e.EffectType == EffectType.Deaf))
         advantage += 1;
 
       int totalSave = SpellUtils.GetSavingThrowRoll(creature, Ability.Dexterity, entry.baseDC, advantage, feedback);

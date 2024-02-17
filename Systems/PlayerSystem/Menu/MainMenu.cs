@@ -493,7 +493,7 @@ namespace NWN.Systems
                           return;
 
                         case CustomSkill.FighterSurge:
-                          if (player.oid.LoginCreature.GetClassInfo(NwClass.FromClassId(CustomClass.Fighter))?.Level > 16)
+                          if (player.oid.LoginCreature.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level > 16))
                             nbCharge++;
                           break;
                       }
@@ -525,7 +525,7 @@ namespace NWN.Systems
                       player.oid.LoginCreature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.BersekerFrenziedStrike), 0);
 
                     if (player.oid.LoginCreature.GetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.FighterSurge)) > 1
-                    && player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Fighter))?.Level < 17)
+                    && player.oid.LoginCreature.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level < 17))
                       player.oid.LoginCreature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.FighterSurge), 1);
 
                     if (player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.WildMagicSense)))

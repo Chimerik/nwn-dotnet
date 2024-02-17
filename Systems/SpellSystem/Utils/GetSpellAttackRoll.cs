@@ -42,7 +42,7 @@ namespace NWN.Systems
 
             if(caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Pourfendeur)))
               caster.GetObjectVariable<LocalVariableInt>("_POURFENDEUR_CRIT").Value = 1;
-        }
+          }
           else if (attackRoll > 1 && totalAttack > targetAC)
           {
             result = TouchAttackResult.Hit;

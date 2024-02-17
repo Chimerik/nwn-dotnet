@@ -13,7 +13,6 @@ using NWN.Core;
 using Google.Apis.Drive.v3;
 using Newtonsoft.Json;
 using System.Numerics;
-using System.IO;
 using Microsoft.Data.Sqlite;
 using System.Runtime.InteropServices;
 using SQLitePCL;

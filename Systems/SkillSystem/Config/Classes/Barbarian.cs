@@ -42,7 +42,7 @@ namespace NWN.Systems
       {
         learnableDictionary[CustomSkill.AnimalHandlingProficiency],
         learnableDictionary[CustomSkill.AthleticsProficiency],
-        learnableDictionary[CustomSkill.NatureExpertise],
+        learnableDictionary[CustomSkill.NatureProficiency],
         learnableDictionary[CustomSkill.IntimidationProficiency],
         learnableDictionary[CustomSkill.PerceptionProficiency],
         learnableDictionary[CustomSkill.SurvivalProficiency]

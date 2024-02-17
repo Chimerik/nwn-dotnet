@@ -3,6 +3,7 @@ using Anvil.API;
 using NativeUtils = NWN.Systems.NativeUtils;
 using NWN.Systems;
 using NWN.Core;
+using System.Linq;
 
 namespace NWN
 {
@@ -10,7 +11,7 @@ namespace NWN
   {
     public static void HandleTirDesOmbres(OnCreatureAttack onDamage)
     {
-      int damage = onDamage.Attacker.GetClassInfo(NwClass.FromClassId(CustomClass.Fighter))?.Level < 18 
+      int damage = onDamage.Attacker.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level < 18)
         ? NwRandom.Roll(Utils.random, 6, 2) : NwRandom.Roll(Utils.random, 6, 4);
 
       if (onDamage.Target is NwCreature target)

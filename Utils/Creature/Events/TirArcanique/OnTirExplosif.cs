@@ -1,6 +1,7 @@
 ﻿using Anvil.API.Events;
 using Anvil.API;
 using NWN.Core;
+using System.Linq;
 
 namespace NWN
 {
@@ -8,7 +9,7 @@ namespace NWN
   {
     public static void HandleTirExplosif(OnCreatureAttack onDamage)
     {
-      int damage = onDamage.Attacker.GetClassInfo(NwClass.FromClassId(CustomClass.Fighter))?.Level < 18
+      int damage = onDamage.Attacker.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level < 18)
         ? NwRandom.Roll(Utils.random, 6, 2) : NwRandom.Roll(Utils.random, 6, 4);
 
       NWScript.AssignCommand(onDamage.Attacker, () => onDamage.Target.ApplyEffect(EffectDuration.Instant,

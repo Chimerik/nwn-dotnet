@@ -168,6 +168,8 @@ namespace NWN.Systems
       if (targetCreature is not null)
       {
         int advantage = CreatureUtils.GetAdvantageAgainstTarget(creature, attackData, attackWeapon, attackStat, targetCreature);
+        creature.m_ScriptVars.SetInt($"_ADVANTAGE_ATTACK_{combatRound.m_nCurrentAttack}".ToExoString(), advantage);
+
         int attackRoll = NativeUtils.GetAttackRoll(creature, advantage, attackStat);
         int targetAC  = NativeUtils.GetCreatureAC(targetCreature, creature);
         bool isCriticalHit = attackRoll >= NativeUtils.GetCriticalRange(creature, attackWeapon, attackData);
@@ -342,6 +344,7 @@ namespace NWN.Systems
       if (attackData.m_nAttackResult < 1)
         return -1;
 
+      CNWSCreature targetCreature = targetObject.m_nObjectType == (int)ObjectType.Creature ? targetObject.AsNWSCreature() : null;
       string attackerName = $"{creatureStats.GetFullName().ToExoLocString().GetSimple(0)}";
 
       LogUtils.LogMessage($"----- Jet de dégâts : {creatureStats.GetFullName().ToExoLocString().GetSimple(0)} attaque {targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)} - type {attackData.m_nAttackType} - nb {combatRound.m_nCurrentAttack} -----", LogUtils.LogType.Combat);    
@@ -349,6 +352,7 @@ namespace NWN.Systems
       CNWSItem attackWeapon = combatRound.GetCurrentAttackWeapon(attackData.m_nWeaponAttackType);
       int baseDamage = 0;
       bool isDuelFightingStyle = false;
+      int sneakAttack = 0;
 
       // Jet de dégâts de l'arme
       if (attackWeapon is not null)
@@ -371,15 +375,8 @@ namespace NWN.Systems
           isDuelFightingStyle = NativeUtils.IsDuelFightingStyle(attacker, baseWeapon, attackData);
           baseDamage += isDuelFightingStyle ? 2 : 0;
         }
-       
-        // On ne peut faire des attaques sournoises qu'avec une arme
-        if (bSneakAttack > 0)
-        {
-          int sneakLevel = (int)Math.Ceiling((double)attacker.m_pStats.GetNumLevelsOfClass((byte)Native.API.ClassType.Rogue) / 2);
-          int sneakRoll = NwRandom.Roll(Utils.random, 6, sneakLevel);
-          baseDamage += sneakRoll;
-          LogUtils.LogMessage($"Sournoise - {sneakLevel}d{6} => {sneakRoll} - Total : {baseDamage}", LogUtils.LogType.Combat);
-        }
+
+        sneakAttack = NativeUtils.GetSneakAttackDamage(attacker, targetCreature, attackWeapon, attackData, combatRound);
 
         if (NativeUtils.IsCogneurLourd(attacker, attackWeapon))
         {
@@ -401,7 +398,7 @@ namespace NWN.Systems
 
       if (bCritical > 0)
       {
-        int critDamage = NativeUtils.GetCritDamage(attacker, attackWeapon, attackData, bSneakAttack, isDuelFightingStyle);
+        int critDamage = NativeUtils.GetCritDamage(attacker, attackWeapon, attackData, sneakAttack, isDuelFightingStyle);
         LogUtils.LogMessage($"Critique - Base {baseDamage} + crit {critDamage} = {baseDamage + critDamage}", LogUtils.LogType.Combat);
         baseDamage += critDamage;
       }
@@ -453,12 +450,11 @@ namespace NWN.Systems
 
       baseDamage += NativeUtils.HandleBagarreurDeTaverne(attacker, attackWeapon, strBonus);
 
-      CNWSCreature targetCreature = targetObject.m_nObjectType == (int)ObjectType.Creature ? targetObject.AsNWSCreature() : null;
-
       if (targetCreature is not null)
       {
         baseDamage -= NativeUtils.HandleMaitreArmureLourde(targetCreature);
         baseDamage -= NativeUtils.HandleParade(targetCreature);
+        baseDamage /= NativeUtils.HandleEsquiveInstinctive(targetCreature);
       }
 
       if (attacker.m_ScriptVars.GetInt(CreatureUtils.TirAffaiblissantVariableExo).ToBool())

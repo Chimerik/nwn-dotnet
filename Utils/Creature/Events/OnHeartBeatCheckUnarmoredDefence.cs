@@ -11,7 +11,7 @@ namespace NWN
     {
       NwItem armor = onHB.Creature.GetItemInSlot(InventorySlot.Chest);
 
-      if (onHB.Creature.GetClassInfo(NwClass.FromClassId(CustomClass.Barbarian))?.Level > 0 && (armor is null || armor.BaseACValue < 1))
+      if (onHB.Creature.Classes.Any(c => c.Class.ClassType == ClassType.Barbarian && c.Level > 0) && (armor is null || armor.BaseACValue < 1))
       {
         if (onHB.Creature.GetAbilityModifier(Ability.Constitution) > 0 && !onHB.Creature.ActiveEffects.Any(e => e.Tag == EffectSystem.UnarmoredDefenceEffectTag))
           onHB.Creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetUnarmoredDefenseEffect(onHB.Creature.GetAbilityModifier(Ability.Constitution)));

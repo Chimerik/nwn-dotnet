@@ -16,10 +16,20 @@ namespace NWN.Systems
       int barbarianLevel = creature.m_pStats.GetNumLevelsOfClass((byte)Native.API.ClassType.Barbarian);
 
       if (barbarianLevel < 9)
+      {
+        LogUtils.LogMessage($"Barbare (< 9) - Rage : +2 dégâts", LogUtils.LogType.Combat);
         return 2;
+      }
       else if (barbarianLevel < 16)
+      {
+        LogUtils.LogMessage($"Barbare (< 16) - Rage : +3 dégâts", LogUtils.LogType.Combat);
         return 3;
-      else return 4;
+      }
+      else
+      {
+        LogUtils.LogMessage($"Barbare (max) - Rage : +4 dégâts", LogUtils.LogType.Combat);
+        return 4;
+      }
     }
   }
 }

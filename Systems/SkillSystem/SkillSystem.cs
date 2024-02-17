@@ -54,6 +54,8 @@ namespace NWN.Systems
       AspectTotem,
       [Description("Lien_Totem")]
       LienTotem,
+      [Description("Voie_du_Roublard")]
+      RogueSubClass,
     }
 
     public static readonly Dictionary<int, Learnable> learnableDictionary = new();
@@ -402,6 +404,8 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomSkill.WildMagicTeleportation, new LearnableSkill(CustomSkill.WildMagicTeleportation, "Téléportation (voie de la magie sauvage)", "Action bonus\n\nVous pouvez vous téléporter jusqu'à une distance de 18m sur un espace inoccupé sur lequel vous disposez d'une ligne de vue", Category.Magic, "is_MagicTeleport", 1, 1, Ability.Constitution, Ability.Wisdom, OnLearnWildMagicTeleportation));
       learnableDictionary.Add(CustomSkill.WildMagicMagieGalvanisanteBienfait, new LearnableSkill(CustomSkill.WildMagicMagieGalvanisanteBienfait, "Magie Galvanisante - Bienfait", "Pendant 10 rounds, +1d4 aux jets d'attaques et de caractéristiques de la cible. Non cumulable", Category.Magic, "is_MagicBoon", 1, 1, Ability.Constitution, Ability.Wisdom, OnLearnWildMagicBienfait));
       learnableDictionary.Add(CustomSkill.WildMagicMagieGalvanisanteRecuperation, new LearnableSkill(CustomSkill.WildMagicMagieGalvanisanteRecuperation, "Magie Galvanisante - Récupération", "Pendant 10 rounds, +1d4 aux jets d'attaques et de caractéristiques de la cible. Non cumulable", Category.Magic, "is_MagicRecup", 1, 1, Ability.Constitution, Ability.Wisdom, OnLearnWildMagicRecuperation));
+
+      learnableDictionary.Add(CustomSkill.RogueThief, new LearnableSkill(CustomSkill.RogueThief, "Voie du Voleur", "", Category.RogueSubClass, "thief", 20, 1, Ability.Dexterity, Ability.Intelligence, Rogue.LevelUp, "19vKrKk6syyslazraiEOjTqzGErEuTVFnZnOU8U4f7KI"));
 
       // SPELLS
       // CANTRIPS

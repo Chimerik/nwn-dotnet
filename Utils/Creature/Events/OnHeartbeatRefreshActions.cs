@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
-using NWN.Native.API;
 using NWN.Systems;
 
 namespace NWN
@@ -14,6 +13,7 @@ namespace NWN
       {
         creature.GetObjectVariable<LocalVariableInt>(BonusActionVariable).Value = 1;
         creature.GetObjectVariable<LocalVariableInt>(HastMasterCooldownVariable).Delete();
+        creature.GetObjectVariable<LocalVariableInt>(SneakAttackCooldownVariable).Delete();
 
         if(creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.BersekerRepresailles)))
           creature.GetObjectVariable<LocalVariableInt>(BersekerRepresaillesVariable).Value = 1;

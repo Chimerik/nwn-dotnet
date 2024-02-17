@@ -11,6 +11,7 @@ namespace NWN.Systems
         || creature.m_pStats.m_nRace == CustomRace.HumanoidOrc)
       {
         creature.m_ScriptVars.DestroyInt(CreatureUtils.FureurOrcBonusDamageVariableExo);
+        LogUtils.LogMessage($"Fureur orc : +1 dé de dégâts", LogUtils.LogType.Combat);
         return 1;
       }
 

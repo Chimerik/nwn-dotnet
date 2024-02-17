@@ -3,6 +3,7 @@ using Anvil.API;
 using NativeUtils = NWN.Systems.NativeUtils;
 using NWN.Systems;
 using NWN.Core;
+using System.Linq;
 
 namespace NWN
 {
@@ -72,7 +73,7 @@ namespace NWN
       NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant,
         Effect.Damage(damage, DamageType.Piercing)));
 
-      int forceDamage = caster.GetClassInfo(NwClass.FromClassId(CustomClass.Fighter))?.Level < 18
+      int forceDamage = caster.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level < 18)
         ? NwRandom.Roll(Utils.random, 6, 2) : NwRandom.Roll(Utils.random, 6, 4);
 
       forceDamage /= saveFailed ? 2 : 1;

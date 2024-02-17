@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using NWN.Core;
 
 namespace NWN.Systems
@@ -117,14 +118,14 @@ namespace NWN.Systems
 
       bool freeRageRoll = BarbarianUtils.IsRatelTriggered(caster) && Utils.random.Next(0, 2).ToBool();
         
-      if (caster.GetClassInfo(NwClass.FromClassType(ClassType.Barbarian))?.Level < 20 || freeRageRoll)
+      if (caster.Classes.Any(c => c.Class.ClassType == ClassType.Barbarian && c.Level < 20) || freeRageRoll)
         FeatUtils.DecrementFeatUses(caster, (int)Feat.BarbarianRage);
 
       if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.WildMagicSense)))
       {
         HandleWildMagicRage(caster);
 
-        if (caster.GetClassInfo(NwClass.FromClassType(ClassType.Barbarian))?.Level > 9)
+        if (caster.Classes.Any(c => c.Class.ClassType == ClassType.Barbarian && c.Level > 9))
           caster.OnDamaged += BarbarianUtils.OnDamagedWildMagic;
       }
 

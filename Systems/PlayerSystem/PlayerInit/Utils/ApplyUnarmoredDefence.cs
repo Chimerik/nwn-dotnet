@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -8,7 +9,7 @@ namespace NWN.Systems
     {
       private void ApplyUnarmoredDefence()
       {
-        if (oid.LoginCreature.GetClassInfo(NwClass.FromClassId(CustomClass.Barbarian))?.Level > 0)
+        if (oid.LoginCreature.Classes.Any(c => c.Class.ClassType == ClassType.Barbarian && c.Level > 0))
         {
           oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipUnarmoredDefence;
           oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipUnarmoredDefence;

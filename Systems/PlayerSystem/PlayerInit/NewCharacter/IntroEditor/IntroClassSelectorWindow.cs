@@ -336,9 +336,15 @@ namespace NWN.Systems
         {
           List<LearnableSkill> profienciesToRemove = new();
 
-          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.FighterSecondWind));
+          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatType(Feat.SneakAttack));
 
-          foreach (var skill in player.learnableSkills.Where(l => l.Value.source.Any(s => s == SkillSystem.Category.Class)))
+          if (player.windows.TryGetValue("expertiseChoice", out var expertise) && expertise.IsOpen)
+          {
+            expertise.CloseWindow();
+            player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_EXPERTISE_CHOICE").Delete();
+          }
+
+          foreach (var skill in player.learnableSkills.Where(l => l.Value.source.Any(s => s == Category.Class)))
             profienciesToRemove.Add(skill.Value);
 
           foreach (var proficiency in profienciesToRemove)
@@ -347,6 +353,9 @@ namespace NWN.Systems
               player.learnableSkills.Remove(proficiency.id);
             else
               proficiency.source.Remove(Category.Class);
+
+            if (player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(proficiency.id)))
+              player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(proficiency.id));
           }
         }
         private void InitSelectableSkills()

@@ -29,8 +29,6 @@ namespace NWN
 
           SpellUtils.SendSavingThrowFeedbackMessage(onAttack.Attacker, target, feedback, advantage, tirDC, totalSave, saveFailed, Ability.Strength);
 
-          saveFailed = true;
-
           if (saveFailed)
           {
             NwItem weapon = target.GetItemInSlot(InventorySlot.RightHand);
@@ -40,6 +38,8 @@ namespace NWN
 
             target.OnItemEquip -= ItemSystem.OnEquipDesarmement;
             target.OnItemEquip += ItemSystem.OnEquipDesarmement;
+
+            target.ApplyEffect(EffectDuration.Temporary, EffectSystem.warMasterDesarmement, NwTimeSpan.FromRounds(1));
           }
 
           StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Désarmement", ColorConstants.Red, true);

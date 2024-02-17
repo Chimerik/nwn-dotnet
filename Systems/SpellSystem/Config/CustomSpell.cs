@@ -28,5 +28,6 @@
     public const int SensAnimal = 864;
     public const int HurlementGalvanisant = 865;
     public const int CommunionAvecLaNature = 865;
+    public const int Stealth = 867;
   }
 }

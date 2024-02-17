@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -9,7 +10,7 @@ namespace NWN.Systems
       private void InitializeActionSurge()
       {
         if (oid.LoginCreature.GetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.FighterSurge)) > 1
-          && oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Fighter))?.Level < 17)
+          && oid.LoginCreature.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level < 17))
           oid.LoginCreature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.FighterSurge), 1);
       }
     }

@@ -1,16 +1,19 @@
 ﻿using System.Linq;
 using Anvil.API;
-using static NWN.Systems.PlayerSystem;
+using Anvil.API.Events;
 
 namespace NWN.Systems
 {
   public partial class FeatSystem
   {
-    private static void Sprint(NwCreature caster)
+    private static void Sprint(NwCreature caster, OnUseFeat onUseFeat)
     {
-      if (!caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemEspritAigle)) 
-        || !caster.ActiveEffects.Any(e => e.Tag == EffectSystem.BarbarianRageEffectTag)
-        || caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value < 1)
+      if (caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value < 1)
+        return;
+
+      if(!caster.Classes.Any(c => c.Class.ClassType == ClassType.Rogue && c.Level > 1)
+        && (!caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemEspritAigle)) 
+        || !caster.ActiveEffects.Any(e => e.Tag == EffectSystem.BarbarianRageEffectTag)))
         return;
 
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHaste));
@@ -34,6 +37,7 @@ namespace NWN.Systems
       caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value -= 1;
 
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} sprinte", ColorConstants.Orange, true);
+      onUseFeat.PreventFeatUse = true;
     }
   }
 }

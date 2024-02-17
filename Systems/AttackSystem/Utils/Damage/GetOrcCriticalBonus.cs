@@ -12,7 +12,9 @@ namespace NWN.Systems
         switch (creature.m_pStats.m_nRace)
         {
           case CustomRace.HalfOrc:
-          case CustomRace.HumanoidOrc: return 1;;
+          case CustomRace.HumanoidOrc:
+            LogUtils.LogMessage("Bonus critique des orcs : +1 dé de dégâts", LogUtils.LogType.Combat);
+            return 1;
         }
       }
 

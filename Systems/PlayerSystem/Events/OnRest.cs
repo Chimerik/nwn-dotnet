@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       /*(onRest.RestEventType == RestEventType.Finished)
       {
-        byte? warMasterLevel = onRest.Player.LoginCreature.GetClassInfo(NwClass.FromClassId(CustomClass.Fighter))?.Level;
+        byte? warMasterLevel = onRest.Player.LoginCreature.GetClassInfo(NwClass.FromClassId(CustomClass.Fighter));
 
         if (warMasterLevel.HasValue)
           RestoreManoeuvres(onRest.Player.LoginCreature, warMasterLevel.Value);

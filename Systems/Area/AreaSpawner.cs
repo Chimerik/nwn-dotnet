@@ -108,7 +108,7 @@ namespace NWN.Systems
         }
       }
 
-      if (creature.GetClassInfo(NwClass.FromClassId(CustomClass.Barbarian))?.Level > 0)
+      if (creature.Classes.Any(c => c.Class.ClassType == ClassType.Barbarian && c.Level > 0))
       {
         creature.OnItemEquip -= ItemSystem.OnEquipUnarmoredDefence;
         creature.OnItemUnequip -= ItemSystem.OnUnEquipUnarmoredDefence;

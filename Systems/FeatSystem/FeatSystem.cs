@@ -30,8 +30,9 @@ namespace NWN.Systems
           onUseFeat.PreventFeatUse = true;
           return;
 
-        case CustomSkill.Sprint: Sprint(onUseFeat.Creature); return;
-        //case CustomSkill.Disengage: Disengage(onUseFeat.Creature); return;
+        case CustomSkill.Sprint: Sprint(onUseFeat.Creature, onUseFeat); return;
+        case CustomSkill.Disengage: Disengage(onUseFeat.Creature, onUseFeat); return;
+        case CustomSkill.Stealth: Stealth(onUseFeat.Creature, onUseFeat); return;
         //case CustomSkill.Dodge: Dodge(onUseFeat.Creature, player); return;
         case CustomSkill.FighterSecondWind: SecondWind(onUseFeat.Creature); return;
         case CustomSkill.FighterSurge: ActionSurge(onUseFeat.Creature); return;

@@ -313,10 +313,6 @@ namespace NWN.Systems
         if (Players.TryGetValue(onLostGold.Creature, out Player player))
           player.oid.ExportCharacter();
       }
-      private void HandleStealthMode(OnStealthModeUpdate onStealth)
-      {
-        onStealth.EnterOverride = StealthModeOverride.PreventEnter;
-      }
       public async void SaveMapPinsToDatabase()
       {
         using var stream = new MemoryStream();
