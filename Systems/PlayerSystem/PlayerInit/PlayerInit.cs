@@ -444,6 +444,7 @@ namespace NWN.Systems
         ApplyShieldArmorMalus();
         ApplyUnarmoredDefence();
         InitializeActionSurge();
+        InitializeWarMasterImplacable();
         ApplyElkAspect();
         ApplyGloutonAspect();
 

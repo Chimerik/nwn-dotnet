@@ -113,6 +113,7 @@ namespace NWN.Systems
                       player.learnableSkills[learnable.id].LevelUp(player);
                     }
 
+                    FighterUtils.RestoreManoeuvres(player.oid.LoginCreature);
                     player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpImproveAbilityScore));
 
                     CloseWindow();

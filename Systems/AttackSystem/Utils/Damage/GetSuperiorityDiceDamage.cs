@@ -1,4 +1,5 @@
 ﻿using Anvil.API;
+using NWN.Core;
 using NWN.Native.API;
 
 namespace NWN.Systems
@@ -7,8 +8,8 @@ namespace NWN.Systems
   {
     public static int GetSuperiorityDiceDamage(CNWSCreature creature, CNWSCombatAttackData data)
     {
-      if (data.m_nAttackType == 6 && creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreTypeVariableExo) == CustomSkill.WarMasterRiposte
-        && creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreRiposteVariableExo).ToBool())
+      if (data.m_nAttackType == 39102 && creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreTypeVariableExo) == CustomSkill.WarMasterRiposte
+        && creature.m_ScriptVars.GetObject(CreatureUtils.ManoeuvreRiposteVariableExo) != NWScript.OBJECT_INVALID)
       {
         int superiorityDice = creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreDiceVariableExo);
         int superiorityRoll = NwRandom.Roll(Utils.random, superiorityDice);
@@ -24,6 +25,7 @@ namespace NWN.Systems
         case CustomSkill.WarMasterFeinte:
         case CustomSkill.WarMasterInstruction:
         case CustomSkill.WarMasterProvocation:
+        case CustomSkill.WarMasterManoeuvreTactique:
 
           int superiorityDice = creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreDiceVariableExo);
           int superiorityRoll = NwRandom.Roll(Utils.random, superiorityDice);

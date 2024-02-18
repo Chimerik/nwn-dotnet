@@ -247,6 +247,7 @@ namespace NWN.Systems
           attackData.m_nMissedBy = (byte)(targetAC - attackRoll) > 8 ? (byte)Utils.random.Next(1, 9) : (byte)(targetAC - attackRoll);
           hitString = "manquez".ColorString(ColorConstants.Red);
           rollString = rollString.StripColors().ColorString(ColorConstants.Red);
+          NativeUtils.HandleRiposte(creature, targetCreature, attackData);
           LogUtils.LogMessage($"Manqué : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC}", LogUtils.LogType.Combat);
         }
 
@@ -483,8 +484,8 @@ namespace NWN.Systems
         attacker.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreDiceVariableExo);
       }
 
-      if (attackData.m_nAttackType == 65002 && attacker.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreRiposteVariableExo).ToBool())
-        attacker.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreRiposteVariableExo);
+      if (attackData.m_nAttackType == 39102 && attacker.m_ScriptVars.GetObject(CreatureUtils.ManoeuvreRiposteVariableExo) != NWScript.OBJECT_INVALID)
+        attacker.m_ScriptVars.DestroyObject(CreatureUtils.ManoeuvreRiposteVariableExo);
 
       NativeUtils.HandleBersekerRepresailles(attacker, targetCreature);
 

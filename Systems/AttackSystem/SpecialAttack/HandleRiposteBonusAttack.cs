@@ -1,4 +1,5 @@
 ﻿using Anvil.API;
+using NWN.Core;
 using NWN.Native.API;
 
 namespace NWN.Systems
@@ -7,7 +8,7 @@ namespace NWN.Systems
   {
     public static void HandleRiposteBonusAttack(CNWSCreature attacker, CNWSCombatRound round, CNWSCombatAttackData data, string attackerName)
     {
-      if (!data.m_bRangedAttack.ToBool() && attacker.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreRiposteVariableExo).ToBool())
+      if (!data.m_bRangedAttack.ToBool() && attacker.m_ScriptVars.GetObject(CreatureUtils.ManoeuvreRiposteVariableExo) != NWScript.OBJECT_INVALID)
       {
         var target = NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(attacker.m_ScriptVars.GetObject(CreatureUtils.ManoeuvreRiposteVariableExo));
 

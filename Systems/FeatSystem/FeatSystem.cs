@@ -62,7 +62,7 @@ namespace NWN.Systems
         case CustomSkill.WarMasterFeinte: Feinte(onUseFeat.Creature); return;
         case CustomSkill.WarMasterInstruction: Instruction(onUseFeat.Creature, onUseFeat.TargetObject); return;
         case CustomSkill.WarMasterJeuDeJambe: JeuDeJambe(onUseFeat.Creature); return;
-        case CustomSkill.WarMasterManoeuvreTactique: ManoeuvreTactique(onUseFeat.Creature, onUseFeat.TargetObject); return;
+        case CustomSkill.WarMasterManoeuvreTactique: ManoeuvreTactique(onUseFeat.Creature); return;
         case CustomSkill.WarMasterParade: Parade(onUseFeat.Creature); return;
         case CustomSkill.WarMasterProvocation: Provocation(onUseFeat.Creature); return;
         case CustomSkill.WarMasterRalliement: Ralliement(onUseFeat.Creature, onUseFeat.TargetObject); return;
