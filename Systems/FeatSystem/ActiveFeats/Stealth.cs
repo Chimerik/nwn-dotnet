@@ -17,16 +17,13 @@ namespace NWN.Systems
 
       if (caster.Classes.Any(c => c.Class.ClassType == ClassType.Rogue && c.Level > 1))
       {
-        if (caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value > 0)
-        {
-          caster.GetObjectVariable<LocalVariableInt>("_STEALTH_AUTHORIZED").Value = 1;
-          caster.SetActionMode(ActionMode.Stealth, true);
-          caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value -= 1;
-          onUseFeat.PreventFeatUse = true;
+        if (!CreatureUtils.HandleBonusActionUse(caster))
           return;
-        }
-        else
-          caster.LoginPlayer?.SendServerMessage("Aucune action bonus disponible", ColorConstants.Orange);
+
+        caster.GetObjectVariable<LocalVariableInt>("_STEALTH_AUTHORIZED").Value = 1;
+        caster.SetActionMode(ActionMode.Stealth, true);
+        onUseFeat.PreventFeatUse = true;
+        return;
       }
     }
     private static void Stealth(NwCreature caster)

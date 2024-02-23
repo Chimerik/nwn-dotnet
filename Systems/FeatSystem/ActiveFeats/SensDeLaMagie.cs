@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using System.Numerics;
-using Anvil.API;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -8,15 +6,10 @@ namespace NWN.Systems
   {
     private static void SensDeLaMagie(NwCreature caster)
     {
-      if (caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value > 0)
-      {
-        caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.wildMagicAwarenessAura, NwTimeSpan.FromRounds(1));
-        caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value -= 1;
+      if (!CreatureUtils.HandleBonusActionUse(caster))
+        return;
 
-        CreatureUtils.HandleBonusActionCooldown(caster);
-      }
-      else
-        caster.LoginPlayer?.SendServerMessage("Aucune action bonus disponible", ColorConstants.Red);
+      caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.wildMagicAwarenessAura, NwTimeSpan.FromRounds(1));
     }
   }
 }

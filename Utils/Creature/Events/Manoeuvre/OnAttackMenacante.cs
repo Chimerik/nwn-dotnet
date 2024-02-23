@@ -8,7 +8,7 @@ namespace NWN
 {
   public static partial class CreatureUtils
   {
-    public static void OnAttackMenacante(OnCreatureAttack onAttack)
+    public static async void OnAttackMenacante(OnCreatureAttack onAttack)
     {
       if (onAttack.Target is not NwCreature target)
         return;
@@ -18,8 +18,6 @@ namespace NWN
         case AttackResult.Hit:
         case AttackResult.CriticalHit:
         case AttackResult.AutomaticHit:
-
-          onAttack.Attacker.OnCreatureAttack -= OnAttackMenacante;
 
           bool saveFailed = false;
 
@@ -44,6 +42,9 @@ namespace NWN
           }
 
           StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Attaque Menaçante", ColorConstants.Red, true);
+
+          await NwTask.NextFrame();
+          onAttack.Attacker.OnCreatureAttack -= OnAttackMenacante;
 
           break;
       }

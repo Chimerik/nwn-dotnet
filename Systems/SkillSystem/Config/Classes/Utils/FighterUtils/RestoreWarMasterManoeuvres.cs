@@ -14,6 +14,7 @@ namespace NWN.Systems
       byte featUse = (byte)(level.Value > 14 ? 6 : level.Value > 6 ? 5 : 4);
 
       await NwTask.NextFrame();
+      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WarMasterAttaqueMenacante), featUse);
       creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WarMasterAttaquePrecise), featUse);
       creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WarMasterBalayage), featUse);
       creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WarMasterRenversement), featUse);

@@ -10,6 +10,8 @@ namespace NWN.Systems
       if (weapon is not null || strBonus < 1 || !creature.m_pStats.HasFeat(CustomSkill.BagarreurDeTaverne).ToBool())
         return 0;
 
+      LogUtils.LogMessage($"Bagarreur de taverne dégâts : +{strBonus}", LogUtils.LogType.Combat);
+
       return strBonus;
     }
   }

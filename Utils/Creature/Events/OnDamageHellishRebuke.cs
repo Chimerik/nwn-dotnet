@@ -36,7 +36,7 @@ namespace NWN
       bool saveFailed = totalSave < spellDC;
 
       SpellUtils.SendSavingThrowFeedbackMessage(onDamage.Creature, damager, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);
-      SpellUtils.DealSpellDamage(damager, onDamage.Creature.LastSpellCasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(onDamage.Creature, spell), onDamage.Creature, saveFailed);
+      SpellUtils.DealSpellDamage(damager, onDamage.Creature.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(onDamage.Creature, spell), onDamage.Creature, saveFailed);
 
       onDamage.Creature.GetObjectVariable<LocalVariableInt>(ReactionVariable).Value -= 1;
       onDamage.Creature.DecrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.HellishRebuke));

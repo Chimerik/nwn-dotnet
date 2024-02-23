@@ -69,12 +69,6 @@ namespace NWN.Systems
 
         case 5:
 
-          player.learnableSkills.TryAdd(CustomSkill.FighterBonusAttack, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterBonusAttack], player));
-          player.learnableSkills[CustomSkill.FighterBonusAttack].LevelUp(player);
-          player.learnableSkills[CustomSkill.FighterBonusAttack].source.Add(Category.Class);
-
-          player.oid.LoginCreature.BaseAttackCount += 1; 
-
           if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat))
             player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat);
 
@@ -82,8 +76,8 @@ namespace NWN.Systems
 
         case 6:
 
-          if (!player.windows.TryGetValue("featSelection", out var feat6)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
-          else ((FeatSelectionWindow)feat6).CreateWindow();
+          if (!player.windows.TryGetValue("expertiseChoice", out var expertise6)) player.windows.Add("expertiseChoice", new ExpertiseChoiceWindow(player));
+          else ((ExpertiseChoiceWindow)expertise6).CreateWindow();
 
           break;
 
@@ -91,6 +85,9 @@ namespace NWN.Systems
 
           if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat))
             player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat);
+
+          if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatType(Feat.ImprovedEvasion)))
+            player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.ImprovedEvasion));
 
           break;
 
@@ -103,21 +100,19 @@ namespace NWN.Systems
 
         case 9:
 
-          player.learnableSkills.TryAdd(CustomSkill.FighterInflexible, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterInflexible], player));
-          player.learnableSkills[CustomSkill.FighterInflexible].LevelUp(player);
-          player.learnableSkills[CustomSkill.FighterInflexible].source.Add(Category.Class);
-
           if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat))
             player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat);
 
           break;
 
+        case 10:
+
+          if (!player.windows.TryGetValue("featSelection", out var feat10)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
+          else ((FeatSelectionWindow)feat10).CreateWindow();
+
+          break;
+
         case 11:
-
-          player.learnableSkills.TryAdd(CustomSkill.FighterBonusAttack, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterBonusAttack], player));
-          player.learnableSkills[CustomSkill.FighterBonusAttack].LevelUp(player);
-
-          player.oid.LoginCreature.BaseAttackCount += 1;
 
           if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat))
             player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat);
@@ -133,9 +128,6 @@ namespace NWN.Systems
 
         case 13:
 
-          player.learnableSkills.TryAdd(CustomSkill.FighterInflexible, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterInflexible], player));
-          player.learnableSkills[CustomSkill.FighterInflexible].LevelUp(player);
-
           if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat))
             player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat);
 
@@ -146,29 +138,22 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("featSelection", out var feat14)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
           else ((FeatSelectionWindow)feat14).CreateWindow();
 
+          player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.perceptionAveugleAura);
+
           break;
 
         case 15:
+
+          player.learnableSkills.TryAdd(CustomSkill.WisdomSavesProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.WisdomSavesProficiency], player));
+          player.learnableSkills[CustomSkill.WisdomSavesProficiency].LevelUp(player);
+          player.learnableSkills[CustomSkill.WisdomSavesProficiency].source.Add(Category.Class);
 
           if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat))
             player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat);
 
           break;
 
-        case 16:
-
-          if (!player.windows.TryGetValue("featSelection", out var feat16)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
-          else ((FeatSelectionWindow)feat16).CreateWindow();
-
-          break;
-
         case 17:
-
-          player.learnableSkills.TryAdd(CustomSkill.FighterInflexible, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterInflexible], player));
-          player.learnableSkills[CustomSkill.FighterInflexible].LevelUp(player);
-
-          player.learnableSkills.TryAdd(CustomSkill.FighterSurge, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterSurge], player));
-          player.learnableSkills[CustomSkill.FighterSurge].LevelUp(player);
 
           if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat))
             player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat);
@@ -177,20 +162,8 @@ namespace NWN.Systems
 
         case 19:
 
-          if (!player.windows.TryGetValue("featSelection", out var feat19)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
-          else ((FeatSelectionWindow)feat19).CreateWindow();
-
           if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat))
             player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat);
-
-          break;
-
-        case 20:
-
-          player.learnableSkills.TryAdd(CustomSkill.FighterBonusAttack, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterBonusAttack], player));
-          player.learnableSkills[CustomSkill.FighterBonusAttack].LevelUp(player);
-
-          player.oid.LoginCreature.BaseAttackCount += 1;
 
           break;
       }

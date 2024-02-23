@@ -6,7 +6,7 @@ namespace NWN
 {
   public static partial class CreatureUtils
   {
-    public static void OnAttackApplyBleed(OnCreatureAttack onAttack)
+    public static async void OnAttackApplyBleed(OnCreatureAttack onAttack)
     {
       if(onAttack.Target.GetObjectVariable<LocalVariableInt>(ApplyBleedVariable).HasValue)
       {
@@ -20,6 +20,8 @@ namespace NWN
           if(onAttack.Attacker.GetObjectVariable<LocalVariableInt>(TigerAspectBleedVariable).Value < 1)
           {
             onAttack.Attacker.GetObjectVariable<LocalVariableInt>(TigerAspectBleedVariable).Delete();
+            
+            await NwTask.NextFrame();
             onAttack.Attacker.OnCreatureAttack -= OnAttackApplyBleed;
           }
         }

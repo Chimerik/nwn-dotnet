@@ -12,6 +12,7 @@ namespace NWN.Systems
         return;
       }
 
+      FeatUtils.ClearPreviousManoeuvre(caster);
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"*Observe {target.Name} (Maître de guerre)*", ColorConstants.Cyan, true);
     }
   }

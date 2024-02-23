@@ -1,11 +1,17 @@
 ﻿using System.Collections.Generic;
 using Anvil.API;
 
+using NWN.Native.API;
+
+using Ability = Anvil.API.Ability;
+using EffectSubType = Anvil.API.EffectSubType;
+
 namespace NWN.Systems
 {
   public partial class EffectSystem
   {
     public const string KnockdownEffectTag = "_KNOCKDOWN_EFFECT";
+    public static readonly CExoString KnockdownEffectTagExo = KnockdownEffectTag.ToExoString();
     public static Effect knockdown
     {
       get

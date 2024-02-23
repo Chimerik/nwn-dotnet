@@ -195,7 +195,6 @@ namespace NWN.Systems
                   if (!string.IsNullOrEmpty(portraitResRef))
                   {
                     player.oid.LoginCreature.PortraitResRef = portraitResRef.Remove(portraitResRef.Length - 1);
-                    ModuleSystem.Log.Info(player.oid.LoginCreature.PortraitResRef);
                     player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_PORTRAIT").Delete();
                   }
                   
@@ -208,7 +207,6 @@ namespace NWN.Systems
                   if (!string.IsNullOrEmpty(portraitResRef))
                   {
                     player.oid.LoginCreature.PortraitResRef = portraitResRef.Remove(portraitResRef.Length - 1);
-                    ModuleSystem.Log.Info(player.oid.LoginCreature.PortraitResRef);
                     player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_PORTRAIT").Delete();
                   }
 

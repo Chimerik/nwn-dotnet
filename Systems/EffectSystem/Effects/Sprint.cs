@@ -1,4 +1,6 @@
 ﻿using Anvil.API;
+using Anvil.API.Events;
+using Anvil.Services;
 
 namespace NWN.Systems
 {
@@ -6,11 +8,13 @@ namespace NWN.Systems
   {
     public const string SprintEffectTag = "_EFFECT_SPRINT";
     public const string SprintMobileEffectTag = "_EFFECT_SPRINT_MOBILE";
+    private static ScriptCallbackHandle onRemoveSprintCallback;
     public static Effect sprintEffect
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.MovementSpeedIncrease(50), Effect.Icon(NwGameTables.EffectIconTable.GetRow(142)));
+        Effect eff = Effect.LinkEffects(Effect.MovementSpeedIncrease(50), Effect.Icon(NwGameTables.EffectIconTable.GetRow(142)),
+          Effect.RunAction(onRemovedHandle: onRemoveSprintCallback));
         eff.Tag = SprintEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;
@@ -25,6 +29,18 @@ namespace NWN.Systems
         eff.SubType = EffectSubType.Supernatural;
         return eff;
       }
+    }
+    private static ScriptHandleResult OnRemoveSprint(CallInfo callInfo)
+    {
+      EffectRunScriptEvent eventData = new EffectRunScriptEvent();
+
+      if (eventData.EffectTarget is not NwCreature creature)
+        return ScriptHandleResult.Handled;
+
+      if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Chargeur)))
+        creature.GetObjectVariable<LocalVariableLocation>("_CHARGER_INITIAL_LOCATION").Delete();
+
+      return ScriptHandleResult.Handled;
     }
   }
 }

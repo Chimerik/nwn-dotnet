@@ -12,20 +12,14 @@ namespace NWN.Systems
         return;
       }
 
-      if (caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value < 1)
-      {
-        caster.LoginPlayer?.SendServerMessage("Aucune action bonus disponible", ColorConstants.Red);
+      if (!CreatureUtils.HandleBonusActionUse(caster))
         return;
-      }
 
-      caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value -= 1;
       _ = caster.ClearActionQueue();
       _ = caster.AddActionToQueue(() => caster.ActionForceMoveTo(targetObject, true));
       _ = caster.AddActionToQueue(() => caster.ActionAttackTarget(targetObject));
 
       caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.agressionOrc, NwTimeSpan.FromRounds(1));
-
-      CreatureUtils.HandleBonusActionCooldown(caster);
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Agression", ColorConstants.Red, true);
 
       await NwTask.NextFrame();

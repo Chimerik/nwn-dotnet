@@ -6,6 +6,8 @@ namespace NWN.Systems
   {
     private static void JeuDeJambe(NwCreature caster)
     {
+      FeatUtils.ClearPreviousManoeuvre(caster);
+
       caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.jeuDeJambe, NwTimeSpan.FromRounds(1));
 
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Jeu de Jambe", StringUtils.gold, true);

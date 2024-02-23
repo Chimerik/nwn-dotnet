@@ -10,34 +10,50 @@ namespace NWN
       List<Ability> targetAbilities, List<int> attackerSkills, List<int> targetSkills, SpellConfig.SpellEffectType effectType = SpellConfig.SpellEffectType.Invalid)
     {
       int attackerScore = 0;
+      int attackerSkill = 0;
       Ability attackerAbility = Ability.Strength;
       int i = 0;
 
       foreach(Ability ability in attackerAbilities) 
       {
         int tempScore = GetSkillScore(attacker, ability, attackerSkills[i]);
-        tempScore = tempScore > attackerScore ? tempScore : attackerScore;
-        attackerAbility = tempScore > attackerScore ? attackerAbilities[i] : attackerAbility;
+
+        if(tempScore > attackerScore)
+        {
+          attackerAbility = attackerAbilities[i];
+          attackerSkill = attackerSkills[i];
+        }
+        else
+          tempScore = attackerScore;
+        
         i++;
       }
 
       int targetScore = 0;
+      int targetSkill = 0;
       Ability targetAbility = Ability.Strength;
       i = 0;
 
       foreach (Ability ability in targetAbilities)
       {
         int tempScore = GetSkillScore(target, ability, targetSkills[i]);
-        tempScore = tempScore > targetScore ? tempScore : targetScore;
-        targetAbility = tempScore > targetScore ? targetAbilities[i] : targetAbility;
+
+        if (tempScore > targetScore)
+        {
+          targetAbility = targetAbilities[i];
+          targetSkill = targetSkills[i];
+        }
+        else
+          tempScore = targetScore;
+
         i++;
       }
 
       int attackerAdvantage = GetCreatureAbilityAdvantage(attacker, attackerAbility);
       int targetAdvantage = GetCreatureAbilityAdvantage(target, targetAbility, effectType: SpellConfig.SpellEffectType.Knockdown);
 
-      int attackerRoll = Utils.RollAdvantage(attackerAdvantage);
-      int targetRoll = Utils.RollAdvantage(targetAdvantage);
+      int attackerRoll = RogueUtils.HandleSavoirFaire(attacker, attackerSkill, Utils.RollAdvantage(attackerAdvantage));
+      int targetRoll = RogueUtils.HandleSavoirFaire(target, attackerSkill, Utils.RollAdvantage(targetAdvantage));
 
       bool saveFailed = targetRoll + targetScore < attackerRoll + attackerScore;
 

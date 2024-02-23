@@ -6,6 +6,8 @@ namespace NWN.Systems
   {
     private static void Riposte(NwCreature caster)
     {
+      FeatUtils.ClearPreviousManoeuvre(caster);
+
       if (caster.GetItemInSlot(InventorySlot.RightHand)?.BaseItem.NumDamageDice > 0)
       {
         if (!caster.GetItemInSlot(InventorySlot.RightHand).BaseItem.IsRangedWeapon)

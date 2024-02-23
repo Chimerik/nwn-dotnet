@@ -27,7 +27,7 @@ namespace NWN.Systems
 
         private NwObject selectionTarget;
 
-        private readonly Dictionary<string, Utils.MainMenuCommand> myCommandList;
+        private Dictionary<string, Utils.MainMenuCommand> myCommandList = new();
         private Dictionary<string, Utils.MainMenuCommand> currentList;
 
         public MainMenuWindow(Player player) : base(player)
@@ -38,6 +38,12 @@ namespace NWN.Systems
           rowTemplate.Add(new NuiListTemplateCell(new NuiButton(buttonName) { Id = "command", Tooltip = buttonTooltip, Height = 35 }) { VariableSize = true });
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) { Width = 370 } } });
           rootChildren.Add(new NuiRow() { Height = 385, Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35 } } });
+
+          CreateWindow();
+        }
+        public void CreateWindow()
+        {
+          myCommandList.Clear();
 
           if (player.oid.PlayerName == "Chim" || player.oid.PlayerName == "dodozik" || player.oid.PlayerName == "WingsOfJoy")
             myCommandList = Utils.mainMenuCommands.ToDictionary(m => m.Key, m => m.Value);
@@ -57,14 +63,10 @@ namespace NWN.Systems
           if (player.craftJob == null)
             myCommandList.Remove("currentJob");
 
-          if(!player.subscriptions.Any(s => s.type == Utils.SubscriptionType.MailDistantAccess))
+          if (!player.subscriptions.Any(s => s.type == Utils.SubscriptionType.MailDistantAccess))
             myCommandList.Remove("mailBox");
 
-          CreateWindow();
-        }
-        public void CreateWindow()
-        {
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 410, 500);
+          NuiRect windowRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 410, 500);
 
           window = new NuiWindow(rootColumn, "Menu principal")
           {

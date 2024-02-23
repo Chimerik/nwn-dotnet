@@ -4,7 +4,6 @@ using Anvil.Services;
 using System.Linq;
 using NWN.Core;
 using System.Numerics;
-using System;
 
 namespace NWN.Systems
 {
@@ -237,7 +236,7 @@ namespace NWN.Systems
             creature.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreTypeVariableExo);
             creature.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreDiceVariableExo);
 
-            LogUtils.LogMessage($"Attaque précise : dé de supériorité +{superiorityDiceBonus}", LogUtils.LogType.Combat);
+            LogUtils.LogMessage("Activation attaque précise", LogUtils.LogType.Combat);
             LogUtils.LogMessage($"Touché : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC + defensiveDuellistBonus}", LogUtils.LogType.Combat);
             NativeUtils.BroadcastNativeServerMessage($"Attaque précise (+{superiorityDiceBonus})".ColorString(StringUtils.gold), creature);
         }
@@ -258,6 +257,9 @@ namespace NWN.Systems
         NativeUtils.HandleSentinelle(creature, targetCreature, combatRound);
         NativeUtils.HandleFureurOrc(creature, targetCreature, combatRound, attackerName);
         NativeUtils.HandleDiversion(creature, attackData, targetCreature);
+
+        if(attackData.m_nAttackResult == 4 && creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreRiposteVariableExo).ToBool())
+          creature.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreRiposteVariableExo);
       }
       else
         attackData.m_nAttackResult = 7;
@@ -447,8 +449,6 @@ namespace NWN.Systems
       /*else
         LogUtils.LogMessage($"Main secondaire - Bonus de caractéristique non appliqué aux dégâts", LogUtils.LogType.Combat);*/
 
-      LogUtils.LogMessage($"Dégâts : {baseDamage}", LogUtils.LogType.Combat);
-
       baseDamage += NativeUtils.HandleBagarreurDeTaverne(attacker, attackWeapon, strBonus);
 
       if (targetCreature is not null)
@@ -457,19 +457,20 @@ namespace NWN.Systems
         baseDamage -= NativeUtils.HandleParade(targetCreature);
         baseDamage /= NativeUtils.HandleEsquiveInstinctive(targetCreature);
       }
-
       if (attacker.m_ScriptVars.GetInt(CreatureUtils.TirAffaiblissantVariableExo).ToBool())
       {
         baseDamage /= 2;
         LogUtils.LogMessage($"Tir affaiblissant : Dégâts divisés par 2", LogUtils.LogType.Combat);
       }
 
+      LogUtils.LogMessage($"Dégâts : {baseDamage}", LogUtils.LogType.Combat);
+
       // Application des réductions du jeu de base
       baseDamage = targetObject.DoDamageImmunity(attacker, baseDamage, damageFlags, 0, 1);
       LogUtils.LogMessage($"Application des immunités de la cible - Dégats : {baseDamage}", LogUtils.LogType.Combat);
-      baseDamage = targetObject.DoDamageResistance(attacker, baseDamage, damageFlags, 0, 1, 1);
+      baseDamage = targetObject.DoDamageResistance(attacker, baseDamage, damageFlags, 0, 1, 1, attackData.m_bRangedAttack);
       LogUtils.LogMessage($"Application des résistances de la cible - Dégâts : {baseDamage}", LogUtils.LogType.Combat);
-      baseDamage = targetObject.DoDamageReduction(attacker, baseDamage, attacker.CalculateDamagePower(targetObject, bOffHand), 0, 1);
+      baseDamage = targetObject.DoDamageReduction(attacker, baseDamage, attacker.CalculateDamagePower(targetObject, bOffHand), 0, 1, attackData.m_bRangedAttack);
       LogUtils.LogMessage($"Application des réductions de la cible - Calcul Final - Dégâts : {baseDamage}", LogUtils.LogType.Combat);
 
       if(attacker.m_ScriptVars.GetInt(CreatureUtils.AspectTigreMalusVariableExo) > 1)
@@ -477,16 +478,13 @@ namespace NWN.Systems
 
       NativeUtils.HandleCogneurLourdBonusAttack(attacker, targetObject, combatRound, attackData, baseDamage, attackerName);
       NativeUtils.HandleArcaneArcherTirIncurveBonusAttack(attacker, combatRound, attackerName);
-
+      
       if (attacker.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreTypeVariableExo) != CustomSkill.WarMasterAttaquePrecise)
       {
         attacker.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreTypeVariableExo);
         attacker.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreDiceVariableExo);
       }
-
-      if (attackData.m_nAttackType == 39102 && attacker.m_ScriptVars.GetObject(CreatureUtils.ManoeuvreRiposteVariableExo) != NWScript.OBJECT_INVALID)
-        attacker.m_ScriptVars.DestroyObject(CreatureUtils.ManoeuvreRiposteVariableExo);
-
+     
       NativeUtils.HandleBersekerRepresailles(attacker, targetCreature);
 
       return baseDamage;

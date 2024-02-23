@@ -21,7 +21,7 @@ namespace NWN.Systems
           case CustomSpell.FaerieFire: SpellSystem.ApplyFaerieFireEffect(target, spellEntry); return true;
         }
 
-        DealSpellDamage(target, caster.LastSpellCasterLevel, spellEntry, GetSpellDamageDiceNumber(caster, spell), caster);
+        DealSpellDamage(target, caster.CasterLevel, spellEntry, GetSpellDamageDiceNumber(caster, spell), caster);
 
         return true;
       }

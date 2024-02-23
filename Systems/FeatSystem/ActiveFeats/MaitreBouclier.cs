@@ -12,14 +12,10 @@ namespace NWN.Systems
         return;
       }
 
-      if (caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value < 1)
-      {
-        caster.LoginPlayer?.SendServerMessage("Aucune action bonus disponible", ColorConstants.Red);
+      if (!CreatureUtils.HandleBonusActionUse(caster))
         return;
-      }
 
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Maître bouclier", StringUtils.gold, true);
-      caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value -= 1;
 
       if (targetCreature.Size > caster.Size + 1)
       {
@@ -28,7 +24,6 @@ namespace NWN.Systems
       }
 
       EffectSystem.ApplyKnockdown(caster, targetCreature);
-      CreatureUtils.HandleBonusActionCooldown(caster);
     }
   }
 }

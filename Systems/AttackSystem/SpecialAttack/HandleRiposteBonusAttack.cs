@@ -15,6 +15,9 @@ namespace NWN.Systems
         if (target is null)
           return;
 
+        attacker.m_ScriptVars.DestroyObject(CreatureUtils.ManoeuvreRiposteVariableExo);
+        attacker.m_ScriptVars.SetInt(CreatureUtils.ManoeuvreRiposteVariableExo, 1);
+
         string targetName = $"{target.GetFirstName().GetSimple(0)} {target.GetLastName().GetSimple(0)}".ColorString(ColorConstants.Cyan);
         BroadcastNativeServerMessage($"{attackerName.ColorString(ColorConstants.Cyan)} riposte contre {targetName}", attacker);
 

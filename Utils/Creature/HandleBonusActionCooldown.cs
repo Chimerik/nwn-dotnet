@@ -6,8 +6,10 @@ namespace NWN
 {
   public static partial class CreatureUtils
   {
-    public static void HandleBonusActionCooldown(NwCreature creature)
+    public static async void HandleBonusActionCooldown(NwCreature creature)
     {
+      await NwTask.NextFrame();
+
       if (creature.IsPlayerControlled && creature.GetObjectVariable<LocalVariableInt>(BonusActionVariable).Value < 1)
       {
         foreach (var feat in creature.Feats.Where(f => f.TalentMaxCR.ToBool()))
@@ -15,6 +17,7 @@ namespace NWN
           switch(feat.Id)
           {
             case CustomSkill.WarMasterFeinte:
+            case CustomSkill.WarMasterRalliement:
             case CustomSkill.WarMasterInstruction: continue;
           }
 

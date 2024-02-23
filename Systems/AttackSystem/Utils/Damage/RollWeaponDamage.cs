@@ -21,7 +21,7 @@ namespace NWN.Systems
 
       LogUtils.LogMessage($"{weapon.Name.ToString()} - {numDamageDice}d{dieToRoll} => {damage}", LogUtils.LogType.Combat);
 
-      damage += GetSuperiorityDiceDamage(creature, attackData);
+      damage += GetSuperiorityDiceDamage(creature);
       damage += GetBarbarianRageBonusDamage(creature, attackData);
 
       return damage;

@@ -10,7 +10,7 @@ namespace NWN.Systems
       if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oCaster))
         return;
 
-      int nCasterLevel = oCaster.LastSpellCasterLevel;
+      int nCasterLevel = oCaster.CasterLevel;
 
       SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell.SpellType);
 

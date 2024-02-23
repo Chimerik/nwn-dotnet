@@ -15,7 +15,7 @@ namespace NWN.Systems
 
       CreatureUtils.IsImmuneToPetrification(target);
 
-      int nCasterLevel = oCaster.LastSpellCasterLevel;
+      int nCasterLevel = oCaster.CasterLevel;
 
       SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell.SpellType);
 

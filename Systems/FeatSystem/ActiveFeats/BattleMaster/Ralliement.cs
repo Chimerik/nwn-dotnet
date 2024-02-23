@@ -8,7 +8,9 @@ namespace NWN.Systems
   {
     private static void Ralliement(NwCreature caster, NwGameObject targetObject)
     {
-      if(targetObject is not NwCreature target)
+      FeatUtils.ClearPreviousManoeuvre(caster);
+
+      if (targetObject is not NwCreature target)
       {
         caster.ControllingPlayer?.SendServerMessage("Vous devez cibler une créature", ColorConstants.Red);
         return;
@@ -20,13 +22,8 @@ namespace NWN.Systems
         return;
       }
 
-      if (caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value < 1)
-      {
-        caster.ControllingPlayer?.SendServerMessage("Vous ne disposez plus d'action bonus", ColorConstants.Red);
+      if (!CreatureUtils.HandleBonusActionUse(caster))
         return;
-      }
-
-      caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value -= 1;
 
       int warMasterLevel = caster.GetClassInfo(NwClass.FromClassId(CustomClass.Fighter)).Level;
       int superiorityDice = warMasterLevel > 9 ? warMasterLevel > 17 ? 10 : 12 : 8;
@@ -44,7 +41,6 @@ namespace NWN.Systems
 
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"Ralliement ({target.Name})", StringUtils.gold);
       FeatUtils.DecrementManoeuvre(caster);
-      CreatureUtils.HandleBonusActionCooldown(caster);
     }
   }
 }

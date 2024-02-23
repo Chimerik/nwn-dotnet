@@ -72,6 +72,10 @@ namespace NWN.Systems
       onExitWildMagicLumieresProtectricesCallback = scriptHandleFactory.CreateUniqueHandler(onExitWildMagicLumieresProtectricesAura);
 
       onRemoveWarMasterDesarmementCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveWarMasterDesarmement);
+
+      onRemoveSprintCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveSprint);
+
+      onEnterPerceptionAveugleCallback = scriptHandleFactory.CreateUniqueHandler(onEnterPerceptionAveugle);
     }
   }
 }

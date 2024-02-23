@@ -447,6 +447,7 @@ namespace NWN.Systems
         InitializeWarMasterImplacable();
         ApplyElkAspect();
         ApplyGloutonAspect();
+        ApplyPerceptionAveugle();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

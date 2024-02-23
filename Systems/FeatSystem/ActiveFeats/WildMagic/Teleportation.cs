@@ -31,7 +31,10 @@ namespace NWN.Systems
 
       NwCreature caster = selection.Player.LoginCreature;
 
-      if(Vector3.DistanceSquared(selection.TargetPosition, caster.Position) > 324)
+      if (!CreatureUtils.HandleBonusActionUse(caster))
+        return;
+
+      if (Vector3.DistanceSquared(selection.TargetPosition, caster.Position) > 324)
       {
         selection.Player.SendServerMessage("La cible sélectionnée doit se situer à moins de 18 m", ColorConstants.Red);
         return;
@@ -42,8 +45,6 @@ namespace NWN.Systems
       caster.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
 
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Magie Sauvage - Téléportation", StringUtils.gold, true);
-
-      CreatureUtils.HandleBonusActionCooldown(caster);
     }
   }
 }

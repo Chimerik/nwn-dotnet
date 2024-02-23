@@ -6,6 +6,8 @@ namespace NWN.Systems
   {
     private static void AttaquePrecise(NwCreature caster)
     {
+      FeatUtils.ClearPreviousManoeuvre(caster);
+
       if (caster.GetItemInSlot(InventorySlot.RightHand)?.BaseItem.NumDamageDice > 0)
       {
         int warMasterLevel = caster.GetClassInfo(NwClass.FromClassId(CustomClass.Fighter)).Level;

@@ -6,6 +6,8 @@ namespace NWN.Systems
   {
     private static void Parade(NwCreature caster)
     {
+      FeatUtils.ClearPreviousManoeuvre(caster);
+
       int warMasterLevel = caster.GetClassInfo(NwClass.FromClassId(CustomClass.Fighter)).Level;
       int superiorityDice = warMasterLevel > 9 ? warMasterLevel > 17 ? 10 : 12 : 8;
 

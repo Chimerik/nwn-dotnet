@@ -20,6 +20,8 @@ namespace NWN.Systems
         return;
       }
 
+      FeatUtils.ClearPreviousManoeuvre(selection.Player.LoginCreature);
+
       int warMasterLevel = selection.Player.ControlledCreature.GetClassInfo(NwClass.FromClassId(CustomClass.Fighter)).Level;
       int superiorityDice = warMasterLevel > 9 ? warMasterLevel > 17 ? 10 : 12 : 8;
 

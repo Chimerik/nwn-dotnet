@@ -9,12 +9,8 @@ namespace NWN.Systems
       if (!spellEntry.isBonusAction)
         return true;
 
-        if (caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value < 1)
-        {
-          caster?.ControllingPlayer.SendServerMessage("Vous ne disposez plus d'action bonus pour ce round", ColorConstants.Red);
-          LogUtils.LogMessage($"Sort annulé en l'absence d'action bonus", LogUtils.LogType.Combat);
-          return false;
-        }
+      if (!CreatureUtils.HandleBonusActionUse(caster))
+        return false!;
 
         switch(NwSpell.FromSpellId(spellEntry.RowIndex).SpellType)
         {
@@ -48,7 +44,6 @@ namespace NWN.Systems
         }
 
         LogUtils.LogMessage($"Sort lancé en tant qu'action bonus", LogUtils.LogType.Combat);
-        caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value -= 1;
 
       return true;
     }

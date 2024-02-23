@@ -48,7 +48,7 @@ namespace NWN.Systems
         NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, Effect.Damage(damage, DamageType.Piercing)));
 
         SpellUtils.SendSavingThrowFeedbackMessage(caster, target, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);
-        SpellUtils.DealSpellDamage(target, caster.LastSpellCasterLevel, spellEntry, nbDice, caster, saveFailed);
+        SpellUtils.DealSpellDamage(target, caster.CasterLevel, spellEntry, nbDice, caster, saveFailed);
       }
 
       caster.IncrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.ArcaneArcherTirPerforant)); // Je redonne une utilisatation de tir perforant pour compenser la consommation du sort spécifique

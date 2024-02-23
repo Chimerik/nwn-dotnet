@@ -6,6 +6,8 @@ namespace NWN.Systems
   {
     private static void Provocation(NwCreature caster)
     {
+      FeatUtils.ClearPreviousManoeuvre(caster);
+
       if (caster.GetItemInSlot(InventorySlot.RightHand)?.BaseItem.NumDamageDice > 0)
       {
         caster.OnCreatureAttack -= CreatureUtils.OnAttackProvocation;

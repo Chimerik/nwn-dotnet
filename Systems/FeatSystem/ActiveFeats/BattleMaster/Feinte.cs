@@ -6,11 +6,10 @@ namespace NWN.Systems
   {
     private static void Feinte(NwCreature caster)
     {
-      if (caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value < 1)
-      {
-        caster.ControllingPlayer?.SendServerMessage("Vous ne disposez plus d'action bonus", ColorConstants.Red);
+      FeatUtils.ClearPreviousManoeuvre(caster);
+
+      if (!CreatureUtils.HandleBonusActionUse(caster))
         return;
-      }
 
       if (caster.GetItemInSlot(InventorySlot.RightHand)?.BaseItem.NumDamageDice > 0)
       {
@@ -19,7 +18,6 @@ namespace NWN.Systems
 
         caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ManoeuvreTypeVariable).Value = CustomSkill.WarMasterFeinte;
         caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ManoeuvreDiceVariable).Value = superiorityDice;
-        caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value -= 1;
 
         StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Feinte", StringUtils.gold, true);
 

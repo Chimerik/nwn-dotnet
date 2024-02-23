@@ -8,7 +8,7 @@ namespace NWN
 {
   public static partial class CreatureUtils
   {
-    public static void OnAttackProvocation(OnCreatureAttack onAttack)
+    public static async void OnAttackProvocation(OnCreatureAttack onAttack)
     {
       if (onAttack.Target is not NwCreature target)
         return;
@@ -18,8 +18,6 @@ namespace NWN
         case AttackResult.Hit:
         case AttackResult.CriticalHit:
         case AttackResult.AutomaticHit:
-
-          onAttack.Attacker.OnCreatureAttack -= OnAttackProvocation;
 
           SpellConfig.SavingThrowFeedback feedback = new();
           int attackerModifier = onAttack.Attacker.GetAbilityModifier(Ability.Strength) > onAttack.Attacker.GetAbilityModifier(Ability.Dexterity) ? onAttack.Attacker.GetAbilityModifier(Ability.Strength) : onAttack.Attacker.GetAbilityModifier(Ability.Dexterity);
@@ -37,6 +35,9 @@ namespace NWN
           }
 
           StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Attaque Menaçante", ColorConstants.Red, true);
+
+          await NwTask.NextFrame();
+          onAttack.Attacker.OnCreatureAttack -= OnAttackProvocation;
 
           break;
       }

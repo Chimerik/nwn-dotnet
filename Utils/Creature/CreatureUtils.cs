@@ -120,7 +120,7 @@ namespace NWN
     }*/
     public static async void OnMobDeathResetSpawn(CreatureEvents.OnDeath onDeath)
     {
-      ModuleSystem.Log.Info("On death triggered - OnMobDeathResetSpawn");
+      //ModuleSystem.Log.Info("On death triggered - OnMobDeathResetSpawn");
 
       NwWaypoint spawnPoint = onDeath.KilledCreature.GetObjectVariable<LocalVariableObject<NwWaypoint>>("_SPAWN").Value;
       await NwTask.Delay(TimeSpan.FromSeconds(10));
@@ -192,7 +192,7 @@ namespace NWN
     }
     public static void MakeInventoryUndroppable(CreatureEvents.OnDeath onDeath)
     {
-      ModuleSystem.Log.Info("On death triggered - make inventory undroppable");
+      //ModuleSystem.Log.Info("On death triggered - make inventory undroppable");
       ItemUtils.MakeCreatureInventoryUndroppable(onDeath.KilledCreature);
     }
     public static void HandleSpawnPointCreation(NwCreature creature)
