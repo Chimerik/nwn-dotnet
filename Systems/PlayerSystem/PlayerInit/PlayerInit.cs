@@ -180,7 +180,10 @@ namespace NWN.Systems
       {
         //oid.LoginCreature.OnSpellAction += spellSystem.HandleSpellInput;
         oid.LoginCreature.OnSpellAction += spellSystem.HandleSpellInputBlinded;
-        oid.LoginCreature.OnSpellAction += spellSystem.CancelSomaticSpellIfOffHandBusy;
+
+        if(!oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.MageDeGuerre)))
+          oid.LoginCreature.OnSpellAction += SpellSystem.CancelSomaticSpellIfOffHandBusy;
+        
         oid.LoginCreature.OnSpellAction += SpellSystem.HandleCraftOnSpellInput;
         //oid.LoginCreature.OnSpellBroadcast += spellSystem.HandleHearingSpellBroadcast;
         oid.LoginCreature.OnSpellCast += spellSystem.CheckIsDivinationBeforeSpellCast;

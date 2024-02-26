@@ -5,13 +5,12 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public void CancelSomaticSpellIfOffHandBusy(OnSpellAction onSpellAction)
+    public static void CancelSomaticSpellIfOffHandBusy(OnSpellAction onSpellAction)
     {
       NwItem offHand = onSpellAction.Caster.GetItemInSlot(InventorySlot.LeftHand);
       NwItem rightHand = onSpellAction.Caster.GetItemInSlot(InventorySlot.RightHand);
 
       if (!Spells2da.spellTable.GetRow(onSpellAction.Spell.Id).requiresSomatic 
-        || onSpellAction.Caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.MageDeGuerre)) 
         || rightHand is null || (offHand is null && !ItemUtils.IsTwoHandedWeapon(rightHand.BaseItem, onSpellAction.Caster.Size)))
         return;
 

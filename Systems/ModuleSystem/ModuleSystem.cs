@@ -406,8 +406,8 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_EMOTE_BEFORE", "on_input_emote");
       EventsPlugin.SubscribeEvent("NWNX_ON_COMBAT_ATTACK_OF_OPPORTUNITY_BEFORE", "on_opportunity");
 
-      //EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_BEFORE", "on_dual_fight");
-      //EventsPlugin.AddIDToWhitelist("NWNX_ON_HAS_FEAT", (int)Feat.TwoWeaponFighting);
+      EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_BEFORE", "on_hips");
+      EventsPlugin.AddIDToWhitelist("NWNX_ON_HAS_FEAT", (int)Feat.HideInPlainSight);
       //EventsPlugin.AddIDToWhitelist("NWNX_ON_HAS_FEAT", (int)Feat.Ambidexterity);
       
       EventsPlugin.SubscribeEvent("NWNX_ON_CALENDAR_DUSK", "remov_drowsensi");
@@ -432,6 +432,9 @@ namespace NWN.Systems
       NwModule.Instance.OnEffectApply += EffectSystem.OnIncapacitatedRemoveConcentration;
 
       NwModule.Instance.OnEffectRemove += EffectSystem.OnEffectRemoved;
+
+      NwModule.Instance.OnDoSpotDetection += CreatureUtils.OnDetection;
+      NwModule.Instance.OnDoListenDetection += CreatureUtils.CancelOnListen;
     }
     private static void SetModuleTime()
     {
@@ -1333,20 +1336,16 @@ namespace NWN.Systems
       if (callInfo.ObjectSelf is NwCreature creature && creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.SecondeChance)))
         creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.SecondeChanceVariable).Value = 1;
     }
-    /*[ScriptHandler("on_dual_fight")]
-    private void AutoGiveDualFightFeats(CallInfo callInfo)
+    [ScriptHandler("on_hips")]
+    private void AutoGiveHideInPlainSight(CallInfo callInfo)
     {
-      EventsPlugin.SetEventResult("1");
-      EventsPlugin.SkipEvent();
-
-      /*switch((Feat)int.Parse(EventsPlugin.GetEventData("FEAT_ID")))
+      switch((Feat)int.Parse(EventsPlugin.GetEventData("FEAT_ID")))
       {
-        case Feat.Ambidexterity:
-        case Feat.TwoWeaponFighting:
+        case Feat.HideInPlainSight:
           EventsPlugin.SetEventResult("1");
           EventsPlugin.SkipEvent();
           break;
-      }*/
-    //}
+      }
+    }
   }
 }

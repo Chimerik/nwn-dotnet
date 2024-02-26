@@ -10,12 +10,12 @@ namespace NWN
   {
     public static async void OnAttackRenversement(OnCreatureAttack onAttack)
     {
-      ModuleSystem.Log.Info($"DOTNET_DbgEnableMiniDump : {Environment.GetEnvironmentVariable("DOTNET_DbgEnableMiniDump")}");
+      /*ModuleSystem.Log.Info($"DOTNET_DbgEnableMiniDump : {Environment.GetEnvironmentVariable("DOTNET_DbgEnableMiniDump")}");
       ModuleSystem.Log.Info($"DOTNET_DbgMiniDumpType : {Environment.GetEnvironmentVariable("DOTNET_DbgMiniDumpType")}");
       ModuleSystem.Log.Info($"DOTNET_CreateDumpDiagnostics : {Environment.GetEnvironmentVariable("DOTNET_CreateDumpDiagnostics")}");
       ModuleSystem.Log.Info($"DOTNET_CreateDumpVerboseDiagnostics : {Environment.GetEnvironmentVariable("DOTNET_CreateDumpVerboseDiagnostics")}");
       ModuleSystem.Log.Info($"DOTNET_DbgMiniDumpName : {Environment.GetEnvironmentVariable("DOTNET_DbgMiniDumpName")}");
-      ModuleSystem.Log.Info($"DOTNET_CreateDumpLogToFile : {Environment.GetEnvironmentVariable("DOTNET_CreateDumpLogToFile")}");
+      ModuleSystem.Log.Info($"DOTNET_CreateDumpLogToFile : {Environment.GetEnvironmentVariable("DOTNET_CreateDumpLogToFile")}");*/
 
       if (onAttack.Target is not NwCreature target)
         return;
@@ -49,6 +49,10 @@ namespace NWN
 
           break;
       }
+    }
+    public static  void OnAttackTest(OnCreatureAttack onAttack)
+    {
+
     }
   }
 }

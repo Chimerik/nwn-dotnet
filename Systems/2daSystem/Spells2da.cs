@@ -18,6 +18,7 @@ namespace NWN.Systems
     public bool requiresConcentration { get; private set; }
     public Ability savingThrowAbility { get; private set; }
     public bool requiresSomatic { get; private set; }
+    public bool requiresVerbal { get; private set; }
 
     public void InterpretEntry(TwoDimArrayEntry entry)
     {
@@ -31,6 +32,7 @@ namespace NWN.Systems
       savingThrowAbility = (Ability)entry.GetInt("SavingThrow").GetValueOrDefault(-1);
       requiresConcentration = entry.GetInt("UseConcentration").GetValueOrDefault(0) == 2;
       requiresSomatic = entry.GetString("VS")?.Contains('s') ?? false;
+      requiresVerbal = entry.GetString("VS")?.Contains('v') ?? false;
 
       StrRef nameEntry = entry.GetStrRef("Name").GetValueOrDefault(StrRef.FromCustomTlk(0));
 
