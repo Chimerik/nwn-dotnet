@@ -270,6 +270,7 @@ namespace NWN.Systems
       NativeUtils.HandleFrappeFrenetiqueBonusAttack(creature, targetObject, combatRound, attackData, attackerName);
       NativeUtils.HandleBersekerRepresaillesBonusAttack(creature, combatRound, attackData, attackerName);
       NativeUtils.HandleTigreAspect(creature, targetObject, combatRound, attackerName);
+      NativeUtils.HandleArcaneArcherTirIncurveBonusAttack(creature, attackData, combatRound, attackerName, attackWeapon, targetObject);
     }
     private int OnAddUseTalentOnObjectHook(void* pCreature, int talentType, int talentId, uint oidTarget, byte nMultiClass, uint oidItem, int nItemPropertyIndex, byte nCasterLevel, int nMetaType)
     {
@@ -460,9 +461,9 @@ namespace NWN.Systems
       if (attacker.m_ScriptVars.GetInt(CreatureUtils.TirAffaiblissantVariableExo).ToBool())
       {
         baseDamage /= 2;
-        LogUtils.LogMessage($"Tir affaiblissant : Dégâts divisés par 2", LogUtils.LogType.Combat);
+        LogUtils.LogMessage($"Tir affaiblissant : Dégâts {baseDamage}", LogUtils.LogType.Combat);
       }
-
+      
       LogUtils.LogMessage($"Dégâts : {baseDamage}", LogUtils.LogType.Combat);
 
       // Application des réductions du jeu de base
@@ -477,7 +478,6 @@ namespace NWN.Systems
         baseDamage = baseDamage * 3 / 4;
 
       NativeUtils.HandleCogneurLourdBonusAttack(attacker, targetObject, combatRound, attackData, baseDamage, attackerName);
-      NativeUtils.HandleArcaneArcherTirIncurveBonusAttack(attacker, combatRound, attackerName);
       
       if (attacker.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreTypeVariableExo) != CustomSkill.WarMasterAttaquePrecise)
       {

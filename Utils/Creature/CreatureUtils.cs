@@ -77,6 +77,9 @@ namespace NWN
     public const string FrappeFrenetiqueMalusVariable = "_FRAPPE_FRENETIQUE_MALUS";
     public readonly static CExoString FrappeFrenetiqueMalusVariableExo = FrappeFrenetiqueMalusVariable.ToExoString();
 
+    public const string EmpaleurCooldownVariable = "_EMPALEUR_COOLDOWN";
+    public readonly static CExoString EmpaleurCooldownVariableExo = EmpaleurCooldownVariable.ToExoString();
+
     public const string VigueurNaineHDVariable = "_FEAT_VIGUEUR_NAINE_HD";
     public const string MeneurExaltantVariable = "_MENEUR_EXALTANT_BUFF";
     public const string OriginalSizeVariable = "_ORIGINAL_SIZE";

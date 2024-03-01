@@ -7,7 +7,7 @@ namespace NWN
 {
   public static partial class CreatureUtils
   {
-    public static int GetTargetAdvantageEffects(CNWSCreature target)
+    public static int GetTargetAdvantageEffects(CNWSCreature target, bool invisibleTarget)
     {
       Dictionary<string, bool> advantageDictionary = new()
       {
@@ -34,7 +34,9 @@ namespace NWN
         disadvantageDictionary[EffectSystem.ProtectionStyleEffectTag] = disadvantageDictionary[EffectSystem.ProtectionStyleEffectTag] || GetProtectionStyleDisadvantage(eff);
         disadvantageDictionary[EffectSystem.JeuDeJambeEffectTag] = disadvantageDictionary[EffectSystem.JeuDeJambeEffectTag] || GetJeuDeJambeDisadvantage(eff);
 
-        advantageDictionary["blinded"] = advantageDictionary["blinded"] || GetTargetBlindedAdvantage(eff);
+        if(!invisibleTarget)
+          advantageDictionary["blinded"] = advantageDictionary["blinded"] || GetTargetBlindedAdvantage(eff);
+        
         advantageDictionary["stunned"] = advantageDictionary["stunned"] || GetTargetStunnedAdvantage(eff);
         advantageDictionary["uncounscious"] = advantageDictionary["uncounscious"] || GetTargetUncounsciousAdvantage(eff);
         advantageDictionary["paralyzed"] = advantageDictionary["paralyzed"] || GetTargetParalyzedAdvantage(eff);

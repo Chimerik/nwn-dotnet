@@ -9,7 +9,7 @@ namespace NWN
 {
   public static partial class CreatureUtils
   {
-    public static void HandleTirBannissement(OnCreatureAttack onDamage)
+    public static async void HandleTirBannissement(OnCreatureAttack onDamage)
     {
       if (onDamage.Attacker.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level > 17))
         NWScript.AssignCommand(onDamage.Attacker, () => onDamage.Target.ApplyEffect(EffectDuration.Instant,
@@ -31,11 +31,15 @@ namespace NWN
           target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpUnsummon));
           target.ApplyEffect(EffectDuration.Temporary, Effect.CutsceneParalyze(), NwTimeSpan.FromRounds(1));
           target.ApplyEffect(EffectDuration.Temporary, EffectSystem.tirBannissementEffect, NwTimeSpan.FromRounds(1));
+          target.PlotFlag = true;
+          onDamage.Attacker.ClearActionQueue();
         }
       }
 
-      onDamage.Attacker.OnCreatureAttack -= OnAttackTirArcanique;
       StringUtils.DisplayStringToAllPlayersNearTarget(onDamage.Attacker, "Tir de Bannissement", StringUtils.gold, true);
+
+      await NwTask.NextFrame();
+      onDamage.Attacker.OnCreatureAttack -= OnAttackTirArcanique;
     }
   }
 }

@@ -48,14 +48,17 @@ namespace NWN.Systems
 
       damage = ItemUtils.GetShieldMasterReducedDamage(creature, damage, saveFailed);
 
-      if (!saveFailed) 
+      if (!saveFailed && damage > 0)
+      {
         damage /= 2;
+        LogUtils.LogMessage($"JDS réussi : dégâts {damage}", LogUtils.LogType.Combat);
+      }
 
-      if (creature.KnowsFeat(Feat.KeenSense))
+      if (creature.KnowsFeat(Feat.KeenSense) && damage > 0)
       {
         damage /= 2;
         creature?.LoginPlayer.DisplayFloatingTextStringOnCreature(creature, "Expert en donjons".ColorString(StringUtils.gold));
-        LogUtils.LogMessage($"{creature.Name} - Expert en donjons - Résistance aux dégâts du piège", LogUtils.LogType.Combat);
+        LogUtils.LogMessage($"Expert en donjons : dégâts {damage}", LogUtils.LogType.Combat);
       }
 
       if (creature.IsLoginPlayerCharacter)
@@ -63,6 +66,9 @@ namespace NWN.Systems
 
       creature.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(entry.damageVFX));
       NWScript.AssignCommand(trap, () => creature.ApplyEffect(EffectDuration.Instant, Effect.Damage(damage, entry.damageType)));
+
+      LogUtils.LogMessage($"Dégâts finaux : {damage}", LogUtils.LogType.Combat);
+      LogUtils.LogMessage($"------------------------------------------", LogUtils.LogType.Combat);
     }
   }
 }

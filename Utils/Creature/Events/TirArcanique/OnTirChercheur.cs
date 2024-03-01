@@ -58,31 +58,43 @@ namespace NWN
     }
     private static void DealTirChercheurDamage(NwCreature caster, NwCreature target)
     {
+      LogUtils.LogMessage($"----------------------{caster.Name} - Tir Chercheur ----------------------", LogUtils.LogType.Combat);
+
       SpellConfig.SavingThrowFeedback feedback = new();
       int tirDC = 8 + NativeUtils.GetCreatureProficiencyBonus(caster) + caster.GetAbilityModifier(Ability.Intelligence);
       int advantage = GetCreatureAbilityAdvantage(target, Ability.Dexterity);
       int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Dexterity, tirDC, advantage, feedback);
       bool saveFailed = totalSave < tirDC;
 
-      SpellUtils.SendSavingThrowFeedbackMessage(caster, target, feedback, advantage, tirDC, totalSave, saveFailed, Ability.Constitution);
+      SpellUtils.SendSavingThrowFeedbackMessage(caster, target, feedback, advantage, tirDC, totalSave, saveFailed, Ability.Dexterity);
 
       NwBaseItem weapon = caster.GetItemInSlot(InventorySlot.RightHand)?.BaseItem;
       int damage = NativeUtils.HandleWeaponDamageRerolls(caster, weapon, weapon.NumDamageDice, weapon.DieToRoll);
-      damage /= saveFailed ? 2 : 1;
+
+      if (!saveFailed)
+      {
+        damage /= 2;
+        LogUtils.LogMessage($"JDS réussi : dégâts {damage}", LogUtils.LogType.Combat);
+      }
+      else
+      {
+        int forceDamage = caster.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level < 18)
+          ? NwRandom.Roll(Utils.random, 6, 2) : NwRandom.Roll(Utils.random, 6, 4);
+
+        LogUtils.LogMessage($"JDS échoué : dégâts +{forceDamage} (force)", LogUtils.LogType.Combat);
+
+        NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant,
+        Effect.Damage(forceDamage, DamageType.Magical)));
+      }
 
       NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant,
         Effect.Damage(damage, DamageType.Piercing)));
 
-      int forceDamage = caster.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level < 18)
-        ? NwRandom.Roll(Utils.random, 6, 2) : NwRandom.Roll(Utils.random, 6, 4);
-
-      forceDamage /= saveFailed ? 2 : 1;
-
-      NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant,
-        Effect.Damage(forceDamage, DamageType.Magical)));
-
       FeatUtils.DecrementTirArcanique(caster);
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Tir Chercheur", StringUtils.gold, true);
+
+      LogUtils.LogMessage($"Tir Chercheur : dégâts finaux {damage} (perçant)", LogUtils.LogType.Combat);
+      LogUtils.LogMessage("-------------------------------------------------", LogUtils.LogType.Combat);
     }
   }
 }

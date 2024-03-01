@@ -22,12 +22,12 @@ namespace NWN.Systems
             if (!saveFailed)
             {
               StringUtils.DisplayStringToAllPlayersNearTarget(creature, "Maître des boucliers", StringUtils.gold, true);
-              LogUtils.LogMessage($"{target.Name} - Maître des boucliers - Dégâts parés", LogUtils.LogType.Combat);
+              LogUtils.LogMessage($"Maître des boucliers JDS réussi : Dégâts réduits à 0", LogUtils.LogType.Combat);
               return 0;
             }
             else
             {
-              LogUtils.LogMessage($"{target.Name} - Maître des boucliers - Dégâts à demi parés", LogUtils.LogType.Combat);
+              LogUtils.LogMessage($"Maître des boucliers JDS échoué : Dégâts {damage}", LogUtils.LogType.Combat);
               return damage / 2;
             }
         }

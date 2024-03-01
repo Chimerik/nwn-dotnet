@@ -9,7 +9,7 @@ namespace NWN
 {
   public static partial class CreatureUtils
   {
-    public static void HandleTirAffaiblissant(OnCreatureAttack onDamage)
+    public static async void HandleTirAffaiblissant(OnCreatureAttack onDamage)
     {
       int damage = onDamage.Attacker.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level < 18)
         ? NwRandom.Roll(Utils.random, 6, 2) : NwRandom.Roll(Utils.random, 6, 4);
@@ -33,12 +33,14 @@ namespace NWN
         }
       }
 
-      onDamage.Attacker.OnCreatureAttack -= OnAttackTirArcanique;
-
       NWScript.AssignCommand(onDamage.Attacker, () => onDamage.Target.ApplyEffect(EffectDuration.Instant,
         Effect.Damage(damage, CustomDamageType.Necrotic)));
 
       StringUtils.DisplayStringToAllPlayersNearTarget(onDamage.Attacker, "Tir Affaiblissant", StringUtils.gold, true);
+      LogUtils.LogMessage($"Tir affaiblissant - Dégâts : {damage}", LogUtils.LogType.Combat);
+
+      await NwTask.NextFrame();
+      onDamage.Attacker.OnCreatureAttack -= OnAttackTirArcanique;
     }
   }
 }

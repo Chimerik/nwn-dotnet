@@ -27,6 +27,8 @@ namespace NWN.Systems
         SpellSystem.HandleWildMagicRage(caster);
         caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value -= 1;
       }
+
+      LogUtils.LogMessage($"{target.Name} - {advantageString}{rollString} {hitString}".StripColors(), LogUtils.LogType.Combat);
     }
   }
 }

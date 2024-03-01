@@ -7,11 +7,14 @@ namespace NWN.Systems
   {
     public static int GetSavingThrowRoll(NwCreature target, Ability ability, int saveDC, int advantage, SpellConfig.SavingThrowFeedback feedback, bool fromSpell = false)
     {
-      int proficiencyBonus = GetSavingThrowProficiencyBonus(target, ability)
-        + target.GetAbilityModifier(ability)
-        + ItemUtils.GetShieldMasterBonusSave(target, ability);
+      int proficiencyBonus = GetSavingThrowProficiencyBonus(target, ability);
 
-      if(target.ActiveEffects.Any(e => e.Tag == EffectSystem.SensDeLaMagieEffectTag))
+      LogUtils.LogMessage($"JDS proficiency bonus {ability} : +{target.GetAbilityModifier(ability)}", LogUtils.LogType.Combat);
+      LogUtils.LogMessage($"JDS modifier {ability} : +{target.GetAbilityModifier(ability)}", LogUtils.LogType.Combat);
+
+      proficiencyBonus += target.GetAbilityModifier(ability) + ItemUtils.GetShieldMasterBonusSave(target, ability);
+
+      if (target.ActiveEffects.Any(e => e.Tag == EffectSystem.SensDeLaMagieEffectTag))
         foreach(var eff in target.ActiveEffects)
         {
           switch(eff.Tag) 

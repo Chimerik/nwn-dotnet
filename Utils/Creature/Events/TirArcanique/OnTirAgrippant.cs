@@ -8,7 +8,7 @@ namespace NWN
 {
   public static partial class CreatureUtils
   {
-    public static void HandleTirAgrippant(OnCreatureAttack onDamage)
+    public static async void HandleTirAgrippant(OnCreatureAttack onDamage)
     {
       int damage = onDamage.Attacker.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level < 18)
         ? NwRandom.Roll(Utils.random, 6, 2) : NwRandom.Roll(Utils.random, 6, 4);
@@ -21,8 +21,10 @@ namespace NWN
       NWScript.AssignCommand(onDamage.Attacker, () => onDamage.Target.ApplyEffect(EffectDuration.Temporary,
           EffectSystem.tirAgrippantEffect, NwTimeSpan.FromRounds(10)));
 
-      onDamage.Attacker.OnCreatureAttack -= OnAttackTirArcanique;
       StringUtils.DisplayStringToAllPlayersNearTarget(onDamage.Attacker, "Tir Agrippant", StringUtils.gold, true);
+
+      await NwTask.NextFrame();
+      onDamage.Attacker.OnCreatureAttack -= OnAttackTirArcanique;
     }
   }
 }

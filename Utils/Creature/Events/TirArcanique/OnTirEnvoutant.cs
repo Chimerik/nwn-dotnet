@@ -9,7 +9,7 @@ namespace NWN
 {
   public static partial class CreatureUtils
   {
-    public static void HandleTirEnvoutant(OnCreatureAttack onDamage)
+    public static async void HandleTirEnvoutant(OnCreatureAttack onDamage)
     {
       int damage = onDamage.Attacker.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level < 18)
         ? NwRandom.Roll(Utils.random, 6, 2) : NwRandom.Roll(Utils.random, 6, 4);
@@ -45,8 +45,10 @@ namespace NWN
         }
       }
 
-      onDamage.Attacker.OnCreatureAttack -= OnAttackTirArcanique;
       StringUtils.DisplayStringToAllPlayersNearTarget(onDamage.Attacker, "Tir Envoûtant", StringUtils.gold, true);
+
+      await NwTask.NextFrame();
+      onDamage.Attacker.OnCreatureAttack -= OnAttackTirArcanique;
     }
   }
 }

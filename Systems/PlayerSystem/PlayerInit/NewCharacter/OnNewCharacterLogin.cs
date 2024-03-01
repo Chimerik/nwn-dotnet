@@ -34,6 +34,8 @@ namespace NWN.Systems
         CreateCharacterSkin();     
         CreateCharacterDB(CreateIntroScene(oid, areaSystem));
         InitializeStartingLearnables();
+
+        oid.LoginCreature.SetQuickBarButton(0, new PlayerQuickBarButton { ObjectType = QuickBarButtonType.Empty });
       }
     }
   }

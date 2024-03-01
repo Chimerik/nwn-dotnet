@@ -23,12 +23,16 @@ namespace NWN.Systems
           roll = reroll;
         }
         else if (creature.m_pStats.HasFeat(CustomSkill.Empaleur).ToBool()
-        && weapon.WeaponType.Any(d => d == Anvil.API.DamageType.Piercing)
-        && roll < 3)
+          && !creature.m_ScriptVars.GetInt(CreatureUtils.EmpaleurCooldownVariableExo).ToBool()
+          && weapon.WeaponType.Any(d => d == Anvil.API.DamageType.Piercing)
+          && roll < 3)
         {
           int reroll = NwRandom.Roll(Utils.random, dieToRoll);
           LogUtils.LogMessage($"rolled {roll} - Empaleur rerolled {reroll}", LogUtils.LogType.Combat);
+          BroadcastNativeServerMessage("Empaleur".ColorString(StringUtils.gold), creature);
           roll = reroll;
+
+          creature.m_ScriptVars.SetInt(CreatureUtils.EmpaleurCooldownVariableExo, 1);
         }
 
         damage += roll;

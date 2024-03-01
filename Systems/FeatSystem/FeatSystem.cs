@@ -50,7 +50,6 @@ namespace NWN.Systems
         case CustomSkill.ArcaneArcherTirEnvoutant:
         case CustomSkill.ArcaneArcherTirExplosif:
         case CustomSkill.ArcaneArcherTirOmbres: TirArcanique(onUseFeat.Creature, onUseFeat.Feat.Id); return;
-        case CustomSkill.ArcaneArcherTirIncurve: TirIncurve(onUseFeat.Creature); return;
         case CustomSkill.ArcaneArcherTirChercheur: CreatureUtils.HandleTirChercheur(onUseFeat.Creature); return;
 
         case CustomSkill.WarMasterAttaqueMenacante: AttaqueMenacante(onUseFeat.Creature); return;

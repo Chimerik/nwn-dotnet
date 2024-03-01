@@ -13,6 +13,7 @@ namespace NWN.Systems
       string rollString = $"JDS {StringUtils.TranslateAttributeToFrench(ability)}{advantageString} {StringUtils.IntToColor(saveRoll, hitColor)} + {StringUtils.IntToColor(proficiencyBonus, hitColor)} = {StringUtils.IntToColor(totalSave, hitColor)} vs DD {StringUtils.IntToColor(spellDC, hitColor)}";
 
       target.LoginPlayer?.SendServerMessage($"{rollString} {hitString}".ColorString(ColorConstants.Orange));
+      LogUtils.LogMessage($"{rollString} {hitString}".StripColors(), LogUtils.LogType.Combat);
     }
   }
 }

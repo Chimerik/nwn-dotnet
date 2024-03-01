@@ -9,8 +9,10 @@ namespace NWN
 {
   public static partial class CreatureUtils
   {
-    public static void HandleTirDesOmbres(OnCreatureAttack onDamage)
+    public static async void HandleTirDesOmbres(OnCreatureAttack onDamage)
     {
+      LogUtils.LogMessage($"-----------{onDamage.Attacker.Name} Tir des Ombres-------------", LogUtils.LogType.Combat);
+
       int damage = onDamage.Attacker.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level < 18)
         ? NwRandom.Roll(Utils.random, 6, 2) : NwRandom.Roll(Utils.random, 6, 4);
 
@@ -22,19 +24,20 @@ namespace NWN
         int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Wisdom, tirDC, advantage, feedback);
         bool saveFailed = totalSave < tirDC;
 
-        SpellUtils.SendSavingThrowFeedbackMessage(onDamage.Attacker, target, feedback, advantage, tirDC, totalSave, saveFailed, Ability.Constitution);
+        SpellUtils.SendSavingThrowFeedbackMessage(onDamage.Attacker, target, feedback, advantage, tirDC, totalSave, saveFailed, Ability.Wisdom);
 
         if (saveFailed)
           NWScript.AssignCommand(onDamage.Attacker, () => target.ApplyEffect(EffectDuration.Temporary,
             Effect.Blindness(), NwTimeSpan.FromRounds(1)));
       }
 
-      onDamage.Attacker.OnCreatureAttack -= OnAttackTirArcanique;
-
       NWScript.AssignCommand(onDamage.Attacker, () => onDamage.Target.ApplyEffect(EffectDuration.Instant,
         Effect.Damage(damage, CustomDamageType.Psychic)));
 
       StringUtils.DisplayStringToAllPlayersNearTarget(onDamage.Attacker, "Tir des Ombres", StringUtils.gold, true);
+
+      await NwTask.NextFrame();
+      onDamage.Attacker.OnCreatureAttack -= OnAttackTirArcanique;
     }
   }
 }

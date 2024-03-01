@@ -28,8 +28,9 @@ namespace NWN
 
         advantage += GetKnockdownAdvantage(attackData.m_bRangedAttack, target);
         advantage += GetAttackerAdvantageEffects(attacker, target, attackStat);
-        advantage += GetTargetAdvantageEffects(target);
-        advantage += GetInvisibleTargetDisadvantage(attacker, target);
+        bool invisibleTarget = GetInvisibleTargetDisadvantage(attacker, target);
+        advantage += invisibleTarget ? -1 : 0;
+        advantage += GetTargetAdvantageEffects(target, invisibleTarget);
         advantage += GetInvisibleAttackerAdvantage(attacker, target);
         advantage += GetDiversionTargetAdvantage(attacker, target);
         advantage += GetFeinteAttackerAdvantage(attacker);
@@ -66,8 +67,9 @@ namespace NWN
 
         advantage += GetKnockdownAdvantage(isRangedSpell, target);
         advantage += GetAttackerAdvantageEffects(attacker, target, spellCastingAbility);
-        advantage += GetTargetAdvantageEffects(target);
-        advantage += GetInvisibleTargetDisadvantage(attacker, target);
+        bool invisibleTarget = GetInvisibleTargetDisadvantage(attacker, target);
+        advantage += invisibleTarget ? -1 : 0;
+        advantage += GetTargetAdvantageEffects(target, invisibleTarget);
         advantage += GetInvisibleAttackerAdvantage(attacker, target);
         advantage += GetDiversionTargetAdvantage(attacker, target);
         advantage += GetFeinteAttackerAdvantage(attacker);
