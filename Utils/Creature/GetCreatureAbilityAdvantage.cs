@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Anvil.API;
+﻿using Anvil.API;
 using NWN.Systems;
 using static NWN.Systems.SpellConfig;
 
@@ -10,130 +8,33 @@ namespace NWN
   {
     public static int GetCreatureAbilityAdvantage(NwCreature creature, Ability ability, SpellEntry spellEntry = null, SpellEffectType effectType = SpellEffectType.Invalid, NwCreature caster = null)
     {
-      Dictionary<string, bool> disadvantageDictionary = new()
-      {
-        { EffectSystem.ShieldArmorDisadvantageEffectTag, false } ,
-        { EffectSystem.FrightenedEffectTag, false } ,
-        { EffectSystem.SaignementEffectTag, false } ,
-      };
-
-      Dictionary<string, bool> advantageDictionary = new()
-      {
-        { EffectSystem.EnlargeEffectTag, false },
-        { EffectSystem.DodgeEffectTag, false },
-        { EffectSystem.BarbarianRageEffectTag, false },
-      };
-
-      int advantage = 0;
-
-      foreach (var eff in creature.ActiveEffects)
-      {
-        disadvantageDictionary[EffectSystem.FrightenedEffectTag] = disadvantageDictionary[EffectSystem.FrightenedEffectTag] || EffectSystem.FrightenedEffectTag == eff.Tag;
-
-        switch (ability)
-        {
-          case Ability.Strength:
-
-            if (spellEntry is not null && SpellUtils.HandleSpellTargetIncapacitated(caster, creature, eff, spellEntry))
-              return -1000;
-
-            advantageDictionary[EffectSystem.EnlargeEffectTag] = advantageDictionary[EffectSystem.EnlargeEffectTag] || EffectSystem.EnlargeEffectTag == eff.Tag;
-            advantageDictionary[EffectSystem.BarbarianRageEffectTag] = advantageDictionary[EffectSystem.BarbarianRageEffectTag] || EffectSystem.BarbarianRageEffectTag == eff.Tag;
-
-            disadvantageDictionary[EffectSystem.ShieldArmorDisadvantageEffectTag] = disadvantageDictionary[EffectSystem.ShieldArmorDisadvantageEffectTag] || EffectSystem.ShieldArmorDisadvantageEffectTag == eff.Tag;
-            break;
-
-          case Ability.Dexterity:
-
-            if (spellEntry is not null && SpellUtils.HandleSpellTargetIncapacitated(caster, creature, eff, spellEntry))
-              return -1000;
-
-            advantageDictionary[EffectSystem.DodgeEffectTag] = advantageDictionary[EffectSystem.DodgeEffectTag] || EffectSystem.DodgeEffectTag == eff.Tag;
-
-            disadvantageDictionary[EffectSystem.ShieldArmorDisadvantageEffectTag] = disadvantageDictionary[EffectSystem.ShieldArmorDisadvantageEffectTag] || EffectSystem.ShieldArmorDisadvantageEffectTag == eff.Tag;
-            break;
-
-          case Ability.Constitution:
-            disadvantageDictionary[EffectSystem.SaignementEffectTag] = disadvantageDictionary[EffectSystem.SaignementEffectTag] || EffectSystem.SaignementEffectTag == eff.Tag;
-            break;
-        }
-      }
-
       switch(ability)
       {
         case Ability.Strength:
-
-          if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemAspectOurs)))
-            advantage += 1;
-
-          break;
-
         case Ability.Dexterity:
 
-          if (creature.Classes.Any(c => c.Class.ClassType == ClassType.Barbarian && c.Level > 1) && !creature.ActiveEffects.Any(e => e.EffectType == EffectType.Blindness || e.EffectType == EffectType.Deaf))
-            advantage += 1;
-
-          break;
-
-        case Ability.Intelligence:
-        case Ability.Wisdom:
-        case Ability.Charisma:
-
-          if (creature.Race.Id == CustomRace.RockGnome || creature.Race.Id == CustomRace.ForestGnome
-            || creature.Race.Id == CustomRace.DeepGnome)
-            advantage += 1;
+          foreach(var eff in creature.ActiveEffects)
+            if (spellEntry is not null && SpellUtils.HandleSpellTargetIncapacitated(caster, creature, eff, spellEntry))
+              return -1000;
 
           break;
       }
-      
-      switch(effectType)
+
+      bool advantage = ComputeCreatureAbilityAdvantage(creature, ability, spellEntry, effectType, caster);
+      bool disadvantage = ComputeCreatureAbilityDisadvantage(creature, ability, spellEntry, effectType, caster);
+
+      if (advantage)
       {
-        case SpellEffectType.Poison:
+        if (disadvantage)
+          return 0;
 
-          if(creature.Race.Id == CustomRace.GoldDwarf || creature.Race.Id == CustomRace.ShieldDwarf 
-            || creature.Race.Id == CustomRace.StrongheartHalfling)
-            advantage += 1;
-
-          break;
-
-        case SpellEffectType.Charm:
-
-          if (creature.Race.Id == CustomRace.HighElf || creature.Race.Id == CustomRace.HighHalfElf 
-            || creature.Race.Id == CustomRace.WoodElf || creature.Race.Id == CustomRace.WoodHalfElf
-            || creature.Race.Id == CustomRace.Duergar)
-            advantage += 1;
-
-          break;
-
-        case SpellEffectType.Fear:
-        case SpellEffectType.Terror:
-
-          if (creature.Race.Id == CustomRace.StrongheartHalfling || creature.Race.Id == CustomRace.LightfootHalfling)
-            advantage += 1;
-
-          break;
-
-        case SpellEffectType.Paralysis:
-        case SpellEffectType.Illusion:
-
-          if (creature.Race.Id == CustomRace.Duergar)
-            advantage += 1;
-
-          break;
-
-        case SpellEffectType.Knockdown:
-
-          if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemAspectCrocodile)))
-            advantage += 1;
-
-          break;
+        return 1;
       }
 
-      if(caster is not null && creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TueurDeMage))
-        && creature.DistanceSquared(caster) < 7)
-        advantage += 1;
+      if (disadvantage)
+        return -1;
 
-      return -disadvantageDictionary.Count(v => v.Value) + advantageDictionary.Count(v => v.Value) + advantage;
+      return 0;
     }
   }
 }

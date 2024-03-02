@@ -5,15 +5,15 @@ namespace NWN
 {
   public static partial class CreatureUtils
   {
-    public static int GetDiversionTargetAdvantage(CNWSCreature attacker, CNWSCreature target)
+    public static bool GetDiversionTargetAdvantage(CNWSCreature attacker, CNWSCreature target)
     {
       if(!target.m_ScriptVars.GetInt(ManoeuvreDiversionVariableExo).ToBool() || attacker.m_ScriptVars.GetInt(ManoeuvreDiversionExpiredVariableExo).ToBool())
-        return 0;
+        return false;
 
       ExpireDiversion(attacker);
 
       LogUtils.LogMessage("Avantage - Cible affectée par Diversion", LogUtils.LogType.Combat);
-      return 1;
+      return true;
     }
     private static async void ExpireDiversion(CNWSCreature attacker)
     {

@@ -6,16 +6,16 @@ namespace NWN
 {
   public static partial class CreatureUtils
   {
-    public static int GetSentinelleOpportunityAdvantage(CNWSCreature attacker, CNWSCombatAttackData data)
+    public static bool GetSentinelleOpportunityAdvantage(CNWSCreature attacker, CNWSCombatAttackData data)
     {
       if (attacker.m_pStats.HasFeat(CustomSkill.Sentinelle).ToBool()
         && (attacker.m_ScriptVars.GetInt(SentinelleOpportunityVariableExo).ToBool() || data.m_nAttackType == 65002))
       {
         LogUtils.LogMessage("Avantage - Sentinelle (attaque d'opportunité)", LogUtils.LogType.Combat);
-        return 1;
+        return true;
       }
       else
-        return 0;
+        return false;
     }
   }
 }

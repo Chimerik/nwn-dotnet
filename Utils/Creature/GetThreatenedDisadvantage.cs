@@ -8,7 +8,7 @@ namespace NWN
 {
   public static partial class CreatureUtils
   {
-    public static int GetThreatenedDisadvantage(CNWSCreature attacker, CNWSItem attackWeapon = null)
+    public static bool GetThreatenedDisadvantage(CNWSCreature attacker, CNWSItem attackWeapon = null)
     {
       var isCrossbowAttack = false;
 
@@ -24,12 +24,12 @@ namespace NWN
       if((isCrossbowAttack && attacker.m_pStats.HasFeat((ushort)Feat.PointBlankShot).ToBool())
         || !attacker.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.threatenedEffectExoTag).ToBool()))
       {
-        return 0;
+        return false;
       }
       else
       {
         LogUtils.LogMessage($"Désavantage - Attaque à distance en étant menacé en mêlée", LogUtils.LogType.Combat);
-        return -1;
+        return true;
       }
 
 
