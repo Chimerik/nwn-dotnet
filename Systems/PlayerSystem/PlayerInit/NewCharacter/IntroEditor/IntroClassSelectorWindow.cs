@@ -109,11 +109,11 @@ namespace NWN.Systems
         }
         public void CreateWindow()
         {
-          validatedLearnableId = player.learnableSkills.Any(l => l.Value.category == SkillSystem.Category.Class)
-            ? player.learnableSkills.FirstOrDefault(l => l.Value.category == SkillSystem.Category.Class).Value.id
+          validatedLearnableId = player.learnableSkills.Any(l => l.Value.category == Category.Class)
+            ? player.learnableSkills.FirstOrDefault(l => l.Value.category == Category.Class).Value.id
           : -1;
 
-          NuiRect savedRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(player.guiWidth * 0.2f, player.guiHeight * 0.05f, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f);
+          NuiRect savedRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(player.guiWidth * 0.2f, player.guiHeight * 0.05f, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f);
           selectedLearnable = null;
 
           window = new NuiWindow(rootColumn, "Choisissez votre classe initiale")
@@ -242,8 +242,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.ContainsKey("bodyAppearanceModifier")) player.windows.Add("bodyAppearanceModifier", new IntroMirrorWindow(player));
-                  else ((IntroMirrorWindow)player.windows["bodyAppearanceModifier"]).CreateWindow();
+                  if (!player.windows.TryGetValue("bodyAppearanceModifier", out var value)) player.windows.Add("bodyAppearanceModifier", new IntroMirrorWindow(player));
+                  else ((IntroMirrorWindow)value).CreateWindow();
 
                   return;
 
@@ -251,8 +251,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.ContainsKey("bodyColorsModifier")) player.windows.Add("bodyColorsModifier", new BodyColorWindow(player, player.oid.LoginCreature));
-                  else ((BodyColorWindow)player.windows["bodyColorsModifier"]).CreateWindow(player.oid.LoginCreature);
+                  if (!player.windows.TryGetValue("bodyColorsModifier", out var beauty)) player.windows.Add("bodyColorsModifier", new BodyColorWindow(player, player.oid.LoginCreature));
+                  else ((BodyColorWindow)beauty).CreateWindow(player.oid.LoginCreature);
 
                   break;
 
@@ -260,8 +260,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.ContainsKey("introRaceSelector")) player.windows.Add("introRaceSelector", new IntroRaceSelectorWindow(player));
-                  else ((IntroRaceSelectorWindow)player.windows["introRaceSelector"]).CreateWindow();
+                  if (!player.windows.TryGetValue("introRaceSelector", out var race)) player.windows.Add("introRaceSelector", new IntroRaceSelectorWindow(player));
+                  else ((IntroRaceSelectorWindow)race).CreateWindow();
 
                   break;
 
@@ -269,8 +269,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.ContainsKey("introHistorySelector")) player.windows.Add("introHistorySelector", new IntroHistorySelectorWindow(player));
-                  else ((IntroHistorySelectorWindow)player.windows["introHistorySelector"]).CreateWindow();
+                  if (!player.windows.TryGetValue("introHistorySelector", out var histo)) player.windows.Add("introHistorySelector", new IntroHistorySelectorWindow(player));
+                  else ((IntroHistorySelectorWindow)histo).CreateWindow();
 
                   return;
 
@@ -278,8 +278,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.ContainsKey("introPortrait")) player.windows.Add("introPortrait", new IntroPortraitWindow(player));
-                  else ((IntroPortraitWindow)player.windows["introPortrait"]).CreateWindow();
+                  if (!player.windows.TryGetValue("introPortrait", out var portrait)) player.windows.Add("introPortrait", new IntroPortraitWindow(player));
+                  else ((IntroPortraitWindow)portrait).CreateWindow();
 
                   break;
 
@@ -287,8 +287,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.ContainsKey("introAbilities")) player.windows.Add("introAbilities", new IntroAbilitiesWindow(player));
-                  else ((IntroAbilitiesWindow)player.windows["introAbilities"]).CreateWindow();
+                  if (!player.windows.TryGetValue("introAbilities", out var stats)) player.windows.Add("introAbilities", new IntroAbilitiesWindow(player));
+                  else ((IntroAbilitiesWindow)stats).CreateWindow();
 
                   return;
               }
@@ -354,8 +354,10 @@ namespace NWN.Systems
             else
               proficiency.source.Remove(Category.Class);
 
-            if (player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(proficiency.id)))
-              player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(proficiency.id));
+            NwFeat feat = NwFeat.FromFeatId(proficiency.id);
+
+            if (feat is not null && player.oid.LoginCreature.KnowsFeat(feat))
+              player.oid.LoginCreature.RemoveFeat(feat);
           }
         }
         private void InitSelectableSkills()

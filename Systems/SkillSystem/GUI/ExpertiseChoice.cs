@@ -46,7 +46,8 @@ namespace NWN.Systems
 
           foreach (var expertise in SkillSystem.learnableDictionary.Values.Where(l => l is LearnableSkill learnable && learnable.category == SkillSystem.Category.Expertise))
             if (!player.learnableSkills.TryGetValue(expertise.id, out LearnableSkill learnable) || learnable.currentLevel < 1)
-              expertises.Add((LearnableSkill)expertise);
+              if(player.learnableSkills.TryGetValue(expertise.id - 1, out LearnableSkill skill) && skill.currentLevel > 0)
+                expertises.Add((LearnableSkill)expertise);
 
           if (expertises.Count < 1)
           {

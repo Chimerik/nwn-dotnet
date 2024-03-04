@@ -141,12 +141,19 @@ namespace NWN.Systems
     {
       return toColorWhite.ColorString(ColorConstants.White);
     }
-    public static void DisplayStringToAllPlayersNearTarget(NwCreature target, string message, Color color, bool includeSelf = false)
+    public static void DisplayStringToAllPlayersNearTarget(NwCreature target, string message, Color color, bool includeSelf = false, bool writeToConsole = false)
     {
       foreach (NwPlayer player in NwModule.Instance.Players)
-        if ((player != target.ControllingPlayer || (includeSelf && player == target.ControllingPlayer)) 
+      {
+        if ((player != target.ControllingPlayer || (includeSelf && player == target.ControllingPlayer))
           && player?.ControlledCreature?.Area == target?.Area && player?.ControlledCreature.DistanceSquared(target) < 1225)
+        {
           player.DisplayFloatingTextStringOnCreature(target, message.ColorString(color));
+
+          if (writeToConsole)
+            player.SendServerMessage(message, color);
+        }
+      }
     }
     public static void ForceBroadcastSpellCasting(NwCreature caster, NwSpell spell, NwCreature target = null)
     {

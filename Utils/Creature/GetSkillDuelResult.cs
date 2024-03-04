@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using Anvil.API;
-using NWN.Systems;
 
 namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
     public static bool GetSkillDuelResult(NwCreature attacker, NwCreature target, List<Ability> attackerAbilities,
-      List<Ability> targetAbilities, List<int> attackerSkills, List<int> targetSkills, SpellConfig.SpellEffectType effectType = SpellConfig.SpellEffectType.Invalid)
+      List<Ability> targetAbilities, List<int> attackerSkills, List<int> targetSkills, SpellConfig.SpellEffectType effectType = SpellConfig.SpellEffectType.Invalid,
+      bool silentThrow = false)
     {
       int attackerScore = 0;
       int attackerSkill = 0;
@@ -22,9 +22,8 @@ namespace NWN.Systems
         {
           attackerAbility = attackerAbilities[i];
           attackerSkill = attackerSkills[i];
+          attackerScore = tempScore;
         }
-        else
-          tempScore = attackerScore;
         
         i++;
       }
@@ -42,9 +41,8 @@ namespace NWN.Systems
         {
           targetAbility = targetAbilities[i];
           targetSkill = targetSkills[i];
+          targetScore = tempScore;
         }
-        else
-          tempScore = targetScore;
 
         i++;
       }
@@ -59,14 +57,20 @@ namespace NWN.Systems
 
       string attackerAdvantageString = attackerAdvantage == 0 ? "" : attackerAdvantage > 0 ? " (Avantage)".ColorString(StringUtils.gold) : " (Désavantage)".ColorString(ColorConstants.Red);
       string targetAdvantageString = targetAdvantage == 0 ? "" : targetAdvantage > 0 ? " (Avantage)".ColorString(StringUtils.gold) : " (Désavantage)".ColorString(ColorConstants.Red);
-      string hitString = saveFailed ? "ECHEC".ColorString(ColorConstants.Red) : "REUSSI".ColorString(StringUtils.brightGreen);
+      string hitString = saveFailed ? "REUSSI".ColorString(StringUtils.brightGreen) : "ECHEC".ColorString(ColorConstants.Red);
       Color hitColor = saveFailed ? ColorConstants.Red : StringUtils.brightGreen;
 
-      string rollString = $"JDS {StringUtils.TranslateAttributeToFrench(targetAbility)}{targetAdvantageString} {StringUtils.IntToColor(targetRoll, hitColor)} + {StringUtils.IntToColor(targetScore, hitColor)} = {StringUtils.IntToColor(targetRoll + targetScore, hitColor)} vs DD {StringUtils.IntToColor(attackerRoll + attackerScore, hitColor)}";
+      string rollString = $"{attacker.Name.ColorString(ColorConstants.Cyan)} {SkillSystem.learnableDictionary[attackerSkill].name.Replace(" - Maîtrise", "")} ({StringUtils.TranslateAttributeToFrench(attackerAbility)}){attackerAdvantageString} " +
+        $"{StringUtils.IntToColor(attackerRoll, hitColor)} + {StringUtils.IntToColor(attackerScore, hitColor)} = {StringUtils.IntToColor(attackerRoll + attackerScore, hitColor)} " +
+        $"vs {target.Name.ColorString(ColorConstants.Cyan)} {SkillSystem.learnableDictionary[targetSkill].name.Replace(" - Maîtrise", "")} ({StringUtils.TranslateAttributeToFrench(targetAbility)}){targetAdvantageString} " +
+        $"{StringUtils.IntToColor(targetRoll, hitColor)} + {StringUtils.IntToColor(targetScore, hitColor)} = {StringUtils.IntToColor(targetRoll + targetScore, hitColor)}";
 
-      attacker.LoginPlayer?.SendServerMessage($"{target.Name.ColorString(ColorConstants.Cyan)} - {attackerAdvantageString}{rollString} {hitString}".ColorString(ColorConstants.Orange));
-      target.LoginPlayer?.SendServerMessage($"{attacker.Name.ColorString(ColorConstants.Cyan)} - {targetAdvantageString}{rollString} {hitString}".ColorString(ColorConstants.Orange));
+      if(!silentThrow)
+        attacker.LoginPlayer?.SendServerMessage($"{rollString} {hitString}".ColorString(ColorConstants.Orange));
+      
+      target.LoginPlayer?.SendServerMessage($"{rollString} {(saveFailed ? "ECHEC".ColorString(ColorConstants.Red) : "REUSSI".ColorString(StringUtils.brightGreen))}".ColorString(ColorConstants.Orange));
 
+      LogUtils.LogMessage($"{rollString} {hitString}".StripColors(), LogUtils.LogType.Combat);
 
       return saveFailed;
     }
