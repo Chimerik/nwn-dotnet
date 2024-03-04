@@ -1,8 +1,6 @@
-﻿using Anvil.API;
-using Anvil.API.Events;
-using NWN.Systems;
+﻿using Anvil.API.Events;
 
-namespace NWN
+namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {

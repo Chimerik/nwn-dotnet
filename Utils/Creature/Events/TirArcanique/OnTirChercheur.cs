@@ -1,11 +1,9 @@
 ﻿using Anvil.API.Events;
 using Anvil.API;
-using NativeUtils = NWN.Systems.NativeUtils;
-using NWN.Systems;
 using NWN.Core;
 using System.Linq;
 
-namespace NWN
+namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
@@ -33,7 +31,11 @@ namespace NWN
               caster.LoginPlayer?.SendServerMessage("Tir arcanique limité à un par round", ColorConstants.Red);
           }
           else
-            caster.LoginPlayer?.SendServerMessage("Tête chercheuse - La cible sélectionnée n'est plus valide", ColorConstants.Red);
+          {
+            caster.GetObjectVariable<LocalVariableObject<NwCreature>>(TirChercheurVariable).Delete();
+            caster.LoginPlayer?.EnterTargetMode(SelectTirChercheurTarget, Config.attackCreatureTargetMode);
+            caster.LoginPlayer?.SendServerMessage("Tête chercheuse - La cible sélectionnée n'est plus valide - Veuillez choisir une nouvelle cible", ColorConstants.Red);
+          }
         }
       }
       else
@@ -89,6 +91,8 @@ namespace NWN
 
       NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant,
         Effect.Damage(damage, DamageType.Piercing)));
+
+      caster.GetObjectVariable<LocalVariableObject<NwCreature>>(TirChercheurVariable).Delete();
 
       FeatUtils.DecrementTirArcanique(caster);
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Tir Chercheur", StringUtils.gold, true);

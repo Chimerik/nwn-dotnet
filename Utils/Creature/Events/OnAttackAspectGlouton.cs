@@ -1,9 +1,8 @@
 ﻿using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
-using NWN.Systems;
 
-namespace NWN
+namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {

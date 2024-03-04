@@ -1,7 +1,7 @@
 ﻿using Anvil.API;
 using NWN.Native.API;
 
-namespace NWN
+namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {

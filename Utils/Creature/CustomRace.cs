@@ -1,6 +1,6 @@
 ﻿using Anvil.API;
 
-namespace NWN
+namespace NWN.Systems
 {
   public class CustomRace
   {

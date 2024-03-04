@@ -3,7 +3,7 @@ using NWN.Native.API;
 using Ability = Anvil.API.Ability;
 using BaseItemType = Anvil.API.BaseItemType;
 
-namespace NWN
+namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {

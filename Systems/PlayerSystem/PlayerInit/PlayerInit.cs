@@ -9,7 +9,6 @@ using Anvil.Services;
 using Microsoft.Data.Sqlite;
 
 using Newtonsoft.Json;
-using static NWN.Systems.PlayerSystem;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace NWN.Systems
@@ -143,7 +142,6 @@ namespace NWN.Systems
         oid.OnMapPinDestroyPin += HandleMapPinDestroyed;
         oid.OnDMPlayerDMLogin += OnDmLoginRemoveThreatRange;
         oid.OnDMPlayerDMLogout += OnDmLogoutRemoveThreatRange;
-        oid.LoginCreature.OnStealthModeUpdate += OnStealth;
 
         //oid.LoginCreature.OnEffectApply += HandleItemPropertyChecksOnEffectApplied;
         //oid.LoginCreature.OnEffectRemove += HandleItemPropertyChecksOnEffectRemoved;

@@ -19,7 +19,8 @@ namespace NWN.Systems
       int damage = HandleWeaponDamageRerolls(creature, weapon, numDamageDice, dieToRoll);
       damage = HandleSavageAttacker(creature, weapon, attackData, numDamageDice, damage, dieToRoll);
 
-      LogUtils.LogMessage($"{weapon.Name.ToString()} - {numDamageDice}d{dieToRoll} => {damage}", LogUtils.LogType.Combat);
+      string criticalLog = isCriticalRoll ? "Critique - " : "";
+      LogUtils.LogMessage($"{criticalLog}{weapon.Name.ToString()} - {numDamageDice}d{dieToRoll} => {damage}", LogUtils.LogType.Combat);
 
       damage += GetSuperiorityDiceDamage(creature);
       damage += GetBarbarianRageBonusDamage(creature, attackData);

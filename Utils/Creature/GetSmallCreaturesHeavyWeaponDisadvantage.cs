@@ -2,7 +2,7 @@
 using NWN.Systems;
 using BaseItemType = Anvil.API.BaseItemType;
 
-namespace NWN
+namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {

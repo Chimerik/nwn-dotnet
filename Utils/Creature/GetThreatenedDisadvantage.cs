@@ -4,7 +4,7 @@ using NWN.Systems;
 using System.Linq;
 using Feat = NWN.Native.API.Feat;
 
-namespace NWN
+namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {

@@ -4,14 +4,15 @@ using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
 
-using NWN.Systems;
-
-namespace NWN
+namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
     public static void OnDetection(OnDoSpotDetection onSpot)
     {
+      if (!onSpot.Target.IsPlayerControlled && (onSpot.Target.Master is null || !onSpot.Target.Master.IsPlayerControlled))
+        return;
+
       if(onSpot.Target.GetActionMode(ActionMode.Stealth) && onSpot.Target.DistanceSquared(onSpot.Creature) < 600
         && onSpot.Creature.Location.GetObjectsInShapeByType<NwCreature>(Shape.Cone, 135, true, onSpot.Target.Position).Any(c => c == onSpot.Target))
       {

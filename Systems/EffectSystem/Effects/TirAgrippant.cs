@@ -16,7 +16,7 @@ namespace NWN.Systems
       get
       {
         Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurWeb), Effect.RunAction(onIntervalHandle: onIntervalTirAgrippantCallback, interval: NwTimeSpan.FromRounds(1)));
-        eff.Tag = boneChillEffectTag;
+        eff.Tag = TirAgrippantTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;
       }
@@ -31,8 +31,6 @@ namespace NWN.Systems
       if(Vector3.Distance(target.GetObjectVariable<LocalVariableLocation>(CreatureUtils.TirAgrippantVariable).Value.Position,
         target.Position) > 0.3)
       {
-        target.GetObjectVariable<LocalVariableLocation>(CreatureUtils.TirAgrippantVariable).Value = target.Location;
-
         SpellConfig.SavingThrowFeedback feedback = new();
         int tirDC = 8 + NativeUtils.GetCreatureProficiencyBonus(attacker) + attacker.GetAbilityModifier(Ability.Intelligence);
         int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, Ability.Strength);
@@ -43,6 +41,9 @@ namespace NWN.Systems
 
         CreatureUtils.SendSkillCheckFeedback(attacker, target, roll, score, advantage, tirDC, totalSave, saveFailed, "Athlétisme");
 
+        foreach (var eff in target.ActiveEffects)
+          ModuleSystem.Log.Info($"eff : {eff.Tag}");
+
         if (saveFailed)
         {
           int damage = attacker.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level < 18)
@@ -51,12 +52,14 @@ namespace NWN.Systems
           NWScript.AssignCommand(attacker, () => target.ApplyEffect(EffectDuration.Instant,
             Effect.Damage(damage, DamageType.Slashing)));
 
-          StringUtils.DisplayStringToAllPlayersNearTarget(target, "Effet - Tir Aggripant", ColorConstants.Red, true);
+          target.GetObjectVariable<LocalVariableLocation>(CreatureUtils.TirAgrippantVariable).Value = target.Location;
+
+          StringUtils.DisplayStringToAllPlayersNearTarget(target, "Effet - Tir Aggripant", ColorConstants.Green, true);
         }
         else
         {
           target.GetObjectVariable<LocalVariableLocation>(CreatureUtils.TirAgrippantVariable).Delete();
-          EffectUtils.RemoveTaggedEffect(target, TirAgrippantTag);
+          EffectUtils.RemoveTaggedEffect(target, TirAgrippantTag, attacker);
         }
       }
 

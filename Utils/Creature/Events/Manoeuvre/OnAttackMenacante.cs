@@ -4,7 +4,7 @@ using NWN.Systems;
 using NWN.Core;
 using NativeUtils = NWN.Systems.NativeUtils;
 
-namespace NWN
+namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {

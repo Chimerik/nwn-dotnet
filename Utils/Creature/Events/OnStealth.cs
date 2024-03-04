@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace NWN.Systems
 {
-  public partial class PlayerSystem
+  public static partial class CreatureUtils
   {
     public static void OnStealth(OnStealthModeUpdate onStealth)
     {
@@ -34,6 +34,8 @@ namespace NWN.Systems
           onStealth.Creature.OnSpellBroadcast += SpellSystem.OnSpellCastCancelStealth;
         }
       }
+      else
+        onStealth.Creature.OnSpellBroadcast -= SpellSystem.OnSpellCastCancelStealth;
     }
   }
 }

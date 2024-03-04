@@ -3,7 +3,7 @@ using Anvil.API;
 using NWN.Systems;
 using NativeUtils = NWN.Systems.NativeUtils;
 
-namespace NWN
+namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {

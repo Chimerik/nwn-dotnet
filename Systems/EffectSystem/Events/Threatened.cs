@@ -1,6 +1,7 @@
 ﻿using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
+
 using NWN.Core;
 
 namespace NWN.Systems
@@ -57,9 +58,7 @@ namespace NWN.Systems
       if (eventData.Exiting is not NwCreature exiting)
         return ScriptHandleResult.Handled;
 
-      foreach (var eff in exiting.ActiveEffects)
-        if(eff.Tag == ThreatenedEffectTag && eventData.Effect.Creator == eff.Creator)
-          eventData.Exiting.RemoveEffect(eff);
+      EffectUtils.RemoveTaggedEffect(eventData.Exiting, ThreatenedEffectTag, eventData.Effect.Creator);
 
       return ScriptHandleResult.Handled;
     }

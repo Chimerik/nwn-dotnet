@@ -1,8 +1,7 @@
 ﻿using Anvil.API;
-using NWN.Systems;
 using static NWN.Systems.SpellConfig;
 
-namespace NWN
+namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {

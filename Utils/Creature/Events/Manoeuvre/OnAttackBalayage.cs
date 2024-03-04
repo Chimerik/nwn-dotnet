@@ -2,7 +2,7 @@
 using Anvil.API;
 using System.Linq;
 
-namespace NWN
+namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {

@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 using Anvil.API;
 using Anvil.API.Events;
 using NWN.Native.API;
-using NWN.Systems;
 using DamageType = Anvil.API.DamageType;
 using InventorySlot = Anvil.API.InventorySlot;
 using ItemProperty = Anvil.API.ItemProperty;
 
-namespace NWN
+namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {

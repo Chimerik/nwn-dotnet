@@ -125,6 +125,7 @@ namespace NWN.Systems
       ItemSystem.feedbackService.AddCombatLogMessageFilter(CombatLogMessage.SpecialAttack);
       ItemSystem.feedbackService.AddCombatLogMessageFilter(CombatLogMessage.Initiative);
       ItemSystem.feedbackService.AddFeedbackMessageFilter(FeedbackMessage.EquipSkillSpellModifiers);
+      ItemSystem.feedbackService.AddFeedbackMessageFilter(FeedbackMessage.FeatUses);
 
       SetModuleTime();
       CheckIllegalItems();
@@ -398,6 +399,7 @@ namespace NWN.Systems
       //EventsPlugin.SubscribeEvent("NWNX_ON_DM_POSSESS_BEFORE", "b_dm_possess");
 
       EventsPlugin.SubscribeEvent("NWNX_ON_COMBAT_ENTER_BEFORE", "on_combat_enter");
+      EventsPlugin.SubscribeEvent("NWNX_ON_DO_LISTEN_DETECTION_BEFORE", "on_listen");
 
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "on_charm_attack");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "on_charm_attack", 1);
@@ -424,6 +426,7 @@ namespace NWN.Systems
       //NwModule.Instance.OnPlayerRest += PlayerSystem.OnRest;
       //NwModule.Instance.OnCreatureAttack += AttackSystem.HandleAttackEvent;
       //NwModule.Instance.OnCreatureDamage += AttackSystem.HandleDamageEvent;
+
       NwModule.Instance.OnCreatureCheckProficiencies += ItemSystem.OverrideProficiencyCheck;
       NwModule.Instance.OnItemEquip += ItemSystem.OnEquipHastWeapon;
       NwModule.Instance.OnItemUnequip += ItemSystem.OnUnequipHastWeapon;
@@ -434,7 +437,8 @@ namespace NWN.Systems
       NwModule.Instance.OnEffectRemove += EffectSystem.OnEffectRemoved;
 
       NwModule.Instance.OnDoSpotDetection += CreatureUtils.OnDetection;
-      NwModule.Instance.OnDoListenDetection += CreatureUtils.CancelOnListen;
+      NwModule.Instance.OnStealthModeUpdate += CreatureUtils.OnStealth;
+      //NwModule.Instance.OnDoListenDetection += CreatureUtils.CancelOnListen;
     }
     private static void SetModuleTime()
     {
@@ -1335,6 +1339,11 @@ namespace NWN.Systems
     {
       if (callInfo.ObjectSelf is NwCreature creature && creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.SecondeChance)))
         creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.SecondeChanceVariable).Value = 1;
+    }
+    [ScriptHandler("on_listen")]
+    private void OnListen(CallInfo callInfo)
+    {
+      EventsPlugin.SkipEvent();
     }
     [ScriptHandler("on_hips")]
     private void AutoGiveHideInPlainSight(CallInfo callInfo)

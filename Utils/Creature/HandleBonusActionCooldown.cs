@@ -2,7 +2,7 @@
 using Anvil.API;
 using NWN.Systems;
 
-namespace NWN
+namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
@@ -27,7 +27,7 @@ namespace NWN
             DelayFeatReset(creature, feat);
           }
 
-          ModuleSystem.Log.Info($"{feat.Name.ToString()} : {creature.GetFeatRemainingUses(feat)}");
+          //ModuleSystem.Log.Info($"{feat.Name.ToString()} : {creature.GetFeatRemainingUses(feat)}");
         }
       }
     }

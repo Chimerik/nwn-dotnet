@@ -2,7 +2,7 @@
 using Anvil.API;
 
 
-namespace NWN
+namespace NWN.Systems
 {
   public static partial class StringUtils
   {

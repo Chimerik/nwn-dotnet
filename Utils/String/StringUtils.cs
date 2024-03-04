@@ -11,9 +11,8 @@ using Anvil.API;
 using Newtonsoft.Json;
 
 using NWN.Core;
-using NWN.Systems;
 
-namespace NWN
+namespace NWN.Systems
 {
   public static partial class StringUtils
   {

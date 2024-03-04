@@ -1,10 +1,7 @@
 ﻿using Anvil.API.Events;
 using Anvil.API;
-using NWN.Systems;
-using NativeUtils = NWN.Systems.NativeUtils;
-using System;
 
-namespace NWN
+namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
@@ -12,7 +9,7 @@ namespace NWN
     {
       if (onAttack.Target is not NwCreature target)
         return;
-
+      
       switch (onAttack.AttackResult)
       {
         case AttackResult.Hit:

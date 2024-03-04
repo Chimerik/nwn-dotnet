@@ -1,11 +1,9 @@
 ﻿using Anvil.API.Events;
 using Anvil.API;
-using NativeUtils = NWN.Systems.NativeUtils;
-using NWN.Systems;
 using NWN.Core;
 using System.Linq;
 
-namespace NWN
+namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
@@ -29,7 +27,7 @@ namespace NWN
           int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Wisdom, tirDC, advantage, feedback);
           saveFailed = totalSave < tirDC;
 
-          SpellUtils.SendSavingThrowFeedbackMessage(onDamage.Attacker, target, feedback, advantage, tirDC, totalSave, saveFailed, Ability.Constitution);
+          SpellUtils.SendSavingThrowFeedbackMessage(onDamage.Attacker, target, feedback, advantage, tirDC, totalSave, saveFailed, Ability.Wisdom);
         }
         else
           onDamage.Attacker.LoginPlayer?.SendServerMessage($"{StringUtils.ToWhitecolor(target.Name)} est immunisé à votre effet de charme", ColorConstants.Orange);
