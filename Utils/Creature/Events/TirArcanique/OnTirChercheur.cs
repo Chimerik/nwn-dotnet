@@ -71,26 +71,24 @@ namespace NWN.Systems
       SpellUtils.SendSavingThrowFeedbackMessage(caster, target, feedback, advantage, tirDC, totalSave, saveFailed, Ability.Dexterity);
 
       NwBaseItem weapon = caster.GetItemInSlot(InventorySlot.RightHand)?.BaseItem;
-      int damage = NativeUtils.HandleWeaponDamageRerolls(caster, weapon, weapon.NumDamageDice, weapon.DieToRoll);
+      int damage = NativeUtils.HandleWeaponDamageRerolls(caster, weapon, weapon.NumDamageDice, weapon.DieToRoll) + +caster.GetAbilityModifier(Ability.Dexterity);
+      int forceDamage = caster.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level < 18)
+          ? NwRandom.Roll(Utils.random, 6, 2) : NwRandom.Roll(Utils.random, 6, 4);
 
       if (!saveFailed)
       {
         damage /= 2;
-        LogUtils.LogMessage($"JDS réussi : dégâts {damage}", LogUtils.LogType.Combat);
+        forceDamage /= 2;
+        LogUtils.LogMessage($"JDS réussi : dégâts {damage} (perçant) +{forceDamage} (forc)", LogUtils.LogType.Combat);
       }
       else
-      {
-        int forceDamage = caster.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level < 18)
-          ? NwRandom.Roll(Utils.random, 6, 2) : NwRandom.Roll(Utils.random, 6, 4);
-
-        LogUtils.LogMessage($"JDS échoué : dégâts +{forceDamage} (force)", LogUtils.LogType.Combat);
-
-        NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant,
-        Effect.Damage(forceDamage, DamageType.Magical)));
-      }
+        LogUtils.LogMessage($"JDS échoué : dégâts {damage} (perçant) +{forceDamage} (force)", LogUtils.LogType.Combat);
 
       NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant,
         Effect.Damage(damage, DamageType.Piercing)));
+
+      NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant,
+        Effect.Damage(forceDamage, DamageType.Magical)));
 
       caster.GetObjectVariable<LocalVariableObject<NwCreature>>(TirChercheurVariable).Delete();
 
