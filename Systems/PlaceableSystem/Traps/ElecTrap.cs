@@ -60,6 +60,7 @@ namespace NWN.Systems
         damage = ItemUtils.GetShieldMasterReducedDamage(creature, damage, saveFailed);
 
         creature.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(entry.damageVFX));
+
         if (!saveFailed)
           damage /= 2;
 

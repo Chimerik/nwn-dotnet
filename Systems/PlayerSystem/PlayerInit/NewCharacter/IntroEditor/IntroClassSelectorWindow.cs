@@ -20,6 +20,8 @@ namespace NWN.Systems
         private readonly NuiBind<string> selectedItemDescription = new("selectedItemDescription");
         private readonly NuiBind<string> selectedItemIcon = new("selectedItemIcon");
         private readonly NuiBind<bool> selectedItemVisibility = new("selectedItemVisibility");
+        private readonly NuiBind<bool> combatStyleVisibility = new("combatStyleVisibility");
+        private readonly NuiBind<bool> rogueSkillVisibility = new("rogueSkillVisibility");
         private readonly NuiBind<bool> selectedTitleVisibility = new("selectedTitleVisibility");
 
         private readonly NuiBind<string> validationText = new("validationText");
@@ -37,6 +39,18 @@ namespace NWN.Systems
 
         private readonly NuiBind<int> selectedSkill2 = new("selectedSkill2");
         private readonly NuiBind<List<NuiComboEntry>> skillSelection2 = new("skillSelection2");
+
+        private readonly NuiBind<int> selectedSkill3 = new("selectedSkill3");
+        private readonly NuiBind<List<NuiComboEntry>> skillSelection3 = new("skillSelection3");
+
+        private readonly NuiBind<int> selectedSkill4 = new("selectedSkill4");
+        private readonly NuiBind<List<NuiComboEntry>> skillSelection4 = new("skillSelection4");
+
+        private readonly NuiBind<int> selectedExpertise1 = new("selectedExpertise1");
+        private readonly NuiBind<List<NuiComboEntry>> expertiseSelection1 = new("expertiseSelection1");
+
+        private readonly NuiBind<int> selectedExpertise2 = new("selectedExpertise2");
+        private readonly NuiBind<List<NuiComboEntry>> expertiseSelection2 = new("expertiseSelection2");
 
         private readonly NuiBind<int> selectedCombatStyle = new("selectedCombatStyle");
 
@@ -87,6 +101,12 @@ namespace NWN.Systems
                 new NuiLabel(selectedItemTitle) { Height = 40, Width = 200, Visible = selectedTitleVisibility, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
                 new NuiSpacer()
               } },
+              new NuiRow() { Children = new List<NuiElement>()
+              {
+                new NuiSpacer(),
+                new NuiCombo() { Entries = styles, Selected = selectedCombatStyle, Visible = combatStyleVisibility, Height = 40, Width = (player.guiScaledWidth * 0.6f - 380) / 1.5f },
+                new NuiSpacer()
+              } },
               new NuiRow() { Children = new List<NuiElement>() 
               { 
                 new NuiSpacer(),
@@ -97,7 +117,15 @@ namespace NWN.Systems
               new NuiRow() { Children = new List<NuiElement>()
               {
                 new NuiSpacer(),
-                new NuiCombo() { Entries = styles, Selected = selectedCombatStyle, Visible = selectedItemVisibility, Height = 40, Width = (player.guiScaledWidth * 0.6f - 380) / 1.5f },
+                new NuiCombo() { Entries = skillSelection3, Selected = selectedSkill3, Visible = rogueSkillVisibility, Height = 40, Width = (player.guiScaledWidth * 0.6f - 380) / 2 },
+                new NuiCombo() { Entries = skillSelection4, Selected = selectedSkill4, Visible = rogueSkillVisibility, Height = 40, Width = (player.guiScaledWidth * 0.6f - 380) / 2 },
+                new NuiSpacer()
+              } },
+              new NuiRow() { Children = new List<NuiElement>()
+              {
+                new NuiSpacer(),
+                new NuiCombo() { Entries = expertiseSelection1, Selected = selectedExpertise1, Visible = rogueSkillVisibility, Height = 40, Width = (player.guiScaledWidth * 0.6f - 380) / 2 },
+                new NuiCombo() { Entries = expertiseSelection2, Selected = selectedExpertise2, Visible = rogueSkillVisibility, Height = 40, Width = (player.guiScaledWidth * 0.6f - 380) / 2 },
                 new NuiSpacer()
               } },
               new NuiRow() { Children = new List<NuiElement>() { new NuiText(selectedItemDescription) } },
@@ -135,14 +163,24 @@ namespace NWN.Systems
             selectedItemDescription.SetBindValue(player.oid, nuiToken.Token, "Sélectionner une classe pour afficher ses détails.\n\nAttention, lorsque vous aurez quitté ce navire, ce choix deviendra définitif.");
             selectedItemIcon.SetBindValue(player.oid, nuiToken.Token, "ir_examine");
             selectedItemVisibility.SetBindValue(player.oid, nuiToken.Token, false);
+            combatStyleVisibility.SetBindValue(player.oid, nuiToken.Token, false);
+            rogueSkillVisibility.SetBindValue(player.oid, nuiToken.Token, false);
             selectedTitleVisibility.SetBindValue(player.oid, nuiToken.Token, false);
             validationEnabled.SetBindValue(player.oid, nuiToken.Token, false);
 
             selectedCombatStyle.SetBindValue(player.oid, nuiToken.Token, -1);
             selectedSkill1.SetBindValue(player.oid, nuiToken.Token, -1);
             selectedSkill2.SetBindValue(player.oid, nuiToken.Token, -1);
+            selectedSkill3.SetBindValue(player.oid, nuiToken.Token, -1);
+            selectedSkill4.SetBindValue(player.oid, nuiToken.Token, -1);
+            selectedExpertise1.SetBindValue(player.oid, nuiToken.Token, -1);
+            selectedExpertise2.SetBindValue(player.oid, nuiToken.Token, -1);
             skillSelection1.SetBindValue(player.oid, nuiToken.Token, new List<NuiComboEntry>());
             skillSelection2.SetBindValue(player.oid, nuiToken.Token, new List<NuiComboEntry>());
+            skillSelection3.SetBindValue(player.oid, nuiToken.Token, new List<NuiComboEntry>());
+            skillSelection4.SetBindValue(player.oid, nuiToken.Token, new List<NuiComboEntry>());
+            expertiseSelection1.SetBindValue(player.oid, nuiToken.Token, new List<NuiComboEntry>());
+            expertiseSelection2.SetBindValue(player.oid, nuiToken.Token, new List<NuiComboEntry>());
 
             selectedCombatStyle.SetBindWatch(player.oid, nuiToken.Token, true);
 
@@ -171,22 +209,8 @@ namespace NWN.Systems
                   selectedItemTitle.SetBindValue(player.oid, nuiToken.Token, selectedLearnable.name);
                   selectedItemDescription.SetBindValue(player.oid, nuiToken.Token, selectedLearnable.description);
                   selectedItemIcon.SetBindValue(player.oid, nuiToken.Token, selectedLearnable.icon);
+                  selectedItemVisibility.SetBindValue(player.oid, nuiToken.Token, true);
                   selectedTitleVisibility.SetBindValue(player.oid, nuiToken.Token, true);
-
-                  if (selectedLearnable.id == CustomSkill.Fighter)
-                  {
-                    selectedItemVisibility.SetBindValue(player.oid, nuiToken.Token, true);
-
-                    LearnableSkill style = player.learnableSkills.Values.FirstOrDefault(s => s is LearnableSkill style && style.category == Category.FightingStyle);
-                    if (style is not null)
-                      selectedCombatStyle.SetBindValue(player.oid, nuiToken.Token, style.id);
-                    else
-                      selectedCombatStyle.SetBindValue(player.oid, nuiToken.Token, CustomSkill.FighterCombatStyleArchery);
-
-                    InitSelectableSkills();
-                  }
-                  else
-                    selectedItemVisibility.SetBindValue(player.oid, nuiToken.Token, false);
 
                   if (player.learnableSkills.ContainsKey(selectedLearnable.id))
                   {
@@ -199,6 +223,7 @@ namespace NWN.Systems
                     validationText.SetBindValue(player.oid, nuiToken.Token, $"Valider la classe {selectedLearnable.name}");
                   }
 
+                  InitSelectableSkills();
                   LoadLearnableList(currentList);
 
                   break;
@@ -210,19 +235,22 @@ namespace NWN.Systems
                   validationEnabled.SetBindValue(player.oid, nuiToken.Token, false);
                   validatedLearnableId = selectedLearnable.id;
 
-                  if (validatedLearnableId == CustomSkill.Fighter)
+                  if (player.learnableSkills.TryAdd(selectedSkill1.GetBindValue(player.oid, nuiToken.Token), new LearnableSkill((LearnableSkill)learnableDictionary[selectedSkill1.GetBindValue(player.oid, nuiToken.Token)], player)))
+                    player.learnableSkills[selectedSkill1.GetBindValue(player.oid, nuiToken.Token)].LevelUp(player);
+
+                  player.learnableSkills[selectedSkill1.GetBindValue(player.oid, nuiToken.Token)].source.Add(Category.Class);
+
+                  if (player.learnableSkills.TryAdd(selectedSkill2.GetBindValue(player.oid, nuiToken.Token), new LearnableSkill((LearnableSkill)learnableDictionary[selectedSkill2.GetBindValue(player.oid, nuiToken.Token)], player)))
+                    player.learnableSkills[selectedSkill2.GetBindValue(player.oid, nuiToken.Token)].LevelUp(player);
+
+                  player.learnableSkills[selectedSkill2.GetBindValue(player.oid, nuiToken.Token)].source.Add(Category.Class);
+
+                  switch(validatedLearnableId)
                   {
-                    player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CHOSEN_FIGHTER_STYLE").Value = selectedCombatStyle.GetBindValue(player.oid, nuiToken.Token);
+                    case CustomSkill.Fighter: player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CHOSEN_FIGHTER_STYLE").Value = selectedCombatStyle.GetBindValue(player.oid, nuiToken.Token); break;
+                    case CustomSkill.Rogue:
 
-                    if (player.learnableSkills.TryAdd(selectedSkill1.GetBindValue(player.oid, nuiToken.Token), new LearnableSkill((LearnableSkill)learnableDictionary[selectedSkill1.GetBindValue(player.oid, nuiToken.Token)], player)))
-                      player.learnableSkills[selectedSkill1.GetBindValue(player.oid, nuiToken.Token)].LevelUp(player);
-
-                    player.learnableSkills[selectedSkill1.GetBindValue(player.oid, nuiToken.Token)].source.Add(Category.Class);
-
-                    if (player.learnableSkills.TryAdd(selectedSkill2.GetBindValue(player.oid, nuiToken.Token), new LearnableSkill((LearnableSkill)learnableDictionary[selectedSkill2.GetBindValue(player.oid, nuiToken.Token)], player)))
-                      player.learnableSkills[selectedSkill2.GetBindValue(player.oid, nuiToken.Token)].LevelUp(player);
-
-                    player.learnableSkills[selectedSkill2.GetBindValue(player.oid, nuiToken.Token)].source.Add(Category.Class);
+                      break;
                   }
 
                   player.learnableSkills.TryAdd(selectedLearnable.id, new LearnableSkill((LearnableSkill)learnableDictionary[selectedLearnable.id], player, (int)Category.Class));
@@ -300,7 +328,11 @@ namespace NWN.Systems
               switch (nuiEvent.ElementId)
               {
                 case "selectedSkill1":
-                case "selectedSkill2": LoadSelectableSkills(); break;
+                case "selectedSkill2":
+                case "selectedSkill3":
+                case "selectedSkill4": LoadSelectableSkills(); break;
+                case "selectedExpertise1": 
+                case "selectedExpertise2": LoadSelectableExpertises(); break;
                 case "selectedCombatStyle": validationEnabled.SetBindValue(player.oid, nuiToken.Token, true);break;
               }
 
@@ -362,49 +394,164 @@ namespace NWN.Systems
         }
         private void InitSelectableSkills()
         {
-          selectedSkill1.SetBindWatch(player.oid, nuiToken.Token, false);
-          selectedSkill2.SetBindWatch(player.oid, nuiToken.Token, false);
+          selectedSkill1.SetBindWatch(player.oid, nuiToken.Token, true);
+          selectedSkill2.SetBindWatch(player.oid, nuiToken.Token, true);
+          selectedSkill3.SetBindWatch(player.oid, nuiToken.Token, true);
+          selectedSkill4.SetBindWatch(player.oid, nuiToken.Token, true);
+          selectedExpertise1.SetBindWatch(player.oid, nuiToken.Token, true);
+          selectedExpertise2.SetBindWatch(player.oid, nuiToken.Token, true);
+
+          if (selectedLearnable.id == CustomSkill.Fighter)
+          {
+            combatStyleVisibility.SetBindValue(player.oid, nuiToken.Token, true);
+
+            LearnableSkill style = player.learnableSkills.Values.FirstOrDefault(s => s is LearnableSkill style && style.category == Category.FightingStyle);
+            if (style is not null)
+              selectedCombatStyle.SetBindValue(player.oid, nuiToken.Token, style.id);
+            else
+              selectedCombatStyle.SetBindValue(player.oid, nuiToken.Token, CustomSkill.FighterCombatStyleArchery);
+          }
+          else
+            combatStyleVisibility.SetBindValue(player.oid, nuiToken.Token, false);
+
+          var startingPackageList = selectedLearnable.id switch
+          {
+            CustomSkill.Barbarian => Barbarian.startingPackage.skillChoiceList,
+            CustomSkill.Rogue => Rogue.startingPackage.skillChoiceList,
+            _ => Fighter.startingPackage.skillChoiceList,
+          };
 
           List<NuiComboEntry> skillList1 = new();
           List<NuiComboEntry> skillList2 = new();
 
-          switch (selectedLearnable.id)
+          foreach (var learnable in startingPackageList)
           {
-            case CustomSkill.Fighter:
+            if (!player.learnableSkills.TryGetValue(learnable.id, out var value) || value.source.Any(so => so == Category.Class))
+            {
+              skillList1.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
+              skillList2.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
+            }
+          }
 
-              foreach(var learnable in Fighter.startingPackage.skillChoiceList)
+          var bonusSkills = player.learnableSkills.Values.Where(s => s.category == Category.Skill && s.source.Any(so => so == Category.Class));
+
+          if (bonusSkills.Count() > 1)
+          {
+            skillList1.Remove(skillList1.First(s => s.Value == bonusSkills.ElementAt(1).id));
+            skillList2.Remove(skillList2.First(s => s.Value == bonusSkills.ElementAt(0).id));
+          }
+          else
+          {
+            skillList1.RemoveAt(1);
+            skillList2.RemoveAt(0);
+          }
+
+          skillSelection1.SetBindValue(player.oid, nuiToken.Token, skillList1);
+          selectedSkill1.SetBindValue(player.oid, nuiToken.Token, bonusSkills.Any() ? bonusSkills.ElementAt(0).id : skillList1.First().Value);
+
+          skillSelection2.SetBindValue(player.oid, nuiToken.Token, skillList2);
+          selectedSkill2.SetBindValue(player.oid, nuiToken.Token, bonusSkills.Count() > 1 ? bonusSkills.ElementAt(1).id : skillList2.First().Value);
+
+          if (selectedLearnable.id == CustomSkill.Rogue)
+          {
+            List<NuiComboEntry> skillList3 = new();
+            List<NuiComboEntry> skillList4 = new();
+
+            foreach (var learnable in Rogue.startingPackage.skillChoiceList)
+            {
+              if (!player.learnableSkills.TryGetValue(learnable.id, out var value) || value.source.Any(so => so == Category.Class))
               {
-                if (!player.learnableSkills.TryGetValue(learnable.id, out var value) || value.source.Any(so => so == Category.Class))
-                {
-                  skillList1.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
-                  skillList2.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
-                }
+                skillList3.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
+                skillList4.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
               }
+            }
 
-              var bonusSkills = player.learnableSkills.Values.Where(s => s.category == Category.Skill && s.source.Any(so => so == Category.Class));
+            var additionnalSkills = player.learnableSkills.Values.Where(s => s.category == Category.Skill && s.source.Any(so => so == Category.Class));
 
-              if(bonusSkills.Count() > 1)
+            if(additionnalSkills.Count() > 3)
+            {
+              skillList1.Remove(skillList1.First(s => s.Value == additionnalSkills.ElementAt(2).id));
+              skillList1.Remove(skillList1.First(s => s.Value == additionnalSkills.ElementAt(3).id));
+              skillList2.Remove(skillList2.First(s => s.Value == additionnalSkills.ElementAt(2).id));
+              skillList2.Remove(skillList2.First(s => s.Value == additionnalSkills.ElementAt(3).id));
+              skillList3.Remove(skillList3.First(s => s.Value == additionnalSkills.ElementAt(0).id));
+              skillList3.Remove(skillList3.First(s => s.Value == additionnalSkills.ElementAt(1).id));
+              skillList3.Remove(skillList3.First(s => s.Value == additionnalSkills.ElementAt(3).id));
+              skillList4.Remove(skillList4.First(s => s.Value == additionnalSkills.ElementAt(0).id));
+              skillList4.Remove(skillList4.First(s => s.Value == additionnalSkills.ElementAt(1).id));
+              skillList4.Remove(skillList4.First(s => s.Value == additionnalSkills.ElementAt(2).id));
+              
+            }
+            else if(additionnalSkills.Count() > 1)
+            {
+              skillList3.Remove(skillList3.First(s => s.Value == additionnalSkills.ElementAt(0).id));
+              skillList3.Remove(skillList3.First(s => s.Value == additionnalSkills.ElementAt(1).id));
+              skillList4.Remove(skillList4.First(s => s.Value == additionnalSkills.ElementAt(0).id));
+              skillList4.Remove(skillList4.First(s => s.Value == additionnalSkills.ElementAt(1).id));
+            }
+            else
+            {
+              skillList3.RemoveAt(0);
+              skillList3.RemoveAt(1);
+              skillList3.RemoveAt(3);
+              skillList4.RemoveAt(0);
+              skillList4.RemoveAt(1);
+              skillList4.RemoveAt(2);
+            }
+
+            skillSelection1.SetBindValue(player.oid, nuiToken.Token, skillList1);
+            selectedSkill1.SetBindValue(player.oid, nuiToken.Token, bonusSkills.Any() ? bonusSkills.ElementAt(0).id : skillList1.First().Value);
+
+            skillSelection2.SetBindValue(player.oid, nuiToken.Token, skillList2);
+            selectedSkill2.SetBindValue(player.oid, nuiToken.Token, bonusSkills.Count() > 1 ? bonusSkills.ElementAt(1).id : skillList2.First().Value);
+
+            skillSelection3.SetBindValue(player.oid, nuiToken.Token, skillList3);
+            selectedSkill3.SetBindValue(player.oid, nuiToken.Token, additionnalSkills.Any() ? additionnalSkills.ElementAt(2).id : skillList3.First().Value);
+
+            skillSelection4.SetBindValue(player.oid, nuiToken.Token, skillList4);
+            selectedSkill4.SetBindValue(player.oid, nuiToken.Token, additionnalSkills.Count() > 1 ? additionnalSkills.ElementAt(3).id : skillList4.First().Value);
+
+
+            List<NuiComboEntry> expertiseList1 = new();
+            List<NuiComboEntry> expertiseList2 = new();
+
+            foreach (var learnable in learnableDictionary.Values.Where(e => e is LearnableSkill expertise && expertise.category == Category.Expertise))
+            {
+              if (learnable.id == selectedSkill1.GetBindValue(player.oid, nuiToken.Token) || learnable.id == selectedSkill2.GetBindValue(player.oid, nuiToken.Token)
+                || learnable.id == selectedSkill3.GetBindValue(player.oid, nuiToken.Token) || learnable.id == selectedSkill4.GetBindValue(player.oid, nuiToken.Token)
+                || (player.learnableSkills.TryGetValue(learnable.id - 1, out var proficiency) && proficiency.currentLevel > 0))
               {
-                skillList1.Remove(skillList1.First(s => s.Value == bonusSkills.ElementAt(1).id));
-                skillList2.Remove(skillList2.First(s => s.Value == bonusSkills.ElementAt(0).id));
+                expertiseList1.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
+                expertiseList2.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
               }
-              else
-              {
-                skillList1.RemoveAt(1);
-                skillList2.RemoveAt(0);
-              }
+            }
 
-              skillSelection1.SetBindValue(player.oid, nuiToken.Token, skillList1);
-              selectedSkill1.SetBindValue(player.oid, nuiToken.Token, bonusSkills.Any() ? bonusSkills.ElementAt(0).id : skillList1.First().Value);
+            var bonusExpertise = player.learnableSkills.Values.Where(s => s.category == Category.Expertise && s.source.Any(so => so == Category.Class));
 
-              skillSelection2.SetBindValue(player.oid, nuiToken.Token, skillList2);
-              selectedSkill2.SetBindValue(player.oid, nuiToken.Token, bonusSkills.Count() > 1 ? bonusSkills.ElementAt(1).id : skillList2.First().Value);
+            if (bonusExpertise.Count() > 1)
+            {
+              expertiseList1.Remove(expertiseList1.First(s => s.Value == bonusExpertise.ElementAt(1).id));
+              expertiseList2.Remove(expertiseList2.First(s => s.Value == bonusExpertise.ElementAt(0).id));
+            }
+            else
+            {
+              expertiseList1.RemoveAt(1);
+              expertiseList2.RemoveAt(0);
+            }
 
-              break;
+            expertiseSelection1.SetBindValue(player.oid, nuiToken.Token, expertiseList1);
+            selectedExpertise1.SetBindValue(player.oid, nuiToken.Token, bonusExpertise.Any() ? bonusExpertise.ElementAt(0).id : expertiseList1.First().Value);
+
+            expertiseSelection2.SetBindValue(player.oid, nuiToken.Token, expertiseList2);
+            selectedExpertise2.SetBindValue(player.oid, nuiToken.Token, bonusExpertise.Count() > 1 ? bonusExpertise.ElementAt(1).id : expertiseList2.First().Value);
           }
 
           selectedSkill1.SetBindWatch(player.oid, nuiToken.Token, true);
           selectedSkill2.SetBindWatch(player.oid, nuiToken.Token, true);
+          selectedSkill3.SetBindWatch(player.oid, nuiToken.Token, true);
+          selectedSkill4.SetBindWatch(player.oid, nuiToken.Token, true);
+          selectedExpertise1.SetBindWatch(player.oid, nuiToken.Token, true);
+          selectedExpertise2.SetBindWatch(player.oid, nuiToken.Token, true);
         }
         private void LoadSelectableSkills()
         {
@@ -412,34 +559,148 @@ namespace NWN.Systems
 
           selectedSkill1.SetBindWatch(player.oid, nuiToken.Token, false);
           selectedSkill2.SetBindWatch(player.oid, nuiToken.Token, false);
+          selectedSkill3.SetBindWatch(player.oid, nuiToken.Token, false);
+          selectedSkill4.SetBindWatch(player.oid, nuiToken.Token, false);
+          selectedExpertise1.SetBindWatch(player.oid, nuiToken.Token, false);
+          selectedExpertise2.SetBindWatch(player.oid, nuiToken.Token, false);
 
           List<NuiComboEntry> skillList1 = new();
           List<NuiComboEntry> skillList2 = new();
 
-          switch (selectedLearnable.id)
+          var startingPackageList = selectedLearnable.id switch
           {
-            case CustomSkill.Fighter:
+            CustomSkill.Barbarian => Barbarian.startingPackage.skillChoiceList,
+            CustomSkill.Rogue => Rogue.startingPackage.skillChoiceList,
+            _ => Fighter.startingPackage.skillChoiceList,
+          };
 
-              foreach (var learnable in Fighter.startingPackage.skillChoiceList)
+          foreach (var learnable in startingPackageList)
+          {
+            if (!player.learnableSkills.TryGetValue(learnable.id, out var value) || value.source.Any(so => so == Category.Class))
+            {
+              skillList1.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
+              skillList2.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
+            }
+          }
+
+          skillList1.Remove(skillList1.First(s => s.Value == selectedSkill2.GetBindValue(player.oid, nuiToken.Token)));
+          skillList2.Remove(skillList2.First(s => s.Value == selectedSkill1.GetBindValue(player.oid, nuiToken.Token)));
+
+          skillSelection1.SetBindValue(player.oid, nuiToken.Token, skillList1);
+          skillSelection2.SetBindValue(player.oid, nuiToken.Token, skillList2);
+
+          if (selectedLearnable.id == CustomSkill.Rogue)
+          {
+            List<NuiComboEntry> skillList3 = new();
+            List<NuiComboEntry> skillList4 = new();
+
+            foreach (var learnable in Rogue.startingPackage.skillChoiceList)
+            {
+              if (!player.learnableSkills.TryGetValue(learnable.id, out var value) || value.source.Any(so => so == Category.Class))
               {
-                if (!player.learnableSkills.TryGetValue(learnable.id, out var value) || value.source.Any(so => so == Category.Class))
-                {
-                  skillList1.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
-                  skillList2.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
-                }
+                skillList3.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
+                skillList4.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
               }
+            }
 
-              skillList1.Remove(skillList1.First(s => s.Value == selectedSkill2.GetBindValue(player.oid, nuiToken.Token)));
-              skillSelection1.SetBindValue(player.oid, nuiToken.Token, skillList1);
+            var additionnalSkills = player.learnableSkills.Values.Where(s => s.category == Category.Skill && s.source.Any(so => so == Category.Class));
 
-              skillList2.Remove(skillList2.First(s => s.Value == selectedSkill1.GetBindValue(player.oid, nuiToken.Token)));
-              skillSelection2.SetBindValue(player.oid, nuiToken.Token, skillList2);
+            skillList1.Remove(skillList1.First(s => s.Value == additionnalSkills.ElementAt(2).id));
+            skillList1.Remove(skillList1.First(s => s.Value == additionnalSkills.ElementAt(3).id));
+            skillList2.Remove(skillList2.First(s => s.Value == additionnalSkills.ElementAt(2).id));
+            skillList2.Remove(skillList2.First(s => s.Value == additionnalSkills.ElementAt(3).id));
+            skillList3.Remove(skillList3.First(s => s.Value == additionnalSkills.ElementAt(0).id));
+            skillList3.Remove(skillList3.First(s => s.Value == additionnalSkills.ElementAt(1).id));
+            skillList3.Remove(skillList3.First(s => s.Value == additionnalSkills.ElementAt(3).id));
+            skillList4.Remove(skillList4.First(s => s.Value == additionnalSkills.ElementAt(0).id));
+            skillList4.Remove(skillList4.First(s => s.Value == additionnalSkills.ElementAt(1).id));
+            skillList4.Remove(skillList4.First(s => s.Value == additionnalSkills.ElementAt(2).id));
 
-              break;
+            skillSelection1.SetBindValue(player.oid, nuiToken.Token, skillList1);
+            skillSelection2.SetBindValue(player.oid, nuiToken.Token, skillList2);
+            skillSelection3.SetBindValue(player.oid, nuiToken.Token, skillList3);
+            skillSelection4.SetBindValue(player.oid, nuiToken.Token, skillList4);
+
+            List<NuiComboEntry> expertiseList1 = new();
+            List<NuiComboEntry> expertiseList2 = new();
+
+            foreach (var learnable in learnableDictionary.Values.Where(e => e is LearnableSkill expertise && expertise.category == Category.Expertise))
+            {
+              if (learnable.id == selectedSkill1.GetBindValue(player.oid, nuiToken.Token) || learnable.id == selectedSkill2.GetBindValue(player.oid, nuiToken.Token)
+                || learnable.id == selectedSkill3.GetBindValue(player.oid, nuiToken.Token) || learnable.id == selectedSkill4.GetBindValue(player.oid, nuiToken.Token)
+                || (player.learnableSkills.TryGetValue(learnable.id - 1, out var proficiency) && proficiency.currentLevel > 0))
+              {
+                expertiseList1.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
+                expertiseList2.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
+              }
+            }
+
+            var bonusExpertise = player.learnableSkills.Values.Where(s => s.category == Category.Expertise && s.source.Any(so => so == Category.Class));
+
+            if (bonusExpertise.Count() > 1)
+            {
+              expertiseList1.Remove(expertiseList1.First(s => s.Value == bonusExpertise.ElementAt(1).id));
+              expertiseList2.Remove(expertiseList2.First(s => s.Value == bonusExpertise.ElementAt(0).id));
+            }
+            else
+            {
+              expertiseList1.RemoveAt(1);
+              expertiseList2.RemoveAt(0);
+            }
+
+            expertiseSelection1.SetBindValue(player.oid, nuiToken.Token, expertiseList1);
+            expertiseSelection2.SetBindValue(player.oid, nuiToken.Token, expertiseList2);
           }
 
           selectedSkill1.SetBindWatch(player.oid, nuiToken.Token, true);
           selectedSkill2.SetBindWatch(player.oid, nuiToken.Token, true);
+          selectedSkill3.SetBindWatch(player.oid, nuiToken.Token, true);
+          selectedSkill4.SetBindWatch(player.oid, nuiToken.Token, true);
+          selectedExpertise1.SetBindWatch(player.oid, nuiToken.Token, true);
+          selectedExpertise2.SetBindWatch(player.oid, nuiToken.Token, true);
+        }
+        private void LoadSelectableExpertises()
+        {
+          if (selectedLearnable.id == CustomSkill.Rogue)
+          {
+            validationEnabled.SetBindValue(player.oid, nuiToken.Token, true);
+
+            selectedExpertise1.SetBindWatch(player.oid, nuiToken.Token, false);
+            selectedExpertise2.SetBindWatch(player.oid, nuiToken.Token, false);
+
+            List<NuiComboEntry> expertiseList1 = new();
+            List<NuiComboEntry> expertiseList2 = new();
+
+            foreach (var learnable in learnableDictionary.Values.Where(e => e is LearnableSkill expertise && expertise.category == Category.Expertise))
+            {
+              if (learnable.id == selectedSkill1.GetBindValue(player.oid, nuiToken.Token) || learnable.id == selectedSkill2.GetBindValue(player.oid, nuiToken.Token)
+                || learnable.id == selectedSkill3.GetBindValue(player.oid, nuiToken.Token) || learnable.id == selectedSkill4.GetBindValue(player.oid, nuiToken.Token)
+                || (player.learnableSkills.TryGetValue(learnable.id - 1, out var proficiency) && proficiency.currentLevel > 0))
+              {
+                expertiseList1.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
+                expertiseList2.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
+              }
+            }
+
+            var bonusExpertise = player.learnableSkills.Values.Where(s => s.category == Category.Expertise && s.source.Any(so => so == Category.Class));
+
+            if (bonusExpertise.Count() > 1)
+            {
+              expertiseList1.Remove(expertiseList1.First(s => s.Value == bonusExpertise.ElementAt(1).id));
+              expertiseList2.Remove(expertiseList2.First(s => s.Value == bonusExpertise.ElementAt(0).id));
+            }
+            else
+            {
+              expertiseList1.RemoveAt(1);
+              expertiseList2.RemoveAt(0);
+            }
+
+            expertiseSelection1.SetBindValue(player.oid, nuiToken.Token, expertiseList1);
+            expertiseSelection2.SetBindValue(player.oid, nuiToken.Token, expertiseList2);
+
+            selectedExpertise1.SetBindWatch(player.oid, nuiToken.Token, true);
+            selectedExpertise2.SetBindWatch(player.oid, nuiToken.Token, true);
+          }
         }
       }
     }

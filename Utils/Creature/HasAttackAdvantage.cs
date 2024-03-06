@@ -22,7 +22,7 @@ namespace NWN.Systems
         if (GetTargetAdvantageEffects(target, rangedAttack))
           return true;
 
-        if(GetInvisibleAttackerAdvantage(attacker, target))
+        if (GetInvisibleAttackerAdvantage(attacker, target))
           return true;
 
         if (GetDiversionTargetAdvantage(attacker, target))

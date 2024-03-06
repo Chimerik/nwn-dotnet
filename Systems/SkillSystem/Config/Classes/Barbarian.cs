@@ -7,7 +7,7 @@ namespace NWN.Systems
 {
   public static partial class Barbarian
   {
-    private static readonly StartingPackage startingPackage = new(
+    public static readonly StartingPackage startingPackage = new(
       new List<Learnable>()
       { 
         learnableDictionary[CustomSkill.LightArmorProficiency],

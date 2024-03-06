@@ -23,7 +23,7 @@ namespace NWN.Systems
       FeatUtils.ClearPreviousManoeuvre(selection.Player.LoginCreature);
 
       int warMasterLevel = selection.Player.ControlledCreature.GetClassInfo(NwClass.FromClassId(CustomClass.Fighter)).Level;
-      int superiorityDice = warMasterLevel > 9 ? warMasterLevel > 17 ? 10 : 12 : 8;
+      int superiorityDice = warMasterLevel > 17 ? 12 : warMasterLevel > 9 ? 10 : 8;
 
       selection.Player.ControlledCreature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ManoeuvreTypeVariable).Value = CustomSkill.WarMasterManoeuvreTactique;
       selection.Player.ControlledCreature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ManoeuvreDiceVariable).Value = superiorityDice;

@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       if (saveType == Ability.Dexterity && target is NwCreature creature
         && creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.MaitreBouclier))
-        && creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ShieldMasterCooldownVariable).HasNothing)
+        && creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value > 0)
       {
         switch (creature.GetItemInSlot(InventorySlot.LeftHand)?.BaseItem.ItemType)
         {
@@ -16,8 +16,7 @@ namespace NWN.Systems
           case BaseItemType.LargeShield:
           case BaseItemType.TowerShield:
 
-            creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ShieldMasterCooldownVariable).Value = 1;
-            ShieldMasterCooldown(creature);
+            creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value -= 1;
 
             if (!saveFailed)
             {
@@ -27,18 +26,15 @@ namespace NWN.Systems
             }
             else
             {
+              damage /= 2;
               LogUtils.LogMessage($"Maître des boucliers JDS échoué : Dégâts {damage}", LogUtils.LogType.Combat);
-              return damage / 2;
             }
+
+            break;
         }
       }
 
       return damage;
-    }
-    private static async void ShieldMasterCooldown(NwCreature creature)
-    {
-      await NwTask.Delay(NwTimeSpan.FromRounds(1));
-      creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ShieldMasterCooldownVariable).Delete();
     }
   }
 }

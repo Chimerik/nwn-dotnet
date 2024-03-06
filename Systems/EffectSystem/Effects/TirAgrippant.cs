@@ -15,7 +15,8 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurWeb), Effect.RunAction(onIntervalHandle: onIntervalTirAgrippantCallback, interval: NwTimeSpan.FromRounds(1)));
+        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurWeb), Effect.MovementSpeedDecrease(30),
+          Effect.RunAction(onIntervalHandle: onIntervalTirAgrippantCallback, interval: NwTimeSpan.FromRounds(1)));
         eff.Tag = TirAgrippantTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

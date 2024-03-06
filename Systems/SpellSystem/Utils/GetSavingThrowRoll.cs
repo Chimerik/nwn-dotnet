@@ -31,7 +31,7 @@ namespace NWN.Systems
       if(ability == Ability.Strength)
         saveRoll = BarbarianUtils.HandleBarbarianPuissanceIndomptable(target, saveRoll);
 
-      if (saveRoll < saveDC)
+      if (saveRoll + proficiencyBonus < saveDC)
         saveRoll = FighterUtils.HandleInflexible(target, saveRoll);
 
       feedback.proficiencyBonus = proficiencyBonus;

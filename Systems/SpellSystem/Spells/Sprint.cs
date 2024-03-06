@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System;
+using Anvil.API;
 using Anvil.API.Events;
 
 namespace NWN.Systems
@@ -13,13 +14,13 @@ namespace NWN.Systems
       SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, caster, onSpellCast.Spell.SpellType);
 
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHaste));
-      caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.sprintEffect, NwTimeSpan.FromRounds(1));
+      caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.sprintEffect, TimeSpan.FromSeconds(9));
 
       if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Chargeur)))
         caster.GetObjectVariable<LocalVariableLocation>("_CHARGER_INITIAL_LOCATION").Value = caster.Location;
 
       if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Mobile)))
-        caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.sprintMobileEffect, NwTimeSpan.FromRounds(1));
+        caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.sprintMobileEffect, TimeSpan.FromSeconds(9));
 
       if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemAspectEtalon)))
       {
