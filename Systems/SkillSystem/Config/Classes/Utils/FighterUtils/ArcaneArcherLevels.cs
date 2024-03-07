@@ -1,11 +1,7 @@
 ﻿using Anvil.API;
-using NWN.Core.NWNX;
-using System.Linq;
-using System.Security.Cryptography;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.PlayerSystem.Player;
 using static NWN.Systems.SkillSystem;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace NWN.Systems
 {

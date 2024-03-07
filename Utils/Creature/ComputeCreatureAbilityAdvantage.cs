@@ -19,6 +19,9 @@ namespace NWN.Systems
 
         case Ability.Dexterity:
 
+          if (effectType == SpellEffectType.Stealth && creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.DiscretionSupreme)))
+            return true;
+
           if (creature.Classes.Any(c => c.Class.ClassType == ClassType.Barbarian && c.Level > 1) && !creature.ActiveEffects.Any(e => e.EffectType == EffectType.Blindness || e.EffectType == EffectType.Deaf))
             return true;
 

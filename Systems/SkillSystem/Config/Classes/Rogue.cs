@@ -45,14 +45,14 @@ namespace NWN.Systems
 
       HandleRogueLevelUp(player, playerClass.currentLevel, playerClass);
 
-      /*switch (customSkillId)
+      switch (customSkillId)
       {
-        case CustomSkill.FighterChampion: HandleChampionLevelUp(player, playerClass.currentLevel); break;
-        case CustomSkill.FighterArcaneArcher: HandleArcherMageLevelUp(player, playerClass.currentLevel); break;
-        case CustomSkill.FighterWarMaster: HandleWarMasterLevelUp(player, playerClass.currentLevel); break;
-      }*/
+        case CustomSkill.RogueThief: HandleThiefLevelUp(player, playerClass.currentLevel); break;
+        case CustomSkill.RogueConspirateur: HandleConspirateurLevelUp(player, playerClass.currentLevel); break;
+          /*case CustomSkill.FighterWarMaster: HandleWarMasterLevelUp(player, playerClass.currentLevel); break;*/
+      }
 
-      if(playerClass.currentLevel > 1)
+      if (playerClass.currentLevel > 1)
         player.oid.LoginCreature.ForceLevelUp(CustomClass.Rogue, player.RollClassHitDie(customSkillId, CustomClass.Rogue, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));
 
       player.GiveRacialBonusOnLevelUp();

@@ -481,6 +481,7 @@ namespace NWN.Systems
 
                     player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Heal(player.oid.LoginCreature.MaxHP / 2));
                     player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(CreatureUtils.MeneurExaltantVariable).Delete();
+                    player.oid.LoginCreature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.ThiefInvisibility), 1);
                     FighterUtils.RestoreManoeuvres(player.oid.LoginCreature);
                     FighterUtils.RestoreTirArcanique(player.oid.LoginCreature);
 

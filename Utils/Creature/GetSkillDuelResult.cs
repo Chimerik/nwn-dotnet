@@ -47,8 +47,8 @@ namespace NWN.Systems
         i++;
       }
 
-      int attackerAdvantage = GetCreatureAbilityAdvantage(attacker, attackerAbility);
-      int targetAdvantage = GetCreatureAbilityAdvantage(target, targetAbility, effectType: SpellConfig.SpellEffectType.Knockdown);
+      int attackerAdvantage = GetCreatureAbilityAdvantage(attacker, attackerAbility, effectType: effectType);
+      int targetAdvantage = GetCreatureAbilityAdvantage(target, targetAbility, effectType: effectType);
 
       int attackerRoll = RogueUtils.HandleSavoirFaire(attacker, attackerSkill, Utils.RollAdvantage(attackerAdvantage));
       int targetRoll = RogueUtils.HandleSavoirFaire(target, attackerSkill, Utils.RollAdvantage(targetAdvantage));

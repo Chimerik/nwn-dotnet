@@ -164,6 +164,12 @@
 
     public const int Stealth = 1461;
 
+    public const int MainLeste = 1462;
+    public const int DiscretionSupreme = 1463;
+    public const int ThiefInvisibility = 1464;
+    public const int ConspirateurMaitriseTactique = 1465;
+    public const int ConspirateurRedirection = 1466;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;

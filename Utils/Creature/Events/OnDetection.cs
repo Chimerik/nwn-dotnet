@@ -17,7 +17,7 @@ namespace NWN.Systems
         && onSpot.Creature.Location.GetObjectsInShapeByType<NwCreature>(Shape.Cone, 135, true, onSpot.Creature.Position).Any(c => c == onSpot.Target))
       {
         if (GetSkillDuelResult(onSpot.Creature, onSpot.Target, new List<Ability>() { Ability.Wisdom }, new List<Ability>() { Ability.Dexterity },
-          new List<int>() { CustomSkill.PerceptionProficiency }, new List<int>() { CustomSkill.StealthProficiency }, silentThrow: true))
+          new List<int>() { CustomSkill.PerceptionProficiency }, new List<int>() { CustomSkill.StealthProficiency }, SpellConfig.SpellEffectType.Stealth, true))
         {
           onSpot.Target.SetActionMode(ActionMode.Stealth, false);
           StringUtils.DisplayStringToAllPlayersNearTarget(onSpot.Target, $"Repéré par {onSpot.Creature.Name.ColorString(ColorConstants.Cyan)}", ColorConstants.Orange, true, true);

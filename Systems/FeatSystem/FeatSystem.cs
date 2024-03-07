@@ -43,6 +43,7 @@ namespace NWN.Systems
         case CustomSkill.AgressionOrc: AgressionOrc(onUseFeat.Creature, onUseFeat.TargetObject); return;
         case CustomSkill.MeneurExaltant: MeneurExaltant(onUseFeat.Creature); return;
         case CustomSkill.Chanceux: Chanceux(onUseFeat.Creature); return;
+        case CustomSkill.ConspirateurMaitriseTactique: TacticalMastery(onUseFeat.Creature, onUseFeat); return;
 
         case CustomSkill.ArcaneArcherTirAffaiblissant:
         case CustomSkill.ArcaneArcherTirAgrippant:

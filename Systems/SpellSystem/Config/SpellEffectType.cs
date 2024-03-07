@@ -11,6 +11,7 @@
       Paralysis,
       Illusion,
       Knockdown,
+      Stealth,
 
       Invalid
     }

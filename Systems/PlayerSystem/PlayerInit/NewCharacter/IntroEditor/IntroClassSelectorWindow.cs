@@ -369,6 +369,9 @@ namespace NWN.Systems
           List<LearnableSkill> profienciesToRemove = new();
 
           player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatType(Feat.SneakAttack));
+          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.MainLeste));
+          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.DiscretionSupreme));
+          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.ThiefInvisibility));
 
           if (player.windows.TryGetValue("expertiseChoice", out var expertise) && expertise.IsOpen)
           {

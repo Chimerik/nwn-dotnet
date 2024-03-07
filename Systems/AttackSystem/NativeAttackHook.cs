@@ -166,6 +166,13 @@ namespace NWN.Systems
 
       if (targetCreature is not null)
       {
+        if(NativeUtils.IsAttackRedirected(creature, targetCreature, combatRound, attackerName))
+        {
+          attackData.m_nMissedBy = 2;
+          attackData.m_nAttackResult = 4;
+          return;
+        }
+
         int advantage = CreatureUtils.GetAdvantageAgainstTarget(creature, attackData, attackWeapon, attackStat, targetCreature);
         creature.m_ScriptVars.SetInt($"_ADVANTAGE_ATTACK_{combatRound.m_nCurrentAttack}".ToExoString(), advantage);
 

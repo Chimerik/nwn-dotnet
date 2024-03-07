@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
-using NWN.Systems;
+using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
@@ -12,6 +12,10 @@ namespace NWN.Systems
       foreach (var creature in NwObject.FindObjectsOfType<NwCreature>())
       {
         creature.GetObjectVariable<LocalVariableInt>(BonusActionVariable).Value = 1;
+
+        if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.MainLeste)))
+          creature.GetObjectVariable<LocalVariableInt>(BonusActionVariable).Value += 1;
+
         creature.GetObjectVariable<LocalVariableInt>(HastMasterCooldownVariable).Delete();
         creature.GetObjectVariable<LocalVariableInt>(SneakAttackCooldownVariable).Delete();
         creature.GetObjectVariable<LocalVariableInt>(EmpaleurCooldownVariable).Delete();
