@@ -22,6 +22,9 @@ namespace NWN.Systems
           DelayEffectRemoval(attacker);
           return true;
         }
+
+        if (GetAssassinateAdvantage(eff))
+          return true;
       }
 
       return false;

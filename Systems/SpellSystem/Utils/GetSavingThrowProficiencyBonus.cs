@@ -1,13 +1,14 @@
 ﻿using System;
-using Anvil.API;
+using NWN.Native.API;
+using Ability = Anvil.API.Ability;
 
 namespace NWN.Systems
 {
   public static partial class SpellUtils
   {
-    public static int GetSavingThrowProficiencyBonus(NwCreature target, Ability ability)
+    public static int GetSavingThrowProficiencyBonus(CNWSCreature target, Ability ability)
     {
-      if (PlayerSystem.Players.TryGetValue(target, out PlayerSystem.Player player))
+      if (PlayerSystem.Players.TryGetValue(target.m_idSelf, out PlayerSystem.Player player))
       {
         if (player.learnableSkills.TryGetValue(SkillSystem.GetSavingThrowIdFromAbility(ability), out LearnableSkill proficiency)
         && proficiency.currentLevel > 0)

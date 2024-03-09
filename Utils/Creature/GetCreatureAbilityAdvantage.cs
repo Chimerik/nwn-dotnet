@@ -1,5 +1,7 @@
 ﻿using Anvil.API;
+using NWN.Native.API;
 using static NWN.Systems.SpellConfig;
+using Ability = Anvil.API.Ability;
 
 namespace NWN.Systems
 {

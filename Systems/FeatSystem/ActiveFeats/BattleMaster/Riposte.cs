@@ -19,7 +19,7 @@ namespace NWN.Systems
           caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ManoeuvreDiceVariable).Value = superiorityDice;
 
           FeatUtils.DecrementManoeuvre(caster);
-          StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Riposte", StringUtils.gold, true);
+          StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} prépare une riposte", StringUtils.gold, true, true);
         }
         else
           caster?.LoginPlayer.SendServerMessage("Veuillez vous équiper d'une arme de mêlée", ColorConstants.Red);

@@ -9,6 +9,8 @@ namespace NWN.Systems
   {
     public static async void HandleTirEnvoutant(OnCreatureAttack onDamage)
     {
+      LogUtils.LogMessage($"--- {onDamage.Attacker.Name} Tir Envoutant ---", LogUtils.LogType.Combat);
+
       int damage = onDamage.Attacker.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level < 18)
         ? NwRandom.Roll(Utils.random, 6, 2) : NwRandom.Roll(Utils.random, 6, 4);
 
@@ -34,7 +36,9 @@ namespace NWN.Systems
 
         if (saveFailed)
         {
-          if(target.IsLoginPlayerCharacter)
+          await NwTask.NextFrame();
+
+          if (target.IsLoginPlayerCharacter)
             NWScript.AssignCommand(onDamage.Attacker, () => target.ApplyEffect(EffectDuration.Temporary,
               EffectSystem.charmEffect, NwTimeSpan.FromRounds(1)));
           else
@@ -44,6 +48,7 @@ namespace NWN.Systems
       }
 
       StringUtils.DisplayStringToAllPlayersNearTarget(onDamage.Attacker, "Tir Envoûtant", StringUtils.gold, true);
+      LogUtils.LogMessage($"------", LogUtils.LogType.Combat);
 
       await NwTask.NextFrame();
       onDamage.Attacker.OnCreatureAttack -= OnAttackTirArcanique;

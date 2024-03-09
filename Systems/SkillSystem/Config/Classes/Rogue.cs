@@ -49,7 +49,7 @@ namespace NWN.Systems
       {
         case CustomSkill.RogueThief: HandleThiefLevelUp(player, playerClass.currentLevel); break;
         case CustomSkill.RogueConspirateur: HandleConspirateurLevelUp(player, playerClass.currentLevel); break;
-          /*case CustomSkill.FighterWarMaster: HandleWarMasterLevelUp(player, playerClass.currentLevel); break;*/
+        case CustomSkill.RogueAssassin: HandleAssassinLevelUp(player, playerClass.currentLevel); break;
       }
 
       if (playerClass.currentLevel > 1)

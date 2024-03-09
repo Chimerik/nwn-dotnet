@@ -42,9 +42,6 @@ namespace NWN.Systems
 
         CreatureUtils.SendSkillCheckFeedback(attacker, target, roll, score, advantage, tirDC, totalSave, saveFailed, "Athlétisme");
 
-        foreach (var eff in target.ActiveEffects)
-          ModuleSystem.Log.Info($"eff : {eff.Tag}");
-
         if (saveFailed)
         {
           int damage = attacker.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level < 18)

@@ -449,6 +449,7 @@ namespace NWN.Systems
         ApplyElkAspect();
         ApplyGloutonAspect();
         ApplyPerceptionAveugle();
+        ApplyAssassinate();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

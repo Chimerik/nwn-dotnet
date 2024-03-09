@@ -18,13 +18,13 @@ namespace NWN.Systems
 
       if (targetCreature.Size > caster.Size + 1)
       {
-        caster.LoginPlayer?.SendServerMessage("La cible est hors de portée", ColorConstants.Red);
+        caster.LoginPlayer?.SendServerMessage("La cible est trop grande pour que vous la renversiez !", ColorConstants.Red);
         return;
       }
 
       if(targetCreature.DistanceSquared(caster) > 9)
       {
-        caster.LoginPlayer?.SendServerMessage("La cible est trop grande pour que vous la renversiez !", ColorConstants.Red);
+        caster.LoginPlayer?.SendServerMessage("La cible est hors de portée", ColorConstants.Red);
         return;
       }
 

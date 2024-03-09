@@ -16,7 +16,7 @@ namespace NWN.Systems
       caster.LoginPlayer?.SendServerMessage($"{target.Name.ColorString(ColorConstants.Cyan)} - {rollString} {hitString}".ColorString(ColorConstants.Orange));
 
       if (target != caster)
-        target.LoginPlayer?.SendServerMessage($"{caster.Name.ColorString(ColorConstants.Cyan)} - {advantageString}{rollString} {hitString}".ColorString(ColorConstants.Orange));
+        target.LoginPlayer?.SendServerMessage($"{caster.Name.ColorString(ColorConstants.Cyan)} - {rollString} {hitString}".ColorString(ColorConstants.Orange));
 
       if(saveFailed && caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.WildMagicMagieGalvanisanteBienfait)) 
         && caster.Classes.Any(c => c.Class.ClassType == ClassType.Barbarian && c.Level > 9)
