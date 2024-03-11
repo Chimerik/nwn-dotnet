@@ -444,8 +444,10 @@ namespace NWN.Systems
         ApplyUltimeSurvivant();
         ApplyShieldArmorMalus();
         ApplyUnarmoredDefence();
+        ApplyMonkUnarmoredDefence();
         InitializeActionSurge();
         InitializeWarMasterImplacable();
+        InitializeMonkPercetion();
         ApplyElkAspect();
         ApplyGloutonAspect();
         ApplyPerceptionAveugle();

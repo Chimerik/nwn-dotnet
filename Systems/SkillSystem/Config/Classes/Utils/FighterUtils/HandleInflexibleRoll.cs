@@ -13,6 +13,8 @@ namespace NWN.Systems
 
       int malus = fighterLevel.Value < 13 ? 2 : fighterLevel.Value < 17 ? 1 : 0;
       int reroll = NwRandom.Roll(Utils.random, 20) - malus;
+
+      StringUtils.DisplayStringToAllPlayersNearTarget(creature, "Inflexible", StringUtils.gold, true);
       LogUtils.LogMessage($"Echec JDS => Inflexible rerolled => {reroll}", LogUtils.LogType.Combat);
 
       return reroll;

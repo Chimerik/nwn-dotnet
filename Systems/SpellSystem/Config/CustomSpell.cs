@@ -29,5 +29,6 @@
     public const int HurlementGalvanisant = 865;
     public const int CommunionAvecLaNature = 865;
     public const int Stealth = 867;
+    public const int Serenity = 868;
   }
 }

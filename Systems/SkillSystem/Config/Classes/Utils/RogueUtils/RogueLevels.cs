@@ -133,10 +133,7 @@ namespace NWN.Systems
 
           break;
 
-        case 14:
-
-          if (!player.windows.TryGetValue("featSelection", out var feat14)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
-          else ((FeatSelectionWindow)feat14).CreateWindow();
+        case 14: 
 
           player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.perceptionAveugleAura);
 
@@ -153,6 +150,13 @@ namespace NWN.Systems
 
           break;
 
+        case 16:
+
+          if(!player.windows.TryGetValue("featSelection", out var feat16)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
+          else ((FeatSelectionWindow)feat16).CreateWindow();
+
+          break;
+
         case 17:
 
           if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat))
@@ -164,6 +168,9 @@ namespace NWN.Systems
 
           if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat))
             player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat);
+
+          if(!player.windows.TryGetValue("featSelection", out var feat19)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
+          else ((FeatSelectionWindow)feat19).CreateWindow();
 
           break;
       }

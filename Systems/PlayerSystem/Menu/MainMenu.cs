@@ -484,6 +484,7 @@ namespace NWN.Systems
                     player.oid.LoginCreature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.ThiefInvisibility), 1);
                     FighterUtils.RestoreManoeuvres(player.oid.LoginCreature);
                     FighterUtils.RestoreTirArcanique(player.oid.LoginCreature);
+                    MonkUtils.RestoreKi(player.oid.LoginCreature);
 
                     foreach (var skill in player.learnableSkills.Values.Where(l => l.restoreOnShortRest && l.currentLevel > 0))
                     {
@@ -517,6 +518,7 @@ namespace NWN.Systems
                     FighterUtils.RestoreManoeuvres(player.oid.LoginCreature);
                     FighterUtils.RestoreTirArcanique(player.oid.LoginCreature);
                     BarbarianUtils.RestoreBarbarianRage(player.oid.LoginCreature);
+                    MonkUtils.RestoreKi(player.oid.LoginCreature);
 
                     if (player.oid.LoginCreature.Race.Id == CustomRace.HalfOrc)
                     {

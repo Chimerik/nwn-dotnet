@@ -78,6 +78,13 @@ namespace NWN.Systems
         case CustomSkill.WildMagicTeleportation: Teleportation(onUseFeat.Creature); return;
         case CustomSkill.WildMagicMagieGalvanisanteBienfait: Bienfait(onUseFeat.Creature, onUseFeat.TargetObject); return;
         case CustomSkill.WildMagicMagieGalvanisanteRecuperation: Recuperation(onUseFeat.Creature, onUseFeat.TargetObject); return;
+
+        case CustomSkill.MonkBonusAttack: MonkBonusAttack(onUseFeat.Creature); return;
+        case CustomSkill.MonkPatience: MonkPatience(onUseFeat.Creature); return;
+        case CustomSkill.MonkDelugeDeCoups: MonkDelugeDeCoups(onUseFeat.Creature); return;
+        case CustomSkill.MonkSlowFall: MonkSlowFall(onUseFeat.Creature); return;
+        case CustomSkill.MonkDiamondSoul: DiamondSoul(onUseFeat.Creature); return;
+        case CustomSkill.MonkDesertion: MonkDesertion(onUseFeat.Creature); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Security.Cryptography;
 
 namespace NWN.Systems
 {
@@ -106,7 +107,7 @@ namespace NWN.Systems
         }
       }
 
-      if (creature.Classes.Any(c => c.Class.ClassType == ClassType.Barbarian && c.Level > 0))
+      if (creature.Classes.Any(c => c.Class.ClassType == ClassType.Barbarian))
       {
         creature.OnItemEquip -= ItemSystem.OnEquipUnarmoredDefence;
         creature.OnItemUnequip -= ItemSystem.OnUnEquipUnarmoredDefence;
@@ -122,6 +123,40 @@ namespace NWN.Systems
 
           if (creature.GetAbilityModifier(Ability.Constitution) > 0)
             creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetUnarmoredDefenseEffect(creature.GetAbilityModifier(Ability.Constitution)));
+        }
+      }
+
+      if (creature.Classes.Any(c => c.Class.ClassType == ClassType.Monk))
+      {
+        creature.OnItemEquip -= ItemSystem.OnEquipMonkUnarmoredDefence;
+        creature.OnItemUnequip -= ItemSystem.OnUnEquipMonkUnarmoredDefence;
+        creature.OnItemEquip += ItemSystem.OnEquipMonkUnarmoredDefence;
+        creature.OnItemUnequip += ItemSystem.OnUnEquipMonkUnarmoredDefence;
+
+        NwItem armor = creature.GetItemInSlot(InventorySlot.Chest);
+        NwItem shield = creature.GetItemInSlot(InventorySlot.LeftHand);
+        bool hasShield = false;
+
+        if (armor is null || armor.BaseACValue < 1)
+        {
+          if (shield is not null)
+          {
+            switch (shield.BaseItem.ItemType)
+            {
+              case BaseItemType.SmallShield:
+              case BaseItemType.LargeShield:
+              case BaseItemType.TowerShield: hasShield = true; break;
+            }
+          }
+
+          if (!hasShield)
+          {
+            creature.OnHeartbeat -= CreatureUtils.OnHeartBeatCheckMonkUnarmoredDefence;
+            creature.OnHeartbeat += CreatureUtils.OnHeartBeatCheckMonkUnarmoredDefence;
+
+            if (creature.GetAbilityModifier(Ability.Wisdom) > 0)
+              creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetMonkUnarmoredDefenseEffect(creature.GetAbilityModifier(Ability.Wisdom)));
+          }
         }
       }
 

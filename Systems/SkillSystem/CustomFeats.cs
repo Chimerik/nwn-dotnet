@@ -172,6 +172,15 @@
 
     public const int AssassinAssassinate = 1467;
 
+    public const int MonkBonusAttack = 1468;
+    public const int MonkPatience = 1469;
+    public const int MonkDelugeDeCoups = 1470;
+    public const int MonkSlowFall = 1471;
+    public const int MonkStunStrike = 1472;
+    public const int MonkSerenity = 1473;
+    public const int MonkDiamondSoul = 1474;
+    public const int MonkDesertion = 1475;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -654,11 +663,14 @@
     public const int BarbarianWildMagic = 20533;
 
     public const int Rogue = 20534;
-
     public const int RogueThief = 20535;
     public const int RogueAssassin = 20536;
     public const int RogueConspirateur = 20537;
     public const int RogueArcane = 20538;
+
+    public const int Monk = 20539;
+    public const int MonkUnarmoredDefence = 20540;
+    public const int MonkUnarmoredSpeed = 20541;
 
     public const int Invalid = 65535;
   }

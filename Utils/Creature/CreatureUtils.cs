@@ -22,62 +22,76 @@ namespace NWN.Systems
     public static readonly CExoString OpportunityAttackTypeVariableExo = OpportunityAttackTypeVariable.ToExoString();
     public const string SneakAttackCooldownVariable = "_SNEAK_ATTACK_COOLDOWN";
     public static readonly CExoString SneakAttackCooldownVariableExo = SneakAttackCooldownVariable.ToExoString();
+    public const string ParadeDeProjectileCooldownVariable = "_PARADE_DE_PROJECTILE_COOLDOWN";
+    public static readonly CExoString ParadeDeProjectileCooldownVariableExo = ParadeDeProjectileCooldownVariable.ToExoString();
     public const string BersekerRepresaillesVariable = "_BERSEKER_REPRESAILLES";
     public static readonly CExoString BersekerRepresaillesVariableExo = BersekerRepresaillesVariable.ToExoString();
     public const string HastMasterCooldownVariable = "_HAST_MASTER_IN_COOLDOWN";
     public static readonly CExoString HastMasterCooldownVariableExo = HastMasterCooldownVariable.ToExoString();
     public static readonly CExoString HastMasterSpecialAttackExo = "_HAST_MASTER_SPECIAL_ATTACK".ToExoString();
     public const string HastMasterOpportunityVariable = "_HAST_MASTER_OPPORTUNITY";
-    public readonly static CExoString HastMasterOpportunityVariableExo = HastMasterOpportunityVariable.ToExoString();
+    public static readonly CExoString HastMasterOpportunityVariableExo = HastMasterOpportunityVariable.ToExoString();
     public const string SentinelleOpportunityVariable = "_SENTINELLE_OPPORTUNITY";
-    public readonly static CExoString SentinelleOpportunityVariableExo = SentinelleOpportunityVariable.ToExoString();
+    public static readonly CExoString SentinelleOpportunityVariableExo = SentinelleOpportunityVariable.ToExoString();
     public const string SentinelleOpportunityTargetVariable = "_SENTINELLE_OPPORTUNITY_TARGET";
-    public readonly static CExoString SentinelleOpportunityTargetVariableExo = SentinelleOpportunityTargetVariable.ToExoString();
+    public static readonly CExoString SentinelleOpportunityTargetVariableExo = SentinelleOpportunityTargetVariable.ToExoString();
     public const string FureurOrcBonusDamageVariable = "_FUREUR_ORC_DAMAGE";
-    public readonly static CExoString FureurOrcBonusDamageVariableExo = FureurOrcBonusDamageVariable.ToExoString();
+    public static readonly CExoString FureurOrcBonusDamageVariableExo = FureurOrcBonusDamageVariable.ToExoString();
     public const string FureurOrcBonusAttackVariable = "_FUREUR_ORC_ATTACK";
-    public readonly static CExoString FureurOrcBonusAttackVariableExo = FureurOrcBonusAttackVariable.ToExoString();
+    public static readonly CExoString FureurOrcBonusAttackVariableExo = FureurOrcBonusAttackVariable.ToExoString();
     public const string SecondeChanceVariable = "_FEAT_SECONDE_CHANCE";
-    public readonly static CExoString SecondeChanceVariableExo = SecondeChanceVariable.ToExoString();
+    public static readonly CExoString SecondeChanceVariableExo = SecondeChanceVariable.ToExoString();
     public const string ShieldMasterCooldownVariable = "_FEAT_SHIELDMASTER_COOLDOWN";
 
     public const string TirArcaniqueVariable = "_TIR_ARCANIQUE";
     public const string TirArcaniqueCooldownVariable = "_TIR_ARCANIQUE_COOLDOWN";
     public const string TirChercheurVariable = "_TIR_CHERCHEUR";
     public const string TirAffaiblissantVariable = "_TIR_AFFAIBLISSANT";
-    public readonly static CExoString TirAffaiblissantVariableExo = TirAffaiblissantVariable.ToExoString();
+    public static readonly CExoString TirAffaiblissantVariableExo = TirAffaiblissantVariable.ToExoString();
     public const string TirAgrippantVariable = "_TIR_AGRIPPANT";
     public const string TirIncurveVariable = "_TIR_INCURVE";
-    public readonly static CExoString TirIncurveVariableExo = TirIncurveVariable.ToExoString();
+    public static readonly CExoString TirIncurveVariableExo = TirIncurveVariable.ToExoString();
 
     public const string ManoeuvreTypeVariable = "_MANOEUVRE_TYPE";
-    public readonly static CExoString ManoeuvreTypeVariableExo = ManoeuvreTypeVariable.ToExoString();
+    public static readonly CExoString ManoeuvreTypeVariableExo = ManoeuvreTypeVariable.ToExoString();
     public const string ManoeuvreDiceVariable = "_MANOEUVRE_DICE";
-    public readonly static CExoString ManoeuvreDiceVariableExo = ManoeuvreDiceVariable.ToExoString();
+    public static readonly CExoString ManoeuvreDiceVariableExo = ManoeuvreDiceVariable.ToExoString();
     public const string ManoeuvreBalayageTargetVariable = "_MANOEUVRE_BALAYAGE_TARGET";
-    public readonly static CExoString ManoeuvreBalayageTargetVariableExo = ManoeuvreBalayageTargetVariable.ToExoString();
-    public readonly static CExoString ManoeuvreDiversionVariableExo = "_MANOEUVRE_DIVERSION".ToExoString();
-    public readonly static CExoString ManoeuvreDiversionExpiredVariableExo = "_MANOEUVRE_DIVERSION_EXPIRED".ToExoString();
-    public readonly static CExoString ManoeuvreRiposteVariableExo = "_MANOEUVRE_RIPOSTE".ToExoString();
+    public static readonly CExoString ManoeuvreBalayageTargetVariableExo = ManoeuvreBalayageTargetVariable.ToExoString();
+    public static readonly CExoString ManoeuvreDiversionVariableExo = "_MANOEUVRE_DIVERSION".ToExoString();
+    public static readonly CExoString ManoeuvreDiversionExpiredVariableExo = "_MANOEUVRE_DIVERSION_EXPIRED".ToExoString();
+    public static readonly CExoString ManoeuvreRiposteVariableExo = "_MANOEUVRE_RIPOSTE".ToExoString();
 
     public const string FrappeFrenetiqueVariable = "_FRAPPE_FRENETIQUE_BONUS";
-    public readonly static CExoString FrappeFrenetiqueVariableExo = FrappeFrenetiqueVariable.ToExoString();
+    public static readonly CExoString FrappeFrenetiqueVariableExo = FrappeFrenetiqueVariable.ToExoString();
 
     public const string AspectTigreVariable = "_ASPECT_TIGRE";
-    public readonly static CExoString AspectTigreVariableExo = AspectTigreVariable.ToExoString();
+    public static readonly CExoString AspectTigreVariableExo = AspectTigreVariable.ToExoString();
 
     public const string AspectTigreMalusVariable = "_ASPECT_TIGRE_MALUS";
-    public readonly static CExoString AspectTigreMalusVariableExo = AspectTigreMalusVariable.ToExoString();
+    public static readonly CExoString AspectTigreMalusVariableExo = AspectTigreMalusVariable.ToExoString();
 
     public const string TigerAspectBleedVariable = "_APPLY_BLEED";
     public const string ApplyBleedVariable = "_APPLY_BLEED";
-    public readonly static CExoString ApplyBleedVariableExo = ApplyBleedVariable.ToExoString();
+    public static readonly CExoString ApplyBleedVariableExo = ApplyBleedVariable.ToExoString();
 
     public const string FrappeFrenetiqueMalusVariable = "_FRAPPE_FRENETIQUE_MALUS";
-    public readonly static CExoString FrappeFrenetiqueMalusVariableExo = FrappeFrenetiqueMalusVariable.ToExoString();
+    public static readonly CExoString FrappeFrenetiqueMalusVariableExo = FrappeFrenetiqueMalusVariable.ToExoString();
 
     public const string EmpaleurCooldownVariable = "_EMPALEUR_COOLDOWN";
-    public readonly static CExoString EmpaleurCooldownVariableExo = EmpaleurCooldownVariable.ToExoString();
+    public static readonly CExoString EmpaleurCooldownVariableExo = EmpaleurCooldownVariable.ToExoString();
+
+    public const string FrappeMeurtriereVariable = "_FRAPPE_MEURTRIERE";
+    public static readonly CExoString FrappeMeurtriereVariableExo = FrappeMeurtriereVariable.ToExoString();
+
+    public const string MonkBonusAttackVariable = "_MONK_BONUS_ATTACK";
+    public static readonly CExoString MonkBonusAttackVariableExo = MonkBonusAttackVariable.ToExoString();
+
+    public const string MonkDelugeVariable = "_MONK_BONUS_ATTACK";
+    public static readonly CExoString MonkDelugeVariableExo = MonkDelugeVariable.ToExoString();
+
+    public const string MonkUnarmedDamageVariable = "_MONK_UNARMED_DAMAGE";
+    public static readonly CExoString MonkUnarmedDamageVariableExo = MonkUnarmedDamageVariable.ToExoString();
 
     public const string VigueurNaineHDVariable = "_FEAT_VIGUEUR_NAINE_HD";
     public const string MeneurExaltantVariable = "_MENEUR_EXALTANT_BUFF";

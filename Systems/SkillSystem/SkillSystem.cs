@@ -56,6 +56,8 @@ namespace NWN.Systems
       LienTotem,
       [Description("Voie_du_Roublard")]
       RogueSubClass,
+      [Description("Voie_du_Moine")]
+      MonkSubClass,
     }
 
     public static readonly Dictionary<int, Learnable> learnableDictionary = new();
@@ -414,6 +416,18 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomSkill.ConspirateurRedirection, new LearnableSkill(CustomSkill.ConspirateurRedirection, "Redirection", "Vous utilisez automatiquement votre réaction pour rediriger la première attaque portée contre vous vers un autre ennemi à votre contact au hasard", Category.Fight, "is_Redirect", 1, 1, Ability.Dexterity, Ability.Intelligence, LearnActivableFeat));
 
       learnableDictionary.Add(CustomSkill.AssassinAssassinate, new LearnableSkill(CustomSkill.AssassinAssassinate, "Assassinat", "Lors de votre premier round de combat, vous avez l'avantage sur vos attaques tant que vous n'avez pas subit de dégât\nLors de votre premier round, toutes vos attaques réussies sont des coups critiques tant que vous n'avez pas subit de dégât", Category.Fight, "is_Assassinate", 1, 1, Ability.Dexterity, Ability.Intelligence, OnLearnAssassinate));
+
+      learnableDictionary.Add(CustomSkill.Monk, new LearnableSkill(CustomSkill.Monk, "Moine", "", Category.Class, "monk", 20, 1, Ability.Dexterity, Ability.Strength, Monk.LevelUp, "1S89vtFohS-YuCDsdMLaoOd3RFpbCtB4zoRGnoi_Tl4I"));
+      learnableDictionary.Add(CustomSkill.MonkUnarmoredDefence, new LearnableSkill(CustomSkill.MonkUnarmoredDefence, "Défense sans armure", "Si vous ne portez pas d'armure ni de bouclier, ajoutez votre bonus de sagesse (si positif) en tant que bonus d'armure\n\nNOTE : Ne se stack pas avec l'équivalent barbare", Category.Fight, "is_UnarmoredDefence", 1, 1, Ability.Constitution, Ability.Strength, OnLearnMonkUnarmoredDefence));
+      learnableDictionary.Add(CustomSkill.MonkBonusAttack, new LearnableSkill(CustomSkill.MonkBonusAttack, "Art Martial", "A mains nues ou avec une arme de moine, vous pouvez utiliser votre action bonus afin d'effectuer une attaque à main nue supplémentaire", Category.Fight, "is_MonkBonusAtt", 1, 1, Ability.Dexterity, Ability.Strength, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.MonkPatience, new LearnableSkill(CustomSkill.MonkPatience, "Patience", "Action bonus\n\nDésavantage sur les attaques qui vous ciblent\n\nVous avez l'avantage sur les JDS de dextérité\n\nDurée : 1 round\nCoût : 1 ki", Category.Fight, "is_PatientDef", 1, 1, Ability.Dexterity, Ability.Wisdom, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.MonkDelugeDeCoups, new LearnableSkill(CustomSkill.MonkDelugeDeCoups, "Déluge de coups", "Action bonus\n\nVotre prochaine attaque vous permet d’enchaîner deux attaques à mains nues supplémentaires\nCoût : 1 ki", Category.Fight, "is_FlurryOfBlows", 1, 1, Ability.Dexterity, Ability.Strength, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.MonkUnarmoredSpeed, new LearnableSkill(CustomSkill.MonkUnarmoredSpeed, "Célérité sans armure", "Tant que vous n'avez ni armure ni bouclier équipé, vous vous déplacez 30 % plus rapidement", Category.Fight, "is_MonkSpeed", 1, 1, Ability.Dexterity, Ability.Wisdom, OnLearnUnarmoredSpeed));
+      learnableDictionary.Add(CustomSkill.MonkSlowFall, new LearnableSkill(CustomSkill.MonkSlowFall, "Chute contrôlée", "Vous pouvez utiliser votre réaction lorsque vous tombez afin de réduire les dégâts de chute d'un montant égal 5 fois votre niveau de moine", Category.Fight, "is_SlowFall", 1, 1, Ability.Dexterity, Ability.Wisdom, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.MonkStunStrike, new LearnableSkill(CustomSkill.MonkStunStrike, "Frappe étourdissante", "Si votre cible rate un JDS de constitution, votre prochaine attaque de mêlée l'étourdit.\nDD 8 +  bonus de maîtrise + modificateur de sagesse\nDurée : 1 round\nCoût : 1 ki", Category.Fight, "is_StunStrike", 1, 1, Ability.Dexterity, Ability.Strength, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.MonkSerenity, new LearnableSkill(CustomSkill.MonkSerenity, "Sérénité", "Met fin à un effet de charme ou de peur qui vous affecte", Category.Fight, "is_Serenity", 1, 1, Ability.Wisdom, Ability.Constitution, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.MonkDiamondSoul, new LearnableSkill(CustomSkill.MonkDiamondSoul, "Âme de diamant", "Tant que âme de diamant est activé, si vous échouez un jet de sauvegarde, vous dépensez un point de ki et le relancez. Le nouveau résultat est conservé.", Category.Fight, "is_DiamondSoul", 1, 1, Ability.Wisdom, Ability.Constitution, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.MonkDesertion, new LearnableSkill(CustomSkill.MonkDesertion, "Désertion de l'âme", "Vous devenez invisible et êtes résistant à tous les types de dégâts à l'exception de ceux de force\nDurée : 1 minutes\nCoût : 4 ki", Category.Fight, "ife_emptybod", 1, 1, Ability.Wisdom, Ability.Constitution, LearnActivableFeat));
 
       // SPELLS
       // CANTRIPS

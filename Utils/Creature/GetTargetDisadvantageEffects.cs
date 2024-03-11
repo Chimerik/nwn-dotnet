@@ -18,6 +18,9 @@ namespace NWN.Systems
         if(GetJeuDeJambeDisadvantage(eff))
           return true;
 
+        if (GetPatienceDisadvantage(eff))
+          return true;
+
         if (GetKnockdownRangedDisadvantage(eff, rangedAttack))
           return true;
       }

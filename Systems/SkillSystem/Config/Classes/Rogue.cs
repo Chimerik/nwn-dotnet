@@ -36,7 +36,7 @@ namespace NWN.Systems
         learnableDictionary[CustomSkill.SleightOfHandProficiency],
         learnableDictionary[CustomSkill.StealthProficiency],
       },
-      2
+      4
     );
 
     public static bool LevelUp(Player player, int customSkillId)

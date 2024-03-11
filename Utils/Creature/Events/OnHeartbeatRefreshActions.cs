@@ -18,6 +18,7 @@ namespace NWN.Systems
 
         creature.GetObjectVariable<LocalVariableInt>(HastMasterCooldownVariable).Delete();
         creature.GetObjectVariable<LocalVariableInt>(SneakAttackCooldownVariable).Delete();
+        creature.GetObjectVariable<LocalVariableInt>(ParadeDeProjectileCooldownVariable).Delete();
         creature.GetObjectVariable<LocalVariableInt>(EmpaleurCooldownVariable).Delete();
 
         if(creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.BersekerRepresailles)))

@@ -11,13 +11,15 @@ namespace NWN.Systems
       {
         int superiorityDice = creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreDiceVariableExo);
         int superiorityRoll = NwRandom.Roll(Utils.random, superiorityDice);
-        int damageReduction = superiorityRoll + creature.m_pStats.m_nDexterityModifier;
+        int dexMod = creature.m_pStats.GetDEXMod(1);
+        int dexBonus = dexMod > 122 ? dexMod - 255 : dexMod;
+        int damageReduction = superiorityRoll + dexBonus;
 
         creature.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreTypeVariableExo);
         creature.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreDiceVariableExo);
 
-        LogUtils.LogMessage($"Parade - Réduction de dégâts : {superiorityRoll} (1d{superiorityDice}) + {creature.m_pStats.m_nDexterityModifier} = {damageReduction}", LogUtils.LogType.Combat);
-        BroadcastNativeServerMessage($"Parade - Réduction de dégâts : {superiorityRoll} (1d{superiorityDice}) + {creature.m_pStats.m_nDexterityModifier} = {damageReduction}", creature);
+        LogUtils.LogMessage($"Parade - Réduction de dégâts : {superiorityRoll} (1d{superiorityDice}) + {dexBonus} = {damageReduction}", LogUtils.LogType.Combat);
+        BroadcastNativeServerMessage($"Parade - Réduction de dégâts : {superiorityRoll} (1d{superiorityDice}) + {dexBonus} = {damageReduction}", creature);
         return damageReduction;
       }
 

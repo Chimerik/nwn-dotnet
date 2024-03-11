@@ -27,6 +27,7 @@ namespace NWN.Systems
               break;
 
             case CustomClass.Barbarian:
+            case CustomClass.Rogue:
 
               if (playerClass.Level > 4)
                 oid.LoginCreature.BaseAttackCount += 1;

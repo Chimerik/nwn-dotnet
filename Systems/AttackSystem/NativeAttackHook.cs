@@ -296,6 +296,7 @@ namespace NWN.Systems
       NativeUtils.HandleBersekerRepresaillesBonusAttack(creature, combatRound, attackData, attackerName);
       NativeUtils.HandleTigreAspect(creature, targetObject, combatRound, attackerName);
       NativeUtils.HandleArcaneArcherTirIncurveBonusAttack(creature, attackData, combatRound, attackerName, attackWeapon, targetObject);
+      NativeUtils.HandleMonkBonusAttack(creature, targetObject, combatRound, attackerName, targetName);
     }
     private int OnAddUseTalentOnObjectHook(void* pCreature, int talentType, int talentId, uint oidTarget, byte nMultiClass, uint oidItem, int nItemPropertyIndex, byte nCasterLevel, int nMetaType)
     {
@@ -389,40 +390,45 @@ namespace NWN.Systems
         if (attackWeapon.GetPropertyByTypeExists((ushort)Native.API.ItemProperty.NoDamage) > 0)
           return -1;
 
-        NwBaseItem baseWeapon = NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem);
-
-        if (attackData.m_nAttackType == 65002 && attacker.m_ScriptVars.GetInt(CreatureUtils.HastMasterSpecialAttackExo).ToBool())
+        if (!attacker.m_ScriptVars.GetInt(CreatureUtils.MonkUnarmedDamageVariableExo).ToBool())
         {
-          baseDamage = NwRandom.Roll(Utils.random, 4, 1);
+          NwBaseItem baseWeapon = NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem);
 
-          if (!bCritical.ToBool())
-            attacker.m_ScriptVars.DestroyInt(CreatureUtils.HastMasterSpecialAttackExo);
+          if (attackData.m_nAttackType == 65002 && attacker.m_ScriptVars.GetInt(CreatureUtils.HastMasterSpecialAttackExo).ToBool())
+          {
+            baseDamage = NwRandom.Roll(Utils.random, 4, 1);
+
+            if (!bCritical.ToBool())
+              attacker.m_ScriptVars.DestroyInt(CreatureUtils.HastMasterSpecialAttackExo);
+          }
+          else
+          {
+            baseDamage += NativeUtils.RollWeaponDamage(attacker, baseWeapon, attackData);
+            isDuelFightingStyle = NativeUtils.IsDuelFightingStyle(attacker, baseWeapon, attackData);
+            baseDamage += isDuelFightingStyle ? 2 : 0;
+          }
+
+          sneakAttack = NativeUtils.GetSneakAttackDamage(attacker, targetCreature, attackWeapon, attackData, combatRound);
+
+          if (NativeUtils.IsCogneurLourd(attacker, attackWeapon))
+          {
+            baseDamage += 10;
+            LogUtils.LogMessage($"Cogneur Lourd : +10 dégâts", LogUtils.LogType.Combat);
+          }
+          else if (NativeUtils.IsTireurDelite(attacker, attackData, attackWeapon))
+          {
+            baseDamage += 10;
+            LogUtils.LogMessage($"Tireur d'élite : +10 dégâts", LogUtils.LogType.Combat);
+          }
         }
         else
         {
-          baseDamage += NativeUtils.RollWeaponDamage(attacker, baseWeapon, attackData);
-          isDuelFightingStyle = NativeUtils.IsDuelFightingStyle(attacker, baseWeapon, attackData);
-          baseDamage += isDuelFightingStyle ? 2 : 0;
-        }
-
-        sneakAttack = NativeUtils.GetSneakAttackDamage(attacker, targetCreature, attackWeapon, attackData, combatRound);
-
-        if (NativeUtils.IsCogneurLourd(attacker, attackWeapon))
-        {
-          baseDamage += 10;
-          LogUtils.LogMessage($"Cogneur Lourd : +10 dégâts", LogUtils.LogType.Combat);
-        }
-        else if (NativeUtils.IsTireurDelite(attacker, attackData, attackWeapon))
-        {
-          baseDamage += 10;
-          LogUtils.LogMessage($"Tireur d'élite : +10 dégâts", LogUtils.LogType.Combat);
+          baseDamage += NativeUtils.GetUnarmedDamage(attacker);
         }
       }
       else
       {
-        int unarmedDieToRoll = CreatureUtils.GetUnarmedDamage(attacker.m_pStats);
-        baseDamage += NwRandom.Roll(Utils.random, unarmedDieToRoll);
-        LogUtils.LogMessage($"Mains nues - 1d{unarmedDieToRoll} => {baseDamage}", LogUtils.LogType.Combat);
+        baseDamage += NativeUtils.GetUnarmedDamage(attacker);
       }
 
       if (bCritical > 0)
@@ -431,7 +437,18 @@ namespace NWN.Systems
         LogUtils.LogMessage($"Critique - Base {baseDamage} + crit {critDamage} = {baseDamage + critDamage}", LogUtils.LogType.Combat);
         baseDamage += critDamage;
       }
-        
+
+      int monkUnarmedDamage = attacker.m_ScriptVars.GetInt(CreatureUtils.MonkUnarmedDamageVariableExo);
+      if (monkUnarmedDamage > 0) 
+      {
+        monkUnarmedDamage -= 1;
+
+        if (monkUnarmedDamage < 1)
+          attacker.m_ScriptVars.DestroyInt(CreatureUtils.MonkUnarmedDamageVariableExo);
+        else
+          attacker.m_ScriptVars.SetInt(CreatureUtils.MonkUnarmedDamageVariableExo, monkUnarmedDamage);
+      }
+
       // Ajout du bonus de caractéristique
       byte dexMod = creatureStats.m_nDexterityModifier;
       byte strMod = creatureStats.m_nStrengthModifier;
@@ -476,14 +493,21 @@ namespace NWN.Systems
         LogUtils.LogMessage($"Main secondaire - Bonus de caractéristique non appliqué aux dégâts", LogUtils.LogType.Combat);*/
 
       baseDamage += NativeUtils.HandleBagarreurDeTaverne(attacker, attackWeapon, strBonus);
-      baseDamage *= NativeUtils.HandleFrappeMeurtriere(attacker, targetCreature, baseDamage);
+
+      if (attacker.m_ScriptVars.GetInt(CreatureUtils.FrappeMeurtriereVariableExo).ToBool())
+      {
+        baseDamage *= 2;
+        attacker.m_ScriptVars.DestroyInt(CreatureUtils.FrappeMeurtriereVariableExo);
+      }
 
       if (targetCreature is not null)
       {
         baseDamage -= NativeUtils.HandleMaitreArmureLourde(targetCreature);
         baseDamage -= NativeUtils.HandleParade(targetCreature);
+        baseDamage -= NativeUtils.HandleParadeDeProjectile(attacker, targetCreature, attackData.m_bRangedAttack.ToBool());
         baseDamage /= NativeUtils.HandleEsquiveInstinctive(targetCreature);
       }
+
       if (attacker.m_ScriptVars.GetInt(CreatureUtils.TirAffaiblissantVariableExo).ToBool())
       {
         baseDamage /= 2;

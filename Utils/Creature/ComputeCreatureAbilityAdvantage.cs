@@ -104,6 +104,9 @@ namespace NWN.Systems
             if (EffectSystem.DodgeEffectTag == eff.Tag)
               return true;
 
+            if (EffectSystem.MonkPatienceEffectTag == eff.Tag)
+              return true;
+
             break;
         }
       }

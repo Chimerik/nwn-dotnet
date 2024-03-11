@@ -34,6 +34,9 @@ namespace NWN.Systems
       if (saveRoll + proficiencyBonus < saveDC)
         saveRoll = FighterUtils.HandleInflexible(target, saveRoll);
 
+      if (saveRoll + proficiencyBonus < saveDC)
+        saveRoll = MonkUtils.HandleDiamondSoul(target, saveRoll);
+        
       feedback.proficiencyBonus = proficiencyBonus;
       feedback.saveRoll = saveRoll;
 

@@ -21,13 +21,7 @@ namespace NWN.Systems
       combatRound.AddWhirlwindAttack(target.m_idSelf, 1);
 
       string targetName = $"{target.GetFirstName().GetSimple(0)} {target.GetLastName().GetSimple(0)}".ColorString(ColorConstants.Cyan);
-      DelayMessage(attackerName, targetName, attacker);
-    }
-    private static async void DelayMessage(string attackerName, string targetName, CNWSCreature attacker)
-    {
-      await NwTask.Delay(TimeSpan.FromSeconds(0.8));
-      LogUtils.LogMessage($"Attaque supplémentaire - Balayage", LogUtils.LogType.Combat);
-      BroadcastNativeServerMessage($"{attackerName.ColorString(ColorConstants.Cyan)} balaye {targetName}", attacker);
+      DelayMessage($"{attackerName.ColorString(ColorConstants.Cyan)} balaye {targetName.ColorString(ColorConstants.Cyan)}", attacker);
     }
   }
 }

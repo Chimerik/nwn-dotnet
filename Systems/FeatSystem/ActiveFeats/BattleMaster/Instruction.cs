@@ -40,7 +40,7 @@ namespace NWN.Systems
       target.ApplyEffect(EffectDuration.Temporary, EffectSystem.increaseNumAttackEffect, NwTimeSpan.FromRounds(1));
       caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.decreaseNumAttackEffect, NwTimeSpan.FromRounds(1));
 
-      StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"Instruction ({target.Name})", StringUtils.gold);
+      StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"Instruction ({target.Name})", StringUtils.gold, true);
       FeatUtils.DecrementManoeuvre(caster);
     }
   }
