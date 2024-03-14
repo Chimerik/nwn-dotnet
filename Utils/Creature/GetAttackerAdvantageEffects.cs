@@ -11,6 +11,9 @@ namespace NWN.Systems
         if (GetTrueStrikeAdvantage(eff))
           return true;
 
+        if (GetFouleeDombreAdvantage(eff))
+          return true;
+
         if (GetBroyeurAdvantage(eff))
           return true;
 

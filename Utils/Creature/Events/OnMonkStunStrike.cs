@@ -18,13 +18,13 @@ namespace NWN.Systems
 
           SpellConfig.SavingThrowFeedback feedback = new();
           int attackerModifier = onAttack.Attacker.GetAbilityModifier(Ability.Wisdom);
-          int tirDC = 8 + NativeUtils.GetCreatureProficiencyBonus(onAttack.Attacker) + attackerModifier;
+          int DC = 8 + NativeUtils.GetCreatureProficiencyBonus(onAttack.Attacker) + attackerModifier;
           int advantage = GetCreatureAbilityAdvantage(target, Ability.Wisdom);
-          int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Wisdom, tirDC, advantage, feedback);
-          bool saveFailed = totalSave < tirDC;
+          int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Wisdom, DC, advantage, feedback);
+          bool saveFailed = totalSave < DC;
 
-          StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Frappe étourdissante", ColorConstants.Red, true);
-          SpellUtils.SendSavingThrowFeedbackMessage(onAttack.Attacker, target, feedback, advantage, tirDC, totalSave, saveFailed, Ability.Wisdom);
+          StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Frappe étourdissante", StringUtils.gold, true, true);
+          SpellUtils.SendSavingThrowFeedbackMessage(onAttack.Attacker, target, feedback, advantage, DC, totalSave, saveFailed, Ability.Wisdom);
 
           if (saveFailed)
             target.ApplyEffect(EffectDuration.Temporary, Effect.Stunned(), NwTimeSpan.FromRounds(1));

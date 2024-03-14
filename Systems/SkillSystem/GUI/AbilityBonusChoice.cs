@@ -33,6 +33,8 @@ namespace NWN.Systems
         }
         public void CreateWindow(List<NuiComboEntry> abilitychoice, bool giveSaveProficiency = false)
         {
+          this.giveSaveProficiency = giveSaveProficiency;
+
           player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_ABILITY_BONUS_CHOICE_FEAT").Value = 1;
 
           foreach(var ability in abilitychoice)

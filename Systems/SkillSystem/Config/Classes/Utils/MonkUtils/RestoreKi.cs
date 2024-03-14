@@ -18,6 +18,13 @@ namespace NWN.Systems
       creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkDelugeDeCoups), featUse);
       creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkStunStrike), featUse);
       creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkDesertion), featUse);
+      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkExplosionKi), featUse);
+      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkPaumeVibratoire), featUse);
+      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkDarkVision), featUse);
+      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkTenebres), featUse);
+      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkPassageSansTrace), featUse);
+      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkSilence), featUse);
+      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkFrappeDombre), featUse);
     }
   }
 }

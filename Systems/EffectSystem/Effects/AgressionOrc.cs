@@ -6,13 +6,14 @@ namespace NWN.Systems
 {
   public partial class EffectSystem
   {
+    public const string AgressionOrcEffectTag = "_AGRESSION_ORC_EFFECT";
     private static ScriptCallbackHandle onRemoveAgressionOrcCallback;
     public static Effect agressionOrc
     {
       get
       {
         Effect eff = Effect.LinkEffects(Effect.MovementSpeedIncrease(50), Effect.RunAction(onRemovedHandle:onRemoveAgressionOrcCallback));
-        eff.Tag = SprintEffectTag;
+        eff.Tag = AgressionOrcEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;
       }

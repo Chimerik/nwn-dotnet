@@ -172,6 +172,8 @@ namespace NWN.Systems
           {
             CustomSkill.Fighter => learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.FighterSubClass),
             CustomSkill.Barbarian => learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.BarbarianSubClass),
+            CustomSkill.Rogue => learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.RogueSubClass),
+            CustomSkill.Monk => learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.MonkSubClass),
             _ => null,
           };
         }

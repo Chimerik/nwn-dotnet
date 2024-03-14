@@ -7,7 +7,7 @@ namespace NWN.Systems
 {
   public static partial class SpellUtils
   {
-    public static void DealSpellDamage(NwGameObject target, int casterLevel, SpellEntry spellEntry, int nbDices, NwCreature caster, bool saveFailed = true)
+    public static void DealSpellDamage(NwGameObject target, int casterLevel, SpellEntry spellEntry, int nbDices, NwCreature caster, bool saveFailed = true, bool noLogs = false)
     {
       bool isElementalist = PlayerSystem.Players.TryGetValue(caster, out PlayerSystem.Player player)
         && player.learnableSkills.TryGetValue(CustomSkill.Elementaliste, out LearnableSkill elementalist)
@@ -49,7 +49,8 @@ namespace NWN.Systems
       else
         target.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(spellEntry.damageVFX), Effect.Damage(damage, spellEntry.damageType)));
       
-      LogUtils.LogMessage($"Dégâts sur {target.Name} : {nbDices}d{spellEntry.damageDice} (caster lvl {casterLevel}) = {damage} {spellEntry.damageType}", LogUtils.LogType.Combat);
+      if(!noLogs)
+        LogUtils.LogMessage($"Dégâts sur {target.Name} : {nbDices}d{spellEntry.damageDice} (caster lvl {casterLevel}) = {damage} {spellEntry.damageType}", LogUtils.LogType.Combat);
     }
   }
 }

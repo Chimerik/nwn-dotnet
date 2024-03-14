@@ -487,6 +487,11 @@ namespace NWN.Systems
           HurlementGalvanisant(castingCreature, onSpellCast, spellEntry);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
+
+        case CustomSpell.PassageSansTrace:
+          PassageSansTrace(castingCreature, onSpellCast, spellEntry);
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
       }
 
       castingCreature.GetObjectVariable<LocalVariableInt>(SpellConfig.CurrentSpellVariable).Delete();
@@ -634,6 +639,11 @@ namespace NWN.Systems
     {
       if (onSpellCast.Caster.IsLoginPlayerCharacter(out NwPlayer player) && onSpellCast.Spell.SpellSchool == SpellSchool.Divination)
       {
+        if (onSpellCast.TargetObject is not null)
+          LogUtils.LogMessage($"----- {onSpellCast.Caster.Name} lance {onSpellCast.Spell.Name.ToString()} (id {onSpellCast.Spell.Id}) sur {onSpellCast.TargetObject.Name} -----", LogUtils.LogType.Combat);
+        else
+          LogUtils.LogMessage($"----- {onSpellCast.Caster.Name} lance {onSpellCast.Spell.Name.ToString()} (id {onSpellCast.Spell.Id}) en mode AoE -----", LogUtils.LogType.Combat);
+
         onSpellCast.PreventSpellCast = true;
         player.ControlledCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfPwkill));
         player.SendServerMessage("La Loi même vous empêche de faire appel à ce sort. Un cliquetis lointain de chaînes résonne dans votre esprit. Quelque chose vient de se mettre en mouvement ...", ColorConstants.Red);

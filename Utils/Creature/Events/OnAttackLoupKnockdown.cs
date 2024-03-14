@@ -1,6 +1,5 @@
 ﻿using Anvil.API;
 using Anvil.API.Events;
-using NWN.Systems;
 
 namespace NWN.Systems
 {
@@ -28,7 +27,7 @@ namespace NWN.Systems
           target.ApplyEffect(EffectDuration.Temporary, EffectSystem.knockdown, NwTimeSpan.FromRounds(2));
           onAttack.Attacker.GetObjectVariable<LocalVariableInt>(BonusActionVariable).Value -= 1;
 
-          StringUtils.DisplayStringToAllPlayersNearTarget(target, "Lien du Loup", StringUtils.gold, true);
+          StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Lien du Loup", StringUtils.gold, true);
 
           break;
       }

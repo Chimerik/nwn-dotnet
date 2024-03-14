@@ -71,18 +71,23 @@ namespace NWN.Systems
       SpellUtils.SendSavingThrowFeedbackMessage(caster, target, feedback, advantage, tirDC, totalSave, saveFailed, Ability.Dexterity);
 
       NwBaseItem weapon = caster.GetItemInSlot(InventorySlot.RightHand)?.BaseItem;
-      int damage = NativeUtils.HandleWeaponDamageRerolls(caster, weapon, weapon.NumDamageDice, weapon.DieToRoll) + +caster.GetAbilityModifier(Ability.Dexterity);
+      int weaponDamage = NativeUtils.HandleWeaponDamageRerolls(caster, weapon, weapon.NumDamageDice, weapon.DieToRoll);
+      int damage = weaponDamage + caster.GetAbilityModifier(Ability.Dexterity);
       int forceDamage = caster.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level < 18)
-          ? NwRandom.Roll(Utils.random, 6, 2) : NwRandom.Roll(Utils.random, 6, 4);
+          ? NwRandom.Roll(Utils.random, 6, 1) : NwRandom.Roll(Utils.random, 6, 2);
+
+      LogUtils.LogMessage($"Dégâts initiaux : {damage} perçant - {forceDamage} force", LogUtils.LogType.Combat);
 
       if (!saveFailed)
       {
         damage /= 2;
         forceDamage /= 2;
-        LogUtils.LogMessage($"JDS réussi : dégâts {damage} (perçant) +{forceDamage} (forc)", LogUtils.LogType.Combat);
+        LogUtils.LogMessage($"JDS réussi - Dégâts divisés par 2 - {damage} perçant - {forceDamage} force", LogUtils.LogType.Combat);
       }
       else
-        LogUtils.LogMessage($"JDS échoué : dégâts {damage} (perçant) +{forceDamage} (force)", LogUtils.LogType.Combat);
+        LogUtils.LogMessage("JDS échoué", LogUtils.LogType.Combat);
+
+      LogUtils.LogMessage($"Dégâts perçants {weapon.DieToRoll}d{weapon.NumDamageDice} ({weaponDamage}) + {caster.GetAbilityModifier(Ability.Dexterity)} (dex) +{forceDamage} (force)", LogUtils.LogType.Combat);
 
       NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant,
         Effect.Damage(damage, DamageType.Piercing)));

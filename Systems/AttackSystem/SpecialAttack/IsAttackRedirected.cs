@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     public static bool IsAttackRedirected(CNWSCreature attacker, CNWSCreature target, CNWSCombatRound combatRound, string attackerName)
     {
-      if (!!attacker.m_pStats.HasFeat(CustomSkill.ConspirateurRedirection).ToBool()
+      if (!attacker.m_pStats.HasFeat(CustomSkill.ConspirateurRedirection).ToBool()
         || attacker.m_ScriptVars.GetInt(CreatureUtils.ReactionVariableExo) < 1)
         return false;
 

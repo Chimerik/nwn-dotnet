@@ -34,12 +34,12 @@ namespace NWN.Systems
 
       HandleMonkLevelUp(player, playerClass.currentLevel, playerClass);
 
-      /*switch (customSkillId)
+      switch (customSkillId)
       {
-        case CustomSkill.RogueThief: HandleThiefLevelUp(player, playerClass.currentLevel); break;
-        case CustomSkill.RogueConspirateur: HandleConspirateurLevelUp(player, playerClass.currentLevel); break;
-        case CustomSkill.RogueAssassin: HandleAssassinLevelUp(player, playerClass.currentLevel); break;
-      }*/
+        case CustomSkill.MonkPaume: HandlePaumeLevelUp(player, playerClass.currentLevel); break;
+        case CustomSkill.MonkOmbre: HandleOmbreLevelUp(player, playerClass.currentLevel); break;
+        //case CustomSkill.RogueAssassin: HandleAssassinLevelUp(player, playerClass.currentLevel); break;
+      }
 
       if (playerClass.currentLevel > 1)
         player.oid.LoginCreature.ForceLevelUp(CustomClass.Monk, player.RollClassHitDie(customSkillId, CustomClass.Rogue, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));

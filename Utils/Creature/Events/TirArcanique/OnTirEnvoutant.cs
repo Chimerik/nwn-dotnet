@@ -36,14 +36,12 @@ namespace NWN.Systems
 
         if (saveFailed)
         {
-          await NwTask.NextFrame();
-
           if (target.IsLoginPlayerCharacter)
             NWScript.AssignCommand(onDamage.Attacker, () => target.ApplyEffect(EffectDuration.Temporary,
               EffectSystem.charmEffect, NwTimeSpan.FromRounds(1)));
           else
             NWScript.AssignCommand(onDamage.Attacker, () => target.ApplyEffect(EffectDuration.Temporary,
-              Effect.Charmed(), NwTimeSpan.FromRounds(1)));
+              Effect.LinkEffects(Effect.Confused(), Effect.VisualEffect(VfxType.DurMindAffectingDominated)), NwTimeSpan.FromRounds(1)));
         }
       }
 

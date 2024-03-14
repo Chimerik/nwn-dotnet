@@ -87,11 +87,13 @@ namespace NWN.Systems
     public const string MonkBonusAttackVariable = "_MONK_BONUS_ATTACK";
     public static readonly CExoString MonkBonusAttackVariableExo = MonkBonusAttackVariable.ToExoString();
 
-    public const string MonkDelugeVariable = "_MONK_BONUS_ATTACK";
+    public const string MonkDelugeVariable = "_MONK_DELUGE";
     public static readonly CExoString MonkDelugeVariableExo = MonkDelugeVariable.ToExoString();
 
     public const string MonkUnarmedDamageVariable = "_MONK_UNARMED_DAMAGE";
     public static readonly CExoString MonkUnarmedDamageVariableExo = MonkUnarmedDamageVariable.ToExoString();
+
+    public const string MonkPaumeTechniqueVariable = "_MONK_PAUME_TECHNIQUE";
 
     public const string VigueurNaineHDVariable = "_FEAT_VIGUEUR_NAINE_HD";
     public const string MeneurExaltantVariable = "_MENEUR_EXALTANT_BUFF";

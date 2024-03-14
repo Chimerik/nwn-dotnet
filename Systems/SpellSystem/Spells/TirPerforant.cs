@@ -52,17 +52,18 @@ namespace NWN.Systems
         int totalSave = SpellUtils.GetSavingThrowRoll(target, spellEntry.savingThrowAbility, spellDC, advantage, feedback);
         bool saveFailed = totalSave < spellDC;
 
+        
+
         weaponDamage = NativeUtils.HandleWeaponDamageRerolls(caster, weapon, weapon.NumDamageDice, weapon.DieToRoll);
         bonusDamage = NwRandom.Roll(Utils.random, 6, nbDice);
         damage = weaponDamage + bonusDamage + dexDamage;
+        damage = ItemUtils.GetShieldMasterReducedDamage(target, damage, saveFailed, spellEntry.savingThrowAbility);
         damage /= saveFailed ? 2 : 1;
 
         NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, Effect.Damage(damage, DamageType.Piercing)));
 
         SpellUtils.SendSavingThrowFeedbackMessage(caster, target, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);
-        SpellUtils.DealSpellDamage(target, caster.CasterLevel, spellEntry, nbDice, caster, saveFailed);
-
-        LogUtils.LogMessage($"{target.Name}: {weapon.DieToRoll}d{weapon.NumDamageDice} + {dexDamage} + {nbDice}d6 ({weaponDamage} + {dexDamage} + {bonusDamage}) = {damage}", LogUtils.LogType.Combat);
+        LogUtils.LogMessage($"{target.Name}: {weapon.NumDamageDice}d{weapon.DieToRoll} + {dexDamage} + {nbDice}d6 ({weaponDamage} + {dexDamage} + {bonusDamage}) = {damage}", LogUtils.LogType.Combat);
       }
 
       caster.IncrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.ArcaneArcherTirPerforant)); // Je redonne une utilisatation de tir perforant pour compenser la consommation du sort spécifique

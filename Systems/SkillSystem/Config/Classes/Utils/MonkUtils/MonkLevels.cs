@@ -69,7 +69,12 @@ namespace NWN.Systems
           break;
 
         case 3:
-          // TODO : choix de voie
+
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value = CustomSkill.Monk;
+
+          if (!player.windows.TryGetValue("subClassSelection", out var value)) player.windows.Add("subClassSelection", new SubClassSelectionWindow(player));
+          else ((SubClassSelectionWindow)value).CreateWindow();
+
           break;
 
         case 4:

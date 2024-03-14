@@ -10,7 +10,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.VisualEffect(VfxType.DurCessatePositive);
+        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurCessatePositive), Effect.Icon(EffectIcon.AttackIncrease));
         eff.Tag = trueStrikeEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

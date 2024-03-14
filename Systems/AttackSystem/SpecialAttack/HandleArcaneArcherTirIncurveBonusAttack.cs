@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     public static void HandleArcaneArcherTirIncurveBonusAttack(CNWSCreature attacker, CNWSCombatAttackData data, CNWSCombatRound combatRound, string attackerName, CNWSItem weapon, CNWSObject currentTarget)
     {
-      if (!data.m_bRangedAttack.ToBool() || data.m_nAttackResult != 4 || !!attacker.m_pStats.HasFeat(CustomSkill.ArcaneArcherTirIncurve).ToBool()
+      if (!data.m_bRangedAttack.ToBool() || data.m_nAttackResult != 4 || !attacker.m_pStats.HasFeat(CustomSkill.ArcaneArcherTirIncurve).ToBool()
         || attacker.m_ScriptVars.GetInt(CreatureUtils.BonusActionVariableExo) < 1
         || !ItemUtils.HasBowEquipped(NwBaseItem.FromItemId((int)weapon.m_nBaseItem).ItemType))
         return;

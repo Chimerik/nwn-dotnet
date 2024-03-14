@@ -181,6 +181,22 @@
     public const int MonkDiamondSoul = 1474;
     public const int MonkDesertion = 1475;
 
+    public const int MonkPlenitude = 1477;
+    public const int MonkManifestationAme = 1478;
+    public const int MonkManifestationCorps = 1479;
+    public const int MonkManifestationEsprit = 1480;
+    public const int MonkResonanceKi = 1481;
+    public const int MonkExplosionKi = 1482;
+    public const int MonkPaumeVibratoire = 1483;
+
+    public const int MonkTenebres = 1484;
+    public const int MonkDarkVision = 1485;
+    public const int MonkPassageSansTrace = 1486;
+    public const int MonkSilence = 1487;
+    public const int MonkLinceulDombre = 1488;
+    public const int MonkFouleeDombre = 1489;
+    public const int MonkFrappeDombre = 1490;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -671,6 +687,11 @@
     public const int Monk = 20539;
     public const int MonkUnarmoredDefence = 20540;
     public const int MonkUnarmoredSpeed = 20541;
+
+    public const int MonkPaume = 20542;
+    public const int MonkPaumeTechnique = 20543;
+
+    public const int MonkOmbre = 20544;
 
     public const int Invalid = 65535;
   }

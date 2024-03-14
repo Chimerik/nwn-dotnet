@@ -403,19 +403,39 @@ namespace NWN.Systems
           selectedSkill4.SetBindWatch(player.oid, nuiToken.Token, true);
           selectedExpertise1.SetBindWatch(player.oid, nuiToken.Token, true);
           selectedExpertise2.SetBindWatch(player.oid, nuiToken.Token, true);
-
-          if (selectedLearnable.id == CustomSkill.Fighter)
+          //
+          switch (selectedLearnable.id)
           {
-            combatStyleVisibility.SetBindValue(player.oid, nuiToken.Token, true);
+            case CustomSkill.Fighter:
 
-            LearnableSkill style = player.learnableSkills.Values.FirstOrDefault(s => s is LearnableSkill style && style.category == Category.FightingStyle);
-            if (style is not null)
-              selectedCombatStyle.SetBindValue(player.oid, nuiToken.Token, style.id);
-            else
-              selectedCombatStyle.SetBindValue(player.oid, nuiToken.Token, CustomSkill.FighterCombatStyleArchery);
-          }
-          else
-            combatStyleVisibility.SetBindValue(player.oid, nuiToken.Token, false);
+              combatStyleVisibility.SetBindValue(player.oid, nuiToken.Token, true);
+
+              LearnableSkill style = player.learnableSkills.Values.FirstOrDefault(s => s is LearnableSkill style && style.category == Category.FightingStyle);
+              if (style is not null)
+                selectedCombatStyle.SetBindValue(player.oid, nuiToken.Token, style.id);
+              else
+                selectedCombatStyle.SetBindValue(player.oid, nuiToken.Token, CustomSkill.FighterCombatStyleArchery);
+
+              rogueSkillVisibility.SetBindValue(player.oid, nuiToken.Token, false);
+              rogueSkillVisibility.SetBindValue(player.oid, nuiToken.Token, false);
+
+              break;
+
+            case CustomSkill.Rogue:
+
+              rogueSkillVisibility.SetBindValue(player.oid, nuiToken.Token, true);
+              rogueSkillVisibility.SetBindValue(player.oid, nuiToken.Token, true);
+
+              break;
+
+            default:
+
+              combatStyleVisibility.SetBindValue(player.oid, nuiToken.Token, false);
+              rogueSkillVisibility.SetBindValue(player.oid, nuiToken.Token, false);
+              rogueSkillVisibility.SetBindValue(player.oid, nuiToken.Token, false);
+
+              break;
+          }            
 
           var startingPackageList = selectedLearnable.id switch
           {

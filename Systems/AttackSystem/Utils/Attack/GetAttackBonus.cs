@@ -8,7 +8,6 @@ namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    private static readonly CExoString chargerVariable = "_CHARGER_INITIAL_LOCATION".ToExoString();
     public static int GetAttackBonus(CNWSCreature attacker, CNWSCreature target, CNWSCombatAttackData attackData, CNWSItem weapon)
     {
       int attackBonus = attacker.m_pStats.GetAttackModifierVersus(target);
@@ -19,16 +18,21 @@ namespace NWN.Systems
         LogUtils.LogMessage("Style de combat archerie : +2 BA", LogUtils.LogType.Combat);
       }
 
-      var initiaLocation = attacker.m_pStats.m_pBaseCreature.m_ScriptVars.GetLocation(chargerVariable);
+      var initiaLocation = attacker.m_pStats.m_pBaseCreature.m_ScriptVars.GetLocation(EffectSystem.chargerVariableExo);
 
       if (initiaLocation.m_oArea != NWScript.OBJECT_INVALID && Vector3.DistanceSquared(initiaLocation.m_vPosition.ToManagedVector(), attacker.m_vPosition.ToManagedVector()) > 9)
       {
         attackBonus += 5;
-        BroadcastNativeServerMessage("Charge !".ColorString(ColorConstants.Orange), attacker);
+
+        foreach (var eff in attacker.m_appliedEffects)
+          if (eff.m_sCustomTag.CompareNoCase(EffectSystem.chargeurEffectExoTag).ToBool())
+            attacker.RemoveEffect(eff);
+
+        BroadcastNativeServerMessage("Charge (+5 BA)".ColorString(ColorConstants.Orange), attacker);
         LogUtils.LogMessage("Chargeur : +5 BA", LogUtils.LogType.Combat);
       }
 
-      attacker.m_pStats.m_pBaseCreature.m_ScriptVars.DestroyLocation(chargerVariable);
+      attacker.m_pStats.m_pBaseCreature.m_ScriptVars.DestroyLocation(EffectSystem.chargerVariableExo);
 
       if (weapon is not null)
       {

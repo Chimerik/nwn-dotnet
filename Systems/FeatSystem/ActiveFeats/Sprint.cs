@@ -21,9 +21,6 @@ namespace NWN.Systems
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHaste));
       caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.sprintEffect, TimeSpan.FromSeconds(9));
 
-      if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Chargeur)))
-        caster.GetObjectVariable<LocalVariableLocation>("_CHARGER_INITIAL_LOCATION").Value = caster.Location;
-
       if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Mobile)))
         caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.sprintMobileEffect, TimeSpan.FromSeconds(9));
 
@@ -37,6 +34,9 @@ namespace NWN.Systems
       }
 
       caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value -= 1;
+
+      if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Chargeur)))
+        caster.GetObjectVariable<LocalVariableLocation>(EffectSystem.ChargerVariable).Value = caster.Location;
 
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} sprinte", ColorConstants.Orange, true);
       onUseFeat.PreventFeatUse = true;

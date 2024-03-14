@@ -53,6 +53,29 @@ namespace NWN.Systems
       int attackerRoll = RogueUtils.HandleSavoirFaire(attacker, attackerSkill, Utils.RollAdvantage(attackerAdvantage));
       int targetRoll = RogueUtils.HandleSavoirFaire(target, attackerSkill, Utils.RollAdvantage(targetAdvantage));
 
+      if (attackerSkill == CustomSkill.StealthProficiency)
+      {
+        List<string> effLink = new();
+        foreach (var eff in attacker.ActiveEffects)
+          if (!eff.LinkId.Contains(eff.LinkId) && eff.EffectType == EffectType.SkillIncrease && eff.IntParams[0] == 8)
+          {
+            attackerScore += eff.IntParams[1];
+            effLink.Add(eff.LinkId);
+          }
+      }
+
+      if (targetSkill == CustomSkill.StealthProficiency)
+      {
+        List<string> effLink = new();
+
+        foreach (var eff in target.ActiveEffects)
+          if (!eff.LinkId.Contains(eff.LinkId) && eff.EffectType == EffectType.SkillIncrease && eff.IntParams[0] == 8)
+          {
+            targetScore += eff.IntParams[1];
+            effLink.Add(eff.LinkId);
+          }
+      }
+
       bool saveFailed = targetRoll + targetScore < attackerRoll + attackerScore;
 
       string attackerAdvantageString = attackerAdvantage == 0 ? "" : attackerAdvantage > 0 ? " (Avantage)".ColorString(StringUtils.gold) : " (Désavantage)".ColorString(ColorConstants.Red);

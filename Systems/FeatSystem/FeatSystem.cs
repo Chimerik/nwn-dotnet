@@ -33,6 +33,7 @@ namespace NWN.Systems
         case CustomSkill.Sprint: Sprint(onUseFeat.Creature, onUseFeat); return;
         case CustomSkill.Disengage: Disengage(onUseFeat.Creature, onUseFeat); return;
         case CustomSkill.Stealth: Stealth(onUseFeat.Creature, onUseFeat); return;
+        case CustomSkill.Chargeur: Chargeur(onUseFeat.Creature, onUseFeat.TargetObject); return;
         //case CustomSkill.Dodge: Dodge(onUseFeat.Creature, player); return;
         case CustomSkill.FighterSecondWind: SecondWind(onUseFeat.Creature); return;
         case CustomSkill.FighterSurge: ActionSurge(onUseFeat.Creature); return;
@@ -85,6 +86,20 @@ namespace NWN.Systems
         case CustomSkill.MonkSlowFall: MonkSlowFall(onUseFeat.Creature); return;
         case CustomSkill.MonkDiamondSoul: DiamondSoul(onUseFeat.Creature); return;
         case CustomSkill.MonkDesertion: MonkDesertion(onUseFeat.Creature); return;
+        case CustomSkill.MonkPlenitude: MonkPlenitude(onUseFeat.Creature); return;
+        case CustomSkill.MonkManifestationAme: MonkManifestationAme(onUseFeat.Creature); return;
+        case CustomSkill.MonkManifestationCorps: MonkManifestationCorps(onUseFeat.Creature); return;
+        case CustomSkill.MonkManifestationEsprit: MonkManifestationEsprit(onUseFeat.Creature); return;
+        case CustomSkill.MonkResonanceKi: MonkResonanceKi(onUseFeat.Creature); return;
+        case CustomSkill.MonkExplosionKi: MonkExplosionKi(onUseFeat.Creature); return;
+        case CustomSkill.MonkPaumeVibratoire: MonkPaumeVibratoire(onUseFeat.Creature); return;
+        case CustomSkill.MonkTenebres: MonkTenebres(onUseFeat.Creature, onUseFeat); return;
+        case CustomSkill.MonkDarkVision: MonkDarkVision(onUseFeat.Creature, onUseFeat); return;
+        case CustomSkill.MonkPassageSansTrace: MonkPassageSansTrace(onUseFeat.Creature, onUseFeat); return;
+        case CustomSkill.MonkSilence: MonkSilence(onUseFeat.Creature, onUseFeat); return;
+        case CustomSkill.MonkLinceulDombre: MonkLinceulDombre(onUseFeat.Creature, onUseFeat); return;
+        case CustomSkill.MonkFouleeDombre: MonkFouleeDombre(onUseFeat.Creature, onUseFeat); return;
+        case CustomSkill.MonkFrappeDombre: MonkFrappeDombre(onUseFeat.Creature, onUseFeat); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;
