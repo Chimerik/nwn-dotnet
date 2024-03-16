@@ -12,7 +12,7 @@ namespace NWN.Systems
         || ItemUtils.IsTwoHandedWeapon(weapon, (CreatureSize)creature.m_nCreatureSize))
         return false;
 
-      var offHandWeapon = creature.m_pInventory.GetItemInSlot((uint)Native.API.InventorySlot.LeftHand);
+      var offHandWeapon = creature.m_pInventory.GetItemInSlot((uint)EquipmentSlot.LeftHand);
 
       if ((ItemUtils.IsVersatileWeapon(weapon.ItemType) && offHandWeapon is null) || (offHandWeapon is not null && ItemUtils.IsWeapon(NwBaseItem.FromItemId((int)offHandWeapon.m_nBaseItem))))
         return false;

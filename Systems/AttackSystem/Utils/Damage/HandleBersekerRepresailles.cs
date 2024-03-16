@@ -12,7 +12,7 @@ namespace NWN.Systems
         || target.m_ScriptVars.GetInt(CreatureUtils.BersekerRepresaillesVariableExo) < 1)
         return;
 
-      CNWSItem weapon = target.m_pInventory.GetItemInSlot((uint)Native.API.InventorySlot.RightHand);
+      CNWSItem weapon = target.m_pInventory.GetItemInSlot((uint)EquipmentSlot.RightHand);
 
       if (weapon is null || !ItemUtils.IsMeleeWeapon(NwBaseItem.FromItemId((int)weapon.m_nBaseItem))
         || Vector3.DistanceSquared(attacker.m_vPosition.ToManagedVector(), target.m_vPosition.ToManagedVector()) > 2)

@@ -10,7 +10,7 @@ namespace NWN.Systems
     {
       return ItemUtils.IsMeleeWeapon(baseItem)
         && (ItemUtils.IsTwoHandedWeapon(baseItem, (CreatureSize)creature.m_nCreatureSize)
-        || (ItemUtils.IsVersatileWeapon(baseItem.ItemType) && creature.m_pInventory.GetItemInSlot((uint)Native.API.InventorySlot.LeftHand) is null));
+        || (ItemUtils.IsVersatileWeapon(baseItem.ItemType) && creature.m_pInventory.GetItemInSlot((uint)EquipmentSlot.LeftHand) is null));
     }
   }
 }

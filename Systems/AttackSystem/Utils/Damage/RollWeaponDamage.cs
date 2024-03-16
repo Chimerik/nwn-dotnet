@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     public static int RollWeaponDamage(CNWSCreature creature, NwBaseItem weapon, CNWSCombatAttackData attackData, bool isCriticalRoll = false)
     {
-      int dieToRoll = ItemUtils.IsVersatileWeapon(weapon.ItemType) && creature.m_pInventory.GetItemInSlot((uint)Native.API.InventorySlot.LeftHand) is null
+      int dieToRoll = ItemUtils.IsVersatileWeapon(weapon.ItemType) && creature.m_pInventory.GetItemInSlot((uint)EquipmentSlot.LeftHand) is null
         ? weapon.DieToRoll + 2 : weapon.DieToRoll;
 
       int numDamageDice = weapon.NumDamageDice 

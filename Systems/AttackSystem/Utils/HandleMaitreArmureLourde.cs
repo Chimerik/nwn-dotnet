@@ -10,7 +10,7 @@ namespace NWN.Systems
       if (!target.m_pStats.HasFeat(CustomSkill.MaitreArmureLourde).ToBool())
         return 0;
 
-      CNWSItem armor = target.m_pInventory.GetItemInSlot((uint)Native.API.InventorySlot.Chest);
+      CNWSItem armor = target.m_pInventory.GetItemInSlot((uint)EquipmentSlot.Chest);
       
       if(armor is null || armor.m_nArmorValue < 16)
         return 0;
