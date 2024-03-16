@@ -145,6 +145,13 @@ namespace NWN.Systems
           break;
       }
 
+      if(creature.Tag.Contains("immobile"))
+      {
+        creature.MovementRate = MovementRate.Immobile;
+        creature.MovementRateFactor = 0;
+        creature.OnHeartbeat += CreatureUtils.OnHeartbeatImmobilize;
+      }
+
       creature.OnHeartbeat += CheckDistanceFromSpawn;
       CreatureUtils.InitThreatRange(creature);
     }

@@ -199,8 +199,9 @@ namespace NWN.Systems
 
         if (creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreTypeVariableExo) == CustomSkill.WarMasterAttaquePrecise)
         {
-          superiorityDiceBonus = NwRandom.Roll(Utils.random, creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreDiceVariableExo));
-          LogUtils.LogMessage($"Attaque précise : dé de supériorité +{superiorityDiceBonus}", LogUtils.LogType.Combat);
+          int superiorityDice = creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreDiceVariableExo);
+          superiorityDiceBonus = NwRandom.Roll(Utils.random, superiorityDice);
+          LogUtils.LogMessage($"Attaque précise : dé de supériorité 1d{superiorityDice} (+{superiorityDiceBonus})", LogUtils.LogType.Combat);
         }
 
         if (isCriticalHit)
@@ -287,6 +288,8 @@ namespace NWN.Systems
 
         if(attackData.m_nAttackResult == 4 && creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreRiposteVariableExo).ToBool())
           creature.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreRiposteVariableExo);
+
+        NativeUtils.HandleMonkOpportunist(creature, targetCreature, attackData, combatRound, attackerName, targetName);
       }
       else
         attackData.m_nAttackResult = 7;

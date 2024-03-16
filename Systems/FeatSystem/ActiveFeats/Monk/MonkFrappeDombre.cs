@@ -23,7 +23,7 @@ namespace NWN.Systems
 
       if (target.IsCreatureSeen(caster))
       {
-        caster.LoginPlayer?.SendServerMessage("La cible peut voir voir", ColorConstants.Red);
+        caster.LoginPlayer?.SendServerMessage("La cible peut vous voir", ColorConstants.Red);
         return;
       }
 
@@ -32,6 +32,22 @@ namespace NWN.Systems
         caster.LoginPlayer?.SendServerMessage("La cible est hors de portée", ColorConstants.Red);
         return;
       }
+
+      NwItem torch = target.GetItemInSlot(InventorySlot.LeftHand);
+
+      if (torch is not null && torch.BaseItem.ItemType == BaseItemType.Torch)
+      {
+        caster.LoginPlayer?.SendServerMessage("La cible est trop en lumière pour que vous puissiez vous téléporter dans son ombre", ColorConstants.Red);
+        return;
+      }
+
+      foreach (var eff in target.ActiveEffects)
+        if (eff.EffectType == EffectType.VisualEffect)
+          if (eff.IntParams[0] == 148 || (eff.IntParams[0] > 152 && eff.IntParams[0] < 181))
+          {
+            caster.LoginPlayer?.SendServerMessage("La cible est trop en lumière pour que vous puissiez vous téléporter dans son ombre", ColorConstants.Red);
+            return;
+          }
 
       if (!CreatureUtils.HandleBonusActionUse(caster))
         return;

@@ -23,6 +23,8 @@ namespace NWN.Systems
           int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Strength, tirDC, advantage, feedback);
           bool saveFailed = totalSave < tirDC;
 
+          LogUtils.LogMessage($"--- {onAttack.Attacker.Name} désarmement contre {target.Name} ---", LogUtils.LogType.Combat);
+          StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Désarmement", ColorConstants.Red, true, true);
           SpellUtils.SendSavingThrowFeedbackMessage(onAttack.Attacker, target, feedback, advantage, tirDC, totalSave, saveFailed, Ability.Strength);
 
           if (saveFailed)
@@ -37,8 +39,6 @@ namespace NWN.Systems
 
             target.ApplyEffect(EffectDuration.Temporary, EffectSystem.warMasterDesarmement, NwTimeSpan.FromRounds(1));
           }
-
-          StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Désarmement", ColorConstants.Red, true);
 
           await NwTask.NextFrame();
           onAttack.Attacker.OnCreatureAttack -= OnAttackDesarmement;

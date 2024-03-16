@@ -196,6 +196,7 @@
     public const int MonkLinceulDombre = 1488;
     public const int MonkFouleeDombre = 1489;
     public const int MonkFrappeDombre = 1490;
+    public const int MonkOpportuniste = 1491;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;

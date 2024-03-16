@@ -62,6 +62,14 @@ namespace NWN.Systems
     {
       LogUtils.LogMessage($"----------------------{caster.Name} - Tir Chercheur ----------------------", LogUtils.LogType.Combat);
 
+      NwBaseItem weapon = caster.GetItemInSlot(InventorySlot.RightHand)?.BaseItem;
+      int weaponDamage = NativeUtils.HandleWeaponDamageRerolls(caster, weapon, weapon.NumDamageDice, weapon.DieToRoll);
+      int damage = weaponDamage + caster.GetAbilityModifier(Ability.Dexterity);
+      int nbDice = caster.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level < 18) ? 1 : 2;
+      int forceDamage = NwRandom.Roll(Utils.random, 6, nbDice);
+
+      LogUtils.LogMessage($"Dégâts initiaux : {damage} perçant - {forceDamage} force ({nbDice}d6)", LogUtils.LogType.Combat);
+
       SpellConfig.SavingThrowFeedback feedback = new();
       int tirDC = 8 + NativeUtils.GetCreatureProficiencyBonus(caster) + caster.GetAbilityModifier(Ability.Intelligence);
       int advantage = GetCreatureAbilityAdvantage(target, Ability.Dexterity);
@@ -69,14 +77,6 @@ namespace NWN.Systems
       bool saveFailed = totalSave < tirDC;
 
       SpellUtils.SendSavingThrowFeedbackMessage(caster, target, feedback, advantage, tirDC, totalSave, saveFailed, Ability.Dexterity);
-
-      NwBaseItem weapon = caster.GetItemInSlot(InventorySlot.RightHand)?.BaseItem;
-      int weaponDamage = NativeUtils.HandleWeaponDamageRerolls(caster, weapon, weapon.NumDamageDice, weapon.DieToRoll);
-      int damage = weaponDamage + caster.GetAbilityModifier(Ability.Dexterity);
-      int forceDamage = caster.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level < 18)
-          ? NwRandom.Roll(Utils.random, 6, 1) : NwRandom.Roll(Utils.random, 6, 2);
-
-      LogUtils.LogMessage($"Dégâts initiaux : {damage} perçant - {forceDamage} force", LogUtils.LogType.Combat);
 
       if (!saveFailed)
       {
@@ -87,7 +87,7 @@ namespace NWN.Systems
       else
         LogUtils.LogMessage("JDS échoué", LogUtils.LogType.Combat);
 
-      LogUtils.LogMessage($"Dégâts perçants {weapon.DieToRoll}d{weapon.NumDamageDice} ({weaponDamage}) + {caster.GetAbilityModifier(Ability.Dexterity)} (dex) +{forceDamage} (force)", LogUtils.LogType.Combat);
+      LogUtils.LogMessage($"Dégâts perçants {weapon.NumDamageDice}d{weapon.DieToRoll} ({weaponDamage}) + {caster.GetAbilityModifier(Ability.Dexterity)} (dex) +{forceDamage} (force)", LogUtils.LogType.Combat);
 
       NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant,
         Effect.Damage(damage, DamageType.Piercing)));

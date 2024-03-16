@@ -88,9 +88,6 @@ namespace NWN.Systems
         if (creature.Tag == "dead_werat" || creature.Tag == "damage_trainer")
           continue;
 
-        if (creature.Tag == "test_giant")
-          creature.MovementRate = MovementRate.Immobile;
-
         creatureToSerialize.Add(creature);
       }
 

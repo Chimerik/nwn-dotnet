@@ -81,6 +81,9 @@ namespace NWN.Systems
     public const string EmpaleurCooldownVariable = "_EMPALEUR_COOLDOWN";
     public static readonly CExoString EmpaleurCooldownVariableExo = EmpaleurCooldownVariable.ToExoString();
 
+    public const string OpportunisteVariable = "_OPPORTUNISTE";
+    public static readonly CExoString OpportunisteVariableExo = OpportunisteVariable.ToExoString();
+
     public const string FrappeMeurtriereVariable = "_FRAPPE_MEURTRIERE";
     public static readonly CExoString FrappeMeurtriereVariableExo = FrappeMeurtriereVariable.ToExoString();
 

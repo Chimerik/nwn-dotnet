@@ -4,34 +4,26 @@ namespace NWN.Systems
 {
   public partial class FeatSystem
   {
-    private static void ManoeuvreTactique(NwCreature caster)
+    private static void ManoeuvreTactique(NwCreature caster, NwGameObject targetObject)
     {
-      caster?.ControllingPlayer.EnterTargetMode(SelectManoeuvreTactiqueTarget, Config.selectCreatureTargetMode);
-      caster?.ControllingPlayer.SendServerMessage("Veuillez sélectionner une cible alliée", ColorConstants.Orange);
-    }
-    private static void SelectManoeuvreTactiqueTarget(Anvil.API.Events.ModuleEvents.OnPlayerTarget selection)
-    {
-      if (selection.IsCancelled || selection.TargetObject is not NwCreature target)
-        return;
-
-      if (target == selection.Player.ControlledCreature)
+      if(targetObject is null || targetObject is not NwCreature target || target == caster || caster.IsReactionTypeHostile(target))
       {
-        selection.Player.SendServerMessage("Cette manoeuvre ne permet pas de vous cibler vous même", ColorConstants.Red);
+        caster.LoginPlayer?.SendServerMessage("Veuillez sélectionner une cible valide", ColorConstants.Red);
         return;
       }
 
-      FeatUtils.ClearPreviousManoeuvre(selection.Player.LoginCreature);
+      FeatUtils.ClearPreviousManoeuvre(caster);
 
-      int warMasterLevel = selection.Player.ControlledCreature.GetClassInfo(NwClass.FromClassId(CustomClass.Fighter)).Level;
+      int warMasterLevel = caster.GetClassInfo(NwClass.FromClassId(CustomClass.Fighter)).Level;
       int superiorityDice = warMasterLevel > 17 ? 12 : warMasterLevel > 9 ? 10 : 8;
 
-      selection.Player.ControlledCreature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ManoeuvreTypeVariable).Value = CustomSkill.WarMasterManoeuvreTactique;
-      selection.Player.ControlledCreature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ManoeuvreDiceVariable).Value = superiorityDice;
+      caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ManoeuvreTypeVariable).Value = CustomSkill.WarMasterManoeuvreTactique;
+      caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ManoeuvreDiceVariable).Value = superiorityDice;
 
       target.ApplyEffect(EffectDuration.Temporary, EffectSystem.manoeuvreTactique, NwTimeSpan.FromRounds(1));
 
-      StringUtils.DisplayStringToAllPlayersNearTarget(selection.Player.ControlledCreature, $"Manoeuvre Tactique ({target.Name})", StringUtils.gold);
-      FeatUtils.DecrementManoeuvre(selection.Player.ControlledCreature);
+      StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"Manoeuvre Tactique ({target.Name})", StringUtils.gold);
+      FeatUtils.DecrementManoeuvre(caster);
     }
   }
 }

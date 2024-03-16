@@ -25,6 +25,7 @@ namespace NWN.Systems
         case CustomSkill.WarMasterAttaqueMenacante:
         case CustomSkill.WarMasterRenversement:
         case CustomSkill.WarMasterDiversion:
+        case CustomSkill.WarMasterDesarmement:
         case CustomSkill.WarMasterFeinte:
         case CustomSkill.WarMasterInstruction:
         case CustomSkill.WarMasterProvocation:

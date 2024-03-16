@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
-using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
@@ -20,6 +19,7 @@ namespace NWN.Systems
         creature.GetObjectVariable<LocalVariableInt>(SneakAttackCooldownVariable).Delete();
         creature.GetObjectVariable<LocalVariableInt>(ParadeDeProjectileCooldownVariable).Delete();
         creature.GetObjectVariable<LocalVariableInt>(EmpaleurCooldownVariable).Delete();
+        creature.GetObjectVariable<LocalVariableObject<NwCreature>>(OpportunisteVariable).Delete();
 
         if(creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.BersekerRepresailles)))
           creature.GetObjectVariable<LocalVariableInt>(BersekerRepresaillesVariable).Value = 1;

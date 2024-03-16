@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       int proficiencyBonus = GetSavingThrowProficiencyBonus(target, ability);
 
-      LogUtils.LogMessage($"JDS proficiency bonus {ability} : {target.GetAbilityModifier(ability)}", LogUtils.LogType.Combat);
+      LogUtils.LogMessage($"JDS proficiency bonus {ability} : {proficiencyBonus}", LogUtils.LogType.Combat);
       LogUtils.LogMessage($"JDS modifier {ability} : {target.GetAbilityModifier(ability)}", LogUtils.LogType.Combat);
 
       proficiencyBonus += target.GetAbilityModifier(ability) + ItemUtils.GetShieldMasterBonusSave(target, ability);
