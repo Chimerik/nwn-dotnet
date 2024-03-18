@@ -10,15 +10,9 @@ namespace NWN.Systems
     {
       FeatUtils.ClearPreviousManoeuvre(caster);
 
-      if (targetObject is not NwCreature target)
+      if (targetObject is not NwCreature target || target == caster || caster.IsReactionTypeHostile(target))
       {
-        caster.ControllingPlayer?.SendServerMessage("Vous devez cibler une créature", ColorConstants.Red);
-        return;
-      }
-
-      if(target == caster)
-      {
-        caster.ControllingPlayer?.SendServerMessage("Cette manoeuvre ne permet pas de vous cibler vous même", ColorConstants.Red);
+        caster.ControllingPlayer?.SendServerMessage("Veuillez sélectionner une cible valide", ColorConstants.Red);
         return;
       }
 

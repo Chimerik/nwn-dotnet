@@ -367,7 +367,7 @@ namespace NWN.Systems
 
           bool bSkipDisplay = false, bIsSpellLevelAbsorptionPretendingToBeSpellImmunity = false;
 
-          foreach (Effect eff in oPC.ControlledCreature.ActiveEffects.Where(e => e.EffectType == nIconEffectType))
+          foreach (Effect eff in oPC.ControlledCreature.ActiveEffects.Where(e => e.EffectType == nIconEffectType && e.Spell is not null))
           {
             string name = "Echec des sorts 50 %";
             int nAmount, nRemaining;

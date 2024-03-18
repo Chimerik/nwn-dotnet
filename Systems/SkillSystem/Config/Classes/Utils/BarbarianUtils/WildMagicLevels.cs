@@ -1,6 +1,5 @@
 ﻿using Anvil.API;
 using static NWN.Systems.PlayerSystem;
-using static NWN.Systems.PlayerSystem.Player;
 using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
@@ -14,6 +13,7 @@ namespace NWN.Systems
         case 3:
 
           new StrRef(5213).SetPlayerOverride(player.oid, "Magie Sauvage");
+          player.oid.SetTextureOverride("barbarian", "wildmagic");
 
           player.learnableSkills.TryAdd(CustomSkill.WildMagicSense, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.WildMagicSense], player));
           player.learnableSkills[CustomSkill.WildMagicSense].LevelUp(player);

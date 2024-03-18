@@ -56,7 +56,6 @@ namespace NWN.Systems
     public static bool LevelUp(Player player, int customSkillId)
     {
       LearnableSkill playerClass = player.learnableSkills[customSkillId];
-
       HandleFighterLevelUp(player, playerClass.currentLevel, playerClass);
 
       switch (customSkillId)
@@ -66,8 +65,8 @@ namespace NWN.Systems
         case CustomSkill.FighterWarMaster: HandleWarMasterLevelUp(player, playerClass.currentLevel); break;
       }
 
-      if(playerClass.currentLevel > 1)
-        player.oid.LoginCreature.ForceLevelUp(CustomClass.Fighter, player.RollClassHitDie(customSkillId, CustomClass.Fighter, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));
+      if(player.oid.LoginCreature.Level > 2 || playerClass.currentLevel > 1)
+        player.oid.LoginCreature.ForceLevelUp(CustomClass.Fighter, player.RollClassHitDie(player.oid.LoginCreature.Level, CustomClass.Fighter, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));
 
       player.GiveRacialBonusOnLevelUp();
 

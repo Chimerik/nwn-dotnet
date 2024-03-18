@@ -31,18 +31,17 @@ namespace NWN.Systems
     public static bool LevelUp(Player player, int customSkillId)
     {
       LearnableSkill playerClass = player.learnableSkills[customSkillId];
-
       HandleMonkLevelUp(player, playerClass.currentLevel, playerClass);
 
       switch (customSkillId)
       {
         case CustomSkill.MonkPaume: HandlePaumeLevelUp(player, playerClass.currentLevel); break;
         case CustomSkill.MonkOmbre: HandleOmbreLevelUp(player, playerClass.currentLevel); break;
-        //case CustomSkill.RogueAssassin: HandleAssassinLevelUp(player, playerClass.currentLevel); break;
+        case CustomSkill.MonkElements: HandleElementsLevelUp(player, playerClass.currentLevel); break;
       }
 
-      if (playerClass.currentLevel > 1)
-        player.oid.LoginCreature.ForceLevelUp(CustomClass.Monk, player.RollClassHitDie(customSkillId, CustomClass.Rogue, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));
+      if (playerClass.currentLevel > 2 || playerClass.currentLevel > 1)
+        player.oid.LoginCreature.ForceLevelUp(CustomClass.Monk, player.RollClassHitDie(player.oid.LoginCreature.Level, CustomClass.Monk, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));
 
       player.GiveRacialBonusOnLevelUp();
 

@@ -28,10 +28,16 @@ namespace NWN.Systems
         {
           foreach (var feat in creature.Feats.Where(f => f.TalentMaxCR.ToBool() && creature.GetFeatRemainingUses(f) < 1))
           {
-            switch (feat.Id)
+            if (Feats2da.featTable[feat.Id].skillCategory == SkillSystem.Category.Manoeuvre)
             {
-              case CustomSkill.WarMasterFeinte:
-              case CustomSkill.WarMasterInstruction: continue;
+              var manoeuvre = creature.Feats.FirstOrDefault(f => !f.TalentMaxCR.ToBool() && Feats2da.featTable[f.Id].skillCategory == SkillSystem.Category.Manoeuvre);
+              
+              if (manoeuvre != null) 
+              {
+                creature.SetFeatRemainingUses(feat, creature.GetFeatRemainingUses(manoeuvre));
+                creature.GetObjectVariable<LocalVariableInt>($"_FEAT_REMAINING_USE_{feat.Id}").Delete();
+                continue;
+              }
             }
 
             creature.SetFeatRemainingUses(feat, (byte)creature.GetObjectVariable<LocalVariableInt>($"_FEAT_REMAINING_USE_{feat.Id}").Value);

@@ -13,6 +13,7 @@ namespace NWN.Systems
         case 3: 
           
           new StrRef(16).SetPlayerOverride(player.oid, "Assassin");
+          player.oid.SetTextureOverride("rogue", "assassin");
 
           player.learnableSkills.TryAdd(CustomSkill.AssassinAssassinate, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AssassinAssassinate], player));
           player.learnableSkills[CustomSkill.AssassinAssassinate].LevelUp(player);

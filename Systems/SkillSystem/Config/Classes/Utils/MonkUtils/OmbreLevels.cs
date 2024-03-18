@@ -12,7 +12,8 @@ namespace NWN.Systems
       {
         case 3: 
           
-          new StrRef(16).SetPlayerOverride(player.oid, "Voie de l'Ombre");
+          new StrRef(10).SetPlayerOverride(player.oid, "Voie de l'Ombre");
+          player.oid.SetTextureOverride("monk", "monk_shadow");
 
           player.learnableSkills.TryAdd(CustomSkill.MonkTenebres, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MonkTenebres], player));
           player.learnableSkills[CustomSkill.MonkTenebres].LevelUp(player);
@@ -53,6 +54,14 @@ namespace NWN.Systems
           player.learnableSkills.TryAdd(CustomSkill.MonkFrappeDombre, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MonkFrappeDombre], player));
           player.learnableSkills[CustomSkill.MonkFrappeDombre].LevelUp(player);
           player.learnableSkills[CustomSkill.MonkFrappeDombre].source.Add(Category.Class);
+
+          break;
+
+        case 17:
+
+          player.learnableSkills.TryAdd(CustomSkill.MonkOpportuniste, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MonkOpportuniste], player));
+          player.learnableSkills[CustomSkill.MonkOpportuniste].LevelUp(player);
+          player.learnableSkills[CustomSkill.MonkOpportuniste].source.Add(Category.Class);
 
           break;
       }

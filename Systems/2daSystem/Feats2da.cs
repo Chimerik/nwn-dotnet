@@ -7,6 +7,7 @@ namespace NWN.Systems
   {
     public int RowIndex { get; init; }
     public int spellId { get; private set; }
+    public SkillSystem.Category skillCategory { get; private set; }
     public StrRef descriptionTlkEntry { get; private set; }
     public StrRef nameTlkEntry { get; private set; }
 
@@ -15,6 +16,7 @@ namespace NWN.Systems
       nameTlkEntry = entry.GetStrRef("FEAT").GetValueOrDefault(StrRef.FromCustomTlk(0));
       descriptionTlkEntry = entry.GetStrRef("DESCRIPTION").GetValueOrDefault(StrRef.FromCustomTlk(0));
       spellId = entry.GetInt("SPELLID").GetValueOrDefault(-1);
+      skillCategory = (SkillSystem.Category)entry.GetInt("EFFECTSSTACK").GetValueOrDefault(0);
     }
   }
 

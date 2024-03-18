@@ -14,6 +14,7 @@ namespace NWN.Systems
         case 3:
 
           new StrRef(5213).SetPlayerOverride(player.oid, "Totem");
+          player.oid.SetTextureOverride("barbarian", "totem");
 
           player.learnableSkills.TryAdd(CustomSkill.TotemSpeakAnimal, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.TotemSpeakAnimal], player));
           player.learnableSkills[CustomSkill.TotemSpeakAnimal].LevelUp(player);

@@ -198,6 +198,8 @@
     public const int MonkFrappeDombre = 1490;
     public const int MonkOpportuniste = 1491;
 
+    public const int MonkHarmony = 1492;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -693,6 +695,9 @@
     public const int MonkPaumeTechnique = 20543;
 
     public const int MonkOmbre = 20544;
+
+    public const int MonkElements = 20545;
+
 
     public const int Invalid = 65535;
   }

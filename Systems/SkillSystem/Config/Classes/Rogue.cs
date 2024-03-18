@@ -42,7 +42,6 @@ namespace NWN.Systems
     public static bool LevelUp(Player player, int customSkillId)
     {
       LearnableSkill playerClass = player.learnableSkills[customSkillId];
-
       HandleRogueLevelUp(player, playerClass.currentLevel, playerClass);
 
       switch (customSkillId)
@@ -52,8 +51,8 @@ namespace NWN.Systems
         case CustomSkill.RogueAssassin: HandleAssassinLevelUp(player, playerClass.currentLevel); break;
       }
 
-      if (playerClass.currentLevel > 1)
-        player.oid.LoginCreature.ForceLevelUp(CustomClass.Rogue, player.RollClassHitDie(customSkillId, CustomClass.Rogue, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));
+      if (playerClass.currentLevel > 2 || playerClass.currentLevel > 1)
+        player.oid.LoginCreature.ForceLevelUp(CustomClass.Rogue, player.RollClassHitDie(player.oid.LoginCreature.Level, CustomClass.Rogue, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));
 
       player.GiveRacialBonusOnLevelUp();
 

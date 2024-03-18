@@ -253,10 +253,15 @@ namespace NWN.Systems
                       break;
                   }
 
+                  int classId = Classes2da.classTable.FirstOrDefault(c => c.classLearnableId == validatedLearnableId).RowIndex;
+
+                  if (player.oid.LoginCreature.Level == 1)
+                    player.oid.LoginCreature.ForceLevelUp((byte)classId, player.RollClassHitDie(player.oid.LoginCreature.Level, (byte)classId, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));
+                  else
+                    CreaturePlugin.SetClassByPosition(player.oid.LoginCreature, 1, classId);
+
                   player.learnableSkills.TryAdd(selectedLearnable.id, new LearnableSkill((LearnableSkill)learnableDictionary[selectedLearnable.id], player, (int)Category.Class));
                   player.learnableSkills[selectedLearnable.id].LevelUp(player);
-
-                  CreaturePlugin.SetClassByPosition(player.oid.LoginCreature, 0, Classes2da.classTable.FirstOrDefault(c => c.classLearnableId == validatedLearnableId).RowIndex);
 
                   validationText.SetBindValue(player.oid, nuiToken.Token, $"Votre classe est désormais : {selectedLearnable.name}");
                   player.oid.SendServerMessage($"Votre classe initiale est désormais {StringUtils.ToWhitecolor(selectedLearnable.name)} !", ColorConstants.Orange);
@@ -369,6 +374,7 @@ namespace NWN.Systems
           List<LearnableSkill> profienciesToRemove = new();
 
           player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatType(Feat.SneakAttack));
+          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatType(Feat.BarbarianRage));
           player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.MainLeste));
           player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.DiscretionSupreme));
           player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.ThiefInvisibility));
@@ -394,16 +400,30 @@ namespace NWN.Systems
             if (feat is not null && player.oid.LoginCreature.KnowsFeat(feat))
               player.oid.LoginCreature.RemoveFeat(feat);
           }
+
+          player.oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipUnarmoredDefence;
+          player.oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipUnarmoredDefence;
+          player.oid.LoginCreature.OnHeartbeat -= CreatureUtils.OnHeartBeatCheckUnarmoredDefence;
+          EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.UnarmoredDefenceEffectTag);
+
+          player.oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipApplyProtectionStyle;
+          player.oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipRemoveProtectionStyle;
+          EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.ProtectionStyleAuraEffectTag);
+
+          player.oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipMonkUnarmoredDefence;
+          player.oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipMonkUnarmoredDefence;
+          player.oid.LoginCreature.OnHeartbeat -= CreatureUtils.OnHeartBeatCheckMonkUnarmoredDefence;
+          EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.MonkUnarmoredDefenceEffectTag);
         }
         private void InitSelectableSkills()
         {
-          selectedSkill1.SetBindWatch(player.oid, nuiToken.Token, true);
-          selectedSkill2.SetBindWatch(player.oid, nuiToken.Token, true);
-          selectedSkill3.SetBindWatch(player.oid, nuiToken.Token, true);
-          selectedSkill4.SetBindWatch(player.oid, nuiToken.Token, true);
-          selectedExpertise1.SetBindWatch(player.oid, nuiToken.Token, true);
-          selectedExpertise2.SetBindWatch(player.oid, nuiToken.Token, true);
-          //
+          selectedSkill1.SetBindWatch(player.oid, nuiToken.Token, false);
+          selectedSkill2.SetBindWatch(player.oid, nuiToken.Token, false);
+          selectedSkill3.SetBindWatch(player.oid, nuiToken.Token, false);
+          selectedSkill4.SetBindWatch(player.oid, nuiToken.Token, false);
+          selectedExpertise1.SetBindWatch(player.oid, nuiToken.Token, false);
+          selectedExpertise2.SetBindWatch(player.oid, nuiToken.Token, false);
+          
           switch (selectedLearnable.id)
           {
             case CustomSkill.Fighter:
@@ -441,6 +461,7 @@ namespace NWN.Systems
           {
             CustomSkill.Barbarian => Barbarian.startingPackage.skillChoiceList,
             CustomSkill.Rogue => Rogue.startingPackage.skillChoiceList,
+            CustomSkill.Monk => Monk.startingPackage.skillChoiceList,
             _ => Fighter.startingPackage.skillChoiceList,
           };
 
@@ -460,20 +481,14 @@ namespace NWN.Systems
 
           if (bonusSkills.Count() > 1)
           {
-            skillList1.Remove(skillList1.First(s => s.Value == bonusSkills.ElementAt(1).id));
-            skillList2.Remove(skillList2.First(s => s.Value == bonusSkills.ElementAt(0).id));
+            skillList1.RemoveAll(s => s.Value == bonusSkills.ElementAt(1).id);
+            skillList2.RemoveAll(s => s.Value == bonusSkills.ElementAt(0).id);
           }
           else
           {
             skillList1.RemoveAt(1);
             skillList2.RemoveAt(0);
           }
-
-          skillSelection1.SetBindValue(player.oid, nuiToken.Token, skillList1);
-          selectedSkill1.SetBindValue(player.oid, nuiToken.Token, bonusSkills.Any() ? bonusSkills.ElementAt(0).id : skillList1.First().Value);
-
-          skillSelection2.SetBindValue(player.oid, nuiToken.Token, skillList2);
-          selectedSkill2.SetBindValue(player.oid, nuiToken.Token, bonusSkills.Count() > 1 ? bonusSkills.ElementAt(1).id : skillList2.First().Value);
 
           if (selectedLearnable.id == CustomSkill.Rogue)
           {
@@ -493,40 +508,26 @@ namespace NWN.Systems
 
             if(additionnalSkills.Count() > 3)
             {
-              skillList1.Remove(skillList1.First(s => s.Value == additionnalSkills.ElementAt(2).id));
-              skillList1.Remove(skillList1.First(s => s.Value == additionnalSkills.ElementAt(3).id));
-              skillList2.Remove(skillList2.First(s => s.Value == additionnalSkills.ElementAt(2).id));
-              skillList2.Remove(skillList2.First(s => s.Value == additionnalSkills.ElementAt(3).id));
-              skillList3.Remove(skillList3.First(s => s.Value == additionnalSkills.ElementAt(0).id));
-              skillList3.Remove(skillList3.First(s => s.Value == additionnalSkills.ElementAt(1).id));
-              skillList3.Remove(skillList3.First(s => s.Value == additionnalSkills.ElementAt(3).id));
-              skillList4.Remove(skillList4.First(s => s.Value == additionnalSkills.ElementAt(0).id));
-              skillList4.Remove(skillList4.First(s => s.Value == additionnalSkills.ElementAt(1).id));
-              skillList4.Remove(skillList4.First(s => s.Value == additionnalSkills.ElementAt(2).id));
-              
+              skillList1.RemoveAll(s => s.Value == additionnalSkills.ElementAt(2).id || s.Value == additionnalSkills.ElementAt(3).id);
+              skillList2.RemoveAll(s => s.Value == additionnalSkills.ElementAt(2).id || s.Value == additionnalSkills.ElementAt(3).id);
+              skillList3.RemoveAll(s => s.Value == additionnalSkills.ElementAt(0).id || s.Value == additionnalSkills.ElementAt(1).id
+                || s.Value == additionnalSkills.ElementAt(3).id);
+              skillList4.RemoveAll(s => s.Value == additionnalSkills.ElementAt(0).id || s.Value == additionnalSkills.ElementAt(1).id
+                || s.Value == additionnalSkills.ElementAt(2).id);              
             }
             else if(additionnalSkills.Count() > 1)
             {
-              skillList3.Remove(skillList3.First(s => s.Value == additionnalSkills.ElementAt(0).id));
-              skillList3.Remove(skillList3.First(s => s.Value == additionnalSkills.ElementAt(1).id));
-              skillList4.Remove(skillList4.First(s => s.Value == additionnalSkills.ElementAt(0).id));
-              skillList4.Remove(skillList4.First(s => s.Value == additionnalSkills.ElementAt(1).id));
+              skillList3.RemoveAll(s => s.Value == additionnalSkills.ElementAt(0).id || s.Value == additionnalSkills.ElementAt(1).id);
+              skillList4.RemoveAll(s => s.Value == additionnalSkills.ElementAt(0).id || s.Value == additionnalSkills.ElementAt(1).id);
             }
             else
             {
-              skillList3.RemoveAt(0);
-              skillList3.RemoveAt(1);
+              skillList1.RemoveRange(1, 2);
+              skillList2.RemoveRange(1, 2);
               skillList3.RemoveAt(3);
-              skillList4.RemoveAt(0);
-              skillList4.RemoveAt(1);
-              skillList4.RemoveAt(2);
+              skillList3.RemoveRange(0, 2);
+              skillList4.RemoveRange(0, 3);
             }
-
-            skillSelection1.SetBindValue(player.oid, nuiToken.Token, skillList1);
-            selectedSkill1.SetBindValue(player.oid, nuiToken.Token, bonusSkills.Any() ? bonusSkills.ElementAt(0).id : skillList1.First().Value);
-
-            skillSelection2.SetBindValue(player.oid, nuiToken.Token, skillList2);
-            selectedSkill2.SetBindValue(player.oid, nuiToken.Token, bonusSkills.Count() > 1 ? bonusSkills.ElementAt(1).id : skillList2.First().Value);
 
             skillSelection3.SetBindValue(player.oid, nuiToken.Token, skillList3);
             selectedSkill3.SetBindValue(player.oid, nuiToken.Token, additionnalSkills.Any() ? additionnalSkills.ElementAt(2).id : skillList3.First().Value);
@@ -534,14 +535,17 @@ namespace NWN.Systems
             skillSelection4.SetBindValue(player.oid, nuiToken.Token, skillList4);
             selectedSkill4.SetBindValue(player.oid, nuiToken.Token, additionnalSkills.Count() > 1 ? additionnalSkills.ElementAt(3).id : skillList4.First().Value);
 
-
             List<NuiComboEntry> expertiseList1 = new();
             List<NuiComboEntry> expertiseList2 = new();
 
             foreach (var learnable in learnableDictionary.Values.Where(e => e is LearnableSkill expertise && expertise.category == Category.Expertise))
             {
-              if (learnable.id == selectedSkill1.GetBindValue(player.oid, nuiToken.Token) || learnable.id == selectedSkill2.GetBindValue(player.oid, nuiToken.Token)
-                || learnable.id == selectedSkill3.GetBindValue(player.oid, nuiToken.Token) || learnable.id == selectedSkill4.GetBindValue(player.oid, nuiToken.Token)
+              int selection1 = selectedSkill1.GetBindValue(player.oid, nuiToken.Token) > -1 ? selectedSkill1.GetBindValue(player.oid, nuiToken.Token) + 1 : skillList1.ElementAt(0).Value + 1;
+              int selection2 = selectedSkill2.GetBindValue(player.oid, nuiToken.Token) > -1 ? selectedSkill2.GetBindValue(player.oid, nuiToken.Token) + 1 : skillList2.ElementAt(0).Value + 1;
+              int selection3 = selectedSkill3.GetBindValue(player.oid, nuiToken.Token) > -1 ? selectedSkill3.GetBindValue(player.oid, nuiToken.Token) + 1 : skillList3.ElementAt(0).Value + 1;
+              int selection4 = selectedSkill4.GetBindValue(player.oid, nuiToken.Token) > -1 ? selectedSkill4.GetBindValue(player.oid, nuiToken.Token) + 1 : skillList4.ElementAt(0).Value + 1;
+
+              if (learnable.id == selection1 || learnable.id == selection2 || learnable.id == selection3 || learnable.id == selection4
                 || (player.learnableSkills.TryGetValue(learnable.id - 1, out var proficiency) && proficiency.currentLevel > 0))
               {
                 expertiseList1.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
@@ -553,8 +557,8 @@ namespace NWN.Systems
 
             if (bonusExpertise.Count() > 1)
             {
-              expertiseList1.Remove(expertiseList1.First(s => s.Value == bonusExpertise.ElementAt(1).id));
-              expertiseList2.Remove(expertiseList2.First(s => s.Value == bonusExpertise.ElementAt(0).id));
+              expertiseList1.RemoveAll(s => s.Value == bonusExpertise.ElementAt(1).id);
+              expertiseList2.RemoveAll(s => s.Value == bonusExpertise.ElementAt(0).id);
             }
             else
             {
@@ -568,6 +572,12 @@ namespace NWN.Systems
             expertiseSelection2.SetBindValue(player.oid, nuiToken.Token, expertiseList2);
             selectedExpertise2.SetBindValue(player.oid, nuiToken.Token, bonusExpertise.Count() > 1 ? bonusExpertise.ElementAt(1).id : expertiseList2.First().Value);
           }
+
+          skillSelection1.SetBindValue(player.oid, nuiToken.Token, skillList1);
+          selectedSkill1.SetBindValue(player.oid, nuiToken.Token, bonusSkills.Any() ? bonusSkills.ElementAt(0).id : skillList1.First().Value);
+
+          skillSelection2.SetBindValue(player.oid, nuiToken.Token, skillList2);
+          selectedSkill2.SetBindValue(player.oid, nuiToken.Token, bonusSkills.Count() > 1 ? bonusSkills.ElementAt(1).id : skillList2.First().Value);
 
           selectedSkill1.SetBindWatch(player.oid, nuiToken.Token, true);
           selectedSkill2.SetBindWatch(player.oid, nuiToken.Token, true);
@@ -594,6 +604,7 @@ namespace NWN.Systems
           {
             CustomSkill.Barbarian => Barbarian.startingPackage.skillChoiceList,
             CustomSkill.Rogue => Rogue.startingPackage.skillChoiceList,
+            CustomSkill.Monk => Monk.startingPackage.skillChoiceList,
             _ => Fighter.startingPackage.skillChoiceList,
           };
 
@@ -606,11 +617,8 @@ namespace NWN.Systems
             }
           }
 
-          skillList1.Remove(skillList1.First(s => s.Value == selectedSkill2.GetBindValue(player.oid, nuiToken.Token)));
-          skillList2.Remove(skillList2.First(s => s.Value == selectedSkill1.GetBindValue(player.oid, nuiToken.Token)));
-
-          skillSelection1.SetBindValue(player.oid, nuiToken.Token, skillList1);
-          skillSelection2.SetBindValue(player.oid, nuiToken.Token, skillList2);
+          skillList1.RemoveAll(s => s.Value == selectedSkill2.GetBindValue(player.oid, nuiToken.Token));
+          skillList2.RemoveAll(s => s.Value == selectedSkill1.GetBindValue(player.oid, nuiToken.Token));
 
           if (selectedLearnable.id == CustomSkill.Rogue)
           {
@@ -626,21 +634,17 @@ namespace NWN.Systems
               }
             }
 
-            var additionnalSkills = player.learnableSkills.Values.Where(s => s.category == Category.Skill && s.source.Any(so => so == Category.Class));
+            skillList1.RemoveAll(s => s.Value == selectedSkill3.GetBindValue(player.oid, nuiToken.Token)
+              || s.Value == selectedSkill4.GetBindValue(player.oid, nuiToken.Token));
+            skillList2.RemoveAll(s => s.Value == selectedSkill3.GetBindValue(player.oid, nuiToken.Token)
+              || s.Value == selectedSkill4.GetBindValue(player.oid, nuiToken.Token));
+            skillList3.RemoveAll(s => s.Value == selectedSkill1.GetBindValue(player.oid, nuiToken.Token)
+              || s.Value == selectedSkill2.GetBindValue(player.oid, nuiToken.Token)
+              || s.Value == selectedSkill4.GetBindValue(player.oid, nuiToken.Token));
+            skillList4.RemoveAll(s => s.Value == selectedSkill1.GetBindValue(player.oid, nuiToken.Token)
+              || s.Value == selectedSkill2.GetBindValue(player.oid, nuiToken.Token)
+              || s.Value == selectedSkill3.GetBindValue(player.oid, nuiToken.Token));
 
-            skillList1.Remove(skillList1.First(s => s.Value == additionnalSkills.ElementAt(2).id));
-            skillList1.Remove(skillList1.First(s => s.Value == additionnalSkills.ElementAt(3).id));
-            skillList2.Remove(skillList2.First(s => s.Value == additionnalSkills.ElementAt(2).id));
-            skillList2.Remove(skillList2.First(s => s.Value == additionnalSkills.ElementAt(3).id));
-            skillList3.Remove(skillList3.First(s => s.Value == additionnalSkills.ElementAt(0).id));
-            skillList3.Remove(skillList3.First(s => s.Value == additionnalSkills.ElementAt(1).id));
-            skillList3.Remove(skillList3.First(s => s.Value == additionnalSkills.ElementAt(3).id));
-            skillList4.Remove(skillList4.First(s => s.Value == additionnalSkills.ElementAt(0).id));
-            skillList4.Remove(skillList4.First(s => s.Value == additionnalSkills.ElementAt(1).id));
-            skillList4.Remove(skillList4.First(s => s.Value == additionnalSkills.ElementAt(2).id));
-
-            skillSelection1.SetBindValue(player.oid, nuiToken.Token, skillList1);
-            skillSelection2.SetBindValue(player.oid, nuiToken.Token, skillList2);
             skillSelection3.SetBindValue(player.oid, nuiToken.Token, skillList3);
             skillSelection4.SetBindValue(player.oid, nuiToken.Token, skillList4);
 
@@ -649,8 +653,8 @@ namespace NWN.Systems
 
             foreach (var learnable in learnableDictionary.Values.Where(e => e is LearnableSkill expertise && expertise.category == Category.Expertise))
             {
-              if (learnable.id == selectedSkill1.GetBindValue(player.oid, nuiToken.Token) || learnable.id == selectedSkill2.GetBindValue(player.oid, nuiToken.Token)
-                || learnable.id == selectedSkill3.GetBindValue(player.oid, nuiToken.Token) || learnable.id == selectedSkill4.GetBindValue(player.oid, nuiToken.Token)
+              if (learnable.id == selectedSkill1.GetBindValue(player.oid, nuiToken.Token) + 1 || learnable.id == selectedSkill2.GetBindValue(player.oid, nuiToken.Token) + 1
+                || learnable.id == selectedSkill3.GetBindValue(player.oid, nuiToken.Token) + 1 || learnable.id == selectedSkill4.GetBindValue(player.oid, nuiToken.Token) + 1
                 || (player.learnableSkills.TryGetValue(learnable.id - 1, out var proficiency) && proficiency.currentLevel > 0))
               {
                 expertiseList1.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
@@ -658,22 +662,15 @@ namespace NWN.Systems
               }
             }
 
-            var bonusExpertise = player.learnableSkills.Values.Where(s => s.category == Category.Expertise && s.source.Any(so => so == Category.Class));
-
-            if (bonusExpertise.Count() > 1)
-            {
-              expertiseList1.Remove(expertiseList1.First(s => s.Value == bonusExpertise.ElementAt(1).id));
-              expertiseList2.Remove(expertiseList2.First(s => s.Value == bonusExpertise.ElementAt(0).id));
-            }
-            else
-            {
-              expertiseList1.RemoveAt(1);
-              expertiseList2.RemoveAt(0);
-            }
+            expertiseList1.RemoveAll(e => e.Value == selectedExpertise2.GetBindValue(player.oid, nuiToken.Token));
+            expertiseList2.RemoveAll(e => e.Value == selectedExpertise1.GetBindValue(player.oid, nuiToken.Token));
 
             expertiseSelection1.SetBindValue(player.oid, nuiToken.Token, expertiseList1);
             expertiseSelection2.SetBindValue(player.oid, nuiToken.Token, expertiseList2);
           }
+
+          skillSelection1.SetBindValue(player.oid, nuiToken.Token, skillList1);
+          skillSelection2.SetBindValue(player.oid, nuiToken.Token, skillList2);
 
           selectedSkill1.SetBindWatch(player.oid, nuiToken.Token, true);
           selectedSkill2.SetBindWatch(player.oid, nuiToken.Token, true);
@@ -696,8 +693,8 @@ namespace NWN.Systems
 
             foreach (var learnable in learnableDictionary.Values.Where(e => e is LearnableSkill expertise && expertise.category == Category.Expertise))
             {
-              if (learnable.id == selectedSkill1.GetBindValue(player.oid, nuiToken.Token) || learnable.id == selectedSkill2.GetBindValue(player.oid, nuiToken.Token)
-                || learnable.id == selectedSkill3.GetBindValue(player.oid, nuiToken.Token) || learnable.id == selectedSkill4.GetBindValue(player.oid, nuiToken.Token)
+              if (learnable.id == selectedSkill1.GetBindValue(player.oid, nuiToken.Token) + 1 || learnable.id == selectedSkill2.GetBindValue(player.oid, nuiToken.Token) + 1
+                || learnable.id == selectedSkill3.GetBindValue(player.oid, nuiToken.Token) + 1 || learnable.id == selectedSkill4.GetBindValue(player.oid, nuiToken.Token) + 1
                 || (player.learnableSkills.TryGetValue(learnable.id - 1, out var proficiency) && proficiency.currentLevel > 0))
               {
                 expertiseList1.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
@@ -705,18 +702,8 @@ namespace NWN.Systems
               }
             }
 
-            var bonusExpertise = player.learnableSkills.Values.Where(s => s.category == Category.Expertise && s.source.Any(so => so == Category.Class));
-
-            if (bonusExpertise.Count() > 1)
-            {
-              expertiseList1.Remove(expertiseList1.First(s => s.Value == bonusExpertise.ElementAt(1).id));
-              expertiseList2.Remove(expertiseList2.First(s => s.Value == bonusExpertise.ElementAt(0).id));
-            }
-            else
-            {
-              expertiseList1.RemoveAt(1);
-              expertiseList2.RemoveAt(0);
-            }
+            expertiseList1.RemoveAll(e => e.Value == selectedExpertise2.GetBindValue(player.oid, nuiToken.Token));
+            expertiseList2.RemoveAll(e => e.Value == selectedExpertise1.GetBindValue(player.oid, nuiToken.Token));
 
             expertiseSelection1.SetBindValue(player.oid, nuiToken.Token, expertiseList1);
             expertiseSelection2.SetBindValue(player.oid, nuiToken.Token, expertiseList2);

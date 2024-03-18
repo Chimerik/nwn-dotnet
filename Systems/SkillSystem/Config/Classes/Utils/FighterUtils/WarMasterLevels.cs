@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Security.Cryptography;
+using Anvil.API;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.SkillSystem;
 
@@ -13,6 +14,7 @@ namespace NWN.Systems
         case 3:
 
           new StrRef(8).SetPlayerOverride(player.oid, "Maître de Guerre");
+          player.oid.SetTextureOverride("fighter", "warmaster");
 
           player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_MANOEUVRE_CHOICE").Value = 3;
           player.InitializeManoeuvreChoice();

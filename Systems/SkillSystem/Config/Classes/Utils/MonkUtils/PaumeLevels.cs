@@ -12,7 +12,8 @@ namespace NWN.Systems
       {
         case 3: 
           
-          new StrRef(16).SetPlayerOverride(player.oid, "Voie de la Paume");
+          new StrRef(10).SetPlayerOverride(player.oid, "Voie de la Paume");
+          player.oid.SetTextureOverride("monk", "monk_paume");
 
           player.learnableSkills.TryAdd(CustomSkill.MonkPaumeTechnique, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MonkPaumeTechnique], player));
           player.learnableSkills[CustomSkill.MonkPaumeTechnique].LevelUp(player);

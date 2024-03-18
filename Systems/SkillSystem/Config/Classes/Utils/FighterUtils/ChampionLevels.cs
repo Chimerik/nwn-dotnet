@@ -14,6 +14,7 @@ namespace NWN.Systems
         case 3:
 
           new StrRef(8).SetPlayerOverride(player.oid, "Champion");
+          player.oid.SetTextureOverride("fighter", "champion");
 
           player.learnableSkills.TryAdd(CustomSkill.FighterChampionImprovedCritical, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterChampionImprovedCritical], player));
           player.learnableSkills[CustomSkill.FighterChampionImprovedCritical].LevelUp(player);

@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Security.Cryptography;
+using Anvil.API;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
@@ -12,6 +13,7 @@ namespace NWN.Systems
         case 3: 
           
           new StrRef(16).SetPlayerOverride(player.oid, "Voleur");
+          player.oid.SetTextureOverride("rogue", "thief");
 
           if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.MainLeste)))
             player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.MainLeste));

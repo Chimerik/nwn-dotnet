@@ -100,6 +100,7 @@ namespace NWN.Systems
         case CustomSkill.MonkLinceulDombre: MonkLinceulDombre(onUseFeat.Creature, onUseFeat); return;
         case CustomSkill.MonkFouleeDombre: MonkFouleeDombre(onUseFeat.Creature, onUseFeat); return;
         case CustomSkill.MonkFrappeDombre: MonkFrappeDombre(onUseFeat.Creature, onUseFeat); return;
+        case CustomSkill.MonkHarmony: MonkHarmony(onUseFeat.Creature); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

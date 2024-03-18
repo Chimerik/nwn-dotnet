@@ -68,7 +68,12 @@ namespace NWN.Systems
             learnable = SkillSystem.learnableDictionary[learnableId];
 
             icon.SetBindValue(player.oid, nuiToken.Token, learnable.icon);
-            description.SetBindValue(player.oid, nuiToken.Token, learnable.description);
+
+            if (learnableId < 10000)
+              description.SetBindValue(player.oid, nuiToken.Token, NwFeat.FromFeatId(learnableId).Description.ToString());
+            else
+              description.SetBindValue(player.oid, nuiToken.Token, learnable.description);
+            
             name.SetBindValue(player.oid, nuiToken.Token, learnable.name);
             primaryAbilityIcon.SetBindValue(player.oid, nuiToken.Token, StringUtils.GetAttributeIcon(learnable.primaryAbility));
             secondaryAbilityIcon.SetBindValue(player.oid, nuiToken.Token, StringUtils.GetAttributeIcon(learnable.secondaryAbility));

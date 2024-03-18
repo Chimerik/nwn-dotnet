@@ -14,6 +14,7 @@ namespace NWN.Systems
         case 3:
 
           new StrRef(8).SetPlayerOverride(player.oid, "Archer-Mage");
+          player.oid.SetTextureOverride("fighter", "ir_archer");
 
           player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_TIR_ARCANIQUE_CHOICE").Value = 2;
 

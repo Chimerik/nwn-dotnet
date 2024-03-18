@@ -13,6 +13,7 @@ namespace NWN.Systems
         case 3: 
           
           new StrRef(16).SetPlayerOverride(player.oid, "Conspirateur");
+          player.oid.SetTextureOverride("rogue", "conspirateur");
 
           player.learnableSkills.TryAdd(CustomSkill.ConspirateurMaitriseTactique, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ConspirateurMaitriseTactique], player));
           player.learnableSkills[CustomSkill.ConspirateurMaitriseTactique].LevelUp(player);

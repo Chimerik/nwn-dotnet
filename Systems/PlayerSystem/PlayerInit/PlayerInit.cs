@@ -424,7 +424,6 @@ namespace NWN.Systems
         InitializeFeatChoice();
         InitializeSubClassChoice();
         InitializeManoeuvreChoice();
-        InitializeExpertiseChoice();
         InitializeTirArcaniqueChoice();
         InitializeEspritTotemChoice();
         InitializeAspectTotemChoice();

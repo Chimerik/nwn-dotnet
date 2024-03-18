@@ -13,6 +13,7 @@ namespace NWN.Systems
         case 3:
 
           new StrRef(5213).SetPlayerOverride(player.oid, "Berseker");
+          player.oid.SetTextureOverride("barbarian", "berseker");
 
           player.learnableSkills.TryAdd(CustomSkill.BersekerFrenziedStrike, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BersekerFrenziedStrike], player));
           player.learnableSkills[CustomSkill.BersekerFrenziedStrike].LevelUp(player);

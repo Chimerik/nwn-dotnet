@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      public byte RollClassHitDie(int skillId, byte classId, int conMod)
+      public byte RollClassHitDie(int playerLevel, byte classId, int conMod)
       {
         byte hitDie = NwClass.FromClassId(classId).HitDie;
 
@@ -14,7 +14,7 @@ namespace NWN.Systems
 
         byte hitPointGain;
 
-        if (learnableSkills[skillId].currentLevel > 1)
+        if (playerLevel < 2)
         {
           hitPointGain = (byte)(Utils.random.Next((hitDie / 2) + 1, hitDie + 1));
           oid.SendServerMessage($"Gain de points vie aléatoires entre {StringUtils.ToWhitecolor((hitDie / 2) + 1)} et {StringUtils.ToWhitecolor(hitDie)} + {StringUtils.ToWhitecolor(conMod)} (CON) = {StringUtils.ToWhitecolor(hitPointGain + conMod)}", ColorConstants.Orange);
@@ -22,7 +22,7 @@ namespace NWN.Systems
         }
         else
         {
-          hitPointGain = (byte)(hitDie);
+          hitPointGain = hitDie;
           oid.SendServerMessage($"Niveau 1 : gain de points vie max {StringUtils.ToWhitecolor(hitDie)} + {StringUtils.ToWhitecolor(conMod)} (CON) = {StringUtils.ToWhitecolor(hitPointGain + conMod)}", ColorConstants.Orange);
           LogUtils.LogMessage($"Niveau 1 : attribution des points de vie max {hitDie} + {conMod} (CON) = {hitPointGain + conMod}", LogUtils.LogType.Learnables);
         }

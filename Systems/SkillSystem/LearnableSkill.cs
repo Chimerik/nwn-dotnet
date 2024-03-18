@@ -145,30 +145,31 @@ namespace NWN.Systems
           if (multiClassCount < 1)
             multiClassCount = player.oid.LoginCreature.Classes.Distinct().Count();
 
-          double multiClassMultiplier = playerLevel > 11 ? multiClassCount * 1.5 : 1;
+          double multiClassMultiplier = playerLevel > 12 ? multiClassCount * 1.5 : 1;
 
           return playerLevel switch
           {
             1 => 8640 * multiClassMultiplier,
-            2 => 26000 * multiClassMultiplier,
-            3 => 80000 * multiClassMultiplier,
-            4 => 190000 * multiClassMultiplier,
-            5 => 405000 * multiClassMultiplier,
-            6 => 660000 * multiClassMultiplier,
-            7 => 980000 * multiClassMultiplier,
-            8 => 1380000 * multiClassMultiplier,
-            9 => 1840000 * multiClassMultiplier,
-            10 => 2450000 * multiClassMultiplier,
-            11 => 2880000 * multiClassMultiplier,
-            12 => 3456000 * multiClassMultiplier,
-            13 => 4032000 * multiClassMultiplier,
-            14 => 4752000 * multiClassMultiplier,
-            15 => 5616000 * multiClassMultiplier,
-            16 => 6480000 * multiClassMultiplier,
-            17 => 7632000 * multiClassMultiplier,
-            18 => 8784000 * multiClassMultiplier,
-            19 => 10224000 * multiClassMultiplier,
-            20 => 11760000 * multiClassMultiplier,
+            2 => 8640 * multiClassMultiplier,
+            3 => 26000 * multiClassMultiplier,
+            4 => 80000 * multiClassMultiplier,
+            5 => 190000 * multiClassMultiplier,
+            6 => 405000 * multiClassMultiplier,
+            7 => 660000 * multiClassMultiplier,
+            8 => 980000 * multiClassMultiplier,
+            9 => 1380000 * multiClassMultiplier,
+            10 => 1840000 * multiClassMultiplier,
+            11 => 2450000 * multiClassMultiplier,
+            12 => 2880000 * multiClassMultiplier,
+            13 => 3456000 * multiClassMultiplier,
+            14 => 4032000 * multiClassMultiplier,
+            15 => 4752000 * multiClassMultiplier,
+            16 => 5616000 * multiClassMultiplier,
+            17 => 6480000 * multiClassMultiplier,
+            18 => 7632000 * multiClassMultiplier,
+            19 => 8784000 * multiClassMultiplier,
+            20 => 10224000 * multiClassMultiplier,
+            21 => 11760000 * multiClassMultiplier,
             _ => 11760000 * multiClassMultiplier * 1.15 * (playerLevel - 20),
           };
         default:

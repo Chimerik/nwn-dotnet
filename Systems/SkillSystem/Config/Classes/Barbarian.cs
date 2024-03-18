@@ -53,7 +53,6 @@ namespace NWN.Systems
     public static bool LevelUp(Player player, int customSkillId)
     {
       LearnableSkill playerClass = player.learnableSkills[customSkillId];
-
       HandleBarbarianLevelUp(player, playerClass.currentLevel, playerClass);
 
       switch (customSkillId)
@@ -63,8 +62,8 @@ namespace NWN.Systems
         case CustomSkill.BarbarianWildMagic: HandleWildMagicLevelUp(player, playerClass.currentLevel); break;
       }
 
-      if(playerClass.currentLevel > 1)
-        player.oid.LoginCreature.ForceLevelUp(CustomClass.Barbarian, player.RollClassHitDie(customSkillId, CustomClass.Barbarian, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));
+      if(playerClass.currentLevel > 2 || playerClass.currentLevel > 1)
+        player.oid.LoginCreature.ForceLevelUp(CustomClass.Barbarian, player.RollClassHitDie(player.oid.LoginCreature.Level, CustomClass.Barbarian, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));
 
       player.GiveRacialBonusOnLevelUp();
 

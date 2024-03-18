@@ -1,5 +1,4 @@
 ﻿using Anvil.API;
-using NWN.Core.NWNX;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.PlayerSystem.Player;
 using static NWN.Systems.SkillSystem;
@@ -15,7 +14,7 @@ namespace NWN.Systems
         case 1:
 
           // Si c'est le tout premier niveau, on donne le starting package
-          if (player.oid.LoginCreature.Level < 2)
+          if (player.oid.LoginCreature.Level == 2)
           {
             foreach (Learnable learnable in startingPackage.freeLearnables)
             {
@@ -33,12 +32,9 @@ namespace NWN.Systems
               learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 4;
             }
 
-            CreaturePlugin.SetClassByPosition(player.oid.LoginCreature, 0, (int)ClassType.Fighter);
             playerClass.acquiredPoints = 0;
           }
-          else
-            CreaturePlugin.SetClassByPosition(player.oid.LoginCreature, player.oid.LoginCreature.Classes.Count, (int)ClassType.Fighter);
-
+ 
           // On donne les autres capacités de niveau 1
           player.learnableSkills.TryAdd(CustomSkill.FighterSecondWind, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterSecondWind], player));
           player.learnableSkills[CustomSkill.FighterSecondWind].LevelUp(player);
