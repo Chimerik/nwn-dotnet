@@ -414,6 +414,7 @@ namespace NWN.Systems
           }
 
           sneakAttack = NativeUtils.GetSneakAttackDamage(attacker, targetCreature, attackWeapon, attackData, combatRound);
+          baseDamage += sneakAttack;
 
           if (NativeUtils.IsCogneurLourd(attacker, attackWeapon))
           {

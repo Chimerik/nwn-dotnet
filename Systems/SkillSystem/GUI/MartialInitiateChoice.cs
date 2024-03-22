@@ -26,7 +26,7 @@ namespace NWN.Systems
           windowId = "martialInitiateChoice";
           rootColumn.Children = rootChildren;
 
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiCombo() { Entries = styles, Selected = selectedStyle } } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiCombo() { Entries = styles, Selected = selectedStyle, Width = 320 }, new NuiSpacer() } });
           rootChildren.Add(new NuiRow() { Margin = 0.0f, Height = 35, Children = new List<NuiElement>() { new NuiSpacer(), new NuiButton("Valider") { Id = "validate", Width = 160, Encouraged = enabled }, new NuiSpacer() } });
           
           CreateWindow(level, gainedFromChampion);
@@ -44,7 +44,7 @@ namespace NWN.Systems
 
           NuiRect savedRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(player.guiScaledWidth * 0.4f, player.guiHeight * 0.15f, player.guiScaledWidth * 0.3f, player.guiScaledHeight * 0.20f);
 
-          window = new NuiWindow(rootColumn, "Choisissez un style de combat")
+          window = new NuiWindow(rootColumn, "Veuillez choisir un style de combat")
           {
             Geometry = geometry,
             Resizable = false,
@@ -78,9 +78,12 @@ namespace NWN.Systems
 
                   int selection = selectedStyle.GetBindValue(player.oid, nuiToken.Token);
 
-                  if(!gainedFromChampion)
-                    player.learnableSkills[CustomSkill.MartialInitiate].featOptions.Add(acquiredLevel, new int[] { selection } );
-                  
+                  if (!gainedFromChampion)
+                  {
+                    player.learnableSkills.TryAdd(CustomSkill.MartialInitiate, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.MartialInitiate], player));
+                    player.learnableSkills[CustomSkill.MartialInitiate].featOptions.Add(acquiredLevel, new int[] { selection });
+                  }
+
                   player.learnableSkills.Add(selection, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[selection], player));
                   player.learnableSkills[selection].LevelUp(player);
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_MARTIAL_INITIATE_CHOICE_FEAT").Delete();

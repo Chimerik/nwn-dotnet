@@ -87,8 +87,8 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomSkill.InsightProficiency, new LearnableSkill(CustomSkill.InsightProficiency, "Intuition - Maîtrise", "Un jet de Sagesse (Intuition) couvre toute tentative de déterminer les véritables intentions d'une créature, par exemple lorsque vous souhaitez dévoiler un mensonge ou prédire le prochain mouvement de quelqu'un.\nIl s'agit principalement de glaner des indices dans le langage corporel, les changements de tons de la voix ou de manières.", Category.Skill, "isk_listen", 1, 750, Ability.Wisdom, Ability.Intelligence));
       learnableDictionary.Add(CustomSkill.InsightExpertise, new LearnableSkill(CustomSkill.InsightExpertise, "Intuition - Expertise", "L'expertise permet de doubler votre bonus de maîtrise sur les jets effectués avec cette compétence", Category.Expertise, "isk_listen", 1, 1500, Ability.Wisdom, Ability.Intelligence));
 
-      learnableDictionary.Add(CustomSkill.IntimidationProficiency, new LearnableSkill(CustomSkill.IntimidationProficiency, "Intimidation - Maîtrise", "Un jet de Charisme (Intimidation) couvre toute tentative d'influencer quelqu'un par des menaces manifestes, des actions hostiles et de la violence physique.\nPar exemple, essayer de soutirer des informations d'un prisonnier, convaincre des voyous de reculer devant une confrontation ou utiliser un tesson de bouteille brisée pour convaincre un vizir ricanant de reconsidérer une décision.", Category.Skill, "isk_X2Inti", 5, 2, Ability.Charisma, Ability.Strength));
-      learnableDictionary.Add(CustomSkill.IntimidationExpertise, new LearnableSkill(CustomSkill.IntimidationExpertise, "Intimidation - Expertise", "L'expertise permet de doubler votre bonus de maîtrise sur les jets effectués avec cette compétence", Category.Expertise, "isk_X2Inti", 5, 3, Ability.Charisma, Ability.Strength));
+      learnableDictionary.Add(CustomSkill.IntimidationProficiency, new LearnableSkill(CustomSkill.IntimidationProficiency, "Intimidation - Maîtrise", "Un jet de Charisme (Intimidation) couvre toute tentative d'influencer quelqu'un par des menaces manifestes, des actions hostiles et de la violence physique.\nPar exemple, essayer de soutirer des informations d'un prisonnier, convaincre des voyous de reculer devant une confrontation ou utiliser un tesson de bouteille brisée pour convaincre un vizir ricanant de reconsidérer une décision.", Category.Skill, "isk_X2Inti", 1, 2, Ability.Charisma, Ability.Strength));
+      learnableDictionary.Add(CustomSkill.IntimidationExpertise, new LearnableSkill(CustomSkill.IntimidationExpertise, "Intimidation - Expertise", "L'expertise permet de doubler votre bonus de maîtrise sur les jets effectués avec cette compétence", Category.Expertise, "isk_X2Inti", 1, 3, Ability.Charisma, Ability.Strength));
 
       learnableDictionary.Add(CustomSkill.InvestigationProficiency, new LearnableSkill(CustomSkill.InvestigationProficiency, "Investigation - Maîtrise", "Un jet d'Intelligence (Investigation) couvre toute recherche d'indice et de déductions. Vous pouvez déduire l'emplacement d'un objet caché, discerner à partir de l'apparence d'une blessure quel type d'arme l'a infligée, ou déterminer le point le plus faible dans un tunnel qui pourrait provoquer son effondrement.\n L'examen d'anciens parchemins à la recherche d'un fragment de connaissance caché peut également nécessiter un jet d'Intelligence (Investigation).\n\nCette compétence remplace fouille pour la détection des pièges.", Category.Skill, "isk_search", 1, 750, Ability.Intelligence, Ability.Wisdom));
       learnableDictionary.Add(CustomSkill.InvestigationExpertise, new LearnableSkill(CustomSkill.InvestigationExpertise, "Investigation - Expertise", "Un jet d'Intelligence (Investigation) couvre toute recherche d'indice et de déductions. Vous pouvez déduire l'emplacement d'un objet caché, discerner à partir de l'apparence d'une blessure quel type d'arme l'a infligée, ou déterminer le point le plus faible dans un tunnel qui pourrait provoquer son effondrement.\n L'examen d'anciens parchemins à la recherche d'un fragment de connaissance caché peut également nécessiter un jet d'Intelligence (Investigation).\n\nCette compétence remplace fouille pour la détection des pièges.", Category.MindBody, "isk_search", 1, 1500, Ability.Intelligence, Ability.Wisdom));
@@ -1445,10 +1445,10 @@ namespace NWN.Systems
 
       player.learnableSkills[CustomSkill.PersuasionProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.NatureProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.NatureProficiency], player)))
-      player.learnableSkills[CustomSkill.NatureProficiency].LevelUp(player);
+      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency], player)))
+      player.learnableSkills[CustomSkill.InsightProficiency].LevelUp(player);
 
-      player.learnableSkills[CustomSkill.NatureProficiency].source.Add(Category.StartingTraits);
+      player.learnableSkills[CustomSkill.InsightProficiency].source.Add(Category.StartingTraits);
 
       return true;
     }
@@ -1482,15 +1482,15 @@ namespace NWN.Systems
     }
     private static bool HandleScionBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.ArcanaProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ArcanaProficiency], player)))
-      player.learnableSkills[CustomSkill.ArcanaProficiency].LevelUp(player);
+      if (player.learnableSkills.TryAdd(CustomSkill.PerceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PerceptionProficiency], player)))
+      player.learnableSkills[CustomSkill.PerceptionProficiency].LevelUp(player);
 
-      player.learnableSkills[CustomSkill.ArcanaProficiency].source.Add(Category.StartingTraits);
+      player.learnableSkills[CustomSkill.PerceptionProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency], player)))
-      player.learnableSkills[CustomSkill.SurvivalProficiency].LevelUp(player);
+      if (player.learnableSkills.TryAdd(CustomSkill.PerformanceProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PerformanceProficiency], player)))
+      player.learnableSkills[CustomSkill.PerformanceProficiency].LevelUp(player);
 
-      player.learnableSkills[CustomSkill.SurvivalProficiency].source.Add(Category.StartingTraits);
+      player.learnableSkills[CustomSkill.PerformanceProficiency].source.Add(Category.StartingTraits);
 
       return true;
     }

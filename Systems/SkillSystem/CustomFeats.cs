@@ -134,9 +134,9 @@
     public const int TotemEspritOurs = 1436;
     public const int TotemFerociteIndomptable = 1437;
     public const int TotemEspritAigle = 1438;
-    public const int TotemEspritLoup = 1439;
-    public const int TotemHurlementGalvanisant = 1440;
-    public const int TotemEspritElan = 1441;
+    public const int TotemEspritElan = 1439;
+    public const int TotemEspritLoup = 1440;
+    public const int TotemHurlementGalvanisant = 1441;
 
     public const int Chargeur = 1442;
 

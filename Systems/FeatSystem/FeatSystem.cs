@@ -12,6 +12,8 @@ namespace NWN.Systems
       if (!PlayerSystem.Players.TryGetValue(onUseFeat.Creature.ControllingPlayer.LoginCreature, out PlayerSystem.Player player))
         return;
 
+      LogUtils.LogMessage($"{onUseFeat.Creature.Name} utilise le don {onUseFeat.Feat.Name} ({onUseFeat.Feat.Id})", LogUtils.LogType.Combat);
+
       switch (onUseFeat.Feat.Id)
       {
         //case CustomSkill.Determination: SecondWind(onUseFeat.Creature); return;

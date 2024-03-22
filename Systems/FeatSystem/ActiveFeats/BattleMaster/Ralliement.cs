@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Anvil.API;
+using Anvil.API.Events;
 
 namespace NWN.Systems
 {
@@ -22,17 +23,23 @@ namespace NWN.Systems
       int warMasterLevel = caster.GetClassInfo(NwClass.FromClassId(CustomClass.Fighter)).Level;
       int superiorityDice = warMasterLevel > 17 ? 12 : warMasterLevel > 9 ? 10 : 8;
       int temporaryHP = NwRandom.Roll(Utils.random, superiorityDice) + caster.GetAbilityModifier(Ability.Charisma);
-      List<int> highestHPList = new();
+      
+      List<int> highestHPList = new() { 0 };
 
       foreach (var eff in target.ActiveEffects)
         if (eff.EffectType == EffectType.TemporaryHitpoints)
           highestHPList.Add(eff.IntParams[3]);
 
-      if(temporaryHP > highestHPList.Max())
+      if (temporaryHP > highestHPList.Max())
+      {
         target.ApplyEffect(EffectDuration.Temporary, Effect.TemporaryHitpoints(temporaryHP), NwTimeSpan.FromRounds(1));
+        LogUtils.LogMessage($"{caster.Name} ralliement sur {target.Name} : 1d{superiorityDice} = {temporaryHP} PV temporaires", LogUtils.LogType.Combat);
+      }
       else
+      {
         caster.ControllingPlayer?.SendServerMessage("Attention : les points de vie temporaires ne sont pas cumulatifs !", ColorConstants.Red);
-
+        LogUtils.LogMessage($"{caster.Name} ralliement sur {target.Name} mais la cible bénéficie déjà d'une source de PV temporaires supérieure", LogUtils.LogType.Combat);
+      }
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"Ralliement ({target.Name})", StringUtils.gold);
       FeatUtils.DecrementManoeuvre(caster);
     }
