@@ -172,7 +172,7 @@ namespace NWN.Systems
         oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnequipCheckThreatRange;
         oid.LoginCreature.OnInventoryGoldAdd += HandleGainedGold;
         oid.LoginCreature.OnInventoryGoldRemove += HandleLostGold;
-        oid.LoginCreature.OnItemScrollLearn += HandleBeforeScrollLearn;
+        oid.LoginCreature.OnItemScrollLearn += SpellSystem.OnLearnScroll;
       }
       private void InitializeSpellEvents()
       {

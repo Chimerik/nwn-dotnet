@@ -173,68 +173,6 @@ namespace NWN.Systems
           break;
       }
     }
-    public static void HandleBeforeScrollLearn(OnItemScrollLearn onScrollLearn)
-    {
-      NwCreature oPC = onScrollLearn.Creature;
-      onScrollLearn.PreventLearnScroll = true;
-
-      if (!Players.TryGetValue(onScrollLearn.Creature, out Player player))
-        return;
-
-
-      NwItem oScroll = onScrollLearn.Scroll;
-      int spellId = SpellUtils.GetSpellIDFromScroll(oScroll);
-      byte spellLevel = NwSpell.FromSpellId(spellId).InnateSpellLevel;
-
-      if (spellId < 0 || spellLevel > 10)
-      {
-        LogUtils.LogMessage($"LEARN SPELL FROM SCROLL - Player : {oPC.Name}, SpellId : {spellId}, SpellLevel : {spellLevel} - INVALID", LogUtils.LogType.Learnables);
-        oPC.ControllingPlayer.SendServerMessage("HRP - Ce parchemin ne semble pas correctement configuré, impossible d'en apprendre quoique ce soit. Le staff a été informé du problème.", ColorConstants.Red);
-        return;
-      }
-
-      if (player.learnableSpells.ContainsKey(spellId))
-      {
-        if (oScroll.GetObjectVariable<LocalVariableInt>("_ONE_USE_ONLY").HasValue && Config.env == Config.Env.Prod)
-        {
-          player.oid.SendServerMessage("Vous avez déjà retiré tout ce qui était possible de ce parchemin. Essayez d'en trouver une autre version pour en apprendre davantage", ColorConstants.Orange);
-          return;
-        }
-        
-        LearnableSpell learnable = player.learnableSpells[spellId];
-
-        if (!learnable.canLearn) 
-        {
-          learnable.canLearn = true;
-          oPC.ControllingPlayer.SendServerMessage($"L'étude des informations supplémentaires contenues dans ce parchemin vous permettra d'accéder à un niveau de maîtrise supérieur du sort {StringUtils.ToWhitecolor(learnable.name)}.", new Color(32, 255, 32));
-        }
-        else
-        {
-          learnable.acquiredPoints += learnable.currentLevel > 1 ? (learnable.pointsToNextLevel - (5000 * (learnable.currentLevel - 1) * learnable.multiplier)) / 5
-            : 1000 * learnable.multiplier;
-          oPC.ControllingPlayer.SendServerMessage($"Les informations supplémentaires contenues dans ce parchemin vous permettent d'affiner votre connaissance du sort {StringUtils.ToWhitecolor(learnable.name)}. Votre étude sera plus rapide.", new Color(32, 255, 32));
-        }
-      }
-      else
-      {
-        player.learnableSpells.Add(spellId, new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[spellId]));
-        oPC.ControllingPlayer.SendServerMessage($"Le sort a été ajouté à votre liste d'apprentissage et est désormais disponible pour étude.");
-
-        LogUtils.LogMessage($"SPELL SYSTEM - Player : {oPC.Name} vient d'ajouter {NwSpell.FromSpellId(spellId).Name.ToString()} ({spellId}) à sa liste d'apprentissage", LogUtils.LogType.Learnables);
-      }
-
-      if (player.TryGetOpenedWindow("learnables", out Player.PlayerWindow learnableWindow))
-      {
-        Player.LearnableWindow window = (Player.LearnableWindow)learnableWindow;
-        window.LoadLearnableList(window.currentList);
-      }
-
-      if (oScroll.StackSize > 1)
-        oScroll.StackSize -= 1;
-      else
-        oScroll.Destroy();
-    }
-
     public static void HandleOnClientLevelUp(OnClientLevelUpBegin onLevelUp)
     {
       onLevelUp.PreventLevelUp = true;

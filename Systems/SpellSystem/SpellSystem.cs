@@ -49,6 +49,8 @@ namespace NWN.Systems
       {
         ClassType castClass;
 
+        int wizardCastLevel = spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Wizard)) < 255 ? spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Wizard)) : -1;
+        int sorcererCastLevel = spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Sorcerer)) < 255 ? spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Sorcerer)) : -1;
         int clericCastLevel = spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Cleric)) < 255 ? spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Cleric)) : -1;
         int druidCastLevel = spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Druid)) < 255 ? spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Druid)) : -1;
         int paladinCastLevel = spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Paladin)) < 255 ? spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Paladin)) : -1;
@@ -57,6 +59,8 @@ namespace NWN.Systems
 
         Dictionary<ClassType, int> classSorter = new()
         {
+          { ClassType.Wizard, wizardCastLevel },
+          { ClassType.Sorcerer, sorcererCastLevel },
           { ClassType.Cleric, clericCastLevel },
           { ClassType.Druid, druidCastLevel },
           { ClassType.Paladin, paladinCastLevel },
@@ -64,17 +68,24 @@ namespace NWN.Systems
           { ClassType.Bard, bardCastLevel },
         };
 
-        var sortedClass = classSorter.OrderByDescending(c => c.Value);
-        castClass = sortedClass.ElementAt(0).Value > -1 ? sortedClass.ElementAt(0).Key : (ClassType)43;
+        classSorter = classSorter.Where(c => c.Value > -1).OrderByDescending(c => c.Value).ToDictionary(c => c.Key, c => c.Value);
 
-        float level = spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Wizard));
+        if (!classSorter.Any())
+        {
+          continue;
+        }
+
+        var sortedClass = classSorter.ElementAt(0);
+        castClass = sortedClass.Key;
+
+        float level = sortedClass.Value;
         int multiplier = level < 1 ? 1 : (int)level + 1;
 
         SkillSystem.learnableDictionary.Add(spell.Id, new LearnableSpell(spell.Id, 
           spell.Name.Override is null ? spell.Name.ToString() : spell.Name.Override, 
           spell.Description.Override is null ? spell.Description.ToString() : spell.Name.Override, spell.IconResRef, multiplier,
           castClass == ClassType.Druid || castClass == ClassType.Cleric || castClass == ClassType.Ranger ? Ability.Wisdom : Ability.Intelligence,
-          Ability.Charisma, classSorter.Values.Where(c => c > -1).ToList()));
+          Ability.Charisma, classSorter.Keys.ToList()));
       }
     }
     private static Effect CreateCustomEffect(string tag, Func<CallInfo, ScriptHandleResult> onApply, Func<CallInfo, ScriptHandleResult> onRemoved, EffectIcon icon = EffectIcon.Invalid, Func<CallInfo, ScriptHandleResult> onInterval = null, TimeSpan interval = default, EffectSubType subType = EffectSubType.Supernatural, string effectData = "")

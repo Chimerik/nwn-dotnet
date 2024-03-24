@@ -508,28 +508,32 @@ namespace NWN.Systems
                       return;
                     }
 
-                    /*player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Clear();
+                    player.learnableSpells.Clear();
 
-                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellType(Spell.RayOfFrost));
-                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellType(Spell.Daze));
-                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellType(Spell.ElectricJolt));
-                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellType(Spell.Flare));
-                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellType(Spell.Light));
-                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellType(Spell.Resistance));
-                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellType(Spell.Virtue));
-                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellType(Spell.AcidSplash));
-                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellType(Spell.TrueStrike));
-                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellId(CustomSpell.BoneChill));
-                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellId(CustomSpell.FireBolt));
-                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellId(CustomSpell.MageHand));
-                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellId(CustomSpell.PoisonSpray));
-                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellId(CustomSpell.BladeWard));
-                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellId(CustomSpell.Friends));
-                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellId(CustomSpell.Prestidigitation));
+                    foreach (var playerClass in player.oid.LoginCreature.Classes)
+                      foreach (var knownSpell in playerClass.KnownSpells)
+                        knownSpell.Clear();
 
-                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).SetRemainingSpellSlots(0, 255);*/
+                    foreach (LearnableSpell learnable in SkillSystem.learnableDictionary.Values.Where(l => l is LearnableSpell).Cast<LearnableSpell>())
+                    {
+                      if (!player.learnableSpells.TryGetValue(learnable.id, out var spell))
+                      {
+                        List<int> classAvailability = new();
+                        foreach (var learnClass in learnable.availableToClasses)
+                          classAvailability.Add((int)learnClass);
 
-                    break;
+                        player.learnableSpells.Add(learnable.id, new LearnableSpell(learnable, classAvailability));
+                        player.learnableSpells[learnable.id].LevelUp(player);
+                      }
+                      else if (spell.currentLevel < 1)
+                      {
+                        spell.LevelUp(player);
+                      }
+                    }
+
+                      //player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).SetRemainingSpellSlots(0, 255);*/
+
+                      break;
 
                   case "shortRest":
 
@@ -566,7 +570,6 @@ namespace NWN.Systems
 
                     break;
 
-
                   case "longRest": 
                     
                     player.oid.LoginCreature.ForceRest();
@@ -600,6 +603,9 @@ namespace NWN.Systems
                       if (player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.WildMagicMagieGalvanisanteRecuperation)))
                         player.oid.LoginCreature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WildMagicMagieGalvanisanteRecuperation), (byte)NativeUtils.GetCreatureProficiencyBonus(player.oid.LoginCreature));
                     }
+
+                    player.oid.LoginCreature.ApplyEffect(EffectDuration.Temporary, EffectSystem.CanPrepareSpells, NwTimeSpan.FromHours(1));
+
                     break;
                 }
                 break;
