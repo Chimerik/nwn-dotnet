@@ -32,7 +32,7 @@ namespace NWN.Systems
 
       int nbDice = SpellUtils.GetSpellDamageDiceNumber(caster, onSpellCast.Spell);
 
-      switch(SpellUtils.GetSpellAttackRoll(onSpellCast.TargetObject, caster, onSpellCast.Spell, Ability.Wisdom))
+      switch(SpellUtils.GetSpellAttackRoll(onSpellCast.TargetObject, caster, onSpellCast.Spell, onSpellCast.SpellCastClass.SpellCastingAbility))
       {
         case TouchAttackResult.CriticalHit: SpellUtils.GetCriticalSpellDamageDiceNumber(caster, spellEntry, nbDice); ; break;
         case TouchAttackResult.Hit: break;

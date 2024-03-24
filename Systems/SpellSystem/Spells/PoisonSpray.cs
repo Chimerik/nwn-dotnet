@@ -12,7 +12,7 @@ namespace NWN.Systems
 
       SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell.SpellType);
       SpellConfig.SavingThrowFeedback feedback = new();
-      int spellDC = SpellUtils.GetCasterSpellDC(oCaster, onSpellCast.Spell);
+      int spellDC = SpellUtils.GetCasterSpellDC(oCaster, onSpellCast.SpellCastClass.SpellCastingAbility);
 
       target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPoisonS));
 

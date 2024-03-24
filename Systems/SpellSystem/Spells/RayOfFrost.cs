@@ -17,10 +17,7 @@ namespace NWN.Systems
 
       int nbDice = SpellUtils.GetSpellDamageDiceNumber(oCaster, onSpellCast.Spell);
 
-      Ability spellCastingAbility = oCaster.GetAbilityModifier(Ability.Intelligence) > oCaster.GetAbilityModifier(Ability.Charisma)
-            ? Ability.Intelligence : Ability.Charisma;
-
-      switch(SpellUtils.GetSpellAttackRoll(onSpellCast.TargetObject, oCaster, onSpellCast.Spell, spellCastingAbility))
+      switch(SpellUtils.GetSpellAttackRoll(onSpellCast.TargetObject, oCaster, onSpellCast.Spell, onSpellCast.SpellCastClass.SpellCastingAbility))
       {
         case TouchAttackResult.CriticalHit: SpellUtils.GetCriticalSpellDamageDiceNumber(oCaster, spellEntry, nbDice); break;
         case TouchAttackResult.Hit: break;

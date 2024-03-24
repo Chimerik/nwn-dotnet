@@ -9,10 +9,10 @@ namespace NWN.Systems
     {
       if (onSpellCast.Caster is not NwCreature oCaster)
         return;
-
+      
       SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell.SpellType);
       SpellConfig.SavingThrowFeedback feedback = new();
-      int spellDC = SpellUtils.GetCasterSpellDC(oCaster, onSpellCast.Spell);
+      int spellDC = SpellUtils.GetCasterSpellDC(oCaster, onSpellCast.SpellCastClass.SpellCastingAbility);
 
       foreach (NwCreature target in onSpellCast.TargetLocation.GetObjectsInShapeByType<NwCreature>(Shape.SpellCone, 5, false, oCaster.Location.Position))
       {

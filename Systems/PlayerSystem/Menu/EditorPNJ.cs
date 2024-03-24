@@ -196,15 +196,15 @@ namespace NWN.Systems
                   {
                     case Tab.Feat:
 
-                      if (!player.windows.ContainsKey("featDescription")) player.windows.Add("featDescription", new FeatDescriptionWindow(player, availableFeatSearcher[nuiEvent.ArrayIndex]));
-                      else ((FeatDescriptionWindow)player.windows["featDescription"]).CreateWindow(availableFeatSearcher[nuiEvent.ArrayIndex]);
+                      if (!player.windows.TryGetValue("featDescription", out var feat)) player.windows.Add("featDescription", new FeatDescriptionWindow(player, availableFeatSearcher[nuiEvent.ArrayIndex]));
+                      else ((FeatDescriptionWindow)feat).CreateWindow(availableFeatSearcher[nuiEvent.ArrayIndex]);
 
                       break;
 
                     case Tab.Spell:
 
-                      if (!player.windows.ContainsKey("spellDescription")) player.windows.Add("spellDescription", new SpellDescriptionWindow(player, availableSpellSearcher[nuiEvent.ArrayIndex]));
-                      else ((SpellDescriptionWindow)player.windows["spellDescription"]).CreateWindow(availableSpellSearcher[nuiEvent.ArrayIndex]);
+                      if (!player.windows.TryGetValue("spellDescription", out var spell)) player.windows.Add("spellDescription", new SpellDescriptionWindow(player, availableSpellSearcher[nuiEvent.ArrayIndex]));
+                      else ((SpellDescriptionWindow)spell).CreateWindow(availableSpellSearcher[nuiEvent.ArrayIndex]);
 
                       break;
                   }

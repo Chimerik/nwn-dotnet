@@ -4,9 +4,10 @@ namespace NWN.Systems
 {
   public static partial class SpellUtils
   {
-    public static int GetCasterSpellDC(NwCreature caster, NwSpell spell)
+    public static int GetCasterSpellDC(NwCreature caster, Ability ability)
     {
-      return SpellConfig.BaseSpellDC + GetCasterSpellAbilityModifier(caster, spell) + NativeUtils.GetCreatureProficiencyBonus(caster);
+      return SpellConfig.BaseSpellDC + caster.GetAbilityModifier(ability) + NativeUtils.GetCreatureProficiencyBonus(caster);
+      //GetCasterSpellAbilityModifier(caster, spell)
     }
   }
 }

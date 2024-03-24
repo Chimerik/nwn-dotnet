@@ -4,7 +4,6 @@ using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
 using NWN.Core.NWNX;
-using NWN.Native.API;
 using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems

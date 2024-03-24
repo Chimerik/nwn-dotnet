@@ -167,8 +167,8 @@ namespace NWN.Systems
 
                   case "sit":
 
-                    if (!player.windows.ContainsKey("sitAnywhere")) player.windows.Add("sitAnywhere", new SitAnywhereWindow(player));
-                    else ((SitAnywhereWindow)player.windows["sitAnywhere"]).CreateWindow();
+                    if (!player.windows.TryGetValue("sitAnywhere", out var value)) player.windows.Add("sitAnywhere", new SitAnywhereWindow(player));
+                    else ((SitAnywhereWindow)value).CreateWindow();
 
                     break;
 
@@ -361,8 +361,8 @@ namespace NWN.Systems
 
                   case "creaturePalette":
 
-                    if (!player.windows.ContainsKey("paletteCreature")) player.windows.Add("paletteCreature", new PaletteCreatureWindow(player));
-                    else ((PaletteCreatureWindow)player.windows["paletteCreature"]).CreateWindow();
+                    if (!player.windows.TryGetValue("paletteCreature", out var paletteCreature)) player.windows.Add("paletteCreature", new PaletteCreatureWindow(player));
+                    else ((PaletteCreatureWindow)paletteCreature).CreateWindow();
 
                     CloseWindow();
 
@@ -370,8 +370,8 @@ namespace NWN.Systems
 
                   case "itemPalette":
 
-                    if (!player.windows.ContainsKey("paletteItem")) player.windows.Add("paletteItem", new PaletteItemWindow(player));
-                    else ((PaletteItemWindow)player.windows["paletteItem"]).CreateWindow();
+                    if (!player.windows.TryGetValue("paletteItem", out var paletteItem)) player.windows.Add("paletteItem", new PaletteItemWindow(player));
+                    else ((PaletteItemWindow)paletteItem).CreateWindow();
 
                     CloseWindow();
 
@@ -379,8 +379,8 @@ namespace NWN.Systems
 
                   case "placeablePalette":
 
-                    if (!player.windows.ContainsKey("palettePlaceable")) player.windows.Add("palettePlaceable", new PalettePlaceableWindow(player));
-                    else ((PalettePlaceableWindow)player.windows["palettePlaceable"]).CreateWindow();
+                    if (!player.windows.TryGetValue("palettePlaceable", out var palettePlc)) player.windows.Add("palettePlaceable", new PalettePlaceableWindow(player));
+                    else ((PalettePlaceableWindow)palettePlc).CreateWindow();
 
                     CloseWindow();
 
@@ -388,8 +388,8 @@ namespace NWN.Systems
 
                   case "placeableManager":
 
-                    if (!player.windows.ContainsKey("placeableManager")) player.windows.Add("placeableManager", new PlaceableManagerWindow(player));
-                    else ((PlaceableManagerWindow)player.windows["placeableManager"]).CreateWindow();
+                    if (!player.windows.TryGetValue("placeableManager", out var placeable)) player.windows.Add("placeableManager", new PlaceableManagerWindow(player));
+                    else ((PlaceableManagerWindow)placeable).CreateWindow();
 
                     CloseWindow();
 
@@ -397,8 +397,8 @@ namespace NWN.Systems
 
                   case "learnables":
 
-                    if (!player.windows.ContainsKey("learnables")) player.windows.Add("learnables", new LearnableWindow(player));
-                    else ((LearnableWindow)player.windows["learnables"]).CreateWindow();
+                    if (!player.windows.TryGetValue("learnables", out var learnables)) player.windows.Add("learnables", new LearnableWindow(player));
+                    else ((LearnableWindow)learnables).CreateWindow();
 
                     CloseWindow();
 
@@ -408,8 +408,8 @@ namespace NWN.Systems
 
                     if (player.craftJob != null)
                     {
-                      if (!player.windows.ContainsKey("activeCraftJob")) player.windows.Add("activeCraftJob", new ActiveCraftJobWindow(player));
-                      else ((ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
+                      if (!player.windows.TryGetValue("activeCraftJob", out var job)) player.windows.Add("activeCraftJob", new ActiveCraftJobWindow(player));
+                      else ((ActiveCraftJobWindow)job).CreateWindow();
 
                       CloseWindow();
                     }
@@ -418,8 +418,8 @@ namespace NWN.Systems
 
                   case "language":
 
-                    if (!player.windows.ContainsKey("languageSelection")) player.windows.Add("languageSelection", new LanguageSelectionWindow(player));
-                    else ((LanguageSelectionWindow)player.windows["languageSelection"]).CreateWindow();
+                    if (!player.windows.TryGetValue("languageSelection", out var language)) player.windows.Add("languageSelection", new LanguageSelectionWindow(player));
+                    else ((LanguageSelectionWindow)language).CreateWindow();
 
                     CloseWindow();
 
@@ -439,8 +439,8 @@ namespace NWN.Systems
 
                   case "areaMusicEditor":
 
-                    if (!player.windows.ContainsKey("areaMusicEditor")) player.windows.Add("areaMusicEditor", new AreaMusicEditorWindow(player, player.oid.ControlledCreature.Area));
-                    else ((AreaMusicEditorWindow)player.windows["areaMusicEditor"]).CreateWindow(player.oid.ControlledCreature.Area);
+                    if (!player.windows.TryGetValue("areaMusicEditor", out var areaMusic)) player.windows.Add("areaMusicEditor", new AreaMusicEditorWindow(player, player.oid.ControlledCreature.Area));
+                    else ((AreaMusicEditorWindow)areaMusic).CreateWindow(player.oid.ControlledCreature.Area);
 
                     CloseWindow();
 
@@ -448,8 +448,8 @@ namespace NWN.Systems
 
                   case "areaLoadScreenEditor":
 
-                    if (!player.windows.ContainsKey("areaLoadScreenEditor")) player.windows.Add("areaLoadScreenEditor", new AreaLoadScreenEditorWindow(player, player.oid.ControlledCreature.Area));
-                    else ((AreaLoadScreenEditorWindow)player.windows["areaLoadScreenEditor"]).CreateWindow(player.oid.ControlledCreature.Area);
+                    if (!player.windows.TryGetValue("areaLoadScreenEditor", out var loadScreen)) player.windows.Add("areaLoadScreenEditor", new AreaLoadScreenEditorWindow(player, player.oid.ControlledCreature.Area));
+                    else ((AreaLoadScreenEditorWindow)loadScreen).CreateWindow(player.oid.ControlledCreature.Area);
 
                     CloseWindow();
 
@@ -457,8 +457,8 @@ namespace NWN.Systems
 
                   case "cooldownPosition":
 
-                    if (!player.windows.ContainsKey("cooldownPosition")) player.windows.Add("cooldownPosition", new CooldownPositionSetter(player));
-                    else ((CooldownPositionSetter)player.windows["cooldownPosition"]).CreateWindow();
+                    if (!player.windows.TryGetValue("cooldownPosition", out var cooldown)) player.windows.Add("cooldownPosition", new CooldownPositionSetter(player));
+                    else ((CooldownPositionSetter)cooldown).CreateWindow();
 
                     CloseWindow();
 
@@ -466,14 +466,70 @@ namespace NWN.Systems
 
                   case "lootEditor":
 
-                    if (!player.windows.ContainsKey("lootEditor")) player.windows.Add("lootEditor", new LootEditorWindow(player));
-                    else ((LootEditorWindow)player.windows["lootEditor"]).CreateWindow();
+                    if (!player.windows.TryGetValue("lootEditor", out var lootEditor)) player.windows.Add("lootEditor", new LootEditorWindow(player));
+                    else ((LootEditorWindow)lootEditor).CreateWindow();
 
                     CloseWindow();
 
                     break;
 
                   case "sacrificeHP": NWScript.AssignCommand(player.oid.ControlledCreature, () => player.oid.ControlledCreature.ApplyEffect(EffectDuration.Instant, Effect.Damage((int)(player.oid.ControlledCreature.MaxHP * 0.2)))); break;
+
+                  case "spellBook":
+
+                    if (!player.windows.TryGetValue("spellBook", out var spellBook)) player.windows.Add("spellBook", new SpellBookWindow(player));
+                    else ((SpellBookWindow)spellBook).CreateWindow();
+
+                    break;
+
+                  case "addClass":
+
+                    if (!player.oid.LoginCreature.Classes.Any(c => c.Class.ClassType == ClassType.Wizard))
+                    {
+                      player.oid.LoginCreature.ForceLevelUp(NwClass.FromClassType(ClassType.Wizard).Id, 1);
+                      return;
+                    }
+
+                    if (!player.oid.LoginCreature.Classes.Any(c => c.Class.ClassType == ClassType.Sorcerer))
+                    {
+                      player.oid.LoginCreature.ForceLevelUp(NwClass.FromClassType(ClassType.Sorcerer).Id, 1);
+                      return;
+                    }
+
+                    if (!player.oid.LoginCreature.Classes.Any(c => c.Class.ClassType == ClassType.Bard))
+                    {
+                      player.oid.LoginCreature.ForceLevelUp(NwClass.FromClassType(ClassType.Bard).Id, 1);
+                      return;
+                    }
+
+                    if (!player.oid.LoginCreature.Classes.Any(c => c.Class.ClassType == ClassType.Cleric))
+                    {
+                      player.oid.LoginCreature.ForceLevelUp(NwClass.FromClassType(ClassType.Cleric).Id, 1);
+                      return;
+                    }
+
+                    /*player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Clear();
+
+                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellType(Spell.RayOfFrost));
+                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellType(Spell.Daze));
+                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellType(Spell.ElectricJolt));
+                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellType(Spell.Flare));
+                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellType(Spell.Light));
+                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellType(Spell.Resistance));
+                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellType(Spell.Virtue));
+                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellType(Spell.AcidSplash));
+                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellType(Spell.TrueStrike));
+                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellId(CustomSpell.BoneChill));
+                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellId(CustomSpell.FireBolt));
+                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellId(CustomSpell.MageHand));
+                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellId(CustomSpell.PoisonSpray));
+                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellId(CustomSpell.BladeWard));
+                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellId(CustomSpell.Friends));
+                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).KnownSpells[0].Add(NwSpell.FromSpellId(CustomSpell.Prestidigitation));
+
+                    player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).SetRemainingSpellSlots(0, 255);*/
+
+                    break;
 
                   case "shortRest":
 

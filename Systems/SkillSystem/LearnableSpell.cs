@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using Anvil.API;
@@ -8,12 +9,12 @@ namespace NWN.Systems
   public class LearnableSpell : Learnable
   {
     public bool canLearn { get; set; }
+    public List<int> classes { get; set; }
     // Dans le cas des Spell, multiplier = spell Level - 1
 
-    public LearnableSpell(int id, string name, string description, string icon, int multiplier, Ability primaryAbility, Ability secondaryAbility, int maxLevel = 15) : base(id, name, description, icon, maxLevel, multiplier, primaryAbility, secondaryAbility)
+    public LearnableSpell(int id, string name, string description, string icon, int multiplier, Ability primaryAbility, Ability secondaryAbility, List<int> classes, int maxLevel = 1) : base(id, name, description, icon, maxLevel, multiplier, primaryAbility, secondaryAbility)
     {
-     
-
+      this.classes = classes;
     }
     public LearnableSpell(LearnableSpell learnableBase) : base(learnableBase)
     {

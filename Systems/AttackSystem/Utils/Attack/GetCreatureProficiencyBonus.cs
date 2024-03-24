@@ -10,7 +10,7 @@ namespace NWN.Systems
       if (creature.m_bPlayerCharacter.ToBool())
       { 
         byte level = creature.m_pStats.GetLevel();
-        return level > 16 ? 6 : level > 12 ? 5 : level > 18 ? 4 : level > 4 ? 3 : 2;
+        return level > 16 ? 6 : level > 12 ? 5 : level > 8 ? 4 : level > 4 ? 3 : 2;
       }
       else
       {

@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using NWN.Systems.Arena;
 using static NWN.Systems.PlayerSystem;
+using System.Security.Claims;
 
 namespace NWN.Systems
 {
@@ -69,7 +70,11 @@ namespace NWN.Systems
         float level = spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Wizard));
         int multiplier = level < 1 ? 1 : (int)level + 1;
 
-        SkillSystem.learnableDictionary.Add(spell.Id, new LearnableSpell(spell.Id, spell.Name.Override is null ? spell.Name.ToString() : spell.Name.Override, spell.Description.Override is null ? spell.Description.ToString() : spell.Name.Override, spell.IconResRef, multiplier, castClass == ClassType.Druid || castClass == ClassType.Cleric || castClass == ClassType.Ranger ? Ability.Wisdom : Ability.Intelligence, Ability.Charisma));
+        SkillSystem.learnableDictionary.Add(spell.Id, new LearnableSpell(spell.Id, 
+          spell.Name.Override is null ? spell.Name.ToString() : spell.Name.Override, 
+          spell.Description.Override is null ? spell.Description.ToString() : spell.Name.Override, spell.IconResRef, multiplier,
+          castClass == ClassType.Druid || castClass == ClassType.Cleric || castClass == ClassType.Ranger ? Ability.Wisdom : Ability.Intelligence,
+          Ability.Charisma, classSorter.Values.Where(c => c > -1).ToList()));
       }
     }
     private static Effect CreateCustomEffect(string tag, Func<CallInfo, ScriptHandleResult> onApply, Func<CallInfo, ScriptHandleResult> onRemoved, EffectIcon icon = EffectIcon.Invalid, Func<CallInfo, ScriptHandleResult> onInterval = null, TimeSpan interval = default, EffectSubType subType = EffectSubType.Supernatural, string effectData = "")
@@ -1082,6 +1087,19 @@ namespace NWN.Systems
       }
 
       areaSystem.AreaDestroyer(onExit.Area);
+    }
+    [ScriptHandler("on_cantrip_cast")]
+    private void OnCantripCastRefundUse(CallInfo callInfo)
+    {
+      int classPosition = int.Parse(EventsPlugin.GetEventData("CLASS"));
+
+      if (callInfo.ObjectSelf is not NwCreature caster
+        || (MetaMagic)int.Parse(EventsPlugin.GetEventData("METAMAGIC")) != MetaMagic.None
+        || classPosition == 254 //spell like ability
+        || NwSpell.FromSpellId(int.Parse(EventsPlugin.GetEventData("SPELL_ID"))).GetSpellLevelForClass(caster.Classes[classPosition].Class) > 0)
+        return;
+
+      EventsPlugin.SkipEvent();
     }
   }
 }

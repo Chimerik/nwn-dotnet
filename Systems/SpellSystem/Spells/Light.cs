@@ -28,7 +28,7 @@ namespace NWN.Systems
         if (targetCreature.IsReactionTypeHostile(oCaster))
         {
           SpellConfig.SavingThrowFeedback feedback = new();
-          int spellDC = SpellUtils.GetCasterSpellDC(oCaster, onSpellCast.Spell);
+          int spellDC = SpellUtils.GetCasterSpellDC(oCaster, onSpellCast.SpellCastClass.SpellCastingAbility);
           int advantage = CreatureUtils.GetCreatureAbilityAdvantage(targetCreature, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid, oCaster);
           
           if (advantage < -900)

@@ -68,7 +68,7 @@ namespace NWN.Systems
         }
         public void CreateWindow()
         {
-          NuiRect savedRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(player.guiWidth * 0.2f, player.guiHeight * 0.05f, player.guiScaledWidth * 0.4f, player.guiScaledHeight * 0.9f);
+          NuiRect savedRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(player.guiWidth * 0.2f, player.guiHeight * 0.05f, player.guiScaledWidth * 0.4f, player.guiScaledHeight * 0.9f);
 
           window = new NuiWindow(rootColumn, "Votre reflet - Choisissez votre portrait")
           {

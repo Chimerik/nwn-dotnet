@@ -14,7 +14,7 @@ namespace NWN.Systems
       SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell.SpellType);
       SpellConfig.SavingThrowFeedback feedback = new();
       List<NwGameObject> targetList = new();
-      int spellDC = SpellUtils.GetCasterSpellDC(oCaster, onSpellCast.Spell);
+      int spellDC = SpellUtils.GetCasterSpellDC(oCaster, onSpellCast.SpellCastClass.SpellCastingAbility);
       
       onSpellCast.TargetLocation.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpDustExplosion));
 

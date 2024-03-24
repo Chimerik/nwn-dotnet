@@ -416,6 +416,7 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_CALENDAR_DAWN", "apply_drow_sensi");
 
       EventsPlugin.SubscribeEvent("NWNX_ON_TRAP_SET_AFTER", "on_set_trap");
+      EventsPlugin.SubscribeEvent("NWNX_ON_DECREMENT_SPELL_COUNT_BEFORE", "on_cantrip_cast");
 
       // ImprovedTwoWeaponFighting donne une attaque supplémentaire avec l'off-hand pour une pénalité de -5 BA. A voir dans le cas de Thief qui dual fight avec 2 actions bonus
       //EventsPlugin.AddIDToWhitelist("NWNX_ON_HAS_FEAT", (int)Feat.ImprovedTwoWeaponFighting);
@@ -423,6 +424,7 @@ namespace NWN.Systems
       NwModule.Instance.OnAcquireItem += ItemSystem.OnAcquireCheckFinesseProperty;
       NwModule.Instance.OnPlayerGuiEvent += PlayerSystem.HandleGuiEvents;
       NwModule.Instance.OnHeartbeat += CreatureUtils.OnHeartbeatRefreshActions;
+      
       //NwModule.Instance.OnPlayerRest += PlayerSystem.OnRest;
       //NwModule.Instance.OnCreatureAttack += AttackSystem.HandleAttackEvent;
       //NwModule.Instance.OnCreatureDamage += AttackSystem.HandleDamageEvent;

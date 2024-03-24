@@ -32,7 +32,7 @@ namespace NWN.Systems
 
       if (temporaryHP > highestHPList.Max())
       {
-        target.ApplyEffect(EffectDuration.Temporary, Effect.TemporaryHitpoints(temporaryHP), NwTimeSpan.FromRounds(1));
+        target.ApplyEffect(EffectDuration.Permanent, Effect.TemporaryHitpoints(temporaryHP));
         LogUtils.LogMessage($"{caster.Name} ralliement sur {target.Name} : 1d{superiorityDice} = {temporaryHP} PV temporaires", LogUtils.LogType.Combat);
       }
       else

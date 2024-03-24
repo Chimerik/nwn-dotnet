@@ -15,8 +15,7 @@ namespace NWN.Systems
         if (!criticalHit)
         {
           int proficiencyBonus = NativeUtils.GetCreatureProficiencyBonus(caster);
-          int attackModifier = caster.GetAttackBonus(false, true, false, false) + proficiencyBonus
-          - caster.GetAbilityModifier(Ability.Dexterity);
+          int attackModifier = proficiencyBonus +  caster.GetAbilityModifier(spellCastingAbility);
 
           attackModifier += caster.GetAbilityModifier(spellCastingAbility);
 
