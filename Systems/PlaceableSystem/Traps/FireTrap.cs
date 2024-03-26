@@ -12,6 +12,8 @@ namespace NWN.Systems
     {
       foreach (NwCreature creature in trap.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, entry.aoeSize, false))
       {
+        creature.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(entry.damageVFX));
+
         Dictionary<string, bool> disadvantageDictionary = new()
         {
           { EffectSystem.ShieldArmorDisadvantageEffectTag, false } ,
@@ -49,24 +51,15 @@ namespace NWN.Systems
 
         LogUtils.LogMessage($"Dégâts initiaux : {damage}", LogUtils.LogType.Combat);
 
+        damage = SpellUtils.GetEsquiveTotaleDamageReduction(creature, damage, saveFailed);
         damage = ItemUtils.GetShieldMasterReducedDamage(creature, damage, saveFailed);
-
-        creature.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(entry.damageVFX));
+        damage = TrapUtils.GetKeenSenseDamageReduction(creature, damage);
 
         if (!saveFailed)
           damage /= 2;
 
-        if (creature.KnowsFeat(Feat.KeenSense))
-        {
-          damage /= 2;
-          creature?.LoginPlayer.DisplayFloatingTextStringOnCreature(creature, "Expert en donjons".ColorString(StringUtils.gold));
-          LogUtils.LogMessage($"Expert en donjons : dégâts {damage}", LogUtils.LogType.Combat);
-        }
+        TrapUtils.SendSavingThrowFeedbackMessage(creature, feedback.saveRoll, feedback.proficiencyBonus, advantage, entry.baseDC, totalSave, saveFailed, Ability.Dexterity);
 
-        if (creature.IsLoginPlayerCharacter)
-          TrapUtils.SendSavingThrowFeedbackMessage(creature, feedback.saveRoll, feedback.proficiencyBonus, advantage, entry.baseDC, totalSave, saveFailed, Ability.Dexterity);
-
-        creature.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(entry.damageVFX));
         NWScript.AssignCommand(trap, () => creature.ApplyEffect(EffectDuration.Instant, Effect.Damage(damage, entry.damageType)));
 
         LogUtils.LogMessage($"Dégâts finaux : {damage}", LogUtils.LogType.Combat);

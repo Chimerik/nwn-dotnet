@@ -100,7 +100,7 @@ namespace NWN.Systems
       FeatUtils.DecrementTirArcanique(caster);
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Tir Chercheur", StringUtils.gold, true);
 
-      LogUtils.LogMessage($"Tir Chercheur : dégâts finaux {damage} (perçant)", LogUtils.LogType.Combat);
+      LogUtils.LogMessage($"Tir Chercheur : dégâts finaux {damage} (perçant) {forceDamage} (force)", LogUtils.LogType.Combat);
       LogUtils.LogMessage("-------------------------------------------------", LogUtils.LogType.Combat);
     }
   }

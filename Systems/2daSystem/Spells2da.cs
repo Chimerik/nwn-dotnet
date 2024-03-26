@@ -41,7 +41,7 @@ namespace NWN.Systems
 
       googleDocId = entry.GetString("Description");
 
-      if(!string.IsNullOrEmpty(googleDocId))
+      if (!string.IsNullOrEmpty(googleDocId))
         tlkEntry = entry.GetStrRef("SpellDesc").GetValueOrDefault(StrRef.FromCustomTlk(0));
     }
   }

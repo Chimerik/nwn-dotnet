@@ -144,6 +144,13 @@ namespace NWN.Systems
                     case CustomSkill.FighterWarMaster: Fighter.HandleWarMasterLevelUp(player, 3); break;
                     case CustomSkill.FighterChampion: Fighter.HandleChampionLevelUp(player, 3); break;
                     case CustomSkill.BarbarianBerseker: Barbarian.HandleBersekerLevelUp(player, 3); break;
+                    case CustomSkill.BarbarianTotem: Barbarian.HandleTotemLevelUp(player, 3); break;
+                    case CustomSkill.BarbarianWildMagic: Barbarian.HandleWildMagicLevelUp(player, 3); break;
+                    case CustomSkill.RogueThief: Rogue.HandleThiefLevelUp(player, 3); break;
+                    case CustomSkill.RogueConspirateur: Rogue.HandleConspirateurLevelUp(player, 3); break;
+                    case CustomSkill.RogueAssassin: Rogue.HandleAssassinLevelUp(player, 3); break;
+                    case CustomSkill.MonkPaume: Monk.HandlePaumeLevelUp(player, 3); break;
+                    case CustomSkill.MonkOmbre: Monk.HandleOmbreLevelUp(player, 3); break;
                   }
 
                   player.learnableSkills.Remove(player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value);

@@ -31,7 +31,7 @@ namespace NWN.Systems
             if (Feats2da.featTable[feat.Id].skillCategory == SkillSystem.Category.Manoeuvre)
             {
               var manoeuvre = creature.Feats.FirstOrDefault(f => !f.TalentMaxCR.ToBool() && Feats2da.featTable[f.Id].skillCategory == SkillSystem.Category.Manoeuvre);
-              
+
               if (manoeuvre != null) 
               {
                 creature.SetFeatRemainingUses(feat, creature.GetFeatRemainingUses(manoeuvre));

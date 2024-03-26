@@ -66,6 +66,9 @@ namespace NWN.Systems
           if (!player.subscriptions.Any(s => s.type == Utils.SubscriptionType.MailDistantAccess))
             myCommandList.Remove("mailBox");
 
+          if(!player.oid.LoginCreature.Classes.Any(c => c.Class.IsSpellCaster))
+            myCommandList.Remove("spellBook");
+
           NuiRect windowRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 410, 500);
 
           window = new NuiWindow(rootColumn, "Menu principal")
@@ -484,7 +487,7 @@ namespace NWN.Systems
 
                   case "addClass":
 
-                    if (!player.oid.LoginCreature.Classes.Any(c => c.Class.ClassType == ClassType.Wizard))
+                    /*if (!player.oid.LoginCreature.Classes.Any(c => c.Class.ClassType == ClassType.Wizard))
                     {
                       player.oid.LoginCreature.ForceLevelUp(NwClass.FromClassType(ClassType.Wizard).Id, 1);
                       return;
@@ -529,11 +532,9 @@ namespace NWN.Systems
                       {
                         spell.LevelUp(player);
                       }
-                    }
+                    }*/
 
-                      //player.oid.LoginCreature.GetClassInfo(NwClass.FromClassType(ClassType.Wizard)).SetRemainingSpellSlots(0, 255);*/
-
-                      break;
+                    break;
 
                   case "shortRest":
 
@@ -605,6 +606,18 @@ namespace NWN.Systems
                     }
 
                     player.oid.LoginCreature.ApplyEffect(EffectDuration.Temporary, EffectSystem.CanPrepareSpells, NwTimeSpan.FromHours(1));
+
+                    foreach (var classInfo in player.oid.LoginCreature.Classes.Where(c => c.Class.IsSpellCaster))
+                    {
+                      var spellGainTable = classInfo.Class.SpellGainTable[classInfo.Level - 1];
+                      byte i = 0;
+
+                      foreach(var spellGain in spellGainTable)
+                      {
+                        classInfo.SetRemainingSpellSlots(i, spellGain);
+                        i++;
+                      }
+                    }
 
                     break;
                 }

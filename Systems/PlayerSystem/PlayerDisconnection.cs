@@ -12,11 +12,11 @@ namespace NWN.Systems
   {
     private void HandlePlayerLeave(OnClientDisconnect onPCDisconnect)
     {
-      if (onPCDisconnect.Player == null || onPCDisconnect.Player.LoginCreature == null)
+      if (onPCDisconnect.Player is null || onPCDisconnect.Player.LoginCreature is null)
         return;
 
       LogUtils.LogMessage($"{onPCDisconnect.Player.PlayerName} vient de se déconnecter {onPCDisconnect.Player.LoginCreature.Name} ({NwModule.Instance.PlayerCount - 1} joueur(s))", LogUtils.LogType.PlayerConnections);
-
+      
       if (!Players.TryGetValue(onPCDisconnect.Player.LoginCreature, out Player player))
         return;
 
@@ -25,7 +25,7 @@ namespace NWN.Systems
       if (player.menu.isOpen)
         player.menu.Close();
 
-      if(player.serializedQuickbar != null)
+      if(player.serializedQuickbar is not null)
         player.UnloadMenuQuickbar();
 
       onPCDisconnect.Player.LoginCreature.VisualTransform.Translation = new Vector3(0, 0, 0);

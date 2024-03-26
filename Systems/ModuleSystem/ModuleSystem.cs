@@ -118,7 +118,7 @@ namespace NWN.Systems
       
       NwServer.Instance.PlayerPassword = string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PCPASS")) ? string.Empty : Environment.GetEnvironmentVariable("PCPASS");
       NwServer.Instance.DMPassword = string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DMPASS")) ? "b" : Environment.GetEnvironmentVariable("DMPASS");
-      NwServer.Instance.ServerInfo.PlayOptions.RestoreSpellUses = false;
+      NwServer.Instance.ServerInfo.PlayOptions.RestoreSpellUses = true;
       NwServer.Instance.ServerInfo.PlayOptions.ShowDMJoinMessage = false;
 
       ItemSystem.feedbackService.AddCombatLogMessageFilter(CombatLogMessage.ComplexAttack);
