@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       byte? level = creature.GetClassInfo(ClassType.Monk)?.Level;
 
-      if (!level.HasValue || level.Value < 14 || creature.GetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkPatience)) < 1
+      if (!level.HasValue || level.Value < 14 || creature.GetFeatRemainingUses((Feat)CustomSkill.MonkPatience) < 1
         || !creature.ActiveEffects.Any(e => e.Tag == EffectSystem.DiamondSoulEffectTag))
         return saveRoll;
 

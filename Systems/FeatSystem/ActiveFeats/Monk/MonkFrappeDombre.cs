@@ -15,7 +15,7 @@ namespace NWN.Systems
         return;
       }
 
-      if (caster.GetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkFrappeDombre)) < 3)
+      if (caster.GetFeatRemainingUses((Feat)CustomSkill.MonkFrappeDombre) < 3)
       {
         caster.LoginPlayer?.SendServerMessage("Cette attaque nécessite 3 charges de Ki", ColorConstants.Red);
         return;

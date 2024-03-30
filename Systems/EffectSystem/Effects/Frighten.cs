@@ -19,7 +19,7 @@ namespace NWN.Systems
     }
     public static bool IsFrightImmune(NwCreature target)
     {
-      if (target.KnowsFeat(NwFeat.FromFeatId(CustomSkill.BersekerRageAveugle))
+      if (target.KnowsFeat((Feat)CustomSkill.BersekerRageAveugle)
         && target.ActiveEffects.Any(e => e.Tag == BarbarianRageEffectTag))
         return true;
 

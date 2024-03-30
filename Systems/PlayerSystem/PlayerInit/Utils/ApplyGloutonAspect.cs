@@ -12,7 +12,7 @@ namespace NWN.Systems
       {
         oid.LoginCreature.OnCreatureAttack -= CreatureUtils.OnAttackAspectGlouton;
 
-        if (oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemAspectGlouton)))
+        if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.TotemAspectGlouton))
           oid.LoginCreature.OnCreatureAttack += CreatureUtils.OnAttackAspectGlouton;
       }
     }

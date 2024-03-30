@@ -28,19 +28,19 @@ namespace NWN.Systems
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpImproveAbilityScore));
       caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.barbarianRageEffect, NwTimeSpan.FromRounds(spellEntry.duration));
 
-      if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemHurlementGalvanisant)))
-        caster.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.TotemHurlementGalvanisant), 100);
+      if (caster.KnowsFeat((Feat)CustomSkill.TotemHurlementGalvanisant))
+        caster.SetFeatRemainingUses((Feat)CustomSkill.TotemHurlementGalvanisant, 100);
 
-      if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemAspectTigre)))
-        caster.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.TotemAspectTigre), 100);
+      if (caster.KnowsFeat((Feat)CustomSkill.TotemAspectTigre))
+        caster.SetFeatRemainingUses((Feat)CustomSkill.TotemAspectTigre, 100);
 
-      if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemLienElan)))
-        caster.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.TotemLienElan), 100);
+      if (caster.KnowsFeat((Feat)CustomSkill.TotemLienElan))
+        caster.SetFeatRemainingUses((Feat)CustomSkill.TotemLienElan, 100);
 
-      if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemLienOurs)))
+      if (caster.KnowsFeat((Feat)CustomSkill.TotemLienOurs))
         caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.totemLienOursAura, NwTimeSpan.FromRounds(10));
 
-      if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemLienLoup)))
+      if (caster.KnowsFeat((Feat)CustomSkill.TotemLienLoup))
       {
         caster.OnCreatureAttack -= CreatureUtils.OnAttackLoupKnockdown;
         caster.OnCreatureAttack += CreatureUtils.OnAttackLoupKnockdown;
@@ -50,9 +50,9 @@ namespace NWN.Systems
 
       if (skin is not null)
       {
-        if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemEspritOurs)))
+        if (caster.KnowsFeat((Feat)CustomSkill.TotemEspritOurs))
         {
-          caster.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.TotemFerociteIndomptable), 1);
+          caster.SetFeatRemainingUses((Feat)CustomSkill.TotemFerociteIndomptable, 1);
 
           for (int i = 0; i < 17; i++)
           {
@@ -99,10 +99,10 @@ namespace NWN.Systems
 
       SpellUtils.DispelConcentrationEffects(caster);
 
-      if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.BersekerFrenziedStrike)))
-        caster.IncrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.BersekerFrenziedStrike));
+      if (caster.KnowsFeat((Feat)CustomSkill.BersekerFrenziedStrike))
+        caster.IncrementRemainingFeatUses((Feat)CustomSkill.BersekerFrenziedStrike);
 
-      if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.BersekerRageAveugle)))
+      if (caster.KnowsFeat((Feat)CustomSkill.BersekerRageAveugle))
         foreach(var eff in caster.ActiveEffects)
           switch(eff.Tag)
           {
@@ -110,10 +110,10 @@ namespace NWN.Systems
             case EffectSystem.FrightenedEffectTag: caster.RemoveEffect(eff); break;
           }
 
-      if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemEspritElan)))
+      if (caster.KnowsFeat((Feat)CustomSkill.TotemEspritElan))
         caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.elkTotemSpeed, NwTimeSpan.FromRounds(10));
 
-      if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemEspritLoup)))
+      if (caster.KnowsFeat((Feat)CustomSkill.TotemEspritLoup))
         caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.wolfTotemAura, NwTimeSpan.FromRounds(10));
 
       bool freeRageRoll = BarbarianUtils.IsRatelTriggered(caster) && Utils.random.Next(0, 2).ToBool();
@@ -121,7 +121,7 @@ namespace NWN.Systems
       if (caster.Classes.Any(c => c.Class.ClassType == ClassType.Barbarian && c.Level < 20) || freeRageRoll)
         FeatUtils.DecrementFeatUses(caster, (int)Feat.BarbarianRage);
 
-      if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.WildMagicSense)))
+      if (caster.KnowsFeat((Feat)CustomSkill.WildMagicSense))
       {
         HandleWildMagicRage(caster);
 

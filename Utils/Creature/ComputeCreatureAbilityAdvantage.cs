@@ -12,14 +12,14 @@ namespace NWN.Systems
       {
         case Ability.Strength:
 
-          if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemAspectOurs)))
+          if (creature.KnowsFeat((Feat)CustomSkill.TotemAspectOurs))
             return true;
 
           break;
 
         case Ability.Dexterity:
 
-          if (effectType == SpellEffectType.Stealth && creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.DiscretionSupreme)))
+          if (effectType == SpellEffectType.Stealth && creature.KnowsFeat((Feat)CustomSkill.DiscretionSupreme))
             return true;
 
           if (creature.Classes.Any(c => c.Class.ClassType == ClassType.Barbarian && c.Level > 1) && !creature.ActiveEffects.Any(e => e.EffectType == EffectType.Blindness || e.EffectType == EffectType.Deaf))
@@ -75,13 +75,13 @@ namespace NWN.Systems
 
         case SpellEffectType.Knockdown:
 
-          if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemAspectCrocodile)))
+          if (creature.KnowsFeat((Feat)CustomSkill.TotemAspectCrocodile))
             return true;
 
           break;
       }
 
-      if(caster is not null && creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TueurDeMage))
+      if(caster is not null && creature.KnowsFeat((Feat)CustomSkill.TueurDeMage)
         && creature.DistanceSquared(caster) < 7)
         return true;
 

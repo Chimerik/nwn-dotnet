@@ -21,7 +21,7 @@ namespace NWN.Systems
           return;
       }
 
-      if (oCreature.KnowsFeat(NwFeat.FromFeatType(Feat.Ambidexterity)) && ItemUtils.IsHeavyWeapon(oItem.BaseItem.ItemType))
+      if (oCreature.KnowsFeat(Feat.Ambidexterity) && ItemUtils.IsHeavyWeapon(oItem.BaseItem.ItemType))
       {
         oCreature.ControllingPlayer.SendServerMessage($"{StringUtils.ToWhitecolor(oItem.Name)} est une arme loude et ne peut être équipée dans la main gauche malgré votre maîtrise ambidextre", ColorConstants.Red);
         onEquip.PreventEquip = true;

@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     private static void MonkDesertion(NwCreature caster)
     {
-      if (caster.GetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkDesertion)) < 4)
+      if (caster.GetFeatRemainingUses((Feat)CustomSkill.MonkDesertion) < 4)
       {
         caster.LoginPlayer?.SendServerMessage("Charges de ki insuffisantes", ColorConstants.Red);
         return;

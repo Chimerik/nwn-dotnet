@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       private void ApplyAssassinate()
       {
-        if (oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.AssassinAssassinate)))
+        if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.AssassinAssassinate))
         {
           oid.OnCombatStatusChange -= RogueUtils.OnCombatAssassinate;
           oid.OnCombatStatusChange += RogueUtils.OnCombatAssassinate;

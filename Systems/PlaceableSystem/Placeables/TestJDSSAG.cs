@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     public static void TestJDSSAG(PlaceableEvents.OnLeftClick onUsed)
     {
-      _ = onUsed.Placeable.ActionCastSpellAt(NwSpell.FromSpellType(Spell.Fireball), onUsed.ClickedBy.LoginCreature);
+      _ = onUsed.Placeable.ActionCastSpellAt(Spell.Fireball, onUsed.ClickedBy.LoginCreature);
     }
   }
 }

@@ -7,7 +7,7 @@ namespace NWN.Systems
     public static int GetShieldMasterReducedDamage(NwGameObject target, int damage, bool saveFailed, Ability saveType = Ability.Dexterity)
     {
       if (saveType == Ability.Dexterity && target is NwCreature creature
-        && creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.MaitreBouclier))
+        && creature.KnowsFeat((Feat)CustomSkill.MaitreBouclier)
         && creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value > 0)
       {
         switch (creature.GetItemInSlot(InventorySlot.LeftHand)?.BaseItem.ItemType)

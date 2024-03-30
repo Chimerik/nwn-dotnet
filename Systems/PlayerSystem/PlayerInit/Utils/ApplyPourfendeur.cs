@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       private void ApplyPourfendeur()
       {
-        if (oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Pourfendeur)))
+        if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.Pourfendeur))
         {
           oid.LoginCreature.OnCreatureAttack -= CreatureUtils.OnAttackPourfendeur;
           oid.LoginCreature.OnCreatureAttack += CreatureUtils.OnAttackPourfendeur;

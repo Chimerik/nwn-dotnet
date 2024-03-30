@@ -9,8 +9,8 @@ namespace NWN.Systems
       if (!player.oid.LoginCreature.KnowsFeat(Feat.ShieldProficiency))
         player.oid.LoginCreature.AddFeat(Feat.ShieldProficiency);
 
-      if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.MaitreBouclier)))
-        player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.MaitreBouclier));
+      if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.MaitreBouclier))
+        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.MaitreBouclier);
 
       return true;
     }

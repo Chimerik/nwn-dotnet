@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     public static void TestBouleDeFeu(PlaceableEvents.OnLeftClick onUsed)
     {
-      _ = onUsed.Placeable.ActionCastSpellAt(NwSpell.FromSpellType(Spell.BurningHands), onUsed.ClickedBy.LoginCreature);
+      _ = onUsed.Placeable.ActionCastSpellAt(Spell.BurningHands, onUsed.ClickedBy.LoginCreature);
     }
   }
 }

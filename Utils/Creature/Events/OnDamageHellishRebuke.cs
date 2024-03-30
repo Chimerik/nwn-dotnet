@@ -39,9 +39,9 @@ namespace NWN.Systems
       SpellUtils.DealSpellDamage(damager, onDamage.Creature.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(onDamage.Creature, spell), onDamage.Creature, saveFailed);
 
       onDamage.Creature.GetObjectVariable<LocalVariableInt>(ReactionVariable).Value -= 1;
-      onDamage.Creature.DecrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.HellishRebuke));
+      onDamage.Creature.DecrementRemainingFeatUses((Feat)CustomSkill.HellishRebuke);
 
-      if (onDamage.Creature.GetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.HellishRebuke)) < 1)
+      if (onDamage.Creature.GetFeatRemainingUses((Feat)CustomSkill.HellishRebuke) < 1)
         foreach (var eff in onDamage.Creature.ActiveEffects)
           if (eff.Tag == EffectSystem.HellishRebukeEffectTag)
             onDamage.Creature.RemoveEffect(eff);

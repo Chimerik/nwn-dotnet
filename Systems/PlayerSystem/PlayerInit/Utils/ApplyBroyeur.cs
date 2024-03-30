@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       private void ApplyBroyeur()
       {
-        if (oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Broyeur)))
+        if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.Broyeur))
         {
           oid.LoginCreature.OnCreatureAttack -= CreatureUtils.OnAttackBroyeur;
           oid.LoginCreature.OnCreatureAttack += CreatureUtils.OnAttackBroyeur;

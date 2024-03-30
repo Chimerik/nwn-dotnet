@@ -12,7 +12,7 @@ namespace NWN.Systems
       {
         creature.GetObjectVariable<LocalVariableInt>(BonusActionVariable).Value = 1;
 
-        if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.MainLeste)))
+        if (creature.KnowsFeat((Feat)CustomSkill.MainLeste))
           creature.GetObjectVariable<LocalVariableInt>(BonusActionVariable).Value += 1;
 
         creature.GetObjectVariable<LocalVariableInt>(HastMasterCooldownVariable).Delete();
@@ -21,7 +21,7 @@ namespace NWN.Systems
         creature.GetObjectVariable<LocalVariableInt>(EmpaleurCooldownVariable).Delete();
         creature.GetObjectVariable<LocalVariableObject<NwCreature>>(OpportunisteVariable).Delete();
 
-        if(creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.BersekerRepresailles)))
+        if(creature.KnowsFeat((Feat)CustomSkill.BersekerRepresailles))
           creature.GetObjectVariable<LocalVariableInt>(BersekerRepresaillesVariable).Value = 1;
 
         if (creature.IsPlayerControlled)

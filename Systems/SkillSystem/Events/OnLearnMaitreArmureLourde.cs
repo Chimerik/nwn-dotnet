@@ -10,8 +10,8 @@ namespace NWN.Systems
       if (rawStrength < 20)
         player.oid.LoginCreature.SetsRawAbilityScore(Ability.Strength, (byte)(rawStrength + 1));
 
-      if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.MaitreArmureLourde)))
-        player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.MaitreArmureLourde));      
+      if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.MaitreArmureLourde))
+        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.MaitreArmureLourde);      
 
       return true;
     }

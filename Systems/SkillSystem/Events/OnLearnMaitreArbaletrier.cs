@@ -6,8 +6,8 @@ namespace NWN.Systems
   {
     public static bool OnLearnMaitreArbaletrier(PlayerSystem.Player player, int customSkillId)
     {
-      player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.RapidReload));
-      player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.PointBlankShot));
+      player.oid.LoginCreature.AddFeat(Feat.RapidReload);
+      player.oid.LoginCreature.AddFeat(Feat.PointBlankShot);
       return true;
     }
   }

@@ -22,8 +22,8 @@ namespace NWN.Systems
         else ((AbilityBonusChoiceWindow)value).CreateWindow(abilities);
       }
 
-      if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Broyeur)))
-        player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.Broyeur));
+      if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.Broyeur))
+        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.Broyeur);
 
       player.oid.LoginCreature.OnCreatureAttack -= CreatureUtils.OnAttackBroyeur;
       player.oid.LoginCreature.OnCreatureAttack += CreatureUtils.OnAttackBroyeur;

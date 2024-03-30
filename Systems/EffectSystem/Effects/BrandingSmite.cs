@@ -14,7 +14,7 @@ namespace NWN.Systems
       {
         Effect eff = Effect.RunAction();
         eff.Tag = BrandingSmiteAttackEffectTag;
-        eff.Spell = NwSpell.FromSpellId(CustomSpell.BrandingSmite);
+        eff.Spell = (Spell)CustomSpell.BrandingSmite;
         return eff;
       }
     }
@@ -25,7 +25,7 @@ namespace NWN.Systems
       {
         Effect eff = Effect.RunAction(onRemovedHandle: onRemoveBrandingSmiteRevealCallback);
         eff.Tag = BrandingSmiteRevealEffectTag;
-        eff.Spell = NwSpell.FromSpellId(CustomSpell.BrandingSmite);
+        eff.Spell = (Spell)CustomSpell.BrandingSmite;
         return eff;
       }
     }

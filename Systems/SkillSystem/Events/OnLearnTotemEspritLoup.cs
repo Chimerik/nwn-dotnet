@@ -6,11 +6,11 @@ namespace NWN.Systems
   {
     public static bool OnLearnTotemEspritLoup(PlayerSystem.Player player, int customSkillId)
     {
-      if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(customSkillId)))
-        player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(customSkillId));
+      if (!player.oid.LoginCreature.KnowsFeat((Feat)customSkillId))
+        player.oid.LoginCreature.AddFeat((Feat)customSkillId);
 
-      if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemHurlementGalvanisant)))
-        player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.TotemHurlementGalvanisant));
+      if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.TotemHurlementGalvanisant))
+        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.TotemHurlementGalvanisant);
 
       return true;
     }

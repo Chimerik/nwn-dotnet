@@ -19,7 +19,7 @@ namespace NWN.Systems
       _ = caster.AddActionToQueue(() => caster.ActionForceMoveTo(targetObject, true));
       _ = caster.AddActionToQueue(() => caster.ActionAttackTarget(targetObject));
 
-      if(caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Chargeur)))
+      if(caster.KnowsFeat((Feat)CustomSkill.Chargeur))
         caster.GetObjectVariable<LocalVariableLocation>(EffectSystem.ChargerVariable).Value = caster.Location;
 
       caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.agressionOrc, NwTimeSpan.FromRounds(1));

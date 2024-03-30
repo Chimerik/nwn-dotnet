@@ -9,9 +9,9 @@ namespace NWN.Systems
     {
       private void InitializeActionSurge()
       {
-        if (oid.LoginCreature.GetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.FighterSurge)) > 1
+        if (oid.LoginCreature.GetFeatRemainingUses((Feat)CustomSkill.FighterSurge) > 1
           && oid.LoginCreature.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level < 17))
-          oid.LoginCreature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.FighterSurge), 1);
+          oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.FighterSurge, 1);
       }
     }
   }

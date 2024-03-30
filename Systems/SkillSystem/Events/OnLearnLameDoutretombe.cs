@@ -9,8 +9,8 @@ namespace NWN.Systems
   {
     public static bool OnLearnLameDoutretombe(PlayerSystem.Player player, int customSkillId)
     {
-      if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.LameDoutretombe)))
-        player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.LameDoutretombe));
+      if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.LameDoutretombe))
+        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.LameDoutretombe);
 
       if (!player.learnableSkills.ContainsKey(CustomSkill.DoubleBladeProficiency))
         player.learnableSkills.Add(CustomSkill.DoubleBladeProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DoubleBladeProficiency], player));

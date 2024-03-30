@@ -12,7 +12,7 @@ namespace NWN.Systems
       int fighterLevel = caster.GetClassInfo(ClassType.Fighter).Level;
       caster.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.Heal(NwRandom.Roll(Utils.random, 10, 1) + fighterLevel), Effect.VisualEffect(VfxType.ImpHealingM)));
 
-      caster.DecrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.FighterSecondWind));
+      caster.DecrementRemainingFeatUses((Feat)CustomSkill.FighterSecondWind);
 
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} utilise {"Second Souffle".ColorString(ColorConstants.White)}", ColorConstants.Orange, true);
     }

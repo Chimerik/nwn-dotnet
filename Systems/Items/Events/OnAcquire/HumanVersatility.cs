@@ -18,7 +18,7 @@ namespace NWN.Systems
       if (creature.Race.RacialType == RacialType.Human)
         newWeigth *= (decimal)0.75;
 
-      if(creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemAspectOurs)))
+      if(creature.KnowsFeat((Feat)CustomSkill.TotemAspectOurs))
         newWeigth *= (decimal)0.5;
 
       if (newWeigth < (decimal)0.1)

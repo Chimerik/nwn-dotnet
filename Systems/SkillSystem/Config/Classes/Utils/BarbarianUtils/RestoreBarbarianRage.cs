@@ -14,17 +14,17 @@ namespace NWN.Systems
       await NwTask.NextFrame();
 
       if(level < 3)
-        creature.SetFeatRemainingUses(NwFeat.FromFeatType(Feat.BarbarianRage), 2);
+        creature.SetFeatRemainingUses(Feat.BarbarianRage, 2);
       else if(level < 6)
-        creature.SetFeatRemainingUses(NwFeat.FromFeatType(Feat.BarbarianRage), 2);
+        creature.SetFeatRemainingUses(Feat.BarbarianRage, 2);
       else if (level < 12)
-        creature.SetFeatRemainingUses(NwFeat.FromFeatType(Feat.BarbarianRage), 4);
+        creature.SetFeatRemainingUses(Feat.BarbarianRage, 4);
       else if (level < 17)
-        creature.SetFeatRemainingUses(NwFeat.FromFeatType(Feat.BarbarianRage), 5);
+        creature.SetFeatRemainingUses(Feat.BarbarianRage, 5);
       else if (level < 20)
-        creature.SetFeatRemainingUses(NwFeat.FromFeatType(Feat.BarbarianRage), 6);
+        creature.SetFeatRemainingUses(Feat.BarbarianRage  , 6);
       else
-        creature.SetFeatRemainingUses(NwFeat.FromFeatType(Feat.BarbarianRage), 1);
+        creature.SetFeatRemainingUses(Feat.BarbarianRage, 1);
 
       creature.GetObjectVariable<PersistentVariableInt>("_RAGE_IMPLACABLE_DD").Value = 10;
     }

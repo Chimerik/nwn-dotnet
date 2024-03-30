@@ -39,7 +39,7 @@ namespace NWN.Systems
             criticalString = "CRITIQUE - ".ColorString(StringUtils.gold);
             LogUtils.LogMessage("Coup critique", LogUtils.LogType.Combat);
 
-            if(caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Pourfendeur)))
+            if(caster.KnowsFeat((Feat)CustomSkill.Pourfendeur))
               caster.GetObjectVariable<LocalVariableInt>("_POURFENDEUR_CRIT").Value = 1;
           }
           else if (attackRoll > 1 && totalAttack > targetAC)

@@ -35,7 +35,7 @@ namespace NWN.Systems
       }
 
       foreach (int requiredProficiency in proficenciesRequirements)
-        if (target.KnowsFeat(NwFeat.FromFeatId(requiredProficiency)))
+        if (target.KnowsFeat((Feat)requiredProficiency))
           return false;
 
       ApplyShieldArmorDisadvantage(target);

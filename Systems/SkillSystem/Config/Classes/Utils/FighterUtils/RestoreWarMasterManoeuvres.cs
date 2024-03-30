@@ -14,21 +14,21 @@ namespace NWN.Systems
       byte featUse = (byte)(level.Value > 14 ? 6 : level.Value > 6 ? 5 : 4);
 
       await NwTask.NextFrame();
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WarMasterAttaqueMenacante), featUse);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WarMasterAttaquePrecise), featUse);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WarMasterBalayage), featUse);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WarMasterRenversement), featUse);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WarMasterDesarmement), featUse);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WarMasterDiversion), featUse);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WarMasterFeinte), featUse);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WarMasterInstruction), featUse);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WarMasterJeuDeJambe), featUse);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WarMasterManoeuvreTactique), featUse);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WarMasterParade), featUse);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WarMasterProvocation), featUse);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WarMasterRalliement), featUse);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WarMasterRiposte), featUse);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WarMasterEvaluationTactique), featUse);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.WarMasterAttaqueMenacante, featUse);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.WarMasterAttaquePrecise, featUse);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.WarMasterBalayage, featUse);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.WarMasterRenversement, featUse);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.WarMasterDesarmement, featUse);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.WarMasterDiversion, featUse);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.WarMasterFeinte, featUse);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.WarMasterInstruction, featUse);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.WarMasterJeuDeJambe, featUse);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.WarMasterManoeuvreTactique, featUse);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.WarMasterParade, featUse);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.WarMasterProvocation, featUse);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.WarMasterRalliement, featUse);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.WarMasterRiposte, featUse);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.WarMasterEvaluationTactique, featUse);
     }
   }
 }

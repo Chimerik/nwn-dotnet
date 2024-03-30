@@ -8,8 +8,8 @@ namespace NWN.Systems
   {
     public static bool OnLearnFureurOrc(PlayerSystem.Player player, int customSkillId)
     {
-      if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.FureurOrc)))
-        player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.FureurOrc));
+      if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.FureurOrc))
+        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.FureurOrc);
 
       List <NuiComboEntry> abilities = new();
 

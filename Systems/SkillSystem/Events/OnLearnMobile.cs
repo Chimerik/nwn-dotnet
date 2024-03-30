@@ -7,8 +7,8 @@ namespace NWN.Systems
   {
     public static bool OnLearnMobile(PlayerSystem.Player player, int customSkillId)
     {
-      if(!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Mobile)))
-        player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.Mobile));
+      if(!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.Mobile))
+        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.Mobile);
 
       if (!player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.mobileEffectTag))
         player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.mobile);

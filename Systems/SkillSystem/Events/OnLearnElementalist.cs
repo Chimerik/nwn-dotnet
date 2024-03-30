@@ -7,8 +7,8 @@ namespace NWN.Systems
   {
     public static bool OnLearnElementalist(PlayerSystem.Player player, int customSkillId)
     {
-      if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Elementaliste)))
-        player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.Elementaliste));
+      if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.Elementaliste))
+        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.Elementaliste);
 
       if (!player.windows.TryGetValue("elementalistChoice", out var value)) player.windows.Add("elementalistChoice", new ElementalistChoiceWindow(player, player.oid.LoginCreature.Level));
       else ((ElementalistChoiceWindow)value).CreateWindow(player.oid.LoginCreature.Level);

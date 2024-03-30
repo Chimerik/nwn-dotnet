@@ -10,8 +10,8 @@ namespace NWN.Systems
   {
     public static bool OnLearnFlammesDePhlegetos(PlayerSystem.Player player, int customSkillId)
     {
-      if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.FlammesDePhlegetos)))
-        player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.FlammesDePhlegetos));
+      if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.FlammesDePhlegetos))
+        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.FlammesDePhlegetos);
 
       List<NuiComboEntry> abilities = new();
 

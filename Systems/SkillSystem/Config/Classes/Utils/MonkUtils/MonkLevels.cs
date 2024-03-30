@@ -94,7 +94,7 @@ namespace NWN.Systems
 
         case 7: 
           
-          player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.ImprovedEvasion));
+          player.oid.LoginCreature.AddFeat(Feat.ImprovedEvasion);
 
           player.learnableSkills.TryAdd(CustomSkill.MonkSerenity, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MonkSerenity], player));
           player.learnableSkills[CustomSkill.MonkSerenity].LevelUp(player);
@@ -111,8 +111,8 @@ namespace NWN.Systems
 
         case 10:
 
-          player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.PurityOfBody));
-          player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.DiamondBody));
+          player.oid.LoginCreature.AddFeat(Feat.PurityOfBody);
+          player.oid.LoginCreature.AddFeat(Feat.DiamondBody);
 
           player.oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin).AddItemProperty(ItemProperty.DamageImmunity((IPDamageType)CustomItemPropertiesDamageType.Poison, IPDamageImmunityType.Immunity100Pct), EffectDuration.Permanent);
 

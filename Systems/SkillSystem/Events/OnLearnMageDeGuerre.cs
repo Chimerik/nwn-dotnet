@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     public static bool OnLearnMageDeGuerre(PlayerSystem.Player player, int customSkillId)
     {
-      if(!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.MageDeGuerre)))
+      if(!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.MageDeGuerre))
         player.oid.LoginCreature.AddFeat(Feat.Ambidexterity);
 
       player.oid.LoginCreature.OnSpellAction -= SpellSystem.CancelSomaticSpellIfOffHandBusy;

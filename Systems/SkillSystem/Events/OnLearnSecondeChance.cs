@@ -8,8 +8,8 @@ namespace NWN.Systems
   {
     public static bool OnLearnSecondeChance(PlayerSystem.Player player, int customSkillId)
     {
-      if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.SecondeChance)))
-        player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.SecondeChance));
+      if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.SecondeChance))
+        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.SecondeChance);
 
       List<NuiComboEntry> abilities = new();
 

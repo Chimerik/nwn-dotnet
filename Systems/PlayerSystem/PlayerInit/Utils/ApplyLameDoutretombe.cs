@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       private void ApplyLameDoutretombe()
       {
-        if (oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.LameDoutretombe)))
+        if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.LameDoutretombe))
         {
           oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipApplyLameDoutretombe;
           oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipRemoveLameDoutretombe;

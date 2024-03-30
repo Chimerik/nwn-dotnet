@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     private static void MonkSilence(NwCreature caster, OnUseFeat onFeat)
     {
-      if (caster.GetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkSilence)) < 2)
+      if (caster.GetFeatRemainingUses((Feat)CustomSkill.MonkSilence) < 2)
       {
         caster.LoginPlayer?.SendServerMessage("Charges de ki insuffisantes", ColorConstants.Red);
         onFeat.PreventFeatUse = true;

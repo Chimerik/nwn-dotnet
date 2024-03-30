@@ -20,7 +20,7 @@ namespace NWN.Systems
 
       caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.MonkDelugeVariable).Value = 1;
 
-      if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.MonkPaumeTechnique)))
+      if (caster.KnowsFeat((Feat)CustomSkill.MonkPaumeTechnique))
       {
         caster.OnCreatureAttack -= CreatureUtils.OnAttackPaumeTechnique;
         caster.OnCreatureAttack += CreatureUtils.OnAttackPaumeTechnique;

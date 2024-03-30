@@ -34,7 +34,7 @@ namespace NWN.Systems
       if (onAttack.AttackResult == AttackResult.CriticalHit // Critical Hit
         && !onAttack.IsRangedAttack
         && weapon is not null
-        && onAttack.Attacker.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Broyeur))
+        && onAttack.Attacker.KnowsFeat((Feat)CustomSkill.Broyeur)
         && weapon.BaseItem.WeaponType.Any(d => d == Anvil.API.DamageType.Bludgeoning))
         onAttack.Attacker.ApplyEffect(EffectDuration.Temporary, EffectSystem.BroyeurEffect, NwTimeSpan.FromRounds(1));
     }

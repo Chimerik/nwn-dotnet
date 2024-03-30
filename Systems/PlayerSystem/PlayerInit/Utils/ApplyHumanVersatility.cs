@@ -12,7 +12,7 @@ namespace NWN.Systems
         oid.LoginCreature.OnUnacquireItem -= ItemSystem.OnUnAcquireCheckHumanVersatility;
 
         if (oid.LoginCreature.Race.RacialType == RacialType.Human 
-          || oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemAspectOurs)))
+          || oid.LoginCreature.KnowsFeat((Feat)CustomSkill.TotemAspectOurs))
         {
           oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireCheckHumanVersatility;
           oid.LoginCreature.OnUnacquireItem += ItemSystem.OnUnAcquireCheckHumanVersatility;

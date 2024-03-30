@@ -18,7 +18,7 @@ namespace NWN.Systems
       if (target != caster)
         target.LoginPlayer?.SendServerMessage($"{caster.Name.ColorString(ColorConstants.Cyan)} - {rollString} {hitString}".ColorString(ColorConstants.Orange));
 
-      if(saveFailed && caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.WildMagicMagieGalvanisanteBienfait)) 
+      if(saveFailed && caster.KnowsFeat((Feat)CustomSkill.WildMagicMagieGalvanisanteBienfait) 
         && caster.Classes.Any(c => c.Class.ClassType == ClassType.Barbarian && c.Level > 9)
         && caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value > 0
         && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.BarbarianRageEffectTag))

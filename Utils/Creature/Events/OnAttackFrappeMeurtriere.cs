@@ -16,7 +16,7 @@ namespace NWN.Systems
         case AttackResult.AutomaticHit:
         case AttackResult.CriticalHit:
 
-          if (!attacker.KnowsFeat(NwFeat.FromFeatId(CustomSkill.AssassinAssassinate)) 
+          if (!attacker.KnowsFeat((Feat)CustomSkill.AssassinAssassinate) 
             || onAttack.Target is not NwCreature target || !attacker.Classes.Any(c => c.Class.ClassType == ClassType.Rogue && c.Level > 16)
             || !NativeUtils.IsAssassinate(attacker))
             return;

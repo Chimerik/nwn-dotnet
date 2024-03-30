@@ -8,8 +8,8 @@ namespace NWN.Systems
   {
     public static bool OnLearnPourfendeur(PlayerSystem.Player player, int customSkillId)
     {
-      if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Pourfendeur)))
-        player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.Pourfendeur));
+      if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.Pourfendeur))
+        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.Pourfendeur);
 
       List <NuiComboEntry> abilities = new();
 

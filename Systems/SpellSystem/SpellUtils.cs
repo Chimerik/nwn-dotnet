@@ -99,11 +99,11 @@ namespace NWN.Systems
     }
     public static ClassType GetCastingClass(NwSpell Spell)
     {
-      byte clericCastLevel = Spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Cleric));
-      byte druidCastLevel = Spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Druid));
-      byte paladinCastLevel = Spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Paladin));
-      byte rangerCastLevel = Spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Ranger));
-      byte bardCastLevel = Spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Bard));
+      byte clericCastLevel = Spell.GetSpellLevelForClass(ClassType.Cleric);
+      byte druidCastLevel = Spell.GetSpellLevelForClass(ClassType.Druid);
+      byte paladinCastLevel = Spell.GetSpellLevelForClass(ClassType.Paladin);
+      byte rangerCastLevel = Spell.GetSpellLevelForClass(ClassType.Ranger);
+      byte bardCastLevel = Spell.GetSpellLevelForClass(ClassType.Bard);
 
       Dictionary<ClassType, byte> classSorter = new Dictionary<ClassType, byte>()
       {

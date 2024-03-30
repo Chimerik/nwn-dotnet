@@ -16,7 +16,7 @@ namespace NWN.Systems
           if (eff.Tag == EffectSystem.EnduranceImplacableEffectTag)
             onDamage.Creature.RemoveEffect(eff);
 
-        if (onDamage.Creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.FureurOrc))
+        if (onDamage.Creature.KnowsFeat((Feat)CustomSkill.FureurOrc)
           && onDamage.Creature.CurrentAction == Anvil.API.Action.AttackObject
           && onDamage.Creature.GetObjectVariable<LocalVariableInt>(ReactionVariable).Value > 0)
         {

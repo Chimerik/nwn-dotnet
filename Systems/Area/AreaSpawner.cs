@@ -74,25 +74,25 @@ namespace NWN.Systems
       if (creature.Race.RacialType == RacialType.HalfOrc)
         creature.OnDamaged += CreatureUtils.HandleImplacableEndurance;
 
-      if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TueurDeMage)))
+      if (creature.KnowsFeat((Feat)CustomSkill.TueurDeMage))
         creature.OnCreatureAttack += CreatureUtils.OnAttackTueurDeMage;
 
-      if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Sentinelle)))
+      if (creature.KnowsFeat((Feat)CustomSkill.Sentinelle))
         creature.OnCreatureAttack += CreatureUtils.OnAttackSentinelle;
 
-      if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Broyeur)))
+      if (creature.KnowsFeat((Feat)CustomSkill.Broyeur))
         creature.OnCreatureAttack += CreatureUtils.OnAttackBroyeur;
 
-      if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemAspectGlouton)))
+      if (creature.KnowsFeat((Feat)CustomSkill.TotemAspectGlouton))
         creature.OnCreatureAttack += CreatureUtils.OnAttackAspectGlouton;
 
-      if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Pourfendeur)))
+      if (creature.KnowsFeat((Feat)CustomSkill.Pourfendeur))
       {
         creature.OnCreatureAttack += CreatureUtils.OnAttackPourfendeur;
         creature.OnCreatureDamage += CreatureUtils.OnDamagePourfendeur;
       }
 
-      if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.LameDoutretombe)))
+      if (creature.KnowsFeat((Feat)CustomSkill.LameDoutretombe))
       {
         creature.OnItemUnequip -= ItemSystem.OnUnEquipRemoveLameDoutretombe;
         creature.OnItemEquip += ItemSystem.OnEquipApplyLameDoutretombe;
@@ -159,7 +159,7 @@ namespace NWN.Systems
         }
       }
 
-      if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemAspectElan)))
+      if (creature.KnowsFeat((Feat)CustomSkill.TotemAspectElan))
         creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.elkAspectAura);
 
       var creatureLoop = scheduler.ScheduleRepeating(() => CreatureUtils.CreatureHealthRegenLoop(creature), TimeSpan.FromSeconds(1));

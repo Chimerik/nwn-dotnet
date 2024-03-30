@@ -355,21 +355,21 @@ namespace NWN.Systems
           player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(EffectSystem.EnduranceImplacableVariable).Delete();
           player.oid.LoginCreature.OnDamaged -= CreatureUtils.HandleImplacableEndurance;
 
-          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.MageHand));
-          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.RayOfFrost));
-          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.AcidSplash));
-          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.ElectricJolt));
-          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.BladeWard));
-          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.FireBolt));
-          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.Friends));
-          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.BoneChill));
-          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.TrueStrike));
-          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.PoisonSpray));
-          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.Light));
-          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.LightDrow));
-          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.ProduceFlame));
-          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.FlameBlade));
-          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.Thaumaturgy));
+          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.MageHand);
+          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.RayOfFrost);
+          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.AcidSplash);
+          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.ElectricJolt);
+          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.BladeWard);
+          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.FireBolt);
+          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.Friends);
+          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.BoneChill);
+          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.TrueStrike);
+          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.PoisonSpray);
+          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.Light);
+          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.LightDrow);
+          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.ProduceFlame);
+          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.FlameBlade);
+          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.Thaumaturgy);
 
           player.oid.LoginCreature.TailType = CreatureTailType.None;
 

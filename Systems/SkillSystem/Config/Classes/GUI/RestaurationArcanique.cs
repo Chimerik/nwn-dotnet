@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using Anvil.API;
 using Anvil.API.Events;
 
@@ -66,6 +65,13 @@ namespace NWN.Systems
           {
             case NuiEventType.Click:
 
+              if(player.oid.LoginCreature.IsInCombat)
+              {
+                player.oid.SendServerMessage("Non utilisable en combat", ColorConstants.Red);
+                CloseWindow();
+                return;
+              }
+
               if (byte.TryParse(nuiEvent.ElementId.Split("_")[1], out byte level))
               {
                 CreatureClassInfo wizardClass = player.oid.LoginCreature.GetClassInfo(ClassType.Wizard);
@@ -75,6 +81,9 @@ namespace NWN.Systems
 
                 if(player.oid.LoginCreature.GetFeatRemainingUses((Feat)CustomSkill.WizardRestaurationArcanique) < 1)
                   CloseWindow();
+
+                player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpMagicalVision));
+                SetLevelLayout();
               }
               return;
           }
@@ -87,7 +96,7 @@ namespace NWN.Systems
           var spellGainTable = NwClass.FromClassType(ClassType.Wizard).SpellGainTable;
           int level = 0;
 
-          foreach (var spellLevel in player.learnableSpells.Values.Where(s => s.currentLevel > 0 && s.learntFromClasses.Contains(CustomClass.Wizard)).Select(s => NwSpell.FromSpellId(s.id).GetSpellLevelForClass(NwClass.FromClassType(ClassType.Wizard))).Distinct().Order())
+          foreach (var spellLevel in player.learnableSpells.Values.Where(s => s.currentLevel > 0 && s.learntFromClasses.Contains(CustomClass.Wizard)).Select(s => NwSpell.FromSpellId(s.id).GetSpellLevelForClass(ClassType.Wizard)).Distinct().Order())
           {
               string icon = level switch
               {
@@ -112,7 +121,7 @@ namespace NWN.Systems
                 Height = 40,
                 Width = 40,
                 Enabled = wizardClass.GetRemainingSpellSlots((byte)level) < maxSpellSlots
-                && player.oid.LoginCreature.GetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WizardRestaurationArcanique)) >= level
+                && player.oid.LoginCreature.GetFeatRemainingUses((Feat)CustomSkill.WizardRestaurationArcanique) >= level
               });
             }
 

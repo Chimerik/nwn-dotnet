@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     public static void DispelWildMagicEffects(NwCreature creature)
     {
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WildMagicTeleportation), 0);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.WildMagicTeleportation, 0);
 
       foreach (var eff in creature.ActiveEffects)
       {

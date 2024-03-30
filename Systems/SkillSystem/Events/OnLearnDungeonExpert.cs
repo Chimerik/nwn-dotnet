@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     public static bool OnLearnDungeonExpert(PlayerSystem.Player player, int customSkillId)
     {
-      player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.KeenSense));
+      player.oid.LoginCreature.AddFeat(Feat.KeenSense);
       
       return true;
     }

@@ -7,8 +7,8 @@ namespace NWN.Systems
   {
     public static bool OnLearnTotemAspectElan(PlayerSystem.Player player, int customSkillId)
     {
-      if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(customSkillId)))
-        player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(customSkillId));
+      if (!player.oid.LoginCreature.KnowsFeat((Feat)customSkillId))
+        player.oid.LoginCreature.AddFeat((Feat)customSkillId);
 
       if(!player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.ElkAspectAuraEffectTag))
         player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.elkAspectAura);

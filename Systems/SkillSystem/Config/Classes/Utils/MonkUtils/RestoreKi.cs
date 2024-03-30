@@ -15,7 +15,7 @@ namespace NWN.Systems
 
       if (harmony)
       {
-        byte remainingUses = creature.GetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkPatience));
+        byte remainingUses = creature.GetFeatRemainingUses((Feat)CustomSkill.MonkPatience);
         byte restoredUses = (byte)(featUse / 2);
 
         if (remainingUses + restoredUses < featUse)
@@ -23,17 +23,17 @@ namespace NWN.Systems
       }
 
       await NwTask.NextFrame();
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkPatience), featUse);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkDelugeDeCoups), featUse);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkStunStrike), featUse);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkDesertion), featUse);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkExplosionKi), featUse);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkPaumeVibratoire), featUse);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkDarkVision), featUse);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkTenebres), featUse);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkPassageSansTrace), featUse);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkSilence), featUse);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkFrappeDombre), featUse);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkPatience, featUse);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkDelugeDeCoups, featUse);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkStunStrike, featUse);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkDesertion, featUse);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkExplosionKi, featUse);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkPaumeVibratoire, featUse);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkDarkVision, featUse);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkTenebres, featUse);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkPassageSansTrace, featUse);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkSilence, featUse);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkFrappeDombre, featUse);
     }
   }
 }

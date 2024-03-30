@@ -38,28 +38,28 @@ namespace NWN.Systems
 
       target.GetObjectVariable<LocalVariableInt>(CreatureUtils.AspectTigreVariable).Delete();
 
-      if (target.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemFerociteIndomptable)))
-        target.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.TotemFerociteIndomptable), 0);
+      if (target.KnowsFeat((Feat)CustomSkill.TotemFerociteIndomptable))
+        target.SetFeatRemainingUses((Feat)CustomSkill.TotemFerociteIndomptable, 0);
 
-      if (target.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemHurlementGalvanisant)))
-        target.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.TotemHurlementGalvanisant), 0);
+      if (target.KnowsFeat((Feat)CustomSkill.TotemHurlementGalvanisant))
+        target.SetFeatRemainingUses((Feat)CustomSkill.TotemHurlementGalvanisant, 0);
 
-      if (target.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemAspectTigre)))
-        target.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.TotemAspectTigre), 0);
+      if (target.KnowsFeat((Feat)CustomSkill.TotemAspectTigre))
+        target.SetFeatRemainingUses((Feat)CustomSkill.TotemAspectTigre, 0);
 
-      if (target.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemLienElan)))
+      if (target.KnowsFeat((Feat)CustomSkill.TotemLienElan))
       {
-        target.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.TotemLienElan), 0);
+        target.SetFeatRemainingUses((Feat)CustomSkill.TotemLienElan, 0);
         EffectUtils.RemoveTaggedEffect(target, LienTotemElanAuraEffectTag);
       }
 
-      if (target.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemLienLoup)))
+      if (target.KnowsFeat((Feat)CustomSkill.TotemLienLoup))
       {
-        target.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.TotemLienLoup), 0);
+        target.SetFeatRemainingUses((Feat)CustomSkill.TotemLienLoup, 0);
         target.OnCreatureAttack -= CreatureUtils.OnAttackLoupKnockdown;
       }
 
-      if (target.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemLienOurs)))
+      if (target.KnowsFeat((Feat)CustomSkill.TotemLienOurs))
         EffectUtils.RemoveTaggedEffect(target, LienTotemOursAuraEffectTag);
 
       foreach (var eff in target.ActiveEffects)
@@ -71,20 +71,20 @@ namespace NWN.Systems
         }
       }
       
-      if (target.KnowsFeat(NwFeat.FromFeatId(CustomSkill.BersekerFrenziedStrike)))
+      if (target.KnowsFeat((Feat)CustomSkill.BersekerFrenziedStrike))
       {
-        target.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.BersekerFrenziedStrike), 0);
+        target.SetFeatRemainingUses((Feat)CustomSkill.BersekerFrenziedStrike, 0);
         target.GetObjectVariable<LocalVariableInt>(CreatureUtils.FrappeFrenetiqueMalusVariable).Delete();
       }
 
-      if (target.KnowsFeat(NwFeat.FromFeatId(CustomSkill.WildMagicSense)))
+      if (target.KnowsFeat((Feat)CustomSkill.WildMagicSense))
       {
         foreach (var eff in target.ActiveEffects)
           if (eff.Tag == WildMagicEspritIntangibleEffectTag || eff.Tag == WildMagicRayonDeLumiereEffectTag || eff.Tag == wildMagicRepresaillesEffectTag
             || eff.Tag == LumieresProtectricesAuraEffectTag)
             target.RemoveEffect(eff);
 
-        target.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WildMagicTeleportation), 0);
+        target.SetFeatRemainingUses((Feat)CustomSkill.WildMagicTeleportation, 0);
       }
 
       NwItem skin = target.GetItemInSlot(InventorySlot.CreatureSkin);

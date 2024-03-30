@@ -8,8 +8,8 @@ namespace NWN.Systems
   {
     public static bool OnLearnEmpaleur(PlayerSystem.Player player, int customSkillId)
     {
-      if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Empaleur)))
-        player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.Empaleur));
+      if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.Empaleur))
+        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.Empaleur);
 
       List<NuiComboEntry> abilities = new();
 

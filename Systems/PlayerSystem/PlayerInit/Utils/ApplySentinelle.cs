@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       private void ApplySentinelle()
       {
-        if (oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Sentinelle)))
+        if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.Sentinelle))
         {
           oid.LoginCreature.OnCreatureAttack -= CreatureUtils.OnAttackSentinelle;
           oid.LoginCreature.OnCreatureAttack += CreatureUtils.OnAttackSentinelle;

@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     public static bool IsRatelTriggered(NwCreature creature)
     {
-      if (!creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemAspectRatel)))
+      if (!creature.KnowsFeat((Feat)CustomSkill.TotemAspectRatel))
         return false;
 
       foreach (var eff in creature.ActiveEffects)

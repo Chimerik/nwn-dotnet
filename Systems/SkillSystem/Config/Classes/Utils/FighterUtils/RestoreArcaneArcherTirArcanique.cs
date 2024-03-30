@@ -12,14 +12,14 @@ namespace NWN.Systems
         return;
 
       await NwTask.NextFrame();
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.ArcaneArcherTirAffaiblissant), 2);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.ArcaneArcherTirAgrippant), 2);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.ArcaneArcherTirBannissement), 2);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.ArcaneArcherTirChercheur), 2);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.ArcaneArcherTirEnvoutant), 2);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.ArcaneArcherTirExplosif), 2);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.ArcaneArcherTirOmbres), 2);
-      creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.ArcaneArcherTirPerforant), 2);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.ArcaneArcherTirAffaiblissant, 2);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.ArcaneArcherTirAgrippant, 2);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.ArcaneArcherTirBannissement, 2);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.ArcaneArcherTirChercheur, 2);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.ArcaneArcherTirEnvoutant, 2);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.ArcaneArcherTirExplosif, 2);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.ArcaneArcherTirOmbres, 2);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.ArcaneArcherTirPerforant, 2);
     }
   }
 }

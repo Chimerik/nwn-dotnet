@@ -10,7 +10,7 @@ namespace NWN.Systems
     {
       SpellConfig.SavingThrowFeedback feedback = new();
       int advantage = GetCreatureAbilityAdvantage(onDamage.Creature, Ability.Constitution);
-      advantage += onDamage.Creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.MageDeGuerre)) ? 1 : 0;
+      advantage += onDamage.Creature.KnowsFeat((Feat)CustomSkill.MageDeGuerre) ? 1 : 0;
       int concentrationDC = 10;
       int totalDamage = onDamage.DamageAmount / 2;
       concentrationDC = concentrationDC > totalDamage ? concentrationDC : totalDamage;

@@ -6,11 +6,11 @@ namespace NWN.Systems
   {
     public static bool OnLearnTotemEspritOurs(PlayerSystem.Player player, int customSkillId)
     {
-      if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(customSkillId)))
-        player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(customSkillId));
+      if (!player.oid.LoginCreature.KnowsFeat((Feat)customSkillId))
+        player.oid.LoginCreature.AddFeat((Feat)customSkillId);
 
-      if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemFerociteIndomptable)))
-        player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.TotemFerociteIndomptable));
+      if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.TotemFerociteIndomptable))
+        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.TotemFerociteIndomptable);
 
       return true;
     }

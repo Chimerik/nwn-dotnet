@@ -36,7 +36,7 @@ namespace NWN.Systems
         NwItem rightHand = caster.GetItemInSlot(InventorySlot.RightHand);
 
         if (spellEntry.requiresSomatic
-          && !caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.MageDeGuerre))
+          && !caster.KnowsFeat((Feat)CustomSkill.MageDeGuerre)
           && rightHand is not null && (offHand is not null && ItemUtils.IsTwoHandedWeapon(rightHand.BaseItem, caster.Size)))
         {
           caster.ControllingPlayer?.SendServerMessage($"Vous ne pouvez pas lancer de sort nécessitant une composante somatique en ayant vos deux mains occupées", ColorConstants.Red);

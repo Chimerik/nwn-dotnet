@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       private void ApplyTueurDeMage()
       {
-        if (oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TueurDeMage)))
+        if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.TueurDeMage))
         {
           oid.LoginCreature.OnCreatureAttack -= CreatureUtils.OnAttackTueurDeMage;
           oid.LoginCreature.OnCreatureAttack += CreatureUtils.OnAttackTueurDeMage;

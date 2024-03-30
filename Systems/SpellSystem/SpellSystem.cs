@@ -49,13 +49,13 @@ namespace NWN.Systems
       {
         ClassType castClass;
 
-        int wizardCastLevel = spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Wizard)) < 255 ? spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Wizard)) : -1;
-        int sorcererCastLevel = spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Sorcerer)) < 255 ? spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Sorcerer)) : -1;
-        int clericCastLevel = spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Cleric)) < 255 ? spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Cleric)) : -1;
-        int druidCastLevel = spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Druid)) < 255 ? spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Druid)) : -1;
-        int paladinCastLevel = spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Paladin)) < 255 ? spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Paladin)) : -1;
-        int rangerCastLevel = spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Ranger)) < 255 ? spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Ranger)) : -1;
-        int bardCastLevel = spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Bard)) < 255 ? spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Bard)) : -1;
+        int wizardCastLevel = spell.GetSpellLevelForClass(ClassType.Wizard) < 255 ? spell.GetSpellLevelForClass(ClassType.Wizard) : -1;
+        int sorcererCastLevel = spell.GetSpellLevelForClass(ClassType.Sorcerer) < 255 ? spell.GetSpellLevelForClass(ClassType.Sorcerer) : -1;
+        int clericCastLevel = spell.GetSpellLevelForClass(ClassType.Cleric) < 255 ? spell.GetSpellLevelForClass(ClassType.Cleric) : -1;
+        int druidCastLevel = spell.GetSpellLevelForClass(ClassType.Druid) < 255 ? spell.GetSpellLevelForClass(ClassType.Druid) : -1;
+        int paladinCastLevel = spell.GetSpellLevelForClass(ClassType.Paladin) < 255 ? spell.GetSpellLevelForClass(ClassType.Paladin) : -1;
+        int rangerCastLevel = spell.GetSpellLevelForClass(ClassType.Ranger) < 255 ? spell.GetSpellLevelForClass(ClassType.Ranger) : -1;
+        int bardCastLevel = spell.GetSpellLevelForClass(ClassType.Bard) < 255 ? spell.GetSpellLevelForClass(ClassType.Bard) : -1;
 
         Dictionary<ClassType, int> classSorter = new()
         {
@@ -297,7 +297,7 @@ namespace NWN.Systems
         && castingCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.ConcentrationEffectTag))
         SpellUtils.DispelConcentrationEffects(castingCreature);
 
-      if (castingCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.FlammesDePhlegetos)) && spellEntry.damageType == DamageType.Fire)
+      if (castingCreature.KnowsFeat((Feat)CustomSkill.FlammesDePhlegetos) && spellEntry.damageType == DamageType.Fire)
       {
         castingCreature.ApplyEffect(EffectDuration.Temporary, Effect.DamageShield(0, DamageBonus.Plus1d4, DamageType.Fire), NwTimeSpan.FromRounds(1));
         StringUtils.DisplayStringToAllPlayersNearTarget(castingCreature, "Flammes de Phlégétos", ColorConstants.Orange, true);

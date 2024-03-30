@@ -8,10 +8,10 @@ namespace NWN.Systems
     {
       numDice *= 2;
 
-      if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Broyeur)) && spell.damageType == DamageType.Bludgeoning)
+      if (caster.KnowsFeat((Feat)CustomSkill.Broyeur) && spell.damageType == DamageType.Bludgeoning)
         numDice += 1;
 
-      if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Empaleur)) && spell.damageType == DamageType.Piercing)
+      if (caster.KnowsFeat((Feat)CustomSkill.Empaleur) && spell.damageType == DamageType.Piercing)
         numDice += 1;
 
       return numDice;

@@ -10,7 +10,7 @@ namespace NWN.Systems
       {
         case CustomSkill.PerceptionProficiency:
 
-          if (creature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemAspectAigle)))
+          if (creature.KnowsFeat((Feat)CustomSkill.TotemAspectAigle))
             return 1;
 
           return GetCreatureAbilityAdvantage(creature, Ability.Wisdom);

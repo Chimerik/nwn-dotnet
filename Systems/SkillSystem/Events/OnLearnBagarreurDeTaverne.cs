@@ -16,8 +16,8 @@ namespace NWN.Systems
       if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Dexterity) < 20)
         abilities.Add(new("Dextérité", (int)Ability.Dexterity));
 
-      if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.BagarreurDeTaverne)))
-        player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.BagarreurDeTaverne));
+      if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.BagarreurDeTaverne))
+        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.BagarreurDeTaverne);
 
       if (abilities.Count > 0)
       {

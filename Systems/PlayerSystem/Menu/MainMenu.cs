@@ -542,10 +542,11 @@ namespace NWN.Systems
 
                     player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Heal(player.oid.LoginCreature.MaxHP / 2));
                     player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(CreatureUtils.MeneurExaltantVariable).Delete();
-                    player.oid.LoginCreature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.ThiefInvisibility), 1);
+                    player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ThiefInvisibility, 1);
                     FighterUtils.RestoreManoeuvres(player.oid.LoginCreature);
                     FighterUtils.RestoreTirArcanique(player.oid.LoginCreature);
                     MonkUtils.RestoreKi(player.oid.LoginCreature);
+                    WizardUtils.RestaurationArcanique(player.oid.LoginCreature);
 
                     foreach (var skill in player.learnableSkills.Values.Where(l => l.restoreOnShortRest && l.currentLevel > 0))
                     {
@@ -563,7 +564,7 @@ namespace NWN.Systems
                           break;
                       }
 
-                      player.oid.LoginCreature.SetFeatRemainingUses(NwFeat.FromFeatId(skill.id), nbCharge);
+                      player.oid.LoginCreature.SetFeatRemainingUses((Feat)skill.id, nbCharge);
                     }
 
                     BarbarianUtils.RestoreImplacableRage(player.oid.LoginCreature);
@@ -579,6 +580,7 @@ namespace NWN.Systems
                     FighterUtils.RestoreTirArcanique(player.oid.LoginCreature);
                     BarbarianUtils.RestoreBarbarianRage(player.oid.LoginCreature);
                     MonkUtils.RestoreKi(player.oid.LoginCreature);
+                    WizardUtils.RestaurationArcanique(player.oid.LoginCreature);
 
                     if (player.oid.LoginCreature.Race.Id == CustomRace.HalfOrc)
                     {
@@ -586,23 +588,23 @@ namespace NWN.Systems
                       player.ApplyHalfOrcEndurance();
                     }
 
-                    if (player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.BersekerFrenziedStrike)))
-                      player.oid.LoginCreature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.BersekerFrenziedStrike), 0);
+                    if (player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.BersekerFrenziedStrike))
+                      player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.BersekerFrenziedStrike, 0);
 
-                    if (player.oid.LoginCreature.GetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.FighterSurge)) > 1
+                    if (player.oid.LoginCreature.GetFeatRemainingUses((Feat)CustomSkill.FighterSurge) > 1
                     && player.oid.LoginCreature.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level < 17))
-                      player.oid.LoginCreature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.FighterSurge), 1);
+                      player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.FighterSurge, 1);
 
-                    if (player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.WildMagicSense)))
+                    if (player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.WildMagicSense))
                     {
-                      player.oid.LoginCreature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WildMagicSense), (byte)NativeUtils.GetCreatureProficiencyBonus(player.oid.LoginCreature));
-                      player.oid.LoginCreature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WildMagicTeleportation), 0);
+                      player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.WildMagicSense, (byte)NativeUtils.GetCreatureProficiencyBonus(player.oid.LoginCreature));
+                      player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.WildMagicTeleportation, 0);
 
-                      if (player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.WildMagicMagieGalvanisanteBienfait)))
-                        player.oid.LoginCreature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WildMagicMagieGalvanisanteBienfait), (byte)NativeUtils.GetCreatureProficiencyBonus(player.oid.LoginCreature));
+                      if (player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.WildMagicMagieGalvanisanteBienfait))
+                        player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.WildMagicMagieGalvanisanteBienfait, (byte)NativeUtils.GetCreatureProficiencyBonus(player.oid.LoginCreature));
 
-                      if (player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.WildMagicMagieGalvanisanteRecuperation)))
-                        player.oid.LoginCreature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WildMagicMagieGalvanisanteRecuperation), (byte)NativeUtils.GetCreatureProficiencyBonus(player.oid.LoginCreature));
+                      if (player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.WildMagicMagieGalvanisanteRecuperation))
+                        player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.WildMagicMagieGalvanisanteRecuperation, (byte)NativeUtils.GetCreatureProficiencyBonus(player.oid.LoginCreature));
                     }
 
                     player.oid.LoginCreature.ApplyEffect(EffectDuration.Temporary, EffectSystem.CanPrepareSpells, NwTimeSpan.FromHours(1));

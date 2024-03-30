@@ -21,12 +21,12 @@ namespace NWN.Systems
         switch(spellEntry.damageType)
         {
           case DamageType.Piercing:
-            if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Empaleur)))
+            if (caster.KnowsFeat((Feat)CustomSkill.Empaleur))
               roll = roll < 3 ? NwRandom.Roll(Utils.random, spellEntry.damageDice) : roll;
             break;
 
           case DamageType.Fire:
-            if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.FlammesDePhlegetos)))
+            if (caster.KnowsFeat((Feat)CustomSkill.FlammesDePhlegetos))
               roll = roll < 2 ? NwRandom.Roll(Utils.random, spellEntry.damageDice) : roll;
             break;
         }

@@ -12,19 +12,19 @@ namespace NWN.Systems
       {
         NwCreature creature = onStatus.Player.LoginCreature;
 
-        if (creature.GetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkPatience)) < 1)
+        if (creature.GetFeatRemainingUses((Feat)CustomSkill.MonkPatience) < 1)
         {
-          creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkPatience), 4);
-          creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkDelugeDeCoups), 4);
-          creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkStunStrike), 4);
-          creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkDesertion), 4);
-          creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkExplosionKi), 4);
-          creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkPaumeVibratoire), 4);
-          creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkDarkVision), 4);
-          creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkTenebres), 4);
-          creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkPassageSansTrace), 4);
-          creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkSilence), 4);
-          creature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.MonkFrappeDombre), 4);
+          creature.SetFeatRemainingUses((Feat)CustomSkill.MonkPatience, 4);
+          creature.SetFeatRemainingUses((Feat)CustomSkill.MonkDelugeDeCoups, 4);
+          creature.SetFeatRemainingUses((Feat)CustomSkill.MonkStunStrike, 4);
+          creature.SetFeatRemainingUses((Feat)CustomSkill.MonkDesertion, 4);
+          creature.SetFeatRemainingUses((Feat)CustomSkill.MonkExplosionKi, 4);
+          creature.SetFeatRemainingUses((Feat)CustomSkill.MonkPaumeVibratoire, 4);
+          creature.SetFeatRemainingUses((Feat)CustomSkill.MonkDarkVision, 4);
+          creature.SetFeatRemainingUses((Feat)CustomSkill.MonkTenebres, 4);
+          creature.SetFeatRemainingUses((Feat)CustomSkill.MonkPassageSansTrace, 4);
+          creature.SetFeatRemainingUses((Feat)CustomSkill.MonkSilence, 4);
+          creature.SetFeatRemainingUses((Feat)CustomSkill.MonkFrappeDombre, 4);
         }
       }
     }

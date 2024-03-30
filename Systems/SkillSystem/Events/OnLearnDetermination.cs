@@ -8,8 +8,8 @@ namespace NWN.Systems
   {
     public static bool OnLearnDetermination(PlayerSystem.Player player, int customSkillId)
     {
-      if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Determination)))
-        player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.Determination));
+      if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.Determination))
+        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.Determination);
 
       List <NuiComboEntry> abilities = new();
 

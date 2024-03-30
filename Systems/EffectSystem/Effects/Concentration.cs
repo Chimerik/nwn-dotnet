@@ -71,7 +71,7 @@ namespace NWN.Systems
           if (creature.GetItemInSlot(InventorySlot.RightHand)?.Tag == "_TEMP_FLAME_BLADE")
             creature.GetItemInSlot(InventorySlot.RightHand).Destroy();
 
-          creature.DecrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.FlameBlade));
+          creature.DecrementRemainingFeatUses((Feat)CustomSkill.FlameBlade);
           return ScriptHandleResult.Handled;
         }
 

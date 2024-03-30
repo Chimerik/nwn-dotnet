@@ -35,17 +35,17 @@ namespace NWN.Systems
         });
       }
 
-      if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Sprint)))
-        player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.Sprint));
+      if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.Sprint))
+        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.Sprint);
 
-      if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Disengage)))
-        player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.Disengage));
+      if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.Disengage))
+        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.Disengage);
 
-      if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Dodge)))
-        player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.Dodge));
+      if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.Dodge))
+        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.Dodge);
 
-      if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Stealth)))
-        player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.Stealth));
+      if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.Stealth))
+        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.Stealth);
 
       player.oid.SetGuiPanelDisabled(GUIPanel.ExamineItem, true);
       player.oid.SetGuiPanelDisabled(GUIPanel.Journal, true);
@@ -179,7 +179,7 @@ namespace NWN.Systems
         //oid.LoginCreature.OnSpellAction += spellSystem.HandleSpellInput;
         oid.LoginCreature.OnSpellAction += spellSystem.HandleSpellInputBlinded;
 
-        if(!oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.MageDeGuerre)))
+        if(!oid.LoginCreature.KnowsFeat((Feat)CustomSkill.MageDeGuerre))
           oid.LoginCreature.OnSpellAction += SpellSystem.CancelSomaticSpellIfOffHandBusy;
         
         oid.LoginCreature.OnSpellAction += SpellSystem.HandleCraftOnSpellInput;

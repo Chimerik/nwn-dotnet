@@ -402,11 +402,11 @@ namespace NWN.Systems
         {
           List<LearnableSkill> profienciesToRemove = new();
 
-          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatType(Feat.SneakAttack));
-          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatType(Feat.BarbarianRage));
-          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.MainLeste));
-          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.DiscretionSupreme));
-          player.oid.LoginCreature.RemoveFeat(NwFeat.FromFeatId(CustomSkill.ThiefInvisibility));
+          player.oid.LoginCreature.RemoveFeat(Feat.SneakAttack);
+          player.oid.LoginCreature.RemoveFeat(Feat.BarbarianRage);
+          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.MainLeste);
+          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.DiscretionSupreme);
+          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.ThiefInvisibility);
 
           if (player.windows.TryGetValue("expertiseChoice", out var expertise) && expertise.IsOpen)
           {

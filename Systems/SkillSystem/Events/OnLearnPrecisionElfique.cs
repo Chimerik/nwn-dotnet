@@ -8,8 +8,8 @@ namespace NWN.Systems
   {
     public static bool OnLearnPrecisionElfique(PlayerSystem.Player player, int customSkillId)
     {
-      if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.PrecisionElfique)))
-        player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.PrecisionElfique));
+      if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.PrecisionElfique))
+        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.PrecisionElfique);
 
       List<NuiComboEntry> abilities = new();
 

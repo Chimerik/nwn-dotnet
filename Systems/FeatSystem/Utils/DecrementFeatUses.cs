@@ -7,7 +7,7 @@ namespace NWN.Systems
     public static async void DecrementFeatUses(NwCreature creature, int featId)
     {
       await NwTask.NextFrame();
-      creature.DecrementRemainingFeatUses(NwFeat.FromFeatId(featId));
+      creature.DecrementRemainingFeatUses((Feat)featId);
     }
   }
 }

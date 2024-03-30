@@ -20,7 +20,7 @@ namespace NWN.Systems
             {
               if (player.learnableSkills.TryAdd(learnable.id, new LearnableSkill((LearnableSkill)learnable, player)))
                 player.learnableSkills[learnable.id].LevelUp(player);
-
+              
               player.learnableSkills[learnable.id].source.Add(Category.Class);
             }
 
@@ -56,6 +56,34 @@ namespace NWN.Systems
 
           if (!player.windows.TryGetValue("featSelection", out var feat4)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
           else ((FeatSelectionWindow)feat4).CreateWindow();
+
+          break;
+
+        case 8:
+
+          if (!player.windows.TryGetValue("featSelection", out var feat8)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
+          else ((FeatSelectionWindow)feat8).CreateWindow();
+
+          break;
+
+        case 12:
+
+          if (!player.windows.TryGetValue("featSelection", out var feat12)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
+          else ((FeatSelectionWindow)feat12).CreateWindow();
+
+          break;
+
+        case 16:
+
+          if (!player.windows.TryGetValue("featSelection", out var feat16)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
+          else ((FeatSelectionWindow)feat16).CreateWindow();
+
+          break;
+
+        case 19:
+
+          if (!player.windows.TryGetValue("featSelection", out var feat19)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
+          else ((FeatSelectionWindow)feat19).CreateWindow();
 
           break;
       }

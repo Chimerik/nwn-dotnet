@@ -19,10 +19,10 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.BersekerFrenziedStrike].LevelUp(player);
           player.learnableSkills[CustomSkill.BersekerFrenziedStrike].source.Add(Category.Class);
 
-          if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(CustomSkill.BersekerFrenziedStrike)))
-            player.oid.LoginCreature.AddFeat(NwFeat.FromFeatId(CustomSkill.BersekerFrenziedStrike));
+          if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.BersekerFrenziedStrike))
+            player.oid.LoginCreature.AddFeat((Feat)CustomSkill.BersekerFrenziedStrike);
 
-          player.oid.LoginCreature.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.BersekerFrenziedStrike), 0);
+          player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.BersekerFrenziedStrike, 0);
 
           break;
 

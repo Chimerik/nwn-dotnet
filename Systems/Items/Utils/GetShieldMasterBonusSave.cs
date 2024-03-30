@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       int shieldBonus = 0;
 
-      if (saveType == Ability.Dexterity && target.KnowsFeat(NwFeat.FromFeatId(CustomSkill.MaitreBouclier)))
+      if (saveType == Ability.Dexterity && target.KnowsFeat((Feat)CustomSkill.MaitreBouclier))
       {
         shieldBonus = (target.GetItemInSlot(InventorySlot.LeftHand)?.BaseItem.ItemType) switch
         {
