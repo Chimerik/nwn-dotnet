@@ -7,8 +7,8 @@ namespace NWN.Systems
     public static int HandleEsquiveInstinctive(CNWSCreature creature)
     {
       if(creature.m_ScriptVars.GetInt(CreatureUtils.ReactionVariableExo) > 0)
-      {
-        if(creature.m_pStats.GetClassLevel((byte)ClassType.Rogue) > 4)
+      {      
+        if (GetClassLevel(creature, ClassType.Rogue) > 4)
         {
           creature.m_ScriptVars.SetInt(CreatureUtils.ReactionVariableExo, creature.m_ScriptVars.GetInt(CreatureUtils.ReactionVariableExo) - 1);
           BroadcastNativeServerMessage("Esquive Instinctive", creature);

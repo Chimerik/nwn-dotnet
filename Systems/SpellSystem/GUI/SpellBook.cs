@@ -213,13 +213,7 @@ namespace NWN.Systems
           levelChildren.Add(new NuiSpacer());
 
           levelRow.Children = levelChildren;
-          classGroup.SetLayout(player.oid, nuiToken.Token, classRow);
-
-          className.SetBindValue(player.oid, nuiToken.Token, selectedClass.Name.ToString());
-          castingAbility.SetBindValue(player.oid, nuiToken.Token, StringUtils.TranslateAttributeToFrench(selectedClass.SpellCastingAbility));
-          castingAbilityIcon.SetBindValue(player.oid, nuiToken.Token, selectedClass.SpellCastingAbility.ToString().ToLower());
-          spellDC.SetBindValue(player.oid, nuiToken.Token, SpellUtils.GetCasterSpellDC(player.oid.LoginCreature, selectedClass.SpellCastingAbility).ToString());
-          spellAttack.SetBindValue(player.oid, nuiToken.Token, (NativeUtils.GetCreatureProficiencyBonus(player.oid.LoginCreature) + player.oid.LoginCreature.GetAbilityModifier(selectedClass.SpellCastingAbility)).ToString());
+          levelGroup.SetLayout(player.oid, nuiToken.Token, levelRow);
         }
 
         private void SetCantripLayout()

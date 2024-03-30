@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     public static async void RestoreTirArcanique(NwCreature creature)
     {
-      byte? level = creature.GetClassInfo(NwClass.FromClassType(ClassType.Fighter))?.Level;
+      byte? level = creature.GetClassInfo(ClassType.Fighter)?.Level;
 
       if (!level.HasValue)
         return;

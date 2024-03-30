@@ -50,6 +50,8 @@ namespace NWN.Systems
           case "forge": 
           case "scierie":
           case "tannerie": plc.OnUsed += OpenWorkshopWindow; break;
+          case "test_bdf": plc.OnLeftClick += TestBouleDeFeu; break;
+          case "test_jds_sag": plc.OnLeftClick += TestJDSSAG; break;
           //case "bank_gold": plc.OnUsed += Give1000Gold; break;
         }
         

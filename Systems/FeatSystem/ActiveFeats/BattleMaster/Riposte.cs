@@ -12,7 +12,7 @@ namespace NWN.Systems
       {
         if (!caster.GetItemInSlot(InventorySlot.RightHand).BaseItem.IsRangedWeapon)
         {
-          int warMasterLevel = caster.GetClassInfo(NwClass.FromClassId(CustomClass.Fighter)).Level;
+          int warMasterLevel = caster.GetClassInfo(ClassType.Fighter).Level;
           int superiorityDice = warMasterLevel > 17 ? 12 : warMasterLevel > 9 ? 10 : 8;
 
           caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ManoeuvreTypeVariable).Value = CustomSkill.WarMasterRiposte;

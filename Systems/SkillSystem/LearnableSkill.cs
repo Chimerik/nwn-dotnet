@@ -138,6 +138,7 @@ namespace NWN.Systems
         case SkillSystem.Category.BarbarianSubClass:
         case SkillSystem.Category.RogueSubClass:
         case SkillSystem.Category.MonkSubClass:
+        case SkillSystem.Category.WizardSubClass:
 
           if (playerLevel < 1)
             playerLevel = player.oid.LoginCreature.Level;

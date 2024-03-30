@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     public static int HandleInflexible(NwCreature creature, int saveRoll)
     {
-      int? fighterLevel = creature.GetClassInfo(NwClass.FromClassId(CustomClass.Fighter))?.Level;
+      int? fighterLevel = creature.GetClassInfo(ClassType.Fighter)?.Level;
 
       if (!fighterLevel.HasValue || fighterLevel.Value < 9)
         return saveRoll;

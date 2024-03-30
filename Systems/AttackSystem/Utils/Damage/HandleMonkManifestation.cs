@@ -1,5 +1,4 @@
-﻿using Anvil.API;
-using NWN.Native.API;
+﻿using NWN.Native.API;
 
 namespace NWN.Systems
 {
@@ -7,7 +6,7 @@ namespace NWN.Systems
   {
     public static void HandleMonkManifestation(CNWSCreature creature, CNWSItem weapon)
     {
-      if(weapon is not null && creature.m_pStats.GetClassLevel(5, 0) > 5)
+      if(weapon is not null && GetClassLevel(creature, ClassType.Monk) > 5)
       {
         EffectUtils.RemoveTaggedEffect(creature, EffectSystem.ManifestationAmeEffectExoTag);
         EffectUtils.RemoveTaggedEffect(creature, EffectSystem.ManifestationCorpsEffectExoTag);

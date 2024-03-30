@@ -30,7 +30,7 @@ namespace NWN.Systems
             if (eff.EffectType == EffectType.TemporaryHitpoints)
               caster.RemoveEffect(eff);
 
-          caster.ApplyEffect(EffectDuration.Permanent, Effect.TemporaryHitpoints(caster.GetClassInfo(NwClass.FromClassType(ClassType.Barbarian)).Level * 2));
+          caster.ApplyEffect(EffectDuration.Permanent, Effect.TemporaryHitpoints(caster.GetClassInfo(ClassType.Barbarian).Level * 2));
         }
 
         caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value -= 1;

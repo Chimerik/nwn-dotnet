@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     public static async void RestoreBarbarianRage(NwCreature creature)
     {
-      byte? level = creature.GetClassInfo(NwClass.FromClassType(ClassType.Barbarian))?.Level;
+      byte? level = creature.GetClassInfo(ClassType.Barbarian)?.Level;
 
       if (!level.HasValue)
         return;

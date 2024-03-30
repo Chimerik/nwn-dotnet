@@ -20,7 +20,7 @@ namespace NWN.Systems
       if (!CreatureUtils.HandleBonusActionUse(caster))
         return;
 
-      int warMasterLevel = caster.GetClassInfo(NwClass.FromClassId(CustomClass.Fighter)).Level;
+      int warMasterLevel = caster.GetClassInfo(ClassType.Fighter).Level;
       int superiorityDice = warMasterLevel > 17 ? 12 : warMasterLevel > 9 ? 10 : 8;
       int temporaryHP = NwRandom.Roll(Utils.random, superiorityDice) + caster.GetAbilityModifier(Ability.Charisma);
       

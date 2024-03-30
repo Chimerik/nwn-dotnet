@@ -58,6 +58,8 @@ namespace NWN.Systems
       RogueSubClass,
       [Description("Voie_du_Moine")]
       MonkSubClass,
+      [Description("Spécalité_du_Magicien")]
+      WizardSubClass,
     }
 
     public static readonly Dictionary<int, Learnable> learnableDictionary = new();
@@ -452,6 +454,8 @@ namespace NWN.Systems
       //learnableDictionary.Add(CustomSkill.MonkElements, new LearnableSkill(CustomSkill.MonkElements, "Voie des Éléments", "", Category.MonkSubClass, "monk_elements", 20, 1, Ability.Wisdom, Ability.Dexterity, Monk.LevelUp, "1Q41PA3akr8AsxKMnbjdixlbOOdNrZsByEtbwJN3lt2A"));
       learnableDictionary.Add(CustomSkill.MonkHarmony, new LearnableSkill(CustomSkill.MonkHarmony, "Harmonie de l'eau et du feu", "Si vous n'êtes pas en combat, vous regagnez la moitié de votre Ki.\nUtilisable une fois par repos long.", Category.Fight, "is_Harmony", 1, 1, Ability.Wisdom, Ability.Dexterity, LearnActivableFeat));
 
+      learnableDictionary.Add(CustomSkill.Wizard, new LearnableSkill(CustomSkill.Wizard, "Magicien", "", Category.Class, "wizard", 20, 1, Ability.Intelligence, Ability.Wisdom, Wizard.LevelUp, "1ymEMqm6nx6CsYoEktRjfQYm6IKs3XmG5a-abbOcdtUU"));
+      learnableDictionary.Add(CustomSkill.WizardRestaurationArcanique, new LearnableSkill(CustomSkill.WizardRestaurationArcanique, "Restauration Arcanique", "Si vous n'êtes pas en combat, choisissez un niveau de sort pour lequel vous souhaitez récuperer des emplacements\nNombre de charges : la moitié de votre niveau de magicien\nCharges récupérées à chaque repos court", Category.Fight, "is_ArcaneRecover", 1, 1, Ability.Intelligence, Ability.Wisdom, LearnActivableFeat));
       // SPELLS
       // CANTRIPS
 

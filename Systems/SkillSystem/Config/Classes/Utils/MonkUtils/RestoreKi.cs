@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     public static async void RestoreKi(NwCreature creature, bool harmony = false)
     {
-      byte? level = creature.GetClassInfo(NwClass.FromClassType(ClassType.Monk))?.Level;
+      byte? level = creature.GetClassInfo(ClassType.Monk)?.Level;
 
       if (!level.HasValue)
         return;

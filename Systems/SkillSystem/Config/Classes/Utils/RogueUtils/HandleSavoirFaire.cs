@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     public static int HandleSavoirFaire(NwCreature creature, int skill, int roll)
     {
-      int? rogueLevel = creature.GetClassInfo(NwClass.FromClassId(CustomClass.Rogue))?.Level;
+      int? rogueLevel = creature.GetClassInfo(ClassType.Rogue)?.Level;
 
       if (roll > 9 || !rogueLevel.HasValue || rogueLevel.Value < 11)
         return roll;

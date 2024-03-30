@@ -1,6 +1,4 @@
-﻿using System;
-using Anvil.API;
-using Anvil.API.Events;
+﻿using Anvil.API.Events;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems

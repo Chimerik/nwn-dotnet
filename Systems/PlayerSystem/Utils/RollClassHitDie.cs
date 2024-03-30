@@ -11,7 +11,6 @@ namespace NWN.Systems
         byte hitDie = NwClass.FromClassId(classId).HitDie;
 
         LogUtils.LogMessage($"DV de la classe : {hitDie}", LogUtils.LogType.Learnables);
-        ModuleSystem.Log.Info($"playerLevel {playerLevel}");
 
         byte hitPointGain;
 

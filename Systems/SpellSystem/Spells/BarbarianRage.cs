@@ -75,7 +75,7 @@ namespace NWN.Systems
       else
         LogUtils.LogMessage($"ERREUR - {caster.Name} ({caster.LoginPlayer?.PlayerName}) ne dispose pas de peau de créature", LogUtils.LogType.IllegalItems);
 
-      byte barbarianLevel = caster.GetClassInfo(NwClass.FromClassType(ClassType.Barbarian)).Level;
+      byte barbarianLevel = caster.GetClassInfo(ClassType.Barbarian).Level;
 
       if(barbarianLevel > 10)
       {

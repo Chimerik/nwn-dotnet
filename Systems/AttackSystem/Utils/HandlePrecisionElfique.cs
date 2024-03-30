@@ -16,8 +16,11 @@ namespace NWN.Systems
           case Ability.Intelligence:
           case Ability.Wisdom:
           case Ability.Charisma:
-            SendNativeServerMessage("Précision elfique".ColorString(StringUtils.gold), creature);
+            
             int reroll = NwRandom.Roll(Utils.random, 20);
+            SendNativeServerMessage("Précision elfique".ColorString(StringUtils.gold), creature);
+            LogUtils.LogMessage($"Précision elfique : {attackRoll} et {reroll}", LogUtils.LogType.Combat);
+
             return reroll > attackRoll ? reroll : attackRoll;
         }
       }

@@ -283,7 +283,11 @@ namespace NWN.Systems
                   if (player.oid.LoginCreature.Level == 1)
                     player.oid.LoginCreature.ForceLevelUp((byte)classId, player.RollClassHitDie(player.oid.LoginCreature.Level, (byte)classId, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));
                   else
+                  {
                     CreaturePlugin.SetClassByPosition(player.oid.LoginCreature, 1, classId);
+                    player.oid.LoginCreature.LevelInfo[1].HitDie = player.RollClassHitDie(player.oid.LoginCreature.Level, (byte)classId, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution));
+                    player.oid.LoginCreature.HP = player.oid.LoginCreature.MaxHP;
+                  }
 
                   player.learnableSkills.TryAdd(selectedLearnable.id, new LearnableSkill((LearnableSkill)learnableDictionary[selectedLearnable.id], player, (int)Category.Class));
                   player.learnableSkills[selectedLearnable.id].LevelUp(player);

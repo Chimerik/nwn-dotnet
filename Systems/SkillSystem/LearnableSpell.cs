@@ -81,7 +81,7 @@ namespace NWN.Systems
 
       foreach (int casterClass in learntFromClasses)
       {
-        CreatureClassInfo classInfo = player.oid.LoginCreature.GetClassInfo(NwClass.FromClassId(casterClass));
+        CreatureClassInfo classInfo = player.oid.LoginCreature.GetClassInfo((ClassType)casterClass);
 
         if (classInfo is null)
           continue;

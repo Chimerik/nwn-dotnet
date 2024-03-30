@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     public static int HandleBarbarianPuissanceIndomptable(NwCreature creature, int saveRoll)
     {
-      byte? level = creature.GetClassInfo(NwClass.FromClassType(ClassType.Barbarian))?.Level;
+      byte? level = creature.GetClassInfo(ClassType.Barbarian)?.Level;
 
       if (!level.HasValue || level < 18)
         return saveRoll;

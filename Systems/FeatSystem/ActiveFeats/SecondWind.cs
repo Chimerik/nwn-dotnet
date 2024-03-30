@@ -9,7 +9,7 @@ namespace NWN.Systems
       if (!CreatureUtils.HandleBonusActionUse(caster))
         return;
 
-      int fighterLevel = caster.GetClassInfo(NwClass.FromClassType(ClassType.Fighter)).Level;
+      int fighterLevel = caster.GetClassInfo(ClassType.Fighter).Level;
       caster.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.Heal(NwRandom.Roll(Utils.random, 10, 1) + fighterLevel), Effect.VisualEffect(VfxType.ImpHealingM)));
 
       caster.DecrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.FighterSecondWind));

@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     public static void RestoreImplacableRage(NwCreature creature)
     {
-      byte? level = creature.GetClassInfo(NwClass.FromClassType(ClassType.Barbarian))?.Level;
+      byte? level = creature.GetClassInfo(ClassType.Barbarian)?.Level;
 
       if (level.HasValue && level > 10)
         creature.GetObjectVariable<PersistentVariableInt>("_RAGE_IMPLACABLE_DD").Value = 10;

@@ -607,7 +607,7 @@ namespace NWN.Systems
 
                     player.oid.LoginCreature.ApplyEffect(EffectDuration.Temporary, EffectSystem.CanPrepareSpells, NwTimeSpan.FromHours(1));
 
-                    foreach (var classInfo in player.oid.LoginCreature.Classes.Where(c => c.Class.IsSpellCaster))
+                    /*foreach (var classInfo in player.oid.LoginCreature.Classes.Where(c => c.Class.IsSpellCaster))
                     {
                       var spellGainTable = classInfo.Class.SpellGainTable[classInfo.Level - 1];
                       byte i = 0;
@@ -617,7 +617,7 @@ namespace NWN.Systems
                         classInfo.SetRemainingSpellSlots(i, spellGain);
                         i++;
                       }
-                    }
+                    }*/
 
                     break;
                 }

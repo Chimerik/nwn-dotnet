@@ -1,7 +1,9 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using NWN.Native.API;
 using Ability = Anvil.API.Ability;
 using BaseItemType = Anvil.API.BaseItemType;
+using ClassType = NWN.Native.API.ClassType;
 
 namespace NWN.Systems
 {
@@ -13,7 +15,11 @@ namespace NWN.Systems
 
       if (target is not null)
       {
-        if (rangedAttack && GetHighGroundAdvantage(attacker, target))
+        // Si la cible est insaissible (Rogue 18) et n'est pas incapable d'agir, alors il est impossible d'avoir l'avantage sur elle
+        if (NativeUtils.GetClassLevel(target, ClassType.Rogue) > 17 && !EffectUtils.IsIncapacitated(target))
+          return false;
+
+          if (rangedAttack && GetHighGroundAdvantage(attacker, target))
           return true;
 
         if (GetAttackerAdvantageEffects(attacker, target, attackStat))
@@ -43,6 +49,10 @@ namespace NWN.Systems
 
       if (target is not null)
       {
+        // Si la cible est insaissible (Rogue 18) et n'est pas incapable d'agir, alors il est impossible d'avoir l'avantage sur elle
+        if (target.Classes.Any(c => c.Class.ClassType == Anvil.API.ClassType.Rogue && c.Level > 17) && !EffectUtils.IsIncapacitated(target))
+          return false;
+
         if (rangedSpell && GetHighGroundAdvantage(attacker, target))
           return true;
 
