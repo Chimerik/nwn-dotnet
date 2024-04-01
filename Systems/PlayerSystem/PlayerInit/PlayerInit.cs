@@ -428,6 +428,8 @@ namespace NWN.Systems
         InitializeEspritTotemChoice();
         InitializeAspectTotemChoice();
         InitializeLienTotemChoice();
+        InitializeMaitriseDesSortsChoice();
+        InitializeSpellSelection();
         ResetFlameBlade();
         ResetSize();
         ApplyProtectionStyle();

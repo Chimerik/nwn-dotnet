@@ -80,6 +80,15 @@ namespace NWN.Systems
 
           break;
 
+        case 18:
+
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_MAITRISE_DES_SORTS_SELECTION").Value = CustomSkill.Wizard;
+
+          if (!player.windows.TryGetValue("maitriseDesSorts", out var masterSpell)) player.windows.Add("maitriseDesSorts", new MaitriseDesSortsWindow(player));
+          else ((MaitriseDesSortsWindow)masterSpell).CreateWindow();
+
+          break;
+
         case 19:
 
           if (!player.windows.TryGetValue("featSelection", out var feat19)) player.windows.Add("featSelection", new FeatSelectionWindow(player));

@@ -487,6 +487,9 @@ namespace NWN.Systems
 
                   case "addClass":
 
+                    if (!player.windows.TryGetValue("spellSelection", out var masterSpell)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 0, 3));
+                    else ((SpellSelectionWindow)masterSpell).CreateWindow(ClassType.Wizard, 0, 3);
+
                     /*if (!player.oid.LoginCreature.Classes.Any(c => c.Class.ClassType == ClassType.Wizard))
                     {
                       player.oid.LoginCreature.ForceLevelUp(NwClass.FromClassType(ClassType.Wizard).Id, 1);

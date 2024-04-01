@@ -395,7 +395,7 @@ namespace NWN
       { "sacrificeHP", new MainMenuCommand("Perdre 20 % de points de vie (alpha)", "", CommandRank.Public) },
       { "dm", new MainMenuCommand("Mode DM", "", CommandRank.Admin) },
       { "spellBook", new MainMenuCommand("Livre de sorts", "", CommandRank.Admin) },
-      //{ "addClass", new MainMenuCommand("Test add caster class", "", CommandRank.Admin) },
+      { "addClass", new MainMenuCommand("Test Chim", "", CommandRank.Admin) },
       { "creaturePalette", new MainMenuCommand("Palette des créatures", "", CommandRank.DM) },
       { "itemPalette", new MainMenuCommand("Palette des objets", "", CommandRank.DM) },
       { "placeablePalette", new MainMenuCommand("Palette des placeables", "", CommandRank.DM) },

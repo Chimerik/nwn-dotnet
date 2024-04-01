@@ -11,7 +11,6 @@ using System;
 using System.Collections.Generic;
 using NWN.Systems.Arena;
 using static NWN.Systems.PlayerSystem;
-using System.Security.Claims;
 
 namespace NWN.Systems
 {
@@ -1106,8 +1105,20 @@ namespace NWN.Systems
 
       if (callInfo.ObjectSelf is not NwCreature caster
         || (MetaMagic)int.Parse(EventsPlugin.GetEventData("METAMAGIC")) != MetaMagic.None
-        || classPosition == 254 //spell like ability
-        || NwSpell.FromSpellId(int.Parse(EventsPlugin.GetEventData("SPELL_ID"))).GetSpellLevelForClass(caster.Classes[classPosition].Class) > 0)
+        || classPosition == 254) //spell like ability
+        return;
+
+      var castingClass = caster.Classes[classPosition].Class.ClassType;
+      var spell = NwSpell.FromSpellId(int.Parse(EventsPlugin.GetEventData("SPELL_ID")));
+
+      if(castingClass == ClassType.Wizard && Players.TryGetValue(caster, out var player)
+        && player.learnableSpells.TryGetValue(spell.Id, out var masterSpell) && masterSpell.mastery)
+      {
+        EventsPlugin.SkipEvent();
+        return;
+      }
+
+      if (spell.GetSpellLevelForClass(caster.Classes[classPosition].Class) > 0)
         return;
 
       EventsPlugin.SkipEvent();

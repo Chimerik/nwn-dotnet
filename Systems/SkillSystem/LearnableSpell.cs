@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Anvil.API;
+using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
@@ -11,6 +12,7 @@ namespace NWN.Systems
     public bool canLearn { get; set; }
     public List<ClassType> availableToClasses { get; set; }
     public List<int> learntFromClasses { get; set; }
+    public bool mastery { get; set; }
     // Dans le cas des Spell, multiplier = spell Level - 1
 
     public LearnableSpell(int id, string name, string description, string icon, int multiplier, Ability primaryAbility, Ability secondaryAbility, List<ClassType> classes, int maxLevel = 1) : base(id, name, description, icon, maxLevel, multiplier, primaryAbility, secondaryAbility)
@@ -25,6 +27,7 @@ namespace NWN.Systems
       currentLevel = 0;
       pointsToNextLevel = 5000 * multiplier;
       learntFromClasses = new() { fromClass };
+      mastery = false;
     }
     public LearnableSpell(LearnableSpell learnableBase, List<int> fromClass) : base(learnableBase)
     {
@@ -34,6 +37,7 @@ namespace NWN.Systems
       currentLevel = 0;
       pointsToNextLevel = 5000 * multiplier;
       learntFromClasses = fromClass;
+      mastery = false;
     }
     public LearnableSpell(LearnableSpell learnableBase, SerializableLearnableSpell serializableBase) : base(learnableBase)
     {
@@ -45,6 +49,7 @@ namespace NWN.Systems
       spLastCalculation = serializableBase.spLastCalculation;
       canLearn = serializableBase.canLearn;
       learntFromClasses = serializableBase.learntFromClasses;
+      mastery = serializableBase.mastery;
     }
 
     public class SerializableLearnableSpell
@@ -53,6 +58,7 @@ namespace NWN.Systems
       public double acquiredPoints { get; set; }
       public int currentLevel { get; set; }
       public bool canLearn { get; set; }
+      public bool mastery { get; set; }
       public List<int> learntFromClasses { get; set; }
       public DateTime? spLastCalculation { get; set; }
 
@@ -67,10 +73,11 @@ namespace NWN.Systems
         currentLevel = learnableBase.currentLevel;
         spLastCalculation = learnableBase.spLastCalculation;
         canLearn = learnableBase.canLearn;
+        mastery = learnableBase.mastery;
         learntFromClasses = learnableBase.learntFromClasses;
       }
     }
-    public void LevelUp(PlayerSystem.Player player)
+    public void LevelUp(Player player)
     {
       acquiredPoints = pointsToNextLevel;
       currentLevel += 1;
@@ -103,16 +110,16 @@ namespace NWN.Systems
           knownSpells.Add(NwSpell.FromSpellId(id));
       }
 
-      if (player.TryGetOpenedWindow("activeLearnable", out PlayerSystem.Player.PlayerWindow activeLearnableWindow))
+      if (player.activeLearnable.id == id && player.TryGetOpenedWindow("activeLearnable", out Player.PlayerWindow activeLearnableWindow))
       {
-        PlayerSystem.Player.ActiveLearnableWindow window = (PlayerSystem.Player.ActiveLearnableWindow)activeLearnableWindow;
+        Player.ActiveLearnableWindow window = (Player.ActiveLearnableWindow)activeLearnableWindow;
         window.timeLeft.SetBindValue(player.oid, window.nuiToken.Token, "Apprentissage terminé");
         window.level.SetBindValue(player.oid, window.nuiToken.Token, $"{currentLevel}/{maxLevel}");
       }
 
-      if (player.TryGetOpenedWindow("learnables", out PlayerSystem.Player.PlayerWindow learnableWindow))
+      if (player.TryGetOpenedWindow("learnables", out Player.PlayerWindow learnableWindow))
       {
-        PlayerSystem.Player.LearnableWindow window = (PlayerSystem.Player.LearnableWindow)learnableWindow;
+        Player.LearnableWindow window = (Player.LearnableWindow)learnableWindow;
         window.LoadLearnableList(window.currentList);
       }
 
