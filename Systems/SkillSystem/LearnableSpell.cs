@@ -110,7 +110,8 @@ namespace NWN.Systems
           knownSpells.Add(NwSpell.FromSpellId(id));
       }
 
-      if (player.activeLearnable.id == id && player.TryGetOpenedWindow("activeLearnable", out Player.PlayerWindow activeLearnableWindow))
+      if (player.activeLearnable is not null && player.activeLearnable.id == id 
+        && player.TryGetOpenedWindow("activeLearnable", out Player.PlayerWindow activeLearnableWindow))
       {
         Player.ActiveLearnableWindow window = (Player.ActiveLearnableWindow)activeLearnableWindow;
         window.timeLeft.SetBindValue(player.oid, window.nuiToken.Token, "Apprentissage terminé");

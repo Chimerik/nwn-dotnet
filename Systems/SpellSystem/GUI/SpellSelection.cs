@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-
+using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
 
@@ -22,16 +22,15 @@ namespace NWN.Systems
         private readonly NuiBind<int> listAcquiredSpellCount = new("listAcquiredSpellCount");
 
         private readonly NuiBind<bool> enabled = new("enabled");
-        private readonly NuiBind<bool> selectable = new("selectable");
 
         private readonly List<NwSpell> availableSpells = new();
         private readonly List<NwSpell> acquiredSpells = new();
 
         private ClassType spellClass;
-        private int spellLevel;
+        private int nbCantrips;
         private int nbSpells;
 
-        public SpellSelectionWindow(Player player, ClassType spellClass, int spellLevel, int nbSpells) : base(player)
+        public SpellSelectionWindow(Player player, ClassType spellClass, int nbCantrips, int nbSpells) : base(player)
         {
           windowId = "spellSelection";
 
@@ -39,7 +38,7 @@ namespace NWN.Systems
           {
             new NuiListTemplateCell(new NuiButtonImage(availableSpellIcons) { Id = "availableSpellDescription", Tooltip = availableSpellNames }) { Width = 35 },
             new NuiListTemplateCell(new NuiLabel(availableSpellNames) { Id = "availableSpellDescription", Tooltip = availableSpellNames, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { VariableSize = true },
-            new NuiListTemplateCell(new NuiButtonImage("add_arrow") { Id = "selectSpell", Tooltip = "Sélectionner", DisabledTooltip = "Vous ne pouvez pas choisir davantage de sorts", Enabled = selectable }) { Width = 35 }
+            new NuiListTemplateCell(new NuiButtonImage("add_arrow") { Id = "selectSpell", Tooltip = "Sélectionner", DisabledTooltip = "Vous ne pouvez pas choisir davantage de sorts" }) { Width = 35 }
           };
 
           List<NuiListTemplateCell> rowTemplateAcquiredSpells = new()
@@ -60,17 +59,25 @@ namespace NWN.Systems
               new NuiSpacer() } }
           };
 
-          CreateWindow(spellClass, spellLevel, nbSpells);
+          CreateWindow(spellClass, nbCantrips, nbSpells);
         }
-        public void CreateWindow(ClassType spellClass, int spellLevel, int nbSpells)
+        public void CreateWindow(ClassType spellClass, int nbCantrips, int nbSpells)
         {
           this.spellClass = spellClass;
-          this.spellLevel = spellLevel;
+          this.nbCantrips = nbCantrips;
           this.nbSpells = nbSpells;
 
           NuiRect windowRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 520, 500);
 
-          window = new NuiWindow(rootColumn, $"Choisissez {nbSpells} sort(s) de niveau {spellLevel} de {NwClass.FromClassType(spellClass).Name.ToString()}")
+          string title = $"{NwClass.FromClassType(spellClass).Name.ToString()} - Choix de sorts";
+
+          if(nbCantrips > 0)
+            title += $" - {nbCantrips} tour(s) de magie";
+
+          if (nbSpells > 0)
+            title += $" - {nbSpells} sorts";
+
+          window = new NuiWindow(rootColumn, title.Remove(title.Length))
           {
             Geometry = geometry,
             Resizable = false,
@@ -90,6 +97,18 @@ namespace NWN.Systems
 
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            if(!availableSpells.Any())
+            {
+              CloseWindow();
+              player.oid.SendServerMessage($"Vous connaissez déjà tous les sorts de {StringUtils.ToWhitecolor(NwClass.FromClassType(spellClass).Name.ToString())} de ce niveau", ColorConstants.Orange);
+            }
+            else
+            {
+              player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CANTRIP_SELECTION").Value = nbCantrips;
+              player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_SELECTION").Value = nbSpells;
+              player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_CLASS_SELECTION").Value = (int)spellClass;
+            }
           }
           else
             player.oid.SendServerMessage($"Impossible d'ouvrir la fenêtre {window.Title}. Celle-ci est-elle déjà ouverte ?", ColorConstants.Orange);
@@ -111,14 +130,43 @@ namespace NWN.Systems
 
                   BindAvailableSpells();
                   BindAcquiredSpells();
-                  
+
                   break;
 
                 case "removeSpell":
 
                   NwSpell clickedSpell = acquiredSpells[nuiEvent.ArrayIndex];
 
-                  availableSpells.Add(clickedSpell);
+                  byte spellLevel = clickedSpell.GetSpellLevelForClass(spellClass);
+
+                  if(spellLevel == 0)
+                  {
+                    if (acquiredSpells.Count(s => s.GetSpellLevelForClass(spellClass) == spellLevel) < nbCantrips)
+                      availableSpells.Add(clickedSpell);
+                    else
+                      availableSpells.AddRange(NwRuleset.Spells.Where(s => s.GetSpellLevelForClass(spellClass) == spellLevel
+                      && !acquiredSpells.Contains(s)
+                      && (!player.learnableSpells.TryGetValue(s.Id, out var learnable) || learnable.currentLevel < 1)));
+                  }
+                  else
+                  {
+                    byte maxSlotKnown = SpellUtils.GetMaxSpellSlotLevelKnown(player.oid.LoginCreature, spellClass);
+
+                    if (acquiredSpells.Count(s => s.GetSpellLevelForClass(spellClass) > 0 && s.GetSpellLevelForClass(spellClass) <= maxSlotKnown) < nbSpells)
+                    {
+                      availableSpells.Add(clickedSpell);
+                      ModuleSystem.Log.Info($"adding clicked spell");
+                    }
+                    else
+                    {
+                      availableSpells.AddRange(NwRuleset.Spells.Where(s => s.GetSpellLevelForClass(spellClass) > 0 && s.GetSpellLevelForClass(spellClass) <= maxSlotKnown
+                      && !acquiredSpells.Contains(s)
+                      && (!player.learnableSpells.TryGetValue(s.Id, out var learnable) || learnable.currentLevel < 1)));
+
+                      ModuleSystem.Log.Info($"adding all spell");
+                    }
+                  }
+
                   acquiredSpells.Remove(clickedSpell);
 
                   BindAvailableSpells();
@@ -162,8 +210,8 @@ namespace NWN.Systems
                   }
 
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_SELECTION").Delete();
-                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_SELECTION_LEVEL").Delete();
-                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_SELECTION_NBSPELLS").Delete();
+                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CANTRIP_SELECTION").Delete();
+                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_CLASS_SELECTION").Delete();
 
                   CloseWindow();
 
@@ -179,11 +227,15 @@ namespace NWN.Systems
           List<string> availableNamesList = new();
           List<bool> selectableList = new();
 
+          int minSpellLevel = nbCantrips > 0 ? 0 : 1;
+          int maxSpellLevel = SpellUtils.GetMaxSpellSlotLevelKnown(player.oid.LoginCreature, spellClass);
+
           availableSpells.Clear();
+          acquiredSpells.Clear();
 
           foreach(var spell in NwRuleset.Spells)
           {
-            if (spell.GetSpellLevelForClass(ClassType.Wizard) != spellLevel || acquiredSpells.Contains(spell))
+            if (spell.GetSpellLevelForClass(spellClass) < minSpellLevel || spell.GetSpellLevelForClass(spellClass) > maxSpellLevel)
               continue;
 
             if (player.learnableSpells.TryGetValue(spell.Id, out var learnable) && learnable.currentLevel > 0 
@@ -199,7 +251,6 @@ namespace NWN.Systems
 
           availableSpellIcons.SetBindValues(player.oid, nuiToken.Token, availableIconsList);
           availableSpellNames.SetBindValues(player.oid, nuiToken.Token, availableNamesList);
-          selectable.SetBindValues(player.oid, nuiToken.Token, selectableList);
           listCount.SetBindValue(player.oid, nuiToken.Token, availableSpells.Count);
           enabled.SetBindValue(player.oid, nuiToken.Token, false);
         }
@@ -207,19 +258,21 @@ namespace NWN.Systems
         {
           List<string> availableIconsList = new();
           List<string> availableNamesList = new();
-          List<bool> selectableList = new();
-          bool isSelectable = acquiredSpells.Count < nbSpells;
+
+          if(nbCantrips > 0 && acquiredSpells.Count(s => s.GetSpellLevelForClass(spellClass) == 0) == nbCantrips)
+            availableSpells.RemoveAll(s => s.GetSpellLevelForClass(spellClass) == 0);
+
+          if (nbSpells > 0 && acquiredSpells.Count(s => s.GetSpellLevelForClass(spellClass) != 0) == nbSpells)
+            availableSpells.RemoveAll(s => s.GetSpellLevelForClass(spellClass) != 0);
 
           foreach (var spell in availableSpells)
           {
             availableIconsList.Add(spell.IconResRef);
             availableNamesList.Add(spell.Name.ToString().Replace("’", "'"));
-            selectableList.Add(isSelectable);
           }
 
           availableSpellIcons.SetBindValues(player.oid, nuiToken.Token, availableIconsList);
           availableSpellNames.SetBindValues(player.oid, nuiToken.Token, availableNamesList);
-          selectable.SetBindValues(player.oid, nuiToken.Token, selectableList);
           listCount.SetBindValue(player.oid, nuiToken.Token, availableSpells.Count);
         }
         private void BindAcquiredSpells()
@@ -236,7 +289,11 @@ namespace NWN.Systems
           acquiredSpellIcons.SetBindValues(player.oid, nuiToken.Token, acquiredIconsList);
           acquiredSpellNames.SetBindValues(player.oid, nuiToken.Token, acquiredNamesList);
           listAcquiredSpellCount.SetBindValue(player.oid, nuiToken.Token, acquiredSpells.Count);
-          enabled.SetBindValue(player.oid, nuiToken.Token, acquiredSpells.Count == nbSpells);
+          
+          if (acquiredSpells.Count == nbCantrips + nbSpells)
+            enabled.SetBindValue(player.oid, nuiToken.Token, true);
+          else
+            enabled.SetBindValue(player.oid, nuiToken.Token, false);
         }
       }
     }

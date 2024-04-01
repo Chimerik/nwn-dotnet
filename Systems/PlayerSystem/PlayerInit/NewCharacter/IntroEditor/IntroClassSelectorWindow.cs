@@ -430,6 +430,12 @@ namespace NWN.Systems
               player.oid.LoginCreature.RemoveFeat(feat);
           }
 
+          foreach (var classInfo in player.oid.LoginCreature.Classes)
+            foreach (var spellLevel in classInfo.KnownSpells)
+              spellLevel.Clear();
+
+          player.learnableSpells.Clear();
+
           player.oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipUnarmoredDefence;
           player.oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipUnarmoredDefence;
           player.oid.LoginCreature.OnHeartbeat -= CreatureUtils.OnHeartBeatCheckUnarmoredDefence;
@@ -443,6 +449,9 @@ namespace NWN.Systems
           player.oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipMonkUnarmoredDefence;
           player.oid.LoginCreature.OnHeartbeat -= CreatureUtils.OnHeartBeatCheckMonkUnarmoredDefence;
           EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.MonkUnarmoredDefenceEffectTag);
+
+          if (player.windows.TryGetValue("spellSelection", out var spellSelection) && spellSelection.IsOpen)
+            spellSelection.CloseWindow();
         }
         private void InitSelectableSkills()
         {
@@ -491,6 +500,7 @@ namespace NWN.Systems
             CustomSkill.Barbarian => Barbarian.startingPackage.skillChoiceList,
             CustomSkill.Rogue => Rogue.startingPackage.skillChoiceList,
             CustomSkill.Monk => Monk.startingPackage.skillChoiceList,
+            CustomSkill.Wizard => Wizard.startingPackage.skillChoiceList,
             _ => Fighter.startingPackage.skillChoiceList,
           };
 
@@ -659,6 +669,7 @@ namespace NWN.Systems
             CustomSkill.Barbarian => Barbarian.startingPackage.skillChoiceList,
             CustomSkill.Rogue => Rogue.startingPackage.skillChoiceList,
             CustomSkill.Monk => Monk.startingPackage.skillChoiceList,
+            CustomSkill.Wizard => Monk.startingPackage.skillChoiceList,
             _ => Fighter.startingPackage.skillChoiceList,
           };
 
