@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Anvil.API;
+﻿using Anvil.API;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.PlayerSystem.Player;
 using static NWN.Systems.SkillSystem;
@@ -8,7 +7,7 @@ namespace NWN.Systems
 {
   public static partial class Wizard
   {
-    public static async void HandleWizardLevelUp(Player player, int level, LearnableSkill playerClass)
+    public static void HandleWizardLevelUp(Player player, int level, LearnableSkill playerClass)
     {
       switch (level)
       {
@@ -45,20 +44,13 @@ namespace NWN.Systems
 
         case 2:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell2)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 0, 2));
-          else ((SpellSelectionWindow)spell2).CreateWindow(ClassType.Wizard, 0, 2);
-
-          break;
-
-        case 3:
-
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value = CustomSkill.Rogue;
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value = CustomSkill.Wizard;
 
           if (!player.windows.TryGetValue("subClassSelection", out var value)) player.windows.Add("subClassSelection", new SubClassSelectionWindow(player));
           else ((SubClassSelectionWindow)value).CreateWindow();
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell3)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 0, 2));
-          else ((SpellSelectionWindow)spell3).CreateWindow(ClassType.Wizard, 0, 2);
+          if (!player.windows.TryGetValue("spellSelection", out var spell2)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 0, 2));
+          else ((SpellSelectionWindow)spell2).CreateWindow(ClassType.Wizard, 0, 2);
 
           break;
 

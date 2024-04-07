@@ -58,7 +58,7 @@ namespace NWN.Systems
       RogueSubClass,
       [Description("Voie_du_Moine")]
       MonkSubClass,
-      [Description("Spécalité_du_Magicien")]
+      [Description("Ecole_de_Magicien")]
       WizardSubClass,
     }
 
@@ -452,10 +452,17 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomSkill.MonkOpportuniste, new LearnableSkill(CustomSkill.MonkOpportuniste, "Opportuniste", "Si la créature que vous attaquez en mêlée subit une attaque de la part d'une autre créature, vous utilisez automatiquement votre réaction pour lui infliger une attaque de corps à corps supplémentaire", Category.Fight, "ife_opportunist", 1, 1, Ability.Dexterity, Ability.Wisdom, LearnActivableFeat));
 
       //learnableDictionary.Add(CustomSkill.MonkElements, new LearnableSkill(CustomSkill.MonkElements, "Voie des Éléments", "", Category.MonkSubClass, "monk_elements", 20, 1, Ability.Wisdom, Ability.Dexterity, Monk.LevelUp, "1Q41PA3akr8AsxKMnbjdixlbOOdNrZsByEtbwJN3lt2A"));
-      learnableDictionary.Add(CustomSkill.MonkHarmony, new LearnableSkill(CustomSkill.MonkHarmony, "Harmonie de l'eau et du feu", "Si vous n'êtes pas en combat, vous regagnez la moitié de votre Ki.\nUtilisable une fois par repos long.", Category.Fight, "is_Harmony", 1, 1, Ability.Wisdom, Ability.Dexterity, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.MonkHarmony, new LearnableSkill(CustomSkill.MonkHarmony, "Harmonie de l'eau et du feu", "Si vous n'êtes pas en combat, vous regagnez la moitié de votre Ki.\nUtilisable une fois par repos long.", Category.MindBody, "is_Harmony", 1, 1, Ability.Wisdom, Ability.Dexterity, LearnActivableFeat));
 
       learnableDictionary.Add(CustomSkill.Wizard, new LearnableSkill(CustomSkill.Wizard, "Magicien", "", Category.Class, "wizard", 20, 1, Ability.Intelligence, Ability.Wisdom, Wizard.LevelUp, "1ymEMqm6nx6CsYoEktRjfQYm6IKs3XmG5a-abbOcdtUU"));
-      learnableDictionary.Add(CustomSkill.WizardRestaurationArcanique, new LearnableSkill(CustomSkill.WizardRestaurationArcanique, "Restauration Arcanique", "Si vous n'êtes pas en combat, choisissez un niveau de sort pour lequel vous souhaitez récuperer des emplacements\nNombre de charges : la moitié de votre niveau de magicien\nCharges récupérées à chaque repos court", Category.Fight, "is_ArcaneRecover", 1, 1, Ability.Intelligence, Ability.Wisdom, OnLearnRestaurationArcanique));
+      learnableDictionary.Add(CustomSkill.WizardRestaurationArcanique, new LearnableSkill(CustomSkill.WizardRestaurationArcanique, "Restauration Arcanique", "Si vous n'êtes pas en combat, choisissez un niveau de sort pour lequel vous souhaitez récuperer des emplacements\nNombre de charges : la moitié de votre niveau de magicien\nCharges récupérées à chaque repos court", Category.Magic, "is_ArcaneRecover", 1, 1, Ability.Intelligence, Ability.Wisdom, OnLearnRestaurationArcanique));
+
+      learnableDictionary.Add(CustomSkill.WizardAbjuration, new LearnableSkill(CustomSkill.WizardAbjuration, "Ecole - Abjuration", "", Category.WizardSubClass, "is_Abjuration", 20, 1, Ability.Intelligence, Ability.Wisdom, Wizard.LevelUp, "1R9MbWOTrYAeeVTEIcXvQ1tM_MltYnyNgHXvqXGo8K_E"));
+      learnableDictionary.Add(CustomSkill.AbjurationWard, new LearnableSkill(CustomSkill.AbjurationWard, "Protection Arcanique", "Vous disposez d'une protection dont l'intensité maximale est de 2x votre level de mage\nChaque fois que vous lancez un sort d'abjuration, l'intensité augmente d'une valeur correspondant au niveau du sort\nChaque fois que vous subissez des dégâts, la protection annule des dégâts correspondant à son niveau d'intensité actuel et l'intensité diminue de 1\nA chaque repos long, l'intensité se réinitialise à un niveau correspondant à votre level de mage", Category.Magic, "is_AbjWard", 1, 1, Ability.Intelligence, Ability.Wisdom, OnLearnAbjurationWard));
+      learnableDictionary.Add(CustomSkill.AbjurationWardProjetee, new LearnableSkill(CustomSkill.AbjurationWardProjetee, "Protection Projetée", "Action bonus\nL'allié ciblé bénéficie des effets de Protection Arcanique à votre place. Si l’allié s’éloigne de plus de 9m, alors il perd l’effet et vous en récupérez le bénéfice", Category.Magic, "is_AbjWardPrj", 1, 1, Ability.Intelligence, Ability.Wisdom, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.AbjurationImproved, new LearnableSkill(CustomSkill.AbjurationImproved, "Abjuration Supérieure", "Lorsque vous prenez un repos court, l'intensité de Protection Arcanique est doublée", Category.Magic, "is_ImpAbjuration", 1, 1, Ability.Intelligence, Ability.Wisdom, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.AbjurationSpellResistance, new LearnableSkill(CustomSkill.AbjurationSpellResistance, "Résistance aux sorts", "Vous avez l'avantage sur vos jets de sauvegarde contre les sorts et obtenez résistance contre les dégâts des sorts", Category.Magic, "ife_hardspel", 1, 1, Ability.Intelligence, Ability.Wisdom, LearnActivableFeat));
+      
       // SPELLS
       // CANTRIPS
 
@@ -1108,15 +1115,15 @@ namespace NWN.Systems
     }
     private static bool HandleArcheologistBackground(PlayerSystem.Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency], player)))
-      player.learnableSkills[CustomSkill.InsightProficiency].LevelUp(player);
+      if (player.learnableSkills.TryAdd(CustomSkill.HistoryProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HistoryProficiency], player)))
+      player.learnableSkills[CustomSkill.HistoryProficiency].LevelUp(player);
 
-      player.learnableSkills[CustomSkill.InsightProficiency].source.Add(Category.StartingTraits);
+      player.learnableSkills[CustomSkill.HistoryProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.IntimidationProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.IntimidationProficiency], player)))
-      player.learnableSkills[CustomSkill.IntimidationProficiency].LevelUp(player);
+      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency], player)))
+      player.learnableSkills[CustomSkill.SurvivalProficiency].LevelUp(player);
 
-      player.learnableSkills[CustomSkill.IntimidationProficiency].source.Add(Category.StartingTraits);
+      player.learnableSkills[CustomSkill.SurvivalProficiency].source.Add(Category.StartingTraits);
 
       return true;
     }

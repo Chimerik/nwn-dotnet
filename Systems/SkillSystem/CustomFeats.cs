@@ -201,6 +201,10 @@
     public const int MonkHarmony = 1492;
 
     public const int WizardRestaurationArcanique = 1493;
+    public const int AbjurationWard = 1494;
+    public const int AbjurationWardProjetee = 1495;
+    public const int AbjurationImproved = 1496;
+    public const int AbjurationSpellResistance = 1497;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -701,7 +705,7 @@
     public const int MonkElements = 20545;
 
     public const int Wizard = 20546;
-
+    public const int WizardAbjuration = 20547;
 
     public const int Invalid = 65535;
   }

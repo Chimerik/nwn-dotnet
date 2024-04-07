@@ -1,16 +1,17 @@
 ﻿using Anvil.API;
+using Anvil.API.Events;
 
 namespace NWN.Systems
 {
   public static partial class SpellUtils
   {
-    public static bool HandleBonusActionSpells(NwCreature caster, SpellEntry spellEntry)
+    public static bool HandleBonusActionSpells(NwCreature caster, SpellEntry spellEntry, SpellEvents.OnSpellCast spellCast)
     {
       if (!spellEntry.isBonusAction)
         return true;
 
       if (!CreatureUtils.HandleBonusActionUse(caster))
-        return false!;
+        return false;
 
         switch(NwSpell.FromSpellId(spellEntry.RowIndex).SpellType)
         {
@@ -43,7 +44,9 @@ namespace NWN.Systems
           return false;
         }
 
-        LogUtils.LogMessage($"Sort lancé en tant qu'action bonus", LogUtils.LogType.Combat);
+      SpellSystem.OnSpellCastAbjurationWard(caster, spellCast);
+
+      LogUtils.LogMessage($"Sort lancé en tant qu'action bonus", LogUtils.LogType.Combat);
 
       return true;
     }

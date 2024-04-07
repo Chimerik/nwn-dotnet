@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
+using NWN.Systems.Arena;
 
 namespace NWN.Systems
 {
@@ -50,6 +51,9 @@ namespace NWN.Systems
 
         creature.GetObjectVariable<LocalVariableInt>(ReactionVariable).Value = 1;
       }
+
+      if(NwModule.Instance.PlayerCount > 0)
+        LogUtils.LogMessage($"Round global - Actions et réactions récupérées", LogUtils.LogType.Combat);
     }
   }
 }

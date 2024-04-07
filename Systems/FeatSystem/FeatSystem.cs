@@ -105,6 +105,7 @@ namespace NWN.Systems
         case CustomSkill.MonkHarmony: MonkHarmony(onUseFeat.Creature); return;
 
         case CustomSkill.WizardRestaurationArcanique: RestaurationArcanique(onUseFeat.Creature); return;
+        case CustomSkill.AbjurationWardProjetee: ProtectionProjetee(onUseFeat.Creature, onUseFeat.TargetObject); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

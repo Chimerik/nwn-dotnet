@@ -14,7 +14,7 @@ namespace NWN.Systems
 
         byte hitPointGain;
 
-        if (playerLevel < 2)
+        if (playerLevel < 3)
         {
           hitPointGain = hitDie;
           oid.SendServerMessage($"Niveau 1 : gain de points vie max {StringUtils.ToWhitecolor(hitDie)} + {StringUtils.ToWhitecolor(conMod)} (CON) = {StringUtils.ToWhitecolor(hitPointGain + conMod)}", ColorConstants.Orange);

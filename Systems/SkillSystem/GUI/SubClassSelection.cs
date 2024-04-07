@@ -138,19 +138,49 @@ namespace NWN.Systems
                   if (player.learnableSkills.TryAdd(selectedLearnable.id, new LearnableSkill((LearnableSkill)learnableDictionary[selectedLearnable.id], player, levelTaken: player.oid.LoginCreature.Level)))
                     player.learnableSkills[selectedLearnable.id].currentLevel = 3;
 
+                  Category category = Category.FighterSubClass;
+
                   switch(selectedLearnable.id)
                   {
                     case CustomSkill.FighterArcaneArcher: Fighter.HandleArcherMageLevelUp(player, 3); break;
                     case CustomSkill.FighterWarMaster: Fighter.HandleWarMasterLevelUp(player, 3); break;
                     case CustomSkill.FighterChampion: Fighter.HandleChampionLevelUp(player, 3); break;
-                    case CustomSkill.BarbarianBerseker: Barbarian.HandleBersekerLevelUp(player, 3); break;
-                    case CustomSkill.BarbarianTotem: Barbarian.HandleTotemLevelUp(player, 3); break;
-                    case CustomSkill.BarbarianWildMagic: Barbarian.HandleWildMagicLevelUp(player, 3); break;
-                    case CustomSkill.RogueThief: Rogue.HandleThiefLevelUp(player, 3); break;
-                    case CustomSkill.RogueConspirateur: Rogue.HandleConspirateurLevelUp(player, 3); break;
-                    case CustomSkill.RogueAssassin: Rogue.HandleAssassinLevelUp(player, 3); break;
-                    case CustomSkill.MonkPaume: Monk.HandlePaumeLevelUp(player, 3); break;
-                    case CustomSkill.MonkOmbre: Monk.HandleOmbreLevelUp(player, 3); break;
+                    case CustomSkill.BarbarianBerseker: 
+                      Barbarian.HandleBersekerLevelUp(player, 3);
+                      category = Category.BarbarianSubClass;
+                      break;
+                    case CustomSkill.BarbarianTotem: 
+                      Barbarian.HandleTotemLevelUp(player, 3);
+                      category = Category.BarbarianSubClass; 
+                      break;
+                    case CustomSkill.BarbarianWildMagic: 
+                      Barbarian.HandleWildMagicLevelUp(player, 3);
+                      category = Category.BarbarianSubClass; 
+                      break;
+                    case CustomSkill.RogueThief: 
+                      Rogue.HandleThiefLevelUp(player, 3);
+                      category = Category.RogueSubClass; 
+                      break;
+                    case CustomSkill.RogueConspirateur: 
+                      Rogue.HandleConspirateurLevelUp(player, 3);
+                      category = Category.RogueSubClass; 
+                      break;
+                    case CustomSkill.RogueAssassin: 
+                      Rogue.HandleAssassinLevelUp(player, 3);
+                      category = Category.RogueSubClass; 
+                      break;
+                    case CustomSkill.MonkPaume: 
+                      Monk.HandlePaumeLevelUp(player, 3);
+                      category = Category.RogueSubClass; 
+                      break;
+                    case CustomSkill.MonkOmbre: 
+                      Monk.HandleOmbreLevelUp(player, 3);
+                      category = Category.RogueSubClass; 
+                      break;
+                    case CustomSkill.WizardAbjuration:
+                      Wizard.HandleAbjurationLevelUp(player, 2);
+                      category = Category.WizardSubClass;
+                      break;
                   }
 
                   player.learnableSkills.Remove(player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value);
@@ -161,7 +191,7 @@ namespace NWN.Systems
                   {
                     LearnableWindow window = (LearnableWindow)learnableWindow;
 
-                    window.RefreshCategories(Category.FighterSubClass);
+                    window.RefreshCategories(category);
                     window.LoadLearnableList(window.currentList);
                   }
 
@@ -181,6 +211,7 @@ namespace NWN.Systems
             CustomSkill.Barbarian => learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.BarbarianSubClass),
             CustomSkill.Rogue => learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.RogueSubClass),
             CustomSkill.Monk => learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.MonkSubClass),
+            CustomSkill.Wizard => learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.WizardSubClass),
             _ => null,
           };
         }

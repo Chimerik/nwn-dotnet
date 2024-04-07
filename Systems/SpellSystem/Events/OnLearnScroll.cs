@@ -65,8 +65,19 @@ namespace NWN.Systems
       }
       else
       {
-        player.learnableSpells.Add(spellId, new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[spellId], CustomClass.Wizard));
+        LearnableSpell learnableScroll = new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[spellId], CustomClass.Wizard);
+        player.learnableSpells.Add(spellId, learnableScroll);
         oPC.ControllingPlayer.SendServerMessage($"{StringUtils.ToWhitecolor(spell.Name.ToString())} a été ajouté à votre liste d'apprentissage de magicien et est désormais disponible pour étude.");
+
+        switch(spell.SpellSchool)
+        {
+          case SpellSchool.Abjuration:
+
+            if (player.learnableSkills.ContainsKey(CustomSkill.WizardAbjuration))
+              learnableScroll.acquiredPoints += learnableScroll.pointsToNextLevel / 2;
+
+            break;
+        }
 
         LogUtils.LogMessage($"SPELL SYSTEM - Player : {oPC.Name} vient d'ajouter {spell.Name.ToString()} ({spellId}) à sa liste d'apprentissage", LogUtils.LogType.Learnables);
       }

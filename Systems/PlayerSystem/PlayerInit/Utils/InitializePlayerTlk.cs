@@ -66,10 +66,16 @@ namespace NWN.Systems
           new StrRef(10).SetPlayerOverride(oid, "Voie de l'Ombre");
           oid.SetTextureOverride("monk", "monk_shadow");
         }
-        if (learnableSkills.ContainsKey(CustomSkill.MonkElements))
+        else if (learnableSkills.ContainsKey(CustomSkill.MonkElements))
         {
           new StrRef(10).SetPlayerOverride(oid, "Voie des Eléments");
           oid.SetTextureOverride("monk", "monk_elements");
+        }
+
+        if (learnableSkills.ContainsKey(CustomSkill.WizardAbjuration))
+        {
+          new StrRef(20).SetPlayerOverride(oid, "Ecole de l'Abjuration");
+          oid.SetTextureOverride("wizard", "abjuration");
         }
       }
     }

@@ -40,12 +40,10 @@ namespace NWN.Systems
       LearnableSkill playerClass = player.learnableSkills[customSkillId];
       HandleWizardLevelUp(player, playerClass.currentLevel, playerClass);
 
-      /*switch (customSkillId)
+      switch (customSkillId)
       {
-        case CustomSkill.RogueThief: HandleThiefLevelUp(player, playerClass.currentLevel); break;
-        case CustomSkill.RogueConspirateur: HandleConspirateurLevelUp(player, playerClass.currentLevel); break;
-        case CustomSkill.RogueAssassin: HandleAssassinLevelUp(player, playerClass.currentLevel); break;
-      }*/
+        case CustomSkill.WizardAbjuration: HandleAbjurationLevelUp(player, playerClass.currentLevel); break;
+      }
 
       if (playerClass.currentLevel > 2 || playerClass.currentLevel > 1)
         player.oid.LoginCreature.ForceLevelUp(CustomClass.Wizard, player.RollClassHitDie(player.oid.LoginCreature.Level, CustomClass.Wizard, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));

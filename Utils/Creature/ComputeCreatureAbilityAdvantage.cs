@@ -111,6 +111,9 @@ namespace NWN.Systems
         }
       }
 
+      if (spellEntry is not null && creature.KnowsFeat((Feat)CustomSkill.AbjurationSpellResistance))
+        return true;
+
       return false;
     }
   }

@@ -288,7 +288,7 @@ namespace NWN.Systems
 
       SpellEntry spellEntry = Spells2da.spellTable[onSpellCast.Spell.Id];
 
-      if (!SpellUtils.HandleBonusActionSpells(castingCreature, spellEntry))
+      if (!SpellUtils.HandleBonusActionSpells(castingCreature, spellEntry, onSpellCast))
         return;
 
       if (!(onSpellCast.Spell.Id == CustomSpell.FlameBlade && castingCreature.GetObjectVariable<LocalVariableInt>(EffectSystem.ConcentrationSpellIdString).Value == CustomSpell.FlameBlade) // TODO : Si on recast Flame Blade, alors on ne compte pas un nouvel emplacement de sort
@@ -508,6 +508,8 @@ namespace NWN.Systems
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
       }
+
+      OnSpellCastAbjurationWard(castingCreature, onSpellCast);
 
       castingCreature.GetObjectVariable<LocalVariableInt>(SpellConfig.CurrentSpellVariable).Delete();
       castingCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
