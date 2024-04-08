@@ -12,7 +12,7 @@ namespace NWN.Systems
       {
         case 2: 
           
-          new StrRef(20).SetPlayerOverride(player.oid, "Ecole de l'Abjuration");
+          new StrRef(20).SetPlayerOverride(player.oid, "Abjurateur");
           player.oid.SetTextureOverride("wizard", "abjuration");
 
           player.learnableSkills.TryAdd(CustomSkill.AbjurationWard, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AbjurationWard], player));

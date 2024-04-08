@@ -510,6 +510,7 @@ namespace NWN.Systems
       }
 
       OnSpellCastAbjurationWard(castingCreature, onSpellCast);
+      OnSpellCastDivinationExpert(castingCreature, onSpellCast);
 
       castingCreature.GetObjectVariable<LocalVariableInt>(SpellConfig.CurrentSpellVariable).Delete();
       castingCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;

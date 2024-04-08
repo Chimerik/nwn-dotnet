@@ -206,6 +206,14 @@
     public const int AbjurationImproved = 1496;
     public const int AbjurationSpellResistance = 1497;
 
+    public const int DivinationPresage = 1498;
+    public const int DivinationPresage2 = 1499;
+    public const int DivinationPresageSuperieur = 1500;
+    public const int DivinationExpert = 1501;
+    public const int DivinationDarkVision = 1502;
+    public const int DivinationSeeInvisibility = 1503;
+    public const int DivinationSeeEthereal = 1504;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -706,6 +714,7 @@
 
     public const int Wizard = 20546;
     public const int WizardAbjuration = 20547;
+    public const int WizardDivination = 20548;
 
     public const int Invalid = 65535;
   }

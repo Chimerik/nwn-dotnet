@@ -7,7 +7,12 @@ namespace NWN.Systems
   {
     public static int GetAttackRoll(CNWSCreature creature, int advantage, Ability attackStat)
     {
-      int attackRoll =  Utils.RollAdvantage(advantage);
+      int attackRoll = HandlePresage(creature);
+
+      if (attackRoll > 0)
+        return attackRoll;
+
+      attackRoll =  Utils.RollAdvantage(advantage);
       attackRoll = HandlePrecisionElfique(creature, attackRoll, advantage, attackStat);
       attackRoll = HandleChanceDebordante(creature, attackRoll);
       return HandleHalflingLuck(creature, attackRoll);

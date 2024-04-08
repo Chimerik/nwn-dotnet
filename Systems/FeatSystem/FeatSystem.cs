@@ -106,6 +106,13 @@ namespace NWN.Systems
 
         case CustomSkill.WizardRestaurationArcanique: RestaurationArcanique(onUseFeat.Creature); return;
         case CustomSkill.AbjurationWardProjetee: ProtectionProjetee(onUseFeat.Creature, onUseFeat.TargetObject); return;
+        case CustomSkill.DivinationPresage: 
+        case CustomSkill.DivinationPresage2: 
+        case CustomSkill.DivinationPresageSuperieur: 
+          Presage(onUseFeat.Creature, onUseFeat.TargetObject, onUseFeat.Feat); return;
+        case CustomSkill.DivinationSeeInvisibility: DivinationSeeInvisible(onUseFeat.Creature); return;
+        case CustomSkill.DivinationDarkVision: DivinationDarkVision(onUseFeat.Creature); return;
+        case CustomSkill.DivinationSeeEthereal: DivinationSeeEthereal(onUseFeat.Creature); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Security.Cryptography;
 using Anvil.API;
 using NWN.Core;
 

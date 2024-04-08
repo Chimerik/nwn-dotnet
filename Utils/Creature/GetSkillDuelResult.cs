@@ -50,8 +50,8 @@ namespace NWN.Systems
       int attackerAdvantage = GetCreatureAbilityAdvantage(attacker, attackerAbility, effectType: effectType);
       int targetAdvantage = GetCreatureAbilityAdvantage(target, targetAbility, effectType: effectType);
 
-      int attackerRoll = RogueUtils.HandleSavoirFaire(attacker, attackerSkill, Utils.RollAdvantage(attackerAdvantage));
-      int targetRoll = RogueUtils.HandleSavoirFaire(target, attackerSkill, Utils.RollAdvantage(targetAdvantage));
+      int attackerRoll = GetSkillRoll(attacker, attackerSkill, attackerAdvantage);
+      int targetRoll = GetSkillRoll(target, targetSkill, targetAdvantage);
 
       if (attackerSkill == CustomSkill.StealthProficiency)
       {

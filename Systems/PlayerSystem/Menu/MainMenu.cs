@@ -583,6 +583,7 @@ namespace NWN.Systems
                     MonkUtils.RestoreKi(player.oid.LoginCreature);
                     WizardUtils.RestaurationArcanique(player.oid.LoginCreature);
                     WizardUtils.ResetAbjurationWard(player.oid.LoginCreature);
+                    WizardUtils.ResetPresage(player.oid);
 
                     if (player.oid.LoginCreature.Race.Id == CustomRace.HalfOrc)
                     {

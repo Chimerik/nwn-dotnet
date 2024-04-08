@@ -74,8 +74,13 @@ namespace NWN.Systems
 
         if (learnableSkills.ContainsKey(CustomSkill.WizardAbjuration))
         {
-          new StrRef(20).SetPlayerOverride(oid, "Ecole de l'Abjuration");
+          new StrRef(20).SetPlayerOverride(oid, "Abjurateur");
           oid.SetTextureOverride("wizard", "abjuration");
+        }
+        else if (learnableSkills.ContainsKey(CustomSkill.WizardDivination))
+        {
+          new StrRef(20).SetPlayerOverride(oid, "Devin");
+          oid.SetTextureOverride("wizard", "divination");
         }
       }
     }

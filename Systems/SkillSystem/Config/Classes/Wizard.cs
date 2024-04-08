@@ -43,6 +43,7 @@ namespace NWN.Systems
       switch (customSkillId)
       {
         case CustomSkill.WizardAbjuration: HandleAbjurationLevelUp(player, playerClass.currentLevel); break;
+        case CustomSkill.WizardDivination: HandleDivinationLevelUp(player, playerClass.currentLevel); break;
       }
 
       if (playerClass.currentLevel > 2 || playerClass.currentLevel > 1)

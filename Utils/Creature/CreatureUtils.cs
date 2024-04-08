@@ -98,6 +98,9 @@ namespace NWN.Systems
 
     public const string MonkPaumeTechniqueVariable = "_MONK_PAUME_TECHNIQUE";
 
+    public const string PresageVariable = "_PRESAGE";
+    public static readonly CExoString PresageVariableExo = PresageVariable.ToExoString();
+
     public const string VigueurNaineHDVariable = "_FEAT_VIGUEUR_NAINE_HD";
     public const string MeneurExaltantVariable = "_MENEUR_EXALTANT_BUFF";
     public const string OriginalSizeVariable = "_ORIGINAL_SIZE";

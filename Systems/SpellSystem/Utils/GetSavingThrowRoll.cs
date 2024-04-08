@@ -24,19 +24,24 @@ namespace NWN.Systems
           }
         }
 
-      int saveRoll = Utils.RollAdvantage(advantage);
-      saveRoll = NativeUtils.HandleChanceDebordante(target, saveRoll);
-      saveRoll = NativeUtils.HandleHalflingLuck(target, saveRoll);
+      int saveRoll = NativeUtils.HandlePresage(target); // Si présage, alors on remplace totalement le jet de la cible
 
-      if(ability == Ability.Strength)
-        saveRoll = BarbarianUtils.HandleBarbarianPuissanceIndomptable(target, saveRoll);
+      if (saveRoll < 1)
+      {
+        saveRoll = Utils.RollAdvantage(advantage);
+        saveRoll = NativeUtils.HandleChanceDebordante(target, saveRoll);
+        saveRoll = NativeUtils.HandleHalflingLuck(target, saveRoll);
 
-      if (saveRoll + proficiencyBonus < saveDC)
-        saveRoll = FighterUtils.HandleInflexible(target, saveRoll);
+        if (ability == Ability.Strength)
+          saveRoll = BarbarianUtils.HandleBarbarianPuissanceIndomptable(target, saveRoll);
 
-      if (saveRoll + proficiencyBonus < saveDC)
-        saveRoll = MonkUtils.HandleDiamondSoul(target, saveRoll);
-        
+        if (saveRoll + proficiencyBonus < saveDC)
+          saveRoll = FighterUtils.HandleInflexible(target, saveRoll);
+
+        if (saveRoll + proficiencyBonus < saveDC)
+          saveRoll = MonkUtils.HandleDiamondSoul(target, saveRoll);
+      }
+
       feedback.proficiencyBonus = proficiencyBonus;
       feedback.saveRoll = saveRoll;
 
