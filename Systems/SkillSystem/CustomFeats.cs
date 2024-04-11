@@ -218,6 +218,13 @@
     public const int EnchantementRegardHypnotique = 1506;
     public const int EnchantementPartage = 1507;
 
+    public const int EvocateurFaconneurDeSorts = 1508;
+    public const int EvocateurToursPuissants = 1509;
+    public const int EvocateurSuperieur = 1510;
+    public const int EvocateurSurcharge = 1511;
+
+    public const int FighterChampionRemarkableAthlete = 1512;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -641,8 +648,6 @@
     public const int FighterCombatStyleDualWield = 20480;
     public const int FighterBonusAttack = 20482; // 3 niveaux
     public const int FighterInflexible = 20483;
-
-    public const int FighterChampionRemarkableAthlete = 20485;
     
     /*public const int FighterEldritchKnightBoundWeapon = 20486;
     public const int FighterEldritchKnightWarMagic = 20487; // 2 niveaux
@@ -721,6 +726,7 @@
     public const int WizardDivination = 20548;
     public const int WizardEnchantement = 20549;
     public const int EnchantementAlterationMemorielle = 20551;
+    public const int WizardEvocation = 20552;
 
     public const int Invalid = 65535;
   }

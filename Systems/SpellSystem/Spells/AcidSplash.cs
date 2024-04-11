@@ -13,6 +13,7 @@ namespace NWN.Systems
       SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell.SpellType);
       SpellConfig.SavingThrowFeedback feedback = new();
       int spellDC = SpellUtils.GetCasterSpellDC(oCaster, onSpellCast.SpellCastClass.SpellCastingAbility);
+      bool tourPuissant = oCaster.KnowsFeat((Feat)CustomSkill.EvocateurToursPuissants);
       
       onSpellCast.TargetLocation.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfGasExplosionAcid));
 
@@ -28,8 +29,8 @@ namespace NWN.Systems
 
         SpellUtils.SendSavingThrowFeedbackMessage(oCaster, target, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);
 
-        if (saveFailed) 
-          SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(oCaster, onSpellCast.Spell), oCaster);
+        if (saveFailed || tourPuissant) 
+          SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(oCaster, onSpellCast.Spell), oCaster, onSpellCast.Spell.GetSpellLevelForClass(onSpellCast.SpellCastClass), saveFailed);
       }
     }
   }

@@ -4,7 +4,7 @@ namespace NWN.Systems
 {
   public static partial class SpellUtils
   {
-    public static bool HandleSpellTargetIncapacitated(NwCreature caster, NwCreature target, Effect effect, SpellEntry spellEntry)
+    public static bool HandleSpellTargetIncapacitated(NwCreature caster, NwCreature target, Effect effect, SpellEntry spellEntry, byte spellLevel)
     {
       if (EffectUtils.IsIncapacitatingEffect(effect))
       {
@@ -21,7 +21,7 @@ namespace NWN.Systems
           case CustomSpell.FaerieFire: SpellSystem.ApplyFaerieFireEffect(target, spellEntry); return true;
         }
 
-        DealSpellDamage(target, caster.CasterLevel, spellEntry, GetSpellDamageDiceNumber(caster, spell), caster);
+        DealSpellDamage(target, caster.CasterLevel, spellEntry, GetSpellDamageDiceNumber(caster, spell), caster, spellLevel);
 
         return true;
       }

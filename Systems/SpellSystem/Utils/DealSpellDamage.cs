@@ -6,17 +6,22 @@ namespace NWN.Systems
 {
   public static partial class SpellUtils
   {
-    public static void DealSpellDamage(NwGameObject target, int casterLevel, SpellEntry spellEntry, int nbDices, NwCreature caster, bool saveFailed = true, bool noLogs = false)
+    public static void DealSpellDamage(NwGameObject target, int casterLevel, SpellEntry spellEntry, int nbDices, NwCreature caster, byte spellLevel, bool saveFailed = true, bool noLogs = false)
     {
+      NwSpell spell = NwSpell.FromSpellId(spellEntry.RowIndex);
+
       bool isElementalist = PlayerSystem.Players.TryGetValue(caster, out PlayerSystem.Player player)
         && player.learnableSkills.TryGetValue(CustomSkill.Elementaliste, out LearnableSkill elementalist)
         && elementalist.featOptions.Any(e => e.Value.Any(d => d == (int)spellEntry.damageType));
 
-      int damage = 0;
+      bool isEvocateurSurcharge = caster.KnowsFeat((Feat)CustomSkill.EvocateurSurcharge) && spell.SpellSchool == SpellSchool.Evocation
+        && spellLevel > 0 && spellLevel < 6 && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.EvocateurSurchargeEffectTag);
       
+      int damage = 0;
+
       for(int i = 0; i < nbDices; i++) 
       {
-        int roll = NwRandom.Roll(Utils.random, spellEntry.damageDice);
+        int roll = isEvocateurSurcharge ? spellEntry.damageDice : NwRandom.Roll(Utils.random, spellEntry.damageDice);
 
         switch(spellEntry.damageType)
         {
@@ -32,6 +37,12 @@ namespace NWN.Systems
         }
 
         roll = isElementalist && roll < 2 ? 2 : roll;
+
+        if (caster.KnowsFeat((Feat)CustomSkill.EvocateurSuperieur) && spell.SpellSchool == SpellSchool.Evocation)
+        {
+          damage += caster.GetAbilityModifier(Ability.Intelligence);
+          LogUtils.LogMessage($"Evocation supérieure : ajout de {caster.GetAbilityModifier(Ability.Intelligence)} dégâts au jet", LogUtils.LogType.Combat);
+        }
 
         damage += roll;
       }
@@ -51,6 +62,9 @@ namespace NWN.Systems
       
       if(!noLogs)
         LogUtils.LogMessage($"Dégâts sur {target.Name} : {nbDices}d{spellEntry.damageDice} (caster lvl {casterLevel}) = {damage} {spellEntry.damageType}", LogUtils.LogType.Combat);
+
+      if (isEvocateurSurcharge)
+        WizardUtils.HandleEvocateurSurchargeSelfDamage(caster, spellLevel);
     }
   }
 }

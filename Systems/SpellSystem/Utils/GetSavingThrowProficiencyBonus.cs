@@ -1,4 +1,5 @@
 ﻿using System;
+using Anvil.API;
 using NWN.Native.API;
 using Ability = Anvil.API.Ability;
 
@@ -21,7 +22,7 @@ namespace NWN.Systems
             case Ability.Dexterity:
             case Ability.Constitution:
               
-              if (player.learnableSkills.TryGetValue(CustomClass.Champion, out LearnableSkill champion) && champion.currentLevel > 6)
+              if (target.m_pStats.HasFeat(CustomSkill.FighterChampionRemarkableAthlete).ToBool())
                 return (int)Math.Round((double)(NativeUtils.GetCreatureProficiencyBonus(target) / 2), MidpointRounding.AwayFromZero);
               
               break;

@@ -22,8 +22,8 @@ namespace NWN.Systems
 
       SpellUtils.SendSavingThrowFeedbackMessage(oCaster, target, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);
 
-      if (saveFailed) 
-        SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(oCaster, onSpellCast.Spell), oCaster);
+      if (saveFailed || oCaster.KnowsFeat((Feat)CustomSkill.EvocateurToursPuissants)) 
+        SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(oCaster, onSpellCast.Spell), oCaster, onSpellCast.Spell.GetSpellLevelForClass(onSpellCast.SpellCastClass), saveFailed);
     }
   }
 }

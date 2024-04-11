@@ -39,7 +39,7 @@ namespace NWN.Systems
         default: return;
       }
 
-      SpellUtils.DealSpellDamage(onSpellCast.TargetObject, caster.CasterLevel, spellEntry, nbDice, caster);
+      SpellUtils.DealSpellDamage(onSpellCast.TargetObject, caster.CasterLevel, spellEntry, nbDice, caster, onSpellCast.Spell.GetSpellLevelForClass(onSpellCast.SpellCastClass));
     }
   }
 }

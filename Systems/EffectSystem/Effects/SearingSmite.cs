@@ -36,15 +36,16 @@ namespace NWN.Systems
         NwSpell spell = NwSpell.FromSpellId(spellEntry.RowIndex);
         NwCreature caster = (NwCreature)onHB.Creature.ActiveEffects.First(e => e.Tag == searingSmiteBurnEffectTag).Creator;
 
+        byte spellLevel = spell.GetSpellLevelForClass(ClassType.Paladin);
         int spellDC = SpellUtils.GetCasterSpellDC(caster, NwClass.FromClassType(ClassType.Paladin).SpellCastingAbility);
-        int advantage = CreatureUtils.GetCreatureAbilityAdvantage(onHB.Creature, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid);
+        int advantage = CreatureUtils.GetCreatureAbilityAdvantage(onHB.Creature, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid, spellLevel: spellLevel);
         int totalSave = SpellUtils.GetSavingThrowRoll(onHB.Creature, spellEntry.savingThrowAbility, spellDC, advantage, feedback, true);
         bool saveFailed = totalSave < spellDC;
 
         SpellUtils.SendSavingThrowFeedbackMessage(caster, onHB.Creature, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);
 
         if (saveFailed)
-          SpellUtils.DealSpellDamage(onHB.Creature, caster.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(caster, spell), caster);
+          SpellUtils.DealSpellDamage(onHB.Creature, caster.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(caster, spell), caster, spellLevel);
         else
         {
           foreach (var eff in onHB.Creature.ActiveEffects)

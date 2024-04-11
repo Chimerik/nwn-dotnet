@@ -6,7 +6,7 @@ namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static int GetCreatureAbilityAdvantage(NwCreature creature, Ability ability, SpellEntry spellEntry = null, SpellEffectType effectType = SpellEffectType.Invalid, NwCreature caster = null)
+    public static int GetCreatureAbilityAdvantage(NwCreature creature, Ability ability, SpellEntry spellEntry = null, SpellEffectType effectType = SpellEffectType.Invalid, NwCreature caster = null, byte spellLevel = 0)
     {
       switch(ability)
       {
@@ -14,7 +14,7 @@ namespace NWN.Systems
         case Ability.Dexterity:
 
           foreach(var eff in creature.ActiveEffects)
-            if (spellEntry is not null && SpellUtils.HandleSpellTargetIncapacitated(caster, creature, eff, spellEntry))
+            if (spellEntry is not null && SpellUtils.HandleSpellTargetIncapacitated(caster, creature, eff, spellEntry, spellLevel))
               return -1000;
 
           break;

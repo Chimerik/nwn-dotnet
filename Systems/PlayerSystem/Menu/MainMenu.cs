@@ -579,6 +579,7 @@ namespace NWN.Systems
                     player.oid.LoginCreature.ForceRest();
                     player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(CreatureUtils.MeneurExaltantVariable).Delete();
                     player.oid.LoginCreature.GetObjectVariable<LocalVariableString>(CreatureUtils.RegardHypnotiqueTargetListVariable).Delete();
+                    player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>(EffectSystem.EvocateurSurchargeVariable).Delete();
                     FighterUtils.RestoreManoeuvres(player.oid.LoginCreature);
                     FighterUtils.RestoreTirArcanique(player.oid.LoginCreature);
                     BarbarianUtils.RestoreBarbarianRage(player.oid.LoginCreature);

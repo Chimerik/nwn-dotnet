@@ -113,6 +113,8 @@ namespace NWN.Systems
         case CustomSkill.DivinationSeeInvisibility: DivinationSeeInvisible(onUseFeat.Creature); return;
         case CustomSkill.DivinationDarkVision: DivinationDarkVision(onUseFeat.Creature); return;
         case CustomSkill.DivinationSeeEthereal: DivinationSeeEthereal(onUseFeat.Creature); return;
+
+        case CustomSkill.EvocateurSurcharge: SurchargeArcanique(onUseFeat.Creature); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;
