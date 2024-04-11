@@ -214,6 +214,10 @@
     public const int DivinationSeeInvisibility = 1503;
     public const int DivinationSeeEthereal = 1504;
 
+    public const int EnchantementCharmeInstinctif = 1505;
+    public const int EnchantementRegardHypnotique = 1506;
+    public const int EnchantementPartage = 1507;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -715,6 +719,8 @@
     public const int Wizard = 20546;
     public const int WizardAbjuration = 20547;
     public const int WizardDivination = 20548;
+    public const int WizardEnchantement = 20549;
+    public const int EnchantementAlterationMemorielle = 20551;
 
     public const int Invalid = 65535;
   }

@@ -570,6 +570,7 @@ namespace NWN.Systems
 
                     BarbarianUtils.RestoreImplacableRage(player.oid.LoginCreature);
                     player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_RAGE_IMPLACABLE_DD").Value = 10;
+                    player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>(CreatureUtils.CharmeInstinctifVariable).Delete();
 
                     break;
 
@@ -577,6 +578,7 @@ namespace NWN.Systems
                     
                     player.oid.LoginCreature.ForceRest();
                     player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(CreatureUtils.MeneurExaltantVariable).Delete();
+                    player.oid.LoginCreature.GetObjectVariable<LocalVariableString>(CreatureUtils.RegardHypnotiqueTargetListVariable).Delete();
                     FighterUtils.RestoreManoeuvres(player.oid.LoginCreature);
                     FighterUtils.RestoreTirArcanique(player.oid.LoginCreature);
                     BarbarianUtils.RestoreBarbarianRage(player.oid.LoginCreature);

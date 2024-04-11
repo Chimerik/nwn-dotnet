@@ -507,6 +507,11 @@ namespace NWN.Systems
           PassageSansTrace(castingCreature, onSpellCast, spellEntry);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
+
+        case CustomSpell.RegardHypnotique:
+          RegardHypnotique(castingCreature, onSpellCast, spellEntry);
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
       }
 
       OnSpellCastAbjurationWard(castingCreature, onSpellCast);

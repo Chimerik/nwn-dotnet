@@ -45,6 +45,7 @@ namespace NWN.Systems
 
         learnableSkills[CustomSkill.ShortBowProficiency].source.Add(Category.Race);
 
+        this.oid.LoginCreature.AddFeat(Feat.HardinessVersusEnchantments);
         ApplyElvenSleepImmunity();
         ApplyWoodElfSpeed();
       }

@@ -84,6 +84,13 @@ namespace NWN.Systems
               learnableScroll.acquiredPoints += learnableScroll.pointsToNextLevel / 2;
 
             break;
+
+          case SpellSchool.Enchantment:
+
+            if (player.learnableSkills.ContainsKey(CustomSkill.WizardEnchantement))
+              learnableScroll.acquiredPoints += learnableScroll.pointsToNextLevel / 2;
+
+            break;
         }
 
         LogUtils.LogMessage($"SPELL SYSTEM - Player : {oPC.Name} vient d'ajouter {spell.Name.ToString()} ({spellId}) à sa liste d'apprentissage", LogUtils.LogType.Learnables);

@@ -41,6 +41,7 @@ namespace NWN.Systems
 
         learnableSkills[CustomSkill.StealthProficiency].source.Add(Category.Race);
 
+        this.oid.LoginCreature.AddFeat(Feat.HardinessVersusEnchantments);
         ApplyWoodElfSpeed();
 
         // TODO : Ascendance féerique : Avantage sur les jets de sauvegarde contre les effets de charme - Penser à ajouter l'avantage au moment de refaire les sorts avec Charme

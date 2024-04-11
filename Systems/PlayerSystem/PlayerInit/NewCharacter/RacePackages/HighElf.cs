@@ -53,6 +53,7 @@ namespace NWN.Systems
           learnableSkills[feat.Id].source.Add(Category.Race);
         }
 
+        this.oid.LoginCreature.AddFeat(Feat.HardinessVersusEnchantments);
         ApplyElvenSleepImmunity();
       }
     }

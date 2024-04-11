@@ -4,6 +4,9 @@ using Anvil.API.Events;
 using Anvil.Services;
 using NWN.Core;
 using NWN.Core.NWNX;
+using NWN.Native.API;
+using EffectSubType = Anvil.API.EffectSubType;
+using Feat = Anvil.API.Feat;
 
 namespace NWN.Systems
 {
@@ -30,6 +33,14 @@ namespace NWN.Systems
 
       return false;
     }
+    public static bool IsCharmeImmune(CNWSCreature target)
+    {
+      if (target.m_pStats.HasFeat(CustomSkill.BersekerRageAveugle).ToBool()
+        && target.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(barbarianRageEffectExoTag).ToBool()))
+        return true;
+
+      return false;
+    }
     private static ScriptHandleResult OnApplyCharm(CallInfo callInfo)
     {
       EffectRunScriptEvent eventData = new EffectRunScriptEvent();
@@ -42,8 +53,8 @@ namespace NWN.Systems
         target.OnSpellAction -= SpellSystem.OnSpellInputCharmed;
         target.OnSpellAction += SpellSystem.OnSpellInputCharmed;
 
-        target.OnDamaged -= CreatureUtils.OnDamageCharmed;
-        target.OnDamaged += CreatureUtils.OnDamageCharmed;
+        target.OnDamaged -= OnDamageCharmed;
+        target.OnDamaged += OnDamageCharmed;
 
         // TODO => On damage par l'origine de l'effet, alors on dispel l'effet !
 
@@ -61,10 +72,15 @@ namespace NWN.Systems
         return ScriptHandleResult.Handled;
 
       target.OnSpellAction -= SpellSystem.OnSpellInputCharmed;
-      target.OnDamaged -= CreatureUtils.OnDamageCharmed;
+      target.OnDamaged -= OnDamageCharmed;
       EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "on_charm_attack", target);
 
       return ScriptHandleResult.Handled;
+    }
+    public static void OnDamageCharmed(CreatureEvents.OnDamaged onDamage)
+    {
+      foreach (var eff in onDamage.Creature.ActiveEffects.Where(e => e.Tag == CharmEffectTag))
+        onDamage.Creature.RemoveEffect(eff);
     }
     [ScriptHandler("on_charm_attack")]
     private void OnCombatEnter(CallInfo callInfo)
