@@ -512,6 +512,11 @@ namespace NWN.Systems
           RegardHypnotique(castingCreature, onSpellCast, spellEntry);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
+
+        case CustomSpell.IllusionMineure:
+          IllusionMineure(onSpellCast);
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
       }
 
       OnSpellCastAbjurationWard(castingCreature, onSpellCast);
@@ -1119,11 +1124,21 @@ namespace NWN.Systems
       var castingClass = caster.Classes[classPosition].Class.ClassType;
       var spell = NwSpell.FromSpellId(int.Parse(EventsPlugin.GetEventData("SPELL_ID")));
 
-      if(castingClass == ClassType.Wizard && Players.TryGetValue(caster, out var player)
-        && player.learnableSpells.TryGetValue(spell.Id, out var masterSpell) && masterSpell.mastery)
+      if (castingClass == ClassType.Wizard)
       {
-        EventsPlugin.SkipEvent();
-        return;
+        if(spell.SpellType == Spell.SeeInvisibility && caster.KnowsFeat((Feat)CustomSkill.IllusionVoirLinvisible)
+          && caster.GetObjectVariable<LocalVariableInt>("_ILLUSION_SEE_INVI_COOLDOWN").HasNothing)
+        {
+          caster.GetObjectVariable<LocalVariableInt>("_ILLUSION_SEE_INVI_COOLDOWN").Value = 1;
+          EventsPlugin.SkipEvent();
+          return;
+        }
+
+        if (Players.TryGetValue(caster, out var player) && player.learnableSpells.TryGetValue(spell.Id, out var masterSpell) && masterSpell.mastery)
+        {
+          EventsPlugin.SkipEvent();
+          return;
+        }
       }
 
       if (spell.GetSpellLevelForClass(caster.Classes[classPosition].Class) > 0)

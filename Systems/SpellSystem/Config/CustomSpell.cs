@@ -32,5 +32,6 @@
     public const int Serenity = 868;
     public const int PassageSansTrace = 869;
     public const int RegardHypnotique = 870;
+    public const int IllusionMineure = 871;
   }
 }

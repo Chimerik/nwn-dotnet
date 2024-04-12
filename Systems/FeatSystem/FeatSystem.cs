@@ -23,7 +23,7 @@ namespace NWN.Systems
           return;
 
         case CustomSkill.HellishRebuke:
-          HellishRebuke(onUseFeat.Creature);
+          HellishRebuke(onUseFeat.Creature, onUseFeat.TargetObject);
           onUseFeat.PreventFeatUse = true;
           return;
 
@@ -115,6 +115,8 @@ namespace NWN.Systems
         case CustomSkill.DivinationSeeEthereal: DivinationSeeEthereal(onUseFeat.Creature); return;
 
         case CustomSkill.EvocateurSurcharge: SurchargeArcanique(onUseFeat.Creature); return;
+
+        case CustomSkill.IllusionDouble: IllusionDouble(onUseFeat.Creature); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

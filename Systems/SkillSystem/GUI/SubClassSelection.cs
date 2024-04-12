@@ -189,6 +189,14 @@ namespace NWN.Systems
                       Wizard.HandleEnchantementLevelUp(player, 2);
                       category = Category.WizardSubClass;
                       break;
+                    case CustomSkill.WizardEvocation:
+                      Wizard.HandleEvocationLevelUp(player, 2);
+                      category = Category.WizardSubClass;
+                      break;
+                    case CustomSkill.WizardIllusion:
+                      Wizard.HandleIllusionLevelUp(player, 2);
+                      category = Category.WizardSubClass;
+                      break;
                   }
 
                   player.learnableSkills.Remove(player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value);

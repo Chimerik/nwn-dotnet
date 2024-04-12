@@ -225,6 +225,10 @@
 
     public const int FighterChampionRemarkableAthlete = 1512;
 
+    public const int IllusionMineure = 1513;
+    public const int IllusionVoirLinvisible = 1514;
+    public const int IllusionDouble = 1515;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -727,6 +731,9 @@
     public const int WizardEnchantement = 20549;
     public const int EnchantementAlterationMemorielle = 20551;
     public const int WizardEvocation = 20552;
+    public const int WizardIllusion = 20553;
+    public const int WizardIllusionMalleable = 20554;
+    public const int WizardRealiteIllusoire = 20555;
 
     public const int Invalid = 65535;
   }

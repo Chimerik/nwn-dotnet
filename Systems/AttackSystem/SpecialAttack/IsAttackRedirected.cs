@@ -1,5 +1,4 @@
-﻿using Anvil.API;
-using NWN.Native.API;
+﻿using NWN.Native.API;
 
 namespace NWN.Systems
 {
@@ -7,6 +6,9 @@ namespace NWN.Systems
   {
     public static bool IsAttackRedirected(CNWSCreature attacker, CNWSCreature target, CNWSCombatRound combatRound, string attackerName)
     {
+      if (IsIllusionDouble(attacker, target, combatRound, attackerName))
+        return true;
+
       if (IsConspirateurRedirection(attacker, target, combatRound, attackerName))
         return true;
 
