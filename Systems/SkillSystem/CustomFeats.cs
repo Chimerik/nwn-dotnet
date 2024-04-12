@@ -229,6 +229,11 @@
     public const int IllusionVoirLinvisible = 1514;
     public const int IllusionDouble = 1515;
 
+    public const int InvocationMineure = 1516;
+    public const int InvocationPermutation = 1517;
+    public const int InvocationConcentration = 1518;
+    public const int InvocationSupreme = 1519;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -734,6 +739,7 @@
     public const int WizardIllusion = 20553;
     public const int WizardIllusionMalleable = 20554;
     public const int WizardRealiteIllusoire = 20555;
+    public const int WizardInvocation = 20556;
 
     public const int Invalid = 65535;
   }

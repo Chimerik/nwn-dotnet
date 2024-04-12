@@ -97,6 +97,11 @@ namespace NWN.Systems
           new StrRef(20).SetPlayerOverride(oid, "Illusionniste");
           oid.SetTextureOverride("wizard", "illusion");
         }
+        else if (learnableSkills.ContainsKey(CustomSkill.WizardEvocation))
+        {
+          new StrRef(20).SetPlayerOverride(oid, "Invocateur");
+          oid.SetTextureOverride("wizard", "invocation");
+        }
       }
     }
   }

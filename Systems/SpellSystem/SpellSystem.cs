@@ -394,7 +394,7 @@ namespace NWN.Systems
           break;
 
         case CustomSpell.FireBolt:
-          FireBolt(onSpellCast, spellEntry);
+          FireBolt(castingCreature, onSpellCast, spellEntry);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -521,6 +521,7 @@ namespace NWN.Systems
 
       OnSpellCastAbjurationWard(castingCreature, onSpellCast);
       OnSpellCastDivinationExpert(castingCreature, onSpellCast);
+      OnSpellCastInvocationPermutation(castingCreature, onSpellCast);
 
       castingCreature.GetObjectVariable<LocalVariableInt>(SpellConfig.CurrentSpellVariable).Delete();
       castingCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;

@@ -45,6 +45,9 @@ namespace NWN.Systems
         case CustomSkill.WizardAbjuration: HandleAbjurationLevelUp(player, playerClass.currentLevel); break;
         case CustomSkill.WizardDivination: HandleDivinationLevelUp(player, playerClass.currentLevel); break;
         case CustomSkill.WizardEnchantement: HandleEnchantementLevelUp(player, playerClass.currentLevel); break;
+        case CustomSkill.WizardEvocation: HandleEvocationLevelUp(player, playerClass.currentLevel); break;
+        case CustomSkill.WizardIllusion: HandleIllusionLevelUp(player, playerClass.currentLevel); break;
+        case CustomSkill.WizardInvocation: HandleInvocationLevelUp(player, playerClass.currentLevel); break;
       }
 
       if (playerClass.currentLevel > 2 || playerClass.currentLevel > 1)

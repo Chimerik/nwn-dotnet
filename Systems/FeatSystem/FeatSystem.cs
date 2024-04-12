@@ -117,6 +117,8 @@ namespace NWN.Systems
         case CustomSkill.EvocateurSurcharge: SurchargeArcanique(onUseFeat.Creature); return;
 
         case CustomSkill.IllusionDouble: IllusionDouble(onUseFeat.Creature); return;
+
+        case CustomSkill.InvocationMineure: InvocationMineure(onUseFeat.Creature); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

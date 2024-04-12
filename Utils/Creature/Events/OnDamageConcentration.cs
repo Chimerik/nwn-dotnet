@@ -8,6 +8,10 @@ namespace NWN.Systems
   {
     public static void OnDamageConcentration(CreatureEvents.OnDamaged onDamage)
     {
+      if (onDamage.Creature.KnowsFeat((Feat)CustomSkill.InvocationConcentration)
+        && NwSpell.FromSpellId(onDamage.Creature.GetObjectVariable<LocalVariableInt>(EffectSystem.ConcentrationSpellIdString)).SpellSchool == SpellSchool.Conjuration)
+        return;
+
       SpellConfig.SavingThrowFeedback feedback = new();
       int advantage = GetCreatureAbilityAdvantage(onDamage.Creature, Ability.Constitution);
       advantage += onDamage.Creature.KnowsFeat((Feat)CustomSkill.MageDeGuerre) ? 1 : 0;

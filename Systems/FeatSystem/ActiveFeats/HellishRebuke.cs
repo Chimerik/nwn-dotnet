@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Anvil.API;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -9,26 +10,26 @@ namespace NWN.Systems
     {
       if(targetObject is not NwCreature target || caster == target)
       {
-        caster.LoginPlayer?.SendServerMessage("Veuillez choisir une cible valide", ColorConstants.Red);
+        if(caster.ActiveEffects.Any(e => e.Tag == EffectSystem.HellishRebukeSourceEffectTag))
+        {
+          if (caster.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.HellishRebukeSourceEffectTag).Creator is NwCreature previousTarget && previousTarget.IsValid)
+          {
+            previousTarget.OnCreatureDamage -= CreatureUtils.OnDamageHellishRebuke;
+            EffectUtils.RemoveTaggedEffect(previousTarget, EffectSystem.HellishRebukeTargetTag, caster);
+          }
+
+          EffectUtils.RemoveTaggedEffect(caster, EffectSystem.HellishRebukeSourceEffectTag);
+        }
+        else
+          caster.LoginPlayer?.SendServerMessage("Veuillez choisir une cible valide", ColorConstants.Red);
+
         return;
       }
 
-      if (caster.ActiveEffects.Any(e => e.Tag == EffectSystem.HellishRebukeEffectTag))
-      {
-        foreach (var effect in caster.ActiveEffects)
-          if (effect.Tag == EffectSystem.HellishRebukeEffectTag)
-          {
-            caster.RemoveEffect(effect);
-            caster.OnDamaged -= CreatureUtils.OnDamageHellishRebuke;
-          }
-      }
-      else
-      {
-        caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.hellishRebukeEffect);
-        caster.OnDamaged -= CreatureUtils.OnDamageHellishRebuke;
-        caster.OnDamaged += CreatureUtils.OnDamageHellishRebuke;
-        caster.GetObjectVariable<LocalVariableObject<NwCreature>>("_HELLISH_REBUKE_TARGET").Value = target;
-      }
+      NWScript.AssignCommand(target, () => caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.hellishRebukeSourceEffect));
+      NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Permanent, EffectSystem.hellishRebukeTargetEffect));
+      target.OnCreatureDamage -=  CreatureUtils.OnDamageHellishRebuke;
+      target.OnCreatureDamage += CreatureUtils.OnDamageHellishRebuke;
     }
   }
 }
