@@ -119,6 +119,9 @@ namespace NWN.Systems
         case CustomSkill.IllusionDouble: IllusionDouble(onUseFeat.Creature); return;
 
         case CustomSkill.InvocationMineure: InvocationMineure(onUseFeat.Creature); return;
+        case CustomSkill.TransmutationAlchimieMineure: TransmutationAlchimieMineure(onUseFeat.Creature); return;
+
+        case CustomSkill.NecromancieUndeadControl: NecromancieUndeadControl(onUseFeat.Creature, onUseFeat.TargetObject); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

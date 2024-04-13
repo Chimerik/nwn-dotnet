@@ -201,6 +201,14 @@ namespace NWN.Systems
                       Wizard.HandleInvocationLevelUp(player, 2);
                       category = Category.WizardSubClass;
                       break;
+                    case CustomSkill.WizardNecromancie:
+                      Wizard.HandleNecromancieLevelUp(player, 2);
+                      category = Category.WizardSubClass;
+                      break;
+                    case CustomSkill.WizardTransmutation:
+                      Wizard.HandleTransmutationLevelUp(player, 2);
+                      category = Category.WizardSubClass;
+                      break;
                   }
 
                   player.learnableSkills.Remove(player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value);

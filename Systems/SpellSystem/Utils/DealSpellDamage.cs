@@ -16,6 +16,8 @@ namespace NWN.Systems
 
       bool isEvocateurSurcharge = caster.KnowsFeat((Feat)CustomSkill.EvocateurSurcharge) && spell.SpellSchool == SpellSchool.Evocation
         && spellLevel > 0 && spellLevel < 6 && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.EvocateurSurchargeEffectTag);
+
+      bool moissonDuFielTriggered = target.HP > 0 && target is NwCreature creature && creature.Race.RacialType != RacialType.Undead && creature.Race.RacialType != RacialType.Construct;
       
       int damage = 0;
 
@@ -65,6 +67,9 @@ namespace NWN.Systems
 
       if (isEvocateurSurcharge)
         WizardUtils.HandleEvocateurSurchargeSelfDamage(caster, spellLevel);
+
+      if(moissonDuFielTriggered && target.HP < 1)
+        WizardUtils.HandleMoissonDuFiel(caster, spell, spellLevel);
     }
   }
 }

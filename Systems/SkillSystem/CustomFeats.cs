@@ -234,6 +234,13 @@
     public const int InvocationConcentration = 1518;
     public const int InvocationSupreme = 1519;
 
+    public const int NecromancieMoissonDuFiel = 1520;
+    public const int NecromancieUndeadThralls = 1521;
+    public const int NecromancieInsensible = 1522;
+    public const int NecromancieUndeadControl = 1523;
+
+    public const int TransmutationAlchimieMineure = 1524;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -740,6 +747,8 @@
     public const int WizardIllusionMalleable = 20554;
     public const int WizardRealiteIllusoire = 20555;
     public const int WizardInvocation = 20556;
+    public const int WizardNecromancie = 20557;
+    public const int WizardTransmutation = 20558;
 
     public const int Invalid = 65535;
   }

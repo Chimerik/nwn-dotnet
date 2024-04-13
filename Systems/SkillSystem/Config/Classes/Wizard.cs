@@ -48,6 +48,8 @@ namespace NWN.Systems
         case CustomSkill.WizardEvocation: HandleEvocationLevelUp(player, playerClass.currentLevel); break;
         case CustomSkill.WizardIllusion: HandleIllusionLevelUp(player, playerClass.currentLevel); break;
         case CustomSkill.WizardInvocation: HandleInvocationLevelUp(player, playerClass.currentLevel); break;
+        case CustomSkill.WizardNecromancie: HandleNecromancieLevelUp(player, playerClass.currentLevel); break;
+        case CustomSkill.WizardTransmutation: HandleTransmutationLevelUp(player, playerClass.currentLevel); break;
       }
 
       if (playerClass.currentLevel > 2 || playerClass.currentLevel > 1)

@@ -1,6 +1,7 @@
 ﻿using Anvil.API.Events;
 using Anvil.API;
 using NWN.Systems;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -35,7 +36,9 @@ namespace NWN.Systems
         string rollString = $"JDS CONSTITUTION{advantageString} {StringUtils.IntToColor(feedback.saveRoll, hitColor)} + {StringUtils.IntToColor(feedback.proficiencyBonus, hitColor)} = {StringUtils.IntToColor(totalSave, hitColor)} vs DD {StringUtils.IntToColor(concentrationDC, hitColor)}";
         string attackerName = "";
 
-        if (onDamage.Damager is NwCreature attacker)
+        var oDamager = NWScript.GetLastDamager(onDamage.Creature).ToNwObject<NwObject>();
+
+        if (oDamager is NwCreature attacker)
         {
           attacker.LoginPlayer?.SendServerMessage($"{onDamage.Creature.Name.ColorString(ColorConstants.Cyan)} - {rollString} {hitString}".ColorString(ColorConstants.Orange));
           attackerName = attacker.Name;

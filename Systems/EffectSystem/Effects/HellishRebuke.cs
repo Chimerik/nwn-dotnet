@@ -4,23 +4,13 @@ namespace NWN.Systems
 {
   public partial class EffectSystem
   {
-    public const string HellishRebukeSourceEffectTag = "_HELLISH_REBUKE_SOURCE_EFFECT";
-    public static Effect hellishRebukeSourceEffect
+    public const string HellishRebukeEffectTag = "_HELLISH_REBUKE_EFFECT";
+    public static Effect hellishRebukeEffect
     {
       get
       {
         Effect eff = Effect.Icon(NwGameTables.EffectIconTable.GetRow(152));
-        eff.Tag = HellishRebukeSourceEffectTag;
-        return eff;
-      }
-    }
-    public const string HellishRebukeTargetTag = "_HELLISH_REBUKE_TARGET_EFFECT";
-    public static Effect hellishRebukeTargetEffect
-    {
-      get
-      {
-        Effect eff = Effect.Icon(NwGameTables.EffectIconTable.GetRow(152));
-        eff.Tag = HellishRebukeTargetTag;
+        eff.Tag = HellishRebukeEffectTag;
         return eff;
       }
     }

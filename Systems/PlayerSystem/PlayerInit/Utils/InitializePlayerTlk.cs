@@ -102,6 +102,16 @@ namespace NWN.Systems
           new StrRef(20).SetPlayerOverride(oid, "Invocateur");
           oid.SetTextureOverride("wizard", "invocation");
         }
+        else if (learnableSkills.ContainsKey(CustomSkill.WizardNecromancie))
+        {
+          new StrRef(20).SetPlayerOverride(oid, "Nécromancien");
+          oid.SetTextureOverride("wizard", "necromancie");
+        }
+        else if (learnableSkills.ContainsKey(CustomSkill.WizardTransmutation))
+        {
+          new StrRef(20).SetPlayerOverride(oid, "Transmutateur");
+          oid.SetTextureOverride("wizard", "transmutation");
+        }
       }
     }
   }

@@ -37,9 +37,9 @@ namespace NWN.Systems
             LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[CustomSpell.IllusionMineure], (int)ClassType.Wizard);
             player.learnableSpells.Add(learnableSpell.id, learnableSpell);
             learnableSpell.LevelUp(player);
-          }
 
-          player.oid.SendServerMessage($"Vous apprenez le sort {StringUtils.ToWhitecolor("Illusion Mineure")}", ColorConstants.Orange);
+            player.oid.SendServerMessage($"Vous apprenez le sort {StringUtils.ToWhitecolor("Illusion Mineure")}", ColorConstants.Orange);
+          }
 
           player.learnableSkills.TryAdd(CustomSkill.EvocateurFaconneurDeSorts, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.EvocateurFaconneurDeSorts], player));
           player.learnableSkills[CustomSkill.EvocateurFaconneurDeSorts].LevelUp(player);

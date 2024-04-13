@@ -10,15 +10,10 @@ namespace NWN.Systems
     {
       if(targetObject is not NwCreature target || caster == target)
       {
-        if(caster.ActiveEffects.Any(e => e.Tag == EffectSystem.HellishRebukeSourceEffectTag))
+        if(caster.ActiveEffects.Any(e => e.Tag == EffectSystem.HellishRebukeEffectTag))
         {
-          if (caster.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.HellishRebukeSourceEffectTag).Creator is NwCreature previousTarget && previousTarget.IsValid)
-          {
-            previousTarget.OnCreatureDamage -= CreatureUtils.OnDamageHellishRebuke;
-            EffectUtils.RemoveTaggedEffect(previousTarget, EffectSystem.HellishRebukeTargetTag, caster);
-          }
-
-          EffectUtils.RemoveTaggedEffect(caster, EffectSystem.HellishRebukeSourceEffectTag);
+          caster.OnDamaged -= CreatureUtils.OnDamageHellishRebuke;
+          EffectUtils.RemoveTaggedEffect(caster, EffectSystem.HellishRebukeEffectTag);
         }
         else
           caster.LoginPlayer?.SendServerMessage("Veuillez choisir une cible valide", ColorConstants.Red);
@@ -26,10 +21,9 @@ namespace NWN.Systems
         return;
       }
 
-      NWScript.AssignCommand(target, () => caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.hellishRebukeSourceEffect));
-      NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Permanent, EffectSystem.hellishRebukeTargetEffect));
-      target.OnCreatureDamage -=  CreatureUtils.OnDamageHellishRebuke;
-      target.OnCreatureDamage += CreatureUtils.OnDamageHellishRebuke;
+      NWScript.AssignCommand(target, () => caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.hellishRebukeEffect));
+      caster.OnDamaged -=  CreatureUtils.OnDamageHellishRebuke;
+      caster.OnDamaged += CreatureUtils.OnDamageHellishRebuke;
     }
   }
 }
