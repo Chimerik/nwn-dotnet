@@ -91,7 +91,7 @@ namespace NWN.Systems
             int itemId = int.Parse(nuiEvent.ElementId[(nuiEvent.ElementId.IndexOf('_') + 1)..]);
 
             NwItem item = itemList[itemId];
-            if (item.IsValid && item.Possessor is null)
+            if (item.IsValid && item.RootPossessor is null)
             {
               item.Destroy();
               item.Clone(nuiEvent.Player.ControlledCreature);
@@ -105,7 +105,7 @@ namespace NWN.Systems
             int itemId = int.Parse(nuiEvent.ElementId[(nuiEvent.ElementId.IndexOf('_') + 1)..]);
 
             NwItem item = itemList[itemId];
-            if (item.IsValid && item.Possessor is null)
+            if (item.IsValid && item.RootPossessor is null)
             {
               item.Destroy();
               item.Clone(nuiEvent.Player.ControlledCreature);

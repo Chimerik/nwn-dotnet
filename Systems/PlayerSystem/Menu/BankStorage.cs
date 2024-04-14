@@ -263,7 +263,7 @@ namespace NWN.Systems
         }
         private void SelectInventoryItem(ModuleEvents.OnPlayerTarget selection)
         {
-          if (selection.IsCancelled || selection.TargetObject is not NwItem item || item == null || !item.IsValid || item.Possessor != player.oid.LoginCreature)
+          if (selection.IsCancelled || selection.TargetObject is not NwItem item || item == null || !item.IsValid || item.RootPossessor != player.oid.LoginCreature)
             return;
 
           LogUtils.LogMessage($"{player.oid.LoginCreature.Name} ({player.oid.PlayerName}) dépose {item.Name}", LogUtils.LogType.PersonalStorageSystem);

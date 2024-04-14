@@ -145,7 +145,7 @@ namespace NWN.Systems
 
         private void OnItemSelectedSaveAppearance(ModuleEvents.OnPlayerTarget selection)
         {
-          if (selection.IsCancelled || selection.TargetObject is null || selection.TargetObject is not NwItem item || item.Possessor != player.oid.ControlledCreature)
+          if (selection.IsCancelled || selection.TargetObject is null || selection.TargetObject is not NwItem item || item.RootPossessor != player.oid.ControlledCreature)
             return;
 
           string name = appearanceName.GetBindValue(player.oid, nuiToken.Token);
@@ -173,7 +173,7 @@ namespace NWN.Systems
         }
         private void OnItemSelectedLoadAppearance(ModuleEvents.OnPlayerTarget selection)
         {
-          if (selection.IsCancelled || selection.TargetObject is null || selection.TargetObject is not NwItem item || item.Possessor != player.oid.ControlledCreature || selectedIndex < 0)
+          if (selection.IsCancelled || selection.TargetObject is null || selection.TargetObject is not NwItem item || item.RootPossessor != player.oid.ControlledCreature || selectedIndex < 0)
           {
             selectedIndex = -1;
             return;

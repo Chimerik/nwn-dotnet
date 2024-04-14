@@ -20,6 +20,7 @@ namespace NWN.Systems
       { JobType.BlueprintResearchMaterialEfficiency, CompleteBlueprintMaterialResearch },
       { JobType.BlueprintResearchTimeEfficiency, CompleteBlueprintTimeResearch },
       { JobType.Enchantement, CompleteItemEnchantement },
+      { JobType.TransmutationStone, CompleteTransmutationStone },
       //{ JobType.Mining, CompleteMining },
       //{ JobType.WoodCutting, CompleteWoodCutting },
       //{ JobType.Pelting, CompletePelting },
@@ -57,6 +58,8 @@ namespace NWN.Systems
       WoodCutting = 13,
       [Description("Extraction_animale_passive")]
       Pelting = 14,
+      [Description("Pierre_de_Transmutation")]
+      TransmutationStone = 15,
     }
 
     public class CraftJob
@@ -255,8 +258,8 @@ namespace NWN.Systems
 
           NwItem repairedItem = NwItem.Create(BaseItems2da.baseItemTable[(int)item.BaseItem.ItemType].craftedItem, player.oid.LoginCreature.Location);
 
-          if (player.learnableSkills.ContainsKey(CustomSkill.RepairCareful))
-            repairedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value = (int)(repairedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value * (0.95 + player.learnableSkills[CustomSkill.RepairCareful].totalPoints / 100));
+          if (player.learnableSkills.TryGetValue(CustomSkill.RepairCareful, out var value))
+            repairedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value = (int)(repairedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value * (0.95 + value.totalPoints / 100));
 
           repairedItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = repairedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value;
           repairedItem.GetObjectVariable<LocalVariableInt>("_DURABILITY_NB_REPAIRS").Value += 1;
@@ -329,6 +332,23 @@ namespace NWN.Systems
           remainingTime = 3600;
           startTime = DateTime.Now.AddSeconds(-consumedTime);
           this.icon = icon;
+
+          player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
+        }
+        catch (Exception e)
+        {
+          Utils.LogMessageToDMs($"{e.Message}\n\n{e.StackTrace}");
+        }
+      }
+      public CraftJob(Player player, JobType jobType) // Transmutation stone
+      {
+        try
+        { 
+          type = jobType;
+          remainingTime = 28800;
+          icon = "is_TranStone";
+
+          player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.TransmutationStone, 0);
 
           player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
         }
@@ -803,6 +823,44 @@ namespace NWN.Systems
       craftedItem.AddItemProperty(ip, EffectDuration.Permanent);
 
       return ip.Tag;
+    }
+    private static bool CompleteTransmutationStone(Player player, bool completed)
+    {
+      if (completed)
+      {
+        foreach (var oldStone in NwObject.FindObjectsWithTag<NwItem>("PierredeTransmutation").Where(s => s.GetObjectVariable<LocalVariableInt>("_CHARACTER_ID").Value == player.characterId))
+        { 
+          if (oldStone.RootPossessor is NwCreature stonePossessor)
+          {
+            stonePossessor.OnUnacquireItem -= EffectSystem.OnUnacquireTransmutationStone;
+            EffectUtils.RemoveTaggedEffect(stonePossessor, $"{EffectSystem.TransmutationStoneEffectTag}{player.characterId}");
+            stonePossessor.LoginPlayer?.SendServerMessage("La pierre de transmutation en votre possession vient de perdre son pouvoir", ColorConstants.Orange);
+          }
+
+          oldStone.Tag = "inactive_stone";
+
+          foreach (var ip in oldStone.ItemProperties)
+            oldStone.RemoveItemProperty(ip);
+        }
+
+
+        NwItem stone = NwItem.Create("pierredetransmut", player.oid.LoginCreature.Location);
+        stone.GetObjectVariable<LocalVariableInt>("_CHARACTER_ID").Value = player.characterId;
+        player.oid.LoginCreature.AcquireItem(stone);
+
+        player.transmutationStone = stone.UUID;
+
+        player.oid.SendServerMessage($"Vous venez de terminer la création d'une {"pierre de transmutation".ColorString(ColorConstants.White)}", ColorConstants.Orange);
+        player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
+      }
+      else // cancelled
+      {
+        player.oid.SendServerMessage($"Vous venez d'annuler la création d'une pierre transmutation", ColorConstants.Orange);
+      }
+
+      player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.TransmutationStone, 1);
+
+      return true;
     }
     /*private static bool CompleteMining(Player player, bool completed)
     {

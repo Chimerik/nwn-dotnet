@@ -59,7 +59,7 @@ namespace NWN.Systems
           this.item = item;
           string originalCrafterName = item.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value;
           modificationAllowed = (string.IsNullOrWhiteSpace(originalCrafterName) || originalCrafterName == player.oid.ControlledCreature.OriginalName)
-            && (item.Possessor == player.oid.ControlledCreature || player.IsDm());
+            && (item.RootPossessor == player.oid.ControlledCreature || player.IsDm());
 
           //if(item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").HasValue && item.BaseItem.ItemType != BaseItemType.Amulet && item.BaseItem.ItemType != BaseItemType.Ring)
            // rootChildren.Add(new NuiLabel(GetItemRequirementText(item)) { Height = 30, Width = 580, Tooltip = GetItemRequirementTooltip(item), ForegroundColor = GetItemRequirementColor(item), HorizontalAlign = NuiHAlign.Left });
@@ -404,7 +404,7 @@ namespace NWN.Systems
 
           if (nuiEvent.EventType == NuiEventType.Click)
           {
-            if (item.Possessor != player.oid.ControlledCreature && !player.IsDm())
+            if (item.RootPossessor != player.oid.ControlledCreature && !player.IsDm())
             {
               ((ItemExamineWindow)player.windows["itemExamine"]).CreateWindow(item);
               player.oid.SendServerMessage($"L'objet doit être en votre possession afin de permettre ce type d'action !", ColorConstants.Red);
@@ -571,7 +571,7 @@ namespace NWN.Systems
             NwSpell spell = NwSpell.FromSpellId(int.Parse(spellId));
             sequencerRegisterRowChildren.Add(new NuiImage(spell.IconResRef) { Tooltip = spell.Name.ToString() });
 
-            if (item.Possessor == player.oid.ControlledCreature)
+            if (item.RootPossessor == player.oid.ControlledCreature)
             {
               sequencerRegisterRowChildren.Add(new NuiButtonImage("menu_up") { Id = $"up_{i}", Tooltip = "Déplacer vers le haut" });
               sequencerRegisterRowChildren.Add(new NuiButtonImage("menu_down") { Id = $"down_{i}", Tooltip = "Déplacer vers le bas" });
@@ -581,7 +581,7 @@ namespace NWN.Systems
             i++;
           }
 
-          if (item.Possessor == player.oid.ControlledCreature)
+          if (item.RootPossessor == player.oid.ControlledCreature)
           {
             sequencerRegisterRowChildren.Add(new NuiButton(sequenceSaveButtonLabel) { Id = "add", Tooltip = "Les sorts seront ajoutés à la fin de la séquence existante" });
             sequencerRegisterRowChildren.Add(new NuiButton("Effacer") { Id = "reinit", Tooltip = "La séquence actuellement enregistrée sera réinitialisée" });
@@ -743,7 +743,7 @@ namespace NWN.Systems
             return false;
           }
 
-          if (item.Possessor != player.oid.ControlledCreature)
+          if (item.RootPossessor != player.oid.ControlledCreature)
           {
             player.oid.SendServerMessage($"{item.Name} doit être en votre possession afin de pouvoir commencer un travail de copie.", ColorConstants.Red);
             return false;

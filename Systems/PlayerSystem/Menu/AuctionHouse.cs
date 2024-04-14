@@ -255,7 +255,7 @@ namespace NWN.Systems
 
                 case "newAuction":
 
-                  if(auctionItemSelected == null || !auctionItemSelected.IsValid || auctionItemSelected.Possessor != player.oid.LoginCreature)
+                  if(auctionItemSelected == null || !auctionItemSelected.IsValid || auctionItemSelected.RootPossessor != player.oid.LoginCreature)
                   {
                     player.oid.SendServerMessage("L'object sélectionné n'existe plus ou n'est plus en votre possession", ColorConstants.Red);
                     isAuctionItemSelected.SetBindValue(player.oid, nuiToken.Token, false);
@@ -1055,7 +1055,7 @@ namespace NWN.Systems
         
         private void SelectProposalInventoryItem(ModuleEvents.OnPlayerTarget selection)
         {
-          if (selection.IsCancelled || selection.TargetObject is not NwItem item || item == null || !item.IsValid || item.Possessor != player.oid.LoginCreature)
+          if (selection.IsCancelled || selection.TargetObject is not NwItem item || item == null || !item.IsValid || item.RootPossessor != player.oid.LoginCreature)
             return;
 
           newProposalItems.Add(NwItem.Deserialize(item.Serialize()));
@@ -1066,7 +1066,7 @@ namespace NWN.Systems
         }
         private void SelectAuctionInventoryItem(ModuleEvents.OnPlayerTarget selection)
         {
-          if (selection.IsCancelled || selection.TargetObject is not NwItem item || item == null || !item.IsValid || item.Possessor != player.oid.LoginCreature)
+          if (selection.IsCancelled || selection.TargetObject is not NwItem item || item == null || !item.IsValid || item.RootPossessor != player.oid.LoginCreature)
             return;
 
           auctionItemSelected = item;

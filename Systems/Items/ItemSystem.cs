@@ -1,5 +1,4 @@
-﻿using Anvil.API;
-using Anvil.Services;
+﻿using Anvil.Services;
 using NLog;
 
 namespace NWN.Systems

@@ -218,7 +218,8 @@ namespace NWN.Systems
         var query = SqLiteUtils.SelectQuery("playerCharacters",
             new List<string>() { { "location" }, { "currentHP" }, { "bankGold" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" },
               { "alchemyCauldron" }, { "serializedLearnableSkills" }, { "serializedLearnableSpells" }, { "explorationState" }, { "materialStorage" }, { "craftJob" },
-              { "grimoires" }, { "quickbars" }, { "itemAppearances" }, { "descriptions" }, { "mails" }, { "subscriptions" }, { "endurance" } },
+              { "grimoires" }, { "quickbars" }, { "itemAppearances" }, { "descriptions" }, { "mails" }, { "subscriptions" }, { "endurance" },
+              { "transmutationStone" } },
             new List<string[]>() { { new string[] { "rowid", characterId.ToString() } } });
 
         foreach (var result in query)
@@ -242,6 +243,7 @@ namespace NWN.Systems
           string serializedMails = result[16];
           string serializedSubscriptions = result[17];
           string serializedEndurance = result[18];
+          transmutationStone = Guid.TryParse(result[19], out Guid uuid) ? uuid : Guid.Empty;
 
           InitializePlayerAsync(serializedCauldron, serializedExploration, serializedLearnableSkills, serializedLearnableSpells, serializedCraftResources, serializedCraftJob, serializedGrimoires, serializedQuickbars, serializedItemAppearances, serializedDescriptions, serializedMails, serializedSubscriptions, serializedEndurance);
         }

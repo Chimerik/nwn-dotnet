@@ -88,7 +88,7 @@ namespace NWN.Systems
 
           if (nuiEvent.EventType == NuiEventType.Click)
           {
-            if (!item.IsValid && (item.Possessor != player.oid.ControlledCreature || !player.IsDm()))
+            if (!item.IsValid && (item.RootPossessor != player.oid.ControlledCreature || !player.IsDm()))
             {
               player.oid.SendServerMessage("L'objet en cours de modification n'est plus en votre possession !", ColorConstants.Red);
               CloseWindow();

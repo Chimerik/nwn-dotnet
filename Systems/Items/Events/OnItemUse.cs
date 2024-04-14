@@ -25,6 +25,7 @@ namespace NWN.Systems
         case "potion_cure_mini": Potion.CureMini(oPC.ControllingPlayer); break;
         case "potion_cure_frog": Potion.CureFrog(oPC.ControllingPlayer); break;
         case "potion_alchimique": Potion.AlchemyEffect(onUse); break;
+        case "PierredeTransmutation": TransmutationStone(onUse); break;
       }
 
       if (oTarget is not null)

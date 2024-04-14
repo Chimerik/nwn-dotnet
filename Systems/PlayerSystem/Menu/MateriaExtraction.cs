@@ -106,7 +106,7 @@ namespace NWN.Systems
         private void HandleExtractionProgress()
         {
           if (player.oid == null || player.oid.LoginCreature == null || targetMateria == null || player.oid.LoginCreature.Area != targetMateria.Area || extractor == null 
-            || extractor.Possessor != player.oid.LoginCreature || !IsOpen || player.oid.LoginCreature.IsInCombat || player.oid.LoginCreature.IsResting
+            || extractor.RootPossessor != player.oid.LoginCreature || !IsOpen || player.oid.LoginCreature.IsInCombat || player.oid.LoginCreature.IsResting
             || player.oid.LoginCreature.CurrentAction == Anvil.API.Action.CastSpell || player.oid.LoginCreature.CurrentAction == Anvil.API.Action.AttackObject
             || player.oid.LoginCreature.CurrentAction == Anvil.API.Action.CounterSpell || player.oid.LoginCreature.CurrentAction == Anvil.API.Action.SetTrap
             || player.oid.LoginCreature.CurrentAction == Anvil.API.Action.ItemCastSpell)

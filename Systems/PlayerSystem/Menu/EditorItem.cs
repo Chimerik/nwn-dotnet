@@ -437,7 +437,7 @@ namespace NWN.Systems
           identifiedChecked.SetBindWatch(player.oid, nuiToken.Token, true);
           string originalCrafterName = targetItem.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value;
           modificationAllowed.SetBindValue(player.oid, nuiToken.Token, (string.IsNullOrWhiteSpace(originalCrafterName) || originalCrafterName == player.oid.ControlledCreature.OriginalName)
-            && (targetItem.Possessor == player.oid.ControlledCreature || player.IsDm()));
+            && (targetItem.RootPossessor == player.oid.ControlledCreature || player.IsDm()));
         }
         private void LoadItemPropertyLayout()
         {

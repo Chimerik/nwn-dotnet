@@ -156,12 +156,12 @@ namespace NWN.Systems
       if (player.menu.isOpen)
         player.menu.Close();
 
-      if (area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL") < 2)
+      if (area.GetObjectVariable<LocalVariableInt>(AreaUtils.AreaLevelVariable) < 2)
         player.oid.SetAreaExplorationState(area, true);
-      else if (player.areaExplorationStateDictionnary.ContainsKey(area.Tag))
-        player.oid.SetAreaExplorationState(area, player.areaExplorationStateDictionnary[area.Tag]);
+      else if (player.areaExplorationStateDictionnary.TryGetValue(area.Tag, out var value))
+        player.oid.SetAreaExplorationState(area, value);
 
-      if (player.craftJob != null && area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 0 && player.TryGetOpenedWindow("activeCraftJob", out PlayerSystem.Player.PlayerWindow jobWindow))
+      if (player.craftJob is not null && area.GetObjectVariable<LocalVariableInt>(AreaUtils.AreaLevelVariable).Value > 0 && player.TryGetOpenedWindow("activeCraftJob", out PlayerSystem.Player.PlayerWindow jobWindow))
         ((PlayerSystem.Player.ActiveCraftJobWindow)jobWindow).timeLeft.SetBindValue(player.oid, jobWindow.nuiToken.Token, "En pause (Hors Cité)");
     }
     public static void OnAreaExit(AreaEvents.OnExit onExit)

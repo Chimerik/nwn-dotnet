@@ -62,7 +62,7 @@ namespace NWN.Systems
         }
         private void HandleEditorItemNameEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (targetItem == null || !targetItem.IsValid || (targetItem.Possessor != player.oid.ControlledCreature && !player.IsDm()))
+          if (targetItem == null || !targetItem.IsValid || (targetItem.RootPossessor != player.oid.ControlledCreature && !player.IsDm()))
           {
             player.oid.SendServerMessage("L'objet édité n'est plus valide ou n'est plus en votre possession.", ColorConstants.Red);
             CloseWindow();

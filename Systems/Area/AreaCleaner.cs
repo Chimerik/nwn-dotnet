@@ -23,7 +23,7 @@ namespace NWN.Systems
 
       foreach (NwItem item in area.FindObjectsOfTypeInArea<NwItem>())
       {
-        if (item.Possessor == null)
+        if (item.RootPossessor == null)
         {
           LogUtils.LogMessage($"destroying item {item.Name}", LogUtils.LogType.AreaManagement);
           item.Destroy();

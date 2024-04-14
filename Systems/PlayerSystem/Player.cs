@@ -50,6 +50,7 @@ namespace NWN.Systems
       public int healthRegen { get; set; }
       public bool wasHPGreaterThan50 { get; set; }
       public int soulReapTriggers { get; set; }
+      public Guid transmutationStone { get; set; }
       public Learnable activeLearnable { get; set; }
       public Dictionary<int, MapPin> mapPinDictionnary = new();
       public Dictionary<string, byte[]> areaExplorationStateDictionnary = new();
@@ -542,7 +543,7 @@ namespace NWN.Systems
           return;
         }
 
-        if (tool is null || tool.Possessor != oid.LoginCreature)
+        if (tool is null || tool.RootPossessor != oid.LoginCreature)
         {
           oid.SendServerMessage("L'outil que vous utilisez actuellement n'est plus valide. Veuillez en utiliser un autre.", ColorConstants.Red);
           return;
@@ -592,13 +593,13 @@ namespace NWN.Systems
           return;
         }
 
-        if (blueprint == null || blueprint.Possessor != oid.ControlledCreature)
+        if (blueprint == null || blueprint.RootPossessor != oid.ControlledCreature)
         {
           oid.SendServerMessage($"{blueprint.Name.ColorString(ColorConstants.White)} n'est plus en votre possession. Impossible de commencer le travail artisanal.", ColorConstants.Red);
           return;
         }
 
-        if (tool is null || tool.Possessor != oid.LoginCreature)
+        if (tool is null || tool.RootPossessor != oid.LoginCreature)
         {
           oid.SendServerMessage("L'outil utilisé pour votre travail n'est plus valide, veuillez en utiliser un autre !", ColorConstants.Red);
           return;
@@ -622,7 +623,7 @@ namespace NWN.Systems
 
         if (upgradedItem != null)
         {
-          if (upgradedItem.Possessor != oid.ControlledCreature)
+          if (upgradedItem.RootPossessor != oid.ControlledCreature)
           {
             oid.SendServerMessage($"{upgradedItem.Name.ColorString(ColorConstants.White)} n'est plus en votre possession. Impossible de commencer le travail artisanal.", ColorConstants.Red);
             return;
@@ -646,8 +647,8 @@ namespace NWN.Systems
         
         ItemUtils.HandleCraftToolDurability(this, tool, CustomInscription.MateriaProductionDurability, CustomSkill.ArtisanPrudent);
 
-        if (!windows.ContainsKey("activeCraftJob")) windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
-        else ((ActiveCraftJobWindow)windows["activeCraftJob"]).CreateWindow();
+        if (!windows.TryGetValue("activeCraftJob", out var value)) windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
+        else ((ActiveCraftJobWindow)value).CreateWindow();
       }
       public void HandlePassiveJobChecks(string worshop)
       {

@@ -235,7 +235,8 @@ namespace NWN.Systems
           new string[] { "explorationState", serializeExplorationState.Result }, new string[] { "quickbars", serializeQuickbars.Result },
           new string[] { "itemAppearances", serializeItemAppearances.Result }, new string[] { "descriptions", serializeDescriptions.Result },
           new string[] { "craftJob", serializeJob.Result  }, new string[] { "materialStorage", serializeCraftResource.Result }, new string[] { "grimoires", serializeGrimoires.Result },
-          new string[] { "mails", serializeMails.Result  }, new string[] { "subscriptions", serializeSubscriptions.Result  }, new string[] { "endurance", serializeEndurance.Result } },
+          new string[] { "mails", serializeMails.Result  }, new string[] { "subscriptions", serializeSubscriptions.Result  }, new string[] { "endurance", serializeEndurance.Result },
+          new string[] { "transmutationStone", transmutationStone.ToString()  }},
         new List<string[]>() { new string[] { "rowid", characterId.ToString() } });
 
         LogUtils.LogMessage($"ASYNC SAVE FINALIZED for {firstName} {lastName} in {Math.Round((DateTime.Now - elapsed).TotalSeconds, 3, MidpointRounding.ToEven)} s", LogUtils.LogType.PlayerSaveSystem);

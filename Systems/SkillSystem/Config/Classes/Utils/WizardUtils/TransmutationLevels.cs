@@ -7,6 +7,7 @@ namespace NWN.Systems
 {
   public static partial class Wizard
   {
+    public const string TransmutationStoneVariable = "_TRANSMUTATION_STONE_AVAILABLE";
     public static void HandleTransmutationLevelUp(Player player, int level)
     {
       switch (level)
@@ -24,11 +25,19 @@ namespace NWN.Systems
 
         case 6:
 
-          player.learnableSkills.TryAdd(CustomSkill.NecromancieUndeadThralls, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.NecromancieUndeadThralls], player));
-          player.learnableSkills[CustomSkill.NecromancieUndeadThralls].LevelUp(player);
-          player.learnableSkills[CustomSkill.NecromancieUndeadThralls].source.Add(Category.Class);
+          player.learnableSkills.TryAdd(CustomSkill.TransmutationStone, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.TransmutationStone], player));
+          player.learnableSkills[CustomSkill.TransmutationStone].LevelUp(player);
+          player.learnableSkills[CustomSkill.TransmutationStone].source.Add(Category.Class);
 
-          if (player.learnableSpells.TryGetValue((int)Spell.AnimateDead, out var learnable))
+          break;
+
+        case 10:
+
+          player.learnableSkills.TryAdd(CustomSkill.TransmutationMetamorphose, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.TransmutationMetamorphose], player));
+          player.learnableSkills[CustomSkill.TransmutationMetamorphose].LevelUp(player);
+          player.learnableSkills[CustomSkill.TransmutationMetamorphose].source.Add(Category.Class);
+
+          if (player.learnableSpells.TryGetValue((int)Spell.PolymorphSelf, out var learnable))
           {
             if (!learnable.learntFromClasses.Any(c => c == (int)ClassType.Wizard))
             {
@@ -40,30 +49,20 @@ namespace NWN.Systems
           }
           else
           {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.AnimateDead], (int)ClassType.Wizard);
+            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.PolymorphSelf], (int)ClassType.Wizard);
             player.learnableSpells.Add(learnableSpell.id, learnableSpell);
             learnableSpell.LevelUp(player);
 
-            player.oid.SendServerMessage($"Vous apprenez le sort {StringUtils.ToWhitecolor("Animation des Morts")}", ColorConstants.Orange);
+            player.oid.SendServerMessage($"Vous apprenez le sort {StringUtils.ToWhitecolor("Métamorphose")}", ColorConstants.Orange);
           }
-
-          break;
-
-        case 10:
-
-          player.learnableSkills.TryAdd(CustomSkill.NecromancieInsensible, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.NecromancieInsensible], player));
-          player.learnableSkills[CustomSkill.NecromancieInsensible].LevelUp(player);
-          player.learnableSkills[CustomSkill.NecromancieInsensible].source.Add(Category.Class);
-
-          player.oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin).AddItemProperty(ItemProperty.DamageImmunity((IPDamageType)CustomItemPropertiesDamageType.Necrotic, IPDamageImmunityType.Immunity50Pct), EffectDuration.Permanent);
 
           break;
 
         case 14:
 
-          player.learnableSkills.TryAdd(CustomSkill.NecromancieUndeadControl, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.NecromancieUndeadControl], player));
-          player.learnableSkills[CustomSkill.NecromancieUndeadControl].LevelUp(player);
-          player.learnableSkills[CustomSkill.NecromancieUndeadControl].source.Add(Category.Class);
+          player.learnableSkills.TryAdd(CustomSkill.TransmutationMaitre, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.TransmutationMaitre], player));
+          player.learnableSkills[CustomSkill.TransmutationMaitre].LevelUp(player);
+          player.learnableSkills[CustomSkill.TransmutationMaitre].source.Add(Category.Class);
 
           break;
       }

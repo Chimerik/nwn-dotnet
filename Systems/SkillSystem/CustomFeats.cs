@@ -240,6 +240,10 @@
     public const int NecromancieUndeadControl = 1523;
 
     public const int TransmutationAlchimieMineure = 1524;
+    public const int TransmutationStone = 1525;
+    public const int TemporaryConstitutionSaveProficiency = 1526;
+    public const int TransmutationMetamorphose = 1527;
+    public const int TransmutationMaitre = 1528;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;

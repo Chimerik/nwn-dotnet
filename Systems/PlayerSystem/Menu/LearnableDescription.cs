@@ -104,7 +104,7 @@ namespace NWN.Systems
         }
         private async void SelectInventoryItem(ModuleEvents.OnPlayerTarget selection)
         {
-          if (selection.IsCancelled || selection.TargetObject is not NwItem item || item == null || !item.IsValid || item.Possessor != player.oid.LoginCreature)
+          if (selection.IsCancelled || selection.TargetObject is not NwItem item || item == null || !item.IsValid || item.RootPossessor != player.oid.LoginCreature)
             return;
 
           player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CASTING_INSCRIPTION").Value = learnable.id;

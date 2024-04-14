@@ -14,7 +14,7 @@ namespace NWN.Systems
         return;
       }
 
-      if (onSpellCast.TargetObject is not NwItem targetItem || targetItem == null || targetItem.Possessor != player.oid.ControlledCreature)
+      if (onSpellCast.TargetObject is not NwItem targetItem || targetItem == null || targetItem.RootPossessor != player.oid.ControlledCreature)
       {
         player.oid.SendServerMessage("Cible invalide.", ColorConstants.Red);
         return;

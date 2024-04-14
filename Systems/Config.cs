@@ -134,6 +134,13 @@ namespace NWN.Systems
       BadCursorType = MouseCursor.NoAction
     };
 
+    public static readonly TargetModeSettings selectObjectTargetMode = new()
+    {
+      ValidTargets = ObjectTypes.Creature | ObjectTypes.Door | ObjectTypes.Placeable | ObjectTypes.Placeable,
+      CursorType = MouseCursor.Magic,
+      BadCursorType = MouseCursor.NoMagic
+    };
+
     public static readonly TargetModeSettings selectLocationTargetMode = new()
     {
       ValidTargets = ObjectTypes.Creature | ObjectTypes.Door | ObjectTypes.Waypoint | ObjectTypes.Trigger | ObjectTypes.AreaOfEffect | ObjectTypes.Placeable | ObjectTypes.Placeable | ObjectTypes.Tile,

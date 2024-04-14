@@ -201,7 +201,7 @@ namespace NWN.Systems
                     case Tab.Recycle:
 
                       if (player.craftJob != null) player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
-                      else if(tool is null || tool.Possessor != player.oid.LoginCreature)
+                      else if(tool is null || tool.RootPossessor != player.oid.LoginCreature)
                       {
                         player.oid.SendServerMessage("L'outil que vous utilisez n'est plus valide. Veuillez en utiliser un autre.", ColorConstants.Red);
                       }
@@ -232,7 +232,7 @@ namespace NWN.Systems
                     case Tab.Reinforce:
 
                       if (player.craftJob != null) player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
-                      else if (tool is null || tool.Possessor != player.oid.LoginCreature)
+                      else if (tool is null || tool.RootPossessor != player.oid.LoginCreature)
                         player.oid.SendServerMessage("L'outil que vous utilisez actuellement n'est plus valide. Veuillez en utiliser un autre.", ColorConstants.Red);
                       else
                       {

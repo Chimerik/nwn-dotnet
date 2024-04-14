@@ -27,7 +27,7 @@ namespace NWN.Systems
     {
       NwItem oItem = onUnacquireItem.Item;
 
-      if (onUnacquireItem.LostBy.ControllingPlayer == null || oItem == null || oItem.Tag != "item_pccorpse" || oItem.Possessor is not null) // signifie que l'item a été drop au sol et pas donné à un autre PJ ou mis dans un placeable
+      if (onUnacquireItem.LostBy.ControllingPlayer == null || oItem == null || oItem.Tag != "item_pccorpse" || oItem.RootPossessor is not null) // signifie que l'item a été drop au sol et pas donné à un autre PJ ou mis dans un placeable
         return;
 
       NwCreature oCorpse = NwCreature.Deserialize(oItem.GetObjectVariable<LocalVariableString>("_SERIALIZED_CORPSE").Value.ToByteArray());

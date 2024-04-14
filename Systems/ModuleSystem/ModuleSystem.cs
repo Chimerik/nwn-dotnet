@@ -327,7 +327,7 @@ namespace NWN.Systems
         "'location' TEXT, 'itemAppearances' TEXT, 'currentSkillPoints' INTEGER," +
         "'currentHP' INTEGER, 'bankGold' INTEGER, 'pveArenaCurrentPoints' INTEGER, 'menuOriginTop' INTEGER, 'menuOriginLeft' INTEGER, 'storage' TEXT, " +
         "'alchemyCauldron' TEXT, 'explorationState' TEXT, 'materialStorage' TEXT, 'craftJob' TEXT, 'grimoires' TEXT, 'quickbars' TEXT," +
-        "'descriptions' TEXT, 'mails' TEXT, 'subscriptions' TEXT, 'endurance' TEXT)");
+        "'descriptions' TEXT, 'mails' TEXT, 'subscriptions' TEXT, 'endurance' TEXT, 'transmutationStone' TEXT)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerDeathCorpses" +
         "('characterId' INTEGER NOT NULL, 'deathCorpse' TEXT NOT NULL, 'location' TEXT NOT NULL)");
@@ -422,6 +422,7 @@ namespace NWN.Systems
       //EventsPlugin.AddIDToWhitelist("NWNX_ON_HAS_FEAT", (int)Feat.ImprovedTwoWeaponFighting);
       
       NwModule.Instance.OnAcquireItem += ItemSystem.OnAcquireCheckFinesseProperty;
+      NwModule.Instance.OnAcquireItem += ItemSystem.OnAcquireTransmutationStone;
       NwModule.Instance.OnPlayerGuiEvent += PlayerSystem.HandleGuiEvents;
       NwModule.Instance.OnHeartbeat += CreatureUtils.OnHeartbeatRefreshActions;
       
