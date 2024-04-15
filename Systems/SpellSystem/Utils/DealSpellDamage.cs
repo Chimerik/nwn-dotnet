@@ -49,13 +49,13 @@ namespace NWN.Systems
         damage += roll;
       }
 
-      damage = ItemUtils.GetShieldMasterReducedDamage(target, damage, saveFailed, spellEntry.savingThrowAbility);
-      damage = WizardUtils.GetAbjurationReducedDamage(target, damage);
-      damage /= saveFailed ? 1 : 2;
-
-      //int nDamage = SpellUtils.MaximizeOrEmpower(iDamage, 1 + nCasterLevel / 6, onSpellCast.MetaMagicFeat);
-
-      damage = HandleResistanceBypass(target, isElementalist, damage, spellEntry);
+      if (target is NwCreature targetCreature)
+      {
+        damage = HandleSpellEvasion(targetCreature, damage, spellEntry.savingThrowAbility, saveFailed);
+        damage = ItemUtils.GetShieldMasterReducedDamage(targetCreature, damage, saveFailed, spellEntry.savingThrowAbility);
+        damage = WizardUtils.GetAbjurationReducedDamage(targetCreature, damage);
+        damage = HandleResistanceBypass(targetCreature, isElementalist, damage, spellEntry);
+      }
 
       if (caster is not null)
         NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(spellEntry.damageVFX), Effect.Damage(damage, spellEntry.damageType))));

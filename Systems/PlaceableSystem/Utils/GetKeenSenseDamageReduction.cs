@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using Anvil.API;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -8,7 +6,7 @@ namespace NWN.Systems
   {
     public static int GetKeenSenseDamageReduction(NwCreature creature, int damage)
     {
-      if (creature.KnowsFeat(Feat.KeenSense))
+      if (damage > 0 && creature.KnowsFeat(Feat.KeenSense))
       {
         damage /= 2;
 

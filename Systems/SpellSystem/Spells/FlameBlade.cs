@@ -6,9 +6,11 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static async void FlameBlade(NwCreature caster, NwSpell spell, SpellEntry spellEntry)
+    public static async void FlameBlade(SpellEvents.OnSpellCast onSpellCast, SpellEntry spellEntry)
     {
-      StringUtils.ForceBroadcastSpellCasting(caster, spell);
+      if (onSpellCast.Caster is not NwCreature caster)
+        return;
+      StringUtils.ForceBroadcastSpellCasting(caster, onSpellCast.Spell);
       caster.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSuperHeroism));
 
       NwItem blade = await NwItem.Create(BaseItems2da.baseItemTable[(int)BaseItemType.Scimitar].craftedItem, caster, 1, "_TEMP_FLAME_BLADE");
@@ -23,7 +25,7 @@ namespace NWN.Systems
       caster.RunEquip(blade, InventorySlot.RightHand);
 
       if (caster.GetObjectVariable<LocalVariableInt>(EffectSystem.ConcentrationSpellIdString).Value != CustomSpell.FlameBlade)
-        EffectSystem.ApplyConcentrationEffect(caster, spell.Id, new List<NwGameObject> { caster }, spellEntry.duration);
+        EffectSystem.ApplyConcentrationEffect(caster, onSpellCast.Spell.Id, new List<NwGameObject> { caster }, spellEntry.duration);
 
       CreatureUtils.HandleBonusActionCooldown(caster);
     }

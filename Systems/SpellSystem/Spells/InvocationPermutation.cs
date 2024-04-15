@@ -7,22 +7,32 @@ namespace NWN.Systems
   {
     public static void InvocationPermutation(SpellEvents.OnSpellCast onSpellCast, SpellEntry spellEntry)
     {
-      if (onSpellCast.Caster is not NwCreature oCaster)
+      if (onSpellCast.Caster is not NwCreature caster)
         return;
 
-      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell.SpellType);
-      onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpFlameS));
+      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, onSpellCast.Caster, onSpellCast.Spell.SpellType);
 
-      int nbDice = SpellUtils.GetSpellDamageDiceNumber(oCaster, onSpellCast.Spell);
-
-      switch(SpellUtils.GetSpellAttackRoll(onSpellCast.TargetObject, oCaster, onSpellCast.Spell, onSpellCast.SpellCastClass.SpellCastingAbility))
+      if (onSpellCast.TargetObject is NwCreature target)
       {
-        case TouchAttackResult.CriticalHit: SpellUtils.GetCriticalSpellDamageDiceNumber(oCaster, spellEntry, nbDice); ; break;
-        case TouchAttackResult.Hit: break;
-        default: return;
+        if (target.IsReactionTypeFriendly(caster))
+        {
+          var swapPosition = caster.Position;
+          target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
+
+          caster.Position = target.Position;
+          target.Position = swapPosition;
+        }
+        else
+          caster.LoginPlayer?.SendServerMessage("Cible invalide", ColorConstants.Red);
+      }
+      else if(onSpellCast.TargetObject is null)
+      {
+        onSpellCast.TargetLocation.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
+        caster.Position = onSpellCast.TargetLocation.Position;
       }
 
-      SpellUtils.DealSpellDamage(onSpellCast.TargetObject, oCaster.CasterLevel, spellEntry, nbDice, oCaster, onSpellCast.Spell.GetSpellLevelForClass(onSpellCast.SpellCastClass));
+      caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
+      caster.SetFeatRemainingUses((Feat)CustomSkill.InvocationPermutation, 0);
     }
   }
 }

@@ -245,6 +245,8 @@
     public const int TransmutationMetamorphose = 1527;
     public const int TransmutationMaitre = 1528;
 
+    public const int VigueurNaine = 1529;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -702,7 +704,7 @@
     public const int Doue = 20512;    
     public const int MaitreDarme = 20513;
     public const int ChanceDebordante = 20514;
-    public const int VigueurNaine = 20515;    
+        
     public const int Healer = 20516;
 
     public const int FighterChampionBonusCombatStyle = 20517;

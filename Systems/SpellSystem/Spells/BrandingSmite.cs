@@ -1,18 +1,22 @@
 ﻿using System.Collections.Generic;
 using Anvil.API;
+using Anvil.API.Events;
 using NWN.Core;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void BrandingSmite(NwCreature caster, NwSpell spell, SpellEntry spellEntry)
+    public static void BrandingSmite(SpellEvents.OnSpellCast onSpellCast, SpellEntry spellEntry)
     {
-      StringUtils.ForceBroadcastSpellCasting(caster, spell);
+      if (onSpellCast.Caster is not NwCreature caster)
+        return;
+
+      StringUtils.ForceBroadcastSpellCasting(caster, onSpellCast.Spell);
       caster.Location.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(VfxType.ImpPulseHoly), Effect.VisualEffect(VfxType.ImpDivineStrikeHoly)));
 
       NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.brandingSmiteAttack, NwTimeSpan.FromRounds(spellEntry.duration)));
-      EffectSystem.ApplyConcentrationEffect(caster, spell.Id, new List<NwGameObject> { caster }, spellEntry.duration);
+      EffectSystem.ApplyConcentrationEffect(caster, onSpellCast.Spell.Id, new List<NwGameObject> { caster }, spellEntry.duration);
 
       caster.OnCreatureAttack -= CreatureUtils.OnAttackBrandingSmite;
       caster.OnCreatureAttack += CreatureUtils.OnAttackBrandingSmite;

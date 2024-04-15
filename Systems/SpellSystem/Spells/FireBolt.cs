@@ -5,31 +5,24 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void FireBolt(NwCreature caster, SpellEvents.OnSpellCast onSpellCast, SpellEntry spellEntry)
+    public static void FireBolt(SpellEvents.OnSpellCast onSpellCast, SpellEntry spellEntry)
     {
-      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, caster, onSpellCast.Spell.SpellType);
+      if (onSpellCast.Caster is not NwCreature oCaster)
+        return;
 
-      if (onSpellCast.TargetObject is NwCreature target)
-      {
-        if (target.IsReactionTypeFriendly(caster))
-        {
-          var swapPosition = caster.Position;
-          target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
+      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell.SpellType);
+      onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpFlameS));
 
-          caster.Position = target.Position;
-          target.Position = swapPosition;
-        }
-        else
-          caster.LoginPlayer?.SendServerMessage("Cible invalide", ColorConstants.Red);
-      }
-      else if(onSpellCast.TargetObject is null)
+      int nbDice = SpellUtils.GetSpellDamageDiceNumber(oCaster, onSpellCast.Spell);
+
+      switch(SpellUtils.GetSpellAttackRoll(onSpellCast.TargetObject, oCaster, onSpellCast.Spell, onSpellCast.SpellCastClass.SpellCastingAbility))
       {
-        onSpellCast.TargetLocation.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
-        caster.Position = onSpellCast.TargetLocation.Position;
+        case TouchAttackResult.CriticalHit: SpellUtils.GetCriticalSpellDamageDiceNumber(oCaster, spellEntry, nbDice); ; break;
+        case TouchAttackResult.Hit: break;
+        default: return;
       }
 
-      caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
-      caster.SetFeatRemainingUses((Feat)CustomSkill.InvocationPermutation, 0);
+      SpellUtils.DealSpellDamage(onSpellCast.TargetObject, oCaster.CasterLevel, spellEntry, nbDice, oCaster, onSpellCast.Spell.GetSpellLevelForClass(onSpellCast.SpellCastClass));
     }
   }
 }

@@ -5,8 +5,11 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void HurlementGalvanisant(NwCreature oCaster, SpellEvents.OnSpellCast onSpellCast, SpellEntry spellEntry)
+    public static void HurlementGalvanisant(SpellEvents.OnSpellCast onSpellCast, SpellEntry spellEntry)
     {
+      if (onSpellCast.Caster is not NwCreature oCaster)
+        return;
+
       SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell.SpellType);
 
       if(oCaster.Gender == Gender.Male)

@@ -3,15 +3,14 @@ using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
 using NWN.Core;
-using NWN.Native.API;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void RegardHypnotique(NwCreature caster, SpellEvents.OnSpellCast onSpellCast, SpellEntry spellEntry)
+    public static void RegardHypnotique(SpellEvents.OnSpellCast onSpellCast, SpellEntry spellEntry)
     {
-      if (onSpellCast.TargetObject is not NwCreature target || EffectSystem.IsCharmeImmune(target))
+      if (onSpellCast.Caster is not NwCreature caster || onSpellCast.TargetObject is not NwCreature target || EffectSystem.IsCharmeImmune(target))
         return;
 
       var previousTargetList = caster.GetObjectVariable<LocalVariableString>(CreatureUtils.RegardHypnotiqueTargetListVariable).Value.Split("_");

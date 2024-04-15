@@ -31,6 +31,10 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.MonkSilence].LevelUp(player);
           player.learnableSkills[CustomSkill.MonkSilence].source.Add(Category.Class);
 
+          player.learnableSkills.TryAdd(CustomSkill.IllusionMineure, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.IllusionMineure], player));
+          player.learnableSkills[CustomSkill.IllusionMineure].LevelUp(player);
+          player.learnableSkills[CustomSkill.IllusionMineure].source.Add(Category.Class);
+
           break;
 
         case 5:

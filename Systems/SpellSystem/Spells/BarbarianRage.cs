@@ -1,13 +1,16 @@
 ﻿using System.Linq;
 using Anvil.API;
-using NWN.Core;
+using Anvil.API.Events;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void BarbarianRage(NwCreature caster, NwSpell spell, SpellEntry spellEntry)
+    public static void BarbarianRage(SpellEvents.OnSpellCast spellCast, SpellEntry spellEntry)
     {
+      if (spellCast.Caster is not NwCreature caster)
+        return;
+
       NwItem armor = caster.GetItemInSlot(InventorySlot.Chest);
 
       if(armor.BaseACValue > 5)
@@ -16,7 +19,7 @@ namespace NWN.Systems
         return;
       }
 
-      StringUtils.ForceBroadcastSpellCasting(caster, spell);
+      StringUtils.ForceBroadcastSpellCasting(caster, spellCast.Spell);
 
       switch(NwRandom.Roll(Utils.random, 3))
       {

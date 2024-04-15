@@ -216,12 +216,7 @@ namespace NWN.Systems
                   player.oid.SendServerMessage($"Vous adoptez la voie {StringUtils.ToWhitecolor(selectedLearnable.name)} !", ColorConstants.Orange);
 
                   if (player.TryGetOpenedWindow("learnables", out PlayerWindow learnableWindow))
-                  {
-                    LearnableWindow window = (LearnableWindow)learnableWindow;
-
-                    window.RefreshCategories(category);
-                    window.LoadLearnableList(window.currentList);
-                  }
+                    ((LearnableWindow)learnableWindow).RefreshCategories(category);
 
                   CloseWindow();
 

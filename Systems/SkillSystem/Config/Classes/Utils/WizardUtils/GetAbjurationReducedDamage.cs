@@ -1,13 +1,12 @@
-﻿using System.Linq;
-using Anvil.API;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {
   public static partial class WizardUtils
   {
-    public static int GetAbjurationReducedDamage(NwGameObject target, int damage)
+    public static int GetAbjurationReducedDamage(NwCreature target, int damage)
     {
-      if (target is NwCreature creature && creature.KnowsFeat((Feat)CustomSkill.AbjurationSpellResistance))
+      if (damage > 0 && target.KnowsFeat((Feat)CustomSkill.AbjurationSpellResistance))
       {
         damage /= 2;
         LogUtils.LogMessage($"Abjuration - Résistance aux sorts {damage}", LogUtils.LogType.Combat);

@@ -19,8 +19,6 @@ namespace NWN.Systems
       if (saveFailed)
         NWScript.AssignCommand(trap, () => creature.ApplyEffect(EffectDuration.Permanent, Effect.LinkEffects(Effect.AbilityDecrease(Ability.Strength, entry.aoeSize), Effect.VisualEffect(VfxType.ImpReduceAbilityScore))));
 
-      damage = SpellUtils.GetEsquiveTotaleDamageReduction(creature, damage, saveFailed);
-
       TrapUtils.SendSavingThrowFeedbackMessage(creature, feedback.saveRoll, feedback.proficiencyBonus, advantage, entry.baseDC, totalSave, saveFailed, Ability.Dexterity);
 
       creature.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(entry.damageVFX));

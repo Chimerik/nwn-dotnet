@@ -14,16 +14,14 @@ namespace NWN.Systems
 
       if (caster.GetFeatRemainingUses((Feat)CustomSkill.MonkPaumeVibratoire) < 3)
       {
-        caster.LoginPlayer?.SendServerMessage("Cette attaque nécessite 3 charges de Ki", ColorConstants.Red);
+        caster.LoginPlayer?.SendServerMessage("Nécessite 3 charges de Ki", ColorConstants.Red);
         return;
       }
 
       caster.OnCreatureAttack -= CreatureUtils.OnAttackPaumeVibratoire;
       caster.OnCreatureAttack += CreatureUtils.OnAttackPaumeVibratoire;
 
-      FeatUtils.DecrementKi(caster);
-      FeatUtils.DecrementKi(caster);
-      FeatUtils.DecrementKi(caster);
+      FeatUtils.DecrementKi(caster, 3);
     }
   }
 }

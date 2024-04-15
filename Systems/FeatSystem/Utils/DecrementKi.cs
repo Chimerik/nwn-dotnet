@@ -1,23 +1,23 @@
 ﻿using Anvil.API;
-using Google.Apis.Discovery;
 
 namespace NWN.Systems
 {
   public static partial class FeatUtils
   {
-    public static void DecrementKi(NwCreature creature)
+    public static void DecrementKi(NwCreature creature, byte nbCharge = 1)
     {
-      DecrementFeatUses(creature, CustomSkill.MonkPatience);   
-      DecrementFeatUses(creature, CustomSkill.MonkDelugeDeCoups);
-      DecrementFeatUses(creature, CustomSkill.MonkStunStrike);
-      DecrementFeatUses(creature, CustomSkill.MonkDesertion);
-      DecrementFeatUses(creature, CustomSkill.MonkExplosionKi);
-      DecrementFeatUses(creature, CustomSkill.MonkPaumeVibratoire);
-      DecrementFeatUses(creature, CustomSkill.MonkDarkVision);
-      DecrementFeatUses(creature, CustomSkill.MonkTenebres);
-      DecrementFeatUses(creature, CustomSkill.MonkPassageSansTrace);
-      DecrementFeatUses(creature, CustomSkill.MonkSilence);
-      DecrementFeatUses(creature, CustomSkill.MonkFrappeDombre);
+      byte remainingKiCharge = (byte)(creature.GetFeatRemainingUses((Feat)CustomSkill.MonkPatience) - nbCharge);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkPatience, remainingKiCharge);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkDelugeDeCoups, remainingKiCharge);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkStunStrike, remainingKiCharge);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkDesertion, remainingKiCharge);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkExplosionKi, remainingKiCharge);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkPaumeVibratoire, remainingKiCharge);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkDarkVision, remainingKiCharge);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkTenebres, remainingKiCharge);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkPassageSansTrace, remainingKiCharge);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkSilence, remainingKiCharge);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkFrappeDombre, remainingKiCharge);
     }
   }
 }

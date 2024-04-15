@@ -7,9 +7,9 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void SensAnimal(NwCreature caster, SpellEvents.OnSpellCast onSpellCast, SpellEntry spellEntry)
+    public static void SensAnimal(SpellEvents.OnSpellCast onSpellCast, SpellEntry spellEntry)
     {
-      if (onSpellCast.TargetObject is not NwCreature target)
+      if (onSpellCast.Caster is not NwCreature caster || onSpellCast.TargetObject is not NwCreature target)
         return;
 
       if(caster.ActiveEffects.Any(e => e.Tag == EffectSystem.SensAnimalEffectTag))

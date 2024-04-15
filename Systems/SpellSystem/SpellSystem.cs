@@ -271,78 +271,79 @@ namespace NWN.Systems
       else
         LogUtils.LogMessage($"----- {onSpellCast.Caster.Name} lance {onSpellCast.Spell.Name.ToString()} (id {onSpellCast.Spell.Id}) en mode AoE -----", LogUtils.LogType.Combat);
 
-      if (callInfo.ObjectSelf is not NwCreature castingCreature)
-        return;
-
-      if (!(callInfo.ObjectSelf is NwCreature { IsPlayerControlled: true } oPC) || !Players.TryGetValue(oPC, out Player player))
+      // Permettait de gérer la dissipation d'AoE : mais plus très utile puisque les AoE se gèrent désormais avec la concentration
+      /*if (!(callInfo.ObjectSelf is NwCreature { IsPlayerControlled: true } oPC) || !Players.TryGetValue(oPC, out Player player))
       {
         if (castingCreature.Master != null && Players.TryGetValue(castingCreature.Master, out Player master))
           NWScript.DelayCommand(0.0f, () => DelayedTagAoESummon(castingCreature, master));
 
         return;
-      }
+      }*/
 
-      foreach (var eff in castingCreature.ActiveEffects)
+      foreach (var eff in onSpellCast.Caster.ActiveEffects)
         if (eff.EffectType == EffectType.Invisibility || eff.EffectType == EffectType.ImprovedInvisibility)
-          castingCreature.RemoveEffect(eff);
+          onSpellCast.Caster.RemoveEffect(eff);
 
       SpellEntry spellEntry = Spells2da.spellTable[onSpellCast.Spell.Id];
 
-      if (!SpellUtils.HandleBonusActionSpells(castingCreature, spellEntry, onSpellCast))
-        return;
-
-      if (!(onSpellCast.Spell.Id == CustomSpell.FlameBlade && castingCreature.GetObjectVariable<LocalVariableInt>(EffectSystem.ConcentrationSpellIdString).Value == CustomSpell.FlameBlade) // TODO : Si on recast Flame Blade, alors on ne compte pas un nouvel emplacement de sort
-        && spellEntry.requiresConcentration 
-        && castingCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.ConcentrationEffectTag))
-        SpellUtils.DispelConcentrationEffects(castingCreature);
-
-      if (castingCreature.KnowsFeat((Feat)CustomSkill.FlammesDePhlegetos) && spellEntry.damageType == DamageType.Fire)
+      if (onSpellCast.Caster is NwCreature caster)
       {
-        castingCreature.ApplyEffect(EffectDuration.Temporary, Effect.DamageShield(0, DamageBonus.Plus1d4, DamageType.Fire), NwTimeSpan.FromRounds(1));
-        StringUtils.DisplayStringToAllPlayersNearTarget(castingCreature, "Flammes de Phlégétos", ColorConstants.Orange, true);
+
+        if (!SpellUtils.HandleBonusActionSpells(caster, spellEntry, onSpellCast))
+          return;
+
+        if (!(onSpellCast.Spell.Id == CustomSpell.FlameBlade && onSpellCast.Caster.GetObjectVariable<LocalVariableInt>(EffectSystem.ConcentrationSpellIdString).Value == CustomSpell.FlameBlade) // TODO : Si on recast Flame Blade, alors on ne compte pas un nouvel emplacement de sort
+          && spellEntry.requiresConcentration
+          && onSpellCast.Caster.ActiveEffects.Any(e => e.Tag == EffectSystem.ConcentrationEffectTag))
+          SpellUtils.DispelConcentrationEffects(caster);
+
+        if (caster.KnowsFeat((Feat)CustomSkill.FlammesDePhlegetos) && spellEntry.damageType == DamageType.Fire)
+        {
+          onSpellCast.Caster.ApplyEffect(EffectDuration.Temporary, Effect.DamageShield(0, DamageBonus.Plus1d4, DamageType.Fire), NwTimeSpan.FromRounds(1));
+          StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Flammes de Phlégétos", ColorConstants.Orange, true);
+        }
       }
-      //HandleCasterLevel(onSpellCast, player);
 
       switch (onSpellCast.Spell.SpellType)
       {
         case Spell.AcidSplash:
           AcidSplash(onSpellCast, spellEntry);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case Spell.Daze:
           new Daze(onSpellCast);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case Spell.ElectricJolt:
           ElectricJolt(onSpellCast, spellEntry);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case Spell.Flare:
           new Flare(onSpellCast);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case Spell.Light:
           Light(onSpellCast, spellEntry);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case Spell.RayOfFrost:
           RayOfFrost(onSpellCast, spellEntry);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case Spell.Resistance:
           new Resistance(onSpellCast);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case Spell.TrueStrike:
           TrueStrike(onSpellCast, spellEntry);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         /* case Spell.Virtue:
@@ -353,36 +354,36 @@ namespace NWN.Systems
         case Spell.RaiseDead:
         case Spell.Resurrection:
           new RaiseDead(onSpellCast);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case Spell.Invisibility:
           Invisibility(onSpellCast, spellEntry);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case Spell.ImprovedInvisibility:
           ImprovedInvisibility(onSpellCast);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case Spell.FleshToStone:
           Petrify(onSpellCast);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case Spell.Darkness:
           Darkness(onSpellCast, spellEntry);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case Spell.BurningHands:
           BurningHands(onSpellCast, spellEntry);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
         case Spell.AbilityBarbarianRage: 
-          BarbarianRage(castingCreature, onSpellCast.Spell, spellEntry);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1; 
+          BarbarianRage(onSpellCast, spellEntry);
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1; 
           break;
       }
 
@@ -390,143 +391,151 @@ namespace NWN.Systems
       {
         case CustomSpell.BladeWard:
           BladeWard(onSpellCast, spellEntry);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case CustomSpell.FireBolt:
-          FireBolt(castingCreature, onSpellCast, spellEntry);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          FireBolt(onSpellCast, spellEntry);
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case CustomSpell.Friends:
           Friends(onSpellCast, spellEntry);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case CustomSpell.BoneChill:
           BoneChill(onSpellCast, spellEntry);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case CustomSpell.PoisonSpray:
           PoisonSpray(onSpellCast, spellEntry);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case CustomSpell.FaerieFire:
           FaerieFire(onSpellCast, spellEntry);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case CustomSpell.Enlarge:
           Enlarge(onSpellCast, spellEntry);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case CustomSpell.SpeakAnimal:
           SpeakAnimal(onSpellCast, spellEntry);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case CustomSpell.ProduceFlame:
           ProduceFlame(onSpellCast, spellEntry);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case CustomSpell.MageHand:
           MageHand(onSpellCast);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case CustomSpell.Thaumaturgy:
           Thaumaturgy(onSpellCast);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case CustomSpell.Serenity:
           Serenity(onSpellCast);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case CustomSpell.Sprint:
-          Sprint(onSpellCast, player);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          Sprint(onSpellCast);
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case CustomSpell.Stealth:
-          Stealth(castingCreature);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          Stealth(onSpellCast);
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case CustomSpell.Disengage:
           Disengage(onSpellCast);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case CustomSpell.Dodge:
-          Dodge(onSpellCast, player);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          Dodge(onSpellCast);
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case CustomSpell.TirPerforant:
           TirPerforant(onSpellCast, spellEntry);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case CustomSpell.PresenceIntimidante:
-          PresenceIntimidante(onSpellCast, player);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          PresenceIntimidante(onSpellCast);
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case CustomSpell.FlameBlade: 
-          FlameBlade(castingCreature, onSpellCast.Spell, spellEntry);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1; 
+          FlameBlade(onSpellCast, spellEntry);
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1; 
           break;
 
         case CustomSpell.SearingSmite: 
-          SearingSmite(castingCreature, onSpellCast.Spell, spellEntry);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          SearingSmite(onSpellCast, spellEntry);
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case CustomSpell.BrandingSmite: 
-          BrandingSmite(castingCreature, onSpellCast.Spell, spellEntry);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1; 
+          BrandingSmite(onSpellCast, spellEntry);
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1; 
           break;
 
         case CustomSpell.SensAnimal:
-          SensAnimal(castingCreature, onSpellCast, spellEntry);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          SensAnimal(onSpellCast, spellEntry);
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case CustomSpell.HurlementGalvanisant:
-          HurlementGalvanisant(castingCreature, onSpellCast, spellEntry);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          HurlementGalvanisant(onSpellCast, spellEntry);
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case CustomSpell.PassageSansTrace:
-          PassageSansTrace(castingCreature, onSpellCast, spellEntry);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          PassageSansTrace(onSpellCast, spellEntry);
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case CustomSpell.RegardHypnotique:
-          RegardHypnotique(castingCreature, onSpellCast, spellEntry);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          RegardHypnotique(onSpellCast, spellEntry);
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case CustomSpell.IllusionMineure:
           IllusionMineure(onSpellCast);
-          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.InvocationPermutation:
+          InvocationPermutation(onSpellCast, spellEntry);
+          onSpellCast.Caster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
       }
 
-      OnSpellCastAbjurationWard(castingCreature, onSpellCast);
-      OnSpellCastDivinationExpert(castingCreature, onSpellCast);
-      OnSpellCastInvocationPermutation(castingCreature, onSpellCast);
-      OnSpellCastTransmutationStone(castingCreature, onSpellCast);
+      if (onSpellCast.Caster is NwCreature castingCreature)
+      {
+        OnSpellCastAbjurationWard(castingCreature, onSpellCast);
+        OnSpellCastDivinationExpert(castingCreature, onSpellCast);
+        OnSpellCastInvocationPermutation(castingCreature, onSpellCast);
+        OnSpellCastTransmutationStone(castingCreature, onSpellCast);
+      }
 
-      castingCreature.GetObjectVariable<LocalVariableInt>(SpellConfig.CurrentSpellVariable).Delete();
-      castingCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
-      NWScript.DelayCommand(0.0f, () => DelayedTagAoE(player));
+      onSpellCast.Caster.GetObjectVariable<LocalVariableInt>(SpellConfig.CurrentSpellVariable).Delete();
+      onSpellCast.Caster.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
+      //NWScript.DelayCommand(0.0f, () => DelayedTagAoE(player));
     }
     private void HandleCasterLevel(SpellEvents.OnSpellCast onSpellCast, Player player)
     {

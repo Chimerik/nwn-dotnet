@@ -277,7 +277,6 @@ namespace NWN.Systems
             skillCategories.Add(new NuiComboEntry(cat.Key.ToDescription(), (int)cat.Key));
 
           categories.SetBindValue(player.oid, nuiToken.Token, skillCategories);
-
           selectedCategory.SetBindValue(player.oid, nuiToken.Token, (int)category);
         }
       }

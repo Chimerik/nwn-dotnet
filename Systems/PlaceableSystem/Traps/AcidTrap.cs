@@ -49,12 +49,8 @@ namespace NWN.Systems
 
       LogUtils.LogMessage($"Dégâts initiaux : {damage}", LogUtils.LogType.Combat);
 
-      damage = SpellUtils.GetEsquiveTotaleDamageReduction(creature, damage, saveFailed);
+      damage = SpellUtils.HandleSpellEvasion(creature, damage, Ability.Dexterity, saveFailed);
       damage = ItemUtils.GetShieldMasterReducedDamage(creature, damage, saveFailed);
-
-      if (!saveFailed)
-        damage /= 2;
-
       damage = TrapUtils.GetKeenSenseDamageReduction(creature, damage);
 
       TrapUtils.SendSavingThrowFeedbackMessage(creature, feedback.saveRoll, feedback.proficiencyBonus, advantage, entry.baseDC, totalSave, saveFailed, Ability.Dexterity);

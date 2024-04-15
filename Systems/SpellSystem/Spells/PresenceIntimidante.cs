@@ -6,7 +6,7 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void PresenceIntimidante(SpellEvents.OnSpellCast onSpellCast, PlayerSystem.Player player)
+    public static void PresenceIntimidante(SpellEvents.OnSpellCast onSpellCast)
     {
       if (onSpellCast.Caster is not NwCreature caster)
         return;

@@ -17,7 +17,7 @@ namespace NWN.Systems
 
       if (caster.GetFeatRemainingUses((Feat)CustomSkill.MonkFrappeDombre) < 3)
       {
-        caster.LoginPlayer?.SendServerMessage("Cette attaque nécessite 3 charges de Ki", ColorConstants.Red);
+        caster.LoginPlayer?.SendServerMessage("Nécessite 3 charges de Ki", ColorConstants.Red);
         return;
       }
 
@@ -62,9 +62,7 @@ namespace NWN.Systems
 
       target.ApplyEffect(EffectDuration.Instant, Effect.Damage(NwRandom.Roll(Utils.random, 8, 3), CustomDamageType.Psychic));
 
-      FeatUtils.DecrementKi(caster);
-      FeatUtils.DecrementKi(caster);
-      FeatUtils.DecrementKi(caster);
+      FeatUtils.DecrementKi(caster, 3);
     }
   }
 }

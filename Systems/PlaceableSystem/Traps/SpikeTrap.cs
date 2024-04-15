@@ -46,14 +46,9 @@ namespace NWN.Systems
 
       LogUtils.LogMessage($"Dégâts initiaux : {damage}", LogUtils.LogType.Combat);
 
+      damage = SpellUtils.HandleSpellEvasion(creature, damage, Ability.Dexterity, saveFailed);
       damage = ItemUtils.GetShieldMasterReducedDamage(creature, damage, saveFailed);
       damage = TrapUtils.GetKeenSenseDamageReduction(creature, damage);
-
-      if (!saveFailed && damage > 0)
-      {
-        damage /= 2;
-        LogUtils.LogMessage($"JDS réussi : dégâts {damage}", LogUtils.LogType.Combat);
-      }
 
       TrapUtils.SendSavingThrowFeedbackMessage(creature, feedback.saveRoll, feedback.proficiencyBonus, advantage, entry.baseDC, totalSave, saveFailed, Ability.Dexterity);
 

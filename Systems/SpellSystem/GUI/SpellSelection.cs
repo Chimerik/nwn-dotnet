@@ -82,7 +82,7 @@ namespace NWN.Systems
             Geometry = geometry,
             Resizable = false,
             Collapsed = false,
-            Closable = true,
+            Closable = false,
             Transparent = false,
             Border = true,
           };

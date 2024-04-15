@@ -5,7 +5,7 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void Dodge(SpellEvents.OnSpellCast onSpellCast, PlayerSystem.Player player)
+    public static void Dodge(SpellEvents.OnSpellCast onSpellCast)
     {
       if (onSpellCast.Caster is not NwCreature caster)
         return;
@@ -20,7 +20,7 @@ namespace NWN.Systems
       caster.OnSpellAction -= OnSpellInputRemoveDodge;
       caster.OnSpellAction += OnSpellInputRemoveDodge;
 
-      if (player.learnableSkills.TryGetValue(CustomSkill.VigueurNaine, out LearnableSkill vigueur) && vigueur.currentLevel > 0)
+      if (caster.KnowsFeat((Feat)CustomSkill.VigueurNaine))
       {
         int HD = caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.VigueurNaineHDVariable).Value;
 
@@ -31,7 +31,7 @@ namespace NWN.Systems
           caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.VigueurNaineHDVariable).Value -= 1;
         }
         else
-          player.oid.SendServerMessage("Vigueur Naine à court de charges", ColorConstants.Red);
+          caster.LoginPlayer?.SendServerMessage("Vigueur Naine à court de charges", ColorConstants.Red);
       }
     }
   }

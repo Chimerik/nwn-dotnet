@@ -124,7 +124,7 @@ namespace NWN.Systems
         return (ClassType)43;
       }
     }
-    public static void SignalEventSpellCast(NwGameObject target, NwCreature caster, Spell spell, bool harmful = true)
+    public static void SignalEventSpellCast(NwGameObject target, NwGameObject caster, Spell spell, bool harmful = true)
     {
       if (target is NwCreature oTargetCreature)
         CreatureEvents.OnSpellCastAt.Signal(caster, oTargetCreature, spell, harmful);

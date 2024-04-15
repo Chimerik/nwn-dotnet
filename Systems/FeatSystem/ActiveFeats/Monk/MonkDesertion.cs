@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       if (caster.GetFeatRemainingUses((Feat)CustomSkill.MonkDesertion) < 4)
       {
-        caster.LoginPlayer?.SendServerMessage("Charges de ki insuffisantes", ColorConstants.Red);
+        caster.LoginPlayer?.SendServerMessage("Nécessite 4 charges de Ki", ColorConstants.Red);
         return;
       }
 
@@ -16,10 +16,7 @@ namespace NWN.Systems
 
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Désertion de l'âme", StringUtils.gold, true);
 
-      FeatUtils.DecrementKi(caster);
-      FeatUtils.DecrementKi(caster);
-      FeatUtils.DecrementKi(caster);
-      FeatUtils.DecrementKi(caster);
+      FeatUtils.DecrementKi(caster, 4);
     }
   }
 }

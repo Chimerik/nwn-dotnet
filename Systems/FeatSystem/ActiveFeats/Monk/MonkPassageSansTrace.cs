@@ -9,12 +9,12 @@ namespace NWN.Systems
     {
       if (caster.GetFeatRemainingUses((Feat)CustomSkill.MonkPassageSansTrace) < 2)
       {
-        caster.LoginPlayer?.SendServerMessage("Charges de ki insuffisantes", ColorConstants.Red);
+        caster.LoginPlayer?.SendServerMessage("Nécessite 2 charges de Ki", ColorConstants.Red);
         onFeat.PreventFeatUse = true;
         return;
       }
 
-      FeatUtils.DecrementKi(caster);
+      FeatUtils.DecrementKi(caster, 2);
     }
   }
 }
