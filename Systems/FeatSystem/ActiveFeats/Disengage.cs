@@ -10,7 +10,7 @@ namespace NWN.Systems
     {
       if (caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value < 1
         || (!caster.Classes.Any(c => c.Class.ClassType == ClassType.Rogue && c.Level > 1)
-        && (!caster.Classes.Any(c => c.Class.ClassType == ClassType.Monk && c.Level > 1))))
+        && (!caster.Classes.Any(c => c.Class.Id == CustomClass.Monk && c.Level > 1))))
         return;
 
       caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.disengageEffect, NwTimeSpan.FromRounds(1));

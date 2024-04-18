@@ -450,11 +450,12 @@ namespace NWN.Systems
         ApplyMonkUnarmoredDefence();
         InitializeActionSurge();
         InitializeWarMasterImplacable();
-        InitializeMonkPercetion();
+        InitializeMonkPerfection();
         ApplyElkAspect();
         ApplyGloutonAspect();
         ApplyPerceptionAveugle();
         ApplyAssassinate();
+        ApplyThiefReflex();
         ApplyAbjurationWard();
 
         //RestoreCooledDownSpells();

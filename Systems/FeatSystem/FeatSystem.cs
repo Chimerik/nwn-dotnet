@@ -86,6 +86,7 @@ namespace NWN.Systems
         case CustomSkill.MonkPatience: MonkPatience(onUseFeat.Creature); return;
         case CustomSkill.MonkDelugeDeCoups: MonkDelugeDeCoups(onUseFeat.Creature); return;
         case CustomSkill.MonkSlowFall: MonkSlowFall(onUseFeat.Creature); return;
+        case CustomSkill.MonkStunStrike: MonkStunStrike(onUseFeat.Creature); return;
         case CustomSkill.MonkDiamondSoul: DiamondSoul(onUseFeat.Creature); return;
         case CustomSkill.MonkDesertion: MonkDesertion(onUseFeat.Creature); return;
         case CustomSkill.MonkPlenitude: MonkPlenitude(onUseFeat.Creature); return;

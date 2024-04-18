@@ -543,7 +543,6 @@ namespace NWN.Systems
                     player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Heal(player.oid.LoginCreature.MaxHP / 2));
                     player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(CreatureUtils.MeneurExaltantVariable).Delete();
                     player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_ILLUSION_SEE_INVI_COOLDOWN").Delete();
-                    player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ThiefInvisibility, 1);
                     FighterUtils.RestoreManoeuvres(player.oid.LoginCreature);
                     FighterUtils.RestoreTirArcanique(player.oid.LoginCreature);
                     MonkUtils.RestoreKi(player.oid.LoginCreature);

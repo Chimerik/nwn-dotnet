@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     public static void HandleMonkManifestation(CNWSCreature creature, CNWSItem weapon)
     {
-      if(weapon is not null && GetClassLevel(creature, ClassType.Monk) > 5)
+      if(weapon is not null && GetClassLevel(creature, (ClassType)CustomClass.Monk) > 5)
       {
         EffectUtils.RemoveTaggedEffect(creature, EffectSystem.ManifestationAmeEffectExoTag);
         EffectUtils.RemoveTaggedEffect(creature, EffectSystem.ManifestationCorpsEffectExoTag);

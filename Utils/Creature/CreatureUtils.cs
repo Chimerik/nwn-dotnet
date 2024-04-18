@@ -249,7 +249,7 @@ namespace NWN.Systems
     }
     public static int GetUnarmedDamage(CNWSCreatureStats stats)
     {
-      int monkLevel = stats.GetNumLevelsOfClass((byte)Native.API.ClassType.Monk);
+      int monkLevel = stats.GetNumLevelsOfClass(CustomClass.Monk);
 
       if (monkLevel < 1 && stats.HasFeat(CustomSkill.BagarreurDeTaverne).ToBool())
         return 4;

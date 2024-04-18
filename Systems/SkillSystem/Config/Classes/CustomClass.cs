@@ -7,7 +7,7 @@
     public const byte Cleric = 2;
     public const byte Druid = 3;
     public const byte Fighter = 4;
-    public const byte Monk = 5;
+    public const byte Monk = 44;
     public const byte Paladin = 6;
     public const byte Ranger = 7;
     public const byte Rogue = 8;

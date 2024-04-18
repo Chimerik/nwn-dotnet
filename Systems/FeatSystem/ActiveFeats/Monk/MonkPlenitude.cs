@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     private static void MonkPlenitude(NwCreature caster)
     {
-      var monk = caster.GetClassInfo(ClassType.Monk);
+      var monk = caster.GetClassInfo((ClassType)CustomClass.Monk);
 
       if (monk is null || monk.Level < 1)
         return;

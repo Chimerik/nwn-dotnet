@@ -7,6 +7,9 @@ namespace NWN.Systems
     public static void DecrementKi(NwCreature creature, byte nbCharge = 1)
     {
       byte remainingKiCharge = (byte)(creature.GetFeatRemainingUses((Feat)CustomSkill.MonkPatience) - nbCharge);
+
+      //await NwTask.NextFrame();
+
       creature.SetFeatRemainingUses((Feat)CustomSkill.MonkPatience, remainingKiCharge);
       creature.SetFeatRemainingUses((Feat)CustomSkill.MonkDelugeDeCoups, remainingKiCharge);
       creature.SetFeatRemainingUses((Feat)CustomSkill.MonkStunStrike, remainingKiCharge);

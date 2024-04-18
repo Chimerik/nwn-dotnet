@@ -405,8 +405,6 @@ namespace NWN.Systems
           player.oid.LoginCreature.RemoveFeat(Feat.SneakAttack);
           player.oid.LoginCreature.RemoveFeat(Feat.BarbarianRage);
           player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.MainLeste);
-          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.DiscretionSupreme);
-          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.ThiefInvisibility);
 
           if (player.windows.TryGetValue("expertiseChoice", out var expertise) && expertise.IsOpen)
           {

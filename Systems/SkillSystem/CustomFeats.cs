@@ -165,8 +165,7 @@
     public const int Stealth = 1461;
 
     public const int MainLeste = 1462;
-    public const int DiscretionSupreme = 1463;
-    public const int ThiefInvisibility = 1464;
+    public const int ThiefDiscretionSupreme = 1463;
     public const int ConspirateurMaitriseTactique = 1465;
     public const int ConspirateurRedirection = 1466;
 
@@ -180,6 +179,7 @@
     public const int MonkSerenity = 1473;
     public const int MonkDiamondSoul = 1474;
     public const int MonkDesertion = 1475;
+    public const int MonkPaumeTechnique = 1476;
 
     public const int MonkPlenitude = 1477;
     public const int MonkManifestationAme = 1478;
@@ -246,6 +246,8 @@
     public const int TransmutationMaitre = 1528;
 
     public const int VigueurNaine = 1529;
+
+    public const int ThiefReflex = 1530;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -737,7 +739,7 @@
     public const int MonkUnarmoredSpeed = 20541;
 
     public const int MonkPaume = 20542;
-    public const int MonkPaumeTechnique = 20543;
+    
 
     public const int MonkOmbre = 20544;
 

@@ -8,7 +8,7 @@ namespace NWN.Systems
   {
     public static int HandleParadeDeProjectile(CNWSCreature attacker, CNWSCreature target, bool isRangedAttack)
     {
-      int monkLevel = GetClassLevel(target, ClassType.Monk);
+      int monkLevel = GetClassLevel(target, (ClassType)CustomClass.Monk);
 
       if (isRangedAttack 
         && monkLevel > 2

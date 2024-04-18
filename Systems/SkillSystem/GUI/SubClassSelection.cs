@@ -68,7 +68,7 @@ namespace NWN.Systems
         }
         public void CreateWindow()
         {
-          NuiRect savedRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(player.guiWidth * 0.2f, player.guiHeight * 0.05f, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f);
+          NuiRect savedRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(player.guiWidth * 0.2f, player.guiHeight * 0.05f, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f);
           selectedLearnable = null;
 
           window = new NuiWindow(rootColumn, "Choisissez une voie")
@@ -215,6 +215,7 @@ namespace NWN.Systems
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Delete();
                   player.oid.SendServerMessage($"Vous adoptez la voie {StringUtils.ToWhitecolor(selectedLearnable.name)} !", ColorConstants.Orange);
 
+                  ModuleSystem.Log.Info("refresh learnable on subclass selection");
                   if (player.TryGetOpenedWindow("learnables", out PlayerWindow learnableWindow))
                     ((LearnableWindow)learnableWindow).RefreshCategories(category);
 

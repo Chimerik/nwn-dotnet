@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -30,7 +31,7 @@ namespace NWN.Systems
         player.oid.LoginCreature.OnHeartbeat -= CreatureUtils.OnHeartBeatCheckMonkUnarmoredDefence;
         player.oid.LoginCreature.OnHeartbeat += CreatureUtils.OnHeartBeatCheckMonkUnarmoredDefence;
 
-        if (player.oid.LoginCreature.GetAbilityModifier(Ability.Wisdom) > 0)
+        if (player.oid.LoginCreature.GetAbilityModifier(Ability.Wisdom) > 0 && !player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.MonkUnarmoredDefenceEffectTag))
           player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetMonkUnarmoredDefenseEffect(player.oid.LoginCreature.GetAbilityModifier(Ability.Wisdom)));
       }
 

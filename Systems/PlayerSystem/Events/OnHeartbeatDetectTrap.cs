@@ -23,7 +23,7 @@ namespace NWN.Systems
         Utils.RollAdvantage(CreatureUtils.GetCreatureSkillAdvantage(onHB.Creature, CustomSkill.PerceptionProficiency), false));
 
       foreach (var trap in onHB.Creature.Location.GetObjectsInShapeByType<NwGameObject>(Shape.Sphere, 
-        onHB.Creature.DetectModeActive || onHB.Creature.KnowsFeat(Feat.KeenSense) ? 6.66f : 3.33f, true))
+        onHB.Creature.DetectModeActive || onHB.Creature.KnowsFeat(Feat.KeenSense) ? 6.66f : 3.33f, false))
       {
         if(trap is NwPlaceable plc)
         {

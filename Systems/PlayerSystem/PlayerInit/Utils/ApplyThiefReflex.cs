@@ -6,9 +6,9 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      private void ApplyAssassinate()
+      private void ApplyThiefReflex()
       {
-        if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.AssassinAssassinate))
+        if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ThiefReflex))
         {
           oid.OnCombatStatusChange -= RogueUtils.OnCombatThiefReflex;
           oid.OnCombatStatusChange += RogueUtils.OnCombatThiefReflex;

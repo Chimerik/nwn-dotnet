@@ -27,6 +27,8 @@ namespace NWN.Systems
 
         caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.MonkPaumeTechniqueVariable).Value = 2;
       }
+
+      FeatUtils.DecrementKi(caster);
     }
   }
 }

@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff =  Effect.Icon(EffectIcon.SpellResistanceIncrease);
+        Effect eff =  Effect.RunAction();
         eff.Tag = CanPrepareSpellsEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

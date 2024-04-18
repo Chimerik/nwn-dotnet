@@ -10,9 +10,9 @@ namespace NWN.Systems
     {
       LogUtils.LogMessage("Ajout des dégâts du coup critique", LogUtils.LogType.Combat);
 
-      return attackWeapon is not null || attacker.m_ScriptVars.GetInt(CreatureUtils.MonkUnarmedDamageVariableExo).ToBool()
-        ? GetWeaponCritDamage(attacker, attackWeapon, attackData, sneakAttack, isDuelFightingStyle) 
-        : GetUnarmedCritDamage(attacker);
+      return attackWeapon is null || attacker.m_ScriptVars.GetInt(CreatureUtils.MonkUnarmedDamageVariableExo).ToBool()
+        ? GetUnarmedCritDamage(attacker)  
+        : GetWeaponCritDamage(attacker, attackWeapon, attackData, sneakAttack, isDuelFightingStyle);
     }
     public static int GetWeaponCritDamage(CNWSCreature attacker, CNWSItem attackWeapon, CNWSCombatAttackData attackData, int sneakAttack, bool isDuelFightingStyle)
     {

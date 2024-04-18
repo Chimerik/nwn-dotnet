@@ -58,7 +58,7 @@ namespace NWN.Systems
       foreach (var entry in spellTable)
       {
         NwSpell spell = NwSpell.FromSpellId(entry.RowIndex);
-        if(spell.GetSpellLevelForClass(ClassType.Wizard) == 0)
+        if (spell.GetSpellLevelForClass(ClassType.Wizard) == 0 && spell.FeatReference?.Id > 0)
           Utils.mageCanTripList.Add(new NuiComboEntry(spell.Name.ToString(), spell.FeatReference.Id));
       }
 

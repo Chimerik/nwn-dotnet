@@ -125,7 +125,7 @@ namespace NWN.Systems
         }
       }
 
-      if (creature.Classes.Any(c => c.Class.ClassType == ClassType.Monk))
+      if (creature.Classes.Any(c => c.Class.Id == CustomClass.Monk))
       {
         creature.OnItemEquip -= ItemSystem.OnEquipMonkUnarmoredDefence;
         creature.OnItemUnequip -= ItemSystem.OnUnEquipMonkUnarmoredDefence;

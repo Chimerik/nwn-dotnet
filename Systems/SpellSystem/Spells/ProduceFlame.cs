@@ -17,11 +17,7 @@ namespace NWN.Systems
       if(onSpellCast.TargetObject is not NwCreature target || target == caster)
       {
         if (caster.ActiveEffects.Any(e => e.Tag == EffectSystem.ProduceFlameEffectTag))
-        {
-          foreach (var eff in caster.ActiveEffects)
-            if (eff.Tag == EffectSystem.ProduceFlameEffectTag)
-              caster.RemoveEffect(eff);
-        }
+          EffectUtils.RemoveTaggedEffect(caster, EffectSystem.ProduceFlameEffectTag);
         else
           caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.produceFlameEffect, NwTimeSpan.FromRounds(spellEntry.duration));
 
@@ -32,14 +28,19 @@ namespace NWN.Systems
 
       int nbDice = SpellUtils.GetSpellDamageDiceNumber(caster, onSpellCast.Spell);
 
-      switch(SpellUtils.GetSpellAttackRoll(onSpellCast.TargetObject, caster, onSpellCast.Spell, onSpellCast.SpellCastClass.SpellCastingAbility))
+      Ability spellCastAbility = onSpellCast.SpellCastClass is null ? Ability.Charisma : onSpellCast.SpellCastClass.SpellCastingAbility;
+
+      switch (SpellUtils.GetSpellAttackRoll(onSpellCast.TargetObject, caster, onSpellCast.Spell, spellCastAbility))
       {
         case TouchAttackResult.CriticalHit: SpellUtils.GetCriticalSpellDamageDiceNumber(caster, spellEntry, nbDice); ; break;
         case TouchAttackResult.Hit: break;
         default: return;
       }
 
-      SpellUtils.DealSpellDamage(onSpellCast.TargetObject, caster.CasterLevel, spellEntry, nbDice, caster, onSpellCast.Spell.GetSpellLevelForClass(onSpellCast.SpellCastClass));
+      SpellUtils.DealSpellDamage(onSpellCast.TargetObject, caster.CasterLevel, spellEntry, nbDice, caster, onSpellCast.Spell.GetSpellLevelForClass(ClassType.Druid));
+
+      if (caster.ActiveEffects.Any(e => e.Tag == EffectSystem.ProduceFlameEffectTag))
+        EffectUtils.RemoveTaggedEffect(caster, EffectSystem.ProduceFlameEffectTag);
     }
   }
 }

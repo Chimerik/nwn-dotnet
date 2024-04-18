@@ -78,7 +78,8 @@ namespace NWN.Systems
 
       foreach(var entry in Feats2da.featTable)
       {
-        if(entry.spellId < 0 && SkillSystem.learnableDictionary.TryGetValue(entry.RowIndex, out var learnable) && learnable is LearnableSkill)
+        if((entry.spellId < 0 || entry.RowIndex == 1488 || entry.RowIndex == 1463) 
+          && SkillSystem.learnableDictionary.TryGetValue(entry.RowIndex, out var learnable) && learnable is LearnableSkill)
         {
           StrRef name = entry.nameTlkEntry;
           name.Override = learnable.name;

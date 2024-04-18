@@ -10,7 +10,7 @@ namespace NWN.Systems
     {
       private void ApplyMonkUnarmoredDefence()
       {
-        if (oid.LoginCreature.Classes.Any(c => c.Class.ClassType == ClassType.Monk))
+        if (oid.LoginCreature.Classes.Any(c => c.Class.Id == CustomClass.Monk))
         {
           oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipMonkUnarmoredDefence;
           oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipMonkUnarmoredDefence;
@@ -39,9 +39,11 @@ namespace NWN.Systems
             if (oid.LoginCreature.GetAbilityModifier(Ability.Wisdom) > 0)
               oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetMonkUnarmoredDefenseEffect(oid.LoginCreature.GetAbilityModifier(Ability.Wisdom)));
 
-            if (oid.LoginCreature.Classes.Any(c => c.Class.ClassType == ClassType.Monk && c.Level > 1)
+            if (oid.LoginCreature.Classes.Any(c => c.Class.Id == CustomClass.Monk && c.Level > 1)
             && !oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.MonkSpeedEffectTag))
-              oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetMonkSpeedEffect(oid.LoginCreature.Classes.FirstOrDefault(c => c.Class.ClassType == ClassType.Monk).Level));
+            {
+              oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetMonkSpeedEffect(oid.LoginCreature.Classes.FirstOrDefault(c => c.Class.Id == CustomClass.Monk).Level));
+            }
           }
         }
       }

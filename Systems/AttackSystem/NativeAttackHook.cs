@@ -110,7 +110,7 @@ namespace NWN.Systems
         || (EffectTrueType)e.m_nType == EffectTrueType.Poison))
         strBonus *= 2;
 
-      if (creature.m_pStats.GetNumLevelsOfClass((byte)Native.API.ClassType.Monk) > 0
+      if (creature.m_pStats.GetNumLevelsOfClass(CustomClass.Monk) > 0
         && (attackWeapon is null || NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem).IsMonkWeapon))
         attackStat = dexBonus > strBonus ? Anvil.API.Ability.Dexterity : Anvil.API.Ability.Strength;
       else
@@ -120,34 +120,35 @@ namespace NWN.Systems
           && dexBonus > strBonus
           && attackWeapon.m_ScriptVars.GetInt(ItemConfig.isFinesseWeaponCExoVariable) != 0)
       {
-        attackModifier += -strBonus + dexBonus;
+        attackModifier -= strBonus;
         attackStat = Anvil.API.Ability.Dexterity;
       }
 
-      // TODO : Dans certains cas, la STAT à utiliser pourra être INT, SAG ou CHA, à implémenter 
-
       // On ajoute le bonus de maîtrise de la créature
       int attackBonus = NativeUtils.GetCreatureWeaponProficiencyBonus(creature, attackWeapon);
-
       LogUtils.LogMessage($"Bonus de maîtrise {attackBonus} {(attackBonus < 1 ? "(Arme non maîtrisée)" : "")}", LogUtils.LogType.Combat);
-
+      
       NativeUtils.HandleCrossbowMaster(creature, targetObject, combatRound, attackBonus, attackerName);
 
-      string logMessage = attackStat == Anvil.API.Ability.Strength
-        ? $"Bonus d'attaque contre la cible {attackModifier} dont {strBonus} de modificateur de force"
-        : $"Bonus d'attaque contre la cible {attackModifier} dont {dexBonus} du modificateur de dextérité";
+      // TODO : Dans certains cas, la STAT à utiliser pourra être INT, SAG ou CHA, à implémenter 
+      switch (attackStat)
+      {
+        case Anvil.API.Ability.Strength:
+
+          LogUtils.LogMessage($"Ajout modificateur de force : {strBonus}", LogUtils.LogType.Combat);
+          attackBonus += strBonus;
+
+          break;
+
+        case Anvil.API.Ability.Dexterity:
+
+          LogUtils.LogMessage($"Ajout modificateur de dextérité : {dexBonus}", LogUtils.LogType.Combat);
+          attackBonus += dexBonus;
+
+          break;
+      }
 
       attackBonus += attackModifier;
-
-      // Si l'attaque n'est donnée par Haste et combat à deux armes, alors on compense le -2 du jeu de base
-      /*if (attackData.m_nWeaponAttackType != 6 && NativeUtils.IsDualWieldingLightWeapon(attackWeapon, creature.m_nCreatureSize, creature.m_pInventory.m_pEquipSlot[5].ToNwObject<NwItem>()))
-        attackBonus += 2;*/
-
-      /*if (combatRound.m_nCurrentAttack == 0)
-      {
-        creature.m_ScriptVars.SetInt(currentDualAttacksVariable, 0);
-        creature.m_ScriptVars.SetInt(currentUnarmedExtraAttacksVariable, 0);
-      }*/
 
       if (attackData.m_nWeaponAttackType == 2) // combat à deux armes
       {
@@ -308,6 +309,8 @@ namespace NWN.Systems
       NativeUtils.HandleTigreAspect(creature, targetObject, combatRound, attackerName);
       NativeUtils.HandleArcaneArcherTirIncurveBonusAttack(creature, attackData, combatRound, attackerName, attackWeapon, targetObject);
       NativeUtils.HandleMonkBonusAttack(creature, targetObject, combatRound, attackerName, targetName);
+      NativeUtils.HandleMonkDeluge(creature, targetObject, combatRound, attackerName, targetName);
+      NativeUtils.HandleThiefReflex(creature, targetObject, combatRound, attackerName, targetName);
     }
     private int OnAddUseTalentOnObjectHook(void* pCreature, int talentType, int talentId, uint oidTarget, byte nMultiClass, uint oidItem, int nItemPropertyIndex, byte nCasterLevel, int nMetaType)
     {
@@ -473,7 +476,7 @@ namespace NWN.Systems
         damageBonus += dexBonus;
         LogUtils.LogMessage($"Arme à distance - Ajout Dextérité ({dexBonus})", LogUtils.LogType.Combat);
       }
-      else if (attacker.m_pStats.GetNumLevelsOfClass((byte)Native.API.ClassType.Monk) > 0 // Les moins utilisent leur caract la plus élevée à mains nues ou avec arme de moine
+      else if (attacker.m_pStats.GetNumLevelsOfClass(CustomClass.Monk) > 0 // Les moins utilisent leur caract la plus élevée à mains nues ou avec arme de moine
         && (attackWeapon is null || NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem).IsMonkWeapon))
       {
         if (dexBonus > strBonus)

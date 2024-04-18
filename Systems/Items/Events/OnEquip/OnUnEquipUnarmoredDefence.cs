@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using Anvil.API.Events;
 
 namespace NWN.Systems
@@ -19,7 +20,7 @@ namespace NWN.Systems
         oPC.OnHeartbeat -= CreatureUtils.OnHeartBeatCheckUnarmoredDefence;
         oPC.OnHeartbeat += CreatureUtils.OnHeartBeatCheckUnarmoredDefence;
 
-        if (oPC.GetAbilityModifier(Ability.Constitution) > 0)
+        if (oPC.GetAbilityModifier(Ability.Constitution) > 0 && !oPC.ActiveEffects.Any(e => e.Tag == EffectSystem.UnarmoredDefenceEffectTag))
           oPC.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetUnarmoredDefenseEffect(oPC.GetAbilityModifier(Ability.Constitution)));
       }
     }

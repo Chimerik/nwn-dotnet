@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Anvil.API;
+﻿using Anvil.API;
 using Anvil.API.Events;
 
 namespace NWN.Systems
@@ -12,13 +11,22 @@ namespace NWN.Systems
 
       if (armor is null || armor.BaseACValue < 1)
       {
-        if (onHB.Creature.GetAbilityModifier(Ability.Constitution) > 0 && !onHB.Creature.ActiveEffects.Any(e => e.Tag == EffectSystem.UnarmoredDefenceEffectTag))
-          onHB.Creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetUnarmoredDefenseEffect(onHB.Creature.GetAbilityModifier(Ability.Constitution)));
+        int conMod = onHB.Creature.GetAbilityModifier(Ability.Constitution);
+        EffectUtils.RemoveTaggedEffect(onHB.Creature, EffectSystem.UnarmoredDefenceEffectTag);
+        WaitNextFrameToApplyConEffect(onHB.Creature, conMod);
       }
       else
       {
         onHB.Creature.OnHeartbeat -= OnHeartBeatCheckUnarmoredDefence;
         EffectUtils.RemoveTaggedEffect(onHB.Creature, EffectSystem.UnarmoredDefenceEffectTag);
+      }
+    }
+    private static async void WaitNextFrameToApplyConEffect(NwCreature creature, int conMod)
+    {
+      if (conMod > 0)
+      {
+        await NwTask.NextFrame();
+        creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetUnarmoredDefenseEffect(conMod));
       }
     }
   }

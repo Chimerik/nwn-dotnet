@@ -23,18 +23,29 @@ namespace NWN.Systems
 
       if (!hasShield && (armor is null || armor.BaseACValue < 1))
       {
-        if (onHB.Creature.GetAbilityModifier(Ability.Wisdom) > 0 && !onHB.Creature.ActiveEffects.Any(e => e.Tag == EffectSystem.MonkUnarmoredDefenceEffectTag))
-          onHB.Creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetMonkUnarmoredDefenseEffect(onHB.Creature.GetAbilityModifier(Ability.Wisdom)));
+        int wisMod = onHB.Creature.GetAbilityModifier(Ability.Wisdom);
+        EffectUtils.RemoveTaggedEffect(onHB.Creature, EffectSystem.MonkUnarmoredDefenceEffectTag);
+        WaitNextFrameToApplyEffect(onHB.Creature, wisMod);
 
-        if (onHB.Creature.Classes.Any(c => c.Class.ClassType == ClassType.Monk && c.Level > 1)
+        if (onHB.Creature.Classes.Any(c => c.Class.Id == CustomClass.Monk && c.Level > 1)
           && !onHB.Creature.ActiveEffects.Any(e => e.Tag == EffectSystem.MonkSpeedEffectTag))
-          onHB.Creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetMonkSpeedEffect(onHB.Creature.Classes.FirstOrDefault(c => c.Class.ClassType == ClassType.Monk).Level));
+        {
+          onHB.Creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetMonkSpeedEffect(onHB.Creature.Classes.FirstOrDefault(c => c.Class.Id == CustomClass.Monk).Level));
+        }
       }
       else
       {
         onHB.Creature.OnHeartbeat -= OnHeartBeatCheckMonkUnarmoredDefence;
         EffectUtils.RemoveTaggedEffect(onHB.Creature, EffectSystem.MonkUnarmoredDefenceEffectTag);
         EffectUtils.RemoveTaggedEffect(onHB.Creature, EffectSystem.MonkSpeedEffectTag);
+      }
+    }
+    private static async void WaitNextFrameToApplyEffect(NwCreature creature, int wisMod)
+    {
+      if (wisMod > 0)
+      {
+        await NwTask.NextFrame();
+        creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetMonkUnarmoredDefenseEffect(wisMod));
       }
     }
   }

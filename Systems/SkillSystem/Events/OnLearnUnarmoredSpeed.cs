@@ -23,11 +23,22 @@ namespace NWN.Systems
           }
         }
 
-        if(!player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.MonkSpeedEffectTag))
-          player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetMonkSpeedEffect(player.oid.LoginCreature.Classes.FirstOrDefault(c => c.Class.ClassType == ClassType.Monk).Level));
+        if (player.oid.LoginCreature.Classes.Any(c => c.Class.Id == CustomClass.Monk && c.Level > 1))
+        {
+          EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.MonkSpeedEffectTag);
+          WaitNextFrameToApplyMonkSpeedEffect(player.oid.LoginCreature, player.oid.LoginCreature.GetClassInfo((ClassType)CustomClass.Monk).Level);
+        }
       }
 
       return true;
+    }
+    private static async void WaitNextFrameToApplyMonkSpeedEffect(NwCreature creature, int monkLevel)
+    {
+      if (monkLevel > 0)
+      {
+        await NwTask.NextFrame();
+        creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetMonkSpeedEffect(monkLevel));
+      }
     }
   }
 }

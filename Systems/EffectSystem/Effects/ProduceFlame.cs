@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.VisualEffect(VfxType.DurAuraRedLight);
+        Effect eff = Effect.VisualEffect(VfxType.DurLightRed5);
         eff.Tag = ProduceFlameEffectTag;
         return eff;
       }

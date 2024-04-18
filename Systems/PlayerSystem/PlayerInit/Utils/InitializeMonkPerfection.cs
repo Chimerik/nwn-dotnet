@@ -6,9 +6,9 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      private void InitializeMonkPercetion()
+      private void InitializeMonkPerfection()
       {
-        if (oid.LoginCreature.Classes.Any(c => c.Class.ClassType == Anvil.API.ClassType.Monk && c.Level > 19))
+        if (oid.LoginCreature.Classes.Any(c => c.Class.Id == CustomClass.Monk && c.Level > 19))
         {
           oid.OnCombatStatusChange -= MonkUtils.OnCombatMonkRecoverKi;
           oid.OnCombatStatusChange += MonkUtils.OnCombatMonkRecoverKi;

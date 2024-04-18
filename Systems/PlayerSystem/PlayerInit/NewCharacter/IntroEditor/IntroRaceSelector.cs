@@ -167,9 +167,6 @@ namespace NWN.Systems
                     LearnableSkill bonusSkill = player.learnableSkills.Values.FirstOrDefault(s => s.category == SkillSystem.Category.Magic && s.source.Any(so => so == SkillSystem.Category.Race));
                     selectedBonusSkill.SetBindValue(player.oid, nuiToken.Token, bonusSkill is not null ? bonusSkill.id : -1);
 
-                    if (bonusSkill is not null)
-                      ModuleSystem.Log.Info($"{bonusSkill.name} -");
-
                     if (selectedBonusSkill.GetBindValue(player.oid, nuiToken.Token) > -1)
                     {
                       validationEnabled.SetBindValue(player.oid, nuiToken.Token, true);
