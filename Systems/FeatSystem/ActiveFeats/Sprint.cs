@@ -18,11 +18,13 @@ namespace NWN.Systems
            && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.BarbarianRageEffectTag)))
       {
 
+        EffectUtils.RemoveTaggedEffect(caster, EffectSystem.SprintEffectTag);
+
         caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHaste));
-        caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.sprintEffect, TimeSpan.FromSeconds(9));
+        caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.sprintEffect, NwTimeSpan.FromRounds(1));
 
         if (caster.KnowsFeat((Feat)CustomSkill.Mobile))
-          caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.sprintMobileEffect, TimeSpan.FromSeconds(9));
+          caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.sprintMobileEffect, NwTimeSpan.FromRounds(1));
 
         if (caster.KnowsFeat((Feat)CustomSkill.TotemAspectEtalon))
         {

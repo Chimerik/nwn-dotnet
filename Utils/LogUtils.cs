@@ -136,7 +136,7 @@ namespace NWN
         if (areaName.StartsWith("Introduction - La galère"))
           areaName = "Introduction - La galère";
 
-        if (!chatLogChannelDictionary.ContainsKey(areaName))
+        if (!chatLogChannelDictionary.TryGetValue(areaName, out var value))
         {
           var activeThreads = await Bot.chatLogForum.GetActiveThreadsAsync();
           var publicArchivedThreads = await Bot.chatLogForum.GetPublicArchivedThreadsAsync();
@@ -144,11 +144,11 @@ namespace NWN
           var post = activeThreads.FirstOrDefault(t => t.Name == areaName);
           post ??= publicArchivedThreads.FirstOrDefault(t => t.Name == areaName);
           post ??= await Bot.chatLogForum.CreatePostAsync(areaName, ThreadArchiveDuration.OneWeek, null, "Système de logs du module");
-
-          chatLogChannelDictionary.Add(areaName, post);
+          value = post;
+          chatLogChannelDictionary.Add(areaName, value);
         }
 
-        await chatLogChannelDictionary[areaName].SendMessageAsync(message);
+        await value.SendMessageAsync(message);
       }
       catch (Exception e)
       {

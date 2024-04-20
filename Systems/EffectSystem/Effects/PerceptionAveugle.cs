@@ -34,6 +34,7 @@ namespace NWN.Systems
       {
         entering.SetActionMode(ActionMode.Stealth, false);
         inviDispel = true;
+        LogUtils.LogMessage($"{protector.Name} - Perception aveugle - Mode furtif de {entering.Name} désactivé", LogUtils.LogType.Combat);
       }
 
       foreach(var eff in entering.ActiveEffects)
@@ -44,6 +45,7 @@ namespace NWN.Systems
           case EffectType.ImprovedInvisibility: 
             entering.RemoveEffect(eff);
             inviDispel = true;
+            LogUtils.LogMessage($"{protector.Name} - Perception aveugle - Invisibilité de {entering.Name} dissipée", LogUtils.LogType.Combat);
             break;
         }
       }

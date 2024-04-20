@@ -104,7 +104,7 @@ namespace NWN.Systems
       staffGeneralChannel = _client.GetChannel(680072044364562532) as IMessageChannel;
       playerGeneralChannel = _client.GetChannel(1026545572099924088) as IMessageChannel;
       logChannel = _client.GetChannel(703964971549196339) as IMessageChannel;
-      logForum = discordServer.GetForumChannel(1084562366794043453);
+      logForum = discordServer.GetForumChannel(1231361737287139429);
       chatLogForum = discordServer.GetForumChannel(1091614035335729213);
       
       chimDiscordUser = _client.GetUser(232218662080086017);

@@ -20,6 +20,13 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.AssassinAssassinate].source.Add(Category.Class);
 
           break;
+
+        case 17:
+
+          player.oid.LoginCreature.OnCreatureDamage -= CreatureUtils.OnDamageFrappeMeurtriere;
+          player.oid.LoginCreature.OnCreatureDamage += CreatureUtils.OnDamageFrappeMeurtriere;
+
+          break;
       }
     }
   }

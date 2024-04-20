@@ -1182,10 +1182,12 @@ namespace NWN.Systems
 
       player.learnableSkills[CustomSkill.HistoryProficiency].source.Add(Category.StartingTraits);
 
-      if (player.learnableSkills.TryAdd(CustomSkill.NatureProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.NatureProficiency], player)))
-      player.learnableSkills[CustomSkill.NatureProficiency].LevelUp(player);
+      int selectedBonus = player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_SELECTED_SCHOLAR_BONUS");
 
-      player.learnableSkills[CustomSkill.NatureProficiency].source.Add(Category.StartingTraits);
+      if (player.learnableSkills.TryAdd(selectedBonus, new LearnableSkill((LearnableSkill)learnableDictionary[selectedBonus], player)))
+      player.learnableSkills[selectedBonus].LevelUp(player);
+
+      player.learnableSkills[selectedBonus].source.Add(Category.StartingTraits);
 
       return true;
     }

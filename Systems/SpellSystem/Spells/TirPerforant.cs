@@ -20,8 +20,6 @@ namespace NWN.Systems
         return;
       }
 
-      LogUtils.LogMessage($"--- {caster.Name} Tir Perforant ---", LogUtils.LogType.Combat);
-
       SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, caster, onSpellCast.Spell.SpellType);
       SpellConfig.SavingThrowFeedback feedback = new();
       int spellDC = 8 + NativeUtils.GetCreatureProficiencyBonus(caster) + caster.GetAbilityModifier(Ability.Intelligence);
@@ -34,29 +32,16 @@ namespace NWN.Systems
           continue;
 
         int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid, caster);
-        int weaponDamage = 0;
-        int bonusDamage = 0;
-        int damage = 0;
 
         if (advantage < -900)
-        {
-          weaponDamage = NativeUtils.HandleWeaponDamageRerolls(caster, weapon, weapon.NumDamageDice, weapon.DieToRoll);
-          bonusDamage = NwRandom.Roll(Utils.random, 6, nbDice);
-          damage = weaponDamage + bonusDamage + dexDamage;
-          NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, Effect.Damage(damage, DamageType.Piercing)));
-
-          LogUtils.LogMessage($"{target.Name} (incapable d'agir) : {weapon.DieToRoll}d{weapon.NumDamageDice} + {dexDamage} + {nbDice}d6 ({weaponDamage} + {dexDamage} + {bonusDamage}) = {damage}", LogUtils.LogType.Combat);
           continue;
-        }
 
         int totalSave = SpellUtils.GetSavingThrowRoll(target, spellEntry.savingThrowAbility, spellDC, advantage, feedback);
         bool saveFailed = totalSave < spellDC;
 
-        
-
-        weaponDamage = NativeUtils.HandleWeaponDamageRerolls(caster, weapon, weapon.NumDamageDice, weapon.DieToRoll);
-        bonusDamage = NwRandom.Roll(Utils.random, 6, nbDice);
-        damage = weaponDamage + bonusDamage + dexDamage;
+        int weaponDamage = NativeUtils.HandleWeaponDamageRerolls(caster, weapon, weapon.NumDamageDice, weapon.DieToRoll);
+        int bonusDamage = NwRandom.Roll(Utils.random, 6, nbDice);
+        int damage = weaponDamage + bonusDamage + dexDamage;
         damage = ItemUtils.GetShieldMasterReducedDamage(target, damage, saveFailed, spellEntry.savingThrowAbility);
         damage /= saveFailed ? 2 : 1;
 
@@ -66,10 +51,22 @@ namespace NWN.Systems
         LogUtils.LogMessage($"{target.Name}: {weapon.NumDamageDice}d{weapon.DieToRoll} + {dexDamage} + {nbDice}d6 ({weaponDamage} + {dexDamage} + {bonusDamage}) = {damage}", LogUtils.LogType.Combat);
       }
 
-      caster.IncrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.ArcaneArcherTirPerforant)); // Je redonne une utilisatation de tir perforant pour compenser la consommation du sort spécifique
+      caster.IncrementRemainingFeatUses(NwFeat.FromFeatId(CustomSkill.ArcaneArcherTirPerforant)); // Je redonne une utilisation de tir perforant pour compenser la consommation du sort spécifique
       FeatUtils.DecrementTirArcanique(caster);
 
       LogUtils.LogMessage($"------", LogUtils.LogType.Combat);
+    }
+    public static void ApplyTirPerforantDamage(NwCreature caster, NwCreature target)
+    {
+      var weapon = caster.GetItemInSlot(InventorySlot.RightHand)?.BaseItem;
+      int nbDice = caster.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level < 18) ? 1 : 2;
+      int weaponDamage = NativeUtils.HandleWeaponDamageRerolls(caster, weapon, weapon.NumDamageDice, weapon.DieToRoll);
+      int dexDamage = caster.GetAbilityModifier(Ability.Dexterity);
+      int bonusDamage = NwRandom.Roll(Utils.random, 6, nbDice);
+      int damage = weaponDamage + bonusDamage + dexDamage;
+      NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, Effect.Damage(damage, DamageType.Piercing)));
+
+      LogUtils.LogMessage($"{target.Name} (incapable d'agir) : {weapon.NumDamageDice}d{weapon.DieToRoll} + {dexDamage} + {nbDice}d6 ({weaponDamage} + {dexDamage} + {bonusDamage}) = {damage}", LogUtils.LogType.Combat);
     }
   }
 }

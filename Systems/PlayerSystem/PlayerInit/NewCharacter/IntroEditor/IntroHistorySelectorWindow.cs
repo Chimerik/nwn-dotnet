@@ -3,6 +3,7 @@ using System.Linq;
 
 using Anvil.API;
 using Anvil.API.Events;
+using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
 {
@@ -18,6 +19,10 @@ namespace NWN.Systems
         private readonly NuiBind<string> selectedItemDescription = new("selectedItemDescription");
         private readonly NuiBind<string> selectedItemIcon = new("selectedItemIcon");
         private readonly NuiBind<bool> selectedItemVisibility = new("selectedItemVisibility");
+
+        private readonly NuiBind<bool> scholarBonusVisibility = new("scholarBonusVisibility");
+        private readonly NuiBind<int> selectedScholarBonus = new("selectedScholarBonus");
+        private readonly NuiBind<List<NuiComboEntry>> scholarBonusList = new("scholarBonusList");
 
         private readonly NuiBind<string> validationText = new("validationText");
         private readonly NuiBind<bool> validationEnabled = new("validationEnabled");
@@ -38,14 +43,12 @@ namespace NWN.Systems
           windowId = "introHistorySelector";
           rootColumn.Children = rootChildren;
 
-          // TODO : Est-ce que ce serait pas mieux de mettre à jour en async toutes les descriptions de learnables ? Genre toutes les heures + une commande Discord pour forcer la synchro
-
-          List<NuiListTemplateCell> learnableTemplate = new List<NuiListTemplateCell>
+          List<NuiListTemplateCell> learnableTemplate = new()
           {
-            new NuiListTemplateCell(new NuiButtonImage(icon) { Id = "select", Tooltip = skillName, Encouraged = encouraged, Height = 40, Width = 40 }) { Width = 40 },
-            new NuiListTemplateCell(new NuiLabel(skillName) { Width = 200, Id = "select", ForegroundColor = color, Encouraged = encouraged, Tooltip = skillName, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }) { Width = 220 },
-            new NuiListTemplateCell(new NuiButtonImage("select_right") { Id = "select", Tooltip = skillName, Encouraged = encouraged, Height = 40, Width = 40 }) { Width = 40 },
-            new NuiListTemplateCell(new NuiSpacer())
+            new(new NuiButtonImage(icon) { Id = "select", Tooltip = skillName, Encouraged = encouraged, Height = 40, Width = 40 }) { Width = 40 },
+            new(new NuiLabel(skillName) { Width = 200, Id = "select", ForegroundColor = color, Encouraged = encouraged, Tooltip = skillName, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }) { Width = 220 },
+            new(new NuiButtonImage("select_right") { Id = "select", Tooltip = skillName, Encouraged = encouraged, Height = 40, Width = 40 }) { Width = 40 },
+            new(new NuiSpacer())
           };
 
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
@@ -72,6 +75,12 @@ namespace NWN.Systems
                 new NuiSpacer(),
                 new NuiButtonImage(selectedItemIcon) { Height = 40, Width = 40, Visible = selectedItemVisibility },
                 new NuiLabel(selectedItemTitle) { Height = 40, Width = 200, Visible = selectedItemVisibility, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+                new NuiSpacer()
+              } },
+              new NuiRow() { Children = new List<NuiElement>()
+              {
+                new NuiSpacer(),
+                new NuiCombo() { Entries = scholarBonusList, Selected = selectedScholarBonus, Visible = scholarBonusVisibility, Height = 40, Width = (player.guiScaledWidth * 0.6f - 380) / 1.5f },
                 new NuiSpacer()
               } },
               new NuiRow() { Children = new List<NuiElement>() { new NuiText(selectedItemDescription) {  } } },
@@ -113,7 +122,7 @@ namespace NWN.Systems
             geometry.SetBindValue(player.oid, nuiToken.Token, new NuiRect(savedRectangle.X, savedRectangle.Y, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f));
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-            currentList = SkillSystem.learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == SkillSystem.Category.StartingTraits).OrderBy(s => s.name);
+            currentList = learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.StartingTraits).OrderBy(s => s.name);
             LoadLearnableList(currentList);
           }
         }
@@ -135,6 +144,27 @@ namespace NWN.Systems
                   selectedLearnable = currentList.ElementAt(nuiEvent.ArrayIndex);
                   selectedItemTitle.SetBindValue(player.oid, nuiToken.Token, selectedLearnable.name);
                   selectedItemIcon.SetBindValue(player.oid, nuiToken.Token, selectedLearnable.icon);
+
+                  if (selectedLearnable.id == CustomSkill.CloisteredScholar)
+                  {
+                    List<NuiComboEntry> bonusList = new();
+
+                    if (!player.learnableSkills.ContainsKey(CustomSkill.ArcanaProficiency))
+                      bonusList.Add(new("Maîtrise - Arcanes", CustomSkill.ArcanaProficiency));
+
+                    if (!player.learnableSkills.ContainsKey(CustomSkill.NatureProficiency))
+                      bonusList.Add(new("Maîtrise - Nature", CustomSkill.NatureProficiency));
+
+                    if (!player.learnableSkills.ContainsKey(CustomSkill.ReligionProficiency))
+                      bonusList.Add(new("Maîtrise - Religion", CustomSkill.ReligionProficiency));
+
+                    scholarBonusList.SetBindValue(player.oid, nuiToken.Token, bonusList);
+                    selectedScholarBonus.SetBindValue(player.oid, nuiToken.Token, bonusList.FirstOrDefault().Value);
+
+                    scholarBonusVisibility.SetBindValue(player.oid, nuiToken.Token, true);
+                  }
+                  else
+                    scholarBonusVisibility.SetBindValue(player.oid, nuiToken.Token, false);
 
                   if (player.learnableSkills.ContainsKey(selectedLearnable.id))
                   {
@@ -159,7 +189,10 @@ namespace NWN.Systems
                   validationEnabled.SetBindValue(player.oid, nuiToken.Token, false);
                   validatedLearnableId = selectedLearnable.id;
 
-                  player.learnableSkills.TryAdd(selectedLearnable.id, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[selectedLearnable.id], player, (int)SkillSystem.Category.StartingTraits));
+                  if (selectedLearnable.id == CustomSkill.CloisteredScholar)
+                    player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_SELECTED_SCHOLAR_BONUS").Value = selectedScholarBonus.GetBindValue(player.oid, nuiToken.Token);
+
+                  player.learnableSkills.TryAdd(selectedLearnable.id, new LearnableSkill((LearnableSkill)learnableDictionary[selectedLearnable.id], player, (int)Category.StartingTraits));
                   player.learnableSkills[selectedLearnable.id].LevelUp(player);
 
                   validationText.SetBindValue(player.oid, nuiToken.Token, $"Votre origine est désormais : {selectedLearnable.name}");
@@ -201,8 +234,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.ContainsKey("introPortrait")) player.windows.Add("introPortrait", new IntroPortraitWindow(player));
-                  else ((IntroPortraitWindow)player.windows["introPortrait"]).CreateWindow();
+                  if (!player.windows.TryGetValue("introPortrait", out var value)) player.windows.Add("introPortrait", new IntroPortraitWindow(player));
+                  else ((IntroPortraitWindow)value).CreateWindow();
 
                   break;
 

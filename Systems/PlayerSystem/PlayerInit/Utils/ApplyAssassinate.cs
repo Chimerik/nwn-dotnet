@@ -10,8 +10,8 @@ namespace NWN.Systems
       {
         if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.AssassinAssassinate))
         {
-          oid.OnCombatStatusChange -= RogueUtils.OnCombatThiefReflex;
-          oid.OnCombatStatusChange += RogueUtils.OnCombatThiefReflex;
+          oid.OnCombatStatusChange -= RogueUtils.OnCombatAssassinate;
+          oid.OnCombatStatusChange += RogueUtils.OnCombatAssassinate;
         }
       }
     }

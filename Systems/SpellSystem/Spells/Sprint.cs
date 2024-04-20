@@ -13,14 +13,16 @@ namespace NWN.Systems
 
       SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, caster, onSpellCast.Spell.SpellType);
 
+      EffectUtils.RemoveTaggedEffect(caster, EffectSystem.SprintEffectTag);
+
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHaste));
-      caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.sprintEffect, TimeSpan.FromSeconds(9));
+      caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.sprintEffect, NwTimeSpan.FromRounds(1));
 
       if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Chargeur)))
         caster.GetObjectVariable<LocalVariableLocation>(EffectSystem.ChargerVariable).Value = caster.Location;
 
       if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Mobile)))
-        caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.sprintMobileEffect, TimeSpan.FromSeconds(9));
+        caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.sprintMobileEffect, NwTimeSpan.FromRounds(1));
 
       if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemAspectEtalon)))
       {

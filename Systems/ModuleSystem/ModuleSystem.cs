@@ -400,6 +400,7 @@ namespace NWN.Systems
 
       EventsPlugin.SubscribeEvent("NWNX_ON_COMBAT_ENTER_BEFORE", "on_combat_enter");
       EventsPlugin.SubscribeEvent("NWNX_ON_DO_LISTEN_DETECTION_BEFORE", "on_listen");
+      EventsPlugin.SubscribeEvent("NWNX_ON_DO_SPOT_DETECTION_BEFORE", "on_spot");
 
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "on_charm_attack");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "on_charm_attack", 1);
@@ -1345,6 +1346,11 @@ namespace NWN.Systems
     }
     [ScriptHandler("on_listen")]
     private void OnListen(CallInfo callInfo)
+    {
+      EventsPlugin.SkipEvent();
+    }
+    [ScriptHandler("on_spot")]
+    private void OnSpot(CallInfo callInfo)
     {
       EventsPlugin.SkipEvent();
     }

@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System;
+using Anvil.API;
 using Anvil.API.Events;
 
 namespace NWN.Systems
@@ -9,7 +10,7 @@ namespace NWN.Systems
     {
       if (onStatus.CombatStatus == CombatStatus.EnterCombat)
       {
-        onStatus.Player.LoginCreature.ApplyEffect(EffectDuration.Temporary, EffectSystem.Assassinate, NwTimeSpan.FromRounds(1));
+        onStatus.Player.LoginCreature.ApplyEffect(EffectDuration.Temporary, EffectSystem.Assassinate, TimeSpan.FromSeconds(5));
         onStatus.Player.LoginCreature.OnDamaged -= OnDamagedRemoveAssassinate;
         onStatus.Player.LoginCreature.OnDamaged += OnDamagedRemoveAssassinate;
       }

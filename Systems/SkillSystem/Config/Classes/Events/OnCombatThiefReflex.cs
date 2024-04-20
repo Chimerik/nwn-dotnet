@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System;
+using Anvil.API;
 using Anvil.API.Events;
 
 namespace NWN.Systems
@@ -8,7 +9,7 @@ namespace NWN.Systems
     public static void OnCombatThiefReflex(OnCombatStatusChange onStatus)
     {
       if (onStatus.CombatStatus == CombatStatus.EnterCombat)
-        onStatus.Player.LoginCreature.ApplyEffect(EffectDuration.Temporary, EffectSystem.Assassinate, NwTimeSpan.FromRounds(1));
+        onStatus.Player.LoginCreature.ApplyEffect(EffectDuration.Temporary, EffectSystem.ThiefReflex, TimeSpan.FromSeconds(5));
     }
   }
 }

@@ -19,6 +19,7 @@ namespace NWN.Systems
         switch (NwSpell.FromSpellId(spellEntry.RowIndex).Id)
         {
           case CustomSpell.FaerieFire: SpellSystem.ApplyFaerieFireEffect(target, spellEntry); return true;
+          case CustomSpell.TirPerforant: SpellSystem.ApplyTirPerforantDamage(caster, target); return true;
         }
 
         DealSpellDamage(target, caster.CasterLevel, spellEntry, GetSpellDamageDiceNumber(caster, spell), caster, spellLevel);

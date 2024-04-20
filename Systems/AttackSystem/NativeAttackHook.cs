@@ -509,12 +509,6 @@ namespace NWN.Systems
 
       baseDamage += NativeUtils.HandleBagarreurDeTaverne(attacker, attackWeapon, strBonus);
 
-      if (attacker.m_ScriptVars.GetInt(CreatureUtils.FrappeMeurtriereVariableExo).ToBool())
-      {
-        baseDamage *= 2;
-        attacker.m_ScriptVars.DestroyInt(CreatureUtils.FrappeMeurtriereVariableExo);
-      }
-
       if (targetCreature is not null)
       {
         baseDamage -= NativeUtils.HandleMaitreArmureLourde(targetCreature);

@@ -4,7 +4,7 @@ namespace NWN.Systems
 {
   public partial class EffectSystem
   {
-    public const string MaitreTacticqueTag = "_EFFECT_DODGE";
+    public const string MaitreTacticqueTag = "_MAITRE_TACTIQUE_EFFECT";
     public static readonly Native.API.CExoString MaitreTactiqueExoTag = MaitreTacticqueTag.ToExoString();
     public static Effect maitreTactique
     {

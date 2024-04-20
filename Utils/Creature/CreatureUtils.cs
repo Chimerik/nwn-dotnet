@@ -84,9 +84,6 @@ namespace NWN.Systems
     public const string OpportunisteVariable = "_OPPORTUNISTE";
     public static readonly CExoString OpportunisteVariableExo = OpportunisteVariable.ToExoString();
 
-    public const string FrappeMeurtriereVariable = "_FRAPPE_MEURTRIERE";
-    public static readonly CExoString FrappeMeurtriereVariableExo = FrappeMeurtriereVariable.ToExoString();
-
     public const string MonkBonusAttackVariable = "_MONK_BONUS_ATTACK";
     public static readonly CExoString MonkBonusAttackVariableExo = MonkBonusAttackVariable.ToExoString();
 

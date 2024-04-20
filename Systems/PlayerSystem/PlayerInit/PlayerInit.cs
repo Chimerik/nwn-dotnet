@@ -455,6 +455,7 @@ namespace NWN.Systems
         ApplyGloutonAspect();
         ApplyPerceptionAveugle();
         ApplyAssassinate();
+        ApplyFrappeMeurtriere();
         ApplyThiefReflex();
         ApplyAbjurationWard();
 
