@@ -6,7 +6,7 @@ namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static int GetCreatureAbilityAdvantage(NwCreature creature, Ability ability, SpellEntry spellEntry = null, SpellEffectType effectType = SpellEffectType.Invalid, NwCreature caster = null, byte spellLevel = 0)
+    public static int GetCreatureAbilityAdvantage(NwCreature creature, Ability ability, SpellEntry spellEntry = null, SpellEffectType effectType = SpellEffectType.Invalid, NwGameObject caster = null, byte spellLevel = 0)
     {
       switch(ability)
       {

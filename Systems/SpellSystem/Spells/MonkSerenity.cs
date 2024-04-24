@@ -1,23 +1,18 @@
-﻿using System;
-using Anvil.API;
-using Anvil.API.Events;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void Serenity(SpellEvents.OnSpellCast onSpellCast)
+    public static void Serenity(NwGameObject oCaster, NwSpell spell)
     {
-      if (onSpellCast.Caster is not NwCreature caster)
-        return;
+      SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
 
-      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, caster, onSpellCast.Spell.SpellType);
-
-      caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadMind));
+      oCaster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadMind));
 
       string taggedEffect = "";
 
-      foreach (var eff in caster.ActiveEffects)
+      foreach (var eff in oCaster.ActiveEffects)
       {
         if (string.IsNullOrEmpty(taggedEffect))
         {
@@ -25,11 +20,11 @@ namespace NWN.Systems
             || eff.EffectType == EffectType.Frightened || eff.Tag == EffectSystem.FrightenedEffectTag)
           {
             taggedEffect = eff.Tag;
-            caster.RemoveEffect(eff);
+            oCaster.RemoveEffect(eff);
           }
         }
         else if(taggedEffect == eff.Tag)
-          caster.RemoveEffect(eff);
+          oCaster.RemoveEffect(eff);
       }
     }
   }

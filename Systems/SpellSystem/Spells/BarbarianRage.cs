@@ -6,9 +6,9 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void BarbarianRage(SpellEvents.OnSpellCast spellCast, SpellEntry spellEntry)
+    public static void BarbarianRage(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry)
     {
-      if (spellCast.Caster is not NwCreature caster)
+      if (oCaster is not NwCreature caster)
         return;
 
       NwItem armor = caster.GetItemInSlot(InventorySlot.Chest);
@@ -19,7 +19,7 @@ namespace NWN.Systems
         return;
       }
 
-      StringUtils.ForceBroadcastSpellCasting(caster, spellCast.Spell);
+      StringUtils.ForceBroadcastSpellCasting(caster, spell);
 
       switch(NwRandom.Roll(Utils.random, 3))
       {

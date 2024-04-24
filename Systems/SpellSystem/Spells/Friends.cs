@@ -6,9 +6,9 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void Friends(SpellEvents.OnSpellCast onSpellCast, SpellEntry spellEntry)
+    public static void Friends(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget)
     {
-      if (onSpellCast.Caster is not NwCreature caster || onSpellCast.TargetObject is not NwCreature target || target.IsReactionTypeHostile(caster))
+      if (oCaster is not NwCreature caster || oTarget is not NwCreature target || target.IsReactionTypeHostile(caster))
         return;
 
       if (target.IsImmuneTo(ImmunityType.Charm) || target.IsImmuneTo(ImmunityType.MindSpells))
@@ -17,11 +17,11 @@ namespace NWN.Systems
         return;
       }
 
-      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, caster, onSpellCast.Spell.SpellType);
-      onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpDazedS));
-      onSpellCast.TargetObject.ApplyEffect(EffectDuration.Temporary, Effect.LinkEffects(Effect.VisualEffect(VfxType.DurMindAffectingNegative), Effect.VisualEffect(VfxType.DurCessateNegative)), NwTimeSpan.FromRounds(spellEntry.duration));
+      SpellUtils.SignalEventSpellCast(target, caster, spell.SpellType);
+      target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpDazedS));
+      target.ApplyEffect(EffectDuration.Temporary, Effect.LinkEffects(Effect.VisualEffect(VfxType.DurMindAffectingNegative), Effect.VisualEffect(VfxType.DurCessateNegative)), NwTimeSpan.FromRounds(spellEntry.duration));
 
-      EffectSystem.ApplyConcentrationEffect(caster, onSpellCast.Spell.Id, new List<NwGameObject> { target }, spellEntry.duration);
+      EffectSystem.ApplyConcentrationEffect(caster, spell.Id, new List<NwGameObject> { target }, spellEntry.duration);
     }
   }
 }

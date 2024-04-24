@@ -1,46 +1,41 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Anvil.API;
-using Anvil.API.Events;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void ProduceFlame(SpellEvents.OnSpellCast onSpellCast, SpellEntry spellEntry)
+    public static void ProduceFlame(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass castingClass)
     {
-      if (onSpellCast.Caster is not NwCreature caster)
-        return;
+      SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
 
-      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, caster, onSpellCast.Spell.SpellType);
-
-      if(onSpellCast.TargetObject is not NwCreature target || target == caster)
+      if(oTarget is not NwCreature target || target == oCaster)
       {
-        if (caster.ActiveEffects.Any(e => e.Tag == EffectSystem.ProduceFlameEffectTag))
-          EffectUtils.RemoveTaggedEffect(caster, EffectSystem.ProduceFlameEffectTag);
+        if (oCaster.ActiveEffects.Any(e => e.Tag == EffectSystem.ProduceFlameEffectTag))
+          EffectUtils.RemoveTaggedEffect(oCaster, EffectSystem.ProduceFlameEffectTag);
         else
-          caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.produceFlameEffect, NwTimeSpan.FromRounds(spellEntry.duration));
+          oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.produceFlameEffect, NwTimeSpan.FromRounds(spellEntry.duration));
 
         return;
       }
 
-      onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpFlameS));
+      oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpFlameS));
 
-      int nbDice = SpellUtils.GetSpellDamageDiceNumber(caster, onSpellCast.Spell);
+      int nbDice = SpellUtils.GetSpellDamageDiceNumber(oCaster, spell);
 
-      Ability spellCastAbility = onSpellCast.SpellCastClass is null ? Ability.Charisma : onSpellCast.SpellCastClass.SpellCastingAbility;
+      Ability spellCastAbility = castingClass is null ? Ability.Charisma : castingClass.SpellCastingAbility;
 
-      switch (SpellUtils.GetSpellAttackRoll(onSpellCast.TargetObject, caster, onSpellCast.Spell, spellCastAbility))
+      switch (SpellUtils.GetSpellAttackRoll(oTarget, oCaster, spell, spellCastAbility))
       {
-        case TouchAttackResult.CriticalHit: SpellUtils.GetCriticalSpellDamageDiceNumber(caster, spellEntry, nbDice); ; break;
+        case TouchAttackResult.CriticalHit: SpellUtils.GetCriticalSpellDamageDiceNumber(oCaster, spellEntry, nbDice); ; break;
         case TouchAttackResult.Hit: break;
         default: return;
       }
 
-      SpellUtils.DealSpellDamage(onSpellCast.TargetObject, caster.CasterLevel, spellEntry, nbDice, caster, onSpellCast.Spell.GetSpellLevelForClass(ClassType.Druid));
+      SpellUtils.DealSpellDamage(oTarget, oCaster.CasterLevel, spellEntry, nbDice, oCaster, spell.GetSpellLevelForClass(ClassType.Druid));
 
-      if (caster.ActiveEffects.Any(e => e.Tag == EffectSystem.ProduceFlameEffectTag))
-        EffectUtils.RemoveTaggedEffect(caster, EffectSystem.ProduceFlameEffectTag);
+      if (oCaster.ActiveEffects.Any(e => e.Tag == EffectSystem.ProduceFlameEffectTag))
+        EffectUtils.RemoveTaggedEffect(oCaster, EffectSystem.ProduceFlameEffectTag);
     }
   }
 }

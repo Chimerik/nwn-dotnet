@@ -8,9 +8,9 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void RegardHypnotique(SpellEvents.OnSpellCast onSpellCast, SpellEntry spellEntry)
+    public static void RegardHypnotique(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass castingClass)
     {
-      if (onSpellCast.Caster is not NwCreature caster || onSpellCast.TargetObject is not NwCreature target || EffectSystem.IsCharmeImmune(target))
+      if (oCaster is not NwCreature caster || oTarget is not NwCreature target || EffectSystem.IsCharmeImmune(target))
         return;
 
       var previousTargetList = caster.GetObjectVariable<LocalVariableString>(CreatureUtils.RegardHypnotiqueTargetListVariable).Value.Split("_");
@@ -21,9 +21,9 @@ namespace NWN.Systems
         return;
       }
 
-      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, caster, onSpellCast.Spell.SpellType);
+      SpellUtils.SignalEventSpellCast(oTarget, caster, spell.SpellType);
       SpellConfig.SavingThrowFeedback feedback = new();
-      int spellDC = SpellUtils.GetCasterSpellDC(caster, onSpellCast.SpellCastClass.SpellCastingAbility);
+      int spellDC = SpellUtils.GetCasterSpellDC(caster, spell, castingClass.SpellCastingAbility);
       int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Charm, caster);
       int totalSave = SpellUtils.GetSavingThrowRoll(target, spellEntry.savingThrowAbility, spellDC, advantage, feedback, true);
       bool saveFailed = totalSave < spellDC;
@@ -33,7 +33,7 @@ namespace NWN.Systems
       if(saveFailed)
       {
         NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Permanent, EffectSystem.RegardHypnotique));
-        EffectSystem.ApplyConcentrationEffect(caster, onSpellCast.Spell.Id, new List<NwGameObject> { caster }, spellEntry.duration);
+        EffectSystem.ApplyConcentrationEffect(caster, spell.Id, new List<NwGameObject> { caster }, spellEntry.duration);
 
         target.OnDamaged -= EffectSystem.OnDamageRegardHypnotique;
         target.OnDamaged += EffectSystem.OnDamageRegardHypnotique;

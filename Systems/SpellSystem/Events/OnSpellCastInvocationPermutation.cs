@@ -1,14 +1,13 @@
 ﻿using Anvil.API;
-using Anvil.API.Events;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void OnSpellCastInvocationPermutation(NwCreature caster, SpellEvents.OnSpellCast spellCast)
+    public static void OnSpellCastInvocationPermutation(NwCreature caster, NwSpell spell, int spellLevel)
     {
-      if (spellCast.Spell.SpellSchool != SpellSchool.Conjuration || !caster.KnowsFeat((Feat)CustomSkill.InvocationPermutation)
-        || spellCast.SpellLevel < 1 || caster.GetFeatRemainingUses((Feat)CustomSkill.InvocationPermutation) > 0)
+      if (spell.SpellSchool != SpellSchool.Conjuration || !caster.KnowsFeat((Feat)CustomSkill.InvocationPermutation)
+        || spellLevel < 1 || caster.GetFeatRemainingUses((Feat)CustomSkill.InvocationPermutation) > 0)
         return;
 
       caster.SetFeatRemainingUses((Feat)CustomSkill.InvocationPermutation, 1);

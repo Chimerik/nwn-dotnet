@@ -1,15 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Anvil.API;
-using Anvil.API.Events;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void SensAnimal(SpellEvents.OnSpellCast onSpellCast, SpellEntry spellEntry)
+    public static void SensAnimal(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget)
     {
-      if (onSpellCast.Caster is not NwCreature caster || onSpellCast.TargetObject is not NwCreature target)
+      if (oCaster is not NwCreature caster || oTarget is not NwCreature target)
         return;
 
       if(caster.ActiveEffects.Any(e => e.Tag == EffectSystem.SensAnimalEffectTag))
@@ -18,12 +17,12 @@ namespace NWN.Systems
         caster.LoginPlayer?.SendServerMessage("Cible invalide", ColorConstants.Red);
       else
       {
-        SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, caster, onSpellCast.Spell.SpellType);
+        SpellUtils.SignalEventSpellCast(target, caster, spell.SpellType);
 
         caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(spellEntry.damageVFX));
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(spellEntry.damageVFX));
         caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.sensAnimalEffect, NwTimeSpan.FromRounds(spellEntry.duration));
-        EffectSystem.ApplyConcentrationEffect(caster, onSpellCast.Spell.Id, new List<NwGameObject> { caster }, spellEntry.duration);
+        EffectSystem.ApplyConcentrationEffect(caster, spell.Id, new List<NwGameObject> { caster }, spellEntry.duration);
       }
     }
   }

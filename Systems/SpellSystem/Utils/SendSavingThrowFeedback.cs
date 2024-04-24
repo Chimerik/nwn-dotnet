@@ -5,7 +5,7 @@ namespace NWN.Systems
 {
   public static partial class SpellUtils
   {
-    public static void SendSavingThrowFeedbackMessage(NwCreature caster, NwCreature target, SpellConfig.SavingThrowFeedback feedback, int advantage, int spellDC, int totalSave, bool saveFailed, Ability ability)
+    public static void SendSavingThrowFeedbackMessage(NwGameObject oCaster, NwCreature target, SpellConfig.SavingThrowFeedback feedback, int advantage, int spellDC, int totalSave, bool saveFailed, Ability ability)
     {
       string advantageString = advantage == 0 ? "" : advantage > 0 ? " (Avantage)".ColorString(StringUtils.gold) : " (Désavantage)".ColorString(ColorConstants.Red);
       string hitString = saveFailed ? "ECHEC".ColorString(ColorConstants.Red) : "REUSSI".ColorString(StringUtils.brightGreen);
@@ -13,19 +13,22 @@ namespace NWN.Systems
 
       string rollString = $"JDS {StringUtils.TranslateAttributeToFrench(ability)}{advantageString} {StringUtils.IntToColor(feedback.saveRoll, hitColor)} + {StringUtils.IntToColor(feedback.proficiencyBonus, hitColor)} = {StringUtils.IntToColor(totalSave, hitColor)} vs DD {StringUtils.IntToColor(spellDC, hitColor)}";
 
-      caster.LoginPlayer?.SendServerMessage($"{target.Name.ColorString(ColorConstants.Cyan)} - {rollString} {hitString}".ColorString(ColorConstants.Orange));
+      if (target != oCaster)
+        target.LoginPlayer?.SendServerMessage($"{oCaster.Name.ColorString(ColorConstants.Cyan)} - {rollString} {hitString}".ColorString(ColorConstants.Orange));
 
-      if (target != caster)
-        target.LoginPlayer?.SendServerMessage($"{caster.Name.ColorString(ColorConstants.Cyan)} - {rollString} {hitString}".ColorString(ColorConstants.Orange));
-
-      if(saveFailed && caster.KnowsFeat((Feat)CustomSkill.WildMagicMagieGalvanisanteBienfait) 
-        && caster.Classes.Any(c => c.Class.ClassType == ClassType.Barbarian && c.Level > 9)
-        && caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value > 0
-        && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.BarbarianRageEffectTag))
+      if (oCaster is NwCreature caster)
       {
-        BarbarianUtils.DispelWildMagicEffects(caster);
-        SpellSystem.HandleWildMagicRage(caster);
-        caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value -= 1;
+        caster.LoginPlayer?.SendServerMessage($"{target.Name.ColorString(ColorConstants.Cyan)} - {rollString} {hitString}".ColorString(ColorConstants.Orange));
+
+        if (saveFailed && caster.KnowsFeat((Feat)CustomSkill.WildMagicMagieGalvanisanteBienfait)
+          && caster.Classes.Any(c => c.Class.ClassType == ClassType.Barbarian && c.Level > 9)
+          && caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value > 0
+          && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.BarbarianRageEffectTag))
+        {
+          BarbarianUtils.DispelWildMagicEffects(caster);
+          SpellSystem.HandleWildMagicRage(caster);
+          caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value -= 1;
+        }
       }
 
       LogUtils.LogMessage($"{target.Name} - {advantageString}{rollString} {hitString}".StripColors(), LogUtils.LogType.Combat);

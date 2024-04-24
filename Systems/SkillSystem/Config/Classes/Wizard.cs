@@ -32,7 +32,7 @@ namespace NWN.Systems
         learnableDictionary[CustomSkill.MedicineProficiency],
         learnableDictionary[CustomSkill.ReligionProficiency]
       },
-      4
+      2
     );
 
     public static bool LevelUp(Player player, int customSkillId)

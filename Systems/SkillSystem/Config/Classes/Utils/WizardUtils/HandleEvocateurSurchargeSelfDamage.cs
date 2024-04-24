@@ -5,7 +5,7 @@ namespace NWN.Systems
 {
   public static partial class WizardUtils
   {
-    public static void HandleEvocateurSurchargeSelfDamage(NwCreature creature, byte spellLevel)
+    public static void HandleEvocateurSurchargeSelfDamage(NwGameObject creature, byte spellLevel)
     {
       int selfDamageDice = creature.GetObjectVariable<LocalVariableInt>(EffectSystem.EvocateurSurchargeVariable).Value;
 

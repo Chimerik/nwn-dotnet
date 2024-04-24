@@ -458,6 +458,8 @@ namespace NWN.Systems
         ApplyFrappeMeurtriere();
         ApplyThiefReflex();
         ApplyAbjurationWard();
+        ApplyMagieDeGuerre();
+        ApplyFrappeOcculte();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

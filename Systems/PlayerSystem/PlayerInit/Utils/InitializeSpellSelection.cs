@@ -11,8 +11,8 @@ namespace NWN.Systems
       {
         if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_CLASS_SELECTION").HasValue)
         {
-          if (!windows.TryGetValue("spellSelection", out var masterSpell)) windows.Add("spellSelection", new SpellSelectionWindow(this, (ClassType)oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_CLASS_SELECTION").Value, oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CANTRIP_SELECTION").Value, oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_SELECTION").Value));
-          else ((SpellSelectionWindow)masterSpell).CreateWindow((ClassType)oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_CLASS_SELECTION").Value, oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CANTRIP_SELECTION").Value, oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_SELECTION").Value);
+          if (!windows.TryGetValue("spellSelection", out var masterSpell)) windows.Add("spellSelection", new SpellSelectionWindow(this, (ClassType)oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_CLASS_SELECTION").Value, oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CANTRIP_SELECTION").Value, oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_SELECTION").Value, oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_RESTRICTED_SPELL_SELECTION").Value));
+          else ((SpellSelectionWindow)masterSpell).CreateWindow((ClassType)oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_CLASS_SELECTION").Value, oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CANTRIP_SELECTION").Value, oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_SELECTION").Value, oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_RESTRICTED_SPELL_SELECTION").Value);
         }
       }
     }

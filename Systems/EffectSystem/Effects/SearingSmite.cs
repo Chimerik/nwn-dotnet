@@ -37,7 +37,7 @@ namespace NWN.Systems
         NwCreature caster = (NwCreature)onHB.Creature.ActiveEffects.First(e => e.Tag == searingSmiteBurnEffectTag).Creator;
 
         byte spellLevel = spell.GetSpellLevelForClass(ClassType.Paladin);
-        int spellDC = SpellUtils.GetCasterSpellDC(caster, NwClass.FromClassType(ClassType.Paladin).SpellCastingAbility);
+        int spellDC = SpellUtils.GetCasterSpellDC(caster, spell, NwClass.FromClassType(ClassType.Paladin).SpellCastingAbility);
         int advantage = CreatureUtils.GetCreatureAbilityAdvantage(onHB.Creature, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid, spellLevel: spellLevel);
         int totalSave = SpellUtils.GetSavingThrowRoll(onHB.Creature, spellEntry.savingThrowAbility, spellDC, advantage, feedback, true);
         bool saveFailed = totalSave < spellDC;

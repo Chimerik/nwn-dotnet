@@ -1,27 +1,25 @@
 ﻿using Anvil.API;
-using Anvil.API.Events;
-using NWN.Core;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void OnSpellCastDivinationExpert(NwCreature caster, SpellEvents.OnSpellCast spellCast)
+    public static void OnSpellCastDivinationExpert(NwCreature caster, NwSpell spell, NwClass castingClass)
     {
-      if (spellCast.Spell.SpellSchool != SpellSchool.Divination || !caster.KnowsFeat((Feat)CustomSkill.DivinationExpert)
-        || spellCast.SpellLevel < 3 || spellCast.SpellCastClass is null)
+      if (spell.SpellSchool != SpellSchool.Divination || !caster.KnowsFeat((Feat)CustomSkill.DivinationExpert)
+         || castingClass is null  || spell.GetSpellLevelForClass(castingClass) < 3)
         return;
 
-      var castingClass = caster.GetClassInfo(spellCast.SpellCastClass);
-      byte spellLevel = spellCast.SpellLevel > 6 ? (byte)6 : (byte)(spellCast.SpellLevel - 1);
+      var casterClass = caster.GetClassInfo(castingClass);
+      byte spellLevel = spell.GetSpellLevelForClass(castingClass) > 6 ? (byte)6 : (byte)(spell.GetSpellLevelForClass(castingClass) - 1);
 
       for (byte i = spellLevel; i > 0; i--)
       {
-        var remainingSlots = castingClass.GetRemainingSpellSlots(i);
+        var remainingSlots = casterClass.GetRemainingSpellSlots(i);
 
-        if (remainingSlots < castingClass.Class.SpellGainTable[castingClass.Level - 1][i])
+        if (remainingSlots < casterClass.Class.SpellGainTable[casterClass.Level - 1][i])
         {
-          castingClass.SetRemainingSpellSlots(i, remainingSlots++);
+          casterClass.SetRemainingSpellSlots(i, remainingSlots++);
           caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.DurMindAffectingPositive));
           return;
         }

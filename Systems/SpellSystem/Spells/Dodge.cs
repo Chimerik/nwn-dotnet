@@ -1,16 +1,15 @@
 ﻿using Anvil.API;
-using Anvil.API.Events;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void Dodge(SpellEvents.OnSpellCast onSpellCast)
+    public static void Dodge(NwGameObject oCaster, NwSpell spell)
     {
-      if (onSpellCast.Caster is not NwCreature caster)
+      if (oCaster is not NwCreature caster)
         return;
 
-      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, caster, onSpellCast.Spell.SpellType);
+      SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
 
       caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.dodgeEffect, NwTimeSpan.FromRounds(1));
 

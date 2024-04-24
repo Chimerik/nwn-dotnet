@@ -1,18 +1,17 @@
 ﻿using Anvil.API;
-using Anvil.API.Events;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void PassageSansTrace(SpellEvents.OnSpellCast onSpellCast, SpellEntry spellEntry)
+    public static void PassageSansTrace(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry)
     {
-      if (onSpellCast.Caster is not NwCreature caster)
+      if (oCaster is not NwCreature caster)
         return;
 
-      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, caster, onSpellCast.Spell.SpellType);
+      SpellUtils.SignalEventSpellCast(caster, caster, spell.SpellType);
 
-      foreach (NwCreature target in onSpellCast.TargetLocation.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 9, false))
+      foreach (NwCreature target in caster.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 9, false))
       {
         if (target.IsEnemy(caster))
           continue;

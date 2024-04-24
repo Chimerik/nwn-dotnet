@@ -1,38 +1,56 @@
-﻿using Anvil.API;
-using Anvil.API.Events;
+﻿using System.Numerics;
+using Anvil.API;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void InvocationPermutation(SpellEvents.OnSpellCast onSpellCast, SpellEntry spellEntry)
+    public static void InvocationPermutation(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, Location targetLocation)
     {
-      if (onSpellCast.Caster is not NwCreature caster)
+      if (oCaster is not NwCreature caster)
         return;
 
-      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, onSpellCast.Caster, onSpellCast.Spell.SpellType);
+      SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
 
-      if (onSpellCast.TargetObject is NwCreature target)
+      if (oTarget is NwCreature target)
       {
         if (target.IsReactionTypeFriendly(caster))
         {
-          var swapPosition = caster.Position;
-          target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
+          var casterPos = CreaturePlugin.ComputeSafeLocation(caster, target.Position, 2);
+          var targetPos = CreaturePlugin.ComputeSafeLocation(target, caster.Position, 2);
 
-          caster.Position = target.Position;
-          target.Position = swapPosition;
+          if (casterPos != Vector3.Zero && targetPos != Vector3.Zero)
+          {
+            caster.Position = casterPos;
+            target.Position = targetPos;
+
+            caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
+            target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
+
+            caster.SetFeatRemainingUses((Feat)CustomSkill.InvocationPermutation, 0);
+          }
+          else
+            caster.ControllingPlayer?.SendServerMessage("Permutation impossible", ColorConstants.Red);
         }
         else
           caster.LoginPlayer?.SendServerMessage("Cible invalide", ColorConstants.Red);
       }
-      else if(onSpellCast.TargetObject is null)
+      else if(oTarget is null)
       {
-        onSpellCast.TargetLocation.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
-        caster.Position = onSpellCast.TargetLocation.Position;
-      }
+        var casterPos = CreaturePlugin.ComputeSafeLocation(caster, targetLocation.Position, 2);
 
-      caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
-      caster.SetFeatRemainingUses((Feat)CustomSkill.InvocationPermutation, 0);
+        if (casterPos != Vector3.Zero)
+        {
+          caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
+          caster.Position = casterPos;
+          targetLocation.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
+
+          caster.SetFeatRemainingUses((Feat)CustomSkill.InvocationPermutation, 0);
+        }
+        else
+          caster.ControllingPlayer?.SendServerMessage("Permutation impossible", ColorConstants.Red);
+      }
     }
   }
 }

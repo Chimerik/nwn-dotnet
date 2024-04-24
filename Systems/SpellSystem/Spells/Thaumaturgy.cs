@@ -1,17 +1,13 @@
 ﻿using Anvil.API;
-using Anvil.API.Events;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void Thaumaturgy(SpellEvents.OnSpellCast onSpellCast)
+    public static void Thaumaturgy(NwGameObject oCaster, NwSpell spell)
     {
-      if (onSpellCast.Caster is not NwCreature caster)
-        return;
-
-      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, caster, onSpellCast.Spell.SpellType);
-      onSpellCast.TargetLocation.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpImproveAbilityScore));
+      SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
+      oCaster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpImproveAbilityScore));
     }
   }
 }

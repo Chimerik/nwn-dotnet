@@ -56,7 +56,7 @@ namespace NWN.Systems
       active = serializableBase.active;
       acquiredPoints = serializableBase.acquiredPoints;
       currentLevel = serializableBase.currentLevel;
-      pointsToNextLevel = GetPointsToLevelUp(player, playerLevel, multiClassMultiplier);
+      pointsToNextLevel = GetPointsToLevelUp(player, playerLevel/*, multiClassMultiplier*/);
       spLastCalculation = serializableBase.spLastCalculation;
       skillEffect = learnableBase.skillEffect;
       levelTaken = serializableBase.levelTaken;
@@ -129,7 +129,7 @@ namespace NWN.Systems
       player.oid.ExportCharacter();
       LogUtils.LogMessage($"{player.oid.LoginCreature.Name} maîtrise {name} niveau {currentLevel}", LogUtils.LogType.Learnables);
     }
-    private double GetPointsToLevelUp(Player player, int playerLevel = 0, int multiClassCount = 0)
+    private double GetPointsToLevelUp(Player player, int playerLevel = 0/*, int multiClassCount = 0*/)
     {
       switch(category)
       {
@@ -143,35 +143,35 @@ namespace NWN.Systems
           if (playerLevel < 1)
             playerLevel = player.oid.LoginCreature.Level;
 
-          if (multiClassCount < 1)
-            multiClassCount = player.oid.LoginCreature.Classes.Distinct().Count();
+          //if (multiClassCount < 1)
+            //multiClassCount = player.oid.LoginCreature.Classes.Distinct().Count();
 
-          double multiClassMultiplier = playerLevel > 12 ? multiClassCount * 1.5 : 1;
+          //double multiClassMultiplier = playerLevel > 12 ? multiClassCount * 1.5 : 1;
 
           return playerLevel switch
           {
-            1 => 8640 * multiClassMultiplier,
-            2 => 8640 * multiClassMultiplier,
-            3 => 26000 * multiClassMultiplier,
-            4 => 80000 * multiClassMultiplier,
-            5 => 190000 * multiClassMultiplier,
-            6 => 405000 * multiClassMultiplier,
-            7 => 660000 * multiClassMultiplier,
-            8 => 980000 * multiClassMultiplier,
-            9 => 1380000 * multiClassMultiplier,
-            10 => 1840000 * multiClassMultiplier,
-            11 => 2450000 * multiClassMultiplier,
-            12 => 2880000 * multiClassMultiplier,
-            13 => 3456000 * multiClassMultiplier,
-            14 => 4032000 * multiClassMultiplier,
-            15 => 4752000 * multiClassMultiplier,
-            16 => 5616000 * multiClassMultiplier,
-            17 => 6480000 * multiClassMultiplier,
-            18 => 7632000 * multiClassMultiplier,
-            19 => 8784000 * multiClassMultiplier,
-            20 => 10224000 * multiClassMultiplier,
-            21 => 11760000 * multiClassMultiplier,
-            _ => 11760000 * multiClassMultiplier * 1.15 * (playerLevel - 20),
+            1 => 8640,// * multiClassMultiplier,
+            2 => 8640,// * multiClassMultiplier,
+            3 => 26000,// * multiClassMultiplier,
+            4 => 80000,// * multiClassMultiplier,
+            5 => 190000,// * multiClassMultiplier,
+            6 => 405000,// * multiClassMultiplier,
+            7 => 660000,// * multiClassMultiplier,
+            8 => 980000,// * multiClassMultiplier,
+            9 => 1380000,// * multiClassMultiplier,
+            10 => 1840000,// * multiClassMultiplier,
+            11 => 2450000,// * multiClassMultiplier,
+            12 => 2880000,// * multiClassMultiplier,
+            13 => 3456000 ,//* multiClassMultiplier,
+            14 => 4032000,// * multiClassMultiplier,
+            15 => 4752000 ,//* multiClassMultiplier,
+            16 => 5616000,// * multiClassMultiplier,
+            17 => 6480000,// * multiClassMultiplier,
+            18 => 7632000,// * multiClassMultiplier,
+            19 => 8784000,// * multiClassMultiplier,
+            20 => 10224000,// * multiClassMultiplier,
+            21 => 11760000,// * multiClassMultiplier,
+            _ => 11760000 * 1.15 * (playerLevel - 20),// * multiClassMultiplier * 1.15 * (playerLevel - 20),
           };
         default:
           return 250 * multiplier * Math.Pow(5, currentLevel);

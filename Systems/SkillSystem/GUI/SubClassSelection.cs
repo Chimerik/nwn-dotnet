@@ -145,6 +145,7 @@ namespace NWN.Systems
                     case CustomSkill.FighterArcaneArcher: Fighter.HandleArcherMageLevelUp(player, 3); break;
                     case CustomSkill.FighterWarMaster: Fighter.HandleWarMasterLevelUp(player, 3); break;
                     case CustomSkill.FighterChampion: Fighter.HandleChampionLevelUp(player, 3); break;
+                    case CustomSkill.FighterEldritchKnight: Fighter.HandleEldritchKnightLevelUp(player, 3); break;
                     case CustomSkill.BarbarianBerseker: 
                       Barbarian.HandleBersekerLevelUp(player, 3);
                       category = Category.BarbarianSubClass;
@@ -168,6 +169,10 @@ namespace NWN.Systems
                     case CustomSkill.RogueAssassin: 
                       Rogue.HandleAssassinLevelUp(player, 3);
                       category = Category.RogueSubClass; 
+                      break;
+                    case CustomSkill.RogueArcaneTrickster:
+                      Rogue.HandleAssassinLevelUp(player, 3);
+                      category = Category.RogueSubClass;
                       break;
                     case CustomSkill.MonkPaume: 
                       Monk.HandlePaumeLevelUp(player, 3);

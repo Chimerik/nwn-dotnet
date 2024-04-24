@@ -29,8 +29,9 @@ namespace NWN.Systems
         private ClassType spellClass;
         private int nbCantrips;
         private int nbSpells;
+        private int nbRestrictedSpells;
 
-        public SpellSelectionWindow(Player player, ClassType spellClass, int nbCantrips, int nbSpells) : base(player)
+        public SpellSelectionWindow(Player player, ClassType spellClass, int nbCantrips, int nbSpells, int nbRestrictedSpells = 0) : base(player)
         {
           windowId = "spellSelection";
 
@@ -59,13 +60,14 @@ namespace NWN.Systems
               new NuiSpacer() } }
           };
 
-          CreateWindow(spellClass, nbCantrips, nbSpells);
+          CreateWindow(spellClass, nbCantrips, nbSpells, nbRestrictedSpells);
         }
-        public void CreateWindow(ClassType spellClass, int nbCantrips, int nbSpells)
+        public void CreateWindow(ClassType spellClass, int nbCantrips, int nbSpells, int nbRestrictedSpells = 0)
         {
           this.spellClass = spellClass;
           this.nbCantrips = nbCantrips;
           this.nbSpells = nbSpells;
+          this.nbRestrictedSpells = nbRestrictedSpells;
 
           NuiRect windowRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 520, 500);
 
@@ -75,7 +77,7 @@ namespace NWN.Systems
             title += $" - {nbCantrips} tour(s) de magie";
 
           if (nbSpells > 0)
-            title += $" - {nbSpells} sorts";
+            title += $" - {nbSpells + nbRestrictedSpells} sorts";
 
           window = new NuiWindow(rootColumn, title.Remove(title.Length))
           {
@@ -107,6 +109,7 @@ namespace NWN.Systems
             {
               player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CANTRIP_SELECTION").Value = nbCantrips;
               player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_SELECTION").Value = nbSpells;
+              player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_RESTRICTED_SPELL_SELECTION").Value = nbRestrictedSpells;
               player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_CLASS_SELECTION").Value = (int)spellClass;
             }
           }
@@ -210,6 +213,7 @@ namespace NWN.Systems
                   }
 
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_SELECTION").Delete();
+                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_RESTRICTED_SPELL_SELECTION").Delete();
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CANTRIP_SELECTION").Delete();
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_CLASS_SELECTION").Delete();
 
@@ -264,6 +268,26 @@ namespace NWN.Systems
 
           if (nbSpells > 0 && acquiredSpells.Count(s => s.GetSpellLevelForClass(spellClass) != 0) == nbSpells)
             availableSpells.RemoveAll(s => s.GetSpellLevelForClass(spellClass) != 0);
+
+          if (nbRestrictedSpells > 0)
+          {
+            switch(spellClass)
+            {
+              case (ClassType)CustomClass.RogueArcaneTrickster:
+
+                if (acquiredSpells.Count(s => !Utils.In(s.SpellSchool, SpellSchool.Enchantment, SpellSchool.Illusion)) == nbSpells)
+                  availableSpells.RemoveAll(s => !Utils.In(s.SpellSchool, SpellSchool.Enchantment, SpellSchool.Illusion));
+
+                break;
+
+              case (ClassType)CustomClass.EldritchKnight:
+
+                if (acquiredSpells.Count(s => !Utils.In(s.SpellSchool, SpellSchool.Evocation, SpellSchool.Abjuration)) == nbSpells)
+                  availableSpells.RemoveAll(s => !Utils.In(s.SpellSchool, SpellSchool.Evocation, SpellSchool.Abjuration));
+
+                break;
+            }
+          }
 
           foreach (var spell in availableSpells)
           {

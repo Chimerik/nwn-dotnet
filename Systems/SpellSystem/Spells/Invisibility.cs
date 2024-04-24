@@ -1,22 +1,17 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Anvil.API;
-using Anvil.API.Events;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    private static void Invisibility(SpellEvents.OnSpellCast onSpellCast, SpellEntry spellEntry)
+    public static void Invisibility(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget)
     {
-      if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } caster))
-        return;
+      SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType, false);
+      oTarget.ApplyEffect(EffectDuration.Temporary, Effect.LinkEffects(Effect.Invisibility(InvisibilityType.Normal), Effect.VisualEffect(VfxType.DurCessatePositive)), NwTimeSpan.FromRounds(spellEntry.duration));
 
-      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, caster, onSpellCast.Spell.SpellType, false);
-
-      onSpellCast.TargetObject.ApplyEffect(EffectDuration.Temporary, Effect.LinkEffects(Effect.Invisibility(InvisibilityType.Normal), Effect.VisualEffect(VfxType.DurCessatePositive)), NwTimeSpan.FromRounds(spellEntry.duration));
-
-      EffectSystem.ApplyConcentrationEffect(caster, onSpellCast.Spell.Id, new List<NwGameObject> { onSpellCast.TargetObject }, spellEntry.duration);
+      if(oCaster is NwCreature caster)
+        EffectSystem.ApplyConcentrationEffect(caster, spell.Id, new List<NwGameObject> { oTarget }, spellEntry.duration);
     }
   }
 }

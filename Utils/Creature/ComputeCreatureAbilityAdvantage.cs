@@ -6,8 +6,11 @@ namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static bool ComputeCreatureAbilityAdvantage(NwCreature creature, Ability ability, SpellEntry spellEntry = null, SpellEffectType effectType = SpellEffectType.Invalid, NwCreature caster = null)
+    public static bool ComputeCreatureAbilityAdvantage(NwCreature creature, Ability ability, SpellEntry spellEntry = null, SpellEffectType effectType = SpellEffectType.Invalid, NwGameObject oCaster = null)
     {
+      if (spellEntry is not null && oCaster is NwCreature caster && caster.KnowsFeat((Feat)CustomSkill.ArcaneTricksterMagicalAmbush) && !creature.IsCreatureSeen(caster))
+        return true;
+
       switch(ability)
       {
         case Ability.Strength:
@@ -81,8 +84,8 @@ namespace NWN.Systems
           break;
       }
 
-      if(caster is not null && creature.KnowsFeat((Feat)CustomSkill.TueurDeMage)
-        && creature.DistanceSquared(caster) < 7)
+      if(oCaster is NwCreature casterCreature && creature.KnowsFeat((Feat)CustomSkill.TueurDeMage)
+        && creature.DistanceSquared(casterCreature) < 7)
         return true;
 
       foreach (var eff in creature.ActiveEffects)

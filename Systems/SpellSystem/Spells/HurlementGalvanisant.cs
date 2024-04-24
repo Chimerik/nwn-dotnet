@@ -1,25 +1,24 @@
 ﻿using Anvil.API;
-using Anvil.API.Events;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void HurlementGalvanisant(SpellEvents.OnSpellCast onSpellCast, SpellEntry spellEntry)
+    public static void HurlementGalvanisant(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry)
     {
-      if (onSpellCast.Caster is not NwCreature oCaster)
+      if (oCaster is not NwCreature caster)
         return;
 
-      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell.SpellType);
+      SpellUtils.SignalEventSpellCast(caster, caster, spell.SpellType);
 
-      if(oCaster.Gender == Gender.Male)
-        oCaster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfHowlWarCry));
+      if(caster.Gender == Gender.Male)
+        caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfHowlWarCry));
       else
-        oCaster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfHowlWarCryFemale));
+        caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfHowlWarCryFemale));
 
-      foreach (NwCreature target in onSpellCast.TargetLocation.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 9, false, oCaster.Location.Position))
+      foreach (NwCreature target in caster.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 9, false, caster.Location.Position))
       {
-        if (target.IsReactionTypeHostile(oCaster))
+        if (target.IsReactionTypeHostile(caster))
           continue;
 
         target.ApplyEffect(EffectDuration.Temporary, EffectSystem.hurlementGalvanisant, NwTimeSpan.FromRounds(spellEntry.duration));

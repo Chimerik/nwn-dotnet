@@ -1,15 +1,14 @@
 ﻿using Anvil.API;
-using Anvil.API.Events;
 using NWN.Core;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void OnSpellCastAbjurationWard(NwCreature caster, SpellEvents.OnSpellCast spellCast)
+    public static void OnSpellCastAbjurationWard(NwCreature caster, NwSpell spell, int spellLevel)
     {
-      if (spellCast.Spell.SpellSchool != SpellSchool.Abjuration || !caster.KnowsFeat((Feat)CustomSkill.AbjurationWard)
-        || spellCast.SpellLevel < 1)
+      if (spell.SpellSchool != SpellSchool.Abjuration || !caster.KnowsFeat((Feat)CustomSkill.AbjurationWard)
+        || spellLevel < 1)
         return;
 
       int maxIntensity = 2 * caster.GetClassInfo(ClassType.Wizard).Level;
@@ -22,7 +21,7 @@ namespace NWN.Systems
       {
         if(eff.Tag == EffectSystem.AbjurationWardEffectTag && eff.Creator == caster)
         {
-          intensity = spellCast.SpellLevel + eff.CasterLevel > maxIntensity ? maxIntensity : spellCast.SpellLevel + eff.CasterLevel;
+          intensity = spellLevel + eff.CasterLevel > maxIntensity ? maxIntensity : spellLevel + eff.CasterLevel;
           caster.RemoveEffect(eff);
         }
       }

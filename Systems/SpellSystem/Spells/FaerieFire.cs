@@ -1,24 +1,20 @@
 ﻿using System.Collections.Generic;
 using Anvil.API;
-using Anvil.API.Events;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void FaerieFire(SpellEvents.OnSpellCast onSpellCast, SpellEntry spellEntry)
+    public static void FaerieFire(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, Location targetLocation, NwClass castingClass)
     {
-      if (onSpellCast.Caster is not NwCreature oCaster)
-        return;
-
-      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell.SpellType);
+      SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
       SpellConfig.SavingThrowFeedback feedback = new();
       List<NwGameObject> targetList = new();
-      int spellDC = SpellUtils.GetCasterSpellDC(oCaster, onSpellCast.SpellCastClass.SpellCastingAbility);
-      
-      onSpellCast.TargetLocation.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpDustExplosion));
+      int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, castingClass.SpellCastingAbility);
 
-      foreach (NwCreature target in onSpellCast.TargetLocation.GetObjectsInShapeByType<NwCreature>(Shape.Cube, spellEntry.aoESize, false))
+      targetLocation.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpDustExplosion));
+
+      foreach (NwCreature target in targetLocation.GetObjectsInShapeByType<NwCreature>(Shape.Cube, spellEntry.aoESize, false))
       {
         int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid, oCaster);
 
@@ -37,7 +33,8 @@ namespace NWN.Systems
         }
       }
 
-      EffectSystem.ApplyConcentrationEffect(oCaster, onSpellCast.Spell.Id, targetList, spellEntry.duration);
+      if(oCaster is NwCreature caster)
+        EffectSystem.ApplyConcentrationEffect(caster, spell.Id, targetList, spellEntry.duration);
     }
     public static void ApplyFaerieFireEffect(NwCreature target, SpellEntry spellEntry)
     {

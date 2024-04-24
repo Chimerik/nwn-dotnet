@@ -7,9 +7,9 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void TirPerforant(SpellEvents.OnSpellCast onSpellCast, SpellEntry spellEntry)
+    public static void TirPerforant(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, Location targetLocation)
     {
-      if (onSpellCast.Caster is not NwCreature caster)
+      if (oCaster is not NwCreature caster)
         return;
 
       NwBaseItem weapon = caster.GetItemInSlot(InventorySlot.RightHand)?.BaseItem;
@@ -20,13 +20,13 @@ namespace NWN.Systems
         return;
       }
 
-      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, caster, onSpellCast.Spell.SpellType);
+      SpellUtils.SignalEventSpellCast(oTarget, caster, spell.SpellType);
       SpellConfig.SavingThrowFeedback feedback = new();
       int spellDC = 8 + NativeUtils.GetCreatureProficiencyBonus(caster) + caster.GetAbilityModifier(Ability.Intelligence);
       int nbDice = caster.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level < 18) ? 1 : 2;
       int dexDamage = caster.GetAbilityModifier(Ability.Dexterity);
 
-      foreach (NwCreature target in onSpellCast.TargetLocation.GetObjectsInShapeByType<NwCreature>(Shape.SpellCylinder, 9, false, caster.Location.Position))
+      foreach (NwCreature target in targetLocation.GetObjectsInShapeByType<NwCreature>(Shape.SpellCylinder, 9, false, caster.Location.Position))
       {
         if(target == caster)
           continue;

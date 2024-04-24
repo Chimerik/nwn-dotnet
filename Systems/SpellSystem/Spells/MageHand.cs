@@ -1,17 +1,24 @@
 ﻿using Anvil.API;
-using Anvil.API.Events;
+using NWN.Core;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void MageHand(SpellEvents.OnSpellCast onSpellCast)
+    public static void MageHand(NwGameObject oCaster, NwSpell spell, NwGameObject target)
     {
-      if (onSpellCast.Caster is not NwCreature caster)
+      if (oCaster is not NwCreature caster)
         return;
 
-      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, caster, onSpellCast.Spell.SpellType);
-      onSpellCast.TargetLocation.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
+      SpellUtils.SignalEventSpellCast(target, caster, spell.SpellType);
+      
+      if (target is not null && caster.KnowsFeat((Feat)CustomSkill.ArcaneTricksterPolyvalent))
+      {
+        NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, EffectSystem.ArcaneTricksterPolyvalent, NwTimeSpan.FromRounds(1)));
+        target.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
+      }
+      else
+        caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
     }
   }
 }

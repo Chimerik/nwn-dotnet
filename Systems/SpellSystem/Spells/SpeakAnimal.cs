@@ -1,17 +1,13 @@
 ﻿using Anvil.API;
-using Anvil.API.Events;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void SpeakAnimal(SpellEvents.OnSpellCast onSpellCast, SpellEntry spellEntry)
+    public static void SpeakAnimal(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget)
     {
-      if (onSpellCast.Caster is not NwCreature caster)
-        return;
-
-      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, caster, onSpellCast.Spell.SpellType);
-      caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.speakAnimalEffect, NwTimeSpan.FromRounds(spellEntry.duration));
+      SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
+      oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.speakAnimalEffect, NwTimeSpan.FromRounds(spellEntry.duration));
     }
   }
 }

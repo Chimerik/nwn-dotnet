@@ -662,17 +662,20 @@ namespace NWN.Systems
           List<NuiComboEntry> skillList1 = new();
           List<NuiComboEntry> skillList2 = new();
 
+          ModuleSystem.Log.Info($"selected : {selectedLearnable.name} - {selectedLearnable.id}");
+
           var startingPackageList = selectedLearnable.id switch
           {
             CustomSkill.Barbarian => Barbarian.startingPackage.skillChoiceList,
             CustomSkill.Rogue => Rogue.startingPackage.skillChoiceList,
             CustomSkill.Monk => Monk.startingPackage.skillChoiceList,
-            CustomSkill.Wizard => Monk.startingPackage.skillChoiceList,
+            CustomSkill.Wizard => Wizard.startingPackage.skillChoiceList,
             _ => Fighter.startingPackage.skillChoiceList,
           };
 
           foreach (var learnable in startingPackageList)
           {
+            ModuleSystem.Log.Info($"package : {learnable.name}");
             if (!player.learnableSkills.TryGetValue(learnable.id, out var value) || value.source.Any(so => so == Category.Class))
             {
               skillList1.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));

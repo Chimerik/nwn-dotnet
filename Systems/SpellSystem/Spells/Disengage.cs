@@ -1,17 +1,13 @@
 ﻿using Anvil.API;
-using Anvil.API.Events;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void Disengage(SpellEvents.OnSpellCast onSpellCast)
+    public static void Disengage(NwGameObject oCaster, NwSpell spell)
     {
-      if (onSpellCast.Caster is not NwCreature caster)
-        return;
-
-      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, caster, onSpellCast.Spell.SpellType);
-      caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.disengageEffect, NwTimeSpan.FromRounds(1));
+      SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
+      oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.disengageEffect, NwTimeSpan.FromRounds(1));
     }
   }
 }

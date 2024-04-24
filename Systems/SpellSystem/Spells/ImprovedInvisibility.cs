@@ -5,14 +5,11 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    private void ImprovedInvisibility(SpellEvents.OnSpellCast onSpellCast)
+    public static void ImprovedInvisibility(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget)
     {
-      if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oCaster))
-        return;
-
       int nCasterLevel = oCaster.CasterLevel;
 
-      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell.SpellType, false);
+      SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType, false);
 
       int nDuration = nCasterLevel;
       Effect eImpact = Effect.VisualEffect(VfxType.ImpHeadMind);
@@ -25,12 +22,12 @@ namespace NWN.Systems
 
       //eInvis = Effect.LinkEffects(eInvis, Effect.AreaOfEffect((PersistentVfxType)193, null, scriptHandleFactory.CreateUniqueHandler(HandleInvisibiltyHeartBeat)));  // 193 = AoE 20 m
 
-      if (onSpellCast.MetaMagicFeat == MetaMagic.Extend)
+      /*if (onSpellCast.MetaMagicFeat == MetaMagic.Extend)
         nDuration = nDuration * 2; //Duration is +100%
-
-      onSpellCast.TargetObject.ApplyEffect(EffectDuration.Temporary, eLink, NwTimeSpan.FromRounds(nDuration));
-      onSpellCast.TargetObject.ApplyEffect(EffectDuration.Temporary, eInvis, NwTimeSpan.FromRounds(nDuration));
-      onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, eImpact);
+      */
+      oTarget.ApplyEffect(EffectDuration.Temporary, eLink, NwTimeSpan.FromRounds(nDuration));
+      oTarget.ApplyEffect(EffectDuration.Temporary, eInvis, NwTimeSpan.FromRounds(nDuration));
+      oTarget.ApplyEffect(EffectDuration.Instant, eImpact);
     }
   }
 }

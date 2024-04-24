@@ -28,6 +28,9 @@ namespace NWN.Systems
 
         if (GetAssassinateAdvantage(eff))
           return true;
+
+        if (GetPolyvalentTricksterAdvantage(eff, attacker))
+          return true;
       }
 
       return false;

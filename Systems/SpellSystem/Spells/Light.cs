@@ -1,34 +1,30 @@
 ﻿using Anvil.API;
-using Anvil.API.Events;
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void Light(SpellEvents.OnSpellCast onSpellCast, SpellEntry spellEntry)
+    public static void Light(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass casterClass)
     {
-      if (onSpellCast.Caster is not NwCreature oCaster)
-        return;
+      SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType, false);
 
-      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell.SpellType, false);
-
-      if (onSpellCast.TargetObject is NwItem item)
+      if (oTarget is NwItem item)
       {
         // Do not allow casting on not equippable items
 
-        if (item.BaseItem.EquipmentSlots == EquipmentSlots.None)
-          oCaster.ControllingPlayer.FloatingTextStrRef(83326);
+        if (item.BaseItem.EquipmentSlots == EquipmentSlots.None && oCaster is NwCreature casterCreature)
+          casterCreature?.ControllingPlayer.FloatingTextStrRef(83326);
         else
         {
           ItemUtils.RemoveMatchingItemProperties(item, ItemPropertyType.Light, EffectDuration.Temporary);
           item.AddItemProperty(ItemProperty.Light(IPLightBrightness.Normal, IPLightColor.White), EffectDuration.Temporary, NwTimeSpan.FromHours(1));
         }
       }
-      else if (onSpellCast.TargetObject is NwCreature targetCreature)
+      else if (oTarget is NwCreature targetCreature)
       {
-        if (targetCreature.IsReactionTypeHostile(oCaster))
+        if (oCaster is NwCreature caster && targetCreature.IsReactionTypeHostile(caster))
         {
           SpellConfig.SavingThrowFeedback feedback = new();
-          int spellDC = SpellUtils.GetCasterSpellDC(oCaster, onSpellCast.SpellCastClass.SpellCastingAbility);
+          int spellDC = SpellUtils.GetCasterSpellDC(caster, spell, casterClass.SpellCastingAbility);
           int advantage = CreatureUtils.GetCreatureAbilityAdvantage(targetCreature, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid, oCaster);
           
           if (advantage < -900)
@@ -47,7 +43,7 @@ namespace NWN.Systems
       }
 
       NwGameObject previousTarget = oCaster.GetObjectVariable<LocalVariableObject<NwGameObject>>("_PREVIOUS_LIGHT_TARGET").Value;
-      oCaster.GetObjectVariable<LocalVariableObject<NwGameObject>>("_PREVIOUS_LIGHT_TARGET").Value = onSpellCast.TargetObject;
+      oCaster.GetObjectVariable<LocalVariableObject<NwGameObject>>("_PREVIOUS_LIGHT_TARGET").Value = oTarget;
 
       if(previousTarget is not null && previousTarget.IsValid)
       {

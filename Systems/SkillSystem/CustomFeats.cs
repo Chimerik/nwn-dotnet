@@ -248,6 +248,11 @@
     public const int VigueurNaine = 1529;
 
     public const int ThiefReflex = 1530;
+    public const int ArcaneTricksterMagicalAmbush = 1531;
+    public const int ArcaneTricksterPolyvalent = 1532;
+
+    public const int EldritchKnightChargeArcanique = 1533;
+    public const int EldritchKnightArmeLiee = 1534;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -757,6 +762,11 @@
     public const int WizardInvocation = 20556;
     public const int WizardNecromancie = 20557;
     public const int WizardTransmutation = 20558;
+
+    public const int RogueArcaneTrickster = 20559;
+
+    public const int EldritchKnightMagieDeGuerre = 20560;
+    public const int EldritchKnightFrappeOcculte = 20561;
 
     public const int Invalid = 65535;
   }

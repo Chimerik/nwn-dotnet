@@ -4,9 +4,12 @@ namespace NWN.Systems
 {
   public static partial class SpellUtils
   {
-    public static int GetCriticalSpellDamageDiceNumber(NwCreature caster, SpellEntry spell, int numDice)
+    public static int GetCriticalSpellDamageDiceNumber(NwGameObject oCaster, SpellEntry spell, int numDice)
     {
       numDice *= 2;
+
+      if (oCaster is not NwCreature caster)
+        return numDice;
 
       if (caster.KnowsFeat((Feat)CustomSkill.Broyeur) && spell.damageType == DamageType.Bludgeoning)
         numDice += 1;

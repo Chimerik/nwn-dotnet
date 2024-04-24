@@ -49,11 +49,14 @@ namespace NWN.Systems
         case CustomSkill.RogueThief: HandleThiefLevelUp(player, playerClass.currentLevel); break;
         case CustomSkill.RogueConspirateur: HandleConspirateurLevelUp(player, playerClass.currentLevel); break;
         case CustomSkill.RogueAssassin: HandleAssassinLevelUp(player, playerClass.currentLevel); break;
+        case CustomSkill.RogueArcaneTrickster: HandleArcaneTricksterLevelUp(player, playerClass.currentLevel); break;
       }
 
       if (playerClass.currentLevel > 2 || playerClass.currentLevel > 1)
-        player.oid.LoginCreature.ForceLevelUp(CustomClass.Rogue, player.RollClassHitDie(player.oid.LoginCreature.Level, CustomClass.Rogue, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));
-
+      {
+        byte customClass = customSkillId == CustomSkill.RogueArcaneTrickster ? CustomClass.RogueArcaneTrickster : CustomClass.Rogue;
+        player.oid.LoginCreature.ForceLevelUp(customClass, player.RollClassHitDie(player.oid.LoginCreature.Level, customClass, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));
+      }
       player.GiveRacialBonusOnLevelUp();
 
       return true;

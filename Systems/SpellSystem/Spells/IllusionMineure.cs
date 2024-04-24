@@ -1,16 +1,12 @@
 ﻿using Anvil.API;
-using Anvil.API.Events;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void IllusionMineure(SpellEvents.OnSpellCast onSpellCast)
+    public static void IllusionMineure(NwGameObject oCaster, NwSpell spell)
     {
-      if (onSpellCast.Caster is not NwCreature caster)
-        return;
-
-      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, caster, onSpellCast.Spell.SpellType);
+      SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
     }
   }
 }

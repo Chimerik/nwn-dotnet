@@ -23,7 +23,12 @@ namespace NWN.Systems
           new StrRef(8).SetPlayerOverride(oid, "Maître de Guerre");
           oid.SetTextureOverride("fighter", "warmaster");
         }
-        
+        else if (learnableSkills.ContainsKey(CustomSkill.FighterEldritchKnight))
+        {
+          new StrRef(8).SetPlayerOverride(oid, "Guerrier Occulte");
+          oid.SetTextureOverride("fighter", "arcane_knight");
+        }
+
         if (learnableSkills.ContainsKey(CustomSkill.BarbarianBerseker))
         {
           new StrRef(5213).SetPlayerOverride(oid, "Berseker");
@@ -50,7 +55,12 @@ namespace NWN.Systems
           new StrRef(16).SetPlayerOverride(oid, "Assassin");
           oid.SetTextureOverride("rogue", "assassin");
         }
-        if (learnableSkills.ContainsKey(CustomSkill.RogueConspirateur))
+        else if (learnableSkills.ContainsKey(CustomSkill.RogueArcaneTrickster))
+        {
+          new StrRef(16).SetPlayerOverride(oid, "Escroc Arcanique");
+          oid.SetTextureOverride("rogue", "arcane_trickster");
+        }
+        else if (learnableSkills.ContainsKey(CustomSkill.RogueConspirateur))
         {
           new StrRef(16).SetPlayerOverride(oid, "Conspirateur");
           oid.SetTextureOverride("rogue", "conspirateur");

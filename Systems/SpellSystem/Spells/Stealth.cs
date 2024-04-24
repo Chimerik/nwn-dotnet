@@ -1,14 +1,13 @@
 ﻿using System;
 using Anvil.API;
-using Anvil.API.Events;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static async void Stealth(SpellEvents.OnSpellCast onSpellCast)
+    public static async void Stealth(NwGameObject oCaster)
     {
-      if (onSpellCast.Caster is not NwCreature caster)
+      if (oCaster is not NwCreature caster)
         return;
 
       await NwTask.Delay(TimeSpan.FromSeconds(0.4));
