@@ -548,6 +548,7 @@ namespace NWN.Systems
                     MonkUtils.RestoreKi(player.oid.LoginCreature);
                     WizardUtils.RestaurationArcanique(player.oid.LoginCreature);
                     WizardUtils.AbjurationSuperieure(player.oid.LoginCreature);
+                    FighterUtils.RestoreEldritchKnight(player.oid.LoginCreature);
 
                     foreach (var skill in player.learnableSkills.Values.Where(l => l.restoreOnShortRest && l.currentLevel > 0))
                     {
@@ -589,6 +590,7 @@ namespace NWN.Systems
                     WizardUtils.RestaurationArcanique(player.oid.LoginCreature);
                     WizardUtils.ResetAbjurationWard(player.oid.LoginCreature);
                     WizardUtils.ResetPresage(player.oid);
+                    FighterUtils.RestoreEldritchKnight(player.oid.LoginCreature);
 
                     if (player.oid.LoginCreature.Race.Id == CustomRace.HalfOrc)
                     {

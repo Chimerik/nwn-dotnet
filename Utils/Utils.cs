@@ -147,6 +147,10 @@ namespace NWN
     {
       return set.Contains(me);
     }
+    public static bool In(this AnimationState me, params AnimationState[] set)
+    {
+      return set.Contains(me);
+    }
     public static string FormatTimeSpan(TimeSpan timespan)
     {
       string formattedTimespan = "";

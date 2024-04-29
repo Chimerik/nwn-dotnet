@@ -641,6 +641,12 @@ namespace NWN.Systems
 
           GetItemProperties(ipNameList, ipColorList);
 
+          if (item.GetObjectVariable<LocalVariableInt>("_ARME_LIEE").HasValue)
+          {
+            ipNameList.Add("Arme Liée");
+            ipColorList.Add(ColorConstants.Blue);
+          }
+
           foreach (ItemProperty ip in item.ItemProperties)
           {
             string ipName = $"{ip.Property.Name?.ToString()}";

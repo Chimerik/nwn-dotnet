@@ -8,10 +8,13 @@ namespace NWN.Systems
   {
     public static void OnSpellCastMagieDeGuerre(OnSpellAction onSpellAction)
     {
+      ModuleSystem.Log.Info($"------- onSpellAction.Caster.CurrentAction : {onSpellAction.Caster.CurrentAction}-------------");
+      ModuleSystem.Log.Info($"-------{onSpellAction.Caster.AnimationState}-------------");
+      
       if((onSpellAction.Spell.GetSpellLevelForClass((ClassType)CustomClass.EldritchKnight) < 1 
         || onSpellAction.Caster.GetClassInfo(ClassType.Fighter).Level > 17)
-        && onSpellAction.Caster.CurrentAction == Action.AttackObject
-        && !CreatureUtils.HandleBonusActionUse(onSpellAction.Caster))
+        && Utils.In(onSpellAction.Caster.AnimationState, AnimationState.Attack, AnimationState.AttackDummy, AnimationState.FakeAttack, AnimationState.Dodge, AnimationState.CombatStepBack, AnimationState.CombatStepDummy, AnimationState.CombatStepDummyFbs, AnimationState.CombatStepFront, AnimationState.CombatStepLeft, AnimationState.CombatStepRight, AnimationState.CombatTurnLeft, AnimationState.CombatTurnRight, AnimationState.DamageLeft, AnimationState.Damage, AnimationState.DamageRight, AnimationState.DamageStab)
+        && CreatureUtils.HandleBonusActionUse(onSpellAction.Caster))
       {
         NwCreature caster = onSpellAction.Caster;
         SpellEntry spellEntry = Spells2da.spellTable[onSpellAction.Spell.Id];

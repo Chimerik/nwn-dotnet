@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System;
+using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -14,7 +15,14 @@ namespace NWN.Systems
     }
     private static async void UpdateSpellDescription(StrRef description, string docId)
     {
-      description.Override = await StringUtils.DownloadGoogleDoc(docId);
+      try
+      {
+        description.Override = await StringUtils.DownloadGoogleDoc(docId);
+      }
+      catch(Exception e)
+      {
+        LogUtils.LogMessage($"Echec chargement description des sorts :\n\n {e.Message}\n{e.StackTrace}", LogUtils.LogType.ModuleAdministration);
+      }
     }
   }
 }

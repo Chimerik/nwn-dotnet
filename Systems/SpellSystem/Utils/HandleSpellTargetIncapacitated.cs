@@ -13,7 +13,7 @@ namespace NWN.Systems
 
         switch(NwSpell.FromSpellId(spellEntry.RowIndex).SpellType)
         {
-          case Spell.Light: SpellSystem.ApplyLightEffect(target); return true;
+          case Spell.Light: SpellSystem.ApplyLightEffect(oCaster, target); return true;
         }
 
         switch (NwSpell.FromSpellId(spellEntry.RowIndex).Id)

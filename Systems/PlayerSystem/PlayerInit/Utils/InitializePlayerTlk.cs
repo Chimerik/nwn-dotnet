@@ -26,7 +26,7 @@ namespace NWN.Systems
         else if (learnableSkills.ContainsKey(CustomSkill.FighterEldritchKnight))
         {
           new StrRef(8).SetPlayerOverride(oid, "Guerrier Occulte");
-          oid.SetTextureOverride("fighter", "arcane_knight");
+          oid.SetTextureOverride("fighter", "eldritchknight");
         }
 
         if (learnableSkills.ContainsKey(CustomSkill.BarbarianBerseker))

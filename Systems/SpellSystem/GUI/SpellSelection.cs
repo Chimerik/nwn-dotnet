@@ -156,17 +156,12 @@ namespace NWN.Systems
                     byte maxSlotKnown = SpellUtils.GetMaxSpellSlotLevelKnown(player.oid.LoginCreature, spellClass);
 
                     if (acquiredSpells.Count(s => s.GetSpellLevelForClass(spellClass) > 0 && s.GetSpellLevelForClass(spellClass) <= maxSlotKnown) < nbSpells)
-                    {
                       availableSpells.Add(clickedSpell);
-                      ModuleSystem.Log.Info($"adding clicked spell");
-                    }
                     else
                     {
                       availableSpells.AddRange(NwRuleset.Spells.Where(s => s.GetSpellLevelForClass(spellClass) > 0 && s.GetSpellLevelForClass(spellClass) <= maxSlotKnown
                       && !acquiredSpells.Contains(s)
                       && (!player.learnableSpells.TryGetValue(s.Id, out var learnable) || learnable.currentLevel < 1)));
-
-                      ModuleSystem.Log.Info($"adding all spell");
                     }
                   }
 
@@ -266,28 +261,32 @@ namespace NWN.Systems
           if(nbCantrips > 0 && acquiredSpells.Count(s => s.GetSpellLevelForClass(spellClass) == 0) == nbCantrips)
             availableSpells.RemoveAll(s => s.GetSpellLevelForClass(spellClass) == 0);
 
-          if (nbSpells > 0 && acquiredSpells.Count(s => s.GetSpellLevelForClass(spellClass) != 0) == nbSpells)
-            availableSpells.RemoveAll(s => s.GetSpellLevelForClass(spellClass) != 0);
-
           if (nbRestrictedSpells > 0)
           {
-            switch(spellClass)
+            if (acquiredSpells.Count(s => s.GetSpellLevelForClass(spellClass) != 0) == nbSpells + nbRestrictedSpells)
+              availableSpells.RemoveAll(s => s.GetSpellLevelForClass(spellClass) != 0);
+            else
             {
-              case (ClassType)CustomClass.RogueArcaneTrickster:
+              switch (spellClass)
+              {
+                case (ClassType)CustomClass.RogueArcaneTrickster:
 
-                if (acquiredSpells.Count(s => !Utils.In(s.SpellSchool, SpellSchool.Enchantment, SpellSchool.Illusion)) == nbSpells)
-                  availableSpells.RemoveAll(s => !Utils.In(s.SpellSchool, SpellSchool.Enchantment, SpellSchool.Illusion));
+                  if (acquiredSpells.Count(s => !Utils.In(s.SpellSchool, SpellSchool.Enchantment, SpellSchool.Illusion) && s.GetSpellLevelForClass(spellClass) > 0) == nbSpells)
+                    availableSpells.RemoveAll(s => !Utils.In(s.SpellSchool, SpellSchool.Enchantment, SpellSchool.Illusion) && s.GetSpellLevelForClass(spellClass) > 0);
 
-                break;
+                  break;
 
-              case (ClassType)CustomClass.EldritchKnight:
+                case (ClassType)CustomClass.EldritchKnight:
 
-                if (acquiredSpells.Count(s => !Utils.In(s.SpellSchool, SpellSchool.Evocation, SpellSchool.Abjuration)) == nbSpells)
-                  availableSpells.RemoveAll(s => !Utils.In(s.SpellSchool, SpellSchool.Evocation, SpellSchool.Abjuration));
+                  if (acquiredSpells.Count(s => !Utils.In(s.SpellSchool, SpellSchool.Evocation, SpellSchool.Abjuration) && s.GetSpellLevelForClass(spellClass) > 0) == nbSpells)
+                    availableSpells.RemoveAll(s => !Utils.In(s.SpellSchool, SpellSchool.Evocation, SpellSchool.Abjuration) && s.GetSpellLevelForClass(spellClass) > 0);
 
-                break;
+                  break;
+              }
             }
           }
+          else if (nbSpells > 0 && acquiredSpells.Count(s => s.GetSpellLevelForClass(spellClass) != 0) == nbSpells)
+            availableSpells.RemoveAll(s => s.GetSpellLevelForClass(spellClass) != 0);
 
           foreach (var spell in availableSpells)
           {
@@ -314,7 +313,7 @@ namespace NWN.Systems
           acquiredSpellNames.SetBindValues(player.oid, nuiToken.Token, acquiredNamesList);
           listAcquiredSpellCount.SetBindValue(player.oid, nuiToken.Token, acquiredSpells.Count);
           
-          if (acquiredSpells.Count == nbCantrips + nbSpells)
+          if (acquiredSpells.Count == nbCantrips + nbSpells + nbRestrictedSpells)
             enabled.SetBindValue(player.oid, nuiToken.Token, true);
           else
             enabled.SetBindValue(player.oid, nuiToken.Token, false);

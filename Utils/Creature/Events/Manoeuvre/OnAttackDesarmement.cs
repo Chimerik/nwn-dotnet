@@ -32,12 +32,19 @@ namespace NWN.Systems
             NwItem weapon = target.GetItemInSlot(InventorySlot.RightHand);
 
             if (weapon is not null)
-              target.RunUnequip(weapon);
+            {
+              if (weapon.GetObjectVariable<LocalVariableInt>("_ARME_LIEE").HasNothing || EffectUtils.IsIncapacitated(onAttack.Attacker))
+              {
+                target.RunUnequip(weapon);
 
-            target.OnItemEquip -= ItemSystem.OnEquipDesarmement;
-            target.OnItemEquip += ItemSystem.OnEquipDesarmement;
+                target.OnItemEquip -= ItemSystem.OnEquipDesarmement;
+                target.OnItemEquip += ItemSystem.OnEquipDesarmement;
 
-            target.ApplyEffect(EffectDuration.Temporary, EffectSystem.warMasterDesarmement, NwTimeSpan.FromRounds(1));
+                target.ApplyEffect(EffectDuration.Temporary, EffectSystem.warMasterDesarmement, NwTimeSpan.FromRounds(1));
+              }
+              else
+                onAttack.Attacker?.LoginPlayer.SendServerMessage($"L'arme de {target.Name.ColorString(ColorConstants.Cyan)} est liée et ne peut être désarmée");
+            }
           }
 
           await NwTask.NextFrame();

@@ -266,11 +266,19 @@ namespace NWN.Systems
           if (selection.IsCancelled || selection.TargetObject is not NwItem item || item == null || !item.IsValid || item.RootPossessor != player.oid.LoginCreature)
             return;
 
+          if(item.GetObjectVariable<LocalVariableInt>("_ARME_LIEE").HasValue)
+          {
+            player.oid.SendServerMessage("Impossible de déposer une arme liée", ColorConstants.Red);
+            player.oid.EnterTargetMode(SelectInventoryItem, Config.selectItemTargetMode);
+            return;
+          }
+
           LogUtils.LogMessage($"{player.oid.LoginCreature.Name} ({player.oid.PlayerName}) dépose {item.Name}", LogUtils.LogType.PersonalStorageSystem);
           items.Add(NwItem.Deserialize(item.Serialize()));
           item.Destroy();
           UpdateItemList();
           BankSave();
+
           player.oid.EnterTargetMode(SelectInventoryItem, Config.selectItemTargetMode);
         }
         public void BankSave()

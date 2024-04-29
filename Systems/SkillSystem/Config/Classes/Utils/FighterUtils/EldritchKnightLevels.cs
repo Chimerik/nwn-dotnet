@@ -15,7 +15,7 @@ namespace NWN.Systems
         case 3:
 
           new StrRef(8).SetPlayerOverride(player.oid, "Guerrier Occulte");
-          player.oid.SetTextureOverride("fighter", "arcane_knight");
+          player.oid.SetTextureOverride("fighter", "eldritchknight");
 
           int classPosition;
           for (classPosition = 0; classPosition < player.oid.LoginCreature.Classes.Count; classPosition++)
@@ -23,6 +23,10 @@ namespace NWN.Systems
               break;
 
           CreaturePlugin.SetClassByPosition(player.oid.LoginCreature, classPosition, CustomClass.EldritchKnight);
+
+          player.learnableSkills.TryAdd(CustomSkill.EldritchKnightArmeLiee, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.EldritchKnightArmeLiee], player));
+          player.learnableSkills[CustomSkill.EldritchKnightArmeLiee].LevelUp(player);
+          player.learnableSkills[CustomSkill.EldritchKnightArmeLiee].source.Add(Category.Class);
 
           if (!player.windows.TryGetValue("spellSelection", out var cantrip1)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.EldritchKnight, 2, 1, 2));
           else ((SpellSelectionWindow)cantrip1).CreateWindow((ClassType)CustomClass.EldritchKnight, 2, 1, 2);

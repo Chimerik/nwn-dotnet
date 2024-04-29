@@ -1,4 +1,5 @@
 ﻿using Anvil.API;
+using NWN.Core;
 namespace NWN.Systems
 {
   public partial class SpellSystem
@@ -35,11 +36,11 @@ namespace NWN.Systems
             SpellUtils.SendSavingThrowFeedbackMessage(oCaster, targetCreature, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);
 
             if (saveFailed)
-              ApplyLightEffect(targetCreature);
+              ApplyLightEffect(caster, targetCreature);
           }
         }
         else
-          ApplyLightEffect(targetCreature);
+          ApplyLightEffect(oCaster, targetCreature);
       }
 
       NwGameObject previousTarget = oCaster.GetObjectVariable<LocalVariableObject<NwGameObject>>("_PREVIOUS_LIGHT_TARGET").Value;
@@ -61,10 +62,10 @@ namespace NWN.Systems
         }
       }
     }
-    public static void ApplyLightEffect(NwCreature target)
+    public static void ApplyLightEffect(NwGameObject caster, NwCreature target)
     {
       Effect eLink = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurLightWhite20), Effect.VisualEffect(VfxType.DurCessatePositive));
-      target.ApplyEffect(EffectDuration.Temporary, eLink, NwTimeSpan.FromHours(1));
+      NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, eLink, NwTimeSpan.FromHours(1)));
     }
   }
 }

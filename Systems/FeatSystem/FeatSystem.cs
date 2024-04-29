@@ -72,11 +72,18 @@ namespace NWN.Systems
         case CustomSkill.WarMasterRiposte: Riposte(onUseFeat.Creature); return;
         case CustomSkill.WarMasterObservation: Observation(onUseFeat.Creature, onUseFeat.TargetObject); return;
 
+        case CustomSkill.EldritchKnightArmeLiee:
+        case CustomSkill.EldritchKnightArmeLiee2: ArmeLiee(onUseFeat.Creature, onUseFeat.Feat); return;
+        case CustomSkill.EldritchKnightArmeLieeInvocation:
+        case CustomSkill.EldritchKnightArmeLieeInvocation2: ArmeLieeInovcation(onUseFeat.Creature, onUseFeat.Feat); return;
+
         case CustomSkill.BarbarianRecklessAttack: RecklessAttack(onUseFeat.Creature); return;
         case CustomSkill.BersekerFrenziedStrike: FrappeFrenetique(onUseFeat.Creature); return;
+
         case CustomSkill.TotemFerociteIndomptable: FerociteIndomptable(onUseFeat.Creature); return;
         case CustomSkill.TotemAspectTigre: AspectTigre(onUseFeat.Creature); return;
         case CustomSkill.TotemLienElan: LienElan(onUseFeat.Creature); return;
+
         case CustomSkill.WildMagicSense: SensDeLaMagie(onUseFeat.Creature); return;
         case CustomSkill.WildMagicTeleportation: Teleportation(onUseFeat.Creature); return;
         case CustomSkill.WildMagicMagieGalvanisanteBienfait: Bienfait(onUseFeat.Creature, onUseFeat.TargetObject); return;

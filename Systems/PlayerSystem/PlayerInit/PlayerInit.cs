@@ -460,6 +460,7 @@ namespace NWN.Systems
         ApplyAbjurationWard();
         ApplyMagieDeGuerre();
         ApplyFrappeOcculte();
+        ApplyArmeLiee();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

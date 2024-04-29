@@ -253,6 +253,9 @@
 
     public const int EldritchKnightChargeArcanique = 1533;
     public const int EldritchKnightArmeLiee = 1534;
+    public const int EldritchKnightArmeLiee2 = 1535;
+    public const int EldritchKnightArmeLieeInvocation = 1536;
+    public const int EldritchKnightArmeLieeInvocation2 = 1537;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;

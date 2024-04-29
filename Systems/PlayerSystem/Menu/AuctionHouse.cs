@@ -1058,6 +1058,13 @@ namespace NWN.Systems
           if (selection.IsCancelled || selection.TargetObject is not NwItem item || item == null || !item.IsValid || item.RootPossessor != player.oid.LoginCreature)
             return;
 
+          if (item.GetObjectVariable<LocalVariableInt>("_ARME_LIEE").HasValue)
+          {
+            player.oid.SendServerMessage("Impossible de proposer une arme liée", ColorConstants.Red);
+            player.oid.EnterTargetMode(SelectProposalInventoryItem, Config.selectItemTargetMode);
+            return;
+          }
+
           newProposalItems.Add(NwItem.Deserialize(item.Serialize()));
           item.Destroy();
 
@@ -1068,6 +1075,13 @@ namespace NWN.Systems
         {
           if (selection.IsCancelled || selection.TargetObject is not NwItem item || item == null || !item.IsValid || item.RootPossessor != player.oid.LoginCreature)
             return;
+
+          if (item.GetObjectVariable<LocalVariableInt>("_ARME_LIEE").HasValue)
+          {
+            player.oid.SendServerMessage("Impossible de proposer une arme liée", ColorConstants.Red);
+            player.oid.EnterTargetMode(SelectProposalInventoryItem, Config.selectItemTargetMode);
+            return;
+          }
 
           auctionItemSelected = item;
           isAuctionItemSelected.SetBindValue(player.oid, nuiToken.Token, true);
