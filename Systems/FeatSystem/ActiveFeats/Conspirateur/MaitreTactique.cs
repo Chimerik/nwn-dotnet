@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using Anvil.API;
+﻿using Anvil.API;
 using Anvil.API.Events;
 
 namespace NWN.Systems
@@ -25,7 +23,7 @@ namespace NWN.Systems
       }
 
       target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadMind));
-      target.ApplyEffect(EffectDuration.Temporary, EffectSystem.maitreTactique, NwTimeSpan.FromRounds(1));
+      target.ApplyEffect(EffectDuration.Temporary, EffectSystem.MaitreTactique, NwTimeSpan.FromRounds(1));
 
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} utilise Maître Tactique sur {target.Name.ColorString(ColorConstants.Cyan)}", StringUtils.gold, true, true);
     }

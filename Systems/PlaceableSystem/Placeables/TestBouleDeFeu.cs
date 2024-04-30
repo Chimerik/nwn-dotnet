@@ -40,6 +40,8 @@ namespace NWN.Systems
         for (int i = 0; i < spellEntry.numDice; i++)
           damage += NwRandom.Roll(Utils.random, spellEntry.damageDice);
 
+        LogUtils.LogMessage($"Dégâts initiaux : {damage}", LogUtils.LogType.Combat);
+
         if (target is NwCreature targetCreature)
         {
           damage = SpellUtils.HandleSpellEvasion(targetCreature, damage, spellEntry.savingThrowAbility, saveFailed);

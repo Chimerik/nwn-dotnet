@@ -7,11 +7,9 @@ namespace NWN.Systems
   {
     private static void RecklessAttack(NwCreature caster)
     {
-      if (!caster.ActiveEffects.Any(e => e.Tag == EffectSystem.RecklessAttackEffectTag))
-      {
-        caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.RecklessAttackEffect, NwTimeSpan.FromRounds(1));
-        StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} utilise {"Frappe Téméraire".ColorString(ColorConstants.White)}", ColorConstants.Orange, true);
-      }
+      caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.RecklessAttackEffect, NwTimeSpan.FromRounds(1));
+      caster.SetFeatRemainingUses((Feat)CustomSkill.BarbarianRecklessAttack, 0);
+      StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} utilise {StringUtils.ToWhitecolor("Frappe Téméraire")}", ColorConstants.Orange, true);
     }
   }
 }

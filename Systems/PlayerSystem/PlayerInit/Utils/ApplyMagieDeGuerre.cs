@@ -10,6 +10,9 @@
         {
           oid.LoginCreature.OnSpellAction -= FighterUtils.OnSpellCastMagieDeGuerre;
           oid.LoginCreature.OnSpellAction += FighterUtils.OnSpellCastMagieDeGuerre;
+
+          oid.LoginCreature.OnCreatureAttack -= FighterUtils.OnAttackMagieDeGuerre;
+          oid.LoginCreature.OnCreatureAttack += FighterUtils.OnAttackMagieDeGuerre;
         }
       }
     }

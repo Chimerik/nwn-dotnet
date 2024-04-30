@@ -81,6 +81,9 @@ namespace NWN.Systems
               {
                 case "validate":
 
+                  if (player.learnableSkills[CustomSkill.Elementaliste].featOptions is null)
+                    player.learnableSkills[CustomSkill.Elementaliste].featOptions = new();
+
                   player.learnableSkills[CustomSkill.Elementaliste].featOptions.Add(acquiredLevel, new int[] {selectedDamage.GetBindValue(player.oid, nuiToken.Token)} );
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_ELEMENTALIST_CHOICE_FEAT").Delete();
 

@@ -8,15 +8,16 @@ namespace NWN.Systems
   {
     public static void OnSpellCastMagieDeGuerre(OnSpellAction onSpellAction)
     {
-      ModuleSystem.Log.Info($"------- onSpellAction.Caster.CurrentAction : {onSpellAction.Caster.CurrentAction}-------------");
-      ModuleSystem.Log.Info($"-------{onSpellAction.Caster.AnimationState}-------------");
-      
+      NwCreature caster = onSpellAction.Caster;
+     
       if((onSpellAction.Spell.GetSpellLevelForClass((ClassType)CustomClass.EldritchKnight) < 1 
-        || onSpellAction.Caster.GetClassInfo(ClassType.Fighter).Level > 17)
-        && Utils.In(onSpellAction.Caster.AnimationState, AnimationState.Attack, AnimationState.AttackDummy, AnimationState.FakeAttack, AnimationState.Dodge, AnimationState.CombatStepBack, AnimationState.CombatStepDummy, AnimationState.CombatStepDummyFbs, AnimationState.CombatStepFront, AnimationState.CombatStepLeft, AnimationState.CombatStepRight, AnimationState.CombatTurnLeft, AnimationState.CombatTurnRight, AnimationState.DamageLeft, AnimationState.Damage, AnimationState.DamageRight, AnimationState.DamageStab)
-        && CreatureUtils.HandleBonusActionUse(onSpellAction.Caster))
+        || caster.GetClassInfo(ClassType.Fighter).Level > 17)
+        && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.MagieDeGuerreEffectTag)
+        && CreatureUtils.HandleBonusActionUse(caster))
       {
-        NwCreature caster = onSpellAction.Caster;
+        if(caster.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.MagieDeGuerreEffectTag).Creator is NwGameObject target)
+          _ = caster.ActionAttackTarget(target);
+
         SpellEntry spellEntry = Spells2da.spellTable[onSpellAction.Spell.Id];
 
         switch (NwSpell.FromSpellId(spellEntry.RowIndex).SpellType)

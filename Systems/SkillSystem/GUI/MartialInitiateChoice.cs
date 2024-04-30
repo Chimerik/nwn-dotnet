@@ -75,25 +75,33 @@ namespace NWN.Systems
               switch (nuiEvent.ElementId)
               {
                 case "validate":
-
+                  ModuleSystem.Log.Info("1");
                   int selection = selectedStyle.GetBindValue(player.oid, nuiToken.Token);
 
                   if (!gainedFromChampion)
                   {
+                    ModuleSystem.Log.Info("2");
                     player.learnableSkills.TryAdd(CustomSkill.MartialInitiate, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.MartialInitiate], player));
+                    ModuleSystem.Log.Info("3");
+
+                    if (player.learnableSkills[CustomSkill.MartialInitiate].featOptions is null)
+                      player.learnableSkills[CustomSkill.MartialInitiate].featOptions = new();
+
                     player.learnableSkills[CustomSkill.MartialInitiate].featOptions.Add(acquiredLevel, new int[] { selection });
                   }
-
+                  ModuleSystem.Log.Info("4");
                   player.learnableSkills.Add(selection, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[selection], player));
+                  ModuleSystem.Log.Info("5");
                   player.learnableSkills[selection].LevelUp(player);
+                  ModuleSystem.Log.Info("6");
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_MARTIAL_INITIATE_CHOICE_FEAT").Delete();
 
                   CloseWindow();
 
-                  return;
+                return;
               }
 
-              break;
+            break;
 
           }
         }

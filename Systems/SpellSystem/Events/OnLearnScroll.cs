@@ -1,6 +1,7 @@
 ﻿using Anvil.API.Events;
 using Anvil.API;
 using static NWN.Systems.PlayerSystem;
+using System.Linq;
 
 namespace NWN.Systems
 {
@@ -10,6 +11,12 @@ namespace NWN.Systems
     {
       NwCreature oPC = onScrollLearn.Creature;
       onScrollLearn.PreventLearnScroll = true;
+
+      if(!oPC.Classes.Any(c => c.Class.ClassType == ClassType.Wizard))
+      {
+        oPC.ControllingPlayer.SendServerMessage("Seuls les magiciens peuvent apprendre de nouveaux sorts à partir de parchemins", ColorConstants.Red);
+        return;
+      }
 
       if (!Players.TryGetValue(onScrollLearn.Creature, out Player player))
         return;

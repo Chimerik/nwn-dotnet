@@ -16,7 +16,7 @@ namespace NWN.Systems
 
       switch (SpellUtils.GetSpellAttackRoll(oTarget, caster, spell, casterClass.SpellCastingAbility, 0))
       {
-        case TouchAttackResult.CriticalHit: SpellUtils.GetCriticalSpellDamageDiceNumber(caster, spellEntry, nbDice); ; break;
+        case TouchAttackResult.CriticalHit: nbDice = SpellUtils.GetCriticalSpellDamageDiceNumber(caster, spellEntry, nbDice); ; break;
         case TouchAttackResult.Hit: break;
         default: return;
       }

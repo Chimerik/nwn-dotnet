@@ -97,7 +97,6 @@ namespace NWN.Systems
       //*** CALCUL DU BONUS D'ATTAQUE ***//
       // On prend le bonus d'attaque calculé automatiquement par le jeu en fonction de la cible qui peut être une créature ou un placeable
       int attackModifier = targetCreature is null ? creature.m_pStats.GetAttackModifierVersus() : NativeUtils.GetAttackBonus(creature, targetCreature, attackData, attackWeapon);
-      LogUtils.LogMessage($"attackModifier {attackModifier}", LogUtils.LogType.Combat);
 
       byte dexMod = creature.m_pStats.m_nDexterityModifier;
       byte strMod = creature.m_pStats.m_nStrengthModifier;

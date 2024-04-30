@@ -213,7 +213,7 @@ namespace NWN.Systems
           break;
       }
 
-      if (oCaster is NwCreature castingCreature)
+      if (oCaster is NwCreature castingCreature && castingClass is not null)
       {
         SpellSystem.OnSpellCastAbjurationWard(castingCreature, spell, spell.GetSpellLevelForClass(castingClass));
         SpellSystem.OnSpellCastDivinationExpert(castingCreature, spell, castingClass);

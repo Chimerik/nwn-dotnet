@@ -55,6 +55,8 @@ namespace NWN.Systems
         }
       }
 
+      LogUtils.LogMessage($"Dégâts initiaux : {damage}", LogUtils.LogType.Combat);
+
       if (target is NwCreature targetCreature)
       {
         damage = HandleSpellEvasion(targetCreature, damage, spellEntry.savingThrowAbility, saveFailed);

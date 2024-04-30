@@ -1,7 +1,4 @@
-﻿using Anvil.API;
-using NWN.Core;
-
-namespace NWN.Systems
+﻿namespace NWN.Systems
 {
   public static partial class SkillSystem
   {
@@ -9,6 +6,9 @@ namespace NWN.Systems
     {
       player.oid.LoginCreature.OnSpellAction -= FighterUtils.OnSpellCastMagieDeGuerre;
       player.oid.LoginCreature.OnSpellAction += FighterUtils.OnSpellCastMagieDeGuerre;
+
+      player.oid.LoginCreature.OnCreatureAttack -= FighterUtils.OnAttackMagieDeGuerre;
+      player.oid.LoginCreature.OnCreatureAttack += FighterUtils.OnAttackMagieDeGuerre;
 
       return true;
     }

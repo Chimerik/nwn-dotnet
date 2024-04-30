@@ -12,6 +12,8 @@ namespace NWN.Systems
     {
       int attackBonus = attacker.m_pStats.GetAttackModifierVersus(target);
 
+      LogUtils.LogMessage($"modifier versus target : {attackBonus}", LogUtils.LogType.Combat);
+
       if (attackData.m_bRangedAttack.ToBool() && attacker.m_pStats.HasFeat(CustomSkill.FighterCombatStyleArchery).ToBool())
       {
         attackBonus += 2;
@@ -48,7 +50,7 @@ namespace NWN.Systems
         }
       }
 
-      if(attacker.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.RecklessAttackEffectExoTag).ToBool()))
+      if(attacker.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.WildMagicBienfaitExoTag).ToBool()))
       {
         int boonBonus = NwRandom.Roll(Utils.random, 4);
         attackBonus += boonBonus;

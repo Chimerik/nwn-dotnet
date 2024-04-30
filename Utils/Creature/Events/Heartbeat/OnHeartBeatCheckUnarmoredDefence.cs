@@ -1,5 +1,7 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using Anvil.API.Events;
+using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
@@ -14,11 +16,16 @@ namespace NWN.Systems
         int conMod = onHB.Creature.GetAbilityModifier(Ability.Constitution);
         EffectUtils.RemoveTaggedEffect(onHB.Creature, EffectSystem.UnarmoredDefenceEffectTag);
         WaitNextFrameToApplyConEffect(onHB.Creature, conMod);
+
+        if (onHB.Creature.Classes.Any(c => c.Class.Id == CustomClass.Barbarian && c.Level > 4)
+            && !onHB.Creature.ActiveEffects.Any(e => e.Tag == EffectSystem.BarbarianSpeedEffectTag))
+          onHB.Creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.BarbarianSpeed);
       }
       else
       {
         onHB.Creature.OnHeartbeat -= OnHeartBeatCheckUnarmoredDefence;
         EffectUtils.RemoveTaggedEffect(onHB.Creature, EffectSystem.UnarmoredDefenceEffectTag);
+        EffectUtils.RemoveTaggedEffect(onHB.Creature, EffectSystem.BarbarianSpeedEffectTag);
       }
     }
     private static async void WaitNextFrameToApplyConEffect(NwCreature creature, int conMod)
