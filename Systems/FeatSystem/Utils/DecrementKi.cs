@@ -6,21 +6,17 @@ namespace NWN.Systems
   {
     public static void DecrementKi(NwCreature creature, byte nbCharge = 1)
     {
-      byte remainingKiCharge = (byte)(creature.GetFeatRemainingUses((Feat)CustomSkill.MonkPatience) - nbCharge);
-
-      //await NwTask.NextFrame();
-
-      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkPatience, remainingKiCharge);
-      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkDelugeDeCoups, remainingKiCharge);
-      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkStunStrike, remainingKiCharge);
-      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkDesertion, remainingKiCharge);
-      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkExplosionKi, remainingKiCharge);
-      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkPaumeVibratoire, remainingKiCharge);
-      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkDarkVision, remainingKiCharge);
-      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkTenebres, remainingKiCharge);
-      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkPassageSansTrace, remainingKiCharge);
-      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkSilence, remainingKiCharge);
-      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkFrappeDombre, remainingKiCharge);
+      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkPatience, nbCharge);
+      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkDelugeDeCoups, nbCharge);
+      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkStunStrike, nbCharge);
+      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkDesertion, nbCharge);
+      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkExplosionKi, nbCharge);
+      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkPaumeVibratoire, nbCharge);
+      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkDarkVision, nbCharge);
+      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkTenebres, nbCharge);
+      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkPassageSansTrace, nbCharge);
+      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkSilence, nbCharge);
+      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkFrappeDombre, nbCharge);
     }
   }
 }

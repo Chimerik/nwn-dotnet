@@ -7,8 +7,7 @@ namespace NWN.Systems
   {
     public static void DispelConcentrationEffects(NwCreature caster)
     {
-      foreach (var eff in caster.ActiveEffects.Where(e => e.Tag == EffectSystem.ConcentrationEffectTag))
-        caster.RemoveEffect(eff);
+      EffectUtils.RemoveTaggedEffect(caster, EffectSystem.ConcentrationEffectTag);
 
       caster.OnCreatureAttack -= CreatureUtils.OnAttackSearingSmite;
       caster.OnCreatureAttack -= CreatureUtils.OnAttackBrandingSmite;

@@ -10,7 +10,7 @@ namespace NWN.Systems
       if (onDamaged.DamageAmount > 0 && onDamaged.Creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value > 0)
       {
         DispelWildMagicEffects(onDamaged.Creature);
-        SpellSystem.HandleWildMagicRage(onDamaged.Creature);
+        FeatSystem.HandleWildMagicRage(onDamaged.Creature);
         onDamaged.Creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value -= 1;
       }
     }

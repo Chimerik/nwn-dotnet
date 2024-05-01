@@ -9,8 +9,6 @@ namespace NWN.Systems
       if(!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.MageDeGuerre))
         player.oid.LoginCreature.AddFeat(Feat.Ambidexterity);
 
-      player.oid.LoginCreature.OnSpellAction -= SpellSystem.CancelSomaticSpellIfOffHandBusy;
-
       return true;
     }
   }

@@ -26,7 +26,7 @@ namespace NWN.Systems
           && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.BarbarianRageEffectTag))
         {
           BarbarianUtils.DispelWildMagicEffects(caster);
-          SpellSystem.HandleWildMagicRage(caster);
+          FeatSystem.HandleWildMagicRage(caster);
           caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value -= 1;
         }
       }

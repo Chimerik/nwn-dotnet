@@ -1,27 +1,33 @@
 ﻿using System.Linq;
 using Anvil.API;
-using Anvil.API.Events;
 
 namespace NWN.Systems
 {
-  public partial class SpellSystem
+  public partial class FeatSystem
   {
-    public static void BarbarianRage(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry)
+    private static void BarbarianRage(NwCreature caster)
     {
-      if (oCaster is not NwCreature caster)
-        return;
-
       NwItem armor = caster.GetItemInSlot(InventorySlot.Chest);
 
-      if(armor.BaseACValue > 5)
+      if(caster.ActiveEffects.Any(e => e.Tag == EffectSystem.BarbarianRageEffectTag))
+      {
+        caster.LoginPlayer?.SendServerMessage("Votre rage est déjà active", ColorConstants.Red);
+        return;
+      }
+
+      if (armor is not null && armor.BaseACValue > 5)
       {
         caster.LoginPlayer?.SendServerMessage("Vous ne pouvez pas entrer en rage tant que vous portez une armure lourde", ColorConstants.Red);
         return;
       }
 
-      StringUtils.ForceBroadcastSpellCasting(caster, spell);
+      if (!CreatureUtils.HandleBonusActionUse(caster))
+        return;
 
-      switch(NwRandom.Roll(Utils.random, 3))
+      caster.DecrementRemainingFeatUses(Feat.BarbarianRage);
+      StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} entre en {"rage".ColorString(ColorConstants.Red)}", StringUtils.gold, true, true);
+
+      switch (NwRandom.Roll(Utils.random, 3))
       {
         case 1: caster.PlayVoiceChat(VoiceChatType.BattleCry1); break;
         case 2: caster.PlayVoiceChat(VoiceChatType.BattleCry2); break;
@@ -29,7 +35,7 @@ namespace NWN.Systems
       }
 
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpImproveAbilityScore));
-      caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.barbarianRageEffect, NwTimeSpan.FromRounds(spellEntry.duration));
+      caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.BarbarianRage, NwTimeSpan.FromRounds(10));
 
       if (caster.KnowsFeat((Feat)CustomSkill.TotemHurlementGalvanisant))
         caster.SetFeatRemainingUses((Feat)CustomSkill.TotemHurlementGalvanisant, 100);
@@ -80,7 +86,7 @@ namespace NWN.Systems
 
       byte barbarianLevel = caster.GetClassInfo(ClassType.Barbarian).Level;
 
-      if(barbarianLevel > 10)
+      if (barbarianLevel > 10)
       {
         caster.OnDamaged -= CreatureUtils.OnDamagedRageImplacable;
         caster.OnDamaged += CreatureUtils.OnDamagedRageImplacable;
@@ -97,8 +103,6 @@ namespace NWN.Systems
 
       caster.OnItemEquip -= ItemSystem.OnEquipBarbarianRage;
       caster.OnItemEquip += ItemSystem.OnEquipBarbarianRage;
-      caster.OnSpellAction -= CancelSpellBarbarianRage;
-      caster.OnSpellAction += CancelSpellBarbarianRage;
 
       SpellUtils.DispelConcentrationEffects(caster);
 
@@ -106,8 +110,8 @@ namespace NWN.Systems
         caster.IncrementRemainingFeatUses((Feat)CustomSkill.BersekerFrenziedStrike);
 
       if (caster.KnowsFeat((Feat)CustomSkill.BersekerRageAveugle))
-        foreach(var eff in caster.ActiveEffects)
-          switch(eff.Tag)
+        foreach (var eff in caster.ActiveEffects)
+          switch (eff.Tag)
           {
             case EffectSystem.CharmEffectTag:
             case EffectSystem.FrightenedEffectTag: caster.RemoveEffect(eff); break;
@@ -120,7 +124,7 @@ namespace NWN.Systems
         caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.wolfTotemAura, NwTimeSpan.FromRounds(10));
 
       bool freeRageRoll = BarbarianUtils.IsRatelTriggered(caster) && Utils.random.Next(0, 2).ToBool();
-        
+
       if (caster.Classes.Any(c => c.Class.ClassType == ClassType.Barbarian && c.Level < 20) || freeRageRoll)
         FeatUtils.DecrementFeatUses(caster, (int)Feat.BarbarianRage);
 
@@ -131,8 +135,6 @@ namespace NWN.Systems
         if (caster.Classes.Any(c => c.Class.ClassType == ClassType.Barbarian && c.Level > 9))
           caster.OnDamaged += BarbarianUtils.OnDamagedWildMagic;
       }
-
-      CreatureUtils.HandleBonusActionCooldown(caster);
     }
   }
 }

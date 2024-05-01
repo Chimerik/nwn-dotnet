@@ -147,7 +147,7 @@ namespace NWN
     {
       return set.Contains(me);
     }
-    public static bool In(this AnimationState me, params AnimationState[] set)
+    public static bool In(this EffectType me, params EffectType[] set)
     {
       return set.Contains(me);
     }

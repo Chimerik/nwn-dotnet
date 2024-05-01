@@ -8,8 +8,8 @@ namespace NWN.Systems
     {
       int barbarianLevel = creature.m_pStats.GetNumLevelsOfClass(CustomClass.Barbarian);
 
-      if (isRangedAttack || isCriticalRoll || barbarianLevel < 9)
-        return 0;
+      if (isRangedAttack || !isCriticalRoll || barbarianLevel < 9)
+        return 0; 
 
       if (barbarianLevel < 13)
       {

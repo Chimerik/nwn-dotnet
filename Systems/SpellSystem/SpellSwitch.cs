@@ -69,10 +69,6 @@ namespace NWN.Systems
           SpellSystem.BurningHands(oCaster, spell, spellEntry, target, castingClass, targetLocation);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
-        case Spell.AbilityBarbarianRage:
-          SpellSystem.BarbarianRage(oCaster, spell, spellEntry);
-          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
-          break;
       }
 
       switch (spell.Id)

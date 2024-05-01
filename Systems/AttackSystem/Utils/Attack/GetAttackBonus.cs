@@ -8,9 +8,14 @@ namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static int GetAttackBonus(CNWSCreature attacker, CNWSCreature target, CNWSCombatAttackData attackData, CNWSItem weapon)
+    public static int GetAttackBonus(CNWSCreature attacker, CNWSCreature target, CNWSCombatAttackData attackData, CNWSItem weapon, int strBonus, int dexBonus)
     {
       int attackBonus = attacker.m_pStats.GetAttackModifierVersus(target);
+
+      if (attackData.m_bRangedAttack.ToBool())
+        attackBonus -= dexBonus;
+      else
+        attackBonus -= strBonus;
 
       LogUtils.LogMessage($"modifier versus target : {attackBonus}", LogUtils.LogType.Combat);
 

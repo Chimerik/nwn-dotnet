@@ -1,6 +1,5 @@
 ﻿using System;
 using Anvil.API;
-using NWN.Native.API;
 using Ability = Anvil.API.Ability;
 
 namespace NWN.Systems

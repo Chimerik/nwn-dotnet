@@ -29,16 +29,33 @@ namespace NWN.Systems
         {
           foreach (var feat in creature.Feats.Where(f => f.TalentMaxCR.ToBool() && creature.GetFeatRemainingUses(f) < 1))
           {
-            if (Feats2da.featTable[feat.Id].skillCategory == SkillSystem.Category.Manoeuvre)
+            switch(Feats2da.featTable[feat.Id].skillCategory)
             {
-              var manoeuvre = creature.Feats.FirstOrDefault(f => !f.TalentMaxCR.ToBool() && Feats2da.featTable[f.Id].skillCategory == SkillSystem.Category.Manoeuvre);
+              case SkillSystem.Category.Manoeuvre:
 
-              if (manoeuvre != null) 
-              {
-                creature.SetFeatRemainingUses(feat, creature.GetFeatRemainingUses(manoeuvre));
-                creature.GetObjectVariable<LocalVariableInt>($"_FEAT_REMAINING_USE_{feat.Id}").Delete();
-                continue;
-              }
+                var manoeuvre = creature.Feats.FirstOrDefault(f => !f.TalentMaxCR.ToBool() && Feats2da.featTable[f.Id].skillCategory == SkillSystem.Category.Manoeuvre);
+
+                if (manoeuvre != null)
+                {
+                  creature.SetFeatRemainingUses(feat, creature.GetFeatRemainingUses(manoeuvre));
+                  creature.GetObjectVariable<LocalVariableInt>($"_FEAT_REMAINING_USE_{feat.Id}").Delete();
+                  continue;
+                }
+
+                break;
+
+              case SkillSystem.Category.Ki:
+
+                var ki = creature.Feats.FirstOrDefault(f => !f.TalentMaxCR.ToBool() && Feats2da.featTable[f.Id].skillCategory == SkillSystem.Category.Ki);
+
+                if (ki != null)
+                {
+                  creature.SetFeatRemainingUses(feat, creature.GetFeatRemainingUses(ki));
+                  creature.GetObjectVariable<LocalVariableInt>($"_FEAT_REMAINING_USE_{feat.Id}").Delete();
+                  continue;
+                }
+
+                break;
             }
 
             creature.SetFeatRemainingUses(feat, (byte)creature.GetObjectVariable<LocalVariableInt>($"_FEAT_REMAINING_USE_{feat.Id}").Value);

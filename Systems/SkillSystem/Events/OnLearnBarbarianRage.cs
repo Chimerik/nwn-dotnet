@@ -9,6 +9,8 @@ namespace NWN.Systems
       if (!player.oid.LoginCreature.KnowsFeat(Feat.BarbarianRage))
         player.oid.LoginCreature.AddFeat(Feat.BarbarianRage);
 
+      player.oid.LoginCreature.SetFeatRemainingUses(Feat.BarbarianRage, 2);
+
       return true;
     }
   }

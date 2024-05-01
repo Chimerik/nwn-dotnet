@@ -10,6 +10,8 @@ namespace NWN.Systems
     {
       if (onStatus.CombatStatus == CombatStatus.EnterCombat)
       {
+        //ModuleSystem.Log.Info("------------------------------ON ENTER COMBAT TRIGGERED------------------------------------------------------------");
+
         onStatus.Player.LoginCreature.ApplyEffect(EffectDuration.Temporary, EffectSystem.Assassinate, TimeSpan.FromSeconds(5));
         onStatus.Player.LoginCreature.OnDamaged -= OnDamagedRemoveAssassinate;
         onStatus.Player.LoginCreature.OnDamaged += OnDamagedRemoveAssassinate;

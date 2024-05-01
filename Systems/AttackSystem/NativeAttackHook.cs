@@ -95,13 +95,13 @@ namespace NWN.Systems
       NativeUtils.HandleMonkManifestation(creature, attackWeapon);
 
       //*** CALCUL DU BONUS D'ATTAQUE ***//
-      // On prend le bonus d'attaque calculé automatiquement par le jeu en fonction de la cible qui peut être une créature ou un placeable
-      int attackModifier = targetCreature is null ? creature.m_pStats.GetAttackModifierVersus() : NativeUtils.GetAttackBonus(creature, targetCreature, attackData, attackWeapon);
-
       byte dexMod = creature.m_pStats.m_nDexterityModifier;
       byte strMod = creature.m_pStats.m_nStrengthModifier;
       int dexBonus = dexMod > 122 ? dexMod - 255 : dexMod;
       int strBonus = strMod > 122 ? strMod - 255 : strMod;
+
+      // On prend le bonus d'attaque calculé automatiquement par le jeu en fonction de la cible qui peut être une créature ou un placeable
+      int attackModifier = targetCreature is null ? creature.m_pStats.GetAttackModifierVersus() : NativeUtils.GetAttackBonus(creature, targetCreature, attackData, attackWeapon, strBonus, dexBonus);
 
       if (creature.m_pStats.HasFeat(CustomSkill.TotemLienTigre).ToBool() && attackWeapon is not null
         && ItemUtils.IsMeleeWeapon(NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem))
@@ -119,7 +119,6 @@ namespace NWN.Systems
           && dexBonus > strBonus
           && attackWeapon.m_ScriptVars.GetInt(ItemConfig.isFinesseWeaponCExoVariable) != 0)
       {
-        attackModifier -= strBonus;
         attackStat = Anvil.API.Ability.Dexterity;
       }
 

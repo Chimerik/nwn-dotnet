@@ -137,7 +137,7 @@ namespace NWN.Systems
                   }
 
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_ASPECT_TOTEM_SELECTION").Delete();
-                  player.oid.SendServerMessage($"Vous l'esprit totem {StringUtils.ToWhitecolor(selectedLearnable.name)} est désormais votre guide", ColorConstants.Orange);
+                  player.oid.SendServerMessage($"L'esprit totem {StringUtils.ToWhitecolor(selectedLearnable.name)} est désormais votre guide", ColorConstants.Orange);
 
                   CloseWindow();
 

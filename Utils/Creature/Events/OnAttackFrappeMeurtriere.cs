@@ -13,7 +13,7 @@ namespace NWN.Systems
         return;
 
       if (!attacker.KnowsFeat((Feat)CustomSkill.AssassinAssassinate) || !attacker.Classes.Any(c => c.Class.ClassType == ClassType.Rogue && c.Level > 16)
-          || !NativeUtils.IsAssassinate(attacker))
+          || !attacker.ActiveEffects.Any(e => e.Tag == EffectSystem.AssassinateEffectTag))
         return;
 
       SpellConfig.SavingThrowFeedback feedback = new();
@@ -33,8 +33,6 @@ namespace NWN.Systems
       StringUtils.DisplayStringToAllPlayersNearTarget(target, "Frappe Meurtrière", StringUtils.gold, true, true);
       LogUtils.LogMessage($"{attacker.Name} - Frappe Meurtrière sur {target.Name}", LogUtils.LogType.Combat);
       SpellUtils.SendSavingThrowFeedbackMessage(attacker, target, feedback, advantage, DC, totalSave, saveFailed, Ability.Constitution);
-
-
     }
   }
 }
