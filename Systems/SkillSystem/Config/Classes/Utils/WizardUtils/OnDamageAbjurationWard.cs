@@ -26,7 +26,7 @@ namespace NWN.Systems
         }
         else if (creator.Area != onDamage.Creature.Area || onDamage.Creature.DistanceSquared(creator) > 80)
         {
-          EffectUtils.RemoveTaggedEffect(onDamage.Creature, EffectSystem.AbjurationWardEffectTag, creator);
+          EffectUtils.RemoveTaggedEffect(onDamage.Creature, creator, EffectSystem.AbjurationWardEffectTag);
           NWScript.AssignCommand(creator, () => creator.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetAbjurationWardEffect(ward.CasterLevel)));
         }
 
@@ -35,7 +35,7 @@ namespace NWN.Systems
 
       int negatedDamage = ward.CasterLevel > onDamage.DamageAmount ? onDamage.DamageAmount : ward.CasterLevel;
 
-      EffectUtils.RemoveTaggedEffect(onDamage.Creature, EffectSystem.AbjurationWardEffectTag, ward.Creator);
+      EffectUtils.RemoveTaggedEffect(onDamage.Creature, ward.Creator, EffectSystem.AbjurationWardEffectTag);
 
       if(ward.CasterLevel > 1)
         NWScript.AssignCommand(ward.Creator, () => onDamage.Creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetAbjurationWardEffect(ward.CasterLevel - 1)));

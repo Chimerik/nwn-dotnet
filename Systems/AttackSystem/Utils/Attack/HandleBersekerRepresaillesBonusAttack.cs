@@ -18,6 +18,7 @@ namespace NWN.Systems
         BroadcastNativeServerMessage($"{attackerName.ColorString(ColorConstants.Cyan)} représailles contre {targetName}", attacker);
 
         round.AddWhirlwindAttack(target.m_idSelf, 1);
+        attacker.m_ScriptVars.DestroyObject(CreatureUtils.BersekerRepresaillesVariableExo);
         LogUtils.LogMessage($"Attaque supplémentaire - Représailles", LogUtils.LogType.Combat);
       }
     }

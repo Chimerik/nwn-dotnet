@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using Anvil.API;
-using static NWN.Systems.PlayerSystem;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {

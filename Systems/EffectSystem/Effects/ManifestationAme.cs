@@ -11,8 +11,8 @@ namespace NWN.Systems
     public static readonly CExoString ManifestationAmeEffectExoTag = ManifestationAmeEffectTag.ToExoString();
     public static Effect GetMonkManifestationAmeEffect(int wisdomModifier)
     {
-      Effect eff = Effect.LinkEffects(Effect.DamageIncrease(6, DamageType.Positive), Effect.DamageIncrease(wisdomModifier, DamageType.Positive));
-      eff.Tag = MonkUnarmoredDefenceEffectTag;
+      Effect eff = Effect.LinkEffects(Effect.DamageIncrease(6, DamageType.Divine), Effect.DamageIncrease(wisdomModifier, DamageType.Positive));
+      eff.Tag = ManifestationAmeEffectTag;
       eff.SubType = EffectSubType.Unyielding;
       return eff;
     }

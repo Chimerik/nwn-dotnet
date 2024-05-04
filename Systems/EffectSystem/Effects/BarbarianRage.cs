@@ -8,7 +8,6 @@ namespace NWN.Systems
   {
     private static ScriptCallbackHandle onRemoveBarbarianRageCallback;
     private static ScriptCallbackHandle onIntervalBarbarianRageCallback;
-    public const string BarbarianRageItemPropertyTag = "_ITEMPROPERTY_BARBARIAN_RAGE";
     public const string BarbarianRageEffectTag = "_EFFECT_BARBARIAN_RAGE";
     public static readonly Native.API.CExoString barbarianRageEffectExoTag = "_EFFECT_BARBARIAN_RAGE".ToExoString();
     public static Effect BarbarianRage
@@ -16,6 +15,19 @@ namespace NWN.Systems
       get
       {
         Effect eff = Effect.LinkEffects(Effect.Icon((EffectIcon)168), 
+          Effect.DamageImmunityIncrease(DamageType.Bludgeoning, 50), Effect.DamageImmunityIncrease(DamageType.Piercing, 50), Effect.DamageImmunityIncrease(DamageType.Slashing, 50),
+          Effect.RunAction(onRemovedHandle: onRemoveBarbarianRageCallback, onIntervalHandle: onIntervalBarbarianRageCallback, interval: NwTimeSpan.FromRounds(1)));
+        eff.Tag = BarbarianRageEffectTag;
+        eff.SubType = EffectSubType.Supernatural;
+        return eff;
+      }
+    }
+    public static Effect BearBarbarianRage
+    {
+      get
+      {
+        Effect eff = Effect.LinkEffects(Effect.Icon((EffectIcon)168),
+          Effect.DamageImmunityIncrease(DamageType.Bludgeoning, 50), Effect.DamageImmunityIncrease(DamageType.Piercing, 50), Effect.DamageImmunityIncrease(DamageType.Slashing, 50), Effect.DamageImmunityIncrease(DamageType.Acid, 50), Effect.DamageImmunityIncrease(DamageType.Sonic, 50), Effect.DamageImmunityIncrease(DamageType.Custom18, 50), Effect.DamageImmunityIncrease(DamageType.Custom9, 50), Effect.DamageImmunityIncrease(DamageType.Cold, 50), Effect.DamageImmunityIncrease(DamageType.Electrical, 50), Effect.DamageImmunityIncrease(DamageType.Custom1, 50), Effect.DamageImmunityIncrease(DamageType.Custom10, 50), Effect.DamageImmunityIncrease(DamageType.Custom11, 50), Effect.DamageImmunityIncrease(DamageType.Custom12, 50), Effect.DamageImmunityIncrease(DamageType.Custom13, 50), Effect.DamageImmunityIncrease(DamageType.Custom14, 50), Effect.DamageImmunityIncrease(DamageType.Custom15, 50), Effect.DamageImmunityIncrease(DamageType.Custom16, 50), Effect.DamageImmunityIncrease(DamageType.Custom17, 50), Effect.DamageImmunityIncrease(DamageType.Custom19, 50), Effect.DamageImmunityIncrease(DamageType.Custom2, 50), Effect.DamageImmunityIncrease(DamageType.Custom3, 50), Effect.DamageImmunityIncrease(DamageType.Custom4, 50), Effect.DamageImmunityIncrease(DamageType.Custom5, 50), Effect.DamageImmunityIncrease(DamageType.Custom6, 50), Effect.DamageImmunityIncrease(DamageType.Custom7, 50), Effect.DamageImmunityIncrease(DamageType.Custom8, 50), Effect.DamageImmunityIncrease(DamageType.Divine, 50), Effect.DamageImmunityIncrease(DamageType.Fire, 50), Effect.DamageImmunityIncrease(DamageType.Magical, 50), Effect.DamageImmunityIncrease(DamageType.Negative, 50), Effect.DamageImmunityIncrease(DamageType.Positive, 50),
           Effect.RunAction(onRemovedHandle: onRemoveBarbarianRageCallback, onIntervalHandle: onIntervalBarbarianRageCallback, interval: NwTimeSpan.FromRounds(1)));
         eff.Tag = BarbarianRageEffectTag;
         eff.SubType = EffectSubType.Supernatural;
@@ -87,13 +99,6 @@ namespace NWN.Systems
 
         target.SetFeatRemainingUses((Feat)CustomSkill.WildMagicTeleportation, 0);
       }
-
-      NwItem skin = target.GetItemInSlot(InventorySlot.CreatureSkin);
-
-      if (skin is not null)
-        foreach (var ip in skin.ItemProperties)
-          if (ip.Tag == BarbarianRageItemPropertyTag)
-            skin.RemoveItemProperty(ip);
 
       return ScriptHandleResult.Handled;
     }

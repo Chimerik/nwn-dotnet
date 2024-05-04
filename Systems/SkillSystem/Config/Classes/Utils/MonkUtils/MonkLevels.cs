@@ -1,4 +1,5 @@
 ﻿using Anvil.API;
+using NWN.Core;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.PlayerSystem.Player;
 using static NWN.Systems.SkillSystem;
@@ -114,7 +115,7 @@ namespace NWN.Systems
           player.oid.LoginCreature.AddFeat(Feat.PurityOfBody);
           player.oid.LoginCreature.AddFeat(Feat.DiamondBody);
 
-          player.oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin).AddItemProperty(ItemProperty.DamageImmunity((IPDamageType)CustomItemPropertiesDamageType.Poison, IPDamageImmunityType.Immunity100Pct), EffectDuration.Permanent);
+          NWScript.AssignCommand(player.oid.LoginCreature, () => player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.PuretePhysique));
 
           break;
 

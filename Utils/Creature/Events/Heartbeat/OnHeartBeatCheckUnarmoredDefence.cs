@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
-using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
@@ -24,8 +23,7 @@ namespace NWN.Systems
       else
       {
         onHB.Creature.OnHeartbeat -= OnHeartBeatCheckUnarmoredDefence;
-        EffectUtils.RemoveTaggedEffect(onHB.Creature, EffectSystem.UnarmoredDefenceEffectTag);
-        EffectUtils.RemoveTaggedEffect(onHB.Creature, EffectSystem.BarbarianSpeedEffectTag);
+        EffectUtils.RemoveTaggedEffect(onHB.Creature, EffectSystem.UnarmoredDefenceEffectTag, EffectSystem.BarbarianSpeedEffectTag);
       }
     }
     private static async void WaitNextFrameToApplyConEffect(NwCreature creature, int conMod)

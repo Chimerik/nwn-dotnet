@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
-using NWN.Systems.Arena;
 
 namespace NWN.Systems
 {
@@ -21,9 +20,7 @@ namespace NWN.Systems
         creature.GetObjectVariable<LocalVariableInt>(ParadeDeProjectileCooldownVariable).Delete();
         creature.GetObjectVariable<LocalVariableInt>(EmpaleurCooldownVariable).Delete();
         creature.GetObjectVariable<LocalVariableObject<NwCreature>>(OpportunisteVariable).Delete();
-
-        if(creature.KnowsFeat((Feat)CustomSkill.BersekerRepresailles))
-          creature.GetObjectVariable<LocalVariableInt>(BersekerRepresaillesVariable).Value = 1;
+        creature.GetObjectVariable<LocalVariableObject<NwCreature>>(BersekerRepresaillesVariable).Delete();
 
         if (creature.IsPlayerControlled)
         {
@@ -69,8 +66,8 @@ namespace NWN.Systems
         creature.GetObjectVariable<LocalVariableInt>(ReactionVariable).Value = 1;
       }
 
-      if(NwModule.Instance.PlayerCount > 0)
-        LogUtils.LogMessage($"Round global - Actions et réactions récupérées", LogUtils.LogType.Combat);
+      //if(NwModule.Instance.PlayerCount > 0)
+        //LogUtils.LogMessage("Round global - Actions et réactions récupérées", LogUtils.LogType.Combat);
     }
   }
 }

@@ -342,6 +342,8 @@ namespace NWN.Systems
             switch(eff.Tag)
             {
               case EffectSystem.DwarfSlowEffectTag:
+              case EffectSystem.DwarfPoisonResistanceEffectTag:
+              case EffectSystem.ThieflingResistanceEffectTag:
               case EffectSystem.SleepImmunityEffectTag:
               case EffectSystem.lightSensitivityEffectTag:
               case EffectSystem.woodElfEffectTag:
@@ -369,10 +371,6 @@ namespace NWN.Systems
           player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.Thaumaturgy);
 
           player.oid.LoginCreature.TailType = CreatureTailType.None;
-
-          foreach (ItemProperty ip in player.oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties)
-            if (ip.Property.PropertyType == ItemPropertyType.ImmunityDamageType)
-              player.oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin).RemoveItemProperty(ip);
         }
         private void LoadBonusList(IEnumerable<NuiComboEntry> list)
         {

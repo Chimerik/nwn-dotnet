@@ -1,4 +1,5 @@
 ﻿using Anvil.API;
+using NWN.Core;
 using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
@@ -14,7 +15,7 @@ namespace NWN.Systems
 
         learnableSkills[CustomSkill.ProduceFlame].source.Add(Category.Race);
 
-        oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin).AddItemProperty(ItemProperty.DamageImmunity(IPDamageType.Fire, IPDamageImmunityType.Immunity50Pct), EffectDuration.Permanent);
+        NWScript.AssignCommand(oid.LoginCreature, () => oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.ThieflingFireResistance));
       }
     }
   }

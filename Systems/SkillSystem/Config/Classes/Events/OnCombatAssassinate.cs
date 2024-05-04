@@ -10,12 +10,14 @@ namespace NWN.Systems
     {
       if (onStatus.CombatStatus == CombatStatus.EnterCombat)
       {
-        //ModuleSystem.Log.Info("------------------------------ON ENTER COMBAT TRIGGERED------------------------------------------------------------");
+        LogUtils.LogMessage("------------- Assassinat - Evénement d'entrée en combat -----------------", LogUtils.LogType.Combat);
 
         onStatus.Player.LoginCreature.ApplyEffect(EffectDuration.Temporary, EffectSystem.Assassinate, TimeSpan.FromSeconds(5));
         onStatus.Player.LoginCreature.OnDamaged -= OnDamagedRemoveAssassinate;
         onStatus.Player.LoginCreature.OnDamaged += OnDamagedRemoveAssassinate;
       }
+      else
+        LogUtils.LogMessage("------------- Assassinat - Evénement de sortie de combat ----------------", LogUtils.LogType.Combat);
     }
   }
 }

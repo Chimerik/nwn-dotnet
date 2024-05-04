@@ -1,4 +1,5 @@
 ﻿using Anvil.API;
+using NWN.Core;
 using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
@@ -14,12 +15,7 @@ namespace NWN.Systems
 
         learnableSkills[CustomSkill.MageHand].source.Add(Category.Race);
 
-        oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin).AddItemProperty(ItemProperty.DamageImmunity(IPDamageType.Fire, IPDamageImmunityType.Immunity50Pct), EffectDuration.Permanent);
-      
-        // TODO : Penser à gérer les sorts 
-        // Level 1 : Mage Hand
-        // Level 3 : Mains brûlantes
-        // Level 5 : Flame Blade
+        NWScript.AssignCommand(oid.LoginCreature, () => oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.ThieflingFireResistance));
       }
     }
   }

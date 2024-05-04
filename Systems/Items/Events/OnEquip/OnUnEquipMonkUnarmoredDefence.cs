@@ -6,7 +6,7 @@ namespace NWN.Systems
 {
   public partial class ItemSystem
   {
-    public static void OnUnEquipMonkUnarmoredDefence(OnItemUnequip onUnequip)
+    public static async void OnUnEquipMonkUnarmoredDefence(OnItemUnequip onUnequip)
     {
       NwCreature oPC = onUnequip.Creature;
       NwItem oItem = onUnequip.Item;
@@ -23,7 +23,10 @@ namespace NWN.Systems
         default: return;
       }
 
-      NwItem shield = onUnequip.Creature.GetItemInSlot(InventorySlot.RightHand);
+      await NwTask.NextFrame();
+
+      NwItem armor = onUnequip.Creature.GetItemInSlot(InventorySlot.Chest);
+      NwItem shield = onUnequip.Creature.GetItemInSlot(InventorySlot.LeftHand);
 
       bool hasShield = false;
 
@@ -49,6 +52,11 @@ namespace NWN.Systems
         {
           oPC.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetMonkSpeedEffect(oPC.Classes.FirstOrDefault(c => c.Class.Id == CustomClass.Monk).Level));
         }
+      }
+      else
+      {
+        oPC.OnHeartbeat -= CreatureUtils.OnHeartBeatCheckMonkUnarmoredDefence;
+        EffectUtils.RemoveTaggedEffect(oPC, EffectSystem.MonkUnarmoredDefenceEffectTag, EffectSystem.MonkSpeedEffectTag);
       }
     }
   }

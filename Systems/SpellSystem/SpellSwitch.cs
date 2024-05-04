@@ -65,6 +65,24 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case Spell.Silence:
+          if(oCaster is NwCreature caster && caster.GetObjectVariable<LocalVariableInt>("_CAST_FROM_SHADOW_MONK_FEAT").Value == CustomSkill.MonkSilence)
+          {
+            caster.IncrementRemainingFeatUses((Feat)CustomSkill.MonkSilence);
+            FeatUtils.DecrementKi(caster, 2);
+            caster.GetObjectVariable<LocalVariableInt>("_CAST_FROM_SHADOW_MONK_FEAT").Delete();
+          }
+          break;
+
+        case Spell.Darkvision:
+          if (oCaster is NwCreature castCreature && castCreature.GetObjectVariable<LocalVariableInt>("_CAST_FROM_SHADOW_MONK_FEAT").Value == CustomSkill.MonkDarkVision)
+          {
+            castCreature.IncrementRemainingFeatUses((Feat)CustomSkill.MonkDarkVision);
+            FeatUtils.DecrementKi(castCreature, 2);
+            castCreature.GetObjectVariable<LocalVariableInt>("_CAST_FROM_SHADOW_MONK_FEAT").Delete();
+          }
+          break;
+
         case Spell.BurningHands:
           SpellSystem.BurningHands(oCaster, spell, spellEntry, target, castingClass, targetLocation);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;

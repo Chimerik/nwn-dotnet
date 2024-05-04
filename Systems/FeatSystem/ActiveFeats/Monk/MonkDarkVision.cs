@@ -14,7 +14,7 @@ namespace NWN.Systems
         return;
       }
 
-      FeatUtils.DecrementKi(caster, 2);
+      caster.GetObjectVariable<LocalVariableInt>("_CAST_FROM_SHADOW_MONK_FEAT").Value = onFeat.Feat.Id;
     }
   }
 }

@@ -15,7 +15,7 @@ namespace NWN.Systems
         target.OnDamaged -= OnDamageAbjurationWard;
         target.OnDamaged += OnDamageAbjurationWard;
 
-        EffectUtils.RemoveTaggedEffect(target, EffectSystem.AbjurationWardEffectTag, creature);
+        EffectUtils.RemoveTaggedEffect(target, creature, EffectSystem.AbjurationWardEffectTag);
         NWScript.AssignCommand(creature, () => target.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetAbjurationWardEffect(creature.GetClassInfo(ClassType.Wizard).Level)));
       }
     }

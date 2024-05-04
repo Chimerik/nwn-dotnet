@@ -541,8 +541,6 @@ namespace NWN.Systems
         attacker.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreTypeVariableExo);
         attacker.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreDiceVariableExo);
       }
-     
-      NativeUtils.HandleBersekerRepresailles(attacker, targetCreature);
 
       return baseDamage;
 

@@ -33,7 +33,7 @@ namespace NWN.Systems
 
       caster.OnDamaged -= WizardUtils.OnDamageAbjurationWard;
 
-      EffectUtils.RemoveTaggedEffect(caster, EffectSystem.AbjurationWardEffectTag, caster);
+      EffectUtils.RemoveTaggedEffect(caster, caster, EffectSystem.AbjurationWardEffectTag);
 
       NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Permanent, 
         EffectSystem.GetAbjurationWardEffect(ward.CasterLevel)));

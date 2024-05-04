@@ -210,8 +210,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.ContainsKey("introAbilities")) player.windows.Add("introAbilities", new IntroAbilitiesWindow(player));
-                  else ((IntroAbilitiesWindow)player.windows["introAbilities"]).CreateWindow();
+                  if (!player.windows.TryGetValue("introAbilities", out var value)) player.windows.Add("introAbilities", new IntroAbilitiesWindow(player));
+                  else ((IntroAbilitiesWindow)value).CreateWindow();
 
                   return;
 
@@ -220,13 +220,18 @@ namespace NWN.Systems
               if (nuiEvent.ElementId is null)
                 return;
 
-              targetCreature.SetColor((ColorChannel)channelSelection.GetBindValue(player.oid, nuiToken.Token), int.Parse(nuiEvent.ElementId));
+              int selectedColor = int.Parse(nuiEvent.ElementId);
+
+              targetCreature.SetColor((ColorChannel)channelSelection.GetBindValue(player.oid, nuiToken.Token), selectedColor);
 
               string chanChoice = "hair";
               if (channelSelection.GetBindValue(player.oid, nuiToken.Token) != 1)
                 chanChoice = "skin";
 
-              currentColor.SetBindValue(player.oid, nuiToken.Token, NWScript.ResManGetAliasFor($"{chanChoice}{int.Parse(nuiEvent.ElementId) + 1}", NWScript.RESTYPE_TGA) != "" ? $"{chanChoice}{int.Parse(nuiEvent.ElementId) + 1}" : $"leather{int.Parse(nuiEvent.ElementId) + 1}");
+              if (chanChoice == "skin" && selectedColor == 1)
+                currentColor.SetBindValue(player.oid, nuiToken.Token, "skintest");
+              else
+                currentColor.SetBindValue(player.oid, nuiToken.Token, NWScript.ResManGetAliasFor($"{chanChoice}{selectedColor + 1}", NWScript.RESTYPE_TGA) != "" ? $"{chanChoice}{selectedColor + 1}" : $"leather{selectedColor + 1}");
 
               break;
 
@@ -246,10 +251,19 @@ namespace NWN.Systems
                   };
 
                   for (int i = 0; i < 56; i++)
-                    colorBindings[i].SetBindValue(player.oid, nuiToken.Token, NWScript.ResManGetAliasFor($"{channelChoice}{i + 1}", NWScript.RESTYPE_TGA) != "" ? $"{channelChoice}{i + 1}" : $"leather{i + 1}");
+                  {
+                    if(channelChoice == "skin" && i == 1)
+                      colorBindings[i].SetBindValue(player.oid, nuiToken.Token, "skintest");
+                    else
+                      colorBindings[i].SetBindValue(player.oid, nuiToken.Token, NWScript.ResManGetAliasFor($"{channelChoice}{i + 1}", NWScript.RESTYPE_TGA) != "" ? $"{channelChoice}{i + 1}" : $"leather{i + 1}");
+                  }
 
                   int newCurrentColor = targetCreature.GetColor(selectedChannel) + 1;
-                  currentColor.SetBindValue(player.oid, nuiToken.Token, NWScript.ResManGetAliasFor($"{channelChoice}{newCurrentColor}", NWScript.RESTYPE_TGA) != "" ? $"{channelChoice}{newCurrentColor}" : $"leather{newCurrentColor}");
+
+                  if (channelChoice == "skin" && newCurrentColor == 2)
+                    currentColor.SetBindValue(player.oid, nuiToken.Token, "skintest");
+                  else
+                    currentColor.SetBindValue(player.oid, nuiToken.Token, NWScript.ResManGetAliasFor($"{channelChoice}{newCurrentColor}", NWScript.RESTYPE_TGA) != "" ? $"{channelChoice}{newCurrentColor}" : $"leather{newCurrentColor}");
 
                   return;
               }

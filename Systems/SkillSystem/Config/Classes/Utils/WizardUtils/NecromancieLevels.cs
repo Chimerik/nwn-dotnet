@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Security.Cryptography;
 using Anvil.API;
+using NWN.Core;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.SkillSystem;
 
@@ -56,7 +57,7 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.NecromancieInsensible].LevelUp(player);
           player.learnableSkills[CustomSkill.NecromancieInsensible].source.Add(Category.Class);
 
-          player.oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin).AddItemProperty(ItemProperty.DamageImmunity((IPDamageType)CustomItemPropertiesDamageType.Necrotic, IPDamageImmunityType.Immunity50Pct), EffectDuration.Permanent);
+          NWScript.AssignCommand(player.oid.LoginCreature, () => player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.NecroticResistance));
 
           break;
 

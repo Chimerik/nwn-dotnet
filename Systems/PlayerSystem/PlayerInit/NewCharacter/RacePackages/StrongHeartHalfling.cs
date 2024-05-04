@@ -1,4 +1,5 @@
 ﻿using Anvil.API;
+using NWN.Core;
 using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
@@ -14,11 +15,8 @@ namespace NWN.Systems
 
         learnableSkills[CustomSkill.Halfelin].source.Add(Category.Race);
 
-        oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.dwarfSlow);
-
-        oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin).AddItemProperty(ItemProperty.DamageImmunity((IPDamageType)CustomItemPropertiesDamageType.Poison, IPDamageImmunityType.Immunity50Pct), EffectDuration.Permanent);
-
-        // TODO : Penser à gérer le rejeu des jets de compétences en cas de 1 
+        NWScript.AssignCommand(oid.LoginCreature, () => oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.dwarfSlow));
+        NWScript.AssignCommand(oid.LoginCreature, () => oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.DwarfPoisonResistance));
       }
     }
   }

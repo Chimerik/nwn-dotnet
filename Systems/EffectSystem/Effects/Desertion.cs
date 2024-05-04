@@ -9,8 +9,8 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurEtherealVisage), Effect.Invisibility(InvisibilityType.Normal), 
-          Effect.DamageImmunityIncrease((DamageType)CustomDamageType.Necrotic, 50), Effect.DamageImmunityIncrease((DamageType)CustomDamageType.Psychic, 50),
+        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurEtherealVisage), 
+          Effect.DamageImmunityIncrease(CustomDamageType.Necrotic, 50), Effect.DamageImmunityIncrease(CustomDamageType.Psychic, 50),
           Effect.DamageImmunityIncrease(DamageType.Acid, 50), Effect.DamageImmunityIncrease(DamageType.Fire, 50), Effect.DamageImmunityIncrease(DamageType.Sonic, 50),
           Effect.DamageImmunityIncrease(DamageType.Cold, 50), Effect.DamageImmunityIncrease(DamageType.Electrical, 50), Effect.DamageImmunityIncrease(DamageType.Bludgeoning, 50),
           Effect.DamageImmunityIncrease(DamageType.Divine, 50), Effect.DamageImmunityIncrease(DamageType.Negative, 50), Effect.DamageImmunityIncrease(DamageType.Positive, 50),

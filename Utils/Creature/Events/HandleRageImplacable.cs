@@ -16,7 +16,7 @@ namespace NWN.Systems
 
         onDamage.Creature.GetObjectVariable<PersistentVariableInt>("_RAGE_IMPLACABLE_DD").Value += 5;
 
-        if(saveDC >= totalSave) 
+        if(totalSave >= saveDC) 
         {
           onDamage.Creature.HP = 1;
           StringUtils.DisplayStringToAllPlayersNearTarget(onDamage.Creature, "Rage Implacable", StringUtils.gold, true);

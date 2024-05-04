@@ -1,4 +1,5 @@
 ﻿using Anvil.API;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -6,12 +7,14 @@ namespace NWN.Systems
   {
     public static bool OnLearnConstitutionInfernale(PlayerSystem.Player player, int customSkillId)
     {
+      if(player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ConstitutionInfernale))
+        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.ConstitutionInfernale);
+
       byte rawConstitution = player.oid.LoginCreature.GetRawAbilityScore(Ability.Constitution);
       if (rawConstitution < 20)
         player.oid.LoginCreature.SetsRawAbilityScore(Ability.Constitution, (byte)(rawConstitution + 1));
 
-      player.oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin).AddItemProperty(ItemProperty.DamageImmunity(IPDamageType.Cold, IPDamageImmunityType.Immunity50Pct), EffectDuration.Permanent);
-      player.oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin).AddItemProperty(ItemProperty.DamageImmunity((IPDamageType)CustomItemPropertiesDamageType.Poison, IPDamageImmunityType.Immunity50Pct), EffectDuration.Permanent);
+      NWScript.AssignCommand(player.oid.LoginCreature, () => player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.ConstitutionInfernale));
 
       return true;
     }

@@ -12,15 +12,8 @@ namespace NWN.Systems
       NwItem oItem = onEquip.Item;
       NwItem swappedItem = oPC.GetItemInSlot(onEquip.Slot);
 
-      if (oPC is null || oItem is null || (onEquip.Slot != InventorySlot.Chest && onEquip.Slot != InventorySlot.RightHand))
+      if (oPC is null || oItem is null || (onEquip.Slot != InventorySlot.Chest && onEquip.Slot != InventorySlot.LeftHand))
         return;
-
-      switch (oItem.BaseItem.ItemType)
-      {
-        case BaseItemType.SmallShield:
-        case BaseItemType.LargeShield:
-        case BaseItemType.TowerShield: return;;
-      }
 
       if (oItem.BaseACValue < 1)
       {
@@ -35,6 +28,11 @@ namespace NWN.Systems
         {
           oPC.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetMonkSpeedEffect(oPC.Classes.FirstOrDefault(c => c.Class.Id == CustomClass.Monk).Level));
         }
+      }
+      else
+      {
+        oPC.OnHeartbeat -= CreatureUtils.OnHeartBeatCheckMonkUnarmoredDefence;
+        EffectUtils.RemoveTaggedEffect(oPC, EffectSystem.MonkUnarmoredDefenceEffectTag, EffectSystem.MonkSpeedEffectTag);
       }
     }
   }

@@ -1,4 +1,5 @@
 ﻿using Anvil.API;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -12,7 +13,8 @@ namespace NWN.Systems
         return;
       }
 
-      caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.Desertion, NwTimeSpan.FromRounds(10));
+      NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.Desertion, NwTimeSpan.FromRounds(10)));
+      NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, Effect.Invisibility(InvisibilityType.Normal), NwTimeSpan.FromRounds(10)));
 
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Désertion de l'âme", StringUtils.gold, true);
 

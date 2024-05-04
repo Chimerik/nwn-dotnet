@@ -18,6 +18,13 @@ namespace NWN.Systems
 
         target.ApplyEffect(EffectDuration.Temporary, Effect.SkillIncrease(NwSkill.FromSkillType(Skill.MoveSilently), 10));
       }
+
+      if(caster.GetObjectVariable<LocalVariableInt>("_CAST_FROM_SHADOW_MONK_FEAT").Value == CustomSkill.MonkPassageSansTrace)
+      {
+        caster.IncrementRemainingFeatUses((Feat)CustomSkill.MonkPassageSansTrace);
+        FeatUtils.DecrementKi(caster, 2);
+        caster.GetObjectVariable<LocalVariableInt>("_CAST_FROM_SHADOW_MONK_FEAT").Delete();
+      }
     }
   }
 }

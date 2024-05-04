@@ -411,6 +411,10 @@ namespace NWN.Systems
         ApplyWoodElfSpeed();
         ApplySmallRaceSlow();
         ApplyDrowLightSensitivity();
+        ApplyThieflingFireResistance();
+        ApplyDwarfPoisonResistance();
+        ApplyNecroticResistance();
+        ApplyConstitutionInfernale();
         ApplyHumanVersatility();
         ApplyHalfOrcEndurance();
         InitializeAbilityImprovementFeat();
@@ -447,8 +451,10 @@ namespace NWN.Systems
         InitializeActionSurge();
         InitializeWarMasterImplacable();
         InitializeMonkPerfection();
+        ApplyPuretePhysique();
         ApplyElkAspect();
         ApplyGloutonAspect();
+        ApplyBerserkerRepresailles();
         ApplyPerceptionAveugle();
         ApplyAssassinate();
         ApplyFrappeMeurtriere();

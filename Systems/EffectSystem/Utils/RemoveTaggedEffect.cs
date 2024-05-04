@@ -1,21 +1,21 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using NWN.Native.API;
-using NWN.Systems;
 
 namespace NWN
 {
   public static partial class EffectUtils
   {
-    public static void RemoveTaggedEffect(NwGameObject target, string effectTag)
+    public static void RemoveTaggedEffect(NwGameObject target, params string[] effectTag)
     {
       foreach (var eff in target.ActiveEffects)
-        if (eff.Tag == effectTag)
+        if (effectTag.Contains(eff.Tag))
           target.RemoveEffect(eff);
     }
-    public static void RemoveTaggedEffect(NwGameObject target, string effectTag, NwObject creator)
+    public static void RemoveTaggedEffect(NwGameObject target, NwObject creator, params string[] effectTag)
     {
       foreach (var eff in target.ActiveEffects)
-        if (eff.Tag == effectTag && creator == eff.Creator)
+        if (creator == eff.Creator && effectTag.Contains(eff.Tag))
           target.RemoveEffect(eff);
     }
     public static void RemoveTaggedEffect(CNWSCreature target, CExoString effectTag)

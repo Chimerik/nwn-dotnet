@@ -257,6 +257,8 @@
     public const int EldritchKnightArmeLieeInvocation = 1536;
     public const int EldritchKnightArmeLieeInvocation2 = 1537;
 
+    public const int ConstitutionInfernale = 1538;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -702,7 +704,7 @@
     public const int Resilient = 20500;
     public const int AgiliteDesCourtsSurPattes = 20501;
     public const int Robuste = 20502;
-    public const int ConstitutionInfernale = 20503;
+    
     public const int EspritVif = 20504;
     public const int Observateur = 20505;
     public const int MartialInitiate = 20506;

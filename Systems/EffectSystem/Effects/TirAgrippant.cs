@@ -57,7 +57,7 @@ namespace NWN.Systems
         else
         {
           target.GetObjectVariable<LocalVariableLocation>(CreatureUtils.TirAgrippantVariable).Delete();
-          EffectUtils.RemoveTaggedEffect(target, TirAgrippantTag, attacker);
+          EffectUtils.RemoveTaggedEffect(target, attacker, TirAgrippantTag);
         }
       }
 

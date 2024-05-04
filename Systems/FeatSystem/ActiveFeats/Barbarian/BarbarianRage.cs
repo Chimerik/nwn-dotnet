@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Anvil.API;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -55,34 +56,13 @@ namespace NWN.Systems
         caster.OnCreatureAttack += CreatureUtils.OnAttackLoupKnockdown;
       }
 
-      NwItem skin = caster.GetItemInSlot(InventorySlot.CreatureSkin);
-
-      if (skin is not null)
+      if (caster.KnowsFeat((Feat)CustomSkill.TotemEspritOurs))
       {
-        if (caster.KnowsFeat((Feat)CustomSkill.TotemEspritOurs))
-        {
-          caster.SetFeatRemainingUses((Feat)CustomSkill.TotemFerociteIndomptable, 1);
-
-          for (int i = 0; i < 17; i++)
-          {
-            ItemProperty bearResistance = ItemProperty.DamageImmunity((IPDamageType)i, IPDamageImmunityType.Immunity50Pct);
-            bearResistance.Creator = caster;
-            bearResistance.Tag = EffectSystem.BarbarianRageItemPropertyTag;
-
-            skin.AddItemProperty(bearResistance, EffectDuration.Temporary, NwTimeSpan.FromRounds(10));
-          }
-        }
-        else
-        {
-          ItemProperty physicalResistance = ItemProperty.DamageImmunity(IPDamageType.Physical, IPDamageImmunityType.Immunity50Pct);
-          physicalResistance.Creator = caster;
-          physicalResistance.Tag = EffectSystem.BarbarianRageItemPropertyTag;
-
-          skin.AddItemProperty(physicalResistance, EffectDuration.Temporary, NwTimeSpan.FromRounds(10));
-        }
+        caster.SetFeatRemainingUses((Feat)CustomSkill.TotemFerociteIndomptable, 1);
+        NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.BearBarbarianRage, NwTimeSpan.FromRounds(10)));
       }
       else
-        LogUtils.LogMessage($"ERREUR - {caster.Name} ({caster.LoginPlayer?.PlayerName}) ne dispose pas de peau de créature", LogUtils.LogType.IllegalItems);
+        NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.BarbarianRage, NwTimeSpan.FromRounds(10)));
 
       byte barbarianLevel = caster.GetClassInfo(ClassType.Barbarian).Level;
 

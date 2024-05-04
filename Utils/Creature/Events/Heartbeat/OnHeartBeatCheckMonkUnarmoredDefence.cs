@@ -9,7 +9,7 @@ namespace NWN.Systems
     public static void OnHeartBeatCheckMonkUnarmoredDefence(CreatureEvents.OnHeartbeat onHB)
     {
       NwItem armor = onHB.Creature.GetItemInSlot(InventorySlot.Chest);
-      NwItem shield = onHB.Creature.GetItemInSlot(InventorySlot.RightHand);
+      NwItem shield = onHB.Creature.GetItemInSlot(InventorySlot.LeftHand);
       bool hasShield = false;
 
       if(shield is not null)
@@ -19,7 +19,6 @@ namespace NWN.Systems
           case BaseItemType.LargeShield:
           case BaseItemType.TowerShield: hasShield = true; break;
         }
-
 
       if (!hasShield && (armor is null || armor.BaseACValue < 1))
       {
@@ -36,8 +35,7 @@ namespace NWN.Systems
       else
       {
         onHB.Creature.OnHeartbeat -= OnHeartBeatCheckMonkUnarmoredDefence;
-        EffectUtils.RemoveTaggedEffect(onHB.Creature, EffectSystem.MonkUnarmoredDefenceEffectTag);
-        EffectUtils.RemoveTaggedEffect(onHB.Creature, EffectSystem.MonkSpeedEffectTag);
+        EffectUtils.RemoveTaggedEffect(onHB.Creature, EffectSystem.MonkUnarmoredDefenceEffectTag, EffectSystem.MonkSpeedEffectTag);
       }
     }
     private static async void WaitNextFrameToApplyEffect(NwCreature creature, int wisMod)

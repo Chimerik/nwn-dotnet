@@ -27,6 +27,11 @@ namespace NWN.Systems
             && !oPC.ActiveEffects.Any(e => e.Tag == EffectSystem.BarbarianSpeedEffectTag))
           oPC.ApplyEffect(EffectDuration.Permanent, EffectSystem.BarbarianSpeed);
       }
+      else
+      {
+        oPC.OnHeartbeat -= CreatureUtils.OnHeartBeatCheckUnarmoredDefence;
+        EffectUtils.RemoveTaggedEffect(oPC, EffectSystem.UnarmoredDefenceEffectTag, EffectSystem.BarbarianSpeedEffectTag);
+      }
     }
   }
 }

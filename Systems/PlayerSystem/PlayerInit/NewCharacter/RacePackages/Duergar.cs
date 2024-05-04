@@ -39,8 +39,6 @@ namespace NWN.Systems
         learnableSkills[CustomSkill.Profond].source.Add(Category.Race);
 
         oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.dwarfSlow);
-
-        // TODO : Penser à gérer l'avantage sur les JDS contre les illusions, les charmes et la paralysie
       }
     }
   }

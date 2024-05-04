@@ -151,6 +151,10 @@ namespace NWN
     {
       return set.Contains(me);
     }
+    public static bool In(this int me, params int[] set)
+    {
+      return set.Contains(me);
+    }
     public static string FormatTimeSpan(TimeSpan timespan)
     {
       string formattedTimespan = "";

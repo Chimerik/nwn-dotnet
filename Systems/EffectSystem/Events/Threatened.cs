@@ -58,7 +58,7 @@ namespace NWN.Systems
       if (eventData.Exiting is not NwCreature exiting)
         return ScriptHandleResult.Handled;
 
-      EffectUtils.RemoveTaggedEffect(eventData.Exiting, ThreatenedEffectTag, eventData.Effect.Creator);
+      EffectUtils.RemoveTaggedEffect(eventData.Exiting, eventData.Effect.Creator, ThreatenedEffectTag);
 
       return ScriptHandleResult.Handled;
     }

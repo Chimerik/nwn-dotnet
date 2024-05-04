@@ -11,7 +11,7 @@ namespace NWN.Systems
     public static Effect GetMonkManifestationEspritEffect(int wisdomModifier)
     {
       Effect eff = Effect.LinkEffects(Effect.DamageIncrease(6, CustomDamageType.Psychic), Effect.DamageIncrease(wisdomModifier, CustomDamageType.Psychic));
-      eff.Tag = MonkUnarmoredDefenceEffectTag;
+      eff.Tag = ManifestationEspritEffectTag;
       eff.SubType = EffectSubType.Unyielding;
       return eff;
     }

@@ -284,7 +284,7 @@ namespace NWN.Systems
       }
 
       EffectUtils.RemoveEffectType(oCaster, EffectType.Invisibility, EffectType.ImprovedInvisibility);
-
+      
       SpellUtils.SpellSwitch(oCaster, spell, spellEntry, onSpellCast.TargetObject, onSpellCast.TargetLocation, onSpellCast.SpellCastClass);
     }
     public void HandleCraftEnchantementCast(OnSpellCast onSpellCast)
