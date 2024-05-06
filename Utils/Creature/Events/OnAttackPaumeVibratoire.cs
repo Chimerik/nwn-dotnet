@@ -26,7 +26,7 @@ namespace NWN.Systems
               bool saveFailed = totalSave < DC;
 
               StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, $"{onAttack.Attacker.Name.ColorString(ColorConstants.Cyan)} - Paume Vibratoire", StringUtils.gold, true);
-              SpellUtils.SendSavingThrowFeedbackMessage(onAttack.Attacker, target, feedback, advantage, DC, totalSave, saveFailed, Ability.Wisdom);
+              SpellUtils.SendSavingThrowFeedbackMessage(onAttack.Attacker, target, feedback, advantage, DC, totalSave, saveFailed, Ability.Constitution);
 
               if (saveFailed)
                 NWScript.AssignCommand(onAttack.Attacker, () => target.ApplyEffect(EffectDuration.Instant, Effect.Death(true, true)));

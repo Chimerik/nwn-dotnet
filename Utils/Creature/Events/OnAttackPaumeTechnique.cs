@@ -34,6 +34,8 @@ namespace NWN.Systems
               if (saveFailed)
                 target.ApplyEffect(EffectDuration.Temporary, EffectSystem.knockdown, NwTimeSpan.FromRounds(2));
             }
+            else
+              onAttack.Attacker?.LoginPlayer.SendServerMessage($"Impossible de renverser {onAttack.Target.Name.ColorString(ColorConstants.Cyan)}", ColorConstants.Red);
 
             break;
         }

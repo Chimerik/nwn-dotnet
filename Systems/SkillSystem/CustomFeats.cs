@@ -773,6 +773,8 @@
     public const int EldritchKnightMagieDeGuerre = 20560;
     public const int EldritchKnightFrappeOcculte = 20561;
 
+    public const int Bard = 20562;
+
     public const int Invalid = 65535;
   }
 }

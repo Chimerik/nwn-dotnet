@@ -22,11 +22,11 @@ namespace NWN.Systems
             foreach(var target in creature.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 5, false))
             {
               SpellConfig.SavingThrowFeedback feedback = new();
-              int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, Ability.Wisdom);
-              int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Wisdom, DC, advantage, feedback);
+              int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, Ability.Dexterity);
+              int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Dexterity, DC, advantage, feedback);
               bool saveFailed = totalSave < DC;
 
-              SpellUtils.SendSavingThrowFeedbackMessage(creature, target, feedback, advantage, DC, totalSave, saveFailed, Ability.Wisdom);
+              SpellUtils.SendSavingThrowFeedbackMessage(creature, target, feedback, advantage, DC, totalSave, saveFailed, Ability.Dexterity);
 
               int damage = NwRandom.Roll(Utils.random, 6, 3);
 
@@ -37,6 +37,8 @@ namespace NWN.Systems
             }
 
             creature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSoundBurst));
+
+            caster.RemoveEffect(eff);
 
             break;
           }
