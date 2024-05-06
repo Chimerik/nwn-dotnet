@@ -22,6 +22,7 @@ namespace NWN.Systems
         private readonly NuiBind<bool> selectedItemVisibility = new("selectedItemVisibility");
         private readonly NuiBind<bool> combatStyleVisibility = new("combatStyleVisibility");
         private readonly NuiBind<bool> rogueSkillVisibility = new("rogueSkillVisibility");
+        private readonly NuiBind<bool> bardSkillVisibility = new("bardSkillVisibility");
         private readonly NuiBind<bool> selectedTitleVisibility = new("selectedTitleVisibility");
 
         private readonly NuiBind<string> validationText = new("validationText");
@@ -117,7 +118,7 @@ namespace NWN.Systems
               new NuiRow() { Children = new List<NuiElement>()
               {
                 new NuiSpacer(),
-                new NuiCombo() { Entries = skillSelection3, Selected = selectedSkill3, Visible = rogueSkillVisibility, Height = 40, Width = (player.guiScaledWidth * 0.6f - 380) / 2 },
+                new NuiCombo() { Entries = skillSelection3, Selected = selectedSkill3, Visible = bardSkillVisibility, Height = 40, Width = (player.guiScaledWidth * 0.6f - 380) / 2 },
                 new NuiCombo() { Entries = skillSelection4, Selected = selectedSkill4, Visible = rogueSkillVisibility, Height = 40, Width = (player.guiScaledWidth * 0.6f - 380) / 2 },
                 new NuiSpacer()
               } },
@@ -165,6 +166,7 @@ namespace NWN.Systems
             selectedItemVisibility.SetBindValue(player.oid, nuiToken.Token, false);
             combatStyleVisibility.SetBindValue(player.oid, nuiToken.Token, false);
             rogueSkillVisibility.SetBindValue(player.oid, nuiToken.Token, false);
+            bardSkillVisibility.SetBindValue(player.oid, nuiToken.Token, false);
             selectedTitleVisibility.SetBindValue(player.oid, nuiToken.Token, false);
             validationEnabled.SetBindValue(player.oid, nuiToken.Token, false);
 
@@ -472,6 +474,16 @@ namespace NWN.Systems
               else
                 selectedCombatStyle.SetBindValue(player.oid, nuiToken.Token, CustomSkill.FighterCombatStyleArchery);
 
+              bardSkillVisibility.SetBindValue(player.oid, nuiToken.Token, false);
+              rogueSkillVisibility.SetBindValue(player.oid, nuiToken.Token, false);
+              rogueSkillVisibility.SetBindValue(player.oid, nuiToken.Token, false);
+
+              break;
+
+            case CustomSkill.Bard:
+
+              combatStyleVisibility.SetBindValue(player.oid, nuiToken.Token, false);
+              bardSkillVisibility.SetBindValue(player.oid, nuiToken.Token, true);
               rogueSkillVisibility.SetBindValue(player.oid, nuiToken.Token, false);
               rogueSkillVisibility.SetBindValue(player.oid, nuiToken.Token, false);
 
@@ -479,6 +491,8 @@ namespace NWN.Systems
 
             case CustomSkill.Rogue:
 
+              combatStyleVisibility.SetBindValue(player.oid, nuiToken.Token, false);
+              bardSkillVisibility.SetBindValue(player.oid, nuiToken.Token, true);
               rogueSkillVisibility.SetBindValue(player.oid, nuiToken.Token, true);
               rogueSkillVisibility.SetBindValue(player.oid, nuiToken.Token, true);
 
@@ -487,6 +501,7 @@ namespace NWN.Systems
             default:
 
               combatStyleVisibility.SetBindValue(player.oid, nuiToken.Token, false);
+              bardSkillVisibility.SetBindValue(player.oid, nuiToken.Token, false);
               rogueSkillVisibility.SetBindValue(player.oid, nuiToken.Token, false);
               rogueSkillVisibility.SetBindValue(player.oid, nuiToken.Token, false);
 
@@ -499,6 +514,7 @@ namespace NWN.Systems
             CustomSkill.Rogue => Rogue.startingPackage.skillChoiceList,
             CustomSkill.Monk => Monk.startingPackage.skillChoiceList,
             CustomSkill.Wizard => Wizard.startingPackage.skillChoiceList,
+            CustomSkill.Bard => Bard.startingPackage.skillChoiceList,
             _ => Fighter.startingPackage.skillChoiceList,
           };
 
@@ -521,7 +537,7 @@ namespace NWN.Systems
             skillList1.RemoveAll(s => s.Value == bonusSkills.ElementAt(1).id);
             skillList2.RemoveAll(s => s.Value == bonusSkills.ElementAt(0).id);
 
-            if (selectedLearnable.id != CustomSkill.Rogue)
+            if (!Utils.In(selectedLearnable.id, CustomSkill.Rogue, CustomSkill.Bard))
             {
               skillSelection1.SetBindValue(player.oid, nuiToken.Token, skillList1);
               selectedSkill1.SetBindValue(player.oid, nuiToken.Token, bonusSkills.ElementAt(0).id);
@@ -535,7 +551,7 @@ namespace NWN.Systems
             skillList1.RemoveAt(1);
             skillList2.RemoveAt(0);
 
-            if (selectedLearnable.id != CustomSkill.Rogue)
+            if (!Utils.In(selectedLearnable.id, CustomSkill.Rogue, CustomSkill.Bard))
             {
               skillSelection1.SetBindValue(player.oid, nuiToken.Token, skillList1);
               selectedSkill1.SetBindValue(player.oid, nuiToken.Token, skillList1.First().Value);
@@ -544,8 +560,51 @@ namespace NWN.Systems
               selectedSkill2.SetBindValue(player.oid, nuiToken.Token, skillList2.First().Value);
             }
           }
-          
-          if (selectedLearnable.id == CustomSkill.Rogue)
+
+          if(selectedLearnable.id == CustomSkill.Bard)
+          {
+            List<NuiComboEntry> skillList3 = new();
+
+            foreach (var learnable in Bard.startingPackage.skillChoiceList)
+            {
+              if (!player.learnableSkills.TryGetValue(learnable.id, out var value) || value.source.Any(so => so == Category.Class))
+                skillList3.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
+            }
+
+            if (player.learnableSkills.ContainsKey(selectedLearnable.id))
+            {
+              var additionnalSkills = player.learnableSkills.Values.Where(s => s.category == Category.Skill && s.source.Any(so => so == Category.Class));
+
+              skillList1.RemoveAll(s => s.Value == additionnalSkills.ElementAt(2).id);
+              skillList2.RemoveAll(s => s.Value == additionnalSkills.ElementAt(2).id);
+              skillList3.RemoveAll(s => s.Value == additionnalSkills.ElementAt(0).id || s.Value == additionnalSkills.ElementAt(1).id);
+
+              skillSelection1.SetBindValue(player.oid, nuiToken.Token, skillList1);
+              selectedSkill1.SetBindValue(player.oid, nuiToken.Token, additionnalSkills.ElementAt(0).id);
+
+              skillSelection2.SetBindValue(player.oid, nuiToken.Token, skillList2);
+              selectedSkill2.SetBindValue(player.oid, nuiToken.Token, additionnalSkills.ElementAt(1).id);
+
+              skillSelection3.SetBindValue(player.oid, nuiToken.Token, skillList3);
+              selectedSkill3.SetBindValue(player.oid, nuiToken.Token, additionnalSkills.ElementAt(2).id);
+            }
+            else
+            {
+              skillList1.RemoveRange(1, 2);
+              skillList2.RemoveRange(1, 2);
+              skillList3.RemoveRange(0, 2);
+
+              skillSelection1.SetBindValue(player.oid, nuiToken.Token, skillList1);
+              selectedSkill1.SetBindValue(player.oid, nuiToken.Token, skillList1.First().Value);
+
+              skillSelection2.SetBindValue(player.oid, nuiToken.Token, skillList2);
+              selectedSkill2.SetBindValue(player.oid, nuiToken.Token, skillList2.First().Value);
+
+              skillSelection3.SetBindValue(player.oid, nuiToken.Token, skillList3);
+              selectedSkill3.SetBindValue(player.oid, nuiToken.Token, skillList3.First().Value);
+            }
+          }
+          else if (selectedLearnable.id == CustomSkill.Rogue)
           {
             List<NuiComboEntry> skillList3 = new();
             List<NuiComboEntry> skillList4 = new();
@@ -662,20 +721,18 @@ namespace NWN.Systems
           List<NuiComboEntry> skillList1 = new();
           List<NuiComboEntry> skillList2 = new();
 
-          ModuleSystem.Log.Info($"selected : {selectedLearnable.name} - {selectedLearnable.id}");
-
           var startingPackageList = selectedLearnable.id switch
           {
             CustomSkill.Barbarian => Barbarian.startingPackage.skillChoiceList,
             CustomSkill.Rogue => Rogue.startingPackage.skillChoiceList,
             CustomSkill.Monk => Monk.startingPackage.skillChoiceList,
             CustomSkill.Wizard => Wizard.startingPackage.skillChoiceList,
+            CustomSkill.Bard => Bard.startingPackage.skillChoiceList,
             _ => Fighter.startingPackage.skillChoiceList,
           };
 
           foreach (var learnable in startingPackageList)
           {
-            ModuleSystem.Log.Info($"package : {learnable.name}");
             if (!player.learnableSkills.TryGetValue(learnable.id, out var value) || value.source.Any(so => so == Category.Class))
             {
               skillList1.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
@@ -686,7 +743,22 @@ namespace NWN.Systems
           skillList1.RemoveAll(s => s.Value == selectedSkill2.GetBindValue(player.oid, nuiToken.Token));
           skillList2.RemoveAll(s => s.Value == selectedSkill1.GetBindValue(player.oid, nuiToken.Token));
 
-          if (selectedLearnable.id == CustomSkill.Rogue)
+          if(selectedLearnable.id == CustomSkill.Bard)
+          {
+            List<NuiComboEntry> skillList3 = new();
+
+            foreach (var learnable in Rogue.startingPackage.skillChoiceList)
+              if (!player.learnableSkills.TryGetValue(learnable.id, out var value) || value.source.Any(so => so == Category.Class))
+                skillList3.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
+
+            skillList1.RemoveAll(s => s.Value == selectedSkill3.GetBindValue(player.oid, nuiToken.Token));
+            skillList2.RemoveAll(s => s.Value == selectedSkill3.GetBindValue(player.oid, nuiToken.Token));
+            skillList3.RemoveAll(s => s.Value == selectedSkill1.GetBindValue(player.oid, nuiToken.Token)
+              || s.Value == selectedSkill2.GetBindValue(player.oid, nuiToken.Token));
+
+            skillSelection3.SetBindValue(player.oid, nuiToken.Token, skillList3);
+          }
+          else if (selectedLearnable.id == CustomSkill.Rogue)
           {
             List<NuiComboEntry> skillList3 = new();
             List<NuiComboEntry> skillList4 = new();

@@ -19,6 +19,9 @@ namespace NWN.Systems
           if(ability == Ability.Constitution && target.m_pStats.HasFeat(CustomSkill.TemporaryConstitutionSaveProficiency).ToBool())
             return NativeUtils.GetCreatureProficiencyBonus(target);
 
+          if(target.m_pStats.HasFeat(CustomSkill.ToucheATout).ToBool())
+            return (int)Math.Round((double)(NativeUtils.GetCreatureProficiencyBonus(target) / 2), MidpointRounding.ToZero);
+
           switch (ability) 
           {
             case Ability.Strength:

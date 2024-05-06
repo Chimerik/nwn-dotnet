@@ -50,9 +50,6 @@ namespace NWN.Systems
       int attackerAdvantage = GetCreatureAbilityAdvantage(attacker, attackerAbility, effectType: effectType);
       int targetAdvantage = GetCreatureAbilityAdvantage(target, targetAbility, effectType: effectType);
 
-      int attackerRoll = GetSkillRoll(attacker, attackerSkill, attackerAdvantage);
-      int targetRoll = GetSkillRoll(target, targetSkill, targetAdvantage);
-
       if (attackerSkill == CustomSkill.StealthProficiency)
       {
         List<string> effLink = new();
@@ -76,6 +73,8 @@ namespace NWN.Systems
           }
       }
 
+      int attackerRoll = GetSkillRoll(attacker, attackerSkill, attackerAdvantage, attackerScore, 0);
+      int targetRoll = GetSkillRoll(target, targetSkill, targetAdvantage, targetScore, attackerRoll + attackerScore);
       bool saveFailed = targetRoll + targetScore < attackerRoll + attackerScore;
 
       string attackerAdvantageString = attackerAdvantage == 0 ? "" : attackerAdvantage > 0 ? " (Avantage)".ColorString(StringUtils.gold) : " (Désavantage)".ColorString(ColorConstants.Red);

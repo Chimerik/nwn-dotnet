@@ -49,9 +49,7 @@ namespace NWN.Systems
         || eventData.Effect.Creator is not NwCreature protector)
         return ScriptHandleResult.Handled;
 
-      foreach (var eff in exiting.ActiveEffects)
-        if (eff.Creator == protector && eff.Tag == ProtectionStyleEffectTag)
-          exiting.RemoveEffect(eff);
+      EffectUtils.RemoveTaggedEffect(exiting, protector, ProtectionStyleEffectTag);
 
       return ScriptHandleResult.Handled;
     }

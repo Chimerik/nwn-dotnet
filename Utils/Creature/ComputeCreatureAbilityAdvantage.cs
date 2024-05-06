@@ -112,6 +112,16 @@ namespace NWN.Systems
 
             break;
         }
+
+        switch(effectType)
+        {
+          case SpellEffectType.Charm:
+          case SpellEffectType.Fear:
+            if (EffectSystem.ContreCharmeEffectTag == eff.Tag)
+              return true;
+
+            break;
+        }
       }
 
       if (spellEntry is not null && creature.KnowsFeat((Feat)CustomSkill.AbjurationSpellResistance))

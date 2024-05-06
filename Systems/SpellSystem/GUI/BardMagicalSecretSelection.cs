@@ -9,7 +9,7 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      public class SpellSelectionWindow : PlayerWindow
+      public class BardMagicalSecretSelectionWindow : PlayerWindow
       {
         private readonly NuiColumn rootColumn = new();
 
@@ -26,14 +26,11 @@ namespace NWN.Systems
         private readonly List<NwSpell> availableSpells = new();
         private readonly List<NwSpell> acquiredSpells = new();
 
-        private ClassType spellClass;
-        private int nbCantrips;
         private int nbSpells;
-        private int nbRestrictedSpells;
 
-        public SpellSelectionWindow(Player player, ClassType spellClass, int nbCantrips, int nbSpells, int nbRestrictedSpells = 0) : base(player)
+        public BardMagicalSecretSelectionWindow(Player player, int nbSpells) : base(player)
         {
-          windowId = "spellSelection";
+          windowId = "bardMagicalSecretSelection";
 
           List<NuiListTemplateCell> rowTemplateAvailableSpells = new()
           {
@@ -60,26 +57,15 @@ namespace NWN.Systems
               new NuiSpacer() } }
           };
 
-          CreateWindow(spellClass, nbCantrips, nbSpells, nbRestrictedSpells);
+          CreateWindow(nbSpells);
         }
-        public void CreateWindow(ClassType spellClass, int nbCantrips, int nbSpells, int nbRestrictedSpells = 0)
+        public void CreateWindow(int nbSpells)
         {
-          this.spellClass = spellClass;
-          this.nbCantrips = nbCantrips;
           this.nbSpells = nbSpells;
-          this.nbRestrictedSpells = nbRestrictedSpells;
 
           NuiRect windowRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 520, 500);
 
-          string title = $"{NwClass.FromClassType(spellClass).Name.ToString()} - Choix de sorts";
-
-          if(nbCantrips > 0)
-            title += $" - {nbCantrips} tour(s) de magie";
-
-          if (nbSpells > 0)
-            title += $" - {nbSpells + nbRestrictedSpells} sorts";
-
-          window = new NuiWindow(rootColumn, title.Remove(title.Length))
+          window = new NuiWindow(rootColumn, $"Barde - Choix de {nbSpells} secrets magiques")
           {
             Geometry = geometry,
             Resizable = false,
@@ -93,7 +79,7 @@ namespace NWN.Systems
           {
             nuiToken = tempToken;
 
-            nuiToken.OnNuiEvent += HandleSpellSelectionEvents;
+            nuiToken.OnNuiEvent += HandleMagicalSecretSelectionEvents;
 
             InitSpellsBinding();
 
@@ -103,20 +89,15 @@ namespace NWN.Systems
             if(!availableSpells.Any())
             {
               CloseWindow();
-              player.oid.SendServerMessage($"Vous connaissez déjà tous les sorts de {StringUtils.ToWhitecolor(NwClass.FromClassType(spellClass).Name.ToString())} de ce niveau", ColorConstants.Orange);
+              player.oid.SendServerMessage($"Vous connaissez déjà tous les sorts", ColorConstants.Orange);
             }
             else
-            {
-              player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CANTRIP_SELECTION").Value = nbCantrips;
-              player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_SELECTION").Value = nbSpells;
-              player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_RESTRICTED_SPELL_SELECTION").Value = nbRestrictedSpells;
-              player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_CLASS_SELECTION").Value = (int)spellClass;
-            }
+              player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_MAGICAL_SECRET_SELECTION").Value = nbSpells;
           }
           else
             player.oid.SendServerMessage($"Impossible d'ouvrir la fenêtre {window.Title}. Celle-ci est-elle déjà ouverte ?", ColorConstants.Orange);
         }
-        private void HandleSpellSelectionEvents(ModuleEvents.OnNuiEvent nuiEvent)
+        private void HandleMagicalSecretSelectionEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
           switch (nuiEvent.EventType)
           {
@@ -140,31 +121,17 @@ namespace NWN.Systems
 
                   NwSpell clickedSpell = acquiredSpells[nuiEvent.ArrayIndex];
 
-                  byte spellLevel = clickedSpell.GetSpellLevelForClass(spellClass);
+                  byte maxSlotKnown = SpellUtils.GetMaxSpellSlotLevelKnown(player.oid.LoginCreature, ClassType.Bard);
 
-                  if(spellLevel == 0)
-                  {
-                    if (acquiredSpells.Count(s => s.GetSpellLevelForClass(spellClass) == spellLevel) < nbCantrips)
-                      availableSpells.Add(clickedSpell);
-                    else
-                      availableSpells.AddRange(NwRuleset.Spells.Where(s => s.GetSpellLevelForClass(spellClass) == spellLevel
-                      && !acquiredSpells.Contains(s)
-                      && (!player.learnableSpells.TryGetValue(s.Id, out var learnable) || learnable.currentLevel < 1)));
-                  }
+                  if (acquiredSpells.Count < nbSpells)
+                    availableSpells.Add(clickedSpell);
                   else
                   {
-                    byte maxSlotKnown = SpellUtils.GetMaxSpellSlotLevelKnown(player.oid.LoginCreature, spellClass);
-
-                    if (acquiredSpells.Count(s => s.GetSpellLevelForClass(spellClass) > 0 && s.GetSpellLevelForClass(spellClass) <= maxSlotKnown) < nbSpells)
-                      availableSpells.Add(clickedSpell);
-                    else
-                    {
-                      availableSpells.AddRange(NwRuleset.Spells.Where(s => s.GetSpellLevelForClass(spellClass) > 0 && s.GetSpellLevelForClass(spellClass) <= maxSlotKnown
-                      && !acquiredSpells.Contains(s)
-                      && (!player.learnableSpells.TryGetValue(s.Id, out var learnable) || learnable.currentLevel < 1)));
-                    }
+                    availableSpells.AddRange(NwRuleset.Spells.Where(s => s.GetSpellLevelForClass(ClassType.Bard) <= maxSlotKnown
+                    && !acquiredSpells.Contains(s)
+                    && (!player.learnableSpells.TryGetValue(s.Id, out var learnable) || learnable.currentLevel < 1)));
                   }
-
+                  
                   acquiredSpells.Remove(clickedSpell);
 
                   BindAvailableSpells();
@@ -192,14 +159,14 @@ namespace NWN.Systems
                   {
                     if (player.learnableSpells.TryGetValue(spell.Id, out var learnable))
                     {
-                      learnable.learntFromClasses.Add((int)spellClass);
+                      learnable.learntFromClasses.Add((int)ClassType.Bard);
 
                       if(learnable.currentLevel < 1)
                         learnable.LevelUp(player);                      
                     }
                     else
                     {
-                      LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[spell.Id], (int)spellClass);
+                      LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[spell.Id], (int)ClassType.Bard);
                       player.learnableSpells.Add(learnableSpell.id, learnableSpell);
                       learnableSpell.LevelUp(player);
                     }
@@ -207,10 +174,7 @@ namespace NWN.Systems
                     player.oid.SendServerMessage($"Vous apprenez le sort {StringUtils.ToWhitecolor(spell.Name.ToString())}", ColorConstants.Orange);
                   }
 
-                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_SELECTION").Delete();
-                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_RESTRICTED_SPELL_SELECTION").Delete();
-                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CANTRIP_SELECTION").Delete();
-                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_CLASS_SELECTION").Delete();
+                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_MAGICAL_SECRET_SELECTION").Delete();
 
                   CloseWindow();
 
@@ -226,22 +190,21 @@ namespace NWN.Systems
           List<string> availableNamesList = new();
           List<bool> selectableList = new();
 
-          int minSpellLevel = nbCantrips > 0 ? 0 : 1;
-          int maxSpellLevel = SpellUtils.GetMaxSpellSlotLevelKnown(player.oid.LoginCreature, spellClass);
+          int maxSpellLevel = SpellUtils.GetMaxSpellSlotLevelKnown(player.oid.LoginCreature, ClassType.Bard);
 
           availableSpells.Clear();
           acquiredSpells.Clear();
 
           foreach (var spell in NwRuleset.Spells)
           {
-            if (spell.GetSpellLevelForClass(spellClass) < minSpellLevel || spell.GetSpellLevelForClass(spellClass) > maxSpellLevel)
+            if (spell.GetSpellLevelForClass(ClassType.Bard) < 0 || spell.GetSpellLevelForClass(ClassType.Bard) > maxSpellLevel)
               continue;
 
             if (player.learnableSpells.TryGetValue(spell.Id, out var learnable) && learnable.currentLevel > 0
-              && learnable.learntFromClasses.Contains((int)spellClass))
+              && learnable.learntFromClasses.Contains((int)ClassType.Bard))
               continue;
 
-            if (spellClass == ClassType.Bard && Spells2da.spellTable[spell.Id].bardMagicalSecret)
+            if (!Spells2da.spellTable[spell.Id].bardMagicalSecret)
               continue;
 
             availableSpells.Add(spell);
@@ -261,35 +224,8 @@ namespace NWN.Systems
           List<string> availableIconsList = new();
           List<string> availableNamesList = new();
 
-          if(nbCantrips > 0 && acquiredSpells.Count(s => s.GetSpellLevelForClass(spellClass) == 0) == nbCantrips)
-            availableSpells.RemoveAll(s => s.GetSpellLevelForClass(spellClass) == 0);
-
-          if (nbRestrictedSpells > 0)
-          {
-            if (acquiredSpells.Count(s => s.GetSpellLevelForClass(spellClass) != 0) == nbSpells + nbRestrictedSpells)
-              availableSpells.RemoveAll(s => s.GetSpellLevelForClass(spellClass) != 0);
-            else
-            {
-              switch (spellClass)
-              {
-                case (ClassType)CustomClass.RogueArcaneTrickster:
-
-                  if (acquiredSpells.Count(s => !Utils.In(s.SpellSchool, SpellSchool.Enchantment, SpellSchool.Illusion) && s.GetSpellLevelForClass(spellClass) > 0) == nbSpells)
-                    availableSpells.RemoveAll(s => !Utils.In(s.SpellSchool, SpellSchool.Enchantment, SpellSchool.Illusion) && s.GetSpellLevelForClass(spellClass) > 0);
-
-                  break;
-
-                case (ClassType)CustomClass.EldritchKnight:
-
-                  if (acquiredSpells.Count(s => !Utils.In(s.SpellSchool, SpellSchool.Evocation, SpellSchool.Abjuration) && s.GetSpellLevelForClass(spellClass) > 0) == nbSpells)
-                    availableSpells.RemoveAll(s => !Utils.In(s.SpellSchool, SpellSchool.Evocation, SpellSchool.Abjuration) && s.GetSpellLevelForClass(spellClass) > 0);
-
-                  break;
-              }
-            }
-          }
-          else if (nbSpells > 0 && acquiredSpells.Count(s => s.GetSpellLevelForClass(spellClass) != 0) == nbSpells)
-            availableSpells.RemoveAll(s => s.GetSpellLevelForClass(spellClass) != 0);
+          if (nbSpells > 0 && acquiredSpells.Count == nbSpells)
+            availableSpells.Clear();
 
           foreach (var spell in availableSpells)
           {
@@ -316,7 +252,7 @@ namespace NWN.Systems
           acquiredSpellNames.SetBindValues(player.oid, nuiToken.Token, acquiredNamesList);
           listAcquiredSpellCount.SetBindValue(player.oid, nuiToken.Token, acquiredSpells.Count);
           
-          if (acquiredSpells.Count == nbCantrips + nbSpells + nbRestrictedSpells)
+          if (acquiredSpells.Count == nbSpells)
             enabled.SetBindValue(player.oid, nuiToken.Token, true);
           else
             enabled.SetBindValue(player.oid, nuiToken.Token, false);

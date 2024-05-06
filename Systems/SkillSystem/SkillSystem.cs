@@ -62,6 +62,8 @@ namespace NWN.Systems
       WizardSubClass,
       [Description("Ki")]
       Ki,
+      [Description("Collège_de_Barde")]
+      BardSubClass,
     }
 
     public static readonly Dictionary<int, Learnable> learnableDictionary = new();
@@ -523,7 +525,13 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomSkill.EldritchKnightFrappeOcculte, new LearnableSkill(CustomSkill.EldritchKnightFrappeOcculte, "Frappe Occulte", "Lorsque vous touchez une créature avec une attaque d'arme, celle-ci subit un désavantage sur les jets de sauvegarde contre vos sorts pendant un round", Category.Fight, "is_EldritchStrike", 1, 1, Ability.Constitution, Ability.Intelligence, OnLearnFrappeOcculte));
       learnableDictionary.Add(CustomSkill.EldritchKnightChargeArcanique, new LearnableSkill(CustomSkill.EldritchKnightChargeArcanique, "Charge Arcanique", "Après avoir utilisé fougue, vous pouvez vous téléporter jusqu'à 9 m dans un espace inoccupé", Category.Fight, "is_ArcaneCharge", 1, 1, Ability.Constitution, Ability.Intelligence, LearnActivableFeat));
 
-      learnableDictionary.Add(CustomSkill.Bard, new LearnableSkill(CustomSkill.Bard, "Barde", "", Category.Class, "bard", 3, 1, Ability.Intelligence, Ability.Wisdom, Bard.LevelUp, "1aXLSIaVPxH-_YiPs7kI2ix7aeCKV7fyeH0bcdKR54-s"));
+      learnableDictionary.Add(CustomSkill.Bard, new LearnableSkill(CustomSkill.Bard, "Barde", "", Category.Class, "bard", 3, 1, Ability.Charisma, Ability.Dexterity, Bard.LevelUp, "1aXLSIaVPxH-_YiPs7kI2ix7aeCKV7fyeH0bcdKR54-s"));
+      learnableDictionary.Add(CustomSkill.BardInspiration, new LearnableSkill(CustomSkill.BardInspiration, "Inspiration Bardique", "Action bonus\n\nLe prochain jet d’attaque, de sauvegarde ou de compétence que votre cible aurait échoué sans votre aide bénéficie de votre bonus d'inspiration\n\n- Bonus d’inspiration : +1d6 au niveau 1, +1d8 au niveau 5, +1d10 au niveau 10, +1d12 au niveau 15\n\nDurée : jusqu'à utilisation ou prochain repos long\n\nA chaque repos long, vous disposez d’un nombre d’utilisations égal à votre modificateur de charisme (minimum 1)", Category.Magic, "is_BardicInspi", 1, 1, Ability.Charisma, Ability.Dexterity, OnLearnInspirationBardique));
+      learnableDictionary.Add(CustomSkill.ChantDuRepos, new LearnableSkill(CustomSkill.ChantDuRepos, "Chant du Repos", "Tous vos alliés à moins de 9 m sont revitalisés comme s’ils avaient pris un repos court\n\nUtilisable une fois par repos long\n\nNe peut pas être utilisé en combat ni si vous êtes sous l’effet de silence", Category.Magic, "is_RestSong", 1, 1, Ability.Charisma, Ability.Dexterity, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.ToucheATout, new LearnableSkill(CustomSkill.ToucheATout, "Touche à tout", "Vous ajoutez la moitié de votre bonus de maîtrise (arrondi à l'inférieur) aux jets de caractéristique que vous ne maîtrisez pas", Category.MindBody, "is_JackAllTrades", 1, 1, Ability.Charisma, Ability.Dexterity, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.SourceDinspiration, new LearnableSkill(CustomSkill.SourceDinspiration, "Source d'Inspiration", "Vous récupérez vos inspirations bardiques sur un repos court", Category.MindBody, "is_FontInspi", 1, 1, Ability.Charisma, Ability.Dexterity, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.ContreCharme, new LearnableSkill(CustomSkill.ContreCharme, "Contre Charme", "Tant que vous êtes n’êtes pas sous l’effet de Silence, vos alliés à moins de 9 m et qui peuvent vous entendre ont l'avantage contre les effets de charmes et de peur", Category.Fight, "is_CounterCharm", 1, 1, Ability.Charisma, Ability.Dexterity, OnLearnContreCharme));
+      learnableDictionary.Add(CustomSkill.BardInspirationSuperieure, new LearnableSkill(CustomSkill.BardInspirationSuperieure, "Inspiration Supérieure", "Si vous n'avez plus d'inspiration au moment de lancer l'initiative pour un combat, vous en récupérez une utilisation", Category.Fight, "is_BardicInspi", 1, 1, Ability.Charisma, Ability.Dexterity, OnLearnInspirationSuperieure));
 
       // SPELLS
       // CANTRIPS

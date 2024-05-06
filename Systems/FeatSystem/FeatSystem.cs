@@ -134,6 +134,9 @@ namespace NWN.Systems
         case CustomSkill.TransmutationAlchimieMineure: TransmutationAlchimieMineure(onUseFeat.Creature); return;
         case CustomSkill.TransmutationStone: TransmutationStone(player); return;
         case CustomSkill.TransmutationMaitre: TransmutationMaster(player); return;
+
+        case CustomSkill.BardInspiration: InspirationBardique(onUseFeat.Creature, onUseFeat.TargetObject); return;
+        case CustomSkill.ChantDuRepos: ChantDuRepos(onUseFeat.Creature); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

@@ -259,6 +259,12 @@
 
     public const int ConstitutionInfernale = 1538;
 
+    public const int BardInspiration = 1539;
+    public const int ChantDuRepos = 1540;
+    public const int ToucheATout = 1541;
+    public const int SourceDinspiration = 1542;
+    public const int ContreCharme = 1543;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -774,6 +780,7 @@
     public const int EldritchKnightFrappeOcculte = 20561;
 
     public const int Bard = 20562;
+    public const int BardInspirationSuperieure = 20563;
 
     public const int Invalid = 65535;
   }

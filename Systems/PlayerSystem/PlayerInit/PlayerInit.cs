@@ -432,6 +432,7 @@ namespace NWN.Systems
         InitializeLienTotemChoice();
         InitializeMaitriseDesSortsChoice();
         InitializeSpellSelection();
+        InitializeMagicalSecretSelection();
         ResetFlameBlade();
         ResetSize();
         ApplyProtectionStyle();
@@ -463,6 +464,8 @@ namespace NWN.Systems
         ApplyMagieDeGuerre();
         ApplyFrappeOcculte();
         ApplyArmeLiee();
+        ApplyContreCharme();
+        ApplyInspirationSuperieure();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

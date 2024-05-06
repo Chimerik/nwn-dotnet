@@ -201,6 +201,8 @@ namespace NWN.Systems
         int totalAttack = attackRoll + attackBonus;
         int defensiveDuellistBonus = NativeUtils.GetDefensiveDuellistBonus(targetCreature, attackData.m_bRangedAttack);
         int superiorityDiceBonus = 0;
+        int inspirationBardique = 0;
+        CGameEffect inspirationEffect = null;
 
         if (creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreTypeVariableExo) == CustomSkill.WarMasterAttaquePrecise)
         {
@@ -208,6 +210,14 @@ namespace NWN.Systems
           superiorityDiceBonus = NwRandom.Roll(Utils.random, superiorityDice);
           LogUtils.LogMessage($"Attaque précise : dé de supériorité 1d{superiorityDice} (+{superiorityDiceBonus})", LogUtils.LogType.Combat);
         }
+
+        foreach (var eff in creature.m_appliedEffects)
+          if (eff.m_sCustomTag.CompareNoCase(EffectSystem.inspirationBardiqueEffectExoTag).ToBool())
+          {
+            inspirationBardique = eff.m_nCasterLevel;
+            inspirationEffect = eff;
+            break;
+          }
 
         if (isCriticalHit)
         {
@@ -219,7 +229,7 @@ namespace NWN.Systems
         {
           if (attackData.m_bRangedAttack < 1 && targetCreature.m_appliedEffects.Any(e => (EffectTrueType)e.m_nType == EffectTrueType.SetState && e.GetInteger(0) == 8)) // Si la cible est paralysée, que l'attaque touche et est en mêlée, alors critique auto
           {
-            if(NativeUtils.IsAssassinate(creature))
+            if (NativeUtils.IsAssassinate(creature))
             {
               attackData.m_nAttackResult = 3;
               criticalString = "CRITIQUE - ".ColorString(StringUtils.gold);
@@ -260,18 +270,32 @@ namespace NWN.Systems
             }
           }
         }
-        else if(attackRoll > 1 && superiorityDiceBonus > 0 && totalAttack + superiorityDiceBonus > targetAC + defensiveDuellistBonus)
+        else if (attackRoll > 1 && totalAttack + superiorityDiceBonus + inspirationBardique > targetAC + defensiveDuellistBonus)
         {
-            attackBonus += superiorityDiceBonus;
-            rollString = $"{attackRoll} + {attackBonus} = {attackRoll + attackBonus}".ColorString(new Color(32, 255, 32));
+          attackBonus += superiorityDiceBonus + inspirationBardique;
+          rollString = $"{attackRoll} + {attackBonus} = {attackRoll + attackBonus}".ColorString(new Color(32, 255, 32));
 
-            attackData.m_nAttackResult = 1;
+          attackData.m_nAttackResult = 1;
+
+          if (superiorityDiceBonus > 0)
+          {
             creature.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreTypeVariableExo);
             creature.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreDiceVariableExo);
 
-            LogUtils.LogMessage("Activation attaque précise", LogUtils.LogType.Combat);
-            LogUtils.LogMessage($"Touché : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC + defensiveDuellistBonus}", LogUtils.LogType.Combat);
-            NativeUtils.BroadcastNativeServerMessage($"Attaque précise (+{superiorityDiceBonus})".ColorString(StringUtils.gold), creature);
+            LogUtils.LogMessage($"Activation attaque précise : +{superiorityDiceBonus}", LogUtils.LogType.Combat);
+            NativeUtils.BroadcastNativeServerMessage($"Attaque précise (+{StringUtils.ToWhitecolor(superiorityDiceBonus)})".ColorString(StringUtils.gold), creature);
+          }
+
+          if(inspirationBardique > 0)
+          {
+            if(inspirationEffect is not null)
+            creature.RemoveEffect(inspirationEffect);
+
+            LogUtils.LogMessage($"Activation inspiration bardique : +{inspirationBardique}", LogUtils.LogType.Combat);
+            NativeUtils.BroadcastNativeServerMessage($"Inspiration Bardique (+{StringUtils.ToWhitecolor(inspirationBardique)})".ColorString(StringUtils.gold), creature);
+          }
+
+          LogUtils.LogMessage($"Touché : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC + defensiveDuellistBonus}", LogUtils.LogType.Combat);
         }
         else
         {

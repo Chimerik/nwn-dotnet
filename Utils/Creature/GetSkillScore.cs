@@ -21,6 +21,9 @@ namespace NWN.Systems
         }
         else
         {
+          if (creature.KnowsFeat((Feat)CustomSkill.ToucheATout))
+            return (int)Math.Round((double)(NativeUtils.GetCreatureProficiencyBonus(creature) / 2), MidpointRounding.ToZero);
+
           switch (ability)
           {
             case Ability.Strength:

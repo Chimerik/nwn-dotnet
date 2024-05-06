@@ -40,6 +40,20 @@ namespace NWN.Systems
 
         if (saveRoll + proficiencyBonus < saveDC)
           saveRoll = MonkUtils.HandleDiamondSoul(target, saveRoll);
+
+        if (saveRoll + proficiencyBonus < saveDC)
+        {
+          foreach(var eff in target.ActiveEffects)
+            if(eff.Tag == EffectSystem.InspirationBardiqueEffectTag)
+            {
+              saveRoll += eff.CasterLevel;
+
+              LogUtils.LogMessage($"Activation inspiration bardique : +{eff.CasterLevel}", LogUtils.LogType.Combat);
+              StringUtils.DisplayStringToAllPlayersNearTarget(target, $"Inspiration Bardique (+{StringUtils.ToWhitecolor(eff.CasterLevel)})".ColorString(StringUtils.gold), StringUtils.gold, true, true);
+              target.RemoveEffect(eff);
+              break;
+            }
+        }
       }
 
       feedback.proficiencyBonus = proficiencyBonus;
