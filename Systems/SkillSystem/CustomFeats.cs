@@ -264,6 +264,7 @@
     public const int ToucheATout = 1541;
     public const int SourceDinspiration = 1542;
     public const int ContreCharme = 1543;
+    public const int MotsCinglants = 1544;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -781,6 +782,8 @@
 
     public const int Bard = 20562;
     public const int BardInspirationSuperieure = 20563;
+
+    public const int BardCollegeDuSavoir = 20564;
 
     public const int Invalid = 65535;
   }

@@ -202,7 +202,9 @@ namespace NWN.Systems
         int defensiveDuellistBonus = NativeUtils.GetDefensiveDuellistBonus(targetCreature, attackData.m_bRangedAttack);
         int superiorityDiceBonus = 0;
         int inspirationBardique = 0;
+        int motsCinglants = 0;
         CGameEffect inspirationEffect = null;
+        CGameEffect motsCinglantsEffect = null;
 
         if (creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreTypeVariableExo) == CustomSkill.WarMasterAttaquePrecise)
         {
@@ -212,66 +214,207 @@ namespace NWN.Systems
         }
 
         foreach (var eff in creature.m_appliedEffects)
-          if (eff.m_sCustomTag.CompareNoCase(EffectSystem.inspirationBardiqueEffectExoTag).ToBool())
+        {
+          if (inspirationBardique > 0 && motsCinglants > 0)
+            break;
+
+          if (inspirationBardique < 1 && eff.m_sCustomTag.CompareNoCase(EffectSystem.inspirationBardiqueEffectExoTag).ToBool())
           {
             inspirationBardique = eff.m_nCasterLevel;
             inspirationEffect = eff;
-            break;
           }
+          else if(motsCinglants < 1 && eff.m_sCustomTag.CompareNoCase(EffectSystem.motsCinglantsEffectExoTag).ToBool())
+          {
+            motsCinglants = eff.m_nCasterLevel;
+            motsCinglantsEffect = eff;
+          }
+        }
 
-        if (isCriticalHit)
+        bool isAssassinate = NativeUtils.IsAssassinate(creature);
+
+        if (isCriticalHit || isAssassinate 
+          || (attackData.m_bRangedAttack < 1 && targetCreature.m_appliedEffects.Any(e => (EffectTrueType)e.m_nType == EffectTrueType.SetState && e.GetInteger(0) == 8))) // Si la cible est paralysée, que l'attaque touche et est en mêlée, alors critique auto
         {
           attackData.m_nAttackResult = 3;
           criticalString = "CRITIQUE - ".ColorString(StringUtils.gold);
-          LogUtils.LogMessage("Coup critique", LogUtils.LogType.Combat);
+          
+          if(isAssassinate)
+            LogUtils.LogMessage("Coup critique - Assassinat", LogUtils.LogType.Combat);
+          else
+            LogUtils.LogMessage("Coup critique", LogUtils.LogType.Combat);
         }
         else if (attackRoll > 1 && totalAttack > targetAC)
         {
-          if (attackData.m_bRangedAttack < 1 && targetCreature.m_appliedEffects.Any(e => (EffectTrueType)e.m_nType == EffectTrueType.SetState && e.GetInteger(0) == 8)) // Si la cible est paralysée, que l'attaque touche et est en mêlée, alors critique auto
+          if (motsCinglants > 0 || defensiveDuellistBonus > 0)
           {
-            if (NativeUtils.IsAssassinate(creature))
+            if (totalAttack + inspirationBardique + superiorityDiceBonus > targetAC + defensiveDuellistBonus + motsCinglants)
             {
-              attackData.m_nAttackResult = 3;
-              criticalString = "CRITIQUE - ".ColorString(StringUtils.gold);
-              LogUtils.LogMessage("Coup critique - Assassinat", LogUtils.LogType.Combat);
+              if (inspirationBardique > 0)
+              {
+                if (inspirationEffect is not null)
+                  creature.RemoveEffect(inspirationEffect);
+
+                LogUtils.LogMessage($"Activation inspiration bardique : +{inspirationBardique}", LogUtils.LogType.Combat);
+                NativeUtils.BroadcastNativeServerMessage($"Inspiration Bardique (+{StringUtils.ToWhitecolor(inspirationBardique)})".ColorString(StringUtils.gold), creature);
+              }
+
+              if (motsCinglants > 0)
+              {
+                if (motsCinglantsEffect is not null)
+                  creature.RemoveEffect(motsCinglantsEffect);
+
+                LogUtils.LogMessage($"Activation mots cinglants : +{motsCinglants}", LogUtils.LogType.Combat);
+                NativeUtils.BroadcastNativeServerMessage($"Mots Cinglants (-{StringUtils.ToWhitecolor(motsCinglants)})".ColorString(StringUtils.gold), creature);
+              }
+
+              if (superiorityDiceBonus > 0)
+              {
+                creature.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreTypeVariableExo);
+                creature.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreDiceVariableExo);
+
+                LogUtils.LogMessage($"Activation attaque précise : +{superiorityDiceBonus}", LogUtils.LogType.Combat);
+                NativeUtils.BroadcastNativeServerMessage($"Attaque précise (+{StringUtils.ToWhitecolor(superiorityDiceBonus)})".ColorString(StringUtils.gold), creature);
+              }
+
+              if (defensiveDuellistBonus > 0)
+                NativeUtils.SendNativeServerMessage("Duelliste défensif activé !".ColorString(ColorConstants.Orange), targetCreature);
+
+              LogUtils.LogMessage($"Touché : {attackRoll} + {attackBonus + inspirationBardique - motsCinglants + superiorityDiceBonus} = {attackRoll + attackBonus + inspirationBardique - motsCinglants + superiorityDiceBonus} vs {targetAC + defensiveDuellistBonus}", LogUtils.LogType.Combat);
             }
             else
             {
-              attackData.m_nAttackResult = 3;
-              criticalString = "CRITIQUE - ".ColorString(new Color(255, 215, 0));
-              LogUtils.LogMessage("Coup critique", LogUtils.LogType.Combat);
-            }
-          }
-          else
-          {
-            if (totalAttack > targetAC + defensiveDuellistBonus)
-            {
-              if (NativeUtils.IsAssassinate(creature))
+              if (inspirationBardique > 0)
               {
-                attackData.m_nAttackResult = 3;
-                criticalString = "CRITIQUE - ".ColorString(StringUtils.gold);
-                LogUtils.LogMessage("Coup critique - Assassinat", LogUtils.LogType.Combat);
+                if (inspirationEffect is not null)
+                  creature.RemoveEffect(inspirationEffect);
+
+                LogUtils.LogMessage($"Activation inspiration bardique : +{inspirationBardique}", LogUtils.LogType.Combat);
+                NativeUtils.BroadcastNativeServerMessage($"Inspiration Bardique (+{StringUtils.ToWhitecolor(inspirationBardique)})".ColorString(StringUtils.gold), creature);
               }
-              else
+
+              if (motsCinglants > 0)
               {
-                attackData.m_nAttackResult = 1;
-                LogUtils.LogMessage($"Touché : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC + defensiveDuellistBonus}", LogUtils.LogType.Combat);
+                if (motsCinglantsEffect is not null)
+                  creature.RemoveEffect(motsCinglantsEffect);
+
+                LogUtils.LogMessage($"Activation mots cinglants : +{motsCinglants}", LogUtils.LogType.Combat);
+                NativeUtils.BroadcastNativeServerMessage($"Mots Cinglants (-{StringUtils.ToWhitecolor(motsCinglants)})".ColorString(StringUtils.gold), creature);
               }
-            }
-            else
-            {
+
+              if (superiorityDiceBonus > 0)
+              {
+                creature.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreTypeVariableExo);
+                creature.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreDiceVariableExo);
+
+                LogUtils.LogMessage($"Activation attaque précise : +{superiorityDiceBonus}", LogUtils.LogType.Combat);
+                NativeUtils.BroadcastNativeServerMessage($"Attaque précise (+{StringUtils.ToWhitecolor(superiorityDiceBonus)})".ColorString(StringUtils.gold), creature);
+              }
+
+              if(defensiveDuellistBonus > 0)
+                NativeUtils.SendNativeServerMessage("Duelliste défensif activé !".ColorString(ColorConstants.Orange), targetCreature);
+
               attackData.m_nAttackResult = 4;
               attackData.m_nMissedBy = (byte)(targetAC - attackRoll) > 8 ? (byte)Utils.random.Next(1, 9) : (byte)(targetAC - attackRoll);
               hitString = "manquez".ColorString(ColorConstants.Red);
               rollString = rollString.StripColors().ColorString(ColorConstants.Red);
-              NativeUtils.SendNativeServerMessage($"Duelliste défensif activé !".ColorString(ColorConstants.Orange), creature);
-              LogUtils.LogMessage($"Manqué : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC + defensiveDuellistBonus}", LogUtils.LogType.Combat);
+              
+              LogUtils.LogMessage($"Manqué : {attackRoll} + {attackBonus + inspirationBardique - motsCinglants + superiorityDiceBonus} = {attackRoll + attackBonus + inspirationBardique - motsCinglants + superiorityDiceBonus} vs {targetAC + defensiveDuellistBonus}", LogUtils.LogType.Combat);
               NativeUtils.HandleRiposte(creature, targetCreature, attackData, attackerName);
             }
           }
+          else
+          {
+            LogUtils.LogMessage($"Touché : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC}", LogUtils.LogType.Combat);
+          }
         }
-        else if (attackRoll > 1 && totalAttack + superiorityDiceBonus + inspirationBardique > targetAC + defensiveDuellistBonus)
+        else if (attackRoll > 1)
         {
+          if(superiorityDiceBonus > 0 || inspirationBardique > 0)
+          {
+            if(totalAttack + superiorityDiceBonus + inspirationBardique > targetAC + defensiveDuellistBonus + motsCinglants)
+            {
+              if (inspirationBardique > 0)
+              {
+                if (inspirationEffect is not null)
+                  creature.RemoveEffect(inspirationEffect);
+
+                LogUtils.LogMessage($"Activation inspiration bardique : +{inspirationBardique}", LogUtils.LogType.Combat);
+                NativeUtils.BroadcastNativeServerMessage($"Inspiration Bardique (+{StringUtils.ToWhitecolor(inspirationBardique)})".ColorString(StringUtils.gold), creature);
+              }
+
+              if (motsCinglants > 0)
+              {
+                if (motsCinglantsEffect is not null)
+                  creature.RemoveEffect(motsCinglantsEffect);
+
+                LogUtils.LogMessage($"Activation mots cinglants : +{motsCinglants}", LogUtils.LogType.Combat);
+                NativeUtils.BroadcastNativeServerMessage($"Mots Cinglants (-{StringUtils.ToWhitecolor(motsCinglants)})".ColorString(StringUtils.gold), creature);
+              }
+
+              if (superiorityDiceBonus > 0)
+              {
+                creature.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreTypeVariableExo);
+                creature.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreDiceVariableExo);
+
+                LogUtils.LogMessage($"Activation attaque précise : +{superiorityDiceBonus}", LogUtils.LogType.Combat);
+                NativeUtils.BroadcastNativeServerMessage($"Attaque précise (+{StringUtils.ToWhitecolor(superiorityDiceBonus)})".ColorString(StringUtils.gold), creature);
+              }
+
+              if (defensiveDuellistBonus > 0)
+                NativeUtils.SendNativeServerMessage("Duelliste défensif activé !".ColorString(ColorConstants.Orange), targetCreature);
+
+              LogUtils.LogMessage($"Touché : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC}", LogUtils.LogType.Combat);
+            }
+            else
+            {
+              if (inspirationBardique > 0)
+              {
+                if (inspirationEffect is not null)
+                  creature.RemoveEffect(inspirationEffect);
+
+                LogUtils.LogMessage($"Activation inspiration bardique : +{inspirationBardique}", LogUtils.LogType.Combat);
+                NativeUtils.BroadcastNativeServerMessage($"Inspiration Bardique (+{StringUtils.ToWhitecolor(inspirationBardique)})".ColorString(StringUtils.gold), creature);
+              }
+
+              if (motsCinglants > 0)
+              {
+                if (motsCinglantsEffect is not null)
+                  creature.RemoveEffect(motsCinglantsEffect);
+
+                LogUtils.LogMessage($"Activation mots cinglants : +{motsCinglants}", LogUtils.LogType.Combat);
+                NativeUtils.BroadcastNativeServerMessage($"Mots Cinglants (-{StringUtils.ToWhitecolor(motsCinglants)})".ColorString(StringUtils.gold), creature);
+              }
+
+              if (superiorityDiceBonus > 0)
+              {
+                creature.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreTypeVariableExo);
+                creature.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreDiceVariableExo);
+
+                LogUtils.LogMessage($"Activation attaque précise : +{superiorityDiceBonus}", LogUtils.LogType.Combat);
+                NativeUtils.BroadcastNativeServerMessage($"Attaque précise (+{StringUtils.ToWhitecolor(superiorityDiceBonus)})".ColorString(StringUtils.gold), creature);
+              }
+
+              if (defensiveDuellistBonus > 0)
+                NativeUtils.SendNativeServerMessage("Duelliste défensif activé !".ColorString(ColorConstants.Orange), targetCreature);
+
+              attackData.m_nAttackResult = 4;
+              attackData.m_nMissedBy = (byte)(targetAC - attackRoll) > 8 ? (byte)Utils.random.Next(1, 9) : (byte)(targetAC - attackRoll);
+              hitString = "manquez".ColorString(ColorConstants.Red);
+              rollString = rollString.StripColors().ColorString(ColorConstants.Red);
+              NativeUtils.HandleRiposte(creature, targetCreature, attackData, attackerName);
+              LogUtils.LogMessage($"Manqué : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC}", LogUtils.LogType.Combat);
+            }
+          }
+          else
+          {
+            attackData.m_nAttackResult = 4;
+            attackData.m_nMissedBy = (byte)(targetAC - attackRoll) > 8 ? (byte)Utils.random.Next(1, 9) : (byte)(targetAC - attackRoll);
+            hitString = "manquez".ColorString(ColorConstants.Red);
+            rollString = rollString.StripColors().ColorString(ColorConstants.Red);
+            NativeUtils.HandleRiposte(creature, targetCreature, attackData, attackerName);
+            LogUtils.LogMessage($"Manqué : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC}", LogUtils.LogType.Combat);
+          }
+
           attackBonus += superiorityDiceBonus + inspirationBardique;
           rollString = $"{attackRoll} + {attackBonus} = {attackRoll + attackBonus}".ColorString(new Color(32, 255, 32));
 

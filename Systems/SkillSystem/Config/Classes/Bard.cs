@@ -50,8 +50,8 @@ namespace NWN.Systems
 
       switch (customSkillId)
       {
-        /*case CustomSkill.MonkPaume: HandlePaumeLevelUp(player, playerClass.currentLevel); break;
-        case CustomSkill.MonkOmbre: HandleOmbreLevelUp(player, playerClass.currentLevel); break;
+        case CustomSkill.BardCollegeDuSavoir: HandleCollegeDuSavoirLevelUp(player, playerClass.currentLevel); break;
+        /*case CustomSkill.MonkOmbre: HandleOmbreLevelUp(player, playerClass.currentLevel); break;
         case CustomSkill.MonkElements: HandleElementsLevelUp(player, playerClass.currentLevel); break;*/
       }
 

@@ -433,6 +433,7 @@ namespace NWN.Systems
         InitializeMaitriseDesSortsChoice();
         InitializeSpellSelection();
         InitializeMagicalSecretSelection();
+        InitializeSkillProficiencySelection();
         ResetFlameBlade();
         ResetSize();
         ApplyProtectionStyle();

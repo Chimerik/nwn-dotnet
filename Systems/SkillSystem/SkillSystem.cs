@@ -306,10 +306,10 @@ namespace NWN.Systems
       // RACES
       // HUMAN
 
-      learnableDictionary.Add(CustomSkill.HumanVersatility, new LearnableSkill(CustomSkill.HumanVersatility, "Versatile", "Les humains sont caractérisé par leur rapidité à s'adapter à leur environnement. Ils bénéficient des avantages suivants:\n- Maîtrise d'une compétence supplémentaire\n- Capables de porter 25% de poids supplémentaire\n- Vitesse d'apprentissage doublée pour la première languée étudiée\n- Maîtrise des lances, des armures légères et des boucliers", Category.Race, "race_human", 1, 1, Ability.Constitution, Ability.Strength));
+      learnableDictionary.Add(CustomSkill.HumanVersatility, new LearnableSkill(CustomSkill.HumanVersatility, "Versatile", "Les humains sont caractérisé par leur rapidité à s'adapter à leur environnement. Ils bénéficient des avantages suivants:\n- Maîtrise d'une compétence supplémentaire\n- Capables de porter 25% de poids supplémentaire\n- Vitesse d'apprentissage des langues +10 %\n- Maîtrise des lances, des armures légères et des boucliers", Category.Race, "race_human", 1, 1, Ability.Constitution, Ability.Strength));
 
       // HIGHELF
-      learnableDictionary.Add(CustomSkill.HighElfLanguage, new LearnableSkill(CustomSkill.HighElfLanguage, "Supérieurement cultivé", "Les haut-elfes apprennent leur première langue deux fois plus rapidement.", Category.Race, "race_highelf", 1, 1, Ability.Intelligence, Ability.Wisdom));
+      learnableDictionary.Add(CustomSkill.HighElfLanguage, new LearnableSkill(CustomSkill.HighElfLanguage, "Supérieurement cultivé", "Vitesse d'apprentissage des langues +10 %", Category.Race, "race_highelf", 1, 1, Ability.Intelligence, Ability.Wisdom));
 
       // CLASSES
       // FIGHTER
@@ -533,6 +533,9 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomSkill.ContreCharme, new LearnableSkill(CustomSkill.ContreCharme, "Contre Charme", "Tant que vous êtes n’êtes pas sous l’effet de Silence, vos alliés à moins de 9 m et qui peuvent vous entendre ont l'avantage contre les effets de charmes et de peur", Category.Fight, "is_CounterCharm", 1, 1, Ability.Charisma, Ability.Dexterity, OnLearnContreCharme));
       learnableDictionary.Add(CustomSkill.BardInspirationSuperieure, new LearnableSkill(CustomSkill.BardInspirationSuperieure, "Inspiration Supérieure", "Si vous n'avez plus d'inspiration au moment de lancer l'initiative pour un combat, vous en récupérez une utilisation", Category.Fight, "is_BardicInspi", 1, 1, Ability.Charisma, Ability.Dexterity, OnLearnInspirationSuperieure));
 
+      learnableDictionary.Add(CustomSkill.BardCollegeDuSavoir, new LearnableSkill(CustomSkill.BardCollegeDuSavoir, "Collège du Savoir", "", Category.BardSubClass, "college_lore", 20, 1, Ability.Charisma, Ability.Dexterity, Bard.LevelUp, "1XQdcTWnYkD5McVKqqMf14Y4uoPGmpHSP0Zy4rf7-V88"));
+      learnableDictionary.Add(CustomSkill.MotsCinglants, new LearnableSkill(CustomSkill.MotsCinglants, "Mots Cinglants", "Lorsque vous utilisez Inspiration Bardique sur un ennemi, vous lui infligez un malus équivalent sur le prochain jet d’attaque, de sauvegarde ou de caractéristique que votre cible aurait réussi sans votre intervention", Category.MindBody, "is_CutWords", 1, 1, Ability.Charisma, Ability.Dexterity, LearnActivableFeat));
+
       // SPELLS
       // CANTRIPS
 
@@ -562,7 +565,7 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomSkill.BrandingSmite, new LearnableSkill(CustomSkill.BrandingSmite, "Châtiment Révélateur", NwSpell.FromSpellId(CustomSpell.BrandingSmite).Description.ToString(), Category.Magic, NwSpell.FromSpellId(CustomSpell.BrandingSmite).IconResRef, 1, 1, Ability.Charisma, Ability.Constitution, LearnActivableFeat));
       learnableDictionary.Add(CustomSkill.Prestidigitation, new LearnableSkill(CustomSkill.Prestidigitation, "Prestidigitation", NwSpell.FromSpellId(CustomSpell.Prestidigitation).Description.ToString(), Category.Magic, NwSpell.FromSpellId(CustomSpell.Prestidigitation).IconResRef, 1, 1, Ability.Intelligence, Ability.Charisma, LearnActivableFeat));
       learnableDictionary.Add(CustomSkill.Druidisme, new LearnableSkill(CustomSkill.Druidisme, "Druidisme", NwSpell.FromSpellId(CustomSpell.Druidisme).Description.ToString(), Category.Magic, NwSpell.FromSpellId(CustomSpell.Druidisme).IconResRef, 1, 1, Ability.Wisdom, Ability.Charisma, LearnActivableFeat));
-      learnableDictionary.Add(CustomSkill.IllusionMineure, new LearnableSkill(CustomSkill.IllusionMineure, "ILlusion Mineure", NwSpell.FromSpellId(CustomSpell.IllusionMineure).Description.ToString(), Category.Magic, NwSpell.FromSpellId(CustomSpell.IllusionMineure).IconResRef, 1, 1, Ability.Intelligence, Ability.Wisdom, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.IllusionMineure, new LearnableSkill(CustomSkill.IllusionMineure, "Illusion Mineure", NwSpell.FromSpellId(CustomSpell.IllusionMineure).Description.ToString(), Category.Magic, NwSpell.FromSpellId(CustomSpell.IllusionMineure).IconResRef, 1, 1, Ability.Intelligence, Ability.Wisdom, LearnActivableFeat));
 
       learnableDictionary.Add(CustomSkill.ImprovedSpellSlot0, new LearnableSkill(CustomSkill.ImprovedSpellSlot0, "Emplacement Cercle 0", "Augmente le nombre d'emplacements de sorts de cercle 0 disponibles d'un par niveau.", Category.Magic, "ife_X2EnrRsC1", 10, 1, Ability.Charisma, Ability.Constitution, HandleAddedSpellSlot));
       learnableDictionary.Add(CustomSkill.ImprovedSpellSlot1, new LearnableSkill(CustomSkill.ImprovedSpellSlot1, "Emplacement Cercle 1", "Augmente le nombre d'emplacements de sorts de cercle 1 disponibles d'un par niveau.", Category.Magic, "ife_X2EnrRsA1", 10, 2, Ability.Charisma, Ability.Constitution, HandleAddedSpellSlot));

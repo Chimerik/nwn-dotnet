@@ -122,6 +122,12 @@ namespace NWN.Systems
           new StrRef(20).SetPlayerOverride(oid, "Transmutateur");
           oid.SetTextureOverride("wizard", "transmutation");
         }
+
+        if (learnableSkills.ContainsKey(CustomSkill.BardCollegeDuSavoir))
+        {
+          new StrRef(2).SetPlayerOverride(oid, "Collège du Savoir");
+          oid.SetTextureOverride("bard", "college_lore");
+        }
       }
     }
   }

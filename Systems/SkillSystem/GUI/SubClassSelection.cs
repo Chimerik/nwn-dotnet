@@ -214,6 +214,10 @@ namespace NWN.Systems
                       Wizard.HandleTransmutationLevelUp(player, 2);
                       category = Category.WizardSubClass;
                       break;
+                    case CustomSkill.BardCollegeDuSavoir:
+                      Bard.HandleCollegeDuSavoirLevelUp(player, 3);
+                      category = Category.BardSubClass;
+                      break;
                   }
 
                   player.learnableSkills.Remove(player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value);
