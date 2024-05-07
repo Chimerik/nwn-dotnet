@@ -17,6 +17,7 @@ namespace NWN.Systems
         (int)ClassType.Rogue => CustomSkill.Rogue,
         CustomClass.Monk => CustomSkill.Monk,
         (int)ClassType.Wizard => CustomSkill.Wizard,
+        (int)ClassType.Bard => CustomSkill.Bard,
         _ => CustomSkill.Invalid,
       };
     }

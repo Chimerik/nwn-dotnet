@@ -250,6 +250,17 @@ namespace NWN.Systems
                   switch(validatedLearnableId)
                   {
                     case CustomSkill.Fighter: player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CHOSEN_FIGHTER_STYLE").Value = selectedCombatStyle.GetBindValue(player.oid, nuiToken.Token); break;
+                    case CustomSkill.Bard:
+
+                      int bonusSkill3 = selectedSkill3.GetBindValue(player.oid, nuiToken.Token);
+
+                      if (player.learnableSkills.TryAdd(bonusSkill3, new LearnableSkill((LearnableSkill)learnableDictionary[bonusSkill3], player)))
+                        player.learnableSkills[bonusSkill3].LevelUp(player);
+
+                      player.learnableSkills[bonusSkill3].source.Add(Category.Class);
+
+                      break;
+                    
                     case CustomSkill.Rogue:
 
                       int skill3 = selectedSkill3.GetBindValue(player.oid, nuiToken.Token);

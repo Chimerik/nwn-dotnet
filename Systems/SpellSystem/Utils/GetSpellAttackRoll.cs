@@ -20,6 +20,7 @@ namespace NWN.Systems
         int advantage = 0;
         int inspirationBardique = 0;
         Effect inspirationEffect = null;
+        bool inspirationUsed = false;
         int criticalRange = 20;
         int targetAC = target.AC;
         int totalAttack;
@@ -37,8 +38,8 @@ namespace NWN.Systems
           if ((attackRoll >= criticalRange || criticalHit) && caster.KnowsFeat((Feat)CustomSkill.Pourfendeur))
             caster.GetObjectVariable<LocalVariableInt>("_POURFENDEUR_CRIT").Value = 1;
 
-          foreach(var eff in caster.ActiveEffects)
-            if(eff.Tag == EffectSystem.InspirationBardiqueEffectTag)
+          foreach (var eff in caster.ActiveEffects)
+            if (eff.Tag == EffectSystem.InspirationBardiqueEffectTag)
             {
               inspirationBardique += eff.CasterLevel;
               inspirationEffect = eff;
@@ -62,27 +63,44 @@ namespace NWN.Systems
           criticalString = "CRITIQUE - ".ColorString(StringUtils.gold);
           LogUtils.LogMessage("Coup critique", LogUtils.LogType.Combat);
         }
-        else if (attackRoll > 1 && totalAttack > targetAC)
+        else if (attackRoll > 1)
         {
-          result = TouchAttackResult.Hit;
-          LogUtils.LogMessage($"Touché : {attackRoll} + {attackModifier} = {totalAttack} vs {targetAC}", LogUtils.LogType.Combat);
+          if(totalAttack > targetAC)
+          {
+            if(inspirationBardique < 0 && totalAttack + inspirationBardique <= targetAC) // Rate alors qu'il aurait du toucher
+            {
+              result = TouchAttackResult.Miss;
+              hitString = "manque".ColorString(ColorConstants.Red);
+              rollString = rollString.StripColors().ColorString(ColorConstants.Red);
+              inspirationUsed = true;
+              LogUtils.LogMessage($"Activation mots cinglants : {inspirationBardique}", LogUtils.LogType.Combat);
+              LogUtils.LogMessage($"Manqué : {attackRoll} + {attackModifier + inspirationBardique} = {totalAttack + inspirationBardique} vs {targetAC}", LogUtils.LogType.Combat);
+            }
+            else // Touche, cas normal
+            {
+              result = TouchAttackResult.Hit;
+              LogUtils.LogMessage($"Touché : {attackRoll} + {attackModifier} = {totalAttack} vs {targetAC}", LogUtils.LogType.Combat);
+            }
+          }
+          else
+          {
+            if(inspirationBardique > 0 && totalAttack + inspirationBardique > targetAC) // Touche alors qu'il aurait du rater
+            {
+              result = TouchAttackResult.Hit;
+              inspirationUsed = true;
+              LogUtils.LogMessage($"Activation inspiration bardique : +{inspirationBardique}", LogUtils.LogType.Combat);
+              LogUtils.LogMessage($"Touché : {attackRoll} + {attackModifier + inspirationBardique} = {totalAttack + inspirationBardique} vs {targetAC}", LogUtils.LogType.Combat);
+            }
+            else // Rate, cas normal
+            {
+              result = TouchAttackResult.Miss;
+              hitString = "manque".ColorString(ColorConstants.Red);
+              rollString = rollString.StripColors().ColorString(ColorConstants.Red);
+              LogUtils.LogMessage($"Manqué : {attackRoll} + {attackModifier} = {totalAttack} vs {targetAC}", LogUtils.LogType.Combat);
+            }
+          }
         }
-        else if(attackRoll > 1 && totalAttack + inspirationBardique > targetAC)
-        {
-          if (inspirationEffect is not null)
-            oCaster.RemoveEffect(inspirationEffect);
-
-          attackModifier += inspirationBardique;
-          totalAttack += inspirationBardique;
-
-          result = TouchAttackResult.Hit;
-          LogUtils.LogMessage($"Activation inspiration bardique : +{inspirationBardique}", LogUtils.LogType.Combat);
-          LogUtils.LogMessage($"Touché : {attackRoll} + {attackModifier} = {totalAttack} vs {targetAC}", LogUtils.LogType.Combat);
-          
-          if(oCaster is NwCreature castingCreature)
-            StringUtils.DisplayStringToAllPlayersNearTarget(castingCreature, $"Inspiration Bardique (+{StringUtils.ToWhitecolor(inspirationBardique)})".ColorString(StringUtils.gold), StringUtils.gold, true, true);
-        }
-        else
+        else // Roll = 1 : echec auto
         {
           result = TouchAttackResult.Miss;
           hitString = "manque".ColorString(ColorConstants.Red);
@@ -91,8 +109,17 @@ namespace NWN.Systems
         }
 
         if (oCaster is NwCreature casterCreature)
+        {
+          if (inspirationUsed)
+          {
+            string inspirationType = inspirationBardique > 0 ? "Inspiration Bardique +" : "Mots Cinglants ";
+            StringUtils.DisplayStringToAllPlayersNearTarget(casterCreature, $"{inspirationType}{StringUtils.ToWhitecolor(inspirationBardique)}".ColorString(StringUtils.gold), StringUtils.gold, true, true);
+            casterCreature.RemoveEffect(inspirationEffect);
+          }
+
           casterCreature.LoginPlayer?.SendServerMessage($"{advantageString}{criticalString}{oCaster.Name} {hitString} {target.Name} {rollString}".ColorString(ColorConstants.Cyan));
-        
+        }
+
         target.LoginPlayer?.SendServerMessage($"{advantageString}{criticalString}{oCaster.Name} {hitString} {target.Name} {rollString}".ColorString(ColorConstants.Cyan));
       }
 

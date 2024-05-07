@@ -16,7 +16,7 @@ namespace NWN.Systems
         case 3: 
           
           new StrRef(2).SetPlayerOverride(player.oid, "Collège du savoir");
-          player.oid.SetTextureOverride("bard", "college_savoir");
+          player.oid.SetTextureOverride("bard", "college_lore");
 
           List<int> skillList = new();
 

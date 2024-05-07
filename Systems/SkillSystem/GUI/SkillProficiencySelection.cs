@@ -33,16 +33,16 @@ namespace NWN.Systems
         {
           windowId = "skillProficiencySelection";
 
-          List<NuiListTemplateCell> rowTemplateAvailableSpells = new()
+          List<NuiListTemplateCell> rowTemplateAvailableSkills = new()
           {
             new NuiListTemplateCell(new NuiButtonImage(availableSkillIcons) { Id = "availableSkillDescription", Tooltip = availableSkillNames }) { Width = 35 },
             new NuiListTemplateCell(new NuiLabel(availableSkillNames) { Id = "availableSkillDescription", Tooltip = availableSkillNames, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { VariableSize = true },
             new NuiListTemplateCell(new NuiButtonImage("add_arrow") { Id = "selectSkill", Tooltip = "Sélectionner", DisabledTooltip = "Vous ne pouvez pas choisir davantage de maîtrises" }) { Width = 35 }
           };
 
-          List<NuiListTemplateCell> rowTemplateAcquiredSpells = new()
+          List<NuiListTemplateCell> rowTemplateAcquiredSkills = new()
           {
-            new NuiListTemplateCell(new NuiButtonImage("remove_arrow") { Id = "removeSpell", Tooltip = "Retirer" }) { Width = 35 },
+            new NuiListTemplateCell(new NuiButtonImage("remove_arrow") { Id = "removeSkill", Tooltip = "Retirer" }) { Width = 35 },
             new NuiListTemplateCell(new NuiButtonImage(acquiredSkillIcons) { Id = "acquiredSkillDescription", Tooltip = acquiredSkillNames }) { Width = 35 },
             new NuiListTemplateCell(new NuiLabel(acquiredSkillNames) { Id = "acquiredSkillDescription", Tooltip = acquiredSkillNames, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { VariableSize = true }
           };
@@ -50,8 +50,8 @@ namespace NWN.Systems
           rootColumn.Children = new()
           {
             new NuiRow() { Children = new() {
-              new NuiList(rowTemplateAvailableSpells, listCount) { RowHeight = 35,  Width = 240  },
-              new NuiList(rowTemplateAcquiredSpells, listAcquiredSkillCount) { RowHeight = 35, Width = 240 } } },
+              new NuiList(rowTemplateAvailableSkills, listCount) { RowHeight = 35,  Width = 240  },
+              new NuiList(rowTemplateAcquiredSkills, listAcquiredSkillCount) { RowHeight = 35, Width = 240 } } },
             new NuiRow() { Children = new() {
               new NuiSpacer(),
               new NuiButton("Valider") { Id = "validate", Tooltip = "Valider", Enabled = enabled, Encouraged = enabled, Width = 180, Height = 35 },
@@ -95,7 +95,7 @@ namespace NWN.Systems
               CloseWindow();
               player.oid.SendServerMessage($"Vous maîtrisez déjà toutes les compétences", ColorConstants.Orange);
               player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_NB_SKILL_PROFICIENCY_SELECTION").Delete();
-              player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_PROFICIENCY_SELECTION").Delete();
+              player.oid.LoginCreature.GetObjectVariable<PersistentVariableString>("_IN_SKILL_PROFICIENCY_SELECTION").Delete();
             }
             else
             {
@@ -186,7 +186,7 @@ namespace NWN.Systems
                     player.oid.SendServerMessage($"Vous apprenez la maîtrise {StringUtils.ToWhitecolor(skill.name)}", ColorConstants.Orange);
                   }
 
-                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_NB_SKILL_PROFICIENCY_SELECTION").Delete();
+                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableString>("_IN_NB_SKILL_PROFICIENCY_SELECTION").Delete();
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_PROFICIENCY_SELECTION").Delete();
 
                   CloseWindow();
@@ -208,7 +208,7 @@ namespace NWN.Systems
 
           foreach (var skillId in skillList)
           {
-            if (!player.learnableSkills.TryGetValue(skillId, out LearnableSkill learnable) && learnable.currentLevel < 1)
+            if (!player.learnableSkills.TryGetValue(skillId, out LearnableSkill learnable) || learnable.currentLevel < 1)
             {
               learnable = (LearnableSkill)SkillSystem.learnableDictionary[skillId];
               availableSkills.Add(learnable);
