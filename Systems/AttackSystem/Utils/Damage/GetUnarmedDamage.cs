@@ -9,6 +9,7 @@ namespace NWN.Systems
     {
       int unarmedDieToRoll = CreatureUtils.GetUnarmedDamage(creature.m_pStats);
       int damage = NwRandom.Roll(Utils.random, unarmedDieToRoll);
+      damage += GetDegatsVaillantsBonus(creature);
       LogUtils.LogMessage($"Mains nues - 1d{unarmedDieToRoll} => {damage}", LogUtils.LogType.Combat);
 
       return damage;

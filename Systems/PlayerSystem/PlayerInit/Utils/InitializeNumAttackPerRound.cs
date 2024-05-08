@@ -32,6 +32,13 @@ namespace NWN.Systems
                 oid.LoginCreature.BaseAttackCount += 1;
 
               break;
+
+            case CustomClass.Bard:
+
+              if (playerClass.Level > 5 && learnableSkills.ContainsKey(CustomSkill.BardCollegeDeLaVaillance))
+                oid.LoginCreature.BaseAttackCount += 1;
+
+              break;
           }
         }
       }

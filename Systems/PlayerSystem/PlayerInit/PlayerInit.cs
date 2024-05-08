@@ -467,6 +467,7 @@ namespace NWN.Systems
         ApplyArmeLiee();
         ApplyContreCharme();
         ApplyInspirationSuperieure();
+        ApplyMagieDeCombat();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

@@ -136,6 +136,8 @@ namespace NWN.Systems
         case CustomSkill.TransmutationMaitre: TransmutationMaster(player); return;
 
         case CustomSkill.BardInspiration: InspirationBardique(onUseFeat.Creature, onUseFeat.TargetObject); return;
+        case CustomSkill.DefenseVaillante: DefenseVaillante(onUseFeat.Creature, onUseFeat.TargetObject); return;
+        case CustomSkill.DegatsVaillants: DegatsVaillants(onUseFeat.Creature, onUseFeat.TargetObject); return;
         case CustomSkill.ChantDuRepos: ChantDuRepos(onUseFeat.Creature); return;
       }
 

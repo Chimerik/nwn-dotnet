@@ -10,6 +10,12 @@ namespace NWN.Systems
       {
         int chaMod = creature.GetAbilityModifier(Ability.Charisma) > 0 ? creature.GetAbilityModifier(Ability.Charisma) : 1;
         creature.SetFeatRemainingUses((Feat)CustomSkill.BardInspiration, (byte)chaMod);
+
+        if (creature.KnowsFeat((Feat)CustomSkill.DefenseVaillante))
+          creature.SetFeatRemainingUses((Feat)CustomSkill.DefenseVaillante, (byte)chaMod);
+
+        if (creature.KnowsFeat((Feat)CustomSkill.DegatsVaillants))
+          creature.SetFeatRemainingUses((Feat)CustomSkill.DegatsVaillants, (byte)chaMod);
       }
     }
   }

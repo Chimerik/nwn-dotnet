@@ -128,6 +128,11 @@ namespace NWN.Systems
           new StrRef(2).SetPlayerOverride(oid, "Collège du Savoir");
           oid.SetTextureOverride("bard", "college_lore");
         }
+        else if (learnableSkills.ContainsKey(CustomSkill.BardCollegeDeLaVaillance))
+        {
+          new StrRef(2).SetPlayerOverride(oid, "Collège de la Vaillance");
+          oid.SetTextureOverride("bard", "vaillance");
+        }
       }
     }
   }

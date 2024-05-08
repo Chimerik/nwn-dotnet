@@ -14,7 +14,8 @@ namespace NWN.Systems
         + GetFureurOrcBonus(creature) 
         + GetOrcCriticalBonus(creature, attackData, isCriticalRoll)
         + GetEmpaleurCriticalBonus(creature, weapon, isCriticalRoll)
-        + GetBarbarianBrutalCriticalBonus(creature, attackData.m_bRangedAttack.ToBool(), isCriticalRoll);
+        + GetBarbarianBrutalCriticalBonus(creature, attackData.m_bRangedAttack.ToBool(), isCriticalRoll)
+        + GetDegatsVaillantsBonus(creature);
 
       int damage = HandleWeaponDamageRerolls(creature, weapon, numDamageDice, dieToRoll);
       damage = HandleSavageAttacker(creature, weapon, attackData, numDamageDice, damage, dieToRoll);
