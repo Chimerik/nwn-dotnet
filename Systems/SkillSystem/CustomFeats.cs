@@ -267,6 +267,10 @@
     public const int MotsCinglants = 1544;
     public const int DefenseVaillante = 1545;
     public const int DegatsVaillants = 1546;
+    public const int BotteDefensive = 1547;
+    public const int BotteTranchante = 1548;
+    public const int BotteDefensiveDeMaitre = 1549;
+    public const int BotteTranchanteDeMaitre = 1550;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -788,6 +792,9 @@
     public const int BardCollegeDuSavoir = 20564;
     public const int BardCollegeDeLaVaillance = 20565;
     public const int VaillanceBonusAttack = 20566;
+    public const int BardCollegeDeLescrime = 20567;
+    public const int EscrimeBonusAttack = 20568;
+
 
     public const int Invalid = 65535;
   }

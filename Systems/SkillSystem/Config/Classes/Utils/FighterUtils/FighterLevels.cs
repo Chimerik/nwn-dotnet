@@ -40,11 +40,8 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.FighterSecondWind].LevelUp(player);
           player.learnableSkills[CustomSkill.FighterSecondWind].source.Add(Category.Class);
 
-          int chosenStyle = player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CHOSEN_FIGHTER_STYLE").Value;
-          
-          player.learnableSkills.TryAdd(chosenStyle, new LearnableSkill((LearnableSkill)learnableDictionary[chosenStyle], player));
-          player.learnableSkills[chosenStyle].LevelUp(player);
-          player.learnableSkills[chosenStyle].source.Add(Category.Class);
+          if (!player.windows.TryGetValue("fightingStyleSelection", out var style)) player.windows.Add("fightingStyleSelection", new FightingStyleSelectionWindow(player, CustomSkill.Fighter));
+          else ((FightingStyleSelectionWindow)style).CreateWindow(CustomSkill.Fighter);
 
           break;
 

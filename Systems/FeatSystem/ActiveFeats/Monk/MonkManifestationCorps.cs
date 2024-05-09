@@ -7,6 +7,12 @@ namespace NWN.Systems
   {
     private static void MonkManifestationCorps(NwCreature caster)
     {
+      if (caster.GetItemInSlot(InventorySlot.RightHand) is not null)
+      {
+        caster.LoginPlayer?.SendServerMessage("Vous ne pouvez manifestre votre Ki qu'à mains nues", ColorConstants.Red);
+        return;
+      }
+
       if (caster.ActiveEffects.Any(e => e.Tag == EffectSystem.ManifestationCorpsEffectTag))
       {
         EffectUtils.RemoveTaggedEffect(caster, EffectSystem.ManifestationCorpsEffectTag);

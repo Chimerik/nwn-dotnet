@@ -31,6 +31,8 @@ namespace NWN.Systems
       caster.DecrementRemainingFeatUses((Feat)CustomSkill.BardInspiration);
       caster.DecrementRemainingFeatUses((Feat)CustomSkill.DefenseVaillante);
       caster.DecrementRemainingFeatUses((Feat)CustomSkill.DegatsVaillants);
+      caster.DecrementRemainingFeatUses((Feat)CustomSkill.BotteDefensive);
+      caster.DecrementRemainingFeatUses((Feat)CustomSkill.BotteTranchante);
     }
   }
 }

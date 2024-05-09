@@ -52,7 +52,7 @@ namespace NWN.Systems
       {
         case CustomSkill.BardCollegeDuSavoir: HandleCollegeDuSavoirLevelUp(player, playerClass.currentLevel); break;
         case CustomSkill.BardCollegeDeLaVaillance: HandleCollegeDeLaVaillanceLevelUp(player, playerClass.currentLevel); break;
-        //case CustomSkill.MonkElements: HandleElementsLevelUp(player, playerClass.currentLevel); break;
+        case CustomSkill.BardCollegeDeLescrime: HandleCollegeDeLescrimeLevelUp(player, playerClass.currentLevel); break;
       }
 
       if (playerClass.currentLevel > 2 || playerClass.currentLevel > 1)

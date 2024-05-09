@@ -36,8 +36,8 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.FighterChampionBonusCombatStyle].LevelUp(player);
           player.learnableSkills[CustomSkill.FighterChampionBonusCombatStyle].source.Add(Category.Class);
 
-          if (!player.windows.TryGetValue("martialInitiateChoice", out var value)) player.windows.Add("martialInitiateChoice", new MartialInitiateChoiceWindow(player, player.oid.LoginCreature.Level, true));
-          else ((MartialInitiateChoiceWindow)value).CreateWindow(player.oid.LoginCreature.Level, true);
+          if (!player.windows.TryGetValue("fightingStyleSelection", out var style)) player.windows.Add("fightingStyleSelection", new FightingStyleSelectionWindow(player, CustomSkill.FighterChampion));
+          else ((FightingStyleSelectionWindow)style).CreateWindow(CustomSkill.FighterChampion);
 
           break;
 

@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Collections.Generic;
+using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -11,34 +12,39 @@ namespace NWN.Systems
       int attackerModifier = caster.GetAbilityModifier(Ability.Wisdom);
       int DC = 8 + NativeUtils.GetCreatureProficiencyBonus(caster) + attackerModifier;
 
+      List<NwCreature> alreadyHitList = new();
+
       foreach (var creature in caster.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 18, false))
       {
-        if (creature == caster)
+        if (creature == caster || alreadyHitList.Contains(creature))
           continue;
 
-        foreach(var eff in creature.ActiveEffects)
+        foreach (var eff in creature.ActiveEffects)
           if(eff.Tag == EffectSystem.ResonanceKiEffectTag && eff.Creator == caster)
           {
-            foreach(var target in creature.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 5, false))
+            creature.RemoveEffect(eff);
+            creature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSoundBurst));
+            int damage = NwRandom.Roll(Utils.random, 6, 3);
+
+            if (!CreatureUtils.GetSavingThrow(caster, creature, Ability.Dexterity, DC))
+              damage /= 2;
+
+            creature.ApplyEffect(EffectDuration.Instant, Effect.Damage(damage));
+            alreadyHitList.Add(creature);
+
+            foreach (var target in creature.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 5, false))
             {
-              SpellConfig.SavingThrowFeedback feedback = new();
-              int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, Ability.Dexterity);
-              int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Dexterity, DC, advantage, feedback);
-              bool saveFailed = totalSave < DC;
+              if(alreadyHitList.Contains(target)) 
+                continue; 
+              
+              damage = NwRandom.Roll(Utils.random, 6, 3);
 
-              SpellUtils.SendSavingThrowFeedbackMessage(creature, target, feedback, advantage, DC, totalSave, saveFailed, Ability.Dexterity);
-
-              int damage = NwRandom.Roll(Utils.random, 6, 3);
-
-              if (saveFailed)
+              if (!CreatureUtils.GetSavingThrow(caster, target, Ability.Dexterity, DC))
                 damage /= 2;
 
               target.ApplyEffect(EffectDuration.Instant, Effect.Damage(damage));
+              alreadyHitList.Add(target);
             }
-
-            creature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSoundBurst));
-
-            caster.RemoveEffect(eff);
 
             break;
           }

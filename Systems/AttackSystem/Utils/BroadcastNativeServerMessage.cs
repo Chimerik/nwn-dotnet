@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Numerics;
 using Anvil.API;
+using NWN.Core;
 using NWN.Native.API;
 
 namespace NWN.Systems
@@ -20,7 +21,9 @@ namespace NWN.Systems
 
         CNWSCreature playerCreature = NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(player.m_oidNWSObject);
 
-        if (playerCreature.m_oidArea != creature.m_oidArea
+        if (playerCreature is null 
+          || playerCreature.m_oidArea is NWScript.OBJECT_INVALID || playerCreature.m_oidArea != creature.m_oidArea
+          || playerCreature.m_vPosition is null
           || Vector3.DistanceSquared(playerCreature.m_vPosition.ToManagedVector(), creature.m_vPosition.ToManagedVector()) > 1225)
           continue;
 

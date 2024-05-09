@@ -92,8 +92,6 @@ namespace NWN.Systems
       CNWSItem attackWeapon = combatRound.GetCurrentAttackWeapon(attackData.m_nWeaponAttackType);
       Anvil.API.Ability attackStat = Anvil.API.Ability.Strength;
 
-      NativeUtils.HandleMonkManifestation(creature, attackWeapon);
-
       //*** CALCUL DU BONUS D'ATTAQUE ***//
       byte dexMod = creature.m_pStats.m_nDexterityModifier;
       byte strMod = creature.m_pStats.m_nStrengthModifier;
@@ -253,7 +251,6 @@ namespace NWN.Systems
             rollString = rollString.StripColors().ColorString(ColorConstants.Red);
 
             LogUtils.LogMessage($"Manqué : {attackRoll} + {attackBonus + inspirationBardique + superiorityDiceBonus} = {attackRoll + attackBonus + inspirationBardique + superiorityDiceBonus} vs {targetAC + defensiveDuellistBonus}", LogUtils.LogType.Combat);
-            NativeUtils.HandleRiposte(creature, targetCreature, attackData, attackerName);
           }
           else // Touche : cas normal
           {
@@ -283,7 +280,6 @@ namespace NWN.Systems
             attackData.m_nMissedBy = (byte)(targetAC - attackRoll) > 8 ? (byte)Utils.random.Next(1, 9) : (byte)(targetAC - attackRoll);
             hitString = "manquez".ColorString(ColorConstants.Red);
             rollString = rollString.StripColors().ColorString(ColorConstants.Red);
-            NativeUtils.HandleRiposte(creature, targetCreature, attackData, attackerName);
             LogUtils.LogMessage($"Manqué : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC}", LogUtils.LogType.Combat);
           }
         }
@@ -293,20 +289,25 @@ namespace NWN.Systems
           attackData.m_nMissedBy = (byte)(targetAC - attackRoll) > 8 ? (byte)Utils.random.Next(1, 9) : (byte)(targetAC - attackRoll);
           hitString = "manquez".ColorString(ColorConstants.Red);
           rollString = rollString.StripColors().ColorString(ColorConstants.Red);
-          NativeUtils.HandleRiposte(creature, targetCreature, attackData, attackerName);
           LogUtils.LogMessage($"Manqué : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC}", LogUtils.LogType.Combat);
         }
 
+        if (attackData.m_nAttackResult == 4)
+        {
+          NativeUtils.HandleRiposte(creature, targetCreature, attackData, attackerName);
+          creature.m_ScriptVars.DestroyInt(FeatSystem.BotteDamageExoVariable);
+
+          if (creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreRiposteVariableExo).ToBool())
+            creature.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreRiposteVariableExo);
+        }
+ 
         NativeUtils.SendNativeServerMessage($"{advantageString}{opportunityString}{criticalString}Vous {hitString} {targetName.ColorString(ColorConstants.Cyan)} {rollString}".ColorString(ColorConstants.Cyan), creature);
         NativeUtils.BroadcastNativeServerMessage($"{advantageString}{opportunityString}{criticalString}{attackerName.ColorString(ColorConstants.Cyan)} {hitString.Replace("z", "")} {targetName.ColorString(ColorConstants.Cyan)} {rollString}".ColorString(ColorConstants.Cyan), creature, true);
 
         NativeUtils.HandleSentinelleOpportunityTarget(creature, combatRound, attackerName);
         NativeUtils.HandleSentinelle(creature, targetCreature, combatRound);
         NativeUtils.HandleFureurOrc(creature, targetCreature, combatRound, attackerName);
-        NativeUtils.HandleDiversion(creature, attackData, targetCreature);
-
-        if(attackData.m_nAttackResult == 4 && creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreRiposteVariableExo).ToBool())
-          creature.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreRiposteVariableExo);
+        NativeUtils.HandleDiversion(creature, attackData, targetCreature);          
 
         NativeUtils.HandleMonkOpportunist(creature, targetCreature, attackData, combatRound, attackerName, targetName);
       }
@@ -323,6 +324,7 @@ namespace NWN.Systems
       NativeUtils.HandleMonkBonusAttack(creature, targetObject, combatRound, attackerName, targetName);
       NativeUtils.HandleMonkDeluge(creature, targetObject, combatRound, attackerName, targetName);
       NativeUtils.HandleThiefReflex(creature, targetObject, combatRound, attackerName, targetName);
+      NativeUtils.HandleBardeBotteTranchante(creature, targetObject, combatRound, attackerName);
     }
     private int OnAddUseTalentOnObjectHook(void* pCreature, int talentType, int talentId, uint oidTarget, byte nMultiClass, uint oidItem, int nItemPropertyIndex, byte nCasterLevel, int nMetaType)
     {

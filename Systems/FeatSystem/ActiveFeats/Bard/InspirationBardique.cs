@@ -65,11 +65,13 @@ namespace NWN.Systems
       }
 
       if (inspiBonus != 0)
-        NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetInspirationBardiqueEffect(inspiBonus)));      
+        NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetInspirationBardiqueEffect(inspiBonus)));
 
       caster.DecrementRemainingFeatUses((Feat)CustomSkill.BardInspiration);
       caster.DecrementRemainingFeatUses((Feat)CustomSkill.DefenseVaillante);
       caster.DecrementRemainingFeatUses((Feat)CustomSkill.DegatsVaillants);
+      caster.DecrementRemainingFeatUses((Feat)CustomSkill.BotteDefensive);
+      caster.DecrementRemainingFeatUses((Feat)CustomSkill.BotteTranchante);
     }
   }
 }

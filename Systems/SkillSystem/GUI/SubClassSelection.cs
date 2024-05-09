@@ -222,6 +222,10 @@ namespace NWN.Systems
                       Bard.HandleCollegeDeLaVaillanceLevelUp(player, 3);
                       category = Category.BardSubClass;
                       break;
+                    case CustomSkill.BardCollegeDeLescrime:
+                      Bard.HandleCollegeDeLescrimeLevelUp(player, 3);
+                      category = Category.BardSubClass;
+                      break;
                   }
 
                   player.learnableSkills.Remove(player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value);

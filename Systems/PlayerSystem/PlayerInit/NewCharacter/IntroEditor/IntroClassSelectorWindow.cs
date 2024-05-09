@@ -20,7 +20,6 @@ namespace NWN.Systems
         private readonly NuiBind<string> selectedItemDescription = new("selectedItemDescription");
         private readonly NuiBind<string> selectedItemIcon = new("selectedItemIcon");
         private readonly NuiBind<bool> selectedItemVisibility = new("selectedItemVisibility");
-        private readonly NuiBind<bool> combatStyleVisibility = new("combatStyleVisibility");
         private readonly NuiBind<bool> rogueSkillVisibility = new("rogueSkillVisibility");
         private readonly NuiBind<bool> bardSkillVisibility = new("bardSkillVisibility");
         private readonly NuiBind<bool> selectedTitleVisibility = new("selectedTitleVisibility");
@@ -53,8 +52,6 @@ namespace NWN.Systems
         private readonly NuiBind<int> selectedExpertise2 = new("selectedExpertise2");
         private readonly NuiBind<List<NuiComboEntry>> expertiseSelection2 = new("expertiseSelection2");
 
-        private readonly NuiBind<int> selectedCombatStyle = new("selectedCombatStyle");
-
         private IEnumerable<Learnable> currentList;
         private Learnable selectedLearnable;
         private int validatedLearnableId;
@@ -63,11 +60,6 @@ namespace NWN.Systems
         {
           windowId = "introClassSelector";
           rootColumn.Children = rootChildren;
-
-          List<NuiComboEntry> styles = new();
-
-          foreach (var style in learnableDictionary.Values.Where(s => s is LearnableSkill skill && skill.category == Category.FightingStyle))
-            styles.Add(new NuiComboEntry(style.name, style.id));
 
           List<NuiListTemplateCell> learnableTemplate = new List<NuiListTemplateCell>
           {
@@ -100,12 +92,6 @@ namespace NWN.Systems
                 new NuiSpacer(),
                 new NuiButtonImage(selectedItemIcon) { Height = 40, Width = 40, Visible = selectedTitleVisibility },
                 new NuiLabel(selectedItemTitle) { Height = 40, Width = 200, Visible = selectedTitleVisibility, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
-                new NuiSpacer()
-              } },
-              new NuiRow() { Children = new List<NuiElement>()
-              {
-                new NuiSpacer(),
-                new NuiCombo() { Entries = styles, Selected = selectedCombatStyle, Visible = combatStyleVisibility, Height = 40, Width = (player.guiScaledWidth * 0.6f - 380) / 1.5f },
                 new NuiSpacer()
               } },
               new NuiRow() { Children = new List<NuiElement>() 
@@ -164,13 +150,11 @@ namespace NWN.Systems
             selectedItemDescription.SetBindValue(player.oid, nuiToken.Token, "Sélectionner une classe pour afficher ses détails.\n\nAttention, lorsque vous aurez quitté ce navire, ce choix deviendra définitif.");
             selectedItemIcon.SetBindValue(player.oid, nuiToken.Token, "ir_examine");
             selectedItemVisibility.SetBindValue(player.oid, nuiToken.Token, false);
-            combatStyleVisibility.SetBindValue(player.oid, nuiToken.Token, false);
             rogueSkillVisibility.SetBindValue(player.oid, nuiToken.Token, false);
             bardSkillVisibility.SetBindValue(player.oid, nuiToken.Token, false);
             selectedTitleVisibility.SetBindValue(player.oid, nuiToken.Token, false);
             validationEnabled.SetBindValue(player.oid, nuiToken.Token, false);
 
-            selectedCombatStyle.SetBindValue(player.oid, nuiToken.Token, -1);
             selectedSkill1.SetBindValue(player.oid, nuiToken.Token, -1);
             selectedSkill2.SetBindValue(player.oid, nuiToken.Token, -1);
             selectedSkill3.SetBindValue(player.oid, nuiToken.Token, -1);
@@ -183,8 +167,6 @@ namespace NWN.Systems
             skillSelection4.SetBindValue(player.oid, nuiToken.Token, new List<NuiComboEntry>());
             expertiseSelection1.SetBindValue(player.oid, nuiToken.Token, new List<NuiComboEntry>());
             expertiseSelection2.SetBindValue(player.oid, nuiToken.Token, new List<NuiComboEntry>());
-
-            selectedCombatStyle.SetBindWatch(player.oid, nuiToken.Token, true);
 
             geometry.SetBindValue(player.oid, nuiToken.Token, new NuiRect(savedRectangle.X, savedRectangle.Y, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f));
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
@@ -249,7 +231,6 @@ namespace NWN.Systems
 
                   switch(validatedLearnableId)
                   {
-                    case CustomSkill.Fighter: player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CHOSEN_FIGHTER_STYLE").Value = selectedCombatStyle.GetBindValue(player.oid, nuiToken.Token); break;
                     case CustomSkill.Bard:
 
                       int bonusSkill3 = selectedSkill3.GetBindValue(player.oid, nuiToken.Token);
@@ -380,7 +361,6 @@ namespace NWN.Systems
                 case "selectedSkill4": LoadSelectableSkills(); break;
                 case "selectedExpertise1": 
                 case "selectedExpertise2": LoadSelectableExpertises(); break;
-                case "selectedCombatStyle": validationEnabled.SetBindValue(player.oid, nuiToken.Token, true);break;
               }
 
               break;
@@ -462,7 +442,16 @@ namespace NWN.Systems
           EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.MonkUnarmoredDefenceEffectTag);
 
           if (player.windows.TryGetValue("spellSelection", out var spellSelection) && spellSelection.IsOpen)
+          {
+            player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_CLASS_SELECTION").Delete();
             spellSelection.CloseWindow();
+          }
+
+          if (player.windows.TryGetValue("fightingStyleSelection", out var styleSelection) && styleSelection.IsOpen)
+          {
+            player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_FIGHTING_STYLE_SELECTION").Delete();
+            styleSelection.CloseWindow();
+          }
         }
         private void InitSelectableSkills()
         {
@@ -475,25 +464,8 @@ namespace NWN.Systems
           
           switch (selectedLearnable.id)
           {
-            case CustomSkill.Fighter:
-
-              combatStyleVisibility.SetBindValue(player.oid, nuiToken.Token, true);
-
-              LearnableSkill style = player.learnableSkills.Values.FirstOrDefault(s => s is LearnableSkill style && style.category == Category.FightingStyle);
-              if (style is not null)
-                selectedCombatStyle.SetBindValue(player.oid, nuiToken.Token, style.id);
-              else
-                selectedCombatStyle.SetBindValue(player.oid, nuiToken.Token, CustomSkill.FighterCombatStyleArchery);
-
-              bardSkillVisibility.SetBindValue(player.oid, nuiToken.Token, false);
-              rogueSkillVisibility.SetBindValue(player.oid, nuiToken.Token, false);
-              rogueSkillVisibility.SetBindValue(player.oid, nuiToken.Token, false);
-
-              break;
-
             case CustomSkill.Bard:
 
-              combatStyleVisibility.SetBindValue(player.oid, nuiToken.Token, false);
               bardSkillVisibility.SetBindValue(player.oid, nuiToken.Token, true);
               rogueSkillVisibility.SetBindValue(player.oid, nuiToken.Token, false);
               rogueSkillVisibility.SetBindValue(player.oid, nuiToken.Token, false);
@@ -502,7 +474,6 @@ namespace NWN.Systems
 
             case CustomSkill.Rogue:
 
-              combatStyleVisibility.SetBindValue(player.oid, nuiToken.Token, false);
               bardSkillVisibility.SetBindValue(player.oid, nuiToken.Token, true);
               rogueSkillVisibility.SetBindValue(player.oid, nuiToken.Token, true);
               rogueSkillVisibility.SetBindValue(player.oid, nuiToken.Token, true);
@@ -511,7 +482,6 @@ namespace NWN.Systems
 
             default:
 
-              combatStyleVisibility.SetBindValue(player.oid, nuiToken.Token, false);
               bardSkillVisibility.SetBindValue(player.oid, nuiToken.Token, false);
               rogueSkillVisibility.SetBindValue(player.oid, nuiToken.Token, false);
               rogueSkillVisibility.SetBindValue(player.oid, nuiToken.Token, false);

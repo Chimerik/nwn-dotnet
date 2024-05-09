@@ -35,7 +35,7 @@ namespace NWN.Systems
 
             case CustomClass.Bard:
 
-              if (playerClass.Level > 5 && learnableSkills.ContainsKey(CustomSkill.BardCollegeDeLaVaillance))
+              if (learnableSkills.ContainsKey(CustomSkill.VaillanceBonusAttack) || learnableSkills.ContainsKey(CustomSkill.EscrimeBonusAttack))
                 oid.LoginCreature.BaseAttackCount += 1;
 
               break;

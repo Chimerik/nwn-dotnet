@@ -16,6 +16,12 @@ namespace NWN.Systems
 
         if (creature.KnowsFeat((Feat)CustomSkill.DegatsVaillants))
           creature.SetFeatRemainingUses((Feat)CustomSkill.DegatsVaillants, (byte)chaMod);
+
+        if (creature.KnowsFeat((Feat)CustomSkill.BotteDefensive))
+          creature.SetFeatRemainingUses((Feat)CustomSkill.BotteDefensive, (byte)chaMod);
+
+        if (creature.KnowsFeat((Feat)CustomSkill.BotteTranchante))
+          creature.SetFeatRemainingUses((Feat)CustomSkill.BotteTranchante, (byte)chaMod);
       }
     }
   }

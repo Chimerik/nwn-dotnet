@@ -22,7 +22,7 @@ namespace NWN.Systems
         int damageReduction = roll + dexBonus + monkLevel;
 
         LogUtils.LogMessage($"Parade de projectile - Réduction de dégâts : {roll} (1d10) + {dexBonus} + {monkLevel} = {damageReduction}", LogUtils.LogType.Combat);
-        BroadcastNativeServerMessage($"Parade de projectile - Réduction de dégâts : {roll} (1d10) + {dexBonus} + {monkLevel} = {damageReduction}", target, true);
+        BroadcastNativeServerMessage($"Parade de projectile - Réduction de dégâts : {roll} (1d10) + {dexBonus} + {monkLevel} = {damageReduction}", target);
         return damageReduction;
       }
 

@@ -420,10 +420,10 @@ namespace NWN.Systems
         InitializeAbilityImprovementFeat();
         InitializeBonusAbilityChoice();
         InitializeElementalistChoice();
-        InitializeMartialInitiateChoice();
         InitializeBonusSkillChoice();
         InitializeWeaponMasterChoice();
         InitializeFeatChoice();
+        InitializeFightingStyleChoice();
         InitializeSubClassChoice();
         InitializeManoeuvreChoice();
         InitializeTirArcaniqueChoice();
@@ -468,6 +468,7 @@ namespace NWN.Systems
         ApplyContreCharme();
         ApplyInspirationSuperieure();
         ApplyMagieDeCombat();
+        ApplyEscrime();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();
