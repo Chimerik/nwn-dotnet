@@ -232,6 +232,7 @@ namespace NWN.Systems
                   switch(validatedLearnableId)
                   {
                     case CustomSkill.Bard:
+                    case CustomSkill.Ranger:
 
                       int bonusSkill3 = selectedSkill3.GetBindValue(player.oid, nuiToken.Token);
 
@@ -452,6 +453,24 @@ namespace NWN.Systems
             player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_FIGHTING_STYLE_SELECTION").Delete();
             styleSelection.CloseWindow();
           }
+
+          if (player.windows.TryGetValue("rangerArchetypeSelection", out var rangerArchetypeSelection) && rangerArchetypeSelection.IsOpen)
+          {
+            player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_RANGER_ARCHETYPE_SELECTION").Delete();
+            rangerArchetypeSelection.CloseWindow();
+          }
+
+          if (player.windows.TryGetValue("favoredEnemySelection", out var favoredEnemySelection) && favoredEnemySelection.IsOpen)
+          {
+            player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_FAVORED_ENEMY_SELECTION").Delete();
+            favoredEnemySelection.CloseWindow();
+          }
+
+          if (player.windows.TryGetValue("rangerEnvironmentSelection", out var rangerEnvironmentSelection) && rangerEnvironmentSelection.IsOpen)
+          {
+            player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_RANGER_ENVIRONMENT_SELECTION").Delete();
+            rangerEnvironmentSelection.CloseWindow();
+          }
         }
         private void InitSelectableSkills()
         {
@@ -465,6 +484,7 @@ namespace NWN.Systems
           switch (selectedLearnable.id)
           {
             case CustomSkill.Bard:
+            case CustomSkill.Ranger:
 
               bardSkillVisibility.SetBindValue(player.oid, nuiToken.Token, true);
               rogueSkillVisibility.SetBindValue(player.oid, nuiToken.Token, false);
@@ -496,6 +516,7 @@ namespace NWN.Systems
             CustomSkill.Monk => Monk.startingPackage.skillChoiceList,
             CustomSkill.Wizard => Wizard.startingPackage.skillChoiceList,
             CustomSkill.Bard => Bard.startingPackage.skillChoiceList,
+            CustomSkill.Ranger => Ranger.startingPackage.skillChoiceList,
             _ => Fighter.startingPackage.skillChoiceList,
           };
 
@@ -518,7 +539,7 @@ namespace NWN.Systems
             skillList1.RemoveAll(s => s.Value == bonusSkills.ElementAt(1).id);
             skillList2.RemoveAll(s => s.Value == bonusSkills.ElementAt(0).id);
 
-            if (!Utils.In(selectedLearnable.id, CustomSkill.Rogue, CustomSkill.Bard))
+            if (!Utils.In(selectedLearnable.id, CustomSkill.Rogue, CustomSkill.Bard, CustomSkill.Ranger))
             {
               skillSelection1.SetBindValue(player.oid, nuiToken.Token, skillList1);
               selectedSkill1.SetBindValue(player.oid, nuiToken.Token, bonusSkills.ElementAt(0).id);
@@ -532,7 +553,7 @@ namespace NWN.Systems
             skillList1.RemoveAt(1);
             skillList2.RemoveAt(0);
 
-            if (!Utils.In(selectedLearnable.id, CustomSkill.Rogue, CustomSkill.Bard))
+            if (!Utils.In(selectedLearnable.id, CustomSkill.Rogue, CustomSkill.Bard, CustomSkill.Ranger))
             {
               skillSelection1.SetBindValue(player.oid, nuiToken.Token, skillList1);
               selectedSkill1.SetBindValue(player.oid, nuiToken.Token, skillList1.First().Value);
@@ -542,11 +563,11 @@ namespace NWN.Systems
             }
           }
 
-          if(selectedLearnable.id == CustomSkill.Bard)
+          if(!Utils.In(selectedLearnable.id, CustomSkill.Bard, CustomSkill.Ranger))
           {
             List<NuiComboEntry> skillList3 = new();
 
-            foreach (var learnable in Bard.startingPackage.skillChoiceList)
+            foreach (var learnable in startingPackageList)
             {
               if (!player.learnableSkills.TryGetValue(learnable.id, out var value) || value.source.Any(so => so == Category.Class))
                 skillList3.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
@@ -709,6 +730,7 @@ namespace NWN.Systems
             CustomSkill.Monk => Monk.startingPackage.skillChoiceList,
             CustomSkill.Wizard => Wizard.startingPackage.skillChoiceList,
             CustomSkill.Bard => Bard.startingPackage.skillChoiceList,
+            CustomSkill.Ranger => Ranger.startingPackage.skillChoiceList,
             _ => Fighter.startingPackage.skillChoiceList,
           };
 
@@ -724,11 +746,11 @@ namespace NWN.Systems
           skillList1.RemoveAll(s => s.Value == selectedSkill2.GetBindValue(player.oid, nuiToken.Token));
           skillList2.RemoveAll(s => s.Value == selectedSkill1.GetBindValue(player.oid, nuiToken.Token));
 
-          if(selectedLearnable.id == CustomSkill.Bard)
+          if(Utils.In(selectedLearnable.id, CustomSkill.Bard, CustomSkill.Ranger))
           {
             List<NuiComboEntry> skillList3 = new();
 
-            foreach (var learnable in Rogue.startingPackage.skillChoiceList)
+            foreach (var learnable in startingPackageList)
               if (!player.learnableSkills.TryGetValue(learnable.id, out var value) || value.source.Any(so => so == Category.Class))
                 skillList3.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
 

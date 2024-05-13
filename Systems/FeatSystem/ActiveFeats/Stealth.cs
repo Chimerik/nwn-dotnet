@@ -16,7 +16,8 @@ namespace NWN.Systems
       }
 
       if (caster.Classes.Any(c => c.Class.ClassType == ClassType.Rogue && c.Level > 1)
-        || caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.MonkTenebres)))
+        || caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.MonkTenebres))
+        || caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.RangerDisparition)))
       {
         if (!CreatureUtils.HandleBonusActionUse(caster))
           return;

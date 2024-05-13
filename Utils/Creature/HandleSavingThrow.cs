@@ -7,7 +7,7 @@ namespace NWN.Systems
     public static bool GetSavingThrow(NwCreature attacker, NwCreature target, Ability ability, int saveDC)
     {
       SpellConfig.SavingThrowFeedback feedback = new();
-      int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, ability);
+      int advantage = GetCreatureAbilityAdvantage(target, ability);
       int totalSave = SpellUtils.GetSavingThrowRoll(target, ability, saveDC, advantage, feedback);
       bool saveFailed = totalSave < saveDC;
 

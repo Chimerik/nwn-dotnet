@@ -34,6 +34,11 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case Spell.Flare:
+          SpellSystem.SacredFlame(oCaster, spell, spellEntry, target, castingClass);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         /* case Spell.Virtue:
            HealingBreeze(onSpellCast, durationModifier);
            oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;

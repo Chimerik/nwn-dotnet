@@ -8,10 +8,10 @@ namespace NWN.Systems
   {
     public static bool ComputeCreatureAbilityAdvantage(NwCreature creature, Ability ability, SpellEntry spellEntry = null, SpellEffectType effectType = SpellEffectType.Invalid, NwGameObject oCaster = null)
     {
-      if (spellEntry is not null && oCaster is NwCreature caster && caster.KnowsFeat((Feat)CustomSkill.ArcaneTricksterMagicalAmbush) && !creature.IsCreatureSeen(caster))
+      if (spellEntry is not null && creature.KnowsFeat((Feat)CustomSkill.AbjurationSpellResistance))
         return true;
 
-      switch(ability)
+      switch (ability)
       {
         case Ability.Strength:
 
@@ -83,10 +83,16 @@ namespace NWN.Systems
 
           break;
       }
+      
+      if (oCaster is NwCreature caster)
+      {
+        NwFeat favoredEnemyFeat = caster.Race.GetFavoredEnemyFeat();
 
-      if(oCaster is NwCreature casterCreature && creature.KnowsFeat((Feat)CustomSkill.TueurDeMage)
-        && creature.DistanceSquared(casterCreature) < 7)
-        return true;
+        if(favoredEnemyFeat is not null && creature.KnowsFeat(favoredEnemyFeat) && creature.KnowsFeat((Feat)CustomSkill.RangerGreaterFavoredEnemy))
+            return true;
+        else if (creature.KnowsFeat((Feat)CustomSkill.TueurDeMage) && creature.DistanceSquared(caster) < 7)
+          return true;
+      }
 
       foreach (var eff in creature.ActiveEffects)
       {
@@ -123,9 +129,6 @@ namespace NWN.Systems
             break;
         }
       }
-
-      if (spellEntry is not null && creature.KnowsFeat((Feat)CustomSkill.AbjurationSpellResistance))
-        return true;
 
       return false;
     }

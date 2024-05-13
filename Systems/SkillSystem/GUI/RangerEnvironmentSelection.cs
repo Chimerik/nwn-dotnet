@@ -11,7 +11,7 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      public class FightingStyleSelectionWindow : PlayerWindow
+      public class RangerEnvironmentSelectionWindow : PlayerWindow
       {
         private readonly NuiColumn rootColumn = new();
         private readonly List<NuiElement> rootChildren = new();
@@ -28,9 +28,9 @@ namespace NWN.Systems
         private IEnumerable<Learnable> currentList;
         private Learnable selectedLearnable;
 
-        public FightingStyleSelectionWindow(Player player, int fromLearnable) : base(player)
+        public RangerEnvironmentSelectionWindow(Player player) : base(player)
         {
-          windowId = "fightingStyleSelection";
+          windowId = "rangerEnvironmentSelection";
           rootColumn.Children = rootChildren;
 
           List<NuiListTemplateCell> learnableTemplate = new List<NuiListTemplateCell>
@@ -59,16 +59,16 @@ namespace NWN.Systems
             }, Width = player.guiScaledWidth * 0.6f - 370 }
           } });
 
-          CreateWindow(fromLearnable);
+          CreateWindow();
         }
-        public void CreateWindow(int fromLearnable)
+        public void CreateWindow()
         {
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_FIGHTING_STYLE_SELECTION").Value = fromLearnable;
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_RANGER_ENVIRONMENT_SELECTION").Value = 1;
 
           NuiRect savedRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(player.guiWidth * 0.2f, player.guiHeight * 0.05f, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f);
           selectedLearnable = null;
 
-          window = new NuiWindow(rootColumn, "Choisissez un style de combat")
+          window = new NuiWindow(rootColumn, "Choisissez un environnement de prédilection")
           {
             Geometry = geometry,
             Resizable = false,
@@ -84,31 +84,14 @@ namespace NWN.Systems
             nuiToken.OnNuiEvent += HandleLearnableEvents;
 
             selectedItemTitle.SetBindValue(player.oid, nuiToken.Token, "");
-            selectedItemDescription.SetBindValue(player.oid, nuiToken.Token, "Sélectionner un style de combat pour afficher ses détails.\n\nAttention, le choix est définitif.");
+            selectedItemDescription.SetBindValue(player.oid, nuiToken.Token, "Sélectionner un environement pour afficher ses détails.\n\nAttention, le choix est définitif.");
             selectedItemIcon.SetBindValue(player.oid, nuiToken.Token, "ir_examine");
             selectedItemVisibility.SetBindValue(player.oid, nuiToken.Token, false);
 
             geometry.SetBindValue(player.oid, nuiToken.Token, new NuiRect(savedRectangle.X, savedRectangle.Y, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f));
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-            currentList = fromLearnable switch
-            {
-              CustomSkill.BardCollegeDeLescrime => learnableDictionary.Values.Where(s => s is LearnableSkill ls && Utils.In(s.id, CustomSkill.FighterCombatStyleDuel, CustomSkill.FighterCombatStyleDualWield)
-              && (!player.learnableSkills.ContainsKey(s.id) || player.learnableSkills[s.id].currentLevel < s.maxLevel)).OrderBy(s => s.name),
-              
-              CustomSkill.Ranger => learnableDictionary.Values.Where(s => s is LearnableSkill ls && Utils.In(s.id, CustomSkill.FighterCombatStyleArchery, CustomSkill.FighterCombatStyleDuel, CustomSkill.FighterCombatStyleDualWield, CustomSkill.FighterCombatStyleDefense)
-              && (!player.learnableSkills.ContainsKey(s.id) || player.learnableSkills[s.id].currentLevel < s.maxLevel)).OrderBy(s => s.name),
-              
-              _ => learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.FightingStyle 
-                && (!player.learnableSkills.ContainsKey(s.id) || player.learnableSkills[s.id].currentLevel < s.maxLevel)).OrderBy(s => s.name)
-            };
-
-            if(!currentList.Any())
-            {
-              player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_FIGHTING_STYLE_SELECTION").Delete();
-              player.oid.SendServerMessage("Vous connaissez déjà tous les styles de combat", ColorConstants.Orange);
-              return;
-            }
+            currentList = learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.RangerEnvironment).OrderBy(s => s.name);
 
             LoadLearnableList(currentList);
           }
@@ -133,19 +116,19 @@ namespace NWN.Systems
                   selectedItemDescription.SetBindValue(player.oid, nuiToken.Token, selectedLearnable.description);
                   selectedItemIcon.SetBindValue(player.oid, nuiToken.Token, selectedLearnable.icon);
 
-                  LearnableSkill selectedSkill = (LearnableSkill)selectedLearnable;
                   LoadLearnableList(currentList);
 
                   break;
 
                 case "validate":
 
-                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_FIGHTING_STYLE_SELECTION").Delete();
+                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_RANGER_ENVIRONMENT_SELECTION").Delete();
 
                   player.learnableSkills.TryAdd(selectedLearnable.id, new LearnableSkill((LearnableSkill)learnableDictionary[selectedLearnable.id], player, levelTaken: player.oid.LoginCreature.Level));
                   player.learnableSkills[selectedLearnable.id].LevelUp(player);
+                  player.learnableSkills[selectedLearnable.id].source.Add(Category.Class);
 
-                  player.oid.SendServerMessage($"Vous maîtrisez le style de combat : {StringUtils.ToWhitecolor(selectedLearnable.name)} !", ColorConstants.Orange);
+                  player.oid.SendServerMessage($"Vous avez choisi l'environement de prédilection : {StringUtils.ToWhitecolor(selectedLearnable.name)} !", ColorConstants.Orange);
 
                   CloseWindow();
 

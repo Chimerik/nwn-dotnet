@@ -11,7 +11,7 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      public class FightingStyleSelectionWindow : PlayerWindow
+      public class FavoredEnemySelectionWindow : PlayerWindow
       {
         private readonly NuiColumn rootColumn = new();
         private readonly List<NuiElement> rootChildren = new();
@@ -28,9 +28,9 @@ namespace NWN.Systems
         private IEnumerable<Learnable> currentList;
         private Learnable selectedLearnable;
 
-        public FightingStyleSelectionWindow(Player player, int fromLearnable) : base(player)
+        public FavoredEnemySelectionWindow(Player player, int archetypeId = 0) : base(player)
         {
-          windowId = "fightingStyleSelection";
+          windowId = "favoredEnemySelection";
           rootColumn.Children = rootChildren;
 
           List<NuiListTemplateCell> learnableTemplate = new List<NuiListTemplateCell>
@@ -59,16 +59,16 @@ namespace NWN.Systems
             }, Width = player.guiScaledWidth * 0.6f - 370 }
           } });
 
-          CreateWindow(fromLearnable);
+          CreateWindow(archetypeId);
         }
-        public void CreateWindow(int fromLearnable)
+        public void CreateWindow(int archetypeId = 0)
         {
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_FIGHTING_STYLE_SELECTION").Value = fromLearnable;
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_FAVORED_ENEMY_SELECTION").Value = archetypeId;
 
           NuiRect savedRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(player.guiWidth * 0.2f, player.guiHeight * 0.05f, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f);
           selectedLearnable = null;
 
-          window = new NuiWindow(rootColumn, "Choisissez un style de combat")
+          window = new NuiWindow(rootColumn, "Choisissez un ennemi juré")
           {
             Geometry = geometry,
             Resizable = false,
@@ -84,31 +84,49 @@ namespace NWN.Systems
             nuiToken.OnNuiEvent += HandleLearnableEvents;
 
             selectedItemTitle.SetBindValue(player.oid, nuiToken.Token, "");
-            selectedItemDescription.SetBindValue(player.oid, nuiToken.Token, "Sélectionner un style de combat pour afficher ses détails.\n\nAttention, le choix est définitif.");
+            selectedItemDescription.SetBindValue(player.oid, nuiToken.Token, "Sélectionner un ennemi juré pour afficher ses détails.\n\nAttention, le choix est définitif.");
             selectedItemIcon.SetBindValue(player.oid, nuiToken.Token, "ir_examine");
             selectedItemVisibility.SetBindValue(player.oid, nuiToken.Token, false);
 
             geometry.SetBindValue(player.oid, nuiToken.Token, new NuiRect(savedRectangle.X, savedRectangle.Y, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f));
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-            currentList = fromLearnable switch
+            if(archetypeId < 1)
             {
-              CustomSkill.BardCollegeDeLescrime => learnableDictionary.Values.Where(s => s is LearnableSkill ls && Utils.In(s.id, CustomSkill.FighterCombatStyleDuel, CustomSkill.FighterCombatStyleDualWield)
-              && (!player.learnableSkills.ContainsKey(s.id) || player.learnableSkills[s.id].currentLevel < s.maxLevel)).OrderBy(s => s.name),
-              
-              CustomSkill.Ranger => learnableDictionary.Values.Where(s => s is LearnableSkill ls && Utils.In(s.id, CustomSkill.FighterCombatStyleArchery, CustomSkill.FighterCombatStyleDuel, CustomSkill.FighterCombatStyleDualWield, CustomSkill.FighterCombatStyleDefense)
-              && (!player.learnableSkills.ContainsKey(s.id) || player.learnableSkills[s.id].currentLevel < s.maxLevel)).OrderBy(s => s.name),
-              
-              _ => learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.FightingStyle 
-                && (!player.learnableSkills.ContainsKey(s.id) || player.learnableSkills[s.id].currentLevel < s.maxLevel)).OrderBy(s => s.name)
-            };
-
-            if(!currentList.Any())
-            {
-              player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_FIGHTING_STYLE_SELECTION").Delete();
-              player.oid.SendServerMessage("Vous connaissez déjà tous les styles de combat", ColorConstants.Orange);
-              return;
+              if (player.learnableSkills.ContainsKey(CustomSkill.RangerGardienDuVoile))
+                archetypeId = CustomSkill.RangerGardienDuVoile;
+              if (player.learnableSkills.ContainsKey(CustomSkill.RangerBriseurDeMages))
+                archetypeId = CustomSkill.RangerBriseurDeMages;
+              if (player.learnableSkills.ContainsKey(CustomSkill.RangerChevalier))
+                archetypeId = CustomSkill.RangerChevalier;
+              if (player.learnableSkills.ContainsKey(CustomSkill.RangerSanctifie))
+                archetypeId = CustomSkill.RangerSanctifie;
+              if (player.learnableSkills.ContainsKey(CustomSkill.RangerChasseurDePrimes))
+                archetypeId = CustomSkill.RangerChasseurDePrimes;
             }
+
+            currentList = archetypeId switch
+            {
+              CustomSkill.RangerGardienDuVoile => learnableDictionary.Values.Where(l => l is LearnableSkill && l.currentLevel < 1
+                && (l.id == (int)Feat.FavoredEnemyAberration || l.id == (int)Feat.FavoredEnemyOutsider || l.id == (int)Feat.FavoredEnemyFey
+                || l.id == (int)Feat.FavoredEnemyElemental || l.id == (int)Feat.FavoredEnemyMagicalBeast || l.id == (int)Feat.FavoredEnemyShapechanger)).OrderBy(l => l.name),
+              
+              CustomSkill.RangerBriseurDeMages => learnableDictionary.Values.Where(l => l is LearnableSkill && l.currentLevel < 1
+                && (l.id == (int)Feat.FavoredEnemyMagicalBeast || l.id == (int)Feat.FavoredEnemyConstruct || l.id == (int)Feat.FavoredEnemyUndead
+                || l.id == (int)Feat.FavoredEnemyDragon || l.id == (int)Feat.FavoredEnemyElemental || l.id == (int)Feat.FavoredEnemyMonstrous)).OrderBy(l => l.name),
+              
+              CustomSkill.RangerChevalier => learnableDictionary.Values.Where(l => l is LearnableSkill && l.currentLevel < 1
+                && (l.id == (int)Feat.FavoredEnemyDragon || l.id == (int)Feat.FavoredEnemyGiant || l.id == (int)Feat.FavoredEnemyBeast
+                || l.id == (int)Feat.FavoredEnemyOrc || l.id == (int)Feat.FavoredEnemyVermin || l.id == (int)Feat.FavoredEnemyShapechanger)).OrderBy(l => l.name),
+              
+              CustomSkill.RangerSanctifie => learnableDictionary.Values.Where(l => l is LearnableSkill && l.currentLevel < 1
+                && (l.id == (int)Feat.FavoredEnemyUndead || l.id == (int)Feat.FavoredEnemyGiant || l.id == (int)Feat.FavoredEnemyBeast
+                || l.id == (int)Feat.FavoredEnemyMagicalBeast || l.id == (int)Feat.FavoredEnemyVermin || l.id == (int)Feat.FavoredEnemyMonstrous)).OrderBy(l => l.name),
+              
+              _ => learnableDictionary.Values.Where(l => l is LearnableSkill && l.currentLevel < 1
+                && (l.id == (int)Feat.FavoredEnemyMonstrous || l.id == (int)Feat.FavoredEnemyGoblinoid || l.id == (int)Feat.FavoredEnemyReptilian
+                || l.id == (int)Feat.FavoredEnemyOrc || l.id == (int)Feat.FavoredEnemyShapechanger || l.id == (int)Feat.FavoredEnemyVermin)).OrderBy(l => l.name),
+            };
 
             LoadLearnableList(currentList);
           }
@@ -133,21 +151,24 @@ namespace NWN.Systems
                   selectedItemDescription.SetBindValue(player.oid, nuiToken.Token, selectedLearnable.description);
                   selectedItemIcon.SetBindValue(player.oid, nuiToken.Token, selectedLearnable.icon);
 
-                  LearnableSkill selectedSkill = (LearnableSkill)selectedLearnable;
                   LoadLearnableList(currentList);
 
                   break;
 
                 case "validate":
 
-                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_FIGHTING_STYLE_SELECTION").Delete();
+                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_FAVORED_ENEMY_SELECTION").Delete();
 
                   player.learnableSkills.TryAdd(selectedLearnable.id, new LearnableSkill((LearnableSkill)learnableDictionary[selectedLearnable.id], player, levelTaken: player.oid.LoginCreature.Level));
                   player.learnableSkills[selectedLearnable.id].LevelUp(player);
+                  player.learnableSkills[selectedLearnable.id].source.Add(Category.Class);
 
-                  player.oid.SendServerMessage($"Vous maîtrisez le style de combat : {StringUtils.ToWhitecolor(selectedLearnable.name)} !", ColorConstants.Orange);
+                  player.oid.SendServerMessage($"Les {StringUtils.ToWhitecolor(selectedLearnable.name)} sont dorénavant vos ennemis jurés !", ColorConstants.Orange);
 
                   CloseWindow();
+
+                  if (!player.windows.TryGetValue("rangerEnvironmentSelection", out var style)) player.windows.Add("rangerEnvironmentSelection", new RangerEnvironmentSelectionWindow(player));
+                  else ((RangerEnvironmentSelectionWindow)style).CreateWindow();
 
                   break;
               }

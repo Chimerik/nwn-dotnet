@@ -34,5 +34,6 @@
     public const int RegardHypnotique = 870;
     public const int IllusionMineure = 871;
     public const int InvocationPermutation = 872;
+    public const int CallFamiliar = 873;
   }
 }

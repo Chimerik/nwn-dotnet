@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -11,7 +12,7 @@ namespace NWN.Systems
         switch(learnable.id)
         {
           case CustomSkill.HeavyArmorProficiency:
-            if (oid.LoginCreature.Classes.Any(c => c.Class.Id == CustomClass.Fighter))
+            if (oid.LoginCreature.Classes.Any(c => c.Class.Id == CustomClass.Fighter) || oid.LoginCreature.KnowsFeat((Feat)CustomSkill.RangerChevalier))
               learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 4;
             break;
         }
@@ -53,6 +54,38 @@ namespace NWN.Systems
 
             if (oid.LoginCreature.Classes.Any(c => c.Class.Id == CustomClass.Fighter))
               learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 4;
+
+            if (oid.LoginCreature.Classes.Any(c => c.Class.Id == CustomClass.Rogue || c.Class.Id == CustomClass.Bard))
+            {
+              switch(learnable.id)
+              {
+                case CustomSkill.ShurikenProficiency:
+                case CustomSkill.LongSwordProficiency:
+                case CustomSkill.RapierProficiency:
+                case CustomSkill.ShortSwordProficiency: learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 4; break;
+              }
+            }
+
+            if (learnableSkills.ContainsKey(CustomSkill.BardCollegeDeLaVaillance) || oid.LoginCreature.Classes.Any(c => c.Class.Id == CustomClass.Ranger))
+            {
+              switch (learnable.id)
+              {
+                case CustomSkill.LightFlailProficiency:
+                case CustomSkill.BattleaxeProficiency:
+                case CustomSkill.GreatswordProficiency:
+                case CustomSkill.HalberdProficiency:
+                case CustomSkill.GreataxeProficiency:
+                case CustomSkill.ScimitarProficiency:
+                case CustomSkill.ThrowingAxeProficiency:
+                case CustomSkill.HeavyFlailProficiency:
+                case CustomSkill.TridentProficiency:
+                case CustomSkill.WarHammerProficiency:
+                case CustomSkill.HeavyCrossbowProficiency:
+                case CustomSkill.LongBowProficiency:
+                case CustomSkill.WhipProficiency:
+                case CustomSkill.MorningstarProficiency: learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 4; break;
+              }
+            }
 
             switch (learnable.id)
             {

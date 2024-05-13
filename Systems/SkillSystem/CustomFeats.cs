@@ -272,6 +272,23 @@
     public const int BotteDefensiveDeMaitre = 1549;
     public const int BotteTranchanteDeMaitre = 1550;
 
+    public const int RangerChasseurDePrimes = 1551;
+    public const int RangerChevalier = 1552;
+    public const int RangerVeilProtectionAlignment = 1553;
+
+    public const int SacredFlame = 1554;
+
+    public const int RangerColdWanderer = 1555;
+    public const int RangerFireWanderer = 1556;
+    public const int RangerPoisonWanderer = 1557;
+    public const int RangerAcidWanderer = 1558;
+    public const int RangerBeastTamerCallFamiliar = 1559;
+    public const int RangerGreaterFavoredEnemy = 1560;
+    public const int RangerDeplacementFluide = 1561;
+    public const int RangerDisparition = 1562;
+    public const int RangerSensSauvages = 1563;
+    public const int RangerTueurImplacable = 1564;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -795,6 +812,15 @@
     public const int BardCollegeDeLescrime = 20567;
     public const int EscrimeBonusAttack = 20568;
 
+    public const int Ranger = 20569;
+    
+    public const int RangerGardienDuVoile = 20570;
+    public const int RangerBriseurDeMages = 20571;
+    public const int RangerSanctifie = 20572;
+    public const int RangerBeastTamer = 20573;
+    public const int RangerUrbanTracker = 20574;
+
+    public const int RangerBonusAttack = 20575;
 
     public const int Invalid = 65535;
   }

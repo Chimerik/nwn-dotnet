@@ -14,7 +14,7 @@ namespace NWN.Systems
         if (GetBoneChillDisadvantage(attacker, eff))
           return true;
 
-        if (GetBlindedDisadvantage(eff))
+        if (GetBlindedDisadvantage(attacker, eff))
           return true;
 
         if (GetPoisonedDisadvantage(eff))

@@ -5,7 +5,7 @@ namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static int RollWeaponDamage(CNWSCreature creature, NwBaseItem weapon, CNWSCombatAttackData attackData, bool isCriticalRoll = false)
+    public static int RollWeaponDamage(CNWSCreature creature, NwBaseItem weapon, CNWSCombatAttackData attackData, CNWSCreature target, bool isCriticalRoll = false)
     {
       int dieToRoll = ItemUtils.IsVersatileWeapon(weapon.ItemType) && creature.m_pInventory.GetItemInSlot((uint)EquipmentSlot.LeftHand) is null
         ? weapon.DieToRoll + 2 : weapon.DieToRoll;
@@ -16,7 +16,8 @@ namespace NWN.Systems
         + GetEmpaleurCriticalBonus(creature, weapon, isCriticalRoll)
         + GetBarbarianBrutalCriticalBonus(creature, attackData.m_bRangedAttack.ToBool(), isCriticalRoll)
         + GetDegatsBotte(creature)
-        + GetDegatsVaillantsBonus(creature);
+        + GetDegatsVaillantsBonus(creature)
+        + GetFavoredEnemyDegatsBonus(creature, target);
 
       int damage = HandleWeaponDamageRerolls(creature, weapon, numDamageDice, dieToRoll);
       damage = HandleSavageAttacker(creature, weapon, attackData, numDamageDice, damage, dieToRoll);

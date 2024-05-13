@@ -5,16 +5,19 @@ namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static bool ComputeCreatureAbilityDisadvantage(NwCreature creature, Ability ability, SpellEntry spellEntry = null, SpellEffectType effectType = SpellEffectType.Invalid, NwGameObject caster = null)
-    {     
-      foreach (var eff in creature.ActiveEffects)
+    public static bool ComputeCreatureAbilityDisadvantage(NwCreature creature, Ability ability, SpellEntry spellEntry = null, SpellEffectType effectType = SpellEffectType.Invalid, NwGameObject oCaster = null)
+    {
+      if (oCaster is NwCreature caster && caster.KnowsFeat((Feat)CustomSkill.ArcaneTricksterMagicalAmbush) && !creature.IsCreatureSeen(caster))
+        return true;
+
+        foreach (var eff in creature.ActiveEffects)
       {
         switch(eff.Tag)
         {
           case EffectSystem.FrightenedEffectTag: return true;
           case EffectSystem.FrappeOcculteEffectTag: 
             
-            if(spellEntry is not null && caster is not null && eff.Creator == caster)
+            if(spellEntry is not null && oCaster is not null && eff.Creator == oCaster)
               return true;
 
             break;

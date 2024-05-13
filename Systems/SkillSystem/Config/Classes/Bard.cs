@@ -12,14 +12,16 @@ namespace NWN.Systems
       { 
         learnableDictionary[CustomSkill.LightArmorProficiency],
         learnableDictionary[CustomSkill.SimpleWeaponProficiency],
-        learnableDictionary[CustomSkill.ShurikenProficiency],
-        learnableDictionary[CustomSkill.RapierProficiency],
-        learnableDictionary[CustomSkill.ShortSwordProficiency],
-        learnableDictionary[CustomSkill.LongSwordProficiency],
         learnableDictionary[CustomSkill.DexteritySavesProficiency],
         learnableDictionary[CustomSkill.CharismaSavesProficiency],
       },
-      new List<Learnable>() { },
+      new List<Learnable>() 
+      {
+        learnableDictionary[CustomSkill.ShurikenProficiency],
+        learnableDictionary[CustomSkill.RapierProficiency],
+        learnableDictionary[CustomSkill.ShortSwordProficiency],
+        learnableDictionary[CustomSkill.LongSwordProficiency]
+      },
       new List<Learnable>()
       {
         learnableDictionary[CustomSkill.AcrobaticsProficiency],

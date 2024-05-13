@@ -431,7 +431,7 @@ namespace NWN.Systems
           }
           else
           {
-            baseDamage += NativeUtils.RollWeaponDamage(attacker, baseWeapon, attackData);
+            baseDamage += NativeUtils.RollWeaponDamage(attacker, baseWeapon, attackData, targetCreature);
             isDuelFightingStyle = NativeUtils.IsDuelFightingStyle(attacker, baseWeapon, attackData);
             baseDamage += isDuelFightingStyle ? 2 : 0;
           }
@@ -462,7 +462,7 @@ namespace NWN.Systems
 
       if (bCritical > 0)
       {
-        int critDamage = NativeUtils.GetCritDamage(attacker, attackWeapon, attackData, sneakAttack, isDuelFightingStyle);
+        int critDamage = NativeUtils.GetCritDamage(attacker, attackWeapon, attackData, sneakAttack, isDuelFightingStyle, targetCreature);
         LogUtils.LogMessage($"Critique - Base {baseDamage} + crit {critDamage} = {baseDamage + critDamage}", LogUtils.LogType.Combat);
         baseDamage += critDamage;
       }

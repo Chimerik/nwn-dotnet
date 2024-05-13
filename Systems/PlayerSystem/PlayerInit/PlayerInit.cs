@@ -424,6 +424,8 @@ namespace NWN.Systems
         InitializeWeaponMasterChoice();
         InitializeFeatChoice();
         InitializeFightingStyleChoice();
+        InitializeRangerArchetypeChoice();
+        InitializeFavoredEnemyChoice();
         InitializeSubClassChoice();
         InitializeManoeuvreChoice();
         InitializeTirArcaniqueChoice();
@@ -469,6 +471,10 @@ namespace NWN.Systems
         ApplyInspirationSuperieure();
         ApplyMagieDeCombat();
         ApplyEscrime();
+        ApplyColdWanderer();
+        ApplyFireWanderer();
+        ApplyPoisonWanderer();
+        ApplyAcidWanderer();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

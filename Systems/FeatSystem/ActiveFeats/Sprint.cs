@@ -12,7 +12,8 @@ namespace NWN.Systems
       if (caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value < 1)
         return;
 
-      if (caster.Classes.Any(c => c.Class.ClassType == ClassType.Rogue && c.Level > 1)
+      if (caster.KnowsFeat((Feat)CustomSkill.RangerDeplacementFluide)
+        || caster.Classes.Any(c => c.Class.ClassType == ClassType.Rogue && c.Level > 1)
         || caster.Classes.Any(c => c.Class.Id == CustomClass.Monk && c.Level > 1)
         || (caster.KnowsFeat((Feat)CustomSkill.TotemEspritAigle)
            && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.BarbarianRageEffectTag)))
