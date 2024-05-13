@@ -475,6 +475,7 @@ namespace NWN.Systems
         ApplyFireWanderer();
         ApplyPoisonWanderer();
         ApplyAcidWanderer();
+        ApplyMonkOpportunist();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

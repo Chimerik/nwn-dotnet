@@ -15,7 +15,7 @@ namespace NWN.Systems
         return;
       }
 
-      if(!NwModule.Instance.IsNight || !caster.Location.Area.IsInterior)
+      if(!NwModule.Instance.IsNight && !caster.Location.Area.IsInterior)
       {
         caster.LoginPlayer?.SendServerMessage("Il faut attendre la nuit, ou bien être en intérieur pour utiliser cette capacité", ColorConstants.Red);
         return;
