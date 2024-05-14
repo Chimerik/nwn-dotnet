@@ -595,6 +595,8 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomSkill.RangerTueurImplacable, new LearnableSkill(CustomSkill.RangerTueurImplacable, "Tueur Implacable", "Vous ajoutez votre modificateur de sagesse aux dégâts effectués à vos ennemis jurés (minimum +1)", Category.MindBody, "ife_X1BliFig", 1, 1, Ability.Dexterity, Ability.Wisdom, LearnActivableFeat));
 
       learnableDictionary.Add(CustomSkill.RangerChasseur, new LearnableSkill(CustomSkill.RangerChasseur, "Conclave des Chasseurs", "", Category.RangerSubClass, "chasseur", 20, 1, Ability.Dexterity, Ability.Wisdom, Ranger.LevelUp, "1p2EAqtXajVb9yqIiNxVoTg9c8Io1gHnRjmG7HzzdIU8"));
+      learnableDictionary.Add(CustomSkill.RangerBetes, new LearnableSkill(CustomSkill.RangerBetes, "Conclave des Bêtes", "", Category.RangerSubClass, "conclave_betes", 20, 1, Ability.Dexterity, Ability.Wisdom, Ranger.LevelUp, "1p2EAqtXajVb9yqIiNxVoTg9c8Io1gHnRjmG7HzzdIU8"));
+      learnableDictionary.Add(CustomSkill.RangerProfondeurs, new LearnableSkill(CustomSkill.RangerProfondeurs, "Conclave des Profondeurs", "", Category.RangerSubClass, "profondeurs", 20, 1, Ability.Dexterity, Ability.Wisdom, Ranger.LevelUp, "1p2EAqtXajVb9yqIiNxVoTg9c8Io1gHnRjmG7HzzdIU8"));
       learnableDictionary.Add(CustomSkill.RangerChasseurBonusAttack, new LearnableSkill(CustomSkill.RangerChasseurBonusAttack, "Chasseur - Attaque bonus", "Votre niveau de Chasseur vous permet de bénéficier d'une attaque supplémentaire", Category.Fight, "is_ExtraAttack", 1, 1, Ability.Dexterity, Ability.Wisdom));
 
       // SPELLS

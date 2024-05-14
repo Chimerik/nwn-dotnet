@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Security.Cryptography;
+using Anvil.API;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.PlayerSystem.Player;
 using static NWN.Systems.SkillSystem;
@@ -7,14 +8,14 @@ namespace NWN.Systems
 {
   public static partial class Ranger
   {
-    public static void HandleChasseurLevelUp(Player player, int level)
+    public static void HandleBetesLevelUp(Player player, int level)
     {
       switch (level)
       {
-        case 3: 
-          
-          new StrRef(14).SetPlayerOverride(player.oid, "Conclave des Chasseurs");
-          player.oid.SetTextureOverride("ranger", "chasseur");
+        case 3:
+
+          new StrRef(14).SetPlayerOverride(player.oid, "Conclave des Bêtes");
+          player.oid.SetTextureOverride("ranger", "conclave_betes");
 
           if (!player.windows.TryGetValue("fightingStyleSelection", out var style)) player.windows.Add("fightingStyleSelection", new FightingStyleSelectionWindow(player, CustomSkill.BardCollegeDeLescrime));
           else ((FightingStyleSelectionWindow)style).CreateWindow(CustomSkill.BardCollegeDeLescrime);

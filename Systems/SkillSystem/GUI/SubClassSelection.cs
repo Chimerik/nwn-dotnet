@@ -227,7 +227,15 @@ namespace NWN.Systems
                       category = Category.BardSubClass;
                       break;
                     case CustomSkill.RangerChasseur:
-                      Bard.HandleCollegeDeLescrimeLevelUp(player, 3);
+                      Ranger.HandleChasseurLevelUp(player, 3);
+                      category = Category.RangerSubClass;
+                      break;
+                    case CustomSkill.RangerBetes:
+                      Ranger.HandleBetesLevelUp(player, 3);
+                      category = Category.RangerSubClass;
+                      break;
+                    case CustomSkill.RangerProfondeurs:
+                      Ranger.HandleProfondeursLevelUp(player, 3);
                       category = Category.RangerSubClass;
                       break;
                   }

@@ -144,6 +144,16 @@ namespace NWN.Systems
           new StrRef(14).SetPlayerOverride(oid, "Conclave des Chasseurs");
           oid.SetTextureOverride("ranger", "chasseur");
         }
+        else if (learnableSkills.ContainsKey(CustomSkill.RangerBetes))
+        {
+          new StrRef(14).SetPlayerOverride(oid, "Conclave des Bêtes");
+          oid.SetTextureOverride("ranger", "conclave_betes");
+        }
+        else if (learnableSkills.ContainsKey(CustomSkill.RangerProfondeurs))
+        {
+          new StrRef(14).SetPlayerOverride(oid, "Conclave des Profondeurs");
+          oid.SetTextureOverride("ranger", "profondeurs");
+        }
       }
     }
   }

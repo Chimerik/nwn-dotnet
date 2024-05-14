@@ -60,9 +60,8 @@ namespace NWN.Systems
       switch (customSkillId)
       {
         case CustomSkill.RangerChasseur: HandleChasseurLevelUp(player, playerClass.currentLevel); break;
-        //case CustomSkill.FighterArcaneArcher: HandleArcherMageLevelUp(player, playerClass.currentLevel); break;
-        //case CustomSkill.FighterWarMaster: HandleWarMasterLevelUp(player, playerClass.currentLevel); break;
-        //case CustomSkill.FighterEldritchKnight: HandleEldritchKnightLevelUp(player, playerClass.currentLevel); break;
+        case CustomSkill.RangerBetes: HandleBetesLevelUp(player, playerClass.currentLevel); break;
+        case CustomSkill.RangerProfondeurs: HandleProfondeursLevelUp(player, playerClass.currentLevel); break;
       }
 
       if (player.oid.LoginCreature.Level > 2 || playerClass.currentLevel > 1)
