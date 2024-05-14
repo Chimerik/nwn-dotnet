@@ -138,6 +138,12 @@ namespace NWN.Systems
           new StrRef(2).SetPlayerOverride(oid, "Collège de l'Escrime");
           oid.SetTextureOverride("bard", "escrime");
         }
+
+        if (learnableSkills.ContainsKey(CustomSkill.RangerChasseur))
+        {
+          new StrRef(14).SetPlayerOverride(oid, "Conclave des Chasseurs");
+          oid.SetTextureOverride("ranger", "chasseur");
+        }
       }
     }
   }

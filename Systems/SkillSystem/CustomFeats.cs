@@ -822,6 +822,11 @@
 
     public const int RangerBonusAttack = 20575;
 
+    public const int RangerChasseur = 20576;
+    public const int RangerChasseurBonusAttack = 20577;
+    public const int RangerBetes = 20578;
+    public const int RangerProfondeurs = 20579;
+
     public const int Invalid = 65535;
   }
 }

@@ -57,13 +57,13 @@ namespace NWN.Systems
       LearnableSkill playerClass = player.learnableSkills[customSkillId];
       HandleRangerLevelUp(player, playerClass.currentLevel, playerClass);
 
-      /*switch (customSkillId)
+      switch (customSkillId)
       {
-        case CustomSkill.FighterChampion: HandleChampionLevelUp(player, playerClass.currentLevel); break;
-        case CustomSkill.FighterArcaneArcher: HandleArcherMageLevelUp(player, playerClass.currentLevel); break;
-        case CustomSkill.FighterWarMaster: HandleWarMasterLevelUp(player, playerClass.currentLevel); break;
-        case CustomSkill.FighterEldritchKnight: HandleEldritchKnightLevelUp(player, playerClass.currentLevel); break;
-      }*/
+        case CustomSkill.RangerChasseur: HandleChasseurLevelUp(player, playerClass.currentLevel); break;
+        //case CustomSkill.FighterArcaneArcher: HandleArcherMageLevelUp(player, playerClass.currentLevel); break;
+        //case CustomSkill.FighterWarMaster: HandleWarMasterLevelUp(player, playerClass.currentLevel); break;
+        //case CustomSkill.FighterEldritchKnight: HandleEldritchKnightLevelUp(player, playerClass.currentLevel); break;
+      }
 
       if (player.oid.LoginCreature.Level > 2 || playerClass.currentLevel > 1)
       {

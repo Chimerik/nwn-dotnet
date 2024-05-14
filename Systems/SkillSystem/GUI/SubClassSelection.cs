@@ -226,6 +226,10 @@ namespace NWN.Systems
                       Bard.HandleCollegeDeLescrimeLevelUp(player, 3);
                       category = Category.BardSubClass;
                       break;
+                    case CustomSkill.RangerChasseur:
+                      Bard.HandleCollegeDeLescrimeLevelUp(player, 3);
+                      category = Category.RangerSubClass;
+                      break;
                   }
 
                   player.learnableSkills.Remove(player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value);
@@ -254,6 +258,7 @@ namespace NWN.Systems
             CustomSkill.Monk => learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.MonkSubClass),
             CustomSkill.Wizard => learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.WizardSubClass),
             CustomSkill.Bard => learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.BardSubClass),
+            CustomSkill.Ranger => learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.RangerSubClass),
             _ => null,
           };
         }
