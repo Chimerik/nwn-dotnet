@@ -59,7 +59,7 @@ namespace NWN.Systems
 
       if (target is NwCreature targetCreature)
       {
-        damage = HandleSpellEvasion(targetCreature, damage, spellEntry.savingThrowAbility, saveFailed);
+        damage = HandleSpellEvasion(targetCreature, damage, spellEntry.savingThrowAbility, saveFailed, spell.Id);
         damage = ItemUtils.GetShieldMasterReducedDamage(targetCreature, damage, saveFailed, spellEntry.savingThrowAbility);
         damage = WizardUtils.GetAbjurationReducedDamage(targetCreature, damage);
         damage = HandleResistanceBypass(targetCreature, isElementalist, damage, spellEntry);

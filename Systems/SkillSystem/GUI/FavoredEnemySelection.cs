@@ -108,24 +108,24 @@ namespace NWN.Systems
             currentList = archetypeId switch
             {
               CustomSkill.RangerGardienDuVoile => learnableDictionary.Values.Where(l => l is LearnableSkill && l.currentLevel < 1
-                && (l.id == (int)Feat.FavoredEnemyAberration || l.id == (int)Feat.FavoredEnemyOutsider || l.id == (int)Feat.FavoredEnemyFey
-                || l.id == (int)Feat.FavoredEnemyElemental || l.id == (int)Feat.FavoredEnemyMagicalBeast || l.id == (int)Feat.FavoredEnemyShapechanger)).OrderBy(l => l.name),
+                && (l.id == CustomSkill.FavoredEnemyAberration || l.id == CustomSkill.FavoredEnemyOutsider || l.id == CustomSkill.FavoredEnemyFey
+                || l.id == CustomSkill.FavoredEnemyElemental || l.id == CustomSkill.FavoredEnemyMagicalBeast || l.id == CustomSkill.FavoredEnemyShapechanger)).OrderBy(l => l.name),
               
               CustomSkill.RangerBriseurDeMages => learnableDictionary.Values.Where(l => l is LearnableSkill && l.currentLevel < 1
-                && (l.id == (int)Feat.FavoredEnemyMagicalBeast || l.id == (int)Feat.FavoredEnemyConstruct || l.id == (int)Feat.FavoredEnemyUndead
-                || l.id == (int)Feat.FavoredEnemyDragon || l.id == (int)Feat.FavoredEnemyElemental || l.id == (int)Feat.FavoredEnemyMonstrous)).OrderBy(l => l.name),
+                && (l.id == CustomSkill.FavoredEnemyMagicalBeast || l.id == CustomSkill.FavoredEnemyConstruct || l.id == CustomSkill.FavoredEnemyUndead
+                || l.id == CustomSkill.FavoredEnemyDragon || l.id == CustomSkill.FavoredEnemyElemental || l.id == CustomSkill.FavoredEnemyMonstrous)).OrderBy(l => l.name),
               
               CustomSkill.RangerChevalier => learnableDictionary.Values.Where(l => l is LearnableSkill && l.currentLevel < 1
-                && (l.id == (int)Feat.FavoredEnemyDragon || l.id == (int)Feat.FavoredEnemyGiant || l.id == (int)Feat.FavoredEnemyBeast
-                || l.id == (int)Feat.FavoredEnemyOrc || l.id == (int)Feat.FavoredEnemyVermin || l.id == (int)Feat.FavoredEnemyShapechanger)).OrderBy(l => l.name),
+                && (l.id == CustomSkill.FavoredEnemyDragon || l.id == CustomSkill.FavoredEnemyGiant || l.id == CustomSkill.FavoredEnemyBeast
+                || l.id == CustomSkill.FavoredEnemyOrc || l.id == CustomSkill.FavoredEnemyVermin || l.id == CustomSkill.FavoredEnemyShapechanger)).OrderBy(l => l.name),
               
               CustomSkill.RangerSanctifie => learnableDictionary.Values.Where(l => l is LearnableSkill && l.currentLevel < 1
-                && (l.id == (int)Feat.FavoredEnemyUndead || l.id == (int)Feat.FavoredEnemyGiant || l.id == (int)Feat.FavoredEnemyBeast
-                || l.id == (int)Feat.FavoredEnemyMagicalBeast || l.id == (int)Feat.FavoredEnemyVermin || l.id == (int)Feat.FavoredEnemyMonstrous)).OrderBy(l => l.name),
+                && (l.id == CustomSkill.FavoredEnemyUndead || l.id == CustomSkill.FavoredEnemyGiant || l.id == CustomSkill.FavoredEnemyBeast
+                || l.id == CustomSkill.FavoredEnemyMagicalBeast || l.id == CustomSkill.FavoredEnemyVermin || l.id == CustomSkill.FavoredEnemyMonstrous)).OrderBy(l => l.name),
               
               _ => learnableDictionary.Values.Where(l => l is LearnableSkill && l.currentLevel < 1
-                && (l.id == (int)Feat.FavoredEnemyMonstrous || l.id == (int)Feat.FavoredEnemyGoblinoid || l.id == (int)Feat.FavoredEnemyReptilian
-                || l.id == (int)Feat.FavoredEnemyOrc || l.id == (int)Feat.FavoredEnemyShapechanger || l.id == (int)Feat.FavoredEnemyVermin)).OrderBy(l => l.name),
+                && (l.id == CustomSkill.FavoredEnemyMonstrous || l.id == CustomSkill.FavoredEnemyGoblinoid || l.id == CustomSkill.FavoredEnemyReptilian
+                || l.id == CustomSkill.FavoredEnemyOrc || l.id == CustomSkill.FavoredEnemyShapechanger || l.id == CustomSkill.FavoredEnemyVermin)).OrderBy(l => l.name),
             };
 
             LoadLearnableList(currentList);

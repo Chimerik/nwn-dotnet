@@ -10,7 +10,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurMindAffectingNegative), Effect.Icon(EffectIcon.Taunted));
+        Effect eff = Effect.Icon(EffectIcon.Taunted);
         eff.Tag = ProvocationEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

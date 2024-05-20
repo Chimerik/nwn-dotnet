@@ -60,7 +60,7 @@ namespace NWN.Systems
       switch (customSkillId)
       {
         case CustomSkill.RangerChasseur: HandleChasseurLevelUp(player, playerClass.currentLevel); break;
-        case CustomSkill.RangerBetes: HandleBetesLevelUp(player, playerClass.currentLevel); break;
+        case CustomSkill.RangerBelluaire: HandleBelluaireLevelUp(player, playerClass.currentLevel); break;
         case CustomSkill.RangerProfondeurs: HandleProfondeursLevelUp(player, playerClass.currentLevel); break;
       }
 

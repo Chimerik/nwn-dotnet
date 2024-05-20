@@ -27,7 +27,7 @@ namespace NWN.Systems
       if(eventData.EffectTarget is not NwCreature target)
         return ScriptHandleResult.Handled;
 
-      if (eventData.Effect.Creator is not NwCreature caster || target.DistanceSquared(caster) > 4)
+      if (eventData.Effect.Creator is NwCreature caster && target.DistanceSquared(caster) > 4)
       {
         target.RemoveEffect(eventData.Effect);
         target.OnDamaged -= OnDamageRegardHypnotique;
@@ -38,8 +38,7 @@ namespace NWN.Systems
     }
     public static void OnDamageRegardHypnotique(CreatureEvents.OnDamaged onDamage)
     {
-      foreach (var eff in onDamage.Creature.ActiveEffects.Where(e => e.Tag == RegardHypnotiqueEffectTag))
-        onDamage.Creature.RemoveEffect(eff);
+      EffectUtils.RemoveTaggedEffect(onDamage.Creature, RegardHypnotiqueEffectTag);
     }
   }
 }

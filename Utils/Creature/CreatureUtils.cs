@@ -18,6 +18,9 @@ namespace NWN.Systems
     public static readonly CExoString ReactionVariableExo = ReactionVariable.ToExoString();
     public const string BonusActionVariable = "_BONUS_ACTION";
     public static readonly CExoString BonusActionVariableExo = BonusActionVariable.ToExoString();
+    public static readonly CExoString AnimalCompanionTagExo = "animal_companion".ToExoString();
+    public const string AnimalCompanionVariable = "_ANIMAL_COMPANION";
+    public static readonly CExoString AnimalCompanionVariableExo = AnimalCompanionVariable.ToExoString();
     public const string OpportunityAttackTypeVariable = "_OPPORTUNITY_ATTACK_TYPE";
     public static readonly CExoString OpportunityAttackTypeVariableExo = OpportunityAttackTypeVariable.ToExoString();
     public const string SneakAttackCooldownVariable = "_SNEAK_ATTACK_COOLDOWN";
@@ -100,6 +103,41 @@ namespace NWN.Systems
 
     public const string CharmeInstinctifVariable = "_CHARME_INSTINCTIF";
     public static readonly CExoString CharmeInstinctifVariableExo = CharmeInstinctifVariable.ToExoString();
+
+    public const string BriseurDeHordesVariable = "_BRISEUR_DE_HORDES";
+    public static readonly CExoString BriseurDeHordesVariableExo = BriseurDeHordesVariable.ToExoString();
+
+    public const string TueurDeGeantsTargetVariable = "_TUEUR_DE_GEANT_TARGET";
+    public static readonly CExoString TueurDeGeantsTargetVariableExo = TueurDeGeantsTargetVariable.ToExoString();
+
+    public const string TueurDeGeantsCoolDownVariable = "_TUEUR_DE_GEANT_COOLDOWN";
+    public static readonly CExoString TueurDeGeantsCoolDownVariableExo = TueurDeGeantsCoolDownVariable.ToExoString();
+
+    public const string PourfendeurDeColosseVariable = "_POURFENDEUR_DE_COLOSSE";
+    public static readonly CExoString PourfendeurDeColosseVariableExo = PourfendeurDeColosseVariable.ToExoString();
+
+    public const string HunterVoleeVariable = "_HUNTER_VOLEE";
+    public static readonly CExoString HunterVoleeVariableExo = HunterVoleeVariable.ToExoString();
+
+    public const string RafaleDuTraqueurVariable = "_RAFALE_DU_TRAQUEUR";
+    public static readonly CExoString RafaleDuTraqueurVariableExo = RafaleDuTraqueurVariable.ToExoString();
+
+    public const string EsquiveDuTraqueurVariable = "_ESQUIVE_DU_TRAQUEUR";
+    public static readonly CExoString EsquiveDuTraqueurVariableExo = EsquiveDuTraqueurVariable.ToExoString();
+
+    public const string AttaqueCoordonneeVariable = "_ATTAQUE_COORDONNEE";
+    public static readonly CExoString AttaqueCoordonneeVariableExo = AttaqueCoordonneeVariable.ToExoString();
+
+    public const string AttaqueCoordonneCoolDownVariable = "_ATTAQUE_COORDONNEE_COOLDOWN";
+    public static readonly CExoString AttaqueCoordonneCoolDownVariableExo = AttaqueCoordonneCoolDownVariable.ToExoString();
+
+    public const string FurieBestialeVariable = "_FURIE_BESTIALE";
+    public static readonly CExoString FurieBestialeVariableExo = FurieBestialeVariable.ToExoString();
+    public const string FurieBestialeCoolDownVariable = "_FURIE_BESTIALE_COOLDOWN";
+
+    public const string BelluaireRugissementProvoquantCoolDownVariable = "_RUGISSEMENT_PROVOQUANT_COOLDOWN";
+    public const string BelluaireChargeDuSanglierCoolDownVariable = "_CHARGE_DU_SANGLIER_COOLDOWN";
+    public const string BelluaireSpiderWebCoolDownVariable = "_SPIDER_WEB_COOLDOWN";
 
     public const string RegardHypnotiqueTargetListVariable = "_REGARD_HYPNOTIQUE_TARGET_LIST";
 

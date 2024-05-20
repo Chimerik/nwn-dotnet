@@ -35,5 +35,10 @@
     public const int IllusionMineure = 871;
     public const int InvocationPermutation = 872;
     public const int CallFamiliar = 873;
+    public const int Deguisement = 874;
+    public const int CordeEnchantee = 875;
+    public const int ApparencesTrompeuses = 876;
+    public const int MauvaisAugure = 877;
+    public const int SpiderCocoon = 878;
   }
 }

@@ -15,11 +15,14 @@ namespace NWN.Systems
       if (favoredEnemyFeat is null)
         return 0;
 
-      if (creature.m_pStats.HasFeat(favoredEnemyFeat.Id).ToBool())
+      var master = creature.m_sTag.AsTAG().CompareNoCase(CreatureUtils.AnimalCompanionTagExo).ToBool() 
+        ? NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(creature.m_oidMaster) : creature;
+
+      if (master.m_pStats.HasFeat(favoredEnemyFeat.Id).ToBool())
       {
-        if (creature.m_pStats.HasFeat(CustomSkill.RangerTueurImplacable).ToBool())
+        if (master.m_pStats.HasFeat(CustomSkill.RangerTueurImplacable).ToBool())
         {
-          int wisBonus = creature.m_pStats.m_nWisdomModifier > 122 ? creature.m_pStats.m_nWisdomModifier - 255 : creature.m_pStats.m_nWisdomModifier;
+          int wisBonus = master.m_pStats.m_nWisdomModifier > 122 ? master.m_pStats.m_nWisdomModifier - 255 : master.m_pStats.m_nWisdomModifier;
           
           if(wisBonus < 1)
             wisBonus = 1;
@@ -29,7 +32,7 @@ namespace NWN.Systems
           LogUtils.LogMessage($"Tueur Implacable: +{bonusDamage}", LogUtils.LogType.Combat);
           return bonusDamage;
         }
-        else if (creature.m_pStats.HasFeat(CustomSkill.RangerGreaterFavoredEnemy).ToBool())
+        else if (master.m_pStats.HasFeat(CustomSkill.RangerGreaterFavoredEnemy).ToBool())
         {
           LogUtils.LogMessage("Grand ennemi juré : +4", LogUtils.LogType.Combat);
           return 4;

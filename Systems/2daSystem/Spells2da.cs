@@ -20,6 +20,7 @@ namespace NWN.Systems
     public bool requiresSomatic { get; private set; }
     public bool requiresVerbal { get; private set; }
     public bool bardMagicalSecret { get; private set; }
+    public bool hideFromRanger { get; private set; }
 
     public void InterpretEntry(TwoDimArrayEntry entry)
     {
@@ -35,6 +36,7 @@ namespace NWN.Systems
       requiresSomatic = entry.GetString("VS")?.Contains('s') ?? false;
       requiresVerbal = entry.GetString("VS")?.Contains('v') ?? false;
       bardMagicalSecret = entry.GetBool("BardMagicalSecret").GetValueOrDefault(false);
+      hideFromRanger = entry.GetBool("HideFromRanger").GetValueOrDefault(false);
 
       StrRef nameEntry = entry.GetStrRef("Name").GetValueOrDefault(StrRef.FromCustomTlk(0));
 

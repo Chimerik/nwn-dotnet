@@ -4,10 +4,11 @@ namespace NWN.Systems
 {
   public static partial class SpellUtils
   {
-    public static int HandleSpellEvasion(NwCreature target, int damage, Ability saveAbility, bool saveFailed)
+    public static int HandleSpellEvasion(NwCreature target, int damage, Ability saveAbility, bool saveFailed, int spellId = -1)
     {
-      if (saveAbility != Ability.Dexterity  || damage < 1)
-        return damage;
+      if (spellId != CustomSpell.MauvaisAugure
+        && (saveAbility != Ability.Dexterity  || damage < 1))
+          return damage;
 
       if(target.KnowsFeat(Feat.ImprovedEvasion))
       {
@@ -27,7 +28,7 @@ namespace NWN.Systems
       else if(!saveFailed)
       {
         damage /= 2;
-        LogUtils.LogMessage($"JDS DEX réussi : Dégâts {damage}", LogUtils.LogType.Combat);
+        LogUtils.LogMessage($"JDS réussi : Dégâts {damage}", LogUtils.LogType.Combat);
       }
 
       return damage;

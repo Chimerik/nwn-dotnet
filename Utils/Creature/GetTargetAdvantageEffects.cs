@@ -31,6 +31,9 @@ namespace NWN.Systems
 
         if(GetWolfTotemAttackAdvantage(eff))
           return true;
+
+        if (GetMauvaisAugureAttackAdvantage(eff))
+          return true;
       }
 
       return false;

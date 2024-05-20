@@ -6,12 +6,12 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      private void InitializeRangerArchetypeChoice()
+      private void InitializeHunterProieChoice()
       {
-        if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_RANGER_ARCHETYPE_SELECTION").HasValue)
+        if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_HUNTER_PROIE_SELECTION").HasValue)
         {
-          if (!windows.TryGetValue("rangerArchetypeSelection", out var value)) windows.Add("rangerArchetypeSelection", new RangerArchetypeSelectionWindow(this));
-          else ((RangerArchetypeSelectionWindow)value).CreateWindow();
+          if (!windows.TryGetValue("hunterProieSelection", out var value)) windows.Add("hunterProieSelection", new HunterProieSelectionWindow(this));
+          else ((HunterProieSelectionWindow)value).CreateWindow();
         }
       }
     }

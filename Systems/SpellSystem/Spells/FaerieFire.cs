@@ -5,7 +5,7 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void FaerieFire(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, Location targetLocation, NwClass castingClass)
+    public static List<NwGameObject> FaerieFire(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, Location targetLocation, NwClass castingClass)
     {
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
       SpellConfig.SavingThrowFeedback feedback = new();
@@ -33,8 +33,7 @@ namespace NWN.Systems
         }
       }
 
-      if(oCaster is NwCreature caster)
-        EffectSystem.ApplyConcentrationEffect(caster, spell.Id, targetList, spellEntry.duration);
+      return targetList;
     }
     public static void ApplyFaerieFireEffect(NwCreature target, SpellEntry spellEntry)
     {

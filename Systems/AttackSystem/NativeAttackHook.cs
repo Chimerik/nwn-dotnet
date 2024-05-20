@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿
+using Anvil.API;
 using NWN.Native.API;
 using Anvil.Services;
 using System.Linq;
@@ -294,6 +295,7 @@ namespace NWN.Systems
 
         if (attackData.m_nAttackResult == 4)
         {
+          NativeUtils.HandleRafaleDuTraqueur(creature, targetObject, combatRound, attackerName, targetName);
           NativeUtils.HandleRiposte(creature, targetCreature, attackData, attackerName);
           creature.m_ScriptVars.DestroyInt(FeatSystem.BotteDamageExoVariable);
 
@@ -307,8 +309,8 @@ namespace NWN.Systems
         NativeUtils.HandleSentinelleOpportunityTarget(creature, combatRound, attackerName);
         NativeUtils.HandleSentinelle(creature, targetCreature, combatRound);
         NativeUtils.HandleFureurOrc(creature, targetCreature, combatRound, attackerName);
-        NativeUtils.HandleDiversion(creature, attackData, targetCreature);          
-
+        NativeUtils.HandleDiversion(creature, attackData, targetCreature);
+        NativeUtils.HandleTueurDeGeants(creature, targetCreature, combatRound, attackerName, attackWeapon, attackData.m_bRangedAttack.ToBool());
         NativeUtils.HandleMonkOpportunist(creature, targetCreature, attackData, combatRound, attackerName, targetName);
       }
       else
@@ -325,6 +327,10 @@ namespace NWN.Systems
       NativeUtils.HandleMonkDeluge(creature, targetObject, combatRound, attackerName, targetName);
       NativeUtils.HandleThiefReflex(creature, targetObject, combatRound, attackerName, targetName);
       NativeUtils.HandleBardeBotteTranchante(creature, targetObject, combatRound, attackerName);
+      NativeUtils.HandleBriseurDeHordes(creature, targetObject, combatRound, attackerName, attackWeapon);
+      NativeUtils.HandleVolee(creature, targetObject, combatRound, attackData.m_bRangedAttack.ToBool(), attackerName);
+      NativeUtils.HandleAttaqueCoordonnee(creature, targetObject, combatRound);
+      NativeUtils.HandleFurieBestiale(creature, targetObject, combatRound, attackerName);
     }
     private int OnAddUseTalentOnObjectHook(void* pCreature, int talentType, int talentId, uint oidTarget, byte nMultiClass, uint oidItem, int nItemPropertyIndex, byte nCasterLevel, int nMetaType)
     {
@@ -522,9 +528,12 @@ namespace NWN.Systems
         LogUtils.LogMessage($"Main secondaire - Bonus de caractéristique non appliqué aux dégâts", LogUtils.LogType.Combat);*/
 
       baseDamage += NativeUtils.HandleBagarreurDeTaverne(attacker, attackWeapon, strBonus);
+      baseDamage += NativeUtils.HandleAnimalCompanionBonusDamage(attacker);
 
       if (targetCreature is not null)
       {
+        baseDamage += NativeUtils.HandleHunterMarkBonusDamage(attacker, targetCreature);
+        baseDamage += NativeUtils.HandlePourfendeurDeColosse(attacker, targetCreature, attackWeapon);
         baseDamage -= NativeUtils.HandleMaitreArmureLourde(targetCreature);
         baseDamage -= NativeUtils.HandleParade(targetCreature);
         baseDamage -= NativeUtils.HandleParadeDeProjectile(attacker, targetCreature, attackData.m_bRangedAttack.ToBool());

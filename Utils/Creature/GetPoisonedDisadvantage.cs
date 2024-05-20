@@ -1,4 +1,5 @@
-﻿using NWN.Native.API;
+﻿using Anvil.API;
+using NWN.Native.API;
 
 namespace NWN.Systems
 {
@@ -6,9 +7,9 @@ namespace NWN.Systems
   {
     public static bool GetPoisonedDisadvantage(CGameEffect eff)
     {
-      if((EffectTrueType)eff.m_nType == EffectTrueType.Poison)
+      if((EffectTrueType)eff.m_nType == EffectTrueType.Poison || eff.m_sCustomTag.CompareNoCase(EffectSystem.poisonEffectExoTag).ToBool())
       {
-        LogUtils.LogMessage("Désavantage - Attaquant empoisonné", LogUtils.LogType.Combat);
+        LogUtils.LogMessage("Désavantage - Empoisonné", LogUtils.LogType.Combat);
         return true;
       }
       else 

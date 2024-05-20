@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Anvil.API;
 
 namespace NWN.Systems
@@ -7,6 +8,8 @@ namespace NWN.Systems
   {
     public static void SpellSwitch(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject target, Location targetLocation, NwClass castingClass)
     {
+      List<NwGameObject> concentrationTargets = new();
+
       switch (spell.SpellType)
       {
         case Spell.AcidSplash:
@@ -30,7 +33,7 @@ namespace NWN.Systems
           break;
 
         case Spell.TrueStrike:
-          SpellSystem.TrueStrike(oCaster, spell, spellEntry);
+          concentrationTargets.AddRange(SpellSystem.TrueStrike(oCaster, spell, spellEntry));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -51,7 +54,7 @@ namespace NWN.Systems
           break;*/
 
         case Spell.Invisibility:
-          SpellSystem.Invisibility(oCaster, spell, spellEntry, target);
+          concentrationTargets.AddRange(SpellSystem.Invisibility(oCaster, spell, spellEntry, target));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -66,7 +69,7 @@ namespace NWN.Systems
           break;*/
 
         case Spell.Darkness:
-          SpellSystem.Darkness(oCaster, spell, spellEntry, target, targetLocation);
+          concentrationTargets.AddRange(SpellSystem.Darkness(oCaster, spell, spellEntry, target, targetLocation));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -107,7 +110,7 @@ namespace NWN.Systems
           break;
 
         case CustomSpell.Friends:
-          SpellSystem.Friends(oCaster, spell, spellEntry, target);
+          concentrationTargets.AddRange(SpellSystem.Friends(oCaster, spell, spellEntry, target));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -122,12 +125,12 @@ namespace NWN.Systems
           break;
 
         case CustomSpell.FaerieFire:
-          SpellSystem.FaerieFire(oCaster, spell, spellEntry, target, targetLocation, castingClass);
+          concentrationTargets.AddRange(SpellSystem.FaerieFire(oCaster, spell, spellEntry, target, targetLocation, castingClass));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case CustomSpell.Enlarge:
-          SpellSystem.Enlarge(oCaster, spell, spellEntry, target);
+          concentrationTargets.AddRange(SpellSystem.Enlarge(oCaster, spell, spellEntry, target));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -187,7 +190,7 @@ namespace NWN.Systems
           break;
 
         case CustomSpell.FlameBlade:
-          SpellSystem.FlameBlade(oCaster, spell, spellEntry);
+          concentrationTargets.AddRange(SpellSystem.FlameBlade(oCaster, spell));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -197,12 +200,12 @@ namespace NWN.Systems
           break;
 
         case CustomSpell.BrandingSmite:
-          SpellSystem.BrandingSmite(oCaster, spell, spellEntry);
+          concentrationTargets.AddRange(SpellSystem.BrandingSmite(oCaster, spell, spellEntry));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case CustomSpell.SensAnimal:
-          SpellSystem.SensAnimal(oCaster, spell, spellEntry, target);
+          concentrationTargets.AddRange(SpellSystem.SensAnimal(oCaster, spell, spellEntry, target));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -217,7 +220,7 @@ namespace NWN.Systems
           break;
 
         case CustomSpell.RegardHypnotique:
-          SpellSystem.RegardHypnotique(oCaster, spell, spellEntry, target, castingClass);
+          concentrationTargets.AddRange(SpellSystem.RegardHypnotique(oCaster, spell, spellEntry, target, castingClass));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -230,14 +233,45 @@ namespace NWN.Systems
           SpellSystem.InvocationPermutation(oCaster, spell, spellEntry, target, targetLocation);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
+
+        case CustomSpell.Deguisement:
+          SpellSystem.Deguisement(oCaster, spell);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.CordeEnchantee:
+          SpellSystem.CordeEnchantee(oCaster, spell);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.ApparencesTrompeuses:
+          SpellSystem.ApparencesTrompeuses(oCaster, spell);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.MauvaisAugure:
+          SpellSystem.MauvaisAugure(oCaster, spell, spellEntry, target);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.SpiderCocoon:
+          SpellSystem.SpiderCocoon(oCaster, spell, spellEntry, target);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
       }
 
-      if (oCaster is NwCreature castingCreature && castingClass is not null)
+      if (oCaster is NwCreature castingCreature)
       {
-        SpellSystem.OnSpellCastAbjurationWard(castingCreature, spell, spell.GetSpellLevelForClass(castingClass));
-        SpellSystem.OnSpellCastDivinationExpert(castingCreature, spell, castingClass);
-        SpellSystem.OnSpellCastInvocationPermutation(castingCreature, spell, spell.GetSpellLevelForClass(castingClass));
-        SpellSystem.OnSpellCastTransmutationStone(castingCreature, spell, spell.GetSpellLevelForClass(castingClass));
+        if (castingClass is not null)
+        {
+          SpellSystem.OnSpellCastAbjurationWard(castingCreature, spell, spell.GetSpellLevelForClass(castingClass));
+          SpellSystem.OnSpellCastDivinationExpert(castingCreature, spell, castingClass);
+          SpellSystem.OnSpellCastInvocationPermutation(castingCreature, spell, spell.GetSpellLevelForClass(castingClass));
+          SpellSystem.OnSpellCastTransmutationStone(castingCreature, spell, spell.GetSpellLevelForClass(castingClass));
+        }
+
+        if(spellEntry.requiresConcentration)
+          EffectSystem.ApplyConcentrationEffect(castingCreature, spell.Id, concentrationTargets, spellEntry.duration);
       }
 
       oCaster.GetObjectVariable<LocalVariableInt>(SpellConfig.CurrentSpellVariable).Delete();

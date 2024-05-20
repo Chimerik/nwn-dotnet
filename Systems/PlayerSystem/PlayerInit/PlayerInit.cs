@@ -425,6 +425,10 @@ namespace NWN.Systems
         InitializeFeatChoice();
         InitializeFightingStyleChoice();
         InitializeRangerArchetypeChoice();
+        InitializeHunterTactiqueDefensiveChoice();
+        InitializeHunterDefenseSuperieureChoice();
+        InitializeBelluaireCompanionChoice();
+        InitializeHunterProieChoice();
         InitializeFavoredEnemyChoice();
         InitializeSubClassChoice();
         InitializeManoeuvreChoice();
@@ -476,6 +480,8 @@ namespace NWN.Systems
         ApplyPoisonWanderer();
         ApplyAcidWanderer();
         ApplyMonkOpportunist();
+        ApplyDefenseAdaptative();
+        ApplyTraqueurRedoutable();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

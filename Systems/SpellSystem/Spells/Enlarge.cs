@@ -6,7 +6,7 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void Enlarge(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget)
+    public static List<NwGameObject> Enlarge(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget)
     {
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
 
@@ -17,13 +17,7 @@ namespace NWN.Systems
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpImproveAbilityScore));
       oTarget.ApplyEffect(EffectDuration.Temporary, EffectSystem.enlargeEffect, NwTimeSpan.FromRounds(spellEntry.duration));
 
-      if (oCaster.GetObjectVariable<LocalVariableInt>("_ENLARGE_DUERGAR").HasNothing)
-      {
-        if(oCaster is NwCreature caster)
-        EffectSystem.ApplyConcentrationEffect(caster, spell.Id, new List<NwGameObject> { oTarget }, spellEntry.duration);
-      }
-      else
-        oCaster.GetObjectVariable<LocalVariableInt>("_ENLARGE_DUERGAR").Delete();
+      return new List<NwGameObject>() { oTarget };
     }
   }
 }

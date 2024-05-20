@@ -36,6 +36,9 @@ namespace NWN.Systems
 
         if (GetFeinteAttackerAdvantage(attacker))
           return true;
+
+        if (GetWolfPackAttackerAdvantage(attacker, target))
+          return true;
       }
 
       if (GetSentinelleOpportunityAdvantage(attacker, attackData))

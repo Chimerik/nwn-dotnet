@@ -19,8 +19,18 @@ namespace NWN.Systems
         creature.GetObjectVariable<LocalVariableInt>(SneakAttackCooldownVariable).Delete();
         creature.GetObjectVariable<LocalVariableInt>(ParadeDeProjectileCooldownVariable).Delete();
         creature.GetObjectVariable<LocalVariableInt>(EmpaleurCooldownVariable).Delete();
+        creature.GetObjectVariable<LocalVariableInt>(BriseurDeHordesVariable).Delete();
+        creature.GetObjectVariable<LocalVariableInt>(PourfendeurDeColosseVariable).Delete();
+        creature.GetObjectVariable<LocalVariableInt>(TueurDeGeantsCoolDownVariable).Delete();
+        creature.GetObjectVariable<LocalVariableInt>(HunterVoleeVariable).Delete();
+        creature.GetObjectVariable<LocalVariableInt>(RafaleDuTraqueurVariable).Delete();
+        creature.GetObjectVariable<LocalVariableInt>(EsquiveDuTraqueurVariable).Delete();
+        creature.GetObjectVariable<LocalVariableInt>(AttaqueCoordonneCoolDownVariable).Delete();
+        creature.GetObjectVariable<LocalVariableInt>(AttaqueCoordonneeVariable).Delete();
+        creature.GetObjectVariable<LocalVariableInt>(FurieBestialeCoolDownVariable).Delete();
         creature.GetObjectVariable<LocalVariableObject<NwCreature>>(OpportunisteVariable).Delete();
         creature.GetObjectVariable<LocalVariableObject<NwCreature>>(BersekerRepresaillesVariable).Delete();
+        HandleGoadingRoarCooldown(creature);
 
         if (creature.IsPlayerControlled)
         {
@@ -60,6 +70,10 @@ namespace NWN.Systems
           }
         }
 
+        if(creature.KnowsFeat((Feat)CustomSkill.BelluaireFurieBestiale) 
+          && creature.GetObjectVariable<LocalVariableObject<NwCreature>>(AnimalCompanionVariable).HasValue)
+          creature.SetFeatRemainingUses((Feat)CustomSkill.BelluaireFurieBestiale, 100);
+
         if (creature.ActiveEffects.Any(e => e.Tag == EffectSystem.noReactionsEffectTag))
           continue;
 
@@ -68,6 +82,59 @@ namespace NWN.Systems
 
       //if(NwModule.Instance.PlayerCount > 0)
         //LogUtils.LogMessage("Round global - Actions et réactions récupérées", LogUtils.LogType.Combat);
+    }
+    private static void HandleGoadingRoarCooldown(NwCreature creature)
+    {
+      if (creature.GetObjectVariable<LocalVariableObject<NwCreature>>(AnimalCompanionVariable).HasNothing)
+        return;
+
+      if (creature.KnowsFeat((Feat)CustomSkill.BelluairePatteMielleuse))
+        creature.SetFeatRemainingUses((Feat)CustomSkill.BelluairePatteMielleuse, 100);
+
+      if (creature.KnowsFeat((Feat)CustomSkill.BelluaireCorbeauAveuglement))
+        creature.SetFeatRemainingUses((Feat)CustomSkill.BelluaireCorbeauAveuglement, 100);
+
+      if (creature.KnowsFeat((Feat)CustomSkill.BelluaireCorbeauMauvaisAugure))
+        creature.SetFeatRemainingUses((Feat)CustomSkill.BelluaireCorbeauMauvaisAugure, 100);
+
+      if (creature.KnowsFeat((Feat)CustomSkill.BelluaireLoupMorsurePlongeante))
+        creature.SetFeatRemainingUses((Feat)CustomSkill.BelluaireLoupMorsurePlongeante, 100);
+
+      if (creature.KnowsFeat((Feat)CustomSkill.BelluaireSpiderCocoon))
+        creature.SetFeatRemainingUses((Feat)CustomSkill.BelluaireSpiderCocoon, 100);
+
+      if (creature.GetObjectVariable<LocalVariableInt>(BelluaireRugissementProvoquantCoolDownVariable).HasValue)
+      {
+        if(creature.GetObjectVariable<LocalVariableInt>(BelluaireRugissementProvoquantCoolDownVariable).Value < 10)
+          creature.GetObjectVariable<LocalVariableInt>(BelluaireRugissementProvoquantCoolDownVariable).Value += 1;
+        else
+        {
+          creature.SetFeatRemainingUses((Feat)CustomSkill.BelluaireRugissementProvoquant, 100);
+          creature.GetObjectVariable<LocalVariableInt>(BelluaireRugissementProvoquantCoolDownVariable).Delete();
+        }
+      }
+
+      if (creature.GetObjectVariable<LocalVariableInt>(BelluaireChargeDuSanglierCoolDownVariable).HasValue)
+      {
+        if (creature.GetObjectVariable<LocalVariableInt>(BelluaireChargeDuSanglierCoolDownVariable).Value < 10)
+          creature.GetObjectVariable<LocalVariableInt>(BelluaireChargeDuSanglierCoolDownVariable).Value += 1;
+        else
+        {
+          creature.SetFeatRemainingUses((Feat)CustomSkill.BelluaireRugissementProvoquant, 100);
+          creature.GetObjectVariable<LocalVariableInt>(BelluaireChargeDuSanglierCoolDownVariable).Delete();
+        }
+      }
+
+      if (creature.GetObjectVariable<LocalVariableInt>(BelluaireSpiderWebCoolDownVariable).HasValue)
+      {
+        if (creature.GetObjectVariable<LocalVariableInt>(BelluaireSpiderWebCoolDownVariable).Value < 10)
+          creature.GetObjectVariable<LocalVariableInt>(BelluaireSpiderWebCoolDownVariable).Value += 1;
+        else
+        {
+          creature.SetFeatRemainingUses((Feat)CustomSkill.BelluaireSpiderWeb, 100);
+          creature.GetObjectVariable<LocalVariableInt>(BelluaireSpiderWebCoolDownVariable).Delete();
+        }
+      }
     }
   }
 }

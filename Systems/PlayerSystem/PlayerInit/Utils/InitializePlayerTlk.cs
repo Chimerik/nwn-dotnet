@@ -11,7 +11,7 @@ namespace NWN.Systems
         if (learnableSkills.ContainsKey(CustomSkill.FighterArcaneArcher))
         {
           new StrRef(8).SetPlayerOverride(oid, "Archer-Mage");
-          oid.SetTextureOverride("fighter", "ir_archer");
+          oid.SetTextureOverride("fighter", "arcanearcher");
         }
         else if (learnableSkills.ContainsKey(CustomSkill.FighterChampion))
         {
@@ -144,9 +144,9 @@ namespace NWN.Systems
           new StrRef(14).SetPlayerOverride(oid, "Conclave des Chasseurs");
           oid.SetTextureOverride("ranger", "chasseur");
         }
-        else if (learnableSkills.ContainsKey(CustomSkill.RangerBetes))
+        else if (learnableSkills.ContainsKey(CustomSkill.RangerBelluaire))
         {
-          new StrRef(14).SetPlayerOverride(oid, "Conclave des Bêtes");
+          new StrRef(14).SetPlayerOverride(oid, "Conclave des Belluaires");
           oid.SetTextureOverride("ranger", "conclave_betes");
         }
         else if (learnableSkills.ContainsKey(CustomSkill.RangerProfondeurs))

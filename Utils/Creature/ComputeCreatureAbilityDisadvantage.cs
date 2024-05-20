@@ -14,7 +14,8 @@ namespace NWN.Systems
       {
         switch(eff.Tag)
         {
-          case EffectSystem.FrightenedEffectTag: return true;
+          case EffectSystem.FrightenedEffectTag: 
+          case EffectSystem.PoisonEffectTag: return true;
           case EffectSystem.FrappeOcculteEffectTag: 
             
             if(spellEntry is not null && oCaster is not null && eff.Creator == oCaster)
@@ -41,7 +42,7 @@ namespace NWN.Systems
 
           case Ability.Constitution:
 
-            if (EffectSystem.SaignementEffectTag == eff.Tag)
+            if (EffectUtils.In(eff.Tag, EffectSystem.SaignementEffectTag, EffectSystem.MorsureInfectieuseEffectTag))
               return true;
 
             break;

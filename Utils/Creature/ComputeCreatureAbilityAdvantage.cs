@@ -8,6 +8,9 @@ namespace NWN.Systems
   {
     public static bool ComputeCreatureAbilityAdvantage(NwCreature creature, Ability ability, SpellEntry spellEntry = null, SpellEffectType effectType = SpellEffectType.Invalid, NwGameObject oCaster = null)
     {
+      if (creature.KnowsFeat((Feat)CustomSkill.BelluaireDefenseDeLaBete) && !creature.IsLoginPlayerCharacter)
+        return true;
+
       if (spellEntry is not null && creature.KnowsFeat((Feat)CustomSkill.AbjurationSpellResistance))
         return true;
 
@@ -63,7 +66,8 @@ namespace NWN.Systems
         case SpellEffectType.Fear:
         case SpellEffectType.Terror:
 
-          if (creature.Race.Id == CustomRace.StrongheartHalfling || creature.Race.Id == CustomRace.LightfootHalfling)
+          if (creature.Race.Id == CustomRace.StrongheartHalfling || creature.Race.Id == CustomRace.LightfootHalfling
+            || creature.KnowsFeat((Feat)CustomSkill.ChasseurMoralDacier))
             return true;
 
           break;
@@ -103,6 +107,7 @@ namespace NWN.Systems
             switch (eff.Tag)
             {
               case EffectSystem.EnlargeEffectTag:
+              case EffectSystem.RageDuSanglierEffectTag:
               case EffectSystem.BarbarianRageEffectTag: return true;
             }
 

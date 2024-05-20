@@ -18,10 +18,6 @@ namespace NWN.Systems
       {
         //case CustomSkill.Determination: SecondWind(onUseFeat.Creature); return;
 
-        case CustomSkill.EnlargeDuergar:
-          onUseFeat.Creature.GetObjectVariable<LocalVariableInt>("_ENLARGE_DUERGAR").Value = 1;
-          return;
-
         case CustomSkill.HellishRebuke:
           HellishRebuke(onUseFeat.Creature, onUseFeat.TargetObject);
           onUseFeat.PreventFeatUse = true;
@@ -143,6 +139,27 @@ namespace NWN.Systems
         case CustomSkill.BotteTranchante: BotteTranchante(onUseFeat.Creature); return;
         case CustomSkill.BotteDefensiveDeMaitre: BotteDefensiveDeMaitre(onUseFeat.Creature); return;
         case CustomSkill.BotteTranchanteDeMaitre: BotteTranchanteDeMaitre(onUseFeat.Creature); return;
+
+        case CustomSkill.ChasseurVolee: Volee(onUseFeat.Creature); return;
+
+        case CustomSkill.BelluaireBear: 
+        case CustomSkill.BelluaireDireRaven: 
+        case CustomSkill.BelluaireSpider: 
+        case CustomSkill.BelluaireWolf: 
+        case CustomSkill.BelluaireBoar: SummonAnimalCompanion(onUseFeat.Creature, onUseFeat.TargetPosition, onUseFeat.Feat.Id); return;
+
+        case CustomSkill.BelluaireFurieBestiale: FurieBestiale(onUseFeat.Creature); return;
+        case CustomSkill.BelluaireSprint: BelluaireSprint(onUseFeat.Creature); return;
+        case CustomSkill.BelluaireDisengage: BelluaireDisengage(onUseFeat.Creature); return;
+        case CustomSkill.BelluaireRugissementProvoquant: BelluaireRugissementProvoquant(onUseFeat.Creature); return;
+        case CustomSkill.BelluairePatteMielleuse: PatteMielleuse(onUseFeat.Creature); return;
+        case CustomSkill.BelluaireChargeSanglier: ChargeDuSanglier(onUseFeat.Creature, onUseFeat.TargetObject); return;
+        case CustomSkill.BelluaireRageSanglier: RageDuSanglier(onUseFeat.Creature); return;
+        case CustomSkill.BelluaireCorbeauAveuglement: CorbeauAveuglement(onUseFeat.Creature); return;
+        case CustomSkill.BelluaireCorbeauMauvaisAugure: CorbeauMauvaisAugure(onUseFeat.Creature, onUseFeat.TargetObject); return;
+        case CustomSkill.BelluaireLoupMorsurePlongeante: LoupMorsurePlongeante(onUseFeat.Creature); return;
+        case CustomSkill.BelluaireSpiderWeb: SpiderWeb(onUseFeat.Creature, onUseFeat.TargetPosition); return;
+        case CustomSkill.BelluaireSpiderCocoon: SpiderCocoon(onUseFeat.Creature, onUseFeat.TargetObject); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

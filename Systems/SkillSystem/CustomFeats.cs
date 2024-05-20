@@ -289,6 +289,45 @@
     public const int RangerSensSauvages = 1563;
     public const int RangerTueurImplacable = 1564;
 
+    public const int ChasseurBriseurDeHordes = 1565;
+    public const int ChasseurTueurDeGeants = 1566;
+    public const int ChasseurPourfendeurDeColosses = 1567;
+    public const int ChasseurEchapperAlaHorde = 1568;
+    public const int ChasseurDefenseAdaptative = 1569;
+    public const int ChasseurMoralDacier = 1570;
+
+    public const int FighterCombatStyleDefense = 1571;
+
+    public const int ChasseurVolee = 1572;
+    public const int ChasseurEsquiveInstinctive = 1573;
+
+    public const int TraqueurRedoutable = 1574;
+    public const int TraqueurRafale = 1575;
+    public const int TraqueurEsquive = 1576;
+
+    public const int BelluaireBear = 1577;
+    public const int BelluaireDireRaven = 1578;
+    public const int BelluaireWolf = 1579;
+    public const int BelluaireSpider = 1580;
+    public const int BelluaireBoar = 1581;
+    public const int BelluaireAttaqueCoordonnee = 1582;
+    public const int BelluaireDefenseDeLaBeteSuperieure = 1583;
+    public const int BelluaireFurieBestiale = 1584;
+    public const int BelluaireDefenseDeLaBete = 1585;
+    public const int BelluaireSprint = 1586;
+    public const int BelluaireDisengage = 1587;
+    public const int BelluaireRugissementProvoquant = 1588;
+    public const int BelluairePatteMielleuse = 1589;
+    public const int BelluaireChargeSanglier = 1590;
+    public const int BelluaireRageSanglier = 1591;
+    public const int BelluaireCorbeauAveuglement = 1592;
+    public const int BelluaireCorbeauMauvaisAugure = 1593;
+    public const int BelluaireLoupMorsurePlongeante = 1594;
+    public const int BelluaireLoupEffetDeMeute = 1595;
+    public const int BelluaireLoupMorsureInfectieuse = 1596;
+    public const int BelluaireSpiderWeb = 1597;
+    public const int BelluaireSpiderCocoon = 1598;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -707,7 +746,6 @@
     public const int FighterEldritchKnight = 20472;
     public const int FighterArcaneArcher = 20473;
 
-    public const int FighterCombatStyleDefense = 20476;
     public const int FighterCombatStyleProtection = 20479;
     public const int FighterCombatStyleDualWield = 20480;
     public const int FighterBonusAttack = 20482; // 3 niveaux
@@ -824,8 +862,28 @@
 
     public const int RangerChasseur = 20576;
     public const int RangerChasseurBonusAttack = 20577;
-    public const int RangerBetes = 20578;
+    public const int RangerBelluaire = 20578;
     public const int RangerProfondeurs = 20579;
+    public const int RangerProfondeursBonusAttack = 20580;
+    public const int EsquiveSurnaturelle = 20581;
+
+    public const int FavoredEnemyGiant = 20582;
+    public const int FavoredEnemyAberration = 20583;
+    public const int FavoredEnemyBeast = 20584;
+    public const int FavoredEnemyMagicalBeast = 20585;
+    public const int FavoredEnemyConstruct = 20586;
+    public const int FavoredEnemyDragon = 20587;
+    public const int FavoredEnemyGoblinoid = 20588;
+    public const int FavoredEnemyMonstrous = 20589;
+    public const int FavoredEnemyOrc = 20590;
+    public const int FavoredEnemyReptilian = 20591;
+    public const int FavoredEnemyElemental = 20592;
+    public const int FavoredEnemyFey = 20593;
+    public const int FavoredEnemyOutsider = 20594;
+    public const int FavoredEnemyShapechanger = 20595;
+    public const int FavoredEnemyUndead = 20596;
+    public const int FavoredEnemyVermin = 20597;
+
 
     public const int Invalid = 65535;
   }

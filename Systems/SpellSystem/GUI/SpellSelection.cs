@@ -234,6 +234,8 @@ namespace NWN.Systems
 
           foreach (var spell in NwRuleset.Spells)
           {
+            SpellEntry entry = Spells2da.spellTable[spell.Id];
+
             if (spell.GetSpellLevelForClass(spellClass) < minSpellLevel || spell.GetSpellLevelForClass(spellClass) > maxSpellLevel)
               continue;
 
@@ -241,7 +243,10 @@ namespace NWN.Systems
               && learnable.learntFromClasses.Contains((int)spellClass))
               continue;
 
-            if (spellClass == ClassType.Bard && Spells2da.spellTable[spell.Id].bardMagicalSecret)
+            if (spellClass == ClassType.Bard && entry.bardMagicalSecret)
+              continue;
+
+            if (spellClass == ClassType.Ranger && entry.hideFromRanger)
               continue;
 
             availableSpells.Add(spell);

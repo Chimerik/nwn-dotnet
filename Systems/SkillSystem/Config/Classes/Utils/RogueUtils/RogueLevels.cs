@@ -65,6 +65,10 @@ namespace NWN.Systems
           if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat))
             player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat);
 
+          player.learnableSkills.TryAdd(CustomSkill.ChasseurEsquiveInstinctive, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ChasseurEsquiveInstinctive], player));
+          player.learnableSkills[CustomSkill.ChasseurEsquiveInstinctive].LevelUp(player);
+          player.learnableSkills[CustomSkill.ChasseurEsquiveInstinctive].source.Add(Category.Class);
+
           break;
 
         case 6:
@@ -79,8 +83,9 @@ namespace NWN.Systems
           if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat))
             player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat);
 
-          if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatType(Feat.ImprovedEvasion)))
-            player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.ImprovedEvasion));
+          player.learnableSkills.TryAdd(CustomSkill.EsquiveSurnaturelle, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.EsquiveSurnaturelle], player));
+          player.learnableSkills[CustomSkill.EsquiveSurnaturelle].LevelUp(player);
+          player.learnableSkills[CustomSkill.EsquiveSurnaturelle].source.Add(Category.Class);
 
           break;
 

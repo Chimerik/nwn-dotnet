@@ -25,6 +25,12 @@ namespace NWN.Systems
             return true;
         }
 
+        if (GetEsquiveDuTraqueurDisadvantage(target))
+          return true;
+
+        if (GetHunterEchapperAlaHordeDisadvantage(target, attackData))
+          return true;
+
         if (GetAttackerDisadvantageEffects(attacker, target, attackStat))
           return true;
 
@@ -46,6 +52,9 @@ namespace NWN.Systems
 
       if (target is not null)
       {
+        if (GetEsquiveDuTraqueurDisadvantage(target))
+          return true;
+
         if (rangedSpell && GetThreatenedDisadvantage(attacker))
           return true;
 

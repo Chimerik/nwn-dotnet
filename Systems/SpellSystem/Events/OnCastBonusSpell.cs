@@ -18,6 +18,9 @@ namespace NWN.Systems
       if (spell.Id == CustomSpell.MageHand && !caster.KnowsFeat((Feat)CustomSkill.ArcaneTricksterPolyvalent))
         return;
 
+      if (!CreatureUtils.HandleBonusActionUse(caster))
+        return;
+
       if (!SpellUtils.CanCastSpell(caster, onSpellAction.TargetObject, spell, spellEntry))
       {
         onSpellAction.PreventSpellCast = true;

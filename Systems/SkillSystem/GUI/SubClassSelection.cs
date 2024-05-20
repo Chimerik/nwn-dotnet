@@ -230,8 +230,8 @@ namespace NWN.Systems
                       Ranger.HandleChasseurLevelUp(player, 3);
                       category = Category.RangerSubClass;
                       break;
-                    case CustomSkill.RangerBetes:
-                      Ranger.HandleBetesLevelUp(player, 3);
+                    case CustomSkill.RangerBelluaire:
+                      Ranger.HandleBelluaireLevelUp(player, 3);
                       category = Category.RangerSubClass;
                       break;
                     case CustomSkill.RangerProfondeurs:
