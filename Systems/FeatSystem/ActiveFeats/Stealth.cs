@@ -15,7 +15,7 @@ namespace NWN.Systems
         return;
       }
 
-      if (caster.Classes.Any(c => c.Class.ClassType == ClassType.Rogue && c.Level > 1)
+      if (caster.Classes.Any(c => Utils.In(c.Class.ClassType, ClassType.Rogue, (ClassType)CustomClass.RogueArcaneTrickster) && c.Level > 1)
         || caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.MonkTenebres))
         || caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.RangerDisparition))
         || caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TraqueurRedoutable)))

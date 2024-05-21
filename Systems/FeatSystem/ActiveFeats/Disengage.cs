@@ -9,7 +9,7 @@ namespace NWN.Systems
     private static void Disengage(NwCreature caster, OnUseFeat onUseFeat)
     {
       if (caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value < 1
-        || (!caster.Classes.Any(c => c.Class.ClassType == ClassType.Rogue && c.Level > 1)
+        || (!caster.Classes.Any(c => Utils.In(c.Class.ClassType, ClassType.Rogue, (ClassType)CustomClass.RogueArcaneTrickster) && c.Level > 1)
         && (!caster.Classes.Any(c => c.Class.Id == CustomClass.Monk && c.Level > 1))))
         return;
 

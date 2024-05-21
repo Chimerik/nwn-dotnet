@@ -11,7 +11,7 @@ namespace NWN.Systems
       if (target is null) // L'attaque sournoise ne peut toucher que des créatures (les objets sont exclus)
         return 0;
 
-      int sneakLevel = (int)Math.Ceiling((double)attacker.m_pStats.GetNumLevelsOfClass((byte)Native.API.ClassType.Rogue) / 2);
+      int sneakLevel = (int)Math.Ceiling((double)RogueUtils.GetRogueLevel(attacker) / 2);
 
       // Limitation à une sournoise par round
       if (sneakLevel < 1 || attacker.m_ScriptVars.GetInt(CreatureUtils.SneakAttackCooldownVariableExo).ToBool()) 

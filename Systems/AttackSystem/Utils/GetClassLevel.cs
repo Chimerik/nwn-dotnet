@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using Anvil.API;
-using NWN.Native.API;
+﻿using NWN.Native.API;
 using ClassType = NWN.Native.API.ClassType;
 
 namespace NWN.Systems

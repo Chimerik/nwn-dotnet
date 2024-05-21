@@ -17,7 +17,7 @@ namespace NWN.Systems
       NwCreature caster = onSpellAction.Caster;
 
       if ((spell.GetSpellLevelForClass((ClassType)CustomClass.EldritchKnight) < 1 
-        || caster.GetClassInfo(ClassType.Fighter).Level > 17)
+        || caster.GetClassInfo((ClassType)CustomClass.EldritchKnight).Level > 17)
         && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.MagieDeGuerreEffectTag))
       {
         if (!SpellUtils.CanCastSpell(caster, onSpellAction.TargetObject, spell, spellEntry))

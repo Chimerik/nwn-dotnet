@@ -9,9 +9,8 @@ namespace NWN.Systems
       if (!CreatureUtils.HandleBonusActionUse(caster))
         return;
 
-      int fighterLevel = caster.GetClassInfo(ClassType.Fighter).Level;
+      int fighterLevel = FighterUtils.GetFighterLevel(caster);
       caster.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.Heal(NwRandom.Roll(Utils.random, 10, 1) + fighterLevel), Effect.VisualEffect(VfxType.ImpHealingM)));
-
       caster.DecrementRemainingFeatUses((Feat)CustomSkill.FighterSecondWind);
 
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} utilise {"Second Souffle".ColorString(ColorConstants.White)}", ColorConstants.Orange, true);

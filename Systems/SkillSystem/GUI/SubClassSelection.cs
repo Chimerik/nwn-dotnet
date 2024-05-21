@@ -171,7 +171,7 @@ namespace NWN.Systems
                       category = Category.RogueSubClass; 
                       break;
                     case CustomSkill.RogueArcaneTrickster:
-                      Rogue.HandleAssassinLevelUp(player, 3);
+                      Rogue.HandleArcaneTricksterLevelUp(player, 3);
                       category = Category.RogueSubClass;
                       break;
                     case CustomSkill.MonkPaume: 

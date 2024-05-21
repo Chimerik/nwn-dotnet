@@ -18,6 +18,7 @@ namespace NWN.Systems
           player.oid.SetTextureOverride("fighter", "eldritchknight");
 
           int classPosition;
+
           for (classPosition = 0; classPosition < player.oid.LoginCreature.Classes.Count; classPosition++)
             if (player.oid.LoginCreature.Classes[classPosition].Class.ClassType == ClassType.Fighter)
               break;
@@ -91,6 +92,14 @@ namespace NWN.Systems
 
           if (!player.windows.TryGetValue("spellSelection", out var spell14)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.EldritchKnight, 0, 1));
           else ((SpellSelectionWindow)spell14).CreateWindow((ClassType)CustomClass.EldritchKnight, 0, 1);
+
+          break;
+
+        case 15:
+
+          player.learnableSkills.TryAdd(CustomSkill.EldritchKnightChargeArcanique, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.EldritchKnightChargeArcanique], player));
+          player.learnableSkills[CustomSkill.EldritchKnightChargeArcanique].LevelUp(player);
+          player.learnableSkills[CustomSkill.EldritchKnightChargeArcanique].source.Add(Category.Class);
 
           break;
 

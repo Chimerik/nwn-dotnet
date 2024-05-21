@@ -32,7 +32,7 @@ namespace NWN.Systems
             return;
 
           case CustomSkill.FighterSurge:
-            if (player.oid.LoginCreature.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level > 16))
+            if (player.oid.LoginCreature.Classes.Any(c => Utils.In(c.Class.ClassType, ClassType.Fighter, (ClassType)CustomClass.EldritchKnight) && c.Level > 16))
               nbCharge++;
             break;
         }

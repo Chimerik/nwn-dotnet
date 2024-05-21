@@ -16,7 +16,7 @@ namespace NWN.Systems
       if (target is not null)
       {
         // Si la cible est insaissible (Rogue 18) et n'est pas incapable d'agir, alors il est impossible d'avoir l'avantage sur elle
-        if (NativeUtils.GetClassLevel(target, ClassType.Rogue) > 17 && !EffectUtils.IsIncapacitated(target))
+        if (RogueUtils.GetRogueLevel(attacker) > 17 && !EffectUtils.IsIncapacitated(target))
           return false;
 
           if (rangedAttack && GetHighGroundAdvantage(attacker, target))
@@ -53,7 +53,8 @@ namespace NWN.Systems
       if (target is not null)
       {
         // Si la cible est insaissible (Rogue 18) et n'est pas incapable d'agir, alors il est impossible d'avoir l'avantage sur elle
-        if (target.Classes.Any(c => c.Class.ClassType == Anvil.API.ClassType.Rogue && c.Level > 17) && !EffectUtils.IsIncapacitated(target))
+        if (target.Classes.Any(c => Utils.In(c.Class.ClassType, Anvil.API.ClassType.Rogue, (Anvil.API.ClassType)CustomClass.RogueArcaneTrickster) && c.Level > 17) 
+          && !EffectUtils.IsIncapacitated(target))
           return false;
 
         if (rangedSpell && GetHighGroundAdvantage(attacker, target))

@@ -71,6 +71,7 @@ namespace NWN.Systems
         byte customClass = customSkillId == CustomSkill.FighterEldritchKnight ? CustomClass.EldritchKnight : CustomClass.Fighter;
         player.oid.LoginCreature.ForceLevelUp(customClass, player.RollClassHitDie(player.oid.LoginCreature.Level, customClass, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));
       }
+
       player.GiveRacialBonusOnLevelUp();
 
       return true;

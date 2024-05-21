@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿  using System.Collections.Generic;
 using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
@@ -62,8 +62,10 @@ namespace NWN.Systems
 
           CreateWindow(spellClass, nbCantrips, nbSpells, nbRestrictedSpells);
         }
-        public void CreateWindow(ClassType spellClass, int nbCantrips, int nbSpells, int nbRestrictedSpells = 0)
+        public async void CreateWindow(ClassType spellClass, int nbCantrips, int nbSpells, int nbRestrictedSpells = 0)
         {
+          await NwTask.NextFrame();
+
           this.spellClass = spellClass;
           this.nbCantrips = nbCantrips;
           this.nbSpells = nbSpells;
@@ -147,9 +149,9 @@ namespace NWN.Systems
                     if (acquiredSpells.Count(s => s.GetSpellLevelForClass(spellClass) == spellLevel) < nbCantrips)
                       availableSpells.Add(clickedSpell);
                     else
-                      availableSpells.AddRange(NwRuleset.Spells.Where(s => s.GetSpellLevelForClass(spellClass) == spellLevel
-                      && !acquiredSpells.Contains(s)
-                      && (!player.learnableSpells.TryGetValue(s.Id, out var learnable) || learnable.currentLevel < 1)));
+                      availableSpells.AddRange(NwRuleset.Spells.Where(s => !availableSpells.Contains(s) && 
+                      s.GetSpellLevelForClass(spellClass) == spellLevel
+                      && !acquiredSpells.Contains(s) && (!player.learnableSpells.TryGetValue(s.Id, out var learnable) || learnable.currentLevel < 1)));
                   }
                   else
                   {
@@ -159,9 +161,9 @@ namespace NWN.Systems
                       availableSpells.Add(clickedSpell);
                     else
                     {
-                      availableSpells.AddRange(NwRuleset.Spells.Where(s => s.GetSpellLevelForClass(spellClass) > 0 && s.GetSpellLevelForClass(spellClass) <= maxSlotKnown
-                      && !acquiredSpells.Contains(s)
-                      && (!player.learnableSpells.TryGetValue(s.Id, out var learnable) || learnable.currentLevel < 1)));
+                      availableSpells.AddRange(NwRuleset.Spells.Where(s => !availableSpells.Contains(s) && s.GetSpellLevelForClass(spellClass) > 0 
+                        && s.GetSpellLevelForClass(spellClass) <= maxSlotKnown && !acquiredSpells.Contains(s)
+                        && (!player.learnableSpells.TryGetValue(s.Id, out var learnable) || learnable.currentLevel < 1)));
                     }
                   }
 
@@ -247,6 +249,11 @@ namespace NWN.Systems
               continue;
 
             if (spellClass == ClassType.Ranger && entry.hideFromRanger)
+              continue;
+
+            if (nbRestrictedSpells > 0 && nbSpells < 1 && spell.GetSpellLevelForClass(spellClass) > 0
+              && (spellClass == (ClassType)CustomClass.RogueArcaneTrickster && !Utils.In(spell.SpellSchool, SpellSchool.Enchantment, SpellSchool.Illusion)
+                || spellClass == (ClassType)CustomClass.EldritchKnight && !Utils.In(spell.SpellSchool, SpellSchool.Evocation, SpellSchool.Abjuration)))
               continue;
 
             availableSpells.Add(spell);

@@ -9,6 +9,7 @@ using Anvil.Services;
 using Microsoft.Data.Sqlite;
 
 using Newtonsoft.Json;
+using NWN.Core.NWNX;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace NWN.Systems

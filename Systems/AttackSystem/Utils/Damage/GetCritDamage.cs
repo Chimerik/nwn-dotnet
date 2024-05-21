@@ -33,7 +33,7 @@ namespace NWN.Systems
     }
     public static int GetSneakAttackCritDamage(CNWSCreature attacker) // Hé oui, dans DD5, les dégâts des sournoises crit !
     {
-      int sneakLevel = (int)Math.Ceiling((double)attacker.m_pStats.GetNumLevelsOfClass((byte)Native.API.ClassType.Rogue) / 2);
+      int sneakLevel = (int)Math.Ceiling((double)RogueUtils.GetRogueLevel(attacker) / 2);
       int sneakRoll = NwRandom.Roll(Utils.random, 6, sneakLevel);
       int damage = sneakRoll;
 

@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       private void ApplyPerceptionAveugle()
       {
-        if(oid.LoginCreature.Classes.Any(c => c.Class.ClassType == ClassType.Rogue && c.Level > 13)
+        if(oid.LoginCreature.Classes.Any(c => Utils.In(c.Class.ClassType, ClassType.Rogue, (ClassType)CustomClass.RogueArcaneTrickster) && c.Level > 13)
           && !oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.PerceptionAveugleAuraEffectTag))
           oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.perceptionAveugleAura);
       }

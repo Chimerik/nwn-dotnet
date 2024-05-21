@@ -10,7 +10,7 @@ namespace NWN.Systems
       private void InitializeActionSurge()
       {
         if (oid.LoginCreature.GetFeatRemainingUses((Feat)CustomSkill.FighterSurge) > 1
-          && oid.LoginCreature.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level < 17))
+          && oid.LoginCreature.Classes.Any(c => Utils.In(c.Class.ClassType, ClassType.Fighter, (ClassType)CustomClass.EldritchKnight) && c.Level < 17))
           oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.FighterSurge, 1);
       }
     }

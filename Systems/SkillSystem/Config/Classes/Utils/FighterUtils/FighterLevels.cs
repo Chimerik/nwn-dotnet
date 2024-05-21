@@ -51,6 +51,8 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.FighterSurge].LevelUp(player);
           player.learnableSkills[CustomSkill.FighterSurge].source.Add(Category.Class);
 
+          player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.FighterSurge, 1);
+
           break;
 
         case 3:

@@ -570,10 +570,9 @@ namespace NWN.Systems
                     if (player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.BersekerFrenziedStrike))
                       player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.BersekerFrenziedStrike, 0);
 
-                    if (player.oid.LoginCreature.GetFeatRemainingUses((Feat)CustomSkill.FighterSurge) > 1
-                    && player.oid.LoginCreature.Classes.Any(c => c.Class.ClassType == ClassType.Fighter && c.Level < 17))
+                    if (player.oid.LoginCreature.Classes.Any(c => Utils.In(c.Class.ClassType, ClassType.Fighter, (ClassType)CustomClass.EldritchKnight) && c.Level < 17))
                       player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.FighterSurge, 1);
-
+                    
                     if (player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.WildMagicSense))
                     {
                       player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.WildMagicSense, (byte)NativeUtils.GetCreatureProficiencyBonus(player.oid.LoginCreature));

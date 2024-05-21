@@ -527,8 +527,8 @@ namespace NWN.Systems
           {
             if (!player.learnableSkills.TryGetValue(learnable.id, out var value) || value.source.Any(so => so == Category.Class))
             {
-              skillList1.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
-              skillList2.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
+              skillList1.Add(new NuiComboEntry(learnable.name, learnable.id));
+              skillList2.Add(new NuiComboEntry(learnable.name, learnable.id));
             }
           }
 
@@ -563,14 +563,14 @@ namespace NWN.Systems
             }
           }
 
-          if(!Utils.In(selectedLearnable.id, CustomSkill.Bard, CustomSkill.Ranger))
+          if(Utils.In(selectedLearnable.id, CustomSkill.Bard, CustomSkill.Ranger))
           {
             List<NuiComboEntry> skillList3 = new();
 
             foreach (var learnable in startingPackageList)
             {
               if (!player.learnableSkills.TryGetValue(learnable.id, out var value) || value.source.Any(so => so == Category.Class))
-                skillList3.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
+                skillList3.Add(new NuiComboEntry(learnable.name, learnable.id));
             }
 
             if (player.learnableSkills.ContainsKey(selectedLearnable.id))
@@ -615,8 +615,9 @@ namespace NWN.Systems
             {
               if (!player.learnableSkills.TryGetValue(learnable.id, out var value) || value.source.Any(so => so == Category.Class))
               {
-                skillList3.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
-                skillList4.Add(new NuiComboEntry(learnableDictionary[learnable.id].name, learnable.id));
+                skillList3.Add(new NuiComboEntry(learnable.name, learnable.id));
+                ModuleSystem.Log.Info($"skill list 4 added {learnable.name}");
+                skillList4.Add(new NuiComboEntry(learnable.name, learnable.id));
               }
             }
 
@@ -628,6 +629,9 @@ namespace NWN.Systems
               skillList2.RemoveAll(s => s.Value == additionnalSkills.ElementAt(2).id || s.Value == additionnalSkills.ElementAt(3).id);
               skillList3.RemoveAll(s => s.Value == additionnalSkills.ElementAt(0).id || s.Value == additionnalSkills.ElementAt(1).id
                 || s.Value == additionnalSkills.ElementAt(3).id);
+
+              ModuleSystem.Log.Info($"skill list 4 removal if contains");
+
               skillList4.RemoveAll(s => s.Value == additionnalSkills.ElementAt(0).id || s.Value == additionnalSkills.ElementAt(1).id
                 || s.Value == additionnalSkills.ElementAt(2).id);
 
@@ -649,7 +653,18 @@ namespace NWN.Systems
               skillList2.RemoveRange(1, 2);
               skillList3.RemoveAt(3);
               skillList3.RemoveRange(0, 2);
+
+              ModuleSystem.Log.Info($"skill list 4 before removal");
+
+              foreach(var skill in skillList4)
+                ModuleSystem.Log.Info($"skill : {skill.Label}");
+
               skillList4.RemoveRange(0, 3);
+
+              ModuleSystem.Log.Info($"skill list 4 after removal");
+
+              foreach (var skill in skillList4)
+                ModuleSystem.Log.Info($"skill : {skill.Label}");
 
               skillSelection1.SetBindValue(player.oid, nuiToken.Token, skillList1);
               selectedSkill1.SetBindValue(player.oid, nuiToken.Token, skillList1.First().Value);
