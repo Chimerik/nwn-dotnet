@@ -5,7 +5,7 @@ namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static bool GetPolyvalentTricksterAdvantage(Native.API.CGameEffect eff, CNWSCreature attacker)
+    public static bool GetPolyvalentTricksterAdvantage(CGameEffect eff, CNWSCreature attacker)
     {
       if(eff.m_sCustomTag.CompareNoCase(EffectSystem.arcaneTricksterPolyvalentEffectExoTag).ToBool()
         && eff.m_oidCreator == attacker.m_idSelf)

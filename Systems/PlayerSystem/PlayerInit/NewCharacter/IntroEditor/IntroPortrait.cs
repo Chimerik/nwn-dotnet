@@ -251,13 +251,13 @@ namespace NWN.Systems
 
           int baseRaceId = GetBaseRaceIdFromCustomRace(player.oid.LoginCreature.Race.Id);
 
-          portraitTable.AddRange(Portraits2da.portraitFilteredEntries[baseRaceId, (int)player.oid.LoginCreature.Gender]);
-
           if(baseRaceId == CustomRace.HalfElf)
           {
             portraitTable.AddRange(Portraits2da.portraitFilteredEntries[CustomRace.Human, (int)player.oid.LoginCreature.Gender]);
             portraitTable.AddRange(Portraits2da.portraitFilteredEntries[CustomRace.Elf, (int)player.oid.LoginCreature.Gender]);
           }
+          else
+            portraitTable.AddRange(Portraits2da.portraitFilteredEntries[baseRaceId, (int)player.oid.LoginCreature.Gender]);
 
           if (portraitTable != null)
             for (int i = 0; i < portraitTable.Count; i += 7)

@@ -64,7 +64,7 @@ namespace NWN.Systems
     }
     public static void ApplyLightEffect(NwGameObject caster, NwCreature target)
     {
-      Effect eLink = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurLightWhite20), Effect.VisualEffect(VfxType.DurCessatePositive));
+      Effect eLink = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurLightWhite20));
       NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, eLink, NwTimeSpan.FromHours(1)));
     }
   }

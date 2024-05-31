@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Anvil.API;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -14,15 +13,29 @@ namespace NWN.Systems
 
       proficiencyBonus += target.GetAbilityModifier(ability) + ItemUtils.GetShieldMasterBonusSave(target, ability);
 
-      if (target.ActiveEffects.Any(e => e.Tag == EffectSystem.SensDeLaMagieEffectTag))
-        foreach(var eff in target.ActiveEffects)
+      foreach(var eff in target.ActiveEffects)
+      {
+        switch(eff.Tag) 
         {
-          switch(eff.Tag) 
-          {
-            case EffectSystem.SensDeLaMagieEffectTag: if(fromSpell) proficiencyBonus += NativeUtils.GetCreatureProficiencyBonus(target); break;
-            case EffectSystem.WildMagicBienfaitEffectTag: proficiencyBonus += NwRandom.Roll(Utils.random, 4); break;
-          }
+          case EffectSystem.SensDeLaMagieEffectTag:
+            
+            if (fromSpell)
+            {
+              int bonus = NativeUtils.GetCreatureProficiencyBonus(target);
+              proficiencyBonus += bonus;
+              LogUtils.LogMessage($"Magie Sauvage - Sens de la magie : +{bonus}", LogUtils.LogType.Combat);
+            }
+
+            break;
+          case EffectSystem.WildMagicBienfaitEffectTag:
+
+            int bienfait = NwRandom.Roll(Utils.random, 4);
+            proficiencyBonus += bienfait;
+            LogUtils.LogMessage($"Magie Sauvage - Bienfait : +{bienfait}", LogUtils.LogType.Combat);
+
+            break;
         }
+      }
 
       int saveRoll = NativeUtils.HandlePresage(target); // Si présage, alors on remplace totalement le jet de la cible
 

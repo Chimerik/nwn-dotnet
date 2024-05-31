@@ -410,7 +410,7 @@ namespace NWN
       { "longRest", new MainMenuCommand("Simuler un repos long (alpha)", "", CommandRank.Public) },
       { "sacrificeHP", new MainMenuCommand("Perdre 20 % de points de vie (alpha)", "", CommandRank.Public) },
       { "dm", new MainMenuCommand("Mode DM", "", CommandRank.Admin) },
-      { "spellBook", new MainMenuCommand("Livre de sorts", "", CommandRank.Admin) },
+      { "spellBook", new MainMenuCommand("Livre de sorts", "", CommandRank.Public) },
       { "addClass", new MainMenuCommand("Test Chim", "", CommandRank.Admin) },
       { "creaturePalette", new MainMenuCommand("Palette des créatures", "", CommandRank.DM) },
       { "itemPalette", new MainMenuCommand("Palette des objets", "", CommandRank.DM) },
@@ -441,7 +441,7 @@ namespace NWN
       { "delete", new MainMenuCommand("Supprimer ce personnage", "Attention, la suppression est définitive", CommandRank.Public) },
       { "wind", new MainMenuCommand("Gestion du vent", "Permet de modifier la configuration du vent de cette zone", CommandRank.DM) },
       { "dmRename", new MainMenuCommand("Changer le nom de la cible", "Permet de modifier le nom de n'importe quel objet", CommandRank.DM) }, // TODO : Ajouter à OnExamine Custom pour DM
-      { "visualEffects", new MainMenuCommand("Gérer mes effets visuels", "Permet d'utiliser et de gérer les effets visuels personnalisés", CommandRank.DM) },
+      { "visualEffects", new MainMenuCommand("Gérer mes effets visuels - Alpha", "Permet d'utiliser et de gérer les effets visuels personnalisés", CommandRank.Public) },
       { "areaMusicEditor", new MainMenuCommand("Modifier la sélection musicale de la zone", "", CommandRank.DM) },
       { "areaLoadScreenEditor", new MainMenuCommand("Modifier l'écran de chargement de la zone", "", CommandRank.DM) },
       { "reboot", new MainMenuCommand("Reboot", "", CommandRank.Admin) },

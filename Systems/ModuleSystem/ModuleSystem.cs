@@ -1279,8 +1279,7 @@ namespace NWN.Systems
       
       if (target.MovementType != MovementType.Stationary)
       {
-        if ((creature.KnowsFeat((Feat)CustomSkill.TotemEspritAigle) && creature.ActiveEffects.Any(e => e.Tag == EffectSystem.BarbarianRageEffectTag))
-          || target.ActiveEffects.Any(e => e.Tag == EffectSystem.DisengageffectTag || e.Tag == EffectSystem.ManoeuvreTactiqueEffectTag))
+        if (target.ActiveEffects.Any(e => e.Tag == EffectSystem.DisengageffectTag || e.Tag == EffectSystem.ManoeuvreTactiqueEffectTag))
         {
           if (creature.KnowsFeat((Feat)CustomSkill.Sentinelle))
             creature.GetObjectVariable<LocalVariableString>(CreatureUtils.OpportunityAttackTypeVariable).Value = "(Sentinelle) ";

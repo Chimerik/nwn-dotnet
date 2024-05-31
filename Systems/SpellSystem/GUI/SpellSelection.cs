@@ -128,6 +128,9 @@ namespace NWN.Systems
               {
                 case "selectSpell":
 
+                  if (!availableSpells.Any())
+                    return;
+
                   NwSpell selectedSpell = availableSpells[nuiEvent.ArrayIndex];
 
                   acquiredSpells.Add(selectedSpell);
@@ -140,13 +143,17 @@ namespace NWN.Systems
 
                 case "removeSpell":
 
+                  if (!acquiredSpells.Any())
+                    return;
+
                   NwSpell clickedSpell = acquiredSpells[nuiEvent.ArrayIndex];
+                  acquiredSpells.Remove(clickedSpell);
 
                   byte spellLevel = clickedSpell.GetSpellLevelForClass(spellClass);
 
                   if(spellLevel == 0)
                   {
-                    if (acquiredSpells.Count(s => s.GetSpellLevelForClass(spellClass) == spellLevel) < nbCantrips)
+                    if (acquiredSpells.Count(s => s.GetSpellLevelForClass(spellClass) == spellLevel) + 1 < nbCantrips)
                       availableSpells.Add(clickedSpell);
                     else
                       availableSpells.AddRange(NwRuleset.Spells.Where(s => !availableSpells.Contains(s) && 
@@ -157,7 +164,7 @@ namespace NWN.Systems
                   {
                     byte maxSlotKnown = SpellUtils.GetMaxSpellSlotLevelKnown(player.oid.LoginCreature, spellClass);
 
-                    if (acquiredSpells.Count(s => s.GetSpellLevelForClass(spellClass) > 0 && s.GetSpellLevelForClass(spellClass) <= maxSlotKnown) < nbSpells)
+                    if (acquiredSpells.Count(s => s.GetSpellLevelForClass(spellClass) > 0 && s.GetSpellLevelForClass(spellClass) <= maxSlotKnown) + 1 < nbSpells)
                       availableSpells.Add(clickedSpell);
                     else
                     {
@@ -166,8 +173,6 @@ namespace NWN.Systems
                         && (!player.learnableSpells.TryGetValue(s.Id, out var learnable) || learnable.currentLevel < 1)));
                     }
                   }
-
-                  acquiredSpells.Remove(clickedSpell);
 
                   BindAvailableSpells();
                   BindAcquiredSpells();
@@ -234,7 +239,7 @@ namespace NWN.Systems
           availableSpells.Clear();
           acquiredSpells.Clear();
 
-          foreach (var spell in NwRuleset.Spells)
+          foreach (var spell in NwRuleset.Spells.OrderByDescending(s => s.GetSpellLevelForClass(spellClass)).ThenBy(s => s.Name.ToString()))
           {
             SpellEntry entry = Spells2da.spellTable[spell.Id];
 
@@ -303,7 +308,7 @@ namespace NWN.Systems
           else if (nbSpells > 0 && acquiredSpells.Count(s => s.GetSpellLevelForClass(spellClass) != 0) == nbSpells)
             availableSpells.RemoveAll(s => s.GetSpellLevelForClass(spellClass) != 0);
 
-          foreach (var spell in availableSpells)
+          foreach (var spell in availableSpells.OrderByDescending(s => s.GetSpellLevelForClass(spellClass)).ThenBy(s => s.Name.ToString()))
           {
             availableIconsList.Add(spell.IconResRef);
             availableNamesList.Add(spell.Name.ToString().Replace("’", "'"));
@@ -318,7 +323,7 @@ namespace NWN.Systems
           List<string> acquiredIconsList = new();
           List<string> acquiredNamesList = new();
 
-          foreach (var spell in acquiredSpells)
+          foreach (var spell in acquiredSpells.OrderByDescending(s => s.GetSpellLevelForClass(spellClass)).ThenBy(s => s.Name.ToString()))
           {
             acquiredIconsList.Add(spell.IconResRef);
             acquiredNamesList.Add(spell.Name.ToString().Replace("’", "'"));

@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.MovementSpeedIncrease(15), Effect.VisualEffect(VfxType.DurCessatePositive));
+        Effect eff = Effect.LinkEffects(Effect.MovementSpeedIncrease(15));
         eff.Tag = HurlementGalvanisantEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

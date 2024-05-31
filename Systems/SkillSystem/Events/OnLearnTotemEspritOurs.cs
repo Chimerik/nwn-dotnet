@@ -10,7 +10,10 @@ namespace NWN.Systems
         player.oid.LoginCreature.AddFeat((Feat)customSkillId);
 
       if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.TotemFerociteIndomptable))
+      {
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.TotemFerociteIndomptable);
+        player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.TotemFerociteIndomptable, 0);
+      }
 
       return true;
     }

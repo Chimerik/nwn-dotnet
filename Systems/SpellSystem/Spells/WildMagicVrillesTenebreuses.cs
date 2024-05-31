@@ -1,5 +1,4 @@
 ﻿using Anvil.API;
-using Anvil.API.Events;
 
 namespace NWN.Systems
 {
@@ -15,6 +14,9 @@ namespace NWN.Systems
 
       foreach (NwCreature target in caster.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 9, true))
       {
+        if (target == caster)
+          continue;
+
         int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, Ability.Constitution);
 
         int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Constitution, spellDC, advantage, feedback);

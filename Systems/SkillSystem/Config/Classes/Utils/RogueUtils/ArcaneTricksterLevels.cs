@@ -93,6 +93,10 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("spellSelection", out var spell13)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 0, 0, 1));
           else ((SpellSelectionWindow)spell13).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 0, 0, 1);
 
+          player.learnableSkills.TryAdd(CustomSkill.ArcaneTricksterPolyvalent, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ArcaneTricksterPolyvalent], player));
+          player.learnableSkills[CustomSkill.ArcaneTricksterPolyvalent].LevelUp(player);
+          player.learnableSkills[CustomSkill.ArcaneTricksterPolyvalent].source.Add(Category.Class);
+
           break;
 
         case 14:

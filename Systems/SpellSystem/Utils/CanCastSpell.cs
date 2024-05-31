@@ -7,6 +7,9 @@ namespace NWN.Systems
   {
     public static bool CanCastSpell(NwCreature caster, NwGameObject target, NwSpell spell, SpellEntry spellEntry)
     {
+      if (spell.InnateSpellLevel > 9)
+        return true;
+
       NwItem offHand = caster.GetItemInSlot(InventorySlot.LeftHand);
       NwItem rightHand = caster.GetItemInSlot(InventorySlot.RightHand);
 

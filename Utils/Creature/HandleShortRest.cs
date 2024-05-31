@@ -9,6 +9,7 @@ namespace NWN.Systems
     public static void HandleShortRest(Player player)
     {
       player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Heal(player.oid.LoginCreature.MaxHP / 2));
+      player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHealingL));
       player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(MeneurExaltantVariable).Delete();
       player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_ILLUSION_SEE_INVI_COOLDOWN").Delete();
       FighterUtils.RestoreManoeuvres(player.oid.LoginCreature);
@@ -20,7 +21,7 @@ namespace NWN.Systems
 
       if (player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.SourceDinspiration))
         BardUtils.RestoreInspirationBardique(player.oid.LoginCreature);
-
+      
       foreach (var skill in player.learnableSkills.Values.Where(l => l.restoreOnShortRest && l.currentLevel > 0))
       {
         byte nbCharge = 1;

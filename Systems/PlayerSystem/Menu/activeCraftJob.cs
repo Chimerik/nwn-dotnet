@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Security.Cryptography;
 using Anvil.API;
 using Anvil.API.Events;
+using NWN.Core;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -59,7 +61,7 @@ namespace NWN.Systems
           }
           else
             windowRectangle = new(0, 200, 320, 100);
-
+          
           window = new NuiWindow(rootColumn, "Travail artisanal en cours")
           {
             Geometry = geometry,
@@ -69,7 +71,7 @@ namespace NWN.Systems
             Transparent = false,
             Border = true,
           };
-
+          
           if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
             nuiToken = tempToken;

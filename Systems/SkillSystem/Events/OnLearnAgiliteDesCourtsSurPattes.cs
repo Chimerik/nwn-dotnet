@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Anvil.API;
 using static NWN.Systems.PlayerSystem.Player;
 
@@ -22,20 +23,12 @@ namespace NWN.Systems
         else ((AbilityBonusChoiceWindow)value).CreateWindow(abilities);
       }
 
-      if (player.learnableSkills.TryGetValue(CustomSkill.AcrobaticsProficiency, out LearnableSkill acrobatics))
-      {
-        if (acrobatics.currentLevel < 1)
-          acrobatics.LevelUp(player);
-      }
-      else
-      {
-        player.learnableSkills.Add(CustomSkill.AcrobaticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AcrobaticsProficiency], player));
-        player.learnableSkills[CustomSkill.AcrobaticsProficiency].LevelUp(player);
-      }
+      List<int> skillList = new() { CustomSkill.AcrobaticsProficiency, CustomSkill.AthleticsProficiency };
 
-      foreach (var eff in player.oid.LoginCreature.ActiveEffects)
-        if (eff.Tag == EffectSystem.DwarfSlowEffectTag)
-          player.oid.LoginCreature.RemoveEffect(eff);
+      if (!player.windows.TryGetValue("skillProficiencySelection", out var skill3)) player.windows.Add("skillProficiencySelection", new SkillProficiencySelectionWindow(player, skillList, 1));
+      else ((SkillProficiencySelectionWindow)skill3).CreateWindow(skillList, 1);
+
+      EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.DwarfSlowEffectTag);
 
       return true;
     }

@@ -22,6 +22,9 @@ namespace NWN.Systems
 
         if (creature.KnowsFeat((Feat)CustomSkill.BotteTranchante))
           creature.SetFeatRemainingUses((Feat)CustomSkill.BotteTranchante, (byte)chaMod);
+
+        foreach (var target in NwObject.FindObjectsOfType<NwCreature>())
+          EffectUtils.RemoveTaggedEffect(target, creature, EffectSystem.InspirationBardiqueEffectTag);
       }
     }
   }

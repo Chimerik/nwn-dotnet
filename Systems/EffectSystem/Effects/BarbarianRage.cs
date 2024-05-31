@@ -42,6 +42,7 @@ namespace NWN.Systems
         return ScriptHandleResult.Handled;
 
       target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.DurCessatePositive));
+      target.GetObjectVariable<LocalVariableInt>("_BARBARIAN_RAGE_RENEW").Delete();
 
       target.OnCreatureAttack -= CreatureUtils.OnAttackBarbarianRage;
       target.OnDamaged -= CreatureUtils.OnDamagedBarbarianRage;
@@ -109,10 +110,21 @@ namespace NWN.Systems
       if (eventData.EffectTarget is not NwCreature target)
         return ScriptHandleResult.Handled;
 
+      if (target.KnowsFeat((Feat)CustomSkill.BarbarianRagePersistante))
+        return ScriptHandleResult.Handled;
+
       if (target.GetObjectVariable<LocalVariableInt>("_BARBARIAN_RAGE_RENEW").HasNothing)
         EffectUtils.RemoveTaggedEffect(target, BarbarianRageEffectTag);
       else
+      {
         target.GetObjectVariable<LocalVariableInt>("_BARBARIAN_RAGE_RENEW").Delete();
+
+        if (target.KnowsFeat((Feat)CustomSkill.TotemFerociteIndomptable))
+          target.SetFeatRemainingUses((Feat)CustomSkill.TotemFerociteIndomptable, 100);
+
+        if (target.KnowsFeat((Feat)CustomSkill.TotemHurlementGalvanisant))
+          target.SetFeatRemainingUses((Feat)CustomSkill.TotemHurlementGalvanisant, 100);
+      }
 
       return ScriptHandleResult.Handled;
     }

@@ -185,34 +185,42 @@ namespace NWN.Systems
                     case CustomSkill.WizardAbjuration:
                       Wizard.HandleAbjurationLevelUp(player, 2);
                       category = Category.WizardSubClass;
+                      player.learnableSkills[selectedLearnable.id].currentLevel = 2;
                       break;
                     case CustomSkill.WizardDivination:
                       Wizard.HandleDivinationLevelUp(player, 2);
                       category = Category.WizardSubClass;
+                      player.learnableSkills[selectedLearnable.id].currentLevel = 2;
                       break;
                     case CustomSkill.WizardEnchantement:
                       Wizard.HandleEnchantementLevelUp(player, 2);
+                      player.learnableSkills[selectedLearnable.id].currentLevel = 2;
                       category = Category.WizardSubClass;
                       break;
                     case CustomSkill.WizardEvocation:
                       Wizard.HandleEvocationLevelUp(player, 2);
                       category = Category.WizardSubClass;
+                      player.learnableSkills[selectedLearnable.id].currentLevel = 2;
                       break;
                     case CustomSkill.WizardIllusion:
                       Wizard.HandleIllusionLevelUp(player, 2);
                       category = Category.WizardSubClass;
+                      player.learnableSkills[selectedLearnable.id].currentLevel = 2;
                       break;
                     case CustomSkill.WizardInvocation:
                       Wizard.HandleInvocationLevelUp(player, 2);
                       category = Category.WizardSubClass;
+                      player.learnableSkills[selectedLearnable.id].currentLevel = 2;
                       break;
                     case CustomSkill.WizardNecromancie:
                       Wizard.HandleNecromancieLevelUp(player, 2);
                       category = Category.WizardSubClass;
+                      player.learnableSkills[selectedLearnable.id].currentLevel = 2;
                       break;
                     case CustomSkill.WizardTransmutation:
                       Wizard.HandleTransmutationLevelUp(player, 2);
                       category = Category.WizardSubClass;
+                      player.learnableSkills[selectedLearnable.id].currentLevel = 2;
                       break;
                     case CustomSkill.BardCollegeDuSavoir:
                       Bard.HandleCollegeDuSavoirLevelUp(player, 3);
@@ -244,7 +252,6 @@ namespace NWN.Systems
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Delete();
                   player.oid.SendServerMessage($"Vous adoptez la voie {StringUtils.ToWhitecolor(selectedLearnable.name)} !", ColorConstants.Orange);
 
-                  ModuleSystem.Log.Info("refresh learnable on subclass selection");
                   if (player.TryGetOpenedWindow("learnables", out PlayerWindow learnableWindow))
                     ((LearnableWindow)learnableWindow).RefreshCategories(category);
 

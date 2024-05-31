@@ -13,13 +13,20 @@ namespace NWN.Systems
         return;
       }
 
-      foreach(var target in caster.GetNearestCreatures(CreatureTypeFilter.Alive(true), CreatureTypeFilter.Reputation(ReputationType.Friend)))
+      caster.ApplyEffect(EffectDuration.Temporary, Effect.VisualEffect(VfxType.DurBardSong), NwTimeSpan.FromRounds(1));
+
+      foreach (NwCreature target in caster.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 9, false))
       {
-        if (caster.DistanceSquared(target) > 81)
-          break;
+        if (target.HP < 1 || (caster != target && !caster.IsReactionTypeFriendly(target)))
+          continue;
 
         if(PlayerSystem.Players.TryGetValue(target, out var player))
           CreatureUtils.HandleShortRest(player);
+        else
+        {
+          target.ApplyEffect(EffectDuration.Instant, Effect.Heal(player.oid.LoginCreature.MaxHP / 2));
+          target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHealingL));
+        }
       }
 
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} lance {StringUtils.ToWhitecolor("Chant du Repos")}", StringUtils.gold, true, true);

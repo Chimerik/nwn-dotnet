@@ -195,7 +195,7 @@ namespace NWN.Systems
           availableSpells.Clear();
           acquiredSpells.Clear();
 
-          foreach (var spell in NwRuleset.Spells)
+          foreach (var spell in NwRuleset.Spells.OrderByDescending(s => s.GetSpellLevelForClass(ClassType.Bard)).ThenBy(s => s.Name.ToString()))
           {
             if (spell.GetSpellLevelForClass(ClassType.Bard) < 0 || spell.GetSpellLevelForClass(ClassType.Bard) > maxSpellLevel)
               continue;
@@ -227,7 +227,7 @@ namespace NWN.Systems
           if (nbSpells > 0 && acquiredSpells.Count == nbSpells)
             availableSpells.Clear();
 
-          foreach (var spell in availableSpells)
+          foreach (var spell in availableSpells.OrderByDescending(s => s.GetSpellLevelForClass(ClassType.Bard)).ThenBy(s => s.Name.ToString()))
           {
             availableIconsList.Add(spell.IconResRef);
             availableNamesList.Add(spell.Name.ToString().Replace("’", "'"));
@@ -242,7 +242,7 @@ namespace NWN.Systems
           List<string> acquiredIconsList = new();
           List<string> acquiredNamesList = new();
 
-          foreach (var spell in acquiredSpells)
+          foreach (var spell in acquiredSpells.OrderByDescending(s => s.GetSpellLevelForClass(ClassType.Bard)).ThenBy(s => s.Name.ToString()))
           {
             acquiredIconsList.Add(spell.IconResRef);
             acquiredNamesList.Add(spell.Name.ToString().Replace("’", "'"));

@@ -15,6 +15,8 @@ namespace NWN.Systems
       SpellConfig.SavingThrowFeedback feedback = new();
       int spellDC = 12;
 
+      //onUsed.Placeable.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.))
+        
       foreach (NwCreature target in onUsed.ClickedBy.ControlledCreature.Location.GetObjectsInShapeByType<NwCreature>(Shape.SpellCone, 5, false, onUsed.ClickedBy.ControlledCreature.Location.Position))
       {
         int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, Ability.Dexterity, spellEntry, SpellConfig.SpellEffectType.Invalid);

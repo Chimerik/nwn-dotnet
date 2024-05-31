@@ -328,6 +328,8 @@
     public const int BelluaireSpiderWeb = 1597;
     public const int BelluaireSpiderCocoon = 1598;
 
+    public const int BarbarianRagePersistante = 1599;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -796,7 +798,7 @@
     public const int BarbarianInstinctSauvage = 20523;
     public const int BarbarianCritiqueBrutal = 20524;
     public const int BarbarianRageImplacable = 20525;
-    public const int BarbarianRagePersistante = 20526;
+    
     public const int BarbarianPuissanceIndomptable = 20527;
     public const int BarbarianChampionPrimitif = 20528;
     public const int BarbarianFastMovement = 20529;

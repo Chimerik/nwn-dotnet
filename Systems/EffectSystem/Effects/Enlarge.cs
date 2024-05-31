@@ -13,8 +13,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.DamageIncrease(2, DamageType.BaseWeapon), 
-          Effect.VisualEffect(VfxType.DurCessatePositive), Effect.RunAction(onRemovedHandle: onRemoveEnlargeCallback));
+        Effect eff = Effect.LinkEffects(Effect.DamageIncrease(2, DamageType.BaseWeapon), Effect.RunAction(onRemovedHandle: onRemoveEnlargeCallback));
         eff.Tag = EnlargeEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

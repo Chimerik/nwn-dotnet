@@ -36,7 +36,6 @@ namespace NWN.Systems
       }
 
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpImproveAbilityScore));
-      caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.BarbarianRage, NwTimeSpan.FromRounds(10));
 
       if (caster.KnowsFeat((Feat)CustomSkill.TotemHurlementGalvanisant))
         caster.SetFeatRemainingUses((Feat)CustomSkill.TotemHurlementGalvanisant, 100);
@@ -58,7 +57,7 @@ namespace NWN.Systems
 
       if (caster.KnowsFeat((Feat)CustomSkill.TotemEspritOurs))
       {
-        caster.SetFeatRemainingUses((Feat)CustomSkill.TotemFerociteIndomptable, 1);
+        caster.SetFeatRemainingUses((Feat)CustomSkill.TotemFerociteIndomptable, 100);
         NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.BearBarbarianRage, NwTimeSpan.FromRounds(10)));
       }
       else

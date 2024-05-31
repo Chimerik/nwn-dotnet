@@ -34,7 +34,7 @@ namespace NWN.Systems
         if (GetAttackerDisadvantageEffects(attacker, target, attackStat))
           return true;
 
-        if (GetTargetDisadvantageEffects(target, rangedAttack))
+        if (GetTargetDisadvantageEffects(target, rangedAttack, attackData))
           return true;
 
         if (GetInvisibleTargetDisadvantage(attacker, target))

@@ -1,6 +1,5 @@
 ﻿using Anvil.API.Events;
 using Anvil.API;
-using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -8,9 +7,6 @@ namespace NWN.Systems
   {
     public static async void OnAttackBotteDefensive(OnCreatureAttack onAttack)
     {
-      if (onAttack.Target is not NwCreature target)
-        return;
-
       switch(onAttack.AttackResult)
       {
         case AttackResult.Hit:

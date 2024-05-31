@@ -30,7 +30,7 @@ namespace NWN.Systems
         private readonly NuiBind<string> icon = new("icon");
         private readonly NuiBind<string> skillName = new("skillName");
 
-        private IEnumerable<Learnable> currentList;
+        private List<Learnable> currentList = new();
         private Learnable selectedLearnable;
 
         public LienTotemSelectionWindow(Player player) : base(player)
@@ -97,7 +97,11 @@ namespace NWN.Systems
             geometry.SetBindValue(player.oid, nuiToken.Token, new NuiRect(savedRectangle.X, savedRectangle.Y, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f));
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-            currentList = learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.LienTotem);
+            currentList.Clear();
+            currentList.AddRange(learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.LienTotem));
+            currentList.AddRange(learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.AspectTotem
+              && !player.learnableSkills.ContainsKey(ls.id)));
+
             LoadLearnableList(currentList);
           }
         }

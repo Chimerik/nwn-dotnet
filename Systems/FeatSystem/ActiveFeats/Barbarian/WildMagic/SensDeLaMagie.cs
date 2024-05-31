@@ -10,6 +10,7 @@ namespace NWN.Systems
         return;
 
       caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.wildMagicAwarenessAura, NwTimeSpan.FromRounds(1));
+      caster.DecrementRemainingFeatUses((Feat)CustomSkill.WildMagicSense);
     }
   }
 }

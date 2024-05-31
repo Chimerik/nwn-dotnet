@@ -90,6 +90,10 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("spellSelection", out var spell5)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 0, 1));
           else ((SpellSelectionWindow)spell5).CreateWindow(ClassType.Bard, 0, 1);
 
+          player.learnableSkills.TryAdd(CustomSkill.SourceDinspiration, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SourceDinspiration], player));
+          player.learnableSkills[CustomSkill.SourceDinspiration].LevelUp(player);
+          player.learnableSkills[CustomSkill.SourceDinspiration].source.Add(Category.Class);
+
           break;
 
         case 6:

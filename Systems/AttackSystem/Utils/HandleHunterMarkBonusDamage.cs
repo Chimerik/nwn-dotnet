@@ -9,10 +9,10 @@ namespace NWN.Systems
     public static int HandleHunterMarkBonusDamage(CNWSCreature creature, CNWSCreature target)
     {
       if (target.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.hunterMarkEffectExoTag).ToBool()
-        && e.m_oidCreator == creature.m_idSelf || e.m_oidCreator == creature.m_oidMaster))
+        && (e.m_oidCreator == creature.m_idSelf || e.m_oidCreator == creature.m_oidMaster)))
       {
         int bonus = NwRandom.Roll(Utils.random, 6);
-        LogUtils.LogMessage($"Mark du chasseur : +{bonus} BA", LogUtils.LogType.Combat);
+        LogUtils.LogMessage($"Marque du chasseur : +{bonus} dégâts", LogUtils.LogType.Combat);
         return bonus;
       }
 

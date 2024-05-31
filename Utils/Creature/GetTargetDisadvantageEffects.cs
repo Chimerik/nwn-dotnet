@@ -5,7 +5,7 @@ namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static bool GetTargetDisadvantageEffects(CNWSCreature target, bool rangedAttack)
+    public static bool GetTargetDisadvantageEffects(CNWSCreature target, bool rangedAttack, CNWSCombatAttackData data = null)
     {
       foreach (var eff in target.m_appliedEffects)
       {
@@ -22,6 +22,9 @@ namespace NWN.Systems
           return true;
 
         if (GetKnockdownRangedDisadvantage(eff, rangedAttack))
+          return true;
+
+        if (GetEspritAigleDisadvantage(eff, target, data))
           return true;
       }
 
