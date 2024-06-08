@@ -517,6 +517,7 @@ namespace NWN.Systems
             CustomSkill.Wizard => Wizard.startingPackage.skillChoiceList,
             CustomSkill.Bard => Bard.startingPackage.skillChoiceList,
             CustomSkill.Ranger => Ranger.startingPackage.skillChoiceList,
+            CustomSkill.Paladin => Paladin.startingPackage.skillChoiceList,
             _ => Fighter.startingPackage.skillChoiceList,
           };
 
@@ -592,8 +593,8 @@ namespace NWN.Systems
             }
             else
             {
-              skillList1.RemoveRange(1, 2);
-              skillList2.RemoveRange(1, 2);
+              skillList1.RemoveRange(1, 1);
+              skillList2.RemoveRange(1, 1);
               skillList3.RemoveRange(0, 2);
 
               skillSelection1.SetBindValue(player.oid, nuiToken.Token, skillList1);
@@ -746,6 +747,7 @@ namespace NWN.Systems
             CustomSkill.Wizard => Wizard.startingPackage.skillChoiceList,
             CustomSkill.Bard => Bard.startingPackage.skillChoiceList,
             CustomSkill.Ranger => Ranger.startingPackage.skillChoiceList,
+            CustomSkill.Paladin => Paladin.startingPackage.skillChoiceList,
             _ => Fighter.startingPackage.skillChoiceList,
           };
 

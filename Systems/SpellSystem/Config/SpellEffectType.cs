@@ -12,6 +12,7 @@
       Illusion,
       Knockdown,
       Stealth,
+      Trap,
 
       Invalid
     }

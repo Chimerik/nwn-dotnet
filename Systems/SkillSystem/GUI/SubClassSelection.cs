@@ -274,6 +274,7 @@ namespace NWN.Systems
             CustomSkill.Wizard => learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.WizardSubClass),
             CustomSkill.Bard => learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.BardSubClass),
             CustomSkill.Ranger => learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.RangerSubClass),
+            CustomSkill.Paladin => learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.PaladinSubClass),
             _ => null,
           };
         }

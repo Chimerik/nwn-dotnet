@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurCessateNegative), Effect.Icon(EffectIcon.SavingThrowDecrease));
+        Effect eff = Effect.Icon(EffectIcon.SavingThrowDecrease);
         eff.Tag = FrappeOcculteEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

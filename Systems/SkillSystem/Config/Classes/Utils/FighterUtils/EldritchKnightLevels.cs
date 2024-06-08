@@ -59,18 +59,14 @@ namespace NWN.Systems
 
           break;
 
-        case 9:
-
-          player.learnableSkills.TryAdd(CustomSkill.ArcaneTricksterMagicalAmbush, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ArcaneTricksterMagicalAmbush], player));
-          player.learnableSkills[CustomSkill.ArcaneTricksterMagicalAmbush].LevelUp(player);
-          player.learnableSkills[CustomSkill.ArcaneTricksterMagicalAmbush].source.Add(Category.Class);
-
-          break;
-
         case 10:
 
           if (!player.windows.TryGetValue("spellSelection", out var spell10)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.EldritchKnight, 1, 0, 1));
           else ((SpellSelectionWindow)spell10).CreateWindow((ClassType)CustomClass.EldritchKnight, 1, 0, 1);
+
+          player.learnableSkills.TryAdd(CustomSkill.EldritchKnightFrappeOcculte, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.EldritchKnightFrappeOcculte], player));
+          player.learnableSkills[CustomSkill.EldritchKnightFrappeOcculte].LevelUp(player);
+          player.learnableSkills[CustomSkill.EldritchKnightFrappeOcculte].source.Add(Category.Class);
 
           break;
 

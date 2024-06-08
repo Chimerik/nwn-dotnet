@@ -10,7 +10,7 @@ namespace NWN.Systems
 
       LogUtils.LogMessage($"JDS proficiency bonus {ability} : {proficiencyBonus}", LogUtils.LogType.Combat);
       LogUtils.LogMessage($"JDS modifier {ability} : {target.GetAbilityModifier(ability)}", LogUtils.LogType.Combat);
-
+      
       proficiencyBonus += target.GetAbilityModifier(ability) + ItemUtils.GetShieldMasterBonusSave(target, ability);
 
       foreach(var eff in target.ActiveEffects)

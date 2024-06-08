@@ -22,24 +22,22 @@ namespace NWN.Systems
         return eff;
       }
     }
-    public static Effect wolfAspect
+    public static Effect GetWolfAspectEffect(int dexterityModifier)
     {
-      get
-      {
-        Effect eff = Effect.RunAction();
-        eff.Tag = WolfAspectEffectTag;
-        eff.SubType = EffectSubType.Supernatural;
-        return eff;
-      }
+      Effect eff = Effect.LinkEffects(Effect.SkillIncrease(Skill.MoveSilently, dexterityModifier), Effect.Icon(EffectIcon.SkillIncrease));
+      eff.Tag = WolfAspectEffectTag;
+      eff.SubType = EffectSubType.Supernatural;
+      return eff;
     }
     private static ScriptHandleResult onEnterWolfAspectAura(CallInfo callInfo)
     {
       if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) || eventData.Entering is not NwCreature entering 
         || eventData.Effect.Creator is not NwCreature protector || protector.HP < 1
+        || entering.GetAbilityModifier(Ability.Dexterity) < 1
         || entering.IsReactionTypeHostile(protector))
         return ScriptHandleResult.Handled;
 
-      NWScript.AssignCommand(protector, () => entering.ApplyEffect(EffectDuration.Permanent, wolfAspect));
+      NWScript.AssignCommand(protector, () => entering.ApplyEffect(EffectDuration.Permanent, GetWolfAspectEffect(entering.GetAbilityModifier(Ability.Dexterity))));
 
       return ScriptHandleResult.Handled;
     }

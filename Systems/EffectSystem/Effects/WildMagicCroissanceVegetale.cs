@@ -13,7 +13,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurAuraGreenDark), Effect.RunAction(onIntervalHandle: onIntervalWildMagicEspritIntangibleCallback, interval: NwTimeSpan.FromRounds(1)));
+        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurAuraGreenDark), Effect.RunAction(onIntervalHandle: onIntervalWildMagicCroissanceVegetaleCallback, interval: NwTimeSpan.FromRounds(1)));
         eff.Tag = WildMagicCroissanceVegetaleEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

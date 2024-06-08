@@ -1,4 +1,4 @@
-﻿  using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
@@ -181,6 +181,11 @@ namespace NWN.Systems
 
                 case "availableSpellDescription":
 
+                  ModuleSystem.Log.Info($"{nuiEvent.ArrayIndex}");
+
+                  foreach (var s in availableSpells)
+                    ModuleSystem.Log.Info($"{s.Name.ToString()}");
+
                   if (!player.windows.TryGetValue("spellDescription", out var spellWindow)) player.windows.Add("spellDescription", new SpellDescriptionWindow(player, availableSpells[nuiEvent.ArrayIndex]));
                   else ((SpellDescriptionWindow)spellWindow).CreateWindow(availableSpells[nuiEvent.ArrayIndex]);
 
@@ -308,8 +313,13 @@ namespace NWN.Systems
           else if (nbSpells > 0 && acquiredSpells.Count(s => s.GetSpellLevelForClass(spellClass) != 0) == nbSpells)
             availableSpells.RemoveAll(s => s.GetSpellLevelForClass(spellClass) != 0);
 
-          foreach (var spell in availableSpells.OrderByDescending(s => s.GetSpellLevelForClass(spellClass)).ThenBy(s => s.Name.ToString()))
+          List<NwSpell> tempList = new();
+          tempList.AddRange(availableSpells.OrderByDescending(s => s.GetSpellLevelForClass(spellClass)).ThenBy(s => s.Name.ToString()));
+          availableSpells.Clear();
+
+          foreach (var spell in tempList)
           {
+            availableSpells.Add(spell);
             availableIconsList.Add(spell.IconResRef);
             availableNamesList.Add(spell.Name.ToString().Replace("’", "'"));
           }
@@ -323,8 +333,13 @@ namespace NWN.Systems
           List<string> acquiredIconsList = new();
           List<string> acquiredNamesList = new();
 
-          foreach (var spell in acquiredSpells.OrderByDescending(s => s.GetSpellLevelForClass(spellClass)).ThenBy(s => s.Name.ToString()))
+          List<NwSpell> tempList = new();
+          tempList.AddRange(acquiredSpells.OrderByDescending(s => s.GetSpellLevelForClass(spellClass)).ThenBy(s => s.Name.ToString()));
+          acquiredSpells.Clear();
+
+          foreach (var spell in tempList)
           {
+            acquiredSpells.Add(spell);
             acquiredIconsList.Add(spell.IconResRef);
             acquiredNamesList.Add(spell.Name.ToString().Replace("’", "'"));
           }

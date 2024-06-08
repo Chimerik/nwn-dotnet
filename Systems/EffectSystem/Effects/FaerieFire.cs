@@ -13,8 +13,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurCessateNegative), 
-          Effect.VisualEffect(VfxType.DurGlowLightBlue), Effect.RunAction(onRemovedHandle: onRemoveFaerieFireCallback));
+        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurGlowLightBlue), Effect.RunAction(onRemovedHandle: onRemoveFaerieFireCallback));
         eff.Tag = faerieFireEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

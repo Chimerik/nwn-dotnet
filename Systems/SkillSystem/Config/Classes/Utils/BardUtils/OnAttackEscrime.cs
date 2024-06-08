@@ -1,5 +1,6 @@
 ﻿using Anvil.API.Events;
 using Anvil.API;
+using System.Linq;
 
 namespace NWN.Systems
 {
@@ -9,10 +10,11 @@ namespace NWN.Systems
     {
       NwItem weapon = onAttack.Attacker.GetItemInSlot(InventorySlot.RightHand);
 
-      if (weapon is null || !ItemUtils.IsMeleeWeapon(weapon.BaseItem))
+      if (weapon is null || !ItemUtils.IsMeleeWeapon(weapon.BaseItem)
+        || onAttack.Attacker.ActiveEffects.Any(e => e.Tag == EffectSystem.EscrimeEffectTag))
         return;
 
-      onAttack.Attacker.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.MovementSpeedIncrease(15), Effect.Icon(EffectIcon.MovementSpeedIncrease)), NwTimeSpan.FromRounds(1));
+      onAttack.Attacker.ApplyEffect(EffectDuration.Temporary, EffectSystem.Escrime, NwTimeSpan.FromRounds(1));
     }
   }
 }

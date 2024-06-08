@@ -1,4 +1,5 @@
 ﻿using Anvil.API;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -18,21 +19,17 @@ namespace NWN.Systems
           continue;
 
         int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, Ability.Constitution);
-
         int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Constitution, spellDC, advantage, feedback);
         bool saveFailed = totalSave < spellDC;
 
         SpellUtils.SendSavingThrowFeedbackMessage(caster, target, feedback, advantage, spellDC, totalSave, saveFailed, Ability.Constitution);
        
         if(saveFailed) 
-          caster.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(VfxType.ImpNegativeEnergy),
-            Effect.Damage(NwRandom.Roll(Utils.random, 12), DamageType.Negative)));
+          NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(VfxType.ImpNegativeEnergy),
+            Effect.Damage(NwRandom.Roll(Utils.random, 12), CustomDamageType.Necrotic))));
       }
 
-      foreach (var eff in caster.ActiveEffects)
-        if (eff.EffectType == EffectType.TemporaryHitpoints)
-          caster.RemoveEffect(eff);
-
+      EffectUtils.RemoveEffectType(caster, EffectType.TemporaryHitpoints);
       caster.ApplyEffect(EffectDuration.Permanent, Effect.TemporaryHitpoints(NwRandom.Roll(Utils.random, 12)));
     }
   }

@@ -15,7 +15,7 @@ namespace NWN.Systems
         {
           case EffectSystem.WildMagicCroissanceVegetaleEffectTag:
           case EffectSystem.WildMagicEspritIntangibleEffectTag:
-          case EffectSystem.wildMagicRepresaillesEffectTag:
+          case EffectSystem.WildMagicRepresaillesEffectTag:
           case EffectSystem.WildMagicRayonDeLumiereEffectTag: creature.RemoveEffect(eff); break;
         }
       }

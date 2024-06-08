@@ -4,7 +4,7 @@ namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static bool GetAttackerAdvantageEffects(Native.API.CNWSCreature attacker, Native.API.CNWSCreature targetId, Ability attackStat)
+    public static bool GetAttackerAdvantageEffects(Native.API.CNWSCreature attacker, Native.API.CNWSCreature target, Ability attackStat)
     {
       foreach (var eff in attacker.m_appliedEffects)
       {
@@ -30,6 +30,9 @@ namespace NWN.Systems
           return true;
 
         if (GetPolyvalentTricksterAdvantage(eff, attacker))
+          return true;
+
+        if (GetSensDivinAdvantage(eff, target))
           return true;
       }
 

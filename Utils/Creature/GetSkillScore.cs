@@ -41,6 +41,7 @@ namespace NWN.Systems
         score += NativeUtils.GetCreatureProficiencyBonus(creature);
 
       score += creature.GetAbilityModifier(ability);
+      score += GetSkillEffectBonus(creature, skill);
 
       if (creature.ActiveEffects.Any(e => e.Tag == EffectSystem.WildMagicBienfaitEffectTag))
         score += NwRandom.Roll(Utils.random, 4);

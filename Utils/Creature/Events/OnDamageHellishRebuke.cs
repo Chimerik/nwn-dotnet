@@ -42,7 +42,7 @@ namespace NWN.Systems
       SpellEntry spellEntry = Spells2da.spellTable[spell.Id];
       SpellConfig.SavingThrowFeedback feedback = new();
       int spellDC = SpellUtils.GetCasterSpellDC(onDamage.Creature, spell, Ability.Charisma);
-      int advantage = GetCreatureAbilityAdvantage(target, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid);
+      int advantage = GetCreatureAbilityAdvantage(target, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid, onDamage.Creature);
       int totalSave = SpellUtils.GetSavingThrowRoll(onDamage.Creature, spellEntry.savingThrowAbility, spellDC, advantage, feedback, true);
       bool saveFailed = totalSave < spellDC;
 

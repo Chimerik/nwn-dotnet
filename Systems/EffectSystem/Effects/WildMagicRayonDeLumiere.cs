@@ -26,10 +26,12 @@ namespace NWN.Systems
       if (eventData.EffectTarget is not NwCreature source)
         return ScriptHandleResult.Handled;
 
-      foreach(var target in source.GetNearestCreatures(CreatureTypeFilter.Alive(true), CreatureTypeFilter.Reputation(ReputationType.Enemy), CreatureTypeFilter.Perception(PerceptionType.Seen)))
+      StringUtils.DisplayStringToAllPlayersNearTarget(source, "Magie Sauvage - Rayon de Lumière", StringUtils.gold, true);
+
+      foreach (NwCreature target in source.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 9, true))
       {
-        if (target.DistanceSquared(source) > 80)
-          break;
+        if (target.HP < 1 || !source.IsEnemy(target) || !source.IsCreatureSeen(target))
+          continue;
 
         SpellConfig.SavingThrowFeedback feedback = new();
         int spellDC = 8 + source.GetAbilityModifier(Ability.Constitution) + NativeUtils.GetCreatureProficiencyBonus(source);
@@ -38,7 +40,6 @@ namespace NWN.Systems
         int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Constitution, spellDC, advantage, feedback);
         bool saveFailed = totalSave < spellDC;
 
-        StringUtils.DisplayStringToAllPlayersNearTarget(source, "Magie Sauvage - Rayon de Lumière", StringUtils.gold, true);
         SpellUtils.SendSavingThrowFeedbackMessage(source, target, feedback, advantage, spellDC, totalSave, saveFailed, Ability.Constitution);
 
         if(saveFailed)

@@ -82,7 +82,6 @@ namespace NWN.Systems
         case CustomSkill.TotemLienElan: LienElan(onUseFeat.Creature); return;
 
         case CustomSkill.WildMagicSense: SensDeLaMagie(onUseFeat.Creature); return;
-        case CustomSkill.WildMagicTeleportation: Teleportation(onUseFeat.Creature); return;
         case CustomSkill.WildMagicMagieGalvanisanteBienfait: Bienfait(onUseFeat.Creature, onUseFeat.TargetObject); return;
         case CustomSkill.WildMagicMagieGalvanisanteRecuperation: Recuperation(onUseFeat.Creature, onUseFeat.TargetObject); return;
 
@@ -160,6 +159,11 @@ namespace NWN.Systems
         case CustomSkill.BelluaireLoupMorsurePlongeante: LoupMorsurePlongeante(onUseFeat.Creature); return;
         case CustomSkill.BelluaireSpiderWeb: SpiderWeb(onUseFeat.Creature, onUseFeat.TargetPosition); return;
         case CustomSkill.BelluaireSpiderCocoon: SpiderCocoon(onUseFeat.Creature, onUseFeat.TargetObject); return;
+
+        case CustomSkill.ImpositionDesMainsMineure: ImpositionDesMainsMineure(onUseFeat.Creature, onUseFeat.TargetObject); return;
+        case CustomSkill.ImpositionDesMainsMajeure: ImpositionDesMainsMajeure(onUseFeat.Creature, onUseFeat.TargetObject); return;
+        case CustomSkill.ImpositionDesMainsGuerison: ImpositionDesMainsGuerison(onUseFeat.Creature, onUseFeat.TargetObject); return;
+        case CustomSkill.SensDivin: SensDivin(onUseFeat.Creature); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

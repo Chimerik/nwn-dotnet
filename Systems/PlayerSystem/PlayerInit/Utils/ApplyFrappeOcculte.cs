@@ -1,4 +1,6 @@
-﻿namespace NWN.Systems
+﻿using static NWN.Systems.SkillSystem;
+
+namespace NWN.Systems
 {
   public partial class PlayerSystem
   {

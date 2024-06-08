@@ -93,12 +93,32 @@ namespace NWN.Systems
 
       if (target.KnowsFeat((Feat)CustomSkill.WildMagicSense))
       {
-        foreach (var eff in target.ActiveEffects)
-          if (eff.Tag == WildMagicEspritIntangibleEffectTag || eff.Tag == WildMagicRayonDeLumiereEffectTag || eff.Tag == wildMagicRepresaillesEffectTag
-            || eff.Tag == LumieresProtectricesAuraEffectTag)
-            target.RemoveEffect(eff);
+        EffectUtils.RemoveTaggedEffect(target, WildMagicEspritIntangibleEffectTag, WildMagicRayonDeLumiereEffectTag, WildMagicRepresaillesEffectTag,
+          LumieresProtectricesAuraEffectTag, WildMagicCroissanceVegetaleEffectTag);
 
+        target.GetObjectVariable<LocalVariableInt>("_WILDMAGIC_TELEPORTATION").Delete();
         target.SetFeatRemainingUses((Feat)CustomSkill.WildMagicTeleportation, 0);
+
+        NwItem mainWeapon = target.GetObjectVariable<LocalVariableObject<NwItem>>("_WILDMAGIC_ARME_INFUSEE_1").Value;
+        NwItem secondaryWeapon = target.GetObjectVariable<LocalVariableObject<NwItem>>("_WILDMAGIC_ARME_INFUSEE_2").Value;
+
+        if(mainWeapon is not null)
+        {
+          foreach(var ip in mainWeapon.ItemProperties)
+            if(ip.Tag == "_WILDMAGIC_ARME_INFUSEE_ITEM_PROPERTY")
+              mainWeapon.RemoveItemProperty(ip);
+
+          target.GetObjectVariable<LocalVariableObject<NwItem>>("_WILDMAGIC_ARME_INFUSEE_1").Delete();
+        }
+
+        if (secondaryWeapon is not null)
+        {
+          foreach (var ip in secondaryWeapon.ItemProperties)
+            if (ip.Tag == "_WILDMAGIC_ARME_INFUSEE_ITEM_PROPERTY")
+              secondaryWeapon.RemoveItemProperty(ip);
+
+          target.GetObjectVariable<LocalVariableObject<NwItem>>("_WILDMAGIC_ARME_INFUSEE_2").Delete();
+        }
       }
 
       return ScriptHandleResult.Handled;
@@ -110,10 +130,8 @@ namespace NWN.Systems
       if (eventData.EffectTarget is not NwCreature target)
         return ScriptHandleResult.Handled;
 
-      if (target.KnowsFeat((Feat)CustomSkill.BarbarianRagePersistante))
-        return ScriptHandleResult.Handled;
-
-      if (target.GetObjectVariable<LocalVariableInt>("_BARBARIAN_RAGE_RENEW").HasNothing)
+      if (target.GetObjectVariable<LocalVariableInt>("_BARBARIAN_RAGE_RENEW").HasNothing 
+        && !target.KnowsFeat((Feat)CustomSkill.BarbarianRagePersistante))
         EffectUtils.RemoveTaggedEffect(target, BarbarianRageEffectTag);
       else
       {
@@ -124,6 +142,9 @@ namespace NWN.Systems
 
         if (target.KnowsFeat((Feat)CustomSkill.TotemHurlementGalvanisant))
           target.SetFeatRemainingUses((Feat)CustomSkill.TotemHurlementGalvanisant, 100);
+
+        if(target.GetObjectVariable<LocalVariableInt>("_WILDMAGIC_TELEPORTATION").HasValue)
+          target.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WildMagicTeleportation), 1);
       }
 
       return ScriptHandleResult.Handled;

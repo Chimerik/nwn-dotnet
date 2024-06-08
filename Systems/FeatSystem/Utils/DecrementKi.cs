@@ -17,6 +17,26 @@ namespace NWN.Systems
       creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkPassageSansTrace, nbCharge);
       creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkSilence, nbCharge);
       creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkFrappeDombre, nbCharge);
+
+      if (creature.GetFeatRemainingUses((Feat)CustomSkill.MonkDesertion) < 4)
+      {
+        creature.SetFeatRemainingUses((Feat)CustomSkill.MonkDesertion, 0);
+        //creature.SetFeatRemainingUses((Feat)CustomSkill.ImpositionDesMainsGuerison, 0);
+      }
+
+      if (creature.GetFeatRemainingUses((Feat)CustomSkill.MonkFrappeDombre) < 3)
+      {
+        creature.SetFeatRemainingUses((Feat)CustomSkill.MonkFrappeDombre, 0);
+        creature.SetFeatRemainingUses((Feat)CustomSkill.MonkPaumeVibratoire, 0);
+      }
+
+      if (creature.GetFeatRemainingUses((Feat)CustomSkill.MonkTenebres) < 2)
+      {
+        creature.SetFeatRemainingUses((Feat)CustomSkill.MonkTenebres, 0);
+        creature.SetFeatRemainingUses((Feat)CustomSkill.MonkSilence, 0);
+        creature.SetFeatRemainingUses((Feat)CustomSkill.MonkPassageSansTrace, 0);
+        creature.SetFeatRemainingUses((Feat)CustomSkill.MonkDarkVision, 0);
+      }
     }
   }
 }

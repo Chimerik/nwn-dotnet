@@ -17,7 +17,7 @@ namespace NWN.Systems
         case AttackResult.CriticalHit:
         case AttackResult.AutomaticHit:
 
-          NWScript.AssignCommand(onAttack.Attacker, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.FrappeOcculte, NwTimeSpan.FromRounds(1)));
+          NWScript.AssignCommand(onAttack.Attacker, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.FrappeOcculte, NwTimeSpan.FromRounds(2)));
 
           break;
       }

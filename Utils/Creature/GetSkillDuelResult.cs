@@ -50,29 +50,6 @@ namespace NWN.Systems
       int attackerAdvantage = GetCreatureAbilityAdvantage(attacker, attackerAbility, effectType: effectType);
       int targetAdvantage = GetCreatureAbilityAdvantage(target, targetAbility, effectType: effectType);
 
-      if (attackerSkill == CustomSkill.StealthProficiency)
-      {
-        List<string> effLink = new();
-        foreach (var eff in attacker.ActiveEffects)
-          if (!eff.LinkId.Contains(eff.LinkId) && eff.EffectType == EffectType.SkillIncrease && eff.IntParams[0] == 8)
-          {
-            attackerScore += eff.IntParams[1];
-            effLink.Add(eff.LinkId);
-          }
-      }
-
-      if (targetSkill == CustomSkill.StealthProficiency)
-      {
-        List<string> effLink = new();
-
-        foreach (var eff in target.ActiveEffects)
-          if (!eff.LinkId.Contains(eff.LinkId) && eff.EffectType == EffectType.SkillIncrease && eff.IntParams[0] == 8)
-          {
-            targetScore += eff.IntParams[1];
-            effLink.Add(eff.LinkId);
-          }
-      }
-
       int attackerRoll = GetSkillRoll(attacker, attackerSkill, attackerAdvantage, attackerScore, 0);
       int targetRoll = GetSkillRoll(target, targetSkill, targetAdvantage, targetScore, attackerRoll + attackerScore);
       bool saveFailed = targetRoll + targetScore < attackerRoll + attackerScore;

@@ -16,7 +16,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.ACIncrease(1);
+        Effect eff = Effect.LinkEffects(Effect.ACIncrease(1), Effect.Icon(EffectIcon.ACIncrease));
         eff.Tag = LumieresProtectricesEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;
@@ -38,6 +38,7 @@ namespace NWN.Systems
         || eventData.Effect.Creator is not NwCreature protector || entering.IsReactionTypeHostile(protector))
         return ScriptHandleResult.Handled;
 
+      entering.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHolyAid));
       NWScript.AssignCommand(protector, () => entering.ApplyEffect(EffectDuration.Permanent, wildMagicLumieresProtectrices));
       return ScriptHandleResult.Handled;
     }

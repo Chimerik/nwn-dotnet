@@ -426,6 +426,7 @@ namespace NWN.Systems
       NwModule.Instance.OnAcquireItem += ItemSystem.OnAcquireTransmutationStone;
       NwModule.Instance.OnPlayerGuiEvent += PlayerSystem.HandleGuiEvents;
       NwModule.Instance.OnHeartbeat += CreatureUtils.OnHeartbeatRefreshActions;
+      NwModule.Instance.OnCreatureDamage += CreatureUtils.BroadcastAttackDamage;
       
       //NwModule.Instance.OnPlayerRest += PlayerSystem.OnRest;
       //NwModule.Instance.OnCreatureAttack += AttackSystem.HandleAttackEvent;

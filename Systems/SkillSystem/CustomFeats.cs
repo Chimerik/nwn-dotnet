@@ -330,6 +330,12 @@
 
     public const int BarbarianRagePersistante = 1599;
 
+    public const int ImpositionDesMainsMineure = 1600;
+    public const int ImpositionDesMainsMajeure = 1601;
+    public const int ImpositionDesMainsGuerison = 1602;
+    public const int SensDivin = 1603;
+    public const int ChatimentDivin = 1604;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -885,6 +891,9 @@
     public const int FavoredEnemyShapechanger = 20595;
     public const int FavoredEnemyUndead = 20596;
     public const int FavoredEnemyVermin = 20597;
+
+    public const int Paladin = 20598;
+    
 
 
     public const int Invalid = 65535;

@@ -1,5 +1,4 @@
-﻿using System;
-using Anvil.API;
+﻿using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
 
@@ -26,15 +25,17 @@ namespace NWN.Systems
       if (eventData.EffectTarget is not NwCreature source)
         return ScriptHandleResult.Handled;
 
-      foreach(var target in source.GetNearestCreatures(CreatureTypeFilter.Alive(true), CreatureTypeFilter.Reputation(ReputationType.Enemy), CreatureTypeFilter.Perception(PerceptionType.Seen)))
+      StringUtils.DisplayStringToAllPlayersNearTarget(source, "Magie Sauvage - Esprit Intangible", StringUtils.gold, true);
+
+      foreach (NwCreature target in source.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 9, true))
       {
-        if (target.DistanceSquared(source) > 80)
-          break;
+        if (target.HP < 1 || !source.IsEnemy(target) || !source.IsCreatureSeen(target))
+          continue;
 
         SpellConfig.SavingThrowFeedback feedback = new();
         int spellDC = 8 + source.GetAbilityModifier(Ability.Constitution) + NativeUtils.GetCreatureProficiencyBonus(source);
 
-        StringUtils.DisplayStringToAllPlayersNearTarget(source, "Magie Sauvage - Esprit Intangible", StringUtils.gold, true);
+        
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfGasExplosionMind));
 
         foreach (var victims in source.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 2, false))

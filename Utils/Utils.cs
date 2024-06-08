@@ -155,6 +155,14 @@ namespace NWN
     {
       return set.Contains(me);
     }
+    public static bool In(this RacialType me, params RacialType[] set)
+    {
+      return set.Contains(me);
+    }
+    public static bool In(this Native.API.RacialType me, params Native.API.RacialType[] set)
+    {
+      return set.Contains(me);
+    }
     public static bool In(this int me, params int[] set)
     {
       return set.Contains(me);

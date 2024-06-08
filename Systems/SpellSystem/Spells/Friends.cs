@@ -18,7 +18,7 @@ namespace NWN.Systems
 
       SpellUtils.SignalEventSpellCast(target, caster, spell.SpellType);
       target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpDazedS));
-      target.ApplyEffect(EffectDuration.Temporary, Effect.LinkEffects(Effect.VisualEffect(VfxType.DurMindAffectingNegative), Effect.VisualEffect(VfxType.DurCessateNegative)), NwTimeSpan.FromRounds(spellEntry.duration));
+      target.ApplyEffect(EffectDuration.Temporary, Effect.LinkEffects(Effect.VisualEffect(VfxType.DurMindAffectingNegative)), NwTimeSpan.FromRounds(spellEntry.duration));
 
       return new List<NwGameObject> { target };
     }

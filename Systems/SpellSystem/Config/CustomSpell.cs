@@ -40,5 +40,6 @@
     public const int ApparencesTrompeuses = 876;
     public const int MauvaisAugure = 877;
     public const int SpiderCocoon = 878;
+    public const int WildMagicTeleportation = 879;
   }
 }

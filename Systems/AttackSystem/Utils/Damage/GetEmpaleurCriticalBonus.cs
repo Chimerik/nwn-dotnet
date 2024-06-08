@@ -8,11 +8,14 @@ namespace NWN.Systems
   {
     public static int GetEmpaleurCriticalBonus(CNWSCreature creature, NwBaseItem weapon, bool isCriticalRoll)
     {
-      return isCriticalRoll
-        && creature.m_pStats.HasFeat(CustomSkill.Empaleur).ToBool()
-        && weapon.WeaponType.Any(d => d == Anvil.API.DamageType.Piercing)
-        ? 1
-        : 0;
+      if(isCriticalRoll && creature.m_pStats.HasFeat(CustomSkill.Empaleur).ToBool() 
+        && weapon.WeaponType.Any(d => d == Anvil.API.DamageType.Piercing))
+      {
+        LogUtils.LogMessage($"Empaleur : +1 dé de dégâts", LogUtils.LogType.Combat);
+        return 1;
+      }
+
+      return 0;
     }
   }
 }

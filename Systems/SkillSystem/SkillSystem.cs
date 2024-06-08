@@ -79,6 +79,8 @@ namespace NWN.Systems
       BelluaireCompanion,
       [Description("Ennemi_Juré")]
       FavoredEnemy,
+      [Description("Serment_de_Paladin")]
+      PaladinSubClass,
     }
 
     public static readonly Dictionary<int, Learnable> learnableDictionary = new();
@@ -647,6 +649,13 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomSkill.BelluaireLoupMorsureInfectieuse, new LearnableSkill(CustomSkill.BelluaireLoupMorsureInfectieuse, "Morsure Infectieuse : Compagnon", "La morsure de votre compagnon inflige désormais des dégâts nécrotiques plutôt que perçants ainsi qu'un désavantage aux jets de constitution pendant un round", Category.MindBody, "is_WolfInfectious", 1, 1, Ability.Dexterity, Ability.Wisdom, LearnActivableFeat));
       learnableDictionary.Add(CustomSkill.BelluaireSpiderWeb, new LearnableSkill(CustomSkill.BelluaireSpiderWeb, "Toile : Compagnon", "Votre compagnon lance une toile à l'emplacement ciblé", Category.Magic, "is_SpiderWeb", 1, 1, Ability.Dexterity, Ability.Wisdom, LearnActivableFeat));
       learnableDictionary.Add(CustomSkill.BelluaireSpiderCocoon, new LearnableSkill(CustomSkill.BelluaireSpiderCocoon, "Cocon : Compagnon", "Votre compagnon piège la cible dans un cocon pour une durée de 3 rounds si celle-ci échoue un jet de sauvegarde de dextérité\n\nChaque round, la créature affectée peut tenter un jet de sauvegarder de foce pour briser le cocon\n\nTout dégât infligé à la créature détruit le cocon et met fin à l'effet", Category.Magic, "is_SpiderCocoon", 1, 1, Ability.Dexterity, Ability.Wisdom, LearnActivableFeat));
+
+      learnableDictionary.Add(CustomSkill.Paladin, new LearnableSkill(CustomSkill.Paladin, "Paladin", "", Category.Class, "paladin", 3, 1, Ability.Strength, Ability.Charisma, Paladin.LevelUp, "1H1cfnGqWorxGb70xsXyovIimdablMrdkEA4EUxvB_gE"));
+      learnableDictionary.Add(CustomSkill.ImpositionDesMainsMineure, new LearnableSkill(CustomSkill.ImpositionDesMainsMineure, "Imposition des Mains : Mineure", "Soigne de 2 fois votre niveau de paladin\n\nCoût : 1 charge", Category.Magic, "is_LayHandsMin", 1, 1, Ability.Charisma, Ability.Constitution, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.ImpositionDesMainsMajeure, new LearnableSkill(CustomSkill.ImpositionDesMainsMajeure, "Imposition des Mains : Majeure", "Soigne de 4 fois votre niveau de paladin\n\nCoût : 2 charges", Category.Magic, "is_LayHandsMax", 1, 1, Ability.Charisma, Ability.Constitution, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.ImpositionDesMainsGuerison, new LearnableSkill(CustomSkill.ImpositionDesMainsGuerison, "Imposition des Mains : Guérison", "Guérit des maladies et poisons\n\nCoût : 2 charges", Category.Magic, "is_LayHandsCure", 1, 1, Ability.Charisma, Ability.Constitution, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.SensDivin, new LearnableSkill(CustomSkill.SensDivin, "Sens Divin", "Action bonus\n\nPour 2 rounds, vos attaques ont l'avantage contre les extérieurs et les morts-vivants\nUtilisable 1x par modificateur de charisme\n\nEn animation, vous pouvez percevoir la présence de tout extérieur, mort-vivant et objet consacré ou profané dans un rayon de 18 m", Category.Fight, "is_DivineSense", 1, 1, Ability.Charisma, Ability.Constitution, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.ChatimentDivin, new LearnableSkill(CustomSkill.ChatimentDivin, "Châtiment Divin", "Vous consommez un emplacement de sort de niveau 1 pour ajouter 2d8 dégâts radiants à votre prochaine attaque qui porte\n- +1d8 par niveau d'emplacement de sort consommé au delà du niveau 1 (max 5d8)\n- +1d8 contre les fiélons et mort-vivants", Category.Fight, "is_DivineSmite", 1, 1, Ability.Charisma, Ability.Constitution, LearnActivableFeat));
 
       // SPELLS
       // CANTRIPS

@@ -560,6 +560,7 @@ namespace NWN.Systems
                     WizardUtils.ResetPresage(player.oid);
                     FighterUtils.RestoreEldritchKnight(player.oid.LoginCreature);
                     BardUtils.RestoreInspirationBardique(player.oid.LoginCreature);
+                    PaladinUtils.RestorePaladinCharges(player.oid.LoginCreature);
 
                     if (player.oid.LoginCreature.Race.Id == CustomRace.HalfOrc)
                     {

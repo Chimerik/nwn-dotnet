@@ -98,7 +98,10 @@ namespace NWN.Systems
               
               CustomSkill.Ranger => learnableDictionary.Values.Where(s => s is LearnableSkill ls && Utils.In(s.id, CustomSkill.FighterCombatStyleArchery, CustomSkill.FighterCombatStyleDuel, CustomSkill.FighterCombatStyleDualWield, CustomSkill.FighterCombatStyleDefense)
               && (!player.learnableSkills.ContainsKey(s.id) || player.learnableSkills[s.id].currentLevel < s.maxLevel)).OrderBy(s => s.name),
-              
+
+              CustomSkill.Paladin => learnableDictionary.Values.Where(s => s is LearnableSkill ls && Utils.In(s.id, CustomSkill.FighterCombatStyleDuel, CustomSkill.FighterCombatStyleDefense, CustomSkill.FighterCombatStyleProtection, CustomSkill.FighterCombatStyleTwoHanded)
+              && (!player.learnableSkills.ContainsKey(s.id) || player.learnableSkills[s.id].currentLevel < s.maxLevel)).OrderBy(s => s.name),
+
               _ => learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.FightingStyle 
                 && (!player.learnableSkills.ContainsKey(s.id) || player.learnableSkills[s.id].currentLevel < s.maxLevel)).OrderBy(s => s.name)
             };
@@ -133,7 +136,6 @@ namespace NWN.Systems
                   selectedItemDescription.SetBindValue(player.oid, nuiToken.Token, selectedLearnable.description);
                   selectedItemIcon.SetBindValue(player.oid, nuiToken.Token, selectedLearnable.icon);
 
-                  LearnableSkill selectedSkill = (LearnableSkill)selectedLearnable;
                   LoadLearnableList(currentList);
 
                   break;

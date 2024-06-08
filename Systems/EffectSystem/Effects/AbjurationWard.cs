@@ -8,7 +8,7 @@ namespace NWN.Systems
     public static readonly Native.API.CExoString abjurationWardEffectExoTag = AbjurationWardEffectTag.ToExoString();
     public static Effect GetAbjurationWardEffect(int intensity)
     {
-      ModuleSystem.Log.Info($"intensity : {intensity}");
+      
       Effect eff = Effect.LinkEffects(Effect.Icon(EffectIcon.DamageReduction), Effect.DamageReduction(intensity, DamagePower.Plus20));
       eff.CasterLevel = intensity;
       eff.Tag = AbjurationWardEffectTag;

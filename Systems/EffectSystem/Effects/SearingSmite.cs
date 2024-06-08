@@ -29,16 +29,18 @@ namespace NWN.Systems
     }
     public static void OnSearingSmiteBurn(Anvil.API.Events.CreatureEvents.OnHeartbeat onHB)
     {
-      if (onHB.Creature.ActiveEffects.Any(e => e.Tag == searingSmiteBurnEffectTag))
+      var eff = onHB.Creature.ActiveEffects.FirstOrDefault(e => e.Tag == searingSmiteBurnEffectTag);
+
+      if (eff is not null)
       {
         SpellConfig.SavingThrowFeedback feedback = new();
         SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.SearingSmite];
         NwSpell spell = NwSpell.FromSpellId(spellEntry.RowIndex);
-        NwCreature caster = (NwCreature)onHB.Creature.ActiveEffects.First(e => e.Tag == searingSmiteBurnEffectTag).Creator;
+        NwCreature caster = (NwCreature)eff.Creator;
 
         byte spellLevel = spell.GetSpellLevelForClass(ClassType.Paladin);
         int spellDC = SpellUtils.GetCasterSpellDC(caster, spell, NwClass.FromClassType(ClassType.Paladin).SpellCastingAbility);
-        int advantage = CreatureUtils.GetCreatureAbilityAdvantage(onHB.Creature, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid, spellLevel: spellLevel);
+        int advantage = CreatureUtils.GetCreatureAbilityAdvantage(onHB.Creature, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid, caster, spellLevel: spellLevel);
         int totalSave = SpellUtils.GetSavingThrowRoll(onHB.Creature, spellEntry.savingThrowAbility, spellDC, advantage, feedback, true);
         bool saveFailed = totalSave < spellDC;
 
@@ -48,10 +50,7 @@ namespace NWN.Systems
           SpellUtils.DealSpellDamage(onHB.Creature, caster.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(caster, spell), caster, spellLevel);
         else
         {
-          foreach (var eff in onHB.Creature.ActiveEffects)
-            if (eff.Tag == searingSmiteBurnEffectTag)
-              onHB.Creature.RemoveEffect(eff);
-
+          EffectUtils.RemoveTaggedEffect(onHB.Creature, caster, searingSmiteBurnEffectTag);
           onHB.Creature.OnHeartbeat -= OnSearingSmiteBurn;
         }
       }

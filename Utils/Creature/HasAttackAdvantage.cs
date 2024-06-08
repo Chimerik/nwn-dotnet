@@ -3,7 +3,6 @@ using Anvil.API;
 using NWN.Native.API;
 using Ability = Anvil.API.Ability;
 using BaseItemType = Anvil.API.BaseItemType;
-using ClassType = NWN.Native.API.ClassType;
 
 namespace NWN.Systems
 {

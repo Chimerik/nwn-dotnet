@@ -144,7 +144,7 @@ namespace NWN.Systems
                     selectedVFXDuration = 10;
 
                   player.oid.SendServerMessage("Veuillez sélectionner une cible pour essayer votre effet visuel.", ColorConstants.Orange);
-                  player.oid.EnterTargetMode(OnTargetSelected, Config.selectItemTargetMode);
+                  player.oid.EnterTargetMode(OnTargetSelected, Config.selectLocationTargetMode);
 
                   break;
 
@@ -201,7 +201,7 @@ namespace NWN.Systems
                   selectedVFXId = currentList[nuiEvent.ArrayIndex].id;
 
                   player.oid.SendServerMessage("Veuillez sélectionner la cible de votre effet visuel.", ColorConstants.Orange);
-                  player.oid.EnterTargetMode(OnTargetSelected, Config.selectItemTargetMode);
+                  player.oid.EnterTargetMode(OnTargetSelected, Config.selectLocationTargetMode);
 
                   break;
               }

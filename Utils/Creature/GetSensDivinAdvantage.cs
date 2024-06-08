@@ -1,0 +1,21 @@
+﻿using Anvil.API;
+using NWN.Native.API;
+using RacialType = NWN.Native.API.RacialType;
+
+namespace NWN.Systems
+{
+  public static partial class CreatureUtils
+  {
+    public static bool GetSensDivinAdvantage(CGameEffect eff, CNWSCreature target)
+    {
+      if(eff.m_sCustomTag.CompareNoCase(EffectSystem.sensDivinEffectExoTag).ToBool()
+        && Utils.In((RacialType)target.m_pStats.m_nRace, RacialType.Undead,RacialType.Outsider))
+      {
+        LogUtils.LogMessage("Avantage - Sens Divin", LogUtils.LogType.Combat);
+        return true;
+      }
+      else
+        return false;
+    }
+  }
+}

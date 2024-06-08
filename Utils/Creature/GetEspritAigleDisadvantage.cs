@@ -7,11 +7,11 @@ namespace NWN.Systems
   {
     public static bool GetEspritAigleDisadvantage(CGameEffect eff, CNWSCreature target, CNWSCombatAttackData attackData)
     {
-      if (attackData.m_nAttackType != 65002 || !target.m_pStats.HasFeat(CustomSkill.TotemEspritAigle).ToBool()
+      if (attackData is null || attackData.m_nAttackType != 65002 || !target.m_pStats.HasFeat(CustomSkill.TotemEspritAigle).ToBool()
         || !eff.m_sCustomTag.CompareNoCase(EffectSystem.barbarianRageEffectExoTag).ToBool()) // 65002 = attaque d'opportunité
         return false;
 
-      LogUtils.LogMessage("Désavantage - Affecté par Provocation", LogUtils.LogType.Combat);
+      LogUtils.LogMessage("Désavantage - Esprit de l'Aigle vs Attaque d'opportunité", LogUtils.LogType.Combat);
       return true;
     }
   }

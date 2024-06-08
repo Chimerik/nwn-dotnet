@@ -258,6 +258,11 @@ namespace NWN.Systems
           SpellSystem.SpiderCocoon(oCaster, spell, spellEntry, target);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
+
+        case CustomSpell.WildMagicTeleportation:
+          SpellSystem.WildMagicTeleportation(oCaster, spell, spellEntry, targetLocation);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
       }
 
       if (oCaster is NwCreature castingCreature)
