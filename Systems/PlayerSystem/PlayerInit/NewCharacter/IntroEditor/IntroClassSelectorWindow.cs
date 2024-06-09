@@ -399,6 +399,13 @@ namespace NWN.Systems
           player.oid.LoginCreature.RemoveFeat(Feat.SneakAttack);
           player.oid.LoginCreature.RemoveFeat(Feat.BarbarianRage);
           player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.MainLeste);
+          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.RangerMageBreakerTrueStrike);
+          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.RangerChasseurDePrimes);
+          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.RangerVeilProtectionAlignment);
+          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.RangerColdWanderer);
+          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.RangerAcidWanderer);
+          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.RangerFireWanderer);
+          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.RangerPoisonWanderer);
 
           if (player.windows.TryGetValue("expertiseChoice", out var expertise) && expertise.IsOpen)
           {
@@ -431,16 +438,16 @@ namespace NWN.Systems
           player.oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipUnarmoredDefence;
           player.oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipUnarmoredDefence;
           player.oid.LoginCreature.OnHeartbeat -= CreatureUtils.OnHeartBeatCheckUnarmoredDefence;
-          EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.UnarmoredDefenceEffectTag);
 
           player.oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipApplyProtectionStyle;
           player.oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipRemoveProtectionStyle;
-          EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.ProtectionStyleAuraEffectTag);
 
           player.oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipMonkUnarmoredDefence;
           player.oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipMonkUnarmoredDefence;
           player.oid.LoginCreature.OnHeartbeat -= CreatureUtils.OnHeartBeatCheckMonkUnarmoredDefence;
-          EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.MonkUnarmoredDefenceEffectTag);
+
+          EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.MonkUnarmoredDefenceEffectTag, EffectSystem.ProtectionStyleAuraEffectTag,
+            EffectSystem.UnarmoredDefenceEffectTag, EffectSystem.ColdWandererEffectTag, EffectSystem.AcidWandererEffectTag, EffectSystem.FireWandererEffectTag, EffectSystem.PoisonWandererEffectTag);
 
           if (player.windows.TryGetValue("spellSelection", out var spellSelection) && spellSelection.IsOpen)
           {
@@ -617,7 +624,6 @@ namespace NWN.Systems
               if (!player.learnableSkills.TryGetValue(learnable.id, out var value) || value.source.Any(so => so == Category.Class))
               {
                 skillList3.Add(new NuiComboEntry(learnable.name, learnable.id));
-                ModuleSystem.Log.Info($"skill list 4 added {learnable.name}");
                 skillList4.Add(new NuiComboEntry(learnable.name, learnable.id));
               }
             }
@@ -630,8 +636,6 @@ namespace NWN.Systems
               skillList2.RemoveAll(s => s.Value == additionnalSkills.ElementAt(2).id || s.Value == additionnalSkills.ElementAt(3).id);
               skillList3.RemoveAll(s => s.Value == additionnalSkills.ElementAt(0).id || s.Value == additionnalSkills.ElementAt(1).id
                 || s.Value == additionnalSkills.ElementAt(3).id);
-
-              ModuleSystem.Log.Info($"skill list 4 removal if contains");
 
               skillList4.RemoveAll(s => s.Value == additionnalSkills.ElementAt(0).id || s.Value == additionnalSkills.ElementAt(1).id
                 || s.Value == additionnalSkills.ElementAt(2).id);
@@ -654,18 +658,7 @@ namespace NWN.Systems
               skillList2.RemoveRange(1, 2);
               skillList3.RemoveAt(3);
               skillList3.RemoveRange(0, 2);
-
-              ModuleSystem.Log.Info($"skill list 4 before removal");
-
-              foreach(var skill in skillList4)
-                ModuleSystem.Log.Info($"skill : {skill.Label}");
-
               skillList4.RemoveRange(0, 3);
-
-              ModuleSystem.Log.Info($"skill list 4 after removal");
-
-              foreach (var skill in skillList4)
-                ModuleSystem.Log.Info($"skill : {skill.Label}");
 
               skillSelection1.SetBindValue(player.oid, nuiToken.Token, skillList1);
               selectedSkill1.SetBindValue(player.oid, nuiToken.Token, skillList1.First().Value);

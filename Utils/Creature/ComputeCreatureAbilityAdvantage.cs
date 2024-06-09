@@ -59,8 +59,8 @@ namespace NWN.Systems
         case Ability.Wisdom:
         case Ability.Charisma:
 
-          if (creature.Race.Id == CustomRace.RockGnome || creature.Race.Id == CustomRace.ForestGnome
-            || creature.Race.Id == CustomRace.DeepGnome)
+          if (spellEntry is not null && (creature.Race.Id == CustomRace.RockGnome || creature.Race.Id == CustomRace.ForestGnome
+            || creature.Race.Id == CustomRace.DeepGnome))
           {
             LogUtils.LogMessage("Avantage - Gnome vs jet mental", LogUtils.LogType.Combat);
             return true;

@@ -238,7 +238,7 @@ namespace NWN.Systems
           if (totalAttack + inspirationBardique + superiorityDiceBonus <= targetAC + defensiveDuellistBonus) // Echoue alors qu'elle aurait du toucher
           {
             if (inspirationBardique < 0)
-              NativeUtils.HandleInspirationBardiqueUsed(creature, inspirationBardique, inspirationEffect, inspirationString);
+              NativeUtils.HandleInspirationBardiqueUsed(creature, inspirationBardique, inspirationEffect, inspirationString, attackerName);
 
             if (superiorityDiceBonus > 0)
               NativeUtils.HandleAttaquePreciseUsed(creature, superiorityDiceBonus);
@@ -249,6 +249,7 @@ namespace NWN.Systems
             attackData.m_nAttackResult = 4;
             attackData.m_nMissedBy = (byte)(targetAC - attackRoll) > 8 ? (byte)Utils.random.Next(1, 9) : (byte)(targetAC - attackRoll);
             hitString = "manquez".ColorString(ColorConstants.Red);
+            rollString = $"{attackRoll} + {attackBonus + inspirationBardique + superiorityDiceBonus} = {attackRoll + attackBonus + inspirationBardique + superiorityDiceBonus}".ColorString(new Color(32, 255, 32));
             rollString = rollString.StripColors().ColorString(ColorConstants.Red);
 
             LogUtils.LogMessage($"Manqué : {attackRoll} + {attackBonus + inspirationBardique + superiorityDiceBonus} = {attackRoll + attackBonus + inspirationBardique + superiorityDiceBonus} vs {targetAC + defensiveDuellistBonus}", LogUtils.LogType.Combat);
@@ -264,7 +265,7 @@ namespace NWN.Systems
           if (totalAttack + inspirationBardique + superiorityDiceBonus > targetAC + defensiveDuellistBonus) // Touche alors qu'elle aurait du échouer
           {
             if (inspirationBardique > 0)
-              NativeUtils.HandleInspirationBardiqueUsed(creature, inspirationBardique, inspirationEffect, inspirationString);
+              NativeUtils.HandleInspirationBardiqueUsed(creature, inspirationBardique, inspirationEffect, inspirationString, attackerName);
 
             if (superiorityDiceBonus > 0)
               NativeUtils.HandleAttaquePreciseUsed(creature, superiorityDiceBonus);
@@ -273,6 +274,7 @@ namespace NWN.Systems
               NativeUtils.SendNativeServerMessage("Duelliste défensif activé !".ColorString(ColorConstants.Orange), targetCreature);
 
             attackData.m_nAttackResult = 1;
+            rollString = $"{attackRoll} + {attackBonus + inspirationBardique + superiorityDiceBonus} = {attackRoll + attackBonus + inspirationBardique + superiorityDiceBonus}".ColorString(new Color(32, 255, 32));
             LogUtils.LogMessage($"Touché : {attackRoll} + {attackBonus + inspirationBardique + superiorityDiceBonus} = {attackRoll + attackBonus + inspirationBardique + superiorityDiceBonus} vs {targetAC + defensiveDuellistBonus}", LogUtils.LogType.Combat);
           }
           else // Echoue : cas normal
@@ -399,8 +401,12 @@ namespace NWN.Systems
       var targetObject = CNWSObject.FromPointer(pTarget);
       var damageFlags = creatureStats.m_pBaseCreature.GetDamageFlags();
 
-      if (attacker is null || targetObject is null || targetObject.m_bPlotObject == 1)
+      if (attacker is null || targetObject is null || targetObject.m_bPlotObject == 1
+        || attacker.m_ScriptVars.GetInt(CreatureUtils.CancelDamageDoublonVariableExo).ToBool())
+      {
+        attacker.m_ScriptVars.DestroyInt(CreatureUtils.CancelDamageDoublonVariableExo);
         return -1;
+      }
 
       CNWSCombatRound combatRound = attacker.m_pcCombatRound;
       CNWSCombatAttackData attackData = combatRound.GetAttack(combatRound.m_nCurrentAttack);
@@ -411,7 +417,7 @@ namespace NWN.Systems
       CNWSCreature targetCreature = targetObject.m_nObjectType == (int)ObjectType.Creature ? targetObject.AsNWSCreature() : null;
       string attackerName = $"{creatureStats.GetFullName().ToExoLocString().GetSimple(0)}";
 
-      LogUtils.LogMessage($"----- Jet de dégâts : {creatureStats.GetFullName().ToExoLocString().GetSimple(0)} attaque {targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)} - type {attackData.m_nAttackType} - nb {combatRound.m_nCurrentAttack} -----", LogUtils.LogType.Combat);    
+      LogUtils.LogMessage($"----- Jet de dégâts : {creatureStats.GetFullName().ToExoLocString().GetSimple(0)} attaque {targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)} - type {attackData.m_nAttackType} - nb {combatRound.m_nCurrentAttack} -----", LogUtils.LogType.Combat);
 
       CNWSItem attackWeapon = combatRound.GetCurrentAttackWeapon(attackData.m_nWeaponAttackType);
       int baseDamage = 0;
@@ -566,6 +572,18 @@ namespace NWN.Systems
         attacker.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreTypeVariableExo);
         attacker.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreDiceVariableExo);
       }
+
+      if (baseDamage < 1)
+      {
+        attacker.m_ScriptVars.SetInt(CreatureUtils.CancelDamageDoublonVariableExo, 1);
+
+        if(targetObject.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.abjurationWardEffectExoTag).ToBool()))
+        {
+          targetObject.m_ScriptVars.SetInt(CreatureUtils.AbjurationWardForcedTriggerVariableExo, 1);
+          EffectUtils.RemoveTaggedEffect(targetObject, EffectSystem.abjurationWardEffectExoTag);
+        }
+      }
+
 
       return baseDamage;
 

@@ -106,7 +106,7 @@ namespace NWN.Systems
               foreach (int skill in skillList)
                 availableSkillList += $"{skill}_";
 
-              availableSkillList = availableSkillList.Substring(0, availableSkillList.Length - 1);
+              availableSkillList = availableSkillList[..^1];
               player.oid.LoginCreature.GetObjectVariable<PersistentVariableString>("_IN_SKILL_PROFICIENCY_SELECTION").Value = availableSkillList;
             }
           }
@@ -186,8 +186,8 @@ namespace NWN.Systems
                     player.oid.SendServerMessage($"Vous apprenez la maîtrise {StringUtils.ToWhitecolor(skill.name)}", ColorConstants.Orange);
                   }
 
-                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableString>("_IN_NB_SKILL_PROFICIENCY_SELECTION").Delete();
-                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_PROFICIENCY_SELECTION").Delete();
+                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_NB_SKILL_PROFICIENCY_SELECTION").Delete();
+                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableString>("_IN_SKILL_PROFICIENCY_SELECTION").Delete();
 
                   CloseWindow();
 

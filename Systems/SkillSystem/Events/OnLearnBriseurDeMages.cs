@@ -7,8 +7,8 @@ namespace NWN.Systems
   {
     public static bool OnLearnBriseurDeMages(PlayerSystem.Player player, int customSkillId)
     {
-      if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.TrueStrike))
-        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.TrueStrike);
+      if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.RangerMageBreakerTrueStrike))
+        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.RangerMageBreakerTrueStrike);
 
       if(player.learnableSkills.TryAdd(CustomSkill.ArcanaProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ArcanaProficiency], player)))
         player.learnableSkills[CustomSkill.ArcanaProficiency].LevelUp(player);

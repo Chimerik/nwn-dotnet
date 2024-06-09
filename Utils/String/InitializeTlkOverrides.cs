@@ -75,8 +75,11 @@ namespace NWN.Systems
       OverrideTlkEntry(190153, "LISEZ-MOI");
       OverrideTlkEntry(190154, "Les choix de races, de classe et de caractéristiques de cette partie de l'interface sont inutiles.\n\nEn jeu, un miroir vous permettra d'accéder à des options de personnalisation approfondies.\n\nIl vous faudra alors valider toutes les étapes avant que le capitaine ne vous autorise à poursuivre votre voyage.");
       OverrideTlkEntry(190155, "Les Larmes des Erylies - Editeur de personnage");
+      OverrideTlkEntry(190619, "Augmentation de l'immunité aux dégâts (poison)");
+      OverrideTlkEntry(190620, "Augmentation de l'immunité aux dégâts (nécrotique)");
+      OverrideTlkEntry(190621, "Augmentation de l'immunité aux dégâts (psychique)");
 
-      foreach(var entry in Feats2da.featTable)
+      foreach (var entry in Feats2da.featTable)
       {
         if((entry.spellId < 0 || entry.RowIndex == 1488 || entry.RowIndex == 1463) 
           && SkillSystem.learnableDictionary.TryGetValue(entry.RowIndex, out var learnable) && learnable is LearnableSkill)

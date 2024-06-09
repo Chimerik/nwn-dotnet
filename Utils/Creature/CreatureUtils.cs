@@ -17,6 +17,8 @@ namespace NWN.Systems
     public const string ReactionVariable = "_REACTION";
     public static readonly CExoString ReactionVariableExo = ReactionVariable.ToExoString();
     public const string BonusActionVariable = "_BONUS_ACTION";
+    public const string CancelDamageDoublonVariable = "_CANCEL_DAMAGE_DOUBLON";
+    public static readonly CExoString CancelDamageDoublonVariableExo = CancelDamageDoublonVariable.ToExoString();
     public static readonly CExoString BonusActionVariableExo = BonusActionVariable.ToExoString();
     public static readonly CExoString AnimalCompanionTagExo = "animal_companion".ToExoString();
     public const string AnimalCompanionVariable = "_ANIMAL_COMPANION";
@@ -138,6 +140,9 @@ namespace NWN.Systems
     public const string BelluaireRugissementProvoquantCoolDownVariable = "_RUGISSEMENT_PROVOQUANT_COOLDOWN";
     public const string BelluaireChargeDuSanglierCoolDownVariable = "_CHARGE_DU_SANGLIER_COOLDOWN";
     public const string BelluaireSpiderWebCoolDownVariable = "_SPIDER_WEB_COOLDOWN";
+
+    public const string AbjurationWardForcedTriggerVariable = "_ABJURATION_WARD_FORCED_TRIGGER";
+    public static readonly CExoString AbjurationWardForcedTriggerVariableExo = AbjurationWardForcedTriggerVariable.ToExoString();
 
     public const string RegardHypnotiqueTargetListVariable = "_REGARD_HYPNOTIQUE_TARGET_LIST";
 

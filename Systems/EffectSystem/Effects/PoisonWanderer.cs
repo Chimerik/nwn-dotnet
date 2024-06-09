@@ -10,9 +10,11 @@ namespace NWN.Systems
       get
       {
         Effect eff = Effect.DamageImmunityIncrease(CustomDamageType.Poison, 50);
-        eff.Tag = PoisonWandererEffectTag;
-        eff.SubType = EffectSubType.Unyielding;
-        return eff;
+        eff.ShowIcon = false;
+        Effect link = Effect.LinkEffects(eff, Effect.Icon((EffectIcon)174));
+        link.Tag = PoisonWandererEffectTag;
+        link.SubType = EffectSubType.Unyielding;
+        return link;
       }
     }
   }

@@ -13,10 +13,14 @@ namespace NWN.Systems
         ? creature.GetObjectVariable<LocalVariableObject<NwCreature>>("_ABJURATION_WARD_TARGET").Value : creature;
 
         target.OnDamaged -= OnDamageAbjurationWard;
-        target.OnDamaged += OnDamageAbjurationWard;
-
+        target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpGlobeUse));
         EffectUtils.RemoveTaggedEffect(target, creature, EffectSystem.AbjurationWardEffectTag);
-        NWScript.AssignCommand(creature, () => target.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetAbjurationWardEffect(creature.GetClassInfo(ClassType.Wizard).Level)));
+
+        creature.OnDamaged -= OnDamageAbjurationWard;
+        creature.OnDamaged += OnDamageAbjurationWard;
+        creature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpGlobeUse));
+        
+        NWScript.AssignCommand(creature, () => creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetAbjurationWardEffect(creature.GetClassInfo(ClassType.Wizard).Level)));
       }
     }
   }

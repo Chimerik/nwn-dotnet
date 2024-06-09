@@ -54,6 +54,13 @@ namespace NWN.Systems
 
           break;
 
+        case 3:
+
+          if (!player.windows.TryGetValue("spellSelection", out var spell3)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 0, 2));
+          else ((SpellSelectionWindow)spell3).CreateWindow(ClassType.Wizard, 0, 2);
+
+          break;
+
         case 4:
 
           if (!player.windows.TryGetValue("featSelection", out var feat4)) player.windows.Add("featSelection", new FeatSelectionWindow(player));

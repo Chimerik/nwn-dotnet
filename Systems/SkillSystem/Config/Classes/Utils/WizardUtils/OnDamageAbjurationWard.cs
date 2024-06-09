@@ -33,8 +33,6 @@ namespace NWN.Systems
         onDamage.Creature.OnDamaged -= OnDamageAbjurationWard;
       }
 
-      int negatedDamage = ward.CasterLevel > onDamage.DamageAmount ? onDamage.DamageAmount : ward.CasterLevel;
-
       EffectUtils.RemoveTaggedEffect(onDamage.Creature, ward.Creator, EffectSystem.AbjurationWardEffectTag);
 
       if(ward.CasterLevel > 1)
@@ -42,7 +40,7 @@ namespace NWN.Systems
 
       onDamage.Creature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpGlobeUse));
 
-      LogUtils.LogMessage($"{onDamage.Creature.Name} - protection arcanique - dégâts réduits de {negatedDamage}", LogUtils.LogType.Combat);
+      LogUtils.LogMessage($"{onDamage.Creature.Name} - Dégâts réduits par protection arcanique", LogUtils.LogType.Combat);
     }
   }
 }
