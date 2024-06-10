@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Anvil.API;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -25,7 +26,7 @@ namespace NWN.Systems
       }
 
       if (!player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.WolAspectAuraEffectTag))
-        player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.wolfAspectAura);
+        NWScript.AssignCommand(player.oid.LoginCreature, () => player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.wolfAspectAura));
 
       return true;
     }

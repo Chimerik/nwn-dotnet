@@ -1,13 +1,17 @@
-﻿using Anvil.API;
+﻿using System.Collections.Generic;
+using Anvil.API;
+using NLog.Targets;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void PassageSansTrace(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry)
+    public static List<NwGameObject> PassageSansTrace(NwGameObject oCaster, NwSpell spell, NwFeat feat, SpellEntry spellEntry)
     {
+      List<NwGameObject> concentrationTargets = new();
+
       if (oCaster is not NwCreature caster)
-        return;
+        return concentrationTargets;
 
       SpellUtils.SignalEventSpellCast(caster, caster, spell.SpellType);
 
@@ -17,14 +21,16 @@ namespace NWN.Systems
           continue;
 
         target.ApplyEffect(EffectDuration.Temporary, Effect.SkillIncrease(NwSkill.FromSkillType(Skill.MoveSilently), 10));
+        concentrationTargets.Add(target);
       }
 
-      if(caster.GetObjectVariable<LocalVariableInt>("_CAST_FROM_SHADOW_MONK_FEAT").Value == CustomSkill.MonkPassageSansTrace)
+      if(feat is not null && feat.Id == CustomSkill.MonkPassageSansTrace)
       {
-        caster.IncrementRemainingFeatUses((Feat)CustomSkill.MonkPassageSansTrace);
+        caster.IncrementRemainingFeatUses(feat.FeatType);
         FeatUtils.DecrementKi(caster, 2);
-        caster.GetObjectVariable<LocalVariableInt>("_CAST_FROM_SHADOW_MONK_FEAT").Delete();
       }
+
+      return concentrationTargets;
     }
   }
 }

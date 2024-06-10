@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Anvil.API;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -13,16 +10,23 @@ namespace NWN.Systems
         return 0;
 
       int bonusScore = 0;
-      List<string> effLink = new();
 
       foreach (var eff in creature.ActiveEffects)
       {
         if(skill == CustomSkill.StealthProficiency)
         {
-          if (!eff.LinkId.Contains(eff.LinkId) && eff.EffectType == EffectType.SkillIncrease && eff.IntParams[0] == 8)
+          if (eff.EffectType == EffectType.SkillIncrease && eff.IntParams[0] == 8) // 8 = Move silently skill
           {
-            bonusScore += eff.IntParams[1];
-            effLink.Add(eff.LinkId);
+            if (eff.Tag == EffectSystem.WolfAspectEffectTag)
+            {
+              bonusScore += creature.GetAbilityModifier(Ability.Dexterity);
+              LogUtils.LogMessage($"Totem - Aspect du loup : {creature.GetAbilityModifier(Ability.Dexterity)}", LogUtils.LogType.Combat);
+            }
+            else
+            {
+              bonusScore += eff.IntParams[1];
+              LogUtils.LogMessage($"Bonus d'effet d'augmentation de compétence : {eff.IntParams[1]}", LogUtils.LogType.Combat);
+            }
           }
         }
       }

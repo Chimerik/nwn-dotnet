@@ -21,7 +21,7 @@ namespace NWN.Systems
 
       if (player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.SourceDinspiration))
         BardUtils.RestoreInspirationBardique(player.oid.LoginCreature);
-      
+
       foreach (var skill in player.learnableSkills.Values.Where(l => l.restoreOnShortRest && l.currentLevel > 0))
       {
         byte nbCharge = 1;

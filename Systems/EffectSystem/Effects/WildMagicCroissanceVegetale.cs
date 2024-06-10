@@ -1,7 +1,7 @@
-﻿using System;
-using Anvil.API;
+﻿using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -26,7 +26,7 @@ namespace NWN.Systems
       if (eventData.EffectTarget is not NwCreature source)
         return ScriptHandleResult.Handled;
 
-      source?.Location.ApplyEffect(EffectDuration.Temporary, Effect.AreaOfEffect(PersistentVfxType.PerEntangle), NwTimeSpan.FromRounds(1));
+      NWScript.AssignCommand(source, () => source?.Location.ApplyEffect(EffectDuration.Temporary, Effect.AreaOfEffect(PersistentVfxType.PerEntangle), NwTimeSpan.FromRounds(1)));
 
       return ScriptHandleResult.Handled;
     }

@@ -32,7 +32,7 @@ namespace NWN.Systems
         }
         public void CreateWindow()
         {
-          NuiRect savedRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(player.guiWidth * 0.45f, player.guiHeight * 0.25f, windowWidth, windowHeight);
+          NuiRect savedRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(player.guiWidth * 0.45f, player.guiHeight * 0.25f, windowWidth, windowHeight);
 
           window = new NuiWindow(rootColumn, "Annuler votre concentration ?")
           {

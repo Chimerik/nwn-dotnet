@@ -14,6 +14,7 @@ namespace NWN.Systems
           switch(playerClass.Class.Id)
           {
             case CustomClass.Fighter:
+            case CustomClass.EldritchKnight:
 
               if (playerClass.Level > 4)
                 oid.LoginCreature.BaseAttackCount += 1;

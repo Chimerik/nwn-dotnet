@@ -13,8 +13,6 @@ namespace NWN.Systems
         onFeat.PreventFeatUse = true;
         return;
       }
-
-      caster.GetObjectVariable<LocalVariableInt>("_CAST_FROM_SHADOW_MONK_FEAT").Value = onFeat.Feat.Id;
     }
   }
 }

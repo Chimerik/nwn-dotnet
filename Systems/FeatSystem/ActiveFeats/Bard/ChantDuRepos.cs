@@ -15,16 +15,16 @@ namespace NWN.Systems
 
       caster.ApplyEffect(EffectDuration.Temporary, Effect.VisualEffect(VfxType.DurBardSong), NwTimeSpan.FromRounds(1));
 
-      foreach (NwCreature target in caster.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 9, false))
+      foreach (NwCreature target in caster.Faction.GetMembers())
       {
-        if (target.HP < 1 || (caster != target && !caster.IsReactionTypeFriendly(target)))
+        if (target.HP < 1 || caster.DistanceSquared(target) > 81)
           continue;
 
         if(PlayerSystem.Players.TryGetValue(target, out var player))
           CreatureUtils.HandleShortRest(player);
         else
         {
-          target.ApplyEffect(EffectDuration.Instant, Effect.Heal(player.oid.LoginCreature.MaxHP / 2));
+          target.ApplyEffect(EffectDuration.Instant, Effect.Heal(target.MaxHP / 2));
           target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHealingL));
         }
       }

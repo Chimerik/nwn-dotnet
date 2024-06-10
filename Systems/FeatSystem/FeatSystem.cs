@@ -164,6 +164,7 @@ namespace NWN.Systems
         case CustomSkill.ImpositionDesMainsMajeure: ImpositionDesMainsMajeure(onUseFeat.Creature, onUseFeat.TargetObject); return;
         case CustomSkill.ImpositionDesMainsGuerison: ImpositionDesMainsGuerison(onUseFeat.Creature, onUseFeat.TargetObject); return;
         case CustomSkill.SensDivin: SensDivin(onUseFeat.Creature); return;
+        case CustomSkill.ChatimentDivin: ChatimentDivin(onUseFeat.Creature); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

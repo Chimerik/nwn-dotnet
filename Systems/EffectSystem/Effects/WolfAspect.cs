@@ -24,7 +24,7 @@ namespace NWN.Systems
     }
     public static Effect GetWolfAspectEffect(int dexterityModifier)
     {
-      Effect eff = Effect.LinkEffects(Effect.SkillIncrease(Skill.MoveSilently, dexterityModifier), Effect.Icon(EffectIcon.SkillIncrease));
+      Effect eff = Effect.SkillIncrease(Skill.MoveSilently, dexterityModifier);
       eff.Tag = WolfAspectEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       return eff;

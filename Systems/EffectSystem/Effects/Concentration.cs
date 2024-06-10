@@ -65,7 +65,7 @@ namespace NWN.Systems
           i++;
           continue;
         }
-        // TODO : concentration ténèbres provoque une null exception en ligne 69
+
         if (target.GetObjectVariable<LocalVariableInt>(ConcentrationSpellIdString).Value == CustomSpell.FlameBlade && target is NwCreature creature)
         {
           if (creature.GetItemInSlot(InventorySlot.RightHand)?.Tag == "_TEMP_FLAME_BLADE")

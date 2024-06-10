@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using Anvil.API;
+using static NWN.Systems.PlayerSystem.Player;
+using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
   public static partial class SpellUtils
   {
-    public static void SpellSwitch(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject target, Location targetLocation, NwClass castingClass)
+    public static void SpellSwitch(NwGameObject oCaster, NwSpell spell, NwFeat feat, SpellEntry spellEntry, NwGameObject target, Location targetLocation, NwClass castingClass)
     {
       List<NwGameObject> concentrationTargets = new();
 
@@ -69,25 +71,23 @@ namespace NWN.Systems
           break;*/
 
         case Spell.Darkness:
-          concentrationTargets.AddRange(SpellSystem.Darkness(oCaster, spell, spellEntry, target, targetLocation));
+          concentrationTargets.AddRange(SpellSystem.Darkness(oCaster, spell, feat, spellEntry, target, targetLocation));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case Spell.Silence:
-          if(oCaster is NwCreature caster && caster.GetObjectVariable<LocalVariableInt>("_CAST_FROM_SHADOW_MONK_FEAT").Value == CustomSkill.MonkSilence)
+          if(oCaster is NwCreature caster && feat is not null && feat.Id == CustomSkill.MonkSilence)
           {
-            caster.IncrementRemainingFeatUses((Feat)CustomSkill.MonkSilence);
+            caster.IncrementRemainingFeatUses(feat.FeatType);
             FeatUtils.DecrementKi(caster, 2);
-            caster.GetObjectVariable<LocalVariableInt>("_CAST_FROM_SHADOW_MONK_FEAT").Delete();
           }
           break;
 
         case Spell.Darkvision:
-          if (oCaster is NwCreature castCreature && castCreature.GetObjectVariable<LocalVariableInt>("_CAST_FROM_SHADOW_MONK_FEAT").Value == CustomSkill.MonkDarkVision)
+          if (oCaster is NwCreature castCreature && feat is not null && feat.Id == CustomSkill.MonkDarkVision)
           {
-            castCreature.IncrementRemainingFeatUses((Feat)CustomSkill.MonkDarkVision);
+            castCreature.IncrementRemainingFeatUses(feat.FeatType);
             FeatUtils.DecrementKi(castCreature, 2);
-            castCreature.GetObjectVariable<LocalVariableInt>("_CAST_FROM_SHADOW_MONK_FEAT").Delete();
           }
           break;
 
@@ -215,7 +215,7 @@ namespace NWN.Systems
           break;
 
         case CustomSpell.PassageSansTrace:
-          SpellSystem.PassageSansTrace(oCaster, spell, spellEntry);
+          concentrationTargets.AddRange(SpellSystem.PassageSansTrace(oCaster, spell, feat, spellEntry));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -273,6 +273,15 @@ namespace NWN.Systems
           SpellSystem.OnSpellCastDivinationExpert(castingCreature, spell, castingClass);
           SpellSystem.OnSpellCastInvocationPermutation(castingCreature, spell, spell.GetSpellLevelForClass(castingClass));
           SpellSystem.OnSpellCastTransmutationStone(castingCreature, spell, spell.GetSpellLevelForClass(castingClass));
+
+          if(castingClass.ClassType == ClassType.Paladin && Players.TryGetValue(castingCreature, out Player player))
+          {
+            byte chatimentLevel = (byte)(player.windows.TryGetValue("chatimentLevelSelection", out var chatimentWindow)
+            ? ((ChatimentLevelSelectionWindow)chatimentWindow).selectedSpellLevel : 1);
+
+            if(spell.GetSpellLevelForClass(castingClass) == chatimentLevel)
+              player.oid.LoginCreature.DecrementRemainingFeatUses((Feat)CustomSkill.ChatimentDivin);
+          }
         }
 
         if(spellEntry.requiresConcentration)

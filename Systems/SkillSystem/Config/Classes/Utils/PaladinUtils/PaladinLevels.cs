@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.PlayerSystem.Player;
 using static NWN.Systems.SkillSystem;
@@ -35,6 +36,23 @@ namespace NWN.Systems
             playerClass.acquiredPoints = 0;
           }
 
+          foreach(var spell in NwRuleset.Spells.Where(s => s.GetSpellLevelForClass(ClassType.Paladin) > 0 && s.GetSpellLevelForClass(ClassType.Paladin) < 10))
+          {
+            if (player.learnableSpells.TryGetValue(spell.Id, out var learnable))
+            {
+              learnable.learntFromClasses.Add((int)ClassType.Paladin);
+
+              if (learnable.currentLevel < 1)
+                learnable.LevelUp(player);
+            }
+            else
+            {
+              LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[spell.Id], (int)ClassType.Paladin);
+              player.learnableSpells.Add(learnableSpell.id, learnableSpell);
+              learnableSpell.LevelUp(player);
+            }
+          }
+
           // On donne les autres capacités de niveau 1
 
           player.learnableSkills.TryAdd(CustomSkill.ImpositionDesMainsMineure, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ImpositionDesMainsMineure], player));
@@ -59,6 +77,12 @@ namespace NWN.Systems
 
           if (!player.windows.TryGetValue("fightingStyleSelection", out var style)) player.windows.Add("fightingStyleSelection", new FightingStyleSelectionWindow(player, CustomSkill.Paladin));
           else ((FightingStyleSelectionWindow)style).CreateWindow(CustomSkill.Paladin);
+
+          player.learnableSkills.TryAdd(CustomSkill.ChatimentDivin, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ChatimentDivin], player));
+          player.learnableSkills[CustomSkill.ChatimentDivin].LevelUp(player);
+          player.learnableSkills[CustomSkill.ChatimentDivin].source.Add(Category.Class);
+
+          player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ChatimentDivin, player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).GetRemainingSpellSlots(1));
 
           break;
 

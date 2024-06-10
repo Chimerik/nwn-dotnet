@@ -483,6 +483,7 @@ namespace NWN.Systems
         ApplyMonkOpportunist();
         ApplyDefenseAdaptative();
         ApplyTraqueurRedoutable();
+        ApplyWolfAspectAura();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Anvil.API;
 using static NWN.Systems.PlayerSystem;
 
@@ -37,13 +36,13 @@ namespace NWN.Systems
       this.skillEffect = learnableBase.skillEffect;
       this.racePrerequiste = learnableBase.racePrerequiste;
       this.learnablePrerequiste = learnableBase.learnablePrerequiste;
+      this.restoreOnShortRest = learnableBase.restoreOnShortRest;
       this.active = active;
       this.acquiredPoints = acquiredSP;
       this.currentLevel = currentLevel;
       this.pointsToNextLevel = GetPointsToLevelUp(player);
       this.levelTaken = levelTaken;
       this.featOptions = featOptions;
-      this.restoreOnShortRest = restoreOnShortRest;
       this.source = new();
 
       if (skillSource > -1)

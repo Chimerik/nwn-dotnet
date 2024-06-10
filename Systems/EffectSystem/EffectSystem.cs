@@ -98,6 +98,7 @@ namespace NWN.Systems
       onRemoveRageDuSanglierCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveRageDuSanglier);
 
       onIntervalSpiderCocoonCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalSpiderCocoon);
+      onIntervalChatimentDivinCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalChatimentDivin);
 
       onRemoveAbjurationWardCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveAbjurationWard);
     }

@@ -43,7 +43,7 @@ namespace NWN.Systems
       string damageString = $"{onDamage.DamagedBy.Name.ColorString(ColorConstants.Cyan)} {damageTarget} {onDamage.Target.Name.ColorString(ColorConstants.Cyan)} : " +
         $"{totalDamage}";
 
-      if(!string.IsNullOrEmpty(damageString))
+      if(damageString.Length > 0)
         damageString += $" ({specialDamageString})";
 
       foreach (var player in onDamage.Target.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 35, false))
@@ -51,7 +51,7 @@ namespace NWN.Systems
         if (player == onDamage.Target || player == onDamage.DamagedBy)
           continue;
 
-        player.LoginPlayer?.SendServerMessage(damageString, ColorConstants.Orange);
+        player.LoginPlayer?.SendServerMessage(damageString, StringUtils.orangeFonce);
       }
     }
   }

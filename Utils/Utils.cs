@@ -419,6 +419,7 @@ namespace NWN
       { "sacrificeHP", new MainMenuCommand("Perdre 20 % de points de vie (alpha)", "", CommandRank.Public) },
       { "dm", new MainMenuCommand("Mode DM", "", CommandRank.Admin) },
       { "spellBook", new MainMenuCommand("Livre de sorts", "", CommandRank.Public) },
+      { "chatimentLevelSelection", new MainMenuCommand("Châtiment - Niveau de sort", "Ouvrir ou fermer la fenêtre de sélection du niveau de sorts de vos châtiments", CommandRank.Public) },
       { "addClass", new MainMenuCommand("Test Chim", "", CommandRank.Admin) },
       { "creaturePalette", new MainMenuCommand("Palette des créatures", "", CommandRank.DM) },
       { "itemPalette", new MainMenuCommand("Palette des objets", "", CommandRank.DM) },

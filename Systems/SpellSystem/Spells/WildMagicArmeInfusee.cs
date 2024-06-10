@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     public static void WildMagicArmeInfusee(NwCreature caster)
     {
-      StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Magie Sauvage - Arme Infusée", StringUtils.gold, true);
+      caster.LoginPlayer?.DisplayFloatingTextStringOnCreature(caster, "Magie Sauvage - Armes Infusées".ColorString(StringUtils.gold));
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSuperHeroism));
 
       NwItem mainWeapon = caster.GetItemInSlot(InventorySlot.RightHand);

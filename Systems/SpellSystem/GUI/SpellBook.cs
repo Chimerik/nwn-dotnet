@@ -93,6 +93,10 @@ namespace NWN.Systems
 
             SetClassLayout();
             SetLevelLayout();
+
+            selectedSpellLevel = player.learnableSpells.Values.Where(s => s.currentLevel > 0 && s.learntFromClasses.Contains(selectedClass.Id))
+              .Min(s => NwSpell.FromSpellId(s.id).GetSpellLevelForClass(selectedClass));
+
             SetPreparedSpellLayout();
             SetCantripLayout();
             SetSpellLayout();            
@@ -181,11 +185,12 @@ namespace NWN.Systems
         private void SetLevelLayout()
         {
           List<NuiElement> levelChildren = new() { new NuiSpacer() };
-          int level = 0;
+          byte maxSlotKnown = SpellUtils.GetMaxSpellSlotLevelKnown(player.oid.LoginCreature, selectedClass.ClassType);
 
-          foreach (var spellLevel in player.learnableSpells.Values.Where(s => s.currentLevel > 0 && s.learntFromClasses.Contains(selectedClass.Id)).Select(s => NwSpell.FromSpellId(s.id).GetSpellLevelForClass(selectedClass)).Distinct().Order())
+          foreach (var spellLevel in player.learnableSpells.Values.Where(s => s.currentLevel > 0 && s.learntFromClasses.Contains(selectedClass.Id) && NwSpell.FromSpellId(s.id).GetSpellLevelForClass(selectedClass) <= maxSlotKnown)
+            .Select(s => NwSpell.FromSpellId(s.id).GetSpellLevelForClass(selectedClass)).Distinct().Order())
           {
-              string icon = level switch
+              string icon = spellLevel switch
               {
                 0 => "ir_cantrips",
                 1 => "ir_level1",
@@ -199,17 +204,14 @@ namespace NWN.Systems
 
               levelChildren.Add(new NuiButtonImage(icon)
               {
-                Id = $"level_{level}",
-                Tooltip = $"Vos sorts de niveau {level}",
+                Id = $"level_{spellLevel}",
+                Tooltip = $"Vos sorts de niveau {spellLevel}",
                 Height = 40,
                 Width = 40,
-                Encouraged = level == selectedSpellLevel
+                Encouraged = spellLevel == selectedSpellLevel
               });
-
-            level++;
           }
             
-
           levelChildren.Add(new NuiSpacer());
 
           levelRow.Children = levelChildren;

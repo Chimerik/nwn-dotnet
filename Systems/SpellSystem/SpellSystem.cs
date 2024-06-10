@@ -264,9 +264,10 @@ namespace NWN.Systems
     private void HandleSpellHook(CallInfo callInfo)
     {
       SpellEvents.OnSpellCast onSpellCast = new SpellEvents.OnSpellCast();
+      
       NwGameObject oCaster = onSpellCast.Caster;
       NwSpell spell = onSpellCast.Spell;
-
+      
       if (onSpellCast.TargetObject is not null)
         LogUtils.LogMessage($"----- {oCaster.Name} lance {spell.Name.ToString()} (id {spell.Id}) sur {onSpellCast.TargetObject.Name} -----", LogUtils.LogType.Combat);
       else
@@ -285,7 +286,7 @@ namespace NWN.Systems
 
       EffectUtils.RemoveEffectType(oCaster, EffectType.Invisibility, EffectType.ImprovedInvisibility);
       
-      SpellUtils.SpellSwitch(oCaster, spell, spellEntry, onSpellCast.TargetObject, onSpellCast.TargetLocation, onSpellCast.SpellCastClass);
+      SpellUtils.SpellSwitch(oCaster, spell, NwFeat.FromFeatId(NWScript.GetSpellFeatId()), spellEntry, onSpellCast.TargetObject, onSpellCast.TargetLocation, onSpellCast.SpellCastClass);
     }
     public void HandleCraftEnchantementCast(OnSpellCast onSpellCast)
     {
