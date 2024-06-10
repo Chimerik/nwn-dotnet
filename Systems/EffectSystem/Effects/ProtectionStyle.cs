@@ -50,7 +50,6 @@ namespace NWN.Systems
         return ScriptHandleResult.Handled;
 
       EffectUtils.RemoveTaggedEffect(exiting, protector, ProtectionStyleEffectTag);
-
       return ScriptHandleResult.Handled;
     }
   }

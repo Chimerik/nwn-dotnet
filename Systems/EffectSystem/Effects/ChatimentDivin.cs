@@ -11,12 +11,15 @@ namespace NWN.Systems
   {
     public const string ChatimentDivinEffectTag = "_CHATIMENT_DIVIN_EFFECT";
     private static ScriptCallbackHandle onIntervalChatimentDivinCallback;
-    public static Effect GetChatimentDivinEffect(int spellLevel)
+    public static Effect GetChatimentDivinEffect(int spellLevel, int paladinLevel)
     {
       Effect eff = Effect.LinkEffects(Effect.Icon(EffectIcon.DamageIncrease),
         Effect.RunAction(onIntervalHandle: onIntervalChatimentDivinCallback, interval: TimeSpan.FromSeconds(2)));
 
       for (int i = 0; i < spellLevel; i++)
+        eff = Effect.LinkEffects(Effect.DamageIncrease((int)DamageBonus.Plus1d8, DamageType.Divine));
+
+      if(paladinLevel > 10)
         eff = Effect.LinkEffects(Effect.DamageIncrease((int)DamageBonus.Plus1d8, DamageType.Divine));
 
       eff.Tag = ChatimentDivinEffectTag;

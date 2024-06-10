@@ -336,6 +336,8 @@
     public const int SensDivin = 1603;
     public const int ChatimentDivin = 1604;
     public const int RangerMageBreakerTrueStrike = 1605;
+    public const int AuraDeProtection = 1606;
+    public const int AuraDeCourage = 1607;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -894,6 +896,7 @@
     public const int FavoredEnemyVermin = 20597;
 
     public const int Paladin = 20598;
+    public const int PaladinBonusAttack = 20599;
     
 
 

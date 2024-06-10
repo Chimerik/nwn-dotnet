@@ -28,6 +28,13 @@ namespace NWN.Systems
               break;
 
             case CustomClass.Barbarian:
+            case CustomClass.Paladin:
+
+              if (playerClass.Level > 4)
+                oid.LoginCreature.BaseAttackCount += 1;
+
+              break;
+
             case CustomClass.Ranger:
 
               if (playerClass.Level > 4)

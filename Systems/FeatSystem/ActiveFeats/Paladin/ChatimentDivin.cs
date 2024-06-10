@@ -30,7 +30,7 @@ namespace NWN.Systems
         chatimentLevel = cr > 16 ? 5 : cr > 12 ? 4 : cr > 8 ? 3 : cr > 4 ? 2 : 1;
       }
 
-      NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetChatimentDivinEffect(chatimentLevel)));
+      NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetChatimentDivinEffect(chatimentLevel, caster.GetClassInfo(ClassType.Paladin).Level)));
 
       player.oid.LoginCreature.DecrementRemainingFeatUses((Feat)CustomSkill.ChatimentDivin);
       player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).SetRemainingSpellSlots((byte)chatimentLevel,

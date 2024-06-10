@@ -46,13 +46,10 @@ namespace NWN.Systems
     private static ScriptHandleResult onExitElkAspectAura(CallInfo callInfo)
     {
       if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnExit eventData) || eventData.Exiting is not NwCreature exiting
-        || eventData.Effect.Creator is not NwCreature protector || protector.HP < 1 || exiting.IsReactionTypeHostile(protector))
+        || eventData.Effect.Creator is not NwCreature protector || exiting.IsReactionTypeHostile(protector))
         return ScriptHandleResult.Handled;
 
-      foreach (var eff in exiting.ActiveEffects)
-        if (eff.Creator == protector && eff.Tag == ElkAspectEffectTag)
-          exiting.RemoveEffect(eff);
-
+      EffectUtils.RemoveTaggedEffect(exiting, protector, ElkAspectEffectTag);
       return ScriptHandleResult.Handled;
     }
   }

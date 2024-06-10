@@ -88,13 +88,12 @@ namespace NWN.Systems
 
         case 3:
 
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value = CustomSkill.Ranger;
+          /*player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value = CustomSkill.Paladin;
 
           if (!player.windows.TryGetValue("subClassSelection", out var value)) player.windows.Add("subClassSelection", new SubClassSelectionWindow(player));
-          else ((SubClassSelectionWindow)value).CreateWindow();
+          else ((SubClassSelectionWindow)value).CreateWindow();*/
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell3)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 0, 1));
-          else ((SpellSelectionWindow)spell3).CreateWindow(ClassType.Ranger, 0, 1);
+          player.oid.LoginCreature.AddFeat(Feat.DivineHealth);
 
           break;
 
@@ -107,55 +106,32 @@ namespace NWN.Systems
 
         case 5:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell5)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 0, 1));
-          else ((SpellSelectionWindow)spell5).CreateWindow(ClassType.Ranger, 0, 1);
-
-          player.learnableSkills.TryAdd(CustomSkill.FighterBonusAttack, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterBonusAttack], player));
-          player.learnableSkills[CustomSkill.FighterBonusAttack].LevelUp(player);
-          player.learnableSkills[CustomSkill.FighterBonusAttack].source.Add(Category.Class);
+          player.learnableSkills.TryAdd(CustomSkill.PaladinBonusAttack, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PaladinBonusAttack], player));
+          player.learnableSkills[CustomSkill.PaladinBonusAttack].LevelUp(player);
+          player.learnableSkills[CustomSkill.PaladinBonusAttack].source.Add(Category.Class);
 
           player.oid.LoginCreature.BaseAttackCount += 1; break;
 
         case 6:
 
-          player.learnableSkills.TryAdd(CustomSkill.RangerGreaterFavoredEnemy, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.RangerGreaterFavoredEnemy], player));
-          player.learnableSkills[CustomSkill.RangerGreaterFavoredEnemy].LevelUp(player);
-          player.learnableSkills[CustomSkill.RangerGreaterFavoredEnemy].source.Add(Category.Class);
-
-          if (!player.windows.TryGetValue("favoredEnemySelection", out var favoredEnemy)) player.windows.Add("favoredEnemySelection", new FavoredEnemySelectionWindow(player));
-          else ((FavoredEnemySelectionWindow)favoredEnemy).CreateWindow();
-
-          break;
-
-        case 7:
-
-          if (!player.windows.TryGetValue("spellSelection", out var spell7)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 0, 1));
-          else ((SpellSelectionWindow)spell7).CreateWindow(ClassType.Ranger, 0, 1);
+          player.learnableSkills.TryAdd(CustomSkill.AuraDeProtection, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AuraDeProtection], player));
+          player.learnableSkills[CustomSkill.AuraDeProtection].LevelUp(player);
+          player.learnableSkills[CustomSkill.AuraDeProtection].source.Add(Category.Class);
 
           break;
 
         case 8:
-
-          player.learnableSkills.TryAdd(CustomSkill.RangerDeplacementFluide, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.RangerDeplacementFluide], player));
-          player.learnableSkills[CustomSkill.RangerDeplacementFluide].LevelUp(player);
-          player.learnableSkills[CustomSkill.RangerDeplacementFluide].source.Add(Category.Class);
 
           if (!player.windows.TryGetValue("featSelection", out var feat8)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
           else ((FeatSelectionWindow)feat8).CreateWindow();
 
           break;
 
-        case 9:
+        case 10:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell9)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 0, 1));
-          else ((SpellSelectionWindow)spell9).CreateWindow(ClassType.Ranger, 0, 1);
-
-          break;
-
-        case 11:
-
-          if (!player.windows.TryGetValue("spellSelection", out var spell11)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 0, 1));
-          else ((SpellSelectionWindow)spell11).CreateWindow(ClassType.Ranger, 0, 1);
+          player.learnableSkills.TryAdd(CustomSkill.AuraDeCourage, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AuraDeCourage], player));
+          player.learnableSkills[CustomSkill.AuraDeCourage].LevelUp(player);
+          player.learnableSkills[CustomSkill.AuraDeCourage].source.Add(Category.Class);
 
           break;
 
@@ -166,47 +142,10 @@ namespace NWN.Systems
 
           break;
 
-        case 13:
-
-          if (!player.windows.TryGetValue("spellSelection", out var spell13)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 0, 1));
-          else ((SpellSelectionWindow)spell13).CreateWindow(ClassType.Ranger, 0, 1);
-
-          break;
-
-        case 14:
-
-          player.learnableSkills.TryAdd(CustomSkill.RangerDisparition, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.RangerDisparition], player));
-          player.learnableSkills[CustomSkill.RangerDisparition].LevelUp(player);
-          player.learnableSkills[CustomSkill.RangerDisparition].source.Add(Category.Class);
-
-          break;
-
-        case 15:
-
-          if (!player.windows.TryGetValue("spellSelection", out var spell15)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 0, 1));
-          else ((SpellSelectionWindow)spell15).CreateWindow(ClassType.Ranger, 0, 1);
-
-          break;
-
         case 16:
 
           if (!player.windows.TryGetValue("featSelection", out var feat16)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
           else ((FeatSelectionWindow)feat16).CreateWindow();
-
-          break;
-
-        case 17:
-
-          if (!player.windows.TryGetValue("spellSelection", out var spell17)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 0, 1));
-          else ((SpellSelectionWindow)spell17).CreateWindow(ClassType.Ranger, 0, 1);
-
-          break;
-         
-        case 18:
-
-          player.learnableSkills.TryAdd(CustomSkill.RangerSensSauvages, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.RangerSensSauvages], player));
-          player.learnableSkills[CustomSkill.RangerSensSauvages].LevelUp(player);
-          player.learnableSkills[CustomSkill.RangerSensSauvages].source.Add(Category.Class);
 
           break;
 
@@ -217,14 +156,6 @@ namespace NWN.Systems
 
           if (!player.windows.TryGetValue("spellSelection", out var spell19)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 0, 1));
           else ((SpellSelectionWindow)spell19).CreateWindow(ClassType.Ranger, 0, 1);
-
-          break;
-
-        case 20:
-
-          player.learnableSkills.TryAdd(CustomSkill.RangerTueurImplacable, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.RangerTueurImplacable], player));
-          player.learnableSkills[CustomSkill.RangerTueurImplacable].LevelUp(player);
-          player.learnableSkills[CustomSkill.RangerTueurImplacable].source.Add(Category.Class);
 
           break;
       }

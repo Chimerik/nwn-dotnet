@@ -101,6 +101,12 @@ namespace NWN.Systems
       onIntervalChatimentDivinCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalChatimentDivin);
 
       onRemoveAbjurationWardCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveAbjurationWard);
+
+      onEnterAuraDeProtectionCallback = scriptHandleFactory.CreateUniqueHandler(onEnterProtectionAura);
+      onExitAuraDeProtectionCallback = scriptHandleFactory.CreateUniqueHandler(onExitProtectionAura);
+
+      onEnterAuraDeCourageCallback = scriptHandleFactory.CreateUniqueHandler(onEnterCourageAura);
+      onExitAuraDeCourageCallback = scriptHandleFactory.CreateUniqueHandler(onExitCourageAura);
     }
   }
 }

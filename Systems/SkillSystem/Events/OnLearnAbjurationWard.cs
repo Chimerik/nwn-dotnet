@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using NWN.Core;
 
 namespace NWN.Systems
@@ -10,7 +11,8 @@ namespace NWN.Systems
       if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.AbjurationWard))
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.AbjurationWard);
 
-      NWScript.AssignCommand(player.oid.LoginCreature, () => player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetAbjurationWardEffect(2)));
+      if (!player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.AbjurationWardEffectTag && e.Creator == player.oid.LoginCreature))
+        NWScript.AssignCommand(player.oid.LoginCreature, () => player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetAbjurationWardEffect(2)));
 
       player.oid.LoginCreature.OnDamaged -= WizardUtils.OnDamageAbjurationWard;
       player.oid.LoginCreature.OnDamaged += WizardUtils.OnDamageAbjurationWard;

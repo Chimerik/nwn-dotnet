@@ -484,6 +484,8 @@ namespace NWN.Systems
         ApplyDefenseAdaptative();
         ApplyTraqueurRedoutable();
         ApplyWolfAspectAura();
+        ApplyAuraDeProtection();
+        ApplyAuraDeCourage();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

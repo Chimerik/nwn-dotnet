@@ -13,6 +13,8 @@ namespace NWN.Systems
       
       proficiencyBonus += target.GetAbilityModifier(ability) + ItemUtils.GetShieldMasterBonusSave(target, ability);
 
+      bool protectionNoStack = false;
+
       foreach(var eff in target.ActiveEffects)
       {
         switch(eff.Tag) 
@@ -27,11 +29,25 @@ namespace NWN.Systems
             }
 
             break;
+
           case EffectSystem.WildMagicBienfaitEffectTag:
 
             int bienfait = NwRandom.Roll(Utils.random, 4);
             proficiencyBonus += bienfait;
             LogUtils.LogMessage($"Magie Sauvage - Bienfait : +{bienfait}", LogUtils.LogType.Combat);
+
+            break;
+
+          case EffectSystem.ProtectionEffectTag:
+
+            if (protectionNoStack || eff.Creator is not NwCreature protector)
+              break;
+
+            int protection = protector.GetAbilityModifier(Ability.Charisma);
+            proficiencyBonus += protection;
+            LogUtils.LogMessage($"Paladin - Aura de Protection : +{protection}", LogUtils.LogType.Combat);
+
+            protectionNoStack = true;
 
             break;
         }
