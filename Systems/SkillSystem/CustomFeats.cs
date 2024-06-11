@@ -338,6 +338,9 @@
     public const int RangerMageBreakerTrueStrike = 1605;
     public const int AuraDeProtection = 1606;
     public const int AuraDeCourage = 1607;
+    public const int DevotionArmeSacree = 1608;
+    public const int DevotionSaintesRepresailles = 1609;
+    public const int DevotionRenvoiDesImpies = 1610;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -897,6 +900,8 @@
 
     public const int Paladin = 20598;
     public const int PaladinBonusAttack = 20599;
+
+    public const int PaladinSermentDevotion = 20600;
     
 
 

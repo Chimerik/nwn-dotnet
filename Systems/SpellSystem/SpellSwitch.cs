@@ -263,6 +263,16 @@ namespace NWN.Systems
           SpellSystem.WildMagicTeleportation(oCaster, spell, spellEntry, targetLocation);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
+
+        case CustomSpell.DevotionArmeSacree:
+          SpellSystem.ArmeSacree(oCaster, spell, spellEntry, target);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.DevotionRenvoiDesImpies:
+          SpellSystem.RenvoiDesImpies(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
       }
 
       if (oCaster is NwCreature castingCreature)

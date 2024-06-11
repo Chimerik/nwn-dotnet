@@ -246,6 +246,10 @@ namespace NWN.Systems
                       Ranger.HandleProfondeursLevelUp(player, 3);
                       category = Category.RangerSubClass;
                       break;
+                    case CustomSkill.PaladinSermentDevotion:
+                      Paladin.HandleDevotionLevelUp(player, 3);
+                      category = Category.PaladinSubClass;
+                      break;
                   }
 
                   player.learnableSkills.Remove(player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value);

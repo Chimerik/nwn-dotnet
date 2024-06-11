@@ -41,5 +41,7 @@
     public const int MauvaisAugure = 877;
     public const int SpiderCocoon = 878;
     public const int WildMagicTeleportation = 879;
+    public const int DevotionArmeSacree = 880;
+    public const int DevotionRenvoiDesImpies = 881;
   }
 }

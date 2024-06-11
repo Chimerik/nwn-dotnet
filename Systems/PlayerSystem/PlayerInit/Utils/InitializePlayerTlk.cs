@@ -154,6 +154,12 @@ namespace NWN.Systems
           new StrRef(14).SetPlayerOverride(oid, "Conclave des Profondeurs");
           oid.SetTextureOverride("ranger", "profondeurs");
         }
+
+        if (learnableSkills.ContainsKey(CustomSkill.PaladinSermentDevotion))
+        {
+          new StrRef(12).SetPlayerOverride(oid, "Serment de Dévotion");
+          oid.SetTextureOverride("paladin", "devotion");
+        }
       }
     }
   }

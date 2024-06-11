@@ -88,10 +88,10 @@ namespace NWN.Systems
 
         case 3:
 
-          /*player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value = CustomSkill.Paladin;
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value = CustomSkill.Paladin;
 
           if (!player.windows.TryGetValue("subClassSelection", out var value)) player.windows.Add("subClassSelection", new SubClassSelectionWindow(player));
-          else ((SubClassSelectionWindow)value).CreateWindow();*/
+          else ((SubClassSelectionWindow)value).CreateWindow();
 
           player.oid.LoginCreature.AddFeat(Feat.DivineHealth);
 

@@ -55,12 +55,12 @@ namespace NWN.Systems
       LearnableSkill playerClass = player.learnableSkills[customSkillId];
       HandlePaladinLevelUp(player, playerClass.currentLevel, playerClass);
 
-      /*switch (customSkillId)
+      switch (customSkillId)
       {
-        case CustomSkill.RangerChasseur: HandleChasseurLevelUp(player, playerClass.currentLevel); break;
-        case CustomSkill.RangerBelluaire: HandleBelluaireLevelUp(player, playerClass.currentLevel); break;
-        case CustomSkill.RangerProfondeurs: HandleProfondeursLevelUp(player, playerClass.currentLevel); break;
-      }*/
+        case CustomSkill.PaladinSermentDevotion: HandleDevotionLevelUp(player, playerClass.currentLevel); break;
+        //case CustomSkill.RangerBelluaire: HandleBelluaireLevelUp(player, playerClass.currentLevel); break;
+        //case CustomSkill.RangerProfondeurs: HandleProfondeursLevelUp(player, playerClass.currentLevel); break;
+      }
 
       if (player.oid.LoginCreature.Level > 2 || playerClass.currentLevel > 1)
       {
