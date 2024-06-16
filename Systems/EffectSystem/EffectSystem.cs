@@ -100,6 +100,10 @@ namespace NWN.Systems
       onIntervalSpiderCocoonCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalSpiderCocoon);
       onIntervalChatimentDivinCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalChatimentDivin);
 
+      onIntervalNimbeSacreeCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalNimbeSacree);
+      onIntervalCourrouxDeLaNatureCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalCourrouxDeLaNature);
+      onIntervalFrappePiegeuseCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalFrappePiegeuse);
+
       onRemoveAbjurationWardCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveAbjurationWard);
 
       onEnterAuraDeProtectionCallback = scriptHandleFactory.CreateUniqueHandler(onEnterProtectionAura);
@@ -107,6 +111,15 @@ namespace NWN.Systems
 
       onEnterAuraDeCourageCallback = scriptHandleFactory.CreateUniqueHandler(onEnterCourageAura);
       onExitAuraDeCourageCallback = scriptHandleFactory.CreateUniqueHandler(onExitCourageAura);
+
+      onEnterAuraDeDevotionCallback = scriptHandleFactory.CreateUniqueHandler(onEnterDevotionAura);
+      onExitAuraDeDevotionCallback = scriptHandleFactory.CreateUniqueHandler(onExitDevotionAura);
+
+      onEnterAuraDeGardeCallback = scriptHandleFactory.CreateUniqueHandler(onEnterGardeAura);
+      onExitAuraDeGardeCallback = scriptHandleFactory.CreateUniqueHandler(onExitGardeAura);
+
+      onEnterGardienDeLaFoiCallback = scriptHandleFactory.CreateUniqueHandler(onEnterGardienDeLaFoiAura);
+      onExitGardienDeLaFoiCallback = scriptHandleFactory.CreateUniqueHandler(onExitGardienDeLaFoiAura);
     }
   }
 }

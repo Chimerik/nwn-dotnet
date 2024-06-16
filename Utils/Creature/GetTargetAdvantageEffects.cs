@@ -34,6 +34,9 @@ namespace NWN.Systems
 
         if (GetMauvaisAugureAttackAdvantage(eff))
           return true;
+
+        if (GetCourrouxDeLaNatureAttackAdvantage(eff))
+          return true;
       }
 
       return false;

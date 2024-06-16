@@ -1,11 +1,10 @@
 ﻿using NWN.Native.API;
-using NWN.Systems;
 
 namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static bool GetTargetDisadvantageEffects(CNWSCreature target, bool rangedAttack, CNWSCombatAttackData data = null)
+    public static bool GetTargetDisadvantageEffects(CNWSCreature attacker, CNWSCreature target, bool rangedAttack, CNWSCombatAttackData data = null)
     {
       foreach (var eff in target.m_appliedEffects)
       {
@@ -25,6 +24,9 @@ namespace NWN.Systems
           return true;
 
         if (GetEspritAigleDisadvantage(eff, target, data))
+          return true;
+
+        if (GetProtectionContreLeMalEtLeBienDisadvantage(eff, attacker, target))
           return true;
       }
 

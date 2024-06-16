@@ -89,12 +89,11 @@ namespace NWN.Systems
         caster.IncrementRemainingFeatUses((Feat)CustomSkill.BersekerFrenziedStrike);
 
       if (caster.KnowsFeat((Feat)CustomSkill.BersekerRageAveugle))
-        foreach (var eff in caster.ActiveEffects)
-          switch (eff.Tag)
-          {
-            case EffectSystem.CharmEffectTag:
-            case EffectSystem.FrightenedEffectTag: caster.RemoveEffect(eff); break;
-          }
+      {
+        EffectUtils.RemoveTaggedEffect(caster, EffectSystem.CharmEffectTag, EffectSystem.FrightenedEffectTag);
+        NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, 
+          EffectSystem.GetCharmImmunityEffect(EffectSystem.BarbarianRageAveugleEffectTag), NwTimeSpan.FromRounds(10)));
+      }
 
       if (caster.KnowsFeat((Feat)CustomSkill.TotemEspritElan))
         caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.elkTotemSpeed, NwTimeSpan.FromRounds(10));

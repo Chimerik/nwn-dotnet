@@ -11,7 +11,7 @@ namespace NWN.Systems
     {
       List<NwGameObject> concentrationTargets = new();
 
-      if (oCaster is not NwCreature caster || oTarget is not NwCreature target || EffectSystem.IsCharmeImmune(target))
+      if (oCaster is not NwCreature caster || oTarget is not NwCreature target || EffectSystem.IsCharmeImmune(caster, target))
         return concentrationTargets;
 
       var previousTargetList = caster.GetObjectVariable<LocalVariableString>(CreatureUtils.RegardHypnotiqueTargetListVariable).Value.Split("_");

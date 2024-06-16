@@ -13,6 +13,7 @@
       Knockdown,
       Stealth,
       Trap,
+      Death,
 
       Invalid
     }

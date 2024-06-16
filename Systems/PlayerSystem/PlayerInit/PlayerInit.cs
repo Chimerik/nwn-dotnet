@@ -9,7 +9,6 @@ using Anvil.Services;
 using Microsoft.Data.Sqlite;
 
 using Newtonsoft.Json;
-using NWN.Core.NWNX;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace NWN.Systems
@@ -486,6 +485,10 @@ namespace NWN.Systems
         ApplyWolfAspectAura();
         ApplyAuraDeProtection();
         ApplyAuraDeCourage();
+        ApplyAuraDeDevotion();
+        ApplyAuraDeGarde();
+        ApplyPureteDeLesprit();
+        ApplySentinelleImmortelle();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

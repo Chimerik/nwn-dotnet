@@ -341,6 +341,10 @@
     public const int DevotionArmeSacree = 1608;
     public const int DevotionSaintesRepresailles = 1609;
     public const int DevotionRenvoiDesImpies = 1610;
+    public const int DevotionNimbeSacree = 1611;
+    public const int AnciensRenvoiDesInfideles = 1612;
+    public const int AnciensCourrouxDeLaNature = 1613;
+    public const int AnciensGuerisonRayonnante = 1614;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -902,6 +906,10 @@
     public const int PaladinBonusAttack = 20599;
 
     public const int PaladinSermentDevotion = 20600;
+    public const int PaladinAuraDeDevotion = 20601;
+    public const int PaladinSermentDesAnciens = 20602;
+    public const int PaladinAuraDeGarde = 20603;
+    public const int PaladinSentinelleImmortelle = 20604;
     
 
 

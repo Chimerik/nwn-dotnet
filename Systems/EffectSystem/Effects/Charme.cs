@@ -7,6 +7,8 @@ using NWN.Core.NWNX;
 using NWN.Native.API;
 using EffectSubType = Anvil.API.EffectSubType;
 using Feat = Anvil.API.Feat;
+using ImmunityType = Anvil.API.ImmunityType;
+using RacialType = Anvil.API.RacialType;
 
 namespace NWN.Systems
 {
@@ -19,24 +21,35 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurMindAffectingNegative), Effect.RunAction(onAppliedHandle: onApplyCharmCallback, onRemovedHandle: onRemoveCharmCallback));
+        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurMindAffectingDisabled), Effect.RunAction(onAppliedHandle: onApplyCharmCallback, onRemovedHandle: onRemoveCharmCallback));
         eff.Tag = CharmEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;
       }
     }
-    public static bool IsCharmeImmune(NwCreature target)
+    public static Effect GetCharmImmunityEffect(string effectTag)
     {
-      if (target.KnowsFeat((Feat)CustomSkill.BersekerRageAveugle)
-        && target.ActiveEffects.Any(e => e.Tag == BarbarianRageEffectTag))
-        return true;
+      Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurMindAffectingPositive), Effect.Immunity(ImmunityType.Charm));
+      eff.Tag = CharmEffectTag;
+      eff.SubType = EffectSubType.Supernatural;
+      return eff;
+    }
+    public static bool IsCharmeImmune(NwCreature caster, NwCreature target)
+    {
+      if (target.ActiveEffects.Any(e => e.EffectType == EffectType.Immunity && e.IntParams[1] == 28)
+        || (Utils.In(caster.Race.RacialType, RacialType.Fey, RacialType.Aberration, RacialType.Outsider, RacialType.Elemental, RacialType.Undead)
+        && target.ActiveEffects.Any(e => e.Tag == ProtectionContreLeMalEtLeBienEffectTag)))
+      {
+        caster.LoginPlayer?.SendServerMessage($"{target.Name.ColorString(ColorConstants.Cyan)} dispose d'une immunité contre les effets de charme");
+        return true; 
+      }
 
       return false;
     }
-    public static bool IsCharmeImmune(CNWSCreature target)
+    public static bool IsCharmeImmune(CNWSCreature caster, CNWSCreature target)
     {
-      if (target.m_pStats.HasFeat(CustomSkill.BersekerRageAveugle).ToBool()
-        && target.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(barbarianRageEffectExoTag).ToBool()))
+      if (target.m_appliedEffects.Any(e => (EffectTrueType)e.m_nType == EffectTrueType.Immunity && e.GetInteger(1) == 28)
+        || !Utils.In((RacialType)caster.m_pStats.m_nRace, RacialType.Fey, RacialType.Aberration, RacialType.Outsider, RacialType.Elemental, RacialType.Undead))
         return true;
 
       return false;

@@ -19,7 +19,7 @@ namespace NWN.Systems
 
     public static void OnDamageRemoveRenvoi(Anvil.API.Events.CreatureEvents.OnDamaged onDamaged)
     {
-      EffectUtils.RemoveTaggedEffect(onDamaged.Creature, RenvoiDesImpiesEffectTag);
+      EffectUtils.RemoveTaggedEffect(onDamaged.Creature, RenvoiDesImpiesEffectTag, RenvoiDesInfidelesEffectTag);
       onDamaged.Creature.OnDamaged -= OnDamageRemoveRenvoi;
     }
   }

@@ -282,19 +282,24 @@ namespace NWN.Systems
                 new NuiSpacer()
               };
 
+              List<NwSpell> readySpells = new();
+              foreach (var spell in player.learnableSpells.Values.Where(s => s.paladinSerment))
+                readySpells.Add(NwSpell.FromSpellId(spell.id));
+
               var classInfo = player.oid.LoginCreature.GetClassInfo(selectedClass);
-              int preparedSpells = CreatureUtils.GetPreparableSpellsCount(player.oid.LoginCreature, selectedClass);
+              int preparedSpells = CreatureUtils.GetPreparableSpellsCount(player.oid.LoginCreature, selectedClass)
+                + readySpells.Count;
 
               if(preparedSpells < 1)
                 preparedSpells = 1; 
               
               List<NuiElement> spellChildren = new();
-              List<NwSpell> readySpells = new();
               float layoutHeight = 0;
 
               foreach (var spellLevel in classInfo.KnownSpells.Skip(1))
                 foreach (var spell in spellLevel)
-                  readySpells.Add(spell);
+                  if(!readySpells.Contains(spell))
+                    readySpells.Add(spell);
 
               for (int i = 0; i < preparedSpells; i++)
               {
@@ -311,14 +316,22 @@ namespace NWN.Systems
                   List<NuiElement> buttonsChildren = new();
                   spellChildren.Add(new NuiColumn { Children = buttonsChildren });
 
-                  List<NuiElement> guiSpacersChildren = new();
-                  guiSpacersChildren.Add(new NuiSpacer());
+                  List<NuiElement> guiSpacersChildren = new() { new NuiSpacer() };
 
                   buttonsChildren.Add(new NuiButtonImage(spell.IconResRef) { Id = $"description_{spell.Id}", Tooltip = spell.Name.ToString(), Height = 40, Width = 40 });
                   
                   buttonsChildren.Add(new NuiRow { Children = guiSpacersChildren });
-                  guiSpacersChildren.Add(new NuiButtonImage("gui_arrow_down") { Id = $"remove_{spell.Id}", Tooltip = "Retirer", Height = 14, Width = 22 });
 
+                  string tooltip = "Retirer";
+                  bool enabled = true;
+
+                  if(player.learnableSpells[spell.Id].paladinSerment)
+                  {
+                    tooltip = "Vos sorts de serment sont toujours préparés";
+                    enabled = false;
+                  }
+
+                  guiSpacersChildren.Add(new NuiButtonImage("gui_arrow_down") { Id = $"remove_{spell.Id}", Tooltip = tooltip, Enabled = enabled, Height = 14, Width = 22 });
                   guiSpacersChildren.Add(new NuiSpacer());
 
                   readySpells.Remove(spell);               
@@ -396,8 +409,6 @@ namespace NWN.Systems
             canPrepareSpells = true;
             disabledTooltipMessage = "Sort déjà préparé";
           }
-
-         
 
           for (int i = 0; i < spellList.Count(); i++)
           {

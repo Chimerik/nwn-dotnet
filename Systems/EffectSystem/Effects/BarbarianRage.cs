@@ -10,6 +10,7 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onIntervalBarbarianRageCallback;
     public const string BarbarianRageEffectTag = "_EFFECT_BARBARIAN_RAGE";
     public static readonly Native.API.CExoString barbarianRageEffectExoTag = "_EFFECT_BARBARIAN_RAGE".ToExoString();
+    public const string BarbarianRageAveugleEffectTag = "_EFFECT_BARBARIAN_RAGE_AVEUGLE";
     public static Effect BarbarianRage
     {
       get
@@ -72,6 +73,9 @@ namespace NWN.Systems
         target.SetFeatRemainingUses((Feat)CustomSkill.TotemLienLoup, 0);
         target.OnCreatureAttack -= CreatureUtils.OnAttackLoupKnockdown;
       }
+
+      if (target.KnowsFeat((Feat)CustomSkill.BersekerRageAveugle))
+        EffectUtils.RemoveTaggedEffect(target, BarbarianRageAveugleEffectTag);
 
       if (target.KnowsFeat((Feat)CustomSkill.TotemLienOurs))
         EffectUtils.RemoveTaggedEffect(target, LienTotemOursAuraEffectTag);

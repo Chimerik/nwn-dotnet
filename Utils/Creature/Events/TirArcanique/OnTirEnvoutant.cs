@@ -21,7 +21,7 @@ namespace NWN.Systems
       {
         bool saveFailed = false;
 
-        if (!EffectSystem.IsCharmeImmune(target))
+        if (!EffectSystem.IsCharmeImmune(onDamage.Attacker, target))
         {
           SpellConfig.SavingThrowFeedback feedback = new();
           int tirDC = 8 + NativeUtils.GetCreatureProficiencyBonus(onDamage.Attacker) + onDamage.Attacker.GetAbilityModifier(Ability.Intelligence);

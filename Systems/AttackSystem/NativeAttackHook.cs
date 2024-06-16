@@ -233,9 +233,9 @@ namespace NWN.Systems
           else
             LogUtils.LogMessage("Coup critique", LogUtils.LogType.Combat);
         }
-        else if (attackRoll > 1 && totalAttack > targetAC) // L'attaque touche
+        else if (attackRoll > 1 && totalAttack >= targetAC) // L'attaque touche
         {
-          if (totalAttack + inspirationBardique + superiorityDiceBonus <= targetAC + defensiveDuellistBonus) // Echoue alors qu'elle aurait du toucher
+          if (totalAttack + inspirationBardique + superiorityDiceBonus < targetAC + defensiveDuellistBonus) // Echoue alors qu'elle aurait du toucher
           {
             if (inspirationBardique < 0)
               NativeUtils.HandleInspirationBardiqueUsed(creature, inspirationBardique, inspirationEffect, inspirationString, attackerName);
@@ -262,7 +262,7 @@ namespace NWN.Systems
         }
         else if (attackRoll > 1) // L'attaque échoue
         {
-          if (totalAttack + inspirationBardique + superiorityDiceBonus > targetAC + defensiveDuellistBonus) // Touche alors qu'elle aurait du échouer
+          if (totalAttack + inspirationBardique + superiorityDiceBonus >= targetAC + defensiveDuellistBonus) // Touche alors qu'elle aurait du échouer
           {
             if (inspirationBardique > 0)
               NativeUtils.HandleInspirationBardiqueUsed(creature, inspirationBardique, inspirationEffect, inspirationString, attackerName);

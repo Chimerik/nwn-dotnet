@@ -10,7 +10,7 @@ namespace NWN.Systems
     {
       if (!target.m_pStats.HasFeat(CustomSkill.EnchantementCharmeInstinctif).ToBool()
         || target.m_ScriptVars.GetInt(CreatureUtils.ReactionVariableExo) < 1
-        || EffectSystem.IsCharmeImmune(attacker))
+        || EffectSystem.IsCharmeImmune(target, attacker))
         return false;
 
       if(target.m_ScriptVars.GetString(CreatureUtils.CharmeInstinctifVariableExo).ToString().Split("_").Any(i => i == attacker.m_idSelf.ToString()))

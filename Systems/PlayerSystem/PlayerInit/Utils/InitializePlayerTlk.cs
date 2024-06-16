@@ -160,6 +160,11 @@ namespace NWN.Systems
           new StrRef(12).SetPlayerOverride(oid, "Serment de Dévotion");
           oid.SetTextureOverride("paladin", "devotion");
         }
+        else if(learnableSkills.ContainsKey(CustomSkill.PaladinSermentDesAnciens))
+        {
+          new StrRef(12).SetPlayerOverride(oid, "Serment des Anciens");
+          oid.SetTextureOverride("paladin", "anciens");
+        }
       }
     }
   }

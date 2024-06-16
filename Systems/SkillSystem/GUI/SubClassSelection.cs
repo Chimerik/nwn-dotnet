@@ -250,6 +250,10 @@ namespace NWN.Systems
                       Paladin.HandleDevotionLevelUp(player, 3);
                       category = Category.PaladinSubClass;
                       break;
+                    case CustomSkill.PaladinSermentDesAnciens:
+                      Paladin.HandleAnciensLevelUp(player, 3);
+                      category = Category.PaladinSubClass;
+                      break;
                   }
 
                   player.learnableSkills.Remove(player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value);

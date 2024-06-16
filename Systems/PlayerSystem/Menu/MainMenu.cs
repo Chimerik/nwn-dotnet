@@ -582,6 +582,12 @@ namespace NWN.Systems
                       player.ApplyHalfOrcEndurance();
                     }
 
+                    if (player.learnableSkills.ContainsKey(CustomSkill.SentinelleImmortelle))
+                    {
+                      player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(EffectSystem.SentinelleImmortelleVariable).Value = 1;
+                      player.ApplySentinelleImmortelle();
+                    }
+
                     if (player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.BersekerFrenziedStrike))
                       player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.BersekerFrenziedStrike, 0);
 

@@ -6,7 +6,7 @@ namespace NWN.Systems
 {
   public static partial class SpellUtils
   {
-    public static void DealSpellDamage(NwGameObject target, int casterLevel, SpellEntry spellEntry, int nbDices, NwGameObject oCaster, byte spellLevel, bool saveFailed = true, bool noLogs = false)
+    public static int DealSpellDamage(NwGameObject target, int casterLevel, SpellEntry spellEntry, int nbDices, NwGameObject oCaster, byte spellLevel, bool saveFailed = true, bool noLogs = false)
     {
       NwSpell spell = NwSpell.FromSpellId(spellEntry.RowIndex);
       int damage = 0;
@@ -62,6 +62,7 @@ namespace NWN.Systems
         damage = HandleSpellEvasion(targetCreature, damage, spellEntry.savingThrowAbility, saveFailed, spell.Id);
         damage = ItemUtils.GetShieldMasterReducedDamage(targetCreature, damage, saveFailed, spellEntry.savingThrowAbility);
         damage = WizardUtils.GetAbjurationReducedDamage(targetCreature, damage);
+        damage = PaladinUtils.GetAuraDeGardeReducedDamage(targetCreature, damage);
         damage = HandleResistanceBypass(targetCreature, isElementalist, damage, spellEntry);
       }
 
@@ -78,6 +79,8 @@ namespace NWN.Systems
 
       if(moissonDuFielTriggered && target.HP < 1)
         WizardUtils.HandleMoissonDuFiel(oCaster, spell, spellLevel);
+
+      return damage;
     }
   }
 }

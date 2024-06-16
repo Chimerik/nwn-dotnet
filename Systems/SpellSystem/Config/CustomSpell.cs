@@ -2,6 +2,7 @@
 {
   public class CustomSpell
   {
+    public const int ProtectionContreLeMalEtLeBien = 321;
     public const int Calligraphie = 840;
     public const int Sprint = 841;    
     public const int Disengage = 842;    
@@ -43,5 +44,10 @@
     public const int WildMagicTeleportation = 879;
     public const int DevotionArmeSacree = 880;
     public const int DevotionRenvoiDesImpies = 881;
+    public const int LueurDespoir = 882;
+    public const int GardienDeLaFoi = 883;
+    public const int AnciensRenvoiDesInfideles = 884;
+    public const int AnciensCourrouxDeLaNature = 885;
+    public const int FrappePiegeuse = 886;
   }
 }

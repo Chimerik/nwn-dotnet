@@ -31,6 +31,9 @@ namespace NWN.Systems
 
         if (GetProvocationDisadvantage(eff, targetId.m_idSelf))
           return true;
+
+        if (GetCourrouxDeLaNatureAttackDisadvantage(eff))
+          return true;
       }
 
       return false;

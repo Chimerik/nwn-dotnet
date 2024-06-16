@@ -39,14 +39,13 @@ namespace NWN.Systems
       hideFromRanger = entry.GetBool("HideFromRanger").GetValueOrDefault(false);
 
       StrRef nameEntry = entry.GetStrRef("Name").GetValueOrDefault(StrRef.FromCustomTlk(0));
-
-      if (nameEntry.Id > 0 && string.IsNullOrEmpty(nameEntry.ToString()))
-        nameEntry.Override = StringUtils.ConvertToUTF8(entry.GetString("Label"));
-
       googleDocId = entry.GetString("Description");
 
       if (!string.IsNullOrEmpty(googleDocId))
+      {
+        nameEntry.Override = StringUtils.ConvertToUTF8(entry.GetString("Label"));
         tlkEntry = entry.GetStrRef("SpellDesc").GetValueOrDefault(StrRef.FromCustomTlk(0));
+      }
     }
   }
 

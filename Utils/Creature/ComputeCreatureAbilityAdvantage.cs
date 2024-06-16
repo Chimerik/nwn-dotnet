@@ -56,13 +56,29 @@ namespace NWN.Systems
           break;
 
         case Ability.Intelligence:
-        case Ability.Wisdom:
         case Ability.Charisma:
 
           if (spellEntry is not null && (creature.Race.Id == CustomRace.RockGnome || creature.Race.Id == CustomRace.ForestGnome
             || creature.Race.Id == CustomRace.DeepGnome))
           {
             LogUtils.LogMessage("Avantage - Gnome vs jet mental", LogUtils.LogType.Combat);
+            return true;
+          }
+
+          break;
+
+        case Ability.Wisdom:
+
+          if (spellEntry is not null && (creature.Race.Id == CustomRace.RockGnome || creature.Race.Id == CustomRace.ForestGnome
+            || creature.Race.Id == CustomRace.DeepGnome))
+          {
+            LogUtils.LogMessage("Avantage - Gnome vs jet mental", LogUtils.LogType.Combat);
+            return true;
+          }
+
+          if (creature.ActiveEffects.Any(e => e.Tag == EffectSystem.LueurDespoirEffectTag))
+          {
+            LogUtils.LogMessage("Avantage - Lueur d'espoir vs jet sagesse", LogUtils.LogType.Combat);
             return true;
           }
 
@@ -127,6 +143,16 @@ namespace NWN.Systems
           }
 
           break;
+
+        case SpellEffectType.Death:
+
+          if (creature.ActiveEffects.Any(e => e.Tag == EffectSystem.LueurDespoirEffectTag))
+          {
+            LogUtils.LogMessage("Avantage - Lueur d'espoir vs jet contre la mort", LogUtils.LogType.Combat);
+            return true;
+          }
+
+          break;
       }
 
       if (oCaster is NwCreature caster)
@@ -141,6 +167,12 @@ namespace NWN.Systems
         else if (creature.KnowsFeat((Feat)CustomSkill.TueurDeMage) && creature.DistanceSquared(caster) < 7)
         {
           LogUtils.LogMessage("Avantage - Tueur de mage", LogUtils.LogType.Combat);
+          return true;
+        }
+
+        if (spellEntry is not null && Utils.In(caster.Race.RacialType, RacialType.Undead, RacialType.Outsider) && creature.ActiveEffects.Any(e => e.Tag == EffectSystem.NimbeSacreeAuraEffectTag))
+        {
+          LogUtils.LogMessage("Avantage - Nimbe Sacrée : Résistance aux sorts des extérieurs et mort-vivants", LogUtils.LogType.Combat);
           return true;
         }
       }

@@ -52,6 +52,11 @@ namespace NWN.Systems
               LogUtils.LogMessage("Désavantage - Bouclier ou Armure non maîtrisé", LogUtils.LogType.Combat);
               return true;
             }
+            else if (EffectSystem.CourrouxDeLaNatureEffectTag == eff.Tag)
+            {
+              LogUtils.LogMessage("Désavantage - Courroux de la Nature", LogUtils.LogType.Combat);
+              return true;
+            }
 
             break;
 

@@ -1,4 +1,5 @@
 ﻿using Anvil.API;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -19,6 +20,8 @@ namespace NWN.Systems
         switch (NwSpell.FromSpellId(spellEntry.RowIndex).Id)
         {
           case CustomSpell.FaerieFire: SpellSystem.ApplyFaerieFireEffect(target, spellEntry); return true;
+          case CustomSpell.AnciensCourrouxDeLaNature: NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.CourrouxDeLaNature, NwTimeSpan.FromRounds(10))); return true;
+          case CustomSpell.FrappePiegeuse: NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.FrappePiegeuse, NwTimeSpan.FromRounds(10))); return true;
           case CustomSpell.TirPerforant: 
 
             if(oCaster is NwCreature caster)

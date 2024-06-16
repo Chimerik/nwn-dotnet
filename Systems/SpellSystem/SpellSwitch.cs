@@ -18,7 +18,7 @@ namespace NWN.Systems
           SpellSystem.AcidSplash(oCaster, spell, spellEntry, target, targetLocation, castingClass);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
-
+        
         case Spell.ElectricJolt:
           SpellSystem.ElectricJolt(oCaster, spell, spellEntry, target, castingClass);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
@@ -99,6 +99,11 @@ namespace NWN.Systems
 
       switch (spell.Id)
       {
+        case CustomSpell.ProtectionContreLeMalEtLeBien:
+          concentrationTargets.AddRange(SpellSystem.ProtectionContreLeMalEtLeBien(oCaster, spell, spellEntry, target));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.BladeWard:
           SpellSystem.BladeWard(oCaster, spell, spellEntry, target);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
@@ -271,6 +276,26 @@ namespace NWN.Systems
 
         case CustomSpell.DevotionRenvoiDesImpies:
           SpellSystem.RenvoiDesImpies(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.AnciensRenvoiDesInfideles:
+          SpellSystem.RenvoiDesInfideles(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.LueurDespoir:
+          concentrationTargets.AddRange(SpellSystem.LueurDespoir(oCaster, spell, spellEntry, targetLocation));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.AnciensCourrouxDeLaNature:
+          SpellSystem.CourrouxDeLaNature(oCaster, spell, spellEntry, target);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.FrappePiegeuse:
+          concentrationTargets.AddRange(SpellSystem.FrappePiegeuse(oCaster, spell, spellEntry));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
       }

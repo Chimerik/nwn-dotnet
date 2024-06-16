@@ -34,7 +34,7 @@ namespace NWN.Systems
         if (GetAttackerDisadvantageEffects(attacker, target, attackStat))
           return true;
 
-        if (GetTargetDisadvantageEffects(target, rangedAttack, attackData))
+        if (GetTargetDisadvantageEffects(attacker, target, rangedAttack, attackData))
           return true;
 
         if (GetInvisibleTargetDisadvantage(attacker, target))
@@ -61,7 +61,7 @@ namespace NWN.Systems
         if (GetAttackerDisadvantageEffects(attacker, target, spellCastingAbility))
           return true;
 
-        if (GetTargetDisadvantageEffects(target, rangedSpell))
+        if (GetTargetDisadvantageEffects(attacker, target, rangedSpell))
           return true;
 
         if (GetInvisibleTargetDisadvantage(attacker, target))
