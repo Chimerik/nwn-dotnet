@@ -211,6 +211,48 @@ namespace NWN.Systems
 
           break;
 
+        case 17:
+
+          if (player.learnableSpells.TryGetValue((int)Spell.FlameStrike, out var learnable17))
+          {
+            learnable17.learntFromClasses.Add(CustomClass.Paladin);
+            learnable17.paladinSerment = true;
+
+            if (learnable17.currentLevel < 1)
+              learnable17.LevelUp(player);
+          }
+          else
+          {
+            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.FlameStrike], CustomClass.Paladin) { paladinSerment = true };
+            player.learnableSpells.Add(learnableSpell.id, learnableSpell);
+            learnableSpell.LevelUp(player);
+          }
+
+          NwSpell spell17 = NwSpell.FromSpellType(Spell.FlameStrike);
+          int spellLevel17 = spell17.GetSpellLevelForClass(ClassType.Paladin);
+          player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).KnownSpells[spellLevel17].Add(spell17);
+
+          if (player.learnableSpells.TryGetValue(CustomSpell.Communion, out learnable17))
+          {
+            learnable17.learntFromClasses.Add(CustomClass.Paladin);
+            learnable17.paladinSerment = true;
+
+            if (learnable17.currentLevel < 1)
+              learnable17.LevelUp(player);
+          }
+          else
+          {
+            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[CustomSpell.Communion], CustomClass.Paladin) { paladinSerment = true };
+            player.learnableSpells.Add(learnableSpell.id, learnableSpell);
+            learnableSpell.LevelUp(player);
+          }
+
+          spell17 = NwSpell.FromSpellId(CustomSpell.Communion);
+          spellLevel17 = spell17.GetSpellLevelForClass(ClassType.Paladin);
+          player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).KnownSpells[spellLevel17].Add(spell17);
+
+          break;
+
         case 18:
 
           EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.AuraDeDevotionEffectTag);

@@ -25,6 +25,7 @@ namespace NWN.Systems
         creature.SetFeatRemainingUses(Feat.BarbarianRage, 6);
 
       creature.GetObjectVariable<PersistentVariableInt>("_RAGE_IMPLACABLE_DD").Value = 10;
+      creature.SetFeatRemainingUses((Feat)CustomSkill.TotemLienElan, 0);
     }
   }
 }

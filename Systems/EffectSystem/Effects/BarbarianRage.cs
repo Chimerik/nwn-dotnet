@@ -130,7 +130,7 @@ namespace NWN.Systems
     private static ScriptHandleResult OnIntervalBarbarianRage(CallInfo callInfo)
     {
       EffectRunScriptEvent eventData = new EffectRunScriptEvent();
-
+      
       if (eventData.EffectTarget is not NwCreature target)
         return ScriptHandleResult.Handled;
 

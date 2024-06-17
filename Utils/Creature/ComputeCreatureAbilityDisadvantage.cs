@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using static NWN.Systems.SpellConfig;
 
 namespace NWN.Systems
@@ -7,9 +8,19 @@ namespace NWN.Systems
   {
     public static bool ComputeCreatureAbilityDisadvantage(NwCreature creature, Ability ability, SpellEntry spellEntry = null, SpellEffectType effectType = SpellEffectType.Invalid, NwGameObject oCaster = null)
     {
-      if (oCaster is NwCreature caster && caster.KnowsFeat((Feat)CustomSkill.ArcaneTricksterMagicalAmbush) && !creature.IsCreatureSeen(caster))
-        return true;
+      if (oCaster is NwCreature caster)
+      {
+        if (caster.KnowsFeat((Feat)CustomSkill.ArcaneTricksterMagicalAmbush) && !creature.IsCreatureSeen(caster))
+          return true;
 
+        if (spellEntry is not null)
+        { 
+          byte paladinSpellLevel = NwSpell.FromSpellId(spellEntry.RowIndex).GetSpellLevelForClass(ClassType.Paladin);
+
+          if (paladinSpellLevel > 0 && paladinSpellLevel < 10 && creature.ActiveEffects.Any(e => e.Tag == EffectSystem.ChampionAntiqueEffectTag && e.Creator == caster))
+            return true;
+        }
+      }
       foreach (var eff in creature.ActiveEffects)
       {
         switch(eff.Tag)

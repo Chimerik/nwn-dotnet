@@ -1,0 +1,52 @@
+﻿using Anvil.API;
+using Anvil.API.Events;
+using Anvil.Services;
+
+namespace NWN.Systems
+{
+  public partial class EffectSystem
+  {
+    public const string CroissanceVegetaleAoEEffectTag = "_CROISSANCE_VEGETALE_AOE_EFFECT";
+    public const string CroissanceVegetaleEffectTag = "_CROISSANCE_VEGETALE_EFFECT";
+    private static ScriptCallbackHandle onEnterCroissanceVegetaleCallback;
+    private static ScriptCallbackHandle onExitCroissanceVegetaleCallback;
+    public static Effect CroissanceVegetaleAoE
+    {
+      get
+      {
+        Effect eff = Effect.AreaOfEffect((PersistentVfxType)199, onEnterHandle: onEnterCroissanceVegetaleCallback, onExitHandle: onExitCroissanceVegetaleCallback);
+        eff.Tag = CroissanceVegetaleAoEEffectTag;
+        eff.SubType = EffectSubType.Supernatural;
+        return eff;
+      }
+    }
+    public static Effect CroissanceVegetale
+    {
+      get
+      {
+        Effect eff = Effect.MovementSpeedDecrease(75);
+        eff.Tag = CroissanceVegetaleEffectTag;
+        eff.SubType = EffectSubType.Supernatural;
+        return eff;
+      }
+    }
+    private static ScriptHandleResult onEnterCroissanceVegetale(CallInfo callInfo)
+    {
+      if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) || eventData.Entering is not NwCreature entering)
+        return ScriptHandleResult.Handled;
+
+      entering.ApplyEffect(EffectDuration.Permanent, CroissanceVegetale);
+
+      return ScriptHandleResult.Handled;
+    }
+    private static ScriptHandleResult onExitCroissanceVegetale(CallInfo callInfo)
+    {
+      if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnExit eventData) || eventData.Exiting is not NwCreature exiting)
+        return ScriptHandleResult.Handled;
+
+      EffectUtils.RemoveTaggedEffect(exiting, CroissanceVegetaleEffectTag);
+
+      return ScriptHandleResult.Handled;
+    }
+  }
+}

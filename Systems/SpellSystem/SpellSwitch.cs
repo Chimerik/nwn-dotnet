@@ -95,6 +95,21 @@ namespace NWN.Systems
           SpellSystem.BurningHands(oCaster, spell, spellEntry, target, castingClass, targetLocation);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
+
+        case Spell.FlameStrike:
+          SpellSystem.FlameStrike(oCaster, spell, spellEntry, target, castingClass, targetLocation);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.Stoneskin:
+          concentrationTargets.AddRange(SpellSystem.PeauDePierre(oCaster, spell, spellEntry, target));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.IceStorm:
+          SpellSystem.TempeteDeGrele(oCaster, spell, spellEntry, target, castingClass, targetLocation);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
       }
 
       switch (spell.Id)
@@ -214,6 +229,16 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case CustomSpell.CommunionAvecLaNature:
+          SpellSystem.CommunionAvecLaNature(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.PassageParLesArbres:
+          SpellSystem.PassageParLesArbres(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.HurlementGalvanisant:
           SpellSystem.HurlementGalvanisant(oCaster, spell, spellEntry);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
@@ -296,6 +321,35 @@ namespace NWN.Systems
 
         case CustomSpell.FrappePiegeuse:
           concentrationTargets.AddRange(SpellSystem.FrappePiegeuse(oCaster, spell, spellEntry));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.Communion:
+          SpellSystem.Communion(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.FouleeBrumeuse:
+          SpellSystem.FouleeBrumeuse(oCaster, spell, spellEntry, targetLocation);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.RayonDeLune:
+          concentrationTargets.AddRange(SpellSystem.RayonDeLune(oCaster, spell, spellEntry, target));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.ProtectionContreLacide:
+        case CustomSpell.ProtectionContreLeFroid:
+        case CustomSpell.ProtectionContreLeFeu:
+        case CustomSpell.ProtectionContreLelectricite:
+        case CustomSpell.ProtectionContreLeTonnerre:
+          concentrationTargets.AddRange(SpellSystem.ProtectionContreLenergie(oCaster, spell, spellEntry, target));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.CroissanceVegetale:
+          concentrationTargets.AddRange(SpellSystem.CroissanceVegetale(oCaster, spell, spellEntry, targetLocation));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
       }

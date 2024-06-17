@@ -3,7 +3,7 @@ using Anvil.API;
 
 namespace NWN.Systems
 {
-  public static partial class WizardUtils
+  public static partial class PaladinUtils
   {
     public static int GetAuraDeGardeReducedDamage(NwCreature target, int damage)
     {

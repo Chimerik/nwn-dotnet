@@ -582,7 +582,7 @@ namespace NWN.Systems
                       player.ApplyHalfOrcEndurance();
                     }
 
-                    if (player.learnableSkills.ContainsKey(CustomSkill.SentinelleImmortelle))
+                    if (player.learnableSkills.ContainsKey(CustomSkill.PaladinSentinelleImmortelle))
                     {
                       player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(EffectSystem.SentinelleImmortelleVariable).Value = 1;
                       player.ApplySentinelleImmortelle();

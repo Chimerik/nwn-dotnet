@@ -1,6 +1,8 @@
 ﻿using System.Linq;
 using System.Numerics;
 using Anvil.API;
+using Anvil.Services;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -14,7 +16,10 @@ namespace NWN.Systems
         caster.LoginPlayer?.SendServerMessage("Veuillez choisir une cible à plus de 9 m", ColorConstants.Orange);
       }
       else
+      {
         caster.LoginPlayer?.SendServerMessage("Vous devez être sous l'effet de Rage pour utiliser cette attaque", ColorConstants.Red);
+        caster.SetFeatRemainingUses((Feat)CustomSkill.TotemLienElan, 0);
+      }
     }
     private static async void SelectStampedeTarget(Anvil.API.Events.ModuleEvents.OnPlayerTarget selection)
     {
@@ -30,17 +35,24 @@ namespace NWN.Systems
       }
 
       EffectUtils.RemoveTaggedEffect(caster, EffectSystem.SprintEffectTag);
+      caster.SetFeatRemainingUses((Feat)CustomSkill.TotemLienElan, 0);
 
       Location target = Location.Create(selection.Player.LoginCreature.Area, selection.TargetPosition, selection.Player.LoginCreature.Rotation);
 
       _ = caster.ClearActionQueue();
       _ = caster.AddActionToQueue(() => caster.ActionForceMoveTo(target, true));
 
-      caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.totemLienElanAura, NwTimeSpan.FromRounds(1));
-      StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Lien de l'Elan", ColorConstants.Red, true);
+      NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.totemLienElanAura, NwTimeSpan.FromRounds(1)));
+      StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Lien de l'Elan", ColorConstants.Red, true, true);
 
       await NwTask.NextFrame();
       caster.Commandable = false;
+
+
+      await NwTask.WaitUntil(() => caster is null || caster.CurrentAction != Action.MoveToPoint);
+      
+      if(caster is not null)
+        EffectUtils.RemoveTaggedEffect(caster, EffectSystem.LienTotemElanAuraEffectTag);
     }
   }
 }

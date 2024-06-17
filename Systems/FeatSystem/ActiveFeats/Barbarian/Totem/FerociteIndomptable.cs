@@ -8,7 +8,10 @@ namespace NWN.Systems
     private static void FerociteIndomptable(NwCreature caster)
     {
       if (caster.ActiveEffects.Any(e => e.Tag == EffectSystem.BarbarianRageEffectTag))
+      {
         caster.ApplyEffect(EffectDuration.Instant, Effect.Heal(NwRandom.Roll(Utils.random, 8) + caster.GetAbilityModifier(Ability.Constitution)));
+        caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHealingS));
+      }
       else
         caster.LoginPlayer?.SendServerMessage("Utilisable uniquement sous les effets de Rage du Barbare", ColorConstants.Red);
 

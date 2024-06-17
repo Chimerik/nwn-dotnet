@@ -51,8 +51,8 @@ namespace NWN.Systems
           damage = WizardUtils.GetAbjurationReducedDamage(targetCreature, damage);
         }
 
-        NWScript.AssignCommand(onUsed.Placeable, () => target.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(spellEntry.damageVFX), Effect.Damage(damage, spellEntry.damageType))));
-        LogUtils.LogMessage($"Dégâts sur {target.Name} : {spellEntry.numDice}d{spellEntry.damageDice} (caster lvl {6}) = {damage} {spellEntry.damageType}", LogUtils.LogType.Combat);
+        NWScript.AssignCommand(onUsed.Placeable, () => target.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(spellEntry.damageVFX), Effect.Damage(damage, DamageType.Fire))));
+        LogUtils.LogMessage($"Dégâts sur {target.Name} : {spellEntry.numDice}d{spellEntry.damageDice} (caster lvl {6}) = {damage} {DamageType.Fire}", LogUtils.LogType.Combat);
 
       }
     }

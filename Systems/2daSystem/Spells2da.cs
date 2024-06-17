@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Collections.Generic;
+using Anvil.API;
 using Anvil.Services;
 
 namespace NWN.Systems
@@ -9,7 +10,7 @@ namespace NWN.Systems
     public StrRef tlkEntry { get; private set; }
     public string googleDocId { get; private set; }
     public int aoESize { get; private set; }
-    public DamageType damageType { get; private set; }
+    public List<DamageType> damageType { get; private set; }
     public int damageDice { get; private set; }
     public int numDice { get; private set; }
     public VfxType damageVFX { get; private set; }
@@ -25,7 +26,17 @@ namespace NWN.Systems
     public void InterpretEntry(TwoDimArrayEntry entry)
     {
       aoESize = entry.GetInt("TargetSizeX").GetValueOrDefault(0);
-      damageType = (DamageType)entry.GetInt("DamageType").GetValueOrDefault(4096);
+      //damageType = (DamageType)entry.GetInt("DamageType").GetValueOrDefault(4096);
+
+      damageType = new();
+      string damageTypeString = entry.GetString("DamageType");
+
+      if (string.IsNullOrEmpty(damageTypeString))
+        damageType.Add(DamageType.BaseWeapon);
+      else
+        foreach(var damage in damageTypeString.Split(";"))
+          damageType.Add((DamageType)int.Parse(damage));
+
       damageVFX = (VfxType)entry.GetInt("VfxType").GetValueOrDefault(-1);
       damageDice = entry.GetInt("DamageDice").GetValueOrDefault(0);
       numDice = entry.GetInt("NumDice").GetValueOrDefault(0);

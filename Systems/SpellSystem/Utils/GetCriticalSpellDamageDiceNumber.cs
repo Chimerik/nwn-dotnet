@@ -11,10 +11,10 @@ namespace NWN.Systems
       if (oCaster is not NwCreature caster)
         return numDice;
 
-      if (caster.KnowsFeat((Feat)CustomSkill.Broyeur) && spell.damageType == DamageType.Bludgeoning)
+      if (caster.KnowsFeat((Feat)CustomSkill.Broyeur) && spell.damageType.Contains(DamageType.Bludgeoning))
         numDice += 1;
 
-      if (caster.KnowsFeat((Feat)CustomSkill.Empaleur) && spell.damageType == DamageType.Piercing)
+      if (caster.KnowsFeat((Feat)CustomSkill.Empaleur) && spell.damageType.Contains(DamageType.Piercing))
         numDice += 1;
 
       return numDice;

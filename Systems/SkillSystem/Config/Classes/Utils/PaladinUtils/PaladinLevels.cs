@@ -38,9 +38,12 @@ namespace NWN.Systems
 
           foreach(var spell in NwRuleset.Spells.Where(s => s.GetSpellLevelForClass(ClassType.Paladin) > 0 && s.GetSpellLevelForClass(ClassType.Paladin) < 10))
           {
-            if (Utils.In(spell.Id, CustomSpell.GardienDeLaFoi, CustomSpell.LueurDespoir, CustomSpell.FrappePiegeuse)) // ces sorts ne font pas partie du package de paladin mais peuvent être appris via le serment
-              continue;
-
+            if (Utils.In(spell.Id, CustomSpell.GardienDeLaFoi, CustomSpell.LueurDespoir, CustomSpell.FrappePiegeuse, 
+              CustomSpell.FouleeBrumeuse, CustomSpell.RayonDeLune, (int)Spell.ProtectionFromElements, CustomSpell.CroissanceVegetale,
+              (int)Spell.Stoneskin, (int)Spell.IceStorm, CustomSpell.CommunionAvecLaNature, CustomSpell.PassageParLesArbres, 
+              (int)Spell.FlameStrike, CustomSpell.Communion)) 
+                continue;// ces sorts ne font pas partie du package de paladin mais peuvent être appris via le serment
+            
             if (player.learnableSpells.TryGetValue(spell.Id, out var learnable))
             {
               learnable.learntFromClasses.Add((int)ClassType.Paladin);

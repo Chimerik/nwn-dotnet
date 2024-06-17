@@ -726,9 +726,10 @@ namespace NWN.Systems
         if (onCombatStatusChange.CombatStatus == CombatStatus.ExitCombat)
           return;
 
-        Effect effPC = onCombatStatusChange.Player.ControlledCreature.ActiveEffects.FirstOrDefault(e => e.EffectType == EffectType.CutsceneGhost);
-        if (effPC != null)
-          onCombatStatusChange.Player.ControlledCreature.RemoveEffect(effPC);
+        NwCreature creature = onCombatStatusChange.Player.ControlledCreature;
+
+        if (!creature.ActiveEffects.Any(e => e.Tag == EffectSystem.LienTotemElanAuraEffectTag))
+          EffectUtils.RemoveEffectType(creature, EffectType.CutsceneGhost);
       }
       private void HandleMapPinAdded(OnMapPinAddPin onAdd)
       {

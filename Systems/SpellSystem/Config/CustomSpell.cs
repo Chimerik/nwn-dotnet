@@ -28,7 +28,7 @@
     public const int PresenceIntimidante = 863;
     public const int SensAnimal = 864;
     public const int HurlementGalvanisant = 865;
-    public const int CommunionAvecLaNature = 865;
+    public const int CommunionAvecLaNature = 866;
     public const int Stealth = 867;
     public const int Serenity = 868;
     public const int PassageSansTrace = 869;
@@ -49,5 +49,15 @@
     public const int AnciensRenvoiDesInfideles = 884;
     public const int AnciensCourrouxDeLaNature = 885;
     public const int FrappePiegeuse = 886;
+    public const int Communion = 887;
+    public const int FouleeBrumeuse = 888;
+    public const int RayonDeLune = 889;
+    public const int ProtectionContreLacide = 890;
+    public const int ProtectionContreLeFroid = 891;
+    public const int ProtectionContreLeFeu = 892;
+    public const int ProtectionContreLelectricite = 893;
+    public const int ProtectionContreLeTonnerre = 894;
+    public const int CroissanceVegetale = 895;
+    public const int PassageParLesArbres = 896;    
   }
 }

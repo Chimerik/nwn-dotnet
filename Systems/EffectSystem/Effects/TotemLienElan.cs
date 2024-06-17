@@ -37,18 +37,21 @@ namespace NWN.Systems
         return ScriptHandleResult.Handled;
       }
 
+      SavingThrowFeedback feedback = new();
       int DC = 8 + protector.GetAbilityModifier(Ability.Strength) + NativeUtils.GetCreatureProficiencyBonus(protector);
-      int targetRoll = entering.GetAbilityModifier(Ability.Strength) + Utils.RollAdvantage(CreatureUtils.GetCreatureAbilityAdvantage(entering, Ability.Strength, effectType: SpellEffectType.Knockdown, caster: protector));
-      
-      if(PlayerSystem.Players.TryGetValue(entering, out PlayerSystem.Player player) && 
-        player.learnableSkills.TryGetValue(CustomSkill.StrengthSavesProficiency, out LearnableSkill strSave) && strSave.currentLevel > 0)
-          targetRoll += NativeUtils.GetCreatureProficiencyBonus(entering);
+      int advantage = CreatureUtils.GetCreatureAbilityAdvantage(entering, Ability.Strength, effectType: SpellEffectType.Knockdown, caster:protector);
+      int score = CreatureUtils.GetSkillScore(entering, Ability.Strength, CustomSkill.AthleticsProficiency);
+      int roll = CreatureUtils.GetSkillRoll(entering, CustomSkill.AthleticsProficiency, advantage, score, DC);
+      int totalSave = roll + score;
+      bool saveFailed = totalSave < DC;
 
-      if (targetRoll > DC)
-        return ScriptHandleResult.Handled;
+      CreatureUtils.SendSkillCheckFeedback(protector, entering, roll, score, advantage, DC, totalSave, saveFailed, "Athlétisme");
 
-      NWScript.AssignCommand(protector, () => entering.ApplyEffect(EffectDuration.Temporary, knockdown, NwTimeSpan.FromRounds(2)));
-      NWScript.AssignCommand(protector, () => entering.ApplyEffect(EffectDuration.Instant, Effect.Damage(NwRandom.Roll(Utils.random, 12) + protector.GetAbilityModifier(Ability.Strength), DamageType.Bludgeoning)));
+      if (saveFailed)
+      {
+        NWScript.AssignCommand(protector, () => entering.ApplyEffect(EffectDuration.Temporary, knockdown, NwTimeSpan.FromRounds(2)));
+        NWScript.AssignCommand(protector, () => entering.ApplyEffect(EffectDuration.Instant, Effect.Damage(NwRandom.Roll(Utils.random, 12) + protector.GetAbilityModifier(Ability.Strength), DamageType.Bludgeoning)));
+      }
 
       return ScriptHandleResult.Handled;
     }

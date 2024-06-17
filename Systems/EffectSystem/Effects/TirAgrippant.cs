@@ -38,7 +38,7 @@ namespace NWN.Systems
         int score = CreatureUtils.GetSkillScore(target, Ability.Strength, CustomSkill.AthleticsProficiency);
         int roll = CreatureUtils.GetSkillRoll(target, CustomSkill.AthleticsProficiency, advantage, score, tirDC);        
         int totalSave = roll + score;
-        bool saveFailed = totalSave <= tirDC;
+        bool saveFailed = totalSave < tirDC;
 
         CreatureUtils.SendSkillCheckFeedback(attacker, target, roll, score, advantage, tirDC, totalSave, saveFailed, "Athlétisme");
 

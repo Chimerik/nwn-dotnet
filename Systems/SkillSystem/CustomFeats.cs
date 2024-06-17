@@ -345,6 +345,7 @@
     public const int AnciensRenvoiDesInfideles = 1612;
     public const int AnciensCourrouxDeLaNature = 1613;
     public const int AnciensGuerisonRayonnante = 1614;
+    public const int AnciensChampionAntique = 1615;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;

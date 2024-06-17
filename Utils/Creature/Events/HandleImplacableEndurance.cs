@@ -12,7 +12,7 @@ namespace NWN.Systems
         //onDamage.Creature.ApplyEffect(EffectDuration.Temporary, Effect.TemporaryHitpoints(onDamage.DamageAmount - onDamage.Creature.HP + 1), TimeSpan.FromSeconds(6));
         onDamage.Creature.HP = 1;
 
-        EffectUtils.RemoveTaggedEffect(onDamage.Creature, EffectSystem.EnduranceImplacableEffectTag;
+        EffectUtils.RemoveTaggedEffect(onDamage.Creature, EffectSystem.EnduranceImplacableEffectTag);
 
         if (onDamage.Creature.KnowsFeat((Feat)CustomSkill.FureurOrc)
           && onDamage.Creature.CurrentAction == Action.AttackObject
