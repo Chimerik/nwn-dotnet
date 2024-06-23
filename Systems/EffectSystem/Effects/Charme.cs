@@ -6,7 +6,6 @@ using NWN.Core;
 using NWN.Core.NWNX;
 using NWN.Native.API;
 using EffectSubType = Anvil.API.EffectSubType;
-using Feat = Anvil.API.Feat;
 using ImmunityType = Anvil.API.ImmunityType;
 using RacialType = Anvil.API.RacialType;
 
@@ -69,8 +68,6 @@ namespace NWN.Systems
         target.OnDamaged -= OnDamageCharmed;
         target.OnDamaged += OnDamageCharmed;
 
-        // TODO => On damage par l'origine de l'effet, alors on dispel l'effet !
-
         EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "on_charm_attack", target);
         EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "on_charm_attack", target);
       }
@@ -96,7 +93,7 @@ namespace NWN.Systems
         onDamage.Creature.RemoveEffect(eff);
     }
     [ScriptHandler("on_charm_attack")]
-    private void OnCombatEnter(CallInfo callInfo)
+    private void OnCharmAttack(CallInfo callInfo)
     {
       if (callInfo.ObjectSelf is not NwCreature creature)
         return;

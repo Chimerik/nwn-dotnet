@@ -43,7 +43,7 @@ namespace NWN.Systems
       string damageString = $"{onDamage.DamagedBy.Name.ColorString(ColorConstants.Cyan)} {damageTarget} {onDamage.Target.Name.ColorString(ColorConstants.Cyan)} : " +
         $"{totalDamage}";
 
-      if(damageString.Length > 0)
+      if(damageString.Length > 1)
         damageString += $" ({specialDamageString})";
 
       foreach (var player in onDamage.Target.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 35, false))

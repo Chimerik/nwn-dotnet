@@ -25,6 +25,9 @@ namespace NWN
       int attackRoll = 0;
       int tempAttackRoll;
 
+      if (displayLogs)
+        LogUtils.LogMessage($"avantage : {advantage}", LogUtils.LogType.Combat);
+
       if (advantage == 0)
         attackRoll = NwRandom.Roll(random, 20);
       else if (advantage > 0)
@@ -455,7 +458,7 @@ namespace NWN
       { "areaLoadScreenEditor", new MainMenuCommand("Modifier l'écran de chargement de la zone", "", CommandRank.DM) },
       { "reboot", new MainMenuCommand("Reboot", "", CommandRank.Admin) },
       { "refill", new MainMenuCommand("Refill ressources", "", CommandRank.Admin) },
-      { "instantLearn", new MainMenuCommand("Instant Learn (alpha)", "", CommandRank.Public) }, // TODO : Ajouter à OnExamine Player => Temporairement accessible à tout le monde pendant la BETA
+      { "instantLearn", new MainMenuCommand("Activer/Désactiver Instant Learn (alpha)", "", CommandRank.Public) }, // TODO : Ajouter à OnExamine Player => Temporairement accessible à tout le monde pendant la BETA
       { "instantCraft", new MainMenuCommand("Instant Craft", "", CommandRank.Admin) }, // TODO : Ajouter à OnExamine Player
       { "giveResources", new MainMenuCommand("Don de ressources", "", CommandRank.Admin) }, // TODO : Ajouter à OnExamine Player
       { "giveSkillbook", new MainMenuCommand("Don de skillbook", "", CommandRank.Admin) }, // TODO : Ajouter à OnExamine Player

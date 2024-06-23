@@ -13,6 +13,9 @@ namespace NWN.Systems
       creature.SetFeatRemainingUses((Feat)CustomSkill.AnciensRenvoiDesInfideles, 0);
       creature.SetFeatRemainingUses((Feat)CustomSkill.AnciensGuerisonRayonnante, 0);
       creature.SetFeatRemainingUses((Feat)CustomSkill.AnciensCourrouxDeLaNature, 0);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.PaladinVoeuHostile, 0);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.PaladinPuissanceInquisitrice, 0);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.PaladinConspuerEnnemi, 0);
     }
   }
 }

@@ -243,8 +243,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.ContainsKey("introClassSelector")) player.windows.Add("introClassSelector", new IntroClassSelectorWindow(player));
-                  else ((IntroClassSelectorWindow)player.windows["introClassSelector"]).CreateWindow();
+                  if (!player.windows.TryGetValue("introClassSelector", out var classSel)) player.windows.Add("introClassSelector", new IntroClassSelectorWindow(player));
+                  else ((IntroClassSelectorWindow)classSel).CreateWindow();
 
                   return;
 
@@ -252,8 +252,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.ContainsKey("introPortrait")) player.windows.Add("introPortrait", new IntroPortraitWindow(player));
-                  else ((IntroPortraitWindow)player.windows["introPortrait"]).CreateWindow();
+                  if (!player.windows.TryGetValue("introPortrait", out var portraitSel)) player.windows.Add("introPortrait", new IntroPortraitWindow(player));
+                  else ((IntroPortraitWindow)portraitSel).CreateWindow();
 
                   break;
 
@@ -261,8 +261,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.ContainsKey("introAbilities")) player.windows.Add("introAbilities", new IntroAbilitiesWindow(player));
-                  else ((IntroAbilitiesWindow)player.windows["introAbilities"]).CreateWindow();
+                  if (!player.windows.TryGetValue("introAbilities", out var statSel)) player.windows.Add("introAbilities", new IntroAbilitiesWindow(player));
+                  else ((IntroAbilitiesWindow)statSel).CreateWindow();
                   
                   return;
               }

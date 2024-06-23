@@ -37,6 +37,10 @@ namespace NWN.Systems
 
           // On donne les autres capacités de niveau 1
 
+          player.learnableSkills.TryAdd(CustomSkill.WizardRestaurationArcanique, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.WizardRestaurationArcanique], player));
+          player.learnableSkills[CustomSkill.WizardRestaurationArcanique].LevelUp(player);
+          player.learnableSkills[CustomSkill.WizardRestaurationArcanique].source.Add(Category.Class);
+
           if (!player.windows.TryGetValue("spellSelection", out var cantrip1)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 3, 6));
           else ((SpellSelectionWindow)cantrip1).CreateWindow(ClassType.Wizard, 3, 6);
 
@@ -127,12 +131,22 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("featSelection", out var feat12)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
           else ((FeatSelectionWindow)feat12).CreateWindow();
 
+          if (!player.windows.TryGetValue("spellSelection", out var spell12)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 0, 2));
+          else ((SpellSelectionWindow)spell12).CreateWindow(ClassType.Wizard, 0, 2);
+
           break;
 
         case 13:
 
           if (!player.windows.TryGetValue("spellSelection", out var spell13)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 0, 2));
           else ((SpellSelectionWindow)spell13).CreateWindow(ClassType.Wizard, 0, 2);
+
+          break;
+
+        case 14:
+
+          if (!player.windows.TryGetValue("spellSelection", out var spell14)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 0, 2));
+          else ((SpellSelectionWindow)spell14).CreateWindow(ClassType.Wizard, 0, 2);
 
           break;
 
@@ -147,6 +161,9 @@ namespace NWN.Systems
 
           if (!player.windows.TryGetValue("featSelection", out var feat16)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
           else ((FeatSelectionWindow)feat16).CreateWindow();
+
+          if (!player.windows.TryGetValue("spellSelection", out var spell16)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 0, 2));
+          else ((SpellSelectionWindow)spell16).CreateWindow(ClassType.Wizard, 0, 2);
 
           break;
 

@@ -267,7 +267,9 @@ namespace NWN.Systems
       
       NwGameObject oCaster = onSpellCast.Caster;
       NwSpell spell = onSpellCast.Spell;
-      
+
+      oCaster.GetObjectVariable<LocalVariableObject<NwGameObject>>(CreatureUtils.CurrentAttackTarget).Delete();
+
       if (onSpellCast.TargetObject is not null)
         LogUtils.LogMessage($"----- {oCaster.Name} lance {spell.Name.ToString()} (id {spell.Id}) sur {onSpellCast.TargetObject.Name} -----", LogUtils.LogType.Combat);
       else
@@ -285,8 +287,11 @@ namespace NWN.Systems
       }
 
       EffectUtils.RemoveEffectType(oCaster, EffectType.Invisibility, EffectType.ImprovedInvisibility);
-      
-      SpellUtils.SpellSwitch(oCaster, spell, NwFeat.FromFeatId(NWScript.GetSpellFeatId()), spellEntry, onSpellCast.TargetObject, onSpellCast.TargetLocation, onSpellCast.SpellCastClass);
+
+      var castingClass = onSpellCast.SpellCastClass is not null ? onSpellCast.SpellCastClass : NwClass.FromClassId(CustomClass.Adventurer);
+
+      SpellUtils.SpellSwitch(oCaster, spell, NwFeat.FromFeatId(NWScript.GetSpellFeatId()), spellEntry, onSpellCast.TargetObject, 
+        onSpellCast.TargetLocation, castingClass);
     }
     public void HandleCraftEnchantementCast(OnSpellCast onSpellCast)
     {
@@ -294,21 +299,6 @@ namespace NWN.Systems
         return;
 
       Enchantement(onSpellCast, player);
-    }
-    public void CheckIsDivinationBeforeSpellCast(OnSpellCast onSpellCast)
-    {
-      if (onSpellCast.Caster.IsLoginPlayerCharacter(out NwPlayer player) && onSpellCast.Spell.SpellSchool == SpellSchool.Divination)
-      {
-        if (onSpellCast.TargetObject is not null)
-          LogUtils.LogMessage($"----- {onSpellCast.Caster.Name} lance {onSpellCast.Spell.Name.ToString()} (id {onSpellCast.Spell.Id}) sur {onSpellCast.TargetObject.Name} -----", LogUtils.LogType.Combat);
-        else
-          LogUtils.LogMessage($"----- {onSpellCast.Caster.Name} lance {onSpellCast.Spell.Name.ToString()} (id {onSpellCast.Spell.Id}) en mode AoE -----", LogUtils.LogType.Combat);
-
-        onSpellCast.PreventSpellCast = true;
-        player.ControlledCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfPwkill));
-        player.SendServerMessage("La Loi même vous empêche de faire appel à ce sort. Un cliquetis lointain de chaînes résonne dans votre esprit. Quelque chose vient de se mettre en mouvement ...", ColorConstants.Red);
-        LogUtils.LogMessage($"{player.ControlledCreature.Name} ({player.PlayerName}) vient de lancer un sort de divination. Faire intervenir les apôtres pour jugement.", LogUtils.LogType.ModuleAdministration);
-      }
     }
     public static ScriptHandleResult HandleInvisibiltyHeartBeat(CallInfo callInfo)
     {
@@ -718,7 +708,7 @@ namespace NWN.Systems
 
       if (player.pveArena.currentRound == 0) // S'il s'agit d'un spectateur
       {
-        player.oid.LoginCreature.OnSpellCast += CheckIsDivinationBeforeSpellCast;
+        player.oid.LoginCreature.OnSpellCast += OnSpellCastCancelDivination;
         player.oid.LoginCreature.OnSpellCast -= Arena.Utils.NoMagicMalus;
         return;
       }

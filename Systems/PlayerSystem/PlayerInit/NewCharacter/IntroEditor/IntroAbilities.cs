@@ -284,7 +284,7 @@ namespace NWN.Systems
           bonus1Checked.SetBindWatch(player.oid, nuiToken.Token, true);
           bonus2Checked.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          if (mainBonus > -1 && secondaryBonus > -1 && player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_CHARACTER_REMAINING_ABILITY_POINTS_CHARACTER_REMAINING_ABILITY_POINTS").Value < 1)
+          if (mainBonus > -1 && secondaryBonus > -1 && player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_CHARACTER_REMAINING_ABILITY_POINTS").Value < 1)
             player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_STATS").Delete();
           else
             player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_STATS").Value = 1;

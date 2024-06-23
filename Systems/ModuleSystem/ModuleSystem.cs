@@ -402,6 +402,7 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_DO_LISTEN_DETECTION_BEFORE", "on_listen");
       EventsPlugin.SubscribeEvent("NWNX_ON_DO_SPOT_DETECTION_BEFORE", "on_spot");
 
+      EventsPlugin.SubscribeEvent("NWNX_ON_ATTACK_TARGET_CHANGE_BEFORE", "on_target_change");
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "on_charm_attack");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "on_charm_attack", 1);
 

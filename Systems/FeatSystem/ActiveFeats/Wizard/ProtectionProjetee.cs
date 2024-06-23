@@ -23,24 +23,31 @@ namespace NWN.Systems
         return;
       }
 
-      var ward = caster.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.AbjurationWardEffectTag && e.Creator == caster);
+      NwCreature currentWardBearer = caster.GetObjectVariable<LocalVariableObject<NwCreature>>("_ABJURATION_WARD_TARGET").HasValue
+        ? caster.GetObjectVariable<LocalVariableObject<NwCreature>>("_ABJURATION_WARD_TARGET").Value : caster;
 
-      if(ward is null)
-      {
-        caster.LoginPlayer?.SendServerMessage("Vous ne disposez d'aucune protection arcanique active", ColorConstants.Red);
-        return;
-      }
+      var ward = currentWardBearer.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.AbjurationWardEffectTag && e.Creator == caster);
+      int intensity = (int)(ward is not null ? ward.CasterLevel : EffectSystem.GetAbjurationWardEffect(caster.GetClassInfo(ClassType.Wizard).Level));
+
+
 
       caster.OnDamaged -= WizardUtils.OnDamageAbjurationWard;
 
       EffectUtils.RemoveTaggedEffect(caster, caster, EffectSystem.AbjurationWardEffectTag);
 
-      NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Permanent, 
-        EffectSystem.GetAbjurationWardEffect(ward.CasterLevel)));
+      NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetAbjurationWardEffect(intensity)));
       
       target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpGlobeUse));
       target.OnDamaged -= WizardUtils.OnDamageAbjurationWard;
       target.OnDamaged += WizardUtils.OnDamageAbjurationWard;
+      target.OnDeath -= EffectSystem.OnDeathAbjurationWard;
+      target.OnDeath += EffectSystem.OnDeathAbjurationWard;
+
+      if (target.IsLoginPlayerCharacter)
+      {
+        target.LoginPlayer.OnClientDisconnect -= EffectSystem.OnLeaveAbjurationWard;
+        target.LoginPlayer.OnClientDisconnect += EffectSystem.OnLeaveAbjurationWard;
+      }
       caster.GetObjectVariable<LocalVariableObject<NwCreature>>("_ABJURATION_WARD_TARGET").Value = target;
 
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} utilise {"Protection Arcanique".ColorString(ColorConstants.White)} sur {target.Name.ColorString(ColorConstants.Cyan)}", ColorConstants.Orange, true);

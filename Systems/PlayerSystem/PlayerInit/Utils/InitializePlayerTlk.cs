@@ -6,8 +6,21 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      private void InitializePlayerTlk()
+      private async void InitializePlayerTlk()
       {
+        await NwTask.NextFrame();
+
+        if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.DivinationPresage))
+        {
+          ModuleSystem.Log.Info($"oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(CreatureUtils.Presage1Variable).Value : {oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(CreatureUtils.Presage1Variable).Value}");
+
+          NwFeat.FromFeatId(CustomSkill.DivinationPresage).Name.SetPlayerOverride(oid, $"Présage : {oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(CreatureUtils.Presage1Variable).Value}");
+          NwFeat.FromFeatId(CustomSkill.DivinationPresage2).Name.SetPlayerOverride(oid, $"Présage : {oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(CreatureUtils.Presage2Variable).Value}");
+
+          if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.DivinationPresageSuperieur))
+            NwFeat.FromFeatId(CustomSkill.DivinationPresageSuperieur).Name.SetPlayerOverride(oid, $"Présage : {oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(CreatureUtils.Presage3Variable).Value}");
+        }
+
         if (learnableSkills.ContainsKey(CustomSkill.FighterArcaneArcher))
         {
           new StrRef(8).SetPlayerOverride(oid, "Archer-Mage");
@@ -164,6 +177,11 @@ namespace NWN.Systems
         {
           new StrRef(12).SetPlayerOverride(oid, "Serment des Anciens");
           oid.SetTextureOverride("paladin", "anciens");
+        }
+        else if (learnableSkills.ContainsKey(CustomSkill.PaladinSermentVengeance))
+        {
+          new StrRef(12).SetPlayerOverride(oid, "Serment de Vengeance");
+          oid.SetTextureOverride("paladin", "vengeance");
         }
       }
     }

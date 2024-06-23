@@ -21,6 +21,10 @@ namespace NWN.Systems
             return true;
         }
       }
+
+      if (spellEntry.RowIndex == CustomSpell.ConspuerLennemi && Utils.In(creature.Race.RacialType, RacialType.Undead, RacialType.Outsider))
+        return true;
+
       foreach (var eff in creature.ActiveEffects)
       {
         switch(eff.Tag)

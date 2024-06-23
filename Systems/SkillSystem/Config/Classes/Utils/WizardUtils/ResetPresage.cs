@@ -13,7 +13,8 @@ namespace NWN.Systems
         int random = NwRandom.Roll(Utils.random, 20);
 
         presage.Name.SetPlayerOverride(player, $"Présage : {random}");
-        player.SendServerMessage($"Vous voyez un {StringUtils.ToWhitecolor(random)} se dessiner dans le futur", ColorConstants.Orange);
+        player.LoginCreature.GetObjectVariable<PersistentVariableInt>(CreatureUtils.Presage1Variable).Value = random;
+        player.SendServerMessage($"Vous sentez un {StringUtils.ToWhitecolor(random)} se dessiner dans le futur", ColorConstants.Orange);
       }
 
       presage = NwFeat.FromFeatId(CustomSkill.DivinationPresage2);
@@ -23,7 +24,8 @@ namespace NWN.Systems
         int random = NwRandom.Roll(Utils.random, 20);
 
         presage.Name.SetPlayerOverride(player, $"Présage : {random}");
-        player.SendServerMessage($"Vous voyez un {StringUtils.ToWhitecolor(random)} se dessiner dans le futur", ColorConstants.Orange);
+        player.LoginCreature.GetObjectVariable<PersistentVariableInt>(CreatureUtils.Presage2Variable).Value = random;
+        player.SendServerMessage($"Vous sentez un {StringUtils.ToWhitecolor(random)} se dessiner dans le futur", ColorConstants.Orange);
       }
 
       presage = NwFeat.FromFeatId(CustomSkill.DivinationPresageSuperieur);
@@ -33,7 +35,8 @@ namespace NWN.Systems
         int random = NwRandom.Roll(Utils.random, 20);
 
         presage.Name.SetPlayerOverride(player, $"Présage : {random}");
-        player.SendServerMessage($"Vous voyez un {StringUtils.ToWhitecolor(random)} se dessiner dans le futur", ColorConstants.Orange);
+        player.LoginCreature.GetObjectVariable<PersistentVariableInt>(CreatureUtils.Presage3Variable).Value = random;
+        player.SendServerMessage($"Vous sentez un {StringUtils.ToWhitecolor(random)} se dessiner dans le futur", ColorConstants.Orange);
       }
     }
   }

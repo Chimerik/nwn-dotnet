@@ -1,5 +1,6 @@
 ﻿  using Anvil.API.Events;
 using Anvil.API;
+using System;
 
 namespace NWN.Systems
 {
@@ -19,36 +20,43 @@ namespace NWN.Systems
       if (!onHB.Creature.DetectModeActive)
         perceptionSkill /= 2;
 
-      perceptionRoll = RogueUtils.HandleSavoirFaire(onHB.Creature, CustomSkill.PerceptionProficiency, 
+      perceptionRoll = RogueUtils.HandleSavoirFaire(onHB.Creature, CustomSkill.PerceptionProficiency,
         Utils.RollAdvantage(CreatureUtils.GetCreatureSkillAdvantage(onHB.Creature, CustomSkill.PerceptionProficiency), false));
 
-      foreach (var trap in onHB.Creature.Location.GetObjectsInShapeByType<NwGameObject>(Shape.Sphere, 
-        onHB.Creature.DetectModeActive || onHB.Creature.KnowsFeat(Feat.KeenSense) ? 6.66f : 3.33f, false))
+      try
       {
-        if(trap is NwPlaceable plc)
+        foreach (var trap in onHB.Creature.Location.GetObjectsInShapeByType<NwGameObject>(Shape.Sphere,
+          onHB.Creature.DetectModeActive || onHB.Creature.KnowsFeat(Feat.KeenSense) ? 6.66f : 3.33f, false))
         {
-          if (!plc.IsTrapped || plc.IsTrapDetectedBy(onHB.Creature))
-            continue;
+          if (trap is NwPlaceable plc)
+          {
+            if (!plc.IsTrapped || plc.IsTrapDetectedBy(onHB.Creature))
+              continue;
 
-          if (plc.TrapDetectDC < perceptionRoll + perceptionSkill)
-            plc.SetTrapDetectedBy(true, onHB.Creature);
-        }
-        else if (trap is NwDoor door)
-        {
-          if (!door.IsTrapped || door.IsTrapDetectedBy(onHB.Creature))
-            continue;
+            if (plc.TrapDetectDC < perceptionRoll + perceptionSkill)
+              plc.SetTrapDetectedBy(true, onHB.Creature);
+          }
+          else if (trap is NwDoor door)
+          {
+            if (!door.IsTrapped || door.IsTrapDetectedBy(onHB.Creature))
+              continue;
 
-          if (door.TrapDetectDC < perceptionRoll + perceptionSkill)
-            door.SetTrapDetectedBy(true, onHB.Creature);
-        }
-        else if(trap is NwTrigger trigger)
-        {
-          if(!trigger.IsTrapped || trigger.IsTrapDetectedBy(onHB.Creature))
-            continue;
+            if (door.TrapDetectDC < perceptionRoll + perceptionSkill)
+              door.SetTrapDetectedBy(true, onHB.Creature);
+          }
+          else if (trap is NwTrigger trigger)
+          {
+            if (!trigger.IsTrapped || trigger.IsTrapDetectedBy(onHB.Creature))
+              continue;
 
-          if (trigger.TrapDetectDC < perceptionRoll + perceptionSkill)
-            trigger.SetTrapDetectedBy(true, onHB.Creature);
+            if (trigger.TrapDetectDC < perceptionRoll + perceptionSkill)
+              trigger.SetTrapDetectedBy(true, onHB.Creature);
+          }
         }
+      }
+      catch(Exception)
+      {
+        onHB.Creature.LoginPlayer?.DisplayFloatingTextStringOnCreature(onHB.Creature, "Erreur NwSound : Qu'étiez vous en train de faire à l'instant ?".ColorString(ColorConstants.Red));
       }
     }
   }

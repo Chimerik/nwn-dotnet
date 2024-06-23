@@ -29,9 +29,6 @@ namespace NWN.Systems
         if (GetAssassinateAdvantage(eff))
           return true;
 
-        if (GetPolyvalentTricksterAdvantage(eff, attacker))
-          return true;
-
         if (GetSensDivinAdvantage(eff, target))
           return true;
       }

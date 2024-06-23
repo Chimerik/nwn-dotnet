@@ -59,7 +59,7 @@ namespace NWN.Systems
       {
         case CustomSkill.PaladinSermentDevotion: HandleDevotionLevelUp(player, playerClass.currentLevel); break;
         case CustomSkill.PaladinSermentDesAnciens: HandleAnciensLevelUp(player, playerClass.currentLevel); break;
-        //case CustomSkill.PaladinSermentDeVengeance: HandleVengeanceLevelUp(player, playerClass.currentLevel); break;
+        case CustomSkill.PaladinSermentVengeance: HandleVengeanceLevelUp(player, playerClass.currentLevel); break;
       }
 
       if (player.oid.LoginCreature.Level > 2 || playerClass.currentLevel > 1)

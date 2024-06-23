@@ -309,6 +309,11 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case CustomSpell.ConspuerLennemi:
+          SpellSystem.ConspuerLennemi(oCaster, spell, spellEntry, target);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.LueurDespoir:
           concentrationTargets.AddRange(SpellSystem.LueurDespoir(oCaster, spell, spellEntry, targetLocation));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;

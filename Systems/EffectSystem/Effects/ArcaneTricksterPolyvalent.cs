@@ -10,7 +10,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.Icon(EffectIcon.ACDecrease);
+        Effect eff = Effect.VisualEffect(VfxType.DurBigbysInterposingHand);
         eff.Tag = ArcaneTricksterPolyvalentEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

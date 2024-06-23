@@ -59,5 +59,6 @@
     public const int ProtectionContreLeTonnerre = 894;
     public const int CroissanceVegetale = 895;
     public const int PassageParLesArbres = 896;    
+    public const int ConspuerLennemi = 897;    
   }
 }

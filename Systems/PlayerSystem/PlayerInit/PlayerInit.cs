@@ -180,7 +180,7 @@ namespace NWN.Systems
         oid.LoginCreature.OnSpellAction += SpellSystem.OnCastBonusSpell;    
         oid.LoginCreature.OnSpellAction += SpellSystem.HandleCraftOnSpellInput;
         //oid.LoginCreature.OnSpellBroadcast += spellSystem.HandleHearingSpellBroadcast;
-        oid.LoginCreature.OnSpellCast += spellSystem.CheckIsDivinationBeforeSpellCast;
+        oid.LoginCreature.OnSpellCast += SpellSystem.OnSpellCastCancelDivination;
         oid.LoginCreature.OnSpellCast += spellSystem.HandleCraftEnchantementCast;
         oid.LoginCreature.OnSpellSlotMemorize += HandleMemorizeSpellSlot;
       }
@@ -401,7 +401,6 @@ namespace NWN.Systems
           return;
 
         HandleHealthPointInit();
-        InitializePlayerTlk();
         InitializeLearnables();
         InitializeJob();
         CheckPlayerConnectionInfo();
@@ -498,6 +497,7 @@ namespace NWN.Systems
         oid.LoginCreature.OnHeartbeat -= OnHeartbeatDetectTrap;
         oid.LoginCreature.OnHeartbeat += OnHeartbeatDetectTrap;
 
+        InitializePlayerTlk();
         pcState = PcState.Online;
         oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
       }

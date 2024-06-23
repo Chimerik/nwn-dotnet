@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System;
+using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -15,8 +16,18 @@ namespace NWN.Systems
         return;
       }
 
-      target.GetObjectVariable<LocalVariableInt>(CreatureUtils.PresageVariable).Value = int.Parse(presage.Name.ToString().Replace("Présage : ", ""));
-      StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} utilise {"Présage".ColorString(ColorConstants.White)} sur {target.Name.ColorString(ColorConstants.Cyan)}", ColorConstants.Orange, true);
+      var variableId = presage.Id switch
+      {
+        CustomSkill.DivinationPresage2 => CreatureUtils.Presage2Variable,
+        CustomSkill.DivinationPresageSuperieur => CreatureUtils.Presage3Variable,
+        _ => CreatureUtils.Presage1Variable,
+      };
+
+      target.GetObjectVariable<LocalVariableInt>(CreatureUtils.PresageVariable).Value = caster.GetObjectVariable<PersistentVariableInt>(variableId).Value;
+      caster.GetObjectVariable<PersistentVariableInt>(variableId).Delete();
+      StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} utilise {"Présage".ColorString(ColorConstants.White)} sur {target.Name.ColorString(ColorConstants.Cyan)}", ColorConstants.Orange, true, true);
+
+      caster.DecrementRemainingFeatUses(presage);
     }
   }
 }

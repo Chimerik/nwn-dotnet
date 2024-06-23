@@ -49,8 +49,8 @@ namespace NWN.Systems
           rootChildren.Add(new NuiRow() { Margin = 0.0f, Children = new List<NuiElement>() 
           { 
             new NuiSpacer(),
-            new NuiTextEdit("Prénom", prenom, 15, false) { Width = windowWidth / 5.2f },
-            new NuiTextEdit("Nom", name, 15, false) { Width = windowWidth / 5.2f },
+            new NuiTextEdit("Prénom", prenom, 28, false) { Width = windowWidth / 5.2f },
+            new NuiTextEdit("Nom", name, 40, false) { Width = windowWidth / 5.2f },
             new NuiSpacer(),
             new NuiCombo(){ Entries = new List<NuiComboEntry> { new NuiComboEntry("Féminin", 1), new NuiComboEntry("Masculin", 0) }, Selected = genderSelection, Width = windowWidth / 4, Margin = 0.0f },
             new NuiCombo(){ Entries = voiceList, Selected = voiceSelection, Width = windowWidth / 4, Margin = 0.0f },

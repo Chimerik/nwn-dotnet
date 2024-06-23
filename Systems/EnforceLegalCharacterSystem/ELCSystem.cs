@@ -54,7 +54,7 @@ namespace NWN.Systems
     private void onELCValidationFailure(OnELCValidationFailure onELCFailure)
     {
       NwCreature oPC = onELCFailure.Player.ControlledCreature;
-      
+
       if (oPC.GetObjectVariable<PersistentVariableInt>("characterId").HasValue)
       {
         onELCFailure.IgnoreFailure = true;

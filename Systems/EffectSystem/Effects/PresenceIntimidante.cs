@@ -25,7 +25,7 @@ namespace NWN.Systems
     {
       if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) || eventData.Entering is not NwCreature entering 
         || eventData.Effect.Creator is not NwCreature intimidator || intimidator.HP < 1 || entering == intimidator
-        || !entering.IsReactionTypeHostile(intimidator) || IsFrightImmune(entering)
+        || !entering.IsReactionTypeHostile(intimidator) || IsFrightImmune(entering, intimidator)
         || entering.GetObjectVariable<LocalVariableInt>($"_PRESENCE_INTIMIDANTE_RESISTED_{intimidator.Name}").HasValue)
         return ScriptHandleResult.Handled;
 
@@ -38,7 +38,7 @@ namespace NWN.Systems
       SpellUtils.SendSavingThrowFeedbackMessage(intimidator, entering, feedback, advantage, DC, totalSave, saveFailed, Ability.Wisdom);
 
       if (saveFailed)
-        NWScript.AssignCommand(intimidator, () => entering.ApplyEffect(EffectDuration.Temporary, frighten, NwTimeSpan.FromRounds(1)));
+        NWScript.AssignCommand(intimidator, () => entering.ApplyEffect(EffectDuration.Temporary, Effroi, NwTimeSpan.FromRounds(1)));
       else
         entering.GetObjectVariable<LocalVariableInt>($"_PRESENCE_INTIMIDANTE_RESISTED_{intimidator.Name}").Value = 1;
 
@@ -51,7 +51,7 @@ namespace NWN.Systems
 
       foreach (var target in eventData.Effect.GetObjectsInEffectArea<NwCreature>())
       {
-        if (target == intimidator || !target.IsReactionTypeHostile(intimidator) || IsFrightImmune(target)
+        if (target == intimidator || !target.IsReactionTypeHostile(intimidator) || IsFrightImmune(target, intimidator)
         || target.GetObjectVariable<LocalVariableInt>($"_PRESENCE_INTIMIDANTE_RESISTED_{intimidator.Name}").HasValue)
           continue;
 
@@ -64,7 +64,7 @@ namespace NWN.Systems
         SpellUtils.SendSavingThrowFeedbackMessage(intimidator, target, feedback, advantage, DC, totalSave, saveFailed, Ability.Wisdom);
 
         if (saveFailed)
-          NWScript.AssignCommand(intimidator, () => target.ApplyEffect(EffectDuration.Temporary, frighten, NwTimeSpan.FromRounds(1)));
+          NWScript.AssignCommand(intimidator, () => target.ApplyEffect(EffectDuration.Temporary, Effroi, NwTimeSpan.FromRounds(1)));
         else
           target.GetObjectVariable<LocalVariableInt>($"_PRESENCE_INTIMIDANTE_RESISTED_{intimidator.Name}").Value = 1;
       }

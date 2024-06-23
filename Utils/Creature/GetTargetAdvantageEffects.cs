@@ -4,7 +4,7 @@ namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static bool GetTargetAdvantageEffects(CNWSCreature target, bool rangedAttack)
+    public static bool GetTargetAdvantageEffects(CNWSCreature target, CNWSCreature attacker, bool rangedAttack)
     {
       foreach (var eff in target.m_appliedEffects)
       {
@@ -36,6 +36,12 @@ namespace NWN.Systems
           return true;
 
         if (GetCourrouxDeLaNatureAttackAdvantage(eff))
+          return true;
+
+        if (GetPolyvalentTricksterAdvantage(eff, attacker))
+          return true;
+
+        if (GetVoeudHostiliteAdvantage(eff, attacker))
           return true;
       }
 

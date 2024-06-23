@@ -169,6 +169,8 @@ namespace NWN.Systems
         case CustomSkill.DevotionNimbeSacree: NimbeSacree(onUseFeat.Creature); return;
         case CustomSkill.AnciensGuerisonRayonnante: GuerisonRayonnante(onUseFeat.Creature); return;
         case CustomSkill.AnciensChampionAntique: ChampionAntique(onUseFeat.Creature); return;
+        case CustomSkill.PaladinVoeuHostile: VoeudHostilite(onUseFeat.Creature, onUseFeat.TargetObject); return;
+        case CustomSkill.PaladinPuissanceInquisitrice: PuissanceInquisitrice(onUseFeat.Creature, onUseFeat.TargetObject); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

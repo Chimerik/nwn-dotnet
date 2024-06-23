@@ -21,6 +21,9 @@ namespace NWN.Systems
           onSpellAction.PreventSpellCast = true;
           return;
         }
+        
+        if (caster.GetObjectVariable<LocalVariableObject<NwGameObject>>(CreatureUtils.CurrentAttackTarget).HasValue)
+          _ = caster.ActionAttackTarget(caster.GetObjectVariable<LocalVariableObject<NwGameObject>>(CreatureUtils.CurrentAttackTarget).Value);
 
         SpellUtils.CheckDispelConcentration(caster, spell, spellEntry);
         SpellUtils.HandlePhlegetos(caster, spellEntry);
@@ -29,7 +32,9 @@ namespace NWN.Systems
         LogUtils.LogMessage($"{caster.Name} - Sort {spell.Name.ToString()} ({spell.Id}) lancé en action bonus", LogUtils.LogType.Combat);
         StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} - {spell.Name.ToString().ColorString(ColorConstants.Orange)} - Action Bonus", StringUtils.gold, true, true);
 
-        SpellUtils.SpellSwitch(caster, onSpellAction.Spell, onSpellAction.Feat, spellEntry, onSpellAction.TargetObject, Location.Create(onSpellAction.Caster.Area, onSpellAction.Caster.Position, onSpellAction.Caster.Rotation), onSpellAction.Caster.Classes[onSpellAction.ClassIndex].Class);
+        NwClass castingClass = onSpellAction.ClassIndex < 255 ? onSpellAction.Caster.Classes[onSpellAction.ClassIndex].Class : NwClass.FromClassId(CustomClass.Adventurer);
+
+        SpellUtils.SpellSwitch(caster, onSpellAction.Spell, onSpellAction.Feat, spellEntry, onSpellAction.TargetObject, Location.Create(onSpellAction.Caster.Area, onSpellAction.TargetPosition, onSpellAction.Caster.Rotation), castingClass);
 
         onSpellAction.PreventSpellCast = true;
       }

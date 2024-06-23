@@ -14,6 +14,7 @@ namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
+    public const string CurrentAttackTarget = "_CURRENT_ATTACK_TARGET";
     public const string ReactionVariable = "_REACTION";
     public static readonly CExoString ReactionVariableExo = ReactionVariable.ToExoString();
     public const string BonusActionVariable = "_BONUS_ACTION";
@@ -102,6 +103,10 @@ namespace NWN.Systems
 
     public const string PresageVariable = "_PRESAGE";
     public static readonly CExoString PresageVariableExo = PresageVariable.ToExoString();
+
+    public const string Presage1Variable = "_PRESAGE1";
+    public const string Presage2Variable = "_PRESAGE2";
+    public const string Presage3Variable = "_PRESAGE3";
 
     public const string CharmeInstinctifVariable = "_CHARME_INSTINCTIF";
     public static readonly CExoString CharmeInstinctifVariableExo = CharmeInstinctifVariable.ToExoString();

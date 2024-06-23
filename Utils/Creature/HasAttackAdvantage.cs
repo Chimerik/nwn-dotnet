@@ -15,16 +15,18 @@ namespace NWN.Systems
       if (target is not null)
       {
         // Si la cible est insaissible (Rogue 18) et n'est pas incapable d'agir, alors il est impossible d'avoir l'avantage sur elle
-        if (RogueUtils.GetRogueLevel(attacker) > 17 && !EffectUtils.IsIncapacitated(target))
+        if (RogueUtils.GetRogueLevel(target) > 17 && !EffectUtils.IsIncapacitated(target))
+        {
+          LogUtils.LogMessage("Cible insaississable - Pas d'avantage", LogUtils.LogType.Combat);
           return false;
-
+        }
           if (rangedAttack && GetHighGroundAdvantage(attacker, target))
           return true;
 
         if (GetAttackerAdvantageEffects(attacker, target, attackStat))
           return true;
 
-        if (GetTargetAdvantageEffects(target, rangedAttack))
+        if (GetTargetAdvantageEffects(target, attacker, rangedAttack))
           return true;
 
         if (GetInvisibleAttackerAdvantage(attacker, target))
@@ -62,7 +64,7 @@ namespace NWN.Systems
         if (GetAttackerAdvantageEffects(attacker, target, spellCastingAbility))
           return true;
 
-        if (GetTargetAdvantageEffects(target, rangedSpell))
+        if (GetTargetAdvantageEffects(target, attacker, rangedSpell))
           return true;
 
         if(GetDiversionTargetAdvantage(attacker, target))

@@ -21,7 +21,7 @@ namespace NWN.Systems
 
           bool saveFailed = false;
 
-          if (!EffectSystem.IsFrightImmune(target))
+          if (!EffectSystem.IsFrightImmune(target, onAttack.Attacker))
           {
             SpellConfig.SavingThrowFeedback feedback = new();
             int attackerModifier = onAttack.Attacker.GetAbilityModifier(Ability.Strength) > onAttack.Attacker.GetAbilityModifier(Ability.Dexterity) ? onAttack.Attacker.GetAbilityModifier(Ability.Strength) : onAttack.Attacker.GetAbilityModifier(Ability.Dexterity);
@@ -32,13 +32,11 @@ namespace NWN.Systems
 
             SpellUtils.SendSavingThrowFeedbackMessage(onAttack.Attacker, target, feedback, advantage, tirDC, totalSave, saveFailed, Ability.Wisdom);
           }
-          else
-            onAttack.Attacker.LoginPlayer?.SendServerMessage($"{StringUtils.ToWhitecolor(target.Name)} ne peut pas être effrayé", ColorConstants.Orange);
 
           if (saveFailed)
           {
             NWScript.AssignCommand(onAttack.Attacker, () => target.ApplyEffect(EffectDuration.Temporary,
-            EffectSystem.frighten, NwTimeSpan.FromRounds(1)));
+            EffectSystem.Effroi, NwTimeSpan.FromRounds(1)));
           }
 
           StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Attaque Menaçante", ColorConstants.Red, true);

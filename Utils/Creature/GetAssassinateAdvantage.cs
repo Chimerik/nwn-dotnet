@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     public static bool GetAssassinateAdvantage(Native.API.CGameEffect eff)
     {
-      if(eff.m_sCustomTag.CompareNoCase(EffectSystem.AssassinateExoTag).ToBool())
+      if (eff.m_sCustomTag.CompareNoCase(EffectSystem.AssassinateExoTag).ToBool())
       {
         LogUtils.LogMessage("Avantage - Assassinat", LogUtils.LogType.Combat);
         return true;

@@ -20,7 +20,7 @@ namespace NWN.Systems
           break;
 
         case 6: SpellSystem.WildMagicArmeInfusee(caster); break;
-        case 7: NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.wildMagicCroissanceVegetale, NwTimeSpan.FromRounds(10))); break;
+        case 7: NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.WildMagicCroissanceVegetaleAura, NwTimeSpan.FromRounds(10))); break;
         case 8:
 
           caster.LoginPlayer?.DisplayFloatingTextStringOnCreature(caster, "Magie Sauvage - Téléportation".ColorString(StringUtils.gold));

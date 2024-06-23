@@ -8,6 +8,7 @@ using Anvil.API.Events;
 using Google.Apis.Drive.v3.Data;
 
 using NWN.Core;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -101,6 +102,13 @@ namespace NWN.Systems
             else
               myCommandList.TryAdd("examineArea", Utils.mainMenuCommands["examineArea"]);
 
+            if (myCommandList.TryGetValue("instantLearn", out var instantLearn))
+            {
+              if(player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_INSTANT_LEARN").HasValue)
+                instantLearn.label = "Désactiver l'apprentissage instantanné (Alpha)";
+              else
+                instantLearn.label = "Activer l'apprentissage instantanné (Alpha)";
+            }
             currentList = myCommandList;
             LoadMenu(currentList);
           }
@@ -240,13 +248,13 @@ namespace NWN.Systems
                     break;
 
                   case "delete":
-                    await player.oid.Delete($"Le personnage {player.oid.LoginCreature.Name} a été supprimé.");
+                    AdminPlugin.DeletePlayerCharacter(player.oid.LoginCreature, 1, $"Le personnage {player.oid.LoginCreature.Name} a été supprimé.");
                     break;
 
                   case "chat":
 
-                    if (!player.windows.ContainsKey("chatColors")) player.windows.Add("chatColors", new ChatColorsWindow(player));
-                    else ((ChatColorsWindow)player.windows["chatColors"]).CreateWindow();
+                    if (!player.windows.TryGetValue("chatColors", out var chatColors)) player.windows.Add("chatColors", new ChatColorsWindow(player));
+                    else ((ChatColorsWindow)chatColors).CreateWindow();
 
                     CloseWindow();
 
@@ -254,8 +262,8 @@ namespace NWN.Systems
 
                   case "wind":
 
-                    if (!player.windows.ContainsKey("areaWindSettings")) player.windows.Add("areaWindSettings", new AreaWindSettings(player));
-                    else ((AreaWindSettings)player.windows["areaWindSettings"]).CreateWindow();
+                    if (!player.windows.TryGetValue("areaWindSettings", out var wind)) player.windows.Add("areaWindSettings", new AreaWindSettings(player));
+                    else ((AreaWindSettings)wind).CreateWindow();
 
                     CloseWindow();
 
@@ -301,8 +309,22 @@ namespace NWN.Systems
                     break;
 
                   case "instantLearn":
-                    player.oid.SendServerMessage("Veuillez sélectionner la cible de l'apprentissage instantanné.");
-                    player.oid.EnterTargetMode(SelectLearnTarget, Config.selectCreatureTargetMode);
+                    //player.oid.SendServerMessage("Veuillez sélectionner la cible de l'apprentissage instantanné.");
+                    //player.oid.EnterTargetMode(SelectLearnTarget, Config.selectCreatureTargetMode);
+
+                    if (player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_INSTANT_LEARN").HasValue)
+                    {
+                      player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_INSTANT_LEARN").Delete();
+                      myCommandList["instantLearn"].label = "Activer l'apprentissage instantanné (Alpha)";
+                      buttonName.SetBindValues(player.oid, nuiToken.Token, myCommandList.Values.Select(c => c.label));
+                    }
+                    else
+                    {
+                      player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_INSTANT_LEARN").Value = 1;
+                      myCommandList["instantLearn"].label = "Désactiver l'apprentissage instantanné (Alpha)";
+                      buttonName.SetBindValues(player.oid, nuiToken.Token, myCommandList.Values.Select(c => c.label));
+                    }
+                    
                     CloseWindow();
                     break;
 
@@ -626,6 +648,8 @@ namespace NWN.Systems
                         ? ((ChatimentLevelSelectionWindow)chatimentWindow).selectedSpellLevel : 1);
                       player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ChatimentDivin, player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).GetRemainingSpellSlots(chatimentLevel));
                     }
+
+                    EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.DivinationVisionEffectTag);
 
                     break;
                 }

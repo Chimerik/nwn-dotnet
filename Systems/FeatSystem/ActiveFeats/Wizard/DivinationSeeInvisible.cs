@@ -1,4 +1,5 @@
 ﻿using Anvil.API;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -6,11 +7,12 @@ namespace NWN.Systems
   {
     private static void DivinationSeeInvisible(NwCreature caster)
     {
-      caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.DivinationSeeInvisibility);
-      StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Troisième oeil - Voir l'invisible", ColorConstants.Purple, true, true);
+      NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.DivinationSeeInvisibility));
+      StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Troisième oeil - Voir l'invisible", ColorConstants.Magenta, true, true);
 
-      caster.SetFeatRemainingUses((Feat)CustomSkill.DivinationDarkVision, 0);
-      caster.SetFeatRemainingUses((Feat)CustomSkill.DivinationSeeEthereal, 0);
+      caster.DecrementRemainingFeatUses((Feat)CustomSkill.DivinationDarkVision);
+      caster.DecrementRemainingFeatUses((Feat)CustomSkill.DivinationSeeEthereal);
+      caster.DecrementRemainingFeatUses((Feat)CustomSkill.DivinationSeeInvisibility);
     }
   }
 }

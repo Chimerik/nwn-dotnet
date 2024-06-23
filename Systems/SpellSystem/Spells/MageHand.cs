@@ -14,7 +14,7 @@ namespace NWN.Systems
       
       if (target is not null && caster.KnowsFeat((Feat)CustomSkill.ArcaneTricksterPolyvalent))
       {
-        NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, EffectSystem.ArcaneTricksterPolyvalent, NwTimeSpan.FromRounds(1)));
+        NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.ArcaneTricksterPolyvalent, NwTimeSpan.FromRounds(1)));
         target.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
       }
       else

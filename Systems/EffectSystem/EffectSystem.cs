@@ -74,7 +74,6 @@ namespace NWN.Systems
 
       onIntervalWildMagicRayonDeLumiereCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalWildMagicRayonDeLumiere);
       onIntervalWildMagicEspritIntangibleCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalWildMagicEspritIntangible);
-      onIntervalWildMagicCroissanceVegetaleCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalWildMagicCroissanceVegetale);
 
       onEnterWildMagicLumieresProtectricesCallback = scriptHandleFactory.CreateUniqueHandler(onEnterWildMagicLumieresProtectricesAura);
       onExitWildMagicLumieresProtectricesCallback = scriptHandleFactory.CreateUniqueHandler(onExitWildMagicLumieresProtectricesAura);
@@ -132,6 +131,9 @@ namespace NWN.Systems
 
       onEnterCroissanceVegetaleCallback = scriptHandleFactory.CreateUniqueHandler(onEnterCroissanceVegetale);
       onExitCroissanceVegetaleCallback = scriptHandleFactory.CreateUniqueHandler(onExitCroissanceVegetale);
+
+      onEnterWildMagicCroissanceVegetaleCallback = scriptHandleFactory.CreateUniqueHandler(onEnterWildMagicCroissanceVegetale);
+      onExitWildMagicCroissanceVegetaleCallback = scriptHandleFactory.CreateUniqueHandler(onExitWildMagicCroissanceVegetale);
     }
   }
 }

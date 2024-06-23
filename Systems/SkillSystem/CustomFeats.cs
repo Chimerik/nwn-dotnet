@@ -911,6 +911,11 @@
     public const int PaladinSermentDesAnciens = 20602;
     public const int PaladinAuraDeGarde = 20603;
     public const int PaladinSentinelleImmortelle = 20604;
+
+    public const int PaladinSermentVengeance = 20605;
+    public const int PaladinVoeuHostile = 20606;
+    public const int PaladinPuissanceInquisitrice = 20607;
+    public const int PaladinConspuerEnnemi = 20608;
     
 
 
