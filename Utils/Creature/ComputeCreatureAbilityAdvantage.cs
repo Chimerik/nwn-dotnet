@@ -40,10 +40,19 @@ namespace NWN.Systems
 
         case Ability.Dexterity:
 
-          if (effectType == SpellEffectType.Stealth && creature.KnowsFeat((Feat)CustomSkill.ThiefDiscretionSupreme))
+          if (effectType == SpellEffectType.Stealth)
           {
-            LogUtils.LogMessage("Avantage - Voleur : Discrétion Suprème", LogUtils.LogType.Combat);
-            return true;
+            if (creature.KnowsFeat((Feat)CustomSkill.ThiefDiscretionSupreme))
+            {
+              LogUtils.LogMessage("Avantage - Voleur : Discrétion Suprème", LogUtils.LogType.Combat);
+              return true;
+            }
+
+            if(creature.ActiveEffects.Any(e => e.Tag == EffectSystem.BenedictionEscrocEffectTag))
+            {
+              LogUtils.LogMessage("Avantage - Bénédiction de l'Escroc", LogUtils.LogType.Combat);
+              return true;
+            }
           }
 
           if ((spellEntry is not null || effectType == SpellEffectType.Trap) &&
@@ -69,21 +78,36 @@ namespace NWN.Systems
 
         case Ability.Wisdom:
 
-          if (spellEntry is not null && (creature.Race.Id == CustomRace.RockGnome || creature.Race.Id == CustomRace.ForestGnome
-            || creature.Race.Id == CustomRace.DeepGnome))
+          if (spellEntry is not null)
           {
-            LogUtils.LogMessage("Avantage - Gnome vs jet mental", LogUtils.LogType.Combat);
-            return true;
-          }
+            if (creature.Race.Id == CustomRace.RockGnome || creature.Race.Id == CustomRace.ForestGnome
+              || creature.Race.Id == CustomRace.DeepGnome)
+            {
+              LogUtils.LogMessage("Avantage - Gnome vs jet mental", LogUtils.LogType.Combat);
+              return true;
+            }
 
-          if (creature.ActiveEffects.Any(e => e.Tag == EffectSystem.LueurDespoirEffectTag))
-          {
-            LogUtils.LogMessage("Avantage - Lueur d'espoir vs jet sagesse", LogUtils.LogType.Combat);
-            return true;
+            if (spellEntry.RowIndex == (int)Spell.CharmPerson && oCaster is NwCreature charmer && creature.IsReactionTypeHostile(charmer))
+            {
+              LogUtils.LogMessage("Avantage - Charme-Personne vs cible hostile", LogUtils.LogType.Combat);
+              return true;
+            }
+
+            if (effectType == SpellEffectType.Stealth && oCaster.ActiveEffects.Any(e => e.Tag == EffectSystem.MarqueDuChasseurTag && e.Creator == creature))
+            {
+              LogUtils.LogMessage("Avantage - Perception vs cible sous Marque du Chasseur", LogUtils.LogType.Combat);
+              return true;
+            }
+
+            if (creature.ActiveEffects.Any(e => e.Tag == EffectSystem.LueurDespoirEffectTag))
+            {
+              LogUtils.LogMessage("Avantage - Lueur d'espoir vs jet sagesse", LogUtils.LogType.Combat);
+              return true;
+            }
           }
 
           break;
-      }
+        }
 
       switch (effectType)
       {
@@ -185,9 +209,7 @@ namespace NWN.Systems
 
             switch (eff.Tag)
             {
-              case EffectSystem.EnlargeEffectTag:
-                LogUtils.LogMessage("Avantage - Agrandissement", LogUtils.LogType.Combat);
-                return true;
+              case EffectSystem.EnlargeEffectTag: LogUtils.LogMessage("Avantage - Agrandissement", LogUtils.LogType.Combat); return true;
               case EffectSystem.RageDuSanglierEffectTag:
               case EffectSystem.BarbarianRageEffectTag:
                 LogUtils.LogMessage("Avantage - Barbare : Rage", LogUtils.LogType.Combat);

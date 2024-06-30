@@ -15,7 +15,7 @@ namespace NWN.Systems
         foreach (string json in jsonArray)
         {
           CustomUnpackedEffect customUnpackedEffect = JsonSerializer.Deserialize<CustomUnpackedEffect>(json);
-
+          
           if (onUse.TargetObject == null)
             customUnpackedEffect.ApplyCustomUnPackedEffectToTarget(onUse.UsedBy, onUse.Item);
           else

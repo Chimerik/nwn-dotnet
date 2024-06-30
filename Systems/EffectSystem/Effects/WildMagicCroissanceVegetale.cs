@@ -46,7 +46,7 @@ namespace NWN.Systems
       if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnExit eventData) || eventData.Exiting is not NwCreature exiting)
         return ScriptHandleResult.Handled;
 
-      EffectUtils.RemoveTaggedEffect(exiting, eventData.Effect.Creator, CroissanceVegetaleEffectTag);
+      EffectUtils.RemoveTaggedEffect(exiting, eventData.Effect.Creator, WildMagicCroissanceVegetaleEffectTag);
 
       return ScriptHandleResult.Handled;
     }

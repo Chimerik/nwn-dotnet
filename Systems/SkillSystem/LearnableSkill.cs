@@ -141,6 +141,7 @@ namespace NWN.Systems
         case SkillSystem.Category.BardSubClass:
         case SkillSystem.Category.RangerSubClass:
         case SkillSystem.Category.PaladinSubClass:
+        case SkillSystem.Category.ClercSubClass:
 
           if (playerLevel < 1)
             playerLevel = player.oid.LoginCreature.Level;

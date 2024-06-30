@@ -19,11 +19,11 @@ namespace NWN.Systems
 
           if (paladinSpellLevel > 0 && paladinSpellLevel < 10 && creature.ActiveEffects.Any(e => e.Tag == EffectSystem.ChampionAntiqueEffectTag && e.Creator == caster))
             return true;
+
+          if (spellEntry.RowIndex == CustomSpell.ConspuerLennemi && Utils.In(creature.Race.RacialType, RacialType.Undead, RacialType.Outsider))
+            return true;
         }
       }
-
-      if (spellEntry.RowIndex == CustomSpell.ConspuerLennemi && Utils.In(creature.Race.RacialType, RacialType.Undead, RacialType.Outsider))
-        return true;
 
       foreach (var eff in creature.ActiveEffects)
       {

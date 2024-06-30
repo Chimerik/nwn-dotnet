@@ -110,6 +110,36 @@ namespace NWN.Systems
           SpellSystem.TempeteDeGrele(oCaster, spell, spellEntry, target, castingClass, targetLocation);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
+
+        case Spell.Bane:
+          concentrationTargets.AddRange(SpellSystem.Fleau(oCaster, spell, spellEntry, castingClass));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.HoldPerson:
+          concentrationTargets.AddRange(SpellSystem.ImmobilisationDePersonne(oCaster, spell, spellEntry, target, castingClass));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.HoldMonster:
+          concentrationTargets.AddRange(SpellSystem.ImmobilisationDeMonstre(oCaster, spell, spellEntry, target, castingClass));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.Haste:
+          concentrationTargets.AddRange(SpellSystem.Hate(oCaster, spell, spellEntry, target));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.AbilityTurnUndead:
+          SpellSystem.RenvoiDesMortsVivants(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.CharmPerson:
+          SpellSystem.CharmePersonne(oCaster, spell, spellEntry, target, castingClass);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
       }
 
       switch (spell.Id)
@@ -269,6 +299,11 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case CustomSpell.Scrutation:
+          SpellSystem.Scrutation(oCaster, spell);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.CordeEnchantee:
           SpellSystem.CordeEnchantee(oCaster, spell);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
@@ -339,6 +374,11 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case CustomSpell.PorteDimensionnelle:
+          SpellSystem.PorteDimensionnelle(oCaster, spell, spellEntry, targetLocation);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.RayonDeLune:
           concentrationTargets.AddRange(SpellSystem.RayonDeLune(oCaster, spell, spellEntry, target));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
@@ -355,6 +395,21 @@ namespace NWN.Systems
 
         case CustomSpell.CroissanceVegetale:
           concentrationTargets.AddRange(SpellSystem.CroissanceVegetale(oCaster, spell, spellEntry, targetLocation));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.MarqueDuChasseur:
+          concentrationTargets.AddRange(SpellSystem.MarqueDuChasseur(oCaster, spell, spellEntry, target));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.Bannissement:
+          concentrationTargets.AddRange(SpellSystem.Bannissement(oCaster, spell, spellEntry, target, castingClass));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.BenedictionEscroc:
+          concentrationTargets.AddRange(SpellSystem.BenedictionEscroc(oCaster, spell, spellEntry, target));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
       }

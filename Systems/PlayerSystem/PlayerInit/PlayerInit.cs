@@ -181,6 +181,7 @@ namespace NWN.Systems
         oid.LoginCreature.OnSpellAction += SpellSystem.HandleCraftOnSpellInput;
         //oid.LoginCreature.OnSpellBroadcast += spellSystem.HandleHearingSpellBroadcast;
         oid.LoginCreature.OnSpellCast += SpellSystem.OnSpellCastCancelDivination;
+        oid.LoginCreature.OnSpellCast += SpellSystem.OnSpellCastSelectTargets;
         oid.LoginCreature.OnSpellCast += spellSystem.HandleCraftEnchantementCast;
         oid.LoginCreature.OnSpellSlotMemorize += HandleMemorizeSpellSlot;
       }
@@ -488,6 +489,7 @@ namespace NWN.Systems
         ApplyAuraDeGarde();
         ApplyPureteDeLesprit();
         ApplySentinelleImmortelle();
+        ApplyVengeurImplacable();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

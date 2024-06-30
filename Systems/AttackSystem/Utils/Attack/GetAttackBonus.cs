@@ -55,11 +55,20 @@ namespace NWN.Systems
         }
       }
 
-      if(attacker.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.WildMagicBienfaitExoTag).ToBool()))
+      foreach(var eff in attacker.m_appliedEffects)
       {
-        int boonBonus = NwRandom.Roll(Utils.random, 4);
-        attackBonus += boonBonus;
-        LogUtils.LogMessage($"Magie Sauvage : +{boonBonus} BA", LogUtils.LogType.Combat);
+        if(eff.m_sCustomTag.CompareNoCase(EffectSystem.WildMagicBienfaitExoTag).ToBool())
+        {
+          int boonBonus = NwRandom.Roll(Utils.random, 4);
+          attackBonus += boonBonus;
+          LogUtils.LogMessage($"Magie Sauvage : +{boonBonus} BA", LogUtils.LogType.Combat);
+        }
+        else if (eff.m_sCustomTag.CompareNoCase(EffectSystem.FleauEffectExoTag).ToBool())
+        {
+          int fleauMalus = NwRandom.Roll(Utils.random, 4);
+          attackBonus -= fleauMalus;
+          LogUtils.LogMessage($"Fléau : -{fleauMalus} BA", LogUtils.LogType.Combat);
+        }
       }
 
       int frappeFrenetiqueMalus = attacker.m_pStats.m_pBaseCreature.m_ScriptVars.GetInt(CreatureUtils.FrappeFrenetiqueMalusVariableExo);

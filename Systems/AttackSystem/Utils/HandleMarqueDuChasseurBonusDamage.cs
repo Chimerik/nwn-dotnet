@@ -6,9 +6,9 @@ namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static int HandleHunterMarkBonusDamage(CNWSCreature creature, CNWSCreature target)
+    public static int HandleMarqueDuChasseurBonusDamage(CNWSCreature creature, CNWSCreature target, CNWSItem weapon)
     {
-      if (target.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.hunterMarkEffectExoTag).ToBool()
+      if (weapon is not null && target.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.MarqueDuChasseurExoTag).ToBool()
         && (e.m_oidCreator == creature.m_idSelf || e.m_oidCreator == creature.m_oidMaster)))
       {
         int bonus = NwRandom.Roll(Utils.random, 6);

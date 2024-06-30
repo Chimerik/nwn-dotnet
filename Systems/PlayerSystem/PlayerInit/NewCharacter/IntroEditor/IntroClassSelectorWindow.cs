@@ -525,6 +525,7 @@ namespace NWN.Systems
             CustomSkill.Bard => Bard.startingPackage.skillChoiceList,
             CustomSkill.Ranger => Ranger.startingPackage.skillChoiceList,
             CustomSkill.Paladin => Paladin.startingPackage.skillChoiceList,
+            CustomSkill.Clerc => Clerc.startingPackage.skillChoiceList,
             _ => Fighter.startingPackage.skillChoiceList,
           };
 
@@ -741,6 +742,7 @@ namespace NWN.Systems
             CustomSkill.Bard => Bard.startingPackage.skillChoiceList,
             CustomSkill.Ranger => Ranger.startingPackage.skillChoiceList,
             CustomSkill.Paladin => Paladin.startingPackage.skillChoiceList,
+            CustomSkill.Clerc => Clerc.startingPackage.skillChoiceList,
             _ => Fighter.startingPackage.skillChoiceList,
           };
 

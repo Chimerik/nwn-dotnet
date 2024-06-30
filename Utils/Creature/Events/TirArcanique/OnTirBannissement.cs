@@ -25,12 +25,8 @@ namespace NWN.Systems
 
         if (saveFailed)
         {
-          target.VisibilityOverride = Anvil.Services.VisibilityMode.Hidden;
-          target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpUnsummon));
-          target.ApplyEffect(EffectDuration.Temporary, Effect.CutsceneParalyze(), NwTimeSpan.FromRounds(1));
-          target.ApplyEffect(EffectDuration.Temporary, EffectSystem.tirBannissementEffect, NwTimeSpan.FromRounds(1));
-          target.PlotFlag = true;
-          onDamage.Attacker.ClearActionQueue();
+          target.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetBannissementEffect(target), NwTimeSpan.FromRounds(1));
+          _ = onDamage.Attacker.ClearActionQueue();
         }
       }
 

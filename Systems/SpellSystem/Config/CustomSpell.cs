@@ -60,5 +60,10 @@
     public const int CroissanceVegetale = 895;
     public const int PassageParLesArbres = 896;    
     public const int ConspuerLennemi = 897;    
+    public const int MarqueDuChasseur = 898;    
+    public const int Bannissement = 899;    
+    public const int PorteDimensionnelle = 900;    
+    public const int Scrutation = 901;    
+    public const int BenedictionEscroc = 902;    
   }
 }

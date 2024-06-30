@@ -50,6 +50,16 @@ namespace NWN.Systems
             protectionNoStack = true;
 
             break;
+
+          case EffectSystem.FleauEffectTag:
+
+            int fleauMalus = NwRandom.Roll(Utils.random, 4);
+            proficiencyBonus -= fleauMalus;
+            LogUtils.LogMessage($"Fléau : -{fleauMalus}", LogUtils.LogType.Combat);
+
+            protectionNoStack = true;
+
+            break;
         }
       }
 

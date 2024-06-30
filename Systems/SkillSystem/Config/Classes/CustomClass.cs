@@ -4,7 +4,7 @@
   {
     public const byte Barbarian = 0;
     public const byte Bard = 1;
-    public const byte Cleric = 2;
+    public const byte Clerc = 2;
     public const byte Druid = 3;
     public const byte Fighter = 4;
     public const byte Paladin = 6;

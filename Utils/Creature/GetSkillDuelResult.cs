@@ -47,7 +47,7 @@ namespace NWN.Systems
         i++;
       }
 
-      int attackerAdvantage = GetCreatureAbilityAdvantage(attacker, attackerAbility, effectType: effectType);
+      int attackerAdvantage = GetCreatureAbilityAdvantage(attacker, attackerAbility, effectType: effectType, caster:target);
       int targetAdvantage = GetCreatureAbilityAdvantage(target, targetAbility, effectType: effectType);
 
       int attackerRoll = GetSkillRoll(attacker, attackerSkill, attackerAdvantage, attackerScore, 0);

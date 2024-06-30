@@ -267,7 +267,7 @@ namespace NWN.Systems
         {
           switch(selectedClass.Id)
           {
-            case CustomClass.Cleric:
+            case CustomClass.Clerc:
             case CustomClass.Druid:
             case CustomClass.Paladin:
             case CustomClass.Wizard:
@@ -283,7 +283,7 @@ namespace NWN.Systems
               };
 
               List<NwSpell> readySpells = new();
-              foreach (var spell in player.learnableSpells.Values.Where(s => s.paladinSerment))
+              foreach (var spell in player.learnableSpells.Values.Where(s => s.paladinSerment || s.clericDomain))
                 readySpells.Add(NwSpell.FromSpellId(spell.id));
 
               var classInfo = player.oid.LoginCreature.GetClassInfo(selectedClass);
@@ -325,9 +325,11 @@ namespace NWN.Systems
                   string tooltip = "Retirer";
                   bool enabled = true;
 
-                  if(player.learnableSpells[spell.Id].paladinSerment)
+                  var learnable = player.learnableSpells[spell.Id];
+
+                  if (learnable.paladinSerment || learnable.clericDomain)
                   {
-                    tooltip = "Vos sorts de serment sont toujours préparés";
+                    tooltip = "Vos sorts de serment et de domaine sont toujours préparés";
                     enabled = false;
                   }
 
@@ -426,7 +428,7 @@ namespace NWN.Systems
             
             switch (selectedClass.Id)
             {
-              case CustomClass.Cleric:
+              case CustomClass.Clerc:
               case CustomClass.Druid:
               case CustomClass.Paladin:
               case CustomClass.Wizard:

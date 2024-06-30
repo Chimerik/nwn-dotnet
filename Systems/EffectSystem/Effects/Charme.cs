@@ -16,7 +16,7 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onApplyCharmCallback;
     private static ScriptCallbackHandle onRemoveCharmCallback;
     public const string CharmEffectTag = "_CHARM_EFFECT";
-    public static Effect charmEffect
+    public static Effect Charme
     {
       get
       {
@@ -89,8 +89,7 @@ namespace NWN.Systems
     }
     public static void OnDamageCharmed(CreatureEvents.OnDamaged onDamage)
     {
-      foreach (var eff in onDamage.Creature.ActiveEffects.Where(e => e.Tag == CharmEffectTag))
-        onDamage.Creature.RemoveEffect(eff);
+      EffectUtils.RemoveTaggedEffect(onDamage.Creature, CharmEffectTag);
     }
     [ScriptHandler("on_charm_attack")]
     private void OnCharmAttack(CallInfo callInfo)

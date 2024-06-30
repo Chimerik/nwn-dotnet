@@ -1,10 +1,7 @@
-﻿using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using Anvil.API;
+﻿using Anvil.API;
 using Anvil.Services;
 using NWN.Core.NWNX;
 using NWN.Core;
-using NWN.Native.API;
 
 namespace NWN.Systems
 {

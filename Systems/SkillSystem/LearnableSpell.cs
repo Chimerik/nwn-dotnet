@@ -14,6 +14,7 @@ namespace NWN.Systems
     public List<int> learntFromClasses { get; set; }
     public bool mastery { get; set; }
     public bool paladinSerment { get; set; }
+    public bool clericDomain { get; set; }
     // Dans le cas des Spell, multiplier = spell Level - 1
 
     public LearnableSpell(int id, string name, string description, string icon, int multiplier, Ability primaryAbility, Ability secondaryAbility, List<ClassType> classes, int maxLevel = 1) : base(id, name, description, icon, maxLevel, multiplier, primaryAbility, secondaryAbility)
@@ -30,6 +31,7 @@ namespace NWN.Systems
       learntFromClasses = new() { fromClass };
       mastery = false;
       paladinSerment = false;
+      clericDomain = false;
     }
     public LearnableSpell(LearnableSpell learnableBase, List<int> fromClass) : base(learnableBase)
     {
@@ -41,6 +43,7 @@ namespace NWN.Systems
       learntFromClasses = fromClass;
       mastery = false;
       paladinSerment = false;
+      clericDomain = false;
     }
     public LearnableSpell(LearnableSpell learnableBase, SerializableLearnableSpell serializableBase) : base(learnableBase)
     {
@@ -54,6 +57,7 @@ namespace NWN.Systems
       learntFromClasses = serializableBase.learntFromClasses;
       mastery = serializableBase.mastery;
       paladinSerment = serializableBase.paladinSerment;
+      clericDomain = serializableBase.clericDomain;
     }
 
     public class SerializableLearnableSpell
@@ -64,6 +68,7 @@ namespace NWN.Systems
       public bool canLearn { get; set; }
       public bool mastery { get; set; }
       public bool paladinSerment { get; set; }
+      public bool clericDomain { get; set; }
       public List<int> learntFromClasses { get; set; }
       public DateTime? spLastCalculation { get; set; }
 
@@ -81,6 +86,7 @@ namespace NWN.Systems
         mastery = learnableBase.mastery;
         learntFromClasses = learnableBase.learntFromClasses;
         paladinSerment = learnableBase.paladinSerment;
+        clericDomain = learnableBase.clericDomain;
       }
     }
     public void LevelUp(Player player)
@@ -103,7 +109,7 @@ namespace NWN.Systems
         {
           switch (casterClass)
           {
-            case CustomClass.Cleric:
+            case CustomClass.Clerc:
             case CustomClass.Druid:
             case CustomClass.Paladin:
             case CustomClass.Wizard: continue;

@@ -183,6 +183,12 @@ namespace NWN.Systems
           new StrRef(12).SetPlayerOverride(oid, "Serment de Vengeance");
           oid.SetTextureOverride("paladin", "vengeance");
         }
+
+        if (learnableSkills.ContainsKey(CustomSkill.ClercDuperie))
+        {
+          new StrRef(12).SetPlayerOverride(oid, "Domaine de la Duperie");
+          oid.SetTextureOverride("clerc", "duperie");
+        }
       }
     }
   }

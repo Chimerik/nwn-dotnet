@@ -597,6 +597,8 @@ namespace NWN.Systems
                     FighterUtils.RestoreEldritchKnight(player.oid.LoginCreature);
                     BardUtils.RestoreInspirationBardique(player.oid.LoginCreature);
                     PaladinUtils.RestorePaladinCharges(player.oid.LoginCreature);
+                    ClercUtils.RestoreConduitDivin(player.oid.LoginCreature);
+                    ClercUtils.RestoreInterventionDivine(player.oid.LoginCreature);
 
                     if (player.oid.LoginCreature.Race.Id == CustomRace.HalfOrc)
                     {

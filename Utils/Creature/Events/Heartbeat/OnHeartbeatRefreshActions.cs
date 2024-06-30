@@ -30,6 +30,7 @@ namespace NWN.Systems
         creature.GetObjectVariable<LocalVariableInt>(FurieBestialeCoolDownVariable).Delete();
         creature.GetObjectVariable<LocalVariableObject<NwCreature>>(OpportunisteVariable).Delete();
         creature.GetObjectVariable<LocalVariableObject<NwCreature>>(BersekerRepresaillesVariable).Delete();
+        creature.GetObjectVariable<LocalVariableObject<NwCreature>>(VoeuHostileVariable).Delete();
         HandleGoadingRoarCooldown(creature);
 
         if (creature.IsPlayerControlled)

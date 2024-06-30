@@ -346,6 +346,13 @@
     public const int AnciensCourrouxDeLaNature = 1613;
     public const int AnciensGuerisonRayonnante = 1614;
     public const int AnciensChampionAntique = 1615;
+    public const int PaladinVoeuHostile = 1616;
+    public const int PaladinPuissanceInquisitrice = 1617;
+    public const int PaladinConspuerEnnemi = 1618;
+    public const int AngeDeLaVengeance = 1619;
+
+    public const int ClercInterventionDivine = 1620;
+    public const int ClercBenedictionEscroc = 1621;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -913,9 +920,13 @@
     public const int PaladinSentinelleImmortelle = 20604;
 
     public const int PaladinSermentVengeance = 20605;
-    public const int PaladinVoeuHostile = 20606;
-    public const int PaladinPuissanceInquisitrice = 20607;
-    public const int PaladinConspuerEnnemi = 20608;
+    public const int PaladinVengeurImplacable = 20606;
+
+    public const int Clerc = 20607;
+    public const int ClercRenvoiDesMortsVivants = 20608;
+    public const int ClercDestructionDesMortsVivants = 20609;
+    public const int ClercDuperie = 20610;
+    
     
 
 

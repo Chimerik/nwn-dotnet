@@ -185,7 +185,7 @@ namespace NWN.Systems
           int spellLevel13 = spell13.GetSpellLevelForClass(ClassType.Paladin);
           player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).KnownSpells[spellLevel13].Add(spell13);
 
-          if (player.learnableSpells.TryGetValue((int)Spell.Stoneskin, out learnable13))
+          if (player.learnableSpells.TryGetValue((int)Spell.IceStorm, out learnable13))
           {
             learnable13.learntFromClasses.Add(CustomClass.Paladin);
             learnable13.paladinSerment = true;
@@ -195,12 +195,12 @@ namespace NWN.Systems
           }
           else
           {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.Stoneskin], CustomClass.Paladin) { paladinSerment = true };
+            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.IceStorm], CustomClass.Paladin) { paladinSerment = true };
             player.learnableSpells.Add(learnableSpell.id, learnableSpell);
             learnableSpell.LevelUp(player);
           }
 
-          spell13 = NwSpell.FromSpellType(Spell.Stoneskin);
+          spell13 = NwSpell.FromSpellType(Spell.IceStorm);
           spellLevel13 = spell13.GetSpellLevelForClass(ClassType.Paladin);
           player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).KnownSpells[spellLevel13].Add(spell13);
 

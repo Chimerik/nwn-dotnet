@@ -29,7 +29,7 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.PaladinConspuerEnnemi].LevelUp(player);
           player.learnableSkills[CustomSkill.PaladinConspuerEnnemi].source.Add(Category.Class);
 
-          if (player.learnableSpells.TryGetValue(CustomSpell.SpeakAnimal, out var learnable))
+          if (player.learnableSpells.TryGetValue(CustomSpell.MarqueDuChasseur, out var learnable))
           {
             learnable.learntFromClasses.Add(CustomClass.Paladin);
             learnable.paladinSerment = true;
@@ -39,12 +39,12 @@ namespace NWN.Systems
           }
           else
           {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[CustomSpell.SpeakAnimal], CustomClass.Paladin) { paladinSerment = true };
+            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[CustomSpell.MarqueDuChasseur], CustomClass.Paladin) { paladinSerment = true };
             player.learnableSpells.Add(learnableSpell.id, learnableSpell);
             learnableSpell.LevelUp(player);
           }
 
-          NwSpell spell = NwSpell.FromSpellType(Spell.Bane);
+          NwSpell spell = NwSpell.FromSpellId(CustomSpell.MarqueDuChasseur);
           int spellLevel = spell.GetSpellLevelForClass(ClassType.Paladin);
           player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).KnownSpells[spellLevel].Add(spell);
 
@@ -90,7 +90,7 @@ namespace NWN.Systems
           int spellLevel5 = spell5.GetSpellLevelForClass(ClassType.Paladin);
           player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).KnownSpells[spellLevel5].Add(spell5);
 
-          if (player.learnableSpells.TryGetValue(CustomSpell.RayonDeLune, out learnable))
+          if (player.learnableSpells.TryGetValue((int)Spell.HoldPerson, out learnable))
           {
             learnable.learntFromClasses.Add(CustomClass.Paladin);
             learnable.paladinSerment = true;
@@ -100,12 +100,12 @@ namespace NWN.Systems
           }
           else
           {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[CustomSpell.RayonDeLune], CustomClass.Paladin) { paladinSerment = true };
+            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.HoldPerson], CustomClass.Paladin) { paladinSerment = true };
             player.learnableSpells.Add(learnableSpell.id, learnableSpell);
             learnableSpell.LevelUp(player);
           }
 
-          spell = NwSpell.FromSpellId(CustomSpell.RayonDeLune);
+          spell = NwSpell.FromSpellType(Spell.HoldPerson);
           spellLevel = spell.GetSpellLevelForClass(ClassType.Paladin);
           player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).KnownSpells[spellLevel].Add(spell);
 
@@ -114,11 +114,12 @@ namespace NWN.Systems
 
         case 7:
 
-          player.learnableSkills.TryAdd(CustomSkill.PaladinAuraDeDevotion, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PaladinAuraDeDevotion], player));
-          player.learnableSkills[CustomSkill.PaladinAuraDeDevotion].LevelUp(player);
-          player.learnableSkills[CustomSkill.PaladinAuraDeDevotion].source.Add(Category.Class);
+          player.learnableSkills.TryAdd(CustomSkill.PaladinVengeurImplacable, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PaladinVengeurImplacable], player));
+          player.learnableSkills[CustomSkill.PaladinVengeurImplacable].LevelUp(player);
+          player.learnableSkills[CustomSkill.PaladinVengeurImplacable].source.Add(Category.Class);
 
-          NWScript.AssignCommand(player.oid.LoginCreature, () => player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetAuraDeGarde(7)));
+          player.oid.LoginCreature.OnCreatureAttack -= PaladinUtils.OnAttackVengeurImplacable;
+          player.oid.LoginCreature.OnCreatureAttack += PaladinUtils.OnAttackVengeurImplacable;
 
           break;
 
@@ -143,7 +144,7 @@ namespace NWN.Systems
           int spellLevel9 = spell9.GetSpellLevelForClass(ClassType.Paladin);
           player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).KnownSpells[spellLevel9].Add(spell9);
 
-          if (player.learnableSpells.TryGetValue(CustomSpell.CroissanceVegetale, out learnable9))
+          if (player.learnableSpells.TryGetValue((int)Spell.Haste, out learnable9))
           {
             learnable9.learntFromClasses.Add(CustomClass.Paladin);
             learnable9.paladinSerment = true;
@@ -153,12 +154,12 @@ namespace NWN.Systems
           }
           else
           {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[CustomSpell.CroissanceVegetale], CustomClass.Paladin) { paladinSerment = true };
+            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.Haste], CustomClass.Paladin) { paladinSerment = true };
             player.learnableSpells.Add(learnableSpell.id, learnableSpell);
             learnableSpell.LevelUp(player);
           }
 
-          spell9 = NwSpell.FromSpellId(CustomSpell.CroissanceVegetale);
+          spell9 = NwSpell.FromSpellType(Spell.Haste);
           spellLevel9 = spell9.GetSpellLevelForClass(ClassType.Paladin);
           player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).KnownSpells[spellLevel9].Add(spell9);
 
@@ -166,7 +167,7 @@ namespace NWN.Systems
 
         case 13:
 
-          if (player.learnableSpells.TryGetValue((int)Spell.Stoneskin, out var learnable13))
+          if (player.learnableSpells.TryGetValue(CustomSpell.Bannissement, out var learnable13))
           {
             learnable13.learntFromClasses.Add(CustomClass.Paladin);
             learnable13.paladinSerment = true;
@@ -176,16 +177,16 @@ namespace NWN.Systems
           }
           else
           {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.Stoneskin], CustomClass.Paladin) { paladinSerment = true };
+            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[CustomSpell.Bannissement], CustomClass.Paladin) { paladinSerment = true };
             player.learnableSpells.Add(learnableSpell.id, learnableSpell);
             learnableSpell.LevelUp(player);
           }
 
-          NwSpell spell13 = NwSpell.FromSpellType(Spell.Stoneskin);
+          NwSpell spell13 = NwSpell.FromSpellId(CustomSpell.Bannissement);
           int spellLevel13 = spell13.GetSpellLevelForClass(ClassType.Paladin);
           player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).KnownSpells[spellLevel13].Add(spell13);
 
-          if (player.learnableSpells.TryGetValue((int)Spell.Stoneskin, out learnable13))
+          if (player.learnableSpells.TryGetValue(CustomSpell.PorteDimensionnelle, out learnable13))
           {
             learnable13.learntFromClasses.Add(CustomClass.Paladin);
             learnable13.paladinSerment = true;
@@ -195,30 +196,20 @@ namespace NWN.Systems
           }
           else
           {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.Stoneskin], CustomClass.Paladin) { paladinSerment = true };
+            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[CustomSpell.PorteDimensionnelle], CustomClass.Paladin) { paladinSerment = true };
             player.learnableSpells.Add(learnableSpell.id, learnableSpell);
             learnableSpell.LevelUp(player);
           }
 
-          spell13 = NwSpell.FromSpellType(Spell.Stoneskin);
+          spell13 = NwSpell.FromSpellId(CustomSpell.PorteDimensionnelle);
           spellLevel13 = spell13.GetSpellLevelForClass(ClassType.Paladin);
           player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).KnownSpells[spellLevel13].Add(spell13);
 
           break;
 
-        case 15:
-
-          NWScript.AssignCommand(player.oid.LoginCreature, () => player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.ProtectionContreLeMalEtLeBien));
-
-          player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.SentinelleImmortelle);
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(EffectSystem.SentinelleImmortelleVariable).Value = 1;
-          player.oid.LoginCreature.OnDamaged += PaladinUtils.HandleSentinelleImmortelle;
-          
-          break;
-
         case 17:
 
-          if (player.learnableSpells.TryGetValue(CustomSpell.CommunionAvecLaNature, out var learnable17))
+          if (player.learnableSpells.TryGetValue((int)Spell.HoldMonster, out var learnable17))
           {
             learnable17.learntFromClasses.Add(CustomClass.Paladin);
             learnable17.paladinSerment = true;
@@ -228,16 +219,16 @@ namespace NWN.Systems
           }
           else
           {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[CustomSpell.CommunionAvecLaNature], CustomClass.Paladin) { paladinSerment = true };
+            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.HoldMonster], CustomClass.Paladin) { paladinSerment = true };
             player.learnableSpells.Add(learnableSpell.id, learnableSpell);
             learnableSpell.LevelUp(player);
           }
 
-          NwSpell spell17 = NwSpell.FromSpellId(CustomSpell.CommunionAvecLaNature);
+          NwSpell spell17 = NwSpell.FromSpellType(Spell.HoldMonster);
           int spellLevel17 = spell17.GetSpellLevelForClass(ClassType.Paladin);
           player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).KnownSpells[spellLevel17].Add(spell17);
 
-          if (player.learnableSpells.TryGetValue(CustomSpell.PassageParLesArbres, out learnable17))
+          if (player.learnableSpells.TryGetValue(CustomSpell.Scrutation, out learnable17))
           {
             learnable17.learntFromClasses.Add(CustomClass.Paladin);
             learnable17.paladinSerment = true;
@@ -247,29 +238,22 @@ namespace NWN.Systems
           }
           else
           {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[CustomSpell.PassageParLesArbres], CustomClass.Paladin) { paladinSerment = true };
+            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[CustomSpell.Scrutation], CustomClass.Paladin) { paladinSerment = true };
             player.learnableSpells.Add(learnableSpell.id, learnableSpell);
             learnableSpell.LevelUp(player);
           }
 
-          spell17 = NwSpell.FromSpellId(CustomSpell.PassageParLesArbres);
+          spell17 = NwSpell.FromSpellId(CustomSpell.Scrutation);
           spellLevel17 = spell17.GetSpellLevelForClass(ClassType.Paladin);
           player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).KnownSpells[spellLevel17].Add(spell17);
 
           break;
 
-        case 18:
-
-          EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.AuraDeGardeEffectTag);
-          NWScript.AssignCommand(player.oid.LoginCreature, () => player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetAuraDeGarde(18)));
-
-          break;
-
         case 20:
 
-          player.learnableSkills.TryAdd(CustomSkill.AnciensChampionAntique, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AnciensChampionAntique], player));
-          player.learnableSkills[CustomSkill.AnciensChampionAntique].LevelUp(player);
-          player.learnableSkills[CustomSkill.AnciensChampionAntique].source.Add(Category.Class);
+          player.learnableSkills.TryAdd(CustomSkill.AngeDeLaVengeance, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AngeDeLaVengeance], player));
+          player.learnableSkills[CustomSkill.AngeDeLaVengeance].LevelUp(player);
+          player.learnableSkills[CustomSkill.AngeDeLaVengeance].source.Add(Category.Class);
 
           break;
       }

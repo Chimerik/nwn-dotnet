@@ -24,6 +24,8 @@ namespace NWN.Systems
 
       onRemoveAgressionOrcCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveAgressionOrc);
 
+      onRemoveHateCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveHate);
+
       onRemoveChargeurCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveChargeur);
 
       onRemoveBrandingSmiteRevealCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveBrandingSmite);
@@ -36,7 +38,7 @@ namespace NWN.Systems
 
       onRemoveBoneChillCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveBoneChill);
 
-      onRemoveTirBannissementCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveTirBannissement);
+      onRemoveBannissementCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveBannissement);
 
       onRemoveTirAffaiblissantCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveTirAffaiblissant);
 
@@ -83,6 +85,7 @@ namespace NWN.Systems
       onEnterPerceptionAveugleCallback = scriptHandleFactory.CreateUniqueHandler(onEnterPerceptionAveugle);
 
       onIntervalRegardHypnotiqueCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalRegardHypnotique);
+      onIntervalImmobilisationDePersonneCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalImmobilisationDePersonne);
 
       onRemoveTemporaryConSaveCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveTemporaryConSave);
 
@@ -134,6 +137,11 @@ namespace NWN.Systems
 
       onEnterWildMagicCroissanceVegetaleCallback = scriptHandleFactory.CreateUniqueHandler(onEnterWildMagicCroissanceVegetale);
       onExitWildMagicCroissanceVegetaleCallback = scriptHandleFactory.CreateUniqueHandler(onExitWildMagicCroissanceVegetale);
+
+      onRemoveMarqueDuChasseur = scriptHandleFactory.CreateUniqueHandler(OnRemoveMarqueDuChasseur);
+
+      onEnterAngeDeLaVengeanceCallback = scriptHandleFactory.CreateUniqueHandler(onEnterAngeDeLaVengeance);
+      onIntervalAngeDeLaVengeanceCallback = scriptHandleFactory.CreateUniqueHandler(onIntervalAngeDeLaVengeance);
     }
   }
 }

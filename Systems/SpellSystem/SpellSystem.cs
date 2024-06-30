@@ -763,6 +763,13 @@ namespace NWN.Systems
         }
       }
 
+      if(spell.Id == CustomSpell.MarqueDuChasseur && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.FreeMarqueDuChasseurTag))
+      {
+        EffectUtils.RemoveTaggedEffect(caster, EffectSystem.FreeMarqueDuChasseurTag);
+        EventsPlugin.SkipEvent();
+        return;
+      }
+
       if (spell.GetSpellLevelForClass(caster.Classes[classPosition].Class) > 0)
         return;
 

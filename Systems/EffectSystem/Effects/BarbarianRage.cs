@@ -98,7 +98,7 @@ namespace NWN.Systems
       if (target.KnowsFeat((Feat)CustomSkill.WildMagicSense))
       {
         EffectUtils.RemoveTaggedEffect(target, WildMagicEspritIntangibleEffectTag, WildMagicRayonDeLumiereEffectTag, WildMagicRepresaillesEffectTag,
-          LumieresProtectricesAuraEffectTag, WildMagicCroissanceVegetaleEffectTag);
+          LumieresProtectricesAuraEffectTag, WildMagicCroissanceVegetaleAuraEffectTag);
 
         target.GetObjectVariable<LocalVariableInt>("_WILDMAGIC_TELEPORTATION").Delete();
         target.SetFeatRemainingUses((Feat)CustomSkill.WildMagicTeleportation, 0);

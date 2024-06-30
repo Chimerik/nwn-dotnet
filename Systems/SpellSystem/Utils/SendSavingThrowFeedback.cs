@@ -31,6 +31,16 @@ namespace NWN.Systems
         }
       }
 
+      switch(ability)
+      {
+        case Ability.Strength:
+        case Ability.Dexterity: target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpReflexSaveThrowUse)); break;
+        case Ability.Constitution: target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpFortitudeSavingThrowUse)); break;
+        case Ability.Intelligence:
+        case Ability.Wisdom:
+        case Ability.Charisma: target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpWillSavingThrowUse)); break;
+      }
+
       LogUtils.LogMessage($"{target.Name} - {advantageString}{rollString} {hitString}".StripColors(), LogUtils.LogType.Combat);
     }
   }

@@ -68,6 +68,9 @@ namespace NWN.Systems
     public static readonly CExoString ManoeuvreDiversionExpiredVariableExo = "_MANOEUVRE_DIVERSION_EXPIRED".ToExoString();
     public static readonly CExoString ManoeuvreRiposteVariableExo = "_MANOEUVRE_RIPOSTE".ToExoString();
 
+    public const string VoeuHostileVariable = "_VOEU_HOSTILE";
+    public static readonly CExoString VoeuHostileVariableExo = VoeuHostileVariable.ToExoString();
+
     public const string FrappeFrenetiqueVariable = "_FRAPPE_FRENETIQUE_BONUS";
     public static readonly CExoString FrappeFrenetiqueVariableExo = FrappeFrenetiqueVariable.ToExoString();
 

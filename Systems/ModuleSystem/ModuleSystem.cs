@@ -1282,7 +1282,7 @@ namespace NWN.Systems
       if (target.MovementType != MovementType.Stationary)
       {
         if (target.ActiveEffects.Any(e => EffectUtils.In(e.Tag, EffectSystem.DisengageffectTag, EffectSystem.ManoeuvreTactiqueEffectTag, 
-          EffectSystem.LienTotemElanAuraEffectTag)))
+          EffectSystem.LienTotemElanAuraEffectTag, EffectSystem.VengeurImplacableEffectTag)))
         {
           if (creature.KnowsFeat((Feat)CustomSkill.Sentinelle))
             creature.GetObjectVariable<LocalVariableString>(CreatureUtils.OpportunityAttackTypeVariable).Value = "(Sentinelle) ";

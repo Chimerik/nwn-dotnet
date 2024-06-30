@@ -333,6 +333,7 @@ namespace NWN.Systems
       NativeUtils.HandleVolee(creature, targetObject, combatRound, attackData.m_bRangedAttack.ToBool(), attackerName);
       NativeUtils.HandleAttaqueCoordonnee(creature, targetObject, combatRound);
       NativeUtils.HandleFurieBestiale(creature, targetObject, combatRound, attackerName);
+      NativeUtils.HandleVoeuHostile(creature, combatRound, attackData, attackerName);
     }
     private int OnAddUseTalentOnObjectHook(void* pCreature, int talentType, int talentId, uint oidTarget, byte nMultiClass, uint oidItem, int nItemPropertyIndex, byte nCasterLevel, int nMetaType)
     {
@@ -538,7 +539,7 @@ namespace NWN.Systems
 
       if (targetCreature is not null)
       {
-        baseDamage += NativeUtils.HandleHunterMarkBonusDamage(attacker, targetCreature);
+        baseDamage += NativeUtils.HandleMarqueDuChasseurBonusDamage(attacker, targetCreature, attackWeapon);
         baseDamage += NativeUtils.HandlePourfendeurDeColosse(attacker, targetCreature, attackWeapon);
         baseDamage -= NativeUtils.HandleMaitreArmureLourde(targetCreature);
         baseDamage -= NativeUtils.HandleParade(targetCreature);
