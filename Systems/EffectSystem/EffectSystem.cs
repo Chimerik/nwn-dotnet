@@ -100,6 +100,7 @@ namespace NWN.Systems
       onRemoveRageDuSanglierCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveRageDuSanglier);
 
       onIntervalSpiderCocoonCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalSpiderCocoon);
+      onIntervalTerreurCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalTerreur);
       onIntervalChatimentDivinCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalChatimentDivin);
 
       onIntervalNimbeSacreeCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalNimbeSacree);
@@ -138,10 +139,17 @@ namespace NWN.Systems
       onEnterWildMagicCroissanceVegetaleCallback = scriptHandleFactory.CreateUniqueHandler(onEnterWildMagicCroissanceVegetale);
       onExitWildMagicCroissanceVegetaleCallback = scriptHandleFactory.CreateUniqueHandler(onExitWildMagicCroissanceVegetale);
 
-      onRemoveMarqueDuChasseur = scriptHandleFactory.CreateUniqueHandler(OnRemoveMarqueDuChasseur);
+      onRemoveMarqueDuChasseurCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveMarqueDuChasseur);
 
       onEnterAngeDeLaVengeanceCallback = scriptHandleFactory.CreateUniqueHandler(onEnterAngeDeLaVengeance);
       onIntervalAngeDeLaVengeanceCallback = scriptHandleFactory.CreateUniqueHandler(onIntervalAngeDeLaVengeance);
+
+      onEnterRepliqueInvoqueeCallback = scriptHandleFactory.CreateUniqueHandler(onEnterRepliqueInvoquee);
+      onExitRepliqueInvoqueeCallback = scriptHandleFactory.CreateUniqueHandler(onExitRepliqueInvoquee);
+      onRemoveRepliqueInvoqueeCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveRepliqueInvoquee);
+
+      onRemoveMaledictionDegatsCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveMaledictionDegats);
+      onIntervalMaledictionEffroiCallback = scriptHandleFactory.CreateUniqueHandler(onIntervalMaledictionEffroi);
     }
   }
 }

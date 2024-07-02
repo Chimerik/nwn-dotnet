@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
 
@@ -32,7 +33,8 @@ namespace NWN.Systems
     }
     private static ScriptHandleResult onEnterCroissanceVegetale(CallInfo callInfo)
     {
-      if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) || eventData.Entering is not NwCreature entering)
+      if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) || eventData.Entering is not NwCreature entering
+        || entering.ActiveEffects.Any(e => e.Tag == WildMagicCroissanceVegetaleEffectTag))
         return ScriptHandleResult.Handled;
 
       entering.ApplyEffect(EffectDuration.Permanent, CroissanceVegetale);
@@ -44,7 +46,7 @@ namespace NWN.Systems
       if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnExit eventData) || eventData.Exiting is not NwCreature exiting)
         return ScriptHandleResult.Handled;
 
-      EffectUtils.RemoveTaggedEffect(exiting, CroissanceVegetaleEffectTag);
+      EffectUtils.RemoveTaggedEffect(exiting, eventData.Effect.Creator, CroissanceVegetaleEffectTag);
 
       return ScriptHandleResult.Handled;
     }

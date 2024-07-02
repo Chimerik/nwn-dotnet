@@ -1,25 +1,41 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Anvil.API;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static List<NwGameObject> Invisibility(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget)
+    public static List<NwGameObject> Invisibility(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwFeat feat)
     {
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType, false);
-      DelayInvisEffect(oCaster, oTarget, spellEntry);
+      DelayInvisEffect(oCaster, oTarget, spellEntry, feat);
 
       return new List<NwGameObject> { oTarget };
     }
-    private static async void DelayInvisEffect(NwGameObject oCaster, NwGameObject oTarget, SpellEntry spellEntry)
+    private static async void DelayInvisEffect(NwGameObject oCaster, NwGameObject oTarget, SpellEntry spellEntry, NwFeat feat)
     {
       await NwTask.NextFrame();
 
-      oTarget.ApplyEffect(EffectDuration.Temporary, Effect.LinkEffects(Effect.Invisibility(InvisibilityType.Normal)), NwTimeSpan.FromRounds(spellEntry.duration));
+      TimeSpan duration = NwTimeSpan.FromRounds(spellEntry.duration);
 
-      if (oCaster is NwCreature caster && caster.KnowsFeat((Feat)CustomSkill.MonkLinceulDombre))
-        caster.IncrementRemainingFeatUses((Feat)CustomSkill.MonkLinceulDombre);
+      if (oCaster is NwCreature caster && feat is not null && feat.Id == CustomSkill.MonkLinceulDombre)
+      {
+        switch(feat.Id)
+        {
+          case CustomSkill.MonkLinceulDombre:
+            caster.IncrementRemainingFeatUses(feat.FeatType);
+            duration = NwTimeSpan.FromRounds(10);
+            break;
+
+          case CustomSkill.ClercLinceulDombre:
+            caster.IncrementRemainingFeatUses(feat.FeatType);
+            ClercUtils.ConsumeConduitDivin(caster);
+            break;
+        }
+      }
+
+      oTarget.ApplyEffect(EffectDuration.Temporary, Effect.LinkEffects(Effect.Invisibility(InvisibilityType.Normal)), duration);
     }
   }
 }

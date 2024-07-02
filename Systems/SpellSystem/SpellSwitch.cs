@@ -56,7 +56,7 @@ namespace NWN.Systems
           break;*/
 
         case Spell.Invisibility:
-          concentrationTargets.AddRange(SpellSystem.Invisibility(oCaster, spell, spellEntry, target));
+          concentrationTargets.AddRange(SpellSystem.Invisibility(oCaster, spell, spellEntry, target, feat));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -138,6 +138,11 @@ namespace NWN.Systems
 
         case Spell.CharmPerson:
           SpellSystem.CharmePersonne(oCaster, spell, spellEntry, target, castingClass);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.Fear:
+          concentrationTargets.AddRange(SpellSystem.Terreur(oCaster, spell, spellEntry, target, castingClass, targetLocation));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
       }
@@ -410,6 +415,40 @@ namespace NWN.Systems
 
         case CustomSpell.BenedictionEscroc:
           concentrationTargets.AddRange(SpellSystem.BenedictionEscroc(oCaster, spell, spellEntry, target));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.RepliqueInvoquee:
+          concentrationTargets.AddRange(SpellSystem.RepliqueInvoquee(oCaster, spell, spellEntry));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.ImageMiroir:
+          SpellSystem.ImageMiroir(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.MaledictionAttaque:
+          concentrationTargets.AddRange(SpellSystem.MaledictionAttaque(oCaster, spell, spellEntry, target, castingClass));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.MaledictionDegats:
+          concentrationTargets.AddRange(SpellSystem.MaledictionDegats(oCaster, spell, spellEntry, target, castingClass));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.MaledictionEffroi:
+          concentrationTargets.AddRange(SpellSystem.MaledictionEffroi(oCaster, spell, spellEntry, target, castingClass));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.MaledictionForce:
+        case CustomSpell.MaledictionDexterite:
+        case CustomSpell.MaledictionConstitution:
+        case CustomSpell.MaledictionIntelligence:
+        case CustomSpell.MaledictionSagesse:
+          concentrationTargets.AddRange(SpellSystem.MaledictionCaracteristique(oCaster, spell, spellEntry, target, castingClass, spell.Id));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
       }

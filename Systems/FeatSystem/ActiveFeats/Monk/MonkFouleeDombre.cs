@@ -50,6 +50,7 @@ namespace NWN.Systems
 
       Vector3 safePosition = CreaturePlugin.ComputeSafeLocation(ModuleSystem.placeholderTemplate, target.Position, 2);
 
+      _ = caster.ClearActionQueue();
       caster.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
       caster.Position = safePosition;
       caster.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
@@ -58,6 +59,9 @@ namespace NWN.Systems
 
       if (weapon is null || !weapon.BaseItem.IsRangedWeapon)
         caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.FouleeDombre, NwTimeSpan.FromRounds(1));
+
+      if(caster.IsReactionTypeHostile(target))
+        _ = caster.ActionAttackTarget(target);
     }
   }
 }

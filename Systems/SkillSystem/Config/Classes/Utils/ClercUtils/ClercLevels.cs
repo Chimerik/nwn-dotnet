@@ -38,7 +38,8 @@ namespace NWN.Systems
 
           foreach(var spell in NwRuleset.Spells.Where(s => s.GetSpellLevelForClass(ClassType.Cleric) > 0 && s.GetSpellLevelForClass(ClassType.Cleric) < 10))
           {
-            if (Utils.In(spell.Id, CustomSpell.Deguisement, (int)Spell.CharmPerson))
+            if (Utils.In(spell.Id, CustomSpell.Deguisement, (int)Spell.CharmPerson, CustomSpell.PassageSansTrace, CustomSpell.ImageMiroir,
+              (int)Spell.Fear, (int)Spell.PolymorphSelf, CustomSpell.PorteDimensionnelle))
               continue;// ces sorts ne font pas partie du package de clerc mais peuvent être appris via le domaine
 
             if (player.learnableSpells.TryGetValue(spell.Id, out var learnable))

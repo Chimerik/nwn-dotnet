@@ -58,6 +58,12 @@ namespace NWN.Systems
               LogUtils.LogMessage("Désavantage - Bouclier ou Armure non maîtrisé", LogUtils.LogType.Combat);
               return true;
             }
+            else if (EffectSystem.MaledictionForceEffectTag == eff.Tag)
+            {
+              LogUtils.LogMessage("Désavantage - Malédiction force", LogUtils.LogType.Combat);
+              return true;
+            }
+             
             break;
 
           case Ability.Dexterity:
@@ -72,6 +78,11 @@ namespace NWN.Systems
               LogUtils.LogMessage("Désavantage - Courroux de la Nature", LogUtils.LogType.Combat);
               return true;
             }
+            else if (EffectSystem.MaledictionDexteriteEffectTag == eff.Tag)
+            {
+              LogUtils.LogMessage("Désavantage - Malédiction Dextérité", LogUtils.LogType.Combat);
+              return true;
+            }
 
             break;
 
@@ -80,6 +91,31 @@ namespace NWN.Systems
             if (EffectUtils.In(eff.Tag, EffectSystem.SaignementEffectTag, EffectSystem.MorsureInfectieuseEffectTag))
             {
               LogUtils.LogMessage("Désavantage - Saignement ou Morsure Infectieuse", LogUtils.LogType.Combat);
+              return true;
+            }
+            else if (EffectSystem.MaledictionConstitutionEffectTag == eff.Tag)
+            {
+              LogUtils.LogMessage("Désavantage - Malédiction Constitution", LogUtils.LogType.Combat);
+              return true;
+            }
+            
+            break;
+
+          case Ability.Intelligence:
+
+            if (EffectSystem.MaledictionIntelligenceEffectTag == eff.Tag)
+            {
+              LogUtils.LogMessage("Désavantage - Malédiction Intelligence", LogUtils.LogType.Combat);
+              return true;
+            }
+
+            break;
+
+          case Ability.Wisdom:
+
+            if (EffectSystem.MaledictionSagesseEffectTag == eff.Tag)
+            {
+              LogUtils.LogMessage("Désavantage - Malédiction Sagesse", LogUtils.LogType.Combat);
               return true;
             }
 

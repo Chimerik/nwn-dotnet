@@ -105,9 +105,9 @@ namespace NWN.Systems
             if (myCommandList.TryGetValue("instantLearn", out var instantLearn))
             {
               if(player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_INSTANT_LEARN").HasValue)
-                instantLearn.label = "Désactiver l'apprentissage instantanné (Alpha)";
+                instantLearn.label = "Désactiver l'apprentissage instantané (Alpha)";
               else
-                instantLearn.label = "Activer l'apprentissage instantanné (Alpha)";
+                instantLearn.label = "Activer l'apprentissage instantané (Alpha)";
             }
             currentList = myCommandList;
             LoadMenu(currentList);

@@ -65,5 +65,16 @@
     public const int PorteDimensionnelle = 900;    
     public const int Scrutation = 901;    
     public const int BenedictionEscroc = 902;    
+    public const int RepliqueInvoquee = 903;    
+    public const int ImageMiroir = 904;   
+    public const int MaledictionAttaque = 905;   
+    public const int MaledictionDegats = 906;   
+    public const int MaledictionEffroi = 907;   
+    public const int MaledictionForce = 909;   
+    public const int MaledictionDexterite = 910;   
+    public const int MaledictionConstitution = 911;   
+    public const int MaledictionIntelligence = 912;   
+    public const int MaledictionSagesse = 913;   
+    
   }
 }

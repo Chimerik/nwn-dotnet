@@ -413,7 +413,7 @@ namespace NWN.Systems
             player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_EXPERTISE_CHOICE").Delete();
           }
 
-          foreach (var skill in player.learnableSkills.Where(l => l.Value.source.Any(s => s == Category.Class)))
+          foreach (var skill in player.learnableSkills.Where(l => l.Value.source.Any(s => s == Category.Class) || l.Value.category == Category.ClercSubClass))
             profienciesToRemove.Add(skill.Value);
 
           foreach (var proficiency in profienciesToRemove)

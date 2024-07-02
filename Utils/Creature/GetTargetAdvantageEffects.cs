@@ -43,6 +43,9 @@ namespace NWN.Systems
 
         if (GetVoeudHostiliteAdvantage(eff, attacker))
           return true;
+
+        if (GetRepliqueInvoqueeAdvantage(eff))
+          return true;
       }
 
       return false;

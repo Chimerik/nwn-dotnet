@@ -9,12 +9,12 @@ namespace NWN.Systems
     public const string MarqueDuChasseurTag = "_MARQUE_DU_CHASSEUR_EFFECT";
     public static readonly Native.API.CExoString MarqueDuChasseurExoTag = MarqueDuChasseurTag.ToExoString();
 
-    private static ScriptCallbackHandle onRemoveMarqueDuChasseur;
+    private static ScriptCallbackHandle onRemoveMarqueDuChasseurCallback;
     public static Effect MarqueDuChasseur
     {
       get
       {
-        Effect eff = Effect.RunAction(onRemovedHandle: onRemoveMarqueDuChasseur);
+        Effect eff = Effect.RunAction(onRemovedHandle: onRemoveMarqueDuChasseurCallback);
         eff.Tag = MarqueDuChasseurTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

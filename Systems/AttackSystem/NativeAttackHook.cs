@@ -204,6 +204,52 @@ namespace NWN.Systems
         string inspirationString = "";
         CGameEffect inspirationEffect = null;
 
+        if (targetObject.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.ImageMiroirEffectExoTag).ToBool()))
+        {
+          int nbImages = targetObject.m_ScriptVars.GetInt(EffectSystem.ImageMiroirEffectExoTag);
+          int dupliRoll = NwRandom.Roll(Utils.random, 20);
+
+          bool dupliHit = nbImages switch
+          {
+            3 => dupliRoll > 5,
+            2 => dupliRoll > 7,
+            _ => dupliRoll > 10,
+          };
+
+          if (dupliHit)
+          {
+            hitString = "manquez".ColorString(ColorConstants.Red);
+
+            byte dexModDupli = targetCreature.m_pStats.m_nDexterityModifier;
+            int dexDupli = dexModDupli > 122 ? dexModDupli - 255 : dexModDupli;
+
+            if (totalAttack >= 10 + dexDupli)
+            {
+              nbImages -= 1;
+
+              if (nbImages < 1)
+              {
+                EffectUtils.RemoveTaggedEffect(targetCreature, EffectSystem.ImageMiroirEffectExoTag);
+                targetObject.m_ScriptVars.DestroyInt(EffectSystem.ImageMiroirEffectExoTag);
+              }
+              else
+                targetObject.m_ScriptVars.SetInt(EffectSystem.ImageMiroirEffectExoTag, nbImages);
+
+              NativeUtils.SendNativeServerMessage($"{advantageString}{opportunityString}{criticalString}Vous {hitString} l'image miroir {nbImages} de {targetName.ColorString(ColorConstants.Cyan)} {rollString}".ColorString(ColorConstants.Cyan), creature);
+              NativeUtils.BroadcastNativeServerMessage($"{advantageString}{opportunityString}{criticalString}{attackerName.ColorString(ColorConstants.Cyan)} {hitString.Replace("z", "")} une image miroir de {targetName.ColorString(ColorConstants.Cyan)} {rollString}".ColorString(ColorConstants.Cyan), creature, true);
+            }
+            else
+            {
+              NativeUtils.SendNativeServerMessage($"{advantageString}{opportunityString}{criticalString}Vous {hitString} l'image miroir {nbImages} de {targetName.ColorString(ColorConstants.Cyan)} {rollString}".ColorString(ColorConstants.Cyan), creature);
+              NativeUtils.BroadcastNativeServerMessage($"{advantageString}{opportunityString}{criticalString}{attackerName.ColorString(ColorConstants.Cyan)} {hitString.Replace("z", "")} une image miroir de {targetName.ColorString(ColorConstants.Cyan)} {rollString}".ColorString(ColorConstants.Cyan), creature, true);
+            }
+
+            attackData.m_nAttackResult = 4;
+            attackData.m_nMissedBy = 8;
+            return;
+          }
+        }
+
         if (creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreTypeVariableExo) == CustomSkill.WarMasterAttaquePrecise)
         {
           int superiorityDice = creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreDiceVariableExo);

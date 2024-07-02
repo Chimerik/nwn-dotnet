@@ -107,6 +107,9 @@ namespace NWN.Systems
       active = true;
       player.activeLearnable = this;
       spLastCalculation = DateTime.Now;
+
+      if (player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_INSTANT_LEARN").HasValue)
+        acquiredPoints = pointsToNextLevel;
     }
   }
 }

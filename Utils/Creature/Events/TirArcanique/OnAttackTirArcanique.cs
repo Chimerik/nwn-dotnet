@@ -1,6 +1,5 @@
 ﻿using Anvil.API.Events;
 using Anvil.API;
-using NWN.Systems;
 
 namespace NWN.Systems
 {
@@ -16,7 +15,7 @@ namespace NWN.Systems
 
           if (!ItemUtils.HasBowEquipped((BaseItemType)onAttack.Attacker.GetItemInSlot(InventorySlot.RightHand)?.BaseItem.ItemType))
             return;
-
+          
           int tirId = onAttack.Attacker.GetObjectVariable<LocalVariableInt>(TirArcaniqueVariable).Value;
 
           switch (tirId)

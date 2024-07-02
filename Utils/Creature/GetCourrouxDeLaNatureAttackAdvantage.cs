@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       if(eff.m_sCustomTag.CompareNoCase(EffectSystem.CourrouxDeLaNatureEffectExoTag).ToBool())
       {
-        LogUtils.LogMessage("Avantage - Courroux de la Nature", LogUtils.LogType.Combat);
+        LogUtils.LogMessage("Avantage - Cible affecté par Courroux de la Nature", LogUtils.LogType.Combat);
         return true;
       }
       else

@@ -353,6 +353,8 @@
 
     public const int ClercInterventionDivine = 1620;
     public const int ClercBenedictionEscroc = 1621;
+    public const int ClercRepliqueInvoquee = 1622;
+    public const int ClercLinceulDombre = 1623;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;

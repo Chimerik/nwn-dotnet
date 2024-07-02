@@ -28,6 +28,9 @@ namespace NWN.Systems
 
         if (GetProtectionContreLeMalEtLeBienDisadvantage(eff, attacker, target))
           return true;
+
+        if (GetMaledictionAttaqueDisadvantage(eff, target))
+          return true;
       }
 
       return false;
