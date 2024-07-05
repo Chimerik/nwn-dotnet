@@ -104,6 +104,12 @@ namespace NWN.Systems
       if (creature.KnowsFeat((Feat)CustomSkill.BelluaireSpiderCocoon))
         creature.SetFeatRemainingUses((Feat)CustomSkill.BelluaireSpiderCocoon, 100);
 
+      if (creature.KnowsFeat((Feat)CustomSkill.ClercFrappeDivine))
+      {
+        creature.SetFeatRemainingUses((Feat)CustomSkill.ClercFrappeDivine, 1);
+        EffectUtils.RemoveTaggedEffect(creature, EffectSystem.FrappeDivineEffectTag);
+      }
+
       if (creature.GetObjectVariable<LocalVariableInt>(BelluaireRugissementProvoquantCoolDownVariable).HasValue)
       {
         if(creature.GetObjectVariable<LocalVariableInt>(BelluaireRugissementProvoquantCoolDownVariable).Value < 10)

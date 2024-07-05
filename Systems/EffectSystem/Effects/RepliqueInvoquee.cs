@@ -19,8 +19,11 @@ namespace NWN.Systems
       caster.OnDamaged -= OnDamageRemoveRempliqueInvoquee;
       caster.OnDamaged += OnDamageRemoveRempliqueInvoquee;
 
+      var clercLevel = caster.GetClassInfo(ClassType.Cleric);
+      var auraSize = clercLevel is not null && clercLevel.Level > 16 ? (PersistentVfxType)46 : PersistentVfxType.MobCircgood;
+
       Effect eff = Effect.LinkEffects(Effect.RunAction(onRemovedHandle: onRemoveRepliqueInvoqueeCallback), Effect.Concealment(50), Effect.VisualEffect(VfxType.DurGhostlyVisage),
-        Effect.AreaOfEffect(PersistentVfxType.MobCircgood, onEnterHandle: onEnterRepliqueInvoqueeCallback, onExitHandle: onExitRepliqueInvoqueeCallback));
+        Effect.AreaOfEffect(auraSize, onEnterHandle: onEnterRepliqueInvoqueeCallback, onExitHandle: onExitRepliqueInvoqueeCallback));
       eff.Tag = RepliqueInvoqueeAuraEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       return eff;

@@ -613,6 +613,7 @@ namespace NWN.Systems
         baseDamage = baseDamage * 3 / 4;
 
       NativeUtils.HandleCogneurLourdBonusAttack(attacker, targetObject, combatRound, attackData, baseDamage, attackerName);
+      NativeUtils.HandleFrappeDivineRemoval(attacker);
       
       if (attacker.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreTypeVariableExo) != CustomSkill.WarMasterAttaquePrecise)
       {

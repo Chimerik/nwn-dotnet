@@ -202,21 +202,53 @@ namespace NWN.Systems
 
           break;
 
-        case 13:
+        case 8:
 
-          
-
-          break;
-
-        case 17:
-
-         
+          player.learnableSkills.TryAdd(CustomSkill.ClercFrappeDivine, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercFrappeDivine], player));
+          player.learnableSkills[CustomSkill.ClercFrappeDivine].LevelUp(player);
+          player.learnableSkills[CustomSkill.ClercFrappeDivine].source.Add(Category.Class);
 
           break;
 
-        case 20:
+        case 9:
 
+          if (player.learnableSpells.TryGetValue((int)Spell.DominatePerson, out var learnable9))
+          {
+            learnable9.learntFromClasses.Add(CustomClass.Clerc);
+            learnable9.clericDomain = true;
 
+            if (learnable9.currentLevel < 1)
+              learnable9.LevelUp(player);
+          }
+          else
+          {
+            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.DominatePerson], CustomClass.Clerc) { clericDomain = true };
+            player.learnableSpells.Add(learnableSpell.id, learnableSpell);
+            learnableSpell.LevelUp(player);
+          }
+
+          NwSpell spell9 = NwSpell.FromSpellType(Spell.DominatePerson);
+          int spellLevel9 = spell9.GetSpellLevelForClass(ClassType.Cleric);
+          player.oid.LoginCreature.GetClassInfo(ClassType.Cleric).KnownSpells[spellLevel9].Add(spell9);
+
+          if (player.learnableSpells.TryGetValue(CustomSpell.ApparencesTrompeuses, out learnable9))
+          {
+            learnable9.learntFromClasses.Add(CustomClass.Clerc);
+            learnable9.clericDomain = true;
+
+            if (learnable9.currentLevel < 1)
+              learnable9.LevelUp(player);
+          }
+          else
+          {
+            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[CustomSpell.ApparencesTrompeuses], CustomClass.Clerc) { clericDomain = true };
+            player.learnableSpells.Add(learnableSpell.id, learnableSpell);
+            learnableSpell.LevelUp(player);
+          }
+
+          spell9 = NwSpell.FromSpellId(CustomSpell.ApparencesTrompeuses);
+          spellLevel9 = spell9.GetSpellLevelForClass(ClassType.Cleric);
+          player.oid.LoginCreature.GetClassInfo(ClassType.Cleric).KnownSpells[spellLevel9].Add(spell9);
 
           break;
       }
