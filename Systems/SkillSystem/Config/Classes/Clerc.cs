@@ -40,8 +40,7 @@ namespace NWN.Systems
       switch (customSkillId)
       {
         case CustomSkill.ClercDuperie: HandleDuperieLevelUp(player, playerClass.currentLevel); break;
-        //case CustomSkill.PaladinSermentDesAnciens: HandleAnciensLevelUp(player, playerClass.currentLevel); break;
-        //case CustomSkill.PaladinSermentVengeance: HandleVengeanceLevelUp(player, playerClass.currentLevel); break;
+        case CustomSkill.ClercGuerre: HandleGuerreLevelUp(player, playerClass.currentLevel); break;
       }
 
       if (player.oid.LoginCreature.Level > 2 || playerClass.currentLevel > 1)

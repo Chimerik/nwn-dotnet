@@ -9,8 +9,10 @@ namespace NWN.Systems
     {
       await NwTask.NextFrame();
 
-      if (attacker.m_pStats.HasFeat(CustomSkill.ClercFrappeDivine).ToBool())
-        EffectUtils.RemoveTaggedEffect(attacker, EffectSystem.FrappeDivineEffectExoTag);
+      if (attacker.m_pStats.HasFeat(CustomSkill.ClercDuperieFrappeDivine).ToBool())
+        EffectUtils.RemoveTaggedEffect(attacker, EffectSystem.FrappeDivineDuperieEffectExoTag);
+      else if(attacker.m_pStats.HasFeat(CustomSkill.ClercGuerreFrappeDivine).ToBool())
+        EffectUtils.RemoveTaggedEffect(attacker, EffectSystem.FrappeDivineGuerreEffectExoTag);
     }
   }
 }

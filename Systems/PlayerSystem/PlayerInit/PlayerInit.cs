@@ -490,6 +490,7 @@ namespace NWN.Systems
         ApplyPureteDeLesprit();
         ApplySentinelleImmortelle();
         ApplyVengeurImplacable();
+        ApplyAvatarDeBataille();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

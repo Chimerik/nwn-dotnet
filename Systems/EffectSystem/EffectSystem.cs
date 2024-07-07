@@ -150,6 +150,13 @@ namespace NWN.Systems
 
       onRemoveMaledictionDegatsCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveMaledictionDegats);
       onIntervalMaledictionEffroiCallback = scriptHandleFactory.CreateUniqueHandler(onIntervalMaledictionEffroi);
+
+      onEnterEspritsGardiensCallback = scriptHandleFactory.CreateUniqueHandler(onEnterEspritsGardiens);
+      onExitEspritsGardiensCallback = scriptHandleFactory.CreateUniqueHandler(onExitEspritsGardiens);
+      onIntervalEspritsGardiensCallback = scriptHandleFactory.CreateUniqueHandler(onIntervalEspritsGardiens);
+
+      onEnterCapeDuCroiseCallback = scriptHandleFactory.CreateUniqueHandler(onEnterCapeDuCroise);
+      onExitCapeDuCroiseCallback = scriptHandleFactory.CreateUniqueHandler(onExitCapeDuCroise);
     }
   }
 }

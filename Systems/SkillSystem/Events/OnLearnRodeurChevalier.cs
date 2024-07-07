@@ -1,7 +1,4 @@
-﻿
-using Anvil.API;
-
-namespace NWN.Systems
+﻿namespace NWN.Systems
 {
   public static partial class SkillSystem
   {

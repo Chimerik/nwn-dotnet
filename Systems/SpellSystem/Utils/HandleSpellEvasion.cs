@@ -32,7 +32,7 @@ namespace NWN.Systems
           LogUtils.LogMessage($"JDS réussi : Dégâts {damage}", LogUtils.LogType.Combat);
         }
       }
-      else if(!saveFailed && Utils.In(spellId, CustomSpell.MauvaisAugure, CustomSpell.RayonDeLune))
+      else if(!saveFailed && Utils.In(spellId, CustomSpell.MauvaisAugure, CustomSpell.RayonDeLune, CustomSpell.EspritsGardiensRadiant, CustomSpell.EspritsGardiensNecrotique))
       {
         damage /= 2;
         LogUtils.LogMessage($"JDS réussi : Dégâts {damage}", LogUtils.LogType.Combat);

@@ -175,7 +175,10 @@ namespace NWN.Systems
         case CustomSkill.AngeDeLaVengeance: AngeDeLaVengeance(onUseFeat.Creature); return;
 
         case CustomSkill.ClercInterventionDivine: InterventionDivine(onUseFeat.Creature); return;
-        case CustomSkill.ClercFrappeDivine: FrappeDivine(onUseFeat.Creature); return;
+        case CustomSkill.ClercDuperieFrappeDivine: FrappeDivineDuperie(onUseFeat.Creature); return;
+        case CustomSkill.ClercMartial: ClercMartial(onUseFeat.Creature); return;
+        case CustomSkill.ClercFrappeGuidee: FrappeGuidee(onUseFeat.Creature); return;
+        case CustomSkill.ClercGuerreFrappeDivine: FrappeDivineGuerre(onUseFeat.Creature); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

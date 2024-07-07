@@ -31,7 +31,7 @@ namespace NWN.Systems
           attackModifier = proficiencyBonus + caster.GetAbilityModifier(spellCastingAbility);
           advantage = CreatureUtils.GetAdvantageAgainstTarget(caster, spell, isRangedSpell, target, spellCastingAbility);
           attackRoll = NativeUtils.GetAttackRoll(caster, advantage, spellCastingAbility);
-          totalAttack = attackRoll + attackModifier;
+          totalAttack = attackRoll + attackModifier + GetSpellAttackBonus(caster);
           criticalRange = GetSpellCriticalRange(caster);
           targetAC = target.GetArmorClassVersus(caster);
 

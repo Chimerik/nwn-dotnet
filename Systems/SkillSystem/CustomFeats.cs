@@ -355,7 +355,10 @@
     public const int ClercBenedictionEscroc = 1621;
     public const int ClercRepliqueInvoquee = 1622;
     public const int ClercLinceulDombre = 1623;
-    public const int ClercFrappeDivine = 1624;
+    public const int ClercDuperieFrappeDivine = 1624;
+    public const int ClercMartial = 1625;
+    public const int ClercFrappeGuidee = 1626;
+    public const int ClercGuerreFrappeDivine = 1627;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -929,6 +932,8 @@
     public const int ClercRenvoiDesMortsVivants = 20608;
     public const int ClercDestructionDesMortsVivants = 20609;
     public const int ClercDuperie = 20610;
+    public const int ClercGuerre = 20611;
+    public const int ClercGuerreAvatarDeBataille = 20612;
     
     
 

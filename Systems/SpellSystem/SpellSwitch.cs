@@ -125,7 +125,7 @@ namespace NWN.Systems
           concentrationTargets.AddRange(SpellSystem.ImmobilisationDeMonstre(oCaster, spell, spellEntry, target, castingClass));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
-
+          
         case Spell.Haste:
           concentrationTargets.AddRange(SpellSystem.Hate(oCaster, spell, spellEntry, target));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
@@ -143,6 +143,26 @@ namespace NWN.Systems
 
         case Spell.Fear:
           concentrationTargets.AddRange(SpellSystem.Terreur(oCaster, spell, spellEntry, target, castingClass, targetLocation));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.ShieldOfFaith:
+          concentrationTargets.AddRange(SpellSystem.BouclierDeLaFoi(oCaster, spell, spellEntry, target));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.DivineFavor:
+          concentrationTargets.AddRange(SpellSystem.FaveurDivine(oCaster, spell, spellEntry));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.MagicWeapon:
+          SpellSystem.ArmeMagique(oCaster, spell, spellEntry, target);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.ShelgarnsPersistentBlade:
+          SpellSystem.ArmeSpirituelle(oCaster, spell, spellEntry, targetLocation, castingClass);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
       }
@@ -449,6 +469,18 @@ namespace NWN.Systems
         case CustomSpell.MaledictionIntelligence:
         case CustomSpell.MaledictionSagesse:
           concentrationTargets.AddRange(SpellSystem.MaledictionCaracteristique(oCaster, spell, spellEntry, target, castingClass, spell.Id));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.EspritsGardiens:
+        case CustomSpell.EspritsGardiensRadiant:
+        case CustomSpell.EspritsGardiensNecrotique:
+          concentrationTargets.AddRange(SpellSystem.EspritsGardiens(oCaster, spell, spellEntry));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.CapeDuCroise:
+          concentrationTargets.AddRange(SpellSystem.CapeDuCroise(oCaster, spell, spellEntry));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
       }

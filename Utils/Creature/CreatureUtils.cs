@@ -158,6 +158,12 @@ namespace NWN.Systems
     public const string MeneurExaltantVariable = "_MENEUR_EXALTANT_BUFF";
     public const string OriginalSizeVariable = "_ORIGINAL_SIZE";
 
+    public const string ClercMartialVariable = "_CLERC_MARTIAL";
+    public static readonly CExoString ClercMartialVariableExo = ClercMartialVariable.ToExoString();
+
+    public const string FrappeGuideeVariable = "_FRAPPE_GUIDEE";
+    public static readonly CExoString FrappeGuideeVariableExo = FrappeGuideeVariable.ToExoString();
+
     public static readonly Dictionary<string, NwCreature> creatureSpawnDictionary = new();
     public static void OnMobPerception(CreatureEvents.OnPerception onPerception)
     {

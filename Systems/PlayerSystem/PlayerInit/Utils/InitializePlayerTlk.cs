@@ -189,6 +189,11 @@ namespace NWN.Systems
           new StrRef(12).SetPlayerOverride(oid, "Domaine de la Duperie");
           oid.SetTextureOverride("clerc", "duperie");
         }
+        else if (learnableSkills.ContainsKey(CustomSkill.ClercGuerre))
+        {
+          new StrRef(12).SetPlayerOverride(oid, "Domaine de la Guerre");
+          oid.SetTextureOverride("clerc", "guerre");
+        }
       }
     }
   }

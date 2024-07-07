@@ -599,6 +599,7 @@ namespace NWN.Systems
                     PaladinUtils.RestorePaladinCharges(player.oid.LoginCreature);
                     ClercUtils.RestoreConduitDivin(player.oid.LoginCreature);
                     ClercUtils.RestoreInterventionDivine(player.oid.LoginCreature);
+                    ClercUtils.RestoreClercMartial(player.oid.LoginCreature);
 
                     if (player.oid.LoginCreature.Race.Id == CustomRace.HalfOrc)
                     {

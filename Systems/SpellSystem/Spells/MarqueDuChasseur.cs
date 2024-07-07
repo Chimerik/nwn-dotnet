@@ -4,13 +4,12 @@ using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
 using NWN.Core;
-using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static List<NwGameObject> MarqueDuChasseur(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject  oTarget)
+    public static List<NwGameObject> MarqueDuChasseur(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget)
     {
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
 

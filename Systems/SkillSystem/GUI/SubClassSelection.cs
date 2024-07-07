@@ -254,6 +254,18 @@ namespace NWN.Systems
                       Paladin.HandleAnciensLevelUp(player, 3);
                       category = Category.PaladinSubClass;
                       break;
+                    case CustomSkill.PaladinSermentVengeance:
+                      Paladin.HandleVengeanceLevelUp(player, 3);
+                      category = Category.PaladinSubClass;
+                      break;
+                    case CustomSkill.ClercDuperie:
+                      Clerc.HandleDuperieLevelUp(player, 1);
+                      category = Category.PaladinSubClass;
+                      break;
+                    case CustomSkill.ClercGuerre:
+                      Clerc.HandleGuerreLevelUp(player, 1);
+                      category = Category.PaladinSubClass;
+                      break;
                   }
 
                   player.learnableSkills.Remove(player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value);

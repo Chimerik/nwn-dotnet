@@ -75,6 +75,10 @@
     public const int MaledictionConstitution = 911;   
     public const int MaledictionIntelligence = 912;   
     public const int MaledictionSagesse = 913;   
+    public const int EspritsGardiens = 914;   
+    public const int EspritsGardiensRadiant = 915;   
+    public const int EspritsGardiensNecrotique = 916;   
+    public const int CapeDuCroise = 917;   
     
   }
 }
