@@ -9,49 +9,34 @@ namespace NWN.Systems
 {
   public partial class EffectSystem
   {
-    public const string EspritsGardiensEffectTag = "_ESPRITS_GARDIENS_EFFECT";
-    public const string EspritsGardiensSlowEffectTag = "_ESPRITS_GARDIENS_SLOW_EFFECT";
-    public const string EspritsGardienCooldownTag = "_ESPRITS_GARDIENS_COOLDOWN_EFFECT";
-    private static ScriptCallbackHandle onEnterEspritsGardiensCallback;
-    private static ScriptCallbackHandle onExitEspritsGardiensCallback;
-    private static ScriptCallbackHandle onIntervalEspritsGardiensCallback;
-    public static Effect EspritsGardiens(DamageType damageType)
+    public const string SphereDeFeuEffectTag = "_SPHERE_DE_FEU_EFFECT";
+    public const string SphereDeFeuCooldownTag = "_SPHERE_DE_FEU_COOLDOWN_EFFECT";
+    private static ScriptCallbackHandle onEnterSphereDeFeuCallback;
+    private static ScriptCallbackHandle onIntervalSphereDeFeuCallback;
+    public static Effect SphereDeFeu(Ability ability)
     {
-      Effect eff = Effect.LinkEffects(Effect.AreaOfEffect((PersistentVfxType)54, onEnterEspritsGardiensCallback, onIntervalEspritsGardiensCallback,
-        onExitEspritsGardiensCallback));
-      eff.Tag = EspritsGardiensEffectTag;
+      Effect eff = Effect.LinkEffects(Effect.AreaOfEffect(PersistentVfxType.MobFire, onEnterSphereDeFeuCallback, onIntervalSphereDeFeuCallback));
+      eff.Tag = SphereDeFeuEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       return eff;
     }
-    public static Effect EspritsGardiensSlow
-    {
-      get
-      {
-        Effect eff = Effect.MovementSpeedDecrease(50);
-        eff.Tag = EspritsGardiensSlowEffectTag;
-        eff.SubType = EffectSubType.Supernatural;
-        return eff;
-      }
-    }
-    public static Effect EspritsGardiensCooldown
+    public static Effect SphereDeFeuCooldown
     {
       get
       {
         Effect eff = Effect.RunAction();
-        eff.Tag = EspritsGardienCooldownTag;
+        eff.Tag = SphereDeFeuCooldownTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;
       }
     }
-    private static ScriptHandleResult onEnterEspritsGardiens(CallInfo callInfo)
+    private static ScriptHandleResult onEnterSphereDeFeu(CallInfo callInfo)
     {
       if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) || eventData.Entering is not NwCreature entering 
-        || eventData.Effect.Creator is not NwCreature protector || !entering.IsReactionTypeHostile(protector))
+        || eventData.Effect.Creator is not NwCreature protector)
         return ScriptHandleResult.Handled;
-
-      NWScript.AssignCommand(protector, () => entering.ApplyEffect(EffectDuration.Permanent, EspritsGardiensSlow));
-
-      if (!entering.ActiveEffects.Any(e => e.Tag == EspritsGardienCooldownTag && e.Creator == protector))
+      
+      if (!entering.ActiveEffects.Any(e => e.Tag == SphereDeFeuCooldownTag && e.Creator == protector))
       {
         entering.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpFlameS));
         entering.ApplyEffect(EffectDuration.Temporary, EspritsGardiensCooldown, TimeSpan.FromSeconds(5));
@@ -72,16 +57,7 @@ namespace NWN.Systems
 
       return ScriptHandleResult.Handled;
     }
-    private static ScriptHandleResult onExitEspritsGardiens(CallInfo callInfo)
-    {
-      if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnExit eventData) || eventData.Exiting is not NwCreature exiting
-        || eventData.Effect.Creator is not NwCreature protector || !exiting.IsReactionTypeHostile(protector))
-        return ScriptHandleResult.Handled;
-
-      EffectUtils.RemoveTaggedEffect(exiting, protector, EspritsGardiensSlowEffectTag);
-      return ScriptHandleResult.Handled;
-    }
-    private static ScriptHandleResult onIntervalEspritsGardiens(CallInfo callInfo)
+    private static ScriptHandleResult onIntervalSphereDeFeu(CallInfo callInfo)
     {
       if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnHeartbeat eventData) || eventData.Effect.Creator is not NwCreature caster)
         return ScriptHandleResult.Handled;

@@ -29,8 +29,6 @@ namespace NWN.Systems
       var ward = currentWardBearer.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.AbjurationWardEffectTag && e.Creator == caster);
       int intensity = (int)(ward is not null ? ward.CasterLevel : EffectSystem.GetAbjurationWardEffect(caster.GetClassInfo(ClassType.Wizard).Level));
 
-
-
       caster.OnDamaged -= WizardUtils.OnDamageAbjurationWard;
 
       EffectUtils.RemoveTaggedEffect(caster, caster, EffectSystem.AbjurationWardEffectTag);

@@ -40,9 +40,10 @@ namespace NWN.Systems
           {
             if (Utils.In(spell.Id, CustomSpell.Deguisement, (int)Spell.CharmPerson, CustomSpell.PassageSansTrace, CustomSpell.ImageMiroir,
               (int)Spell.Fear, (int)Spell.PolymorphSelf, (int)Spell.DivineFavor, (int)Spell.MagicWeapon, CustomSpell.PorteDimensionnelle,
-              (int)Spell.HoldMonster, CustomSpell.CapeDuCroise))
+              (int)Spell.HoldMonster, CustomSpell.CapeDuCroise, (int)Spell.Firebrand, CustomSpell.SphereDeFeu, (int)Spell.Fireball,
+              (int)Spell.WallOfFire, CustomSpell.VagueDestructrice))
               continue;// ces sorts ne font pas partie du package de clerc mais peuvent être appris via le domaine
-
+            
             if (player.learnableSpells.TryGetValue(spell.Id, out var learnable))
             {
               learnable.learntFromClasses.Add((int)ClassType.Cleric);
@@ -57,7 +58,7 @@ namespace NWN.Systems
               learnableSpell.LevelUp(player);
             }
           }
-
+          
           // On donne les autres capacités de niveau 1
 
           if (!player.windows.TryGetValue("spellSelection", out var spell1)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Cleric, 3, 0));

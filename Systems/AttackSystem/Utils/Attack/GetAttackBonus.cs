@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 using Anvil.API;
 using NWN.Core;
 using NWN.Native.API;
@@ -61,18 +63,22 @@ namespace NWN.Systems
         }
       }
 
+      List<string> appliedEffects = new();
+
       foreach(var eff in attacker.m_appliedEffects)
       {
-        if(eff.m_sCustomTag.CompareNoCase(EffectSystem.WildMagicBienfaitExoTag).ToBool())
+        if(eff.m_sCustomTag.CompareNoCase(EffectSystem.WildMagicBienfaitExoTag).ToBool() && !appliedEffects.Contains(EffectSystem.WildMagicBienfaitEffectTag))
         {
           int boonBonus = NwRandom.Roll(Utils.random, 4);
           attackBonus += boonBonus;
+          appliedEffects.Add(EffectSystem.WildMagicBienfaitEffectTag);
           LogUtils.LogMessage($"Magie Sauvage : +{boonBonus} BA", LogUtils.LogType.Combat);
         }
-        else if (eff.m_sCustomTag.CompareNoCase(EffectSystem.FleauEffectExoTag).ToBool())
+        else if (eff.m_sCustomTag.CompareNoCase(EffectSystem.FleauEffectExoTag).ToBool() && !appliedEffects.Contains(EffectSystem.FleauEffectTag))
         {
           int fleauMalus = NwRandom.Roll(Utils.random, 4);
           attackBonus -= fleauMalus;
+          appliedEffects.Add(EffectSystem.FleauEffectTag);
           LogUtils.LogMessage($"Fléau : -{fleauMalus} BA", LogUtils.LogType.Combat);
         }
       }

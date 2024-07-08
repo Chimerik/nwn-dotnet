@@ -79,6 +79,11 @@
     public const int EspritsGardiensRadiant = 915;   
     public const int EspritsGardiensNecrotique = 916;   
     public const int CapeDuCroise = 917;   
+    public const int SphereDeFeu = 918;   
+    public const int LumiereDuJour = 919;   
+    public const int VagueDestructrice = 920;   
+    public const int VagueDestructriceRadiant = 921;   
+    public const int VagueDestructriceNecrotique = 922;   
     
   }
 }

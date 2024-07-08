@@ -27,9 +27,15 @@ namespace NWN.Systems
 
       foreach (var eff in creature.ActiveEffects)
       {
-        switch(eff.Tag)
+        if (spellEntry is not null && eff.Tag == EffectSystem.HaloDeLumiereEffectTag
+          && (spellEntry.damageType.Contains(DamageType.Fire) || spellEntry.damageType.Contains(DamageType.Divine)))
         {
+          LogUtils.LogMessage("Désavantage - Halo de Lumière", LogUtils.LogType.Combat);
+          return true;
+        }
 
+        switch (eff.Tag)
+        {
           case EffectSystem.FrightenedEffectTag:
             LogUtils.LogMessage("Désavantage - Effroi", LogUtils.LogType.Combat);
             return true;

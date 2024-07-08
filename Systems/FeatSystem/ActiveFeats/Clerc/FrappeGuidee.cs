@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-using Anvil.API;
-using NWN.Core.NWNX;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -14,6 +12,7 @@ namespace NWN.Systems
       {
         caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.FrappeGuideeVariable).Value = 1;
         StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} - Frappe Guidée", StringUtils.gold, true, true);
+        caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadOdd));
         ClercUtils.ConsumeConduitDivin(caster);
       }
       else
@@ -31,6 +30,7 @@ namespace NWN.Systems
 
       target.GetObjectVariable<LocalVariableInt>(CreatureUtils.FrappeGuideeVariable).Value = 1;
       StringUtils.DisplayStringToAllPlayersNearTarget(selection.Player.LoginCreature, $"{caster.Name.ColorString(ColorConstants.Cyan)} - Frappe Guidée - {target.Name.ColorString(ColorConstants.Cyan)}", StringUtils.gold, true, true);
+      target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadOdd));
       ClercUtils.ConsumeConduitDivin(caster);
     }
   }

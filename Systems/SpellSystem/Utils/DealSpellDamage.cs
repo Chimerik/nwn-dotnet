@@ -57,6 +57,8 @@ namespace NWN.Systems
 
             damage += roll;
           }
+
+          damage = HandleIncantationPuissante(caster, damage, spell);
         }
 
         LogUtils.LogMessage($"Dégâts initiaux : {damage}", LogUtils.LogType.Combat);
@@ -74,7 +76,7 @@ namespace NWN.Systems
           NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(spellEntry.damageVFX), Effect.Damage(damage, damageType))));
         else
           target.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(spellEntry.damageVFX), Effect.Damage(damage, damageType)));
-
+        
         if (!noLogs)
           LogUtils.LogMessage($"Dégâts sur {target.Name} : {nbDices}d{spellEntry.damageDice} (caster lvl {casterLevel}) = {damage} {damageType}", LogUtils.LogType.Combat);
 

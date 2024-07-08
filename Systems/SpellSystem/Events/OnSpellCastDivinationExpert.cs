@@ -7,7 +7,7 @@ namespace NWN.Systems
     public static void OnSpellCastDivinationExpert(NwCreature caster, NwSpell spell, NwClass castingClass)
     {
       if (spell.SpellSchool != SpellSchool.Divination || !caster.KnowsFeat((Feat)CustomSkill.DivinationExpert)
-         || castingClass is null  || spell.GetSpellLevelForClass(castingClass) < 3)
+         || castingClass is null  || spell.GetSpellLevelForClass(castingClass) < 2)
         return;
 
       var casterClass = caster.GetClassInfo(castingClass);
@@ -19,8 +19,8 @@ namespace NWN.Systems
 
         if (remainingSlots < casterClass.Class.SpellGainTable[casterClass.Level - 1][i])
         {
-          casterClass.SetRemainingSpellSlots(i, remainingSlots++);
-          caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.DurMindAffectingPositive));
+          casterClass.SetRemainingSpellSlots(i, (byte)(remainingSlots + 1));
+          caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadOdd));
           return;
         }
       }

@@ -260,11 +260,15 @@ namespace NWN.Systems
                       break;
                     case CustomSkill.ClercDuperie:
                       Clerc.HandleDuperieLevelUp(player, 1);
-                      category = Category.PaladinSubClass;
+                      category = Category.ClercSubClass;
                       break;
                     case CustomSkill.ClercGuerre:
                       Clerc.HandleGuerreLevelUp(player, 1);
-                      category = Category.PaladinSubClass;
+                      category = Category.ClercSubClass;
+                      break;
+                    case CustomSkill.ClercLumiere:
+                      Clerc.HandleLumiereLevelUp(player, 1);
+                      category = Category.ClercSubClass;
                       break;
                   }
 

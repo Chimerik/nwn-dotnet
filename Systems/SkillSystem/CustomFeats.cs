@@ -359,6 +359,10 @@
     public const int ClercMartial = 1625;
     public const int ClercFrappeGuidee = 1626;
     public const int ClercGuerreFrappeDivine = 1627;
+    public const int ClercIllumination = 1628;
+    public const int ClercRadianceDeLaube = 1629;
+    public const int ClercIncantationPuissante = 1630;
+    public const int ClercHaloDeLumiere = 1631;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -934,6 +938,7 @@
     public const int ClercDuperie = 20610;
     public const int ClercGuerre = 20611;
     public const int ClercGuerreAvatarDeBataille = 20612;
+    public const int ClercLumiere = 20613;
     
     
 

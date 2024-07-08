@@ -165,6 +165,21 @@ namespace NWN.Systems
           SpellSystem.ArmeSpirituelle(oCaster, spell, spellEntry, targetLocation, castingClass);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
+
+        case Spell.Firebrand:
+          SpellSystem.RayonArdent(oCaster, spell, spellEntry, castingClass);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.Fireball:
+          SpellSystem.BouleDeFeu(oCaster, spell, spellEntry, target, castingClass, targetLocation);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.WallOfFire:
+          concentrationTargets.AddRange(SpellSystem.MurDeFeu(oCaster, spell, spellEntry, castingClass, targetLocation));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
       }
 
       switch (spell.Id)
@@ -481,6 +496,23 @@ namespace NWN.Systems
 
         case CustomSpell.CapeDuCroise:
           concentrationTargets.AddRange(SpellSystem.CapeDuCroise(oCaster, spell, spellEntry));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.SphereDeFeu:
+          concentrationTargets.AddRange(SpellSystem.SphereDeFeu(oCaster, spell, spellEntry, target, castingClass));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.LumiereDuJour:
+          SpellSystem.LumiereDuJour(oCaster, spell, spellEntry, targetLocation);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.VagueDestructrice:
+        case CustomSpell.VagueDestructriceRadiant:
+        case CustomSpell.VagueDestructriceNecrotique:
+          SpellSystem.VagueDestructrice(oCaster, spell, spellEntry, castingClass);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
       }

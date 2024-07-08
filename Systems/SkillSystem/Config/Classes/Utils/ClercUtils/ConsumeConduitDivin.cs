@@ -10,6 +10,7 @@ namespace NWN.Systems
       creature.DecrementRemainingFeatUses(Feat.TurnUndead);
       creature.DecrementRemainingFeatUses((Feat)CustomSkill.ClercRepliqueInvoquee);
       creature.DecrementRemainingFeatUses((Feat)CustomSkill.ClercLinceulDombre);
+      creature.DecrementRemainingFeatUses((Feat)CustomSkill.ClercRadianceDeLaube);
     }
   }
 }

@@ -157,6 +157,9 @@ namespace NWN.Systems
 
       onEnterCapeDuCroiseCallback = scriptHandleFactory.CreateUniqueHandler(onEnterCapeDuCroise);
       onExitCapeDuCroiseCallback = scriptHandleFactory.CreateUniqueHandler(onExitCapeDuCroise);
+
+      onEnterSphereDeFeuCallback = scriptHandleFactory.CreateUniqueHandler(onEnterSphereDeFeu);
+      onIntervalSphereDeFeuCallback = scriptHandleFactory.CreateUniqueHandler(onIntervalSphereDeFeu);
     }
   }
 }

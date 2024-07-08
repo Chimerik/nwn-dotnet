@@ -7,12 +7,13 @@ namespace NWN.Systems
   {
     public static void OnSpellCastSelectTargets(OnSpellCast onSpellCast)
     {
-      switch(onSpellCast.Spell.SpellType)
+      if (onSpellCast.Caster.IsLoginPlayerCharacter(out NwPlayer player))
       {
-        case Spell.Bane:
+        switch (onSpellCast.Spell.SpellType)
+        {
+          case Spell.Bane:
+          case Spell.Firebrand:
 
-          if (onSpellCast.Caster.IsLoginPlayerCharacter(out NwPlayer player))
-          {
             if (player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_SELECTED").HasNothing)
             {
               onSpellCast.PreventSpellCast = true;
@@ -22,15 +23,25 @@ namespace NWN.Systems
             }
             else
               player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_SELECTED").Delete();
-          }
 
-          break;
+            break;
+
+          default:
+
+            player.LoginCreature.GetObjectVariable<LocalVariableObject<NwCreature>>("_SPELL_TARGET_1").Delete();
+            player.LoginCreature.GetObjectVariable<LocalVariableObject<NwCreature>>("_SPELL_TARGET_2").Delete();
+            player.LoginCreature.GetObjectVariable<LocalVariableObject<NwCreature>>("_SPELL_TARGET_3").Delete();
+            player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS").Delete();
+            player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_SELECTED").Delete();
+
+            break;
+        }
       }
     }
     private static void SelectBaneTarget(ModuleEvents.OnPlayerTarget selection)
     {
       NwCreature caster = selection.Player.LoginCreature;
-      int nbTargets = caster.GetObjectVariable<LocalVariableInt>("_BANE_TARGETS").Value;
+      int nbTargets = caster.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS").Value;
 
       if(selection.TargetObject is not NwCreature target)
       {
@@ -44,21 +55,32 @@ namespace NWN.Systems
         if (nbTargets > 0)
         {
           caster.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_SELECTED").Value = 1;
-          _ = caster.ActionCastSpellAt(Spell.Bane, caster);
+
+          switch(caster.GetObjectVariable<LocalVariableInt>(SpellConfig.CurrentSpellVariable).Value)
+          {
+            case (int)Spell.Bane: _ = caster.ActionCastSpellAt(Spell.Bane, caster);break;
+            case (int)Spell.Firebrand: _ = caster.ActionCastSpellAt(Spell.Firebrand, caster);break;
+          }
+          
         }
         
         return;
       }
 
-      caster.GetObjectVariable<LocalVariableInt>("_BANE_TARGETS").Value += 1;
-      caster.GetObjectVariable<LocalVariableObject<NwCreature>>($"_BANE_TARGET_{nbTargets + 1}").Value = target;
+      caster.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS").Value += 1;
+      caster.GetObjectVariable<LocalVariableObject<NwCreature>>($"_SPELL_TARGET_{nbTargets + 1}").Value = target;
       caster.LoginPlayer.EnterTargetMode(SelectBaneTarget, Config.selectCreatureTargetMode);
       caster.LoginPlayer.SendServerMessage($"Vous pouvez encore choisir {3 - nbTargets} cible(s)", ColorConstants.Orange);
 
       if(nbTargets > 1)
       {
         caster.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_SELECTED").Value = 1;
-        _ = caster.ActionCastSpellAt(Spell.Bane, caster);
+
+        switch (caster.GetObjectVariable<LocalVariableInt>(SpellConfig.CurrentSpellVariable).Value)
+        {
+          case (int)Spell.Bane: _ = caster.ActionCastSpellAt(Spell.Bane, caster); break;
+          case (int)Spell.Firebrand: _ = caster.ActionCastSpellAt(Spell.Firebrand, caster); break;
+        }
       }
     }
   }

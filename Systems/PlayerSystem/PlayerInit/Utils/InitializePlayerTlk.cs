@@ -194,6 +194,11 @@ namespace NWN.Systems
           new StrRef(12).SetPlayerOverride(oid, "Domaine de la Guerre");
           oid.SetTextureOverride("clerc", "guerre");
         }
+        else if (learnableSkills.ContainsKey(CustomSkill.ClercGuerre))
+        {
+          new StrRef(12).SetPlayerOverride(oid, "Domaine de la Lumière");
+          oid.SetTextureOverride("clerc", "light_domain");
+        }
       }
     }
   }

@@ -599,7 +599,7 @@ namespace NWN.Systems
                     PaladinUtils.RestorePaladinCharges(player.oid.LoginCreature);
                     ClercUtils.RestoreConduitDivin(player.oid.LoginCreature);
                     ClercUtils.RestoreInterventionDivine(player.oid.LoginCreature);
-                    ClercUtils.RestoreClercMartial(player.oid.LoginCreature);
+                    ClercUtils.RestoreClercDomaine(player.oid.LoginCreature);
 
                     if (player.oid.LoginCreature.Race.Id == CustomRace.HalfOrc)
                     {
@@ -651,6 +651,9 @@ namespace NWN.Systems
                         ? ((ChatimentLevelSelectionWindow)chatimentWindow).selectedSpellLevel : 1);
                       player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ChatimentDivin, player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).GetRemainingSpellSlots(chatimentLevel));
                     }
+
+                    player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ClercIlluminationVariable).Delete();
+                    player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ClercMartialVariable).Delete();
 
                     EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.DivinationVisionEffectTag);
 

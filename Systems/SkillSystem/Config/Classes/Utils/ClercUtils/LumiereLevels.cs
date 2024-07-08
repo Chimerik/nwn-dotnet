@@ -6,28 +6,20 @@ namespace NWN.Systems
 {
   public static partial class Clerc
   {
-    public static void HandleGuerreLevelUp(Player player, int level)
+    public static void HandleLumiereLevelUp(Player player, int level)
     {
       switch (level)
       {
         case 1: 
           
-          new StrRef(12).SetPlayerOverride(player.oid, "Domaine de la Guerre");
-          player.oid.SetTextureOverride("clerc", "guerre");
+          new StrRef(12).SetPlayerOverride(player.oid, "Domaine de la Lumière");
+          player.oid.SetTextureOverride("clerc", "light_domain");
 
-          foreach (Learnable mastery in Fighter.startingPackage.learnables)
-          {
-            player.learnableSkills.TryAdd(mastery.id, new LearnableSkill((LearnableSkill)mastery, player));
-            player.learnableSkills[mastery.id].source.Add(Category.Class);
+          player.learnableSkills.TryAdd(CustomSkill.ClercIllumination, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercIllumination], player));
+          player.learnableSkills[CustomSkill.ClercIllumination].LevelUp(player);
+          player.learnableSkills[CustomSkill.ClercIllumination].source.Add(Category.Class);
 
-            mastery.acquiredPoints += (mastery.pointsToNextLevel - mastery.acquiredPoints) / 4;
-          }
-
-          player.learnableSkills.TryAdd(CustomSkill.ClercMartial, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercMartial], player));
-          player.learnableSkills[CustomSkill.ClercMartial].LevelUp(player);
-          player.learnableSkills[CustomSkill.ClercMartial].source.Add(Category.Class);
-
-          if (player.learnableSpells.TryGetValue((int)Spell.ShieldOfFaith, out var learnable))
+          if (player.learnableSpells.TryGetValue((int)Spell.Light, out var learnable))
           {
             learnable.learntFromClasses.Add(CustomClass.Clerc);
             learnable.clericDomain = true;
@@ -37,16 +29,16 @@ namespace NWN.Systems
           }
           else
           {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.ShieldOfFaith], CustomClass.Clerc) { clericDomain = true };
+            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.Light], CustomClass.Clerc) { clericDomain = true };
             player.learnableSpells.Add(learnableSpell.id, learnableSpell);
             learnableSpell.LevelUp(player);
           }
 
-          NwSpell spell = NwSpell.FromSpellType(Spell.ShieldOfFaith);
+          NwSpell spell = NwSpell.FromSpellType(Spell.Light);
           int spellLevel = spell.GetSpellLevelForClass(ClassType.Cleric);
           player.oid.LoginCreature.GetClassInfo(ClassType.Cleric).KnownSpells[spellLevel].Add(spell);
 
-          if (player.learnableSpells.TryGetValue((int)Spell.DivineFavor, out learnable))
+          if (player.learnableSpells.TryGetValue((int)Spell.BurningHands, out learnable))
           {
             learnable.learntFromClasses.Add(CustomClass.Clerc);
             learnable.clericDomain = true;
@@ -56,12 +48,31 @@ namespace NWN.Systems
           }
           else
           {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.DivineFavor], CustomClass.Clerc) { clericDomain = true };
+            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.BurningHands], CustomClass.Clerc) { clericDomain = true };
             player.learnableSpells.Add(learnableSpell.id, learnableSpell);
             learnableSpell.LevelUp(player);
           }
 
-          spell = NwSpell.FromSpellType(Spell.DivineFavor);
+          spell = NwSpell.FromSpellType(Spell.BurningHands);
+          spellLevel = spell.GetSpellLevelForClass(ClassType.Cleric);
+          player.oid.LoginCreature.GetClassInfo(ClassType.Cleric).KnownSpells[spellLevel].Add(spell);
+
+          if (player.learnableSpells.TryGetValue(CustomSpell.FaerieFire, out learnable))
+          {
+            learnable.learntFromClasses.Add(CustomClass.Clerc);
+            learnable.clericDomain = true;
+
+            if (learnable.currentLevel < 1)
+              learnable.LevelUp(player);
+          }
+          else
+          {
+            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[CustomSpell.FaerieFire], CustomClass.Clerc) { clericDomain = true };
+            player.learnableSpells.Add(learnableSpell.id, learnableSpell);
+            learnableSpell.LevelUp(player);
+          }
+
+          spell = NwSpell.FromSpellId(CustomSpell.FaerieFire);
           spellLevel = spell.GetSpellLevelForClass(ClassType.Cleric);
           player.oid.LoginCreature.GetClassInfo(ClassType.Cleric).KnownSpells[spellLevel].Add(spell);
 
@@ -69,15 +80,15 @@ namespace NWN.Systems
 
         case 2:
 
-          player.learnableSkills.TryAdd(CustomSkill.ClercFrappeGuidee, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercFrappeGuidee], player));
-          player.learnableSkills[CustomSkill.ClercFrappeGuidee].LevelUp(player);
-          player.learnableSkills[CustomSkill.ClercFrappeGuidee].source.Add(Category.Class);
+          player.learnableSkills.TryAdd(CustomSkill.ClercRadianceDeLaube, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercRadianceDeLaube], player));
+          player.learnableSkills[CustomSkill.ClercRadianceDeLaube].LevelUp(player);
+          player.learnableSkills[CustomSkill.ClercRadianceDeLaube].source.Add(Category.Class);
 
           break;
 
         case 3:
 
-          if (player.learnableSpells.TryGetValue((int)Spell.MagicWeapon, out var learnable3))
+          if (player.learnableSpells.TryGetValue((int)Spell.Firebrand, out var learnable3))
           {
             learnable3.learntFromClasses.Add(CustomClass.Clerc);
             learnable3.clericDomain = true;
@@ -87,16 +98,16 @@ namespace NWN.Systems
           }
           else
           {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.MagicWeapon], CustomClass.Clerc) { clericDomain = true };
+            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.Firebrand], CustomClass.Clerc) { clericDomain = true };
             player.learnableSpells.Add(learnableSpell.id, learnableSpell);
             learnableSpell.LevelUp(player);
           }
 
-          NwSpell spell3 = NwSpell.FromSpellType(Spell.MagicWeapon);
+          NwSpell spell3 = NwSpell.FromSpellType(Spell.Firebrand);
           int spellLevel3 = spell3.GetSpellLevelForClass(ClassType.Cleric);
           player.oid.LoginCreature.GetClassInfo(ClassType.Cleric).KnownSpells[spellLevel3].Add(spell3);
 
-          if (player.learnableSpells.TryGetValue((int)Spell.ShelgarnsPersistentBlade, out learnable3))
+          if (player.learnableSpells.TryGetValue(CustomSpell.SphereDeFeu, out learnable3))
           {
             learnable3.learntFromClasses.Add(CustomClass.Clerc);
             learnable3.clericDomain = true;
@@ -106,12 +117,12 @@ namespace NWN.Systems
           }
           else
           {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.ShelgarnsPersistentBlade], CustomClass.Clerc) { clericDomain = true };
+            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[CustomSpell.SphereDeFeu], CustomClass.Clerc) { clericDomain = true };
             player.learnableSpells.Add(learnableSpell.id, learnableSpell);
             learnableSpell.LevelUp(player);
           }
 
-          spell3 = NwSpell.FromSpellType(Spell.ShelgarnsPersistentBlade);
+          spell3 = NwSpell.FromSpellId(CustomSpell.SphereDeFeu);
           spellLevel3 = spell3.GetSpellLevelForClass(ClassType.Cleric);
           player.oid.LoginCreature.GetClassInfo(ClassType.Cleric).KnownSpells[spellLevel3].Add(spell3);
 
@@ -119,7 +130,7 @@ namespace NWN.Systems
 
         case 5:
 
-          if (player.learnableSpells.TryGetValue(CustomSpell.EspritsGardiens, out var learnable5))
+          if (player.learnableSpells.TryGetValue((int)Spell.Fireball, out var learnable5))
           {
             learnable5.learntFromClasses.Add(CustomClass.Clerc);
             learnable5.clericDomain = true;
@@ -129,16 +140,16 @@ namespace NWN.Systems
           }
           else
           {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[CustomSpell.EspritsGardiens], CustomClass.Clerc) { clericDomain = true };
+            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.Fireball], CustomClass.Clerc) { clericDomain = true };
             player.learnableSpells.Add(learnableSpell.id, learnableSpell);
             learnableSpell.LevelUp(player);
           }
 
-          NwSpell spell5 = NwSpell.FromSpellId(CustomSpell.EspritsGardiens);
+          NwSpell spell5 = NwSpell.FromSpellType(Spell.Fireball);
           int spellLevel5 = spell5.GetSpellLevelForClass(ClassType.Cleric);
           player.oid.LoginCreature.GetClassInfo(ClassType.Cleric).KnownSpells[spellLevel5].Add(spell5);
 
-          if (player.learnableSpells.TryGetValue(CustomSpell.CapeDuCroise, out learnable5))
+          if (player.learnableSpells.TryGetValue(CustomSpell.LumiereDuJour, out learnable5))
           {
             learnable5.learntFromClasses.Add(CustomClass.Clerc);
             learnable5.clericDomain = true;
@@ -148,12 +159,12 @@ namespace NWN.Systems
           }
           else
           {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[CustomSpell.CapeDuCroise], CustomClass.Clerc) { clericDomain = true };
+            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[CustomSpell.LumiereDuJour], CustomClass.Clerc) { clericDomain = true };
             player.learnableSpells.Add(learnableSpell.id, learnableSpell);
             learnableSpell.LevelUp(player);
           }
 
-          spell5 = NwSpell.FromSpellId(CustomSpell.CapeDuCroise);
+          spell5 = NwSpell.FromSpellId(CustomSpell.LumiereDuJour);
           spellLevel5 = spell5.GetSpellLevelForClass(ClassType.Cleric);
           player.oid.LoginCreature.GetClassInfo(ClassType.Cleric).KnownSpells[spellLevel5].Add(spell5);
 
@@ -161,7 +172,7 @@ namespace NWN.Systems
 
         case 7:
 
-          if (player.learnableSpells.TryGetValue((int)Spell.Stoneskin, out var learnable7))
+          if (player.learnableSpells.TryGetValue(CustomSpell.GardienDeLaFoi, out var learnable7))
           {
             learnable7.learntFromClasses.Add(CustomClass.Clerc);
             learnable7.clericDomain = true;
@@ -171,16 +182,16 @@ namespace NWN.Systems
           }
           else
           {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.Stoneskin], CustomClass.Clerc) { clericDomain = true };
+            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[CustomSpell.GardienDeLaFoi], CustomClass.Clerc) { clericDomain = true };
             player.learnableSpells.Add(learnableSpell.id, learnableSpell);
             learnableSpell.LevelUp(player);
           }
 
-          NwSpell spell7 = NwSpell.FromSpellType(Spell.Stoneskin);
+          NwSpell spell7 = NwSpell.FromSpellId(CustomSpell.GardienDeLaFoi);
           int spellLevel7 = spell7.GetSpellLevelForClass(ClassType.Cleric);
           player.oid.LoginCreature.GetClassInfo(ClassType.Cleric).KnownSpells[spellLevel7].Add(spell7);
 
-          if (player.learnableSpells.TryGetValue((int)Spell.FreedomOfMovement, out learnable7))
+          if (player.learnableSpells.TryGetValue((int)Spell.WallOfFire, out learnable7))
           {
             learnable7.learntFromClasses.Add(CustomClass.Clerc);
             learnable7.clericDomain = true;
@@ -190,12 +201,12 @@ namespace NWN.Systems
           }
           else
           {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.FreedomOfMovement], CustomClass.Clerc) { clericDomain = true };
+            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.WallOfFire], CustomClass.Clerc) { clericDomain = true };
             player.learnableSpells.Add(learnableSpell.id, learnableSpell);
             learnableSpell.LevelUp(player);
           }
 
-          spell7 = NwSpell.FromSpellType(Spell.FreedomOfMovement);
+          spell7 = NwSpell.FromSpellType(Spell.WallOfFire);
           spellLevel7 = spell7.GetSpellLevelForClass(ClassType.Cleric);
           player.oid.LoginCreature.GetClassInfo(ClassType.Cleric).KnownSpells[spellLevel7].Add(spell7);
 
@@ -203,9 +214,9 @@ namespace NWN.Systems
 
         case 8:
 
-          player.learnableSkills.TryAdd(CustomSkill.ClercGuerreFrappeDivine, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercGuerreFrappeDivine], player));
-          player.learnableSkills[CustomSkill.ClercGuerreFrappeDivine].LevelUp(player);
-          player.learnableSkills[CustomSkill.ClercGuerreFrappeDivine].source.Add(Category.Class);
+          player.learnableSkills.TryAdd(CustomSkill.ClercIncantationPuissante, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercIncantationPuissante], player));
+          player.learnableSkills[CustomSkill.ClercIncantationPuissante].LevelUp(player);
+          player.learnableSkills[CustomSkill.ClercIncantationPuissante].source.Add(Category.Class);
 
           break;
 
@@ -230,7 +241,7 @@ namespace NWN.Systems
           int spellLevel9 = spell9.GetSpellLevelForClass(ClassType.Cleric);
           player.oid.LoginCreature.GetClassInfo(ClassType.Cleric).KnownSpells[spellLevel9].Add(spell9);
 
-          if (player.learnableSpells.TryGetValue((int)Spell.HoldMonster, out learnable9))
+          if (player.learnableSpells.TryGetValue(CustomSpell.VagueDestructrice, out learnable9))
           {
             learnable9.learntFromClasses.Add(CustomClass.Clerc);
             learnable9.clericDomain = true;
@@ -240,12 +251,12 @@ namespace NWN.Systems
           }
           else
           {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.HoldMonster], CustomClass.Clerc) { clericDomain = true };
+            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[CustomSpell.VagueDestructrice], CustomClass.Clerc) { clericDomain = true };
             player.learnableSpells.Add(learnableSpell.id, learnableSpell);
             learnableSpell.LevelUp(player);
           }
 
-          spell9 = NwSpell.FromSpellType(Spell.HoldMonster);
+          spell9 = NwSpell.FromSpellId(CustomSpell.VagueDestructrice);
           spellLevel9 = spell9.GetSpellLevelForClass(ClassType.Cleric);
           player.oid.LoginCreature.GetClassInfo(ClassType.Cleric).KnownSpells[spellLevel9].Add(spell9);
 
@@ -253,9 +264,9 @@ namespace NWN.Systems
 
         case 17:
 
-          player.learnableSkills.TryAdd(CustomSkill.ClercGuerreAvatarDeBataille, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercGuerreAvatarDeBataille], player));
-          player.learnableSkills[CustomSkill.ClercGuerreAvatarDeBataille].LevelUp(player);
-          player.learnableSkills[CustomSkill.ClercGuerreAvatarDeBataille].source.Add(Category.Class);
+          player.learnableSkills.TryAdd(CustomSkill.ClercHaloDeLumiere, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercHaloDeLumiere], player));
+          player.learnableSkills[CustomSkill.ClercHaloDeLumiere].LevelUp(player);
+          player.learnableSkills[CustomSkill.ClercHaloDeLumiere].source.Add(Category.Class);
 
           break;
       }

@@ -10,7 +10,7 @@ namespace NWN.Systems
     {
       private void ApplyAvatarDeBataille()
       {
-        if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ClercGuerreAvatarDeBataille)
+        if (learnableSkills.ContainsKey(CustomSkill.ClercGuerreAvatarDeBataille)
           && !oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.AvatarDeBatailleEffectTag))
           NWScript.AssignCommand(oid.LoginCreature, () => oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.AvatarDeBataille));
       }
