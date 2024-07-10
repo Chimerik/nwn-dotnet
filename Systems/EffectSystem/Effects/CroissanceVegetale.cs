@@ -34,7 +34,7 @@ namespace NWN.Systems
     private static ScriptHandleResult onEnterCroissanceVegetale(CallInfo callInfo)
     {
       if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) || eventData.Entering is not NwCreature entering
-        || entering.ActiveEffects.Any(e => e.Tag == WildMagicCroissanceVegetaleEffectTag))
+        || entering.ActiveEffects.Any(e => e.Tag == CroissanceVegetaleEffectTag))
         return ScriptHandleResult.Handled;
 
       entering.ApplyEffect(EffectDuration.Permanent, CroissanceVegetale);

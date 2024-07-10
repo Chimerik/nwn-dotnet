@@ -1,6 +1,8 @@
 ﻿using System.Linq;
 using Anvil.API;
+using NWN.Core;
 using NWN.Native.API;
+using Ability = NWN.Native.API.Ability;
 
 namespace NWN.Systems
 {
@@ -13,7 +15,7 @@ namespace NWN.Systems
         || EffectSystem.IsCharmeImmune(target, attacker))
         return false;
 
-      if(target.m_ScriptVars.GetString(CreatureUtils.CharmeInstinctifVariableExo).ToString().Split("_").Any(i => i == attacker.m_idSelf.ToString()))
+      if (target.m_ScriptVars.GetString(CreatureUtils.CharmeInstinctifVariableExo).ToString().Split("_").Any(i => i == attacker.m_idSelf.ToString()))
         return false;
 
       var newTarget = NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(target.GetNearestEnemy(2, attacker.m_idSelf, 1, 1));
@@ -28,6 +30,8 @@ namespace NWN.Systems
       combatRound.AddWhirlwindAttack(newTarget.m_idSelf, 1);
       target.m_ScriptVars.SetInt(CreatureUtils.ReactionVariableExo, target.m_ScriptVars.GetInt(CreatureUtils.ReactionVariableExo) - 1);
       target.m_ScriptVars.SetString(CreatureUtils.CharmeInstinctifVariableExo, (target.m_ScriptVars.GetString(CreatureUtils.CharmeInstinctifVariableExo).ToString() + $"{attacker.m_idSelf}_").ToExoString());
+
+      
 
       LogUtils.LogMessage($"Attaque redirigée vers {newTargetName.StripColors()}", LogUtils.LogType.Combat);
 

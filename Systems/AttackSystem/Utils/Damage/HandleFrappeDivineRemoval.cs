@@ -13,6 +13,8 @@ namespace NWN.Systems
         EffectUtils.RemoveTaggedEffect(attacker, EffectSystem.FrappeDivineDuperieEffectExoTag);
       else if(attacker.m_pStats.HasFeat(CustomSkill.ClercGuerreFrappeDivine).ToBool())
         EffectUtils.RemoveTaggedEffect(attacker, EffectSystem.FrappeDivineGuerreEffectExoTag);
+      else if (attacker.m_pStats.HasFeat(CustomSkill.ClercFurieElementaire).ToBool())
+        EffectUtils.RemoveTaggedEffect(attacker, EffectSystem.FurieElementaireEffectExoTag);
     }
   }
 }

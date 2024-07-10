@@ -199,6 +199,11 @@ namespace NWN.Systems
           new StrRef(12).SetPlayerOverride(oid, "Domaine de la Lumière");
           oid.SetTextureOverride("clerc", "light_domain");
         }
+        else if (learnableSkills.ContainsKey(CustomSkill.ClercGuerre))
+        {
+          new StrRef(12).SetPlayerOverride(oid, "Domaine de la Nature");
+          oid.SetTextureOverride("clerc", "nature_domain");
+        }
       }
     }
   }

@@ -16,7 +16,7 @@ namespace NWN.Systems
 
       DamageType damageType = weapon is null || !ItemUtils.IsWeapon(weapon.BaseItem) ? DamageType.Bludgeoning : weapon.BaseItem.WeaponType.FirstOrDefault();
       DamageBonus damage = clerc.Level > 13 ? DamageBonus.Plus2d8 : DamageBonus.Plus1d8;
-      caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetFrappeDivineGuerreEffect(damage, damageType));
+      caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetFrappeDivineGuerreEffect(damage, damageType));
 
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} - Frappe Divine", StringUtils.gold, true, true);
       caster.DecrementRemainingFeatUses((Feat)CustomSkill.ClercDuperieFrappeDivine);

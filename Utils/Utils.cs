@@ -170,6 +170,10 @@ namespace NWN
     {
       return set.Contains(me);
     }
+    public static bool In(this DamageType me, params DamageType[] set)
+    {
+      return set.Contains(me);
+    }
     public static string FormatTimeSpan(TimeSpan timespan)
     {
       string formattedTimespan = "";

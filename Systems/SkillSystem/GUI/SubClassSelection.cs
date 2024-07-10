@@ -270,6 +270,10 @@ namespace NWN.Systems
                       Clerc.HandleLumiereLevelUp(player, 1);
                       category = Category.ClercSubClass;
                       break;
+                    case CustomSkill.ClercNature:
+                      Clerc.HandleNatureLevelUp(player, 1);
+                      category = Category.ClercSubClass;
+                      break;
                   }
 
                   player.learnableSkills.Remove(player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value);

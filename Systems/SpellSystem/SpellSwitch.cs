@@ -180,6 +180,16 @@ namespace NWN.Systems
           concentrationTargets.AddRange(SpellSystem.MurDeFeu(oCaster, spell, spellEntry, castingClass, targetLocation));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
+
+        case Spell.Barkskin:
+          concentrationTargets.AddRange(SpellSystem.PeauDecorce(oCaster, spell, spellEntry, target));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.DominateAnimal:
+          concentrationTargets.AddRange(SpellSystem.DominationAnimale(oCaster, spell, spellEntry, target, castingClass));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
       }
 
       switch (spell.Id)
@@ -438,6 +448,11 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case CustomSpell.CroissanceDepines:
+          concentrationTargets.AddRange(SpellSystem.CroissanceDepines(oCaster, spell, spellEntry, targetLocation));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.MarqueDuChasseur:
           concentrationTargets.AddRange(SpellSystem.MarqueDuChasseur(oCaster, spell, spellEntry, target));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
@@ -513,6 +528,39 @@ namespace NWN.Systems
         case CustomSpell.VagueDestructriceRadiant:
         case CustomSpell.VagueDestructriceNecrotique:
           SpellSystem.VagueDestructrice(oCaster, spell, spellEntry, castingClass);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.AmitieAnimale:
+          SpellSystem.AmitieAnimale(oCaster, spell, spellEntry, target);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.CharmePlanteEtAnimaux:
+          SpellSystem.CharmePlanteEtAnimaux(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.FurieElementaire:
+        case CustomSpell.FurieElementaireFeu:
+        case CustomSpell.FurieElementaireFoudre:
+        case CustomSpell.FurieElementaireFroid:
+          SpellSystem.FurieElementaire(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.TempeteDeNeige:
+          concentrationTargets.AddRange(SpellSystem.TempeteDeNeige(oCaster, spell, spellEntry, targetLocation, castingClass));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.LianeAvide:
+          concentrationTargets.AddRange(SpellSystem.LianeAvide(oCaster, spell, spellEntry, castingClass, targetLocation));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.FleauDinsectes:
+          concentrationTargets.AddRange(SpellSystem.FleauDinsectes(oCaster, spell, spellEntry, targetLocation, castingClass));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
       }

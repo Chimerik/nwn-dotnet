@@ -12,7 +12,7 @@ namespace NWN.Systems
         return;
 
       DamageBonus damage = clerc.Level > 13 ? DamageBonus.Plus2d8 : DamageBonus.Plus1d8;
-      caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetFrappeDivineDuperieEffect(damage));
+      caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetFrappeDivineDuperieEffect(damage));
 
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} - Frappe Divine", StringUtils.gold, true, true);
       caster.DecrementRemainingFeatUses((Feat)CustomSkill.ClercDuperieFrappeDivine);

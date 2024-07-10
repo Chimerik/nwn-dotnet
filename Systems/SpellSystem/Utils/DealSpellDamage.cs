@@ -69,6 +69,7 @@ namespace NWN.Systems
           damage = ItemUtils.GetShieldMasterReducedDamage(targetCreature, damage, saveFailed, spellEntry.savingThrowAbility);
           damage = WizardUtils.GetAbjurationReducedDamage(targetCreature, damage);
           damage = PaladinUtils.GetAuraDeGardeReducedDamage(targetCreature, damage);
+          damage = ClercUtils.GetAttenuationElementaireReducedDamage(targetCreature, damage, damageType);
           damage = HandleResistanceBypass(targetCreature, isElementalist, damage, damageType);
         }
 

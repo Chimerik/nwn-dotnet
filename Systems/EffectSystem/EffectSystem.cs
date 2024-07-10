@@ -42,7 +42,7 @@ namespace NWN.Systems
 
       onRemoveTirAffaiblissantCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveTirAffaiblissant);
 
-      onApplyCharmCallback = scriptHandleFactory.CreateUniqueHandler(OnApplyCharm); 
+      onApplyCharmCallback = scriptHandleFactory.CreateUniqueHandler(OnApplyCharm);
       onRemoveCharmCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveCharm);
 
       onIntervalTirAgrippantCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalTirAgrippant);
@@ -139,6 +139,10 @@ namespace NWN.Systems
       onEnterWildMagicCroissanceVegetaleCallback = scriptHandleFactory.CreateUniqueHandler(onEnterWildMagicCroissanceVegetale);
       onExitWildMagicCroissanceVegetaleCallback = scriptHandleFactory.CreateUniqueHandler(onExitWildMagicCroissanceVegetale);
 
+      onEnterCroissanceDepinesCallback = scriptHandleFactory.CreateUniqueHandler(onEnterCroissanceDepines);
+      onExitCroissanceDepinesCallback = scriptHandleFactory.CreateUniqueHandler(onExitCroissanceDepines);
+      onIntervalCroissanceDepinesCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalCroissanceDepines);
+
       onRemoveMarqueDuChasseurCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveMarqueDuChasseur);
 
       onEnterAngeDeLaVengeanceCallback = scriptHandleFactory.CreateUniqueHandler(onEnterAngeDeLaVengeance);
@@ -160,6 +164,13 @@ namespace NWN.Systems
 
       onEnterSphereDeFeuCallback = scriptHandleFactory.CreateUniqueHandler(onEnterSphereDeFeu);
       onIntervalSphereDeFeuCallback = scriptHandleFactory.CreateUniqueHandler(onIntervalSphereDeFeu);
+
+      onEnterTempeteDeNeigeCallback = scriptHandleFactory.CreateUniqueHandler(onEnterTempeteDeNeige);
+      onHeartbeatTempeteDeNeigeCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatTempeteDeNeige);
+
+      onEnterFleauDinsectesCallback = scriptHandleFactory.CreateUniqueHandler(onEnterFleauDinsectes);
+      onHeartbeatFleauDinsectesCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatFleauDinsectes);
+      onExitFleauDinsectesCallback = scriptHandleFactory.CreateUniqueHandler(onExitFleauDinsectes);
     }
   }
 }

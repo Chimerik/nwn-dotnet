@@ -84,6 +84,16 @@
     public const int VagueDestructrice = 920;   
     public const int VagueDestructriceRadiant = 921;   
     public const int VagueDestructriceNecrotique = 922;   
-    
+    public const int AmitieAnimale = 923;   
+    public const int CharmePlanteEtAnimaux = 924;   
+    public const int FurieElementaire = 925;   
+    public const int FurieElementaireFroid = 926;   
+    public const int FurieElementaireFeu = 927;   
+    public const int FurieElementaireFoudre = 928;   
+    public const int CroissanceDepines = 929;   
+    public const int TempeteDeNeige = 930;   
+    public const int LianeAvide = 931;   
+    public const int FleauDinsectes = 932;   
+    public const int MurDePierre = 933;       
   }
 }

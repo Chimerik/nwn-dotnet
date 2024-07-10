@@ -48,7 +48,7 @@ namespace NWN.Systems
     public static bool IsCharmeImmune(CNWSCreature caster, CNWSCreature target)
     {
       if (target.m_appliedEffects.Any(e => (EffectTrueType)e.m_nType == EffectTrueType.Immunity && e.GetInteger(1) == 28)
-        || !Utils.In((RacialType)caster.m_pStats.m_nRace, RacialType.Fey, RacialType.Aberration, RacialType.Outsider, RacialType.Elemental, RacialType.Undead))
+        || Utils.In((RacialType)caster.m_pStats.m_nRace, RacialType.Fey, RacialType.Aberration, RacialType.Outsider, RacialType.Elemental, RacialType.Undead))
         return true;
 
       return false;

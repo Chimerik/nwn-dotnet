@@ -18,6 +18,7 @@ namespace NWN.Systems
       creature.SetFeatRemainingUses((Feat)CustomSkill.ClercRepliqueInvoquee, conduitUses);
       creature.SetFeatRemainingUses((Feat)CustomSkill.ClercLinceulDombre, conduitUses);
       creature.SetFeatRemainingUses((Feat)CustomSkill.ClercRadianceDeLaube, conduitUses);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.ClercCharmePlanteEtAnimaux, conduitUses);
     }
   }
 }

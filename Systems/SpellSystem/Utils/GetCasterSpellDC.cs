@@ -1,5 +1,6 @@
 ﻿using System;
 using Anvil.API;
+using NWN.Native.API;
 using Ability = Anvil.API.Ability;
 
 namespace NWN.Systems
@@ -16,6 +17,13 @@ namespace NWN.Systems
     public static int GetCasterSpellDC(NwCreature caster, Ability ability)
     {
       return SpellConfig.BaseSpellDC + caster.GetAbilityModifier(ability) + NativeUtils.GetCreatureProficiencyBonus(caster);
+    }
+    public static int GetCasterSpellDC(CNWSCreature caster, Native.API.Ability ability)
+    {
+      byte mod = caster.m_pStats.GetAbilityMod((byte)ability);
+      int bonus = mod > 122 ? mod - 255 : mod;
+
+      return SpellConfig.BaseSpellDC + bonus + NativeUtils.GetCreatureProficiencyBonus(caster);
     }
   }
 }

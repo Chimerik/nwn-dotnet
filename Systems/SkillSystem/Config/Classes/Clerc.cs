@@ -42,6 +42,7 @@ namespace NWN.Systems
         case CustomSkill.ClercDuperie: HandleDuperieLevelUp(player, playerClass.currentLevel); break;
         case CustomSkill.ClercGuerre: HandleGuerreLevelUp(player, playerClass.currentLevel); break;
         case CustomSkill.ClercLumiere: HandleLumiereLevelUp(player, playerClass.currentLevel); break;
+        case CustomSkill.ClercNature: HandleNatureLevelUp(player, playerClass.currentLevel); break;
       }
 
       if (player.oid.LoginCreature.Level > 2 || playerClass.currentLevel > 1)

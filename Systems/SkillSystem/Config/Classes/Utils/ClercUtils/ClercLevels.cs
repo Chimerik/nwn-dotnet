@@ -41,7 +41,9 @@ namespace NWN.Systems
             if (Utils.In(spell.Id, CustomSpell.Deguisement, (int)Spell.CharmPerson, CustomSpell.PassageSansTrace, CustomSpell.ImageMiroir,
               (int)Spell.Fear, (int)Spell.PolymorphSelf, (int)Spell.DivineFavor, (int)Spell.MagicWeapon, CustomSpell.PorteDimensionnelle,
               (int)Spell.HoldMonster, CustomSpell.CapeDuCroise, (int)Spell.Firebrand, CustomSpell.SphereDeFeu, (int)Spell.Fireball,
-              (int)Spell.WallOfFire, CustomSpell.VagueDestructrice))
+              (int)Spell.WallOfFire, CustomSpell.VagueDestructrice, CustomSpell.AmitieAnimale, CustomSpell.CroissanceDepines, (int)Spell.Barkskin,
+              CustomSpell.CroissanceVegetale, CustomSpell.TempeteDeNeige, (int)Spell.DominateAnimal, CustomSpell.LianeAvide,
+              CustomSpell.FleauDinsectes, CustomSpell.MurDePierre))
               continue;// ces sorts ne font pas partie du package de clerc mais peuvent être appris via le domaine
             
             if (player.learnableSpells.TryGetValue(spell.Id, out var learnable))

@@ -12,6 +12,7 @@ namespace NWN.Systems
         + GetDefenseAdaptativeBonus(creature, attacker)
         + GetAnimalCompanionBonusAC(creature);
 
+      AC = GetPeauDecorceAC(creature, AC);
       return AC;
     }
   }

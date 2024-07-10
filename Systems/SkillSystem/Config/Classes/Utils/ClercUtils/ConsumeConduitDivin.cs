@@ -11,6 +11,7 @@ namespace NWN.Systems
       creature.DecrementRemainingFeatUses((Feat)CustomSkill.ClercRepliqueInvoquee);
       creature.DecrementRemainingFeatUses((Feat)CustomSkill.ClercLinceulDombre);
       creature.DecrementRemainingFeatUses((Feat)CustomSkill.ClercRadianceDeLaube);
+      creature.DecrementRemainingFeatUses((Feat)CustomSkill.ClercCharmePlanteEtAnimaux);
     }
   }
 }
