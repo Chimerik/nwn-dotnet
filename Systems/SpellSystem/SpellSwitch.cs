@@ -532,7 +532,7 @@ namespace NWN.Systems
           break;
 
         case CustomSpell.AmitieAnimale:
-          SpellSystem.AmitieAnimale(oCaster, spell, spellEntry, target);
+          SpellSystem.AmitieAnimale(oCaster, spell, spellEntry, target, castingClass);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 

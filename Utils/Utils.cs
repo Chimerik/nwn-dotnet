@@ -25,9 +25,6 @@ namespace NWN
       int attackRoll = 0;
       int tempAttackRoll;
 
-      if (displayLogs)
-        LogUtils.LogMessage($"avantage : {advantage}", LogUtils.LogType.Combat);
-
       if (advantage == 0)
         attackRoll = NwRandom.Roll(random, 20);
       else if (advantage > 0)

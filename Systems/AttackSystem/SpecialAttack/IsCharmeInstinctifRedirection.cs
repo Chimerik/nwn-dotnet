@@ -1,8 +1,6 @@
 ﻿using System.Linq;
 using Anvil.API;
-using NWN.Core;
 using NWN.Native.API;
-using Ability = NWN.Native.API.Ability;
 
 namespace NWN.Systems
 {
@@ -30,10 +28,6 @@ namespace NWN.Systems
       combatRound.AddWhirlwindAttack(newTarget.m_idSelf, 1);
       target.m_ScriptVars.SetInt(CreatureUtils.ReactionVariableExo, target.m_ScriptVars.GetInt(CreatureUtils.ReactionVariableExo) - 1);
       target.m_ScriptVars.SetString(CreatureUtils.CharmeInstinctifVariableExo, (target.m_ScriptVars.GetString(CreatureUtils.CharmeInstinctifVariableExo).ToString() + $"{attacker.m_idSelf}_").ToExoString());
-
-      
-
-      LogUtils.LogMessage($"Attaque redirigée vers {newTargetName.StripColors()}", LogUtils.LogType.Combat);
 
       return true;
     }

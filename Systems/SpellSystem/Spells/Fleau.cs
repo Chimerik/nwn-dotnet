@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Anvil.API;
 using NWN.Core;
 
@@ -46,7 +47,7 @@ namespace NWN.Systems
 
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfLosEvil10));
 
-      foreach (var target in targets)
+      foreach (var target in targets.Distinct())
       {
         float distance = target.DistanceSquared(caster);
 

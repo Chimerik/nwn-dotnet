@@ -12,8 +12,6 @@ namespace NWN.Systems
 
         if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.DivinationPresage))
         {
-          ModuleSystem.Log.Info($"oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(CreatureUtils.Presage1Variable).Value : {oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(CreatureUtils.Presage1Variable).Value}");
-
           NwFeat.FromFeatId(CustomSkill.DivinationPresage).Name.SetPlayerOverride(oid, $"Présage : {oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(CreatureUtils.Presage1Variable).Value}");
           NwFeat.FromFeatId(CustomSkill.DivinationPresage2).Name.SetPlayerOverride(oid, $"Présage : {oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(CreatureUtils.Presage2Variable).Value}");
 

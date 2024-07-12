@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Anvil.API;
 using NWN.Core;
 
@@ -8,21 +9,42 @@ namespace NWN.Systems
   {
     public static List<NwGameObject> DominationAnimale(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass castingClass)
     {
-      if (oCaster is NwCreature caster && oTarget is NwCreature target)
+      SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
+      List<NwGameObject> targetList = new();
+
+      if (oCaster is not NwCreature caster)
+        return targetList;
+
+      List<NwGameObject> targets = new();
+      int nbTargets = oCaster.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS").Value;
+      int DC = SpellUtils.GetCasterSpellDC(caster, spell, castingClass.SpellCastingAbility);
+
+      if (nbTargets > 0)
       {
+        for (int i = 0; i < nbTargets; i++)
+        {
+          targets.Add(oCaster.GetObjectVariable<LocalVariableObject<NwCreature>>($"_SPELL_TARGET_{i}").Value);
+          oCaster.GetObjectVariable<LocalVariableObject<NwCreature>>($"_SPELL_TARGET_{i}").Delete();
+        }
 
-        SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
-        int DC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(caster) + caster.GetAbilityModifier(castingClass.SpellCastingAbility);
+        oCaster.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS").Delete();
+      }
+      else
+      {
+        targets.Add(oTarget);
+      }
 
-        if (target.Race.RacialType == RacialType.Animal && target.Master is null && !EffectSystem.IsCharmeImmune(caster, target)
-            && !CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, DC))
+      foreach (var target in targets.Distinct())
+      {
+        if(target is NwCreature targetCreature && targetCreature.Race.RacialType == RacialType.Animal && targetCreature.Master is null
+          && !EffectSystem.IsCharmeImmune(caster, targetCreature) && !CreatureUtils.GetSavingThrow(caster, targetCreature, spellEntry.savingThrowAbility, DC))
         {
           NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, Effect.Dominated(), NwTimeSpan.FromRounds(spellEntry.duration)));
-          return new List<NwGameObject>() { oTarget };
+          targetList.Add(target);
         }
       }
 
-      return new List<NwGameObject>();
+      return targetList;
     }
   }
 }

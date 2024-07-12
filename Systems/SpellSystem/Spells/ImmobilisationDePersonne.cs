@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Anvil.API;
 using NWN.Core;
 
@@ -11,22 +12,37 @@ namespace NWN.Systems
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
       List<NwGameObject> targetList = new();
 
-      if (oTarget is not NwCreature target || (!target.IsPlayableRace && !Utils.In(target.Race.RacialType, RacialType.HumanoidReptilian, RacialType.HumanoidMonstrous, 
-        RacialType.HumanoidGoblinoid, RacialType.HumanoidOrc)))
+      if (oCaster is not NwCreature caster)
         return targetList;
 
-      SpellConfig.SavingThrowFeedback feedback = new();
-      int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, castingClass.SpellCastingAbility);
-      int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid, oCaster);
-      int totalSave = SpellUtils.GetSavingThrowRoll(target, spellEntry.savingThrowAbility, spellDC, advantage, feedback, true);
-      bool saveFailed = totalSave < spellDC;
+      List<NwGameObject> targets = new();
+      int nbTargets = oCaster.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS").Value;
+      int DC = SpellUtils.GetCasterSpellDC(caster, spell, castingClass.SpellCastingAbility);
 
-      SpellUtils.SendSavingThrowFeedbackMessage(oCaster, target, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);
-
-      if (saveFailed)
+      if (nbTargets > 0)
       {
-        NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetImmobilisationDePersonneEffect(castingClass.SpellCastingAbility), NwTimeSpan.FromRounds(spellEntry.duration)));
-        targetList.Add(target);
+        for (int i = 0; i < nbTargets; i++)
+        {
+          targets.Add(oCaster.GetObjectVariable<LocalVariableObject<NwCreature>>($"_SPELL_TARGET_{i}").Value);
+          oCaster.GetObjectVariable<LocalVariableObject<NwCreature>>($"_SPELL_TARGET_{i}").Delete();
+        }
+
+        oCaster.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS").Delete();
+      }
+      else
+      {
+        targets.Add(oTarget);
+      }
+
+      foreach (var target in targets.Distinct())
+      {
+        if (target is NwCreature targetCreature 
+          && (targetCreature.IsPlayableRace || Utils.In(targetCreature.Race.RacialType, RacialType.HumanoidReptilian, RacialType.HumanoidMonstrous, RacialType.HumanoidGoblinoid, RacialType.HumanoidOrc))
+        && !CreatureUtils.GetSavingThrow(caster, targetCreature, spellEntry.savingThrowAbility, DC, spellEntry))
+        {
+          NWScript.AssignCommand(caster, () => targetCreature.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetImmobilisationDePersonneEffect(castingClass.SpellCastingAbility), NwTimeSpan.FromRounds(spellEntry.duration)));
+          targetList.Add(target);
+        }
       }
 
       return targetList;
