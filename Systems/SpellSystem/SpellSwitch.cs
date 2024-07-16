@@ -569,17 +569,19 @@ namespace NWN.Systems
       {
         if (castingClass is not null)
         {
-          SpellSystem.OnSpellCastAbjurationWard(castingCreature, spell, spell.GetSpellLevelForClass(castingClass));
+          byte spellLevel = spell.GetSpellLevelForClass(castingClass);
+          SpellSystem.OnSpellCastAbjurationWard(castingCreature, spell, spellLevel);
           SpellSystem.OnSpellCastDivinationExpert(castingCreature, spell, castingClass);
-          SpellSystem.OnSpellCastInvocationPermutation(castingCreature, spell, spell.GetSpellLevelForClass(castingClass));
-          SpellSystem.OnSpellCastTransmutationStone(castingCreature, spell, spell.GetSpellLevelForClass(castingClass));
+          SpellSystem.OnSpellCastInvocationPermutation(castingCreature, spell, spellLevel);
+          SpellSystem.OnSpellCastTransmutationStone(castingCreature, spell, spellLevel);
+          WizardUtils.HandleEvocateurSurchargeSelfDamage(castingCreature, spellLevel, spell.SpellSchool);
 
-          if(castingClass.ClassType == ClassType.Paladin && Players.TryGetValue(castingCreature, out Player player))
+          if (castingClass.ClassType == ClassType.Paladin && Players.TryGetValue(castingCreature, out Player player))
           {
             byte chatimentLevel = (byte)(player.windows.TryGetValue("chatimentLevelSelection", out var chatimentWindow)
             ? ((ChatimentLevelSelectionWindow)chatimentWindow).selectedSpellLevel : 1);
 
-            if(spell.GetSpellLevelForClass(castingClass) == chatimentLevel)
+            if(spellLevel == chatimentLevel)
               player.oid.LoginCreature.DecrementRemainingFeatUses((Feat)CustomSkill.ChatimentDivin);
           }
         }

@@ -239,7 +239,7 @@ namespace NWN.Systems
           List<bool> selectableList = new();
 
           int minSpellLevel = nbCantrips > 0 ? 0 : 1;
-          int maxSpellLevel = SpellUtils.GetMaxSpellSlotLevelKnown(player.oid.LoginCreature, spellClass);
+          int maxSpellLevel = nbSpells + nbRestrictedSpells > 0 ? SpellUtils.GetMaxSpellSlotLevelKnown(player.oid.LoginCreature, spellClass) : 0;
 
           availableSpells.Clear();
           acquiredSpells.Clear();

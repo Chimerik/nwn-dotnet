@@ -10,7 +10,8 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurGhostlyVisageNoSound), Effect.Icon((EffectIcon)166));
+        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurGhostlyVisageNoSound), Effect.Icon((EffectIcon)166)
+          , Effect.RunAction());
         eff.Tag = IllusionDoubleEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

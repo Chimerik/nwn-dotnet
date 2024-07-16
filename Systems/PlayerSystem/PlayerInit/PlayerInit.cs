@@ -179,9 +179,9 @@ namespace NWN.Systems
         //oid.LoginCreature.OnSpellAction += spellSystem.HandleSpellInput;
         oid.LoginCreature.OnSpellAction += SpellSystem.OnCastBonusSpell;    
         oid.LoginCreature.OnSpellAction += SpellSystem.HandleCraftOnSpellInput;
+        oid.LoginCreature.OnSpellAction += SpellSystem.OnSpellCastSelectTargets;
         //oid.LoginCreature.OnSpellBroadcast += spellSystem.HandleHearingSpellBroadcast;
         oid.LoginCreature.OnSpellCast += SpellSystem.OnSpellCastCancelDivination;
-        oid.LoginCreature.OnSpellCast += SpellSystem.OnSpellCastSelectTargets;
         oid.LoginCreature.OnSpellCast += spellSystem.HandleCraftEnchantementCast;
         oid.LoginCreature.OnSpellSlotMemorize += HandleMemorizeSpellSlot;
       }

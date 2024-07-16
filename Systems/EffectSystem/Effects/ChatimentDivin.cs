@@ -19,8 +19,10 @@ namespace NWN.Systems
       for (int i = 0; i < spellLevel; i++)
         eff = Effect.LinkEffects(Effect.DamageIncrease((int)DamageBonus.Plus1d8, DamageType.Divine));
 
-      if(paladinLevel > 10)
+      if (paladinLevel > 10)
         eff = Effect.LinkEffects(Effect.DamageIncrease((int)DamageBonus.Plus1d8, DamageType.Divine));
+
+      LogUtils.LogMessage($"Châtiment Divin - {(spellLevel + paladinLevel > 10 ? 1 : 0)}d8", LogUtils.LogType.Combat);
 
       eff.Tag = ChatimentDivinEffectTag;
       eff.SubType = EffectSubType.Supernatural;

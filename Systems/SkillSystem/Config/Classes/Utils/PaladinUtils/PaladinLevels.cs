@@ -36,7 +36,7 @@ namespace NWN.Systems
             playerClass.acquiredPoints = 0;
           }
 
-          foreach(var spell in NwRuleset.Spells.Where(s => s.GetSpellLevelForClass(ClassType.Paladin) > 0 && s.GetSpellLevelForClass(ClassType.Paladin) < 10))
+          foreach(var spell in NwRuleset.Spells.Where(s => 0 < s.GetSpellLevelForClass(ClassType.Paladin) && s.GetSpellLevelForClass(ClassType.Paladin) < 10))
           {
             if (Utils.In(spell.Id, CustomSpell.GardienDeLaFoi, CustomSpell.LueurDespoir, CustomSpell.FrappePiegeuse, 
               CustomSpell.FouleeBrumeuse, CustomSpell.RayonDeLune, (int)Spell.ProtectionFromElements, CustomSpell.CroissanceVegetale,

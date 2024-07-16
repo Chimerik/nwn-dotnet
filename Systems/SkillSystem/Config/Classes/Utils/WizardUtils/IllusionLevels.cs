@@ -41,9 +41,9 @@ namespace NWN.Systems
             player.oid.SendServerMessage($"Vous apprenez le sort {StringUtils.ToWhitecolor("Illusion Mineure")}", ColorConstants.Orange);
           }
 
-          player.learnableSkills.TryAdd(CustomSkill.EvocateurFaconneurDeSorts, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.EvocateurFaconneurDeSorts], player));
-          player.learnableSkills[CustomSkill.EvocateurFaconneurDeSorts].LevelUp(player);
-          player.learnableSkills[CustomSkill.EvocateurFaconneurDeSorts].source.Add(Category.Class);
+          player.learnableSkills.TryAdd(CustomSkill.WizardIllusionAmelioree, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.WizardIllusionAmelioree], player));
+          player.learnableSkills[CustomSkill.WizardIllusionAmelioree].LevelUp(player);
+          player.learnableSkills[CustomSkill.WizardIllusionAmelioree].source.Add(Category.Class);
 
           break;
 

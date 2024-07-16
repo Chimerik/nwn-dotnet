@@ -12,7 +12,7 @@ namespace NWN.Systems
       int roll = NwRandom.Roll(Utils.random, spellEntry.damageDice, nbDices);
       int totalDamage = 0;
       bool isEvocateurSurcharge = false;
-      bool moissonDuFielTriggered = false;
+      bool moissonDuFielTriggered = target.HP > 0 && target is NwCreature creature && !Utils.In(creature.Race.RacialType, RacialType.Undead, RacialType.Construct);
 
       foreach (DamageType damageType in spellEntry.damageType)
       {
@@ -26,9 +26,7 @@ namespace NWN.Systems
             && elementalist.featOptions.Any(e => e.Value.Any(d => d == (int)damageType));
 
           isEvocateurSurcharge = caster.KnowsFeat((Feat)CustomSkill.EvocateurSurcharge) && spell.SpellSchool == SpellSchool.Evocation
-            && spellLevel > 0 && spellLevel < 6 && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.EvocateurSurchargeEffectTag);
-
-          moissonDuFielTriggered = target.HP > 0 && target is NwCreature creature && !Utils.In(creature.Race.RacialType, RacialType.Undead, RacialType.Construct);
+            && 0 < spellLevel && spellLevel < 6 && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.EvocateurSurchargeEffectTag);
 
           for (int i = 0; i < nbDices; i++)
           {
@@ -65,30 +63,26 @@ namespace NWN.Systems
 
         if (target is NwCreature targetCreature)
         {
-          damage = HandleSpellEvasion(targetCreature, damage, spellEntry.savingThrowAbility, saveFailed, spell.Id);
+          damage = HandleSpellEvasion(targetCreature, damage, spellEntry.savingThrowAbility, saveFailed, spell.Id, spellLevel);
           damage = ItemUtils.GetShieldMasterReducedDamage(targetCreature, damage, saveFailed, spellEntry.savingThrowAbility);
           damage = WizardUtils.GetAbjurationReducedDamage(targetCreature, damage);
           damage = PaladinUtils.GetAuraDeGardeReducedDamage(targetCreature, damage);
           damage = ClercUtils.GetAttenuationElementaireReducedDamage(targetCreature, damage, damageType);
-          damage = HandleResistanceBypass(targetCreature, isElementalist, damage, damageType);
+          damage = HandleResistanceBypass(targetCreature, isElementalist, isEvocateurSurcharge, damage, damageType);
         }
 
         if (oCaster is not null)
           NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(spellEntry.damageVFX), Effect.Damage(damage, damageType))));
         else
           target.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(spellEntry.damageVFX), Effect.Damage(damage, damageType)));
-        
+
         if (!noLogs)
-          LogUtils.LogMessage($"Dégâts sur {target.Name} : {nbDices}d{spellEntry.damageDice} (caster lvl {casterLevel}) = {damage} {damageType}", LogUtils.LogType.Combat);
+          LogUtils.LogMessage($"Dégâts sur {target.Name} : {nbDices}d{spellEntry.damageDice} (caster lvl {casterLevel}) = {damage} {StringUtils.GetDamageTypeTraduction(damageType)}", LogUtils.LogType.Combat);
 
         totalDamage += damage;
       }
 
-      if (isEvocateurSurcharge)
-        WizardUtils.HandleEvocateurSurchargeSelfDamage(oCaster, spellLevel);
-
-      if(moissonDuFielTriggered && target.HP < 1)
-        WizardUtils.HandleMoissonDuFiel(oCaster, spell, spellLevel);
+      WizardUtils.HandleMoissonDuFiel(oCaster, target, moissonDuFielTriggered, spell, spellLevel);
 
       return totalDamage;
     }

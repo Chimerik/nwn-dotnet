@@ -22,8 +22,8 @@ namespace NWN.Systems
       }
       else
       {
-        NwCreature companion = CreateAnimalCompanion(featId, caster, Location.Create(caster.Area, targetPosition, caster.Rotation));
-      
+        NwCreature companion = CreateAnimalCompanion(featId, caster, caster.Location);
+
         CreaturePlugin.AddAssociate(caster, companion, (int)AssociateType.AnimalCompanion);
         caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).Value = companion;
 
@@ -40,7 +40,7 @@ namespace NWN.Systems
         if (caster.KnowsFeat((Feat)CustomSkill.BelluaireDefenseDeLaBeteSuperieure))
           companion.AddFeat((Feat)CustomSkill.ChasseurEsquiveInstinctive);
 
-        if(caster.IsLoginPlayerCharacter) 
+        if (caster.IsLoginPlayerCharacter)
         {
           caster.LoginPlayer.OnClientLeave -= RangerUtils.OnDisconnectBelluaire;
           caster.LoginPlayer.OnClientLeave += RangerUtils.OnDisconnectBelluaire;
@@ -62,6 +62,7 @@ namespace NWN.Systems
     {
       byte rangerLevel = caster.GetClassInfo(ClassType.Ranger).Level;
       NwCreature companion;
+      VfxType vfx = VfxType.FnfSummonMonster1;
 
       switch (featId)
       {
@@ -82,23 +83,23 @@ namespace NWN.Systems
 
           if (rangerLevel < 5)
           {
-            target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
+            vfx = VfxType.FnfSummonMonster1;
           }
           else if (rangerLevel < 8)
           {
-            target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster2));
+            vfx = VfxType.FnfSummonMonster2;
             companion.MaxHP = 39;
             companion.BaseAC = 15;
           }
           else if (rangerLevel < 11)
           {
-            target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster3));
+            vfx = VfxType.FnfSummonMonster3;
             companion.MaxHP = 69;
             companion.BaseAC = 16;
           }
           else
           {
-            target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster3));
+            vfx = VfxType.FnfSummonMonster3;
             companion.MaxHP = 99;
             companion.BaseAC = 18;
           }
@@ -124,23 +125,23 @@ namespace NWN.Systems
 
           if (rangerLevel < 5)
           {
-            target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
+            vfx = VfxType.FnfSummonMonster1;
           }
           else if (rangerLevel < 8)
           {
-            target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster2));
+            vfx = VfxType.FnfSummonMonster2;
             companion.MaxHP = 27;
             companion.BaseAC = 14;
           }
           else if (rangerLevel < 11)
           {
-            target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster3));
+            vfx = VfxType.FnfSummonMonster3;
             companion.MaxHP = 51;
             companion.BaseAC = 15;
           }
           else
           {
-            target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster3));
+            vfx = VfxType.FnfSummonMonster3;
             companion.MaxHP = 85;
             companion.BaseAC = 17;
           }
@@ -163,24 +164,24 @@ namespace NWN.Systems
 
           if (rangerLevel < 5)
           {
-            target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
+            vfx = VfxType.FnfSummonMonster1;
           }
           else if (rangerLevel < 8)
           {
-            target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster2));
+            vfx = VfxType.FnfSummonMonster2;
             companion.ApplyEffect(EffectDuration.Permanent, Effect.DamageIncrease((int)DamageBonus.Plus1d4, DamageType.Piercing));
             companion.MaxHP = 21;
             companion.BaseAC = 19;
           }
           else if (rangerLevel < 11)
           {
-            target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster3));
+            vfx = VfxType.FnfSummonMonster3;
             companion.MaxHP = 32;
             companion.BaseAC = 20;
           }
           else
           {
-            target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster3));
+            vfx = VfxType.FnfSummonMonster3;
             companion.ApplyEffect(EffectDuration.Permanent, Effect.DamageIncrease((int)DamageBonus.Plus1d6, DamageType.Piercing));
             companion.MaxHP = 44;
             companion.BaseAC = 21;
@@ -208,28 +209,6 @@ namespace NWN.Systems
             companion.OnCreatureDamage += RangerUtils.OnDamageLoupMorsureInfectieuse;
           }
 
-          if (rangerLevel < 5)
-          {
-            target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
-          }
-          else if (rangerLevel < 8)
-          {
-            target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster2));
-            companion.MaxHP = 31;
-            companion.BaseAC = 16;
-          }
-          else if (rangerLevel < 11)
-          {
-            target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster3));
-            companion.MaxHP = 61;
-            companion.BaseAC = 17;
-          }
-          else
-          {
-            target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster3));
-            companion.MaxHP = 91;
-            companion.BaseAC = 21;
-          }
 
           SetCompanionAbilities(companion, caster, new List<Ability> { Ability.Dexterity, Ability.Constitution, Ability.Strength, Ability.Wisdom, Ability.Charisma, Ability.Intelligence });
 
@@ -250,23 +229,23 @@ namespace NWN.Systems
 
           if (rangerLevel < 5)
           {
-            target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
+            vfx = VfxType.FnfSummonMonster1;
           }
           else if (rangerLevel < 8)
           {
-            target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster2));
+            vfx = VfxType.FnfSummonMonster2;
             companion.MaxHP = 24;
             companion.BaseAC = 18;
           }
           else if (rangerLevel < 11)
           {
-            target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster3));
+            vfx = VfxType.FnfSummonMonster3;
             companion.MaxHP = 42;
             companion.BaseAC = 19;
           }
           else
           {
-            target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster3));
+            vfx = VfxType.FnfSummonMonster3;
             companion.MaxHP = 60;
             companion.BaseAC = 21;
           }
@@ -275,6 +254,23 @@ namespace NWN.Systems
 
           break;
       }
+      
+      companion.HP = companion.MaxHP;
+      companion.Position = CreaturePlugin.ComputeSafeLocation(companion, target.Position, 10, 0);
+      target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(vfx));
+      companion.SetEventScript(EventScriptType.CreatureOnBlockedByDoor, "nw_ch_ace");
+      companion.SetEventScript(EventScriptType.CreatureOnEndCombatRound, "nw_ch_ac3");
+      companion.SetEventScript(EventScriptType.CreatureOnDamaged, "nw_ch_ac6");
+      companion.SetEventScript(EventScriptType.CreatureOnDeath, "nw_ch_ac7");
+      companion.SetEventScript(EventScriptType.CreatureOnDisturbed, "nw_ch_ac8");
+      companion.SetEventScript(EventScriptType.CreatureOnHeartbeat, "nw_ch_ac1");
+      companion.SetEventScript(EventScriptType.CreatureOnNotice, "nw_ch_ac2");
+      companion.SetEventScript(EventScriptType.CreatureOnMeleeAttacked, "nw_ch_ac5");
+      companion.SetEventScript(EventScriptType.CreatureOnRested, "nw_ch_aca");
+      companion.SetEventScript(EventScriptType.CreatureOnSpawnIn, "nw_ch_acani9");
+      companion.SetEventScript(EventScriptType.CreatureOnSpellCastAt, "nw_ch_acb");
+      companion.SetEventScript(EventScriptType.CreatureOnUserDefinedEvent, "nw_ch_acd");
+      companion.SetEventScript(EventScriptType.CreatureOnDialogue, "nw_ch_ac4");
 
       return companion;
     }
@@ -284,7 +280,7 @@ namespace NWN.Systems
         && player.learnableSkills.TryGetValue(CustomSkill.AbilityImprovement, out LearnableSkill learnable) && learnable.currentLevel > 0)
       {
         int statGain = learnable.currentLevel * 2;
-        
+
         foreach (Ability ability in orderedAbilities)
         {
           int currentStat = bear.GetAbilityScore(ability, true);

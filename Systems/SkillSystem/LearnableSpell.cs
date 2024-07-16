@@ -10,16 +10,16 @@ namespace NWN.Systems
   public class LearnableSpell : Learnable
   {
     public bool canLearn { get; set; }
-    public List<ClassType> availableToClasses { get; set; }
+    //public List<ClassType> availableToClasses { get; set; }
     public List<int> learntFromClasses { get; set; }
     public bool mastery { get; set; }
     public bool paladinSerment { get; set; }
     public bool clericDomain { get; set; }
     // Dans le cas des Spell, multiplier = spell Level - 1
 
-    public LearnableSpell(int id, string name, string description, string icon, int multiplier, Ability primaryAbility, Ability secondaryAbility, List<ClassType> classes, int maxLevel = 1) : base(id, name, description, icon, maxLevel, multiplier, primaryAbility, secondaryAbility)
+    public LearnableSpell(int id, string name, string description, string icon, int multiplier, Ability primaryAbility, Ability secondaryAbility/*, List<ClassType> classes*/, int maxLevel = 1) : base(id, name, description, icon, maxLevel, multiplier, primaryAbility, secondaryAbility)
     {
-      this.availableToClasses = classes;
+      //this.availableToClasses = classes;
     }
     public LearnableSpell(LearnableSpell learnableBase, int fromClass) : base(learnableBase)
     {
@@ -105,7 +105,7 @@ namespace NWN.Systems
         if (classInfo is null)
           continue;
 
-        if (multiplier > 1)
+        if (NwSpell.FromSpellId(id).GetSpellLevelForClass((ClassType)casterClass) > 0)
         {
           switch (casterClass)
           {
@@ -135,6 +135,8 @@ namespace NWN.Systems
         Player.LearnableWindow window = (Player.LearnableWindow)learnableWindow;
         window.LoadLearnableList(window.currentList);
       }
+
+      LogUtils.LogMessage($"{player.oid.LoginCreature.Name} apprend {name} (sort de niveau {NwSpell.FromSpellId(id).GetSpellLevelForClass((ClassType)learntFromClasses.FirstOrDefault())})", LogUtils.LogType.Learnables);
 
       player.oid.ExportCharacter();
     }

@@ -5,9 +5,9 @@ namespace NWN.Systems
 {
   public static partial class SpellUtils
   {
-    public static int HandleResistanceBypass(NwCreature target, bool isElementalist, int damage, DamageType damageType)
+    public static int HandleResistanceBypass(NwCreature target, bool isElementalist, bool isEvocateurSurcharge, int damage, DamageType damageType)
     {
-      if (!isElementalist || damage < 1)
+      if ((!isElementalist && !isEvocateurSurcharge) || damage < 1)
         return damage;
 
       foreach (var eff in target.ActiveEffects)

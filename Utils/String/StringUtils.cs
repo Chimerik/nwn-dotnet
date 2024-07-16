@@ -76,6 +76,26 @@ namespace NWN.Systems
         _ => ability.ToString(),
       };
     }
+    public static string GetDamageTypeTraduction(DamageType damageType)
+    {
+      return damageType switch
+      {
+        DamageType.Acid => "acide",
+        DamageType.Sonic => "tonnerre",
+        DamageType.Fire => "feu",
+        DamageType.Bludgeoning => "contondant",
+        DamageType.Cold => "froid",
+        DamageType.Divine => "radiant",
+        DamageType.Electrical => "électrique",
+        DamageType.Magical => "force",
+        DamageType.Piercing => "perçant",
+        DamageType.Slashing => "tranchant",
+        CustomDamageType.Poison => "poison",
+        CustomDamageType.Psychic => "psychique",
+        CustomDamageType.Necrotic => "nécrotique",
+        _ => "non défini",
+      };
+    }
     public static async Task<Stream> GenerateStreamFromString(string s)
     {
       var stream = new MemoryStream();

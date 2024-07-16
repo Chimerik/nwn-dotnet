@@ -19,7 +19,7 @@ namespace NWN.Systems
         
       foreach (NwCreature target in onUsed.ClickedBy.ControlledCreature.Location.GetObjectsInShapeByType<NwCreature>(Shape.SpellCone, 5, false, onUsed.ClickedBy.ControlledCreature.Location.Position))
       {
-        int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, Ability.Dexterity, spellEntry, SpellConfig.SpellEffectType.Invalid);
+        int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, Ability.Dexterity, spellEntry, SpellConfig.SpellEffectType.Invalid, onUsed.ClickedBy.ControlledCreature, 3);
 
         if (advantage < -900)
           continue;

@@ -46,45 +46,11 @@ namespace NWN.Systems
     {
       foreach (NwSpell spell in NwRuleset.Spells)
       {
-        ClassType castClass;
-
-        int wizardCastLevel = spell.GetSpellLevelForClass(ClassType.Wizard) < 255 ? spell.GetSpellLevelForClass(ClassType.Wizard) : -1;
-        int sorcererCastLevel = spell.GetSpellLevelForClass(ClassType.Sorcerer) < 255 ? spell.GetSpellLevelForClass(ClassType.Sorcerer) : -1;
-        int clericCastLevel = spell.GetSpellLevelForClass(ClassType.Cleric) < 255 ? spell.GetSpellLevelForClass(ClassType.Cleric) : -1;
-        int druidCastLevel = spell.GetSpellLevelForClass(ClassType.Druid) < 255 ? spell.GetSpellLevelForClass(ClassType.Druid) : -1;
-        int paladinCastLevel = spell.GetSpellLevelForClass(ClassType.Paladin) < 255 ? spell.GetSpellLevelForClass(ClassType.Paladin) : -1;
-        int rangerCastLevel = spell.GetSpellLevelForClass(ClassType.Ranger) < 255 ? spell.GetSpellLevelForClass(ClassType.Ranger) : -1;
-        int bardCastLevel = spell.GetSpellLevelForClass(ClassType.Bard) < 255 ? spell.GetSpellLevelForClass(ClassType.Bard) : -1;
-
-        Dictionary<ClassType, int> classSorter = new()
-        {
-          { ClassType.Wizard, wizardCastLevel },
-          { ClassType.Sorcerer, sorcererCastLevel },
-          { ClassType.Cleric, clericCastLevel },
-          { ClassType.Druid, druidCastLevel },
-          { ClassType.Paladin, paladinCastLevel },
-          { ClassType.Ranger, rangerCastLevel },
-          { ClassType.Bard, bardCastLevel },
-        };
-
-        classSorter = classSorter.Where(c => c.Value > -1).OrderByDescending(c => c.Value).ToDictionary(c => c.Key, c => c.Value);
-
-        if (!classSorter.Any())
-        {
-          continue;
-        }
-
-        var sortedClass = classSorter.ElementAt(0);
-        castClass = sortedClass.Key;
-
-        float level = sortedClass.Value;
-        int multiplier = level < 1 ? 1 : (int)level + 1;
-
         SkillSystem.learnableDictionary.Add(spell.Id, new LearnableSpell(spell.Id, 
           spell.Name.Override is null ? spell.Name.ToString() : spell.Name.Override, 
-          spell.Description.Override is null ? spell.Description.ToString() : spell.Name.Override, spell.IconResRef, multiplier,
-          castClass == ClassType.Druid || castClass == ClassType.Cleric || castClass == ClassType.Ranger ? Ability.Wisdom : Ability.Intelligence,
-          Ability.Charisma, classSorter.Keys.ToList()));
+          spell.Description.Override is null ? spell.Description.ToString() : spell.Name.Override, spell.IconResRef, spell.InnateSpellLevel,
+          Ability.Intelligence,
+          Ability.Charisma));
       }
     }
     private static Effect CreateCustomEffect(string tag, Func<CallInfo, ScriptHandleResult> onApply, Func<CallInfo, ScriptHandleResult> onRemoved, EffectIcon icon = EffectIcon.Invalid, Func<CallInfo, ScriptHandleResult> onInterval = null, TimeSpan interval = default, EffectSubType subType = EffectSubType.Supernatural, string effectData = "")
@@ -284,9 +250,14 @@ namespace NWN.Systems
 
         SpellUtils.CheckDispelConcentration(caster, onSpellCast.Spell, spellEntry);
         SpellUtils.HandlePhlegetos(caster, spellEntry);
-      }
 
-      EffectUtils.RemoveEffectType(oCaster, EffectType.Invisibility, EffectType.ImprovedInvisibility);
+        if (!caster.KnowsFeat((Feat)CustomSkill.WizardIllusionAmelioree) && spell.SpellType != (Spell)CustomSpell.IllusionMineure)
+          EffectUtils.RemoveEffectType(oCaster, EffectType.Invisibility, EffectType.ImprovedInvisibility);
+      }
+      else
+        EffectUtils.RemoveEffectType(oCaster, EffectType.Invisibility, EffectType.ImprovedInvisibility);
+      
+        
 
       var castingClass = onSpellCast.SpellCastClass is not null ? onSpellCast.SpellCastClass : NwClass.FromClassId(CustomClass.Adventurer);
 

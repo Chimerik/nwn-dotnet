@@ -38,43 +38,8 @@ namespace NWN.Systems
           int spellLevel = spell.GetSpellLevelForClass(ClassType.Cleric);
           player.oid.LoginCreature.GetClassInfo(ClassType.Cleric).KnownSpells[spellLevel].Add(spell);
 
-          if (player.learnableSpells.TryGetValue((int)Spell.BurningHands, out learnable))
-          {
-            learnable.learntFromClasses.Add(CustomClass.Clerc);
-            learnable.clericDomain = true;
-
-            if (learnable.currentLevel < 1)
-              learnable.LevelUp(player);
-          }
-          else
-          {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.BurningHands], CustomClass.Clerc) { clericDomain = true };
-            player.learnableSpells.Add(learnableSpell.id, learnableSpell);
-            learnableSpell.LevelUp(player);
-          }
-
-          spell = NwSpell.FromSpellType(Spell.BurningHands);
-          spellLevel = spell.GetSpellLevelForClass(ClassType.Cleric);
-          player.oid.LoginCreature.GetClassInfo(ClassType.Cleric).KnownSpells[spellLevel].Add(spell);
-
-          if (player.learnableSpells.TryGetValue(CustomSpell.FaerieFire, out learnable))
-          {
-            learnable.learntFromClasses.Add(CustomClass.Clerc);
-            learnable.clericDomain = true;
-
-            if (learnable.currentLevel < 1)
-              learnable.LevelUp(player);
-          }
-          else
-          {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[CustomSpell.FaerieFire], CustomClass.Clerc) { clericDomain = true };
-            player.learnableSpells.Add(learnableSpell.id, learnableSpell);
-            learnableSpell.LevelUp(player);
-          }
-
-          spell = NwSpell.FromSpellId(CustomSpell.FaerieFire);
-          spellLevel = spell.GetSpellLevelForClass(ClassType.Cleric);
-          player.oid.LoginCreature.GetClassInfo(ClassType.Cleric).KnownSpells[spellLevel].Add(spell);
+          ClercUtils.LearnDomaineSpell(player, (int)Spell.BurningHands);
+          ClercUtils.LearnDomaineSpell(player, CustomSpell.FaerieFire);
 
           break;
 
@@ -88,127 +53,22 @@ namespace NWN.Systems
 
         case 3:
 
-          if (player.learnableSpells.TryGetValue((int)Spell.Firebrand, out var learnable3))
-          {
-            learnable3.learntFromClasses.Add(CustomClass.Clerc);
-            learnable3.clericDomain = true;
-
-            if (learnable3.currentLevel < 1)
-              learnable3.LevelUp(player);
-          }
-          else
-          {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.Firebrand], CustomClass.Clerc) { clericDomain = true };
-            player.learnableSpells.Add(learnableSpell.id, learnableSpell);
-            learnableSpell.LevelUp(player);
-          }
-
-          NwSpell spell3 = NwSpell.FromSpellType(Spell.Firebrand);
-          int spellLevel3 = spell3.GetSpellLevelForClass(ClassType.Cleric);
-          player.oid.LoginCreature.GetClassInfo(ClassType.Cleric).KnownSpells[spellLevel3].Add(spell3);
-
-          if (player.learnableSpells.TryGetValue(CustomSpell.SphereDeFeu, out learnable3))
-          {
-            learnable3.learntFromClasses.Add(CustomClass.Clerc);
-            learnable3.clericDomain = true;
-
-            if (learnable3.currentLevel < 1)
-              learnable3.LevelUp(player);
-          }
-          else
-          {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[CustomSpell.SphereDeFeu], CustomClass.Clerc) { clericDomain = true };
-            player.learnableSpells.Add(learnableSpell.id, learnableSpell);
-            learnableSpell.LevelUp(player);
-          }
-
-          spell3 = NwSpell.FromSpellId(CustomSpell.SphereDeFeu);
-          spellLevel3 = spell3.GetSpellLevelForClass(ClassType.Cleric);
-          player.oid.LoginCreature.GetClassInfo(ClassType.Cleric).KnownSpells[spellLevel3].Add(spell3);
+          ClercUtils.LearnDomaineSpell(player, (int)Spell.Firebrand);
+          ClercUtils.LearnDomaineSpell(player, CustomSpell.SphereDeFeu);
 
           break;
 
         case 5:
 
-          if (player.learnableSpells.TryGetValue((int)Spell.Fireball, out var learnable5))
-          {
-            learnable5.learntFromClasses.Add(CustomClass.Clerc);
-            learnable5.clericDomain = true;
-
-            if (learnable5.currentLevel < 1)
-              learnable5.LevelUp(player);
-          }
-          else
-          {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.Fireball], CustomClass.Clerc) { clericDomain = true };
-            player.learnableSpells.Add(learnableSpell.id, learnableSpell);
-            learnableSpell.LevelUp(player);
-          }
-
-          NwSpell spell5 = NwSpell.FromSpellType(Spell.Fireball);
-          int spellLevel5 = spell5.GetSpellLevelForClass(ClassType.Cleric);
-          player.oid.LoginCreature.GetClassInfo(ClassType.Cleric).KnownSpells[spellLevel5].Add(spell5);
-
-          if (player.learnableSpells.TryGetValue(CustomSpell.LumiereDuJour, out learnable5))
-          {
-            learnable5.learntFromClasses.Add(CustomClass.Clerc);
-            learnable5.clericDomain = true;
-
-            if (learnable5.currentLevel < 1)
-              learnable5.LevelUp(player);
-          }
-          else
-          {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[CustomSpell.LumiereDuJour], CustomClass.Clerc) { clericDomain = true };
-            player.learnableSpells.Add(learnableSpell.id, learnableSpell);
-            learnableSpell.LevelUp(player);
-          }
-
-          spell5 = NwSpell.FromSpellId(CustomSpell.LumiereDuJour);
-          spellLevel5 = spell5.GetSpellLevelForClass(ClassType.Cleric);
-          player.oid.LoginCreature.GetClassInfo(ClassType.Cleric).KnownSpells[spellLevel5].Add(spell5);
+          ClercUtils.LearnDomaineSpell(player, (int)Spell.Fireball);
+          ClercUtils.LearnDomaineSpell(player, CustomSpell.LumiereDuJour);
 
           break;
 
         case 7:
 
-          if (player.learnableSpells.TryGetValue(CustomSpell.GardienDeLaFoi, out var learnable7))
-          {
-            learnable7.learntFromClasses.Add(CustomClass.Clerc);
-            learnable7.clericDomain = true;
-
-            if (learnable7.currentLevel < 1)
-              learnable7.LevelUp(player);
-          }
-          else
-          {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[CustomSpell.GardienDeLaFoi], CustomClass.Clerc) { clericDomain = true };
-            player.learnableSpells.Add(learnableSpell.id, learnableSpell);
-            learnableSpell.LevelUp(player);
-          }
-
-          NwSpell spell7 = NwSpell.FromSpellId(CustomSpell.GardienDeLaFoi);
-          int spellLevel7 = spell7.GetSpellLevelForClass(ClassType.Cleric);
-          player.oid.LoginCreature.GetClassInfo(ClassType.Cleric).KnownSpells[spellLevel7].Add(spell7);
-
-          if (player.learnableSpells.TryGetValue((int)Spell.WallOfFire, out learnable7))
-          {
-            learnable7.learntFromClasses.Add(CustomClass.Clerc);
-            learnable7.clericDomain = true;
-
-            if (learnable7.currentLevel < 1)
-              learnable7.LevelUp(player);
-          }
-          else
-          {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.WallOfFire], CustomClass.Clerc) { clericDomain = true };
-            player.learnableSpells.Add(learnableSpell.id, learnableSpell);
-            learnableSpell.LevelUp(player);
-          }
-
-          spell7 = NwSpell.FromSpellType(Spell.WallOfFire);
-          spellLevel7 = spell7.GetSpellLevelForClass(ClassType.Cleric);
-          player.oid.LoginCreature.GetClassInfo(ClassType.Cleric).KnownSpells[spellLevel7].Add(spell7);
+          ClercUtils.LearnDomaineSpell(player, (int)Spell.WallOfFire);
+          ClercUtils.LearnDomaineSpell(player, CustomSpell.GardienDeLaFoi);
 
           break;
 
@@ -222,43 +82,8 @@ namespace NWN.Systems
 
         case 9:
 
-          if (player.learnableSpells.TryGetValue((int)Spell.FlameStrike, out var learnable9))
-          {
-            learnable9.learntFromClasses.Add(CustomClass.Clerc);
-            learnable9.clericDomain = true;
-
-            if (learnable9.currentLevel < 1)
-              learnable9.LevelUp(player);
-          }
-          else
-          {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.FlameStrike], CustomClass.Clerc) { clericDomain = true };
-            player.learnableSpells.Add(learnableSpell.id, learnableSpell);
-            learnableSpell.LevelUp(player);
-          }
-
-          NwSpell spell9 = NwSpell.FromSpellType(Spell.FlameStrike);
-          int spellLevel9 = spell9.GetSpellLevelForClass(ClassType.Cleric);
-          player.oid.LoginCreature.GetClassInfo(ClassType.Cleric).KnownSpells[spellLevel9].Add(spell9);
-
-          if (player.learnableSpells.TryGetValue(CustomSpell.VagueDestructrice, out learnable9))
-          {
-            learnable9.learntFromClasses.Add(CustomClass.Clerc);
-            learnable9.clericDomain = true;
-
-            if (learnable9.currentLevel < 1)
-              learnable9.LevelUp(player);
-          }
-          else
-          {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[CustomSpell.VagueDestructrice], CustomClass.Clerc) { clericDomain = true };
-            player.learnableSpells.Add(learnableSpell.id, learnableSpell);
-            learnableSpell.LevelUp(player);
-          }
-
-          spell9 = NwSpell.FromSpellId(CustomSpell.VagueDestructrice);
-          spellLevel9 = spell9.GetSpellLevelForClass(ClassType.Cleric);
-          player.oid.LoginCreature.GetClassInfo(ClassType.Cleric).KnownSpells[spellLevel9].Add(spell9);
+          ClercUtils.LearnDomaineSpell(player, (int)Spell.FlameStrike);
+          ClercUtils.LearnDomaineSpell(player, CustomSpell.VagueDestructrice);
 
           break;
 

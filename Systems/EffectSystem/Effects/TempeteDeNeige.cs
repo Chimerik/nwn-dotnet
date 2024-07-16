@@ -65,7 +65,7 @@ namespace NWN.Systems
     {
       SpellConfig.SavingThrowFeedback feedback = new();
       
-      int advantage = CreatureUtils.GetCreatureAbilityAdvantage(entering, Ability.Dexterity, spellEntry, SpellConfig.SpellEffectType.Knockdown, caster);
+      int advantage = CreatureUtils.GetCreatureAbilityAdvantage(entering, Ability.Dexterity, spellEntry, SpellConfig.SpellEffectType.Knockdown, caster, 3);
 
       if (advantage < -900)
         return;

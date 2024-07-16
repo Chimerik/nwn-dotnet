@@ -86,8 +86,12 @@ namespace NWN.Systems
 
       await NwTask.WaitUntil(() => player.oid.LoginCreature.Area != null);
       await NwTask.Delay(TimeSpan.FromSeconds(2));
-      player.oid.ApplyInstantVisualEffectToObject((VfxType)1516, player.oid.ControlledCreature);
-      player.oid.PlaySound("gui_level_up");
+
+      if (player.oid is not null && player.oid.ControlledCreature is not null)
+      {
+        player.oid.ApplyInstantVisualEffectToObject((VfxType)1516, player.oid.ControlledCreature);
+        player.oid.PlaySound("gui_level_up");
+      }
     }
     public void StartLearning(PlayerSystem.Player player) // on met en pause le learnable précédent et on active le nouveau
     {

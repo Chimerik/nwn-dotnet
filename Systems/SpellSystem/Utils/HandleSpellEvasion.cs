@@ -4,7 +4,7 @@ namespace NWN.Systems
 {
   public static partial class SpellUtils
   {
-    public static int HandleSpellEvasion(NwCreature target, int damage, Ability saveAbility, bool saveFailed, int spellId = -1)
+    public static int HandleSpellEvasion(NwCreature target, int damage, Ability saveAbility, bool saveFailed, int spellId = -1, byte spellLevel = 255)
     {
       if (damage < 1)
         return damage;
@@ -32,7 +32,9 @@ namespace NWN.Systems
           LogUtils.LogMessage($"JDS réussi : Dégâts {damage}", LogUtils.LogType.Combat);
         }
       }
-      else if(!saveFailed && Utils.In(spellId, CustomSpell.MauvaisAugure, CustomSpell.RayonDeLune, CustomSpell.EspritsGardiensRadiant, CustomSpell.EspritsGardiensNecrotique))
+      else if(!saveFailed 
+        && (Utils.In(spellId, CustomSpell.MauvaisAugure, CustomSpell.RayonDeLune, CustomSpell.EspritsGardiensRadiant, CustomSpell.EspritsGardiensNecrotique)
+        || spellLevel == 0))
       {
         damage /= 2;
         LogUtils.LogMessage($"JDS réussi : Dégâts {damage}", LogUtils.LogType.Combat);

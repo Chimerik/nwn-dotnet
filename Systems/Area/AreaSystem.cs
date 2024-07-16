@@ -220,6 +220,10 @@ namespace NWN.Systems
     {
       switch (area.Tag)
       {
+        case "la_zone_des_loots":
+          area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
+          break;
+
         case "entry_scene":
 
           NwObject.FindObjectsWithTag<NwPlaceable>("intro_brouillard").FirstOrDefault().VisibilityOverride = VisibilityMode.Hidden;

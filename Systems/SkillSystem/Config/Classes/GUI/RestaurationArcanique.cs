@@ -11,11 +11,11 @@ namespace NWN.Systems
     {
       public class RestaurationArcaniqueWindow : PlayerWindow
       {
-        private readonly NuiGroup rootGroup = new() { Id = "rootGroup", Border = false, Padding = 0, Margin = 0 };
+        private readonly NuiGroup rootGroup = new() { Id = "rootGroup", Border = false, Padding = 0, Margin = 0, Scrollbars = NuiScrollbars.None };
         private readonly NuiColumn rootColumn = new();
         private readonly List<NuiElement> rootChildren = new();
 
-        private readonly NuiGroup levelGroup = new() { Id = "levelGroup", Border = false, Padding = 0, Margin = 0 };
+        private readonly NuiGroup levelGroup = new() { Id = "levelGroup", Border = false, Padding = 0, Margin = 0, Scrollbars = NuiScrollbars.None };
         private readonly NuiRow levelRow = new();
 
         public RestaurationArcaniqueWindow(Player player) : base(player)
@@ -83,6 +83,8 @@ namespace NWN.Systems
                   CloseWindow();
 
                 player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpMagicalVision));
+                StringUtils.DisplayStringToAllPlayersNearTarget(player.oid.LoginCreature, $"{player.oid.LoginCreature.Name.ColorString(ColorConstants.Cyan)} - Restauration Arcanique", StringUtils.gold, true, true);
+
                 SetLevelLayout();
               }
               return;
@@ -114,14 +116,24 @@ namespace NWN.Systems
             {
               int maxSpellSlots = spellGainTable[wizardLevel - 1][level];
 
+              string disabledTooltip = "";
+              bool enabled = false;
+
+              if (wizardClass.GetRemainingSpellSlots((byte)level) >= maxSpellSlots)
+                disabledTooltip = "Aucun emplacement à restaurer à ce niveau";
+              else if (player.oid.LoginCreature.GetFeatRemainingUses((Feat)CustomSkill.WizardRestaurationArcanique) < level)
+                disabledTooltip = "Restauration restante insuffisante pour ce niveau";
+              else
+                enabled = true;
+
               levelChildren.Add(new NuiButtonImage(icon)
               {
                 Id = $"level_{level}",
-                Tooltip = $"Vos sorts de niveau {level}",
+                Tooltip = $"Restaurer un emplacement de niveau {level}",
+                DisabledTooltip = disabledTooltip,
                 Height = 40,
                 Width = 40,
-                Enabled = wizardClass.GetRemainingSpellSlots((byte)level) < maxSpellSlots
-                && player.oid.LoginCreature.GetFeatRemainingUses((Feat)CustomSkill.WizardRestaurationArcanique) >= level
+                Enabled = enabled
               });
             }
 

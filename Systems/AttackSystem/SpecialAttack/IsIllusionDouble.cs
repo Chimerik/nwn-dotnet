@@ -10,8 +10,7 @@ namespace NWN.Systems
     public static bool IsIllusionDouble(CNWSCreature attacker, CNWSCreature target, CNWSCombatRound combatRound, string attackerName)
     {
       if (!target.m_pStats.HasFeat(CustomSkill.IllusionDouble).ToBool()
-        || target.m_ScriptVars.GetInt(CreatureUtils.ReactionVariableExo) < 1
-        || !target.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.IllusionDoubleEffectExoTag).ToBool()))
+        || target.m_ScriptVars.GetInt(CreatureUtils.ReactionVariableExo) < 1)
         return false;
 
       bool doubleTrigger = false;
@@ -25,8 +24,11 @@ namespace NWN.Systems
         }
       }
 
-      if(doubleTrigger)
+      if (doubleTrigger)
+      {
         BroadcastNativeServerMessage("Double illusoire".ColorString(StringUtils.gold), target);
+        target.m_ScriptVars.SetInt(CreatureUtils.ReactionVariableExo, target.m_ScriptVars.GetInt(CreatureUtils.ReactionVariableExo) - 1);
+      }
 
       return doubleTrigger;
     }

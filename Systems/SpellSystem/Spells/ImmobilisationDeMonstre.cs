@@ -2,6 +2,7 @@
 using System.Linq;
 using Anvil.API;
 using NWN.Core;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -23,8 +24,8 @@ namespace NWN.Systems
       {
         for (int i = 0; i < nbTargets; i++)
         {
-          targets.Add(oCaster.GetObjectVariable<LocalVariableObject<NwCreature>>($"_SPELL_TARGET_{i}").Value);
-          oCaster.GetObjectVariable<LocalVariableObject<NwCreature>>($"_SPELL_TARGET_{i}").Delete();
+          targets.Add(oCaster.GetObjectVariable<LocalVariableObject<NwGameObject>>($"_SPELL_TARGET_{i}").Value);
+          oCaster.GetObjectVariable<LocalVariableObject<NwGameObject>>($"_SPELL_TARGET_{i}").Delete();
         }
 
         oCaster.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS").Delete();

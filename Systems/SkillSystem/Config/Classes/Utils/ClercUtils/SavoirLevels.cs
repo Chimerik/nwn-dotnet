@@ -8,14 +8,14 @@ namespace NWN.Systems
 {
   public static partial class Clerc
   {
-    public static void HandleNatureLevelUp(Player player, int level)
+    public static void HandleSavoirLevelUp(Player player, int level)
     {
       switch (level)
       {
         case 1: 
           
-          new StrRef(12).SetPlayerOverride(player.oid, "Domaine de la Nature");
-          player.oid.SetTextureOverride("clerc", "nature_domain");
+          new StrRef(12).SetPlayerOverride(player.oid, "Domaine du Savoir");
+          player.oid.SetTextureOverride("clerc", "domaine_savoir");
 
           if (!player.windows.TryGetValue("spellSelection", out var cantrip1)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Druid, 1, 0));
           else ((SpellSelectionWindow)cantrip1).CreateWindow(ClassType.Druid, 1, 0);

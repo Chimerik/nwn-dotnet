@@ -12,7 +12,7 @@ namespace NWN.Systems
       if (oCaster is not NwCreature caster)
         return;
 
-      List<NwCreature> targets = new();
+      List<NwGameObject> targets = new();
 
       if (caster.IsLoginPlayerCharacter)
       {
@@ -23,8 +23,8 @@ namespace NWN.Systems
 
         for (int i = 0; i < nbTargets; i++)
         {
-          targets.Add(caster.GetObjectVariable<LocalVariableObject<NwCreature>>($"_SPELL_TARGET_{i}").Value);
-          caster.GetObjectVariable<LocalVariableObject<NwCreature>>($"_SPELL_TARGET_{i}").Delete();
+          targets.Add(caster.GetObjectVariable<LocalVariableObject<NwGameObject>>($"_SPELL_TARGET_{i}").Value);
+          caster.GetObjectVariable<LocalVariableObject<NwGameObject>>($"_SPELL_TARGET_{i}").Delete();
         }
 
         caster.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS").Delete();
@@ -40,18 +40,20 @@ namespace NWN.Systems
       {
         float distance = target.DistanceSquared(caster);
 
-        if (-1 < distance && distance < 1600)
+        if (-1 < distance && distance < 1300)
         {
           switch (SpellUtils.GetSpellAttackRoll(target, oCaster, spell, castingClass.SpellCastingAbility))
           {
             case TouchAttackResult.CriticalHit: nbDice = SpellUtils.GetCriticalSpellDamageDiceNumber(oCaster, spellEntry, nbDice); ; break;
             case TouchAttackResult.Hit: break;
-            default: return;
+            default: continue;
           }
 
-          target.ApplyEffect(EffectDuration.Temporary, Effect.Beam(VfxType.BeamFire, caster, BodyNode.Hand), TimeSpan.FromSeconds(1));
+          target.ApplyEffect(EffectDuration.Temporary, Effect.Beam(VfxType.BeamFire, caster, BodyNode.Hand), TimeSpan.FromSeconds(1.2));
           SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, nbDice, oCaster, spell.GetSpellLevelForClass(castingClass));
         }
+        else
+          caster.LoginPlayer?.SendServerMessage($"{target.Name} n'est plus à portée", ColorConstants.Orange);
       }
     }
   }

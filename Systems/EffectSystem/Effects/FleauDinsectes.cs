@@ -13,15 +13,13 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onEnterFleauDinsectesCallback;
     private static ScriptCallbackHandle onExitFleauDinsectesCallback;
     private static ScriptCallbackHandle onHeartbeatFleauDinsectesCallback;
-    public static Effect FleauDinsectesAoE
+    public static Effect FleauDinsectesAoE(NwCreature caster)
     {
-      get
-      {
-        Effect eff = Effect.AreaOfEffect((PersistentVfxType)61, onEnterFleauDinsectesCallback, onHeartbeatFleauDinsectesCallback, onExitFleauDinsectesCallback);
-        eff.Tag = FleauDinsectesAOEEffectTag;
-        eff.SubType = EffectSubType.Supernatural;
-        return eff;
-      }
+      Effect eff = Effect.AreaOfEffect(PersistentVfxType.PerCreepingDoom, onEnterFleauDinsectesCallback, onHeartbeatFleauDinsectesCallback, onExitFleauDinsectesCallback);
+      eff.Tag = FleauDinsectesAOEEffectTag;
+      eff.Spell = NwSpell.FromSpellId(CustomSpell.FleauDinsectes);
+      eff.Creator = caster;
+      return eff;
     }
     public static Effect FleauDinsectes
     {
@@ -44,14 +42,13 @@ namespace NWN.Systems
         return ScriptHandleResult.Handled;
       }
 
-      if(entering.ActiveEffects.Any(e => e.Tag == FleauDinsectesEffectTag))
+      if(!entering.ActiveEffects.Any(e => e.Tag == FleauDinsectesEffectTag))
         NWScript.AssignCommand(caster, () => entering.ApplyEffect(EffectDuration.Permanent, FleauDinsectes));
 
       SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.FleauDinsectes];
-      int spellDC = SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellId(CustomSpell.TempeteDeNeige), (Ability)eventData.Effect.GetObjectVariable<LocalVariableInt>("_SPELL_CASTING_ABILITY").Value);
+      int spellDC = SpellUtils.GetCasterSpellDC(caster, (Ability)caster.GetObjectVariable<LocalVariableInt>($"_SPELL_CASTING_ABILITY_{eventData.Effect.Spell.Id}").Value);
 
       FleauDinsectesDamage(caster, entering, spellEntry, spellDC);
-
       return ScriptHandleResult.Handled;
     }
     private static ScriptHandleResult onHeartbeatFleauDinsectes(CallInfo callInfo)
@@ -66,7 +63,7 @@ namespace NWN.Systems
       }
 
       SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.FleauDinsectes];
-      int spellDC = SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellId(CustomSpell.FleauDinsectes), (Ability)eventData.Effect.GetObjectVariable<LocalVariableInt>("_SPELL_CASTING_ABILITY").Value);
+      int spellDC = SpellUtils.GetCasterSpellDC(caster, (Ability)caster.GetObjectVariable<LocalVariableInt>($"_SPELL_CASTING_ABILITY_{eventData.Effect.Spell.Id}").Value);
 
       foreach(NwCreature entering in eventData.Effect.GetObjectsInEffectArea<NwCreature>()) 
       {

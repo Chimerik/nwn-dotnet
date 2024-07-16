@@ -348,8 +348,16 @@ namespace NWN.Systems
 
                   case "visualEffects":
 
-                    if (!player.windows.ContainsKey("DMVisualEffects")) player.windows.Add("DMVisualEffects", new DMVisualEffectsWindow(player));
-                    else ((DMVisualEffectsWindow)player.windows["DMVisualEffects"]).CreateWindow();
+                    if (!player.windows.TryGetValue("DMVisualEffects", out var vfx)) player.windows.Add("DMVisualEffects", new DMVisualEffectsWindow(player));
+                    else ((DMVisualEffectsWindow)vfx).CreateWindow();
+
+                    CloseWindow();
+                    break;
+
+                  case "aoeVisualEffects":
+
+                    if (!player.windows.TryGetValue("DMAoEVisualEffects", out var aoe)) player.windows.Add("DMAoEVisualEffects", new DMAoEVisualEffectsWindow(player));
+                    else ((DMAoEVisualEffectsWindow)aoe).CreateWindow();
 
                     CloseWindow();
                     break;

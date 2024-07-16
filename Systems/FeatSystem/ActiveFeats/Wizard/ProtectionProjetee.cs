@@ -11,7 +11,7 @@ namespace NWN.Systems
       if (!CreatureUtils.HandleBonusActionUse(caster))
         return;
 
-      if (targetObject is not NwCreature target || caster.IsReactionTypeHostile(target))
+      if (targetObject is not NwCreature target)
       {
         caster.LoginPlayer?.SendServerMessage($"Veuillez choisir une cible valide", ColorConstants.Red);
         return;
@@ -24,17 +24,17 @@ namespace NWN.Systems
       }
 
       NwCreature currentWardBearer = caster.GetObjectVariable<LocalVariableObject<NwCreature>>("_ABJURATION_WARD_TARGET").HasValue
-        ? caster.GetObjectVariable<LocalVariableObject<NwCreature>>("_ABJURATION_WARD_TARGET").Value : caster;
+       ? caster.GetObjectVariable<LocalVariableObject<NwCreature>>("_ABJURATION_WARD_TARGET").Value : caster;
 
       var ward = currentWardBearer.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.AbjurationWardEffectTag && e.Creator == caster);
-      int intensity = (int)(ward is not null ? ward.CasterLevel : EffectSystem.GetAbjurationWardEffect(caster.GetClassInfo(ClassType.Wizard).Level));
+      int intensity = ward is not null ? ward.CasterLevel : caster.GetClassInfo(ClassType.Wizard).Level;
 
       caster.OnDamaged -= WizardUtils.OnDamageAbjurationWard;
 
       EffectUtils.RemoveTaggedEffect(caster, caster, EffectSystem.AbjurationWardEffectTag);
 
       NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetAbjurationWardEffect(intensity)));
-      
+
       target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpGlobeUse));
       target.OnDamaged -= WizardUtils.OnDamageAbjurationWard;
       target.OnDamaged += WizardUtils.OnDamageAbjurationWard;
@@ -46,9 +46,10 @@ namespace NWN.Systems
         target.LoginPlayer.OnClientDisconnect -= EffectSystem.OnLeaveAbjurationWard;
         target.LoginPlayer.OnClientDisconnect += EffectSystem.OnLeaveAbjurationWard;
       }
+
       caster.GetObjectVariable<LocalVariableObject<NwCreature>>("_ABJURATION_WARD_TARGET").Value = target;
 
-      StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} utilise {"Protection Arcanique".ColorString(ColorConstants.White)} sur {target.Name.ColorString(ColorConstants.Cyan)}", ColorConstants.Orange, true);
+      StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} utilise {"Protection Arcanique".ColorString(ColorConstants.White)} sur {target.Name.ColorString(ColorConstants.Cyan)}", ColorConstants.Orange, true, true);
     }
   }
 }

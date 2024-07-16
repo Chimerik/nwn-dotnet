@@ -27,29 +27,32 @@ namespace NWN.Systems
         {
           rootChidren.Clear();
 
-          string areaDescription = AreaSystem.areaDescriptions[area.Name];
-
-          rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiRow() { Children = new List<NuiElement>() { new NuiText(areaDescription) } } } });
-
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 500, 300);
-
-          window = new NuiWindow(rootGroup, area.Name)
+          if (AreaSystem.areaDescriptions.TryGetValue(area.Name, out string areaDescription))
           {
-            Geometry = geometry,
-            Resizable = true,
-            Collapsed = false,
-            Closable = true,
-            Transparent = false,
-            Border = true,
-          };
+            rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiRow() { Children = new List<NuiElement>() { new NuiText(areaDescription) } } } });
 
-          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
-          {
-            nuiToken = tempToken;
+            NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 500, 300);
 
-            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
-            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+            window = new NuiWindow(rootGroup, area.Name)
+            {
+              Geometry = geometry,
+              Resizable = true,
+              Collapsed = false,
+              Closable = true,
+              Transparent = false,
+              Border = true,
+            };
+
+            if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+            {
+              nuiToken = tempToken;
+
+              geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+              geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+            }
           }
+          //else
+           // player.oid.SendServerMessage("Erreur - Aucune description configurée pour cette zone", ColorConstants.Red);
         }
       }
     }

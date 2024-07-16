@@ -23,7 +23,10 @@ namespace NWN.Systems
             $"utilise Châtiment Divin sur {targetCreature.Name.ColorString(ColorConstants.Cyan)}", StringUtils.gold, true, true);
 
           if (Utils.In(targetCreature.Race.RacialType, RacialType.Undead, RacialType.Outsider))
+          {
+            LogUtils.LogMessage($"Châtiment Divin - Cible mort-vivant ou extérieur : +1d8", LogUtils.LogType.Combat);
             NWScript.AssignCommand(onAttack.Attacker, () => targetCreature.ApplyEffect(EffectDuration.Instant, Effect.Damage(NwRandom.Roll(Utils.random, 8), DamageType.Divine)));
+          }
 
           await NwTask.NextFrame();
           onAttack.Attacker.OnCreatureAttack -= OnAttackChatimentDivin;

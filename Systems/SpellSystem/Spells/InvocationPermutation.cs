@@ -22,7 +22,9 @@ namespace NWN.Systems
 
           if (casterPos != Vector3.Zero && targetPos != Vector3.Zero)
           {
+            _ = caster.ClearActionQueue();
             caster.Position = casterPos;
+            _ = target.ClearActionQueue();
             target.Position = targetPos;
 
             caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
@@ -43,6 +45,7 @@ namespace NWN.Systems
         if (casterPos != Vector3.Zero)
         {
           caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
+          _ = caster.ClearActionQueue();
           caster.Position = casterPos;
           targetLocation.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
 

@@ -192,15 +192,20 @@ namespace NWN.Systems
           new StrRef(12).SetPlayerOverride(oid, "Domaine de la Guerre");
           oid.SetTextureOverride("clerc", "guerre");
         }
-        else if (learnableSkills.ContainsKey(CustomSkill.ClercGuerre))
+        else if (learnableSkills.ContainsKey(CustomSkill.ClercLumiere))
         {
           new StrRef(12).SetPlayerOverride(oid, "Domaine de la Lumière");
           oid.SetTextureOverride("clerc", "light_domain");
         }
-        else if (learnableSkills.ContainsKey(CustomSkill.ClercGuerre))
+        else if (learnableSkills.ContainsKey(CustomSkill.ClercNature))
         {
           new StrRef(12).SetPlayerOverride(oid, "Domaine de la Nature");
           oid.SetTextureOverride("clerc", "nature_domain");
+        }
+        else if (learnableSkills.ContainsKey(CustomSkill.ClercSavoir))
+        {
+          new StrRef(12).SetPlayerOverride(oid, "Domaine de la Nature");
+          oid.SetTextureOverride("clerc", "domaine_savoir");
         }
       }
     }

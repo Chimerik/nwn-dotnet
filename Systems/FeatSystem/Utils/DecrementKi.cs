@@ -24,7 +24,7 @@ namespace NWN.Systems
         //creature.SetFeatRemainingUses((Feat)CustomSkill.ImpositionDesMainsGuerison, 0);
       }
 
-      if (creature.GetFeatRemainingUses((Feat)CustomSkill.MonkFrappeDombre) < 3)
+      if (creature.GetFeatRemainingUses((Feat)CustomSkill.MonkStunStrike) < 3)
       {
         creature.SetFeatRemainingUses((Feat)CustomSkill.MonkFrappeDombre, 0);
         creature.SetFeatRemainingUses((Feat)CustomSkill.MonkPaumeVibratoire, 0);

@@ -368,6 +368,8 @@
     public const int ClercFurieElementaire = 1634;
     public const int ClercMaitreDeLaNature = 1635;
 
+    public const int WizardIllusionAmelioree = 1636;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -944,6 +946,7 @@
     public const int ClercGuerreAvatarDeBataille = 20612;
     public const int ClercLumiere = 20613;
     public const int ClercNature = 20614;
+    public const int ClercSavoir = 20615;
     
     
 
