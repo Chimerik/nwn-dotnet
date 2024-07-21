@@ -16,7 +16,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurAuraGreenDark), Effect.AreaOfEffect(PersistentVfxType.PerEntangle, onEnterWildMagicCroissanceVegetaleCallback, onExitWildMagicCroissanceVegetaleCallback));
+        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurAuraGreenDark), Effect.AreaOfEffect(PersistentVfxType.PerEntangle, onEnterWildMagicCroissanceVegetaleCallback, onExitHandle:onExitWildMagicCroissanceVegetaleCallback));
         eff.Tag = WildMagicCroissanceVegetaleAuraEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;
@@ -46,6 +46,10 @@ namespace NWN.Systems
     {
       if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnExit eventData) || eventData.Exiting is not NwCreature exiting)
         return ScriptHandleResult.Handled;
+
+      ModuleSystem.Log.Info($"exiting : {exiting.Name}");
+      foreach(var eff in exiting.ActiveEffects)
+        ModuleSystem.Log.Info($"eff : {eff.Tag}");
 
       EffectUtils.RemoveTaggedEffect(exiting, eventData.Effect.Creator, WildMagicCroissanceVegetaleEffectTag);
 

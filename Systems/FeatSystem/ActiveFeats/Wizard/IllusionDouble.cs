@@ -7,6 +7,7 @@ namespace NWN.Systems
     private static void IllusionDouble(NwCreature caster)
     {
       caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.IllusionDouble);
+      caster.DecrementRemainingFeatUses((Feat)CustomSkill.IllusionDouble);
     }
   }
 }

@@ -38,7 +38,7 @@ namespace NWN.Systems
       foreach (var target in targets.Distinct())
       {
         if (target is NwCreature targetCreature && targetCreature.Race.RacialType != RacialType.Undead
-          && !CreatureUtils.GetSavingThrow(caster, targetCreature, spellEntry.savingThrowAbility, DC, spellEntry))
+          && CreatureUtils.GetSavingThrow(caster, targetCreature, spellEntry.savingThrowAbility, DC, spellEntry))
         {
           NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetImmobilisationDePersonneEffect(castingClass.SpellCastingAbility), NwTimeSpan.FromRounds(spellEntry.duration)));
           targetList.Add(target);

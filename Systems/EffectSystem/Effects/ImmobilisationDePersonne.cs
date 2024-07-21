@@ -13,7 +13,7 @@ namespace NWN.Systems
     public static Effect GetImmobilisationDePersonneEffect(Ability spellCastingAbility)
     {
       Effect eff = Effect.LinkEffects(Effect.Paralyze(), Effect.VisualEffect(VfxType.DurParalyzeHold),
-        Effect.RunAction(onIntervalHandle: onIntervalImmobilisationDePersonneCallback, interval: TimeSpan.FromSeconds(1), data:((int)spellCastingAbility).ToString()));
+        Effect.RunAction(onIntervalHandle: onIntervalImmobilisationDePersonneCallback, interval: TimeSpan.FromSeconds(6), data:((int)spellCastingAbility).ToString()));
       eff.Tag = ImmobilisationDePersonneEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       return eff;

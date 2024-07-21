@@ -19,6 +19,8 @@ namespace NWN.Systems
       int nbTargets = oCaster.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS").Value;
       int DC = SpellUtils.GetCasterSpellDC(caster, spell, castingClass.SpellCastingAbility);
 
+      ModuleSystem.Log.Info($"nbTargets : {nbTargets}");
+
       if (nbTargets > 0)
       {
         for (int i = 0; i < nbTargets; i++)
@@ -36,9 +38,11 @@ namespace NWN.Systems
 
       foreach (var target in targets.Distinct())
       {
+        ModuleSystem.Log.Info($"target : {target.Name}");
+
         if (target is NwCreature targetCreature 
           && (targetCreature.IsPlayableRace || Utils.In(targetCreature.Race.RacialType, RacialType.HumanoidReptilian, RacialType.HumanoidMonstrous, RacialType.HumanoidGoblinoid, RacialType.HumanoidOrc))
-        && !CreatureUtils.GetSavingThrow(caster, targetCreature, spellEntry.savingThrowAbility, DC, spellEntry))
+        && CreatureUtils.GetSavingThrow(caster, targetCreature, spellEntry.savingThrowAbility, DC, spellEntry))
         {
           NWScript.AssignCommand(caster, () => targetCreature.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetImmobilisationDePersonneEffect(castingClass.SpellCastingAbility), NwTimeSpan.FromRounds(spellEntry.duration)));
           targetList.Add(target);

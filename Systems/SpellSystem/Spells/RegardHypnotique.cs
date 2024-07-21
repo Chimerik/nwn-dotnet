@@ -15,7 +15,7 @@ namespace NWN.Systems
         return concentrationTargets;
 
       if (caster.GetObjectVariable<LocalVariableString>(CreatureUtils.RegardHypnotiqueTargetListVariable).HasValue && 
-        caster.GetObjectVariable<LocalVariableString>(CreatureUtils.RegardHypnotiqueTargetListVariable).Value.Split("_").Contains(caster.ToString()))
+        caster.GetObjectVariable<LocalVariableString>(CreatureUtils.RegardHypnotiqueTargetListVariable).Value.Split("_").Contains(target.ToString()))
       {
         caster.LoginPlayer?.SendServerMessage("Cette capacité n'aura plus d'effet sur cette créature jusqu'à votre prochain repos long", ColorConstants.Red);
         return concentrationTargets;

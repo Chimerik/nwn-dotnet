@@ -10,9 +10,12 @@ namespace NWN.Systems
       if (rawStrength < 20)
         player.oid.LoginCreature.SetsRawAbilityScore(Ability.Strength, (byte)(rawStrength + 1));
 
-      if (!player.oid.LoginCreature.KnowsFeat(Feat.ArmorProficiencyHeavy))
-        player.oid.LoginCreature.AddFeat(Feat.ArmorProficiencyHeavy);      
+      player.learnableSkills.TryAdd(CustomSkill.HeavyArmorProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HeavyArmorProficiency], player));
+      player.learnableSkills[CustomSkill.HeavyArmorProficiency].source.Add(Category.Feat);
 
+      if (player.learnableSkills[CustomSkill.HeavyArmorProficiency].currentLevel < 1)
+        player.learnableSkills[CustomSkill.HeavyArmorProficiency].LevelUp(player);
+      
       return true;
     }
   }

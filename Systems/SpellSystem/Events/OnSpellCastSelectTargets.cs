@@ -48,7 +48,7 @@ namespace NWN.Systems
 
               if (onSpellAction.TargetObject is NwGameObject target)
               {
-                player.LoginCreature.GetObjectVariable<LocalVariableObject<NwGameObject>>("_SPELL_TARGET_1").Value = target;
+                player.LoginCreature.GetObjectVariable<LocalVariableObject<NwGameObject>>("_SPELL_TARGET_0").Value = target;
                 player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS").Value = 1;
               }
 

@@ -461,7 +461,7 @@ namespace NWN
       { "reboot", new MainMenuCommand("Reboot", "", CommandRank.Admin) },
       { "refill", new MainMenuCommand("Refill ressources", "", CommandRank.Admin) },
       { "instantLearn", new MainMenuCommand("Activer/Désactiver Instant Learn (alpha)", "", CommandRank.Public) }, // TODO : Ajouter à OnExamine Player => Temporairement accessible à tout le monde pendant la BETA
-      { "instantCraft", new MainMenuCommand("Instant Craft", "", CommandRank.Admin) }, // TODO : Ajouter à OnExamine Player
+      { "instantCraft", new MainMenuCommand("Instant Craft (Alpha)", "", CommandRank.Public) }, // TODO : Ajouter à OnExamine Player
       { "giveResources", new MainMenuCommand("Don de ressources", "", CommandRank.Admin) }, // TODO : Ajouter à OnExamine Player
       { "giveSkillbook", new MainMenuCommand("Don de skillbook", "", CommandRank.Admin) }, // TODO : Ajouter à OnExamine Player
       { "lootEditor", new MainMenuCommand("Modifier les listes de loots", "", CommandRank.Admin) }

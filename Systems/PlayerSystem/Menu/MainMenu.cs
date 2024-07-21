@@ -113,7 +113,7 @@ namespace NWN.Systems
             LoadMenu(currentList);
           }
         }
-        private async void HandleMainMenuEvents(ModuleEvents.OnNuiEvent nuiEvent)
+        private void HandleMainMenuEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
           try
           {
@@ -595,6 +595,9 @@ namespace NWN.Systems
                     player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>(EffectSystem.EvocateurSurchargeVariable).Delete();
                     player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_ILLUSION_SEE_INVI_COOLDOWN").Delete();
                     player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>(Wizard.TransmutationStoneVariable).Delete();
+                    player.oid.LoginCreature.GetObjectVariable<LocalVariableString>(CreatureUtils.CharmeInstinctifVariable).Delete();
+                    player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(CreatureUtils.AnimalCompanionVariable).Delete();
+
                     FighterUtils.RestoreManoeuvres(player.oid.LoginCreature);
                     FighterUtils.RestoreTirArcanique(player.oid.LoginCreature);
                     BarbarianUtils.RestoreBarbarianRage(player.oid.LoginCreature);

@@ -30,6 +30,9 @@ namespace NWN.Systems
             if (learnableSkills.ContainsKey(CustomSkill.Prodige))
               learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 4;
 
+            if (learnableSkills.ContainsKey(CustomSkill.ClercSavoir))
+              learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 4;
+
             if (learnableSkills.ContainsKey(CustomSkill.Linguiste))
               learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 2;
 

@@ -16,7 +16,7 @@ namespace NWN.Systems
       if (target.m_ScriptVars.GetString(CreatureUtils.CharmeInstinctifVariableExo).ToString().Split("_").Any(i => i == attacker.m_idSelf.ToString()))
         return false;
 
-      var newTarget = NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(target.GetNearestEnemy(2, attacker.m_idSelf, 1, 1));
+      var newTarget = NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(target.GetNearestEnemy(4, attacker.m_idSelf, 1, 1));
 
       if (newTarget is null || newTarget.m_idSelf == 0x7F000000)
         return false;

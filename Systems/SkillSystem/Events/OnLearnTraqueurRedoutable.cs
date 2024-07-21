@@ -12,9 +12,9 @@ namespace NWN.Systems
       player.oid.OnCombatStatusChange -= RangerUtils.OnCombatTraqueurRedoutable;
       player.oid.OnCombatStatusChange += RangerUtils.OnCombatTraqueurRedoutable;
 
-      player.learnableSkills.TryAdd(CustomSkill.MonkLinceulDombre, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MonkLinceulDombre], player));
-      player.learnableSkills[CustomSkill.MonkLinceulDombre].LevelUp(player);
-      player.learnableSkills[CustomSkill.MonkLinceulDombre].source.Add(Category.Class);
+      player.learnableSkills.TryAdd(CustomSkill.TraqueurLinceulDombre, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.TraqueurLinceulDombre], player));
+      player.learnableSkills[CustomSkill.TraqueurLinceulDombre].LevelUp(player);
+      player.learnableSkills[CustomSkill.TraqueurLinceulDombre].source.Add(Category.Class);
 
       return true;
     }

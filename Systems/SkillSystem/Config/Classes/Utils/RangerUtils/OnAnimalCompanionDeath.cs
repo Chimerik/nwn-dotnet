@@ -1,5 +1,4 @@
-﻿using System;
-using Anvil.API;
+﻿using Anvil.API;
 using Anvil.API.Events;
 
 namespace NWN.Systems
@@ -17,6 +16,8 @@ namespace NWN.Systems
         onDeath.KilledCreature.Master.SetFeatRemainingUses((Feat)CustomSkill.BelluaireDireRaven, 0);
         onDeath.KilledCreature.Master.SetFeatRemainingUses((Feat)CustomSkill.BelluaireSpider, 0);
         onDeath.KilledCreature.Master.SetFeatRemainingUses((Feat)CustomSkill.BelluaireWolf, 0);
+
+        onDeath.KilledCreature.Master.GetObjectVariable<PersistentVariableInt>(CreatureUtils.AnimalCompanionVariable).Value = -1;
       }
 
       ClearAnimalCompanion(onDeath.KilledCreature);

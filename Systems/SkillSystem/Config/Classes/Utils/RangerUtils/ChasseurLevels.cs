@@ -21,16 +21,6 @@ namespace NWN.Systems
 
           break;
 
-        case 5:
-
-          player.learnableSkills.TryAdd(CustomSkill.RangerChasseurBonusAttack, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.RangerChasseurBonusAttack], player));
-          player.learnableSkills[CustomSkill.RangerChasseurBonusAttack].LevelUp(player);
-          player.learnableSkills[CustomSkill.RangerChasseurBonusAttack].source.Add(Category.Class);
-
-          player.oid.LoginCreature.BaseAttackCount += 1;
-
-          break;
-
         case 7:
 
           if (!player.windows.TryGetValue("hunterTactiqueDefensiveSelection", out var def)) player.windows.Add("hunterTactiqueDefensiveSelection", new HunterTactiqueDefensiveSelectionWindow(player));

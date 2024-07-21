@@ -39,12 +39,6 @@ namespace NWN.Systems
 
         case 5:
 
-          player.learnableSkills.TryAdd(CustomSkill.EscrimeBonusAttack, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.EscrimeBonusAttack], player));
-          player.learnableSkills[CustomSkill.EscrimeBonusAttack].LevelUp(player);
-          player.learnableSkills[CustomSkill.EscrimeBonusAttack].source.Add(Category.Class);
-
-          player.oid.LoginCreature.BaseAttackCount += 1;
-
           if (player.learnableSpells.TryGetValue(CustomSpell.CordeEnchantee, out var corde))
           {
             corde.learntFromClasses.Add(CustomClass.Ranger);

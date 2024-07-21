@@ -1,4 +1,4 @@
-﻿  using Anvil.API.Events;
+﻿using Anvil.API.Events;
 using Anvil.API;
 using System;
 
@@ -25,38 +25,50 @@ namespace NWN.Systems
 
       try
       {
-        foreach (var trap in onHB.Creature.Location.GetObjectsInShapeByType<NwGameObject>(Shape.Sphere,
-          onHB.Creature.DetectModeActive || onHB.Creature.KnowsFeat(Feat.KeenSense) ? 6.66f : 3.33f, false))
-        {
-          if (trap is NwPlaceable plc)
-          {
-            if (!plc.IsTrapped || plc.IsTrapDetectedBy(onHB.Creature))
-              continue;
-
-            if (plc.TrapDetectDC < perceptionRoll + perceptionSkill)
-              plc.SetTrapDetectedBy(true, onHB.Creature);
-          }
-          else if (trap is NwDoor door)
-          {
-            if (!door.IsTrapped || door.IsTrapDetectedBy(onHB.Creature))
-              continue;
-
-            if (door.TrapDetectDC < perceptionRoll + perceptionSkill)
-              door.SetTrapDetectedBy(true, onHB.Creature);
-          }
-          else if (trap is NwTrigger trigger)
-          {
-            if (!trigger.IsTrapped || trigger.IsTrapDetectedBy(onHB.Creature))
-              continue;
-
-            if (trigger.TrapDetectDC < perceptionRoll + perceptionSkill)
-              trigger.SetTrapDetectedBy(true, onHB.Creature);
-          }
-        }
+        int totalScore = perceptionRoll + perceptionSkill;
+        DetectPlaceableTraps(onHB.Creature, totalScore);
+        DetectDoorTraps(onHB.Creature, totalScore);
+        DetectTriggerTraps(onHB.Creature, totalScore);
       }
-      catch(Exception)
+      catch (Exception)
       {
         onHB.Creature.LoginPlayer?.DisplayFloatingTextStringOnCreature(onHB.Creature, "Erreur NwSound : Qu'étiez vous en train de faire à l'instant ?".ColorString(ColorConstants.Red));
+      }
+    }
+    private static void DetectPlaceableTraps(NwCreature detector, int detectionScore)
+    {
+      foreach (var plc in detector.Location.GetObjectsInShapeByType<NwPlaceable>(Shape.Sphere,
+        detector.DetectModeActive || detector.KnowsFeat(Feat.KeenSense) ? 6.66f : 3.33f, false))
+      {
+        if (!plc.IsTrapped || plc.IsTrapDetectedBy(detector))
+          continue;
+
+        if (plc.TrapDetectDC < detectionScore)
+          plc.SetTrapDetectedBy(true, detector);
+      }
+    }
+    private static void DetectDoorTraps(NwCreature detector, int detectionScore)
+    {
+      foreach (var door in detector.Location.GetObjectsInShapeByType<NwDoor>(Shape.Sphere,
+        detector.DetectModeActive || detector.KnowsFeat(Feat.KeenSense) ? 6.66f : 3.33f, false))
+      {
+        if (!door.IsTrapped || door.IsTrapDetectedBy(detector))
+          continue;
+
+        if (door.TrapDetectDC < detectionScore)
+          door.SetTrapDetectedBy(true, detector);
+      }
+    }
+    private static void DetectTriggerTraps(NwCreature detector, int detectionScore)
+    {
+      foreach (var trigger in detector.Location.GetObjectsInShapeByType<NwTrigger>(Shape.Sphere,
+        detector.DetectModeActive || detector.KnowsFeat(Feat.KeenSense) ? 6.66f : 3.33f, false))
+      {
+        if (!trigger.IsTrapped || trigger.IsTrapDetectedBy(detector))
+          continue;
+
+        if (trigger.TrapDetectDC < detectionScore)
+          trigger.SetTrapDetectedBy(true, detector);
       }
     }
   }

@@ -172,7 +172,7 @@ namespace NWN.Systems
 
       if (targetCreature is not null)
       {
-        if(NativeUtils.IsAttackRedirected(creature, targetCreature, combatRound, attackerName))
+        if(NativeUtils.IsAttackRedirected(creature, targetCreature, combatRound, attackerName, targetName))
         {
           attackData.m_nMissedBy = 2;
           attackData.m_nAttackResult = 4;

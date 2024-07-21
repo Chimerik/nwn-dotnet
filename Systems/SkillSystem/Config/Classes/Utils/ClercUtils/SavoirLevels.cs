@@ -17,13 +17,15 @@ namespace NWN.Systems
           new StrRef(12).SetPlayerOverride(player.oid, "Domaine du Savoir");
           player.oid.SetTextureOverride("clerc", "domaine_savoir");
 
-          if (!player.windows.TryGetValue("spellSelection", out var cantrip1)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Druid, 1, 0));
-          else ((SpellSelectionWindow)cantrip1).CreateWindow(ClassType.Druid, 1, 0);
+          List<int> tempList = new() { CustomSkill.ArcanaProficiency, CustomSkill.HistoryProficiency, CustomSkill.NatureProficiency, CustomSkill.ReligionProficiency };
+          List<int> skillList = new();
 
-          List<int> skillList = new() { CustomSkill.AnimalHandlingProficiency, CustomSkill.NatureProficiency, CustomSkill.SurvivalProficiency };
+          foreach(var skill in tempList)
+            if(!player.learnableSkills.TryGetValue(skill + 1, out var expertise) || expertise.currentLevel < 1)
+              skillList.Add(skill);
 
-          if (!player.windows.TryGetValue("skillProficiencySelection", out var skill3)) player.windows.Add("skillProficiencySelection", new SkillProficiencySelectionWindow(player, skillList, 1));
-          else ((SkillProficiencySelectionWindow)skill3).CreateWindow(skillList, 1);
+          if (!player.windows.TryGetValue("skillProficiencySelection", out var skill3)) player.windows.Add("skillProficiencySelection", new SkillProficiencySelectionWindow(player, skillList, 2, CustomSkill.ClercSavoir));
+          else ((SkillProficiencySelectionWindow)skill3).CreateWindow(skillList, 2, CustomSkill.ClercSavoir);
 
           ClercUtils.LearnDomaineSpell(player, CustomSpell.AmitieAnimale);
           ClercUtils.LearnDomaineSpell(player, CustomSpell.SpeakAnimal);

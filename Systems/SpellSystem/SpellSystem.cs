@@ -48,7 +48,7 @@ namespace NWN.Systems
       {
         SkillSystem.learnableDictionary.Add(spell.Id, new LearnableSpell(spell.Id, 
           spell.Name.Override is null ? spell.Name.ToString() : spell.Name.Override, 
-          spell.Description.Override is null ? spell.Description.ToString() : spell.Name.Override, spell.IconResRef, spell.InnateSpellLevel,
+          spell.Description.Override is null ? spell.Description.ToString() : spell.Name.Override, spell.IconResRef, spell.InnateSpellLevel + 1,
           Ability.Intelligence,
           Ability.Charisma));
       }

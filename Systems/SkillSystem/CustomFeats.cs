@@ -370,6 +370,11 @@
 
     public const int WizardIllusionAmelioree = 1636;
 
+    public const int ClercSavoirAncestral = 1637;
+
+    public const int TraqueurLinceulDombre = 1638;
+
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -903,10 +908,8 @@
     public const int RangerBonusAttack = 20575;
 
     public const int RangerChasseur = 20576;
-    public const int RangerChasseurBonusAttack = 20577;
     public const int RangerBelluaire = 20578;
     public const int RangerProfondeurs = 20579;
-    public const int RangerProfondeursBonusAttack = 20580;
     public const int EsquiveSurnaturelle = 20581;
 
     public const int FavoredEnemyGiant = 20582;

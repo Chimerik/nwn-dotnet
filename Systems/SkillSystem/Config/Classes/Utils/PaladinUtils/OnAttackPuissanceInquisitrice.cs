@@ -22,7 +22,7 @@ namespace NWN.Systems
           case AttackResult.CriticalHit:
           case AttackResult.AutomaticHit:
 
-            if (!CreatureUtils.GetSavingThrow(creator, target, Ability.Constitution, 8 + NativeUtils.GetCreatureProficiencyBonus(creator) + creator.GetAbilityModifier(Ability.Charisma)))
+            if (CreatureUtils.GetSavingThrow(creator, target, Ability.Constitution, 8 + NativeUtils.GetCreatureProficiencyBonus(creator) + creator.GetAbilityModifier(Ability.Charisma)))
               NWScript.AssignCommand(creator, () => target.ApplyEffect(EffectDuration.Temporary, Effect.Dazed(), NwTimeSpan.FromRounds(1)));
 
             break;

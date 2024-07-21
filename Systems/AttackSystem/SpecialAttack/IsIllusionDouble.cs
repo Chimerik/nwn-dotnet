@@ -7,7 +7,7 @@ namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static bool IsIllusionDouble(CNWSCreature attacker, CNWSCreature target, CNWSCombatRound combatRound, string attackerName)
+    public static bool IsIllusionDouble(CNWSCreature attacker, CNWSCreature target, CNWSCombatRound combatRound, string attackerName, string targetName)
     {
       if (!target.m_pStats.HasFeat(CustomSkill.IllusionDouble).ToBool()
         || target.m_ScriptVars.GetInt(CreatureUtils.ReactionVariableExo) < 1)
@@ -20,17 +20,23 @@ namespace NWN.Systems
         if (eff.m_sCustomTag.CompareNoCase(EffectSystem.IllusionDoubleEffectExoTag).ToBool())
         {
           doubleTrigger = true;
-          target.RemoveEffect(eff);
+          DelayEffectRemoval(target, eff);
         }
       }
 
       if (doubleTrigger)
       {
-        BroadcastNativeServerMessage("Double illusoire".ColorString(StringUtils.gold), target);
+        LogUtils.LogMessage($"Echec automatique - Double Illusoire de {targetName}", LogUtils.LogType.Combat);
+        BroadcastNativeServerMessage($"{attackerName.ColorString(ColorConstants.Cyan)} touche le Double Illusoire de {targetName.ColorString(ColorConstants.Cyan)}".ColorString(StringUtils.gold), target);
         target.m_ScriptVars.SetInt(CreatureUtils.ReactionVariableExo, target.m_ScriptVars.GetInt(CreatureUtils.ReactionVariableExo) - 1);
       }
 
       return doubleTrigger;
+    }
+    private static async void DelayEffectRemoval(CNWSCreature target, CGameEffect eff)
+    {
+      await NwTask.NextFrame();
+      target.RemoveEffect(eff);
     }
   }
 }

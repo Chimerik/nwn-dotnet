@@ -108,24 +108,29 @@ namespace NWN.Systems
             currentList = archetypeId switch
             {
               CustomSkill.RangerGardienDuVoile => learnableDictionary.Values.Where(l => l is LearnableSkill && l.currentLevel < 1
-                && (l.id == CustomSkill.FavoredEnemyAberration || l.id == CustomSkill.FavoredEnemyOutsider || l.id == CustomSkill.FavoredEnemyFey
-                || l.id == CustomSkill.FavoredEnemyElemental || l.id == CustomSkill.FavoredEnemyMagicalBeast || l.id == CustomSkill.FavoredEnemyShapechanger)).OrderBy(l => l.name),
+                && Utils.In(l.id, CustomSkill.FavoredEnemyAberration, CustomSkill.FavoredEnemyOutsider, CustomSkill.FavoredEnemyFey,
+                  CustomSkill.FavoredEnemyElemental, CustomSkill.FavoredEnemyMagicalBeast, CustomSkill.FavoredEnemyShapechanger)
+                && !player.learnableSkills.ContainsKey(l.id)).OrderBy(l => l.name),
               
               CustomSkill.RangerBriseurDeMages => learnableDictionary.Values.Where(l => l is LearnableSkill && l.currentLevel < 1
-                && (l.id == CustomSkill.FavoredEnemyMagicalBeast || l.id == CustomSkill.FavoredEnemyConstruct || l.id == CustomSkill.FavoredEnemyUndead
-                || l.id == CustomSkill.FavoredEnemyDragon || l.id == CustomSkill.FavoredEnemyElemental || l.id == CustomSkill.FavoredEnemyMonstrous)).OrderBy(l => l.name),
+                && Utils.In(l.id, CustomSkill.FavoredEnemyMagicalBeast, CustomSkill.FavoredEnemyConstruct, CustomSkill.FavoredEnemyUndead,
+                  CustomSkill.FavoredEnemyDragon, CustomSkill.FavoredEnemyElemental, CustomSkill.FavoredEnemyMonstrous)
+                && !player.learnableSkills.ContainsKey(l.id)).OrderBy(l => l.name),
               
               CustomSkill.RangerChevalier => learnableDictionary.Values.Where(l => l is LearnableSkill && l.currentLevel < 1
-                && (l.id == CustomSkill.FavoredEnemyDragon || l.id == CustomSkill.FavoredEnemyGiant || l.id == CustomSkill.FavoredEnemyBeast
-                || l.id == CustomSkill.FavoredEnemyOrc || l.id == CustomSkill.FavoredEnemyVermin || l.id == CustomSkill.FavoredEnemyShapechanger)).OrderBy(l => l.name),
+                && Utils.In(l.id, CustomSkill.FavoredEnemyDragon, CustomSkill.FavoredEnemyGiant, CustomSkill.FavoredEnemyBeast,
+                  CustomSkill.FavoredEnemyOrc, CustomSkill.FavoredEnemyVermin, CustomSkill.FavoredEnemyShapechanger)
+                && !player.learnableSkills.ContainsKey(l.id)).OrderBy(l => l.name),
               
               CustomSkill.RangerSanctifie => learnableDictionary.Values.Where(l => l is LearnableSkill && l.currentLevel < 1
-                && (l.id == CustomSkill.FavoredEnemyUndead || l.id == CustomSkill.FavoredEnemyGiant || l.id == CustomSkill.FavoredEnemyBeast
-                || l.id == CustomSkill.FavoredEnemyMagicalBeast || l.id == CustomSkill.FavoredEnemyVermin || l.id == CustomSkill.FavoredEnemyMonstrous)).OrderBy(l => l.name),
+                && Utils.In(l.id, CustomSkill.FavoredEnemyUndead, CustomSkill.FavoredEnemyGiant, CustomSkill.FavoredEnemyBeast,
+                  CustomSkill.FavoredEnemyMagicalBeast, CustomSkill.FavoredEnemyVermin, CustomSkill.FavoredEnemyMonstrous)
+                && !player.learnableSkills.ContainsKey(l.id)).OrderBy(l => l.name),
               
               _ => learnableDictionary.Values.Where(l => l is LearnableSkill && l.currentLevel < 1
-                && (l.id == CustomSkill.FavoredEnemyMonstrous || l.id == CustomSkill.FavoredEnemyGoblinoid || l.id == CustomSkill.FavoredEnemyReptilian
-                || l.id == CustomSkill.FavoredEnemyOrc || l.id == CustomSkill.FavoredEnemyShapechanger || l.id == CustomSkill.FavoredEnemyVermin)).OrderBy(l => l.name),
+                && Utils.In(l.id, CustomSkill.FavoredEnemyMonstrous, CustomSkill.FavoredEnemyGoblinoid, CustomSkill.FavoredEnemyReptilian,
+                  CustomSkill.FavoredEnemyOrc, CustomSkill.FavoredEnemyShapechanger, CustomSkill.FavoredEnemyVermin)
+                && !player.learnableSkills.ContainsKey(l.id)).OrderBy(l => l.name),
             };
 
             LoadLearnableList(currentList);

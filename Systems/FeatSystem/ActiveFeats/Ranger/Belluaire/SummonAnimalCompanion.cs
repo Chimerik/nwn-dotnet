@@ -14,12 +14,16 @@ namespace NWN.Systems
         var companion = caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).Value;
         caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).Delete();
 
+        caster.GetObjectVariable<PersistentVariableInt>(CreatureUtils.AnimalCompanionVariable).Value = companion.HP;
+
         companion.VisibilityOverride = Anvil.Services.VisibilityMode.Hidden;
         companion.Destroy();
         companion.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpUnsummon));
 
         RangerUtils.ClearAnimalCompanion(companion);
       }
+      else if (caster.GetObjectVariable<PersistentVariableInt>(CreatureUtils.AnimalCompanionVariable).Value < 0)
+        caster.LoginPlayer?.SendServerMessage("Votre compagnon est trop épuisé pour se joindre à vous. Il faut au minimum un repos court afin qu'il récupère", ColorConstants.Orange);
       else
       {
         NwCreature companion = CreateAnimalCompanion(featId, caster, caster.Location);
@@ -196,7 +200,7 @@ namespace NWN.Systems
           companion = NwCreature.Create("loupcompagnon", target);
 
           if (!caster.KnowsFeat((Feat)CustomSkill.BelluaireLoupMorsurePlongeante))
-            caster.AddFeat((Feat)CustomSkill.BelluaireLoupMorsurePlongeante);
+            companion.OnCreatureAttack += RangerUtils.OnAttackMorsurePlongeante;
 
           if (!caster.KnowsFeat((Feat)CustomSkill.BelluaireLoupEffetDeMeute))
             caster.AddFeat((Feat)CustomSkill.BelluaireLoupEffetDeMeute);
@@ -254,8 +258,8 @@ namespace NWN.Systems
 
           break;
       }
-      
-      companion.HP = companion.MaxHP;
+
+      companion.HP = caster.GetObjectVariable<PersistentVariableInt>(CreatureUtils.AnimalCompanionVariable).HasValue ? caster.GetObjectVariable<PersistentVariableInt>(CreatureUtils.AnimalCompanionVariable).Value : companion.MaxHP;
       companion.Position = CreaturePlugin.ComputeSafeLocation(companion, target.Position, 10, 0);
       target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(vfx));
       companion.SetEventScript(EventScriptType.CreatureOnBlockedByDoor, "nw_ch_ace");

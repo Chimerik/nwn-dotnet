@@ -40,9 +40,6 @@ namespace NWN.Systems
               if (playerClass.Level > 4)
                 oid.LoginCreature.BaseAttackCount += 1;
 
-              if (learnableSkills.ContainsKey(CustomSkill.RangerChasseurBonusAttack) || learnableSkills.ContainsKey(CustomSkill.RangerProfondeursBonusAttack))
-                oid.LoginCreature.BaseAttackCount += 1;
-
               break;
 
             case CustomClass.Bard:

@@ -17,7 +17,7 @@ namespace NWN.Systems
 
       foreach (NwCreature target in caster.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, spellEntry.aoESize, false))
       {
-        if(target.Race.RacialType == RacialType.Undead && !CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, DC))
+        if(target.Race.RacialType == RacialType.Undead && CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, DC))
         {
           if (caster.GetClassInfo(ClassType.Cleric).Level > 4)
             NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, Effect.Damage(NwRandom.Roll(Utils.random, 6, 4),

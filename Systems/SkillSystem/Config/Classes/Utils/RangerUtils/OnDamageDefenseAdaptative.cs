@@ -9,7 +9,9 @@ namespace NWN.Systems
   {
     public static void OnDamageDefenseAdaptative(CreatureEvents.OnDamaged onDamaged)
     {
-      if (NWScript.GetLastDamager().ToNwObject() is not NwCreature damager
+      var oDamager = NWScript.GetLastDamager(onDamaged.Creature).ToNwObject<NwObject>();
+
+      if (oDamager is not NwCreature damager
         || onDamaged.Creature.ActiveEffects.Any(e => e.Tag == EffectSystem.DefenseAdaptativeEffectTag && e.Creator == damager))
         return;
 

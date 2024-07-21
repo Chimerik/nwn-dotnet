@@ -26,7 +26,7 @@ namespace NWN.Systems
       if(eventData.EffectTarget is not NwCreature target)
         return ScriptHandleResult.Handled;
 
-      if (eventData.Effect.Creator is NwCreature caster && target.DistanceSquared(caster) > 4)
+      if (eventData.Effect.Creator is NwCreature caster && target.DistanceSquared(caster) > 16)
       {
         target.RemoveEffect(eventData.Effect);
         target.OnDamaged -= OnDamageRegardHypnotique;

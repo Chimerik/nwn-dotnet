@@ -27,6 +27,9 @@ namespace NWN.Systems
 
     public static async void ApplyConcentrationEffect(NwCreature caster, int spellId, List<NwGameObject> targetList, int duration = 0)
     {
+      if (targetList.Count < 1)
+        return;
+
       await NwTask.NextFrame();
 
       if(caster.IsLoginPlayerCharacter) 

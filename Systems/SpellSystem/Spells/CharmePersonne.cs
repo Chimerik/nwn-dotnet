@@ -36,7 +36,7 @@ namespace NWN.Systems
       foreach (var targetObject in targets.Distinct())
       {
         if(targetObject is NwCreature target && !EffectSystem.IsCharmeImmune(caster, target) && 
-          !CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, DC, spellEntry))
+          CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, DC, spellEntry))
         {
           NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Charme, NwTimeSpan.FromRounds(spellEntry.duration)));
         }

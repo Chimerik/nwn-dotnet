@@ -24,6 +24,8 @@ namespace NWN.Systems
 
       onRemoveAgressionOrcCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveAgressionOrc);
 
+      onRemoveSavoirAncestralCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveSavoirAncestral);
+
       onRemoveHateCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveHate);
 
       onRemoveChargeurCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveChargeur);

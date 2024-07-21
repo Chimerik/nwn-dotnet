@@ -15,10 +15,11 @@ namespace NWN.Systems
           return damage *= 2;
 
         foreach (InventorySlot slot in Enum.GetValues<InventorySlot>())
-          foreach (var ip in target.GetItemInSlot(slot)?.ItemProperties)
-            if (ip.Property.PropertyType == ItemPropertyType.ImmunityDamageType
-              && ItemUtils.GetDamageTypeFromItemProperty((IPDamageType)ip.SubType.RowIndex) == damageType)
-              return damage *= 2;
+          if(target.GetItemInSlot(slot) is not null)
+            foreach (var ip in target.GetItemInSlot(slot)?.ItemProperties)
+              if (ip.Property.PropertyType == ItemPropertyType.ImmunityDamageType
+                && ItemUtils.GetDamageTypeFromItemProperty((IPDamageType)ip.SubType.RowIndex) == damageType)
+                return damage *= 2;
         
         return damage;
     }

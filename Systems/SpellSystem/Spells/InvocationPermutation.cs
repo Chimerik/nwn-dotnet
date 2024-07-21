@@ -15,7 +15,7 @@ namespace NWN.Systems
 
       if (oTarget is NwCreature target)
       {
-        if (target.IsReactionTypeFriendly(caster))
+        if (caster.Faction.GetMembers().Contains(target))
         {
           var casterPos = CreaturePlugin.ComputeSafeLocation(caster, target.Position, 2);
           var targetPos = CreaturePlugin.ComputeSafeLocation(target, caster.Position, 2);

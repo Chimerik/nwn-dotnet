@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       if (spell.SpellSchool != SpellSchool.Conjuration || spell.Id != CustomSpell.InvocationPermutation
         || !caster.KnowsFeat((Feat)CustomSkill.InvocationPermutation)
-        || spellLevel < 1 || caster.GetFeatRemainingUses((Feat)CustomSkill.InvocationPermutation) > 0)
+        || spellLevel < 1 || spellLevel > 9 || caster.GetFeatRemainingUses((Feat)CustomSkill.InvocationPermutation) > 0)
         return;
 
       caster.SetFeatRemainingUses((Feat)CustomSkill.InvocationPermutation, 1);
