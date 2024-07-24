@@ -374,6 +374,9 @@
 
     public const int TraqueurLinceulDombre = 1638;
 
+    public const int ClercDetectionDesPensees = 1639;
+    public const int ClercVisionDuPasse = 1640;
+
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;

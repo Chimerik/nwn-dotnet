@@ -18,7 +18,7 @@ namespace NWN.Systems
         case AttackResult.AutomaticHit:
 
           if (target.Size < CreatureSize.Large
-            || !target.ActiveEffects.Any(e => e.Tag == EffectSystem.EnlargeEffectTag))
+            && !target.ActiveEffects.Any(e => e.Tag == EffectSystem.EnlargeEffectTag))
           {
             target.ApplyEffect(EffectDuration.Temporary, EffectSystem.knockdown, NwTimeSpan.FromRounds(2));
             StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Morsure Plongeante", StringUtils.gold);

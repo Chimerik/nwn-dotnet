@@ -1,33 +1,28 @@
 ﻿using Anvil.API;
-using Anvil.API.Events;
-using Anvil.Services;
-
 namespace NWN.Systems
 {
   public partial class EffectSystem
   {
-    public const string SavoirAncestralEffectTag = "_SAVOIR_ANCESTRAL_EFFECT";
-    private static ScriptCallbackHandle onRemoveSavoirAncestralCallback;
-    public static Effect SavoirAncestral
+    public const string SavoirAncestralDexteriteEffectTag = "_SAVOIR_ANCESTRAL_DEXTERITE_EFFECT";
+    public const string SavoirAncestralConstitutionEffectTag = "_SAVOIR_ANCESTRAL_CONSTITUTION_EFFECT";
+    public const string SavoirAncestralIntelligenceEffectTag = "_SAVOIR_ANCESTRAL_INTELLIGENCE_EFFECT";
+    public const string SavoirAncestralSagesseEffectTag = "_SAVOIR_ANCESTRAL_SAGESSE_EFFECT";
+    public const string SavoirAncestralCharismeEffectTag = "_SAVOIR_ANCESTRAL_CHARISME_EFFECT";
+    public static Effect SavoirAncestral(Ability ability)
     {
-      get
+      Effect eff = Effect.Icon(EffectIcon.SkillIncrease);
+
+      eff.Tag = ability switch
       {
-        Effect eff = Effect.LinkEffects(Effect.Icon(EffectIcon.SkillIncrease), Effect.RunAction(onRemovedHandle: onRemoveSavoirAncestralCallback));
-        eff.Tag = SavoirAncestralEffectTag;
-        eff.SubType = EffectSubType.Supernatural;
-        return eff;
-      }
-    }
-    private static ScriptHandleResult OnRemoveSavoirAncestral(CallInfo callInfo)
-    {
-      EffectRunScriptEvent eventData = new EffectRunScriptEvent();
+        Ability.Dexterity => SavoirAncestralDexteriteEffectTag,
+        Ability.Constitution => SavoirAncestralConstitutionEffectTag,
+        Ability.Intelligence => SavoirAncestralIntelligenceEffectTag,
+        Ability.Charisma => SavoirAncestralCharismeEffectTag,
+        _ => SavoirAncestralSagesseEffectTag
+      };
 
-      if (eventData.EffectTarget is not NwCreature creature)
-        return ScriptHandleResult.Handled;
-
-      // SUPPRIMER la maîtrise temporaire. Egalement supprimer la maîtrise à la déco
-
-      return ScriptHandleResult.Handled;
+      eff.SubType = EffectSubType.Supernatural;
+      return eff;
     }
   }
 }

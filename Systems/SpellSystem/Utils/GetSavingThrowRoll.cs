@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Collections.Generic;
+using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -13,7 +14,7 @@ namespace NWN.Systems
       
       proficiencyBonus += target.GetAbilityModifier(ability) + ItemUtils.GetShieldMasterBonusSave(target, ability);
 
-      bool protectionNoStack = false;
+      List<string> protectionNoStack = new();
 
       foreach(var eff in target.ActiveEffects)
       {
@@ -21,10 +22,11 @@ namespace NWN.Systems
         {
           case EffectSystem.SensDeLaMagieEffectTag:
             
-            if (fromSpell)
+            if (fromSpell && !protectionNoStack.Contains(EffectSystem.SensDeLaMagieEffectTag))
             {
               int bonus = NativeUtils.GetCreatureProficiencyBonus(target);
               proficiencyBonus += bonus;
+              protectionNoStack.Add(EffectSystem.SensDeLaMagieEffectTag);
               LogUtils.LogMessage($"Magie Sauvage - Sens de la magie : +{bonus}", LogUtils.LogType.Combat);
             }
 
@@ -32,6 +34,10 @@ namespace NWN.Systems
 
           case EffectSystem.WildMagicBienfaitEffectTag:
 
+            if (protectionNoStack.Contains(EffectSystem.WildMagicBienfaitEffectTag))
+              break;
+
+            protectionNoStack.Add(EffectSystem.WildMagicBienfaitEffectTag);
             int bienfait = NwRandom.Roll(Utils.random, 4);
             proficiencyBonus += bienfait;
             LogUtils.LogMessage($"Magie Sauvage - Bienfait : +{bienfait}", LogUtils.LogType.Combat);
@@ -40,24 +46,38 @@ namespace NWN.Systems
 
           case EffectSystem.ProtectionEffectTag:
 
-            if (protectionNoStack || eff.Creator is not NwCreature protector)
+            if (protectionNoStack.Contains(EffectSystem.ProtectionEffectTag) || eff.Creator is not NwCreature protector)
               break;
 
+            protectionNoStack.Add(EffectSystem.ProtectionEffectTag);
             int protection = protector.GetAbilityModifier(Ability.Charisma);
             proficiencyBonus += protection;
             LogUtils.LogMessage($"Paladin - Aura de Protection : +{protection}", LogUtils.LogType.Combat);
-
-            protectionNoStack = true;
 
             break;
 
           case EffectSystem.FleauEffectTag:
 
+            if (protectionNoStack.Contains(EffectSystem.FleauEffectTag))
+              break;
+
+            protectionNoStack.Add(EffectSystem.FleauEffectTag);
+
             int fleauMalus = NwRandom.Roll(Utils.random, 4);
             proficiencyBonus -= fleauMalus;
             LogUtils.LogMessage($"Fléau : -{fleauMalus}", LogUtils.LogType.Combat);
 
-            protectionNoStack = true;
+            break;
+
+          case EffectSystem.LenteurEffectTag:
+
+            if (protectionNoStack.Contains(EffectSystem.LenteurEffectTag))
+              break;
+
+            protectionNoStack.Add(EffectSystem.LenteurEffectTag);
+
+            proficiencyBonus -= 2;
+            LogUtils.LogMessage("Lenteur : -2", LogUtils.LogType.Combat);
 
             break;
         }

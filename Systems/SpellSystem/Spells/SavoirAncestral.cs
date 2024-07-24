@@ -1,0 +1,22 @@
+﻿using System.Collections.Generic;
+using Anvil.API;
+using NWN.Core;
+
+namespace NWN.Systems
+{
+  public partial class SpellSystem
+  {
+    public static void SavoirAncestral(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry)
+    {
+      if(oCaster is not NwCreature creature)
+        return;
+
+      SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
+
+      oCaster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpImproveAbilityScore));
+      NWScript.AssignCommand(oCaster, () => oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.SavoirAncestral(spellEntry.savingThrowAbility), NwTimeSpan.FromRounds(spellEntry.duration)));
+
+      ClercUtils.ConsumeConduitDivin(creature);
+    }
+  }
+}

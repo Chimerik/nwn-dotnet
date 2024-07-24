@@ -13,6 +13,7 @@ namespace NWN.Systems
       creature.DecrementRemainingFeatUses((Feat)CustomSkill.ClercRadianceDeLaube);
       creature.DecrementRemainingFeatUses((Feat)CustomSkill.ClercCharmePlanteEtAnimaux);
       creature.DecrementRemainingFeatUses((Feat)CustomSkill.ClercSavoirAncestral);
+      creature.DecrementRemainingFeatUses((Feat)CustomSkill.ClercDetectionDesPensees);
     }
   }
 }

@@ -44,6 +44,11 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case Spell.Sleep:
+          SpellSystem.Sommeil(oCaster, spell, spellEntry, targetLocation);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         /* case Spell.Virtue:
            HealingBreeze(onSpellCast, durationModifier);
            oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
@@ -113,6 +118,11 @@ namespace NWN.Systems
 
         case Spell.Bane:
           concentrationTargets.AddRange(SpellSystem.Fleau(oCaster, spell, spellEntry, castingClass));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.Confusion:
+          concentrationTargets.AddRange(SpellSystem.Confusion(oCaster, spell, spellEntry, targetLocation, castingClass));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -188,6 +198,11 @@ namespace NWN.Systems
 
         case Spell.DominateAnimal:
           concentrationTargets.AddRange(SpellSystem.DominationAnimale(oCaster, spell, spellEntry, target, castingClass));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.Slow:
+          concentrationTargets.AddRange(SpellSystem.Lenteur(oCaster, spell, spellEntry, targetLocation, castingClass));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
       }
@@ -326,6 +341,11 @@ namespace NWN.Systems
 
         case CustomSpell.PassageSansTrace:
           concentrationTargets.AddRange(SpellSystem.PassageSansTrace(oCaster, spell, feat, spellEntry));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.DetectionDesPensees:
+          concentrationTargets.AddRange(SpellSystem.DetectionDesPensees(oCaster, spell, feat, spellEntry));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -502,6 +522,15 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case CustomSpell.SavoirAncestralDexterite:
+        case CustomSpell.SavoirAncestralConstitution:
+        case CustomSpell.SavoirAncestralIntelligence:
+        case CustomSpell.SavoirAncestralSagesse:
+        case CustomSpell.SavoirAncestralCharisme:
+          SpellSystem.SavoirAncestral(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.EspritsGardiens:
         case CustomSpell.EspritsGardiensRadiant:
         case CustomSpell.EspritsGardiensNecrotique:
@@ -521,6 +550,16 @@ namespace NWN.Systems
 
         case CustomSpell.LumiereDuJour:
           SpellSystem.LumiereDuJour(oCaster, spell, spellEntry, targetLocation);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.SphereResilienteDotiluke:
+          SpellSystem.SphereResilienteDotiluke(oCaster, spell, spellEntry, target);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.Telekinesie:
+          SpellSystem.Telekinesie(oCaster, spell, spellEntry, target);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -561,6 +600,21 @@ namespace NWN.Systems
 
         case CustomSpell.FleauDinsectes:
           concentrationTargets.AddRange(SpellSystem.FleauDinsectes(oCaster, spell, spellEntry, targetLocation, castingClass));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.Injonction:
+          SpellSystem.Injonction(oCaster, spell, spellEntry, target, castingClass);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.Apaisement:
+          concentrationTargets.AddRange(SpellSystem.Apaisement(oCaster, spell, spellEntry, targetLocation, castingClass));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.CommunicationAvecLesMorts:
+          SpellSystem.CommunicationAvecLesMorts(oCaster, spell, spellEntry);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
       }

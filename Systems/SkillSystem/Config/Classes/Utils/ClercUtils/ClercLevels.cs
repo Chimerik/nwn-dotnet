@@ -42,8 +42,9 @@ namespace NWN.Systems
               (int)Spell.Fear, (int)Spell.PolymorphSelf, (int)Spell.DivineFavor, (int)Spell.MagicWeapon, CustomSpell.PorteDimensionnelle,
               (int)Spell.HoldMonster, CustomSpell.CapeDuCroise, (int)Spell.Firebrand, CustomSpell.SphereDeFeu, (int)Spell.Fireball,
               (int)Spell.WallOfFire, CustomSpell.VagueDestructrice, CustomSpell.AmitieAnimale, CustomSpell.CroissanceDepines, (int)Spell.Barkskin,
-              CustomSpell.CroissanceVegetale, CustomSpell.TempeteDeNeige, (int)Spell.DominateAnimal, CustomSpell.LianeAvide,
-              CustomSpell.FleauDinsectes, CustomSpell.MurDePierre))
+              CustomSpell.CroissanceVegetale, CustomSpell.TempeteDeNeige, (int)Spell.DominateAnimal, CustomSpell.LianeAvide, CustomSpell.SphereResilienteDotiluke,
+              CustomSpell.FleauDinsectes, CustomSpell.MurDePierre, (int)Spell.Sleep, (int)Spell.HoldPerson, (int)Spell.Slow, (int)Spell.Confusion,
+              (int)Spell.DominatePerson, CustomSpell.Telekinesie))
               continue;// ces sorts ne font pas partie du package de clerc mais peuvent être appris via le domaine
             
             if (player.learnableSpells.TryGetValue(spell.Id, out var learnable))

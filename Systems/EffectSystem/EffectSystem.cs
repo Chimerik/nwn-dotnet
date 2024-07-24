@@ -24,8 +24,6 @@ namespace NWN.Systems
 
       onRemoveAgressionOrcCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveAgressionOrc);
 
-      onRemoveSavoirAncestralCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveSavoirAncestral);
-
       onRemoveHateCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveHate);
 
       onRemoveChargeurCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveChargeur);
@@ -88,6 +86,8 @@ namespace NWN.Systems
 
       onIntervalRegardHypnotiqueCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalRegardHypnotique);
       onIntervalImmobilisationDePersonneCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalImmobilisationDePersonne);
+      onIntervalLenteurCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalLenteur);
+      onIntervalConfusionCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalConfusion);
 
       onRemoveTemporaryConSaveCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveTemporaryConSave);
 

@@ -7,7 +7,7 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static List<NwGameObject> ImmobilisationDePersonne(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass castingClass)
+    public static List<NwGameObject> Domination(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass castingClass)
     {
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
       List<NwGameObject> targetList = new();
@@ -36,11 +36,10 @@ namespace NWN.Systems
 
       foreach (var target in targets.Distinct())
       {
-        if (target is NwCreature targetCreature 
-          && (CreatureUtils.IsHumanoid(targetCreature))
-        && CreatureUtils.GetSavingThrow(caster, targetCreature, spellEntry.savingThrowAbility, DC, spellEntry))
+        if(target is NwCreature targetCreature && CreatureUtils.IsHumanoid(targetCreature) && !EffectSystem.IsCharmeImmune(caster, targetCreature) 
+          && CreatureUtils.GetSavingThrow(caster, targetCreature, spellEntry.savingThrowAbility, DC))
         {
-          NWScript.AssignCommand(caster, () => targetCreature.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetImmobilisationDePersonneEffect(castingClass.SpellCastingAbility), NwTimeSpan.FromRounds(spellEntry.duration)));
+          NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, Effect.Dominated(), NwTimeSpan.FromRounds(spellEntry.duration)));
           targetList.Add(target);
         }
       }

@@ -4,7 +4,7 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void LumiereDuJour(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, Location targetLocation)
+    public static void SphereResilienteDotiluke(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget)
     {
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
 

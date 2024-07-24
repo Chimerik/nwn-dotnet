@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -8,6 +9,12 @@ namespace NWN.Systems
     {
       if (creature.GetObjectVariable<LocalVariableInt>(BonusActionVariable).Value > 0 || creature.IsDMPossessed || creature.IsDMAvatar)
       {
+        if (creature.ActiveEffects.Any(e => e.Tag == EffectSystem.LenteurEffectTag))
+        {
+          creature.LoginPlayer?.SendServerMessage("Sous l'effet de lenteur vous ne pouvez pas faire usage d'action bonus", ColorConstants.Red);
+          return false;
+        }
+
         creature.GetObjectVariable<LocalVariableInt>(BonusActionVariable).Value -= 1;
         HandleBonusActionCooldown(creature);
         return true;

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Anvil.API;
-using NLog.Targets;
 
 namespace NWN.Systems
 {

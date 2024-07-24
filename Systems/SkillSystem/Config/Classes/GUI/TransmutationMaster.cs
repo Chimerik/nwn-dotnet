@@ -40,7 +40,7 @@ namespace NWN.Systems
             new(new NuiSpacer())
           };
           
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiList(abilitiesTemplate, 6) { RowHeight = 40, Scrollbars = NuiScrollbars.None } } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiList(abilitiesTemplate, 4) { RowHeight = 40, Scrollbars = NuiScrollbars.None } } });
           rootChildren.Add(new NuiRow() { Margin = 0.0f, Height = 35, Children = new List<NuiElement>() { new NuiSpacer(), new NuiButton("Sélectionner la cible") { Id = "validate", Width = 80 }, new NuiSpacer() } });
 
           CreateWindow();

@@ -184,6 +184,8 @@ namespace NWN.Systems
         case CustomSkill.ClercIllumination: ClercIllumination(onUseFeat.Creature); return;
         case CustomSkill.ClercRadianceDeLaube: RadianceDeLaube(onUseFeat.Creature); return;
         case CustomSkill.ClercHaloDeLumiere: HaloDeLumiere(onUseFeat.Creature); return;
+
+        case CustomSkill.ClercVisionDuPasse: VisionDuPasse(onUseFeat.Creature); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

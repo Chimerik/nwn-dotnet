@@ -142,7 +142,6 @@ namespace NWN.Systems
     }
     private static void ProcessBaseDamageTypeAndAttackWeapon(Context ctx, Action next)
     {
-      // TODO : penser à modifier cette partie lorsque l'arme "poings" sera implémentée
       if (ctx.isUnarmedAttack && ctx.oAttacker.GetItemInSlot(InventorySlot.Arms) != null)
           ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.Arms);
 

@@ -1,5 +1,4 @@
-﻿using Anvil.API;
-using static NWN.Systems.PlayerSystem.Player;
+﻿using static NWN.Systems.PlayerSystem.Player;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems

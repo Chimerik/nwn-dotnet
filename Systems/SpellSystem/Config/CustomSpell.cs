@@ -95,5 +95,16 @@
     public const int LianeAvide = 931;   
     public const int FleauDinsectes = 932;   
     public const int MurDePierre = 933;       
+    public const int SavoirAncestralDexterite = 935;       
+    public const int SavoirAncestralConstitution = 936;       
+    public const int SavoirAncestralIntelligence = 937;       
+    public const int SavoirAncestralSagesse = 938;       
+    public const int SavoirAncestralCharisme = 939;       
+    public const int DetectionDesPensees = 940;       
+    public const int Injonction = 941;       
+    public const int Apaisement = 942;       
+    public const int CommunicationAvecLesMorts = 943;       
+    public const int SphereResilienteDotiluke = 944;       
+    public const int Telekinesie = 945;       
   }
 }

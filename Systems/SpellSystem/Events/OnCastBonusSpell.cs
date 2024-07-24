@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using Anvil.API.Events;
 
 namespace NWN.Systems
@@ -39,6 +40,18 @@ namespace NWN.Systems
         SpellUtils.SpellSwitch(caster, onSpellAction.Spell, onSpellAction.Feat, spellEntry, onSpellAction.TargetObject, Location.Create(onSpellAction.Caster.Area, onSpellAction.TargetPosition, onSpellAction.Caster.Rotation), castingClass);
 
         onSpellAction.PreventSpellCast = true;
+      }
+      else if(caster.ActiveEffects.Any(e => e.Tag == EffectSystem.LenteurEffectTag))
+      {
+        onSpellAction.PreventSpellCast = true;
+        _ = caster.ClearActionQueue();
+
+        NwClass castingClass = onSpellAction.ClassIndex < 255 ? onSpellAction.Caster.Classes[onSpellAction.ClassIndex].Class : NwClass.FromClassId(CustomClass.Adventurer);
+
+        if (!onSpellAction.IsAreaTarget)
+          _ = caster.ActionCastSpellAt(spell, onSpellAction.TargetObject, spellClass: castingClass);
+        else
+          _ = caster.ActionCastSpellAt(spell, Location.Create(onSpellAction.Caster.Area, onSpellAction.TargetPosition, onSpellAction.Caster.Rotation), spellClass: castingClass);
       }
     }
   }

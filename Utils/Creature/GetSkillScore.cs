@@ -25,6 +25,24 @@ namespace NWN.Systems
         }
         else
         {
+
+          string tag = ability switch
+          {
+            Ability.Dexterity => EffectSystem.SavoirAncestralDexteriteEffectTag,
+            Ability.Constitution => EffectSystem.SavoirAncestralConstitutionEffectTag,
+            Ability.Intelligence => EffectSystem.SavoirAncestralIntelligenceEffectTag,
+            Ability.Charisma => EffectSystem.SavoirAncestralCharismeEffectTag,
+            Ability.Wisdom => EffectSystem.SavoirAncestralSagesseEffectTag,
+            _ => "Invalid"
+          };
+
+          if (creature.ActiveEffects.Any(e => e.Tag == tag))
+          {
+            score += NativeUtils.GetCreatureProficiencyBonus(creature);
+            if (!noLogs) LogUtils.LogMessage($"Savoir ancestral - Bonus de maîtrise : {score}", LogUtils.LogType.Combat);
+            return score;
+          }
+
           if (creature.KnowsFeat((Feat)CustomSkill.ToucheATout))
           {
             score = (int)Math.Round((double)(NativeUtils.GetCreatureProficiencyBonus(creature) / 2), MidpointRounding.ToZero);
@@ -32,6 +50,7 @@ namespace NWN.Systems
             
             return score;
           }
+
           switch (ability)
           {
             case Ability.Strength:
