@@ -716,6 +716,14 @@ namespace NWN.Systems
 
       var castingClass = caster.Classes[classPosition].Class.ClassType;
       var spell = NwSpell.FromSpellId(int.Parse(EventsPlugin.GetEventData("SPELL_ID")));
+      var spellEntry = Spells2da.spellTable[spell.Id];
+
+      if(spellEntry.ritualSpell && !caster.IsInCombat)
+      {
+        LogUtils.LogMessage("Sort lancé en mode rituel", LogUtils.LogType.Combat);
+        EventsPlugin.SkipEvent();
+        return;
+      }
 
       if (castingClass == ClassType.Wizard)
       {

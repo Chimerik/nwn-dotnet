@@ -106,5 +106,8 @@
     public const int CommunicationAvecLesMorts = 943;       
     public const int SphereResilienteDotiluke = 944;       
     public const int Telekinesie = 945;       
+    public const int Augure = 946;       
+    public const int Antidetection = 947;       
+    public const int OeilMagique = 948;       
   }
 }

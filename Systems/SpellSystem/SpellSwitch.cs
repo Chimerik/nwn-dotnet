@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Anvil.API;
 using static NWN.Systems.PlayerSystem.Player;
 using static NWN.Systems.PlayerSystem;
+using Anvil.API.Events;
 
 namespace NWN.Systems
 {
@@ -205,10 +206,35 @@ namespace NWN.Systems
           concentrationTargets.AddRange(SpellSystem.Lenteur(oCaster, spell, spellEntry, targetLocation, castingClass));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
+
+        case Spell.Identify:
+          SpellSystem.Identification(oCaster, spell, spellEntry, target);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.LegendLore:
+          SpellSystem.MythesEtLegendes(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
       }
 
       switch (spell.Id)
       {
+        case CustomSpell.Augure:
+          SpellSystem.Augure(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.Antidetection:
+          SpellSystem.Antidetection(oCaster, spell, spellEntry, target);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.OeilMagique:
+          SpellSystem.OeilMagique(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.ProtectionContreLeMalEtLeBien:
           concentrationTargets.AddRange(SpellSystem.ProtectionContreLeMalEtLeBien(oCaster, spell, spellEntry, target));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;

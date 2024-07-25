@@ -22,6 +22,7 @@ namespace NWN.Systems
     public bool requiresVerbal { get; private set; }
     public bool bardMagicalSecret { get; private set; }
     public bool hideFromRanger { get; private set; }
+    public bool ritualSpell { get; private set; }
 
     public void InterpretEntry(TwoDimArrayEntry entry)
     {
@@ -48,6 +49,7 @@ namespace NWN.Systems
       requiresVerbal = entry.GetString("VS")?.Contains('v') ?? false;
       bardMagicalSecret = entry.GetBool("BardMagicalSecret").GetValueOrDefault(false);
       hideFromRanger = entry.GetBool("HideFromRanger").GetValueOrDefault(false);
+      ritualSpell = entry.GetBool("Rituel").GetValueOrDefault(false);
 
       StrRef nameEntry = entry.GetStrRef("Name").GetValueOrDefault(StrRef.FromCustomTlk(0));
       googleDocId = entry.GetString("Description");

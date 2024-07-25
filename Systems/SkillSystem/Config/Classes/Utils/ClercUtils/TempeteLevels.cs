@@ -8,24 +8,24 @@ namespace NWN.Systems
 {
   public static partial class Clerc
   {
-    public static void HandleSavoirLevelUp(Player player, int level)
+    public static void HandleTempeteLevelUp(Player player, int level)
     {
       switch (level)
       {
         case 1: 
           
-          new StrRef(12).SetPlayerOverride(player.oid, "Domaine du Savoir");
-          player.oid.SetTextureOverride("clerc", "domaine_savoir");
+          new StrRef(12).SetPlayerOverride(player.oid, "Domaine de la Tempête");
+          player.oid.SetTextureOverride("clerc", "domaine_tempete");
 
-          List<int> tempList = new() { CustomSkill.ArcanaProficiency, CustomSkill.HistoryProficiency, CustomSkill.NatureProficiency, CustomSkill.ReligionProficiency };
-          List<int> skillList = new();
+          foreach (Learnable mastery in Fighter.startingPackage.learnables)
+          {
+            player.learnableSkills.TryAdd(mastery.id, new LearnableSkill((LearnableSkill)mastery, player));
+            player.learnableSkills[mastery.id].source.Add(Category.Class);
 
-          foreach(var skill in tempList)
-            if(!player.learnableSkills.TryGetValue(skill + 1, out var expertise) || expertise.currentLevel < 1)
-              skillList.Add(skill);
+            mastery.acquiredPoints += (mastery.pointsToNextLevel - mastery.acquiredPoints) / 4;
+          }
 
-          if (!player.windows.TryGetValue("skillProficiencySelection", out var skill3)) player.windows.Add("skillProficiencySelection", new SkillProficiencySelectionWindow(player, skillList, 2, CustomSkill.ClercSavoir));
-          else ((SkillProficiencySelectionWindow)skill3).CreateWindow(skillList, 2, CustomSkill.ClercSavoir);
+          player.learnableSkills[CustomSkill.HeavyArmorProficiency].acquiredPoints = 0;
 
           ClercUtils.LearnDomaineSpell(player, CustomSpell.Injonction);
           ClercUtils.LearnDomaineSpell(player, (int)Spell.Identify);
