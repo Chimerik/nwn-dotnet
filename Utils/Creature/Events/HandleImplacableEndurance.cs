@@ -25,7 +25,7 @@ namespace NWN.Systems
         onDamage.Creature.GetObjectVariable<PersistentVariableInt>(EffectSystem.EnduranceImplacableVariable).Delete();
         onDamage.Creature.OnDamaged -= HandleImplacableEndurance;
 
-        StringUtils.DisplayStringToAllPlayersNearTarget(onDamage.Creature, "Endurance Implacable", StringUtils.gold, true);
+        StringUtils.DisplayStringToAllPlayersNearTarget(onDamage.Creature, $"{onDamage.Creature.Name.ColorString(ColorConstants.Cyan)} - Endurance Implacable", StringUtils.gold, true, true);
       }
     }
   }

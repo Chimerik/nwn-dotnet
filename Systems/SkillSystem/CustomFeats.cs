@@ -384,6 +384,12 @@
     public const int ClercTempeteFrappeDivine = 1645;
     public const int ClercEnfantDeLaTempete = 1646;
 
+    public const int ClercDiscipleDeLaVie = 1647;
+    public const int ClercPreservationDeLaVie = 1648;
+    public const int ClercGuerriseurBeni = 1649;
+    public const int ClercVieFrappeDivine = 1650;
+    public const int ClercGuerisonSupreme = 1651;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -960,6 +966,7 @@
     public const int ClercNature = 20614;
     public const int ClercSavoir = 20615;
     public const int ClercTempete = 20616;
+    public const int ClercVie = 20617;
     
     
 

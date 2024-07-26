@@ -12,6 +12,7 @@ namespace NWN.Systems
         switch (onSpellAction.Spell.SpellType)
         {
             case Spell.Bane:
+            case Spell.Bless:
             case Spell.Firebrand:
 
               if (player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_SELECTED").HasNothing)

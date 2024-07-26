@@ -11,5 +11,18 @@ namespace NWN
         if (effectType.Contains(eff.EffectType))
           target.RemoveEffect(eff);
     }
+    public static bool RemoveFirstEffectType(NwGameObject target, EffectType effectType)
+    {
+      bool effectRemoved = false;
+
+      foreach (var eff in target.ActiveEffects)
+        if (effectType == eff.EffectType)
+        {
+          target.RemoveEffect(eff);
+          effectRemoved = true;
+        }
+
+      return effectRemoved;
+    }
   }
 }

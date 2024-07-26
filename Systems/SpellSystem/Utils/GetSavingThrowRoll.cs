@@ -56,6 +56,19 @@ namespace NWN.Systems
 
             break;
 
+          case EffectSystem.BenedictionEffectTag:
+
+            if (protectionNoStack.Contains(EffectSystem.BenedictionEffectTag))
+              break;
+
+            protectionNoStack.Add(EffectSystem.BenedictionEffectTag);
+
+            int beneBonus = NwRandom.Roll(Utils.random, 4);
+            proficiencyBonus -= beneBonus;
+            LogUtils.LogMessage($"Bénédiction : +{beneBonus}", LogUtils.LogType.Combat);
+
+            break;
+
           case EffectSystem.FleauEffectTag:
 
             if (protectionNoStack.Contains(EffectSystem.FleauEffectTag))

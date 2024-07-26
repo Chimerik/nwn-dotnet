@@ -282,6 +282,10 @@ namespace NWN.Systems
                       Clerc.HandleTempeteLevelUp(player, 1);
                       category = Category.ClercSubClass;
                       break;
+                    case CustomSkill.ClercVie:
+                      Clerc.HandleVieLevelUp(player, 1);
+                      category = Category.ClercSubClass;
+                      break;
                   }
 
                   player.learnableSkills.Remove(player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value);

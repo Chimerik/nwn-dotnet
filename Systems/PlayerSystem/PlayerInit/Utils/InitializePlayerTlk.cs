@@ -212,6 +212,11 @@ namespace NWN.Systems
           new StrRef(12).SetPlayerOverride(oid, "Domaine de la Tempête");
           oid.SetTextureOverride("clerc", "domaine_tempete");
         }
+        else if (learnableSkills.ContainsKey(CustomSkill.ClercVie))
+        {
+          new StrRef(12).SetPlayerOverride(oid, "Domaine de la Vie");
+          oid.SetTextureOverride("clerc", "domaine_vie");
+        }
       }
     }
   }

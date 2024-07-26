@@ -22,6 +22,7 @@ namespace NWN.Systems
       creature.SetFeatRemainingUses((Feat)CustomSkill.ClercSavoirAncestral, conduitUses);
       creature.SetFeatRemainingUses((Feat)CustomSkill.ClercDetectionDesPensees, conduitUses);
       creature.SetFeatRemainingUses((Feat)CustomSkill.ClercFureurDestructrice, conduitUses);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.ClercPreservationDeLaVie, conduitUses);
     }
   }
 }

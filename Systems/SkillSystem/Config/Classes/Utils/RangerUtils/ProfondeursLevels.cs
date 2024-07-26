@@ -19,6 +19,10 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.TraqueurRedoutable].LevelUp(player);
           player.learnableSkills[CustomSkill.TraqueurRedoutable].source.Add(Category.Class);
 
+          player.learnableSkills.TryAdd(CustomSkill.TraqueurLinceulDombre, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.TraqueurLinceulDombre], player));
+          player.learnableSkills[CustomSkill.TraqueurLinceulDombre].LevelUp(player);
+          player.learnableSkills[CustomSkill.TraqueurLinceulDombre].source.Add(Category.Class);
+
           if (player.learnableSpells.TryGetValue(CustomSpell.Deguisement, out var learnable))
           {
             learnable.learntFromClasses.Add(CustomClass.Ranger);

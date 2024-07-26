@@ -192,6 +192,9 @@ namespace NWN.Systems
         case CustomSkill.ClercFureurDestructrice: FureurDestructrice(onUseFeat.Creature); return;
         case CustomSkill.ClercTempeteFrappeDivine: FrappeDivineTempete(onUseFeat.Creature); return;
         case CustomSkill.ClercEnfantDeLaTempete: EnfantDeLaTempete(onUseFeat.Creature); return;
+
+        case CustomSkill.ClercPreservationDeLaVie: PreservationDeLaVie(onUseFeat.Creature); return;
+        case CustomSkill.ClercVieFrappeDivine: FrappeDivineVie(onUseFeat.Creature); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

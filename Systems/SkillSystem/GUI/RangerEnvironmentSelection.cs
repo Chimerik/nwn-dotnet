@@ -91,7 +91,7 @@ namespace NWN.Systems
             geometry.SetBindValue(player.oid, nuiToken.Token, new NuiRect(savedRectangle.X, savedRectangle.Y, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f));
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-            currentList = learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.RangerEnvironment).OrderBy(s => s.name);
+            currentList = learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.RangerEnvironment && !player.learnableSkills.ContainsKey(ls.id)).OrderBy(s => s.name);
 
             LoadLearnableList(currentList);
           }

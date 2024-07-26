@@ -10,7 +10,7 @@ namespace NWN.Systems
 
       if(weapon is null || !ItemUtils.IsWeapon(weapon.BaseItem))
       {
-        caster.LoginPlayer?.SendServerMessage("Vous devez être équipé d'une arme afin de faire usage de cette ", ColorConstants.Red);
+        caster.LoginPlayer?.SendServerMessage("Vous devez être équipé d'une arme", ColorConstants.Red);
         return;
       }
 
@@ -18,7 +18,6 @@ namespace NWN.Systems
         return;
 
       caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.HunterVoleeVariable).Value = 1;
-
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Volée", StringUtils.gold, true, true);
     }
   }

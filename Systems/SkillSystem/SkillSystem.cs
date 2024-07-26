@@ -727,6 +727,13 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomSkill.ClercTempeteFrappeDivine, new LearnableSkill(CustomSkill.ClercTempeteFrappeDivine, "Frappe Divine", "Votre prochaine attaque inflige 1d8 dégâts de tonnerre supplémentaires\n\n2d8 à partir du niveau 14", Category.Magic, "is_DivineStrike", 1, 1, Ability.Wisdom, Ability.Charisma, LearnActivableFeat));
       learnableDictionary.Add(CustomSkill.ClercEnfantDeLaTempete, new LearnableSkill(CustomSkill.ClercEnfantDeLaTempete, "Enfant de la Tempête", "Vous obtenez une vitesse de vol égale à votre vitesse de déplacement tant que vous n’êtes ni sous terre, ni dans un intérieur\n\nValable uniquement en rp", Category.Magic, "domaine_tempete", 1, 1, Ability.Wisdom, Ability.Charisma, LearnActivableFeat));
 
+      learnableDictionary.Add(CustomSkill.ClercVie, new LearnableSkill(CustomSkill.ClercVie, "Domaine de la Vie", "", Category.ClercSubClass, "domaine_vie", 20, 1, Ability.Wisdom, Ability.Charisma, Clerc.LevelUp, "19tqn9e7qi3W1eCIfn7e-DTpw1ZVi9iEWOOQdOjefk6A"));
+      learnableDictionary.Add(CustomSkill.ClercDiscipleDeLaVie, new LearnableSkill(CustomSkill.ClercDiscipleDeLaVie, "Disciple de la Vie", "Vos sorts de soins de prêtre sont renforcés de 2 + niveau du sort", Category.Magic, "is_LifeDisciple", 1, 1, Ability.Wisdom, Ability.Charisma, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.ClercPreservationDeLaVie, new LearnableSkill(CustomSkill.ClercPreservationDeLaVie, "Préservation de la Vie", "Vos alliés situés à moins de 9 mètres sont soignés de 3x votre niveau de prêtre", Category.Magic, "is_PreserveLife", 1, 1, Ability.Wisdom, Ability.Charisma, OnLearnPreservationDeLaVie));
+      learnableDictionary.Add(CustomSkill.ClercGuerriseurBeni, new LearnableSkill(CustomSkill.ClercGuerriseurBeni, "Guérisseur Béni", "Lorsque vous lancez un sort de soin de prêtre afin de guérir une autre créature que vous même, vous récupérez également 2 + niveau du sort points de vie", Category.Magic, "is_GenHealing", 1, 1, Ability.Wisdom, Ability.Charisma, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.ClercVieFrappeDivine, new LearnableSkill(CustomSkill.ClercVieFrappeDivine, "Frappe Divine", "Votre prochaine attaque inflige 1d8 dégâts radiant supplémentaires\n\n2d8 à partir du niveau 14", Category.Magic, "is_DivineStrike", 1, 1, Ability.Wisdom, Ability.Charisma, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.ClercGuerisonSupreme, new LearnableSkill(CustomSkill.ClercGuerisonSupreme, "Guérison Suprême", "Vos sorts de prêtre rendent systématiquement le maximum de points de vie", Category.Magic, "is_DivineStrike", 1, 1, Ability.Wisdom, Ability.Charisma, LearnActivableFeat));
+
       // SPELLS
       // CANTRIPS
 

@@ -49,16 +49,35 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
-        /* case Spell.Virtue:
-           HealingBreeze(onSpellCast, durationModifier);
-           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
-           break;*/
+         case Spell.Virtue:
+           SpellSystem.SouffleDeGuerison(oCaster, spell, spellEntry, target, castingClass);
+           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+           break;
 
-        /*case Spell.RaiseDead:
-        case Spell.Resurrection:
-          new RaiseDead(onSpellCast);
+        case Spell.HealingCircle:
+          SpellSystem.PriereDeGuerison(oCaster, spell, spellEntry, castingClass);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
-          break;*/
+          break;
+
+        case Spell.CureSeriousWounds:
+          SpellSystem.SouffleDeGuerisonDeGroupe(oCaster, spell, spellEntry, castingClass, targetLocation);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.MassHeal:
+          SpellSystem.SoinsDeGroupe(oCaster, spell, spellEntry, castingClass, targetLocation);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.RaiseDead:
+          SpellSystem.Rejuvenation(oCaster, spell, spellEntry, target);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.DeathWard:
+          SpellSystem.ProtectionContreLaMort(oCaster, spell, spellEntry, target);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
 
         case Spell.Invisibility:
           concentrationTargets.AddRange(SpellSystem.Invisibility(oCaster, spell, spellEntry, target, feat));
@@ -123,6 +142,11 @@ namespace NWN.Systems
 
         case Spell.Bane:
           concentrationTargets.AddRange(SpellSystem.Fleau(oCaster, spell, spellEntry, castingClass));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.Bless:
+          concentrationTargets.AddRange(SpellSystem.Benediction(oCaster, spell, spellEntry, castingClass));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -228,6 +252,26 @@ namespace NWN.Systems
 
         case Spell.CallLightning:
           concentrationTargets.AddRange(SpellSystem.AppelDeLaFoudre(oCaster, spell, spellEntry, castingClass, targetLocation));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.CureModerateWounds:
+          SpellSystem.Soins(oCaster, spell, spellEntry, target, castingClass);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.Heal:
+          SpellSystem.Guerison(oCaster, spell, spellEntry, target, castingClass);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.LesserRestoration:
+          SpellSystem.RestaurationPartielle(oCaster, spell, spellEntry, target, castingClass);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.GreaterRestoration:
+          SpellSystem.RestaurationSupreme(oCaster, spell, spellEntry, target, castingClass);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
       }
