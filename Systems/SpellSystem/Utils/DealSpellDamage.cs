@@ -12,6 +12,7 @@ namespace NWN.Systems
       int roll = NwRandom.Roll(Utils.random, spellEntry.damageDice, nbDices);
       int totalDamage = 0;
       bool isEvocateurSurcharge = false;
+      bool isFureurDestructrice = oCaster.ActiveEffects.Any(e => e.Tag == EffectSystem.FureurDestructriceEffectTag);
       bool moissonDuFielTriggered = target.HP > 0 && target is NwCreature creature && !Utils.In(creature.Race.RacialType, RacialType.Undead, RacialType.Construct);
 
       foreach (DamageType damageType in spellEntry.damageType)
@@ -31,6 +32,7 @@ namespace NWN.Systems
           for (int i = 0; i < nbDices; i++)
           {
             roll = isEvocateurSurcharge ? spellEntry.damageDice : NwRandom.Roll(Utils.random, spellEntry.damageDice);
+            roll = isFureurDestructrice && Utils.In(damageType, DamageType.Electrical, DamageType.Sonic) ? spellEntry.damageDice : NwRandom.Roll(Utils.random, spellEntry.damageDice);
 
             switch (damageType)
             {

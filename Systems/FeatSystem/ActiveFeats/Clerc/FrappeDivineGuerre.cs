@@ -19,6 +19,7 @@ namespace NWN.Systems
       caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetFrappeDivineGuerreEffect(damage, damageType));
 
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} - Frappe Divine", StringUtils.gold, true, true);
+      caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadHoly));
       caster.DecrementRemainingFeatUses((Feat)CustomSkill.ClercDuperieFrappeDivine);
     }
   }

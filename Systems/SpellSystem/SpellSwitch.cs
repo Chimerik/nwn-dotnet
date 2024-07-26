@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Anvil.API;
 using static NWN.Systems.PlayerSystem.Player;
 using static NWN.Systems.PlayerSystem;
-using Anvil.API.Events;
 
 namespace NWN.Systems
 {
@@ -99,6 +98,11 @@ namespace NWN.Systems
 
         case Spell.BurningHands:
           SpellSystem.BurningHands(oCaster, spell, spellEntry, target, castingClass, targetLocation);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.Balagarnsironhorn:
+          SpellSystem.VagueTonnante(oCaster, spell, spellEntry, castingClass);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -214,6 +218,16 @@ namespace NWN.Systems
 
         case Spell.LegendLore:
           SpellSystem.MythesEtLegendes(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.GustOfWind:
+          concentrationTargets.AddRange(SpellSystem.Bourrasque(oCaster, spell, spellEntry, castingClass));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.CallLightning:
+          concentrationTargets.AddRange(SpellSystem.AppelDeLaFoudre(oCaster, spell, spellEntry, castingClass, targetLocation));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
       }
@@ -641,6 +655,21 @@ namespace NWN.Systems
 
         case CustomSpell.CommunicationAvecLesMorts:
           SpellSystem.CommunicationAvecLesMorts(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.NappeDeBrouillard:
+          SpellSystem.NappeDeBrouillard(oCaster, spell, spellEntry, targetLocation);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.Fracassement:
+          SpellSystem.Fracassement(oCaster, spell, spellEntry, castingClass, targetLocation);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.ControleDeLeau:
+          SpellSystem.ControleDeLeau(oCaster, spell, spellEntry);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
       }

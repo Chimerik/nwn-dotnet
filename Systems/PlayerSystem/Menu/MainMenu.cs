@@ -584,6 +584,7 @@ namespace NWN.Systems
 
                     // TODO : limiter à deux shortRest par LongRest
                     CreatureUtils.HandleShortRest(player);
+                    SpellUtils.DispelConcentrationEffects(player.oid.LoginCreature);
 
                     break;
 
@@ -667,6 +668,7 @@ namespace NWN.Systems
                     player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ClercMartialVariable).Delete();
 
                     EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.DivinationVisionEffectTag);
+                    SpellUtils.DispelConcentrationEffects(player.oid.LoginCreature);
 
                     break;
                 }

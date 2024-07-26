@@ -109,5 +109,8 @@
     public const int Augure = 946;       
     public const int Antidetection = 947;       
     public const int OeilMagique = 948;       
+    public const int NappeDeBrouillard = 949;       
+    public const int Fracassement = 950;       
+    public const int ControleDeLeau = 951;       
   }
 }

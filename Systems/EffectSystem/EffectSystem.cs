@@ -173,6 +173,13 @@ namespace NWN.Systems
       onEnterFleauDinsectesCallback = scriptHandleFactory.CreateUniqueHandler(onEnterFleauDinsectes);
       onHeartbeatFleauDinsectesCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatFleauDinsectes);
       onExitFleauDinsectesCallback = scriptHandleFactory.CreateUniqueHandler(onExitFleauDinsectes);
+
+      onEnterBourrasqueCallback = scriptHandleFactory.CreateUniqueHandler(onEnterBourrasque);
+      onHeartbeatBourrasqueCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatBourrasque);
+      onExitBourrasqueCallback = scriptHandleFactory.CreateUniqueHandler(onExitBourrasque);
+
+      onEnterNappeDeBrouillardCallback = scriptHandleFactory.CreateUniqueHandler(onEnterNappeDeBrouillard);
+      onExitNappeDeBrouillardCallback = scriptHandleFactory.CreateUniqueHandler(onExitNappeDeBrouillard);
     }
   }
 }

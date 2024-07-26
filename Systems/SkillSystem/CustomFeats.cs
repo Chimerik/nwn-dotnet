@@ -377,9 +377,12 @@
     public const int ClercDetectionDesPensees = 1639;
     public const int ClercVisionDuPasse = 1640;
 
-    public const int ClercFureurOuragan = 1641;
-    public const int ClercFureurDestructrice = 1642;
-
+    public const int ClercFureurOuraganFoudre = 1641;
+    public const int ClercFureurOuraganTonnerre = 1642;
+    public const int ClercFureurDestructrice = 1643;
+    public const int ClercElectrocution = 1644;
+    public const int ClercTempeteFrappeDivine = 1645;
+    public const int ClercEnfantDeLaTempete = 1646;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;

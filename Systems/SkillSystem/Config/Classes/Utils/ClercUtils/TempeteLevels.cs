@@ -27,60 +27,68 @@ namespace NWN.Systems
 
           player.learnableSkills[CustomSkill.HeavyArmorProficiency].acquiredPoints = 0;
 
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.Injonction);
-          ClercUtils.LearnDomaineSpell(player, (int)Spell.Identify);
+          player.learnableSkills.TryAdd(CustomSkill.ClercFureurOuraganFoudre, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercFureurOuraganFoudre], player));
+          player.learnableSkills[CustomSkill.ClercFureurOuraganFoudre].LevelUp(player);
+          player.learnableSkills[CustomSkill.ClercFureurOuraganFoudre].source.Add(Category.Class);
+
+          player.learnableSkills.TryAdd(CustomSkill.ClercFureurOuraganTonnerre, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercFureurOuraganTonnerre], player));
+          player.learnableSkills[CustomSkill.ClercFureurOuraganTonnerre].LevelUp(player);
+          player.learnableSkills[CustomSkill.ClercFureurOuraganTonnerre].source.Add(Category.Class);
+
+          ClercUtils.LearnDomaineSpell(player, CustomSpell.NappeDeBrouillard);
+          ClercUtils.LearnDomaineSpell(player, (int)Spell.Balagarnsironhorn);
 
           break;
 
         case 2:
 
-          player.learnableSkills.TryAdd(CustomSkill.ClercSavoirAncestral, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercSavoirAncestral], player));
-          player.learnableSkills[CustomSkill.ClercSavoirAncestral].LevelUp(player);
-          player.learnableSkills[CustomSkill.ClercSavoirAncestral].source.Add(Category.Class);
+          player.learnableSkills.TryAdd(CustomSkill.ClercFureurDestructrice, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercFureurDestructrice], player));
+          player.learnableSkills[CustomSkill.ClercFureurDestructrice].LevelUp(player);
+          player.learnableSkills[CustomSkill.ClercFureurDestructrice].source.Add(Category.Class);
 
           break;
 
         case 3:
 
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.Augure);
-          ClercUtils.LearnDomaineSpell(player, (int)Spell.HoldPerson);
+          ClercUtils.LearnDomaineSpell(player, CustomSpell.Fracassement);
+          ClercUtils.LearnDomaineSpell(player, (int)Spell.GustOfWind);
 
           break;
 
         case 5:
 
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.CommunicationAvecLesMorts);
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.Antidetection);
+          ClercUtils.LearnDomaineSpell(player, CustomSpell.TempeteDeNeige);
+          ClercUtils.LearnDomaineSpell(player, (int)Spell.CallLightning);
 
           break;
 
         case 6:
 
-          player.learnableSkills.TryAdd(CustomSkill.ClercDetectionDesPensees, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercDetectionDesPensees], player));
-          player.learnableSkills[CustomSkill.ClercDetectionDesPensees].LevelUp(player);
-          player.learnableSkills[CustomSkill.ClercDetectionDesPensees].source.Add(Category.Class);
+          player.learnableSkills.TryAdd(CustomSkill.ClercElectrocution, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercElectrocution], player));
+          player.learnableSkills[CustomSkill.ClercElectrocution].LevelUp(player);
+          player.learnableSkills[CustomSkill.ClercElectrocution].source.Add(Category.Class);
 
           break;
 
         case 7:
 
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.OeilMagique);
-          ClercUtils.LearnDomaineSpell(player, (int)Spell.Confusion);
+          ClercUtils.LearnDomaineSpell(player, CustomSpell.ControleDeLeau);
+          ClercUtils.LearnDomaineSpell(player, (int)Spell.IceStorm);
 
           break;
 
         case 8:
 
-          player.learnableSkills.TryAdd(CustomSkill.ClercIncantationPuissante, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercIncantationPuissante], player));
-          player.learnableSkills[CustomSkill.ClercIncantationPuissante].LevelUp(player);
-          player.learnableSkills[CustomSkill.ClercIncantationPuissante].source.Add(Category.Class);
+          player.learnableSkills.TryAdd(CustomSkill.ClercTempeteFrappeDivine, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercTempeteFrappeDivine], player));
+          player.learnableSkills[CustomSkill.ClercTempeteFrappeDivine].LevelUp(player);
+          player.learnableSkills[CustomSkill.ClercTempeteFrappeDivine].source.Add(Category.Class);
 
           break;
 
         case 9:
 
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.Scrutation);
-          ClercUtils.LearnDomaineSpell(player, (int)Spell.LegendLore);
+          ClercUtils.LearnDomaineSpell(player, CustomSpell.FleauDinsectes);
+          ClercUtils.LearnDomaineSpell(player, CustomSpell.VagueDestructrice);
 
           break;
 

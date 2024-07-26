@@ -283,12 +283,16 @@ namespace NWN.Systems
               };
 
               List<NwSpell> readySpells = new();
-              foreach (var spell in player.learnableSpells.Values.Where(s => s.paladinSerment || s.clericDomain))
-                readySpells.Add(NwSpell.FromSpellId(spell.id));
+
+              if(selectedClass.ClassType == ClassType.Paladin)
+                foreach (var spell in player.learnableSpells.Values.Where(s => s.paladinSerment))
+                  readySpells.Add(NwSpell.FromSpellId(spell.id));
+              else if(selectedClass.ClassType == ClassType.Cleric)
+                foreach (var spell in player.learnableSpells.Values.Where(s => s.clericDomain))
+                  readySpells.Add(NwSpell.FromSpellId(spell.id));
 
               var classInfo = player.oid.LoginCreature.GetClassInfo(selectedClass);
-              int preparedSpells = CreatureUtils.GetPreparableSpellsCount(player.oid.LoginCreature, selectedClass)
-                + readySpells.Count;
+              int preparedSpells = CreatureUtils.GetPreparableSpellsCount(player, selectedClass);
 
               if(preparedSpells < 1)
                 preparedSpells = 1; 
@@ -329,7 +333,7 @@ namespace NWN.Systems
 
                   if (learnable.paladinSerment || learnable.clericDomain)
                   {
-                    tooltip = "Vos sorts de serment et de domaine sont toujours préparés";
+                    tooltip = "Vos sorts de serment ou de domaine sont toujours préparés";
                     enabled = false;
                   }
 
@@ -406,7 +410,7 @@ namespace NWN.Systems
             disabledTooltipMessage = "Vous devez prendre un repos long avant de pouvoir modifier votre mémorisation de sorts";
           }
           else if (CreatureUtils.GetKnownSpellsCount(player.oid.LoginCreature, player.oid.LoginCreature.GetClassInfo(selectedClass)) <
-            CreatureUtils.GetPreparableSpellsCount(player.oid.LoginCreature, selectedClass))
+            CreatureUtils.GetPreparableSpellsCount(player, selectedClass))
           {
             canPrepareSpells = true;
             disabledTooltipMessage = "Sort déjà préparé";

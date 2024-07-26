@@ -33,7 +33,8 @@ namespace NWN.Systems
         }
       }
       else if(!saveFailed 
-        && (Utils.In(spellId, CustomSpell.MauvaisAugure, CustomSpell.RayonDeLune, CustomSpell.EspritsGardiensRadiant, CustomSpell.EspritsGardiensNecrotique)
+        && (Utils.In(spellId, CustomSpell.MauvaisAugure, CustomSpell.RayonDeLune, CustomSpell.EspritsGardiensRadiant, CustomSpell.EspritsGardiensNecrotique,
+        (int)Spell.Balagarnsironhorn, CustomSpell.Fracassement)
         || spellLevel == 0))
       {
         damage /= 2;

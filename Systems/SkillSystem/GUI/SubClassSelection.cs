@@ -278,7 +278,7 @@ namespace NWN.Systems
                       Clerc.HandleSavoirLevelUp(player, 1);
                       category = Category.ClercSubClass;
                       break;
-                    case CustomSkill.ClercSavoir:
+                    case CustomSkill.ClercTempete:
                       Clerc.HandleTempeteLevelUp(player, 1);
                       category = Category.ClercSubClass;
                       break;

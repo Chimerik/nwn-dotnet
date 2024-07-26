@@ -11,8 +11,13 @@ namespace NWN.Systems
 
       if (creature.KnowsFeat((Feat)CustomSkill.ClercMartial))
         creature.SetFeatRemainingUses((Feat)CustomSkill.ClercMartial, (byte)(chaMod > 0 ? chaMod : 1));
-      else if(creature.KnowsFeat((Feat)CustomSkill.ClercIllumination))
+      else if (creature.KnowsFeat((Feat)CustomSkill.ClercIllumination))
         creature.SetFeatRemainingUses((Feat)CustomSkill.ClercIllumination, (byte)(chaMod > 0 ? chaMod : 1));
+      else if (creature.KnowsFeat((Feat)CustomSkill.ClercFureurOuraganFoudre))
+      {
+        creature.SetFeatRemainingUses((Feat)CustomSkill.ClercFureurOuraganFoudre, (byte)(chaMod > 0 ? chaMod : 1));
+        creature.SetFeatRemainingUses((Feat)CustomSkill.ClercFureurOuraganTonnerre, (byte)(chaMod > 0 ? chaMod : 1));
+      }
     }
   }
 }

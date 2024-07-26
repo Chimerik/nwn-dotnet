@@ -491,6 +491,7 @@ namespace NWN.Systems
         ApplySentinelleImmortelle();
         ApplyVengeurImplacable();
         ApplyAvatarDeBataille();
+        ApplyElectrocution();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

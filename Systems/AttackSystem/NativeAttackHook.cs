@@ -381,6 +381,8 @@ namespace NWN.Systems
       NativeUtils.HandleFurieBestiale(creature, targetObject, combatRound, attackerName);
       NativeUtils.HandleVoeuHostile(creature, combatRound, attackData, attackerName);
       NativeUtils.HandleClercMartial(creature, targetObject, combatRound, attackerName);
+      NativeUtils.HandleFureurOuraganFoudre(targetObject, attackData);
+      NativeUtils.HandleFureurTonnerreFoudre(targetObject, attackData);
     }
     private int OnAddUseTalentOnObjectHook(void* pCreature, int talentType, int talentId, uint oidTarget, byte nMultiClass, uint oidItem, int nItemPropertyIndex, byte nCasterLevel, int nMetaType)
     {

@@ -4,7 +4,7 @@ namespace NWN.Systems
 {
   public static partial class SkillSystem
   {
-    public static bool OnLearnLinceulDombre(PlayerSystem.Player player, int customSkillId)
+    public static bool OnLearnClercLinceulDombre(PlayerSystem.Player player, int customSkillId)
     {
       if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ClercLinceulDombre))
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.ClercLinceulDombre);

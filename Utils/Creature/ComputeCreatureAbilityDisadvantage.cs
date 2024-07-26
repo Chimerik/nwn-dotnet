@@ -18,10 +18,22 @@ namespace NWN.Systems
           byte paladinSpellLevel = NwSpell.FromSpellId(spellEntry.RowIndex).GetSpellLevelForClass(ClassType.Paladin);
 
           if (paladinSpellLevel > 0 && paladinSpellLevel < 10 && creature.ActiveEffects.Any(e => e.Tag == EffectSystem.ChampionAntiqueEffectTag && e.Creator == caster))
+          {
+            LogUtils.LogMessage("Désavantage - Champion Antique", LogUtils.LogType.Combat);
             return true;
+          }
 
           if (spellEntry.RowIndex == CustomSpell.ConspuerLennemi && Utils.In(creature.Race.RacialType, RacialType.Undead, RacialType.Outsider))
+          {
+            LogUtils.LogMessage("Désavantage - Conspuer l'ennemi", LogUtils.LogType.Combat);
             return true;
+          }
+
+          if (spellEntry.RowIndex == CustomSpell.Fracassement && creature.Race.RacialType == RacialType.Construct)
+          {
+            LogUtils.LogMessage("Désavantage - Fracassement vs Créature Artificielle", LogUtils.LogType.Combat);
+            return true;
+          }
         }
       }
 

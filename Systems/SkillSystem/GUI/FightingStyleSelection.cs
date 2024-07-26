@@ -51,7 +51,7 @@ namespace NWN.Systems
               {
                 new NuiSpacer(),
                 new NuiButtonImage(selectedItemIcon) { Height = 40, Width = 40, Visible = selectedItemVisibility },
-                new NuiLabel(selectedItemTitle) { Height = 40, Width = 200, Visible = selectedItemVisibility, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+                new NuiLabel(selectedItemTitle) { Height = 40, Width = 280, Visible = selectedItemVisibility, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
                 new NuiSpacer()
               } },
               new NuiRow() { Children = new List<NuiElement>() { new NuiText(selectedItemDescription) } },

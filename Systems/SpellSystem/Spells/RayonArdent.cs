@@ -39,18 +39,19 @@ namespace NWN.Systems
       foreach (var target in targets)
       {
         float distance = target.DistanceSquared(caster);
+        int targetNBDice = nbDice;
 
         if (-1 < distance && distance < 1300)
         {
           switch (SpellUtils.GetSpellAttackRoll(target, oCaster, spell, castingClass.SpellCastingAbility))
           {
-            case TouchAttackResult.CriticalHit: nbDice = SpellUtils.GetCriticalSpellDamageDiceNumber(oCaster, spellEntry, nbDice); ; break;
+            case TouchAttackResult.CriticalHit: targetNBDice = SpellUtils.GetCriticalSpellDamageDiceNumber(oCaster, spellEntry, nbDice); break;
             case TouchAttackResult.Hit: break;
             default: continue;
           }
 
           target.ApplyEffect(EffectDuration.Temporary, Effect.Beam(VfxType.BeamFire, caster, BodyNode.Hand), TimeSpan.FromSeconds(1.2));
-          SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, nbDice, oCaster, spell.GetSpellLevelForClass(castingClass));
+          SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, targetNBDice, oCaster, spell.GetSpellLevelForClass(castingClass));
         }
         else
           caster.LoginPlayer?.SendServerMessage($"{target.Name} n'est plus à portée", ColorConstants.Orange);

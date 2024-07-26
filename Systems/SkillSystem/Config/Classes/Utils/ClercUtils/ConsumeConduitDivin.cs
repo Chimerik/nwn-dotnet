@@ -14,6 +14,7 @@ namespace NWN.Systems
       creature.DecrementRemainingFeatUses((Feat)CustomSkill.ClercCharmePlanteEtAnimaux);
       creature.DecrementRemainingFeatUses((Feat)CustomSkill.ClercSavoirAncestral);
       creature.DecrementRemainingFeatUses((Feat)CustomSkill.ClercDetectionDesPensees);
+      creature.DecrementRemainingFeatUses((Feat)CustomSkill.ClercFureurDestructrice);
     }
   }
 }

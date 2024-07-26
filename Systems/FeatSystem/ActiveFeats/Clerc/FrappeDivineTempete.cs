@@ -4,7 +4,7 @@ namespace NWN.Systems
 {
   public partial class FeatSystem
   {
-    private static void FrappeDivineDuperie(NwCreature caster)
+    private static void FrappeDivineTempete(NwCreature caster)
     {
       var clerc = caster.GetClassInfo((ClassType)CustomClass.Clerc);
 
@@ -12,11 +12,11 @@ namespace NWN.Systems
         return;
 
       DamageBonus damage = clerc.Level > 13 ? DamageBonus.Plus2d8 : DamageBonus.Plus1d8;
-      caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetFrappeDivineDuperieEffect(damage));
+      caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetFrappeDivineTempeteEffect(damage));
 
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} - Frappe Divine", StringUtils.gold, true, true);
-      caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadAcid));
-      caster.DecrementRemainingFeatUses((Feat)CustomSkill.ClercDuperieFrappeDivine);
+      caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadSonic));
+      caster.DecrementRemainingFeatUses((Feat)CustomSkill.ClercTempeteFrappeDivine);
     }
   }
 }
