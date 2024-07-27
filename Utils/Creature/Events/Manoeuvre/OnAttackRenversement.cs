@@ -32,7 +32,7 @@ namespace NWN.Systems
              SpellUtils.SendSavingThrowFeedbackMessage(onAttack.Attacker, target, feedback, advantage, tirDC, totalSave, saveFailed, Ability.Strength);
 
              if (saveFailed)
-               target.ApplyEffect(EffectDuration.Temporary, EffectSystem.knockdown, NwTimeSpan.FromRounds(2));
+              EffectSystem.ApplyKnockdown(target, CreatureSize.Large, 2);
           }
 
           await NwTask.NextFrame();

@@ -17,20 +17,11 @@ namespace NWN.Systems
         case AttackResult.CriticalHit:
         case AttackResult.AutomaticHit:
 
-          if (target.Size < CreatureSize.Large
-            && !target.ActiveEffects.Any(e => e.Tag == EffectSystem.EnlargeEffectTag))
-          {
-            target.ApplyEffect(EffectDuration.Temporary, EffectSystem.knockdown, NwTimeSpan.FromRounds(2));
+            EffectSystem.ApplyKnockdown(target, CreatureSize.Medium, 2);
             StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Morsure Plongeante", StringUtils.gold);
-          }
-          //else
-            //onAttack.Attacker?.Master?.LoginPlayer.SendServerMessage("Impossible de renverser une créature de cette taille !", ColorConstants.Red);
 
           break;
       }
-
-      //await NwTask.NextFrame();
-      //onAttack.Attacker.OnCreatureAttack -= OnAttackMorsurePlongeante;
     }
   }
 }

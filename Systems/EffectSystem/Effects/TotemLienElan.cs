@@ -49,7 +49,7 @@ namespace NWN.Systems
 
       if (saveFailed)
       {
-        NWScript.AssignCommand(protector, () => entering.ApplyEffect(EffectDuration.Temporary, knockdown, NwTimeSpan.FromRounds(2)));
+        ApplyKnockdown(entering, CreatureSize.Large, 2);
         NWScript.AssignCommand(protector, () => entering.ApplyEffect(EffectDuration.Instant, Effect.Damage(NwRandom.Roll(Utils.random, 12) + protector.GetAbilityModifier(Ability.Strength), DamageType.Bludgeoning)));
       }
 

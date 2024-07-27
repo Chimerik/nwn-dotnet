@@ -390,6 +390,18 @@
     public const int ClercVieFrappeDivine = 1650;
     public const int ClercGuerisonSupreme = 1651;
 
+    public const int MonkLienElementaire = 1652;
+    public const int MonkLameDeGivre = 1653;
+    public const int MonkFrissonDeLaMontagne = 1654;
+    public const int MonkCrochetsDuSerpentDeFeu = 1655;
+    public const int MonkPoingDesQuatreTonnerres = 1656;
+    public const int MonkPoingDeLair = 1657;
+    public const int MonkRueeDesEspritsDuVent = 1658;
+    public const int MonkSphereDequilibreElementaire = 1659;
+    public const int MonkFrappeDesCendres = 1660;
+    public const int MonkFrappeDeLaTempete = 1661;
+    public const int MonkFouetDeLonde = 1662;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -967,7 +979,6 @@
     public const int ClercSavoir = 20615;
     public const int ClercTempete = 20616;
     public const int ClercVie = 20617;
-    
     
 
 

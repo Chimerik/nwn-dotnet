@@ -34,12 +34,8 @@ namespace NWN.Systems
             else
               onAttack.Attacker?.Master?.LoginPlayer.SendServerMessage($"L'arme de {target.Name.ColorString(ColorConstants.Cyan)} est liée et ne peut être désarmée");
           }
-          else if (target.Size <= onAttack.Attacker.Size + 1)
-          {
-            target.ApplyEffect(EffectDuration.Temporary, EffectSystem.knockdown, NwTimeSpan.FromRounds(1));
-          }
-          else
-            onAttack.Attacker?.Master?.LoginPlayer.SendServerMessage("Impossible de renverser une créature de cette taille !", ColorConstants.Red);
+          else 
+            EffectSystem.ApplyKnockdown(target, CreatureSize.Large, 1);
 
           break;
       }

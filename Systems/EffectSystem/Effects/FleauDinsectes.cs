@@ -9,7 +9,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string FleauDinsectesAOEEffectTag = "_FLEAU_DINSECTES_AOE_EFFECT";
-    public const string FleauDinsectesEffectTag = "_FLEAU_DINSECTES_EFFECT";
     private static ScriptCallbackHandle onEnterFleauDinsectesCallback;
     private static ScriptCallbackHandle onExitFleauDinsectesCallback;
     private static ScriptCallbackHandle onHeartbeatFleauDinsectesCallback;
@@ -20,16 +19,6 @@ namespace NWN.Systems
       eff.Spell = NwSpell.FromSpellId(CustomSpell.FleauDinsectes);
       eff.Creator = caster;
       return eff;
-    }
-    public static Effect FleauDinsectes
-    {
-      get
-      {
-        Effect eff = Effect.MovementSpeedDecrease(50);
-        eff.Tag = FleauDinsectesEffectTag;
-        eff.SubType = EffectSubType.Supernatural;
-        return eff;
-      }
     }
     private static ScriptHandleResult onEnterFleauDinsectes(CallInfo callInfo)
     {
@@ -42,8 +31,7 @@ namespace NWN.Systems
         return ScriptHandleResult.Handled;
       }
 
-      if(!entering.ActiveEffects.Any(e => e.Tag == FleauDinsectesEffectTag))
-        NWScript.AssignCommand(caster, () => entering.ApplyEffect(EffectDuration.Permanent, FleauDinsectes));
+      ApplyTerrainDifficileEffect(entering);
 
       SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.FleauDinsectes];
       int spellDC = SpellUtils.GetCasterSpellDC(caster, (Ability)caster.GetObjectVariable<LocalVariableInt>($"_SPELL_CASTING_ABILITY_{eventData.Effect.Spell.Id}").Value);
@@ -74,11 +62,10 @@ namespace NWN.Systems
     }
     private static ScriptHandleResult onExitFleauDinsectes(CallInfo callInfo)
     {
-      if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnExit eventData) || eventData.Exiting is not NwCreature exiting
-        || eventData.Effect.Creator is not NwCreature protector)
+      if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnExit eventData) || eventData.Exiting is not NwCreature exiting)
         return ScriptHandleResult.Handled;
 
-      EffectUtils.RemoveTaggedEffect(exiting, protector, FleauDinsectesEffectTag);
+      EffectUtils.RemoveTaggedEffect(exiting, TerrainDifficileEffectTag);
       return ScriptHandleResult.Handled;
     }
     private static void FleauDinsectesDamage(NwCreature caster, NwCreature entering, SpellEntry spellEntry, int spellDC)

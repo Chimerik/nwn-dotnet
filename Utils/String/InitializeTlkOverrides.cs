@@ -78,6 +78,7 @@ namespace NWN.Systems
       OverrideTlkEntry(190619, "Augmentation de l'immunité aux dégâts (poison)");
       OverrideTlkEntry(190620, "Augmentation de l'immunité aux dégâts (nécrotique)");
       OverrideTlkEntry(190621, "Augmentation de l'immunité aux dégâts (psychique)");
+      OverrideTlkEntry(190807, "Terrain Difficile");
 
       foreach (var entry in Feats2da.featTable)
       {

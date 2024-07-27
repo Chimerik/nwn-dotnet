@@ -21,10 +21,10 @@ namespace NWN.Systems
         case AttackResult.AutomaticHit:
         case AttackResult.CriticalHit:
 
-          if (onAttack.Target is not NwCreature target || target.Size > CreatureSize.Large)
+          if (onAttack.Target is not NwCreature target)
             return;
 
-          target.ApplyEffect(EffectDuration.Temporary, EffectSystem.knockdown, NwTimeSpan.FromRounds(2));
+          EffectSystem.ApplyKnockdown(target, CreatureSize.Large, 2);
           onAttack.Attacker.GetObjectVariable<LocalVariableInt>(BonusActionVariable).Value -= 1;
 
           StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Lien du Loup", StringUtils.gold, true);

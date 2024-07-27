@@ -15,7 +15,7 @@ namespace NWN.Systems
           case AttackResult.AutomaticHit:
           case AttackResult.CriticalHit:
 
-            if (onAttack.Target is NwCreature target && target.Size < CreatureSize.Huge)
+            if (onAttack.Target is NwCreature target)
             {
               SpellConfig.SavingThrowFeedback feedback = new();
 
@@ -32,10 +32,8 @@ namespace NWN.Systems
               SpellUtils.SendSavingThrowFeedbackMessage(onAttack.Attacker, target, feedback, advantage, DC, totalSave, saveFailed, saveAbility);
 
               if (saveFailed)
-                target.ApplyEffect(EffectDuration.Temporary, EffectSystem.knockdown, NwTimeSpan.FromRounds(2));
+                EffectSystem.ApplyKnockdown(target, CreatureSize.Large, 2);
             }
-            else
-              onAttack.Attacker?.LoginPlayer.SendServerMessage($"Impossible de renverser {onAttack.Target.Name.ColorString(ColorConstants.Cyan)}", ColorConstants.Red);
 
             break;
         }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Anvil.API;
 
 using Ability = Anvil.API.Ability;
@@ -22,7 +23,9 @@ namespace NWN.Systems
     }
     public static void ApplyKnockdown(NwCreature caster, NwCreature target)
     {
-      if(target.Size > CreatureSize.Large)
+      CreatureSize targetSize = target.ActiveEffects.Any(e => e.Tag == EnlargeEffectTag) ? target.Size + 1 : target.Size;
+
+      if (targetSize > CreatureSize.Large)
       {
         caster.LoginPlayer?.SendServerMessage("La cible est de trop grande taille pour être renversée", ColorConstants.Red);
         return;
@@ -33,7 +36,18 @@ namespace NWN.Systems
       new List<int>() { CustomSkill.AthleticsProficiency, CustomSkill.AcrobaticsProficiency }, SpellConfig.SpellEffectType.Knockdown);
 
       if (saveFailed)
-        target.ApplyEffect(EffectDuration.Temporary, knockdown, NwTimeSpan.FromRounds(1));
+        target.ApplyEffect(EffectDuration.Temporary, knockdown,
+        target.KnowsFeat((Feat)CustomSkill.Sportif) ? NwTimeSpan.FromRounds(1) : NwTimeSpan.FromRounds(2));
+    }
+    public static void ApplyKnockdown(NwCreature creature, CreatureSize maxSize, int duration)
+    {
+      CreatureSize size = creature.ActiveEffects.Any(e => e.Tag == EnlargeEffectTag) ? creature.Size + 1 : creature.Size;
+
+      if (size > maxSize)
+        return;
+
+      creature.ApplyEffect(EffectDuration.Temporary, knockdown,
+        creature.KnowsFeat((Feat)CustomSkill.Sportif) ? NwTimeSpan.FromRounds(duration / 2) : NwTimeSpan.FromRounds(duration));
     }
   }
 }

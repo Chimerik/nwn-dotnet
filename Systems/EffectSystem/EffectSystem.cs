@@ -180,6 +180,10 @@ namespace NWN.Systems
 
       onEnterNappeDeBrouillardCallback = scriptHandleFactory.CreateUniqueHandler(onEnterNappeDeBrouillard);
       onExitNappeDeBrouillardCallback = scriptHandleFactory.CreateUniqueHandler(onExitNappeDeBrouillard);
+
+      onEnterSurfaceDeGlaceCallback = scriptHandleFactory.CreateUniqueHandler(onEnterSurfaceDeGlace);
+      onHeartbeatSurfaceDeGlaceCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatSurfaceDeGlace);
+      onExitSurfaceDeGlaceCallback = scriptHandleFactory.CreateUniqueHandler(onExitSurfaceDeGlace);
     }
   }
 }

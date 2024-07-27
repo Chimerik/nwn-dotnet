@@ -16,7 +16,7 @@ namespace NWN.Systems
 
       if (CreatureUtils.GetSavingThrow(caster, target, Ability.Constitution, DC))
       {
-        NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.knockdown, NwTimeSpan.FromRounds(1)));
+        EffectSystem.ApplyKnockdown(entering, CreatureSize.Large, 1);
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSonic));
       }
     }

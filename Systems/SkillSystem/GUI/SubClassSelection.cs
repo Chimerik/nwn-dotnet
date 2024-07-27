@@ -176,11 +176,15 @@ namespace NWN.Systems
                       break;
                     case CustomSkill.MonkPaume: 
                       Monk.HandlePaumeLevelUp(player, 3);
-                      category = Category.RogueSubClass; 
+                      category = Category.MonkSubClass; 
                       break;
                     case CustomSkill.MonkOmbre: 
                       Monk.HandleOmbreLevelUp(player, 3);
-                      category = Category.RogueSubClass; 
+                      category = Category.MonkSubClass; 
+                      break;
+                    case CustomSkill.MonkElements:
+                      Monk.HandleElementsLevelUp(player, 3);
+                      category = Category.MonkSubClass;
                       break;
                     case CustomSkill.WizardAbjuration:
                       Wizard.HandleAbjurationLevelUp(player, 2);

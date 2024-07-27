@@ -11,7 +11,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string CroissanceDepinesAoEEffectTag = "_CROISSANCE_DEPINES_AOE_EFFECT";
-    public const string CroissanceDepinesEffectTag = "_CROISSANCE_DEPINES_EFFECT";
     private static ScriptCallbackHandle onEnterCroissanceDepinesCallback;
     private static ScriptCallbackHandle onExitCroissanceDepinesCallback;
     private static ScriptCallbackHandle onIntervalCroissanceDepinesCallback;
@@ -26,34 +25,20 @@ namespace NWN.Systems
         return eff;
       }
     }
-    public static Effect CroissanceDepines
-    {
-      get
-      {
-        Effect eff = Effect.MovementSpeedDecrease(50);
-        eff.Tag = CroissanceDepinesEffectTag;
-        eff.SubType = EffectSubType.Supernatural;
-        return eff;
-      }
-    }
     private static ScriptHandleResult onEnterCroissanceDepines(CallInfo callInfo)
     {
-      if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) || eventData.Entering is not NwCreature entering)
-        return ScriptHandleResult.Handled;
-
-      if(!entering.ActiveEffects.Any(e => e.Tag == WildMagicCroissanceVegetaleEffectTag))
-        entering.ApplyEffect(EffectDuration.Permanent, CroissanceVegetale);
-
-      entering.ApplyEffect(EffectDuration.Instant, Effect.Damage((int)DamageBonus.Plus2d4, DamageType.Piercing));
+      if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) && eventData.Entering is NwCreature entering)
+      {
+        ApplyTerrainDifficileEffect(entering);
+        entering.ApplyEffect(EffectDuration.Instant, Effect.Damage((int)DamageBonus.Plus2d4, DamageType.Piercing));
+      }
 
       return ScriptHandleResult.Handled;
     }
     private static ScriptHandleResult onExitCroissanceDepines(CallInfo callInfo)
     {
-      if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnExit eventData) || eventData.Exiting is not NwCreature exiting)
-        return ScriptHandleResult.Handled;
-
-      EffectUtils.RemoveTaggedEffect(exiting, eventData.Effect.Creator, CroissanceDepinesEffectTag);
+      if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnExit eventData) && eventData.Exiting is NwCreature exiting)
+        EffectUtils.RemoveTaggedEffect(exiting, TerrainDifficileEffectTag);
 
       return ScriptHandleResult.Handled;
     }

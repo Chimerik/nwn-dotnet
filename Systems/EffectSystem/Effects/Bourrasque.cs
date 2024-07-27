@@ -104,7 +104,7 @@ namespace NWN.Systems
 
       if (saveFailed)
       {
-        entering.ApplyEffect(EffectDuration.Temporary, knockdown, NwTimeSpan.FromRounds(spellEntry.duration));
+        ApplyKnockdown(entering, CreatureSize.Large, 2);
         entering.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPulseWind));
       }
     }

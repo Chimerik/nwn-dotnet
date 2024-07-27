@@ -11,7 +11,6 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onEnterWildMagicCroissanceVegetaleCallback;
     private static ScriptCallbackHandle onExitWildMagicCroissanceVegetaleCallback;
     public const string WildMagicCroissanceVegetaleAuraEffectTag = "_EFFECT_WILD_MAGIC_CROISSANCE_VEGETALE_AURA";
-    public const string WildMagicCroissanceVegetaleEffectTag = "_EFFECT_WILD_MAGIC_CROISSANCE_VEGETALE";
     public static Effect WildMagicCroissanceVegetaleAura
     {
       get
@@ -22,36 +21,18 @@ namespace NWN.Systems
         return eff;
       }
     }
-    public static Effect WildMagicCroissanceVegetale
-    {
-      get
-      {
-        Effect eff = Effect.MovementSpeedDecrease(50);
-        eff.Tag = WildMagicCroissanceVegetaleEffectTag;
-        eff.SubType = EffectSubType.Supernatural;
-        return eff;
-      }
-    }
     private static ScriptHandleResult onEnterWildMagicCroissanceVegetale(CallInfo callInfo)
     {
-      if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) || eventData.Effect.Creator == eventData.Entering
-        || eventData.Entering is not NwCreature entering || entering.ActiveEffects.Any(e => e.Tag == WildMagicCroissanceVegetaleEffectTag))
-        return ScriptHandleResult.Handled;
-
-      NWScript.AssignCommand(eventData.Effect.Creator, () => entering.ApplyEffect(EffectDuration.Permanent, WildMagicCroissanceVegetale));
+      if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) && eventData.Effect.Creator != eventData.Entering
+        && eventData.Entering is NwCreature entering)
+          ApplyTerrainDifficileEffect(entering);
 
       return ScriptHandleResult.Handled;
     }
     private static ScriptHandleResult onExitWildMagicCroissanceVegetale(CallInfo callInfo)
     {
-      if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnExit eventData) || eventData.Exiting is not NwCreature exiting)
-        return ScriptHandleResult.Handled;
-
-      ModuleSystem.Log.Info($"exiting : {exiting.Name}");
-      foreach(var eff in exiting.ActiveEffects)
-        ModuleSystem.Log.Info($"eff : {eff.Tag}");
-
-      EffectUtils.RemoveTaggedEffect(exiting, eventData.Effect.Creator, WildMagicCroissanceVegetaleEffectTag);
+      if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnExit eventData) && eventData.Exiting is NwCreature exiting)
+        EffectUtils.RemoveTaggedEffect(exiting, TerrainDifficileEffectTag);
 
       return ScriptHandleResult.Handled;
     }

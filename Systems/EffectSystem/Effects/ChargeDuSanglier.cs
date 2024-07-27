@@ -47,7 +47,7 @@ namespace NWN.Systems
       if (targetRoll > DC)
         return ScriptHandleResult.Handled;
 
-      NWScript.AssignCommand(protector, () => entering.ApplyEffect(EffectDuration.Temporary, knockdown, NwTimeSpan.FromRounds(2)));
+      ApplyKnockdown(entering, CreatureSize.Large, 2);
       NWScript.AssignCommand(protector, () => entering.ApplyEffect(EffectDuration.Instant, Effect.Damage(NwRandom.Roll(Utils.random, 4) + protector.GetAbilityModifier(Ability.Strength), DamageType.Slashing)));
 
       return ScriptHandleResult.Handled;
