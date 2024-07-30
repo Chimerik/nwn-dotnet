@@ -1,6 +1,5 @@
 ﻿using Anvil.API;
 using Anvil.API.Events;
-using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -16,7 +15,7 @@ namespace NWN.Systems
 
       if (CreatureUtils.GetSavingThrow(caster, target, Ability.Constitution, DC))
       {
-        EffectSystem.ApplyKnockdown(entering, CreatureSize.Large, 1);
+        EffectSystem.ApplyKnockdown(target, CreatureSize.Large, 1);
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSonic));
       }
     }

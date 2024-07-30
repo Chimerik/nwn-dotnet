@@ -1,14 +1,25 @@
 ﻿using Anvil.API;
-using NWN.Core;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void VagueTonnante(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwClass casterClass)
+    public static void VagueTonnante(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwClass casterClass, NwFeat feat = null)
     {
       if (oCaster is not NwCreature caster)
         return;
+
+      int damageDice = SpellUtils.GetSpellDamageDiceNumber(oCaster, spell);
+
+      if (feat is not null && feat.Id == CustomSkill.MonkPoingDesQuatreTonnerres)
+      {
+        caster.IncrementRemainingFeatUses(feat.FeatType);
+        FeatUtils.DecrementKi(caster, 2);
+        casterClass = NwClass.FromClassId(CustomClass.Monk);
+
+        if (caster.KnowsFeat((Feat)CustomSkill.MonkIncantationElementaire))
+          damageDice += 1;
+      }
 
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
       int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, casterClass.SpellCastingAbility);
@@ -22,7 +33,7 @@ namespace NWN.Systems
           continue;
 
         bool saveFailed = CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC);
-        SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(oCaster, spell), oCaster, spell.GetSpellLevelForClass(casterClass), saveFailed);
+        SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, damageDice, oCaster, 1, saveFailed);
 
         if (saveFailed)
           EffectSystem.ApplyKnockdown(target, CreatureSize.Large, spellEntry.duration);

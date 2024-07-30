@@ -7,10 +7,17 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void RayonArdent(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwClass castingClass)
+    public static void RayonArdent(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwClass castingClass, NwFeat feat = null)
     {
       if (oCaster is not NwCreature caster)
         return;
+
+      if (feat is not null && feat.Id == CustomSkill.MonkEtreinteDeLenfer)
+      {
+        caster.IncrementRemainingFeatUses(feat.FeatType);
+        FeatUtils.DecrementKi(caster, 3);
+        castingClass = NwClass.FromClassId(CustomClass.Monk);
+      }
 
       List<NwGameObject> targets = new();
 

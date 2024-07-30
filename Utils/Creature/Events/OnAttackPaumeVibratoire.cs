@@ -25,7 +25,7 @@ namespace NWN.Systems
               int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Constitution, DC, advantage, feedback);
               bool saveFailed = totalSave < DC;
 
-              StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, $"{onAttack.Attacker.Name.ColorString(ColorConstants.Cyan)} - Paume Vibratoire", StringUtils.gold, true);
+              StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, $"{onAttack.Attacker.Name.ColorString(ColorConstants.Cyan)} - Paume Vibratoire", StringUtils.gold, true, true);
               SpellUtils.SendSavingThrowFeedbackMessage(onAttack.Attacker, target, feedback, advantage, DC, totalSave, saveFailed, Ability.Constitution);
 
               if (saveFailed)

@@ -112,5 +112,14 @@
     public const int NappeDeBrouillard = 949;       
     public const int Fracassement = 950;       
     public const int ControleDeLeau = 951;       
+    public const int PoingDeLair = 952;       
+    public const int OrbeChromatique = 953;       
+    public const int OrbeChromatiqueAcide = 954;       
+    public const int OrbeChromatiqueFoudre = 955;       
+    public const int OrbeChromatiqueFeu = 956;       
+    public const int OrbeChromatiqueFroid = 957;       
+    public const int OrbeChromatiquePoison = 958;       
+    public const int FouetDeLonde = 959;       
+    public const int FormeGazeuse = 960;       
   }
 }

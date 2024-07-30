@@ -12,7 +12,6 @@ namespace NWN.Systems
       {
         caster.OnCreatureAttack -= CreatureUtils.OnAttackRenversement;
         caster.OnCreatureAttack += CreatureUtils.OnAttackRenversement;
-        //caster.OnCreatureAttack += CreatureUtils.OnAttackTest;
 
         int warMasterLevel = caster.GetClassInfo(ClassType.Fighter).Level;
         int superiorityDice = warMasterLevel > 17 ? 12 : warMasterLevel > 9 ? 10 : 8;

@@ -5,10 +5,17 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void DagueDeGivre(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass casterClass)
+    public static void DagueDeGivre(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass casterClass, NwFeat feat = null)
     {
       if (oCaster is not NwCreature caster)
         return;
+
+      if (feat is not null && feat.Id == CustomSkill.MonkDagueDeGivre)
+      {
+        caster.IncrementRemainingFeatUses(feat.FeatType);
+        FeatUtils.DecrementKi(caster, 2);
+        casterClass = NwClass.FromClassId(CustomClass.Monk);
+      }
 
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
       bool hit = true;

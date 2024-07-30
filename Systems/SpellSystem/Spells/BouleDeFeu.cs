@@ -5,12 +5,18 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void BouleDeFeu(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass casterClass, Location targetLocation)
-    {     
+    public static void BouleDeFeu(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass casterClass, Location targetLocation, NwFeat feat = null)
+    {
+      if (oCaster is NwCreature castingCreature && feat is not null && feat.Id == CustomSkill.MonkFlammesDuPhenix)
+      {
+        castingCreature.IncrementRemainingFeatUses(feat.FeatType);
+        FeatUtils.DecrementKi(castingCreature, 4);
+        casterClass = NwClass.FromClassId(CustomClass.Monk);
+      }
+
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
       SpellConfig.SavingThrowFeedback feedback = new();
       int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, casterClass.SpellCastingAbility);
-
       bool evocateur = oCaster is NwCreature caster && caster.KnowsFeat((Feat)CustomSkill.EvocateurFaconneurDeSorts);
 
       foreach (NwCreature target in targetLocation.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, spellEntry.aoESize, false))

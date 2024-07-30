@@ -7,16 +7,16 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static List<NwGameObject> MurDeFeu(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwClass castingClass, Location targetLocation, NwFeat feat = null)
+    public static List<NwGameObject> MurDePierre(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwClass castingClass, Location targetLocation, NwFeat feat = null)
     {
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
 
       if (oCaster is NwCreature caster)
       {
-        if (feat is not null && feat.Id == CustomSkill.MonkTorrentDeFlammes)
+        if (feat is not null && feat.Id == CustomSkill.MonkVagueDeTerre)
         {
           caster.IncrementRemainingFeatUses(feat.FeatType);
-          FeatUtils.DecrementKi(caster, 5);
+          FeatUtils.DecrementKi(caster, 6);
           castingClass = NwClass.FromClassId(CustomClass.Monk);
         }
 

@@ -93,12 +93,14 @@ namespace NWN.Systems
         case CustomSkill.MonkDiamondSoul: DiamondSoul(onUseFeat.Creature); return;
         case CustomSkill.MonkDesertion: MonkDesertion(onUseFeat.Creature); return;
         case CustomSkill.MonkPlenitude: MonkPlenitude(onUseFeat.Creature); return;
+
         case CustomSkill.MonkManifestationAme: MonkManifestationAme(onUseFeat.Creature); return;
         case CustomSkill.MonkManifestationCorps: MonkManifestationCorps(onUseFeat.Creature); return;
         case CustomSkill.MonkManifestationEsprit: MonkManifestationEsprit(onUseFeat.Creature); return;
         case CustomSkill.MonkResonanceKi: MonkResonanceKi(onUseFeat.Creature); return;
         case CustomSkill.MonkExplosionKi: MonkExplosionKi(onUseFeat.Creature); return;
         case CustomSkill.MonkPaumeVibratoire: MonkPaumeVibratoire(onUseFeat.Creature); return;
+
         case CustomSkill.MonkTenebres: MonkTenebres(onUseFeat.Creature, onUseFeat); return;
         case CustomSkill.MonkDarkVision: MonkDarkVision(onUseFeat.Creature, onUseFeat); return;
         case CustomSkill.MonkPassageSansTrace: MonkPassageSansTrace(onUseFeat.Creature, onUseFeat); return;
@@ -108,7 +110,11 @@ namespace NWN.Systems
         case CustomSkill.MonkFouleeDombre: MonkFouleeDombre(onUseFeat.Creature, onUseFeat); return;
         case CustomSkill.MonkFrappeDombre: MonkFrappeDombre(onUseFeat.Creature, onUseFeat); return;
         case CustomSkill.MonkHarmony: MonkHarmony(onUseFeat.Creature); return;
+
         case CustomSkill.MonkLienElementaire: LienElementaire(onUseFeat.Creature); return;
+        case CustomSkill.MonkCrochetsDuSerpentDeFeu: CrochetsDuSerpentDeFeu(onUseFeat.Creature); return;
+        case CustomSkill.MonkFaconnageDeLaRiviere: FaconnageDeLaRiviere(onUseFeat.Creature); return;
+        case CustomSkill.MonkPorteParLeVent: PorteParLeVent(onUseFeat.Creature); return;
 
         case CustomSkill.WizardRestaurationArcanique: RestaurationArcanique(onUseFeat.Creature); return;
         case CustomSkill.AbjurationWardProjetee: ProtectionProjetee(onUseFeat.Creature, onUseFeat.TargetObject); return;

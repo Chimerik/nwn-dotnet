@@ -1,5 +1,4 @@
-﻿using System;
-using Anvil.API;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -14,6 +13,7 @@ namespace NWN.Systems
       }
 
       MonkUtils.RestoreKi(caster, true);
+      caster.DecrementRemainingFeatUses((Feat)CustomSkill.MonkHarmony);
     }
   }
 }

@@ -391,7 +391,7 @@
     public const int ClercGuerisonSupreme = 1651;
 
     public const int MonkLienElementaire = 1652;
-    public const int MonkLameDeGivre = 1653;
+    public const int MonkDagueDeGivre = 1653;
     public const int MonkFrissonDeLaMontagne = 1654;
     public const int MonkCrochetsDuSerpentDeFeu = 1655;
     public const int MonkPoingDesQuatreTonnerres = 1656;
@@ -401,6 +401,18 @@
     public const int MonkFrappeDesCendres = 1660;
     public const int MonkFrappeDeLaTempete = 1661;
     public const int MonkFouetDeLonde = 1662;
+    public const int MonkFaconnageDeLaRiviere = 1663;
+    public const int MonkPoigneDuVentDuNord = 1664;
+    public const int MonkEtreinteDeLenfer = 1665;
+    public const int MonkGongDuSommet = 1666;
+    public const int MonkFlammesDuPhenix = 1667;
+    public const int MonkPostureBrumeuse = 1668;
+    public const int MonkPorteParLeVent = 1669;
+    public const int MonkDefenseDeLaMontagne = 1670;
+    public const int MonkTorrentDeFlammes = 1671;
+    public const int MonkVagueDeTerre = 1672;
+    public const int MonkSouffleDeLhiver = 1673;
+    public const int MonkIncantationElementaire = 1674;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;

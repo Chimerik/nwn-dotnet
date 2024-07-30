@@ -13,6 +13,7 @@ namespace NWN.Systems
     public int totalPoints { get { return currentLevel /*+ bonusPoints*/; } }
     public double bonusMultiplier { get { return 1 + (totalPoints / 100); } }
     public double bonusReduction { get { return 1 - (totalPoints / 100); } }
+    public int minLevel { get; }
     public int levelTaken { get; }
     public bool restoreOnShortRest { get; }
     public Dictionary<int, int[]> featOptions { get; set; }
@@ -21,7 +22,7 @@ namespace NWN.Systems
 
 
     public LearnableSkill(int id, string name, string description, SkillSystem.Category category, string icon, int maxLevel, int multiplier, Ability primaryAbility,
-      Ability secondaryAbility, Func<Player, int, bool> skillEffect = null, string descriptionLink = "", List<int> racePrerequiste = null, List<int> learnablePrerequiste = null, bool restoreOnShortRest = false) 
+      Ability secondaryAbility, Func<Player, int, bool> skillEffect = null, string descriptionLink = "", List<int> racePrerequiste = null, List<int> learnablePrerequiste = null, bool restoreOnShortRest = false, int minLevel = 0) 
       : base(id, name, description, icon, maxLevel, multiplier, primaryAbility, secondaryAbility, descriptionLink)
     {
       this.category = category;
@@ -29,8 +30,9 @@ namespace NWN.Systems
       this.racePrerequiste = racePrerequiste;
       this.learnablePrerequiste = learnablePrerequiste;
       this.restoreOnShortRest = restoreOnShortRest;
+      this.minLevel = minLevel;
     }
-    public LearnableSkill(LearnableSkill learnableBase, Player player, int skillSource = -1, bool active = false, double acquiredSP = 0, int currentLevel = 0, int levelTaken = 0, Dictionary<int, int[]> featOptions = null, bool restoreOnShortRest = false) : base(learnableBase)
+    public LearnableSkill(LearnableSkill learnableBase, Player player, int skillSource = -1, bool active = false, double acquiredSP = 0, int currentLevel = 0, int levelTaken = 0, Dictionary<int, int[]> featOptions = null) : base(learnableBase)
     {
       this.category = learnableBase.category;
       this.skillEffect = learnableBase.skillEffect;
@@ -41,6 +43,7 @@ namespace NWN.Systems
       this.acquiredPoints = acquiredSP;
       this.currentLevel = currentLevel;
       this.pointsToNextLevel = GetPointsToLevelUp(player);
+      this.minLevel = minLevel;
       this.levelTaken = levelTaken;
       this.featOptions = featOptions;
       this.source = new();
@@ -48,7 +51,7 @@ namespace NWN.Systems
       if (skillSource > -1)
         source.Add((SkillSystem.Category)skillSource);
     }
-    public LearnableSkill(LearnableSkill learnableBase, SerializableLearnableSkill serializableBase, Player player, int playerLevel = 0, int multiClassMultiplier = 0) 
+    public LearnableSkill(LearnableSkill learnableBase, SerializableLearnableSkill serializableBase, Player player, int playerLevel = 0) 
       : base(learnableBase)
     {
       category = learnableBase.category;

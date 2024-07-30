@@ -11,24 +11,29 @@ namespace NWN.Systems
       {
         switch (onSpellAction.Spell.SpellType)
         {
-            case Spell.Bane:
-            case Spell.Bless:
-            case Spell.Firebrand:
+          case Spell.Bane:
+          case Spell.Bless:
+          case Spell.Firebrand:
 
-              if (player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_SELECTED").HasNothing)
-              {
+            if (player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_SELECTED").HasNothing)
+            {
               onSpellAction.PreventSpellCast = true;
 
-                player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_TO_SELECT").Value = 3;
-                player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGET_CASTING_CLASS").Value = onSpellAction.ClassIndex;
-                player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGET_SPELL_ID").Value = onSpellAction.Spell.Id;
-                player.EnterTargetMode(SelectAdditionnalSpellTargets, Config.selectCreatureTargetMode);
-                player.SendServerMessage("Sélectionnez jusqu'à trois cibles", ColorConstants.Orange);
-              }
+              if(onSpellAction.Spell.SpellType == Spell.Firebrand && onSpellAction.Feat.Id == CustomSkill.MonkEtreinteDeLenfer
+                && onSpellAction.Caster.KnowsFeat((Feat)CustomSkill.MonkIncantationElementaire))
+              player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_TO_SELECT").Value = 4;
               else
-                player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_SELECTED").Delete();
+                player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_TO_SELECT").Value = 3;
 
-              return;
+              player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGET_CASTING_CLASS").Value = onSpellAction.ClassIndex;
+              player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGET_SPELL_ID").Value = onSpellAction.Spell.Id;
+              player.EnterTargetMode(SelectAdditionnalSpellTargets, Config.selectCreatureTargetMode);
+              player.SendServerMessage("Sélectionnez jusqu'à trois cibles", ColorConstants.Orange);
+            }
+            else
+              player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_SELECTED").Delete();
+
+            return;
 
           case (Spell)CustomSpell.AmitieAnimale:
           case Spell.CharmPerson:
@@ -38,7 +43,9 @@ namespace NWN.Systems
           case Spell.DominateAnimal:
           //case Spell.DominatePerson:
 
-            if(player.ControlledCreature.KnowsFeat((Feat)CustomSkill.EnchantementPartage)
+            if((player.ControlledCreature.KnowsFeat((Feat)CustomSkill.EnchantementPartage) 
+              || (onSpellAction.Spell.SpellType == Spell.HoldPerson && onSpellAction.Feat.Id == CustomSkill.MonkPoigneDuVentDuNord
+                && onSpellAction.Caster.KnowsFeat((Feat)CustomSkill.MonkIncantationElementaire)))
               && player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_SELECTED").HasNothing)
             {
               onSpellAction.PreventSpellCast = true;
