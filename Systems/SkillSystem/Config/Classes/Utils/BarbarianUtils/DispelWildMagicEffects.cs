@@ -1,5 +1,4 @@
 ﻿using Anvil.API;
-using Anvil.API.Events;
 
 namespace NWN.Systems
 {
@@ -13,7 +12,7 @@ namespace NWN.Systems
       {
         switch(eff.Tag)
         {
-          case EffectSystem.WildMagicCroissanceVegetaleEffectTag:
+          case EffectSystem.WildMagicCroissanceVegetaleAuraEffectTag:
           case EffectSystem.WildMagicEspritIntangibleEffectTag:
           case EffectSystem.WildMagicRepresaillesEffectTag:
           case EffectSystem.WildMagicRayonDeLumiereEffectTag: creature.RemoveEffect(eff); break;

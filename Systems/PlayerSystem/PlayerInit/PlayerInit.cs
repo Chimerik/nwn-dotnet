@@ -248,7 +248,7 @@ namespace NWN.Systems
       private async void InitializePlayerAsync(string serializedCauldron, string serializedExploration, string serializedLearnableSkills, string serializedLearnableSpells, string serializedCraftResources, string serializedCraftJob, string serializedGrimoires, string serializedQuickbars, string serializedItemAppearances, string serializedDescriptions, string serializedMails, string serializedSubscriptions, string serializedEndurance)
       {
         int playerLevel = oid.LoginCreature.Level;
-        int multiClassMultiplier = oid.LoginCreature.Classes.Distinct().Count();
+        //int multiClassMultiplier = oid.LoginCreature.Classes.Distinct().Count();
 
         Task loadCauldronTask = Task.Run(() =>
         {
@@ -277,8 +277,8 @@ namespace NWN.Systems
           {
             if (SkillSystem.learnableDictionary.TryGetValue(kvp.Key, out var value))
             {
-              LearnableSkill skill = new LearnableSkill((LearnableSkill)value, kvp.Value, this, playerLevel, multiClassMultiplier);
-
+              LearnableSkill skill = new LearnableSkill((LearnableSkill)value, kvp.Value, this, playerLevel);/*, multiClassMultiplier);
+                */
               if (skill.active)
                 activeLearnable = skill;
 
@@ -438,6 +438,7 @@ namespace NWN.Systems
         InitializeLienTotemChoice();
         InitializeMaitriseDesSortsChoice();
         InitializeSpellSelection();
+        InitializeTechniqueElementaireSelection();
         InitializeMagicalSecretSelection();
         InitializeSkillProficiencySelection();
         ResetFlameBlade();

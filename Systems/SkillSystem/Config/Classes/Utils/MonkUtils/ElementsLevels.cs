@@ -1,5 +1,7 @@
-﻿using Anvil.API;
+﻿using System.Security.Cryptography;
+using Anvil.API;
 using static NWN.Systems.PlayerSystem;
+using static NWN.Systems.PlayerSystem.Player;
 using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
@@ -19,21 +21,40 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.MonkHarmony].LevelUp(player);
           player.learnableSkills[CustomSkill.MonkHarmony].source.Add(Category.Class);
 
+          if (!player.windows.TryGetValue("techniqueElementaireSelection", out var tech)) player.windows.Add("techniqueElementaireSelection", new TechniqueElementaireSelectionWindow(player, 3));
+          else ((TechniqueElementaireSelectionWindow)tech).CreateWindow(3);
 
+          break;
+
+        case 6:
+
+          if (!player.windows.TryGetValue("techniqueElementaireSelection", out var tech6)) player.windows.Add("techniqueElementaireSelection", new TechniqueElementaireSelectionWindow(player, 1));
+          else ((TechniqueElementaireSelectionWindow)tech6).CreateWindow(1);
 
           break;
 
         case 9:
 
-          player.learnableSkills.TryAdd(CustomSkill.Elementaliste, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Elementaliste], player));
-          player.learnableSkills[CustomSkill.Elementaliste].LevelUp(player);
-          player.learnableSkills[CustomSkill.Elementaliste].source.Add(Category.Class);
+          player.learnableSkills.TryAdd(CustomSkill.MonkIncantationElementaire, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MonkIncantationElementaire], player));
+          player.learnableSkills[CustomSkill.MonkIncantationElementaire].LevelUp(player);
+          player.learnableSkills[CustomSkill.MonkIncantationElementaire].source.Add(Category.Class);
 
-          player.learnableSkills[CustomSkill.Elementaliste].featOptions.Add(5, new int[] { (int)DamageType.Cold });
-          player.learnableSkills[CustomSkill.Elementaliste].featOptions.Add(6, new int[] { (int)DamageType.Fire });
-          player.learnableSkills[CustomSkill.Elementaliste].featOptions.Add(7, new int[] { (int)DamageType.Electrical });
-          player.learnableSkills[CustomSkill.Elementaliste].featOptions.Add(8, new int[] { (int)DamageType.Bludgeoning });
-          player.learnableSkills[CustomSkill.Elementaliste].featOptions.Add(9, new int[] { (int)DamageType.Sonic });
+          if (!player.windows.TryGetValue("techniqueElementaireSelection", out var tech9)) player.windows.Add("techniqueElementaireSelection", new TechniqueElementaireSelectionWindow(player, 1));
+          else ((TechniqueElementaireSelectionWindow)tech9).CreateWindow(1);
+
+          break;
+
+        case 11:
+
+          if (!player.windows.TryGetValue("techniqueElementaireSelection", out var tech11)) player.windows.Add("techniqueElementaireSelection", new TechniqueElementaireSelectionWindow(player, 1));
+          else ((TechniqueElementaireSelectionWindow)tech11).CreateWindow(1);
+
+          break;
+
+        case 17:
+
+          if (!player.windows.TryGetValue("techniqueElementaireSelection", out var tech17)) player.windows.Add("techniqueElementaireSelection", new TechniqueElementaireSelectionWindow(player, 1));
+          else ((TechniqueElementaireSelectionWindow)tech17).CreateWindow(1);
 
           break;
       }

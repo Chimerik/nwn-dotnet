@@ -181,11 +181,6 @@ namespace NWN.Systems
 
                 case "availableSpellDescription":
 
-                  ModuleSystem.Log.Info($"{nuiEvent.ArrayIndex}");
-
-                  foreach (var s in availableSpells)
-                    ModuleSystem.Log.Info($"{s.Name.ToString()}");
-
                   if (!player.windows.TryGetValue("spellDescription", out var spellWindow)) player.windows.Add("spellDescription", new SpellDescriptionWindow(player, availableSpells[nuiEvent.ArrayIndex]));
                   else ((SpellDescriptionWindow)spellWindow).CreateWindow(availableSpells[nuiEvent.ArrayIndex]);
 
