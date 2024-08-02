@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Numerics;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 using Anvil.API;
@@ -16,7 +17,8 @@ namespace NWN.Systems
         return;
 
       LogUtils.LogMessage($"{onPCDisconnect.Player.PlayerName} vient de se déconnecter {onPCDisconnect.Player.LoginCreature.Name} ({NwModule.Instance.PlayerCount - 1} joueur(s))", LogUtils.LogType.PlayerConnections);
-      
+      onPCDisconnect.Player.LoginCreature.GetObjectVariable<PersistentVariableInt>("_PLAYER_HP").Value = onPCDisconnect.Player.LoginCreature.HP;
+
       if (!Players.TryGetValue(onPCDisconnect.Player.LoginCreature, out Player player))
         return;
 

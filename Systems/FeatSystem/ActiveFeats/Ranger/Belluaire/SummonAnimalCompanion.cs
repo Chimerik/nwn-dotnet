@@ -67,12 +67,17 @@ namespace NWN.Systems
       byte rangerLevel = caster.GetClassInfo(ClassType.Ranger).Level;
       NwCreature companion;
       VfxType vfx = VfxType.FnfSummonMonster1;
+      NwItem weapon;
 
       switch (featId)
       {
         default:
 
           companion = NwCreature.Create("ourscompagnon", target);
+
+          weapon = companion.GetItemInSlot(InventorySlot.CreatureLeftWeapon);
+          weapon.AddItemProperty(ItemProperty.DamageBonus(IPDamageType.Slashing, IPDamageBonus.Plus1d8), EffectDuration.Permanent);
+          weapon.GetObjectVariable<LocalVariableInt>(ItemConfig.IsFinesseWeaponVariable).Value = 1;
 
           if (!caster.KnowsFeat((Feat)CustomSkill.BelluaireRugissementProvoquant))
             caster.AddFeat((Feat)CustomSkill.BelluaireRugissementProvoquant);
@@ -116,6 +121,10 @@ namespace NWN.Systems
 
           companion = NwCreature.Create("sangliercompagnon", target);
 
+          weapon = companion.GetItemInSlot(InventorySlot.CreatureLeftWeapon);
+          weapon.AddItemProperty(ItemProperty.DamageBonus(IPDamageType.Slashing, IPDamageBonus.Plus1d6), EffectDuration.Permanent);
+          weapon.GetObjectVariable<LocalVariableInt>(ItemConfig.IsFinesseWeaponVariable).Value = 1;
+
           if (!caster.KnowsFeat((Feat)CustomSkill.BelluaireChargeSanglier))
             caster.AddFeat((Feat)CustomSkill.BelluaireChargeSanglier);
 
@@ -158,6 +167,12 @@ namespace NWN.Systems
 
           companion = NwCreature.Create("corbeaucompagnon", target);
 
+          companion.ApplyEffect(EffectDuration.Permanent, Effect.DamageIncrease((int)DamageBonus.Plus2d4, DamageType.Piercing));
+
+          weapon = companion.GetItemInSlot(InventorySlot.CreatureLeftWeapon);
+          weapon.AddItemProperty(ItemProperty.DamageBonus(IPDamageType.Piercing, IPDamageBonus.Plus2d4), EffectDuration.Permanent);
+          weapon.GetObjectVariable<LocalVariableInt>(ItemConfig.IsFinesseWeaponVariable).Value = 1;
+
           if (!caster.KnowsFeat((Feat)CustomSkill.BelluaireCorbeauAveuglement))
             caster.AddFeat((Feat)CustomSkill.BelluaireCorbeauAveuglement);
 
@@ -173,7 +188,7 @@ namespace NWN.Systems
           else if (rangerLevel < 8)
           {
             vfx = VfxType.FnfSummonMonster2;
-            companion.ApplyEffect(EffectDuration.Permanent, Effect.DamageIncrease((int)DamageBonus.Plus1d4, DamageType.Piercing));
+            weapon.AddItemProperty(ItemProperty.DamageBonus(IPDamageType.Piercing, IPDamageBonus.Plus1d4), EffectDuration.Permanent);
             companion.MaxHP = 21;
             companion.BaseAC = 19;
           }
@@ -186,7 +201,7 @@ namespace NWN.Systems
           else
           {
             vfx = VfxType.FnfSummonMonster3;
-            companion.ApplyEffect(EffectDuration.Permanent, Effect.DamageIncrease((int)DamageBonus.Plus1d6, DamageType.Piercing));
+            weapon.AddItemProperty(ItemProperty.DamageBonus(IPDamageType.Piercing, IPDamageBonus.Plus1d6), EffectDuration.Permanent);
             companion.MaxHP = 44;
             companion.BaseAC = 21;
           }
@@ -198,6 +213,10 @@ namespace NWN.Systems
         case CustomSkill.BelluaireWolf:
 
           companion = NwCreature.Create("loupcompagnon", target);
+
+          weapon = companion.GetItemInSlot(InventorySlot.CreatureLeftWeapon);
+          weapon.AddItemProperty(ItemProperty.DamageBonus(IPDamageType.Piercing, IPDamageBonus.Plus2d4), EffectDuration.Permanent);
+          weapon.GetObjectVariable<LocalVariableInt>(ItemConfig.IsFinesseWeaponVariable).Value = 1;
 
           if (!caster.KnowsFeat((Feat)CustomSkill.BelluaireLoupMorsurePlongeante))
             companion.OnCreatureAttack += RangerUtils.OnAttackMorsurePlongeante;
@@ -221,6 +240,10 @@ namespace NWN.Systems
         case CustomSkill.BelluaireSpider:
 
           companion = NwCreature.Create("spidercompagnon", target);
+
+          weapon = companion.GetItemInSlot(InventorySlot.CreatureLeftWeapon);
+          weapon.AddItemProperty(ItemProperty.DamageBonus(IPDamageType.Slashing, IPDamageBonus.Plus1d8), EffectDuration.Permanent);
+          weapon.GetObjectVariable<LocalVariableInt>(ItemConfig.IsFinesseWeaponVariable).Value = 1;
 
           companion.OnCreatureAttack += RangerUtils.OnAttackSpiderPoisonBite;
           companion.ApplyEffect(EffectDuration.Permanent, Effect.Immunity(ImmunityType.Entangle));

@@ -5,11 +5,11 @@ namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static int RollWeaponDamage(CNWSCreature creature, NwBaseItem weapon, CNWSCombatAttackData attackData, CNWSCreature target, bool isCriticalRoll = false)
+    public static int RollWeaponDamage(CNWSCreature creature, NwBaseItem weapon, CNWSCombatAttackData attackData, CNWSCreature target, CNWSItem attackWeapon, bool isCriticalRoll = false)
     {
       int dieToRoll = ItemUtils.IsVersatileWeapon(weapon.ItemType) && creature.m_pInventory.GetItemInSlot((uint)EquipmentSlot.LeftHand) is null
         ? weapon.DieToRoll + 2 : weapon.DieToRoll;
-
+      
       int numDamageDice = weapon.NumDamageDice
         + GetFureurOrcBonus(creature)
         + GetOrcCriticalBonus(creature, attackData, isCriticalRoll)
@@ -19,15 +19,15 @@ namespace NWN.Systems
 
       int damage = HandleWeaponDamageRerolls(creature, weapon, numDamageDice, dieToRoll);
       damage = HandleSavageAttacker(creature, weapon, attackData, numDamageDice, damage, dieToRoll);
+
+      LogUtils.LogMessage($"{(isCriticalRoll ? "Critique - " : "")}{weapon.Name.ToString()} - {numDamageDice}d{dieToRoll} => {damage}", LogUtils.LogType.Combat);
+
       damage += GetDegatsBotte(creature)
         + GetDegatsVaillantsBonus(creature)
-        + GetFavoredEnemyDegatsBonus(creature, target);
-
-      string criticalLog = isCriticalRoll ? "Critique - " : "";
-      LogUtils.LogMessage($"{criticalLog}{weapon.Name.ToString()} - {numDamageDice}d{dieToRoll} => {damage}", LogUtils.LogType.Combat);
-
-      damage += GetSuperiorityDiceDamage(creature);
-      damage += GetBarbarianRageBonusDamage(creature, attackData);
+        + GetFavoredEnemyDegatsBonus(creature, target)
+        + GetSuperiorityDiceDamage(creature)
+        + GetBarbarianRageBonusDamage(creature, attackData)
+        + GetPhysicalBonusDamage(creature, attackWeapon);    
 
       return damage;
     }

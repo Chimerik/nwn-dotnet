@@ -316,9 +316,9 @@ namespace NWN.Systems
     {
       int starCount = chat.ToCharArray().Count(c => c == '*');
 
-      if (starCount == 1 && player.chatColors.ContainsKey(101)) // 101 = chat correctif
+      if (starCount == 1 && player.chatColors.TryGetValue(101, out var value)) // 101 = chat correctif
       {
-        byte[] colorArray = player.chatColors[101];
+        byte[] colorArray = value;
         return chat.StripColors().ColorString(new Color(colorArray[0], colorArray[1], colorArray[2], colorArray[3]));
       }
       else if (starCount > 1)

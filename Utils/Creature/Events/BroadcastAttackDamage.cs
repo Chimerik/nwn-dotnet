@@ -8,13 +8,12 @@ namespace NWN.Systems
   {
     public static void BroadcastAttackDamage(OnCreatureDamage onDamage)
     {
-      if (onDamage.DamageData.GetDamageByType(DamageType.BaseWeapon) < 0)
+      if (onDamage.DamageData.GetDamageByType(DamageType.BaseWeapon) < 0 || (onDamage.DamagedBy is NwCreature damager && damager.Master is not null))
         return;
 
       string damageTarget = onDamage.Target is NwCreature ? "blesse" : "endommage";
       int totalDamage = 0;
       
-
       foreach (DamageType damage in (DamageType[])Enum.GetValues(typeof(DamageType)))
       {
         int damageBonus = onDamage.DamageData.GetDamageByType(damage);
@@ -37,7 +36,7 @@ namespace NWN.Systems
         if (specialDamage < 1)
           continue;
 
-        specialDamageString += $"{specialDamage} {group.tlkName.ToString()}".ColorString(group.color);
+        specialDamageString += $"{specialDamage} {group.damageName}".ColorString(group.color);
       }
 
       string damageString = $"{onDamage.DamagedBy.Name.ColorString(ColorConstants.Cyan)} {damageTarget} {onDamage.Target.Name.ColorString(ColorConstants.Cyan)} : " +

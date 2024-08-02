@@ -10,6 +10,8 @@ namespace NWN.Systems
   {
     public string label { get; private set; }
     public int rank { get; private set; }
+    public int die { get; private set; }
+    public int numDice { get; private set; }
 
     // RowIndex is already populated externally, and we do not need to assign it in InterpretEntry.
     public int RowIndex { get; init; }
@@ -18,6 +20,8 @@ namespace NWN.Systems
     {
       label = entry.GetString("Label");
       rank = entry.GetInt("Rank").GetValueOrDefault(0);
+      die = entry.GetInt("Die").GetValueOrDefault(0);
+      numDice = entry.GetInt("NumDice").GetValueOrDefault(0);
     }
   }
 

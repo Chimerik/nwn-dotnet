@@ -31,7 +31,7 @@ namespace NWN.Systems
     {
       if (onDamage.Target is not NwCreature target)
         return;
-
+      
       //if (onDamage.Target is null || onDamage.DamageData.GetDamageByType(DamageType.BaseWeapon) > -1 || onDamage.Target is not NwCreature oTarget) // S'il ne s'agit pas d'un sort, alors le calcul des dégâts a déjà été traité lors de l'event d'attaque
       //return;
 

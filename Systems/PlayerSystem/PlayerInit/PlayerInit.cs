@@ -20,6 +20,9 @@ namespace NWN.Systems
       NwPlayer oPC = HandlePlayerConnect.Player;
       LogUtils.LogMessage($"{oPC.PlayerName} vient de connecter {oPC.LoginCreature.Name} ({NwModule.Instance.PlayerCount} joueurs)", LogUtils.LogType.PlayerConnections);
 
+      oPC.LoginCreature.ApplyEffect(EffectDuration.Permanent, Effect.DamageIncrease((int)DamageBonus.Plus1d10, DamageType.Bludgeoning));
+      oPC.LoginCreature.ApplyEffect(EffectDuration.Permanent, Effect.DamageIncrease((int)DamageBonus.Plus2d8, DamageType.Slashing));
+
       if (!Players.TryGetValue(oPC.LoginCreature, out Player player))
         player = new Player(oPC, areaSystem, spellSystem, feedbackService, scheduler, eventService);
       else
@@ -508,6 +511,9 @@ namespace NWN.Systems
       }
       private void HandleHealthPointInit()
       {
+        if(oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_PLAYER_HP").HasValue)
+          oid.LoginCreature.HP = oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_PLAYER_HP").Value;
+
         if (oid.LoginCreature.HP < 1)
           oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Death());
 

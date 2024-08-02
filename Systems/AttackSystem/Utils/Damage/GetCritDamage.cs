@@ -23,7 +23,7 @@ namespace NWN.Systems
       }
 
       NwBaseItem baseWeapon = NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem);
-      int damage = RollWeaponDamage(attacker, baseWeapon, attackData, target, true);
+      int damage = RollWeaponDamage(attacker, baseWeapon, attackData, target, attackWeapon, true);
       damage += isDuelFightingStyle ? 2 : 0;
 
       if (sneakAttack > 0)

@@ -1,5 +1,4 @@
-﻿
-using Anvil.API;
+﻿using Anvil.API;
 using NWN.Native.API;
 using Anvil.Services;
 using System.Linq;
@@ -493,7 +492,7 @@ namespace NWN.Systems
           }
           else
           {
-            baseDamage += NativeUtils.RollWeaponDamage(attacker, baseWeapon, attackData, targetCreature);
+            baseDamage += NativeUtils.RollWeaponDamage(attacker, baseWeapon, attackData, targetCreature, attackWeapon);
             isDuelFightingStyle = NativeUtils.IsDuelFightingStyle(attacker, baseWeapon, attackData);
             baseDamage += isDuelFightingStyle ? 2 : 0;
           }
@@ -605,6 +604,7 @@ namespace NWN.Systems
       LogUtils.LogMessage($"Dégâts : {baseDamage}", LogUtils.LogType.Combat);
 
       // Application des réductions du jeu de base
+      
       baseDamage = targetObject.DoDamageImmunity(attacker, baseDamage, damageFlags, 0, 1);
       LogUtils.LogMessage($"Application des immunités de la cible - Dégats : {baseDamage}", LogUtils.LogType.Combat);
       baseDamage = targetObject.DoDamageResistance(attacker, baseDamage, damageFlags, 0, 1, 1, attackData.m_bRangedAttack);

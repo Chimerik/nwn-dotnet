@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
-using Anvil.API;
+﻿using Anvil.API;
 using Anvil.Services;
 
 namespace NWN.Systems
 {
   public sealed class DamageTypeGroupsEntry : ITwoDimArrayEntry
   {
-    public StrRef tlkName { get; private set; }
+    public string damageName { get; private set; }
     public Color color { get; private set; }
     public DamageType damageType { get; private set; }
     public int RowIndex { get; init; }
@@ -16,9 +15,13 @@ namespace NWN.Systems
       if (RowIndex < 1)
         return;
 
-      tlkName = entry.GetStrRef("FeedbackStrref").Value;
+      damageName = entry.GetString("Label");
       damageType = (DamageType)entry.GetInt("DamageType").Value;
-      color = new Color(entry.GetInt("ColorR").GetValueOrDefault(0), entry.GetInt("ColorG").GetValueOrDefault(0), entry.GetInt("ColorB").GetValueOrDefault(0));
+
+      var temp = new byte[4] { (byte)entry.GetInt("ColorR").GetValueOrDefault(0), (byte)entry.GetInt("ColorG").GetValueOrDefault(0), (byte)entry.GetInt("ColorG").GetValueOrDefault(0), 0 };
+      color = new Color(temp[0], temp[1], temp[2], temp[3]);
+
+      ModuleSystem.Log.Info($"{color.Red} - {color.Green} - {color.Blue}");
     }
   }
 
