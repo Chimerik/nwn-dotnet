@@ -10,7 +10,7 @@ namespace NWN.Systems
     {
       int bonusDamage = 0;
 
-      for (var index = 0; index < attackWeapon.m_lstPassiveProperties.Count; index++)
+      /*for (var index = 0; index < attackWeapon.m_lstPassiveProperties.Count; index++)
       {
         var ip = attackWeapon.GetPassiveProperty(index);
 
@@ -40,14 +40,14 @@ namespace NWN.Systems
               break;
           }
         }
-      }
+      }*/
 
       foreach(var eff in creature.m_appliedEffects)
       {
         switch((EffectTrueType)eff.m_nType)
         {
           case EffectTrueType.DamageIncrease:
-            
+
             switch((DamageType)eff.GetInteger(1))
             {
               case DamageType.Bludgeoning:
@@ -64,7 +64,7 @@ namespace NWN.Systems
 
                     int damage = eff.GetInteger(0);
                     bonusDamage += damage;
-                    LogUtils.LogMessage($"Effet dêgats bonus : +{damage}", LogUtils.LogType.Combat);
+                    LogUtils.LogMessage($"Effet dégâts bonus : +{damage}", LogUtils.LogType.Combat);
 
                     break;
 

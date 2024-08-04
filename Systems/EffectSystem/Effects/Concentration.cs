@@ -61,6 +61,13 @@ namespace NWN.Systems
       {
         NwGameObject target = eventData.EffectTarget.GetObjectVariable<LocalVariableObject<NwGameObject>>($"{ConcentrationTargetString}{i}").Value;
 
+        if (target is null)
+        {
+          eventData.EffectTarget.GetObjectVariable<LocalVariableObject<NwGameObject>>($"{ConcentrationTargetString}_{i}").Delete();
+          i++;
+          continue;
+        }
+
         if (target is NwAreaOfEffect aoe)
         {
           aoe.Destroy();

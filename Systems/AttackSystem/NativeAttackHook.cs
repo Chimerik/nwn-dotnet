@@ -374,7 +374,7 @@ namespace NWN.Systems
       NativeUtils.HandleMonkDeluge(creature, targetObject, combatRound, attackerName, targetName);
       NativeUtils.HandleThiefReflex(creature, targetObject, combatRound, attackerName, targetName);
       NativeUtils.HandleBardeBotteTranchante(creature, targetObject, combatRound, attackerName);
-      NativeUtils.HandleBriseurDeHordes(creature, targetObject, combatRound, attackerName, attackWeapon);
+      NativeUtils.HandleBriseurDeHordes(creature, targetObject, combatRound, attackerName, attackWeapon, attackData.m_bRangedAttack.ToBool());
       NativeUtils.HandleVolee(creature, targetObject, combatRound, attackData.m_bRangedAttack.ToBool(), attackerName);
       NativeUtils.HandleAttaqueCoordonnee(creature, targetObject, combatRound);
       NativeUtils.HandleFurieBestiale(creature, targetObject, combatRound, attackerName);

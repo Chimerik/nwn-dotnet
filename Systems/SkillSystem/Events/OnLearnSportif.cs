@@ -8,6 +8,9 @@ namespace NWN.Systems
   {
     public static bool OnLearnSportif(PlayerSystem.Player player, int customSkillId)
     {
+      if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.Sportif))
+        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.Sportif);
+
       List<NuiComboEntry> abilities = new();
 
       if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Strength) < 20)

@@ -9,14 +9,14 @@ namespace NWN.Systems
     {
       if (caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).HasValue)
       {
-        if(caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.FurieBestialeCoolDownVariable).HasValue)
-          caster.LoginPlayer?.SendServerMessage($"{StringUtils.ToWhitecolor("Rugissement Provoquant")} disponible dans {StringUtils.ToWhitecolor(10 - caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.FurieBestialeCoolDownVariable).Value)} rounds", ColorConstants.Red);
+        if(caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BelluaireRugissementProvoquantCoolDownVariable).HasValue)
+          caster.LoginPlayer?.SendServerMessage($"{StringUtils.ToWhitecolor("Rugissement Provocant")} disponible dans {StringUtils.ToWhitecolor(10 - caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.FurieBestialeCoolDownVariable).Value)} rounds", ColorConstants.Red);
         else
         {
           var companion = caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).Value;
-          caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BelluaireRugissementProvoquantCoolDownVariable).Value = -1;
+          caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BelluaireRugissementProvoquantCoolDownVariable).Value = 1;
 
-          StringUtils.DisplayStringToAllPlayersNearTarget(companion, "Rugissement Provoquant", StringUtils.gold);
+          StringUtils.DisplayStringToAllPlayersNearTarget(companion, "Rugissement Provocant", StringUtils.gold);
 
           caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireRugissementProvoquant, 0);
           companion.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfHowlWarCry));

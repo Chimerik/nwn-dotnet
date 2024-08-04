@@ -19,13 +19,15 @@ namespace NWN.Systems
 
       TimeSpan duration = NwTimeSpan.FromRounds(spellEntry.duration);
 
-      if (oCaster is NwCreature caster && feat is not null && feat.Id == CustomSkill.MonkLinceulDombre)
+      if (oCaster is NwCreature caster && feat is not null)
       {
-        switch(feat.Id)
+        duration = NwTimeSpan.FromRounds(10);
+
+        switch (feat.Id)
         {
           case CustomSkill.MonkLinceulDombre:
             caster.IncrementRemainingFeatUses(feat.FeatType);
-            duration = NwTimeSpan.FromRounds(10);
+            
             break;
 
           case CustomSkill.ClercLinceulDombre:

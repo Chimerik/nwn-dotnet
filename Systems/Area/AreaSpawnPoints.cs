@@ -115,7 +115,7 @@ namespace NWN.Systems
           
           creature.OnHeartbeat += CheckActionRandomWalk;
 
-          Effect runAway = Effect.AreaOfEffect((PersistentVfxType)190, mobRunAway);
+          Effect runAway = Effect.AreaOfEffect(PersistentVfxType.PerCustomAoe, mobRunAway);
           runAway.SubType = EffectSubType.Supernatural;
           runAway.Tag = "_NEUTRALS_RUN_AWAY_EFFECT";
           creature.ApplyEffect(EffectDuration.Permanent, runAway);

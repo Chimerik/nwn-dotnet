@@ -167,8 +167,6 @@ namespace NWN.Systems
 
           companion = NwCreature.Create("corbeaucompagnon", target);
 
-          companion.ApplyEffect(EffectDuration.Permanent, Effect.DamageIncrease((int)DamageBonus.Plus2d4, DamageType.Piercing));
-
           weapon = companion.GetItemInSlot(InventorySlot.CreatureLeftWeapon);
           weapon.AddItemProperty(ItemProperty.DamageBonus(IPDamageType.Piercing, IPDamageBonus.Plus2d4), EffectDuration.Permanent);
           weapon.GetObjectVariable<LocalVariableInt>(ItemConfig.IsFinesseWeaponVariable).Value = 1;
@@ -282,7 +280,16 @@ namespace NWN.Systems
           break;
       }
 
-      companion.HP = caster.GetObjectVariable<PersistentVariableInt>(CreatureUtils.AnimalCompanionVariable).HasValue ? caster.GetObjectVariable<PersistentVariableInt>(CreatureUtils.AnimalCompanionVariable).Value : companion.MaxHP;
+      int companionHP = caster.GetObjectVariable<PersistentVariableInt>(CreatureUtils.AnimalCompanionVariable).Value;
+
+      if (companionHP == 1000)
+      {
+        companionHP = companion.MaxHP / 2;
+        caster.GetObjectVariable<PersistentVariableInt>(CreatureUtils.AnimalCompanionVariable).Value = companionHP;
+      }
+      else
+        companion.HP = companionHP > 0 ? companionHP : companion.MaxHP;
+      
       companion.Position = CreaturePlugin.ComputeSafeLocation(companion, target.Position, 10, 0);
       target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(vfx));
       companion.SetEventScript(EventScriptType.CreatureOnBlockedByDoor, "nw_ch_ace");

@@ -20,8 +20,6 @@ namespace NWN.Systems
 
       var temp = new byte[4] { (byte)entry.GetInt("ColorR").GetValueOrDefault(0), (byte)entry.GetInt("ColorG").GetValueOrDefault(0), (byte)entry.GetInt("ColorG").GetValueOrDefault(0), 0 };
       color = new Color(temp[0], temp[1], temp[2], temp[3]);
-
-      ModuleSystem.Log.Info($"{color.Red} - {color.Green} - {color.Blue}");
     }
   }
 

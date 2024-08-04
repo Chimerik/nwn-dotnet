@@ -105,6 +105,7 @@ namespace NWN.Systems
         case CustomSkill.MonkDarkVision: MonkDarkVision(onUseFeat.Creature, onUseFeat); return;
         case CustomSkill.MonkPassageSansTrace: MonkPassageSansTrace(onUseFeat.Creature, onUseFeat); return;
         case CustomSkill.MonkSilence: MonkSilence(onUseFeat.Creature, onUseFeat); return;
+        case CustomSkill.TraqueurLinceulDombre:
         case CustomSkill.MonkLinceulDombre:
         case CustomSkill.ClercLinceulDombre: MonkLinceulDombre(onUseFeat.Creature, onUseFeat); return;
         case CustomSkill.MonkFouleeDombre: MonkFouleeDombre(onUseFeat.Creature, onUseFeat); return;

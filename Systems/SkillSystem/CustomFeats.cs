@@ -414,6 +414,8 @@
     public const int MonkSouffleDeLhiver = 1673;
     public const int MonkIncantationElementaire = 1674;
 
+    public const int Sportif = 1675;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -845,7 +847,6 @@
     public const int AbilityImprovement = 20486;
     public const int Actor = 20487;
     public const int Vigilant = 20488;
-    public const int Sportif = 20489;
     
     public const int DuellisteDefensif = 20492;
     public const int AmbiMaster = 20493;
