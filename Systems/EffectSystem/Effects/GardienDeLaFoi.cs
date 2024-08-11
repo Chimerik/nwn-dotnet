@@ -44,15 +44,10 @@ namespace NWN.Systems
 
       NwCreature caster = guardian.GetObjectVariable<LocalVariableObject<NwCreature>>("_GUARDIAN_CASTER").Value;
 
-      SpellConfig.SavingThrowFeedback feedback = new();
       SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.GardienDeLaFoi];
-      int advantage = CreatureUtils.GetCreatureAbilityAdvantage(entering, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid, caster);
       int spellDC = caster is not null ? SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellId(CustomSpell.GardienDeLaFoi), Ability.Wisdom) : 10;
-      int totalSave = SpellUtils.GetSavingThrowRoll(entering, spellEntry.savingThrowAbility, spellDC, advantage, feedback, true);
-      bool saveFailed = totalSave < spellDC;
-
-      SpellUtils.SendSavingThrowFeedbackMessage(guardian, entering, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);
-      int damageDealt = SpellUtils.DealSpellDamage(entering, 0, spellEntry, SpellUtils.GetSpellDamageDiceNumber(caster, NwSpell.FromSpellId(CustomSpell.GardienDeLaFoi)), caster, 4, saveFailed);
+      int damageDealt = SpellUtils.DealSpellDamage(entering, 0, spellEntry, SpellUtils.GetSpellDamageDiceNumber(caster, NwSpell.FromSpellId(CustomSpell.GardienDeLaFoi)), caster, 4, 
+        CreatureUtils.GetSavingThrow(caster, entering, spellEntry.savingThrowAbility, spellDC, spellEntry));
 
       entering.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHarm));
 
@@ -76,16 +71,10 @@ namespace NWN.Systems
       NWScript.AssignCommand(guardian, () => exiting.ApplyEffect(EffectDuration.Temporary, GardienDeLaFoi, NwTimeSpan.FromRounds(1)));
 
       NwCreature caster = guardian.GetObjectVariable<LocalVariableObject<NwCreature>>("_GUARDIAN_CASTER").Value;
-
-      SpellConfig.SavingThrowFeedback feedback = new();
       SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.GardienDeLaFoi];
-      int advantage = CreatureUtils.GetCreatureAbilityAdvantage(exiting, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid, caster);
       int spellDC = caster is not null ? SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellId(CustomSpell.GardienDeLaFoi), Ability.Wisdom) : 10;
-      int totalSave = SpellUtils.GetSavingThrowRoll(exiting, spellEntry.savingThrowAbility, spellDC, advantage, feedback, true);
-      bool saveFailed = totalSave < spellDC;
-
-      SpellUtils.SendSavingThrowFeedbackMessage(guardian, exiting, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);
-      int damageDealt = SpellUtils.DealSpellDamage(exiting, 0, spellEntry, SpellUtils.GetSpellDamageDiceNumber(caster, NwSpell.FromSpellId(CustomSpell.GardienDeLaFoi)), caster, 4, saveFailed);
+      int damageDealt = SpellUtils.DealSpellDamage(exiting, 0, spellEntry, SpellUtils.GetSpellDamageDiceNumber(caster, NwSpell.FromSpellId(CustomSpell.GardienDeLaFoi)), caster, 4, 
+        CreatureUtils.GetSavingThrow(caster, exiting, spellEntry.savingThrowAbility, spellDC, spellEntry));
 
       exiting.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHarm));
 

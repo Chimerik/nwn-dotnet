@@ -7,8 +7,7 @@ namespace NWN.Systems
   {
     public static void WildMagicVrillesTenebreuses(NwCreature caster)
     {
-      SpellConfig.SavingThrowFeedback feedback = new();
-      int spellDC = 8 + caster.GetAbilityModifier(Ability.Constitution) + NativeUtils.GetCreatureProficiencyBonus(caster);
+      int spellDC = SpellConfig.BaseSpellDC + caster.GetAbilityModifier(Ability.Constitution) + NativeUtils.GetCreatureProficiencyBonus(caster);
      
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Magie Sauvage - Vrilles Ténébreuses", StringUtils.gold, true);
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfLosEvil20));
@@ -18,13 +17,7 @@ namespace NWN.Systems
         if (target == caster)
           continue;
 
-        int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, Ability.Constitution);
-        int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Constitution, spellDC, advantage, feedback);
-        bool saveFailed = totalSave < spellDC;
-
-        SpellUtils.SendSavingThrowFeedbackMessage(caster, target, feedback, advantage, spellDC, totalSave, saveFailed, Ability.Constitution);
-       
-        if(saveFailed) 
+        if(CreatureUtils.GetSavingThrow(caster, target, Ability.Constitution, spellDC) == SavingThrowResult.Failure) 
           NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(VfxType.ImpNegativeEnergy),
             Effect.Damage(NwRandom.Roll(Utils.random, 12), CustomDamageType.Necrotic))));
       }

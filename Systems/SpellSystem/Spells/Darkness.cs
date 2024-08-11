@@ -10,7 +10,7 @@ namespace NWN.Systems
     {
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
 
-      targetLocation.ApplyEffect(EffectDuration.Temporary, Effect.AreaOfEffect(PersistentVfxType.PerDarkness), NwTimeSpan.FromRounds(spellEntry.duration));
+      targetLocation.ApplyEffect(EffectDuration.Temporary, Effect.AreaOfEffect(PersistentVfxType.PerDarkness), SpellUtils.GetSpellDuration(oCaster, spellEntry));
      
       if (oCaster is NwCreature caster && feat is not null && feat.Id == CustomSkill.MonkTenebres)
       {

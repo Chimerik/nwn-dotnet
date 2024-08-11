@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Anvil.API;
 using static NWN.Systems.PlayerSystem.Player;
 using static NWN.Systems.PlayerSystem;
-
 namespace NWN.Systems
 {
   public static partial class SpellUtils
@@ -11,7 +10,7 @@ namespace NWN.Systems
     public static void SpellSwitch(NwGameObject oCaster, NwSpell spell, NwFeat feat, SpellEntry spellEntry, NwGameObject target, Location targetLocation, NwClass castingClass)
     {
       List<NwGameObject> concentrationTargets = new();
-
+      
       switch (spell.SpellType)
       {
         case Spell.AcidSplash:

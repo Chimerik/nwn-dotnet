@@ -17,7 +17,7 @@ namespace NWN.Systems
       }
       else
       {
-        caster.ControllingPlayer.EnterTargetMode(SelectFrappeGuideeTarget, Config.selectCreatureTargetMode);
+        caster.ControllingPlayer.EnterTargetMode(SelectFrappeGuideeTarget, Config.CreatureTargetMode(9, SpellTargetingShape.None, new System.Numerics.Vector2(), SpellTargetingFlags.HelpsAllies, feat:(Feat)CustomSkill.ClercFrappeGuidee));
         caster.ControllingPlayer.SendServerMessage("Veuillez choisir une cible", ColorConstants.Orange);
       }
     }

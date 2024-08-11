@@ -20,6 +20,7 @@ namespace NWN.Systems
       WizardUtils.RestaurationArcanique(player.oid.LoginCreature);
       WizardUtils.AbjurationSuperieure(player.oid.LoginCreature);
       FighterUtils.RestoreEldritchKnight(player.oid.LoginCreature);
+      EnsoUtils.RetablissementSorcier(player.oid.LoginCreature);
 
       if (player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.SourceDinspiration))
         BardUtils.RestoreInspirationBardique(player.oid.LoginCreature);

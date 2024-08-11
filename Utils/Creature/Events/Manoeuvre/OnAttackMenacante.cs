@@ -19,27 +19,19 @@ namespace NWN.Systems
         case AttackResult.CriticalHit:
         case AttackResult.AutomaticHit:
 
-          bool saveFailed = false;
+          StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Attaque Menaçante", ColorConstants.Red, true);
 
           if (!EffectSystem.IsFrightImmune(target, onAttack.Attacker))
           {
-            SpellConfig.SavingThrowFeedback feedback = new();
             int attackerModifier = onAttack.Attacker.GetAbilityModifier(Ability.Strength) > onAttack.Attacker.GetAbilityModifier(Ability.Dexterity) ? onAttack.Attacker.GetAbilityModifier(Ability.Strength) : onAttack.Attacker.GetAbilityModifier(Ability.Dexterity);
-            int tirDC = 8 + NativeUtils.GetCreatureProficiencyBonus(onAttack.Attacker) + attackerModifier;
-            int advantage = GetCreatureAbilityAdvantage(target, Ability.Wisdom);
-            int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Wisdom, tirDC, advantage, feedback);
-            saveFailed = totalSave < tirDC;
+            int DC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(onAttack.Attacker) + attackerModifier;
 
-            SpellUtils.SendSavingThrowFeedbackMessage(onAttack.Attacker, target, feedback, advantage, tirDC, totalSave, saveFailed, Ability.Wisdom);
+            if(GetSavingThrow(onAttack.Attacker, target, Ability.Wisdom, DC) == SavingThrowResult.Failure)
+            {
+              NWScript.AssignCommand(onAttack.Attacker, () => target.ApplyEffect(EffectDuration.Temporary,
+              EffectSystem.Effroi, NwTimeSpan.FromRounds(1)));
+            }
           }
-
-          if (saveFailed)
-          {
-            NWScript.AssignCommand(onAttack.Attacker, () => target.ApplyEffect(EffectDuration.Temporary,
-            EffectSystem.Effroi, NwTimeSpan.FromRounds(1)));
-          }
-
-          StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Attaque Menaçante", ColorConstants.Red, true);
 
           await NwTask.NextFrame();
           onAttack.Attacker.OnCreatureAttack -= OnAttackMenacante;

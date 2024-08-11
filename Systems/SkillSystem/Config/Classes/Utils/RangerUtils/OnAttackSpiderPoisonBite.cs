@@ -18,7 +18,9 @@ namespace NWN.Systems
         case AttackResult.CriticalHit:
         case AttackResult.AutomaticHit:
 
-          if(CreatureUtils.GetSavingThrow(onAttack.Attacker, target, Ability.Constitution, 8 + NativeUtils.GetCreatureProficiencyBonus(onAttack.Attacker.Master) + onAttack.Attacker.GetAbilityModifier(Ability.Wisdom)))
+          int spellDC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(onAttack.Attacker.Master) + onAttack.Attacker.GetAbilityModifier(Ability.Wisdom);
+
+          if (CreatureUtils.GetSavingThrow(onAttack.Attacker, target, Ability.Constitution, spellDC) == SavingThrowResult.Failure)
           {
             target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPoisonS));
             NWScript.AssignCommand(onAttack.Attacker, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Poison, NwTimeSpan.FromRounds(2)));

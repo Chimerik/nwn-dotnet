@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Anvil.API;
 
 namespace NWN.Systems
@@ -45,6 +46,15 @@ namespace NWN.Systems
               inspirationEffect = eff;
               break;
             }
+
+          if ((attackRoll < 2 || totalAttack <= targetAC)
+          && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.MetamagieEffectTag && e.IntParams[5] == CustomSkill.EnsoGuidage))
+          {
+            int tempAttackRoll = NativeUtils.GetAttackRoll(caster, advantage, spellCastingAbility);
+            attackRoll = tempAttackRoll > attackRoll ? tempAttackRoll : attackRoll;
+
+            EffectUtils.RemoveTaggedParamEffect(caster, CustomSkill.EnsoGuidage, EffectSystem.MetamagieEffectTag);
+          }
 
           LogUtils.LogMessage($"Bonus d'attaque contre la cible {attackModifier} dont {caster.GetAbilityModifier(spellCastingAbility)} du modificateur de {spellCastingAbility.ToString()} et {proficiencyBonus} du bonus de maîtrise", LogUtils.LogType.Combat);
           LogUtils.LogMessage($"CA de la cible : {targetAC}", LogUtils.LogType.Combat);

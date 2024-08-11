@@ -12,11 +12,13 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onEnterAuraDeProtectionCallback;
     private static ScriptCallbackHandle onExitAuraDeProtectionCallback;
 
-    public static Effect GetAuraDeProtectionEffect(int paladinLevel)
+    public static Effect AuraDeProtection(NwCreature caster, int paladinLevel)
     {
-        Effect eff = Effect.AreaOfEffect((PersistentVfxType)(paladinLevel < 18 ? 185 : 189), onEnterHandle: onEnterAuraDeProtectionCallback, onExitHandle: onExitAuraDeProtectionCallback);
-        eff.Tag = AuraDeProtectionEffectTag;
-        eff.SubType = EffectSubType.Unyielding;
+      Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurAuraCold, fScale: paladinLevel < 18 ? 0.9f : 1.8f),
+        Effect.AreaOfEffect(PersistentVfxType.PerCustomAoe, onEnterHandle: onEnterAuraDeProtectionCallback, onExitHandle: onExitAuraDeProtectionCallback));
+      eff.Tag = AuraDeProtectionEffectTag;
+      eff.SubType = EffectSubType.Unyielding;
+      eff.Creator = caster;
         return eff;
     }
     public static Effect GetProtectionEffect(int charismaModifier)

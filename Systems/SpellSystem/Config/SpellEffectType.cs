@@ -14,6 +14,7 @@
       Stealth,
       Trap,
       Death,
+      Concentration,
 
       Invalid
     }

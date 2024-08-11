@@ -34,20 +34,11 @@ namespace NWN.Systems
         return ScriptHandleResult.Handled;
       }
 
-      SpellConfig.SavingThrowFeedback feedback = new();
       int spellDC = SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellId(CustomSpell.AnciensCourrouxDeLaNature), Ability.Charisma);
       Ability saveAbility = target.GetAbilityModifier(Ability.Strength) > target.GetAbilityModifier(Ability.Dexterity) ? Ability.Strength : Ability.Dexterity;
-      int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, saveAbility, Spells2da.spellTable[CustomSpell.AnciensCourrouxDeLaNature], SpellConfig.SpellEffectType.Invalid);
+      SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.AnciensCourrouxDeLaNature];
 
-      if (advantage < -900)
-        return ScriptHandleResult.Handled;
-
-      int totalSave = SpellUtils.GetSavingThrowRoll(target, saveAbility, spellDC, advantage, feedback, true);
-      bool saveFailed = totalSave < spellDC;
-
-      SpellUtils.SendSavingThrowFeedbackMessage(caster, target, feedback, advantage, spellDC, totalSave, saveFailed, saveAbility);
-
-      if(!saveFailed)
+      if(CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC) != SavingThrowResult.Failure)
         target.RemoveEffect(eventData.Effect);
 
       return ScriptHandleResult.Handled;

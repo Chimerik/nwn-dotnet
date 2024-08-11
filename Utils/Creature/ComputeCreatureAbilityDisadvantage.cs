@@ -34,6 +34,13 @@ namespace NWN.Systems
             LogUtils.LogMessage("Désavantage - Fracassement vs Créature Artificielle", LogUtils.LogType.Combat);
             return true;
           }
+
+          if(caster.ActiveEffects.Any(e => e.Tag == EffectSystem.MetamagieEffectTag && e.IntParams[5] == CustomSkill.EnsoIntensification))
+          {
+            LogUtils.LogMessage("Désavantage - Métamagie : Intensification", LogUtils.LogType.Combat);
+            EffectUtils.RemoveTaggedParamEffect(caster, CustomSkill.EnsoIntensification, EffectSystem.MetamagieEffectTag);
+            return true;
+          }
         }
       }
 
@@ -139,6 +146,19 @@ namespace NWN.Systems
 
             break;
         }
+      }
+
+      switch(effectType)
+      {
+        case SpellEffectType.Concentration:
+
+          if (oCaster is NwCreature attacker && attacker.KnowsFeat((Feat)CustomSkill.TueurDeMage))
+          {
+            LogUtils.LogMessage("Désavantage - Concentration vs Tueur de Mage", LogUtils.LogType.Combat);
+            return true;
+          }
+
+          break;
       }
 
       return false;

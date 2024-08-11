@@ -15,7 +15,7 @@ namespace NWN.Systems
 
       oTarget.VisualTransform.Lerp(new VisualTransformLerpSettings { LerpType = VisualTransformLerpType.EaseIn, Duration = TimeSpan.FromSeconds(2), PauseWithGame = true }, transform => { transform.Scale = oTarget.GetObjectVariable<PersistentVariableFloat>(CreatureUtils.OriginalSizeVariable).Value * 2; });
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpImproveAbilityScore));
-      oTarget.ApplyEffect(EffectDuration.Temporary, EffectSystem.enlargeEffect, NwTimeSpan.FromRounds(spellEntry.duration));
+      oTarget.ApplyEffect(EffectDuration.Temporary, EffectSystem.enlargeEffect, SpellUtils.GetSpellDuration(oCaster, spellEntry));
 
       return new List<NwGameObject>() { oTarget };
     }

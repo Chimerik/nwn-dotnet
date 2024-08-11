@@ -14,20 +14,13 @@ namespace NWN.Systems
         return targetList;
 
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
-
-      SpellConfig.SavingThrowFeedback feedback = new();
       int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, casterClass.SpellCastingAbility);
-      int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid, oCaster);
-      int totalSave = SpellUtils.GetSavingThrowRoll(target, spellEntry.savingThrowAbility, spellDC, advantage, feedback, true);
-      bool saveFailed = totalSave < spellDC;
 
-      SpellUtils.SendSavingThrowFeedbackMessage(oCaster, target, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);
-
-      if (saveFailed)
+      if (CreatureUtils.GetSavingThrow(oCaster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
       {
         targetList.Add(oTarget);
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpReduceAbilityScore));
-        NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.MaledictionAttaque, NwTimeSpan.FromRounds(spellEntry.duration)));
+        NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.MaledictionAttaque, SpellUtils.GetSpellDuration(oCaster, spellEntry)));
       }
 
       return targetList;

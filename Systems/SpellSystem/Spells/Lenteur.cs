@@ -19,10 +19,10 @@ namespace NWN.Systems
       foreach (var target in targetLocation.GetObjectsInShapeByType<NwCreature>(Shape.Cube, spellEntry.aoESize, false))
       {
         if (caster.Faction.GetMembers().Contains(target) 
-          || CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry))
+          || CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) != SavingThrowResult.Failure)
           continue;
 
-        target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Lenteur(castingClass.SpellCastingAbility), NwTimeSpan.FromRounds(spellEntry.duration));
+        target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Lenteur(castingClass.SpellCastingAbility), SpellUtils.GetSpellDuration(oCaster, spellEntry));
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSlow));
         concentrationTargets.Add(target);
       }

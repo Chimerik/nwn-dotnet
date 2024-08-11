@@ -20,7 +20,7 @@ namespace NWN.Systems
 
           int damage = NwRandom.Roll(Utils.random, 10, 2) + clercLevel;
 
-          if (!CreatureUtils.GetSavingThrow(caster, target, Ability.Constitution, spellDC))
+          if (CreatureUtils.GetSavingThrow(caster, target, Ability.Constitution, spellDC) == SavingThrowResult.Success)
             damage /= 2;
 
           target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpDivineStrikeHoly));

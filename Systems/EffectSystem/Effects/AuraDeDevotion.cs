@@ -11,11 +11,13 @@ namespace NWN.Systems
     public const string DevotionEffectTag = "_DEVOTION_EFFECT";
     private static ScriptCallbackHandle onEnterAuraDeDevotionCallback;
     private static ScriptCallbackHandle onExitAuraDeDevotionCallback;
-    public static Effect GetAuraDeDevotion(int paladinLevel)
+    public static Effect GetAuraDeDevotion(NwCreature caster, int paladinLevel)
     {
-      Effect eff = Effect.AreaOfEffect((PersistentVfxType)(paladinLevel < 18 ? 185 : 189), onEnterHandle: onEnterAuraDeDevotionCallback, onExitHandle: onExitAuraDeDevotionCallback);
+      Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurAuraSilence, fScale: paladinLevel < 18 ? 0.9f : 1.8f),
+        Effect.AreaOfEffect(PersistentVfxType.PerCustomAoe, onEnterHandle: onEnterAuraDeDevotionCallback, onExitHandle: onExitAuraDeDevotionCallback));
       eff.Tag = AuraDeDevotionEffectTag;
       eff.SubType = EffectSubType.Unyielding;
+      eff.Creator = caster;
       return eff;
     }
     private static ScriptHandleResult onEnterDevotionAura(CallInfo callInfo)

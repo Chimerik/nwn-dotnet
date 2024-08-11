@@ -15,7 +15,7 @@ namespace NWN.Systems
       {
         SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
 
-        NWScript.AssignCommand(oCaster, () => targetLocation.ApplyEffect(EffectDuration.Temporary, EffectSystem.TempeteDeNeige, NwTimeSpan.FromRounds(spellEntry.duration)));
+        NWScript.AssignCommand(oCaster, () => targetLocation.ApplyEffect(EffectDuration.Temporary, EffectSystem.TempeteDeNeige, SpellUtils.GetSpellDuration(oCaster, spellEntry)));
 
         var aoe = UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>();
         aoe.GetObjectVariable<LocalVariableInt>("_SPELL_CASTING_ABILITY").Value = (int)castingClass.SpellCastingAbility;

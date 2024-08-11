@@ -13,7 +13,7 @@ namespace NWN.Systems
       SpellUtils.SignalEventSpellCast(target, oCaster, spell.SpellType, false);
 
       EffectUtils.RemoveTaggedEffect(target, EffectSystem.ProtectionContreLaMortEffectTag);
-      NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.ProtectionContreLaMort, NwTimeSpan.FromRounds(spellEntry.duration)));
+      NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.ProtectionContreLaMort, SpellUtils.GetSpellDuration(oCaster, spellEntry)));
 
       target.OnDamaged -= SpellEvent.OnDamagedProtectionContreLaMort;
       target.OnDamaged += SpellEvent.OnDamagedProtectionContreLaMort;

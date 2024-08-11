@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using Anvil.API;
-using Anvil.API.Events;
 using NWN.Core;
 
 namespace NWN.Systems
@@ -31,23 +30,16 @@ namespace NWN.Systems
         if(target == caster)
           continue;
 
-        int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid, caster);
-
-        if (advantage < -900)
-          continue;
-
-        int totalSave = SpellUtils.GetSavingThrowRoll(target, spellEntry.savingThrowAbility, spellDC, advantage, feedback);
-        bool saveFailed = totalSave < spellDC;
-
         int weaponDamage = NativeUtils.HandleWeaponDamageRerolls(caster, weapon, weapon.NumDamageDice, weapon.DieToRoll);
         int bonusDamage = NwRandom.Roll(Utils.random, 6, nbDice);
         int damage = weaponDamage + bonusDamage + dexDamage;
-        damage = ItemUtils.GetShieldMasterReducedDamage(target, damage, saveFailed, spellEntry.savingThrowAbility);
-        damage /= saveFailed ? 2 : 1;
+        SavingThrowResult saveResult = CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry);
+
+        damage = ItemUtils.GetShieldMasterReducedDamage(target, damage, saveResult, spellEntry.savingThrowAbility);
+        damage /= saveResult == SavingThrowResult.Failure ? 2 : 1;
 
         NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, Effect.Damage(damage, DamageType.Piercing)));
 
-        SpellUtils.SendSavingThrowFeedbackMessage(caster, target, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);
         LogUtils.LogMessage($"{target.Name}: {weapon.NumDamageDice}d{weapon.DieToRoll} + {dexDamage} + {nbDice}d6 ({weaponDamage} + {dexDamage} + {bonusDamage}) = {damage}", LogUtils.LogType.Combat);
       }
 

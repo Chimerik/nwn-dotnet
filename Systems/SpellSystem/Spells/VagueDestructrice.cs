@@ -8,7 +8,6 @@ namespace NWN.Systems
     public static void VagueDestructrice(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwClass casterClass)
     {     
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
-      SpellConfig.SavingThrowFeedback feedback = new();
       int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, casterClass.SpellCastingAbility);
 
       oCaster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfHowlOdd));
@@ -18,19 +17,12 @@ namespace NWN.Systems
         if (oCaster is NwCreature casterCreature && !casterCreature.IsReactionTypeHostile(target))
           continue;
 
-        int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid, oCaster, spell.GetSpellLevelForClass(casterClass.ClassType));
+        SavingThrowResult saveResult = CreatureUtils.GetSavingThrow(oCaster, target, spellEntry.savingThrowAbility, spellDC, spellEntry);
 
-        if (advantage < -900)
-          continue;
-
-        int totalSave = SpellUtils.GetSavingThrowRoll(target, spellEntry.savingThrowAbility, spellDC, advantage, feedback, true);
-        bool saveFailed = totalSave < spellDC;
-
-        if (saveFailed)
+        if (saveResult == SavingThrowResult.Failure)
           target.ApplyEffect(EffectDuration.Temporary, Effect.Knockdown(), NwTimeSpan.FromRounds(1));
 
-        SpellUtils.SendSavingThrowFeedbackMessage(oCaster, target, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);
-        SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(oCaster, spell), oCaster, spell.GetSpellLevelForClass(casterClass), saveFailed);
+        SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(oCaster, spell), oCaster, spell.GetSpellLevelForClass(casterClass), saveResult);
       }
     }
   }

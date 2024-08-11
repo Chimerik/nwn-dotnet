@@ -33,16 +33,9 @@ namespace NWN.Systems
         if (target.HP < 1 || !source.IsEnemy(target) || !source.IsCreatureSeen(target))
           continue;
 
-        SpellConfig.SavingThrowFeedback feedback = new();
-        int spellDC = 8 + source.GetAbilityModifier(Ability.Constitution) + NativeUtils.GetCreatureProficiencyBonus(source);
+        int spellDC = SpellConfig.BaseSpellDC + source.GetAbilityModifier(Ability.Constitution) + NativeUtils.GetCreatureProficiencyBonus(source);
 
-        int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, Ability.Constitution);
-        int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Constitution, spellDC, advantage, feedback);
-        bool saveFailed = totalSave < spellDC;
-
-        SpellUtils.SendSavingThrowFeedbackMessage(source, target, feedback, advantage, spellDC, totalSave, saveFailed, Ability.Constitution);
-
-        if(saveFailed)
+        if(CreatureUtils.GetSavingThrow(source, target, Ability.Constitution, spellDC) == SavingThrowResult.Failure)
         {
           target.ApplyEffect(EffectDuration.Instant, Effect.Damage(NwRandom.Roll(Utils.random, 6), DamageType.Positive));
           target.ApplyEffect(EffectDuration.Temporary, Effect.Blindness(), NwTimeSpan.FromRounds(1));

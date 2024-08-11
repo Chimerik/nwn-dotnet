@@ -20,6 +20,9 @@ namespace NWN.Systems
       NwPlayer oPC = HandlePlayerConnect.Player;
       LogUtils.LogMessage($"{oPC.PlayerName} vient de connecter {oPC.LoginCreature.Name} ({NwModule.Instance.PlayerCount} joueurs)", LogUtils.LogType.PlayerConnections);
 
+      //oPC.LoginCreature.ApplyEffect(EffectDuration.Permanent, Effect.VisualEffect(VfxType.ImpAuraHoly, fScale:2));
+      //oPC.LoginCreature.ApplyEffect(EffectDuration.Permanent, Effect.AreaOfEffect((PersistentVfxType)61));
+
       if (!Players.TryGetValue(oPC.LoginCreature, out Player player))
         player = new Player(oPC, areaSystem, spellSystem, feedbackService, scheduler, eventService);
       else
@@ -493,6 +496,7 @@ namespace NWN.Systems
         ApplyVengeurImplacable();
         ApplyAvatarDeBataille();
         ApplyElectrocution();
+        ApplyRetablissementSorcier();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

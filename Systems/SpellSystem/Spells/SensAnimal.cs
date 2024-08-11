@@ -25,7 +25,7 @@ namespace NWN.Systems
 
           caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(spellEntry.damageVFX));
           target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(spellEntry.damageVFX));
-          caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.sensAnimalEffect, NwTimeSpan.FromRounds(spellEntry.duration));
+          caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.sensAnimalEffect, SpellUtils.GetSpellDuration(oCaster, spellEntry));
           concentrationTargets.Add(caster);
         }
       }

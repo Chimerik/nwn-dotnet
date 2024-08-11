@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using Anvil.API;
-using NWN.Core;
-using static NWN.Systems.PlayerSystem;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -14,7 +13,10 @@ namespace NWN.Systems
         if (learnableSkills.TryGetValue(CustomSkill.ChanceDebordante, out var protection) && protection.currentLevel > 0)
         {
           if (!oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.ChanceDebordanteAuraEffectTag))
-            NWScript.AssignCommand(oid.LoginCreature, () => oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.chanceDebordanteAura));
+          {
+            oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.chanceDebordanteAura(oid.LoginCreature));
+            UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>().SetRadius(10);
+          }
         }
       }
     }

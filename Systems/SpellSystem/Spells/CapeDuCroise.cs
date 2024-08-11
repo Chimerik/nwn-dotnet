@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Anvil.API;
-using NWN.Core;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -9,8 +9,13 @@ namespace NWN.Systems
     public static List<NwGameObject> CapeDuCroise(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry)
     {
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
-      NWScript.AssignCommand(oCaster, () => oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.CapeDuCroiseAura, NwTimeSpan.FromRounds(spellEntry.duration)));
-      
+
+      if (oCaster is NwCreature caster)
+      {
+        oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.CapeDuCroiseAura(caster), SpellUtils.GetSpellDuration(oCaster, spellEntry));
+        UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>().SetRadius(9);
+      }
+
       return new List<NwGameObject>() { oCaster };
     }
   }

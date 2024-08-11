@@ -14,12 +14,12 @@ namespace NWN.Systems
 
         switch(NwSpell.FromSpellId(spellEntry.RowIndex).SpellType)
         {
-          case Spell.Light: SpellSystem.ApplyLightEffect(oCaster, target); return true;
+          case Spell.Light: SpellSystem.ApplyLightEffect(oCaster, target, spellEntry); return true;
         }
 
         switch (NwSpell.FromSpellId(spellEntry.RowIndex).Id)
         {
-          case CustomSpell.FaerieFire: SpellSystem.ApplyFaerieFireEffect(target, spellEntry); return true;
+          case CustomSpell.FaerieFire: SpellSystem.ApplyFaerieFireEffect(oCaster, target, spellEntry); return true;
           case CustomSpell.AnciensCourrouxDeLaNature: NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.CourrouxDeLaNature, NwTimeSpan.FromRounds(10))); return true;
           case CustomSpell.FrappePiegeuse: NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.FrappePiegeuse, NwTimeSpan.FromRounds(10))); return true;
           case CustomSpell.TempeteDeNeige: NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, Effect.Knockdown(), NwTimeSpan.FromRounds(2))); return true;

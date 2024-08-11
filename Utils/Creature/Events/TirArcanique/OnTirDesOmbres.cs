@@ -16,15 +16,9 @@ namespace NWN.Systems
 
       if (onDamage.Target is NwCreature target)
       {
-        SpellConfig.SavingThrowFeedback feedback = new();
-        int tirDC = 8 + NativeUtils.GetCreatureProficiencyBonus(onDamage.Attacker) + onDamage.Attacker.GetAbilityModifier(Ability.Intelligence);
-        int advantage = GetCreatureAbilityAdvantage(target, Ability.Wisdom);
-        int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Wisdom, tirDC, advantage, feedback);
-        bool saveFailed = totalSave < tirDC;
-
-        SpellUtils.SendSavingThrowFeedbackMessage(onDamage.Attacker, target, feedback, advantage, tirDC, totalSave, saveFailed, Ability.Wisdom);
-
-        if (saveFailed)
+        int tirDC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(onDamage.Attacker) + onDamage.Attacker.GetAbilityModifier(Ability.Intelligence);
+        
+        if (GetSavingThrow(onDamage.Attacker, target, Ability.Wisdom, tirDC) == SavingThrowResult.Failure)
           NWScript.AssignCommand(onDamage.Attacker, () => target.ApplyEffect(EffectDuration.Temporary,
             Effect.Blindness(), NwTimeSpan.FromRounds(1)));
       }

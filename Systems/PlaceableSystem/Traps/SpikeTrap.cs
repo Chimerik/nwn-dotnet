@@ -21,15 +21,15 @@ namespace NWN.Systems
 
       int totalSave = SpellUtils.GetSavingThrowRoll(creature, Ability.Dexterity, entry.baseDC, advantage, feedback);
       int damage = NwRandom.Roll(Utils.random, entry.damageDice, entry.numDice); // TODO : Variabiliser les dégâts selon la compétence de l'artisan
-      bool saveFailed = totalSave < entry.baseDC; // TODO : Variabiliser le DD selon la compétence de celui qui a posé le piège
+      SavingThrowResult saveResult = (SavingThrowResult)(totalSave >= entry.baseDC).ToInt(); // TODO : Variabiliser le DD selon la compétence de celui qui a posé le piège
 
       LogUtils.LogMessage($"Dégâts initiaux : {damage}", LogUtils.LogType.Combat);
 
-      damage = SpellUtils.HandleSpellEvasion(creature, damage, Ability.Dexterity, saveFailed);
-      damage = ItemUtils.GetShieldMasterReducedDamage(creature, damage, saveFailed);
+      damage = SpellUtils.HandleSpellEvasion(creature, damage, Ability.Dexterity, saveResult);
+      damage = ItemUtils.GetShieldMasterReducedDamage(creature, damage, saveResult);
       damage = TrapUtils.GetKeenSenseDamageReduction(creature, damage);
 
-      TrapUtils.SendSavingThrowFeedbackMessage(creature, feedback.saveRoll, feedback.proficiencyBonus, advantage, entry.baseDC, totalSave, saveFailed, Ability.Dexterity);
+      TrapUtils.SendSavingThrowFeedbackMessage(creature, feedback.saveRoll, feedback.proficiencyBonus, advantage, entry.baseDC, totalSave, saveResult, Ability.Dexterity);
 
       creature.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(entry.damageVFX));
       NWScript.AssignCommand(trap, () => creature.ApplyEffect(EffectDuration.Instant, Effect.Damage(damage, entry.damageType)));

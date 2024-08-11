@@ -12,9 +12,9 @@ namespace NWN.Systems
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
       int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, castingClass.SpellCastingAbility);
 
-      if(CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry))
+      if(CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
       {
-        target.ApplyEffect(EffectDuration.Temporary, Effect.Knockdown(), NwTimeSpan.FromRounds(spellEntry.duration));
+        target.ApplyEffect(EffectDuration.Temporary, Effect.Knockdown(), SpellUtils.GetSpellDuration(oCaster, spellEntry));
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpKnock));
       }
     }

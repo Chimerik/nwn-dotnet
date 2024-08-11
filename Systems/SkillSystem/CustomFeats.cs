@@ -415,6 +415,24 @@
     public const int MonkIncantationElementaire = 1674;
 
     public const int Sportif = 1675;
+    public const int MonkUnarmoredSpeed = 1676;
+
+    public const int SorcellerieInnee = 1677;
+    public const int EnsoPrudence = 1678;
+    public const int EnsoAllonge = 1679;
+    public const int EnsoExtension = 1680;
+    public const int EnsoAmplification = 1681;
+    public const int EnsoGemellite = 1682;
+    public const int EnsoIntensification = 1683;
+    public const int EnsoAcceleration = 1684;
+    public const int EnsoGuidage = 1685;
+    public const int EnsoSubtilite = 1686;
+    public const int EnsoTransmutation = 1687;
+    public const int SorcellerieIncarnee = 1688;
+    public const int EnsoSourceToSlot = 1689;
+    public const int EnsoSlotToSource = 1690;
+    public const int RetablissementSorcier = 1691;
+    public const int EnsoApotheose = 1692;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -901,13 +919,9 @@
 
     public const int Monk = 20539;
     public const int MonkUnarmoredDefence = 20540;
-    public const int MonkUnarmoredSpeed = 20541;
 
-    public const int MonkPaume = 20542;
-    
-
+    public const int MonkPaume = 20542;  
     public const int MonkOmbre = 20544;
-
     public const int MonkElements = 20545;
 
     public const int Wizard = 20546;
@@ -992,7 +1006,8 @@
     public const int ClercSavoir = 20615;
     public const int ClercTempete = 20616;
     public const int ClercVie = 20617;
-    
+
+    public const int Ensorceleur = 20618;
 
 
     public const int Invalid = 65535;

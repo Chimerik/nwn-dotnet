@@ -69,11 +69,6 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("spellSelection", out var spell1)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Cleric, 3, 0));
           else ((SpellSelectionWindow)spell1).CreateWindow(ClassType.Cleric, 3, 0);
 
-          /*player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value = CustomSkill.Clerc;
-
-          if (!player.windows.TryGetValue("subClassSelection", out var value)) player.windows.Add("subClassSelection", new SubClassSelectionWindow(player));
-          else ((SubClassSelectionWindow)value).CreateWindow();*/
-
           break;
 
         case 2:
@@ -82,6 +77,15 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.ClercRenvoiDesMortsVivants].LevelUp(player);
           player.learnableSkills[CustomSkill.ClercRenvoiDesMortsVivants].source.Add(Category.Class);
           
+          break;
+
+        case 3:
+
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value = CustomSkill.Clerc;
+
+          if (!player.windows.TryGetValue("subClassSelection", out var value)) player.windows.Add("subClassSelection", new SubClassSelectionWindow(player));
+          else ((SubClassSelectionWindow)value).CreateWindow();
+
           break;
 
         case 4:

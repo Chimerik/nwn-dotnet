@@ -63,33 +63,14 @@ namespace NWN.Systems
     }
     private static void TempeteDeNeigeKnockDown(NwCreature caster, NwCreature entering, SpellEntry spellEntry, int spellDC)
     {
-      SpellConfig.SavingThrowFeedback feedback = new();
-      
-      int advantage = CreatureUtils.GetCreatureAbilityAdvantage(entering, Ability.Dexterity, spellEntry, SpellConfig.SpellEffectType.Knockdown, caster, 3);
-
-      if (advantage < -900)
-        return;
-
-      int totalSave = SpellUtils.GetSavingThrowRoll(entering, spellEntry.savingThrowAbility, spellDC, advantage, feedback, true);
-      bool saveFailed = totalSave < spellDC;
-
-      SpellUtils.SendSavingThrowFeedbackMessage(caster, entering, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);
-
-      if (saveFailed)
-        entering.ApplyEffect(EffectDuration.Temporary, Effect.Knockdown(), NwTimeSpan.FromRounds(2));
+      if (CreatureUtils.GetSavingThrow(caster, entering, spellEntry.savingThrowAbility, spellDC, spellEntry, SpellConfig.SpellEffectType.Knockdown) == SavingThrowResult.Failure)
+        EffectSystem.ApplyKnockdown(entering, CreatureSize.Large, 2);
     }
     private static void TempeteDeNeigeConcentration(NwCreature caster, NwCreature entering, SpellEntry spellEntry, int spellDC)
     {
       if (entering.ActiveEffects.Any(e => e.Tag == ConcentrationEffectTag))
       {
-        SpellConfig.SavingThrowFeedback feedback = new();
-        int advantage = CreatureUtils.GetCreatureAbilityAdvantage(entering, Ability.Constitution, spellEntry, SpellConfig.SpellEffectType.Invalid, caster);
-        int totalSave = SpellUtils.GetSavingThrowRoll(entering, spellEntry.savingThrowAbility, spellDC, advantage, feedback, true);
-        bool saveFailed = totalSave < spellDC;
-
-        SpellUtils.SendSavingThrowFeedbackMessage(caster, entering, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);
-
-        if (saveFailed)
+        if (CreatureUtils.GetSavingThrow(caster, entering, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
           SpellUtils.DispelConcentrationEffects(entering);
       }
     }

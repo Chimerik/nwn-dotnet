@@ -26,7 +26,7 @@ namespace NWN.Systems
             creature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSoundBurst));
             int damage = NwRandom.Roll(Utils.random, 6, 3);
 
-            if (!CreatureUtils.GetSavingThrow(caster, creature, Ability.Dexterity, DC))
+            if (CreatureUtils.GetSavingThrow(caster, creature, Ability.Dexterity, DC) != SavingThrowResult.Failure)
               damage /= 2;
 
             creature.ApplyEffect(EffectDuration.Instant, Effect.Damage(damage));
@@ -39,7 +39,7 @@ namespace NWN.Systems
               
               damage = NwRandom.Roll(Utils.random, 6, 3);
 
-              if (!CreatureUtils.GetSavingThrow(caster, target, Ability.Dexterity, DC))
+              if (CreatureUtils.GetSavingThrow(caster, target, Ability.Dexterity, DC) != SavingThrowResult.Failure)
                 damage /= 2;
 
               target.ApplyEffect(EffectDuration.Instant, Effect.Damage(damage));

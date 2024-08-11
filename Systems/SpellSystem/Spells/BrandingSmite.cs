@@ -14,7 +14,7 @@ namespace NWN.Systems
       StringUtils.ForceBroadcastSpellCasting(caster, spell);
       caster.Location.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(VfxType.ImpPulseHoly), Effect.VisualEffect(VfxType.ImpDivineStrikeHoly)));
 
-      NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.brandingSmiteAttack, NwTimeSpan.FromRounds(spellEntry.duration)));
+      NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.brandingSmiteAttack, SpellUtils.GetSpellDuration(oCaster, spellEntry)));
 
       caster.OnCreatureAttack -= CreatureUtils.OnAttackBrandingSmite;
       caster.OnCreatureAttack += CreatureUtils.OnAttackBrandingSmite;

@@ -14,15 +14,9 @@ namespace NWN.Systems
 
       if (onDamage.Target is NwCreature target)
       {
-        SpellConfig.SavingThrowFeedback feedback = new();
-        int tirDC = 8 + NativeUtils.GetCreatureProficiencyBonus(onDamage.Attacker) + onDamage.Attacker.GetAbilityModifier(Ability.Intelligence);
-        int advantage = GetCreatureAbilityAdvantage(target, Ability.Constitution);
-        int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Constitution, tirDC, advantage, feedback);
-        bool saveFailed = totalSave < tirDC;
+        int tirDC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(onDamage.Attacker) + onDamage.Attacker.GetAbilityModifier(Ability.Intelligence);
 
-        SpellUtils.SendSavingThrowFeedbackMessage(onDamage.Attacker, target, feedback, advantage, tirDC, totalSave, saveFailed, Ability.Constitution);
-
-        if (saveFailed)
+        if (GetSavingThrow(onDamage.Attacker, target, Ability.Constitution, tirDC) == SavingThrowResult.Failure)
         {
           target.GetObjectVariable<LocalVariableInt>(TirAffaiblissantVariable).Value = 1;
 

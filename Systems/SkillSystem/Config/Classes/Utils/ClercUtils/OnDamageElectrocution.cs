@@ -13,7 +13,7 @@ namespace NWN.Systems
 
       int DC = SpellUtils.GetCasterSpellDC(caster, Ability.Wisdom);
 
-      if (CreatureUtils.GetSavingThrow(caster, target, Ability.Constitution, DC))
+      if (CreatureUtils.GetSavingThrow(caster, target, Ability.Constitution, DC) == SavingThrowResult.Failure)
       {
         EffectSystem.ApplyKnockdown(target, CreatureSize.Large, 1);
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSonic));

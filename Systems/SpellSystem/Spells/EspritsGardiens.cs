@@ -12,7 +12,7 @@ namespace NWN.Systems
     public static List<NwGameObject> EspritsGardiens(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry)
     {
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
-      NWScript.AssignCommand(oCaster, () => oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.EspritsGardiens(spell.Id == CustomSpell.EspritsGardiensNecrotique ? CustomDamageType.Necrotic : DamageType.Divine), NwTimeSpan.FromRounds(spellEntry.duration)));
+      NWScript.AssignCommand(oCaster, () => oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.EspritsGardiens(spell.Id == CustomSpell.EspritsGardiensNecrotique ? CustomDamageType.Necrotic : DamageType.Divine), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
       
       return new List<NwGameObject>() { oCaster };
     }

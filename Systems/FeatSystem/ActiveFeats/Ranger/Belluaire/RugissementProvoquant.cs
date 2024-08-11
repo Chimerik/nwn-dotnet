@@ -25,16 +25,10 @@ namespace NWN.Systems
           {
             if(companion.IsReactionTypeHostile(target))
             {
-              SpellConfig.SavingThrowFeedback feedback = new();
-              int DC = 8 + NativeUtils.GetCreatureProficiencyBonus(caster) + caster.GetAbilityModifier(Ability.Wisdom);
-              int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, Ability.Wisdom);
-              int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Wisdom, DC, advantage, feedback);
-              bool saveFailed = totalSave < DC;
+              int DC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(caster) + caster.GetAbilityModifier(Ability.Wisdom);
 
-              if (saveFailed)
+              if (CreatureUtils.GetSavingThrow(companion, target, Ability.Wisdom, DC) == SavingThrowResult.Failure)
                 NWScript.AssignCommand(companion, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.provocation, NwTimeSpan.FromRounds(2)));
-
-              TrapUtils.SendSavingThrowFeedbackMessage(target, feedback.saveRoll, feedback.proficiencyBonus, advantage, DC, totalSave, saveFailed, Ability.Wisdom);
             }
           }
         }

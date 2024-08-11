@@ -49,7 +49,7 @@ namespace NWN.Systems
           if (entering != caster)
           {
             SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.FleauDinsectes];
-            int spellDC = SpellUtils.GetCasterSpellDC(caster, (Ability)caster.GetObjectVariable<LocalVariableInt>($"_SPELL_CASTING_ABILITY_{eventData.Effect.Spell.Id}").Value);
+            int spellDC = SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellType(Spell.GustOfWind),(Ability)caster.GetObjectVariable<LocalVariableInt>($"_SPELL_CASTING_ABILITY_{eventData.Effect.Spell.Id}").Value);
             BourrasqueKnockdown(caster, entering, spellEntry, spellDC);
           }
         }
@@ -70,7 +70,7 @@ namespace NWN.Systems
       }
 
       SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.FleauDinsectes];
-      int spellDC = SpellUtils.GetCasterSpellDC(caster, (Ability)caster.GetObjectVariable<LocalVariableInt>($"_SPELL_CASTING_ABILITY_{eventData.Effect.Spell.Id}").Value);
+      int spellDC = SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellType(Spell.GustOfWind), (Ability)caster.GetObjectVariable<LocalVariableInt>($"_SPELL_CASTING_ABILITY_{eventData.Effect.Spell.Id}").Value);
 
       foreach(NwCreature entering in eventData.Effect.GetObjectsInEffectArea<NwCreature>()) 
       {
@@ -94,15 +94,7 @@ namespace NWN.Systems
     }
     private static void BourrasqueKnockdown(NwCreature caster, NwCreature entering, SpellEntry spellEntry, int spellDC)
     {
-      SpellConfig.SavingThrowFeedback feedback = new();
-
-      int advantage = CreatureUtils.GetCreatureAbilityAdvantage(entering, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Knockdown, caster);
-      int totalSave = SpellUtils.GetSavingThrowRoll(entering, spellEntry.savingThrowAbility, spellDC, advantage, feedback, true);
-      bool saveFailed = totalSave < spellDC;
-
-      SpellUtils.SendSavingThrowFeedbackMessage(caster, entering, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);
-
-      if (saveFailed)
+      if (CreatureUtils.GetSavingThrow(caster, entering, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
       {
         ApplyKnockdown(entering, CreatureSize.Large, 2);
         entering.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPulseWind));

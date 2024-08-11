@@ -37,10 +37,10 @@ namespace NWN.Systems
       {
         if (targetObject is NwCreature target && target.Race.RacialType == RacialType.Animal && target.Master is null 
           && caster.IsReactionTypeHostile(target) && !EffectSystem.IsCharmeImmune(caster, target)
-          && CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, DC, spellEntry))
+          && CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, DC, spellEntry) == SavingThrowResult.Failure)
         {
           target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadMind));
-          NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, Effect.Pacified(), NwTimeSpan.FromRounds(spellEntry.duration)));
+          NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, Effect.Pacified(), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
         }
       }
     }

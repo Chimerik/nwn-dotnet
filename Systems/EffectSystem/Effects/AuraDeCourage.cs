@@ -11,15 +11,14 @@ namespace NWN.Systems
     public const string CourageEffectTag = "_COURAGE_EFFECT";
     private static ScriptCallbackHandle onEnterAuraDeCourageCallback;
     private static ScriptCallbackHandle onExitAuraDeCourageCallback;
-    public static Effect AuraDeCourage
+    public static Effect AuraDeCourage(NwCreature caster, int paladinLevel)
     {
-      get
-      {
-        Effect eff = Effect.AreaOfEffect((PersistentVfxType)185, onEnterHandle: onEnterAuraDeCourageCallback, onExitHandle: onExitAuraDeCourageCallback);
-        eff.Tag = AuraDeCourageEffectTag;
-        eff.SubType = EffectSubType.Unyielding;
-        return eff;
-      }
+      Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.ImpAuraHoly, fScale: paladinLevel < 18 ? 1 : 2), 
+        Effect.AreaOfEffect(PersistentVfxType.PerCustomAoe, onEnterHandle: onEnterAuraDeCourageCallback, onExitHandle: onExitAuraDeCourageCallback));
+      eff.Tag = AuraDeCourageEffectTag;
+      eff.SubType = EffectSubType.Unyielding;
+      eff.Creator = caster;
+      return eff;
     }
     public static Effect Courage
     {

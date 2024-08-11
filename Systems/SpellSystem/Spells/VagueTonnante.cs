@@ -32,10 +32,10 @@ namespace NWN.Systems
         if (evocateur && oCaster is NwCreature casterCreature && !casterCreature.IsReactionTypeHostile(target))
           continue;
 
-        bool saveFailed = CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC);
-        SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, damageDice, oCaster, 1, saveFailed);
+        SavingThrowResult saveResult = CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC);
+        SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, damageDice, oCaster, 1, saveResult);
 
-        if (saveFailed)
+        if (saveResult == SavingThrowResult.Failure)
           EffectSystem.ApplyKnockdown(target, CreatureSize.Large, spellEntry.duration);
 
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadNature));

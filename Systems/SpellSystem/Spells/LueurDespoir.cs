@@ -18,7 +18,7 @@ namespace NWN.Systems
           if (target.IsReactionTypeHostile(caster))
             continue;
 
-          target.ApplyEffect(EffectDuration.Temporary, EffectSystem.LueurDespoir, NwTimeSpan.FromRounds(spellEntry.duration));
+          target.ApplyEffect(EffectDuration.Temporary, EffectSystem.LueurDespoir, SpellUtils.GetSpellDuration(oCaster, spellEntry));
           target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpGoodHelp));
           concentrationTargets.Add(target);
         }

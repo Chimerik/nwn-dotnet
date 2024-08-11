@@ -14,9 +14,9 @@ namespace NWN.Systems
 
       if (!EffectSystem.IsFrightImmune(target, caster))
       {
-        int DC = 8 + NativeUtils.GetCreatureProficiencyBonus(caster) + caster.GetAbilityModifier(Ability.Charisma);
+        int DC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(caster) + caster.GetAbilityModifier(Ability.Charisma);
 
-        if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, DC))
+        if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, DC) == SavingThrowResult.Failure)
         {
           target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpFearS));
           NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Effroi, NwTimeSpan.FromRounds(spellEntry.duration)));

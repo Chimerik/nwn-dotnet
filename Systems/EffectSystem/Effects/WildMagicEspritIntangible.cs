@@ -32,21 +32,12 @@ namespace NWN.Systems
         if (target.HP < 1 || !source.IsEnemy(target) || !source.IsCreatureSeen(target))
           continue;
 
-        SpellConfig.SavingThrowFeedback feedback = new();
-        int spellDC = 8 + source.GetAbilityModifier(Ability.Constitution) + NativeUtils.GetCreatureProficiencyBonus(source);
-
-        
+        int spellDC = SpellConfig.BaseSpellDC + source.GetAbilityModifier(Ability.Constitution) + NativeUtils.GetCreatureProficiencyBonus(source);
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfGasExplosionMind));
 
         foreach (var victims in source.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 2, false))
         {
-          int advantage = CreatureUtils.GetCreatureAbilityAdvantage(victims, Ability.Dexterity);
-          int totalSave = SpellUtils.GetSavingThrowRoll(victims, Ability.Dexterity, spellDC, advantage, feedback);
-          bool saveFailed = totalSave < spellDC;
-
-          SpellUtils.SendSavingThrowFeedbackMessage(source, victims, feedback, advantage, spellDC, totalSave, saveFailed, Ability.Dexterity);
-
-          if (saveFailed)
+          if (CreatureUtils.GetSavingThrow(source, victims, Ability.Dexterity, spellDC) == SavingThrowResult.Failure)
             victims.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(VfxType.ImpMagblue), 
               Effect.Damage(NwRandom.Roll(Utils.random, 6), DamageType.Magical)));
         }

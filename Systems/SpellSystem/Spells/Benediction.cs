@@ -53,8 +53,8 @@ namespace NWN.Systems
           {
             objectTargets.Add(targetObject);
             target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadHoly));
-            NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Benediction, NwTimeSpan.FromRounds(spellEntry.duration)));
-          }
+            NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Benediction, SpellUtils.GetSpellDuration(oCaster, spellEntry)));
+          } 
           else
             caster.LoginPlayer?.SendServerMessage($"{target.Name} n'est plus à portée", ColorConstants.Orange);
         }

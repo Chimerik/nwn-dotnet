@@ -16,23 +16,18 @@ namespace NWN.Systems
           || !attacker.ActiveEffects.Any(e => e.Tag == EffectSystem.AssassinateEffectTag))
         return;
 
-      SpellConfig.SavingThrowFeedback feedback = new();
-      int DC = 8 + attacker.GetAbilityModifier(Ability.Dexterity) + NativeUtils.GetCreatureProficiencyBonus(attacker);
-      int advantage = GetCreatureAbilityAdvantage(target, Ability.Constitution);
-      int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Constitution, DC, advantage, feedback);
-      bool saveFailed = totalSave < DC;
+      int DC = SpellConfig.BaseSpellDC + attacker.GetAbilityModifier(Ability.Dexterity) + NativeUtils.GetCreatureProficiencyBonus(attacker);
 
-      if (saveFailed)
+      StringUtils.DisplayStringToAllPlayersNearTarget(target, "Frappe Meurtrière", StringUtils.gold, true, true);
+      LogUtils.LogMessage($"{attacker.Name} - Frappe Meurtrière sur {target.Name}", LogUtils.LogType.Combat);
+
+      if (GetSavingThrow(attacker, target, Ability.Constitution, DC) == SavingThrowResult.Failure)
       {
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComBloodSparkMedium));
         var damage = onDmg.DamageData.GetDamageByType(DamageType.BaseWeapon) * 2;
         onDmg.DamageData.SetDamageByType(DamageType.BaseWeapon, damage);
         LogUtils.LogMessage($"Frappe meutrière : Dégâts {damage}", LogUtils.LogType.Combat);
       }
-
-      StringUtils.DisplayStringToAllPlayersNearTarget(target, "Frappe Meurtrière", StringUtils.gold, true, true);
-      LogUtils.LogMessage($"{attacker.Name} - Frappe Meurtrière sur {target.Name}", LogUtils.LogType.Combat);
-      SpellUtils.SendSavingThrowFeedbackMessage(attacker, target, feedback, advantage, DC, totalSave, saveFailed, Ability.Constitution);
     }
   }
 }

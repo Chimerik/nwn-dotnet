@@ -10,7 +10,7 @@ namespace NWN.Systems
     public static List<NwGameObject> RayonDeLune(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject target)
     {
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
-      NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.RayonDeLuneAura, NwTimeSpan.FromRounds(10)));
+      NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.RayonDeLuneAura, SpellUtils.GetSpellDuration(oCaster, spellEntry)));
       
       return new List<NwGameObject>() { target };
     }

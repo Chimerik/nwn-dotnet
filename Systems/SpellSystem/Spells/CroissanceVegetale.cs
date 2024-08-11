@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Anvil.API;
-using NWN.Core;
 using NWN.Core.NWNX;
 
 namespace NWN.Systems
@@ -11,9 +10,11 @@ namespace NWN.Systems
     {
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
 
-      NWScript.AssignCommand(oCaster, () => targetLocation.ApplyEffect(EffectDuration.Temporary, EffectSystem.CroissanceVegetaleAoE, NwTimeSpan.FromRounds(spellEntry.duration)));
-    
-      return new List<NwGameObject>() { UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>() };
+      targetLocation.ApplyEffect(EffectDuration.Temporary, EffectSystem.CroissanceVegetaleAoE(oCaster), SpellUtils.GetSpellDuration(oCaster, spellEntry));
+      var aoe = UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>();
+      aoe.SetRadius(50);
+
+      return new List<NwGameObject>() { aoe };
     }
   }
 }

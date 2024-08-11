@@ -12,7 +12,7 @@ namespace NWN.Systems
     {
       if (caster.ActiveEffects.Any(e => e.Tag == EffectSystem.BarbarianRageEffectTag))
       {
-        caster.LoginPlayer?.EnterTargetMode(SelectStampedeTarget, Config.selectLocationTargetMode);
+        caster.LoginPlayer?.EnterTargetMode(SelectStampedeTarget, Config.LocationTargetMode(40, SpellTargetingShape.Rect, new Vector2() { X = 2, Y = 1 }, SpellTargetingFlags.HarmsEnemies | SpellTargetingFlags.HelpsAllies | SpellTargetingFlags.OriginOnSelf));
         caster.LoginPlayer?.SendServerMessage("Veuillez choisir une cible à plus de 9 m", ColorConstants.Orange);
       }
       else
@@ -40,7 +40,7 @@ namespace NWN.Systems
       Location target = Location.Create(selection.Player.LoginCreature.Area, selection.TargetPosition, selection.Player.LoginCreature.Rotation);
 
       _ = caster.ClearActionQueue();
-      _ = caster.AddActionToQueue(() => caster.ActionForceMoveTo(target, true));
+      _ = caster.AddActionToQueue(() => _ = caster.ActionForceMoveTo(target, true));
 
       NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.totemLienElanAura, NwTimeSpan.FromRounds(1)));
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Lien de l'Elan", ColorConstants.Red, true, true);

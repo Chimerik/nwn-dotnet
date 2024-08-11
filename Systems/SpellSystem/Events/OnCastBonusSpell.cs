@@ -11,7 +11,7 @@ namespace NWN.Systems
       SpellEntry spellEntry = Spells2da.spellTable[onSpellAction.Spell.Id];
       NwSpell spell = onSpellAction.Spell;
       NwCreature caster = onSpellAction.Caster;
-
+      
       if (SpellUtils.IsBonusActionSpell(caster, spell.Id, spellEntry))
       {
         if (!CreatureUtils.HandleBonusActionUse(caster))

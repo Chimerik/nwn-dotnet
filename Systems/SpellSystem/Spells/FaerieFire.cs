@@ -16,28 +16,18 @@ namespace NWN.Systems
 
       foreach (NwCreature target in targetLocation.GetObjectsInShapeByType<NwCreature>(Shape.Cube, spellEntry.aoESize, false))
       {
-        int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid, oCaster, spell.GetSpellLevelForClass(castingClass.ClassType));
-
-        if (advantage < -900)
-          continue;
-
-        int totalSave = SpellUtils.GetSavingThrowRoll(target, spellEntry.savingThrowAbility, spellDC, advantage, feedback, true);
-        bool saveFailed = totalSave < spellDC;
-
-        SpellUtils.SendSavingThrowFeedbackMessage(oCaster, target, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);
-
-        if (saveFailed)
+        if (CreatureUtils.GetSavingThrow(oCaster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
         {
-          ApplyFaerieFireEffect(target, spellEntry);
+          ApplyFaerieFireEffect(oCaster, target, spellEntry);
           targetList.Add(target);
         }
       }
 
       return targetList;
     }
-    public static void ApplyFaerieFireEffect(NwCreature target, SpellEntry spellEntry)
+    public static void ApplyFaerieFireEffect(NwGameObject oCaster, NwCreature target, SpellEntry spellEntry)
     {
-      target.ApplyEffect(EffectDuration.Temporary, EffectSystem.faerieFireEffect, NwTimeSpan.FromRounds(spellEntry.duration));
+      target.ApplyEffect(EffectDuration.Temporary, EffectSystem.faerieFireEffect, SpellUtils.GetSpellDuration(oCaster, spellEntry));
       target.OnEffectApply += EffectSystem.CheckFaerieFire;
 
       foreach (var eff in target.ActiveEffects)

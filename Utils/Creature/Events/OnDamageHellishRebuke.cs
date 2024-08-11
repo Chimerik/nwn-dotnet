@@ -36,18 +36,12 @@ namespace NWN.Systems
       }
 
       NwSpell spell = NwSpell.FromSpellId(CustomSpell.HellishRebuke);
-
       StringUtils.ForceBroadcastSpellCasting(onDamage.Creature, spell, target);
-
       SpellEntry spellEntry = Spells2da.spellTable[spell.Id];
-      SpellConfig.SavingThrowFeedback feedback = new();
       int spellDC = SpellUtils.GetCasterSpellDC(onDamage.Creature, spell, Ability.Charisma);
-      int advantage = GetCreatureAbilityAdvantage(target, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid, onDamage.Creature);
-      int totalSave = SpellUtils.GetSavingThrowRoll(onDamage.Creature, spellEntry.savingThrowAbility, spellDC, advantage, feedback, true);
-      bool saveFailed = totalSave < spellDC;
 
-      SpellUtils.SendSavingThrowFeedbackMessage(onDamage.Creature, target, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);
-      SpellUtils.DealSpellDamage(target, onDamage.Creature.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(onDamage.Creature, spell), onDamage.Creature, 1);
+      SpellUtils.DealSpellDamage(target, onDamage.Creature.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(onDamage.Creature, spell), onDamage.Creature, 1, 
+        GetSavingThrow(onDamage.Creature, target, spellEntry.savingThrowAbility, spellDC, spellEntry));
 
       onDamage.Creature.GetObjectVariable<LocalVariableInt>(ReactionVariable).Value -= 1;
       onDamage.Creature.DecrementRemainingFeatUses((Feat)CustomSkill.HellishRebuke);

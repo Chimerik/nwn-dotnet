@@ -10,8 +10,9 @@ namespace NWN.Systems
         return;
    
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
+      int spellDC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(caster.Master) + caster.GetAbilityModifier(Ability.Wisdom);
 
-      if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, 8 + NativeUtils.GetCreatureProficiencyBonus(caster.Master) + caster.GetAbilityModifier(Ability.Wisdom)))
+      if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC) == SavingThrowResult.Failure)
       {
         target.ApplyEffect(EffectDuration.Temporary, EffectSystem.MauvaisAugure, NwTimeSpan.FromRounds(2));
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPulseNegative));

@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.AreaOfEffect(PersistentVfxType.PerStorm);
+        Effect eff = Effect.AreaOfEffect((PersistentVfxType)61);
         eff.Tag = AppelDeLaFoudreEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

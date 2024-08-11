@@ -11,11 +11,13 @@ namespace NWN.Systems
     public const string GardeEffectTag = "_GARDE_EFFECT";
     private static ScriptCallbackHandle onEnterAuraDeGardeCallback;
     private static ScriptCallbackHandle onExitAuraDeGardeCallback;
-    public static Effect GetAuraDeGarde(int paladinLevel)
+    public static Effect AuraDeGarde(NwCreature caster, int paladinLevel)
     {
-      Effect eff = Effect.AreaOfEffect((PersistentVfxType)(paladinLevel < 18 ? 185 : 189), onEnterHandle: onEnterAuraDeGardeCallback, onExitHandle: onExitAuraDeGardeCallback);
+      Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.ImpAuraNegativeEnergy, fScale: paladinLevel < 18 ? 0.9f : 1.8f),
+        Effect.AreaOfEffect(PersistentVfxType.PerCustomAoe, onEnterHandle: onEnterAuraDeGardeCallback, onExitHandle: onExitAuraDeGardeCallback));
       eff.Tag = AuraDeGardeEffectTag;
       eff.SubType = EffectSubType.Unyielding;
+      eff.Creator = caster;
       return eff;
     }
     public static Effect Garde

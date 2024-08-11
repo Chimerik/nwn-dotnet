@@ -1,4 +1,5 @@
 ﻿using Anvil.API;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -7,6 +8,8 @@ namespace NWN.Systems
     private static void ChampionAntique(NwCreature caster)
     {
       caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetChampionAntiqueEffect(caster), NwTimeSpan.FromRounds(10));
+      UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>().SetRadius(3);
+
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSuperHeroism));
 
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} Champion Antique", StringUtils.gold, true, true);

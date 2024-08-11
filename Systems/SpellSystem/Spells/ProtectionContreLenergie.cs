@@ -9,7 +9,7 @@ namespace NWN.Systems
     public static List<NwGameObject> ProtectionContreLenergie(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject target)
     {
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
-      NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, Effect.DamageImmunityIncrease(spellEntry.damageType[0], 50), NwTimeSpan.FromRounds(spellEntry.duration)));
+      NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, Effect.DamageImmunityIncrease(spellEntry.damageType[0], 50), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
       
       return new List<NwGameObject>() { target };
     }

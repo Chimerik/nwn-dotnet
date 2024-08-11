@@ -46,20 +46,10 @@ namespace NWN.Systems
         return ScriptHandleResult.Handled;
       }
 
-      SpellConfig.SavingThrowFeedback feedback = new();
       int spellDC = SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellId(CustomSpell.FrappePiegeuse), Ability.Wisdom);
       SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.FrappePiegeuse];
-      int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid);
 
-      if (advantage < -900)
-        return ScriptHandleResult.Handled;
-
-      int totalSave = SpellUtils.GetSavingThrowRoll(target, spellEntry.savingThrowAbility, spellDC, advantage, feedback, true);
-      bool saveFailed = totalSave < spellDC;
-
-      SpellUtils.SendSavingThrowFeedbackMessage(caster, target, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);
-
-      if(saveFailed)
+      if(CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
         NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, 
           Effect.Damage(NwRandom.Roll(Utils.random, spellEntry.damageDice, spellEntry.numDice), DamageType.Piercing)));
       else

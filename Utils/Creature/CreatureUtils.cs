@@ -141,6 +141,8 @@ namespace NWN.Systems
     public const string AttaqueCoordonneCoolDownVariable = "_ATTAQUE_COORDONNEE_COOLDOWN";
     public static readonly CExoString AttaqueCoordonneCoolDownVariableExo = AttaqueCoordonneCoolDownVariable.ToExoString();
 
+    public const string EnsoApotheoseVariable = "_ENSO_APOTHEOSE";
+
     public const string FurieBestialeVariable = "_FURIE_BESTIALE";
     public static readonly CExoString FurieBestialeVariableExo = FurieBestialeVariable.ToExoString();
     public const string FurieBestialeCoolDownVariable = "_FURIE_BESTIALE_COOLDOWN";

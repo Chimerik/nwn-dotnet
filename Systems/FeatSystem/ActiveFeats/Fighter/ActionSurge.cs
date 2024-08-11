@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Numerics;
 using Anvil.API;
 using NWN.Core.NWNX;
@@ -20,9 +21,7 @@ namespace NWN.Systems
       FeatUtils.DecrementFeatUses(caster, CustomSkill.FighterSurge);
 
       if(caster.KnowsFeat((Feat)CustomSkill.EldritchKnightChargeArcanique))
-      {
-        caster.LoginPlayer?.EnterTargetMode(SelectDestination, Config.selectLocationTargetMode);
-      }
+        caster.LoginPlayer?.EnterTargetMode(SelectDestination, Config.LocationTargetMode(9, SpellTargetingShape.Sphere, new Vector2() { X = 1, Y = 1}));
 
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} utilise {"Fougue Martiale".ColorString(ColorConstants.White)}", ColorConstants.Orange, true);
     }

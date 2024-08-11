@@ -17,30 +17,20 @@ namespace NWN.Systems
         else
         {
           ItemUtils.RemoveMatchingItemProperties(item, ItemPropertyType.Light, EffectDuration.Temporary);
-          item.AddItemProperty(ItemProperty.Light(IPLightBrightness.Normal, IPLightColor.White), EffectDuration.Temporary, NwTimeSpan.FromHours(1));
+          item.AddItemProperty(ItemProperty.Light(IPLightBrightness.Normal, IPLightColor.White), EffectDuration.Temporary, SpellUtils.GetSpellDuration(oCaster, spellEntry));
         }
       }
       else if (oTarget is NwCreature targetCreature)
       {
         if (oCaster is NwCreature caster && targetCreature.IsReactionTypeHostile(caster))
         {
-          SpellConfig.SavingThrowFeedback feedback = new();
           int spellDC = SpellUtils.GetCasterSpellDC(caster, spell, casterClass.SpellCastingAbility);
-          int advantage = CreatureUtils.GetCreatureAbilityAdvantage(targetCreature, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid, oCaster, spell.GetSpellLevelForClass(casterClass.ClassType));
           
-          if (advantage < -900)
-          {
-            int totalSave = SpellUtils.GetSavingThrowRoll(targetCreature, spellEntry.savingThrowAbility, spellDC, advantage, feedback, true);
-            bool saveFailed = totalSave < spellDC;
-
-            SpellUtils.SendSavingThrowFeedbackMessage(oCaster, targetCreature, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);
-
-            if (saveFailed)
-              ApplyLightEffect(caster, targetCreature);
-          }
+          if (CreatureUtils.GetSavingThrow(oCaster, targetCreature, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
+            ApplyLightEffect(caster, targetCreature, spellEntry);
         }
         else
-          ApplyLightEffect(oCaster, targetCreature);
+          ApplyLightEffect(oCaster, targetCreature, spellEntry);
       }
 
       NwGameObject previousTarget = oCaster.GetObjectVariable<LocalVariableObject<NwGameObject>>("_PREVIOUS_LIGHT_TARGET").Value;
@@ -62,10 +52,10 @@ namespace NWN.Systems
         }
       }
     }
-    public static void ApplyLightEffect(NwGameObject caster, NwCreature target)
+    public static void ApplyLightEffect(NwGameObject caster, NwCreature target, SpellEntry spellEntry)
     {
       Effect eLink = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurLightWhite20));
-      NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, eLink, NwTimeSpan.FromHours(1)));
+      NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, eLink, SpellUtils.GetSpellDuration(caster, spellEntry)));
     }
   }
 }

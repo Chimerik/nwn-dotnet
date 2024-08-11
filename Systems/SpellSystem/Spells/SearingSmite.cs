@@ -14,7 +14,7 @@ namespace NWN.Systems
       StringUtils.ForceBroadcastSpellCasting(caster, spell);
       caster.Location.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(VfxType.ImpPulseFire), Effect.VisualEffect(VfxType.ImpFlameM)));
 
-      NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.searingSmiteAttack, NwTimeSpan.FromRounds(spellEntry.duration)));
+      NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.searingSmiteAttack, SpellUtils.GetSpellDuration(oCaster, spellEntry)));
 
       caster.OnCreatureAttack -= CreatureUtils.OnAttackSearingSmite;
       caster.OnCreatureAttack += CreatureUtils.OnAttackSearingSmite;

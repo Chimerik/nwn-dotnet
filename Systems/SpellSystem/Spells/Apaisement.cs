@@ -26,9 +26,9 @@ namespace NWN.Systems
           }
           else
           {
-            if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry))
+            if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
             {
-              target.ApplyEffect(EffectDuration.Temporary, Effect.Pacified(), NwTimeSpan.FromRounds(spellEntry.duration));
+              target.ApplyEffect(EffectDuration.Temporary, Effect.Pacified(), SpellUtils.GetSpellDuration(oCaster, spellEntry));
               concentrationList.Add(target);
             }
           }

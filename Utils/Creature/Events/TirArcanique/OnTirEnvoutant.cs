@@ -19,29 +19,19 @@ namespace NWN.Systems
 
       if (onDamage.Target is NwCreature target)
       {
-        bool saveFailed = false;
-
         if (!EffectSystem.IsCharmeImmune(onDamage.Attacker, target))
         {
-          SpellConfig.SavingThrowFeedback feedback = new();
-          int tirDC = 8 + NativeUtils.GetCreatureProficiencyBonus(onDamage.Attacker) + onDamage.Attacker.GetAbilityModifier(Ability.Intelligence);
-          int advantage = GetCreatureAbilityAdvantage(target, Ability.Wisdom, effectType: SpellConfig.SpellEffectType.Charm);
-          int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Wisdom, tirDC, advantage, feedback);
-          saveFailed = totalSave < tirDC;
+          int tirDC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(onDamage.Attacker) + onDamage.Attacker.GetAbilityModifier(Ability.Intelligence);
 
-          SpellUtils.SendSavingThrowFeedbackMessage(onDamage.Attacker, target, feedback, advantage, tirDC, totalSave, saveFailed, Ability.Wisdom);
-        }
-        else
-          onDamage.Attacker.LoginPlayer?.SendServerMessage($"{StringUtils.ToWhitecolor(target.Name)} est immunisé à votre effet de charme", ColorConstants.Orange);
-
-        if (saveFailed)
-        {
-          if (target.IsLoginPlayerCharacter)
-            NWScript.AssignCommand(onDamage.Attacker, () => target.ApplyEffect(EffectDuration.Temporary,
-              EffectSystem.Charme, NwTimeSpan.FromRounds(1)));
-          else
-            NWScript.AssignCommand(onDamage.Attacker, () => target.ApplyEffect(EffectDuration.Temporary,
-              Effect.LinkEffects(Effect.Confused(), Effect.VisualEffect(VfxType.DurMindAffectingDominated)), NwTimeSpan.FromRounds(1)));
+          if (GetSavingThrow(onDamage.Attacker, target, Ability.Wisdom, tirDC, effectType: SpellConfig.SpellEffectType.Charm) == SavingThrowResult.Failure)
+          {
+            if (target.IsLoginPlayerCharacter)
+              NWScript.AssignCommand(onDamage.Attacker, () => target.ApplyEffect(EffectDuration.Temporary,
+                EffectSystem.Charme, NwTimeSpan.FromRounds(1)));
+            else
+              NWScript.AssignCommand(onDamage.Attacker, () => target.ApplyEffect(EffectDuration.Temporary,
+                Effect.LinkEffects(Effect.Confused(), Effect.VisualEffect(VfxType.DurMindAffectingDominated)), NwTimeSpan.FromRounds(1)));
+          }
         }
       }
 

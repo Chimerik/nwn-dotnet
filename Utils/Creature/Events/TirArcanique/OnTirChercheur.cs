@@ -70,15 +70,9 @@ namespace NWN.Systems
 
       LogUtils.LogMessage($"Dégâts initiaux : {damage} perçant - {forceDamage} force ({nbDice}d6)", LogUtils.LogType.Combat);
 
-      SpellConfig.SavingThrowFeedback feedback = new();
-      int tirDC = 8 + NativeUtils.GetCreatureProficiencyBonus(caster) + caster.GetAbilityModifier(Ability.Intelligence);
-      int advantage = GetCreatureAbilityAdvantage(target, Ability.Dexterity);
-      int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Dexterity, tirDC, advantage, feedback);
-      bool saveFailed = totalSave < tirDC;
+      int tirDC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(caster) + caster.GetAbilityModifier(Ability.Intelligence);
 
-      SpellUtils.SendSavingThrowFeedbackMessage(caster, target, feedback, advantage, tirDC, totalSave, saveFailed, Ability.Dexterity);
-
-      if (!saveFailed)
+      if (GetSavingThrow(caster, target, Ability.Dexterity, tirDC) != SavingThrowResult.Failure)
       {
         damage /= 2;
         forceDamage /= 2;

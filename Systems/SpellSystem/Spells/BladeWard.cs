@@ -10,7 +10,7 @@ namespace NWN.Systems
 
       oCaster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpAcBonus));
       oCaster.ApplyEffect(EffectDuration.Temporary, Effect.LinkEffects(Effect.DamageImmunityIncrease(DamageType.Bludgeoning, 50), Effect.DamageImmunityIncrease(DamageType.Piercing, 50), 
-        Effect.DamageImmunityIncrease(DamageType.Slashing, 50)), NwTimeSpan.FromRounds(spellEntry.duration));
+        Effect.DamageImmunityIncrease(DamageType.Slashing, 50)), SpellUtils.GetSpellDuration(oCaster, spellEntry));
     }
   }
 }

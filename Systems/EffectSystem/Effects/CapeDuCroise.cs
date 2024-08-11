@@ -12,15 +12,14 @@ namespace NWN.Systems
     public const string CapeDuCroiseEffectTag = "_CAPE_DU_CROISE_EFFECT";
     private static ScriptCallbackHandle onEnterCapeDuCroiseCallback;
     private static ScriptCallbackHandle onExitCapeDuCroiseCallback;
-    public static Effect CapeDuCroiseAura
+    public static Effect CapeDuCroiseAura(NwCreature caster)
     {
-      get
-      {
-        Effect eff = Effect.LinkEffects(Effect.AreaOfEffect(PersistentVfxType.MobHorrificappearance, onEnterCapeDuCroiseCallback, onExitHandle: onExitCapeDuCroiseCallback));
-        eff.Tag = CapeDuCroiseAuraEffectTag;
-        eff.SubType = EffectSubType.Supernatural;
-        return eff;
-      }
+      Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurAuraSilence, fScale: 2),
+        Effect.LinkEffects(Effect.AreaOfEffect(PersistentVfxType.PerCustomAoe, onEnterCapeDuCroiseCallback, onExitHandle: onExitCapeDuCroiseCallback)));
+      eff.Tag = CapeDuCroiseAuraEffectTag;
+      eff.SubType = EffectSubType.Supernatural;
+      eff.Creator = caster;
+      return eff;
     }
     public static Effect CapeDuCroise
     {

@@ -32,16 +32,10 @@ namespace NWN.Systems
         return ScriptHandleResult.Handled;
       }
 
-      SpellConfig.SavingThrowFeedback feedback = new();
       SpellEntry spellEntry = Spells2da.spellTable[(int)Spell.HoldPerson];
       int spellDC = SpellUtils.GetCasterSpellDC(caster, Spell.HoldPerson, (Ability)int.Parse(eff.StringParams[0]));
-      int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Paralysis, caster);
-      int totalSave = SpellUtils.GetSavingThrowRoll(target, spellEntry.savingThrowAbility, spellDC, advantage, feedback, true);
-      bool saveFailed = totalSave < spellDC;
 
-      SpellUtils.SendSavingThrowFeedbackMessage(caster, target, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);
-
-      if (!saveFailed)
+      if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry, SpellConfig.SpellEffectType.Paralysis) != SavingThrowResult.Failure)
         target.RemoveEffect(eff);
 
       return ScriptHandleResult.Handled;

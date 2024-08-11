@@ -15,7 +15,7 @@ namespace NWN.Systems
         return targetList;
 
       targetList.Add(target);
-      NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Hate, NwTimeSpan.FromRounds(spellEntry.duration)));
+      NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Hate, SpellUtils.GetSpellDuration(oCaster, spellEntry)));
 
       return targetList;
     }

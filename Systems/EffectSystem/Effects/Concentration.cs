@@ -55,6 +55,9 @@ namespace NWN.Systems
     {
       EffectRunScriptEvent eventData = new EffectRunScriptEvent();
 
+      if (eventData.EffectTarget is NwCreature caster)
+        EffectUtils.RemoveTaggedEffect(caster, EffectSystem.ConcentrationAdvantageEffectTag);
+
       int i = 1;
 
       while (eventData.EffectTarget.GetObjectVariable<LocalVariableObject<NwGameObject>>($"{ConcentrationTargetString}{i}").HasValue)

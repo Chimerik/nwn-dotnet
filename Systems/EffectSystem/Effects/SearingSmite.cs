@@ -33,21 +33,15 @@ namespace NWN.Systems
 
       if (eff is not null)
       {
-        SpellConfig.SavingThrowFeedback feedback = new();
         SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.SearingSmite];
         NwSpell spell = NwSpell.FromSpellId(spellEntry.RowIndex);
         NwCreature caster = (NwCreature)eff.Creator;
 
-        byte spellLevel = spell.GetSpellLevelForClass(ClassType.Paladin);
+        byte spellLevel = spell.InnateSpellLevel;
         int spellDC = SpellUtils.GetCasterSpellDC(caster, spell, NwClass.FromClassType(ClassType.Paladin).SpellCastingAbility);
-        int advantage = CreatureUtils.GetCreatureAbilityAdvantage(onHB.Creature, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid, caster, spellLevel: spellLevel);
-        int totalSave = SpellUtils.GetSavingThrowRoll(onHB.Creature, spellEntry.savingThrowAbility, spellDC, advantage, feedback, true);
-        bool saveFailed = totalSave < spellDC;
 
-        SpellUtils.SendSavingThrowFeedbackMessage(caster, onHB.Creature, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);
-
-        if (saveFailed)
-          SpellUtils.DealSpellDamage(onHB.Creature, caster.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(caster, spell), caster, spellLevel);
+        if (CreatureUtils.GetSavingThrow(caster, onHB.Creature, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
+          SpellUtils.DealSpellDamage(onHB.Creature, caster.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(caster, spell), caster, spell.InnateSpellLevel);
         else
         {
           EffectUtils.RemoveTaggedEffect(onHB.Creature, caster, searingSmiteBurnEffectTag);

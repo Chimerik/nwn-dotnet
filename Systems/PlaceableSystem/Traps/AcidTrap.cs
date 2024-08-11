@@ -23,7 +23,7 @@ namespace NWN.Systems
 
       int totalSave = SpellUtils.GetSavingThrowRoll(creature, Ability.Dexterity, entry.baseDC, advantage, feedback);
       int damage = NwRandom.Roll(Utils.random, entry.damageDice, entry.numDice); // TODO : Variabiliser les dégâts selon la compétence de l'artisan
-      bool saveFailed = totalSave < entry.baseDC; // TODO : Variabiliser le DD selon la compétence de celui qui a posé le piège
+      SavingThrowResult saveFailed = (SavingThrowResult)(totalSave >+ entry.baseDC).ToInt(); // TODO : Variabiliser le DD selon la compétence de celui qui a posé le piège
 
       LogUtils.LogMessage($"Dégâts initiaux : {damage}", LogUtils.LogType.Combat);
 

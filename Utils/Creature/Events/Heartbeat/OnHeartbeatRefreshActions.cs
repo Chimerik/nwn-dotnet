@@ -28,6 +28,7 @@ namespace NWN.Systems
         creature.GetObjectVariable<LocalVariableInt>(AttaqueCoordonneCoolDownVariable).Delete();
         creature.GetObjectVariable<LocalVariableInt>(AttaqueCoordonneeVariable).Delete();
         creature.GetObjectVariable<LocalVariableInt>(FurieBestialeCoolDownVariable).Delete();
+        creature.GetObjectVariable<LocalVariableInt>(EnsoApotheoseVariable).Delete();
         creature.GetObjectVariable<LocalVariableObject<NwCreature>>(OpportunisteVariable).Delete();
         creature.GetObjectVariable<LocalVariableObject<NwCreature>>(BersekerRepresaillesVariable).Delete();
         creature.GetObjectVariable<LocalVariableObject<NwCreature>>(VoeuHostileVariable).Delete();

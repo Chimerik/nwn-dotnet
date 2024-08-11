@@ -16,17 +16,11 @@ namespace NWN.Systems
         case AttackResult.CriticalHit:
         case AttackResult.AutomaticHit:
 
-          SpellConfig.SavingThrowFeedback feedback = new();
           int attackerModifier = onAttack.Attacker.GetAbilityModifier(Ability.Wisdom);
-          int DC = 8 + NativeUtils.GetCreatureProficiencyBonus(onAttack.Attacker) + attackerModifier;
-          int advantage = GetCreatureAbilityAdvantage(target, Ability.Constitution);
-          int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Constitution, DC, advantage, feedback);
-          bool saveFailed = totalSave < DC;
-
+          int DC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(onAttack.Attacker) + attackerModifier;
           StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Frappe étourdissante", StringUtils.gold, true, true);
-          SpellUtils.SendSavingThrowFeedbackMessage(onAttack.Attacker, target, feedback, advantage, DC, totalSave, saveFailed, Ability.Constitution);
 
-          if (saveFailed)
+          if (GetSavingThrow(onAttack.Attacker, target, Ability.Constitution, DC) == SavingThrowResult.Failure)
             target.ApplyEffect(EffectDuration.Temporary, Effect.Stunned(), NwTimeSpan.FromRounds(1));
 
           await NwTask.NextFrame();

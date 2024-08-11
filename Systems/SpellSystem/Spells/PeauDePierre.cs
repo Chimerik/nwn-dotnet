@@ -29,7 +29,7 @@ namespace NWN.Systems
         }
       }
 
-      NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.PeauDePierre, NwTimeSpan.FromRounds(spellEntry.duration)));
+      NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.PeauDePierre, SpellUtils.GetSpellDuration(oCaster, spellEntry)));
     
       return new List<NwGameObject>() { target };
     }

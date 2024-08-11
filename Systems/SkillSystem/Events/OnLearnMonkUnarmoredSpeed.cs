@@ -7,6 +7,9 @@ namespace NWN.Systems
   {
     public static bool OnLearnUnarmoredSpeed(PlayerSystem.Player player, int customSkillId)
     {
+      if(!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.MonkUnarmoredSpeed))
+        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.MonkUnarmoredSpeed);
+
       NwItem armor = player.oid.LoginCreature.GetItemInSlot(InventorySlot.Chest);
       NwItem shield = player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand);
 

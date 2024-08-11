@@ -4,7 +4,7 @@ namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static bool GetAttackerAdvantageEffects(Native.API.CNWSCreature attacker, Native.API.CNWSCreature target, Ability attackStat)
+    public static bool GetAttackerAdvantageEffects(Native.API.CNWSCreature attacker, Native.API.CNWSCreature target, Ability attackStat, NwSpell spell = null)
     {
       foreach (var eff in attacker.m_appliedEffects)
       {
@@ -30,6 +30,9 @@ namespace NWN.Systems
           return true;
 
         if (GetSensDivinAdvantage(eff, target))
+          return true;
+
+        if (GetSorcellerieInneeAdvantage(eff, spell))
           return true;
       }
 

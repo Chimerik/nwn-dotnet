@@ -38,7 +38,6 @@ namespace NWN.Systems
       }
       
       SpellUtils.SignalEventSpellCast(caster, caster, Spell.Bane);
-      SpellConfig.SavingThrowFeedback feedback = new();
       int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, castingClass.SpellCastingAbility);
 
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfLosEvil10));
@@ -51,17 +50,11 @@ namespace NWN.Systems
 
           if (-1 < distance && distance < 90)
           {
-            int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid, oCaster);
-            int totalSave = SpellUtils.GetSavingThrowRoll(target, spellEntry.savingThrowAbility, spellDC, advantage, feedback, true);
-            bool saveFailed = totalSave < spellDC;
-
-            SpellUtils.SendSavingThrowFeedbackMessage(oCaster, target, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);
-
-            if (saveFailed)
+            if (CreatureUtils.GetSavingThrow(oCaster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
             {
               objectTargets.Add(targetObject);
               target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadEvil));
-              NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Fleau, NwTimeSpan.FromRounds(spellEntry.duration)));
+              NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Fleau, SpellUtils.GetSpellDuration(oCaster, spellEntry)));
             }
           }
           else

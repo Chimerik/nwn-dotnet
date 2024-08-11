@@ -61,7 +61,7 @@ namespace NWN.Systems
         if (rangedSpell && GetHighGroundAdvantage(attacker, target))
           return true;
 
-        if (GetAttackerAdvantageEffects(attacker, target, spellCastingAbility))
+        if (GetAttackerAdvantageEffects(attacker, target, spellCastingAbility, spell))
           return true;
 
         if (GetTargetAdvantageEffects(target, attacker, rangedSpell))

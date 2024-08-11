@@ -31,16 +31,10 @@ namespace NWN.Systems
         return ScriptHandleResult.Handled;
       }
 
-      SpellConfig.SavingThrowFeedback feedback = new();
       SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.MaledictionEffroi];
       int spellDC = SpellUtils.GetCasterSpellDC(creator, NwSpell.FromSpellId(CustomSpell.MaledictionEffroi), (Ability)int.Parse(eventData.Effect.StringParams[0]));
-      int advantage = CreatureUtils.GetCreatureAbilityAdvantage(creature, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid, creator);
-      int totalSave = SpellUtils.GetSavingThrowRoll(creature, spellEntry.savingThrowAbility, spellDC, advantage, feedback, true);
-      bool saveFailed = totalSave < spellDC;
 
-      SpellUtils.SendSavingThrowFeedbackMessage(creator, creature, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);
-
-      if (!saveFailed)
+      if (CreatureUtils.GetSavingThrow(creator, creature, spellEntry.savingThrowAbility, spellDC, spellEntry, SpellConfig.SpellEffectType.Fear) != SavingThrowResult.Failure)
         EffectUtils.RemoveTaggedEffect(creature, creator, MaledictionEffroiEffectTag);
 
       return ScriptHandleResult.Handled;

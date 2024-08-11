@@ -4,10 +4,18 @@ namespace NWN.Systems
 {
   public static partial class SpellUtils
   {
-    public static int HandleSpellEvasion(NwCreature target, int damage, Ability saveAbility, bool saveFailed, int spellId = -1, byte spellLevel = 255)
+    public static int HandleSpellEvasion(NwCreature target, int damage, Ability saveAbility, SavingThrowResult saveResult, int spellId = -1, byte spellLevel = 255)
     {
       if (damage < 1)
         return damage;
+
+      if (saveResult == SavingThrowResult.Immune)
+      {
+        LogUtils.LogMessage("Cible immunisée : Dégâts 0", LogUtils.LogType.Combat);
+        return 0;
+      }
+
+      bool saveFailed = saveResult == SavingThrowResult.Failure;
 
       if (saveAbility == Ability.Dexterity)
       {

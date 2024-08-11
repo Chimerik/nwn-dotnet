@@ -111,6 +111,22 @@ namespace NWN.Systems
 
       switch (effectType)
       {
+        case SpellEffectType.Concentration:
+
+          if(creature.KnowsFeat((Feat)CustomSkill.MageDeGuerre))
+          {
+            LogUtils.LogMessage("Avantage - Concentration : Mage de Guerre", LogUtils.LogType.Combat);
+            return true;
+          }
+
+          if (creature.ActiveEffects.Any(e => e.Tag == EffectSystem.ConcentrationAdvantageEffectTag))
+          {
+            LogUtils.LogMessage("Avantage - Concentration : Métamagie", LogUtils.LogType.Combat);
+            return true;
+          }
+
+          break;
+
         case SpellEffectType.Poison:
 
           if (creature.Race.Id == CustomRace.GoldDwarf || creature.Race.Id == CustomRace.ShieldDwarf

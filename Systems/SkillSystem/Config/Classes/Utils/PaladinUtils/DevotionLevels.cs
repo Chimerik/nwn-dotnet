@@ -1,5 +1,6 @@
 ﻿using Anvil.API;
 using NWN.Core;
+using NWN.Core.NWNX;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.SkillSystem;
 
@@ -47,7 +48,8 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.PaladinAuraDeDevotion].LevelUp(player);
           player.learnableSkills[CustomSkill.PaladinAuraDeDevotion].source.Add(Category.Class);
 
-          NWScript.AssignCommand(player.oid.LoginCreature, () => player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetAuraDeDevotion(7)));
+          player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetAuraDeDevotion(player.oid.LoginCreature, 7));
+          UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>().SetRadius(3);
 
           break;
 
@@ -81,7 +83,8 @@ namespace NWN.Systems
         case 18:
 
           EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.AuraDeDevotionEffectTag);
-          NWScript.AssignCommand(player.oid.LoginCreature, () => player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetAuraDeDevotion(18)));
+          player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetAuraDeDevotion(player.oid.LoginCreature, 18));
+          UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>().SetRadius(9);
 
           break;
 

@@ -34,7 +34,7 @@ namespace NWN.Systems
       ApplyTerrainDifficileEffect(entering);
 
       SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.FleauDinsectes];
-      int spellDC = SpellUtils.GetCasterSpellDC(caster, (Ability)caster.GetObjectVariable<LocalVariableInt>($"_SPELL_CASTING_ABILITY_{eventData.Effect.Spell.Id}").Value);
+      int spellDC = SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellId(CustomSpell.FleauDinsectes), (Ability)caster.GetObjectVariable<LocalVariableInt>($"_SPELL_CASTING_ABILITY_{eventData.Effect.Spell.Id}").Value);
 
       FleauDinsectesDamage(caster, entering, spellEntry, spellDC);
       return ScriptHandleResult.Handled;
@@ -51,7 +51,7 @@ namespace NWN.Systems
       }
 
       SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.FleauDinsectes];
-      int spellDC = SpellUtils.GetCasterSpellDC(caster, (Ability)caster.GetObjectVariable<LocalVariableInt>($"_SPELL_CASTING_ABILITY_{eventData.Effect.Spell.Id}").Value);
+      int spellDC = SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellId(CustomSpell.FleauDinsectes), (Ability)caster.GetObjectVariable<LocalVariableInt>($"_SPELL_CASTING_ABILITY_{eventData.Effect.Spell.Id}").Value);
 
       foreach(NwCreature entering in eventData.Effect.GetObjectsInEffectArea<NwCreature>()) 
       {
@@ -70,15 +70,7 @@ namespace NWN.Systems
     }
     private static void FleauDinsectesDamage(NwCreature caster, NwCreature entering, SpellEntry spellEntry, int spellDC)
     {
-      SpellConfig.SavingThrowFeedback feedback = new();
-
-      int advantage = CreatureUtils.GetCreatureAbilityAdvantage(entering, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid, caster);
-      int totalSave = SpellUtils.GetSavingThrowRoll(entering, spellEntry.savingThrowAbility, spellDC, advantage, feedback, true);
-      bool saveFailed = totalSave < spellDC;
-
-      SpellUtils.SendSavingThrowFeedbackMessage(caster, entering, feedback, advantage, spellDC, totalSave, saveFailed, spellEntry.savingThrowAbility);
-
-      if (saveFailed)
+      if (CreatureUtils.GetSavingThrow(caster, entering, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
         SpellUtils.DealSpellDamage(entering, caster.CasterLevel, spellEntry, spellEntry.numDice, caster, 5);
     }
   }

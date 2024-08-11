@@ -14,7 +14,7 @@ namespace NWN.Systems
       {
         SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
 
-        targetLocation.ApplyEffect(EffectDuration.Temporary, EffectSystem.NappeDeBrouillard(caster), NwTimeSpan.FromRounds(spellEntry.duration));  
+        targetLocation.ApplyEffect(EffectDuration.Temporary, EffectSystem.NappeDeBrouillard(caster), SpellUtils.GetSpellDuration(oCaster, spellEntry));  
         concentrationList.Add(UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>());
       }
 

@@ -10,7 +10,7 @@
     public const byte Paladin = 6;
     public const byte Ranger = 7;
     public const byte Rogue = 8;
-    public const byte Sorcerer = 9;
+    public const byte Ensorceleur = 9;
     public const byte Wizard = 10;
     public const byte Adventurer = 43;
     public const byte Monk = 44;

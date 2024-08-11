@@ -16,7 +16,7 @@ namespace NWN.Systems
         oCaster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadElectricity));
 
         if (caster.GetObjectVariable<LocalVariableInt>(EffectSystem.ConcentrationSpellIdString).Value != (int)Spell.CallLightning)
-          caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.AppelDeLaFoudre, NwTimeSpan.FromRounds(spellEntry.duration));
+          caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.AppelDeLaFoudre, SpellUtils.GetSpellDuration(oCaster, spellEntry));
         else
           caster.GetObjectVariable<LocalVariableInt>("_FREE_SPELL").Value = 1;
 

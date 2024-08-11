@@ -15,15 +15,15 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onEnterChanceDebordanteCallback;
     private static ScriptCallbackHandle onExitChanceDebordanteCallback;
     
-    public static Effect chanceDebordanteAura
+    public static Effect chanceDebordanteAura(NwCreature caster)
     {
-      get
-      {
-        Effect eff = Effect.AreaOfEffect((PersistentVfxType)189, onEnterHandle: onEnterChanceDebordanteCallback, onExitHandle: onExitChanceDebordanteCallback);
-        eff.Tag = ChanceDebordanteAuraEffectTag;
-        eff.SubType = EffectSubType.Unyielding;
-        return eff;
-      }
+      Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurAuraOdd, fScale: 2.2f),
+        Effect.AreaOfEffect(PersistentVfxType.PerCustomAoe, onEnterHandle: onEnterChanceDebordanteCallback, onExitHandle: onExitChanceDebordanteCallback));
+      eff.Tag = ChanceDebordanteAuraEffectTag;
+      eff.SubType = EffectSubType.Unyielding;
+      eff.Creator = caster;
+
+      return eff;
     }
     public static Effect chanceDebordante
     {

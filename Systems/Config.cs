@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-
+using System.Numerics;
 using Anvil.API;
 using Anvil.Services;
 
@@ -117,7 +117,7 @@ namespace NWN.Systems
     {
       ValidTargets = ObjectTypes.Item,
       CursorType = MouseCursor.Use,
-      BadCursorType = MouseCursor.Nouse
+      BadCursorType = MouseCursor.Nouse,
     };
 
     public static readonly TargetModeSettings attackCreatureTargetMode = new()
@@ -134,6 +134,25 @@ namespace NWN.Systems
       BadCursorType = MouseCursor.NoAction
     };
 
+    public static TargetModeSettings CreatureTargetMode(float Range, SpellTargetingShape shape, Vector2 Size, SpellTargetingFlags flags = SpellTargetingFlags.None, NwSpell spell = null, NwFeat feat = null)
+    {
+      return new()
+      {
+        ValidTargets = ObjectTypes.Creature,
+        CursorType = MouseCursor.Attack,
+        BadCursorType = MouseCursor.NoAttack,
+        TargetingData = new()
+        {
+          Range = Range,
+          Shape = shape,
+          Size = Size,
+          Flags = flags,
+          Spell = spell,
+          Feat = feat
+        }
+      };
+    }
+
     public static readonly TargetModeSettings selectObjectTargetMode = new()
     {
       ValidTargets = ObjectTypes.Creature | ObjectTypes.Door | ObjectTypes.Placeable | ObjectTypes.Placeable,
@@ -147,5 +166,24 @@ namespace NWN.Systems
       CursorType = MouseCursor.Attack,
       BadCursorType = MouseCursor.NoAttack
     };
+
+    public static TargetModeSettings LocationTargetMode(float Range, SpellTargetingShape shape, Vector2 Size, SpellTargetingFlags flags = SpellTargetingFlags.None, NwSpell spell = null, NwFeat feat = null)
+    {
+      return new()
+      {
+        ValidTargets = ObjectTypes.Creature | ObjectTypes.Door | ObjectTypes.Waypoint | ObjectTypes.Trigger | ObjectTypes.AreaOfEffect | ObjectTypes.Placeable | ObjectTypes.Placeable | ObjectTypes.Tile,
+        CursorType = MouseCursor.Attack,
+        BadCursorType = MouseCursor.NoAttack,
+        TargetingData = new()
+        {
+          Range = Range,
+          Shape = shape,
+          Size = Size,
+          Flags = flags,
+          Spell = spell,
+          Feat = feat
+        }
+      };
+    }
   }
 }

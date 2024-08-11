@@ -25,8 +25,8 @@ namespace NWN.Systems
       /*if (onSpellCast.MetaMagicFeat == MetaMagic.Extend)
         nDuration = nDuration * 2; //Duration is +100%
       */
-      oTarget.ApplyEffect(EffectDuration.Temporary, eLink, NwTimeSpan.FromRounds(nDuration));
-      oTarget.ApplyEffect(EffectDuration.Temporary, eInvis, NwTimeSpan.FromRounds(nDuration));
+      oTarget.ApplyEffect(EffectDuration.Temporary, eLink, SpellUtils.GetSpellDuration(oCaster, spellEntry));
+      oTarget.ApplyEffect(EffectDuration.Temporary, eInvis, SpellUtils.GetSpellDuration(oCaster, spellEntry));
       oTarget.ApplyEffect(EffectDuration.Instant, eImpact);
     }
   }

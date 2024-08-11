@@ -17,7 +17,7 @@ namespace NWN.Systems
     {
       await NwTask.NextFrame();
 
-      TimeSpan duration = NwTimeSpan.FromRounds(spellEntry.duration);
+      TimeSpan duration = SpellUtils.GetSpellDuration(oCaster, spellEntry);
 
       if (oCaster is NwCreature caster && feat is not null)
       {

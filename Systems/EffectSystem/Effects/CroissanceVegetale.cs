@@ -11,15 +11,15 @@ namespace NWN.Systems
     public const string CroissanceVegetaleEffectTag = "_CROISSANCE_VEGETALE_EFFECT";
     private static ScriptCallbackHandle onEnterCroissanceVegetaleCallback;
     private static ScriptCallbackHandle onExitCroissanceVegetaleCallback;
-    public static Effect CroissanceVegetaleAoE
+    public static Effect CroissanceVegetaleAoE(NwGameObject caster)
     {
-      get
-      {
-        Effect eff = Effect.AreaOfEffect((PersistentVfxType)199, onEnterHandle: onEnterCroissanceVegetaleCallback, onExitHandle: onExitCroissanceVegetaleCallback);
-        eff.Tag = CroissanceVegetaleAoEEffectTag;
-        eff.SubType = EffectSubType.Supernatural;
-        return eff;
-      }
+      Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.ImpAuraNegativeEnergy, fScale:10),
+        Effect.AreaOfEffect(PersistentVfxType.PerCustomAoe, onEnterHandle: onEnterCroissanceVegetaleCallback, onExitHandle: onExitCroissanceVegetaleCallback));
+      eff.Tag = CroissanceVegetaleAoEEffectTag;
+      eff.SubType = EffectSubType.Supernatural;
+      eff.Creator = caster;
+
+      return eff;
     }
     public static Effect CroissanceVegetale
     {

@@ -1,5 +1,7 @@
 ﻿using System.Linq;
+using System.Security.Cryptography;
 using Anvil.API;
+using NWN.Core.NWNX;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.PlayerSystem.Player;
 using static NWN.Systems.SkillSystem;
@@ -153,6 +155,17 @@ namespace NWN.Systems
 
           if (!player.windows.TryGetValue("featSelection", out var feat16)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
           else ((FeatSelectionWindow)feat16).CreateWindow();
+
+          break;
+
+        case 18:
+
+          EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.AuraDeCourageEffectTag, EffectSystem.AuraDeProtectionEffectTag);
+          player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.AuraDeCourage(player.oid.LoginCreature, 18));
+          UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>().SetRadius(9);
+
+          player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.AuraDeProtection(player.oid.LoginCreature, 18));
+          UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>().SetRadius(9);
 
           break;
 

@@ -11,13 +11,13 @@ namespace NWN.Systems
 
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
       int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, Ability.Wisdom);
-      bool savedFailed = CreatureUtils.GetSavingThrow(caster, target, Ability.Strength, spellDC, spellEntry);
+      SavingThrowResult saveResult = CreatureUtils.GetSavingThrow(caster, target, Ability.Strength, spellDC, spellEntry);
       int nbDice = SpellUtils.GetSpellDamageDiceNumber(oCaster, spell);
 
       if (caster.KnowsFeat((Feat)CustomSkill.MonkIncantationElementaire))
         nbDice += 1;
 
-      if (savedFailed)
+      if (saveResult == SavingThrowResult.Failure)
         EffectSystem.ApplyKnockdown(target, CreatureSize.Large, spellEntry.duration);
 
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSoundBurst));

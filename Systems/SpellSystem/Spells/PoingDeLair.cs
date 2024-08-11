@@ -12,9 +12,9 @@ namespace NWN.Systems
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
       int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, Ability.Wisdom);
       int damageDice = SpellUtils.GetSpellDamageDiceNumber(oCaster, spell);
-      bool savedFailed = CreatureUtils.GetSavingThrow(caster, target, Ability.Strength, spellDC, spellEntry);
+      SavingThrowResult saveResult = CreatureUtils.GetSavingThrow(caster, target, Ability.Strength, spellDC, spellEntry);
 
-      if (savedFailed)
+      if (saveResult == SavingThrowResult.Failure)
         EffectSystem.ApplyKnockdown(target, CreatureSize.Large, spellEntry.duration);
 
       if (caster.KnowsFeat((Feat)CustomSkill.MonkIncantationElementaire))

@@ -10,7 +10,7 @@ namespace NWN.Systems
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
 
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(spellEntry.damageVFX));
-      oTarget.ApplyEffect(EffectDuration.Temporary, EffectSystem.ProtectionContreLeMalEtLeBien, NwTimeSpan.FromRounds(spellEntry.duration));
+      oTarget.ApplyEffect(EffectDuration.Temporary, EffectSystem.ProtectionContreLeMalEtLeBien, SpellUtils.GetSpellDuration(oCaster, spellEntry));
 
       return new List<NwGameObject> { oTarget };
     }

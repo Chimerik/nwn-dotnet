@@ -6,14 +6,24 @@ namespace NWN.Systems
 {
   public static partial class SpellUtils
   {
-    public static int DealSpellDamage(NwGameObject target, int casterLevel, SpellEntry spellEntry, int nbDices, NwGameObject oCaster, byte spellLevel, bool saveFailed = true, bool noLogs = false)
+    public static int DealSpellDamage(NwGameObject target, int casterLevel, SpellEntry spellEntry, int nbDices, NwGameObject oCaster, byte spellLevel, SavingThrowResult saveResult = SavingThrowResult.Failure, bool noLogs = false)
     {
+      if (saveResult == SavingThrowResult.Immune)
+        return 0;
+
       NwSpell spell = NwSpell.FromSpellId(spellEntry.RowIndex);
       int roll = NwRandom.Roll(Utils.random, spellEntry.damageDice, nbDices);
       int totalDamage = 0;
       bool isEvocateurSurcharge = false;
       bool isFureurDestructrice = oCaster.ActiveEffects.Any(e => e.Tag == EffectSystem.FureurDestructriceEffectTag);
       bool moissonDuFielTriggered = target.HP > 0 && target is NwCreature creature && !Utils.In(creature.Race.RacialType, RacialType.Undead, RacialType.Construct);
+      int amplifiedDices = 0;
+
+      if (oCaster is NwCreature enso && oCaster.ActiveEffects.Any(e => e.Tag == EffectSystem.MetamagieEffectTag && e.IntParams[5] == CustomSkill.EnsoAmplification))
+      {
+        amplifiedDices = enso.GetAbilityModifier(Ability.Charisma) < 1 ? 1 : enso.GetAbilityModifier(Ability.Charisma);
+        EffectUtils.RemoveTaggedParamEffect(enso, CustomSkill.EnsoAmplification, EffectSystem.MetamagieEffectTag);
+      }
 
       foreach (DamageType damageType in spellEntry.damageType)
       {
@@ -49,6 +59,13 @@ namespace NWN.Systems
 
             roll = isElementalist && roll < 2 ? 2 : roll;
 
+            if(amplifiedDices > 0)
+            {
+              int tempRoll = NwRandom.Roll(Utils.random, spellEntry.damageDice);
+              roll = tempRoll > roll ? tempRoll : roll;
+              amplifiedDices -= 1;
+            }
+
             if (caster.KnowsFeat((Feat)CustomSkill.EvocateurSuperieur) && spell.SpellSchool == SpellSchool.Evocation)
             {
               damage += caster.GetAbilityModifier(Ability.Intelligence);
@@ -65,8 +82,8 @@ namespace NWN.Systems
 
         if (target is NwCreature targetCreature)
         {
-          damage = HandleSpellEvasion(targetCreature, damage, spellEntry.savingThrowAbility, saveFailed, spell.Id, spellLevel);
-          damage = ItemUtils.GetShieldMasterReducedDamage(targetCreature, damage, saveFailed, spellEntry.savingThrowAbility);
+          damage = HandleSpellEvasion(targetCreature, damage, spellEntry.savingThrowAbility, saveResult, spell.Id, spellLevel);
+          damage = ItemUtils.GetShieldMasterReducedDamage(targetCreature, damage, saveResult, spellEntry.savingThrowAbility);
           damage = WizardUtils.GetAbjurationReducedDamage(targetCreature, damage);
           damage = PaladinUtils.GetAuraDeGardeReducedDamage(targetCreature, damage);
           damage = ClercUtils.GetAttenuationElementaireReducedDamage(targetCreature, damage, damageType);

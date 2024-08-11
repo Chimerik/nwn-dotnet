@@ -19,7 +19,7 @@ namespace NWN.Systems
 
       oTarget.OnHeal -= PreventHeal;
       oTarget.OnHeal += PreventHeal;
-      oTarget.ApplyEffect(EffectDuration.Temporary, EffectSystem.boneChillEffect, NwTimeSpan.FromRounds(spellEntry.duration));
+      oTarget.ApplyEffect(EffectDuration.Temporary, EffectSystem.boneChillEffect, SpellUtils.GetSpellDuration(oCaster, spellEntry));
       SpellUtils.DealSpellDamage(oTarget, oCaster.CasterLevel, spellEntry, nbDice, oCaster, spell.GetSpellLevelForClass(castingClass));
     }
   }

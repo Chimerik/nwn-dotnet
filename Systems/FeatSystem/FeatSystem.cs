@@ -203,6 +203,21 @@ namespace NWN.Systems
 
         case CustomSkill.ClercPreservationDeLaVie: PreservationDeLaVie(onUseFeat.Creature); return;
         case CustomSkill.ClercVieFrappeDivine: FrappeDivineVie(onUseFeat.Creature); return;
+
+        case CustomSkill.SorcellerieInnee: SorcellerieInnee(onUseFeat.Creature); return;
+        case CustomSkill.SorcellerieIncarnee: SorcellerieIncarnee(onUseFeat.Creature); return;
+        case CustomSkill.EnsoSourceToSlot: SourceToSlot(onUseFeat.Creature); return;
+        case CustomSkill.EnsoSlotToSource: SlotToSource(onUseFeat.Creature); return;
+        case CustomSkill.EnsoPrudence: 
+        case CustomSkill.EnsoAllonge: 
+        case CustomSkill.EnsoExtension: 
+        case CustomSkill.EnsoAmplification: 
+        case CustomSkill.EnsoGemellite: 
+        case CustomSkill.EnsoIntensification: 
+        case CustomSkill.EnsoAcceleration: 
+        case CustomSkill.EnsoGuidage: 
+        case CustomSkill.EnsoSubtilite: 
+        case CustomSkill.EnsoTransmutation: Metamagie(onUseFeat.Creature, onUseFeat.Feat.Id); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

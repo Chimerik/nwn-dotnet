@@ -37,7 +37,7 @@ namespace NWN.Systems
       
       foreach(var target in  oTarget.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, spellEntry.aoESize, false)) 
       {
-        if(CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC))
+        if(CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC) == SavingThrowResult.Failure)
           SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(oCaster, spell), oCaster, spell.GetSpellLevelForClass(casterClass));
 
         oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpFrostS));

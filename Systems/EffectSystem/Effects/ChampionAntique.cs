@@ -15,11 +15,14 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onRemovedChampionAntiqueCallback;
     public static Effect GetChampionAntiqueEffect(NwCreature caster)
     {
-      Effect eff = Effect.LinkEffects(Effect.AreaOfEffect((PersistentVfxType)185, onEnterHandle: onEnterChampionAntiqueCallback, onExitHandle: onExitChampionAntiqueCallback, heartbeatHandle: onHeartbeatChampionAntiqueCallback),
+      Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurAuraOdd, fScale: 0.9f),
+        Effect.LinkEffects(Effect.AreaOfEffect(PersistentVfxType.PerCustomAoe, onEnterHandle: onEnterChampionAntiqueCallback, onExitHandle: onExitChampionAntiqueCallback, heartbeatHandle: onHeartbeatChampionAntiqueCallback)),
         Effect.RunAction(onRemovedHandle: onRemovedChampionAntiqueCallback));
       
       eff.Tag = AuraDeGardeEffectTag;
       eff.SubType = EffectSubType.Supernatural;
+      eff.Creator = caster;
+
       caster.OnSpellAction -= PaladinUtils.OnSpellChampionAntique;
       caster.OnSpellAction += PaladinUtils.OnSpellChampionAntique;
       return eff;

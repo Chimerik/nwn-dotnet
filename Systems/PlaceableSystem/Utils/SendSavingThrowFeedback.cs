@@ -4,8 +4,9 @@ namespace NWN.Systems
 {
   public static partial class TrapUtils
   {
-    public static void SendSavingThrowFeedbackMessage(NwCreature target, int saveRoll, int proficiencyBonus, int advantage, int spellDC, int totalSave, bool saveFailed, Ability ability)
+    public static void SendSavingThrowFeedbackMessage(NwCreature target, int saveRoll, int proficiencyBonus, int advantage, int spellDC, int totalSave, SavingThrowResult saveResult, Ability ability)
     {
+      bool saveFailed = saveResult == SavingThrowResult.Failure;
       string advantageString = advantage == 0 ? "" : advantage > 0 ? " (Avantage)".ColorString(StringUtils.gold) : " (Désavantage)".ColorString(ColorConstants.Red);
       string hitString = saveFailed ? "ECHEC".ColorString(ColorConstants.Red) : "REUSSI".ColorString(StringUtils.brightGreen);
       Color hitColor = saveFailed ? ColorConstants.Red : StringUtils.brightGreen;

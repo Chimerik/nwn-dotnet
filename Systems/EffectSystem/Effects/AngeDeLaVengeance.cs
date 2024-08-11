@@ -12,15 +12,14 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onEnterAngeDeLaVengeanceCallback;
     private static ScriptCallbackHandle onIntervalAngeDeLaVengeanceCallback;
     
-    public static Effect AngeDeLaVengeance
+    public static Effect AngeDeLaVengeance(NwCreature caster)
     {
-      get
-      {
-        Effect eff = Effect.AreaOfEffect(PersistentVfxType.MobDragonFear, onEnterHandle: onEnterAngeDeLaVengeanceCallback, heartbeatHandle: onIntervalAngeDeLaVengeanceCallback);
-        eff.Tag = PresenceIntimidanteAuraEffectTag;
-        eff.SubType = EffectSubType.Supernatural;
-        return eff;
-      }
+      Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.ImpAuraNegativeEnergy, fScale:2),
+        Effect.AreaOfEffect(PersistentVfxType.PerCustomAoe, onEnterHandle: onEnterAngeDeLaVengeanceCallback, heartbeatHandle: onIntervalAngeDeLaVengeanceCallback));
+      eff.Tag = PresenceIntimidanteAuraEffectTag;
+      eff.SubType = EffectSubType.Supernatural;
+      eff.Creator = caster;
+      return eff;
     }
     private static ScriptHandleResult onEnterAngeDeLaVengeance(CallInfo callInfo)
     {
@@ -29,15 +28,9 @@ namespace NWN.Systems
         || !entering.IsReactionTypeHostile(intimidator) || IsFrightImmune(entering, intimidator))
         return ScriptHandleResult.Handled;
 
-      SpellConfig.SavingThrowFeedback feedback = new();
-      int DC = 8 + NativeUtils.GetCreatureProficiencyBonus(intimidator) + intimidator.GetAbilityModifier(Ability.Charisma);
-      int advantage = CreatureUtils.GetCreatureAbilityAdvantage(entering, Ability.Wisdom);
-      int totalSave = SpellUtils.GetSavingThrowRoll(entering, Ability.Wisdom, DC, advantage, feedback);
-      bool saveFailed = totalSave < DC;
+      int saveDC = 8 + NativeUtils.GetCreatureProficiencyBonus(intimidator) + intimidator.GetAbilityModifier(Ability.Charisma);
 
-      SpellUtils.SendSavingThrowFeedbackMessage(intimidator, entering, feedback, advantage, DC, totalSave, saveFailed, Ability.Wisdom);
-
-      if (saveFailed)
+      if (CreatureUtils.GetSavingThrow(intimidator, entering, Ability.Wisdom, saveDC) == SavingThrowResult.Failure)
         NWScript.AssignCommand(intimidator, () => entering.ApplyEffect(EffectDuration.Temporary, Effroi, NwTimeSpan.FromRounds(1)));
 
       return ScriptHandleResult.Handled;
@@ -53,15 +46,9 @@ namespace NWN.Systems
         || target.ActiveEffects.Any(e => e.Tag == FrightenedEffectTag))
           continue;
 
-        SpellConfig.SavingThrowFeedback feedback = new();
-        int DC = 8 + NativeUtils.GetCreatureProficiencyBonus(intimidator) + intimidator.GetAbilityModifier(Ability.Charisma);
-        int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, Ability.Wisdom);
-        int totalSave = SpellUtils.GetSavingThrowRoll(target, Ability.Wisdom, DC, advantage, feedback);
-        bool saveFailed = totalSave < DC;
+        int saveDC = 8 + NativeUtils.GetCreatureProficiencyBonus(intimidator) + intimidator.GetAbilityModifier(Ability.Charisma);
 
-        SpellUtils.SendSavingThrowFeedbackMessage(intimidator, target, feedback, advantage, DC, totalSave, saveFailed, Ability.Wisdom);
-
-        if (saveFailed)
+        if (CreatureUtils.GetSavingThrow(intimidator, target, Ability.Wisdom, saveDC) == SavingThrowResult.Failure)
           NWScript.AssignCommand(intimidator, () => target.ApplyEffect(EffectDuration.Temporary, Effroi, NwTimeSpan.FromRounds(1)));
       }
 

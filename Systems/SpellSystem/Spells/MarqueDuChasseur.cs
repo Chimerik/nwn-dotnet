@@ -19,7 +19,7 @@ namespace NWN.Systems
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadEvil));
 
       Effect freeMarque = oCaster.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.FreeMarqueDuChasseurTag);
-      TimeSpan duration = freeMarque is null ? NwTimeSpan.FromRounds(spellEntry.duration) : TimeSpan.FromSeconds(freeMarque.DurationRemaining);
+      TimeSpan duration = freeMarque is null ? SpellUtils.GetSpellDuration(oCaster, spellEntry) : TimeSpan.FromSeconds(freeMarque.DurationRemaining);
 
       NWScript.AssignCommand(oCaster, () => oTarget.ApplyEffect(EffectDuration.Temporary, EffectSystem.MarqueDuChasseur, duration));
       

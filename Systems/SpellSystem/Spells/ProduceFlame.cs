@@ -14,7 +14,7 @@ namespace NWN.Systems
         if (oCaster.ActiveEffects.Any(e => e.Tag == EffectSystem.ProduceFlameEffectTag))
           EffectUtils.RemoveTaggedEffect(oCaster, EffectSystem.ProduceFlameEffectTag);
         else
-          oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.produceFlameEffect, NwTimeSpan.FromRounds(spellEntry.duration));
+          oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.produceFlameEffect, SpellUtils.GetSpellDuration(oCaster, spellEntry));
 
         return;
       }

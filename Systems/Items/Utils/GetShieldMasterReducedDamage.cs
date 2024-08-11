@@ -4,11 +4,13 @@ namespace NWN.Systems
 {
   public static partial class ItemUtils
   {
-    public static int GetShieldMasterReducedDamage(NwCreature target, int damage, bool saveFailed, Ability saveType = Ability.Dexterity)
+    public static int GetShieldMasterReducedDamage(NwCreature target, int damage, SavingThrowResult saveResult, Ability saveType = Ability.Dexterity)
     {
       if (damage > 0 && saveType == Ability.Dexterity && target.KnowsFeat((Feat)CustomSkill.MaitreBouclier)
         && target.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value > 0)
       {
+        bool saveFailed = saveResult == SavingThrowResult.Failure;
+
         switch (target.GetItemInSlot(InventorySlot.LeftHand)?.BaseItem.ItemType)
         {
           case BaseItemType.SmallShield:

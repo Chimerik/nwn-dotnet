@@ -26,7 +26,8 @@ namespace NWN.Systems
         EffectUtils.RemoveTaggedEffect(onHB.Creature, EffectSystem.MonkUnarmoredDefenceEffectTag);
         WaitNextFrameToApplyEffect(onHB.Creature, wisMod);
 
-        if (onHB.Creature.Classes.Any(c => c.Class.Id == CustomClass.Monk && c.Level > 1)
+        if (onHB.Creature.GetObjectVariable<LocalVariableInt>("_MONK_SPEED_DISABLED").HasNothing
+          && onHB.Creature.Classes.Any(c => c.Class.Id == CustomClass.Monk && c.Level > 1)
           && !onHB.Creature.ActiveEffects.Any(e => e.Tag == EffectSystem.MonkSpeedEffectTag))
         {
           onHB.Creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetMonkSpeedEffect(onHB.Creature.Classes.FirstOrDefault(c => c.Class.Id == CustomClass.Monk).Level));

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Anvil.API;
 
 namespace NWN.Systems
@@ -11,6 +12,7 @@ namespace NWN.Systems
         return;
 
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
+      TimeSpan duration = SpellUtils.GetSpellDuration(oCaster, spellEntry);
       int DV = NwRandom.Roll(Utils.random, 8, 5);
 
       foreach(var target in targetLocation.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, spellEntry.aoESize, false))
@@ -22,7 +24,7 @@ namespace NWN.Systems
           || target.ActiveEffects.Any(e => e.EffectType == EffectType.Sleep))
           continue;
 
-        target.ApplyEffect(EffectDuration.Temporary, Effect.Sleep(), NwTimeSpan.FromRounds(spellEntry.duration));
+        target.ApplyEffect(EffectDuration.Temporary, Effect.Sleep(), duration);
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSleep));
 
         DV -= target.Level;
