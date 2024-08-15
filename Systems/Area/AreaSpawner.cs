@@ -74,9 +74,6 @@ namespace NWN.Systems
       if (creature.Race.RacialType == RacialType.HalfOrc)
         creature.OnDamaged += CreatureUtils.HandleImplacableEndurance;
 
-      if (creature.KnowsFeat((Feat)CustomSkill.TueurDeMage))
-        creature.OnCreatureAttack += CreatureUtils.OnAttackTueurDeMage;
-
       if (creature.KnowsFeat((Feat)CustomSkill.Sentinelle))
         creature.OnCreatureAttack += CreatureUtils.OnAttackSentinelle;
 

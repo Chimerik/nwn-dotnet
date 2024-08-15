@@ -1,6 +1,9 @@
 ﻿using System.Linq;
 using Anvil.API;
 using NWN.Core;
+using static NWN.Systems.PlayerSystem.Player;
+using static NWN.Systems.PlayerSystem;
+using System.Collections.Generic;
 
 namespace NWN.Systems
 {
@@ -25,16 +28,28 @@ namespace NWN.Systems
         EffectUtils.RemoveTaggedParamEffect(enso, CustomSkill.EnsoAmplification, EffectSystem.MetamagieEffectTag);
       }
 
+      DamageType transmutedDamage = DamageType.BaseWeapon;
+
+      if (Players.TryGetValue(oCaster, out var transmuter) 
+        && oCaster.ActiveEffects.Any(e => e.Tag == EffectSystem.MetamagieEffectTag && e.IntParams[5] == CustomSkill.EnsoTransmutation))
+      {
+        transmutedDamage = transmuter.windows.TryGetValue("ensoMetaTransmutationSelection", out var transmu)
+          ? ((EnsoMetaTransmutationSelectionWindow)transmu).selectedDamageType : DamageType.BaseWeapon;
+
+        EffectUtils.RemoveTaggedParamEffect(oCaster, CustomSkill.EnsoTransmutation, EffectSystem.MetamagieEffectTag);
+      }
+
       foreach (DamageType damageType in spellEntry.damageType)
       {
+        DamageType appliedDamage = transmutedDamage == DamageType.BaseWeapon ? damageType : transmutedDamage;
         int damage = 0;
         bool isElementalist = false;
        
         if (oCaster is NwCreature caster)
         {
-          isElementalist = PlayerSystem.Players.TryGetValue(caster, out PlayerSystem.Player player)
+          isElementalist = Players.TryGetValue(caster, out Player player)
             && player.learnableSkills.TryGetValue(CustomSkill.Elementaliste, out LearnableSkill elementalist)
-            && elementalist.featOptions.Any(e => e.Value.Any(d => d == (int)damageType));
+            && elementalist.featOptions.Any(e => e.Value.Any(d => d == (int)appliedDamage));
 
           isEvocateurSurcharge = caster.KnowsFeat((Feat)CustomSkill.EvocateurSurcharge) && spell.SpellSchool == SpellSchool.Evocation
             && 0 < spellLevel && spellLevel < 6 && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.EvocateurSurchargeEffectTag);
@@ -42,9 +57,9 @@ namespace NWN.Systems
           for (int i = 0; i < nbDices; i++)
           {
             roll = isEvocateurSurcharge ? spellEntry.damageDice : NwRandom.Roll(Utils.random, spellEntry.damageDice);
-            roll = isFureurDestructrice && Utils.In(damageType, DamageType.Electrical, DamageType.Sonic) ? spellEntry.damageDice : NwRandom.Roll(Utils.random, spellEntry.damageDice);
+            roll = isFureurDestructrice && Utils.In(appliedDamage, DamageType.Electrical, DamageType.Sonic) ? spellEntry.damageDice : NwRandom.Roll(Utils.random, spellEntry.damageDice);
 
-            switch (damageType)
+            switch (appliedDamage)
             {
               case DamageType.Piercing:
                 if (caster.KnowsFeat((Feat)CustomSkill.Empaleur))
@@ -86,17 +101,17 @@ namespace NWN.Systems
           damage = ItemUtils.GetShieldMasterReducedDamage(targetCreature, damage, saveResult, spellEntry.savingThrowAbility);
           damage = WizardUtils.GetAbjurationReducedDamage(targetCreature, damage);
           damage = PaladinUtils.GetAuraDeGardeReducedDamage(targetCreature, damage);
-          damage = ClercUtils.GetAttenuationElementaireReducedDamage(targetCreature, damage, damageType);
-          damage = HandleResistanceBypass(targetCreature, isElementalist, isEvocateurSurcharge, damage, damageType);
+          damage = ClercUtils.GetAttenuationElementaireReducedDamage(targetCreature, damage, appliedDamage);
+          damage = HandleResistanceBypass(targetCreature, isElementalist, isEvocateurSurcharge, damage, appliedDamage);
         }
 
         if (oCaster is not null)
-          NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(spellEntry.damageVFX), Effect.Damage(damage, damageType))));
+          NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(spellEntry.damageVFX), Effect.Damage(damage, appliedDamage))));
         else
-          target.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(spellEntry.damageVFX), Effect.Damage(damage, damageType)));
+          target.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(spellEntry.damageVFX), Effect.Damage(damage, appliedDamage)));
 
         if (!noLogs)
-          LogUtils.LogMessage($"Dégâts sur {target.Name} : {nbDices}d{spellEntry.damageDice} (caster lvl {casterLevel}) = {damage} {StringUtils.GetDamageTypeTraduction(damageType)}", LogUtils.LogType.Combat);
+          LogUtils.LogMessage($"Dégâts sur {target.Name} : {nbDices}d{spellEntry.damageDice} (caster lvl {casterLevel}) = {damage} {StringUtils.GetDamageTypeTraduction(appliedDamage)}", LogUtils.LogType.Combat);
 
         totalDamage += damage;
       }

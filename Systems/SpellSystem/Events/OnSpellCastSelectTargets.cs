@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using Anvil.API.Events;
 
 namespace NWN.Systems
@@ -9,65 +10,94 @@ namespace NWN.Systems
     {
       if (onSpellAction.Caster.IsLoginPlayerCharacter(out NwPlayer player))
       {
-        switch (onSpellAction.Spell.SpellType)
+        if (onSpellAction.TargetObject is not null
+          && player.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.MetamagieEffectTag && e.IntParams[5] == CustomSkill.EnsoGemellite))
         {
-          case Spell.Bane:
-          case Spell.Bless:
-          case Spell.Firebrand:
+          if (player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_SELECTED").HasNothing)
+          {
+            EffectUtils.RemoveTaggedParamEffect(player.LoginCreature, CustomSkill.EnsoGemellite, EffectSystem.MetamagieEffectTag);
+            onSpellAction.PreventSpellCast = true;
 
-            if (player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_SELECTED").HasNothing)
+            player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_TO_SELECT").Value = 2;
+            player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGET_CASTING_CLASS").Value = onSpellAction.ClassIndex;
+            player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGET_SPELL_ID").Value = onSpellAction.Spell.Id;
+
+            if (onSpellAction.TargetObject is NwGameObject target)
             {
-              onSpellAction.PreventSpellCast = true;
-
-              if(onSpellAction.Spell.SpellType == Spell.Firebrand && onSpellAction.Feat.Id == CustomSkill.MonkEtreinteDeLenfer
-                && onSpellAction.Caster.KnowsFeat((Feat)CustomSkill.MonkIncantationElementaire))
-              player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_TO_SELECT").Value = 4;
-              else
-                player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_TO_SELECT").Value = 3;
-
-              player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGET_CASTING_CLASS").Value = onSpellAction.ClassIndex;
-              player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGET_SPELL_ID").Value = onSpellAction.Spell.Id;
-              player.EnterTargetMode(SelectAdditionnalSpellTargets, Config.selectCreatureTargetMode);
-              player.SendServerMessage("Sélectionnez jusqu'à trois cibles", ColorConstants.Orange);
+              player.LoginCreature.GetObjectVariable<LocalVariableObject<NwGameObject>>("_SPELL_TARGET_0").Value = target;
+              player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS").Value = 1;
             }
-            else
-              player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_SELECTED").Delete();
 
-            return;
-
-          case (Spell)CustomSpell.AmitieAnimale:
-          case Spell.CharmPerson:
-          case Spell.HoldPerson:
-          //case Spell.HoldAnimal:
-          case Spell.HoldMonster:
-          case Spell.DominateAnimal:
-          //case Spell.DominatePerson:
-
-            if((player.ControlledCreature.KnowsFeat((Feat)CustomSkill.EnchantementPartage) 
-              || (onSpellAction.Spell.SpellType == Spell.HoldPerson && onSpellAction.Feat.Id == CustomSkill.MonkPoigneDuVentDuNord
-                && onSpellAction.Caster.KnowsFeat((Feat)CustomSkill.MonkIncantationElementaire)))
-              && player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_SELECTED").HasNothing)
-            {
-              onSpellAction.PreventSpellCast = true;
-
-              player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_TO_SELECT").Value = 2;
-              player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGET_CASTING_CLASS").Value = onSpellAction.ClassIndex;
-              player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGET_SPELL_ID").Value = onSpellAction.Spell.Id;
-
-              if (onSpellAction.TargetObject is NwGameObject target)
-              {
-                player.LoginCreature.GetObjectVariable<LocalVariableObject<NwGameObject>>("_SPELL_TARGET_0").Value = target;
-                player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS").Value = 1;
-              }
-
-              player.EnterTargetMode(SelectAdditionnalSpellTargets, Config.selectCreatureTargetMode);
-              player.SendServerMessage("Sélectionnez jusqu'à deux cibles", ColorConstants.Orange);
-            }
-            else
-              player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_SELECTED").Delete();
-
-            return;
+            player.EnterTargetMode(SelectAdditionnalSpellTargets, Config.selectCreatureTargetMode);
+            player.SendServerMessage("Sélectionnez une seconde cible", ColorConstants.Orange);
           }
+          else
+            player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_SELECTED").Delete();
+
+          return;
+        }
+        else
+        {
+          switch (onSpellAction.Spell.SpellType)
+          {
+            case Spell.Bane:
+            case Spell.Bless:
+            case Spell.Firebrand:
+
+              if (player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_SELECTED").HasNothing)
+              {
+                onSpellAction.PreventSpellCast = true;
+
+                if (onSpellAction.Spell.SpellType == Spell.Firebrand && onSpellAction.Feat.Id == CustomSkill.MonkEtreinteDeLenfer
+                  && onSpellAction.Caster.KnowsFeat((Feat)CustomSkill.MonkIncantationElementaire))
+                  player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_TO_SELECT").Value = 4;
+                else
+                  player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_TO_SELECT").Value = 3;
+
+                player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGET_CASTING_CLASS").Value = onSpellAction.ClassIndex;
+                player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGET_SPELL_ID").Value = onSpellAction.Spell.Id;
+                player.EnterTargetMode(SelectAdditionnalSpellTargets, Config.selectCreatureTargetMode);
+                player.SendServerMessage("Sélectionnez jusqu'à trois cibles", ColorConstants.Orange);
+              }
+              else
+                player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_SELECTED").Delete();
+
+              return;
+
+            case (Spell)CustomSpell.AmitieAnimale:
+            case Spell.CharmPerson:
+            case Spell.HoldPerson:
+            //case Spell.HoldAnimal:
+            case Spell.HoldMonster:
+            case Spell.DominateAnimal:
+              //case Spell.DominatePerson:
+
+              if ((player.ControlledCreature.KnowsFeat((Feat)CustomSkill.EnchantementPartage)
+                || (onSpellAction.Spell.SpellType == Spell.HoldPerson && onSpellAction.Feat.Id == CustomSkill.MonkPoigneDuVentDuNord
+                  && onSpellAction.Caster.KnowsFeat((Feat)CustomSkill.MonkIncantationElementaire)))
+                && player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_SELECTED").HasNothing)
+              {
+                onSpellAction.PreventSpellCast = true;
+
+                player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_TO_SELECT").Value = 2;
+                player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGET_CASTING_CLASS").Value = onSpellAction.ClassIndex;
+                player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGET_SPELL_ID").Value = onSpellAction.Spell.Id;
+
+                if (onSpellAction.TargetObject is NwGameObject target)
+                {
+                  player.LoginCreature.GetObjectVariable<LocalVariableObject<NwGameObject>>("_SPELL_TARGET_0").Value = target;
+                  player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS").Value = 1;
+                }
+
+                player.EnterTargetMode(SelectAdditionnalSpellTargets, Config.selectCreatureTargetMode);
+                player.SendServerMessage("Sélectionnez jusqu'à deux cibles", ColorConstants.Orange);
+              }
+              else
+                player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_SELECTED").Delete();
+
+              return;
+          }
+        }
 
         player.LoginCreature.GetObjectVariable<LocalVariableObject<NwGameObject>>("_SPELL_TARGET_1").Delete();
         player.LoginCreature.GetObjectVariable<LocalVariableObject<NwGameObject>>("_SPELL_TARGET_2").Delete();

@@ -11,7 +11,31 @@ namespace NWN.Systems
       SpellEntry spellEntry = Spells2da.spellTable[onSpellAction.Spell.Id];
       NwSpell spell = onSpellAction.Spell;
       NwCreature caster = onSpellAction.Caster;
-      
+
+      if (!spellEntry.isBonusAction
+        && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.MetamagieEffectTag && e.IntParams[5] == CustomSkill.EnsoAllonge))
+      {
+        if (!onSpellAction.IsFake)
+        {
+          onSpellAction.PreventSpellCast = true;
+          _ = caster.ActionCastFakeSpellAt(spell, caster);
+          return;
+        }
+        else
+        {
+          if (onSpellAction.TargetObject is null)
+            caster.GetObjectVariable<LocalVariableLocation>("_ENSO_ALLONGE_TARGET").Value = Location.Create(onSpellAction.Caster.Area, onSpellAction.TargetPosition, onSpellAction.Caster.Rotation);
+          else
+            caster.GetObjectVariable<LocalVariableObject<NwGameObject>>("_ENSO_ALLONGE_TARGET").Value = onSpellAction.TargetObject;
+
+          caster.OnSpellCast -= EnsoUtils.CastAllongeSpell;
+          caster.OnSpellCast += EnsoUtils.CastAllongeSpell;
+
+          onSpellAction.PreventSpellCast = true;
+          return;
+        }
+      }
+
       if (SpellUtils.IsBonusActionSpell(caster, spell.Id, spellEntry))
       {
         if (!CreatureUtils.HandleBonusActionUse(caster))

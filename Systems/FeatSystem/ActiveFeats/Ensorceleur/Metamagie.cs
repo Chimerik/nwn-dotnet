@@ -1,5 +1,7 @@
 ﻿using System.Linq;
+using System.Runtime.CompilerServices;
 using Anvil.API;
+using static NWN.Systems.PlayerSystem.Player;
 
 namespace NWN.Systems
 {
@@ -43,6 +45,13 @@ namespace NWN.Systems
         CustomSkill.EnsoIntensification or CustomSkill.EnsoAcceleration => 3,
         _ => 1,
       };
+      
+      if(featId ==  CustomSkill.EnsoTransmutation && PlayerSystem.Players.TryGetValue(caster, out var player))
+      {
+        if (player.windows.TryGetValue("ensoMetaTransmutationSelection", out var transmu)) ((EnsoMetaTransmutationSelectionWindow)transmu).CreateWindow();
+        else player.windows.Add("ensoMetaTransmutationSelection", new EnsoMetaTransmutationSelectionWindow(player));
+
+      }
 
       EnsoUtils.DecrementSorcerySource(caster, sourceCost);
     }

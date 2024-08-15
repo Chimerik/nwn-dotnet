@@ -449,7 +449,6 @@ namespace NWN.Systems
         ApplyProtectionStyle();
         ApplyAmbiMaster();
         ApplyMaitreArmureIntermediaire();
-        ApplyTueurDeMage();
         ApplySentinelle();
         ApplyMobile();
         ApplyBroyeur();
