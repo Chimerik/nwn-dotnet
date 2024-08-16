@@ -15,6 +15,16 @@ namespace NWN.Systems
         {
           if (player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_SELECTED").HasNothing)
           {
+            byte sourceCost = (byte)(onSpellAction.Spell.InnateSpellLevel < 1 ? 1 : onSpellAction.Spell.InnateSpellLevel);
+
+            if (sourceCost > EnsoUtils.GetSorcerySource(player.LoginCreature))
+            {
+              player.SendServerMessage("Source magique insuffisante pour dédoubler ce sort", ColorConstants.Red);
+              return;
+            }
+
+            EnsoUtils.DecrementSorcerySource(player.LoginCreature, sourceCost);
+
             EffectUtils.RemoveTaggedParamEffect(player.LoginCreature, CustomSkill.EnsoGemellite, EffectSystem.MetamagieEffectTag);
             onSpellAction.PreventSpellCast = true;
 

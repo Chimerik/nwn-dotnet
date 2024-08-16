@@ -103,6 +103,11 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case Spell.EpicDragonKnight:
+          concentrationTargets.AddRange(SpellSystem.InvocationDespritDragon(oCaster, spell, spellEntry, targetLocation));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case Spell.Silence:
           if(oCaster is NwCreature caster && feat is not null && feat.Id == CustomSkill.MonkSilence)
           {
@@ -767,6 +772,7 @@ namespace NWN.Systems
           SpellSystem.OnSpellCastInvocationPermutation(castingCreature, spell, spellLevel);
           SpellSystem.OnSpellCastTransmutationStone(castingCreature, spell, spellLevel);
           WizardUtils.HandleEvocateurSurchargeSelfDamage(castingCreature, spellLevel, spell.SpellSchool);
+          EnsoUtils.HandleMagieTempetueuse(castingCreature, spellLevel);
 
           if (castingClass.ClassType == ClassType.Paladin && Players.TryGetValue(castingCreature, out Player player))
           {

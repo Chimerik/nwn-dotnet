@@ -11,29 +11,14 @@ namespace NWN.Systems
     {
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
 
-      if (oTarget is not NwCreature targetCreature || oCaster is not NwCreature caster)
+      if (oCaster is not NwCreature caster)
         return;
 
-      List<NwGameObject> targets = new();
+      List<NwGameObject> targets = SpellUtils.GetSpellTargets(caster, oTarget, spellEntry, true);
       int nbTargets = caster.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS").Value;
       int DC = SpellUtils.GetCasterSpellDC(oCaster, spell, castingClass.SpellCastingAbility);
 
-      if (nbTargets > 0)
-      {
-        for (int i = 0; i < nbTargets; i++)
-        {
-          targets.Add(caster.GetObjectVariable<LocalVariableObject<NwGameObject>>($"_SPELL_TARGET_{i}").Value);
-          caster.GetObjectVariable<LocalVariableObject<NwGameObject>>($"_SPELL_TARGET_{i}").Delete();
-        }
-
-        caster.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS").Delete();
-      }
-      else
-      {
-        targets.Add(targetCreature);
-      }
-
-      foreach (var targetObject in targets.Distinct())
+      foreach (var targetObject in targets)
       {
         if (targetObject is NwCreature target && target.Race.RacialType == RacialType.Animal && target.Master is null 
           && caster.IsReactionTypeHostile(target) && !EffectSystem.IsCharmeImmune(caster, target)

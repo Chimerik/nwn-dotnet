@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Collections.Generic;
+using Anvil.API;
 using NWN.Core;
 
 namespace NWN.Systems
@@ -7,16 +8,20 @@ namespace NWN.Systems
   {
     public static void ProtectionContreLaMort(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget)
     {
-      if (oTarget is not NwCreature target)
-        return;
+      SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType, false);
+      List<NwGameObject> targets = SpellUtils.GetSpellTargets(oCaster, oTarget, spellEntry, true);
 
-      SpellUtils.SignalEventSpellCast(target, oCaster, spell.SpellType, false);
+      foreach (var target in targets)
+      {
+        if (target is NwCreature targetCreature)
+        {
+          EffectUtils.RemoveTaggedEffect(targetCreature, EffectSystem.ProtectionContreLaMortEffectTag);
+          NWScript.AssignCommand(oCaster, () => targetCreature.ApplyEffect(EffectDuration.Temporary, EffectSystem.ProtectionContreLaMort, SpellUtils.GetSpellDuration(oCaster, spellEntry)));
 
-      EffectUtils.RemoveTaggedEffect(target, EffectSystem.ProtectionContreLaMortEffectTag);
-      NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.ProtectionContreLaMort, SpellUtils.GetSpellDuration(oCaster, spellEntry)));
-
-      target.OnDamaged -= SpellEvent.OnDamagedProtectionContreLaMort;
-      target.OnDamaged += SpellEvent.OnDamagedProtectionContreLaMort;
+          targetCreature.OnDamaged -= SpellEvent.OnDamagedProtectionContreLaMort;
+          targetCreature.OnDamaged += SpellEvent.OnDamagedProtectionContreLaMort;
+        }
+      }
     }
   }
 }

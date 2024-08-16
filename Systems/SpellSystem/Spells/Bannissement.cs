@@ -9,20 +9,19 @@ namespace NWN.Systems
     public static List<NwGameObject> Bannissement(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass castingClass)
     {
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
-      List<NwGameObject> targetList = new();
-
-      if (oTarget is not NwCreature target)
-        return targetList;
-
+      List<NwGameObject> targets = SpellUtils.GetSpellTargets(oCaster, oTarget, spellEntry, true);
       int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, castingClass.SpellCastingAbility);
 
-      if (CreatureUtils.GetSavingThrow(oCaster, target, spellEntry.savingThrowAbility, spellDC, spellEntry, effectType: SpellConfig.SpellEffectType.Paralysis) == SavingThrowResult.Failure)
+      foreach (var target in targets)
       {
-        NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetBannissementEffect(target), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
-        targetList.Add(target);
+        if (target is NwCreature targetCreature
+          && CreatureUtils.GetSavingThrow(oCaster, targetCreature, spellEntry.savingThrowAbility, spellDC, spellEntry, effectType: SpellConfig.SpellEffectType.Paralysis) == SavingThrowResult.Failure)
+        {
+          NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetBannissementEffect(targetCreature), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
+        }
       }
 
-      return targetList;
+      return targets;
     }
   }
 }

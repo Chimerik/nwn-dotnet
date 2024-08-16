@@ -19,7 +19,7 @@ namespace NWN.Systems
         player.oid.LoginCreature.OnHeartbeat -= CreatureUtils.OnHeartBeatCheckUnarmoredDefence;
         player.oid.LoginCreature.OnHeartbeat += CreatureUtils.OnHeartBeatCheckUnarmoredDefence;
 
-        if (player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution) > 0 && !player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.MonkUnarmoredDefenceEffectTag))
+        if (player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution) > 0 && !player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.UnarmoredDefenceEffectTag))
           player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetUnarmoredDefenseEffect(player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));
       }
 

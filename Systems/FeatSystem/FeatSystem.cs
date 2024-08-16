@@ -218,6 +218,9 @@ namespace NWN.Systems
         case CustomSkill.EnsoGuidage: 
         case CustomSkill.EnsoSubtilite: 
         case CustomSkill.EnsoTransmutation: Metamagie(onUseFeat.Creature, onUseFeat.Feat.Id); return;
+        case CustomSkill.EnsoDracoWings: AilesDraconiques(onUseFeat.Creature); return;
+        case CustomSkill.EnsoGuideTempete: GuideTempete(onUseFeat.Creature); return;
+        case CustomSkill.EnsoAmeDesVents: AmeDesVents(onUseFeat.Creature); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

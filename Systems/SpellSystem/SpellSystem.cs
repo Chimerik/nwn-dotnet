@@ -725,6 +725,18 @@ namespace NWN.Systems
         return;
       }
 
+      if(spell.SpellType == Spell.EpicDragonKnight && caster.KnowsFeat((Feat)CustomSkill.EnsoCompagnonDraconique))
+      {
+        if (caster.GetObjectVariable<PersistentVariableString>("_COMPAGNON_DRACONIQUE_COOLDOWN").HasNothing
+            || (DateTime.TryParse(caster.GetObjectVariable<PersistentVariableString>("_COMPAGNON_DRACONIQUE_COOLDOWN").Value, out var cooldown)
+                && cooldown < DateTime.Now))
+        {
+          caster.GetObjectVariable<PersistentVariableString>("_COMPAGNON_DRACONIQUE_COOLDOWN").Value = DateTime.Now.AddDays(1).ToString();
+          EventsPlugin.SkipEvent();
+          return;
+        }
+      }
+
       if(spellEntry.RowIndex == (int)Spell.CallLightning && caster.GetObjectVariable<LocalVariableInt>("_FREE_SPELL").HasValue)
       {
         caster.GetObjectVariable<LocalVariableInt>("_FREE_SPELL").Delete();

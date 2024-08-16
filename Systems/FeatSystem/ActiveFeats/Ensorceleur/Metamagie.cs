@@ -41,6 +41,7 @@ namespace NWN.Systems
 
       byte sourceCost = featId switch
       {
+        CustomSkill.EnsoGemellite => 0,
         CustomSkill.EnsoAmplification => 2,
         CustomSkill.EnsoIntensification or CustomSkill.EnsoAcceleration => 3,
         _ => 1,

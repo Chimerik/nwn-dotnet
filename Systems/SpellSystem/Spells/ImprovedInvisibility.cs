@@ -1,5 +1,5 @@
-﻿using Anvil.API;
-using Anvil.API.Events;
+﻿using System.Collections.Generic;
+using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -10,6 +10,7 @@ namespace NWN.Systems
       int nCasterLevel = oCaster.CasterLevel;
 
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType, false);
+      List<NwGameObject> targets = SpellUtils.GetSpellTargets(oCaster, oTarget, spellEntry, true);
 
       int nDuration = nCasterLevel;
       Effect eImpact = Effect.VisualEffect(VfxType.ImpHeadMind);
@@ -22,12 +23,12 @@ namespace NWN.Systems
 
       //eInvis = Effect.LinkEffects(eInvis, Effect.AreaOfEffect((PersistentVfxType)193, null, scriptHandleFactory.CreateUniqueHandler(HandleInvisibiltyHeartBeat)));  // 193 = AoE 20 m
 
-      /*if (onSpellCast.MetaMagicFeat == MetaMagic.Extend)
-        nDuration = nDuration * 2; //Duration is +100%
-      */
-      oTarget.ApplyEffect(EffectDuration.Temporary, eLink, SpellUtils.GetSpellDuration(oCaster, spellEntry));
-      oTarget.ApplyEffect(EffectDuration.Temporary, eInvis, SpellUtils.GetSpellDuration(oCaster, spellEntry));
-      oTarget.ApplyEffect(EffectDuration.Instant, eImpact);
+      foreach (var target in targets)
+      {
+        target.ApplyEffect(EffectDuration.Temporary, eLink, SpellUtils.GetSpellDuration(oCaster, spellEntry));
+        target.ApplyEffect(EffectDuration.Temporary, eInvis, SpellUtils.GetSpellDuration(oCaster, spellEntry));
+        target.ApplyEffect(EffectDuration.Instant, eImpact);
+      }
     }
   }
 }

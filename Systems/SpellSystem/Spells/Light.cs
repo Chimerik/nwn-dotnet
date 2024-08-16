@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Collections.Generic;
+using Anvil.API;
 using NWN.Core;
 namespace NWN.Systems
 {
@@ -20,17 +21,19 @@ namespace NWN.Systems
           item.AddItemProperty(ItemProperty.Light(IPLightBrightness.Normal, IPLightColor.White), EffectDuration.Temporary, SpellUtils.GetSpellDuration(oCaster, spellEntry));
         }
       }
-      else if (oTarget is NwCreature targetCreature)
+      else if (oTarget is NwCreature targetCreature && oCaster is NwCreature caster)
       {
-        if (oCaster is NwCreature caster && targetCreature.IsReactionTypeHostile(caster))
-        {
-          int spellDC = SpellUtils.GetCasterSpellDC(caster, spell, casterClass.SpellCastingAbility);
-          
-          if (CreatureUtils.GetSavingThrow(oCaster, targetCreature, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
-            ApplyLightEffect(caster, targetCreature, spellEntry);
-        }
-        else
-          ApplyLightEffect(oCaster, targetCreature, spellEntry);
+        List<NwGameObject> targets = SpellUtils.GetSpellTargets(oCaster, oTarget, spellEntry, true);
+        int spellDC = SpellUtils.GetCasterSpellDC(caster, spell, casterClass.SpellCastingAbility);
+
+        foreach (var target in targets)
+          if (target is NwCreature targetC && targetC.IsReactionTypeHostile(caster))
+          {
+            if (CreatureUtils.GetSavingThrow(oCaster, targetC, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
+              ApplyLightEffect(oCaster, targetC, spellEntry);
+          }
+          else
+            ApplyLightEffect(oCaster, targetCreature, spellEntry);
       }
 
       NwGameObject previousTarget = oCaster.GetObjectVariable<LocalVariableObject<NwGameObject>>("_PREVIOUS_LIGHT_TARGET").Value;

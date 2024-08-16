@@ -6,12 +6,15 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static List<NwGameObject> ProtectionContreLenergie(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject target)
+    public static List<NwGameObject> ProtectionContreLenergie(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget)
     {
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
-      NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, Effect.DamageImmunityIncrease(spellEntry.damageType[0], 50), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
+      List<NwGameObject> targets = SpellUtils.GetSpellTargets(oCaster, oTarget, spellEntry, true);
+
+      foreach (var target in targets)
+        NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, Effect.DamageImmunityIncrease(spellEntry.damageType[0], 50), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
       
-      return new List<NwGameObject>() { target };
+      return targets;
     }
   }
 }

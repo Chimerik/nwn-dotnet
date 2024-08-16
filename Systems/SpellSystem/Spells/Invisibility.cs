@@ -9,9 +9,12 @@ namespace NWN.Systems
     public static List<NwGameObject> Invisibility(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwFeat feat)
     {
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType, false);
-      DelayInvisEffect(oCaster, oTarget, spellEntry, feat);
+      List<NwGameObject> targets = SpellUtils.GetSpellTargets(oCaster, oTarget, spellEntry, true);
 
-      return new List<NwGameObject> { oTarget };
+      foreach(var target in targets)
+        DelayInvisEffect(oCaster, target, spellEntry, feat);
+
+      return targets;
     }
     private static async void DelayInvisEffect(NwGameObject oCaster, NwGameObject oTarget, SpellEntry spellEntry, NwFeat feat)
     {

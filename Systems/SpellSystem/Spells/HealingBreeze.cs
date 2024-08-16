@@ -3,8 +3,6 @@
 using Anvil.API;
 using Anvil.API.Events;
 
-using NWN.Core.NWNX;
-
 namespace NWN.Systems
 {
   public partial class SpellSystem

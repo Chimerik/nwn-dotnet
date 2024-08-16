@@ -20,6 +20,7 @@ namespace NWN.Systems
         DamageType.Bludgeoning => IPDamageType.Bludgeoning,
         _ => IPDamageType.Slashing,
       };
+
       NWScript.AssignCommand(oCaster, () => target.AddItemProperty(ItemProperty.AttackBonus(1), EffectDuration.Temporary, NwTimeSpan.FromRounds(spellEntry.duration)));
       NWScript.AssignCommand(oCaster, () => target.AddItemProperty(ItemProperty.DamageBonus(damageType,IPDamageBonus.Plus1), EffectDuration.Temporary, SpellUtils.GetSpellDuration(oCaster, spellEntry)));
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSuperHeroism));

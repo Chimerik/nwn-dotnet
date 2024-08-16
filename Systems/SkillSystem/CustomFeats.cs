@@ -434,6 +434,21 @@
     public const int RetablissementSorcier = 1691;
     public const int EnsoApotheose = 1692;
 
+    public const int EnsoResistanceDraconique = 1693;
+    public const int EnsoDracoAffiniteAcide = 1694;
+    public const int EnsoDracoAffiniteFroid = 1695;
+    public const int EnsoDracoAffiniteFeu = 1696;
+    public const int EnsoDracoAffiniteElec = 1697;
+    public const int EnsoDracoAffinitePoison = 1698;
+    public const int EnsoDracoWings = 1699;
+    public const int EnsoCompagnonDraconique = 1700;
+
+    public const int EnsoMagieTempetueuse = 1701;
+    public const int EnsoCoeurDeLaTempete = 1702;
+    public const int EnsoGuideTempete = 1703;
+    public const int EnsoFureurTempete = 1704;
+    public const int EnsoAmeDesVents = 1705;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -1008,6 +1023,8 @@
     public const int ClercVie = 20617;
 
     public const int Ensorceleur = 20618;
+    public const int EnsorceleurLigneeDraconique = 20619;
+    public const int EnsorceleurTempete = 20620;
 
 
     public const int Invalid = 65535;

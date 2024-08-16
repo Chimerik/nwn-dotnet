@@ -427,6 +427,7 @@ namespace NWN.Systems
         InitializeWeaponMasterChoice();
         InitializeFeatChoice();
         InitializeFightingStyleChoice();
+        InitializeAffiniteElementaireChoice();
         InitializeRangerArchetypeChoice();
         InitializeHunterTactiqueDefensiveChoice();
         InitializeHunterDefenseSuperieureChoice();
@@ -458,6 +459,7 @@ namespace NWN.Systems
         ApplyUltimeSurvivant();
         ApplyShieldArmorMalus();
         ApplyUnarmoredDefence();
+        ApplyResistanceDraconique();
         ApplyMonkUnarmoredDefence();
         InitializeActionSurge();
         InitializeWarMasterImplacable();
@@ -482,6 +484,9 @@ namespace NWN.Systems
         ApplyFireWanderer();
         ApplyPoisonWanderer();
         ApplyAcidWanderer();
+        ApplyCoeurDeLaTempete();
+        ApplyAmeDesVents();
+        ApplyFureurTempete();
         ApplyMonkOpportunist();
         ApplyDefenseAdaptative();
         ApplyTraqueurRedoutable();
@@ -496,6 +501,11 @@ namespace NWN.Systems
         ApplyAvatarDeBataille();
         ApplyElectrocution();
         ApplyRetablissementSorcier();
+        ApplyAcidAffinity();
+        ApplyColdAffinity();
+        ApplyFireAffinity();
+        ApplyElectricityAffinity();
+        ApplyPoisonAffinity();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

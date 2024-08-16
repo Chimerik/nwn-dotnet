@@ -54,6 +54,8 @@ namespace NWN.Systems
           isEvocateurSurcharge = caster.KnowsFeat((Feat)CustomSkill.EvocateurSurcharge) && spell.SpellSchool == SpellSchool.Evocation
             && 0 < spellLevel && spellLevel < 6 && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.EvocateurSurchargeEffectTag);
 
+          damage += EnsoUtils.HandleElementalAffinity(caster, appliedDamage);
+
           for (int i = 0; i < nbDices; i++)
           {
             roll = isEvocateurSurcharge ? spellEntry.damageDice : NwRandom.Roll(Utils.random, spellEntry.damageDice);
@@ -103,6 +105,8 @@ namespace NWN.Systems
           damage = PaladinUtils.GetAuraDeGardeReducedDamage(targetCreature, damage);
           damage = ClercUtils.GetAttenuationElementaireReducedDamage(targetCreature, damage, appliedDamage);
           damage = HandleResistanceBypass(targetCreature, isElementalist, isEvocateurSurcharge, damage, appliedDamage);
+
+          EnsoUtils.HandleCoeurDeLaTempete(targetCreature, appliedDamage);
         }
 
         if (oCaster is not null)

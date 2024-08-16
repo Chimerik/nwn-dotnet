@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Collections.Generic;
+using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -9,6 +10,8 @@ namespace NWN.Systems
       if (oCaster is not NwCreature caster)
         return;
 
+      SpellUtils.SignalEventSpellCast(oTarget, caster, spell.SpellType);
+      List<NwGameObject> targets = SpellUtils.GetSpellTargets(oCaster, oTarget, spellEntry, true);
       int nbDice = SpellUtils.GetSpellDamageDiceNumber(caster, spell);
 
       if (oCaster is NwCreature castingCreature && feat is not null && feat.Id == CustomSkill.MonkFrappeDeLaTempete)
@@ -21,20 +24,22 @@ namespace NWN.Systems
           nbDice += 1;
       }
 
-      SpellUtils.SignalEventSpellCast(oTarget, caster, spell.SpellType);
-      oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpLightningS));
-
-      switch (SpellUtils.GetSpellAttackRoll(oTarget, caster, spell, casterClass.SpellCastingAbility, 0))
+      foreach (var target in targets)
       {
-        case TouchAttackResult.CriticalHit: nbDice = SpellUtils.GetCriticalSpellDamageDiceNumber(caster, spellEntry, nbDice); ; break;
-        case TouchAttackResult.Hit: break;
-        default: return;
+        target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpLightningS));
+
+        switch (SpellUtils.GetSpellAttackRoll(target, caster, spell, casterClass.SpellCastingAbility, 0))
+        {
+          case TouchAttackResult.CriticalHit: nbDice = SpellUtils.GetCriticalSpellDamageDiceNumber(caster, spellEntry, nbDice); ; break;
+          case TouchAttackResult.Hit: break;
+          default: return;
+        }
+
+        target.ApplyEffect(EffectDuration.Temporary, EffectSystem.noReactions, NwTimeSpan.FromRounds(1));
+        target.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value = 0;
+
+        SpellUtils.DealSpellDamage(target, caster.CasterLevel, spellEntry, nbDice, caster, 1);
       }
-
-      oTarget.ApplyEffect(EffectDuration.Temporary, EffectSystem.noReactions, NwTimeSpan.FromRounds(1)) ;
-      oTarget.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value = 0;
-
-      SpellUtils.DealSpellDamage(oTarget, caster.CasterLevel, spellEntry, nbDice, caster, 1);
     }
   }
 }

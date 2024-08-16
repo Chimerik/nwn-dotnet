@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Collections.Generic;
+using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -7,6 +8,7 @@ namespace NWN.Systems
     public static void OrbeChromatique(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass castingClass, NwFeat feat)
     {
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
+      List<NwGameObject> targets = SpellUtils.GetSpellTargets(oCaster, oTarget, spellEntry, true);
 
       var vfx = spell.Id switch
       {
@@ -17,40 +19,42 @@ namespace NWN.Systems
         _ => VfxType.ImpFlameS,
       };
 
-      oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(vfx));
-
-
-      if (oCaster is NwCreature caster)
+      foreach (var target in targets)
       {
-        if (feat is not null && feat.Id == CustomSkill.MonkSphereDequilibreElementaire)
-        {
-          caster.IncrementRemainingFeatUses(feat.FeatType);
-          FeatUtils.DecrementKi(caster, 2);
-          castingClass = NwClass.FromClassId(CustomClass.Monk);
-        }
+        target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(vfx));
 
-        if (castingClass.Id != CustomClass.Monk)
+        if (oCaster is NwCreature caster)
         {
-          if (caster.Gold < 50)
+          if (feat is not null && feat.Id == CustomSkill.MonkSphereDequilibreElementaire)
           {
-            caster.LoginPlayer?.SendServerMessage("Vous devez être en possession de 50 po pour lancer ce sort", ColorConstants.Red);
-            return;
+            caster.IncrementRemainingFeatUses(feat.FeatType);
+            FeatUtils.DecrementKi(caster, 2);
+            castingClass = NwClass.FromClassId(CustomClass.Monk);
           }
 
-          caster.Gold -= 50;
+          if (castingClass.Id != CustomClass.Monk)
+          {
+            if (caster.Gold < 50)
+            {
+              caster.LoginPlayer?.SendServerMessage("Vous devez être en possession de 50 po pour lancer ce sort", ColorConstants.Red);
+              return;
+            }
+
+            caster.Gold -= 50;
+          }
         }
-      }
 
-      int nbDice = SpellUtils.GetSpellDamageDiceNumber(oCaster, spell);
+        int nbDice = SpellUtils.GetSpellDamageDiceNumber(oCaster, spell);
 
-      switch(SpellUtils.GetSpellAttackRoll(oTarget, oCaster, spell, castingClass.SpellCastingAbility))
-      {
-        case TouchAttackResult.CriticalHit: nbDice = SpellUtils.GetCriticalSpellDamageDiceNumber(oCaster, spellEntry, nbDice); ; break;
-        case TouchAttackResult.Hit: break;
-        default: return;
+        switch (SpellUtils.GetSpellAttackRoll(target, oCaster, spell, castingClass.SpellCastingAbility))
+        {
+          case TouchAttackResult.CriticalHit: nbDice = SpellUtils.GetCriticalSpellDamageDiceNumber(oCaster, spellEntry, nbDice); ; break;
+          case TouchAttackResult.Hit: break;
+          default: return;
+        }
+
+        SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, nbDice, oCaster, spell.GetSpellLevelForClass(castingClass));
       }
-      
-      SpellUtils.DealSpellDamage(oTarget, oCaster.CasterLevel, spellEntry, nbDice, oCaster, spell.GetSpellLevelForClass(castingClass));
     }
   }
 }

@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Collections.Generic;
+using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -6,17 +7,19 @@ namespace NWN.Systems
   {
     public static void Injonction(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass castingClass)
     {
-      if (oCaster is not NwCreature caster || oTarget is not NwCreature target)
+      if (oCaster is not NwCreature caster)
         return;
 
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
+      List<NwGameObject> targets = SpellUtils.GetSpellTargets(oCaster, oTarget, spellEntry, true);
       int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, castingClass.SpellCastingAbility);
 
-      if(CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
-      {
-        target.ApplyEffect(EffectDuration.Temporary, Effect.Knockdown(), SpellUtils.GetSpellDuration(oCaster, spellEntry));
-        target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpKnock));
-      }
+      foreach (var target in targets)
+        if (target is NwCreature targetCreature
+          && CreatureUtils.GetSavingThrow(caster, targetCreature, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
+        {
+          EffectSystem.ApplyKnockdown(caster, targetCreature);
+        }
     }
   }
 }

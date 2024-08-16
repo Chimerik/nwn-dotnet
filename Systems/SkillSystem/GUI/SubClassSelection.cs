@@ -290,6 +290,14 @@ namespace NWN.Systems
                       Clerc.HandleVieLevelUp(player, 1);
                       category = Category.ClercSubClass;
                       break;
+                    case CustomSkill.EnsorceleurLigneeDraconique:
+                      Ensorceleur.HandleDraconiqueLevelUp(player, 3);
+                      category = Category.EnsorceleurSubClass;
+                      break;
+                    case CustomSkill.EnsorceleurTempete:
+                      Ensorceleur.HandleTempeteLevelUp(player, 3);
+                      category = Category.EnsorceleurSubClass;
+                      break;
                   }
 
                   player.learnableSkills.Remove(player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value);

@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Collections.Generic;
+using Anvil.API;
 using NWN.Core;
 
 namespace NWN.Systems
@@ -7,10 +8,11 @@ namespace NWN.Systems
   {
     public static void Guerison(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass castingClass)
     {
-      if (oCaster is not NwCreature caster || oTarget is not NwCreature target || Utils.In(target.Race.RacialType, RacialType.Undead, RacialType.Construct))
+      if (oCaster is not NwCreature caster)
         return;
 
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
+      List<NwGameObject> targets = SpellUtils.GetSpellTargets(oCaster, oTarget, spellEntry, true);
       int healAmount = spellEntry.damageDice + caster.GetAbilityModifier(castingClass.SpellCastingAbility);
 
       if (castingClass.ClassType == ClassType.Cleric)
@@ -22,12 +24,16 @@ namespace NWN.Systems
           NWScript.AssignCommand(oCaster, () => oCaster.ApplyEffect(EffectDuration.Instant, Effect.Heal(2 * spell.GetSpellLevelForClass(castingClass))));
       }
 
-      NWScript.AssignCommand(oCaster, () => oTarget.ApplyEffect(EffectDuration.Instant, Effect.Heal(healAmount)));
-      oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHealingS));
+      foreach (var target in targets)
+      {
+        if (target is NwCreature targetCreature && !Utils.In(targetCreature.Race.RacialType, RacialType.Undead, RacialType.Construct))
+        {
+          NWScript.AssignCommand(oCaster, () => targetCreature.ApplyEffect(EffectDuration.Instant, Effect.Heal(healAmount)));
+          targetCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHealingS));
 
-      EffectUtils.RemoveEffectType(target, EffectType.Blindness, EffectType.Disease, EffectType.Deaf);
-
-      
+          EffectUtils.RemoveEffectType(targetCreature, EffectType.Blindness, EffectType.Disease, EffectType.Deaf);
+        }
+      }
     }  
   }
 }

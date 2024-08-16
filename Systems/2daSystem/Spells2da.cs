@@ -23,6 +23,7 @@ namespace NWN.Systems
     public bool bardMagicalSecret { get; private set; }
     public bool hideFromRanger { get; private set; }
     public bool ritualSpell { get; private set; }
+    public int range { get; private set; }
 
     public void InterpretEntry(TwoDimArrayEntry entry)
     {
@@ -51,6 +52,13 @@ namespace NWN.Systems
       hideFromRanger = entry.GetBool("HideFromRanger").GetValueOrDefault(false);
       ritualSpell = entry.GetBool("Rituel").GetValueOrDefault(false);
 
+      range = entry.GetString("Duration") switch
+      {
+        "S" => 81,
+        "M" => 400,
+        "L" => 1600,
+        _ => 9,
+      };
       StrRef nameEntry = entry.GetStrRef("Name").GetValueOrDefault(StrRef.FromCustomTlk(0));
       googleDocId = entry.GetString("Description");
 

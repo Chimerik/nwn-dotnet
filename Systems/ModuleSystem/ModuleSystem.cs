@@ -1317,14 +1317,14 @@ namespace NWN.Systems
         }
       }
 
-      if (creature.ActiveEffects.Any(e => e.Tag == EffectSystem.mobileDebuffEffectTag && e.Creator == target))
+      if (creature.ActiveEffects.Any(e => EffectUtils.In(e.Tag, EffectSystem.mobileDebuffEffectTag, EffectSystem.MagieTempetueuseEffectTag) && e.Creator == target))
       {
-        StringUtils.DisplayStringToAllPlayersNearTarget(creature, "Mobile : Attaque d'opportunité annulée", ColorConstants.Red, true);
+        StringUtils.DisplayStringToAllPlayersNearTarget(creature, "Mobile ou Magie Tempêtueuse : Attaque d'opportunité annulée", ColorConstants.Red, true);
         EventsPlugin.SkipEvent();
         return;
       }
 
-      if(creature.KnowsFeat((Feat)CustomSkill.MageDeGuerre)
+      if (creature.KnowsFeat((Feat)CustomSkill.MageDeGuerre)
         && creature.ActiveEffects.Any(e => e.Tag == EffectSystem.MageDeGuerreEffectTag))
       {
         creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value -= 1;

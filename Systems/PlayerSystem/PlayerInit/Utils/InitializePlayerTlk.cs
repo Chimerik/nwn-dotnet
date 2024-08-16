@@ -217,6 +217,17 @@ namespace NWN.Systems
           new StrRef(12).SetPlayerOverride(oid, "Domaine de la Vie");
           oid.SetTextureOverride("clerc", "domaine_vie");
         }
+        
+        if (learnableSkills.ContainsKey(CustomSkill.EnsorceleurLigneeDraconique))
+        {
+          new StrRef(9).SetPlayerOverride(oid, "Lignée Draconique");
+          oid.SetTextureOverride("ensorceleur", "enso_draconique");
+        }
+        else if (learnableSkills.ContainsKey(CustomSkill.EnsorceleurTempete))
+        {
+          new StrRef(9).SetPlayerOverride(oid, "Sorcellerie de la Temtête");
+          oid.SetTextureOverride("ensorceleur", "enso_tempete");
+        }
       }
     }
   }

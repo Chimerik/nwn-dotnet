@@ -8,22 +8,23 @@ namespace NWN.Systems
   {
     public static List<NwGameObject> MaledictionDegats(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass casterClass)
     {
-      List<NwGameObject> targetList = new();
-
-      if (oCaster is not NwCreature caster || oTarget is not NwCreature target)
-        return targetList;
-
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
-      int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, casterClass.SpellCastingAbility);
+      List<NwGameObject> targets = SpellUtils.GetSpellTargets(oCaster, oTarget, spellEntry, true);
 
-      if (CreatureUtils.GetSavingThrow(oCaster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
+      if (oCaster is not NwCreature caster)
       {
-        targetList.Add(oTarget);
-        target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpReduceAbilityScore));
-        NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetMaledictionDegats(target), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
+        int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, casterClass.SpellCastingAbility);
+
+        foreach (var target in targets)
+          if (target is NwCreature targetCreature
+            && CreatureUtils.GetSavingThrow(oCaster, targetCreature, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
+          {
+            target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpReduceAbilityScore));
+            NWScript.AssignCommand(oCaster, () => targetCreature.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetMaledictionDegats(targetCreature), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
+          }
       }
 
-      return targetList;
+      return targets;
     }
   }
 }

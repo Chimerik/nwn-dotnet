@@ -9,15 +9,15 @@ namespace NWN.Systems
     public static List<NwGameObject> Hate(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget)
     {
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
-      List<NwGameObject> targetList = new();
+      List<NwGameObject> targets = SpellUtils.GetSpellTargets(oCaster, oTarget, spellEntry, true);
 
-      if (oTarget is not NwCreature target || oCaster is not NwCreature caster || target.IsReactionTypeHostile(caster))
-        return targetList;
+      foreach (var target in targets)
+      {
+        if (target is NwCreature targetCreature)
+          NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Hate, SpellUtils.GetSpellDuration(oCaster, spellEntry)));
+      }
 
-      targetList.Add(target);
-      NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Hate, SpellUtils.GetSpellDuration(oCaster, spellEntry)));
-
-      return targetList;
+      return targets;
     }
   }
 }

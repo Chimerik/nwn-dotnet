@@ -8,11 +8,14 @@ namespace NWN.Systems
     public static List<NwGameObject> ProtectionContreLeMalEtLeBien(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget)
     {
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
+      List<NwGameObject> targets = SpellUtils.GetSpellTargets(oCaster, oTarget, spellEntry, true);
 
-      oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(spellEntry.damageVFX));
-      oTarget.ApplyEffect(EffectDuration.Temporary, EffectSystem.ProtectionContreLeMalEtLeBien, SpellUtils.GetSpellDuration(oCaster, spellEntry));
-
-      return new List<NwGameObject> { oTarget };
+      foreach (var target in targets)
+      {
+        target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(spellEntry.damageVFX));
+        target.ApplyEffect(EffectDuration.Temporary, EffectSystem.ProtectionContreLeMalEtLeBien, SpellUtils.GetSpellDuration(oCaster, spellEntry));
+      }
+      return targets;
     }
   }
 }

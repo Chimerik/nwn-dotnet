@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Collections.Generic;
+using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -8,19 +9,23 @@ namespace NWN.Systems
     {
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
 
+      List<NwGameObject> targets = SpellUtils.GetSpellTargets(oCaster, oTarget, spellEntry, true);
       int nbDice = SpellUtils.GetSpellDamageDiceNumber(oCaster, spell);
 
-      switch(SpellUtils.GetSpellAttackRoll(oTarget, oCaster, spell, castingClass.SpellCastingAbility))
+      foreach (var target in targets)
       {
-        case TouchAttackResult.CriticalHit: nbDice = SpellUtils.GetCriticalSpellDamageDiceNumber(oCaster, spellEntry, nbDice); ; break;
-        case TouchAttackResult.Hit: break;
-        default: return;
-      }
+        switch (SpellUtils.GetSpellAttackRoll(target, oCaster, spell, castingClass.SpellCastingAbility))
+        {
+          case TouchAttackResult.CriticalHit: nbDice = SpellUtils.GetCriticalSpellDamageDiceNumber(oCaster, spellEntry, nbDice); ; break;
+          case TouchAttackResult.Hit: break;
+          default: return;
+        }
 
-      oTarget.OnHeal -= PreventHeal;
-      oTarget.OnHeal += PreventHeal;
-      oTarget.ApplyEffect(EffectDuration.Temporary, EffectSystem.boneChillEffect, SpellUtils.GetSpellDuration(oCaster, spellEntry));
-      SpellUtils.DealSpellDamage(oTarget, oCaster.CasterLevel, spellEntry, nbDice, oCaster, spell.GetSpellLevelForClass(castingClass));
+        target.OnHeal -= PreventHeal;
+        target.OnHeal += PreventHeal;
+        target.ApplyEffect(EffectDuration.Temporary, EffectSystem.boneChillEffect, SpellUtils.GetSpellDuration(oCaster, spellEntry));
+        SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, nbDice, oCaster, spell.GetSpellLevelForClass(castingClass));
+      }
     }
   }
 }

@@ -36,8 +36,10 @@ namespace NWN.Systems
       new List<int>() { CustomSkill.AthleticsProficiency, CustomSkill.AcrobaticsProficiency }, SpellConfig.SpellEffectType.Knockdown);
 
       if (saveFailed)
+      {
         target.ApplyEffect(EffectDuration.Temporary, knockdown,
         target.KnowsFeat((Feat)CustomSkill.Sportif) ? NwTimeSpan.FromRounds(1) : NwTimeSpan.FromRounds(2));
+      }
     }
     public static void ApplyKnockdown(NwCreature creature, CreatureSize maxSize, int duration)
     {
