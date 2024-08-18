@@ -427,6 +427,7 @@ namespace NWN.Systems
         InitializeWeaponMasterChoice();
         InitializeFeatChoice();
         InitializeFightingStyleChoice();
+        InitializeOrdrePrimordialChoice();
         InitializeAffiniteElementaireChoice();
         InitializeRangerArchetypeChoice();
         InitializeHunterTactiqueDefensiveChoice();

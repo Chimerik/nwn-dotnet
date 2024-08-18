@@ -329,6 +329,7 @@ namespace NWN.Systems
             CustomSkill.Paladin => learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.PaladinSubClass),
             CustomSkill.Clerc => learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.ClercSubClass),
             CustomSkill.Ensorceleur => learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.EnsorceleurSubClass),
+            CustomSkill.Druide => learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.DruidSubclass),
             _ => null,
           };
         }

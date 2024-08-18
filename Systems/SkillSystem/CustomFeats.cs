@@ -449,6 +449,10 @@
     public const int EnsoFureurTempete = 1704;
     public const int EnsoAmeDesVents = 1705;
 
+    public const int DruideSage = 1706;
+    public const int DruideCompagnonSauvage = 1707;
+    public const int DruideReveilSauvage = 1708;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -1026,6 +1030,8 @@
     public const int EnsorceleurLigneeDraconique = 20619;
     public const int EnsorceleurTempete = 20620;
 
+    public const int Druide = 20622;
+    public const int DruideGardien = 20623;
 
     public const int Invalid = 65535;
   }

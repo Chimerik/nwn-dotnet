@@ -640,6 +640,7 @@ namespace NWN.Systems
                     ClercUtils.RestoreInterventionDivine(player.oid.LoginCreature);
                     ClercUtils.RestoreClercDomaine(player.oid.LoginCreature);
                     EnsoUtils.RestoreSorcerySource(player.oid.LoginCreature);
+                    DruideUtils.RestoreFormeSauvage(player.oid.LoginCreature);
 
                     if (player.oid.LoginCreature.Race.Id == CustomRace.HalfOrc)
                     {

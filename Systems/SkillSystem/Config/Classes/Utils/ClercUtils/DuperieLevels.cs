@@ -19,8 +19,8 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.ClercBenedictionEscroc].LevelUp(player);
           player.learnableSkills[CustomSkill.ClercBenedictionEscroc].source.Add(Category.Class);
 
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.Deguisement);
-          ClercUtils.LearnDomaineSpell(player, (int)Spell.CharmPerson);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.Deguisement, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.CharmPerson, CustomClass.Clerc);
 
           break;
 
@@ -34,15 +34,15 @@ namespace NWN.Systems
 
         case 3:
 
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.PassageSansTrace);
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.ImageMiroir);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.PassageSansTrace, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.ImageMiroir, CustomClass.Clerc);
 
           break;
 
         case 5:
 
-          ClercUtils.LearnDomaineSpell(player, (int)Spell.Fear);
-          ClercUtils.LearnDomaineSpell(player, (int)Spell.BestowCurse);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Fear, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.BestowCurse, CustomClass.Clerc);
 
           break;
 
@@ -57,8 +57,8 @@ namespace NWN.Systems
 
         case 7:
 
-          ClercUtils.LearnDomaineSpell(player, (int)Spell.PolymorphSelf);
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.PorteDimensionnelle);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.PolymorphSelf, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.PorteDimensionnelle, CustomClass.Clerc);
 
           break;
 
@@ -72,8 +72,8 @@ namespace NWN.Systems
 
         case 9:
 
-          ClercUtils.LearnDomaineSpell(player, (int)Spell.DominatePerson);
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.ApparencesTrompeuses);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.DominatePerson, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.ApparencesTrompeuses, CustomClass.Clerc);
 
           break;
       }

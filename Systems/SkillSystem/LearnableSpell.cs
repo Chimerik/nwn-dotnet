@@ -13,8 +13,7 @@ namespace NWN.Systems
     //public List<ClassType> availableToClasses { get; set; }
     public List<int> learntFromClasses { get; set; }
     public bool mastery { get; set; }
-    public bool paladinSerment { get; set; }
-    public bool clericDomain { get; set; }
+    public bool alwaysPrepared { get; set; }
     // Dans le cas des Spell, multiplier = spell Level - 1
 
     public LearnableSpell(int id, string name, string description, string icon, int multiplier, Ability primaryAbility, Ability secondaryAbility/*, List<ClassType> classes*/, int maxLevel = 1) : base(id, name, description, icon, maxLevel, multiplier, primaryAbility, secondaryAbility)
@@ -30,8 +29,7 @@ namespace NWN.Systems
       pointsToNextLevel = 5000 * multiplier;
       learntFromClasses = new() { fromClass };
       mastery = false;
-      paladinSerment = false;
-      clericDomain = false;
+      alwaysPrepared = false;
     }
     public LearnableSpell(LearnableSpell learnableBase, List<int> fromClass) : base(learnableBase)
     {
@@ -42,8 +40,7 @@ namespace NWN.Systems
       pointsToNextLevel = 5000 * multiplier;
       learntFromClasses = fromClass;
       mastery = false;
-      paladinSerment = false;
-      clericDomain = false;
+      alwaysPrepared = false;
     }
     public LearnableSpell(LearnableSpell learnableBase, SerializableLearnableSpell serializableBase) : base(learnableBase)
     {
@@ -56,8 +53,7 @@ namespace NWN.Systems
       canLearn = serializableBase.canLearn;
       learntFromClasses = serializableBase.learntFromClasses;
       mastery = serializableBase.mastery;
-      paladinSerment = serializableBase.paladinSerment;
-      clericDomain = serializableBase.clericDomain;
+      alwaysPrepared = serializableBase.alwaysPrepared;
     }
 
     public class SerializableLearnableSpell
@@ -67,8 +63,7 @@ namespace NWN.Systems
       public int currentLevel { get; set; }
       public bool canLearn { get; set; }
       public bool mastery { get; set; }
-      public bool paladinSerment { get; set; }
-      public bool clericDomain { get; set; }
+      public bool alwaysPrepared { get; set; }
       public List<int> learntFromClasses { get; set; }
       public DateTime? spLastCalculation { get; set; }
 
@@ -85,8 +80,7 @@ namespace NWN.Systems
         canLearn = learnableBase.canLearn;
         mastery = learnableBase.mastery;
         learntFromClasses = learnableBase.learntFromClasses;
-        paladinSerment = learnableBase.paladinSerment;
-        clericDomain = learnableBase.clericDomain;
+        alwaysPrepared = learnableBase.alwaysPrepared;
       }
     }
     public void LevelUp(Player player)

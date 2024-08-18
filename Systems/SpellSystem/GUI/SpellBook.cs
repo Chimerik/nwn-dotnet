@@ -284,12 +284,8 @@ namespace NWN.Systems
 
               List<NwSpell> readySpells = new();
 
-              if(selectedClass.ClassType == ClassType.Paladin)
-                foreach (var spell in player.learnableSpells.Values.Where(s => s.paladinSerment))
-                  readySpells.Add(NwSpell.FromSpellId(spell.id));
-              else if(selectedClass.ClassType == ClassType.Cleric)
-                foreach (var spell in player.learnableSpells.Values.Where(s => s.clericDomain))
-                  readySpells.Add(NwSpell.FromSpellId(spell.id));
+              foreach (var spell in player.learnableSpells.Values.Where(s => s.alwaysPrepared))
+                readySpells.Add(NwSpell.FromSpellId(spell.id));
 
               var classInfo = player.oid.LoginCreature.GetClassInfo(selectedClass);
               int preparedSpells = CreatureUtils.GetPreparableSpellsCount(player, selectedClass);
@@ -331,9 +327,9 @@ namespace NWN.Systems
 
                   var learnable = player.learnableSpells[spell.Id];
 
-                  if (learnable.paladinSerment || learnable.clericDomain)
+                  if (learnable.alwaysPrepared)
                   {
-                    tooltip = "Vos sorts de serment ou de domaine sont toujours préparés";
+                    tooltip = "Ce sort est toujours préparé et ne compte pas en tant qu'emplacement préparé";
                     enabled = false;
                   }
 

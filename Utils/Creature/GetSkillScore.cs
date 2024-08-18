@@ -79,6 +79,17 @@ namespace NWN.Systems
       if (!noLogs) LogUtils.LogMessage($"Modificateur de caractéristique : {creature.GetAbilityModifier(ability)}", LogUtils.LogType.Combat);
       score += GetSkillEffectBonus(creature, skill);
 
+      switch(skill)
+      {
+        case CustomSkill.ArcanaProficiency:
+        case CustomSkill.NatureProficiency:
+
+          int druideSageBonus = creature.GetAbilityModifier(Ability.Wisdom) > 0 ? creature.GetAbilityModifier(Ability.Wisdom): 1;
+          if (!noLogs) LogUtils.LogMessage($"Druide Sage : +{druideSageBonus}", LogUtils.LogType.Combat);
+          score += druideSageBonus;
+          break;
+      }
+
       if (creature.ActiveEffects.Any(e => e.Tag == EffectSystem.WildMagicBienfaitEffectTag))
       {
         int bienfait = NwRandom.Roll(Utils.random, 4);

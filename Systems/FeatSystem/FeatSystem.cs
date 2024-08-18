@@ -221,6 +221,8 @@ namespace NWN.Systems
         case CustomSkill.EnsoDracoWings: AilesDraconiques(onUseFeat.Creature); return;
         case CustomSkill.EnsoGuideTempete: GuideTempete(onUseFeat.Creature); return;
         case CustomSkill.EnsoAmeDesVents: AmeDesVents(onUseFeat.Creature); return;
+
+        case CustomSkill.DruideReveilSauvage: ReveilSauvage(onUseFeat.Creature); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

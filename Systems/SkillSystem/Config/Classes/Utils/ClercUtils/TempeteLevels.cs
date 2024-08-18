@@ -33,8 +33,8 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.ClercFureurOuraganTonnerre].LevelUp(player);
           player.learnableSkills[CustomSkill.ClercFureurOuraganTonnerre].source.Add(Category.Class);
 
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.NappeDeBrouillard);
-          ClercUtils.LearnDomaineSpell(player, (int)Spell.Balagarnsironhorn);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.NappeDeBrouillard, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Balagarnsironhorn, CustomClass.Clerc);
 
           break;
 
@@ -48,15 +48,15 @@ namespace NWN.Systems
 
         case 3:
 
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.Fracassement);
-          ClercUtils.LearnDomaineSpell(player, (int)Spell.GustOfWind);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.Fracassement, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.GustOfWind, CustomClass.Clerc);
 
           break;
 
         case 5:
 
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.TempeteDeNeige);
-          ClercUtils.LearnDomaineSpell(player, (int)Spell.CallLightning);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.TempeteDeNeige, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.CallLightning, CustomClass.Clerc);
 
           break;
 
@@ -70,8 +70,8 @@ namespace NWN.Systems
 
         case 7:
 
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.ControleDeLeau);
-          ClercUtils.LearnDomaineSpell(player, (int)Spell.IceStorm);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.ControleDeLeau, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.IceStorm, CustomClass.Clerc);
 
           break;
 
@@ -85,8 +85,8 @@ namespace NWN.Systems
 
         case 9:
 
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.FleauDinsectes);
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.VagueDestructrice);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.FleauDinsectes, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.VagueDestructrice, CustomClass.Clerc);
 
           break;
 

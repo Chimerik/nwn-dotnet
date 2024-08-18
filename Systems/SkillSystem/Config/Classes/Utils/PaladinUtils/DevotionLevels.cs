@@ -29,15 +29,15 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.DevotionRenvoiDesImpies].LevelUp(player);
           player.learnableSkills[CustomSkill.DevotionRenvoiDesImpies].source.Add(Category.Class);
 
-          PaladinUtils.LearnSermentSpell(player, CustomSpell.ProtectionContreLeMalEtLeBien);
-          PaladinUtils.LearnSermentSpell(player, (int)Spell.Sanctuary);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.ProtectionContreLeMalEtLeBien, CustomClass.Paladin);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Sanctuary, CustomClass.Paladin);
 
           break;
 
         case 5:
 
-          PaladinUtils.LearnSermentSpell(player, (int)Spell.Silence);
-          PaladinUtils.LearnSermentSpell(player, (int)Spell.LesserRestoration);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Silence, CustomClass.Paladin);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.LesserRestoration, CustomClass.Paladin);
 
           break;
 
@@ -55,15 +55,15 @@ namespace NWN.Systems
 
         case 9:
 
-          PaladinUtils.LearnSermentSpell(player, (int)Spell.RemoveCurse);
-          PaladinUtils.LearnSermentSpell(player, CustomSpell.LueurDespoir);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.RemoveCurse, CustomClass.Paladin);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.LueurDespoir, CustomClass.Paladin);
 
           break;
 
         case 13:
 
-          PaladinUtils.LearnSermentSpell(player, (int)Spell.FreedomOfMovement);
-          PaladinUtils.LearnSermentSpell(player, CustomSpell.GardienDeLaFoi);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.FreedomOfMovement, CustomClass.Paladin);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.GardienDeLaFoi, CustomClass.Paladin);
 
           break;
 
@@ -75,8 +75,8 @@ namespace NWN.Systems
 
         case 17:
 
-          PaladinUtils.LearnSermentSpell(player, (int)Spell.FlameStrike);
-          PaladinUtils.LearnSermentSpell(player, CustomSpell.Communion);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.FlameStrike, CustomClass.Paladin);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.Communion, CustomClass.Paladin);
 
           break;
 

@@ -13,8 +13,8 @@ namespace NWN.Systems
       {
         private readonly NuiColumn rootColumn = new();
         private readonly List<NuiElement> rootChidren = new();
-        private readonly NuiBind<List<NuiComboEntry>> languageList = new NuiBind<List<NuiComboEntry>>("languageList");
-        private readonly NuiBind<int> languageSelection = new NuiBind<int>("languageSelection");
+        private readonly NuiBind<List<NuiComboEntry>> languageList = new("languageList");
+        private readonly NuiBind<int> languageSelection = new("languageSelection");
 
         public LanguageSelectionWindow(Player player) : base(player)
         {

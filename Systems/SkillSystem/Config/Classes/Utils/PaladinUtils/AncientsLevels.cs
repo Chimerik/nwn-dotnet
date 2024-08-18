@@ -29,15 +29,15 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.AnciensRenvoiDesInfideles].LevelUp(player);
           player.learnableSkills[CustomSkill.AnciensRenvoiDesInfideles].source.Add(Category.Class);
 
-          PaladinUtils.LearnSermentSpell(player, CustomSpell.SpeakAnimal);
-          PaladinUtils.LearnSermentSpell(player, CustomSpell.FrappePiegeuse);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.SpeakAnimal, CustomClass.Paladin);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.FrappePiegeuse, CustomClass.Paladin);
 
           break;
 
         case 5:
 
-          PaladinUtils.LearnSermentSpell(player, CustomSpell.FouleeBrumeuse);
-          PaladinUtils.LearnSermentSpell(player, CustomSpell.RayonDeLune);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.FouleeBrumeuse, CustomClass.Paladin);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.RayonDeLune, CustomClass.Paladin);
 
           break;
 
@@ -55,15 +55,15 @@ namespace NWN.Systems
 
         case 9:
 
-          PaladinUtils.LearnSermentSpell(player, (int)Spell.ProtectionFromElements);
-          PaladinUtils.LearnSermentSpell(player, CustomSpell.CroissanceVegetale);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.ProtectionFromElements, CustomClass.Paladin);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.CroissanceVegetale, CustomClass.Paladin);
 
           break;
 
         case 13:
 
-          PaladinUtils.LearnSermentSpell(player, (int)Spell.Stoneskin);
-          PaladinUtils.LearnSermentSpell(player, (int)Spell.IceStorm);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Stoneskin, CustomClass.Paladin);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.IceStorm, CustomClass.Paladin);
 
           break;
 
@@ -79,8 +79,8 @@ namespace NWN.Systems
 
         case 17:
 
-          PaladinUtils.LearnSermentSpell(player, CustomSpell.CommunionAvecLaNature);
-          PaladinUtils.LearnSermentSpell(player, CustomSpell.PassageParLesArbres);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.CommunionAvecLaNature, CustomClass.Paladin);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.PassageParLesArbres, CustomClass.Paladin);
 
           break;
 

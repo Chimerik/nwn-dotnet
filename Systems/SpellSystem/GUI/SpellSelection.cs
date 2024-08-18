@@ -31,7 +31,7 @@ namespace NWN.Systems
         private int nbSpells;
         private int nbRestrictedSpells;
 
-        public SpellSelectionWindow(Player player, ClassType spellClass, int nbCantrips, int nbSpells, int nbRestrictedSpells = 0) : base(player)
+        public SpellSelectionWindow(Player player, ClassType spellClass, int nbCantrips = 0, int nbSpells = 0, int nbRestrictedSpells = 0) : base(player)
         {
           windowId = "spellSelection";
 
@@ -62,7 +62,7 @@ namespace NWN.Systems
 
           CreateWindow(spellClass, nbCantrips, nbSpells, nbRestrictedSpells);
         }
-        public async void CreateWindow(ClassType spellClass, int nbCantrips, int nbSpells, int nbRestrictedSpells = 0)
+        public async void CreateWindow(ClassType spellClass, int nbCantrips = 0, int nbSpells = 0, int nbRestrictedSpells = 0)
         {
           await NwTask.NextFrame();
 

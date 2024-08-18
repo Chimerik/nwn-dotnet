@@ -22,14 +22,14 @@ namespace NWN.Systems
           if (player.learnableSpells.TryGetValue((int)Spell.Light, out var learnable))
           {
             learnable.learntFromClasses.Add(CustomClass.Clerc);
-            learnable.clericDomain = true;
+            learnable.alwaysPrepared = true;
 
             if (learnable.currentLevel < 1)
               learnable.LevelUp(player);
           }
           else
           {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.Light], CustomClass.Clerc) { clericDomain = true };
+            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.Light], CustomClass.Clerc) { alwaysPrepared = true };
             player.learnableSpells.Add(learnableSpell.id, learnableSpell);
             learnableSpell.LevelUp(player);
           }
@@ -38,8 +38,8 @@ namespace NWN.Systems
           int spellLevel = spell.GetSpellLevelForClass(ClassType.Cleric);
           player.oid.LoginCreature.GetClassInfo(ClassType.Cleric).KnownSpells[spellLevel].Add(spell);
 
-          ClercUtils.LearnDomaineSpell(player, (int)Spell.BurningHands);
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.FaerieFire);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.BurningHands, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.FaerieFire, CustomClass.Clerc);
 
           break;
 
@@ -53,22 +53,22 @@ namespace NWN.Systems
 
         case 3:
 
-          ClercUtils.LearnDomaineSpell(player, (int)Spell.Firebrand);
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.SphereDeFeu);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Firebrand, CustomSkill.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.SphereDeFeu, CustomClass.Clerc);
 
           break;
 
         case 5:
 
-          ClercUtils.LearnDomaineSpell(player, (int)Spell.Fireball);
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.LumiereDuJour);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Fireball, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.LumiereDuJour, CustomClass.Clerc);
 
           break;
 
         case 7:
 
-          ClercUtils.LearnDomaineSpell(player, (int)Spell.WallOfFire);
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.GardienDeLaFoi);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.WallOfFire, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.GardienDeLaFoi, CustomClass.Clerc);
 
           break;
 
@@ -82,8 +82,8 @@ namespace NWN.Systems
 
         case 9:
 
-          ClercUtils.LearnDomaineSpell(player, (int)Spell.FlameStrike);
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.VagueDestructrice);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.FlameStrike, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.VagueDestructrice, CustomClass.Clerc);
 
           break;
 

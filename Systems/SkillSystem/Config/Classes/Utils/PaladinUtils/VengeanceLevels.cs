@@ -29,15 +29,15 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.PaladinConspuerEnnemi].LevelUp(player);
           player.learnableSkills[CustomSkill.PaladinConspuerEnnemi].source.Add(Category.Class);
 
-          PaladinUtils.LearnSermentSpell(player, CustomSpell.MarqueDuChasseur);
-          PaladinUtils.LearnSermentSpell(player, (int)Spell.Bane);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.MarqueDuChasseur, CustomClass.Paladin);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Bane, CustomClass.Paladin);
 
           break;
 
         case 5:
 
-          PaladinUtils.LearnSermentSpell(player, CustomSpell.FouleeBrumeuse);
-          PaladinUtils.LearnSermentSpell(player, (int)Spell.HoldPerson);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.FouleeBrumeuse, CustomClass.Paladin);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.HoldPerson, CustomClass.Paladin);
 
           break;
 
@@ -55,22 +55,22 @@ namespace NWN.Systems
 
         case 9:
 
-          PaladinUtils.LearnSermentSpell(player, (int)Spell.Haste);
-          PaladinUtils.LearnSermentSpell(player, (int)Spell.ProtectionFromElements);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Haste, CustomClass.Paladin);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.ProtectionFromElements, CustomClass.Paladin);
 
           break;
 
         case 13:
 
-          PaladinUtils.LearnSermentSpell(player, CustomSpell.Bannissement);
-          PaladinUtils.LearnSermentSpell(player, CustomSpell.PorteDimensionnelle);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.Bannissement, CustomClass.Paladin);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.PorteDimensionnelle, CustomClass.Paladin);
 
           break;
 
         case 17:
 
-          PaladinUtils.LearnSermentSpell(player, (int)Spell.HoldMonster);
-          PaladinUtils.LearnSermentSpell(player, CustomSpell.Scrutation);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.HoldMonster, CustomClass.Paladin);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.Scrutation, CustomClass.Paladin);
 
           break;
 

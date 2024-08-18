@@ -27,8 +27,8 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.ClercMartial].LevelUp(player);
           player.learnableSkills[CustomSkill.ClercMartial].source.Add(Category.Class);
 
-          ClercUtils.LearnDomaineSpell(player, (int)Spell.ShieldOfFaith);
-          ClercUtils.LearnDomaineSpell(player, (int)Spell.DivineFavor);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.ShieldOfFaith, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.DivineFavor, CustomClass.Clerc);
 
           break;
 
@@ -42,22 +42,22 @@ namespace NWN.Systems
 
         case 3:
 
-          ClercUtils.LearnDomaineSpell(player, (int)Spell.MagicWeapon);
-          ClercUtils.LearnDomaineSpell(player, (int)Spell.ShelgarnsPersistentBlade);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.MagicWeapon, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.ShelgarnsPersistentBlade, CustomClass.Clerc);
 
           break;
 
         case 5:
 
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.EspritsGardiens);
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.CapeDuCroise);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.EspritsGardiens, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.CapeDuCroise, CustomClass.Clerc);
 
           break;
 
         case 7:
 
-          ClercUtils.LearnDomaineSpell(player, (int)Spell.Stoneskin);
-          ClercUtils.LearnDomaineSpell(player, (int)Spell.FreedomOfMovement);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Stoneskin, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.FreedomOfMovement, CustomClass.Clerc);
 
           break;
 
@@ -71,8 +71,8 @@ namespace NWN.Systems
 
         case 9:
 
-          ClercUtils.LearnDomaineSpell(player, (int)Spell.FlameStrike);
-          ClercUtils.LearnDomaineSpell(player, (int)Spell.HoldMonster);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.FlameStrike, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.HoldMonster, CustomClass.Clerc);
 
           break;
 

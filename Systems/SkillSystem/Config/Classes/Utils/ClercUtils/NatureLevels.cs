@@ -25,8 +25,8 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("skillProficiencySelection", out var skill3)) player.windows.Add("skillProficiencySelection", new SkillProficiencySelectionWindow(player, skillList, 1));
           else ((SkillProficiencySelectionWindow)skill3).CreateWindow(skillList, 1);
 
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.AmitieAnimale);
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.SpeakAnimal);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.AmitieAnimale, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.SpeakAnimal, CustomClass.Clerc);
 
           break;
 
@@ -40,15 +40,15 @@ namespace NWN.Systems
 
         case 3:
 
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.CroissanceDepines);
-          ClercUtils.LearnDomaineSpell(player, (int)Spell.Barkskin);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.CroissanceDepines, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Barkskin, CustomClass.Clerc);
 
           break;
 
         case 5:
 
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.TempeteDeNeige);
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.CroissanceVegetale);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.TempeteDeNeige, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.CroissanceVegetale, CustomClass.Clerc);
 
           break;
 
@@ -62,8 +62,8 @@ namespace NWN.Systems
 
         case 7:
 
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.LianeAvide);
-          ClercUtils.LearnDomaineSpell(player, (int)Spell.DominateAnimal);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.LianeAvide, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.DominateAnimal, CustomClass.Clerc);
 
           break;
 
@@ -77,8 +77,8 @@ namespace NWN.Systems
 
         case 9:
 
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.MurDePierre);
-          ClercUtils.LearnDomaineSpell(player, CustomSpell.FleauDinsectes);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.MurDePierre, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.FleauDinsectes, CustomClass.Clerc);
 
           break;
 

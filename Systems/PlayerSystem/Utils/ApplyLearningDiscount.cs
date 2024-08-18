@@ -69,7 +69,9 @@ namespace NWN.Systems
               }
             }
 
-            if (learnableSkills.ContainsKey(CustomSkill.BardCollegeDeLaVaillance) || oid.LoginCreature.Classes.Any(c => c.Class.Id == CustomClass.Ranger))
+            if (learnableSkills.ContainsKey(CustomSkill.BardCollegeDeLaVaillance) 
+              || learnableSkills.ContainsKey(CustomSkill.DruideGardien)
+              || oid.LoginCreature.Classes.Any(c => c.Class.Id == CustomClass.Ranger))
             {
               switch (learnable.id)
               {

@@ -20,6 +20,8 @@ namespace NWN.Systems
         (int)ClassType.Bard => CustomSkill.Bard,
         (int)ClassType.Ranger => CustomSkill.Ranger,
         (int)ClassType.Paladin => CustomSkill.Paladin,
+        (int)ClassType.Sorcerer => CustomSkill.Ensorceleur,
+        (int)ClassType.Druid => CustomSkill.Druide,
         _ => CustomSkill.Invalid,
       };
     }
