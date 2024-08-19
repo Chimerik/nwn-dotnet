@@ -20,9 +20,20 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.EnsoResistanceDraconique].LevelUp(player);
           player.learnableSkills[CustomSkill.EnsoResistanceDraconique].source.Add(Category.Class);
 
+          //SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.ModificationDapparence, CustomClass.Ensorceleur);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.OrbeChromatique, CustomClass.Ensorceleur);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.Injonction, CustomClass.Ensorceleur);
+
           foreach (var ensoLevel in player.oid.LoginCreature.LevelInfo)
             if (ensoLevel.ClassInfo.Class.ClassType == ClassType.Sorcerer)
               ensoLevel.HitDie += 1;
+
+          break;
+
+        case 5:
+
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Fear, CustomClass.Ensorceleur);
+          //SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.Vol, CustomClass.Ensorceleur);
 
           break;
 
@@ -33,6 +44,17 @@ namespace NWN.Systems
 
           break;
 
+        case 7:
+          
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.OeilMagique, CustomClass.Ensorceleur);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.CharmMonster, CustomClass.Ensorceleur);
+
+          break;
+
+        case 9:
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.EpicDragonKnight, CustomClass.Ensorceleur);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.LegendLore, CustomClass.Ensorceleur);
+          break;
 
         case 14:
 

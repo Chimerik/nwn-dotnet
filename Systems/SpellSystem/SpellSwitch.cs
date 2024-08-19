@@ -297,6 +297,11 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        /*case CustomSpell.ModificationDapparence:
+          concentrationTargets.AddRange(SpellSystem.ModificationDapparence(oCaster, spell, spellEntry));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;*/
+
         case CustomSpell.FormeGazeuse:
           SpellSystem.FormeGazeuse(oCaster, spell, spellEntry, feat);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;

@@ -452,6 +452,8 @@
     public const int DruideSage = 1706;
     public const int DruideCompagnonSauvage = 1707;
     public const int DruideReveilSauvage = 1708;
+    public const int DruideIncantationPuissante = 1709;
+    public const int DruideFrappePrimordiale = 1710;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
