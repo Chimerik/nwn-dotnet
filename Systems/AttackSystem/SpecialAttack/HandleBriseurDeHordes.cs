@@ -18,6 +18,9 @@ namespace NWN.Systems
       {
         foreach (var targetId in currentTarget.GetArea().m_aGameObjects)
         {
+          if (targetId == currentTarget.m_idSelf)
+            continue;
+
           CNWSCreature areaCreature = NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(targetId);
 
           if (areaCreature is null || areaCreature.m_idSelf == 0x7F000000 // OBJECT_INVALID

@@ -106,14 +106,16 @@ namespace NWN.Systems
         creature.SetFeatRemainingUses((Feat)CustomSkill.BelluaireSpiderCocoon, 100);
 
       if (creature.KnowsFeat((Feat)CustomSkill.ClercDuperieFrappeDivine))
-      {
         creature.SetFeatRemainingUses((Feat)CustomSkill.ClercDuperieFrappeDivine, 1);
-        EffectUtils.RemoveTaggedEffect(creature, EffectSystem.FrappeDivineDuperieEffectTag);
-      }
       else if (creature.KnowsFeat((Feat)CustomSkill.ClercGuerreFrappeDivine))
-      {
         creature.SetFeatRemainingUses((Feat)CustomSkill.ClercGuerreFrappeDivine, 1);
-        EffectUtils.RemoveTaggedEffect(creature, EffectSystem.FrappeDivineGuerreEffectTag);
+
+      if (creature.KnowsFeat((Feat)CustomSkill.DruideFrappePrimordialeFroid))
+      {
+        creature.SetFeatRemainingUses((Feat)CustomSkill.DruideFrappePrimordialeFroid, 1);
+        creature.SetFeatRemainingUses((Feat)CustomSkill.DruideFrappePrimordialeFeu, 1);
+        creature.SetFeatRemainingUses((Feat)CustomSkill.DruideFrappePrimordialeElec, 1);
+        creature.SetFeatRemainingUses((Feat)CustomSkill.DruideFrappePrimordialeTonnerre, 1);
       }
 
       if (creature.GetObjectVariable<LocalVariableInt>(BelluaireRugissementProvoquantCoolDownVariable).HasValue)

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Numerics;
 using Anvil.API;
 using NWN.Core.NWNX;
 
@@ -7,7 +6,7 @@ namespace NWN.Systems
 {
   public partial class FeatSystem
   {
-    private static void SummonAnimalCompanion(NwCreature caster, Vector3 targetPosition, int featId)
+    private static void SummonAnimalCompanion(NwCreature caster, int featId)
     {
       if (caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).HasValue)
       {
@@ -290,8 +289,8 @@ namespace NWN.Systems
       else
         companion.HP = companionHP > 0 ? companionHP : companion.MaxHP;
       
-      companion.Position = CreaturePlugin.ComputeSafeLocation(companion, target.Position, 10, 0);
-      target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(vfx));
+      companion.Position = CreaturePlugin.ComputeSafeLocation(companion, target.Position, 10, 1);
+      companion.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(vfx));
       companion.SetEventScript(EventScriptType.CreatureOnBlockedByDoor, "nw_ch_ace");
       companion.SetEventScript(EventScriptType.CreatureOnEndCombatRound, "nw_ch_ac3");
       companion.SetEventScript(EventScriptType.CreatureOnDamaged, "nw_ch_ac6");

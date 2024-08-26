@@ -428,6 +428,7 @@ namespace NWN.Systems
         InitializeFeatChoice();
         InitializeFightingStyleChoice();
         InitializeOrdrePrimordialChoice();
+        InitializeFureurElementaireChoice();
         InitializeAffiniteElementaireChoice();
         InitializeRangerArchetypeChoice();
         InitializeHunterTactiqueDefensiveChoice();
@@ -502,6 +503,7 @@ namespace NWN.Systems
         ApplyAvatarDeBataille();
         ApplyElectrocution();
         ApplyRetablissementSorcier();
+        ApplyFormeSauvagePersistante();
         ApplyAcidAffinity();
         ApplyColdAffinity();
         ApplyFireAffinity();

@@ -154,7 +154,7 @@ namespace NWN.Systems
         case CustomSkill.BelluaireDireRaven: 
         case CustomSkill.BelluaireSpider: 
         case CustomSkill.BelluaireWolf: 
-        case CustomSkill.BelluaireBoar: SummonAnimalCompanion(onUseFeat.Creature, onUseFeat.TargetPosition, onUseFeat.Feat.Id); return;
+        case CustomSkill.BelluaireBoar: SummonAnimalCompanion(onUseFeat.Creature, onUseFeat.Feat.Id); return;
 
         case CustomSkill.BelluaireFurieBestiale: FurieBestiale(onUseFeat.Creature); return;
         case CustomSkill.BelluaireSprint: BelluaireSprint(onUseFeat.Creature); return;
@@ -223,6 +223,11 @@ namespace NWN.Systems
         case CustomSkill.EnsoAmeDesVents: AmeDesVents(onUseFeat.Creature); return;
 
         case CustomSkill.DruideReveilSauvage: ReveilSauvage(onUseFeat.Creature); return;
+        case CustomSkill.DruideFrappePrimordialeFroid:
+        case CustomSkill.DruideFrappePrimordialeFeu: 
+        case CustomSkill.DruideFrappePrimordialeElec: 
+        case CustomSkill.DruideFrappePrimordialeTonnerre: FrappePrimordiale(onUseFeat.Creature, onUseFeat.Feat.Id); return;
+        case CustomSkill.MageNature: SlotToFormeSauvage(onUseFeat.Creature); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

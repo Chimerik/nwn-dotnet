@@ -11,7 +11,7 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      public class OrdrePrimordialSelectionWindow : PlayerWindow
+      public class FureurElementaireSelectionWindow : PlayerWindow
       {
         private readonly NuiColumn rootColumn = new();
         private readonly List<NuiElement> rootChildren = new();
@@ -28,9 +28,9 @@ namespace NWN.Systems
         private IEnumerable<Learnable> currentList;
         private Learnable selectedLearnable;
 
-        public OrdrePrimordialSelectionWindow(Player player) : base(player)
+        public FureurElementaireSelectionWindow(Player player) : base(player)
         {
-          windowId = "ordrePrimordialSelection";
+          windowId = "fureurElementaireSelection";
           rootColumn.Children = rootChildren;
 
           List<NuiListTemplateCell> learnableTemplate = new List<NuiListTemplateCell>
@@ -63,19 +63,19 @@ namespace NWN.Systems
         }
         public void CreateWindow()
         {
-          if (player.learnableSkills.Any(s => s.Value.category == Category.OrdrePrimordial))
+          if (player.learnableSkills.Any(s => s.Value.category == Category.FureurElementaire))
           {
-            player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_ORDRE_PRIMORDIAL_SELECTION").Delete();
-            player.oid.SendServerMessage("Vous appartenez déjà à un ordre primordial", ColorConstants.Orange);
+            player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_FUREUR_ELEMENTAIRE_SELECTION").Delete();
+            player.oid.SendServerMessage("Vous avez déjà choisi votre fureur élémentaire", ColorConstants.Orange);
             return;
           }
 
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_ORDRE_PRIMORDIAL_SELECTION").Value = 1;
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_FUREUR_ELEMENTAIRE_SELECTION").Value = 1;
 
           NuiRect savedRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(player.guiWidth * 0.2f, player.guiHeight * 0.05f, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f);
           selectedLearnable = null;
 
-          window = new NuiWindow(rootColumn, "Choisissez votre ordre primordial")
+          window = new NuiWindow(rootColumn, "Choisissez votre fureur élémentaire")
           {
             Geometry = geometry,
             Resizable = false,
@@ -91,14 +91,14 @@ namespace NWN.Systems
             nuiToken.OnNuiEvent += HandleLearnableEvents;
 
             selectedItemTitle.SetBindValue(player.oid, nuiToken.Token, "");
-            selectedItemDescription.SetBindValue(player.oid, nuiToken.Token, "Sélectionnez un ordre primordial pour afficher ses détails.\n\nAttention, le choix est définitif.");
+            selectedItemDescription.SetBindValue(player.oid, nuiToken.Token, "Sélectionnez une fureur élémentaire pour afficher ses détails.\n\nAttention, le choix est définitif.");
             selectedItemIcon.SetBindValue(player.oid, nuiToken.Token, "ir_examine");
             selectedItemVisibility.SetBindValue(player.oid, nuiToken.Token, false);
 
             geometry.SetBindValue(player.oid, nuiToken.Token, new NuiRect(savedRectangle.X, savedRectangle.Y, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f));
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-            currentList = learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.OrdrePrimordial
+            currentList = learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.FureurElementaire
                 && (!player.learnableSkills.ContainsKey(s.id) || player.learnableSkills[s.id].currentLevel < s.maxLevel)).OrderBy(s => s.name);
              
             LoadLearnableList(currentList);
@@ -130,7 +130,7 @@ namespace NWN.Systems
 
                 case "validate":
 
-                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_ORDRE_PRIMORDIAL_SELECTION").Delete();
+                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_FUREUR_ELEMENTAIRE_SELECTION").Delete();
 
                   player.learnableSkills.TryAdd(selectedLearnable.id, new LearnableSkill((LearnableSkill)learnableDictionary[selectedLearnable.id], player, levelTaken: player.oid.LoginCreature.Level));
                   player.learnableSkills[selectedLearnable.id].LevelUp(player);

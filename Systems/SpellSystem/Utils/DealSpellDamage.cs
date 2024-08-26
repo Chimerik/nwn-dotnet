@@ -3,7 +3,6 @@ using Anvil.API;
 using NWN.Core;
 using static NWN.Systems.PlayerSystem.Player;
 using static NWN.Systems.PlayerSystem;
-using System.Collections.Generic;
 
 namespace NWN.Systems
 {

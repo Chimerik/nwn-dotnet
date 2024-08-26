@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       private void ApplyResistanceDraconique()
       {
-        if (oid.LoginCreature.Classes.Any(c => c.Class.ClassType == ClassType.Barbarian))
+        if (learnableSkills.ContainsKey(CustomSkill.EnsorceleurLigneeDraconique))
         {
           oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipResistanceDraconique;
           oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipResistanceDraconique;

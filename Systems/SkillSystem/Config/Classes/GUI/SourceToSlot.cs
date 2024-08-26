@@ -96,7 +96,7 @@ namespace NWN.Systems
 
 
               EnsoUtils.DecrementSorcerySource(player.oid.LoginCreature, sourceCost);
-              byte remainingSlots = player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).GetRemainingSpellSlots(selectedSpellLevel);
+              byte remainingSlots = player.oid.LoginCreature.GetClassInfo(ClassType.Sorcerer).GetRemainingSpellSlots(selectedSpellLevel);
               player.oid.LoginCreature.GetClassInfo(ClassType.Sorcerer).SetRemainingSpellSlots(selectedSpellLevel, (byte)(remainingSlots + 1));
               player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpGoodHelp));
 

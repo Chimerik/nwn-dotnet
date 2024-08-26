@@ -16,6 +16,9 @@ namespace NWN.Systems
         return;
       }
 
+      if (!attacker.m_pStats.HasFeat(CustomSkill.BelluaireAttaqueCoordonnee).ToBool())
+        return;
+
       var animalId = attacker.m_ScriptVars.GetObject(CreatureUtils.AnimalCompanionVariableExo);
       var animal = NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(animalId);
 

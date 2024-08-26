@@ -75,7 +75,7 @@ namespace NWN.Systems
             case NuiEventType.Click:
 
               selectedSpellLevel = byte.Parse(nuiEvent.ElementId);
-              byte remainingSlots = player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).GetRemainingSpellSlots(selectedSpellLevel);
+              byte remainingSlots = player.oid.LoginCreature.GetClassInfo(ClassType.Sorcerer).GetRemainingSpellSlots(selectedSpellLevel);
 
               if(remainingSlots < 1)
               {

@@ -9,16 +9,10 @@ namespace NWN.Systems
     {
       await NwTask.NextFrame();
 
-      if (attacker.m_pStats.HasFeat(CustomSkill.ClercDuperieFrappeDivine).ToBool())
-        EffectUtils.RemoveTaggedEffect(attacker, EffectSystem.FrappeDivineDuperieEffectExoTag);
-      else if(attacker.m_pStats.HasFeat(CustomSkill.ClercGuerreFrappeDivine).ToBool())
-        EffectUtils.RemoveTaggedEffect(attacker, EffectSystem.FrappeDivineGuerreEffectExoTag);
-      else if (attacker.m_pStats.HasFeat(CustomSkill.ClercFurieElementaire).ToBool())
-        EffectUtils.RemoveTaggedEffect(attacker, EffectSystem.FurieElementaireEffectExoTag);
-      else if (attacker.m_pStats.HasFeat(CustomSkill.ClercTempeteFrappeDivine).ToBool())
-        EffectUtils.RemoveTaggedEffect(attacker, EffectSystem.FrappeDivineTempeteEffectExoTag);
-      else if (attacker.m_pStats.HasFeat(CustomSkill.ClercVieFrappeDivine).ToBool())
-        EffectUtils.RemoveTaggedEffect(attacker, EffectSystem.FrappeDivineVieEffectExoTag);
+      EffectUtils.RemoveTaggedEffect(attacker, EffectSystem.FrappeDivineDuperieEffectExoTag, EffectSystem.FrappeDivineGuerreEffectExoTag,
+        EffectSystem.FurieElementaireEffectExoTag, EffectSystem.FrappeDivineTempeteEffectExoTag, EffectSystem.FrappeDivineVieEffectExoTag,
+        EffectSystem.FrappePrimordialeEffectExoTag);
+
     }
   }
 }

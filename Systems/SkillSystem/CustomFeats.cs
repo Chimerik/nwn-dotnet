@@ -453,7 +453,13 @@
     public const int DruideCompagnonSauvage = 1707;
     public const int DruideReveilSauvage = 1708;
     public const int DruideIncantationPuissante = 1709;
-    public const int DruideFrappePrimordiale = 1710;
+    public const int DruideFrappePrimordialeFroid = 1710;
+    public const int DruideFrappePrimordialeFeu = 1711;
+    public const int DruideFrappePrimordialeElec = 1712;
+    public const int DruideFrappePrimordialeTonnerre = 1713;
+    public const int DruideIncantationBestiale = 1714;
+    public const int FormeSauvagePersistante = 1715;
+    public const int MageNature = 1716;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -1034,6 +1040,7 @@
 
     public const int Druide = 20622;
     public const int DruideGardien = 20623;
+    public const int DruideFrappePrimordiale = 20624;
 
     public const int Invalid = 65535;
   }

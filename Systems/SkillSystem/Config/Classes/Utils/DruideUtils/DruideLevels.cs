@@ -77,9 +77,9 @@ namespace NWN.Systems
 
         case 5:
 
-          player.learnableSkills.TryAdd(CustomSkill.RetablissementSorcier, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.RetablissementSorcier], player));
-          player.learnableSkills[CustomSkill.RetablissementSorcier].LevelUp(player);
-          player.learnableSkills[CustomSkill.RetablissementSorcier].source.Add(Category.Class);
+          player.learnableSkills.TryAdd(CustomSkill.DruideReveilSauvage, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DruideReveilSauvage], player));
+          player.learnableSkills[CustomSkill.DruideReveilSauvage].LevelUp(player);
+          player.learnableSkills[CustomSkill.DruideReveilSauvage].source.Add(Category.Class);
 
           break;
 
@@ -90,9 +90,8 @@ namespace NWN.Systems
 
         case 7:
 
-          player.learnableSkills.TryAdd(CustomSkill.SorcellerieIncarnee, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SorcellerieIncarnee], player));
-          player.learnableSkills[CustomSkill.SorcellerieIncarnee].LevelUp(player);
-          player.learnableSkills[CustomSkill.SorcellerieIncarnee].source.Add(Category.Class);
+          if (!player.windows.TryGetValue("fureurElementaireSelection", out var fureur)) player.windows.Add("fureurElementaireSelection", new FureurElementaireSelectionWindow(player));
+          else ((FureurElementaireSelectionWindow)fureur).CreateWindow();
 
           break;
 
@@ -103,23 +102,10 @@ namespace NWN.Systems
 
           break;
 
-        case 9:
-
-
-          break;
-
         case 10:
 
           if (!player.windows.TryGetValue("spellSelection", out var spell10)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Druid, 1));
           else ((SpellSelectionWindow)spell10).CreateWindow(ClassType.Druid, 1);
-
-          player.learnableSkills.TryAdd(CustomSkill.ClercInterventionDivine, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercInterventionDivine], player));
-          player.learnableSkills[CustomSkill.ClercInterventionDivine].LevelUp(player);
-          player.learnableSkills[CustomSkill.ClercInterventionDivine].source.Add(Category.Class);
-
-          break;
-
-        case 11:
 
 
           break;
@@ -131,32 +117,18 @@ namespace NWN.Systems
 
           break;
 
-        case 13:
-
-
-          break;
-
-        case 15:
-
-
-
-          break;
-
         case 16:
 
-
-
-          break;
-
-        case 17:
-
-
+          if (!player.windows.TryGetValue("featSelection", out var feat16)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
+          else ((FeatSelectionWindow)feat16).CreateWindow();
 
           break;
 
         case 18:
 
-
+          player.learnableSkills.TryAdd(CustomSkill.DruideIncantationBestiale, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DruideIncantationBestiale], player));
+          player.learnableSkills[CustomSkill.DruideIncantationBestiale].LevelUp(player);
+          player.learnableSkills[CustomSkill.DruideIncantationBestiale].source.Add(Category.Class);
 
           break;
 
@@ -170,12 +142,13 @@ namespace NWN.Systems
 
         case 20:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell20)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Cleric, 3, 0));
-          else ((SpellSelectionWindow)spell20).CreateWindow(ClassType.Sorcerer, 0, 1);
+          player.learnableSkills.TryAdd(CustomSkill.FormeSauvagePersistante, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FormeSauvagePersistante], player));
+          player.learnableSkills[CustomSkill.FormeSauvagePersistante].LevelUp(player);
+          player.learnableSkills[CustomSkill.FormeSauvagePersistante].source.Add(Category.Class);
 
-          player.learnableSkills.TryAdd(CustomSkill.EnsoApotheose, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.EnsoApotheose], player));
-          player.learnableSkills[CustomSkill.EnsoApotheose].LevelUp(player);
-          player.learnableSkills[CustomSkill.EnsoApotheose].source.Add(Category.Class);
+          player.learnableSkills.TryAdd(CustomSkill.MageNature, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MageNature], player));
+          player.learnableSkills[CustomSkill.MageNature].LevelUp(player);
+          player.learnableSkills[CustomSkill.MageNature].source.Add(Category.Class);
 
           break;
       }
