@@ -14,13 +14,11 @@ namespace NWN.Systems
 
       if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC) == SavingThrowResult.Failure)
       {
-        target.ApplyEffect(EffectDuration.Temporary, EffectSystem.MauvaisAugure, NwTimeSpan.FromRounds(2));
+        target.ApplyEffect(EffectDuration.Temporary, EffectSystem.SpiderCocoon, NwTimeSpan.FromRounds(2));
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPulseNegative));
       }
       else
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComHitNegative));
-
-
     }
   }
 }

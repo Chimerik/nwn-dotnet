@@ -142,7 +142,7 @@ namespace NWN.Systems
 
       if (creature.GetObjectVariable<LocalVariableInt>(BelluaireSpiderWebCoolDownVariable).HasValue)
       {
-        if (creature.GetObjectVariable<LocalVariableInt>(BelluaireSpiderWebCoolDownVariable).Value < 10)
+        if (creature.GetObjectVariable<LocalVariableInt>(BelluaireSpiderWebCoolDownVariable).Value < 12)
           creature.GetObjectVariable<LocalVariableInt>(BelluaireSpiderWebCoolDownVariable).Value += 1;
         else
         {

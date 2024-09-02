@@ -13,7 +13,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.Icon(EffectIcon.Paralyze), Effect.CutsceneParalyze(), Effect.RunAction(onIntervalHandle: onIntervalRegardHypnotiqueCallback, interval: TimeSpan.FromSeconds(1)));
+        Effect eff = Effect.LinkEffects(Effect.Paralyze(), Effect.RunAction(onIntervalHandle: onIntervalRegardHypnotiqueCallback, interval: TimeSpan.FromSeconds(1)));
         eff.Tag = RegardHypnotiqueEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

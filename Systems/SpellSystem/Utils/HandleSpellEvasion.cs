@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     public static int HandleSpellEvasion(NwCreature target, int damage, Ability saveAbility, SavingThrowResult saveResult, int spellId = -1, byte spellLevel = 255)
     {
-      if (damage < 1)
+      if (damage < 1 || target is null)
         return damage;
 
       if (saveResult == SavingThrowResult.Immune)

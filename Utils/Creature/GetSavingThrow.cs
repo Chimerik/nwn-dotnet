@@ -22,8 +22,8 @@ namespace NWN.Systems
 
       SpellConfig.SavingThrowFeedback feedback = new();
       int advantage = GetCreatureAbilityAdvantage(target, ability, spellEntry, effectType, attacker);
-
-      if (advantage < 900)
+      
+      if (advantage < -900)
         return SavingThrowResult.Immune;
 
       int totalSave = SpellUtils.GetSavingThrowRoll(target, ability, saveDC, advantage, feedback);
@@ -32,7 +32,6 @@ namespace NWN.Systems
       SpellUtils.SendSavingThrowFeedbackMessage(attacker, target, feedback, advantage, saveDC, totalSave, saveResult, ability);
 
       return saveResult;
-      
     }
   }
 }

@@ -11,9 +11,10 @@ namespace NWN.Systems
       {
         var companion = caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).Value;
 
+        _ = companion.ClearActionQueue();
         _ = companion.ActionCastSpellAt(Spell.Web, Location.Create(companion.Area, oTarget, companion.Rotation), cheat:true);
-
-        caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BelluaireSpiderWebCoolDownVariable).Value = -1;
+        
+        caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BelluaireSpiderWebCoolDownVariable).Value = 1;
         caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireSpiderWeb, 0);
       }
       else

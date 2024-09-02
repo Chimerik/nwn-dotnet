@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     public static void HandleCoeurDeLaTempete(NwCreature creature, DamageType damageType)
     {
-      if (creature.KnowsFeat((Feat)CustomSkill.EnsoCoeurDeLaTempete) && Utils.In(damageType, DamageType.Electrical, DamageType.Sonic))
+      if (creature is not null && creature.KnowsFeat((Feat)CustomSkill.EnsoCoeurDeLaTempete) && Utils.In(damageType, DamageType.Electrical, DamageType.Sonic))
       {
         int damage = creature.GetClassInfo(ClassType.Sorcerer).Level;
 

@@ -58,7 +58,7 @@ namespace NWN.Systems
               {
                 onSpellAction.PreventSpellCast = true;
 
-                if (onSpellAction.Spell.SpellType == Spell.Firebrand && onSpellAction.Feat.Id == CustomSkill.MonkEtreinteDeLenfer
+                if (onSpellAction.Spell.SpellType == Spell.Firebrand && onSpellAction.Feat?.Id == CustomSkill.MonkEtreinteDeLenfer
                   && onSpellAction.Caster.KnowsFeat((Feat)CustomSkill.MonkIncantationElementaire))
                   player.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_TO_SELECT").Value = 4;
                 else

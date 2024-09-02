@@ -8,11 +8,11 @@ namespace NWN.Systems
     public static int GetSavingThrowRoll(NwCreature target, Ability ability, int saveDC, int advantage, SpellConfig.SavingThrowFeedback feedback, bool fromSpell = false)
     {
       int proficiencyBonus = GetSavingThrowProficiencyBonus(target, ability);
+      int abilityModifier = target.GetAbilityModifier(ability);
 
-      LogUtils.LogMessage($"JDS proficiency bonus {ability} : {proficiencyBonus}", LogUtils.LogType.Combat);
-      LogUtils.LogMessage($"JDS modifier {ability} : {target.GetAbilityModifier(ability)}", LogUtils.LogType.Combat);
+      LogUtils.LogMessage($"JDS modifier {ability} : {abilityModifier}", LogUtils.LogType.Combat);
       
-      proficiencyBonus += target.GetAbilityModifier(ability) + ItemUtils.GetShieldMasterBonusSave(target, ability);
+      proficiencyBonus += abilityModifier + ItemUtils.GetShieldMasterBonusSave(target, ability);
 
       List<string> protectionNoStack = new();
 

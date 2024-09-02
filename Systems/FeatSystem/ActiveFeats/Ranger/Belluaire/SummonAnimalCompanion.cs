@@ -97,19 +97,19 @@ namespace NWN.Systems
           {
             vfx = VfxType.FnfSummonMonster2;
             companion.MaxHP = 39;
-            companion.BaseAC = 15;
+            companion.BaseAC += 4;
           }
           else if (rangerLevel < 11)
           {
             vfx = VfxType.FnfSummonMonster3;
             companion.MaxHP = 69;
-            companion.BaseAC = 16;
+            companion.BaseAC += 5;
           }
           else
           {
             vfx = VfxType.FnfSummonMonster3;
             companion.MaxHP = 99;
-            companion.BaseAC = 18;
+            companion.BaseAC += 7;
           }
 
           SetCompanionAbilities(companion, caster, new List<Ability> { Ability.Strength, Ability.Constitution, Ability.Dexterity, Ability.Wisdom, Ability.Charisma, Ability.Intelligence });
@@ -143,19 +143,19 @@ namespace NWN.Systems
           {
             vfx = VfxType.FnfSummonMonster2;
             companion.MaxHP = 27;
-            companion.BaseAC = 14;
+            companion.BaseAC += 3;
           }
           else if (rangerLevel < 11)
           {
             vfx = VfxType.FnfSummonMonster3;
             companion.MaxHP = 51;
-            companion.BaseAC = 15;
+            companion.BaseAC += 4;
           }
           else
           {
             vfx = VfxType.FnfSummonMonster3;
             companion.MaxHP = 85;
-            companion.BaseAC = 17;
+            companion.BaseAC += 6;
           }
 
           SetCompanionAbilities(companion, caster, new List<Ability> { Ability.Strength, Ability.Constitution, Ability.Dexterity, Ability.Wisdom, Ability.Charisma, Ability.Intelligence });
@@ -187,20 +187,20 @@ namespace NWN.Systems
             vfx = VfxType.FnfSummonMonster2;
             weapon.AddItemProperty(ItemProperty.DamageBonus(IPDamageType.Piercing, IPDamageBonus.Plus1d4), EffectDuration.Permanent);
             companion.MaxHP = 21;
-            companion.BaseAC = 19;
+            companion.BaseAC += 3;
           }
           else if (rangerLevel < 11)
           {
             vfx = VfxType.FnfSummonMonster3;
             companion.MaxHP = 32;
-            companion.BaseAC = 20;
+            companion.BaseAC += 4;
           }
           else
           {
             vfx = VfxType.FnfSummonMonster3;
             weapon.AddItemProperty(ItemProperty.DamageBonus(IPDamageType.Piercing, IPDamageBonus.Plus1d6), EffectDuration.Permanent);
             companion.MaxHP = 44;
-            companion.BaseAC = 21;
+            companion.BaseAC += 5;
           }
 
           SetCompanionAbilities(companion, caster, new List<Ability> { Ability.Dexterity, Ability.Constitution, Ability.Wisdom, Ability.Charisma, Ability.Intelligence, Ability.Strength });
@@ -229,6 +229,29 @@ namespace NWN.Systems
             companion.OnCreatureDamage += RangerUtils.OnDamageLoupMorsureInfectieuse;
           }
 
+          if (rangerLevel < 5)
+          {
+            vfx = VfxType.FnfSummonMonster1;
+          }
+          else if (rangerLevel < 8)
+          {
+            vfx = VfxType.FnfSummonMonster2;
+            companion.MaxHP = 31;
+            companion.BaseAC += 3;
+          }
+          else if (rangerLevel < 11)
+          {
+            vfx = VfxType.FnfSummonMonster3;
+            companion.MaxHP = 61;
+            companion.BaseAC += 5;
+          }
+          else
+          {
+            vfx = VfxType.FnfSummonMonster3;
+            companion.MaxHP = 91;
+            companion.BaseAC += 7;
+          }
+
 
           SetCompanionAbilities(companion, caster, new List<Ability> { Ability.Dexterity, Ability.Constitution, Ability.Strength, Ability.Wisdom, Ability.Charisma, Ability.Intelligence });
 
@@ -248,8 +271,12 @@ namespace NWN.Systems
           if (!caster.KnowsFeat((Feat)CustomSkill.BelluaireSpiderWeb))
             caster.AddFeat((Feat)CustomSkill.BelluaireSpiderWeb);
 
+          caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireSpiderWeb, 100);
+
           if (rangerLevel > 4 && !caster.KnowsFeat((Feat)CustomSkill.BelluaireSpiderCocoon))
             caster.AddFeat((Feat)CustomSkill.BelluaireSpiderCocoon);
+
+          caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireSpiderCocoon, 100);
 
           if (rangerLevel < 5)
           {
@@ -259,19 +286,19 @@ namespace NWN.Systems
           {
             vfx = VfxType.FnfSummonMonster2;
             companion.MaxHP = 24;
-            companion.BaseAC = 18;
+            companion.BaseAC += 4;
           }
           else if (rangerLevel < 11)
           {
             vfx = VfxType.FnfSummonMonster3;
             companion.MaxHP = 42;
-            companion.BaseAC = 19;
+            companion.BaseAC += 5;
           }
           else
           {
             vfx = VfxType.FnfSummonMonster3;
             companion.MaxHP = 60;
-            companion.BaseAC = 21;
+            companion.BaseAC += 7;
           }
 
           SetCompanionAbilities(companion, caster, new List<Ability> { Ability.Dexterity, Ability.Constitution, Ability.Wisdom, Ability.Strength, Ability.Charisma, Ability.Intelligence });

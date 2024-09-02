@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     public static int HandleResistanceBypass(NwCreature target, bool isElementalist, bool isEvocateurSurcharge, int damage, DamageType damageType)
     {
-      if ((!isElementalist && !isEvocateurSurcharge) || damage < 1)
+      if ((!isElementalist && !isEvocateurSurcharge) || damage < 1 || target is null)
         return damage;
 
       foreach (var eff in target.ActiveEffects)

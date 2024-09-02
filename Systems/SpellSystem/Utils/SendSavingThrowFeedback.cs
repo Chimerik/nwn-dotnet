@@ -19,7 +19,10 @@ namespace NWN.Systems
 
       if (oCaster is NwCreature caster)
       {
-        caster.LoginPlayer?.SendServerMessage($"{target.Name.ColorString(ColorConstants.Cyan)} - {rollString} {hitString}".ColorString(ColorConstants.Orange));
+        if(caster.IsPlayerControlled)
+          caster.LoginPlayer.SendServerMessage($"{target.Name.ColorString(ColorConstants.Cyan)} - {rollString} {hitString}".ColorString(ColorConstants.Orange));
+        else
+          caster.Master?.LoginPlayer?.SendServerMessage($"{target.Name.ColorString(ColorConstants.Cyan)} - {rollString} {hitString}".ColorString(ColorConstants.Orange));
 
         if (saveFailed && caster.KnowsFeat((Feat)CustomSkill.WildMagicMagieGalvanisanteBienfait)
           && caster.Classes.Any(c => c.Class.ClassType == ClassType.Barbarian && c.Level > 9)

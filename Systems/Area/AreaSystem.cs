@@ -59,6 +59,8 @@ namespace NWN.Systems
         area.RestingAllowed = false;
         areaDescriptionsToDownload.Add(area.Name);
 
+        area.GetObjectVariable<LocalVariableInt>("X2_L_WILD_MAGIC").Value = 1;
+
         if(areaMusics.TryGetValue(area.Tag, out var music))
         {
           int[] musicTab = music;

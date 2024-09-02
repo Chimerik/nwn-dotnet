@@ -6,6 +6,9 @@ namespace NWN.Systems
   {
     public static int HandleElementalAffinity(NwCreature creature, DamageType damage)
     {
+      if(creature is null)
+        return 0;
+
       int bonusDamage = creature.GetAbilityModifier(Ability.Charisma) < 1 ? 1 : creature.GetAbilityModifier(Ability.Charisma);
 
       switch (damage)

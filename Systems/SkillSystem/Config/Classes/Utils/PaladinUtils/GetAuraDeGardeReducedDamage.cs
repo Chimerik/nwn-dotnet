@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     public static int GetAuraDeGardeReducedDamage(NwCreature target, int damage)
     {
-      if (damage > 0 && target.ActiveEffects.Any(e => e.Tag == EffectSystem.GardeEffectTag))
+      if (damage > 0 && target is not null && target.ActiveEffects.Any(e => e.Tag == EffectSystem.GardeEffectTag))
       {
         damage /= 2;
         LogUtils.LogMessage($"Aura de Garde - Résistance aux sorts {damage}", LogUtils.LogType.Combat);

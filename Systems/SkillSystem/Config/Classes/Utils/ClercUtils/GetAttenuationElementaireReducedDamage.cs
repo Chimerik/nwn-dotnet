@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Anvil.API;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -7,7 +6,7 @@ namespace NWN.Systems
   {
     public static int GetAttenuationElementaireReducedDamage(NwCreature target, int damage, DamageType damageType)
     {
-      if (damage > 0 && target.KnowsFeat((Feat)CustomSkill.ClercAttenuationElementaire) 
+      if (damage > 0 && target is not null && target.KnowsFeat((Feat)CustomSkill.ClercAttenuationElementaire) 
         && Utils.In(damageType, DamageType.Acid, DamageType.Fire, DamageType.Cold, DamageType.Electrical)
         && target.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).HasValue)
       {

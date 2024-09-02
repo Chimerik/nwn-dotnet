@@ -9,18 +9,19 @@ namespace NWN.Systems
   {
     public static int GetSavingThrowProficiencyBonus(CNWSCreature target, Ability ability)
     {
+      int proficiencyBonus = 0;
+
       if (PlayerSystem.Players.TryGetValue(target.m_idSelf, out PlayerSystem.Player player))
       {
         if (player.learnableSkills.TryGetValue(SkillSystem.GetSavingThrowIdFromAbility(ability), out LearnableSkill proficiency)
         && proficiency.currentLevel > 0)
-          return NativeUtils.GetCreatureProficiencyBonus(target);
+          proficiencyBonus = NativeUtils.GetCreatureProficiencyBonus(target);
         else
         {
           if(ability == Ability.Constitution && target.m_pStats.HasFeat(CustomSkill.TemporaryConstitutionSaveProficiency).ToBool())
-            return NativeUtils.GetCreatureProficiencyBonus(target);
-
-          if(target.m_pStats.HasFeat(CustomSkill.ToucheATout).ToBool())
-            return (int)Math.Round((double)(NativeUtils.GetCreatureProficiencyBonus(target) / 2), MidpointRounding.ToZero);
+            proficiencyBonus = NativeUtils.GetCreatureProficiencyBonus(target);
+          else if(target.m_pStats.HasFeat(CustomSkill.ToucheATout).ToBool())
+            proficiencyBonus = (int)Math.Round((double)(NativeUtils.GetCreatureProficiencyBonus(target) / 2), MidpointRounding.ToZero);
 
           switch (ability) 
           {
@@ -29,16 +30,18 @@ namespace NWN.Systems
             case Ability.Constitution:
               
               if (target.m_pStats.HasFeat(CustomSkill.FighterChampionRemarkableAthlete).ToBool())
-                return (int)Math.Round((double)(NativeUtils.GetCreatureProficiencyBonus(target) / 2), MidpointRounding.AwayFromZero);
+                proficiencyBonus = (int)Math.Round((double)(NativeUtils.GetCreatureProficiencyBonus(target) / 2), MidpointRounding.AwayFromZero);
               
               break;
           }
         }
       }
       else
-        return NativeUtils.GetCreatureProficiencyBonus(target);
+        proficiencyBonus = NativeUtils.GetCreatureProficiencyBonus(target);
 
-      return 0;
+      LogUtils.LogMessage($"JDS {ability} proficiency bonus : {proficiencyBonus}", LogUtils.LogType.Combat);
+
+      return proficiencyBonus;
     }
   }
 }

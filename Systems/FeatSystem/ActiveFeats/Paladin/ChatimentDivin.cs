@@ -11,7 +11,7 @@ namespace NWN.Systems
     {
       NwItem weapon = caster.GetItemInSlot(InventorySlot.RightHand);
 
-      if (weapon is null || !ItemUtils.IsMeleeWeapon(weapon.BaseItem))
+      if (weapon is not null && !ItemUtils.IsMeleeWeapon(weapon.BaseItem))
       {
         caster.LoginPlayer?.SendServerMessage("Vous devez vous équiper d'une arme de mêlée", ColorConstants.Red);
         return;
@@ -30,7 +30,7 @@ namespace NWN.Systems
         chatimentLevel = cr > 16 ? 5 : cr > 12 ? 4 : cr > 8 ? 3 : cr > 4 ? 2 : 1;
       }
 
-      NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetChatimentDivinEffect(chatimentLevel, caster.GetClassInfo(ClassType.Paladin).Level)));
+      NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetChatimentDivinEffect(chatimentLevel)));
 
       player.oid.LoginCreature.DecrementRemainingFeatUses((Feat)CustomSkill.ChatimentDivin);
       player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).SetRemainingSpellSlots((byte)chatimentLevel,
@@ -38,9 +38,6 @@ namespace NWN.Systems
 
       player.oid.LoginCreature.OnCreatureAttack -= PaladinUtils.OnAttackChatimentDivin;
       player.oid.LoginCreature.OnCreatureAttack += PaladinUtils.OnAttackChatimentDivin;
-
-      //if (targetObject is not NwCreature targetCreature || Utils.In(targetCreature.Race.RacialType, RacialType.Construct, RacialType.Undead))
-      //return;
     }
   }
 }

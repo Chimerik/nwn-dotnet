@@ -103,7 +103,6 @@ namespace NWN.Systems
 
       onIntervalSpiderCocoonCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalSpiderCocoon);
       onIntervalTerreurCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalTerreur);
-      onIntervalChatimentDivinCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalChatimentDivin);
 
       onIntervalNimbeSacreeCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalNimbeSacree);
       onIntervalCourrouxDeLaNatureCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalCourrouxDeLaNature);

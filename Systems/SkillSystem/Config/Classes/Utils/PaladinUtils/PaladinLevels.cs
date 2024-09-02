@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Security.Cryptography;
 using Anvil.API;
 using NWN.Core.NWNX;
 using static NWN.Systems.PlayerSystem;
@@ -42,7 +41,7 @@ namespace NWN.Systems
           {
             if (Utils.In(spell.Id, CustomSpell.GardienDeLaFoi, CustomSpell.LueurDespoir, CustomSpell.FrappePiegeuse, 
               CustomSpell.FouleeBrumeuse, CustomSpell.RayonDeLune, (int)Spell.ProtectionFromElements, CustomSpell.CroissanceVegetale,
-              (int)Spell.Stoneskin, (int)Spell.IceStorm, CustomSpell.CommunionAvecLaNature, CustomSpell.PassageParLesArbres, 
+              (int)Spell.Silence, (int)Spell.Stoneskin, (int)Spell.IceStorm, CustomSpell.CommunionAvecLaNature, CustomSpell.PassageParLesArbres, 
               (int)Spell.FlameStrike, CustomSpell.Communion, (int)Spell.Bane, CustomSpell.MarqueDuChasseur, (int)Spell.HoldPerson, CustomSpell.FouleeBrumeuse,
               (int)Spell.Haste, CustomSpell.Bannissement, CustomSpell.PorteDimensionnelle, (int)Spell.HoldMonster, CustomSpell.Scrutation)) 
                 continue;// ces sorts ne font pas partie du package de paladin mais peuvent être appris via le serment

@@ -14,17 +14,20 @@ namespace NWN.Systems
         return 0;
 
       NwSpell spell = NwSpell.FromSpellId(spellEntry.RowIndex);
+      NwCreature castingCreature = oCaster is NwCreature tempCaster ? tempCaster : null;
       int roll = NwRandom.Roll(Utils.random, spellEntry.damageDice, nbDices);
       int totalDamage = 0;
-      bool isEvocateurSurcharge = false;
+      bool isEvocateurSurcharge = castingCreature is not null && castingCreature.KnowsFeat((Feat)CustomSkill.EvocateurSurcharge) && spell.SpellSchool == SpellSchool.Evocation
+          && 0 < spellLevel && spellLevel < 6 && castingCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.EvocateurSurchargeEffectTag); ;
       bool isFureurDestructrice = oCaster.ActiveEffects.Any(e => e.Tag == EffectSystem.FureurDestructriceEffectTag);
-      bool moissonDuFielTriggered = target.HP > 0 && target is NwCreature creature && !Utils.In(creature.Race.RacialType, RacialType.Undead, RacialType.Construct);
+      bool moissonDuFielTriggered = target.HP > 0 && castingCreature is not null && !Utils.In(castingCreature.Race.RacialType, RacialType.Undead, RacialType.Construct);
       int amplifiedDices = 0;
+      string logString = "";
 
-      if (oCaster is NwCreature enso && oCaster.ActiveEffects.Any(e => e.Tag == EffectSystem.MetamagieEffectTag && e.IntParams[5] == CustomSkill.EnsoAmplification))
+      if (castingCreature is not null && oCaster.ActiveEffects.Any(e => e.Tag == EffectSystem.MetamagieEffectTag && e.IntParams[5] == CustomSkill.EnsoAmplification))
       {
-        amplifiedDices = enso.GetAbilityModifier(Ability.Charisma) < 1 ? 1 : enso.GetAbilityModifier(Ability.Charisma);
-        EffectUtils.RemoveTaggedParamEffect(enso, CustomSkill.EnsoAmplification, EffectSystem.MetamagieEffectTag);
+        amplifiedDices = castingCreature.GetAbilityModifier(Ability.Charisma) < 1 ? 1 : castingCreature.GetAbilityModifier(Ability.Charisma);
+        EffectUtils.RemoveTaggedParamEffect(castingCreature, CustomSkill.EnsoAmplification, EffectSystem.MetamagieEffectTag);
       }
 
       DamageType transmutedDamage = DamageType.BaseWeapon;
@@ -42,71 +45,58 @@ namespace NWN.Systems
       {
         DamageType appliedDamage = transmutedDamage == DamageType.BaseWeapon ? damageType : transmutedDamage;
         int damage = 0;
-        bool isElementalist = false;
-       
-        if (oCaster is NwCreature caster)
+        bool isElementalist = Players.TryGetValue(castingCreature, out Player player)
+          && player.learnableSkills.TryGetValue(CustomSkill.Elementaliste, out LearnableSkill elementalist)
+          && elementalist.featOptions.Any(e => e.Value.Any(d => d == (int)appliedDamage));
+
+        damage += EnsoUtils.HandleElementalAffinity(castingCreature, appliedDamage);
+
+        for (int i = 0; i < nbDices; i++)
         {
-          isElementalist = Players.TryGetValue(caster, out Player player)
-            && player.learnableSkills.TryGetValue(CustomSkill.Elementaliste, out LearnableSkill elementalist)
-            && elementalist.featOptions.Any(e => e.Value.Any(d => d == (int)appliedDamage));
+          roll = isEvocateurSurcharge ? spellEntry.damageDice : NwRandom.Roll(Utils.random, spellEntry.damageDice);
+          roll = isFureurDestructrice && Utils.In(appliedDamage, DamageType.Electrical, DamageType.Sonic) ? spellEntry.damageDice : roll;
 
-          isEvocateurSurcharge = caster.KnowsFeat((Feat)CustomSkill.EvocateurSurcharge) && spell.SpellSchool == SpellSchool.Evocation
-            && 0 < spellLevel && spellLevel < 6 && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.EvocateurSurchargeEffectTag);
-
-          damage += EnsoUtils.HandleElementalAffinity(caster, appliedDamage);
-
-          for (int i = 0; i < nbDices; i++)
-          {
-            roll = isEvocateurSurcharge ? spellEntry.damageDice : NwRandom.Roll(Utils.random, spellEntry.damageDice);
-            roll = isFureurDestructrice && Utils.In(appliedDamage, DamageType.Electrical, DamageType.Sonic) ? spellEntry.damageDice : NwRandom.Roll(Utils.random, spellEntry.damageDice);
-
+          if(castingCreature is not null)
             switch (appliedDamage)
             {
               case DamageType.Piercing:
-                if (caster.KnowsFeat((Feat)CustomSkill.Empaleur))
+                if (castingCreature.KnowsFeat((Feat)CustomSkill.Empaleur))
                   roll = roll < 3 ? NwRandom.Roll(Utils.random, spellEntry.damageDice) : roll;
                 break;
 
               case DamageType.Fire:
-                if (caster.KnowsFeat((Feat)CustomSkill.FlammesDePhlegetos))
+                if (castingCreature.KnowsFeat((Feat)CustomSkill.FlammesDePhlegetos))
                   roll = roll < 2 ? NwRandom.Roll(Utils.random, spellEntry.damageDice) : roll;
                 break;
             }
 
-            roll = isElementalist && roll < 2 ? 2 : roll;
+          roll = isElementalist && roll < 2 ? 2 : roll;
 
-            if(amplifiedDices > 0)
-            {
-              int tempRoll = NwRandom.Roll(Utils.random, spellEntry.damageDice);
-              roll = tempRoll > roll ? tempRoll : roll;
-              amplifiedDices -= 1;
-            }
-
-            if (caster.KnowsFeat((Feat)CustomSkill.EvocateurSuperieur) && spell.SpellSchool == SpellSchool.Evocation)
-            {
-              damage += caster.GetAbilityModifier(Ability.Intelligence);
-              LogUtils.LogMessage($"Evocation supérieure : ajout de {caster.GetAbilityModifier(Ability.Intelligence)} dégâts au jet", LogUtils.LogType.Combat);
-            }
-
-            damage += roll;
+          if(amplifiedDices > 0)
+          {
+            int tempRoll = NwRandom.Roll(Utils.random, spellEntry.damageDice);
+            roll = tempRoll > roll ? tempRoll : roll;
+            amplifiedDices -= 1;
           }
 
-          damage = HandleIncantationPuissante(caster, damage, spell);
+          damage += roll;
+          logString += $"{roll} + ";
         }
 
-        LogUtils.LogMessage($"Dégâts initiaux : {damage}", LogUtils.LogType.Combat);
+        damage += HandleEvocateurSuperieur(castingCreature, spell);
+        damage += HandleIncantationPuissante(castingCreature, spell);
+        
+        LogUtils.LogMessage($"Dégâts initiaux : {logString.Remove(logString.Length - 2)} = {damage}", LogUtils.LogType.Combat);
 
-        if (target is NwCreature targetCreature)
-        {
-          damage = HandleSpellEvasion(targetCreature, damage, spellEntry.savingThrowAbility, saveResult, spell.Id, spellLevel);
-          damage = ItemUtils.GetShieldMasterReducedDamage(targetCreature, damage, saveResult, spellEntry.savingThrowAbility);
-          damage = WizardUtils.GetAbjurationReducedDamage(targetCreature, damage);
-          damage = PaladinUtils.GetAuraDeGardeReducedDamage(targetCreature, damage);
-          damage = ClercUtils.GetAttenuationElementaireReducedDamage(targetCreature, damage, appliedDamage);
-          damage = HandleResistanceBypass(targetCreature, isElementalist, isEvocateurSurcharge, damage, appliedDamage);
+        damage = HandleSpellEvasion(castingCreature, damage, spellEntry.savingThrowAbility, saveResult, spell.Id, spellLevel);
+        damage = ItemUtils.GetShieldMasterReducedDamage(castingCreature, damage, saveResult, spellEntry.savingThrowAbility);
+        damage = WizardUtils.GetAbjurationReducedDamage(castingCreature, damage);
+        damage = PaladinUtils.GetAuraDeGardeReducedDamage(castingCreature, damage);
+        damage = ClercUtils.GetAttenuationElementaireReducedDamage(castingCreature, damage, appliedDamage);
+        damage = HandleResistanceBypass(castingCreature, isElementalist, isEvocateurSurcharge, damage, appliedDamage);
 
-          EnsoUtils.HandleCoeurDeLaTempete(targetCreature, appliedDamage);
-        }
+        EnsoUtils.HandleCoeurDeLaTempete(castingCreature, appliedDamage);
+        
 
         if (oCaster is not null)
           NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(spellEntry.damageVFX), Effect.Damage(damage, appliedDamage))));

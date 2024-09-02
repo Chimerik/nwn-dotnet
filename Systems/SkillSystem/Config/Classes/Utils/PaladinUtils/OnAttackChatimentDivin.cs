@@ -1,6 +1,7 @@
 ﻿using Anvil.API.Events;
 using Anvil.API;
 using NWN.Core;
+using System.Linq;
 
 namespace NWN.Systems
 {
@@ -14,18 +15,42 @@ namespace NWN.Systems
         case AttackResult.CriticalHit:
         case AttackResult.AutomaticHit:
 
-          if (onAttack.Target is not NwCreature targetCreature)
+          if (onAttack.Target is not NwCreature targetCreature || onAttack.Attacker.IsRangedWeaponEquipped)
             return;
 
-          EffectUtils.RemoveTaggedEffect(onAttack.Attacker, EffectSystem.ChatimentDivinEffectTag);
+          var chatiment = onAttack.Attacker.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.ChatimentDivinEffectTag);
 
-          StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, $"{onAttack.Attacker.Name.ColorString(ColorConstants.Cyan)} " +
-            $"utilise Châtiment Divin sur {targetCreature.Name.ColorString(ColorConstants.Cyan)}", StringUtils.gold, true, true);
-
-          if (Utils.In(targetCreature.Race.RacialType, RacialType.Undead, RacialType.Outsider))
+          if (chatiment is not null)
           {
-            LogUtils.LogMessage($"Châtiment Divin - Cible mort-vivant ou extérieur : +1d8", LogUtils.LogType.Combat);
-            NWScript.AssignCommand(onAttack.Attacker, () => targetCreature.ApplyEffect(EffectDuration.Instant, Effect.Damage(NwRandom.Roll(Utils.random, 8), DamageType.Divine)));
+            int nbDice = 1 + chatiment.CasterLevel;
+
+            if (Utils.In(targetCreature.Race.RacialType, RacialType.Undead, RacialType.Outsider))
+            {
+              LogUtils.LogMessage($"Châtiment Divin - Cible mort-vivant ou extérieur : +1d8", LogUtils.LogType.Combat);
+              nbDice += 1;
+            }
+
+            if (onAttack.AttackResult == AttackResult.CriticalHit)
+              nbDice *= 2;
+
+            string logString = "";
+            int damage = 0;
+
+            for(int i = 0; i < nbDice; i++)
+            {
+              int roll = NwRandom.Roll(Utils.random, 8);
+              logString += $"{roll} + ";
+              damage += roll;
+            }
+
+            LogUtils.LogMessage($"Châtiment Divin - {nbDice}d8 : {logString.Remove(logString.Length - 2)} = {damage}", LogUtils.LogType.Combat);
+
+            EffectUtils.RemoveTaggedEffect(onAttack.Attacker, EffectSystem.ChatimentDivinEffectTag);
+
+            StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, $"{onAttack.Attacker.Name.ColorString(ColorConstants.Cyan)} " +
+              $"Châtiment Divin {targetCreature.Name.ColorString(ColorConstants.Cyan)}", StringUtils.gold, true, true);
+
+            NWScript.AssignCommand(onAttack.Attacker, () => targetCreature.ApplyEffect(EffectDuration.Instant, Effect.Damage(damage, DamageType.Divine)));
           }
 
           await NwTask.NextFrame();

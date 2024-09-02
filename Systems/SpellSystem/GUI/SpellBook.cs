@@ -323,17 +323,11 @@ namespace NWN.Systems
                   buttonsChildren.Add(new NuiRow { Children = guiSpacersChildren });
 
                   string tooltip = "Retirer";
-                  bool enabled = true;
-
+                  string disabledTooltip = "Ce sort est toujours préparé et ne consomme pas d'emplacement préparé";
                   var learnable = player.learnableSpells[spell.Id];
-
-                  if (learnable.alwaysPrepared)
-                  {
-                    tooltip = "Ce sort est toujours préparé et ne compte pas en tant qu'emplacement préparé";
-                    enabled = false;
-                  }
-
-                  guiSpacersChildren.Add(new NuiButtonImage("gui_arrow_down") { Id = $"remove_{spell.Id}", Tooltip = tooltip, Enabled = enabled, Height = 14, Width = 22 });
+                  bool enabled = !learnable.alwaysPrepared;
+                 
+                  guiSpacersChildren.Add(new NuiButtonImage("gui_arrow_down") { Id = $"remove_{spell.Id}", Tooltip = tooltip, DisabledTooltip = disabledTooltip, Enabled = enabled, Height = 14, Width = 22 });
                   guiSpacersChildren.Add(new NuiSpacer());
 
                   readySpells.Remove(spell);               
