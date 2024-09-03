@@ -475,6 +475,7 @@ namespace NWN.Systems
         ApplyFrappeMeurtriere();
         ApplyThiefReflex();
         ApplyAbjurationWard();
+        ApplyChatimentAmeliore();
         ApplyMagieDeGuerre();
         ApplyFrappeOcculte();
         ApplyArmeLiee();

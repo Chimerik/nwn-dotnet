@@ -143,6 +143,14 @@ namespace NWN.Systems
 
           break;
 
+        case 11:
+
+          player.learnableSkills.TryAdd(CustomSkill.PaladinChatimentAmeliore, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PaladinChatimentAmeliore], player));
+          player.learnableSkills[CustomSkill.PaladinChatimentAmeliore].LevelUp(player);
+          player.learnableSkills[CustomSkill.PaladinChatimentAmeliore].source.Add(Category.Class);
+
+          break;
+
         case 12:
 
           if (!player.windows.TryGetValue("featSelection", out var feat12)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
