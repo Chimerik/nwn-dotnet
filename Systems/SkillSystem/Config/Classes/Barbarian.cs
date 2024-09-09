@@ -62,10 +62,7 @@ namespace NWN.Systems
         case CustomSkill.BarbarianWildMagic: HandleWildMagicLevelUp(player, playerClass.currentLevel); break;
       }
 
-      if(playerClass.currentLevel > 2 || playerClass.currentLevel > 1)
-        player.oid.LoginCreature.ForceLevelUp(CustomClass.Barbarian, player.RollClassHitDie(player.oid.LoginCreature.Level, CustomClass.Barbarian, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));
-
-      player.GiveRacialBonusOnLevelUp();
+      player.ApplyClassLevelUp(playerClass, CustomClass.Barbarian);
 
       return true;
     }

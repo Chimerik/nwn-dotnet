@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
 using NWN.Core;
@@ -26,29 +27,35 @@ namespace NWN.Systems
     }
     private static ScriptHandleResult OnEnterChargeDuSanglierAura(CallInfo callInfo)
     {
-      if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) || eventData.Entering is not NwCreature entering 
+      if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) || eventData.Entering is not NwCreature entering
         || eventData.Effect.Creator is not NwCreature protector || protector.HP < 1 || entering == protector
         || entering.Size > CreatureSize.Large)
         return ScriptHandleResult.Handled;
 
-      if(protector.CurrentAction != Action.MoveToPoint)
+      if (protector.CurrentAction != Action.MoveToPoint)
       {
-        EffectUtils.RemoveTaggedEffect(protector, LienTotemElanAuraEffectTag);
+        EffectUtils.RemoveTaggedEffect(protector, ChargeDuSanglierAuraEffectTag);
         return ScriptHandleResult.Handled;
       }
 
-      int DC = 8 + protector.GetAbilityModifier(Ability.Strength) + NativeUtils.GetCreatureProficiencyBonus(protector.Master);
+      NwCreature master = protector.Master is null ? protector : protector.Master;
+
+      int DC = 8 + protector.GetAbilityModifier(Ability.Strength) + NativeUtils.GetCreatureProficiencyBonus(master);
       int targetRoll = entering.GetAbilityModifier(Ability.Strength) + Utils.RollAdvantage(CreatureUtils.GetCreatureAbilityAdvantage(entering, Ability.Strength, effectType: SpellEffectType.Knockdown, caster: protector));
-      
-      if(PlayerSystem.Players.TryGetValue(entering, out PlayerSystem.Player player) && 
+
+      if (PlayerSystem.Players.TryGetValue(entering, out PlayerSystem.Player player) &&
         player.learnableSkills.TryGetValue(CustomSkill.StrengthSavesProficiency, out LearnableSkill strSave) && strSave.currentLevel > 0)
-          targetRoll += NativeUtils.GetCreatureProficiencyBonus(entering);
+        targetRoll += NativeUtils.GetCreatureProficiencyBonus(entering);
 
       if (targetRoll > DC)
         return ScriptHandleResult.Handled;
 
-      ApplyKnockdown(entering, CreatureSize.Large, 2);
-      NWScript.AssignCommand(protector, () => entering.ApplyEffect(EffectDuration.Instant, Effect.Damage(NwRandom.Roll(Utils.random, 4) + protector.GetAbilityModifier(Ability.Strength), DamageType.Slashing)));
+      ApplyKnockdown(entering, CreatureSize.Large, 1);
+      
+      if (protector.ActiveEffects.Any(e => e.EffectType == EffectType.Polymorph && e.IntParams[0] == 108))
+        NWScript.AssignCommand(protector, () => entering.ApplyEffect(EffectDuration.Instant, Effect.Damage(NwRandom.Roll(Utils.random, 6, 2) + protector.GetAbilityModifier(Ability.Strength), DamageType.Piercing)));
+      else
+        NWScript.AssignCommand(protector, () => entering.ApplyEffect(EffectDuration.Instant, Effect.Damage(NwRandom.Roll(Utils.random, 4) + protector.GetAbilityModifier(Ability.Strength), DamageType.Slashing)));
 
       return ScriptHandleResult.Handled;
     }

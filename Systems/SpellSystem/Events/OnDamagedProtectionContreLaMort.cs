@@ -10,6 +10,9 @@ namespace NWN.Systems
     {
       if (onDamage.Creature.HP < 1)
       {
+        if (onDamage.Creature.ActiveEffects.Any(e => e.EffectType == EffectType.Polymorph))
+          return;
+
         onDamage.Creature.OnDamaged -= OnDamagedProtectionContreLaMort;
 
         if (!onDamage.Creature.ActiveEffects.Any(e => e.Tag == EffectSystem.ProtectionContreLaMortEffectTag))

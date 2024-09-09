@@ -52,12 +52,7 @@ namespace NWN.Systems
         case CustomSkill.RogueArcaneTrickster: HandleArcaneTricksterLevelUp(player, playerClass.currentLevel); break;
       }
 
-      if (playerClass.currentLevel > 2 || playerClass.currentLevel > 1)
-      {
-        byte customClass = customSkillId == CustomSkill.RogueArcaneTrickster ? CustomClass.RogueArcaneTrickster : CustomClass.Rogue;
-        player.oid.LoginCreature.ForceLevelUp(customClass, player.RollClassHitDie(player.oid.LoginCreature.Level, customClass, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));
-      }
-      player.GiveRacialBonusOnLevelUp();
+      player.ApplyClassLevelUp(playerClass, customSkillId == CustomSkill.RogueArcaneTrickster ? CustomClass.RogueArcaneTrickster : CustomClass.Rogue);
 
       return true;
     }

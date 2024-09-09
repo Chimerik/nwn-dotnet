@@ -52,10 +52,7 @@ namespace NWN.Systems
         case CustomSkill.WizardTransmutation: HandleTransmutationLevelUp(player, playerClass.currentLevel); break;
       }
 
-      if (playerClass.currentLevel > 2 || playerClass.currentLevel > 1)
-        player.oid.LoginCreature.ForceLevelUp(CustomClass.Wizard, player.RollClassHitDie(player.oid.LoginCreature.Level, CustomClass.Wizard, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));
-
-      player.GiveRacialBonusOnLevelUp();
+      player.ApplyClassLevelUp(playerClass, CustomClass.Wizard);
 
       return true;
     }

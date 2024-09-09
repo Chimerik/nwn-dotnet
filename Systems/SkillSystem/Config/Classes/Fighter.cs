@@ -66,13 +66,7 @@ namespace NWN.Systems
         case CustomSkill.FighterEldritchKnight: HandleEldritchKnightLevelUp(player, playerClass.currentLevel); break;
       }
 
-      if (player.oid.LoginCreature.Level > 2 || playerClass.currentLevel > 1)
-      {
-        byte customClass = customSkillId == CustomSkill.FighterEldritchKnight ? CustomClass.EldritchKnight : CustomClass.Fighter;
-        player.oid.LoginCreature.ForceLevelUp(customClass, player.RollClassHitDie(player.oid.LoginCreature.Level, customClass, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));
-      }
-
-      player.GiveRacialBonusOnLevelUp();
+      player.ApplyClassLevelUp(playerClass, customSkillId == CustomSkill.FighterEldritchKnight ? CustomClass.EldritchKnight : CustomClass.Fighter);
 
       return true;
     }

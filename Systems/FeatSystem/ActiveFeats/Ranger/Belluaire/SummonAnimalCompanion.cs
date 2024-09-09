@@ -261,6 +261,8 @@ namespace NWN.Systems
 
           companion = NwCreature.Create("spidercompagnon", target);
 
+          companion.ApplyEffect(EffectDuration.Permanent, Effect.SpellImmunity(Spell.Web));
+
           weapon = companion.GetItemInSlot(InventorySlot.CreatureLeftWeapon);
           weapon.AddItemProperty(ItemProperty.DamageBonus(IPDamageType.Slashing, IPDamageBonus.Plus1d8), EffectDuration.Permanent);
           weapon.GetObjectVariable<LocalVariableInt>(ItemConfig.IsFinesseWeaponVariable).Value = 1;

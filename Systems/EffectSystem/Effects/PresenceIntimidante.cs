@@ -32,7 +32,7 @@ namespace NWN.Systems
       int DC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(intimidator) + intimidator.GetAbilityModifier(Ability.Charisma);
 
       if (CreatureUtils.GetSavingThrow(intimidator, entering, Ability.Wisdom, DC) == SavingThrowResult.Failure)
-        NWScript.AssignCommand(intimidator, () => entering.ApplyEffect(EffectDuration.Temporary, Effroi, NwTimeSpan.FromRounds(1)));
+        NWScript.AssignCommand(intimidator, () => entering.ApplyEffect(EffectDuration.Temporary, Effroi(entering), NwTimeSpan.FromRounds(1)));
       else
         entering.GetObjectVariable<LocalVariableInt>($"_PRESENCE_INTIMIDANTE_RESISTED_{intimidator.Name}").Value = 1;
 
@@ -52,7 +52,7 @@ namespace NWN.Systems
         int DC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(intimidator) + intimidator.GetAbilityModifier(Ability.Charisma);
 
         if (CreatureUtils.GetSavingThrow(intimidator, target, Ability.Wisdom, DC) == SavingThrowResult.Failure)
-          NWScript.AssignCommand(intimidator, () => target.ApplyEffect(EffectDuration.Temporary, Effroi, NwTimeSpan.FromRounds(1)));
+          NWScript.AssignCommand(intimidator, () => target.ApplyEffect(EffectDuration.Temporary, Effroi(target), NwTimeSpan.FromRounds(1)));
         else
           target.GetObjectVariable<LocalVariableInt>($"_PRESENCE_INTIMIDANTE_RESISTED_{intimidator.Name}").Value = 1;
       }

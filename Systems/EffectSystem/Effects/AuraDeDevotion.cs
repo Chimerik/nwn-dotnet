@@ -32,11 +32,10 @@ namespace NWN.Systems
     }
     private static ScriptHandleResult onExitDevotionAura(CallInfo callInfo)
     {
-      if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnExit eventData) || eventData.Exiting is not NwCreature exiting
-        || eventData.Effect.Creator is not NwCreature protector || exiting.IsReactionTypeHostile(protector))
+      if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnExit eventData) || eventData.Exiting is not NwCreature exiting)
         return ScriptHandleResult.Handled;
 
-      EffectUtils.RemoveTaggedEffect(exiting, protector, DevotionEffectTag);
+      EffectUtils.RemoveTaggedEffect(exiting, eventData.Effect.Creator, DevotionEffectTag);
       return ScriptHandleResult.Handled;
     }
   }

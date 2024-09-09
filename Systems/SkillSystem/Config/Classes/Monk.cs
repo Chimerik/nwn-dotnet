@@ -40,10 +40,7 @@ namespace NWN.Systems
         case CustomSkill.MonkElements: HandleElementsLevelUp(player, playerClass.currentLevel); break;
       }
 
-      if (playerClass.currentLevel > 2 || playerClass.currentLevel > 1)
-        player.oid.LoginCreature.ForceLevelUp(CustomClass.Monk, player.RollClassHitDie(player.oid.LoginCreature.Level, CustomClass.Monk, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));
-
-      player.GiveRacialBonusOnLevelUp();
+      player.ApplyClassLevelUp(playerClass, CustomClass.Monk);
 
       return true;
     }

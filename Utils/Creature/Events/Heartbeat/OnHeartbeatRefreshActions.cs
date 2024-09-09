@@ -120,8 +120,8 @@ namespace NWN.Systems
 
       if (creature.GetObjectVariable<LocalVariableInt>(BelluaireRugissementProvoquantCoolDownVariable).HasValue)
       {
-        if(creature.GetObjectVariable<LocalVariableInt>(BelluaireRugissementProvoquantCoolDownVariable).Value < 11)
-          creature.GetObjectVariable<LocalVariableInt>(BelluaireRugissementProvoquantCoolDownVariable).Value += 1;
+        if(creature.GetObjectVariable<LocalVariableInt>(BelluaireRugissementProvoquantCoolDownVariable).Value > 1)
+          creature.GetObjectVariable<LocalVariableInt>(BelluaireRugissementProvoquantCoolDownVariable).Value -= 1;
         else
         {
           creature.SetFeatRemainingUses((Feat)CustomSkill.BelluaireRugissementProvoquant, 100);

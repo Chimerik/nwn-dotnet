@@ -765,6 +765,36 @@ namespace NWN.Systems
           SpellSystem.OrbeChromatique(oCaster, spell, spellEntry, target, castingClass, feat);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
+
+        case CustomSpell.Terrassement:
+          SpellSystem.Terrassement(oCaster, spell, spellEntry, target is null ? targetLocation : target.Location);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.Charge:
+          SpellSystem.Charge(oCaster, spell, target is null ? targetLocation : target.Location);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.MorsureAlaJugulaire:
+          SpellSystem.MorsureAlaJugulaire(oCaster, spell, spellEntry, target);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.Rupture:
+          SpellSystem.Rupture(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.RageDelOurs:
+          SpellSystem.RageDelOurs(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.ExcretionCorrosive:
+          SpellSystem.ExcretionCorrosive(oCaster, spell, spellEntry, target);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
       }
 
       if (oCaster is NwCreature castingCreature)

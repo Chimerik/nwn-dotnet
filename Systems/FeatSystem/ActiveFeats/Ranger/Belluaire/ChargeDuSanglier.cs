@@ -39,8 +39,8 @@ namespace NWN.Systems
       Location target = Location.Create(companion.Area, companion.Position, companion.Rotation);
 
       _ = companion.ClearActionQueue();
-      _ = companion.AddActionToQueue(() => companion.ActionForceMoveTo(target, true));
-      _ = companion.AddActionToQueue(() => companion.ActionAttackTarget(targetObject, true));
+      _ = companion.AddActionToQueue(() => _ = companion.ActionForceMoveTo(target, true));
+      _ = companion.AddActionToQueue(() => _ = companion.ActionAttackTarget(targetObject, true));
 
       companion.ApplyEffect(EffectDuration.Temporary, EffectSystem.ChargeDuSanglierAura, NwTimeSpan.FromRounds(1));
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Charge du Sanglier", ColorConstants.Red, true);

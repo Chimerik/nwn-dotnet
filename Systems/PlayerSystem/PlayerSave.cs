@@ -18,6 +18,13 @@ namespace NWN.Systems
       if (!Players.TryGetValue(onSaveBefore.Player.LoginCreature, out Player player))
         return;
 
+      if(player.oid.LoginCreature.ActiveEffects.Any(e => e.EffectType == EffectType.Polymorph))
+      {
+        onSaveBefore.PreventSave = true;
+        LogUtils.LogMessage($"{player.oid.PlayerName} : polymorphed - Save cancelled", LogUtils.LogType.PlayerSaveSystem);
+        return;
+      }
+
       if (player.pcState != Player.PcState.Offline && player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_SAVE_AUTHORIZED").HasNothing) // On debounce les saves, sauf s'il s'agit d'une déco
       {
         onSaveBefore.PreventSave = true;
@@ -105,12 +112,8 @@ namespace NWN.Systems
 
         if (oid.LoginCreature.ActiveEffects.Any(e => e.EffectType == EffectType.Polymorph))
         {
-          List<Effect> effectList = oid.LoginCreature.ActiveEffects.Where(e => e.EffectType == EffectType.Polymorph).ToList();
-
-          foreach (Effect eff in effectList)
-            oid.LoginCreature.RemoveEffect(eff);
-
-          LogUtils.LogMessage($"Polymorph detected, saving effect list", LogUtils.LogType.PlayerSaveSystem);
+          List<Effect> effectList = oid.LoginCreature.ActiveEffects.Where(e => e.EffectType != EffectType.Polymorph).ToList();
+          LogUtils.LogMessage($"{oid.LoginCreature.Name} - Polymorph detected, saving effect list", LogUtils.LogType.PlayerSaveSystem);
 
           RestorePolymorph(effectList);
         }
@@ -126,12 +129,14 @@ namespace NWN.Systems
          * Mais il se peut que dans ce cas, ses buffs soient perdues à la reco. A vérifier. Si c'est le cas, une meilleure
          * correction pourrait être de parcourir tous ses buffs et de les réappliquer dans l'event AFTER de la sauvegarde*/
 
-        if (oid == null || oid.ControlledCreature == null)
+        oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_SHAPECHANGE_SAVE_RESET").Value = 1;
+
+        await NwTask.NextFrame();
+
+        if (oid == null || !oid.IsValid || oid.ControlledCreature == null)
           return;
 
-        await NwTask.Delay(TimeSpan.FromSeconds(0.1));
-
-        LogUtils.LogMessage($"Polymorph detected, restoring effect list on {oid.LoginCreature.Name}", LogUtils.LogType.PlayerSaveSystem);
+        LogUtils.LogMessage($"{oid.LoginCreature.Name} - Polymorph detected, restoring effect list", LogUtils.LogType.PlayerSaveSystem);
 
         foreach (Effect eff in effectList)
           oid.LoginCreature.ApplyEffect(eff.DurationType, eff, TimeSpan.FromSeconds((double)eff.DurationRemaining));

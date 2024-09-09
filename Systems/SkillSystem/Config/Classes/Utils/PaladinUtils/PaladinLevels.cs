@@ -181,9 +181,6 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("featSelection", out var feat19)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
           else ((FeatSelectionWindow)feat19).CreateWindow();
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell19)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 0, 1));
-          else ((SpellSelectionWindow)spell19).CreateWindow(ClassType.Ranger, 0, 1);
-
           break;
       }
 

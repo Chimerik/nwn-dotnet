@@ -37,9 +37,6 @@ namespace NWN.Systems
           
           // On donne les autres capacités de niveau 1
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell1)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Druid, 2));
-          else ((SpellSelectionWindow)spell1).CreateWindow(ClassType.Druid, 2);
-
           player.learnableSkills.TryAdd(CustomSkill.Druidique, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Druidique], player));
           player.learnableSkills[CustomSkill.Druidique].LevelUp(player);
           player.learnableSkills[CustomSkill.Druidique].source.Add(Category.Class);
@@ -53,15 +50,30 @@ namespace NWN.Systems
 
         case 2:
 
+          player.learnableSkills.TryAdd(CustomSkill.FormeSauvageBlaireau, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FormeSauvageBlaireau], player));
+          player.learnableSkills[CustomSkill.FormeSauvageBlaireau].LevelUp(player);
+          player.learnableSkills[CustomSkill.FormeSauvageBlaireau].source.Add(Category.Class);
+
+          player.learnableSkills.TryAdd(CustomSkill.FormeSauvageChat, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FormeSauvageChat], player));
+          player.learnableSkills[CustomSkill.FormeSauvageChat].LevelUp(player);
+          player.learnableSkills[CustomSkill.FormeSauvageChat].source.Add(Category.Class);
+
+          player.learnableSkills.TryAdd(CustomSkill.FormeSauvageAraignee, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FormeSauvageAraignee], player));
+          player.learnableSkills[CustomSkill.FormeSauvageAraignee].LevelUp(player);
+          player.learnableSkills[CustomSkill.FormeSauvageAraignee].source.Add(Category.Class);
+
+          player.learnableSkills.TryAdd(CustomSkill.FormeSauvageLoup, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FormeSauvageLoup], player));
+          player.learnableSkills[CustomSkill.FormeSauvageLoup].LevelUp(player);
+          player.learnableSkills[CustomSkill.FormeSauvageLoup].source.Add(Category.Class);
 
           break;
 
         case 3:
 
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value = CustomSkill.Druide;
+          /*player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value = CustomSkill.Druide;
 
           if (!player.windows.TryGetValue("subClassSelection", out var subClass)) player.windows.Add("subClassSelection", new SubClassSelectionWindow(player));
-          else ((SubClassSelectionWindow)subClass).CreateWindow();
+          else ((SubClassSelectionWindow)subClass).CreateWindow();*/
 
           break;
 
@@ -72,6 +84,10 @@ namespace NWN.Systems
 
           if (!player.windows.TryGetValue("spellSelection", out var spell4)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Druid, 1));
           else ((SpellSelectionWindow)spell4).CreateWindow(ClassType.Druid, 1);
+
+          player.learnableSkills.TryAdd(CustomSkill.FormeSauvageRothe, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FormeSauvageRothe], player));
+          player.learnableSkills[CustomSkill.FormeSauvageRothe].LevelUp(player);
+          player.learnableSkills[CustomSkill.FormeSauvageRothe].source.Add(Category.Class);
 
           break;
 
@@ -85,6 +101,13 @@ namespace NWN.Systems
 
         case 6:
 
+          player.learnableSkills.TryAdd(CustomSkill.FormeSauvagePanthere, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FormeSauvagePanthere], player));
+          player.learnableSkills[CustomSkill.FormeSauvagePanthere].LevelUp(player);
+          player.learnableSkills[CustomSkill.FormeSauvagePanthere].source.Add(Category.Class);
+
+          player.learnableSkills.TryAdd(CustomSkill.FormeSauvageOursHibou, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FormeSauvageOursHibou], player));
+          player.learnableSkills[CustomSkill.FormeSauvageOursHibou].LevelUp(player);
+          player.learnableSkills[CustomSkill.FormeSauvageOursHibou].source.Add(Category.Class);
 
           break;
 
@@ -107,6 +130,9 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("spellSelection", out var spell10)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Druid, 1));
           else ((SpellSelectionWindow)spell10).CreateWindow(ClassType.Druid, 1);
 
+          player.learnableSkills.TryAdd(CustomSkill.FormeSauvageDilophosaure, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FormeSauvageDilophosaure], player));
+          player.learnableSkills[CustomSkill.FormeSauvageDilophosaure].LevelUp(player);
+          player.learnableSkills[CustomSkill.FormeSauvageDilophosaure].source.Add(Category.Class);
 
           break;
 

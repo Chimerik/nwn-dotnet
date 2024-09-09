@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Anvil.API;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.SkillSystem;
@@ -44,13 +46,7 @@ namespace NWN.Systems
         //case CustomSkill.EnsorceleurTempete: HandleTempeteLevelUp(player, playerClass.currentLevel); break;
       }
 
-      if (player.oid.LoginCreature.Level > 2 || playerClass.currentLevel > 1)
-      {
-        player.oid.LoginCreature.ForceLevelUp(CustomClass.Ensorceleur, player.RollClassHitDie(player.oid.LoginCreature.Level, 
-          CustomClass.Ensorceleur, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));
-      }
-      
-      player.GiveRacialBonusOnLevelUp();
+      player.ApplyClassLevelUp(playerClass, CustomClass.Druid);
 
       return true;
     }

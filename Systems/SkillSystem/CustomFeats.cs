@@ -461,8 +461,16 @@
     public const int FormeSauvagePersistante = 1715;
     public const int MageNature = 1716;
 
-
     public const int PaladinChatimentAmeliore = 1717;
+
+    public const int FormeSauvageBlaireau = 1718;
+    public const int FormeSauvageChat = 1719;
+    public const int FormeSauvageAraignee = 1720;
+    public const int FormeSauvageLoup = 1721;
+    public const int FormeSauvageRothe = 1722;
+    public const int FormeSauvagePanthere = 1723;
+    public const int FormeSauvageOursHibou = 1724;
+    public const int FormeSauvageDilophosaure = 1725;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;

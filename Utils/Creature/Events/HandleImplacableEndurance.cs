@@ -1,5 +1,6 @@
 ﻿using Anvil.API.Events;
 using Anvil.API;
+using System.Linq;
 
 namespace NWN.Systems
 {
@@ -9,7 +10,9 @@ namespace NWN.Systems
     {
       if (onDamage.Creature.HP < 1)
       {
-        //onDamage.Creature.ApplyEffect(EffectDuration.Temporary, Effect.TemporaryHitpoints(onDamage.DamageAmount - onDamage.Creature.HP + 1), TimeSpan.FromSeconds(6));
+        if (onDamage.Creature.ActiveEffects.Any(e => e.EffectType == EffectType.Polymorph))
+          return;
+
         onDamage.Creature.HP = 1;
 
         EffectUtils.RemoveTaggedEffect(onDamage.Creature, EffectSystem.EnduranceImplacableEffectTag);

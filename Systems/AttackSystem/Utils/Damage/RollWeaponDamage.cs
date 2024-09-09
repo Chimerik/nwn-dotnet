@@ -27,7 +27,8 @@ namespace NWN.Systems
         + GetFavoredEnemyDegatsBonus(creature, target)
         + GetSuperiorityDiceDamage(creature)
         + GetBarbarianRageBonusDamage(creature, attackData)
-        + GetPhysicalBonusDamage(creature, attackWeapon);    
+        + GetPhysicalBonusDamage(creature, attackWeapon)    
+        + GetFormeSauvagePanthereBonusDamage(creature, target);    
 
       return damage;
     }

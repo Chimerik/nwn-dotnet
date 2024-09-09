@@ -18,7 +18,8 @@ namespace NWN.Systems
         case AttackResult.CriticalHit:
         case AttackResult.AutomaticHit:
 
-          int spellDC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(onAttack.Attacker.Master) + onAttack.Attacker.GetAbilityModifier(Ability.Wisdom);
+          NwCreature master = onAttack.Attacker.Master is null ? onAttack.Attacker : onAttack.Attacker.Master;
+          int spellDC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(master) + onAttack.Attacker.GetAbilityModifier(Ability.Wisdom);
 
           if (CreatureUtils.GetSavingThrow(onAttack.Attacker, target, Ability.Constitution, spellDC) == SavingThrowResult.Failure)
           {

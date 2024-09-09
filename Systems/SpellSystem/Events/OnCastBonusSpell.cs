@@ -39,7 +39,10 @@ namespace NWN.Systems
       if (SpellUtils.IsBonusActionSpell(caster, spell.Id, spellEntry))
       {
         if (!CreatureUtils.HandleBonusActionUse(caster))
+        {
+          onSpellAction.PreventSpellCast = true;
           return;
+        }
 
         if (!SpellUtils.CanCastSpell(caster, onSpellAction.TargetObject, spell, spellEntry))
         {

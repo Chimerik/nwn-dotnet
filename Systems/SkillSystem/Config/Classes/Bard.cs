@@ -57,10 +57,7 @@ namespace NWN.Systems
         case CustomSkill.BardCollegeDeLescrime: HandleCollegeDeLescrimeLevelUp(player, playerClass.currentLevel); break;
       }
 
-      if (playerClass.currentLevel > 2 || playerClass.currentLevel > 1)
-        player.oid.LoginCreature.ForceLevelUp(CustomClass.Bard, player.RollClassHitDie(player.oid.LoginCreature.Level, CustomClass.Bard, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));
-
-      player.GiveRacialBonusOnLevelUp();
+      player.ApplyClassLevelUp(playerClass, CustomClass.Bard);
 
       return true;
     }

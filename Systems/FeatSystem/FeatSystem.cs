@@ -166,7 +166,7 @@ namespace NWN.Systems
         case CustomSkill.BelluaireCorbeauAveuglement: CorbeauAveuglement(onUseFeat.Creature); return;
         case CustomSkill.BelluaireCorbeauMauvaisAugure: CorbeauMauvaisAugure(onUseFeat.Creature, onUseFeat.TargetObject); return;
         //case CustomSkill.BelluaireLoupMorsurePlongeante: LoupMorsurePlongeante(onUseFeat.Creature); return;
-        case CustomSkill.BelluaireSpiderWeb: SpiderWeb(onUseFeat.Creature, onUseFeat.TargetPosition); return;
+        case CustomSkill.BelluaireSpiderWeb: SpiderWeb(onUseFeat.Creature, onUseFeat.TargetObject is null ? onUseFeat.TargetPosition : onUseFeat.TargetObject.Position); return;
         case CustomSkill.BelluaireSpiderCocoon: SpiderCocoon(onUseFeat.Creature, onUseFeat.TargetObject); return;
 
         case CustomSkill.ImpositionDesMainsMineure: ImpositionDesMainsMineure(onUseFeat.Creature, onUseFeat.TargetObject); return;
@@ -228,6 +228,15 @@ namespace NWN.Systems
         case CustomSkill.DruideFrappePrimordialeElec: 
         case CustomSkill.DruideFrappePrimordialeTonnerre: FrappePrimordiale(onUseFeat.Creature, onUseFeat.Feat.Id); return;
         case CustomSkill.MageNature: SlotToFormeSauvage(onUseFeat.Creature); return;
+
+        case CustomSkill.FormeSauvageBlaireau: 
+        case CustomSkill.FormeSauvageAraignee: 
+        case CustomSkill.FormeSauvageLoup: 
+        case CustomSkill.FormeSauvageRothe: 
+        case CustomSkill.FormeSauvagePanthere: 
+        case CustomSkill.FormeSauvageOursHibou: 
+        case CustomSkill.FormeSauvageDilophosaure: 
+        case CustomSkill.FormeSauvageChat: FormeSauvage(onUseFeat.Creature, onUseFeat.Feat.Id); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

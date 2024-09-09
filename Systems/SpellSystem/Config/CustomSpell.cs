@@ -121,5 +121,11 @@
     public const int OrbeChromatiquePoison = 958;       
     public const int FouetDeLonde = 959;       
     public const int FormeGazeuse = 960;       
+    public const int Terrassement = 961;       
+    public const int Charge = 962;       
+    public const int MorsureAlaJugulaire = 963;       
+    public const int Rupture = 964;       
+    public const int RageDelOurs = 965;       
+    public const int ExcretionCorrosive = 966;       
   }
 }

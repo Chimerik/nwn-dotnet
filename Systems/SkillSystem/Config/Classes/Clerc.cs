@@ -48,12 +48,7 @@ namespace NWN.Systems
         case CustomSkill.ClercVie: HandleVieLevelUp(player, playerClass.currentLevel); break;
       }
 
-      if (player.oid.LoginCreature.Level > 2 || playerClass.currentLevel > 1)
-      {
-        player.oid.LoginCreature.ForceLevelUp(CustomClass.Clerc, player.RollClassHitDie(player.oid.LoginCreature.Level, CustomClass.Clerc, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));
-      }
-      
-      player.GiveRacialBonusOnLevelUp();
+      player.ApplyClassLevelUp(playerClass, CustomClass.Clerc);
 
       return true;
     }

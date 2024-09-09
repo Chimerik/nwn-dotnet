@@ -183,6 +183,10 @@ namespace NWN.Systems
       onEnterSurfaceDeGlaceCallback = scriptHandleFactory.CreateUniqueHandler(onEnterSurfaceDeGlace);
       onHeartbeatSurfaceDeGlaceCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatSurfaceDeGlace);
       onExitSurfaceDeGlaceCallback = scriptHandleFactory.CreateUniqueHandler(onExitSurfaceDeGlace);
+
+      onRemoveEffroiCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveEffroi);
+
+      onIntervalExcretionCorrosiveCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalExcretionCorrosive);
     }
   }
 }

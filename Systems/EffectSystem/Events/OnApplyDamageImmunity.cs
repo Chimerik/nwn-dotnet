@@ -8,7 +8,7 @@ namespace NWN.Systems
   {
     public static void OnApplyDamageImmunity(OnEffectApply onEffect)
     {
-      if (onEffect.Object is not NwCreature creature || onEffect.Effect.EffectType != EffectType.DamageImmunityIncrease)
+      if (onEffect.Effect.EffectType != EffectType.DamageImmunityIncrease || onEffect.Object is not NwCreature creature)
         return;
 
       var newEffect = onEffect.Effect;

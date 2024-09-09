@@ -62,12 +62,7 @@ namespace NWN.Systems
         case CustomSkill.PaladinSermentVengeance: HandleVengeanceLevelUp(player, playerClass.currentLevel); break;
       }
 
-      if (player.oid.LoginCreature.Level > 2 || playerClass.currentLevel > 1)
-      {
-        player.oid.LoginCreature.ForceLevelUp(CustomClass.Paladin, player.RollClassHitDie(player.oid.LoginCreature.Level, CustomClass.Paladin, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));
-      }
-      
-      player.GiveRacialBonusOnLevelUp();
+      player.ApplyClassLevelUp(playerClass, CustomClass.Paladin);
 
       return true;
     }

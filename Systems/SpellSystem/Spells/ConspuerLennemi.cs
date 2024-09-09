@@ -19,7 +19,7 @@ namespace NWN.Systems
         if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, DC) == SavingThrowResult.Failure)
         {
           target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpFearS));
-          NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Effroi, NwTimeSpan.FromRounds(spellEntry.duration)));
+          NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Effroi(target), NwTimeSpan.FromRounds(spellEntry.duration)));
         }
         else
         {

@@ -10,8 +10,8 @@ namespace NWN.Systems
       if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.DruideSage))
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.DruideSage);
 
-      if (!player.windows.TryGetValue("spellSelection", out var spell1)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Druid, 2));
-      else ((SpellSelectionWindow)spell1).CreateWindow(ClassType.Druid, 1);
+      if (!player.windows.TryGetValue("spellSelection", out var spell1)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Druid, 3));
+      else ((SpellSelectionWindow)spell1).CreateWindow(ClassType.Druid, 3);
 
       return true;
     }

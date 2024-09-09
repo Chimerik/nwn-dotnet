@@ -26,7 +26,14 @@ namespace NWN.Systems
 
       await NwTask.NextFrame();
       creature.SetFeatRemainingUses((Feat)CustomSkill.DruideCompagnonSauvage, nbSource);
-
+      creature.SetFeatRemainingUses((Feat)CustomSkill.FormeSauvageBlaireau, nbSource);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.FormeSauvageChat, nbSource);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.FormeSauvageAraignee, nbSource);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.FormeSauvageLoup, nbSource);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.FormeSauvageRothe, nbSource);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.FormeSauvagePanthere, nbSource);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.FormeSauvageOursHibou, nbSource);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.FormeSauvageDilophosaure, nbSource);
     }
   }
 }

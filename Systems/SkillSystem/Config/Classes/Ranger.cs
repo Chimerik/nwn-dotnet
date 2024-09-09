@@ -64,12 +64,7 @@ namespace NWN.Systems
         case CustomSkill.RangerProfondeurs: HandleProfondeursLevelUp(player, playerClass.currentLevel); break;
       }
 
-      if (player.oid.LoginCreature.Level > 2 || playerClass.currentLevel > 1)
-      {
-        player.oid.LoginCreature.ForceLevelUp(CustomClass.Ranger, player.RollClassHitDie(player.oid.LoginCreature.Level, CustomClass.Ranger, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));
-      }
-      
-      player.GiveRacialBonusOnLevelUp();
+      player.ApplyClassLevelUp(playerClass, CustomClass.Ranger);
 
       return true;
     }

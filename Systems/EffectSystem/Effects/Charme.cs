@@ -28,8 +28,8 @@ namespace NWN.Systems
     }
     public static Effect GetCharmImmunityEffect(string effectTag)
     {
-      Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurMindAffectingPositive), Effect.Immunity(ImmunityType.Charm));
-      eff.Tag = CharmEffectTag;
+      Effect eff = Effect.LinkEffects(Effect.Immunity(ImmunityType.Charm));
+      eff.Tag = effectTag;
       eff.SubType = EffectSubType.Supernatural;
       return eff;
     }

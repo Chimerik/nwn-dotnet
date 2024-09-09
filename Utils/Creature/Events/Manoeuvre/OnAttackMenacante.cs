@@ -29,7 +29,7 @@ namespace NWN.Systems
             if(GetSavingThrow(onAttack.Attacker, target, Ability.Wisdom, DC) == SavingThrowResult.Failure)
             {
               NWScript.AssignCommand(onAttack.Attacker, () => target.ApplyEffect(EffectDuration.Temporary,
-              EffectSystem.Effroi, NwTimeSpan.FromRounds(1)));
+              EffectSystem.Effroi(target), NwTimeSpan.FromRounds(1)));
             }
           }
 

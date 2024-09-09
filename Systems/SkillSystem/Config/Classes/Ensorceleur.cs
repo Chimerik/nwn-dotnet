@@ -43,14 +43,7 @@ namespace NWN.Systems
         case CustomSkill.EnsorceleurTempete: HandleTempeteLevelUp(player, playerClass.currentLevel); break;
       }
 
-      if (player.oid.LoginCreature.Level > 2 || playerClass.currentLevel > 1)
-      {
-        player.oid.LoginCreature.ForceLevelUp(CustomClass.Ensorceleur, player.RollClassHitDie(player.oid.LoginCreature.Level, 
-          CustomClass.Ensorceleur, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)
-          + player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.EnsoResistanceDraconique).ToInt()));
-      }
-      
-      player.GiveRacialBonusOnLevelUp();
+      player.ApplyClassLevelUp(playerClass, CustomClass.Ensorceleur);
 
       return true;
     }

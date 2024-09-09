@@ -1222,7 +1222,7 @@ namespace NWN.Systems
         }
       }
     }
-    private static void HandleAdrenalineReset(PlayerSystem.Player player)
+    /*private static void HandleAdrenalineReset(PlayerSystem.Player player)
     {
       if(player.oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>($"_LAST_DAMAGE_ON").HasValue
         && (DateTime.Now - player.oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>($"_LAST_DAMAGE_ON").Value).TotalSeconds > 25)
@@ -1240,7 +1240,7 @@ namespace NWN.Systems
         player.oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>($"_LAST_DAMAGE_ON").Delete();
         LogUtils.LogMessage($"{player.oid.LoginCreature.Name} perd toute son adrénaline", LogUtils.LogType.Combat);
       }
-    }
+    }*/
     /*private static void HandleHealthTriggeredItemProperty(PlayerSystem.Player player)
     {
       if (player.wasHPGreaterThan50 != player.oid.LoginCreature.HP > player.MaxHP / 2)

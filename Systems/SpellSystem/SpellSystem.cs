@@ -718,54 +718,67 @@ namespace NWN.Systems
       var spell = NwSpell.FromSpellId(int.Parse(EventsPlugin.GetEventData("SPELL_ID")));
       var spellEntry = Spells2da.spellTable[spell.Id];
 
-      if(spellEntry.ritualSpell && !caster.IsInCombat)
+
+      if (spellEntry.ritualSpell && !caster.IsInCombat)
       {
         LogUtils.LogMessage("Sort lancé en mode rituel", LogUtils.LogType.Combat);
         EventsPlugin.SkipEvent();
         return;
       }
 
-      if(spell.SpellType == Spell.EpicDragonKnight && caster.KnowsFeat((Feat)CustomSkill.EnsoCompagnonDraconique))
+      switch(spell.Id)
       {
-        if (caster.GetObjectVariable<PersistentVariableString>("_COMPAGNON_DRACONIQUE_COOLDOWN").HasNothing
+        case (int)Spell.EpicDragonKnight:
+
+          if(caster.KnowsFeat((Feat)CustomSkill.EnsoCompagnonDraconique)
+             && (caster.GetObjectVariable<PersistentVariableString>("_COMPAGNON_DRACONIQUE_COOLDOWN").HasNothing
             || (DateTime.TryParse(caster.GetObjectVariable<PersistentVariableString>("_COMPAGNON_DRACONIQUE_COOLDOWN").Value, out var cooldown)
-                && cooldown < DateTime.Now))
-        {
+                && cooldown < DateTime.Now)))
+
           caster.GetObjectVariable<PersistentVariableString>("_COMPAGNON_DRACONIQUE_COOLDOWN").Value = DateTime.Now.AddDays(1).ToString();
           EventsPlugin.SkipEvent();
-          return;
-        }
-      }
 
-      if(spellEntry.RowIndex == (int)Spell.CallLightning && caster.GetObjectVariable<LocalVariableInt>("_FREE_SPELL").HasValue)
-      {
-        caster.GetObjectVariable<LocalVariableInt>("_FREE_SPELL").Delete();
-        EventsPlugin.SkipEvent();
-        return;
+          return;
+
+        case (int)Spell.CallLightning:
+
+          if(caster.GetObjectVariable<LocalVariableInt>("_FREE_SPELL").HasValue)
+          {
+            caster.GetObjectVariable<LocalVariableInt>("_FREE_SPELL").Delete();
+            EventsPlugin.SkipEvent();
+          }
+          return;
+
+        case (int)Spell.SeeInvisibility:
+
+          if (castingClass == ClassType.Wizard && caster.KnowsFeat((Feat)CustomSkill.IllusionVoirLinvisible)
+            && caster.GetObjectVariable<LocalVariableInt>("_ILLUSION_SEE_INVI_COOLDOWN").HasNothing)
+          {
+            caster.GetObjectVariable<LocalVariableInt>("_ILLUSION_SEE_INVI_COOLDOWN").Value = 1;
+            EventsPlugin.SkipEvent();
+          }
+          return;
+
+        case CustomSpell.MarqueDuChasseur:
+
+          if(caster.ActiveEffects.Any(e => e.Tag == EffectSystem.FreeMarqueDuChasseurTag))
+          {
+            EffectUtils.RemoveTaggedEffect(caster, EffectSystem.FreeMarqueDuChasseurTag);
+            EventsPlugin.SkipEvent();
+          }
+
+          return;
+
+        case CustomSpell.Terrassement: EventsPlugin.SkipEvent(); return;
       }
 
       if (castingClass == ClassType.Wizard)
       {
-        if(spell.SpellType == Spell.SeeInvisibility && caster.KnowsFeat((Feat)CustomSkill.IllusionVoirLinvisible)
-          && caster.GetObjectVariable<LocalVariableInt>("_ILLUSION_SEE_INVI_COOLDOWN").HasNothing)
-        {
-          caster.GetObjectVariable<LocalVariableInt>("_ILLUSION_SEE_INVI_COOLDOWN").Value = 1;
-          EventsPlugin.SkipEvent();
-          return;
-        }
-
         if (Players.TryGetValue(caster, out var player) && player.learnableSpells.TryGetValue(spell.Id, out var masterSpell) && masterSpell.mastery)
         {
           EventsPlugin.SkipEvent();
           return;
         }
-      }
-
-      if(spell.Id == CustomSpell.MarqueDuChasseur && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.FreeMarqueDuChasseurTag))
-      {
-        EffectUtils.RemoveTaggedEffect(caster, EffectSystem.FreeMarqueDuChasseurTag);
-        EventsPlugin.SkipEvent();
-        return;
       }
 
       if (spell.GetSpellLevelForClass(caster.Classes[classPosition].Class) > 0)

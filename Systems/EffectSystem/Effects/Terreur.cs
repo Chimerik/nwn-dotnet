@@ -29,7 +29,7 @@ namespace NWN.Systems
       int spellDC = SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellType(Spell.Fear), castingAbility);
 
       if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry, SpellConfig.SpellEffectType.Fear) == SavingThrowResult.Failure)
-        NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetTerreurEffect(castingAbility), NwTimeSpan.FromRounds(spellEntry.duration)));
+        NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, GetTerreurEffect(castingAbility), NwTimeSpan.FromRounds(spellEntry.duration)));
 
       return ScriptHandleResult.Handled;
     }

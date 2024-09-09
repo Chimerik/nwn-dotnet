@@ -510,6 +510,7 @@ namespace NWN.Systems
         ApplyFireAffinity();
         ApplyElectricityAffinity();
         ApplyPoisonAffinity();
+        ApplyPolymorph();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

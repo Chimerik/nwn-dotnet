@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Numerics;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 using Anvil.API;
@@ -15,7 +14,7 @@ namespace NWN.Systems
     {
       if (onPCDisconnect.Player is null || onPCDisconnect.Player.LoginCreature is null)
         return;
-
+      
       LogUtils.LogMessage($"{onPCDisconnect.Player.PlayerName} vient de se déconnecter {onPCDisconnect.Player.LoginCreature.Name} ({NwModule.Instance.PlayerCount - 1} joueur(s))", LogUtils.LogType.PlayerConnections);
       onPCDisconnect.Player.LoginCreature.GetObjectVariable<PersistentVariableInt>("_PLAYER_HP").Value = onPCDisconnect.Player.LoginCreature.HP;
 
@@ -42,6 +41,14 @@ namespace NWN.Systems
           player.areaExplorationStateDictionnary.Add(player.oid.LoginCreature.Area.Tag, player.oid.GetAreaExplorationState(player.oid.LoginCreature.Area));
         else
           player.areaExplorationStateDictionnary[player.oid.LoginCreature.Area.Tag] = player.oid.GetAreaExplorationState(player.oid.LoginCreature.Area);
+
+      var polymorph = player.oid.LoginCreature.ActiveEffects.FirstOrDefault(e => e.EffectType == EffectType.Polymorph);
+
+      if (polymorph is not null)
+      {
+        player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_SAVED_SHAPE").Value = polymorph.IntParams[0];
+        EffectUtils.RemoveEffectType(player.oid.LoginCreature, EffectType.Polymorph);
+      }
 
       /*if (player.TryGetOpenedWindow("bankStorage", out Player.PlayerWindow storageWindow))
         ((Player.BankStorageWindow)storageWindow).BankSave();*/

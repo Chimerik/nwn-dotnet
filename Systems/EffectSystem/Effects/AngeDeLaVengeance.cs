@@ -31,7 +31,7 @@ namespace NWN.Systems
       int saveDC = 8 + NativeUtils.GetCreatureProficiencyBonus(intimidator) + intimidator.GetAbilityModifier(Ability.Charisma);
 
       if (CreatureUtils.GetSavingThrow(intimidator, entering, Ability.Wisdom, saveDC) == SavingThrowResult.Failure)
-        NWScript.AssignCommand(intimidator, () => entering.ApplyEffect(EffectDuration.Temporary, Effroi, NwTimeSpan.FromRounds(1)));
+        NWScript.AssignCommand(intimidator, () => entering.ApplyEffect(EffectDuration.Temporary, Effroi(entering), NwTimeSpan.FromRounds(1)));
 
       return ScriptHandleResult.Handled;
     }
@@ -49,7 +49,7 @@ namespace NWN.Systems
         int saveDC = 8 + NativeUtils.GetCreatureProficiencyBonus(intimidator) + intimidator.GetAbilityModifier(Ability.Charisma);
 
         if (CreatureUtils.GetSavingThrow(intimidator, target, Ability.Wisdom, saveDC) == SavingThrowResult.Failure)
-          NWScript.AssignCommand(intimidator, () => target.ApplyEffect(EffectDuration.Temporary, Effroi, NwTimeSpan.FromRounds(1)));
+          NWScript.AssignCommand(intimidator, () => target.ApplyEffect(EffectDuration.Temporary, Effroi(target), NwTimeSpan.FromRounds(1)));
       }
 
       return ScriptHandleResult.Handled;
