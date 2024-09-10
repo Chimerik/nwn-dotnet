@@ -4,17 +4,17 @@ using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
 {
-  public static partial class Ensorceleur
+  public static partial class Druide
   {
-    public static void HandleTempeteLevelUp(Player player, int level)
+    public static void HandleCercleTerreLevelUp(Player player, int level)
     {
       switch (level)
       {
-        case 3: 
-          
-          new StrRef(9).SetPlayerOverride(player.oid, "Sorcellerie de la Tempête");
-          player.oid.SetTextureOverride("ensorceleur", "enso_draconique");
+        case 3:
 
+          new StrRef(3).SetPlayerOverride(player.oid, "Cercle de la Terre");
+          player.oid.SetTextureOverride("druide", "druide_terre");
+          
           player.learnableSkills.TryAdd(CustomSkill.EnsoMagieTempetueuse, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.EnsoMagieTempetueuse], player));
           player.learnableSkills[CustomSkill.EnsoMagieTempetueuse].LevelUp(player);
           player.learnableSkills[CustomSkill.EnsoMagieTempetueuse].source.Add(Category.Class);

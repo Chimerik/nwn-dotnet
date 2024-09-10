@@ -831,8 +831,8 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomSkill.FormeSauvageOursHibou, new LearnableSkill(CustomSkill.FormeSauvageOursHibou, "Forme Sauvage - Ours Hibou", "Vous adoptez la forme d'un ours-hibou", Category.Magic, "is_WildOwlBear", 1, 1, Ability.Wisdom, Ability.Constitution, LearnActivableFeat));
       learnableDictionary.Add(CustomSkill.FormeSauvageDilophosaure, new LearnableSkill(CustomSkill.FormeSauvageDilophosaure, "Forme Sauvage - Dilophosaure", "Vous adoptez la forme d'un dilophosaure", Category.Magic, "is_WildDilo", 1, 1, Ability.Wisdom, Ability.Constitution, LearnActivableFeat));
 
-      
-      
+      learnableDictionary.Add(CustomSkill.DruideCercleDeLaTerre, new LearnableSkill(CustomSkill.DruideCercleDeLaTerre, "Cercle de la Terre", "", Category.DruidSubclass, "druide_terre", 20, 1, Ability.Wisdom, Ability.Constitution, Druide.LevelUp, "1eAbk_J0Dx_Zat3PljPodGwy9NPyr5rLy5l9HxYm49Ao"));
+
       // SPELLS
       // CANTRIPS
 

@@ -42,7 +42,7 @@ namespace NWN.Systems
       
       switch (customSkillId)
       {
-        //case CustomSkill.EnsorceleurLigneeDraconique: HandleDraconiqueLevelUp(player, playerClass.currentLevel); break;
+        case CustomSkill.DruideCercleDeLaTerre: HandleCercleTerreLevelUp(player, playerClass.currentLevel); break;
         //case CustomSkill.EnsorceleurTempete: HandleTempeteLevelUp(player, playerClass.currentLevel); break;
       }
 

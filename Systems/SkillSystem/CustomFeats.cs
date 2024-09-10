@@ -1053,6 +1053,8 @@
     public const int DruideGardien = 20623;
     public const int DruideFrappePrimordiale = 20624;
 
+    public const int DruideCercleDeLaTerre = 20625;
+
     public const int Invalid = 65535;
   }
 }
