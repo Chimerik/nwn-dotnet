@@ -85,8 +85,9 @@ namespace NWN
     }
     public static void DestroyInventory(NwCreature oContainer)
     {
-      foreach (NwItem item in oContainer.Inventory.Items)
-        item.Destroy();
+      if(oContainer is not null)
+        foreach (NwItem item in oContainer.Inventory.Items)
+          item.Destroy();
     }
     public static void DestroyInventory(NwPlaceable oContainer)
     {
@@ -100,8 +101,9 @@ namespace NWN
     }
     public static void DestroyEquippedItems(NwCreature oCreature)
     {
-      for (int i = 0; i < 17; i++)
-        oCreature.GetItemInSlot((InventorySlot)i)?.Destroy();
+      if(oCreature is not null)
+        for (int i = 0; i < 17; i++)
+          oCreature.GetItemInSlot((InventorySlot)i)?.Destroy();
     }
 
     public static double ScaleToRange(double value, double originalMin, double originalMax, double destMin, double destMax)

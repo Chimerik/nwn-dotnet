@@ -70,10 +70,10 @@ namespace NWN.Systems
 
         case 3:
 
-          /*player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value = CustomSkill.Druide;
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value = CustomSkill.Druide;
 
           if (!player.windows.TryGetValue("subClassSelection", out var subClass)) player.windows.Add("subClassSelection", new SubClassSelectionWindow(player));
-          else ((SubClassSelectionWindow)subClass).CreateWindow();*/
+          else ((SubClassSelectionWindow)subClass).CreateWindow();
 
           break;
 

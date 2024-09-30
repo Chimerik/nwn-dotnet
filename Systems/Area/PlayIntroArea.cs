@@ -65,6 +65,13 @@ namespace NWN.Systems
         player.LockCameraPitch(true);
 
         await NwTask.Delay(TimeSpan.FromSeconds(1.7));
+
+        if (!player.IsValid)
+        {
+          area.Destroy();
+          return;
+        }
+
         TriggerRandomLightnings(area, player.LoginCreature.Position, 25, player.ControlledCreature);
 
         await NwTask.Delay(TimeSpan.FromSeconds(23));
@@ -79,6 +86,13 @@ namespace NWN.Systems
         //tourbillon.ApplyEffect(EffectDuration.Temporary, Effect.VisualEffect((VfxType)346, false, 3, new Vector3(5, -20, 4)), TimeSpan.FromSeconds(10));
 
         await NwTask.Delay(TimeSpan.FromSeconds(1));
+
+        if (!player.IsValid)
+        {
+          area.Destroy();
+          return;
+        }
+
         PlayTourbillonEffects(area, player);
       });
     }
@@ -92,24 +106,38 @@ namespace NWN.Systems
       Task waitTourbillonEvents = NwTask.Run(async () =>
       {
         await NwTask.Delay(TimeSpan.FromSeconds(2));
-        oPC.LoginCreature.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfMysticalExplosion));
+
+        if (!oPC.IsValid)
+        {
+          area.Destroy();
+          return;
+        }
+
+        oPC.LoginCreature?.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfMysticalExplosion));
 
         await NwTask.Delay(TimeSpan.FromSeconds(1));
+
+        if (!oPC.IsValid)
+        {
+          area.Destroy();
+          return;
+        }
+
         oPC.LockCameraDirection(false);
         oPC.LockCameraDistance(false);
         oPC.LockCameraPitch(false);
-        await oPC.LoginCreature.ClearActionQueue();
+        await oPC.LoginCreature?.ClearActionQueue();
         Utils.DestroyInventory(oPC.LoginCreature);
         Utils.DestroyEquippedItems(oPC.LoginCreature);
         await NwItem.Create("learning_book", oPC.LoginCreature);
         NwItem rags = await NwItem.Create("rags", oPC.LoginCreature);
         //rags.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
-        oPC.LoginCreature.RunEquip(rags, InventorySlot.Chest);
+        oPC.LoginCreature?.RunEquip(rags, InventorySlot.Chest);
         oPC.LoginCreature.Location = ((NwWaypoint)NwObject.FindObjectsWithTag("WP_START_NEW_CHAR").FirstOrDefault()).Location;
-        oPC.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION").Delete();
+        oPC.LoginCreature?.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION").Delete();
 
-        await NwTask.WaitUntil(() => oPC.LoginCreature.Location.Area != null);
-        await oPC.LoginCreature.PlayAnimation(Animation.LoopingDeadBack, 1, true, TimeSpan.FromSeconds(99999999));
+        await NwTask.WaitUntil(() => oPC.LoginCreature?.Location.Area != null);
+        await oPC.LoginCreature?.PlayAnimation(Animation.LoopingDeadBack, 1, true, TimeSpan.FromSeconds(99999999));
 
         if (PlayerSystem.Players.TryGetValue(oPC.LoginCreature, out PlayerSystem.Player player))
         {
@@ -121,6 +149,9 @@ namespace NWN.Systems
     }
     private static async void TriggerRandomLightnings(NwArea area, Vector3 center, int maxDistance, NwCreature oPC)
     {
+      if (oPC is null)
+        return;
+
       oPC.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect((VfxType)286));
 
       int nbStrikes = Utils.random.Next(1, 5);
