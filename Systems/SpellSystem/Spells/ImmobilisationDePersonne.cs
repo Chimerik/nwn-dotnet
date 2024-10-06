@@ -32,7 +32,7 @@ namespace NWN.Systems
           && (CreatureUtils.IsHumanoid(targetCreature))
           && CreatureUtils.GetSavingThrow(caster, targetCreature, spellEntry.savingThrowAbility, DC, spellEntry) == SavingThrowResult.Failure)
         {
-          NWScript.AssignCommand(caster, () => targetCreature.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetImmobilisationDePersonneEffect(castingClass.SpellCastingAbility), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
+          NWScript.AssignCommand(caster, () => targetCreature.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetImmobilisationDePersonneEffect(castingClass.SpellCastingAbility, spell), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
           targetList.Add(target);
         }
       }

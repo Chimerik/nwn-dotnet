@@ -24,7 +24,7 @@ namespace NWN.Systems
         if (target is NwCreature targetCreature && targetCreature.Race.RacialType != RacialType.Undead
           && CreatureUtils.GetSavingThrow(caster, targetCreature, spellEntry.savingThrowAbility, DC, spellEntry) == SavingThrowResult.Failure)
         {
-          NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetImmobilisationDePersonneEffect(castingClass.SpellCastingAbility), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
+          NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetImmobilisationDePersonneEffect(castingClass.SpellCastingAbility, spell), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
           targetList.Add(target);
         }
       }

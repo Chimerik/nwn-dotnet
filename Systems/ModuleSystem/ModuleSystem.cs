@@ -18,6 +18,9 @@ using System.Runtime.InteropServices;
 using SQLitePCL;
 using System.Reflection;
 using Action = Anvil.API.Action;
+using System.IO;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Text;
 
 namespace NWN.Systems
 {

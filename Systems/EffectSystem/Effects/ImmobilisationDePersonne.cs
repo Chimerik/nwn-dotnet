@@ -10,11 +10,12 @@ namespace NWN.Systems
   {
     private static ScriptCallbackHandle onIntervalImmobilisationDePersonneCallback;
     public const string ImmobilisationDePersonneEffectTag = "_IMMOBILISATION_DE_PERSONNE_EFFECT";
-    public static Effect GetImmobilisationDePersonneEffect(Ability spellCastingAbility)
+    public static Effect GetImmobilisationDePersonneEffect(Ability spellCastingAbility, NwSpell spell)
     {
       Effect eff = Effect.LinkEffects(Effect.Paralyze(), Effect.VisualEffect(VfxType.DurParalyzeHold),
         Effect.RunAction(onIntervalHandle: onIntervalImmobilisationDePersonneCallback, interval: TimeSpan.FromSeconds(6), data:((int)spellCastingAbility).ToString()));
       eff.Tag = ImmobilisationDePersonneEffectTag;
+      eff.Spell = spell;
       eff.SubType = EffectSubType.Supernatural;
       return eff;
     }
