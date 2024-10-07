@@ -97,6 +97,8 @@ namespace NWN.Systems
       OrdrePrimordial,
       [Description("Fureur_Elémentaire")]
       FureurElementaire,
+      [Description("Terre_de_Cercle")]
+      TerreDeCercle,
     }
 
     public static readonly Dictionary<int, Learnable> learnableDictionary = new();
@@ -832,6 +834,10 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomSkill.FormeSauvageDilophosaure, new LearnableSkill(CustomSkill.FormeSauvageDilophosaure, "Forme Sauvage - Dilophosaure", "Vous adoptez la forme d'un dilophosaure", Category.Magic, "is_WildDilo", 1, 1, Ability.Wisdom, Ability.Constitution, LearnActivableFeat));
 
       learnableDictionary.Add(CustomSkill.DruideCercleDeLaTerre, new LearnableSkill(CustomSkill.DruideCercleDeLaTerre, "Cercle de la Terre", "", Category.DruidSubclass, "druide_terre", 20, 1, Ability.Wisdom, Ability.Constitution, Druide.LevelUp, "1eAbk_J0Dx_Zat3PljPodGwy9NPyr5rLy5l9HxYm49Ao"));
+      learnableDictionary.Add(CustomSkill.DruideCercleTerreAride, new LearnableSkill(CustomSkill.DruideCercleTerreAride, "Terre Aride", "Vous maîtrisez les sorts ci-dessous. Ceux-ci sont toujours préparés.\n\n- Level 3 : Flou, Mains Brûlantes, Trait de feu\n- Level 5 : Boule de Feu\n\n- Level 7 : Flétrissement\n\n- Level 9 : Mur de Pierre", Category.TerreDeCercle, "is_TerreAride", 1, 1, Ability.Wisdom, Ability.Constitution));
+      learnableDictionary.Add(CustomSkill.DruideCercleTerrePolaire, new LearnableSkill(CustomSkill.DruideCercleTerrePolaire, "Terre Polaire", "Vous maîtrisez les sorts ci-dessous. Ceux-ci sont toujours préparés.\n\n- Level 3 : Nappe de Brouillard, Immobilisation de Personne, Rayon de Givre\n- Level 5 : Tempête de Neige\n\n- Level 7 : Tempête de Grêle\n\n- Level 9 : Cône de Froid", Category.TerreDeCercle, "is_TerrePolaire", 1, 1, Ability.Wisdom, Ability.Constitution));
+      learnableDictionary.Add(CustomSkill.DruideCercleTerreTempere, new LearnableSkill(CustomSkill.DruideCercleTerreTempere, "Terre Tempérée", "Vous maîtrisez les sorts ci-dessous. Ceux-ci sont toujours préparés.\n\n- Level 3 : Foulée Brumeuse, Poigne Electrique, Sommeil\n- Level 5 : Eclair\n\n- Level 7 : Liberté de Mouvement\n\n- Level 9 : Passage par les Arbres", Category.TerreDeCercle, "is_TerreTempere", 1, 1, Ability.Wisdom, Ability.Constitution));
+      learnableDictionary.Add(CustomSkill.DruideCercleTerreTropicale, new LearnableSkill(CustomSkill.DruideCercleTerreTropicale, "Terre Tropicale", "Vous maîtrisez les sorts ci-dessous. Ceux-ci sont toujours préparés.\n\n- Level 3 : Aspersion d'Acide, Rayon Empoisonné, Toile d'Araignée\n- Level 5 : Nuage Nauséabond\n\n- Level 7 : Métamorphose\n\n- Level 9 : Fléau d'Insectes", Category.TerreDeCercle, "is_TerreTropicale", 1, 1, Ability.Wisdom, Ability.Constitution));
 
       // SPELLS
       // CANTRIPS

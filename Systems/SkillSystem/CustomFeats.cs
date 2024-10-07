@@ -1054,6 +1054,10 @@
     public const int DruideFrappePrimordiale = 20624;
 
     public const int DruideCercleDeLaTerre = 20625;
+    public const int DruideCercleTerreAride = 20626;
+    public const int DruideCercleTerrePolaire = 20627;
+    public const int DruideCercleTerreTempere = 20628;
+    public const int DruideCercleTerreTropicale = 20629;
 
     public const int Invalid = 65535;
   }
