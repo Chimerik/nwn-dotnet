@@ -42,14 +42,14 @@ namespace NWN.Systems
 
       foreach (var target in eventData.Effect.GetObjectsInEffectArea<NwCreature>())
       {
-        if (target == intimidator || !target.IsReactionTypeHostile(intimidator) || IsFrightImmune(target, intimidator)
+        if (target == intimidator || !intimidator.IsReactionTypeHostile(target) || IsFrightImmune(target, intimidator)
         || target.ActiveEffects.Any(e => e.Tag == FrightenedEffectTag))
           continue;
 
         int saveDC = 8 + NativeUtils.GetCreatureProficiencyBonus(intimidator) + intimidator.GetAbilityModifier(Ability.Charisma);
 
         if (CreatureUtils.GetSavingThrow(intimidator, target, Ability.Wisdom, saveDC) == SavingThrowResult.Failure)
-          NWScript.AssignCommand(intimidator, () => target.ApplyEffect(EffectDuration.Temporary, Effroi(target), NwTimeSpan.FromRounds(1)));
+          NWScript.AssignCommand(intimidator, () => target.ApplyEffect(EffectDuration.Temporary, Effroi(target), NwTimeSpan.FromRounds(10)));
       }
 
       return ScriptHandleResult.Handled;

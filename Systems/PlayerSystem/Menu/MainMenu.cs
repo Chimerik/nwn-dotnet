@@ -631,6 +631,7 @@ namespace NWN.Systems
                     BarbarianUtils.RestoreBarbarianRage(player.oid.LoginCreature);
                     MonkUtils.RestoreKi(player.oid.LoginCreature);
                     WizardUtils.RestaurationArcanique(player.oid.LoginCreature);
+                    DruideUtils.RecuperationNaturelle(player.oid.LoginCreature);
                     WizardUtils.ResetAbjurationWard(player.oid.LoginCreature);
                     WizardUtils.ResetPresage(player.oid);
                     FighterUtils.RestoreEldritchKnight(player.oid.LoginCreature);

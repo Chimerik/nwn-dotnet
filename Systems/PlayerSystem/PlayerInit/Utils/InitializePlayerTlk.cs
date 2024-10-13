@@ -228,10 +228,16 @@ namespace NWN.Systems
           new StrRef(9).SetPlayerOverride(oid, "Sorcellerie de la Temtête");
           oid.SetTextureOverride("ensorceleur", "enso_tempete");
         }
-        else if (learnableSkills.ContainsKey(CustomSkill.DruideCercleDeLaTerre))
+        
+        if (learnableSkills.ContainsKey(CustomSkill.DruideCercleTellurique))
         {
-          new StrRef(3).SetPlayerOverride(oid, "Cercle de la Terre");
+          new StrRef(3).SetPlayerOverride(oid, "Cercle Tellurique");
           oid.SetTextureOverride("druide", "druide_terre");
+        }
+        else if (learnableSkills.ContainsKey(CustomSkill.DruideCercleSelenite))
+        {
+          new StrRef(3).SetPlayerOverride(oid, "Cercle Sélénite");
+          oid.SetTextureOverride("druide", "druide_lune");
         }
       }
     }

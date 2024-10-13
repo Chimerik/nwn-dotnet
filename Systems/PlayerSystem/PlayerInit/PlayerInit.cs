@@ -9,6 +9,7 @@ using Anvil.Services;
 using Microsoft.Data.Sqlite;
 
 using Newtonsoft.Json;
+using static NWN.Systems.SkillSystem;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace NWN.Systems
@@ -24,7 +25,9 @@ namespace NWN.Systems
       //oPC.LoginCreature.ApplyEffect(EffectDuration.Permanent, Effect.AreaOfEffect((PersistentVfxType)61));
 
       if (!Players.TryGetValue(oPC.LoginCreature, out Player player))
+      {
         player = new Player(oPC, areaSystem, spellSystem, feedbackService, scheduler, eventService);
+      }
       else
       {
         player.oid = oPC;
@@ -428,6 +431,7 @@ namespace NWN.Systems
         InitializeFeatChoice();
         InitializeFightingStyleChoice();
         InitializeOrdrePrimordialChoice();
+        InitializeTerreDeCercleChoice();
         InitializeFureurElementaireChoice();
         InitializeAffiniteElementaireChoice();
         InitializeRangerArchetypeChoice();
@@ -511,6 +515,7 @@ namespace NWN.Systems
         ApplyElectricityAffinity();
         ApplyPoisonAffinity();
         ApplyPolymorph();
+        ApplyProtectionNaturelle();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

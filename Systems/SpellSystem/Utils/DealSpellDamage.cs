@@ -88,13 +88,15 @@ namespace NWN.Systems
         
         LogUtils.LogMessage($"Dégâts initiaux : {logString.Remove(logString.Length - 2)} = {damage}", LogUtils.LogType.Combat);
 
-        damage = HandleSpellEvasion(castingCreature, damage, spellEntry.savingThrowAbility, saveResult, spell.Id, spellLevel);
-        damage = ItemUtils.GetShieldMasterReducedDamage(castingCreature, damage, saveResult, spellEntry.savingThrowAbility);
-        damage = WizardUtils.GetAbjurationReducedDamage(castingCreature, damage);
-        damage = PaladinUtils.GetAuraDeGardeReducedDamage(castingCreature, damage);
-        damage = ClercUtils.GetAttenuationElementaireReducedDamage(castingCreature, damage, appliedDamage);
-        damage = HandleResistanceBypass(castingCreature, isElementalist, isEvocateurSurcharge, damage, appliedDamage);
-
+        if (target is NwCreature targetCreature)
+        {
+          damage = HandleSpellEvasion(targetCreature, damage, spellEntry.savingThrowAbility, saveResult, spell.Id, spellLevel);
+          damage = ItemUtils.GetShieldMasterReducedDamage(targetCreature, damage, saveResult, spellEntry.savingThrowAbility);
+          damage = WizardUtils.GetAbjurationReducedDamage(targetCreature, damage);
+          damage = PaladinUtils.GetAuraDeGardeReducedDamage(targetCreature, damage);
+          damage = ClercUtils.GetAttenuationElementaireReducedDamage(targetCreature, damage, appliedDamage);
+          damage = HandleResistanceBypass(targetCreature, isElementalist, isEvocateurSurcharge, damage, appliedDamage);
+        }
         EnsoUtils.HandleCoeurDeLaTempete(castingCreature, appliedDamage);
         
 

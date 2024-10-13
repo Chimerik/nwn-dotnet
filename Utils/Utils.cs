@@ -136,11 +136,6 @@ namespace NWN
       foreach (NwPlayer oPC in NwModule.Instance.Players)
         oPC.BootPlayer("Le serveur redémarre. Vous pourrez vous reconnecter dans une minute.");
     }
-    public static void RemoveTaggedEffect(NwGameObject oTarget, string Tag)
-    {
-      foreach (Effect eff in oTarget.ActiveEffects.Where(e => e.Tag == Tag))
-        oTarget.RemoveEffect(eff);
-    }
     public static TimeSpan StripTimeSpanMilliseconds(TimeSpan timespan)
     {
       return new TimeSpan(timespan.Days, timespan.Hours, timespan.Minutes, timespan.Seconds);

@@ -70,7 +70,7 @@ namespace NWN.Systems
     private static ScriptHandleResult onExitEspritsGardiens(CallInfo callInfo)
     {
       if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnExit eventData) || eventData.Exiting is not NwCreature exiting
-        || eventData.Effect.Creator is not NwCreature protector || !exiting.IsReactionTypeHostile(protector))
+        || eventData.Effect.Creator is not NwCreature protector)
         return ScriptHandleResult.Handled;
 
       EffectUtils.RemoveTaggedEffect(exiting, protector, EspritsGardiensSlowEffectTag);

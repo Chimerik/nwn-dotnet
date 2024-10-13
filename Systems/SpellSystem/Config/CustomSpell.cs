@@ -127,5 +127,7 @@
     public const int Rupture = 964;       
     public const int RageDelOurs = 965;       
     public const int ExcretionCorrosive = 966;       
+    public const int RayonEmpoisonne = 967;       
+    public const int LueurEtoilee = 968;       
   }
 }

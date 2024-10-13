@@ -66,6 +66,13 @@ namespace NWN.Systems
 
         SpellUtils.SpellSwitch(caster, onSpellAction.Spell, onSpellAction.Feat, spellEntry, onSpellAction.TargetObject, Location.Create(onSpellAction.Caster.Area, onSpellAction.TargetPosition, onSpellAction.Caster.Rotation), castingClass);
 
+        if (castingClass.Id != CustomClass.Adventurer)
+        {
+          var classInfo = caster.GetClassInfo(castingClass);
+          var spellLevel = spell.GetSpellLevelForClass(castingClass);
+          classInfo.SetRemainingSpellSlots(spellLevel, (byte)(classInfo.GetRemainingSpellSlots(spellLevel) - 1));
+        }
+
         onSpellAction.PreventSpellCast = true;
       }
       else if(caster.ActiveEffects.Any(e => e.Tag == EffectSystem.LenteurEffectTag))

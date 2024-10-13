@@ -10,7 +10,7 @@ namespace NWN.Systems
     {
       private void ApplyAuraDeGarde()
       {
-        if (learnableSkills.ContainsKey(CustomSkill.PaladinAuraDeGarde)
+        if (learnableSkills.ContainsKey(CustomSkill.AuraDeProtection) && learnableSkills.ContainsKey(CustomSkill.PaladinAuraDeGarde)
           && !oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.AuraDeGardeEffectTag))
         {
           int paladinLevels = oid.LoginCreature.GetClassInfo(ClassType.Paladin).Level;

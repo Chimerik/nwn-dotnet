@@ -718,6 +718,11 @@ namespace NWN.Systems
       var spell = NwSpell.FromSpellId(int.Parse(EventsPlugin.GetEventData("SPELL_ID")));
       var spellEntry = Spells2da.spellTable[spell.Id];
 
+      if (spell.GetSpellLevelForClass(caster.Classes[classPosition].Class) < 1)
+      {
+        EventsPlugin.SkipEvent();
+        return;
+      }
 
       if (spellEntry.ritualSpell && !caster.IsInCombat)
       {
@@ -781,10 +786,17 @@ namespace NWN.Systems
         }
       }
 
-      if (spell.GetSpellLevelForClass(caster.Classes[classPosition].Class) > 0)
-        return;
-
-      EventsPlugin.SkipEvent();
+      if(castingClass == ClassType.Druid)
+      {
+        if (caster.ActiveEffects.Any(e => e.Tag == EffectSystem.EconomieNaturelleEffectTag)
+         && Players.TryGetValue(caster, out var druidPlayer) && druidPlayer.learnableSpells.TryGetValue(spell.Id, out var druidSpell) 
+         && druidSpell.alwaysPrepared)
+        {
+          EventsPlugin.SkipEvent();
+          EffectUtils.RemoveTaggedEffect(caster, EffectSystem.EconomieNaturelleEffectTag);
+          return;
+        }
+      }
     }
   }
 }

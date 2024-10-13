@@ -34,6 +34,8 @@ namespace NWN.Systems
       creature.SetFeatRemainingUses((Feat)CustomSkill.FormeSauvagePanthere, nbSource);
       creature.SetFeatRemainingUses((Feat)CustomSkill.FormeSauvageOursHibou, nbSource);
       creature.SetFeatRemainingUses((Feat)CustomSkill.FormeSauvageDilophosaure, nbSource);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.DruideAssistanceTerrestre, nbSource);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.DruideSanctuaireNaturel, nbSource);
     }
   }
 }

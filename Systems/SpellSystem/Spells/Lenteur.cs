@@ -18,7 +18,7 @@ namespace NWN.Systems
 
       foreach (var target in targetLocation.GetObjectsInShapeByType<NwCreature>(Shape.Cube, spellEntry.aoESize, false))
       {
-        if (caster.Faction.GetMembers().Contains(target) 
+        if (!caster.IsReactionTypeHostile(target) 
           || CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) != SavingThrowResult.Failure)
           continue;
 

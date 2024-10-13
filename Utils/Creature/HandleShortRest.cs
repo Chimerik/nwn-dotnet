@@ -17,7 +17,6 @@ namespace NWN.Systems
       FighterUtils.RestoreManoeuvres(player.oid.LoginCreature);
       FighterUtils.RestoreTirArcanique(player.oid.LoginCreature);
       MonkUtils.RestoreKi(player.oid.LoginCreature);
-      WizardUtils.RestaurationArcanique(player.oid.LoginCreature);
       WizardUtils.AbjurationSuperieure(player.oid.LoginCreature);
       FighterUtils.RestoreEldritchKnight(player.oid.LoginCreature);
       EnsoUtils.RetablissementSorcier(player.oid.LoginCreature);

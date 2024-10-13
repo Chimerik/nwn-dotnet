@@ -298,8 +298,12 @@ namespace NWN.Systems
                       Ensorceleur.HandleTempeteLevelUp(player, 3);
                       category = Category.EnsorceleurSubClass;
                       break;
-                    case CustomSkill.DruideCercleDeLaTerre:
+                    case CustomSkill.DruideCercleTellurique:
                       Druide.HandleCercleTerreLevelUp(player, 3);
+                      category = Category.DruidSubclass;
+                      break;
+                    case CustomSkill.DruideCercleSelenite:
+                      Druide.HandleCercleSeleniteLevelUp(player, 3);
                       category = Category.DruidSubclass;
                       break;
                   }

@@ -51,6 +51,9 @@ namespace NWN.Systems
       creature.OnDamaged -= OnDamagedPolymorph;
       creature.OnDamaged += OnDamagedPolymorph;
 
+      if (creature.KnowsFeat((Feat)CustomSkill.DruideFormeDeLune))
+        creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.FormeDeLune(creature));
+
       return eff;
     }
     public static async void DelayDamageBonus(NwCreature creature, PolymorphType shapeType)
@@ -110,6 +113,8 @@ namespace NWN.Systems
       creature.OnEffectRemove -= OnRemovePolymorph;
       creature.OnDamaged -= OnDamagedPolymorph;
       creature.OnCreatureAttack -= RangerUtils.OnAttackSpiderPoisonBite;
+
+      EffectUtils.RemoveTaggedEffect(creature, EffectSystem.FormeDeLuneEffectTag);
     }
     public static PolymorphType GetPolymorphType(int featId)
     {

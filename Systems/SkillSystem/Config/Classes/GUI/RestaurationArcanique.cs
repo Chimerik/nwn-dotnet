@@ -100,16 +100,17 @@ namespace NWN.Systems
 
           foreach (var spellLevel in player.learnableSpells.Values.Where(s => s.currentLevel > 0 && s.learntFromClasses.Contains(CustomClass.Wizard)).Select(s => NwSpell.FromSpellId(s.id).GetSpellLevelForClass(ClassType.Wizard)).Distinct().Order())
           {
-              string icon = level switch
+            if (spellLevel > 5)
+              continue;
+
+            string icon = level switch
               {
                 0 => "ir_cantrips",
                 1 => "ir_level1",
                 2 => "ir_level2",
                 3 => "ir_level3",
                 4 => "ir_level4",
-                5 => "ir_level5",
-                6 => "ir_level6",
-                _ => "ir_level789",
+                _ => "ir_level5",
               };
 
             if (spellLevel > 0 && spellLevel < 7)

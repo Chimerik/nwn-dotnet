@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.PlayerSystem.Player;
 using static NWN.Systems.SkillSystem;
@@ -34,7 +35,29 @@ namespace NWN.Systems
 
             playerClass.acquiredPoints = 0;
           }
-          
+
+          foreach (var spell in NwRuleset.Spells.Where(s => 0 < s.GetSpellLevelForClass(ClassType.Druid) && s.GetSpellLevelForClass(ClassType.Druid) < 10))
+          {
+            if (Utils.In(spell.Id, CustomSpell.RayonEmpoisonne, (int)Spell.AcidSplash, (int)Spell.Web, (int)Spell.RayOfFrost, (int)Spell.ElectricJolt, (int)Spell.Sleep,
+              CustomSpell.FouleeBrumeuse, (int)Spell.BurningHands, (int)Spell.GhostlyVisage, CustomSpell.FireBolt, (int)Spell.Fireball, (int)Spell.LightningBolt,
+              (int)Spell.StinkingCloud))
+              continue;// ces sorts ne font pas partie du package de druide mais peuvent être appris via le cercle
+
+            if (player.learnableSpells.TryGetValue(spell.Id, out var learnable))
+            {
+              learnable.learntFromClasses.Add((int)ClassType.Druid);
+
+              if (learnable.currentLevel < 1)
+                learnable.LevelUp(player);
+            }
+            else
+            {
+              LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[spell.Id], (int)ClassType.Druid);
+              player.learnableSpells.Add(learnableSpell.id, learnableSpell);
+              learnableSpell.LevelUp(player);
+            }
+          }
+
           // On donne les autres capacités de niveau 1
 
           player.learnableSkills.TryAdd(CustomSkill.Druidique, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Druidique], player));

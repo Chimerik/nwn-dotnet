@@ -19,7 +19,7 @@ namespace NWN.Systems
         Effect.LinkEffects(Effect.AreaOfEffect(PersistentVfxType.PerCustomAoe, onEnterHandle: onEnterChampionAntiqueCallback, onExitHandle: onExitChampionAntiqueCallback, heartbeatHandle: onHeartbeatChampionAntiqueCallback)),
         Effect.RunAction(onRemovedHandle: onRemovedChampionAntiqueCallback));
       
-      eff.Tag = AuraDeGardeEffectTag;
+      eff.Tag = ChampionAntiqueAuraEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       eff.Creator = caster;
 
@@ -32,7 +32,7 @@ namespace NWN.Systems
       get
       {
         Effect eff = Effect.Icon(EffectIcon.SpellResistanceIncrease);
-        eff.Tag = GardeEffectTag;
+        eff.Tag = ChampionAntiqueEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;
       }
@@ -40,7 +40,7 @@ namespace NWN.Systems
     private static ScriptHandleResult onEnterChampionAntiqueAura(CallInfo callInfo)
     {
       if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) || eventData.Entering is not NwCreature entering 
-        || eventData.Effect.Creator is not NwCreature protector || !entering.IsReactionTypeHostile(protector))
+        || eventData.Effect.Creator is not NwCreature protector || !protector.IsReactionTypeHostile(entering))
         return ScriptHandleResult.Handled;
 
       NWScript.AssignCommand(protector, () => entering.ApplyEffect(EffectDuration.Permanent, ChampionAntique));
@@ -49,7 +49,7 @@ namespace NWN.Systems
     private static ScriptHandleResult onExitChampionAntiqueAura(CallInfo callInfo)
     {
       if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnExit eventData) || eventData.Exiting is not NwCreature exiting
-        || eventData.Effect.Creator is not NwCreature protector || !exiting.IsReactionTypeHostile(protector))
+        || eventData.Effect.Creator is not NwCreature protector)
         return ScriptHandleResult.Handled;
 
       EffectUtils.RemoveTaggedEffect(exiting, protector, ChampionAntiqueEffectTag);

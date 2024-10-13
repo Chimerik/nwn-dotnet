@@ -15,6 +15,13 @@ namespace NWN.Systems
         return;
       }
 
+      if(caster.ActiveEffects.Any(e => e.Tag == EffectSystem.LueurEtoileeEffectTag))
+      {
+        caster.ControllingPlayer?.SendServerMessage("Lueur Etoilée vous empêche de vous dissimuler !", ColorConstants.Orange);
+        onUseFeat.PreventFeatUse = true;
+        return;
+      }
+
       if (caster.Classes.Any(c => Utils.In(c.Class.ClassType, ClassType.Rogue, (ClassType)CustomClass.RogueArcaneTrickster) && c.Level > 1)
         || caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.MonkTenebres))
         || caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.RangerDisparition))

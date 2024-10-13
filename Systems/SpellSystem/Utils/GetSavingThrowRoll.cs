@@ -12,7 +12,9 @@ namespace NWN.Systems
 
       LogUtils.LogMessage($"JDS modifier {ability} : {abilityModifier}", LogUtils.LogType.Combat);
       
-      proficiencyBonus += abilityModifier + ItemUtils.GetShieldMasterBonusSave(target, ability);
+      proficiencyBonus += abilityModifier 
+        + ItemUtils.GetShieldMasterBonusSave(target, ability)
+        + DruideUtils.GetSanctuaireNaturelBonusSave(target, ability);
 
       List<string> protectionNoStack = new();
 

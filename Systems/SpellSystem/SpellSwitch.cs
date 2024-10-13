@@ -17,7 +17,12 @@ namespace NWN.Systems
           SpellSystem.AcidSplash(oCaster, spell, spellEntry, target, targetLocation, castingClass);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
-        
+
+        case Spell.Enervation:
+          SpellSystem.Fletrissement(oCaster, spell, spellEntry, target, castingClass);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case Spell.ElectricJolt:
           SpellSystem.ElectricJolt(oCaster, spell, spellEntry, target, castingClass, feat);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
@@ -245,7 +250,7 @@ namespace NWN.Systems
           break;
 
         case Spell.Slow:
-          concentrationTargets.AddRange(SpellSystem.Lenteur(oCaster, spell, spellEntry, targetLocation, castingClass));
+          concentrationTargets.AddRange(SpellSystem.Lenteur(oCaster, spell, spellEntry, target is null ? targetLocation : target.Location, castingClass));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -265,7 +270,7 @@ namespace NWN.Systems
           break;
 
         case Spell.CallLightning:
-          concentrationTargets.AddRange(SpellSystem.AppelDeLaFoudre(oCaster, spell, spellEntry, castingClass, targetLocation));
+          concentrationTargets.AddRange(SpellSystem.AppelDeLaFoudre(oCaster, spell, spellEntry, castingClass, target is null ? targetLocation : target.Location));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -286,6 +291,11 @@ namespace NWN.Systems
 
         case Spell.GreaterRestoration:
           SpellSystem.RestaurationSupreme(oCaster, spell, spellEntry, target, castingClass);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.NaturesBalance:
+          SpellSystem.AssistanceTerrestre(oCaster, spell, spellEntry, target is null ? targetLocation : target.Location);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
       }
@@ -795,9 +805,19 @@ namespace NWN.Systems
           SpellSystem.ExcretionCorrosive(oCaster, spell, spellEntry, target);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
+
+        case CustomSpell.RayonEmpoisonne:
+          SpellSystem.RayonEmpoisonne(oCaster, spell, spellEntry, target, castingClass);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.LueurEtoilee:
+          SpellSystem.LueurEtoilee(oCaster, spell, spellEntry, target, castingClass);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
       }
 
-      if (oCaster is NwCreature castingCreature)
+        if (oCaster is NwCreature castingCreature)
       {
         if (castingClass is not null)
         {

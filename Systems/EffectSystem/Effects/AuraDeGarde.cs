@@ -34,7 +34,7 @@ namespace NWN.Systems
     {
       if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) || eventData.Entering is not NwCreature entering 
         || eventData.Effect.Creator is not NwCreature protector || protector.HP < 1
-        || entering.IsReactionTypeHostile(protector))
+        || protector.IsReactionTypeHostile(entering))
         return ScriptHandleResult.Handled;
 
       NWScript.AssignCommand(protector, () => entering.ApplyEffect(EffectDuration.Permanent, Garde));
@@ -43,7 +43,7 @@ namespace NWN.Systems
     private static ScriptHandleResult onExitGardeAura(CallInfo callInfo)
     {
       if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnExit eventData) || eventData.Exiting is not NwCreature exiting
-        || eventData.Effect.Creator is not NwCreature protector || exiting.IsReactionTypeHostile(protector))
+        || eventData.Effect.Creator is not NwCreature protector)
         return ScriptHandleResult.Handled;
 
       EffectUtils.RemoveTaggedEffect(exiting, protector, GardeEffectTag);

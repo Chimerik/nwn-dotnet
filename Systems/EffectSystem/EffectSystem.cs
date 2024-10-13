@@ -187,6 +187,9 @@ namespace NWN.Systems
       onRemoveEffroiCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveEffroi);
 
       onIntervalExcretionCorrosiveCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalExcretionCorrosive);
+
+      onEnterSanctuaireNaturelCallback = scriptHandleFactory.CreateUniqueHandler(onEnterSanctuaireNaturel);
+      onExitSanctuaireNaturelCallback = scriptHandleFactory.CreateUniqueHandler(onExitSanctuaireNaturel);
     }
   }
 }

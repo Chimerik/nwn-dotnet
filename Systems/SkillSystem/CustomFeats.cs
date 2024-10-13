@@ -343,8 +343,8 @@
     public const int DevotionRenvoiDesImpies = 1610;
     public const int DevotionNimbeSacree = 1611;
     public const int AnciensRenvoiDesInfideles = 1612;
-    public const int AnciensCourrouxDeLaNature = 1613;
-    public const int AnciensGuerisonRayonnante = 1614;
+    public const int AnciensGuerisonRayonnante = 1613;
+    public const int AnciensCourrouxDeLaNature = 1614;
     public const int AnciensChampionAntique = 1615;
     public const int PaladinVoeuHostile = 1616;
     public const int PaladinPuissanceInquisitrice = 1617;
@@ -471,6 +471,14 @@
     public const int FormeSauvagePanthere = 1723;
     public const int FormeSauvageOursHibou = 1724;
     public const int FormeSauvageDilophosaure = 1725;
+
+    public const int DruideAssistanceTerrestre = 1726;
+    public const int DruideEconomieNaturelle = 1727;
+    public const int DruideRecuperationNaturelle = 1728;
+    public const int DruideProtectionNaturelle = 1729;
+    public const int DruideSanctuaireNaturel = 1730;
+
+    public const int DruideFormeDeLune = 1730;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -1053,11 +1061,13 @@
     public const int DruideGardien = 20623;
     public const int DruideFrappePrimordiale = 20624;
 
-    public const int DruideCercleDeLaTerre = 20625;
+    public const int DruideCercleTellurique = 20625;
     public const int DruideCercleTerreAride = 20626;
     public const int DruideCercleTerrePolaire = 20627;
     public const int DruideCercleTerreTempere = 20628;
     public const int DruideCercleTerreTropicale = 20629;
+
+    public const int DruideCercleSelenite = 20630;
 
     public const int Invalid = 65535;
   }

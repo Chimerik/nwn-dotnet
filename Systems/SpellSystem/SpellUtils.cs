@@ -92,11 +92,6 @@ namespace NWN.Systems
       }
       return nDamage + nBonus;
     }
-    public static void RemoveAnySpellEffects(Spell spell, NwCreature oTarget)
-    {
-      foreach (var eff in oTarget.ActiveEffects.Where(e => e.Spell.SpellType == spell))
-        oTarget.RemoveEffect(eff);
-    }
     public static ClassType GetCastingClass(NwSpell Spell)
     {
       byte clericCastLevel = Spell.GetSpellLevelForClass(ClassType.Cleric);

@@ -44,9 +44,9 @@ namespace NWN.Systems
 
         case 7:
 
-          player.learnableSkills.TryAdd(CustomSkill.PaladinAuraDeDevotion, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PaladinAuraDeDevotion], player));
-          player.learnableSkills[CustomSkill.PaladinAuraDeDevotion].LevelUp(player);
-          player.learnableSkills[CustomSkill.PaladinAuraDeDevotion].source.Add(Category.Class);
+          player.learnableSkills.TryAdd(CustomSkill.PaladinAuraDeGarde, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PaladinAuraDeGarde], player));
+          player.learnableSkills[CustomSkill.PaladinAuraDeGarde].LevelUp(player);
+          player.learnableSkills[CustomSkill.PaladinAuraDeGarde].source.Add(Category.Class);
 
           player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.AuraDeGarde(player.oid.LoginCreature, 7));
           UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>().SetRadius(3);

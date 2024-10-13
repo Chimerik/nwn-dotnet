@@ -64,7 +64,7 @@ namespace NWN.Systems
     private static ScriptHandleResult onExitGardienDeLaFoiAura(CallInfo callInfo)
     {
       if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnExit eventData) || eventData.Exiting is not NwCreature exiting
-        || eventData.Effect.Creator is not NwCreature guardian || !exiting.IsReactionTypeHostile(guardian)
+        || eventData.Effect.Creator is not NwCreature guardian
         || exiting.ActiveEffects.Any(e => e.Tag == GardienDeLaFoiEffectTag))
         return ScriptHandleResult.Handled;
 

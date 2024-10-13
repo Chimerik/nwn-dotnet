@@ -12,7 +12,7 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onRemoveEffroiCallback;
     public static Effect Effroi(NwCreature target)
     {
-      Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurMindAffectingFear), Effect.Icon(EffectIcon.Frightened),
+      Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurMindAffectingFear), Effect.Icon((EffectIcon)183),
         Effect.RunAction(onRemovedHandle:onRemoveEffroiCallback));
       eff.Tag = FrightenedEffectTag;
       eff.SubType = EffectSubType.Supernatural;

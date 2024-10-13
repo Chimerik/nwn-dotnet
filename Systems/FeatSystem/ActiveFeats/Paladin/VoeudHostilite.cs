@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     private static void VoeudHostilite(NwCreature caster, NwGameObject targetObject)
     {
-      if(caster == targetObject || targetObject is not NwCreature target || !caster.IsReactionTypeHostile(caster))
+      if(caster == targetObject || targetObject is not NwCreature target || !caster.IsReactionTypeHostile(target))
       {
         caster.LoginPlayer?.SendServerMessage("Veuillez choisir une cible valide", ColorConstants.Red);
         return;
