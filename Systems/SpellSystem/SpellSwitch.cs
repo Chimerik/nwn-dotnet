@@ -815,6 +815,16 @@ namespace NWN.Systems
           SpellSystem.LueurEtoilee(oCaster, spell, spellEntry, target, castingClass);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
+
+        case CustomSpell.RugissementProvoquant:
+          SpellSystem.RugissementProvoquant(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.PuitsDeLune:
+          concentrationTargets.AddRange(SpellSystem.PuitsDeLune(oCaster, spell, spellEntry, castingClass));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
       }
 
         if (oCaster is NwCreature castingCreature)

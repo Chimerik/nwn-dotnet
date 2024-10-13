@@ -478,7 +478,10 @@
     public const int DruideProtectionNaturelle = 1729;
     public const int DruideSanctuaireNaturel = 1730;
 
-    public const int DruideFormeDeLune = 1730;
+    public const int DruideFormeDeLune = 1731;
+    public const int FormeSauvageOurs = 1732;
+    public const int DruideResilienceSauvage = 1733;
+    public const int DruideLuneRadieuse = 1734;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;

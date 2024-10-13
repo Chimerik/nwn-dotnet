@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Anvil.API;
-using Anvil.API.Events;
 using NWN.Core;
 
 namespace NWN.Systems
@@ -12,6 +11,7 @@ namespace NWN.Systems
     {
       if (!caster.KnowsFeat((Feat)CustomSkill.DruideFormeDeLune) || caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value < 1)
       {
+        await caster.ActionCastFakeSpellAt(Spell.PolymorphSelf, caster);
         await NwTask.Delay(TimeSpan.FromSeconds(3));
       }
       else

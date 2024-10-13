@@ -20,6 +20,10 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.DruideFormeDeLune].LevelUp(player);
           player.learnableSkills[CustomSkill.DruideFormeDeLune].source.Add(Category.Class);
 
+          player.learnableSkills.TryAdd(CustomSkill.FormeSauvageOurs, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FormeSauvageOurs], player));
+          player.learnableSkills[CustomSkill.FormeSauvageOurs].LevelUp(player);
+          player.learnableSkills[CustomSkill.FormeSauvageOurs].source.Add(Category.Class);
+
           SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.CureModerateWounds, CustomClass.Druid);
           SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.RayonDeLune, CustomClass.Druid);
           SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.LueurEtoilee, CustomClass.Druid);
@@ -28,26 +32,19 @@ namespace NWN.Systems
 
         case 5:
 
-          if(player.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerreAride))
-            SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Fireball, CustomClass.Druid);
-          else if (player.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerrePolaire))
-            SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.TempeteDeNeige, CustomClass.Druid);
-          else if (player.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerreTempere))
-            SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.LightningBolt, CustomClass.Druid);
-          else if (player.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerreTropicale))
-            SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.StinkingCloud, CustomClass.Druid);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.SummonCreatureIii, CustomClass.Druid);
 
           break;
 
         case 6:
 
-          player.learnableSkills.TryAdd(CustomSkill.DruideEconomieNaturelle, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DruideEconomieNaturelle], player));
-          player.learnableSkills[CustomSkill.DruideEconomieNaturelle].LevelUp(player);
-          player.learnableSkills[CustomSkill.DruideEconomieNaturelle].source.Add(Category.Class);
+          player.learnableSkills.TryAdd(CustomSkill.DruideResilienceSauvage, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DruideResilienceSauvage], player));
+          player.learnableSkills[CustomSkill.DruideResilienceSauvage].LevelUp(player);
+          player.learnableSkills[CustomSkill.DruideResilienceSauvage].source.Add(Category.Class);
 
-          player.learnableSkills.TryAdd(CustomSkill.DruideRecuperationNaturelle, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DruideRecuperationNaturelle], player));
-          player.learnableSkills[CustomSkill.DruideRecuperationNaturelle].LevelUp(player);
-          player.learnableSkills[CustomSkill.DruideRecuperationNaturelle].source.Add(Category.Class);
+          player.learnableSkills.TryAdd(CustomSkill.DruideLuneRadieuse, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DruideLuneRadieuse], player));
+          player.learnableSkills[CustomSkill.DruideLuneRadieuse].LevelUp(player);
+          player.learnableSkills[CustomSkill.DruideLuneRadieuse].source.Add(Category.Class);
 
           break;
 
@@ -66,14 +63,7 @@ namespace NWN.Systems
 
         case 9:
 
-          if (player.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerreAride))
-            SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.MurDePierre, CustomClass.Druid);
-          else if (player.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerrePolaire))
-            SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.ConeOfCold, CustomClass.Druid);
-          else if (player.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerreTempere))
-            SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.PassageParLesArbres, CustomClass.Druid);
-          else if (player.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerreTropicale))
-            SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.FleauDinsectes, CustomClass.Druid);
+            SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.MassHeal, CustomClass.Druid);
 
           break;
 

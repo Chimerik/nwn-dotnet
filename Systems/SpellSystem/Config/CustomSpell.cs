@@ -129,5 +129,7 @@
     public const int ExcretionCorrosive = 966;       
     public const int RayonEmpoisonne = 967;       
     public const int LueurEtoilee = 968;       
+    public const int RugissementProvoquant = 969;       
+    public const int PuitsDeLune = 970;       
   }
 }

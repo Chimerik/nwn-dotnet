@@ -25,6 +25,7 @@ namespace NWN.Systems
         (PolymorphType)108 => 21,
         (PolymorphType)109 => 47,
         (PolymorphType)110 => 44,
+        (PolymorphType)111 => 28,
         _ => 11,
       };
 
@@ -52,7 +53,10 @@ namespace NWN.Systems
       creature.OnDamaged += OnDamagedPolymorph;
 
       if (creature.KnowsFeat((Feat)CustomSkill.DruideFormeDeLune))
-        creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.FormeDeLune(creature));
+      {
+        creature.ApplyEffect(EffectDuration.Permanent, FormeDeLune(creature));
+        creature.SetFeatRemainingUses((Feat)CustomSkill.DruideLuneRadieuse, 1);
+      }
 
       return eff;
     }
@@ -70,6 +74,7 @@ namespace NWN.Systems
         case (PolymorphType)108:
         case (PolymorphType)109:
         case (PolymorphType)110:
+        case (PolymorphType)111:
 
           damageBonus = druidLevel > 15 ? IPDamageBonus.Plus1d12 : druidLevel > 11 ? IPDamageBonus.Plus1d10 : druidLevel > 7 ? IPDamageBonus.Plus1d8 : druidLevel > 3 ? IPDamageBonus.Plus1d6 : 0;
           damageType = IPDamageType.Piercing;
@@ -91,7 +96,18 @@ namespace NWN.Systems
       {
         await NwTask.NextFrame();
         creature.GetItemInSlot(InventorySlot.CreatureLeftWeapon)?.AddItemProperty(ItemProperty.DamageBonus(damageType, damageBonus), EffectDuration.Permanent);
-      } 
+      }
+
+      if (creature.KnowsFeat((Feat)CustomSkill.DruideLuneRadieuse))
+      {
+        var druidClass = creature.GetClassInfo(ClassType.Druid);
+
+        if (druidClass is not null && druidClass.Level > 13)
+        { 
+          await NwTask.NextFrame();
+          creature.GetItemInSlot(InventorySlot.CreatureLeftWeapon)?.AddItemProperty(ItemProperty.DamageBonus(IPDamageType.Divine, IPDamageBonus.Plus1d10), EffectDuration.Permanent);
+        }
+      }
     }
     public static void OnRemovePolymorph(OnEffectRemove onRemove)
     {
@@ -114,7 +130,8 @@ namespace NWN.Systems
       creature.OnDamaged -= OnDamagedPolymorph;
       creature.OnCreatureAttack -= RangerUtils.OnAttackSpiderPoisonBite;
 
-      EffectUtils.RemoveTaggedEffect(creature, EffectSystem.FormeDeLuneEffectTag);
+      EffectUtils.RemoveTaggedEffect(creature, FormeDeLuneEffectTag);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.DruideLuneRadieuse, 0);
     }
     public static PolymorphType GetPolymorphType(int featId)
     {

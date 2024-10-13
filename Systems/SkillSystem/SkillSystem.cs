@@ -846,7 +846,10 @@ namespace NWN.Systems
 
       learnableDictionary.Add(CustomSkill.DruideCercleSelenite, new LearnableSkill(CustomSkill.DruideCercleSelenite, "Cercle Sélénite", "", Category.DruidSubclass, "druide_lune", 20, 1, Ability.Wisdom, Ability.Constitution, Druide.LevelUp, "1BHfudT9yGW9JV9VTGO8DbY7uF7l1VDRQ8W0jkzZHUAQ"));
       learnableDictionary.Add(CustomSkill.DruideFormeDeLune, new LearnableSkill(CustomSkill.DruideFormeDeLune, "Forme de Lune", "En Forme Sauvage, votre CA de base est de 13 + modificateur de sagesse et vous bénéficiez de points de vie temporaires correspondant à 3x votre niveau de druide. De plus, Forme Sauvage peut-être utilisé en tant qu’action bonus.", Category.Fight, "is_FormeDeLune", 1, 1, Ability.Wisdom, Ability.Constitution, LearnActivableFeat));
-
+      learnableDictionary.Add(CustomSkill.FormeSauvageOurs, new LearnableSkill(CustomSkill.FormeSauvageOurs, "Forme Sauvage - Ours", "Vous adoptez la forme d'un ours polaire", Category.Magic, "is_WildBear", 1, 1, Ability.Wisdom, Ability.Constitution, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.DruideResilienceSauvage, new LearnableSkill(CustomSkill.DruideResilienceSauvage, "Résilience Sauvage", "Lorsque vous êtes sous Forme Sauvage, ajoutez votre modificateur de sagesse à vos JDS de constitution", Category.MindBody, "is_NatureWard", 1, 1, Ability.Wisdom, Ability.Constitution, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.DruideLuneRadieuse, new LearnableSkill(CustomSkill.DruideLuneRadieuse, "Lune Radieuse", "Lorsque vous êtes sous Forme Sauvage et que cette capacité est activée, vous infligez des dégâts radiants à la place des dégâts physiques habituels", Category.MindBody, "is_LuneRadieuse", 1, 1, Ability.Wisdom, Ability.Constitution, OnLearnLuneRadieuse));
+      
       // SPELLS
       // CANTRIPS
 

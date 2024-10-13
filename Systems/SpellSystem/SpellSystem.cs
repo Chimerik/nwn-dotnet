@@ -788,6 +788,15 @@ namespace NWN.Systems
 
       if(castingClass == ClassType.Druid)
       {
+        /*var druidClass = caster.GetClassInfo(ClassType.Druid);
+
+        if (spell.Id == CustomSpell.ModificationDapparence && caster.KnowsFeat((Feat)CustomSkill.DruideLuneRadieuse)
+          && druidClass is not null && druidClass.Level > 13)
+        {
+          EventsPlugin.SkipEvent();
+          return;
+        }*/
+
         if (caster.ActiveEffects.Any(e => e.Tag == EffectSystem.EconomieNaturelleEffectTag)
          && Players.TryGetValue(caster, out var druidPlayer) && druidPlayer.learnableSpells.TryGetValue(spell.Id, out var druidSpell) 
          && druidSpell.alwaysPrepared)
