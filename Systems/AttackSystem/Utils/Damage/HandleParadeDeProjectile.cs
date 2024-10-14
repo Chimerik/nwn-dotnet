@@ -1,14 +1,13 @@
 ﻿using Anvil.API;
 using NWN.Native.API;
-using ClassType = NWN.Native.API.ClassType;
 
 namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static int HandleParadeDeProjectile(CNWSCreature attacker, CNWSCreature target, bool isRangedAttack)
+    public static int HandleParadeDeProjectile(CNWSCreature target, bool isRangedAttack)
     {
-      int monkLevel = GetClassLevel(target, (ClassType)CustomClass.Monk);
+      int monkLevel = target.m_pStats.GetNumLevelsOfClass(CustomClass.Monk);
 
       if (isRangedAttack 
         && monkLevel > 2

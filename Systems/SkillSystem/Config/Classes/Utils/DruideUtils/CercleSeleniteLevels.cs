@@ -49,16 +49,9 @@ namespace NWN.Systems
           break;
 
         case 7:
-          
-          if (player.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerreAride))
-            SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Enervation, CustomClass.Druid);
-          else if (player.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerrePolaire))
-            SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.IceStorm, CustomClass.Druid);
-          else if (player.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerreTempere))
-            SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.FreedomOfMovement, CustomClass.Druid);
-          else if (player.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerreTropicale))
-            SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.PolymorphSelf, CustomClass.Druid);
-          
+
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.PuitsDeLune, CustomClass.Druid);
+
           break;
 
         case 9:

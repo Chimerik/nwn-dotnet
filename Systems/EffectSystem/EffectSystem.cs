@@ -95,6 +95,9 @@ namespace NWN.Systems
 
       onIntervalManifestationCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalManifestation);
 
+      onIntervalPuitsDeLuneCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalPuitsDeLune);
+      onRemovePuitsDeLuneCallback = scriptHandleFactory.CreateUniqueHandler(OnRemovePuitsDeLune);
+
       onEnterChargeDuSanglierCallback = scriptHandleFactory.CreateUniqueHandler(OnEnterChargeDuSanglierAura);
       onRemoveChargeDuSanglierCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveChargeDuSanglierAura);
 

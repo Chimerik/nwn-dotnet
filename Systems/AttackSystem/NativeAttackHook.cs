@@ -591,7 +591,7 @@ namespace NWN.Systems
         baseDamage += NativeUtils.HandlePourfendeurDeColosse(attacker, targetCreature, attackWeapon);
         baseDamage -= NativeUtils.HandleMaitreArmureLourde(targetCreature);
         baseDamage -= NativeUtils.HandleParade(targetCreature);
-        baseDamage -= NativeUtils.HandleParadeDeProjectile(attacker, targetCreature, attackData.m_bRangedAttack.ToBool());
+        baseDamage -= NativeUtils.HandleParadeDeProjectile(targetCreature, attackData.m_bRangedAttack.ToBool());
         baseDamage /= NativeUtils.HandleEsquiveInstinctive(targetCreature);
       }
 

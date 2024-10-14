@@ -11,15 +11,17 @@ namespace NWN.Systems
   {
     public static void HandleVoeuHostile(CNWSCreature attacker, CNWSCombatRound round, CNWSCombatAttackData data, string attackerName)
     {
-      foreach(var eff in attacker.m_appliedEffects.Where(e => e.m_sCustomTag.CompareNoCase(EffectSystem.VoeuDHostiliteEffectExoTag).ToBool()))
+      foreach (var eff in attacker.m_appliedEffects.Where(e => e.m_sCustomTag.CompareNoCase(EffectSystem.VoeuDHostiliteEffectExoTag).ToBool()))
       {
         var creator = NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(eff.m_oidCreator);
 
-        if (creator is null || creator.m_pStats.GetClassLevel((byte)ClassType.Paladin) < 15
+        if (creator is null || creator.m_ScriptVars.GetInt(CreatureUtils.VoeuHostileVariableExo) > 0
+          || creator.m_pStats.GetNumLevelsOfClass((byte)ClassType.Paladin) < 15
           || Vector3.DistanceSquared(creator.m_vPosition.ToManagedVector(), attacker.m_vPosition.ToManagedVector()) > 9)
           continue;
 
         creator.m_ScriptVars.SetObject(CreatureUtils.VoeuHostileVariableExo, attacker.m_idSelf);
+        creator.m_ScriptVars.SetInt(CreatureUtils.VoeuHostileVariableExo, 1);
       }
 
       if (!data.m_bRangedAttack.ToBool() && attacker.m_ScriptVars.GetObject(CreatureUtils.VoeuHostileVariableExo) != NWScript.OBJECT_INVALID)
