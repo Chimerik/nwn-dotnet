@@ -482,6 +482,14 @@
     public const int FormeSauvageOurs = 1732;
     public const int DruideResilienceSauvage = 1733;
     public const int DruideLuneRadieuse = 1734;
+    public const int FormeSauvageCorbeau = 1735;
+    public const int FormeSauvageTigre = 1736;
+    public const int FormeSauvageAir= 1737;
+    public const int FormeSauvageTerre= 1738;
+    public const int FormeSauvageFeu= 1739;
+    public const int FormeSauvageEau= 1740;
+
+    public const int DruideFureurDesFlots = 1741;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -1071,6 +1079,7 @@
     public const int DruideCercleTerreTropicale = 20629;
 
     public const int DruideCercleSelenite = 20630;
+    public const int DruideCerclePelagique = 20631;
 
     public const int Invalid = 65535;
   }

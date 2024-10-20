@@ -7,7 +7,7 @@ namespace NWN.Systems
 {
   public partial class FeatSystem
   {
-    private static async void FormeSauvage(NwCreature caster, int featId)
+    private static async void FormeSauvage(NwCreature caster, int featId, byte formeSauvageCharges = 1)
     {
       if (!caster.KnowsFeat((Feat)CustomSkill.DruideFormeDeLune) || caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value < 1)
       {
@@ -22,7 +22,7 @@ namespace NWN.Systems
       else
       {
         NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.Polymorph(caster, EffectSystem.GetPolymorphType(featId))));
-        DruideUtils.DecrementFormeSauvage(caster);
+        DruideUtils.DecrementFormeSauvage(caster, formeSauvageCharges);
       }
     }
   }

@@ -239,6 +239,11 @@ namespace NWN.Systems
           new StrRef(3).SetPlayerOverride(oid, "Cercle Sélénite");
           oid.SetTextureOverride("druide", "druide_lune");
         }
+        else if (learnableSkills.ContainsKey(CustomSkill.DruideCerclePelagique))
+        {
+          new StrRef(3).SetPlayerOverride(oid, "Cercle Pélagique");
+          oid.SetTextureOverride("druide", "druide_mer");
+        }
       }
     }
   }

@@ -17,6 +17,14 @@ namespace NWN.Systems
       creature.DecrementRemainingFeatUses((Feat)CustomSkill.FormeSauvageDilophosaure, nbSource);
       creature.DecrementRemainingFeatUses((Feat)CustomSkill.DruideAssistanceTerrestre, nbSource);
       creature.DecrementRemainingFeatUses((Feat)CustomSkill.DruideSanctuaireNaturel, nbSource);
+      creature.DecrementRemainingFeatUses((Feat)CustomSkill.FormeSauvageOurs, nbSource);
+      creature.DecrementRemainingFeatUses((Feat)CustomSkill.FormeSauvageCorbeau, nbSource);
+      creature.DecrementRemainingFeatUses((Feat)CustomSkill.FormeSauvageTigre, nbSource);
+      creature.DecrementRemainingFeatUses((Feat)CustomSkill.FormeSauvageAir, nbSource);
+      creature.DecrementRemainingFeatUses((Feat)CustomSkill.FormeSauvageTerre, nbSource);
+      creature.DecrementRemainingFeatUses((Feat)CustomSkill.FormeSauvageFeu, nbSource);
+      creature.DecrementRemainingFeatUses((Feat)CustomSkill.FormeSauvageEau, nbSource);
+      creature.DecrementRemainingFeatUses((Feat)CustomSkill.DruideFureurDesFlots, nbSource);
     }
   }
 }

@@ -237,12 +237,19 @@ namespace NWN.Systems
         case CustomSkill.FormeSauvageOursHibou: 
         case CustomSkill.FormeSauvageDilophosaure: 
         case CustomSkill.FormeSauvageOurs: 
+        case CustomSkill.FormeSauvageCorbeau: 
+        case CustomSkill.FormeSauvageTigre: 
         case CustomSkill.FormeSauvageChat: FormeSauvage(onUseFeat.Creature, onUseFeat.Feat.Id); return;
+        case CustomSkill.FormeSauvageAir:
+        case CustomSkill.FormeSauvageTerre:
+        case CustomSkill.FormeSauvageFeu:
+        case CustomSkill.FormeSauvageEau: FormeSauvage(onUseFeat.Creature, onUseFeat.Feat.Id, 2); return;
 
         case CustomSkill.DruideEconomieNaturelle: EconomieNaturelle(onUseFeat.Creature); return;
         case CustomSkill.DruideRecuperationNaturelle: RecuperationNaturelle(onUseFeat.Creature); return;
         case CustomSkill.DruideSanctuaireNaturel: SanctuaireNaturel(onUseFeat.Creature); return;
         case CustomSkill.DruideLuneRadieuse: LuneRadieuse(onUseFeat.Creature); return;
+        case CustomSkill.DruideFureurDesFlots: FureurDesFlots(onUseFeat.Creature); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

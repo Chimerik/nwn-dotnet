@@ -47,6 +47,8 @@ namespace NWN.Systems
 
       onIntervalTirAgrippantCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalTirAgrippant);
 
+      onIntervalBrulureCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalBrulure);
+
       onIntervalSaignementCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalSaignement);
       onRemoveSaignementCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveSaignement);
 
@@ -128,6 +130,9 @@ namespace NWN.Systems
       onEnterGardienDeLaFoiCallback = scriptHandleFactory.CreateUniqueHandler(onEnterGardienDeLaFoiAura);
       onExitGardienDeLaFoiCallback = scriptHandleFactory.CreateUniqueHandler(onExitGardienDeLaFoiAura);
 
+      onEnterFureurDesFlotsCallback = scriptHandleFactory.CreateUniqueHandler(onEnterFureurDesFlots);
+      onHeartbeatFureurDesFlotsCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatFureurDesFlots);
+
       onEnterChampionAntiqueCallback = scriptHandleFactory.CreateUniqueHandler(onEnterChampionAntiqueAura);
       onExitChampionAntiqueCallback = scriptHandleFactory.CreateUniqueHandler(onExitChampionAntiqueAura);
       onHeartbeatChampionAntiqueCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatChampionAntiqueAura);
@@ -163,6 +168,10 @@ namespace NWN.Systems
       onExitEspritsGardiensCallback = scriptHandleFactory.CreateUniqueHandler(onExitEspritsGardiens);
       onIntervalEspritsGardiensCallback = scriptHandleFactory.CreateUniqueHandler(onIntervalEspritsGardiens);
 
+      onEnterVortexDechaineCallback = scriptHandleFactory.CreateUniqueHandler(onEnterVortexDechaine);
+      onExitVortexDechaineCallback = scriptHandleFactory.CreateUniqueHandler(onExitVortexDechaine);
+      onIntervalVortexDechaineCallback = scriptHandleFactory.CreateUniqueHandler(onIntervalVortexDechaine);
+
       onEnterCapeDuCroiseCallback = scriptHandleFactory.CreateUniqueHandler(onEnterCapeDuCroise);
       onExitCapeDuCroiseCallback = scriptHandleFactory.CreateUniqueHandler(onExitCapeDuCroise);
 
@@ -188,6 +197,7 @@ namespace NWN.Systems
       onExitSurfaceDeGlaceCallback = scriptHandleFactory.CreateUniqueHandler(onExitSurfaceDeGlace);
 
       onRemoveEffroiCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveEffroi);
+      onRemoveTrancheVueCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveTrancheVue);
 
       onIntervalExcretionCorrosiveCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalExcretionCorrosive);
 

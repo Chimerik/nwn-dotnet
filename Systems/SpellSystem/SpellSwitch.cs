@@ -821,6 +821,36 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case CustomSpell.TrancheVue:
+          SpellSystem.TrancheVue(oCaster);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.VortexDechaine:
+          SpellSystem.VortexDechaine(oCaster, targetLocation, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.GlaiseMetallisee:
+          SpellSystem.GlaiseMetallisee(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.VapeurElementaire:
+          SpellSystem.VapeurElementaire(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+          
+        case CustomSpell.ImmolationVolontaire:
+          concentrationTargets.AddRange(SpellSystem.ImmolationVolontaire(oCaster, spell, spellEntry));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.RespirationAquatique:
+          SpellSystem.RespirationAquatique(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.PuitsDeLune:
           concentrationTargets.AddRange(SpellSystem.PuitsDeLune(oCaster, spell, spellEntry, castingClass));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;

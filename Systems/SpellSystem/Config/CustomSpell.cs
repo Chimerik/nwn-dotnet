@@ -131,5 +131,11 @@
     public const int LueurEtoilee = 968;       
     public const int RugissementProvoquant = 969;       
     public const int PuitsDeLune = 970;       
+    public const int TrancheVue = 971;       
+    public const int VortexDechaine = 972;       
+    public const int GlaiseMetallisee = 973;       
+    public const int ImmolationVolontaire = 974;       
+    public const int VapeurElementaire = 975;       
+    public const int RespirationAquatique = 976;       
   }
 }

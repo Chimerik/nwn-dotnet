@@ -41,6 +41,7 @@ namespace NWN.Systems
       {
         case CustomSkill.DruideCercleTellurique: HandleCercleTerreLevelUp(player, playerClass.currentLevel); break;
         case CustomSkill.DruideCercleSelenite: HandleCercleSeleniteLevelUp(player, playerClass.currentLevel); break;
+        case CustomSkill.DruideCerclePelagique: HandleCerclePelagiqueLevelUp(player, playerClass.currentLevel); break;
       }
 
       player.ApplyClassLevelUp(playerClass, CustomClass.Druid);

@@ -25,7 +25,13 @@ namespace NWN.Systems
         (PolymorphType)108 => 21,
         (PolymorphType)109 => 47,
         (PolymorphType)110 => 44,
-        (PolymorphType)111 => 28,
+        PolymorphType.BrownBear => 28,
+        (PolymorphType)111 => 11,
+        PolymorphType.DireTiger => 32,
+        PolymorphType.HugeAirElemental => 72,
+        PolymorphType.HugeFireElemental => 72,
+        PolymorphType.HugeWaterElemental => 72,
+        PolymorphType.HugeEarthElemental => 85,
         _ => 11,
       };
 
@@ -74,6 +80,7 @@ namespace NWN.Systems
         case (PolymorphType)108:
         case (PolymorphType)109:
         case (PolymorphType)110:
+        case PolymorphType.BrownBear:
         case (PolymorphType)111:
 
           damageBonus = druidLevel > 15 ? IPDamageBonus.Plus1d12 : druidLevel > 11 ? IPDamageBonus.Plus1d10 : druidLevel > 7 ? IPDamageBonus.Plus1d8 : druidLevel > 3 ? IPDamageBonus.Plus1d6 : 0;
@@ -88,6 +95,47 @@ namespace NWN.Systems
 
           creature.OnCreatureAttack -= RangerUtils.OnAttackSpiderPoisonBite;
           creature.OnCreatureAttack += RangerUtils.OnAttackSpiderPoisonBite;
+
+          break;
+
+        case PolymorphType.DireTiger:
+
+          damageBonus = druidLevel > 15 ? IPDamageBonus.Plus1d12 : druidLevel > 11 ? IPDamageBonus.Plus1d10 : druidLevel > 7 ? IPDamageBonus.Plus1d8 : druidLevel > 3 ? IPDamageBonus.Plus1d6 : 0;
+          damageType = IPDamageType.Piercing;
+
+          creature.OnCreatureAttack -= DruideUtils.OnAttackBriseArmure;
+          creature.OnCreatureAttack += DruideUtils.OnAttackBriseArmure;
+
+          creature.OnHeartbeat -= DruideUtils.OnHeartbeatVitaliteAnimale;
+          creature.OnHeartbeat += DruideUtils.OnHeartbeatVitaliteAnimale;
+
+          break;
+
+        case PolymorphType.HugeAirElemental:
+
+          creature.OnCreatureAttack -= DruideUtils.OnAttackElemAirStun;
+          creature.OnCreatureAttack += DruideUtils.OnAttackElemAirStun;
+
+          break;
+
+        case PolymorphType.HugeEarthElemental:
+
+          creature.OnCreatureAttack -= DruideUtils.OnAttackElemTerreKnockdown;
+          creature.OnCreatureAttack += DruideUtils.OnAttackElemTerreKnockdown;
+
+          break;
+
+        case PolymorphType.HugeFireElemental:
+
+          creature.OnCreatureAttack -= DruideUtils.OnAttackElemFeuBrulure;
+          creature.OnCreatureAttack += DruideUtils.OnAttackElemFeuBrulure;
+
+          break;
+
+        case PolymorphType.HugeWaterElemental:
+
+          creature.OnCreatureAttack -= DruideUtils.OnAttackElemEauChill;
+          creature.OnCreatureAttack += DruideUtils.OnAttackElemEauChill;
 
           break;
       }
@@ -129,6 +177,12 @@ namespace NWN.Systems
       creature.OnEffectRemove -= OnRemovePolymorph;
       creature.OnDamaged -= OnDamagedPolymorph;
       creature.OnCreatureAttack -= RangerUtils.OnAttackSpiderPoisonBite;
+      creature.OnCreatureAttack -= DruideUtils.OnAttackBriseArmure;
+      creature.OnCreatureAttack -= DruideUtils.OnAttackElemAirStun;
+      creature.OnCreatureAttack -= DruideUtils.OnAttackElemTerreKnockdown;
+      creature.OnCreatureAttack -= DruideUtils.OnAttackElemFeuBrulure;
+      creature.OnCreatureAttack -= DruideUtils.OnAttackElemEauChill;
+      creature.OnHeartbeat -= DruideUtils.OnHeartbeatVitaliteAnimale;
 
       EffectUtils.RemoveTaggedEffect(creature, FormeDeLuneEffectTag);
       creature.SetFeatRemainingUses((Feat)CustomSkill.DruideLuneRadieuse, 0);

@@ -30,6 +30,14 @@ namespace NWN.Systems
           
           break;
 
+        case 4:
+
+          player.learnableSkills.TryAdd(CustomSkill.FormeSauvageCorbeau, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FormeSauvageCorbeau], player));
+          player.learnableSkills[CustomSkill.FormeSauvageCorbeau].LevelUp(player);
+          player.learnableSkills[CustomSkill.FormeSauvageCorbeau].source.Add(Category.Class);
+
+          break;
+
         case 5:
 
           SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.SummonCreatureIii, CustomClass.Druid);
@@ -54,6 +62,14 @@ namespace NWN.Systems
 
           break;
 
+        case 8:
+
+          player.learnableSkills.TryAdd(CustomSkill.FormeSauvageTigre, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FormeSauvageTigre], player));
+          player.learnableSkills[CustomSkill.FormeSauvageTigre].LevelUp(player);
+          player.learnableSkills[CustomSkill.FormeSauvageTigre].source.Add(Category.Class);
+
+          break;
+
         case 9:
 
             SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.MassHeal, CustomClass.Druid);
@@ -65,6 +81,22 @@ namespace NWN.Systems
           player.learnableSkills.TryAdd(CustomSkill.DruideProtectionNaturelle, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DruideProtectionNaturelle], player));
           player.learnableSkills[CustomSkill.DruideProtectionNaturelle].LevelUp(player);
           player.learnableSkills[CustomSkill.DruideProtectionNaturelle].source.Add(Category.Class);
+
+          player.learnableSkills.TryAdd(CustomSkill.FormeSauvageAir, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FormeSauvageAir], player));
+          player.learnableSkills[CustomSkill.FormeSauvageAir].LevelUp(player);
+          player.learnableSkills[CustomSkill.FormeSauvageAir].source.Add(Category.Class);
+
+          player.learnableSkills.TryAdd(CustomSkill.FormeSauvageTerre, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FormeSauvageTerre], player));
+          player.learnableSkills[CustomSkill.FormeSauvageTerre].LevelUp(player);
+          player.learnableSkills[CustomSkill.FormeSauvageTerre].source.Add(Category.Class);
+
+          player.learnableSkills.TryAdd(CustomSkill.FormeSauvageFeu, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FormeSauvageFeu], player));
+          player.learnableSkills[CustomSkill.FormeSauvageFeu].LevelUp(player);
+          player.learnableSkills[CustomSkill.FormeSauvageFeu].source.Add(Category.Class);
+
+          player.learnableSkills.TryAdd(CustomSkill.FormeSauvageEau, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FormeSauvageEau], player));
+          player.learnableSkills[CustomSkill.FormeSauvageEau].LevelUp(player);
+          player.learnableSkills[CustomSkill.FormeSauvageEau].source.Add(Category.Class);
 
           break;
 
