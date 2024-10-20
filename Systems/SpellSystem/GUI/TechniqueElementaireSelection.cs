@@ -124,15 +124,12 @@ namespace NWN.Systems
 
                   LearnableSkill clickedTech = acquiredTechs[nuiEvent.ArrayIndex];
                   acquiredTechs.Remove(clickedTech);
+                  availableTechs.Clear();
 
-                  if (acquiredTechs.Count < nbTechs)
-                    availableTechs.Add(clickedTech);
-                  else
-                  {
-                    availableTechs.AddRange((IEnumerable<LearnableSkill>)learnableDictionary.Values.Where(l => l is LearnableSkill skill
-                    && skill.category == Category.TechniqueElementaire
-                    && skill.minLevel <= player.oid.LoginCreature.GetClassInfo((ClassType)CustomClass.Monk).Level).OrderBy(l => l.name));
-                  }
+                  availableTechs.AddRange(learnableDictionary.Values.Where(l => l is LearnableSkill skill
+                  && skill.category == Category.TechniqueElementaire
+                  && skill.minLevel <= player.oid.LoginCreature.GetClassInfo((ClassType)CustomClass.Monk).Level
+                  && !acquiredTechs.Contains(skill)).OrderBy(l => l.name).Cast<LearnableSkill>());
                   
                   BindAvailableTechs();
                   BindAcquiredTechs();
@@ -210,13 +207,8 @@ namespace NWN.Systems
           if (acquiredTechs.Count >= nbTechs)
             availableTechs.Clear();
 
-          List<LearnableSkill> tempList = new();
-          tempList.AddRange(availableTechs.OrderBy(s => s.name));
-          availableTechs.Clear();
-
-          foreach (var tech in tempList)
+          foreach (var tech in availableTechs)
           {
-            availableTechs.Add(tech);
             availableIconsList.Add(tech.icon);
             availableNamesList.Add(tech.name);
           }
@@ -230,13 +222,8 @@ namespace NWN.Systems
           List<string> acquiredIconsList = new();
           List<string> acquiredNamesList = new();
 
-          List<LearnableSkill> tempList = new();
-          tempList.AddRange(acquiredTechs.OrderBy(l => l.name));
-          acquiredTechs.Clear();
-
-          foreach (var tech in tempList)
+          foreach (var tech in acquiredTechs)
           {
-            acquiredTechs.Add(tech);
             acquiredIconsList.Add(tech.icon);
             acquiredNamesList.Add(tech.name);
           }

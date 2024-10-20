@@ -85,6 +85,7 @@ namespace NWN.Systems
         case CustomSkill.WildMagicMagieGalvanisanteBienfait: Bienfait(onUseFeat.Creature, onUseFeat.TargetObject); return;
         case CustomSkill.WildMagicMagieGalvanisanteRecuperation: Recuperation(onUseFeat.Creature, onUseFeat.TargetObject); return;
 
+        case CustomSkill.MonkUnarmoredSpeed: MonkUnarmoredSpeed(onUseFeat.Creature); return;
         case CustomSkill.MonkBonusAttack: MonkBonusAttack(onUseFeat.Creature); return;
         case CustomSkill.MonkPatience: MonkPatience(onUseFeat.Creature); return;
         case CustomSkill.MonkDelugeDeCoups: MonkDelugeDeCoups(onUseFeat.Creature); return;

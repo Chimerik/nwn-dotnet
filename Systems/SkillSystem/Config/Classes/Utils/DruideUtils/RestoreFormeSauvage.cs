@@ -6,6 +6,8 @@ namespace NWN.Systems
   {
     public static async void RestoreFormeSauvage(NwCreature creature, byte nbSource = 0, bool shortRest = false)
     {
+      await NwTask.NextFrame();
+
       byte? level = creature.GetClassInfo(ClassType.Druid)?.Level;
 
       if (!level.HasValue)
@@ -24,7 +26,6 @@ namespace NWN.Systems
       else
         nbSource = (byte)(nbSource > 0 ? nbSource : maxUses);
 
-      await NwTask.NextFrame();
       creature.SetFeatRemainingUses((Feat)CustomSkill.DruideCompagnonSauvage, nbSource);
       creature.SetFeatRemainingUses((Feat)CustomSkill.FormeSauvageBlaireau, nbSource);
       creature.SetFeatRemainingUses((Feat)CustomSkill.FormeSauvageChat, nbSource);

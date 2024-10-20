@@ -23,6 +23,7 @@ namespace NWN.Systems
       }
 
       await NwTask.NextFrame();
+
       creature.SetFeatRemainingUses((Feat)CustomSkill.MonkPatience, featUse);
       creature.SetFeatRemainingUses((Feat)CustomSkill.MonkDelugeDeCoups, featUse);
       creature.SetFeatRemainingUses((Feat)CustomSkill.MonkStunStrike, featUse);

@@ -73,9 +73,6 @@ namespace NWN.Systems
           if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ChatimentDivin))
             myCommandList.Remove("chatimentLevelSelection");
 
-          if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.MonkUnarmoredSpeed))
-            myCommandList.Remove("monkUnarmoredSpeed");
-
           NuiRect windowRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 410, 500);
 
           window = new NuiWindow(rootColumn, "Menu principal")
@@ -108,10 +105,6 @@ namespace NWN.Systems
             if (myCommandList.TryGetValue("instantLearn", out var instantLearn))
               instantLearn.label = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_INSTANT_LEARN").HasValue ?
                 "Désactiver l'apprentissage instantané (Alpha)" : "Activer l'apprentissage instantané (Alpha)";
-
-            if (myCommandList.TryGetValue("monkUnarmoredSpeed", out var monkUnarmoredSpeed))
-              instantLearn.label = player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("__MONK_SPEED_DISABLED").HasNothing ?
-                "Désactiver la vitesse de moine" : "Activer la vitesse de moine";
 
             currentList = myCommandList;
             LoadMenu(currentList);
@@ -530,29 +523,6 @@ namespace NWN.Systems
                       ((ChatimentLevelSelectionWindow)chatiment).CloseWindow();
                     else
                       ((ChatimentLevelSelectionWindow)chatiment).CreateWindow();
-
-                    break;
-
-                  case "monkUnarmoredSpeed":
-
-                    if(player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.MonkSpeedEffectTag))
-                    {
-                      EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.MonkSpeedEffectTag);
-                      player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_MONK_SPEED_DISABLED").Value = 1;
-                      player.oid.SendServerMessage("Vitesse du moine désactivée");
-
-                      myCommandList["instantLearn"].label = "Activer la vitesse de moine";
-                      buttonName.SetBindValues(player.oid, nuiToken.Token, myCommandList.Values.Select(c => c.label));
-                    }
-                    else
-                    {
-                      SkillSystem.OnLearnUnarmoredSpeed(player, CustomSkill.MonkUnarmoredSpeed);
-                      player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_MONK_SPEED_DISABLED").Delete();
-                      player.oid.SendServerMessage("Vitesse du moine activée");
-
-                      myCommandList["instantLearn"].label = "Désactiver la vitesse de moine";
-                      buttonName.SetBindValues(player.oid, nuiToken.Token, myCommandList.Values.Select(c => c.label));
-                    }
 
                     break;
 

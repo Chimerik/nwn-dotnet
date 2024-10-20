@@ -430,7 +430,6 @@ namespace NWN
       { "sit", new MainMenuCommand("S'asseoir n'importe où", "Permet de s'asseoir partout. Attention, seule la position affichée change. La position réelle du personnage reste la même.", CommandRank.Public) },
       { "touch", new MainMenuCommand("Mode toucher", "Permet d'éviter les collisions entre personnages (non utilisable en combat)", CommandRank.Public) },
       { "walk", new MainMenuCommand("Mode marche", "Permet d'avoir l'air moins ridicule en ville", CommandRank.Public) },
-      { "monkUnarmoredSpeed", new MainMenuCommand("Désactiver la vitesse de moine", "Permet d'avoir l'air moins ridicule en ville", CommandRank.Public) },
       { "follow", new MainMenuCommand("Suivre", "Suivre une créature ciblée (pour les feignasses !)", CommandRank.Public) },
       { "examineArea", new MainMenuCommand("Examiner les environs", "Obtenir une description de la zone", CommandRank.Public) },
       { "learnables", new MainMenuCommand("Journal d'apprentissage", "Ouvrir le journal d'apprentissage", CommandRank.Public) },

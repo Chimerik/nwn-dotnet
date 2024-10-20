@@ -8,7 +8,7 @@ namespace NWN.Systems
 {
   public static partial class Monk
   {
-    public static void HandleMonkLevelUp(Player player, int level, LearnableSkill playerClass)
+    public static async void HandleMonkLevelUp(Player player, int level, LearnableSkill playerClass)
     {
       switch (level)
       {
@@ -187,6 +187,8 @@ namespace NWN.Systems
 
           break;
       }
+
+      await NwTask.NextFrame();
 
       MonkUtils.RestoreKi(player.oid.LoginCreature);
       OnLearnUnarmoredSpeed(player, CustomSkill.MonkUnarmoredSpeed);
