@@ -23,6 +23,7 @@ namespace NWN.Systems
         (int)ClassType.Cleric => CustomSkill.Clerc,
         (int)ClassType.Sorcerer => CustomSkill.Ensorceleur,
         (int)ClassType.Druid => CustomSkill.Druide,
+        CustomClass.Occultiste => CustomSkill.Occultiste,
         _ => CustomSkill.Invalid,
       };
     }

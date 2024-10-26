@@ -491,6 +491,37 @@
 
     public const int DruideFureurDesFlots = 1741;
 
+    public const int OccultisteFourberieMagique = 1742;
+    public const int OccultisteContactDoutremonde = 1743;
+    public const int DechargeDechirante = 1744;
+    public const int ArmureDesOmbres = 1745;
+    public const int PasAerien = 1746;
+    public const int VisionDiabolique = 1747;
+    public const int LameDevorante = 1748;
+    public const int EspritOcculte = 1749;
+    public const int ChatimentOcculte = 1750;
+    public const int VigueurDemoniaque = 1751;
+    public const int DoubleVue = 1752;
+    public const int DonPelagique = 1753;
+    public const int DonDuProtecteur = 1754;
+    public const int MaitreDesChaines = 1755;
+    public const int BuveuseDeVie = 1756;
+    public const int MasqueDesMilleVisages = 1757;
+    public const int MaitreDesFormes = 1758;
+    public const int VisionsBrumeuses = 1759;
+    public const int UnParmiLesOmbres = 1760;
+    public const int SautDoutremonde = 1761;
+    public const int PacteDeLaLame = 1762;
+    public const int PacteDeLaChaine = 1763;
+    public const int PacteDuTome = 1764;
+    public const int LameAssoiffee = 1765;
+    public const int VisionsDesRoyaumesLointains = 1766;
+    public const int MurmuresDuTombeau = 1767;
+    public const int OeilDeLaSorciere = 1768;
+    public const int DechargeRepulsive = 1769;
+
+    public const int AttaqueSupplementaire = 1770;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -1080,6 +1111,8 @@
 
     public const int DruideCercleSelenite = 20630;
     public const int DruideCerclePelagique = 20631;
+
+    public const int Occultiste = 20632;
 
     public const int Invalid = 65535;
   }

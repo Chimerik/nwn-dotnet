@@ -16,7 +16,7 @@
     public const byte Monk = 44;
     public const byte RogueArcaneTrickster = 45;
     public const byte EldritchKnight = 46;
-    public const byte Warlock = 47;
+    public const byte Occultiste = 47;
     /*public const byte Champion = 44;
     public const byte Warmaster = 45;
     public const byte EldritchKnight = 46;

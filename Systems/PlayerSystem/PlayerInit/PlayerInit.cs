@@ -450,6 +450,7 @@ namespace NWN.Systems
         InitializeSpellSelection();
         InitializeTechniqueElementaireSelection();
         InitializeMagicalSecretSelection();
+        InitializeArcaneMystiqueSelection();
         InitializeSkillProficiencySelection();
         ResetFlameBlade();
         ResetSize();

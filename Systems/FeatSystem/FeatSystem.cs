@@ -251,6 +251,9 @@ namespace NWN.Systems
         case CustomSkill.DruideSanctuaireNaturel: SanctuaireNaturel(onUseFeat.Creature); return;
         case CustomSkill.DruideLuneRadieuse: LuneRadieuse(onUseFeat.Creature); return;
         case CustomSkill.DruideFureurDesFlots: FureurDesFlots(onUseFeat.Creature); return;
+
+        case CustomSkill.OccultisteFourberieMagique: FourberieMagique(onUseFeat.Creature); return;
+        case CustomSkill.OccultisteContactDoutremonde: ContactDoutremonde(onUseFeat.Creature); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;
