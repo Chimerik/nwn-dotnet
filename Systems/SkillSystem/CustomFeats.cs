@@ -519,8 +519,12 @@
     public const int MurmuresDuTombeau = 1767;
     public const int OeilDeLaSorciere = 1768;
     public const int DechargeRepulsive = 1769;
+    public const int PacteDeLaLameInvoquer = 1770;
 
-    public const int AttaqueSupplementaire = 1770;
+    public const int AttaqueSupplementaire = 1771;
+    public const int AttaqueSupplementaire2 = 1772;
+    public const int AttaqueSupplementaire3 = 1773;
+    
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;

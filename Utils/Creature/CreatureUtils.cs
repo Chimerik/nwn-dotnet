@@ -169,6 +169,9 @@ namespace NWN.Systems
     public const string FrappeGuideeVariable = "_FRAPPE_GUIDEE";
     public static readonly CExoString FrappeGuideeVariableExo = FrappeGuideeVariable.ToExoString();
 
+    public const string PacteDeLaLameVariable = "_PACTE_DE_LA_LAME";
+    public static readonly CExoString PacteDeLaLameVariableExo = PacteDeLaLameVariable.ToExoString();
+
     public static readonly Dictionary<string, NwCreature> creatureSpawnDictionary = new();
     public static void OnMobPerception(CreatureEvents.OnPerception onPerception)
     {

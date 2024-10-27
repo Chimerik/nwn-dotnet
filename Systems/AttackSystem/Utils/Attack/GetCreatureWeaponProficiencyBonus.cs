@@ -6,8 +6,11 @@ namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static int GetCreatureWeaponProficiencyBonus(CNWSCreature creature, CNWSItem weapon)
+    public static int GetCreatureWeaponProficiencyBonus(CNWSCreature creature, CNWSItem weapon, bool pactWeapon)
     {
+      if(pactWeapon)
+        return GetCreatureProficiencyBonus(creature);
+
       if (creature.m_sTag.CompareNoCase(CreatureUtils.AnimalCompanionTagExo).ToBool()) // Si la créature est un compagnon animal, alors on ajouter le bonus de maîtrise du maître à son attaque
       {
         int bonus = GetCreatureProficiencyBonus(NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(creature.m_oidMaster));

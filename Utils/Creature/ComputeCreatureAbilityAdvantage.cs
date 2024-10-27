@@ -119,6 +119,12 @@ namespace NWN.Systems
             return true;
           }
 
+          if (creature.KnowsFeat((Feat)CustomSkill.EspritOcculte))
+          {
+            LogUtils.LogMessage("Avantage - Concentration : Esprit Occulte", LogUtils.LogType.Combat);
+            return true;
+          }
+
           if (creature.ActiveEffects.Any(e => e.Tag == EffectSystem.ConcentrationAdvantageEffectTag))
           {
             LogUtils.LogMessage("Avantage - Concentration : Métamagie", LogUtils.LogType.Combat);

@@ -113,15 +113,23 @@ namespace NWN.Systems
       else
         attackStat = attackWeapon is null || attackData.m_bRangedAttack < 1 ? Anvil.API.Ability.Strength : Anvil.API.Ability.Dexterity;
 
-      if (attackWeapon != null
-          && dexBonus > strBonus
-          && attackWeapon.m_ScriptVars.GetInt(ItemConfig.isFinesseWeaponCExoVariable) != 0)
-      {
-        attackStat = Anvil.API.Ability.Dexterity;
+      bool pactWeapon = false;
+
+      if (attackWeapon != null)
+      { 
+        if(attackWeapon.m_ScriptVars.GetObject(CreatureUtils.PacteDeLaLameVariableExo) == creature.m_idSelf)
+        {
+          attackStat = Anvil.API.Ability.Charisma;
+          pactWeapon = true;
+          LogUtils.LogMessage($"Occultiste - Arme du Pacte de la Lame", LogUtils.LogType.Combat);
+        }
+
+        if(dexBonus > strBonus && attackWeapon.m_ScriptVars.GetInt(ItemConfig.isFinesseWeaponCExoVariable) != 0)
+          attackStat = Anvil.API.Ability.Dexterity;
       }
 
       // On ajoute le bonus de maîtrise de la créature
-      int attackBonus = NativeUtils.GetCreatureWeaponProficiencyBonus(creature, attackWeapon);
+      int attackBonus = NativeUtils.GetCreatureWeaponProficiencyBonus(creature, attackWeapon, pactWeapon);
       LogUtils.LogMessage($"Bonus de maîtrise {attackBonus} {(attackBonus < 1 ? "(Arme non maîtrisée)" : "")}", LogUtils.LogType.Combat);
       
       NativeUtils.HandleCrossbowMaster(creature, targetObject, combatRound, attackBonus, attackerName);
@@ -139,6 +147,14 @@ namespace NWN.Systems
         case Anvil.API.Ability.Dexterity:
 
           LogUtils.LogMessage($"Ajout modificateur de dextérité : {dexBonus}", LogUtils.LogType.Combat);
+          attackBonus += dexBonus;
+
+          break;
+
+        case Anvil.API.Ability.Charisma:
+
+          int chaBonus = creature.m_pStats.m_nCharismaModifier > 122 ? 1 : creature.m_pStats.m_nCharismaModifier;
+          LogUtils.LogMessage($"Ajout modificateur de charisme : {chaBonus}", LogUtils.LogType.Combat);
           attackBonus += dexBonus;
 
           break;
@@ -197,7 +213,7 @@ namespace NWN.Systems
         string criticalString = "";
         string advantageString = advantage == 0 ? "" : advantage > 0 ? "Avantage - ".ColorString(StringUtils.gold) : "Désavantage - ".ColorString(ColorConstants.Red);
         int totalAttack = attackRoll + attackBonus;
-        int defensiveDuellistBonus = NativeUtils.GetDefensiveDuellistBonus(targetCreature, attackData.m_bRangedAttack);
+        int defensiveDuellistBonus = NativeUtils.GetDefensiveDuellistBonus(targetCreature, attackData.m_bRangedAttack, pactWeapon);
         int superiorityDiceBonus = 0;
         int inspirationBardique = 0;
         string inspirationString = "";
@@ -500,12 +516,12 @@ namespace NWN.Systems
           sneakAttack = NativeUtils.GetSneakAttackDamage(attacker, targetCreature, attackWeapon, attackData, combatRound);
           baseDamage += sneakAttack;
 
-          if (NativeUtils.IsCogneurLourd(attacker, attackWeapon))
+          if (NativeUtils.IsCogneurLourd(attacker, attackWeapon, false))
           {
             baseDamage += 10;
             LogUtils.LogMessage($"Cogneur Lourd : +10 dégâts", LogUtils.LogType.Combat);
           }
-          else if (NativeUtils.IsTireurDelite(attacker, attackData, attackWeapon))
+          else if (NativeUtils.IsTireurDelite(attacker, attackData, attackWeapon, false))
           {
             baseDamage += 10;
             LogUtils.LogMessage($"Tireur d'élite : +10 dégâts", LogUtils.LogType.Combat);
@@ -545,11 +561,19 @@ namespace NWN.Systems
       int dexBonus = dexMod > 122 ? dexMod - 255 : dexMod;
       int strBonus = strMod > 122 ? strMod - 255 : strMod;
       int damageBonus = 0;
+      bool pactWeapon = false;
 
       if (attackData.m_bRangedAttack > 0)
       {
         damageBonus += dexBonus;
         LogUtils.LogMessage($"Arme à distance - Ajout Dextérité ({dexBonus})", LogUtils.LogType.Combat);
+      }
+      else if(attackWeapon is not null && attackWeapon.m_ScriptVars.GetObject(CreatureUtils.PacteDeLaLameVariableExo) == attacker.m_idSelf)
+      {
+        int chaBonus = attacker.m_pStats.m_nCharismaModifier > 122 ? 1 : attacker.m_pStats.m_nCharismaModifier;
+        pactWeapon = true;
+        damageBonus += chaBonus;
+        LogUtils.LogMessage($"Ajout modificateur de charisme : {chaBonus}", LogUtils.LogType.Combat);
       }
       else if (attacker.m_pStats.GetNumLevelsOfClass(CustomClass.Monk) > 0 // Les moins utilisent leur caract la plus élevée à mains nues ou avec arme de moine
         && (attackWeapon is null || NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem).IsMonkWeapon))
@@ -604,10 +628,23 @@ namespace NWN.Systems
       LogUtils.LogMessage($"Dégâts : {baseDamage}", LogUtils.LogType.Combat);
 
       // Application des réductions du jeu de base
-      
-      baseDamage = targetObject.DoDamageImmunity(attacker, baseDamage, damageFlags, 0, 1);
-      LogUtils.LogMessage($"Application des immunités de la cible - Dégats : {baseDamage}", LogUtils.LogType.Combat);
-      baseDamage = targetObject.DoDamageResistance(attacker, baseDamage, damageFlags, 0, 1, 1, attackData.m_bRangedAttack);
+
+      if (!pactWeapon)
+      {
+        LogUtils.LogMessage($"Application des immunités de la cible - Dégats : {baseDamage}", LogUtils.LogType.Combat);
+        baseDamage = targetObject.DoDamageImmunity(attacker, baseDamage, damageFlags, 0, 1);
+      }
+      else
+      {
+        LogUtils.LogMessage($"Occultiste - Arme de Pacte - Application des immunités de la cible - Dégats : {baseDamage}", LogUtils.LogType.Combat);
+        int damageAfterImmunity = targetObject.DoDamageImmunity(attacker, baseDamage, damageFlags, 0, 1);
+
+        if (damageAfterImmunity < baseDamage)
+          baseDamage -= (baseDamage - damageAfterImmunity) / 2;
+        else
+          baseDamage = damageAfterImmunity;
+      }
+
       LogUtils.LogMessage($"Application des résistances de la cible - Dégâts : {baseDamage}", LogUtils.LogType.Combat);
       baseDamage = targetObject.DoDamageReduction(attacker, baseDamage, attacker.CalculateDamagePower(targetObject, bOffHand), 0, 1, attackData.m_bRangedAttack);
       LogUtils.LogMessage($"Application des réductions de la cible - Calcul Final - Dégâts : {baseDamage}", LogUtils.LogType.Combat);

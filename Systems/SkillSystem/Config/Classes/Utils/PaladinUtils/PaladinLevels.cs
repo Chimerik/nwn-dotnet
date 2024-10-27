@@ -114,11 +114,13 @@ namespace NWN.Systems
 
         case 5:
 
-          player.learnableSkills.TryAdd(CustomSkill.PaladinBonusAttack, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PaladinBonusAttack], player));
-          player.learnableSkills[CustomSkill.PaladinBonusAttack].LevelUp(player);
-          player.learnableSkills[CustomSkill.PaladinBonusAttack].source.Add(Category.Class);
+          player.learnableSkills.TryAdd(CustomSkill.AttaqueSupplementaire, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AttaqueSupplementaire], player));
+          player.learnableSkills[CustomSkill.AttaqueSupplementaire].LevelUp(player);
+          player.learnableSkills[CustomSkill.AttaqueSupplementaire].source.Add(Category.Class);
 
-          player.oid.LoginCreature.BaseAttackCount += 1; break;
+          CreatureUtils.InitializeNumAttackPerRound(player.oid.LoginCreature);
+            
+            break;
 
         case 6:
 

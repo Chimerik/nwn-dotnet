@@ -51,12 +51,12 @@ namespace NWN.Systems
 
       if (weapon is not null)
       {
-        if (IsCogneurLourd(attacker, weapon))
+        if (IsCogneurLourd(attacker, weapon, false))
         {
           attackBonus -= 5;
           LogUtils.LogMessage("Cogneur Lourd : -5 BA", LogUtils.LogType.Combat);
         }
-        else if (IsTireurDelite(attacker, attackData, weapon))
+        else if (IsTireurDelite(attacker, attackData, weapon, false))
         {
           attackBonus -= 5;
           LogUtils.LogMessage("Tireur d'élite : -5 BA", LogUtils.LogType.Combat);

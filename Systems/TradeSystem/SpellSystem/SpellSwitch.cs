@@ -98,6 +98,11 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case Spell.InflictMinorWounds:
+          SpellSystem.SimulacreDeVie(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         /*case Spell.FleshToStone:
           Petrify(onSpellCast);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
@@ -302,6 +307,11 @@ namespace NWN.Systems
 
       switch (spell.Id)
       {
+        case CustomSpell.DechargeOcculte:
+          SpellSystem.DechargeOcculte(oCaster, spell, spellEntry, target, castingClass);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.Augure:
           SpellSystem.Augure(oCaster, spell, spellEntry);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
@@ -716,6 +726,11 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case CustomSpell.Levitation:
+          concentrationTargets.AddRange(SpellSystem.Levitation(oCaster, spell, spellEntry, castingClass, target));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.FleauDinsectes:
           concentrationTargets.AddRange(SpellSystem.FleauDinsectes(oCaster, spell, spellEntry, targetLocation, castingClass));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
@@ -876,6 +891,19 @@ namespace NWN.Systems
 
             if(spellLevel == chatimentLevel)
               player.oid.LoginCreature.DecrementRemainingFeatUses((Feat)CustomSkill.ChatimentDivin);
+          }
+
+          if(castingClass.ClassType == (ClassType)CustomClass.Occultiste)
+          {
+            var occultisteClass = castingCreature.GetClassInfo((ClassType)CustomClass.Occultiste);
+            byte remainingSlots = occultisteClass.GetRemainingSpellSlots(1);
+            byte consumedSlots = (byte)(remainingSlots - 1);
+
+            for (byte i = 1; i < 10; i++)
+              if(i != spell.GetSpellLevelForClass((ClassType)CustomClass.Occultiste))
+                occultisteClass.SetRemainingSpellSlots(i, consumedSlots);
+
+            castingCreature.SetFeatRemainingUses((Feat)CustomSkill.ChatimentOcculte, consumedSlots);
           }
         }
 

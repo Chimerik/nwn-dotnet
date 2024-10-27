@@ -76,11 +76,13 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("spellSelection", out var spell5)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 0, 1));
           else ((SpellSelectionWindow)spell5).CreateWindow(ClassType.Ranger, 0, 1);
 
-          player.learnableSkills.TryAdd(CustomSkill.RangerBonusAttack, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.RangerBonusAttack], player));
-          player.learnableSkills[CustomSkill.RangerBonusAttack].LevelUp(player);
-          player.learnableSkills[CustomSkill.RangerBonusAttack].source.Add(Category.Class);
+          player.learnableSkills.TryAdd(CustomSkill.AttaqueSupplementaire, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AttaqueSupplementaire], player));
+          player.learnableSkills[CustomSkill.AttaqueSupplementaire].LevelUp(player);
+          player.learnableSkills[CustomSkill.AttaqueSupplementaire].source.Add(Category.Class);
 
-          player.oid.LoginCreature.BaseAttackCount += 1; break;
+          CreatureUtils.InitializeNumAttackPerRound(player.oid.LoginCreature);
+          
+          break;
 
         case 6:
 

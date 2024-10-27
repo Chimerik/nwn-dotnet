@@ -612,6 +612,7 @@ namespace NWN.Systems
                     ClercUtils.RestoreClercDomaine(player.oid.LoginCreature);
                     EnsoUtils.RestoreSorcerySource(player.oid.LoginCreature);
                     DruideUtils.RestoreFormeSauvage(player.oid.LoginCreature);
+                    player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.DonDuProtecteur, (byte)(player.oid.LoginCreature.GetAbilityModifier(Ability.Charisma) > 1 ? player.oid.LoginCreature.GetAbilityModifier(Ability.Charisma) : 1));
 
                     if (player.oid.LoginCreature.Race.Id == CustomRace.HalfOrc)
                     {
@@ -669,6 +670,9 @@ namespace NWN.Systems
 
                     EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.DivinationVisionEffectTag);
                     SpellUtils.DispelConcentrationEffects(player.oid.LoginCreature);
+
+                    if (player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ChatimentOcculte))
+                      player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ChatimentOcculte, (byte)(player.oid.LoginCreature.GetClassInfo((ClassType)CustomClass.Occultiste).GetRemainingSpellSlots(1)));
 
                     break;
                 }

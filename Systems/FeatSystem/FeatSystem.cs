@@ -254,6 +254,10 @@ namespace NWN.Systems
 
         case CustomSkill.OccultisteFourberieMagique: FourberieMagique(onUseFeat.Creature); return;
         case CustomSkill.OccultisteContactDoutremonde: ContactDoutremonde(onUseFeat.Creature); return;
+        case CustomSkill.PacteDeLaLame: PacteDeLaLame(onUseFeat.Creature); return;
+        case CustomSkill.PacteDeLaLameInvoquer: PacteDeLaLameInvoquer(onUseFeat.Creature); return;
+        case CustomSkill.ChatimentOcculte: ChatimentOcculte(onUseFeat.Creature); return;
+        case CustomSkill.DonDuProtecteur: DonDuProtecteur(onUseFeat.Creature, onUseFeat.TargetObject); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

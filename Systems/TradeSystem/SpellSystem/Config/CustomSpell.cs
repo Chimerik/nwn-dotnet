@@ -137,5 +137,7 @@
     public const int ImmolationVolontaire = 974;       
     public const int VapeurElementaire = 975;       
     public const int RespirationAquatique = 976;       
+    public const int DechargeOcculte = 977;       
+    public const int Levitation = 978;       
   }
 }

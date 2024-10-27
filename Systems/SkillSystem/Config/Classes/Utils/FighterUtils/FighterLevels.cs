@@ -73,11 +73,13 @@ namespace NWN.Systems
 
         case 5:
 
-          player.learnableSkills.TryAdd(CustomSkill.FighterBonusAttack, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterBonusAttack], player));
-          player.learnableSkills[CustomSkill.FighterBonusAttack].LevelUp(player);
-          player.learnableSkills[CustomSkill.FighterBonusAttack].source.Add(Category.Class);
+          player.learnableSkills.TryAdd(CustomSkill.AttaqueSupplementaire, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AttaqueSupplementaire], player));
+          player.learnableSkills[CustomSkill.AttaqueSupplementaire].LevelUp(player);
+          player.learnableSkills[CustomSkill.AttaqueSupplementaire].source.Add(Category.Class);
 
-          player.oid.LoginCreature.BaseAttackCount += 1; break;
+          CreatureUtils.InitializeNumAttackPerRound(player.oid.LoginCreature);
+
+          break;
 
         case 6:
 
@@ -103,10 +105,11 @@ namespace NWN.Systems
 
         case 11:
 
-          player.learnableSkills.TryAdd(CustomSkill.FighterBonusAttack, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterBonusAttack], player));
-          player.learnableSkills[CustomSkill.FighterBonusAttack].LevelUp(player);
+          player.learnableSkills.TryAdd(CustomSkill.AttaqueSupplementaire2, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AttaqueSupplementaire2], player));
+          player.learnableSkills[CustomSkill.AttaqueSupplementaire2].LevelUp(player);
+          player.learnableSkills[CustomSkill.AttaqueSupplementaire2].source.Add(Category.Class);
 
-          player.oid.LoginCreature.BaseAttackCount += 1;
+          CreatureUtils.InitializeNumAttackPerRound(player.oid.LoginCreature);
 
           break;
 
@@ -157,10 +160,11 @@ namespace NWN.Systems
 
         case 20:
 
-          player.learnableSkills.TryAdd(CustomSkill.FighterBonusAttack, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterBonusAttack], player));
-          player.learnableSkills[CustomSkill.FighterBonusAttack].LevelUp(player);
+          player.learnableSkills.TryAdd(CustomSkill.AttaqueSupplementaire3, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AttaqueSupplementaire3], player));
+          player.learnableSkills[CustomSkill.AttaqueSupplementaire3].LevelUp(player);
+          player.learnableSkills[CustomSkill.AttaqueSupplementaire3].source.Add(Category.Class);
 
-          player.oid.LoginCreature.BaseAttackCount += 1;
+          CreatureUtils.InitializeNumAttackPerRound(player.oid.LoginCreature);
 
           break;
       }

@@ -50,11 +50,11 @@ namespace NWN.Systems
 
         case 6:
 
-          player.learnableSkills.TryAdd(CustomSkill.VaillanceBonusAttack, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.VaillanceBonusAttack], player));
-          player.learnableSkills[CustomSkill.VaillanceBonusAttack].LevelUp(player);
-          player.learnableSkills[CustomSkill.VaillanceBonusAttack].source.Add(Category.Class);
+          player.learnableSkills.TryAdd(CustomSkill.AttaqueSupplementaire, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AttaqueSupplementaire], player));
+          player.learnableSkills[CustomSkill.AttaqueSupplementaire].LevelUp(player);
+          player.learnableSkills[CustomSkill.AttaqueSupplementaire].source.Add(Category.Class);
 
-          player.oid.LoginCreature.BaseAttackCount += 1;
+          CreatureUtils.InitializeNumAttackPerRound(player.oid.LoginCreature);
 
           break;
 

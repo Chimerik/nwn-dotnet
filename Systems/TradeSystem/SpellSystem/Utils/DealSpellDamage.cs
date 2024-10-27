@@ -8,7 +8,7 @@ namespace NWN.Systems
 {
   public static partial class SpellUtils
   {
-    public static int DealSpellDamage(NwGameObject target, int casterLevel, SpellEntry spellEntry, int nbDices, NwGameObject oCaster, byte spellLevel, SavingThrowResult saveResult = SavingThrowResult.Failure, bool noLogs = false)
+    public static int DealSpellDamage(NwGameObject target, int casterLevel, SpellEntry spellEntry, int nbDices, NwGameObject oCaster, byte spellLevel, SavingThrowResult saveResult = SavingThrowResult.Failure, bool noLogs = false, NwClass casterClass = null)
     {
       if (saveResult == SavingThrowResult.Immune)
         return 0;
@@ -56,7 +56,10 @@ namespace NWN.Systems
           roll = isEvocateurSurcharge ? spellEntry.damageDice : NwRandom.Roll(Utils.random, spellEntry.damageDice);
           roll = isFureurDestructrice && Utils.In(appliedDamage, DamageType.Electrical, DamageType.Sonic) ? spellEntry.damageDice : roll;
 
-          if(castingCreature is not null)
+          roll = isElementalist && roll < 2 ? 2 : roll;
+
+          if (castingCreature is not null)
+          {
             switch (appliedDamage)
             {
               case DamageType.Piercing:
@@ -70,7 +73,8 @@ namespace NWN.Systems
                 break;
             }
 
-          roll = isElementalist && roll < 2 ? 2 : roll;
+            roll += OccultisteUtils.DechargeDechirante(castingCreature, spellLevel, casterClass);
+          } 
 
           if(amplifiedDices > 0)
           {
@@ -78,6 +82,8 @@ namespace NWN.Systems
             roll = tempRoll > roll ? tempRoll : roll;
             amplifiedDices -= 1;
           }
+
+
 
           damage += roll;
           logString += $"{roll} + ";
@@ -97,8 +103,8 @@ namespace NWN.Systems
           damage = ClercUtils.GetAttenuationElementaireReducedDamage(targetCreature, damage, appliedDamage);
           damage = HandleResistanceBypass(targetCreature, isElementalist, isEvocateurSurcharge, damage, appliedDamage);
         }
-        EnsoUtils.HandleCoeurDeLaTempete(castingCreature, appliedDamage);
-        
+
+        EnsoUtils.HandleCoeurDeLaTempete(castingCreature, appliedDamage); 
 
         if (oCaster is not null)
           NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(spellEntry.damageVFX), Effect.Damage(damage, appliedDamage))));

@@ -72,11 +72,11 @@ namespace NWN.Systems
 
         case 5:
 
-          player.learnableSkills.TryAdd(CustomSkill.BarbarianBonusAttack, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BarbarianBonusAttack], player));
-          player.learnableSkills[CustomSkill.BarbarianBonusAttack].LevelUp(player);
-          player.learnableSkills[CustomSkill.BarbarianBonusAttack].source.Add(Category.Class);
+          player.learnableSkills.TryAdd(CustomSkill.AttaqueSupplementaire, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AttaqueSupplementaire], player));
+          player.learnableSkills[CustomSkill.AttaqueSupplementaire].LevelUp(player);
+          player.learnableSkills[CustomSkill.AttaqueSupplementaire].source.Add(Category.Class);
 
-          player.oid.LoginCreature.BaseAttackCount += 1;
+          CreatureUtils.InitializeNumAttackPerRound(player.oid.LoginCreature);
 
           player.learnableSkills.TryAdd(CustomSkill.BarbarianFastMovement, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BarbarianFastMovement], player));
           player.learnableSkills[CustomSkill.BarbarianFastMovement].LevelUp(player);

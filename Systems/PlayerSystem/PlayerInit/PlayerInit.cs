@@ -411,7 +411,7 @@ namespace NWN.Systems
         InitializeLearnables();
         InitializeJob();
         CheckPlayerConnectionInfo();
-        InitializeNumAttackPerRound();
+        CreatureUtils.InitializeNumAttackPerRound(oid.LoginCreature);
         HandleMailNotification();
         ApplyElvenSleepImmunity();
         ApplyWoodElfSpeed();
@@ -480,6 +480,8 @@ namespace NWN.Systems
         ApplyFrappeMeurtriere();
         ApplyThiefReflex();
         ApplyAbjurationWard();
+        ApplyChatimentOcculte();
+        ApplyVisionDiabolique();
         ApplyChatimentAmeliore();
         ApplyMagieDeGuerre();
         ApplyFrappeOcculte();
