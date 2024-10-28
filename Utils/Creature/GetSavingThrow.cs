@@ -9,7 +9,9 @@ namespace NWN.Systems
     {
       if (spellEntry is not null && attacker is NwCreature caster)
       {
-        if(NwSpell.FromSpellId(spellEntry.RowIndex).SpellSchool == SpellSchool.Evocation && caster.KnowsFeat((Feat)CustomSkill.EvocateurFaconneurDeSorts)
+        var spellSchool = NwSpell.FromSpellId(spellEntry.RowIndex).SpellSchool;
+
+        if(spellSchool == SpellSchool.Evocation && caster.KnowsFeat((Feat)CustomSkill.EvocateurFaconneurDeSorts)
           && !caster.IsReactionTypeHostile(target))
           return SavingThrowResult.Immune;
 
@@ -18,6 +20,9 @@ namespace NWN.Systems
           EffectUtils.RemoveTaggedParamEffect(caster, CustomSkill.EnsoPrudence, EffectSystem.MetamagieEffectTag);
           return SavingThrowResult.Immune;
         }
+
+        if (spellSchool == SpellSchool.Illusion && target.KnowsFeat((Feat)CustomSkill.OeilDeSorciere))
+          return SavingThrowResult.Success;
       }      
 
       SpellConfig.SavingThrowFeedback feedback = new();

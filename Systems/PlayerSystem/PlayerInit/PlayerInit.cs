@@ -480,6 +480,7 @@ namespace NWN.Systems
         ApplyFrappeMeurtriere();
         ApplyThiefReflex();
         ApplyAbjurationWard();
+        ApplyOeilDeSorciere();
         ApplyChatimentOcculte();
         ApplyVisionDiabolique();
         ApplyChatimentAmeliore();

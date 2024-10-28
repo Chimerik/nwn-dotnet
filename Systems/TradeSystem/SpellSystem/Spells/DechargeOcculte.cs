@@ -25,6 +25,9 @@ namespace NWN.Systems
           default: return;
         }
 
+        if (oCaster is NwCreature caster && caster.KnowsFeat((Feat)CustomSkill.DechargeRepulsive))
+          target.ApplyEffect(EffectDuration.Temporary, Effect.MovementSpeedDecrease(50), NwTimeSpan.FromRounds(1));
+
         SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, nbDice, oCaster, spell.GetSpellLevelForClass(casterClass), casterClass:casterClass);
       }
     }

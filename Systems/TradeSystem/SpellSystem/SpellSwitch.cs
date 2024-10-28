@@ -731,6 +731,11 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case CustomSpell.BondSuperieur:
+          SpellSystem.BondSuperieur(oCaster, spell, spellEntry, castingClass, target);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.FleauDinsectes:
           concentrationTargets.AddRange(SpellSystem.FleauDinsectes(oCaster, spell, spellEntry, targetLocation, castingClass));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;

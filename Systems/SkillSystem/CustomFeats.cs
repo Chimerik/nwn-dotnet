@@ -517,7 +517,7 @@
     public const int LameAssoiffee = 1765;
     public const int VisionsDesRoyaumesLointains = 1766;
     public const int MurmuresDuTombeau = 1767;
-    public const int OeilDeLaSorciere = 1768;
+    public const int OeilDeSorciere = 1768;
     public const int DechargeRepulsive = 1769;
     public const int PacteDeLaLameInvoquer = 1770;
 

@@ -139,5 +139,6 @@
     public const int RespirationAquatique = 976;       
     public const int DechargeOcculte = 977;       
     public const int Levitation = 978;       
+    public const int BondSuperieur = 979;       
   }
 }
