@@ -37,10 +37,10 @@ namespace NWN.Systems
       
       switch (customSkillId)
       {
-        //case CustomSkill.OccultisteArchifee: HandleArchifeeLevelUp(player, playerClass.currentLevel); break;
+        case CustomSkill.OccultisteArchifee: HandleArchifeeLevelUp(player, playerClass.currentLevel); break;
       }
 
-      player.ApplyClassLevelUp(playerClass, CustomClass.Druid);
+      player.ApplyClassLevelUp(playerClass, CustomClass.Occultiste);
 
       return true;
     }

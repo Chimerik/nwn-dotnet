@@ -205,6 +205,13 @@ namespace NWN.Systems
       onExitSanctuaireNaturelCallback = scriptHandleFactory.CreateUniqueHandler(onExitSanctuaireNaturel);
 
       onIntervalPacteDeLaLameDispelCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalPacteDeLaLameDispel);
+
+      onIntervalCooldownCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalCooldown);
+      onRemoveCooldownCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveCooldown);
+
+      onIntervalForceFantasmagoriqueCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalForceFantasmagorique);
+
+      onRemoveDefensesEnjoleusesCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveDefensesEnjoleuses);
     }
   }
 }

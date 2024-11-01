@@ -1,8 +1,6 @@
 ﻿using Anvil.API.Events;
 using Anvil.API;
 using NWN.Core;
-using System.Linq;
-using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {

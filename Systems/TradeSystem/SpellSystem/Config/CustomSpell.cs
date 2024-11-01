@@ -140,5 +140,15 @@
     public const int DechargeOcculte = 977;       
     public const int Levitation = 978;       
     public const int BondSuperieur = 979;       
+    public const int BuveuseDeVieRadiant = 981;       
+    public const int BuveuseDeVieNecrotique = 982;       
+    public const int BuveuseDeViePsychique = 983;       
+    public const int ChangementDapparence = 984;       
+    public const int ImageSilencieuse = 985;       
+    public const int ForceFantasmagorique = 986;       
+    public const int Clignotement = 987;
+    public const int OrbeChromatiqueTonnerre = 988;
+    public const int SavoirAncestralForce = 989;
+    public const int MaledictionCharisme = 990;
   }
 }

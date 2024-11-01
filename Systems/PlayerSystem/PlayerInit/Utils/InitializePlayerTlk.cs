@@ -1,4 +1,5 @@
 ﻿using Anvil.API;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace NWN.Systems
 {
@@ -225,7 +226,7 @@ namespace NWN.Systems
         }
         else if (learnableSkills.ContainsKey(CustomSkill.EnsorceleurTempete))
         {
-          new StrRef(9).SetPlayerOverride(oid, "Sorcellerie de la Temtête");
+          new StrRef(9).SetPlayerOverride(oid, "Sorcellerie de la Tempête");
           oid.SetTextureOverride("ensorceleur", "enso_tempete");
         }
         
@@ -243,6 +244,12 @@ namespace NWN.Systems
         {
           new StrRef(3).SetPlayerOverride(oid, "Cercle Pélagique");
           oid.SetTextureOverride("druide", "druide_mer");
+        }
+
+        if (learnableSkills.ContainsKey(CustomSkill.OccultisteArchifee))
+        {
+          NwClass.FromClassId(CustomClass.Occultiste).Name.SetPlayerOverride(oid, "Mécène Archifée");
+          oid.SetTextureOverride("occultiste", "warlock_archfey");
         }
       }
     }

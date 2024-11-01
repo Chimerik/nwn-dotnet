@@ -524,6 +524,13 @@
     public const int AttaqueSupplementaire = 1771;
     public const int AttaqueSupplementaire2 = 1772;
     public const int AttaqueSupplementaire3 = 1773;
+
+    public const int FouleeRafraichissante = 1774;
+    public const int FouleeProvocatrice = 1775;
+    public const int FouleeEvanescente = 1776;
+    public const int FouleeRedoutable = 1777;
+    public const int DefensesEnjoleuses = 1778;
+    public const int FouleeEnjoleuse = 1779;
     
 
     /*public const int AlchemistEfficiency = 1336;
@@ -1117,6 +1124,7 @@
     public const int DruideCerclePelagique = 20631;
 
     public const int Occultiste = 20632;
+    public const int OccultisteArchifee = 20633;
 
     public const int Invalid = 65535;
   }

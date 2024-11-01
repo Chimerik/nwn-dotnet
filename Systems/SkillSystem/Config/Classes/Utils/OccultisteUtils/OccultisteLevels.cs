@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using System.Security.Cryptography;
-using Anvil.API;
+﻿using Anvil.API;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.PlayerSystem.Player;
 using static NWN.Systems.SkillSystem;
@@ -46,12 +44,18 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("spellSelection", out var cantrip1)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.Occultiste, 2, 2));
           else ((SpellSelectionWindow)cantrip1).CreateWindow((ClassType)CustomClass.Occultiste, 2, 2);
 
+          if (!player.windows.TryGetValue("invocationOcculteSelection", out var invo1)) player.windows.Add("invocationOcculteSelection", new InvocationOcculteSelectionWindow(player, 1));
+          else ((InvocationOcculteSelectionWindow)invo1).CreateWindow(1);
+
           break;
 
         case 2:
 
           if (!player.windows.TryGetValue("spellSelection", out var spell2)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.Occultiste, nbSpells:1));
           else ((SpellSelectionWindow)spell2).CreateWindow((ClassType)CustomClass.Occultiste, nbSpells: 1);
+
+          if (!player.windows.TryGetValue("invocationOcculteSelection", out var invo2)) player.windows.Add("invocationOcculteSelection", new InvocationOcculteSelectionWindow(player, 2));
+          else ((InvocationOcculteSelectionWindow)invo2).CreateWindow(2);
 
           break;
 
@@ -83,6 +87,9 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("spellSelection", out var spell5)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.Occultiste, nbSpells: 1));
           else ((SpellSelectionWindow)spell5).CreateWindow((ClassType)CustomClass.Occultiste, nbSpells: 1);
 
+          if (!player.windows.TryGetValue("invocationOcculteSelection", out var invo5)) player.windows.Add("invocationOcculteSelection", new InvocationOcculteSelectionWindow(player, 2));
+          else ((InvocationOcculteSelectionWindow)invo5).CreateWindow(2);
+
           break;
 
         case 6:
@@ -96,6 +103,9 @@ namespace NWN.Systems
 
           if (!player.windows.TryGetValue("spellSelection", out var spell7)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.Occultiste, nbSpells: 1));
           else ((SpellSelectionWindow)spell7).CreateWindow((ClassType)CustomClass.Occultiste, nbSpells: 1);
+
+          if (!player.windows.TryGetValue("invocationOcculteSelection", out var invo7)) player.windows.Add("invocationOcculteSelection", new InvocationOcculteSelectionWindow(player, 1));
+          else ((InvocationOcculteSelectionWindow)invo7).CreateWindow(1);
 
           break;
 
@@ -113,6 +123,9 @@ namespace NWN.Systems
 
           if (!player.windows.TryGetValue("spellSelection", out var spell9)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.Occultiste, nbSpells: 1));
           else ((SpellSelectionWindow)spell9).CreateWindow((ClassType)CustomClass.Occultiste, nbSpells: 1);
+
+          if (!player.windows.TryGetValue("invocationOcculteSelection", out var invo9)) player.windows.Add("invocationOcculteSelection", new InvocationOcculteSelectionWindow(player, 1));
+          else ((InvocationOcculteSelectionWindow)invo9).CreateWindow(1);
 
           break;
 
@@ -138,6 +151,9 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("featSelection", out var feat12)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
           else ((FeatSelectionWindow)feat12).CreateWindow();
 
+          if (!player.windows.TryGetValue("invocationOcculteSelection", out var invo12)) player.windows.Add("invocationOcculteSelection", new InvocationOcculteSelectionWindow(player, 1));
+          else ((InvocationOcculteSelectionWindow)invo12).CreateWindow(1);
+
           break;
 
         case 13:
@@ -158,6 +174,9 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("arcaneMystiqueSelection", out var arcane15)) player.windows.Add("arcaneMystiqueSelection", new ArcaneMystiqueSelectionWindow(player, 8));
           else ((ArcaneMystiqueSelectionWindow)arcane15).CreateWindow(8);
 
+          if (!player.windows.TryGetValue("invocationOcculteSelection", out var invo15)) player.windows.Add("invocationOcculteSelection", new InvocationOcculteSelectionWindow(player, 1));
+          else ((InvocationOcculteSelectionWindow)invo15).CreateWindow(1);
+
           break;
 
         case 16:
@@ -174,6 +193,13 @@ namespace NWN.Systems
 
           if (!player.windows.TryGetValue("arcaneMystiqueSelection", out var arcane17)) player.windows.Add("arcaneMystiqueSelection", new ArcaneMystiqueSelectionWindow(player, 9));
           else ((ArcaneMystiqueSelectionWindow)arcane17).CreateWindow(9);
+
+          break;
+
+        case 18:
+
+          if (!player.windows.TryGetValue("invocationOcculteSelection", out var invo18)) player.windows.Add("invocationOcculteSelection", new InvocationOcculteSelectionWindow(player, 1));
+          else ((InvocationOcculteSelectionWindow)invo18).CreateWindow(1);
 
           break;
 

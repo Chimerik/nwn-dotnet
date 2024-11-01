@@ -310,6 +310,10 @@ namespace NWN.Systems
                       Druide.HandleCerclePelagiqueLevelUp(player, 3);
                       category = Category.DruidSubclass;
                       break;
+                    case CustomSkill.OccultisteArchifee:
+                      Occultiste.HandleArchifeeLevelUp(player, 3);
+                      category = Category.OccultisteSubClass;
+                      break;
                   }
 
                   player.learnableSkills.Remove(player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value);

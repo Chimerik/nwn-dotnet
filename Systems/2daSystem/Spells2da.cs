@@ -22,6 +22,7 @@ namespace NWN.Systems
     public bool requiresVerbal { get; private set; }
     public bool bardMagicalSecret { get; private set; }
     public bool hideFromRanger { get; private set; }
+    public bool hideFromWarlock { get; private set; }
     public bool ritualSpell { get; private set; }
     public int range { get; private set; }
 
@@ -50,6 +51,7 @@ namespace NWN.Systems
       requiresVerbal = entry.GetString("VS")?.Contains('v') ?? false;
       bardMagicalSecret = entry.GetBool("BardMagicalSecret").GetValueOrDefault(false);
       hideFromRanger = entry.GetBool("HideFromRanger").GetValueOrDefault(false);
+      hideFromWarlock = entry.GetBool("HideFromWarlock").GetValueOrDefault(false);
       ritualSpell = entry.GetBool("Rituel").GetValueOrDefault(false);
 
       range = entry.GetString("Duration") switch

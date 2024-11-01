@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Security.Cryptography;
+using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -75,12 +76,33 @@ namespace NWN.Systems
       OverrideTlkEntry(190153, "LISEZ-MOI");
       OverrideTlkEntry(190154, "Les choix de races, de classe et de caractéristiques de cette partie de l'interface sont inutiles.\n\nEn jeu, un miroir vous permettra d'accéder à des options de personnalisation approfondies.\n\nIl vous faudra alors valider toutes les étapes avant que le capitaine ne vous autorise à poursuivre votre voyage.");
       OverrideTlkEntry(190155, "Les Larmes des Erylies - Editeur de personnage");
-      OverrideTlkEntry(190619, "Augmentation de l'immunité aux dégâts (poison)");
-      OverrideTlkEntry(190620, "Augmentation de l'immunité aux dégâts (nécrotique)");
-      OverrideTlkEntry(190621, "Augmentation de l'immunité aux dégâts (psychique)");
+      OverrideTlkEntry(190619, "Immunité aux dégâts (poison)");
+      OverrideTlkEntry(190620, "Immunité aux dégâts (nécrotique)");
+      OverrideTlkEntry(190621, "Immunité aux dégâts (psychique)");
       OverrideTlkEntry(190807, "Terrain Difficile");
-      OverrideTlkEntry(191025, "Glacé"); 
-      OverrideTlkEntry(191032, "Occultiste"); 
+      OverrideTlkEntry(191025, "Glacé");
+      OverrideTlkEntry(191106, "Immunité aux dégâts (tranchant)"); 
+      OverrideTlkEntry(191107, "Immunité aux dégâts (contondant)"); 
+      OverrideTlkEntry(191108, "Immunité aux dégâts (perçant)"); 
+      OverrideTlkEntry(191109, "Vulnérabilité aux dégâts (tranchant)"); 
+      OverrideTlkEntry(191110, "Vulnérabilité aux dégâts (contondant)"); 
+      OverrideTlkEntry(191111, "Vulnérabilité aux dégâts (perçant)"); 
+      OverrideTlkEntry(191112, "Vulnérabilité aux dégâts (poison)"); 
+      OverrideTlkEntry(191113, "Vulnérabilité aux dégâts (nécrotique)"); 
+      OverrideTlkEntry(191114, "Vulnérabilité aux dégâts (psychique)"); 
+      OverrideTlkEntry(191115, "Résistance aux dégâts (force)"); 
+      OverrideTlkEntry(191116, "Résistance aux dégâts (acide)"); 
+      OverrideTlkEntry(191117, "Résistance aux dégâts (froid)"); 
+      OverrideTlkEntry(191118, "Résistance aux dégâts (radiant)"); 
+      OverrideTlkEntry(191119, "Résistance aux dégâts (électricité)"); 
+      OverrideTlkEntry(191120, "Résistance aux dégâts (feu)"); 
+      OverrideTlkEntry(191121, "Résistance aux dégâts (tonnerre)"); 
+      OverrideTlkEntry(191122, "Résistance aux dégâts (tranchant)"); 
+      OverrideTlkEntry(191123, "Résistance aux dégâts (contondant)"); 
+      OverrideTlkEntry(191124, "Résistance aux dégâts (perçant)"); 
+      OverrideTlkEntry(191125, "Résistance aux dégâts (poison)"); 
+      OverrideTlkEntry(191126, "Résistance aux dégâts (nécrotique)"); 
+      OverrideTlkEntry(191127, "Résistance aux dégâts (psychique)"); 
 
       foreach (var entry in Feats2da.featTable)
       {

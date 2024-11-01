@@ -123,8 +123,7 @@ namespace NWN.Systems
           pactWeapon = true;
           LogUtils.LogMessage($"Occultiste - Arme du Pacte de la Lame", LogUtils.LogType.Combat);
         }
-
-        if(dexBonus > strBonus && attackWeapon.m_ScriptVars.GetInt(ItemConfig.isFinesseWeaponCExoVariable) != 0)
+        else if(dexBonus > strBonus && attackWeapon.m_ScriptVars.GetInt(ItemConfig.isFinesseWeaponCExoVariable) != 0)
           attackStat = Anvil.API.Ability.Dexterity;
       }
 
@@ -155,7 +154,7 @@ namespace NWN.Systems
 
           int chaBonus = creature.m_pStats.m_nCharismaModifier > 122 ? 1 : creature.m_pStats.m_nCharismaModifier;
           LogUtils.LogMessage($"Ajout modificateur de charisme : {chaBonus}", LogUtils.LogType.Combat);
-          attackBonus += dexBonus;
+          attackBonus += chaBonus;
 
           break;
       }
@@ -617,6 +616,7 @@ namespace NWN.Systems
         baseDamage -= NativeUtils.HandleParade(targetCreature);
         baseDamage -= NativeUtils.HandleParadeDeProjectile(targetCreature, attackData.m_bRangedAttack.ToBool());
         baseDamage /= NativeUtils.HandleEsquiveInstinctive(targetCreature);
+        baseDamage /= NativeUtils.HandleDefensesEnjoleuses(targetCreature);
       }
 
       if (attacker.m_ScriptVars.GetInt(CreatureUtils.TirAffaiblissantVariableExo).ToBool())
@@ -646,7 +646,7 @@ namespace NWN.Systems
       }
 
       LogUtils.LogMessage($"Application des résistances de la cible - Dégâts : {baseDamage}", LogUtils.LogType.Combat);
-      baseDamage = targetObject.DoDamageReduction(attacker, baseDamage, attacker.CalculateDamagePower(targetObject, bOffHand), 0, 1, attackData.m_bRangedAttack);
+      baseDamage = targetObject.DoDamageReduction(attacker, baseDamage, attacker.CalculateDamagePower(targetObject, bOffHand), 0, 1, attackData.m_bRangedAttack);   
       LogUtils.LogMessage($"Application des réductions de la cible - Calcul Final - Dégâts : {baseDamage}", LogUtils.LogType.Combat);
 
       if(attacker.m_ScriptVars.GetInt(CreatureUtils.AspectTigreMalusVariableExo) > 1)

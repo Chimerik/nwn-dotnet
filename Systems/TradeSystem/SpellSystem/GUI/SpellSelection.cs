@@ -256,6 +256,9 @@ namespace NWN.Systems
             if (spellClass == ClassType.Ranger && entry.hideFromRanger)
               continue;
 
+            if (spellClass == (ClassType)CustomClass.Occultiste && entry.hideFromWarlock)
+              continue;
+
             if (nbRestrictedSpells > 0 && nbSpells < 1 && spell.GetSpellLevelForClass(spellClass) > 0
               && (spellClass == (ClassType)CustomClass.RogueArcaneTrickster && !Utils.In(spell.SpellSchool, SpellSchool.Enchantment, SpellSchool.Illusion)
                 || spellClass == (ClassType)CustomClass.EldritchKnight && !Utils.In(spell.SpellSchool, SpellSchool.Evocation, SpellSchool.Abjuration)))

@@ -449,6 +449,7 @@ namespace NWN.Systems
         InitializeMaitriseDesSortsChoice();
         InitializeSpellSelection();
         InitializeTechniqueElementaireSelection();
+        InitializeInvocationOcculteSelection();
         InitializeMagicalSecretSelection();
         InitializeArcaneMystiqueSelection();
         InitializeSkillProficiencySelection();
@@ -480,6 +481,7 @@ namespace NWN.Systems
         ApplyFrappeMeurtriere();
         ApplyThiefReflex();
         ApplyAbjurationWard();
+        ApplyDefensesEnjoleuses();
         ApplyOeilDeSorciere();
         ApplyChatimentOcculte();
         ApplyVisionDiabolique();

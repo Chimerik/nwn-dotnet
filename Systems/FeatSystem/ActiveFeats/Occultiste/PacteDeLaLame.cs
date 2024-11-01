@@ -26,12 +26,6 @@ namespace NWN.Systems
         return;
       }
 
-      if (pactWeapon.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.PacteDeLaLameVariable).HasValue && pactWeapon.GetObjectVariable<LocalVariableObject<NwItem>>(CreatureUtils.PacteDeLaLameVariable).Value != caster)
-      {
-        caster.LoginPlayer?.SendServerMessage("Cette arme est déjà liée à un autre Occultiste", ColorConstants.Red);
-        return;
-      }
-
       if (!CreatureUtils.HandleBonusActionUse(caster))
         return;
 

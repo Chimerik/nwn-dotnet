@@ -258,6 +258,8 @@ namespace NWN.Systems
         case CustomSkill.PacteDeLaLameInvoquer: PacteDeLaLameInvoquer(onUseFeat.Creature); return;
         case CustomSkill.ChatimentOcculte: ChatimentOcculte(onUseFeat.Creature); return;
         case CustomSkill.DonDuProtecteur: DonDuProtecteur(onUseFeat.Creature, onUseFeat.TargetObject); return;
+        case CustomSkill.DoubleVue: DoubleVue(onUseFeat.Creature, onUseFeat.TargetObject); return;
+        case CustomSkill.PacteDuTome: PacteDuTome(onUseFeat.Creature); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;
