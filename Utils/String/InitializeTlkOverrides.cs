@@ -81,33 +81,32 @@ namespace NWN.Systems
       OverrideTlkEntry(190621, "Immunité aux dégâts (psychique)");
       OverrideTlkEntry(190807, "Terrain Difficile");
       OverrideTlkEntry(191025, "Glacé");
-      OverrideTlkEntry(191106, "Immunité aux dégâts (tranchant)"); 
-      OverrideTlkEntry(191107, "Immunité aux dégâts (contondant)"); 
-      OverrideTlkEntry(191108, "Immunité aux dégâts (perçant)"); 
-      OverrideTlkEntry(191109, "Vulnérabilité aux dégâts (tranchant)"); 
-      OverrideTlkEntry(191110, "Vulnérabilité aux dégâts (contondant)"); 
-      OverrideTlkEntry(191111, "Vulnérabilité aux dégâts (perçant)"); 
-      OverrideTlkEntry(191112, "Vulnérabilité aux dégâts (poison)"); 
-      OverrideTlkEntry(191113, "Vulnérabilité aux dégâts (nécrotique)"); 
-      OverrideTlkEntry(191114, "Vulnérabilité aux dégâts (psychique)"); 
-      OverrideTlkEntry(191115, "Résistance aux dégâts (force)"); 
-      OverrideTlkEntry(191116, "Résistance aux dégâts (acide)"); 
-      OverrideTlkEntry(191117, "Résistance aux dégâts (froid)"); 
-      OverrideTlkEntry(191118, "Résistance aux dégâts (radiant)"); 
-      OverrideTlkEntry(191119, "Résistance aux dégâts (électricité)"); 
-      OverrideTlkEntry(191120, "Résistance aux dégâts (feu)"); 
-      OverrideTlkEntry(191121, "Résistance aux dégâts (tonnerre)"); 
-      OverrideTlkEntry(191122, "Résistance aux dégâts (tranchant)"); 
-      OverrideTlkEntry(191123, "Résistance aux dégâts (contondant)"); 
-      OverrideTlkEntry(191124, "Résistance aux dégâts (perçant)"); 
-      OverrideTlkEntry(191125, "Résistance aux dégâts (poison)"); 
-      OverrideTlkEntry(191126, "Résistance aux dégâts (nécrotique)"); 
-      OverrideTlkEntry(191127, "Résistance aux dégâts (psychique)"); 
+      OverrideTlkEntry(191106, "Immunité aux dégâts (tranchant)");
+      OverrideTlkEntry(191107, "Immunité aux dégâts (contondant)");
+      OverrideTlkEntry(191108, "Immunité aux dégâts (perçant)");
+      OverrideTlkEntry(191109, "Vulnérabilité aux dégâts (tranchant)");
+      OverrideTlkEntry(191110, "Vulnérabilité aux dégâts (contondant)");
+      OverrideTlkEntry(191111, "Vulnérabilité aux dégâts (perçant)");
+      OverrideTlkEntry(191112, "Vulnérabilité aux dégâts (poison)");
+      OverrideTlkEntry(191113, "Vulnérabilité aux dégâts (nécrotique)");
+      OverrideTlkEntry(191114, "Vulnérabilité aux dégâts (psychique)");
+      OverrideTlkEntry(191115, "Résistance aux dégâts (force)");
+      OverrideTlkEntry(191116, "Résistance aux dégâts (acide)");
+      OverrideTlkEntry(191117, "Résistance aux dégâts (froid)");
+      OverrideTlkEntry(191118, "Résistance aux dégâts (radiant)");
+      OverrideTlkEntry(191119, "Résistance aux dégâts (électricité)");
+      OverrideTlkEntry(191120, "Résistance aux dégâts (feu)");
+      OverrideTlkEntry(191121, "Résistance aux dégâts (tonnerre)");
+      OverrideTlkEntry(191122, "Résistance aux dégâts (tranchant)");
+      OverrideTlkEntry(191123, "Résistance aux dégâts (contondant)");
+      OverrideTlkEntry(191124, "Résistance aux dégâts (perçant)");
+      OverrideTlkEntry(191125, "Résistance aux dégâts (poison)");
+      OverrideTlkEntry(191126, "Résistance aux dégâts (nécrotique)");
+      OverrideTlkEntry(191127, "Résistance aux dégâts (psychique)");
 
       foreach (var entry in Feats2da.featTable)
       {
-        if((entry.spellId < 0 || entry.RowIndex == 1488 || entry.RowIndex == 1463) 
-          && SkillSystem.learnableDictionary.TryGetValue(entry.RowIndex, out var learnable) && learnable is LearnableSkill)
+        if ((entry.spellId < 0) && SkillSystem.learnableDictionary.TryGetValue(entry.RowIndex, out var learnable) && learnable is LearnableSkill)
         {
           StrRef name = entry.nameTlkEntry;
           name.Override = learnable.name;
@@ -115,6 +114,26 @@ namespace NWN.Systems
           description.Override = learnable.description;
         }
       }
+
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.MonkEtreinteDeLenfer).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.MonkEtreinteDeLenfer].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.MonkFrissonDeLaMontagne).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.MonkFrissonDeLaMontagne].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.MonkPoingDesQuatreTonnerres).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.MonkPoingDesQuatreTonnerres].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.MonkRueeDesEspritsDuVent).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.MonkRueeDesEspritsDuVent].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.MonkSphereDequilibreElementaire).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.MonkSphereDequilibreElementaire].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.MonkFrappeDesCendres).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.MonkFrappeDesCendres].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.MonkFrappeDeLaTempete).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.MonkFrappeDeLaTempete].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.MonkPoigneDuVentDuNord).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.MonkPoigneDuVentDuNord].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.MonkGongDuSommet).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.MonkGongDuSommet].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.MonkFlammesDuPhenix).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.MonkFlammesDuPhenix].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.MonkPostureBrumeuse).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.MonkPostureBrumeuse].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.MonkDefenseDeLaMontagne).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.MonkDefenseDeLaMontagne].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.MonkTorrentDeFlammes).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.MonkTorrentDeFlammes].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.MonkVagueDeTerre).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.MonkVagueDeTerre].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.MonkSouffleDeLhiver).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.MonkSouffleDeLhiver].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.ThiefDiscretionSupreme).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.ThiefDiscretionSupreme].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.ThiefDiscretionSupreme).Description.CustomId, SkillSystem.learnableDictionary[CustomSkill.ThiefDiscretionSupreme].description);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.MonkLinceulDombre).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.MonkLinceulDombre].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.MonkLinceulDombre).Description.CustomId, SkillSystem.learnableDictionary[CustomSkill.MonkLinceulDombre].description);
     }
 
     private static void OverrideTlkEntry(uint entry, string text)

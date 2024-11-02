@@ -61,6 +61,7 @@ namespace NWN.Systems
         "L" => 1600,
         _ => 9,
       };
+
       StrRef nameEntry = entry.GetStrRef("Name").GetValueOrDefault(StrRef.FromCustomTlk(0));
       googleDocId = entry.GetString("Description");
 

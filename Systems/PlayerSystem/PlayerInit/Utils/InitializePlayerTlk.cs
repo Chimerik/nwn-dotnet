@@ -90,7 +90,7 @@ namespace NWN.Systems
         }
         else if (learnableSkills.ContainsKey(CustomSkill.MonkElements))
         {
-          new StrRef(10).SetPlayerOverride(oid, "Voie des Eléments");
+          new StrRef(10).SetPlayerOverride(oid, "Voie des Quatre Eléments");
           oid.SetTextureOverride("monk", "monk_elements");
         }
 

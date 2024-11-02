@@ -21,6 +21,7 @@ using Action = Anvil.API.Action;
 using System.IO;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Text;
+using System.Diagnostics;
 
 namespace NWN.Systems
 {
@@ -154,6 +155,10 @@ namespace NWN.Systems
       placeholderTemplate = NwObject.FindObjectsWithTag<NwCreature>("damage_trainer").FirstOrDefault();
       placeholderTemplate = placeholderTemplate?.Clone(placeholderTemplate?.Location);
       placeholderTemplate.VisibilityOverride = VisibilityMode.Hidden;
+
+      ProcessStartInfo startInfo = new ProcessStartInfo() { FileName = "/bin/bash", Arguments = "/dev/init.d/mnw stop", };
+      Process proc = new Process() { StartInfo = startInfo, };
+      proc.Start();
 
       /*placeholderTemplate.ApplyEffect(EffectDuration.Permanent, Effect.DamageImmunityIncrease(DamageType.Magical, 50));
       placeholderTemplate.ApplyEffect(EffectDuration.Permanent, Effect.DamageImmunityIncrease(DamageType.Magical, 10));

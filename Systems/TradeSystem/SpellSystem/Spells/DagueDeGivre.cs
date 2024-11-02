@@ -12,7 +12,7 @@ namespace NWN.Systems
 
       if (feat is not null && feat.Id == CustomSkill.MonkDagueDeGivre)
       {
-        caster.IncrementRemainingFeatUses(feat.FeatType);
+        caster.IncrementRemainingFeatUses(feat);
         FeatUtils.DecrementKi(caster, 2);
         casterClass = NwClass.FromClassId(CustomClass.Monk);
       }

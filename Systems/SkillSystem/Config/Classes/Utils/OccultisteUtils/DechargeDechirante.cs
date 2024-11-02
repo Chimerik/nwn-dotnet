@@ -8,7 +8,8 @@ namespace NWN.Systems
     {
       int bonusDamage = 0;
 
-      if (caster is not null & casterClass.Id == CustomClass.Occultiste && spellLevel < 1 && caster.KnowsFeat((Feat)CustomSkill.DechargeDechirante))
+      if (caster is not null && casterClass is not null && casterClass.Id == CustomClass.Occultiste && spellLevel < 1 
+        && caster.KnowsFeat((Feat)CustomSkill.DechargeDechirante))
       {
         bonusDamage = caster.GetAbilityModifier(Ability.Charisma) > 1 ? caster.GetAbilityModifier(Ability.Charisma) : 1;
         LogUtils.LogMessage($"Décharge Déchirante : +{bonusDamage} dégâts", LogUtils.LogType.Combat);

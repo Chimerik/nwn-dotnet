@@ -93,6 +93,7 @@ namespace NWN.Systems
         damage += HandleIncantationPuissante(castingCreature, spell);
         
         LogUtils.LogMessage($"Dégâts initiaux : {logString.Remove(logString.Length - 2)} = {damage}", LogUtils.LogType.Combat);
+        logString = "";
 
         if (target is NwCreature targetCreature)
         {

@@ -2,42 +2,16 @@
 
 namespace NWN.Systems
 {
-  public static partial class FeatUtils
+  public static partial class SkillSystem
   {
-    public static void DecrementKi(NwCreature creature, byte nbCharge = 1)
+    public static bool OnLearnKiFeat(PlayerSystem.Player player, int customSkillId)
     {
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkPatience, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkDelugeDeCoups, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkStunStrike, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkDesertion, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkExplosionKi, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkPaumeVibratoire, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkDarkVision, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkTenebres, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkPassageSansTrace, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkSilence, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkFrappeDombre, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkCrochetsDuSerpentDeFeu, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkPoingDeLair, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkDagueDeGivre, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkFrissonDeLaMontagne, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkPoingDesQuatreTonnerres, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkRueeDesEspritsDuVent, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkSphereDequilibreElementaire, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkFrappeDesCendres, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkFrappeDeLaTempete, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkFouetDeLonde, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkFaconnageDeLaRiviere, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkPoigneDuVentDuNord, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkEtreinteDeLenfer, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkGongDuSommet, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkFlammesDuPhenix, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkPostureBrumeuse, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkPorteParLeVent, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkDefenseDeLaMontagne, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkTorrentDeFlammes, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkVagueDeTerre, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkSouffleDeLhiver, nbCharge);
+      NwCreature creature = player.oid.LoginCreature;
+
+      if (creature.KnowsFeat((Feat)customSkillId))
+        creature.AddFeat((Feat)customSkillId);
+
+      creature.SetFeatRemainingUses((Feat)customSkillId, creature.GetFeatRemainingUses((Feat)CustomSkill.MonkPatience));
 
       if (creature.GetFeatRemainingUses((Feat)CustomSkill.MonkDesertion) < 4)
       {
@@ -111,6 +85,8 @@ namespace NWN.Systems
         creature.SetFeatRemainingUses((Feat)CustomSkill.MonkPassageSansTrace, 0);
         creature.SetFeatRemainingUses((Feat)CustomSkill.MonkDarkVision, 0);
       }
+
+      return true;
     }
   }
 }

@@ -129,8 +129,9 @@ namespace NWN.Systems
                   availableTechs.AddRange(learnableDictionary.Values.Where(l => l is LearnableSkill skill
                   && skill.category == Category.TechniqueElementaire
                   && skill.minLevel <= player.oid.LoginCreature.GetClassInfo((ClassType)CustomClass.Monk).Level
-                  && !acquiredTechs.Contains(skill)).OrderBy(l => l.name).Cast<LearnableSkill>());
-                  
+                  && !acquiredTechs.Contains(skill)
+                  && !player.learnableSkills.ContainsKey(skill.id)).OrderBy(l => l.name).Cast<LearnableSkill>());
+
                   BindAvailableTechs();
                   BindAcquiredTechs();
 
