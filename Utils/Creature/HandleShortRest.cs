@@ -21,6 +21,7 @@ namespace NWN.Systems
       FighterUtils.RestoreEldritchKnight(player.oid.LoginCreature);
       EnsoUtils.RetablissementSorcier(player.oid.LoginCreature);
       DruideUtils.RestoreFormeSauvage(player.oid.LoginCreature, shortRest:true);
+      OccultisteUtils.HandleResilienceCeleste(player.oid.LoginCreature);
 
       if (player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.SourceDinspiration))
         BardUtils.RestoreInspirationBardique(player.oid.LoginCreature);

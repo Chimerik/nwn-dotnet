@@ -150,5 +150,13 @@
     public const int OrbeChromatiqueTonnerre = 988;
     public const int SavoirAncestralForce = 989;
     public const int MaledictionCharisme = 990;
+    public const int EclairTracant = 991;
+    public const int Suggestion = 992;
+    public const int Quete = 993;
+    public const int FaveurDuMalin = 994;
+    public const int FaveurDuMalinAttaque = 995;
+    public const int FaveurDuMalinDegats = 996;
+    public const int FaveurDuMalinJDS = 997;
+    public const int FaveurDuMalinRP = 998;
   }
 }

@@ -420,6 +420,7 @@ namespace NWN.Systems
         ApplyThieflingFireResistance();
         ApplyDwarfPoisonResistance();
         ApplyNecroticResistance();
+        ApplyAmeRadieuse();
         ApplyConstitutionInfernale();
         ApplyHumanVersatility();
         ApplyHalfOrcEndurance();
@@ -481,6 +482,7 @@ namespace NWN.Systems
         ApplyFrappeMeurtriere();
         ApplyThiefReflex();
         ApplyAbjurationWard();
+        ApplyBenedictionDuMalin();
         ApplyDefensesEnjoleuses();
         ApplyOeilDeSorciere();
         ApplyChatimentOcculte();

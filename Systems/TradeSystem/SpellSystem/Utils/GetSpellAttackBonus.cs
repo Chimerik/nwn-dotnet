@@ -35,6 +35,13 @@ namespace NWN.Systems
           appliedEffects.Add(EffectSystem.FleauEffectTag);
           LogUtils.LogMessage($"Fléau : -{fleauMalus} BA", LogUtils.LogType.Combat);
         }
+        else if(eff.Tag == EffectSystem.FaveurDivineEffectTag && eff.IntParams[5] == CustomSpell.FaveurDuMalinAttaque)
+        {
+          int faveurBonus = NwRandom.Roll(Utils.random, 10);
+          bonus -= faveurBonus;
+          caster.RemoveEffect(eff);
+          LogUtils.LogMessage($"Faveur du Malin attaque : +{faveurBonus} BA", LogUtils.LogType.Combat);
+        }
       }
 
       return bonus;

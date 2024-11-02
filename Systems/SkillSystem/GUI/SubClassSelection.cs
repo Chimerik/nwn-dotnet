@@ -314,6 +314,18 @@ namespace NWN.Systems
                       Occultiste.HandleArchifeeLevelUp(player, 3);
                       category = Category.OccultisteSubClass;
                       break;
+                    case CustomSkill.OccultisteCeleste:
+                      Occultiste.HandleCelesteLevelUp(player, 3);
+                      category = Category.OccultisteSubClass;
+                      break;
+                    case CustomSkill.OccultisteFielon:
+                      Occultiste.HandleFielonLevelUp(player, 3);
+                      category = Category.OccultisteSubClass;
+                      break;
+                    case CustomSkill.OccultisteGrandAncien:
+                      Occultiste.HandleGrandAncienLevelUp(player, 3);
+                      category = Category.OccultisteSubClass;
+                      break;
                   }
 
                   player.learnableSkills.Remove(player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value);

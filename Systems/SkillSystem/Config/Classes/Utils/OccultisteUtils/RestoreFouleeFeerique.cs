@@ -14,6 +14,7 @@ namespace NWN.Systems
       creature.SetFeatRemainingUses((Feat)CustomSkill.FouleeProvocatrice, maxUses);
       creature.SetFeatRemainingUses((Feat)CustomSkill.FouleeEvanescente, maxUses);
       creature.SetFeatRemainingUses((Feat)CustomSkill.FouleeRedoutable, maxUses);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.FaveurDuMalin, maxUses);
     }
   }
 }

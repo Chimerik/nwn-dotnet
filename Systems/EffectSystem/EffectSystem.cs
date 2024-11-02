@@ -212,6 +212,13 @@ namespace NWN.Systems
       onIntervalForceFantasmagoriqueCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalForceFantasmagorique);
 
       onRemoveDefensesEnjoleusesCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveDefensesEnjoleuses);
+
+      onEnterVengeanceCalcinanteCallback = scriptHandleFactory.CreateUniqueHandler(onEnterVengeanceCalcinante);
+      onExitVengeanceCalcinanteCallback = scriptHandleFactory.CreateUniqueHandler(onExitVengeanceCalcinante);
+
+      onEnterBenedictionDuMalinCallback = scriptHandleFactory.CreateUniqueHandler(onEnterBenedictionDuMalin);
+      onExitBenedictionDuMalinCallback = scriptHandleFactory.CreateUniqueHandler(onExitBenedictionDuMalin);
+      onRemoveBenedictionDuMalinCallback = scriptHandleFactory.CreateUniqueHandler(onRemoveBenedictionDuMalin);
     }
   }
 }

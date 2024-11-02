@@ -88,6 +88,13 @@ namespace NWN.Systems
           appliedEffects.Add(EffectSystem.FleauEffectTag);
           LogUtils.LogMessage($"Bénédiction : +{beneBonus} BA", LogUtils.LogType.Combat);
         }
+        else if(eff.m_sCustomTag.CompareNoCase(EffectSystem.faveurDuMalinEffectExoTag).ToBool() && eff.GetInteger(5) == CustomSpell.FaveurDuMalinAttaque)
+        {
+          int faveurBonus = NwRandom.Roll(Utils.random, 10);
+          attackBonus += faveurBonus;
+          attacker.RemoveEffect(eff);
+          LogUtils.LogMessage($"Faveur du malin attaque : +{faveurBonus}", LogUtils.LogType.Combat);
+        }
       }
 
       int frappeFrenetiqueMalus = attacker.m_pStats.m_pBaseCreature.m_ScriptVars.GetInt(CreatureUtils.FrappeFrenetiqueMalusVariableExo);

@@ -531,7 +531,16 @@
     public const int FouleeRedoutable = 1777;
     public const int DefensesEnjoleuses = 1778;
     public const int FouleeEnjoleuse = 1779;
-    
+
+    public const int AmeRadieuse = 1780;
+    public const int ResilienceCeleste = 1781;
+    public const int LueurDeGuérison = 1782;
+    public const int VengeanceCalcinante = 1783;
+
+    public const int BenedictionDuMalin = 1784;
+    public const int FaveurDuMalin = 1785;
+    public const int ResilienceFielleuse = 1786;
+    public const int TraverseeInfernale = 1787;    
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -1125,6 +1134,9 @@
 
     public const int Occultiste = 20632;
     public const int OccultisteArchifee = 20633;
+    public const int OccultisteCeleste = 20634;
+    public const int OccultisteFielon = 20635;
+    public const int OccultisteGrandAncien = 20636;
 
     public const int Invalid = 65535;
   }

@@ -260,6 +260,12 @@ namespace NWN.Systems
         case CustomSkill.DonDuProtecteur: DonDuProtecteur(onUseFeat.Creature, onUseFeat.TargetObject); return;
         case CustomSkill.DoubleVue: DoubleVue(onUseFeat.Creature, onUseFeat.TargetObject); return;
         case CustomSkill.PacteDuTome: PacteDuTome(onUseFeat.Creature); return;
+
+        case CustomSkill.LueurDeGuérison: LueurDeGuérison(onUseFeat.Creature, onUseFeat.TargetObject); return;
+        case CustomSkill.VengeanceCalcinante: VengeanceCalcinante(onUseFeat.Creature); return;
+
+        case CustomSkill.ResilienceFielleuse: ResilienceFielleuse(onUseFeat.Creature); return;
+
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

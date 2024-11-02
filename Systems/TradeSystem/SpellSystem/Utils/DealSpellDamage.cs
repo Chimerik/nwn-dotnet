@@ -91,7 +91,8 @@ namespace NWN.Systems
 
         damage += HandleEvocateurSuperieur(castingCreature, spell);
         damage += HandleIncantationPuissante(castingCreature, spell);
-        
+        damage += OccultisteUtils.HandleAmeRadieuse(castingCreature, damageType);
+
         LogUtils.LogMessage($"Dégâts initiaux : {logString.Remove(logString.Length - 2)} = {damage}", LogUtils.LogType.Combat);
         logString = "";
 

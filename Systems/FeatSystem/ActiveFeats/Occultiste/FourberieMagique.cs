@@ -36,9 +36,11 @@ namespace NWN.Systems
         occultisteClass.SetRemainingSpellSlots(i, restoredSpellSlots);
       
       caster.DecrementRemainingFeatUses((Feat)CustomSkill.OccultisteFourberieMagique);
-
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpMagicalVision));
-      StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} - Restauration Arcanique", StringUtils.gold, true, true);
+
+      OccultisteUtils.HandleResilienceCeleste(caster);
+
+      StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} - Fourberie Magique", StringUtils.brightPurple, true, true);
     }
   }
 }

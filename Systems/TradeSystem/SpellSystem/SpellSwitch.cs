@@ -886,6 +886,15 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case CustomSpell.FaveurDuMalin:
+        case CustomSpell.FaveurDuMalinAttaque:
+        case CustomSpell.FaveurDuMalinDegats:
+        case CustomSpell.FaveurDuMalinJDS:
+        case CustomSpell.FaveurDuMalinRP:
+          SpellSystem.FaveurDuMalin(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.ChangementDapparence:
           concentrationTargets.AddRange(SpellSystem.ChangementDapparence(oCaster, spell, spellEntry, castingClass));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
@@ -896,6 +905,16 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case CustomSpell.Suggestion:
+          concentrationTargets.AddRange(SpellSystem.Suggestion(oCaster, spell, spellEntry, target, castingClass));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.Quete:
+          SpellSystem.Quete(oCaster, spell, spellEntry, target, castingClass);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.ForceFantasmagorique:
           concentrationTargets.AddRange(SpellSystem.ForceFantasmagorique(oCaster, spell, spellEntry, target, castingClass));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
@@ -903,6 +922,11 @@ namespace NWN.Systems
 
         case CustomSpell.Clignotement:
           SpellSystem.Clignotement(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.EclairTracant:
+          SpellSystem.EclairTracant(oCaster, spell, spellEntry, target, castingClass);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
       }

@@ -251,6 +251,21 @@ namespace NWN.Systems
           NwClass.FromClassId(CustomClass.Occultiste).Name.SetPlayerOverride(oid, "Mécène Archifée");
           oid.SetTextureOverride("occultiste", "warlock_archfey");
         }
+        else if(learnableSkills.ContainsKey(CustomSkill.OccultisteCeleste))
+        {
+          NwClass.FromClassId(CustomClass.Occultiste).Name.SetPlayerOverride(oid, "Mécène Céleste");
+          oid.SetTextureOverride("occultiste", "warlock_celeste");
+        }
+        else if (learnableSkills.ContainsKey(CustomSkill.OccultisteFielon))
+        {
+          NwClass.FromClassId(CustomClass.Occultiste).Name.SetPlayerOverride(oid, "Mécène Fiélon");
+          oid.SetTextureOverride("occultiste", "warlock_fielon");
+        }
+        else if (learnableSkills.ContainsKey(CustomSkill.OccultisteGrandAncien))
+        {
+          NwClass.FromClassId(CustomClass.Occultiste).Name.SetPlayerOverride(oid, "Mécène Grand Ancien");
+          oid.SetTextureOverride("occultiste", "warlock_ancien");
+        }
       }
     }
   }

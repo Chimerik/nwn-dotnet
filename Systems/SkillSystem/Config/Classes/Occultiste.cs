@@ -38,6 +38,9 @@ namespace NWN.Systems
       switch (customSkillId)
       {
         case CustomSkill.OccultisteArchifee: HandleArchifeeLevelUp(player, playerClass.currentLevel); break;
+        case CustomSkill.OccultisteCeleste: HandleCelesteLevelUp(player, playerClass.currentLevel); break;
+        case CustomSkill.OccultisteFielon: HandleFielonLevelUp(player, playerClass.currentLevel); break;
+        case CustomSkill.OccultisteGrandAncien: HandleGrandAncienLevelUp(player, playerClass.currentLevel); break;
       }
 
       player.ApplyClassLevelUp(playerClass, CustomClass.Occultiste);

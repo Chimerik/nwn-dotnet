@@ -613,6 +613,8 @@ namespace NWN.Systems
                     EnsoUtils.RestoreSorcerySource(player.oid.LoginCreature);
                     DruideUtils.RestoreFormeSauvage(player.oid.LoginCreature);
                     OccultisteUtils.RestoreFouleeFeerique(player.oid.LoginCreature);
+                    OccultisteUtils.RestoreLueurDeGuerison(player.oid.LoginCreature);
+                    OccultisteUtils.HandleResilienceCeleste(player.oid.LoginCreature);
                     player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.DonDuProtecteur, (byte)(player.oid.LoginCreature.GetAbilityModifier(Ability.Charisma) > 1 ? player.oid.LoginCreature.GetAbilityModifier(Ability.Charisma) : 1));
 
                     if (player.oid.LoginCreature.Race.Id == CustomRace.HalfOrc)
