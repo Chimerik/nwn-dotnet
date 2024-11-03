@@ -34,6 +34,9 @@ namespace NWN.Systems
 
         if (GetCourrouxDeLaNatureAttackDisadvantage(eff))
           return true;
+
+        if (GetEspritEveilleDisadvantage(eff, targetId.m_idSelf))
+          return true;
       }
 
       return false;

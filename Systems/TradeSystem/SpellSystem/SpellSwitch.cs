@@ -784,7 +784,7 @@ namespace NWN.Systems
           break;
 
         case CustomSpell.MurDePierre:
-          concentrationTargets.AddRange(SpellSystem.MurDePierre(oCaster, spell, spellEntry, castingClass, targetLocation, feat));
+          concentrationTargets.AddRange(SpellSystem.MurDePierre(oCaster, spell, spellEntry, castingClass, target is null ? targetLocation : target.Location, feat));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -927,6 +927,21 @@ namespace NWN.Systems
 
         case CustomSpell.EclairTracant:
           SpellSystem.EclairTracant(oCaster, spell, spellEntry, target, castingClass);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.MurmuresDissonnants:
+          SpellSystem.MurmuresDissonnants(oCaster, spell, spellEntry, target, castingClass);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.VoraciteDhadar:
+          concentrationTargets.AddRange(SpellSystem.VoraciteDhadar(oCaster, spell, spellEntry, target is null ? targetLocation : target.Location, castingClass));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.InvocationDaberration:
+          concentrationTargets.AddRange(SpellSystem.InvocationDaberration(oCaster, spell, spellEntry, target is null ? targetLocation : target.Location, castingClass));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
       }

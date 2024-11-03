@@ -1,5 +1,5 @@
-﻿using System;
-using Anvil.API;
+﻿using Anvil.API;
+using static NWN.Systems.PlayerSystem.Player;
 
 namespace NWN.Systems
 {
@@ -13,12 +13,11 @@ namespace NWN.Systems
         return;
       }
 
-      // ouvrir fenêtre choix résistance dégâts
-      
-      caster.DecrementRemainingFeatUses((Feat)CustomSkill.ResilienceFielleuse);
-      caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpAcBonus));
-
-      StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} - Résilience Fielleuse", StringUtils.brightPurple, true, true);
+      if (PlayerSystem.Players.TryGetValue(caster, out var player))
+      {
+        if (!player.windows.TryGetValue("resilienceFielleuseSelection", out var resist)) player.windows.Add("resilienceFielleuseSelection", new ResilienceFielleuseSelectionWindow(player));
+        else ((ResilienceFielleuseSelectionWindow)resist).CreateWindow();
+      }
     }
   }
 }

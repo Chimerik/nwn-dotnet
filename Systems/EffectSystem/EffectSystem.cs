@@ -219,6 +219,8 @@ namespace NWN.Systems
       onEnterBenedictionDuMalinCallback = scriptHandleFactory.CreateUniqueHandler(onEnterBenedictionDuMalin);
       onExitBenedictionDuMalinCallback = scriptHandleFactory.CreateUniqueHandler(onExitBenedictionDuMalin);
       onRemoveBenedictionDuMalinCallback = scriptHandleFactory.CreateUniqueHandler(onRemoveBenedictionDuMalin);
+
+      onRemoveTraverseeInfernaleCallback = scriptHandleFactory.CreateUniqueHandler(onRemoveTraverseeInfernale);
     }
   }
 }

@@ -32,7 +32,11 @@ namespace NWN.Systems
 
       DamageType transmutedDamage = DamageType.BaseWeapon;
 
-      if (Players.TryGetValue(oCaster, out var transmuter) 
+      if(casterClass.Id == CustomClass.Occultiste && oCaster.ActiveEffects.Any(e => e.Tag == EffectSystem.SortsPsychiquesEffectTag))
+      {
+        transmutedDamage = CustomDamageType.Psychic;
+      }
+      else if (Players.TryGetValue(oCaster, out var transmuter) 
         && oCaster.ActiveEffects.Any(e => e.Tag == EffectSystem.MetamagieEffectTag && e.IntParams[5] == CustomSkill.EnsoTransmutation))
       {
         transmutedDamage = transmuter.windows.TryGetValue("ensoMetaTransmutationSelection", out var transmu)

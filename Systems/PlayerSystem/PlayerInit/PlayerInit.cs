@@ -482,6 +482,7 @@ namespace NWN.Systems
         ApplyFrappeMeurtriere();
         ApplyThiefReflex();
         ApplyAbjurationWard();
+        ApplyBouclierPsychique();
         ApplyBenedictionDuMalin();
         ApplyDefensesEnjoleuses();
         ApplyOeilDeSorciere();

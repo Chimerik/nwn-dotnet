@@ -158,5 +158,9 @@
     public const int FaveurDuMalinDegats = 996;
     public const int FaveurDuMalinJDS = 997;
     public const int FaveurDuMalinRP = 998;
+    public const int MurmuresDissonnants = 999;
+    public const int VoraciteDhadar = 1000;
+    public const int InvocationDaberration = 1001;
+    public const int AlterationMemorielle = 1002;
   }
 }

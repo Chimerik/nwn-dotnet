@@ -265,7 +265,10 @@ namespace NWN.Systems
         case CustomSkill.VengeanceCalcinante: VengeanceCalcinante(onUseFeat.Creature); return;
 
         case CustomSkill.ResilienceFielleuse: ResilienceFielleuse(onUseFeat.Creature); return;
+        case CustomSkill.TraverseeInfernale: TraverseeInfernale(onUseFeat.Creature); return;
 
+        case CustomSkill.EspritEveille: EspritEveille(onUseFeat.Creature, onUseFeat.TargetObject); return;
+        case CustomSkill.SortsPsychiques: SortsPsychiques(onUseFeat.Creature); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

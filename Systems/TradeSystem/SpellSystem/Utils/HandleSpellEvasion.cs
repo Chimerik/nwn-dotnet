@@ -42,7 +42,8 @@ namespace NWN.Systems
       }
       else if(!saveFailed 
         && (Utils.In(spellId, CustomSpell.MauvaisAugure, CustomSpell.RayonDeLune, CustomSpell.EspritsGardiensRadiant, CustomSpell.EspritsGardiensNecrotique,
-        (int)Spell.Balagarnsironhorn, (int)Spell.Enervation, CustomSpell.Fracassement, CustomSpell.PoingDeLair, CustomSpell.Rupture, CustomSpell.VagueDestructriceNecrotique, CustomSpell.VagueDestructriceRadiant)
+        (int)Spell.Balagarnsironhorn, (int)Spell.Enervation, CustomSpell.Fracassement, CustomSpell.PoingDeLair, CustomSpell.Rupture, CustomSpell.VagueDestructriceNecrotique, CustomSpell.VagueDestructriceRadiant,
+        CustomSpell.MurmuresDissonnants)
         || spellLevel == 0))
       {
         damage /= 2;

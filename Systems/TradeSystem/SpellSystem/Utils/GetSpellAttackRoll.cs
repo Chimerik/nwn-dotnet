@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Anvil.API;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -128,6 +129,18 @@ namespace NWN.Systems
           }
 
           casterCreature.LoginPlayer?.SendServerMessage($"{advantageString}{criticalString}{oCaster.Name} {hitString} {target.Name} {rollString}".ColorString(ColorConstants.Cyan));
+        
+          if(result != TouchAttackResult.Miss && casterCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.TraverseeInfernaleBuffEffectTag))
+          {
+            EffectUtils.RemoveTaggedEffect(casterCreature, EffectSystem.TraverseeInfernaleBuffEffectTag);
+            int spellDC = GetCasterSpellDC(casterCreature, Ability.Charisma);
+
+            if (CreatureUtils.GetSavingThrow(casterCreature, target, Ability.Charisma, spellDC) == SavingThrowResult.Failure)
+            {
+              NWScript.AssignCommand(casterCreature, () => target.ApplyEffect(EffectDuration.Temporary,
+                EffectSystem.TraverseeInfernale(target), NwTimeSpan.FromRounds(1)));
+            }
+          }
         }
 
         target.LoginPlayer?.SendServerMessage($"{advantageString}{criticalString}{oCaster.Name} {hitString} {target.Name} {rollString}".ColorString(ColorConstants.Cyan));
