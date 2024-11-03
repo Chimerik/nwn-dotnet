@@ -298,8 +298,8 @@ namespace NWN.Systems
             CustomRace.DeepGnome or CustomRace.RockGnome or CustomRace.ForestGnome => CustomRace.Gnome,
             CustomRace.Drow or CustomRace.HighElf or CustomRace.WoodElf => CustomRace.Elf,
             CustomRace.DrowHalfElf or CustomRace.HighHalfElf or CustomRace.WoodHalfElf => CustomRace.HalfElf,
-            CustomRace.GoldDwarf or CustomRace.ShieldDwarf or CustomRace.Duergar => CustomRace.Dwarf,
-            CustomRace.LightfootHalfling or CustomRace.StrongheartHalfling => CustomRace.Halfling,
+            CustomRace.GoldDwarf or CustomRace.Duergar => CustomRace.Dwarf,
+            CustomRace.Halfelin => CustomRace.Halfling,
             CustomRace.HalfOrc => CustomRace.HalfOrc,
             _ => CustomRace.Human,
           };

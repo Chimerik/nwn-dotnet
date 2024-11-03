@@ -156,10 +156,6 @@ namespace NWN.Systems
       placeholderTemplate = placeholderTemplate?.Clone(placeholderTemplate?.Location);
       placeholderTemplate.VisibilityOverride = VisibilityMode.Hidden;
 
-      ProcessStartInfo startInfo = new ProcessStartInfo() { FileName = "/bin/bash", Arguments = "/dev/init.d/mnw stop", };
-      Process proc = new Process() { StartInfo = startInfo, };
-      proc.Start();
-
       /*placeholderTemplate.ApplyEffect(EffectDuration.Permanent, Effect.DamageImmunityIncrease(DamageType.Magical, 50));
       placeholderTemplate.ApplyEffect(EffectDuration.Permanent, Effect.DamageImmunityIncrease(DamageType.Magical, 10));
       placeholderTemplate.ApplyEffect(EffectDuration.Permanent, Effect.DamageImmunityIncrease(DamageType.Magical, -25));

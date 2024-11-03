@@ -18,20 +18,8 @@ namespace NWN.Systems
 
       if (item.BaseACValue > 5) // Cas des armures lourdes
       {
-        switch (target.Race.Id)
-        {
-          case CustomRace.Duergar:
-          case CustomRace.GoldDwarf:
-          case CustomRace.ShieldDwarf:
-          case CustomRace.Dwarf: break;
-
-          default:
-
-            if (proficenciesRequirements.Contains((int)Feat.ArmorProficiencyHeavy) && target.GetAbilityScore(Ability.Strength) < 15)
-              ApplyShieldArmorSlow(target);
-
-            break;
-        }
+        if (proficenciesRequirements.Contains((int)Feat.ArmorProficiencyHeavy) && target.GetAbilityScore(Ability.Strength) < 15)
+          ApplyShieldArmorSlow(target);
       }
 
       foreach (int requiredProficiency in proficenciesRequirements)

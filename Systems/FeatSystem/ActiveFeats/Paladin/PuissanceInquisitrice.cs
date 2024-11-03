@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     private static void PuissanceInquisitrice(NwCreature caster, NwGameObject targetObject)
     {
-      if(caster == targetObject || targetObject is not NwCreature target)
+      if(targetObject is not NwCreature target)
       {
         caster.LoginPlayer?.SendServerMessage("Veuillez choisir une cible valide", ColorConstants.Red);
         return;

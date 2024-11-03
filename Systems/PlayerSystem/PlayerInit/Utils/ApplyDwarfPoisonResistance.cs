@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       private void ApplyDwarfPoisonResistance()
       {
-        if (Utils.In(oid.LoginCreature.Race.Id, CustomRace.GoldDwarf, CustomRace.ShieldDwarf, CustomRace.StrongheartHalfling))
+        if (oid.LoginCreature.Race.Id == CustomRace.GoldDwarf)
           NWScript.AssignCommand(oid.LoginCreature, () => oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.DwarfPoisonResistance));
       }
     }

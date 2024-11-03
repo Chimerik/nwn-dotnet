@@ -28,8 +28,6 @@ namespace NWN.Systems
       if (!player.windows.TryGetValue("skillProficiencySelection", out var skill3)) player.windows.Add("skillProficiencySelection", new SkillProficiencySelectionWindow(player, skillList, 1));
       else ((SkillProficiencySelectionWindow)skill3).CreateWindow(skillList, 1);
 
-      EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.DwarfSlowEffectTag);
-
       return true;
     }
   }

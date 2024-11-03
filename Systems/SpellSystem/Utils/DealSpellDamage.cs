@@ -32,7 +32,7 @@ namespace NWN.Systems
 
       DamageType transmutedDamage = DamageType.BaseWeapon;
 
-      if(casterClass.Id == CustomClass.Occultiste && oCaster.ActiveEffects.Any(e => e.Tag == EffectSystem.SortsPsychiquesEffectTag))
+      if(casterClass is not null && casterClass.Id == CustomClass.Occultiste && oCaster.ActiveEffects.Any(e => e.Tag == EffectSystem.SortsPsychiquesEffectTag))
       {
         transmutedDamage = CustomDamageType.Psychic;
       }

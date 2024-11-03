@@ -415,14 +415,13 @@ namespace NWN.Systems
         HandleMailNotification();
         ApplyElvenSleepImmunity();
         ApplyWoodElfSpeed();
-        ApplySmallRaceSlow();
         ApplyDrowLightSensitivity();
         ApplyThieflingFireResistance();
+        ApplyAasimarResistance();
         ApplyDwarfPoisonResistance();
         ApplyNecroticResistance();
         ApplyAmeRadieuse();
         ApplyConstitutionInfernale();
-        ApplyHumanVersatility();
         ApplyHalfOrcEndurance();
         InitializeAbilityImprovementFeat();
         InitializeBonusAbilityChoice();
@@ -482,6 +481,7 @@ namespace NWN.Systems
         ApplyFrappeMeurtriere();
         ApplyThiefReflex();
         ApplyAbjurationWard();
+        ApplyAgiliteHalfelin();
         ApplyBouclierPsychique();
         ApplyBenedictionDuMalin();
         ApplyDefensesEnjoleuses();
@@ -768,7 +768,7 @@ namespace NWN.Systems
 
         NwCreature creature = onCombatStatusChange.Player.ControlledCreature;
 
-        if (!creature.ActiveEffects.Any(e => e.Tag == EffectSystem.LienTotemElanAuraEffectTag))
+        if (creature.Race.RacialType != RacialType.Halfling && !creature.ActiveEffects.Any(e => e.Tag == EffectSystem.LienTotemElanAuraEffectTag))
           EffectUtils.RemoveEffectType(creature, EffectType.CutsceneGhost);
       }
       private void HandleMapPinAdded(OnMapPinAddPin onAdd)

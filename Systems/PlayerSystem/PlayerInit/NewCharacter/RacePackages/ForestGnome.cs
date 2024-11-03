@@ -11,10 +11,11 @@ namespace NWN.Systems
       {
         if (learnableSkills.TryAdd(CustomSkill.Gnome, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Gnome], this)))
           learnableSkills[CustomSkill.Gnome].LevelUp(this);
-
         learnableSkills[CustomSkill.Gnome].source.Add(Category.Race);
 
-        oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.dwarfSlow);
+        if (learnableSkills.TryAdd(CustomSkill.IllusionMineure, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.IllusionMineure], this)))
+          learnableSkills[CustomSkill.IllusionMineure].LevelUp(this);
+        learnableSkills[CustomSkill.IllusionMineure].source.Add(Category.Race);
       }
     }
   }

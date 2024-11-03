@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       NwCreature creature = player.oid.LoginCreature;
 
-      if (creature.KnowsFeat((Feat)customSkillId))
+      if (!creature.KnowsFeat((Feat)customSkillId))
         creature.AddFeat((Feat)customSkillId);
 
       creature.SetFeatRemainingUses((Feat)customSkillId, creature.GetFeatRemainingUses((Feat)CustomSkill.MonkPatience));
@@ -50,6 +50,9 @@ namespace NWN.Systems
 
       if (creature.GetFeatRemainingUses((Feat)CustomSkill.MonkGongDuSommet) < 3)
         creature.SetFeatRemainingUses((Feat)CustomSkill.MonkGongDuSommet, 0);
+
+      if (creature.GetFeatRemainingUses((Feat)CustomSkill.MonkEtreinteDeLenfer) < 3)
+        creature.SetFeatRemainingUses((Feat)CustomSkill.MonkEtreinteDeLenfer, 0);
 
       if (creature.GetFeatRemainingUses((Feat)CustomSkill.MonkPoigneDuVentDuNord) < 3)
         creature.SetFeatRemainingUses((Feat)CustomSkill.MonkPoigneDuVentDuNord, 0);

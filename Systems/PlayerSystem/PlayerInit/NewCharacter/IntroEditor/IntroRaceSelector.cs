@@ -198,9 +198,6 @@ namespace NWN.Systems
 
                   RemovePreviousHistory();
 
-                  if (selectedRace.Id == CustomRace.AsmodeusThiefling || selectedRace.Id == CustomRace.MephistoThiefling || selectedRace.Id == CustomRace.ZarielThiefling)
-                    player.oid.LoginCreature.TailType = CreatureTailType.Devil;
-
                   validationEnabled.SetBindValue(player.oid, nuiToken.Token, false);
                   player.ApplyRacePackage(selectedRace, selectedBonusSkill.GetBindValue(player.oid, nuiToken.Token));
 
@@ -334,14 +331,11 @@ namespace NWN.Systems
           }
 
           player.oid.OnCombatStatusChange -= OnCombatEndRestoreDuergarInvisibility;
-          player.oid.LoginCreature.OnAcquireItem -= ItemSystem.OnAcquireCheckHumanVersatility;
-          player.oid.LoginCreature.OnUnacquireItem -= ItemSystem.OnUnAcquireCheckHumanVersatility;
 
           foreach (var eff in player.oid.LoginCreature.ActiveEffects)
           {
             switch(eff.Tag)
             {
-              case EffectSystem.DwarfSlowEffectTag:
               case EffectSystem.DwarfPoisonResistanceEffectTag:
               case EffectSystem.ThieflingResistanceEffectTag:
               case EffectSystem.SleepImmunityEffectTag:
@@ -371,6 +365,7 @@ namespace NWN.Systems
           player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.Thaumaturgy);
 
           player.oid.LoginCreature.TailType = CreatureTailType.None;
+          player.oid.LoginCreature.WingType = CreatureWingType.None;
         }
         private void LoadBonusList(IEnumerable<NuiComboEntry> list)
         {

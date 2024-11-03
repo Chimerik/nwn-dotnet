@@ -13,14 +13,14 @@ namespace NWN.Systems
       Effect eff = Effect.DamageImmunityIncrease(resist, 50);
       eff.ShowIcon = false;
 
-      eff = Effect.LinkEffects(eff, Effect.Icon(DamageType2da.damageResistanceEffectIcon[resist]));
-      eff.Tag = ResilienceFielleuseEffectTag;
-      eff.SubType = EffectSubType.Unyielding;
-      eff.Creator = caster;
+      Effect link = Effect.LinkEffects(eff, Effect.Icon(DamageType2da.damageResistanceEffectIcon[resist]));
+      link.Tag = ResilienceFielleuseEffectTag;
+      link.SubType = EffectSubType.Unyielding;
+      link.Creator = caster;
 
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpElementalProtection));
 
-      return eff;
+      return link;
     }
   }
 }

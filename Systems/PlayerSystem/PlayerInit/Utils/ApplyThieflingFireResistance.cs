@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Anvil.API;
+﻿using Anvil.API;
 using NWN.Core;
 
 namespace NWN.Systems
@@ -10,8 +9,12 @@ namespace NWN.Systems
     {
       private void ApplyThieflingFireResistance()
       {
-        if (Utils.In(oid.LoginCreature.Race.Id, CustomRace.AsmodeusThiefling, CustomRace.MephistoThiefling, CustomRace.ZarielThiefling))
+        if (oid.LoginCreature.Race.Id == CustomRace.InfernalThiefling)
           NWScript.AssignCommand(oid.LoginCreature, () => oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.ThieflingFireResistance));
+        else if (oid.LoginCreature.Race.Id == CustomRace.AbyssalThiefling)
+          NWScript.AssignCommand(oid.LoginCreature, () => oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.ThieflingPoisonResistance));
+        else if (oid.LoginCreature.Race.Id == CustomRace.ChtonicThiefling)
+          NWScript.AssignCommand(oid.LoginCreature, () => oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.ThieflingNecroticResistance));
       }
     }
   }

@@ -36,17 +36,12 @@ namespace NWN.Systems
             if (learnableSkills.ContainsKey(CustomSkill.Linguiste))
               learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 2;
 
-            if(learnable.id == CustomSkill.Infernal)
-            {
-              switch(oid.LoginCreature.Race.Id)
-              {
-                case CustomRace.AsmodeusThiefling:
-                case CustomRace.MephistoThiefling:
-                case CustomRace.ZarielThiefling:
-                  learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 2;
-                  return learnable;
-              }
-            }
+            if(learnable.id == CustomSkill.Infernal && oid.LoginCreature.Race.Id == CustomRace.InfernalThiefling)
+                learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 2;
+            else if (learnable.id == CustomSkill.Abyssal && oid.LoginCreature.Race.Id == CustomRace.AbyssalThiefling)
+              learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 2;
+            else if (learnable.id == CustomSkill.Primordiale && oid.LoginCreature.Race.Id == CustomRace.ChtonicThiefling)
+              learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 2;
 
             return learnable;
 
@@ -100,7 +95,6 @@ namespace NWN.Systems
                 {
                   case CustomRace.Dwarf:
                   case CustomRace.GoldDwarf:
-                  case CustomRace.ShieldDwarf:
                   case CustomRace.Duergar:
                     learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 2;
                     return learnable;

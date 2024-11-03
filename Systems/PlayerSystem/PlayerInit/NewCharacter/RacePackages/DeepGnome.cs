@@ -15,7 +15,6 @@ namespace NWN.Systems
 
         learnableSkills[CustomSkill.Gnome].source.Add(Category.Race);
 
-        oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.dwarfSlow);
         // TODO : Penser à gérer l'avantage sur les jets de Furtivité
       }
     }

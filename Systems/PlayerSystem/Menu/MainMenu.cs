@@ -151,7 +151,7 @@ namespace NWN.Systems
                     }
                     else
                     {
-                      foreach (var eff in player.oid.ControlledCreature.ActiveEffects.Where(e => e.EffectType == EffectType.CutsceneGhost))
+                      foreach (var eff in player.oid.ControlledCreature.ActiveEffects.Where(e => e.EffectType == EffectType.CutsceneGhost && e.Tag != EffectSystem.AgiliteHalfelinEffectTag))
                         player.oid.ControlledCreature.RemoveEffect(eff);
 
                       player.oid.SendServerMessage("Désactivation du mode toucher", ColorConstants.Orange);

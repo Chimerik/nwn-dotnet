@@ -25,17 +25,16 @@ namespace NWN.Systems
           case CustomRace.WoodHalfElf: ApplyWoodHalfElfPackage(); return;
           case CustomRace.DrowHalfElf: ApplyDrowHalfElfPackage(); return;
           case CustomRace.HalfOrc: ApplyHalfOrcPackage(); return;
-          case CustomRace.GoldDwarf: ApplyGoldDwarfPackage(); return;
-          case CustomRace.ShieldDwarf: ApplyShieldDwarfPackage(); return;
+          case CustomRace.GoldDwarf: ApplyDwarfPackage(); return;
           case CustomRace.Duergar: ApplyDuergarPackage(); return;
-          case CustomRace.LightfootHalfling: ApplyLightFootPackage(); return;
-          case CustomRace.StrongheartHalfling: ApplyStrongHeartPackage(); return;
+          case CustomRace.Halfelin: ApplyHalfelinPackage(); return;
           case CustomRace.DeepGnome: ApplyDeepGnomePackage(); return;
           case CustomRace.ForestGnome: ApplyForestGnomePackage(); return;
           case CustomRace.RockGnome: ApplyRockGnomePackage(); return;
-          case CustomRace.AsmodeusThiefling: ApplyAsmodeusPackage(); return;
-          case CustomRace.MephistoThiefling: ApplyMephistoPackage(); return;
-          case CustomRace.ZarielThiefling: ApplyZarielPackage(); return;
+          case CustomRace.InfernalThiefling: ApplyInfernalPackage(); return;
+          case CustomRace.AbyssalThiefling: ApplyAbyssalPackage(); return;
+          case CustomRace.ChtonicThiefling: ApplyChtonicPackage(); return;
+          case CustomRace.Aasimar: ApplyAasimarPackage(); return;
         }
       }
     }

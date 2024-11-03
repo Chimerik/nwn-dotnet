@@ -11,7 +11,8 @@ namespace NWN.Systems
       if (caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value < 1)
         return;
 
-      if (caster.KnowsFeat((Feat)CustomSkill.RangerDeplacementFluide)
+      if (caster.Race.Id == CustomRace.HalfOrc 
+        || caster.KnowsFeat((Feat)CustomSkill.RangerDeplacementFluide)
         || caster.Classes.Any(c => Utils.In(c.Class.ClassType, ClassType.Rogue, (ClassType)CustomClass.RogueArcaneTrickster) && c.Level > 1)
         || caster.Classes.Any(c => c.Class.Id == CustomClass.Monk && c.Level > 1)
         || (caster.KnowsFeat((Feat)CustomSkill.TotemEspritAigle)
@@ -39,6 +40,9 @@ namespace NWN.Systems
 
         if (caster.KnowsFeat((Feat)CustomSkill.Chargeur))
           caster.GetObjectVariable<LocalVariableLocation>(EffectSystem.ChargerVariable).Value = caster.Location;
+
+        if (caster.Race.Id == CustomRace.HalfOrc)
+          caster.ApplyEffect(EffectDuration.Permanent, Effect.TemporaryHitpoints(NativeUtils.GetCreatureProficiencyBonus(caster)));
 
         StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} sprinte", ColorConstants.Orange, true);
         onUseFeat.PreventFeatUse = true;

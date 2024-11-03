@@ -547,6 +547,10 @@
     public const int CombattantClairvoyant = 1790;    
     public const int BouclierPsychique = 1791;    
 
+    public const int AilesAngeliques = 1792;    
+    public const int MainsGuerisseuses = 1793;    
+    public const int RevelationCeleste = 1794;    
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;

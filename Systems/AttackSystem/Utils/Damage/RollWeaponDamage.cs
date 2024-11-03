@@ -12,7 +12,7 @@ namespace NWN.Systems
       
       int numDamageDice = weapon.NumDamageDice
         + GetFureurOrcBonus(creature)
-        + GetOrcCriticalBonus(creature, attackData, isCriticalRoll)
+        //+ GetOrcCriticalBonus(creature, attackData, isCriticalRoll)
         + GetEmpaleurCriticalBonus(creature, weapon, isCriticalRoll)
         + GetBarbarianBrutalCriticalBonus(creature, attackData.m_bRangedAttack.ToBool(), isCriticalRoll);
 

@@ -135,8 +135,7 @@ namespace NWN.Systems
 
         case SpellEffectType.Poison:
 
-          if (creature.Race.Id == CustomRace.GoldDwarf || creature.Race.Id == CustomRace.ShieldDwarf
-            || creature.Race.Id == CustomRace.StrongheartHalfling)
+          if (creature.Race.Id == CustomRace.GoldDwarf)
           {
             LogUtils.LogMessage("Avantage - Nain ou Coeur-Vaillant contre poison", LogUtils.LogType.Combat);
             return true;
@@ -146,9 +145,7 @@ namespace NWN.Systems
 
         case SpellEffectType.Charm:
 
-          if (creature.Race.Id == CustomRace.HighElf || creature.Race.Id == CustomRace.HighHalfElf
-            || creature.Race.Id == CustomRace.WoodElf || creature.Race.Id == CustomRace.WoodHalfElf
-            || creature.Race.Id == CustomRace.Duergar)
+          if (Utils.In(creature.Race.Id, CustomRace.HighElf, CustomRace.HighHalfElf, CustomRace.WoodElf, CustomRace.Duergar, CustomRace.WoodHalfElf))
           {
             LogUtils.LogMessage("Avantage - Elfe, demi-elfe ou duergar contre charme", LogUtils.LogType.Combat);
             return true;
@@ -159,8 +156,7 @@ namespace NWN.Systems
         case SpellEffectType.Fear:
         case SpellEffectType.Terror:
 
-          if (creature.Race.Id == CustomRace.StrongheartHalfling || creature.Race.Id == CustomRace.LightfootHalfling
-            || creature.KnowsFeat((Feat)CustomSkill.ChasseurMoralDacier))
+          if (creature.Race.Id == CustomRace.Halfelin || creature.KnowsFeat((Feat)CustomSkill.ChasseurMoralDacier))
           {
             LogUtils.LogMessage("Avantage - Halfelin ou moral d'acier de Chasser vs effroi", LogUtils.LogType.Combat);
             return true;

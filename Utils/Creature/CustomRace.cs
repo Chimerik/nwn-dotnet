@@ -36,16 +36,15 @@ namespace NWN.Systems
     public const int WoodHalfElf = 34;
     public const int DrowHalfElf = 35;
     public const int GoldDwarf = 36;
-    public const int ShieldDwarf = 37;
     public const int Duergar = 38;
-    public const int LightfootHalfling = 39;
-    public const int StrongheartHalfling = 40;
+    public const int Halfelin = 39;
     public const int DeepGnome = 41;
     public const int ForestGnome = 42;
     public const int RockGnome = 43;
-    public const int AsmodeusThiefling = 44;
-    public const int MephistoThiefling = 45;
-    public const int ZarielThiefling = 46;
+    public const int InfernalThiefling = 44;
+    public const int AbyssalThiefling = 45;
+    public const int ChtonicThiefling = 46;
+    public const int Aasimar = 47;
 
     public const int Invalid = (int)RacialType.Invalid;
   }

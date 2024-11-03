@@ -36,7 +36,7 @@ namespace NWN.Systems
 
             break;
 
-          case CustomRace.AsmodeusThiefling:
+          case CustomRace.InfernalThiefling:
 
             switch (oid.LoginCreature.Level)
             {
@@ -61,7 +61,7 @@ namespace NWN.Systems
 
             break;
 
-          case CustomRace.MephistoThiefling:
+          case CustomRace.AbyssalThiefling:
 
             switch (oid.LoginCreature.Level)
             {
@@ -86,7 +86,7 @@ namespace NWN.Systems
 
             break;
 
-          case CustomRace.ZarielThiefling:
+          case CustomRace.ChtonicThiefling:
 
             switch (oid.LoginCreature.Level)
             {
@@ -135,6 +135,22 @@ namespace NWN.Systems
             }
 
             break;
+
+          case CustomRace.Aasimar:
+
+            switch (oid.LoginCreature.Level)
+            {
+              case 3:
+
+                if (learnableSkills.TryAdd(CustomSkill.RevelationCeleste, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.RevelationCeleste], this)))
+                  learnableSkills[CustomSkill.RevelationCeleste].LevelUp(this);
+
+                learnableSkills[CustomSkill.RevelationCeleste].source.Add(Category.Race);
+
+                break;
+            }
+
+                break;
         }
       }
     }

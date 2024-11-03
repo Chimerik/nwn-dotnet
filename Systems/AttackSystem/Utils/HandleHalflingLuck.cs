@@ -8,7 +8,7 @@ namespace NWN.Systems
     public static int HandleHalflingLuck(CNWSCreature creature, int attackRoll)
     {
       if(attackRoll < 2 && !creature.m_ScriptVars.GetInt(EffectSystem.ChanceDebortanteCooldownExo).ToBool()
-        && (creature.m_pStats.m_nRace == CustomRace.LightfootHalfling || creature.m_pStats.m_nRace == CustomRace.StrongheartHalfling))
+        && (creature.m_pStats.m_nRace == CustomRace.Halfelin))
       {
         SendNativeServerMessage("Chance hafeline".ColorString(StringUtils.gold), creature);
 
