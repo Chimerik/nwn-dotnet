@@ -1,18 +1,16 @@
 ﻿using System.Linq;
 using Anvil.API;
 using NWN.Native.API;
-using Feat = NWN.Native.API.Feat;
 
 namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static int GetBarbarianRageBonusDamage(CNWSCreature creature, CNWSCombatAttackData data)
+    public static int GetBarbarianRageBonusDamage(CNWSCreature creature, Anvil.API.Ability attackAbility, bool isMeleeAttack = true)
     {
-      if (!data.m_bRangedAttack.ToBool())
+      if (isMeleeAttack && attackAbility == Anvil.API.Ability.Strength)
       {
-        if(creature.m_pStats.HasFeat((ushort)Feat.BarbarianRage).ToBool()
-          && creature.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.barbarianRageEffectExoTag).ToBool()))
+        if(creature.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.barbarianRageEffectExoTag).ToBool()))
         {
           int barbarianLevel = creature.m_pStats.GetNumLevelsOfClass((byte)Native.API.ClassType.Barbarian);
 
@@ -32,8 +30,7 @@ namespace NWN.Systems
             return 4;
           }
         }
-        else if(creature.m_pStats.HasFeat(CustomSkill.BelluaireRageSanglier).ToBool()
-          && creature.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.rageDuSanglierEffectExoTag).ToBool()))
+        else if(creature.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.rageDuSanglierEffectExoTag).ToBool()))
         {
           int rangerLevel = NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(creature.m_oidMaster).m_pStats.GetNumLevelsOfClass((byte)Native.API.ClassType.Ranger);
 

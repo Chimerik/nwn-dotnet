@@ -64,6 +64,11 @@ namespace NWN.Systems
             LogUtils.LogMessage("Désavantage - Poison", LogUtils.LogType.Combat);
             return true;
 
+          case EffectSystem.FrappeSideranteEffectTag:
+            LogUtils.LogMessage("Désavantage - Frappe Sidérante", LogUtils.LogType.Combat);
+            EffectUtils.RemoveTaggedEffect(creature, EffectSystem.FrappeSideranteEffectTag);
+            return true;
+
           case EffectSystem.FrappeOcculteEffectTag:
 
             if (spellEntry is not null && oCaster is not null && eff.Creator == oCaster)
@@ -72,6 +77,7 @@ namespace NWN.Systems
               LogUtils.LogMessage("Désavantage - Chevalier Occulte : Frappe Occulte", LogUtils.LogType.Combat);
               return true;
             }
+
             break;
         }
 

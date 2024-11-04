@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Anvil.API;
 using NWN.Core;
 
@@ -55,13 +56,18 @@ namespace NWN.Systems
         caster.OnCreatureAttack += CreatureUtils.OnAttackLoupKnockdown;
       }
 
+      if (caster.GetClassInfo(ClassType.Barbarian).Level > 6)
+      {
+        caster.ApplyEffect(EffectDuration.Temporary, Effect.MovementSpeedIncrease(50), NwTimeSpan.FromRounds(1));
+        caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHaste));
+      }
       if (caster.KnowsFeat((Feat)CustomSkill.TotemEspritOurs))
       {
         caster.SetFeatRemainingUses((Feat)CustomSkill.TotemFerociteIndomptable, 100);
-        NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.BearBarbarianRage, NwTimeSpan.FromRounds(10)));
+        NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.BearBarbarianRage, TimeSpan.FromMinutes(10)));
       }
       else
-        NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.BarbarianRage, NwTimeSpan.FromRounds(10)));
+        NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.BarbarianRage, TimeSpan.FromMinutes(10)));
 
       byte barbarianLevel = caster.GetClassInfo(ClassType.Barbarian).Level;
 
@@ -92,14 +98,14 @@ namespace NWN.Systems
       {
         EffectUtils.RemoveTaggedEffect(caster, EffectSystem.CharmEffectTag, EffectSystem.FrightenedEffectTag);
         NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, 
-          EffectSystem.GetCharmImmunityEffect(EffectSystem.BarbarianRageAveugleEffectTag), NwTimeSpan.FromRounds(10)));
+          EffectSystem.GetCharmImmunityEffect(EffectSystem.BarbarianRageAveugleEffectTag), TimeSpan.FromMinutes(10)));
       }
 
       if (caster.KnowsFeat((Feat)CustomSkill.TotemEspritElan))
-        caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.elkTotemSpeed, NwTimeSpan.FromRounds(10));
+        caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.elkTotemSpeed, TimeSpan.FromMinutes(10));
 
       if (caster.KnowsFeat((Feat)CustomSkill.TotemEspritLoup))
-        caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.wolfTotemAura, NwTimeSpan.FromRounds(10));
+        caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.wolfTotemAura, TimeSpan.FromMinutes(10));
 
       bool freeRageRoll = BarbarianUtils.IsRatelTriggered(caster) && Utils.random.Next(0, 2).ToBool();
 

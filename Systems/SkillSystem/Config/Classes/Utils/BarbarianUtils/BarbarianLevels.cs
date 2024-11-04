@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Collections.Generic;
+using Anvil.API;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.PlayerSystem.Player;
 using static NWN.Systems.SkillSystem;
@@ -61,6 +62,18 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("subClassSelection", out var value)) player.windows.Add("subClassSelection", new SubClassSelectionWindow(player));
           else ((SubClassSelectionWindow)value).CreateWindow();
 
+          List<int> skillList = new();
+
+          foreach (var skill in startingPackage.skillChoiceList)
+            if (!player.learnableSkills.ContainsKey(skill.id))
+              skillList.Add(skill.id);
+
+          if (skillList.Count > 0)
+          {
+            if (!player.windows.TryGetValue("skillProficiencySelection", out var skill3)) player.windows.Add("skillProficiencySelection", new SkillProficiencySelectionWindow(player, skillList, 1));
+            else ((SkillProficiencySelectionWindow)skill3).CreateWindow(skillList, 1);
+          }
+
           break;
 
         case 4:
@@ -101,9 +114,9 @@ namespace NWN.Systems
 
         case 9:
 
-          player.learnableSkills.TryAdd(CustomSkill.BarbarianCritiqueBrutal, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BarbarianCritiqueBrutal], player));
-          player.learnableSkills[CustomSkill.BarbarianCritiqueBrutal].LevelUp(player);
-          player.learnableSkills[CustomSkill.BarbarianCritiqueBrutal].source.Add(Category.Class);
+          player.learnableSkills.TryAdd(CustomSkill.FrappeBrutale, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FrappeBrutale], player));
+          player.learnableSkills[CustomSkill.FrappeBrutale].LevelUp(player);
+          player.learnableSkills[CustomSkill.FrappeBrutale].source.Add(Category.Class);
 
           break;
 
@@ -121,6 +134,18 @@ namespace NWN.Systems
 
           if (!player.windows.TryGetValue("featSelection", out var feat12)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
           else ((FeatSelectionWindow)feat12).CreateWindow();
+
+          break;
+
+        case 13:
+
+          player.learnableSkills.TryAdd(CustomSkill.FrappeSiderante, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FrappeSiderante], player));
+          player.learnableSkills[CustomSkill.FrappeSiderante].LevelUp(player);
+          player.learnableSkills[CustomSkill.FrappeSiderante].source.Add(Category.Class);
+
+          player.learnableSkills.TryAdd(CustomSkill.FrappeDechirante, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FrappeDechirante], player));
+          player.learnableSkills[CustomSkill.FrappeDechirante].LevelUp(player);
+          player.learnableSkills[CustomSkill.FrappeDechirante].source.Add(Category.Class);
 
           break;
 

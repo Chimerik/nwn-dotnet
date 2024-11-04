@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using Anvil.API;
 using NWN.Core;
@@ -9,16 +8,17 @@ namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static int GetAttackBonus(CNWSCreature attacker, CNWSCreature target, CNWSCombatAttackData attackData, CNWSItem weapon, int strBonus, int dexBonus)
+    public static int GetAttackBonus(CNWSCreature attacker, CNWSCreature target, CNWSCombatAttackData attackData, CNWSItem weapon, Anvil.API.Ability attackAbility)
     {
       int attackBonus = attacker.m_pStats.GetAttackModifierVersus(target);
-
-      if (attackData.m_bRangedAttack.ToBool())
-        attackBonus -= dexBonus;
-      else
-        attackBonus -= strBonus;
+      attackBonus -= attackData.m_bRangedAttack.ToBool() 
+        ? attackBonus -= GetAbilityModifier(attacker, Anvil.API.Ability.Dexterity) : attackBonus -= GetAbilityModifier(attacker, Anvil.API.Ability.Strength);
 
       LogUtils.LogMessage($"modifier versus target : {attackBonus}", LogUtils.LogType.Combat);
+
+      int abilityModifier = GetAbilityModifier(attacker, attackAbility) * GetLienDuTigreBonus(attacker, target, attackData, weapon, attackAbility);
+      LogUtils.LogMessage($"Adding {attackAbility} modifier : {abilityModifier}", LogUtils.LogType.Combat);
+      attackBonus += abilityModifier;
 
       if (attackData.m_bRangedAttack.ToBool() && attacker.m_pStats.HasFeat(CustomSkill.FighterCombatStyleArchery).ToBool())
       {
@@ -51,12 +51,12 @@ namespace NWN.Systems
 
       if (weapon is not null)
       {
-        if (IsCogneurLourd(attacker, weapon, false))
+        if (IsCogneurLourd(attacker, weapon))
         {
           attackBonus -= 5;
           LogUtils.LogMessage("Cogneur Lourd : -5 BA", LogUtils.LogType.Combat);
         }
-        else if (IsTireurDelite(attacker, attackData, weapon, false))
+        else if (IsTireurDelite(attacker, attackData, weapon))
         {
           attackBonus -= 5;
           LogUtils.LogMessage("Tireur d'élite : -5 BA", LogUtils.LogType.Combat);
@@ -94,6 +94,16 @@ namespace NWN.Systems
           attackBonus += faveurBonus;
           attacker.RemoveEffect(eff);
           LogUtils.LogMessage($"Faveur du malin attaque : +{faveurBonus}", LogUtils.LogType.Combat);
+        }
+      }
+
+      foreach (var eff in target.m_appliedEffects)
+      {
+        if (eff.m_sCustomTag.CompareNoCase(EffectSystem.FrappeDechiranteEffectExoTag).ToBool() && eff.m_oidCreator != attacker.m_idSelf)
+        {
+          attackBonus += 5;
+          target.RemoveEffect(eff);
+          LogUtils.LogMessage("Frappe Déchirante : +5", LogUtils.LogType.Combat);
         }
       }
 

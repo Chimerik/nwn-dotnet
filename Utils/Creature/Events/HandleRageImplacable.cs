@@ -18,7 +18,8 @@ namespace NWN.Systems
 
         if(totalSave >= saveDC) 
         {
-          onDamage.Creature.HP = 1;
+          onDamage.Creature.HP = onDamage.Creature.GetClassInfo((ClassType)CustomClass.Barbarian).Level * 2;
+          onDamage.Creature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHealingM));
           StringUtils.DisplayStringToAllPlayersNearTarget(onDamage.Creature, "Rage Implacable", StringUtils.gold, true);
         }
       }

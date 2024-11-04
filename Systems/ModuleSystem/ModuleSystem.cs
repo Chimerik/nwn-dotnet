@@ -1269,13 +1269,9 @@ namespace NWN.Systems
 
       //Log.Info($"-----------------------Opportunity attack from {creature.Name} target {target.Name} ---------------------");
 
-      if (creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value < 1)
-      {
-        EventsPlugin.SkipEvent();
-        return;
-      }
-
-      if (creature.CurrentAction == Action.CastSpell) 
+      if (creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value < 1
+        || creature.CurrentAction == Action.CastSpell
+        || creature.ActiveEffects.Any(e => e.Tag == EffectSystem.FrappeSideranteEffectTag))
       {
         EventsPlugin.SkipEvent();
         return;

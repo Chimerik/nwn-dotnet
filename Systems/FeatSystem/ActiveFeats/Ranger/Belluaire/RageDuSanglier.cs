@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Anvil.API;
 using NWN.Core;
 
@@ -21,7 +22,7 @@ namespace NWN.Systems
       StringUtils.DisplayStringToAllPlayersNearTarget(companion, $"{companion.Name.ColorString(ColorConstants.Cyan)} entre en {"rage".ColorString(ColorConstants.Red)}", StringUtils.gold, false, true);
 
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpImproveAbilityScore));
-      caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.RageDuSanglier, NwTimeSpan.FromRounds(10));
+      caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.RageDuSanglier, TimeSpan.FromMinutes(10));
     }
   }
 }

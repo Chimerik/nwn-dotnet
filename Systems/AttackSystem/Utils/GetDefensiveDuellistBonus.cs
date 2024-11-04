@@ -6,7 +6,7 @@ namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static int GetDefensiveDuellistBonus(CNWSCreature target, int rangedAttack, bool pactWeapon)
+    public static int GetDefensiveDuellistBonus(CNWSCreature target, int rangedAttack)
     {
       if(rangedAttack.ToBool() || !target.m_pStats.HasFeat((ushort)Feat.PrestigeDefensiveAwareness1).ToBool()
         || !target.m_ScriptVars.GetInt(CreatureUtils.ReactionVariableExo).ToBool())
@@ -21,7 +21,7 @@ namespace NWN.Systems
 
       target.m_ScriptVars.SetInt(CreatureUtils.ReactionVariableExo, target.m_ScriptVars.GetInt(CreatureUtils.ReactionVariableExo) - 1);
 
-      return GetCreatureWeaponProficiencyBonus(target, weapon, pactWeapon);
+      return GetCreatureWeaponProficiencyBonus(target, weapon);
     }
   }
 }

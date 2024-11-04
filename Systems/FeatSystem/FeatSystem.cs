@@ -76,6 +76,10 @@ namespace NWN.Systems
         case CustomSkill.EldritchKnightArmeLieeInvocation2: ArmeLieeInovcation(onUseFeat.Creature, onUseFeat.Feat); return;
 
         case CustomSkill.BarbarianRecklessAttack: RecklessAttack(onUseFeat.Creature); return;
+        case CustomSkill.BarbarianRagePersistante: RagePersistante(onUseFeat.Creature); return;
+        case CustomSkill.FrappeBrutale: 
+        case CustomSkill.FrappeSiderante: 
+        case CustomSkill.FrappeDechirante: FrappeBrutale(onUseFeat.Creature, onUseFeat.Feat.Id); return;
         case (int)Feat.BarbarianRage: BarbarianRage(onUseFeat.Creature); return;
         case CustomSkill.BersekerFrenziedStrike: FrappeFrenetique(onUseFeat.Creature); return;
 

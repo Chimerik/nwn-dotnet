@@ -549,7 +549,11 @@
 
     public const int AilesAngeliques = 1792;    
     public const int MainsGuerisseuses = 1793;    
-    public const int RevelationCeleste = 1794;    
+    public const int RevelationCeleste = 1794;  
+    
+    public const int FrappeBrutale = 1795;    
+    public const int FrappeSiderante = 1796;    
+    public const int FrappeDechirante = 1797;    
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;

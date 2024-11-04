@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using NWN.Native.API;
 using Ability = Anvil.API.Ability;
 using BaseItemType = Anvil.API.BaseItemType;
@@ -16,6 +17,17 @@ namespace NWN.Systems
 
       bool advantage = HasAttackAdvantage(attacker, attackData, weaponType, attackStat, target);
       bool disadvantage = HasAttackDisadvantage(attacker, attackData, attackWeapon, weaponType, attackStat, target);
+
+      if (attacker.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.FrappeBrutaleEffectExoTag).ToBool()))
+      {
+        if (disadvantage)
+          EffectUtils.RemoveTaggedEffect(attacker, EffectSystem.FrappeBrutaleEffectExoTag);
+        else
+        {
+          advantage = false;
+          LogUtils.LogMessage("Frappe brutal - Retrait de l'avantage", LogUtils.LogType.Combat);
+        }
+      }
 
       if(advantage)
       {

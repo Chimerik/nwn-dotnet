@@ -4,7 +4,7 @@ namespace NWN.Systems
 {
   public static partial class BarbarianUtils
   {
-    public static async void RestoreBarbarianRage(NwCreature creature)
+    public static async void RestoreBarbarianRage(NwCreature creature, bool shortRest = false)
     {
       byte? level = creature.GetClassInfo(ClassType.Barbarian)?.Level;
 
@@ -13,19 +13,21 @@ namespace NWN.Systems
 
       await NwTask.NextFrame();
 
-      if(level < 3)
-        creature.SetFeatRemainingUses(Feat.BarbarianRage, 2);
-      else if(level < 6)
-        creature.SetFeatRemainingUses(Feat.BarbarianRage, 3);
-      else if (level < 12)
-        creature.SetFeatRemainingUses(Feat.BarbarianRage, 4);
-      else if (level < 17)
-        creature.SetFeatRemainingUses(Feat.BarbarianRage, 5);
-      else
-        creature.SetFeatRemainingUses(Feat.BarbarianRage, 6);
+      byte maxUse = (byte)(level > 16 ? 6 : level > 11 ? 5 : level > 5 ? 3 : 2);
 
-      creature.GetObjectVariable<PersistentVariableInt>("_RAGE_IMPLACABLE_DD").Value = 10;
-      creature.SetFeatRemainingUses((Feat)CustomSkill.TotemLienElan, 0);
+      if (shortRest)
+      {
+        byte remainingUse = creature.GetFeatRemainingUses(Feat.BarbarianRage);
+        
+        if(remainingUse < maxUse)
+          creature.SetFeatRemainingUses(Feat.BarbarianRage, (byte)(remainingUse + 1));
+      }
+      else
+      {
+        creature.SetFeatRemainingUses(Feat.BarbarianRage, maxUse);
+        creature.GetObjectVariable<PersistentVariableInt>("_RAGE_IMPLACABLE_DD").Value = 10;
+        creature.SetFeatRemainingUses((Feat)CustomSkill.TotemLienElan, 0);
+      }
     }
   }
 }

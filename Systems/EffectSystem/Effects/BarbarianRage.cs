@@ -15,9 +15,17 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.Icon((EffectIcon)168), 
-          Effect.DamageImmunityIncrease(DamageType.Bludgeoning, 50), Effect.DamageImmunityIncrease(DamageType.Piercing, 50), Effect.DamageImmunityIncrease(DamageType.Slashing, 50),
+        Effect resBludg = Effect.DamageImmunityIncrease(DamageType.Bludgeoning, 50);
+        resBludg.ShowIcon = false;
+        Effect resPierc = Effect.DamageImmunityIncrease(DamageType.Piercing, 50);
+        resPierc.ShowIcon = false;
+        Effect resSlash = Effect.DamageImmunityIncrease(DamageType.Slashing, 50);
+        resSlash.ShowIcon = false;
+
+        Effect eff = Effect.LinkEffects(resBludg, resPierc, resSlash,
+          Effect.Icon((EffectIcon)168), Effect.Icon((EffectIcon)211), Effect.Icon((EffectIcon)212), Effect.Icon((EffectIcon)213),
           Effect.RunAction(onRemovedHandle: onRemoveBarbarianRageCallback, onIntervalHandle: onIntervalBarbarianRageCallback, interval: NwTimeSpan.FromRounds(1)));
+        
         eff.Tag = BarbarianRageEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;
@@ -134,24 +142,34 @@ namespace NWN.Systems
       if (eventData.EffectTarget is not NwCreature target)
         return ScriptHandleResult.Handled;
 
-      if (target.GetObjectVariable<LocalVariableInt>("_BARBARIAN_RAGE_RENEW").HasNothing 
+      if (target.GetObjectVariable<LocalVariableInt>("_BARBARIAN_RAGE_RENEW").HasNothing
         && !target.KnowsFeat((Feat)CustomSkill.BarbarianRagePersistante))
-        EffectUtils.RemoveTaggedEffect(target, BarbarianRageEffectTag);
-      else
       {
-        target.GetObjectVariable<LocalVariableInt>("_BARBARIAN_RAGE_RENEW").Delete();
-
-        if (target.KnowsFeat((Feat)CustomSkill.TotemFerociteIndomptable))
-          target.SetFeatRemainingUses((Feat)CustomSkill.TotemFerociteIndomptable, 100);
-
-        if (target.KnowsFeat((Feat)CustomSkill.TotemHurlementGalvanisant))
-          target.SetFeatRemainingUses((Feat)CustomSkill.TotemHurlementGalvanisant, 100);
-
-        if(target.GetObjectVariable<LocalVariableInt>("_WILDMAGIC_TELEPORTATION").HasValue)
-          target.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WildMagicTeleportation), 1);
+        if (target.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value < 1)
+          EffectUtils.RemoveTaggedEffect(target, BarbarianRageEffectTag);
+        else
+        {
+          target.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value -= 1;
+          RenewBarbarianRage(target);
+        }
       }
+      else
+        RenewBarbarianRage(target);
 
       return ScriptHandleResult.Handled;
+    }
+    private static void RenewBarbarianRage(NwCreature caster)
+    {
+      caster.GetObjectVariable<LocalVariableInt>("_BARBARIAN_RAGE_RENEW").Delete();
+
+      if (caster.KnowsFeat((Feat)CustomSkill.TotemFerociteIndomptable))
+        caster.SetFeatRemainingUses((Feat)CustomSkill.TotemFerociteIndomptable, 100);
+
+      if (caster.KnowsFeat((Feat)CustomSkill.TotemHurlementGalvanisant))
+        caster.SetFeatRemainingUses((Feat)CustomSkill.TotemHurlementGalvanisant, 100);
+
+      if (caster.GetObjectVariable<LocalVariableInt>("_WILDMAGIC_TELEPORTATION").HasValue)
+        caster.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WildMagicTeleportation), 1);
     }
   }
 }

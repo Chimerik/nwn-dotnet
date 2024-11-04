@@ -54,14 +54,14 @@ namespace NWN.Systems
     }
     private void OnResolveAttackRoll(void* pCreature, void* pTarget)
     {
-      CNWSCreature creature = CNWSCreature.FromPointer(pCreature);
+      CNWSCreature attacker = CNWSCreature.FromPointer(pCreature);
       CNWSObject targetObject = CNWSObject.FromPointer(pTarget);
       CNWSCreature targetCreature = targetObject.m_nObjectType == (int)ObjectType.Creature ? targetObject.AsNWSCreature() : null;
-      CNWSCombatRound combatRound = creature.m_pcCombatRound;
+      CNWSCombatRound combatRound = attacker.m_pcCombatRound;
       CNWSCombatAttackData attackData = combatRound.GetAttack(combatRound.m_nCurrentAttack);
 
       string targetName = $"{targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)}";
-      string attackerName = $"{creature.GetFirstName().GetSimple(0)} {creature.GetLastName().GetSimple(0)}";
+      string attackerName = $"{attacker.GetFirstName().GetSimple(0)} {attacker.GetLastName().GetSimple(0)}";
 
       LogUtils.LogMessage($"----- {attackerName} attaque {targetName} - type {attackData.m_nAttackType} - nb {combatRound.m_nCurrentAttack} -----", LogUtils.LogType.Combat);
       
@@ -76,103 +76,44 @@ namespace NWN.Systems
         return;
       }
       
-      if (targetCreature is not null && attackData.m_bRangedAttack > 0 && creature.m_bPlayerCharacter > 0 
-        && (creature.m_appliedEffects.Any(e => (EffectTrueType)e.m_nType == EffectTrueType.Blindness || (EffectTrueType)e.m_nType == EffectTrueType.Darkness)
+      if (targetCreature is not null && attackData.m_bRangedAttack > 0 && attacker.m_bPlayerCharacter > 0 
+        && (attacker.m_appliedEffects.Any(e => (EffectTrueType)e.m_nType == EffectTrueType.Blindness || (EffectTrueType)e.m_nType == EffectTrueType.Darkness)
         || targetCreature.m_appliedEffects.Any(e => (EffectTrueType)e.m_nType == EffectTrueType.Darkness))
-        && Vector3.DistanceSquared(creature.m_vPosition.ToManagedVector(), targetCreature.m_vPosition.ToManagedVector()) > 9)
+        && Vector3.DistanceSquared(attacker.m_vPosition.ToManagedVector(), targetCreature.m_vPosition.ToManagedVector()) > 9)
       {
         attackData.m_nAttackResult = 4;
         attackData.m_nMissedBy = 2;
-        NativeUtils.SendNativeServerMessage($"ECHEC AUTOMATIQUE - Cible à plus de 3m".ColorString(ColorConstants.Red), creature);
+        NativeUtils.SendNativeServerMessage($"ECHEC AUTOMATIQUE - Cible à plus de 3m".ColorString(ColorConstants.Red), attacker);
         LogUtils.LogMessage($"Attaquant aveuglé et cible à plus de 3m : échec automatique", LogUtils.LogType.Combat);
         return;
       }
 
       // Si l'arme utilisée pour attaquer est une arme de finesse, et que la créature a une meilleur DEX, alors on utilise la DEX pour attaquer
       CNWSItem attackWeapon = combatRound.GetCurrentAttackWeapon(attackData.m_nWeaponAttackType);
-      Anvil.API.Ability attackStat = Anvil.API.Ability.Strength;
 
       //*** CALCUL DU BONUS D'ATTAQUE ***//
-      byte dexMod = creature.m_pStats.m_nDexterityModifier;
-      byte strMod = creature.m_pStats.m_nStrengthModifier;
-      int dexBonus = dexMod > 122 ? dexMod - 255 : dexMod;
-      int strBonus = strMod > 122 ? strMod - 255 : strMod;
-
       // On prend le bonus d'attaque calculé automatiquement par le jeu en fonction de la cible qui peut être une créature ou un placeable
-      int attackModifier = targetCreature is null ? creature.m_pStats.GetAttackModifierVersus() : NativeUtils.GetAttackBonus(creature, targetCreature, attackData, attackWeapon, strBonus, dexBonus);
-
-      if (creature.m_pStats.HasFeat(CustomSkill.TotemLienTigre).ToBool() && attackWeapon is not null
-        && ItemUtils.IsMeleeWeapon(NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem))
-        && targetObject.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.saignementEffectExoTag).ToBool()
-        || (EffectTrueType)e.m_nType == EffectTrueType.Poison))
-        strBonus *= 2;
-
-      if (creature.m_pStats.GetNumLevelsOfClass(CustomClass.Monk) > 0
-        && (attackWeapon is null || NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem).IsMonkWeapon))
-        attackStat = dexBonus > strBonus ? Anvil.API.Ability.Dexterity : Anvil.API.Ability.Strength;
-      else
-        attackStat = attackWeapon is null || attackData.m_bRangedAttack < 1 ? Anvil.API.Ability.Strength : Anvil.API.Ability.Dexterity;
-
-      bool pactWeapon = false;
-
-      if (attackWeapon != null)
-      { 
-        if(attackWeapon.m_ScriptVars.GetObject(CreatureUtils.PacteDeLaLameVariableExo) == creature.m_idSelf)
-        {
-          attackStat = Anvil.API.Ability.Charisma;
-          pactWeapon = true;
-          LogUtils.LogMessage($"Occultiste - Arme du Pacte de la Lame", LogUtils.LogType.Combat);
-        }
-        else if(dexBonus > strBonus && attackWeapon.m_ScriptVars.GetInt(ItemConfig.isFinesseWeaponCExoVariable) != 0)
-          attackStat = Anvil.API.Ability.Dexterity;
-      }
+      Anvil.API.Ability attackAbility = NativeUtils.GetAttackAbility(attacker, attackData, attackWeapon);
+      int attackModifier = targetCreature is null ? attacker.m_pStats.GetAttackModifierVersus() : NativeUtils.GetAttackBonus(attacker, targetCreature, attackData, attackWeapon, attackAbility);
 
       // On ajoute le bonus de maîtrise de la créature
-      int attackBonus = NativeUtils.GetCreatureWeaponProficiencyBonus(creature, attackWeapon, pactWeapon);
+      int attackBonus = NativeUtils.GetCreatureWeaponProficiencyBonus(attacker, attackWeapon);
       LogUtils.LogMessage($"Bonus de maîtrise {attackBonus} {(attackBonus < 1 ? "(Arme non maîtrisée)" : "")}", LogUtils.LogType.Combat);
-      
-      NativeUtils.HandleCrossbowMaster(creature, targetObject, combatRound, attackBonus, attackerName);
 
-      // TODO : Dans certains cas, la STAT à utiliser pourra être INT, SAG ou CHA, à implémenter 
-      switch (attackStat)
-      {
-        case Anvil.API.Ability.Strength:
-
-          LogUtils.LogMessage($"Ajout modificateur de force : {strBonus}", LogUtils.LogType.Combat);
-          attackBonus += strBonus;
-
-          break;
-
-        case Anvil.API.Ability.Dexterity:
-
-          LogUtils.LogMessage($"Ajout modificateur de dextérité : {dexBonus}", LogUtils.LogType.Combat);
-          attackBonus += dexBonus;
-
-          break;
-
-        case Anvil.API.Ability.Charisma:
-
-          int chaBonus = creature.m_pStats.m_nCharismaModifier > 122 ? 1 : creature.m_pStats.m_nCharismaModifier;
-          LogUtils.LogMessage($"Ajout modificateur de charisme : {chaBonus}", LogUtils.LogType.Combat);
-          attackBonus += chaBonus;
-
-          break;
-      }
-
-      attackBonus += attackModifier;
+      NativeUtils.HandleCrossbowMaster(attacker, targetObject, combatRound, attackBonus, attackerName);
 
       if (attackData.m_nWeaponAttackType == 2) // combat à deux armes
       {
-        int bonusAction = creature.m_ScriptVars.GetInt(Config.isBonusActionAvailableVariable);
+        int bonusAction = attacker.m_ScriptVars.GetInt(Config.isBonusActionAvailableVariable);
 
         if (bonusAction > 0) // L'attaque supplémentaire consomme l'action bonus du personnage
-          creature.m_ScriptVars.SetInt(Config.isBonusActionAvailableVariable, bonusAction - 1);
+          attacker.m_ScriptVars.SetInt(Config.isBonusActionAvailableVariable, bonusAction - 1);
         else // Si pas d'action bonus dispo, auto miss
         {
           attackData.m_nAttackResult = 4;
           attackData.m_nMissedBy = 8;
 
-          NativeUtils.SendNativeServerMessage($"Main secondaire - Echec automatique - Pas d'action bonus disponible".ColorString(ColorConstants.Red), creature);
+          NativeUtils.SendNativeServerMessage($"Main secondaire - Echec automatique - Pas d'action bonus disponible".ColorString(ColorConstants.Red), attacker);
         }
       }
 
@@ -180,30 +121,30 @@ namespace NWN.Systems
 
       if(attackData.m_nAttackType == 65002) // 65002 = attaque d'opportunité
       {
-        opportunityString = $"Attaque d'opportunité {creature.m_ScriptVars.GetString(CreatureUtils.OpportunityAttackTypeVariableExo)}- ";
-        creature.m_ScriptVars.DestroyString(CreatureUtils.OpportunityAttackTypeVariableExo);
+        opportunityString = $"Attaque d'opportunité {attacker.m_ScriptVars.GetString(CreatureUtils.OpportunityAttackTypeVariableExo)}- ";
+        attacker.m_ScriptVars.DestroyString(CreatureUtils.OpportunityAttackTypeVariableExo);
       }
 
       if (targetCreature is not null)
       {
-        if(NativeUtils.IsAttackRedirected(creature, targetCreature, combatRound, attackerName, targetName))
+        if(NativeUtils.IsAttackRedirected(attacker, targetCreature, combatRound, attackerName, targetName))
         {
           attackData.m_nMissedBy = 2;
           attackData.m_nAttackResult = 4;
           return;
         }
 
-        int advantage = CreatureUtils.GetAdvantageAgainstTarget(creature, attackData, attackWeapon, attackStat, targetCreature);
-        creature.m_ScriptVars.SetInt($"_ADVANTAGE_ATTACK_{combatRound.m_nCurrentAttack}".ToExoString(), advantage);
+        int advantage = CreatureUtils.GetAdvantageAgainstTarget(attacker, attackData, attackWeapon, attackAbility, targetCreature);
+        attacker.m_ScriptVars.SetInt($"_ADVANTAGE_ATTACK_{combatRound.m_nCurrentAttack}".ToExoString(), advantage);
 
-        int attackRoll = NativeUtils.GetAttackRoll(creature, advantage, attackStat);
-        int targetAC  = NativeUtils.GetCreatureAC(targetCreature, creature);
-        bool isCriticalHit = attackRoll >= NativeUtils.GetCriticalRange(creature, attackWeapon, attackData);
+        int attackRoll = NativeUtils.GetAttackRoll(attacker, advantage, attackAbility);
+        int targetAC  = NativeUtils.GetCreatureAC(targetCreature, attacker);
+        bool isCriticalHit = attackRoll >= NativeUtils.GetCriticalRange(attacker, attackWeapon, attackData);
 
         if (isCriticalHit && targetCreature.m_ScriptVars.GetInt(CreatureUtils.SecondeChanceVariableExo).ToBool())
         {
-          attackRoll = NativeUtils.GetAttackRoll(creature, advantage, attackStat);
-          isCriticalHit = attackRoll >= NativeUtils.GetCriticalRange(creature, attackWeapon, attackData);
+          attackRoll = NativeUtils.GetAttackRoll(attacker, advantage, attackAbility);
+          isCriticalHit = attackRoll >= NativeUtils.GetCriticalRange(attacker, attackWeapon, attackData);
           NativeUtils.SendNativeServerMessage("Seconde chance".ColorString(StringUtils.gold), targetCreature);
         }
 
@@ -212,7 +153,7 @@ namespace NWN.Systems
         string criticalString = "";
         string advantageString = advantage == 0 ? "" : advantage > 0 ? "Avantage - ".ColorString(StringUtils.gold) : "Désavantage - ".ColorString(ColorConstants.Red);
         int totalAttack = attackRoll + attackBonus;
-        int defensiveDuellistBonus = NativeUtils.GetDefensiveDuellistBonus(targetCreature, attackData.m_bRangedAttack, pactWeapon);
+        int defensiveDuellistBonus = NativeUtils.GetDefensiveDuellistBonus(targetCreature, attackData.m_bRangedAttack);
         int superiorityDiceBonus = 0;
         int inspirationBardique = 0;
         string inspirationString = "";
@@ -249,13 +190,13 @@ namespace NWN.Systems
               else
                 targetObject.m_ScriptVars.SetInt(EffectSystem.ImageMiroirEffectExoTag, nbImages);
 
-              NativeUtils.SendNativeServerMessage($"{advantageString}{opportunityString}{criticalString}Vous {hitString} l'image miroir {nbImages} de {targetName.ColorString(ColorConstants.Cyan)} {rollString}".ColorString(ColorConstants.Cyan), creature);
-              NativeUtils.BroadcastNativeServerMessage($"{advantageString}{opportunityString}{criticalString}{attackerName.ColorString(ColorConstants.Cyan)} {hitString.Replace("z", "")} une image miroir de {targetName.ColorString(ColorConstants.Cyan)} {rollString}".ColorString(ColorConstants.Cyan), creature, true);
+              NativeUtils.SendNativeServerMessage($"{advantageString}{opportunityString}{criticalString}Vous {hitString} l'image miroir {nbImages} de {targetName.ColorString(ColorConstants.Cyan)} {rollString}".ColorString(ColorConstants.Cyan), attacker);
+              NativeUtils.BroadcastNativeServerMessage($"{advantageString}{opportunityString}{criticalString}{attackerName.ColorString(ColorConstants.Cyan)} {hitString.Replace("z", "")} une image miroir de {targetName.ColorString(ColorConstants.Cyan)} {rollString}".ColorString(ColorConstants.Cyan), attacker, true);
             }
             else
             {
-              NativeUtils.SendNativeServerMessage($"{advantageString}{opportunityString}{criticalString}Vous {hitString} l'image miroir {nbImages} de {targetName.ColorString(ColorConstants.Cyan)} {rollString}".ColorString(ColorConstants.Cyan), creature);
-              NativeUtils.BroadcastNativeServerMessage($"{advantageString}{opportunityString}{criticalString}{attackerName.ColorString(ColorConstants.Cyan)} {hitString.Replace("z", "")} une image miroir de {targetName.ColorString(ColorConstants.Cyan)} {rollString}".ColorString(ColorConstants.Cyan), creature, true);
+              NativeUtils.SendNativeServerMessage($"{advantageString}{opportunityString}{criticalString}Vous {hitString} l'image miroir {nbImages} de {targetName.ColorString(ColorConstants.Cyan)} {rollString}".ColorString(ColorConstants.Cyan), attacker);
+              NativeUtils.BroadcastNativeServerMessage($"{advantageString}{opportunityString}{criticalString}{attackerName.ColorString(ColorConstants.Cyan)} {hitString.Replace("z", "")} une image miroir de {targetName.ColorString(ColorConstants.Cyan)} {rollString}".ColorString(ColorConstants.Cyan), attacker, true);
             }
 
             attackData.m_nAttackResult = 4;
@@ -264,14 +205,14 @@ namespace NWN.Systems
           }
         }
 
-        if (creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreTypeVariableExo) == CustomSkill.WarMasterAttaquePrecise)
+        if (attacker.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreTypeVariableExo) == CustomSkill.WarMasterAttaquePrecise)
         {
-          int superiorityDice = creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreDiceVariableExo);
+          int superiorityDice = attacker.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreDiceVariableExo);
           superiorityDiceBonus = NwRandom.Roll(Utils.random, superiorityDice);
           LogUtils.LogMessage($"Attaque précise : dé de supériorité 1d{superiorityDice} (+{superiorityDiceBonus})", LogUtils.LogType.Combat);
         }
 
-        foreach (var eff in creature.m_appliedEffects)
+        foreach (var eff in attacker.m_appliedEffects)
           if (eff.m_sCustomTag.CompareNoCase(EffectSystem.inspirationBardiqueEffectExoTag).ToBool())
           {
             inspirationBardique = eff.m_nCasterLevel;
@@ -280,7 +221,7 @@ namespace NWN.Systems
             break;
           }
 
-        bool isAssassinate = NativeUtils.IsAssassinate(creature);
+        bool isAssassinate = NativeUtils.IsAssassinate(attacker);
 
         if (isCriticalHit || isAssassinate 
           || (attackData.m_bRangedAttack < 1 && targetCreature.m_appliedEffects.Any(e => (EffectTrueType)e.m_nType == EffectTrueType.SetState && e.GetInteger(0) == 8))) // Si la cible est paralysée, que l'attaque touche et est en mêlée, alors critique auto
@@ -298,10 +239,10 @@ namespace NWN.Systems
           if (totalAttack + inspirationBardique + superiorityDiceBonus < targetAC + defensiveDuellistBonus) // Echoue alors qu'elle aurait du toucher
           {
             if (inspirationBardique < 0)
-              NativeUtils.HandleInspirationBardiqueUsed(creature, inspirationBardique, inspirationEffect, inspirationString, attackerName);
+              NativeUtils.HandleInspirationBardiqueUsed(attacker, inspirationBardique, inspirationEffect, inspirationString, attackerName);
 
             if (superiorityDiceBonus > 0)
-              NativeUtils.HandleAttaquePreciseUsed(creature, superiorityDiceBonus);
+              NativeUtils.HandleAttaquePreciseUsed(attacker, superiorityDiceBonus);
 
             if (defensiveDuellistBonus > 0)
               NativeUtils.SendNativeServerMessage("Duelliste défensif activé !".ColorString(ColorConstants.Orange), targetCreature);
@@ -325,10 +266,10 @@ namespace NWN.Systems
           if (totalAttack + inspirationBardique + superiorityDiceBonus >= targetAC + defensiveDuellistBonus) // Touche alors qu'elle aurait du échouer
           {
             if (inspirationBardique > 0)
-              NativeUtils.HandleInspirationBardiqueUsed(creature, inspirationBardique, inspirationEffect, inspirationString, attackerName);
+              NativeUtils.HandleInspirationBardiqueUsed(attacker, inspirationBardique, inspirationEffect, inspirationString, attackerName);
 
             if (superiorityDiceBonus > 0)
-              NativeUtils.HandleAttaquePreciseUsed(creature, superiorityDiceBonus);
+              NativeUtils.HandleAttaquePreciseUsed(attacker, superiorityDiceBonus);
 
             if (defensiveDuellistBonus > 0)
               NativeUtils.SendNativeServerMessage("Duelliste défensif activé !".ColorString(ColorConstants.Orange), targetCreature);
@@ -357,44 +298,44 @@ namespace NWN.Systems
 
         if (attackData.m_nAttackResult == 4)
         {
-          NativeUtils.HandleRafaleDuTraqueur(creature, targetObject, combatRound, attackerName, targetName);
-          NativeUtils.HandleRiposte(creature, targetCreature, attackData, attackerName);
-          creature.m_ScriptVars.DestroyInt(FeatSystem.BotteDamageExoVariable);
+          NativeUtils.HandleRafaleDuTraqueur(attacker, targetObject, combatRound, attackerName, targetName);
+          NativeUtils.HandleRiposte(attacker, targetCreature, attackData, attackerName);
+          attacker.m_ScriptVars.DestroyInt(FeatSystem.BotteDamageExoVariable);
 
-          if (creature.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreRiposteVariableExo).ToBool())
-            creature.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreRiposteVariableExo);
+          if (attacker.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreRiposteVariableExo).ToBool())
+            attacker.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreRiposteVariableExo);
         }
  
-        NativeUtils.SendNativeServerMessage($"{advantageString}{opportunityString}{criticalString}Vous {hitString} {targetName.ColorString(ColorConstants.Cyan)} {rollString}".ColorString(ColorConstants.Cyan), creature);
-        NativeUtils.BroadcastNativeServerMessage($"{advantageString}{opportunityString}{criticalString}{attackerName.ColorString(ColorConstants.Cyan)} {hitString.Replace("z", "")} {targetName.ColorString(ColorConstants.Cyan)} {rollString}".ColorString(ColorConstants.Cyan), creature, true);
+        NativeUtils.SendNativeServerMessage($"{advantageString}{opportunityString}{criticalString}Vous {hitString} {targetName.ColorString(ColorConstants.Cyan)} {rollString}".ColorString(ColorConstants.Cyan), attacker);
+        NativeUtils.BroadcastNativeServerMessage($"{advantageString}{opportunityString}{criticalString}{attackerName.ColorString(ColorConstants.Cyan)} {hitString.Replace("z", "")} {targetName.ColorString(ColorConstants.Cyan)} {rollString}".ColorString(ColorConstants.Cyan), attacker, true);
 
-        NativeUtils.HandleSentinelleOpportunityTarget(creature, combatRound, attackerName);
-        NativeUtils.HandleSentinelle(creature, targetCreature, combatRound);
-        NativeUtils.HandleFureurOrc(creature, targetCreature, combatRound, attackerName);
-        NativeUtils.HandleDiversion(creature, attackData, targetCreature);
-        NativeUtils.HandleTueurDeGeants(creature, targetCreature, combatRound, attackerName, attackWeapon, attackData.m_bRangedAttack.ToBool());
-        NativeUtils.HandleMonkOpportunist(creature, targetCreature, attackData, combatRound, attackerName, targetName);
+        NativeUtils.HandleSentinelleOpportunityTarget(attacker, combatRound, attackerName);
+        NativeUtils.HandleSentinelle(attacker, targetCreature, combatRound);
+        NativeUtils.HandleFureurOrc(attacker, targetCreature, combatRound, attackerName);
+        NativeUtils.HandleDiversion(attacker, attackData, targetCreature);
+        NativeUtils.HandleTueurDeGeants(attacker, targetCreature, combatRound, attackerName, attackWeapon, attackData.m_bRangedAttack.ToBool());
+        NativeUtils.HandleMonkOpportunist(attacker, targetCreature, attackData, combatRound, attackerName, targetName);
       }
       else
         attackData.m_nAttackResult = 7;
 
-      NativeUtils.HandleHastMaster(creature, targetObject, combatRound, attackerName);
-      NativeUtils.HandleBalayage(creature, targetObject, combatRound, attackerName);
-      NativeUtils.HandleRiposteBonusAttack(creature, combatRound, attackData, attackerName);
-      NativeUtils.HandleFrappeFrenetiqueBonusAttack(creature, targetObject, combatRound, attackData, attackerName);
-      NativeUtils.HandleBersekerRepresaillesBonusAttack(creature, combatRound, attackData, attackerName);
-      NativeUtils.HandleTigreAspect(creature, targetObject, combatRound, attackerName);
-      NativeUtils.HandleArcaneArcherTirIncurveBonusAttack(creature, attackData, combatRound, attackerName, attackWeapon, targetObject);
-      NativeUtils.HandleMonkBonusAttack(creature, targetObject, combatRound, attackerName, targetName);
-      NativeUtils.HandleMonkDeluge(creature, targetObject, combatRound, attackerName, targetName);
-      NativeUtils.HandleThiefReflex(creature, targetObject, combatRound, attackerName, targetName);
-      NativeUtils.HandleBardeBotteTranchante(creature, targetObject, combatRound, attackerName);
-      NativeUtils.HandleBriseurDeHordes(creature, targetObject, combatRound, attackerName, attackWeapon, attackData.m_bRangedAttack.ToBool());
-      NativeUtils.HandleVolee(creature, targetObject, combatRound, attackData.m_bRangedAttack.ToBool(), attackerName);
-      NativeUtils.HandleAttaqueCoordonnee(creature, targetObject, combatRound);
-      NativeUtils.HandleFurieBestiale(creature, targetObject, combatRound, attackerName);
-      NativeUtils.HandleVoeuHostile(creature, combatRound, attackData, attackerName);
-      NativeUtils.HandleClercMartial(creature, targetObject, combatRound, attackerName);
+      NativeUtils.HandleHastMaster(attacker, targetObject, combatRound, attackerName);
+      NativeUtils.HandleBalayage(attacker, targetObject, combatRound, attackerName);
+      NativeUtils.HandleRiposteBonusAttack(attacker, combatRound, attackData, attackerName);
+      NativeUtils.HandleFrappeFrenetiqueBonusAttack(attacker, targetObject, combatRound, attackData, attackerName);
+      NativeUtils.HandleBersekerRepresaillesBonusAttack(attacker, combatRound, attackData, attackerName);
+      NativeUtils.HandleTigreAspect(attacker, targetObject, combatRound, attackerName);
+      NativeUtils.HandleArcaneArcherTirIncurveBonusAttack(attacker, attackData, combatRound, attackerName, attackWeapon, targetObject);
+      NativeUtils.HandleMonkBonusAttack(attacker, targetObject, combatRound, attackerName, targetName);
+      NativeUtils.HandleMonkDeluge(attacker, targetObject, combatRound, attackerName, targetName);
+      NativeUtils.HandleThiefReflex(attacker, targetObject, combatRound, attackerName, targetName);
+      NativeUtils.HandleBardeBotteTranchante(attacker, targetObject, combatRound, attackerName);
+      NativeUtils.HandleBriseurDeHordes(attacker, targetObject, combatRound, attackerName, attackWeapon, attackData.m_bRangedAttack.ToBool());
+      NativeUtils.HandleVolee(attacker, targetObject, combatRound, attackData.m_bRangedAttack.ToBool(), attackerName);
+      NativeUtils.HandleAttaqueCoordonnee(attacker, targetObject, combatRound);
+      NativeUtils.HandleFurieBestiale(attacker, targetObject, combatRound, attackerName);
+      NativeUtils.HandleVoeuHostile(attacker, combatRound, attackData, attackerName);
+      NativeUtils.HandleClercMartial(attacker, targetObject, combatRound, attackerName);
       NativeUtils.HandleFureurOuraganFoudre(targetObject, attackData);
       NativeUtils.HandleFureurTonnerreFoudre(targetObject, attackData);
     }
@@ -484,6 +425,7 @@ namespace NWN.Systems
       LogUtils.LogMessage($"----- Jet de dégâts : {creatureStats.GetFullName().ToExoLocString().GetSimple(0)} attaque {targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)} - type {attackData.m_nAttackType} - nb {combatRound.m_nCurrentAttack} -----", LogUtils.LogType.Combat);
 
       CNWSItem attackWeapon = combatRound.GetCurrentAttackWeapon(attackData.m_nWeaponAttackType);
+      Anvil.API.Ability damageAbility = NativeUtils.GetAttackAbility(attacker, attackData, attackWeapon);
       int baseDamage = 0;
       bool isDuelFightingStyle = false;
       int sneakAttack = 0;
@@ -507,7 +449,7 @@ namespace NWN.Systems
           }
           else
           {
-            baseDamage += NativeUtils.RollWeaponDamage(attacker, baseWeapon, attackData, targetCreature, attackWeapon);
+            baseDamage += NativeUtils.RollWeaponDamage(attacker, baseWeapon, attackData, targetCreature, attackWeapon, damageAbility);
             isDuelFightingStyle = NativeUtils.IsDuelFightingStyle(attacker, baseWeapon, attackData);
             baseDamage += isDuelFightingStyle ? 2 : 0;
           }
@@ -515,12 +457,12 @@ namespace NWN.Systems
           sneakAttack = NativeUtils.GetSneakAttackDamage(attacker, targetCreature, attackWeapon, attackData, combatRound);
           baseDamage += sneakAttack;
 
-          if (NativeUtils.IsCogneurLourd(attacker, attackWeapon, false))
+          if (NativeUtils.IsCogneurLourd(attacker, attackWeapon))
           {
             baseDamage += 10;
             LogUtils.LogMessage($"Cogneur Lourd : +10 dégâts", LogUtils.LogType.Combat);
           }
-          else if (NativeUtils.IsTireurDelite(attacker, attackData, attackWeapon, false))
+          else if (NativeUtils.IsTireurDelite(attacker, attackData, attackWeapon))
           {
             baseDamage += 10;
             LogUtils.LogMessage($"Tireur d'élite : +10 dégâts", LogUtils.LogType.Combat);
@@ -528,17 +470,17 @@ namespace NWN.Systems
         }
         else
         {
-          baseDamage += NativeUtils.GetUnarmedDamage(attacker);
+          baseDamage += NativeUtils.GetUnarmedDamage(attacker, targetCreature, damageAbility);
         }
       }
       else
       {
-        baseDamage += NativeUtils.GetUnarmedDamage(attacker);
+        baseDamage += NativeUtils.GetUnarmedDamage(attacker, targetCreature, damageAbility);
       }
 
       if (bCritical > 0)
       {
-        int critDamage = NativeUtils.GetCritDamage(attacker, attackWeapon, attackData, sneakAttack, isDuelFightingStyle, targetCreature);
+        int critDamage = NativeUtils.GetCritDamage(attacker, attackWeapon, attackData, sneakAttack, isDuelFightingStyle, targetCreature, damageAbility);
         LogUtils.LogMessage($"Critique - Base {baseDamage} + crit {critDamage} = {baseDamage + critDamage}", LogUtils.LogType.Combat);
         baseDamage += critDamage;
       }
@@ -555,57 +497,13 @@ namespace NWN.Systems
       }
 
       // Ajout du bonus de caractéristique
-      byte dexMod = creatureStats.m_nDexterityModifier;
-      byte strMod = creatureStats.m_nStrengthModifier;
-      int dexBonus = dexMod > 122 ? dexMod - 255 : dexMod;
-      int strBonus = strMod > 122 ? strMod - 255 : strMod;
-      int damageBonus = 0;
-      bool pactWeapon = false;
+      int damageBonus = NativeUtils.GetAbilityModifier(attacker, damageAbility);
 
-      if (attackData.m_bRangedAttack > 0)
-      {
-        damageBonus += dexBonus;
-        LogUtils.LogMessage($"Arme à distance - Ajout Dextérité ({dexBonus})", LogUtils.LogType.Combat);
-      }
-      else if(attackWeapon is not null && attackWeapon.m_ScriptVars.GetObject(CreatureUtils.PacteDeLaLameVariableExo) == attacker.m_idSelf)
-      {
-        int chaBonus = attacker.m_pStats.m_nCharismaModifier > 122 ? 1 : attacker.m_pStats.m_nCharismaModifier;
-        pactWeapon = true;
-        damageBonus += chaBonus;
-        LogUtils.LogMessage($"Ajout modificateur de charisme : {chaBonus}", LogUtils.LogType.Combat);
-      }
-      else if (attacker.m_pStats.GetNumLevelsOfClass(CustomClass.Monk) > 0 // Les moins utilisent leur caract la plus élevée à mains nues ou avec arme de moine
-        && (attackWeapon is null || NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem).IsMonkWeapon))
-      {
-        if (dexBonus > strBonus)
-        {
-          damageBonus += dexBonus;
-          LogUtils.LogMessage($"Moine - Ajout Dextérité ({dexBonus})", LogUtils.LogType.Combat);
-        }
-        else
-        {
-          damageBonus += strBonus;
-          LogUtils.LogMessage($"Moine - Ajout Force ({strBonus})", LogUtils.LogType.Combat);
-        }
-      }// Si arme de finesse et dextérité plus élevée, alors on utilise la dextérité
-      else if(attackWeapon is not null &&  attackWeapon.m_ScriptVars.GetInt(ItemConfig.isFinesseWeaponCExoVariable) != 0 
-        && dexBonus > strBonus)
-      {
-        damageBonus +=  dexBonus;
-        LogUtils.LogMessage($"Arme de finesse - Ajout Dextérité ({dexBonus})", LogUtils.LogType.Combat);
-      }
-      else
-      {
-        damageBonus += strBonus;
-        LogUtils.LogMessage($"Ajout Force ({strBonus})", LogUtils.LogType.Combat);
-      }
       // Pour l'attaque de la main secondaire, on n'ajoute le modificateur de caractéristique que s'il est négatif
-      if (bOffHand < 1 || NativeUtils.HasTwoWeaponStyle(attacker) || (bOffHand > 0 && dexBonus < 0))
+      if (!bOffHand.ToBool() || NativeUtils.HasTwoWeaponStyle(attacker) || (bOffHand > 0 && damageBonus < 0))
         baseDamage += damageBonus;
-      /*else
-        LogUtils.LogMessage($"Main secondaire - Bonus de caractéristique non appliqué aux dégâts", LogUtils.LogType.Combat);*/
 
-      baseDamage += NativeUtils.HandleBagarreurDeTaverne(attacker, attackWeapon, strBonus);
+      baseDamage += NativeUtils.HandleBagarreurDeTaverne(attacker, attackWeapon);
       baseDamage += NativeUtils.HandleAnimalCompanionBonusDamage(attacker);
 
       if (targetCreature is not null)
@@ -629,7 +527,7 @@ namespace NWN.Systems
 
       // Application des réductions du jeu de base
 
-      if (!pactWeapon)
+      if (attackWeapon.m_ScriptVars.GetObject(CreatureUtils.PacteDeLaLameVariableExo) != attacker.m_idSelf)
       {
         LogUtils.LogMessage($"Application des immunités de la cible - Dégats : {baseDamage}", LogUtils.LogType.Combat);
         baseDamage = targetObject.DoDamageImmunity(attacker, baseDamage, damageFlags, 0, 1);
