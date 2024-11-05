@@ -27,6 +27,9 @@ namespace NWN.Systems
         creature.SetFeatRemainingUses(Feat.BarbarianRage, maxUse);
         creature.GetObjectVariable<PersistentVariableInt>("_RAGE_IMPLACABLE_DD").Value = 10;
         creature.SetFeatRemainingUses((Feat)CustomSkill.TotemLienElan, 0);
+        creature.SetFeatRemainingUses((Feat)CustomSkill.BersekerPresenceIntimidante, 1);
+
+        EffectUtils.RemoveTaggedEffect(creature, EffectSystem.PresenceIntimidanteUsedEffectTag);
       }
     }
   }

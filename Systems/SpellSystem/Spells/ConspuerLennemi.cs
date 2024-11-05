@@ -12,20 +12,17 @@ namespace NWN.Systems
 
       SpellUtils.SignalEventSpellCast(oCaster, target, spell.SpellType);
 
-      if (!EffectSystem.IsFrightImmune(target, caster))
-      {
         int DC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(caster) + caster.GetAbilityModifier(Ability.Charisma);
 
-        if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, DC) == SavingThrowResult.Failure)
-        {
-          target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpFearS));
-          NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Effroi(target), NwTimeSpan.FromRounds(spellEntry.duration)));
-        }
-        else
-        {
-          target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSlow));
-          NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, Effect.MovementSpeedDecrease(50), NwTimeSpan.FromRounds(spellEntry.duration)));
-        }
+      if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, DC) == SavingThrowResult.Failure)
+      {
+        target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpFearS));
+        EffectSystem.ApplyEffroi(target, caster, NwTimeSpan.FromRounds(spellEntry.duration));
+      }
+      else
+      {
+        target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSlow));
+        NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, Effect.MovementSpeedDecrease(50), NwTimeSpan.FromRounds(spellEntry.duration)));
       }
       
       PaladinUtils.ConsumeOathCharge(caster);

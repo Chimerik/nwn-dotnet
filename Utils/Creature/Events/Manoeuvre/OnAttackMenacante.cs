@@ -21,16 +21,12 @@ namespace NWN.Systems
 
           StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Attaque Menaçante", ColorConstants.Red, true);
 
-          if (!EffectSystem.IsFrightImmune(target, onAttack.Attacker))
-          {
-            int attackerModifier = onAttack.Attacker.GetAbilityModifier(Ability.Strength) > onAttack.Attacker.GetAbilityModifier(Ability.Dexterity) ? onAttack.Attacker.GetAbilityModifier(Ability.Strength) : onAttack.Attacker.GetAbilityModifier(Ability.Dexterity);
-            int DC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(onAttack.Attacker) + attackerModifier;
+          int attackerModifier = onAttack.Attacker.GetAbilityModifier(Ability.Strength) > onAttack.Attacker.GetAbilityModifier(Ability.Dexterity) ? onAttack.Attacker.GetAbilityModifier(Ability.Strength) : onAttack.Attacker.GetAbilityModifier(Ability.Dexterity);
+          int DC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(onAttack.Attacker) + attackerModifier;
 
-            if(GetSavingThrow(onAttack.Attacker, target, Ability.Wisdom, DC) == SavingThrowResult.Failure)
-            {
-              NWScript.AssignCommand(onAttack.Attacker, () => target.ApplyEffect(EffectDuration.Temporary,
-              EffectSystem.Effroi(target), NwTimeSpan.FromRounds(1)));
-            }
+          if(GetSavingThrow(onAttack.Attacker, target, Ability.Wisdom, DC) == SavingThrowResult.Failure)
+          {
+            EffectSystem.ApplyEffroi(target, onAttack.Attacker, NwTimeSpan.FromRounds(1));
           }
 
           await NwTask.NextFrame();

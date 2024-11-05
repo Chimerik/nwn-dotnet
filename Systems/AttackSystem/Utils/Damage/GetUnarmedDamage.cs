@@ -11,6 +11,7 @@ namespace NWN.Systems
       int damage = NwRandom.Roll(Utils.random, unarmedDieToRoll);
       damage += GetDegatsVaillantsBonus(creature)
         + GetBarbarianRageBonusDamage(creature, attackAbility)
+        + GetFrappeFrenetiqueBonusDamage(creature, attackAbility)
         + GetFrappeBrutaleBonusDamage(creature, target, attackAbility)
         + GetFaveurDuMalinBonusDamage(creature);
 

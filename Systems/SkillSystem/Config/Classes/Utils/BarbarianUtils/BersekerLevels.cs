@@ -36,17 +36,19 @@ namespace NWN.Systems
 
         case 10:
 
-          player.learnableSkills.TryAdd(CustomSkill.BersekerPresenceIntimidante, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BersekerPresenceIntimidante], player));
-          player.learnableSkills[CustomSkill.BersekerPresenceIntimidante].LevelUp(player);
-          player.learnableSkills[CustomSkill.BersekerPresenceIntimidante].source.Add(Category.Class);
+          player.learnableSkills.TryAdd(CustomSkill.BersekerRepresailles, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BersekerRepresailles], player));
+          player.learnableSkills[CustomSkill.BersekerRepresailles].LevelUp(player);
+          player.learnableSkills[CustomSkill.BersekerRepresailles].source.Add(Category.Class);
 
           break;
 
         case 14:
 
-          player.learnableSkills.TryAdd(CustomSkill.BersekerRepresailles, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BersekerRepresailles], player));
-          player.learnableSkills[CustomSkill.BersekerRepresailles].LevelUp(player);
-          player.learnableSkills[CustomSkill.BersekerRepresailles].source.Add(Category.Class);
+          player.learnableSkills.TryAdd(CustomSkill.BersekerPresenceIntimidante, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BersekerPresenceIntimidante], player));
+          player.learnableSkills[CustomSkill.BersekerPresenceIntimidante].LevelUp(player);
+          player.learnableSkills[CustomSkill.BersekerPresenceIntimidante].source.Add(Category.Class);
+
+          player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.BersekerPresenceIntimidante, 1);
 
           break;
       }

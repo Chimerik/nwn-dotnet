@@ -142,9 +142,9 @@
 
     public const int TotemAspectOurs = 1443;
     public const int TotemAspectAigle = 1444;
-    public const int TotemAspectLoup = 1445;
+    public const int TotemAspectPanthere = 1445;
     public const int TotemAspectElan = 1446;
-    public const int TotemAspectCrocodile = 1447;
+    public const int TotemAspectSaumon = 1447;
     public const int TotemAspectRatel = 1448;
     public const int TotemAspectEtalon = 1449;
     public const int TotemAspectTigre = 1450;
@@ -553,7 +553,7 @@
     
     public const int FrappeBrutale = 1795;    
     public const int FrappeSiderante = 1796;    
-    public const int FrappeDechirante = 1797;    
+    public const int FrappeDechirante = 1797;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;

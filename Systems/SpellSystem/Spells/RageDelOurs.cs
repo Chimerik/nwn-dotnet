@@ -18,10 +18,10 @@ namespace NWN.Systems
 
       foreach (NwCreature target in oCaster.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, spellEntry.aoESize, false))
       {
-        if(caster.IsReactionTypeHostile(target) && EffectSystem.IsFrightImmune(target, caster)
+        if(caster.IsReactionTypeHostile(target)
           && CreatureUtils.GetSavingThrow(oCaster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
         {
-          target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Effroi(target), NwTimeSpan.FromRounds(1));
+          EffectSystem.ApplyEffroi(target, caster, NwTimeSpan.FromRounds(1));
         }
       }
     }

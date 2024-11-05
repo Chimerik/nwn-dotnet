@@ -427,11 +427,6 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
-        case CustomSpell.PresenceIntimidante:
-          SpellSystem.PresenceIntimidante(oCaster, spell);
-          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
-          break;
-
         case CustomSpell.FlameBlade:
           concentrationTargets.AddRange(SpellSystem.FlameBlade(oCaster, spell));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;

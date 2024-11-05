@@ -11,37 +11,53 @@ namespace NWN.Systems
     public const string BarbarianRageEffectTag = "_EFFECT_BARBARIAN_RAGE";
     public static readonly Native.API.CExoString barbarianRageEffectExoTag = "_EFFECT_BARBARIAN_RAGE".ToExoString();
     public const string BarbarianRageAveugleEffectTag = "_EFFECT_BARBARIAN_RAGE_AVEUGLE";
-    public static Effect BarbarianRage
+    public static Effect BarbarianRage(NwCreature caster, bool bearRage = false)
     {
-      get
-      {
-        Effect resBludg = Effect.DamageImmunityIncrease(DamageType.Bludgeoning, 50);
-        resBludg.ShowIcon = false;
-        Effect resPierc = Effect.DamageImmunityIncrease(DamageType.Piercing, 50);
-        resPierc.ShowIcon = false;
-        Effect resSlash = Effect.DamageImmunityIncrease(DamageType.Slashing, 50);
-        resSlash.ShowIcon = false;
+      int level = caster.GetClassInfo((ClassType)CustomClass.Barbarian).Level;
 
-        Effect eff = Effect.LinkEffects(resBludg, resPierc, resSlash,
-          Effect.Icon((EffectIcon)168), Effect.Icon((EffectIcon)211), Effect.Icon((EffectIcon)212), Effect.Icon((EffectIcon)213),
-          Effect.RunAction(onRemovedHandle: onRemoveBarbarianRageCallback, onIntervalHandle: onIntervalBarbarianRageCallback, interval: NwTimeSpan.FromRounds(1)));
-        
-        eff.Tag = BarbarianRageEffectTag;
-        eff.SubType = EffectSubType.Supernatural;
-        return eff;
-      }
-    }
-    public static Effect BearBarbarianRage
-    {
-      get
+      Effect resBludg = Effect.DamageImmunityIncrease(DamageType.Bludgeoning, 50);
+      resBludg.ShowIcon = false;
+      Effect resPierc = Effect.DamageImmunityIncrease(DamageType.Piercing, 50);
+      resPierc.ShowIcon = false;
+      Effect resSlash = Effect.DamageImmunityIncrease(DamageType.Slashing, 50);
+      resSlash.ShowIcon = false;
+
+      Effect eff;
+
+      if(bearRage)
       {
-        Effect eff = Effect.LinkEffects(Effect.Icon((EffectIcon)168),
-          Effect.DamageImmunityIncrease(DamageType.Bludgeoning, 50), Effect.DamageImmunityIncrease(DamageType.Piercing, 50), Effect.DamageImmunityIncrease(DamageType.Slashing, 50), Effect.DamageImmunityIncrease(DamageType.Acid, 50), Effect.DamageImmunityIncrease(DamageType.Sonic, 50), Effect.DamageImmunityIncrease(DamageType.Custom18, 50), Effect.DamageImmunityIncrease(DamageType.Custom9, 50), Effect.DamageImmunityIncrease(DamageType.Cold, 50), Effect.DamageImmunityIncrease(DamageType.Electrical, 50), Effect.DamageImmunityIncrease(DamageType.Custom1, 50), Effect.DamageImmunityIncrease(DamageType.Custom10, 50), Effect.DamageImmunityIncrease(DamageType.Custom11, 50), Effect.DamageImmunityIncrease(DamageType.Custom12, 50), Effect.DamageImmunityIncrease(DamageType.Custom13, 50), Effect.DamageImmunityIncrease(DamageType.Custom14, 50), Effect.DamageImmunityIncrease(DamageType.Custom15, 50), Effect.DamageImmunityIncrease(DamageType.Custom16, 50), Effect.DamageImmunityIncrease(DamageType.Custom17, 50), Effect.DamageImmunityIncrease(DamageType.Custom19, 50), Effect.DamageImmunityIncrease(DamageType.Custom2, 50), Effect.DamageImmunityIncrease(DamageType.Custom3, 50), Effect.DamageImmunityIncrease(DamageType.Custom4, 50), Effect.DamageImmunityIncrease(DamageType.Custom5, 50), Effect.DamageImmunityIncrease(DamageType.Custom6, 50), Effect.DamageImmunityIncrease(DamageType.Custom7, 50), Effect.DamageImmunityIncrease(DamageType.Custom8, 50), Effect.DamageImmunityIncrease(DamageType.Divine, 50), Effect.DamageImmunityIncrease(DamageType.Fire, 50), Effect.DamageImmunityIncrease(DamageType.Magical, 50), Effect.DamageImmunityIncrease(DamageType.Negative, 50), Effect.DamageImmunityIncrease(DamageType.Positive, 50),
-          Effect.RunAction(onRemovedHandle: onRemoveBarbarianRageCallback, onIntervalHandle: onIntervalBarbarianRageCallback, interval: NwTimeSpan.FromRounds(1)));
-        eff.Tag = BarbarianRageEffectTag;
-        eff.SubType = EffectSubType.Supernatural;
-        return eff;
+        Effect resAcid = Effect.DamageImmunityIncrease(DamageType.Acid, 50);
+        resAcid.ShowIcon = false;
+        Effect resCold = Effect.DamageImmunityIncrease(DamageType.Cold, 50);
+        resCold.ShowIcon = false;
+        Effect resElec = Effect.DamageImmunityIncrease(DamageType.Electrical, 50);
+        resElec.ShowIcon = false;
+        Effect resFire = Effect.DamageImmunityIncrease(DamageType.Fire, 50);
+        resFire.ShowIcon = false;
+        Effect resSonic = Effect.DamageImmunityIncrease(DamageType.Sonic, 50);
+        resSonic.ShowIcon = false;
+        Effect resPoison = Effect.DamageImmunityIncrease(CustomDamageType.Poison, 50);
+        resPoison.ShowIcon = false;
+
+        eff = Effect.LinkEffects(resBludg, resPierc, resSlash, resAcid, resCold, resElec, resFire, resSonic, resPoison,
+        Effect.Icon((EffectIcon)168), Effect.Icon((EffectIcon)211), Effect.Icon((EffectIcon)212), Effect.Icon((EffectIcon)213),
+        Effect.Icon((EffectIcon)205), Effect.Icon((EffectIcon)206), Effect.Icon((EffectIcon)208), Effect.Icon((EffectIcon)209),
+        Effect.Icon((EffectIcon)210), Effect.Icon((EffectIcon)214),
+        Effect.RunAction(onRemovedHandle: onRemoveBarbarianRageCallback, onIntervalHandle: onIntervalBarbarianRageCallback, interval: NwTimeSpan.FromRounds(1)));
       }
+      else
+      {
+        eff = Effect.LinkEffects(resBludg, resPierc, resSlash,
+        Effect.Icon((EffectIcon)168), Effect.Icon((EffectIcon)211), Effect.Icon((EffectIcon)212), Effect.Icon((EffectIcon)213),
+        Effect.RunAction(onRemovedHandle: onRemoveBarbarianRageCallback, onIntervalHandle: onIntervalBarbarianRageCallback, interval: NwTimeSpan.FromRounds(1)));
+      }
+
+      eff.Tag = BarbarianRageEffectTag;
+      eff.SubType = EffectSubType.Supernatural;
+      eff.Creator = caster;
+      eff.IntParams[5] = level > 15 ? 4 : level > 8 ? 3 : 2;
+
+      return eff;
     }
     private static ScriptHandleResult OnRemoveBarbarianRage(CallInfo callInfo)
     {

@@ -16,7 +16,7 @@ namespace NWN.Systems
     {
       Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.ImpAuraNegativeEnergy, fScale:2),
         Effect.AreaOfEffect(PersistentVfxType.PerCustomAoe, onEnterHandle: onEnterAngeDeLaVengeanceCallback, heartbeatHandle: onIntervalAngeDeLaVengeanceCallback));
-      eff.Tag = PresenceIntimidanteAuraEffectTag;
+      eff.Tag = AngeDeLaVengeanceAuraEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       eff.Creator = caster;
       return eff;
@@ -31,7 +31,7 @@ namespace NWN.Systems
       int saveDC = 8 + NativeUtils.GetCreatureProficiencyBonus(intimidator) + intimidator.GetAbilityModifier(Ability.Charisma);
 
       if (CreatureUtils.GetSavingThrow(intimidator, entering, Ability.Wisdom, saveDC) == SavingThrowResult.Failure)
-        NWScript.AssignCommand(intimidator, () => entering.ApplyEffect(EffectDuration.Temporary, Effroi(entering), NwTimeSpan.FromRounds(1)));
+        ApplyEffroi(entering, intimidator, NwTimeSpan.FromRounds(10));
 
       return ScriptHandleResult.Handled;
     }
@@ -42,14 +42,15 @@ namespace NWN.Systems
 
       foreach (var target in eventData.Effect.GetObjectsInEffectArea<NwCreature>())
       {
-        if (target == intimidator || !intimidator.IsReactionTypeHostile(target) || IsFrightImmune(target, intimidator)
+        if (target == intimidator || !intimidator.IsReactionTypeHostile(target)
         || target.ActiveEffects.Any(e => e.Tag == FrightenedEffectTag))
           continue;
+
 
         int saveDC = 8 + NativeUtils.GetCreatureProficiencyBonus(intimidator) + intimidator.GetAbilityModifier(Ability.Charisma);
 
         if (CreatureUtils.GetSavingThrow(intimidator, target, Ability.Wisdom, saveDC) == SavingThrowResult.Failure)
-          NWScript.AssignCommand(intimidator, () => target.ApplyEffect(EffectDuration.Temporary, Effroi(target), NwTimeSpan.FromRounds(10)));
+          ApplyEffroi(target, intimidator, NwTimeSpan.FromRounds(10));
       }
 
       return ScriptHandleResult.Handled;

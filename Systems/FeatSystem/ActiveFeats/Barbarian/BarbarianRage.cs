@@ -64,10 +64,10 @@ namespace NWN.Systems
       if (caster.KnowsFeat((Feat)CustomSkill.TotemEspritOurs))
       {
         caster.SetFeatRemainingUses((Feat)CustomSkill.TotemFerociteIndomptable, 100);
-        NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.BearBarbarianRage, TimeSpan.FromMinutes(10)));
+        caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.BarbarianRage(caster, true), TimeSpan.FromMinutes(10));
       }
       else
-        NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.BarbarianRage, TimeSpan.FromMinutes(10)));
+        caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.BarbarianRage(caster), TimeSpan.FromMinutes(10));
 
       byte barbarianLevel = caster.GetClassInfo(ClassType.Barbarian).Level;
 

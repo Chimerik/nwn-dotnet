@@ -27,6 +27,7 @@ namespace NWN.Systems
         + GetFavoredEnemyDegatsBonus(creature, target)
         + GetSuperiorityDiceDamage(creature)
         + GetBarbarianRageBonusDamage(creature, attackAbility, !attackData.m_bRangedAttack.ToBool())
+        + GetFrappeFrenetiqueBonusDamage(creature, attackAbility, !attackData.m_bRangedAttack.ToBool())
         + GetFrappeBrutaleBonusDamage(creature, target, attackAbility, !attackData.m_bRangedAttack.ToBool())
         + GetPhysicalBonusDamage(creature, attackWeapon)    
         + GetFaveurDuMalinBonusDamage(creature)    
