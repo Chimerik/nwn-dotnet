@@ -8,13 +8,7 @@ namespace NWN.Systems
     {
       switch (skill)
       {
-        case CustomSkill.PerceptionProficiency:
-
-          if (creature.KnowsFeat((Feat)CustomSkill.TotemAspectAigle))
-            return 1;
-
-          return GetCreatureAbilityAdvantage(creature, Ability.Wisdom);
-
+        case CustomSkill.PerceptionProficiency: return GetCreatureAbilityAdvantage(creature, Ability.Wisdom);
         case CustomSkill.AcrobaticsProficiency: return GetCreatureAbilityAdvantage(creature, Ability.Dexterity);
         case CustomSkill.AnimalHandlingProficiency: return GetCreatureAbilityAdvantage(creature, Ability.Wisdom);
         case CustomSkill.ArcanaProficiency: return GetCreatureAbilityAdvantage(creature, Ability.Intelligence);

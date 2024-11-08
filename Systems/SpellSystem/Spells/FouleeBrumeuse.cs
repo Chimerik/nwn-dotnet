@@ -45,13 +45,10 @@ namespace NWN.Systems
                 break;
 
               if(CreatureUtils.GetSavingThrow(oCaster, target, Ability.Wisdom, spellDC, spellEntry) == SavingThrowResult.Failure)
-              {
-                NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.provocation, NwTimeSpan.FromRounds(1)));
-                NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpConfusionS)));
-              }
+                EffectSystem.ApplyProvocation(caster, target, NwTimeSpan.FromRounds(1));
             }
 
-              break;
+            break;
 
           case CustomSkill.FouleeEvanescente:
 

@@ -58,17 +58,8 @@ namespace NWN.Systems
       onEnterWolfTotemAuraCallback = scriptHandleFactory.CreateUniqueHandler(onEnterWolfTotemAura);
       onExitWolfTotemAuraCallback = scriptHandleFactory.CreateUniqueHandler(onExitWolfTotemAura);
 
-      onEnterElkAspectAuraCallback = scriptHandleFactory.CreateUniqueHandler(onEnterElkAspectAura);
-      onExitElkAspectAuraCallback = scriptHandleFactory.CreateUniqueHandler(onExitElkAspectAura);
-
-      onEnterWolfAspectAuraCallback = scriptHandleFactory.CreateUniqueHandler(onEnterWolfAspectAura);
-      onExitWolfAspectAuraCallback = scriptHandleFactory.CreateUniqueHandler(onExitWolfAspectAura);
-
-      onEnterTotemLienOursCallback = scriptHandleFactory.CreateUniqueHandler(onEnterTotemLlienOursAura);
-      onExitTotemLienOursCallback = scriptHandleFactory.CreateUniqueHandler(onExitTotemLienOursAura);
-
-      onEnterTotemLienElanCallback = scriptHandleFactory.CreateUniqueHandler(onEnterTotemLienElanAura);
-      onRemoveTotemLienElanCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveTotemLienElanAura);
+      onEnterLionTotemCallback = scriptHandleFactory.CreateUniqueHandler(onEnterLionTotem);
+      onExitLionTotemCallback = scriptHandleFactory.CreateUniqueHandler(onExitLionTotem);
 
       onEnterWildMagicAwarenessCallback = scriptHandleFactory.CreateUniqueHandler(onEnterWildMagicAwarenessAura);
       onExitWildMagicAwarenessCallback = scriptHandleFactory.CreateUniqueHandler(onExitWildMagicAwarenessAura);
@@ -220,6 +211,9 @@ namespace NWN.Systems
       onRemoveTraverseeInfernaleCallback = scriptHandleFactory.CreateUniqueHandler(onRemoveTraverseeInfernale);
 
       onIntervalEffroiCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalEffroi);
+
+      onHeartbeatRayonnementInterieurCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatRayonnementInterieur);
+      onHeartbeatVoileNecrotiqueCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatVoileNecrotique);
     }
   }
 }

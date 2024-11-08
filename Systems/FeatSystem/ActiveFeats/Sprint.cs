@@ -15,10 +15,8 @@ namespace NWN.Systems
         || caster.KnowsFeat((Feat)CustomSkill.RangerDeplacementFluide)
         || caster.Classes.Any(c => Utils.In(c.Class.ClassType, ClassType.Rogue, (ClassType)CustomClass.RogueArcaneTrickster) && c.Level > 1)
         || caster.Classes.Any(c => c.Class.Id == CustomClass.Monk && c.Level > 1)
-        || (caster.KnowsFeat((Feat)CustomSkill.TotemEspritAigle)
-           && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.BarbarianRageEffectTag)))
+        || caster.ActiveEffects.Any(e => e.Tag == EffectSystem.BarbarianRageEffectTag && e.IntParams[6] == CustomSpell.RageSauvageAigle))
       {
-
         EffectUtils.RemoveTaggedEffect(caster, EffectSystem.SprintEffectTag);
 
         caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHaste));
@@ -27,15 +25,6 @@ namespace NWN.Systems
         if (caster.KnowsFeat((Feat)CustomSkill.Mobile))
           caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.sprintMobileEffect, NwTimeSpan.FromRounds(1));
 
-        if (caster.KnowsFeat((Feat)CustomSkill.TotemAspectEtalon))
-        {
-          foreach (var eff in caster.ActiveEffects)
-            if (eff.EffectType == EffectType.TemporaryHitpoints)
-              caster.RemoveEffect(eff);
-
-          caster.ApplyEffect(EffectDuration.Permanent, Effect.TemporaryHitpoints(caster.GetClassInfo(ClassType.Barbarian).Level * 2));
-        }
-
         caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value -= 1;
 
         if (caster.KnowsFeat((Feat)CustomSkill.Chargeur))
@@ -43,6 +32,9 @@ namespace NWN.Systems
 
         if (caster.Race.Id == CustomRace.HalfOrc)
           caster.ApplyEffect(EffectDuration.Permanent, Effect.TemporaryHitpoints(NativeUtils.GetCreatureProficiencyBonus(caster)));
+
+        if(caster.ActiveEffects.Any(e => e.Tag == EffectSystem.BarbarianRageEffectTag && e.IntParams[6] == CustomSpell.RageSauvageAigle))
+          caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.disengageEffect, NwTimeSpan.FromRounds(1));
 
         StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} sprinte", ColorConstants.Orange, true);
         onUseFeat.PreventFeatUse = true;

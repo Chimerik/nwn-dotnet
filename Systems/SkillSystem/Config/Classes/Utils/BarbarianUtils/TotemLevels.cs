@@ -24,15 +24,17 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.TotemSensAnimal].LevelUp(player);
           player.learnableSkills[CustomSkill.TotemSensAnimal].source.Add(Category.Class);
 
-          if (!player.windows.TryGetValue("espritTotemSelection", out var value)) player.windows.Add("espritTotemSelection", new EspritTotemSelectionWindow(player));
-          else ((EspritTotemSelectionWindow)value).CreateWindow();
+          player.learnableSkills.TryAdd(CustomSkill.TotemRage, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.TotemRage], player));
+          player.learnableSkills[CustomSkill.TotemRage].LevelUp(player);
+          player.learnableSkills[CustomSkill.TotemRage].source.Add(Category.Class);
 
           break;
 
         case 6:
 
-          if (!player.windows.TryGetValue("aspectTotemSelection", out var aspect)) player.windows.Add("aspectTotemSelection", new AspectTotemSelectionWindow(player));
-          else ((AspectTotemSelectionWindow)aspect).CreateWindow();
+          player.learnableSkills.TryAdd(CustomSkill.TotemAspectSauvage, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.TotemAspectSauvage], player));
+          player.learnableSkills[CustomSkill.TotemAspectSauvage].LevelUp(player);
+          player.learnableSkills[CustomSkill.TotemAspectSauvage].source.Add(Category.Class);
 
           break;
 
@@ -46,8 +48,9 @@ namespace NWN.Systems
 
         case 14:
 
-          if (!player.windows.TryGetValue("lienTotemSelection", out var lien)) player.windows.Add("lienTotemSelection", new LienTotemSelectionWindow(player));
-          else ((LienTotemSelectionWindow)lien).CreateWindow();
+          player.learnableSkills.TryAdd(CustomSkill.TotemPuissanceSauvage, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.TotemPuissanceSauvage], player));
+          player.learnableSkills[CustomSkill.TotemPuissanceSauvage].LevelUp(player);
+          player.learnableSkills[CustomSkill.TotemPuissanceSauvage].source.Add(Category.Class);
 
           break;
       }

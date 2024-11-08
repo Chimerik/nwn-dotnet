@@ -19,10 +19,8 @@ namespace NWN.Systems
 
       Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurMindAffectingFear), Effect.Icon((EffectIcon)183));
 
-      if (repeatSave)
-        eff = Effect.LinkEffects(eff, Effect.RunAction(onRemovedHandle: onRemoveEffroiCallback, onIntervalHandle: onIntervalEffroiCallback, interval:NwTimeSpan.FromRounds(1)));
-      else
-        eff = Effect.LinkEffects(eff, Effect.RunAction(onRemovedHandle: onRemoveEffroiCallback));
+      eff = repeatSave ? Effect.LinkEffects(eff, Effect.RunAction(onRemovedHandle: onRemoveEffroiCallback, onIntervalHandle: onIntervalEffroiCallback, interval: NwTimeSpan.FromRounds(1)))
+        : eff = Effect.LinkEffects(eff, Effect.RunAction(onRemovedHandle: onRemoveEffroiCallback));        
 
       eff.Tag = FrightenedEffectTag;
       eff.SubType = EffectSubType.Supernatural;

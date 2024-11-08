@@ -29,7 +29,7 @@ namespace NWN.Systems
         if (GetFrightenedDisadvantage(eff, targetId.m_idSelf))
           return true;
 
-        if (GetProvocationDisadvantage(eff, targetId.m_idSelf))
+        if (GetProvocationDisadvantage(eff, targetId))
           return true;
 
         if (GetCourrouxDeLaNatureAttackDisadvantage(eff))

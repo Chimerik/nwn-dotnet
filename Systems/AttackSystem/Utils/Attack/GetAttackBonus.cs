@@ -16,7 +16,7 @@ namespace NWN.Systems
 
       LogUtils.LogMessage($"modifier versus target : {attackBonus}", LogUtils.LogType.Combat);
 
-      int abilityModifier = GetAbilityModifier(attacker, attackAbility) * GetLienDuTigreBonus(attacker, target, attackData, weapon, attackAbility);
+      int abilityModifier = GetAbilityModifier(attacker, attackAbility);
       LogUtils.LogMessage($"Adding {attackAbility} modifier : {abilityModifier}", LogUtils.LogType.Combat);
       attackBonus += abilityModifier;
 

@@ -162,5 +162,22 @@
     public const int VoraciteDhadar = 1000;
     public const int InvocationDaberration = 1001;
     public const int AlterationMemorielle = 1002;
+    public const int RevelationCeleste = 1003;
+    public const int Vol = 1004;
+    public const int RayonnementInterieur = 1005;
+    public const int VoileNecrotique = 1006;
+    public const int RageSauvage = 1007;
+    public const int RageSauvageOurs = 1008;
+    public const int RageSauvageAigle = 1009;
+    public const int RageSauvageLoup = 1010;
+    public const int AspectSauvageChouette = 1012;
+    public const int AspectSauvageSaumon = 1013;
+    public const int AspectSauvagePanthere = 1014;
+    public const int PuissanceSauvageOurs = 1016;
+    public const int PuissanceSauvageAigle = 1017;
+    public const int PuissanceSauvageLoup = 1018;
+    public const int PuissanceSauvageFaucon = 1019;
+    public const int PuissanceSauvageTigre = 1020;
+    public const int PuissanceSauvageBelier = 1021;
   }
 }

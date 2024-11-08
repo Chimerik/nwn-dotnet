@@ -131,31 +131,11 @@
 
     public const int TotemSpeakAnimal = 1434;
     public const int TotemSensAnimal = 1435;
-    public const int TotemEspritOurs = 1436;
-    public const int TotemFerociteIndomptable = 1437;
-    public const int TotemEspritAigle = 1438;
-    public const int TotemEspritElan = 1439;
-    public const int TotemEspritLoup = 1440;
-    public const int TotemHurlementGalvanisant = 1441;
-
+    public const int TotemRage = 1436;
     public const int Chargeur = 1442;
-
-    public const int TotemAspectOurs = 1443;
-    public const int TotemAspectAigle = 1444;
-    public const int TotemAspectPanthere = 1445;
-    public const int TotemAspectElan = 1446;
-    public const int TotemAspectSaumon = 1447;
-    public const int TotemAspectRatel = 1448;
-    public const int TotemAspectEtalon = 1449;
-    public const int TotemAspectTigre = 1450;
-    public const int TotemAspectGlouton = 1451;
-
+    public const int TotemAspectSauvage = 1443;
+    public const int TotemPuissanceSauvage = 1444;
     public const int TotemCommunionAvecLaNature = 1452;
-
-    public const int TotemLienLoup = 1453;
-    public const int TotemLienElan = 1454;  
-    public const int TotemLienTigre = 1455;
-    public const int TotemLienOurs = 1456;
 
     public const int WildMagicSense = 1457;
     public const int WildMagicTeleportation = 1458;

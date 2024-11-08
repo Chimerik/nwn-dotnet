@@ -31,9 +31,6 @@ namespace NWN.Systems
         if (GetKnockdownRangedDisadvantage(eff, rangedAttack))
           return true;
 
-        if (GetEspritAigleDisadvantage(eff, target, data))
-          return true;
-
         if (GetProtectionContreLeMalEtLeBienDisadvantage(eff, attacker, target))
           return true;
 

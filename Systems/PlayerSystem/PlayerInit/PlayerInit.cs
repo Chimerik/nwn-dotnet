@@ -443,9 +443,6 @@ namespace NWN.Systems
         InitializeSubClassChoice();
         InitializeManoeuvreChoice();
         InitializeTirArcaniqueChoice();
-        InitializeEspritTotemChoice();
-        InitializeAspectTotemChoice();
-        InitializeLienTotemChoice();
         InitializeMaitriseDesSortsChoice();
         InitializeSpellSelection();
         InitializeTechniqueElementaireSelection();
@@ -473,8 +470,6 @@ namespace NWN.Systems
         InitializeWarMasterImplacable();
         InitializeMonkPerfection();
         ApplyPuretePhysique();
-        ApplyElkAspect();
-        ApplyGloutonAspect();
         ApplyBerserkerRepresailles();
         ApplyPerceptionAveugle();
         ApplyAssassinate();
@@ -506,7 +501,6 @@ namespace NWN.Systems
         ApplyMonkOpportunist();
         ApplyDefenseAdaptative();
         ApplyTraqueurRedoutable();
-        ApplyWolfAspectAura();
         ApplyAuraDeProtection();
         ApplyAuraDeCourage();
         ApplyAuraDeDevotion();
@@ -768,7 +762,7 @@ namespace NWN.Systems
 
         NwCreature creature = onCombatStatusChange.Player.ControlledCreature;
 
-        if (creature.Race.RacialType != RacialType.Halfling && !creature.ActiveEffects.Any(e => e.Tag == EffectSystem.LienTotemElanAuraEffectTag))
+        if (creature.Race.RacialType != RacialType.Halfling)
           EffectUtils.RemoveEffectType(creature, EffectType.CutsceneGhost);
       }
       private void HandleMapPinAdded(OnMapPinAddPin onAdd)

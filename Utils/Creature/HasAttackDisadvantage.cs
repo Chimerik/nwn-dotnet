@@ -24,6 +24,8 @@ namespace NWN.Systems
           if (GetThreatenedDisadvantage(attacker, attackWeapon))
             return true;
         }
+        else if(GetVolMeleeDisadvantage(attacker, target))
+          return true;
 
         if (GetEsquiveDuTraqueurDisadvantage(target))
           return true;
@@ -52,10 +54,15 @@ namespace NWN.Systems
 
       if (target is not null)
       {
-        if (GetEsquiveDuTraqueurDisadvantage(target))
+        if (rangedSpell)
+        {
+          if (GetThreatenedDisadvantage(attacker))
+            return true;
+        }
+        else if (GetVolMeleeDisadvantage(attacker, target))
           return true;
 
-        if (rangedSpell && GetThreatenedDisadvantage(attacker))
+        if (GetEsquiveDuTraqueurDisadvantage(target))
           return true;
 
         if (GetAttackerDisadvantageEffects(attacker, target, spellCastingAbility))

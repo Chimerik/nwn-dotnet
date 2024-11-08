@@ -18,7 +18,7 @@ namespace NWN.Systems
       get
       {
         Effect eff = Effect.AreaOfEffect(PersistentVfxType.MobTideOfBattle, onEnterHandle: onEnterWolfTotemAuraCallback, onExitHandle: onExitWolfTotemAuraCallback);
-        eff.Tag = ProtectionStyleAuraEffectTag;
+        eff.Tag = WolfTotemAuraEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;
       }
@@ -40,7 +40,7 @@ namespace NWN.Systems
         || !entering.IsReactionTypeHostile(protector))
         return ScriptHandleResult.Handled;
 
-      NWScript.AssignCommand(protector, () => entering.ApplyEffect(EffectDuration.Temporary, wolfTotem, NwTimeSpan.FromRounds(10)));
+      NWScript.AssignCommand(protector, () => entering.ApplyEffect(EffectDuration.Permanent, wolfTotem));
       return ScriptHandleResult.Handled;
     }
     private static ScriptHandleResult onExitWolfTotemAura(CallInfo callInfo)
@@ -49,9 +49,7 @@ namespace NWN.Systems
         || eventData.Effect.Creator is not NwCreature protector)
         return ScriptHandleResult.Handled;
 
-      foreach (var eff in exiting.ActiveEffects)
-        if (eff.Creator == protector && eff.Tag == WolfTotemEffectTag)
-          exiting.RemoveEffect(eff);
+      EffectUtils.RemoveTaggedEffect(exiting, protector, WolfTotemEffectTag);
 
       return ScriptHandleResult.Handled;
     }

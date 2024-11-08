@@ -80,13 +80,9 @@ namespace NWN.Systems
         case CustomSkill.FrappeBrutale: 
         case CustomSkill.FrappeSiderante: 
         case CustomSkill.FrappeDechirante: FrappeBrutale(onUseFeat.Creature, onUseFeat.Feat.Id); return;
-        case (int)Feat.BarbarianRage: BarbarianRage(onUseFeat.Creature); return;
+        //case (int)Feat.BarbarianRage: BarbarianRage(onUseFeat.Creature); return;
         case CustomSkill.BersekerFrenziedStrike: FrappeFrenetique(onUseFeat.Creature); return;
         case CustomSkill.BersekerPresenceIntimidante: BersekerPresenceIntimidante(onUseFeat.Creature); return;
-
-        case CustomSkill.TotemFerociteIndomptable: FerociteIndomptable(onUseFeat.Creature); return;
-        case CustomSkill.TotemAspectTigre: AspectTigre(onUseFeat.Creature); return;
-        case CustomSkill.TotemLienElan: LienElan(onUseFeat.Creature); return;
 
         case CustomSkill.WildMagicSense: SensDeLaMagie(onUseFeat.Creature); return;
         case CustomSkill.WildMagicMagieGalvanisanteBienfait: Bienfait(onUseFeat.Creature, onUseFeat.TargetObject); return;

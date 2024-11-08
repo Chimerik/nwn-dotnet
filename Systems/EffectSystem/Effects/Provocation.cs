@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System;
+using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -6,16 +7,26 @@ namespace NWN.Systems
   {
     public static readonly string ProvocationEffectTag = "_PROVOCATION_EFFECT";
     public static readonly Native.API.CExoString provocationEffectExoTag = ProvocationEffectTag.ToExoString();
-    public static Effect provocation
+    public static readonly string ProvoqueurEffectTag = "_PROVOQUEUR_EFFECT";
+    public static readonly Native.API.CExoString provoqueurEffectExoTag = ProvoqueurEffectTag.ToExoString();
+    public static void ApplyProvocation(NwGameObject caster, NwCreature target, TimeSpan duration)
     {
-      get
-      {
-        Effect eff = Effect.LinkEffects(Effect.Icon(EffectIcon.Taunted), Effect.VisualEffect(VfxType.DurMindAffectingNegative),
-          Effect.RunAction());
-        eff.Tag = ProvocationEffectTag;
-        eff.SubType = EffectSubType.Supernatural;
-        return eff;
-      }
+      EffectDuration effectDurationType = duration == TimeSpan.Zero ? EffectDuration.Permanent : EffectDuration.Temporary; 
+
+      Effect eff = Effect.LinkEffects(Effect.Icon(EffectIcon.Taunted), Effect.VisualEffect(VfxType.DurMindAffectingNegative),
+        Effect.RunAction());
+      eff.Tag = ProvocationEffectTag;
+      eff.SubType = EffectSubType.Supernatural;
+      eff.Creator = caster;
+
+      target.ApplyEffect(effectDurationType, eff, duration);
+      target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpConfusionS));
+
+      Effect provoqueur = Effect.RunAction();
+      provoqueur.Tag = ProvoqueurEffectTag;
+      provoqueur.SubType = EffectSubType.Supernatural;
+      provoqueur.Creator = target;
+      caster.ApplyEffect(effectDurationType, provoqueur, duration);
     }
   }
 }

@@ -21,15 +21,6 @@ namespace NWN.Systems
 
         if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Mobile)))
           caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.sprintMobileEffect, NwTimeSpan.FromRounds(1));
-
-        if (caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TotemAspectEtalon)))
-        {
-          foreach (var eff in caster.ActiveEffects)
-            if (eff.EffectType == EffectType.TemporaryHitpoints)
-              caster.RemoveEffect(eff);
-
-          caster.ApplyEffect(EffectDuration.Permanent, Effect.TemporaryHitpoints(caster.GetClassInfo(ClassType.Barbarian).Level * 2));
-        }
       }
     }
   }

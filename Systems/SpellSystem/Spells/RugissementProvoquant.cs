@@ -15,7 +15,7 @@ namespace NWN.Systems
       foreach (var target in oCaster.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, spellEntry.aoESize, false))
       {
         if (CreatureUtils.GetSavingThrow(oCaster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
-          NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.provocation, NwTimeSpan.FromRounds(spellEntry.duration)));
+          EffectSystem.ApplyProvocation(oCaster, target, NwTimeSpan.FromRounds(spellEntry.duration));
       }
     }
   }

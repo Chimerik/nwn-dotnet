@@ -25,10 +25,7 @@ namespace NWN.Systems
           StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Attaque Menaçante", ColorConstants.Red, true);
 
           if (GetSavingThrow(onAttack.Attacker, target, Ability.Wisdom, DC) == SavingThrowResult.Failure)
-          {
-            NWScript.AssignCommand(onAttack.Attacker, () => target.ApplyEffect(EffectDuration.Temporary,
-            EffectSystem.provocation, NwTimeSpan.FromRounds(1)));
-          }
+            EffectSystem.ApplyProvocation(onAttack.Attacker, target, NwTimeSpan.FromRounds(1));
 
           await NwTask.NextFrame();
           onAttack.Attacker.OnCreatureAttack -= OnAttackProvocation;

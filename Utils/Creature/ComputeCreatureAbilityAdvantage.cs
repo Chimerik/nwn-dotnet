@@ -28,16 +28,6 @@ namespace NWN.Systems
 
       switch (ability)
       {
-        case Ability.Strength:
-
-          if (creature.KnowsFeat((Feat)CustomSkill.TotemAspectOurs))
-          {
-            LogUtils.LogMessage("Avantage - Aspect de l'Ours", LogUtils.LogType.Combat);
-            return true;
-          }
-
-          break;
-
         case Ability.Dexterity:
 
           if (effectType == SpellEffectType.Stealth)
@@ -175,14 +165,6 @@ namespace NWN.Systems
           }
 
           break;
-
-        case SpellEffectType.Knockdown:
-
-          if (creature.KnowsFeat((Feat)CustomSkill.TotemAspectCrocodile))
-          {
-            LogUtils.LogMessage("Avantage - Barbare Aspect du Crocodile contre Renversement", LogUtils.LogType.Combat);
-            return true;
-          }
 
           break;
 

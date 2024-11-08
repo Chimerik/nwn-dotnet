@@ -17,16 +17,8 @@ namespace NWN.Systems
         {
           if (eff.EffectType == EffectType.SkillIncrease && eff.IntParams[0] == 8) // 8 = Move silently skill
           {
-            if (eff.Tag == EffectSystem.WolfAspectEffectTag)
-            {
-              bonusScore += creature.GetAbilityModifier(Ability.Dexterity);
-              LogUtils.LogMessage($"Totem - Aspect du loup : {creature.GetAbilityModifier(Ability.Dexterity)}", LogUtils.LogType.Combat);
-            }
-            else
-            {
-              bonusScore += eff.IntParams[1];
-              LogUtils.LogMessage($"Bonus d'effet d'augmentation de compétence : {eff.IntParams[1]}", LogUtils.LogType.Combat);
-            }
+            bonusScore += eff.IntParams[1];
+            LogUtils.LogMessage($"Bonus d'effet d'augmentation de compétence : {eff.IntParams[1]}", LogUtils.LogType.Combat);
           }
         }
       }

@@ -457,11 +457,6 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
-        case CustomSpell.HurlementGalvanisant:
-          SpellSystem.HurlementGalvanisant(oCaster, spell, spellEntry);
-          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
-          break;
-
         case CustomSpell.PassageSansTrace:
           concentrationTargets.AddRange(SpellSystem.PassageSansTrace(oCaster, spell, feat, spellEntry));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
@@ -939,9 +934,43 @@ namespace NWN.Systems
           concentrationTargets.AddRange(SpellSystem.InvocationDaberration(oCaster, spell, spellEntry, target is null ? targetLocation : target.Location, castingClass));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
+
+        case CustomSpell.Vol:
+          SpellSystem.Vol(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.RayonnementInterieur:
+          SpellSystem.RayonnementInterieur(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.VoileNecrotique:
+          SpellSystem.VoileNecrotique(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case (int)Feat.BarbarianRage:
+        case CustomSpell.RageSauvage:
+        case CustomSpell.RageSauvageOurs:
+        case CustomSpell.RageSauvageAigle:
+        case CustomSpell.RageSauvageLoup:
+        case CustomSpell.PuissanceSauvageOurs:
+        case CustomSpell.PuissanceSauvageAigle:
+        case CustomSpell.PuissanceSauvageLoup:
+          SpellSystem.RageDuBarbare(oCaster, spell);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.AspectSauvageChouette:
+        case CustomSpell.AspectSauvageSaumon:
+        case CustomSpell.AspectSauvagePanthere:
+          SpellSystem.AspectSauvage(oCaster, spell);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
       }
 
-        if (oCaster is NwCreature castingCreature)
+      if (oCaster is NwCreature castingCreature)
       {
         if (castingClass is not null)
         {

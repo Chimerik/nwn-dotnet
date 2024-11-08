@@ -1,6 +1,8 @@
-﻿using Anvil.API;
+﻿using System;
+using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -9,9 +11,9 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onRemoveBarbarianRageCallback;
     private static ScriptCallbackHandle onIntervalBarbarianRageCallback;
     public const string BarbarianRageEffectTag = "_EFFECT_BARBARIAN_RAGE";
-    public static readonly Native.API.CExoString barbarianRageEffectExoTag = "_EFFECT_BARBARIAN_RAGE".ToExoString();
+    public static readonly Native.API.CExoString barbarianRageEffectExoTag = BarbarianRageEffectTag.ToExoString();
     public const string BarbarianRageAveugleEffectTag = "_EFFECT_BARBARIAN_RAGE_AVEUGLE";
-    public static Effect BarbarianRage(NwCreature caster, bool bearRage = false)
+    public static Effect BarbarianRage(NwCreature caster, int spellId)
     {
       int level = caster.GetClassInfo((ClassType)CustomClass.Barbarian).Level;
 
@@ -24,38 +26,66 @@ namespace NWN.Systems
 
       Effect eff;
 
-      if(bearRage)
+      switch(spellId)
       {
-        Effect resAcid = Effect.DamageImmunityIncrease(DamageType.Acid, 50);
-        resAcid.ShowIcon = false;
-        Effect resCold = Effect.DamageImmunityIncrease(DamageType.Cold, 50);
-        resCold.ShowIcon = false;
-        Effect resElec = Effect.DamageImmunityIncrease(DamageType.Electrical, 50);
-        resElec.ShowIcon = false;
-        Effect resFire = Effect.DamageImmunityIncrease(DamageType.Fire, 50);
-        resFire.ShowIcon = false;
-        Effect resSonic = Effect.DamageImmunityIncrease(DamageType.Sonic, 50);
-        resSonic.ShowIcon = false;
-        Effect resPoison = Effect.DamageImmunityIncrease(CustomDamageType.Poison, 50);
-        resPoison.ShowIcon = false;
+        case CustomSpell.RageSauvageOurs:
+        case CustomSpell.PuissanceSauvageOurs:
 
-        eff = Effect.LinkEffects(resBludg, resPierc, resSlash, resAcid, resCold, resElec, resFire, resSonic, resPoison,
-        Effect.Icon((EffectIcon)168), Effect.Icon((EffectIcon)211), Effect.Icon((EffectIcon)212), Effect.Icon((EffectIcon)213),
-        Effect.Icon((EffectIcon)205), Effect.Icon((EffectIcon)206), Effect.Icon((EffectIcon)208), Effect.Icon((EffectIcon)209),
-        Effect.Icon((EffectIcon)210), Effect.Icon((EffectIcon)214),
+          Effect resAcid = Effect.DamageImmunityIncrease(DamageType.Acid, 50);
+          resAcid.ShowIcon = false;
+          Effect resCold = Effect.DamageImmunityIncrease(DamageType.Cold, 50);
+          resCold.ShowIcon = false;
+          Effect resElec = Effect.DamageImmunityIncrease(DamageType.Electrical, 50);
+          resElec.ShowIcon = false;
+          Effect resFire = Effect.DamageImmunityIncrease(DamageType.Fire, 50);
+          resFire.ShowIcon = false;
+          Effect resSonic = Effect.DamageImmunityIncrease(DamageType.Sonic, 50);
+          resSonic.ShowIcon = false;
+          Effect resPoison = Effect.DamageImmunityIncrease(CustomDamageType.Poison, 50);
+          resPoison.ShowIcon = false;
+
+          eff = Effect.LinkEffects(resBludg, resPierc, resSlash, resAcid, resCold, resElec, resFire, resSonic, resPoison,
+          Effect.Icon((EffectIcon)168), Effect.Icon((EffectIcon)211), Effect.Icon((EffectIcon)212), Effect.Icon((EffectIcon)213),
+          Effect.Icon((EffectIcon)205), Effect.Icon((EffectIcon)206), Effect.Icon((EffectIcon)208), Effect.Icon((EffectIcon)209),
+          Effect.Icon((EffectIcon)210), Effect.Icon((EffectIcon)214),
         Effect.RunAction(onRemovedHandle: onRemoveBarbarianRageCallback, onIntervalHandle: onIntervalBarbarianRageCallback, interval: NwTimeSpan.FromRounds(1)));
-      }
-      else
-      {
+          
+          break;
+
+        default:
+
         eff = Effect.LinkEffects(resBludg, resPierc, resSlash,
         Effect.Icon((EffectIcon)168), Effect.Icon((EffectIcon)211), Effect.Icon((EffectIcon)212), Effect.Icon((EffectIcon)213),
         Effect.RunAction(onRemovedHandle: onRemoveBarbarianRageCallback, onIntervalHandle: onIntervalBarbarianRageCallback, interval: NwTimeSpan.FromRounds(1)));
+
+          switch(spellId)
+          {
+            case CustomSpell.RageSauvageAigle:
+
+              caster.ApplyEffect(EffectDuration.Temporary, sprintEffect, NwTimeSpan.FromRounds(1));
+              caster.ApplyEffect(EffectDuration.Temporary, disengageEffect, NwTimeSpan.FromRounds(1));
+
+              break;
+
+            case CustomSpell.RageSauvageLoup: caster.ApplyEffect(EffectDuration.Temporary, wolfTotemAura, TimeSpan.FromMinutes(10)); break;
+            case CustomSpell.PuissanceSauvageFaucon: eff = Effect.LinkEffects(eff, Vol); break;
+            case CustomSpell.PuissanceSauvageTigre: NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, LionTotem, TimeSpan.FromMinutes(10))); break;
+            case CustomSpell.PuissanceSauvageBelier: 
+              
+              caster.OnCreatureAttack -= BarbarianUtils.OnAttackBelier; 
+              caster.OnCreatureAttack += BarbarianUtils.OnAttackBelier; 
+              
+              break;
+          }            
+
+          break;
       }
 
       eff.Tag = BarbarianRageEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       eff.Creator = caster;
       eff.IntParams[5] = level > 15 ? 4 : level > 8 ? 3 : 2;
+      eff.IntParams[6] = spellId;
 
       return eff;
     }
@@ -74,44 +104,13 @@ namespace NWN.Systems
       target.OnItemEquip -= ItemSystem.OnEquipBarbarianRage;
       target.OnDamaged -= CreatureUtils.OnDamagedRageImplacable;
       target.OnDamaged -= BarbarianUtils.OnDamagedWildMagic;
-
-      target.GetObjectVariable<LocalVariableInt>(CreatureUtils.AspectTigreVariable).Delete();
-
-      if (target.KnowsFeat((Feat)CustomSkill.TotemFerociteIndomptable))
-        target.SetFeatRemainingUses((Feat)CustomSkill.TotemFerociteIndomptable, 0);
-
-      if (target.KnowsFeat((Feat)CustomSkill.TotemHurlementGalvanisant))
-        target.SetFeatRemainingUses((Feat)CustomSkill.TotemHurlementGalvanisant, 0);
-
-      if (target.KnowsFeat((Feat)CustomSkill.TotemAspectTigre))
-        target.SetFeatRemainingUses((Feat)CustomSkill.TotemAspectTigre, 0);
-
-      if (target.KnowsFeat((Feat)CustomSkill.TotemLienElan))
-      {
-        target.SetFeatRemainingUses((Feat)CustomSkill.TotemLienElan, 0);
-        EffectUtils.RemoveTaggedEffect(target, LienTotemElanAuraEffectTag);
-      }
-
-      if (target.KnowsFeat((Feat)CustomSkill.TotemLienLoup))
-      {
-        target.SetFeatRemainingUses((Feat)CustomSkill.TotemLienLoup, 0);
-        target.OnCreatureAttack -= CreatureUtils.OnAttackLoupKnockdown;
-      }
+      target.OnCreatureAttack -= BarbarianUtils.OnAttackBelier;
 
       if (target.KnowsFeat((Feat)CustomSkill.BersekerRageAveugle))
         EffectUtils.RemoveTaggedEffect(target, BarbarianRageAveugleEffectTag);
 
-      if (target.KnowsFeat((Feat)CustomSkill.TotemLienOurs))
-        EffectUtils.RemoveTaggedEffect(target, LienTotemOursAuraEffectTag);
-
-      foreach (var eff in target.ActiveEffects)
-      {
-        switch(eff.Tag)
-        {
-          case ElkTotemSpeedEffectTag:
-          case WolfTotemAuraEffectTag: target.RemoveEffect(eff); break;
-        }
-      }
+      if (target.KnowsFeat((Feat)CustomSkill.TotemRage))
+        EffectUtils.RemoveTaggedEffect(target, WolfTotemAuraEffectTag);
       
       if (target.KnowsFeat((Feat)CustomSkill.BersekerFrenziedStrike))
       {
@@ -177,12 +176,6 @@ namespace NWN.Systems
     private static void RenewBarbarianRage(NwCreature caster)
     {
       caster.GetObjectVariable<LocalVariableInt>("_BARBARIAN_RAGE_RENEW").Delete();
-
-      if (caster.KnowsFeat((Feat)CustomSkill.TotemFerociteIndomptable))
-        caster.SetFeatRemainingUses((Feat)CustomSkill.TotemFerociteIndomptable, 100);
-
-      if (caster.KnowsFeat((Feat)CustomSkill.TotemHurlementGalvanisant))
-        caster.SetFeatRemainingUses((Feat)CustomSkill.TotemHurlementGalvanisant, 100);
 
       if (caster.GetObjectVariable<LocalVariableInt>("_WILDMAGIC_TELEPORTATION").HasValue)
         caster.SetFeatRemainingUses(NwFeat.FromFeatId(CustomSkill.WildMagicTeleportation), 1);

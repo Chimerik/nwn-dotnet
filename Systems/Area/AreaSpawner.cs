@@ -80,9 +80,6 @@ namespace NWN.Systems
       if (creature.KnowsFeat((Feat)CustomSkill.Broyeur))
         creature.OnCreatureAttack += CreatureUtils.OnAttackBroyeur;
 
-      if (creature.KnowsFeat((Feat)CustomSkill.TotemAspectGlouton))
-        creature.OnCreatureAttack += CreatureUtils.OnAttackAspectGlouton;
-
       if (creature.KnowsFeat((Feat)CustomSkill.Pourfendeur))
       {
         creature.OnCreatureAttack += CreatureUtils.OnAttackPourfendeur;
@@ -155,9 +152,6 @@ namespace NWN.Systems
           }
         }
       }
-
-      if (creature.KnowsFeat((Feat)CustomSkill.TotemAspectElan))
-        creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.elkAspectAura);
 
       var creatureLoop = scheduler.ScheduleRepeating(() => CreatureUtils.CreatureHealthRegenLoop(creature), TimeSpan.FromSeconds(1));
 

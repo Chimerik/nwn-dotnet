@@ -324,7 +324,6 @@ namespace NWN.Systems
       NativeUtils.HandleRiposteBonusAttack(attacker, combatRound, attackData, attackerName);
       NativeUtils.HandleFrappeFrenetiqueBonusAttack(attacker, targetObject, combatRound, attackData, attackerName);
       NativeUtils.HandleBersekerRepresaillesBonusAttack(attacker, combatRound, attackData, attackerName);
-      NativeUtils.HandleTigreAspect(attacker, targetObject, combatRound, attackerName);
       NativeUtils.HandleArcaneArcherTirIncurveBonusAttack(attacker, attackData, combatRound, attackerName, attackWeapon, targetObject);
       NativeUtils.HandleMonkBonusAttack(attacker, targetObject, combatRound, attackerName, targetName);
       NativeUtils.HandleMonkDeluge(attacker, targetObject, combatRound, attackerName, targetName);
@@ -501,7 +500,10 @@ namespace NWN.Systems
 
       // Pour l'attaque de la main secondaire, on n'ajoute le modificateur de caractéristique que s'il est négatif
       if (!bOffHand.ToBool() || NativeUtils.HasTwoWeaponStyle(attacker) || (bOffHand > 0 && damageBonus < 0))
+      {
         baseDamage += damageBonus;
+        LogUtils.LogMessage($"Offhand attack - Applying negative {damageAbility} modifier (+{damageBonus})", LogUtils.LogType.Combat);
+      }
 
       baseDamage += NativeUtils.HandleBagarreurDeTaverne(attacker, attackWeapon);
       baseDamage += NativeUtils.HandleAnimalCompanionBonusDamage(attacker);
