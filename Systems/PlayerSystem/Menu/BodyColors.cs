@@ -165,8 +165,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.ContainsKey("bodyAppearanceModifier")) player.windows.Add("bodyAppearanceModifier", new IntroMirrorWindow(player));
-                  else ((IntroMirrorWindow)player.windows["bodyAppearanceModifier"]).CreateWindow();
+                  if (!player.windows.ContainsKey("introMirror")) player.windows.Add("introMirror", new IntroMirrorWindow(player));
+                  else ((IntroMirrorWindow)player.windows["introMirror"]).CreateWindow();
 
                   return;
 

@@ -451,7 +451,7 @@ namespace NWN.Systems
                       if (targetPlaceable.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").HasNothing)
                       {
                         SqLiteUtils.InsertQuery("placeableSpawn",
-                          new List<string[]>() { new string[] { "areaTag", targetPlaceable.Area.Tag }, new string[] { "position", targetPlaceable.Position.ToString() }, new string[] { "facing", targetPlaceable.Rotation.ToString() }, new string[] { "serializedPlaceable", targetPlaceable.Serialize().ToBase64EncodedString() } });
+                          new List<string[]>() { new string[] { "location", SqLiteUtils.SerializeLocation(targetPlaceable.Location) }, new string[] { "serializedPlaceable", targetPlaceable.Serialize().ToBase64EncodedString() } });
 
                         var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, $"SELECT last_insert_rowid()");
                         query.Execute();
@@ -466,8 +466,7 @@ namespace NWN.Systems
                       {
                         string spawnId = targetPlaceable.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value.ToString();
 
-                        SqLiteUtils.DeletionQuery("placeableSpawn",
-                          new Dictionary<string, string>() { { "rowid", spawnId } });
+                        SqLiteUtils.DeletionQuery("placeableSpawn", new Dictionary<string, string>() { { "rowid", spawnId } });
 
                         targetPlaceable.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Delete();
                         player.oid.SendServerMessage($"{targetPlaceable.Name.ColorString(ColorConstants.White)} n'est plus un placeable persistant. Il disparaitra au prochain reboot.", ColorConstants.Orange);
@@ -489,7 +488,7 @@ namespace NWN.Systems
                   if (targetPlaceable.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").HasValue && player.QueryAuthorized())
                   {
                     SqLiteUtils.UpdateQuery("placeableSpawn",
-                    new List<string[]>() { new string[] { "areaTag", targetPlaceable.Area.Tag }, new string[] { "position", targetPlaceable.Position.ToString() }, new string[] { "facing", targetPlaceable.Rotation.ToString() }, new string[] { "serializedPlaceable", targetPlaceable.Serialize().ToBase64EncodedString() } },
+                    new List<string[]>() { new string[] { "location", SqLiteUtils.SerializeLocation(targetPlaceable.Location) }, new string[] { "serializedPlaceable", targetPlaceable.Serialize().ToBase64EncodedString() } },
                     new List<string[]>() { new string[] { "rowid", targetPlaceable.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value.ToString() } });
 
                     player.oid.SendServerMessage($"{targetPlaceable.Name.ColorString(ColorConstants.White)} les données de persistance ont bien été mises à jour.", ColorConstants.Orange);

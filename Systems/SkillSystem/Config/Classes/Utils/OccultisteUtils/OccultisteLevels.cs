@@ -37,10 +37,6 @@ namespace NWN.Systems
 
           // On donne les autres capacités de niveau 1
 
-          player.learnableSkills.TryAdd(CustomSkill.OccultisteFourberieMagique, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.OccultisteFourberieMagique], player));
-          player.learnableSkills[CustomSkill.OccultisteFourberieMagique].LevelUp(player);
-          player.learnableSkills[CustomSkill.OccultisteFourberieMagique].source.Add(Category.Class);
-
           if (!player.windows.TryGetValue("spellSelection", out var cantrip1)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.Occultiste, 2, 2));
           else ((SpellSelectionWindow)cantrip1).CreateWindow((ClassType)CustomClass.Occultiste, 2, 2);
 
@@ -50,6 +46,10 @@ namespace NWN.Systems
           break;
 
         case 2:
+
+          player.learnableSkills.TryAdd(CustomSkill.OccultisteFourberieMagique, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.OccultisteFourberieMagique], player));
+          player.learnableSkills[CustomSkill.OccultisteFourberieMagique].LevelUp(player);
+          player.learnableSkills[CustomSkill.OccultisteFourberieMagique].source.Add(Category.Class);
 
           if (!player.windows.TryGetValue("spellSelection", out var spell2)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.Occultiste, nbSpells:1));
           else ((SpellSelectionWindow)spell2).CreateWindow((ClassType)CustomClass.Occultiste, nbSpells: 1);

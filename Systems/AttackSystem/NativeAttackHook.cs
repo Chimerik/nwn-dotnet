@@ -502,7 +502,7 @@ namespace NWN.Systems
       if (!bOffHand.ToBool() || NativeUtils.HasTwoWeaponStyle(attacker) || (bOffHand > 0 && damageBonus < 0))
       {
         baseDamage += damageBonus;
-        LogUtils.LogMessage($"Offhand attack - Applying negative {damageAbility} modifier (+{damageBonus})", LogUtils.LogType.Combat);
+        LogUtils.LogMessage($"Adding {damageAbility} modifier (+{damageBonus})", LogUtils.LogType.Combat);
       }
 
       baseDamage += NativeUtils.HandleBagarreurDeTaverne(attacker, attackWeapon);
@@ -529,7 +529,7 @@ namespace NWN.Systems
 
       // Application des réductions du jeu de base
 
-      if (attackWeapon.m_ScriptVars.GetObject(CreatureUtils.PacteDeLaLameVariableExo) != attacker.m_idSelf)
+      if (attackWeapon is null || attackWeapon.m_ScriptVars.GetObject(CreatureUtils.PacteDeLaLameVariableExo) != attacker.m_idSelf)
       {
         LogUtils.LogMessage($"Application des immunités de la cible - Dégats : {baseDamage}", LogUtils.LogType.Combat);
         baseDamage = targetObject.DoDamageImmunity(attacker, baseDamage, damageFlags, 0, 1);

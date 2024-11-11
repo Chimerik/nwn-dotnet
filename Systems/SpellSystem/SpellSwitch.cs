@@ -992,17 +992,21 @@ namespace NWN.Systems
               player.oid.LoginCreature.DecrementRemainingFeatUses((Feat)CustomSkill.ChatimentDivin);
           }
 
-          if(castingClass.ClassType == (ClassType)CustomClass.Occultiste)
+          if (castingClass.ClassType == (ClassType)CustomClass.Occultiste)
           {
-            var occultisteClass = castingCreature.GetClassInfo((ClassType)CustomClass.Occultiste);
-            byte remainingSlots = occultisteClass.GetRemainingSpellSlots(1);
-            byte consumedSlots = (byte)(remainingSlots - 1);
+            byte occultisteSpellLevel = spell.GetSpellLevelForClass((ClassType)CustomClass.Occultiste);
+            if (occultisteSpellLevel > 0)
+            {
+              var occultisteClass = castingCreature.GetClassInfo((ClassType)CustomClass.Occultiste);
+              byte remainingSlots = occultisteClass.GetRemainingSpellSlots(1);
+              byte consumedSlots = (byte)(remainingSlots - 1);
 
-            for (byte i = 1; i < 10; i++)
-              if(i != spell.GetSpellLevelForClass((ClassType)CustomClass.Occultiste))
-                occultisteClass.SetRemainingSpellSlots(i, consumedSlots);
+              for (byte i = 1; i < 10; i++)
+                if (i != occultisteSpellLevel)
+                  occultisteClass.SetRemainingSpellSlots(i, consumedSlots);
 
-            castingCreature.SetFeatRemainingUses((Feat)CustomSkill.ChatimentOcculte, consumedSlots);
+              castingCreature.SetFeatRemainingUses((Feat)CustomSkill.ChatimentOcculte, consumedSlots);
+            }
           }
         }
 

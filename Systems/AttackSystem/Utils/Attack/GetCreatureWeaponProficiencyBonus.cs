@@ -8,18 +8,15 @@ namespace NWN.Systems
   {
     public static int GetCreatureWeaponProficiencyBonus(CNWSCreature creature, CNWSItem weapon)
     {
-      // Si arme de pacte, alors maîtrise automatique
-      if(weapon.m_ScriptVars.GetObject(CreatureUtils.PacteDeLaLameVariableExo) == creature.m_idSelf)
-        return GetCreatureProficiencyBonus(creature);
-
-      if (creature.m_sTag.CompareNoCase(CreatureUtils.AnimalCompanionTagExo).ToBool()) // Si la créature est un compagnon animal, alors on ajouter le bonus de maîtrise du maître à son attaque
+      // Si la créature est un compagnon animal, alors on ajouter le bonus de maîtrise du maître à son attaque
+      if (creature.m_sTag.CompareNoCase(CreatureUtils.AnimalCompanionTagExo).ToBool()) 
       {
         int bonus = GetCreatureProficiencyBonus(NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(creature.m_oidMaster));
         LogUtils.LogMessage($"Compagnon animal : +{bonus} BA", LogUtils.LogType.Combat);
         return bonus;
       }
 
-      if (weapon is null)
+      if (weapon is null || weapon.m_ScriptVars.GetObject(CreatureUtils.PacteDeLaLameVariableExo) == creature.m_idSelf) // Si arme de pacte, alors maîtrise automatique
         return GetCreatureProficiencyBonus(creature);
 
       List<int> proficenciesRequirements = ItemUtils.GetItemProficiencies(NwBaseItem.FromItemId((int)weapon.m_nBaseItem).ItemType);

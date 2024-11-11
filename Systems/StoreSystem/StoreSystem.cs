@@ -130,7 +130,9 @@ namespace NWN.Systems
       if (onClose.Store.GetObjectVariable<LocalVariableInt>("_SHOP_ID").HasNothing)
       {
         SqLiteUtils.InsertQuery("playerShops",
-          new List<string[]>() { new string[] { "characterId", seller.characterId.ToString() }, new string[] { "shop", onClose.Store.Serialize().ToBase64EncodedString() }, new string[] { "panel", panel.Serialize().ToBase64EncodedString() }, new string[] { "expirationDate", DateTime.Now.AddDays(30).ToString() }, new string[] { "areaTag", onClose.Store.Area.Tag }, new string[]  { "position", onClose.Store.Position.ToString() }, new string[] { "facing", onClose.Store.Rotation.ToString() } });
+          new List<string[]>() { new string[] { "characterId", seller.characterId.ToString() }, new string[] { "shop", onClose.Store.Serialize().ToBase64EncodedString() }, 
+            new string[] { "panel", panel.Serialize().ToBase64EncodedString() }, new string[] { "expirationDate", DateTime.Now.AddDays(30).ToString() }, 
+            new string[] { "location", SqLiteUtils.SerializeLocation(onClose.Store.Location) } });
 
         var rowQuery = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, "SELECT last_insert_rowid()");
         rowQuery.Execute();
@@ -282,7 +284,10 @@ namespace NWN.Systems
       if (onClose.Store.GetObjectVariable<LocalVariableInt>("_AUCTION_ID").HasNothing)
       {
         SqLiteUtils.InsertQuery("playerAuctions",
-          new List<string[]>() { new string[] { "characterId", seller.characterId.ToString() }, new string[] { "shop", onClose.Store.Serialize().ToBase64EncodedString() }, new string[] { "panel", panel.Serialize().ToBase64EncodedString() }, new string[] { "expirationDate", onClose.Store.GetObjectVariable<LocalVariableString>("_AUCTION_END_DATE").Value }, new string[] { "highestAuction", onClose.Store.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTION").Value.ToString() }, new string[] { "highestAuctionner", "0" }, new string[] { "areaTag", onClose.Store.Area.Tag }, new string[] { "position", onClose.Store.Position.ToString() }, new string[] { "facing", onClose.Store.Rotation.ToString() } });
+          new List<string[]>() { new string[] { "characterId", seller.characterId.ToString() }, new string[] { "shop", onClose.Store.Serialize().ToBase64EncodedString() },
+            new string[] { "panel", panel.Serialize().ToBase64EncodedString() }, new string[] { "expirationDate", onClose.Store.GetObjectVariable<LocalVariableString>("_AUCTION_END_DATE").Value },
+            new string[] { "highestAuction", onClose.Store.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTION").Value.ToString() },
+            new string[] { "highestAuctionner", "0" }, new string[] { "location", SqLiteUtils.SerializeLocation(onClose.Store.Location) } });
 
         var rowQuery = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, "SELECT last_insert_rowid()");
         rowQuery.Execute();
@@ -292,7 +297,9 @@ namespace NWN.Systems
       else
       {
         SqLiteUtils.UpdateQuery("playerShops",
-        new List<string[]>() { new string[] { "shop", onClose.Store.Serialize().ToBase64EncodedString() }, new string[] { "panel", panel.Serialize().ToBase64EncodedString() }, new string[] { "highestAuction", onClose.Store.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTION").Value.ToString() }, new string[] { "highestAuctionner", onClose.Store.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTIONNER").Value.ToString() } },
+        new List<string[]>() { new string[] { "shop", onClose.Store.Serialize().ToBase64EncodedString() }, 
+          new string[] { "panel", panel.Serialize().ToBase64EncodedString() }, new string[] { "highestAuction", onClose.Store.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTION").Value.ToString() }, 
+          new string[] { "highestAuctionner", onClose.Store.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTIONNER").Value.ToString() } },
         new List<string[]>() { new string[] { "rowid", onClose.Store.GetObjectVariable<LocalVariableInt>("_AUCTION_ID").Value.ToString() } });
       }
     }

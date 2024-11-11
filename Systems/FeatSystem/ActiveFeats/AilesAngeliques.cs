@@ -9,16 +9,9 @@ namespace NWN.Systems
       if (!CreatureUtils.HandleBonusActionUse(caster))
         return;
 
-      if (caster.WingType == CreatureWingType.None)
-      {
-          caster.WingType = CreatureWingType.Angel;
-          caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPulseHoly));
-      }
-      else
-      {
-        caster.WingType = CreatureWingType.None;
-        caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpReduceAbilityScore));
-      }
+      caster.WingType = caster.WingType == CreatureWingType.None ? CreatureWingType.Angel : CreatureWingType.None;
+      caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPulseHoly));
+      caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadHoly));
     }
   }
 }

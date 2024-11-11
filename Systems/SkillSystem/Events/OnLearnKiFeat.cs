@@ -11,7 +11,10 @@ namespace NWN.Systems
       if (!creature.KnowsFeat((Feat)customSkillId))
         creature.AddFeat((Feat)customSkillId);
 
-      creature.SetFeatRemainingUses((Feat)customSkillId, creature.GetFeatRemainingUses((Feat)CustomSkill.MonkPatience));
+      if(customSkillId == CustomSkill.MonkPatience)
+        creature.SetFeatRemainingUses((Feat)customSkillId, 2);
+      else
+        creature.SetFeatRemainingUses((Feat)customSkillId, creature.GetFeatRemainingUses((Feat)CustomSkill.MonkPatience));
 
       if (creature.GetFeatRemainingUses((Feat)CustomSkill.MonkDesertion) < 4)
       {

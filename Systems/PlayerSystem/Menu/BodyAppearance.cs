@@ -38,6 +38,8 @@ namespace NWN.Systems
         private readonly NuiBind<int> thighLeftSelection = new ("thighLeftSelection");
         private readonly NuiBind<int> shinLeftSelection = new ("shinLeftSelection");
         private readonly NuiBind<int> footLeftSelection = new("footLeftSelection");
+        private readonly NuiBind<int> wingSelection = new("wingSelection");
+        private readonly NuiBind<int> tailSelection = new("tailSelection");
 
         private readonly List<NuiComboEntry> comboBicep = new ()
           {
@@ -221,6 +223,22 @@ namespace NWN.Systems
                   new NuiCombo(){ Entries = comboBicep, Selected = footLeftSelection, Height = BUTTONSIZE, Width = COMBOSIZE, Margin = 0.0f },
                   new NuiSpacer()
                 } },
+                new NuiRow() { Height = BUTTONSIZE, Children = new List<NuiElement>()
+                {
+                  new NuiSpacer(),
+                  new NuiLabel("Ailes") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+                  new NuiSpacer(),
+                  new NuiLabel("Queue") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+                  new NuiSpacer()
+                } },
+                new NuiRow() { Height = BUTTONSIZE, Margin = 0.0f, Children = new List<NuiElement>()
+                {
+                  new NuiSpacer(),
+                  new NuiCombo(){ Entries = WingModels2da.wingCombo, Selected = wingSelection, Height = BUTTONSIZE, Width = COMBOSIZE, Margin = 0.0f },
+                  new NuiSpacer(),
+                  new NuiCombo(){ Entries = TailModels2da.tailCombo, Selected = tailSelection, Height = BUTTONSIZE, Width = COMBOSIZE, Margin = 0.0f },
+                  new NuiSpacer()
+                } },
               } }
             } 
           });
@@ -287,6 +305,8 @@ namespace NWN.Systems
             shinLeftSelection.SetBindWatch(player.oid, nuiToken.Token, true);
             footRightSelection.SetBindWatch(player.oid, nuiToken.Token, true);
             footLeftSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            wingSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            tailSelection.SetBindWatch(player.oid, nuiToken.Token, true);
 
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
@@ -320,8 +340,8 @@ namespace NWN.Systems
               {
                 case "openColors":
 
-                  if (!player.windows.ContainsKey("bodyColorsModifier")) player.windows.Add("bodyColorsModifier", new BodyColorWindow(player, targetCreature));
-                  else ((BodyColorWindow)player.windows["bodyColorsModifier"]).CreateWindow(targetCreature);
+                  if (!player.windows.TryGetValue("bodyColorsModifier", out var value)) player.windows.Add("bodyColorsModifier", new BodyColorWindow(player, targetCreature));
+                  else ((BodyColorWindow)value).CreateWindow(targetCreature);
 
                   return;
 
@@ -423,6 +443,14 @@ namespace NWN.Systems
 
                 case "footLeftSelection":
                   targetCreature.SetCreatureBodyPart(CreaturePart.LeftFoot, footLeftSelection.GetBindValue(player.oid, nuiToken.Token));
+                  break;
+
+                case "wingSelection":
+                  targetCreature.WingType = (CreatureWingType)wingSelection.GetBindValue(player.oid, nuiToken.Token);
+                  break;
+
+                case "tailSelection":
+                  targetCreature.TailType = (CreatureTailType)tailSelection.GetBindValue(player.oid, nuiToken.Token);
                   break;
               }
 

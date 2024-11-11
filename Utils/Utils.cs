@@ -111,26 +111,6 @@ namespace NWN
       double result = (value - originalMin) / (originalMax - originalMin) * (destMax - destMin);
       return result + destMin;
     }
-
-    public static Location GetLocationFromDatabase(string areaTag, string position, float facing)
-    {
-      Vector3 pos;
-
-      if (position.Contains(','))
-      {
-        position = position.Replace("<", "");
-        position = position.Replace(">", "");
-        string[] splitString = position.Split(",");
-        pos = new Vector3(float.TryParse(splitString[0], out float X) ? X : 0, float.TryParse(splitString[1], out float Y) ? Y : 0, float.TryParse(splitString[2], out float Z) ? Z : 0);
-      }
-      else
-      {
-        string[] splitString = position.Split(":");
-        pos = new Vector3(float.TryParse(splitString[0], out float X) ? X : 0, float.TryParse(splitString[1], out float Y) ? Y : 0, float.TryParse(splitString[2], out float Z) ? Z : 0);
-      }
-
-      return Location.Create(NwModule.Instance.Areas.FirstOrDefault(a => a.Tag == areaTag), pos, facing);
-    }
     public static void BootAllPC()
     {
       foreach (NwPlayer oPC in NwModule.Instance.Players)

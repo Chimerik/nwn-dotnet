@@ -25,11 +25,11 @@ namespace NWN.Systems
       int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, casterClass.SpellCastingAbility);
       bool evocateur = caster.KnowsFeat((Feat)CustomSkill.EvocateurFaconneurDeSorts);
 
-      caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfHowlOdd));
+      caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfMysticalExplosion));
 
       foreach (NwCreature target in oCaster.Location.GetObjectsInShapeByType<NwCreature>(Shape.Cube, spellEntry.aoESize, false))
       {
-        if (evocateur && oCaster is NwCreature casterCreature && !casterCreature.IsReactionTypeHostile(target))
+        if (target == caster || (evocateur && !caster.IsReactionTypeHostile(target)))
           continue;
 
         SavingThrowResult saveResult = CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC);
@@ -38,7 +38,8 @@ namespace NWN.Systems
         if (saveResult == SavingThrowResult.Failure)
           EffectSystem.ApplyKnockdown(target, CreatureSize.Large, spellEntry.duration);
 
-        target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadNature));
+        target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSonic));
+        target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpBlindDeafM));
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfScreenBump));
       }
     }

@@ -1672,8 +1672,7 @@ namespace NWN.Systems
             if (targetCreature.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").HasNothing)
             {
               SqLiteUtils.InsertQuery("creatureSpawn",
-                new List<string[]>() { new string[] { "areaTag", targetCreature.Area.Tag }, new string[] { "position", targetCreature.Position.ToString() }, new string[] { "facing", targetCreature.Rotation.ToString() }, new string[] { "serializedCreature", targetCreature.Serialize().ToBase64EncodedString() } });
-
+                new List<string[]>() { new string[] { "location", SqLiteUtils.SerializeLocation(targetCreature.Location) }, new string[] { "serializedCreature", targetCreature.Serialize().ToBase64EncodedString() } });
               var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, $"SELECT last_insert_rowid()");
               query.Execute();
 
@@ -1682,7 +1681,7 @@ namespace NWN.Systems
             else
             {
               SqLiteUtils.UpdateQuery("creatureSpawn",
-                new List<string[]>() { new string[] { "areaTag", targetCreature.Area.Tag }, new string[] { "position", targetCreature.Position.ToString() }, new string[] { "facing", targetCreature.Rotation.ToString() }, new string[] { "serializedCreature", targetCreature.Serialize().ToBase64EncodedString() } },
+                new List<string[]>() { new string[] { "location", SqLiteUtils.SerializeLocation(targetCreature.Location) }, new string[] { "serializedCreature", targetCreature.Serialize().ToBase64EncodedString() } },
                 new List<string[]>() { new string[] { "rowid", targetCreature.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value.ToString() } });
             }
           }

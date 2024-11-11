@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     public static void HandleMagieTempetueuse(NwCreature creature, int spellLevel)
     {
-      if (1 < spellLevel || spellLevel > 9)
+      if (!creature.KnowsFeat((Feat)CustomSkill.EnsoMagieTempetueuse) || 1 < spellLevel || spellLevel > 9)
         return;
 
       creature.ApplyEffect(EffectDuration.Temporary, EffectSystem.MagieTempetueuse, NwTimeSpan.FromRounds(1));

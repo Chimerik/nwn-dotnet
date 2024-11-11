@@ -117,7 +117,7 @@ namespace NWN.Systems
 
                   currentArrayindex = -1;
                   player.oid.SendServerMessage("Quel objet souhaitez-vous prendre pour modèle ?", ColorConstants.Orange);
-                  player.oid.EnterTargetMode(SelectItem, Config.selectItemTargetMode);
+                  player.oid.EnterTargetMode(SelectItem, Config.selectPlaceableTargetMode);
 
                   break;
 
@@ -137,7 +137,7 @@ namespace NWN.Systems
 
                   currentArrayindex = nuiEvent.ArrayIndex;
                   player.oid.SendServerMessage("Quel objet souhaitez-vous prendre pour modèle ?", ColorConstants.Orange);
-                  player.oid.EnterTargetMode(SelectItem, Config.selectItemTargetMode);
+                  player.oid.EnterTargetMode(SelectItem, Config.selectPlaceableTargetMode);
 
                   break;
 
@@ -145,7 +145,7 @@ namespace NWN.Systems
 
                   currentArrayindex = nuiEvent.ArrayIndex;
                   player.oid.SendServerMessage("Où souhaitez-vous créer cet objet ?", ColorConstants.Orange);
-                  player.oid.EnterTargetMode(CreateItem, Config.selectItemTargetMode);
+                  player.oid.EnterTargetMode(CreateItem, Config.selectLocationTargetMode);
 
                   break;
 

@@ -116,7 +116,7 @@ namespace NWN.Systems
 
                   currentArrayindex = -1;
                   player.oid.SendServerMessage("Quelle créature souhaitez-vous prendre pour modèle ?", ColorConstants.Orange);
-                  player.oid.EnterTargetMode(SelectCreature, Config.selectItemTargetMode);
+                  player.oid.EnterTargetMode(SelectCreature, Config.selectCreatureTargetMode);
 
                   break;
 
@@ -136,7 +136,7 @@ namespace NWN.Systems
 
                   currentArrayindex = nuiEvent.ArrayIndex;
                   player.oid.SendServerMessage("Quelle créature souhaitez-vous prendre pour modèle ?", ColorConstants.Orange);
-                  player.oid.EnterTargetMode(SelectCreature, Config.selectItemTargetMode);
+                  player.oid.EnterTargetMode(SelectCreature, Config.selectCreatureTargetMode);
 
                   break;
 
@@ -144,7 +144,7 @@ namespace NWN.Systems
 
                   currentArrayindex = nuiEvent.ArrayIndex;
                   player.oid.SendServerMessage("Veuillez sélectionner un emplacement de spawn.", ColorConstants.Orange);
-                  player.oid.EnterTargetMode(SpawnCreature, Config.selectItemTargetMode);
+                  player.oid.EnterTargetMode(SpawnCreature, Config.selectLocationTargetMode);
 
                   break;
 

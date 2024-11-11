@@ -22,6 +22,7 @@ using System.IO;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Text;
 using System.Diagnostics;
+using System.Globalization;
 
 namespace NWN.Systems
 {
@@ -33,7 +34,7 @@ namespace NWN.Systems
     public static readonly DriveService googleDriveService = Config.AuthenticateServiceAccount();
     public static readonly Dictionary<string, GoldBalance> goldBalanceMonitoring = new();
     private static SchedulerService scheduler;
-
+    //private static CultureInfo cultureInfo = (CultureInfo)CultureInfo.CurrentCulture.Clone();
     public static NwCreature placeholderTemplate = NwObject.FindObjectsWithTag<NwCreature>("damage_trainer").FirstOrDefault(); 
 
     public class HeadModels
@@ -57,6 +58,7 @@ namespace NWN.Systems
       // Ces deux lignes permettent de résoudre le conflit entre le sqlite du jeu de base et le sqlite de .net que j'utilise
       NativeLibrary.SetDllImportResolver(typeof(SQLite3Provider_e_sqlite3).Assembly, ResolveFromNwServer);
       Marshal.PrelinkAll(typeof(SQLite3Provider_e_sqlite3));
+      //cultureInfo.NumberFormat.CurrencyDecimalSeparator = ".";
 
       scheduler = schedulerService;
 
@@ -358,10 +360,10 @@ namespace NWN.Systems
         "('characterId' INTEGER NOT NULL, 'expirationDate' TEXT NOT NULL, 'material' TEXT NOT NULL, 'quantity' INTEGER NOT NULL, 'unitPrice' INTEGER NOT NULL)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerShops" +
-        "('characterId' INTEGER NOT NULL, 'shop' TEXT NOT NULL, 'panel' TEXT NOT NULL, 'expirationDate' TEXT NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL)");
+        "('characterId' INTEGER NOT NULL, 'shop' TEXT NOT NULL, 'panel' TEXT NOT NULL, 'expirationDate' TEXT NOT NULL, 'location' TEXT NOT NULL)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerAuctions" +
-        "('characterId' INTEGER NOT NULL, 'shop' TEXT NOT NULL, 'panel' TEXT NOT NULL, 'expirationDate' TEXT NOT NULL, 'highestAuction' INTEGER NOT NULL, 'highestAuctionner' INTEGER NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL)");
+        "('characterId' INTEGER NOT NULL, 'shop' TEXT NOT NULL, 'panel' TEXT NOT NULL, 'expirationDate' TEXT NOT NULL, 'highestAuction' INTEGER NOT NULL, 'highestAuctionner' INTEGER NOT NULL, 'location' TEXT NOT NULL)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS rumors" +
         "('rumors' TEXT DEFAULT NULL)");
@@ -379,10 +381,10 @@ namespace NWN.Systems
         "('creatures' TEXT, 'placeables' TEXT, 'items' TEXT)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS creatureSpawn " +
-        "('areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL, 'serializedCreature' TEXT NOT NULL)");
+        "('location' TEXT NOT NULL, 'serializedCreature' TEXT NOT NULL)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS placeableSpawn " +
-        "('areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL, 'serializedPlaceable' TEXT NOT NULL)");
+        "('location' TEXT NOT NULL, 'serializedPlaceable' TEXT NOT NULL)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS areaMusics" +
         "('areaTag' TEXT NOT NULL, 'backgroundDay' INTEGER NOT NULL, 'backgroundNight' INTEGER NOT NULL, 'battle' INTEGER NOT NULL, PRIMARY KEY(areaTag))");
@@ -961,27 +963,27 @@ namespace NWN.Systems
     private static void LoadCreatureSpawns()
     {
       var result = SqLiteUtils.SelectQuery("creatureSpawn",
-            new List<string>() { { "areaTag" }, { "position" }, { "facing" }, { "serializedCreature" }, { "rowid" } },
+            new List<string>() { { "location" }, { "serializedCreature" }, { "rowid" } },
             new List<string[]>() { });
 
       foreach (var spawn in result)
       {
-        NwCreature creature = NwCreature.Deserialize(spawn[3].ToByteArray());
-        creature.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value = int.Parse(spawn[4]);
-        creature.Location = Utils.GetLocationFromDatabase(spawn[0], spawn[1], float.Parse(spawn[2]));
+        NwCreature creature = NwCreature.Deserialize(spawn[1].ToByteArray());
+        creature.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value = int.Parse(spawn[2]);
+        creature.Location = SqLiteUtils.DeserializeLocation(spawn[0]);
       }
     }
     private static void LoadPlaceableSpawns()
     {
       var result = SqLiteUtils.SelectQuery("placeableSpawn",
-            new List<string>() { { "areaTag" }, { "position" }, { "facing" }, { "serializedPlaceable" }, { "rowid" } },
+            new List<string>() { { "location" }, { "serializedPlaceable" }, { "rowid" } },
             new List<string[]>() { });
 
       foreach (var spawn in result)
       {
-        NwPlaceable plc = NwPlaceable.Deserialize(spawn[3].ToByteArray());
-        plc.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value = int.Parse(spawn[4]);
-        plc.Location = Utils.GetLocationFromDatabase(spawn[0], spawn[1], float.Parse(spawn[2]));
+        NwPlaceable plc = NwPlaceable.Deserialize(spawn[1].ToByteArray());
+        plc.GetObjectVariable<LocalVariableInt>("_SPAWN_ID").Value = int.Parse(spawn[2]);
+        plc.Location = SqLiteUtils.DeserializeLocation(spawn[0]);
       }
     }
     private void HandlePlayerLoop()

@@ -130,7 +130,14 @@ namespace NWN.Systems
     public static readonly TargetModeSettings selectCreatureTargetMode = new()
     {
       ValidTargets = ObjectTypes.Creature,
-      CursorType = MouseCursor.Action,
+      CursorType = MouseCursor.Use,
+      BadCursorType = MouseCursor.NoAction
+    };
+
+    public static readonly TargetModeSettings selectPlaceableTargetMode = new()
+    {
+      ValidTargets = ObjectTypes.Placeable,
+      CursorType = MouseCursor.Use,
       BadCursorType = MouseCursor.NoAction
     };
 

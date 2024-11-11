@@ -189,8 +189,6 @@ namespace NWN.Systems
       }
 
       await NwTask.NextFrame();
-
-      //MonkUtils.RestoreKi(player.oid.LoginCreature);
       OnLearnUnarmoredSpeed(player, CustomSkill.MonkUnarmoredSpeed);
     }
   }
