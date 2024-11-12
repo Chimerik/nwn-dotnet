@@ -49,7 +49,7 @@ namespace NWN.Systems
       requiresConcentration = entry.GetInt("UseConcentration").GetValueOrDefault(0) == 2;
       requiresSomatic = entry.GetString("VS")?.Contains('s') ?? false;
       requiresVerbal = entry.GetString("VS")?.Contains('v') ?? false;
-      bardMagicalSecret = entry.GetBool("BardMagicalSecret").GetValueOrDefault(false);
+      hideFromRanger = entry.GetBool("BardMagicalSecret").GetValueOrDefault(false);
       hideFromRanger = entry.GetBool("HideFromRanger").GetValueOrDefault(false);
       hideFromWarlock = entry.GetBool("HideFromWarlock").GetValueOrDefault(false);
       ritualSpell = entry.GetBool("Rituel").GetValueOrDefault(false);

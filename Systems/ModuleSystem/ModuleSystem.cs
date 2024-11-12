@@ -158,6 +158,15 @@ namespace NWN.Systems
       placeholderTemplate = placeholderTemplate?.Clone(placeholderTemplate?.Location);
       placeholderTemplate.VisibilityOverride = VisibilityMode.Hidden;
 
+      /*List<string> codeFactures = new()
+      {
+        "NUM_LOT;022578",
+      };
+
+      Log.Info($"start");
+      IncidentDGCReprise("/home/chim/incident/WP01-20241112-0109209808-P-23.SUD.FA.txt", codeFactures);
+      Log.Info($"end");*/
+
       /*placeholderTemplate.ApplyEffect(EffectDuration.Permanent, Effect.DamageImmunityIncrease(DamageType.Magical, 50));
       placeholderTemplate.ApplyEffect(EffectDuration.Permanent, Effect.DamageImmunityIncrease(DamageType.Magical, 10));
       placeholderTemplate.ApplyEffect(EffectDuration.Permanent, Effect.DamageImmunityIncrease(DamageType.Magical, -25));
@@ -224,6 +233,22 @@ namespace NWN.Systems
         Log.Info($";{mdl};{NWScript.ResManGetAliasFor(mdl, NWScript.RESTYPE_MDL)}");*/
 
       //Log.Info($"----------------------vff_expdlos10 : {NWScript.ResManGetAliasFor("vff_expdlos10", NWScript.RESTYPE_MDL)}");      
+    }
+    private void IncidentDGCReprise(string filePath, List<string> codeFactures)
+    {
+      using StreamReader reader = new(filePath, Encoding.GetEncoding(1252));
+      using StreamWriter writer = new("/home/chim/incident/output.txt", true, Encoding.GetEncoding(1252));
+
+      string totlContent = reader.ReadToEnd();
+      var factures = totlContent.Split("DUMMY;dummy line\n");
+      
+      foreach (var facture in factures)
+      {
+        if (codeFactures.Any(facture.Contains))
+        {
+          writer.Write(facture + "DUMMY;dummy line\n");
+        }
+      }
     }
     private void MakeInventoryUndroppable(CreatureEvents.OnDeath onDeath)
     {

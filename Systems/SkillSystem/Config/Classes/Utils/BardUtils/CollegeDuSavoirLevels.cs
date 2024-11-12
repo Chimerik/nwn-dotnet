@@ -38,6 +38,14 @@ namespace NWN.Systems
           else ((BardMagicalSecretSelectionWindow)secret10).CreateWindow(2);
 
           break;
+
+        case 14:
+
+          player.learnableSkills.TryAdd(CustomSkill.BardeSavoirCompetenceSansEgale, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BardeSavoirCompetenceSansEgale], player));
+          player.learnableSkills[CustomSkill.BardeSavoirCompetenceSansEgale].LevelUp(player);
+          player.learnableSkills[CustomSkill.BardeSavoirCompetenceSansEgale].source.Add(Category.Class);
+
+          break;
       }
     }
   }

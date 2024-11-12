@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Anvil.API;
 using NWN.Core;
 
@@ -14,58 +15,30 @@ namespace NWN.Systems
         return;
       }
 
-      var previousInspi = target.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.InspirationBardiqueEffectTag);
-      int inspiBonus = EffectSystem.GetInspirationBardiqueBonus(caster.GetClassInfo(ClassType.Bard).Level);
+      if(target.ActiveEffects.Any(e => e.Tag == EffectSystem.InspirationBardiqueEffectTag))
+      {
+        caster?.LoginPlayer.SendServerMessage($"{target.Name.ColorString(ColorConstants.Cyan)} est déjà affectée par {StringUtils.ToWhitecolor("Inspiration Bardique")}", StringUtils.gold);
+        return;
+      }
+
+      
 
       if (!CreatureUtils.HandleBonusActionUse(caster))
         return;
 
+      int inspiBonus = EffectSystem.GetInspirationBardiqueBonus(caster.GetClassInfo(ClassType.Bard).Level);
+
       if (caster.KnowsFeat((Feat)CustomSkill.MotsCinglants) && caster.IsReactionTypeHostile(target))
       {
-        if (previousInspi is not null)
-        {
-          if (previousInspi.CasterLevel < 0)
-          {
-            caster?.LoginPlayer.SendServerMessage($"{target.Name.ColorString(ColorConstants.Cyan)} est déjà affectée par {StringUtils.ToWhitecolor("Mots Cinglants")}", ColorConstants.Orange);
-            return;
-          }
-          else
-          {
-            EffectUtils.RemoveTaggedEffect(target, EffectSystem.InspirationBardiqueEffectTag);
-            StringUtils.DisplayStringToAllPlayersNearTarget(target, $"{caster.Name.ColorString(ColorConstants.Cyan)} lance {StringUtils.ToWhitecolor("Mots Cinglants")} sur {target.Name.ColorString(ColorConstants.Cyan)}", ColorConstants.Red, true, true);
-
-            inspiBonus -= previousInspi.CasterLevel;
-          }
-        }
-        else
-        {
-          inspiBonus = -inspiBonus;
-          StringUtils.DisplayStringToAllPlayersNearTarget(target, $"{caster.Name.ColorString(ColorConstants.Cyan)} lance {StringUtils.ToWhitecolor("Mots Cinglants")} sur {target.Name.ColorString(ColorConstants.Cyan)}", ColorConstants.Red, true, true);
-        } 
+        inspiBonus = -inspiBonus;
+        StringUtils.DisplayStringToAllPlayersNearTarget(target, $"{caster.Name.ColorString(ColorConstants.Cyan)} lance {StringUtils.ToWhitecolor("Mots Cinglants")} sur {target.Name.ColorString(ColorConstants.Cyan)}", ColorConstants.Red, true, true);
       }
       else
       {
-        if (previousInspi is not null)
-        {
-          if (previousInspi.CasterLevel > 0)
-          {
-            caster?.LoginPlayer.SendServerMessage($"{target.Name.ColorString(ColorConstants.Cyan)} bénéficie déjà d'{StringUtils.ToWhitecolor("Inspiration Bardique")}", ColorConstants.Orange);
-            return;
-          }
-          else
-          {
-            EffectUtils.RemoveTaggedEffect(target, EffectSystem.InspirationBardiqueEffectTag);
-            StringUtils.DisplayStringToAllPlayersNearTarget(target, $"{caster.Name.ColorString(ColorConstants.Cyan)} lance {StringUtils.ToWhitecolor("Inspiration Bardique")} sur {target.Name.ColorString(ColorConstants.Cyan)}", ColorConstants.Red, true, true);
-
-           inspiBonus += previousInspi.CasterLevel;
-          }
-        }
-        else
-          StringUtils.DisplayStringToAllPlayersNearTarget(target, $"{caster.Name.ColorString(ColorConstants.Cyan)} lance {StringUtils.ToWhitecolor("Inspiration Bardique")} sur {target.Name.ColorString(ColorConstants.Cyan)}", StringUtils.gold, true, true);
+        StringUtils.DisplayStringToAllPlayersNearTarget(target, $"{caster.Name.ColorString(ColorConstants.Cyan)} lance {StringUtils.ToWhitecolor("Inspiration Bardique")} sur {target.Name.ColorString(ColorConstants.Cyan)}", StringUtils.gold, true, true);
       }
 
-      if (inspiBonus != 0)
-        NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetInspirationBardiqueEffect(inspiBonus)));
+      NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetInspirationBardiqueEffect(inspiBonus), TimeSpan.FromHours(1)));
 
       caster.DecrementRemainingFeatUses((Feat)CustomSkill.BardInspiration);
       caster.DecrementRemainingFeatUses((Feat)CustomSkill.DefenseVaillante);

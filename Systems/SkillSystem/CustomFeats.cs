@@ -240,7 +240,7 @@
     public const int ConstitutionInfernale = 1538;
 
     public const int BardInspiration = 1539;
-    public const int ChantDuRepos = 1540;
+    public const int SecretsMagiques = 1540;
     public const int ToucheATout = 1541;
     public const int SourceDinspiration = 1542;
     public const int ContreCharme = 1543;
@@ -1130,6 +1130,8 @@
     public const int OccultisteCeleste = 20634;
     public const int OccultisteFielon = 20635;
     public const int OccultisteGrandAncien = 20636;
+
+    public const int BardeSavoirCompetenceSansEgale = 20637;
 
     public const int Invalid = 65535;
   }

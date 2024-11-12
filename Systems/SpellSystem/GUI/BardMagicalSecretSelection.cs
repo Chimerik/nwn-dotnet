@@ -65,7 +65,7 @@ namespace NWN.Systems
 
           NuiRect windowRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 520, 500);
 
-          window = new NuiWindow(rootColumn, $"Barde - Choix de {nbSpells} secrets magiques")
+          window = new NuiWindow(rootColumn, $"Barde - Choix de {nbSpells} découvertes magiques")
           {
             Geometry = geometry,
             Resizable = false,

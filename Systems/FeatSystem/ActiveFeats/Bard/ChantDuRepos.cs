@@ -30,7 +30,7 @@ namespace NWN.Systems
       }
 
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} lance {StringUtils.ToWhitecolor("Chant du Repos")}", StringUtils.gold, true, true);
-      caster.DecrementRemainingFeatUses((Feat)CustomSkill.ChantDuRepos);
+      //caster.DecrementRemainingFeatUses((Feat)CustomSkill.ChantDuRepos);
     }
   }
 }

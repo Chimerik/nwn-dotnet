@@ -418,6 +418,7 @@ namespace NWN.Systems
         ApplyDrowLightSensitivity();
         ApplyThieflingFireResistance();
         ApplyAasimarResistance();
+        InitializeMagicalSecretSelection();
         ApplyDwarfPoisonResistance();
         ApplyNecroticResistance();
         ApplyAmeRadieuse();
@@ -447,7 +448,6 @@ namespace NWN.Systems
         InitializeSpellSelection();
         InitializeTechniqueElementaireSelection();
         InitializeInvocationOcculteSelection();
-        InitializeMagicalSecretSelection();
         InitializeArcaneMystiqueSelection();
         InitializeSkillProficiencySelection();
         ResetFlameBlade();

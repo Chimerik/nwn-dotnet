@@ -146,7 +146,7 @@ namespace NWN.Systems
         case CustomSkill.BardInspiration: InspirationBardique(onUseFeat.Creature, onUseFeat.TargetObject); return;
         case CustomSkill.DefenseVaillante: DefenseVaillante(onUseFeat.Creature, onUseFeat.TargetObject); return;
         case CustomSkill.DegatsVaillants: DegatsVaillants(onUseFeat.Creature, onUseFeat.TargetObject); return;
-        case CustomSkill.ChantDuRepos: ChantDuRepos(onUseFeat.Creature); return;
+        case CustomSkill.SourceDinspiration: SourceDinspiration(onUseFeat.Creature); return;
         case CustomSkill.BotteDefensive: BotteDefensive(onUseFeat.Creature); return;
         case CustomSkill.BotteTranchante: BotteTranchante(onUseFeat.Creature); return;
         case CustomSkill.BotteDefensiveDeMaitre: BotteDefensiveDeMaitre(onUseFeat.Creature); return;

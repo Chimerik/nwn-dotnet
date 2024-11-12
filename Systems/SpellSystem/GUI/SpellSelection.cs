@@ -250,7 +250,7 @@ namespace NWN.Systems
               && learnable.learntFromClasses.Contains((int)spellClass))
               continue;
 
-            if (spellClass == ClassType.Bard && entry.bardMagicalSecret)
+            if (spellClass == ClassType.Bard && entry.bardMagicalSecret && !player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.SecretsMagiques))
               continue;
 
             if (spellClass == ClassType.Ranger && entry.hideFromRanger)
