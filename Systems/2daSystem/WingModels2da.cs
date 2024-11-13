@@ -3,6 +3,7 @@ using System.Linq;
 
 using Anvil.API;
 using Anvil.Services;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -26,8 +27,11 @@ namespace NWN.Systems
     public static readonly List<NuiComboEntry> wingCombo = new();
     public WingModels2da()
     {
-      foreach (var entry in WingModelsTable.Where(b => !string.IsNullOrEmpty(b.model)))
-        wingCombo.Add(new NuiComboEntry(entry.label, entry.RowIndex));
+      foreach (var entry in WingModelsTable)
+      {
+        if (!string.IsNullOrEmpty(entry.label))
+          wingCombo.Add(new NuiComboEntry(entry.label, entry.RowIndex));
+      }
     }
   }
 }

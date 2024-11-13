@@ -9,7 +9,7 @@ namespace NWN.Systems
   {
     private static void InspirationBardique(NwCreature caster, NwGameObject targetObject)
     {
-      if (targetObject is not NwCreature target)
+      if (targetObject is not NwCreature target || (caster == target && !caster.KnowsFeat((Feat)CustomSkill.ToucheATout)))
       {
         caster?.LoginPlayer.SendServerMessage("Cible invalide", ColorConstants.Red);
         return;
@@ -21,9 +21,7 @@ namespace NWN.Systems
         return;
       }
 
-      
-
-      if (!CreatureUtils.HandleBonusActionUse(caster))
+      if(!caster.KnowsFeat((Feat)CustomSkill.ToucheATout) && !CreatureUtils.HandleBonusActionUse(caster))
         return;
 
       int inspiBonus = EffectSystem.GetInspirationBardiqueBonus(caster.GetClassInfo(ClassType.Bard).Level);

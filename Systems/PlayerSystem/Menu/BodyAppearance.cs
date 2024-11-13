@@ -286,6 +286,8 @@ namespace NWN.Systems
             thighLeftSelection.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetCreatureBodyPart(CreaturePart.LeftThigh));
             shinRightSelection.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetCreatureBodyPart(CreaturePart.RightShin));
             shinLeftSelection.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetCreatureBodyPart(CreaturePart.LeftShin));
+            wingSelection.SetBindValue(player.oid, nuiToken.Token, (int)targetCreature.WingType);
+            tailSelection.SetBindValue(player.oid, nuiToken.Token, (int)targetCreature.TailType);
 
             headSelection.SetBindWatch(player.oid, nuiToken.Token, true);
             sizeSelection.SetBindWatch(player.oid, nuiToken.Token, true);

@@ -26,8 +26,9 @@ namespace NWN.Systems
     public static readonly List<NuiComboEntry> tailCombo = new();
     public TailModels2da()
     {
-      foreach (var entry in TailModelsTable.Where(b => !string.IsNullOrEmpty(b.model)))
-        tailCombo.Add(new NuiComboEntry(entry.label, entry.RowIndex));
+      foreach (var entry in TailModelsTable)
+        if (!string.IsNullOrEmpty(entry.label))
+          tailCombo.Add(new NuiComboEntry(entry.label, entry.RowIndex));
     }
   }
 }

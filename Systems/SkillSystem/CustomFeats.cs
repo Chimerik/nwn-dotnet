@@ -244,7 +244,10 @@
     public const int ToucheATout = 1541;
     public const int SourceDinspiration = 1542;
     public const int ContreCharme = 1543;
+
     public const int MotsCinglants = 1544;
+    public const int BardeSavoirCompetenceSansEgale = 1798;
+
     public const int DefenseVaillante = 1545;
     public const int DegatsVaillants = 1546;
     public const int BotteDefensive = 1547;
@@ -1129,9 +1132,7 @@
     public const int OccultisteArchifee = 20633;
     public const int OccultisteCeleste = 20634;
     public const int OccultisteFielon = 20635;
-    public const int OccultisteGrandAncien = 20636;
-
-    public const int BardeSavoirCompetenceSansEgale = 20637;
+    public const int OccultisteGrandAncien = 20636; 
 
     public const int Invalid = 65535;
   }
