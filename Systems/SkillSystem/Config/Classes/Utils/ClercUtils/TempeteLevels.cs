@@ -10,20 +10,10 @@ namespace NWN.Systems
     {
       switch (level)
       {
-        case 1: 
+        case 3: 
           
           new StrRef(12).SetPlayerOverride(player.oid, "Domaine de la Tempête");
           player.oid.SetTextureOverride("clerc", "domaine_tempete");
-
-          foreach (Learnable mastery in Fighter.startingPackage.learnables)
-          {
-            player.learnableSkills.TryAdd(mastery.id, new LearnableSkill((LearnableSkill)mastery, player));
-            player.learnableSkills[mastery.id].source.Add(Category.Class);
-
-            mastery.acquiredPoints += (mastery.pointsToNextLevel - mastery.acquiredPoints) / 4;
-          }
-
-          player.learnableSkills[CustomSkill.HeavyArmorProficiency].acquiredPoints = 0;
 
           player.learnableSkills.TryAdd(CustomSkill.ClercFureurOuraganFoudre, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercFureurOuraganFoudre], player));
           player.learnableSkills[CustomSkill.ClercFureurOuraganFoudre].LevelUp(player);
@@ -33,21 +23,12 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.ClercFureurOuraganTonnerre].LevelUp(player);
           player.learnableSkills[CustomSkill.ClercFureurOuraganTonnerre].source.Add(Category.Class);
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.NappeDeBrouillard, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Balagarnsironhorn, CustomClass.Clerc);
-
-          break;
-
-        case 2:
-
           player.learnableSkills.TryAdd(CustomSkill.ClercFureurDestructrice, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercFureurDestructrice], player));
           player.learnableSkills[CustomSkill.ClercFureurDestructrice].LevelUp(player);
           player.learnableSkills[CustomSkill.ClercFureurDestructrice].source.Add(Category.Class);
 
-          break;
-
-        case 3:
-
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.NappeDeBrouillard, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Balagarnsironhorn, CustomClass.Clerc);
           SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.Fracassement, CustomClass.Clerc);
           SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.GustOfWind, CustomClass.Clerc);
 
@@ -72,14 +53,6 @@ namespace NWN.Systems
 
           SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.ControleDeLeau, CustomClass.Clerc);
           SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.IceStorm, CustomClass.Clerc);
-
-          break;
-
-        case 8:
-
-          player.learnableSkills.TryAdd(CustomSkill.ClercTempeteFrappeDivine, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercTempeteFrappeDivine], player));
-          player.learnableSkills[CustomSkill.ClercTempeteFrappeDivine].LevelUp(player);
-          player.learnableSkills[CustomSkill.ClercTempeteFrappeDivine].source.Add(Category.Class);
 
           break;
 

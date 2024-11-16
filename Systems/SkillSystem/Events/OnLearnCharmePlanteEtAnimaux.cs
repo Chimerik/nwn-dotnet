@@ -9,7 +9,7 @@ namespace NWN.Systems
       if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ClercCharmePlanteEtAnimaux))
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.ClercCharmePlanteEtAnimaux);
 
-      player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ClercCharmePlanteEtAnimaux, 1);
+      player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ClercCharmePlanteEtAnimaux, 2);
 
       return true;
     }

@@ -124,6 +124,7 @@ namespace NWN.Systems
       }
 
       WizardUtils.HandleMoissonDuFiel(oCaster, target, moissonDuFielTriggered, spell, spellLevel);
+      ClercUtils.HandleIncantationPuissante(oCaster, target, totalDamage, spell);
 
       return totalDamage;
     }

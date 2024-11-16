@@ -263,31 +263,31 @@ namespace NWN.Systems
                       category = Category.PaladinSubClass;
                       break;
                     case CustomSkill.ClercDuperie:
-                      Clerc.HandleDuperieLevelUp(player, 1);
+                      Clerc.HandleDuperieLevelUp(player, 3);
                       category = Category.ClercSubClass;
                       break;
                     case CustomSkill.ClercGuerre:
-                      Clerc.HandleGuerreLevelUp(player, 1);
+                      Clerc.HandleGuerreLevelUp(player, 3);
                       category = Category.ClercSubClass;
                       break;
                     case CustomSkill.ClercLumiere:
-                      Clerc.HandleLumiereLevelUp(player, 1);
+                      Clerc.HandleLumiereLevelUp(player, 3);
                       category = Category.ClercSubClass;
                       break;
                     case CustomSkill.ClercNature:
-                      Clerc.HandleNatureLevelUp(player, 1);
+                      Clerc.HandleNatureLevelUp(player, 3);
                       category = Category.ClercSubClass;
                       break;
                     case CustomSkill.ClercSavoir:
-                      Clerc.HandleSavoirLevelUp(player, 1);
+                      Clerc.HandleSavoirLevelUp(player, 3);
                       category = Category.ClercSubClass;
                       break;
                     case CustomSkill.ClercTempete:
-                      Clerc.HandleTempeteLevelUp(player, 1);
+                      Clerc.HandleTempeteLevelUp(player, 3);
                       category = Category.ClercSubClass;
                       break;
                     case CustomSkill.ClercVie:
-                      Clerc.HandleVieLevelUp(player, 1);
+                      Clerc.HandleVieLevelUp(player, 3);
                       category = Category.ClercSubClass;
                       break;
                     case CustomSkill.EnsorceleurLigneeDraconique:

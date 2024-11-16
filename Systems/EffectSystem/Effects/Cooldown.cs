@@ -18,23 +18,41 @@ namespace NWN.Systems
       eff.SubType = EffectSubType.Unyielding;
       eff.IntParams[5] = featId;
 
+      NwSpell spell;
+
       if (caster.IsLoginPlayerCharacter)
       {
-        if (featId == CustomSkill.BuveuseDeVie)
+        switch(featId)
         {
-          var spell = NwSpell.FromSpellId(CustomSpell.BuveuseDeVieNecrotique);
-          spell.Name.SetPlayerOverride(caster.LoginPlayer, spell.Name.ToString() + $" - Rechargement ({cooldown} s)");
+          case CustomSkill.BuveuseDeVie:
 
-          spell = NwSpell.FromSpellId(CustomSpell.BuveuseDeVieRadiant);
-          spell.Name.SetPlayerOverride(caster.LoginPlayer, spell.Name.ToString() + $" - Rechargement ({cooldown} s)");
+            spell = NwSpell.FromSpellId(CustomSpell.BuveuseDeVieNecrotique);
+            spell.Name.SetPlayerOverride(caster.LoginPlayer, spell.Name.ToString() + $" - Rechargement ({cooldown} s)");
 
-          spell = NwSpell.FromSpellId(CustomSpell.BuveuseDeViePsychique);
-          spell.Name.SetPlayerOverride(caster.LoginPlayer, spell.Name.ToString() + $" - Rechargement ({cooldown} s)");
-        }
-        else
-        {
-          var feat = NwFeat.FromFeatId(featId);
-          feat.Name.SetPlayerOverride(caster.LoginPlayer, feat.Name.ToString() + $" - Rechargement ({cooldown} s)");
+            spell = NwSpell.FromSpellId(CustomSpell.BuveuseDeVieRadiant);
+            spell.Name.SetPlayerOverride(caster.LoginPlayer, spell.Name.ToString() + $" - Rechargement ({cooldown} s)");
+
+            spell = NwSpell.FromSpellId(CustomSpell.BuveuseDeViePsychique);
+            spell.Name.SetPlayerOverride(caster.LoginPlayer, spell.Name.ToString() + $" - Rechargement ({cooldown} s)");
+
+            break;
+
+          case CustomSkill.ClercFrappeDivine:
+
+            spell = NwSpell.FromSpellId(CustomSpell.FrappeDivineRadiant);
+            spell.Name.SetPlayerOverride(caster.LoginPlayer, spell.Name.ToString() + $" - Rechargement ({cooldown} s)");
+
+            spell = NwSpell.FromSpellId(CustomSpell.FrappeDivineNecrotique);
+            spell.Name.SetPlayerOverride(caster.LoginPlayer, spell.Name.ToString() + $" - Rechargement ({cooldown} s)");
+
+            break;
+
+          default:
+
+            var feat = NwFeat.FromFeatId(featId);
+            feat.Name.SetPlayerOverride(caster.LoginPlayer, feat.Name.ToString() + $" - Rechargement ({cooldown} s)");
+
+            break;
         }
       }
 
@@ -50,20 +68,35 @@ namespace NWN.Systems
         {
           var eff = eventData.Effect;
           var feat = NwFeat.FromFeatId(eff.IntParams[5]);
+          NwSpell spell;
 
-          if (feat.Id == CustomSkill.BuveuseDeVie)
+          switch(feat.Id)
           {
-            var spell = NwSpell.FromSpellId(CustomSpell.BuveuseDeVieNecrotique);
-            spell.Name.SetPlayerOverride(caster.LoginPlayer, spell.Name.ToString() + $" - Rechargement ({eff.DurationRemaining} s)");
+            case CustomSkill.BuveuseDeVie:
 
-            spell = NwSpell.FromSpellId(CustomSpell.BuveuseDeVieRadiant);
-            spell.Name.SetPlayerOverride(caster.LoginPlayer, spell.Name.ToString() + $" - Rechargement ({eff.DurationRemaining} s)");
+              spell = NwSpell.FromSpellId(CustomSpell.BuveuseDeVieNecrotique);
+              spell.Name.SetPlayerOverride(caster.LoginPlayer, spell.Name.ToString() + $" - Rechargement ({eff.DurationRemaining} s)");
 
-            spell = NwSpell.FromSpellId(CustomSpell.BuveuseDeViePsychique);
-            spell.Name.SetPlayerOverride(caster.LoginPlayer, spell.Name.ToString() + $" - Rechargement ({eff.DurationRemaining} s)");
-          }
-          else
-            feat.Name.SetPlayerOverride(caster.LoginPlayer, feat.Name.ToString() + $" - Rechargement ({eff.DurationRemaining} s)");
+              spell = NwSpell.FromSpellId(CustomSpell.BuveuseDeVieRadiant);
+              spell.Name.SetPlayerOverride(caster.LoginPlayer, spell.Name.ToString() + $" - Rechargement ({eff.DurationRemaining} s)");
+
+              spell = NwSpell.FromSpellId(CustomSpell.BuveuseDeViePsychique);
+              spell.Name.SetPlayerOverride(caster.LoginPlayer, spell.Name.ToString() + $" - Rechargement ({eff.DurationRemaining} s)");
+
+              break;
+
+            case CustomSkill.ClercFrappeDivine:
+
+              spell = NwSpell.FromSpellId(CustomSpell.FrappeDivineRadiant);
+              spell.Name.SetPlayerOverride(caster.LoginPlayer, spell.Name.ToString() + $" - Rechargement ({eff.DurationRemaining} s)");
+
+              spell = NwSpell.FromSpellId(CustomSpell.FrappeDivineNecrotique);
+              spell.Name.SetPlayerOverride(caster.LoginPlayer, spell.Name.ToString() + $" - Rechargement ({eff.DurationRemaining} s)");
+
+              break;
+
+            default: feat.Name.SetPlayerOverride(caster.LoginPlayer, feat.Name.ToString() + $" - Rechargement ({eff.DurationRemaining} s)"); break;
+          }            
         }
       }
 
@@ -72,27 +105,42 @@ namespace NWN.Systems
     private static ScriptHandleResult OnRemoveCooldown(CallInfo callInfo)
     {
       EffectRunScriptEvent eventData = new EffectRunScriptEvent();
-      ModuleSystem.Log.Info("Cooldown remove");
+
       if (eventData.EffectTarget is NwCreature caster)
       {
         var eff = eventData.Effect;
         var feat = NwFeat.FromFeatId(eff.IntParams[5]);
+        NwSpell spell;
 
         if (caster.IsLoginPlayerCharacter)
         {
-          if (feat.Id == CustomSkill.BuveuseDeVie)
+          switch(feat.Id)
           {
-            var spell = NwSpell.FromSpellId(CustomSpell.BuveuseDeVieNecrotique);
-            spell.Name.ClearPlayerOverride(caster.LoginPlayer);
+            case CustomSkill.BuveuseDeVie:
 
-            spell = NwSpell.FromSpellId(CustomSpell.BuveuseDeVieRadiant);
-            spell.Name.ClearPlayerOverride(caster.LoginPlayer);
+              spell = NwSpell.FromSpellId(CustomSpell.BuveuseDeVieNecrotique);
+              spell.Name.ClearPlayerOverride(caster.LoginPlayer);
 
-            spell = NwSpell.FromSpellId(CustomSpell.BuveuseDeViePsychique);
-            spell.Name.ClearPlayerOverride(caster.LoginPlayer);
-          }
-          else
-            feat.Name.ClearPlayerOverride(caster.LoginPlayer);
+              spell = NwSpell.FromSpellId(CustomSpell.BuveuseDeVieRadiant);
+              spell.Name.ClearPlayerOverride(caster.LoginPlayer);
+
+              spell = NwSpell.FromSpellId(CustomSpell.BuveuseDeViePsychique);
+              spell.Name.ClearPlayerOverride(caster.LoginPlayer);
+
+              break;
+
+            case CustomSkill.ClercFrappeDivine:
+
+              spell = NwSpell.FromSpellId(CustomSpell.FrappeDivineRadiant);
+              spell.Name.ClearPlayerOverride(caster.LoginPlayer);
+
+              spell = NwSpell.FromSpellId(CustomSpell.FrappeDivineNecrotique);
+              spell.Name.ClearPlayerOverride(caster.LoginPlayer);
+
+              break;
+
+            default: feat.Name.ClearPlayerOverride(caster.LoginPlayer); break;
+          }            
         }
 
         HandleCooldown(caster, feat);
@@ -104,10 +152,10 @@ namespace NWN.Systems
     {
       await NwTask.NextFrame();
 
-      ModuleSystem.Log.Info($"Cooldown remove feat id : {feat.Id}");
       switch (feat.Id)
       {
         case CustomSkill.BuveuseDeVie: ApplyBuveuseDeVie(caster); break;
+        case CustomSkill.ClercFrappeDivine: ApplyFrappeDivine(caster); break;
         case CustomSkill.DefensesEnjoleuses: NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, DefensesEnjoleuses)); break;
       }
     }

@@ -10,35 +10,23 @@ namespace NWN.Systems
     {
       switch (level)
       {
-        case 1: 
+        case 3: 
           
           new StrRef(12).SetPlayerOverride(player.oid, "Domaine de la Vie");
           player.oid.SetTextureOverride("clerc", "domaine_vie");
-
-          player.learnableSkills.TryAdd(CustomSkill.HeavyArmorProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HeavyArmorProficiency], player));
-          player.learnableSkills[CustomSkill.HeavyArmorProficiency].source.Add(Category.Class);
 
           player.learnableSkills.TryAdd(CustomSkill.ClercDiscipleDeLaVie, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercDiscipleDeLaVie], player));
           player.learnableSkills[CustomSkill.ClercDiscipleDeLaVie].LevelUp(player);
           player.learnableSkills[CustomSkill.ClercDiscipleDeLaVie].source.Add(Category.Class);
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Bless, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.CureModerateWounds, CustomClass.Clerc);
-
-          break;
-
-        case 2:
-
           player.learnableSkills.TryAdd(CustomSkill.ClercPreservationDeLaVie, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercPreservationDeLaVie], player));
           player.learnableSkills[CustomSkill.ClercPreservationDeLaVie].LevelUp(player);
           player.learnableSkills[CustomSkill.ClercPreservationDeLaVie].source.Add(Category.Class);
 
-          break;
-
-        case 3:
-
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Bless, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.CureModerateWounds, CustomClass.Clerc);
           SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.LesserRestoration, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.ShelgarnsPersistentBlade, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Aid, CustomClass.Clerc);
 
           break;
 
@@ -61,14 +49,6 @@ namespace NWN.Systems
 
           SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.GardienDeLaFoi, CustomClass.Clerc);
           SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.DeathWard, CustomClass.Clerc);
-
-          break;
-
-        case 8:
-
-          player.learnableSkills.TryAdd(CustomSkill.ClercVieFrappeDivine, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercVieFrappeDivine], player));
-          player.learnableSkills[CustomSkill.ClercVieFrappeDivine].LevelUp(player);
-          player.learnableSkills[CustomSkill.ClercVieFrappeDivine].source.Add(Category.Class);
 
           break;
 

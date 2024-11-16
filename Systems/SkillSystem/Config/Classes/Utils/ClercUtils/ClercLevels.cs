@@ -46,7 +46,7 @@ namespace NWN.Systems
               CustomSpell.FleauDinsectes, CustomSpell.MurDePierre, (int)Spell.Sleep, (int)Spell.HoldPerson, (int)Spell.Slow, (int)Spell.Confusion,
               (int)Spell.DominatePerson, CustomSpell.Telekinesie, (int)Spell.Identify, CustomSpell.Antidetection, CustomSpell.OeilMagique,
               CustomSpell.NappeDeBrouillard, (int)Spell.Balagarnsironhorn, (int)Spell.GustOfWind, CustomSpell.Fracassement, (int)Spell.IceStorm,
-              (int)Spell.CallLightning))
+              (int)Spell.CallLightning, (int)Spell.SeeInvisibility, (int)Spell.Invisibility, CustomSpell.AlterationMemorielle))
               continue;// ces sorts ne font pas partie du package de clerc mais peuvent être appris via le domaine
             
             if (player.learnableSpells.TryGetValue(spell.Id, out var learnable))
@@ -63,11 +63,11 @@ namespace NWN.Systems
               learnableSpell.LevelUp(player);
             }
           }
-          
+
           // On donne les autres capacités de niveau 1
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell1)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Cleric, 3, 0));
-          else ((SpellSelectionWindow)spell1).CreateWindow(ClassType.Cleric, 3, 0);
+          if (!player.windows.TryGetValue("ordreDivinSelection", out var ordreDivin)) player.windows.Add("ordreDivinSelection", new OrdreDivinSelectionWindow(player));
+          else ((OrdreDivinSelectionWindow)ordreDivin).CreateWindow();
 
           break;
 
@@ -76,7 +76,11 @@ namespace NWN.Systems
           player.learnableSkills.TryAdd(CustomSkill.ClercRenvoiDesMortsVivants, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercRenvoiDesMortsVivants], player));
           player.learnableSkills[CustomSkill.ClercRenvoiDesMortsVivants].LevelUp(player);
           player.learnableSkills[CustomSkill.ClercRenvoiDesMortsVivants].source.Add(Category.Class);
-          
+
+          player.learnableSkills.TryAdd(CustomSkill.ClercEtincelleDivine, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercEtincelleDivine], player));
+          player.learnableSkills[CustomSkill.ClercEtincelleDivine].LevelUp(player);
+          player.learnableSkills[CustomSkill.ClercEtincelleDivine].source.Add(Category.Class);
+
           break;
 
         case 3:
@@ -98,6 +102,13 @@ namespace NWN.Systems
 
           break;
 
+        case 7:
+
+          if (!player.windows.TryGetValue("frappesBeniesSelection", out var frappes)) player.windows.Add("frappesBeniesSelection", new FrappesBeniesSelectionWindow(player));
+          else ((FrappesBeniesSelectionWindow)frappes).CreateWindow();
+
+          break;
+
         case 8:
 
           if (!player.windows.TryGetValue("featSelection", out var feat8)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
@@ -107,8 +118,8 @@ namespace NWN.Systems
 
         case 10:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell10)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Cleric, 1, 0));
-          else ((SpellSelectionWindow)spell10).CreateWindow(ClassType.Cleric, 1, 0);
+          if (!player.windows.TryGetValue("spellSelection", out var spell10)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Cleric, 1));
+          else ((SpellSelectionWindow)spell10).CreateWindow(ClassType.Cleric, 1);
 
           player.learnableSkills.TryAdd(CustomSkill.ClercInterventionDivine, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercInterventionDivine], player));
           player.learnableSkills[CustomSkill.ClercInterventionDivine].LevelUp(player);

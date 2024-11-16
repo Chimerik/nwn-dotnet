@@ -14,7 +14,6 @@ namespace NWN.Systems
         learnableDictionary[CustomSkill.MediumArmorProficiency],
         learnableDictionary[CustomSkill.ShieldProficiency],
         learnableDictionary[CustomSkill.SimpleWeaponProficiency],
-        learnableDictionary[CustomSkill.MorningstarProficiency],
         learnableDictionary[CustomSkill.CharismaSavesProficiency],
         learnableDictionary[CustomSkill.WisdomSavesProficiency],
       },

@@ -20,8 +20,6 @@ namespace NWN.Systems
         NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, eff));
         caster.OnCreatureAttack -= OccultisteUtils.OnAttackBuveuseDeVie;
         caster.OnCreatureAttack += OccultisteUtils.OnAttackBuveuseDeVie;
-
-        ModuleSystem.Log.Info("Applying BUVEUSE DE VIE !!");
       }
     }
   }

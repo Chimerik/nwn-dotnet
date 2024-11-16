@@ -9,7 +9,7 @@ namespace NWN.Systems
       if (!player.oid.LoginCreature.KnowsFeat(Feat.TurnUndead))
         player.oid.LoginCreature.AddFeat(Feat.TurnUndead);
 
-      player.oid.LoginCreature.SetFeatRemainingUses(Feat.TurnUndead, 1);
+      player.oid.LoginCreature.SetFeatRemainingUses(Feat.TurnUndead, 2);
 
       return true;
     }

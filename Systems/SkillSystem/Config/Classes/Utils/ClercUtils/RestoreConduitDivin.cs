@@ -11,10 +11,11 @@ namespace NWN.Systems
       if (!level.HasValue)
         return;
 
-      byte conduitUses = (byte)(level.Value < 6 ? 1 : level.Value < 18 ? 2 : 3);
+      byte conduitUses = (byte)(level.Value > 17 ? 4 : level.Value > 5 ? 3 : level.Value > 1 ? 2 : 0);
 
       await NwTask.NextFrame();
       creature.SetFeatRemainingUses(Feat.TurnUndead, conduitUses);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.ClercEtincelleDivine, conduitUses);
       creature.SetFeatRemainingUses((Feat)CustomSkill.ClercRepliqueInvoquee, conduitUses);
       creature.SetFeatRemainingUses((Feat)CustomSkill.ClercLinceulDombre, conduitUses);
       creature.SetFeatRemainingUses((Feat)CustomSkill.ClercRadianceDeLaube, conduitUses);

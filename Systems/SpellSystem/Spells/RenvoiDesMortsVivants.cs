@@ -12,6 +12,8 @@ namespace NWN.Systems
 
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
       int DC = 8 + NativeUtils.GetCreatureProficiencyBonus(caster) + caster.GetAbilityModifier(Ability.Wisdom);
+      int clericLevel = caster.GetClassInfo(ClassType.Cleric).Level;
+      int wisMod = caster.GetAbilityModifier(Ability.Wisdom) > 1 ? caster.GetAbilityModifier(Ability.Wisdom) : 1;
 
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfLosHoly10));
 
@@ -20,8 +22,8 @@ namespace NWN.Systems
         if(target.Race.RacialType == RacialType.Undead 
           && CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, DC) == SavingThrowResult.Failure)
         {
-          if (caster.GetClassInfo(ClassType.Cleric).Level > 4)
-            NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, Effect.Damage(NwRandom.Roll(Utils.random, 6, 4),
+          if (clericLevel > 4)
+            NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, Effect.Damage(NwRandom.Roll(Utils.random, 8, wisMod),
               DamageType.Divine)));
 
           target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSunstrike));

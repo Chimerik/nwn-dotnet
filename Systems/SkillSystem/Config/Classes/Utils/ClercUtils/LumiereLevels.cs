@@ -10,7 +10,7 @@ namespace NWN.Systems
     {
       switch (level)
       {
-        case 1: 
+        case 3: 
           
           new StrRef(12).SetPlayerOverride(player.oid, "Domaine de la Lumière");
           player.oid.SetTextureOverride("clerc", "light_domain");
@@ -40,21 +40,12 @@ namespace NWN.Systems
 
           SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.BurningHands, CustomClass.Clerc);
           SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.FaerieFire, CustomClass.Clerc);
-
-          break;
-
-        case 2:
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Firebrand, CustomSkill.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.SeeInvisibility, CustomSkill.Clerc);
 
           player.learnableSkills.TryAdd(CustomSkill.ClercRadianceDeLaube, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercRadianceDeLaube], player));
           player.learnableSkills[CustomSkill.ClercRadianceDeLaube].LevelUp(player);
           player.learnableSkills[CustomSkill.ClercRadianceDeLaube].source.Add(Category.Class);
-
-          break;
-
-        case 3:
-
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Firebrand, CustomSkill.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.SphereDeFeu, CustomClass.Clerc);
 
           break;
 
@@ -68,22 +59,14 @@ namespace NWN.Systems
         case 7:
 
           SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.WallOfFire, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.GardienDeLaFoi, CustomClass.Clerc);
-
-          break;
-
-        case 8:
-
-          player.learnableSkills.TryAdd(CustomSkill.ClercIncantationPuissante, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercIncantationPuissante], player));
-          player.learnableSkills[CustomSkill.ClercIncantationPuissante].LevelUp(player);
-          player.learnableSkills[CustomSkill.ClercIncantationPuissante].source.Add(Category.Class);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.OeilMagique, CustomClass.Clerc);
 
           break;
 
         case 9:
 
           SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.FlameStrike, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.VagueDestructrice, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.Scrutation, CustomClass.Clerc);
 
           break;
 

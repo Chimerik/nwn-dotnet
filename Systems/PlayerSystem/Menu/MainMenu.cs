@@ -668,7 +668,6 @@ namespace NWN.Systems
                       player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ChatimentDivin, player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).GetRemainingSpellSlots(chatimentLevel));
                     }
 
-                    player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ClercIlluminationVariable).Delete();
                     player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ClercMartialVariable).Delete();
 
                     EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.DivinationVisionEffectTag);
@@ -676,6 +675,8 @@ namespace NWN.Systems
 
                     if (player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ChatimentOcculte))
                       player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ChatimentOcculte, (byte)(player.oid.LoginCreature.GetClassInfo((ClassType)CustomClass.Occultiste).GetRemainingSpellSlots(1)));
+
+                    player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ClercIncantationPuissante, 0);
 
                     break;
                 }

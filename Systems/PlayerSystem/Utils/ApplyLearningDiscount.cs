@@ -12,7 +12,9 @@ namespace NWN.Systems
         switch(learnable.id)
         {
           case CustomSkill.HeavyArmorProficiency:
-            if (oid.LoginCreature.Classes.Any(c => c.Class.Id == CustomClass.Fighter) || oid.LoginCreature.KnowsFeat((Feat)CustomSkill.RangerChevalier))
+            if (oid.LoginCreature.Classes.Any(c => c.Class.Id == CustomClass.Fighter) 
+              || oid.LoginCreature.KnowsFeat((Feat)CustomSkill.RangerChevalier)
+              || oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ClercProtecteur))
               learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 4;
             break;
         }
@@ -50,10 +52,10 @@ namespace NWN.Systems
             if (learnableSkills.ContainsKey(CustomSkill.MaitreDarme))
               learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 2;
 
-            if (oid.LoginCreature.Classes.Any(c => c.Class.Id == CustomClass.Fighter))
+            if (oid.LoginCreature.Classes.Any(c => Utils.In(c.Class.Id, CustomClass.Fighter)))
               learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 4;
 
-            if (oid.LoginCreature.Classes.Any(c => c.Class.Id == CustomClass.Rogue || c.Class.Id == CustomClass.Bard))
+            if (oid.LoginCreature.Classes.Any(c => Utils.In(c.Class.Id, CustomClass.Rogue)))
             {
               switch(learnable.id)
               {
@@ -66,7 +68,8 @@ namespace NWN.Systems
 
             if (learnableSkills.ContainsKey(CustomSkill.BardCollegeDeLaVaillance) 
               || learnableSkills.ContainsKey(CustomSkill.DruideGardien)
-              || oid.LoginCreature.Classes.Any(c => c.Class.Id == CustomClass.Ranger))
+              || learnableSkills.ContainsKey(CustomSkill.ClercProtecteur)
+              || oid.LoginCreature.Classes.Any(c => Utils.In(c.Class.Id, CustomClass.Ranger, CustomClass.Barbarian)))
             {
               switch (learnable.id)
               {

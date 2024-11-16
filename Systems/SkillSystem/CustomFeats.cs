@@ -334,21 +334,22 @@
     public const int PaladinConspuerEnnemi = 1618;
     public const int AngeDeLaVengeance = 1619;
 
+    public const int ClercProtecteur = 1624;
+    public const int ClercThaumaturge = 1627;
+    public const int ClercEtincelleDivine = 1645;
+    public const int ClercFrappeDivine = 1650;
     public const int ClercInterventionDivine = 1620;
     public const int ClercBenedictionEscroc = 1621;
     public const int ClercRepliqueInvoquee = 1622;
     public const int ClercLinceulDombre = 1623;
-    public const int ClercDuperieFrappeDivine = 1624;
     public const int ClercMartial = 1625;
     public const int ClercFrappeGuidee = 1626;
-    public const int ClercGuerreFrappeDivine = 1627;
     public const int ClercIllumination = 1628;
     public const int ClercRadianceDeLaube = 1629;
     public const int ClercIncantationPuissante = 1630;
     public const int ClercHaloDeLumiere = 1631;
     public const int ClercCharmePlanteEtAnimaux = 1632;
     public const int ClercAttenuationElementaire = 1633;
-    public const int ClercFurieElementaire = 1634;
     public const int ClercMaitreDeLaNature = 1635;
 
     public const int WizardIllusionAmelioree = 1636;
@@ -364,13 +365,11 @@
     public const int ClercFureurOuraganTonnerre = 1642;
     public const int ClercFureurDestructrice = 1643;
     public const int ClercElectrocution = 1644;
-    public const int ClercTempeteFrappeDivine = 1645;
     public const int ClercEnfantDeLaTempete = 1646;
 
     public const int ClercDiscipleDeLaVie = 1647;
     public const int ClercPreservationDeLaVie = 1648;
     public const int ClercGuerriseurBeni = 1649;
-    public const int ClercVieFrappeDivine = 1650;
     public const int ClercGuerisonSupreme = 1651;
 
     public const int MonkLienElementaire = 1652;

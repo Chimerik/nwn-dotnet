@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     private static void InterventionDivine(NwCreature caster)
     {
-      var clerc = caster.GetClassInfo((ClassType)CustomClass.Clerc);
+      /*var clerc = caster.GetClassInfo((ClassType)CustomClass.Clerc);
 
       if (clerc is null || clerc.Level < 1)
         return;
@@ -28,7 +28,9 @@ namespace NWN.Systems
       
       if (success)
         caster.GetObjectVariable<PersistentVariableString>("_DIVINE_INTERVENTION_COOLDOWN").Value = DateTime.Now.ToString(); 
+      */
 
+      caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.InterventionDivine);
       caster.DecrementRemainingFeatUses((Feat)CustomSkill.ClercInterventionDivine);
     }
   }

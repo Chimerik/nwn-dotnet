@@ -187,13 +187,12 @@ namespace NWN.Systems
         case CustomSkill.AngeDeLaVengeance: AngeDeLaVengeance(onUseFeat.Creature); return;
 
         case CustomSkill.ClercInterventionDivine: InterventionDivine(onUseFeat.Creature); return;
-        case CustomSkill.ClercDuperieFrappeDivine: FrappeDivineDuperie(onUseFeat.Creature); return;
+        case CustomSkill.ClercIncantationPuissante: IncantationPuissante(onUseFeat.Creature, onUseFeat.TargetObject); return;
 
         case CustomSkill.ClercMartial: ClercMartial(onUseFeat.Creature); return;
         case CustomSkill.ClercFrappeGuidee: FrappeGuidee(onUseFeat.Creature); return;
-        case CustomSkill.ClercGuerreFrappeDivine: FrappeDivineGuerre(onUseFeat.Creature); return;
 
-        case CustomSkill.ClercIllumination: ClercIllumination(onUseFeat.Creature); return;
+        case CustomSkill.ClercIllumination: ClercIllumination(onUseFeat.Creature, onUseFeat.TargetObject); return;
         case CustomSkill.ClercRadianceDeLaube: RadianceDeLaube(onUseFeat.Creature); return;
         case CustomSkill.ClercHaloDeLumiere: HaloDeLumiere(onUseFeat.Creature); return;
 
@@ -202,11 +201,9 @@ namespace NWN.Systems
         case CustomSkill.ClercFureurOuraganFoudre: FureurOuraganFoudre(onUseFeat.Creature); return;
         case CustomSkill.ClercFureurOuraganTonnerre: FureurOuraganTonnerre(onUseFeat.Creature); return;
         case CustomSkill.ClercFureurDestructrice: FureurDestructrice(onUseFeat.Creature); return;
-        case CustomSkill.ClercTempeteFrappeDivine: FrappeDivineTempete(onUseFeat.Creature); return;
         case CustomSkill.ClercEnfantDeLaTempete: EnfantDeLaTempete(onUseFeat.Creature); return;
 
         case CustomSkill.ClercPreservationDeLaVie: PreservationDeLaVie(onUseFeat.Creature); return;
-        case CustomSkill.ClercVieFrappeDivine: FrappeDivineVie(onUseFeat.Creature); return;
 
         case CustomSkill.SorcellerieInnee: SorcellerieInnee(onUseFeat.Creature); return;
         case CustomSkill.SorcellerieIncarnee: SorcellerieIncarnee(onUseFeat.Creature); return;

@@ -968,6 +968,19 @@ namespace NWN.Systems
           SpellSystem.AspectSauvage(oCaster, spell);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
+
+        case CustomSpell.EtincelleDivineSoins:
+        case CustomSpell.EtincelleDivineRadiant:
+        case CustomSpell.EtincelleDivineNecrotique:
+          SpellSystem.EtincelleDivine(oCaster, target, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.FrappeDivineRadiant:
+        case CustomSpell.FrappeDivineNecrotique:
+          SpellSystem.FrappeDivine(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
       }
 
       if (oCaster is NwCreature castingCreature)

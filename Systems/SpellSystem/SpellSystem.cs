@@ -8,7 +8,6 @@ using Anvil.API.Events;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
-using System.Collections.Generic;
 using NWN.Systems.Arena;
 using static NWN.Systems.PlayerSystem;
 
@@ -786,7 +785,17 @@ namespace NWN.Systems
         }
       }
 
-      if(castingClass == ClassType.Druid)
+      if (castingClass == ClassType.Cleric)
+      {
+        if (spell.GetSpellLevelForClass(ClassType.Cleric) < 6 && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.InterventionDivineEffectTag))
+        {
+          EffectUtils.RemoveTaggedEffect(caster, EffectSystem.InterventionDivineEffectTag);
+          EventsPlugin.SkipEvent();
+          return;
+        }
+      }
+
+      if (castingClass == ClassType.Druid)
       {
         /*var druidClass = caster.GetClassInfo(ClassType.Druid);
 

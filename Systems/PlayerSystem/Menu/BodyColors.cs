@@ -165,8 +165,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.ContainsKey("introMirror")) player.windows.Add("introMirror", new IntroMirrorWindow(player));
-                  else ((IntroMirrorWindow)player.windows["introMirror"]).CreateWindow();
+                  if (!player.windows.TryGetValue("introMirror", out var welcome)) player.windows.Add("introMirror", new IntroMirrorWindow(player));
+                  else ((IntroMirrorWindow)welcome).CreateWindow();
 
                   return;
 
@@ -174,8 +174,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.ContainsKey("introRaceSelector")) player.windows.Add("introRaceSelector", new IntroRaceSelectorWindow(player));
-                  else ((IntroRaceSelectorWindow)player.windows["introRaceSelector"]).CreateWindow();
+                  if (!player.windows.TryGetValue("introRaceSelector", out var race)) player.windows.Add("introRaceSelector", new IntroRaceSelectorWindow(player));
+                  else ((IntroRaceSelectorWindow)race).CreateWindow();
 
                   return;
 
@@ -183,8 +183,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.ContainsKey("introHistorySelector")) player.windows.Add("introHistorySelector", new IntroHistorySelectorWindow(player));
-                  else ((IntroHistorySelectorWindow)player.windows["introHistorySelector"]).CreateWindow();
+                  if (!player.windows.TryGetValue("introHistorySelector", out var histo)) player.windows.Add("introHistorySelector", new IntroHistorySelectorWindow(player));
+                  else ((IntroHistorySelectorWindow)histo).CreateWindow();
 
                   return;
 
@@ -192,8 +192,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.ContainsKey("introPortrait")) player.windows.Add("introPortrait", new IntroPortraitWindow(player));
-                  else ((IntroPortraitWindow)player.windows["introPortrait"]).CreateWindow();
+                  if (!player.windows.TryGetValue("introPortrait", out var portrait)) player.windows.Add("introPortrait", new IntroPortraitWindow(player));
+                  else ((IntroPortraitWindow)portrait).CreateWindow();
 
                   return;
 
@@ -201,8 +201,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.ContainsKey("introClassSelector")) player.windows.Add("introClassSelector", new IntroClassSelectorWindow(player));
-                  else ((IntroClassSelectorWindow)player.windows["introClassSelector"]).CreateWindow();
+                  if (!player.windows.TryGetValue("introClassSelector", out var classe)) player.windows.Add("introClassSelector", new IntroClassSelectorWindow(player));
+                  else ((IntroClassSelectorWindow)classe).CreateWindow();
 
                   return;
 
@@ -210,8 +210,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.TryGetValue("introAbilities", out var value)) player.windows.Add("introAbilities", new IntroAbilitiesWindow(player));
-                  else ((IntroAbilitiesWindow)value).CreateWindow();
+                  if (!player.windows.TryGetValue("introAbilities", out var stats)) player.windows.Add("introAbilities", new IntroAbilitiesWindow(player));
+                  else ((IntroAbilitiesWindow)stats).CreateWindow();
 
                   return;
 

@@ -10,40 +10,24 @@ namespace NWN.Systems
     {
       switch (level)
       {
-        case 1: 
+        case 3: 
           
           new StrRef(12).SetPlayerOverride(player.oid, "Domaine de la Guerre");
           player.oid.SetTextureOverride("clerc", "guerre");
-
-          foreach (Learnable mastery in Fighter.startingPackage.learnables)
-          {
-            player.learnableSkills.TryAdd(mastery.id, new LearnableSkill((LearnableSkill)mastery, player));
-            player.learnableSkills[mastery.id].source.Add(Category.Class);
-
-            mastery.acquiredPoints += (mastery.pointsToNextLevel - mastery.acquiredPoints) / 4;
-          }
 
           player.learnableSkills.TryAdd(CustomSkill.ClercMartial, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercMartial], player));
           player.learnableSkills[CustomSkill.ClercMartial].LevelUp(player);
           player.learnableSkills[CustomSkill.ClercMartial].source.Add(Category.Class);
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.ShieldOfFaith, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.DivineFavor, CustomClass.Clerc);
-
-          break;
-
-        case 2:
-
           player.learnableSkills.TryAdd(CustomSkill.ClercFrappeGuidee, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercFrappeGuidee], player));
           player.learnableSkills[CustomSkill.ClercFrappeGuidee].LevelUp(player);
           player.learnableSkills[CustomSkill.ClercFrappeGuidee].source.Add(Category.Class);
 
-          break;
-
-        case 3:
-
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.ShieldOfFaith, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.DivineFavor, CustomClass.Clerc);
           SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.MagicWeapon, CustomClass.Clerc);
           SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.ShelgarnsPersistentBlade, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.EclairTracant, CustomClass.Clerc);
 
           break;
 
@@ -56,16 +40,8 @@ namespace NWN.Systems
 
         case 7:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Stoneskin, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.ElementalShield, CustomClass.Clerc);
           SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.FreedomOfMovement, CustomClass.Clerc);
-
-          break;
-
-        case 8:
-
-          player.learnableSkills.TryAdd(CustomSkill.ClercGuerreFrappeDivine, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercGuerreFrappeDivine], player));
-          player.learnableSkills[CustomSkill.ClercGuerreFrappeDivine].LevelUp(player);
-          player.learnableSkills[CustomSkill.ClercGuerreFrappeDivine].source.Add(Category.Class);
 
           break;
 

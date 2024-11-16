@@ -163,9 +163,6 @@ namespace NWN.Systems
     public const string ClercMartialVariable = "_CLERC_MARTIAL";
     public static readonly CExoString ClercMartialVariableExo = ClercMartialVariable.ToExoString();
 
-    public const string ClercIlluminationVariable = "_CLERC_ILLUMINATION";
-    public static readonly CExoString ClercIlluminationVariableExo = ClercIlluminationVariable.ToExoString();
-
     public const string FrappeGuideeVariable = "_FRAPPE_GUIDEE";
     public static readonly CExoString FrappeGuideeVariableExo = FrappeGuideeVariable.ToExoString();
 
@@ -173,6 +170,7 @@ namespace NWN.Systems
     public static readonly CExoString PacteDeLaLameVariableExo = PacteDeLaLameVariable.ToExoString();
 
     public const string BuveuseDeVieVariable = "_BUVEUSE_DE_VIE_DAMAGE_TYPE";
+    public const string FrappeDivineVariable = "_FRAPPE_DIVINE_DAMAGE_TYPE";
 
     public static readonly Dictionary<string, NwCreature> creatureSpawnDictionary = new();
     public static void OnMobPerception(CreatureEvents.OnPerception onPerception)

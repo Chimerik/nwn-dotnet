@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     public static async void RestoreInterventionDivine(NwCreature creature)
     {
-      byte? level = creature.GetClassInfo(ClassType.Cleric)?.Level;
+      /*byte? level = creature.GetClassInfo(ClassType.Cleric)?.Level;
 
       if (!level.HasValue)
         return;
@@ -18,7 +18,7 @@ namespace NWN.Systems
         await NwTask.NextFrame();
         creature.SetFeatRemainingUses((Feat)CustomSkill.ClercInterventionDivine, 1);
         creature.GetObjectVariable<PersistentVariableString>("_DIVINE_INTERVENTION_COOLDOWN").Delete();
-      }
+      }*/
     }
   }
 }

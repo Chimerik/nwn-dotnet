@@ -23,6 +23,7 @@ namespace NWN.Systems
       DruideUtils.RestoreFormeSauvage(player.oid.LoginCreature, shortRest:true);
       OccultisteUtils.HandleResilienceCeleste(player.oid.LoginCreature);
       BarbarianUtils.RestoreBarbarianRage(player.oid.LoginCreature, true);
+      ClercUtils.RestoreClercDomaine(player.oid.LoginCreature, true);
 
       if (player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.SourceDinspiration))
         BardUtils.RestoreInspirationBardique(player.oid.LoginCreature);

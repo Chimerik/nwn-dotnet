@@ -7,16 +7,12 @@ namespace NWN.Systems
   {
     public static bool GetTargetDisadvantageEffects(CNWSCreature attacker, CNWSCreature target, bool rangedAttack, CNWSCombatAttackData data = null)
     {
-      if(target.m_ScriptVars.GetInt(ClercIlluminationVariableExo).ToBool())
-      {
-        LogUtils.LogMessage("Désavantage - Cible sous l'effet d'Illumination", LogUtils.LogType.Combat);
-        target.m_ScriptVars.DestroyInt(ClercIlluminationVariableExo);
-        return true;
-      }
-
       foreach (var eff in target.m_appliedEffects)
       {
-        if(GetTargetDodgingDisadvantage(eff))
+        if (GetIlluminationProtectriceDisadvantage(eff))
+          return true;
+
+        if (GetTargetDodgingDisadvantage(eff))
           return true;
 
         if (GetProtectionStyleDisadvantage(eff))

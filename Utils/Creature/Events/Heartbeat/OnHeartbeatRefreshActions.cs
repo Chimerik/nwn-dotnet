@@ -106,11 +106,6 @@ namespace NWN.Systems
       if (creature.KnowsFeat((Feat)CustomSkill.BelluaireSpiderCocoon))
         creature.SetFeatRemainingUses((Feat)CustomSkill.BelluaireSpiderCocoon, 100);
 
-      if (creature.KnowsFeat((Feat)CustomSkill.ClercDuperieFrappeDivine))
-        creature.SetFeatRemainingUses((Feat)CustomSkill.ClercDuperieFrappeDivine, 1);
-      else if (creature.KnowsFeat((Feat)CustomSkill.ClercGuerreFrappeDivine))
-        creature.SetFeatRemainingUses((Feat)CustomSkill.ClercGuerreFrappeDivine, 1);
-
       if (creature.KnowsFeat((Feat)CustomSkill.DruideFrappePrimordialeFroid))
       {
         creature.SetFeatRemainingUses((Feat)CustomSkill.DruideFrappePrimordialeFroid, 1);

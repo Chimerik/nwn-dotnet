@@ -179,5 +179,10 @@
     public const int PuissanceSauvageFaucon = 1019;
     public const int PuissanceSauvageTigre = 1020;
     public const int PuissanceSauvageBelier = 1021;
+    public const int EtincelleDivineSoins = 1023;
+    public const int EtincelleDivineRadiant = 1024;
+    public const int EtincelleDivineNecrotique = 1025;
+    public const int FrappeDivineRadiant = 1027;
+    public const int FrappeDivineNecrotique = 1028;
   }
 }

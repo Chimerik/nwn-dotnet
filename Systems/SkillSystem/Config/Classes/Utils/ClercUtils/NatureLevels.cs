@@ -12,7 +12,7 @@ namespace NWN.Systems
     {
       switch (level)
       {
-        case 1: 
+        case 3: 
           
           new StrRef(12).SetPlayerOverride(player.oid, "Domaine de la Nature");
           player.oid.SetTextureOverride("clerc", "nature_domain");
@@ -25,21 +25,12 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("skillProficiencySelection", out var skill3)) player.windows.Add("skillProficiencySelection", new SkillProficiencySelectionWindow(player, skillList, 1));
           else ((SkillProficiencySelectionWindow)skill3).CreateWindow(skillList, 1);
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.AmitieAnimale, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.SpeakAnimal, CustomClass.Clerc);
-
-          break;
-
-        case 2:
-
           player.learnableSkills.TryAdd(CustomSkill.ClercCharmePlanteEtAnimaux, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercCharmePlanteEtAnimaux], player));
           player.learnableSkills[CustomSkill.ClercCharmePlanteEtAnimaux].LevelUp(player);
           player.learnableSkills[CustomSkill.ClercCharmePlanteEtAnimaux].source.Add(Category.Class);
 
-          break;
-
-        case 3:
-
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.AmitieAnimale, CustomClass.Clerc);
+          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.SpeakAnimal, CustomClass.Clerc);
           SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.CroissanceDepines, CustomClass.Clerc);
           SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Barkskin, CustomClass.Clerc);
 
@@ -64,14 +55,6 @@ namespace NWN.Systems
 
           SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.LianeAvide, CustomClass.Clerc);
           SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.DominateAnimal, CustomClass.Clerc);
-
-          break;
-
-        case 8:
-
-          player.learnableSkills.TryAdd(CustomSkill.ClercFurieElementaire, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercFurieElementaire], player));
-          player.learnableSkills[CustomSkill.ClercFurieElementaire].LevelUp(player);
-          player.learnableSkills[CustomSkill.ClercFurieElementaire].source.Add(Category.Class);
 
           break;
 

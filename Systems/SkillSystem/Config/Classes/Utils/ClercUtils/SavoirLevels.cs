@@ -12,7 +12,7 @@ namespace NWN.Systems
     {
       switch (level)
       {
-        case 1: 
+        case 3: 
           
           new StrRef(12).SetPlayerOverride(player.oid, "Domaine du Savoir");
           player.oid.SetTextureOverride("clerc", "domaine_savoir");
@@ -24,24 +24,16 @@ namespace NWN.Systems
             if(!player.learnableSkills.TryGetValue(skill + 1, out var expertise) || expertise.currentLevel < 1)
               skillList.Add(skill);
 
+          player.learnableSkills.TryAdd(CustomSkill.ClercSavoirAncestral, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercSavoirAncestral], player));
+          player.learnableSkills[CustomSkill.ClercSavoirAncestral].LevelUp(player);
+          player.learnableSkills[CustomSkill.ClercSavoirAncestral].source.Add(Category.Class);
+
+
           if (!player.windows.TryGetValue("skillProficiencySelection", out var skill3)) player.windows.Add("skillProficiencySelection", new SkillProficiencySelectionWindow(player, skillList, 2, CustomSkill.ClercSavoir));
           else ((SkillProficiencySelectionWindow)skill3).CreateWindow(skillList, 2, CustomSkill.ClercSavoir);
 
           SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.Injonction, CustomClass.Clerc);
           SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Identify, CustomClass.Clerc);
-
-          break;
-
-        case 2:
-
-          player.learnableSkills.TryAdd(CustomSkill.ClercSavoirAncestral, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercSavoirAncestral], player));
-          player.learnableSkills[CustomSkill.ClercSavoirAncestral].LevelUp(player);
-          player.learnableSkills[CustomSkill.ClercSavoirAncestral].source.Add(Category.Class);
-
-          break;
-
-        case 3:
-
           SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.Augure, CustomClass.Clerc);
           SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.HoldPerson, CustomClass.Clerc);
 
@@ -66,14 +58,6 @@ namespace NWN.Systems
 
           SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.OeilMagique, CustomClass.Clerc);
           SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Confusion, CustomClass.Clerc);
-
-          break;
-
-        case 8:
-
-          player.learnableSkills.TryAdd(CustomSkill.ClercIncantationPuissante, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercIncantationPuissante], player));
-          player.learnableSkills[CustomSkill.ClercIncantationPuissante].LevelUp(player);
-          player.learnableSkills[CustomSkill.ClercIncantationPuissante].source.Add(Category.Class);
 
           break;
 

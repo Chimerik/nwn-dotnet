@@ -677,7 +677,8 @@ namespace NWN.Systems
       /*Log.Info($"karandas found in {NWScript.ResManGetAliasFor("c_karandas", NWScript.RESTYPE_MDL)}");
       Log.Info($"c_envy found in {NWScript.ResManGetAliasFor("c_envy", NWScript.RESTYPE_MDL)}");
       Log.Info($"hp_drgtiamat_1 found in {NWScript.ResManGetAliasFor("hp_drgtiamat_1", NWScript.RESTYPE_MDL)}");*/
-
+      //Log.Info($"pFH0_HEAD031 found in {NWScript.ResManGetAliasFor("pFH0_HEAD031", NWScript.RESTYPE_MDL)}");
+      
       for (int appearance = 0; appearance < 7; appearance++)
       {
         headModels.Add(new HeadModels(Gender.Male, appearance));
@@ -701,7 +702,9 @@ namespace NWN.Systems
           headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Elf && h.gender == Gender.Male).heads.Add(new NuiComboEntry($"Tête : {i}", i));
 
         if (NWScript.ResManGetAliasFor($"pFE0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
+        {
           headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Elf && h.gender == Gender.Female).heads.Add(new NuiComboEntry($"Tête : {i}", i));
+        }
 
         if (NWScript.ResManGetAliasFor($"pMG0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
           headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Gnome && h.gender == Gender.Male).heads.Add(new NuiComboEntry($"Tête : {i}", i));
