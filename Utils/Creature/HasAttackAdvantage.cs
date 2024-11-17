@@ -40,6 +40,9 @@ namespace NWN.Systems
 
         if (GetWolfPackAttackerAdvantage(attacker, target))
           return true;
+
+        if (GetGuerrierHeroiqueAdvantage(attacker))
+          return true;
       }
 
       if (GetSentinelleOpportunityAdvantage(attacker, attackData))

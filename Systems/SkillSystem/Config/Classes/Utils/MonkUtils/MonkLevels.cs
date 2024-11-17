@@ -18,12 +18,7 @@ namespace NWN.Systems
           if (player.oid.LoginCreature.Level == 2)
           {
             foreach (Learnable learnable in startingPackage.freeLearnables)
-            {
-              if (player.learnableSkills.TryAdd(learnable.id, new LearnableSkill((LearnableSkill)learnable, player)))
-                player.learnableSkills[learnable.id].LevelUp(player);
-
-              player.learnableSkills[learnable.id].source.Add(Category.Class);
-            }
+              player.LearnClassSkill(learnable.id);
 
             foreach (Learnable learnable in startingPackage.learnables)
             {
@@ -37,33 +32,23 @@ namespace NWN.Systems
           }
 
           // On donne les autres capacités de niveau 1
-          player.learnableSkills.TryAdd(CustomSkill.MonkUnarmoredDefence, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MonkUnarmoredDefence], player));
-          player.learnableSkills[CustomSkill.MonkUnarmoredDefence].LevelUp(player);
-          player.learnableSkills[CustomSkill.MonkUnarmoredDefence].source.Add(Category.Class);
-
-          player.learnableSkills.TryAdd(CustomSkill.MonkBonusAttack, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MonkBonusAttack], player));
-          player.learnableSkills[CustomSkill.MonkBonusAttack].LevelUp(player);
-          player.learnableSkills[CustomSkill.MonkBonusAttack].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.MonkUnarmoredDefence);
+          player.LearnClassSkill(CustomSkill.MonkBonusAttack);
 
           break;
 
         case 2:
 
-          player.learnableSkills.TryAdd(CustomSkill.MonkPatience, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MonkPatience], player));
-          player.learnableSkills[CustomSkill.MonkPatience].LevelUp(player);
-          player.learnableSkills[CustomSkill.MonkPatience].source.Add(Category.Class);
-
-          player.learnableSkills.TryAdd(CustomSkill.MonkDelugeDeCoups, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MonkDelugeDeCoups], player));
-          player.learnableSkills[CustomSkill.MonkDelugeDeCoups].LevelUp(player);
-          player.learnableSkills[CustomSkill.MonkDelugeDeCoups].source.Add(Category.Class);
-
-          player.learnableSkills.TryAdd(CustomSkill.MonkUnarmoredSpeed, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MonkUnarmoredSpeed], player));
-          player.learnableSkills[CustomSkill.MonkUnarmoredSpeed].LevelUp(player);
-          player.learnableSkills[CustomSkill.MonkUnarmoredSpeed].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.MonkPatience);
+          player.LearnClassSkill(CustomSkill.MonkDelugeDeCoups);
+          player.LearnClassSkill(CustomSkill.MonkUnarmoredSpeed);
+          player.LearnClassSkill(CustomSkill.MonkMetabolismeSurnaturel);
 
           break;
 
         case 3:
+
+          player.LearnClassSkill(CustomSkill.MonkParade);
 
           player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value = CustomSkill.Monk;
 
@@ -74,9 +59,7 @@ namespace NWN.Systems
 
         case 4:
 
-          player.learnableSkills.TryAdd(CustomSkill.MonkSlowFall, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MonkSlowFall], player));
-          player.learnableSkills[CustomSkill.MonkSlowFall].LevelUp(player);
-          player.learnableSkills[CustomSkill.MonkSlowFall].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.MonkSlowFall);
 
           if (!player.windows.TryGetValue("featSelection", out var feat4)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
           else ((FeatSelectionWindow)feat4).CreateWindow();
@@ -85,21 +68,21 @@ namespace NWN.Systems
 
         case 5:
 
-          player.oid.LoginCreature.BaseAttackCount += 1;
+          player.LearnClassSkill(CustomSkill.MonkStunStrike);
+          player.LearnClassSkill(CustomSkill.AttaqueSupplementaire);
 
-          player.learnableSkills.TryAdd(CustomSkill.MonkStunStrike, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MonkStunStrike], player));
-          player.learnableSkills[CustomSkill.MonkStunStrike].LevelUp(player);
-          player.learnableSkills[CustomSkill.MonkStunStrike].source.Add(Category.Class);
+          break;
+
+        case 6:
+
+          //player.LearnClassSkill(CustomSkill.MonkFrappesRenforcees);
 
           break;
 
         case 7: 
           
           player.oid.LoginCreature.AddFeat(Feat.ImprovedEvasion);
-
-          player.learnableSkills.TryAdd(CustomSkill.MonkSerenity, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MonkSerenity], player));
-          player.learnableSkills[CustomSkill.MonkSerenity].LevelUp(player);
-          player.learnableSkills[CustomSkill.MonkSerenity].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.MonkSerenity);
 
           break;
 
@@ -128,33 +111,18 @@ namespace NWN.Systems
 
         case 14:
 
-          if (player.learnableSkills.TryAdd(CustomSkill.ConstitutionSavesProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ConstitutionSavesProficiency], player)))
-          {
-            player.learnableSkills[CustomSkill.ConstitutionSavesProficiency].LevelUp(player);
-            player.learnableSkills[CustomSkill.ConstitutionSavesProficiency].source.Add(Category.Class);
-          }
+          player.LearnClassSkill(CustomSkill.ConstitutionSavesProficiency);
+          player.LearnClassSkill(CustomSkill.IntelligenceSavesProficiency);
+          player.LearnClassSkill(CustomSkill.WisdomSavesProficiency);
+          player.LearnClassSkill(CustomSkill.CharismaSavesProficiency);
+          player.LearnClassSkill(CustomSkill.MonkDiamondSoul);
 
-          if (player.learnableSkills.TryAdd(CustomSkill.IntelligenceSavesProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.IntelligenceSavesProficiency], player)))
-          {
-            player.learnableSkills[CustomSkill.IntelligenceSavesProficiency].LevelUp(player);
-            player.learnableSkills[CustomSkill.IntelligenceSavesProficiency].source.Add(Category.Class);
-          }
+          break;
 
-          if (player.learnableSkills.TryAdd(CustomSkill.WisdomSavesProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.WisdomSavesProficiency], player)))
-          {
-            player.learnableSkills[CustomSkill.WisdomSavesProficiency].LevelUp(player);
-            player.learnableSkills[CustomSkill.WisdomSavesProficiency].source.Add(Category.Class);
-          }
+        case 15:
 
-          if (player.learnableSkills.TryAdd(CustomSkill.CharismaSavesProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.CharismaSavesProficiency], player)))
-          {
-            player.learnableSkills[CustomSkill.CharismaSavesProficiency].LevelUp(player);
-            player.learnableSkills[CustomSkill.CharismaSavesProficiency].source.Add(Category.Class);
-          }
-
-          player.learnableSkills.TryAdd(CustomSkill.MonkDiamondSoul, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MonkDiamondSoul], player));
-          player.learnableSkills[CustomSkill.MonkDiamondSoul].LevelUp(player);
-          player.learnableSkills[CustomSkill.MonkDiamondSoul].source.Add(Category.Class);
+          player.oid.OnCombatStatusChange -= MonkUtils.OnCombatMonkRecoverKi;
+          player.oid.OnCombatStatusChange += MonkUtils.OnCombatMonkRecoverKi;
 
           break;
 
@@ -165,13 +133,7 @@ namespace NWN.Systems
 
           break;
 
-        case 18:
-
-          player.learnableSkills.TryAdd(CustomSkill.MonkDesertion, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MonkDesertion], player));
-          player.learnableSkills[CustomSkill.MonkDesertion].LevelUp(player);
-          player.learnableSkills[CustomSkill.MonkDesertion].source.Add(Category.Class);
-
-          break;
+        case 18: player.LearnClassSkill(CustomSkill.MonkDesertion); break;
 
         case 19:
 
@@ -182,8 +144,8 @@ namespace NWN.Systems
 
         case 20:
 
-          player.oid.OnCombatStatusChange -= MonkUtils.OnCombatMonkRecoverKi;
-          player.oid.OnCombatStatusChange += MonkUtils.OnCombatMonkRecoverKi;
+          player.oid.LoginCreature.SetsRawAbilityScore(Ability.Dexterity, (byte)(player.oid.LoginCreature.GetRawAbilityScore(Ability.Dexterity) + 4));
+          player.oid.LoginCreature.SetsRawAbilityScore(Ability.Wisdom, (byte)(player.oid.LoginCreature.GetRawAbilityScore(Ability.Wisdom) + 4));
 
           break;
       }

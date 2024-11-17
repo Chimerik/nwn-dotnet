@@ -48,6 +48,7 @@ namespace NWN.Systems
         learnableDictionary[CustomSkill.InsightProficiency],
         learnableDictionary[CustomSkill.IntimidationProficiency],
         learnableDictionary[CustomSkill.PerceptionProficiency],
+        learnableDictionary[CustomSkill.PersuasionProficiency],
         learnableDictionary[CustomSkill.SurvivalProficiency],
       },
       2

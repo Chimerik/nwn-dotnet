@@ -9,7 +9,7 @@ namespace NWN.Systems
     public int RowIndex { get; init; }
     public StrRef tlkEntry { get; private set; }
     public string googleDocId { get; private set; }
-    public int aoESize { get; private set; }
+    public float aoESize { get; private set; }
     public List<DamageType> damageType { get; private set; }
     public int damageDice { get; private set; }
     public int numDice { get; private set; }
@@ -28,7 +28,7 @@ namespace NWN.Systems
 
     public void InterpretEntry(TwoDimArrayEntry entry)
     {
-      aoESize = entry.GetInt("TargetSizeX").GetValueOrDefault(0);
+      aoESize = entry.GetFloat("TargetSizeX").GetValueOrDefault(0);
       //damageType = (DamageType)entry.GetInt("DamageType").GetValueOrDefault(4096);
 
       damageType = new();

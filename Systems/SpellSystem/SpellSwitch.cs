@@ -981,6 +981,16 @@ namespace NWN.Systems
           SpellSystem.FrappeDivine(oCaster, spell, spellEntry);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
+
+        case CustomSpell.SecondSouffle:
+          SpellSystem.SecondSouffle(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.EspritTactique:
+          SpellSystem.EspritTactique(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
       }
 
       if (oCaster is NwCreature castingCreature)

@@ -22,6 +22,10 @@ namespace NWN.Systems
 
           if (GetSavingThrow(onAttack.Attacker, target, Ability.Constitution, DC) == SavingThrowResult.Failure)
             target.ApplyEffect(EffectDuration.Temporary, Effect.Stunned(), NwTimeSpan.FromRounds(1));
+          else
+            target.ApplyEffect(EffectDuration.Temporary, EffectSystem.FrappeEtourdissante, NwTimeSpan.FromRounds(1));
+
+          onAttack.Attacker.ApplyEffect(EffectDuration.Temporary, EffectSystem.Cooldown(onAttack.Attacker, CustomSkill.MonkStunStrike, 6), NwTimeSpan.FromRounds(1));
 
           await NwTask.NextFrame();
           onAttack.Attacker.OnCreatureAttack -= OnMonkStunStrike;

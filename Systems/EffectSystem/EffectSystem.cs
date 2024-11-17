@@ -200,6 +200,7 @@ namespace NWN.Systems
       onIntervalForceFantasmagoriqueCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalForceFantasmagorique);
 
       onRemoveDefensesEnjoleusesCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveDefensesEnjoleuses);
+      onRemoveMonkParadeCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveMonkParade);
 
       onEnterVengeanceCalcinanteCallback = scriptHandleFactory.CreateUniqueHandler(onEnterVengeanceCalcinante);
       onExitVengeanceCalcinanteCallback = scriptHandleFactory.CreateUniqueHandler(onExitVengeanceCalcinante);
@@ -214,6 +215,9 @@ namespace NWN.Systems
 
       onHeartbeatRayonnementInterieurCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatRayonnementInterieur);
       onHeartbeatVoileNecrotiqueCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatVoileNecrotique);
+
+      onEnterHaloDeLumiereCallback = scriptHandleFactory.CreateUniqueHandler(onEnterHaloDeLumiere);
+      onExitHaloDeLumiereCallback = scriptHandleFactory.CreateUniqueHandler(onExitHaloDeLumiere);
     }
   }
 }

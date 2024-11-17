@@ -36,6 +36,8 @@
     public const int Disengage = 1343;
     public const int FighterSecondWind = 1344;
     public const int FighterSurge = 1345;
+    public const int FighterAvantageTactique = 1799;
+    public const int FighterAttaquesEtudiees = 1800;
     public const int RayOfFrost = 1346;
     public const int AcidSplash = 1347;
     public const int ElectricJolt = 1348;
@@ -117,7 +119,7 @@
     public const int WarMasterRalliement = 1422;
     public const int WarMasterRiposte = 1423;
     public const int WarMasterEvaluationTactique = 1424;
-    public const int WarMasterObservation = 1425;
+    public const int WarMasterConnaisTonEnnemi = 1425;
     public const int FighterChampionImprovedCritical = 1426;
 
     public const int FighterCombatStyleArchery = 1427;
@@ -154,6 +156,8 @@
     public const int MonkBonusAttack = 1468;
     public const int MonkPatience = 1469;
     public const int MonkDelugeDeCoups = 1470;
+    public const int MonkParade = 1802;
+    public const int MonkFrappesRenforcees = 1803;
     public const int MonkSlowFall = 1471;
     public const int MonkStunStrike = 1472;
     public const int MonkSerenity = 1473;
@@ -178,7 +182,7 @@
     public const int MonkFrappeDombre = 1490;
     public const int MonkOpportuniste = 1491;
 
-    public const int MonkHarmony = 1492;
+    public const int MonkMetabolismeSurnaturel = 1492;
 
     public const int WizardRestaurationArcanique = 1493;
     public const int AbjurationWard = 1494;
@@ -203,7 +207,8 @@
     public const int EvocateurSuperieur = 1510;
     public const int EvocateurSurcharge = 1511;
 
-    public const int FighterChampionRemarkableAthlete = 1512;
+    public const int FighterChampionAthleteAccompli = 1512;
+    public const int ChampionGuerrierHeroique = 1801;
 
     public const int IllusionMineure = 1513;
     public const int IllusionVoirLinvisible = 1514;

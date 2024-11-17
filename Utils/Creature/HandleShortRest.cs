@@ -24,6 +24,7 @@ namespace NWN.Systems
       OccultisteUtils.HandleResilienceCeleste(player.oid.LoginCreature);
       BarbarianUtils.RestoreBarbarianRage(player.oid.LoginCreature, true);
       ClercUtils.RestoreClercDomaine(player.oid.LoginCreature, true);
+      FighterUtils.RestoreSecondSouffle(player.oid.LoginCreature, true);
 
       if (player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.SourceDinspiration))
         BardUtils.RestoreInspirationBardique(player.oid.LoginCreature);

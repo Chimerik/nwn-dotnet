@@ -418,6 +418,7 @@ namespace NWN.Systems
         ApplyDrowLightSensitivity();
         ApplyThieflingFireResistance();
         ApplyAasimarResistance();
+        ApplyMonkParade();
         InitializeMagicalSecretSelection();
         ApplyDwarfPoisonResistance();
         ApplyNecroticResistance();
@@ -478,6 +479,8 @@ namespace NWN.Systems
         ApplyFrappeMeurtriere();
         ApplyThiefReflex();
         ApplyAbjurationWard();
+        ApplyAttaquesEtudiees();
+        ApplyAthleteAccompli();
         ApplyAgiliteHalfelin();
         ApplyBouclierPsychique();
         ApplyBenedictionDuMalin();

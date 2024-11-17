@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Anvil.API;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.SkillSystem;
 
@@ -10,12 +9,16 @@ namespace NWN.Systems
     public static readonly StartingPackage startingPackage = new(
       new List<Learnable>()
       { 
-        learnableDictionary[CustomSkill.ShortSwordProficiency],
         learnableDictionary[CustomSkill.SimpleWeaponProficiency],
         learnableDictionary[CustomSkill.DexteritySavesProficiency],
         learnableDictionary[CustomSkill.StrengthSavesProficiency],
       },
-      new List<Learnable>() { },
+      new List<Learnable>() 
+      {
+        learnableDictionary[CustomSkill.ShortSwordProficiency],
+        learnableDictionary[CustomSkill.ScimitarProficiency],
+        learnableDictionary[CustomSkill.ShurikenProficiency]
+      },
       new List<Learnable>()
       {
         learnableDictionary[CustomSkill.AcrobaticsProficiency],

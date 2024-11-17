@@ -598,6 +598,7 @@ namespace NWN.Systems
                     RangerUtils.HealAnimalCompanion(player.oid.LoginCreature, true);
                     FighterUtils.RestoreManoeuvres(player.oid.LoginCreature);
                     FighterUtils.RestoreTirArcanique(player.oid.LoginCreature);
+                    FighterUtils.RestoreSecondSouffle(player.oid.LoginCreature);
                     BarbarianUtils.RestoreBarbarianRage(player.oid.LoginCreature);
                     MonkUtils.RestoreKi(player.oid.LoginCreature);
                     WizardUtils.RestaurationArcanique(player.oid.LoginCreature);

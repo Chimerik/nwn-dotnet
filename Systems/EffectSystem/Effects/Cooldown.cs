@@ -157,6 +157,7 @@ namespace NWN.Systems
         case CustomSkill.BuveuseDeVie: ApplyBuveuseDeVie(caster); break;
         case CustomSkill.ClercFrappeDivine: ApplyFrappeDivine(caster); break;
         case CustomSkill.DefensesEnjoleuses: NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, DefensesEnjoleuses)); break;
+        case CustomSkill.MonkParade: NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, MonkParade)); break;
       }
     }
   }

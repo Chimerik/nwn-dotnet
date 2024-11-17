@@ -105,8 +105,7 @@ namespace NWN.Systems
           {
             case CustomClass.Clerc:
             case CustomClass.Druid:
-            case CustomClass.Paladin:
-            case CustomClass.Wizard: continue;
+            case CustomClass.Paladin: continue;
           }
         }
 

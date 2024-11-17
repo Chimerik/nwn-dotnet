@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     public static int GetUnarmedDamage(CNWSCreature creature, CNWSCreature target, Anvil.API.Ability attackAbility)
     {
-      int unarmedDieToRoll = CreatureUtils.GetUnarmedDamage(creature.m_pStats);
+      int unarmedDieToRoll = CreatureUtils.GetUnarmedDamage(creature);
       int damage = NwRandom.Roll(Utils.random, unarmedDieToRoll);
       damage += GetDegatsVaillantsBonus(creature)
         + GetBarbarianRageBonusDamage(creature, attackAbility)

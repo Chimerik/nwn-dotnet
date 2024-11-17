@@ -20,17 +20,13 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.FighterChampionImprovedCritical].LevelUp(player);
           player.learnableSkills[CustomSkill.FighterChampionImprovedCritical].source.Add(Category.Class);
 
+          player.learnableSkills.TryAdd(CustomSkill.FighterChampionAthleteAccompli, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterChampionAthleteAccompli], player));
+          player.learnableSkills[CustomSkill.FighterChampionAthleteAccompli].LevelUp(player);
+          player.learnableSkills[CustomSkill.FighterChampionAthleteAccompli].source.Add(Category.Class);
+
           break;
 
         case 7:
-
-          player.learnableSkills.TryAdd(CustomSkill.FighterChampionRemarkableAthlete, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterChampionRemarkableAthlete], player));
-          player.learnableSkills[CustomSkill.FighterChampionRemarkableAthlete].LevelUp(player);
-          player.learnableSkills[CustomSkill.FighterChampionRemarkableAthlete].source.Add(Category.Class);
-
-          break;
-
-        case 10:
 
           player.learnableSkills.TryAdd(CustomSkill.FighterChampionBonusCombatStyle, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterChampionBonusCombatStyle], player));
           player.learnableSkills[CustomSkill.FighterChampionBonusCombatStyle].LevelUp(player);
@@ -38,6 +34,15 @@ namespace NWN.Systems
 
           if (!player.windows.TryGetValue("fightingStyleSelection", out var style)) player.windows.Add("fightingStyleSelection", new FightingStyleSelectionWindow(player, CustomSkill.FighterChampion));
           else ((FightingStyleSelectionWindow)style).CreateWindow(CustomSkill.FighterChampion);
+
+
+          break;
+
+        case 10:
+
+          player.learnableSkills.TryAdd(CustomSkill.ChampionGuerrierHeroique, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ChampionGuerrierHeroique], player));
+          player.learnableSkills[CustomSkill.ChampionGuerrierHeroique].LevelUp(player);
+          player.learnableSkills[CustomSkill.ChampionGuerrierHeroique].source.Add(Category.Class);
 
           break;
 

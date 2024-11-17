@@ -4,7 +4,7 @@ namespace NWN.Systems
 {
   public partial class FeatSystem
   {
-    private static void MonkHarmony(NwCreature caster)
+    private static void MetabolismeSurnaturel(NwCreature caster)
     {
       if (caster.IsInCombat)
       {
@@ -12,8 +12,8 @@ namespace NWN.Systems
         return;
       }
 
-      MonkUtils.RestoreKi(caster, true);
-      caster.DecrementRemainingFeatUses((Feat)CustomSkill.MonkHarmony);
+      MonkUtils.RestoreKi(caster);
+      caster.DecrementRemainingFeatUses((Feat)CustomSkill.MonkMetabolismeSurnaturel);
     }
   }
 }

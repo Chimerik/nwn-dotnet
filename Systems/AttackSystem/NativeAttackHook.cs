@@ -322,7 +322,6 @@ namespace NWN.Systems
       NativeUtils.HandleHastMaster(attacker, targetObject, combatRound, attackerName);
       NativeUtils.HandleBalayage(attacker, targetObject, combatRound, attackerName);
       NativeUtils.HandleRiposteBonusAttack(attacker, combatRound, attackData, attackerName);
-      NativeUtils.HandleFrappeFrenetiqueBonusAttack(attacker, targetObject, combatRound, attackData, attackerName);
       NativeUtils.HandleBersekerRepresaillesBonusAttack(attacker, combatRound, attackData, attackerName);
       NativeUtils.HandleArcaneArcherTirIncurveBonusAttack(attacker, attackData, combatRound, attackerName, attackWeapon, targetObject);
       NativeUtils.HandleMonkBonusAttack(attacker, targetObject, combatRound, attackerName, targetName);
@@ -334,6 +333,7 @@ namespace NWN.Systems
       NativeUtils.HandleAttaqueCoordonnee(attacker, targetObject, combatRound);
       NativeUtils.HandleFurieBestiale(attacker, targetObject, combatRound, attackerName);
       NativeUtils.HandleVoeuHostile(attacker, combatRound, attackData, attackerName);
+      NativeUtils.HandleFougueMartiale(attacker, targetObject, combatRound, attackerName, targetName);
       NativeUtils.HandleClercMartial(attacker, targetObject, combatRound, attackerName);
       NativeUtils.HandleFureurOuraganFoudre(targetObject, attackData);
       NativeUtils.HandleFureurTonnerreFoudre(targetObject, attackData);
@@ -514,7 +514,7 @@ namespace NWN.Systems
         baseDamage += NativeUtils.HandlePourfendeurDeColosse(attacker, targetCreature, attackWeapon);
         baseDamage -= NativeUtils.HandleMaitreArmureLourde(targetCreature);
         baseDamage -= NativeUtils.HandleParade(targetCreature);
-        baseDamage -= NativeUtils.HandleParadeDeProjectile(targetCreature, attackData.m_bRangedAttack.ToBool());
+        baseDamage -= NativeUtils.HandleMonkParade(targetCreature);
         baseDamage /= NativeUtils.HandleEsquiveInstinctive(targetCreature);
         baseDamage /= NativeUtils.HandleDefensesEnjoleuses(targetCreature);
       }
@@ -548,9 +548,6 @@ namespace NWN.Systems
       LogUtils.LogMessage($"Application des résistances de la cible - Dégâts : {baseDamage}", LogUtils.LogType.Combat);
       baseDamage = targetObject.DoDamageReduction(attacker, baseDamage, attacker.CalculateDamagePower(targetObject, bOffHand), 0, 1, attackData.m_bRangedAttack);   
       LogUtils.LogMessage($"Application des réductions de la cible - Calcul Final - Dégâts : {baseDamage}", LogUtils.LogType.Combat);
-
-      if(attacker.m_ScriptVars.GetInt(CreatureUtils.AspectTigreMalusVariableExo) > 1)
-        baseDamage = baseDamage * 3 / 4;
 
       NativeUtils.HandleCogneurLourdBonusAttack(attacker, targetObject, combatRound, attackData, baseDamage, attackerName);
       

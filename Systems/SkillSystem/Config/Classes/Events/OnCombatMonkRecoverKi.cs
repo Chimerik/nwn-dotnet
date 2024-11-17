@@ -1,6 +1,5 @@
 ﻿using Anvil.API;
 using Anvil.API.Events;
-using Google.Apis.Discovery;
 
 namespace NWN.Systems
 {
@@ -12,7 +11,7 @@ namespace NWN.Systems
       {
         NwCreature creature = onStatus.Player.LoginCreature;
 
-        if (creature.GetFeatRemainingUses((Feat)CustomSkill.MonkPatience) < 1)
+        if (creature.GetFeatRemainingUses((Feat)CustomSkill.MonkPatience) < 4)
         {
           creature.SetFeatRemainingUses((Feat)CustomSkill.MonkPatience, 4);
           creature.SetFeatRemainingUses((Feat)CustomSkill.MonkDelugeDeCoups, 4);

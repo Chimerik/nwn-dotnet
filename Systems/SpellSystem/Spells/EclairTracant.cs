@@ -13,7 +13,7 @@ namespace NWN.Systems
 
       foreach (var target in targets)
       {
-        target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpDivineStrikeHoly));
+        target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComHitDivine));
         int nbDice = SpellUtils.GetSpellDamageDiceNumber(oCaster, spell);
 
         switch (SpellUtils.GetSpellAttackRoll(target, oCaster, spell, casterClass.SpellCastingAbility))

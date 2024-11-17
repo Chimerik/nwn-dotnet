@@ -28,8 +28,6 @@ namespace NWN.Systems
     public static readonly CExoString OpportunityAttackTypeVariableExo = OpportunityAttackTypeVariable.ToExoString();
     public const string SneakAttackCooldownVariable = "_SNEAK_ATTACK_COOLDOWN";
     public static readonly CExoString SneakAttackCooldownVariableExo = SneakAttackCooldownVariable.ToExoString();
-    public const string ParadeDeProjectileCooldownVariable = "_PARADE_DE_PROJECTILE_COOLDOWN";
-    public static readonly CExoString ParadeDeProjectileCooldownVariableExo = ParadeDeProjectileCooldownVariable.ToExoString();
     public const string BersekerRepresaillesVariable = "_BERSEKER_REPRESAILLES";
     public static readonly CExoString BersekerRepresaillesVariableExo = BersekerRepresaillesVariable.ToExoString();
     public const string HastMasterCooldownVariable = "_HAST_MASTER_IN_COOLDOWN";
@@ -70,22 +68,6 @@ namespace NWN.Systems
 
     public const string VoeuHostileVariable = "_VOEU_HOSTILE";
     public static readonly CExoString VoeuHostileVariableExo = VoeuHostileVariable.ToExoString();
-
-    public const string FrappeFrenetiqueVariable = "_FRAPPE_FRENETIQUE_BONUS";
-    public static readonly CExoString FrappeFrenetiqueVariableExo = FrappeFrenetiqueVariable.ToExoString();
-
-    public const string AspectTigreVariable = "_ASPECT_TIGRE";
-    public static readonly CExoString AspectTigreVariableExo = AspectTigreVariable.ToExoString();
-
-    public const string AspectTigreMalusVariable = "_ASPECT_TIGRE_MALUS";
-    public static readonly CExoString AspectTigreMalusVariableExo = AspectTigreMalusVariable.ToExoString();
-
-    public const string TigerAspectBleedVariable = "_APPLY_BLEED";
-    public const string ApplyBleedVariable = "_APPLY_BLEED";
-    public static readonly CExoString ApplyBleedVariableExo = ApplyBleedVariable.ToExoString();
-
-    public const string FrappeFrenetiqueMalusVariable = "_FRAPPE_FRENETIQUE_MALUS";
-    public static readonly CExoString FrappeFrenetiqueMalusVariableExo = FrappeFrenetiqueMalusVariable.ToExoString();
 
     public const string EmpaleurCooldownVariable = "_EMPALEUR_COOLDOWN";
     public static readonly CExoString EmpaleurCooldownVariableExo = EmpaleurCooldownVariable.ToExoString();
@@ -309,23 +291,16 @@ namespace NWN.Systems
       spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value = creature.Tag;
       creature.Destroy();
     }
-    public static int GetUnarmedDamage(CNWSCreatureStats stats)
+    public static int GetUnarmedDamage(CNWSCreature creature)
     {
-      int monkLevel = stats.GetNumLevelsOfClass(CustomClass.Monk);
+      int monkLevel = creature.m_pStats.GetNumLevelsOfClass(CustomClass.Monk);
 
-      if (monkLevel < 1 && stats.HasFeat(CustomSkill.BagarreurDeTaverne).ToBool())
+      if (monkLevel < 1 && creature.m_pStats.HasFeat(CustomSkill.BagarreurDeTaverne).ToBool())
         return 4;
 
-     return monkLevel switch
-      {
-        1 or 2 or 3 or 4 => 4,
-        5 or 6 or 7 or 8 or 9 or 10 => 6,
-        11 or 12 or 13 or 14 or 15 or 16 => 8,
-        17 or 18 or 19 or 20 or 21 or 22 => 10,
-        _ => 1,
-      };
+      return monkLevel > 16 ? 12 : monkLevel > 10 ? 10 : monkLevel > 4 ? 8 : 6;
     }
-    public static async void TestGetInvi(Native.API.CNWSCreature attacker, Native.API.CNWSCreature target)
+    public static async void TestGetInvi(CNWSCreature attacker, CNWSCreature target)
     {
       //LogUtils.LogMessage($"movement rate {attacker.m_fMovementRateFactor}", LogUtils.LogType.Combat);
       LogUtils.LogMessage($"movement rate NWNX {Core.NWNX.CreaturePlugin.GetMovementType(attacker.m_idSelf)}", LogUtils.LogType.Combat);

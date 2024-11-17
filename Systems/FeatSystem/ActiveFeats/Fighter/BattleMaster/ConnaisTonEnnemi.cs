@@ -4,7 +4,7 @@ namespace NWN.Systems
 {
   public partial class FeatSystem
   {
-    private static void Observation(NwCreature caster, NwGameObject targetObject)
+    private static void ConnaisTonEnnemi(NwCreature caster, NwGameObject targetObject)
     {
       if (targetObject is not NwCreature target)
       {
@@ -12,8 +12,9 @@ namespace NWN.Systems
         return;
       }
 
-      FeatUtils.ClearPreviousManoeuvre(caster);
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"*Observe {target.Name} (Maître de guerre)*", ColorConstants.Cyan, true);
+
+      caster.DecrementRemainingFeatUses((Feat)CustomSkill.WarMasterConnaisTonEnnemi);
     }
   }
 }

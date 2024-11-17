@@ -15,25 +15,10 @@ namespace NWN.Systems
           new StrRef(10).SetPlayerOverride(player.oid, "Voie de l'Ombre");
           player.oid.SetTextureOverride("monk", "monk_shadow");
 
-          player.learnableSkills.TryAdd(CustomSkill.MonkTenebres, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MonkTenebres], player));
-          player.learnableSkills[CustomSkill.MonkTenebres].LevelUp(player);
-          player.learnableSkills[CustomSkill.MonkTenebres].source.Add(Category.Class);
-
-          player.learnableSkills.TryAdd(CustomSkill.MonkDarkVision, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MonkDarkVision], player));
-          player.learnableSkills[CustomSkill.MonkDarkVision].LevelUp(player);
-          player.learnableSkills[CustomSkill.MonkDarkVision].source.Add(Category.Class);
-
-          player.learnableSkills.TryAdd(CustomSkill.MonkPassageSansTrace, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MonkPassageSansTrace], player));
-          player.learnableSkills[CustomSkill.MonkPassageSansTrace].LevelUp(player);
-          player.learnableSkills[CustomSkill.MonkPassageSansTrace].source.Add(Category.Class);
-
-          player.learnableSkills.TryAdd(CustomSkill.MonkSilence, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MonkSilence], player));
-          player.learnableSkills[CustomSkill.MonkSilence].LevelUp(player);
-          player.learnableSkills[CustomSkill.MonkSilence].source.Add(Category.Class);
-
-          player.learnableSkills.TryAdd(CustomSkill.IllusionMineure, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.IllusionMineure], player));
-          player.learnableSkills[CustomSkill.IllusionMineure].LevelUp(player);
-          player.learnableSkills[CustomSkill.IllusionMineure].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.MonkTenebres);
+          player.LearnClassSkill(CustomSkill.MonkPassageSansTrace);
+          player.LearnClassSkill(CustomSkill.MonkSilence);
+          player.LearnClassSkill(CustomSkill.IllusionMineure);
 
           break;
 

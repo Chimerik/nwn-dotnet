@@ -166,8 +166,6 @@ namespace NWN.Systems
 
           break;
 
-          break;
-
         case SpellEffectType.Death:
 
           if (creature.ActiveEffects.Any(e => e.Tag == EffectSystem.LueurDespoirEffectTag))

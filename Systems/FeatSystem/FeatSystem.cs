@@ -32,8 +32,6 @@ namespace NWN.Systems
         case CustomSkill.Disengage: Disengage(onUseFeat.Creature, onUseFeat); return;
         case CustomSkill.Stealth: Stealth(onUseFeat.Creature, onUseFeat); return;
         case CustomSkill.Chargeur: Chargeur(onUseFeat.Creature, onUseFeat.TargetObject); return;
-        //case CustomSkill.Dodge: Dodge(onUseFeat.Creature, player); return;
-        case CustomSkill.FighterSecondWind: SecondWind(onUseFeat.Creature); return;
         case CustomSkill.FighterSurge: ActionSurge(onUseFeat.Creature); return;
         case CustomSkill.CogneurLourd: CogneurLourd(onUseFeat.Creature); return;
         case CustomSkill.TireurDelite: TireurDelite(onUseFeat.Creature); return;
@@ -68,7 +66,7 @@ namespace NWN.Systems
         case CustomSkill.WarMasterProvocation: Provocation(onUseFeat.Creature); return;
         case CustomSkill.WarMasterRalliement: Ralliement(onUseFeat.Creature, onUseFeat.TargetObject); return;
         case CustomSkill.WarMasterRiposte: Riposte(onUseFeat.Creature); return;
-        case CustomSkill.WarMasterObservation: Observation(onUseFeat.Creature, onUseFeat.TargetObject); return;
+        case CustomSkill.WarMasterConnaisTonEnnemi: ConnaisTonEnnemi(onUseFeat.Creature, onUseFeat.TargetObject); return;
 
         case CustomSkill.EldritchKnightArmeLiee:
         case CustomSkill.EldritchKnightArmeLiee2: ArmeLiee(onUseFeat.Creature, onUseFeat.Feat); return;
@@ -80,8 +78,6 @@ namespace NWN.Systems
         case CustomSkill.FrappeBrutale: 
         case CustomSkill.FrappeSiderante: 
         case CustomSkill.FrappeDechirante: FrappeBrutale(onUseFeat.Creature, onUseFeat.Feat.Id); return;
-        //case (int)Feat.BarbarianRage: BarbarianRage(onUseFeat.Creature); return;
-        case CustomSkill.BersekerFrenziedStrike: FrappeFrenetique(onUseFeat.Creature); return;
         case CustomSkill.BersekerPresenceIntimidante: BersekerPresenceIntimidante(onUseFeat.Creature); return;
 
         case CustomSkill.WildMagicSense: SensDeLaMagie(onUseFeat.Creature); return;
@@ -94,6 +90,7 @@ namespace NWN.Systems
         case CustomSkill.MonkDelugeDeCoups: MonkDelugeDeCoups(onUseFeat.Creature); return;
         case CustomSkill.MonkSlowFall: MonkSlowFall(onUseFeat.Creature); return;
         case CustomSkill.MonkStunStrike: MonkStunStrike(onUseFeat.Creature); return;
+        case CustomSkill.MonkFrappesRenforcees: FrappesRenforcees(onUseFeat.Creature); return;
         case CustomSkill.MonkDiamondSoul: DiamondSoul(onUseFeat.Creature); return;
         case CustomSkill.MonkDesertion: MonkDesertion(onUseFeat.Creature); return;
         case CustomSkill.MonkPlenitude: MonkPlenitude(onUseFeat.Creature); return;
@@ -105,16 +102,12 @@ namespace NWN.Systems
         case CustomSkill.MonkExplosionKi: MonkExplosionKi(onUseFeat.Creature); return;
         case CustomSkill.MonkPaumeVibratoire: MonkPaumeVibratoire(onUseFeat.Creature); return;
 
-        case CustomSkill.MonkTenebres: MonkTenebres(onUseFeat.Creature, onUseFeat); return;
-        case CustomSkill.MonkDarkVision: MonkDarkVision(onUseFeat.Creature, onUseFeat); return;
-        case CustomSkill.MonkPassageSansTrace: MonkPassageSansTrace(onUseFeat.Creature, onUseFeat); return;
-        case CustomSkill.MonkSilence: MonkSilence(onUseFeat.Creature, onUseFeat); return;
         case CustomSkill.TraqueurLinceulDombre:
         case CustomSkill.MonkLinceulDombre:
         case CustomSkill.ClercLinceulDombre: MonkLinceulDombre(onUseFeat.Creature, onUseFeat); return;
         case CustomSkill.MonkFouleeDombre: MonkFouleeDombre(onUseFeat.Creature, onUseFeat); return;
         case CustomSkill.MonkFrappeDombre: MonkFrappeDombre(onUseFeat.Creature, onUseFeat); return;
-        case CustomSkill.MonkHarmony: MonkHarmony(onUseFeat.Creature); return;
+        case CustomSkill.MonkMetabolismeSurnaturel: MetabolismeSurnaturel(onUseFeat.Creature); return;
 
         case CustomSkill.MonkLienElementaire: LienElementaire(onUseFeat.Creature); return;
         case CustomSkill.MonkCrochetsDuSerpentDeFeu: CrochetsDuSerpentDeFeu(onUseFeat.Creature); return;

@@ -17,7 +17,6 @@ namespace NWN.Systems
 
         creature.GetObjectVariable<LocalVariableInt>(HastMasterCooldownVariable).Delete();
         creature.GetObjectVariable<LocalVariableInt>(SneakAttackCooldownVariable).Delete();
-        creature.GetObjectVariable<LocalVariableInt>(ParadeDeProjectileCooldownVariable).Delete();
         creature.GetObjectVariable<LocalVariableInt>(EmpaleurCooldownVariable).Delete();
         creature.GetObjectVariable<LocalVariableInt>(BriseurDeHordesVariable).Delete();
         creature.GetObjectVariable<LocalVariableInt>(PourfendeurDeColosseVariable).Delete();

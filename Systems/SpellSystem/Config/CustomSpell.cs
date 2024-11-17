@@ -184,5 +184,7 @@
     public const int EtincelleDivineNecrotique = 1025;
     public const int FrappeDivineRadiant = 1027;
     public const int FrappeDivineNecrotique = 1028;
+    public const int SecondSouffle = 1030;
+    public const int EspritTactique = 1031;
   }
 }

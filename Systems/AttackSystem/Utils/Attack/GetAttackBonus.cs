@@ -106,13 +106,6 @@ namespace NWN.Systems
           LogUtils.LogMessage("Frappe Déchirante : +5", LogUtils.LogType.Combat);
         }
       }
-
-      int frappeFrenetiqueMalus = attacker.m_pStats.m_pBaseCreature.m_ScriptVars.GetInt(CreatureUtils.FrappeFrenetiqueMalusVariableExo);
-      if(frappeFrenetiqueMalus > 0)
-      {
-        attackBonus -= frappeFrenetiqueMalus;
-        LogUtils.LogMessage($"Frappe Frénétique : - {frappeFrenetiqueMalus} BA", LogUtils.LogType.Combat);
-      }
       
       return attackBonus;
     }

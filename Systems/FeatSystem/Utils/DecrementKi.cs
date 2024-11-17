@@ -103,14 +103,6 @@ namespace NWN.Systems
 
       if (creature.GetFeatRemainingUses((Feat)CustomSkill.MonkDagueDeGivre) < 2)
         creature.SetFeatRemainingUses((Feat)CustomSkill.MonkDagueDeGivre, 0);
-
-      if (creature.GetFeatRemainingUses((Feat)CustomSkill.MonkTenebres) < 2)
-      {
-        creature.SetFeatRemainingUses((Feat)CustomSkill.MonkTenebres, 0);
-        creature.SetFeatRemainingUses((Feat)CustomSkill.MonkSilence, 0);
-        creature.SetFeatRemainingUses((Feat)CustomSkill.MonkPassageSansTrace, 0);
-        creature.SetFeatRemainingUses((Feat)CustomSkill.MonkDarkVision, 0);
-      }
     }
   }
 }

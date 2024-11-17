@@ -260,8 +260,7 @@ namespace NWN.Systems
               continue;
 
             if (nbRestrictedSpells > 0 && nbSpells < 1 && spell.GetSpellLevelForClass(spellClass) > 0
-              && (spellClass == (ClassType)CustomClass.RogueArcaneTrickster && !Utils.In(spell.SpellSchool, SpellSchool.Enchantment, SpellSchool.Illusion)
-                || spellClass == (ClassType)CustomClass.EldritchKnight && !Utils.In(spell.SpellSchool, SpellSchool.Evocation, SpellSchool.Abjuration)))
+              && (spellClass == (ClassType)CustomClass.RogueArcaneTrickster && !Utils.In(spell.SpellSchool, SpellSchool.Enchantment, SpellSchool.Illusion)))
               continue;
 
             availableSpells.Add(spell);
@@ -296,13 +295,6 @@ namespace NWN.Systems
 
                   if (acquiredSpells.Count(s => !Utils.In(s.SpellSchool, SpellSchool.Enchantment, SpellSchool.Illusion) && s.GetSpellLevelForClass(spellClass) > 0) == nbSpells)
                     availableSpells.RemoveAll(s => !Utils.In(s.SpellSchool, SpellSchool.Enchantment, SpellSchool.Illusion) && s.GetSpellLevelForClass(spellClass) > 0);
-
-                  break;
-
-                case (ClassType)CustomClass.EldritchKnight:
-
-                  if (acquiredSpells.Count(s => !Utils.In(s.SpellSchool, SpellSchool.Evocation, SpellSchool.Abjuration) && s.GetSpellLevelForClass(spellClass) > 0) == nbSpells)
-                    availableSpells.RemoveAll(s => !Utils.In(s.SpellSchool, SpellSchool.Evocation, SpellSchool.Abjuration) && s.GetSpellLevelForClass(spellClass) > 0);
 
                   break;
               }

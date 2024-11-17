@@ -22,7 +22,7 @@ namespace NWN.Systems
       }
 
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
-      SpellConfig.SavingThrowFeedback feedback = new();
+
       int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, casterClass.SpellCastingAbility);
       bool evocateur = caster.KnowsFeat((Feat)CustomSkill.EvocateurFaconneurDeSorts);
 

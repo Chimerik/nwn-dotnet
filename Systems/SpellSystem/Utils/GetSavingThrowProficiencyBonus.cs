@@ -22,18 +22,6 @@ namespace NWN.Systems
             proficiencyBonus = NativeUtils.GetCreatureProficiencyBonus(target);
           else if(target.m_pStats.HasFeat(CustomSkill.ToucheATout).ToBool())
             proficiencyBonus = (int)Math.Round((double)(NativeUtils.GetCreatureProficiencyBonus(target) / 2), MidpointRounding.ToZero);
-
-          switch (ability) 
-          {
-            case Ability.Strength:
-            case Ability.Dexterity:
-            case Ability.Constitution:
-              
-              if (target.m_pStats.HasFeat(CustomSkill.FighterChampionRemarkableAthlete).ToBool())
-                proficiencyBonus = (int)Math.Round((double)(NativeUtils.GetCreatureProficiencyBonus(target) / 2), MidpointRounding.AwayFromZero);
-              
-              break;
-          }
         }
       }
       else

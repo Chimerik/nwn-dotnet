@@ -4,7 +4,7 @@ namespace NWN.Systems
 {
   public static partial class MonkUtils
   {
-    public static async void RestoreKi(NwCreature creature, bool harmony = false)
+    public static async void RestoreKi(NwCreature creature)
     {
       byte? level = creature.GetClassInfo((ClassType)CustomClass.Monk)?.Level;
 
@@ -12,15 +12,6 @@ namespace NWN.Systems
         return;
 
       byte featUse = level.Value < 20 ? level.Value : (byte)20;
-
-      if (harmony)
-      {
-        byte remainingUses = creature.GetFeatRemainingUses((Feat)CustomSkill.MonkPatience);
-        byte restoredUses = (byte)(featUse / 2);
-
-        if (remainingUses + restoredUses < featUse)
-          featUse = (byte)(remainingUses + restoredUses);
-      }
 
       await NwTask.NextFrame();
 

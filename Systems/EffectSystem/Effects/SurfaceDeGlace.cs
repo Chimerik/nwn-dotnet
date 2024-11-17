@@ -11,7 +11,7 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onEnterSurfaceDeGlaceCallback;
     private static ScriptCallbackHandle onExitSurfaceDeGlaceCallback;
     private static ScriptCallbackHandle onHeartbeatSurfaceDeGlaceCallback;
-    public static Effect SurfaceDeGlace(int aoeSize)
+    public static Effect SurfaceDeGlace(float aoeSize)
     {
       var vfxType = aoeSize switch
       {

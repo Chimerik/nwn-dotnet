@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
@@ -9,7 +8,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string PacteDeLaLameDispelEffectTag = "_PACTE_DE_LA_LAME_DISPEL_EFFECT";
-    private static ScriptCallbackHandle onRemovePacteDeLaLameDispelCallback;
     private static ScriptCallbackHandle onIntervalPacteDeLaLameDispelCallback;
     
     public static Effect PacteDeLaLameDispel

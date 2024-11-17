@@ -25,7 +25,7 @@ namespace NWN.Systems
       int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, casterClass.SpellCastingAbility);
       bool evocateur = caster.KnowsFeat((Feat)CustomSkill.EvocateurFaconneurDeSorts);
 
-      caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfMysticalExplosion));
+      caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSoundBurst));
 
       foreach (NwCreature target in oCaster.Location.GetObjectsInShapeByType<NwCreature>(Shape.Cube, spellEntry.aoESize, false))
       {

@@ -5,7 +5,7 @@ namespace NWN.Systems
 {
   public static partial class ClercUtils
   {
-    public static async void RestoreInterventionDivine(NwCreature creature)
+    public static void RestoreInterventionDivine(NwCreature creature)
     {
       /*byte? level = creature.GetClassInfo(ClassType.Cleric)?.Level;
 

@@ -113,10 +113,7 @@ namespace NWN.Systems
         EffectUtils.RemoveTaggedEffect(target, WolfTotemAuraEffectTag);
       
       if (target.KnowsFeat((Feat)CustomSkill.BersekerFrenziedStrike))
-      {
         target.SetFeatRemainingUses((Feat)CustomSkill.BersekerFrenziedStrike, 0);
-        target.GetObjectVariable<LocalVariableInt>(CreatureUtils.FrappeFrenetiqueMalusVariable).Delete();
-      }
 
       if (target.KnowsFeat((Feat)CustomSkill.WildMagicSense))
       {

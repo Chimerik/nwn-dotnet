@@ -14,6 +14,9 @@ namespace NWN.Systems
         if (GetTargetStunnedAdvantage(eff))
           return true;
 
+        if (GetTargetFrappeEtourdissanteAdvantage(eff))
+          return true;
+
         if (GetTargetParalyzedAdvantage(eff))
           return true;
 

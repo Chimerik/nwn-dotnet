@@ -77,6 +77,10 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.AttaqueSupplementaire].LevelUp(player);
           player.learnableSkills[CustomSkill.AttaqueSupplementaire].source.Add(Category.Class);
 
+          player.learnableSkills.TryAdd(CustomSkill.FighterAvantageTactique, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterAvantageTactique], player));
+          player.learnableSkills[CustomSkill.FighterAvantageTactique].LevelUp(player);
+          player.learnableSkills[CustomSkill.FighterAvantageTactique].source.Add(Category.Class);
+
           CreatureUtils.InitializeNumAttackPerRound(player.oid.LoginCreature);
 
           break;
@@ -124,6 +128,10 @@ namespace NWN.Systems
 
           player.learnableSkills.TryAdd(CustomSkill.FighterInflexible, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterInflexible], player));
           player.learnableSkills[CustomSkill.FighterInflexible].LevelUp(player);
+
+          player.learnableSkills.TryAdd(CustomSkill.FighterAttaquesEtudiees, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterAttaquesEtudiees], player));
+          player.learnableSkills[CustomSkill.FighterAttaquesEtudiees].LevelUp(player);
+          player.learnableSkills[CustomSkill.FighterAttaquesEtudiees].source.Add(Category.Class);
 
           break;
 

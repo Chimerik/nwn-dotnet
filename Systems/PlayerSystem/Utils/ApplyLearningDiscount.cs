@@ -55,6 +55,16 @@ namespace NWN.Systems
             if (oid.LoginCreature.Classes.Any(c => Utils.In(c.Class.Id, CustomClass.Fighter)))
               learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 4;
 
+            if (oid.LoginCreature.Classes.Any(c => Utils.In(c.Class.Id, CustomClass.Monk)))
+            {
+              switch (learnable.id)
+              {
+                case CustomSkill.ShurikenProficiency:
+                case CustomSkill.ScimitarProficiency:
+                case CustomSkill.ShortSwordProficiency: learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 4; break;
+              }
+            }
+
             if (oid.LoginCreature.Classes.Any(c => Utils.In(c.Class.Id, CustomClass.Rogue)))
             {
               switch(learnable.id)

@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       private void InitializeMonkPerfection()
       {
-        if (oid.LoginCreature.Classes.Any(c => c.Class.Id == CustomClass.Monk && c.Level > 19))
+        if (oid.LoginCreature.Classes.Any(c => c.Class.Id == CustomClass.Monk && c.Level > 14))
         {
           oid.OnCombatStatusChange -= MonkUtils.OnCombatMonkRecoverKi;
           oid.OnCombatStatusChange += MonkUtils.OnCombatMonkRecoverKi;

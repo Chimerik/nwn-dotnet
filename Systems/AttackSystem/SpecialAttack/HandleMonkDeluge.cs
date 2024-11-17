@@ -16,6 +16,9 @@ namespace NWN.Systems
       combatRound.AddCleaveAttack(currentTarget.m_idSelf);
       combatRound.AddCleaveAttack(currentTarget.m_idSelf);
 
+      if(attacker.m_pStats.GetNumLevelsOfClass(CustomClass.Monk) > 9)
+        combatRound.AddCleaveAttack(currentTarget.m_idSelf);
+
       DelayMessage($"{attackerName.ColorString(ColorConstants.Cyan)} déchaîne un déluge de coups sur {targetName.ColorString(ColorConstants.Cyan)}", attacker);
     }
   }

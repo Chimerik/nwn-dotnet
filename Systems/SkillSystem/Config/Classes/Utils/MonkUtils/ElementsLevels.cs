@@ -16,10 +16,6 @@ namespace NWN.Systems
           new StrRef(10).SetPlayerOverride(player.oid, "Voie des Éléments");
           player.oid.SetTextureOverride("monk", "monk_elements");
 
-          player.learnableSkills.TryAdd(CustomSkill.MonkHarmony, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MonkHarmony], player));
-          player.learnableSkills[CustomSkill.MonkHarmony].LevelUp(player);
-          player.learnableSkills[CustomSkill.MonkHarmony].source.Add(Category.Class);
-
           if (!player.windows.TryGetValue("techniqueElementaireSelection", out var tech)) player.windows.Add("techniqueElementaireSelection", new TechniqueElementaireSelectionWindow(player, 3));
           else ((TechniqueElementaireSelectionWindow)tech).CreateWindow(3);
 
