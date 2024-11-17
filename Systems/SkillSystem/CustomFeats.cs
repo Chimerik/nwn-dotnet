@@ -318,9 +318,8 @@
 
     public const int BarbarianRagePersistante = 1599;
 
-    public const int ImpositionDesMainsMineure = 1600;
-    public const int ImpositionDesMainsMajeure = 1601;
-    public const int ImpositionDesMainsGuerison = 1602;
+    public const int ImpositionDesMains = 1600;
+
     public const int SensDivin = 1603;
     public const int ChatimentDivin = 1604;
     public const int RangerMageBreakerTrueStrike = 1605;
@@ -329,6 +328,7 @@
     public const int DevotionArmeSacree = 1608;
     public const int DevotionSaintesRepresailles = 1609;
     public const int DevotionRenvoiDesImpies = 1610;
+    public const int DevotionChatimentProtecteur = 1804;
     public const int DevotionNimbeSacree = 1611;
     public const int AnciensRenvoiDesInfideles = 1612;
     public const int AnciensGuerisonRayonnante = 1613;

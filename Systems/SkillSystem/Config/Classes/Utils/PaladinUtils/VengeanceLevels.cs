@@ -1,6 +1,4 @@
-﻿using System.Security.Cryptography;
-using Anvil.API;
-using NWN.Core;
+﻿using Anvil.API;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.SkillSystem;
 
@@ -17,17 +15,8 @@ namespace NWN.Systems
           new StrRef(12).SetPlayerOverride(player.oid, "Serment de Vengeance");
           player.oid.SetTextureOverride("paladin", "vengeance");
 
-          player.learnableSkills.TryAdd(CustomSkill.PaladinVoeuHostile, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PaladinVoeuHostile], player));
-          player.learnableSkills[CustomSkill.PaladinVoeuHostile].LevelUp(player);
-          player.learnableSkills[CustomSkill.PaladinVoeuHostile].source.Add(Category.Class);
-
-          player.learnableSkills.TryAdd(CustomSkill.PaladinPuissanceInquisitrice, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PaladinPuissanceInquisitrice], player));
-          player.learnableSkills[CustomSkill.PaladinPuissanceInquisitrice].LevelUp(player);
-          player.learnableSkills[CustomSkill.PaladinPuissanceInquisitrice].source.Add(Category.Class);
-
-          player.learnableSkills.TryAdd(CustomSkill.PaladinConspuerEnnemi, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PaladinConspuerEnnemi], player));
-          player.learnableSkills[CustomSkill.PaladinConspuerEnnemi].LevelUp(player);
-          player.learnableSkills[CustomSkill.PaladinConspuerEnnemi].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.PaladinVoeuHostile);
+          player.LearnClassSkill(CustomSkill.PaladinPuissanceInquisitrice);
 
           SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.MarqueDuChasseur, CustomClass.Paladin);
           SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Bane, CustomClass.Paladin);
@@ -44,9 +33,7 @@ namespace NWN.Systems
 
         case 7:
 
-          player.learnableSkills.TryAdd(CustomSkill.PaladinVengeurImplacable, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PaladinVengeurImplacable], player));
-          player.learnableSkills[CustomSkill.PaladinVengeurImplacable].LevelUp(player);
-          player.learnableSkills[CustomSkill.PaladinVengeurImplacable].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.PaladinVengeurImplacable);
 
           player.oid.LoginCreature.OnCreatureAttack -= PaladinUtils.OnAttackVengeurImplacable;
           player.oid.LoginCreature.OnCreatureAttack += PaladinUtils.OnAttackVengeurImplacable;
@@ -76,9 +63,7 @@ namespace NWN.Systems
 
         case 20:
 
-          player.learnableSkills.TryAdd(CustomSkill.AngeDeLaVengeance, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AngeDeLaVengeance], player));
-          player.learnableSkills[CustomSkill.AngeDeLaVengeance].LevelUp(player);
-          player.learnableSkills[CustomSkill.AngeDeLaVengeance].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.AngeDeLaVengeance);
 
           break;
       }

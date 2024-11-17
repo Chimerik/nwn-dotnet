@@ -106,15 +106,6 @@ namespace NWN.Systems
       onEnterAuraDeProtectionCallback = scriptHandleFactory.CreateUniqueHandler(onEnterProtectionAura);
       onExitAuraDeProtectionCallback = scriptHandleFactory.CreateUniqueHandler(onExitProtectionAura);
 
-      onEnterAuraDeCourageCallback = scriptHandleFactory.CreateUniqueHandler(onEnterCourageAura);
-      onExitAuraDeCourageCallback = scriptHandleFactory.CreateUniqueHandler(onExitCourageAura);
-
-      onEnterAuraDeDevotionCallback = scriptHandleFactory.CreateUniqueHandler(onEnterDevotionAura);
-      onExitAuraDeDevotionCallback = scriptHandleFactory.CreateUniqueHandler(onExitDevotionAura);
-
-      onEnterAuraDeGardeCallback = scriptHandleFactory.CreateUniqueHandler(onEnterGardeAura);
-      onExitAuraDeGardeCallback = scriptHandleFactory.CreateUniqueHandler(onExitGardeAura);
-
       onEnterGardienDeLaFoiCallback = scriptHandleFactory.CreateUniqueHandler(onEnterGardienDeLaFoiAura);
       onExitGardienDeLaFoiCallback = scriptHandleFactory.CreateUniqueHandler(onExitGardienDeLaFoiAura);
 

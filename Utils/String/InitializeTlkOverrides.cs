@@ -134,6 +134,20 @@ namespace NWN.Systems
       OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.ThiefDiscretionSupreme).Description.CustomId, SkillSystem.learnableDictionary[CustomSkill.ThiefDiscretionSupreme].description);
       OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.MonkLinceulDombre).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.MonkLinceulDombre].name);
       OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.MonkLinceulDombre).Description.CustomId, SkillSystem.learnableDictionary[CustomSkill.MonkLinceulDombre].description);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.PacteDeLaChaine).Description.CustomId, SkillSystem.learnableDictionary[CustomSkill.PacteDeLaChaine].description);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.PacteDeLaChaine).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.PacteDeLaChaine].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.FouleeEnjoleuse).Description.CustomId, SkillSystem.learnableDictionary[CustomSkill.FouleeEnjoleuse].description);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.FouleeEnjoleuse).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.FouleeEnjoleuse].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.FouleeEvanescente).Description.CustomId, SkillSystem.learnableDictionary[CustomSkill.FouleeEvanescente].description);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.FouleeEvanescente).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.FouleeEvanescente].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.FouleeProvocatrice).Description.CustomId, SkillSystem.learnableDictionary[CustomSkill.FouleeProvocatrice].description);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.FouleeProvocatrice).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.FouleeProvocatrice].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.FouleeRafraichissante).Description.CustomId, SkillSystem.learnableDictionary[CustomSkill.FouleeRafraichissante].description);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.FouleeRafraichissante).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.FouleeRafraichissante].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.FouleeRedoutable).Description.CustomId, SkillSystem.learnableDictionary[CustomSkill.FouleeRedoutable].description);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.FouleeRedoutable).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.FouleeRedoutable].name);
+
+
     }
 
     private static void OverrideTlkEntry(uint entry, string text)

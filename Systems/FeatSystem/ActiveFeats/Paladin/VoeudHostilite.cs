@@ -13,9 +13,6 @@ namespace NWN.Systems
         return;
       }
 
-      if (!CreatureUtils.HandleBonusActionUse(caster))
-        return;
-
       NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.VoeuDHostilite, NwTimeSpan.FromRounds(10)));
       target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpReduceAbilityScore));
 

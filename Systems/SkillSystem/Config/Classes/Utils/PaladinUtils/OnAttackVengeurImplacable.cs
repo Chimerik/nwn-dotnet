@@ -19,6 +19,7 @@ namespace NWN.Systems
           case AttackResult.AutomaticHit:
 
               onAttack.Attacker.ApplyEffect(EffectDuration.Temporary, EffectSystem.VengeurImplacable, NwTimeSpan.FromRounds(1));
+              onAttack.Target.ApplyEffect(EffectDuration.Temporary, Effect.MovementSpeedDecrease(99), NwTimeSpan.FromRounds(1));
 
             break;
         }

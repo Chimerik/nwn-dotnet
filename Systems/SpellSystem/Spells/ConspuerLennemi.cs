@@ -5,26 +5,24 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void ConspuerLennemi(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget)
+    public static void ConspuerLennemi(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry)
     {
-      if (oCaster is not NwCreature caster || oTarget is not NwCreature target) 
+      if (oCaster is not NwCreature caster) 
         return;
 
-      SpellUtils.SignalEventSpellCast(oCaster, target, spell.SpellType);
+      SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
 
-        int DC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(caster) + caster.GetAbilityModifier(Ability.Charisma);
+      int DC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(caster) + caster.GetAbilityModifier(Ability.Charisma);
+
+      foreach(var target in caster.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, spellEntry.aoESize, false))
 
       if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, DC) == SavingThrowResult.Failure)
       {
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpFearS));
-        EffectSystem.ApplyEffroi(target, caster, NwTimeSpan.FromRounds(spellEntry.duration));
+        EffectSystem.ApplyEffroi(target, caster, NwTimeSpan.FromRounds(spellEntry.duration), true);
       }
-      else
-      {
-        target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSlow));
-        NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, Effect.MovementSpeedDecrease(50), NwTimeSpan.FromRounds(spellEntry.duration)));
-      }
-      
+
+      caster.IncrementRemainingFeatUses((Feat)CustomSkill.PaladinConspuerEnnemi);
       PaladinUtils.ConsumeOathCharge(caster);
     }
   }

@@ -471,6 +471,7 @@ namespace NWN.Systems
       NwModule.Instance.OnEffectApply += EffectSystem.OnIncapacitatedRemoveThreatRange;
       NwModule.Instance.OnEffectApply += EffectSystem.OnIncapacitatedRemoveConcentration;
       NwModule.Instance.OnEffectApply += EffectSystem.OnApplyDamageImmunity;
+      NwModule.Instance.OnEffectApply += EffectSystem.OnApplyTemporaryHP;
 
       NwModule.Instance.OnEffectRemove += EffectSystem.OnEffectRemoved;
 

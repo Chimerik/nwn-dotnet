@@ -9,6 +9,9 @@ namespace NWN.Systems
   {
     private static void ChatimentDivin(NwCreature caster)
     {
+      if (!CreatureUtils.HandleBonusActionUse(caster))
+        return;
+
       NwItem weapon = caster.GetItemInSlot(InventorySlot.RightHand);
 
       if (weapon is not null && !ItemUtils.IsMeleeWeapon(weapon.BaseItem))
@@ -38,6 +41,18 @@ namespace NWN.Systems
 
       player.oid.LoginCreature.OnCreatureAttack -= PaladinUtils.OnAttackChatimentDivin;
       player.oid.LoginCreature.OnCreatureAttack += PaladinUtils.OnAttackChatimentDivin;
+
+      if(player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.DevotionChatimentProtecteur))
+      {
+        int range = player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).Level > 17 ? 9 : 3;
+        foreach(var target in player.oid.LoginCreature.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, range, false))
+        {
+          if (player.oid.LoginCreature.IsReactionTypeHostile(target))
+            continue;
+
+          target.ApplyEffect(EffectDuration.Temporary, Effect.ACIncrease(2), NwTimeSpan.FromRounds(1));
+        }
+      }
     }
   }
 }

@@ -105,7 +105,6 @@ namespace NWN.Systems
           damage = HandleSpellEvasion(targetCreature, damage, spellEntry.savingThrowAbility, saveResult, spell.Id, spellLevel);
           damage = ItemUtils.GetShieldMasterReducedDamage(targetCreature, damage, saveResult, spellEntry.savingThrowAbility);
           damage = WizardUtils.GetAbjurationReducedDamage(targetCreature, damage);
-          damage = PaladinUtils.GetAuraDeGardeReducedDamage(targetCreature, damage);
           damage = ClercUtils.GetAttenuationElementaireReducedDamage(targetCreature, damage, appliedDamage);
           damage = HandleResistanceBypass(targetCreature, isElementalist, isEvocateurSurcharge, damage, appliedDamage);
         }

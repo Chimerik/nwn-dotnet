@@ -166,11 +166,9 @@ namespace NWN.Systems
         case CustomSkill.BelluaireSpiderWeb: SpiderWeb(onUseFeat.Creature, onUseFeat.TargetObject is null ? onUseFeat.TargetPosition : onUseFeat.TargetObject.Position); return;
         case CustomSkill.BelluaireSpiderCocoon: SpiderCocoon(onUseFeat.Creature, onUseFeat.TargetObject); return;
 
-        case CustomSkill.ImpositionDesMainsMineure: ImpositionDesMainsMineure(onUseFeat.Creature, onUseFeat.TargetObject); return;
-        case CustomSkill.ImpositionDesMainsMajeure: ImpositionDesMainsMajeure(onUseFeat.Creature, onUseFeat.TargetObject); return;
-        case CustomSkill.ImpositionDesMainsGuerison: ImpositionDesMainsGuerison(onUseFeat.Creature, onUseFeat.TargetObject); return;
         case CustomSkill.SensDivin: SensDivin(onUseFeat.Creature); return;
         case CustomSkill.ChatimentDivin: ChatimentDivin(onUseFeat.Creature); return;
+        case CustomSkill.AuraDeProtection: AuraDeProtection(onUseFeat.Creature); return;
         case CustomSkill.DevotionSaintesRepresailles: SaintesRepresailles(onUseFeat.Creature, onUseFeat.TargetObject); return;
         case CustomSkill.DevotionNimbeSacree: NimbeSacree(onUseFeat.Creature); return;
         case CustomSkill.AnciensGuerisonRayonnante: GuerisonRayonnante(onUseFeat.Creature); return;

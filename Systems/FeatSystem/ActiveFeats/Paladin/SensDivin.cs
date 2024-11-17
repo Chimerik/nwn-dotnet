@@ -14,7 +14,7 @@ namespace NWN.Systems
 
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Sens Divin", StringUtils.gold, true);
 
-      caster.DecrementRemainingFeatUses((Feat)CustomSkill.SensDivin);
+      PaladinUtils.ConsumeOathCharge(caster);
     }
   }
 }

@@ -507,9 +507,6 @@ namespace NWN.Systems
         ApplyDefenseAdaptative();
         ApplyTraqueurRedoutable();
         ApplyAuraDeProtection();
-        ApplyAuraDeCourage();
-        ApplyAuraDeDevotion();
-        ApplyAuraDeGarde();
         ApplyPureteDeLesprit();
         ApplySentinelleImmortelle();
         ApplyVengeurImplacable();

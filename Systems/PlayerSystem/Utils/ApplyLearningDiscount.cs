@@ -12,7 +12,7 @@ namespace NWN.Systems
         switch(learnable.id)
         {
           case CustomSkill.HeavyArmorProficiency:
-            if (oid.LoginCreature.Classes.Any(c => c.Class.Id == CustomClass.Fighter) 
+            if (oid.LoginCreature.Classes.Any(c => Utils.In(c.Class.Id, CustomClass.Fighter, CustomClass.Paladin)) 
               || oid.LoginCreature.KnowsFeat((Feat)CustomSkill.RangerChevalier)
               || oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ClercProtecteur))
               learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 4;

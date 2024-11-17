@@ -186,5 +186,8 @@
     public const int FrappeDivineNecrotique = 1028;
     public const int SecondSouffle = 1030;
     public const int EspritTactique = 1031;
+    public const int ImpositionDesMainsMineure = 1033;
+    public const int ImpositionDesMainsMajeure = 1034;
+    public const int ImpositionDesMainsGuerison = 1035;
   }
 }

@@ -63,21 +63,7 @@ namespace NWN.Systems
 
           // On donne les autres capacités de niveau 1
 
-          player.learnableSkills.TryAdd(CustomSkill.ImpositionDesMainsMineure, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ImpositionDesMainsMineure], player));
-          player.learnableSkills[CustomSkill.ImpositionDesMainsMineure].LevelUp(player);
-          player.learnableSkills[CustomSkill.ImpositionDesMainsMineure].source.Add(Category.Class);
-
-          player.learnableSkills.TryAdd(CustomSkill.ImpositionDesMainsMajeure, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ImpositionDesMainsMajeure], player));
-          player.learnableSkills[CustomSkill.ImpositionDesMainsMajeure].LevelUp(player);
-          player.learnableSkills[CustomSkill.ImpositionDesMainsMajeure].source.Add(Category.Class);
-
-          player.learnableSkills.TryAdd(CustomSkill.ImpositionDesMainsGuerison, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ImpositionDesMainsGuerison], player));
-          player.learnableSkills[CustomSkill.ImpositionDesMainsGuerison].LevelUp(player);
-          player.learnableSkills[CustomSkill.ImpositionDesMainsGuerison].source.Add(Category.Class);
-
-          player.learnableSkills.TryAdd(CustomSkill.SensDivin, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SensDivin], player));
-          player.learnableSkills[CustomSkill.SensDivin].LevelUp(player);
-          player.learnableSkills[CustomSkill.SensDivin].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.ImpositionDesMains);
 
           break;
 
@@ -86,10 +72,7 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("fightingStyleSelection", out var style)) player.windows.Add("fightingStyleSelection", new FightingStyleSelectionWindow(player, CustomSkill.Paladin));
           else ((FightingStyleSelectionWindow)style).CreateWindow(CustomSkill.Paladin);
 
-          player.learnableSkills.TryAdd(CustomSkill.ChatimentDivin, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ChatimentDivin], player));
-          player.learnableSkills[CustomSkill.ChatimentDivin].LevelUp(player);
-          player.learnableSkills[CustomSkill.ChatimentDivin].source.Add(Category.Class);
-
+          player.LearnClassSkill(CustomSkill.ChatimentDivin);
           player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ChatimentDivin, player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).GetRemainingSpellSlots(1));
 
           break;
@@ -101,7 +84,7 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("subClassSelection", out var value)) player.windows.Add("subClassSelection", new SubClassSelectionWindow(player));
           else ((SubClassSelectionWindow)value).CreateWindow();
 
-          player.oid.LoginCreature.AddFeat(Feat.DivineHealth);
+          player.LearnClassSkill(CustomSkill.SensDivin);
 
           break;
 
@@ -114,21 +97,12 @@ namespace NWN.Systems
 
         case 5:
 
-          player.learnableSkills.TryAdd(CustomSkill.AttaqueSupplementaire, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AttaqueSupplementaire], player));
-          player.learnableSkills[CustomSkill.AttaqueSupplementaire].LevelUp(player);
-          player.learnableSkills[CustomSkill.AttaqueSupplementaire].source.Add(Category.Class);
-
+          player.LearnClassSkill(CustomSkill.AttaqueSupplementaire);
           CreatureUtils.InitializeNumAttackPerRound(player.oid.LoginCreature);
             
             break;
 
-        case 6:
-
-          player.learnableSkills.TryAdd(CustomSkill.AuraDeProtection, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AuraDeProtection], player));
-          player.learnableSkills[CustomSkill.AuraDeProtection].LevelUp(player);
-          player.learnableSkills[CustomSkill.AuraDeProtection].source.Add(Category.Class);
-
-          break;
+        case 6: player.LearnClassSkill(CustomSkill.AuraDeProtection); break;
 
         case 8:
 
@@ -137,21 +111,20 @@ namespace NWN.Systems
 
           break;
 
+        case 9: player.LearnClassSkill(CustomSkill.PaladinConspuerEnnemi); break;
+
         case 10:
 
-          player.learnableSkills.TryAdd(CustomSkill.AuraDeCourage, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AuraDeCourage], player));
-          player.learnableSkills[CustomSkill.AuraDeCourage].LevelUp(player);
-          player.learnableSkills[CustomSkill.AuraDeCourage].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.AuraDeCourage);
+
+          EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.AuraDeProtectionEffectTag);
+
+          player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.AuraDeProtection(player.oid.LoginCreature, 10));
+          UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>().SetRadius(3);
 
           break;
 
-        case 11:
-
-          player.learnableSkills.TryAdd(CustomSkill.PaladinChatimentAmeliore, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PaladinChatimentAmeliore], player));
-          player.learnableSkills[CustomSkill.PaladinChatimentAmeliore].LevelUp(player);
-          player.learnableSkills[CustomSkill.PaladinChatimentAmeliore].source.Add(Category.Class);
-
-          break;
+        case 11: player.LearnClassSkill(CustomSkill.PaladinChatimentAmeliore); break;
 
         case 12:
 
@@ -169,10 +142,7 @@ namespace NWN.Systems
 
         case 18:
 
-          EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.AuraDeCourageEffectTag, EffectSystem.AuraDeProtectionEffectTag);
-          player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.AuraDeCourage(player.oid.LoginCreature, 18));
-          UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>().SetRadius(9);
-
+          EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.AuraDeProtectionEffectTag);
           player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.AuraDeProtection(player.oid.LoginCreature, 18));
           UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>().SetRadius(9);
 
@@ -185,8 +155,6 @@ namespace NWN.Systems
 
           break;
       }
-
-      PaladinUtils.RestorePaladinCharges(player.oid.LoginCreature);
     }
   }
 }

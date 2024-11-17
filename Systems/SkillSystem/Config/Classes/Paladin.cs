@@ -37,6 +37,7 @@ namespace NWN.Systems
         learnableDictionary[CustomSkill.LongBowProficiency],
         learnableDictionary[CustomSkill.ShurikenProficiency],
         learnableDictionary[CustomSkill.WhipProficiency],
+        learnableDictionary[CustomSkill.HeavyArmorProficiency],
       },
       new List<Learnable>()
       {

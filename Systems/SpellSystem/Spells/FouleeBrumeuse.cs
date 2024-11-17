@@ -39,8 +39,11 @@ namespace NWN.Systems
             StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} - Foulée Provocatrice", StringUtils.gold, true, true);
             int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, Ability.Charisma);
 
-            foreach (NwCreature target in targetLocation.GetNearestCreatures(CreatureTypeFilter.Alive(true), CreatureTypeFilter.Reputation(ReputationType.Enemy)))
+            foreach (NwCreature target in targetLocation.GetNearestCreatures(CreatureTypeFilter.Alive(true)))
             {
+              if (!caster.IsReactionTypeHostile(target))
+                continue;
+
               if (caster.DistanceSquared(target) > 15)
                 break;
 
@@ -60,8 +63,11 @@ namespace NWN.Systems
 
             int dc = SpellUtils.GetCasterSpellDC(oCaster, spell, Ability.Charisma);
 
-            foreach (NwCreature target in caster.Location.GetNearestCreatures(CreatureTypeFilter.Alive(true), CreatureTypeFilter.Reputation(ReputationType.Enemy)))
+            foreach (NwCreature target in caster.Location.GetNearestCreatures(CreatureTypeFilter.Alive(true)))
             {
+              if (!caster.IsReactionTypeHostile(target))
+                continue;
+
               if (caster.DistanceSquared(target) > 15)
                 break;
 
@@ -72,8 +78,11 @@ namespace NWN.Systems
               }
             }
 
-            foreach (NwCreature target in targetLocation.GetNearestCreatures(CreatureTypeFilter.Alive(true), CreatureTypeFilter.Reputation(ReputationType.Enemy)))
+            foreach (NwCreature target in targetLocation.GetNearestCreatures(CreatureTypeFilter.Alive(true)))
             {
+              if (!caster.IsReactionTypeHostile(target))
+                continue;
+
               if (caster.DistanceSquared(target) > 15)
                 break;
 

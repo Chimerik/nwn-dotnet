@@ -518,7 +518,7 @@ namespace NWN.Systems
           break;
 
         case CustomSpell.DevotionArmeSacree:
-          SpellSystem.ArmeSacree(oCaster, spell, spellEntry, target);
+          SpellSystem.ArmeSacree(oCaster, spell, spellEntry);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -533,7 +533,7 @@ namespace NWN.Systems
           break;
 
         case CustomSpell.ConspuerLennemi:
-          SpellSystem.ConspuerLennemi(oCaster, spell, spellEntry, target);
+          SpellSystem.ConspuerLennemi(oCaster, spell, spellEntry);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -989,6 +989,21 @@ namespace NWN.Systems
 
         case CustomSpell.EspritTactique:
           SpellSystem.EspritTactique(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.ImpositionDesMainsMineure:
+          SpellSystem.ImpositionDesMainsMineure(oCaster, target, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.ImpositionDesMainsMajeure:
+          SpellSystem.ImpositionDesMainsMajeure(oCaster, target, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.ImpositionDesMainsGuerison:
+          SpellSystem.ImpositionDesMainsGuerison(oCaster, target, spell, spellEntry);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
       }
