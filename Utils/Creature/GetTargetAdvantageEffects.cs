@@ -11,6 +11,9 @@ namespace NWN.Systems
         if (GetKnockdownMeleeAdvantage(eff, rangedAttack))
           return true;
 
+        if (GetRangerPrecisAdvantage(eff, attacker))
+          return true;
+
         if (GetTargetStunnedAdvantage(eff))
           return true;
 

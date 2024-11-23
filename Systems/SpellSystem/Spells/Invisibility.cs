@@ -14,6 +14,9 @@ namespace NWN.Systems
       foreach(var target in targets)
         DelayInvisEffect(oCaster, target, spellEntry, feat);
 
+      if (feat is not null)
+        return new List<NwGameObject>();
+
       return targets;
     }
     private static async void DelayInvisEffect(NwGameObject oCaster, NwGameObject oTarget, SpellEntry spellEntry, NwFeat feat)
@@ -36,6 +39,11 @@ namespace NWN.Systems
           case CustomSkill.ClercLinceulDombre:
             caster.IncrementRemainingFeatUses(feat.FeatType);
             ClercUtils.ConsumeConduitDivin(caster);
+            break;
+
+          case CustomSkill.RangerVoileNaturel:
+            duration = NwTimeSpan.FromRounds(1);
+            caster.DecrementRemainingFeatUses(feat.FeatType);
             break;
         }
       }

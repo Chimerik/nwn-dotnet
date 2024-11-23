@@ -32,17 +32,17 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("skillProficiencySelection", out var skill3)) player.windows.Add("skillProficiencySelection", new SkillProficiencySelectionWindow(player, skillList, 2, CustomSkill.ClercSavoir));
           else ((SkillProficiencySelectionWindow)skill3).CreateWindow(skillList, 2, CustomSkill.ClercSavoir);
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.Injonction, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Identify, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.Augure, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.HoldPerson, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.Injonction, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.Identify, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.Augure, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.HoldPerson, CustomClass.Clerc);
 
           break;
 
         case 5:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.CommunicationAvecLesMorts, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.Antidetection, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.CommunicationAvecLesMorts, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.Antidetection, CustomClass.Clerc);
 
           break;
 
@@ -56,15 +56,15 @@ namespace NWN.Systems
 
         case 7:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.OeilMagique, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Confusion, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.OeilMagique, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.Confusion, CustomClass.Clerc);
 
           break;
 
         case 9:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.Scrutation, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.LegendLore, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.Scrutation, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.LegendLore, CustomClass.Clerc);
 
           break;
 

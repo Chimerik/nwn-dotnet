@@ -6,9 +6,9 @@ namespace NWN.Systems
   {
     public static bool OnLearnTerrePolaire(PlayerSystem.Player player, int customSkillId)
     {
-      SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.BurningHands, CustomClass.Druid);
-      SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.GhostlyVisage, CustomClass.Druid);
-      SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.FireBolt, CustomClass.Druid);
+      player.LearnAlwaysPreparedSpell((int)Spell.BurningHands, CustomClass.Druid);
+      player.LearnAlwaysPreparedSpell((int)Spell.GhostlyVisage, CustomClass.Druid);
+      player.LearnAlwaysPreparedSpell(CustomSpell.FireBolt, CustomClass.Druid);
 
       return true;
     }

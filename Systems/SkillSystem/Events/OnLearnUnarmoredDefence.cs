@@ -12,9 +12,7 @@ namespace NWN.Systems
       player.oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipUnarmoredDefence;
       player.oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipUnarmoredDefence;
 
-      NwItem armor = player.oid.LoginCreature.GetItemInSlot(InventorySlot.Chest);
-
-      if (armor is null || armor.BaseACValue < 1)
+      if (!ItemUtils.IsArmor(player.oid.LoginCreature.GetItemInSlot(InventorySlot.Chest)))
       {
         player.oid.LoginCreature.OnHeartbeat -= CreatureUtils.OnHeartBeatCheckUnarmoredDefence;
         player.oid.LoginCreature.OnHeartbeat += CreatureUtils.OnHeartBeatCheckUnarmoredDefence;

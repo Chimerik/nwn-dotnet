@@ -20,6 +20,7 @@ namespace NWN.Systems
         private readonly NuiBind<int> rowCount = new("rowCount");
 
         private readonly List<LearnableSkill> expertises = new();
+        private int nbExpertise;
 
         public ExpertiseChoiceWindow(Player player) : base(player)
         {
@@ -43,6 +44,8 @@ namespace NWN.Systems
         public void CreateWindow()
         {
           expertises.Clear();
+          nbExpertise = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_EXPERTISE_CHOICE").HasValue ?
+            player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_EXPERTISE_CHOICE").Value : 2;
 
           foreach (var expertise in SkillSystem.learnableDictionary.Values.Where(l => l is LearnableSkill learnable && learnable.category == SkillSystem.Category.Expertise))
             if (!player.learnableSkills.TryGetValue(expertise.id, out LearnableSkill learnable) || learnable.currentLevel < 1)
@@ -58,7 +61,7 @@ namespace NWN.Systems
 
           NuiRect savedRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(player.guiScaledWidth * 0.4f, player.guiHeight * 0.15f, player.guiScaledWidth * 0.4f, player.guiScaledHeight * 0.55f);
 
-          window = new NuiWindow(rootColumn, "Choisissez 2 expertises")
+          window = new NuiWindow(rootColumn, $"Choisissez {nbExpertise} expertise(s)")
           {
             Geometry = geometry,
             Resizable = false,
@@ -96,13 +99,13 @@ namespace NWN.Systems
                     if (checkedList[i])
                       toLearn.Add(expertises[i]);
 
-                  if (toLearn.Count > 2)
+                  if (toLearn.Count > nbExpertise)
                   {
-                    player.oid.SendServerMessage("Veuillez sélectionner jusqu'à 2 expertises");
+                    player.oid.SendServerMessage($"Veuillez sélectionner jusqu'à {nbExpertise} expertise(s)");
                     return;
                   }
 
-                  if (toLearn.Count == 2 || expertises.Count == toLearn.Count || expertises.Count < 1)
+                  if (toLearn.Count == nbExpertise || expertises.Count == toLearn.Count || expertises.Count < 1)
                   {
                     player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_EXPERTISE_CHOICE").Delete();
 
@@ -115,7 +118,7 @@ namespace NWN.Systems
                     CloseWindow();
                   }
                   else
-                    player.oid.SendServerMessage($"Veuillez sélectionner jusqu'à 2 manoeuvres avant de valider");
+                    player.oid.SendServerMessage($"Veuillez sélectionner jusqu'à {nbExpertise} expertise(s)");
 
                   return;
               }

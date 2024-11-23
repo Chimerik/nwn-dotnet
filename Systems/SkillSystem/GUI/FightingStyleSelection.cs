@@ -99,7 +99,7 @@ namespace NWN.Systems
               CustomSkill.Ranger => learnableDictionary.Values.Where(s => s is LearnableSkill ls && Utils.In(s.id, CustomSkill.FighterCombatStyleArchery, CustomSkill.FighterCombatStyleDuel, CustomSkill.FighterCombatStyleDualWield, CustomSkill.FighterCombatStyleDefense)
               && (!player.learnableSkills.ContainsKey(s.id) || player.learnableSkills[s.id].currentLevel < s.maxLevel)).OrderBy(s => s.name),
 
-              CustomSkill.Paladin => learnableDictionary.Values.Where(s => s is LearnableSkill ls && Utils.In(s.id, CustomSkill.FighterCombatStyleDuel, CustomSkill.FighterCombatStyleDefense, CustomSkill.FighterCombatStyleProtection, CustomSkill.FighterCombatStyleTwoHanded)
+              CustomSkill.Paladin => learnableDictionary.Values.Where(s => s is LearnableSkill ls && Utils.In(s.id, CustomSkill.FighterCombatStyleDuel, CustomSkill.FighterCombatStyleDefense, CustomSkill.FighterCombatStyleProtection, CustomSkill.FighterCombatStyleTwoHanded, CustomSkill.RangerGuerrierDruidique)
               && (!player.learnableSkills.ContainsKey(s.id) || player.learnableSkills[s.id].currentLevel < s.maxLevel)).OrderBy(s => s.name),
 
               _ => learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.FightingStyle 

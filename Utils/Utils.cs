@@ -124,6 +124,10 @@ namespace NWN
     {
       return set.Contains(me);
     }
+    public static bool In(this BaseItemType me, params BaseItemType[] set)
+    {
+      return set.Contains(me);
+    }
     public static bool In(this EffectType me, params EffectType[] set)
     {
       return set.Contains(me);

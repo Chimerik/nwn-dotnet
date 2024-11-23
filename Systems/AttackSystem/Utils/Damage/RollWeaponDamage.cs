@@ -24,7 +24,6 @@ namespace NWN.Systems
 
       damage += GetDegatsBotte(creature)
         + GetDegatsVaillantsBonus(creature)
-        + GetFavoredEnemyDegatsBonus(creature, target)
         + GetSuperiorityDiceDamage(creature)
         + GetBarbarianRageBonusDamage(creature, attackAbility, !attackData.m_bRangedAttack.ToBool())
         + GetFrappeFrenetiqueBonusDamage(creature, attackAbility, !attackData.m_bRangedAttack.ToBool())

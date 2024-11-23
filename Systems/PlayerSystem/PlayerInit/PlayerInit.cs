@@ -437,13 +437,11 @@ namespace NWN.Systems
         InitializeTerreDeCercleChoice();
         InitializeFureurElementaireChoice();
         InitializeFrappesBeniesChoice();
+        InitializeChasseurProieChoice();
         InitializeAffiniteElementaireChoice();
-        InitializeRangerArchetypeChoice();
         InitializeHunterTactiqueDefensiveChoice();
         InitializeHunterDefenseSuperieureChoice();
         InitializeBelluaireCompanionChoice();
-        InitializeHunterProieChoice();
-        InitializeFavoredEnemyChoice();
         InitializeSubClassChoice();
         InitializeManoeuvreChoice();
         InitializeTirArcaniqueChoice();
@@ -467,6 +465,7 @@ namespace NWN.Systems
         ApplyUltimeSurvivant();
         ApplyShieldArmorMalus();
         ApplyUnarmoredDefence();
+        ApplyVagabondage();
         ApplyResistanceDraconique();
         ApplyMonkUnarmoredDefence();
         InitializeActionSurge();
@@ -496,10 +495,6 @@ namespace NWN.Systems
         ApplyInspirationSuperieure();
         ApplyMagieDeCombat();
         ApplyEscrime();
-        ApplyColdWanderer();
-        ApplyFireWanderer();
-        ApplyPoisonWanderer();
-        ApplyAcidWanderer();
         ApplyCoeurDeLaTempete();
         ApplyAmeDesVents();
         ApplyFureurTempete();

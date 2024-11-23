@@ -24,9 +24,9 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.FormeSauvageOurs].LevelUp(player);
           player.learnableSkills[CustomSkill.FormeSauvageOurs].source.Add(Category.Class);
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.CureModerateWounds, CustomClass.Druid);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.RayonDeLune, CustomClass.Druid);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.LueurEtoilee, CustomClass.Druid);
+          player.LearnAlwaysPreparedSpell((int)Spell.CureModerateWounds, CustomClass.Druid);
+          player.LearnAlwaysPreparedSpell(CustomSpell.RayonDeLune, CustomClass.Druid);
+          player.LearnAlwaysPreparedSpell(CustomSpell.LueurEtoilee, CustomClass.Druid);
           
           break;
 
@@ -40,7 +40,7 @@ namespace NWN.Systems
 
         case 5:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.SummonCreatureIii, CustomClass.Druid);
+          player.LearnAlwaysPreparedSpell((int)Spell.SummonCreatureIii, CustomClass.Druid);
 
           break;
 
@@ -58,7 +58,7 @@ namespace NWN.Systems
 
         case 7:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.PuitsDeLune, CustomClass.Druid);
+          player.LearnAlwaysPreparedSpell(CustomSpell.PuitsDeLune, CustomClass.Druid);
 
           break;
 
@@ -72,7 +72,7 @@ namespace NWN.Systems
 
         case 9:
 
-            SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.MassHeal, CustomClass.Druid);
+            player.LearnAlwaysPreparedSpell((int)Spell.MassHeal, CustomClass.Druid);
 
           break;
 

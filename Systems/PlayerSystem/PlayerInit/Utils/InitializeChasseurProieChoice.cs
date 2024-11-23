@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      private void InitializeHunterProieChoice()
+      private void InitializeChasseurProieChoice()
       {
         if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_HUNTER_PROIE_SELECTION").HasValue)
         {

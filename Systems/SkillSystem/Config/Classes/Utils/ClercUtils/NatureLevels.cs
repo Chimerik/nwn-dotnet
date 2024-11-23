@@ -29,17 +29,17 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.ClercCharmePlanteEtAnimaux].LevelUp(player);
           player.learnableSkills[CustomSkill.ClercCharmePlanteEtAnimaux].source.Add(Category.Class);
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.AmitieAnimale, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.SpeakAnimal, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.CroissanceDepines, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Barkskin, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.AmitieAnimale, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.SpeakAnimal, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.CroissanceDepines, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.Barkskin, CustomClass.Clerc);
 
           break;
 
         case 5:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.TempeteDeNeige, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.CroissanceVegetale, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.TempeteDeNeige, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.CroissanceVegetale, CustomClass.Clerc);
 
           break;
 
@@ -53,15 +53,15 @@ namespace NWN.Systems
 
         case 7:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.LianeAvide, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.DominateAnimal, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.LianeAvide, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.DominateAnimal, CustomClass.Clerc);
 
           break;
 
         case 9:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.MurDePierre, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.FleauDinsectes, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.MurDePierre, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.FleauDinsectes, CustomClass.Clerc);
 
           break;
 

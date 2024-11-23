@@ -28,13 +28,13 @@ namespace NWN.Systems
         case 5:
 
           if(player.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerreAride))
-            SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Fireball, CustomClass.Druid);
+            player.LearnAlwaysPreparedSpell((int)Spell.Fireball, CustomClass.Druid);
           else if (player.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerrePolaire))
-            SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.TempeteDeNeige, CustomClass.Druid);
+            player.LearnAlwaysPreparedSpell(CustomSpell.TempeteDeNeige, CustomClass.Druid);
           else if (player.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerreTempere))
-            SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.LightningBolt, CustomClass.Druid);
+            player.LearnAlwaysPreparedSpell((int)Spell.LightningBolt, CustomClass.Druid);
           else if (player.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerreTropicale))
-            SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.StinkingCloud, CustomClass.Druid);
+            player.LearnAlwaysPreparedSpell((int)Spell.StinkingCloud, CustomClass.Druid);
 
           break;
 
@@ -53,26 +53,26 @@ namespace NWN.Systems
         case 7:
           
           if (player.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerreAride))
-            SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Enervation, CustomClass.Druid);
+            player.LearnAlwaysPreparedSpell((int)Spell.Enervation, CustomClass.Druid);
           else if (player.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerrePolaire))
-            SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.IceStorm, CustomClass.Druid);
+            player.LearnAlwaysPreparedSpell((int)Spell.IceStorm, CustomClass.Druid);
           else if (player.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerreTempere))
-            SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.FreedomOfMovement, CustomClass.Druid);
+            player.LearnAlwaysPreparedSpell((int)Spell.FreedomOfMovement, CustomClass.Druid);
           else if (player.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerreTropicale))
-            SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.PolymorphSelf, CustomClass.Druid);
+            player.LearnAlwaysPreparedSpell((int)Spell.PolymorphSelf, CustomClass.Druid);
           
           break;
 
         case 9:
 
           if (player.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerreAride))
-            SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.MurDePierre, CustomClass.Druid);
+            player.LearnAlwaysPreparedSpell(CustomSpell.MurDePierre, CustomClass.Druid);
           else if (player.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerrePolaire))
-            SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.ConeOfCold, CustomClass.Druid);
+            player.LearnAlwaysPreparedSpell((int)Spell.ConeOfCold, CustomClass.Druid);
           else if (player.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerreTempere))
-            SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.PassageParLesArbres, CustomClass.Druid);
+            player.LearnAlwaysPreparedSpell(CustomSpell.PassageParLesArbres, CustomClass.Druid);
           else if (player.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerreTropicale))
-            SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.FleauDinsectes, CustomClass.Druid);
+            player.LearnAlwaysPreparedSpell(CustomSpell.FleauDinsectes, CustomClass.Druid);
 
           break;
 

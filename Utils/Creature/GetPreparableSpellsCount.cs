@@ -25,6 +25,7 @@ namespace NWN.Systems
           return nbPreparableSpells;
 
         case CustomClass.Paladin:
+        case CustomClass.Ranger:
 
           nbPreparableSpells += 2 + classLevel;
 

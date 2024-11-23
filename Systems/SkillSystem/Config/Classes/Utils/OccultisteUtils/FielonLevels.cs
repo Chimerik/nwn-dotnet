@@ -15,10 +15,10 @@ namespace NWN.Systems
           NwClass.FromClassId(CustomClass.Occultiste).Name.SetPlayerOverride(player.oid, "Mécène Fiélon");
           player.oid.SetTextureOverride("occultiste", "warlock_fielon");
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.BurningHands, CustomClass.Occultiste);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Firebrand, CustomClass.Occultiste);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.Injonction, CustomClass.Occultiste);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.Suggestion, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell((int)Spell.BurningHands, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell((int)Spell.Firebrand, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell(CustomSpell.Injonction, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell(CustomSpell.Suggestion, CustomClass.Occultiste);
           
 
           player.learnableSkills.TryAdd(CustomSkill.BenedictionDuMalin, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BenedictionDuMalin], player));
@@ -29,8 +29,8 @@ namespace NWN.Systems
 
         case 5:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.StinkingCloud, CustomClass.Occultiste);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Fireball, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell((int)Spell.StinkingCloud, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell((int)Spell.Fireball, CustomClass.Occultiste);
 
           break;
 
@@ -44,15 +44,15 @@ namespace NWN.Systems
 
         case 7:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.WallOfFire, CustomClass.Occultiste);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.ElementalShield, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell((int)Spell.WallOfFire, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell((int)Spell.ElementalShield, CustomClass.Occultiste);
 
           break;
 
         case 9:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.FleauDinsectes, CustomClass.Occultiste);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.Quete, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell(CustomSpell.FleauDinsectes, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell(CustomSpell.Quete, CustomClass.Occultiste);
 
           break;
 

@@ -27,17 +27,17 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.ClercFureurDestructrice].LevelUp(player);
           player.learnableSkills[CustomSkill.ClercFureurDestructrice].source.Add(Category.Class);
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.NappeDeBrouillard, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Balagarnsironhorn, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.Fracassement, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.GustOfWind, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.NappeDeBrouillard, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.Balagarnsironhorn, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.Fracassement, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.GustOfWind, CustomClass.Clerc);
 
           break;
 
         case 5:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.TempeteDeNeige, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.CallLightning, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.TempeteDeNeige, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.CallLightning, CustomClass.Clerc);
 
           break;
 
@@ -51,15 +51,15 @@ namespace NWN.Systems
 
         case 7:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.ControleDeLeau, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.IceStorm, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.ControleDeLeau, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.IceStorm, CustomClass.Clerc);
 
           break;
 
         case 9:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.FleauDinsectes, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.VagueDestructrice, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.FleauDinsectes, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.VagueDestructrice, CustomClass.Clerc);
 
           break;
 

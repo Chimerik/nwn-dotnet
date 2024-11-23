@@ -145,6 +145,7 @@ namespace NWN.Systems
         case CustomSkill.BotteDefensiveDeMaitre: BotteDefensiveDeMaitre(onUseFeat.Creature); return;
         case CustomSkill.BotteTranchanteDeMaitre: BotteTranchanteDeMaitre(onUseFeat.Creature); return;
 
+        case CustomSkill.RangerInfatiguable: Infatiguable(onUseFeat.Creature); return;
         case CustomSkill.ChasseurVolee: Volee(onUseFeat.Creature); return;
 
         case CustomSkill.BelluaireBear: 

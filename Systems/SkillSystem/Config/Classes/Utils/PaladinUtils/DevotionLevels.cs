@@ -21,15 +21,15 @@ namespace NWN.Systems
           player.LearnClassSkill(CustomSkill.DevotionSaintesRepresailles);
           player.LearnClassSkill(CustomSkill.DevotionRenvoiDesImpies);
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.ProtectionContreLeMalEtLeBien, CustomClass.Paladin);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.ShieldOfFaith, CustomClass.Paladin);
+          player.LearnAlwaysPreparedSpell(CustomSpell.ProtectionContreLeMalEtLeBien, CustomClass.Paladin);
+          player.LearnAlwaysPreparedSpell((int)Spell.ShieldOfFaith, CustomClass.Paladin);
 
           break;
 
         case 5:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Aid, CustomClass.Paladin);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.LesserRestoration, CustomClass.Paladin);
+          player.LearnAlwaysPreparedSpell((int)Spell.Aid, CustomClass.Paladin);
+          player.LearnAlwaysPreparedSpell((int)Spell.LesserRestoration, CustomClass.Paladin);
 
           break;
 
@@ -44,15 +44,15 @@ namespace NWN.Systems
 
         case 9:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.DispelMagic, CustomClass.Paladin);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.LueurDespoir, CustomClass.Paladin);
+          player.LearnAlwaysPreparedSpell((int)Spell.DispelMagic, CustomClass.Paladin);
+          player.LearnAlwaysPreparedSpell(CustomSpell.LueurDespoir, CustomClass.Paladin);
 
           break;
 
         case 13:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.FreedomOfMovement, CustomClass.Paladin);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.GardienDeLaFoi, CustomClass.Paladin);
+          player.LearnAlwaysPreparedSpell((int)Spell.FreedomOfMovement, CustomClass.Paladin);
+          player.LearnAlwaysPreparedSpell(CustomSpell.GardienDeLaFoi, CustomClass.Paladin);
 
           break;
 
@@ -60,8 +60,8 @@ namespace NWN.Systems
 
         case 17:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.FlameStrike, CustomClass.Paladin);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.Communion, CustomClass.Paladin);
+          player.LearnAlwaysPreparedSpell((int)Spell.FlameStrike, CustomClass.Paladin);
+          player.LearnAlwaysPreparedSpell(CustomSpell.Communion, CustomClass.Paladin);
 
           break;
 

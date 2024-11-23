@@ -12,6 +12,10 @@ namespace NWN.Systems
         && NwSpell.FromSpellId(onDamage.Creature.GetObjectVariable<LocalVariableInt>(EffectSystem.ConcentrationSpellIdString)).SpellSchool == SpellSchool.Conjuration)
         return;
 
+      if (onDamage.Creature.KnowsFeat((Feat)CustomSkill.RangerImplacable)
+        && NwSpell.FromSpellId(onDamage.Creature.GetObjectVariable<LocalVariableInt>(EffectSystem.ConcentrationSpellIdString)).Id == CustomSpell.MarqueDuChasseur)
+        return;
+
       var damager = (NwGameObject)NWScript.GetLastDamager(onDamage.Creature).ToNwObject<NwObject>();
       int totalDamage = onDamage.DamageAmount / 2;
       int concentrationDC = 10 > totalDamage ? 10 : totalDamage;

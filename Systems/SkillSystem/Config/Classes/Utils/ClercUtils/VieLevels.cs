@@ -23,17 +23,17 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.ClercPreservationDeLaVie].LevelUp(player);
           player.learnableSkills[CustomSkill.ClercPreservationDeLaVie].source.Add(Category.Class);
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Bless, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.CureModerateWounds, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.LesserRestoration, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Aid, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.Bless, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.CureModerateWounds, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.LesserRestoration, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.Aid, CustomClass.Clerc);
 
           break;
 
         case 5:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.LueurDespoir, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.RaiseDead, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.LueurDespoir, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.RaiseDead, CustomClass.Clerc);
 
           break;
 
@@ -47,15 +47,15 @@ namespace NWN.Systems
 
         case 7:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.GardienDeLaFoi, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.DeathWard, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.GardienDeLaFoi, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.DeathWard, CustomClass.Clerc);
 
           break;
 
         case 9:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.GreaterRestoration, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.MassHeal, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.GreaterRestoration, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.MassHeal, CustomClass.Clerc);
 
           break;
 

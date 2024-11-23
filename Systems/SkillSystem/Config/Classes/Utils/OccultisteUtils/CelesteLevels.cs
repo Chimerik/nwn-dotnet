@@ -15,12 +15,12 @@ namespace NWN.Systems
           NwClass.FromClassId(CustomClass.Occultiste).Name.SetPlayerOverride(player.oid, "Mécène Céleste");
           player.oid.SetTextureOverride("occultiste", "warlock_celeste");
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Aid, CustomClass.Occultiste);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.CureModerateWounds, CustomClass.Occultiste);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Light, CustomClass.Occultiste);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.LesserRestoration, CustomClass.Occultiste);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Flare, CustomClass.Occultiste);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.EclairTracant, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell((int)Spell.Aid, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell((int)Spell.CureModerateWounds, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell((int)Spell.Light, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell((int)Spell.LesserRestoration, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell((int)Spell.Flare, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell(CustomSpell.EclairTracant, CustomClass.Occultiste);
           
 
           player.learnableSkills.TryAdd(CustomSkill.LueurDeGuérison, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.LueurDeGuérison], player));
@@ -31,8 +31,8 @@ namespace NWN.Systems
 
         case 5:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.LumiereDuJour, CustomClass.Occultiste);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.RaiseDead, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell(CustomSpell.LumiereDuJour, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell((int)Spell.RaiseDead, CustomClass.Occultiste);
 
           break;
 
@@ -46,15 +46,15 @@ namespace NWN.Systems
 
         case 7:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.WallOfFire, CustomClass.Occultiste);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.GardienDeLaFoi, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell((int)Spell.WallOfFire, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell(CustomSpell.GardienDeLaFoi, CustomClass.Occultiste);
 
           break;
 
         case 9:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.GreaterRestoration, CustomClass.Occultiste);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.LesserPlanarBinding, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell((int)Spell.GreaterRestoration, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell((int)Spell.LesserPlanarBinding, CustomClass.Occultiste);
 
           break;
 

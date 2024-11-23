@@ -6,9 +6,9 @@ namespace NWN.Systems
   {
     public static bool OnLearnTerreTropicale(PlayerSystem.Player player, int customSkillId)
     {
-      SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.AcidSplash, CustomClass.Druid);
-      SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Web, CustomClass.Druid);
-      SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.RayonEmpoisonne, CustomClass.Druid);
+      player.LearnAlwaysPreparedSpell((int)Spell.AcidSplash, CustomClass.Druid);
+      player.LearnAlwaysPreparedSpell((int)Spell.Web, CustomClass.Druid);
+      player.LearnAlwaysPreparedSpell(CustomSpell.RayonEmpoisonne, CustomClass.Druid);
       
       return true;
     }

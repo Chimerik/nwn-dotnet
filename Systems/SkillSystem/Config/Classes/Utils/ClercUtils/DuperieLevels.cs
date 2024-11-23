@@ -23,17 +23,17 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.ClercRepliqueInvoquee].LevelUp(player);
           player.learnableSkills[CustomSkill.ClercRepliqueInvoquee].source.Add(Category.Class);
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.Deguisement, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.CharmPerson, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.PassageSansTrace, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Invisibility, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.Deguisement, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.CharmPerson, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.PassageSansTrace, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.Invisibility, CustomClass.Clerc);
 
           break;
 
         case 5:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Fear, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.Antidetection, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.Fear, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.Antidetection, CustomClass.Clerc);
 
           break;
 
@@ -48,15 +48,15 @@ namespace NWN.Systems
 
         case 7:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Confusion, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.PorteDimensionnelle, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.Confusion, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.PorteDimensionnelle, CustomClass.Clerc);
 
           break;
 
         case 9:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.DominatePerson, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.AlterationMemorielle, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.DominatePerson, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.AlterationMemorielle, CustomClass.Clerc);
 
           break;
       }

@@ -260,22 +260,21 @@
     public const int BotteDefensiveDeMaitre = 1549;
     public const int BotteTranchanteDeMaitre = 1550;
 
-    public const int RangerChasseurDePrimes = 1551;
-    public const int RangerChevalier = 1552;
-    public const int RangerVeilProtectionAlignment = 1553;
+    public const int RangerEnnemiJuré = 1551;
+    public const int RangerExplorationHabile = 1552;
+    public const int RangerGuerrierDruidique = 1553;
 
     public const int SacredFlame = 1554;
 
-    public const int RangerColdWanderer = 1555;
-    public const int RangerFireWanderer = 1556;
-    public const int RangerPoisonWanderer = 1557;
-    public const int RangerAcidWanderer = 1558;
-    public const int RangerBeastTamerCallFamiliar = 1559;
-    public const int RangerGreaterFavoredEnemy = 1560;
-    public const int RangerDeplacementFluide = 1561;
-    public const int RangerDisparition = 1562;
+    public const int RangerVagabondage = 1555;
+    public const int RangerInfatiguable = 1556;
+    public const int RangerImplacable = 1557;
+    public const int RangerPrecis = 1558;
+    public const int RangerPourfendeur = 1559;
+
+    public const int RangerVoileNaturel = 1562;
     public const int RangerSensSauvages = 1563;
-    public const int RangerTueurImplacable = 1564;
+    
 
     public const int ChasseurBriseurDeHordes = 1565;
     public const int ChasseurTueurDeGeants = 1566;
@@ -322,7 +321,7 @@
 
     public const int SensDivin = 1603;
     public const int ChatimentDivin = 1604;
-    public const int RangerMageBreakerTrueStrike = 1605;
+
     public const int AuraDeProtection = 1606;
     public const int AuraDeCourage = 1607;
     public const int DevotionArmeSacree = 1608;
@@ -962,7 +961,6 @@
 
     public const int FighterCombatStyleProtection = 20479;
     public const int FighterCombatStyleDualWield = 20480;
-    public const int FighterBonusAttack = 20482; // 3 niveaux
     public const int FighterInflexible = 20483;
     
     /*public const int FighterEldritchKnightBoundWeapon = 20486;
@@ -1005,7 +1003,6 @@
 
     public const int Barbarian = 20520;
     public const int BarbarianUnarmoredDefence = 20521;
-    public const int BarbarianBonusAttack = 20522;
     public const int BarbarianInstinctSauvage = 20523;
     public const int BarbarianCritiqueBrutal = 20524;
     public const int BarbarianRageImplacable = 20525;
@@ -1055,26 +1052,22 @@
 
     public const int BardCollegeDuSavoir = 20564;
     public const int BardCollegeDeLaVaillance = 20565;
-    public const int VaillanceBonusAttack = 20566;
     public const int BardCollegeDeLescrime = 20567;
-    public const int EscrimeBonusAttack = 20568;
 
     public const int Ranger = 20569;
     
-    public const int RangerGardienDuVoile = 20570;
-    public const int RangerBriseurDeMages = 20571;
-    public const int RangerSanctifie = 20572;
-    public const int RangerBeastTamer = 20573;
-    public const int RangerUrbanTracker = 20574;
-
-    public const int RangerBonusAttack = 20575;
+    //public const int RangerGardienDuVoile = 20570;
+    //public const int RangerBriseurDeMages = 20571;
+    //public const int RangerSanctifie = 20572;
+    //public const int RangerBeastTamer = 20573;
+    //public const int RangerUrbanTracker = 20574;
 
     public const int RangerChasseur = 20576;
     public const int RangerBelluaire = 20578;
     public const int RangerProfondeurs = 20579;
     public const int EsquiveSurnaturelle = 20581;
 
-    public const int FavoredEnemyGiant = 20582;
+    /*public const int FavoredEnemyGiant = 20582;
     public const int FavoredEnemyAberration = 20583;
     public const int FavoredEnemyBeast = 20584;
     public const int FavoredEnemyMagicalBeast = 20585;
@@ -1089,10 +1082,9 @@
     public const int FavoredEnemyOutsider = 20594;
     public const int FavoredEnemyShapechanger = 20595;
     public const int FavoredEnemyUndead = 20596;
-    public const int FavoredEnemyVermin = 20597;
+    public const int FavoredEnemyVermin = 20597;*/
 
     public const int Paladin = 20598;
-    public const int PaladinBonusAttack = 20599;
 
     public const int PaladinSermentDevotion = 20600;
     public const int PaladinAuraDeDevotion = 20601;

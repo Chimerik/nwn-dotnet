@@ -34,9 +34,6 @@ namespace NWN.Systems
           if (caster.KnowsFeat((Feat)i))
             companion.AddFeat((Feat)i);
 
-        if (caster.KnowsFeat((Feat)CustomSkill.RangerGreaterFavoredEnemy))
-          companion.AddFeat((Feat)CustomSkill.RangerGreaterFavoredEnemy);
-
         if (caster.KnowsFeat((Feat)CustomSkill.BelluaireDefenseDeLaBete))
           companion.AddFeat((Feat)CustomSkill.BelluaireDefenseDeLaBete);
 

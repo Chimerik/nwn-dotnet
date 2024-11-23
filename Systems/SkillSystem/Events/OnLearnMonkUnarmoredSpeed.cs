@@ -10,27 +10,12 @@ namespace NWN.Systems
       if(!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.MonkUnarmoredSpeed))
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.MonkUnarmoredSpeed);
 
-      NwItem armor = player.oid.LoginCreature.GetItemInSlot(InventorySlot.Chest);
-      NwItem shield = player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand);
-
-      if (armor is null || armor.BaseACValue < 1)
+      if (!ItemUtils.IsArmor(player.oid.LoginCreature.GetItemInSlot(InventorySlot.Chest))
+        && !ItemUtils.IsShield(player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand))
+        && player.oid.LoginCreature.Classes.Any(c => c.Class.Id == CustomClass.Monk && c.Level > 1))
       {
-        if (shield is not null)
-        {
-          switch (shield.BaseItem.ItemType)
-          {
-            case BaseItemType.SmallShield:
-            case BaseItemType.LargeShield:
-            case BaseItemType.TowerShield:
-              return true;
-          }
-        }
-
-        if (player.oid.LoginCreature.Classes.Any(c => c.Class.Id == CustomClass.Monk && c.Level > 1))
-        {
-          EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.MonkSpeedEffectTag);
-          WaitNextFrameToApplyMonkSpeedEffect(player.oid.LoginCreature, player.oid.LoginCreature.GetClassInfo((ClassType)CustomClass.Monk).Level);
-        }
+        EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.MonkSpeedEffectTag);
+        WaitNextFrameToApplyMonkSpeedEffect(player.oid.LoginCreature, player.oid.LoginCreature.GetClassInfo((ClassType)CustomClass.Monk).Level);
       }
 
       return true;

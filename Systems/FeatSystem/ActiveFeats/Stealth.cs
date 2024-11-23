@@ -24,7 +24,6 @@ namespace NWN.Systems
 
       if (caster.Classes.Any(c => Utils.In(c.Class.ClassType, ClassType.Rogue, (ClassType)CustomClass.RogueArcaneTrickster) && c.Level > 1)
         || caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.MonkTenebres))
-        || caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.RangerDisparition))
         || caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TraqueurRedoutable)))
       {
         if (!CreatureUtils.HandleBonusActionUse(caster))

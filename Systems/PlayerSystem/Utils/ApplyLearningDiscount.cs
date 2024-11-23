@@ -13,7 +13,6 @@ namespace NWN.Systems
         {
           case CustomSkill.HeavyArmorProficiency:
             if (oid.LoginCreature.Classes.Any(c => Utils.In(c.Class.Id, CustomClass.Fighter, CustomClass.Paladin)) 
-              || oid.LoginCreature.KnowsFeat((Feat)CustomSkill.RangerChevalier)
               || oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ClercProtecteur))
               learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 4;
             break;
@@ -33,6 +32,9 @@ namespace NWN.Systems
               learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 4;
 
             if (learnableSkills.ContainsKey(CustomSkill.ClercSavoir))
+              learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 4;
+
+            if (learnableSkills.ContainsKey(CustomSkill.RangerExplorationHabile))
               learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 4;
 
             if (learnableSkills.ContainsKey(CustomSkill.Linguiste))

@@ -179,14 +179,7 @@ namespace NWN.Systems
 
       if (oCaster is NwCreature caster)
       {
-        NwFeat favoredEnemyFeat = caster.Race.GetFavoredEnemyFeat();
-
-        if (favoredEnemyFeat is not null && creature.KnowsFeat(favoredEnemyFeat) && creature.KnowsFeat((Feat)CustomSkill.RangerGreaterFavoredEnemy))
-        {
-          LogUtils.LogMessage("Avantage - Rôdeur vs ennemi juré", LogUtils.LogType.Combat);
-          return true;
-        }
-        else if (creature.KnowsFeat((Feat)CustomSkill.TueurDeMage) && creature.DistanceSquared(caster) < 7)
+        if (creature.KnowsFeat((Feat)CustomSkill.TueurDeMage) && creature.DistanceSquared(caster) < 7)
         {
           LogUtils.LogMessage("Avantage - Tueur de mage", LogUtils.LogType.Combat);
           return true;

@@ -23,32 +23,32 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.ClercFrappeGuidee].LevelUp(player);
           player.learnableSkills[CustomSkill.ClercFrappeGuidee].source.Add(Category.Class);
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.ShieldOfFaith, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.DivineFavor, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.MagicWeapon, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.ShelgarnsPersistentBlade, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.EclairTracant, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.ShieldOfFaith, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.DivineFavor, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.MagicWeapon, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.ShelgarnsPersistentBlade, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.EclairTracant, CustomClass.Clerc);
 
           break;
 
         case 5:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.EspritsGardiens, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.CapeDuCroise, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.EspritsGardiens, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell(CustomSpell.CapeDuCroise, CustomClass.Clerc);
 
           break;
 
         case 7:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.ElementalShield, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.FreedomOfMovement, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.ElementalShield, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.FreedomOfMovement, CustomClass.Clerc);
 
           break;
 
         case 9:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.FlameStrike, CustomClass.Clerc);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.HoldMonster, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.FlameStrike, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.HoldMonster, CustomClass.Clerc);
 
           break;
 

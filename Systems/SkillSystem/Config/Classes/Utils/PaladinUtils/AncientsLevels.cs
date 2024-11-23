@@ -21,15 +21,15 @@ namespace NWN.Systems
           player.LearnClassSkill(CustomSkill.AnciensCourrouxDeLaNature);
           player.LearnClassSkill(CustomSkill.AnciensRenvoiDesInfideles);
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.SpeakAnimal, CustomClass.Paladin);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.FrappePiegeuse, CustomClass.Paladin);
+          player.LearnAlwaysPreparedSpell(CustomSpell.SpeakAnimal, CustomClass.Paladin);
+          player.LearnAlwaysPreparedSpell(CustomSpell.FrappePiegeuse, CustomClass.Paladin);
 
           break;
 
         case 5:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.FouleeBrumeuse, CustomClass.Paladin);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.RayonDeLune, CustomClass.Paladin);
+          player.LearnAlwaysPreparedSpell(CustomSpell.FouleeBrumeuse, CustomClass.Paladin);
+          player.LearnAlwaysPreparedSpell(CustomSpell.RayonDeLune, CustomClass.Paladin);
 
           break;
 
@@ -46,15 +46,15 @@ namespace NWN.Systems
 
         case 9:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.ProtectionFromElements, CustomClass.Paladin);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.CroissanceVegetale, CustomClass.Paladin);
+          player.LearnAlwaysPreparedSpell((int)Spell.ProtectionFromElements, CustomClass.Paladin);
+          player.LearnAlwaysPreparedSpell(CustomSpell.CroissanceVegetale, CustomClass.Paladin);
 
           break;
 
         case 13:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Stoneskin, CustomClass.Paladin);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.IceStorm, CustomClass.Paladin);
+          player.LearnAlwaysPreparedSpell((int)Spell.Stoneskin, CustomClass.Paladin);
+          player.LearnAlwaysPreparedSpell((int)Spell.IceStorm, CustomClass.Paladin);
 
           break;
 
@@ -70,8 +70,8 @@ namespace NWN.Systems
 
         case 17:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.CommunionAvecLaNature, CustomClass.Paladin);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.PassageParLesArbres, CustomClass.Paladin);
+          player.LearnAlwaysPreparedSpell(CustomSpell.CommunionAvecLaNature, CustomClass.Paladin);
+          player.LearnAlwaysPreparedSpell(CustomSpell.PassageParLesArbres, CustomClass.Paladin);
 
           break;
 

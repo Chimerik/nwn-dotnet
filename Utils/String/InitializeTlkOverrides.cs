@@ -146,7 +146,8 @@ namespace NWN.Systems
       OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.FouleeRafraichissante).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.FouleeRafraichissante].name);
       OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.FouleeRedoutable).Description.CustomId, SkillSystem.learnableDictionary[CustomSkill.FouleeRedoutable].description);
       OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.FouleeRedoutable).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.FouleeRedoutable].name);
-
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.ArmureDesOmbres).Description.CustomId, SkillSystem.learnableDictionary[CustomSkill.ArmureDesOmbres].description);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.ArmureDesOmbres).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.ArmureDesOmbres].name);
 
     }
 

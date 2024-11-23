@@ -36,7 +36,7 @@ namespace NWN.Systems
         }
       }
 
-      if (SpellUtils.IsBonusActionSpell(caster, spell.Id, spellEntry))
+      if (SpellUtils.IsBonusActionSpell(caster, spell.Id, spellEntry, onSpellAction.Feat))
       {
         if (!CreatureUtils.HandleBonusActionUse(caster))
         {

@@ -15,10 +15,10 @@ namespace NWN.Systems
           NwClass.FromClassId(CustomClass.Occultiste).Name.SetPlayerOverride(player.oid, "Mécène Grand Ancien");
           player.oid.SetTextureOverride("occultiste", "warlock_ancien");
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.TashasHideousLaughter, CustomClass.Occultiste);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.ForceFantasmagorique, CustomClass.Occultiste);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.MurmuresDissonnants, CustomClass.Occultiste);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.DetectionDesPensees, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell((int)Spell.TashasHideousLaughter, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell(CustomSpell.ForceFantasmagorique, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell(CustomSpell.MurmuresDissonnants, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell(CustomSpell.DetectionDesPensees, CustomClass.Occultiste);
           
 
           player.learnableSkills.TryAdd(CustomSkill.EspritEveille, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.EspritEveille], player));
@@ -33,8 +33,8 @@ namespace NWN.Systems
 
         case 5:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.VoraciteDhadar, CustomClass.Occultiste);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.ClairaudienceAndClairvoyance, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell(CustomSpell.VoraciteDhadar, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell((int)Spell.ClairaudienceAndClairvoyance, CustomClass.Occultiste);
 
           break;
 
@@ -48,21 +48,21 @@ namespace NWN.Systems
 
         case 7:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Confusion, CustomClass.Occultiste);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.InvocationDaberration, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell((int)Spell.Confusion, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell(CustomSpell.InvocationDaberration, CustomClass.Occultiste);
 
           break;
 
         case 9:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.AlterationMemorielle, CustomClass.Occultiste);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.Telekinesie, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell(CustomSpell.AlterationMemorielle, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell(CustomSpell.Telekinesie, CustomClass.Occultiste);
 
           break;
 
         case 10:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.BestowCurse, CustomClass.Occultiste);
+          player.LearnAlwaysPreparedSpell((int)Spell.BestowCurse, CustomClass.Occultiste);
 
           player.learnableSkills.TryAdd(CustomSkill.BouclierPsychique, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BouclierPsychique], player));
           player.learnableSkills[CustomSkill.BouclierPsychique].LevelUp(player);

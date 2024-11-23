@@ -20,9 +20,9 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.EnsoResistanceDraconique].LevelUp(player);
           player.learnableSkills[CustomSkill.EnsoResistanceDraconique].source.Add(Category.Class);
 
-          //SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.ModificationDapparence, CustomClass.Ensorceleur);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.OrbeChromatique, CustomClass.Ensorceleur);
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.Injonction, CustomClass.Ensorceleur);
+          //player.LearnAlwaysPreparedSpell(CustomSpell.ModificationDapparence, CustomClass.Ensorceleur);
+          player.LearnAlwaysPreparedSpell(CustomSpell.OrbeChromatique, CustomClass.Ensorceleur);
+          player.LearnAlwaysPreparedSpell(CustomSpell.Injonction, CustomClass.Ensorceleur);
 
           foreach (var ensoLevel in player.oid.LoginCreature.LevelInfo)
             if (ensoLevel.ClassInfo.Class.ClassType == ClassType.Sorcerer)
@@ -32,8 +32,8 @@ namespace NWN.Systems
 
         case 5:
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.Fear, CustomClass.Ensorceleur);
-          //SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.Vol, CustomClass.Ensorceleur);
+          player.LearnAlwaysPreparedSpell((int)Spell.Fear, CustomClass.Ensorceleur);
+          //player.LearnAlwaysPreparedSpell(CustomSpell.Vol, CustomClass.Ensorceleur);
 
           break;
 
@@ -46,14 +46,14 @@ namespace NWN.Systems
 
         case 7:
           
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.OeilMagique, CustomClass.Ensorceleur);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.CharmMonster, CustomClass.Ensorceleur);
+          player.LearnAlwaysPreparedSpell(CustomSpell.OeilMagique, CustomClass.Ensorceleur);
+          player.LearnAlwaysPreparedSpell((int)Spell.CharmMonster, CustomClass.Ensorceleur);
 
           break;
 
         case 9:
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.EpicDragonKnight, CustomClass.Ensorceleur);
-          SpellUtils.LearnAlwaysPreparedSpell(player, (int)Spell.LegendLore, CustomClass.Ensorceleur);
+          player.LearnAlwaysPreparedSpell((int)Spell.EpicDragonKnight, CustomClass.Ensorceleur);
+          player.LearnAlwaysPreparedSpell((int)Spell.LegendLore, CustomClass.Ensorceleur);
           break;
 
         case 14:

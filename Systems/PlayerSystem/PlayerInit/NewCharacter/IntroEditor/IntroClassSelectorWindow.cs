@@ -399,13 +399,6 @@ namespace NWN.Systems
           player.oid.LoginCreature.RemoveFeat(Feat.SneakAttack);
           player.oid.LoginCreature.RemoveFeat(Feat.BarbarianRage);
           player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.MainLeste);
-          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.RangerMageBreakerTrueStrike);
-          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.RangerChasseurDePrimes);
-          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.RangerVeilProtectionAlignment);
-          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.RangerColdWanderer);
-          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.RangerAcidWanderer);
-          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.RangerFireWanderer);
-          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.RangerPoisonWanderer);
 
           if (player.windows.TryGetValue("expertiseChoice", out var expertise) && expertise.IsOpen)
           {
@@ -447,7 +440,7 @@ namespace NWN.Systems
           player.oid.LoginCreature.OnHeartbeat -= CreatureUtils.OnHeartBeatCheckMonkUnarmoredDefence;
 
           EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.MonkUnarmoredDefenceEffectTag, EffectSystem.ProtectionStyleAuraEffectTag,
-            EffectSystem.UnarmoredDefenceEffectTag, EffectSystem.ColdWandererEffectTag, EffectSystem.AcidWandererEffectTag, EffectSystem.FireWandererEffectTag, EffectSystem.PoisonWandererEffectTag);
+            EffectSystem.UnarmoredDefenceEffectTag);
 
           if (player.windows.TryGetValue("spellSelection", out var spellSelection) && spellSelection.IsOpen)
           {

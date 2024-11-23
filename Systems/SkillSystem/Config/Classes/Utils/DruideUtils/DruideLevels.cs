@@ -64,7 +64,7 @@ namespace NWN.Systems
           player.learnableSkills[CustomSkill.Druidique].LevelUp(player);
           player.learnableSkills[CustomSkill.Druidique].source.Add(Category.Class);
 
-          SpellUtils.LearnAlwaysPreparedSpell(player, CustomSpell.SpeakAnimal, CustomClass.Druid);
+          player.LearnAlwaysPreparedSpell(CustomSpell.SpeakAnimal, CustomClass.Druid);
 
           if (!player.windows.TryGetValue("ordrePrimordialSelection", out var ordrePrimordial)) player.windows.Add("ordrePrimordialSelection", new OrdrePrimordialSelectionWindow(player));
           else ((OrdrePrimordialSelectionWindow)ordrePrimordial).CreateWindow();

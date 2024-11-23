@@ -9,7 +9,7 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static List<NwGameObject> MarqueDuChasseur(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget)
+    public static List<NwGameObject> MarqueDuChasseur(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwFeat feat)
     {
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
 
@@ -19,7 +19,15 @@ namespace NWN.Systems
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadEvil));
 
       Effect freeMarque = oCaster.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.FreeMarqueDuChasseurTag);
-      TimeSpan duration = freeMarque is null ? SpellUtils.GetSpellDuration(oCaster, spellEntry) : TimeSpan.FromSeconds(freeMarque.DurationRemaining);
+      TimeSpan duration = SpellUtils.GetSpellDuration(oCaster, spellEntry);
+
+      if (freeMarque is not null)
+      {
+        duration = TimeSpan.FromSeconds(freeMarque.DurationRemaining);
+
+        if (feat is not null && oCaster is NwCreature caster)
+          caster.IncrementRemainingFeatUses(feat);
+      }
 
       NWScript.AssignCommand(oCaster, () => oTarget.ApplyEffect(EffectDuration.Temporary, EffectSystem.MarqueDuChasseur, duration));
       
