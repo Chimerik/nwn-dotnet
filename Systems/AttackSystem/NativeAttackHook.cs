@@ -313,7 +313,6 @@ namespace NWN.Systems
         NativeUtils.HandleSentinelle(attacker, targetCreature, combatRound);
         NativeUtils.HandleFureurOrc(attacker, targetCreature, combatRound, attackerName);
         NativeUtils.HandleDiversion(attacker, attackData, targetCreature);
-        NativeUtils.HandleTueurDeGeants(attacker, targetCreature, combatRound, attackerName, attackWeapon, attackData.m_bRangedAttack.ToBool());
         NativeUtils.HandleMonkOpportunist(attacker, targetCreature, attackData, combatRound, attackerName, targetName);
       }
       else
@@ -329,7 +328,6 @@ namespace NWN.Systems
       NativeUtils.HandleThiefReflex(attacker, targetObject, combatRound, attackerName, targetName);
       NativeUtils.HandleBardeBotteTranchante(attacker, targetObject, combatRound, attackerName);
       NativeUtils.HandleBriseurDeHordes(attacker, targetObject, combatRound, attackerName, attackWeapon, attackData.m_bRangedAttack.ToBool());
-      NativeUtils.HandleVolee(attacker, targetObject, combatRound, attackData.m_bRangedAttack.ToBool(), attackerName);
       NativeUtils.HandleAttaqueCoordonnee(attacker, targetObject, combatRound);
       NativeUtils.HandleFurieBestiale(attacker, targetObject, combatRound, attackerName);
       NativeUtils.HandleVoeuHostile(attacker, combatRound, attackData, attackerName);
@@ -515,7 +513,7 @@ namespace NWN.Systems
         baseDamage -= NativeUtils.HandleMaitreArmureLourde(targetCreature);
         baseDamage -= NativeUtils.HandleParade(targetCreature);
         baseDamage -= NativeUtils.HandleMonkParade(targetCreature);
-        baseDamage /= NativeUtils.HandleEsquiveInstinctive(targetCreature);
+        baseDamage -= NativeUtils.HandleEsquiveInstinctive(targetCreature);
         baseDamage /= NativeUtils.HandleDefensesEnjoleuses(targetCreature);
       }
 

@@ -65,9 +65,7 @@ namespace NWN.Systems
           if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat))
             player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat);
 
-          player.learnableSkills.TryAdd(CustomSkill.ChasseurEsquiveInstinctive, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ChasseurEsquiveInstinctive], player));
-          player.learnableSkills[CustomSkill.ChasseurEsquiveInstinctive].LevelUp(player);
-          player.learnableSkills[CustomSkill.ChasseurEsquiveInstinctive].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.EsquiveInstinctive);
 
           break;
 

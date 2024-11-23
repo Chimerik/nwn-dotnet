@@ -8,12 +8,6 @@ namespace NWN.Systems
   {
     public static bool ComputeCreatureAbilityAdvantage(NwCreature creature, Ability ability, SpellEntry spellEntry = null, SpellEffectType effectType = SpellEffectType.Invalid, NwGameObject oCaster = null)
     {
-      if (creature.KnowsFeat((Feat)CustomSkill.BelluaireDefenseDeLaBete) && !creature.IsLoginPlayerCharacter)
-      {
-        LogUtils.LogMessage("Avantage - Belluaire : Défense de la Bête", LogUtils.LogType.Combat);
-        return true;
-      }
-
       if (spellEntry is not null && creature.KnowsFeat((Feat)CustomSkill.AbjurationSpellResistance))
       {
         LogUtils.LogMessage("Avantage - Abjuration : Résistance aux sorts", LogUtils.LogType.Combat);
@@ -144,16 +138,7 @@ namespace NWN.Systems
           break;
 
         case SpellEffectType.Fear:
-        case SpellEffectType.Terror:
-
-          if (creature.Race.Id == CustomRace.Halfelin || creature.KnowsFeat((Feat)CustomSkill.ChasseurMoralDacier))
-          {
-            LogUtils.LogMessage("Avantage - Halfelin ou moral d'acier de Chasser vs effroi", LogUtils.LogType.Combat);
-            return true;
-
-          }
-
-          break;
+        case SpellEffectType.Terror: break;
 
         case SpellEffectType.Paralysis:
         case SpellEffectType.Illusion:

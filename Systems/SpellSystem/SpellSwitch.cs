@@ -1006,6 +1006,40 @@ namespace NWN.Systems
           SpellSystem.ImpositionDesMainsGuerison(oCaster, target, spell, spellEntry);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
+
+        case CustomSpell.PourfendeurDeColosses:
+          SpellSystem.PourfendeurDeColosses(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.BriseurDeHordes:
+          SpellSystem.BriseurDeHordes(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.EchapperALaHorde:
+          SpellSystem.EchapperALaHorde(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.DefenseAdaptative:
+          SpellSystem.DefenseAdaptative(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.BelluaireOurs:
+        case CustomSpell.BelluaireCorbeau:
+        case CustomSpell.BelluaireLoup:
+        case CustomSpell.BelluaireAraignee:
+        case CustomSpell.BelluaireSanglier:
+          SpellSystem.CompagnonAnimal(oCaster, spell, spellEntry, target is null ? targetLocation : target.Location);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.BelluaireRevocation:
+          SpellSystem.CompagnonAnimalRevocation(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
       }
 
       if (oCaster is NwCreature castingCreature)

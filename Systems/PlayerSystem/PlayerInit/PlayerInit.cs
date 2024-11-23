@@ -418,6 +418,7 @@ namespace NWN.Systems
         ApplyDrowLightSensitivity();
         ApplyThieflingFireResistance();
         ApplyAasimarResistance();
+        ApplyVolee();
         ApplyMonkParade();
         InitializeMagicalSecretSelection();
         ApplyDwarfPoisonResistance();
@@ -437,11 +438,8 @@ namespace NWN.Systems
         InitializeTerreDeCercleChoice();
         InitializeFureurElementaireChoice();
         InitializeFrappesBeniesChoice();
-        InitializeChasseurProieChoice();
         InitializeAffiniteElementaireChoice();
-        InitializeHunterTactiqueDefensiveChoice();
         InitializeHunterDefenseSuperieureChoice();
-        InitializeBelluaireCompanionChoice();
         InitializeSubClassChoice();
         InitializeManoeuvreChoice();
         InitializeTirArcaniqueChoice();
@@ -499,7 +497,6 @@ namespace NWN.Systems
         ApplyAmeDesVents();
         ApplyFureurTempete();
         ApplyMonkOpportunist();
-        ApplyDefenseAdaptative();
         ApplyTraqueurRedoutable();
         ApplyAuraDeProtection();
         ApplyPureteDeLesprit();

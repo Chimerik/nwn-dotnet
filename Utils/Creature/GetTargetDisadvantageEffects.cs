@@ -32,6 +32,12 @@ namespace NWN.Systems
 
         if (GetMaledictionAttaqueDisadvantage(eff, target))
           return true;
+
+        if (GetHunterEchapperAlaHordeDisadvantage(eff, data))
+          return true;
+
+        if (GetDefenseAdaptativeDisadvantage(eff, attacker, target))
+          return true;
       }
 
       return false;

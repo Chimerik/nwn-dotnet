@@ -28,7 +28,7 @@ namespace NWN.Systems
 
       if (eventData.EffectTarget is NwCreature caster)
       {
-        NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, Cooldown(caster, CustomSkill.DefensesEnjoleuses, 6), NwTimeSpan.FromRounds(1)));
+        NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, Cooldown(caster, 6, CustomSkill.DefensesEnjoleuses), NwTimeSpan.FromRounds(1)));
       }
 
       return ScriptHandleResult.Handled;

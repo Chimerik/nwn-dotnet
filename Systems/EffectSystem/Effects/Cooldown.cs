@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
@@ -11,18 +12,20 @@ namespace NWN.Systems
     public const string CooldownEffectTag = "_COOLDOWN_EFFECT";
     private static ScriptCallbackHandle onIntervalCooldownCallback;
     private static ScriptCallbackHandle onRemoveCooldownCallback;
-    public static Effect Cooldown(NwCreature caster, int featId, int cooldown)
+    public static Effect Cooldown(NwCreature caster, int cooldown, int featId, int spellId = -1)
     {
       Effect eff = Effect.RunAction(onRemovedHandle: onRemoveCooldownCallback, onIntervalHandle: onIntervalCooldownCallback, interval: TimeSpan.FromSeconds(1));
       eff.Tag = CooldownEffectTag;
       eff.SubType = EffectSubType.Unyielding;
       eff.IntParams[5] = featId;
+      eff.IntParams[6] = spellId;
 
       NwSpell spell;
+      NwFeat feat;
 
       if (caster.IsLoginPlayerCharacter)
       {
-        switch(featId)
+        switch (featId)
         {
           case CustomSkill.BuveuseDeVie:
 
@@ -47,9 +50,29 @@ namespace NWN.Systems
 
             break;
 
+          case CustomSkill.ChasseurProie:
+
+            spell = NwSpell.FromSpellId(CustomSpell.PourfendeurDeColosses);
+            spell.Name.SetPlayerOverride(caster.LoginPlayer, spell.Name.ToString() + $" - Rechargement ({cooldown} s)");
+
+            spell = NwSpell.FromSpellId(CustomSpell.BriseurDeHordes);
+            spell.Name.SetPlayerOverride(caster.LoginPlayer, spell.Name.ToString() + $" - Rechargement ({cooldown} s)");
+
+            break;
+
+          case CustomSkill.ProfondeursFrappeRedoutable:
+
+            var frappeRedoutable = caster.ActiveEffects.FirstOrDefault(e => e.Tag == FrappeRedoutableEffectTag); 
+            eff.IntParams[7] = eff is null ? 0 : eff.IntParams[7];
+
+            feat = NwFeat.FromFeatId(featId);
+            feat.Name.SetPlayerOverride(caster.LoginPlayer, feat.Name.ToString() + $" - Rechargement ({cooldown} s)");
+
+            break;
+
           default:
 
-            var feat = NwFeat.FromFeatId(featId);
+            feat = NwFeat.FromFeatId(featId);
             feat.Name.SetPlayerOverride(caster.LoginPlayer, feat.Name.ToString() + $" - Rechargement ({cooldown} s)");
 
             break;
@@ -95,6 +118,16 @@ namespace NWN.Systems
 
               break;
 
+            case CustomSkill.ChasseurProie:
+
+              spell = NwSpell.FromSpellId(CustomSpell.PourfendeurDeColosses);
+              spell.Name.SetPlayerOverride(caster.LoginPlayer, spell.Name.ToString() + $" - Rechargement ({eff.DurationRemaining} s)");
+
+              spell = NwSpell.FromSpellId(CustomSpell.BriseurDeHordes);
+              spell.Name.SetPlayerOverride(caster.LoginPlayer, spell.Name.ToString() + $" - Rechargement ({eff.DurationRemaining} s)");
+
+              break;
+
             default: feat.Name.SetPlayerOverride(caster.LoginPlayer, feat.Name.ToString() + $" - Rechargement ({eff.DurationRemaining} s)"); break;
           }            
         }
@@ -110,6 +143,7 @@ namespace NWN.Systems
       {
         var eff = eventData.Effect;
         var feat = NwFeat.FromFeatId(eff.IntParams[5]);
+        var remainingUse = eff.IntParams[7];
         NwSpell spell;
 
         if (caster.IsLoginPlayerCharacter)
@@ -139,16 +173,26 @@ namespace NWN.Systems
 
               break;
 
+            case CustomSkill.ChasseurProie:
+
+              spell = NwSpell.FromSpellId(CustomSpell.PourfendeurDeColosses);
+              spell.Name.ClearPlayerOverride(caster.LoginPlayer);
+
+              spell = NwSpell.FromSpellId(CustomSpell.BriseurDeHordes);
+              spell.Name.ClearPlayerOverride(caster.LoginPlayer);
+
+              break;
+
             default: feat.Name.ClearPlayerOverride(caster.LoginPlayer); break;
           }            
         }
 
-        HandleCooldown(caster, feat);
+        HandleCooldown(caster, feat, NwSpell.FromSpellId(eff.IntParams[6]), remainingUse);
       }
 
       return ScriptHandleResult.Handled;
     }
-    private static async void HandleCooldown(NwCreature caster, NwFeat feat)
+    private static async void HandleCooldown(NwCreature caster, NwFeat feat, NwSpell spell, int remainingUse)
     {
       await NwTask.NextFrame();
 
@@ -158,6 +202,18 @@ namespace NWN.Systems
         case CustomSkill.ClercFrappeDivine: ApplyFrappeDivine(caster); break;
         case CustomSkill.DefensesEnjoleuses: NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, DefensesEnjoleuses)); break;
         case CustomSkill.MonkParade: NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, MonkParade)); break;
+        
+        case CustomSkill.ChasseurProie: 
+          
+          switch(spell.Id)
+          {
+            case CustomSpell.PourfendeurDeColosses: ApplyPourfendeurDeColosses(caster); break;
+            case CustomSpell.BriseurDeHordes: ApplyBriseurDeHordes(caster); break;
+          }
+
+          break;
+
+        case CustomSkill.ProfondeursFrappeRedoutable: caster.SetFeatRemainingUses((Feat)CustomSkill.ProfondeursFrappeRedoutable, (byte)remainingUse); break;
       }
     }
   }

@@ -270,50 +270,40 @@
     public const int RangerInfatiguable = 1556;
     public const int RangerImplacable = 1557;
     public const int RangerPrecis = 1558;
-    public const int RangerPourfendeur = 1559;
+    public const int RangerVoileNaturel = 1559;
+    public const int RangerSensSauvages = 1560;
+    public const int RangerPourfendeur = 1561;
 
-    public const int RangerVoileNaturel = 1562;
-    public const int RangerSensSauvages = 1563;
-    
+    public const int ChasseurMythes = 1562;
+    public const int ChasseurProie = 1563;
+    public const int ChasseurTactiquesDefensives = 1564;
+    public const int ChasseurVolee = 1565;
+    public const int ChasseurDefenseSuperieure = 1566;
 
-    public const int ChasseurBriseurDeHordes = 1565;
-    public const int ChasseurTueurDeGeants = 1566;
-    public const int ChasseurPourfendeurDeColosses = 1567;
-    public const int ChasseurEchapperAlaHorde = 1568;
-    public const int ChasseurDefenseAdaptative = 1569;
-    public const int ChasseurMoralDacier = 1570;
+    public const int EsquiveInstinctive = 1567;
+    public const int FighterCombatStyleDefense = 1568;
 
-    public const int FighterCombatStyleDefense = 1571;
+    public const int ProfondeursFrappeRedoutable = 1569;
+    public const int TraqueurRedoutable = 1570;
+    public const int TraqueurRafale = 1571;
+    public const int TraqueurEsquive = 1572;
 
-    public const int ChasseurVolee = 1572;
-    public const int ChasseurEsquiveInstinctive = 1573;
-
-    public const int TraqueurRedoutable = 1574;
-    public const int TraqueurRafale = 1575;
-    public const int TraqueurEsquive = 1576;
-
-    public const int BelluaireBear = 1577;
-    public const int BelluaireDireRaven = 1578;
-    public const int BelluaireWolf = 1579;
-    public const int BelluaireSpider = 1580;
-    public const int BelluaireBoar = 1581;
-    public const int BelluaireAttaqueCoordonnee = 1582;
-    public const int BelluaireDefenseDeLaBeteSuperieure = 1583;
-    public const int BelluaireFurieBestiale = 1584;
-    public const int BelluaireDefenseDeLaBete = 1585;
-    public const int BelluaireSprint = 1586;
-    public const int BelluaireDisengage = 1587;
-    public const int BelluaireRugissementProvoquant = 1588;
-    public const int BelluairePatteMielleuse = 1589;
-    public const int BelluaireChargeSanglier = 1590;
-    public const int BelluaireRageSanglier = 1591;
-    public const int BelluaireCorbeauAveuglement = 1592;
-    public const int BelluaireCorbeauMauvaisAugure = 1593;
-    public const int BelluaireLoupMorsurePlongeante = 1594;
-    public const int BelluaireLoupEffetDeMeute = 1595;
-    public const int BelluaireLoupMorsureInfectieuse = 1596;
-    public const int BelluaireSpiderWeb = 1597;
-    public const int BelluaireSpiderCocoon = 1598;
+    public const int BelluaireCompagnonAnimal = 1573;
+    public const int BelluaireAttaqueCoordonnee = 1574;
+    public const int BelluaireDefenseDeLaBeteSuperieure = 1575;
+    public const int BelluaireFurieBestiale = 1576;
+    public const int BelluaireEntrainementExceptionnel = 1577;
+    public const int BelluaireRugissementProvoquant = 1578;
+    public const int BelluairePatteMielleuse = 1579;
+    public const int BelluaireChargeSanglier = 1580;
+    public const int BelluaireRageSanglier = 1581;
+    public const int BelluaireCorbeauAveuglement = 1582;
+    public const int BelluaireCorbeauMauvaisAugure = 1583;
+    public const int BelluaireLoupMorsurePlongeante = 1584;
+    public const int BelluaireLoupEffetDeMeute = 1585;
+    public const int BelluaireLoupMorsureInfectieuse = 1586;
+    public const int BelluaireSpiderWeb = 1587;
+    public const int BelluaireSpiderCocoon = 1588;
 
     public const int BarbarianRagePersistante = 1599;
 

@@ -16,6 +16,14 @@ namespace NWN.Systems
       caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.disengageEffect, NwTimeSpan.FromRounds(1));
       caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value -= 1;
 
+      if (caster.KnowsFeat((Feat)CustomSkill.BelluaireEntrainementExceptionnel))
+      {
+        var companion = caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).Value;
+
+        if (companion is not null)
+          companion.ApplyEffect(EffectDuration.Temporary, EffectSystem.disengageEffect, NwTimeSpan.FromRounds(1));
+      }
+
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} se désengage", ColorConstants.Orange, true);
       onUseFeat.PreventFeatUse = true;
     }

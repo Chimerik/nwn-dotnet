@@ -17,6 +17,7 @@ namespace NWN.Systems
 
       creature.SetFeatRemainingUses((Feat)CustomSkill.ImpositionDesMains, maxUse);
       creature.SetFeatRemainingUses((Feat)CustomSkill.RangerInfatiguable, (byte)(creature.GetAbilityModifier(Ability.Wisdom) > 1 ? creature.GetAbilityModifier(Ability.Wisdom) : 1));
+      creature.SetFeatRemainingUses((Feat)CustomSkill.ProfondeursFrappeRedoutable, (byte)(creature.GetAbilityModifier(Ability.Wisdom) > 1 ? creature.GetAbilityModifier(Ability.Wisdom) : 1));
     }
   }
 }

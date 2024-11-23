@@ -38,7 +38,7 @@ namespace NWN.Systems
             
             EffectUtils.RemoveTaggedEffect(onAttack.Attacker, EffectSystem.BuveuseDeVieEffectTag);
             NWScript.AssignCommand(onAttack.Attacker, () => onAttack.Attacker.ApplyEffect(EffectDuration.Temporary,
-              EffectSystem.Cooldown(onAttack.Attacker, CustomSkill.BuveuseDeVie, 6), NwTimeSpan.FromRounds(1)));
+              EffectSystem.Cooldown(onAttack.Attacker, 6, CustomSkill.BuveuseDeVie), NwTimeSpan.FromRounds(1)));
 
             await NwTask.NextFrame();
             onAttack.Attacker.OnCreatureAttack -= OnAttackBuveuseDeVie;

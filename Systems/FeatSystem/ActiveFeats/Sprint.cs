@@ -35,6 +35,17 @@ namespace NWN.Systems
         if(caster.ActiveEffects.Any(e => e.Tag == EffectSystem.BarbarianRageEffectTag && e.IntParams[6] == CustomSpell.RageSauvageAigle))
           caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.disengageEffect, NwTimeSpan.FromRounds(1));
 
+        if(caster.KnowsFeat((Feat)CustomSkill.BelluaireEntrainementExceptionnel))
+        {
+          var companion = caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).Value;
+
+          if(companion is not null)
+          {
+            companion.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHaste));
+            companion.ApplyEffect(EffectDuration.Temporary, EffectSystem.sprintEffect, NwTimeSpan.FromRounds(1));
+          }
+        }
+
         StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} sprinte", ColorConstants.Orange, true);
         onUseFeat.PreventFeatUse = true;
       }

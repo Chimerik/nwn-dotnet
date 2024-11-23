@@ -1,7 +1,6 @@
 ﻿using Anvil.API;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.PlayerSystem.Player;
-using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
 {
@@ -16,30 +15,26 @@ namespace NWN.Systems
           new StrRef(14).SetPlayerOverride(player.oid, "Conclave des Chasseurs");
           player.oid.SetTextureOverride("ranger", "chasseur");
 
-          if (!player.windows.TryGetValue("hunterProieSelection", out var value)) player.windows.Add("hunterProieSelection", new HunterProieSelectionWindow(player));
-          else ((HunterProieSelectionWindow)value).CreateWindow();
+          player.LearnClassSkill(CustomSkill.ChasseurMythes);
+          player.LearnClassSkill(CustomSkill.ChasseurProie);
 
           break;
 
-        case 7:
+        case 7: player.LearnClassSkill(CustomSkill.ChasseurTactiquesDefensives); break;
 
-          if (!player.windows.TryGetValue("hunterTactiqueDefensiveSelection", out var def)) player.windows.Add("hunterTactiqueDefensiveSelection", new HunterTactiqueDefensiveSelectionWindow(player));
-          else ((HunterTactiqueDefensiveSelectionWindow)def).CreateWindow();
+        case 11: 
 
-          break;
-
-        case 11:
-
-          player.learnableSkills.TryAdd(CustomSkill.ChasseurVolee, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ChasseurVolee], player));
-          player.learnableSkills[CustomSkill.ChasseurVolee].LevelUp(player);
-          player.learnableSkills[CustomSkill.ChasseurVolee].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.ChasseurVolee);
+          player.oid.LoginCreature.OnCreatureDamage -= RangerUtils.OnDamageVolee;
+          player.oid.LoginCreature.OnCreatureDamage += RangerUtils.OnDamageVolee;
 
           break;
 
         case 15:
 
-          if (!player.windows.TryGetValue("hunterDefenseSuperieureSelection", out var defsup)) player.windows.Add("hunterDefenseSuperieureSelection", new HunterDefenseSuperieureSelectionWindow(player));
-          else ((HunterDefenseSuperieureSelectionWindow)defsup).CreateWindow();
+          player.LearnClassSkill(CustomSkill.ChasseurDefenseSuperieure);
+          player.oid.LoginCreature.OnDamaged -= RangerUtils.OnDamageDefenseSuperieure;
+          player.oid.LoginCreature.OnDamaged += RangerUtils.OnDamageDefenseSuperieure;
 
           break;
       }

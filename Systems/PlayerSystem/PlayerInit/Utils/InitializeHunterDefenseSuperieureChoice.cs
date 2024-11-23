@@ -8,10 +8,10 @@ namespace NWN.Systems
     {
       private void InitializeHunterDefenseSuperieureChoice()
       {
-        if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_HUNTER_DEFENSE_SUPERIEURE_SELECTION").HasValue)
+        if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ChasseurDefenseSuperieure))
         {
-          if (!windows.TryGetValue("hunterDefenseSuperieureSelection", out var value)) windows.Add("hunterDefenseSuperieureSelection", new HunterDefenseSuperieureSelectionWindow(this));
-          else ((HunterDefenseSuperieureSelectionWindow)value).CreateWindow();
+          oid.LoginCreature.OnDamaged -= RangerUtils.OnDamageDefenseSuperieure;
+          oid.LoginCreature.OnDamaged += RangerUtils.OnDamageDefenseSuperieure;
         }
       }
     }

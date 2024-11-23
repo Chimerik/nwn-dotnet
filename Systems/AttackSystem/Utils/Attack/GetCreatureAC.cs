@@ -9,7 +9,6 @@ namespace NWN.Systems
       int AC = creature.m_pStats.GetArmorClassVersus(attacker)
         + GetFightingStyleDefenseBonus(creature)
         + GetDefenseVaillanteBonus(creature)
-        + GetDefenseAdaptativeBonus(creature, attacker)
         + GetAnimalCompanionBonusAC(creature);
 
       AC = GetPeauDecorceAC(creature, AC);

@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Linq;
+using System.Numerics;
 using Anvil.API;
 using NWN.Native.API;
 
@@ -8,8 +9,7 @@ namespace NWN.Systems
   {
     public static void HandleBriseurDeHordes(CNWSCreature attacker, CNWSObject currentTarget, CNWSCombatRound combatRound, string attackerName, CNWSItem weapon, bool isRangedAttack)
     {
-      if (!attacker.m_pStats.HasFeat(CustomSkill.ChasseurBriseurDeHordes).ToBool() ||
-        weapon is null || attacker.m_ScriptVars.GetInt(CreatureUtils.BriseurDeHordesVariableExo).ToBool())
+      if (weapon is null || !attacker.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.BriseurDeHordesEffectExoTag).ToBool()))
         return;
 
       CNWSCreature target = null;
@@ -42,6 +42,7 @@ namespace NWN.Systems
       if (target is null)
         return;
 
+      EffectUtils.RemoveTaggedEffect(attacker, EffectSystem.BriseurDeHordesEffectExoTag);
       attacker.m_ScriptVars.SetInt(CreatureUtils.BriseurDeHordesVariableExo, 1);
 
       combatRound.AddWhirlwindAttack(target.m_idSelf, 1);

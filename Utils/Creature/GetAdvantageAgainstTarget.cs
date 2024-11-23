@@ -25,7 +25,7 @@ namespace NWN.Systems
         else
         {
           advantage = false;
-          LogUtils.LogMessage("Frappe brutal - Retrait de l'avantage", LogUtils.LogType.Combat);
+          LogUtils.LogMessage("Frappe brutale - Retrait de l'avantage", LogUtils.LogType.Combat);
         }
       }
 

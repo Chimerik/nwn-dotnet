@@ -15,7 +15,7 @@ namespace NWN.Systems
       {
         if (rangedAttack)
         {
-          if(GetLowGroundDisadvantage(attacker, target))
+          if (GetLowGroundDisadvantage(attacker, target))
             return true;
 
           if (GetRangedWeaponDistanceDisadvantage(attacker, weaponType, target))
@@ -24,13 +24,13 @@ namespace NWN.Systems
           if (GetThreatenedDisadvantage(attacker, attackWeapon))
             return true;
         }
-        else if(GetVolMeleeDisadvantage(attacker, target))
-          return true;
+        else
+        {
+          if (GetVolMeleeDisadvantage(attacker, target))
+            return true;
+        }
 
         if (GetEsquiveDuTraqueurDisadvantage(target))
-          return true;
-
-        if (GetHunterEchapperAlaHordeDisadvantage(target, attackData))
           return true;
 
         if (GetAttackerDisadvantageEffects(attacker, target, attackStat))

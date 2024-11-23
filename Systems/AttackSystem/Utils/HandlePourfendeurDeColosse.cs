@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using NWN.Native.API;
 
 namespace NWN.Systems
@@ -7,13 +8,12 @@ namespace NWN.Systems
   {
     public static int HandlePourfendeurDeColosse(CNWSCreature attacker, CNWSCreature target, CNWSItem weapon)
     {
-      if (!attacker.m_pStats.HasFeat(CustomSkill.ChasseurPourfendeurDeColosses).ToBool() || weapon is null
-        || attacker.m_ScriptVars.GetInt(CreatureUtils.PourfendeurDeColosseVariableExo).ToBool()
-        || target.GetMaxHitPoints(1) <= target.GetCurrentHitPoints(0))
+      if (weapon is null || target.GetMaxHitPoints(1) <= target.GetCurrentHitPoints(0)
+        || !attacker.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.PourfendeurDeColossesEffectExoTag).ToBool()))
         return 0;
 
+      EffectUtils.RemoveTaggedEffect(attacker, EffectSystem.PourfendeurDeColossesEffectExoTag);
       int bonusDamage = NwRandom.Roll(Utils.random, 8);
-
       LogUtils.LogMessage($"Pourfendeur de Colosses : +{bonusDamage}", LogUtils.LogType.Combat);
 
       return bonusDamage;

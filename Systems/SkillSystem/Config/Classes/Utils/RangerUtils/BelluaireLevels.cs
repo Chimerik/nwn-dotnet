@@ -1,7 +1,5 @@
 ﻿using Anvil.API;
 using static NWN.Systems.PlayerSystem;
-using static NWN.Systems.PlayerSystem.Player;
-using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
 {
@@ -16,42 +14,14 @@ namespace NWN.Systems
           new StrRef(14).SetPlayerOverride(player.oid, "Conclave des Belluaires");
           player.oid.SetTextureOverride("ranger", "conclave_betes");
 
-          if (!player.windows.TryGetValue("belluaireCompanionSelection", out var value)) player.windows.Add("belluaireCompanionSelection", new BelluaireCompanionSelectionWindow(player));
-          else ((BelluaireCompanionSelectionWindow)value).CreateWindow();
+          player.LearnClassSkill(CustomSkill.BelluaireCompagnonAnimal);
 
           break;
 
-        case 5:
-
-          player.learnableSkills.TryAdd(CustomSkill.BelluaireAttaqueCoordonnee, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BelluaireAttaqueCoordonnee], player));
-          player.learnableSkills[CustomSkill.BelluaireAttaqueCoordonnee].LevelUp(player);
-          player.learnableSkills[CustomSkill.BelluaireAttaqueCoordonnee].source.Add(Category.Class);
-
-          break;
-
-        case 7:
-
-          player.learnableSkills.TryAdd(CustomSkill.BelluaireDefenseDeLaBete, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BelluaireDefenseDeLaBete], player));
-          player.learnableSkills[CustomSkill.BelluaireDefenseDeLaBete].LevelUp(player);
-          player.learnableSkills[CustomSkill.BelluaireDefenseDeLaBete].source.Add(Category.Class);
-
-          break;
-
-        case 11:
-
-          player.learnableSkills.TryAdd(CustomSkill.BelluaireFurieBestiale, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BelluaireFurieBestiale], player));
-          player.learnableSkills[CustomSkill.BelluaireFurieBestiale].LevelUp(player);
-          player.learnableSkills[CustomSkill.BelluaireFurieBestiale].source.Add(Category.Class);
-
-          break;
-
-        case 15:
-
-          player.learnableSkills.TryAdd(CustomSkill.BelluaireDefenseDeLaBeteSuperieure, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BelluaireDefenseDeLaBeteSuperieure], player));
-          player.learnableSkills[CustomSkill.BelluaireDefenseDeLaBeteSuperieure].LevelUp(player);
-          player.learnableSkills[CustomSkill.BelluaireDefenseDeLaBeteSuperieure].source.Add(Category.Class);
-
-          break;
+        case 5: player.LearnClassSkill(CustomSkill.BelluaireAttaqueCoordonnee); break;
+        case 7: player.LearnClassSkill(CustomSkill.BelluaireEntrainementExceptionnel); break;
+        case 11: player.LearnClassSkill(CustomSkill.BelluaireFurieBestiale); break;
+        case 15: player.LearnClassSkill(CustomSkill.BelluaireDefenseDeLaBeteSuperieure); break;
       }
     }
   }

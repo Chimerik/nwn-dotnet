@@ -146,17 +146,9 @@ namespace NWN.Systems
         case CustomSkill.BotteTranchanteDeMaitre: BotteTranchanteDeMaitre(onUseFeat.Creature); return;
 
         case CustomSkill.RangerInfatiguable: Infatiguable(onUseFeat.Creature); return;
-        case CustomSkill.ChasseurVolee: Volee(onUseFeat.Creature); return;
-
-        case CustomSkill.BelluaireBear: 
-        case CustomSkill.BelluaireDireRaven: 
-        case CustomSkill.BelluaireSpider: 
-        case CustomSkill.BelluaireWolf: 
-        case CustomSkill.BelluaireBoar: SummonAnimalCompanion(onUseFeat.Creature, onUseFeat.Feat.Id); return;
+        case CustomSkill.ProfondeursFrappeRedoutable: FrappeRedoutable(onUseFeat.Creature); return;
 
         case CustomSkill.BelluaireFurieBestiale: FurieBestiale(onUseFeat.Creature); return;
-        case CustomSkill.BelluaireSprint: BelluaireSprint(onUseFeat.Creature); return;
-        case CustomSkill.BelluaireDisengage: BelluaireDisengage(onUseFeat.Creature); return;
         case CustomSkill.BelluaireRugissementProvoquant: BelluaireRugissementProvoquant(onUseFeat.Creature); return;
         case CustomSkill.BelluairePatteMielleuse: PatteMielleuse(onUseFeat.Creature); return;
         case CustomSkill.BelluaireChargeSanglier: ChargeDuSanglier(onUseFeat.Creature, onUseFeat.TargetObject); return;

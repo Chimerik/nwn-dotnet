@@ -25,7 +25,7 @@ namespace NWN.Systems
           else
             target.ApplyEffect(EffectDuration.Temporary, EffectSystem.FrappeEtourdissante, NwTimeSpan.FromRounds(1));
 
-          onAttack.Attacker.ApplyEffect(EffectDuration.Temporary, EffectSystem.Cooldown(onAttack.Attacker, CustomSkill.MonkStunStrike, 6), NwTimeSpan.FromRounds(1));
+          onAttack.Attacker.ApplyEffect(EffectDuration.Temporary, EffectSystem.Cooldown(onAttack.Attacker, 6, CustomSkill.MonkStunStrike), NwTimeSpan.FromRounds(1));
 
           await NwTask.NextFrame();
           onAttack.Attacker.OnCreatureAttack -= OnMonkStunStrike;

@@ -189,5 +189,15 @@
     public const int ImpositionDesMainsMineure = 1033;
     public const int ImpositionDesMainsMajeure = 1034;
     public const int ImpositionDesMainsGuerison = 1035;
+    public const int PourfendeurDeColosses = 1037;
+    public const int BriseurDeHordes = 1038;
+    public const int EchapperALaHorde = 1040;
+    public const int DefenseAdaptative = 1041;
+    public const int BelluaireOurs = 1043;
+    public const int BelluaireCorbeau = 1044;
+    public const int BelluaireLoup = 1045;
+    public const int BelluaireAraignee = 1046;
+    public const int BelluaireSanglier = 1047;
+    public const int BelluaireRevocation = 1048;
   }
 }

@@ -60,6 +60,7 @@
 
     <ItemGroup>
       <Folder Include="Systems\FeatSystem\ActiveFeats\Barbarian\Totem\" />
+      <Folder Include="Systems\FeatSystem\ActiveFeats\Ranger\Hunter\" />
       <Folder Include="Systems\PlayerSystem\PlayerInit\NewCharacter\IntroEditor\Utils\" />
       <Folder Include="Systems\PlayerSystem\PlayerInit\NewPlayer\" />
     </ItemGroup>

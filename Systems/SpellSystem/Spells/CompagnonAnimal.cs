@@ -4,59 +4,57 @@ using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
-  public partial class FeatSystem
+  public partial class SpellSystem
   {
-    private static void SummonAnimalCompanion(NwCreature caster, int featId)
+    public static void CompagnonAnimal(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, Location targetLocation)
     {
+      if (oCaster is not NwCreature caster)
+        return;
+
+      var rangerClass = caster.GetClassInfo((ClassType)CustomClass.Occultiste);
+      byte remainingSlots = 0;
+
+      for (byte i = 1; i < 6; i++)
+      {
+        remainingSlots = rangerClass.GetRemainingSpellSlots(i);
+
+        if (remainingSlots > 0)
+        {
+          rangerClass.SetRemainingSpellSlots(i, (byte)(remainingSlots - 1));
+          break;
+        }
+      }
+
+      if(remainingSlots < 1)
+      {
+        caster.LoginPlayer?.SendServerMessage("Emplacement de sort de Rôdeur requis", ColorConstants.Red);
+        return;
+      }
+
+      SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
+
+      NwCreature companion;
+
       if (caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).HasValue)
       {
-        var companion = caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).Value;
-        caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).Delete();
-
-        caster.GetObjectVariable<PersistentVariableInt>(CreatureUtils.AnimalCompanionVariable).Value = companion.HP;
-
+        companion = caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).Value;
         companion.VisibilityOverride = Anvil.Services.VisibilityMode.Hidden;
         companion.Destroy();
+
         companion.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpUnsummon));
-
-        RangerUtils.ClearAnimalCompanion(companion);
       }
-      else if (caster.GetObjectVariable<PersistentVariableInt>(CreatureUtils.AnimalCompanionVariable).Value < 0)
-        caster.LoginPlayer?.SendServerMessage("Votre compagnon est trop épuisé pour se joindre à vous. Il faut au minimum un repos court afin qu'il récupère", ColorConstants.Orange);
-      else
-      {
-        NwCreature companion = CreateAnimalCompanion(featId, caster, caster.Location);
 
-        CreaturePlugin.AddAssociate(caster, companion, (int)AssociateType.AnimalCompanion);
-        caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).Value = companion;
+      companion = CreateAnimalCompanion(spell.Id, caster, targetLocation);
 
-        for (int i = 268; i < 287; i++)
-          if (caster.KnowsFeat((Feat)i))
-            companion.AddFeat((Feat)i);
+      CreaturePlugin.AddAssociate(caster, companion, (int)AssociateType.AnimalCompanion);
+      caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).Value = companion;
 
-        if (caster.KnowsFeat((Feat)CustomSkill.BelluaireDefenseDeLaBete))
-          companion.AddFeat((Feat)CustomSkill.BelluaireDefenseDeLaBete);
+      for (int i = 268; i < 287; i++)
+        if (caster.KnowsFeat((Feat)i))
+          companion.AddFeat((Feat)i);
 
-        if (caster.KnowsFeat((Feat)CustomSkill.BelluaireDefenseDeLaBeteSuperieure))
-          companion.AddFeat((Feat)CustomSkill.ChasseurEsquiveInstinctive);
-
-        if (caster.IsLoginPlayerCharacter)
-        {
-          caster.LoginPlayer.OnClientLeave -= RangerUtils.OnDisconnectBelluaire;
-          caster.LoginPlayer.OnClientLeave += RangerUtils.OnDisconnectBelluaire;
-        }
-
-        companion.OnDeath += RangerUtils.OnAnimalCompanionDeath;
-
-        if (caster.KnowsFeat((Feat)CustomSkill.BelluaireFurieBestiale))
-          caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireFurieBestiale, 100);
-
-        if (caster.KnowsFeat((Feat)CustomSkill.BelluaireSprint))
-          caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireSprint, 100);
-
-        if (caster.KnowsFeat((Feat)CustomSkill.BelluaireDisengage))
-          caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireDisengage, 100);
-      }
+      if (caster.KnowsFeat((Feat)CustomSkill.BelluaireFurieBestiale))
+        caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireFurieBestiale, 100);
     }
     private static NwCreature CreateAnimalCompanion(int featId, NwCreature caster, Location target)
     {
@@ -113,7 +111,7 @@ namespace NWN.Systems
 
           break;
 
-        case CustomSkill.BelluaireBoar:
+        case CustomSpell.BelluaireSanglier:
 
           companion = NwCreature.Create("sangliercompagnon", target);
 
@@ -159,7 +157,7 @@ namespace NWN.Systems
 
           break;
 
-        case CustomSkill.BelluaireDireRaven:
+        case CustomSpell.BelluaireCorbeau:
 
           companion = NwCreature.Create("corbeaucompagnon", target);
 
@@ -204,7 +202,7 @@ namespace NWN.Systems
 
           break;
 
-        case CustomSkill.BelluaireWolf:
+        case CustomSpell.BelluaireLoup:
 
           companion = NwCreature.Create("loupcompagnon", target);
 
@@ -254,7 +252,7 @@ namespace NWN.Systems
 
           break;
 
-        case CustomSkill.BelluaireSpider:
+        case CustomSpell.BelluaireAraignee:
 
           companion = NwCreature.Create("spidercompagnon", target);
 
@@ -305,16 +303,6 @@ namespace NWN.Systems
           break;
       }
 
-      int companionHP = caster.GetObjectVariable<PersistentVariableInt>(CreatureUtils.AnimalCompanionVariable).Value;
-
-      if (companionHP == 1000)
-      {
-        companionHP = companion.MaxHP / 2;
-        caster.GetObjectVariable<PersistentVariableInt>(CreatureUtils.AnimalCompanionVariable).Value = companionHP;
-      }
-      else
-        companion.HP = companionHP > 0 ? companionHP : companion.MaxHP;
-      
       companion.Position = CreaturePlugin.ComputeSafeLocation(companion, target.Position, 10, 1);
       companion.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(vfx));
       companion.SetEventScript(EventScriptType.CreatureOnBlockedByDoor, "nw_ch_ace");

@@ -595,7 +595,6 @@ namespace NWN.Systems
                     player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>(Wizard.TransmutationStoneVariable).Delete();
                     player.oid.LoginCreature.GetObjectVariable<LocalVariableString>(CreatureUtils.CharmeInstinctifVariable).Delete();
 
-                    RangerUtils.HealAnimalCompanion(player.oid.LoginCreature, true);
                     RangerUtils.RestoreEnnemiJure(player.oid.LoginCreature);
                     FighterUtils.RestoreManoeuvres(player.oid.LoginCreature);
                     FighterUtils.RestoreTirArcanique(player.oid.LoginCreature);

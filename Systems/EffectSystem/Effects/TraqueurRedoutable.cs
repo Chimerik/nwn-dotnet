@@ -9,8 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.MovementSpeedIncrease(15), Effect.Icon(EffectIcon.MovementSpeedIncrease),
-          Effect.ModifyAttacks(1));
+        Effect eff = Effect.LinkEffects(Effect.MovementSpeedIncrease(15), Effect.Icon(EffectIcon.MovementSpeedIncrease));
         eff.Tag = TraqueurRedoutableEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;
