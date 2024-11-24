@@ -147,9 +147,9 @@ namespace NWN.Systems
       {
         case SpellEffectType.Concentration:
 
-          if (oCaster is NwCreature attacker && attacker.KnowsFeat((Feat)CustomSkill.TueurDeMage))
+          if (oCaster is NwCreature attacker && attacker.KnowsFeat((Feat)CustomSkill.PourfendeurDeMages))
           {
-            LogUtils.LogMessage("Désavantage - Concentration vs Tueur de Mage", LogUtils.LogType.Combat);
+            LogUtils.LogMessage("Désavantage - Concentration vs Pourfendeur de Mages", LogUtils.LogType.Combat);
             return true;
           }
 

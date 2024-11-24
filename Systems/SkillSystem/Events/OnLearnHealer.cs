@@ -6,10 +6,10 @@ namespace NWN.Systems
 {
   public static partial class SkillSystem
   {
-    public static bool OnLearnMageDeGuerre(PlayerSystem.Player player, int customSkillId)
+    public static bool OnLearnHealer(PlayerSystem.Player player, int customSkillId)
     {
-      if(!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.MageDeGuerre))
-        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.MageDeGuerre);
+      //if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.Chargeur))
+        //player.oid.LoginCreature.AddFeat((Feat)CustomSkill.Chargeur);
 
       List<NuiComboEntry> abilities = new();
 
@@ -18,9 +18,6 @@ namespace NWN.Systems
 
       if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Wisdom) < 20)
         abilities.Add(new("Sagesse", (int)Ability.Wisdom));
-
-      if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Charisma) < 20)
-        abilities.Add(new("Charisme", (int)Ability.Charisma));
 
       if (abilities.Count > 0)
       {

@@ -66,7 +66,7 @@
     public const int CogneurLourd = 1371;
     public const int MaitreArmureLourde = 1372;
     public const int MaitreBouclier = 1373;
-    public const int TueurDeMage = 1374;
+    public const int PourfendeurDeMages = 1374;
     public const int Mobile = 1375;
     public const int AgresseurSauvage = 1376;
     public const int HastMaster = 1377;
@@ -154,6 +154,8 @@
     public const int RoublardFrappePerfide = 1445;
     public const int AssassinInfiltrationExpert = 1446;
     public const int AssassinEnvenimer = 1447;
+    public const int FightingStyleCombatAveugle = 1447;
+    public const int FightingStyleUnarmed = 1448;
     public const int MainLeste = 1462;
     public const int ThiefDiscretionSupreme = 1463;
     public const int ConspirateurMaitriseTactique = 1465;
@@ -968,7 +970,7 @@
   
     public const int AbilityImprovement = 20486;
     public const int Actor = 20487;
-    public const int Vigilant = 20488;
+    //public const int Vigilant = 20488;
     
     public const int DuellisteDefensif = 20492;
     public const int AmbiMaster = 20493;

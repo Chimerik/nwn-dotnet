@@ -29,8 +29,9 @@ namespace NWN.Systems
         private List<int> skillList;
         private int nbSkills;
         private int learningClass;
+        private int learningFeat;
 
-        public SkillProficiencySelectionWindow(Player player, List<int> skillList, int nbSkills, int learningClass = 0) : base(player)
+        public SkillProficiencySelectionWindow(Player player, List<int> skillList, int nbSkills, int learningClass = 0, int learningFeat = 0) : base(player)
         {
           windowId = "skillProficiencySelection";
 
@@ -59,13 +60,14 @@ namespace NWN.Systems
               new NuiSpacer() } }
           };
 
-          CreateWindow(skillList, nbSkills, learningClass);
+          CreateWindow(skillList, nbSkills, learningClass, learningFeat);
         }
-        public void CreateWindow(List<int> skillList, int nbSkills, int learningClass = 0)
+        public void CreateWindow(List<int> skillList, int nbSkills, int learningClass = 0, int learningFeat = 0)
         {
           this.skillList = skillList;
           this.nbSkills = nbSkills;
           this.learningClass = learningClass;
+          this.learningFeat = learningFeat;
 
           NuiRect windowRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 520, 500);
 
@@ -173,36 +175,30 @@ namespace NWN.Systems
 
                   foreach (var skill in acquiredSkills)
                   {
-                    if (player.learnableSkills.TryGetValue(skill.id, out var learnable))
-                    {
-                      if(learnable.currentLevel < 1)
-                        learnable.LevelUp(player);  
-                    }
-                    else
-                    {
-                      LearnableSkill learnableSkill = new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[skill.id], player);
-                      player.learnableSkills.Add(learnableSkill.id, learnableSkill);
-                      learnableSkill.LevelUp(player);
-                    }
-
                     if (learningClass == CustomSkill.ClercSavoir)
                     {
-                      if (player.learnableSkills.TryGetValue(skill.id + 1, out var expertise))
+                      player.LearnClassSkill(skill.id);
+                      player.LearnClassSkill(skill.id + 1);
+                      player.oid.SendServerMessage($"Vous apprenez l'expertise {StringUtils.ToWhitecolor(skill.name)}", ColorConstants.Orange);
+                    }
+                    else if (Utils.In(learningFeat, CustomSkill.EspritVif, CustomSkill.Observateur))
+                    {
+                      if (player.learnableSkills.TryGetValue(skill.id, out var mastery) && mastery.currentLevel > 0)
                       {
-                        if (expertise.currentLevel < 1)
-                          expertise.LevelUp(player);
+                        player.LearnClassSkill(skill.id + 1);
+                        player.oid.SendServerMessage($"Vous apprenez l'expertise {StringUtils.ToWhitecolor(skill.name)}", ColorConstants.Orange);
                       }
                       else
                       {
-                        LearnableSkill learnableSkill = new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[skill.id + 1], player);
-                        player.learnableSkills.Add(learnableSkill.id, learnableSkill);
-                        learnableSkill.LevelUp(player);
+                        player.LearnClassSkill(skill.id);
+                        player.oid.SendServerMessage($"Vous apprenez la maîtrise {StringUtils.ToWhitecolor(skill.name)}", ColorConstants.Orange);
                       }
-
-                      player.oid.SendServerMessage($"Vous apprenez l'expertise {StringUtils.ToWhitecolor(skill.name)}", ColorConstants.Orange);
                     }
                     else
+                    {
+                      player.LearnClassSkill(skill.id);
                       player.oid.SendServerMessage($"Vous apprenez la maîtrise {StringUtils.ToWhitecolor(skill.name)}", ColorConstants.Orange);
+                    }
                   }
 
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_NB_SKILL_PROFICIENCY_SELECTION").Delete();

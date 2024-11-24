@@ -1,16 +1,24 @@
-﻿using System.Linq;
-using Anvil.API;
+﻿using Anvil.API;
 using NWN.Native.API;
 
 namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static bool IsTireurDelite(CNWSCreature attacker, CNWSCombatAttackData attackData, CNWSItem weapon)
+    public static int  GetTireurDeliteBonusDamage(CNWSCreature attacker, CNWSCombatAttackData attackData, CNWSItem weapon)
     {
-      return attackData.m_bRangedAttack.ToBool()
-        && attacker.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.TireurDeliteExoTag).ToBool())
-        && GetCreatureWeaponProficiencyBonus(attacker, weapon) > 1;
+      int bonusDamage = 0;
+
+      if(attackData.m_bRangedAttack.ToBool()
+        && attacker.m_pStats.HasFeat(CustomSkill.TireurDelite).ToBool())
+      {
+        bonusDamage = GetCreatureWeaponProficiencyBonus(attacker, weapon);
+
+        if (bonusDamage > 0)
+          LogUtils.LogMessage($"Tireur d'Elite : +{bonusDamage}", LogUtils.LogType.Combat);
+      }
+
+      return bonusDamage;
     }
   }
 }

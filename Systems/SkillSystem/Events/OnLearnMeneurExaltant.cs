@@ -6,15 +6,12 @@ namespace NWN.Systems
 {
   public static partial class SkillSystem
   {
-    public static bool OnLearnMageDeGuerre(PlayerSystem.Player player, int customSkillId)
+    public static bool OnLearnMeneurExaltant(PlayerSystem.Player player, int customSkillId)
     {
-      if(!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.MageDeGuerre))
-        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.MageDeGuerre);
+      if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.MeneurExaltant))
+        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.MeneurExaltant);
 
       List<NuiComboEntry> abilities = new();
-
-      if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Intelligence) < 20)
-        abilities.Add(new("Intelligence", (int)Ability.Intelligence));
 
       if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Wisdom) < 20)
         abilities.Add(new("Sagesse", (int)Ability.Wisdom));

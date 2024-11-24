@@ -33,36 +33,6 @@ namespace NWN.Systems
         LogUtils.LogMessage("Frappe Guidée : +10 BA", LogUtils.LogType.Combat);
       }
 
-      var initiaLocation = attacker.m_pStats.m_pBaseCreature.m_ScriptVars.GetLocation(EffectSystem.chargerVariableExo);
-
-      if (initiaLocation.m_oArea != NWScript.OBJECT_INVALID && Vector3.DistanceSquared(initiaLocation.m_vPosition.ToManagedVector(), attacker.m_vPosition.ToManagedVector()) > 9)
-      {
-        attackBonus += 5;
-
-        foreach (var eff in attacker.m_appliedEffects)
-          if (eff.m_sCustomTag.CompareNoCase(EffectSystem.chargeurEffectExoTag).ToBool())
-            attacker.RemoveEffect(eff);
-
-        BroadcastNativeServerMessage("Charge (+5 BA)".ColorString(ColorConstants.Orange), attacker);
-        LogUtils.LogMessage("Chargeur : +5 BA", LogUtils.LogType.Combat);
-      }
-
-      attacker.m_pStats.m_pBaseCreature.m_ScriptVars.DestroyLocation(EffectSystem.chargerVariableExo);
-
-      if (weapon is not null)
-      {
-        if (IsCogneurLourd(attacker, weapon))
-        {
-          attackBonus -= 5;
-          LogUtils.LogMessage("Cogneur Lourd : -5 BA", LogUtils.LogType.Combat);
-        }
-        else if (IsTireurDelite(attacker, attackData, weapon))
-        {
-          attackBonus -= 5;
-          LogUtils.LogMessage("Tireur d'élite : -5 BA", LogUtils.LogType.Combat);
-        }
-      }
-
       List<string> appliedEffects = new();
 
       foreach(var eff in attacker.m_appliedEffects)

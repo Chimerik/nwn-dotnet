@@ -277,10 +277,20 @@ namespace NWN.Systems
     {
       int monkLevel = creature.m_pStats.GetNumLevelsOfClass(CustomClass.Monk);
 
-      if (monkLevel < 1 && creature.m_pStats.HasFeat(CustomSkill.BagarreurDeTaverne).ToBool())
+      if (monkLevel > 0)
+        return monkLevel > 16 ? 12 : monkLevel > 10 ? 10 : monkLevel > 4 ? 8 : 6;
+      else if (creature.m_pStats.HasFeat(CustomSkill.FightingStyleUnarmed).ToBool())
+      {
+        if (creature.m_pInventory.GetItemInSlot((uint)EquipmentSlot.RightHand) is not null
+          || creature.m_pInventory.GetItemInSlot((uint)EquipmentSlot.LeftHand) is not null)
+          return 6;
+        else
+          return 8;
+      }
+      else if (creature.m_pStats.HasFeat(CustomSkill.BagarreurDeTaverne).ToBool())
         return 4;
 
-      return monkLevel > 16 ? 12 : monkLevel > 10 ? 10 : monkLevel > 4 ? 8 : 6;
+      return 1;
     }
     public static async void TestGetInvi(CNWSCreature attacker, CNWSCreature target)
     {

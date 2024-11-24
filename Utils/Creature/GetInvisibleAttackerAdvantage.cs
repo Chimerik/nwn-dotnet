@@ -1,5 +1,4 @@
-﻿using Anvil.API;
-using NWN.Native.API;
+﻿using NWN.Native.API;
 
 namespace NWN.Systems
 {
@@ -7,8 +6,8 @@ namespace NWN.Systems
   {
     public static bool GetInvisibleAttackerAdvantage(CNWSCreature attacker, CNWSCreature target)
     {
-      if(target.m_pStats.HasFeat(CustomSkill.Vigilant).ToBool())
-        return false;
+      //if(target.m_pStats.HasFeat(CustomSkill.Vigilant).ToBool())
+        //return false;
 
       if (target.GetVisibleListElement(attacker.m_idSelf) is null
         || target.GetVisibleListElement(attacker.m_idSelf).m_bSeen < 1

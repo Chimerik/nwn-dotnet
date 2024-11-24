@@ -18,9 +18,7 @@ namespace NWN.Systems
     }
     public static void ApplyTerrainDifficileEffect(NwCreature creature)
     {
-      if (creature.Classes.Any(c => c.Class.ClassType == ClassType.Ranger) 
-        || creature.ActiveEffects.Any(e => EffectUtils.In(e.Tag, TerrainDifficileEffectTag, SprintMobileEffectTag, "_LIBERTE_DE_MOUVEMENT_EFFECT"))
-        || (creature.Classes.Any(c => c.Class.ClassType == ClassType.Ranger && c.Level > 8) && creature.ActiveEffects.Any(e => e.Tag == MonkSpeedEffectTag)))
+      if (creature.ActiveEffects.Any(e => EffectUtils.In(e.Tag, TerrainDifficileEffectTag, SprintMobileEffectTag, "_LIBERTE_DE_MOUVEMENT_EFFECT")))
         return;
 
       creature.ApplyEffect(EffectDuration.Permanent, TerrainDifficile);

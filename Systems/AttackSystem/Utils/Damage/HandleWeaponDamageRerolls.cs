@@ -19,8 +19,8 @@ namespace NWN.Systems
           && roll < 3)
         {
           int reroll = NwRandom.Roll(Utils.random, dieToRoll);
-          LogUtils.LogMessage($"rolled {roll} - Great Weapon Style rerolled {reroll}", LogUtils.LogType.Combat);
-          roll = reroll;
+          LogUtils.LogMessage($"rolled {roll} - Great Weapon Style replace to 3", LogUtils.LogType.Combat);
+          roll = 3;
         }
         else if (creature.m_pStats.HasFeat(CustomSkill.Empaleur).ToBool()
           && !creature.m_ScriptVars.GetInt(CreatureUtils.EmpaleurCooldownVariableExo).ToBool()

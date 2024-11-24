@@ -448,17 +448,6 @@ namespace NWN.Systems
 
           sneakAttack = NativeUtils.GetSneakAttackDamage(attacker, targetCreature, attackWeapon, attackData, combatRound);
           baseDamage += sneakAttack;
-
-          if (NativeUtils.IsCogneurLourd(attacker, attackWeapon))
-          {
-            baseDamage += 10;
-            LogUtils.LogMessage($"Cogneur Lourd : +10 dégâts", LogUtils.LogType.Combat);
-          }
-          else if (NativeUtils.IsTireurDelite(attacker, attackData, attackWeapon))
-          {
-            baseDamage += 10;
-            LogUtils.LogMessage($"Tireur d'élite : +10 dégâts", LogUtils.LogType.Combat);
-          }
         }
         else
         {

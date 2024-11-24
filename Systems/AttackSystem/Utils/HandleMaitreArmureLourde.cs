@@ -7,17 +7,19 @@ namespace NWN.Systems
   {
     public static int HandleMaitreArmureLourde(CNWSCreature target)
     {
-      if (!target.m_pStats.HasFeat(CustomSkill.MaitreArmureLourde).ToBool())
-        return 0;
+      int damageReduction = 0;
 
-      CNWSItem armor = target.m_pInventory.GetItemInSlot((uint)EquipmentSlot.Chest);
-      
-      if(armor is null || armor.m_nArmorValue < 16)
-        return 0;
+      if (target.m_pStats.HasFeat(CustomSkill.MaitreArmureLourde).ToBool())
+      {
+        CNWSItem armor = target.m_pInventory.GetItemInSlot((uint)EquipmentSlot.Chest);
 
-      LogUtils.LogMessage($"Maître des armures lourdes : Dégâts -3", LogUtils.LogType.Combat);
-
-      return 3;
+        if (armor is not null || armor.m_nArmorValue > 5)
+        {
+          damageReduction = GetCreatureProficiencyBonus(target);
+          LogUtils.LogMessage($"Maître des armures lourdes : Dégâts -{damageReduction}", LogUtils.LogType.Combat);
+        }
+      }
+      return damageReduction;
     }
   }
 }

@@ -24,7 +24,10 @@ namespace NWN.Systems
 
       if (player.learnableSkills[CustomSkill.LightArmorProficiency].currentLevel < 1)
         player.learnableSkills[CustomSkill.LightArmorProficiency].LevelUp(player);
-      
+
+      if (!player.oid.LoginCreature.KnowsFeat(Feat.ShieldProficiency))
+        player.oid.LoginCreature.AddFeat(Feat.ShieldProficiency);
+
       if (abilities.Count > 0)
       {
         if (!player.windows.TryGetValue("abilityBonusChoice", out var value)) player.windows.Add("abilityBonusChoice", new AbilityBonusChoiceWindow(player, abilities));

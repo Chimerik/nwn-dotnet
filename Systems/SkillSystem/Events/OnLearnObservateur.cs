@@ -22,6 +22,16 @@ namespace NWN.Systems
         else ((AbilityBonusChoiceWindow)value).CreateWindow(abilities);
       }
 
+      List<int> tempList = new() { CustomSkill.InsightProficiency, CustomSkill.InvestigationProficiency, CustomSkill.InvestigationProficiency, CustomSkill.PerceptionProficiency };
+      List<int> skillList = new();
+
+      foreach (var skill in tempList)
+        if (!player.learnableSkills.TryGetValue(skill + 1, out var expertise) || expertise.currentLevel < 1)
+          skillList.Add(skill);
+
+      if (!player.windows.TryGetValue("skillProficiencySelection", out var skill3)) player.windows.Add("skillProficiencySelection", new SkillProficiencySelectionWindow(player, skillList, 1, learningFeat: CustomSkill.Observateur));
+      else ((SkillProficiencySelectionWindow)skill3).CreateWindow(skillList, 1, learningFeat: CustomSkill.Observateur);
+
       return true;
     }
   }

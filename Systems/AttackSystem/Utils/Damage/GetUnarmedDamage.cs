@@ -13,6 +13,7 @@ namespace NWN.Systems
         + GetBarbarianRageBonusDamage(creature, attackAbility)
         + GetFrappeFrenetiqueBonusDamage(creature, attackAbility)
         + GetFrappeBrutaleBonusDamage(creature, target, attackAbility)
+        + GetChargeurBonusDamage(creature)
         + GetFaveurDuMalinBonusDamage(creature);
 
       LogUtils.LogMessage($"Mains nues - 1d{unarmedDieToRoll} => {damage}", LogUtils.LogType.Combat);

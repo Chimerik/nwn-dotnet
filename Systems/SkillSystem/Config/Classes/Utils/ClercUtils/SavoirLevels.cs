@@ -2,7 +2,6 @@
 using Anvil.API;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.PlayerSystem.Player;
-using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
 {
@@ -24,10 +23,7 @@ namespace NWN.Systems
             if(!player.learnableSkills.TryGetValue(skill + 1, out var expertise) || expertise.currentLevel < 1)
               skillList.Add(skill);
 
-          player.learnableSkills.TryAdd(CustomSkill.ClercSavoirAncestral, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercSavoirAncestral], player));
-          player.learnableSkills[CustomSkill.ClercSavoirAncestral].LevelUp(player);
-          player.learnableSkills[CustomSkill.ClercSavoirAncestral].source.Add(Category.Class);
-
+          player.LearnClassSkill(CustomSkill.ClercSavoirAncestral);
 
           if (!player.windows.TryGetValue("skillProficiencySelection", out var skill3)) player.windows.Add("skillProficiencySelection", new SkillProficiencySelectionWindow(player, skillList, 2, CustomSkill.ClercSavoir));
           else ((SkillProficiencySelectionWindow)skill3).CreateWindow(skillList, 2, CustomSkill.ClercSavoir);
@@ -46,13 +42,7 @@ namespace NWN.Systems
 
           break;
 
-        case 6:
-
-          player.learnableSkills.TryAdd(CustomSkill.ClercDetectionDesPensees, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercDetectionDesPensees], player));
-          player.learnableSkills[CustomSkill.ClercDetectionDesPensees].LevelUp(player);
-          player.learnableSkills[CustomSkill.ClercDetectionDesPensees].source.Add(Category.Class);
-
-          break;
+        case 6: player.LearnClassSkill(CustomSkill.ClercDetectionDesPensees); break;
 
         case 7:
 
@@ -68,13 +58,7 @@ namespace NWN.Systems
 
           break;
 
-        case 17:
-
-          player.learnableSkills.TryAdd(CustomSkill.ClercHaloDeLumiere, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercHaloDeLumiere], player));
-          player.learnableSkills[CustomSkill.ClercHaloDeLumiere].LevelUp(player);
-          player.learnableSkills[CustomSkill.ClercHaloDeLumiere].source.Add(Category.Class);
-
-          break;
+        case 17: player.LearnClassSkill(CustomSkill.ClercHaloDeLumiere); break;
       }
     }
   }

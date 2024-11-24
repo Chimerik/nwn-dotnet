@@ -7,17 +7,20 @@ namespace NWN.Systems
   {
     public static int HandleBagarreurDeTaverne(CNWSCreature creature, CNWSItem weapon)
     {
-      if (weapon is not null || !creature.m_pStats.HasFeat(CustomSkill.BagarreurDeTaverne).ToBool())
-        return 0;
+      int bonusDamage = 0;
 
-      int strMod = GetAbilityModifier(creature, Anvil.API.Ability.Strength);
+      if (weapon is null && creature.m_pStats.HasFeat(CustomSkill.BagarreurDeTaverne).ToBool())
+      {
+        int strMod = GetAbilityModifier(creature, Anvil.API.Ability.Strength);
 
-      if (strMod < 1)
-        return 0;
+        if (strMod > 0)
+        { 
+          bonusDamage = strMod;
+          LogUtils.LogMessage($"Bagarreur de taverne dégâts : +{bonusDamage}", LogUtils.LogType.Combat);
+        }
+      }
 
-      LogUtils.LogMessage($"Bagarreur de taverne dégâts : +{strMod}", LogUtils.LogType.Combat);
-
-      return strMod;
+      return bonusDamage;
     }
   }
 }

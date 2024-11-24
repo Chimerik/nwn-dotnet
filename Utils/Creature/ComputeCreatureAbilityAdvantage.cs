@@ -164,9 +164,9 @@ namespace NWN.Systems
 
       if (oCaster is NwCreature caster)
       {
-        if (creature.KnowsFeat((Feat)CustomSkill.TueurDeMage) && creature.DistanceSquared(caster) < 7)
+        if (creature.KnowsFeat((Feat)CustomSkill.PourfendeurDeMages) && creature.DistanceSquared(caster) < 7)
         {
-          LogUtils.LogMessage("Avantage - Tueur de mage", LogUtils.LogType.Combat);
+          LogUtils.LogMessage("Avantage - Pourfendeur de Mages", LogUtils.LogType.Combat);
           return true;
         }
 

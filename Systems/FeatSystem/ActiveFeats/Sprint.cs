@@ -19,10 +19,7 @@ namespace NWN.Systems
         EffectUtils.RemoveTaggedEffect(caster, EffectSystem.SprintEffectTag);
 
         caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHaste));
-        caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.sprintEffect, NwTimeSpan.FromRounds(1));
-
-        if (caster.KnowsFeat((Feat)CustomSkill.Mobile))
-          caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.sprintMobileEffect, NwTimeSpan.FromRounds(1));
+        caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.Sprint(caster), NwTimeSpan.FromRounds(1));
 
         caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value -= 1;
 
@@ -42,7 +39,7 @@ namespace NWN.Systems
           if(companion is not null)
           {
             companion.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHaste));
-            companion.ApplyEffect(EffectDuration.Temporary, EffectSystem.sprintEffect, NwTimeSpan.FromRounds(1));
+            companion.ApplyEffect(EffectDuration.Temporary, EffectSystem.Sprint(companion), NwTimeSpan.FromRounds(1));
           }
         }
 

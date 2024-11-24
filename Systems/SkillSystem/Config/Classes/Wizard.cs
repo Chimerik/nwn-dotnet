@@ -30,7 +30,8 @@ namespace NWN.Systems
         learnableDictionary[CustomSkill.InsightProficiency],
         learnableDictionary[CustomSkill.InvestigationProficiency],
         learnableDictionary[CustomSkill.MedicineProficiency],
-        learnableDictionary[CustomSkill.ReligionProficiency]
+        learnableDictionary[CustomSkill.ReligionProficiency],
+        learnableDictionary[CustomSkill.NatureExpertise]
       },
       2
     );

@@ -91,20 +91,8 @@ namespace NWN.Systems
             geometry.SetBindValue(player.oid, nuiToken.Token, new NuiRect(savedRectangle.X, savedRectangle.Y, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f));
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-            currentList = fromLearnable switch
-            {
-              CustomSkill.BardCollegeDeLescrime => learnableDictionary.Values.Where(s => s is LearnableSkill ls && Utils.In(s.id, CustomSkill.FighterCombatStyleDuel, CustomSkill.FighterCombatStyleDualWield)
-              && (!player.learnableSkills.ContainsKey(s.id) || player.learnableSkills[s.id].currentLevel < s.maxLevel)).OrderBy(s => s.name),
-              
-              CustomSkill.Ranger => learnableDictionary.Values.Where(s => s is LearnableSkill ls && Utils.In(s.id, CustomSkill.FighterCombatStyleArchery, CustomSkill.FighterCombatStyleDuel, CustomSkill.FighterCombatStyleDualWield, CustomSkill.FighterCombatStyleDefense)
-              && (!player.learnableSkills.ContainsKey(s.id) || player.learnableSkills[s.id].currentLevel < s.maxLevel)).OrderBy(s => s.name),
-
-              CustomSkill.Paladin => learnableDictionary.Values.Where(s => s is LearnableSkill ls && Utils.In(s.id, CustomSkill.FighterCombatStyleDuel, CustomSkill.FighterCombatStyleDefense, CustomSkill.FighterCombatStyleProtection, CustomSkill.FighterCombatStyleTwoHanded, CustomSkill.RangerGuerrierDruidique)
-              && (!player.learnableSkills.ContainsKey(s.id) || player.learnableSkills[s.id].currentLevel < s.maxLevel)).OrderBy(s => s.name),
-
-              _ => learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.FightingStyle 
-                && (!player.learnableSkills.ContainsKey(s.id) || player.learnableSkills[s.id].currentLevel < s.maxLevel)).OrderBy(s => s.name)
-            };
+            currentList = learnableDictionary.Values.Where(s => s is LearnableSkill ls && (ls.category == Category.FightingStyle || (fromLearnable == CustomSkill.Ranger && ls.id == CustomSkill.RangerGuerrierDruidique))
+                && (!player.learnableSkills.ContainsKey(s.id) || player.learnableSkills[s.id].currentLevel < s.maxLevel)).OrderBy(s => s.name);
 
             if(!currentList.Any())
             {

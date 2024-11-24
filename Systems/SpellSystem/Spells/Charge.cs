@@ -18,7 +18,7 @@ namespace NWN.Systems
       _ = oCaster.ClearActionQueue();
       _ = oCaster.AddActionToQueue(() => _ = caster.ActionForceMoveTo(targetLocation, true));
 
-      oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.ChargeDuSanglierAura, NwTimeSpan.FromRounds(1));
+      oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.ChargeDuSanglierAura(caster), NwTimeSpan.FromRounds(1));
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Charge", ColorConstants.Red, true);
 
       await NwTask.NextFrame();

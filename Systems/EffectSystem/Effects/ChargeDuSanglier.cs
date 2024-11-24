@@ -13,17 +13,14 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onEnterChargeDuSanglierCallback;
     private static ScriptCallbackHandle onRemoveChargeDuSanglierCallback;
     
-    public static Effect ChargeDuSanglierAura
+    public static Effect ChargeDuSanglierAura(NwCreature caster)
     {
-      get
-      {
-        Effect eff = Effect.LinkEffects(Effect.AreaOfEffect((PersistentVfxType)184, onEnterChargeDuSanglierCallback),
-          sprintEffect, disengageEffect, Effect.CutsceneGhost(), Effect.RunAction(onRemovedHandle: onRemoveChargeDuSanglierCallback));
+      Effect eff = Effect.LinkEffects(Effect.AreaOfEffect((PersistentVfxType)184, onEnterChargeDuSanglierCallback),
+        Sprint(caster), disengageEffect, Effect.CutsceneGhost(), Effect.RunAction(onRemovedHandle: onRemoveChargeDuSanglierCallback));
 
-        eff.Tag = ChargeDuSanglierAuraEffectTag;
-        eff.SubType = EffectSubType.Supernatural;
-        return eff;
-      }
+      eff.Tag = ChargeDuSanglierAuraEffectTag;
+      eff.SubType = EffectSubType.Supernatural;
+      return eff;
     }
     private static ScriptHandleResult OnEnterChargeDuSanglierAura(CallInfo callInfo)
     {

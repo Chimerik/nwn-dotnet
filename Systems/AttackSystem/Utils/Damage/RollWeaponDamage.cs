@@ -30,6 +30,9 @@ namespace NWN.Systems
         + GetFrappeBrutaleBonusDamage(creature, target, attackAbility, !attackData.m_bRangedAttack.ToBool())
         + GetPhysicalBonusDamage(creature, attackWeapon)    
         + GetFaveurDuMalinBonusDamage(creature)    
+        + GetChargeurBonusDamage(creature)
+        + GetCogneurLourdBonusDamage(creature, attackWeapon)
+        + GetTireurDeliteBonusDamage(creature, attackData, attackWeapon)
         + GetFormeSauvagePanthereBonusDamage(creature, target);    
 
       return damage;

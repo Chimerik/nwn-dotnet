@@ -1331,13 +1331,13 @@ namespace NWN.Systems
         {
           case Action.CastSpell:
 
-            if (!creature.KnowsFeat((Feat)CustomSkill.TueurDeMage))
+            if (!creature.KnowsFeat((Feat)CustomSkill.PourfendeurDeMages))
             {
               EventsPlugin.SkipEvent();
               return;
             }
             else
-              creature.GetObjectVariable<LocalVariableString>(CreatureUtils.OpportunityAttackTypeVariable).Value = "(Tueur de mage) ";
+              creature.GetObjectVariable<LocalVariableString>(CreatureUtils.OpportunityAttackTypeVariable).Value = "(Pourfendeur de Mages) ";
             //option = " - Tueur de mage".ColorString(StringUtils.gold);
 
             break;

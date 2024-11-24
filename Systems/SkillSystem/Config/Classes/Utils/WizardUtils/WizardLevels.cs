@@ -48,10 +48,10 @@ namespace NWN.Systems
 
         case 2:
 
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value = CustomSkill.Wizard;
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_EXPERTISE_CHOICE").Value = 1;
 
-          if (!player.windows.TryGetValue("subClassSelection", out var value)) player.windows.Add("subClassSelection", new SubClassSelectionWindow(player));
-          else ((SubClassSelectionWindow)value).CreateWindow();
+          if (!player.windows.TryGetValue("expertiseChoice", out var expertise3)) player.windows.Add("expertiseChoice", new ExpertiseChoiceWindow(player));
+          else ((ExpertiseChoiceWindow)expertise3).CreateWindow();
 
           if (!player.windows.TryGetValue("spellSelection", out var spell2)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 0, 2));
           else ((SpellSelectionWindow)spell2).CreateWindow(ClassType.Wizard, 0, 2);
@@ -59,6 +59,11 @@ namespace NWN.Systems
           break;
 
         case 3:
+
+          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SUBCLASS_SELECTION").Value = CustomSkill.Wizard;
+
+          if (!player.windows.TryGetValue("subClassSelection", out var value)) player.windows.Add("subClassSelection", new SubClassSelectionWindow(player));
+          else ((SubClassSelectionWindow)value).CreateWindow();
 
           if (!player.windows.TryGetValue("spellSelection", out var spell3)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 0, 2));
           else ((SpellSelectionWindow)spell3).CreateWindow(ClassType.Wizard, 0, 2);

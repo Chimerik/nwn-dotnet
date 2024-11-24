@@ -62,7 +62,7 @@ namespace NWN.Systems
           {
             case CustomSpell.RageSauvageAigle:
 
-              caster.ApplyEffect(EffectDuration.Temporary, sprintEffect, NwTimeSpan.FromRounds(1));
+              caster.ApplyEffect(EffectDuration.Temporary, Sprint(caster), NwTimeSpan.FromRounds(1));
               caster.ApplyEffect(EffectDuration.Temporary, disengageEffect, NwTimeSpan.FromRounds(1));
 
               break;

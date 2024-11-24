@@ -33,8 +33,6 @@ namespace NWN.Systems
         case CustomSkill.Stealth: Stealth(onUseFeat.Creature, onUseFeat); return;
         case CustomSkill.Chargeur: Chargeur(onUseFeat.Creature, onUseFeat.TargetObject); return;
         case CustomSkill.FighterSurge: ActionSurge(onUseFeat.Creature); return;
-        case CustomSkill.CogneurLourd: CogneurLourd(onUseFeat.Creature); return;
-        case CustomSkill.TireurDelite: TireurDelite(onUseFeat.Creature); return;
         case CustomSkill.MageDeGuerre: MageDeGuerre(onUseFeat.Creature); return;
         case CustomSkill.FureurOrc: FureurOrc(onUseFeat.Creature); return;
         case CustomSkill.AgressionOrc: AgressionOrc(onUseFeat.Creature, onUseFeat.TargetObject); return;
