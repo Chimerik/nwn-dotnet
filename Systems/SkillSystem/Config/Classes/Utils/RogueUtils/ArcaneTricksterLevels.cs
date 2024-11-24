@@ -24,38 +24,24 @@ namespace NWN.Systems
 
           CreaturePlugin.SetClassByPosition(player.oid.LoginCreature, classPosition, CustomClass.RogueArcaneTrickster);
 
-          if (player.learnableSpells.TryGetValue(CustomSpell.MageHand, out var learnable))
-          {
-            learnable.learntFromClasses.Add(CustomClass.RogueArcaneTrickster);
+          player.LearnAlwaysPreparedSpell(CustomSpell.MageHand, CustomClass.RogueArcaneTrickster);
 
-            if (learnable.currentLevel < 1)
-              learnable.LevelUp(player);
-          }
-          else
-          {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[CustomSpell.MageHand], CustomClass.RogueArcaneTrickster);
-            player.learnableSpells.Add(learnableSpell.id, learnableSpell);
-            learnableSpell.LevelUp(player);
-          }
-
-          player.oid.SendServerMessage($"Vous apprenez le sort {StringUtils.ToWhitecolor("Main de Mage")}", ColorConstants.Orange);
-
-          if (!player.windows.TryGetValue("spellSelection", out var cantrip1)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 2, 1, 2));
-          else ((SpellSelectionWindow)cantrip1).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 2, 1, 2);
+          if (!player.windows.TryGetValue("spellSelection", out var cantrip1)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 2, 3));
+          else ((SpellSelectionWindow)cantrip1).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 2, 3);
 
           break;
 
         case 4:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell4)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 0, 0, 1));
-          else ((SpellSelectionWindow)spell4).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 0, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell4)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 0, 1));
+          else ((SpellSelectionWindow)spell4).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 0, 1);
 
           break;
 
         case 7:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell7)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 0, 0, 1));
-          else ((SpellSelectionWindow)spell7).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 0, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell7)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 0, 1));
+          else ((SpellSelectionWindow)spell7).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 0, 1);
 
           break;
 
@@ -66,36 +52,28 @@ namespace NWN.Systems
 
           break;
 
-        case 9:
-
-          player.learnableSkills.TryAdd(CustomSkill.ArcaneTricksterMagicalAmbush, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ArcaneTricksterMagicalAmbush], player));
-          player.learnableSkills[CustomSkill.ArcaneTricksterMagicalAmbush].LevelUp(player);
-          player.learnableSkills[CustomSkill.ArcaneTricksterMagicalAmbush].source.Add(Category.Class);
-
-          break;
+        case 9: player.LearnClassSkill(CustomSkill.ArcaneTricksterMagicalAmbush); break;
 
         case 10:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell10)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 1, 0, 1));
-          else ((SpellSelectionWindow)spell10).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 1, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell10)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 1, 1));
+          else ((SpellSelectionWindow)spell10).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 1, 1);
 
           break;
 
         case 11:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell11)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 0, 0, 1));
-          else ((SpellSelectionWindow)spell11).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 0, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell11)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 0, 1));
+          else ((SpellSelectionWindow)spell11).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 0, 1);
 
           break;
 
         case 13:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell13)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 0, 0, 1));
-          else ((SpellSelectionWindow)spell13).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 0, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell13)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 0, 1));
+          else ((SpellSelectionWindow)spell13).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 0, 1);
 
-          player.learnableSkills.TryAdd(CustomSkill.ArcaneTricksterPolyvalent, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ArcaneTricksterPolyvalent], player));
-          player.learnableSkills[CustomSkill.ArcaneTricksterPolyvalent].LevelUp(player);
-          player.learnableSkills[CustomSkill.ArcaneTricksterPolyvalent].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.ArcaneTricksterPolyvalent);
 
           break;
 
@@ -108,16 +86,16 @@ namespace NWN.Systems
 
         case 16:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell16)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 0, 0, 1));
-          else ((SpellSelectionWindow)spell16).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 0, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell16)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 0, 1));
+          else ((SpellSelectionWindow)spell16).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 0, 1);
 
           break;
 
 
         case 19:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell19)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 0, 0, 1));
-          else ((SpellSelectionWindow)spell19).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 0, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell19)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 0, 1));
+          else ((SpellSelectionWindow)spell19).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 0, 1);
 
           break;
 

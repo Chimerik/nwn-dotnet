@@ -59,7 +59,7 @@ namespace NWN.Systems
                 $"Châtiment Occulte {targetCreature.Name.ColorString(ColorConstants.Cyan)}", StringUtils.brightPurple, true, true);
 
               NWScript.AssignCommand(onAttack.Attacker, () => targetCreature.ApplyEffect(EffectDuration.Instant, Effect.Damage(damage, DamageType.Magical)));
-              EffectSystem.ApplyKnockdown(targetCreature, CreatureSize.Huge, 2);
+              EffectSystem.ApplyKnockdown(targetCreature, onAttack.Attacker);
             }
           }
 

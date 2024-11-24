@@ -733,12 +733,12 @@ namespace NWN.Systems
         int skillId = ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_NEXT_ATTACK").Value;
         NwFeat usedFeat = NwFeat.FromFeatId(skillId - 10000);
 
-        switch (skillId)
+        /*switch (skillId)
         {
           case CustomSkill.SeverArtery:
             
             break;
-        }
+        }*/
 
         ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_NEXT_ATTACK").Delete();
 

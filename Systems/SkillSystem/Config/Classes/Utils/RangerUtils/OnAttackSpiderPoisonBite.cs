@@ -1,6 +1,5 @@
 ﻿using Anvil.API.Events;
 using Anvil.API;
-using NWN.Core;
 using System.Linq;
 
 namespace NWN.Systems
@@ -19,13 +18,7 @@ namespace NWN.Systems
         case AttackResult.AutomaticHit:
 
           NwCreature master = onAttack.Attacker.Master is null ? onAttack.Attacker : onAttack.Attacker.Master;
-          int spellDC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(master) + onAttack.Attacker.GetAbilityModifier(Ability.Wisdom);
-
-          if (CreatureUtils.GetSavingThrow(onAttack.Attacker, target, Ability.Constitution, spellDC) == SavingThrowResult.Failure)
-          {
-            target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPoisonS));
-            NWScript.AssignCommand(onAttack.Attacker, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Poison, NwTimeSpan.FromRounds(2)));
-          }
+          EffectSystem.ApplyPoison(target, master, NwTimeSpan.FromRounds(2), Ability.Constitution, Ability.Wisdom);
 
           break;
       }

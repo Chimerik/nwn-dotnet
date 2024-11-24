@@ -34,7 +34,7 @@ namespace NWN.Systems
       SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.TempeteDeNeige];
       int spellDC = SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellId(CustomSpell.TempeteDeNeige), (Ability)eventData.Effect.GetObjectVariable<LocalVariableInt>("_SPELL_CASTING_ABILITY").Value);
 
-      TempeteDeNeigeKnockDown(caster, entering, spellEntry, spellDC);
+      TempeteDeNeigeKnockDown(caster, entering, spellEntry, (Ability)eventData.Effect.GetObjectVariable<LocalVariableInt>("_SPELL_CASTING_ABILITY").Value);
       TempeteDeNeigeConcentration(caster, entering, spellEntry, spellDC);
 
       return ScriptHandleResult.Handled;
@@ -55,16 +55,15 @@ namespace NWN.Systems
 
       foreach(NwCreature entering in eventData.Effect.GetObjectsInEffectArea<NwCreature>()) 
       { 
-        TempeteDeNeigeKnockDown(caster, entering, spellEntry, spellDC);
+        TempeteDeNeigeKnockDown(caster, entering, spellEntry, (Ability)eventData.Effect.GetObjectVariable<LocalVariableInt>("_SPELL_CASTING_ABILITY").Value);
         TempeteDeNeigeConcentration(caster, entering, spellEntry, spellDC);
       }
 
       return ScriptHandleResult.Handled;
     }
-    private static void TempeteDeNeigeKnockDown(NwCreature caster, NwCreature entering, SpellEntry spellEntry, int spellDC)
+    private static void TempeteDeNeigeKnockDown(NwCreature caster, NwCreature entering, SpellEntry spellEntry, Ability DCAbility)
     {
-      if (CreatureUtils.GetSavingThrow(caster, entering, spellEntry.savingThrowAbility, spellDC, spellEntry, SpellConfig.SpellEffectType.Knockdown) == SavingThrowResult.Failure)
-        EffectSystem.ApplyKnockdown(entering, CreatureSize.Large, 2);
+      ApplyKnockdown(entering, caster, DCAbility, spellEntry.savingThrowAbility);
     }
     private static void TempeteDeNeigeConcentration(NwCreature caster, NwCreature entering, SpellEntry spellEntry, int spellDC)
     {

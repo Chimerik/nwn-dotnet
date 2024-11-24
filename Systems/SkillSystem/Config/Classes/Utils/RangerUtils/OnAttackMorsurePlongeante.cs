@@ -17,7 +17,7 @@ namespace NWN.Systems
         case AttackResult.CriticalHit:
         case AttackResult.AutomaticHit:
 
-            EffectSystem.ApplyKnockdown(target, CreatureSize.Medium, 2);
+            EffectSystem.ApplyKnockdown(target, onAttack.Attacker);
             StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Morsure Plongeante", StringUtils.gold);
 
           break;

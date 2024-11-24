@@ -199,5 +199,14 @@
     public const int BelluaireAraignee = 1046;
     public const int BelluaireSanglier = 1047;
     public const int BelluaireRevocation = 1048;
+    public const int FrappeRuseePoison = 1050;
+    public const int FrappeRuseeBousculade = 1051;
+    public const int FrappeRuseeRetraite = 1052;
+    public const int FrappePerfidePoison = 1054;
+    public const int FrappePerfideBousculade = 1055;
+    public const int FrappePerfideRetraite = 1056;
+    public const int FrappePerfideHebeter = 1057;
+    public const int FrappePerfideObscurcir = 1058;
+    public const int FrappePerfideAssommer = 1059;
   }
 }

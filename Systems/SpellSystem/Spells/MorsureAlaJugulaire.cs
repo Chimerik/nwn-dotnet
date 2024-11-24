@@ -12,8 +12,6 @@ namespace NWN.Systems
         return;
 
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
-      int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, Ability.Strength);
-
       var targetLoc = Location.Create(oTarget.Area, CreaturePlugin.ComputeSafeLocation(caster, target.Position, 3, 1), oCaster.Rotation);
 
       oCaster.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpDustExplosion));
@@ -21,10 +19,9 @@ namespace NWN.Systems
       await oCaster.ActionJumpToLocation(targetLoc);
       await NwTask.NextFrame();
       await caster.ActionAttackTarget(target);
-      targetLoc.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpDustExplosion));
 
-      if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
-        EffectSystem.ApplyKnockdown(target, CreatureSize.Large, 1);
+      targetLoc.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpDustExplosion));
+      EffectSystem.ApplyKnockdown(target, caster, Ability.Strength, spellEntry.savingThrowAbility);
     }
   }
 }

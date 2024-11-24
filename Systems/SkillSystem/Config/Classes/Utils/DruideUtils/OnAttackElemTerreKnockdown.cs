@@ -18,7 +18,7 @@ namespace NWN.Systems
         case AttackResult.AutomaticHit:
 
           if (CreatureUtils.GetSavingThrow(onAttack.Attacker, target, Ability.Constitution, 13) == SavingThrowResult.Failure)
-            EffectSystem.ApplyKnockdown(target, onAttack.Attacker.Size, 2);
+            EffectSystem.ApplyKnockdown(target, onAttack.Attacker);
 
           break;
       }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Anvil.API;
 using NWN.Native.API;
 
@@ -36,15 +37,34 @@ namespace NWN.Systems
           return 0;
       }
 
-      int sneakRoll = NwRandom.Roll(Utils.random, 6, sneakLevel);
+      foreach(var eff in attacker.m_appliedEffects.Where(e => e.m_sCustomTag.CompareNoCase(EffectSystem.FrappeRuseeEffectExoTag).ToBool()))
+      {
+        sneakLevel -= eff.GetInteger(5) switch
+        {
+          CustomSpell.FrappePerfideHebeter => 2,
+          CustomSpell.FrappePerfideObscurcir => 3,
+          CustomSpell.FrappePerfideAssommer => 6,
+          _ => 1,
+        };  
 
+        attacker.m_ScriptVars.SetString(EffectSystem.FrappeRuseeVariableExo,
+          attacker.m_ScriptVars.GetString(EffectSystem.FrappeRuseeVariableExo).GetLength() < 1 
+          ? $"{eff.GetInteger(5)}".ToExoString()
+          : $"{attacker.m_ScriptVars.GetString(EffectSystem.FrappeRuseeVariableExo)}_{eff.GetInteger(5)}".ToExoString());
+
+        if (sneakLevel < 1)
+          break;
+      }
+
+      int sneakRoll = NwRandom.Roll(Utils.random, 6, sneakLevel);
+      int assassinateBonus = IsAssassinate(attacker) ? attacker.m_pStats.GetNumLevelsOfClass(CustomClass.Rogue) : 0;
       attacker.m_ScriptVars.SetInt(CreatureUtils.SneakAttackCooldownVariableExo, 1);
       attacker.m_ScriptVars.DestroyInt($"_ADVANTAGE_ATTACK_{round.m_nCurrentAttack}".ToExoString());
 
-      BroadcastNativeServerMessage($"Sournoise {sneakLevel}d{6} => {sneakRoll}", attacker);
-      LogUtils.LogMessage($"Sournoise - {sneakLevel}d{6} => {sneakRoll} - Total : {sneakRoll}", LogUtils.LogType.Combat);
+      BroadcastNativeServerMessage($"Sournoise {sneakLevel}d{6}{(assassinateBonus > 0 ? " +" + assassinateBonus : "") } => {sneakRoll + assassinateBonus}", attacker);
+      LogUtils.LogMessage($"Sournoise - {sneakLevel}d{6}{(assassinateBonus > 0 ? " +" + assassinateBonus : "")} => {sneakRoll + assassinateBonus} - Total : {sneakRoll + assassinateBonus}", LogUtils.LogType.Combat);
 
-      return sneakRoll;
+      return sneakRoll + assassinateBonus;
     }
   }
 }

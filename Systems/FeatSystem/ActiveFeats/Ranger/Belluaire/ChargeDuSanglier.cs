@@ -23,7 +23,6 @@ namespace NWN.Systems
       var companion = caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).Value;
 
       caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireFurieBestiale, 0);
-      companion.GetObjectVariable<LocalVariableInt>(CreatureUtils.BelluaireChargeDuSanglierCoolDownVariable).Value = 10;
 
       if (Vector3.DistanceSquared(targetObject.Position, companion.Position) < 80)
       {
@@ -32,7 +31,7 @@ namespace NWN.Systems
       }
 
       caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireChargeSanglier, 0);
-      caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BelluaireChargeDuSanglierCoolDownVariable).Value = -1;
+      caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.Cooldown(caster, 60, CustomSkill.BelluaireChargeSanglier));
 
       EffectUtils.RemoveTaggedEffect(companion, EffectSystem.SprintEffectTag);
 

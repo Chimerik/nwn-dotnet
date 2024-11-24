@@ -35,7 +35,7 @@ namespace NWN.Systems
     }
     public static bool IsCharmeImmune(NwCreature caster, NwCreature target)
     {
-      if (target.ActiveEffects.Any(e => e.EffectType == EffectType.Immunity && e.IntParams[1] == 28)
+      if (target.ActiveEffects.Any(e => e.EffectType == EffectType.Immunity && e.IntParams[1] == 14)
         || (Utils.In(caster.Race.RacialType, RacialType.Fey, RacialType.Aberration, RacialType.Outsider, RacialType.Elemental, RacialType.Undead)
         && target.ActiveEffects.Any(e => e.Tag == ProtectionContreLeMalEtLeBienEffectTag)))
       {

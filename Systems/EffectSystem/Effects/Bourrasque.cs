@@ -13,11 +13,12 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onEnterBourrasqueCallback;
     private static ScriptCallbackHandle onExitBourrasqueCallback;
     private static ScriptCallbackHandle onHeartbeatBourrasqueCallback;
-    public static Effect Bourrasque(NwCreature caster)
+    public static Effect Bourrasque(NwCreature caster, Ability castingAbility)
     {
       Effect eff = Effect.AreaOfEffect((PersistentVfxType)257, onEnterBourrasqueCallback, onHeartbeatBourrasqueCallback, onExitBourrasqueCallback);
       eff.Tag = BourrasqueEffectTag;
       eff.Spell = NwSpell.FromSpellType(Spell.GustOfWind);
+      eff.IntParams[3] = (int)castingAbility;
       eff.Creator = caster;
       return eff;
     }
@@ -48,9 +49,8 @@ namespace NWN.Systems
 
           if (entering != caster)
           {
-            SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.FleauDinsectes];
-            int spellDC = SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellType(Spell.GustOfWind),(Ability)caster.GetObjectVariable<LocalVariableInt>($"_SPELL_CASTING_ABILITY_{eventData.Effect.Spell.Id}").Value);
-            BourrasqueKnockdown(caster, entering, spellEntry, spellDC);
+            SpellEntry spellEntry = Spells2da.spellTable[(int)Spell.GustOfWind];
+            BourrasqueKnockdown(caster, entering, spellEntry, (Ability)caster.GetObjectVariable<LocalVariableInt>($"_SPELL_CASTING_ABILITY_{eventData.Effect.Spell.Id}").Value);
           }
         }
         else if (eventData.Entering is NwAreaOfEffect aoe)
@@ -69,13 +69,12 @@ namespace NWN.Systems
         return ScriptHandleResult.Handled;
       }
 
-      SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.FleauDinsectes];
-      int spellDC = SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellType(Spell.GustOfWind), (Ability)caster.GetObjectVariable<LocalVariableInt>($"_SPELL_CASTING_ABILITY_{eventData.Effect.Spell.Id}").Value);
+      SpellEntry spellEntry = Spells2da.spellTable[(int)Spell.GustOfWind];
 
       foreach(NwCreature entering in eventData.Effect.GetObjectsInEffectArea<NwCreature>()) 
       {
         if(entering != caster)
-          BourrasqueKnockdown(caster, entering, spellEntry, spellDC);
+          BourrasqueKnockdown(caster, entering, spellEntry, (Ability)caster.GetObjectVariable<LocalVariableInt>($"_SPELL_CASTING_ABILITY_{eventData.Effect.Spell.Id}").Value);
       }
 
       foreach (NwAreaOfEffect aoe in eventData.Effect.GetObjectsInEffectArea<NwAreaOfEffect>())
@@ -88,17 +87,14 @@ namespace NWN.Systems
       if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnExit eventData) || eventData.Exiting is not NwCreature exiting
         || eventData.Effect.Creator is not NwCreature protector)
         return ScriptHandleResult.Handled;
-
+      
       EffectUtils.RemoveTaggedEffect(exiting, protector, BourrasqueSlowEffectTag);
       return ScriptHandleResult.Handled;
     }
-    private static void BourrasqueKnockdown(NwCreature caster, NwCreature entering, SpellEntry spellEntry, int spellDC)
+    private static void BourrasqueKnockdown(NwCreature caster, NwCreature entering, SpellEntry spellEntry, Ability DCAbility)
     {
-      if (CreatureUtils.GetSavingThrow(caster, entering, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
-      {
-        ApplyKnockdown(entering, CreatureSize.Large, 2);
-        entering.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPulseWind));
-      }
+      ApplyKnockdown(entering, caster, DCAbility, spellEntry.savingThrowAbility);
+      entering.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPulseWind));
     }
   }
 }

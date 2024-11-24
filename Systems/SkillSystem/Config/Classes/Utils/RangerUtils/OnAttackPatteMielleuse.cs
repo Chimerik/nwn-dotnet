@@ -35,7 +35,7 @@ namespace NWN.Systems
               onAttack.Attacker?.Master?.LoginPlayer.SendServerMessage($"L'arme de {target.Name.ColorString(ColorConstants.Cyan)} est liée et ne peut être désarmée");
           }
           else 
-            EffectSystem.ApplyKnockdown(target, CreatureSize.Large, 1);
+            EffectSystem.ApplyKnockdown(target, onAttack.Attacker);
 
           break;
       }

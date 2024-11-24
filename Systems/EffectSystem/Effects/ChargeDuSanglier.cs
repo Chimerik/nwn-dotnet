@@ -50,7 +50,7 @@ namespace NWN.Systems
       if (targetRoll > DC)
         return ScriptHandleResult.Handled;
 
-      ApplyKnockdown(entering, CreatureSize.Large, 1);
+      ApplyKnockdown(entering, protector);
       
       if (protector.ActiveEffects.Any(e => e.EffectType == EffectType.Polymorph && e.IntParams[0] == 108))
         NWScript.AssignCommand(protector, () => entering.ApplyEffect(EffectDuration.Instant, Effect.Damage(NwRandom.Roll(Utils.random, 6, 2) + protector.GetAbilityModifier(Ability.Strength), DamageType.Piercing)));

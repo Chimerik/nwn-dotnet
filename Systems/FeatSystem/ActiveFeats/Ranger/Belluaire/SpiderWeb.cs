@@ -14,7 +14,7 @@ namespace NWN.Systems
         _ = companion.ClearActionQueue();
         _ = companion.ActionCastSpellAt(Spell.Web, Location.Create(companion.Area, oTarget, companion.Rotation), cheat:true);
         
-        caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BelluaireSpiderWebCoolDownVariable).Value = 1;
+        caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.Cooldown(caster, 60, CustomSkill.BelluaireSpiderWeb));
         caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireSpiderWeb, 0);
       }
       else

@@ -214,6 +214,10 @@ namespace NWN.Systems
           break;
 
         case CustomSkill.ProfondeursFrappeRedoutable: caster.SetFeatRemainingUses((Feat)CustomSkill.ProfondeursFrappeRedoutable, (byte)remainingUse); break;
+        case CustomSkill.BelluaireRugissementProvoquant: caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireRugissementProvoquant, 100); break;
+        case CustomSkill.BelluaireChargeSanglier: caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireChargeSanglier, 100); break;
+        case CustomSkill.BelluaireSpiderWeb: caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireSpiderWeb, 100); break;
+        case CustomSkill.BelluaireFurieBestiale: caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireFurieBestiale, 100); break;
       }
     }
   }

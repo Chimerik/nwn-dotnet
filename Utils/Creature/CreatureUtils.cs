@@ -45,7 +45,6 @@ namespace NWN.Systems
     public static readonly CExoString FureurOrcBonusAttackVariableExo = FureurOrcBonusAttackVariable.ToExoString();
     public const string SecondeChanceVariable = "_FEAT_SECONDE_CHANCE";
     public static readonly CExoString SecondeChanceVariableExo = SecondeChanceVariable.ToExoString();
-    public const string ShieldMasterCooldownVariable = "_FEAT_SHIELDMASTER_COOLDOWN";
 
     public const string TirArcaniqueVariable = "_TIR_ARCANIQUE";
     public const string TirArcaniqueCooldownVariable = "_TIR_ARCANIQUE_COOLDOWN";
@@ -99,18 +98,6 @@ namespace NWN.Systems
     public const string BriseurDeHordesVariable = "_BRISEUR_DE_HORDES";
     public static readonly CExoString BriseurDeHordesVariableExo = BriseurDeHordesVariable.ToExoString();
 
-    public const string TueurDeGeantsTargetVariable = "_TUEUR_DE_GEANT_TARGET";
-    public static readonly CExoString TueurDeGeantsTargetVariableExo = TueurDeGeantsTargetVariable.ToExoString();
-
-    public const string TueurDeGeantsCoolDownVariable = "_TUEUR_DE_GEANT_COOLDOWN";
-    public static readonly CExoString TueurDeGeantsCoolDownVariableExo = TueurDeGeantsCoolDownVariable.ToExoString();
-
-    public const string PourfendeurDeColosseVariable = "_POURFENDEUR_DE_COLOSSE";
-    public static readonly CExoString PourfendeurDeColosseVariableExo = PourfendeurDeColosseVariable.ToExoString();
-
-    public const string HunterVoleeVariable = "_HUNTER_VOLEE";
-    public static readonly CExoString HunterVoleeVariableExo = HunterVoleeVariable.ToExoString();
-
     public const string RafaleDuTraqueurVariable = "_RAFALE_DU_TRAQUEUR";
     public static readonly CExoString RafaleDuTraqueurVariableExo = RafaleDuTraqueurVariable.ToExoString();
 
@@ -127,11 +114,6 @@ namespace NWN.Systems
 
     public const string FurieBestialeVariable = "_FURIE_BESTIALE";
     public static readonly CExoString FurieBestialeVariableExo = FurieBestialeVariable.ToExoString();
-    public const string FurieBestialeCoolDownVariable = "_FURIE_BESTIALE_COOLDOWN";
-
-    public const string BelluaireRugissementProvoquantCoolDownVariable = "_RUGISSEMENT_PROVOQUANT_COOLDOWN";
-    public const string BelluaireChargeDuSanglierCoolDownVariable = "_CHARGE_DU_SANGLIER_COOLDOWN";
-    public const string BelluaireSpiderWebCoolDownVariable = "_SPIDER_WEB_COOLDOWN";
 
     public const string AbjurationWardForcedTriggerVariable = "_ABJURATION_WARD_FORCED_TRIGGER";
     public static readonly CExoString AbjurationWardForcedTriggerVariableExo = AbjurationWardForcedTriggerVariable.ToExoString();

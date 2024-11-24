@@ -11,6 +11,9 @@ namespace NWN.Systems
         if (GetTrueStrikeAdvantage(eff))
           return true;
 
+        if (GetViseeStableAdvantage(eff, attacker))
+          return true;
+
         if (GetAttaquesEtudieesAdvantage(eff, attacker))
           return true;
 

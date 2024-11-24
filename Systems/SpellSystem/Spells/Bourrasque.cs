@@ -22,7 +22,7 @@ namespace NWN.Systems
         SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
         oCaster.GetObjectVariable<LocalVariableInt>($"_SPELL_CASTING_ABILITY_{spell.Id}").Value = (int)castingClass.SpellCastingAbility;
         
-        oCaster.Location.ApplyEffect(EffectDuration.Temporary, EffectSystem.Bourrasque(caster), SpellUtils.GetSpellDuration(oCaster, spellEntry));  
+        oCaster.Location.ApplyEffect(EffectDuration.Temporary, EffectSystem.Bourrasque(caster, castingClass.SpellCastingAbility), SpellUtils.GetSpellDuration(oCaster, spellEntry));  
         concentrationList.Add(UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>());
 
         oCaster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfLosNormal20));

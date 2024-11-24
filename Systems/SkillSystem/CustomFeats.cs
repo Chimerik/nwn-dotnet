@@ -146,6 +146,14 @@
 
     public const int Stealth = 1461;
 
+    public const int RoublardViseeStable = 1439;
+    public const int RoublardFrappeRusee = 1440;
+    public const int RoublardSavoirFaire = 1441;
+    public const int RoublardFrappeRuseeAmelioree = 1443;
+    public const int RoublardCoupDeChance = 1444;
+    public const int RoublardFrappePerfide = 1445;
+    public const int AssassinInfiltrationExpert = 1446;
+    public const int AssassinEnvenimer = 1447;
     public const int MainLeste = 1462;
     public const int ThiefDiscretionSupreme = 1463;
     public const int ConspirateurMaitriseTactique = 1465;

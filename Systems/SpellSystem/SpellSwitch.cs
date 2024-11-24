@@ -1040,6 +1040,19 @@ namespace NWN.Systems
           SpellSystem.CompagnonAnimalRevocation(oCaster, spell, spellEntry);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
+
+        case CustomSpell.FrappeRuseePoison:
+        case CustomSpell.FrappeRuseeBousculade:
+        case CustomSpell.FrappeRuseeRetraite:
+        case CustomSpell.FrappePerfidePoison:
+        case CustomSpell.FrappePerfideBousculade:
+        case CustomSpell.FrappePerfideRetraite:
+        case CustomSpell.FrappePerfideHebeter:
+        case CustomSpell.FrappePerfideObscurcir:
+        case CustomSpell.FrappePerfideAssommer:
+          SpellSystem.FrappeRusee(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
       }
 
       if (oCaster is NwCreature castingCreature)

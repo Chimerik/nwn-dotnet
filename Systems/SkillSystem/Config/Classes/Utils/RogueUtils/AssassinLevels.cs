@@ -1,6 +1,5 @@
 ﻿using Anvil.API;
 using static NWN.Systems.PlayerSystem;
-using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
 {
@@ -15,11 +14,12 @@ namespace NWN.Systems
           new StrRef(16).SetPlayerOverride(player.oid, "Assassin");
           player.oid.SetTextureOverride("rogue", "assassin");
 
-          player.learnableSkills.TryAdd(CustomSkill.AssassinAssassinate, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AssassinAssassinate], player));
-          player.learnableSkills[CustomSkill.AssassinAssassinate].LevelUp(player);
-          player.learnableSkills[CustomSkill.AssassinAssassinate].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.AssassinAssassinate);
 
           break;
+
+        case 9: player.LearnClassSkill(CustomSkill.AssassinInfiltrationExpert); break;
+        case 13: player.LearnClassSkill(CustomSkill.AssassinEnvenimer); break;
 
         case 17:
 

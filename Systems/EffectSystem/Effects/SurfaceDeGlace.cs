@@ -24,28 +24,25 @@ namespace NWN.Systems
     }
     private static ScriptHandleResult onEnterSurfaceDeGlace(CallInfo callInfo)
     {
-      if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) && eventData.Entering is NwCreature entering)
+      if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) && eventData.Entering is NwCreature entering && eventData.Effect.Creator is NwCreature caster)
       {
         ApplyTerrainDifficileEffect(entering);
-
-        if (CreatureUtils.HandleSkillCheck(entering, CustomSkill.AcrobaticsProficiency, Ability.Dexterity, 12))
-          ApplyKnockdown(entering, CreatureSize.Large, 2);
+        ApplyKnockdown(entering, caster, CustomSkill.AcrobaticsProficiency, Ability.Dexterity, 12);
       }
       
       return ScriptHandleResult.Handled;
     }
     private static ScriptHandleResult onHeartbeatSurfaceDeGlace(CallInfo callInfo)
     {
-      if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnHeartbeat eventData))
-        return ScriptHandleResult.Handled;
-
-      foreach (NwCreature entering in eventData.Effect.GetObjectsInEffectArea<NwCreature>())
+      if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnHeartbeat eventData) && eventData.Effect.Creator is NwCreature caster)
       {
-        ApplyTerrainDifficileEffect(entering);
+        foreach (NwCreature entering in eventData.Effect.GetObjectsInEffectArea<NwCreature>())
+        {
+          ApplyTerrainDifficileEffect(entering);
 
-        if (entering.MovementType != MovementType.Stationary
-            && CreatureUtils.HandleSkillCheck(entering, CustomSkill.AcrobaticsProficiency, Ability.Dexterity, 12))
-          ApplyKnockdown(entering, CreatureSize.Large, 2);
+          if (entering.MovementType != MovementType.Stationary)
+            ApplyKnockdown(entering, caster, CustomSkill.AcrobaticsProficiency, Ability.Dexterity, 12);
+        }
       }
 
       return ScriptHandleResult.Handled;

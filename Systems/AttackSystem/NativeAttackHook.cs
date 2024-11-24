@@ -221,18 +221,13 @@ namespace NWN.Systems
             break;
           }
 
-        bool isAssassinate = NativeUtils.IsAssassinate(attacker);
-
-        if (isCriticalHit || isAssassinate 
+        if (isCriticalHit 
           || (attackData.m_bRangedAttack < 1 && targetCreature.m_appliedEffects.Any(e => (EffectTrueType)e.m_nType == EffectTrueType.SetState && e.GetInteger(0) == 8))) // Si la cible est paralysée, que l'attaque touche et est en mêlée, alors critique auto
         {
           attackData.m_nAttackResult = 3;
           criticalString = "CRITIQUE - ".ColorString(StringUtils.gold);
           
-          if(isAssassinate)
-            LogUtils.LogMessage("Coup critique - Assassinat", LogUtils.LogType.Combat);
-          else
-            LogUtils.LogMessage("Coup critique", LogUtils.LogType.Combat);
+          LogUtils.LogMessage("Coup critique", LogUtils.LogType.Combat);
         }
         else if (attackRoll > 1 && totalAttack >= targetAC) // L'attaque touche
         {

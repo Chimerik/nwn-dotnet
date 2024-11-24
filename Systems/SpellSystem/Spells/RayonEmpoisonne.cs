@@ -1,6 +1,7 @@
 ﻿using Anvil.API;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 
 namespace NWN.Systems
 {
@@ -8,6 +9,9 @@ namespace NWN.Systems
   {
     public static void RayonEmpoisonne(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass casterClass)
     {
+      if (oCaster is not NwCreature caster)
+        return;
+
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
       int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, casterClass.SpellCastingAbility);
       List<NwGameObject> targets = SpellUtils.GetSpellTargets(oCaster, oTarget, spellEntry, true);
@@ -28,12 +32,7 @@ namespace NWN.Systems
           default: return;
         }
 
-        if (CreatureUtils.GetSavingThrow(oCaster, targetCreature, spellEntry.savingThrowAbility, spellDC, spellEntry, effectType: SpellConfig.SpellEffectType.Poison) == SavingThrowResult.Failure)
-        {
-          target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPoisonS));
-          target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Poison, NwTimeSpan.FromRounds(spellEntry.duration));
-        }
-  
+        EffectSystem.ApplyPoison(targetCreature, caster, NwTimeSpan.FromRounds(spellEntry.duration), spellEntry.savingThrowAbility);  
         SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, nbDice, oCaster, spell.GetSpellLevelForClass(casterClass));
       }
     }

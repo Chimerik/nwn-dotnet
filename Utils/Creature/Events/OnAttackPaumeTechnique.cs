@@ -17,17 +17,8 @@ namespace NWN.Systems
 
             if (onAttack.Target is NwCreature target)
             {
-              SpellConfig.SavingThrowFeedback feedback = new();
-
-              Ability saveAbility = target.GetAbilityModifier(Ability.Strength) > target.GetAbilityModifier(Ability.Dexterity)
-                ? Ability.Strength : Ability.Dexterity;
-
-              int attackerModifier = onAttack.Attacker.GetAbilityModifier(Ability.Wisdom);
-              int DC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(onAttack.Attacker) + attackerModifier;
+              EffectSystem.ApplyKnockdown(target, onAttack.Attacker, Ability.Wisdom, Ability.Dexterity);
               StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Technique de la paume", StringUtils.gold, true, true);
-   
-              if (GetSavingThrow(onAttack.Attacker, target, saveAbility, DC) == SavingThrowResult.Failure)
-                EffectSystem.ApplyKnockdown(target, CreatureSize.Large, 2);
             }
 
             break;

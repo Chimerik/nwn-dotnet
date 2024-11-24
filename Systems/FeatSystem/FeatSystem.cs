@@ -42,7 +42,10 @@ namespace NWN.Systems
         case CustomSkill.Chanceux: Chanceux(onUseFeat.Creature); return;
         case CustomSkill.MainsGuerisseuses: MainsGuerisseuses(onUseFeat.Creature, onUseFeat.TargetObject); return;
         case CustomSkill.AilesAngeliques: AilesAngeliques(onUseFeat.Creature); return;
+
         case CustomSkill.ConspirateurMaitriseTactique: TacticalMastery(onUseFeat.Creature, onUseFeat); return;
+        case CustomSkill.RoublardViseeStable: ViseeStable(onUseFeat.Creature); return;
+        case CustomSkill.RoublardCoupDeChance: CoupDeChance(onUseFeat.Creature); return;
 
         case CustomSkill.ArcaneArcherTirAffaiblissant:
         case CustomSkill.ArcaneArcherTirAgrippant:

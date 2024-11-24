@@ -51,6 +51,8 @@ namespace NWN.Systems
           if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat))
             player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat);
 
+          player.LearnClassSkill(CustomSkill.RoublardViseeStable);
+
           break;
 
         case 4:
@@ -66,6 +68,7 @@ namespace NWN.Systems
             player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat);
 
           player.LearnClassSkill(CustomSkill.EsquiveInstinctive);
+          player.LearnClassSkill(CustomSkill.RoublardFrappeRusee);
 
           break;
 
@@ -81,9 +84,8 @@ namespace NWN.Systems
           if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat))
             player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat);
 
-          player.learnableSkills.TryAdd(CustomSkill.EsquiveSurnaturelle, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.EsquiveSurnaturelle], player));
-          player.learnableSkills[CustomSkill.EsquiveSurnaturelle].LevelUp(player);
-          player.learnableSkills[CustomSkill.EsquiveSurnaturelle].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.EsquiveSurnaturelle);
+          player.LearnClassSkill(CustomSkill.RoublardSavoirFaire);
 
           break;
 
@@ -113,6 +115,8 @@ namespace NWN.Systems
           if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat))
             player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat);
 
+          player.LearnClassSkill(CustomSkill.RoublardFrappeRuseeAmelioree);
+
           break;
 
         case 12:
@@ -129,17 +133,22 @@ namespace NWN.Systems
 
           break;
 
-        case 14: 
+        case 14:
 
-          player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.perceptionAveugleAura);
+          //player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.perceptionAveugleAura);
+
+          EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.FrappeRuseeEffectTag);
+
+          player.learnableSkills.Remove(CustomSkill.RoublardFrappeRusee);
+          player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.RoublardFrappeRusee);
+          player.LearnClassSkill(CustomSkill.RoublardFrappePerfide);
 
           break;
 
         case 15:
 
-          player.learnableSkills.TryAdd(CustomSkill.WisdomSavesProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.WisdomSavesProficiency], player));
-          player.learnableSkills[CustomSkill.WisdomSavesProficiency].LevelUp(player);
-          player.learnableSkills[CustomSkill.WisdomSavesProficiency].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.WisdomSavesProficiency);
+          player.LearnClassSkill(CustomSkill.CharismaSavesProficiency);
 
           if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat))
             player.oid.LoginCreature.AddFeat(NwFeat.FromFeatType(Feat.SneakAttack).SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat.SuccessorFeat);
@@ -169,6 +178,8 @@ namespace NWN.Systems
           else ((FeatSelectionWindow)feat19).CreateWindow();
 
           break;
+
+        case 20: player.LearnClassSkill(CustomSkill.RoublardCoupDeChance); break;
       }
     }
   }

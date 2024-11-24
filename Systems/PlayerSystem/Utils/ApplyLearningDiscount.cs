@@ -40,7 +40,10 @@ namespace NWN.Systems
             if (learnableSkills.ContainsKey(CustomSkill.Linguiste))
               learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 2;
 
-            if(learnable.id == CustomSkill.Infernal && oid.LoginCreature.Race.Id == CustomRace.InfernalThiefling)
+            if (oid.LoginCreature.Classes.Any(c => c.Class.Id == CustomClass.Rogue))
+              learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 2;
+
+            if (learnable.id == CustomSkill.Infernal && oid.LoginCreature.Race.Id == CustomRace.InfernalThiefling)
                 learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 2;
             else if (learnable.id == CustomSkill.Abyssal && oid.LoginCreature.Race.Id == CustomRace.AbyssalThiefling)
               learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 2;

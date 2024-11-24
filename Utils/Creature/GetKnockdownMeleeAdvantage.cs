@@ -1,4 +1,5 @@
-﻿using NWN.Native.API;
+﻿using Anvil.API;
+using NWN.Native.API;
 
 namespace NWN.Systems
 {
@@ -6,10 +7,10 @@ namespace NWN.Systems
   {
     public static bool GetKnockdownMeleeAdvantage(CGameEffect eff, bool rangedAttack)
     {
-      if (rangedAttack || (EffectTrueType)eff.m_nType != EffectTrueType.Knockdown)
+      if (rangedAttack || !eff.m_sCustomTag.CompareNoCase(EffectSystem.KnockdownEffectTagExo).ToBool())
         return false;
 
-      LogUtils.LogMessage($"Avantage - Attaque de mêlée sur une cible à terre", LogUtils.LogType.Combat);
+      LogUtils.LogMessage("Avantage - Attaque de mêlée sur une cible Déstabilisée", LogUtils.LogType.Combat);
       return true;
     }
   }

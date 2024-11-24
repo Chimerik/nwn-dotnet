@@ -43,7 +43,7 @@ namespace NWN.Systems
         oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpFrostS));
       }
 
-      oTarget.Location.ApplyEffect(EffectDuration.Temporary, EffectSystem.SurfaceDeGlace(spellEntry.aoESize), NwTimeSpan.FromRounds(spellEntry.duration));
+      NWScript.AssignCommand(caster, () => oTarget.Location.ApplyEffect(EffectDuration.Temporary, EffectSystem.SurfaceDeGlace(spellEntry.aoESize), NwTimeSpan.FromRounds(spellEntry.duration)));
     }
   }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Anvil.API;
 using NWN.Core.NWNX;
 
@@ -76,8 +77,8 @@ namespace NWN.Systems
           if (!caster.KnowsFeat((Feat)CustomSkill.BelluaireRugissementProvoquant))
             caster.AddFeat((Feat)CustomSkill.BelluaireRugissementProvoquant);
 
-          if (caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BelluaireRugissementProvoquantCoolDownVariable).HasNothing)
-            caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireRugissementProvoquant, 100);
+          caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireRugissementProvoquant,
+            (byte)(caster.ActiveEffects.Any(e => e.Tag == EffectSystem.CooldownEffectTag && e.IntParams[5] == CustomSkill.BelluaireRugissementProvoquant) ? 0 : 100));
 
           if (!caster.KnowsFeat((Feat)CustomSkill.BelluairePatteMielleuse) && rangerLevel > 4)
             caster.AddFeat((Feat)CustomSkill.BelluairePatteMielleuse);
@@ -122,8 +123,8 @@ namespace NWN.Systems
           if (!caster.KnowsFeat((Feat)CustomSkill.BelluaireChargeSanglier))
             caster.AddFeat((Feat)CustomSkill.BelluaireChargeSanglier);
 
-          if (caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BelluaireChargeDuSanglierCoolDownVariable).HasNothing)
-            caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireChargeSanglier, 100);
+          caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireChargeSanglier,
+            (byte)(caster.ActiveEffects.Any(e => e.Tag == EffectSystem.CooldownEffectTag && e.IntParams[5] == CustomSkill.BelluaireChargeSanglier) ? 0 : 100));
 
           if (!caster.KnowsFeat((Feat)CustomSkill.BelluaireRageSanglier) && rangerLevel > 4)
             caster.AddFeat((Feat)CustomSkill.BelluaireRageSanglier);

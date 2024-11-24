@@ -15,6 +15,7 @@
       Trap,
       Death,
       Concentration,
+      Sleep,
 
       Invalid
     }

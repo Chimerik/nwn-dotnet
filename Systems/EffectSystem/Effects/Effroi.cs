@@ -33,13 +33,10 @@ namespace NWN.Systems
     }
     public static bool IsFrightImmune(NwCreature target, NwCreature caster)
     {
-      if (Utils.In(target.Race.RacialType, RacialType.Undead, RacialType.Construct))
-        return true;
-
-      if (target.ActiveEffects.Any(e => e.EffectType == EffectType.Immunity && e.IntParams[1] == 28) 
+      if (Utils.In(target.Race.RacialType, RacialType.Undead, RacialType.Construct) || target.ActiveEffects.Any(e => e.EffectType == EffectType.Immunity && e.IntParams[1] == 4) 
         || (target.KnowsFeat((Feat)CustomSkill.BersekerRageAveugle) && target.ActiveEffects.Any(e => e.Tag == BarbarianRageEffectTag)))
       {
-        caster.LoginPlayer?.SendServerMessage($"{target.Name.ColorString(ColorConstants.Cyan)} dispose d'une immunité contre l'effroi");
+        caster.LoginPlayer?.SendServerMessage($"{target.Name.ColorString(ColorConstants.Cyan)} est immunisé contre l'effroi");
         return true;
       }
 
@@ -63,7 +60,7 @@ namespace NWN.Systems
 
       if (eventData.EffectTarget is NwCreature target && eventData.Effect.Creator is NwCreature caster)
       {
-        int spellDC = SpellUtils.GetCasterSpellDC(caster, Ability.Strength);
+        int spellDC = SpellUtils.GetCasterSpellDC(caster, Ability.Charisma);
 
         if (CreatureUtils.GetSavingThrow(caster, target, Ability.Wisdom, spellDC, effectType: SpellConfig.SpellEffectType.Fear) != SavingThrowResult.Failure)
           target.RemoveEffect(eventData.Effect);

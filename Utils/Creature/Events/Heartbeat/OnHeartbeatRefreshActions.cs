@@ -19,14 +19,10 @@ namespace NWN.Systems
         creature.GetObjectVariable<LocalVariableInt>(SneakAttackCooldownVariable).Delete();
         creature.GetObjectVariable<LocalVariableInt>(EmpaleurCooldownVariable).Delete();
         creature.GetObjectVariable<LocalVariableInt>(BriseurDeHordesVariable).Delete();
-        creature.GetObjectVariable<LocalVariableInt>(PourfendeurDeColosseVariable).Delete();
-        creature.GetObjectVariable<LocalVariableInt>(TueurDeGeantsCoolDownVariable).Delete();
-        creature.GetObjectVariable<LocalVariableInt>(HunterVoleeVariable).Delete();
         creature.GetObjectVariable<LocalVariableInt>(RafaleDuTraqueurVariable).Delete();
         creature.GetObjectVariable<LocalVariableInt>(EsquiveDuTraqueurVariable).Delete();
         creature.GetObjectVariable<LocalVariableInt>(AttaqueCoordonneCoolDownVariable).Delete();
         creature.GetObjectVariable<LocalVariableInt>(AttaqueCoordonneeVariable).Delete();
-        creature.GetObjectVariable<LocalVariableInt>(FurieBestialeCoolDownVariable).Delete();
         creature.GetObjectVariable<LocalVariableInt>(EnsoApotheoseVariable).Delete();
         creature.GetObjectVariable<LocalVariableInt>(VoeuHostileVariable).Delete();
         creature.GetObjectVariable<LocalVariableObject<NwCreature>>(OpportunisteVariable).Delete();
@@ -111,39 +107,6 @@ namespace NWN.Systems
         creature.SetFeatRemainingUses((Feat)CustomSkill.DruideFrappePrimordialeFeu, 1);
         creature.SetFeatRemainingUses((Feat)CustomSkill.DruideFrappePrimordialeElec, 1);
         creature.SetFeatRemainingUses((Feat)CustomSkill.DruideFrappePrimordialeTonnerre, 1);
-      }
-
-      if (creature.GetObjectVariable<LocalVariableInt>(BelluaireRugissementProvoquantCoolDownVariable).HasValue)
-      {
-        if(creature.GetObjectVariable<LocalVariableInt>(BelluaireRugissementProvoquantCoolDownVariable).Value > 1)
-          creature.GetObjectVariable<LocalVariableInt>(BelluaireRugissementProvoquantCoolDownVariable).Value -= 1;
-        else
-        {
-          creature.SetFeatRemainingUses((Feat)CustomSkill.BelluaireRugissementProvoquant, 100);
-          creature.GetObjectVariable<LocalVariableInt>(BelluaireRugissementProvoquantCoolDownVariable).Delete();
-        }
-      }
-
-      if (creature.GetObjectVariable<LocalVariableInt>(BelluaireChargeDuSanglierCoolDownVariable).HasValue)
-      {
-        if (creature.GetObjectVariable<LocalVariableInt>(BelluaireChargeDuSanglierCoolDownVariable).Value < 10)
-          creature.GetObjectVariable<LocalVariableInt>(BelluaireChargeDuSanglierCoolDownVariable).Value += 1;
-        else
-        {
-          creature.SetFeatRemainingUses((Feat)CustomSkill.BelluaireRugissementProvoquant, 100);
-          creature.GetObjectVariable<LocalVariableInt>(BelluaireChargeDuSanglierCoolDownVariable).Delete();
-        }
-      }
-
-      if (creature.GetObjectVariable<LocalVariableInt>(BelluaireSpiderWebCoolDownVariable).HasValue)
-      {
-        if (creature.GetObjectVariable<LocalVariableInt>(BelluaireSpiderWebCoolDownVariable).Value < 12)
-          creature.GetObjectVariable<LocalVariableInt>(BelluaireSpiderWebCoolDownVariable).Value += 1;
-        else
-        {
-          creature.SetFeatRemainingUses((Feat)CustomSkill.BelluaireSpiderWeb, 100);
-          creature.GetObjectVariable<LocalVariableInt>(BelluaireSpiderWebCoolDownVariable).Delete();
-        }
       }
     }
   }

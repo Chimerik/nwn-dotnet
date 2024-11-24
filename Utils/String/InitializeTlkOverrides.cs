@@ -103,6 +103,7 @@ namespace NWN.Systems
       OverrideTlkEntry(191126, "Résistance aux dégâts (poison)");
       OverrideTlkEntry(191127, "Résistance aux dégâts (nécrotique)");
       OverrideTlkEntry(191128, "Résistance aux dégâts (psychique)");
+      OverrideTlkEntry(191253, "Déstabilisé");
 
       foreach (var entry in Feats2da.featTable)
       {

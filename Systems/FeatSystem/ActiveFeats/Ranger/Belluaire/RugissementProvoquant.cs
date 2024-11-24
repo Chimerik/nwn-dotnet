@@ -8,27 +8,22 @@ namespace NWN.Systems
     {
       if (caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).HasValue)
       {
-        if(caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BelluaireRugissementProvoquantCoolDownVariable).HasValue)
-          caster.LoginPlayer?.SendServerMessage($"{StringUtils.ToWhitecolor("Rugissement Provocant")} disponible dans {StringUtils.ToWhitecolor(caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BelluaireRugissementProvoquantCoolDownVariable).Value - 1)} rounds", ColorConstants.Red);
-        else
-        {
-          var companion = caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).Value;
-          caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BelluaireRugissementProvoquantCoolDownVariable).Value = 10;
+        var companion = caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).Value;
 
-          StringUtils.DisplayStringToAllPlayersNearTarget(companion, "Rugissement Provocant", StringUtils.gold);
+        StringUtils.DisplayStringToAllPlayersNearTarget(companion, "Rugissement Provocant", StringUtils.gold);
 
-          caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireRugissementProvoquant, 0);
-          companion.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfHowlWarCry));
+        caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireRugissementProvoquant, 0);
+        companion.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfHowlWarCry));
+        caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.Cooldown(caster, 60, CustomSkill.BelluaireRugissementProvoquant));
           
-          foreach(var target in companion.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 9, false))
+        foreach(var target in companion.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 9, false))
+        {
+          if(companion.IsReactionTypeHostile(target))
           {
-            if(companion.IsReactionTypeHostile(target))
-            {
-              int DC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(caster) + caster.GetAbilityModifier(Ability.Wisdom);
+            int DC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(caster) + caster.GetAbilityModifier(Ability.Wisdom);
 
-              if (CreatureUtils.GetSavingThrow(companion, target, Ability.Wisdom, DC) == SavingThrowResult.Failure)
-                EffectSystem.ApplyProvocation(caster, target, NwTimeSpan.FromRounds(2));
-            }
+            if (CreatureUtils.GetSavingThrow(companion, target, Ability.Wisdom, DC) == SavingThrowResult.Failure)
+              EffectSystem.ApplyProvocation(caster, target, NwTimeSpan.FromRounds(2));
           }
         }
       }

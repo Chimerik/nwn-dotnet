@@ -11,13 +11,8 @@ namespace NWN.Systems
         || (onDamage.DamageData.GetDamageByType(DamageType.Sonic) < 1 && onDamage.DamageData.GetDamageByType(DamageType.Electrical) < 1))
         return;
 
-      int DC = SpellUtils.GetCasterSpellDC(caster, Ability.Wisdom);
-
-      if (CreatureUtils.GetSavingThrow(caster, target, Ability.Constitution, DC) == SavingThrowResult.Failure)
-      {
-        EffectSystem.ApplyKnockdown(target, CreatureSize.Large, 1);
-        target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSonic));
-      }
+      EffectSystem.ApplyKnockdown(target, caster, Ability.Wisdom, Ability.Constitution);
+      target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSonic));
     }
   }
 }

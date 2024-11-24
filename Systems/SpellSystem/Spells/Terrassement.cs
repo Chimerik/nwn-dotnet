@@ -7,6 +7,9 @@ namespace NWN.Systems
   {
     public static void Terrassement(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, Location targetLocation)
     {
+      if (oCaster is not NwCreature caster)
+        return;
+
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
       int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, Ability.Strength);
 
@@ -17,9 +20,8 @@ namespace NWN.Systems
 
       foreach (NwCreature target in targetLocation.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, spellEntry.aoESize, false))
       {
-        if (oCaster != target 
-          && CreatureUtils.GetSavingThrow(oCaster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
-          EffectSystem.ApplyKnockdown(target, CreatureSize.Large, 1);
+        if (oCaster != target)
+          EffectSystem.ApplyKnockdown(target, caster, Ability.Strength, spellEntry.savingThrowAbility);          
       }
     }
   }

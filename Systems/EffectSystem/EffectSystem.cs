@@ -23,6 +23,8 @@ namespace NWN.Systems
       onExitChanceDebordanteCallback = scriptHandleFactory.CreateUniqueHandler(onExitChanceDebordante);
 
       onRemoveAgressionOrcCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveAgressionOrc);
+      
+      onRemoveViseeStableCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveViseeStable);
 
       onRemoveHateCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveHate);
 
@@ -203,6 +205,11 @@ namespace NWN.Systems
       onRemoveTraverseeInfernaleCallback = scriptHandleFactory.CreateUniqueHandler(onRemoveTraverseeInfernale);
 
       onIntervalEffroiCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalEffroi);
+
+      onIntervalPoisonCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalPoison);
+
+      onIntervalSommeilCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalSommeil);
+      onRemoveSommeilCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveSommeil);
 
       onHeartbeatRayonnementInterieurCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatRayonnementInterieur);
       onHeartbeatVoileNecrotiqueCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatVoileNecrotique);

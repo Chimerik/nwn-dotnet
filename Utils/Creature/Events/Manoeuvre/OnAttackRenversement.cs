@@ -16,14 +16,12 @@ namespace NWN.Systems
         case AttackResult.CriticalHit:
         case AttackResult.AutomaticHit:
 
-          int attackerModifier = onAttack.Attacker.GetAbilityModifier(Ability.Strength) > onAttack.Attacker.GetAbilityModifier(Ability.Dexterity) ? onAttack.Attacker.GetAbilityModifier(Ability.Strength) : onAttack.Attacker.GetAbilityModifier(Ability.Dexterity);
-          int DC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(onAttack.Attacker) + attackerModifier;
+          Ability DCAbility = onAttack.Attacker.GetAbilityModifier(Ability.Strength) > onAttack.Attacker.GetAbilityModifier(Ability.Dexterity) ? Ability.Strength :Ability.Dexterity;
 
           LogUtils.LogMessage($"--- {onAttack.Attacker.Name} renversement contre {target.Name} ---", LogUtils.LogType.Combat);
           StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Renversement", ColorConstants.Red, true, true);
 
-          if (GetSavingThrow(onAttack.Attacker, target, Ability.Strength, DC, effectType: SpellConfig.SpellEffectType.Knockdown) == SavingThrowResult.Failure)
-            EffectSystem.ApplyKnockdown(target, CreatureSize.Large, 1);
+          EffectSystem.ApplyKnockdown(target, onAttack.Attacker, DCAbility, Ability.Strength);
 
           await NwTask.NextFrame();
           onAttack.Attacker.OnCreatureAttack -= OnAttackRenversement;

@@ -10,14 +10,9 @@ namespace NWN.Systems
       {
         var companion = caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).Value;
 
-        if (companion.GetObjectVariable<LocalVariableInt>(CreatureUtils.FurieBestialeCoolDownVariable).HasValue)
-          caster.LoginPlayer?.SendServerMessage("aucune utilisation restante", ColorConstants.Red);
-        else
-        {
-          caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireFurieBestiale, 0);
-          companion.GetObjectVariable<LocalVariableInt>(CreatureUtils.FurieBestialeCoolDownVariable).Value = 1;
-          companion.GetObjectVariable<LocalVariableInt>(CreatureUtils.FurieBestialeVariable).Value = 1;
-        }
+        caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireFurieBestiale, 0);
+        caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.Cooldown(caster, 6, CustomSkill.BelluaireFurieBestiale));
+        companion.GetObjectVariable<LocalVariableInt>(CreatureUtils.FurieBestialeVariable).Value = 1;
       }
       else
       {

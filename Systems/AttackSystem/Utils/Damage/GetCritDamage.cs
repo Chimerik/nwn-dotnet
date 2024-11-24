@@ -36,11 +36,12 @@ namespace NWN.Systems
       int sneakLevel = (int)Math.Ceiling((double)RogueUtils.GetRogueLevel(attacker) / 2);
       int sneakRoll = NwRandom.Roll(Utils.random, 6, sneakLevel);
       int damage = sneakRoll;
+      int assassinateBonus = IsAssassinate(attacker) ? attacker.m_pStats.GetNumLevelsOfClass(CustomClass.Rogue) : 0;
 
-      BroadcastNativeServerMessage($"Sournoise Critique : {sneakLevel}d{6} = {sneakRoll}", attacker);
-      LogUtils.LogMessage($"Critique - Sournoise - {sneakLevel}d{6} => {sneakRoll} - Total : {damage}", LogUtils.LogType.Combat);
+      BroadcastNativeServerMessage($"Sournoise Critique : {sneakLevel}d{6}{(assassinateBonus > 0 ? " +" + assassinateBonus : "")} = {sneakRoll + assassinateBonus}", attacker);
+      LogUtils.LogMessage($"Critique - Sournoise - {sneakLevel}d{6}{(assassinateBonus > 0 ? " +" + assassinateBonus : "")} => {sneakRoll + assassinateBonus} - Total : {damage + assassinateBonus}", LogUtils.LogType.Combat);
 
-      return damage;
+      return damage + assassinateBonus;
     }
     public static int GetUnarmedCritDamage(CNWSCreature attacker)
     {

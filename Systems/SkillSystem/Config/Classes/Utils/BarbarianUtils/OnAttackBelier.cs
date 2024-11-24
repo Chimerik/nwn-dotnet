@@ -14,7 +14,7 @@ namespace NWN.Systems
       {
         case AttackResult.Hit:
         case AttackResult.CriticalHit:
-        case AttackResult.AutomaticHit: EffectSystem.ApplyKnockdown(target, CreatureSize.Large, 2); break;
+        case AttackResult.AutomaticHit: EffectSystem.ApplyKnockdown(target, onAttack.Attacker); break;
       }
     }
   }

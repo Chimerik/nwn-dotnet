@@ -85,35 +85,23 @@ namespace NWN.Systems
         {
           case Ability.Strength:
 
-            if (EffectSystem.ShieldArmorDisadvantageEffectTag == eff.Tag)
+            switch(eff.Tag)
             {
-              LogUtils.LogMessage("Désavantage - Bouclier ou Armure non maîtrisé", LogUtils.LogType.Combat);
-              return true;
+              case EffectSystem.ShieldArmorDisadvantageEffectTag: LogUtils.LogMessage("Désavantage - Bouclier ou Armure non maîtrisé", LogUtils.LogType.Combat); return true;
+              case EffectSystem.MaledictionForceEffectTag: LogUtils.LogMessage("Désavantage - Malédiction Force", LogUtils.LogType.Combat); return true;
+              case EffectSystem.KnockdownEffectTag: LogUtils.LogMessage("Désavantage - Déstabilisé", LogUtils.LogType.Combat); return true;
             }
-            else if (EffectSystem.MaledictionForceEffectTag == eff.Tag)
-            {
-              LogUtils.LogMessage("Désavantage - Malédiction force", LogUtils.LogType.Combat);
-              return true;
-            }
-             
+
             break;
 
           case Ability.Dexterity:
 
-            if (EffectSystem.ShieldArmorDisadvantageEffectTag == eff.Tag)
+            switch(eff.Tag)
             {
-              LogUtils.LogMessage("Désavantage - Bouclier ou Armure non maîtrisé", LogUtils.LogType.Combat);
-              return true;
-            }
-            else if (EffectSystem.CourrouxDeLaNatureEffectTag == eff.Tag)
-            {
-              LogUtils.LogMessage("Désavantage - Courroux de la Nature", LogUtils.LogType.Combat);
-              return true;
-            }
-            else if (EffectSystem.MaledictionDexteriteEffectTag == eff.Tag)
-            {
-              LogUtils.LogMessage("Désavantage - Malédiction Dextérité", LogUtils.LogType.Combat);
-              return true;
+              case EffectSystem.ShieldArmorDisadvantageEffectTag: LogUtils.LogMessage("Désavantage - Bouclier ou Armure non maîtrisé", LogUtils.LogType.Combat); return true;
+              case EffectSystem.CourrouxDeLaNatureEffectTag: LogUtils.LogMessage("Désavantage - Courroux de la Nature", LogUtils.LogType.Combat); return true;
+              case EffectSystem.MaledictionDexteriteEffectTag: LogUtils.LogMessage("Désavantage - Malédiction Dextérité", LogUtils.LogType.Combat); return true;
+              case EffectSystem.KnockdownEffectTag: LogUtils.LogMessage("Désavantage - Déstabilisé", LogUtils.LogType.Combat); return true;
             }
 
             break;
