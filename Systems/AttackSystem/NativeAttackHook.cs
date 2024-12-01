@@ -498,7 +498,6 @@ namespace NWN.Systems
         baseDamage -= NativeUtils.HandleParade(targetCreature);
         baseDamage -= NativeUtils.HandleMonkParade(targetCreature);
         baseDamage -= NativeUtils.HandleEsquiveInstinctive(targetCreature);
-        baseDamage /= NativeUtils.HandleDefensesEnjoleuses(targetCreature);
       }
 
       if (attacker.m_ScriptVars.GetInt(CreatureUtils.TirAffaiblissantVariableExo).ToBool())

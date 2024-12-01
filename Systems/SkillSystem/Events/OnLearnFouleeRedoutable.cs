@@ -9,7 +9,8 @@ namespace NWN.Systems
       if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.FouleeRedoutable))
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.FouleeRedoutable);
 
-      player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.FouleeRedoutable, player.oid.LoginCreature.GetFeatRemainingUses((Feat)CustomSkill.FouleeRafraichissante));
+      player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.FouleeRedoutable, 
+        player.oid.LoginCreature.GetFeatRemainingUses((Feat)CustomSkill.FouleeRafraichissante));
 
       return true;
     }

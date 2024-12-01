@@ -12,5 +12,6 @@ namespace NWN
     public const EffectIcon FrappePerfideHebeter = (EffectIcon)228;
     public const EffectIcon FrappePerfideObscurcir = (EffectIcon)229;
     public const EffectIcon FrappePerfideAssommer = (EffectIcon)230;
+    public const EffectIcon ArcaneMystique = (EffectIcon)231;
   }
 }

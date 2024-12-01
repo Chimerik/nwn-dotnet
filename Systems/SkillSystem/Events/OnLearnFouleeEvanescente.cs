@@ -9,7 +9,8 @@ namespace NWN.Systems
       if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.FouleeEvanescente))
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.FouleeEvanescente);
 
-      player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.FouleeEvanescente, player.oid.LoginCreature.GetFeatRemainingUses((Feat)CustomSkill.FouleeRafraichissante));
+      player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.FouleeEvanescente, 
+        player.oid.LoginCreature.GetFeatRemainingUses((Feat)CustomSkill.FouleeRafraichissante));
 
       return true;
     }

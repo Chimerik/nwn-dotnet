@@ -100,7 +100,7 @@ namespace NWN.Systems
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-            if(!availableSpells.Any())
+            if(availableSpells.Count < 1)
             {
               CloseWindow();
               player.oid.SendServerMessage($"Vous connaissez déjà tous les sorts de {StringUtils.ToWhitecolor(NwClass.FromClassType(spellClass).Name.ToString())} de ce niveau", ColorConstants.Orange);
@@ -231,6 +231,9 @@ namespace NWN.Systems
 
           int minSpellLevel = nbCantrips > 0 ? 0 : 1;
           int maxSpellLevel = nbSpells > 0 ? SpellUtils.GetMaxSpellSlotLevelKnown(player.oid.LoginCreature, spellClass) : 0;
+
+          if (spellClass == (ClassType)CustomClass.Occultiste && maxSpellLevel > 5)
+            maxSpellLevel = 5;
 
           availableSpells.Clear();
           acquiredSpells.Clear();

@@ -9,7 +9,7 @@ namespace NWN.Systems
       if (!caster.KnowsFeat((Feat)CustomSkill.ResilienceCeleste))
         return;
 
-      int chaMod = caster.GetAbilityModifier(Ability.Charisma) > 1 ? caster.GetAbilityModifier(Ability.Charisma) : 1;
+      int chaMod = CreatureUtils.GetAbilityModifierMin1(caster, Ability.Charisma);
       int casterBuff = caster.GetClassInfo((ClassType)CustomClass.Occultiste).Level + chaMod;
       int allyBuff = casterBuff / 2;
 

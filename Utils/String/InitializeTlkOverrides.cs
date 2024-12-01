@@ -104,6 +104,7 @@ namespace NWN.Systems
       OverrideTlkEntry(191127, "Résistance aux dégâts (nécrotique)");
       OverrideTlkEntry(191128, "Résistance aux dégâts (psychique)");
       OverrideTlkEntry(191253, "Déstabilisé");
+      OverrideTlkEntry(191259, "Arcane Mystique");
 
       foreach (var entry in Feats2da.featTable)
       {
@@ -149,7 +150,22 @@ namespace NWN.Systems
       OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.FouleeRedoutable).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.FouleeRedoutable].name);
       OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.ArmureDesOmbres).Description.CustomId, SkillSystem.learnableDictionary[CustomSkill.ArmureDesOmbres].description);
       OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.ArmureDesOmbres).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.ArmureDesOmbres].name);
-
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.VisionsDesRoyaumesLointains).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.VisionsDesRoyaumesLointains].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.VisionsDesRoyaumesLointains).Description.CustomId, SkillSystem.learnableDictionary[CustomSkill.VisionsDesRoyaumesLointains].description);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.VigueurDemoniaque).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.VigueurDemoniaque].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.VigueurDemoniaque).Description.CustomId, SkillSystem.learnableDictionary[CustomSkill.VigueurDemoniaque].description);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.PasAerien).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.PasAerien].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.PasAerien).Description.CustomId, SkillSystem.learnableDictionary[CustomSkill.PasAerien].description);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.DonPelagique).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.DonPelagique].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.DonPelagique).Description.CustomId, SkillSystem.learnableDictionary[CustomSkill.DonPelagique].description);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.SautDoutremonde).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.SautDoutremonde].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.SautDoutremonde).Description.CustomId, SkillSystem.learnableDictionary[CustomSkill.SautDoutremonde].description);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.UnParmiLesOmbres).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.UnParmiLesOmbres].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.UnParmiLesOmbres).Description.CustomId, SkillSystem.learnableDictionary[CustomSkill.UnParmiLesOmbres].description);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.MasqueDesMilleVisages).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.MasqueDesMilleVisages].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.MasqueDesMilleVisages).Description.CustomId, SkillSystem.learnableDictionary[CustomSkill.MasqueDesMilleVisages].description);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.MaitreDesFormes).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.MaitreDesFormes].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.MaitreDesFormes).Description.CustomId, SkillSystem.learnableDictionary[CustomSkill.MaitreDesFormes].description);
     }
 
     private static void OverrideTlkEntry(uint entry, string text)

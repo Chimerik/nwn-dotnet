@@ -1080,11 +1080,11 @@ namespace NWN.Systems
           if (castingClass.ClassType == (ClassType)CustomClass.Occultiste)
           {
             byte occultisteSpellLevel = spell.GetSpellLevelForClass((ClassType)CustomClass.Occultiste);
-            if (occultisteSpellLevel > 0)
+            if (0 < occultisteSpellLevel && occultisteSpellLevel < 6)
             {
               var occultisteClass = castingCreature.GetClassInfo((ClassType)CustomClass.Occultiste);
               byte remainingSlots = occultisteClass.GetRemainingSpellSlots(1);
-              byte consumedSlots = (byte)(remainingSlots - 1);
+              byte consumedSlots = (byte)(occultisteSpellLevel > 1 ? remainingSlots - 1 : remainingSlots);
 
               for (byte i = 1; i < 10; i++)
                 if (i != occultisteSpellLevel)

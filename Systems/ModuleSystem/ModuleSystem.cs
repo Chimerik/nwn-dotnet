@@ -478,6 +478,8 @@ namespace NWN.Systems
       NwModule.Instance.OnDoSpotDetection += CreatureUtils.OnDetection;
       NwModule.Instance.OnStealthModeUpdate += CreatureUtils.OnStealth;
       //NwModule.Instance.OnDoListenDetection += CreatureUtils.CancelOnListen;
+
+      NwModule.Instance.OnCreatureDamage += CreatureUtils.OnDamageGlobal;
     }
     private static void SetModuleTime()
     {

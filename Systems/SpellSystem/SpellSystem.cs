@@ -716,8 +716,9 @@ namespace NWN.Systems
       var castingClass = caster.Classes[classPosition].Class.ClassType;
       var spell = NwSpell.FromSpellId(int.Parse(EventsPlugin.GetEventData("SPELL_ID")));
       var spellEntry = Spells2da.spellTable[spell.Id];
+      var spellLevel = spell.GetSpellLevelForClass(castingClass);
 
-      if (spell.GetSpellLevelForClass(caster.Classes[classPosition].Class) < 1)
+      if (spellLevel < 1)
       {
         EventsPlugin.SkipEvent();
         return;
@@ -776,44 +777,43 @@ namespace NWN.Systems
         case CustomSpell.Terrassement: EventsPlugin.SkipEvent(); return;
       }
 
-      if (castingClass == ClassType.Wizard)
+      switch(castingClass)
       {
-        if (Players.TryGetValue(caster, out var player) && player.learnableSpells.TryGetValue(spell.Id, out var masterSpell) && masterSpell.mastery)
-        {
-          EventsPlugin.SkipEvent();
-          return;
-        }
-      }
+        case ClassType.Wizard:
 
-      if (castingClass == ClassType.Cleric)
-      {
-        if (spell.GetSpellLevelForClass(ClassType.Cleric) < 6 && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.InterventionDivineEffectTag))
-        {
-          EffectUtils.RemoveTaggedEffect(caster, EffectSystem.InterventionDivineEffectTag);
-          EventsPlugin.SkipEvent();
-          return;
-        }
-      }
+          if (Players.TryGetValue(caster, out var player) && player.learnableSpells.TryGetValue(spell.Id, out var masterSpell) && masterSpell.mastery)
+            EventsPlugin.SkipEvent();
 
-      if (castingClass == ClassType.Druid)
-      {
-        /*var druidClass = caster.GetClassInfo(ClassType.Druid);
-
-        if (spell.Id == CustomSpell.ModificationDapparence && caster.KnowsFeat((Feat)CustomSkill.DruideLuneRadieuse)
-          && druidClass is not null && druidClass.Level > 13)
-        {
-          EventsPlugin.SkipEvent();
           return;
-        }*/
 
-        if (caster.ActiveEffects.Any(e => e.Tag == EffectSystem.EconomieNaturelleEffectTag)
-         && Players.TryGetValue(caster, out var druidPlayer) && druidPlayer.learnableSpells.TryGetValue(spell.Id, out var druidSpell) 
-         && druidSpell.alwaysPrepared)
-        {
-          EventsPlugin.SkipEvent();
-          EffectUtils.RemoveTaggedEffect(caster, EffectSystem.EconomieNaturelleEffectTag);
+        case ClassType.Cleric:
+
+          if (spellLevel < 6 && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.InterventionDivineEffectTag))
+          {
+            EffectUtils.RemoveTaggedEffect(caster, EffectSystem.InterventionDivineEffectTag);
+            EventsPlugin.SkipEvent();
+          }
+
           return;
-        }
+
+        case ClassType.Druid:
+
+            /*var druidClass = caster.GetClassInfo(ClassType.Druid);
+
+            if (spell.Id == CustomSpell.ModificationDapparence && caster.KnowsFeat((Feat)CustomSkill.DruideLuneRadieuse)
+              && druidClass is not null && druidClass.Level > 13)
+              EventsPlugin.SkipEvent();*/
+          
+
+            if (caster.ActiveEffects.Any(e => e.Tag == EffectSystem.EconomieNaturelleEffectTag)
+              && Players.TryGetValue(caster, out var druidPlayer) && druidPlayer.learnableSpells.TryGetValue(spell.Id, out var druidSpell)
+              && druidSpell.alwaysPrepared)
+            {
+              EventsPlugin.SkipEvent();
+              EffectUtils.RemoveTaggedEffect(caster, EffectSystem.EconomieNaturelleEffectTag);
+            }
+
+          return;
       }
     }
   }

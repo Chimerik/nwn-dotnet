@@ -1,6 +1,5 @@
 ﻿using Anvil.API;
 using static NWN.Systems.PlayerSystem;
-using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
 {
@@ -21,11 +20,8 @@ namespace NWN.Systems
           player.LearnAlwaysPreparedSpell((int)Spell.LesserRestoration, CustomClass.Occultiste);
           player.LearnAlwaysPreparedSpell((int)Spell.Flare, CustomClass.Occultiste);
           player.LearnAlwaysPreparedSpell(CustomSpell.EclairTracant, CustomClass.Occultiste);
-          
 
-          player.learnableSkills.TryAdd(CustomSkill.LueurDeGuérison, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.LueurDeGuérison], player));
-          player.learnableSkills[CustomSkill.LueurDeGuérison].LevelUp(player);
-          player.learnableSkills[CustomSkill.LueurDeGuérison].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.LueurDeGuérison);
 
           break;
 
@@ -36,13 +32,7 @@ namespace NWN.Systems
 
           break;
 
-        case 6:
-
-          player.learnableSkills.TryAdd(CustomSkill.AmeRadieuse, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AmeRadieuse], player));
-          player.learnableSkills[CustomSkill.AmeRadieuse].LevelUp(player);
-          player.learnableSkills[CustomSkill.AmeRadieuse].source.Add(Category.Class);
-
-          break;
+        case 6: player.LearnClassSkill(CustomSkill.AmeRadieuse); break;
 
         case 7:
 
@@ -58,21 +48,8 @@ namespace NWN.Systems
 
           break;
 
-        case 10:
-
-          player.learnableSkills.TryAdd(CustomSkill.ResilienceCeleste, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ResilienceCeleste], player));
-          player.learnableSkills[CustomSkill.ResilienceCeleste].LevelUp(player);
-          player.learnableSkills[CustomSkill.ResilienceCeleste].source.Add(Category.Class);
-
-          break;
-
-        case 14:
-
-          player.learnableSkills.TryAdd(CustomSkill.VengeanceCalcinante, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.VengeanceCalcinante], player));
-          player.learnableSkills[CustomSkill.VengeanceCalcinante].LevelUp(player);
-          player.learnableSkills[CustomSkill.VengeanceCalcinante].source.Add(Category.Class);
-
-          break;
+        case 10: player.LearnClassSkill(CustomSkill.ResilienceCeleste); break;
+        case 14: player.LearnClassSkill(CustomSkill.VengeanceCalcinante); break;
       }
     }
   }

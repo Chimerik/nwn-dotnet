@@ -9,7 +9,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string DefensesEnjoleusesEffectTag = "_DEFENSES_ENJOLEUSES_EFFECT";
-    public static readonly CExoString defensesEnjoleusesEffectExoTag = DefensesEnjoleusesEffectTag.ToExoString();
     private static ScriptCallbackHandle onRemoveDefensesEnjoleusesCallback;
     public static Effect DefensesEnjoleuses
     {
@@ -28,7 +27,7 @@ namespace NWN.Systems
 
       if (eventData.EffectTarget is NwCreature caster)
       {
-        NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, Cooldown(caster, 6, CustomSkill.DefensesEnjoleuses), NwTimeSpan.FromRounds(1)));
+        NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, Cooldown(caster, 6, CustomSkill.DefensesEnjoleuses), NwTimeSpan.FromRounds(10)));
       }
 
       return ScriptHandleResult.Handled;

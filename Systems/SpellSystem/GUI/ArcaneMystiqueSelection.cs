@@ -86,7 +86,7 @@ namespace NWN.Systems
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-            if(!availableSpells.Any())
+            if(availableSpells.Count == 0)
             {
               CloseWindow();
               player.oid.SendServerMessage($"Vous connaissez déjà tous les sorts", ColorConstants.Orange);
@@ -122,7 +122,7 @@ namespace NWN.Systems
                   NwSpell clickedSpell = acquiredSpells[nuiEvent.ArrayIndex];
                   acquiredSpells.Remove(clickedSpell);
 
-                  if (acquiredSpells.Any())
+                  if (acquiredSpells.Count != 0)
                     availableSpells.Add(clickedSpell);
                   else
                   {

@@ -9,7 +9,10 @@ namespace NWN.Systems
       if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.FouleeRafraichissante))
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.FouleeRafraichissante);
 
-      player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.FouleeRafraichissante, (byte)(player.oid.LoginCreature.GetAbilityModifier(Ability.Charisma) > 1 ? player.oid.LoginCreature.GetAbilityModifier(Ability.Charisma) : 1));
+      byte uses = (byte)(CreatureUtils.GetAbilityModifierMin1(player.oid.LoginCreature, Ability.Charisma)
+        + player.oid.LoginCreature.GetClassInfo((ClassType)CustomClass.Occultiste).GetRemainingSpellSlots(2));
+
+      player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.FouleeRafraichissante, uses);
 
       return true;
     }

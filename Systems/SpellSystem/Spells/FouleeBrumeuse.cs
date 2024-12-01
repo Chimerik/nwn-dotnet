@@ -63,13 +63,10 @@ namespace NWN.Systems
 
             int dc = SpellUtils.GetCasterSpellDC(oCaster, spell, Ability.Charisma);
 
-            foreach (NwCreature target in caster.Location.GetNearestCreatures(CreatureTypeFilter.Alive(true)))
+            foreach (NwCreature target in caster.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 4, false))
             {
-              if (!caster.IsReactionTypeHostile(target))
+              if (caster == target || !caster.IsReactionTypeHostile(target))
                 continue;
-
-              if (caster.DistanceSquared(target) > 15)
-                break;
 
               if (CreatureUtils.GetSavingThrow(oCaster, target, Ability.Wisdom, dc, spellEntry) == SavingThrowResult.Failure)
               {
@@ -78,13 +75,10 @@ namespace NWN.Systems
               }
             }
 
-            foreach (NwCreature target in targetLocation.GetNearestCreatures(CreatureTypeFilter.Alive(true)))
+            foreach (NwCreature target in targetLocation.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 4, false))
             {
-              if (!caster.IsReactionTypeHostile(target))
+              if (caster == target || !caster.IsReactionTypeHostile(target))
                 continue;
-
-              if (caster.DistanceSquared(target) > 15)
-                break;
 
               if (CreatureUtils.GetSavingThrow(oCaster, target, Ability.Wisdom, dc, spellEntry) == SavingThrowResult.Failure)
               {
@@ -94,10 +88,10 @@ namespace NWN.Systems
             }
 
             break;
-        }
-
-        OccultisteUtils.DecrementFouleeFeerique(caster);
+        } 
       }
+
+      OccultisteUtils.DecrementFouleeFeerique(caster, feat);
 
 
       caster.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));

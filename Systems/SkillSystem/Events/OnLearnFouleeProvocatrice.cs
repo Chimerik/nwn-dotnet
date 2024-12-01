@@ -9,7 +9,8 @@ namespace NWN.Systems
       if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.FouleeProvocatrice))
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.FouleeProvocatrice);
 
-      player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.FouleeProvocatrice, (byte)(player.oid.LoginCreature.GetAbilityModifier(Ability.Charisma) > 1 ? player.oid.LoginCreature.GetAbilityModifier(Ability.Charisma) : 1));
+      player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.FouleeProvocatrice, 
+        player.oid.LoginCreature.GetFeatRemainingUses((Feat)CustomSkill.FouleeRafraichissante));
 
       return true;
     }

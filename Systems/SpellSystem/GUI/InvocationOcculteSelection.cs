@@ -104,7 +104,7 @@ namespace NWN.Systems
               {
                 case "selectTech":
 
-                  if (!availableTechs.Any())
+                  if (availableTechs.Count < 1)
                     return;
 
                   LearnableSkill selectedTech = availableTechs[nuiEvent.ArrayIndex];
@@ -119,27 +119,13 @@ namespace NWN.Systems
 
                 case "removeTech":
 
-                  if (!acquiredTechs.Any())
+                  if (acquiredTechs.Count < 1)
                     return;
 
                   LearnableSkill clickedTech = acquiredTechs[nuiEvent.ArrayIndex];
                   acquiredTechs.Remove(clickedTech);
-                  availableTechs.Clear();
 
-                  availableTechs.AddRange(learnableDictionary.Values.Where(l => l is LearnableSkill skill
-                  && skill.category == Category.InvocationOcculte
-                  && skill.minLevel <= player.oid.LoginCreature.GetClassInfo((ClassType)CustomClass.Occultiste).Level
-                  && !acquiredTechs.Contains(skill)).OrderBy(l => l.name).Cast<LearnableSkill>());
-
-
-                  if (!player.learnableSkills.ContainsKey(CustomSkill.LameAssoiffee))
-                    availableTechs.Remove((LearnableSkill)learnableDictionary[CustomSkill.LameDevorante]);
-
-                  if (!player.learnableSkills.ContainsKey(CustomSkill.PacteDuTome))
-                    availableTechs.Remove((LearnableSkill)learnableDictionary[CustomSkill.DonDuProtecteur]);
-
-                  if (!player.learnableSkills.ContainsKey(CustomSkill.PacteDeLaChaine))
-                    availableTechs.Remove((LearnableSkill)learnableDictionary[CustomSkill.MaitreDesChaines]);
+                  GetAvailableInvocations();
 
                   BindAvailableTechs();
                   BindAcquiredTechs();
@@ -183,18 +169,25 @@ namespace NWN.Systems
         }
         private void InitTechsBinding()
         {
-          List<string> availableIconsList = new();
-          List<string> availableNamesList = new();
-          List<bool> selectableList = new();
-
-          availableTechs.Clear();
           acquiredTechs.Clear();
 
-          foreach (LearnableSkill tech in learnableDictionary.Values.Where(l => l is LearnableSkill skill 
-          && skill.category == Category.InvocationOcculte 
-          && skill.minLevel <= player.oid.LoginCreature.GetClassInfo((ClassType)CustomClass.Occultiste).Level).OrderBy(s => s.name).Cast<LearnableSkill>())
+          GetAvailableInvocations();
+          BindAvailableTechs();
+
+          enabled.SetBindValue(player.oid, nuiToken.Token, false);
+        }
+        private void GetAvailableInvocations()
+        {
+          availableTechs.Clear();
+
+          foreach (LearnableSkill tech in learnableDictionary.Values.Where(l => l is LearnableSkill skill
+          && skill.category == Category.InvocationOcculte
+          && skill.minLevel <= player.oid.LoginCreature.GetClassInfo((ClassType)CustomClass.Occultiste).Level
+          && !acquiredTechs.Contains(skill)
+          && !player.learnableSkills.ContainsKey(skill.id)).OrderBy(s => s.name).Cast<LearnableSkill>())
           {
-            if (player.learnableSkills.TryGetValue(tech.id, out var learnable) && learnable.currentLevel > 0)
+            if (Utils.In(tech.id, CustomSkill.ChatimentOcculte, CustomSkill.BuveuseDeVie, CustomSkill.LameAssoiffee)
+              && !player.learnableSkills.ContainsKey(CustomSkill.PacteDeLaLame))
               continue;
 
             if (tech.id == CustomSkill.LameDevorante && !player.learnableSkills.ContainsKey(CustomSkill.LameAssoiffee))
@@ -207,16 +200,7 @@ namespace NWN.Systems
               continue;
 
             availableTechs.Add(tech);
-
-            availableIconsList.Add(tech.icon);
-            availableNamesList.Add(tech.name);
-            selectableList.Add(true);
           }
-
-          availableTechIcons.SetBindValues(player.oid, nuiToken.Token, availableIconsList);
-          availableTechNames.SetBindValues(player.oid, nuiToken.Token, availableNamesList);
-          listCount.SetBindValue(player.oid, nuiToken.Token, availableTechs.Count);
-          enabled.SetBindValue(player.oid, nuiToken.Token, false);
         }
         private void BindAvailableTechs()
         {

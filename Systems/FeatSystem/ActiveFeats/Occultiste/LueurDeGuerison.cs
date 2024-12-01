@@ -13,6 +13,9 @@ namespace NWN.Systems
         return;
       }
 
+      if (!CreatureUtils.HandleBonusActionUse(caster))
+        return;
+
       byte remainingUses = caster.GetFeatRemainingUses((Feat)CustomSkill.LueurDeGuérison);
       int chaMod = caster.GetAbilityModifier(Ability.Charisma);
       int dicesUsed = chaMod > 1 ? chaMod > remainingUses ? remainingUses : chaMod : 1;

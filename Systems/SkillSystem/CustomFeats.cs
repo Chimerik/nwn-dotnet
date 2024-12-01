@@ -134,9 +134,11 @@
     public const int TotemSpeakAnimal = 1434;
     public const int TotemSensAnimal = 1435;
     public const int TotemRage = 1436;
+    public const int TotemAspectSauvage = 1437;
+    public const int TotemPuissanceSauvage = 1438;
+
     public const int Chargeur = 1442;
-    public const int TotemAspectSauvage = 1443;
-    public const int TotemPuissanceSauvage = 1444;
+    
     public const int TotemCommunionAvecLaNature = 1452;
 
     public const int WildMagicSense = 1457;
@@ -154,8 +156,8 @@
     public const int RoublardFrappePerfide = 1445;
     public const int AssassinInfiltrationExpert = 1446;
     public const int AssassinEnvenimer = 1447;
-    public const int FightingStyleCombatAveugle = 1447;
-    public const int FightingStyleUnarmed = 1448;
+    public const int FightingStyleCombatAveugle = 1448;
+    public const int FightingStyleUnarmed = 1449;
     public const int MainLeste = 1462;
     public const int ThiefDiscretionSupreme = 1463;
     public const int ConspirateurMaitriseTactique = 1465;
