@@ -93,7 +93,6 @@ namespace NWN.Systems
 
       OccultisteUtils.DecrementFouleeFeerique(caster, feat);
 
-
       caster.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
       _ = caster.ClearActionQueue();
       _ = caster.ActionJumpToLocation(targetLocation);

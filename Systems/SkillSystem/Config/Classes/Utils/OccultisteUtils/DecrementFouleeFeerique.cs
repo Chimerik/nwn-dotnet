@@ -17,7 +17,7 @@ namespace NWN.Systems
 
           if (creature.GetFeatRemainingUses((Feat)CustomSkill.FouleeRafraichissante) <= maxSpellSlot)
           {
-            byte remainingSlots = occultisteClass.GetRemainingSpellSlots(1);
+            byte remainingSlots = (byte)(occultisteClass.GetRemainingSpellSlots(1) - 1);
 
             for (byte i = 1; i < 10; i++)
               occultisteClass.SetRemainingSpellSlots(i, remainingSlots);

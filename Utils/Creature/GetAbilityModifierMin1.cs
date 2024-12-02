@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     public static byte GetAbilityModifierMin1(NwCreature creature, Ability ability)
     {
-      return (byte)(creature.GetAbilityModifier(Ability.Wisdom) > 1 ? creature.GetAbilityModifier(Ability.Wisdom) : 1);
+      return (byte)(creature.GetAbilityModifier(ability) > 1 ? creature.GetAbilityModifier(ability) : 1);
     }
   }
 }

@@ -431,6 +431,7 @@ namespace NWN.Systems
         InitializeFeatChoice();
         InitializeFightingStyleChoice();
         InitializeOrdrePrimordialChoice();
+        InitializeExpertiseDarmeChoice();
         InitializeOrdreDivinChoice();
         InitializeTerreDeCercleChoice();
         InitializeFureurElementaireChoice();

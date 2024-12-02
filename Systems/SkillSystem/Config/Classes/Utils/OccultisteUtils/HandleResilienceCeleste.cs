@@ -9,9 +9,10 @@ namespace NWN.Systems
       if (!caster.KnowsFeat((Feat)CustomSkill.ResilienceCeleste))
         return;
 
+      int occultisteLevel = caster.GetClassInfo((ClassType)CustomClass.Occultiste).Level;
       int chaMod = CreatureUtils.GetAbilityModifierMin1(caster, Ability.Charisma);
-      int casterBuff = caster.GetClassInfo((ClassType)CustomClass.Occultiste).Level + chaMod;
-      int allyBuff = casterBuff / 2;
+      int casterBuff = occultisteLevel + chaMod;
+      int allyBuff = (occultisteLevel / 2) + chaMod;
 
       caster.ApplyEffect(EffectDuration.Permanent, Effect.TemporaryHitpoints(casterBuff));
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHolyAid));

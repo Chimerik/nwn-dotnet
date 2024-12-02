@@ -543,6 +543,28 @@
     public const int FrappeSiderante = 1796;    
     public const int FrappeDechirante = 1797;
 
+    public const int ExpertiseEraflure = 1085;
+    public const int ExpertiseCommotion = 1086;
+    public const int ExpertiseAffaiblissement = 1807;
+    public const int ExpertiseArretCardiaque = 1808;
+    public const int ExpertiseTranspercer = 1809;
+    public const int ExpertiseMoulinet = 1810;
+    public const int ExpertiseLaceration = 1811;
+    public const int ExpertiseMutilation = 1812;
+    public const int ExpertiseFendre = 1813;
+    public const int ExpertiseCharge = 1814;
+    public const int ExpertiseFrappeDuPommeau = 1815;
+    public const int ExpertiseDesarmement = 1816;
+    public const int ExpertiseBriseEchine = 1817;
+    public const int ExpertiseRenforcement = 1818;
+    public const int ExpertisePreparation = 1819;
+    public const int ExpertiseTirPercant = 1820;
+    public const int ExpertiseAttaqueMobile = 1821;
+    public const int ExpertiseStabilisation = 1822;
+    public const int ExpertiseCoupeJarret = 1823;
+    public const int ExpertiseDestabiliser = 1824;
+    public const int ExpertiseEntaille = 1825;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;

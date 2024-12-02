@@ -20,7 +20,7 @@ namespace NWN.Systems
 
       int occultisteLevel = occultisteClass.Level;
       var spellGainTable = NwClass.FromClassType((ClassType)CustomClass.Occultiste).SpellGainTable;
-      byte maxSpellSlots = spellGainTable[occultisteLevel - 1][1];
+      double maxSpellSlots = spellGainTable[occultisteLevel - 1][1];
       byte remainingspellSlots = occultisteClass.GetRemainingSpellSlots(1);
 
       if (remainingspellSlots >= maxSpellSlots)
@@ -29,7 +29,7 @@ namespace NWN.Systems
         return;
       }
 
-      byte restoredSpellSlots = occultisteLevel > 19 ? maxSpellSlots : (byte)Math.Round((double)(maxSpellSlots / 2), MidpointRounding.AwayFromZero);
+      byte restoredSpellSlots = (byte)(occultisteLevel > 19 ? maxSpellSlots : Math.Round(maxSpellSlots / 2, MidpointRounding.AwayFromZero));
       restoredSpellSlots = (byte)(remainingspellSlots + restoredSpellSlots > maxSpellSlots ? maxSpellSlots : remainingspellSlots + restoredSpellSlots);
 
       for (byte i = 1; i < 10; i++) 
