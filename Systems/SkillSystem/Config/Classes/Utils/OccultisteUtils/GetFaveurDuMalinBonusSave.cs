@@ -11,7 +11,7 @@ namespace NWN.Systems
 
       if (caster is not null)
       {
-        var eff = caster.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.FaveurDivineEffectTag && e.IntParams[5] == CustomSpell.FaveurDuMalinJDS);
+        var eff = caster.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.FaveurDuMalinEffectTag && e.IntParams[5] == CustomSpell.FaveurDuMalinJDS);
 
         if (eff is not null)
         {

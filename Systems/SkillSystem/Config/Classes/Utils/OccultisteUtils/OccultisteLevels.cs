@@ -37,8 +37,11 @@ namespace NWN.Systems
 
           // On donne les autres capacités de niveau 1
 
-          if (!player.windows.TryGetValue("spellSelection", out var cantrip1)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.Occultiste, 2, 2));
-          else ((SpellSelectionWindow)cantrip1).CreateWindow((ClassType)CustomClass.Occultiste, 2, 2);
+          if (!player.windows.TryGetValue("cantripSelection", out var cantrip1)) player.windows.Add("cantripSelection", new CantripSelectionWindow(player, (ClassType)CustomClass.Occultiste, 2));
+          else ((CantripSelectionWindow)cantrip1).CreateWindow((ClassType)CustomClass.Occultiste, 2);
+
+          if (!player.windows.TryGetValue("spellSelection", out var spell1)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.Occultiste, 2));
+          else ((SpellSelectionWindow)spell1).CreateWindow((ClassType)CustomClass.Occultiste,  2);
 
           if (!player.windows.TryGetValue("invocationOcculteSelection", out var invo1)) player.windows.Add("invocationOcculteSelection", new InvocationOcculteSelectionWindow(player, 1));
           else ((InvocationOcculteSelectionWindow)invo1).CreateWindow(1);
@@ -47,12 +50,10 @@ namespace NWN.Systems
 
         case 2:
 
-          player.learnableSkills.TryAdd(CustomSkill.OccultisteFourberieMagique, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.OccultisteFourberieMagique], player));
-          player.learnableSkills[CustomSkill.OccultisteFourberieMagique].LevelUp(player);
-          player.learnableSkills[CustomSkill.OccultisteFourberieMagique].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.OccultisteFourberieMagique);
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell2)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.Occultiste, nbSpells:1));
-          else ((SpellSelectionWindow)spell2).CreateWindow((ClassType)CustomClass.Occultiste, nbSpells: 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell2)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.Occultiste, 1));
+          else ((SpellSelectionWindow)spell2).CreateWindow((ClassType)CustomClass.Occultiste, 1);
 
           if (!player.windows.TryGetValue("invocationOcculteSelection", out var invo2)) player.windows.Add("invocationOcculteSelection", new InvocationOcculteSelectionWindow(player, 2));
           else ((InvocationOcculteSelectionWindow)invo2).CreateWindow(2);
@@ -66,8 +67,8 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("subClassSelection", out var subClass)) player.windows.Add("subClassSelection", new SubClassSelectionWindow(player));
           else ((SubClassSelectionWindow)subClass).CreateWindow();
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell3)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.Occultiste, nbSpells: 1));
-          else ((SpellSelectionWindow)spell3).CreateWindow((ClassType)CustomClass.Occultiste, nbSpells: 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell3)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.Occultiste, 1));
+          else ((SpellSelectionWindow)spell3).CreateWindow((ClassType)CustomClass.Occultiste, 1);
 
           break;
 
@@ -76,16 +77,19 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("featSelection", out var feat4)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
           else ((FeatSelectionWindow)feat4).CreateWindow();
 
-          if (!player.windows.TryGetValue("spellSelection", out var cantrip4)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.Occultiste, 1, 1));
-          else ((SpellSelectionWindow)cantrip4).CreateWindow((ClassType)CustomClass.Occultiste, 1, 1);
+          if (!player.windows.TryGetValue("cantripSelection", out var cantrip4)) player.windows.Add("cantripSelection", new CantripSelectionWindow(player, (ClassType)CustomClass.Occultiste, 1));
+          else ((CantripSelectionWindow)cantrip4).CreateWindow((ClassType)CustomClass.Occultiste, 1);
+
+          if (!player.windows.TryGetValue("spellSelection", out var spell4)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.Occultiste, 1));
+          else ((SpellSelectionWindow)spell4).CreateWindow((ClassType)CustomClass.Occultiste, 1);
 
 
           break;
 
         case 5:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell5)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.Occultiste, nbSpells: 1));
-          else ((SpellSelectionWindow)spell5).CreateWindow((ClassType)CustomClass.Occultiste, nbSpells: 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell5)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.Occultiste, 1));
+          else ((SpellSelectionWindow)spell5).CreateWindow((ClassType)CustomClass.Occultiste, 1);
 
           if (!player.windows.TryGetValue("invocationOcculteSelection", out var invo5)) player.windows.Add("invocationOcculteSelection", new InvocationOcculteSelectionWindow(player, 2));
           else ((InvocationOcculteSelectionWindow)invo5).CreateWindow(2);
@@ -131,8 +135,11 @@ namespace NWN.Systems
 
         case 10:
 
-          if (!player.windows.TryGetValue("spellSelection", out var cantrip10)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.Occultiste, 1));
-          else ((SpellSelectionWindow)cantrip10).CreateWindow((ClassType)CustomClass.Occultiste, 1);
+          if (!player.windows.TryGetValue("cantripSelection", out var cantrip10)) player.windows.Add("cantripSelection", new CantripSelectionWindow(player, (ClassType)CustomClass.Occultiste, 1));
+          else ((CantripSelectionWindow)cantrip10).CreateWindow((ClassType)CustomClass.Occultiste, 1);
+
+          if (!player.windows.TryGetValue("spellSelection", out var spell10)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.Occultiste, 1));
+          else ((SpellSelectionWindow)spell10).CreateWindow((ClassType)CustomClass.Occultiste, 1);
 
           break;
 

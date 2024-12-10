@@ -1,6 +1,7 @@
 ﻿using Anvil.API.Events;
 using Anvil.API;
 using NWN.Core;
+using System;
 
 namespace NWN.Systems
 {
@@ -23,16 +24,20 @@ namespace NWN.Systems
           int spellDC = SpellUtils.GetCasterSpellDC(caster, Ability.Charisma);
 
           if (CreatureUtils.GetSavingThrow(caster, targetCreature, Ability.Charisma, spellDC) == SavingThrowResult.Failure)
-          {
-            NWScript.AssignCommand(onAttack.Attacker, () => targetCreature.ApplyEffect(EffectDuration.Temporary,
-              EffectSystem.TraverseeInfernale(targetCreature), NwTimeSpan.FromRounds(1)));
-          }
+            ApplyTraverseeInfernale(caster, targetCreature);
 
           await NwTask.NextFrame();
           onAttack.Attacker.OnCreatureAttack -= OnAttackTraverseeInfernale;
           
           break;
       }
+    }
+    private static async void ApplyTraverseeInfernale(NwCreature attacker, NwCreature target)
+    {
+      target.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonGate));
+
+      await NwTask.Delay(TimeSpan.FromSeconds(0.8));
+      NWScript.AssignCommand(attacker, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.TraverseeInfernale(target), NwTimeSpan.FromRounds(1)));
     }
   }
 }

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 using Anvil.API;
 using Anvil.API.Events;
@@ -19,7 +18,7 @@ namespace NWN.Systems
         private readonly NuiBind<string> icon = new("icon");
         private readonly NuiBind<string> skillName = new("skillName");
 
-        private List<DamageType> currentList = new();
+        private readonly List<DamageType> currentList = new();
 
         public ResilienceFielleuseSelectionWindow(Player player) : base(player)
         {
@@ -39,7 +38,7 @@ namespace NWN.Systems
         {
           NuiRect savedRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(player.guiWidth * 0.2f, player.guiHeight * 0.05f, player.guiScaledWidth * 0.4f, player.guiScaledHeight * 0.6f);
 
-          window = new NuiWindow(rootColumn, "Résilience Fielleuse - Choisissez un type de dégât")
+          window = new NuiWindow(rootColumn, "Résilience Fielleuse - Choisissez un type de dégâts")
           {
             Geometry = geometry,
             Resizable = false,
@@ -87,7 +86,7 @@ namespace NWN.Systems
 
           foreach (var entry in DamageType2da.damageTypeTable)
           {
-            if (entry.damageType != DamageType.Magical)
+            if (!Utils.In(entry.damageType, DamageType.Magical, DamageType.BaseWeapon, DamageType.Negative, DamageType.Positive))
             {
               iconList.Add(entry.resistanceIcon);
               nameList.Add(entry.nameRef.ToString());
@@ -97,7 +96,7 @@ namespace NWN.Systems
 
           icon.SetBindValues(player.oid, nuiToken.Token, iconList);
           skillName.SetBindValues(player.oid, nuiToken.Token, nameList);
-          listCount.SetBindValue(player.oid, nuiToken.Token, currentList.Count());
+          listCount.SetBindValue(player.oid, nuiToken.Token, currentList.Count);
         }
       }
     }

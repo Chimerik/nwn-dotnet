@@ -9,12 +9,12 @@ namespace NWN.Systems
   {
     public static void OnDamageGlobal(OnCreatureDamage onDamage)
     {
-      if (onDamage.DamagedBy is not NwCreature damager)
+      if (onDamage.DamagedBy is not NwCreature damager || onDamage.Target is not NwCreature target)
         return;
 
       int baseWeaponDamage = onDamage.DamageData.GetDamageByType(DamageType.BaseWeapon);
 
-      if (baseWeaponDamage > -1 && onDamage.Target is NwCreature target)
+      if (baseWeaponDamage > -1)
       {
         if(target.ActiveEffects.Any(e => e.Tag == EffectSystem.DefensesEnjoleusesEffectTag))
         {
@@ -31,6 +31,16 @@ namespace NWN.Systems
           {
             NWScript.AssignCommand(target, () => damager.ApplyEffect(EffectDuration.Instant, Effect.Damage(reducedDamage, CustomDamageType.Psychic)));
           }
+        }
+      }
+      else
+      {
+        int psyDamage = onDamage.DamageData.GetDamageByType(CustomDamageType.Psychic);
+
+        if (psyDamage > 0 && target.ActiveEffects.Any(e => e.Tag == EffectSystem.BouclierPsychiqueEffectTag))
+        {
+          StringUtils.DisplayStringToAllPlayersNearTarget(target, "Bouclier Psychique", ColorConstants.Pink, true, true);
+          NWScript.AssignCommand(target, () => damager.ApplyEffect(EffectDuration.Instant, Effect.Damage(psyDamage, CustomDamageType.Psychic)));
         }
       }
     }

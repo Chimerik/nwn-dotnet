@@ -136,10 +136,7 @@ namespace NWN.Systems
             int spellDC = GetCasterSpellDC(casterCreature, Ability.Charisma);
 
             if (CreatureUtils.GetSavingThrow(casterCreature, target, Ability.Charisma, spellDC) == SavingThrowResult.Failure)
-            {
-              NWScript.AssignCommand(casterCreature, () => target.ApplyEffect(EffectDuration.Temporary,
-                EffectSystem.TraverseeInfernale(target), NwTimeSpan.FromRounds(1)));
-            }
+              ApplyTraverseeInfernale(casterCreature, target);
           }
         }
 
@@ -147,6 +144,14 @@ namespace NWN.Systems
       }
 
       return result;
+    }
+
+    private static async void ApplyTraverseeInfernale(NwCreature attacker, NwCreature target)
+    {
+      target.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonGate));
+
+      await NwTask.NextFrame();
+      NWScript.AssignCommand(attacker, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.TraverseeInfernale(target), NwTimeSpan.FromRounds(1)));
     }
   }
 }

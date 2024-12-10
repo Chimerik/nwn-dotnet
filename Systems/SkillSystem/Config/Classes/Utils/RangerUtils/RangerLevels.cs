@@ -39,8 +39,12 @@ namespace NWN.Systems
 
           player.LearnClassSkill(CustomSkill.RangerEnnemiJuré);
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 0, 2));
-          else ((SpellSelectionWindow)spell).CreateWindow(ClassType.Ranger, 0, 2);
+
+          if (!player.windows.TryGetValue("spellSelection", out var spell)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 2));
+          else ((SpellSelectionWindow)spell).CreateWindow(ClassType.Ranger, 2);
+
+          if (!player.windows.TryGetValue("expertiseDarmeSelection", out var invo1)) player.windows.Add("expertiseDarmeSelection", new ExpertiseDarmeSelectionWindow(player, 2));
+          else ((ExpertiseDarmeSelectionWindow)invo1).CreateWindow(2);
 
           break;
 
@@ -49,8 +53,8 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("fightingStyleSelection", out var style)) player.windows.Add("fightingStyleSelection", new FightingStyleSelectionWindow(player, CustomSkill.Ranger));
           else ((FightingStyleSelectionWindow)style).CreateWindow(CustomSkill.Ranger);
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell2)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 0, 1));
-          else ((SpellSelectionWindow)spell2).CreateWindow(ClassType.Ranger, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell2)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 1));
+          else ((SpellSelectionWindow)spell2).CreateWindow(ClassType.Ranger, 1);
 
           player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_EXPERTISE_CHOICE").Value = 1;
 
@@ -68,8 +72,8 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("subClassSelection", out var value)) player.windows.Add("subClassSelection", new SubClassSelectionWindow(player));
           else ((SubClassSelectionWindow)value).CreateWindow();
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell3)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 0, 1));
-          else ((SpellSelectionWindow)spell3).CreateWindow(ClassType.Ranger, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell3)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 1));
+          else ((SpellSelectionWindow)spell3).CreateWindow(ClassType.Ranger, 1);
 
           break;
 
@@ -78,15 +82,15 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("featSelection", out var feat4)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
           else ((FeatSelectionWindow)feat4).CreateWindow();
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell4)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 0, 1));
-          else ((SpellSelectionWindow)spell4).CreateWindow(ClassType.Ranger, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell4)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 1));
+          else ((SpellSelectionWindow)spell4).CreateWindow(ClassType.Ranger, 1);
 
           break;
 
         case 5:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell5)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 0, 1));
-          else ((SpellSelectionWindow)spell5).CreateWindow(ClassType.Ranger, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell5)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 1));
+          else ((SpellSelectionWindow)spell5).CreateWindow(ClassType.Ranger, 1);
 
           player.learnableSkills.TryAdd(CustomSkill.AttaqueSupplementaire, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AttaqueSupplementaire], player));
           player.learnableSkills[CustomSkill.AttaqueSupplementaire].LevelUp(player);
@@ -100,8 +104,8 @@ namespace NWN.Systems
 
         case 7:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell7)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 0, 1));
-          else ((SpellSelectionWindow)spell7).CreateWindow(ClassType.Ranger, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell7)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 1));
+          else ((SpellSelectionWindow)spell7).CreateWindow(ClassType.Ranger, 1);
 
           break;
 
@@ -114,8 +118,8 @@ namespace NWN.Systems
 
         case 9:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell9)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 0, 1));
-          else ((SpellSelectionWindow)spell9).CreateWindow(ClassType.Ranger, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell9)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 1));
+          else ((SpellSelectionWindow)spell9).CreateWindow(ClassType.Ranger, 1);
 
           break;
 
@@ -126,8 +130,8 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("expertiseChoice", out var expertise8)) player.windows.Add("expertiseChoice", new ExpertiseChoiceWindow(player));
           else ((ExpertiseChoiceWindow)expertise8).CreateWindow();
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell11)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 0, 1));
-          else ((SpellSelectionWindow)spell11).CreateWindow(ClassType.Ranger, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell11)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 1));
+          else ((SpellSelectionWindow)spell11).CreateWindow(ClassType.Ranger, 1);
 
           break;
 
@@ -140,8 +144,8 @@ namespace NWN.Systems
 
         case 13:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell13)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 0, 1));
-          else ((SpellSelectionWindow)spell13).CreateWindow(ClassType.Ranger, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell13)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 1));
+          else ((SpellSelectionWindow)spell13).CreateWindow(ClassType.Ranger, 1);
 
           break;
 
@@ -149,8 +153,8 @@ namespace NWN.Systems
 
         case 15:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell15)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 0, 1));
-          else ((SpellSelectionWindow)spell15).CreateWindow(ClassType.Ranger, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell15)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 1));
+          else ((SpellSelectionWindow)spell15).CreateWindow(ClassType.Ranger, 1);
 
           break;
 
@@ -165,8 +169,8 @@ namespace NWN.Systems
 
           player.LearnClassSkill(CustomSkill.RangerPrecis);
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell17)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 0, 1));
-          else ((SpellSelectionWindow)spell17).CreateWindow(ClassType.Ranger, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell17)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 1));
+          else ((SpellSelectionWindow)spell17).CreateWindow(ClassType.Ranger, 1);
 
           break;
          
@@ -177,8 +181,8 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("featSelection", out var feat19)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
           else ((FeatSelectionWindow)feat19).CreateWindow();
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell19)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 0, 1));
-          else ((SpellSelectionWindow)spell19).CreateWindow(ClassType.Ranger, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell19)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 1));
+          else ((SpellSelectionWindow)spell19).CreateWindow(ClassType.Ranger, 1);
 
           break;
 

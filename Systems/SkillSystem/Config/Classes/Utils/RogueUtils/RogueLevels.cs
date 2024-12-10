@@ -39,6 +39,9 @@ namespace NWN.Systems
           if (!player.oid.LoginCreature.KnowsFeat(Feat.SneakAttack))
             player.oid.LoginCreature.AddFeat(Feat.SneakAttack);
 
+          if (!player.windows.TryGetValue("expertiseDarmeSelection", out var invo1)) player.windows.Add("expertiseDarmeSelection", new ExpertiseDarmeSelectionWindow(player, 2));
+          else ((ExpertiseDarmeSelectionWindow)invo1).CreateWindow(2);
+
           break;
 
         case 3:

@@ -21,8 +21,8 @@ namespace NWN.Systems
           {
             if (learnable.learntFromClasses.Any(c => c == (int)ClassType.Wizard))
             {
-              if (!player.windows.TryGetValue("spellSelection", out var cantrip1)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 1, 0));
-              else ((SpellSelectionWindow)cantrip1).CreateWindow(ClassType.Wizard, 1, 0);
+              if (!player.windows.TryGetValue("cantripSelection", out var cantrip1)) player.windows.Add("cantripSelection", new CantripSelectionWindow(player, ClassType.Wizard, 1));
+              else ((CantripSelectionWindow)cantrip1).CreateWindow(ClassType.Wizard, 1);
             }
             else
             { 
@@ -41,39 +41,20 @@ namespace NWN.Systems
             player.oid.SendServerMessage($"Vous apprenez le sort {StringUtils.ToWhitecolor("Illusion Mineure")}", ColorConstants.Orange);
           }
 
-          player.learnableSkills.TryAdd(CustomSkill.WizardIllusionAmelioree, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.WizardIllusionAmelioree], player));
-          player.learnableSkills[CustomSkill.WizardIllusionAmelioree].LevelUp(player);
-          player.learnableSkills[CustomSkill.WizardIllusionAmelioree].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.WizardIllusionAmelioree);
 
           break;
 
         case 6:
 
-          player.learnableSkills.TryAdd(CustomSkill.WizardIllusionMalleable, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.WizardIllusionMalleable], player));
-          player.learnableSkills[CustomSkill.WizardIllusionMalleable].LevelUp(player);
-          player.learnableSkills[CustomSkill.WizardIllusionMalleable].source.Add(Category.Class);
-
-          player.learnableSkills.TryAdd(CustomSkill.IllusionVoirLinvisible, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.IllusionVoirLinvisible], player));
-          player.learnableSkills[CustomSkill.IllusionVoirLinvisible].LevelUp(player);
-          player.learnableSkills[CustomSkill.IllusionVoirLinvisible].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.WizardIllusionMalleable);
+          player.LearnClassSkill(CustomSkill.IllusionVoirLinvisible);
 
           break;
 
-        case 10:
+        case 10: player.LearnClassSkill(CustomSkill.IllusionDouble); break;
 
-          player.learnableSkills.TryAdd(CustomSkill.IllusionDouble, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.IllusionDouble], player));
-          player.learnableSkills[CustomSkill.IllusionDouble].LevelUp(player);
-          player.learnableSkills[CustomSkill.IllusionDouble].source.Add(Category.Class);
-
-          break;
-
-        case 14:
-
-          player.learnableSkills.TryAdd(CustomSkill.WizardRealiteIllusoire, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.WizardRealiteIllusoire], player));
-          player.learnableSkills[CustomSkill.WizardRealiteIllusoire].LevelUp(player);
-          player.learnableSkills[CustomSkill.WizardRealiteIllusoire].source.Add(Category.Class);
-
-          break;
+        case 14: player.LearnClassSkill(CustomSkill.WizardRealiteIllusoire); break;
       }
     }
   }

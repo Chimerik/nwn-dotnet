@@ -30,7 +30,6 @@ namespace NWN.Systems
       eff.SubType = EffectSubType.Supernatural;
 
       StringUtils.DisplayStringToAllPlayersNearTarget(target, $"{target.Name.ColorString(ColorConstants.Cyan)} - Traversée  Infernale", ColorConstants.Red, true, true);
-      target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonGate));
 
       _ = target.ClearActionQueue();
       target.Commandable = false;

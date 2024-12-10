@@ -19,15 +19,9 @@ namespace NWN.Systems
           player.LearnAlwaysPreparedSpell(CustomSpell.ForceFantasmagorique, CustomClass.Occultiste);
           player.LearnAlwaysPreparedSpell(CustomSpell.MurmuresDissonnants, CustomClass.Occultiste);
           player.LearnAlwaysPreparedSpell(CustomSpell.DetectionDesPensees, CustomClass.Occultiste);
-          
 
-          player.learnableSkills.TryAdd(CustomSkill.EspritEveille, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.EspritEveille], player));
-          player.learnableSkills[CustomSkill.EspritEveille].LevelUp(player);
-          player.learnableSkills[CustomSkill.EspritEveille].source.Add(Category.Class);
-
-          player.learnableSkills.TryAdd(CustomSkill.SortsPsychiques, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SortsPsychiques], player));
-          player.learnableSkills[CustomSkill.SortsPsychiques].LevelUp(player);
-          player.learnableSkills[CustomSkill.SortsPsychiques].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.EspritEveille);
+          player.LearnClassSkill(CustomSkill.SortsPsychiques);
 
           break;
 
@@ -38,13 +32,7 @@ namespace NWN.Systems
 
           break;
 
-        case 6:
-
-          player.learnableSkills.TryAdd(CustomSkill.CombattantClairvoyant, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.CombattantClairvoyant], player));
-          player.learnableSkills[CustomSkill.CombattantClairvoyant].LevelUp(player);
-          player.learnableSkills[CustomSkill.CombattantClairvoyant].source.Add(Category.Class);
-
-          break;
+        case 6: player.LearnClassSkill(CustomSkill.CombattantClairvoyant); break;
 
         case 7:
 
@@ -63,10 +51,7 @@ namespace NWN.Systems
         case 10:
 
           player.LearnAlwaysPreparedSpell((int)Spell.BestowCurse, CustomClass.Occultiste);
-
-          player.learnableSkills.TryAdd(CustomSkill.BouclierPsychique, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BouclierPsychique], player));
-          player.learnableSkills[CustomSkill.BouclierPsychique].LevelUp(player);
-          player.learnableSkills[CustomSkill.BouclierPsychique].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.BouclierPsychique);
 
           break;
       }

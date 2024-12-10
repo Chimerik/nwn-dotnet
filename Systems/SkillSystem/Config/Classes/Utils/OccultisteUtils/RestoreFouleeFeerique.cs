@@ -6,18 +6,22 @@ namespace NWN.Systems
   {
     public static async void RestoreFouleeFeerique(NwCreature creature)
     {
-      await NwTask.NextFrame();
+      var occultiste = creature.GetClassInfo((ClassType)CustomClass.Occultiste);
 
-      byte maxUses = CreatureUtils.GetAbilityModifierMin1(creature, Ability.Charisma);
-      creature.SetFeatRemainingUses((Feat)CustomSkill.FaveurDuMalin, maxUses);
+      if (occultiste != null)
+      {
+        await NwTask.NextFrame();
 
-      maxUses += creature.GetClassInfo((ClassType)CustomClass.Occultiste).GetRemainingSpellSlots(2);
+        byte maxUses = CreatureUtils.GetAbilityModifierMin1(creature, Ability.Charisma);
+        creature.SetFeatRemainingUses((Feat)CustomSkill.FaveurDuMalin, maxUses);
 
-      creature.SetFeatRemainingUses((Feat)CustomSkill.FouleeRafraichissante, maxUses);
-      creature.SetFeatRemainingUses((Feat)CustomSkill.FouleeProvocatrice, maxUses);
-      creature.SetFeatRemainingUses((Feat)CustomSkill.FouleeEvanescente, maxUses);
-      creature.SetFeatRemainingUses((Feat)CustomSkill.FouleeRedoutable, maxUses);
-      
+        maxUses += occultiste.GetRemainingSpellSlots(2);
+
+        creature.SetFeatRemainingUses((Feat)CustomSkill.FouleeRafraichissante, maxUses);
+        creature.SetFeatRemainingUses((Feat)CustomSkill.FouleeProvocatrice, maxUses);
+        creature.SetFeatRemainingUses((Feat)CustomSkill.FouleeEvanescente, maxUses);
+        creature.SetFeatRemainingUses((Feat)CustomSkill.FouleeRedoutable, maxUses);
+      }
     }
   }
 }

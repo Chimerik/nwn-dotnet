@@ -71,7 +71,7 @@ namespace NWN.Systems
       OverrideTlkEntry(190126, "<CUSTOM0> Force");
       OverrideTlkEntry(190127, "Radiant");
       OverrideTlkEntry(190128, "<CUSTOM0> Radiant");
-      OverrideTlkEntry(190129, "<Tonnerre");
+      OverrideTlkEntry(190129, "Tonnerre");
       OverrideTlkEntry(190130, "<CUSTOM0> Tonnerre");
       OverrideTlkEntry(190153, "LISEZ-MOI");
       OverrideTlkEntry(190154, "Les choix de races, de classe et de caractéristiques de cette partie de l'interface sont inutiles.\n\nEn jeu, un miroir vous permettra d'accéder à des options de personnalisation approfondies.\n\nIl vous faudra alors valider toutes les étapes avant que le capitaine ne vous autorise à poursuivre votre voyage.");

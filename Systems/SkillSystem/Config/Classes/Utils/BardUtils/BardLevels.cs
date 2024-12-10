@@ -34,28 +34,28 @@ namespace NWN.Systems
 
             playerClass.acquiredPoints = 0;
           }
- 
-          // On donne les autres capacités de niveau 1
-          player.learnableSkills.TryAdd(CustomSkill.BardInspiration, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BardInspiration], player));
-          player.learnableSkills[CustomSkill.BardInspiration].LevelUp(player);
-          player.learnableSkills[CustomSkill.BardInspiration].source.Add(Category.Class);
 
-          if (!player.windows.TryGetValue("spellSelection", out var cantrip1)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 2, 4));
-          else ((SpellSelectionWindow)cantrip1).CreateWindow(ClassType.Bard, 2, 4);
+          // On donne les autres capacités de niveau 1
+          player.LearnClassSkill(CustomSkill.BardInspiration);
+
+          if (!player.windows.TryGetValue("cantripSelection", out var cantrip1)) player.windows.Add("cantripSelection", new CantripSelectionWindow(player, ClassType.Bard, 2));
+          else ((CantripSelectionWindow)cantrip1).CreateWindow(ClassType.Bard, 2);
+
+          if (!player.windows.TryGetValue("spellSelection", out var spell1)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 4));
+          else ((SpellSelectionWindow)spell1).CreateWindow(ClassType.Bard, 4);
 
           break;
 
         case 2:
 
+          player.LearnClassSkill(CustomSkill.ToucheATout);
+
           if (!player.windows.TryGetValue("expertiseChoice", out var expertise3)) player.windows.Add("expertiseChoice", new ExpertiseChoiceWindow(player));
           else ((ExpertiseChoiceWindow)expertise3).CreateWindow();
 
-          player.learnableSkills.TryAdd(CustomSkill.ToucheATout, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ToucheATout], player));
-          player.learnableSkills[CustomSkill.ToucheATout].LevelUp(player);
-          player.learnableSkills[CustomSkill.ToucheATout].source.Add(Category.Class);
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell2)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 0, 1));
-          else ((SpellSelectionWindow)spell2).CreateWindow(ClassType.Bard, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell2)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 1));
+          else ((SpellSelectionWindow)spell2).CreateWindow(ClassType.Bard, 1);
 
           break;
 
@@ -66,8 +66,8 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("subClassSelection", out var value)) player.windows.Add("subClassSelection", new SubClassSelectionWindow(player));
           else ((SubClassSelectionWindow)value).CreateWindow();
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell3)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 0, 1));
-          else ((SpellSelectionWindow)spell3).CreateWindow(ClassType.Bard, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell3)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 1));
+          else ((SpellSelectionWindow)spell3).CreateWindow(ClassType.Bard, 1);
 
           break;
 
@@ -76,37 +76,36 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("featSelection", out var feat4)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
           else ((FeatSelectionWindow)feat4).CreateWindow();
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell4)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 1, 1));
-          else ((SpellSelectionWindow)spell4).CreateWindow(ClassType.Bard, 1, 1);
+          if (!player.windows.TryGetValue("cantripSelection", out var cantrip4)) player.windows.Add("cantripSelection", new CantripSelectionWindow(player, ClassType.Bard, 1));
+          else ((CantripSelectionWindow)cantrip4).CreateWindow(ClassType.Bard, 1);
+
+          if (!player.windows.TryGetValue("spellSelection", out var spell4)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 1));
+          else ((SpellSelectionWindow)spell4).CreateWindow(ClassType.Bard, 1);
 
           break;
 
         case 5:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell5)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 0, 1));
-          else ((SpellSelectionWindow)spell5).CreateWindow(ClassType.Bard, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell5)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 1));
+          else ((SpellSelectionWindow)spell5).CreateWindow(ClassType.Bard, 1);
 
-          player.learnableSkills.TryAdd(CustomSkill.SourceDinspiration, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SourceDinspiration], player));
-          player.learnableSkills[CustomSkill.SourceDinspiration].LevelUp(player);
-          player.learnableSkills[CustomSkill.SourceDinspiration].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.SourceDinspiration);
 
           break;
 
         case 6:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell6)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 0, 1));
-          else ((SpellSelectionWindow)spell6).CreateWindow(ClassType.Bard, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell6)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 1));
+          else ((SpellSelectionWindow)spell6).CreateWindow(ClassType.Bard, 1);
 
           break;
 
         case 7:
 
-          player.learnableSkills.TryAdd(CustomSkill.ContreCharme, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ContreCharme], player));
-          player.learnableSkills[CustomSkill.ContreCharme].LevelUp(player);
-          player.learnableSkills[CustomSkill.ContreCharme].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.ContreCharme);
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell7)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 0, 1));
-          else ((SpellSelectionWindow)spell7).CreateWindow(ClassType.Bard, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell7)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 1));
+          else ((SpellSelectionWindow)spell7).CreateWindow(ClassType.Bard, 1);
 
           break;
 
@@ -115,15 +114,15 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("featSelection", out var feat8)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
           else ((FeatSelectionWindow)feat8).CreateWindow();
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell8)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 0, 1));
-          else ((SpellSelectionWindow)spell8).CreateWindow(ClassType.Bard, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell8)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 1));
+          else ((SpellSelectionWindow)spell8).CreateWindow(ClassType.Bard, 1);
 
           break;
 
         case 9:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell9)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 0, 1));
-          else ((SpellSelectionWindow)spell9).CreateWindow(ClassType.Bard, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell9)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 1));
+          else ((SpellSelectionWindow)spell9).CreateWindow(ClassType.Bard, 1);
 
           if (!player.windows.TryGetValue("expertiseChoice", out var expertise6)) player.windows.Add("expertiseChoice", new ExpertiseChoiceWindow(player));
           else ((ExpertiseChoiceWindow)expertise6).CreateWindow();
@@ -132,19 +131,17 @@ namespace NWN.Systems
 
         case 10:
 
-          player.learnableSkills.TryAdd(CustomSkill.SecretsMagiques, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SecretsMagiques], player));
-          player.learnableSkills[CustomSkill.SecretsMagiques].LevelUp(player);
-          player.learnableSkills[CustomSkill.SecretsMagiques].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.SecretsMagiques);
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell10)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 0, 1));
-          else ((SpellSelectionWindow)spell10).CreateWindow(ClassType.Bard, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell10)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 1));
+          else ((SpellSelectionWindow)spell10).CreateWindow(ClassType.Bard, 1);
 
           break;
 
         case 11:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell11)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 0, 1));
-          else ((SpellSelectionWindow)spell11).CreateWindow(ClassType.Bard, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell11)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 1));
+          else ((SpellSelectionWindow)spell11).CreateWindow(ClassType.Bard, 1);
 
           break;
 
@@ -157,15 +154,15 @@ namespace NWN.Systems
 
         case 13:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell13)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 0, 1));
-          else ((SpellSelectionWindow)spell13).CreateWindow(ClassType.Bard, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell13)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 1));
+          else ((SpellSelectionWindow)spell13).CreateWindow(ClassType.Bard, 1);
 
           break;
 
         case 15:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell15)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 0, 1));
-          else ((SpellSelectionWindow)spell15).CreateWindow(ClassType.Bard, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell15)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 1));
+          else ((SpellSelectionWindow)spell15).CreateWindow(ClassType.Bard, 1);
 
           break;
 
@@ -178,19 +175,17 @@ namespace NWN.Systems
 
         case 17:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell17)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 0, 1));
-          else ((SpellSelectionWindow)spell17).CreateWindow(ClassType.Bard, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell17)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 1));
+          else ((SpellSelectionWindow)spell17).CreateWindow(ClassType.Bard, 1);
 
           break;
 
         case 18:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell18)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 0, 1));
-          else ((SpellSelectionWindow)spell18).CreateWindow(ClassType.Bard, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell18)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 1));
+          else ((SpellSelectionWindow)spell18).CreateWindow(ClassType.Bard, 1);
 
-          player.learnableSkills.TryAdd(CustomSkill.BardInspirationSuperieure, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BardInspirationSuperieure], player));
-          player.learnableSkills[CustomSkill.BardInspirationSuperieure].LevelUp(player);
-          player.learnableSkills[CustomSkill.BardInspirationSuperieure].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.BardInspirationSuperieure);
 
           break;
 
@@ -199,15 +194,15 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("featSelection", out var feat19)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
           else ((FeatSelectionWindow)feat19).CreateWindow();
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell19)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 0, 1));
-          else ((SpellSelectionWindow)spell19).CreateWindow(ClassType.Bard, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell19)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 1));
+          else ((SpellSelectionWindow)spell19).CreateWindow(ClassType.Bard, 1);
 
           break;
 
         case 20:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell20)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 0, 1));
-          else ((SpellSelectionWindow)spell20).CreateWindow(ClassType.Bard, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell20)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Bard, 1));
+          else ((SpellSelectionWindow)spell20).CreateWindow(ClassType.Bard, 1);
 
           break;
       }

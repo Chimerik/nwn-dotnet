@@ -34,23 +34,21 @@ namespace NWN.Systems
 
             playerClass.acquiredPoints = 0;
           }
- 
+
           // On donne les autres capacités de niveau 1
-          player.learnableSkills.TryAdd(CustomSkill.FighterSecondWind, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterSecondWind], player));
-          player.learnableSkills[CustomSkill.FighterSecondWind].LevelUp(player);
-          player.learnableSkills[CustomSkill.FighterSecondWind].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.FighterSecondWind);
 
           if (!player.windows.TryGetValue("fightingStyleSelection", out var style)) player.windows.Add("fightingStyleSelection", new FightingStyleSelectionWindow(player, CustomSkill.Fighter));
           else ((FightingStyleSelectionWindow)style).CreateWindow(CustomSkill.Fighter);
+
+          if (!player.windows.TryGetValue("expertiseDarmeSelection", out var invo1)) player.windows.Add("expertiseDarmeSelection", new ExpertiseDarmeSelectionWindow(player, 3));
+          else ((ExpertiseDarmeSelectionWindow)invo1).CreateWindow(3);
 
           break;
 
         case 2:
 
-          player.learnableSkills.TryAdd(CustomSkill.FighterSurge, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterSurge], player));
-          player.learnableSkills[CustomSkill.FighterSurge].LevelUp(player);
-          player.learnableSkills[CustomSkill.FighterSurge].source.Add(Category.Class);
-
+          player.LearnClassSkill(CustomSkill.FighterSurge);
           player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.FighterSurge, 1);
 
           break;
@@ -69,17 +67,15 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("featSelection", out var feat4)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
           else ((FeatSelectionWindow)feat4).CreateWindow();
 
+          if (!player.windows.TryGetValue("expertiseDarmeSelection", out var invo4)) player.windows.Add("expertiseDarmeSelection", new ExpertiseDarmeSelectionWindow(player));
+          else ((ExpertiseDarmeSelectionWindow)invo4).CreateWindow();
+
           break;
 
         case 5:
 
-          player.learnableSkills.TryAdd(CustomSkill.AttaqueSupplementaire, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AttaqueSupplementaire], player));
-          player.learnableSkills[CustomSkill.AttaqueSupplementaire].LevelUp(player);
-          player.learnableSkills[CustomSkill.AttaqueSupplementaire].source.Add(Category.Class);
-
-          player.learnableSkills.TryAdd(CustomSkill.FighterAvantageTactique, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterAvantageTactique], player));
-          player.learnableSkills[CustomSkill.FighterAvantageTactique].LevelUp(player);
-          player.learnableSkills[CustomSkill.FighterAvantageTactique].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.AttaqueSupplementaire);
+          player.LearnClassSkill(CustomSkill.FighterAvantageTactique);
 
           CreatureUtils.InitializeNumAttackPerRound(player.oid.LoginCreature);
 
@@ -99,20 +95,18 @@ namespace NWN.Systems
 
           break;
 
-        case 9:
+        case 9: player.LearnClassSkill(CustomSkill.FighterInflexible); break;
 
-          player.learnableSkills.TryAdd(CustomSkill.FighterInflexible, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterInflexible], player));
-          player.learnableSkills[CustomSkill.FighterInflexible].LevelUp(player);
-          player.learnableSkills[CustomSkill.FighterInflexible].source.Add(Category.Class);
+        case 10:
+
+          if (!player.windows.TryGetValue("expertiseDarmeSelection", out var invo10)) player.windows.Add("expertiseDarmeSelection", new ExpertiseDarmeSelectionWindow(player));
+          else ((ExpertiseDarmeSelectionWindow)invo10).CreateWindow();
 
           break;
 
         case 11:
 
-          player.learnableSkills.TryAdd(CustomSkill.AttaqueSupplementaire2, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AttaqueSupplementaire2], player));
-          player.learnableSkills[CustomSkill.AttaqueSupplementaire2].LevelUp(player);
-          player.learnableSkills[CustomSkill.AttaqueSupplementaire2].source.Add(Category.Class);
-
+          player.LearnClassSkill(CustomSkill.AttaqueSupplementaire2);
           CreatureUtils.InitializeNumAttackPerRound(player.oid.LoginCreature);
 
           break;
@@ -126,12 +120,8 @@ namespace NWN.Systems
 
         case 13:
 
-          player.learnableSkills.TryAdd(CustomSkill.FighterInflexible, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterInflexible], player));
-          player.learnableSkills[CustomSkill.FighterInflexible].LevelUp(player);
-
-          player.learnableSkills.TryAdd(CustomSkill.FighterAttaquesEtudiees, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterAttaquesEtudiees], player));
-          player.learnableSkills[CustomSkill.FighterAttaquesEtudiees].LevelUp(player);
-          player.learnableSkills[CustomSkill.FighterAttaquesEtudiees].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.FighterInflexible);
+          player.LearnClassSkill(CustomSkill.FighterAttaquesEtudiees);
 
           break;
 
@@ -147,15 +137,15 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("featSelection", out var feat16)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
           else ((FeatSelectionWindow)feat16).CreateWindow();
 
+          if (!player.windows.TryGetValue("expertiseDarmeSelection", out var invo16)) player.windows.Add("expertiseDarmeSelection", new ExpertiseDarmeSelectionWindow(player));
+          else ((ExpertiseDarmeSelectionWindow)invo16).CreateWindow();
+
           break;
 
         case 17:
 
-          player.learnableSkills.TryAdd(CustomSkill.FighterInflexible, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterInflexible], player));
-          player.learnableSkills[CustomSkill.FighterInflexible].LevelUp(player);
-
-          player.learnableSkills.TryAdd(CustomSkill.FighterSurge, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FighterSurge], player));
-          player.learnableSkills[CustomSkill.FighterSurge].LevelUp(player);
+          player.LearnClassSkill(CustomSkill.FighterInflexible);
+          player.LearnClassSkill(CustomSkill.FighterSurge);
 
           break;
 
@@ -168,10 +158,7 @@ namespace NWN.Systems
 
         case 20:
 
-          player.learnableSkills.TryAdd(CustomSkill.AttaqueSupplementaire3, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AttaqueSupplementaire3], player));
-          player.learnableSkills[CustomSkill.AttaqueSupplementaire3].LevelUp(player);
-          player.learnableSkills[CustomSkill.AttaqueSupplementaire3].source.Add(Category.Class);
-
+          player.LearnClassSkill(CustomSkill.AttaqueSupplementaire3);
           CreatureUtils.InitializeNumAttackPerRound(player.oid.LoginCreature);
 
           break;

@@ -37,23 +37,15 @@ namespace NWN.Systems
           }
 
           // On donne les autres capacités de niveau 1
-          player.learnableSkills.TryAdd(CustomSkill.BarbarianUnarmoredDefence, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BarbarianUnarmoredDefence], player));
-          player.learnableSkills[CustomSkill.BarbarianUnarmoredDefence].LevelUp(player);
-          player.learnableSkills[CustomSkill.BarbarianUnarmoredDefence].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.BarbarianUnarmoredDefence);
+          player.LearnClassSkill(CustomSkill.BarbarianRage);
 
-          player.learnableSkills.TryAdd(CustomSkill.BarbarianRage, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BarbarianRage], player));
-          player.learnableSkills[CustomSkill.BarbarianRage].LevelUp(player);
-          player.learnableSkills[CustomSkill.BarbarianRage].source.Add(Category.Class);
+          if (!player.windows.TryGetValue("expertiseDarmeSelection", out var invo1)) player.windows.Add("expertiseDarmeSelection", new ExpertiseDarmeSelectionWindow(player, 2));
+          else ((ExpertiseDarmeSelectionWindow)invo1).CreateWindow(2);
 
           break;
 
-        case 2:
-
-          player.learnableSkills.TryAdd(CustomSkill.BarbarianRecklessAttack, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BarbarianRecklessAttack], player));
-          player.learnableSkills[CustomSkill.BarbarianRecklessAttack].LevelUp(player);
-          player.learnableSkills[CustomSkill.BarbarianRecklessAttack].source.Add(Category.Class);
-
-          break;
+        case 2: player.LearnClassSkill(CustomSkill.BarbarianRecklessAttack); break;
 
         case 3:
 
@@ -81,29 +73,20 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("featSelection", out var feat4)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
           else ((FeatSelectionWindow)feat4).CreateWindow();
 
+          if (!player.windows.TryGetValue("expertiseDarmeSelection", out var invo4)) player.windows.Add("expertiseDarmeSelection", new ExpertiseDarmeSelectionWindow(player));
+          else ((ExpertiseDarmeSelectionWindow)invo4).CreateWindow();
+
           break;
 
         case 5:
 
-          player.learnableSkills.TryAdd(CustomSkill.AttaqueSupplementaire, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AttaqueSupplementaire], player));
-          player.learnableSkills[CustomSkill.AttaqueSupplementaire].LevelUp(player);
-          player.learnableSkills[CustomSkill.AttaqueSupplementaire].source.Add(Category.Class);
-
+          player.LearnClassSkill(CustomSkill.AttaqueSupplementaire);
           CreatureUtils.InitializeNumAttackPerRound(player.oid.LoginCreature);
-
-          player.learnableSkills.TryAdd(CustomSkill.BarbarianFastMovement, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BarbarianFastMovement], player));
-          player.learnableSkills[CustomSkill.BarbarianFastMovement].LevelUp(player);
-          player.learnableSkills[CustomSkill.BarbarianFastMovement].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.BarbarianFastMovement);
 
           break;
 
-        case 7:
-
-          player.learnableSkills.TryAdd(CustomSkill.BarbarianInstinctSauvage, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BarbarianInstinctSauvage], player));
-          player.learnableSkills[CustomSkill.BarbarianInstinctSauvage].LevelUp(player);
-          player.learnableSkills[CustomSkill.BarbarianInstinctSauvage].source.Add(Category.Class);
-
-          break;
+        case 7: player.LearnClassSkill(CustomSkill.BarbarianInstinctSauvage); break;
 
         case 8:
 
@@ -112,20 +95,18 @@ namespace NWN.Systems
 
           break;
 
-        case 9:
+        case 9: player.LearnClassSkill(CustomSkill.FrappeBrutale); break;
 
-          player.learnableSkills.TryAdd(CustomSkill.FrappeBrutale, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FrappeBrutale], player));
-          player.learnableSkills[CustomSkill.FrappeBrutale].LevelUp(player);
-          player.learnableSkills[CustomSkill.FrappeBrutale].source.Add(Category.Class);
+        case 10:
+
+          if (!player.windows.TryGetValue("expertiseDarmeSelection", out var invo10)) player.windows.Add("expertiseDarmeSelection", new ExpertiseDarmeSelectionWindow(player));
+          else ((ExpertiseDarmeSelectionWindow)invo10).CreateWindow();
 
           break;
 
         case 11:
 
-          player.learnableSkills.TryAdd(CustomSkill.BarbarianRageImplacable, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BarbarianRageImplacable], player));
-          player.learnableSkills[CustomSkill.BarbarianRageImplacable].LevelUp(player);
-          player.learnableSkills[CustomSkill.BarbarianRageImplacable].source.Add(Category.Class);
-
+          player.LearnClassSkill(CustomSkill.BarbarianRageImplacable);
           player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_RAGE_IMPLACABLE_DD").Value = 10;
 
           break;
@@ -138,24 +119,11 @@ namespace NWN.Systems
           break;
 
         case 13:
-
-          player.learnableSkills.TryAdd(CustomSkill.FrappeSiderante, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FrappeSiderante], player));
-          player.learnableSkills[CustomSkill.FrappeSiderante].LevelUp(player);
-          player.learnableSkills[CustomSkill.FrappeSiderante].source.Add(Category.Class);
-
-          player.learnableSkills.TryAdd(CustomSkill.FrappeDechirante, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FrappeDechirante], player));
-          player.learnableSkills[CustomSkill.FrappeDechirante].LevelUp(player);
-          player.learnableSkills[CustomSkill.FrappeDechirante].source.Add(Category.Class);
-
+          player.LearnClassSkill(CustomSkill.FrappeSiderante);
+          player.LearnClassSkill(CustomSkill.FrappeDechirante);
           break;
 
-        case 15:
-
-          player.learnableSkills.TryAdd(CustomSkill.BarbarianRagePersistante, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BarbarianRagePersistante], player));
-          player.learnableSkills[CustomSkill.BarbarianRagePersistante].LevelUp(player);
-          player.learnableSkills[CustomSkill.BarbarianRagePersistante].source.Add(Category.Class);
-
-          break;
+        case 15: player.LearnClassSkill(CustomSkill.BarbarianRagePersistante); break;
 
         case 16:
 
@@ -164,13 +132,7 @@ namespace NWN.Systems
 
           break;
 
-        case 18:
-
-          player.learnableSkills.TryAdd(CustomSkill.BarbarianPuissanceIndomptable, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BarbarianPuissanceIndomptable], player));
-          player.learnableSkills[CustomSkill.BarbarianPuissanceIndomptable].LevelUp(player);
-          player.learnableSkills[CustomSkill.BarbarianPuissanceIndomptable].source.Add(Category.Class);
-
-          break;
+        case 18: player.LearnClassSkill(CustomSkill.BarbarianPuissanceIndomptable); break;
 
         case 19:
 
@@ -181,10 +143,7 @@ namespace NWN.Systems
 
         case 20:
 
-          player.learnableSkills.TryAdd(CustomSkill.BarbarianChampionPrimitif, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BarbarianChampionPrimitif], player));
-          player.learnableSkills[CustomSkill.BarbarianChampionPrimitif].LevelUp(player);
-          player.learnableSkills[CustomSkill.BarbarianChampionPrimitif].source.Add(Category.Class);
-
+          player.LearnClassSkill(CustomSkill.BarbarianChampionPrimitif);
           player.oid.LoginCreature.SetsRawAbilityScore(Ability.Strength, (byte)(player.oid.LoginCreature.GetRawAbilityScore(Ability.Strength) + 4));
           player.oid.LoginCreature.SetsRawAbilityScore(Ability.Constitution, (byte)(player.oid.LoginCreature.GetRawAbilityScore(Ability.Constitution) + 4));
 

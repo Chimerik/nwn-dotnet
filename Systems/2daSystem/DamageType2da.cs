@@ -15,14 +15,10 @@ namespace NWN.Systems
 
     public void InterpretEntry(TwoDimArrayEntry entry)
     {
-      immunityIcon = entry.GetString("ImmunityIcon");
-
-      if (string.IsNullOrEmpty(immunityIcon))
-        return;
-
-      nameRef = entry.GetStrRef("CharsheetStrref").GetValueOrDefault();
+      nameRef = entry.GetStrRef("ResistanceStrRef").GetValueOrDefault();
       resistanceIcon = entry.GetString("ResistanceIcon");
       vulnerabilityIcon = entry.GetString("VulnerabilityIcon");
+      immunityIcon = entry.GetString("ImmunityIcon");
       damageType = (DamageType)entry.GetInt("Id").Value;
     }
   }
@@ -55,23 +51,23 @@ namespace NWN.Systems
       damageVulnerabilityEffectIcon.Add(DamageType.Magical, (EffectIcon)120);
 
       damageImmunityEffectIcon.Add(DamageType.Acid, (EffectIcon)112);
-      damageResistanceEffectIcon.Add(DamageType.Acid, (EffectIcon)204);
+      damageResistanceEffectIcon.Add(DamageType.Acid, (EffectIcon)205);
       damageVulnerabilityEffectIcon.Add(DamageType.Acid, (EffectIcon)121);
 
       damageImmunityEffectIcon.Add(DamageType.Cold, (EffectIcon)113);
-      damageResistanceEffectIcon.Add(DamageType.Cold, (EffectIcon)205);
+      damageResistanceEffectIcon.Add(DamageType.Cold, (EffectIcon)206);
       damageVulnerabilityEffectIcon.Add(DamageType.Cold, (EffectIcon)122);
 
       damageImmunityEffectIcon.Add(DamageType.Divine, (EffectIcon)114);
-      damageResistanceEffectIcon.Add(DamageType.Divine, (EffectIcon)206);
+      damageResistanceEffectIcon.Add(DamageType.Divine, (EffectIcon)207);
       damageVulnerabilityEffectIcon.Add(DamageType.Divine, (EffectIcon)123);
 
       damageImmunityEffectIcon.Add(DamageType.Electrical, (EffectIcon)115);
-      damageResistanceEffectIcon.Add(DamageType.Electrical, (EffectIcon)207);
+      damageResistanceEffectIcon.Add(DamageType.Electrical, (EffectIcon)208);
       damageVulnerabilityEffectIcon.Add(DamageType.Electrical, (EffectIcon)124);
 
       damageImmunityEffectIcon.Add(DamageType.Fire, (EffectIcon)116);
-      damageResistanceEffectIcon.Add(DamageType.Fire, (EffectIcon)208);
+      damageResistanceEffectIcon.Add(DamageType.Fire, (EffectIcon)209);
       damageVulnerabilityEffectIcon.Add(DamageType.Fire, (EffectIcon)125);
 
       damageImmunityEffectIcon.Add(DamageType.Sonic, (EffectIcon)119);

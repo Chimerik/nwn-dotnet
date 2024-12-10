@@ -10,8 +10,24 @@ namespace NWN.Systems
       {
         if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_CLASS_SELECTION").HasValue)
         {
-          if (!windows.TryGetValue("spellSelection", out var masterSpell)) windows.Add("spellSelection", new SpellSelectionWindow(this, (ClassType)oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_CLASS_SELECTION").Value, oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CANTRIP_SELECTION").Value, oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_SELECTION").Value));
-          else ((SpellSelectionWindow)masterSpell).CreateWindow((ClassType)oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_CLASS_SELECTION").Value, oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CANTRIP_SELECTION").Value, oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_SELECTION").Value);
+          ClassType classType = (ClassType)oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_CLASS_SELECTION").Value;
+          int nbSpells = oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_SELECTION").Value;
+          int nbCantrips = oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CANTRIP_SELECTION").Value;
+
+          if (nbSpells > 0)
+          {
+            if (!windows.TryGetValue("spellSelection", out var spell)) windows.Add("spellSelection", new SpellSelectionWindow(this, classType, nbSpells));
+            else ((SpellSelectionWindow)spell).CreateWindow(classType, nbSpells);
+          }
+
+          if (nbCantrips > 0)
+          {
+            if (!windows.TryGetValue("cantripSelection", out var cantrip)) windows.Add("cantripSelection", new CantripSelectionWindow(this, classType, nbCantrips));
+            else ((CantripSelectionWindow)cantrip).CreateWindow(classType, nbCantrips);
+          }
+
+          if (nbSpells == 0 && nbCantrips == 0)
+            oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_CLASS_SELECTION").Delete();
         }
       }
     }

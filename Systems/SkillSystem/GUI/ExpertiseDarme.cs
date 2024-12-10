@@ -29,7 +29,7 @@ namespace NWN.Systems
 
         private int nbTechs;
 
-        public ExpertiseDarmeSelectionWindow(Player player, int nbTechs) : base(player)
+        public ExpertiseDarmeSelectionWindow(Player player, int nbTechs = 1) : base(player)
         {
           windowId = "expertiseDarmeSelection";
 
@@ -60,7 +60,7 @@ namespace NWN.Systems
 
           CreateWindow(nbTechs);
         }
-        public async void CreateWindow(int nbTechs)
+        public async void CreateWindow(int nbTechs = 1)
         {
           await NwTask.NextFrame();
 
@@ -68,7 +68,7 @@ namespace NWN.Systems
 
           NuiRect windowRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 520, 500);
 
-          window = new NuiWindow(rootColumn, $"Choix de {nbTechs} invocation(s) occulte(s)")
+          window = new NuiWindow(rootColumn, $"Choix de {nbTechs} expertise(s) d'arme(s)")
           {
             Geometry = geometry,
             Resizable = false,
@@ -125,7 +125,7 @@ namespace NWN.Systems
                   LearnableSkill clickedTech = acquiredTechs[nuiEvent.ArrayIndex];
                   acquiredTechs.Remove(clickedTech);
 
-                  GetAvailableInvocations();
+                  GetAvailableExpertises();
 
                   BindAvailableTechs();
                   BindAcquiredTechs();
@@ -150,11 +150,8 @@ namespace NWN.Systems
 
                   foreach (var tech in acquiredTechs)
                   {
-                    player.learnableSkills.TryAdd(tech.id, new LearnableSkill((LearnableSkill)learnableDictionary[tech.id], player));
-                    player.learnableSkills[tech.id].LevelUp(player);
-                    player.learnableSkills[tech.id].source.Add(Category.Class);
-
-                    player.oid.SendServerMessage($"Vous apprenez l'invocation occulte {StringUtils.ToWhitecolor(tech.name)}", ColorConstants.Orange);
+                    player.LearnClassSkill(tech.id);
+                    player.oid.SendServerMessage($"Vous apprenez l'expertise : {StringUtils.ToWhitecolor(tech.name)}", ColorConstants.Orange);
                   }
 
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_EXPERTISE_DARME_SELECTION").Delete();
@@ -171,35 +168,22 @@ namespace NWN.Systems
         {
           acquiredTechs.Clear();
 
-          GetAvailableInvocations();
+          GetAvailableExpertises();
           BindAvailableTechs();
 
           enabled.SetBindValue(player.oid, nuiToken.Token, false);
         }
-        private void GetAvailableInvocations()
+        private void GetAvailableExpertises()
         {
           availableTechs.Clear();
-
-          foreach (LearnableSkill tech in learnableDictionary.Values.Where(l => l is LearnableSkill skill
-          && skill.category == Category.InvocationOcculte
-          && skill.minLevel <= player.oid.LoginCreature.GetClassInfo((ClassType)CustomClass.Occultiste).Level
-          && !acquiredTechs.Contains(skill)
-          && !player.learnableSkills.ContainsKey(skill.id)).OrderBy(s => s.name).Cast<LearnableSkill>())
+    
+          foreach (LearnableSkill learnable in learnableDictionary.Values.Where(s => s is LearnableSkill skill && skill.category == Category.ExpertiseDarme
+             && !acquiredTechs.Contains(skill)
+             && NativeUtils.GetCreatureWeaponProficiencyBonus(player.oid.LoginCreature, ItemUtils.GeBaseWeaponFromLearnable(skill.id)) > 0
+             && (!player.learnableSkills.TryGetValue(skill.id, out var learntSkill) || learntSkill.currentLevel < 1))
+            .OrderBy(s => s.name).Cast<LearnableSkill>())
           {
-            if (Utils.In(tech.id, CustomSkill.ChatimentOcculte, CustomSkill.BuveuseDeVie, CustomSkill.LameAssoiffee)
-              && !player.learnableSkills.ContainsKey(CustomSkill.PacteDeLaLame))
-              continue;
-
-            if (tech.id == CustomSkill.LameDevorante && !player.learnableSkills.ContainsKey(CustomSkill.LameAssoiffee))
-              continue;
-
-            if (tech.id == CustomSkill.DonDuProtecteur && !player.learnableSkills.ContainsKey(CustomSkill.PacteDuTome))
-              continue;
-
-            if (tech.id == CustomSkill.MaitreDesChaines && !player.learnableSkills.ContainsKey(CustomSkill.PacteDeLaChaine))
-              continue;
-
-            availableTechs.Add(tech);
+            availableTechs.Add(learnable);
           }
         }
         private void BindAvailableTechs()

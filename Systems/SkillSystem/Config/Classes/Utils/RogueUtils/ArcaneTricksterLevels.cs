@@ -26,29 +26,32 @@ namespace NWN.Systems
 
           player.LearnAlwaysPreparedSpell(CustomSpell.MageHand, CustomClass.RogueArcaneTrickster);
 
-          if (!player.windows.TryGetValue("spellSelection", out var cantrip1)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 2, 3));
-          else ((SpellSelectionWindow)cantrip1).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 2, 3);
+          if (!player.windows.TryGetValue("cantripSelection", out var cantrip1)) player.windows.Add("cantripSelection", new CantripSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 2));
+          else ((CantripSelectionWindow)cantrip1).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 2);
+
+          if (!player.windows.TryGetValue("spellSelection", out var spell3)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 3));
+          else ((SpellSelectionWindow)spell3).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 3);
 
           break;
 
         case 4:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell4)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 0, 1));
-          else ((SpellSelectionWindow)spell4).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell4)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 1));
+          else ((SpellSelectionWindow)spell4).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 1);
 
           break;
 
         case 7:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell7)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 0, 1));
-          else ((SpellSelectionWindow)spell7).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell7)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 1));
+          else ((SpellSelectionWindow)spell7).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 1);
 
           break;
 
         case 8:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell8)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 0, 1));
-          else ((SpellSelectionWindow)spell8).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell8)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 1));
+          else ((SpellSelectionWindow)spell8).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 1);
 
           break;
 
@@ -56,22 +59,25 @@ namespace NWN.Systems
 
         case 10:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell10)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 1, 1));
-          else ((SpellSelectionWindow)spell10).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 1, 1);
+          if (!player.windows.TryGetValue("cantripSelection", out var cantrip10)) player.windows.Add("cantripSelection", new CantripSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 1));
+          else ((CantripSelectionWindow)cantrip10).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 1);
+
+          if (!player.windows.TryGetValue("spellSelection", out var spell10)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 1));
+          else ((SpellSelectionWindow)spell10).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 1);
 
           break;
 
         case 11:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell11)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 0, 1));
-          else ((SpellSelectionWindow)spell11).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell11)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 1));
+          else ((SpellSelectionWindow)spell11).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 1);
 
           break;
 
         case 13:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell13)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 0, 1));
-          else ((SpellSelectionWindow)spell13).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell13)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 1));
+          else ((SpellSelectionWindow)spell13).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 1);
 
           player.LearnClassSkill(CustomSkill.ArcaneTricksterPolyvalent);
 
@@ -79,30 +85,30 @@ namespace NWN.Systems
 
         case 14:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell14)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 0, 1));
-          else ((SpellSelectionWindow)spell14).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell14)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 1));
+          else ((SpellSelectionWindow)spell14).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 1);
 
           break;
 
         case 16:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell16)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 0, 1));
-          else ((SpellSelectionWindow)spell16).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell16)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 1));
+          else ((SpellSelectionWindow)spell16).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 1);
 
           break;
 
 
         case 19:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell19)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 0, 1));
-          else ((SpellSelectionWindow)spell19).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell19)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 1));
+          else ((SpellSelectionWindow)spell19).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 1);
 
           break;
 
         case 20:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell20)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 0, 1));
-          else ((SpellSelectionWindow)spell20).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 0, 1);
+          if (!player.windows.TryGetValue("spellSelection", out var spell20)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, (ClassType)CustomClass.RogueArcaneTrickster, 1));
+          else ((SpellSelectionWindow)spell20).CreateWindow((ClassType)CustomClass.RogueArcaneTrickster, 1);
 
           break;
       }
