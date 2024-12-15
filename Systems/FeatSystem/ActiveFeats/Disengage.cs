@@ -15,6 +15,7 @@ namespace NWN.Systems
 
       caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.disengageEffect, NwTimeSpan.FromRounds(1));
       caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value -= 1;
+      EffectSystem.ApplyAttaqueMobile(caster);
 
       if (caster.KnowsFeat((Feat)CustomSkill.BelluaireEntrainementExceptionnel))
       {

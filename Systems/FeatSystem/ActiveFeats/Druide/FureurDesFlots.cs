@@ -21,7 +21,7 @@ namespace NWN.Systems
       }
       else
       {
-        caster.ControllingPlayer.EnterTargetMode(SelectFureurDesFlotsTarget, Config.CreatureTargetMode(9, SpellTargetingShape.Sphere, new Vector2() { X = 9, Y = 9 }));
+        caster.ControllingPlayer.EnterTargetMode(SelectFureurDesFlotsTarget, Config.CreatureTargetMode(9, new Vector2() { X = 9, Y = 9 }));
       }
     }
     private static void SelectFureurDesFlotsTarget(Anvil.API.Events.ModuleEvents.OnPlayerTarget selection)

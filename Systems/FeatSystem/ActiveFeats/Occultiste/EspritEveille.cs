@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Numerics;
 using Anvil.API;
 using NWN.Core;
 
@@ -7,19 +8,28 @@ namespace NWN.Systems
 {
   public partial class FeatSystem
   {
-    private static void EspritEveille(NwCreature caster, NwGameObject oTarget)
+    private static async void EspritEveille(NwCreature caster, NwGameObject oTarget)
     {
-      if (oTarget is not NwCreature target)
+      /*foreach (ShaderUniform shader in (ShaderUniform[])Enum.GetValues(typeof(ShaderUniform)))
       {
-        caster.LoginPlayer?.SendServerMessage("Cible invalide", ColorConstants.Red);
+        caster.ControllingPlayer.SetShaderUniform(shader, new Vector4(9, 0, 0, 0));
+        await NwTask.Delay(TimeSpan.FromSeconds(2));
+      }*/
+        
+      caster.LoginPlayer?.EnterTargetMode(SelectEspritEveilleTarget, Config.CreatureTargetMode(0, new Vector2() { X = 9, Y = 9 }, SpellTargetingShape.Sphere, SpellTargetingFlags.HarmsAllies));
+    }
+    private static void SelectEspritEveilleTarget(Anvil.API.Events.ModuleEvents.OnPlayerTarget selection)
+    {
+      if (selection.IsCancelled || selection.TargetObject == selection.Player.ControlledCreature || selection.TargetObject is not NwCreature target)
         return;
-      }
+      
+      NwCreature caster = selection.Player.ControlledCreature;
 
       var eff = caster.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.EspritEveilleEffectTag && e.Creator != caster);
 
-      if(eff is not null)
+      if (eff is not null)
       {
-        if(eff.Creator is NwCreature previousTarget)
+        if (eff.Creator is NwCreature previousTarget)
           EffectUtils.RemoveTaggedEffect(previousTarget, caster, EffectSystem.EspritEveilleEffectTag, EffectSystem.EspritEveilleDisadvantageEffectTag);
 
         caster.RemoveEffect(eff);
@@ -27,15 +37,15 @@ namespace NWN.Systems
 
       TimeSpan duration =
         TimeSpan.FromMinutes(caster.GetClassInfo((ClassType)CustomClass.Occultiste).Level);
-      NWScript.AssignCommand(oTarget, () => caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.EspritEveille, duration));
-      NWScript.AssignCommand(caster, () => oTarget.ApplyEffect(EffectDuration.Temporary, EffectSystem.EspritEveille, duration));
+      NWScript.AssignCommand(target, () => caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.EspritEveille, duration));
+      NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.EspritEveille, duration));
 
       if (caster.KnowsFeat((Feat)CustomSkill.CombattantClairvoyant))
       {
         int spellDC = SpellUtils.GetCasterSpellDC(caster, Ability.Charisma);
-        if(CreatureUtils.GetSavingThrow(caster, target, Ability.Wisdom, spellDC) == SavingThrowResult.Failure)
-          NWScript.AssignCommand(caster, () => oTarget.ApplyEffect(EffectDuration.Temporary, EffectSystem.EspritEveilleDisadvantage, duration));
-      }      
+        if (CreatureUtils.GetSavingThrow(caster, target, Ability.Wisdom, spellDC) == SavingThrowResult.Failure)
+          NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.EspritEveilleDisadvantage, duration));
+      }
     }
   }
 }

@@ -52,6 +52,12 @@ namespace NWN.Systems
 
         if (GetRepliqueInvoqueeAdvantage(eff))
           return true;
+
+        if (GetMoulinetAdvantage(eff))
+          return true;
+
+        if (GetChargeAdvantage(eff))
+          return true;
       }
 
       return false;

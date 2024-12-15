@@ -9,13 +9,15 @@ namespace NWN.Systems
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
       oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.disengageEffect, NwTimeSpan.FromRounds(1));
 
-
-      if (oCaster is NwCreature caster && caster.KnowsFeat((Feat)CustomSkill.BelluaireEntrainementExceptionnel))
+      if (oCaster is NwCreature caster)
       {
-        var companion = caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).Value;
+        EffectSystem.ApplyAttaqueMobile(caster);
 
-        if (companion is not null)
-          companion.ApplyEffect(EffectDuration.Temporary, EffectSystem.disengageEffect, NwTimeSpan.FromRounds(1));
+        if (caster.KnowsFeat((Feat)CustomSkill.BelluaireEntrainementExceptionnel))
+        {
+          var companion = caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).Value;
+          companion?.ApplyEffect(EffectDuration.Temporary, EffectSystem.disengageEffect, NwTimeSpan.FromRounds(1));
+        }
       }
     }
   }

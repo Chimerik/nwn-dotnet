@@ -213,11 +213,31 @@ namespace NWN.Systems
 
           break;
 
-        case CustomSkill.ProfondeursFrappeRedoutable: caster.SetFeatRemainingUses((Feat)CustomSkill.ProfondeursFrappeRedoutable, (byte)remainingUse); break;
-        case CustomSkill.BelluaireRugissementProvoquant: caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireRugissementProvoquant, 100); break;
-        case CustomSkill.BelluaireChargeSanglier: caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireChargeSanglier, 100); break;
-        case CustomSkill.BelluaireSpiderWeb: caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireSpiderWeb, 100); break;
-        case CustomSkill.BelluaireFurieBestiale: caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireFurieBestiale, 100); break;
+        case CustomSkill.ProfondeursFrappeRedoutable: caster.SetFeatRemainingUses(feat.FeatType, (byte)remainingUse); break;
+        case CustomSkill.BelluaireRugissementProvoquant: 
+        case CustomSkill.BelluaireChargeSanglier:
+        case CustomSkill.BelluaireSpiderWeb: 
+        case CustomSkill.BelluaireFurieBestiale: 
+        case CustomSkill.ExpertiseCommotion: 
+        case CustomSkill.ExpertiseAffaiblissement: 
+        case CustomSkill.ExpertiseArretCardiaque: 
+        case CustomSkill.ExpertiseTranspercer: 
+        case CustomSkill.ExpertiseMoulinet: 
+        case CustomSkill.ExpertiseLaceration: 
+        case CustomSkill.ExpertiseMutilation: 
+        case CustomSkill.ExpertiseFendre: 
+        case CustomSkill.ExpertiseCharge: 
+        case CustomSkill.ExpertiseFrappeDuPommeau: 
+        case CustomSkill.ExpertiseDesarmement: 
+        case CustomSkill.ExpertiseBriseEchine: 
+        case CustomSkill.Renforcement: 
+        case CustomSkill.ExpertisePreparation: 
+        case CustomSkill.ExpertiseTirPercant: 
+        case CustomSkill.ExpertiseStabilisation: 
+        case CustomSkill.ExpertiseCoupeJarret: 
+        case CustomSkill.ExpertiseDestabiliser: 
+        case CustomSkill.ExpertiseEntaille: 
+          caster.SetFeatRemainingUses(feat.FeatType, 100); break;
       }
     }
   }

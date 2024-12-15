@@ -10,7 +10,7 @@ namespace NWN.Systems
     {
       NwCreature oPC = onEquip.EquippedBy;
       NwItem oItem = onEquip.Item;
-      NwItem swappedItem = oPC.GetItemInSlot(onEquip.Slot);
+      //NwItem swappedItem = oPC.GetItemInSlot(onEquip.Slot);
 
       if (oPC is null || oItem is null || onEquip.Slot != InventorySlot.Chest)
         return;

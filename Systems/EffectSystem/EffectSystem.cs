@@ -203,10 +203,14 @@ namespace NWN.Systems
       onRemoveBenedictionDuMalinCallback = scriptHandleFactory.CreateUniqueHandler(onRemoveBenedictionDuMalin);
 
       onRemoveTraverseeInfernaleCallback = scriptHandleFactory.CreateUniqueHandler(onRemoveTraverseeInfernale);
+      onRemoveMutilationCallback = scriptHandleFactory.CreateUniqueHandler(onRemoveMutilation);
+      onRemoveChargeCallback = scriptHandleFactory.CreateUniqueHandler(onRemoveCharge);
 
       onIntervalEffroiCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalEffroi);
 
       onIntervalPoisonCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalPoison);
+
+      onIntervalLacerationCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalLaceration);
 
       onIntervalSommeilCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalSommeil);
       onRemoveSommeilCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveSommeil);

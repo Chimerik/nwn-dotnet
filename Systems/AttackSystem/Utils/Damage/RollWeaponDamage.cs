@@ -16,7 +16,6 @@ namespace NWN.Systems
         + GetEmpaleurCriticalBonus(creature, weapon, isCriticalRoll);
         //+ GetBarbarianBrutalCriticalBonus(creature, attackData.m_bRangedAttack.ToBool(), isCriticalRoll);
 
-
       int damage = HandleWeaponDamageRerolls(creature, weapon, numDamageDice, dieToRoll);
       damage = HandleSavageAttacker(creature, weapon, attackData, numDamageDice, damage, dieToRoll);
 
@@ -33,7 +32,9 @@ namespace NWN.Systems
         + GetChargeurBonusDamage(creature)
         + GetCogneurLourdBonusDamage(creature, attackWeapon)
         + GetTireurDeliteBonusDamage(creature, attackData, attackWeapon)
-        + GetFormeSauvagePanthereBonusDamage(creature, target);    
+        + GetTranspercerBonusDamage(creature)
+        + GetTirPercantBonusDamage(creature)
+        + GetFormeSauvagePanthereBonusDamage(creature, target);
 
       return damage;
     }

@@ -9,6 +9,7 @@ namespace NWN.Systems
     public static Effect Sprint(NwCreature caster)
     {
       Effect eff = Effect.LinkEffects(Effect.MovementSpeedIncrease(caster.KnowsFeat((Feat)CustomSkill.Chargeur) ? 65 : 50), Effect.Icon(NwGameTables.EffectIconTable.GetRow(142)));
+
       eff.Tag = SprintEffectTag;
 
       if (caster.KnowsFeat((Feat)CustomSkill.Mobile))
@@ -18,6 +19,9 @@ namespace NWN.Systems
       }
 
       eff.SubType = EffectSubType.Supernatural;
+
+      ApplyAttaqueMobile(caster);
+
       return eff;
     }
   }

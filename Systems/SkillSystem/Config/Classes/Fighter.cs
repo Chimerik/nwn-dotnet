@@ -29,7 +29,6 @@ namespace NWN.Systems
         learnableDictionary[CustomSkill.HalberdProficiency],
         learnableDictionary[CustomSkill.HeavyFlailProficiency],
         learnableDictionary[CustomSkill.ThrowingAxeProficiency],
-        learnableDictionary[CustomSkill.TridentProficiency],
         learnableDictionary[CustomSkill.WarHammerProficiency],
         learnableDictionary[CustomSkill.HeavyCrossbowProficiency],
         learnableDictionary[CustomSkill.RapierProficiency],

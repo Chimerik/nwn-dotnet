@@ -90,6 +90,8 @@ namespace NWN.Systems
               case EffectSystem.ShieldArmorDisadvantageEffectTag: LogUtils.LogMessage("Désavantage - Bouclier ou Armure non maîtrisé", LogUtils.LogType.Combat); return true;
               case EffectSystem.MaledictionForceEffectTag: LogUtils.LogMessage("Désavantage - Malédiction Force", LogUtils.LogType.Combat); return true;
               case EffectSystem.KnockdownEffectTag: LogUtils.LogMessage("Désavantage - Déstabilisé", LogUtils.LogType.Combat); return true;
+              case EffectSystem.MoulinetEffectTag: LogUtils.LogMessage("Désavantage - Moulinet", LogUtils.LogType.Combat); return true;
+              case EffectSystem.ChargeDebuffEffectTag: LogUtils.LogMessage("Désavantage - Charge", LogUtils.LogType.Combat); return true;
             }
 
             break;
@@ -102,6 +104,9 @@ namespace NWN.Systems
               case EffectSystem.CourrouxDeLaNatureEffectTag: LogUtils.LogMessage("Désavantage - Courroux de la Nature", LogUtils.LogType.Combat); return true;
               case EffectSystem.MaledictionDexteriteEffectTag: LogUtils.LogMessage("Désavantage - Malédiction Dextérité", LogUtils.LogType.Combat); return true;
               case EffectSystem.KnockdownEffectTag: LogUtils.LogMessage("Désavantage - Déstabilisé", LogUtils.LogType.Combat); return true;
+              case EffectSystem.MoulinetEffectTag: LogUtils.LogMessage("Désavantage - Moulinet", LogUtils.LogType.Combat); return true;
+              case EffectSystem.MutilationEffectTag: LogUtils.LogMessage("Désavantage - Mutilation", LogUtils.LogType.Combat); return true;
+              case EffectSystem.ChargeDebuffEffectTag: LogUtils.LogMessage("Désavantage - Charge", LogUtils.LogType.Combat); return true;
             }
 
             break;
@@ -118,7 +123,12 @@ namespace NWN.Systems
               LogUtils.LogMessage("Désavantage - Malédiction Constitution", LogUtils.LogType.Combat);
               return true;
             }
-            
+            else if (EffectSystem.ArretCardiaqueEffectTag == eff.Tag)
+            {
+              LogUtils.LogMessage("Désavantage - Arrêt Cardiaque", LogUtils.LogType.Combat);
+              return true;
+            }
+
             break;
 
           case Ability.Intelligence:
@@ -136,6 +146,11 @@ namespace NWN.Systems
             if (EffectSystem.MaledictionSagesseEffectTag == eff.Tag)
             {
               LogUtils.LogMessage("Désavantage - Malédiction Sagesse", LogUtils.LogType.Combat);
+              return true;
+            }
+            else if (EffectSystem.HebetementEffectTag == eff.Tag)
+            {
+              LogUtils.LogMessage("Désavantage - Hébétement", LogUtils.LogType.Combat);
               return true;
             }
 

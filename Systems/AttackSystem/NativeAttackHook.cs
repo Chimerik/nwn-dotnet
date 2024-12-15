@@ -93,7 +93,7 @@ namespace NWN.Systems
 
       //*** CALCUL DU BONUS D'ATTAQUE ***//
       // On prend le bonus d'attaque calculé automatiquement par le jeu en fonction de la cible qui peut être une créature ou un placeable
-      Anvil.API.Ability attackAbility = NativeUtils.GetAttackAbility(attacker, attackData, attackWeapon);
+      Anvil.API.Ability attackAbility = NativeUtils.GetAttackAbility(attacker, attackData.m_bRangedAttack.ToBool(), attackWeapon);
       int attackModifier = targetCreature is null ? attacker.m_pStats.GetAttackModifierVersus() : NativeUtils.GetAttackBonus(attacker, targetCreature, attackData, attackWeapon, attackAbility);
 
       // On ajoute le bonus de maîtrise de la créature
@@ -316,6 +316,8 @@ namespace NWN.Systems
 
       NativeUtils.HandleHastMaster(attacker, targetObject, combatRound, attackerName);
       NativeUtils.HandleBalayage(attacker, targetObject, combatRound, attackerName);
+      NativeUtils.HandleEntaille(attacker, targetObject, combatRound);
+      NativeUtils.HandleFendre(attacker, targetObject, combatRound, attackData.m_nAttackResult);
       NativeUtils.HandleRiposteBonusAttack(attacker, combatRound, attackData, attackerName);
       NativeUtils.HandleBersekerRepresaillesBonusAttack(attacker, combatRound, attackData, attackerName);
       NativeUtils.HandleArcaneArcherTirIncurveBonusAttack(attacker, attackData, combatRound, attackerName, attackWeapon, targetObject);
@@ -418,7 +420,7 @@ namespace NWN.Systems
       LogUtils.LogMessage($"----- Jet de dégâts : {creatureStats.GetFullName().ToExoLocString().GetSimple(0)} attaque {targetObject.GetFirstName().GetSimple(0)} {targetObject.GetLastName().GetSimple(0)} - type {attackData.m_nAttackType} - nb {combatRound.m_nCurrentAttack} -----", LogUtils.LogType.Combat);
 
       CNWSItem attackWeapon = combatRound.GetCurrentAttackWeapon(attackData.m_nWeaponAttackType);
-      Anvil.API.Ability damageAbility = NativeUtils.GetAttackAbility(attacker, attackData, attackWeapon);
+      Anvil.API.Ability damageAbility = NativeUtils.GetAttackAbility(attacker, attackData.m_bRangedAttack.ToBool(), attackWeapon);
       int baseDamage = 0;
       bool isDuelFightingStyle = false;
       int sneakAttack = 0;
@@ -498,7 +500,8 @@ namespace NWN.Systems
         baseDamage -= NativeUtils.HandleMaitreArmureLourde(targetCreature);
         baseDamage -= NativeUtils.HandleParade(targetCreature);
         baseDamage -= NativeUtils.HandleMonkParade(targetCreature);
-        baseDamage -= NativeUtils.HandleEsquiveInstinctive(targetCreature);
+        baseDamage /= NativeUtils.HandleEsquiveInstinctive(targetCreature);
+        baseDamage = NativeUtils.HandleFendre(attacker, targetCreature, baseDamage);
       }
 
       if (attacker.m_ScriptVars.GetInt(CreatureUtils.TirAffaiblissantVariableExo).ToBool())
@@ -549,7 +552,6 @@ namespace NWN.Systems
           EffectUtils.RemoveTaggedEffect(targetObject, EffectSystem.abjurationWardEffectExoTag);
         }
       }
-
 
       return baseDamage;
 

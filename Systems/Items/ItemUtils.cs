@@ -2375,127 +2375,120 @@ namespace NWN.Systems
       switch(itemType)
       {
         case BaseItemType.Club:
-          featList.Add((int)Feat.WeaponProficiencySimple);
+          featList.Add(CustomSkill.SimpleWeaponProficiency);
           featList.Add(CustomSkill.ClubProficiency);
           break;
         case BaseItemType.Dagger:
-          featList.Add((int)Feat.WeaponProficiencySimple);
+          featList.Add(CustomSkill.SimpleWeaponProficiency);
           featList.Add(CustomSkill.DaggerProficiency);
           break;
         case BaseItemType.Handaxe:
-            featList.Add((int)Feat.WeaponProficiencySimple);
+            featList.Add(CustomSkill.SimpleWeaponProficiency);
           featList.Add(CustomSkill.HandAxeProficiency);
           break;
         case BaseItemType.LightHammer:
-          featList.Add((int)Feat.WeaponProficiencySimple);
+          featList.Add(CustomSkill.SimpleWeaponProficiency);
           featList.Add(CustomSkill.LightHammerProficiency);
           break;
         case BaseItemType.LightMace:
-          featList.Add((int)Feat.WeaponProficiencySimple);
+          featList.Add(CustomSkill.SimpleWeaponProficiency);
           featList.Add(CustomSkill.LightMaceProficiency);
           break;
         case BaseItemType.Quarterstaff:
-          featList.Add((int)Feat.WeaponProficiencySimple);
+        case BaseItemType.MagicStaff:
+          featList.Add(CustomSkill.SimpleWeaponProficiency);
           featList.Add(CustomSkill.QuarterstaffProficiency);
           break;
         case BaseItemType.Sickle:
-          featList.Add((int)Feat.WeaponProficiencySimple);
+          featList.Add(CustomSkill.SimpleWeaponProficiency);
           featList.Add(CustomSkill.SickleProficiency);
           break;
         case BaseItemType.LightCrossbow:
-          featList.Add((int)Feat.WeaponProficiencySimple);
+          featList.Add(CustomSkill.SimpleWeaponProficiency);
           featList.Add(CustomSkill.LightCrossbowProficiency);
           break;
         case BaseItemType.Dart:
-          featList.Add((int)Feat.WeaponProficiencySimple);
+          featList.Add(CustomSkill.SimpleWeaponProficiency);
           featList.Add(CustomSkill.DartProficiency);
           break;
-        case BaseItemType.MagicStaff:
-          featList.Add((int)Feat.WeaponProficiencySimple);
-          featList.Add(CustomSkill.MagicStaffProficiency);
-          break;
         case BaseItemType.LightFlail:
-          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.LightFlailProficiency);
           break;
         case BaseItemType.Morningstar:
-          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.MorningstarProficiency);
           break;
         case BaseItemType.Sling:
-          featList.Add((int)Feat.WeaponProficiencySimple);
+          featList.Add(CustomSkill.SimpleWeaponProficiency);
           featList.Add(CustomSkill.SlingProficiency);
           break;
         case BaseItemType.ShortSpear:
-          featList.Add((int)Feat.WeaponProficiencySimple);
+          featList.Add(CustomSkill.SimpleWeaponProficiency);
           featList.Add(CustomSkill.SpearProficiency);
           break;
         case BaseItemType.Shortbow:
-          featList.Add((int)Feat.WeaponProficiencySimple);
+          featList.Add(CustomSkill.SimpleWeaponProficiency);
           featList.Add(CustomSkill.ShortBowProficiency);
           break;
         case BaseItemType.Battleaxe:
-          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.BattleaxeProficiency);
           break;
         case BaseItemType.Greataxe:
-          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.GreataxeProficiency);
           break;
         case BaseItemType.Greatsword:
-          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.GreatswordProficiency);
           break;
         case BaseItemType.Scimitar:
-          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.ScimitarProficiency);
           break;
         case BaseItemType.Halberd:
-          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.HalberdProficiency);
           break;
         case BaseItemType.HeavyFlail:
-          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.HeavyFlailProficiency);
           break;
         case BaseItemType.ThrowingAxe:
-          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.ThrowingAxeProficiency);
           break;
-        case BaseItemType.Trident:
-          featList.Add((int)Feat.WeaponProficiencyMartial);
-          featList.Add(CustomSkill.TridentProficiency);
-          break;
         case BaseItemType.Warhammer:
-          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.WarHammerProficiency);
           break;
         case BaseItemType.HeavyCrossbow:
-          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.HeavyCrossbowProficiency);
           break;
         case BaseItemType.Rapier:
-          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.RapierProficiency);
           break;
         case BaseItemType.Shortsword:
-          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.ShortSwordProficiency);
           break;
         case BaseItemType.Longsword:
-          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.LongSwordProficiency);
           break;
             case BaseItemType.Longbow:
-          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.LongBowProficiency);
           break;
         case BaseItemType.Shuriken:
-          featList.Add((int)Feat.WeaponProficiencyMartial);
+          featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.ShurikenProficiency);
           break;
         case BaseItemType.Whip:
-          featList.Add((int)Feat.WeaponProficiencyMartial); 
+          featList.Add(CustomSkill.MartialWeaponProficiency); 
           featList.Add(CustomSkill.WhipProficiency); 
           break;
         case BaseItemType.Bastardsword: featList.Add(CustomSkill.BastardswordProficiency); break;
@@ -2509,19 +2502,19 @@ namespace NWN.Systems
         case BaseItemType.Kukri: featList.Add(CustomSkill.KukriProficiency); break;
         
         case BaseItemType.SmallShield:
-        case BaseItemType.LargeShield: featList.Add((int)Feat.ShieldProficiency); break;
+        case BaseItemType.LargeShield: featList.Add(CustomSkill.ShieldProficiency); break;
         case BaseItemType.TowerShield: featList.Add(CustomSkill.MaitreBouclier); break;
         case BaseItemType.Armor:
           switch(baseAC)
           {
             case 1:
-            case 2: featList.Add((int)Feat.ArmorProficiencyLight); break;
+            case 2: featList.Add(CustomSkill.LightArmorProficiency); break;
             case 3:
             case 4:
-            case 5: featList.Add((int)Feat.ArmorProficiencyMedium); break;
+            case 5: featList.Add(CustomSkill.MediumArmorProficiency); break;
             case 6:
             case 7:
-            case 8: featList.Add((int)Feat.ArmorProficiencyHeavy); break;
+            case 8: featList.Add(CustomSkill.HeavyArmorProficiency); break;
           }
           break;
       }

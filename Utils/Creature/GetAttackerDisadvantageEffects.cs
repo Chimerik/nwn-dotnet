@@ -26,6 +26,9 @@ namespace NWN.Systems
         if (GetPourfendeurDisadvantage(eff))
           return true;
 
+        if (GetAffaiblissementDisadvantage(attacker, eff))
+          return true;
+
         if (GetFrightenedDisadvantage(eff, targetId.m_idSelf))
           return true;
 

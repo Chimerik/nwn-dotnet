@@ -2,6 +2,7 @@
 using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
+using NWN.Native.API;
 using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
@@ -176,7 +177,7 @@ namespace NWN.Systems
         private void GetAvailableExpertises()
         {
           availableTechs.Clear();
-    
+
           foreach (LearnableSkill learnable in learnableDictionary.Values.Where(s => s is LearnableSkill skill && skill.category == Category.ExpertiseDarme
              && !acquiredTechs.Contains(skill)
              && NativeUtils.GetCreatureWeaponProficiencyBonus(player.oid.LoginCreature, ItemUtils.GeBaseWeaponFromLearnable(skill.id)) > 0

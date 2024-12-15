@@ -16,7 +16,6 @@ namespace NWN.Systems
         learnableDictionary[CustomSkill.DartProficiency],
         learnableDictionary[CustomSkill.SlingProficiency],
         learnableDictionary[CustomSkill.QuarterstaffProficiency],
-        learnableDictionary[CustomSkill.MagicStaffProficiency],
         learnableDictionary[CustomSkill.LightCrossbowProficiency]
       },
       new List<Learnable>()

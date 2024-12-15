@@ -254,6 +254,25 @@ namespace NWN.Systems
 
         case CustomSkill.EspritEveille: EspritEveille(onUseFeat.Creature, onUseFeat.TargetObject); return;
         case CustomSkill.SortsPsychiques: SortsPsychiques(onUseFeat.Creature); return;
+
+        case CustomSkill.ExpertiseCommotion: Commotion(onUseFeat.Creature); return;
+        case CustomSkill.ExpertiseAffaiblissement: Affaiblissement(onUseFeat.Creature); return;
+        case CustomSkill.ExpertiseArretCardiaque: ArretCardiaque(onUseFeat.Creature); return;
+        case CustomSkill.ExpertiseTranspercer: Transpercer(onUseFeat.Creature); return;
+        case CustomSkill.ExpertiseMoulinet: Moulinet(onUseFeat.Creature); return;
+        case CustomSkill.ExpertiseLaceration: Laceration(onUseFeat.Creature); return;
+        case CustomSkill.ExpertiseMutilation: Mutilation(onUseFeat.Creature); return;
+        case CustomSkill.ExpertiseFendre: Fendre(onUseFeat.Creature); return;
+        case CustomSkill.ExpertiseCharge: Charge(onUseFeat.Creature); return;
+        case CustomSkill.ExpertiseFrappeDuPommeau: FrappeDuPommeau(onUseFeat.Creature); return;
+        case CustomSkill.ExpertiseDesarmement: ExpertiseDesarmement(onUseFeat.Creature); return;
+        case CustomSkill.ExpertiseBriseEchine: BriseEchine(onUseFeat.Creature); return;
+        case CustomSkill.ExpertiseDestabiliser: Destabiliser(onUseFeat.Creature); return;
+        case CustomSkill.ExpertiseCoupeJarret: CoupeJarret(onUseFeat.Creature); return;
+        case CustomSkill.ExpertiseEntaille: Entaille(onUseFeat.Creature); return;
+        case CustomSkill.ExpertiseRenforcement: Renforcement(onUseFeat.Creature); return;
+        case CustomSkill.ExpertisePreparation: Preparation(onUseFeat.Creature); return;
+        case CustomSkill.ExpertiseStabilisation: Stabilisation(onUseFeat.Creature); return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

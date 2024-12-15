@@ -151,6 +151,7 @@ namespace NWN.Systems
                           player.learnableSkills[CustomSkill.LightMaceProficiency].LevelUp(player);
                           break;
                         case BaseItemType.Quarterstaff:
+                        case BaseItemType.MagicStaff:
                           player.learnableSkills.TryAdd(CustomSkill.QuarterstaffProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.QuarterstaffProficiency], player));
                           player.learnableSkills[CustomSkill.QuarterstaffProficiency].LevelUp(player);
                           break;
@@ -165,10 +166,6 @@ namespace NWN.Systems
                         case BaseItemType.Dart:
                           player.learnableSkills.TryAdd(CustomSkill.DartProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.DartProficiency], player));
                           player.learnableSkills[CustomSkill.DartProficiency].LevelUp(player);
-                          break;
-                        case BaseItemType.MagicStaff:
-                          player.learnableSkills.TryAdd(CustomSkill.MagicStaffProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.MagicStaffProficiency], player));
-                          player.learnableSkills[CustomSkill.MagicStaffProficiency].LevelUp(player);
                           break;
                         case BaseItemType.LightFlail:
                           player.learnableSkills.TryAdd(CustomSkill.LightFlailProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.LightFlailProficiency], player));
@@ -217,10 +214,6 @@ namespace NWN.Systems
                         case BaseItemType.ThrowingAxe:
                           player.learnableSkills.TryAdd(CustomSkill.ThrowingAxeProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ThrowingAxeProficiency], player));
                           player.learnableSkills[CustomSkill.ThrowingAxeProficiency].LevelUp(player);
-                          break;
-                        case BaseItemType.Trident:
-                          player.learnableSkills.TryAdd(CustomSkill.TridentProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.TridentProficiency], player));
-                          player.learnableSkills[CustomSkill.TridentProficiency].LevelUp(player);
                           break;
                         case BaseItemType.Warhammer:
                           player.learnableSkills.TryAdd(CustomSkill.WarHammerProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.WarHammerProficiency], player));

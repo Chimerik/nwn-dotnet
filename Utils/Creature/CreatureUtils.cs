@@ -46,6 +46,11 @@ namespace NWN.Systems
     public const string SecondeChanceVariable = "_FEAT_SECONDE_CHANCE";
     public static readonly CExoString SecondeChanceVariableExo = SecondeChanceVariable.ToExoString();
 
+    public const string FendreAttackVariable = "_EXPERTISE_FENDRE_ATTAQUE";
+    public static readonly CExoString FendreAttackVariableExo = FendreAttackVariable.ToExoString();
+    public static readonly CExoString FendreDamage1VariableExo = "_EXPERTISE_FENDRE_DAMAGE_1".ToExoString();
+    public static readonly CExoString FendreDamage2VariableExo = "_EXPERTISE_FENDRE_DAMAGE_2".ToExoString();
+
     public const string TirArcaniqueVariable = "_TIR_ARCANIQUE";
     public const string TirArcaniqueCooldownVariable = "_TIR_ARCANIQUE_COOLDOWN";
     public const string TirChercheurVariable = "_TIR_CHERCHEUR";

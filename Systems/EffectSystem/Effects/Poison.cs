@@ -44,7 +44,6 @@ namespace NWN.Systems
 
       return false;
     }
-
     private static ScriptHandleResult OnIntervalPoison(CallInfo callInfo)
     {
       EffectRunScriptEvent eventData = new EffectRunScriptEvent();

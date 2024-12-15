@@ -5,7 +5,7 @@ namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static Anvil.API.Ability GetAttackAbility(CNWSCreature creature, CNWSCombatAttackData attackData, CNWSItem attackWeapon)
+    public static Anvil.API.Ability GetAttackAbility(CNWSCreature creature, bool isRangedAttack, CNWSItem attackWeapon)
     {
       Anvil.API.Ability attackStat = Anvil.API.Ability.Strength;
       int dexBonus = GetAbilityModifier(creature, Anvil.API.Ability.Dexterity);
@@ -18,8 +18,7 @@ namespace NWN.Systems
           attackStat = Anvil.API.Ability.Charisma;
           LogUtils.LogMessage($"Occultiste - Arme du Pacte de la Lame", LogUtils.LogType.Combat);
         }
-        else if ((dexBonus > strBonus && attackWeapon.m_ScriptVars.GetInt(ItemConfig.isFinesseWeaponCExoVariable) != 0)
-          || attackData.m_bRangedAttack.ToBool())
+        else if ((dexBonus > strBonus && attackWeapon.m_ScriptVars.GetInt(ItemConfig.isFinesseWeaponCExoVariable) != 0) || isRangedAttack)
         {
           attackStat = Anvil.API.Ability.Dexterity;
         }

@@ -64,5 +64,12 @@ namespace NWN
     public const EffectIcon FrappePerfideObscurcir = (EffectIcon)229;
     public const EffectIcon FrappePerfideAssommer = (EffectIcon)230;
     public const EffectIcon ArcaneMystique = (EffectIcon)231;
+    public const EffectIcon Transpercer = (EffectIcon)232;
+    public const EffectIcon TirPercant = (EffectIcon)233;
+    public const EffectIcon AttaqueMobile = (EffectIcon)234;
+    public const EffectIcon Entaille = (EffectIcon)235;
+    public const EffectIcon Renforcement = (EffectIcon)236;
+    public const EffectIcon Preparation = (EffectIcon)237;
+    public const EffectIcon Stabilisation = (EffectIcon)238;
   }
 }

@@ -141,7 +141,7 @@ namespace NWN.Systems
       BadCursorType = MouseCursor.NoAction
     };
 
-    public static TargetModeSettings CreatureTargetMode(float Range, SpellTargetingShape shape, Vector2 Size, SpellTargetingFlags flags = SpellTargetingFlags.None, NwSpell spell = null, NwFeat feat = null)
+    public static TargetModeSettings CreatureTargetMode(float Range, Vector2 Size, SpellTargetingShape shape = SpellTargetingShape.None, SpellTargetingFlags flags = SpellTargetingFlags.None/*, NwSpell spell = null, NwFeat feat = null*/)
     {
       return new()
       {
@@ -154,8 +154,8 @@ namespace NWN.Systems
           Shape = shape,
           Size = Size,
           Flags = flags,
-          Spell = spell,
-          Feat = feat
+          //Spell = spell,
+          //Feat = feat
         }
       };
     }

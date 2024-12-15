@@ -96,7 +96,6 @@ namespace NWN.Systems
                 case CustomSkill.ScimitarProficiency:
                 case CustomSkill.ThrowingAxeProficiency:
                 case CustomSkill.HeavyFlailProficiency:
-                case CustomSkill.TridentProficiency:
                 case CustomSkill.WarHammerProficiency:
                 case CustomSkill.HeavyCrossbowProficiency:
                 case CustomSkill.LongBowProficiency:
