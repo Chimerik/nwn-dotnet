@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Runtime.CompilerServices;
 using Anvil.API;
 using static NWN.Systems.PlayerSystem.Player;
 

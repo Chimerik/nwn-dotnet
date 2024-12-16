@@ -51,7 +51,10 @@ namespace NWN.Systems
 
           if (!player.windows.TryGetValue("spellSelection", out var spell2)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Sorcerer, 2));
           else ((SpellSelectionWindow)spell2).CreateWindow(ClassType.Sorcerer, 2);
-          
+
+          if (!player.windows.TryGetValue("metamagieSelection", out var meta2)) player.windows.Add("metamagieSelection", new MetamagieSelectionWindow(player));
+          else ((MetamagieSelectionWindow)meta2).CreateWindow();
+
           break;
 
         case 3:
@@ -129,7 +132,8 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("spellSelection", out var spell10)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Sorcerer, 1));
           else ((SpellSelectionWindow)spell10).CreateWindow(ClassType.Sorcerer, 1);
 
-          player.LearnClassSkill(CustomSkill.ClercInterventionDivine);
+          if (!player.windows.TryGetValue("metamagieSelection", out var meta10)) player.windows.Add("metamagieSelection", new MetamagieSelectionWindow(player));
+          else ((MetamagieSelectionWindow)meta10).CreateWindow();
 
           break;
 
@@ -172,6 +176,9 @@ namespace NWN.Systems
 
           if (!player.windows.TryGetValue("spellSelection", out var spell17)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Sorcerer, 1));
           else ((SpellSelectionWindow)spell17).CreateWindow(ClassType.Sorcerer, 1);
+
+          if (!player.windows.TryGetValue("metamagieSelection", out var meta17)) player.windows.Add("metamagieSelection", new MetamagieSelectionWindow(player));
+          else ((MetamagieSelectionWindow)meta17).CreateWindow();
 
           break;
 

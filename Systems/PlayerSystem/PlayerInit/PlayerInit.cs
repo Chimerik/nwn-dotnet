@@ -445,6 +445,7 @@ namespace NWN.Systems
         InitializeSpellSelection();
         InitializeTechniqueElementaireSelection();
         InitializeInvocationOcculteSelection();
+        InitializeMetamagieSelection();
         InitializeArcaneMystiqueSelection();
         InitializeSkillProficiencySelection();
         ResetFlameBlade();

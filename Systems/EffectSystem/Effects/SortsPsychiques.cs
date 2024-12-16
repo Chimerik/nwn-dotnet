@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.RunAction();
+        Effect eff = Effect.Icon(CustomEffectIcon.SortsPsychiques);
         eff.Tag = SortsPsychiquesEffectTag;
         eff.SubType = EffectSubType.Unyielding;
         return eff;

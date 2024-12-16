@@ -71,5 +71,6 @@ namespace NWN
     public const EffectIcon Renforcement = (EffectIcon)236;
     public const EffectIcon Preparation = (EffectIcon)237;
     public const EffectIcon Stabilisation = (EffectIcon)238;
+    public const EffectIcon SortsPsychiques = (EffectIcon)239;
   }
 }
