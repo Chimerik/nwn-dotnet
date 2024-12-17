@@ -20,9 +20,7 @@ namespace NWN.Systems
     public Ability savingThrowAbility { get; private set; }
     public bool requiresSomatic { get; private set; }
     public bool requiresVerbal { get; private set; }
-    public bool bardMagicalSecret { get; private set; }
-    public bool hideFromRanger { get; private set; }
-    public bool hideFromWarlock { get; private set; }
+    public List<ClassType> hideFromClasses { get; private set; }
     public bool ritualSpell { get; private set; }
     public int range { get; private set; }
 
@@ -49,9 +47,23 @@ namespace NWN.Systems
       requiresConcentration = entry.GetInt("UseConcentration").GetValueOrDefault(0) == 2;
       requiresSomatic = entry.GetString("VS")?.Contains('s') ?? false;
       requiresVerbal = entry.GetString("VS")?.Contains('v') ?? false;
-      bardMagicalSecret = entry.GetBool("BardMagicalSecret").GetValueOrDefault(false);
-      hideFromRanger = entry.GetBool("HideFromRanger").GetValueOrDefault(false);
-      hideFromWarlock = entry.GetBool("HideFromWarlock").GetValueOrDefault(false);
+
+      string hide = entry.GetString("HideFromClass");
+
+      if (hide is not null)
+      {
+        var restrictList = hide.Split(";");
+        
+
+        if (restrictList.Length > 1)
+        {
+          hideFromClasses = new();
+
+          foreach (var restriction in restrictList)
+            hideFromClasses.Add((ClassType)int.Parse(restriction));
+        }
+      }
+
       ritualSpell = entry.GetBool("Rituel").GetValueOrDefault(false);
 
       range = entry.GetString("Duration") switch

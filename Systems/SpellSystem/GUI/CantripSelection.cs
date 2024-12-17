@@ -262,11 +262,16 @@ namespace NWN.Systems
             if (player.learnableSpells.TryGetValue(spell.Id, out var learnable) && learnable.currentLevel > 0)
               continue;
 
-            switch (spellClass)
+            if (entry.hideFromClasses is not null)
             {
-              case ClassType.Bard: if (entry.bardMagicalSecret && !player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.SecretsMagiques)) continue; break;
-              case ClassType.Ranger: if (entry.hideFromRanger) continue; break;
-              case (ClassType)CustomClass.Occultiste: if (entry.hideFromWarlock) continue; break;
+              switch (spellClass)
+              {
+                case ClassType.Bard: if (entry.hideFromClasses.Contains(ClassType.Bard) && !player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.SecretsMagiques)) continue; break;
+                case ClassType.Ranger: if (entry.hideFromClasses.Contains(ClassType.Ranger)) continue; break;
+                case ClassType.Wizard: if (entry.hideFromClasses.Contains(ClassType.Ranger)) continue; break;
+                case ClassType.Sorcerer: if (entry.hideFromClasses.Contains(ClassType.Sorcerer)) continue; break;
+                case (ClassType)CustomClass.Occultiste: if (entry.hideFromClasses.Contains((ClassType)CustomClass.Occultiste)) continue; break;
+              }
             }
 
             availableSpells.Add(spell);

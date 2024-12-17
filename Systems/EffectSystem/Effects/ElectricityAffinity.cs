@@ -9,7 +9,10 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.DamageImmunityIncrease(DamageType.Electrical, 50);
+        Effect resist = Effect.DamageImmunityIncrease(DamageType.Electrical, 50);
+        resist.ShowIcon = false;
+
+        Effect eff = Effect.LinkEffects(resist, Effect.Icon(CustomEffectIcon.ElectricalResistance));
         eff.Tag = ElectricityAffinityEffectTag;
         eff.SubType = EffectSubType.Unyielding;
         return eff;

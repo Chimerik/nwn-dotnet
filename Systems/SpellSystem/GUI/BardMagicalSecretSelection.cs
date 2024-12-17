@@ -204,7 +204,8 @@ namespace NWN.Systems
               && learnable.learntFromClasses.Contains((int)ClassType.Bard))
               continue;
 
-            if (!Spells2da.spellTable[spell.Id].bardMagicalSecret)
+            var restriction = Spells2da.spellTable[spell.Id].hideFromClasses;
+            if (restriction is null || !restriction.Contains(ClassType.Bard))
               continue;
 
             availableSpells.Add(spell);

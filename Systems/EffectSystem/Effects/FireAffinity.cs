@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Collections.Generic;
+using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -9,7 +10,10 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.DamageImmunityIncrease(DamageType.Fire, 50);
+        Effect resist = Effect.DamageImmunityIncrease(DamageType.Fire, 50);
+        resist.ShowIcon = false;
+
+        Effect eff = Effect.LinkEffects(resist, Effect.Icon(CustomEffectIcon.FireResistance));
         eff.Tag = FireAffinityEffectTag;
         eff.SubType = EffectSubType.Unyielding;
         return eff;

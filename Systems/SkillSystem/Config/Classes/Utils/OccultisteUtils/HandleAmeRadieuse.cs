@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       int bonusDamage = 0;
 
-      if (caster is not null && Utils.In(damageType, DamageType.Fire, DamageType.Divine))
+      if (caster is not null && caster.KnowsFeat((Feat)CustomSkill.AmeRadieuse) && Utils.In(damageType, DamageType.Fire, DamageType.Divine))
       {
         bonusDamage = caster.GetAbilityModifier(Ability.Charisma) > 1 ? caster.GetAbilityModifier(Ability.Charisma) : 1;
         LogUtils.LogMessage($"Âme Radieuse : +{bonusDamage} dégâts", LogUtils.LogType.Combat);
