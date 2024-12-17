@@ -72,5 +72,8 @@ namespace NWN
     public const EffectIcon Preparation = (EffectIcon)237;
     public const EffectIcon Stabilisation = (EffectIcon)238;
     public const EffectIcon SortsPsychiques = (EffectIcon)239;
+    public const EffectIcon ResistanceDraconique = (EffectIcon)240;
+    public const EffectIcon BarbareDefenseSansArmure = (EffectIcon)241;
+    public const EffectIcon MoineDefenseSansArmure = (EffectIcon)242;
   }
 }

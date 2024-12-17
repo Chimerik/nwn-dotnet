@@ -7,7 +7,10 @@ namespace NWN.Systems
     public const string UnarmoredDefenceEffectTag = "_UNARMORED_DEFENSE_EFFECT";
     public static Effect GetUnarmoredDefenseEffect(int constitutionModifier)
     {
-      Effect eff = Effect.LinkEffects(Effect.ACIncrease(constitutionModifier, ACBonus.ArmourEnchantment), Effect.Icon(EffectIcon.ACIncrease));
+      Effect acInc = Effect.ACIncrease(constitutionModifier, ACBonus.ArmourEnchantment);
+      acInc.ShowIcon = false;
+
+      Effect eff = Effect.LinkEffects(acInc, Effect.Icon(CustomEffectIcon.BarbareDefenseSansArmure));
       eff.Tag = UnarmoredDefenceEffectTag;
       eff.SubType = EffectSubType.Unyielding;
       return eff;

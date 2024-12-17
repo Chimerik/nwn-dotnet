@@ -7,6 +7,9 @@ namespace NWN.Systems
   {
     public static bool OnLearnMonkUnarmoredDefence(PlayerSystem.Player player, int customSkillId)
     {
+      if (player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.MonkUnarmoredDefence))
+        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.MonkUnarmoredDefence);
+
       player.oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipMonkUnarmoredDefence;
       player.oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipMonkUnarmoredDefence;
       player.oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipMonkUnarmoredDefence;

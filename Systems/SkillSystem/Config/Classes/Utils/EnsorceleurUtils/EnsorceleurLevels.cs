@@ -55,6 +55,9 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("metamagieSelection", out var meta2)) player.windows.Add("metamagieSelection", new MetamagieSelectionWindow(player));
           else ((MetamagieSelectionWindow)meta2).CreateWindow();
 
+          player.LearnClassSkill(CustomSkill.EnsoSlotToSource);
+          player.LearnClassSkill(CustomSkill.EnsoSourceToSlot);
+
           break;
 
         case 3:

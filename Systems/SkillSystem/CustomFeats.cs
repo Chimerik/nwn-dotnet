@@ -125,6 +125,7 @@
     public const int FighterCombatStyleArchery = 1427;
     public const int FighterCombatStyleDuel = 1428;
 
+    public const int BarbarianUnarmoredDefence = 1450;
     public const int BarbarianRecklessAttack = 1429;
     public const int BersekerFrenziedStrike = 1430;
     public const int BersekerRageAveugle = 1431;
@@ -165,6 +166,7 @@
 
     public const int AssassinAssassinate = 1467;
 
+    public const int MonkUnarmoredDefence = 1451;
     public const int MonkBonusAttack = 1468;
     public const int MonkPatience = 1469;
     public const int MonkDelugeDeCoups = 1470;
@@ -1061,7 +1063,6 @@
     public const int FighterChampionUltimeSurvivant = 20519; // 2 niveaux
 
     public const int Barbarian = 20520;
-    public const int BarbarianUnarmoredDefence = 20521;
     public const int BarbarianInstinctSauvage = 20523;
     public const int BarbarianCritiqueBrutal = 20524;
     public const int BarbarianRageImplacable = 20525;
@@ -1082,7 +1083,6 @@
     public const int RogueArcane = 20538;
 
     public const int Monk = 20539;
-    public const int MonkUnarmoredDefence = 20540;
 
     public const int MonkPaume = 20542;  
     public const int MonkOmbre = 20544;

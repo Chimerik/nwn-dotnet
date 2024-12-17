@@ -26,7 +26,7 @@ namespace NWN.Systems
       if (chaMod > 0)
       {
         await NwTask.NextFrame();
-        creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetResistanceDraconiqueEffect(chaMod));
+        EffectSystem.ApplyResistanceDraconiqueEffect(creature, chaMod);
       }
     }
   }

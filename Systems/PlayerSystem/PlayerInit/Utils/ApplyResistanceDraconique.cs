@@ -24,7 +24,7 @@ namespace NWN.Systems
             oid.LoginCreature.OnHeartbeat += CreatureUtils.OnHeartBeatCheckResistanceDraconique;
 
             if (oid.LoginCreature.GetAbilityModifier(Ability.Charisma) > 0 && !oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.ResistanceDraconiqueEffectTag))
-              oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetResistanceDraconiqueEffect(oid.LoginCreature.GetAbilityModifier(Ability.Charisma)));
+              EffectSystem.ApplyResistanceDraconiqueEffect(oid.LoginCreature, oid.LoginCreature.GetAbilityModifier(Ability.Charisma));
           }
         }
       }

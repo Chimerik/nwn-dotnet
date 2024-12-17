@@ -1,5 +1,4 @@
 ﻿using Anvil.API;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace NWN.Systems
 {

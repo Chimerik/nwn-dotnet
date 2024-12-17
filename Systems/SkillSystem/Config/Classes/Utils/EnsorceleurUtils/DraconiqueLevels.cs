@@ -16,11 +16,8 @@ namespace NWN.Systems
           new StrRef(9).SetPlayerOverride(player.oid, "Lignée Draconique");
           player.oid.SetTextureOverride("ensorceleur", "enso_draconique");
 
-          player.learnableSkills.TryAdd(CustomSkill.EnsoResistanceDraconique, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.EnsoResistanceDraconique], player));
-          player.learnableSkills[CustomSkill.EnsoResistanceDraconique].LevelUp(player);
-          player.learnableSkills[CustomSkill.EnsoResistanceDraconique].source.Add(Category.Class);
-
-          //player.LearnAlwaysPreparedSpell(CustomSpell.ModificationDapparence, CustomClass.Ensorceleur);
+          player.LearnClassSkill(CustomSkill.EnsoResistanceDraconique);
+          player.LearnAlwaysPreparedSpell(CustomSpell.ChangementDapparence, CustomClass.Ensorceleur);
           player.LearnAlwaysPreparedSpell(CustomSpell.OrbeChromatique, CustomClass.Ensorceleur);
           player.LearnAlwaysPreparedSpell(CustomSpell.Injonction, CustomClass.Ensorceleur);
 
@@ -33,7 +30,7 @@ namespace NWN.Systems
         case 5:
 
           player.LearnAlwaysPreparedSpell((int)Spell.Fear, CustomClass.Ensorceleur);
-          //player.LearnAlwaysPreparedSpell(CustomSpell.Vol, CustomClass.Ensorceleur);
+          player.LearnAlwaysPreparedSpell(CustomSpell.Vol, CustomClass.Ensorceleur);
 
           break;
 
@@ -56,21 +53,8 @@ namespace NWN.Systems
           player.LearnAlwaysPreparedSpell((int)Spell.LegendLore, CustomClass.Ensorceleur);
           break;
 
-        case 14:
-
-          player.learnableSkills.TryAdd(CustomSkill.EnsoDracoWings, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.EnsoDracoWings], player));
-          player.learnableSkills[CustomSkill.EnsoDracoWings].LevelUp(player);
-          player.learnableSkills[CustomSkill.EnsoDracoWings].source.Add(Category.Class);
-
-          break;
-
-        case 18:
-
-          player.learnableSkills.TryAdd(CustomSkill.EnsoCompagnonDraconique, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.EnsoCompagnonDraconique], player));
-          player.learnableSkills[CustomSkill.EnsoCompagnonDraconique].LevelUp(player);
-          player.learnableSkills[CustomSkill.EnsoCompagnonDraconique].source.Add(Category.Class);
-
-          break;
+        case 14: player.LearnClassSkill(CustomSkill.EnsoDracoWings); break;
+        case 18: player.LearnClassSkill(CustomSkill.EnsoCompagnonDraconique); break;
       }
     }
   }
