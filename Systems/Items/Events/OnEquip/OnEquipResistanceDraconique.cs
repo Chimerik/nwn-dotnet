@@ -21,12 +21,12 @@ namespace NWN.Systems
         oPC.OnHeartbeat += CreatureUtils.OnHeartBeatCheckResistanceDraconique;
 
         if (oPC.GetAbilityModifier(Ability.Charisma) > 0 && !oPC.ActiveEffects.Any(e => e.Tag == EffectSystem.ResistanceDraconiqueEffectTag))
-          EffectSystem.ApplyResistanceDraconiqueEffect(oPC, oPC.GetAbilityModifier(Ability.Charisma));
-      }
-      else
-      {
-        oPC.OnHeartbeat -= CreatureUtils.OnHeartBeatCheckResistanceDraconique;
-        EffectUtils.RemoveTaggedEffect(oPC, EffectSystem.ResistanceDraconiqueEffectTag);
+          EffectSystem.ApplyResistanceDraconiqueEffect(oPC);
+        else
+        {
+          oPC.OnHeartbeat -= CreatureUtils.OnHeartBeatCheckResistanceDraconique;
+          EffectUtils.RemoveTaggedEffect(oPC, EffectSystem.ResistanceDraconiqueEffectTag);
+        }
       }
     }
   }

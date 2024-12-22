@@ -14,19 +14,27 @@ namespace NWN.Systems
     {
       try
       {
-        NwArea arrivalArea = NwObject.FindObjectsWithTag<NwArea>("entry_scene").First().Clone();
-        arrivalArea.Tag = $"entry_scene_{player.CDKey}";
-        arrivalArea.Name = $"La galère de {player.LoginCreature.OriginalName} (Bienvenue !)";
-        //NwArea arrivalArea = NwArea.Create("intro_galere", $"entry_scene_{player.CDKey}", $"La galère de {player.LoginCreature.OriginalName} (Bienvenue !)");
-        arrivalArea.OnExit -= areaSystem.OnIntroAreaExit;
-        arrivalArea.OnExit += areaSystem.OnIntroAreaExit;
-        arrivalArea.OnEnter -= areaSystem.OnAreaEnter;
-        arrivalArea.OnEnter += areaSystem.OnAreaEnter;
-        arrivalArea.RestingAllowed = false;
+        player.OnClientDisconnect += OnLeaveDestroyIntroScene;
 
-        InitializeIntroAreaObjects(arrivalArea);
+        NwArea arrivalAreaIn = NwObject.FindObjectsWithTag<NwArea>("entry_scene_in").First().Clone();
+        arrivalAreaIn.Tag = $"entry_scene_in_{player.CDKey}";
+        arrivalAreaIn.Name = $"La galère de {player.LoginCreature.OriginalName} (Bienvenue !)";
+        arrivalAreaIn.OnEnter -= areaSystem.OnAreaEnter;
+        arrivalAreaIn.OnEnter += areaSystem.OnAreaEnter;
+        arrivalAreaIn.RestingAllowed = false;
+        arrivalAreaIn.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(o => o.Tag == "intro_mirror").OnLeftClick += PlaceableSystem.StartIntroMirrorDialog;
 
-        Location arrivalLocation = arrivalArea.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(o => o.Tag == "ENTRY_POINT").Location;
+        NwArea arrivalAreaOut = NwObject.FindObjectsWithTag<NwArea>("entry_scene_out").First().Clone();
+        arrivalAreaOut.Tag = $"entry_scene_out_{player.CDKey}";
+        arrivalAreaOut.Name = $"La galère de {player.LoginCreature.OriginalName} (Bienvenue !)";
+        arrivalAreaOut.OnEnter -= areaSystem.OnAreaEnter;
+        arrivalAreaOut.OnEnter += areaSystem.OnAreaEnter;
+        arrivalAreaOut.RestingAllowed = false;
+        arrivalAreaOut.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(o => o.Tag == "intro_mirror").OnLeftClick += PlaceableSystem.StartIntroMirrorDialog;
+
+        InitializeIntroAreaObjects(arrivalAreaOut);
+
+        Location arrivalLocation = arrivalAreaIn.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(o => o.Tag == "ENTRY_POINT").Location;
 
         Task waitDefaultMapLoaded = NwTask.Run(async () =>
         {
@@ -36,7 +44,7 @@ namespace NWN.Systems
 
         return arrivalLocation;
       }
-      catch(Exception e)
+      catch (Exception e)
       {
         ModuleSystem.Log.Info($"{e.Message}\n{e.StackTrace}");
         return NwModule.Instance.StartingLocation;
@@ -54,10 +62,15 @@ namespace NWN.Systems
 
       NwPlaceable tourbillon = arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(c => c.Tag == "intro_tourbillon");
       tourbillon.VisibilityOverride = VisibilityMode.Hidden;
-      tourbillon.VisualTransform.Translation = new Vector3(tourbillon.VisualTransform.Translation.X, 115, tourbillon.VisualTransform.Translation.Z);
+      tourbillon.VisualTransform.Translation = new Vector3(tourbillon.VisualTransform.Translation.X, 115, tourbillon.VisualTransform.Translation.Z);  
+    }
+    public static void OnLeaveDestroyIntroScene(OnClientDisconnect onPCDisconnect)
+    {
+      if (onPCDisconnect.Player is null || onPCDisconnect.Player.LoginCreature is null)
+        return;
 
-      NwPlaceable introMirror = arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(o => o.Tag == "intro_mirror");
-      introMirror.OnLeftClick += PlaceableSystem.StartIntroMirrorDialog;
+      AreaSystem.AreaDestroyer(NwObject.FindObjectsWithTag<NwArea>($"entry_scene_in_{onPCDisconnect.Player.CDKey}").FirstOrDefault());
+      AreaSystem.AreaDestroyer(NwObject.FindObjectsWithTag<NwArea>($"entry_scene_out_{onPCDisconnect.Player.CDKey}").FirstOrDefault());
     }
   }
 }

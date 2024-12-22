@@ -91,6 +91,7 @@ namespace NWN.Systems
         {
           var eff = eventData.Effect;
           var feat = NwFeat.FromFeatId(eff.IntParams[5]);
+          //ModuleSystem.Log.Info($"{feat.Name} - {eff.DurationRemaining}");
           NwSpell spell;
 
           switch(feat.Id)
@@ -230,7 +231,7 @@ namespace NWN.Systems
         case CustomSkill.ExpertiseFrappeDuPommeau: 
         case CustomSkill.ExpertiseDesarmement: 
         case CustomSkill.ExpertiseBriseEchine: 
-        case CustomSkill.Renforcement: 
+        case CustomSkill.ExpertiseRenforcement: 
         case CustomSkill.ExpertisePreparation: 
         case CustomSkill.ExpertiseTirPercant: 
         case CustomSkill.ExpertiseStabilisation: 

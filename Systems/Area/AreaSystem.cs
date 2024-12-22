@@ -205,28 +205,17 @@ namespace NWN.Systems
       //if (!NwModule.Instance.Players.Any(p => p.ControlledCreature != null && p.ControlledCreature.Area == area))
       //AreaCleaner(area);
     }
-    public void OnIntroAreaExit(AreaEvents.OnExit onExit)
-    {
-      if (onExit.ExitingObject is not NwCreature oPC || !oPC.IsPlayerControlled || !PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
-        return;
-
-      CloseWindows(player);
-
-      if (onExit.Area.Tag == $"entry_scene_{oPC.ControllingPlayer.CDKey}")
-      {
-        LogUtils.LogMessage($"{oPC.Name} exited area {onExit.Area.Name}", LogUtils.LogType.AreaManagement);
-        AreaDestroyer(onExit.Area);
-      }
-    }
     private void DoAreaSpecificInitialisation(NwArea area)
     {
       switch (area.Tag)
       {
-        case "la_zone_des_loots":
+        case "Alphazone01":
+        case "Alphazone02":
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
           break;
 
-        case "entry_scene":
+        case "entry_scene_out":
+        case "entry_scene_in":
 
           NwObject.FindObjectsWithTag<NwPlaceable>("intro_brouillard").FirstOrDefault().VisibilityOverride = VisibilityMode.Hidden;
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;

@@ -22,9 +22,7 @@ namespace NWN.Systems
       {
         oPC.OnHeartbeat -= CreatureUtils.OnHeartBeatCheckUnarmoredDefence;
         oPC.OnHeartbeat += CreatureUtils.OnHeartBeatCheckUnarmoredDefence;
-
-        if (oPC.GetAbilityModifier(Ability.Constitution) > 0 && !oPC.ActiveEffects.Any(e => e.Tag == EffectSystem.UnarmoredDefenceEffectTag))
-          oPC.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetUnarmoredDefenseEffect(oPC.GetAbilityModifier(Ability.Constitution)));
+        EffectSystem.ApplyUnarmoredDefenseEffect(oPC);
 
         if (oPC.Classes.Any(c => c.Class.Id == CustomClass.Barbarian && c.Level > 4)
             && !oPC.ActiveEffects.Any(e => e.Tag == EffectSystem.BarbarianSpeedEffectTag))

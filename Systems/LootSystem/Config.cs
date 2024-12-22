@@ -10,7 +10,7 @@ namespace NWN.Systems
   {
     public static readonly string LOOT_CONTAINER_ON_CLOSE_SCRIPT = "ls_load_onclose";
     public static readonly string ON_LOOT_SCRIPT = "ls_onloot";
-    public static readonly string CHEST_AREA_TAG = "la_zone_des_loots";
+    public static readonly string CHEST_AREA_TAG = "Alphazone01";
     private static readonly string SQL_TABLE = "loot_containers";
 
     private enum LootableType

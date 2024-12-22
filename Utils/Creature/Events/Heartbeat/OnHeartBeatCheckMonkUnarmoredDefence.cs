@@ -44,7 +44,7 @@ namespace NWN.Systems
       if (wisMod > 0)
       {
         await NwTask.NextFrame();
-        creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetMonkUnarmoredDefenseEffect(wisMod));
+        EffectSystem.ApplyMonkUnarmoredDefenseEffect(creature);
       }
     }
   }

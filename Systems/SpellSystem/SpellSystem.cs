@@ -701,7 +701,7 @@ namespace NWN.Systems
         spectator.Location = NwObject.FindObjectsWithTag<NwWaypoint>(Arena.Config.PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault().Location;
       }
 
-      areaSystem.AreaDestroyer(onExit.Area);
+      AreaSystem.AreaDestroyer(onExit.Area);
     }
     [ScriptHandler("on_cantrip_cast")]
     private void OnCantripCastRefundUse(CallInfo callInfo)

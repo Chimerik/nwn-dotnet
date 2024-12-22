@@ -31,7 +31,7 @@ namespace NWN.Systems
       if (conMod > 0)
       {
         await NwTask.NextFrame();
-        creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetUnarmoredDefenseEffect(conMod));
+        EffectSystem.ApplyUnarmoredDefenseEffect(creature);
       }
     }
   }

@@ -30,10 +30,24 @@ namespace NWN.Systems
         }
       }
     }
-    private ScheduledTask areaDestroyerScheduler;
-    public void AreaDestroyer(NwArea area)
+    //private ScheduledTask areaDestroyerScheduler;
+    public static async void AreaDestroyer(NwArea area)
     {
-      areaDestroyerScheduler = scheduler.ScheduleRepeating(() =>
+      if (area is null)
+        return;
+
+      if (!NwModule.Instance.Players.Any(p => p.ControlledCreature == null && p.ControlledCreature.Area == null) && area.PlayerCount < 1)
+      {
+        LogUtils.LogMessage($"Destroyed area {area.Name}", LogUtils.LogType.AreaManagement);
+        area.Destroy();
+      }
+      else
+      {
+        await NwTask.Delay(TimeSpan.FromSeconds(6));
+        AreaDestroyer(area);
+      }
+
+        /*areaDestroyerScheduler = scheduler.ScheduleRepeating(() =>
       {
         if (!NwModule.Instance.Players.Any(p => p.ControlledCreature == null && p.ControlledCreature.Area == null) && area.PlayerCount < 1)
         {
@@ -42,7 +56,7 @@ namespace NWN.Systems
           areaDestroyerScheduler.Dispose();
         }
       }
-        , TimeSpan.FromSeconds(6));
+        , TimeSpan.FromSeconds(6));*/
     }
   }
 }

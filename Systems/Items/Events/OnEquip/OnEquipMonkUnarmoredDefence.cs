@@ -19,9 +19,7 @@ namespace NWN.Systems
       {
         oPC.OnHeartbeat -= CreatureUtils.OnHeartBeatCheckMonkUnarmoredDefence;
         oPC.OnHeartbeat += CreatureUtils.OnHeartBeatCheckMonkUnarmoredDefence;
-
-        if (oPC.GetAbilityModifier(Ability.Wisdom) > 0 && !oPC.ActiveEffects.Any(e => e.Tag == EffectSystem.MonkUnarmoredDefenceEffectTag))
-          oPC.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetMonkUnarmoredDefenseEffect(oPC.GetAbilityModifier(Ability.Wisdom)));
+        EffectSystem.ApplyMonkUnarmoredDefenseEffect(oPC);
 
         if (oPC.GetObjectVariable<LocalVariableInt>("_MONK_SPEED_DISABLED").HasNothing
           && oPC.Classes.Any(c => c.Class.Id == CustomClass.Monk && c.Level > 1)

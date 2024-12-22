@@ -145,6 +145,10 @@ namespace NWN.Systems
           else ((PlayerSystem.Player.AreaDescriptionWindow)value).CreateWindow(NwModule.Instance.Areas.FirstOrDefault(a => a.Tag == "entry_scene"));
         }
         //oPC.FloatingTextString("En dehors des épaves de navires éparpillées tout autour de vous, la plage sur laquelle vous avez atterri semble étrangement calme et agréable. Nulle trace de votre équipage ou des biens que vous aviez emportés. Devant vous se dressent les murailles d'une ville ancienne et délabrée. Qu'allez-vous faire maintenant ?".ColorString(ColorConstants.Silver), false);
+
+        player.oid.OnClientDisconnect -= PlayerSystem.OnLeaveDestroyIntroScene;
+        AreaDestroyer(NwObject.FindObjectsWithTag<NwArea>($"entry_scene_in_{player.oid.CDKey}").FirstOrDefault());
+        AreaDestroyer(NwObject.FindObjectsWithTag<NwArea>($"entry_scene_out_{player.oid.CDKey}").FirstOrDefault());
       });
     }
     private static async void TriggerRandomLightnings(NwArea area, Vector3 center, int maxDistance, NwCreature oPC)

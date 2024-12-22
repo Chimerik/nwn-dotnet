@@ -113,9 +113,7 @@ namespace NWN.Systems
         {
           creature.OnHeartbeat -= CreatureUtils.OnHeartBeatCheckUnarmoredDefence;
           creature.OnHeartbeat += CreatureUtils.OnHeartBeatCheckUnarmoredDefence;
-
-          if (creature.GetAbilityModifier(Ability.Constitution) > 0)
-            creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetUnarmoredDefenseEffect(creature.GetAbilityModifier(Ability.Constitution)));
+          EffectSystem.ApplyUnarmoredDefenseEffect(creature);
         }
       }
 
@@ -146,9 +144,7 @@ namespace NWN.Systems
           {
             creature.OnHeartbeat -= CreatureUtils.OnHeartBeatCheckMonkUnarmoredDefence;
             creature.OnHeartbeat += CreatureUtils.OnHeartBeatCheckMonkUnarmoredDefence;
-
-            if (creature.GetAbilityModifier(Ability.Wisdom) > 0)
-              creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetMonkUnarmoredDefenseEffect(creature.GetAbilityModifier(Ability.Wisdom)));
+            EffectSystem.ApplyMonkUnarmoredDefenseEffect(creature);
           }
         }
       }
