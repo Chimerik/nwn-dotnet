@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using NWN.Native.API;
 
 namespace NWN.Systems
@@ -13,6 +14,13 @@ namespace NWN.Systems
 
       if (attackWeapon is not null)
       {
+        if(GetCreatureWeaponProficiencyBonus(creature, attackWeapon) > 0)
+        {
+          var coupAuBut = creature.m_appliedEffects.FirstOrDefault(e => e.m_sCustomTag.CompareNoCase(EffectSystem.CoupAuButAttackEffectExoTag).ToBool());
+          if(coupAuBut is not null)
+            return (Anvil.API.Ability)coupAuBut.GetInteger(3);
+        }
+
         if (attackWeapon.m_ScriptVars.GetObject(CreatureUtils.PacteDeLaLameVariableExo) == creature.m_idSelf)
         {
           attackStat = Anvil.API.Ability.Charisma;

@@ -70,6 +70,8 @@ namespace NWN.Systems
 
             break;
 
+          case CustomSpell.Resistance:break;
+
           default:
 
             feat = NwFeat.FromFeatId(featId);
@@ -128,6 +130,8 @@ namespace NWN.Systems
               spell.Name.SetPlayerOverride(caster.LoginPlayer, spell.Name.ToString() + $" - Rechargement ({eff.DurationRemaining} s)");
 
               break;
+
+            case CustomSpell.Resistance: break;
 
             default: feat.Name.SetPlayerOverride(caster.LoginPlayer, feat.Name.ToString() + $" - Rechargement ({eff.DurationRemaining} s)"); break;
           }            

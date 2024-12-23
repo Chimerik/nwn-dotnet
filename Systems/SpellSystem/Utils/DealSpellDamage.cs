@@ -8,14 +8,15 @@ namespace NWN.Systems
 {
   public static partial class SpellUtils
   {
-    public static int DealSpellDamage(NwGameObject target, int casterLevel, SpellEntry spellEntry, int nbDices, NwGameObject oCaster, byte spellLevel, SavingThrowResult saveResult = SavingThrowResult.Failure, bool noLogs = false, NwClass casterClass = null)
+    public static int DealSpellDamage(NwGameObject target, int casterLevel, SpellEntry spellEntry, int nbDices, NwGameObject oCaster, byte spellLevel, SavingThrowResult saveResult = SavingThrowResult.Failure, bool noLogs = false, NwClass casterClass = null, int damageDice = 0)
     {
       if (saveResult == SavingThrowResult.Immune)
         return 0;
 
       NwSpell spell = NwSpell.FromSpellId(spellEntry.RowIndex);
       NwCreature castingCreature = oCaster is NwCreature tempCaster ? tempCaster : null;
-      int roll = NwRandom.Roll(Utils.random, spellEntry.damageDice, nbDices);
+      damageDice = damageDice > 0 ? damageDice : spellEntry.damageDice;
+      int roll = NwRandom.Roll(Utils.random, damageDice, nbDices);
       int totalDamage = 0;
       bool isEvocateurSurcharge = castingCreature is not null && castingCreature.KnowsFeat((Feat)CustomSkill.EvocateurSurcharge) && spell.SpellSchool == SpellSchool.Evocation
           && 0 < spellLevel && spellLevel < 6 && castingCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.EvocateurSurchargeEffectTag); ;
@@ -57,8 +58,8 @@ namespace NWN.Systems
 
         for (int i = 0; i < nbDices; i++)
         {
-          roll = isEvocateurSurcharge ? spellEntry.damageDice : NwRandom.Roll(Utils.random, spellEntry.damageDice);
-          roll = isFureurDestructrice && Utils.In(appliedDamage, DamageType.Electrical, DamageType.Sonic) ? spellEntry.damageDice : roll;
+          roll = isEvocateurSurcharge ? damageDice : NwRandom.Roll(Utils.random, damageDice);
+          roll = isFureurDestructrice && Utils.In(appliedDamage, DamageType.Electrical, DamageType.Sonic) ? damageDice : roll;
 
           roll = isElementalist && roll < 2 ? 2 : roll;
 
@@ -68,12 +69,12 @@ namespace NWN.Systems
             {
               case DamageType.Piercing:
                 if (castingCreature.KnowsFeat((Feat)CustomSkill.Empaleur))
-                  roll = roll < 3 ? NwRandom.Roll(Utils.random, spellEntry.damageDice) : roll;
+                  roll = roll < 3 ? NwRandom.Roll(Utils.random, damageDice) : roll;
                 break;
 
               case DamageType.Fire:
                 if (castingCreature.KnowsFeat((Feat)CustomSkill.FlammesDePhlegetos))
-                  roll = roll < 2 ? NwRandom.Roll(Utils.random, spellEntry.damageDice) : roll;
+                  roll = roll < 2 ? NwRandom.Roll(Utils.random, damageDice) : roll;
                 break;
             }
 
@@ -82,7 +83,7 @@ namespace NWN.Systems
 
           if(amplifiedDices > 0)
           {
-            int tempRoll = NwRandom.Roll(Utils.random, spellEntry.damageDice);
+            int tempRoll = NwRandom.Roll(Utils.random, damageDice);
             roll = tempRoll > roll ? tempRoll : roll;
             amplifiedDices -= 1;
           }
@@ -117,7 +118,7 @@ namespace NWN.Systems
           target.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(spellEntry.damageVFX), Effect.Damage(damage, appliedDamage)));
 
         if (!noLogs)
-          LogUtils.LogMessage($"Dégâts sur {target.Name} : {nbDices}d{spellEntry.damageDice} (caster lvl {casterLevel}) = {damage} {StringUtils.GetDamageTypeTraduction(appliedDamage)}", LogUtils.LogType.Combat);
+          LogUtils.LogMessage($"Dégâts sur {target.Name} : {nbDices}d{damageDice} (caster lvl {casterLevel}) = {damage} {StringUtils.GetDamageTypeTraduction(appliedDamage)}", LogUtils.LogType.Combat);
 
         totalDamage += damage;
       }

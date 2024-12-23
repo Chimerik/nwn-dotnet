@@ -20,6 +20,12 @@ namespace NWN
         if (effectTag.Contains(eff.Tag) && eff.IntParams[5] == param)
           target.RemoveEffect(eff);
     }
+    public static void RemoveTaggedParamEffect(NwGameObject target, string effectTag, params int[] param)
+    {
+      foreach (var eff in target.ActiveEffects)
+        if (eff.Tag == effectTag && param.Contains(eff.IntParams[6]))
+          target.RemoveEffect(eff);
+    }
 
     public static void RemoveTaggedEffect(NwGameObject target, NwObject creator, params string[] effectTag)
     {

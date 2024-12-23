@@ -20,7 +20,7 @@ namespace NWN.Systems
         {
           case TouchAttackResult.CriticalHit: nbDice = SpellUtils.GetCriticalSpellDamageDiceNumber(oCaster, spellEntry, nbDice); break;
           case TouchAttackResult.Hit: break;
-          default: return;
+          default: continue;
         }
 
         target.ApplyEffect(EffectDuration.Temporary, EffectSystem.EclairTracant, NwTimeSpan.FromRounds(spellEntry.duration));

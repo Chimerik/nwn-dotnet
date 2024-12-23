@@ -2,7 +2,13 @@
 {
   public class CustomSpell
   {
+    public const int Assistance = 12;
+    public const int Elementalisme = 22;
+    public const int Resistance = 151;
     public const int ProtectionContreLeMalEtLeBien = 321;
+    public const int Message = 325;
+    public const int SonneLeGlas = 326;
+    public const int CoupDeTonnerre = 515;
     public const int Calligraphie = 840;
     public const int Sprint = 841;    
     public const int Disengage = 842;    
@@ -208,5 +214,17 @@
     public const int FrappePerfideHebeter = 1057;
     public const int FrappePerfideObscurcir = 1058;
     public const int FrappePerfideAssommer = 1059;
+    public const int ResistanceContondant = 1060;
+    public const int ResistancePercant = 1061;
+    public const int ResistanceTranchant = 1062;
+    public const int ResistanceAcide = 1063;
+    public const int ResistanceFeu = 1064;
+    public const int ResistanceFroid = 1065;
+    public const int ResistanceElec = 1066;
+    public const int ResistancePoison = 1067;
+    public const int CoupAuButNormal = 1068;
+    public const int CoupAuButRadiant = 1069;
+    public const int ShillelaghNormal = 1070;
+    public const int ShillelaghForce = 1071;
   }
 }

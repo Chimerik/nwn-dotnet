@@ -20,6 +20,6 @@ namespace NWN.Systems
 
       caster.Gold -= 25;
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpMagicalVision));
-    }  
+    }
   }
 }

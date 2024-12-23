@@ -70,7 +70,9 @@ namespace NWN.Systems
         {
           var classInfo = caster.GetClassInfo(castingClass);
           var spellLevel = spell.GetSpellLevelForClass(castingClass);
-          classInfo.SetRemainingSpellSlots(spellLevel, (byte)(classInfo.GetRemainingSpellSlots(spellLevel) - 1));
+
+          if(spellLevel > 0)
+            classInfo.SetRemainingSpellSlots(spellLevel, (byte)(classInfo.GetRemainingSpellSlots(spellLevel) - 1));
         }
 
         onSpellAction.PreventSpellCast = true;

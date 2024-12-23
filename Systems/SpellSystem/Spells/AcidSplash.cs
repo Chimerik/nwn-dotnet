@@ -4,12 +4,12 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void AcidSplash(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, Location targetLocation, NwClass casterClass)
+    public static void AcidSplash(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, Location targetLocation, NwClass casterClass)
     {
       int spellDC = 10;
       bool tourPuissant = false;
 
-      SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
+      SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
 
       if (oCaster is NwCreature caster)
       {

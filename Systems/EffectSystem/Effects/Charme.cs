@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
@@ -13,18 +14,36 @@ namespace NWN.Systems
 {
   public partial class EffectSystem
   {
-    private static ScriptCallbackHandle onApplyCharmCallback;
     private static ScriptCallbackHandle onRemoveCharmCallback;
     public const string CharmEffectTag = "_CHARM_EFFECT";
-    public static Effect Charme
+    public static void ApplyCharme(NwCreature target, NwCreature caster, TimeSpan duration, bool repeatSave = false)
     {
-      get
+      if (IsCharmeImmune(target, caster))
+        return;
+
+      Effect eff;      
+
+      if (target.IsLoginPlayerCharacter)
       {
-        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurMindAffectingDisabled), Effect.RunAction(onAppliedHandle: onApplyCharmCallback, onRemovedHandle: onRemoveCharmCallback));
-        eff.Tag = CharmEffectTag;
-        eff.SubType = EffectSubType.Supernatural;
-        return eff;
+        eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurMindAffectingDisabled), Effect.RunAction(onRemovedHandle: onRemoveCharmCallback));
+
+        target.OnSpellAction -= OnSpellInputCharmed;
+        target.OnSpellAction += OnSpellInputCharmed;
+
+        target.OnDamaged -= OnDamageCharmed;
+        target.OnDamaged += OnDamageCharmed;
+
+        EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "on_charm_attack", target);
+        EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "on_charm_attack", target);
       }
+      else
+        eff = Effect.Charmed();
+
+      eff.Tag = CharmEffectTag;
+      eff.SubType = EffectSubType.Supernatural;
+      eff.Creator = caster;
+
+      target.ApplyEffect(EffectDuration.Temporary, eff, duration);
     }
     public static Effect GetCharmImmunityEffect(string effectTag)
     {
@@ -53,27 +72,6 @@ namespace NWN.Systems
 
       return false;
     }
-    private static ScriptHandleResult OnApplyCharm(CallInfo callInfo)
-    {
-      EffectRunScriptEvent eventData = new EffectRunScriptEvent();
-
-      if (eventData.EffectTarget is not NwCreature target)
-        return ScriptHandleResult.Handled;
-
-      if(target.IsLoginPlayerCharacter)
-      {
-        target.OnSpellAction -= SpellSystem.OnSpellInputCharmed;
-        target.OnSpellAction += SpellSystem.OnSpellInputCharmed;
-
-        target.OnDamaged -= OnDamageCharmed;
-        target.OnDamaged += OnDamageCharmed;
-
-        EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "on_charm_attack", target);
-        EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "on_charm_attack", target);
-      }
-
-      return ScriptHandleResult.Handled;
-    }
     private static ScriptHandleResult OnRemoveCharm(CallInfo callInfo)
     {
       EffectRunScriptEvent eventData = new EffectRunScriptEvent();
@@ -81,7 +79,7 @@ namespace NWN.Systems
       if (eventData.EffectTarget is not NwCreature target)
         return ScriptHandleResult.Handled;
 
-      target.OnSpellAction -= SpellSystem.OnSpellInputCharmed;
+      target.OnSpellAction -= OnSpellInputCharmed;
       target.OnDamaged -= OnDamageCharmed;
       EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "on_charm_attack", target);
 
@@ -90,6 +88,14 @@ namespace NWN.Systems
     public static void OnDamageCharmed(CreatureEvents.OnDamaged onDamage)
     {
       EffectUtils.RemoveTaggedEffect(onDamage.Creature, CharmEffectTag);
+    }
+    public static void OnSpellInputCharmed(OnSpellAction onCast)
+    {
+      if (onCast.Caster.ActiveEffects.Any(e => e.Tag == EffectSystem.CharmEffectTag && onCast.TargetObject == e.Creator))
+      {
+        onCast.PreventSpellCast = true;
+        onCast.Caster.LoginPlayer?.SendServerMessage($"Vous êtes sous le charme de cette création et ne pouvez pas la cibler", ColorConstants.Red);
+      }
     }
     [ScriptHandler("on_charm_attack")]
     private void OnCharmAttack(CallInfo callInfo)

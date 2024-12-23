@@ -5,7 +5,7 @@ namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static bool GetAffaiblissementDisadvantage(CNWSCreature creature, Native.API.CGameEffect eff)
+    public static bool GetAffaiblissementDisadvantage(CNWSCreature creature, CGameEffect eff)
     {
       if(eff.m_sCustomTag.CompareNoCase(EffectSystem.AffaiblissementEffectExoTag).ToBool())
       {

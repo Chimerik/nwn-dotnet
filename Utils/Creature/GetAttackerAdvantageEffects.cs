@@ -8,9 +8,6 @@ namespace NWN.Systems
     {
       foreach (var eff in attacker.m_appliedEffects)
       {
-        if (GetTrueStrikeAdvantage(eff))
-          return true;
-
         if (GetViseeStableAdvantage(eff, attacker))
           return true;
 

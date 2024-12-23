@@ -30,8 +30,7 @@ namespace NWN.Systems
               nbDice += 1;
             }
 
-            if (onAttack.AttackResult == AttackResult.CriticalHit)
-              nbDice *= 2;
+            nbDice *= onAttack.AttackResult == AttackResult.CriticalHit ? 2 : 1;
 
             string logString = "";
             int damage = 0;

@@ -1,36 +1,24 @@
-﻿using Anvil.API;
-using Anvil.API.Events;
+﻿
+
+using Anvil.API;
+using System.Collections.Generic;
 
 namespace NWN.Systems
 {
-  class Resistance
+  public partial class SpellSystem
   {
-    public Resistance(SpellEvents.OnSpellCast onSpellCast)
+    public static List<NwGameObject> Resistance(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget)
     {
-      if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oCaster))
-        return;
+      SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
 
-      int nCasterLevel = oCaster.CasterLevel;
+      EffectUtils.RemoveTaggedEffect(oTarget, EffectSystem.ResistanceEffectTag);
+      EffectUtils.RemoveTaggedParamEffect(oTarget, EffectSystem.CooldownEffectTag, CustomSpell.Resistance, CustomSpell.ResistanceAcide, CustomSpell.ResistanceContondant, CustomSpell.ResistanceElec, CustomSpell.ResistanceFeu, CustomSpell.ResistanceFroid, CustomSpell.ResistancePercant, CustomSpell.ResistancePoison, CustomSpell.ResistanceTranchant);
 
-      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell.SpellType, false);
+      oCaster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpGoodHelp));
+      oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.Resistance(oTarget, spell), NwTimeSpan.FromRounds(spellEntry.duration));
 
-      Effect eVis = Effect.VisualEffect(VfxType.ImpHeadHoly);
-      Effect eDur = Effect.VisualEffect(VfxType.DurCessatePositive);
-
-      int nBonus = 1 + nCasterLevel / 6; //Saving throw bonus to be applied
-      int nDuration = 2 + nCasterLevel / 6; // Turns
-
-      if (onSpellCast.MetaMagicFeat == MetaMagic.Extend)
-        nDuration = nDuration * 2;
-
-      Effect eSave = Effect.SavingThrowIncrease(SavingThrow.All, nBonus);
-      Effect eLink = Effect.LinkEffects(eSave, eDur);
-
-      onSpellCast.TargetObject.ApplyEffect(EffectDuration.Temporary, eLink, NwTimeSpan.FromRounds(nDuration));
-      onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, eVis);
-
-      /*if (onSpellCast.MetaMagicFeat == MetaMagic.None)
-        SpellUtils.RestoreSpell(oCaster, onSpellCast.Spell.SpellType);*/
+      return new List<NwGameObject> { oTarget };
     }
   }
 }
+

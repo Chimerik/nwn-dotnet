@@ -21,17 +21,19 @@ namespace NWN.Systems
         if (target is not NwCreature targetCreature)
           continue;
 
-        target.ApplyEffect(EffectDuration.Temporary, Effect.Beam(VfxType.BeamDisintegrate, oCaster, BodyNode.Hand), TimeSpan.FromSeconds(1.7));
-
         int nbDice = SpellUtils.GetSpellDamageDiceNumber(oCaster, spell);
 
         switch (SpellUtils.GetSpellAttackRoll(target, oCaster, spell, casterClass.SpellCastingAbility))
         {
           case TouchAttackResult.CriticalHit: nbDice = SpellUtils.GetCriticalSpellDamageDiceNumber(oCaster, spellEntry, nbDice); break;
           case TouchAttackResult.Hit: break;
-          default: return;
+          default:
+            target.ApplyEffect(EffectDuration.Temporary, Effect.Beam(VfxType.BeamDisintegrate, oCaster, BodyNode.Hand, true), TimeSpan.FromSeconds(1.7)); 
+            continue;
         }
 
+        target.ApplyEffect(EffectDuration.Temporary, Effect.Beam(VfxType.BeamDisintegrate, oCaster, BodyNode.Hand), TimeSpan.FromSeconds(1.7));
+        target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPoisonS));
         EffectSystem.ApplyPoison(targetCreature, caster, NwTimeSpan.FromRounds(spellEntry.duration), spellEntry.savingThrowAbility);  
         SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, nbDice, oCaster, spell.GetSpellLevelForClass(casterClass));
       }

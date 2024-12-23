@@ -75,6 +75,12 @@ namespace NWN.Systems
           target.RemoveEffect(eff);
           LogUtils.LogMessage("Frappe Déchirante : +5", LogUtils.LogType.Combat);
         }
+        else if(eff.m_sCustomTag.CompareNoCase(EffectSystem.ProtectionContreLesLamesEffectExoTag).ToBool())
+        {
+          int bladeWardMalus = NwRandom.Roll(Utils.random, 4);
+          attackBonus -= bladeWardMalus;
+          LogUtils.LogMessage($"Protection contre les lames : -{bladeWardMalus}", LogUtils.LogType.Combat);
+        }
       }
       
       return attackBonus;

@@ -30,7 +30,7 @@ namespace NWN.Systems
         if (oCaster is NwCreature caster)
         {
           int proficiencyBonus = NativeUtils.GetCreatureProficiencyBonus(caster);
-          attackModifier = proficiencyBonus + caster.GetAbilityModifier(spellCastingAbility);
+          attackModifier = proficiencyBonus + caster.GetAbilityModifier(spellCastingAbility) + GetAttackBonus(target, caster);
           advantage = CreatureUtils.GetAdvantageAgainstTarget(caster, spell, isRangedSpell, target, spellCastingAbility);
           attackRoll = NativeUtils.GetAttackRoll(caster, advantage, spellCastingAbility);
           totalAttack = attackRoll + attackModifier + GetSpellAttackBonus(caster);

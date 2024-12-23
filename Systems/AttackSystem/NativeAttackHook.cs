@@ -94,6 +94,8 @@ namespace NWN.Systems
       //*** CALCUL DU BONUS D'ATTAQUE ***//
       // On prend le bonus d'attaque calculé automatiquement par le jeu en fonction de la cible qui peut être une créature ou un placeable
       Anvil.API.Ability attackAbility = NativeUtils.GetAttackAbility(attacker, attackData.m_bRangedAttack.ToBool(), attackWeapon);
+      attackAbility = NativeUtils.HandleCoupAuBut(attacker, attackWeapon, attackAbility, EffectSystem.CoupAuButAttackEffectExoTag);
+      attackAbility = NativeUtils.HandleShillelagh(attacker, attackWeapon, attackAbility);
       int attackModifier = targetCreature is null ? attacker.m_pStats.GetAttackModifierVersus() : NativeUtils.GetAttackBonus(attacker, targetCreature, attackData, attackWeapon, attackAbility);
 
       // On ajoute le bonus de maîtrise de la créature
@@ -421,6 +423,8 @@ namespace NWN.Systems
 
       CNWSItem attackWeapon = combatRound.GetCurrentAttackWeapon(attackData.m_nWeaponAttackType);
       Anvil.API.Ability damageAbility = NativeUtils.GetAttackAbility(attacker, attackData.m_bRangedAttack.ToBool(), attackWeapon);
+      damageAbility = NativeUtils.HandleCoupAuBut(attacker, attackWeapon, damageAbility, EffectSystem.CoupAuButDamageEffectExoTag);
+      damageAbility = NativeUtils.HandleShillelagh(attacker, attackWeapon, damageAbility);
       int baseDamage = 0;
       bool isDuelFightingStyle = false;
       int sneakAttack = 0;

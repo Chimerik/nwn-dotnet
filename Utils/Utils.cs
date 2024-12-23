@@ -15,6 +15,10 @@ namespace NWN
   public static class Utils
   {
     public static readonly Random random = new();
+    public static int Roll(int dice, int nbDice = 1)
+    {
+      return NwRandom.Roll(random, dice, nbDice);
+    }
     public enum SubscriptionType
     {
       MailNotification = 1,

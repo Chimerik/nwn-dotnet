@@ -41,10 +41,13 @@ namespace NWN.Systems
         {
           case TouchAttackResult.CriticalHit: targetNBDice = SpellUtils.GetCriticalSpellDamageDiceNumber(oCaster, spellEntry, nbDice); break;
           case TouchAttackResult.Hit: break;
-          default: continue;
+          default:
+            target.ApplyEffect(EffectDuration.Temporary, Effect.Beam(VfxType.BeamFire, caster, BodyNode.Hand, true), TimeSpan.FromSeconds(1.2));
+            continue;
         }
 
         target.ApplyEffect(EffectDuration.Temporary, Effect.Beam(VfxType.BeamFire, caster, BodyNode.Hand), TimeSpan.FromSeconds(1.2));
+        target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpFlameS));
         SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, targetNBDice, oCaster, spell.GetSpellLevelForClass(castingClass));
       }
     }

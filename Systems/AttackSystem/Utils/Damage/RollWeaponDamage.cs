@@ -7,19 +7,21 @@ namespace NWN.Systems
   {
     public static int RollWeaponDamage(CNWSCreature creature, NwBaseItem weapon, CNWSCombatAttackData attackData, CNWSCreature target, CNWSItem attackWeapon, Anvil.API.Ability attackAbility, bool isCriticalRoll = false)
     {
-      int dieToRoll = ItemUtils.IsVersatileWeapon(weapon.ItemType) && creature.m_pInventory.GetItemInSlot((uint)EquipmentSlot.LeftHand) is null
-        ? weapon.DieToRoll + 2 : weapon.DieToRoll;
+      int damageDie = GetShillelaghDamageDie(creature, weapon);
+      damageDie = ItemUtils.IsVersatileWeapon(weapon.ItemType) && creature.m_pInventory.GetItemInSlot((uint)EquipmentSlot.LeftHand) is null
+        ? damageDie + 2 : damageDie;
 
-      int numDamageDice = weapon.NumDamageDice
+      int numDamageDice = GetShillelaghNumDice(creature, weapon);
+      numDamageDice = numDamageDice
         + GetFureurOrcBonus(creature)
         //+ GetOrcCriticalBonus(creature, attackData, isCriticalRoll)
         + GetEmpaleurCriticalBonus(creature, weapon, isCriticalRoll);
         //+ GetBarbarianBrutalCriticalBonus(creature, attackData.m_bRangedAttack.ToBool(), isCriticalRoll);
 
-      int damage = HandleWeaponDamageRerolls(creature, weapon, numDamageDice, dieToRoll);
-      damage = HandleSavageAttacker(creature, weapon, attackData, numDamageDice, damage, dieToRoll);
+      int damage = HandleWeaponDamageRerolls(creature, weapon, numDamageDice, damageDie);
+      damage = HandleSavageAttacker(creature, weapon, attackData, numDamageDice, damage, damageDie);
 
-      LogUtils.LogMessage($"{(isCriticalRoll ? "Critique - " : "")}{weapon.Name.ToString()} - {numDamageDice}d{dieToRoll} => {damage}", LogUtils.LogType.Combat);
+      LogUtils.LogMessage($"{(isCriticalRoll ? "Critique - " : "")}{weapon.Name.ToString()} - {numDamageDice}d{damageDie} => {damage}", LogUtils.LogType.Combat);
 
       damage += GetDegatsBotte(creature)
         + GetDegatsVaillantsBonus(creature)

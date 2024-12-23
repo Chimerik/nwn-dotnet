@@ -18,7 +18,7 @@ namespace NWN.Systems
         {
           case TouchAttackResult.CriticalHit: nbDice = SpellUtils.GetCriticalSpellDamageDiceNumber(oCaster, spellEntry, nbDice); ; break;
           case TouchAttackResult.Hit: break;
-          default: return;
+          default: continue;
         }
 
         target.OnHeal -= PreventHeal;

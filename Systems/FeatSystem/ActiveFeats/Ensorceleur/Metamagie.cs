@@ -45,6 +45,14 @@ namespace NWN.Systems
         CustomSkill.EnsoIntensification or CustomSkill.EnsoAcceleration => 3,
         _ => 1,
       };
+
+      if(sourceCost > EnsoUtils.GetSorcerySource(caster))
+      {
+        caster.LoginPlayer?.SendServerMessage($"Cette métamagie nécessite {sourceCost}", ColorConstants.Red);
+        caster.SetFeatRemainingUses((Feat)featId, 0);
+        return;
+      }
+
       
       if(featId ==  CustomSkill.EnsoTransmutation && PlayerSystem.Players.TryGetValue(caster, out var player))
       {

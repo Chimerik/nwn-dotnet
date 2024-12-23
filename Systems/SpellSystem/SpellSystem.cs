@@ -711,12 +711,16 @@ namespace NWN.Systems
       if (callInfo.ObjectSelf is not NwCreature caster
         || (MetaMagic)int.Parse(EventsPlugin.GetEventData("METAMAGIC")) != MetaMagic.None
         || classPosition == 254) //spell like ability
+      {
         return;
+      }
 
       var castingClass = caster.Classes[classPosition].Class.ClassType;
       var spell = NwSpell.FromSpellId(int.Parse(EventsPlugin.GetEventData("SPELL_ID")));
       var spellEntry = Spells2da.spellTable[spell.Id];
       var spellLevel = spell.GetSpellLevelForClass(castingClass);
+
+      //ModuleSystem.Log.Info($"spell : {spell.Name} - class {castingClass} - spellLevel {spellLevel}");
 
       if (spellLevel < 1)
       {

@@ -8,7 +8,10 @@ namespace NWN.Systems
     {
       foreach (var eff in attacker.m_appliedEffects)
       {
-        if(GetArmorShieldDisadvantage(eff, attackStat))
+        if (GetMoquerieVicieuseDisadvantage(attacker, eff))
+          return true;
+
+        if (GetArmorShieldDisadvantage(eff, attackStat))
           return true;
 
         if (GetBoneChillDisadvantage(attacker, eff))
