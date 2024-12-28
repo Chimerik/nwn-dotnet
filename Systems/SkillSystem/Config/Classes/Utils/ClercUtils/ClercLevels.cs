@@ -41,7 +41,7 @@ namespace NWN.Systems
             if (Utils.In(spell.Id, CustomSpell.Deguisement, (int)Spell.CharmPerson, CustomSpell.PassageSansTrace, CustomSpell.ImageMiroir,
               (int)Spell.Fear, (int)Spell.PolymorphSelf, (int)Spell.DivineFavor, (int)Spell.MagicWeapon, CustomSpell.PorteDimensionnelle,
               (int)Spell.HoldMonster, CustomSpell.CapeDuCroise, (int)Spell.Firebrand, CustomSpell.SphereDeFeu, (int)Spell.Fireball,
-              (int)Spell.WallOfFire, CustomSpell.VagueDestructrice, CustomSpell.AmitieAnimale, CustomSpell.CroissanceDepines, (int)Spell.Barkskin,
+              (int)Spell.WallOfFire, CustomSpell.VagueDestructrice, (int)Spell.CharmPersonOrAnimal, CustomSpell.CroissanceDepines, (int)Spell.Barkskin,
               CustomSpell.CroissanceVegetale, CustomSpell.TempeteDeNeige, (int)Spell.DominateAnimal, CustomSpell.LianeAvide, CustomSpell.SphereResilienteDotiluke,
               CustomSpell.FleauDinsectes, CustomSpell.MurDePierre, (int)Spell.Sleep, (int)Spell.HoldPerson, (int)Spell.Slow, (int)Spell.Confusion,
               (int)Spell.DominatePerson, CustomSpell.Telekinesie, (int)Spell.Identify, CustomSpell.Antidetection, CustomSpell.OeilMagique,
@@ -68,9 +68,6 @@ namespace NWN.Systems
 
           if (!player.windows.TryGetValue("ordreDivinSelection", out var ordreDivin)) player.windows.Add("ordreDivinSelection", new OrdreDivinSelectionWindow(player));
           else ((OrdreDivinSelectionWindow)ordreDivin).CreateWindow();
-
-          if (!player.windows.TryGetValue("cantripSelection", out var cantrip1)) player.windows.Add("cantripSelection", new CantripSelectionWindow(player, ClassType.Cleric, 3));
-          else ((CantripSelectionWindow)cantrip1).CreateWindow(ClassType.Cleric, 3);
 
           break;
 

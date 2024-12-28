@@ -11,12 +11,9 @@ namespace NWN.Systems
       int abilityModifier = target.GetAbilityModifier(ability);
 
       LogUtils.LogMessage($"JDS modifier {ability} : {abilityModifier}", LogUtils.LogType.Combat);
-      
-      proficiencyBonus += abilityModifier 
-        + ItemUtils.GetShieldMasterBonusSave(target, ability)
-        + DruideUtils.GetSanctuaireNaturelBonusSave(target, ability)
-        + OccultisteUtils.GetFaveurDuMalinBonusSave(target)
-        + DruideUtils.GetResilienceSauvageBonusSave(target, ability);
+
+      proficiencyBonus += abilityModifier
+        + ItemUtils.GetShieldMasterBonusSave(target, ability);
 
       List<string> protectionNoStack = new();
 
@@ -31,7 +28,7 @@ namespace NWN.Systems
               int bonus = NativeUtils.GetCreatureProficiencyBonus(target);
               proficiencyBonus += bonus;
               protectionNoStack.Add(EffectSystem.SensDeLaMagieEffectTag);
-              LogUtils.LogMessage($"Magie Sauvage - Sens de la magie : +{bonus}", LogUtils.LogType.Combat);
+              LogUtils.LogMessage($"Magie Sauvage - Sens de la magie : JDS +{bonus}", LogUtils.LogType.Combat);
             }
 
             break;
@@ -44,7 +41,7 @@ namespace NWN.Systems
             protectionNoStack.Add(EffectSystem.WildMagicBienfaitEffectTag);
             int bienfait = NwRandom.Roll(Utils.random, 4);
             proficiencyBonus += bienfait;
-            LogUtils.LogMessage($"Magie Sauvage - Bienfait : +{bienfait}", LogUtils.LogType.Combat);
+            LogUtils.LogMessage($"Magie Sauvage - Bienfait : JDS +{bienfait}", LogUtils.LogType.Combat);
 
             break;
 
@@ -56,7 +53,7 @@ namespace NWN.Systems
             protectionNoStack.Add(EffectSystem.ProtectionEffectTag);
             int protection = protector.GetAbilityModifier(Ability.Charisma);
             proficiencyBonus += protection;
-            LogUtils.LogMessage($"Paladin - Aura de Protection : +{protection}", LogUtils.LogType.Combat);
+            LogUtils.LogMessage($"Paladin - Aura de Protection : JDS +{protection}", LogUtils.LogType.Combat);
 
             break;
 
@@ -69,7 +66,7 @@ namespace NWN.Systems
 
             int beneBonus = NwRandom.Roll(Utils.random, 4);
             proficiencyBonus -= beneBonus;
-            LogUtils.LogMessage($"Bénédiction : +{beneBonus}", LogUtils.LogType.Combat);
+            LogUtils.LogMessage($"Bénédiction : JDS +{beneBonus}", LogUtils.LogType.Combat);
 
             break;
 
@@ -82,7 +79,7 @@ namespace NWN.Systems
 
             int fleauMalus = NwRandom.Roll(Utils.random, 4);
             proficiencyBonus -= fleauMalus;
-            LogUtils.LogMessage($"Fléau : -{fleauMalus}", LogUtils.LogType.Combat);
+            LogUtils.LogMessage($"Fléau : JDS -{fleauMalus}", LogUtils.LogType.Combat);
 
             break;
 
@@ -94,7 +91,56 @@ namespace NWN.Systems
             protectionNoStack.Add(EffectSystem.LenteurEffectTag);
 
             proficiencyBonus -= 2;
-            LogUtils.LogMessage("Lenteur : -2", LogUtils.LogType.Combat);
+            LogUtils.LogMessage("Lenteur : JDS -2", LogUtils.LogType.Combat);
+
+            break;
+
+          case EffectSystem.FractureMentaleEffectTag:
+
+            if (protectionNoStack.Contains(EffectSystem.FractureMentaleEffectTag))
+              break;
+
+            protectionNoStack.Add(EffectSystem.FractureMentaleEffectTag);
+            int factureRoll = Utils.Roll(4);
+            proficiencyBonus -= factureRoll;
+            LogUtils.LogMessage($"Fracture Mentale : JDS -{factureRoll}", LogUtils.LogType.Combat);
+
+            break;
+
+          case EffectSystem.SanctuaireNaturelEffectTag:
+
+            if (ability != Ability.Dexterity || protectionNoStack.Contains(EffectSystem.SanctuaireNaturelEffectTag))
+              break;
+
+            protectionNoStack.Add(EffectSystem.SanctuaireNaturelEffectTag);
+            proficiencyBonus += 2;
+            LogUtils.LogMessage($"Sanctuaire Naturel : JDS +2", LogUtils.LogType.Combat);
+
+            break;
+
+          case EffectSystem.FaveurDuMalinEffectTag:
+
+            if (eff.IntParams[5] != CustomSpell.FaveurDuMalinJDS || protectionNoStack.Contains(EffectSystem.FaveurDuMalinEffectTag))
+              break;
+
+            protectionNoStack.Add(EffectSystem.FaveurDuMalinEffectTag);
+            int faveurDuMalinRoll = Utils.Roll(10);
+            proficiencyBonus += faveurDuMalinRoll;
+            LogUtils.LogMessage($"Faveur du Malin : JDS +{faveurDuMalinRoll}", LogUtils.LogType.Combat);
+
+            break;
+
+          case EffectSystem.PolymorphEffectTag:
+
+            int wisMod = target.GetAbilityModifier(Ability.Wisdom);
+
+            if (ability != Ability.Constitution || wisMod < 1 || !target.KnowsFeat((Feat)CustomSkill.DruideResilienceSauvage)
+              || protectionNoStack.Contains(EffectSystem.PolymorphEffectTag))
+              break;
+
+            protectionNoStack.Add(EffectSystem.PolymorphEffectTag);
+            proficiencyBonus += wisMod;
+            LogUtils.LogMessage($"Résilience Sauvage : JDS +{wisMod}", LogUtils.LogType.Combat);
 
             break;
         }

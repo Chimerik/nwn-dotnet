@@ -8,7 +8,7 @@ namespace NWN.Systems
     public static void BondSuperieur(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwClass castingClass, NwGameObject target)
     {
       SpellUtils.SignalEventSpellCast(oCaster, target, spell.SpellType);
-      NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.BondSuperieur, NwTimeSpan.FromRounds(spellEntry.duration)));
+      NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.BondSuperieur, SpellUtils.GetSpellDuration(oCaster, spellEntry)));
     }
   }
 }

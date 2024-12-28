@@ -21,7 +21,7 @@ namespace NWN.Systems
       await caster.ActionAttackTarget(target);
 
       targetLoc.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpDustExplosion));
-      EffectSystem.ApplyKnockdown(target, caster, Ability.Strength, spellEntry.savingThrowAbility);
+      EffectSystem.ApplyKnockdown(target, caster, Ability.Strength, spellEntry.savingThrowAbility, EffectSystem.Destabilisation);
     }
   }
 }

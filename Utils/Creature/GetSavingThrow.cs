@@ -34,7 +34,7 @@ namespace NWN.Systems
       int totalSave = SpellUtils.GetSavingThrowRoll(target, ability, saveDC, advantage, feedback);
       SavingThrowResult saveResult = (SavingThrowResult)(totalSave >= saveDC).ToInt();
 
-      SpellUtils.SendSavingThrowFeedbackMessage(attacker, target, feedback, advantage, saveDC, totalSave, saveResult, ability);
+      SpellUtils.SendSavingThrowFeedbackMessage(attacker, target, feedback, advantage, saveDC, totalSave, saveResult, ability, effectType);
 
       switch(ability)
       {

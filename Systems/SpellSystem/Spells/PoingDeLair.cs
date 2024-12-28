@@ -12,7 +12,7 @@ namespace NWN.Systems
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
       int damageDice = SpellUtils.GetSpellDamageDiceNumber(oCaster, spell);
 
-      EffectSystem.ApplyKnockdown(target, caster, Ability.Wisdom, spellEntry.savingThrowAbility);
+      EffectSystem.ApplyKnockdown(target, caster, Ability.Wisdom, spellEntry.savingThrowAbility, EffectSystem.Destabilisation);
 
       if (caster.KnowsFeat((Feat)CustomSkill.MonkIncantationElementaire))
         damageDice += 1;

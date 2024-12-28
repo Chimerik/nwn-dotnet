@@ -17,7 +17,7 @@ namespace NWN.Systems
 
             if (onAttack.Target is NwCreature target)
             {
-              EffectSystem.ApplyKnockdown(target, onAttack.Attacker, Ability.Wisdom, Ability.Dexterity);
+              EffectSystem.ApplyKnockdown(target, onAttack.Attacker, Ability.Wisdom, Ability.Dexterity, EffectSystem.Destabilisation);
               StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Technique de la paume", StringUtils.gold, true, true);
             }
 

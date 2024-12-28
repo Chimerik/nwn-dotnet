@@ -15,7 +15,7 @@ namespace NWN.Systems
       if (caster.KnowsFeat((Feat)CustomSkill.MonkIncantationElementaire))
         nbDice += 1;
 
-      EffectSystem.ApplyKnockdown(target, caster, Ability.Wisdom, spellEntry.savingThrowAbility);
+      EffectSystem.ApplyKnockdown(target, caster, Ability.Wisdom, spellEntry.savingThrowAbility, EffectSystem.Destabilisation);
 
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSoundBurst));
       SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, nbDice, oCaster, 1);

@@ -11,7 +11,7 @@ namespace NWN.Systems
         return;
 
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
-      int damage = NwRandom.Roll(Utils.random, spellEntry.damageDice);
+      int damage = NwRandom.Roll(Utils.random, spellEntry.damageDice) + CreatureUtils.GetAbilityModifierMin1(caster, Ability.Wisdom);
 
       if(spell.Id == CustomSpell.EtincelleDivineSoins)
       {
@@ -24,6 +24,7 @@ namespace NWN.Systems
           CreatureUtils.GetSavingThrow(oCaster, target, spellEntry.savingThrowAbility, spellDC, spellEntry));
       }
 
+      caster.IncrementRemainingFeatUses((Feat)CustomSkill.ClercEtincelleDivine);
       ClercUtils.ConsumeConduitDivin(caster);
     }
   }

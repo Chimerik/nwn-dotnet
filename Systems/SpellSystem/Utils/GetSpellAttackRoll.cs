@@ -52,8 +52,9 @@ namespace NWN.Systems
           && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.MetamagieEffectTag && e.IntParams[5] == CustomSkill.EnsoGuidage))
           {
             int tempAttackRoll = NativeUtils.GetAttackRoll(caster, advantage, spellCastingAbility);
-            attackRoll = tempAttackRoll > attackRoll ? tempAttackRoll : attackRoll;
-
+            LogUtils.LogMessage($"Métamagie Guidage : Jet d'attaque {attackRoll} remplacé par {tempAttackRoll}", LogUtils.LogType.Combat);
+            attackRoll = tempAttackRoll;
+            totalAttack = attackRoll + attackModifier + GetSpellAttackBonus(caster);
             EffectUtils.RemoveTaggedParamEffect(caster, CustomSkill.EnsoGuidage, EffectSystem.MetamagieEffectTag);
           }
 

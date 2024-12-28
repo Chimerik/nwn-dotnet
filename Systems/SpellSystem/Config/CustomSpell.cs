@@ -5,10 +5,16 @@
     public const int Assistance = 12;
     public const int Elementalisme = 22;
     public const int Resistance = 151;
+    public const int Sanctuaire = 154;
     public const int ProtectionContreLeMalEtLeBien = 321;
     public const int Message = 325;
     public const int SonneLeGlas = 326;
+    public const int CreationOuDestructionDeau = 327;
+    public const int FractureMentale = 328;
+    public const int BrasdHadar = 329;
+    public const int GreleDepines = 330;
     public const int CoupDeTonnerre = 515;
+    public const int ArmuredAgathys = 519;
     public const int Calligraphie = 840;
     public const int Sprint = 841;    
     public const int Disengage = 842;    
@@ -90,7 +96,7 @@
     public const int VagueDestructrice = 920;   
     public const int VagueDestructriceRadiant = 921;   
     public const int VagueDestructriceNecrotique = 922;   
-    public const int AmitieAnimale = 923;   
+   // public const int AmitieAnimale = 923;   
     public const int CharmePlanteEtAnimaux = 924;   
     public const int FurieElementaire = 925;   
     public const int FurieElementaireFroid = 926;   

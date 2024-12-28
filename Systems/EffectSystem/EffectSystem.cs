@@ -23,6 +23,8 @@ namespace NWN.Systems
       onExitChanceDebordanteCallback = scriptHandleFactory.CreateUniqueHandler(onExitChanceDebordante);
 
       onRemoveAgressionOrcCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveAgressionOrc);
+      onRemoveGreleDepinesCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveGreleDepines);
+      onRemoveSanctuaireCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveSanctuaire);
       
       onRemoveViseeStableCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveViseeStable);
 
@@ -175,6 +177,10 @@ namespace NWN.Systems
       onEnterSurfaceDeGlaceCallback = scriptHandleFactory.CreateUniqueHandler(onEnterSurfaceDeGlace);
       onHeartbeatSurfaceDeGlaceCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatSurfaceDeGlace);
       onExitSurfaceDeGlaceCallback = scriptHandleFactory.CreateUniqueHandler(onExitSurfaceDeGlace);
+
+      onEnterGraisseCallback = scriptHandleFactory.CreateUniqueHandler(onEnterGraisse);
+      onHeartbeatGraisseCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatGraisse);
+      onExitGraisseCallback = scriptHandleFactory.CreateUniqueHandler(onExitGraisse);
 
       onRemoveEffroiCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveEffroi);
       onRemoveTrancheVueCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveTrancheVue);

@@ -7,8 +7,8 @@ namespace NWN.Systems
   {
     public static bool OnLearnClercProtecteur(PlayerSystem.Player player, int customSkillId)
     {
-      if (!player.windows.TryGetValue("spellSelection", out var spell1)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Cleric, 3));
-      else ((SpellSelectionWindow)spell1).CreateWindow(ClassType.Cleric, 3);
+      if (!player.windows.TryGetValue("cantripSelection", out var spell1)) player.windows.Add("cantripSelection", new CantripSelectionWindow(player, ClassType.Cleric, 3));
+      else ((CantripSelectionWindow)spell1).CreateWindow(ClassType.Cleric, 3);
 
       player.learnableSkills.TryAdd(CustomSkill.HeavyArmorProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HeavyArmorProficiency], player));
       player.learnableSkills[CustomSkill.HeavyArmorProficiency].source.Add(Category.Class);

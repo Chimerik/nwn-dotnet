@@ -9,7 +9,10 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.DamageImmunityIncrease(CustomDamageType.Poison, 50);
+        Effect res = Effect.DamageImmunityIncrease(CustomDamageType.Poison, 50);
+        res.ShowIcon = false;
+
+        Effect eff = Effect.LinkEffects(res, Effect.Icon(CustomEffectIcon.PoisonResistance));
         eff.Tag = ThieflingPoisonResistanceEffectTag;
         eff.SubType = EffectSubType.Unyielding;
         return eff;

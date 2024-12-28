@@ -15,7 +15,7 @@ namespace NWN.Systems
 
       List<NwGameObject> targets = new();
 
-      if (caster.IsLoginPlayerCharacter)
+      if (caster.IsPlayerControlled)
       {
         targets.AddRange(SpellUtils.GetSpellTargets(caster, caster, spellEntry, true));
       }

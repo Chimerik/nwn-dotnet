@@ -17,7 +17,8 @@ namespace NWN.Systems
           if (onSpellAction.TargetObject is not null
             && player.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.MetamagieEffectTag && e.IntParams[5] == CustomSkill.EnsoGemellite))
           {
-            byte sourceCost = (byte)(onSpellAction.Spell.InnateSpellLevel < 1 ? 1 : onSpellAction.Spell.InnateSpellLevel);
+            byte sourceCost = (byte)(onSpellAction.Spell.InnateSpellLevel < 1 ? 1 
+              : onSpellAction.Spell.MasterSpell is not null ? onSpellAction.Spell.MasterSpell.InnateSpellLevel : onSpellAction.Spell.InnateSpellLevel);
 
             if (sourceCost > EnsoUtils.GetSorcerySource(player.LoginCreature))
             {
@@ -48,7 +49,7 @@ namespace NWN.Systems
 
                 break;
 
-              case (Spell)CustomSpell.AmitieAnimale:
+              case Spell.CharmPersonOrAnimal:
               case Spell.CharmPerson:
               //case Spell.HoldAnimal:
               case Spell.HoldMonster:

@@ -21,7 +21,7 @@ namespace NWN.Systems
       foreach (NwCreature target in targetLocation.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, spellEntry.aoESize, false))
       {
         if (oCaster != target)
-          EffectSystem.ApplyKnockdown(target, caster, Ability.Strength, spellEntry.savingThrowAbility);          
+          EffectSystem.ApplyKnockdown(target, caster, Ability.Strength, spellEntry.savingThrowAbility, EffectSystem.Destabilisation);          
       }
     }
   }

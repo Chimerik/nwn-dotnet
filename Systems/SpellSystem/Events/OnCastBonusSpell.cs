@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Numerics;
 using Anvil.API;
 using Anvil.API.Events;
 
@@ -12,7 +13,7 @@ namespace NWN.Systems
       NwSpell spell = onSpellAction.Spell;
       NwCreature caster = onSpellAction.Caster;
 
-      if (!spellEntry.isBonusAction
+      /*if (!spellEntry.isBonusAction
         && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.MetamagieEffectTag && e.IntParams[5] == CustomSkill.EnsoAllonge))
       {
         if (!onSpellAction.IsFake)
@@ -34,9 +35,10 @@ namespace NWN.Systems
           onSpellAction.PreventSpellCast = true;
           return;
         }
-      }
+      }*/
 
-      if (SpellUtils.IsBonusActionSpell(caster, spell.Id, spellEntry, onSpellAction.Feat))
+      if (SpellUtils.IsBonusActionSpell(caster, spell.Id, spellEntry, onSpellAction.Feat)
+        && !caster.ActiveEffects.Any(e => e.Tag == EffectSystem.LenteurEffectTag))
       {
         if (!CreatureUtils.HandleBonusActionUse(caster))
         {
@@ -46,6 +48,15 @@ namespace NWN.Systems
 
         if (!SpellUtils.CanCastSpell(caster, onSpellAction.TargetObject, spell, spellEntry))
         {
+          onSpellAction.PreventSpellCast = true;
+          return;
+        }
+
+        var targetPosition = onSpellAction.TargetObject is null ? onSpellAction.TargetPosition : onSpellAction.TargetObject.Position;
+
+        if(Vector3.DistanceSquared(caster.Position, targetPosition) > SpellUtils.GetSpellRange(spell))
+        {
+          caster.LoginPlayer?.SendServerMessage("Impossible de lancer ce sort en action bonus instannée : vous n'êtes pas à portée", ColorConstants.Orange);
           onSpellAction.PreventSpellCast = true;
           return;
         }
@@ -69,7 +80,7 @@ namespace NWN.Systems
         if (castingClass.Id != CustomClass.Adventurer)
         {
           var classInfo = caster.GetClassInfo(castingClass);
-          var spellLevel = spell.GetSpellLevelForClass(castingClass);
+          var spellLevel = spell.MasterSpell is null ? spell.GetSpellLevelForClass(castingClass) : spell.MasterSpell.GetSpellLevelForClass(castingClass);
 
           if(spellLevel > 0)
             classInfo.SetRemainingSpellSlots(spellLevel, (byte)(classInfo.GetRemainingSpellSlots(spellLevel) - 1));
@@ -77,7 +88,7 @@ namespace NWN.Systems
 
         onSpellAction.PreventSpellCast = true;
       }
-      else if(caster.ActiveEffects.Any(e => e.Tag == EffectSystem.LenteurEffectTag))
+      /*else if(caster.ActiveEffects.Any(e => e.Tag == EffectSystem.LenteurEffectTag))
       {
         onSpellAction.PreventSpellCast = true;
         _ = caster.ClearActionQueue();
@@ -88,7 +99,7 @@ namespace NWN.Systems
           _ = caster.ActionCastSpellAt(spell, onSpellAction.TargetObject, spellClass: castingClass);
         else
           _ = caster.ActionCastSpellAt(spell, Location.Create(onSpellAction.Caster.Area, onSpellAction.TargetPosition, onSpellAction.Caster.Rotation), spellClass: castingClass);
-      }
+      }*/
     }
   }
 }

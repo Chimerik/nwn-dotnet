@@ -1,7 +1,6 @@
 ﻿using Anvil.API;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Metrics;
 
 namespace NWN.Systems
 {

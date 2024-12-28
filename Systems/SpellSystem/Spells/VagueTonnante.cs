@@ -36,9 +36,7 @@ namespace NWN.Systems
         SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, damageDice, oCaster, 1, saveResult);
 
         if (saveResult == SavingThrowResult.Failure)
-          EffectSystem.ApplyKnockdown(target, caster, casterClass.SpellCastingAbility, spellEntry.savingThrowAbility, true);
-
-
+          EffectSystem.ApplyKnockdown(target, caster, casterClass.SpellCastingAbility, spellEntry.savingThrowAbility, EffectSystem.Destabilisation, true);
 
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSonic));
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpBlindDeafM));

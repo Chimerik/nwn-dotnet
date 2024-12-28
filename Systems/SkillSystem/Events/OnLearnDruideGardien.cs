@@ -7,8 +7,8 @@ namespace NWN.Systems
   {
     public static bool OnLearnDruideGardien(PlayerSystem.Player player, int customSkillId)
     {
-      if (!player.windows.TryGetValue("spellSelection", out var spell1)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Druid, 2));
-      else ((SpellSelectionWindow)spell1).CreateWindow(ClassType.Druid, 2);
+      if (!player.windows.TryGetValue("cantripSelection", out var spell1)) player.windows.Add("cantripSelection", new CantripSelectionWindow(player, ClassType.Druid, 2));
+      else ((CantripSelectionWindow)spell1).CreateWindow(ClassType.Druid, 2);
 
       if (!player.oid.LoginCreature.KnowsFeat(Feat.ArmorProficiencyMedium))
         player.oid.LoginCreature.AddFeat(Feat.ArmorProficiencyMedium);

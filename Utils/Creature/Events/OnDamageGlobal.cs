@@ -2,8 +2,6 @@
 using Anvil.API;
 using System.Linq;
 using NWN.Core;
-using NWN.Core.NWNX;
-using Discord;
 
 namespace NWN.Systems
 {

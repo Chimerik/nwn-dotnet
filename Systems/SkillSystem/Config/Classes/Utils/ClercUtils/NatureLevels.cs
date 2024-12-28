@@ -26,7 +26,7 @@ namespace NWN.Systems
 
           player.LearnClassSkill(CustomSkill.ClercCharmePlanteEtAnimaux);
 
-          player.LearnAlwaysPreparedSpell(CustomSpell.AmitieAnimale, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.CharmPersonOrAnimal, CustomClass.Clerc);
           player.LearnAlwaysPreparedSpell(CustomSpell.SpeakAnimal, CustomClass.Clerc);
           player.LearnAlwaysPreparedSpell(CustomSpell.CroissanceDepines, CustomClass.Clerc);
           player.LearnAlwaysPreparedSpell((int)Spell.Barkskin, CustomClass.Clerc);

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Anvil.API;
-using NLog.Targets;
 
 namespace NWN.Systems
 {
@@ -15,8 +14,11 @@ namespace NWN.Systems
 
       SpellUtils.SignalEventSpellCast(caster, caster, spell.SpellType);
 
-      if(feat is not null && feat.Id == CustomSkill.ClercDetectionDesPensees)
+      if (feat is not null && feat.Id == CustomSkill.ClercDetectionDesPensees)
+      {
+        caster.IncrementRemainingFeatUses((Feat)CustomSkill.ClercDetectionDesPensees);
         ClercUtils.ConsumeConduitDivin(caster);
+      }
 
       return concentrationTargets;
     }

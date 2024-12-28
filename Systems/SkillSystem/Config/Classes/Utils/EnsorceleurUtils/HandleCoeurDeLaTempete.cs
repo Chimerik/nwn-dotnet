@@ -9,12 +9,12 @@ namespace NWN.Systems
     {
       if (creature is not null && creature.KnowsFeat((Feat)CustomSkill.EnsoCoeurDeLaTempete) && Utils.In(damageType, DamageType.Electrical, DamageType.Sonic))
       {
-        int damage = creature.GetClassInfo(ClassType.Sorcerer).Level;
+        int damage = creature.GetClassInfo(ClassType.Sorcerer).Level / 2;
 
         foreach (var target in creature.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 6, false))
         {
-          if (creature.IsReactionTypeHostile(target))
-            NWScript.AssignCommand(creature, () => target.ApplyEffect(EffectDuration.Instant, Effect.Damage(damage / 2, damageType)));
+          if (creature.IsReactionTypeHostile(target) && creature.IsCreatureSeen(target))
+            NWScript.AssignCommand(creature, () => target.ApplyEffect(EffectDuration.Instant, Effect.Damage(damage, damageType)));
         }
       } 
     }

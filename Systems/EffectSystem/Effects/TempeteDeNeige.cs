@@ -63,7 +63,7 @@ namespace NWN.Systems
     }
     private static void TempeteDeNeigeKnockDown(NwCreature caster, NwCreature entering, SpellEntry spellEntry, Ability DCAbility)
     {
-      ApplyKnockdown(entering, caster, DCAbility, spellEntry.savingThrowAbility);
+      ApplyKnockdown(entering, caster, DCAbility, spellEntry.savingThrowAbility, EffectSystem.Knockdown);
     }
     private static void TempeteDeNeigeConcentration(NwCreature caster, NwCreature entering, SpellEntry spellEntry, int spellDC)
     {

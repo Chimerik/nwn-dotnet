@@ -9,7 +9,7 @@ namespace NWN.Systems
       if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ClercRepliqueInvoquee))
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.ClercRepliqueInvoquee);
 
-      player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ClercRepliqueInvoquee, 1);
+      player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ClercRepliqueInvoquee, player.oid.LoginCreature.GetFeatRemainingUses(Feat.TurnUndead));
 
       return true;
     }

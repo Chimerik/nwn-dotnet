@@ -1,6 +1,5 @@
 ﻿using Anvil.API;
 using static NWN.Systems.PlayerSystem;
-using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
 {
@@ -15,13 +14,8 @@ namespace NWN.Systems
           new StrRef(12).SetPlayerOverride(player.oid, "Domaine de la Duperie");
           player.oid.SetTextureOverride("clerc", "duperie");
 
-          player.learnableSkills.TryAdd(CustomSkill.ClercBenedictionEscroc, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercBenedictionEscroc], player));
-          player.learnableSkills[CustomSkill.ClercBenedictionEscroc].LevelUp(player);
-          player.learnableSkills[CustomSkill.ClercBenedictionEscroc].source.Add(Category.Class);
-
-          player.learnableSkills.TryAdd(CustomSkill.ClercRepliqueInvoquee, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercRepliqueInvoquee], player));
-          player.learnableSkills[CustomSkill.ClercRepliqueInvoquee].LevelUp(player);
-          player.learnableSkills[CustomSkill.ClercRepliqueInvoquee].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.ClercBenedictionEscroc);
+          player.LearnClassSkill(CustomSkill.ClercRepliqueInvoquee);
 
           player.LearnAlwaysPreparedSpell(CustomSpell.Deguisement, CustomClass.Clerc);
           player.LearnAlwaysPreparedSpell((int)Spell.CharmPerson, CustomClass.Clerc);
@@ -38,13 +32,7 @@ namespace NWN.Systems
           break;
 
 
-        case 6:
-
-          player.learnableSkills.TryAdd(CustomSkill.ClercLinceulDombre, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercLinceulDombre], player));
-          player.learnableSkills[CustomSkill.ClercLinceulDombre].LevelUp(player);
-          player.learnableSkills[CustomSkill.ClercLinceulDombre].source.Add(Category.Class);
-
-          break;
+        case 6: player.LearnClassSkill(CustomSkill.ClercLinceulDombre); break;
 
         case 7:
 

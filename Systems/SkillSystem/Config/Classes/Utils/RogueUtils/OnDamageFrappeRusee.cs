@@ -31,7 +31,7 @@ namespace NWN.Systems
 
           case CustomSpell.FrappeRuseeBousculade: 
           case CustomSpell.FrappePerfideBousculade: 
-            EffectSystem.ApplyKnockdown(damaged, damager, Ability.Dexterity,  Ability.Dexterity); 
+            EffectSystem.ApplyKnockdown(damaged, damager, Ability.Dexterity,  Ability.Dexterity, EffectSystem.Destabilisation); 
             break;
 
           case CustomSpell.FrappeRuseeRetraite: 

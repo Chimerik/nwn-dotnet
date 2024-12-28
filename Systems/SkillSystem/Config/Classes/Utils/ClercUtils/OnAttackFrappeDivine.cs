@@ -1,6 +1,7 @@
 ﻿using Anvil.API.Events;
 using Anvil.API;
 using NWN.Core;
+using System;
 
 namespace NWN.Systems
 {
@@ -35,7 +36,7 @@ namespace NWN.Systems
 
             EffectUtils.RemoveTaggedEffect(onAttack.Attacker, EffectSystem.FrappeDivineEffectTag);
             NWScript.AssignCommand(onAttack.Attacker, () => onAttack.Attacker.ApplyEffect(EffectDuration.Temporary,
-              EffectSystem.Cooldown(onAttack.Attacker, 6, CustomSkill.ClercFrappeDivine), NwTimeSpan.FromRounds(1)));
+              EffectSystem.Cooldown(onAttack.Attacker, 5, CustomSkill.ClercFrappeDivine), TimeSpan.FromSeconds(5)));
 
             await NwTask.NextFrame();
             onAttack.Attacker.OnCreatureAttack -= OnAttackFrappeDivine;

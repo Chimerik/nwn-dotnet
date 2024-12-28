@@ -40,7 +40,17 @@ namespace NWN.Systems
       else
       {
         caster.WingType = CreatureWingType.None;
-        caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpReduceAbilityScore));
+
+        if (caster.KnowsFeat((Feat)CustomSkill.EnsoDracoAffiniteAcide))
+          caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadAcid));
+        else if (caster.KnowsFeat((Feat)CustomSkill.EnsoDracoAffiniteFroid))
+          caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPulseCold));
+        else if (caster.KnowsFeat((Feat)CustomSkill.EnsoDracoAffiniteFeu))
+          caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPulseFire));
+        else if (caster.KnowsFeat((Feat)CustomSkill.EnsoDracoAffiniteElec))
+          caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadElectricity));
+        else if (caster.KnowsFeat((Feat)CustomSkill.EnsoDracoAffinitePoison))
+          caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPoisonS));
       }
     }
   }

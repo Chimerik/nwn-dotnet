@@ -11,7 +11,7 @@ namespace NWN.Systems
         || (onDamage.DamageData.GetDamageByType(DamageType.Sonic) < 1 && onDamage.DamageData.GetDamageByType(DamageType.Electrical) < 1))
         return;
 
-      EffectSystem.ApplyKnockdown(target, caster, Ability.Wisdom, Ability.Constitution);
+      EffectSystem.ApplyKnockdown(target, caster, Ability.Wisdom, Ability.Constitution, EffectSystem.Destabilisation);
       target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSonic));
     }
   }

@@ -29,6 +29,7 @@ namespace NWN.Systems
         }
       }
 
+      caster.IncrementRemainingFeatUses((Feat)CustomSkill.ClercCharmePlanteEtAnimaux);
       ClercUtils.ConsumeConduitDivin(caster);
     }
   }

@@ -21,8 +21,6 @@ namespace NWN.Systems
 
       foreach (var target in targets)
       {
-        target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(vfx));
-
         if (oCaster is NwCreature caster)
         {
           if (feat is not null && feat.Id == CustomSkill.MonkSphereDequilibreElementaire)
@@ -45,6 +43,7 @@ namespace NWN.Systems
         }
 
         int nbDice = SpellUtils.GetSpellDamageDiceNumber(oCaster, spell);
+        target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(vfx));
 
         switch (SpellUtils.GetSpellAttackRoll(target, oCaster, spell, castingClass.SpellCastingAbility))
         {

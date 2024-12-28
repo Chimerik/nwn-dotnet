@@ -5,18 +5,19 @@ namespace NWN.Systems
 {
   public static partial class SpellUtils
   {
-    public static void SendSavingThrowFeedbackMessage(NwGameObject oCaster, NwCreature target, SpellConfig.SavingThrowFeedback feedback, int advantage, int spellDC, int totalSave, SavingThrowResult saveResult, Ability ability)
+    public static void SendSavingThrowFeedbackMessage(NwGameObject oCaster, NwCreature target, SpellConfig.SavingThrowFeedback feedback, int advantage, int spellDC, int totalSave, SavingThrowResult saveResult, Ability ability, SpellConfig.SpellEffectType effectType)
     {
       bool saveFailed = saveResult == SavingThrowResult.Failure;
       string advantageString = advantage == 0 ? "" : advantage > 0 ? " (Avantage)".ColorString(StringUtils.gold) : " (Désavantage)".ColorString(ColorConstants.Red);
       string hitString = saveFailed ? "ECHEC".ColorString(ColorConstants.Red) : "REUSSI".ColorString(StringUtils.brightGreen);
       Color hitColor = saveFailed ? ColorConstants.Red : StringUtils.brightGreen;
 
-      string rollString = $"JDS {StringUtils.TranslateAttributeToFrench(ability)}{advantageString} {StringUtils.IntToColor(feedback.saveRoll, hitColor)} + {StringUtils.IntToColor(feedback.proficiencyBonus, hitColor)} = {StringUtils.IntToColor(totalSave, hitColor)} vs DD {StringUtils.IntToColor(spellDC, hitColor)}";
+      string effectTypeString = effectType != SpellConfig.SpellEffectType.Invalid ? $" ({effectType})" : "";
+      string rollString = $"JDS {StringUtils.TranslateAttributeToFrench(ability)}{effectTypeString}{advantageString} {StringUtils.IntToColor(feedback.saveRoll, hitColor)} + {StringUtils.IntToColor(feedback.proficiencyBonus, hitColor)} = {StringUtils.IntToColor(totalSave, hitColor)} vs DD {StringUtils.IntToColor(spellDC, hitColor)}";
 
       if (target != oCaster)
-        target.LoginPlayer?.SendServerMessage($"{oCaster.Name.ColorString(ColorConstants.Cyan)} - {rollString} {hitString}".ColorString(ColorConstants.Orange));
-
+        target.LoginPlayer?.SendServerMessage($"{target.Name.ColorString(ColorConstants.Cyan)} - {rollString} {hitString}".ColorString(ColorConstants.Orange));
+      
       if (oCaster is NwCreature caster)
       {
         if(caster.IsPlayerControlled)
@@ -45,7 +46,7 @@ namespace NWN.Systems
         case Ability.Charisma: target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpWillSavingThrowUse)); break;
       }
 
-      LogUtils.LogMessage($"{target.Name} - {advantageString}{rollString} {hitString}".StripColors(), LogUtils.LogType.Combat);
+      LogUtils.LogMessage($"{target.Name} - {rollString} {hitString}".StripColors(), LogUtils.LogType.Combat);
     }
   }
 }

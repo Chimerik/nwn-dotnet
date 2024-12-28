@@ -20,15 +20,13 @@ namespace NWN.Systems
         case AttackResult.CriticalHit:
         case AttackResult.AutomaticHit:
 
-          if (weapon is not null && ItemUtils.IsMeleeWeapon(weapon.BaseItem.ItemType))
+          if (weapon is null || ItemUtils.IsMeleeWeapon(weapon.BaseItem.ItemType))
           {
             NWScript.AssignCommand(onAttack.Attacker, () => target.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.Damage(NwRandom.Roll(Utils.random, 6), DamageType.Fire), Effect.VisualEffect(VfxType.ImpFlameS))));
             NWScript.AssignCommand(onAttack.Attacker, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.searingSmiteBurn, NwTimeSpan.FromRounds(Spells2da.spellTable[CustomSpell.SearingSmite].duration)));
 
             target.OnHeartbeat -= EffectSystem.OnSearingSmiteBurn;
             target.OnHeartbeat += EffectSystem.OnSearingSmiteBurn;
-
-            SpellUtils.DispelConcentrationEffects(onAttack.Attacker);
           }
 
           break;

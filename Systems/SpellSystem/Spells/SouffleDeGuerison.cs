@@ -29,12 +29,12 @@ namespace NWN.Systems
 
       foreach (var target in targets)
       {
-        if (target is NwCreature targetCreature
-          && !Utils.In(targetCreature.Race.RacialType, RacialType.Undead, RacialType.Construct))
+        if (target is NwCreature targetCreature)
         {
           NWScript.AssignCommand(oCaster, () => targetCreature.ApplyEffect(EffectDuration.Instant, Effect.Heal(healAmount)));
           targetCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHealingS));
-        } }
+        } 
+      }
     }
   }
 }

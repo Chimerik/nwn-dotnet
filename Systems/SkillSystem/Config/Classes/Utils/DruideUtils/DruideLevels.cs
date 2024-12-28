@@ -60,10 +60,7 @@ namespace NWN.Systems
 
           // On donne les autres capacités de niveau 1
 
-          player.learnableSkills.TryAdd(CustomSkill.Druidique, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Druidique], player));
-          player.learnableSkills[CustomSkill.Druidique].LevelUp(player);
-          player.learnableSkills[CustomSkill.Druidique].source.Add(Category.Class);
-
+          player.LearnClassSkill(CustomSkill.Druidique);
           player.LearnAlwaysPreparedSpell(CustomSpell.SpeakAnimal, CustomClass.Druid);
 
           if (!player.windows.TryGetValue("ordrePrimordialSelection", out var ordrePrimordial)) player.windows.Add("ordrePrimordialSelection", new OrdrePrimordialSelectionWindow(player));
@@ -72,23 +69,10 @@ namespace NWN.Systems
           break;
 
         case 2:
-
-          player.learnableSkills.TryAdd(CustomSkill.FormeSauvageBlaireau, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FormeSauvageBlaireau], player));
-          player.learnableSkills[CustomSkill.FormeSauvageBlaireau].LevelUp(player);
-          player.learnableSkills[CustomSkill.FormeSauvageBlaireau].source.Add(Category.Class);
-
-          player.learnableSkills.TryAdd(CustomSkill.FormeSauvageChat, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FormeSauvageChat], player));
-          player.learnableSkills[CustomSkill.FormeSauvageChat].LevelUp(player);
-          player.learnableSkills[CustomSkill.FormeSauvageChat].source.Add(Category.Class);
-
-          player.learnableSkills.TryAdd(CustomSkill.FormeSauvageAraignee, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FormeSauvageAraignee], player));
-          player.learnableSkills[CustomSkill.FormeSauvageAraignee].LevelUp(player);
-          player.learnableSkills[CustomSkill.FormeSauvageAraignee].source.Add(Category.Class);
-
-          player.learnableSkills.TryAdd(CustomSkill.FormeSauvageLoup, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FormeSauvageLoup], player));
-          player.learnableSkills[CustomSkill.FormeSauvageLoup].LevelUp(player);
-          player.learnableSkills[CustomSkill.FormeSauvageLoup].source.Add(Category.Class);
-
+          player.LearnClassSkill(CustomSkill.FormeSauvageBlaireau);
+          player.LearnClassSkill(CustomSkill.FormeSauvageChat);
+          player.LearnClassSkill(CustomSkill.FormeSauvageAraignee);
+          player.LearnClassSkill(CustomSkill.FormeSauvageLoup);
           break;
 
         case 3:
@@ -108,30 +92,15 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("spellSelection", out var spell4)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Druid, 1));
           else ((SpellSelectionWindow)spell4).CreateWindow(ClassType.Druid, 1);
 
-          player.learnableSkills.TryAdd(CustomSkill.FormeSauvageRothe, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FormeSauvageRothe], player));
-          player.learnableSkills[CustomSkill.FormeSauvageRothe].LevelUp(player);
-          player.learnableSkills[CustomSkill.FormeSauvageRothe].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.FormeSauvageRothe);
 
           break;
 
-        case 5:
-
-          player.learnableSkills.TryAdd(CustomSkill.DruideReveilSauvage, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DruideReveilSauvage], player));
-          player.learnableSkills[CustomSkill.DruideReveilSauvage].LevelUp(player);
-          player.learnableSkills[CustomSkill.DruideReveilSauvage].source.Add(Category.Class);
-
-          break;
+        case 5:  player.LearnClassSkill(CustomSkill.DruideReveilSauvage); break;
 
         case 6:
-
-          player.learnableSkills.TryAdd(CustomSkill.FormeSauvagePanthere, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FormeSauvagePanthere], player));
-          player.learnableSkills[CustomSkill.FormeSauvagePanthere].LevelUp(player);
-          player.learnableSkills[CustomSkill.FormeSauvagePanthere].source.Add(Category.Class);
-
-          player.learnableSkills.TryAdd(CustomSkill.FormeSauvageOursHibou, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FormeSauvageOursHibou], player));
-          player.learnableSkills[CustomSkill.FormeSauvageOursHibou].LevelUp(player);
-          player.learnableSkills[CustomSkill.FormeSauvageOursHibou].source.Add(Category.Class);
-
+          player.LearnClassSkill(CustomSkill.FormeSauvagePanthere);
+          player.LearnClassSkill(CustomSkill.FormeSauvageOursHibou);
           break;
 
         case 7:
@@ -152,10 +121,8 @@ namespace NWN.Systems
 
           if (!player.windows.TryGetValue("spellSelection", out var spell10)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Druid, 1));
           else ((SpellSelectionWindow)spell10).CreateWindow(ClassType.Druid, 1);
-
-          player.learnableSkills.TryAdd(CustomSkill.FormeSauvageDilophosaure, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FormeSauvageDilophosaure], player));
-          player.learnableSkills[CustomSkill.FormeSauvageDilophosaure].LevelUp(player);
-          player.learnableSkills[CustomSkill.FormeSauvageDilophosaure].source.Add(Category.Class);
+          
+          player.LearnClassSkill(CustomSkill.FormeSauvageDilophosaure);
 
           break;
 
@@ -173,13 +140,7 @@ namespace NWN.Systems
 
           break;
 
-        case 18:
-
-          player.learnableSkills.TryAdd(CustomSkill.DruideIncantationBestiale, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DruideIncantationBestiale], player));
-          player.learnableSkills[CustomSkill.DruideIncantationBestiale].LevelUp(player);
-          player.learnableSkills[CustomSkill.DruideIncantationBestiale].source.Add(Category.Class);
-
-          break;
+        case 18: player.LearnClassSkill(CustomSkill.DruideIncantationBestiale); break;
 
         case 19:
 
@@ -190,15 +151,8 @@ namespace NWN.Systems
           break;
 
         case 20:
-
-          player.learnableSkills.TryAdd(CustomSkill.FormeSauvagePersistante, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FormeSauvagePersistante], player));
-          player.learnableSkills[CustomSkill.FormeSauvagePersistante].LevelUp(player);
-          player.learnableSkills[CustomSkill.FormeSauvagePersistante].source.Add(Category.Class);
-
-          player.learnableSkills.TryAdd(CustomSkill.MageNature, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MageNature], player));
-          player.learnableSkills[CustomSkill.MageNature].LevelUp(player);
-          player.learnableSkills[CustomSkill.MageNature].source.Add(Category.Class);
-
+          player.LearnClassSkill(CustomSkill.FormeSauvagePersistante);
+          player.LearnClassSkill(CustomSkill.MageNature);
           break;
       }
 

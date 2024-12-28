@@ -84,11 +84,10 @@ namespace NWN.Systems
           if(amplifiedDices > 0)
           {
             int tempRoll = NwRandom.Roll(Utils.random, damageDice);
+            LogUtils.LogMessage($"Amplification : {roll} et {tempRoll}", LogUtils.LogType.Combat);
             roll = tempRoll > roll ? tempRoll : roll;
             amplifiedDices -= 1;
           }
-
-
 
           damage += roll;
           logString += $"{roll} + ";
@@ -97,6 +96,9 @@ namespace NWN.Systems
         damage += HandleEvocateurSuperieur(castingCreature, spell);
         damage += HandleIncantationPuissante(castingCreature, spell);
         damage += OccultisteUtils.HandleAmeRadieuse(castingCreature, damageType);
+
+        if (Utils.In(spell.Id, CustomSpell.EtincelleDivineNecrotique, CustomSpell.EtincelleDivineRadiant))
+          damage += CreatureUtils.GetAbilityModifierMin1(castingCreature, Ability.Wisdom);
 
         LogUtils.LogMessage($"Dégâts initiaux : {logString.Remove(logString.Length - 2)} = {damage}", LogUtils.LogType.Combat);
         logString = "";

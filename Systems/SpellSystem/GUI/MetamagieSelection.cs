@@ -182,6 +182,7 @@ namespace NWN.Systems
 
           foreach (LearnableSkill tech in learnableDictionary.Values.Where(l => l is LearnableSkill skill
           && skill.category == Category.Metamagic
+          && !acquiredTechs.Contains(skill)
           && !player.learnableSkills.ContainsKey(skill.id)).OrderBy(s => s.name).Cast<LearnableSkill>())
           {
             availableTechs.Add(tech);

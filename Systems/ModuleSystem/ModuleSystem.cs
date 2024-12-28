@@ -1315,7 +1315,7 @@ namespace NWN.Systems
       if (target.MovementType != MovementType.Stationary)
       {
         if (target.ActiveEffects.Any(e => EffectUtils.In(e.Tag, EffectSystem.DisengageffectTag, EffectSystem.ManoeuvreTactiqueEffectTag,
-          EffectSystem.AvantageTactiqueEffectTag, EffectSystem.AthleteAccompliEffectTag, EffectSystem.RetraiteEffectTag)))
+          EffectSystem.AvantageTactiqueEffectTag, EffectSystem.AthleteAccompliEffectTag, EffectSystem.RetraiteEffectTag, EffectSystem.MagieTempetueuseEffectTag)))
         {
           if (creature.KnowsFeat((Feat)CustomSkill.Sentinelle))
             creature.GetObjectVariable<LocalVariableString>(CreatureUtils.OpportunityAttackTypeVariable).Value = "(Sentinelle) ";
@@ -1350,9 +1350,9 @@ namespace NWN.Systems
         }
       }
 
-      if (creature.ActiveEffects.Any(e => EffectUtils.In(e.Tag, EffectSystem.mobileDebuffEffectTag, EffectSystem.MagieTempetueuseEffectTag) && e.Creator == target))
+      if (creature.ActiveEffects.Any(e => EffectUtils.In(e.Tag, EffectSystem.mobileDebuffEffectTag) && e.Creator == target))
       {
-        StringUtils.DisplayStringToAllPlayersNearTarget(creature, "Mobile ou Magie Tempêtueuse : Attaque d'opportunité annulée", ColorConstants.Red, true);
+        //StringUtils.DisplayStringToAllPlayersNearTarget(creature, "Mobile débuff : Attaque d'opportunité annulée", ColorConstants.Red, true);
         EventsPlugin.SkipEvent();
         return;
       }

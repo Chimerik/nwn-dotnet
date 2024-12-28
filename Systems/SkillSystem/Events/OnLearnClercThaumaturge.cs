@@ -10,8 +10,8 @@ namespace NWN.Systems
       if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ClercThaumaturge))
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.ClercThaumaturge);
 
-      if (!player.windows.TryGetValue("spellSelection", out var spell1)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Cleric, 4));
-      else ((SpellSelectionWindow)spell1).CreateWindow(ClassType.Cleric, 4);
+      if (!player.windows.TryGetValue("cantripSelection", out var spell1)) player.windows.Add("cantripSelection", new CantripSelectionWindow(player, ClassType.Cleric, 4));
+      else ((CantripSelectionWindow)spell1).CreateWindow(ClassType.Cleric, 4);
 
       return true;
     }

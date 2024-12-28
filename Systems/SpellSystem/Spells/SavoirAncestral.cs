@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     public static void SavoirAncestral(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry)
     {
-      if(oCaster is not NwCreature creature)
+      if(oCaster is not NwCreature caster)
         return;
 
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
@@ -15,7 +15,8 @@ namespace NWN.Systems
       oCaster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpImproveAbilityScore));
       NWScript.AssignCommand(oCaster, () => oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.SavoirAncestral(spellEntry.savingThrowAbility), NwTimeSpan.FromRounds(spellEntry.duration)));
 
-      ClercUtils.ConsumeConduitDivin(creature);
+      caster.IncrementRemainingFeatUses((Feat)CustomSkill.ClercSavoirAncestral);
+      ClercUtils.ConsumeConduitDivin(caster);
     }
   }
 }

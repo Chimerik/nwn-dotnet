@@ -50,7 +50,7 @@ namespace NWN.Systems
         target.KnowsFeat((Feat)CustomSkill.Sportif) ? NwTimeSpan.FromRounds(1) : NwTimeSpan.FromRounds(2));
       }
     }*/
-    public static void ApplyKnockdown(NwCreature target, NwCreature attacker, Ability DCAbility, Ability SaveAbility, bool saveFailed = false)
+    public static void ApplyKnockdown(NwCreature target, NwCreature attacker, Ability DCAbility, Ability SaveAbility, Effect type, bool saveFailed = false)
     {
       if (IsKnockdownImmune(target, attacker))
         return;
@@ -59,7 +59,7 @@ namespace NWN.Systems
 
       if (saveFailed || CreatureUtils.GetSavingThrow(attacker, target, SaveAbility, spellDC, effectType: SpellConfig.SpellEffectType.Knockdown) == SavingThrowResult.Failure)
       {
-        target.ApplyEffect(EffectDuration.Temporary, Destabilisation,
+        target.ApplyEffect(EffectDuration.Temporary, type,
         target.KnowsFeat((Feat)CustomSkill.Sportif) ? NwTimeSpan.FromRounds(1) : NwTimeSpan.FromRounds(2));
         SpellUtils.DispelConcentrationEffects(target);
       }

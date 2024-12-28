@@ -1,7 +1,6 @@
 ﻿using Anvil.API;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.PlayerSystem.Player;
-using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
 {
@@ -53,7 +52,7 @@ namespace NWN.Systems
           player.LearnAlwaysPreparedSpell((int)Spell.LegendLore, CustomClass.Ensorceleur);
           break;
 
-        case 14: player.LearnClassSkill(CustomSkill.EnsoDracoWings); break;
+        case 11: player.LearnClassSkill(CustomSkill.EnsoDracoWings); break;
         case 18: player.LearnClassSkill(CustomSkill.EnsoCompagnonDraconique); break;
       }
     }

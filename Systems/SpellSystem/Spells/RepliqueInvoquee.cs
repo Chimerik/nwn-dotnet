@@ -15,6 +15,7 @@ namespace NWN.Systems
       
       NWScript.AssignCommand(oCaster, () => oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetRepliqueInvoqueeAuraEffect(caster), NwTimeSpan.FromRounds(spellEntry.duration)));
 
+      caster.IncrementRemainingFeatUses((Feat)CustomSkill.ClercRepliqueInvoquee);
       ClercUtils.ConsumeConduitDivin(caster);
 
       return new List<NwGameObject>() { oCaster };

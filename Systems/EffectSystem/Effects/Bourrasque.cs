@@ -93,7 +93,7 @@ namespace NWN.Systems
     }
     private static void BourrasqueKnockdown(NwCreature caster, NwCreature entering, SpellEntry spellEntry, Ability DCAbility)
     {
-      ApplyKnockdown(entering, caster, DCAbility, spellEntry.savingThrowAbility);
+      ApplyKnockdown(entering, caster, DCAbility, spellEntry.savingThrowAbility, Knockdown);
       entering.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPulseWind));
     }
   }
