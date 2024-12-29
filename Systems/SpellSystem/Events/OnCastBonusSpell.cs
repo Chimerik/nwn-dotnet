@@ -40,7 +40,16 @@ namespace NWN.Systems
       if (SpellUtils.IsBonusActionSpell(caster, spell.Id, spellEntry, onSpellAction.Feat)
         && !caster.ActiveEffects.Any(e => e.Tag == EffectSystem.LenteurEffectTag))
       {
-        if (!CreatureUtils.HandleBonusActionUse(caster))
+        if(spellEntry.isReaction)
+        {
+
+          if (!CreatureUtils.HandleReactionUse(caster))
+          {
+            onSpellAction.PreventSpellCast = true;
+            return;
+          }
+        } 
+        else if (!CreatureUtils.HandleBonusActionUse(caster))
         {
           onSpellAction.PreventSpellCast = true;
           return;
@@ -56,7 +65,7 @@ namespace NWN.Systems
 
         if(Vector3.DistanceSquared(caster.Position, targetPosition) > SpellUtils.GetSpellRange(spell))
         {
-          caster.LoginPlayer?.SendServerMessage("Impossible de lancer ce sort en action bonus instannée : vous n'êtes pas à portée", ColorConstants.Orange);
+          caster.LoginPlayer?.SendServerMessage("Impossible de lancer ce sort en action bonus instantanée : vous n'êtes pas à portée", ColorConstants.Orange);
           onSpellAction.PreventSpellCast = true;
           return;
         }

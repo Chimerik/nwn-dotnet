@@ -21,6 +21,17 @@ namespace NWN.Systems
       if (!player.oid.LoginCreature.KnowsFeat((Feat)customSkillId))
       {
         player.oid.LoginCreature.AddFeat((Feat)customSkillId);
+
+        byte sourceCost = customSkillId switch
+        {
+          CustomSkill.EnsoAmplification => 2,
+          CustomSkill.EnsoIntensification or CustomSkill.EnsoAcceleration => 3,
+          _ => 1,
+        };
+
+        if (sourceCost > nbUses)
+          nbUses = 0;
+
         player.oid.LoginCreature.SetFeatRemainingUses((Feat)customSkillId, nbUses);
       }
 

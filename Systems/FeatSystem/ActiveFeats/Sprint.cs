@@ -14,7 +14,8 @@ namespace NWN.Systems
       if (caster.Race.Id == CustomRace.HalfOrc 
         || caster.Classes.Any(c => Utils.In(c.Class.ClassType, ClassType.Rogue, (ClassType)CustomClass.RogueArcaneTrickster) && c.Level > 1)
         || caster.Classes.Any(c => c.Class.Id == CustomClass.Monk && c.Level > 1)
-        || caster.ActiveEffects.Any(e => e.Tag == EffectSystem.BarbarianRageEffectTag && e.IntParams[6] == CustomSpell.RageSauvageAigle))
+        || caster.ActiveEffects.Any(e => (e.Tag == EffectSystem.BarbarianRageEffectTag && e.IntParams[6] == CustomSpell.RageSauvageAigle)
+        || e.Tag == EffectSystem.RetraiteExpeditiveEffectTag))
       {
         EffectUtils.RemoveTaggedEffect(caster, EffectSystem.SprintEffectTag);
 

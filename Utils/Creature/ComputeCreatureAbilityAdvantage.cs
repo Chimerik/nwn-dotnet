@@ -31,12 +31,6 @@ namespace NWN.Systems
               LogUtils.LogMessage("Avantage - Voleur : Discrétion Suprème", LogUtils.LogType.Combat);
               return true;
             }
-
-            if(creature.ActiveEffects.Any(e => e.Tag == EffectSystem.BenedictionEscrocEffectTag))
-            {
-              LogUtils.LogMessage("Avantage - Bénédiction de l'Escroc", LogUtils.LogType.Combat);
-              return true;
-            }
           }
 
           if ((spellEntry is not null || effectType == SpellEffectType.Trap) &&
@@ -76,18 +70,6 @@ namespace NWN.Systems
               LogUtils.LogMessage("Avantage - Charme-Personne vs cible hostile", LogUtils.LogType.Combat);
               return true;
             }
-
-            if (effectType == SpellEffectType.Stealth && oCaster.ActiveEffects.Any(e => e.Tag == EffectSystem.MarqueDuChasseurTag && e.Creator == creature))
-            {
-              LogUtils.LogMessage("Avantage - Perception vs cible sous Marque du Chasseur", LogUtils.LogType.Combat);
-              return true;
-            }
-
-            if (creature.ActiveEffects.Any(e => e.Tag == EffectSystem.LueurDespoirEffectTag))
-            {
-              LogUtils.LogMessage("Avantage - Lueur d'espoir vs jet sagesse", LogUtils.LogType.Combat);
-              return true;
-            }
           }
 
           break;
@@ -106,12 +88,6 @@ namespace NWN.Systems
           if (creature.KnowsFeat((Feat)CustomSkill.EspritOcculte))
           {
             LogUtils.LogMessage("Avantage - Concentration : Esprit Occulte", LogUtils.LogType.Combat);
-            return true;
-          }
-
-          if (creature.ActiveEffects.Any(e => e.Tag == EffectSystem.ConcentrationAdvantageEffectTag))
-          {
-            LogUtils.LogMessage("Avantage - Concentration : Métamagie", LogUtils.LogType.Combat);
             return true;
           }
 
@@ -149,17 +125,7 @@ namespace NWN.Systems
             return true;
           }
 
-          break;
-
-        case SpellEffectType.Death:
-
-          if (creature.ActiveEffects.Any(e => e.Tag == EffectSystem.LueurDespoirEffectTag))
-          {
-            LogUtils.LogMessage("Avantage - Lueur d'espoir vs jet contre la mort", LogUtils.LogType.Combat);
-            return true;
-          }
-
-          break;
+          break; 
       }
 
       if (oCaster is NwCreature caster)
@@ -196,16 +162,38 @@ namespace NWN.Systems
 
           case Ability.Dexterity:
 
-            if (EffectSystem.DodgeEffectTag == eff.Tag)
+            switch(eff.Tag)
             {
-              LogUtils.LogMessage("Avantage - Mode Esquive", LogUtils.LogType.Combat);
-              return true;
+              case EffectSystem.DodgeEffectTag:
+                LogUtils.LogMessage("Avantage - Mode Esquive", LogUtils.LogType.Combat);
+                return true;
+
+              case EffectSystem.MonkPatienceEffectTag:
+                LogUtils.LogMessage("Avantage - Moine : Patience", LogUtils.LogType.Combat);
+                return true;
+
+              case EffectSystem.BenedictionEscrocEffectTag:
+                LogUtils.LogMessage("Avantage - Bénédiction de l'Escroc", LogUtils.LogType.Combat);
+                return true;
             }
 
-            if (EffectSystem.MonkPatienceEffectTag == eff.Tag)
+            break;
+
+          case Ability.Wisdom:
+
+            switch (eff.Tag)
             {
-              LogUtils.LogMessage("Avantage - Moine : Patience", LogUtils.LogType.Combat);
-              return true;
+              case EffectSystem.LueurDespoirEffectTag:
+                LogUtils.LogMessage("Avantage - Lueur d'espoir vs jet sagesse", LogUtils.LogType.Combat);
+                return true;
+
+              case EffectSystem.MonkPatienceEffectTag:
+                LogUtils.LogMessage("Avantage - Moine : Patience", LogUtils.LogType.Combat);
+                return true;
+
+              case EffectSystem.BenedictionEscrocEffectTag:
+                LogUtils.LogMessage("Avantage - Bénédiction de l'Escroc", LogUtils.LogType.Combat);
+                return true;
             }
 
             break;
@@ -218,6 +206,36 @@ namespace NWN.Systems
             if (EffectSystem.ContreCharmeEffectTag == eff.Tag)
             {
               LogUtils.LogMessage("Avantage - Barde : Contre-charme", LogUtils.LogType.Combat);
+              return true;
+            }
+
+            break;
+
+          case SpellEffectType.Stealth:
+
+            if(EffectSystem.MarqueDuChasseurTag == eff.Tag && eff.Creator == creature)
+            {
+              LogUtils.LogMessage("Avantage - Perception vs cible sous Marque du Chasseur", LogUtils.LogType.Combat);
+              return true;
+            }
+
+            break;
+
+          case SpellEffectType.Concentration:
+
+            if (EffectSystem.ConcentrationAdvantageEffectTag == eff.Tag)
+            {
+              LogUtils.LogMessage("Avantage - Concentration : Métamagie", LogUtils.LogType.Combat);
+              return true;
+            }
+
+            break;
+
+          case SpellEffectType.Death:
+
+            if (EffectSystem.LueurDespoirEffectTag == eff.Tag)
+            {
+              LogUtils.LogMessage("Avantage - Lueur d'espoir vs jet contre la mort", LogUtils.LogType.Combat);
               return true;
             }
 

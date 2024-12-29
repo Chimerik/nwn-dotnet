@@ -1,34 +1,38 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
 using Anvil.API;
+using NWN.Core;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void Sommeil(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, Location targetLocation)
+    public static List<NwGameObject> Sommeil(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, Location targetLocation, NwClass castingClass)
     {
-      if (oCaster is not NwCreature caster)
-        return;
+      List<NwGameObject> targets = new();
 
-      SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
-      TimeSpan duration = SpellUtils.GetSpellDuration(oCaster, spellEntry);
-      int DV = NwRandom.Roll(Utils.random, 8, 5);
-
-      foreach(var target in targetLocation.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, spellEntry.aoESize, false))
+      if (oCaster is NwCreature caster)
       {
-        if (DV < 1)
-          break;
+        SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
+        TimeSpan duration = SpellUtils.GetSpellDuration(oCaster, spellEntry);
+        int spellDC = SpellUtils.GetCasterSpellDC(caster, spell, castingClass.SpellCastingAbility);
 
-        if (target.HP < 1 || target.Level > DV || EffectSystem.IsCharmeImmune(caster, target)
-          || target.ActiveEffects.Any(e => e.EffectType == EffectType.Sleep))
-          continue;
+        foreach (var target in targetLocation.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, spellEntry.aoESize, false))
+        {
+          if (target == oCaster || !caster.IsReactionTypeHostile(target))
+            continue;
 
-        target.ApplyEffect(EffectDuration.Temporary, Effect.Sleep(), duration);
-        target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSleep));
+          if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry, SpellConfig.SpellEffectType.Sleep) == SavingThrowResult.Failure)
+          {
+            target.ApplyEffect(EffectDuration.Temporary, Effect.Knockdown(), NwTimeSpan.FromRounds(1));
+            targets.Add(target);
 
-        DV -= target.Level;
+            EffectSystem.ApplySommeil(target, caster, duration, Ability.Wisdom, castingClass.SpellCastingAbility, true);
+          }
+        }
       }
+
+      return targets;
     }
   }
 }

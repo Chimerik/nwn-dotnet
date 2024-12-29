@@ -13,26 +13,35 @@ namespace NWN.Systems
     public static readonly Native.API.CExoString SommeilEffectExoTag = SommeilEffectTag.ToExoString();
     private static ScriptCallbackHandle onIntervalSommeilCallback;
     private static ScriptCallbackHandle onRemoveSommeilCallback;
-    public static void ApplySommeil(NwCreature target, NwCreature caster, TimeSpan duration, Ability SaveAbility, Ability DCAbility)
+    public static async void ApplySommeil(NwCreature target, NwCreature caster, TimeSpan duration, Ability SaveAbility, Ability DCAbility, bool delay = false)
     {
-      if (IsSleepImmune(target, caster))
-        return;
-
-      int spellDC = SpellUtils.GetCasterSpellDC(caster, DCAbility);
-
-      if (CreatureUtils.GetSavingThrow(caster, target, SaveAbility, spellDC, effectType: SpellConfig.SpellEffectType.Sleep) == SavingThrowResult.Failure)
+      if(delay)
       {
-        Effect eff = Effect.LinkEffects(Effect.Sleep(), Effect.RunAction(onRemovedHandle: onRemoveSommeilCallback, onIntervalHandle: onIntervalSommeilCallback, interval: NwTimeSpan.FromRounds(1)));
-        eff.Tag = SommeilEffectTag;
-        eff.SubType = EffectSubType.Supernatural;
-        eff.Creator = caster;
-        eff.IntParams[3] = (int)DCAbility;
+        await NwTask.Delay(NwTimeSpan.FromRounds(1));
 
-        target.OnDamaged -= OnDamagedSommeil;
-        target.OnDamaged += OnDamagedSommeil;
+        if (target is null || !target.IsValid || caster is null || !caster.IsValid)
+          return;
+      }
 
-        target.ApplyEffect(EffectDuration.Temporary, eff, duration);
-        target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSleep));
+      if (!IsSleepImmune(target, caster))
+      {
+        int spellDC = SpellUtils.GetCasterSpellDC(caster, DCAbility);
+
+        if (CreatureUtils.GetSavingThrow(caster, target, SaveAbility, spellDC, effectType: SpellConfig.SpellEffectType.Sleep) == SavingThrowResult.Failure)
+        {
+          Effect eff = Effect.Sleep();
+          eff = Effect.LinkEffects(eff, delay ? Effect.RunAction(onRemovedHandle: onRemoveSommeilCallback) : Effect.RunAction(onRemovedHandle: onRemoveSommeilCallback, onIntervalHandle: onIntervalSommeilCallback, interval: NwTimeSpan.FromRounds(1)));
+          eff.Tag = SommeilEffectTag;
+          eff.SubType = EffectSubType.Supernatural;
+          eff.Creator = caster;
+          eff.IntParams[3] = (int)DCAbility;
+
+          target.OnDamaged -= OnDamagedSommeil;
+          target.OnDamaged += OnDamagedSommeil;
+
+          target.ApplyEffect(EffectDuration.Temporary, eff, duration);
+          target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSleep));
+        }
       }
     }
     public static bool IsSleepImmune(NwCreature target, NwCreature caster)
@@ -40,7 +49,6 @@ namespace NWN.Systems
       if (Utils.In(target.Race.RacialType, RacialType.Undead, RacialType.Construct, RacialType.Elf) || target.ActiveEffects.Any(e => e.EffectType == EffectType.Immunity && e.IntParams[1] == 13))
       {
         caster.LoginPlayer?.SendServerMessage($"{target.Name.ColorString(ColorConstants.Cyan)} est immunisé au sommeil");
-       
         return true;
       }
 

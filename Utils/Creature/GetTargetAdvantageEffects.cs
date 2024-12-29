@@ -20,6 +20,9 @@ namespace NWN.Systems
         if (GetTargetFrappeEtourdissanteAdvantage(eff))
           return true;
 
+        if (GetTargetEntraveAdvantage(eff))
+          return true;
+
         if (GetTargetParalyzedAdvantage(eff))
           return true;
 

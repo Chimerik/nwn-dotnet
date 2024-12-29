@@ -158,9 +158,13 @@ namespace NWN.Systems
         int totalAttack = attackRoll + attackBonus;
         int defensiveDuellistBonus = NativeUtils.GetDefensiveDuellistBonus(targetCreature, attackData.m_bRangedAttack);
         int superiorityDiceBonus = 0;
-        int inspirationBardique = 0;
-        string inspirationString = "";
-        CGameEffect inspirationEffect = null;
+
+        CGameEffect inspirationEffect = attacker.m_appliedEffects.FirstOrDefault(e => e.m_sCustomTag.CompareNoCase(EffectSystem.inspirationBardiqueEffectExoTag).ToBool());
+        int inspirationBardique = inspirationEffect is not null ? inspirationEffect.m_nCasterLevel : 0;
+        string inspirationString = inspirationBardique != 0 ? inspirationBardique > 0 ? "Inspiration Bardique +" : "Mots Cinglants " : "";
+
+        CGameEffect shieldEffect = targetObject.m_appliedEffects.FirstOrDefault(e => e.m_sCustomTag.CompareNoCase(EffectSystem.BouclierEffectExoTag).ToBool());
+        int shieldBonus = shieldEffect is not null ? 5 : 0;
 
         if (targetObject.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.ImageMiroirEffectExoTag).ToBool()))
         {
@@ -215,15 +219,6 @@ namespace NWN.Systems
           LogUtils.LogMessage($"Attaque précise : dé de supériorité 1d{superiorityDice} (+{superiorityDiceBonus})", LogUtils.LogType.Combat);
         }
 
-        foreach (var eff in attacker.m_appliedEffects)
-          if (eff.m_sCustomTag.CompareNoCase(EffectSystem.inspirationBardiqueEffectExoTag).ToBool())
-          {
-            inspirationBardique = eff.m_nCasterLevel;
-            inspirationEffect = eff;
-            inspirationString = inspirationBardique > 0 ? "Inspiration Bardique +" : "Mots Cinglants ";
-            break;
-          }
-
         if (isCriticalHit 
           || (attackData.m_bRangedAttack < 1 && targetCreature.m_appliedEffects.Any(e => (EffectTrueType)e.m_nType == EffectTrueType.SetState && e.GetInteger(0) == 8))) // Si la cible est paralysée, que l'attaque touche et est en mêlée, alors critique auto
         {
@@ -234,13 +229,19 @@ namespace NWN.Systems
         }
         else if (attackRoll > 1 && totalAttack >= targetAC) // L'attaque touche
         {
-          if (totalAttack + inspirationBardique + superiorityDiceBonus < targetAC + defensiveDuellistBonus) // Echoue alors qu'elle aurait du toucher
+          if (totalAttack + inspirationBardique + superiorityDiceBonus < targetAC + defensiveDuellistBonus + shieldBonus) // Echoue alors qu'elle aurait du toucher
           {
             if (inspirationBardique < 0)
               NativeUtils.HandleInspirationBardiqueUsed(attacker, inspirationBardique, inspirationEffect, inspirationString, attackerName);
 
             if (superiorityDiceBonus > 0)
               NativeUtils.HandleAttaquePreciseUsed(attacker, superiorityDiceBonus);
+
+            if (shieldBonus > 0)
+            {
+              targetAC += shieldBonus;
+              EffectUtils.RemoveTaggedEffect(targetObject, EffectSystem.BouclierEffectExoTag);
+            }
 
             if (defensiveDuellistBonus > 0)
               NativeUtils.SendNativeServerMessage("Duelliste défensif activé !".ColorString(ColorConstants.Orange), targetCreature);
@@ -261,13 +262,19 @@ namespace NWN.Systems
         }
         else if (attackRoll > 1) // L'attaque échoue
         {
-          if (totalAttack + inspirationBardique + superiorityDiceBonus >= targetAC + defensiveDuellistBonus) // Touche alors qu'elle aurait du échouer
+          if (totalAttack + inspirationBardique + superiorityDiceBonus >= targetAC + defensiveDuellistBonus + shieldBonus) // Touche alors qu'elle aurait du échouer
           {
             if (inspirationBardique > 0)
               NativeUtils.HandleInspirationBardiqueUsed(attacker, inspirationBardique, inspirationEffect, inspirationString, attackerName);
 
             if (superiorityDiceBonus > 0)
               NativeUtils.HandleAttaquePreciseUsed(attacker, superiorityDiceBonus);
+
+            if (shieldBonus > 0)
+            {
+              targetAC += shieldBonus;
+              EffectUtils.RemoveTaggedEffect(targetObject, EffectSystem.BouclierEffectExoTag);
+            }
 
             if (defensiveDuellistBonus > 0)
               NativeUtils.SendNativeServerMessage("Duelliste défensif activé !".ColorString(ColorConstants.Orange), targetCreature);

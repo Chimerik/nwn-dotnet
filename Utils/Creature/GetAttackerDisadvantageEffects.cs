@@ -29,6 +29,9 @@ namespace NWN.Systems
         if (GetPourfendeurDisadvantage(eff))
           return true;
 
+        if (GetEntraveDisadvantage(eff))
+          return true;
+
         if (GetAffaiblissementDisadvantage(attacker, eff))
           return true;
 

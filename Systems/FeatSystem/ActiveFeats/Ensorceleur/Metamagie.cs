@@ -26,6 +26,21 @@ namespace NWN.Systems
           break;
       }
 
+      byte sourceCost = featId switch
+      {
+        CustomSkill.EnsoGemellite => 0,
+        CustomSkill.EnsoAmplification => 2,
+        CustomSkill.EnsoIntensification or CustomSkill.EnsoAcceleration => 3,
+        _ => 1,
+      };
+
+      if (sourceCost > EnsoUtils.GetSorcerySource(caster))
+      {
+        caster.LoginPlayer?.SendServerMessage($"Cette métamagie nécessite {sourceCost} source(s)", ColorConstants.Red);
+        caster.SetFeatRemainingUses((Feat)featId, 0);
+        return;
+      }
+
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} - {SkillSystem.learnableDictionary[featId].name}", StringUtils.gold, true, true);
       caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.MetaMagie(featId), NwTimeSpan.FromRounds(100));
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadOdd));
@@ -37,28 +52,11 @@ namespace NWN.Systems
         caster.LoginPlayer?.SendServerMessage("Apothéose", StringUtils.gold);
         return;
       }
-
-      byte sourceCost = featId switch
-      {
-        CustomSkill.EnsoGemellite => 0,
-        CustomSkill.EnsoAmplification => 2,
-        CustomSkill.EnsoIntensification or CustomSkill.EnsoAcceleration => 3,
-        _ => 1,
-      };
-
-      if(sourceCost > EnsoUtils.GetSorcerySource(caster))
-      {
-        caster.LoginPlayer?.SendServerMessage($"Cette métamagie nécessite {sourceCost}", ColorConstants.Red);
-        caster.SetFeatRemainingUses((Feat)featId, 0);
-        return;
-      }
-
-      
+  
       if(featId ==  CustomSkill.EnsoTransmutation && PlayerSystem.Players.TryGetValue(caster, out var player))
       {
         if (player.windows.TryGetValue("ensoMetaTransmutationSelection", out var transmu)) ((EnsoMetaTransmutationSelectionWindow)transmu).CreateWindow();
         else player.windows.Add("ensoMetaTransmutationSelection", new EnsoMetaTransmutationSelectionWindow(player));
-
       }
 
       EnsoUtils.DecrementSorcerySource(caster, sourceCost);

@@ -23,7 +23,11 @@ namespace NWN.Systems
 
         if (spellSchool == SpellSchool.Illusion && target.KnowsFeat((Feat)CustomSkill.OeilDeSorciere))
           return SavingThrowResult.Success;
-      }      
+
+        if(spellEntry.RowIndex == (int)Spell.Sleep && (Utils.In(target.Race.RacialType, RacialType.Elf, RacialType.Undead, RacialType.Construct)
+          || target.ActiveEffects.Any(e => e.EffectType == EffectType.Immunity && e.IntParams[1] == 13)))
+          return SavingThrowResult.Immune;
+      }
 
       SpellConfig.SavingThrowFeedback feedback = new();
       int advantage = GetCreatureAbilityAdvantage(target, ability, spellEntry, effectType, attacker);

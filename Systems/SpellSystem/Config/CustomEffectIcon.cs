@@ -4,6 +4,8 @@ namespace NWN
 {
   public class CustomEffectIcon
   {
+    public const EffectIcon Bouclier = (EffectIcon)152;
+
     public const EffectIcon BlugeoningImmunity = (EffectIcon)196;
     public const EffectIcon BludgeoningVulnerability = (EffectIcon)199;
     public const EffectIcon BludgeoningResistance = (EffectIcon)212;
@@ -75,5 +77,6 @@ namespace NWN
     public const EffectIcon ResistanceDraconique = (EffectIcon)240;
     public const EffectIcon BarbareDefenseSansArmure = (EffectIcon)241;
     public const EffectIcon MoineDefenseSansArmure = (EffectIcon)242;
+    public const EffectIcon Heroisme = (EffectIcon)243;
   }
 }

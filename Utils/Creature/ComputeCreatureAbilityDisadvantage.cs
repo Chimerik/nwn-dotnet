@@ -56,6 +56,23 @@ namespace NWN.Systems
 
         switch (eff.Tag)
         {
+          case EffectSystem.EntraveEffectTag:
+
+            if (ability == Ability.Dexterity)
+            {
+              LogUtils.LogMessage("Désavantage - Entravé", LogUtils.LogType.Combat);
+              return true;
+            }
+
+            break;
+
+          case EffectSystem.MaleficeTag:
+
+            if (eff.IntParams[3] == (int)ability)
+              return true;
+
+            break;
+
           case EffectSystem.FrightenedEffectTag:
             LogUtils.LogMessage("Désavantage - Effroi", LogUtils.LogType.Combat);
             return true;

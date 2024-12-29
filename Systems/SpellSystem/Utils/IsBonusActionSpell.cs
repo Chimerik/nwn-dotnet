@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     public static bool IsBonusActionSpell(NwCreature caster, int spellId, SpellEntry spellEntry, NwFeat? feat)
     {
-      if (spellEntry.isBonusAction
+      if (spellEntry.isBonusAction || spellEntry.isReaction
         || (spellId == CustomSpell.MageHand && caster.KnowsFeat((Feat)CustomSkill.ArcaneTricksterPolyvalent))
         || (spellId == CustomSpell.IllusionMineure && caster.KnowsFeat((Feat)CustomSkill.WizardIllusionAmelioree))
         || feat?.Id == CustomSkill.RangerVoileNaturel)

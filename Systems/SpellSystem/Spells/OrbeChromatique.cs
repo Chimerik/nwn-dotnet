@@ -29,17 +29,6 @@ namespace NWN.Systems
             FeatUtils.DecrementKi(caster, 2);
             castingClass = NwClass.FromClassId(CustomClass.Monk);
           }
-
-          if (castingClass.Id != CustomClass.Monk)
-          {
-            if (caster.Gold < 50)
-            {
-              caster.LoginPlayer?.SendServerMessage("Vous devez être en possession de 50 po pour lancer ce sort", ColorConstants.Red);
-              return;
-            }
-
-            caster.Gold -= 50;
-          }
         }
 
         int nbDice = SpellUtils.GetSpellDamageDiceNumber(oCaster, spell);

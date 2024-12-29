@@ -20,8 +20,11 @@ namespace NWN.Systems
         int attackRoll = 10;
         int attackModifier = 0;
         int advantage = 0;
-        int inspirationBardique = 0;
-        Effect inspirationEffect = null;
+        Effect shieldEffect = targetObject.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.BouclierEffectTag);
+        int shieldBonus = shieldEffect is null ? 0 : 5;
+        bool shieldUsed = false;
+        Effect inspirationEffect = oCaster.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.InspirationBardiqueEffectTag);
+        int inspirationBardique = inspirationEffect is not null ? inspirationEffect.CasterLevel : 0;
         bool inspirationUsed = false;
         int criticalRange = 20;
         int targetAC = target.AC;
@@ -39,14 +42,6 @@ namespace NWN.Systems
 
           if ((attackRoll >= criticalRange || criticalHit) && caster.KnowsFeat((Feat)CustomSkill.Pourfendeur))
             caster.GetObjectVariable<LocalVariableInt>("_POURFENDEUR_CRIT").Value = 1;
-
-          foreach (var eff in caster.ActiveEffects)
-            if (eff.Tag == EffectSystem.InspirationBardiqueEffectTag)
-            {
-              inspirationBardique += eff.CasterLevel;
-              inspirationEffect = eff;
-              break;
-            }
 
           if ((attackRoll < 2 || totalAttack <= targetAC)
           && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.MetamagieEffectTag && e.IntParams[5] == CustomSkill.EnsoGuidage))
@@ -79,14 +74,27 @@ namespace NWN.Systems
         {
           if(totalAttack > targetAC)
           {
-            if(inspirationBardique < 0 && totalAttack + inspirationBardique <= targetAC) // Rate alors qu'il aurait du toucher
+            if (totalAttack + inspirationBardique <= targetAC + shieldBonus) // Rate alors qu'il aurait du toucher
             {
               result = TouchAttackResult.Miss;
               hitString = "manque".ColorString(ColorConstants.Red);
               rollString = rollString.StripColors().ColorString(ColorConstants.Red);
-              inspirationUsed = true;
-              LogUtils.LogMessage($"Activation mots cinglants : {inspirationBardique}", LogUtils.LogType.Combat);
+
+              if (inspirationBardique != 0)
+              {
+                inspirationUsed = true;
+                LogUtils.LogMessage($"Activation {(inspirationBardique > 0 ? "Inspiration Bardique" : "Mots Cinglants")} : {inspirationBardique} BA", LogUtils.LogType.Combat);
+              }
+
+              if(shieldBonus > 0)
+              {
+                targetAC += shieldBonus;
+                shieldUsed = true;
+                LogUtils.LogMessage("Activation Bouclier : +5 CA", LogUtils.LogType.Combat);
+              }
+
               LogUtils.LogMessage($"Manqué : {attackRoll} + {attackModifier + inspirationBardique} = {totalAttack + inspirationBardique} vs {targetAC}", LogUtils.LogType.Combat);
+              
             }
             else // Touche, cas normal
             {
@@ -96,12 +104,19 @@ namespace NWN.Systems
           }
           else
           {
-            if(inspirationBardique > 0 && totalAttack + inspirationBardique > targetAC) // Touche alors qu'il aurait du rater
+            if(inspirationBardique > 0 && totalAttack + inspirationBardique > targetAC + shieldBonus) // Touche alors qu'il aurait du rater
             {
               result = TouchAttackResult.Hit;
               inspirationUsed = true;
               LogUtils.LogMessage($"Activation inspiration bardique : +{inspirationBardique}", LogUtils.LogType.Combat);
               LogUtils.LogMessage($"Touché : {attackRoll} + {attackModifier + inspirationBardique} = {totalAttack + inspirationBardique} vs {targetAC}", LogUtils.LogType.Combat);
+
+              if (shieldBonus > 0)
+              {
+                targetAC += shieldBonus;
+                shieldUsed = true;
+                LogUtils.LogMessage("Activation Bouclier : +5 CA", LogUtils.LogType.Combat);
+              }
             }
             else // Rate, cas normal
             {
@@ -129,15 +144,27 @@ namespace NWN.Systems
             casterCreature.RemoveEffect(inspirationEffect);
           }
 
-          casterCreature.LoginPlayer?.SendServerMessage($"{advantageString}{criticalString}{oCaster.Name} {hitString} {target.Name} {rollString}".ColorString(ColorConstants.Cyan));
-        
-          if(result != TouchAttackResult.Miss && casterCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.TraverseeInfernaleBuffEffectTag))
-          {
-            EffectUtils.RemoveTaggedEffect(casterCreature, EffectSystem.TraverseeInfernaleBuffEffectTag);
-            int spellDC = GetCasterSpellDC(casterCreature, Ability.Charisma);
+          if (shieldUsed)
+            EffectUtils.RemoveTaggedEffect(casterCreature, EffectSystem.BouclierEffectTag);
 
-            if (CreatureUtils.GetSavingThrow(casterCreature, target, Ability.Charisma, spellDC) == SavingThrowResult.Failure)
-              ApplyTraverseeInfernale(casterCreature, target);
+          casterCreature.LoginPlayer?.SendServerMessage($"{advantageString}{criticalString}{oCaster.Name} {hitString} {target.Name} {rollString}".ColorString(ColorConstants.Cyan));
+
+          if (result != TouchAttackResult.Miss)
+          {
+            if (casterCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.TraverseeInfernaleBuffEffectTag))
+            {
+              EffectUtils.RemoveTaggedEffect(casterCreature, EffectSystem.TraverseeInfernaleBuffEffectTag);
+              int spellDC = GetCasterSpellDC(casterCreature, Ability.Charisma);
+
+              if (CreatureUtils.GetSavingThrow(casterCreature, target, Ability.Charisma, spellDC) == SavingThrowResult.Failure)
+                ApplyTraverseeInfernale(casterCreature, target);
+            }
+
+            if (target.ActiveEffects.Any(e => e.Tag == EffectSystem.MaleficeTag && e.Creator == oCaster))
+            {
+              NWScript.AssignCommand(casterCreature, () => target.ApplyEffect(EffectDuration.Instant, Effect.Damage(Utils.Roll(6, result == TouchAttackResult.CriticalHit ? 2 : 1), CustomDamageType.Necrotic)));
+              target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpAcidS));
+            }
           }
         }
 

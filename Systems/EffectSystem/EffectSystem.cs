@@ -25,7 +25,12 @@ namespace NWN.Systems
       onRemoveAgressionOrcCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveAgressionOrc);
       onRemoveGreleDepinesCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveGreleDepines);
       onRemoveSanctuaireCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveSanctuaire);
-      
+      onRemoveBouclierCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveBouclier);
+      onRemoveEntraveCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveEntrave);
+      onIntervalEntraveCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalEntrave);
+
+      onIntervalHeroismeCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalHeroisme);
+
       onRemoveViseeStableCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveViseeStable);
 
       onRemoveHateCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveHate);
@@ -135,6 +140,7 @@ namespace NWN.Systems
       onIntervalCroissanceDepinesCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalCroissanceDepines);
 
       onRemoveMarqueDuChasseurCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveMarqueDuChasseur);
+      onRemoveMaleficeCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveMalefice);
 
       onEnterAngeDeLaVengeanceCallback = scriptHandleFactory.CreateUniqueHandler(onEnterAngeDeLaVengeance);
       onIntervalAngeDeLaVengeanceCallback = scriptHandleFactory.CreateUniqueHandler(onIntervalAngeDeLaVengeance);
@@ -177,6 +183,9 @@ namespace NWN.Systems
       onEnterSurfaceDeGlaceCallback = scriptHandleFactory.CreateUniqueHandler(onEnterSurfaceDeGlace);
       onHeartbeatSurfaceDeGlaceCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatSurfaceDeGlace);
       onExitSurfaceDeGlaceCallback = scriptHandleFactory.CreateUniqueHandler(onExitSurfaceDeGlace);
+
+      onEnterEnchevetrementCallback = scriptHandleFactory.CreateUniqueHandler(onEnterEnchevetrement);
+      onExitEnchevetrementCallback = scriptHandleFactory.CreateUniqueHandler(onExitEnchevetrement);
 
       onEnterGraisseCallback = scriptHandleFactory.CreateUniqueHandler(onEnterGraisse);
       onHeartbeatGraisseCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatGraisse);

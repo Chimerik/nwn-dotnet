@@ -11,7 +11,7 @@ namespace NWN.Systems
   {
     public static List<NwGameObject> MarqueDuChasseur(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwFeat feat)
     {
-      SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
+      SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
 
       if (oTarget is not NwCreature target)
         return new List<NwGameObject>();

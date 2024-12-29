@@ -778,6 +778,21 @@ namespace NWN.Systems
 
           return;
 
+        case CustomSpell.MaleficeForce:
+        case CustomSpell.MaleficeDexterite:
+        case CustomSpell.MaleficeConstitution:
+        case CustomSpell.MaleficeIntelligence:
+        case CustomSpell.MaleficeSagesse:
+        case CustomSpell.MaleficeCharisme:
+
+          if (caster.ActiveEffects.Any(e => e.Tag == EffectSystem.FreeMaleficeTag))
+          {
+            EffectUtils.RemoveTaggedEffect(caster, EffectSystem.FreeMaleficeTag);
+            EventsPlugin.SkipEvent();
+          }
+
+          return;
+
         case CustomSpell.Terrassement: EventsPlugin.SkipEvent(); return;
       }
 

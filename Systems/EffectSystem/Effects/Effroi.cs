@@ -20,7 +20,7 @@ namespace NWN.Systems
       Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurMindAffectingFear), Effect.Icon((EffectIcon)183));
 
       eff = repeatSave ? Effect.LinkEffects(eff, Effect.RunAction(onRemovedHandle: onRemoveEffroiCallback, onIntervalHandle: onIntervalEffroiCallback, interval: NwTimeSpan.FromRounds(1)))
-        : eff = Effect.LinkEffects(eff, Effect.RunAction(onRemovedHandle: onRemoveEffroiCallback));        
+        : Effect.LinkEffects(eff, Effect.RunAction(onRemovedHandle: onRemoveEffroiCallback));        
 
       eff.Tag = FrightenedEffectTag;
       eff.SubType = EffectSubType.Supernatural;
@@ -64,8 +64,9 @@ namespace NWN.Systems
 
         if (CreatureUtils.GetSavingThrow(caster, target, Ability.Wisdom, spellDC, effectType: SpellConfig.SpellEffectType.Fear) != SavingThrowResult.Failure)
           target.RemoveEffect(eventData.Effect);
-
       }
+      else if (eventData.EffectTarget is NwGameObject oTarget)
+        oTarget.RemoveEffect(eventData.Effect);
 
       return ScriptHandleResult.Handled;
     }

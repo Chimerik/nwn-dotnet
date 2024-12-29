@@ -18,11 +18,6 @@ namespace NWN.Systems
       {
         //case CustomSkill.Determination: SecondWind(onUseFeat.Creature); return;
 
-        case CustomSkill.HellishRebuke:
-          HellishRebuke(onUseFeat.Creature, onUseFeat.TargetObject);
-          onUseFeat.PreventFeatUse = true;
-          return;
-
         case CustomSkill.MaitreBouclier:
           MaitreBouclier(onUseFeat.Creature, onUseFeat.TargetObject);
           onUseFeat.PreventFeatUse = true;

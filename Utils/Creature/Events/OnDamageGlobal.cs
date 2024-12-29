@@ -63,6 +63,8 @@ namespace NWN.Systems
           NWScript.AssignCommand(target, () => damager.ApplyEffect(EffectDuration.Instant, Effect.Damage(psyDamage, CustomDamageType.Psychic)));
         }
       }
+
+      NWScript.AssignCommand(damager, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.DamagedBy, NwTimeSpan.FromRounds(1)));
     }
     private static void ApplyResistanceReduction(DamageData<int> damageData, DamageType damageType, NwCreature target, int spellId)
     {

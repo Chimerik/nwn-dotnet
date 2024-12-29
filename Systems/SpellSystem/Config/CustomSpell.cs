@@ -4,6 +4,7 @@
   {
     public const int Assistance = 12;
     public const int Elementalisme = 22;
+    public const int Enchevetrement = 53;
     public const int Resistance = 151;
     public const int Sanctuaire = 154;
     public const int ProtectionContreLeMalEtLeBien = 321;
@@ -13,6 +14,15 @@
     public const int FractureMentale = 328;
     public const int BrasdHadar = 329;
     public const int GreleDepines = 330;
+    public const int Heroisme = 331;
+    public const int MaleficeForce = 332;
+    public const int MaleficeDexterite = 333;
+    public const int MaleficeConstitution = 334;
+    public const int MaleficeIntelligence = 335;
+    public const int MaleficeSagesse = 336;
+    public const int MaleficeCharisme = 337;
+    public const int Bouclier = 417;
+    public const int RetraiteExpeditive = 456;
     public const int CoupDeTonnerre = 515;
     public const int ArmuredAgathys = 519;
     public const int Calligraphie = 840;
@@ -27,7 +37,7 @@
     public const int Enlarge = 849;
     public const int SpeakAnimal = 850;
     public const int ProduceFlame = 851;
-    public const int HellishRebuke = 852;
+    public const int RepresaillesInfernales = 852;
     public const int MageHand = 853;
     public const int FlameBlade = 854;
     public const int Thaumaturgy = 855;

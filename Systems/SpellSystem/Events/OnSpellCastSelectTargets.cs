@@ -37,18 +37,8 @@ namespace NWN.Systems
             switch (onSpellAction.Spell.SpellType)
             {
               case Spell.Bane:
-              case Spell.Bless: nbTargets += 2; break;
-
-              case Spell.Firebrand:
-
-                nbTargets += 2;
-
-                if (onSpellAction.Spell.SpellType == Spell.Firebrand && onSpellAction.Feat?.Id == CustomSkill.MonkEtreinteDeLenfer
-                  && onSpellAction.Caster.KnowsFeat((Feat)CustomSkill.MonkIncantationElementaire))
-                  nbTargets += 1;
-
-                break;
-
+              case Spell.Bless: 
+              case Spell.Firebrand: nbTargets += 2;  break;
               case Spell.CharmPersonOrAnimal:
               case Spell.CharmPerson:
               //case Spell.HoldAnimal:

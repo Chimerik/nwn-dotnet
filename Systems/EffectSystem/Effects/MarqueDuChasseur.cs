@@ -24,10 +24,8 @@ namespace NWN.Systems
     {
       EffectRunScriptEvent eventData = new EffectRunScriptEvent();
 
-      if (eventData.EffectTarget is not NwCreature creature)
-        return ScriptHandleResult.Handled;
-
-      creature.OnDeath -= SpellSystem.OnDeathMarqueDuChasseur;
+      if (eventData.EffectTarget is NwCreature creature)
+        creature.OnDeath -= SpellSystem.OnDeathMarqueDuChasseur;
 
       return ScriptHandleResult.Handled;
     }
