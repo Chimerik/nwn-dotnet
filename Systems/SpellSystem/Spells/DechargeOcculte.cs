@@ -10,7 +10,7 @@ namespace NWN.Systems
     public static void DechargeOcculte(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass casterClass)
     {
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
-      List<NwGameObject> targets = SpellUtils.GetSpellTargets(oCaster, oTarget, spellEntry, true);
+      List<NwGameObject> targets = SpellUtils.GetSpellTargets(oCaster, oTarget, spellEntry);
 
       foreach (var target in targets)
       {

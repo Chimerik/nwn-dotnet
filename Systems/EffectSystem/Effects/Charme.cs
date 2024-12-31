@@ -21,6 +21,8 @@ namespace NWN.Systems
       if (IsCharmeImmune(target, caster))
         return;
 
+      target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpCharm));
+
       Effect eff;      
 
       if (target.IsLoginPlayerCharacter)
@@ -37,8 +39,12 @@ namespace NWN.Systems
         EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "on_charm_attack", target);
       }
       else
-        eff = Effect.Charmed();
-
+      {
+        eff = caster.KnowsFeat((Anvil.API.Feat)CustomSkill.ClercMaitreDeLaNature) ? 
+          Effect.LinkEffects(Effect.Dominated(), Effect.VisualEffect(VfxType.DurMindAffectingDominated)) 
+          : Effect.LinkEffects(Effect.Charmed(), Effect.VisualEffect(VfxType.DurMindAffectingDisabled));
+      }
+      
       eff.Tag = CharmEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       eff.Creator = caster;

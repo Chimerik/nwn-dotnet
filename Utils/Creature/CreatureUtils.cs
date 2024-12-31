@@ -132,9 +132,6 @@ namespace NWN.Systems
     public const string ClercMartialVariable = "_CLERC_MARTIAL";
     public static readonly CExoString ClercMartialVariableExo = ClercMartialVariable.ToExoString();
 
-    public const string FrappeGuideeVariable = "_FRAPPE_GUIDEE";
-    public static readonly CExoString FrappeGuideeVariableExo = FrappeGuideeVariable.ToExoString();
-
     public const string PacteDeLaLameVariable = "_PACTE_DE_LA_LAME";
     public static readonly CExoString PacteDeLaLameVariableExo = PacteDeLaLameVariable.ToExoString();
 

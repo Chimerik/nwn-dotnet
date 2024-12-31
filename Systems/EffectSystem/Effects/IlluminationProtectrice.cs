@@ -13,12 +13,11 @@ namespace NWN.Systems
       eff.SubType = EffectSubType.Supernatural;
       target.ApplyEffect(EffectDuration.Permanent, eff);
 
-      if (caster.GetClassInfo(ClassType.Cleric).Level > 5)
+      if (caster.GetClassInfo(ClassType.Cleric)?.Level > 5)
       {
-        byte modWis = (byte)(caster.GetAbilityModifier(Ability.Wisdom) > 0 ? caster.GetAbilityModifier(Ability.Wisdom) : 1);
-        target.ApplyEffect(EffectDuration.Permanent, Effect.TemporaryHitpoints(NwRandom.Roll(Utils.random, 6, 2) + modWis)); 
+        target.ApplyEffect(EffectDuration.Permanent, Effect.TemporaryHitpoints(NwRandom.Roll(Utils.random, 6, 2) 
+          + CreatureUtils.GetAbilityModifierMin1(caster, Ability.Wisdom))); 
       }
-
     }
   }
 }

@@ -1,5 +1,6 @@
 ﻿using Anvil.API;
 using System;
+using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
@@ -28,14 +29,18 @@ namespace NWN.Systems
         {
           NwSpell spell = NwSpell.FromSpellId(spellId);
           int spellLevel = spell.GetSpellLevelForClass((ClassType)classId);
+          var knownSpells = oid.LoginCreature.GetClassInfo((ClassType)classId).KnownSpells[spellLevel];
 
-          try
+          if (!knownSpells.Contains(spell))
           {
-            oid.LoginCreature.GetClassInfo((ClassType)classId).KnownSpells[spellLevel].Add(spell);
-          }
-          catch (Exception)
-          {
-            oid.SendServerMessage($"Attention - Sort toujours préparé incorrectement configuré pour {(ClassType)classId} : {spell.Name.ToString()}", ColorConstants.Red);
+            try
+            {
+              knownSpells.Add(spell);
+            }
+            catch (Exception)
+            {
+              oid.SendServerMessage($"Attention - Sort toujours préparé incorrectement configuré pour {(ClassType)classId} : {spell.Name.ToString()}", ColorConstants.Red);
+            }
           }
         }
       }

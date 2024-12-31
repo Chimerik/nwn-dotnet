@@ -3,6 +3,7 @@ using Anvil.API;
 using NWN.Core;
 using static NWN.Systems.PlayerSystem.Player;
 using static NWN.Systems.PlayerSystem;
+using System.Collections.Generic;
 
 namespace NWN.Systems
 {
@@ -23,7 +24,8 @@ namespace NWN.Systems
       bool isFureurDestructrice = oCaster.ActiveEffects.Any(e => e.Tag == EffectSystem.FureurDestructriceEffectTag);
       bool moissonDuFielTriggered = target.HP > 0 && castingCreature is not null && !Utils.In(castingCreature.Race.RacialType, RacialType.Undead, RacialType.Construct);
       int amplifiedDices = 0;
-      string logString = "";
+      string logString = "Jet : ";
+      List<int> rolls = new();
 
       if (castingCreature is not null && oCaster.ActiveEffects.Any(e => e.Tag == EffectSystem.MetamagieEffectTag && e.IntParams[5] == CustomSkill.EnsoAmplification))
       {
@@ -54,8 +56,6 @@ namespace NWN.Systems
           && player.learnableSkills.TryGetValue(CustomSkill.Elementaliste, out LearnableSkill elementalist)
           && elementalist.featOptions.Any(e => e.Value.Any(d => d == (int)appliedDamage));
 
-        damage += EnsoUtils.HandleElementalAffinity(castingCreature, appliedDamage);
-
         for (int i = 0; i < nbDices; i++)
         {
           roll = isEvocateurSurcharge ? damageDice : NwRandom.Roll(Utils.random, damageDice);
@@ -77,11 +77,9 @@ namespace NWN.Systems
                   roll = roll < 2 ? NwRandom.Roll(Utils.random, damageDice) : roll;
                 break;
             }
+          }
 
-            roll += OccultisteUtils.DechargeDechirante(castingCreature, spellLevel, casterClass);
-          } 
-
-          if(amplifiedDices > 0)
+          if (amplifiedDices > 0)
           {
             int tempRoll = NwRandom.Roll(Utils.random, damageDice);
             LogUtils.LogMessage($"Amplification : {roll} et {tempRoll}", LogUtils.LogType.Combat);
@@ -89,16 +87,69 @@ namespace NWN.Systems
             amplifiedDices -= 1;
           }
 
+          if (oCaster.GetObjectVariable<LocalVariableInt>("_CHROMATIC_ORB_BOUNCE").HasNothing
+            && Utils.In(spellEntry.RowIndex, CustomSpell.OrbeChromatiqueAcide, CustomSpell.OrbeChromatiqueFeu, CustomSpell.OrbeChromatiqueFoudre, CustomSpell.OrbeChromatiqueFroid, CustomSpell.OrbeChromatiquePoison, CustomSpell.OrbeChromatiqueTonnerre))
+            rolls.Add(roll);
+
           damage += roll;
           logString += $"{roll} + ";
         }
 
-        damage += HandleEvocateurSuperieur(castingCreature, spell);
-        damage += HandleIncantationPuissante(castingCreature, spell);
-        damage += OccultisteUtils.HandleAmeRadieuse(castingCreature, damageType);
+        int bonusDamage = 0;
+
+        bonusDamage = HandleEvocateurSuperieur(castingCreature, spell);
+
+        if (bonusDamage > 0)
+        {
+          logString += $"{bonusDamage} + ";
+          damage += bonusDamage;
+        }
+
+        bonusDamage = HandleIncantationPuissante(castingCreature, spell);
+
+        if (bonusDamage > 0)
+        {
+          logString += $"{bonusDamage} + ";
+          damage += bonusDamage;
+        }
+
+        bonusDamage = OccultisteUtils.HandleAmeRadieuse(castingCreature, damageType);
+
+        if (bonusDamage > 0)
+        {
+          logString += $"{bonusDamage} + ";
+          damage += bonusDamage;
+        }
+
+        bonusDamage = OccultisteUtils.DechargeDechirante(castingCreature, spellLevel, casterClass);
+
+        if (bonusDamage > 0)
+        {
+          logString += $"{bonusDamage} + ";
+          damage += bonusDamage;
+        }
+
+        bonusDamage = EnsoUtils.HandleElementalAffinity(castingCreature, appliedDamage);
+
+        if (bonusDamage > 0)
+        {
+          logString += $"{bonusDamage} + ";
+          damage += bonusDamage;
+        }
 
         if (Utils.In(spell.Id, CustomSpell.EtincelleDivineNecrotique, CustomSpell.EtincelleDivineRadiant))
-          damage += CreatureUtils.GetAbilityModifierMin1(castingCreature, Ability.Wisdom);
+        {
+          bonusDamage = CreatureUtils.GetAbilityModifierMin1(castingCreature, Ability.Wisdom);
+
+          if (bonusDamage > 0)
+          {
+            logString += $"{bonusDamage} + ";
+            damage += bonusDamage;
+          }
+        }
+
+        if (rolls.Count > 0 && rolls.GroupBy(r => r).Any(g => g.Count() > 1))
+          oCaster.GetObjectVariable<LocalVariableInt>("_CHROMATIC_ORB_BOUNCE").Value = 1;
 
         LogUtils.LogMessage($"Dégâts initiaux : {logString.Remove(logString.Length - 2)} = {damage}", LogUtils.LogType.Combat);
         logString = "";

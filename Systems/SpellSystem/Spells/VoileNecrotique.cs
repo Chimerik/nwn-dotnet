@@ -9,6 +9,9 @@ namespace NWN.Systems
     {
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);      
       NWScript.AssignCommand(oCaster, () => oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.VoileNecrotique, NwTimeSpan.FromRounds(spellEntry.duration)));
+
+      if (oCaster is NwCreature caster)
+        caster.DecrementRemainingFeatUses((Feat)CustomSkill.RevelationCeleste);
     }
   }
 }

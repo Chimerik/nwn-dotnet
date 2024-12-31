@@ -16,8 +16,13 @@ namespace NWN.Systems
           new StrRef(12).SetPlayerOverride(player.oid, "Domaine de la Nature");
           player.oid.SetTextureOverride("clerc", "nature_domain");
 
-          if (!player.windows.TryGetValue("cantripSelection", out var cantrip1)) player.windows.Add("cantripSelection", new CantripSelectionWindow(player, ClassType.Druid, 1));
-          else ((CantripSelectionWindow)cantrip1).CreateWindow(ClassType.Druid, 1);
+          List<NwSpell> druidCantrips = new() { NwSpell.FromSpellId(CustomSpell.Shillelagh), NwSpell.FromSpellId(CustomSpell.Elementalisme),
+            NwSpell.FromSpellType(Spell.RayOfFrost), NwSpell.FromSpellId(CustomSpell.Message), NwSpell.FromSpellType(Spell.ElectricJolt),
+          NwSpell.FromSpellType(Spell.GreatThunderclap), NwSpell.FromSpellId(CustomSpell.FireBolt), NwSpell.FromSpellId(CustomSpell.PoisonSpray),
+          NwSpell.FromSpellId(CustomSpell.ProduceFlame), NwSpell.FromSpellId(CustomSpell.Druidisme) };
+
+          if (!player.windows.TryGetValue("cantripSelection", out var cantrip1)) player.windows.Add("cantripSelection", new CantripSelectionWindow(player, ClassType.Druid, 1, druidCantrips));
+          else ((CantripSelectionWindow)cantrip1).CreateWindow(ClassType.Druid, 1, druidCantrips);
 
           List<int> skillList = new() { CustomSkill.AnimalHandlingProficiency, CustomSkill.NatureProficiency, CustomSkill.SurvivalProficiency };
 
@@ -56,7 +61,7 @@ namespace NWN.Systems
 
           break;
 
-        case 17: player.LearnClassSkill(CustomSkill.ClercHaloDeLumiere); break;
+        case 17: player.LearnClassSkill(CustomSkill.ClercMaitreDeLaNature); break;
       }
     }
   }

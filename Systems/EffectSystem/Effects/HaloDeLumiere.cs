@@ -16,7 +16,8 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.AreaOfEffect((PersistentVfxType)60, onEnterHandle: onEnterHaloDeLumiereCallback, onExitHandle: onExitHaloDeLumiereCallback);
+        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.ImpAuraHoly, fScale: 3.6f), Effect.VisualEffect(VfxType.DurAuraPulseOrangeWhite),
+          Effect.AreaOfEffect(PersistentVfxType.PerCustomAoe, onEnterHandle: onEnterHaloDeLumiereCallback, onExitHandle: onExitHaloDeLumiereCallback));
         eff.Tag = HaloDeLumiereAuraEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

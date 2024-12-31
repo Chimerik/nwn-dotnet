@@ -6,6 +6,9 @@ namespace NWN.Systems
   {
     private static void ClercIllumination(NwCreature caster, NwGameObject oTarget)
     {
+      if (oTarget != caster && !CreatureUtils.HandleReactionUse(caster))
+        return;
+
       if(oTarget is not NwCreature target)
       {
         caster.LoginPlayer?.SendServerMessage("Cible invalide", ColorConstants.Red);

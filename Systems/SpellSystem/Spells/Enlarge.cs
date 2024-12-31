@@ -20,6 +20,7 @@ namespace NWN.Systems
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpImproveAbilityScore));
         target.ApplyEffect(EffectDuration.Temporary, EffectSystem.enlargeEffect, SpellUtils.GetSpellDuration(oCaster, spellEntry));
       }
+
       return targets;
     }
   }

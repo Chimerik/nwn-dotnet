@@ -46,7 +46,10 @@ namespace NWN.Systems
               CustomSpell.FleauDinsectes, CustomSpell.MurDePierre, (int)Spell.Sleep, (int)Spell.HoldPerson, (int)Spell.Slow, (int)Spell.Confusion,
               (int)Spell.DominatePerson, CustomSpell.Telekinesie, (int)Spell.Identify, CustomSpell.Antidetection, CustomSpell.OeilMagique,
               CustomSpell.NappeDeBrouillard, (int)Spell.Balagarnsironhorn, (int)Spell.GustOfWind, CustomSpell.Fracassement, (int)Spell.IceStorm,
-              (int)Spell.CallLightning, (int)Spell.SeeInvisibility, (int)Spell.Invisibility, CustomSpell.AlterationMemorielle))
+              (int)Spell.CallLightning, (int)Spell.ElementalShield, (int)Spell.SeeInvisibility, (int)Spell.Invisibility, CustomSpell.AlterationMemorielle,
+              CustomSpell.FaerieFire, (int)Spell.BurningHands, CustomSpell.Elementalisme, CustomSpell.Shillelagh, (int)Spell.RayOfFrost, CustomSpell.Message,
+              (int)Spell.ElectricJolt, (int)Spell.GreatThunderclap, CustomSpell.FireBolt, CustomSpell.PoisonSpray, CustomSpell.Druidisme, CustomSpell.ProduceFlame,
+              CustomSpell.SpeakAnimal))
               continue;// ces sorts ne font pas partie du package de clerc mais peuvent être appris via le domaine
 
             if (player.learnableSpells.TryGetValue(spell.Id, out var learnable))

@@ -4,9 +4,9 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void BurningHands(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass casterClass, Location targetLocation, NwFeat feat = null)
+    public static void BurningHands(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwClass casterClass, Location targetLocation, NwFeat feat = null)
     {     
-      SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
+      SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
       int damageDice = SpellUtils.GetSpellDamageDiceNumber(oCaster, spell);
 
       if (oCaster is NwCreature caster && feat is not null && feat.Id == CustomSkill.MonkFrappeDesCendres)

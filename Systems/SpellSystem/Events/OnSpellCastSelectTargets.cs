@@ -38,6 +38,7 @@ namespace NWN.Systems
             {
               case Spell.Bane:
               case Spell.Bless: 
+              case Spell.MagicMissile: 
               case Spell.Firebrand: nbTargets += 2;  break;
               case Spell.CharmPersonOrAnimal:
               case Spell.CharmPerson:

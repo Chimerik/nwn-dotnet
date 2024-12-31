@@ -1,5 +1,4 @@
-﻿using Anvil.API;
-using NWN.Native.API;
+﻿using NWN.Native.API;
 
 namespace NWN.Systems
 {
@@ -9,7 +8,7 @@ namespace NWN.Systems
     {
       foreach (var eff in target.m_appliedEffects)
       {
-        if (GetIlluminationProtectriceDisadvantage(eff))
+        if (GetIlluminationProtectriceDisadvantage(eff, target))
           return true;
 
         if (GetTargetDodgingDisadvantage(eff))

@@ -1,6 +1,5 @@
 ﻿using Anvil.API;
 using NWN.Core;
-using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems

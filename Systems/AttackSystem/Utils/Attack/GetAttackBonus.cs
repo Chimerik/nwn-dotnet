@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Numerics;
 using Anvil.API;
-using NWN.Core;
 using NWN.Native.API;
 
 namespace NWN.Systems
@@ -24,13 +22,6 @@ namespace NWN.Systems
       {
         attackBonus += 2;
         LogUtils.LogMessage("Style de combat archerie : +2 BA", LogUtils.LogType.Combat);
-      }
-
-      if(attacker.m_pStats.m_pBaseCreature.m_ScriptVars.GetInt(CreatureUtils.FrappeGuideeVariableExo).ToBool())
-      {
-        attackBonus += 10;
-        attacker.m_pStats.m_pBaseCreature.m_ScriptVars.DestroyInt(CreatureUtils.FrappeGuideeVariableExo);
-        LogUtils.LogMessage("Frappe Guidée : +10 BA", LogUtils.LogType.Combat);
       }
 
       List<string> appliedEffects = new();

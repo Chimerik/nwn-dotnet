@@ -28,6 +28,8 @@ namespace NWN.Systems
       onRemoveBouclierCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveBouclier);
       onRemoveEntraveCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveEntrave);
       onIntervalEntraveCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalEntrave);
+      onIntervalArmureDeMageCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalArmureDeMage);
+      onIntervalTraitEnsorceleCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalTraitEnsorcele);
 
       onIntervalHeroismeCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalHeroisme);
 
@@ -229,6 +231,12 @@ namespace NWN.Systems
 
       onIntervalSommeilCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalSommeil);
       onRemoveSommeilCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveSommeil);
+      onIntervalFouRireDeTashaCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalFouRire);
+      onRemoveFouRireDeTashaCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveFouRire);
+
+      onIntervalDuelForceCasterCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalDuelForceCaster);
+      onRemoveDuelForceCasterForceCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveDuelForceCaster);
+      onRemoveDuelForceCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveDuelForce);
 
       onHeartbeatRayonnementInterieurCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatRayonnementInterieur);
       onHeartbeatVoileNecrotiqueCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatVoileNecrotique);

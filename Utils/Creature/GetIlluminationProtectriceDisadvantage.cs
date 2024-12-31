@@ -1,20 +1,20 @@
 ﻿using Anvil.API;
 using NWN.Native.API;
-using NWN.Systems;
 
 namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static bool GetIlluminationProtectriceDisadvantage(CGameEffect eff)
+    public static bool GetIlluminationProtectriceDisadvantage(CGameEffect eff, CNWSCreature target)
     {
-      if (eff.m_sCustomTag.ToExoLocString().GetSimple(0).ComparePrefixNoCase(EffectSystem.IlluminationProtectriceEffectExoTag, EffectSystem.IlluminationProtectriceEffectExoTag.GetLength()) > 0)
+      if (eff.m_sCustomTag.CompareNoCase(EffectSystem.IlluminationProtectriceEffectExoTag).ToBool())
       {
         LogUtils.LogMessage("Désavantage - Illumination Protectrice", LogUtils.LogType.Combat);
+        target.RemoveEffect(eff);
         return true;
       }
-      else
-        return false;     
+
+      return false;     
     }
   }
 }

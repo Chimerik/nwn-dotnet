@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Security.Cryptography;
 using Anvil.API;
-
 
 namespace NWN.Systems
 {
@@ -25,13 +25,18 @@ namespace NWN.Systems
       NwSpell spell = NwSpell.FromSpellId(spellId);
       int spellLevel = spell.GetSpellLevelForClass(ClassType.Sorcerer);
 
-      try
+      var knownSpells = player.oid.LoginCreature.GetClassInfo(ClassType.Sorcerer).KnownSpells[spellLevel];
+
+      if (!knownSpells.Contains(spell))
       {
-        player.oid.LoginCreature.GetClassInfo(ClassType.Sorcerer).KnownSpells[spellLevel].Add(spell);
-      }
-      catch (Exception)
-      {
-        player.oid.SendServerMessage($"Attention - Sort de sorcellerie incorrectement configuré pour enso : {spell.Name.ToString()}", ColorConstants.Red);
+        try
+        {
+          player.oid.LoginCreature.GetClassInfo(ClassType.Sorcerer).KnownSpells[spellLevel].Add(spell);
+        }
+        catch (Exception)
+        {
+          player.oid.SendServerMessage($"Attention - Sort de sorcellerie incorrectement configuré pour enso : {spell.Name.ToString()}", ColorConstants.Red);
+        }
       }
     }
   }

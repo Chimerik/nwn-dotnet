@@ -26,6 +26,9 @@ namespace NWN.Systems
         Effect inspirationEffect = oCaster.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.InspirationBardiqueEffectTag);
         int inspirationBardique = inspirationEffect is not null ? inspirationEffect.CasterLevel : 0;
         bool inspirationUsed = false;
+        Effect frappeGuideeEffect = oCaster.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.FrappeGuideeEffectTag);
+        int frappeGuideeBonus = frappeGuideeEffect is not null ? 10 : 0;
+        bool frappeGuideeUsed = false;
         int criticalRange = 20;
         int targetAC = target.AC;
         int totalAttack;
@@ -74,7 +77,7 @@ namespace NWN.Systems
         {
           if(totalAttack > targetAC)
           {
-            if (totalAttack + inspirationBardique <= targetAC + shieldBonus) // Rate alors qu'il aurait du toucher
+            if (totalAttack + inspirationBardique + frappeGuideeBonus <= targetAC + shieldBonus) // Rate alors qu'il aurait du toucher
             {
               result = TouchAttackResult.Miss;
               hitString = "manque".ColorString(ColorConstants.Red);
@@ -82,6 +85,8 @@ namespace NWN.Systems
 
               if (inspirationBardique != 0)
               {
+                attackModifier += inspirationBardique;
+                totalAttack += inspirationBardique;
                 inspirationUsed = true;
                 LogUtils.LogMessage($"Activation {(inspirationBardique > 0 ? "Inspiration Bardique" : "Mots Cinglants")} : {inspirationBardique} BA", LogUtils.LogType.Combat);
               }
@@ -93,7 +98,15 @@ namespace NWN.Systems
                 LogUtils.LogMessage("Activation Bouclier : +5 CA", LogUtils.LogType.Combat);
               }
 
-              LogUtils.LogMessage($"Manqué : {attackRoll} + {attackModifier + inspirationBardique} = {totalAttack + inspirationBardique} vs {targetAC}", LogUtils.LogType.Combat);
+              if (frappeGuideeBonus > 0)
+              {
+                attackModifier += frappeGuideeBonus;
+                totalAttack += frappeGuideeBonus;
+                frappeGuideeUsed = true;
+                LogUtils.LogMessage("Activation Frappe Guidée : +10 BA", LogUtils.LogType.Combat);
+              }
+
+              LogUtils.LogMessage($"Manqué : {attackRoll} + {attackModifier} = {totalAttack} vs {targetAC}", LogUtils.LogType.Combat);
               
             }
             else // Touche, cas normal
@@ -104,12 +117,17 @@ namespace NWN.Systems
           }
           else
           {
-            if(inspirationBardique > 0 && totalAttack + inspirationBardique > targetAC + shieldBonus) // Touche alors qu'il aurait du rater
+            if(inspirationBardique > 0 && totalAttack + inspirationBardique + frappeGuideeBonus > targetAC + shieldBonus) // Touche alors qu'il aurait du rater
             {
               result = TouchAttackResult.Hit;
-              inspirationUsed = true;
-              LogUtils.LogMessage($"Activation inspiration bardique : +{inspirationBardique}", LogUtils.LogType.Combat);
-              LogUtils.LogMessage($"Touché : {attackRoll} + {attackModifier + inspirationBardique} = {totalAttack + inspirationBardique} vs {targetAC}", LogUtils.LogType.Combat);
+
+              if (inspirationBardique != 0)
+              {
+                attackModifier += inspirationBardique;
+                totalAttack += inspirationBardique;
+                inspirationUsed = true;
+                LogUtils.LogMessage($"Activation {(inspirationBardique > 0 ? "Inspiration Bardique" : "Mots Cinglants")} : {inspirationBardique} BA", LogUtils.LogType.Combat);
+              }
 
               if (shieldBonus > 0)
               {
@@ -117,6 +135,16 @@ namespace NWN.Systems
                 shieldUsed = true;
                 LogUtils.LogMessage("Activation Bouclier : +5 CA", LogUtils.LogType.Combat);
               }
+
+              if (frappeGuideeBonus > 0)
+              {
+                attackModifier += frappeGuideeBonus;
+                totalAttack += frappeGuideeBonus;
+                frappeGuideeUsed = true;
+                LogUtils.LogMessage("Activation Frappe Guidée : +10 BA", LogUtils.LogType.Combat);
+              }
+
+              LogUtils.LogMessage($"Touché : {attackRoll} + {attackModifier} = {totalAttack} vs {targetAC}", LogUtils.LogType.Combat);
             }
             else // Rate, cas normal
             {
@@ -146,6 +174,9 @@ namespace NWN.Systems
 
           if (shieldUsed)
             EffectUtils.RemoveTaggedEffect(casterCreature, EffectSystem.BouclierEffectTag);
+
+          if (frappeGuideeUsed)
+            EffectUtils.RemoveTaggedEffect(casterCreature, EffectSystem.FrappeGuideeEffectTag);
 
           casterCreature.LoginPlayer?.SendServerMessage($"{advantageString}{criticalString}{oCaster.Name} {hitString} {target.Name} {rollString}".ColorString(ColorConstants.Cyan));
 

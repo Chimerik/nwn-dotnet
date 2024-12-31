@@ -12,6 +12,7 @@ namespace NWN.Systems
         return new List<NwGameObject>();
 
       StringUtils.ForceBroadcastSpellCasting(caster, spell);
+      EffectUtils.ClearChatimentEffects(caster);
       caster.Location.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(VfxType.ImpPulseHoly), Effect.VisualEffect(VfxType.ImpDivineStrikeHoly)));
 
       NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.brandingSmiteAttack, SpellUtils.GetSpellDuration(oCaster, spellEntry)));

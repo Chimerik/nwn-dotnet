@@ -129,7 +129,7 @@ namespace NWN.Systems
         window.LoadLearnableList(window.currentList);
       }
 
-      LogUtils.LogMessage($"{player.oid.LoginCreature.Name} apprend {name} (sort de niveau {NwSpell.FromSpellId(id).GetSpellLevelForClass((ClassType)learntFromClasses.FirstOrDefault())})", LogUtils.LogType.Learnables);
+      LogUtils.LogMessage($"{player.oid.LoginCreature.Name} apprend {name} (sort de niveau {NwSpell.FromSpellId(id).InnateSpellLevel})", LogUtils.LogType.Learnables);
 
       player.oid.ExportCharacter();
     }

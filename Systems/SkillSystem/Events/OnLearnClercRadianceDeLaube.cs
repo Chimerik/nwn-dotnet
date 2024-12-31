@@ -9,7 +9,7 @@ namespace NWN.Systems
       if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ClercRadianceDeLaube))
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.ClercRadianceDeLaube);
 
-      player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ClercRadianceDeLaube, 1);
+      player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ClercRadianceDeLaube, player.oid.LoginCreature.GetFeatRemainingUses(Feat.TurnUndead));
 
       return true;
     }

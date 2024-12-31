@@ -24,12 +24,13 @@ namespace NWN.Systems
         private readonly NuiBind<bool> enabled = new("enabled");
 
         private readonly List<NwSpell> availableSpells = new();
+        private readonly List<NwSpell> forcedSpells = new();
         private readonly List<NwSpell> acquiredSpells = new();
 
         private ClassType spellClass;
         private int nbCantrips;
 
-        public CantripSelectionWindow(Player player, ClassType spellClass, int nbCantrips) : base(player)
+        public CantripSelectionWindow(Player player, ClassType spellClass, int nbCantrips, List<NwSpell> forcedList = null) : base(player)
         {
           windowId = "cantripSelection";
 
@@ -58,14 +59,18 @@ namespace NWN.Systems
               new NuiSpacer() } }
           };
 
-          CreateWindow(spellClass, nbCantrips);
+          CreateWindow(spellClass, nbCantrips, forcedList);
         }
-        public async void CreateWindow(ClassType spellClass, int nbCantrips)
+        public async void CreateWindow(ClassType spellClass, int nbCantrips, List<NwSpell> forcedList = null)
         {
           await NwTask.NextFrame();
 
           this.spellClass = spellClass;
           this.nbCantrips = nbCantrips;
+
+          forcedSpells.Clear();
+          if(forcedList != null)
+            this.forcedSpells.AddRange(forcedList);
 
           NuiRect windowRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 520, 500);
 
@@ -89,6 +94,7 @@ namespace NWN.Systems
 
             availableSpells.Clear();
             acquiredSpells.Clear();
+
             GetAvailableSpells();
             BindAvailableSpells();
             BindAcquiredSpells();
@@ -249,6 +255,12 @@ namespace NWN.Systems
         }
         private void GetAvailableSpells()
         {
+          if (forcedSpells.Count > 0)
+          {
+            availableSpells.AddRange(forcedSpells);
+            return;
+          }
+
           foreach (var spell in NwRuleset.Spells.OrderByDescending(s => s.Name.ToString()))
           {
             SpellEntry entry = Spells2da.spellTable[spell.Id];

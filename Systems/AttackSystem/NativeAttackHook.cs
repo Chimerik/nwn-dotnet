@@ -166,6 +166,9 @@ namespace NWN.Systems
         CGameEffect shieldEffect = targetObject.m_appliedEffects.FirstOrDefault(e => e.m_sCustomTag.CompareNoCase(EffectSystem.BouclierEffectExoTag).ToBool());
         int shieldBonus = shieldEffect is not null ? 5 : 0;
 
+        CGameEffect frappeGuideeEffect = targetObject.m_appliedEffects.FirstOrDefault(e => e.m_sCustomTag.CompareNoCase(EffectSystem.FrappeGuideeEffectExoTag).ToBool());
+        int frappeGuideeBonus = frappeGuideeEffect is not null ? 10 : 0;
+
         if (targetObject.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.ImageMiroirEffectExoTag).ToBool()))
         {
           int nbImages = targetObject.m_ScriptVars.GetInt(EffectSystem.ImageMiroirEffectExoTag);
@@ -229,30 +232,41 @@ namespace NWN.Systems
         }
         else if (attackRoll > 1 && totalAttack >= targetAC) // L'attaque touche
         {
-          if (totalAttack + inspirationBardique + superiorityDiceBonus < targetAC + defensiveDuellistBonus + shieldBonus) // Echoue alors qu'elle aurait du toucher
+          if (totalAttack + inspirationBardique + superiorityDiceBonus + frappeGuideeBonus < targetAC + defensiveDuellistBonus + shieldBonus) // Echoue alors qu'elle aurait du toucher
           {
             if (inspirationBardique < 0)
-              NativeUtils.HandleInspirationBardiqueUsed(attacker, inspirationBardique, inspirationEffect, inspirationString, attackerName);
+              attackBonus += NativeUtils.HandleInspirationBardiqueUsed(attacker, inspirationBardique, inspirationEffect, inspirationString, attackerName);
 
             if (superiorityDiceBonus > 0)
-              NativeUtils.HandleAttaquePreciseUsed(attacker, superiorityDiceBonus);
+              attackBonus += NativeUtils.HandleAttaquePreciseUsed(attacker, superiorityDiceBonus);
 
             if (shieldBonus > 0)
             {
               targetAC += shieldBonus;
               EffectUtils.RemoveTaggedEffect(targetObject, EffectSystem.BouclierEffectExoTag);
+              LogUtils.LogMessage($"Bouclier Activé : +{shieldBonus} CA", LogUtils.LogType.Combat);
+            }
+
+            if (frappeGuideeBonus > 0)
+            {
+              attackBonus += frappeGuideeBonus;
+              EffectUtils.RemoveTaggedEffect(targetObject, EffectSystem.FrappeGuideeEffectExoTag);
+              LogUtils.LogMessage($"Activation Frappe Guidée : +{frappeGuideeBonus} BA", LogUtils.LogType.Combat);
             }
 
             if (defensiveDuellistBonus > 0)
-              NativeUtils.SendNativeServerMessage("Duelliste défensif activé !".ColorString(ColorConstants.Orange), targetCreature);
+            {
+              targetAC += defensiveDuellistBonus;
+              NativeUtils.SendNativeServerMessage("Duelliste défensif !".ColorString(ColorConstants.Orange), targetCreature);
+            }
 
             attackData.m_nAttackResult = 4;
             attackData.m_nMissedBy = (byte)(targetAC - attackRoll) > 8 ? (byte)Utils.random.Next(1, 9) : (byte)(targetAC - attackRoll);
             hitString = "manquez".ColorString(ColorConstants.Red);
-            rollString = $"{attackRoll} + {attackBonus + inspirationBardique + superiorityDiceBonus} = {attackRoll + attackBonus + inspirationBardique + superiorityDiceBonus}".ColorString(new Color(32, 255, 32));
+            rollString = $"{attackRoll} + {attackBonus} = {attackRoll + attackBonus}".ColorString(new Color(32, 255, 32));
             rollString = rollString.StripColors().ColorString(ColorConstants.Red);
 
-            LogUtils.LogMessage($"Manqué : {attackRoll} + {attackBonus + inspirationBardique + superiorityDiceBonus} = {attackRoll + attackBonus + inspirationBardique + superiorityDiceBonus} vs {targetAC + defensiveDuellistBonus}", LogUtils.LogType.Combat);
+            LogUtils.LogMessage($"Manqué : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC}", LogUtils.LogType.Combat);
           }
           else // Touche : cas normal
           {
@@ -262,13 +276,20 @@ namespace NWN.Systems
         }
         else if (attackRoll > 1) // L'attaque échoue
         {
-          if (totalAttack + inspirationBardique + superiorityDiceBonus >= targetAC + defensiveDuellistBonus + shieldBonus) // Touche alors qu'elle aurait du échouer
+          if (totalAttack + inspirationBardique + superiorityDiceBonus + frappeGuideeBonus >= targetAC + defensiveDuellistBonus + shieldBonus) // Touche alors qu'elle aurait du échouer
           {
             if (inspirationBardique > 0)
-              NativeUtils.HandleInspirationBardiqueUsed(attacker, inspirationBardique, inspirationEffect, inspirationString, attackerName);
+              attackBonus += NativeUtils.HandleInspirationBardiqueUsed(attacker, inspirationBardique, inspirationEffect, inspirationString, attackerName);
 
             if (superiorityDiceBonus > 0)
-              NativeUtils.HandleAttaquePreciseUsed(attacker, superiorityDiceBonus);
+              attackBonus += NativeUtils.HandleAttaquePreciseUsed(attacker, superiorityDiceBonus);
+
+            if (frappeGuideeBonus > 0)
+            {
+              attackBonus += frappeGuideeBonus;
+              EffectUtils.RemoveTaggedEffect(targetObject, EffectSystem.FrappeGuideeEffectExoTag);
+              LogUtils.LogMessage($"Activation Frappe Guidée : +{frappeGuideeBonus} BA", LogUtils.LogType.Combat);
+            }
 
             if (shieldBonus > 0)
             {
@@ -277,11 +298,14 @@ namespace NWN.Systems
             }
 
             if (defensiveDuellistBonus > 0)
-              NativeUtils.SendNativeServerMessage("Duelliste défensif activé !".ColorString(ColorConstants.Orange), targetCreature);
+            {
+              targetAC += defensiveDuellistBonus;
+              NativeUtils.SendNativeServerMessage("Duelliste défensif !".ColorString(ColorConstants.Orange), targetCreature);
+            }
 
             attackData.m_nAttackResult = 1;
-            rollString = $"{attackRoll} + {attackBonus + inspirationBardique + superiorityDiceBonus} = {attackRoll + attackBonus + inspirationBardique + superiorityDiceBonus}".ColorString(new Color(32, 255, 32));
-            LogUtils.LogMessage($"Touché : {attackRoll} + {attackBonus + inspirationBardique + superiorityDiceBonus} = {attackRoll + attackBonus + inspirationBardique + superiorityDiceBonus} vs {targetAC + defensiveDuellistBonus}", LogUtils.LogType.Combat);
+            rollString = $"{attackRoll} + {attackBonus} = {attackRoll + attackBonus}".ColorString(new Color(32, 255, 32));
+            LogUtils.LogMessage($"Touché : {attackRoll} + {attackBonus} = {attackRoll + attackBonus} vs {targetAC}", LogUtils.LogType.Combat);
           }
           else // Echoue : cas normal
           {

@@ -31,7 +31,7 @@ namespace NWN.Systems
       eff.SubType = EffectSubType.Unyielding;
 
       if(creature.IsLoginPlayerCharacter)
-        NwFeat.FromFeatId(CustomSkill.EnsoResistanceDraconique).Name.SetPlayerOverride(creature.LoginPlayer, $"Résistance Draconique (+{charismaModifier}");
+        NwFeat.FromFeatId(CustomSkill.EnsoResistanceDraconique).Name.SetPlayerOverride(creature.LoginPlayer, $"Résistance Draconique (+{charismaModifier})");
 
       creature.ApplyEffect(EffectDuration.Permanent, eff);
     }

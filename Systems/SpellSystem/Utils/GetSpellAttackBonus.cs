@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Anvil.API;
 
 namespace NWN.Systems
@@ -9,13 +8,6 @@ namespace NWN.Systems
     public static int GetSpellAttackBonus(NwCreature caster)
     {
       int bonus = 0;
-
-      if (caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.FrappeGuideeVariable).HasValue)
-      {
-        bonus += 10;
-        caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.FrappeGuideeVariable).Delete();
-        LogUtils.LogMessage("Frappe Guidée : +10 BA", LogUtils.LogType.Combat);
-      }
 
       List<string> appliedEffects = new();
 

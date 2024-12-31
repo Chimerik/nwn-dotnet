@@ -9,7 +9,7 @@ namespace NWN.Systems
       if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ClercFrappeGuidee))
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.ClercFrappeGuidee);
 
-      player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ClercFrappeGuidee, 1);
+      player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ClercFrappeGuidee, player.oid.LoginCreature.GetFeatRemainingUses(Feat.TurnUndead));
 
       return true;
     }

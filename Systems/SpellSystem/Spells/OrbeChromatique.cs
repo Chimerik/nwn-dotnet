@@ -1,38 +1,54 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Anvil.API;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void OrbeChromatique(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass castingClass, NwFeat feat)
+    public static void OrbeChromatique(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass castingClass)
     {
+      if (oCaster is not NwCreature caster)
+        return;
+
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
       List<NwGameObject> targets = SpellUtils.GetSpellTargets(oCaster, oTarget, spellEntry, true);
 
-      var vfx = spell.Id switch
+      var vfx = VfxType.ImpFlameS;
+      var mirv = VfxType.ImpMirvFlame;
+
+      switch(spell.Id)
       {
-        CustomSpell.OrbeChromatiqueAcide => VfxType.ImpAcidS,
-        CustomSpell.OrbeChromatiqueFoudre => VfxType.ImpLightningS,
-        CustomSpell.OrbeChromatiqueFroid => VfxType.ImpFrostS,
-        CustomSpell.OrbeChromatiquePoison => VfxType.ImpPoisonS,
-        _ => VfxType.ImpFlameS,
-      };
+        case CustomSpell.OrbeChromatiqueAcide:
+          vfx = VfxType.ImpAcidS;
+          mirv = VfxType.DurMirvAcid;
+          break;
+
+        case CustomSpell.OrbeChromatiqueFoudre:
+          vfx = VfxType.ImpLightningS;
+          mirv = VfxType.ImpMirvElectric;
+          break;
+
+        case CustomSpell.OrbeChromatiqueTonnerre:
+          vfx = VfxType.ImpSonic;
+          mirv = VfxType.ImpMirvElectric;
+          break;
+
+        case CustomSpell.OrbeChromatiqueFroid:
+          vfx = VfxType.ImpFrostS;
+          break;
+
+        case CustomSpell.OrbeChromatiquePoison:
+          vfx = VfxType.ImpPoisonS;
+          mirv = VfxType.DurMirvAcid;
+          break;
+      }
+
+      double visualDelay = 0.1;
 
       foreach (var target in targets)
       {
-        if (oCaster is NwCreature caster)
-        {
-          if (feat is not null && feat.Id == CustomSkill.MonkSphereDequilibreElementaire)
-          {
-            caster.IncrementRemainingFeatUses(feat.FeatType);
-            FeatUtils.DecrementKi(caster, 2);
-            castingClass = NwClass.FromClassId(CustomClass.Monk);
-          }
-        }
-
         int nbDice = SpellUtils.GetSpellDamageDiceNumber(oCaster, spell);
-        target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(vfx));
 
         switch (SpellUtils.GetSpellAttackRoll(target, oCaster, spell, castingClass.SpellCastingAbility))
         {
@@ -41,7 +57,11 @@ namespace NWN.Systems
           default: continue;
         }
 
-        SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, nbDice, oCaster, spell.GetSpellLevelForClass(castingClass));
+        double targetDistance = oCaster.Distance(target);
+        double damageDelay = (targetDistance / (3.0 * Math.Log(targetDistance) + 2.0)) + visualDelay;
+        SpellUtils.DelayMirvDamageImpact(oCaster, target, spell, spellEntry, castingClass, damageDelay, vfx, mirv, nbDice);
+        SpellUtils.DelayMirvVisualImpact(oCaster, target, visualDelay, mirv);
+        visualDelay += 0.1;
       }
     }
   }

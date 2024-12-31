@@ -20,6 +20,9 @@ namespace NWN.Systems
         return true;
       }
 
+      if (effectType == SpellEffectType.Tasha) // Signifie qu'il s'agit du JDS de fou rire de Tasha après que la cible ait subit des dégâts
+        return true;
+
       switch (ability)
       {
         case Ability.Dexterity:

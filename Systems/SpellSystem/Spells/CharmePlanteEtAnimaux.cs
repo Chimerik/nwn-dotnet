@@ -20,12 +20,7 @@ namespace NWN.Systems
         if(target.Race.RacialType == RacialType.Animal && target.Master is null && caster.IsReactionTypeHostile(target) && !EffectSystem.IsCharmeImmune(caster, target)
           && CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, DC) == SavingThrowResult.Failure)
         {
-          target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSunstrike));
-
-          if(caster.KnowsFeat((Feat)CustomSkill.ClercMaitreDeLaNature))
-            NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, Effect.Dominated(), NwTimeSpan.FromRounds(spellEntry.duration)));
-          else
-            target.ApplyEffect(EffectDuration.Temporary, Effect.Pacified(), NwTimeSpan.FromRounds(spellEntry.duration));
+          EffectSystem.ApplyCharme(target, caster, SpellUtils.GetSpellDuration(oCaster, spellEntry));
         }
       }
 

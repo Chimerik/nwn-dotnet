@@ -5,13 +5,15 @@ namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static void HandleAttaquePreciseUsed(CNWSCreature creature, int superiorityDiceBonus)
+    public static int HandleAttaquePreciseUsed(CNWSCreature creature, int superiorityDiceBonus)
     {
       creature.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreTypeVariableExo);
       creature.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreDiceVariableExo);
 
       LogUtils.LogMessage($"Activation attaque précise : +{superiorityDiceBonus}", LogUtils.LogType.Combat);
-      NativeUtils.BroadcastNativeServerMessage($"Attaque précise (+{StringUtils.ToWhitecolor(superiorityDiceBonus)})".ColorString(StringUtils.gold), creature);
+      BroadcastNativeServerMessage($"Attaque précise (+{StringUtils.ToWhitecolor(superiorityDiceBonus)})".ColorString(StringUtils.gold), creature);
+
+      return superiorityDiceBonus;
     }
   }
 }

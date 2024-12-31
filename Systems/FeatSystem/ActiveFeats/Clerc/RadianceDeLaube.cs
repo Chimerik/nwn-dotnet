@@ -9,7 +9,9 @@ namespace NWN.Systems
     {
       var clerc = caster.GetClassInfo((ClassType)CustomClass.Clerc);
       int clercLevel = clerc is null ? 0 : clerc.Level;
-      int spellDC = SpellUtils.GetCasterSpellDC(caster, Spell.AbilityAsDarkness, Ability.Wisdom);
+      int spellDC = SpellUtils.GetCasterSpellDC(caster, Ability.Wisdom);
+
+      StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} - Radiance de L'aube", StringUtils.gold, true, true);
 
       foreach (var oTarget in caster.Location.GetObjectsInShapeByType<NwGameObject>(Shape.Sphere, 9, true))
       {
@@ -27,11 +29,10 @@ namespace NWN.Systems
           target.ApplyEffect(EffectDuration.Temporary, Effect.Beam(VfxType.BeamHoly, caster, BodyNode.Hand), TimeSpan.FromSeconds(1));
           target.ApplyEffect(EffectDuration.Instant, Effect.Damage(damage, DamageType.Divine));
         }
-        else if (oTarget is NwAreaOfEffect aoe && aoe.Spell.SpellType == Spell.Darkness)
+        else if (oTarget is NwAreaOfEffect aoe && aoe.Spell is not null && aoe.Spell.SpellType == Spell.Darkness)
           aoe.Destroy();
       }
 
-      StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} - Radiance de L'aube", StringUtils.gold, true, true);
       ClercUtils.ConsumeConduitDivin(caster);
     }
   }

@@ -16,6 +16,7 @@
       Death,
       Concentration,
       Sleep,
+      Tasha,
 
       Invalid
     }

@@ -136,6 +136,8 @@ namespace NWN.Systems
       OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.ThiefDiscretionSupreme).Description.CustomId, SkillSystem.learnableDictionary[CustomSkill.ThiefDiscretionSupreme].description);
       OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.MonkLinceulDombre).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.MonkLinceulDombre].name);
       OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.MonkLinceulDombre).Description.CustomId, SkillSystem.learnableDictionary[CustomSkill.MonkLinceulDombre].description);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.ClercLinceulDombre).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.ClercLinceulDombre].name);
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.ClercLinceulDombre).Description.CustomId, SkillSystem.learnableDictionary[CustomSkill.ClercLinceulDombre].description);
       OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.PacteDeLaChaine).Description.CustomId, SkillSystem.learnableDictionary[CustomSkill.PacteDeLaChaine].description);
       OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.PacteDeLaChaine).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.PacteDeLaChaine].name);
       OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.FouleeEnjoleuse).Description.CustomId, SkillSystem.learnableDictionary[CustomSkill.FouleeEnjoleuse].description);

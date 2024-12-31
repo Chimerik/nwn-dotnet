@@ -12,6 +12,7 @@ namespace NWN.Systems
       if ((mainWeapon is not null && mainWeapon.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.PacteDeLaLameVariable).Value == caster)
         || (secondaryWeapon is not null && secondaryWeapon.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.PacteDeLaLameVariable).Value == caster))
       {
+        EffectUtils.ClearChatimentEffects(caster);
         caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.ChatimentOcculte);
 
         caster.OnCreatureAttack -= OccultisteUtils.OnAttackChatimentOcculte;
