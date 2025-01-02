@@ -94,7 +94,7 @@ namespace NWN.Systems
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-            if(!availableSkills.Any())
+            if(availableSkills.Count < 1)
             {
               CloseWindow();
               player.oid.SendServerMessage($"Vous maîtrisez déjà toutes les compétences", ColorConstants.Orange);
@@ -272,7 +272,7 @@ namespace NWN.Systems
           acquiredSkillNames.SetBindValues(player.oid, nuiToken.Token, acquiredNamesList);
           listAcquiredSkillCount.SetBindValue(player.oid, nuiToken.Token, acquiredSkills.Count);
           
-          if (acquiredSkills.Count == nbSkills)
+          if (acquiredSkills.Count == nbSkills || availableSkills.Count < 1)
             enabled.SetBindValue(player.oid, nuiToken.Token, true);
           else
             enabled.SetBindValue(player.oid, nuiToken.Token, false);

@@ -38,18 +38,13 @@ namespace NWN.Systems
 
           foreach(var spell in NwRuleset.Spells.Where(s => s.GetSpellLevelForClass(ClassType.Cleric) > 0 && s.GetSpellLevelForClass(ClassType.Cleric) < 10))
           {
-            if (Utils.In(spell.Id, CustomSpell.Deguisement, (int)Spell.CharmPerson, CustomSpell.PassageSansTrace, CustomSpell.ImageMiroir,
-              (int)Spell.Fear, (int)Spell.PolymorphSelf, (int)Spell.DivineFavor, (int)Spell.MagicWeapon, CustomSpell.PorteDimensionnelle,
-              (int)Spell.HoldMonster, CustomSpell.CapeDuCroise, (int)Spell.Firebrand, CustomSpell.SphereDeFeu, (int)Spell.Fireball,
-              (int)Spell.WallOfFire, CustomSpell.VagueDestructrice, (int)Spell.CharmPersonOrAnimal, CustomSpell.CroissanceDepines, (int)Spell.Barkskin,
-              CustomSpell.CroissanceVegetale, CustomSpell.TempeteDeNeige, (int)Spell.DominateAnimal, CustomSpell.LianeAvide, CustomSpell.SphereResilienteDotiluke,
-              CustomSpell.FleauDinsectes, CustomSpell.MurDePierre, (int)Spell.Sleep, (int)Spell.HoldPerson, (int)Spell.Slow, (int)Spell.Confusion,
-              (int)Spell.DominatePerson, CustomSpell.Telekinesie, (int)Spell.Identify, CustomSpell.Antidetection, CustomSpell.OeilMagique,
-              CustomSpell.NappeDeBrouillard, (int)Spell.Balagarnsironhorn, (int)Spell.GustOfWind, CustomSpell.Fracassement, (int)Spell.IceStorm,
-              (int)Spell.CallLightning, (int)Spell.ElementalShield, (int)Spell.SeeInvisibility, (int)Spell.Invisibility, CustomSpell.AlterationMemorielle,
-              CustomSpell.FaerieFire, (int)Spell.BurningHands, CustomSpell.Elementalisme, CustomSpell.Shillelagh, (int)Spell.RayOfFrost, CustomSpell.Message,
-              (int)Spell.ElectricJolt, (int)Spell.GreatThunderclap, CustomSpell.FireBolt, CustomSpell.PoisonSpray, CustomSpell.Druidisme, CustomSpell.ProduceFlame,
-              CustomSpell.SpeakAnimal))
+            if (Utils.In(spell.Id, CustomSpell.Deguisement, (int)Spell.CharmPerson, CustomSpell.PassageSansTrace, CustomSpell.ImageMiroir, (int)Spell.CallLightning, (int)Spell.ElementalShield,
+              (int)Spell.Fear, (int)Spell.PolymorphSelf, (int)Spell.DivineFavor, (int)Spell.MagicWeapon, CustomSpell.PorteDimensionnelle, (int)Spell.SeeInvisibility, (int)Spell.Invisibility,
+              (int)Spell.HoldMonster, CustomSpell.CapeDuCroise, (int)Spell.Firebrand, CustomSpell.SphereDeFeu, (int)Spell.Fireball, CustomSpell.AlterationMemorielle, CustomSpell.FaerieFire,
+              (int)Spell.WallOfFire, CustomSpell.VagueDestructrice, (int)Spell.CharmPersonOrAnimal, CustomSpell.CroissanceDepines, (int)Spell.Barkskin, (int)Spell.BurningHands, CustomSpell.SpeakAnimal,
+              CustomSpell.CroissanceVegetale, CustomSpell.TempeteDeNeige, (int)Spell.DominateAnimal, CustomSpell.LianeAvide, CustomSpell.SphereResilienteDotiluke, CustomSpell.Fracassement, (int)Spell.IceStorm,
+              CustomSpell.FleauDinsectes, CustomSpell.MurDePierre, (int)Spell.Sleep, (int)Spell.HoldPerson, (int)Spell.Slow, (int)Spell.Confusion, (int)Spell.Balagarnsironhorn, (int)Spell.GustOfWind,
+              (int)Spell.DominatePerson, CustomSpell.Telekinesie, (int)Spell.Identify, CustomSpell.Antidetection, CustomSpell.OeilMagique, CustomSpell.NappeDeBrouillard))
               continue;// ces sorts ne font pas partie du package de clerc mais peuvent être appris via le domaine
 
             if (player.learnableSpells.TryGetValue(spell.Id, out var learnable))

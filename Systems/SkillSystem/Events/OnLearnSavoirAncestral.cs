@@ -9,7 +9,7 @@ namespace NWN.Systems
       if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ClercSavoirAncestral))
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.ClercSavoirAncestral);
 
-      player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ClercSavoirAncestral, 1);
+      player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ClercSavoirAncestral, player.oid.LoginCreature.GetFeatRemainingUses(Feat.TurnUndead));
 
       return true;
     }

@@ -274,6 +274,8 @@ namespace NWN.Systems
             if (player.learnableSpells.TryGetValue(spell.Id, out var learnable) && learnable.currentLevel > 0)
               continue;
 
+            if (spellClass == ClassType.Cleric && Utils.In(spell.Id, CustomSpell.FireBolt, CustomSpell.PoisonSpray, CustomSpell.Druidisme, CustomSpell.Elementalisme, CustomSpell.Shillelagh, (int)Spell.RayOfFrost, CustomSpell.Message, (int)Spell.ElectricJolt, (int)Spell.GreatThunderclap, CustomSpell.ProduceFlame))
+              continue;
             if (entry.hideFromClasses is not null)
             {
               switch (spellClass)

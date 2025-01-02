@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Anvil.API;
+﻿using Anvil.API;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.PlayerSystem.Player;
 
@@ -16,20 +15,11 @@ namespace NWN.Systems
           new StrRef(12).SetPlayerOverride(player.oid, "Domaine du Savoir");
           player.oid.SetTextureOverride("clerc", "domaine_savoir");
 
-          List<int> tempList = new() { CustomSkill.ArcanaProficiency, CustomSkill.HistoryProficiency, CustomSkill.NatureProficiency, CustomSkill.ReligionProficiency };
-          List<int> skillList = new();
-
-          foreach(var skill in tempList)
-            if(!player.learnableSkills.TryGetValue(skill + 1, out var expertise) || expertise.currentLevel < 1)
-              skillList.Add(skill);
+          if (!player.windows.TryGetValue("expertiseChoice", out var skill3)) player.windows.Add("expertiseChoice", new ExpertiseChoiceWindow(player));
+          else ((ExpertiseChoiceWindow)skill3).CreateWindow();
 
           player.LearnClassSkill(CustomSkill.ClercSavoirAncestral);
-
-          if (!player.windows.TryGetValue("skillProficiencySelection", out var skill3)) player.windows.Add("skillProficiencySelection", new SkillProficiencySelectionWindow(player, skillList, 2, CustomSkill.ClercSavoir));
-          else ((SkillProficiencySelectionWindow)skill3).CreateWindow(skillList, 2, CustomSkill.ClercSavoir);
-
           player.LearnAlwaysPreparedSpell(CustomSpell.Injonction, CustomClass.Clerc);
-          player.LearnAlwaysPreparedSpell((int)Spell.Identify, CustomClass.Clerc);
           player.LearnAlwaysPreparedSpell(CustomSpell.Augure, CustomClass.Clerc);
           player.LearnAlwaysPreparedSpell((int)Spell.HoldPerson, CustomClass.Clerc);
 
@@ -58,7 +48,7 @@ namespace NWN.Systems
 
           break;
 
-        case 17: player.LearnClassSkill(CustomSkill.ClercHaloDeLumiere); break;
+        case 17: player.LearnClassSkill(CustomSkill.ClercVisionDuPasse); break;
       }
     }
   }
