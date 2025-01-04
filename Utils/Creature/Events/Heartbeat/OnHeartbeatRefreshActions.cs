@@ -30,6 +30,14 @@ namespace NWN.Systems
         creature.GetObjectVariable<LocalVariableObject<NwCreature>>(VoeuHostileVariable).Delete();
         HandleGoadingRoarCooldown(creature);
 
+        if (creature.KnowsFeat((Feat)CustomSkill.DruideFrappePrimordialeFroid))
+        {
+          creature.SetFeatRemainingUses((Feat)CustomSkill.DruideFrappePrimordialeFroid, 1);
+          creature.SetFeatRemainingUses((Feat)CustomSkill.DruideFrappePrimordialeFeu, 1);
+          creature.SetFeatRemainingUses((Feat)CustomSkill.DruideFrappePrimordialeElec, 1);
+          creature.SetFeatRemainingUses((Feat)CustomSkill.DruideFrappePrimordialeTonnerre, 1);
+        }
+
         if (creature.IsPlayerControlled)
         {
           foreach (var feat in creature.Feats.Where(f => f.TalentMaxCR.ToBool() && creature.GetFeatRemainingUses(f) < 1))
@@ -66,11 +74,7 @@ namespace NWN.Systems
             creature.SetFeatRemainingUses(feat, (byte)creature.GetObjectVariable<LocalVariableInt>($"_FEAT_REMAINING_USE_{feat.Id}").Value);
             creature.GetObjectVariable<LocalVariableInt>($"_FEAT_REMAINING_USE_{feat.Id}").Delete();
           }
-        }
-
-        if(creature.KnowsFeat((Feat)CustomSkill.BelluaireFurieBestiale) 
-          && creature.GetObjectVariable<LocalVariableObject<NwCreature>>(AnimalCompanionVariable).HasValue)
-          creature.SetFeatRemainingUses((Feat)CustomSkill.BelluaireFurieBestiale, 100);
+        }  
 
         if (creature.ActiveEffects.Any(e => e.Tag == EffectSystem.noReactionsEffectTag))
           continue;
@@ -83,8 +87,11 @@ namespace NWN.Systems
     }
     private static void HandleGoadingRoarCooldown(NwCreature creature)
     {
-      if (creature.GetObjectVariable<LocalVariableObject<NwCreature>>(AnimalCompanionVariable).HasNothing)
+      if (creature.GetAssociate(AssociateType.AnimalCompanion) is null)
         return;
+
+      if (creature.KnowsFeat((Feat)CustomSkill.BelluaireFurieBestiale))
+        creature.SetFeatRemainingUses((Feat)CustomSkill.BelluaireFurieBestiale, 100);
 
       if (creature.KnowsFeat((Feat)CustomSkill.BelluairePatteMielleuse))
         creature.SetFeatRemainingUses((Feat)CustomSkill.BelluairePatteMielleuse, 100);
@@ -100,14 +107,6 @@ namespace NWN.Systems
 
       if (creature.KnowsFeat((Feat)CustomSkill.BelluaireSpiderCocoon))
         creature.SetFeatRemainingUses((Feat)CustomSkill.BelluaireSpiderCocoon, 100);
-
-      if (creature.KnowsFeat((Feat)CustomSkill.DruideFrappePrimordialeFroid))
-      {
-        creature.SetFeatRemainingUses((Feat)CustomSkill.DruideFrappePrimordialeFroid, 1);
-        creature.SetFeatRemainingUses((Feat)CustomSkill.DruideFrappePrimordialeFeu, 1);
-        creature.SetFeatRemainingUses((Feat)CustomSkill.DruideFrappePrimordialeElec, 1);
-        creature.SetFeatRemainingUses((Feat)CustomSkill.DruideFrappePrimordialeTonnerre, 1);
-      }
     }
   }
 }

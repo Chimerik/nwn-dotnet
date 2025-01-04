@@ -975,7 +975,7 @@ namespace NWN.Systems
             Resizable = true,
             Collapsed = false,
             Closable = true,
-            Transparent = true,
+            Transparent = false,
             Border = true,
           };
 

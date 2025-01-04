@@ -15,8 +15,7 @@ namespace NWN.Systems
           player.oid.SetTextureOverride("clerc", "domaine_tempete");
 
 
-          player.LearnClassSkill(CustomSkill.ClercFureurOuraganFoudre);
-          player.LearnClassSkill(CustomSkill.ClercFureurOuraganTonnerre);
+          player.LearnClassSkill(CustomSkill.ClercFureurOuragan);
           player.LearnClassSkill(CustomSkill.ClercFureurDestructrice);
 
           player.LearnAlwaysPreparedSpell(CustomSpell.NappeDeBrouillard, CustomClass.Clerc);
@@ -49,7 +48,7 @@ namespace NWN.Systems
 
           break;
 
-        case 17: player.LearnClassSkill(CustomSkill.ClercHaloDeLumiere); break;
+        case 17: player.LearnClassSkill(CustomSkill.ClercEnfantDeLaTempete); break;
       }
     }
   }

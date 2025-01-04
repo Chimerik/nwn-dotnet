@@ -6,10 +6,9 @@ namespace NWN.Systems
   {
     private static void PatteMielleuse(NwCreature caster)
     {
-      if (caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).HasValue)
-      {
-        var companion = caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).Value;
-        
+      var companion = caster.GetAssociate(AssociateType.AnimalCompanion);
+      if (companion is not null)
+      {       
         companion.OnCreatureAttack -= RangerUtils.OnAttackPatteMielleuse;
         companion.OnCreatureAttack += RangerUtils.OnAttackPatteMielleuse;
 

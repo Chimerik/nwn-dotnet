@@ -1,6 +1,5 @@
 ﻿using Anvil.API;
 using static NWN.Systems.PlayerSystem;
-using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
 {
@@ -15,13 +14,8 @@ namespace NWN.Systems
           new StrRef(12).SetPlayerOverride(player.oid, "Domaine de la Vie");
           player.oid.SetTextureOverride("clerc", "domaine_vie");
 
-          player.learnableSkills.TryAdd(CustomSkill.ClercDiscipleDeLaVie, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercDiscipleDeLaVie], player));
-          player.learnableSkills[CustomSkill.ClercDiscipleDeLaVie].LevelUp(player);
-          player.learnableSkills[CustomSkill.ClercDiscipleDeLaVie].source.Add(Category.Class);
-
-          player.learnableSkills.TryAdd(CustomSkill.ClercPreservationDeLaVie, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercPreservationDeLaVie], player));
-          player.learnableSkills[CustomSkill.ClercPreservationDeLaVie].LevelUp(player);
-          player.learnableSkills[CustomSkill.ClercPreservationDeLaVie].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.ClercDiscipleDeLaVie);
+          player.LearnClassSkill(CustomSkill.ClercPreservationDeLaVie);
 
           player.LearnAlwaysPreparedSpell((int)Spell.Bless, CustomClass.Clerc);
           player.LearnAlwaysPreparedSpell((int)Spell.CureModerateWounds, CustomClass.Clerc);
@@ -37,13 +31,7 @@ namespace NWN.Systems
 
           break;
 
-        case 6:
-
-          player.learnableSkills.TryAdd(CustomSkill.ClercGuerriseurBeni, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercGuerriseurBeni], player));
-          player.learnableSkills[CustomSkill.ClercGuerriseurBeni].LevelUp(player);
-          player.learnableSkills[CustomSkill.ClercGuerriseurBeni].source.Add(Category.Class);
-
-          break;
+        case 6: player.LearnClassSkill(CustomSkill.ClercDiscipleDeLaVie); break;
 
         case 7:
 
@@ -59,13 +47,7 @@ namespace NWN.Systems
 
           break;
 
-        case 17:
-
-          player.learnableSkills.TryAdd(CustomSkill.ClercGuerisonSupreme, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercGuerisonSupreme], player));
-          player.learnableSkills[CustomSkill.ClercGuerisonSupreme].LevelUp(player);
-          player.learnableSkills[CustomSkill.ClercGuerisonSupreme].source.Add(Category.Class);
-
-          break;
+        case 17: player.LearnClassSkill(CustomSkill.ClercGuerisonSupreme); break;
       }
     }
   }

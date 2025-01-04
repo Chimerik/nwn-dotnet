@@ -42,7 +42,7 @@ namespace NWN.Systems
         targetLocation.ApplyEffect(EffectDuration.Temporary, Effect.SummonCreature("x2_s_drgred001", VfxType.FnfSummondragon, appearType:1), SpellUtils.GetSpellDuration(oCaster, spellEntry));
         
         if(!compagnonDraconique)
-          targetList.Add(UtilPlugin.GetLastCreatedObject(5).ToNwObject<NwCreature>());
+          targetList.Add(UtilPlugin.GetLastCreatedObject(NWNXObjectType.Creature).ToNwObject<NwCreature>());
       }
 
       return targetList;

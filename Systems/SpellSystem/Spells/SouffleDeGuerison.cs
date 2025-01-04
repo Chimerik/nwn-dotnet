@@ -24,7 +24,7 @@ namespace NWN.Systems
           healAmount += 2 + spell.GetSpellLevelForClass(castingClass);
 
         if (caster.KnowsFeat((Feat)CustomSkill.ClercGuerriseurBeni) && oCaster != oTarget)
-          NWScript.AssignCommand(oCaster, () => oCaster.ApplyEffect(EffectDuration.Instant, Effect.Heal(2 * spell.GetSpellLevelForClass(castingClass))));
+          NWScript.AssignCommand(oCaster, () => oCaster.ApplyEffect(EffectDuration.Instant, Effect.Heal(2 + spell.GetSpellLevelForClass(castingClass))));
       }
 
       foreach (var target in targets)

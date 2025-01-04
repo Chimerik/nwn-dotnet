@@ -22,7 +22,7 @@ namespace NWN.Systems
       eff.Tag = EntraveEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       eff.Creator = caster;
-      eff.IntParams[3] = (int)castAbility;
+      eff.IntParams[5] = (int)castAbility;
 
       target.ApplyEffect(EffectDuration.Temporary, eff, duration);
     }
@@ -46,13 +46,13 @@ namespace NWN.Systems
 
       if (eventData.EffectTarget is NwCreature target && eventData.Effect.Creator is NwCreature caster)
       {
-        if(!target.ActiveEffects.Any(e => e.Tag == EffectSystem.TerrainDifficileEffectTag && e.IntParams[3] == CustomSpell.Enchevetrement))
+        if(!target.ActiveEffects.Any(e => e.Tag == EffectSystem.TerrainDifficileEffectTag && e.IntParams[5] == CustomSpell.Enchevetrement))
         {
           target.RemoveEffect(eventData.Effect);
           return ScriptHandleResult.Handled;
         }
 
-        int spellDC = SpellUtils.GetCasterSpellDC(caster, (Ability)eventData.Effect.IntParams[3]);
+        int spellDC = SpellUtils.GetCasterSpellDC(caster, (Ability)eventData.Effect.IntParams[5]);
 
         if (CreatureUtils.GetSavingThrow(caster, target, Ability.Strength, spellDC) != SavingThrowResult.Failure)
           target.RemoveEffect(eventData.Effect);

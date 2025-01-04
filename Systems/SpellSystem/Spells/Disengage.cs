@@ -14,10 +14,7 @@ namespace NWN.Systems
         EffectSystem.ApplyAttaqueMobile(caster);
 
         if (caster.KnowsFeat((Feat)CustomSkill.BelluaireEntrainementExceptionnel))
-        {
-          var companion = caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).Value;
-          companion?.ApplyEffect(EffectDuration.Temporary, EffectSystem.disengageEffect, NwTimeSpan.FromRounds(1));
-        }
+          caster.GetAssociate(AssociateType.AnimalCompanion)?.ApplyEffect(EffectDuration.Temporary, EffectSystem.disengageEffect, NwTimeSpan.FromRounds(1));
       }
     }
   }

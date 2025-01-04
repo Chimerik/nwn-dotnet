@@ -36,20 +36,45 @@ namespace NWN.Systems
 
       if (baseWeaponDamage > -1)
       {
-        if(target.ActiveEffects.Any(e => e.Tag == EffectSystem.DefensesEnjoleusesEffectTag))
+        foreach(var eff in target.ActiveEffects)
         {
-          EffectUtils.RemoveTaggedEffect(target, EffectSystem.DefensesEnjoleusesEffectTag);
-
-          int spellDC = SpellUtils.GetCasterSpellDC(damager, Ability.Charisma);
-          int reducedDamage = baseWeaponDamage / 2;
-          onDamage.DamageData.SetDamageByType(DamageType.BaseWeapon, reducedDamage);
-          
-          LogUtils.LogMessage($"Defenses Enjoleuses - Dégâts initiaux : {baseWeaponDamage} / 2 = {reducedDamage}", LogUtils.LogType.Combat);
-          StringUtils.DisplayStringToAllPlayersNearTarget(target, "Défenses Enjôleuses", ColorConstants.Pink, true, true);
-          
-          if(GetSavingThrow(damager, target, Ability.Wisdom, spellDC) == SavingThrowResult.Failure)
+          switch(eff.Tag)
           {
-            NWScript.AssignCommand(target, () => damager.ApplyEffect(EffectDuration.Instant, Effect.Damage(reducedDamage, CustomDamageType.Psychic)));
+            case EffectSystem.DefensesEnjoleusesEffectTag:
+
+              EffectUtils.RemoveTaggedEffect(target, EffectSystem.DefensesEnjoleusesEffectTag);
+
+              int spellDC = SpellUtils.GetCasterSpellDC(target, Ability.Charisma);
+              int reducedDamage = baseWeaponDamage / 2;
+              onDamage.DamageData.SetDamageByType(DamageType.BaseWeapon, reducedDamage);
+
+              LogUtils.LogMessage($"Defenses Enjoleuses - Dégâts initiaux : {baseWeaponDamage} / 2 = {reducedDamage}", LogUtils.LogType.Combat);
+              StringUtils.DisplayStringToAllPlayersNearTarget(target, "Défenses Enjôleuses", ColorConstants.Pink, true, true);
+
+              if (GetSavingThrow(target, damager, Ability.Wisdom, spellDC) == SavingThrowResult.Failure)
+              {
+                NWScript.AssignCommand(target, () => damager.ApplyEffect(EffectDuration.Instant, Effect.Damage(reducedDamage, CustomDamageType.Psychic)));
+              }
+
+              break;
+
+            case EffectSystem.FureurDelOuraganEffectTag:
+
+              var weapon = damager.GetItemInSlot(InventorySlot.RightHand);
+
+              if (weapon is null || ItemUtils.IsMeleeWeapon(weapon.BaseItem.ItemType))
+              {
+                if (HandleReactionUse(target))
+                {
+                  int ouraganDC = SpellUtils.GetCasterSpellDC(target, Ability.Wisdom);
+                  int ouraganDamage = GetSavingThrow(target, damager, Ability.Dexterity, ouraganDC) == SavingThrowResult.Failure ? Utils.Roll(8, 2) : Utils.Roll(8, 1);
+                  NWScript.AssignCommand(target, () => damager.ApplyEffect(EffectDuration.Instant, Effect.Damage(ouraganDamage, (DamageType)eff.IntParams[5])));
+
+                  EffectUtils.RemoveTaggedEffect(target, EffectSystem.FureurDelOuraganEffectTag);
+                }
+              }
+
+              break;
           }
         }
       }

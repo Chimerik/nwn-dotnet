@@ -21,7 +21,7 @@ namespace NWN.Systems
             oid.LoginCreature.RemoveEffect(eff);
           }
 
-          oid.LoginCreature.ForceLevelUp(customClass, RollClassHitDie(oid.LoginCreature.Level,
+          oid.LoginCreature.ForceLevelUp(NwClass.FromClassId(customClass), RollClassHitDie(oid.LoginCreature.Level,
           customClass, oid.LoginCreature.GetAbilityModifier(Ability.Constitution)
           + (customClass == CustomClass.Ensorceleur && oid.LoginCreature.KnowsFeat((Feat)CustomSkill.EnsoResistanceDraconique)).ToInt()));
 

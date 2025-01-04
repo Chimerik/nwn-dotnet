@@ -13,7 +13,7 @@ namespace NWN.Systems
 
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} - Radiance de L'aube", StringUtils.gold, true, true);
 
-      foreach (var oTarget in caster.Location.GetObjectsInShapeByType<NwGameObject>(Shape.Sphere, 9, true))
+      foreach (var oTarget in caster.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 9, true))
       {
         if (oTarget is NwCreature target)
         {
@@ -29,7 +29,11 @@ namespace NWN.Systems
           target.ApplyEffect(EffectDuration.Temporary, Effect.Beam(VfxType.BeamHoly, caster, BodyNode.Hand), TimeSpan.FromSeconds(1));
           target.ApplyEffect(EffectDuration.Instant, Effect.Damage(damage, DamageType.Divine));
         }
-        else if (oTarget is NwAreaOfEffect aoe && aoe.Spell is not null && aoe.Spell.SpellType == Spell.Darkness)
+      }
+
+      foreach (var aoe in caster.Location.GetObjectsInShapeByType<NwAreaOfEffect>(Shape.Sphere, 9, true))
+      {
+        if (aoe.Spell is not null && aoe.Spell.SpellType == Spell.Darkness)
           aoe.Destroy();
       }
 

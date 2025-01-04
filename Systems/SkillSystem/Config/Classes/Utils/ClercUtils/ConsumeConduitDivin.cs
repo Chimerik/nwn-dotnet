@@ -18,7 +18,6 @@ namespace NWN.Systems
       creature.DecrementRemainingFeatUses((Feat)CustomSkill.ClercFureurDestructrice);
       creature.DecrementRemainingFeatUses((Feat)CustomSkill.ClercPreservationDeLaVie);
       creature.DecrementRemainingFeatUses((Feat)CustomSkill.ClercFrappeGuidee);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.ClercFureurDestructrice);
     }
   }
 }

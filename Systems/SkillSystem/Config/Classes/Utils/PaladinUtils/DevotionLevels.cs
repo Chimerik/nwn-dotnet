@@ -38,7 +38,7 @@ namespace NWN.Systems
 
           player.LearnClassSkill(CustomSkill.PaladinAuraDeDevotion);
           player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.AuraDeProtection(player.oid.LoginCreature, 7));
-          UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>().SetRadius(3);
+          UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>().SetRadius(3);
 
           break;
 

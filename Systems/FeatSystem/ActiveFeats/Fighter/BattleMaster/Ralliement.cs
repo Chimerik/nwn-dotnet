@@ -28,7 +28,7 @@ namespace NWN.Systems
 
       foreach (var eff in target.ActiveEffects)
         if (eff.EffectType == EffectType.TemporaryHitpoints)
-          highestHPList.Add(eff.IntParams[3]);
+          highestHPList.Add(eff.IntParams[5]);
 
       if (temporaryHP > highestHPList.Max())
       {

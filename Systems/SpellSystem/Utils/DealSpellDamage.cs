@@ -59,7 +59,12 @@ namespace NWN.Systems
         for (int i = 0; i < nbDices; i++)
         {
           roll = isEvocateurSurcharge ? damageDice : NwRandom.Roll(Utils.random, damageDice);
-          roll = isFureurDestructrice && Utils.In(appliedDamage, DamageType.Electrical, DamageType.Sonic) ? damageDice : roll;
+
+          if(isFureurDestructrice && Utils.In(appliedDamage, DamageType.Electrical, DamageType.Sonic))
+          {
+            roll = damageDice;
+            EffectUtils.RemoveTaggedEffect(oCaster, 0.2, EffectSystem.FureurDestructriceEffectTag);
+          }
 
           roll = isElementalist && roll < 2 ? 2 : roll;
 

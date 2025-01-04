@@ -4,7 +4,7 @@ namespace NWN.Systems
 {
   public static partial class SkillSystem
   {
-    public static bool OnLearnTerreAride(PlayerSystem.Player player, int customSkillId)
+    public static bool OnLearnTerrePolaire(PlayerSystem.Player player, int customSkillId)
     {
       player.LearnAlwaysPreparedSpell((int)Spell.HoldPerson, CustomClass.Druid);
       player.LearnAlwaysPreparedSpell((int)Spell.RayOfFrost, CustomClass.Druid);

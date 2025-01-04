@@ -360,6 +360,30 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case CustomSpell.AppelDeFamilierBat:
+        case CustomSpell.AppelDeFamilierCat:
+        case CustomSpell.AppelDeFamilierRat:
+        case CustomSpell.AppelDeFamilierSpider:
+        case CustomSpell.AppelDeFamilierOwl:
+        case CustomSpell.AppelDeFamilierRaven:
+        case CustomSpell.AppelDeFamilierCrapaud:
+        case CustomSpell.PacteDeLaChaineDiablotin:
+        case CustomSpell.PacteDeLaChaineEspritFollet:
+        case CustomSpell.PacteDeLaChainePseudoDragon:
+        case CustomSpell.PacteDeLaChaineQuasit:
+        case CustomSpell.PacteDeLaChaineSerpent:
+        case CustomSpell.PacteDeLaChaineSphinx:
+        case CustomSpell.PacteDeLaChaineSquelette:
+        case CustomSpell.PacteDeLaChaineTetard:
+          SpellSystem.AppelDeFamilier(oCaster, spell, castingClass);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.AppelDeFamilierRename:
+          SpellSystem.AssociateRename(oCaster, AssociateType.Familiar);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.PurificationDeNourritureEtBoisson:
           SpellSystem.PurificationDeNourritureEtBoisson(oCaster, spell, spellEntry);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
@@ -890,9 +914,15 @@ namespace NWN.Systems
           concentrationTargets.AddRange(SpellSystem.Levitation(oCaster, spell, spellEntry, castingClass, target));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
-
+          
         case CustomSpell.BondSuperieur:
           SpellSystem.BondSuperieur(oCaster, spell, spellEntry, castingClass, target);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.FureurDelOuraganFoudre:
+        case CustomSpell.FureurDelOuraganTonnerre:
+          SpellSystem.FureurDelOuragan(oCaster, spell, spellEntry);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -1166,6 +1196,12 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case CustomSpell.MaitreDeLaChaineRadiant:
+        case CustomSpell.MaitreDeLaChaineNecrotique:
+          SpellSystem.MaitreDeLaChaine(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.SecondSouffle:
           SpellSystem.SecondSouffle(oCaster, spell, spellEntry);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
@@ -1216,12 +1252,12 @@ namespace NWN.Systems
         case CustomSpell.BelluaireLoup:
         case CustomSpell.BelluaireAraignee:
         case CustomSpell.BelluaireSanglier:
-          SpellSystem.CompagnonAnimal(oCaster, spell, spellEntry, target is null ? targetLocation : target.Location);
+          SpellSystem.CompagnonAnimal(oCaster, spell, spellEntry);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
-        case CustomSpell.BelluaireRevocation:
-          SpellSystem.CompagnonAnimalRevocation(oCaster, spell, spellEntry);
+        case CustomSpell.BelluaireRename:
+          SpellSystem.AssociateRename(oCaster, AssociateType.AnimalCompanion);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 

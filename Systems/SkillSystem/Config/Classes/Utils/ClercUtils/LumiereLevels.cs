@@ -18,8 +18,8 @@ namespace NWN.Systems
           player.LearnAlwaysPreparedSpell((int)Spell.Light, CustomClass.Clerc);
           player.LearnAlwaysPreparedSpell((int)Spell.BurningHands, CustomClass.Clerc);
           player.LearnAlwaysPreparedSpell(CustomSpell.FaerieFire, CustomClass.Clerc);
-          player.LearnAlwaysPreparedSpell((int)Spell.Firebrand, CustomSkill.Clerc);
-          player.LearnAlwaysPreparedSpell((int)Spell.SeeInvisibility, CustomSkill.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.Firebrand, CustomClass.Clerc);
+          player.LearnAlwaysPreparedSpell((int)Spell.SeeInvisibility, CustomClass.Clerc);
 
           player.LearnClassSkill(CustomSkill.ClercIllumination);
           player.LearnClassSkill(CustomSkill.ClercRadianceDeLaube);

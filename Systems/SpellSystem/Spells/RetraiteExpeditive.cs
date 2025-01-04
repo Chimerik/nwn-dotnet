@@ -25,7 +25,7 @@ namespace NWN.Systems
 
         if (caster.KnowsFeat((Feat)CustomSkill.BelluaireEntrainementExceptionnel))
         {
-          var companion = caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).Value;
+          var companion = caster.GetAssociate(AssociateType.AnimalCompanion);
 
           if (companion is not null)
           {

@@ -17,7 +17,7 @@ namespace NWN.Systems
 
         NWScript.AssignCommand(oCaster, () => targetLocation.ApplyEffect(EffectDuration.Temporary, EffectSystem.TempeteDeNeige, SpellUtils.GetSpellDuration(oCaster, spellEntry)));
 
-        var aoe = UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>();
+        var aoe = UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>();
         aoe.GetObjectVariable<LocalVariableInt>("_SPELL_CASTING_ABILITY").Value = (int)castingClass.SpellCastingAbility;
         concentrationList.Add(aoe);
       }

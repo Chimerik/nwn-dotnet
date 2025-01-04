@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Anvil.API;
 using NWN.Native.API;
@@ -9,6 +10,15 @@ namespace NWN
   {
     public static void RemoveTaggedEffect(NwGameObject target, params string[] effectTag)
     {
+      foreach (var eff in target.ActiveEffects)
+        if (effectTag.Contains(eff.Tag))
+          target.RemoveEffect(eff);
+    }
+
+    public static async void RemoveTaggedEffect(NwGameObject target, double delay, params string[] effectTag)
+    {
+      await NwTask.Delay(TimeSpan.FromSeconds(delay));
+
       foreach (var eff in target.ActiveEffects)
         if (effectTag.Contains(eff.Tag))
           target.RemoveEffect(eff);

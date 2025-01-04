@@ -15,7 +15,7 @@ namespace NWN.Systems
       List<NwGameObject> targets = SpellUtils.GetSpellTargets(oCaster, oTarget, spellEntry, true);
       int healAmount = caster.KnowsFeat((Feat)CustomSkill.ClercGuerisonSupreme)
         ? (spellEntry.damageDice * spellEntry.numDice) + caster.GetAbilityModifier(castingClass.SpellCastingAbility)
-        : NwRandom.Roll(Utils.random, spellEntry.damageDice, spellEntry.numDice) + caster.GetAbilityModifier(castingClass.SpellCastingAbility);
+        : Utils.Roll(spellEntry.damageDice, spellEntry.numDice) + caster.GetAbilityModifier(castingClass.SpellCastingAbility);
 
       if (castingClass.ClassType == ClassType.Cleric)
       {
@@ -23,7 +23,7 @@ namespace NWN.Systems
           healAmount += 2 + spell.GetSpellLevelForClass(castingClass);
 
         if (caster.KnowsFeat((Feat)CustomSkill.ClercGuerriseurBeni) && oCaster != oTarget)
-          NWScript.AssignCommand(oCaster, () => oCaster.ApplyEffect(EffectDuration.Instant, Effect.Heal(2 * spell.GetSpellLevelForClass(castingClass))));
+          NWScript.AssignCommand(oCaster, () => oCaster.ApplyEffect(EffectDuration.Instant, Effect.Heal(2 + spell.GetSpellLevelForClass(castingClass))));
       }
 
       foreach (var target in targets)

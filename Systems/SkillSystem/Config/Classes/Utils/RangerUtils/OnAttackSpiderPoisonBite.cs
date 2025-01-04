@@ -1,6 +1,5 @@
 ﻿using Anvil.API.Events;
 using Anvil.API;
-using System.Linq;
 
 namespace NWN.Systems
 {
@@ -8,7 +7,7 @@ namespace NWN.Systems
   {
     public static void OnAttackSpiderPoisonBite(OnCreatureAttack onAttack)
     {
-      if (onAttack.Target is not NwCreature target || target.IsImmuneTo(ImmunityType.Poison) || target.ActiveEffects.Any(e => e.Tag == EffectSystem.PoisonEffectTag))
+      if (onAttack.Target is not NwCreature target)
         return;
 
       switch (onAttack.AttackResult)

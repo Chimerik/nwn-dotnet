@@ -1,7 +1,6 @@
 ﻿using Anvil.API;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.PlayerSystem.Player;
-using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
 {
@@ -19,9 +18,7 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("terrainDeCercleSelection", out var value)) player.windows.Add("terrainDeCercleSelection", new TerrainDeCercleSelectionWindow(player));
           else ((TerrainDeCercleSelectionWindow)value).CreateWindow();
 
-          player.learnableSkills.TryAdd(CustomSkill.DruideAssistanceTerrestre, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DruideAssistanceTerrestre], player));
-          player.learnableSkills[CustomSkill.DruideAssistanceTerrestre].LevelUp(player);
-          player.learnableSkills[CustomSkill.DruideAssistanceTerrestre].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.DruideAssistanceTerrestre);
 
           break;
 
@@ -40,13 +37,8 @@ namespace NWN.Systems
 
         case 6:
 
-          player.learnableSkills.TryAdd(CustomSkill.DruideEconomieNaturelle, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DruideEconomieNaturelle], player));
-          player.learnableSkills[CustomSkill.DruideEconomieNaturelle].LevelUp(player);
-          player.learnableSkills[CustomSkill.DruideEconomieNaturelle].source.Add(Category.Class);
-
-          player.learnableSkills.TryAdd(CustomSkill.DruideRecuperationNaturelle, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DruideRecuperationNaturelle], player));
-          player.learnableSkills[CustomSkill.DruideRecuperationNaturelle].LevelUp(player);
-          player.learnableSkills[CustomSkill.DruideRecuperationNaturelle].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.DruideEconomieNaturelle);
+          player.LearnClassSkill(CustomSkill.DruideRecuperationNaturelle);
 
           break;
 
@@ -76,21 +68,8 @@ namespace NWN.Systems
 
           break;
 
-        case 10:
-
-          player.learnableSkills.TryAdd(CustomSkill.DruideProtectionNaturelle, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DruideProtectionNaturelle], player));
-          player.learnableSkills[CustomSkill.DruideProtectionNaturelle].LevelUp(player);
-          player.learnableSkills[CustomSkill.DruideProtectionNaturelle].source.Add(Category.Class);
-
-          break;
-
-        case 14:
-
-          player.learnableSkills.TryAdd(CustomSkill.DruideSanctuaireNaturel, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DruideSanctuaireNaturel], player));
-          player.learnableSkills[CustomSkill.DruideSanctuaireNaturel].LevelUp(player);
-          player.learnableSkills[CustomSkill.DruideSanctuaireNaturel].source.Add(Category.Class);
-
-          break;
+        case 10: player.LearnClassSkill(CustomSkill.DruideProtectionNaturelle); break;
+        case 14: player.LearnClassSkill(CustomSkill.DruideSanctuaireNaturel); break;
       }
     }
   }

@@ -1,6 +1,7 @@
 ﻿using System;
 using Anvil.API;
 using Anvil.API.Events;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -11,7 +12,7 @@ namespace NWN.Systems
     {
       creature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPolymorph));
 
-      Effect eff = Effect.Polymorph(shapeType);
+      Effect eff = Effect.LinkEffects(Effect.Polymorph(shapeType), Effect.TemporaryHitpoints(creature.GetClassInfo(ClassType.Druid).Level / 2));
       eff.Tag = PolymorphEffectTag;
       eff.SubType = EffectSubType.Supernatural;
 
@@ -203,17 +204,16 @@ namespace NWN.Systems
     }
     public static async void DelayHPReset(NwCreature creature)
     {
+      creature.HP = creature.MaxHP;
+
       await NwTask.Delay(TimeSpan.FromSeconds(0.5));
 
       if (creature is null || !creature.IsValid)
         return;
 
-      creature.HP = creature.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_CURRENT_HP").Value;
+      int damageInterval = (creature.MaxHP - creature.HP) + (creature.MaxHP - creature.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_CURRENT_HP").Value);
+      NWScript.AssignCommand(creature, () => creature.ApplyEffect(EffectDuration.Instant, Effect.Damage(damageInterval)));
       creature.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_CURRENT_HP").Delete();
-
-      if (creature.HP < 1)
-        creature.ApplyEffect(EffectDuration.Instant, Effect.Death());
-
       creature.LoginPlayer?.ExportCharacter();
     }
     public static void OnDamagedPolymorph(CreatureEvents.OnDamaged onDamaged)

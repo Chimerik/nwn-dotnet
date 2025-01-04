@@ -14,7 +14,7 @@ namespace NWN.Systems
         Effect.RunAction(onIntervalHandle: onIntervalHeroismeCallback, interval: NwTimeSpan.FromRounds(1)));
       eff.Tag = HeroismeEffectTag;
       eff.SubType = EffectSubType.Supernatural;
-      eff.IntParams[3] = modifier;
+      eff.IntParams[5] = modifier;
       return eff;
     }
     private static ScriptHandleResult OnIntervalHeroisme(CallInfo callInfo)
@@ -22,7 +22,7 @@ namespace NWN.Systems
       EffectRunScriptEvent eventData = new EffectRunScriptEvent();
 
       if (eventData.EffectTarget is NwCreature target)
-        target.ApplyEffect(EffectDuration.Temporary, Effect.TemporaryHitpoints(eventData.Effect.IntParams[3]), NwTimeSpan.FromRounds(1));
+        target.ApplyEffect(EffectDuration.Temporary, Effect.TemporaryHitpoints(eventData.Effect.IntParams[5]), NwTimeSpan.FromRounds(1));
 
       return ScriptHandleResult.Handled;
     }

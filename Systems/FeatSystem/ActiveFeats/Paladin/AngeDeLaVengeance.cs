@@ -8,7 +8,7 @@ namespace NWN.Systems
     private static void AngeDeLaVengeance(NwCreature caster)
     {
       caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.AngeDeLaVengeance(caster), NwTimeSpan.FromRounds(100));
-      UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>().SetRadius(9);
+      UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>().SetRadius(9);
 
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSuperHeroism));
 

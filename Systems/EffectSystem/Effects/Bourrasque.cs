@@ -18,7 +18,7 @@ namespace NWN.Systems
       Effect eff = Effect.AreaOfEffect((PersistentVfxType)257, onEnterBourrasqueCallback, onHeartbeatBourrasqueCallback, onExitBourrasqueCallback);
       eff.Tag = BourrasqueEffectTag;
       eff.Spell = NwSpell.FromSpellType(Spell.GustOfWind);
-      eff.IntParams[3] = (int)castingAbility;
+      eff.IntParams[5] = (int)castingAbility;
       eff.Creator = caster;
       return eff;
     }

@@ -29,7 +29,7 @@ namespace NWN.Systems
 
         targetLocation.ApplyEffect(EffectDuration.Temporary, EffectSystem.Enchevetrement(caster), duration);
         //targetLocation.ApplyEffect(EffectDuration.Temporary, Effect.AreaOfEffect(PersistentVfxType.PerDarkness), SpellUtils.GetSpellDuration(oCaster, spellEntry));
-        concentrationTarget.Add(UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>());
+        concentrationTarget.Add(UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>());
       }
 
       return concentrationTarget;

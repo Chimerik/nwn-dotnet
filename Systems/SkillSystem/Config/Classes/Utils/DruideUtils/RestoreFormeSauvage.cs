@@ -17,7 +17,7 @@ namespace NWN.Systems
 
       if (shortRest) // et qu'une utilisation a été consommé, alors on ajoute une utilisation
       {
-        byte currentUses = creature.GetFeatRemainingUses((Feat)CustomSkill.DruideCompagnonSauvage);
+        byte currentUses = creature.GetFeatRemainingUses((Feat)CustomSkill.FormeSauvageBlaireau);
         if (currentUses < maxUses)
           nbSource = (byte)(currentUses + 1);
         else

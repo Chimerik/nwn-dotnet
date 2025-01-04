@@ -20,13 +20,13 @@ namespace NWN.Systems
       Effect attack = Effect.Icon(EffectIcon.AttackIncrease);
       attack.Tag = CoupAuButAttackEffectTag;
       attack.SubType = EffectSubType.Supernatural;
-      attack.IntParams[3] = (int)casterAbility;
+      attack.IntParams[5] = (int)casterAbility;
       caster.ApplyEffect(EffectDuration.Permanent, attack);
 
       Effect damage = Effect.Icon(EffectIcon.DamageIncrease);
       damage.Tag = CoupAuButDamageEffectTag;
       damage.SubType = EffectSubType.Supernatural;
-      damage.IntParams[3] = (int)casterAbility;
+      damage.IntParams[5] = (int)casterAbility;
       caster.ApplyEffect(EffectDuration.Permanent, damage);
 
       if (spell.Id == CustomSpell.CoupAuButRadiant)

@@ -11,7 +11,7 @@ namespace NWN.Systems
       Effect eff = Effect.MovementSpeedDecrease(50);
       eff.Tag = TerrainDifficileEffectTag;
       eff.SubType = EffectSubType.Supernatural;
-      eff.IntParams[3] = spellId;
+      eff.IntParams[5] = spellId;
       return eff;
     }
     public static void ApplyTerrainDifficileEffect(NwCreature creature, int spellId = -1)

@@ -728,6 +728,12 @@ namespace NWN.Systems
         return;
       }
 
+      if(spell.Id == CustomSpell.AppelDeFamilierRename)
+      {
+        EventsPlugin.SkipEvent();
+        return;
+      }
+
       if (spellEntry.ritualSpell && !caster.IsInCombat)
       {
         LogUtils.LogMessage("Sort lancé en mode rituel", LogUtils.LogType.Combat);
@@ -822,15 +828,21 @@ namespace NWN.Systems
             if (spell.Id == CustomSpell.ModificationDapparence && caster.KnowsFeat((Feat)CustomSkill.DruideLuneRadieuse)
               && druidClass is not null && druidClass.Level > 13)
               EventsPlugin.SkipEvent();*/
-          
 
-            if (caster.ActiveEffects.Any(e => e.Tag == EffectSystem.EconomieNaturelleEffectTag)
-              && Players.TryGetValue(caster, out var druidPlayer) && druidPlayer.learnableSpells.TryGetValue(spell.Id, out var druidSpell)
-              && druidSpell.alwaysPrepared)
-            {
-              EventsPlugin.SkipEvent();
-              EffectUtils.RemoveTaggedEffect(caster, EffectSystem.EconomieNaturelleEffectTag);
-            }
+          if(Utils.In(spell.Id, CustomSpell.AppelDeFamilierBat, CustomSpell.AppelDeFamilierBat, CustomSpell.AppelDeFamilierCrapaud, CustomSpell.AppelDeFamilierOwl, CustomSpell.AppelDeFamilierRat, CustomSpell.AppelDeFamilierRaven, CustomSpell.AppelDeFamilierRename, CustomSpell.AppelDeFamilierSpider))
+          {
+            EventsPlugin.SkipEvent();
+            EffectUtils.RemoveTaggedEffect(caster, EffectSystem.EconomieNaturelleEffectTag);
+            return;
+          }
+
+          if (caster.ActiveEffects.Any(e => e.Tag == EffectSystem.EconomieNaturelleEffectTag)
+            && Players.TryGetValue(caster, out var druidPlayer) && druidPlayer.learnableSpells.TryGetValue(spell.Id, out var druidSpell)
+            && druidSpell.alwaysPrepared)
+          {
+            EventsPlugin.SkipEvent();
+            EffectUtils.RemoveTaggedEffect(caster, EffectSystem.EconomieNaturelleEffectTag);
+          }
 
           return;
       }

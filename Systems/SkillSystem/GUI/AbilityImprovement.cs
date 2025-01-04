@@ -72,7 +72,7 @@ namespace NWN.Systems
             Resizable = false,
             Collapsed = false,
             Closable = false,
-            Transparent = true,
+            Transparent = false,
             Border = true,
           };
 

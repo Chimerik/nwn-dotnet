@@ -9,6 +9,8 @@ namespace NWN.Systems
     {
       NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.EconomieNaturelle));
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} - Economie Naturelle", StringUtils.gold, true, true);
+
+      caster.DecrementRemainingFeatUses((Feat)CustomSkill.DruideEconomieNaturelle);
     }
   }
 }

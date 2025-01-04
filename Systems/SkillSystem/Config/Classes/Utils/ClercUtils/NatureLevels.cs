@@ -21,8 +21,8 @@ namespace NWN.Systems
           NwSpell.FromSpellType(Spell.GreatThunderclap), NwSpell.FromSpellId(CustomSpell.FireBolt), NwSpell.FromSpellId(CustomSpell.PoisonSpray),
           NwSpell.FromSpellId(CustomSpell.ProduceFlame), NwSpell.FromSpellId(CustomSpell.Druidisme) };
 
-          if (!player.windows.TryGetValue("cantripSelection", out var cantrip1)) player.windows.Add("cantripSelection", new CantripSelectionWindow(player, ClassType.Druid, 1, druidCantrips));
-          else ((CantripSelectionWindow)cantrip1).CreateWindow(ClassType.Druid, 1, druidCantrips);
+          if (!player.windows.TryGetValue("cantripSelection", out var cantrip1)) player.windows.Add("cantripSelection", new CantripSelectionWindow(player, ClassType.Cleric, 1, druidCantrips));
+          else ((CantripSelectionWindow)cantrip1).CreateWindow(ClassType.Cleric, 1, druidCantrips);
 
           List<int> skillList = new() { CustomSkill.AnimalHandlingProficiency, CustomSkill.NatureProficiency, CustomSkill.SurvivalProficiency };
 

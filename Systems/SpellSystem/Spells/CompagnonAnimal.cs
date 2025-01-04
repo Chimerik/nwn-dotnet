@@ -7,12 +7,19 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void CompagnonAnimal(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, Location targetLocation)
+    public static void CompagnonAnimal(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry)
     {
       if (oCaster is not NwCreature caster)
         return;
 
-      var rangerClass = caster.GetClassInfo((ClassType)CustomClass.Occultiste);
+      if (caster.GetAssociate(AssociateType.AnimalCompanion) is not null)
+      {
+        caster.UnsummonAnimalCompanion();
+        caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireFurieBestiale, 0);
+        return;
+      }
+
+      var rangerClass = caster.GetClassInfo((ClassType)CustomClass.Ranger);
       byte remainingSlots = 0;
 
       for (byte i = 1; i < 6; i++)
@@ -34,21 +41,10 @@ namespace NWN.Systems
 
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
 
-      NwCreature companion;
-
-      if (caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).HasValue)
-      {
-        companion = caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).Value;
-        companion.VisibilityOverride = Anvil.Services.VisibilityMode.Hidden;
-        companion.Destroy();
-
-        companion.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpUnsummon));
-      }
-
-      companion = CreateAnimalCompanion(spell.Id, caster, targetLocation);
+      var companion = CreateAnimalCompanion(spell.Id, caster);
 
       CreaturePlugin.AddAssociate(caster, companion, (int)AssociateType.AnimalCompanion);
-      caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).Value = companion;
+      //caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).Value = companion;
 
       for (int i = 268; i < 287; i++)
         if (caster.KnowsFeat((Feat)i))
@@ -57,18 +53,15 @@ namespace NWN.Systems
       if (caster.KnowsFeat((Feat)CustomSkill.BelluaireFurieBestiale))
         caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireFurieBestiale, 100);
     }
-    private static NwCreature CreateAnimalCompanion(int featId, NwCreature caster, Location target)
+    private static NwCreature CreateAnimalCompanion(int spellId, NwCreature caster)
     {
+      NwCreature companion = CreatureUtils.SummonAssociate(caster, AssociateType.AnimalCompanion, AnimalCompanion2da.companionTable.FirstOrDefault(f => f.spellId == spellId).resRef);
       byte rangerLevel = caster.GetClassInfo(ClassType.Ranger).Level;
-      NwCreature companion;
-      VfxType vfx = VfxType.FnfSummonMonster1;
-      NwItem weapon;
+      NwItem weapon; 
 
-      switch (featId)
+      switch (spellId)
       {
         default:
-
-          companion = NwCreature.Create("ourscompagnon", target);
 
           weapon = companion.GetItemInSlot(InventorySlot.CreatureLeftWeapon);
           weapon.AddItemProperty(ItemProperty.DamageBonus(IPDamageType.Slashing, IPDamageBonus.Plus1d8), EffectDuration.Permanent);
@@ -85,25 +78,18 @@ namespace NWN.Systems
           else
             caster.SetFeatRemainingUses((Feat)CustomSkill.BelluairePatteMielleuse, 100);
 
-          if (rangerLevel < 5)
+          if (rangerLevel < 8)
           {
-            vfx = VfxType.FnfSummonMonster1;
-          }
-          else if (rangerLevel < 8)
-          {
-            vfx = VfxType.FnfSummonMonster2;
             companion.MaxHP = 39;
             companion.BaseAC += 4;
           }
           else if (rangerLevel < 11)
           {
-            vfx = VfxType.FnfSummonMonster3;
             companion.MaxHP = 69;
             companion.BaseAC += 5;
           }
           else
           {
-            vfx = VfxType.FnfSummonMonster3;
             companion.MaxHP = 99;
             companion.BaseAC += 7;
           }
@@ -113,8 +99,6 @@ namespace NWN.Systems
           break;
 
         case CustomSpell.BelluaireSanglier:
-
-          companion = NwCreature.Create("sangliercompagnon", target);
 
           weapon = companion.GetItemInSlot(InventorySlot.CreatureLeftWeapon);
           weapon.AddItemProperty(ItemProperty.DamageBonus(IPDamageType.Slashing, IPDamageBonus.Plus1d6), EffectDuration.Permanent);
@@ -131,25 +115,18 @@ namespace NWN.Systems
           else
             caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireRageSanglier, 100);
 
-          if (rangerLevel < 5)
+          if (rangerLevel < 8)
           {
-            vfx = VfxType.FnfSummonMonster1;
-          }
-          else if (rangerLevel < 8)
-          {
-            vfx = VfxType.FnfSummonMonster2;
             companion.MaxHP = 27;
             companion.BaseAC += 3;
           }
           else if (rangerLevel < 11)
           {
-            vfx = VfxType.FnfSummonMonster3;
             companion.MaxHP = 51;
             companion.BaseAC += 4;
           }
           else
           {
-            vfx = VfxType.FnfSummonMonster3;
             companion.MaxHP = 85;
             companion.BaseAC += 6;
           }
@@ -159,8 +136,6 @@ namespace NWN.Systems
           break;
 
         case CustomSpell.BelluaireCorbeau:
-
-          companion = NwCreature.Create("corbeaucompagnon", target);
 
           weapon = companion.GetItemInSlot(InventorySlot.CreatureLeftWeapon);
           weapon.AddItemProperty(ItemProperty.DamageBonus(IPDamageType.Piercing, IPDamageBonus.Plus2d4), EffectDuration.Permanent);
@@ -174,26 +149,19 @@ namespace NWN.Systems
           else
             caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireCorbeauMauvaisAugure, 100);
 
-          if (rangerLevel < 5)
+          if (rangerLevel < 8)
           {
-            vfx = VfxType.FnfSummonMonster1;
-          }
-          else if (rangerLevel < 8)
-          {
-            vfx = VfxType.FnfSummonMonster2;
             weapon.AddItemProperty(ItemProperty.DamageBonus(IPDamageType.Piercing, IPDamageBonus.Plus1d4), EffectDuration.Permanent);
             companion.MaxHP = 21;
             companion.BaseAC += 3;
           }
           else if (rangerLevel < 11)
           {
-            vfx = VfxType.FnfSummonMonster3;
             companion.MaxHP = 32;
             companion.BaseAC += 4;
           }
           else
           {
-            vfx = VfxType.FnfSummonMonster3;
             weapon.AddItemProperty(ItemProperty.DamageBonus(IPDamageType.Piercing, IPDamageBonus.Plus1d6), EffectDuration.Permanent);
             companion.MaxHP = 44;
             companion.BaseAC += 5;
@@ -204,8 +172,6 @@ namespace NWN.Systems
           break;
 
         case CustomSpell.BelluaireLoup:
-
-          companion = NwCreature.Create("loupcompagnon", target);
 
           weapon = companion.GetItemInSlot(InventorySlot.CreatureLeftWeapon);
           weapon.AddItemProperty(ItemProperty.DamageBonus(IPDamageType.Piercing, IPDamageBonus.Plus2d4), EffectDuration.Permanent);
@@ -225,25 +191,18 @@ namespace NWN.Systems
             companion.OnCreatureDamage += RangerUtils.OnDamageLoupMorsureInfectieuse;
           }
 
-          if (rangerLevel < 5)
+          if (rangerLevel < 8)
           {
-            vfx = VfxType.FnfSummonMonster1;
-          }
-          else if (rangerLevel < 8)
-          {
-            vfx = VfxType.FnfSummonMonster2;
             companion.MaxHP = 31;
             companion.BaseAC += 3;
           }
           else if (rangerLevel < 11)
           {
-            vfx = VfxType.FnfSummonMonster3;
             companion.MaxHP = 61;
             companion.BaseAC += 5;
           }
           else
           {
-            vfx = VfxType.FnfSummonMonster3;
             companion.MaxHP = 91;
             companion.BaseAC += 7;
           }
@@ -254,8 +213,6 @@ namespace NWN.Systems
           break;
 
         case CustomSpell.BelluaireAraignee:
-
-          companion = NwCreature.Create("spidercompagnon", target);
 
           companion.ApplyEffect(EffectDuration.Permanent, Effect.SpellImmunity(Spell.Web));
 
@@ -276,25 +233,18 @@ namespace NWN.Systems
 
           caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireSpiderCocoon, 100);
 
-          if (rangerLevel < 5)
+          if (rangerLevel < 8)
           {
-            vfx = VfxType.FnfSummonMonster1;
-          }
-          else if (rangerLevel < 8)
-          {
-            vfx = VfxType.FnfSummonMonster2;
             companion.MaxHP = 24;
             companion.BaseAC += 4;
           }
           else if (rangerLevel < 11)
           {
-            vfx = VfxType.FnfSummonMonster3;
             companion.MaxHP = 42;
             companion.BaseAC += 5;
           }
           else
           {
-            vfx = VfxType.FnfSummonMonster3;
             companion.MaxHP = 60;
             companion.BaseAC += 7;
           }
@@ -303,22 +253,6 @@ namespace NWN.Systems
 
           break;
       }
-
-      companion.Position = CreaturePlugin.ComputeSafeLocation(companion, target.Position, 10, 1);
-      companion.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(vfx));
-      companion.SetEventScript(EventScriptType.CreatureOnBlockedByDoor, "nw_ch_ace");
-      companion.SetEventScript(EventScriptType.CreatureOnEndCombatRound, "nw_ch_ac3");
-      companion.SetEventScript(EventScriptType.CreatureOnDamaged, "nw_ch_ac6");
-      companion.SetEventScript(EventScriptType.CreatureOnDeath, "nw_ch_ac7");
-      companion.SetEventScript(EventScriptType.CreatureOnDisturbed, "nw_ch_ac8");
-      companion.SetEventScript(EventScriptType.CreatureOnHeartbeat, "nw_ch_ac1");
-      companion.SetEventScript(EventScriptType.CreatureOnNotice, "nw_ch_ac2");
-      companion.SetEventScript(EventScriptType.CreatureOnMeleeAttacked, "nw_ch_ac5");
-      companion.SetEventScript(EventScriptType.CreatureOnRested, "nw_ch_aca");
-      companion.SetEventScript(EventScriptType.CreatureOnSpawnIn, "nw_ch_acani9");
-      companion.SetEventScript(EventScriptType.CreatureOnSpellCastAt, "nw_ch_acb");
-      companion.SetEventScript(EventScriptType.CreatureOnUserDefinedEvent, "nw_ch_acd");
-      companion.SetEventScript(EventScriptType.CreatureOnDialogue, "nw_ch_ac4");
 
       return companion;
     }

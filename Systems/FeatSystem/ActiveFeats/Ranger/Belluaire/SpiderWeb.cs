@@ -7,10 +7,10 @@ namespace NWN.Systems
   {
     private static void SpiderWeb(NwCreature caster, Vector3 oTarget)
     {
-      if (caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).HasValue)
-      {
-        var companion = caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).Value;
+      var companion = caster.GetAssociate(AssociateType.AnimalCompanion);
 
+      if (companion is not null)
+      {
         _ = companion.ClearActionQueue();
         _ = companion.ActionCastSpellAt(Spell.Web, Location.Create(companion.Area, oTarget, companion.Rotation), cheat:true);
         

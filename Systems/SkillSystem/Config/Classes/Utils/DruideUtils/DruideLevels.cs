@@ -32,7 +32,7 @@ namespace NWN.Systems
 
               learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 4;
             }
-
+            
             playerClass.acquiredPoints = 0;
           }
 
@@ -40,7 +40,7 @@ namespace NWN.Systems
           {
             if (Utils.In(spell.Id, CustomSpell.RayonEmpoisonne, (int)Spell.AcidSplash, (int)Spell.Web, (int)Spell.RayOfFrost, (int)Spell.ElectricJolt, (int)Spell.Sleep,
               CustomSpell.FouleeBrumeuse, (int)Spell.BurningHands, (int)Spell.GhostlyVisage, CustomSpell.FireBolt, (int)Spell.Fireball, (int)Spell.LightningBolt,
-              (int)Spell.StinkingCloud))
+              (int)Spell.StinkingCloud, CustomSpell.AppelDeFamilier))
               continue;// ces sorts ne font pas partie du package de druide mais peuvent être appris via le cercle
 
             if (player.learnableSpells.TryGetValue(spell.Id, out var learnable))
@@ -73,6 +73,7 @@ namespace NWN.Systems
           player.LearnClassSkill(CustomSkill.FormeSauvageChat);
           player.LearnClassSkill(CustomSkill.FormeSauvageAraignee);
           player.LearnClassSkill(CustomSkill.FormeSauvageLoup);
+          player.LearnClassSkill(CustomSkill.DruideCompagnonSauvage);
           break;
 
         case 3:
@@ -89,8 +90,8 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("featSelection", out var feat4)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
           else ((FeatSelectionWindow)feat4).CreateWindow();
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell4)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Druid, 1));
-          else ((SpellSelectionWindow)spell4).CreateWindow(ClassType.Druid, 1);
+          if (!player.windows.TryGetValue("cantripSelection", out var spell4)) player.windows.Add("cantripSelection", new SpellSelectionWindow(player, ClassType.Druid, 1));
+          else ((CantripSelectionWindow)spell4).CreateWindow(ClassType.Druid, 1);
 
           player.LearnClassSkill(CustomSkill.FormeSauvageRothe);
 
@@ -119,8 +120,8 @@ namespace NWN.Systems
 
         case 10:
 
-          if (!player.windows.TryGetValue("spellSelection", out var spell10)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Druid, 1));
-          else ((SpellSelectionWindow)spell10).CreateWindow(ClassType.Druid, 1);
+          if (!player.windows.TryGetValue("cantripSelection", out var spell10)) player.windows.Add("cantripSelection", new SpellSelectionWindow(player, ClassType.Druid, 1));
+          else ((CantripSelectionWindow)spell10).CreateWindow(ClassType.Druid, 1);
           
           player.LearnClassSkill(CustomSkill.FormeSauvageDilophosaure);
 
@@ -155,8 +156,6 @@ namespace NWN.Systems
           player.LearnClassSkill(CustomSkill.MageNature);
           break;
       }
-
-      DruideUtils.RestoreFormeSauvage(player.oid.LoginCreature);
     }
   }
 }

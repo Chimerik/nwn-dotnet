@@ -71,7 +71,7 @@ namespace NWN.Systems
 
           NuiRect windowRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 520, 500);
 
-          string title = $"Veuillez choisir {nbSkills} maîtrises";
+          string title = $"Veuillez choisir {nbSkills} maîtrise(s)";
 
           window = new NuiWindow(rootColumn, title.Remove(title.Length))
           {
@@ -146,7 +146,7 @@ namespace NWN.Systems
                   else
                   {
                     foreach (var skillId in skillList)
-                      if(!player.learnableSkills.TryGetValue(skillId, out LearnableSkill learnable) && learnable.currentLevel < 1)
+                      if(!player.learnableSkills.TryGetValue(skillId, out LearnableSkill learnable) || learnable.currentLevel < 1)
                         availableSkills.Add((LearnableSkill)SkillSystem.learnableDictionary[skillId]);
                   }
                   

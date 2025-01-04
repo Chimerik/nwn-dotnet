@@ -8,7 +8,7 @@ namespace NWN.Systems
     private static void SanctuaireNaturel(NwCreature caster)
     {
       caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.SantuaireNaturelAura(caster), NwTimeSpan.FromRounds(10));
-      UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>().SetRadius(3);
+      UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>().SetRadius(3);
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfNaturesBalance));
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} - Sanctuaire Naturel", StringUtils.gold, true, true);
       

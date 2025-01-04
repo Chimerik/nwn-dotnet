@@ -18,7 +18,7 @@ namespace NWN.Systems
         FeatUtils.DecrementKi(caster, 2);
       }
 
-      return new List<NwGameObject>() { UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>() };
+      return new List<NwGameObject>() { UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>() };
     }
   }
 }

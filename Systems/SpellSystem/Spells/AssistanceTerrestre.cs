@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Anvil.API;
+﻿using Anvil.API;
 using NWN.Core;
 
 namespace NWN.Systems
@@ -22,11 +20,9 @@ namespace NWN.Systems
 
         if (caster.IsReactionTypeHostile(target))
         { 
-          if(CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
-          {
-            target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpAcidS));
-            SpellUtils.DealSpellDamage(target, caster.GetClassInfo(ClassType.Druid).Level, spellEntry, nbDices, caster, 2, SavingThrowResult.Failure);
-          }            
+          target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpAcidS));
+          SpellUtils.DealSpellDamage(target, caster.GetClassInfo(ClassType.Druid).Level, spellEntry, nbDices, caster, 2,
+            CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry));           
         }
         else
         {

@@ -34,7 +34,7 @@ namespace NWN.Systems
       }
 
       if (triggerBoon && castingClass.ClassType == ClassType.Cleric && caster.KnowsFeat((Feat)CustomSkill.ClercGuerriseurBeni))
-        NWScript.AssignCommand(oCaster, () => oCaster.ApplyEffect(EffectDuration.Instant, Effect.Heal(2 * spell.GetSpellLevelForClass(castingClass))));
+        NWScript.AssignCommand(oCaster, () => oCaster.ApplyEffect(EffectDuration.Instant, Effect.Heal(2 + spell.GetSpellLevelForClass(castingClass))));
     }  
   }
 }

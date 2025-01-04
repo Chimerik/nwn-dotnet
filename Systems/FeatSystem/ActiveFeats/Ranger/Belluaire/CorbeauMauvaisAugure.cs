@@ -12,10 +12,10 @@ namespace NWN.Systems
         return;
       }
 
-      if (caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).HasValue)
-      {
-        var companion = caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).Value;
+      var companion = caster.GetAssociate(AssociateType.AnimalCompanion);
 
+      if (companion is not null)
+      {
         _ = companion.ActionCastSpellAt((Spell)CustomSpell.MauvaisAugure, target, cheat:true);
 
         caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireCorbeauMauvaisAugure, 0);

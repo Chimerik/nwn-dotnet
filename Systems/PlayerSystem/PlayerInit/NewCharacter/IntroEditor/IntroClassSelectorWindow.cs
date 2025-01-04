@@ -276,7 +276,7 @@ namespace NWN.Systems
                   int classId = Classes2da.classTable.FirstOrDefault(c => c.classLearnableId == validatedLearnableId).RowIndex;
 
                   if (player.oid.LoginCreature.Level == 1)
-                    player.oid.LoginCreature.ForceLevelUp((byte)classId, player.RollClassHitDie(player.oid.LoginCreature.Level, (byte)classId, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));
+                    player.oid.LoginCreature.ForceLevelUp(NwClass.FromClassId(classId), player.RollClassHitDie(player.oid.LoginCreature.Level, (byte)classId, player.oid.LoginCreature.GetAbilityModifier(Ability.Constitution)));
                   else
                   {
                     CreaturePlugin.SetClassByPosition(player.oid.LoginCreature, 1, classId);

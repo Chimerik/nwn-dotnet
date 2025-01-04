@@ -14,7 +14,7 @@ namespace NWN.Systems
       {
         caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPulseWater));
         caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.FureurDesFlots(caster, druideLevels), NwTimeSpan.FromRounds(100));
-        UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>().SetRadius(druideLevels < 6 ? 3 : 9);
+        UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>().SetRadius(druideLevels < 6 ? 3 : 9);
 
         StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} - Fureur des Flots", ColorConstants.Blue, true, true);
         DruideUtils.DecrementFormeSauvage(caster);
@@ -34,7 +34,7 @@ namespace NWN.Systems
 
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPulseWater));
       target.ApplyEffect(EffectDuration.Temporary, EffectSystem.FureurDesFlots(caster, druideLevels), NwTimeSpan.FromRounds(100));
-      UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>().SetRadius(druideLevels < 6 ? 3 : 9);
+      UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>().SetRadius(druideLevels < 6 ? 3 : 9);
 
       StringUtils.DisplayStringToAllPlayersNearTarget(target, $"{caster.Name.ColorString(ColorConstants.Cyan)} - Fureur des Flots", ColorConstants.Blue, true, true);
       DruideUtils.DecrementFormeSauvage(caster);

@@ -17,11 +17,11 @@ namespace NWN.Systems
 
         foreach(var target in caster.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 9, false))
         {
-          if(caster.Faction.GetMembers().Contains(target)) 
-          {
-            NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, Effect.Heal(clerc.Level * 3)));
-            target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHealingM));
-          }
+          if (caster.IsReactionTypeHostile(target))
+            continue;
+
+          NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, Effect.Heal(clerc.Level * 3)));
+          target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHealingM));
         }
       }
     }

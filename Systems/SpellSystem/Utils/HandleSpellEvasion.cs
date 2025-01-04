@@ -44,7 +44,7 @@ namespace NWN.Systems
         && (Utils.In(spellId, CustomSpell.MauvaisAugure, CustomSpell.RayonDeLune, CustomSpell.EspritsGardiensRadiant, CustomSpell.EspritsGardiensNecrotique,
         (int)Spell.Balagarnsironhorn, (int)Spell.Enervation, CustomSpell.Fracassement, CustomSpell.PoingDeLair, CustomSpell.Rupture, CustomSpell.VagueDestructriceNecrotique, CustomSpell.VagueDestructriceRadiant,
         CustomSpell.MurmuresDissonnants, CustomSpell.EtincelleDivineRadiant, CustomSpell.EtincelleDivineNecrotique, CustomSpell.BrasdHadar,
-        CustomSpell.GreleDepines, CustomSpell.Blessure)
+        CustomSpell.GreleDepines, CustomSpell.Blessure, (int)Spell.NaturesBalance)
         || spellLevel == 0))
       {
         damage /= 2;

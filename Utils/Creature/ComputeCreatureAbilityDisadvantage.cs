@@ -68,7 +68,7 @@ namespace NWN.Systems
 
           case EffectSystem.MaleficeTag:
 
-            if (eff.IntParams[3] == (int)ability)
+            if (eff.IntParams[5] == (int)ability)
               return true;
 
             break;

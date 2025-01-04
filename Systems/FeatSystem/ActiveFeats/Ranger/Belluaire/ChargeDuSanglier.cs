@@ -13,14 +13,14 @@ namespace NWN.Systems
         return;
       }
 
-      if (caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).HasNothing)
+      var companion = caster.GetAssociate(AssociateType.AnimalCompanion);
+
+      if (companion is null)
       {
         caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireChargeSanglier, 0);
         caster.LoginPlayer?.SendServerMessage("Votre compagnon animal n'est pas invoqué", ColorConstants.Red);
         return;
       }
-
-      var companion = caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).Value;
 
       caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireFurieBestiale, 0);
 

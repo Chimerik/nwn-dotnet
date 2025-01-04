@@ -6,10 +6,10 @@ namespace NWN.Systems
   {
     private static void BelluaireRugissementProvoquant(NwCreature caster)
     {
-      if (caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).HasValue)
-      {
-        var companion = caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).Value;
+      var companion = caster.GetAssociate(AssociateType.AnimalCompanion);
 
+      if (companion is not null)
+      {
         StringUtils.DisplayStringToAllPlayersNearTarget(companion, "Rugissement Provocant", StringUtils.gold);
 
         caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireRugissementProvoquant, 0);

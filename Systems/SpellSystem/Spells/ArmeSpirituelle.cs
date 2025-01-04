@@ -14,7 +14,7 @@ namespace NWN.Systems
         return;
 
       NWScript.AssignCommand(oCaster, () => targetLocation.ApplyEffect(EffectDuration.Temporary, Effect.SummonCreature("X2_S_FAERIE001", VfxType.FnfSummonMonster1, NwTimeSpan.FromRounds(spellEntry.duration)), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
-      NwCreature summon = UtilPlugin.GetLastCreatedObject(5).ToNwObject<NwCreature>();
+      NwCreature summon = UtilPlugin.GetLastCreatedObject(NWNXObjectType.Creature).ToNwObject<NwCreature>();
       NwItem weapon = await NwItem.Create("NW_WSWDG001", summon);
       weapon.Droppable = false;
 

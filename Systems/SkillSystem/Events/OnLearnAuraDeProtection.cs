@@ -15,7 +15,7 @@ namespace NWN.Systems
       {
         int paladinLevel = player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).Level;
         player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.AuraDeProtection(player.oid.LoginCreature, paladinLevel));
-        UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>().SetRadius(paladinLevel < 18 ? 3 : 9);
+        UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>().SetRadius(paladinLevel < 18 ? 3 : 9);
       }
       return true;
     }

@@ -41,7 +41,7 @@
         <PackageReference Include="Google.Api.Gax" Version="4.9.0" />
         <PackageReference Include="Google.Apis" Version="1.68.0" />
         <PackageReference Include="Google.Apis.Auth" Version="1.68.0" />
-        <PackageReference Include="Google.Apis.Drive.v3" Version="1.68.0.3608" />
+        <PackageReference Include="Google.Apis.Drive.v3" Version="1.68.0.3627" />
         <PackageReference Include="Google.Cloud.Translation.V2" Version="3.4.0" />
         <PackageReference Include="LightInject" Version="7.0.1" />
         <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.0" />

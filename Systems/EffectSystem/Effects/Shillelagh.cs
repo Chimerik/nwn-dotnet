@@ -17,7 +17,7 @@ namespace NWN.Systems
       Effect attack = Effect.LinkEffects(Effect.Icon(EffectIcon.AttackIncrease), Effect.RunAction(onRemovedHandle: onRemoveShillelaghCallback));
       attack.Tag = ShillelaghEffectTag;
       attack.SubType = EffectSubType.Supernatural;
-      attack.IntParams[3] = (int)casterAbility;
+      attack.IntParams[5] = (int)casterAbility;
       caster.ApplyEffect(EffectDuration.Permanent, attack);
 
       if (spell.Id == CustomSpell.ShillelaghForce) 

@@ -14,7 +14,7 @@ namespace NWN.Systems
           && !oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.BenedictionDuMalinAuraEffectTag))
         {
           oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.BenedictionDuMalinAura(oid.LoginCreature));
-          UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>().SetRadius(4);
+          UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>().SetRadius(4);
 
           oid.LoginCreature.OnCreatureDamage -= OccultisteUtils.OnDamageBenedictionDuMalin;
           oid.LoginCreature.OnCreatureDamage += OccultisteUtils.OnDamageBenedictionDuMalin;

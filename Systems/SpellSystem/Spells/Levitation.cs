@@ -13,8 +13,9 @@ namespace NWN.Systems
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
 
       if (oCaster is NwCreature caster)
+      {
         caster.LoginPlayer?.SendServerMessage("Sort non implémenté pour le moment");
-
+      }
       concentrationList.Add(target);
 
       return concentrationList;

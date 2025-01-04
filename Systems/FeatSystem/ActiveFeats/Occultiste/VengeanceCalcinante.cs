@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       caster.DecrementRemainingFeatUses((Feat)CustomSkill.VengeanceCalcinante);
       caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.VengeanceCalcinanteAura(caster));
-      UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>().SetRadius(18);
+      UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>().SetRadius(18);
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} - Vengeance Calcinante", StringUtils.gold, true, true);
     }
   }

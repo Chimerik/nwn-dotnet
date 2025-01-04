@@ -1,5 +1,6 @@
 ﻿using Anvil.API;
 using NWN.Native.API;
+using AssociateType = NWN.Native.API.AssociateType;
 
 namespace NWN.Systems
 {
@@ -19,13 +20,12 @@ namespace NWN.Systems
       if (!attacker.m_pStats.HasFeat(CustomSkill.BelluaireAttaqueCoordonnee).ToBool())
         return;
 
-      var animalId = attacker.m_ScriptVars.GetObject(CreatureUtils.AnimalCompanionVariableExo);
-      var animal = NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(animalId);
+      var companion = NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(attacker.GetAssociateId((ushort)AssociateType.AnimalCompanion));
 
-      if (animal is null || animal.m_idSelf == 0x7F000000 || animal.m_ScriptVars.GetInt(CreatureUtils.AttaqueCoordonneCoolDownVariableExo).ToBool()) // OBJECT_INVALID
+      if (companion is null || companion.m_idSelf == 0x7F000000 || companion.m_ScriptVars.GetInt(CreatureUtils.AttaqueCoordonneCoolDownVariableExo).ToBool()) // OBJECT_INVALID
         return;
 
-      animal.m_ScriptVars.SetInt(CreatureUtils.AttaqueCoordonneeVariableExo, 1);
+      companion.m_ScriptVars.SetInt(CreatureUtils.AttaqueCoordonneeVariableExo, 1);
     }
   }
 }

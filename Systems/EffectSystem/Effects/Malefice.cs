@@ -30,7 +30,7 @@ namespace NWN.Systems
       Effect eff = Effect.RunAction(onRemovedHandle: onRemoveMaleficeCallback);
       eff.Tag = MaleficeTag;
       eff.SubType = EffectSubType.Supernatural;
-      eff.IntParams[3] = (int)ability;
+      eff.IntParams[5] = (int)ability;
       return eff;
     }
     private static ScriptHandleResult OnRemoveMalefice(CallInfo callInfo)

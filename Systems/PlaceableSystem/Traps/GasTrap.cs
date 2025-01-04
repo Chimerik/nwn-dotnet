@@ -11,7 +11,7 @@ namespace NWN.Systems
     public static void GasTrap(NwGameObject trap, TrapEntry entry)
     {
       trap.Location.ApplyEffect(EffectDuration.Temporary, Effect.AreaOfEffect(PersistentVfxType.PerFogacid, gasTrapHandler), TimeSpan.FromSeconds(entry.duration));
-      UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>().GetObjectVariable<LocalVariableInt>("_GAS_TRAP_TYPE").Value = entry.baseDC;
+      UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>().GetObjectVariable<LocalVariableInt>("_GAS_TRAP_TYPE").Value = entry.baseDC;
     }
     private ScriptHandleResult OnEnterGasTrap(CallInfo _)
     {

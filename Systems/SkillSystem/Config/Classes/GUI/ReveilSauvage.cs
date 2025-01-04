@@ -23,7 +23,7 @@ namespace NWN.Systems
 
         public ReveilSauvageWindow(Player player) : base(player)
         {
-          windowId = "ReveilSauvage";
+          windowId = "reveilSauvage";
           windowWidth = player.guiScaledWidth * 0.18f;
           windowHeight = player.guiScaledHeight * 0.1f;
           selectedSpellLevel = 1;
@@ -92,7 +92,7 @@ namespace NWN.Systems
               }
 
               DruideUtils.RestoreFormeSauvage(player.oid.LoginCreature, 1);
-              player.oid.LoginCreature.GetClassInfo(ClassType.Sorcerer).SetRemainingSpellSlots(selectedSpellLevel, (byte)(remainingSlots - 1));
+              player.oid.LoginCreature.GetClassInfo(ClassType.Druid).SetRemainingSpellSlots(selectedSpellLevel, (byte)(remainingSlots - 1));
               player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpGoodHelp));
               CloseWindow();
 
@@ -101,11 +101,11 @@ namespace NWN.Systems
         }
         private void RefreshWindow()
         {
-          enabled1.SetBindValue(player.oid, nuiToken.Token, player.oid.LoginCreature.GetClassInfo(ClassType.Sorcerer).GetRemainingSpellSlots(1) > 0);
-          enabled2.SetBindValue(player.oid, nuiToken.Token, player.oid.LoginCreature.GetClassInfo(ClassType.Sorcerer).GetRemainingSpellSlots(2) > 0);
-          enabled3.SetBindValue(player.oid, nuiToken.Token, player.oid.LoginCreature.GetClassInfo(ClassType.Sorcerer).GetRemainingSpellSlots(3) > 0);
-          enabled4.SetBindValue(player.oid, nuiToken.Token, player.oid.LoginCreature.GetClassInfo(ClassType.Sorcerer).GetRemainingSpellSlots(4) > 0);
-          enabled5.SetBindValue(player.oid, nuiToken.Token, player.oid.LoginCreature.GetClassInfo(ClassType.Sorcerer).GetRemainingSpellSlots(5) > 0);
+          enabled1.SetBindValue(player.oid, nuiToken.Token, player.oid.LoginCreature.GetClassInfo(ClassType.Druid).GetRemainingSpellSlots(1) > 0);
+          enabled2.SetBindValue(player.oid, nuiToken.Token, player.oid.LoginCreature.GetClassInfo(ClassType.Druid).GetRemainingSpellSlots(2) > 0);
+          enabled3.SetBindValue(player.oid, nuiToken.Token, player.oid.LoginCreature.GetClassInfo(ClassType.Druid).GetRemainingSpellSlots(3) > 0);
+          enabled4.SetBindValue(player.oid, nuiToken.Token, player.oid.LoginCreature.GetClassInfo(ClassType.Druid).GetRemainingSpellSlots(4) > 0);
+          enabled5.SetBindValue(player.oid, nuiToken.Token, player.oid.LoginCreature.GetClassInfo(ClassType.Druid).GetRemainingSpellSlots(5) > 0);
         }
       }
     }

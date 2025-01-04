@@ -6,18 +6,18 @@ namespace NWN.Systems
   {
     private static void SpiderCocoon(NwCreature caster, NwGameObject oTarget)
     {
-      if(oTarget is not NwCreature target)
-      {
-        caster.LoginPlayer?.SendServerMessage("Cible invalide", ColorConstants.Red);
-        return;
-      }
+      var companion = caster.GetAssociate(AssociateType.AnimalCompanion);
 
-      if (caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).HasValue)
+      if (companion is not null)
       {
-        var companion = caster.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.AnimalCompanionVariable).Value;
+        if (oTarget is not NwCreature target)
+        {
+          caster.LoginPlayer?.SendServerMessage("Cible invalide", ColorConstants.Red);
+          return;
+        }
 
         _ = companion.ClearActionQueue();
-        _ = companion.ActionCastSpellAt((Spell)CustomSpell.SpiderCocoon, target, cheat:true);
+        _ = companion.ActionCastSpellAt((Spell)CustomSpell.SpiderCocoon, target, cheat: true);
 
         caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireSpiderCocoon, 0);
       }
@@ -25,7 +25,7 @@ namespace NWN.Systems
       {
         caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireSpiderCocoon, 0);
         caster.LoginPlayer?.SendServerMessage("Votre compagnon animal n'est pas invoqué", ColorConstants.Red);
-      }
+      }      
     }
   }
 }
