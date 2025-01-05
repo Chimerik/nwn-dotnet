@@ -12,7 +12,7 @@ namespace NWN.Systems
       oTarget.ApplyEffect(EffectDuration.Permanent, EffectSystem.FrappeGuidee);
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} - Frappe Guidée - {oTarget.Name.ColorString(ColorConstants.Cyan)}", StringUtils.gold, true, true);
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadOdd));
-      ClercUtils.ConsumeConduitDivin(caster);
+      caster.DecrementRemainingFeatUses((Feat)CustomSkill.ClercFrappeGuidee);
     }
   }
 }

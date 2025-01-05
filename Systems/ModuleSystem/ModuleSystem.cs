@@ -130,6 +130,7 @@ namespace NWN.Systems
       ItemSystem.feedbackService.AddCombatLogMessageFilter(CombatLogMessage.ComplexAttack);
       ItemSystem.feedbackService.AddCombatLogMessageFilter(CombatLogMessage.SpecialAttack);
       ItemSystem.feedbackService.AddCombatLogMessageFilter(CombatLogMessage.Initiative);
+      ItemSystem.feedbackService.AddCombatLogMessageFilter(CombatLogMessage.SavingThrow);
       ItemSystem.feedbackService.AddFeedbackMessageFilter(FeedbackMessage.EquipSkillSpellModifiers);
       ItemSystem.feedbackService.AddFeedbackMessageFilter(FeedbackMessage.FeatUses);
 

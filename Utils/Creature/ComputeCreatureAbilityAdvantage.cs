@@ -174,10 +174,6 @@ namespace NWN.Systems
               case EffectSystem.MonkPatienceEffectTag:
                 LogUtils.LogMessage("Avantage - Moine : Patience", LogUtils.LogType.Combat);
                 return true;
-
-              case EffectSystem.BenedictionEscrocEffectTag:
-                LogUtils.LogMessage("Avantage - Bénédiction de l'Escroc", LogUtils.LogType.Combat);
-                return true;
             }
 
             break;
@@ -192,10 +188,6 @@ namespace NWN.Systems
 
               case EffectSystem.MonkPatienceEffectTag:
                 LogUtils.LogMessage("Avantage - Moine : Patience", LogUtils.LogType.Combat);
-                return true;
-
-              case EffectSystem.BenedictionEscrocEffectTag:
-                LogUtils.LogMessage("Avantage - Bénédiction de l'Escroc", LogUtils.LogType.Combat);
                 return true;
             }
 
@@ -216,10 +208,21 @@ namespace NWN.Systems
 
           case SpellEffectType.Stealth:
 
-            if(EffectSystem.MarqueDuChasseurTag == eff.Tag && eff.Creator == creature)
+            switch(eff.Tag)
             {
-              LogUtils.LogMessage("Avantage - Perception vs cible sous Marque du Chasseur", LogUtils.LogType.Combat);
-              return true;
+              case EffectSystem.BenedictionDuFilouEffectTag:
+                LogUtils.LogMessage("Avantage - Bénédiction du Filou", LogUtils.LogType.Combat);
+                return true;
+
+              case EffectSystem.MarqueDuChasseurTag:
+
+                if(eff.Creator == creature)
+                {
+                  LogUtils.LogMessage("Avantage - Perception vs cible sous Marque du Chasseur", LogUtils.LogType.Combat);
+                  return true;
+                }
+
+                break;
             }
 
             break;

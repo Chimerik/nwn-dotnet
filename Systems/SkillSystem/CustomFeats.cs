@@ -347,10 +347,12 @@
     public const int ClercEtincelleDivine = 1645;
     public const int ClercFrappeDivine = 1650;
     public const int ClercInterventionDivine = 1620;
-    public const int ClercBenedictionEscroc = 1621;
+    public const int ClercBenedictionDuFilou = 1621;
     public const int ClercRepliqueInvoquee = 1622;
-    public const int ClercLinceulDombre = 1623;
-    public const int ClercMartial = 1625;
+    public const int MoveRepliqueDuplicite = 1605;
+    public const int TeleportRepliqueDuplicite = 1598;
+    //public const int ClercLinceulDombre = 1623;
+    public const int ClercBenedictionDuDieuDeLaGuerre = 1625;
     public const int ClercFrappeGuidee = 1626;
     public const int ClercIllumination = 1628;
     public const int ClercRadianceDeLaube = 1629;

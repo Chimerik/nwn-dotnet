@@ -36,10 +36,10 @@ namespace NWN.Systems
             
             break;
 
-          case CustomSkill.ClercLinceulDombre:
+          /*case CustomSkill.ClercLinceulDombre:
             caster.IncrementRemainingFeatUses(feat.FeatType);
             ClercUtils.ConsumeConduitDivin(caster);
-            break;
+            break;*/
 
           case CustomSkill.RangerVoileNaturel:
             duration = NwTimeSpan.FromRounds(1);

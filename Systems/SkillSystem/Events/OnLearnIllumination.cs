@@ -9,8 +9,8 @@ namespace NWN.Systems
       if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ClercIllumination))
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.ClercIllumination);
 
-      int chaMod = player.oid.LoginCreature.GetAbilityModifier(Ability.Wisdom);
-      player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ClercIllumination, (byte)(chaMod > 0 ? chaMod : 1));
+      int wisMod = CreatureUtils.GetAbilityModifierMin1(player.oid.LoginCreature, Ability.Wisdom);
+      player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ClercIllumination, (byte)(wisMod > 0 ? wisMod : 1));
 
       return true;
     }

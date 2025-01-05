@@ -10,7 +10,7 @@ namespace NWN.Systems
         return;
 
       caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ClercMartialVariable).Value = 1;
-      caster.DecrementRemainingFeatUses((Feat)CustomSkill.ClercMartial);
+      //caster.DecrementRemainingFeatUses((Feat)CustomSkill.ClercMartial);
     }
   }
 }

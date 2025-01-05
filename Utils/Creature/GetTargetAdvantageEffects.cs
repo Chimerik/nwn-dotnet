@@ -53,13 +53,13 @@ namespace NWN.Systems
         if (GetVoeudHostiliteAdvantage(eff, attacker))
           return true;
 
-        if (GetRepliqueInvoqueeAdvantage(eff))
-          return true;
-
         if (GetMoulinetAdvantage(eff))
           return true;
 
         if (GetChargeAdvantage(eff))
+          return true;
+
+        if (GetRepliqueDupliciteAdvantage(eff, attacker))
           return true;
       }
 

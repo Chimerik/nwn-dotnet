@@ -14,7 +14,7 @@ namespace NWN.Systems
           new StrRef(12).SetPlayerOverride(player.oid, "Domaine de la Duperie");
           player.oid.SetTextureOverride("clerc", "duperie");
 
-          player.LearnClassSkill(CustomSkill.ClercBenedictionEscroc);
+          player.LearnClassSkill(CustomSkill.ClercBenedictionDuFilou);
           player.LearnClassSkill(CustomSkill.ClercRepliqueInvoquee);
 
           player.LearnAlwaysPreparedSpell(CustomSpell.Deguisement, CustomClass.Clerc);
@@ -32,7 +32,7 @@ namespace NWN.Systems
           break;
 
 
-        case 6: player.LearnClassSkill(CustomSkill.ClercLinceulDombre); break;
+        case 6: player.LearnClassSkill(CustomSkill.TeleportRepliqueDuplicite); break;
 
         case 7:
 

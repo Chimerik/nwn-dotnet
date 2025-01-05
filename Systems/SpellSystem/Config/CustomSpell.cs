@@ -2,6 +2,7 @@
 {
   public class CustomSpell
   {
+    public const int Aide = 1;
     public const int Assistance = 12;
     public const int Elementalisme = 22;
     public const int CouleursDansantes = 24;
@@ -123,8 +124,8 @@
     public const int MarqueDuChasseur = 898;    
     public const int Bannissement = 899;    
     public const int PorteDimensionnelle = 900;    
-    public const int Scrutation = 901;    
-    public const int BenedictionEscroc = 902;    
+    public const int Scrutation = 901;
+    public const int MoveRepliqueDuplicite = 902;
     public const int RepliqueInvoquee = 903;    
     public const int ImageMiroir = 904;   
     public const int MaledictionAttaque = 905;   

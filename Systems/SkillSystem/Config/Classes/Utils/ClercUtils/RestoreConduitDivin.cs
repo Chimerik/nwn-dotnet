@@ -17,13 +17,14 @@ namespace NWN.Systems
       creature.SetFeatRemainingUses(Feat.TurnUndead, conduitUses);
       creature.SetFeatRemainingUses((Feat)CustomSkill.ClercEtincelleDivine, conduitUses);
       creature.SetFeatRemainingUses((Feat)CustomSkill.ClercRepliqueInvoquee, conduitUses);
-      creature.SetFeatRemainingUses((Feat)CustomSkill.ClercLinceulDombre, conduitUses);
+      //creature.SetFeatRemainingUses((Feat)CustomSkill.ClercLinceulDombre, conduitUses);
       creature.SetFeatRemainingUses((Feat)CustomSkill.ClercRadianceDeLaube, conduitUses);
       creature.SetFeatRemainingUses((Feat)CustomSkill.ClercCharmePlanteEtAnimaux, conduitUses);
       creature.SetFeatRemainingUses((Feat)CustomSkill.ClercSavoirAncestral, conduitUses);
       creature.SetFeatRemainingUses((Feat)CustomSkill.ClercDetectionDesPensees, conduitUses);
       creature.SetFeatRemainingUses((Feat)CustomSkill.ClercFureurDestructrice, conduitUses);
       creature.SetFeatRemainingUses((Feat)CustomSkill.ClercPreservationDeLaVie, conduitUses);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.ClercBenedictionDuDieuDeLaGuerre, conduitUses);
     }
   }
 }

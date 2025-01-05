@@ -1,5 +1,6 @@
 ﻿using System;
 using Anvil.API;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -27,7 +28,7 @@ namespace NWN.Systems
 
           target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpDivineStrikeHoly));
           target.ApplyEffect(EffectDuration.Temporary, Effect.Beam(VfxType.BeamHoly, caster, BodyNode.Hand), TimeSpan.FromSeconds(1));
-          target.ApplyEffect(EffectDuration.Instant, Effect.Damage(damage, DamageType.Divine));
+          NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, Effect.Damage(damage, DamageType.Divine)));
         }
       }
 

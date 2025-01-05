@@ -20,8 +20,8 @@ namespace NWN.Systems
       
       if (oCaster is NwCreature caster)
       {
-        if(caster.IsPlayerControlled)
-          caster.LoginPlayer.SendServerMessage($"{target.Name.ColorString(ColorConstants.Cyan)} - {rollString} {hitString}".ColorString(ColorConstants.Orange));
+        if (caster.IsPlayerControlled)
+          caster.ControllingPlayer.SendServerMessage($"{target.Name.ColorString(ColorConstants.Cyan)} - {rollString} {hitString}".ColorString(ColorConstants.Orange));
         else
           caster.Master?.LoginPlayer?.SendServerMessage($"{target.Name.ColorString(ColorConstants.Cyan)} - {rollString} {hitString}".ColorString(ColorConstants.Orange));
 

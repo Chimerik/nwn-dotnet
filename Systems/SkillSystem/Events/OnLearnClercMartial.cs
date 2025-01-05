@@ -4,7 +4,7 @@ namespace NWN.Systems
 {
   public static partial class SkillSystem
   {
-    public static bool OnLearnClercMartial(PlayerSystem.Player player, int customSkillId)
+    /*public static bool OnLearnClercMartial(PlayerSystem.Player player, int customSkillId)
     {
       if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ClercMartial))
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.ClercMartial);
@@ -13,6 +13,6 @@ namespace NWN.Systems
       player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ClercMartial, (byte)(chaMod > 0 ? chaMod : 1));
 
       return true;
-    }
+    }*/
   }
 }

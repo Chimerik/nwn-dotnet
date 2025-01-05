@@ -9,6 +9,20 @@ namespace NWN.Systems
   {
     public static void SpellSwitch(NwGameObject oCaster, NwSpell spell, NwFeat feat, SpellEntry spellEntry, NwGameObject target, Location targetLocation, NwClass castingClass)
     {
+      NwCreature castingCreature = null;
+      bool castingFamiliar = false;
+
+      if (oCaster is NwCreature caster)
+      {
+        castingCreature = caster;
+
+        if (castingCreature.Tag == EffectSystem.repliqueTag)
+        {
+          castingCreature = castingCreature.Master;
+          castingFamiliar = true;
+        } 
+      }
+
       List<NwGameObject> concentrationTargets = new();
 
       switch (spell.SpellType)
@@ -124,18 +138,18 @@ namespace NWN.Systems
           break;
 
         case Spell.Silence:
-          if(oCaster is NwCreature caster && feat is not null && feat.Id == CustomSkill.MonkSilence)
+          if(castingCreature is not null && feat is not null && feat.Id == CustomSkill.MonkSilence)
           {
-            caster.IncrementRemainingFeatUses(feat.FeatType);
-            FeatUtils.DecrementKi(caster, 2);
+            castingCreature.IncrementRemainingFeatUses(feat.FeatType);
+            FeatUtils.DecrementKi(castingCreature, 2);
           }
           break;
 
         case Spell.Darkvision:
-          if (oCaster is NwCreature castCreature && feat is not null && feat.Id == CustomSkill.MonkDarkVision)
+          if (castingCreature is not null && feat is not null && feat.Id == CustomSkill.MonkDarkVision)
           {
-            castCreature.IncrementRemainingFeatUses(feat.FeatType);
-            FeatUtils.DecrementKi(castCreature, 2);
+            castingCreature.IncrementRemainingFeatUses(feat.FeatType);
+            FeatUtils.DecrementKi(castingCreature, 2);
           }
           break;
 
@@ -240,7 +254,7 @@ namespace NWN.Systems
           break;
 
         case Spell.Firebrand:
-          SpellSystem.RayonArdent(oCaster, spell, spellEntry, castingClass, feat);
+          SpellSystem.RayonArdent(oCaster, spell, spellEntry, castingClass);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -317,6 +331,11 @@ namespace NWN.Systems
 
       switch (spell.Id)
       {
+        case CustomSpell.Aide:
+          SpellSystem.Aide(oCaster, spell, spellEntry, target);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.ProjectileMagique:
           SpellSystem.ProjectileMagique(oCaster, spell, spellEntry, target, castingClass);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
@@ -793,13 +812,13 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
-        case CustomSpell.BenedictionEscroc:
-          concentrationTargets.AddRange(SpellSystem.BenedictionEscroc(oCaster, spell, spellEntry, target));
+        case CustomSpell.RepliqueInvoquee:
+          SpellSystem.RepliqueInvoquee(oCaster, spell, spellEntry, target is null ? targetLocation : target.Location);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
-        case CustomSpell.RepliqueInvoquee:
-          concentrationTargets.AddRange(SpellSystem.RepliqueInvoquee(oCaster, spell, spellEntry));
+        case CustomSpell.MoveRepliqueDuplicite:
+          SpellSystem.MoveRepliqueDuplicite(oCaster, spell, spellEntry, target is null ? targetLocation : target.Location);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -1287,7 +1306,7 @@ namespace NWN.Systems
           break;
       }
 
-      if (oCaster is NwCreature castingCreature)
+      if (castingCreature is not null)
       {
         if (castingClass is not null)
         {
@@ -1299,6 +1318,7 @@ namespace NWN.Systems
           WizardUtils.HandleEvocateurSurchargeSelfDamage(castingCreature, spellLevel, spell.SpellSchool);
           EnsoUtils.HandleMagieTempetueuse(castingCreature, spellLevel);
           OccultisteUtils.IncrementFouleeFeerique(castingCreature, spell.SpellSchool, spellLevel, feat);
+
 
           if (castingClass.ClassType == ClassType.Paladin && Players.TryGetValue(castingCreature, out Player player))
           {
@@ -1324,6 +1344,11 @@ namespace NWN.Systems
 
               castingCreature.SetFeatRemainingUses((Feat)CustomSkill.ChatimentOcculte, consumedSlots);
             }
+          }
+          else if (castingFamiliar)
+          {
+            var casterClassInfo = castingCreature.GetClassInfo(castingClass);
+            casterClassInfo.SetRemainingSpellSlots(spellLevel, (byte)(casterClassInfo.GetRemainingSpellSlots(spellLevel) - 1));
           }
         }
 

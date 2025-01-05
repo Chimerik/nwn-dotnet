@@ -79,5 +79,7 @@ namespace NWN
     public const EffectIcon MoineDefenseSansArmure = (EffectIcon)242;
     public const EffectIcon Heroisme = (EffectIcon)243;
     public const EffectIcon FrappeGuidee = (EffectIcon)244;
+    public const EffectIcon BenedictionDuFilou = (EffectIcon)245;
+    public const EffectIcon Aide = (EffectIcon)246;
   }
 }

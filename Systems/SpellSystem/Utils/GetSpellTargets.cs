@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Anvil.API;
-using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
@@ -30,12 +29,12 @@ namespace NWN.Systems
 
           if (!distinctTargets || !targets.Contains(multiTarget))
           {
-            float distance = target.DistanceSquared(caster);
+            float distance = caster.DistanceSquared(multiTarget);
 
             if (-1 < distance && distance <= spellEntry.range)
               targets.Add(multiTarget);
             else if (caster is NwCreature player)
-              player.LoginPlayer?.SendServerMessage($"{target.Name} n'est plus à portée", ColorConstants.Orange);
+              player.LoginPlayer?.SendServerMessage($"{multiTarget.Name} n'est plus à portée", ColorConstants.Orange);
           }
 
           caster.GetObjectVariable<LocalVariableObject<NwGameObject>>($"_SPELL_TARGET_{i}").Delete();

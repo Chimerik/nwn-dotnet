@@ -15,13 +15,8 @@ namespace NWN.Systems
           new StrRef(12).SetPlayerOverride(player.oid, "Domaine de la Guerre");
           player.oid.SetTextureOverride("clerc", "guerre");
 
-          player.learnableSkills.TryAdd(CustomSkill.ClercMartial, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercMartial], player));
-          player.learnableSkills[CustomSkill.ClercMartial].LevelUp(player);
-          player.learnableSkills[CustomSkill.ClercMartial].source.Add(Category.Class);
-
-          player.learnableSkills.TryAdd(CustomSkill.ClercFrappeGuidee, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercFrappeGuidee], player));
-          player.learnableSkills[CustomSkill.ClercFrappeGuidee].LevelUp(player);
-          player.learnableSkills[CustomSkill.ClercFrappeGuidee].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.ClercBenedictionDuDieuDeLaGuerre);
+          player.LearnClassSkill(CustomSkill.ClercFrappeGuidee);
 
           player.LearnAlwaysPreparedSpell((int)Spell.ShieldOfFaith, CustomClass.Clerc);
           player.LearnAlwaysPreparedSpell((int)Spell.DivineFavor, CustomClass.Clerc);
@@ -35,6 +30,13 @@ namespace NWN.Systems
 
           player.LearnAlwaysPreparedSpell(CustomSpell.EspritsGardiens, CustomClass.Clerc);
           player.LearnAlwaysPreparedSpell(CustomSpell.CapeDuCroise, CustomClass.Clerc);
+
+          break;
+
+        case 6: 
+
+          player.LearnClassSkill(CustomSkill.AttaqueSupplementaire);
+          CreatureUtils.InitializeNumAttackPerRound(player.oid.LoginCreature); 
 
           break;
 
@@ -52,13 +54,7 @@ namespace NWN.Systems
 
           break;
 
-        case 17:
-
-          player.learnableSkills.TryAdd(CustomSkill.ClercGuerreAvatarDeBataille, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ClercGuerreAvatarDeBataille], player));
-          player.learnableSkills[CustomSkill.ClercGuerreAvatarDeBataille].LevelUp(player);
-          player.learnableSkills[CustomSkill.ClercGuerreAvatarDeBataille].source.Add(Category.Class);
-
-          break;
+        case 17: player.LearnClassSkill(CustomSkill.ClercGuerreAvatarDeBataille); break;
       }
     }
   }

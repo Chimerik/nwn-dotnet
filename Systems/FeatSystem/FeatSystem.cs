@@ -99,8 +99,8 @@ namespace NWN.Systems
         case CustomSkill.MonkPaumeVibratoire: MonkPaumeVibratoire(onUseFeat.Creature); return;
 
         case CustomSkill.TraqueurLinceulDombre:
-        case CustomSkill.MonkLinceulDombre:
-        case CustomSkill.ClercLinceulDombre: MonkLinceulDombre(onUseFeat.Creature, onUseFeat); return;
+        case CustomSkill.MonkLinceulDombre: MonkLinceulDombre(onUseFeat.Creature, onUseFeat); return;
+        //case CustomSkill.ClercLinceulDombre:
         case CustomSkill.MonkFouleeDombre: MonkFouleeDombre(onUseFeat.Creature, onUseFeat); return;
         case CustomSkill.MonkFrappeDombre: MonkFrappeDombre(onUseFeat.Creature, onUseFeat); return;
         case CustomSkill.MonkMetabolismeSurnaturel: MetabolismeSurnaturel(onUseFeat.Creature); return;
@@ -169,7 +169,7 @@ namespace NWN.Systems
         case CustomSkill.ClercInterventionDivine: InterventionDivine(onUseFeat.Creature); return;
         case CustomSkill.ClercIncantationPuissante: IncantationPuissante(onUseFeat.Creature, onUseFeat.TargetObject); return;
 
-        case CustomSkill.ClercMartial: ClercMartial(onUseFeat.Creature); return;
+        //case CustomSkill.ClercMartial: ClercMartial(onUseFeat.Creature); return;
         case CustomSkill.ClercFrappeGuidee: FrappeGuidee(onUseFeat.Creature, onUseFeat.TargetObject); return;
 
         case CustomSkill.ClercIllumination: ClercIllumination(onUseFeat.Creature, onUseFeat.TargetObject); return;
@@ -182,6 +182,9 @@ namespace NWN.Systems
         case CustomSkill.ClercEnfantDeLaTempete: EnfantDeLaTempete(onUseFeat.Creature); return;
 
         case CustomSkill.ClercPreservationDeLaVie: PreservationDeLaVie(onUseFeat.Creature); return;
+
+        case CustomSkill.ClercBenedictionDuFilou: BenedictionDuFilou(onUseFeat.Creature, onUseFeat.TargetObject); return;
+        case CustomSkill.TeleportRepliqueDuplicite: TranspositionDuFilou(onUseFeat.Creature); return;
 
         case CustomSkill.SorcellerieInnee: SorcellerieInnee(onUseFeat.Creature); return;
         case CustomSkill.SorcellerieIncarnee: SorcellerieIncarnee(onUseFeat.Creature); return;

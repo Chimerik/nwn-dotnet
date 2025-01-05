@@ -30,6 +30,7 @@ namespace NWN.Systems
       onIntervalEntraveCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalEntrave);
       onIntervalArmureDeMageCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalArmureDeMage);
       onIntervalTraitEnsorceleCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalTraitEnsorcele);
+      onRemoveAideCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveAide);
 
       onIntervalHeroismeCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalHeroisme);
 
@@ -149,7 +150,8 @@ namespace NWN.Systems
 
       onEnterRepliqueInvoqueeCallback = scriptHandleFactory.CreateUniqueHandler(onEnterRepliqueInvoquee);
       onExitRepliqueInvoqueeCallback = scriptHandleFactory.CreateUniqueHandler(onExitRepliqueInvoquee);
-      onRemoveRepliqueInvoqueeCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveRepliqueInvoquee);
+      onRemoveRepliqueDupliciteCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveRepliqueDuplicite);
+      onRemoveRepliqueDupliciteSanctuaryCallback = scriptHandleFactory.CreateUniqueHandler(onRemoveRepliqueDupliciteSanctuary);
 
       onRemoveMaledictionDegatsCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveMaledictionDegats);
       onIntervalMaledictionEffroiCallback = scriptHandleFactory.CreateUniqueHandler(onIntervalMaledictionEffroi);
