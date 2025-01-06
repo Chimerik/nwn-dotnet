@@ -33,6 +33,7 @@ namespace NWN.Systems
     public static readonly TranslationClient googleTranslationClient = TranslationClient.Create();
     public static readonly DriveService googleDriveService = Config.AuthenticateServiceAccount();
     public static readonly Dictionary<string, GoldBalance> goldBalanceMonitoring = new();
+    public static readonly List<Guid> magicWeaponsToRemove = new();
     private static SchedulerService scheduler;
     //private static CultureInfo cultureInfo = (CultureInfo)CultureInfo.CurrentCulture.Clone();
     public static NwCreature placeholderTemplate = NwObject.FindObjectsWithTag<NwCreature>("damage_trainer").FirstOrDefault(); 
@@ -481,6 +482,7 @@ namespace NWN.Systems
       //NwModule.Instance.OnDoListenDetection += CreatureUtils.CancelOnListen;
 
       NwModule.Instance.OnCreatureDamage += CreatureUtils.OnDamageGlobal;
+      NwModule.Instance.OnPlayerEquipItem += PlayerUtils.OnEquipGlobal;
     }
     private static void SetModuleTime()
     {

@@ -7,25 +7,39 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static List<NwGameObject> ArmeMagique(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget)
+    public static void ArmeMagique(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget)
     {
+      if (oCaster is not NwCreature caster)
+        return;
+
       SpellUtils.SignalEventSpellCast(oCaster, oTarget, spell.SpellType);
 
-      if (oTarget is not NwItem target || !ItemUtils.IsWeapon(target.BaseItem))
-        return new List<NwGameObject>();
+      NwItem targetWeapon = null;
 
-      var damageType = target.BaseItem.WeaponType.FirstOrDefault() switch
+      if (oTarget is NwItem target)
+        targetWeapon = target;          
+      else if (oTarget is NwCreature targetCreature)
+        targetWeapon = targetCreature.GetItemInSlot(InventorySlot.RightHand);
+
+      if (targetWeapon is null || !ItemUtils.IsWeapon(targetWeapon.BaseItem) 
+        || targetWeapon.ItemProperties.Any(ip => ip.Property.PropertyType == ItemPropertyType.EnhancementBonus)
+        || targetWeapon.Possessor is null)
       {
-        DamageType.Piercing => IPDamageType.Piercing,
-        DamageType.Bludgeoning => IPDamageType.Bludgeoning,
-        _ => IPDamageType.Slashing,
-      };
+        caster.LoginPlayer?.SendServerMessage("Cible invalide", ColorConstants.Red);
+        return;
+      }
 
-      NWScript.AssignCommand(oCaster, () => target.AddItemProperty(ItemProperty.AttackBonus(1), EffectDuration.Temporary, NwTimeSpan.FromRounds(spellEntry.duration)));
-      NWScript.AssignCommand(oCaster, () => target.AddItemProperty(ItemProperty.DamageBonus(damageType,IPDamageBonus.Plus1), EffectDuration.Temporary, SpellUtils.GetSpellDuration(oCaster, spellEntry)));
-      oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSuperHeroism));
-         
-      return new List<NwGameObject>() { oTarget };
+      NwItem previousWeapon = caster.GetObjectVariable<LocalVariableObject<NwItem>>("_CURRENT_MAGIC_WEAPON").Value;
+
+      if(previousWeapon is not null)
+        previousWeapon.RemoveItemProperties(ItemPropertyType.EnhancementBonus);
+      else
+        ModuleSystem.magicWeaponsToRemove.Add(previousWeapon.UUID);
+      
+      caster.GetObjectVariable<LocalVariableObject<NwItem>>("_CURRENT_MAGIC_WEAPON").Value = targetWeapon;
+
+      NWScript.AssignCommand(oCaster, () => targetWeapon.AddItemProperty(ItemProperty.EnhancementBonus(1), EffectDuration.Temporary, SpellUtils.GetSpellDuration(oCaster, spellEntry)));
+      targetWeapon.Possessor.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSuperHeroism));  
     }
   }
 }

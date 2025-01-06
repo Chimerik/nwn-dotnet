@@ -81,5 +81,11 @@ namespace NWN
     public const EffectIcon FrappeGuidee = (EffectIcon)244;
     public const EffectIcon BenedictionDuFilou = (EffectIcon)245;
     public const EffectIcon Aide = (EffectIcon)246;
+    public const EffectIcon ForceduTaureau = (EffectIcon)247;
+    public const EffectIcon GraceFeline = (EffectIcon)248;
+    public const EffectIcon EndurancedelOurs = (EffectIcon)249;
+    public const EffectIcon RuseduRenard = (EffectIcon)250;
+    public const EffectIcon SagesseduHibou = (EffectIcon)251;
+    public const EffectIcon SplendeurdelAigle = (EffectIcon)252;
   }
 }

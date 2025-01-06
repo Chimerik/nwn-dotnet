@@ -356,6 +356,11 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case CustomSpell.VerrouArcanique:
+          SpellSystem.VerrouArcanique(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.Resistance:
         case CustomSpell.ResistanceAcide:
         case CustomSpell.ResistanceContondant:
@@ -366,6 +371,16 @@ namespace NWN.Systems
         case CustomSpell.ResistancePoison:
         case CustomSpell.ResistanceTranchant:
           concentrationTargets.AddRange(SpellSystem.Resistance(oCaster, spell, spellEntry, target));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.AmeliorationForce:
+        case CustomSpell.AmeliorationDexterite:
+        case CustomSpell.AmeliorationConstitution:
+        case CustomSpell.AmeliorationIntelligence:
+        case CustomSpell.AmeliorationSagesse:
+        case CustomSpell.AmeliorationCharisme:
+          concentrationTargets.AddRange(SpellSystem.AmeliorationCaracteristique(oCaster, spell, spellEntry, target));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 

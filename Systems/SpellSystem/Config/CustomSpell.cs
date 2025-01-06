@@ -8,6 +8,7 @@
     public const int CouleursDansantes = 24;
     public const int Shillelagh = 37;
     public const int Enchevetrement = 53;
+    public const int VerrouArcanique = 86;
     public const int ArmureDeMage = 102;
     public const int ChatimentDuCourroux = 103;
     public const int MotRayonnant = 104;
@@ -42,6 +43,12 @@
     public const int PacteDeLaChaineSerpent = 212;
     public const int MaitreDeLaChaineRadiant = 214;
     public const int MaitreDeLaChaineNecrotique = 215;
+    public const int AmeliorationForce = 220;
+    public const int AmeliorationDexterite = 221;
+    public const int AmeliorationConstitution = 222;
+    public const int AmeliorationIntelligence = 223;
+    public const int AmeliorationSagesse = 224;
+    public const int AmeliorationCharisme = 225;
     public const int ChatimentTonitruant = 299;
     public const int DetectionDuBienEtDuMal = 312;
     public const int ProtectionContreLeMalEtLeBien = 321;
