@@ -61,13 +61,16 @@ namespace NWN.Systems
           return;
         }
 
-        var targetPosition = onSpellAction.TargetObject is null ? onSpellAction.TargetPosition : onSpellAction.TargetObject.Position;
-
-        if(Vector3.DistanceSquared(caster.Position, targetPosition) > SpellUtils.GetSpellRange(spell))
+        if (onSpellAction.TargetObject is not NwItem)
         {
-          caster.LoginPlayer?.SendServerMessage("Impossible de lancer ce sort en action bonus instantanée : vous n'êtes pas à portée", ColorConstants.Orange);
-          onSpellAction.PreventSpellCast = true;
-          return;
+          var targetPosition = onSpellAction.TargetObject is null ? onSpellAction.TargetPosition : onSpellAction.TargetObject.Position;
+
+          if (Vector3.DistanceSquared(caster.Position, targetPosition) > SpellUtils.GetSpellRange(spell))
+          {
+            caster.LoginPlayer?.SendServerMessage("Impossible de lancer ce sort en action bonus instantanée : vous n'êtes pas à portée", ColorConstants.Orange);
+            onSpellAction.PreventSpellCast = true;
+            return;
+          }
         }
         
         if (caster.GetObjectVariable<LocalVariableObject<NwGameObject>>(CreatureUtils.CurrentAttackTarget).HasValue)

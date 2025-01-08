@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Anvil.API;
 using NWN.Core;
@@ -29,14 +30,20 @@ namespace NWN.Systems
         return;
       }
 
-      NwItem previousWeapon = caster.GetObjectVariable<LocalVariableObject<NwItem>>("_CURRENT_MAGIC_WEAPON").Value;
+      var previousUUID = caster.GetObjectVariable<LocalVariableGuid>("_CURRENT_MAGIC_WEAPON").Value;
 
-      if(previousWeapon is not null)
-        previousWeapon.RemoveItemProperties(ItemPropertyType.EnhancementBonus);
-      else
-        ModuleSystem.magicWeaponsToRemove.Add(previousWeapon.UUID);
-      
-      caster.GetObjectVariable<LocalVariableObject<NwItem>>("_CURRENT_MAGIC_WEAPON").Value = targetWeapon;
+      if (previousUUID !=  Guid.Empty)
+      {
+        NwItem previousWeapon = GuidExtensions.ToNwObject<NwItem>(previousUUID);
+        
+        if (previousWeapon is null)
+          ModuleSystem.magicWeaponsToRemoveList.Add(previousUUID);
+        else
+        {
+          previousWeapon.RemoveItemProperties(ItemPropertyType.EnhancementBonus, durationType: EffectDuration.Temporary);
+          ModuleSystem.magicWeaponsToRemoveList.Remove(previousWeapon.UUID);
+        }
+      }
 
       NWScript.AssignCommand(oCaster, () => targetWeapon.AddItemProperty(ItemProperty.EnhancementBonus(1), EffectDuration.Temporary, SpellUtils.GetSpellDuration(oCaster, spellEntry)));
       targetWeapon.Possessor.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSuperHeroism));  

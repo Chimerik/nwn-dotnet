@@ -9,7 +9,6 @@ using Anvil.Services;
 using Microsoft.Data.Sqlite;
 
 using Newtonsoft.Json;
-using static NWN.Systems.SkillSystem;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace NWN.Systems
@@ -73,7 +72,23 @@ namespace NWN.Systems
       player.OnLoginRefreshPlayerList();
       CreatureUtils.InitThreatRange(player.oid.LoginCreature);
 
+      foreach(var magicWeapon in ModuleSystem.magicWeaponsToRemoveList)
+      {
+        NwItem previousWeapon = GuidExtensions.ToNwObject<NwItem>(magicWeapon);
+
+        if (previousWeapon is not null)
+        {
+          previousWeapon.RemoveItemProperties(ItemPropertyType.EnhancementBonus, durationType: EffectDuration.Temporary);
+          DelayMagicWeaponRemoval(magicWeapon);
+        }
+      }
+
       player.mapLoadingTime = DateTime.Now;
+    }
+    private async void DelayMagicWeaponRemoval(Guid toRemove)
+    {
+      await NwTask.NextFrame();
+      ModuleSystem.magicWeaponsToRemoveList.Remove(toRemove);
     }
     public partial class Player
     {
