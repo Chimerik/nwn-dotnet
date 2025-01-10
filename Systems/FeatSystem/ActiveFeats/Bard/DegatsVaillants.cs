@@ -24,7 +24,7 @@ namespace NWN.Systems
       }
 
       int inspiBonus = EffectSystem.GetInspirationBardiqueBonus(caster.GetClassInfo(ClassType.Bard).Level);
-      NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetDegatsVaillanteEffect(inspiBonus)));
+      NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetDegatsVaillanteEffect(target,  inspiBonus)));
 
       StringUtils.DisplayStringToAllPlayersNearTarget(target, $"{caster.Name.ColorString(ColorConstants.Cyan)} lance {StringUtils.ToWhitecolor("Dégâts Vaillants")} sur {target.Name.ColorString(ColorConstants.Cyan)}", ColorConstants.Red, true, true);
 

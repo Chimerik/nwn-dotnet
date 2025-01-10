@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using NWN.Native.API;
 
 namespace NWN.Systems
@@ -7,10 +8,10 @@ namespace NWN.Systems
   {
     public static int GetPeauDecorceAC(CNWSCreature creature, int AC)
     {
-      if (AC < 16 && creature.HasSpellEffectApplied((int)Spell.Barkskin).ToBool())
+      if (AC < 17 && creature.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.peauDecorceEffectExoTag).ToBool()))
       {
-        AC = 16;
-        LogUtils.LogMessage("Peau d'écorce: CA fixée à 16", LogUtils.LogType.Combat);
+        AC = 17;
+        LogUtils.LogMessage("Peau d'écorce: CA fixée à 17", LogUtils.LogType.Combat);
       }
 
       return AC;

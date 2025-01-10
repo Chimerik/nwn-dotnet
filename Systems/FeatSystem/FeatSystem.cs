@@ -136,10 +136,10 @@ namespace NWN.Systems
         case CustomSkill.DefenseVaillante: DefenseVaillante(onUseFeat.Creature, onUseFeat.TargetObject); return;
         case CustomSkill.DegatsVaillants: DegatsVaillants(onUseFeat.Creature, onUseFeat.TargetObject); return;
         case CustomSkill.SourceDinspiration: SourceDinspiration(onUseFeat.Creature); return;
-        case CustomSkill.BotteDefensive: BotteDefensive(onUseFeat.Creature); return;
-        case CustomSkill.BotteTranchante: BotteTranchante(onUseFeat.Creature); return;
-        case CustomSkill.BotteDefensiveDeMaitre: BotteDefensiveDeMaitre(onUseFeat.Creature); return;
-        case CustomSkill.BotteTranchanteDeMaitre: BotteTranchanteDeMaitre(onUseFeat.Creature); return;
+        case CustomSkill.BotteDefensive:
+        case CustomSkill.BotteDefensiveDeMaitre: BotteDefensive(onUseFeat.Creature, onUseFeat.Feat.Id); return;
+        case CustomSkill.BotteTranchante:
+        case CustomSkill.BotteTranchanteDeMaitre: BotteTranchante(onUseFeat.Creature, onUseFeat.Feat.Id); return;
 
         case CustomSkill.RangerInfatiguable: Infatiguable(onUseFeat.Creature); return;
         case CustomSkill.ProfondeursFrappeRedoutable: FrappeRedoutable(onUseFeat.Creature); return;

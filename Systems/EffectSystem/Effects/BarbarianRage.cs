@@ -11,7 +11,7 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onRemoveBarbarianRageCallback;
     private static ScriptCallbackHandle onIntervalBarbarianRageCallback;
     public const string BarbarianRageEffectTag = "_EFFECT_BARBARIAN_RAGE";
-    public static readonly Native.API.CExoString barbarianRageEffectExoTag = BarbarianRageEffectTag.ToExoString();
+    //public static readonly Native.API.CExoString barbarianRageEffectExoTag = BarbarianRageEffectTag.ToExoString();
     public const string BarbarianRageAveugleEffectTag = "_EFFECT_BARBARIAN_RAGE_AVEUGLE";
     public static Effect BarbarianRage(NwCreature caster, int spellId)
     {

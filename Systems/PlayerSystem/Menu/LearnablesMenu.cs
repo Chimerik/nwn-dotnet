@@ -126,14 +126,14 @@ namespace NWN.Systems
             categories.SetBindValue(player.oid, nuiToken.Token, skillCategories);
 
             collapsed.SetBindValue(player.oid, nuiToken.Token, false);
-            geometry.SetBindValue(player.oid, nuiToken.Token, player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.65f));
+            geometry.SetBindValue(player.oid, nuiToken.Token, player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(0, 0, 500, 600));//player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.25f, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.65f));
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
             if (target.activeLearnable != null && target.activeLearnable.active && !player.TryGetOpenedWindow("activeLearnable", out PlayerWindow activeWindow))
               if (!player.windows.TryGetValue("activeLearnable", out var rectangle)) player.windows.Add("activeLearnable", new ActiveLearnableWindow(player, target));
               else ((ActiveLearnableWindow)rectangle).CreateWindow(target);
 
-            currentList = target.learnableSkills.Values.Where(s => s.category == SkillSystem.Category.MindBody);
+            currentList = target.learnableSkills.Values.Where(s => s.category == Category.MindBody);
             LoadLearnableList(currentList);
           }
           else

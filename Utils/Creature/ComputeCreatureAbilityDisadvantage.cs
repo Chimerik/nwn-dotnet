@@ -109,6 +109,7 @@ namespace NWN.Systems
               case EffectSystem.KnockdownEffectTag: LogUtils.LogMessage("Désavantage - Déstabilisé", LogUtils.LogType.Combat); return true;
               case EffectSystem.MoulinetEffectTag: LogUtils.LogMessage("Désavantage - Moulinet", LogUtils.LogType.Combat); return true;
               case EffectSystem.ChargeDebuffEffectTag: LogUtils.LogMessage("Désavantage - Charge", LogUtils.LogType.Combat); return true;
+              case EffectSystem.RapetissementEffectTag: LogUtils.LogMessage("Désavantage - Rapetissement", LogUtils.LogType.Combat); return true;
             }
 
             break;

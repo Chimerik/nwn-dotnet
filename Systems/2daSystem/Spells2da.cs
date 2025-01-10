@@ -68,7 +68,7 @@ namespace NWN.Systems
 
       ritualSpell = entry.GetBool("Rituel").GetValueOrDefault(false);
 
-      range = entry.GetString("Duration") switch
+      range = entry.GetString("Range") switch
       {
         "S" => 81,
         "M" => 400,

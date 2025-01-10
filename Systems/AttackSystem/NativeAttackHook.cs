@@ -329,7 +329,6 @@ namespace NWN.Systems
         {
           NativeUtils.HandleRafaleDuTraqueur(attacker, targetObject, combatRound, attackerName, targetName);
           NativeUtils.HandleRiposte(attacker, targetCreature, attackData, attackerName);
-          attacker.m_ScriptVars.DestroyInt(FeatSystem.BotteDamageExoVariable);
 
           if (attacker.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreRiposteVariableExo).ToBool())
             attacker.m_ScriptVars.DestroyInt(CreatureUtils.ManoeuvreRiposteVariableExo);
@@ -487,12 +486,12 @@ namespace NWN.Systems
         }
         else
         {
-          baseDamage += NativeUtils.GetUnarmedDamage(attacker, targetCreature, damageAbility);
+          baseDamage += NativeUtils.GetUnarmedDamage(attacker, targetCreature, damageAbility, bCritical.ToBool());
         }
       }
       else
       {
-        baseDamage += NativeUtils.GetUnarmedDamage(attacker, targetCreature, damageAbility);
+        baseDamage += NativeUtils.GetUnarmedDamage(attacker, targetCreature, damageAbility, bCritical.ToBool());
       }
 
       if (bCritical > 0)

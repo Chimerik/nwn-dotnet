@@ -5,7 +5,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string TranspercerEffectTag = "_TRANSPERCER_EFFECT";
-    public static readonly Native.API.CExoString TranspercerEffectExoTag = TranspercerEffectTag.ToExoString();
     public static void Transpercer(NwCreature target)
     {
       target.OnHeal -= OnHealRemoveExpertiseEffect;

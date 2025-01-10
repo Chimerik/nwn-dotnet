@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using NWN.Native.API;
 
 namespace NWN.Systems
@@ -7,13 +8,14 @@ namespace NWN.Systems
   {
     public static int GetDefenseVaillanteBonus(CNWSCreature creature)
     {
-      foreach (var eff in creature.m_appliedEffects)
-        if (eff.m_sCustomTag.CompareNoCase(EffectSystem.defenseVaillanteEffectExoTag).ToBool())
-        {
-          creature.RemoveEffect(eff);
-          LogUtils.LogMessage($"Defense Vaillante : +{eff.m_nCasterLevel} CA", LogUtils.LogType.Combat);
-          return eff.m_nCasterLevel;
-        }
+      var eff = creature.m_appliedEffects.FirstOrDefault(e => e.m_sCustomTag.CompareNoCase(EffectSystem.defenseVaillanteEffectExoTag).ToBool());
+
+      if (eff is not null)
+      {
+        creature.RemoveEffect(eff);
+        LogUtils.LogMessage($"Defense Vaillante : +{eff.m_nCasterLevel} CA", LogUtils.LogType.Combat);
+        return eff.m_nCasterLevel;
+      }
 
       return 0;
     }

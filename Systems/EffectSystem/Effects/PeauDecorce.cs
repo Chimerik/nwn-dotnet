@@ -10,7 +10,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.Icon(EffectIcon.ACIncrease);
+        Effect eff = Effect.VisualEffect(VfxType.DurProtBarkskin);
         eff.Tag = PeauDecorceEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

@@ -5,7 +5,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string TirPercantEffectTag = "_TIR_PERCANT_EFFECT";
-    public static readonly Native.API.CExoString TirPercantEffectExoTag = TirPercantEffectTag.ToExoString();
     public static void TirPercant(NwCreature target)
     {
       target.OnHeal -= OnHealRemoveExpertiseEffect;

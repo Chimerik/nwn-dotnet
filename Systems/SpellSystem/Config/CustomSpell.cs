@@ -3,6 +3,7 @@
   public class CustomSpell
   {
     public const int Aide = 1;
+    public const int PeauDecorce = 1;
     public const int Assistance = 12;
     public const int Elementalisme = 22;
     public const int CouleursDansantes = 24;
@@ -23,6 +24,7 @@
     public const int DomestiqueInvisible = 139;
     public const int Resistance = 151;
     public const int Sanctuaire = 154;
+    public const int DetectionDeLinvisibilite = 157;
     public const int Vol = 162;
     public const int AppelDeFamilier = 195;
     public const int AppelDeFamilierBat = 196;
@@ -49,6 +51,8 @@
     public const int AmeliorationIntelligence = 223;
     public const int AmeliorationSagesse = 224;
     public const int AmeliorationCharisme = 225;
+    public const int Agrandissement = 227;
+    public const int Rapetissement = 228;
     public const int ChatimentTonitruant = 299;
     public const int DetectionDuBienEtDuMal = 312;
     public const int ProtectionContreLeMalEtLeBien = 321;
@@ -81,7 +85,6 @@
     public const int BoneChill = 846;
     public const int PoisonSpray = 847;
     public const int FaerieFire = 848;
-    public const int Enlarge = 849;
     public const int SpeakAnimal = 850;
     public const int ProduceFlame = 851;
     public const int RepresaillesInfernales = 852;

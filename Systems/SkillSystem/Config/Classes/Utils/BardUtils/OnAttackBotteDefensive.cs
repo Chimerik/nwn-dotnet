@@ -1,5 +1,6 @@
 ﻿using Anvil.API.Events;
 using Anvil.API;
+using System.Linq;
 
 namespace NWN.Systems
 {
@@ -12,15 +13,16 @@ namespace NWN.Systems
         case AttackResult.Hit:
         case AttackResult.CriticalHit:
         case AttackResult.AutomaticHit:
-          
-          onAttack.Attacker.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetBotteDefensiveEffect(onAttack.Attacker.GetObjectVariable<LocalVariableInt>(FeatSystem.BotteDefensiveVariable).Value), NwTimeSpan.FromRounds(1));
+
+          var eff = onAttack.Attacker.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.BotteSecreteEffectTag);
+          onAttack.Attacker.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetBotteDefensiveEffect(eff.IntParams[5]), NwTimeSpan.FromRounds(1));
 
           StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Botte Défensive", StringUtils.gold, true);
           
           break;
       }
 
-      onAttack.Attacker.GetObjectVariable<LocalVariableInt>(FeatSystem.BotteDefensiveVariable).Delete();
+      EffectUtils.RemoveTaggedEffect(onAttack.Attacker, EffectSystem.BotteSecreteEffectTag);
 
       await NwTask.NextFrame();
       onAttack.Attacker.OnCreatureAttack -= OnAttackBotteDefensive;

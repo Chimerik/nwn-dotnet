@@ -23,20 +23,11 @@ namespace NWN.Systems
 
       LogUtils.LogMessage($"{(isCriticalRoll ? "Critique - " : "")}{weapon.Name.ToString()} - {numDamageDice}d{damageDie} => {damage}", LogUtils.LogType.Combat);
 
-      damage += GetDegatsBotte(creature)
-        + GetDegatsVaillantsBonus(creature)
-        + GetSuperiorityDiceDamage(creature)
-        + GetBarbarianRageBonusDamage(creature, attackAbility, !attackData.m_bRangedAttack.ToBool())
-        + GetFrappeFrenetiqueBonusDamage(creature, attackAbility, !attackData.m_bRangedAttack.ToBool())
-        + GetFrappeBrutaleBonusDamage(creature, target, attackAbility, !attackData.m_bRangedAttack.ToBool())
-        + GetPhysicalBonusDamage(creature, attackWeapon)    
-        + GetFaveurDuMalinBonusDamage(creature)    
-        + GetChargeurBonusDamage(creature)
+      damage += GetDamageEffects(creature, target, attackAbility, false, isCriticalRoll, !attackData.m_bRangedAttack.ToBool())
         + GetCogneurLourdBonusDamage(creature, attackWeapon)
         + GetTireurDeliteBonusDamage(creature, attackData, attackWeapon)
-        + GetTranspercerBonusDamage(creature)
-        + GetTirPercantBonusDamage(creature)
-        + GetFormeSauvagePanthereBonusDamage(creature, target);
+        + GetSuperiorityDiceDamage(creature)
+        + GetFormeSauvagePanthereBonusDamage(creature, target, isCriticalRoll);
 
       return damage;
     }

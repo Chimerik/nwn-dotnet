@@ -583,8 +583,9 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
-        case CustomSpell.Enlarge:
-          concentrationTargets.AddRange(SpellSystem.Enlarge(oCaster, spell, spellEntry, target));
+        case CustomSpell.Agrandissement:
+        case CustomSpell.Rapetissement:
+          concentrationTargets.AddRange(SpellSystem.Agrandissement(oCaster, spell, spellEntry, target));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -710,6 +711,11 @@ namespace NWN.Systems
 
         case CustomSpell.Deguisement:
           SpellSystem.Deguisement(oCaster, spell);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.DetectionDeLinvisibilite:
+          SpellSystem.DetectionDeLinvisibilite(oCaster, spell, spellEntry);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 

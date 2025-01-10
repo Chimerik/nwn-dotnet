@@ -1,21 +1,16 @@
-﻿using Anvil.API;
-using NWN.Native.API;
+﻿using NWN.Native.API;
 
 namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static int GetDegatsVaillantsBonus(CNWSCreature creature)
+    public static int GetDegatsVaillantsBonus(CNWSCreature creature, CGameEffect eff)
     {
-      foreach (var eff in creature.m_appliedEffects)
-        if (eff.m_sCustomTag.CompareNoCase(EffectSystem.degatsVaillanteEffectExoTag).ToBool())
-        {
-          creature.RemoveEffect(eff);
-          LogUtils.LogMessage($"Dégâts vaillants : +{eff.m_nCasterLevel}", LogUtils.LogType.Combat);
-          return eff.m_nCasterLevel;
-        }
+      var casterLevel = eff.m_nCasterLevel;
+      creature.RemoveEffect(eff);
+      LogUtils.LogMessage($"Dégâts vaillants : +{casterLevel}", LogUtils.LogType.Combat);
 
-      return 0;
+      return casterLevel;
     }
   }
 }

@@ -1,27 +1,19 @@
-﻿using System.Linq;
-using Anvil.API;
-using NWN.Native.API;
+﻿using NWN.Native.API;
 
 namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static int GetFrappeFrenetiqueBonusDamage(CNWSCreature creature, Anvil.API.Ability attackAbility, bool isMeleeAttack = true)
+    public static int GetFrappeFrenetiqueBonus(CNWSCreature creature, CGameEffect eff, Anvil.API.Ability attackAbility, bool isCritical)
     {
-      if (isMeleeAttack && attackAbility == Anvil.API.Ability.Strength)
+      if (attackAbility == Anvil.API.Ability.Strength)
       {
-        var eff = creature.m_appliedEffects.FirstOrDefault(e => e.m_sCustomTag.CompareNoCase(EffectSystem.FrappeFrenetiqueEffectExoTag).ToBool());
+        int nbDices = eff.GetInteger(5);
+        int roll = Utils.Roll(6, isCritical ? nbDices * 2 : nbDices);
 
-        if (eff is not null)
-        {
-          int nbDices = eff.GetInteger(5);
-          int bonusDamage = NwRandom.Roll(Utils.random, 6, nbDices);
-
-          creature.RemoveEffect(eff);
-          LogUtils.LogMessage($"Frappe Frénétique ({nbDices}d6) : +{bonusDamage} dégâts", LogUtils.LogType.Combat);
-          
-          return bonusDamage;
-        }
+        creature.RemoveEffect(eff);
+        LogUtils.LogMessage($"Frappe Frénétique ({nbDices}d6) : +{roll} dégâts", LogUtils.LogType.Combat);
+        return roll;
       }
 
       return 0;  

@@ -4,9 +4,7 @@ namespace NWN.Systems
 {
   public partial class EffectSystem
   {
-    public const string BotteSecreteEffectTag = "_BOTTE_SECRETE_EFFECT";
-    public const string BotteDefensiveEffectTag = "_BOTTE_DEFENSIVE_EFFECT";
-    public static Effect BotteSecrete(NwCreature caster, bool botteDeMaitre = false)
+    public static Effect BotteTranchante(NwCreature caster, bool botteDeMaitre = false)
     {
       int bonus;
 
@@ -23,21 +21,14 @@ namespace NWN.Systems
         caster.DecrementRemainingFeatUses((Feat)CustomSkill.BotteTranchante);
       }
 
-      caster.OnCreatureAttack -= BardUtils.OnAttackBotteDefensive;
-      caster.OnCreatureAttack += BardUtils.OnAttackBotteDefensive;
+      caster.OnCreatureAttack -= BardUtils.OnAttackBotteTranchante;
+      caster.OnCreatureAttack += BardUtils.OnAttackBotteTranchante;
 
       Effect eff = Effect.Icon(EffectIcon.DamageIncrease);
       eff.Tag = BotteSecreteEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       eff.IntParams[5] = bonus;
 
-      return eff;
-    }
-    public static Effect GetBotteDefensiveEffect(int bonus)
-    {
-      Effect eff = Effect.ACIncrease(bonus);
-      eff.Tag = BotteDefensiveEffectTag;
-      eff.SubType = EffectSubType.Supernatural;
       return eff;
     }
   }

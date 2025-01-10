@@ -9,7 +9,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string ChargeurEffectTag = "_CHARGEUR_EFFECT";
-    public static readonly CExoString chargeurEffectExoTag = ChargeurEffectTag.ToExoString();
     public const string ChargerVariable = "_CHARGER_INITIAL_LOCATION";
     public static readonly CExoString chargerVariableExo = ChargerVariable.ToExoString();
     private static ScriptCallbackHandle onRemoveChargeurCallback;

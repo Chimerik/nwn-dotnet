@@ -4,15 +4,11 @@ namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static int GetDegatsBotte(CNWSCreature creature)
+    public static int GetDegatsBotteSecrete(CNWSCreature creature, CGameEffect eff, bool isCritical)
     {
-      int bonusDamage = creature.m_ScriptVars.GetInt(FeatSystem.BotteDamageExoVariable);
-      if (bonusDamage > 0)
-      {
-        LogUtils.LogMessage($"Dégâts Botte Secrête : +{bonusDamage}", LogUtils.LogType.Combat);
-        creature.m_ScriptVars.DestroyInt(FeatSystem.BotteDamageExoVariable);
-      }
-
+      int bonusDamage = eff.GetInteger(5);
+      bonusDamage *= isCritical ? 2 : 1;
+      LogUtils.LogMessage($"Dégâts Botte Secrête : +{bonusDamage}", LogUtils.LogType.Combat);
       return bonusDamage;
     }
   }
