@@ -17,7 +17,7 @@ namespace NWN.Systems
         return bonus;
       }
 
-      if (weapon is null || weapon.m_ScriptVars.GetObject(CreatureUtils.PacteDeLaLameVariableExo) == creature.m_idSelf) // Si arme de pacte, alors maîtrise automatique
+      if (weapon is null || !creature.m_bPlayerCharacter.ToBool() || weapon.m_ScriptVars.GetObject(CreatureUtils.PacteDeLaLameVariableExo) == creature.m_idSelf) // Si arme de pacte, alors maîtrise automatique
         return GetCreatureProficiencyBonus(creature);
 
       List<int> proficenciesRequirements = ItemUtils.GetItemProficiencies(NwBaseItem.FromItemId((int)weapon.m_nBaseItem).ItemType);

@@ -276,13 +276,14 @@ namespace NWN.Systems
 
             if (spellClass == ClassType.Cleric && Utils.In(spell.Id, CustomSpell.FireBolt, CustomSpell.PoisonSpray, CustomSpell.Druidisme, CustomSpell.Elementalisme, CustomSpell.Shillelagh, (int)Spell.RayOfFrost, CustomSpell.Message, (int)Spell.ElectricJolt, (int)Spell.GreatThunderclap, CustomSpell.ProduceFlame))
               continue;
+
             if (entry.hideFromClasses is not null)
             {
               switch (spellClass)
               {
                 case ClassType.Bard: if (entry.hideFromClasses.Contains(ClassType.Bard) && !player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.SecretsMagiques)) continue; break;
                 case ClassType.Ranger: if (entry.hideFromClasses.Contains(ClassType.Ranger)) continue; break;
-                case ClassType.Wizard: if (entry.hideFromClasses.Contains(ClassType.Ranger)) continue; break;
+                case ClassType.Wizard: if (entry.hideFromClasses.Contains(ClassType.Wizard)) continue; break;
                 case ClassType.Sorcerer: if (entry.hideFromClasses.Contains(ClassType.Sorcerer)) continue; break;
                 case (ClassType)CustomClass.Occultiste: if (entry.hideFromClasses.Contains((ClassType)CustomClass.Occultiste)) continue; break;
               }

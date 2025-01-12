@@ -4,7 +4,7 @@ namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static bool GetAttackerDisadvantageEffects(CNWSCreature attacker, CNWSCreature targetId, Anvil.API.Ability attackStat, CNWSItem attackWeapon = null)
+    public static bool GetAttackerDisadvantageEffects(CNWSCreature attacker, CNWSCreature targetId, Anvil.API.Ability attackStat, bool rangedAttack, CNWSItem attackWeapon = null)
     {
       foreach (var eff in attacker.m_appliedEffects)
       {
@@ -28,7 +28,7 @@ namespace NWN.Systems
           case EffectSystem.EntraveEffectTag: LogUtils.LogMessage("Désavantage - Entravé", LogUtils.LogType.Combat); return true;
           case EffectSystem.FrightenedEffectTag: LogUtils.LogMessage("Désavantage - Effroi", LogUtils.LogType.Combat); return true;
           case EffectSystem.CourrouxDeLaNatureEffectTag: LogUtils.LogMessage("Désavantage - Cible affecté par Courroux de la Nature", LogUtils.LogType.Combat); return true;
-          case EffectSystem.ThreatenedEffectTag: if (GetThreatenedDisadvantage(attacker, attackWeapon)) return true; break;
+          case EffectSystem.ThreatenedEffectTag: if (GetThreatenedDisadvantage(attacker, rangedAttack, attackWeapon)) return true; break;
           case EffectSystem.MoquerieVicieuseEffectTag: if (GetMoquerieVicieuseDisadvantage(attacker, eff)) return true; break;
           case EffectSystem.ShieldArmorDisadvantageEffectTag: if (GetArmorShieldDisadvantage(attackStat)) return true; break;
           case EffectSystem.boneChillEffectTag: if (GetBoneChillDisadvantage(attacker)) return true; break;

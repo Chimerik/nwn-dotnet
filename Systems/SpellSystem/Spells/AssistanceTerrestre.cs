@@ -12,6 +12,7 @@ namespace NWN.Systems
 
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
       int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, Ability.Wisdom);
+      caster.IncrementRemainingFeatUses((Feat)CustomSkill.DruideAssistanceTerrestre);
       DruideUtils.DecrementFormeSauvage(caster);
 
       foreach (var target in targetLocation.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, spellEntry.aoESize, false))

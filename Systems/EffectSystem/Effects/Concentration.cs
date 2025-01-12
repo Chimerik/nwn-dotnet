@@ -33,7 +33,7 @@ namespace NWN.Systems
       await NwTask.NextFrame();
 
       if(caster.IsLoginPlayerCharacter) 
-        tlkEntry.SetPlayerOverride(caster.ControllingPlayer, $"Concentration : {NwSpell.FromSpellId(spellId).Name}");
+        tlkEntry.SetPlayerOverride(caster.LoginPlayer, $"Concentration : {NwSpell.FromSpellId(spellId).Name}");
 
       if (duration > 0)
         NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, concentration, NwTimeSpan.FromRounds(duration)));

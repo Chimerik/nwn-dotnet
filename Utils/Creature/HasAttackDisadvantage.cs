@@ -25,7 +25,7 @@ namespace NWN.Systems
         if (GetEsquiveDuTraqueurDisadvantage(target))
           return true;
 
-        if (GetAttackerDisadvantageEffects(attacker, target, attackStat, attackWeapon))
+        if (GetAttackerDisadvantageEffects(attacker, target, attackStat, rangedAttack, attackWeapon))
           return true;
 
         if (GetTargetDisadvantageEffects(attacker, target, rangedAttack, attackData))
@@ -50,7 +50,7 @@ namespace NWN.Systems
       if (GetEsquiveDuTraqueurDisadvantage(target))
         return true;
 
-      if (GetAttackerDisadvantageEffects(attacker, target, spellCastingAbility))
+      if (GetAttackerDisadvantageEffects(attacker, target, spellCastingAbility, rangedSpell))
         return true;
 
       if (GetTargetDisadvantageEffects(attacker, target, rangedSpell))

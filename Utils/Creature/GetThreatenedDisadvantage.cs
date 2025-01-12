@@ -6,8 +6,11 @@ namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static bool GetThreatenedDisadvantage(CNWSCreature attacker, CNWSItem attackWeapon = null)
+    public static bool GetThreatenedDisadvantage(CNWSCreature attacker, bool rangedAttack, CNWSItem attackWeapon = null)
     {
+      if (!rangedAttack)
+        return false;
+
       var isCrossbowAttack = false;
 
       if (attackWeapon is not null)
