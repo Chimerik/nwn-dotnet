@@ -1,55 +1,33 @@
 ﻿using Anvil.API;
+using NWN.Native.API;
+using Ability = Anvil.API.Ability;
 
 namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static bool GetAttackerAdvantageEffects(Native.API.CNWSCreature attacker, Native.API.CNWSCreature target, Ability attackStat, bool rangedAttack, NwSpell spell = null)
+    public static bool GetAttackerAdvantageEffects(CNWSCreature attacker, CNWSCreature target, Ability attackStat, bool rangedAttack, NwSpell spell = null)
     {
       foreach (var eff in attacker.m_appliedEffects)
       {
-        if (GetViseeStableAdvantage(eff, attacker))
-          return true;
+        string tag = eff.m_sCustomTag.ToString();
 
-        if (GetAttaquesEtudieesAdvantage(eff, attacker))
-          return true;
-
-        if (GetFouleeDombreAdvantage(eff))
-          return true;
-
-        if (GetBroyeurAdvantage(eff))
-          return true;
-
-        if (GetRecklessAttackAdvantage(eff))
-          return true;
-
-        if (GetMaitreTactiqueAdvantage(eff))
+        switch(tag)
         {
-          DelayEffectRemoval(attacker);
-          return true;
+          case EffectSystem.ViseeStableEffectTag: GetViseeStableAdvantage(eff, attacker); return true; 
+          case EffectSystem.AttaquesEtudieesEffectTag: GetAttaquesEtudieesAdvantage(eff, attacker); return true; 
+          case EffectSystem.FouleeDombreEffectTag: LogUtils.LogMessage("Avantage - Foulée d'ombre", LogUtils.LogType.Combat); return true; 
+          case EffectSystem.BroyeurEffectTag: LogUtils.LogMessage("Avantage - Broyeur", LogUtils.LogType.Combat); return true; 
+          case EffectSystem.RecklessAttackEffectTag: LogUtils.LogMessage("Avantage - Frappe Téméraire", LogUtils.LogType.Combat); return true; 
+          case EffectSystem.MaitreTactiqueTag: GetMaitreTactiqueAdvantage(eff, attacker); return true; 
+          case EffectSystem.AssassinateEffectTag: LogUtils.LogMessage("Avantage - Assassinat", LogUtils.LogType.Combat); return true; 
+          case EffectSystem.SensDivinEffectTag: if(GetSensDivinAdvantage(target)) return true; break; 
+          case EffectSystem.SorcellerieInneeEffectTag: if(GetSorcellerieInneeAdvantage(spell)) return true; break; 
+          case EffectSystem.VolEffectTag: if(GetVolRangedAdvantage(target, rangedAttack)) return true; break; 
         }
-
-        if (GetAssassinateAdvantage(eff))
-          return true;
-
-        if (GetSensDivinAdvantage(eff, target))
-          return true;
-
-        if (GetSorcellerieInneeAdvantage(eff, spell))
-          return true;
-
-        if(GetVolRangedAdvantage(eff, attacker, target, rangedAttack))
-          return true;
       }
 
       return false;
-    }
-    private static async void DelayEffectRemoval(Native.API.CNWSCreature attacker)
-    {
-      await NwTask.NextFrame();
-      foreach (var eff in attacker.m_appliedEffects)
-        if (eff.m_sCustomTag.CompareNoCase(EffectSystem.MaitreTactiqueExoTag).ToBool())
-          attacker.RemoveEffect(eff);
     }
   }
 }

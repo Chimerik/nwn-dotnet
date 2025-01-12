@@ -1,15 +1,12 @@
-﻿using System.Linq;
-using Anvil.API;
-using NWN.Native.API;
+﻿using NWN.Native.API;
 
 namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static bool GetProvocationDisadvantage(CGameEffect eff, CNWSCreature target)
+    public static bool GetProvocationDisadvantage(uint effCreator, CNWSCreature target)
     {
-      if (eff.m_sCustomTag.CompareNoCase(EffectSystem.provocationEffectExoTag).ToBool() 
-        && !target.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.provoqueurEffectExoTag).ToBool()))
+      if (target.m_idSelf != effCreator)
       {
         LogUtils.LogMessage("Désavantage - Affecté par Provocation", LogUtils.LogType.Combat);
         return true;

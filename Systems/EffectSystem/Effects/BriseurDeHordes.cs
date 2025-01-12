@@ -7,7 +7,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string BriseurDeHordesEffectTag = "_POURFENDEUR_DE_COLOSSES_EFFECT";
-    public static readonly Native.API.CExoString BriseurDeHordesEffectExoTag = BriseurDeHordesEffectTag.ToExoString();
     public static void ApplyBriseurDeHordes(NwCreature caster)
     {
       EffectUtils.RemoveTaggedEffect(caster, PourfendeurDeColossesEffectTag, BriseurDeHordesEffectTag);

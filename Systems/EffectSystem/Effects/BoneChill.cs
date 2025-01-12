@@ -8,7 +8,6 @@ namespace NWN.Systems
   {
     private static ScriptCallbackHandle onRemoveBoneChillCallback;
     public const string boneChillEffectTag = "_BONE_CHILL_EFFECT";
-    public static readonly Native.API.CExoString boneChillEffectExoTag = "_BONE_CHILL_EFFECT".ToExoString();
     public static Effect boneChillEffect
     {
       get

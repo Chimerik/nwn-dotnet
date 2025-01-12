@@ -9,7 +9,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string KnockdownEffectTag = "_KNOCKDOWN_EFFECT";
-    public static readonly Native.API.CExoString KnockdownEffectTagExo = KnockdownEffectTag.ToExoString();
     public static Effect Destabilisation
     {
       get

@@ -7,7 +7,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string RecklessAttackEffectTag = "_RECKLESS_ATTACK_EFFECT";
-    public static readonly Native.API.CExoString RecklessAttackEffectExoTag = "_RECKLESS_ATTACK_EFFECT".ToExoString();
     private static ScriptCallbackHandle onRemoveRecklessAttackCallback;
     public static Effect RecklessAttackEffect
     {

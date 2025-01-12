@@ -5,7 +5,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string VolEffectTag = "_VOL_EFFECT";
-    public static readonly Native.API.CExoString VolEffectExoTag = VolEffectTag.ToExoString();
     public static Effect Vol
     {
       get

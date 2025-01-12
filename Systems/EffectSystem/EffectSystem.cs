@@ -13,6 +13,7 @@ namespace NWN.Systems
     public EffectSystem(ScriptHandleFactory scriptFactory)
     {
       scriptHandleFactory = scriptFactory;
+
       onEnterProtectionStyleCallback = scriptHandleFactory.CreateUniqueHandler(onEnterProtectionStyle);
       onExitProtectionStyleCallback = scriptHandleFactory.CreateUniqueHandler(onExitProtectionStyle);
 
@@ -21,6 +22,9 @@ namespace NWN.Systems
 
       onEnterChanceDebordanteCallback = scriptHandleFactory.CreateUniqueHandler(onEnterChanceDebordante);
       onExitChanceDebordanteCallback = scriptHandleFactory.CreateUniqueHandler(onExitChanceDebordante);
+
+      onEnterSilenceCallback = scriptHandleFactory.CreateUniqueHandler(onEnterSilence);
+      onExitSilenceCallback = scriptHandleFactory.CreateUniqueHandler(onExitSilence);
 
       onRemoveAgressionOrcCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveAgressionOrc);
       onRemoveGreleDepinesCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveGreleDepines);
@@ -31,6 +35,7 @@ namespace NWN.Systems
       onIntervalArmureDeMageCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalArmureDeMage);
       onIntervalTraitEnsorceleCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalTraitEnsorcele);
       onRemoveAideCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveAide);
+      onRemoveFlecheAcideDeMelfCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveFlecheAcideDeMelf);
 
       onIntervalHeroismeCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalHeroisme);
 

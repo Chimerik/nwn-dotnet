@@ -23,8 +23,6 @@ namespace NWN.Systems
       creature.SetFeatRemainingUses((Feat)CustomSkill.MonkPaumeVibratoire, featUse);
       creature.SetFeatRemainingUses((Feat)CustomSkill.MonkDarkVision, featUse);
       creature.SetFeatRemainingUses((Feat)CustomSkill.MonkTenebres, featUse);
-      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkPassageSansTrace, featUse);
-      creature.SetFeatRemainingUses((Feat)CustomSkill.MonkSilence, featUse);
       creature.SetFeatRemainingUses((Feat)CustomSkill.MonkFrappeDombre, featUse);
       creature.SetFeatRemainingUses((Feat)CustomSkill.MonkCrochetsDuSerpentDeFeu, featUse);
       creature.SetFeatRemainingUses((Feat)CustomSkill.MonkFrissonDeLaMontagne, featUse);

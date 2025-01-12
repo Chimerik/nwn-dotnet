@@ -14,28 +14,31 @@ namespace NWN.Systems
       {
         string tag = eff.m_sCustomTag.ToString();
 
+        if (noStack.Contains(tag))
+          continue;
+
         bonusDamage += GetPhysicalBonusDamage(eff, isCritical);
 
         if (isUnarmed || isMeleeAttack)
         {
           switch (tag)
           {
-            case EffectSystem.DegatsVaillanteEffectTag: bonusDamage += GetDegatsVaillantsBonus(creature, eff); break;
-            case EffectSystem.EnlargeEffectTag: bonusDamage += GetAgrandissementBonus(isCritical); break;
-            case EffectSystem.RapetissementEffectTag: bonusDamage -= GetRapetissementMalus(); break;
-            case EffectSystem.FaveurDuMalinEffectTag: bonusDamage += GetFaveurDuMalinBonus(creature, eff, isCritical); break;
+            case EffectSystem.DegatsVaillanteEffectTag: bonusDamage += GetDegatsVaillantsBonus(creature, eff, noStack); break;
+            case EffectSystem.EnlargeEffectTag: bonusDamage += GetAgrandissementBonus(noStack); break;
+            case EffectSystem.RapetissementEffectTag: bonusDamage -= GetRapetissementMalus(isCritical, noStack); break;
+            case EffectSystem.FaveurDuMalinEffectTag: bonusDamage += GetFaveurDuMalinBonus(creature, eff, isCritical, noStack); break;
             case EffectSystem.ChargeurEffectTag: bonusDamage += GetChargeurBonus(creature, eff, noStack, isCritical); break;
-            case EffectSystem.BarbarianRageEffectTag: bonusDamage += GetBarbarianRageBonus(creature, eff, noStack, attackAbility); break;
-            case EffectSystem.RageDuSanglierEffectTag: bonusDamage += GetSanglierRageBonus(creature, eff, noStack, attackAbility); break;
-            case EffectSystem.FrappeFrenetiqueEffectTag: bonusDamage += GetFrappeFrenetiqueBonus(creature, eff, attackAbility, isCritical); break;
-            case EffectSystem.FrappeBrutaleEffectTag: bonusDamage += GetFrappeBrutaleBonus(creature, attackAbility, isCritical); break;
+            case EffectSystem.BarbarianRageEffectTag: bonusDamage += GetBarbarianRageBonus(creature, eff, noStack, attackAbility, isCritical); break;
+            case EffectSystem.RageDuSanglierEffectTag: bonusDamage += GetSanglierRageBonus(creature, eff, noStack, attackAbility, isCritical); break;
+            case EffectSystem.FrappeFrenetiqueEffectTag: bonusDamage += GetFrappeFrenetiqueBonus(creature, eff, attackAbility, isCritical, noStack); break;
+            case EffectSystem.FrappeBrutaleEffectTag: bonusDamage += GetFrappeBrutaleBonus(creature, attackAbility, noStack); break;
           }
         }
         else if(!isUnarmed && isMeleeAttack)
         {
           switch (tag)
           {
-            case EffectSystem.BotteSecreteEffectTag: bonusDamage += GetDegatsBotteSecrete(creature, eff, isCritical); break;
+            case EffectSystem.BotteSecreteEffectTag: bonusDamage += GetDegatsBotteSecrete(creature, eff, noStack); break;
           }
         }
         else
@@ -45,10 +48,24 @@ namespace NWN.Systems
 
         switch (tag)
         {
-          case EffectSystem.TranspercerEffectTag: bonusDamage += GetTranspercerBonusDamage(); break;
-          case EffectSystem.TirPercantEffectTag: bonusDamage += GetTirPercantBonusDamage(); break;
+          case EffectSystem.TranspercerEffectTag: bonusDamage += GetTranspercerBonusDamage(isCritical, noStack); break;
+          case EffectSystem.TirPercantEffectTag: bonusDamage += GetTirPercantBonusDamage(isCritical, noStack); break;
+          case EffectSystem.MonkParadeEffectTag: bonusDamage -= GetMonkParadeDamageReduction(target, eff, noStack); break;
         }
-      }   
+      }
+
+      uint effTarget = target.m_idSelf;
+
+      foreach (var eff in target.m_appliedEffects)
+      {
+        string tag = eff.m_sCustomTag.ToString();
+        uint effCreator = eff.m_oidCreator;
+
+        switch (tag)
+        {
+          case EffectSystem.MarqueDuChasseurTag: bonusDamage += GetHunterMarqueBonusDamage(creature, effCreator, effTarget, noStack); break;
+        }
+      }
 
       return bonusDamage;  
     }

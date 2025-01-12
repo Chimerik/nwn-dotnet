@@ -5,7 +5,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string DodgeEffectTag = "_EFFECT_DODGE";
-    public static readonly Native.API.CExoString DodgeEffectExoTag = "_EFFECT_DODGE".ToExoString();
     public static Effect dodgeEffect
     {
       get

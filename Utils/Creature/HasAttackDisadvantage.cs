@@ -20,20 +20,12 @@ namespace NWN.Systems
 
           if (GetRangedWeaponDistanceDisadvantage(attacker, weaponType, target))
             return true;
-
-          if (GetThreatenedDisadvantage(attacker, attackWeapon))
-            return true;
-        }
-        else
-        {
-          if (GetVolMeleeDisadvantage(attacker, target))
-            return true;
         }
 
         if (GetEsquiveDuTraqueurDisadvantage(target))
           return true;
 
-        if (GetAttackerDisadvantageEffects(attacker, target, attackStat))
+        if (GetAttackerDisadvantageEffects(attacker, target, attackStat, attackWeapon))
           return true;
 
         if (GetTargetDisadvantageEffects(attacker, target, rangedAttack, attackData))
@@ -50,30 +42,22 @@ namespace NWN.Systems
     }
     public static bool GetSpellAttackDisadvantageAgainstTarget(NwCreature attacker, NwSpell spell, int isRangedSpell, NwCreature target, Ability spellCastingAbility)
     {
+      if(target is null)
+        return false;
+
       bool rangedSpell = isRangedSpell.ToBool();
 
-      if (target is not null)
-      {
-        if (rangedSpell)
-        {
-          if (GetThreatenedDisadvantage(attacker))
-            return true;
-        }
-        else if (GetVolMeleeDisadvantage(attacker, target))
-          return true;
+      if (GetEsquiveDuTraqueurDisadvantage(target))
+        return true;
 
-        if (GetEsquiveDuTraqueurDisadvantage(target))
-          return true;
+      if (GetAttackerDisadvantageEffects(attacker, target, spellCastingAbility))
+        return true;
 
-        if (GetAttackerDisadvantageEffects(attacker, target, spellCastingAbility))
-          return true;
+      if (GetTargetDisadvantageEffects(attacker, target, rangedSpell))
+        return true;
 
-        if (GetTargetDisadvantageEffects(attacker, target, rangedSpell))
-          return true;
-
-        if (GetInvisibleTargetDisadvantage(attacker, target))
-          return true;
-      }
+      if (GetInvisibleTargetDisadvantage(attacker, target))
+        return true;
 
       return false;
     }

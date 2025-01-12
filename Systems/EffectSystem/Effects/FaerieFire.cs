@@ -8,7 +8,6 @@ namespace NWN.Systems
   {
     private static ScriptCallbackHandle onRemoveFaerieFireCallback;
     public const string faerieFireEffectTag = "_FAERIE_FIRE_EFFECT";
-    public static readonly Native.API.CExoString faerieFireEffectExoTag = "_FAERIE_FIRE_EFFECT".ToExoString();
     public static Effect faerieFireEffect
     {
       get

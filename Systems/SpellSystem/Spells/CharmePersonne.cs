@@ -9,7 +9,7 @@ namespace NWN.Systems
     {     
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
 
-      if (oTarget is not NwCreature targetCreature || oCaster is not NwCreature caster)
+      if (oCaster is not NwCreature caster)
         return;
 
       List<NwGameObject> targets = SpellUtils.GetSpellTargets(caster, oTarget, spellEntry, true);

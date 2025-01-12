@@ -7,7 +7,6 @@ namespace NWN.Systems
     public const string DefenseAdaptativeEffectTag = "_DEFENSE_ADAPTATIVE_EFFECT";
     public const string DefenseAdaptativeMalusEffectTag = "_DEFENSE_ADAPTATIVE_MALUS_EFFECT";
     public static readonly Native.API.CExoString DefenseAdaptativeEffectExoTag = DefenseAdaptativeEffectTag.ToExoString();
-    public static readonly Native.API.CExoString DefenseAdaptativeMalusEffectExoTag = DefenseAdaptativeMalusEffectTag.ToExoString();
     public static Effect DefenseAdaptative
     {
       get

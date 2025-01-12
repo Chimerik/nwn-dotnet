@@ -16,7 +16,7 @@ namespace NWN.Systems
       {
         if(GetCreatureWeaponProficiencyBonus(creature, attackWeapon) > 0)
         {
-          var coupAuBut = creature.m_appliedEffects.FirstOrDefault(e => e.m_sCustomTag.CompareNoCase(EffectSystem.CoupAuButAttackEffectExoTag).ToBool());
+          var coupAuBut = creature.m_appliedEffects.FirstOrDefault(e => e.m_sCustomTag.ToString() == EffectSystem.CoupAuButAttackEffectTag);
           if(coupAuBut is not null)
             return (Anvil.API.Ability)coupAuBut.GetInteger(3);
         }

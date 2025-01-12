@@ -12,7 +12,6 @@ namespace NWN.Systems
   {
     public const string RepliqueInvoqueeAuraEffectTag = "_REPLIQUE_INVOQUEE_AURA_EFFECT";
     public const string RepliqueInvoqueeEffectTag = "_REPLIQUE_INVOQUEE_EFFECT";
-    public static readonly Native.API.CExoString RepliqueInvoqueeEffectExoTag = RepliqueInvoqueeEffectTag.ToExoString();
     public const string repliqueTag = "_REPLIQUE_DUPLICITE";
     public static readonly Native.API.CExoString repliqueExoTag = repliqueTag.ToExoString();
     private static ScriptCallbackHandle onEnterRepliqueInvoqueeCallback;

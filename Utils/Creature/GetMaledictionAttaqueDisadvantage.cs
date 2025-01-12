@@ -1,13 +1,12 @@
-﻿using Anvil.API;
-using NWN.Native.API;
+﻿using NWN.Native.API;
 
 namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static bool GetMaledictionAttaqueDisadvantage(CGameEffect eff, CNWSCreature target)
+    public static bool GetMaledictionAttaqueDisadvantage(uint effCreator, CNWSCreature target)
     {
-      if (eff.m_sCustomTag.CompareNoCase(EffectSystem.MaledictionAttaqueEffectExoTag).ToBool() && eff.m_oidCreator == target.m_idSelf)
+      if (effCreator == target.m_idSelf)
       {
         LogUtils.LogMessage("Désavantage - Malédiction sur l'attaque", LogUtils.LogType.Combat);
         return true;

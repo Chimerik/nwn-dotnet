@@ -43,7 +43,7 @@ namespace NWN
         if (creator == eff.Creator && effectTag.Contains(eff.Tag))
           target.RemoveEffect(eff);
     }
-    public static void RemoveTaggedEffect(CNWSObject target, params CExoString[] effectTag)
+    /*public static void RemoveTaggedEffect(CNWSObject target, params CExoString[] effectTag)
     {
       List<CGameEffect> effToRemove = new();
 
@@ -54,6 +54,23 @@ namespace NWN
 
       foreach (var eff in effToRemove)
         target.RemoveEffect(eff);
+    }*/
+    public static void RemoveTaggedNativeEffect(CNWSObject target, params string[] effectTag)
+    {
+      List<CGameEffect> effToRemove = new();
+
+      foreach (var eff in target.m_appliedEffects)
+        foreach (var tag in effectTag)
+          if (eff.m_sCustomTag.ToString() == tag)
+            effToRemove.Add(eff);
+
+      foreach (var eff in effToRemove)
+        target.RemoveEffect(eff);
+    }
+    public static async void DelayEffectRemoval(CNWSCreature attacker, CGameEffect eff)
+    {
+      await NwTask.NextFrame();
+      attacker.RemoveEffect(eff);
     }
   }
 }

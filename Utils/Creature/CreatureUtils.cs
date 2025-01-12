@@ -19,9 +19,9 @@ namespace NWN.Systems
     public static readonly CExoString ReactionVariableExo = ReactionVariable.ToExoString();
     public const string BonusActionVariable = "_BONUS_ACTION";
     public const string CancelDamageDoublonVariable = "_CANCEL_DAMAGE_DOUBLON";
+    public const string AnimalCompanionTag = "animal_companion";
     public static readonly CExoString CancelDamageDoublonVariableExo = CancelDamageDoublonVariable.ToExoString();
     public static readonly CExoString BonusActionVariableExo = BonusActionVariable.ToExoString();
-    public static readonly CExoString AnimalCompanionTagExo = "animal_companion".ToExoString();
     public const string OpportunityAttackTypeVariable = "_OPPORTUNITY_ATTACK_TYPE";
     public static readonly CExoString OpportunityAttackTypeVariableExo = OpportunityAttackTypeVariable.ToExoString();
     public const string SneakAttackCooldownVariable = "_SNEAK_ATTACK_COOLDOWN";

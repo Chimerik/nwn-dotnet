@@ -9,7 +9,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string MonkParadeEffectTag = "_MONK_PARADE_EFFECT";
-    public static readonly CExoString MonkParadeEffectExoTag = MonkParadeEffectTag.ToExoString();
     private static ScriptCallbackHandle onRemoveMonkParadeCallback;
     public static Effect MonkParade
     {

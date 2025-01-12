@@ -9,7 +9,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string EntraveEffectTag = "_ENTRAVE_EFFECT";
-    public static readonly Native.API.CExoString EntraveEffectExoTag = EntraveEffectTag.ToExoString();
     private static ScriptCallbackHandle onRemoveEntraveCallback;
     private static ScriptCallbackHandle onIntervalEntraveCallback;
     public static void Entrave(NwCreature target, NwCreature caster, Ability castAbility, TimeSpan duration, bool repeatSave = false)

@@ -6,7 +6,6 @@ namespace NWN.Systems
   {
     public const string EspritEveilleEffectTag = "_ESPRIT_EVEILLE_EFFECT";
     public const string EspritEveilleDisadvantageEffectTag = "_ESPRIT_EVEILLE_DISADVANTAGE_EFFECT";
-    public static readonly Native.API.CExoString EspritEveilleEffectExoTag = EspritEveilleDisadvantageEffectTag.ToExoString();
     public static Effect EspritEveille
     {
       get

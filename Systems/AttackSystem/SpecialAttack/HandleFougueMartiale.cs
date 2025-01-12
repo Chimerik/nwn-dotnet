@@ -1,9 +1,6 @@
 ﻿using System.Linq;
-using System.Numerics;
 using Anvil.API;
-using NWN.Core;
 using NWN.Native.API;
-using ClassType = NWN.Native.API.ClassType;
 
 namespace NWN.Systems
 {
@@ -11,9 +8,9 @@ namespace NWN.Systems
   {
     public static void HandleFougueMartiale(CNWSCreature attacker, CNWSObject currentTarget, CNWSCombatRound round, string attackerName, string targetName)
     {
-      if(attacker.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.ActionSurgeEffectExoTag).ToBool()))
+      if(attacker.m_appliedEffects.Any(e => e.m_sCustomTag.ToString() == EffectSystem.ActionSurgeEffectTag))
       {
-        EffectUtils.RemoveTaggedEffect(attacker, EffectSystem.ActionSurgeEffectExoTag);
+        EffectUtils.RemoveTaggedNativeEffect(attacker, EffectSystem.ActionSurgeEffectTag);
         BroadcastNativeServerMessage($"{attackerName.ColorString(ColorConstants.Cyan)} déclenche sa fougue sur {targetName}", attacker);
 
         for (int i = 0; i < attacker.m_pStats.GetAttacksPerRound(); i++)

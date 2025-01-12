@@ -1,10 +1,11 @@
-﻿using NWN.Native.API;
+﻿using System.Collections.Generic;
+using NWN.Native.API;
 
 namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static int GetFrappeFrenetiqueBonus(CNWSCreature creature, CGameEffect eff, Anvil.API.Ability attackAbility, bool isCritical)
+    public static int GetFrappeFrenetiqueBonus(CNWSCreature creature, CGameEffect eff, Anvil.API.Ability attackAbility, bool isCritical, List<string> noStack)
     {
       if (attackAbility == Anvil.API.Ability.Strength)
       {
@@ -15,6 +16,8 @@ namespace NWN.Systems
         LogUtils.LogMessage($"Frappe Frénétique ({nbDices}d6) : +{roll} dégâts", LogUtils.LogType.Combat);
         return roll;
       }
+
+      noStack.Add(EffectSystem.FrappeFrenetiqueEffectTag);
 
       return 0;  
     }

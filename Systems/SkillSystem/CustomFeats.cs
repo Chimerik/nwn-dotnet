@@ -189,8 +189,6 @@
 
     public const int MonkTenebres = 1484;
     public const int MonkDarkVision = 1485;
-    public const int MonkPassageSansTrace = 1486;
-    public const int MonkSilence = 1487;
     public const int MonkLinceulDombre = 1488;
     public const int MonkFouleeDombre = 1489;
     public const int MonkFrappeDombre = 1490;

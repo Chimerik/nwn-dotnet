@@ -87,5 +87,7 @@ namespace NWN
     public const EffectIcon RuseduRenard = (EffectIcon)250;
     public const EffectIcon SagesseduHibou = (EffectIcon)251;
     public const EffectIcon SplendeurdelAigle = (EffectIcon)252;
+    public const EffectIcon Fascination = (EffectIcon)253;
+    public const EffectIcon PourfendeurDeColosses = (EffectIcon)254;
   }
 }

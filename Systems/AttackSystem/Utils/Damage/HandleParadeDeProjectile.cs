@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
 using Anvil.API;
 using NWN.Native.API;
 
@@ -6,13 +6,18 @@ namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static int HandleMonkParade(CNWSCreature target)
+    public static int GetMonkParadeDamageReduction(CNWSCreature target, CGameEffect eff, List<string> noStack)
     {
+      noStack.Add(EffectSystem.MonkParadeEffectTag);
+
+      if (target is null)
+        return 0;
+
       int monkLevel = target.m_pStats.GetNumLevelsOfClass(CustomClass.Monk);
 
-      if (monkLevel > 2 && target.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.MonkParadeEffectExoTag).ToBool()))
+      if (monkLevel > 2)
       {
-        EffectUtils.RemoveTaggedEffect(target, EffectSystem.MonkParadeEffectExoTag);
+        target.RemoveEffect(eff);
 
         int roll = NwRandom.Roll(Utils.random, 10);
         int dexBonus = GetAbilityModifier(target, Anvil.API.Ability.Dexterity);

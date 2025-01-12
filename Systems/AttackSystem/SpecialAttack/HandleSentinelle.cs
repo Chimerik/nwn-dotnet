@@ -1,5 +1,4 @@
 ﻿using Anvil.API;
-using NWN.Core;
 using NWN.Native.API;
 
 namespace NWN.Systems
@@ -13,7 +12,7 @@ namespace NWN.Systems
 
       foreach(var eff in attacker.m_appliedEffects)
       {
-        if(eff.m_sCustomTag.CompareNoCase(EffectSystem.threatenedEffectExoTag).ToBool())
+        if(eff.m_sCustomTag.ToString() == EffectSystem.ThreatenedEffectTag)
         {
           CNWSCreature creature = NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(eff.m_oidCreator);
 

@@ -5,7 +5,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string FleauEffectTag = "_FLEAU_EFFECT";
-    public static readonly Native.API.CExoString FleauEffectExoTag = FleauEffectTag.ToExoString();
     public static Effect Fleau
     {
       get

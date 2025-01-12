@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using NWN.Native.API;
 
 namespace NWN.Systems
@@ -7,12 +8,9 @@ namespace NWN.Systems
   {
     public static bool IsAssassinate(CNWSCreature attacker)
     {
-      if (attacker.m_pStats.HasFeat(CustomSkill.AssassinAssassinate).ToBool())
-      {
-        foreach (var eff in attacker.m_appliedEffects)
-          if (CreatureUtils.GetAssassinateAdvantage(eff))
-            return true;
-      }
+      if (attacker.m_pStats.HasFeat(CustomSkill.AssassinAssassinate).ToBool()
+        && attacker.m_appliedEffects.Any(e => e.m_sCustomTag.ToString() == EffectSystem.AssassinateEffectTag))
+        return true;
 
       return false;
     }

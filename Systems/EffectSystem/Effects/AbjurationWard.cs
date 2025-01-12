@@ -9,7 +9,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string AbjurationWardEffectTag = "_ABJURATION_WARD_EFFECT";
-    public static readonly Native.API.CExoString abjurationWardEffectExoTag = AbjurationWardEffectTag.ToExoString();
     private static ScriptCallbackHandle onRemoveAbjurationWardCallback;
     public static Effect GetAbjurationWardEffect(int intensity)
     {

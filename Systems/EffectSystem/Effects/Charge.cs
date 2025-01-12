@@ -9,7 +9,6 @@ namespace NWN.Systems
   {
     public const string ChargeEffectTag = "_CHARGE_EFFECT";
     public const string ChargeDebuffEffectTag = "_CHARGE_DEBUFF_EFFECT";
-    public static readonly Native.API.CExoString ChargeDebuffEffectExoTag = ChargeDebuffEffectTag.ToExoString();
     private static ScriptCallbackHandle onRemoveChargeCallback;
     public static Effect Charge(NwCreature caster)
     {

@@ -5,7 +5,7 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static List<NwGameObject> PassageSansTrace(NwGameObject oCaster, NwSpell spell, NwFeat feat, SpellEntry spellEntry)
+    public static List<NwGameObject> PassageSansTrace(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry)
     {
       List<NwGameObject> concentrationTargets = new();
 
@@ -21,12 +21,6 @@ namespace NWN.Systems
 
         target.ApplyEffect(EffectDuration.Temporary, Effect.SkillIncrease(NwSkill.FromSkillType(Skill.MoveSilently), 10));
         concentrationTargets.Add(target);
-      }
-
-      if(feat is not null && feat.Id == CustomSkill.MonkPassageSansTrace)
-      {
-        caster.IncrementRemainingFeatUses(feat.FeatType);
-        FeatUtils.DecrementKi(caster, 2);
       }
 
       return concentrationTargets;

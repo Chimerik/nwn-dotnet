@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using Anvil.API;
 using NWN.Native.API;
 
 namespace NWN.Systems
@@ -8,10 +7,10 @@ namespace NWN.Systems
   {
     public static void HandleEntaille(CNWSCreature attacker, CNWSObject currentTarget, CNWSCombatRound combatRound)
     {
-      if (!attacker.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.EntailleEffectExoTag).ToBool()))
+      if (!attacker.m_appliedEffects.Any(e => e.m_sCustomTag.ToString() == EffectSystem.EntailleEffectTag))
         return;
 
-      EffectUtils.RemoveTaggedEffect(attacker, EffectSystem.EntailleEffectExoTag);  
+      EffectUtils.RemoveTaggedNativeEffect(attacker, EffectSystem.EntailleEffectTag);  
       combatRound.AddWhirlwindAttack(currentTarget.m_idSelf, 1);
     }
   }

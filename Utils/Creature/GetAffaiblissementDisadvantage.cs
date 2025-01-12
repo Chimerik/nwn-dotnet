@@ -1,5 +1,4 @@
-﻿using Anvil.API;
-using NWN.Native.API;
+﻿using NWN.Native.API;
 
 namespace NWN.Systems
 {
@@ -7,14 +6,9 @@ namespace NWN.Systems
   {
     public static bool GetAffaiblissementDisadvantage(CNWSCreature creature, CGameEffect eff)
     {
-      if(eff.m_sCustomTag.CompareNoCase(EffectSystem.AffaiblissementEffectExoTag).ToBool())
-      {
-        LogUtils.LogMessage("Désavantage - Affecté par Affaiblissement", LogUtils.LogType.Combat);
-        creature.RemoveEffect(eff);
-        return true;
-      }
-      else
-        return false;
+      LogUtils.LogMessage("Désavantage - Affecté par Affaiblissement", LogUtils.LogType.Combat);
+      EffectUtils.DelayEffectRemoval(creature, eff);
+      return true;
     }
   }
 }

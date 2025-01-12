@@ -9,7 +9,6 @@ namespace NWN.Systems
   {
     public const string ProtectionStyleAuraEffectTag = "_PROTECTION_STYLE_AURA_EFFECT";
     public const string ProtectionStyleEffectTag = "_PROTECTION_STYLE_EFFECT";
-    public static readonly Native.API.CExoString ProtectionStyleEffectExoTag = ProtectionStyleEffectTag.ToExoString();
     private static ScriptCallbackHandle onEnterProtectionStyleCallback;
     private static ScriptCallbackHandle onExitProtectionStyleCallback;
     

@@ -7,7 +7,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string CourrouxDeLaNatureEffectTag = "_COURROUX_DE_LA_NATURE_EFFECT";
-    public static readonly Native.API.CExoString CourrouxDeLaNatureEffectExoTag = CourrouxDeLaNatureEffectTag.ToExoString();
     private static ScriptCallbackHandle onIntervalCourrouxDeLaNatureCallback;
     
     public static Effect CourrouxDeLaNature

@@ -16,9 +16,6 @@ namespace NWN.Systems
           player.oid.SetTextureOverride("monk", "monk_shadow");
 
           player.LearnClassSkill(CustomSkill.MonkTenebres);
-          player.LearnClassSkill(CustomSkill.MonkPassageSansTrace);
-          player.LearnClassSkill(CustomSkill.MonkSilence);
-          player.LearnClassSkill(CustomSkill.IllusionMineure);
 
           break;
 

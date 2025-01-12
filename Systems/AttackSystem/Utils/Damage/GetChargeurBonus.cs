@@ -10,9 +10,6 @@ namespace NWN.Systems
   {
     public static int GetChargeurBonus(CNWSCreature creature, CGameEffect eff, List<string> noStack, bool isCritical)
     {
-      if (noStack.Contains(EffectSystem.ChargeurEffectTag))
-        return 0;
-
       int roll = 0;
 
       if (!noStack.Contains(EffectSystem.ChargeurEffectTag))

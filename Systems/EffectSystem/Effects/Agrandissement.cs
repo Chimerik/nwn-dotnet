@@ -9,7 +9,6 @@ namespace NWN.Systems
   {
     private static ScriptCallbackHandle onRemoveEnlargeCallback;
     public const string EnlargeEffectTag = "_EFFECT_ENLARGE";
-    public static readonly Native.API.CExoString AgrandissementEffectExoTag = EnlargeEffectTag.ToExoString();
     public static Effect Agrandissement(NwGameObject target)
     {
       if (target.GetObjectVariable<PersistentVariableFloat>(CreatureUtils.OriginalSizeVariable).HasNothing)

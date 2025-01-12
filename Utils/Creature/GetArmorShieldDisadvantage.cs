@@ -4,16 +4,14 @@ namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static bool GetArmorShieldDisadvantage(Native.API.CGameEffect eff, Ability attackStat)
+    public static bool GetArmorShieldDisadvantage(Ability attackStat)
     {
-      if(eff.m_sCustomTag.CompareNoCase(EffectSystem.shieldArmorDisadvantageEffectExoTag).ToBool()
-        && (attackStat == Ability.Strength || attackStat == Ability.Dexterity))
+      switch(attackStat)
       {
-        LogUtils.LogMessage($"Désavantage - Attaque (force ou dex) en portant un bouclier ou armure non maîtrisée", LogUtils.LogType.Combat);
-        return true;
+        case Ability.Strength:
+        case Ability.Dexterity: LogUtils.LogMessage($"Désavantage - Attaque (force ou dex) en portant un bouclier ou armure non maîtrisée", LogUtils.LogType.Combat); return true;
+        default: return false;
       }
-      else
-        return false;
     }
   }
 }

@@ -1,15 +1,12 @@
-﻿using Anvil.API;
-using NWN.Native.API;
-using RacialType = NWN.Native.API.RacialType;
+﻿using NWN.Native.API;
 
 namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static bool GetDefenseAdaptativeDisadvantage(CGameEffect eff, CNWSCreature attacker, CNWSCreature target)
+    public static bool GetDefenseAdaptativeDisadvantage(uint effCreator, CNWSCreature target)
     {
-      if (!eff.m_sCustomTag.CompareNoCase(EffectSystem.DefenseAdaptativeMalusEffectExoTag).ToBool()
-        || eff.m_oidCreator == target.m_idSelf)
+      if (effCreator == target.m_idSelf)
         return false;
 
       LogUtils.LogMessage("Désavantage - Défense Adaptative", LogUtils.LogType.Combat);

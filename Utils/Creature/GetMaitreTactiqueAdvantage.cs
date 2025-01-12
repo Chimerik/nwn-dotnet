@@ -1,18 +1,13 @@
-﻿using Anvil.API;
+﻿using NWN.Native.API;
 
 namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static bool GetMaitreTactiqueAdvantage(Native.API.CGameEffect eff)
+    public static void GetMaitreTactiqueAdvantage(CGameEffect eff, CNWSCreature attacker)
     {
-      if(eff.m_sCustomTag.CompareNoCase(EffectSystem.MaitreTactiqueExoTag).ToBool())
-      {
-        LogUtils.LogMessage("Avantage - Maître Tactique", LogUtils.LogType.Combat);
-        return true;
-      }
-      else
-        return false;
+      EffectUtils.DelayEffectRemoval(attacker, eff);
+      LogUtils.LogMessage("Avantage - Maître Tactique", LogUtils.LogType.Combat);
     }
   }
 }

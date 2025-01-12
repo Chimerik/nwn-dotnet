@@ -9,8 +9,6 @@ namespace NWN.Systems
   {
     public const string CoupAuButAttackEffectTag = "_COUP_AU_BUT_ATTACK_EFFECT";
     public const string CoupAuButDamageEffectTag = "_COUP_AU_BUT_DAMAGE_EFFECT";
-    public static readonly Native.API.CExoString CoupAuButAttackEffectExoTag = CoupAuButAttackEffectTag.ToExoString();
-    public static readonly Native.API.CExoString CoupAuButDamageEffectExoTag = CoupAuButDamageEffectTag.ToExoString();
     public static void ApplyCoupAuBut(NwCreature caster, NwSpell spell, Ability casterAbility)
     {
       EffectUtils.RemoveTaggedEffect(caster, CoupAuButAttackEffectTag, CoupAuButDamageEffectTag);

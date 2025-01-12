@@ -90,7 +90,7 @@ namespace NWN.Systems
 
                   case DamageBonus.Plus1d4:
 
-                    int d4 = Utils.Roll(4, isCritical ? 2 : 1);
+                    int d4 = Utils.Roll(4);
                     bonusDamage += d4;
                     LogUtils.LogMessage($"Effet dêgats bonus (1d4) : +{d4}", LogUtils.LogType.Combat);
 
@@ -98,7 +98,7 @@ namespace NWN.Systems
 
                   case DamageBonus.Plus1d6:
 
-                    int d6 = Utils.Roll(6, isCritical ? 2 : 1);
+                    int d6 = Utils.Roll(6);
                   bonusDamage += d6;
                     LogUtils.LogMessage($"Effet dêgats bonus (1d6) : +{d6}", LogUtils.LogType.Combat);
 
@@ -106,7 +106,7 @@ namespace NWN.Systems
 
                   case DamageBonus.Plus1d8:
 
-                    int d8 = Utils.Roll(8, isCritical ? 2 : 1);
+                    int d8 = Utils.Roll(8);
                     bonusDamage += d8;
                     LogUtils.LogMessage($"Effet dêgats bonus (1d8) : +{d8}", LogUtils.LogType.Combat);
 
@@ -114,7 +114,7 @@ namespace NWN.Systems
 
                   case DamageBonus.Plus1d10:
 
-                    int d10 = Utils.Roll(10, isCritical ? 2 : 1);
+                    int d10 = Utils.Roll(10);
                     bonusDamage += d10;
                     LogUtils.LogMessage($"Effet dêgats bonus (1d10) : +{d10}", LogUtils.LogType.Combat);
 
@@ -122,7 +122,7 @@ namespace NWN.Systems
 
                   case DamageBonus.Plus1d12:
 
-                    int d12 = Utils.Roll(12, isCritical ? 2 : 1);
+                    int d12 = Utils.Roll(12);
                     bonusDamage += d12;
                     LogUtils.LogMessage($"Effet dêgats bonus (1d12) : +{d12}", LogUtils.LogType.Combat);
 
@@ -130,7 +130,7 @@ namespace NWN.Systems
 
                   case DamageBonus.Plus2d4:
 
-                    int d24 = Utils.Roll(4, isCritical ? 4 : 2);
+                    int d24 = Utils.Roll(4, 2);
                   bonusDamage += d24;
                     LogUtils.LogMessage($"Effet dêgats bonus (2d4) : +{d24}", LogUtils.LogType.Combat);
 
@@ -138,7 +138,7 @@ namespace NWN.Systems
 
                   case DamageBonus.Plus2d6:
 
-                    int d26 = Utils.Roll(6, isCritical ? 4 : 2);
+                    int d26 = Utils.Roll(6, 2);
                   bonusDamage += d26;
                     LogUtils.LogMessage($"Effet dêgats bonus (2d6) : +{d26}", LogUtils.LogType.Combat);
 
@@ -146,7 +146,7 @@ namespace NWN.Systems
 
                   case DamageBonus.Plus2d8:
 
-                    int d28 = Utils.Roll(8, isCritical ? 4 : 2);
+                    int d28 = Utils.Roll(8, 2);
                     bonusDamage += d28;
                     LogUtils.LogMessage($"Effet dêgats bonus (2d4) : +{d28}", LogUtils.LogType.Combat);
 
@@ -154,7 +154,7 @@ namespace NWN.Systems
 
                   case DamageBonus.Plus2d10:
 
-                    int d210 = Utils.Roll(10, isCritical ? 4 : 2);
+                    int d210 = Utils.Roll(10, 2);
                     bonusDamage += d210;
                     LogUtils.LogMessage($"Effet dêgats bonus (2d10) : +{d210}", LogUtils.LogType.Combat);
 
@@ -162,7 +162,7 @@ namespace NWN.Systems
 
                   case DamageBonus.Plus2d12:
 
-                    int d212 = Utils.Roll(12, isCritical ? 4 : 2);
+                    int d212 = Utils.Roll(12, 2);
                     bonusDamage += d212;
                     LogUtils.LogMessage($"Effet dêgats bonus (2d12) : +{d212}", LogUtils.LogType.Combat);
 

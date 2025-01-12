@@ -15,6 +15,5 @@ namespace NWN.Systems
       }
     }
     public const string lightSensitivityEffectTag = "_LIGHT_SENSITIVITY_EFFECT";
-    public static readonly Native.API.CExoString lightSensitivityEffectExoTag = "_LIGHT_SENSITIVITY_EFFECT".ToExoString();
   }
 }

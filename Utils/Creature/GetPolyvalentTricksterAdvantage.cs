@@ -1,14 +1,13 @@
-﻿using Anvil.API;
-using NWN.Native.API;
+﻿using NWN.Native.API;
 
 namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static bool GetPolyvalentTricksterAdvantage(CGameEffect eff, CNWSCreature attacker)
+    public static bool GetPolyvalentTricksterAdvantage(string tag, uint effCreator, CNWSCreature attacker)
     {
-      if(eff.m_sCustomTag.CompareNoCase(EffectSystem.arcaneTricksterPolyvalentEffectExoTag).ToBool()
-        && eff.m_oidCreator == attacker.m_idSelf)
+      if(tag == EffectSystem.ArcaneTricksterPolyvalentEffectTag
+        && effCreator == attacker.m_idSelf)
       {
         LogUtils.LogMessage("Avantage - Escroc Polyvalent", LogUtils.LogType.Combat);
         return true;

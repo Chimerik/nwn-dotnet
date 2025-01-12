@@ -1,13 +1,10 @@
-﻿using Anvil.API;
-using NWN.Native.API;
-
-namespace NWN.Systems
+﻿namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static bool GetKnockdownMeleeAdvantage(CGameEffect eff, bool rangedAttack)
+    public static bool GetKnockdownMeleeAdvantage(string tag, bool rangedAttack)
     {
-      if (rangedAttack || !eff.m_sCustomTag.CompareNoCase(EffectSystem.KnockdownEffectTagExo).ToBool())
+      if (rangedAttack || tag != EffectSystem.KnockdownEffectTag)
         return false;
 
       LogUtils.LogMessage("Avantage - Attaque de mêlée sur une cible Déstabilisée", LogUtils.LogType.Combat);

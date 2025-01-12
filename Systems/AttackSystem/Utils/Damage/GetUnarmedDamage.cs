@@ -9,7 +9,11 @@ namespace NWN.Systems
     {
       int unarmedDieToRoll = CreatureUtils.GetUnarmedDamage(creature);
       int damage = NwRandom.Roll(Utils.random, unarmedDieToRoll);
-      damage += GetDamageEffects(creature, target, attackAbility, true, isCritical);
+      damage += GetDamageEffects(creature, target, attackAbility, true, isCritical)
+        + GetBagarreurDeTaverneBonusDamage(creature, isCritical)
+        + GetAnimalCompanionBonusDamage(creature, isCritical)
+        - GetMaitreArmureLourdeDamageReduction(target, isCritical)
+        - GetParadeDamageReduction(target, isCritical);
 
       LogUtils.LogMessage($"Mains nues - 1d{unarmedDieToRoll} => {damage}", LogUtils.LogType.Combat);
 

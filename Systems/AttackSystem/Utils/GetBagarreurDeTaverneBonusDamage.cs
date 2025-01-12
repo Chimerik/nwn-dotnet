@@ -5,11 +5,11 @@ namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static int HandleBagarreurDeTaverne(CNWSCreature creature, CNWSItem weapon)
+    public static int GetBagarreurDeTaverneBonusDamage(CNWSCreature creature, bool isCritical)
     {
       int bonusDamage = 0;
 
-      if (weapon is null && creature.m_pStats.HasFeat(CustomSkill.BagarreurDeTaverne).ToBool())
+      if (!isCritical && creature.m_pStats.HasFeat(CustomSkill.BagarreurDeTaverne).ToBool())
       {
         int strMod = GetAbilityModifier(creature, Anvil.API.Ability.Strength);
 

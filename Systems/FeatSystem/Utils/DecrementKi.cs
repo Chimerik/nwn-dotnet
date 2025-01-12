@@ -14,8 +14,6 @@ namespace NWN.Systems
       creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkPaumeVibratoire, nbCharge);
       creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkDarkVision, nbCharge);
       creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkTenebres, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkPassageSansTrace, nbCharge);
-      creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkSilence, nbCharge);
       creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkFrappeDombre, nbCharge);
       creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkCrochetsDuSerpentDeFeu, nbCharge);
       creature.DecrementRemainingFeatUses((Feat)CustomSkill.MonkPoingDeLair, nbCharge);

@@ -15,6 +15,5 @@ namespace NWN.Systems
       }
     }
     public const string ShieldArmorDisadvantageEffectTag = "_DISADVANTAGE_SHIELD_ARMOR_PROFICIENCY";
-    public static readonly Native.API.CExoString shieldArmorDisadvantageEffectExoTag = "_DISADVANTAGE_SHIELD_ARMOR_PROFICIENCY".ToExoString();
   }
 }

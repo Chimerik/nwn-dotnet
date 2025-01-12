@@ -4,6 +4,7 @@ using Anvil.Services;
 using System.Linq;
 using NWN.Core;
 using System.Numerics;
+using System.Collections.Generic;
 
 namespace NWN.Systems
 {
@@ -94,7 +95,7 @@ namespace NWN.Systems
       //*** CALCUL DU BONUS D'ATTAQUE ***//
       // On prend le bonus d'attaque calculé automatiquement par le jeu en fonction de la cible qui peut être une créature ou un placeable
       Anvil.API.Ability attackAbility = NativeUtils.GetAttackAbility(attacker, attackData.m_bRangedAttack.ToBool(), attackWeapon);
-      attackAbility = NativeUtils.HandleCoupAuBut(attacker, attackWeapon, attackAbility, EffectSystem.CoupAuButAttackEffectExoTag);
+      attackAbility = NativeUtils.HandleCoupAuBut(attacker, attackWeapon, attackAbility, EffectSystem.CoupAuButAttackEffectTag);
       attackAbility = NativeUtils.HandleShillelagh(attacker, attackWeapon, attackAbility);
       int attackModifier = targetCreature is null ? attacker.m_pStats.GetAttackModifierVersus() : NativeUtils.GetAttackBonus(attacker, targetCreature, attackData, attackWeapon, attackAbility);
 
@@ -163,51 +164,34 @@ namespace NWN.Systems
         int inspirationBardique = inspirationEffect is not null ? inspirationEffect.m_nCasterLevel : 0;
         string inspirationString = inspirationBardique != 0 ? inspirationBardique > 0 ? "Inspiration Bardique +" : "Mots Cinglants " : "";
 
-        CGameEffect shieldEffect = targetObject.m_appliedEffects.FirstOrDefault(e => e.m_sCustomTag.CompareNoCase(EffectSystem.BouclierEffectExoTag).ToBool());
+        CGameEffect shieldEffect = targetObject.m_appliedEffects.FirstOrDefault(e => e.m_sCustomTag.ToString() == EffectSystem.BouclierEffectTag);
         int shieldBonus = shieldEffect is not null ? 5 : 0;
 
-        CGameEffect frappeGuideeEffect = targetObject.m_appliedEffects.FirstOrDefault(e => e.m_sCustomTag.CompareNoCase(EffectSystem.FrappeGuideeEffectExoTag).ToBool());
+        CGameEffect frappeGuideeEffect = targetObject.m_appliedEffects.FirstOrDefault(e => e.m_sCustomTag.ToString() == EffectSystem.FrappeGuideeEffectTag);
         int frappeGuideeBonus = frappeGuideeEffect is not null ? 10 : 0;
 
         if (targetObject.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.ImageMiroirEffectExoTag).ToBool()))
         {
           int nbImages = targetObject.m_ScriptVars.GetInt(EffectSystem.ImageMiroirEffectExoTag);
-          int dupliRoll = NwRandom.Roll(Utils.random, 20);
+          List<int> imagesRoll = new();
 
-          bool dupliHit = nbImages switch
+          for(int i = 0; i < nbImages; i++)
+            imagesRoll.Add(Utils.Roll(6));
+
+          if (imagesRoll.Any(r => r > 2))
           {
-            3 => dupliRoll > 5,
-            2 => dupliRoll > 7,
-            _ => dupliRoll > 10,
-          };
+            nbImages -= 1;
 
-          if (dupliHit)
-          {
-            hitString = "manquez".ColorString(ColorConstants.Red);
-
-            byte dexModDupli = targetCreature.m_pStats.m_nDexterityModifier;
-            int dexDupli = dexModDupli > 122 ? dexModDupli - 255 : dexModDupli;
-
-            if (totalAttack >= 10 + dexDupli)
+            if (nbImages < 1)
             {
-              nbImages -= 1;
-
-              if (nbImages < 1)
-              {
-                EffectUtils.RemoveTaggedEffect(targetCreature, EffectSystem.ImageMiroirEffectExoTag);
-                targetObject.m_ScriptVars.DestroyInt(EffectSystem.ImageMiroirEffectExoTag);
-              }
-              else
-                targetObject.m_ScriptVars.SetInt(EffectSystem.ImageMiroirEffectExoTag, nbImages);
-
-              NativeUtils.SendNativeServerMessage($"{advantageString}{opportunityString}{criticalString}Vous {hitString} l'image miroir {nbImages} de {targetName.ColorString(ColorConstants.Cyan)} {rollString}".ColorString(ColorConstants.Cyan), attacker);
-              NativeUtils.BroadcastNativeServerMessage($"{advantageString}{opportunityString}{criticalString}{attackerName.ColorString(ColorConstants.Cyan)} {hitString.Replace("z", "")} une image miroir de {targetName.ColorString(ColorConstants.Cyan)} {rollString}".ColorString(ColorConstants.Cyan), attacker, true);
+              EffectUtils.RemoveTaggedNativeEffect(targetCreature, EffectSystem.ImageMiroirEffectTag);
+              targetObject.m_ScriptVars.DestroyInt(EffectSystem.ImageMiroirEffectExoTag);
             }
             else
-            {
-              NativeUtils.SendNativeServerMessage($"{advantageString}{opportunityString}{criticalString}Vous {hitString} l'image miroir {nbImages} de {targetName.ColorString(ColorConstants.Cyan)} {rollString}".ColorString(ColorConstants.Cyan), attacker);
-              NativeUtils.BroadcastNativeServerMessage($"{advantageString}{opportunityString}{criticalString}{attackerName.ColorString(ColorConstants.Cyan)} {hitString.Replace("z", "")} une image miroir de {targetName.ColorString(ColorConstants.Cyan)} {rollString}".ColorString(ColorConstants.Cyan), attacker, true);
-            }
+              targetObject.m_ScriptVars.SetInt(EffectSystem.ImageMiroirEffectExoTag, nbImages);
+
+            NativeUtils.SendNativeServerMessage($"Vous touchez l'image miroir de {targetName.ColorString(ColorConstants.Cyan)}".ColorString(ColorConstants.Cyan), attacker);
+            NativeUtils.BroadcastNativeServerMessage($"{attackerName.ColorString(ColorConstants.Cyan)} touche une image miroir de {targetName.ColorString(ColorConstants.Cyan)}".ColorString(ColorConstants.Cyan), attacker, true);
 
             attackData.m_nAttackResult = 4;
             attackData.m_nMissedBy = 8;
@@ -243,14 +227,14 @@ namespace NWN.Systems
             if (shieldBonus > 0)
             {
               targetAC += shieldBonus;
-              EffectUtils.RemoveTaggedEffect(targetObject, EffectSystem.BouclierEffectExoTag);
+              EffectUtils.RemoveTaggedNativeEffect(targetObject, EffectSystem.BouclierEffectTag);
               LogUtils.LogMessage($"Bouclier Activé : +{shieldBonus} CA", LogUtils.LogType.Combat);
             }
 
             if (frappeGuideeBonus > 0)
             {
               attackBonus += frappeGuideeBonus;
-              EffectUtils.RemoveTaggedEffect(targetObject, EffectSystem.FrappeGuideeEffectExoTag);
+              EffectUtils.RemoveTaggedNativeEffect(targetObject, EffectSystem.FrappeGuideeEffectTag);
               LogUtils.LogMessage($"Activation Frappe Guidée : +{frappeGuideeBonus} BA", LogUtils.LogType.Combat);
             }
 
@@ -287,14 +271,14 @@ namespace NWN.Systems
             if (frappeGuideeBonus > 0)
             {
               attackBonus += frappeGuideeBonus;
-              EffectUtils.RemoveTaggedEffect(targetObject, EffectSystem.FrappeGuideeEffectExoTag);
+              EffectUtils.RemoveTaggedNativeEffect(targetObject, EffectSystem.FrappeGuideeEffectTag);
               LogUtils.LogMessage($"Activation Frappe Guidée : +{frappeGuideeBonus} BA", LogUtils.LogType.Combat);
             }
 
             if (shieldBonus > 0)
             {
               targetAC += shieldBonus;
-              EffectUtils.RemoveTaggedEffect(targetObject, EffectSystem.BouclierEffectExoTag);
+              EffectUtils.RemoveTaggedNativeEffect(targetObject, EffectSystem.BouclierEffectTag);
             }
 
             if (defensiveDuellistBonus > 0)
@@ -451,7 +435,7 @@ namespace NWN.Systems
 
       CNWSItem attackWeapon = combatRound.GetCurrentAttackWeapon(attackData.m_nWeaponAttackType);
       Anvil.API.Ability damageAbility = NativeUtils.GetAttackAbility(attacker, attackData.m_bRangedAttack.ToBool(), attackWeapon);
-      damageAbility = NativeUtils.HandleCoupAuBut(attacker, attackWeapon, damageAbility, EffectSystem.CoupAuButDamageEffectExoTag);
+      damageAbility = NativeUtils.HandleCoupAuBut(attacker, attackWeapon, damageAbility, EffectSystem.CoupAuButDamageEffectTag);
       damageAbility = NativeUtils.HandleShillelagh(attacker, attackWeapon, damageAbility);
       int baseDamage = 0;
       bool isDuelFightingStyle = false;
@@ -522,16 +506,8 @@ namespace NWN.Systems
         LogUtils.LogMessage($"Adding {damageAbility} modifier (+{damageBonus})", LogUtils.LogType.Combat);
       }
 
-      baseDamage += NativeUtils.HandleBagarreurDeTaverne(attacker, attackWeapon);
-      baseDamage += NativeUtils.HandleAnimalCompanionBonusDamage(attacker);
-
       if (targetCreature is not null)
       {
-        baseDamage += NativeUtils.HandleMarqueDuChasseurBonusDamage(attacker, targetCreature, attackWeapon);
-        baseDamage += NativeUtils.HandlePourfendeurDeColosse(attacker, targetCreature, attackWeapon);
-        baseDamage -= NativeUtils.HandleMaitreArmureLourde(targetCreature);
-        baseDamage -= NativeUtils.HandleParade(targetCreature);
-        baseDamage -= NativeUtils.HandleMonkParade(targetCreature);
         baseDamage /= NativeUtils.HandleEsquiveInstinctive(targetCreature);
         baseDamage = NativeUtils.HandleFendre(attacker, targetCreature, baseDamage);
       }
@@ -578,10 +554,10 @@ namespace NWN.Systems
       {
         attacker.m_ScriptVars.SetInt(CreatureUtils.CancelDamageDoublonVariableExo, 1);
 
-        if(targetObject.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.abjurationWardEffectExoTag).ToBool()))
+        if(targetObject.m_appliedEffects.Any(e => e.m_sCustomTag.ToString() == EffectSystem.AbjurationWardEffectTag))
         {
           targetObject.m_ScriptVars.SetInt(CreatureUtils.AbjurationWardForcedTriggerVariableExo, 1);
-          EffectUtils.RemoveTaggedEffect(targetObject, EffectSystem.abjurationWardEffectExoTag);
+          EffectUtils.RemoveTaggedNativeEffect(targetObject, EffectSystem.AbjurationWardEffectTag);
         }
       }
 

@@ -1,7 +1,5 @@
 ﻿using Anvil.API;
 using NWN.Native.API;
-using NWN.Systems;
-using System.Linq;
 using Feat = NWN.Native.API.Feat;
 
 namespace NWN.Systems
@@ -21,17 +19,15 @@ namespace NWN.Systems
         };
       }
 
-      if((isCrossbowAttack && attacker.m_pStats.HasFeat((ushort)Feat.PointBlankShot).ToBool())
-        || !attacker.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.threatenedEffectExoTag).ToBool()))
+      if((isCrossbowAttack && attacker.m_pStats.HasFeat((ushort)Feat.PointBlankShot).ToBool()))
       {
         return false;
       }
       else
       {
-        LogUtils.LogMessage($"Désavantage - Attaque à distance en étant menacé en mêlée", LogUtils.LogType.Combat);
+        LogUtils.LogMessage("Désavantage - Attaque à distance en étant menacé en mêlée", LogUtils.LogType.Combat);
         return true;
       }
-
 
       /*foreach (var gameObject in attacker.GetArea().m_aGameObjects)
       {

@@ -5,7 +5,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string EntailleEffectTag = "_ENTAILLE_EFFECT";
-    public static readonly Native.API.CExoString EntailleEffectExoTag = EntailleEffectTag.ToExoString();
     public static Effect Entaille
     {
       get

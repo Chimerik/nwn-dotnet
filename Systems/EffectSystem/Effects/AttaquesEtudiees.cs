@@ -5,7 +5,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string AttaquesEtudieesEffectTag = "_ATTAQUES_ETUDIEES_EFFECT";
-    public static readonly Native.API.CExoString AttaquesEtudieesEffectExoTag = AttaquesEtudieesEffectTag.ToExoString();
     public static Effect AttaquesEtudiees
     {
       get

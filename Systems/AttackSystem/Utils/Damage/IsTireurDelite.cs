@@ -5,11 +5,11 @@ namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static int  GetTireurDeliteBonusDamage(CNWSCreature attacker, CNWSCombatAttackData attackData, CNWSItem weapon)
+    public static int  GetTireurDeliteBonusDamage(CNWSCreature attacker, CNWSCombatAttackData attackData, CNWSItem weapon, bool isCritical)
     {
       int bonusDamage = 0;
 
-      if(attackData.m_bRangedAttack.ToBool()
+      if(!isCritical && attackData.m_bRangedAttack.ToBool()
         && attacker.m_pStats.HasFeat(CustomSkill.TireurDelite).ToBool())
       {
         bonusDamage = GetCreatureWeaponProficiencyBonus(attacker, weapon);

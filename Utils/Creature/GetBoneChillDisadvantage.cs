@@ -4,9 +4,9 @@ namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static bool GetBoneChillDisadvantage(CNWSCreature creature, CGameEffect eff)
+    public static bool GetBoneChillDisadvantage(CNWSCreature creature)
     {
-      if ((RacialType)creature.m_pStats.m_nRace == RacialType.Undead && eff.m_sCustomTag.CompareNoCase(EffectSystem.boneChillEffectExoTag) > 0)
+      if ((RacialType)creature.m_pStats.m_nRace == RacialType.Undead)
       {
         LogUtils.LogMessage("Désavantage - Mort-vivant sous l'effet de Frisson Glacial", LogUtils.LogType.Combat);
         return true;

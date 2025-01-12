@@ -9,7 +9,7 @@ namespace NWN.Systems
   {
     public static void HandleBriseurDeHordes(CNWSCreature attacker, CNWSObject currentTarget, CNWSCombatRound combatRound, string attackerName, CNWSItem weapon, bool isRangedAttack)
     {
-      if (weapon is null || !attacker.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.BriseurDeHordesEffectExoTag).ToBool()))
+      if (weapon is null || !attacker.m_appliedEffects.Any(e => e.m_sCustomTag.ToString() == EffectSystem.BriseurDeHordesEffectTag))
         return;
 
       CNWSCreature target = null;
@@ -42,7 +42,7 @@ namespace NWN.Systems
       if (target is null)
         return;
 
-      EffectUtils.RemoveTaggedEffect(attacker, EffectSystem.BriseurDeHordesEffectExoTag);
+      EffectUtils.RemoveTaggedNativeEffect(attacker, EffectSystem.BriseurDeHordesEffectTag);
       attacker.m_ScriptVars.SetInt(CreatureUtils.BriseurDeHordesVariableExo, 1);
 
       combatRound.AddWhirlwindAttack(target.m_idSelf, 1);

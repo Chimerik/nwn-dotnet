@@ -5,7 +5,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string SorcellerieInneeEffectTag = "_SORCELLERIE_INNEE_EFFECT";
-    public static readonly Native.API.CExoString SorcellerieInneeEffectExoTag = SorcellerieInneeEffectTag.ToExoString();
     public static Effect SorcellerieInnee
     {
       get

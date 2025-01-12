@@ -1,6 +1,7 @@
 ﻿using Anvil.API.Events;
 using Anvil.API;
 using NWN.Core;
+using System.Linq;
 
 namespace NWN.Systems
 {
@@ -21,11 +22,22 @@ namespace NWN.Systems
 
           if (targetCreature.HP < targetCreature.MaxHP)
           {
-            NWScript.AssignCommand(onAttack.Attacker, () => onAttack.Attacker.ApplyEffect(EffectDuration.Temporary,
-              EffectSystem.Cooldown(onAttack.Attacker, 6, CustomSkill.ChasseurProie, CustomSpell.PourfendeurDeColosses), NwTimeSpan.FromRounds(1)));
+            NwItem weapon = onAttack.Attacker.GetItemInSlot(InventorySlot.RightHand);
 
-            await NwTask.NextFrame();
-            onAttack.Attacker.OnCreatureAttack -= OnAttackPourfendeurDeColosses;
+            if (weapon is not null && ItemUtils.IsWeapon(weapon.BaseItem.ItemType))
+            {
+              DamageType damageType = weapon.BaseItem.WeaponType.FirstOrDefault();
+
+              NWScript.AssignCommand(onAttack.Attacker, () => targetCreature.ApplyEffect(EffectDuration.Instant, Effect.Damage(Utils.Roll(8), damageType)));
+
+              NWScript.AssignCommand(onAttack.Attacker, () => onAttack.Attacker.ApplyEffect(EffectDuration.Temporary,
+                EffectSystem.Cooldown(onAttack.Attacker, 6, CustomSkill.ChasseurProie, CustomSpell.PourfendeurDeColosses), NwTimeSpan.FromRounds(1)));
+
+              EffectUtils.RemoveTaggedEffect(onAttack.Attacker, EffectSystem.PourfendeurDeColossesEffectTag);
+
+              await NwTask.NextFrame();
+              onAttack.Attacker.OnCreatureAttack -= OnAttackPourfendeurDeColosses;
+            }
           }
 
           break;

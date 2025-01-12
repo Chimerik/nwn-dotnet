@@ -5,7 +5,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string IlluminationProtectriceEffectTag = "_ILLUMINATION_PROTECTRICE_EFFECT";
-    public static readonly Native.API.CExoString IlluminationProtectriceEffectExoTag = IlluminationProtectriceEffectTag.ToExoString();
     public static void ApplyIlluminationProtectrice(NwCreature caster, NwCreature target)
     {
       Effect eff = Effect.Icon(EffectIcon.ACIncrease);

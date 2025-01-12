@@ -53,7 +53,7 @@ namespace NWN.Systems
           break;
 
         case Spell.RayOfFrost:
-          SpellSystem.RayOfFrost(oCaster, spell, spellEntry, target, castingClass, feat);
+          SpellSystem.RayOfFrost(oCaster, spell, spellEntry, target, castingClass);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -135,14 +135,6 @@ namespace NWN.Systems
         case Spell.EpicDragonKnight:
           concentrationTargets.AddRange(SpellSystem.InvocationDespritDragon(oCaster, spell, spellEntry, targetLocation));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
-          break;
-
-        case Spell.Silence:
-          if(castingCreature is not null && feat is not null && feat.Id == CustomSkill.MonkSilence)
-          {
-            castingCreature.IncrementRemainingFeatUses(feat.FeatType);
-            FeatUtils.DecrementKi(castingCreature, 2);
-          }
           break;
 
         case Spell.Darkvision:
@@ -468,6 +460,11 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case CustomSpell.CeciteSurdite:
+          SpellSystem.CeciteSurdite(oCaster, spell, spellEntry, target, castingClass);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.SonneLeGlas:
           SpellSystem.SonneLeGlas(oCaster, spell, spellEntry, target, castingClass);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
@@ -669,6 +666,11 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case CustomSpell.FlecheAcideDeMelf:
+          SpellSystem.FlecheAcideDeMelf(oCaster, spell, spellEntry, target, castingClass);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.SensAnimal:
           concentrationTargets.AddRange(SpellSystem.SensAnimal(oCaster, spell, spellEntry, target));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
@@ -685,7 +687,7 @@ namespace NWN.Systems
           break;
 
         case CustomSpell.PassageSansTrace:
-          concentrationTargets.AddRange(SpellSystem.PassageSansTrace(oCaster, spell, feat, spellEntry));
+          concentrationTargets.AddRange(SpellSystem.PassageSansTrace(oCaster, spell, spellEntry));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -848,6 +850,11 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case CustomSpell.Flou:
+          concentrationTargets.AddRange(SpellSystem.Flou(oCaster, spell, spellEntry));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.MaledictionAttaque:
           concentrationTargets.AddRange(SpellSystem.MaledictionAttaque(oCaster, spell, spellEntry, target, castingClass));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
@@ -920,6 +927,11 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case CustomSpell.Fascination:
+          SpellSystem.Fascination(oCaster, spell, spellEntry, castingClass);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.VagueDestructrice:
         case CustomSpell.VagueDestructriceRadiant:
         case CustomSpell.VagueDestructriceNecrotique:
@@ -942,6 +954,11 @@ namespace NWN.Systems
 
         case CustomSpell.TempeteDeNeige:
           concentrationTargets.AddRange(SpellSystem.TempeteDeNeige(oCaster, spell, spellEntry, targetLocation, castingClass));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.Silence:
+          concentrationTargets.AddRange(SpellSystem.Silence(oCaster, spell, spellEntry, target is null ? targetLocation : target.Location));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 

@@ -8,7 +8,6 @@ namespace NWN.Systems
   {
     public const string ViseeStableEffectTag = "_VISEE_STABLE_EFFECT";
     public const string ViseeStableMalusEffectTag = "_VISEE_STABLE_MALUS_EFFECT";
-    public static readonly Native.API.CExoString ViseeStableEffectExoTag = ViseeStableEffectTag.ToExoString();
     private static ScriptCallbackHandle onRemoveViseeStableCallback;
     public static void ApplyViseeStable(NwCreature caster)
     {

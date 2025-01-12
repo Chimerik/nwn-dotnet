@@ -5,7 +5,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string FrappeEtourdissanteEffectTag = "_TRUE_STRIKE_EFFECT";
-    public static readonly Native.API.CExoString FrappeEtourdissanteEffectExoTag = FrappeEtourdissanteEffectTag.ToExoString();
     public static Effect FrappeEtourdissante
     {
       get

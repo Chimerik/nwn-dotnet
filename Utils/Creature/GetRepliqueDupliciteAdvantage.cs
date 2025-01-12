@@ -6,11 +6,11 @@ namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static bool GetRepliqueDupliciteAdvantage(CGameEffect eff, CNWSCreature attacker)
+    public static bool GetRepliqueDupliciteAdvantage(string tag, uint effCreator, CNWSCreature attacker)
     {
-      if(eff.m_sCustomTag.CompareNoCase(EffectSystem.RepliqueInvoqueeEffectExoTag).ToBool())
+      if(tag == EffectSystem.RepliqueInvoqueeEffectTag)
       {
-        var replique = NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(eff.m_oidCreator);
+        var replique = NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(effCreator);
 
         if (replique is null || replique.m_idSelf == 0x7F000000)
           return false;

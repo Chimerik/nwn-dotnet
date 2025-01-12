@@ -9,7 +9,6 @@ namespace NWN.Systems
   {
     public const string WolfTotemAuraEffectTag = "_WOLF_TOTEM_AURA_EFFECT";
     public const string WolfTotemEffectTag = "_WOLF_TOTEM_EFFECT";
-    public static readonly Native.API.CExoString WolfTotemEffectExoTag = WolfTotemEffectTag.ToExoString();
     private static ScriptCallbackHandle onEnterWolfTotemAuraCallback;
     private static ScriptCallbackHandle onExitWolfTotemAuraCallback;
     

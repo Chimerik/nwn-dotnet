@@ -10,7 +10,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string DuelForceEffectTag = "_DUEL_FORCE_EFFECT";
-    public static readonly Native.API.CExoString DuelForceEffectExoTag = DuelForceEffectTag.ToExoString();
     public const string DuelForceCasterEffectTag = "_DUEL_FORCE_CASTER_EFFECT";
     private static ScriptCallbackHandle onRemoveDuelForceCallback;
     private static ScriptCallbackHandle onIntervalDuelForceCasterCallback;

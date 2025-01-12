@@ -8,35 +8,24 @@ namespace NWN.Systems
     {
       foreach (var eff in target.m_appliedEffects)
       {
-        if (GetIlluminationProtectriceDisadvantage(eff, target))
-          return true;
+        string tag = eff.m_sCustomTag.ToString();
+        uint effCreator = eff.m_oidCreator;
 
-        if (GetTargetDodgingDisadvantage(eff))
-          return true;
-
-        if (GetProtectionStyleDisadvantage(eff))
-          return true;
-
-        if(GetJeuDeJambeDisadvantage(eff))
-          return true;
-
-        if (GetPatienceDisadvantage(eff))
-          return true;
-
-        if (GetKnockdownRangedDisadvantage(eff, rangedAttack))
-          return true;
-
-        if (GetProtectionContreLeMalEtLeBienDisadvantage(eff, attacker, target))
-          return true;
-
-        if (GetMaledictionAttaqueDisadvantage(eff, target))
-          return true;
-
-        if (GetHunterEchapperAlaHordeDisadvantage(eff, data))
-          return true;
-
-        if (GetDefenseAdaptativeDisadvantage(eff, attacker, target))
-          return true;
+        switch(tag)
+        {
+          case EffectSystem.DodgeEffectTag: LogUtils.LogMessage("Désavantage - Cible en mode esquive", LogUtils.LogType.Combat); return true;
+          case EffectSystem.FlouEffectTag: LogUtils.LogMessage("Désavantage - Cible Floue", LogUtils.LogType.Combat); return true;
+          case EffectSystem.ProtectionStyleEffectTag: LogUtils.LogMessage("Désavantage - Cible sous Protection (Guerrier)", LogUtils.LogType.Combat); return true;
+          case EffectSystem.JeuDeJambeEffectTag: LogUtils.LogMessage("Désavantage - Cible en mode jeu de jambe", LogUtils.LogType.Combat); return true;
+          case EffectSystem.MonkPatienceEffectTag: LogUtils.LogMessage("Désavantage - Cible en mode patience", LogUtils.LogType.Combat); return true;
+          case EffectSystem.KnockdownEffectTag: if (GetKnockdownRangedDisadvantage(rangedAttack)) return true; break;
+          case EffectSystem.IlluminationProtectriceEffectTag: if (GetIlluminationProtectriceDisadvantage(eff, target)) return true; break;
+          case EffectSystem.ProtectionContreLeMalEtLeBienEffectTag: if (GetProtectionContreLeMalEtLeBienDisadvantage(attacker)) return true; break;
+          case EffectSystem.MaledictionAttaqueEffectTag: if (GetMaledictionAttaqueDisadvantage(effCreator, target)) return true; break;
+          case EffectSystem.EchapperALaHordeEffectTag: if (GetHunterEchapperAlaHordeDisadvantage(data)) return true; break;
+          case EffectSystem.DefenseAdaptativeMalusEffectTag: if (GetDefenseAdaptativeDisadvantage(effCreator, target)) return true; break;
+          case EffectSystem.VolEffectTag: if (GetVolMeleeDisadvantage(attacker, target, rangedAttack)) return true; break;
+        }
       }
 
       return false;

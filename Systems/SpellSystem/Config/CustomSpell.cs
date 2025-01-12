@@ -4,6 +4,8 @@
   {
     public const int Aide = 1;
     public const int PeauDecorce = 1;
+    public const int CeciteSurdite = 8;
+    public const int Fascination = 9;
     public const int Assistance = 12;
     public const int Elementalisme = 22;
     public const int CouleursDansantes = 24;
@@ -19,6 +21,8 @@
     public const int FureurDelOuraganFoudre = 109;
     public const int FureurDelOuraganTonnerre = 110;
     public const int DuelForce = 112;
+    public const int FlecheAcideDeMelf = 115;
+    public const int Flou = 120;
     public const int GrandeFoulee = 136;
     public const int TraitEnsorcele = 138;
     public const int DomestiqueInvisible = 139;
@@ -26,6 +30,7 @@
     public const int Sanctuaire = 154;
     public const int DetectionDeLinvisibilite = 157;
     public const int Vol = 162;
+    public const int Silence = 163;
     public const int AppelDeFamilier = 195;
     public const int AppelDeFamilierBat = 196;
     public const int AppelDeFamilierRat = 197;

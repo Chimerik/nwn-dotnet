@@ -5,9 +5,9 @@ namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static int GetBarbarianRageBonus(CNWSCreature creature, CGameEffect eff, List<string> noStack, Anvil.API.Ability attackAbility)
+    public static int GetBarbarianRageBonus(CNWSCreature creature, CGameEffect eff, List<string> noStack, Anvil.API.Ability attackAbility, bool isCritical)
     {
-      if (noStack.Contains(EffectSystem.BarbarianRageEffectTag))
+      if (isCritical)
         return 0;
 
       int roll = 0;

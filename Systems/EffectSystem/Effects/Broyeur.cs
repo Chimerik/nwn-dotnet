@@ -5,7 +5,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string BroyeurEffectTag = "_BROYEUR_EFFECT";
-    public static readonly Native.API.CExoString BroyeurEffectExoTag = "_BROYEUR_EFFECT".ToExoString();
     public static Effect BroyeurEffect
     {
       get

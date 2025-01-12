@@ -9,7 +9,6 @@ namespace NWN.Systems
   {
     private static ScriptCallbackHandle onRemoveRapetissementCallback;
     public const string RapetissementEffectTag = "_EFFECT_RAPETISSEMENT";
-    public static readonly Native.API.CExoString RapetissementEffectExoTag = RapetissementEffectTag.ToExoString();
     public static Effect Rapetissement(NwGameObject target)
     {
       if (target.GetObjectVariable<PersistentVariableFloat>(CreatureUtils.OriginalSizeVariable).HasNothing)

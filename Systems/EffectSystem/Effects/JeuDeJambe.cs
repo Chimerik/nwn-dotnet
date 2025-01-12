@@ -5,7 +5,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string JeuDeJambeEffectTag = "_JEU_DE_JAMBE_EFFECT";
-    public static readonly Native.API.CExoString jeuDeJambeEffectExoTag = JeuDeJambeEffectTag.ToExoString();
     public static Effect jeuDeJambe
     {
       get

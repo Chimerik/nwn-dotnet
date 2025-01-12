@@ -9,7 +9,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string PoisonEffectTag = "_POISON_EFFECT";
-    public static readonly Native.API.CExoString poisonEffectExoTag = PoisonEffectTag.ToExoString();
     private static ScriptCallbackHandle onIntervalPoisonCallback;
     public static SavingThrowResult ApplyPoison(NwCreature target, NwCreature caster, TimeSpan duration, Ability SaveAbility, Ability DCAbility = Ability.Dexterity, bool repeatSave = false, bool noSave = false)
     {

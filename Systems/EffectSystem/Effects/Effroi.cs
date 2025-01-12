@@ -9,7 +9,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string FrightenedEffectTag = "_FRIGHTENED_EFFECT";
-    public static readonly Native.API.CExoString frightenedEffectExoTag = "_FRIGHTENED_EFFECT".ToExoString();
     private static ScriptCallbackHandle onRemoveEffroiCallback;
     private static ScriptCallbackHandle onIntervalEffroiCallback;
     public static void ApplyEffroi(NwCreature target, NwCreature caster, TimeSpan duration, bool repeatSave = false)

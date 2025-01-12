@@ -5,10 +5,8 @@ namespace NWN.Systems
 {
   public partial class EffectSystem
   {
-    public static readonly string ProvocationEffectTag = "_PROVOCATION_EFFECT";
-    public static readonly Native.API.CExoString provocationEffectExoTag = ProvocationEffectTag.ToExoString();
-    public static readonly string ProvoqueurEffectTag = "_PROVOQUEUR_EFFECT";
-    public static readonly Native.API.CExoString provoqueurEffectExoTag = ProvoqueurEffectTag.ToExoString();
+    public const string ProvocationEffectTag = "_PROVOCATION_EFFECT";
+    //public static readonly string ProvoqueurEffectTag = "_PROVOQUEUR_EFFECT";
     public static void ApplyProvocation(NwGameObject caster, NwCreature target, TimeSpan duration)
     {
       EffectDuration effectDurationType = duration == TimeSpan.Zero ? EffectDuration.Permanent : EffectDuration.Temporary; 
@@ -22,11 +20,11 @@ namespace NWN.Systems
       target.ApplyEffect(effectDurationType, eff, duration);
       target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpConfusionS));
 
-      Effect provoqueur = Effect.RunAction();
+      /*Effect provoqueur = Effect.RunAction();
       provoqueur.Tag = ProvoqueurEffectTag;
       provoqueur.SubType = EffectSubType.Supernatural;
       provoqueur.Creator = target;
-      caster.ApplyEffect(effectDurationType, provoqueur, duration);
+      caster.ApplyEffect(effectDurationType, provoqueur, duration);*/
     }
   }
 }

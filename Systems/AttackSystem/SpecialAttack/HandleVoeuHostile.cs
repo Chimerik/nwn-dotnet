@@ -11,7 +11,7 @@ namespace NWN.Systems
   {
     public static void HandleVoeuHostile(CNWSCreature attacker, CNWSCombatRound round, CNWSCombatAttackData data, string attackerName)
     {
-      foreach (var eff in attacker.m_appliedEffects.Where(e => e.m_sCustomTag.CompareNoCase(EffectSystem.VoeuDHostiliteEffectExoTag).ToBool()))
+      foreach (var eff in attacker.m_appliedEffects.Where(e => e.m_sCustomTag.ToString() == EffectSystem.VoeuDHostiliteEffectTag))
       {
         var creator = NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(eff.m_oidCreator);
 

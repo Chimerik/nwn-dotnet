@@ -27,6 +27,5 @@ namespace NWN.Systems
     }
     public const string ThreatenedAoETag = "_THREAT_RANGE";
     public const string ThreatenedEffectTag = "_THREATENED_EFFECT";
-    public static readonly Native.API.CExoString threatenedEffectExoTag = "_THREATENED_EFFECT".ToExoString();
   }
 }

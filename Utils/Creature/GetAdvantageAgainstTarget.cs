@@ -18,10 +18,10 @@ namespace NWN.Systems
       bool advantage = HasAttackAdvantage(attacker, attackData, weaponType, attackStat, target);
       bool disadvantage = HasAttackDisadvantage(attacker, attackData, attackWeapon, weaponType, attackStat, target);
 
-      if (attacker.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.FrappeBrutaleEffectExoTag).ToBool()))
+      if (attacker.m_appliedEffects.Any(e => e.m_sCustomTag.ToString() == EffectSystem.FrappeBrutaleEffectTag))
       {
         if (disadvantage)
-          EffectUtils.RemoveTaggedEffect(attacker, EffectSystem.FrappeBrutaleEffectExoTag);
+          EffectUtils.RemoveTaggedNativeEffect(attacker, EffectSystem.FrappeBrutaleEffectTag);
         else
         {
           advantage = false;

@@ -4,10 +4,9 @@ namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static bool GetSorcellerieInneeAdvantage(Native.API.CGameEffect eff, NwSpell spell)
+    public static bool GetSorcellerieInneeAdvantage(NwSpell spell)
     {
-      if (spell is not null && spell.GetSpellLevelForClass(ClassType.Sorcerer) < 15 &&
-        eff.m_sCustomTag.CompareNoCase(EffectSystem.SorcellerieInneeEffectExoTag).ToBool())
+      if (spell is not null && spell.GetSpellLevelForClass(ClassType.Sorcerer) < 15)
       {
         LogUtils.LogMessage("Avantage - Sorcellerie Innée", LogUtils.LogType.Combat);
         return true;

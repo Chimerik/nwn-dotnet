@@ -24,53 +24,36 @@ namespace NWN.Systems
         LogUtils.LogMessage("Style de combat archerie : +2 BA", LogUtils.LogType.Combat);
       }
 
-      List<string> appliedEffects = new();
+      List<string> noStack = new();
 
       foreach(var eff in attacker.m_appliedEffects)
       {
-        if(eff.m_sCustomTag.CompareNoCase(EffectSystem.WildMagicBienfaitExoTag).ToBool() && !appliedEffects.Contains(EffectSystem.WildMagicBienfaitEffectTag))
+        string tag = eff.m_sCustomTag.ToString();
+
+        if (noStack.Contains(tag))
+          continue;
+
+        switch(tag)
         {
-          int boonBonus = NwRandom.Roll(Utils.random, 4);
-          attackBonus += boonBonus;
-          appliedEffects.Add(EffectSystem.WildMagicBienfaitEffectTag);
-          LogUtils.LogMessage($"Magie Sauvage : +{boonBonus} BA", LogUtils.LogType.Combat);
-        }
-        else if (eff.m_sCustomTag.CompareNoCase(EffectSystem.FleauEffectExoTag).ToBool() && !appliedEffects.Contains(EffectSystem.FleauEffectTag))
-        {
-          int fleauMalus = NwRandom.Roll(Utils.random, 4);
-          attackBonus -= fleauMalus;
-          appliedEffects.Add(EffectSystem.FleauEffectTag);
-          LogUtils.LogMessage($"Fléau : -{fleauMalus} BA", LogUtils.LogType.Combat);
-        }
-        else if (eff.m_sCustomTag.CompareNoCase(EffectSystem.BenedictionEffectExoTag).ToBool() && !appliedEffects.Contains(EffectSystem.BenedictionEffectTag))
-        {
-          int beneBonus = NwRandom.Roll(Utils.random, 4);
-          attackBonus += beneBonus;
-          appliedEffects.Add(EffectSystem.FleauEffectTag);
-          LogUtils.LogMessage($"Bénédiction : +{beneBonus} BA", LogUtils.LogType.Combat);
-        }
-        else if(eff.m_sCustomTag.CompareNoCase(EffectSystem.faveurDuMalinEffectExoTag).ToBool() && eff.GetInteger(5) == CustomSpell.FaveurDuMalinAttaque)
-        {
-          int faveurBonus = NwRandom.Roll(Utils.random, 10);
-          attackBonus += faveurBonus;
-          attacker.RemoveEffect(eff);
-          LogUtils.LogMessage($"Faveur du malin attaque : +{faveurBonus}", LogUtils.LogType.Combat);
+          case EffectSystem.WildMagicBienfaitEffectTag: attackBonus += GetWildMagicBienfaitBonus(noStack); break;
+          case EffectSystem.FleauEffectTag: attackBonus -= GetFleauMalus(noStack); break;
+          case EffectSystem.BenedictionEffectTag: attackBonus += GetBenedictionBonus(noStack); break;
+          case EffectSystem.FaveurDuMalinEffectTag: attackBonus += GetFaveurDuMalinBonus(attacker, eff, noStack); break;
         }
       }
 
       foreach (var eff in target.m_appliedEffects)
       {
-        if (eff.m_sCustomTag.CompareNoCase(EffectSystem.FrappeDechiranteEffectExoTag).ToBool() && eff.m_oidCreator != attacker.m_idSelf)
+        string tag = eff.m_sCustomTag.ToString();
+
+        if (noStack.Contains(tag))
+          continue;
+
+        switch (tag)
         {
-          attackBonus += 5;
-          target.RemoveEffect(eff);
-          LogUtils.LogMessage("Frappe Déchirante : +5", LogUtils.LogType.Combat);
-        }
-        else if(eff.m_sCustomTag.CompareNoCase(EffectSystem.ProtectionContreLesLamesEffectExoTag).ToBool())
-        {
-          int bladeWardMalus = NwRandom.Roll(Utils.random, 4);
-          attackBonus -= bladeWardMalus;
-          LogUtils.LogMessage($"Protection contre les lames : -{bladeWardMalus}", LogUtils.LogType.Combat);
+          case EffectSystem.FrappeDechiranteEffectTag: attackBonus += GetFrappeDechiranteBonus(attacker, eff, noStack); break;
+          case EffectSystem.ProtectionContreLesLamesEffectTag: attackBonus -= GetProtectionContreLesLamesMalus(noStack); break;
+
         }
       }
       

@@ -16,7 +16,6 @@ namespace NWN.Systems
       }
     }
     public const string PourfendeurDisadvantageEffectTag = "_POURFENDEUR_DISADVANTAGE_EFFECT";
-    public static readonly Native.API.CExoString PourfendeurDisadvantageEffectExoTag = "_POURFENDEUR_DISADVANTAGE_EFFECT".ToExoString();
     public static Effect PourfendeurDisadvantageEffect
     {
       get

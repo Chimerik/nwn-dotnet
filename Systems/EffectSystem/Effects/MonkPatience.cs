@@ -5,7 +5,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string MonkPatienceEffectTag = "_MONK_PATIENCE_EFFECT";
-    public static readonly Native.API.CExoString MonkPatienceEffectExoTag = MonkPatienceEffectTag.ToExoString();
     public static Effect MonkPatience
     {
       get

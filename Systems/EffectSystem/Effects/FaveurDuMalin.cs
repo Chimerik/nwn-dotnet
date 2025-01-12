@@ -5,7 +5,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string FaveurDuMalinEffectTag = "_FAVEUR_DU_MALIN_EFFECT";
-    public static readonly Native.API.CExoString faveurDuMalinEffectExoTag = FaveurDuMalinEffectTag.ToExoString();
     public static Effect FaveurDuMalin(int faveurId)
     {
       Effect eff = Effect.Icon((EffectIcon)219);

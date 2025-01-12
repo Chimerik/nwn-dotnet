@@ -7,7 +7,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string BouclierEffectTag = "_BOUCLIER_EFFECT";
-    public static readonly Native.API.CExoString BouclierEffectExoTag = BouclierEffectTag.ToExoString();
     private static ScriptCallbackHandle onRemoveBouclierCallback;
     public static void ApplyBouclier(NwCreature caster)
     {

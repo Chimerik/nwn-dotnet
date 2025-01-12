@@ -1,15 +1,12 @@
-﻿using System.Linq;
-using Anvil.API;
-using NWN.Native.API;
+﻿using NWN.Native.API;
 
 namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static bool GetDuelForceDisadvantage(CGameEffect eff, CNWSCreature target)
+    public static bool GetDuelForceDisadvantage(uint effCreator, CNWSCreature target)
     {
-      if (eff.m_sCustomTag.CompareNoCase(EffectSystem.DuelForceEffectExoTag).ToBool() 
-        && eff.m_oidCreator != target.m_idSelf)
+      if (effCreator != target.m_idSelf)
       {
         LogUtils.LogMessage("Désavantage - Duel Forcé", LogUtils.LogType.Combat);
         return true;
