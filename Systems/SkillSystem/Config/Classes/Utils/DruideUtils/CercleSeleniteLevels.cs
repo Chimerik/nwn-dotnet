@@ -13,7 +13,7 @@ namespace NWN.Systems
       {
         case 3:
 
-          new StrRef(3).SetPlayerOverride(player.oid, "Cercle Sélénite");
+          new StrRef(6).SetPlayerOverride(player.oid, "Cercle Sélénite");
           player.oid.SetTextureOverride("druide", "druide_lune");
 
           player.learnableSkills.TryAdd(CustomSkill.DruideFormeDeLune, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DruideFormeDeLune], player));

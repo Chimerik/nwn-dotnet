@@ -12,7 +12,7 @@ namespace NWN.Systems
       {
         case 3:
 
-          new StrRef(3).SetPlayerOverride(player.oid, "Cercle Pélagique");
+          new StrRef(6).SetPlayerOverride(player.oid, "Cercle Pélagique");
           player.oid.SetTextureOverride("druide", "druide_mer");
 
           player.LearnAlwaysPreparedSpell((int)Spell.RayOfFrost, CustomClass.Druid);

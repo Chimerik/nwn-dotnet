@@ -596,6 +596,11 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case CustomSpell.RadianceDelAube:
+          SpellSystem.RadianceDelAube(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.ProduceFlame:
           SpellSystem.ProduceFlame(oCaster, spell, spellEntry, target, castingClass);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;

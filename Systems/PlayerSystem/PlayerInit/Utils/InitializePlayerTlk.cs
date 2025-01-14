@@ -231,17 +231,17 @@ namespace NWN.Systems
         
         if (learnableSkills.ContainsKey(CustomSkill.DruideCercleTellurique))
         {
-          new StrRef(3).SetPlayerOverride(oid, "Cercle Tellurique");
+          new StrRef(6).SetPlayerOverride(oid, "Cercle Tellurique");
           oid.SetTextureOverride("druide", "druide_terre");
         }
         else if (learnableSkills.ContainsKey(CustomSkill.DruideCercleSelenite))
         {
-          new StrRef(3).SetPlayerOverride(oid, "Cercle Sélénite");
+          new StrRef(6).SetPlayerOverride(oid, "Cercle Sélénite");
           oid.SetTextureOverride("druide", "druide_lune");
         }
         else if (learnableSkills.ContainsKey(CustomSkill.DruideCerclePelagique))
         {
-          new StrRef(3).SetPlayerOverride(oid, "Cercle Pélagique");
+          new StrRef(6).SetPlayerOverride(oid, "Cercle Pélagique");
           oid.SetTextureOverride("druide", "druide_mer");
         }
 

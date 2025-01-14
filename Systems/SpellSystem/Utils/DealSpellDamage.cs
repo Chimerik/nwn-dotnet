@@ -181,6 +181,9 @@ namespace NWN.Systems
         totalDamage += damage;
       }
 
+      if (spell.Id == CustomSpell.RadianceDelAube && castingCreature is not null && castingCreature.GetClassInfo(ClassType.Cleric) is not null)
+        totalDamage += castingCreature.GetClassInfo(ClassType.Cleric).Level;
+
       WizardUtils.HandleMoissonDuFiel(oCaster, target, moissonDuFielTriggered, spell, spellLevel);
       ClercUtils.HandleIncantationPuissante(oCaster, target, totalDamage, spell);
 

@@ -7,6 +7,7 @@
     public const int CeciteSurdite = 8;
     public const int Fascination = 9;
     public const int Assistance = 12;
+    public const int RadianceDelAube = 13;
     public const int Elementalisme = 22;
     public const int CouleursDansantes = 24;
     public const int Shillelagh = 37;

@@ -255,6 +255,8 @@ namespace NWN.Systems
         }
         private void GetAvailableSpells()
         {
+          ModuleSystem.Log.Info($"forcedSpells.Count : {forcedSpells.Count}");
+
           if (forcedSpells.Count > 0)
           {
             availableSpells.AddRange(forcedSpells);
@@ -270,6 +272,8 @@ namespace NWN.Systems
 
             if (spell.GetSpellLevelForClass(spellClass) > 0)
               continue;
+
+            ModuleSystem.Log.Info($"spell.GetSpellLevelForClass(spellClass) : {spell.GetSpellLevelForClass(spellClass)}");
 
             if (player.learnableSpells.TryGetValue(spell.Id, out var learnable) && learnable.currentLevel > 0)
               continue;

@@ -90,7 +90,7 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("featSelection", out var feat4)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
           else ((FeatSelectionWindow)feat4).CreateWindow();
 
-          if (!player.windows.TryGetValue("cantripSelection", out var spell4)) player.windows.Add("cantripSelection", new SpellSelectionWindow(player, ClassType.Druid, 1));
+          if (!player.windows.TryGetValue("cantripSelection", out var spell4)) player.windows.Add("cantripSelection", new CantripSelectionWindow(player, ClassType.Druid, 1));
           else ((CantripSelectionWindow)spell4).CreateWindow(ClassType.Druid, 1);
 
           player.LearnClassSkill(CustomSkill.FormeSauvageRothe);
@@ -120,7 +120,7 @@ namespace NWN.Systems
 
         case 10:
 
-          if (!player.windows.TryGetValue("cantripSelection", out var spell10)) player.windows.Add("cantripSelection", new SpellSelectionWindow(player, ClassType.Druid, 1));
+          if (!player.windows.TryGetValue("cantripSelection", out var spell10)) player.windows.Add("cantripSelection", new CantripSelectionWindow(player, ClassType.Druid, 1));
           else ((CantripSelectionWindow)spell10).CreateWindow(ClassType.Druid, 1);
           
           player.LearnClassSkill(CustomSkill.FormeSauvageDilophosaure);

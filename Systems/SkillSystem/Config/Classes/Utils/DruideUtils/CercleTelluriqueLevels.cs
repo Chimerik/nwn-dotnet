@@ -12,7 +12,7 @@ namespace NWN.Systems
       {
         case 3:
 
-          new StrRef(3).SetPlayerOverride(player.oid, "Cercle Tellurique");
+          new StrRef(6).SetPlayerOverride(player.oid, "Cercle Tellurique");
           player.oid.SetTextureOverride("druide", "druide_terre");
 
           if (!player.windows.TryGetValue("terrainDeCercleSelection", out var value)) player.windows.Add("terrainDeCercleSelection", new TerrainDeCercleSelectionWindow(player));

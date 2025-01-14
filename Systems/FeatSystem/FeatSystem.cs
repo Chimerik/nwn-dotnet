@@ -173,7 +173,6 @@ namespace NWN.Systems
         case CustomSkill.ClercFrappeGuidee: FrappeGuidee(onUseFeat.Creature, onUseFeat.TargetObject); return;
 
         case CustomSkill.ClercIllumination: ClercIllumination(onUseFeat.Creature, onUseFeat.TargetObject); return;
-        case CustomSkill.ClercRadianceDeLaube: RadianceDeLaube(onUseFeat.Creature); return;
         case CustomSkill.ClercHaloDeLumiere: HaloDeLumiere(onUseFeat.Creature); return;
 
         case CustomSkill.ClercVisionDuPasse: VisionDuPasse(onUseFeat.Creature); return;
