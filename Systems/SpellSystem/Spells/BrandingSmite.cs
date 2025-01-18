@@ -1,28 +1,26 @@
-﻿using System.Collections.Generic;
-using Anvil.API;
+﻿using Anvil.API;
 using NWN.Core;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static List<NwGameObject> BrandingSmite(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry)
+    public static void BrandingSmite(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwFeat feat)
     {
       if (oCaster is not NwCreature caster)
-        return new List<NwGameObject>();
+        return;
 
-      StringUtils.ForceBroadcastSpellCasting(caster, spell);
+      SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
       EffectUtils.ClearChatimentEffects(caster);
-      caster.Location.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(VfxType.ImpPulseHoly), Effect.VisualEffect(VfxType.ImpDivineStrikeHoly)));
+      caster.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(VfxType.ImpPulseHoly), Effect.VisualEffect(VfxType.ImpDivineStrikeHoly)));
 
-      NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.brandingSmiteAttack, SpellUtils.GetSpellDuration(oCaster, spellEntry)));
+      NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.brandingSmiteAttack));
 
       caster.OnCreatureAttack -= CreatureUtils.OnAttackBrandingSmite;
       caster.OnCreatureAttack += CreatureUtils.OnAttackBrandingSmite;
 
-      FeatUtils.DecrementFeatUses(caster, CustomSkill.BrandingSmite);
-
-      return new List<NwGameObject>() { caster };
+      if (feat is not null)
+        FeatUtils.DecrementFeatUses(caster, CustomSkill.BrandingSmite);
     }
   }
 }

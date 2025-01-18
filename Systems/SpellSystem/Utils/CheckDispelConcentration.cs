@@ -7,9 +7,9 @@ namespace NWN.Systems
   {
     public static void CheckDispelConcentration(NwCreature caster, NwSpell spell, SpellEntry spellEntry)
     {
-      if (!(spell.Id == CustomSpell.FlameBlade && caster.GetObjectVariable<LocalVariableInt>(EffectSystem.ConcentrationSpellIdString).Value == CustomSpell.FlameBlade) // TODO : Si on recast Flame Blade, alors on ne compte pas un nouvel emplacement de sort
-              && spellEntry.requiresConcentration
-              && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.ConcentrationEffectTag))
+      if (!(spell.Id == CustomSpell.LameArdente && caster.GetObjectVariable<LocalVariableInt>(EffectSystem.ConcentrationSpellIdString).Value == CustomSpell.LameArdente)
+          && spellEntry.requiresConcentration
+          && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.ConcentrationEffectTag))
         DispelConcentrationEffects(caster);
     }
   }

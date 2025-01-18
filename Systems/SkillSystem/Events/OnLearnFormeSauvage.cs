@@ -11,12 +11,12 @@ namespace NWN.Systems
       if (!creature.KnowsFeat((Feat)customSkillId))
         creature.AddFeat((Feat)customSkillId);
 
-      if(customSkillId == CustomSkill.FormeSauvageBlaireau)
+      if(customSkillId == CustomSkill.FormeSauvage)
         creature.SetFeatRemainingUses((Feat)customSkillId, 2);
       else
-        creature.SetFeatRemainingUses((Feat)customSkillId, creature.GetFeatRemainingUses((Feat)CustomSkill.FormeSauvageBlaireau));
+        creature.SetFeatRemainingUses((Feat)customSkillId, creature.GetFeatRemainingUses((Feat)CustomSkill.FormeSauvage));
 
-      if (creature.GetFeatRemainingUses((Feat)CustomSkill.FormeSauvageBlaireau) < 2)
+      if (creature.GetFeatRemainingUses((Feat)CustomSkill.FormeSauvage) < 2)
       {
         creature.SetFeatRemainingUses((Feat)CustomSkill.FormeSauvageAir, 0);
         creature.SetFeatRemainingUses((Feat)CustomSkill.FormeSauvageEau, 0);

@@ -131,20 +131,11 @@ namespace NWN.Systems
 
           case Ability.Constitution:
 
-            if (EffectUtils.In(eff.Tag, EffectSystem.SaignementEffectTag, EffectSystem.MorsureInfectieuseEffectTag))
+            switch(eff.Tag)
             {
-              LogUtils.LogMessage("Désavantage - Saignement ou Morsure Infectieuse", LogUtils.LogType.Combat);
-              return true;
-            }
-            else if (EffectSystem.MaledictionConstitutionEffectTag == eff.Tag)
-            {
-              LogUtils.LogMessage("Désavantage - Malédiction Constitution", LogUtils.LogType.Combat);
-              return true;
-            }
-            else if (EffectSystem.ArretCardiaqueEffectTag == eff.Tag)
-            {
-              LogUtils.LogMessage("Désavantage - Arrêt Cardiaque", LogUtils.LogType.Combat);
-              return true;
+              case EffectSystem.MorsureInfectieuseEffectTag: LogUtils.LogMessage("Désavantage - Saignement ou Morsure Infectieuse", LogUtils.LogType.Combat); return true;
+              case EffectSystem.MaledictionConstitutionEffectTag: LogUtils.LogMessage("Désavantage - Malédiction Constitution", LogUtils.LogType.Combat); return true;
+              case EffectSystem.ArretCardiaqueEffectTag: LogUtils.LogMessage("Désavantage - Arrêt Cardiaque", LogUtils.LogType.Combat); return true;
             }
 
             break;

@@ -10,6 +10,7 @@ namespace NWN.Systems
       if (spellEntry.isBonusAction || spellEntry.isReaction
         || (spellId == CustomSpell.MageHand && caster.KnowsFeat((Feat)CustomSkill.ArcaneTricksterPolyvalent))
         || (spellId == CustomSpell.IllusionMineure && caster.KnowsFeat((Feat)CustomSkill.WizardIllusionAmelioree))
+        || (caster.KnowsFeat((Feat)CustomSkill.DruideFormeDeLune) && Utils.In(spellId, CustomSpell.FormeSauvageAraignee, CustomSpell.FormeSauvageBlaireau, CustomSpell.FormeSauvageChat, CustomSpell.FormeSauvageDilophosaure, CustomSpell.FormeSauvageLoup, CustomSpell.FormeSauvageOursHibou, CustomSpell.FormeSauvagePanthere, CustomSpell.FormeSauvageRothe))
         || feat?.Id == CustomSkill.RangerVoileNaturel)
         return true;
 

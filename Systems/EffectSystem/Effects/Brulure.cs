@@ -12,7 +12,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.Icon((EffectIcon)133), Effect.RunAction(onIntervalHandle: onIntervalBrulureCallback, interval: NwTimeSpan.FromRounds(1)));
+        Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.Brulure), Effect.RunAction(onIntervalHandle: onIntervalBrulureCallback, interval: NwTimeSpan.FromRounds(1)));
         eff.Tag = BrulureEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

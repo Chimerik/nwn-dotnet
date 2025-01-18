@@ -646,8 +646,8 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
-        case CustomSpell.FlameBlade:
-          concentrationTargets.AddRange(SpellSystem.FlameBlade(oCaster, spell));
+        case CustomSpell.LameArdente:
+          concentrationTargets.AddRange(SpellSystem.LameArdente(oCaster, spell, spellEntry, target, castingClass));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -667,7 +667,7 @@ namespace NWN.Systems
           break;
 
         case CustomSpell.BrandingSmite:
-          concentrationTargets.AddRange(SpellSystem.BrandingSmite(oCaster, spell, spellEntry));
+          SpellSystem.BrandingSmite(oCaster, spell, spellEntry, feat);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -817,6 +817,18 @@ namespace NWN.Systems
         case CustomSpell.ProtectionContreLelectricite:
         case CustomSpell.ProtectionContreLeTonnerre:
           concentrationTargets.AddRange(SpellSystem.ProtectionContreLenergie(oCaster, spell, spellEntry, target));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.FormeSauvageBlaireau:
+        case CustomSpell.FormeSauvageAraignee:
+        case CustomSpell.FormeSauvageChat:
+        case CustomSpell.FormeSauvageDilophosaure:
+        case CustomSpell.FormeSauvageLoup:
+        case CustomSpell.FormeSauvageOursHibou:
+        case CustomSpell.FormeSauvagePanthere:
+        case CustomSpell.FormeSauvageRothe:
+          SpellSystem.FormeSauvage(oCaster, spell, spellEntry);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -1361,6 +1373,7 @@ namespace NWN.Systems
           WizardUtils.HandleEvocateurSurchargeSelfDamage(castingCreature, spellLevel, spell.SpellSchool);
           EnsoUtils.HandleMagieTempetueuse(castingCreature, spellLevel);
           OccultisteUtils.IncrementFouleeFeerique(castingCreature, spell.SpellSchool, spellLevel, feat);
+          EnsoUtils.HandleCoeurDeLaTempete(castingCreature, spellEntry.damageType);
 
 
           if (castingClass.ClassType == ClassType.Paladin && Players.TryGetValue(castingCreature, out Player player))

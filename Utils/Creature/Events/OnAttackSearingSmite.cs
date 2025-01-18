@@ -1,7 +1,6 @@
-﻿ using Anvil.API;
+﻿using Anvil.API;
 using Anvil.API.Events;
 using NWN.Core;
-using NWN.Systems;
 
 namespace NWN.Systems
 {
@@ -12,13 +11,13 @@ namespace NWN.Systems
       if (onAttack.Target is not NwCreature target)
         return;
 
-      NwItem weapon = onAttack.Attacker.GetItemInSlot(InventorySlot.RightHand);
-
       switch (onAttack.AttackResult)
       {
         case AttackResult.Hit:
         case AttackResult.CriticalHit:
         case AttackResult.AutomaticHit:
+
+          NwItem weapon = onAttack.Attacker.GetItemInSlot(InventorySlot.RightHand);
 
           if (weapon is null || ItemUtils.IsMeleeWeapon(weapon.BaseItem.ItemType))
           {

@@ -11,6 +11,8 @@ namespace NWN.Systems
       if (druide is null || druide.Level < 1)
         return;
 
+      EffectUtils.RemoveTaggedEffect(caster, EffectSystem.FrappePrimordialeEffectTag);
+
       DamageType damageType;
       switch (featId)
       {

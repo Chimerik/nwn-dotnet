@@ -75,7 +75,7 @@ namespace NWN.Systems
           {
             case NuiEventType.Click:
 
-              int nbSources = player.oid.LoginCreature.GetFeatRemainingUses((Feat)CustomSkill.DruideCompagnonSauvage);
+              int nbSources = player.oid.LoginCreature.GetFeatRemainingUses((Feat)CustomSkill.FormeSauvage);
               selectedSpellLevel = byte.Parse(nuiEvent.ElementId);
 
               byte sourceCost = selectedSpellLevel switch
@@ -107,7 +107,7 @@ namespace NWN.Systems
         }
         private void RefreshWindow()
         {
-          int nbSources = player.oid.LoginCreature.GetFeatRemainingUses((Feat)CustomSkill.DruideCompagnonSauvage);
+          int nbSources = player.oid.LoginCreature.GetFeatRemainingUses((Feat)CustomSkill.FormeSauvage);
 
           enabled1.SetBindValue(player.oid, nuiToken.Token, nbSources > 1);
           enabled2.SetBindValue(player.oid, nuiToken.Token, nbSources > 1);

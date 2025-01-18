@@ -59,6 +59,14 @@
     public const int AmeliorationCharisme = 225;
     public const int Agrandissement = 227;
     public const int Rapetissement = 228;
+    public const int FormeSauvageBlaireau = 230;
+    public const int FormeSauvageChat = 231;
+    public const int FormeSauvageAraignee = 232;
+    public const int FormeSauvageLoup = 233;
+    public const int FormeSauvageRothe = 234;
+    public const int FormeSauvagePanthere = 236;
+    public const int FormeSauvageOursHibou = 237;
+    public const int FormeSauvageDilophosaure = 238;
     public const int ChatimentTonitruant = 299;
     public const int DetectionDuBienEtDuMal = 312;
     public const int ProtectionContreLeMalEtLeBien = 321;
@@ -95,7 +103,7 @@
     public const int ProduceFlame = 851;
     public const int RepresaillesInfernales = 852;
     public const int MageHand = 853;
-    public const int FlameBlade = 854;
+    public const int LameArdente = 854;
     public const int Thaumaturgy = 855;
     public const int SearingSmite = 856;
     public const int BrandingSmite = 857;

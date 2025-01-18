@@ -10,28 +10,29 @@ namespace NWN.Systems
     public static Effect Polymorph(NwCreature creature, PolymorphType shapeType)
     {
       creature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPolymorph));
+      creature.ApplyEffect(EffectDuration.Permanent, Effect.TemporaryHitpoints(creature.GetClassInfo(ClassType.Druid).Level));
 
-      Effect eff = Effect.LinkEffects(Effect.Polymorph(shapeType), Effect.TemporaryHitpoints(creature.GetClassInfo(ClassType.Druid).Level));
+      Effect eff = Effect.Polymorph(shapeType);
       eff.Tag = PolymorphEffectTag;
       eff.SubType = EffectSubType.Supernatural;
 
       int nLvl = 0;
       int shapeHP = shapeType switch
       {
-        PolymorphType.GiantSpider => 18,
-        PolymorphType.Wolf => 16,
-        PolymorphType.Panther => 33,
-        (PolymorphType)107 => 2,
-        (PolymorphType)108 => 21,
-        (PolymorphType)109 => 47,
-        (PolymorphType)110 => 44,
-        PolymorphType.BrownBear => 28,
-        (PolymorphType)111 => 11,
-        PolymorphType.DireTiger => 32,
-        PolymorphType.HugeAirElemental => 72,
-        PolymorphType.HugeFireElemental => 72,
-        PolymorphType.HugeWaterElemental => 72,
-        PolymorphType.HugeEarthElemental => 85,
+        CustomPolymorph.Araignee => 18,
+        CustomPolymorph.Loup => 16,
+        CustomPolymorph.Panthere => 33,
+        CustomPolymorph.Chat => 2,
+        CustomPolymorph.Rothe => 21,
+        CustomPolymorph.OursHibou => 47,
+        CustomPolymorph.Dilophosaure => 44,
+        CustomPolymorph.OursBlanc => 28,
+        CustomPolymorph.Corbeau => 11,
+        CustomPolymorph.Tigre => 32,
+        CustomPolymorph.Air => 72,
+        CustomPolymorph.Feu => 72,
+        CustomPolymorph.Eau => 72,
+        CustomPolymorph.Terre => 85,
         _ => 11,
       };
 
@@ -46,7 +47,9 @@ namespace NWN.Systems
         creature.GetObjectVariable<PersistentVariableInt>($"_SHAPECHANGE_HITDIE_LEVEL_{nLvl}").Value = level.HitDie;
 
         if (level.ClassInfo.Class.Id == CustomClass.Adventurer)
-          level.HitDie = (byte)(shapeHP - (creature.Level - 1) * ((NwGameTables.PolymorphTable[(int)shapeType].Constitution - 10) / 2));
+        {
+          level.HitDie = (byte)(shapeHP/* - (creature.Level - 1) * ((NwGameTables.PolymorphTable[(int)shapeType].Constitution - 10) / 2)*/);
+        }
         else
           level.HitDie = 0;
       }
@@ -74,21 +77,21 @@ namespace NWN.Systems
 
       switch (shapeType)
       {
-        case PolymorphType.Badger:
-        case PolymorphType.Wolf:
-        case PolymorphType.Panther:
-        case (PolymorphType)108:
-        case (PolymorphType)109:
-        case (PolymorphType)110:
-        case PolymorphType.BrownBear:
-        case (PolymorphType)111:
+        case CustomPolymorph.Blaireau:
+        case CustomPolymorph.Loup:
+        case CustomPolymorph.Panthere:
+        case CustomPolymorph.Rothe:
+        case CustomPolymorph.OursHibou:
+        case CustomPolymorph.Dilophosaure:
+        case CustomPolymorph.OursBlanc:
+        case CustomPolymorph.Corbeau:
 
           damageBonus = druidLevel > 15 ? IPDamageBonus.Plus1d12 : druidLevel > 11 ? IPDamageBonus.Plus1d10 : druidLevel > 7 ? IPDamageBonus.Plus1d8 : druidLevel > 3 ? IPDamageBonus.Plus1d6 : 0;
           damageType = IPDamageType.Piercing;
 
           break;
 
-        case PolymorphType.GiantSpider:
+        case CustomPolymorph.Araignee:
 
           damageBonus = druidLevel > 15 ? IPDamageBonus.Plus1d12 : druidLevel > 11 ? IPDamageBonus.Plus1d10 : druidLevel > 7 ? IPDamageBonus.Plus1d8 : druidLevel > 3 ? IPDamageBonus.Plus1d6 : 0;
           damageType = IPDamageType.Piercing;
@@ -98,7 +101,7 @@ namespace NWN.Systems
 
           break;
 
-        case PolymorphType.DireTiger:
+        case CustomPolymorph.Tigre:
 
           damageBonus = druidLevel > 15 ? IPDamageBonus.Plus1d12 : druidLevel > 11 ? IPDamageBonus.Plus1d10 : druidLevel > 7 ? IPDamageBonus.Plus1d8 : druidLevel > 3 ? IPDamageBonus.Plus1d6 : 0;
           damageType = IPDamageType.Piercing;
@@ -111,28 +114,28 @@ namespace NWN.Systems
 
           break;
 
-        case PolymorphType.HugeAirElemental:
+        case CustomPolymorph.Air:
 
           creature.OnCreatureAttack -= DruideUtils.OnAttackElemAirStun;
           creature.OnCreatureAttack += DruideUtils.OnAttackElemAirStun;
 
           break;
 
-        case PolymorphType.HugeEarthElemental:
+        case CustomPolymorph.Terre:
 
           creature.OnCreatureAttack -= DruideUtils.OnAttackElemTerreKnockdown;
           creature.OnCreatureAttack += DruideUtils.OnAttackElemTerreKnockdown;
 
           break;
 
-        case PolymorphType.HugeFireElemental:
+        case CustomPolymorph.Feu:
 
           creature.OnCreatureAttack -= DruideUtils.OnAttackElemFeuBrulure;
           creature.OnCreatureAttack += DruideUtils.OnAttackElemFeuBrulure;
 
           break;
 
-        case PolymorphType.HugeWaterElemental:
+        case CustomPolymorph.Eau:
 
           creature.OnCreatureAttack -= DruideUtils.OnAttackElemEauChill;
           creature.OnCreatureAttack += DruideUtils.OnAttackElemEauChill;
@@ -191,14 +194,21 @@ namespace NWN.Systems
     {
       return featId switch
       {
-        CustomSkill.FormeSauvageChat => (PolymorphType)107,
-        CustomSkill.FormeSauvageAraignee => PolymorphType.GiantSpider,
-        CustomSkill.FormeSauvageLoup => PolymorphType.Wolf,
-        CustomSkill.FormeSauvageRothe => (PolymorphType)108,
-        CustomSkill.FormeSauvagePanthere => PolymorphType.Panther,
-        CustomSkill.FormeSauvageOursHibou => (PolymorphType)109,
-        CustomSkill.FormeSauvageDilophosaure => (PolymorphType)110,
-        _ => PolymorphType.Badger,
+        CustomSpell.FormeSauvageChat => CustomPolymorph.Chat,
+        CustomSpell.FormeSauvageAraignee => CustomPolymorph.Araignee,
+        CustomSpell.FormeSauvageLoup => CustomPolymorph.Loup,
+        CustomSpell.FormeSauvageRothe => CustomPolymorph.Rothe,
+        CustomSpell.FormeSauvagePanthere => CustomPolymorph.Panthere,
+        CustomSpell.FormeSauvageOursHibou => CustomPolymorph.OursHibou,
+        CustomSpell.FormeSauvageDilophosaure => CustomPolymorph.Dilophosaure,
+        CustomSkill.FormeSauvageOurs => CustomPolymorph.OursBlanc,
+        CustomSkill.FormeSauvageTigre => CustomPolymorph.Tigre,
+        CustomSkill.FormeSauvageAir => CustomPolymorph.Air,
+        CustomSkill.FormeSauvageFeu => CustomPolymorph.Feu,
+        CustomSkill.FormeSauvageEau => CustomPolymorph.Eau,
+        CustomSkill.FormeSauvageTerre => CustomPolymorph.Terre,
+        CustomSkill.FormeSauvageCorbeau => CustomPolymorph.Corbeau,
+        _ => CustomPolymorph.Blaireau,
       };
     }
     public static async void DelayHPReset(NwCreature creature)

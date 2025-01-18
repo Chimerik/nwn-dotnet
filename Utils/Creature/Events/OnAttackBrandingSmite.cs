@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Collections.Generic;
+using Anvil.API;
 using Anvil.API.Events;
 using NWN.Core;
 
@@ -6,7 +7,7 @@ namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static void OnAttackBrandingSmite(OnCreatureAttack onAttack)
+    public static async void OnAttackBrandingSmite(OnCreatureAttack onAttack)
     {
       if (onAttack.Target is not NwCreature target)
         return;
@@ -17,9 +18,17 @@ namespace NWN.Systems
         case AttackResult.CriticalHit:
         case AttackResult.AutomaticHit:
 
-            NWScript.AssignCommand(onAttack.Attacker, () => target.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.Damage(NwRandom.Roll(Utils.random, 6, 2), DamageType.Divine), Effect.VisualEffect(VfxType.ImpDivineStrikeHoly))));
-            NWScript.AssignCommand(onAttack.Attacker, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.brandingSmiteReveal, NwTimeSpan.FromRounds(Spells2da.spellTable[CustomSpell.BrandingSmite].duration)));
+          NwItem weapon = onAttack.Attacker.GetItemInSlot(InventorySlot.RightHand);
 
+          if (weapon is null || ItemUtils.IsMeleeWeapon(weapon.BaseItem.ItemType))
+          {
+            var spellEntry = Spells2da.spellTable[CustomSpell.BrandingSmite];
+            var duration = SpellUtils.GetSpellDuration(onAttack.Attacker, spellEntry);
+
+            NWScript.AssignCommand(onAttack.Attacker, () => target.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.Damage(NwRandom.Roll(Utils.random, 6, onAttack.AttackResult == AttackResult.CriticalHit ? 4 : 2), DamageType.Divine), Effect.VisualEffect(VfxType.ImpDivineStrikeHoly))));
+            NWScript.AssignCommand(onAttack.Attacker, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.brandingSmiteReveal, duration));
+           
+            target.SetActionMode(ActionMode.Stealth, false);
             target.OnStealthModeUpdate -= EffectSystem.OnBrandingSmiteReveal;
             target.OnStealthModeUpdate += EffectSystem.OnBrandingSmiteReveal;
 
@@ -35,7 +44,11 @@ namespace NWN.Systems
               }
             }
 
-            SpellUtils.DispelConcentrationEffects(onAttack.Attacker);
+            EffectSystem.ApplyConcentrationEffect(onAttack.Attacker, spellEntry.RowIndex, new List<NwGameObject>() { target }, (int)duration.TotalSeconds);
+
+            await NwTask.NextFrame();
+            onAttack.Attacker.OnCreatureAttack -= OnAttackBrandingSmite;
+          }
 
           break;
       }

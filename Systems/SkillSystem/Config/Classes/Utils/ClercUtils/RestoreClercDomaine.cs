@@ -30,7 +30,10 @@ namespace NWN.Systems
         creature.SetFeatRemainingUses((Feat)CustomSkill.MoveRepliqueDuplicite, 0);
 
         foreach (var associate in creature.Associates.Where(e => e.Tag == EffectSystem.repliqueTag))
+        {
+          creature.UnpossessFamiliar();
           associate.Unsummon();
+        }
       }
     }
   }

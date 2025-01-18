@@ -15,7 +15,8 @@ namespace NWN.Systems
       target.OnHeal -= OnHealRemoveExpertiseEffect;
       target.OnHeal += OnHealRemoveExpertiseEffect;
 
-      Effect eff = Effect.RunAction(onIntervalHandle: onIntervalLacerationCallback, interval:NwTimeSpan.FromRounds(1));
+      Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.Saignement),
+        Effect.RunAction(onIntervalHandle: onIntervalLacerationCallback, interval:NwTimeSpan.FromRounds(1)));
       eff.Tag = LacerationEffectTag;
       eff.SubType = EffectSubType.Supernatural;
 

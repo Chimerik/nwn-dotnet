@@ -45,7 +45,9 @@ namespace NWN.Systems
       caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.MetaMagie(featId), NwTimeSpan.FromRounds(100));
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadOdd));
 
-      if (caster.KnowsFeat((Feat)CustomSkill.EnsoApotheose) && caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.EnsoApotheoseVariable).HasNothing)
+      if (caster.KnowsFeat((Feat)CustomSkill.EnsoApotheose) 
+        && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.SorcellerieInneeEffectTag)
+        && caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.EnsoApotheoseVariable).HasNothing)
       {
         caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.EnsoApotheoseVariable).Value = 1;
         caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpGoodHelp));

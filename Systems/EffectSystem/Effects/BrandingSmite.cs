@@ -12,7 +12,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.RunAction();
+        Effect eff = Effect.Icon(CustomEffectIcon.ChatimentBrillant);
         eff.Tag = BrandingSmiteAttackEffectTag;
         eff.Spell = (Spell)CustomSpell.BrandingSmite;
         return eff;
@@ -23,7 +23,8 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.RunAction(onRemovedHandle: onRemoveBrandingSmiteRevealCallback);
+        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurLightWhite5), Effect.Icon(CustomEffectIcon.ChatimentBrillant),
+          Effect.RunAction(onRemovedHandle: onRemoveBrandingSmiteRevealCallback));
         eff.Tag = BrandingSmiteRevealEffectTag;
         eff.Spell = (Spell)CustomSpell.BrandingSmite;
         return eff;
@@ -46,11 +47,11 @@ namespace NWN.Systems
     {
       EffectRunScriptEvent eventData = new EffectRunScriptEvent();
 
-      if (eventData.EffectTarget is not NwCreature creature)
-        return ScriptHandleResult.Handled;
-
-      creature.OnStealthModeUpdate -= OnBrandingSmiteReveal;
-      creature.OnEffectApply -= OnBrandingSmiteReveal;
+      if (eventData.EffectTarget is NwCreature creature)
+      {
+        creature.OnStealthModeUpdate -= OnBrandingSmiteReveal;
+        creature.OnEffectApply -= OnBrandingSmiteReveal;
+      }
 
       return ScriptHandleResult.Handled;
     }

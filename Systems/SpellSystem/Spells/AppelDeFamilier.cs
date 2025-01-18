@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
 
@@ -29,7 +28,7 @@ namespace NWN.Systems
       }
       else
       {
-        if(caster.GetFeatRemainingUses((Feat)CustomSkill.FormeSauvageChat) < 1)
+        if(caster.GetFeatRemainingUses((Feat)CustomSkill.FormeSauvage) < 1)
         {
           caster.LoginPlayer?.SendServerMessage("Vous êtes à court d'utilisation de Forme Sauvage", ColorConstants.Red);
           return;
@@ -37,6 +36,7 @@ namespace NWN.Systems
 
         DruideUtils.DecrementFormeSauvage(caster);
       }
+
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
       
       NwCreature familiar = CreatureUtils.SummonAssociate(caster, AssociateType.Familiar, Familiars2da.familiarTable.FirstOrDefault(f => f.spellId == spell.Id).resRef);
@@ -107,7 +107,8 @@ namespace NWN.Systems
 
         case CustomSpell.PacteDeLaChaineDiablotin:
           weapon.AddItemProperty(ItemProperty.DamageBonus(IPDamageType.Piercing, IPDamageBonus.Plus1d6), EffectDuration.Permanent);
-          weapon.AddItemProperty(ItemProperty.DamageBonus(CustomItemPropertyDamageType.Poison, IPDamageBonus.Plus2d6), EffectDuration.Permanent);
+          weapon.AddItemProperty(ItemProperty.DamageBonus(CustomItemPropertyDamageType.Poison, IPDamageBonus.Plus2d6), EffectDuration.Permanent);          
+          familiar.ApplyEffect(EffectDuration.Permanent, Effect.LinkEffects(EffectSystem.ResistanceFroid, EffectSystem.ImmuniteFeu, EffectSystem.ImmunitePoison));
           break;
 
         case CustomSpell.PacteDeLaChaineEspritFollet:
@@ -126,6 +127,7 @@ namespace NWN.Systems
         case CustomSpell.PacteDeLaChaineQuasit:
           weapon.AddItemProperty(ItemProperty.DamageBonus(IPDamageType.Slashing, IPDamageBonus.Plus1d4), EffectDuration.Permanent);
           familiar.OnCreatureAttack += OccultisteUtils.OnAttackQuasitPoison;
+          familiar.ApplyEffect(EffectDuration.Permanent, Effect.LinkEffects(EffectSystem.ResistanceFroid, EffectSystem.ResistanceFeu, EffectSystem.ResistanceElec, EffectSystem.ImmunitePoison));
           break;
 
         case CustomSpell.PacteDeLaChaineSquelette:

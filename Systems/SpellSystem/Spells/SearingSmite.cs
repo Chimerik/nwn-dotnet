@@ -10,9 +10,9 @@ namespace NWN.Systems
       if (oCaster is not NwCreature caster)
         return;
 
-      StringUtils.ForceBroadcastSpellCasting(caster, spell);
+      SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
       EffectUtils.ClearChatimentEffects(caster);
-      caster.Location.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(VfxType.ImpPulseFire), Effect.VisualEffect(VfxType.ImpFlameM)));
+      caster.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(VfxType.ImpPulseFire), Effect.VisualEffect(VfxType.ImpFlameM)));
 
       NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.searingSmiteAttack));
 

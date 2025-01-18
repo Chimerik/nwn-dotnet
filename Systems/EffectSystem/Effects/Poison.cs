@@ -41,7 +41,7 @@ namespace NWN.Systems
     }
     public static bool IsPoisonImmune(NwCreature target, NwCreature caster)
     {
-      if (Utils.In(target.Race.RacialType, RacialType.Undead, RacialType.Construct) || target.ActiveEffects.Any(e => e.EffectType == EffectType.Immunity && e.IntParams[1] == 2))
+      if (Utils.In(target.Race.RacialType, RacialType.Undead, RacialType.Construct) || target.ActiveEffects.Any(e => e.Tag == ImmunitePoisonEffectTag))
       {
         caster.LoginPlayer?.SendServerMessage($"{target.Name.ColorString(ColorConstants.Cyan)} est immunisé au poison");
        

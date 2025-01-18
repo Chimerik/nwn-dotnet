@@ -10,10 +10,12 @@ namespace NWN.Systems
       int wisModifier = druide.GetAbilityModifier(Ability.Wisdom) > 0 ? druide.GetAbilityModifier(Ability.Wisdom) : 0;
       int druidLevel = druide.GetClassInfo(ClassType.Druid) is null ? 0 : druide.GetClassInfo(ClassType.Druid).Level;
 
-      Effect eff = Effect.LinkEffects(Effect.ACIncrease(3 + wisModifier, ACBonus.ArmourEnchantment), Effect.Icon((EffectIcon)186),
-        Effect.TemporaryHitpoints(druidLevel * 3));
+      Effect AC = Effect.ACIncrease(3 + wisModifier, ACBonus.ArmourEnchantment);
+      AC.ShowIcon = false;
+
+      var eff = Effect.LinkEffects(AC, Effect.Icon(CustomEffectIcon.FormeDeLune), Effect.TemporaryHitpoints(druidLevel * 3));
         
-      eff.Tag = ProtectionNaturelleEffectTag;
+      eff.Tag = FormeDeLuneEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       return eff;
     }

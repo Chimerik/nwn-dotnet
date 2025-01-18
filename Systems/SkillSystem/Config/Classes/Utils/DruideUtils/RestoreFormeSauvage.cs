@@ -17,7 +17,7 @@ namespace NWN.Systems
 
       if (shortRest) // et qu'une utilisation a été consommé, alors on ajoute une utilisation
       {
-        byte currentUses = creature.GetFeatRemainingUses((Feat)CustomSkill.FormeSauvageBlaireau);
+        byte currentUses = creature.GetFeatRemainingUses((Feat)CustomSkill.FormeSauvage);
         if (currentUses < maxUses)
           nbSource = (byte)(currentUses + 1);
         else
@@ -27,13 +27,9 @@ namespace NWN.Systems
         nbSource = (byte)(nbSource > 0 ? nbSource : maxUses);
 
       creature.SetFeatRemainingUses((Feat)CustomSkill.DruideCompagnonSauvage, nbSource);
-      creature.SetFeatRemainingUses((Feat)CustomSkill.FormeSauvageBlaireau, nbSource);
-      creature.SetFeatRemainingUses((Feat)CustomSkill.FormeSauvageChat, nbSource);
-      creature.SetFeatRemainingUses((Feat)CustomSkill.FormeSauvageAraignee, nbSource);
-      creature.SetFeatRemainingUses((Feat)CustomSkill.FormeSauvageLoup, nbSource);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.FormeSauvage, nbSource);
       creature.SetFeatRemainingUses((Feat)CustomSkill.FormeSauvageRothe, nbSource);
-      creature.SetFeatRemainingUses((Feat)CustomSkill.FormeSauvagePanthere, nbSource);
-      creature.SetFeatRemainingUses((Feat)CustomSkill.FormeSauvageOursHibou, nbSource);
+      creature.SetFeatRemainingUses((Feat)CustomSkill.FormeSauvage2, nbSource);
       creature.SetFeatRemainingUses((Feat)CustomSkill.FormeSauvageDilophosaure, nbSource);
       creature.SetFeatRemainingUses((Feat)CustomSkill.DruideAssistanceTerrestre, nbSource);
       creature.SetFeatRemainingUses((Feat)CustomSkill.DruideSanctuaireNaturel, nbSource);

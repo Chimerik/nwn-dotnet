@@ -210,17 +210,9 @@ namespace NWN.Systems
         case CustomSkill.DruideFrappePrimordialeTonnerre: FrappePrimordiale(onUseFeat.Creature, onUseFeat.Feat.Id); return;
         case CustomSkill.MageNature: SlotToFormeSauvage(onUseFeat.Creature); return;
 
-        case CustomSkill.FormeSauvageBlaireau: 
-        case CustomSkill.FormeSauvageAraignee: 
-        case CustomSkill.FormeSauvageLoup: 
-        case CustomSkill.FormeSauvageRothe: 
-        case CustomSkill.FormeSauvagePanthere: 
-        case CustomSkill.FormeSauvageOursHibou: 
-        case CustomSkill.FormeSauvageDilophosaure: 
         case CustomSkill.FormeSauvageOurs: 
         case CustomSkill.FormeSauvageCorbeau: 
-        case CustomSkill.FormeSauvageTigre: 
-        case CustomSkill.FormeSauvageChat: FormeSauvage(onUseFeat.Creature, onUseFeat.Feat.Id); return;
+        case CustomSkill.FormeSauvageTigre: FormeSauvage(onUseFeat.Creature, onUseFeat.Feat.Id); return;
         case CustomSkill.FormeSauvageAir:
         case CustomSkill.FormeSauvageTerre:
         case CustomSkill.FormeSauvageFeu:

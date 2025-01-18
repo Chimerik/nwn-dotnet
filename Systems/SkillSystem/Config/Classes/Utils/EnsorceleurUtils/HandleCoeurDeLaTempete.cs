@@ -1,22 +1,29 @@
-﻿using Anvil.API;
+﻿using System.Collections.Generic;
+using Anvil.API;
 using NWN.Core;
 
 namespace NWN.Systems
 {
   public static partial class EnsoUtils
   {
-    public static void HandleCoeurDeLaTempete(NwCreature creature, DamageType damageType)
+    public static void HandleCoeurDeLaTempete(NwCreature creature, List<DamageType> damageTypeList)
     {
-      if (creature is not null && creature.KnowsFeat((Feat)CustomSkill.EnsoCoeurDeLaTempete) && Utils.In(damageType, DamageType.Electrical, DamageType.Sonic))
+      if (creature.KnowsFeat((Feat)CustomSkill.EnsoCoeurDeLaTempete))
       {
-        int damage = creature.GetClassInfo(ClassType.Sorcerer).Level / 2;
+        DamageType damageType = damageTypeList.Contains(DamageType.Electrical) ? DamageType.Electrical
+          : damageTypeList.Contains(DamageType.Sonic) ? DamageType.Sonic : DamageType.BaseWeapon;
 
-        foreach (var target in creature.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 6, false))
+        if(damageType != DamageType.BaseWeapon)
         {
-          if (creature.IsReactionTypeHostile(target) && creature.IsCreatureSeen(target))
-            NWScript.AssignCommand(creature, () => target.ApplyEffect(EffectDuration.Instant, Effect.Damage(damage, damageType)));
+          int damage = creature.GetClassInfo(ClassType.Sorcerer).Level / 2;
+
+          foreach (var target in creature.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 6, false))
+          {
+            if (creature.IsReactionTypeHostile(target) && creature.IsCreatureSeen(target))
+              NWScript.AssignCommand(creature, () => target.ApplyEffect(EffectDuration.Instant, Effect.Damage(damage, damageType)));
+          }
         }
-      } 
+      }
     }
   }
 }

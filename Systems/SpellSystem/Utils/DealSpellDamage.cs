@@ -142,15 +142,17 @@ namespace NWN.Systems
           damage += bonusDamage;
         }
 
-        if (Utils.In(spell.Id, CustomSpell.EtincelleDivineNecrotique, CustomSpell.EtincelleDivineRadiant))
+        bonusDamage += spell.Id switch
         {
-          bonusDamage = CreatureUtils.GetAbilityModifierMin1(castingCreature, Ability.Wisdom);
+          CustomSpell.EtincelleDivineNecrotique or CustomSpell.EtincelleDivineRadiant => CreatureUtils.GetAbilityModifierMin1(castingCreature, Ability.Wisdom),
+          CustomSpell.LameArdente => castingCreature.GetAbilityModifier(casterClass is null ? Ability.Charisma : casterClass.SpellCastingAbility),
+          _ => 0,
+        };
 
-          if (bonusDamage > 0)
-          {
-            logString += $"{bonusDamage} + ";
-            damage += bonusDamage;
-          }
+        if (bonusDamage > 0)
+        {
+          logString += $"{bonusDamage} + ";
+          damage += bonusDamage;
         }
 
         if (rolls.Count > 0 && rolls.GroupBy(r => r).Any(g => g.Count() > 1))
@@ -167,8 +169,6 @@ namespace NWN.Systems
           damage = ClercUtils.GetAttenuationElementaireReducedDamage(targetCreature, damage, appliedDamage);
           damage = HandleResistanceBypass(targetCreature, isElementalist, isEvocateurSurcharge, damage, appliedDamage);
         }
-
-        EnsoUtils.HandleCoeurDeLaTempete(castingCreature, appliedDamage); 
 
         if (oCaster is not null)
           NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(spellEntry.damageVFX), Effect.Damage(damage, appliedDamage))));

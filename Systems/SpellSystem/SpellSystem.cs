@@ -755,6 +755,7 @@ namespace NWN.Systems
 
           return;
 
+        case CustomSpell.LameArdente:
         case (int)Spell.CallLightning:
 
           if(caster.GetObjectVariable<LocalVariableInt>("_FREE_SPELL").HasValue)
@@ -762,6 +763,7 @@ namespace NWN.Systems
             caster.GetObjectVariable<LocalVariableInt>("_FREE_SPELL").Delete();
             EventsPlugin.SkipEvent();
           }
+
           return;
 
         case (int)Spell.SeeInvisibility:

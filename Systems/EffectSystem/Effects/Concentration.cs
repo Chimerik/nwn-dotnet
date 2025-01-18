@@ -79,7 +79,7 @@ namespace NWN.Systems
           continue;
         }
 
-        if (target.GetObjectVariable<LocalVariableInt>(ConcentrationSpellIdString).Value == CustomSpell.FlameBlade && target is NwCreature creature)
+        if (target.GetObjectVariable<LocalVariableInt>(ConcentrationSpellIdString).Value == CustomSpell.LameArdente && target is NwCreature creature)
         {
           if (creature.GetItemInSlot(InventorySlot.RightHand)?.Tag == "_TEMP_FLAME_BLADE")
             creature.GetItemInSlot(InventorySlot.RightHand).Destroy();

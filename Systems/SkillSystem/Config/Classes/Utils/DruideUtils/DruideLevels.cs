@@ -40,7 +40,7 @@ namespace NWN.Systems
           {
             if (Utils.In(spell.Id, CustomSpell.RayonEmpoisonne, (int)Spell.AcidSplash, (int)Spell.Web, (int)Spell.RayOfFrost, (int)Spell.ElectricJolt, (int)Spell.Sleep,
               CustomSpell.FouleeBrumeuse, (int)Spell.BurningHands, (int)Spell.GhostlyVisage, CustomSpell.FireBolt, (int)Spell.Fireball, (int)Spell.LightningBolt,
-              (int)Spell.StinkingCloud, CustomSpell.AppelDeFamilier))
+              (int)Spell.StinkingCloud, CustomSpell.AppelDeFamilier, CustomSpell.Fracassement, CustomSpell.ChangementDapparence))
               continue;// ces sorts ne font pas partie du package de druide mais peuvent être appris via le cercle
 
             if (player.learnableSpells.TryGetValue(spell.Id, out var learnable))
@@ -69,10 +69,7 @@ namespace NWN.Systems
           break;
 
         case 2:
-          player.LearnClassSkill(CustomSkill.FormeSauvageBlaireau);
-          player.LearnClassSkill(CustomSkill.FormeSauvageChat);
-          player.LearnClassSkill(CustomSkill.FormeSauvageAraignee);
-          player.LearnClassSkill(CustomSkill.FormeSauvageLoup);
+          player.LearnClassSkill(CustomSkill.FormeSauvage);
           player.LearnClassSkill(CustomSkill.DruideCompagnonSauvage);
           break;
 
@@ -99,10 +96,7 @@ namespace NWN.Systems
 
         case 5:  player.LearnClassSkill(CustomSkill.DruideReveilSauvage); break;
 
-        case 6:
-          player.LearnClassSkill(CustomSkill.FormeSauvagePanthere);
-          player.LearnClassSkill(CustomSkill.FormeSauvageOursHibou);
-          break;
+        case 6: player.LearnClassSkill(CustomSkill.FormeSauvage2); break;
 
         case 7:
 

@@ -65,9 +65,6 @@ namespace NWN.Systems
 
       onIntervalBrulureCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalBrulure);
 
-      onIntervalSaignementCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalSaignement);
-      onRemoveSaignementCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveSaignement);
-
       onIntervalBarbarianRageCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalBarbarianRage);
       onRemoveBarbarianRageCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveBarbarianRage);
 

@@ -4,7 +4,13 @@ namespace NWN
 {
   public class CustomEffectIcon
   {
+    public const EffectIcon LameArdente = (EffectIcon)130;
+    public const EffectIcon Melange = (EffectIcon)131;
+    public const EffectIcon Saignement = (EffectIcon)132;
+    public const EffectIcon Brulure = (EffectIcon)133;
+    public const EffectIcon ChatimentBrillant = (EffectIcon)134;
     public const EffectIcon Bouclier = (EffectIcon)152;
+    public const EffectIcon FormeDeLune = (EffectIcon)186;
 
     public const EffectIcon BlugeoningImmunity = (EffectIcon)196;
     public const EffectIcon BludgeoningVulnerability = (EffectIcon)199;
