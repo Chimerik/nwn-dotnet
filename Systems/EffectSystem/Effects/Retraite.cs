@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.MovementSpeedIncrease(25);
+        Effect eff = Effect.LinkEffects(Effect.MovementSpeedIncrease(25), Effect.VisualEffect(CustomVfx.DashPurple));
         eff.Tag = RetraiteEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

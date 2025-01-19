@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Anvil.API;
 using NWN.Core;
 
@@ -13,18 +14,23 @@ namespace NWN.Systems
         
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
 
-      EffectUtils.RemoveTaggedEffect(caster, caster, EffectSystem.PolymorphEffectTag);
+      var previousPolymorph = caster.ActiveEffects.FirstOrDefault(e => e.EffectType == EffectType.Polymorph);
 
-      await NwTask.WaitUntil(() => caster is null || !caster.IsValid || caster.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_CURRENT_HP").HasNothing);
+      if (previousPolymorph is not null)
+      {
+        caster.RemoveEffect(previousPolymorph);
 
-      if (caster is null || !caster.IsValid)
-        return;
+        await NwTask.Delay(TimeSpan.FromSeconds(1));
 
-      await NwTask.Delay(TimeSpan.FromSeconds(0.5));
+        if (caster is null || !caster.IsValid)
+          return;
+      }
 
       NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.Polymorph(caster, EffectSystem.GetPolymorphType(spell.Id))));
 
-      caster.IncrementRemainingFeatUses(spell.MasterSpell.FeatReference);
+      if(!caster.KnowsFeat((Feat)CustomSkill.DruideFormeDeLune))
+        caster.IncrementRemainingFeatUses(spell.MasterSpell.FeatReference);
+      
       DruideUtils.DecrementFormeSauvage(caster);
     }
   }

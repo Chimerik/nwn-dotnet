@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
 
@@ -7,11 +8,11 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string PolymorphEffectTag = "_POLYMORPH_EFFECT";
+    public const string PolymorphTempHPEffectTag = "_POLYMORPH_EFFECT";
     public static Effect Polymorph(NwCreature creature, PolymorphType shapeType)
     {
       creature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPolymorph));
-      creature.ApplyEffect(EffectDuration.Permanent, Effect.TemporaryHitpoints(creature.GetClassInfo(ClassType.Druid).Level));
-
+  
       Effect eff = Effect.Polymorph(shapeType);
       eff.Tag = PolymorphEffectTag;
       eff.SubType = EffectSubType.Supernatural;
@@ -37,7 +38,9 @@ namespace NWN.Systems
       };
 
       if (creature.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_CURRENT_HP").HasNothing)
-        creature.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_CURRENT_HP").Value = creature.HP;
+        creature.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_CURRENT_HP").Value = creature.HP > creature.MaxHP ? creature.MaxHP : creature.HP;
+
+      //ModuleSystem.Log.Info($"creature HP BEFORE : {creature.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_CURRENT_HP").Value}");
 
       creature.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_SHAPE").Value = (int)shapeType;
 
@@ -45,6 +48,7 @@ namespace NWN.Systems
       {
         nLvl += 1;
         creature.GetObjectVariable<PersistentVariableInt>($"_SHAPECHANGE_HITDIE_LEVEL_{nLvl}").Value = level.HitDie;
+        //ModuleSystem.Log.Info($"hit die before : {level.HitDie}");
 
         if (level.ClassInfo.Class.Id == CustomClass.Adventurer)
         {
@@ -52,6 +56,8 @@ namespace NWN.Systems
         }
         else
           level.HitDie = 0;
+
+        //ModuleSystem.Log.Info($"hit die after : {level.HitDie}");
       }
 
       DelayDamageBonus(creature, shapeType);
@@ -65,6 +71,13 @@ namespace NWN.Systems
       {
         creature.ApplyEffect(EffectDuration.Permanent, FormeDeLune(creature));
         creature.SetFeatRemainingUses((Feat)CustomSkill.DruideLuneRadieuse, 1);
+      }
+      else
+      {
+        var tempHP = Effect.TemporaryHitpoints(creature.GetClassInfo(ClassType.Druid).Level);
+        tempHP.Tag = PolymorphTempHPEffectTag;
+        tempHP.SubType = EffectSubType.Supernatural;
+        creature.ApplyEffect(EffectDuration.Permanent, tempHP);
       }
 
       return eff;
@@ -187,7 +200,7 @@ namespace NWN.Systems
       creature.OnCreatureAttack -= DruideUtils.OnAttackElemEauChill;
       creature.OnHeartbeat -= DruideUtils.OnHeartbeatVitaliteAnimale;
 
-      EffectUtils.RemoveTaggedEffect(creature, FormeDeLuneEffectTag);
+      EffectUtils.RemoveTaggedEffect(creature, PolymorphTempHPEffectTag, FormeDeLuneEffectTag);
       creature.SetFeatRemainingUses((Feat)CustomSkill.DruideLuneRadieuse, 0);
     }
     public static PolymorphType GetPolymorphType(int featId)
@@ -213,12 +226,20 @@ namespace NWN.Systems
     }
     public static async void DelayHPReset(NwCreature creature)
     {
-      await NwTask.WaitUntil(() => creature is null || !creature.IsValid || !creature.ActiveEffects.Any(e => e.EffectType == EffectType.Polymorph));
+      //ModuleSystem.Log.Info($"REMOVE : creature HP BEFORE DELAY : {creature.HP}");
+      //ModuleSystem.Log.Info($"REMOVE : creature MAX HP BEFORE value change : {creature.MaxHP}");
+      await NwTask.Delay(TimeSpan.FromSeconds(0.6));
 
       if (creature is null || !creature.IsValid)
         return;
 
+      //ModuleSystem.Log.Info($"REMOVE : creature MAX HP AFTER value change : {creature.MaxHP}");
+
+      //ModuleSystem.Log.Info($"REMOVE : creature HP : {creature.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_CURRENT_HP").Value}");
+      //ModuleSystem.Log.Info($"REMOVE : creature HP AFTER DELAY : {creature.HP}");
+
       creature.HP = creature.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_CURRENT_HP").Value;
+      //ModuleSystem.Log.Info($"REMOVE : creature HP AFTER RESET : {creature.HP}");
       creature.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_CURRENT_HP").Delete();
       creature.LoginPlayer?.ExportCharacter();
     }

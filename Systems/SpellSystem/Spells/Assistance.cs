@@ -11,8 +11,8 @@ namespace NWN.Systems
 
       EffectUtils.RemoveTaggedEffect(oTarget, EffectSystem.AssistanceEffectTag);
 
-      oCaster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpGoodHelp));
-      oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.Assistance, NwTimeSpan.FromRounds(spellEntry.duration));
+      oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpGoodHelp));
+      oTarget.ApplyEffect(EffectDuration.Temporary, EffectSystem.Assistance, NwTimeSpan.FromRounds(spellEntry.duration));
 
       return new List<NwGameObject> { oTarget };
     }

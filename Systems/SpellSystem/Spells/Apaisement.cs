@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Anvil.API;
 
 namespace NWN.Systems
@@ -13,24 +14,27 @@ namespace NWN.Systems
       {
         SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
         int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, castingClass.SpellCastingAbility);
+        var spellDuration = SpellUtils.GetSpellDuration(oCaster, spellEntry);
 
         foreach (var target in targetLocation.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, spellEntry.aoESize, false))
         {
           if (target.HP < 1 || !CreatureUtils.IsHumanoid(target))
             continue;
 
-          if (caster.Faction.GetMembers().Contains(target))
-          {
-            EffectUtils.RemoveEffectType(target, EffectType.Frightened, EffectType.Charmed);
-            EffectUtils.RemoveTaggedEffect(target, EffectSystem.CharmEffectTag);
-          }
-          else
+          if (caster.IsReactionTypeHostile(target))
           {
             if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
             {
-              target.ApplyEffect(EffectDuration.Temporary, Effect.Pacified(), SpellUtils.GetSpellDuration(oCaster, spellEntry));
+              EffectSystem.ApplyCharme(target, caster, spellDuration);
               concentrationList.Add(target);
             }
+          }
+          else
+          {
+            EffectUtils.RemoveTaggedEffect(target, EffectSystem.CharmEffectTag, EffectSystem.FrightenedEffectTag);
+            target.ApplyEffect(EffectDuration.Temporary, EffectSystem.CharmeImmunite, spellDuration);
+            target.ApplyEffect(EffectDuration.Temporary, Effect.Immunity(ImmunityType.Fear), spellDuration);
+            concentrationList.Add(target);
           }
 
           target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpGoodHelp));

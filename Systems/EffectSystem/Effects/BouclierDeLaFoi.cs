@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.ACIncrease(2), Effect.VisualEffect(VfxType.DurProtectionGoodMinor));
+        Effect eff = Effect.LinkEffects(Effect.ACIncrease(2), Effect.VisualEffect(CustomVfx.BouclierDeLaFoi));
         eff.Tag = BouclierDeLaFoiEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

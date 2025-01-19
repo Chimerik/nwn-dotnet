@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Anvil.API;
+﻿using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
 using NWN.Core;
@@ -14,7 +13,7 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onExitNappeDeBrouillardCallback;
     public static Effect NappeDeBrouillard(NwCreature caster)
     {
-      Effect eff = Effect.AreaOfEffect(PersistentVfxType.PerFogstink, onEnterNappeDeBrouillardCallback, onExitHandle: onExitNappeDeBrouillardCallback);
+      Effect eff = Effect.AreaOfEffect(CustomAoE.NappeDeBrouillard, onEnterNappeDeBrouillardCallback, onExitHandle: onExitNappeDeBrouillardCallback);
       eff.Tag = NappeDeBrouillardEffectTag;
       eff.Spell = NwSpell.FromSpellId(CustomSpell.NappeDeBrouillard);
       eff.Creator = caster;

@@ -15,7 +15,7 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onHeartbeatBourrasqueCallback;
     public static Effect Bourrasque(NwCreature caster, Ability castingAbility)
     {
-      Effect eff = Effect.AreaOfEffect((PersistentVfxType)257, onEnterBourrasqueCallback, onHeartbeatBourrasqueCallback, onExitBourrasqueCallback);
+      Effect eff = Effect.AreaOfEffect(CustomAoE.Bourrasque, onEnterBourrasqueCallback, onHeartbeatBourrasqueCallback, onExitBourrasqueCallback);
       eff.Tag = BourrasqueEffectTag;
       eff.Spell = NwSpell.FromSpellType(Spell.GustOfWind);
       eff.IntParams[5] = (int)castingAbility;
@@ -26,7 +26,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.MovementSpeedDecrease(50);
+        Effect eff = Effect.MovementSpeedDecrease(25);
         eff.Tag = BourrasqueSlowEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;
@@ -44,18 +44,28 @@ namespace NWN.Systems
             return ScriptHandleResult.Handled;
           }
 
-          if (!entering.ActiveEffects.Any(e => e.Tag == BourrasqueSlowEffectTag))
-            NWScript.AssignCommand(caster, () => entering.ApplyEffect(EffectDuration.Permanent, BourrasqueSlow));
-
-          if (entering != caster)
+          if (caster.IsReactionTypeHostile(entering))
           {
+            if (!entering.ActiveEffects.Any(e => e.Tag == BourrasqueSlowEffectTag))
+            {
+              NWScript.AssignCommand(caster, () => entering.ApplyEffect(EffectDuration.Permanent, BourrasqueSlow));
+              entering.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSlow));
+            }
+
             SpellEntry spellEntry = Spells2da.spellTable[(int)Spell.GustOfWind];
             BourrasqueKnockdown(caster, entering, spellEntry, (Ability)caster.GetObjectVariable<LocalVariableInt>($"_SPELL_CASTING_ABILITY_{eventData.Effect.Spell.Id}").Value);
           }
         }
-        else if (eventData.Entering is NwAreaOfEffect aoe)
-          aoe.Destroy();
       }
+      else if (eventData.Entering is NwAreaOfEffect aoe)
+      {
+        switch (aoe.Tag)
+        {
+          case NappeDeBrouillardEffectTag:
+            aoe.Destroy(); break;
+        }
+      }
+
       return ScriptHandleResult.Handled;
     }
     private static ScriptHandleResult onHeartbeatBourrasque(CallInfo callInfo)
@@ -73,12 +83,16 @@ namespace NWN.Systems
 
       foreach(NwCreature entering in eventData.Effect.GetObjectsInEffectArea<NwCreature>()) 
       {
-        if(entering != caster)
+        if (caster.IsReactionTypeHostile(entering))
           BourrasqueKnockdown(caster, entering, spellEntry, (Ability)caster.GetObjectVariable<LocalVariableInt>($"_SPELL_CASTING_ABILITY_{eventData.Effect.Spell.Id}").Value);
       }
 
       foreach (NwAreaOfEffect aoe in eventData.Effect.GetObjectsInEffectArea<NwAreaOfEffect>())
-        aoe.Destroy();
+        switch (aoe.Tag)
+        {
+          case NappeDeBrouillardEffectTag:
+            aoe.Destroy(); break;
+        }
 
       return ScriptHandleResult.Handled;
     }
@@ -93,7 +107,14 @@ namespace NWN.Systems
     }
     private static void BourrasqueKnockdown(NwCreature caster, NwCreature entering, SpellEntry spellEntry, Ability DCAbility)
     {
-      ApplyKnockdown(entering, caster, DCAbility, spellEntry.savingThrowAbility, Knockdown);
+      int spellDC = SpellUtils.GetCasterSpellDC(caster, DCAbility);
+
+      if (CreatureUtils.GetSavingThrow(caster, entering, Ability.Strength, spellDC) == SavingThrowResult.Failure)
+      {
+        entering.ApplyEffect(EffectDuration.Temporary, Effect.MovementSpeedDecrease(25), NwTimeSpan.FromRounds(1));
+        entering.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSlow));
+      }
+
       entering.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPulseWind));
     }
   }

@@ -8,8 +8,9 @@ namespace NWN.Systems
     public const string SprintMobileEffectTag = "_EFFECT_SPRINT_MOBILE";
     public static Effect Sprint(NwCreature caster)
     {
-      Effect eff = Effect.LinkEffects(Effect.MovementSpeedIncrease(caster.KnowsFeat((Feat)CustomSkill.Chargeur) ? 65 : 50), Effect.Icon(NwGameTables.EffectIconTable.GetRow(142)));
-
+      Effect eff = Effect.LinkEffects(Effect.MovementSpeedIncrease(caster.KnowsFeat((Feat)CustomSkill.Chargeur) ? 65 : 50), 
+        Effect.VisualEffect(CustomVfx.DashPurple), Effect.Icon(CustomEffectIcon.Sprint));
+      
       eff.Tag = SprintEffectTag;
 
       if (caster.KnowsFeat((Feat)CustomSkill.Mobile))

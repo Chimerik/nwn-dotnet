@@ -8,9 +8,17 @@ namespace NWN.Systems
   {
     public static int GetAttackBonus(CNWSCreature attacker, CNWSCreature target, CNWSCombatAttackData attackData, CNWSItem weapon, Anvil.API.Ability attackAbility)
     {
-      int attackBonus = attacker.m_pStats.GetAttackModifierVersus(target);
-      attackBonus -= attackData.m_bRangedAttack.ToBool() 
-        ? attackBonus -= GetAbilityModifier(attacker, Anvil.API.Ability.Dexterity) : attackBonus -= GetAbilityModifier(attacker, Anvil.API.Ability.Strength);
+      int attackBonus;
+      if (attacker.m_sTag.CompareNoCase(CreatureUtils.ArmeSpirituelleTagExo).ToBool())
+      {
+        attackBonus = GetAbilityModifier(NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(attacker.m_oidMaster), (Anvil.API.Ability)attacker.m_ScriptVars.GetInt(CreatureUtils.CastAbilityVariableExo));
+      }
+      else
+      {
+        attackBonus = attacker.m_pStats.GetAttackModifierVersus(target);
+        attackBonus -= attackData.m_bRangedAttack.ToBool()
+          ? attackBonus -= GetAbilityModifier(attacker, Anvil.API.Ability.Dexterity) : attackBonus -= GetAbilityModifier(attacker, Anvil.API.Ability.Strength);
+      }
 
       LogUtils.LogMessage($"modifier versus target : {attackBonus}", LogUtils.LogType.Combat);
 

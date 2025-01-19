@@ -12,7 +12,7 @@ namespace NWN.Systems
       if (attackRoll > 0)
         return attackRoll;
 
-      attackRoll =  Utils.RollAdvantage(advantage);
+      attackRoll = Utils.RollAdvantage(advantage);
       attackRoll = HandlePrecisionElfique(creature, attackRoll, advantage, attackStat);
       attackRoll = HandleChanceDebordante(creature, attackRoll);
       return HandleHalflingLuck(creature, attackRoll);

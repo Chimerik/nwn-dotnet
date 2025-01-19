@@ -44,7 +44,7 @@ namespace NWN.Systems
               }
             }
 
-            EffectSystem.ApplyConcentrationEffect(onAttack.Attacker, spellEntry.RowIndex, new List<NwGameObject>() { target }, (int)duration.TotalSeconds);
+            EffectSystem.ApplyConcentrationEffect(onAttack.Attacker, spellEntry.RowIndex, new List<NwGameObject>() { target }, duration);
 
             await NwTask.NextFrame();
             onAttack.Attacker.OnCreatureAttack -= OnAttackBrandingSmite;

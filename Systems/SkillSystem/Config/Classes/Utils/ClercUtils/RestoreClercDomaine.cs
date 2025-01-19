@@ -31,7 +31,7 @@ namespace NWN.Systems
 
         foreach (var associate in creature.Associates.Where(e => e.Tag == EffectSystem.repliqueTag))
         {
-          creature.UnpossessFamiliar();
+          creature.LoginPlayer.ControlledCreature.UnpossessFamiliar();
           associate.Unsummon();
         }
       }

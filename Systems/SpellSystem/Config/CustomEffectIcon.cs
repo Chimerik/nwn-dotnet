@@ -9,6 +9,7 @@ namespace NWN
     public const EffectIcon Saignement = (EffectIcon)132;
     public const EffectIcon Brulure = (EffectIcon)133;
     public const EffectIcon ChatimentBrillant = (EffectIcon)134;
+    public const EffectIcon Sprint = (EffectIcon)142;
     public const EffectIcon Bouclier = (EffectIcon)152;
     public const EffectIcon FormeDeLune = (EffectIcon)186;
 

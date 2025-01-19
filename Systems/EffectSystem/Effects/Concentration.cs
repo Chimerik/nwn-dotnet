@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
@@ -25,7 +26,7 @@ namespace NWN.Systems
     public const string ConcentrationSpellIdString = "_CONCENTRATION_SPELL";
     private static StrRef tlkEntry = StrRef.FromCustomTlk(190116);
 
-    public static async void ApplyConcentrationEffect(NwCreature caster, int spellId, List<NwGameObject> targetList, int duration = 0)
+    public static async void ApplyConcentrationEffect(NwCreature caster, int spellId, List<NwGameObject> targetList, TimeSpan duration)
     {
       if (targetList.Count < 1)
         return;
@@ -35,8 +36,8 @@ namespace NWN.Systems
       if(caster.IsLoginPlayerCharacter) 
         tlkEntry.SetPlayerOverride(caster.LoginPlayer, $"Concentration : {NwSpell.FromSpellId(spellId).Name}");
 
-      if (duration > 0)
-        NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, concentration, NwTimeSpan.FromRounds(duration)));
+      if (duration.TotalSeconds > 0)
+        NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, concentration, duration));
       else
         NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, concentration));
 

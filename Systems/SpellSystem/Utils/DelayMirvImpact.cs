@@ -34,18 +34,26 @@ namespace NWN.Systems
               if (bounceTarget == target || bounceTarget == oCaster || !caster.IsReactionTypeHostile(bounceTarget))
                 continue;
 
-              switch (GetSpellAttackRoll(bounceTarget, oCaster, spell, casterClass.SpellCastingAbility))
-              {
-                case TouchAttackResult.CriticalHit: nbDice = GetCriticalSpellDamageDiceNumber(oCaster, spellEntry, nbDice); ; break;
-                case TouchAttackResult.Hit: break;
-                default: continue;
-              }
+              var attackResult = GetSpellAttackRoll(bounceTarget, oCaster, spell, casterClass.SpellCastingAbility);
 
-              double targetDistance = target.Distance(bounceTarget);
-              double damageDelay = (targetDistance / (3.0 * Math.Log(targetDistance) + 2.0)) + visualDelay;
-              DelayMirvDamageImpact(oCaster, bounceTarget, spell, spellEntry, casterClass, damageDelay, vfx, mirv, nbDice, false);
-              DelayMirvVisualImpact(target, bounceTarget, visualDelay, mirv);
-              visualDelay += 0.1;
+              switch (attackResult)
+              {
+                case TouchAttackResult.CriticalHit:
+                case TouchAttackResult.Hit:
+
+                  if(attackResult == TouchAttackResult.CriticalHit)
+                    nbDice = GetCriticalSpellDamageDiceNumber(oCaster, spellEntry, nbDice);
+                  
+                  double targetDistance = target.Distance(bounceTarget);
+                  double damageDelay = (targetDistance / (3.0 * Math.Log(targetDistance) + 2.0)) + visualDelay;
+                  DelayMirvDamageImpact(oCaster, bounceTarget, spell, spellEntry, casterClass, damageDelay, vfx, mirv, nbDice, false);
+                  DelayMirvVisualImpact(target, bounceTarget, visualDelay, mirv);
+                  visualDelay += 0.1;
+
+                  break;
+
+                default: break;
+              }
 
               break;
             }

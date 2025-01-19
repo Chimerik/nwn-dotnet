@@ -20,6 +20,7 @@ namespace NWN.Systems
     public const string BonusActionVariable = "_BONUS_ACTION";
     public const string CancelDamageDoublonVariable = "_CANCEL_DAMAGE_DOUBLON";
     public const string AnimalCompanionTag = "animal_companion";
+    public static readonly CExoString AnimalCompanionTagExo = AnimalCompanionTag.ToExoString();
     public static readonly CExoString CancelDamageDoublonVariableExo = CancelDamageDoublonVariable.ToExoString();
     public static readonly CExoString BonusActionVariableExo = BonusActionVariable.ToExoString();
     public const string OpportunityAttackTypeVariable = "_OPPORTUNITY_ATTACK_TYPE";
@@ -43,6 +44,10 @@ namespace NWN.Systems
     public static readonly CExoString FureurOrcBonusAttackVariableExo = FureurOrcBonusAttackVariable.ToExoString();
     public const string SecondeChanceVariable = "_FEAT_SECONDE_CHANCE";
     public static readonly CExoString SecondeChanceVariableExo = SecondeChanceVariable.ToExoString();
+    public const string CastAbilityVariable = "_CAST_ABILITY";
+    public static readonly CExoString CastAbilityVariableExo = CastAbilityVariable.ToExoString();
+    public const string ArmeSpirituelleTag = "arme_spirituelle";
+    public static readonly CExoString ArmeSpirituelleTagExo = ArmeSpirituelleTag.ToExoString();
 
     public const string FendreAttackVariable = "_EXPERTISE_FENDRE_ATTAQUE";
     public static readonly CExoString FendreAttackVariableExo = FendreAttackVariable.ToExoString();

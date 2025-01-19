@@ -11,7 +11,8 @@ namespace NWN.Systems
       oCaster.OnDamaged -= OnDamagedArmuredAgathys;
       oCaster.OnDamaged += OnDamagedArmuredAgathys;
 
-      Effect eff = Effect.LinkEffects(Effect.TemporaryHitpoints(5), Effect.DamageShield(5, 0, DamageType.Cold));
+      Effect eff = Effect.LinkEffects(Effect.TemporaryHitpoints(5), Effect.DamageShield(5, 0, DamageType.Cold), 
+        Effect.VisualEffect(CustomVfx.ArmureDagathys));
       eff.Tag = ArmuredAgathysEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       return eff;

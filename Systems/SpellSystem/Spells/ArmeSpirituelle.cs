@@ -1,4 +1,6 @@
-﻿using Anvil.API;
+﻿using System.Collections.Generic;
+using Anvil.API;
+using Anvil.API.Events;
 using NWN.Core;
 using NWN.Core.NWNX;
 
@@ -13,16 +15,60 @@ namespace NWN.Systems
       if (oCaster is not NwCreature caster)
         return;
 
-      NWScript.AssignCommand(oCaster, () => targetLocation.ApplyEffect(EffectDuration.Temporary, Effect.SummonCreature("X2_S_FAERIE001", VfxType.FnfSummonMonster1, NwTimeSpan.FromRounds(spellEntry.duration)), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
+      caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value += 1;
+      
+      await caster.WaitForObjectContext();
+      var duration = SpellUtils.GetSpellDuration(oCaster, spellEntry);
+      targetLocation.ApplyEffect(EffectDuration.Temporary, Effect.SummonCreature("X2_S_FAERIE001", VfxType.FnfSummonMonster1), duration);   
+
       NwCreature summon = UtilPlugin.GetLastCreatedObject(NWNXObjectType.Creature).ToNwObject<NwCreature>();
-      NwItem weapon = await NwItem.Create("NW_WSWDG001", summon);
+      //NwItem weapon = await NwItem.Create("NW_WSWDG001", summon); 
+      NwItem weapon = await NwItem.Create(BaseItems2da.baseItemTable[(int)BaseItemType.Warhammer].craftedItem, summon);
       weapon.Droppable = false;
 
-      weapon.AddItemProperty(ItemProperty.AttackBonus(NativeUtils.GetCreatureProficiencyBonus(caster) + caster.GetAbilityModifier(castingClass.SpellCastingAbility)),
-        EffectDuration.Permanent);
-
-      weapon.AddItemProperty(ItemProperty.DamageBonus(IPDamageType.Magical, IPDamageBonus.Plus1d8), EffectDuration.Permanent);
       summon.RunEquip(weapon, InventorySlot.RightHand);
+      summon.Tag = CreatureUtils.ArmeSpirituelleTag;
+      summon.GetObjectVariable<LocalVariableInt>(CreatureUtils.CastAbilityVariable).Value = (int)castingClass.SpellCastingAbility;
+      summon.SetsRawAbilityScore(Ability.Dexterity, 10);
+      summon.SetsRawAbilityScore(Ability.Strength, 10);
+      summon.ApplyEffect(EffectDuration.Permanent, Effect.VisualEffect(VfxType.DurGhostlyVisage));
+
+      summon.OnCreatureAttack += OnAttackArmeSpirituelle;
+      summon.OnCreatureAttack += OnAttackArmeSpirituelle;
+
+      EffectSystem.ApplyConcentrationEffect(caster, spell.Id, new List<NwGameObject> { summon }, duration);
+    }
+
+    public static void OnAttackArmeSpirituelle(OnCreatureAttack onAttack)
+    {
+      if (onAttack.Attacker.Master is null)
+      {
+        onAttack.Attacker.Unsummon();
+        return;
+      }
+
+      if (onAttack.Attacker.Master.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value > 0)
+      {
+        onAttack.Attacker.Master.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value -= 1;
+
+        switch (onAttack.AttackResult)
+        {
+          case AttackResult.Hit:
+          case AttackResult.CriticalHit:
+          case AttackResult.AutomaticHit:
+
+            int bonusDamage = onAttack.Attacker.Master.GetAbilityModifier((Ability)onAttack.Attacker.GetObjectVariable<LocalVariableInt>(CreatureUtils.CastAbilityVariable).Value);
+            NWScript.AssignCommand(onAttack.Attacker, 
+              () => onAttack.Target.ApplyEffect(EffectDuration.Instant, 
+                Effect.Damage(Utils.Roll(8, onAttack.AttackResult == AttackResult.CriticalHit ? 2 : 1) + bonusDamage)));
+
+            onAttack.Target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpStarburstRed));
+
+            break;
+        }
+      }
+      else
+        onAttack.AttackResult = AttackResult.Miss;
     }
   }
 }

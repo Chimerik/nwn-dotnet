@@ -1,6 +1,4 @@
 ﻿using Anvil.API;
-using Anvil.API.Events;
-using Anvil.Services;
 
 namespace NWN.Systems
 {
@@ -11,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.RunAction();
+        Effect eff = Effect.VisualEffect(CustomVfx.DashPurple);
         eff.Tag = RetraiteExpeditiveEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

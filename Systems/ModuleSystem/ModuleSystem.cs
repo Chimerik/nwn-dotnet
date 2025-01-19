@@ -160,7 +160,7 @@ namespace NWN.Systems
       placeholderTemplate = NwObject.FindObjectsWithTag<NwCreature>("damage_trainer").FirstOrDefault();
       placeholderTemplate = placeholderTemplate?.Clone(placeholderTemplate?.Location);
       placeholderTemplate.VisibilityOverride = VisibilityMode.Hidden;
-
+      
       //Log.Info($";smp_flamesphere;{NWScript.ResManGetAliasFor("smp_flamesphere", NWScript.RESTYPE_MDL)}");
 
       /*placeholderTemplate.ApplyEffect(EffectDuration.Permanent, Effect.DamageImmunityIncrease(DamageType.Magical, 50));

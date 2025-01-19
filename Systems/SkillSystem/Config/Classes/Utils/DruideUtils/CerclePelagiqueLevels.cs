@@ -21,9 +21,7 @@ namespace NWN.Systems
           player.LearnAlwaysPreparedSpell((int)Spell.GustOfWind, CustomClass.Druid);
           player.LearnAlwaysPreparedSpell((int)Spell.Balagarnsironhorn, CustomClass.Druid);
 
-          player.learnableSkills.TryAdd(CustomSkill.DruideFureurDesFlots, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DruideFureurDesFlots], player));
-          player.learnableSkills[CustomSkill.DruideFureurDesFlots].LevelUp(player);
-          player.learnableSkills[CustomSkill.DruideFureurDesFlots].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.DruideFureurDesFlots);
 
           break;
 

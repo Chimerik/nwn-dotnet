@@ -12,7 +12,7 @@ namespace NWN.Systems
 
         LogUtils.LogMessage($"DV de la classe : {hitDie}", LogUtils.LogType.Learnables);
 
-        byte hitPointGain;
+        /*byte hitPointGain;
 
         if (playerLevel < 2)
         {
@@ -21,11 +21,11 @@ namespace NWN.Systems
           LogUtils.LogMessage($"Attribution des points de vie max {hitDie} + {conMod} (CON) = {hitPointGain + conMod}", LogUtils.LogType.Learnables);
         }
         else
-        {
-          hitPointGain = (byte)(Utils.random.Next((hitDie / 2) + 1, hitDie + 1));
+        {*/
+          byte hitPointGain = (byte)(Utils.random.Next((hitDie / 2) + 1, hitDie + 1));
           oid.SendServerMessage($"Gain de points vie aléatoires entre {StringUtils.ToWhitecolor((hitDie / 2) + 1)} et {StringUtils.ToWhitecolor(hitDie)} + {StringUtils.ToWhitecolor(conMod)} (CON) = {StringUtils.ToWhitecolor(hitPointGain + conMod)}", ColorConstants.Orange);
           LogUtils.LogMessage($"Attribution aléatoire de PV entre {(hitDie / 2) + 1} et {hitDie} + {conMod} (CON) = {hitPointGain + conMod}", LogUtils.LogType.Learnables);
-        }
+        //}
           
         if (oid.LoginCreature.Race.Id == CustomRace.GoldDwarf)
         {

@@ -10,10 +10,16 @@ namespace NWN.Systems
     public static int GetCreatureWeaponProficiencyBonus(CNWSCreature creature, CNWSItem weapon)
     {
       // Si la créature est un compagnon animal, alors on ajouter le bonus de maîtrise du maître à son attaque
-      if (creature.m_sTag.ToString() == CreatureUtils.AnimalCompanionTag) 
+      if (creature.m_sTag.CompareNoCase(CreatureUtils.AnimalCompanionTagExo).ToBool()) 
       {
         int bonus = GetCreatureProficiencyBonus(NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(creature.m_oidMaster));
         LogUtils.LogMessage($"Compagnon animal : +{bonus} BA", LogUtils.LogType.Combat);
+        return bonus;
+      }
+      else if (creature.m_sTag.CompareNoCase(CreatureUtils.ArmeSpirituelleTagExo).ToBool())
+      {
+        int bonus = GetCreatureProficiencyBonus(NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(creature.m_oidMaster));
+        LogUtils.LogMessage($"Arme Spirituelle : +{bonus} BA", LogUtils.LogType.Combat);
         return bonus;
       }
 

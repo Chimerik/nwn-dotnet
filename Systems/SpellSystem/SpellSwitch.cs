@@ -241,7 +241,7 @@ namespace NWN.Systems
           break;
 
         case Spell.ShelgarnsPersistentBlade:
-          SpellSystem.ArmeSpirituelle(oCaster, spell, spellEntry, targetLocation, castingClass);
+          SpellSystem.ArmeSpirituelle(oCaster, spell, spellEntry, target is null ? targetLocation : target.Location, castingClass);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -286,7 +286,7 @@ namespace NWN.Systems
           break;
 
         case Spell.GustOfWind:
-          concentrationTargets.AddRange(SpellSystem.Bourrasque(oCaster, spell, spellEntry, castingClass, feat));
+          concentrationTargets.AddRange(SpellSystem.Bourrasque(oCaster, spell, spellEntry, castingClass));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -1041,7 +1041,7 @@ namespace NWN.Systems
           break;
 
         case CustomSpell.NappeDeBrouillard:
-          SpellSystem.NappeDeBrouillard(oCaster, spell, spellEntry, targetLocation);
+          concentrationTargets.AddRange(SpellSystem.NappeDeBrouillard(oCaster, spell, spellEntry, targetLocation));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -1419,7 +1419,7 @@ namespace NWN.Systems
         }
 
         if(spellEntry.requiresConcentration)
-          EffectSystem.ApplyConcentrationEffect(castingCreature, spell.Id, concentrationTargets, GetSpellDuration(oCaster, spellEntry).Seconds);
+          EffectSystem.ApplyConcentrationEffect(castingCreature, spell.Id, concentrationTargets, GetSpellDuration(oCaster, spellEntry));
       }
 
       oCaster.GetObjectVariable<LocalVariableInt>(SpellConfig.CurrentSpellVariable).Delete();

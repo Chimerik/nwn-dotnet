@@ -13,7 +13,8 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onHeartbeatFureurDesFlotsCallback;
     public static Effect FureurDesFlots(NwCreature caster, int druideLevel)
     {
-      Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurAuraCyan, fScale: druideLevel < 18 ? 0.9f : 1.8f), Effect.Icon((EffectIcon)190),
+      Effect eff = Effect.LinkEffects(Effect.VisualEffect(CustomVfx.FureurDesFlots),
+        Effect.VisualEffect(VfxType.DurAuraCyan, fScale: druideLevel < 18 ? 0.9f : 1.8f), Effect.Icon((EffectIcon)190),
         Effect.AreaOfEffect(PersistentVfxType.PerCustomAoe, onEnterFureurDesFlotsCallback, onHeartbeatFureurDesFlotsCallback));
 
       if (druideLevel > 9)
