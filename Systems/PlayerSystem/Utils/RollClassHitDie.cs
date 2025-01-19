@@ -14,11 +14,11 @@ namespace NWN.Systems
 
         byte hitPointGain;
 
-        if (playerLevel < 3)
+        if (playerLevel < 2)
         {
           hitPointGain = hitDie;
-          oid.SendServerMessage($"Niveau 1 : gain de points vie max {StringUtils.ToWhitecolor(hitDie)} + {StringUtils.ToWhitecolor(conMod)} (CON) = {StringUtils.ToWhitecolor(hitPointGain + conMod)}", ColorConstants.Orange);
-          LogUtils.LogMessage($"Niveau 1 : attribution des points de vie max {hitDie} + {conMod} (CON) = {hitPointGain + conMod}", LogUtils.LogType.Learnables);
+          oid.SendServerMessage($"Gain de points vie max {StringUtils.ToWhitecolor(hitDie)} + {StringUtils.ToWhitecolor(conMod)} (CON) = {StringUtils.ToWhitecolor(hitPointGain + conMod)}", ColorConstants.Orange);
+          LogUtils.LogMessage($"Attribution des points de vie max {hitDie} + {conMod} (CON) = {hitPointGain + conMod}", LogUtils.LogType.Learnables);
         }
         else
         {

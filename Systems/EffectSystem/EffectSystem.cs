@@ -132,7 +132,7 @@ namespace NWN.Systems
 
       onEnterRayonDeLuneCallback = scriptHandleFactory.CreateUniqueHandler(onEnterRayonDeLuneAura);
       onExitRayonDeLuneCallback = scriptHandleFactory.CreateUniqueHandler(onExitRayonDeLuneAura);
-      onIntervalRayonDeLuneCallback = scriptHandleFactory.CreateUniqueHandler(onIntervalRayonDeLuneAura);
+      onHeartbeatRayonDeLuneCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatRayonDeLuneAura);
 
       onEnterCroissanceVegetaleCallback = scriptHandleFactory.CreateUniqueHandler(onEnterCroissanceVegetale);
       onExitCroissanceVegetaleCallback = scriptHandleFactory.CreateUniqueHandler(onExitCroissanceVegetale);
@@ -170,7 +170,7 @@ namespace NWN.Systems
       onExitCapeDuCroiseCallback = scriptHandleFactory.CreateUniqueHandler(onExitCapeDuCroise);
 
       onEnterSphereDeFeuCallback = scriptHandleFactory.CreateUniqueHandler(onEnterSphereDeFeu);
-      onIntervalSphereDeFeuCallback = scriptHandleFactory.CreateUniqueHandler(onIntervalSphereDeFeu);
+      onHeartbeatSphereDeFeuCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatSphereDeFeu);
 
       onEnterTempeteDeNeigeCallback = scriptHandleFactory.CreateUniqueHandler(onEnterTempeteDeNeige);
       onHeartbeatTempeteDeNeigeCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatTempeteDeNeige);

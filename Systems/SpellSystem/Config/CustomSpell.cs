@@ -67,6 +67,12 @@
     public const int FormeSauvagePanthere = 236;
     public const int FormeSauvageOursHibou = 237;
     public const int FormeSauvageDilophosaure = 238;
+    public const int RayonDeLuneMaster = 239;
+    public const int RayonDeLune = 240;
+    public const int RayonDeLuneDeplacement = 241;
+    public const int SphereDeFeuMaster = 242;
+    public const int SphereDeFeu = 243;
+    public const int SphereDeFeuDeplacement = 244;
     public const int ChatimentTonitruant = 299;
     public const int DetectionDuBienEtDuMal = 312;
     public const int ProtectionContreLeMalEtLeBien = 321;
@@ -136,7 +142,6 @@
     public const int FrappePiegeuse = 886;
     public const int Communion = 887;
     public const int FouleeBrumeuse = 888;
-    public const int RayonDeLune = 889;
     public const int ProtectionContreLacide = 890;
     public const int ProtectionContreLeFroid = 891;
     public const int ProtectionContreLeFeu = 892;
@@ -164,7 +169,6 @@
     public const int EspritsGardiensRadiant = 915;   
     public const int EspritsGardiensNecrotique = 916;   
     public const int CapeDuCroise = 917;   
-    public const int SphereDeFeu = 918;   
     public const int LumiereDuJour = 919;   
     public const int VagueDestructrice = 920;   
     public const int VagueDestructriceRadiant = 921;   

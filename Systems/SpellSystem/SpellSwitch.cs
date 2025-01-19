@@ -807,7 +807,12 @@ namespace NWN.Systems
           break;
 
         case CustomSpell.RayonDeLune:
-          concentrationTargets.AddRange(SpellSystem.RayonDeLune(oCaster, spell, spellEntry, target));
+          concentrationTargets.AddRange(SpellSystem.RayonDeLune(oCaster, spell, spellEntry, target is null ? targetLocation : target.Location, castingClass));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.RayonDeLuneDeplacement:
+          SpellSystem.RayonDeLuneDeplacement(oCaster, spell, spellEntry, target is null ? targetLocation : target.Location);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -925,7 +930,12 @@ namespace NWN.Systems
           break;
 
         case CustomSpell.SphereDeFeu:
-          concentrationTargets.AddRange(SpellSystem.SphereDeFeu(oCaster, spell, spellEntry, target, castingClass));
+          concentrationTargets.AddRange(SpellSystem.SphereDeFeu(oCaster, spell, spellEntry, target is null ? targetLocation : target.Location, castingClass));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.SphereDeFeuDeplacement:
+          SpellSystem.SphereDeFeuDeplacement(oCaster, spell, spellEntry, target is null ? targetLocation : target.Location);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 

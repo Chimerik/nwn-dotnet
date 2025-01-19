@@ -743,6 +743,8 @@ namespace NWN.Systems
 
       switch(spell.Id)
       {
+        case CustomSpell.RayonDeLuneDeplacement: 
+        case CustomSpell.SphereDeFeuDeplacement: EventsPlugin.SkipEvent(); return;
         case (int)Spell.EpicDragonKnight:
 
           if(caster.KnowsFeat((Feat)CustomSkill.EnsoCompagnonDraconique)

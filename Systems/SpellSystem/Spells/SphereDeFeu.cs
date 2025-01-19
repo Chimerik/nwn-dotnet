@@ -1,19 +1,22 @@
 ﻿using System.Collections.Generic;
 using Anvil.API;
-using NWN.Core;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static List<NwGameObject> SphereDeFeu(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass castingClass)
+    public static List<NwGameObject> SphereDeFeu(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, Location targetLocation, NwClass castingClass)
     {
-      SpellUtils.SignalEventSpellCast(oCaster, oTarget, spell.SpellType);
-      if (oCaster is NwCreature caster)
-        caster.LoginPlayer?.SendServerMessage("Sort non implémenté pour le moment");
-      //NWScript.AssignCommand(oCaster, () => oTarget.ApplyEffect(EffectDuration.Temporary, EffectSystem.SphereDeFeu(castingClass.SpellCastingAbility), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
+      SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
 
-      return new List<NwGameObject>() { oTarget };
+      targetLocation.ApplyEffect(EffectDuration.Temporary, EffectSystem.SphereDeFeu(oCaster, castingClass.SpellCastingAbility), SpellUtils.GetSpellDuration(oCaster, spellEntry));
+
+      var aoe = UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>();
+      aoe.Tag = EffectSystem.SphereDeFeuEffectTag;
+      aoe.GetObjectVariable<LocalVariableInt>("_DC_ABILITY").Value = (int)castingClass.SpellCastingAbility;
+
+      return new List<NwGameObject>() { aoe };
     }
   }
 }

@@ -1,47 +1,36 @@
-﻿using System.Linq;
-using Anvil.API;
+﻿using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
-using NWN.Core;
 
 namespace NWN.Systems
 {
   public partial class EffectSystem
   {
-    public const string RayonDeLuneAuraEffectTag = "_RAYON_DE_LUNE_AURA_EFFECT";
     public const string RayonDeLuneEffectTag = "_RAYON_DE_LUNE_EFFECT";
     private static ScriptCallbackHandle onEnterRayonDeLuneCallback;
     private static ScriptCallbackHandle onExitRayonDeLuneCallback;
-    private static ScriptCallbackHandle onIntervalRayonDeLuneCallback;
-    public static Effect RayonDeLuneAura
+    private static ScriptCallbackHandle onHeartbeatRayonDeLuneCallback;
+    public static Effect RayonDeLuneAura(NwGameObject caster, Ability castingAbility)
     {
-      get
-      {
-        Effect eff = Effect.LinkEffects(Effect.AreaOfEffect(PersistentVfxType.MobCircgood, onEnterHandle: onEnterRayonDeLuneCallback, onExitHandle: onExitRayonDeLuneCallback), 
-          Effect.RunAction(onIntervalHandle: onIntervalRayonDeLuneCallback, interval:NwTimeSpan.FromRounds(1)));
-        eff.Tag = RayonDeLuneAuraEffectTag;
-        eff.SubType = EffectSubType.Supernatural;
-        return eff;
-      }
-    }
-    public static Effect RayonDeLune
-    {
-      get
-      {
-        Effect eff = Effect.Icon(EffectIcon.Silence);
-        eff.Tag = RayonDeLuneEffectTag;
-        eff.SubType = EffectSubType.Supernatural;
-        return eff;
-      }
+      Effect eff = Effect.AreaOfEffect(CustomAoE.RayonDeLune, onEnterRayonDeLuneCallback, onHeartbeatRayonDeLuneCallback, onExitRayonDeLuneCallback);
+      eff.Tag = RayonDeLuneEffectTag;
+      eff.Creator = caster;
+      eff.IntParams[5] = (int)castingAbility;
+      eff.SubType = EffectSubType.Supernatural;
+      return eff;
     }
     private static ScriptHandleResult onEnterRayonDeLuneAura(CallInfo callInfo)
     {
       if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) || eventData.Entering is not NwCreature entering 
-        || eventData.Effect.Creator is not NwCreature protector || !entering.IsReactionTypeHostile(protector))
+        || eventData.Effect.Creator is not NwCreature protector)
         return ScriptHandleResult.Handled;
 
-      NWScript.AssignCommand(protector, () => entering.ApplyEffect(EffectDuration.Permanent, RayonDeLune));
-      EffectUtils.RemoveEffectType(entering, EffectType.Polymorph);
+      NwSpell spell = NwSpell.FromSpellId(CustomSpell.RayonDeLune);
+      SpellEntry spellEntry = Spells2da.spellTable[spell.Id];
+
+      int spellDC = SpellUtils.GetCasterSpellDC(protector, spell, (Ability)eventData.Effect.GetObjectVariable<LocalVariableInt>("_DC_ABILITY").Value);
+      HandleRayonDeLuneEffect(protector, entering, spellEntry, spell, spellDC);
+
       return ScriptHandleResult.Handled;
     }
     private static ScriptHandleResult onExitRayonDeLuneAura(CallInfo callInfo)
@@ -50,39 +39,55 @@ namespace NWN.Systems
         || eventData.Effect.Creator is not NwCreature protector)
         return ScriptHandleResult.Handled;
 
+      exiting.OnEffectApply -= RemovePolymorph;
       EffectUtils.RemoveTaggedEffect(exiting, protector, RayonDeLuneEffectTag);
+
       return ScriptHandleResult.Handled;
     }
-    private static ScriptHandleResult onIntervalRayonDeLuneAura(CallInfo callInfo)
+
+    private static void RemovePolymorph(OnEffectApply onEffect)
     {
-      EffectRunScriptEvent eventData = new EffectRunScriptEvent();
-
-      if (eventData.Effect.Creator is NwCreature caster && eventData.EffectTarget is NwCreature auraTarget)
+      if(onEffect.Effect.EffectType == EffectType.Polymorph)
       {
-        StringUtils.DisplayStringToAllPlayersNearTarget(auraTarget, "Rayon de Lune", StringUtils.gold, true, true);
-        auraTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpDivineStrikeHoly));
+        onEffect.PreventApply = true;
 
+        if (onEffect.Object is NwCreature creature)
+          creature.LoginPlayer?.SendServerMessage("Transformation annulée par Rayon de Lune", ColorConstants.Silver);
+      }
+    }
+
+    private static ScriptHandleResult onHeartbeatRayonDeLuneAura(CallInfo callInfo)
+    {
+      if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnHeartbeat eventData) 
+        && eventData.Effect.Creator is NwCreature caster)
+      {
         NwSpell spell = NwSpell.FromSpellId(CustomSpell.RayonDeLune);
         SpellEntry spellEntry = Spells2da.spellTable[spell.Id];
-        SpellConfig.SavingThrowFeedback feedback = new();
-        int spellDC = SpellUtils.GetCasterSpellDC(caster, spell, Ability.Wisdom);
 
-        foreach (var target in auraTarget.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 3, false))
-        {
-          int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, spellEntry.savingThrowAbility, spellEntry, SpellConfig.SpellEffectType.Invalid, caster);
+        int spellDC = SpellUtils.GetCasterSpellDC(caster, spell, (Ability)eventData.Effect.GetObjectVariable<LocalVariableInt>("_DC_ABILITY").Value);
 
-          if (target.ActiveEffects.Any(e => e.EffectType == EffectType.Polymorph))
-          {
-            advantage -= 1;
-            EffectUtils.RemoveEffectType(target, EffectType.Polymorph);
-          }
-          
-          SpellUtils.DealSpellDamage(target, caster.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(caster, spell), caster, spell.InnateSpellLevel, 
-            CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry));
-        }
+        foreach (var target in eventData.Effect.GetObjectsInEffectArea<NwCreature>())
+          HandleRayonDeLuneEffect(caster, target, spellEntry, spell, spellDC);
       }
 
       return ScriptHandleResult.Handled;
+    }
+
+    private static void HandleRayonDeLuneEffect(NwCreature caster, NwCreature target, SpellEntry spellEntry, NwSpell spell, int spellDC)
+    {
+      var saveResult = CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry);
+      SpellUtils.DealSpellDamage(target, caster.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(caster, spell), caster, spell.InnateSpellLevel,
+      saveResult);
+
+      target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpDivineStrikeHoly));
+
+      if (saveResult == SavingThrowResult.Failure)
+      {
+        EffectUtils.RemoveEffectType(target, EffectType.Polymorph);
+
+        target.OnEffectApply -= RemovePolymorph;
+        target.OnEffectApply += RemovePolymorph;
+      }
     }
   }
 }

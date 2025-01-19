@@ -91,11 +91,21 @@ namespace NWN.Systems
 
         if (castingClass.Id != CustomClass.Adventurer)
         {
-          var classInfo = caster.GetClassInfo(castingClass);
-          var spellLevel = spell.MasterSpell is null ? spell.GetSpellLevelForClass(castingClass) : spell.MasterSpell.GetSpellLevelForClass(castingClass);
+          switch(spell.Id)
+          {
+            case CustomSpell.SphereDeFeuDeplacement:
+            case CustomSpell.RayonDeLuneDeplacement: break;
 
-          if(spellLevel > 0)
-            classInfo.SetRemainingSpellSlots(spellLevel, (byte)(classInfo.GetRemainingSpellSlots(spellLevel) - 1));
+            default:
+
+              var classInfo = caster.GetClassInfo(castingClass);
+              var spellLevel = spell.MasterSpell is null ? spell.GetSpellLevelForClass(castingClass) : spell.MasterSpell.GetSpellLevelForClass(castingClass);
+
+              if (spellLevel > 0)
+                classInfo.SetRemainingSpellSlots(spellLevel, (byte)(classInfo.GetRemainingSpellSlots(spellLevel) - 1));
+
+              break;
+          }
         }
 
         onSpellAction.PreventSpellCast = true;

@@ -18,7 +18,7 @@ namespace NWN.Systems
           player.LearnClassSkill(CustomSkill.FormeSauvageOurs);
 
           player.LearnAlwaysPreparedSpell((int)Spell.CureModerateWounds, CustomClass.Druid);
-          player.LearnAlwaysPreparedSpell(CustomSpell.RayonDeLune, CustomClass.Druid);
+          player.LearnAlwaysPreparedSpell(CustomSpell.RayonDeLuneMaster, CustomClass.Druid);
           player.LearnAlwaysPreparedSpell(CustomSpell.LueurEtoilee, CustomClass.Druid);
           
           break;

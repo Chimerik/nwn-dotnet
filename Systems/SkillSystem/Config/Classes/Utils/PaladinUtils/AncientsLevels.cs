@@ -29,7 +29,7 @@ namespace NWN.Systems
         case 5:
 
           player.LearnAlwaysPreparedSpell(CustomSpell.FouleeBrumeuse, CustomClass.Paladin);
-          player.LearnAlwaysPreparedSpell(CustomSpell.RayonDeLune, CustomClass.Paladin);
+          player.LearnAlwaysPreparedSpell(CustomSpell.RayonDeLuneMaster, CustomClass.Paladin);
 
           break;
 

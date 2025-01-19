@@ -40,7 +40,7 @@ namespace NWN.Systems
           {
             if (Utils.In(spell.Id, CustomSpell.Deguisement, (int)Spell.CharmPerson, CustomSpell.PassageSansTrace, CustomSpell.ImageMiroir, (int)Spell.CallLightning, (int)Spell.ElementalShield,
               (int)Spell.Fear, (int)Spell.PolymorphSelf, (int)Spell.DivineFavor, (int)Spell.MagicWeapon, CustomSpell.PorteDimensionnelle, (int)Spell.SeeInvisibility, (int)Spell.Invisibility,
-              (int)Spell.HoldMonster, CustomSpell.CapeDuCroise, (int)Spell.Firebrand, CustomSpell.SphereDeFeu, (int)Spell.Fireball, CustomSpell.AlterationMemorielle, CustomSpell.FaerieFire,
+              (int)Spell.HoldMonster, CustomSpell.CapeDuCroise, (int)Spell.Firebrand, CustomSpell.SphereDeFeuMaster, (int)Spell.Fireball, CustomSpell.AlterationMemorielle, CustomSpell.FaerieFire,
               (int)Spell.WallOfFire, CustomSpell.VagueDestructrice, (int)Spell.CharmPersonOrAnimal, CustomSpell.CroissanceDepines, (int)Spell.Barkskin, (int)Spell.BurningHands, CustomSpell.SpeakAnimal,
               CustomSpell.CroissanceVegetale, CustomSpell.TempeteDeNeige, (int)Spell.DominateAnimal, CustomSpell.LianeAvide, CustomSpell.SphereResilienteDotiluke, CustomSpell.Fracassement, (int)Spell.IceStorm,
               CustomSpell.FleauDinsectes, CustomSpell.MurDePierre, (int)Spell.Sleep, (int)Spell.HoldPerson, (int)Spell.Slow, (int)Spell.Confusion, (int)Spell.Balagarnsironhorn, (int)Spell.GustOfWind,
