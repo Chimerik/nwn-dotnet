@@ -23,7 +23,7 @@ namespace NWN.Systems
     {
       if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) && eventData.Entering is NwCreature entering && eventData.Effect.Creator is NwCreature caster)
       {
-        ApplyTerrainDifficileEffect(entering);
+        ApplyTerrainDifficileEffect(entering, caster);
         ApplyKnockdown(entering, caster, (Ability)caster.GetObjectVariable<LocalVariableInt>($"_SPELL_CASTING_ABILITY_{eventData.Effect.Spell.Id}").Value, Ability.Dexterity, Knockdown);
       }
       
@@ -44,7 +44,7 @@ namespace NWN.Systems
     private static ScriptHandleResult onExitGraisse(CallInfo callInfo)
     {
       if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnExit eventData) && eventData.Exiting is NwCreature exiting)
-        EffectUtils.RemoveTaggedEffect(exiting, TerrainDifficileEffectTag);
+        EffectUtils.RemoveTaggedEffect(exiting, eventData.Effect.Creator, TerrainDifficileEffectTag);
  
       return ScriptHandleResult.Handled;
     }

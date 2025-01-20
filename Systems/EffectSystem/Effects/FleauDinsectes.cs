@@ -31,7 +31,7 @@ namespace NWN.Systems
         return ScriptHandleResult.Handled;
       }
 
-      ApplyTerrainDifficileEffect(entering);
+      ApplyTerrainDifficileEffect(entering, caster);
 
       SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.FleauDinsectes];
       int spellDC = SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellId(CustomSpell.FleauDinsectes), (Ability)caster.GetObjectVariable<LocalVariableInt>($"_SPELL_CASTING_ABILITY_{eventData.Effect.Spell.Id}").Value);
@@ -65,7 +65,7 @@ namespace NWN.Systems
       if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnExit eventData) || eventData.Exiting is not NwCreature exiting)
         return ScriptHandleResult.Handled;
 
-      EffectUtils.RemoveTaggedEffect(exiting, TerrainDifficileEffectTag);
+      EffectUtils.RemoveTaggedEffect(exiting, eventData.Effect.Creator, TerrainDifficileEffectTag);
       return ScriptHandleResult.Handled;
     }
     private static void FleauDinsectesDamage(NwCreature caster, NwCreature entering, SpellEntry spellEntry, int spellDC)

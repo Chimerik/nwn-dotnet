@@ -45,7 +45,7 @@ namespace NWN.Systems
 
       if (eventData.EffectTarget is NwCreature target && eventData.Effect.Creator is NwCreature caster)
       {
-        if(!target.ActiveEffects.Any(e => e.Tag == EffectSystem.TerrainDifficileEffectTag && e.IntParams[5] == CustomSpell.Enchevetrement))
+        if(!target.ActiveEffects.Any(e => e.Tag == TerrainDifficileEffectTag && e.IntParams[5] == CustomSpell.Enchevetrement))
         {
           target.RemoveEffect(eventData.Effect);
           return ScriptHandleResult.Handled;

@@ -38,6 +38,20 @@ namespace NWN.Systems
       caster.DecrementRemainingFeatUses((Feat)CustomSkill.OccultisteFourberieMagique);
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpMagicalVision));
 
+      if(caster.KnowsFeat((Feat)CustomSkill.FouleeRafraichissante))
+      {
+        byte remainingUses = caster.GetFeatRemainingUses((Feat)CustomSkill.FouleeRafraichissante);
+        byte maxUses = (byte)(CreatureUtils.GetAbilityModifierMin1(caster, Ability.Charisma) + restoredSpellSlots);
+
+        if (remainingUses + restoredSpellSlots > maxUses)
+          restoredSpellSlots = maxUses;
+
+        caster.IncrementRemainingFeatUses((Feat)CustomSkill.FouleeRafraichissante, restoredSpellSlots);
+        caster.IncrementRemainingFeatUses((Feat)CustomSkill.FouleeProvocatrice, restoredSpellSlots);
+        caster.IncrementRemainingFeatUses((Feat)CustomSkill.FouleeEvanescente, restoredSpellSlots);
+        caster.IncrementRemainingFeatUses((Feat)CustomSkill.FouleeRedoutable, restoredSpellSlots);
+      }
+
       OccultisteUtils.HandleResilienceCeleste(caster);
 
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} - Fourberie Magique", StringUtils.brightPurple, true, true);

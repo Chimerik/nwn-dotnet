@@ -33,8 +33,9 @@ namespace NWN.Systems
               if (GetSavingThrow(onAttack.Attacker, target, Ability.Dexterity, spellDC) == SavingThrowResult.Failure)
               {
                 NWScript.AssignCommand(onAttack.Attacker, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Moulinet, NwTimeSpan.FromRounds(2)));
-                onAttack.Attacker.ApplyEffect(EffectDuration.Temporary, EffectSystem.Cooldown(onAttack.Attacker, 60, CustomSkill.ExpertiseMoulinet), NwTimeSpan.FromRounds(10));
               }
+
+              onAttack.Attacker.ApplyEffect(EffectDuration.Temporary, EffectSystem.Cooldown(onAttack.Attacker, 60, CustomSkill.ExpertiseMoulinet), NwTimeSpan.FromRounds(10));
 
               await NwTask.NextFrame();
               onAttack.Attacker.OnCreatureAttack -= OnAttackMoulinet;

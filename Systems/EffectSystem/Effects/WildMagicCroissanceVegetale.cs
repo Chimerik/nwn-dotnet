@@ -21,16 +21,16 @@ namespace NWN.Systems
     }
     private static ScriptHandleResult onEnterWildMagicCroissanceVegetale(CallInfo callInfo)
     {
-      if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) && eventData.Effect.Creator != eventData.Entering
-        && eventData.Entering is NwCreature entering)
-          ApplyTerrainDifficileEffect(entering);
+      if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) && eventData.Effect.Creator is NwCreature caster 
+        && eventData.Entering is NwCreature entering && caster != entering)
+          ApplyTerrainDifficileEffect(entering, caster);
 
       return ScriptHandleResult.Handled;
     }
     private static ScriptHandleResult onExitWildMagicCroissanceVegetale(CallInfo callInfo)
     {
       if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnExit eventData) && eventData.Exiting is NwCreature exiting)
-        EffectUtils.RemoveTaggedEffect(exiting, TerrainDifficileEffectTag);
+        EffectUtils.RemoveTaggedEffect(exiting, eventData.Effect.Creator, TerrainDifficileEffectTag);
 
       return ScriptHandleResult.Handled;
     }

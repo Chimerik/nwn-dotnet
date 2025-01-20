@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Anvil.API;
+﻿using Anvil.API;
 using NWN.Core;
 
 namespace NWN.Systems
@@ -90,8 +89,6 @@ namespace NWN.Systems
             break;
         } 
       }
-
-      OccultisteUtils.DecrementFouleeFeerique(caster, feat);
 
       caster.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
       _ = caster.ClearActionQueue();

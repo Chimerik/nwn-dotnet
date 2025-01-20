@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Anvil.API;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -7,23 +8,11 @@ namespace NWN.Systems
   {
     public static List<NwGameObject> PassageSansTrace(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry)
     {
-      List<NwGameObject> concentrationTargets = new();
+      SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
 
-      if (oCaster is not NwCreature caster)
-        return concentrationTargets;
+      oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.PassageSansTrace(oCaster));
 
-      SpellUtils.SignalEventSpellCast(caster, caster, spell.SpellType);
-
-      foreach (NwCreature target in caster.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 9, false))
-      {
-        if (target.IsEnemy(caster))
-          continue;
-
-        target.ApplyEffect(EffectDuration.Temporary, Effect.SkillIncrease(NwSkill.FromSkillType(Skill.MoveSilently), 10));
-        concentrationTargets.Add(target);
-      }
-
-      return concentrationTargets;
+      return new List<NwGameObject>() { UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>() };
     }
   }
 }

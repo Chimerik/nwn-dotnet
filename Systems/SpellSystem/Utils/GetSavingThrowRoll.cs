@@ -21,6 +21,16 @@ namespace NWN.Systems
       {
         switch(eff.Tag) 
         {
+          case EffectSystem.LienDeGardeBonusEffectTag:
+
+            if (!protectionNoStack.Contains(EffectSystem.LienDeGardeBonusEffectTag))
+            {
+              protectionNoStack.Add(EffectSystem.LienDeGardeBonusEffectTag);
+              LogUtils.LogMessage("Lien de Garde : JDS +1", LogUtils.LogType.Combat);
+            }
+
+            break;
+
           case EffectSystem.SensDeLaMagieEffectTag:
             
             if (fromSpell && !protectionNoStack.Contains(EffectSystem.SensDeLaMagieEffectTag))

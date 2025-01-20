@@ -11,6 +11,7 @@
     public const int Elementalisme = 22;
     public const int CouleursDansantes = 24;
     public const int Shillelagh = 37;
+    public const int LienDeGarde = 49;
     public const int Enchevetrement = 53;
     public const int VerrouArcanique = 86;
     public const int ArmureDeMage = 102;
@@ -32,6 +33,7 @@
     public const int DetectionDeLinvisibilite = 157;
     public const int Vol = 162;
     public const int Silence = 163;
+    public const int ToileDaraignee = 192;
     public const int AppelDeFamilier = 195;
     public const int AppelDeFamilierBat = 196;
     public const int AppelDeFamilierRat = 197;

@@ -348,6 +348,11 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case CustomSpell.ToileDaraignee:
+          concentrationTargets.AddRange(SpellSystem.ToileDaraignee(oCaster, spell, spellEntry, target is null ? targetLocation : target.Location, castingClass));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.VerrouArcanique:
           SpellSystem.VerrouArcanique(oCaster, spell, spellEntry);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
@@ -598,6 +603,11 @@ namespace NWN.Systems
 
         case CustomSpell.RadianceDelAube:
           SpellSystem.RadianceDelAube(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.LienDeGarde:
+          SpellSystem.LienDeGarde(oCaster, spell, spellEntry, target);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -1385,7 +1395,6 @@ namespace NWN.Systems
           OccultisteUtils.IncrementFouleeFeerique(castingCreature, spell.SpellSchool, spellLevel, feat);
           EnsoUtils.HandleCoeurDeLaTempete(castingCreature, spellEntry.damageType);
 
-
           if (castingClass.ClassType == ClassType.Paladin && Players.TryGetValue(castingCreature, out Player player))
           {
             byte chatimentLevel = (byte)(player.windows.TryGetValue("chatimentLevelSelection", out var chatimentWindow)
@@ -1418,7 +1427,9 @@ namespace NWN.Systems
           }
         }
 
-        if(spellEntry.requiresConcentration)
+        OccultisteUtils.DecrementFouleeFeerique(castingCreature, feat);
+
+        if (spellEntry.requiresConcentration)
           EffectSystem.ApplyConcentrationEffect(castingCreature, spell.Id, concentrationTargets, GetSpellDuration(oCaster, spellEntry));
       }
 

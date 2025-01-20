@@ -15,7 +15,7 @@ namespace NWN.Systems
       if (oPC is null || oItem is null || !ItemUtils.IsWeapon(oItem.BaseItem))
         return;
 
-      if (Utils.In(oItem.BaseItem.ItemType, BaseItemType.LightFlail, BaseItemType.Club, BaseItemType.Morningstar, BaseItemType.LightMace, BaseItemType.DireMace, BaseItemType.LightHammer, BaseItemType.Warhammer, BaseItemType.Sling))
+      if (Utils.In(oItem.BaseItem.ItemType, BaseItemType.Scimitar, BaseItemType.Rapier, BaseItemType.Shortsword, BaseItemType.Dagger, BaseItemType.Kama, BaseItemType.Kukri, BaseItemType.Sickle))
       {
         if (!oPC.ActiveEffects.Any(e => e.Tag == EffectSystem.CooldownEffectTag && e.IntParams[5] == CustomSkill.ExpertiseMoulinet))
           oPC.SetFeatRemainingUses((Feat)CustomSkill.ExpertiseMoulinet, 100);

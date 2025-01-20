@@ -65,6 +65,10 @@ namespace NWN.Systems
 
       onIntervalBrulureCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalBrulure);
 
+      onEnterPassageSansTraceCallback = scriptHandleFactory.CreateUniqueHandler(onEnterPassageSansTrace);
+      onExitPassageSansTraceCallback = scriptHandleFactory.CreateUniqueHandler(onExitPassageSansTrace);
+      onExitLienDeGardeCallback = scriptHandleFactory.CreateUniqueHandler(onExitLienDeGarde);
+
       onIntervalBarbarianRageCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalBarbarianRage);
       onRemoveBarbarianRageCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveBarbarianRage);
 
@@ -192,6 +196,10 @@ namespace NWN.Systems
 
       onEnterEnchevetrementCallback = scriptHandleFactory.CreateUniqueHandler(onEnterEnchevetrement);
       onExitEnchevetrementCallback = scriptHandleFactory.CreateUniqueHandler(onExitEnchevetrement);
+
+      onEnterToileDaraigneeCallback = scriptHandleFactory.CreateUniqueHandler(onEnterToileDaraignee);
+      onExitToileDaraigneeCallback = scriptHandleFactory.CreateUniqueHandler(onExitToileDaraignee);
+      oHeartbeatToileDaraigneeCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatToileDaraignee);
 
       onEnterGraisseCallback = scriptHandleFactory.CreateUniqueHandler(onEnterGraisse);
       onHeartbeatGraisseCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatGraisse);
