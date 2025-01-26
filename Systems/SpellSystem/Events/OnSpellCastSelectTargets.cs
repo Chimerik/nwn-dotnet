@@ -63,6 +63,7 @@ namespace NWN.Systems
                 break;
 
               case (Spell)CustomSpell.DechargeOcculte: nbTargets = onSpellAction.Caster.Level > 4 ? onSpellAction.Caster.Level > 10 ? onSpellAction.Caster.Level > 17 ? 4 : 3 : 2 : 1; break;
+              case Spell.HealingCircle: nbTargets += 4; break;
             }
           }
 
@@ -106,7 +107,7 @@ namespace NWN.Systems
         if (nbTargets > 0)
         {
           caster.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_SELECTED").Value = 1;
-          await caster.ClearActionQueue();
+          caster.ClearActionQueue();
           await caster.ActionCastSpellAt((Spell)caster.GetObjectVariable<LocalVariableInt>("_SPELL_TARGET_SPELL_ID").Value, caster, MetaMagic.None);
         }
         
@@ -130,7 +131,7 @@ namespace NWN.Systems
       {
         caster.GetObjectVariable<LocalVariableInt>("_SPELL_TARGETS_SELECTED").Value = 1;
 
-        await caster.ClearActionQueue();
+        caster.ClearActionQueue();
         await caster.ActionCastSpellAt((Spell)caster.GetObjectVariable<LocalVariableInt>("_SPELL_TARGET_SPELL_ID").Value, caster, MetaMagic.None);
       }
       else

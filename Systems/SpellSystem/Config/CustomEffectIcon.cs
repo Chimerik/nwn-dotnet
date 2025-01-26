@@ -96,5 +96,12 @@ namespace NWN
     public const EffectIcon SplendeurdelAigle = (EffectIcon)252;
     public const EffectIcon Fascination = (EffectIcon)253;
     public const EffectIcon PourfendeurDeColosses = (EffectIcon)254;
+    public const EffectIcon MetalBrulant = (EffectIcon)255;
+    public const EffectIcon ProtectionContreLesLames = (EffectIcon)256;
+    public const EffectIcon ProtectionContreLePoison = (EffectIcon)257;
+    public const EffectIcon VisionNocturne = (EffectIcon)258;
+    public const EffectIcon RayonAffaiblissant = (EffectIcon)259;
+    public const EffectIcon SouffleDuDragon = (EffectIcon)260;
+    public const EffectIcon PattesDaraignee = (EffectIcon)261;
   }
 }

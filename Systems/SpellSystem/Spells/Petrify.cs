@@ -63,7 +63,7 @@ namespace NWN.Systems
         }
 
         target.ApplyEffect(EffectDuration.Permanent, ePetrify);
-        await target.ClearActionQueue();
+        target.ClearActionQueue();
       }
     }
   }

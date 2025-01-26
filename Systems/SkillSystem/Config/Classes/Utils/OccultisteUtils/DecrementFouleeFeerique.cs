@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       var occultisteClass = creature.GetClassInfo((ClassType)CustomClass.Occultiste);
       byte? occultisteLevel = occultisteClass?.Level;
-
+      
       if (occultisteLevel.HasValue && creature.KnowsFeat((Feat)CustomSkill.FouleeRafraichissante))
       {
         var maxSpellSlot = NwClass.FromClassId(CustomClass.Occultiste).SpellGainTable[occultisteLevel.Value][2];
@@ -28,7 +28,7 @@ namespace NWN.Systems
             }
           }
         }
-
+        
         if (creature.GetFeatRemainingUses((Feat)CustomSkill.FouleeRafraichissante) > 0)
         { 
           creature.DecrementRemainingFeatUses((Feat)CustomSkill.FouleeRafraichissante);

@@ -15,9 +15,9 @@ namespace NWN.Systems
       if (!CreatureUtils.HandleBonusActionUse(caster))
         return;
 
-      _ = caster.ClearActionQueue();
-      _ = caster.AddActionToQueue(() => caster.ActionForceMoveTo(targetObject, true));
-      _ = caster.AddActionToQueue(() => caster.ActionAttackTarget(targetObject));
+      caster.ClearActionQueue();
+      _ = caster.AddActionToQueue(() => _ = caster.ActionForceMoveTo(targetObject, true));
+      _ = caster.AddActionToQueue(() => _ = caster.ActionAttackTarget(targetObject));
 
       caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.Chargeur, NwTimeSpan.FromRounds(1));
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Charge !", ColorConstants.Red, true);

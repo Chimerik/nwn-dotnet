@@ -19,6 +19,7 @@ namespace NWN.Systems
           player.LearnAlwaysPreparedSpell(CustomSpell.ChangementDapparence, CustomClass.Ensorceleur);
           player.LearnAlwaysPreparedSpell(CustomSpell.OrbeChromatique, CustomClass.Ensorceleur);
           player.LearnAlwaysPreparedSpell(CustomSpell.Injonction, CustomClass.Ensorceleur);
+          player.LearnAlwaysPreparedSpell(CustomSpell.SouffleDuDragon, CustomClass.Ensorceleur);
 
           foreach (var ensoLevel in player.oid.LoginCreature.LevelInfo)
             if (ensoLevel.ClassInfo.Class.ClassType == ClassType.Sorcerer)

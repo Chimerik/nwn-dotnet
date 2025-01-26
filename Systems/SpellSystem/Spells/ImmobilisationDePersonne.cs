@@ -7,20 +7,13 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static List<NwGameObject> ImmobilisationDePersonne(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass castingClass, NwFeat feat = null)
+    public static List<NwGameObject> ImmobilisationDePersonne(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass castingClass)
     {
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
       List<NwGameObject> targetList = new();
 
       if (oCaster is not NwCreature caster)
         return targetList;
-
-      if (feat is not null && feat.Id == CustomSkill.MonkPoigneDuVentDuNord)
-      {
-        caster.IncrementRemainingFeatUses(feat.FeatType);
-        FeatUtils.DecrementKi(caster, 3);
-        castingClass = NwClass.FromClassId(CustomClass.Monk);
-      }
 
       List<NwGameObject> targets = SpellUtils.GetSpellTargets(caster, oTarget, spellEntry, true);
       int DC = SpellUtils.GetCasterSpellDC(caster, spell, castingClass.SpellCastingAbility);

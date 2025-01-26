@@ -1,5 +1,4 @@
-﻿
-using Anvil.API;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -16,7 +15,7 @@ namespace NWN.Systems
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
 
       SavingThrowResult saveResult = CreatureUtils.GetSavingThrow(oCaster, target, spellEntry.savingThrowAbility, spellDC, spellEntry);
-      
+
       if (tourPuissant || saveResult == SavingThrowResult.Failure)
         SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(oCaster, spell),
           oCaster, spell.GetSpellLevelForClass(casterClass.ClassType), saveResult, damageDice: target.HP < target.MaxHP ? 12 : 0);
@@ -29,3 +28,4 @@ namespace NWN.Systems
     }
   }
 }
+

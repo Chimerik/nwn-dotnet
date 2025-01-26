@@ -16,7 +16,7 @@ namespace NWN.Systems
           return;
         }
 
-        _ = companion.ClearActionQueue();
+        companion.ClearActionQueue();
         _ = companion.ActionCastSpellAt((Spell)CustomSpell.SpiderCocoon, target, cheat: true);
 
         caster.SetFeatRemainingUses((Feat)CustomSkill.BelluaireSpiderCocoon, 0);

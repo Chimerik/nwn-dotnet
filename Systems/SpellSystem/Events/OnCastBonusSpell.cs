@@ -94,6 +94,7 @@ namespace NWN.Systems
           switch(spell.Id)
           {
             case CustomSpell.SphereDeFeuDeplacement:
+            case CustomSpell.NueeDeDaguesDeplacement:
             case CustomSpell.RayonDeLuneDeplacement: break;
 
             default:

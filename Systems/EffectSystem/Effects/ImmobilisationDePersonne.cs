@@ -1,8 +1,6 @@
-﻿using System;
-using Anvil.API;
+﻿using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
-using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -13,10 +11,11 @@ namespace NWN.Systems
     public static Effect GetImmobilisationDePersonneEffect(Ability spellCastingAbility, NwSpell spell)
     {
       Effect eff = Effect.LinkEffects(Effect.Paralyze(), Effect.VisualEffect(VfxType.DurParalyzeHold),
-        Effect.RunAction(onIntervalHandle: onIntervalImmobilisationDePersonneCallback, interval: TimeSpan.FromSeconds(6), data:((int)spellCastingAbility).ToString()));
+        Effect.RunAction(onIntervalHandle: onIntervalImmobilisationDePersonneCallback, interval: NwTimeSpan.FromRounds(1)));
       eff.Tag = ImmobilisationDePersonneEffectTag;
       eff.Spell = spell;
       eff.SubType = EffectSubType.Supernatural;
+      eff.IntParams[5] = (int)spellCastingAbility;
       return eff;
     }
     private static ScriptHandleResult OnIntervalImmobilisationDePersonne(CallInfo callInfo)
@@ -34,7 +33,7 @@ namespace NWN.Systems
       }
 
       SpellEntry spellEntry = Spells2da.spellTable[(int)Spell.HoldPerson];
-      int spellDC = SpellUtils.GetCasterSpellDC(caster, Spell.HoldPerson, (Ability)int.Parse(eff.StringParams[0]));
+      int spellDC = SpellUtils.GetCasterSpellDC(caster, Spell.HoldPerson, (Ability)eff.IntParams[5]);
 
       if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry, SpellConfig.SpellEffectType.Paralysis) != SavingThrowResult.Failure)
         target.RemoveEffect(eff);

@@ -14,7 +14,7 @@ namespace NWN.Systems
       int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, Ability.Strength);
 
       oCaster.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
-      _ = oCaster.ClearActionQueue();
+      oCaster.ClearActionQueue();
       _ = oCaster.ActionJumpToLocation(targetLocation);
       targetLocation.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpDustExplosion));
 

@@ -11,7 +11,7 @@ namespace NWN.Systems
 
       if (companion is not null)
       {
-        _ = companion.ClearActionQueue();
+        companion.ClearActionQueue();
         _ = companion.ActionCastSpellAt(Spell.Web, Location.Create(companion.Area, oTarget, companion.Rotation), cheat:true);
         
         caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.Cooldown(caster, 60, CustomSkill.BelluaireSpiderWeb));

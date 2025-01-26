@@ -24,7 +24,7 @@ namespace NWN.Systems
         || eventData.Effect.Creator is not NwCreature protector)
         return ScriptHandleResult.Handled;
 
-      NwSpell spell = NwSpell.FromSpellId(CustomSpell.SphereDeFeu);
+      NwSpell spell = NwSpell.FromSpellId(CustomSpell.SphereDeFeu).MasterSpell;
       SpellEntry spellEntry = Spells2da.spellTable[spell.Id];
 
       int spellDC = SpellUtils.GetCasterSpellDC(protector, spell, (Ability)eventData.Effect.GetObjectVariable<LocalVariableInt>("_DC_ABILITY").Value);
@@ -38,7 +38,7 @@ namespace NWN.Systems
       if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnHeartbeat eventData)
         && eventData.Effect.Creator is NwCreature caster)
       {
-        NwSpell spell = NwSpell.FromSpellId(CustomSpell.SphereDeFeu);
+        NwSpell spell = NwSpell.FromSpellId(CustomSpell.SphereDeFeu).MasterSpell;
         SpellEntry spellEntry = Spells2da.spellTable[spell.Id];
 
         int spellDC = SpellUtils.GetCasterSpellDC(caster, spell, (Ability)eventData.Effect.GetObjectVariable<LocalVariableInt>("_DC_ABILITY").Value);

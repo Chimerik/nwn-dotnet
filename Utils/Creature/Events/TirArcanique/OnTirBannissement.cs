@@ -20,7 +20,7 @@ namespace NWN.Systems
         if (GetSavingThrow(onDamage.Attacker, target, Ability.Charisma, tirDC) == SavingThrowResult.Failure)
         {
           target.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetBannissementEffect(target), NwTimeSpan.FromRounds(1));
-          _ = onDamage.Attacker.ClearActionQueue();
+          onDamage.Attacker.ClearActionQueue();
         }
       }
 

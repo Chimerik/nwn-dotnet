@@ -15,7 +15,7 @@ namespace NWN.Systems
       var targetLoc = Location.Create(oTarget.Area, CreaturePlugin.ComputeSafeLocation(caster, target.Position, 3, 1), oCaster.Rotation);
 
       oCaster.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpDustExplosion));
-      await oCaster.ClearActionQueue();
+      oCaster.ClearActionQueue();
       await oCaster.ActionJumpToLocation(targetLoc);
       await NwTask.NextFrame();
       await caster.ActionAttackTarget(target);

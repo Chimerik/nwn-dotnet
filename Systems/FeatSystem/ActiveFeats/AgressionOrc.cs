@@ -15,9 +15,9 @@ namespace NWN.Systems
       if (!CreatureUtils.HandleBonusActionUse(caster))
         return;
 
-      _ = caster.ClearActionQueue();
-      _ = caster.AddActionToQueue(() => caster.ActionForceMoveTo(targetObject, true));
-      _ = caster.AddActionToQueue(() => caster.ActionAttackTarget(targetObject));
+      caster.ClearActionQueue();
+      _ = caster.AddActionToQueue(() => _ = caster.ActionForceMoveTo(targetObject, true));
+      _ = caster.AddActionToQueue(() => _ = caster.ActionAttackTarget(targetObject));
 
       if(caster.KnowsFeat((Feat)CustomSkill.Chargeur))
         caster.GetObjectVariable<LocalVariableLocation>(EffectSystem.ChargerVariable).Value = caster.Location;

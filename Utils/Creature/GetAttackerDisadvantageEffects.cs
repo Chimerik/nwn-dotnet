@@ -23,6 +23,8 @@ namespace NWN.Systems
         switch (tag)
         {
           case EffectSystem.PoisonEffectTag: LogUtils.LogMessage("Désavantage - Empoisonné", LogUtils.LogType.Combat); return true;
+          case EffectSystem.RayonAffaiblissantDesavantageEffectTag: LogUtils.LogMessage("Désavantage - Rayon Affaiblissant", LogUtils.LogType.Combat); return true;
+          case EffectSystem.RayonAffaiblissantEffectTag: if (GetArmorShieldDisadvantage(attackStat)) return true; break;
           case EffectSystem.lightSensitivityEffectTag: LogUtils.LogMessage("Désavantage - Drow en pleine lumière", LogUtils.LogType.Combat); return true;
           case EffectSystem.PourfendeurDisadvantageEffectTag: LogUtils.LogMessage("Désavantage - Affecté par Pourfendeur", LogUtils.LogType.Combat); return true;
           case EffectSystem.EntraveEffectTag: LogUtils.LogMessage("Désavantage - Entravé", LogUtils.LogType.Combat); return true;

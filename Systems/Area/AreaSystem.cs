@@ -418,7 +418,7 @@ namespace NWN.Systems
       oEntering.Commandable = false;
 
       await NwTask.Delay(TimeSpan.FromSeconds(0.8));
-      await oEntering.ClearActionQueue();
+      oEntering.ClearActionQueue();
 
       //Vector3 calculations = 2 * (initialPosition - oEntering.Position);
       Vector3 kickback = initialPosition;

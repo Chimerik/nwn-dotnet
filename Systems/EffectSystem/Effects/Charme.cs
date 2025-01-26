@@ -113,7 +113,7 @@ namespace NWN.Systems
         && NWScript.StringToObject(EventsPlugin.GetEventData("TARGET")) == e.Creator))
       {
         EventsPlugin.SkipEvent();
-        _ = creature.ClearActionQueue();
+        creature.ClearActionQueue();
         creature.LoginPlayer?.SendServerMessage($"Vous êtes sous le charme de cette création et ne pouvez pas la cibler", ColorConstants.Red);
 
       }

@@ -17,10 +17,9 @@ namespace NWN.Systems
 
         if (CreatureUtils.GetSavingThrow(oCaster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
         {
+          NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Instant, Effect.Damage(NwRandom.Roll(Utils.random, 6), CustomDamageType.Psychic)));
           NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.ForceFantasmagorique, NwTimeSpan.FromRounds(spellEntry.duration)));
         }
-
-        
       }
 
       return new List<NwGameObject>() { oTarget };

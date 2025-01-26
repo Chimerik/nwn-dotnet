@@ -165,7 +165,7 @@ namespace NWN.Systems
       }
 
       onHB.Creature.GetObjectVariable<LocalVariableInt>("IS_RESETTING").Value = 1;
-      _ = onHB.Creature.ClearActionQueue();
+      onHB.Creature.ClearActionQueue();
       _ = onHB.Creature.ActionForceMoveTo(onHB.Creature.GetObjectVariable<LocalVariableObject<NwWaypoint>>("_SPAWN").Value, true, 0, TimeSpan.FromSeconds(30));
 
       Effect regen = Effect.RunAction(null, null, mobRegenIntervalHandle, TimeSpan.FromSeconds(1));
@@ -309,7 +309,7 @@ namespace NWN.Systems
     }
     private static async void MoveAway(NwCreature creature, NwCreature oEntering)
     {
-      await creature.ClearActionQueue();
+      creature.ClearActionQueue();
       await creature.ActionMoveAwayFrom(oEntering, true, 10);
     }
     private async void CheckActionRandomWalk(CreatureEvents.OnHeartbeat onHB)

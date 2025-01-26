@@ -8,5 +8,7 @@ namespace NWN
     public const PersistentVfxType RayonDeLune = (PersistentVfxType)260;
     public const PersistentVfxType SphereDeFeu = (PersistentVfxType)261;
     public const PersistentVfxType NappeDeBrouillard = (PersistentVfxType)262;
+    public const PersistentVfxType NueeDeDagues = (PersistentVfxType)263;
+    public const PersistentVfxType ZoneDeVerite = (PersistentVfxType)264;
   }
 }

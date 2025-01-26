@@ -15,7 +15,7 @@ namespace NWN.Systems
       
       EffectUtils.RemoveTaggedEffect(oCaster, EffectSystem.SprintEffectTag);
 
-      _ = oCaster.ClearActionQueue();
+      oCaster.ClearActionQueue();
       _ = oCaster.AddActionToQueue(() => _ = caster.ActionForceMoveTo(targetLocation, true));
 
       oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.ChargeDuSanglierAura(caster), NwTimeSpan.FromRounds(1));

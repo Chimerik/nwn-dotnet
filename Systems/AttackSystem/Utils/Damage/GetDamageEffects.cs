@@ -51,6 +51,7 @@ namespace NWN.Systems
           case EffectSystem.TranspercerEffectTag: bonusDamage += GetTranspercerBonusDamage(isCritical, noStack); break;
           case EffectSystem.TirPercantEffectTag: bonusDamage += GetTirPercantBonusDamage(isCritical, noStack); break;
           case EffectSystem.MonkParadeEffectTag: bonusDamage -= GetMonkParadeDamageReduction(target, eff, noStack); break;
+          case EffectSystem.RayonAffaiblissantDesavantageEffectTag: bonusDamage -= GetRayonAffaiblissantDamageReduction(noStack); break;
         }
       }
 

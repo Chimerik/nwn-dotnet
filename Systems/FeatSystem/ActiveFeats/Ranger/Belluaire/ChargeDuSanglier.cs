@@ -37,7 +37,7 @@ namespace NWN.Systems
 
       Location target = Location.Create(companion.Area, companion.Position, companion.Rotation);
 
-      _ = companion.ClearActionQueue();
+      companion.ClearActionQueue();
       _ = companion.AddActionToQueue(() => _ = companion.ActionForceMoveTo(target, true));
       _ = companion.AddActionToQueue(() => _ = companion.ActionAttackTarget(targetObject, true));
 

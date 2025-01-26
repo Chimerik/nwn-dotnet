@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     public static async void IncrementFouleeFeerique(NwCreature creature, SpellSchool spellSchool, byte spellLevel, NwFeat feat)
     {
-      if (feat is null && Utils.In(spellSchool, SpellSchool.Illusion, SpellSchool.Enchantment) && 0 < spellLevel && spellLevel < 10)
+      if (creature.KnowsFeat((Feat)CustomSkill.FouleeEnjoleuse) && feat is null && Utils.In(spellSchool, SpellSchool.Illusion, SpellSchool.Enchantment) && 0 < spellLevel && spellLevel < 10)
       {
         await NwTask.NextFrame();
 

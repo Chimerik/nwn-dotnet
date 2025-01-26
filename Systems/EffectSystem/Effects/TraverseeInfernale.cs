@@ -31,7 +31,7 @@ namespace NWN.Systems
 
       StringUtils.DisplayStringToAllPlayersNearTarget(target, $"{target.Name.ColorString(ColorConstants.Cyan)} - Traversée  Infernale", ColorConstants.Red, true, true);
 
-      _ = target.ClearActionQueue();
+      target.ClearActionQueue();
       target.Commandable = false;
       target.VisibilityOverride = VisibilityMode.Hidden;
       target.PlotFlag = true;

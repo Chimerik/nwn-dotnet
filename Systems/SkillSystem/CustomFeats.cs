@@ -648,6 +648,12 @@
     public const int MartialWeaponProficiency = 1907;
     public const int ExoticWeaponProficiency = 1908;
 
+    public const int SouffleDuDragonAcide = 1909;
+    public const int SouffleDuDragonFroid = 1910;
+    public const int SouffleDuDragonFeu = 1911;
+    public const int SouffleDuDragonElec= 1912;
+    public const int SouffleDuDragonPoison = 1913;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;

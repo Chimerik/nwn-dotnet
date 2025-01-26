@@ -1,11 +1,12 @@
-﻿using Anvil.API;
+﻿using System.Collections.Generic;
+using Anvil.API;
 using NWN.Core;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void PriereDeGuerison(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwClass castingClass)
+    public static void PriereDeGuerison(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwClass castingClass, NwGameObject oTarget)
     {
       if (oCaster is not NwCreature caster)
         return;
@@ -23,9 +24,11 @@ namespace NWN.Systems
 
       bool triggerBoon = false;
 
-      foreach (var target in oCaster.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, spellEntry.aoESize, false))
+      List<NwGameObject> targets = SpellUtils.GetSpellTargets(caster, oTarget, spellEntry);
+
+      foreach (var targetObject in targets)
       {
-        if (Utils.In(target.Race.RacialType, RacialType.Undead, RacialType.Construct) || !caster.Faction.GetMembers().Contains(target))
+        if (targetObject is not NwCreature target || Utils.In(target.Race.RacialType, RacialType.Undead, RacialType.Construct))
           continue;
 
         int healAmount = caster.KnowsFeat((Feat)CustomSkill.ClercGuerisonSupreme)

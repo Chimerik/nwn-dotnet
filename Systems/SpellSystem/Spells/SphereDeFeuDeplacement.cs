@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using Anvil.API;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -16,7 +17,15 @@ namespace NWN.Systems
           if(aoe.Location.Area == targetLocation.Area
           && Vector3.DistanceSquared(aoe.Position, targetLocation.Position) < 81)
           {
-            aoe.Position = targetLocation.Position;
+            Ability castAbility = (Ability)aoe.GetObjectVariable<LocalVariableInt>("_DC_ABILITY").Value;
+            targetLocation.ApplyEffect(EffectDuration.Temporary, EffectSystem.SphereDeFeu(oCaster, castAbility), aoe.RemainingDuration);
+            
+            var newAOE = UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>();
+            newAOE.Tag = EffectSystem.SphereDeFeuEffectTag;
+            newAOE.GetObjectVariable<LocalVariableInt>("_DC_ABILITY").Value = (int)castAbility;
+
+            aoe.Destroy();
+            return;
           }
           else
           {

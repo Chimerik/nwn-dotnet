@@ -36,6 +36,9 @@ namespace NWN.Systems
       onIntervalTraitEnsorceleCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalTraitEnsorcele);
       onRemoveAideCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveAide);
       onRemoveFlecheAcideDeMelfCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveFlecheAcideDeMelf);
+      onRemoveSouffleDuDragonCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveSouffleDuDragon);
+      onRemoveMetalBrulantDesarmementCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveMetalBrulantDesarmement);
+      onIntervalMetalBrulantCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalMetalBrulant);
 
       onIntervalHeroismeCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalHeroisme);
 
@@ -176,8 +179,14 @@ namespace NWN.Systems
       onEnterSphereDeFeuCallback = scriptHandleFactory.CreateUniqueHandler(onEnterSphereDeFeu);
       onHeartbeatSphereDeFeuCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatSphereDeFeu);
 
+      onEnterNueeDeDaguesCallback = scriptHandleFactory.CreateUniqueHandler(onEnterNueeDeDagues);
+      onHeartbeatNueeDeDaguesCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatNueeDeDagues);
+
       onEnterTempeteDeNeigeCallback = scriptHandleFactory.CreateUniqueHandler(onEnterTempeteDeNeige);
       onHeartbeatTempeteDeNeigeCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatTempeteDeNeige);
+
+      onEnterCordonDeFlechesCallback = scriptHandleFactory.CreateUniqueHandler(onEnterCordonDeFleches);
+      onEnterZoneDeVeriteCallback = scriptHandleFactory.CreateUniqueHandler(onEnterZoneDeVerite);
 
       onEnterFleauDinsectesCallback = scriptHandleFactory.CreateUniqueHandler(onEnterFleauDinsectes);
       onHeartbeatFleauDinsectesCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatFleauDinsectes);

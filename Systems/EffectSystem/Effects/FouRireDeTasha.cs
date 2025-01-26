@@ -20,7 +20,7 @@ namespace NWN.Systems
 
       if (CreatureUtils.GetSavingThrow(caster, target, SaveAbility, spellDC) == SavingThrowResult.Failure)
       {
-        _ = target.ClearActionQueue();
+        target.ClearActionQueue();
         target.PlayVoiceChat(VoiceChatType.Laugh);
         NWScript.AssignCommand(target, () => _ = target.PlayAnimation(Animation.LoopingTalkLaughing, 1, duration: duration));
         Effect eff = Effect.LinkEffects(Effect.Knockdown(), Effect.VisualEffect(VfxType.DurMindAffectingDisabled),

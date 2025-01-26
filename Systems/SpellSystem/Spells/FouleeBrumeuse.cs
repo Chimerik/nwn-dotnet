@@ -91,7 +91,7 @@ namespace NWN.Systems
       }
 
       caster.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
-      _ = caster.ClearActionQueue();
+      caster.ClearActionQueue();
       _ = caster.ActionJumpToLocation(targetLocation);
       targetLocation.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster1));
     }

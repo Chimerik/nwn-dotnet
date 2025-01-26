@@ -94,6 +94,7 @@ namespace NWN.Systems
         _ => ItemCategory.Invalid,
       };
     }
+
     public static bool IsLightWeapon(NwBaseItem baseItem, CreatureSize creatureSize)
     {
       return baseItem.NumDamageDice > 0
@@ -101,6 +102,7 @@ namespace NWN.Systems
         && creatureSize > CreatureSize.Invalid
         && (int)baseItem.WeaponSize < (int)creatureSize;
     }
+
     public static bool IsVersatileWeapon(BaseItemType baseItemType)
     {
       return baseItemType switch
@@ -111,6 +113,30 @@ namespace NWN.Systems
         _ => false
       };
     }
+
+    public static bool IsMetalWeapon(BaseItemType baseItemType)
+    {
+      return baseItemType switch
+      {
+        BaseItemType.Battleaxe or BaseItemType.Bastardsword or BaseItemType.DwarvenWaraxe or BaseItemType.Katana or BaseItemType.Doubleaxe
+        or BaseItemType.Dagger or BaseItemType.ShortSpear or BaseItemType.Longsword or BaseItemType.DireMace or BaseItemType.Greataxe
+        or BaseItemType.Handaxe or BaseItemType.HeavyFlail or BaseItemType.Kama or BaseItemType.Kukri or BaseItemType.LightFlail
+        or BaseItemType.LightHammer or BaseItemType.LightMace or BaseItemType.Morningstar or BaseItemType.Rapier or BaseItemType.Scimitar
+        or BaseItemType.Scythe or BaseItemType.Shortsword or BaseItemType.Sickle or BaseItemType.ThrowingAxe or BaseItemType.TwoBladedSword
+        or BaseItemType.Warhammer or BaseItemType.Greatsword or BaseItemType.Halberd or BaseItemType.Trident => true,
+        _ => false
+      };
+    }
+
+    public static bool IsMetalShield(BaseItemType baseItemType)
+    {
+      return baseItemType switch
+      {
+        BaseItemType.LargeShield or BaseItemType.TowerShield => true,
+        _ => false
+      };
+    }
+
     public static bool IsReachWeapon(BaseItemType baseItemType)
     {
       return baseItemType switch

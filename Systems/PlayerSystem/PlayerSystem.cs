@@ -94,30 +94,27 @@ namespace NWN.Systems
             oPC.ControllingPlayer.FloatingTextString($"{oPC} est en train d'essayer de faire les poches de {oTarget} !", true);
           }
 
-          Task waitForTouch = NwTask.Run(async () =>
+          TouchAttackResult touch = oPC.TouchAttackMelee(oTarget);
+          if (touch == TouchAttackResult.Miss)
           {
-            TouchAttackResult touch = await oPC.TouchAttackMelee(oTarget);
-            if (touch == TouchAttackResult.Miss)
-            {
-              oPC.ControllingPlayer.FloatingTextString($"Vous ne parvenez pas à atteindre les poches de {oTarget.Name} !", false);
-              return;
-            }
+            oPC.ControllingPlayer.FloatingTextString($"Vous ne parvenez pas à atteindre les poches de {oTarget.Name} !", false);
+            return;
+          }
 
-            int iStolenGold = (NwRandom.Roll(Utils.random, 20, 1) + oPC.GetSkillRank(Skill.PickPocket) - iSpot) * 10;
+          int iStolenGold = (NwRandom.Roll(Utils.random, 20, 1) + oPC.GetSkillRank(Skill.PickPocket) - iSpot) * 10;
 
-            if (oTarget.Gold >= iStolenGold)
-            {
-              oTarget.Gold = (uint)(oTarget.Gold - iStolenGold);
-              oPC.GiveGold(iStolenGold);
-              oPC.ControllingPlayer.FloatingTextString($"Vous venez de dérober {iStolenGold} pièces d'or des poches de {oTarget.Name} !", false);
-            }
-            else
-            {
-              oPC.ControllingPlayer.FloatingTextString($"Vous venez de vider les poches de {oTarget.Name} ! {oTarget.Gold} pièces d'or de plus pour vous.", false);
-              oPC.GiveGold((int)oTarget.Gold);
-              oTarget.Gold = 0;
-            }
-          });
+          if (oTarget.Gold >= iStolenGold)
+          {
+            oTarget.Gold = (uint)(oTarget.Gold - iStolenGold);
+            oPC.GiveGold(iStolenGold);
+            oPC.ControllingPlayer.FloatingTextString($"Vous venez de dérober {iStolenGold} pièces d'or des poches de {oTarget.Name} !", false);
+          }
+          else
+          {
+            oPC.ControllingPlayer.FloatingTextString($"Vous venez de vider les poches de {oTarget.Name} ! {oTarget.Gold} pièces d'or de plus pour vous.", false);
+            oPC.GiveGold((int)oTarget.Gold);
+            oTarget.Gold = 0;
+          }
 
           break;
         case Skill.AnimalEmpathy:

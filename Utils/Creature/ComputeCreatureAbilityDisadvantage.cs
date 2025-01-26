@@ -66,6 +66,16 @@ namespace NWN.Systems
 
             break;
 
+          case EffectSystem.RayonAffaiblissantDesavantageEffectTag:
+
+            if (ability == Ability.Strength)
+            {
+              LogUtils.LogMessage("Désavantage - Rayon Affaiblissant", LogUtils.LogType.Combat);
+              return true;
+            }
+
+            break;
+
           case EffectSystem.MaleficeTag:
 
             if (eff.IntParams[5] == (int)ability)

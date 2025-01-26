@@ -70,8 +70,8 @@ namespace NWN.Systems
         foreach (var eff in ctx.oTarget.ActiveEffects)
           if (eff.Tag == "CUSTOM_CONDITION_DAZED")
           {
-            _ = ctx.oTarget.ClearActionQueue();
-           ctx.oTarget.GetObjectVariable<LocalVariableInt>("_INTERRUPTED").Value = 1;
+            ctx.oTarget.ClearActionQueue();
+            ctx.oTarget.GetObjectVariable<LocalVariableInt>("_INTERRUPTED").Value = 1;
             // TODO : ajouter un effet d'echec du sort
             break;
           }

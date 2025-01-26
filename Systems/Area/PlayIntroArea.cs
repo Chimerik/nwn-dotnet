@@ -126,7 +126,7 @@ namespace NWN.Systems
         oPC.LockCameraDirection(false);
         oPC.LockCameraDistance(false);
         oPC.LockCameraPitch(false);
-        await oPC.LoginCreature?.ClearActionQueue();
+        oPC.LoginCreature?.ClearActionQueue();
         Utils.DestroyInventory(oPC.LoginCreature);
         Utils.DestroyEquippedItems(oPC.LoginCreature);
         await NwItem.Create("learning_book", oPC.LoginCreature);
@@ -177,7 +177,7 @@ namespace NWN.Systems
     private static async void StrikeSailor(NwCreature sailor2, NwCreature sailor1)
     {
       await sailor2.SpeakString("Qu'est ce que ... ? Oooh, je me sens tout drôle ... A l'aide !".ColorString(ColorConstants.Lime));
-      await sailor2.ClearActionQueue();
+      sailor2.ClearActionQueue();
       await sailor2.PlayAnimation(Animation.LoopingSpasm, 3.0f, false, TimeSpan.FromHours(1));
 
       sailor2.VisualTransform.Lerp(new VisualTransformLerpSettings { LerpType = VisualTransformLerpType.SmootherStep, Duration = TimeSpan.FromSeconds(4), PauseWithGame = true }, transform => { transform.Translation = new Vector3(0, 0, 4); });

@@ -4,16 +4,9 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void ConeDeFroid(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass casterClass, Location targetLocation, NwFeat feat = null)
+    public static void ConeDeFroid(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass casterClass, Location targetLocation)
     {     
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
-
-      if (oCaster is NwCreature castingCreature && feat is not null && feat.Id == CustomSkill.MonkSouffleDeLhiver)
-      {
-        castingCreature.IncrementRemainingFeatUses(feat.FeatType);
-        FeatUtils.DecrementKi(castingCreature, 6);
-        casterClass = NwClass.FromClassId(CustomClass.Monk);
-      }
 
       int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, casterClass.SpellCastingAbility);
 

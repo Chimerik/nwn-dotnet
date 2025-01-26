@@ -12,7 +12,7 @@ namespace NWN.Systems
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
 
       caster.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster3));
-      _ = caster.ClearActionQueue();
+      caster.ClearActionQueue();
       _ = caster.ActionJumpToLocation(targetLocation);
       targetLocation.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster3));
     }

@@ -10,7 +10,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.Icon(EffectIcon.ACIncrease);
+        Effect eff = Effect.Icon(CustomEffectIcon.ProtectionContreLesLames);
         eff.Tag = ProtectionContreLesLamesEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

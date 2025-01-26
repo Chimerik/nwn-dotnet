@@ -212,7 +212,7 @@ namespace NWN.Systems
       if (!Players.TryGetValue(onClick.ClickedBy.LoginCreature, out Player player))
         return;
 
-      await onClick.ClickedBy.ControlledCreature.ClearActionQueue();
+      onClick.ClickedBy.ControlledCreature.ClearActionQueue();
 
       if (onClick.Placeable.GetObjectVariable<LocalVariableInt>("ownerId").Value != player.characterId)
       {
@@ -233,7 +233,7 @@ namespace NWN.Systems
         else
         {
           onClick.ClickedBy.SendServerMessage("Une sorte de mur de force vous empêche de pénétrer plus avant dans la cité.\nUn frisson remonte le long de votre moëlle épinière alors que vous avez la certitude que quelque chose puissant porte un regard soupçonneux sur vous.\n\nLes miliciens vous signaleront que la Loi interdit d'entrer en possession de matéria et qu'il vous faut les déposer à l'entrepôt derrière vous.", ColorConstants.Red);
-          await onClick.ClickedBy.ControlledCreature.ClearActionQueue();
+          onClick.ClickedBy.ControlledCreature.ClearActionQueue();
           onClick.ClickedBy.ControlledCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSpellMantleUse));
         }
       }

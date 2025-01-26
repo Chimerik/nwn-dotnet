@@ -720,15 +720,9 @@ namespace NWN.Systems
       var spellEntry = Spells2da.spellTable[spell.Id];
       var spellLevel = spell.GetSpellLevelForClass(castingClass);
 
-      //ModuleSystem.Log.Info($"spell : {spell.Name} - class {castingClass} - spellLevel {spellLevel}");
+      //ModuleSystem.Log.Info($"spell ({spell.Id}) : {spell.Name} - class {castingClass} - spellLevel {spellLevel}");
 
       if (spellLevel < 1)
-      {
-        EventsPlugin.SkipEvent();
-        return;
-      }
-
-      if(spell.Id == CustomSpell.AppelDeFamilierRename)
       {
         EventsPlugin.SkipEvent();
         return;
@@ -743,8 +737,11 @@ namespace NWN.Systems
 
       switch(spell.Id)
       {
+        case CustomSpell.AppelDeFamilierRename:
         case CustomSpell.RayonDeLuneDeplacement: 
+        case CustomSpell.NueeDeDaguesDeplacement: 
         case CustomSpell.SphereDeFeuDeplacement: EventsPlugin.SkipEvent(); return;
+
         case (int)Spell.EpicDragonKnight:
 
           if(caster.KnowsFeat((Feat)CustomSkill.EnsoCompagnonDraconique)
