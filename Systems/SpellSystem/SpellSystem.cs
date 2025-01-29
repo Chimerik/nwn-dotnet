@@ -812,6 +812,13 @@ namespace NWN.Systems
 
           return;
 
+        case (ClassType)CustomClass.Occultiste:
+
+          if(spell.MasterSpell is not null && Utils.In(spell.MasterSpell.Id, CustomSpell.AppelDeFamilier, CustomSpell.PacteDeLaChaine))
+            EventsPlugin.SkipEvent();
+
+          return;
+
         case ClassType.Cleric:
 
           if (spellLevel < 6 && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.InterventionDivineEffectTag))

@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.Icon(EffectIcon.SavingThrowIncrease);
+        Effect eff = Effect.Icon(CustomEffectIcon.LueurDespoir);
         eff.Tag = LueurDespoirEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

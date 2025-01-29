@@ -184,6 +184,11 @@ namespace NWN.Systems
 
       onEnterTempeteDeNeigeCallback = scriptHandleFactory.CreateUniqueHandler(onEnterTempeteDeNeige);
       onHeartbeatTempeteDeNeigeCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatTempeteDeNeige);
+      onExitTempeteDeNeigeCallback = scriptHandleFactory.CreateUniqueHandler(onExitTempeteDeNeige);
+
+      onEnterVoracitedHadarCallback = scriptHandleFactory.CreateUniqueHandler(onEnterVoracitedHadar);
+      onHeartbeatVoracitedHadarCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatVoracitedHadar);
+      onExitVoracitedHadarCallback = scriptHandleFactory.CreateUniqueHandler(onExitVoracitedHadar);
 
       onEnterCordonDeFlechesCallback = scriptHandleFactory.CreateUniqueHandler(onEnterCordonDeFleches);
       onEnterZoneDeVeriteCallback = scriptHandleFactory.CreateUniqueHandler(onEnterZoneDeVerite);

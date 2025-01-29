@@ -1,25 +1,37 @@
-﻿using System.Linq;
-using Anvil.API;
+﻿using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
+using NWN.Core;
 
 namespace NWN.Systems
 {
   public partial class EffectSystem
   {
     public const string TempeteDeNeigeEffectTag = "_TEMPETE_DE_NEIGE_EFFECT";
+    public const string TempeteDeNeigeBlindEffectTag = "_TEMPETE_DE_NEIGE_BLIND_EFFECT";
     private static ScriptCallbackHandle onEnterTempeteDeNeigeCallback;
     private static ScriptCallbackHandle onHeartbeatTempeteDeNeigeCallback;
-    public static Effect TempeteDeNeige
+    private static ScriptCallbackHandle onExitTempeteDeNeigeCallback;
+    public static Effect TempeteDeNeige(NwGameObject caster)
+    {
+      Effect eff = Effect.AreaOfEffect((PersistentVfxType)61, onEnterTempeteDeNeigeCallback, onExitTempeteDeNeigeCallback);
+      eff.Tag = TempeteDeNeigeEffectTag;
+      eff.Creator = caster;
+      eff.SubType = EffectSubType.Supernatural;
+      return eff;
+    }
+
+    public static Effect TempeteDeNeigeBlind
     {
       get
       {
-        Effect eff = Effect.AreaOfEffect((PersistentVfxType)61, onEnterHandle: onEnterTempeteDeNeigeCallback, heartbeatHandle: onHeartbeatTempeteDeNeigeCallback);
-        eff.Tag = TempeteDeNeigeEffectTag;
+        Effect eff = Effect.Blindness();
+        eff.Tag = TempeteDeNeigeBlindEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;
       }
     }
+
     private static ScriptHandleResult onEnterTempeteDeNeige(CallInfo callInfo)
     {
       if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) || eventData.Entering is not NwCreature entering)
@@ -31,11 +43,9 @@ namespace NWN.Systems
         return ScriptHandleResult.Handled;
       }
 
-      SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.TempeteDeNeige];
-      int spellDC = SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellId(CustomSpell.TempeteDeNeige), (Ability)eventData.Effect.GetObjectVariable<LocalVariableInt>("_SPELL_CASTING_ABILITY").Value);
-
-      TempeteDeNeigeKnockDown(caster, entering, spellEntry, (Ability)eventData.Effect.GetObjectVariable<LocalVariableInt>("_SPELL_CASTING_ABILITY").Value);
-      TempeteDeNeigeConcentration(caster, entering, spellEntry, spellDC);
+      ApplyTerrainDifficileEffect(entering, caster, CustomSpell.TempeteDeNeige);
+      NWScript.AssignCommand(caster, () => entering.ApplyEffect(EffectDuration.Permanent, TempeteDeNeigeBlind));
+      TempeteDeNeigeKnockDown(caster, entering, Spells2da.spellTable[CustomSpell.TempeteDeNeige], (Ability)eventData.Effect.GetObjectVariable<LocalVariableInt>("_SPELL_CASTING_ABILITY").Value);
 
       return ScriptHandleResult.Handled;
     }
@@ -56,22 +66,25 @@ namespace NWN.Systems
       foreach(NwCreature entering in eventData.Effect.GetObjectsInEffectArea<NwCreature>()) 
       { 
         TempeteDeNeigeKnockDown(caster, entering, spellEntry, (Ability)eventData.Effect.GetObjectVariable<LocalVariableInt>("_SPELL_CASTING_ABILITY").Value);
-        TempeteDeNeigeConcentration(caster, entering, spellEntry, spellDC);
       }
 
       return ScriptHandleResult.Handled;
     }
     private static void TempeteDeNeigeKnockDown(NwCreature caster, NwCreature entering, SpellEntry spellEntry, Ability DCAbility)
     {
-      ApplyKnockdown(entering, caster, DCAbility, spellEntry.savingThrowAbility, EffectSystem.Knockdown);
+      ApplyKnockdown(entering, caster, DCAbility, spellEntry.savingThrowAbility, Knockdown);
     }
-    private static void TempeteDeNeigeConcentration(NwCreature caster, NwCreature entering, SpellEntry spellEntry, int spellDC)
+
+    private static ScriptHandleResult onExitTempeteDeNeige(CallInfo callInfo)
     {
-      if (entering.ActiveEffects.Any(e => e.Tag == ConcentrationEffectTag))
-      {
-        if (CreatureUtils.GetSavingThrow(caster, entering, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
-          SpellUtils.DispelConcentrationEffects(entering);
-      }
+      if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnExit eventData) || eventData.Exiting is not NwCreature exiting
+        || eventData.Effect.Creator is not NwCreature protector)
+        return ScriptHandleResult.Handled;
+
+      EffectUtils.RemoveTaggedEffect(exiting, protector, TempeteDeNeigeBlindEffectTag);
+      EffectUtils.RemoveTaggedEffect(exiting, protector, CustomSpell.TempeteDeNeige, TerrainDifficileEffectTag);
+
+      return ScriptHandleResult.Handled;
     }
   }
 }

@@ -10,7 +10,7 @@ namespace NWN.Systems
     {
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
 
-      targetLocation.ApplyEffect(EffectDuration.Temporary, EffectSystem.SphereDeFeu(oCaster, castingClass.SpellCastingAbility), SpellUtils.GetSpellDuration(oCaster, spellEntry));
+      targetLocation.ApplyEffect(EffectDuration.Temporary, EffectSystem.SphereDeFeu(oCaster), SpellUtils.GetSpellDuration(oCaster, spellEntry));
 
       var aoe = UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>();
       aoe.Tag = EffectSystem.SphereDeFeuEffectTag;

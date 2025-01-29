@@ -19,14 +19,14 @@ namespace NWN.Systems
     private static ScriptHandleResult onEnterEnchevetrement(CallInfo callInfo)
     {
       if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) && eventData.Entering is NwCreature entering && eventData.Effect.Creator is NwCreature caster)
-        ApplyTerrainDifficileEffect(entering, caster);
+        ApplyTerrainDifficileEffect(entering, caster, CustomSpell.Enchevetrement);
       
       return ScriptHandleResult.Handled;
     }
     private static ScriptHandleResult onExitEnchevetrement(CallInfo callInfo)
     {
       if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnExit eventData) && eventData.Exiting is NwCreature exiting)
-        EffectUtils.RemoveTaggedEffect(exiting, eventData.Effect.Creator, TerrainDifficileEffectTag);
+        EffectUtils.RemoveTaggedEffect(exiting, eventData.Effect.Creator, CustomSpell.Enchevetrement, TerrainDifficileEffectTag);
  
       return ScriptHandleResult.Handled;
     }

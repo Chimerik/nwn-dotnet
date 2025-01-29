@@ -57,6 +57,7 @@ namespace NWN.Systems
               case BaseItemType.TwoBladedSword:
               case BaseItemType.Kama:
               case BaseItemType.Katana: 
+              case BaseItemType.MagicStaff: 
               case BaseItemType.Kukri: break;
               default:
 
@@ -65,8 +66,8 @@ namespace NWN.Systems
                   List<int> proficenciesRequirements = ItemUtils.GetItemProficiencies(baseItem.ItemType);
 
                   foreach (int requiredProficiency in proficenciesRequirements)
-                    if (player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(requiredProficiency))
-                      || player.learnableSkills.TryGetValue(requiredProficiency, out LearnableSkill proficiency) && proficiency.currentLevel > 0)
+                    if (!player.oid.LoginCreature.KnowsFeat(NwFeat.FromFeatId(requiredProficiency))
+                      || player.learnableSkills.TryGetValue(requiredProficiency, out LearnableSkill proficiency) && proficiency.currentLevel < 1)
                       weaponProficiencies.Add(entry.RowIndex);
                 }
 

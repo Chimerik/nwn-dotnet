@@ -25,7 +25,7 @@ namespace NWN.Systems
     {
       if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) && eventData.Entering is NwCreature entering && eventData.Effect.Creator is NwCreature caster)
       {
-        ApplyTerrainDifficileEffect(entering, caster);
+        ApplyTerrainDifficileEffect(entering, caster, CustomSpell.TempeteDeNeige);
         ApplyKnockdown(entering, caster, CustomSkill.AcrobaticsProficiency, Ability.Dexterity, 12);
       }
       
@@ -37,7 +37,7 @@ namespace NWN.Systems
       {
         foreach (NwCreature entering in eventData.Effect.GetObjectsInEffectArea<NwCreature>())
         {
-          ApplyTerrainDifficileEffect(entering, caster);
+          ApplyTerrainDifficileEffect(entering, caster, CustomSpell.TempeteDeNeige);
 
           if (entering.MovementType != MovementType.Stationary)
             ApplyKnockdown(entering, caster, CustomSkill.AcrobaticsProficiency, Ability.Dexterity, 12);
@@ -49,7 +49,7 @@ namespace NWN.Systems
     private static ScriptHandleResult onExitSurfaceDeGlace(CallInfo callInfo)
     {
       if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnExit eventData) && eventData.Exiting is NwCreature exiting)
-        EffectUtils.RemoveTaggedEffect(exiting, eventData.Effect.Creator, TerrainDifficileEffectTag);
+        EffectUtils.RemoveTaggedEffect(exiting, eventData.Effect.Creator, CustomSpell.TempeteDeNeige, TerrainDifficileEffectTag);
  
       return ScriptHandleResult.Handled;
     }

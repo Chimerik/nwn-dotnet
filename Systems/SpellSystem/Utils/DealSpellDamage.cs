@@ -9,7 +9,7 @@ namespace NWN.Systems
 {
   public static partial class SpellUtils
   {
-    public static int DealSpellDamage(NwGameObject target, int casterLevel, SpellEntry spellEntry, int nbDices, NwGameObject oCaster, byte spellLevel, SavingThrowResult saveResult = SavingThrowResult.Failure, bool noLogs = false, NwClass casterClass = null, int damageDice = 0)
+    public static int DealSpellDamage(NwGameObject target, int casterLevel, SpellEntry spellEntry, int nbDices, NwGameObject oCaster, byte spellLevel, SavingThrowResult saveResult = SavingThrowResult.Failure, bool noLogs = false, NwClass casterClass = null, int damageDice = 0, DamageType forcedDamage = DamageType.BaseWeapon)
     {
       if (saveResult == SavingThrowResult.Immune)
         return 0;
@@ -50,7 +50,8 @@ namespace NWN.Systems
 
       foreach (DamageType damageType in spellEntry.damageType)
       {
-        DamageType appliedDamage = transmutedDamage == DamageType.BaseWeapon ? damageType : transmutedDamage;
+        DamageType appliedDamage = forcedDamage == DamageType.BaseWeapon ? damageType : forcedDamage;
+        appliedDamage = transmutedDamage == DamageType.BaseWeapon ? damageType : transmutedDamage;
         int damage = 0;
         bool isElementalist = Players.TryGetValue(castingCreature, out Player player)
           && player.learnableSkills.TryGetValue(CustomSkill.Elementaliste, out LearnableSkill elementalist)

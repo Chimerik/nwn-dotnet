@@ -23,14 +23,14 @@ namespace NWN.Systems
     {
       if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) && eventData.Effect.Creator is NwCreature caster 
         && eventData.Entering is NwCreature entering && caster != entering)
-          ApplyTerrainDifficileEffect(entering, caster);
+          ApplyTerrainDifficileEffect(entering, caster, CustomSpell.CroissanceVegetale);
 
       return ScriptHandleResult.Handled;
     }
     private static ScriptHandleResult onExitWildMagicCroissanceVegetale(CallInfo callInfo)
     {
       if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnExit eventData) && eventData.Exiting is NwCreature exiting)
-        EffectUtils.RemoveTaggedEffect(exiting, eventData.Effect.Creator, TerrainDifficileEffectTag);
+        EffectUtils.RemoveTaggedEffect(exiting, eventData.Effect.Creator, CustomSpell.CroissanceVegetale, TerrainDifficileEffectTag);
 
       return ScriptHandleResult.Handled;
     }

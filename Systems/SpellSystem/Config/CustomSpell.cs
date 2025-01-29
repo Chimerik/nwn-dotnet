@@ -49,6 +49,7 @@
     public const int AppelDeFamilierCat = 201;
     public const int AppelDeFamilierCrapaud = 202;
     public const int AppelDeFamilierRename = 203;
+    public const int PacteDeLaChaine = 204;
     public const int PacteDeLaChaineDiablotin = 205;
     public const int PacteDeLaChainePseudoDragon = 206;
     public const int PacteDeLaChaineQuasit = 207;
@@ -98,6 +99,11 @@
     public const int RestaurationSurdite = 261;
     public const int RestaurationParalysie = 262;
     public const int RestaurationEmpoisonnement = 263;
+    public const int ArmeElementaireAcide = 265;
+    public const int ArmeElementaireFroid = 266;
+    public const int ArmeElementaireFeu = 267;
+    public const int ArmeElementaireElec = 268;
+    public const int ArmeElementaireTonnerre = 269;
     public const int ChatimentTonitruant = 299;
     public const int VigueurArcanique = 300;
     public const int CordonDeFleches = 301;

@@ -43,6 +43,13 @@ namespace NWN
         if (creator == eff.Creator && effectTag.Contains(eff.Tag))
           target.RemoveEffect(eff);
     }
+
+    public static void RemoveTaggedEffect(NwGameObject target, NwObject creator, int spellId, params string[] effectTag)
+    {
+      foreach (var eff in target.ActiveEffects)
+        if (creator == eff.Creator && effectTag.Contains(eff.Tag) && eff.Spell?.Id == spellId)
+          target.RemoveEffect(eff);
+    }
     /*public static void RemoveTaggedEffect(CNWSObject target, params CExoString[] effectTag)
     {
       List<CGameEffect> effToRemove = new();

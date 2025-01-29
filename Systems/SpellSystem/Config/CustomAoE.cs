@@ -10,5 +10,6 @@ namespace NWN
     public const PersistentVfxType NappeDeBrouillard = (PersistentVfxType)262;
     public const PersistentVfxType NueeDeDagues = (PersistentVfxType)263;
     public const PersistentVfxType ZoneDeVerite = (PersistentVfxType)264;
+    public const PersistentVfxType VoracitedHadar = (PersistentVfxType)265;
   }
 }

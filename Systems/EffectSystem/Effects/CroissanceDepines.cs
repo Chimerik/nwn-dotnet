@@ -30,7 +30,7 @@ namespace NWN.Systems
       if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) && eventData.Entering is NwCreature entering
         && eventData.Effect.Creator is NwCreature caster)
       {
-        ApplyTerrainDifficileEffect(entering, caster);
+        ApplyTerrainDifficileEffect(entering, caster, CustomSpell.CroissanceDepines);
         entering.ApplyEffect(EffectDuration.Instant, Effect.Damage((int)DamageBonus.Plus2d4, DamageType.Piercing));
       }
 
@@ -39,7 +39,7 @@ namespace NWN.Systems
     private static ScriptHandleResult onExitCroissanceDepines(CallInfo callInfo)
     {
       if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnExit eventData) && eventData.Exiting is NwCreature exiting)
-        EffectUtils.RemoveTaggedEffect(exiting, eventData.Effect.Creator, TerrainDifficileEffectTag);
+        EffectUtils.RemoveTaggedEffect(exiting, eventData.Effect.Creator, CustomSpell.CroissanceDepines, TerrainDifficileEffectTag);
 
       return ScriptHandleResult.Handled;
     }

@@ -79,6 +79,7 @@ namespace NWN.Systems
         if (previousWeapon is not null)
         {
           previousWeapon.RemoveItemProperties(ItemPropertyType.EnhancementBonus, durationType: EffectDuration.Temporary);
+          previousWeapon.RemoveItemProperties(ItemPropertyType.DamageBonus, durationType: EffectDuration.Temporary);
           DelayMagicWeaponRemoval(magicWeapon);
         }
       }

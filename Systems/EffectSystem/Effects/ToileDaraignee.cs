@@ -22,7 +22,7 @@ namespace NWN.Systems
     {
       if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) && eventData.Entering is NwCreature entering && eventData.Effect.Creator is NwCreature caster)
       {
-        ApplyTerrainDifficileEffect(entering, caster);
+        ApplyTerrainDifficileEffect(entering, caster, CustomSpell.ToileDaraignee);
 
         Ability castingAbility = (Ability)eventData.Effect.GetObjectVariable<LocalVariableInt>("_DC_ABILITY").Value;
         SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.ToileDaraignee];
@@ -37,7 +37,7 @@ namespace NWN.Systems
     private static ScriptHandleResult onExitToileDaraignee(CallInfo callInfo)
     {
       if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnExit eventData) && eventData.Exiting is NwCreature exiting && eventData.Effect.Creator is NwCreature caster)
-        EffectUtils.RemoveTaggedEffect(exiting, caster, TerrainDifficileEffectTag);
+        EffectUtils.RemoveTaggedEffect(exiting, caster, CustomSpell.ToileDaraignee, TerrainDifficileEffectTag);
  
       return ScriptHandleResult.Handled;
     }

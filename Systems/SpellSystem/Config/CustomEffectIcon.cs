@@ -103,5 +103,6 @@ namespace NWN
     public const EffectIcon RayonAffaiblissant = (EffectIcon)259;
     public const EffectIcon SouffleDuDragon = (EffectIcon)260;
     public const EffectIcon PattesDaraignee = (EffectIcon)261;
+    public const EffectIcon LueurDespoir = (EffectIcon)262;
   }
 }

@@ -1177,6 +1177,15 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case CustomSpell.ArmeElementaireAcide:
+        case CustomSpell.ArmeElementaireFroid:
+        case CustomSpell.ArmeElementaireFeu:
+        case CustomSpell.ArmeElementaireElec:
+        case CustomSpell.ArmeElementaireTonnerre:
+          SpellSystem.ArmeElementaire(oCaster, spell, spellEntry, target);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.Terrassement:
           SpellSystem.Terrassement(oCaster, spell, spellEntry, target is null ? targetLocation : target.Location);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
@@ -1512,18 +1521,21 @@ namespace NWN.Systems
           
           if (castingClass.ClassType == (ClassType)CustomClass.Occultiste)
           {
-            byte occultisteSpellLevel = spell.GetSpellLevelForClass((ClassType)CustomClass.Occultiste);
-            if (0 < occultisteSpellLevel && occultisteSpellLevel < 6)
+            if (spell.MasterSpell != null && !Utils.In(spell.MasterSpell.Id, CustomSpell.AppelDeFamilier, CustomSpell.PacteDeLaChaine))
             {
-              var occultisteClass = castingCreature.GetClassInfo((ClassType)CustomClass.Occultiste);
-              byte remainingSlots = occultisteClass.GetRemainingSpellSlots(1);
-              byte consumedSlots = (byte)(occultisteSpellLevel > 1 ? remainingSlots - 1 : remainingSlots);
+              byte occultisteSpellLevel = spell.GetSpellLevelForClass((ClassType)CustomClass.Occultiste);
+              if (0 < occultisteSpellLevel && occultisteSpellLevel < 6)
+              {
+                var occultisteClass = castingCreature.GetClassInfo((ClassType)CustomClass.Occultiste);
+                byte remainingSlots = occultisteClass.GetRemainingSpellSlots(1);
+                byte consumedSlots = (byte)(occultisteSpellLevel > 1 ? remainingSlots - 1 : remainingSlots);
 
-              for (byte i = 1; i < 10; i++)
-                if (i != occultisteSpellLevel)
-                  occultisteClass.SetRemainingSpellSlots(i, consumedSlots);
+                for (byte i = 1; i < 10; i++)
+                  if (i != occultisteSpellLevel)
+                    occultisteClass.SetRemainingSpellSlots(i, consumedSlots);
 
-              castingCreature.SetFeatRemainingUses((Feat)CustomSkill.ChatimentOcculte, consumedSlots);
+                castingCreature.SetFeatRemainingUses((Feat)CustomSkill.ChatimentOcculte, consumedSlots);
+              }
             }
           }
           else if (castingFamiliar)

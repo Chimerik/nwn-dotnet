@@ -9,12 +9,11 @@ namespace NWN.Systems
     public const string SphereDeFeuEffectTag = "_SPHERE_DE_FEU_EFFECT";
     private static ScriptCallbackHandle onEnterSphereDeFeuCallback;
     private static ScriptCallbackHandle onHeartbeatSphereDeFeuCallback;
-    public static Effect SphereDeFeu(NwGameObject caster, Ability castingAbility)
+    public static Effect SphereDeFeu(NwGameObject caster)
     {
       Effect eff = Effect.AreaOfEffect(CustomAoE.SphereDeFeu, onEnterSphereDeFeuCallback, onHeartbeatSphereDeFeuCallback);
       eff.Tag = SphereDeFeuEffectTag;
       eff.Creator = caster;
-      eff.IntParams[5] = (int)castingAbility;
       eff.SubType = EffectSubType.Supernatural;
       return eff;
     }
