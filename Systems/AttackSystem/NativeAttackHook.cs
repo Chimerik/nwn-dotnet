@@ -34,8 +34,8 @@ namespace NWN.Systems
     [NativeFunction("_ZN12CNWSCreature29AddUseTalentAtLocationActionsEii6Vectorhjihh", null)]
     private delegate int AddUseTalentAtLocationHook(void* pCreature, int talentType, int talentId, Vector3 vTargetLocation, byte nMultiClass, uint oidItem, int nItemPropertyIndex, byte nCasterLevel, int nMetaType);
 
-    [NativeFunction("_ZN17CNWSCreatureStats21GetSpellGainWithBonusEhh", null)]
-    private delegate byte GetSpellGainWithBonusHook(byte nMultiClass, byte nSpellLevel);
+    //[NativeFunction("_ZN17CNWSCreatureStats21GetSpellGainWithBonusEhh", null)]
+    //private delegate byte GetSpellGainWithBonusHook(byte nMultiClass, byte nSpellLevel);
 
     //[NativeFunction("_ZN17CNWSCreatureStats33GetSpellGainWithBonusAfterLevelUpEhhP13CNWLevelStatshi", null)]
     //private delegate byte GetSpellGainWithBonusAfterLevelUpHook(byte creatureClass, byte spellLevel, CNWLevelStats levelStats , byte school, int newClass = 0);

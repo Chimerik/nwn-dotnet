@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.Icon((EffectIcon)135);
+        Effect eff = Effect.Icon(CustomEffectIcon.Broyeur);
         eff.Tag = BroyeurEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

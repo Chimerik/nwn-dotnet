@@ -1,4 +1,4 @@
-﻿using Google.Cloud.Translation.V2;
+using Google.Cloud.Translation.V2;
 using NLog;
 using Anvil.API;
 using Anvil.API.Events;
@@ -786,7 +786,11 @@ namespace NWN.Systems
       foreach (var model in NwGameTables.AppearanceTable)
         if (!string.IsNullOrEmpty(model.Label))
           Utils.appearanceEntries.Add(new NuiComboEntry(StringUtils.ConvertToUTF8(model.Label), model.RowIndex));
-      
+
+      foreach (var model in NwGameTables.PlaceableTable)
+        if (!string.IsNullOrEmpty(model.Label))
+          Utils.placeableEntries.Add(new NuiComboEntry(StringUtils.ConvertToUTF8(model.Label), model.RowIndex));
+
       foreach (var baseItem in BaseItems2da.baseItemTable)
       {
         Dictionary<ItemAppearanceWeaponModel, List<NuiComboEntry>> models = new();

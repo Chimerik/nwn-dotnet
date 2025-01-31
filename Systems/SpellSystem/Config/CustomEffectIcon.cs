@@ -9,6 +9,7 @@ namespace NWN
     public const EffectIcon Saignement = (EffectIcon)132;
     public const EffectIcon Brulure = (EffectIcon)133;
     public const EffectIcon ChatimentBrillant = (EffectIcon)134;
+    public const EffectIcon Broyeur = (EffectIcon)135;
     public const EffectIcon Sprint = (EffectIcon)142;
     public const EffectIcon Bouclier = (EffectIcon)152;
     public const EffectIcon FormeDeLune = (EffectIcon)186;
@@ -104,5 +105,6 @@ namespace NWN
     public const EffectIcon SouffleDuDragon = (EffectIcon)260;
     public const EffectIcon PattesDaraignee = (EffectIcon)261;
     public const EffectIcon LueurDespoir = (EffectIcon)262;
+    public const EffectIcon Chargeur = (EffectIcon)263;
   }
 }
