@@ -7,7 +7,7 @@ namespace NWN.Systems
     public static bool GetIlluminationProtectriceDisadvantage(CGameEffect eff, CNWSCreature target)
     {
       LogUtils.LogMessage("Désavantage - Illumination Protectrice", LogUtils.LogType.Combat);
-      EffectUtils.DelayEffectRemoval(target, eff);
+      target.RemoveEffect(eff);
       return true;   
     }
   }

@@ -1,6 +1,7 @@
 ﻿using Anvil.API.Events;
 using Anvil.API;
 using NWN.Core;
+using System.Linq;
 
 namespace NWN.Systems
 {
@@ -18,7 +19,8 @@ namespace NWN.Systems
         case AttackResult.Concealed:
         case AttackResult.MissChance:
 
-          NWScript.AssignCommand(onAttack.Attacker, () => onAttack.Attacker.ApplyEffect(EffectDuration.Temporary, EffectSystem.AttaquesEtudiees, NwTimeSpan.FromRounds(1)));
+          if(!onAttack.Attacker.ActiveEffects.Any(e => e.Tag == EffectSystem.AttaquesEtudieesEffectTag))
+            NWScript.AssignCommand(target, () => onAttack.Attacker.ApplyEffect(EffectDuration.Temporary, EffectSystem.AttaquesEtudiees, NwTimeSpan.FromRounds(1)));
 
           break;
       }

@@ -7,7 +7,7 @@ namespace NWN.Systems
     public static bool GetMoquerieVicieuseDisadvantage(CNWSCreature creature, CGameEffect eff)
     {
       LogUtils.LogMessage("Désavantage - Moquerie Vicieuse", LogUtils.LogType.Combat);
-      EffectUtils.DelayEffectRemoval(creature, eff);
+      creature.RemoveEffect(eff);
       return true;
     }
   }

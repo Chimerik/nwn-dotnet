@@ -1,4 +1,4 @@
-using Google.Cloud.Translation.V2;
+﻿using Google.Cloud.Translation.V2;
 using NLog;
 using Anvil.API;
 using Anvil.API.Events;
@@ -141,7 +141,7 @@ namespace NWN.Systems
       RestorePlayerCorpseFromDatabase();
       RestoreResourceBlocksFromDatabase();
       LoadHeadLists();
-      StringUtils.InitializeTlkOverrides();
+      //StringUtils.InitializeTlkOverrides();
 
       TimeSpan activationOn5AM = DateTime.Now.Hour < 4 ? new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 4, 0, 0) - DateTime.Now : DateTime.Now.AddDays(1).AddHours(-(DateTime.Now.Hour - 4)).AddMinutes(-DateTime.Now.Minute).AddSeconds(-DateTime.Now.Second) - DateTime.Now;
       TimeSpan activationOn6AM = DateTime.Now.Hour < 5 ? new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 5, 0, 0) - DateTime.Now : DateTime.Now.AddDays(1).AddHours(-(DateTime.Now.Hour - 5)).AddMinutes(-DateTime.Now.Minute).AddSeconds(-DateTime.Now.Second) - DateTime.Now;

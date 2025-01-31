@@ -9,7 +9,7 @@ namespace NWN
   {
     public static bool IsIncapacitatingEffect(Effect eff)
     {
-      if (eff.Tag == EffectSystem.KnockdownEffectTag)
+      if (eff.Tag is not null && eff.Tag == EffectSystem.KnockdownEffectTag)
         return true;
 
       return eff.EffectType switch

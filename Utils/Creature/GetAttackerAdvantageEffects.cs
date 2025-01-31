@@ -15,7 +15,7 @@ namespace NWN.Systems
         switch(tag)
         {
           case EffectSystem.ViseeStableEffectTag: GetViseeStableAdvantage(eff, attacker); return true; 
-          case EffectSystem.AttaquesEtudieesEffectTag: GetAttaquesEtudieesAdvantage(eff, attacker); return true; 
+          case EffectSystem.AttaquesEtudieesEffectTag: return GetAttaquesEtudieesAdvantage(eff, attacker, target); 
           case EffectSystem.FouleeDombreEffectTag: LogUtils.LogMessage("Avantage - Foulée d'ombre", LogUtils.LogType.Combat); return true; 
           case EffectSystem.BroyeurEffectTag: LogUtils.LogMessage("Avantage - Broyeur", LogUtils.LogType.Combat); return true; 
           case EffectSystem.RecklessAttackEffectTag: LogUtils.LogMessage("Avantage - Frappe Téméraire", LogUtils.LogType.Combat); return true; 

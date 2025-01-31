@@ -103,7 +103,7 @@ namespace NWN.Systems
           Utils.mageCanTripList.Add(new NuiComboEntry(spell.Name.ToString(), spell.FeatReference.Id));
       }
 
-      SpellUtils.UpdateSpellDescriptionTable();
+      //SpellUtils.UpdateSpellDescriptionTable();
     }
   }
 }

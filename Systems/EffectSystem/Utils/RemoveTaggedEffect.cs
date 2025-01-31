@@ -74,10 +74,5 @@ namespace NWN
       foreach (var eff in effToRemove)
         target.RemoveEffect(eff);
     }
-    public static async void DelayEffectRemoval(CNWSCreature attacker, CGameEffect eff)
-    {
-      await NwTask.NextFrame();
-      attacker.RemoveEffect(eff);
-    }
   }
 }

@@ -7,7 +7,7 @@ namespace NWN.Systems
     public static bool GetAffaiblissementDisadvantage(CNWSCreature creature, CGameEffect eff)
     {
       LogUtils.LogMessage("Désavantage - Affecté par Affaiblissement", LogUtils.LogType.Combat);
-      EffectUtils.DelayEffectRemoval(creature, eff);
+      creature.RemoveEffect(eff);
       return true;
     }
   }

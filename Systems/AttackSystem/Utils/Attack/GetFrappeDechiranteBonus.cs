@@ -12,7 +12,7 @@ namespace NWN.Systems
       if (attacker.m_idSelf != eff.m_oidCreator)
         return 0;
 
-      EffectUtils.DelayEffectRemoval(attacker, eff);
+      attacker.RemoveEffect(eff);
       LogUtils.LogMessage($"Frappe Déchirante : +5 BA", LogUtils.LogType.Combat);
 
       return 5;

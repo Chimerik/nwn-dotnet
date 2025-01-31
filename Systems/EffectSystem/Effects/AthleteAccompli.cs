@@ -9,7 +9,9 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.MovementSpeedIncrease(25);
+        Effect speed = Effect.MovementSpeedIncrease(25);
+        speed.ShowIcon = false;
+        Effect eff = Effect.LinkEffects(speed, Effect.Icon(CustomEffectIcon.AthleteAccompli));
         eff.Tag = AthleteAccompliEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

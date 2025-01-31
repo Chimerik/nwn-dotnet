@@ -106,5 +106,8 @@ namespace NWN
     public const EffectIcon PattesDaraignee = (EffectIcon)261;
     public const EffectIcon LueurDespoir = (EffectIcon)262;
     public const EffectIcon Chargeur = (EffectIcon)263;
+    public const EffectIcon AthleteAccompli = (EffectIcon)264;
+    public const EffectIcon AvantageTactique = (EffectIcon)265;
+    public const EffectIcon AttaquesEtudiees = (EffectIcon)266;
   }
 }

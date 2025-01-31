@@ -108,13 +108,13 @@ namespace NWN.Systems
 
     public static async Task<string> DownloadGoogleDoc(string fileId)
     {
-      var request = ModuleSystem.googleDriveService.Files.Export(fileId, "text/plain");
+        var request = ModuleSystem.googleDriveService.Files.Export(fileId, "text/plain");
 
-      using var stream = new MemoryStream();
-      await request.DownloadAsync(stream);
-      stream.Position = 0;
-      var reader = await new StreamReader(stream).ReadToEndAsync();
-      return reader.Replace("\r\n", "\n").Replace("’", "'");
+        using var stream = new MemoryStream();
+        await request.DownloadAsync(stream);
+        stream.Position = 0;
+        var reader = await new StreamReader(stream).ReadToEndAsync();
+        return reader.Replace("\r\n", "\n").Replace("’", "'");
     }
 
     public static async Task<string> DownloadGoogleDocFromName(string fileName)

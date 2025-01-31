@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     public static void GetViseeStableAdvantage(CGameEffect eff, CNWSCreature attacker)
     {
-      EffectUtils.DelayEffectRemoval(attacker, eff);
+      attacker.RemoveEffect(eff);
       LogUtils.LogMessage("Avantage - Visee Stable", LogUtils.LogType.Combat);
     }
   }

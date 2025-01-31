@@ -4,10 +4,16 @@ namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static void GetAttaquesEtudieesAdvantage(CGameEffect eff, CNWSCreature attacker)
+    public static bool GetAttaquesEtudieesAdvantage(CGameEffect eff, CNWSCreature attacker, CNWSCreature target)
     {
-      LogUtils.LogMessage("Avantage - Attaque Etudiees", LogUtils.LogType.Combat);
-      EffectUtils.DelayEffectRemoval(attacker, eff);
+      if (eff.m_oidCreator == target.m_idSelf)
+      {
+        LogUtils.LogMessage("Avantage - Attaque Etudiees", LogUtils.LogType.Combat);
+        attacker.RemoveEffect(eff);
+        return true;
+      }
+
+      return false;
     }
   }
 }

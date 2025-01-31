@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     public static void GetMaitreTactiqueAdvantage(CGameEffect eff, CNWSCreature attacker)
     {
-      EffectUtils.DelayEffectRemoval(attacker, eff);
+      attacker.RemoveEffect(eff);
       LogUtils.LogMessage("Avantage - Maître Tactique", LogUtils.LogType.Combat);
     }
   }
