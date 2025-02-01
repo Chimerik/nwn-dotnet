@@ -102,8 +102,6 @@ namespace NWN.Systems
         if (spell.GetSpellLevelForClass(ClassType.Wizard) == 0 && spell.FeatReference?.Id > 0)
           Utils.mageCanTripList.Add(new NuiComboEntry(spell.Name.ToString(), spell.FeatReference.Id));
       }
-
-      //SpellUtils.UpdateSpellDescriptionTable();
     }
   }
 }

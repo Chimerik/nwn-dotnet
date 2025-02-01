@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -6,32 +7,37 @@ namespace NWN.Systems
   {
     public static int GetShieldMasterReducedDamage(NwCreature target, int damage, SavingThrowResult saveResult, Ability saveType = Ability.Dexterity)
     {
-      if (damage > 0 && target is not null && saveType == Ability.Dexterity && target.KnowsFeat((Feat)CustomSkill.MaitreBouclier)
-        && target.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value > 0)
+      if (damage > 0 && target is not null && saveType == Ability.Dexterity && target.KnowsFeat((Feat)CustomSkill.MaitreBouclier))
       {
-        bool saveFailed = saveResult == SavingThrowResult.Failure;
+        var reaction = target.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.ReactionEffectTag);
 
-        switch (target.GetItemInSlot(InventorySlot.LeftHand)?.BaseItem.ItemType)
+        if (reaction is not null)
         {
-          case BaseItemType.SmallShield:
-          case BaseItemType.LargeShield:
-          case BaseItemType.TowerShield:
 
-            target.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value -= 1;
+          bool saveFailed = saveResult == SavingThrowResult.Failure;
 
-            if (!saveFailed)
-            {
-              StringUtils.DisplayStringToAllPlayersNearTarget(target, "Maître des boucliers", StringUtils.gold, true);
-              LogUtils.LogMessage($"Maître des boucliers JDS réussi : Dégâts réduits à 0", LogUtils.LogType.Combat);
-              return 0;
-            }
-            else
-            {
-              damage /= 2;
-              LogUtils.LogMessage($"Maître des boucliers JDS échoué : Dégâts {damage}", LogUtils.LogType.Combat);
-            }
+          switch (target.GetItemInSlot(InventorySlot.LeftHand)?.BaseItem.ItemType)
+          {
+            case BaseItemType.SmallShield:
+            case BaseItemType.LargeShield:
+            case BaseItemType.TowerShield:
 
-            break;
+              target.RemoveEffect(reaction);
+
+              if (!saveFailed)
+              {
+                StringUtils.DisplayStringToAllPlayersNearTarget(target, "Maître des boucliers", StringUtils.gold, true);
+                LogUtils.LogMessage($"Maître des boucliers JDS réussi : Dégâts réduits à 0", LogUtils.LogType.Combat);
+                return 0;
+              }
+              else
+              {
+                damage /= 2;
+                LogUtils.LogMessage($"Maître des boucliers JDS échoué : Dégâts {damage}", LogUtils.LogType.Combat);
+              }
+
+              break;
+          }
         }
       }
 

@@ -5,7 +5,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string PreparationEffectTag = "_PREPARATION_EFFECT";
-    public static readonly Native.API.CExoString PreparationEffectExoTag = PreparationEffectTag.ToExoString();
     public static Effect Preparation
     {
       get

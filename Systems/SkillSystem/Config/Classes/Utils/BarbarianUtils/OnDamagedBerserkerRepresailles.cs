@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using Anvil.API.Events;
 using NWN.Core;
 
@@ -15,16 +16,21 @@ namespace NWN.Systems
 
       var creature = onDamaged.Creature;
 
-      if (onDamaged.DamageAmount > 0 && creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value > 0)
+      if (onDamaged.DamageAmount > 0)
       {
-        var weapon = creature.GetItemInSlot(InventorySlot.RightHand);
+        var reaction = creature.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.ReactionEffectTag);
 
-        if (weapon is null || !ItemUtils.IsMeleeWeapon(NwBaseItem.FromItemId((int)weapon.BaseItem.Id))
-          || creature.DistanceSquared(damager) > 12)
-          return;
+        if (reaction is not null)
+        {
+          var weapon = creature.GetItemInSlot(InventorySlot.RightHand);
 
-        creature.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.BersekerRepresaillesVariable).Value = damager;
-        creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value -= 1;
+          if (weapon is null || !ItemUtils.IsMeleeWeapon(NwBaseItem.FromItemId((int)weapon.BaseItem.Id))
+            || creature.DistanceSquared(damager) > 12)
+            return;
+
+          creature.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.BersekerRepresaillesVariable).Value = damager;
+          creature.RemoveEffect(reaction);
+        }
       }
     }
   }

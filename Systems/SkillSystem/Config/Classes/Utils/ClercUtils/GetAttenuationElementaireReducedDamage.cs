@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -6,13 +7,17 @@ namespace NWN.Systems
   {
     public static int GetAttenuationElementaireReducedDamage(NwCreature target, int damage, DamageType damageType)
     {
-      if (damage > 0 && target is not null && target.KnowsFeat((Feat)CustomSkill.ClercAttenuationElementaire) 
-        && Utils.In(damageType, DamageType.Acid, DamageType.Fire, DamageType.Cold, DamageType.Electrical)
-        && target.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).HasValue)
+      if (damage > 0 && target is not null && target.KnowsFeat((Feat)CustomSkill.ClercAttenuationElementaire)
+        && Utils.In(damageType, DamageType.Acid, DamageType.Fire, DamageType.Cold, DamageType.Electrical))
       {
-        damage /= 2;
-        target.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value -= 1;
+        var reaction = target.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.ReactionEffectTag);
+
+        if (reaction is not null)
+        {
+          damage /= 2;
+          target.RemoveEffect(reaction);
         LogUtils.LogMessage($"Atténuation Elémentaire - {damage}", LogUtils.LogType.Combat);
+        } 
       }
 
       return damage;

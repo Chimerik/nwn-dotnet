@@ -11,9 +11,9 @@ namespace NWN.Systems
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.ExpertiseDesarmement);
 
       player.oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipExpertiseDesarmement;
-      player.oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipDesarmement;
+      player.oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipDesarmement;
       player.oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipExpertiseDesarmement;
-      player.oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipDesarmement;
+      player.oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipDesarmement;
 
       var weapon = player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
 

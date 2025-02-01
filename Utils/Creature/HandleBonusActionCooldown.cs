@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       await NwTask.NextFrame();
 
-      if (creature.IsPlayerControlled && creature.GetObjectVariable<LocalVariableInt>(BonusActionVariable).Value < 1)
+      if (creature.IsPlayerControlled && !creature.ActiveEffects.Any(e => e.Tag == EffectSystem.BonusActionEffectTag))
       {
         foreach (var feat in creature.Feats.Where(f => f.TalentMaxCR.ToBool() && f.UsesPerDay > 0 && creature.GetFeatRemainingUses(f) > 0))
         {

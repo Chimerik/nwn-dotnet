@@ -16,7 +16,7 @@ namespace NWN.Systems
       }
 
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSuperHeroism));
-      caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.ActionSurge);
+      caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.ActionSurge, NwTimeSpan.FromRounds(1));
       FeatUtils.DecrementFeatUses(caster, CustomSkill.FighterSurge);
 
       if(caster.KnowsFeat((Feat)CustomSkill.EldritchKnightChargeArcanique))

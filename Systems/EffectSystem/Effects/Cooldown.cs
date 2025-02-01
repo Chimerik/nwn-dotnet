@@ -70,7 +70,10 @@ namespace NWN.Systems
 
             break;
 
-          case CustomSpell.Resistance:break;
+          case CustomSpell.Resistance:
+          case BonusActionId: 
+          case ReactionId: 
+            break;
 
           default:
 
@@ -96,7 +99,7 @@ namespace NWN.Systems
           //ModuleSystem.Log.Info($"{feat.Name} - {eff.DurationRemaining}");
           NwSpell spell;
 
-          switch(feat.Id)
+          switch(eff.IntParams[5])
           {
             case CustomSkill.BuveuseDeVie:
 
@@ -131,7 +134,10 @@ namespace NWN.Systems
 
               break;
 
-            case CustomSpell.Resistance: break;
+            case CustomSpell.Resistance:
+            case BonusActionId:  
+            case ReactionId:  
+              break;
 
             default: feat.Name.SetPlayerOverride(caster.LoginPlayer, feat.Name.ToString() + $" - Rechargement ({eff.DurationRemaining} s)"); break;
           }            
@@ -153,7 +159,7 @@ namespace NWN.Systems
 
         if (caster.IsLoginPlayerCharacter)
         {
-          switch(feat.Id)
+          switch(eff.IntParams[5])
           {
             case CustomSkill.BuveuseDeVie:
 
@@ -188,21 +194,27 @@ namespace NWN.Systems
 
               break;
 
+            case BonusActionId: 
+            case ReactionId: 
+              break;
+
             default: feat.Name.ClearPlayerOverride(caster.LoginPlayer); break;
           }            
         }
 
-        HandleCooldown(caster, feat, NwSpell.FromSpellId(eff.IntParams[6]), remainingUse);
+        HandleCooldown(caster, eff.IntParams[5], feat, NwSpell.FromSpellId(eff.IntParams[6]), remainingUse);
       }
 
       return ScriptHandleResult.Handled;
     }
-    private static async void HandleCooldown(NwCreature caster, NwFeat feat, NwSpell spell, int remainingUse)
+    private static async void HandleCooldown(NwCreature caster, int cooldownId, NwFeat feat, NwSpell spell, int remainingUse)
     {
       await NwTask.NextFrame();
 
-      switch (feat.Id)
+      switch (cooldownId)
       {
+        case BonusActionId: ApplyActionBonus(caster); break;
+        case ReactionId: ApplyReaction(caster); break;
         case CustomSkill.BuveuseDeVie: ApplyBuveuseDeVie(caster); break;
         case CustomSkill.ClercFrappeDivine: ApplyFrappeDivine(caster); break;
         case CustomSkill.DefensesEnjoleuses: NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, DefensesEnjoleuses)); break;

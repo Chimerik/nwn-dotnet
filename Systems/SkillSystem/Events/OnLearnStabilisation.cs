@@ -11,9 +11,9 @@ namespace NWN.Systems
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.ExpertiseStabilisation);
 
       player.oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipStabilisation;
-      player.oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipStabilisation;
+      player.oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipStabilisation;
       player.oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipStabilisation;
-      player.oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipStabilisation;
+      player.oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipStabilisation;
 
       var weapon = player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
 

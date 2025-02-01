@@ -12,9 +12,9 @@ namespace NWN.Systems
 
 
       player.oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipEraflure;
-      player.oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipEraflure;
+      player.oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipEraflure;
       player.oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipEraflure;
-      player.oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipEraflure;
+      player.oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipEraflure;
 
       var weapon = player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
       var secondWeapon = player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand);

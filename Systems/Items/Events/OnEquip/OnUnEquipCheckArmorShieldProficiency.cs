@@ -5,9 +5,9 @@ namespace NWN.Systems
 {
   public partial class ItemSystem
   {
-    public static void OnUnEquipCheckArmorShieldProficiency(OnItemUnequip onUnequip)
+    public static void OnUnEquipCheckArmorShieldProficiency(ModuleEvents.OnPlayerUnequipItem onUnequip)
     {
-      NwCreature oPC = onUnequip.Creature;
+      NwCreature oPC = onUnequip.UnequippedBy;
       NwItem oItem = onUnequip.Item;
 
       if (oPC is null || oItem is null)

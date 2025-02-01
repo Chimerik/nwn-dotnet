@@ -7,9 +7,9 @@ namespace NWN.Systems
 {
   public partial class ItemSystem
   {
-    public static async void OnUnEquipPreparation(OnItemUnequip onUnequip)
+    public static async void OnUnEquipPreparation(ModuleEvents.OnPlayerUnequipItem onUnequip)
     {
-      NwCreature oPC = onUnequip.Creature;
+      NwCreature oPC = onUnequip.UnequippedBy;
       NwItem oItem = onUnequip.Item;
       
       if (oPC is null || oItem is null || !ItemUtils.IsWeapon(oItem.BaseItem))
@@ -19,7 +19,7 @@ namespace NWN.Systems
 
       var weapon = oPC.GetItemInSlot(InventorySlot.RightHand);
 
-      if (weapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Greataxe, BaseItemType.Doubleaxe, BaseItemType.Battleaxe, BaseItemType.DwarvenWaraxe, BaseItemType.Katana, BaseItemType.Scythe))
+      if (weapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Handaxe, BaseItemType.Greataxe, BaseItemType.Doubleaxe, BaseItemType.Battleaxe, BaseItemType.DwarvenWaraxe, BaseItemType.Katana, BaseItemType.Scythe))
       {
         if (!oPC.ActiveEffects.Any(e => e.Tag == EffectSystem.CooldownEffectTag && e.IntParams[5] == CustomSkill.ExpertisePreparation))
           oPC.SetFeatRemainingUses((Feat)CustomSkill.ExpertisePreparation, 100);

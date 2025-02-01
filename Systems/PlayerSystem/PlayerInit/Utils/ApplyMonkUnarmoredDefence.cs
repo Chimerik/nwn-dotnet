@@ -12,9 +12,9 @@ namespace NWN.Systems
         if (oid.LoginCreature.Classes.Any(c => c.Class.Id == CustomClass.Monk))
         {
           oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipMonkUnarmoredDefence;
-          oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipMonkUnarmoredDefence;
+          oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipMonkUnarmoredDefence;
           oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipMonkUnarmoredDefence;
-          oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipMonkUnarmoredDefence;
+          oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipMonkUnarmoredDefence;
 
           NwItem armor = oid.LoginCreature.GetItemInSlot(InventorySlot.Chest);
           NwItem shield = oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand);

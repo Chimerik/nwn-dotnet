@@ -93,11 +93,15 @@ namespace NWN.Systems
         return;
       }
 
-      if (onDamaged.DamageAmount > 0 && caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value > 0
-        && caster.DistanceSquared(damager) < 324)
+      if (onDamaged.DamageAmount > 0 && caster.DistanceSquared(damager) < 324)
       {
-        var spellEntry = Spells2da.spellTable.GetRow(CustomSpell.PuitsDeLune);
-        int DC = SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellId(CustomSpell.PuitsDeLune), (Ability)eff.CasterLevel);
+        var reaction = caster.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.ReactionEffectTag);
+
+        if (reaction is not null)
+        {
+
+          var spellEntry = Spells2da.spellTable.GetRow(CustomSpell.PuitsDeLune);
+          int DC = SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellId(CustomSpell.PuitsDeLune), (Ability)eff.CasterLevel);
 
           if (CreatureUtils.GetSavingThrow(caster, damager, spellEntry.savingThrowAbility, DC, spellEntry) == SavingThrowResult.Failure)
           {
@@ -105,7 +109,8 @@ namespace NWN.Systems
             damager.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpBlindDeafM));
           }
 
-        caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value -= 1;
+          caster.RemoveEffect(reaction);
+        }
       }
     }
   }

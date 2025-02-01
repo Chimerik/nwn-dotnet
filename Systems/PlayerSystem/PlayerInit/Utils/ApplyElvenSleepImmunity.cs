@@ -15,7 +15,7 @@ namespace NWN.Systems
           case CustomRace.HighElf:
           case CustomRace.WoodElf:
 
-            if (!oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.sleepImmunity.Tag))
+            if (!oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.SleepImmunityEffectTag))
               oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.sleepImmunity);
 
             break;

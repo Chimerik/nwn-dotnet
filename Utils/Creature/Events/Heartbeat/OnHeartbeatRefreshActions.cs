@@ -10,11 +10,6 @@ namespace NWN.Systems
     {
       foreach (var creature in NwObject.FindObjectsOfType<NwCreature>())
       {
-        creature.GetObjectVariable<LocalVariableInt>(BonusActionVariable).Value = 1;
-
-        if (creature.KnowsFeat((Feat)CustomSkill.MainLeste))
-          creature.GetObjectVariable<LocalVariableInt>(BonusActionVariable).Value += 1;
-
         creature.GetObjectVariable<LocalVariableInt>(HastMasterCooldownVariable).Delete();
         creature.GetObjectVariable<LocalVariableInt>(SneakAttackCooldownVariable).Delete();
         creature.GetObjectVariable<LocalVariableInt>(EmpaleurCooldownVariable).Delete();
@@ -75,11 +70,6 @@ namespace NWN.Systems
             creature.GetObjectVariable<LocalVariableInt>($"_FEAT_REMAINING_USE_{feat.Id}").Delete();
           }
         }  
-
-        if (creature.ActiveEffects.Any(e => e.Tag == EffectSystem.noReactionsEffectTag))
-          continue;
-
-        creature.GetObjectVariable<LocalVariableInt>(ReactionVariable).Value = 1;
       }
 
       //if(NwModule.Instance.PlayerCount > 0)

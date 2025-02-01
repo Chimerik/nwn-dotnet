@@ -48,7 +48,7 @@ namespace NWN.Systems
       }
 
       StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Maître bouclier", StringUtils.gold, true);
-      EffectSystem.ApplyKnockdown(caster, targetCreature);
+      EffectSystem.ApplyKnockdown(targetCreature, caster);
     }
   }
 }

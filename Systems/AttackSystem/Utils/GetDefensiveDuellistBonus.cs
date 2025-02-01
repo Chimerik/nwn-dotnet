@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using NWN.Native.API;
 using Feat = NWN.Native.API.Feat;
 
@@ -8,20 +9,26 @@ namespace NWN.Systems
   {
     public static int GetDefensiveDuellistBonus(CNWSCreature target, int rangedAttack)
     {
-      if(rangedAttack.ToBool() || !target.m_pStats.HasFeat((ushort)Feat.PrestigeDefensiveAwareness1).ToBool()
-        || !target.m_ScriptVars.GetInt(CreatureUtils.ReactionVariableExo).ToBool())
-        return 0;
-      
-      CNWSItem weapon = target?.m_pInventory.GetItemInSlot((uint)EquipmentSlot.RightHand);
+      if(!rangedAttack.ToBool() && target.m_pStats.HasFeat((ushort)Feat.PrestigeDefensiveAwareness1).ToBool())
+      {
+        var reaction = target.m_appliedEffects.FirstOrDefault(e => e.m_sCustomTag.ToString() == EffectSystem.ReactionEffectTag);
 
-      if (weapon is null || !weapon.m_ScriptVars.GetInt(ItemConfig.isFinesseWeaponCExoVariable).ToBool())
-        weapon = target?.m_pInventory.GetItemInSlot((uint)EquipmentSlot.LeftHand);
-      if (weapon is null || !weapon.m_ScriptVars.GetInt(ItemConfig.isFinesseWeaponCExoVariable).ToBool())
-        return 0;
+        if (reaction is not null)
+        {
+          CNWSItem weapon = target?.m_pInventory.GetItemInSlot((uint)EquipmentSlot.RightHand);
 
-      target.m_ScriptVars.SetInt(CreatureUtils.ReactionVariableExo, target.m_ScriptVars.GetInt(CreatureUtils.ReactionVariableExo) - 1);
+          if (weapon is null || !weapon.m_ScriptVars.GetInt(ItemConfig.isFinesseWeaponCExoVariable).ToBool())
+            weapon = target?.m_pInventory.GetItemInSlot((uint)EquipmentSlot.LeftHand);
+          if (weapon is null || !weapon.m_ScriptVars.GetInt(ItemConfig.isFinesseWeaponCExoVariable).ToBool())
+            return 0;
 
-      return GetCreatureWeaponProficiencyBonus(target, weapon);
+          target.RemoveEffect(reaction);
+
+          return GetCreatureWeaponProficiencyBonus(target, weapon);
+        }
+      }
+
+      return 0;
     }
   }
 }

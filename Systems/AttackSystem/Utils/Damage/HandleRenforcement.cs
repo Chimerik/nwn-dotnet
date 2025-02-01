@@ -6,9 +6,9 @@ namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static int HandleRenforcement(CNWSCreature creature, NwBaseItem weapon,  int roll, int dieToRoll)
+    public static int HandleRenforcement(CNWSCreature creature, NwBaseItem weapon, int roll, int dieToRoll)
     {
-      if(creature.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.RenforcementEffectExoTag).ToBool())
+      if(creature.m_appliedEffects.Any(e => e.m_sCustomTag.ToString() == EffectSystem.RenforcementEffectTag)
         && Utils.In(weapon.ItemType, BaseItemType.ShortSpear, BaseItemType.Halberd, BaseItemType.TwoBladedSword))
       {
         int secondRoll = NwRandom.Roll(Utils.random, dieToRoll, 1);

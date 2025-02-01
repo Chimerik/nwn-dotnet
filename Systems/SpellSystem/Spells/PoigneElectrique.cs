@@ -36,8 +36,8 @@ namespace NWN.Systems
         }
 
         target.ApplyEffect(EffectDuration.Temporary, EffectSystem.noReactions, NwTimeSpan.FromRounds(1));
-        target.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value = 0;
 
+        EffectUtils.RemoveTaggedEffect(target, EffectSystem.ReactionEffectTag);
         SpellUtils.DealSpellDamage(target, caster.CasterLevel, spellEntry, nbDice, caster, 1);
       }
     }

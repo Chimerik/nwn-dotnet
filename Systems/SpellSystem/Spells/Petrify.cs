@@ -8,7 +8,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(SpellSystem))]
   public partial class SpellSystem
   {
-    public static async void Petrify(SpellEvents.OnSpellCast onSpellCast)
+    /*public static async void Petrify(SpellEvents.OnSpellCast onSpellCast)
     {
       if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oCaster) || onSpellCast.TargetObject is not NwCreature target)
         return;
@@ -65,6 +65,6 @@ namespace NWN.Systems
         target.ApplyEffect(EffectDuration.Permanent, ePetrify);
         target.ClearActionQueue();
       }
-    }
+    }*/
   }
 }

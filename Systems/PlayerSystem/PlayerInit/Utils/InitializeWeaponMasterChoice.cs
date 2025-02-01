@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Anvil.API;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -11,8 +10,8 @@ namespace NWN.Systems
       {
         if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_WEAPON_MASTER_CHOICE_FEAT").HasValue)
         {
-          if (!windows.TryGetValue("weaponBonusChoice", out var value)) windows.Add("weaponBonusChoice", new WeaponBonusChoiceWindow(this));
-          else ((WeaponBonusChoiceWindow)value).CreateWindow();
+          if (!windows.TryGetValue("maitreDarmesSelection", out var value)) windows.Add("maitreDarmesSelection", new MaitreDarmesSelectionWindow(this));
+          else ((MaitreDarmesSelectionWindow)value).CreateWindow();
         }
       }
     }

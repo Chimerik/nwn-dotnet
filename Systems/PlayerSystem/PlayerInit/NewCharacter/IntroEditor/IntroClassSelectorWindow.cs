@@ -429,14 +429,14 @@ namespace NWN.Systems
           player.learnableSpells.Clear();
 
           player.oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipUnarmoredDefence;
-          player.oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipUnarmoredDefence;
+          player.oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipUnarmoredDefence;
           player.oid.LoginCreature.OnHeartbeat -= CreatureUtils.OnHeartBeatCheckUnarmoredDefence;
 
           player.oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipApplyProtectionStyle;
           player.oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipRemoveProtectionStyle;
 
           player.oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipMonkUnarmoredDefence;
-          player.oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipMonkUnarmoredDefence;
+          player.oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipMonkUnarmoredDefence;
           player.oid.LoginCreature.OnHeartbeat -= CreatureUtils.OnHeartBeatCheckMonkUnarmoredDefence;
 
           EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.MonkUnarmoredDefenceEffectTag, EffectSystem.ProtectionStyleAuraEffectTag,

@@ -30,7 +30,7 @@ namespace NWN.Systems
     public DamageTypeGroups2da()
     {
       foreach (var entry in damageTypeGroupsTable) ;
-        //damageStringConf.Add(entry.damageType, entry);
+      //damageStringConf.Add(entry.damageType, entry);
     }
   }
 }

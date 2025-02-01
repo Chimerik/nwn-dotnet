@@ -12,9 +12,9 @@ namespace NWN.Systems
         if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ExpertiseMutilation))
         {
           oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipMutilation;
-          oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipMutilation;
           oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipMutilation;
-          oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipMutilation;
+          oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipMutilation;
+          oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipMutilation;
 
           var weapon = oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
           var secondWeapon = oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand);

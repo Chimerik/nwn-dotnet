@@ -11,9 +11,9 @@ namespace NWN.Systems
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.MonkUnarmoredDefence);
 
       player.oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipMonkUnarmoredDefence;
-      player.oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipMonkUnarmoredDefence;
+      player.oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipMonkUnarmoredDefence;
       player.oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipMonkUnarmoredDefence;
-      player.oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipMonkUnarmoredDefence;
+      player.oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipMonkUnarmoredDefence;
 
       NwItem armor = player.oid.LoginCreature.GetItemInSlot(InventorySlot.Chest);
       NwItem shield = player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand);

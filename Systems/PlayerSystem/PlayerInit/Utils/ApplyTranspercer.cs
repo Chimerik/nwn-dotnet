@@ -12,9 +12,9 @@ namespace NWN.Systems
         if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ExpertiseTranspercer))
         {
           oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipTranspercer;
-          oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipTranspercer;
+          oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipTranspercer;
           oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipTranspercer;
-          oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipTranspercer;
+          oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipTranspercer;
 
           var weapon = oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
           var secondWeapon = oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand);

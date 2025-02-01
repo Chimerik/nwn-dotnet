@@ -14,7 +14,7 @@ namespace NWN.Systems
       if (oPC is null || oItem is null || !ItemUtils.IsWeapon(oItem.BaseItem))
         return;
 
-      if (Utils.In(oItem.BaseItem.ItemType, BaseItemType.Greataxe, BaseItemType.Doubleaxe, BaseItemType.Battleaxe, BaseItemType.DwarvenWaraxe, BaseItemType.Katana, BaseItemType.Scythe))
+      if (Utils.In(oItem.BaseItem.ItemType, BaseItemType.Handaxe, BaseItemType.Greataxe, BaseItemType.Doubleaxe, BaseItemType.Battleaxe, BaseItemType.DwarvenWaraxe, BaseItemType.Katana, BaseItemType.Scythe))
       {
         if (!oPC.ActiveEffects.Any(e => e.Tag == EffectSystem.CooldownEffectTag && e.IntParams[5] == CustomSkill.ExpertisePreparation))
           oPC.SetFeatRemainingUses((Feat)CustomSkill.ExpertisePreparation, 100);
@@ -23,7 +23,7 @@ namespace NWN.Systems
       {
         var weapon = oPC.GetItemInSlot(InventorySlot.RightHand);
 
-        if (weapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Greataxe, BaseItemType.Doubleaxe, BaseItemType.Battleaxe, BaseItemType.DwarvenWaraxe, BaseItemType.Katana, BaseItemType.Scythe))
+        if (weapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Handaxe, BaseItemType.Greataxe, BaseItemType.Doubleaxe, BaseItemType.Battleaxe, BaseItemType.DwarvenWaraxe, BaseItemType.Katana, BaseItemType.Scythe))
         {
           if (!oPC.ActiveEffects.Any(e => e.Tag == EffectSystem.CooldownEffectTag && e.IntParams[5] == CustomSkill.ExpertisePreparation))
             oPC.SetFeatRemainingUses((Feat)CustomSkill.ExpertisePreparation, 100);

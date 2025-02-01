@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.RunAction(), Effect.Icon(NwGameTables.EffectIconTable.GetRow(147)));
+        Effect eff = Effect.Icon(CustomEffectIcon.ElectricJolt);
         eff.Tag = NoBonusActionEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

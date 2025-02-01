@@ -13,7 +13,7 @@ namespace NWN.Systems
       {
         var shillelagh = creature.m_appliedEffects.FirstOrDefault(e => e.m_sCustomTag.CompareNoCase(EffectSystem.ShillelaghEffectExoTag).ToBool());
         if (shillelagh is not null)
-          attackStat = (Anvil.API.Ability)shillelagh.GetInteger(3);
+          attackStat = (Anvil.API.Ability)shillelagh.GetInteger(5);
       }
 
       return attackStat;

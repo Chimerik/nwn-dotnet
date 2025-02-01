@@ -12,9 +12,9 @@ namespace NWN.Systems
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.BarbarianUnarmoredDefence);
 
       player.oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipUnarmoredDefence;
-      player.oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipUnarmoredDefence;
+      player.oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipUnarmoredDefence;
       player.oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipUnarmoredDefence;
-      player.oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipUnarmoredDefence;
+      player.oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipUnarmoredDefence;
 
       if (!ItemUtils.IsArmor(player.oid.LoginCreature.GetItemInSlot(InventorySlot.Chest)))
       {

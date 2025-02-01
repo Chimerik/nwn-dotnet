@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using NWN.Native.API;
 
 namespace NWN.Systems
@@ -9,9 +10,11 @@ namespace NWN.Systems
     {
       if(attacker.m_ScriptVars.GetInt(ManoeuvreTypeVariableExo) == CustomSkill.WarMasterFeinte)
       {
-        if (attacker.m_ScriptVars.GetInt(BonusActionVariableExo) > 0)
+        var bonusAction = attacker.m_appliedEffects.FirstOrDefault(e => e.m_sCustomTag.ToString() == EffectSystem.BonusActionEffectTag);
+
+        if (bonusAction is not null)
         {
-          attacker.m_ScriptVars.SetInt(BonusActionVariableExo, attacker.m_ScriptVars.GetInt(BonusActionVariableExo) - 1);
+          attacker.RemoveEffect(bonusAction);
 
           NativeUtils.BroadcastNativeServerMessage("Feinte".ColorString(StringUtils.gold), attacker);
 

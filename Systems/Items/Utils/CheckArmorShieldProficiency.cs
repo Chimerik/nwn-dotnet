@@ -18,7 +18,7 @@ namespace NWN.Systems
 
       if (item.BaseACValue > 5) // Cas des armures lourdes
       {
-        if (proficenciesRequirements.Contains((int)Feat.ArmorProficiencyHeavy) && target.GetAbilityScore(Ability.Strength) < 15)
+        if (proficenciesRequirements.Contains(CustomSkill.HeavyArmorProficiency) && target.GetAbilityScore(Ability.Strength) < 15)
           ApplyShieldArmorSlow(target);
       }
 

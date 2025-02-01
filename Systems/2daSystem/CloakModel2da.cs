@@ -26,7 +26,7 @@ namespace NWN.Systems
     public static readonly List<NuiComboEntry> combo = new();
     public CloakModel2da()
     {
-      foreach(var entry in cloakModelTable)
+      foreach (var entry in cloakModelTable)
         if(!string.IsNullOrEmpty(entry.label))
           combo.Add(new NuiComboEntry(entry.label, entry.RowIndex));
     }

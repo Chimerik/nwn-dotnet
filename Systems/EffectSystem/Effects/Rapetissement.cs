@@ -7,7 +7,6 @@ namespace NWN.Systems
 {
   public partial class EffectSystem
   {
-    private static ScriptCallbackHandle onRemoveRapetissementCallback;
     public const string RapetissementEffectTag = "_EFFECT_RAPETISSEMENT";
     public static Effect Rapetissement(NwGameObject target)
     {

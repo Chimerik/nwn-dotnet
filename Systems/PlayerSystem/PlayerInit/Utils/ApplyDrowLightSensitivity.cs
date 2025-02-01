@@ -15,7 +15,7 @@ namespace NWN.Systems
           case CustomRace.Duergar:
 
             if (NwModule.Instance.IsNight || location.Area is null || location.Area.IsInterior 
-              || location.Area.IsUnderGround || oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.lightSensitivity.Tag))
+              || location.Area.IsUnderGround || oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.lightSensitivityEffectTag))
               return;
 
             oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.lightSensitivity);

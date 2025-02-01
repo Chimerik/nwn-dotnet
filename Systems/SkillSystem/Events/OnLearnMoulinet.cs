@@ -11,9 +11,9 @@ namespace NWN.Systems
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.ExpertiseMoulinet);
 
       player.oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipMoulinet;
-      player.oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipMoulinet;
+      player.oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipMoulinet;
       player.oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipMoulinet;
-      player.oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipMoulinet;
+      player.oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipMoulinet;
 
       var weapon = player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
       var secondWeapon = player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand);

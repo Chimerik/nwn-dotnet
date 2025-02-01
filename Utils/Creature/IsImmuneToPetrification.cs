@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     public static bool IsImmuneToPetrification(NwCreature creature)
     {
-      if (creature.CheckResistSpell(creature) == ResistSpellResult.ResistedMagicImmune)
+      /*if (creature.CheckResistSpell(creature) == ResistSpellResult.ResistedMagicImmune)
         return true;
 
       switch (creature.Race.RacialType)
@@ -27,7 +27,7 @@ namespace NWN.Systems
      
       if (creature.PlotFlag || creature.IsDMAvatar)
         return true;
-      
+      */
       return false;
     }
   }

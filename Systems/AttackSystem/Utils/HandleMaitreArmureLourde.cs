@@ -13,7 +13,7 @@ namespace NWN.Systems
       {
         CNWSItem armor = target.m_pInventory.GetItemInSlot((uint)EquipmentSlot.Chest);
 
-        if (armor is not null || armor.m_nArmorValue > 5)
+        if (armor is not null && armor.m_nArmorValue > 5)
         {
           damageReduction = GetCreatureProficiencyBonus(target);
           LogUtils.LogMessage($"Maître des armures lourdes : Dégâts -{damageReduction}", LogUtils.LogType.Combat);

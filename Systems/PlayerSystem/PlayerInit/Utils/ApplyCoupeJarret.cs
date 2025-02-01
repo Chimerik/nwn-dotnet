@@ -12,9 +12,9 @@ namespace NWN.Systems
         if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ExpertiseCoupeJarret))
         {
           oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipCoupeJarret;
-          oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipCoupeJarret;
+          oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipCoupeJarret;
           oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipCoupeJarret;
-          oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipCoupeJarret;
+          oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipCoupeJarret;
 
           var weapon = oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
 

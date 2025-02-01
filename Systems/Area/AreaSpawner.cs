@@ -103,9 +103,7 @@ namespace NWN.Systems
       if (creature.Classes.Any(c => c.Class.ClassType == ClassType.Barbarian))
       {
         creature.OnItemEquip -= ItemSystem.OnEquipUnarmoredDefence;
-        creature.OnItemUnequip -= ItemSystem.OnUnEquipUnarmoredDefence;
         creature.OnItemEquip += ItemSystem.OnEquipUnarmoredDefence;
-        creature.OnItemUnequip += ItemSystem.OnUnEquipUnarmoredDefence;
 
         NwItem armor = creature.GetItemInSlot(InventorySlot.Chest);
 
@@ -120,9 +118,7 @@ namespace NWN.Systems
       if (creature.Classes.Any(c => c.Class.Id == CustomClass.Monk))
       {
         creature.OnItemEquip -= ItemSystem.OnEquipMonkUnarmoredDefence;
-        creature.OnItemUnequip -= ItemSystem.OnUnEquipMonkUnarmoredDefence;
         creature.OnItemEquip += ItemSystem.OnEquipMonkUnarmoredDefence;
-        creature.OnItemUnequip += ItemSystem.OnUnEquipMonkUnarmoredDefence;
 
         NwItem armor = creature.GetItemInSlot(InventorySlot.Chest);
         NwItem shield = creature.GetItemInSlot(InventorySlot.LeftHand);

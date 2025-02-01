@@ -12,9 +12,9 @@ namespace NWN.Systems
         if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ExpertiseBriseEchine))
         {
           oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipDestabiliser;
-          oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipDestabiliser;
+          oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipDestabiliser;
           oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipDestabiliser;
-          oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipDestabiliser;
+          oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipDestabiliser;
 
           var weapon = oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
 

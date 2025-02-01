@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using NWN.Native.API;
 
 namespace NWN.Systems
@@ -9,9 +10,11 @@ namespace NWN.Systems
     {
       if (!data.m_bRangedAttack.ToBool() && target.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreTypeVariableExo) == CustomSkill.WarMasterRiposte)
       {
-        if (target.m_ScriptVars.GetInt(CreatureUtils.ReactionVariableExo) > 0)
+        var reaction = target.m_appliedEffects.FirstOrDefault(e => e.m_sCustomTag.ToString() == EffectSystem.ReactionEffectTag);
+
+        if (reaction is not null)
         {
-          target.m_ScriptVars.SetInt(CreatureUtils.ReactionVariableExo, target.m_ScriptVars.GetInt(CreatureUtils.ReactionVariableExo) - 1);
+          target.RemoveEffect(reaction);
           target.m_ScriptVars.SetObject(CreatureUtils.ManoeuvreRiposteVariableExo, attacker.m_idSelf);
 
           string targetName = $"{target.GetFirstName().GetSimple(0)} {target.GetLastName().GetSimple(0)}".ColorString(ColorConstants.Cyan);

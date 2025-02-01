@@ -29,6 +29,7 @@ namespace NWN.Systems
 
       Effect eff = Effect.RunAction(onRemovedHandle: onRemoveMaleficeCallback);
       eff.Tag = MaleficeTag;
+      eff.Spell = NwSpell.FromSpellId(spellId);
       eff.SubType = EffectSubType.Supernatural;
       eff.IntParams[5] = (int)ability;
       return eff;
@@ -37,11 +38,16 @@ namespace NWN.Systems
     {
       EffectRunScriptEvent eventData = new EffectRunScriptEvent();
 
+      ModuleSystem.Log.Info("Malefice ON REMOVED");
+
       if (eventData.EffectTarget is NwCreature creature)
         creature.OnDeath -= SpellSystem.OnDeathMalefice;
 
-      if(eventData.Effect.Creator is NwCreature caster)
+      if (eventData.Effect.Creator is NwCreature caster)
+      {
+        ModuleSystem.Log.Info($"Maléfice creator : {caster.Name}");
         caster.OnCreatureAttack -= OnAttackMalefice;
+      }
 
       return ScriptHandleResult.Handled;
     }

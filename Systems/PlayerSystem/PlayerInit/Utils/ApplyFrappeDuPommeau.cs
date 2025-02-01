@@ -13,9 +13,9 @@ namespace NWN.Systems
         if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ExpertiseFrappeDuPommeau))
         {
           oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipFrappeDuPommeau;
-          oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipFrappeDuPommeau;
+          oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipFrappeDuPommeau;
           oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipFrappeDuPommeau;
-          oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipFrappeDuPommeau;
+          oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipFrappeDuPommeau;
 
           var weapon = oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
 

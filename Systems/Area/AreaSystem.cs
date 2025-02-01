@@ -28,10 +28,16 @@ namespace NWN.Systems
       mobRegenIntervalHandle = scriptHandleFactory.CreateUniqueHandler(onMobRegenInterval);
       mobRunAway = scriptHandleFactory.CreateUniqueHandler(HandleRunAwayFromPlayer);
 
+      HandleSpecificAreaBehaviour();
+    }
+    private async void HandleSpecificAreaBehaviour()
+    {
+      await NwTask.NextFrame();
+
       LoadGenericSpawnAppearance();
 
-      foreach (NwTrigger trigger in NwObject.FindObjectsWithTag<NwTrigger>("invi_unwalkable"))
-        trigger.OnEnter += OnEnterUnwalkableBlock;
+      //foreach (NwTrigger trigger in NwObject.FindObjectsWithTag<NwTrigger>("invi_unwalkable"))
+      //trigger.OnEnter += OnEnterUnwalkableBlock;
 
       var resultMusics = SqLiteUtils.SelectQuery("areaMusics",
         new List<string>() { { "areaTag" }, { "backgroundDay" }, { "backgroundNight" }, { "battle" } },
@@ -61,7 +67,7 @@ namespace NWN.Systems
 
         area.GetObjectVariable<LocalVariableInt>("X2_L_WILD_MAGIC").Value = 1;
 
-        if(areaMusics.TryGetValue(area.Tag, out var music))
+        if (areaMusics.TryGetValue(area.Tag, out var music))
         {
           int[] musicTab = music;
           area.MusicBackgroundDayTrack = musicTab[0];

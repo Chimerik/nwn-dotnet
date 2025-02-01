@@ -8,12 +8,12 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.RunAction(), Effect.Icon(NwGameTables.EffectIconTable.GetRow(147)));
-        eff.Tag = noReactionsEffectTag;
+        Effect eff = Effect.Icon(CustomEffectIcon.ElectricJolt);
+        eff.Tag = NoReactionsEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;
       }
     }
-    public const string noReactionsEffectTag = "_NO_REACTIONS_EFFECT";
+    public const string NoReactionsEffectTag = "_NO_REACTIONS_EFFECT";
   }
 }

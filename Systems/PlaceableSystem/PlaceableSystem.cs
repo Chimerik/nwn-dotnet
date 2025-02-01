@@ -3,7 +3,6 @@ using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
 using System.Linq;
-using NLog;
 using System.Threading.Tasks;
 using static NWN.Systems.PlayerSystem;
 using NWN.Core.NWNX;
@@ -21,7 +20,12 @@ namespace NWN.Systems
     {
       scheduler = schedulerService;
       gasTrapHandler = scriptHandleFactory.CreateUniqueHandler(OnEnterGasTrap);
-
+      HandlePlaceableBehaviour();
+    }
+    private async void HandlePlaceableBehaviour()
+    {
+      await NwTask.NextFrame();
+      
       foreach (NwPlaceable plc in NwObject.FindObjectsOfType<NwPlaceable>())
       {
         if (plc.GetObjectVariable<LocalVariableBool>("_SPAWN_ID").HasNothing)
@@ -47,14 +51,14 @@ namespace NWN.Systems
           case "respawn_dire": plc.OnUsed += HandlePlayerRespawn; break;
           case "respawn_radiant": plc.OnUsed += HandlePlayerRespawn; break;
           case "theater_rope": plc.OnUsed += HandleTheaterCurtains; break;
-          case "forge": 
+          case "forge":
           case "scierie":
           case "tannerie": plc.OnUsed += OpenWorkshopWindow; break;
           case "test_bdf": plc.OnLeftClick += TestBouleDeFeu; break;
           case "test_jds_sag": plc.OnLeftClick += TestJDSSAG; break;
-          //case "bank_gold": plc.OnUsed += Give1000Gold; break;
+            //case "bank_gold": plc.OnUsed += Give1000Gold; break;
         }
-        
+
         if (plc.VisualTransform.Scale != 1 || plc.VisualTransform.Translation != Vector3.Zero || plc.VisualTransform.Rotation != Vector3.Zero)
           plc.VisibilityOverride = VisibilityMode.AlwaysVisible;
         else if (!plc.Useable && plc.AnimationState != AnimationState.PlaceableActivated)
@@ -207,7 +211,7 @@ namespace NWN.Systems
       NwPlaceable goplouf = NwObject.FindObjectsWithTag<NwPlaceable>("go_plouf").FirstOrDefault();
       onUsed.UsedBy.Location = goplouf.Location;
     }
-    private async void HandleClickBank(PlaceableEvents.OnLeftClick onClick)
+    private void HandleClickBank(PlaceableEvents.OnLeftClick onClick)
     {
       if (!Players.TryGetValue(onClick.ClickedBy.LoginCreature, out Player player))
         return;

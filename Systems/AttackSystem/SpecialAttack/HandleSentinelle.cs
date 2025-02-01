@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using NWN.Native.API;
 
 namespace NWN.Systems
@@ -16,8 +17,12 @@ namespace NWN.Systems
         {
           CNWSCreature creature = NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(eff.m_oidCreator);
 
-          if (creature is null || !creature.m_pStats.HasFeat(CustomSkill.Sentinelle).ToBool()
-            || creature.m_ScriptVars.GetInt(CreatureUtils.ReactionVariableExo) < 1)
+          if (creature is null || !creature.m_pStats.HasFeat(CustomSkill.Sentinelle).ToBool())
+            continue;
+
+          var reaction = creature.m_appliedEffects.FirstOrDefault(e => e.m_sCustomTag.ToString() == EffectSystem.ReactionEffectTag);
+
+          if (reaction is null)
             continue;
 
           switch ((Action)creature.m_nCurrentAction)
@@ -25,7 +30,7 @@ namespace NWN.Systems
             case Action.AttackObject:
               creature.m_ScriptVars.SetInt(CreatureUtils.SentinelleOpportunityVariableExo, 1);
               creature.m_ScriptVars.SetObject(CreatureUtils.SentinelleOpportunityTargetVariableExo, attacker.m_idSelf);
-              creature.m_ScriptVars.SetInt(CreatureUtils.ReactionVariableExo, creature.m_ScriptVars.GetInt(CreatureUtils.ReactionVariableExo) - 1);
+              creature.RemoveEffect(reaction);
 
               SendNativeServerMessage("Sentinelle".ColorString(StringUtils.gold), creature);
               break;
@@ -34,7 +39,7 @@ namespace NWN.Systems
             case Action.Invalid:
               creature.m_ScriptVars.SetInt(CreatureUtils.SentinelleOpportunityVariableExo, 1);
               creature.m_ScriptVars.SetObject(CreatureUtils.SentinelleOpportunityTargetVariableExo, attacker.m_idSelf);
-              creature.m_ScriptVars.SetInt(CreatureUtils.ReactionVariableExo, creature.m_ScriptVars.GetInt(CreatureUtils.ReactionVariableExo) - 1);
+              creature.RemoveEffect(reaction);
               creature.AddAttackActions(attacker.m_idSelf, 1, 1, 1);
 
               SendNativeServerMessage("Sentinelle".ColorString(StringUtils.gold), creature);

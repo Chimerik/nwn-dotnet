@@ -7,9 +7,9 @@ namespace NWN.Systems
 {
   public partial class ItemSystem
   {
-    public static async void OnUnEquipRenforcement(OnItemUnequip onUnequip)
+    public static async void OnUnEquipRenforcement(ModuleEvents.OnPlayerUnequipItem onUnequip)
     {
-      NwCreature oPC = onUnequip.Creature;
+      NwCreature oPC = onUnequip.UnequippedBy;
       NwItem oItem = onUnequip.Item;
       
       if (oPC is null || oItem is null || !ItemUtils.IsWeapon(oItem.BaseItem))

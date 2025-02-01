@@ -105,6 +105,8 @@ namespace NWN.Systems
       OverrideTlkEntry(191128, "Résistance aux dégâts (psychique)");
       OverrideTlkEntry(191253, "Déstabilisé");
       OverrideTlkEntry(191259, "Arcane Mystique");
+      OverrideTlkEntry(191454, "Action Bonus");
+      OverrideTlkEntry(191455, "Réaction");
 
       foreach (var entry in Feats2da.featTable)
       {
@@ -176,7 +178,9 @@ namespace NWN.Systems
     }
     private static async void OverrideTlkEntryAsync(uint entry, string text)
     {
-      StrRef.FromCustomTlk(entry).Override = await DownloadGoogleDoc(text);
+      string result = await DownloadGoogleDoc(text);
+      await NwTask.SwitchToMainThread();
+      StrRef.FromCustomTlk(entry).Override = result;
     }
   }
 }

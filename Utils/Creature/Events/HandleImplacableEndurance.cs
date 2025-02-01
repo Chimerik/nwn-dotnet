@@ -18,11 +18,15 @@ namespace NWN.Systems
         EffectUtils.RemoveTaggedEffect(onDamage.Creature, EffectSystem.EnduranceImplacableEffectTag);
 
         if (onDamage.Creature.KnowsFeat((Feat)CustomSkill.FureurOrc)
-          && onDamage.Creature.CurrentAction == Action.AttackObject
-          && onDamage.Creature.GetObjectVariable<LocalVariableInt>(ReactionVariable).Value > 0)
+          && onDamage.Creature.CurrentAction == Action.AttackObject)
         {
-          onDamage.Creature.GetObjectVariable<LocalVariableInt>(FureurOrcBonusAttackVariable).Value = 1;
-          onDamage.Creature.GetObjectVariable<LocalVariableInt>(ReactionVariable).Value -= 1;
+          var reaction = onDamage.Creature.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.ReactionEffectTag);
+
+          if(reaction is not null)
+          {
+            onDamage.Creature.GetObjectVariable<LocalVariableInt>(FureurOrcBonusAttackVariable).Value = 1;
+            onDamage.Creature.RemoveEffect(reaction);
+          }
         }
 
         onDamage.Creature.GetObjectVariable<PersistentVariableInt>(EffectSystem.EnduranceImplacableVariable).Delete();

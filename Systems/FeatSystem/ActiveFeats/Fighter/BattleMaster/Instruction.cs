@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -17,13 +18,15 @@ namespace NWN.Systems
       if (!CreatureUtils.HandleBonusActionUse(caster))
         return;
 
-      if (target.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value < 1)
+      var reaction = target.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.ReactionEffectTag);
+
+      if (reaction is null)
       {
-        caster.ControllingPlayer?.SendServerMessage("La créature ciblée ne dispose plus de réaction", ColorConstants.Red);
+        caster.ControllingPlayer?.SendServerMessage($"{StringUtils.ToWhitecolor(target.Name)} : Aucune réaction disponible", ColorConstants.Red);
         return;
       }
 
-      target.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value -= 1;
+      target.RemoveEffect(reaction);
 
       int warMasterLevel = caster.GetClassInfo(ClassType.Fighter).Level;
       int superiorityDice = warMasterLevel > 17 ? 12 : warMasterLevel > 9 ? 10 : 8;

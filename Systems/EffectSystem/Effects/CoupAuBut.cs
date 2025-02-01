@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Anvil.API;
+﻿using Anvil.API;
 using Anvil.API.Events;
 using NWN.Core;
 
@@ -15,13 +14,13 @@ namespace NWN.Systems
       caster.OnCreatureAttack -= OnAttackCoupAuBut;
       caster.OnCreatureDamage -= OnDamageCoupAuBut;
 
-      Effect attack = Effect.Icon(EffectIcon.AttackIncrease);
+      Effect attack = Effect.Icon(CustomEffectIcon.CoupAuBut);
       attack.Tag = CoupAuButAttackEffectTag;
       attack.SubType = EffectSubType.Supernatural;
       attack.IntParams[5] = (int)casterAbility;
       caster.ApplyEffect(EffectDuration.Permanent, attack);
 
-      Effect damage = Effect.Icon(EffectIcon.DamageIncrease);
+      Effect damage = Effect.RunAction();
       damage.Tag = CoupAuButDamageEffectTag;
       damage.SubType = EffectSubType.Supernatural;
       damage.IntParams[5] = (int)casterAbility;

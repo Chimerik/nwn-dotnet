@@ -540,8 +540,8 @@
     public const int FrappeSiderante = 1796;    
     public const int FrappeDechirante = 1797;
 
-    public const int ExpertiseEraflure = 1085;
-    public const int ExpertiseCommotion = 1086;
+    public const int ExpertiseEraflure = 1805;
+    public const int ExpertiseCommotion = 1806;
     public const int ExpertiseAffaiblissement = 1807;
     public const int ExpertiseArretCardiaque = 1808;
     public const int ExpertiseTranspercer = 1809;

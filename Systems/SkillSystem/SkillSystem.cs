@@ -359,7 +359,7 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomSkill.ExpertiseDesarmement, new LearnableSkill(CustomSkill.ExpertiseDesarmement, "Désarmement", "La cible doit réussir un JDS de Force ou se voir désarmée pour 2 rounds (son arme est déséquipée et elle ne peut pas la rééquiper)\n\nArmes Concernées\n- Fouet", Category.Fight, "is_ExpDisarm", 1, 1, Ability.Dexterity, Ability.Constitution, OnLearnDesarmement));
       learnableDictionary.Add(CustomSkill.ExpertiseBriseEchine, new LearnableSkill(CustomSkill.ExpertiseBriseEchine, "Brise-Echine", "La cible doit réussir un JDS de Constitution ou être Déstabilisée pendant 2 rounds\n\nArmes Concernées\n- Marteau de Guerre\n- Masse Double", Category.Fight, "is_BriseEchine", 1, 1, Ability.Strength, Ability.Constitution, OnLearnBriseEchine));
       learnableDictionary.Add(CustomSkill.ExpertiseRenforcement, new LearnableSkill(CustomSkill.ExpertiseRenforcement, "Renforcement", "Vous êtes ralenti de 75 %. Pendant 1 round, les jets de dégâts de vos attaques de mêlée sont jetés deux fois. Vous utilisez le meilleur résultat\n\nArmes Concernées\n- Lance\n- Hallebarde\n- Double Lame", Category.Fight, "is_Renforce", 1, 1, Ability.Strength, Ability.Constitution, OnLearnRenforcement));
-      learnableDictionary.Add(CustomSkill.ExpertisePreparation, new LearnableSkill(CustomSkill.ExpertisePreparation, "Préparation", "Vous êtes ralenti de 75 % pendant 1 round. Vous ajoutez une deuxième fois votre modificateur de force à vos dégâts d'attaque\n\nArmes Concernées\n- Grande Hache\n- Hache de Guerre\n- Double Hache\n- Hache Naine\n- Katana\n- Faux", Category.Fight, "is_Prepare", 1, 1, Ability.Strength, Ability.Constitution, OnLearnPreparation));
+      learnableDictionary.Add(CustomSkill.ExpertisePreparation, new LearnableSkill(CustomSkill.ExpertisePreparation, "Préparation", "Vous êtes ralenti de 75 % pendant 1 round. Vous ajoutez une deuxième fois votre modificateur de force à vos dégâts d'attaque\n\nArmes Concernées\n- Grande Hache\n- Hachette\n- Hache de Guerre\n- Double Hache\n- Hache Naine\n- Katana\n- Faux", Category.Fight, "is_Prepare", 1, 1, Ability.Strength, Ability.Constitution, OnLearnPreparation));
       learnableDictionary.Add(CustomSkill.ExpertiseTirPercant, new LearnableSkill(CustomSkill.ExpertiseTirPercant, "Tir Perçant", "La cible cible doit réussir un jet de sauvegarde de Constitution ou se voir infliger 2 dégâts supplémentaires sur les attaques qui portent pendant 2 rounds\n- L'effet est retiré dès que la créature ciblée reçoit des soins\n\nArmes Concernées\n- Arbalète de Poing (Shuriken)\n- Arbalète Légère\n- Arbalète Lourde", Category.Fight, "is_TirPercant", 1, 1, Ability.Dexterity, Ability.Constitution, OnLearnTirPercant));
       learnableDictionary.Add(CustomSkill.ExpertiseAttaqueMobile, new LearnableSkill(CustomSkill.ExpertiseAttaqueMobile, "Attaque Mobile", "Après avoir utilisé Sprint ou Désengagement, vous bénéficiez d'une attaque supplémentaire\n\nArmes Concernées\n- Arbalète de Poing (Shuriken)\n- Fronde\n- Dards\n- Hache de Lancer", Category.Fight, "is_AttaqueMobile", 1, 1, Ability.Dexterity, Ability.Constitution, LearnActivableFeat));
       learnableDictionary.Add(CustomSkill.ExpertiseStabilisation, new LearnableSkill(CustomSkill.ExpertiseStabilisation, "Stabilisation", "Vous êtes ralenti de 75 % pendant un round et lorsque vous infligez des dégâts avec une arme à distance, vous jetez deux fois les dés et utilisez le meilleur résultat\n\nArmes Concernées\n- Arbalète Lourde\n- Arc Long\n- Hache de Lancer", Category.Fight, "is_Stabilisation", 1, 1, Ability.Dexterity, Ability.Constitution, OnLearnStabilisation));
@@ -1482,7 +1482,7 @@ namespace NWN.Systems
     }
     private static bool HandleMediumArmorProficiency(PlayerSystem.Player player, int customSkillId)
     {
-      player.oid.LoginCreature.AddFeat(Feat.ArmorProficiencyMedium);
+      player.oid.LoginCreature.AddFeat((Feat)CustomSkill.MediumArmorProficiency);
 
       if (player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.ShieldArmorDisadvantageEffectTag))
       {
@@ -1498,7 +1498,7 @@ namespace NWN.Systems
     }
     private static bool HandleHeavyArmorProficiency(PlayerSystem.Player player, int customSkillId)
     {
-      player.oid.LoginCreature.AddFeat(Feat.ArmorProficiencyHeavy);
+      player.oid.LoginCreature.AddFeat((Feat)CustomSkill.HeavyArmorProficiency);
       EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.ShieldArmorDisadvantageEffectTag);
       return true;
     }

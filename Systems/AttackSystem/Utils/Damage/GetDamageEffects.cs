@@ -39,6 +39,7 @@ namespace NWN.Systems
           switch (tag)
           {
             case EffectSystem.BotteSecreteEffectTag: bonusDamage += GetDegatsBotteSecrete(creature, eff, noStack); break;
+            case EffectSystem.PreparationEffectTag: bonusDamage += GetPreparationBonusDamage(creature, isCritical, noStack); break;
           }
         }
         else
@@ -48,9 +49,6 @@ namespace NWN.Systems
 
         switch (tag)
         {
-          case EffectSystem.TranspercerEffectTag: bonusDamage += GetTranspercerBonusDamage(isCritical, noStack); break;
-          case EffectSystem.TirPercantEffectTag: bonusDamage += GetTirPercantBonusDamage(isCritical, noStack); break;
-          case EffectSystem.MonkParadeEffectTag: bonusDamage -= GetMonkParadeDamageReduction(target, eff, noStack); break;
           case EffectSystem.RayonAffaiblissantDesavantageEffectTag: bonusDamage -= GetRayonAffaiblissantDamageReduction(noStack); break;
         }
       }
@@ -64,6 +62,9 @@ namespace NWN.Systems
 
         switch (tag)
         {
+          case EffectSystem.TranspercerEffectTag: bonusDamage += GetTranspercerBonusDamage(isCritical, noStack); break;
+          case EffectSystem.TirPercantEffectTag: bonusDamage += GetTirPercantBonusDamage(isCritical, noStack); break;
+          case EffectSystem.MonkParadeEffectTag: bonusDamage -= GetMonkParadeDamageReduction(target, eff, noStack); break;
           case EffectSystem.MarqueDuChasseurTag: bonusDamage += GetHunterMarqueBonusDamage(creature, effCreator, effTarget, noStack); break;
         }
       }

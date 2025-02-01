@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using Anvil.API;
 using NWN.Native.API;
 
@@ -9,8 +8,12 @@ namespace NWN.Systems
   {
     public static bool IsIllusionDouble(CNWSCreature attacker, CNWSCreature target, CNWSCombatRound combatRound, string attackerName, string targetName)
     {
-      if (!target.m_pStats.HasFeat(CustomSkill.IllusionDouble).ToBool()
-        || target.m_ScriptVars.GetInt(CreatureUtils.ReactionVariableExo) < 1)
+      if (!target.m_pStats.HasFeat(CustomSkill.IllusionDouble).ToBool())
+        return false;
+
+      var reaction = target.m_appliedEffects.FirstOrDefault(e => e.m_sCustomTag.ToString() == EffectSystem.ReactionEffectTag);
+
+      if (reaction is null)
         return false;
 
       bool doubleTrigger = false;
@@ -28,7 +31,7 @@ namespace NWN.Systems
       {
         LogUtils.LogMessage($"Echec automatique - Double Illusoire de {targetName}", LogUtils.LogType.Combat);
         BroadcastNativeServerMessage($"{attackerName.ColorString(ColorConstants.Cyan)} touche le Double Illusoire de {targetName.ColorString(ColorConstants.Cyan)}".ColorString(StringUtils.gold), target);
-        target.m_ScriptVars.SetInt(CreatureUtils.ReactionVariableExo, target.m_ScriptVars.GetInt(CreatureUtils.ReactionVariableExo) - 1);
+        target.RemoveEffect(reaction);
       }
 
       return doubleTrigger;

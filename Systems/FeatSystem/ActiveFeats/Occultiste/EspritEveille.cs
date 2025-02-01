@@ -8,7 +8,7 @@ namespace NWN.Systems
 {
   public partial class FeatSystem
   {
-    private static async void EspritEveille(NwCreature caster, NwGameObject oTarget)
+    private static void EspritEveille(NwCreature caster, NwGameObject oTarget)
     {
       /*foreach (ShaderUniform shader in (ShaderUniform[])Enum.GetValues(typeof(ShaderUniform)))
       {

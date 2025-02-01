@@ -65,13 +65,11 @@ namespace NWN.Systems
       scheduler = schedulerService;
 
       LoadDiscordBot();
-
       scheduler.ScheduleRepeating(LogUtils.LogLoop, TimeSpan.FromSeconds(1));
 
       CreateDatabase();
       InitializeEvents();
       //InitializeCreatureStats();
-
       SkillSystem.InitializeLearnables();
       LoadModulePalette();
       LoadRumors();
@@ -80,6 +78,7 @@ namespace NWN.Systems
       LoadPlaceableSpawns();
       LoadMailReceiverList();
       NwModule.Instance.OnModuleLoad += OnModuleLoad;
+      Log.Info("END MODULE CONSTRUCTOR");
     }
     private IntPtr ResolveFromNwServer(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
     {
@@ -742,8 +741,10 @@ namespace NWN.Systems
       if (effectApplied.Object is NwGameObject gameObject && !player.effectTargets.Contains(gameObject))
         player.effectTargets.Add(gameObject);
     }
-    private static void LoadEditorNuiCombo()
+    private static async void LoadEditorNuiCombo()
     {
+      await NwTask.NextFrame();
+
       foreach (RacialType racialType in (RacialType[])Enum.GetValues(typeof(RacialType)))
         if (racialType != RacialType.Invalid && racialType != RacialType.All)
           Utils.raceList.Add(new NuiComboEntry(NwRace.FromRacialType(racialType).Name, (int)racialType));
@@ -1286,9 +1287,9 @@ namespace NWN.Systems
 
       //Log.Info($"-----------------------Opportunity attack from {creature.Name} target {target.Name} ---------------------");
 
-      if (creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value < 1
-        || creature.CurrentAction == Action.CastSpell
-        || creature.ActiveEffects.Any(e => e.Tag == EffectSystem.FrappeSideranteEffectTag))
+      var reaction = creature.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.ReactionEffectTag);
+
+      if (reaction is null || creature.CurrentAction == Action.CastSpell || creature.ActiveEffects.Any(e => e.Tag == EffectSystem.FrappeSideranteEffectTag))
       {
         EventsPlugin.SkipEvent();
         return;
@@ -1344,7 +1345,7 @@ namespace NWN.Systems
       if (creature.KnowsFeat((Feat)CustomSkill.MageDeGuerre)
         && creature.ActiveEffects.Any(e => e.Tag == EffectSystem.MageDeGuerreEffectTag))
       {
-        creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value -= 1;
+        creature.RemoveEffect(reaction);
         creature.GetObjectVariable<LocalVariableString>(CreatureUtils.OpportunityAttackTypeVariable).Value = "(Mage de guerre) ";
         //StringUtils.DisplayStringToAllPlayersNearTarget(creature, "Attaque d'opportunité - Mage de guerre", StringUtils.gold, true);
         _ = creature.ActionCastSpellAt(Spell.ElectricJolt, target, instant:true);
@@ -1353,7 +1354,7 @@ namespace NWN.Systems
       }
       else
       {
-        creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value -= 1;
+        creature.RemoveEffect(reaction);
         //StringUtils.DisplayStringToAllPlayersNearTarget(creature, $"Attaque d'opportunité{option}", StringUtils.gold, true);
         EventsPlugin.SetEventResult("1");
       }

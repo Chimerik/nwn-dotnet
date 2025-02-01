@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
 using NWN.Core;
@@ -28,13 +29,17 @@ namespace NWN.Systems
       {
         if (eventData.Effect.Creator is NwCreature caster)
         {
-          if (caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value > 0)
+          var bonusAction = target.ActiveEffects.FirstOrDefault(e => e.Tag == BonusActionEffectTag);
+
+          if (bonusAction is null)
+            target.RemoveEffect(eventData.Effect);
+          else
           {
             if (caster.IsCreatureSeen(target) && caster.DistanceSquared(target) < 325)
             {
               NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, Effect.Damage(Utils.Roll(12), DamageType.Electrical)));
               target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpLightningS));
-              caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value -= 1;
+              target.RemoveEffect(bonusAction);
             }
             else
               target.RemoveEffect(eventData.Effect);

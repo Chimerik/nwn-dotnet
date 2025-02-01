@@ -183,7 +183,7 @@ namespace NWN.Systems
         oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipCancelIfInventoryFull;
         oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipOffHandWeapon;
         oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipCheckArmorShieldProficiency;
-        oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipCheckArmorShieldProficiency;
+        oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipCheckArmorShieldProficiency;
         oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireForceEquipCreatureSkin;
         oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipForceEquipCreatureSkin;
         oid.LoginCreature.OnItemUse += ItemSystem.OnItemUse;
@@ -426,6 +426,8 @@ namespace NWN.Systems
         CheckPlayerConnectionInfo();
         CreatureUtils.InitializeNumAttackPerRound(oid.LoginCreature);
         HandleMailNotification();
+        ApplyActionBonus();
+        ApplyReaction();
         ApplyElvenSleepImmunity();
         ApplyWoodElfSpeed();
         ApplyDrowLightSensitivity();

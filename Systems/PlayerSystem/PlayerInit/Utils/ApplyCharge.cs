@@ -12,9 +12,9 @@ namespace NWN.Systems
         if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ExpertiseCommotion))
         {
           oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipCharge;
-          oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipCharge;
+          oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipCharge;
           oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipCharge;
-          oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipCharge;
+          oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipCharge;
 
           var weapon = oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
 

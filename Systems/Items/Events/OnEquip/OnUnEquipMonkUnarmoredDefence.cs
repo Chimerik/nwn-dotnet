@@ -6,9 +6,9 @@ namespace NWN.Systems
 {
   public partial class ItemSystem
   {
-    public static async void OnUnEquipMonkUnarmoredDefence(OnItemUnequip onUnequip)
+    public static async void OnUnEquipMonkUnarmoredDefence(ModuleEvents.OnPlayerUnequipItem onUnequip)
     {
-      NwCreature oPC = onUnequip.Creature;
+      NwCreature oPC = onUnequip.UnequippedBy;
       NwItem oItem = onUnequip.Item;
 
       if (oPC is null || oItem is null)
@@ -25,8 +25,8 @@ namespace NWN.Systems
 
       await NwTask.NextFrame();
 
-      NwItem armor = onUnequip.Creature.GetItemInSlot(InventorySlot.Chest);
-      NwItem shield = onUnequip.Creature.GetItemInSlot(InventorySlot.LeftHand);
+      NwItem armor = oPC.GetItemInSlot(InventorySlot.Chest);
+      NwItem shield = oPC.GetItemInSlot(InventorySlot.LeftHand);
 
       bool hasShield = false;
 

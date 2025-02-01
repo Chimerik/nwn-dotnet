@@ -8,7 +8,9 @@ namespace NWN.Systems
   {
     private static void Sprint(NwCreature caster, OnUseFeat onUseFeat)
     {
-      if (caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value < 1)
+      var bonusAction = caster.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.BonusActionEffectTag);
+
+      if (bonusAction is null)
         return;
 
       if (caster.Race.Id == CustomRace.HalfOrc 
@@ -22,7 +24,7 @@ namespace NWN.Systems
         caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHaste));
         caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.Sprint(caster), NwTimeSpan.FromRounds(1));
 
-        caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value -= 1;
+        caster.RemoveEffect(bonusAction);
 
         if (caster.KnowsFeat((Feat)CustomSkill.Chargeur))
           caster.GetObjectVariable<LocalVariableLocation>(EffectSystem.ChargerVariable).Value = caster.Location;

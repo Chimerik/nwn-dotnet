@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
 using NWN.Core;
@@ -15,8 +16,11 @@ namespace NWN.Systems
       if (oCaster is not NwCreature caster)
         return;
 
-      caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value += 1;
-      
+      var bonusActionCooldown = oCaster.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.CooldownEffectTag && e.IntParams[5] == EffectSystem.BonusActionId);
+
+      if (bonusActionCooldown is not null)
+        oCaster.RemoveEffect(bonusActionCooldown);
+
       await caster.WaitForObjectContext();
       var duration = SpellUtils.GetSpellDuration(oCaster, spellEntry);
       targetLocation.ApplyEffect(EffectDuration.Temporary, Effect.SummonCreature("X2_S_FAERIE001", VfxType.FnfSummonMonster1), duration);   
@@ -47,9 +51,11 @@ namespace NWN.Systems
         return;
       }
 
-      if (onAttack.Attacker.Master.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value > 0)
+      var bonusAction = onAttack.Attacker.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.BonusActionEffectTag);
+
+      if (bonusAction is not null)
       {
-        onAttack.Attacker.Master.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value -= 1;
+        onAttack.Attacker.RemoveEffect(bonusAction);
 
         switch (onAttack.AttackResult)
         {

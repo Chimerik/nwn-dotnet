@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
@@ -157,11 +158,13 @@ namespace NWN.Systems
       if (target.GetObjectVariable<LocalVariableInt>("_BARBARIAN_RAGE_RENEW").HasNothing
         && !target.KnowsFeat((Feat)CustomSkill.BarbarianRagePersistante))
       {
-        if (target.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value < 1)
+        var bonusAction = target.ActiveEffects.FirstOrDefault(e => e.Tag == BonusActionEffectTag);
+
+        if (bonusAction is null)
           EffectUtils.RemoveTaggedEffect(target, BarbarianRageEffectTag);
         else
         {
-          target.GetObjectVariable<LocalVariableInt>(CreatureUtils.BonusActionVariable).Value -= 1;
+          target.RemoveEffect(bonusAction);
           RenewBarbarianRage(target);
         }
       }

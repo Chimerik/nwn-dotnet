@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using NWN.Native.API;
 
 namespace NWN.Systems
@@ -7,14 +8,20 @@ namespace NWN.Systems
   {
     public static int HandleEsquiveInstinctive(CNWSCreature creature)
     {
-      if (creature.m_ScriptVars.GetInt(CreatureUtils.ReactionVariableExo) < 1
-        || !creature.m_pStats.HasFeat(CustomSkill.EsquiveInstinctive).ToBool())
-        return 1;
-      
-      creature.m_ScriptVars.SetInt(CreatureUtils.ReactionVariableExo, creature.m_ScriptVars.GetInt(CreatureUtils.ReactionVariableExo) - 1);
-      BroadcastNativeServerMessage("Esquive Instinctive", creature);
-      LogUtils.LogMessage("Esquive Instinctive : dégâts divisés par 2", LogUtils.LogType.Combat);
-      return 2;
+      if (creature.m_pStats.HasFeat(CustomSkill.EsquiveInstinctive).ToBool())
+      {
+        var reaction = creature.m_appliedEffects.FirstOrDefault(e => e.m_sCustomTag.ToString() == EffectSystem.ReactionEffectTag);
+
+        if (reaction is not null)
+        {
+          creature.RemoveEffect(reaction);
+          BroadcastNativeServerMessage("Esquive Instinctive", creature);
+          LogUtils.LogMessage("Esquive Instinctive : dégâts divisés par 2", LogUtils.LogType.Combat);
+          return 2;
+        }
+      }
+
+      return 1;
     }
   }
 }

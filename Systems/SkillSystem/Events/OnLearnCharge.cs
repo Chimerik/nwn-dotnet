@@ -11,9 +11,9 @@ namespace NWN.Systems
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.ExpertiseCharge);
 
       player.oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipCharge;
-      player.oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipCharge;
+      player.oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipCharge;
       player.oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipCharge;
-      player.oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipCharge;
+      player.oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipCharge;
 
       var weapon = player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
 

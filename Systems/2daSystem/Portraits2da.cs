@@ -37,7 +37,6 @@ namespace NWN.Systems
     public Portraits2da(ModuleSystem _)
     {
       //portraitEntries = portraitsTable.Where(p => !string.IsNullOrEmpty(p.resRef));
-
       foreach (var portrait in portraitsTable)
         if (!string.IsNullOrEmpty(portrait.resRef))
         {

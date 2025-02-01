@@ -22,7 +22,6 @@ namespace NWN.Systems
     public int[] mediumEnchantements = new int[] { 555, 556, 557, 558, 559, 560, 561, 562 };
     public int[] highEnchantements = new int[] { 563, 564, 565, 566, 567, 568 };
 
-    public static Effect frog;
     public AreaSystem areaSystem;
 
     public SpellSystem(ScriptHandleFactory scriptFactory, AreaSystem areaSystem, Spells2da spells2Da)
@@ -31,16 +30,8 @@ namespace NWN.Systems
       this.areaSystem = areaSystem;
 
       InitializeLearnableSpells();
-      InitializeCustomEffects();
     }
 
-    private void InitializeCustomEffects()
-    {
-      frog = CreateCustomEffect("CUSTOM_EFFECT_FROG", ApplyFrogEffectToTarget, RemoveFrogEffectFromTarget, EffectIcon.Curse);
-
-      /*await NwTask.WaitUntil(() => NwModule.Instance.Players.FirstOrDefault()?.LoginCreature?.Area != null);
-      ApplyCustomEffectToTarget(frog, NwModule.Instance.Players.FirstOrDefault().LoginCreature, TimeSpan.FromSeconds(10));*/
-    }
     private void InitializeLearnableSpells()
     {
       foreach (NwSpell spell in NwRuleset.Spells)

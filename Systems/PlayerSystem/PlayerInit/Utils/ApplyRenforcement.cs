@@ -12,9 +12,9 @@ namespace NWN.Systems
         if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ExpertiseRenforcement))
         {
           oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipRenforcement;
-          oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipRenforcement;
+          oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipRenforcement;
           oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipRenforcement;
-          oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipRenforcement;
+          oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipRenforcement;
 
           var weapon = oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
 

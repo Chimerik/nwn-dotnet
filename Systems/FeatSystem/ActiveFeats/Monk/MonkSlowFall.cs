@@ -6,16 +6,11 @@ namespace NWN.Systems
   {
     private static void MonkSlowFall(NwCreature caster)
     {
-      if (caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value < 1)
+      if (CreatureUtils.HandleReactionUse(caster))
       {
-        caster.LoginPlayer?.SendServerMessage("Aucune réaction disponible", ColorConstants.Red);
-        return;
+        caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPulseWind));
+        StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Chute contrôlée", StringUtils.gold, true);
       }
-
-      caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value -= 1;
-      caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPulseWind));
-
-      StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Chute contrôlée", StringUtils.gold, true);
     }
   }
 }

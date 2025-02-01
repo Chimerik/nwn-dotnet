@@ -11,9 +11,9 @@ namespace NWN.Systems
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.ExpertiseArretCardiaque);
 
       player.oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipArretCardiaque;
-      player.oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipArretCardiaque;
+      player.oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipArretCardiaque;
       player.oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipArretCardiaque;
-      player.oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipArretCardiaque;
+      player.oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipArretCardiaque;
 
       var weapon = player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
       var secondWeapon = player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand);

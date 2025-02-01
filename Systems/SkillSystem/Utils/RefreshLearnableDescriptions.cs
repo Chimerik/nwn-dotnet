@@ -10,33 +10,35 @@ namespace NWN.Systems
       UpdateSpellDescriptionTable();
     }
 
-    public static async void UpdateSpellDescriptionTable()
+    public static void UpdateSpellDescriptionTable()
     {
-      ModuleSystem.Log.Info("Spell description started");
-      int i = 0;
+      //ModuleSystem.Log.Info("Spell description started");
+      //int i = 0;
       foreach (var entry in Spells2da.spellTable)
       {
         if (!string.IsNullOrEmpty(entry.googleDocId))
         {
-          if (i > 50)
+          /*if (i > 50)
           {
             await NwTask.Delay(TimeSpan.FromSeconds(5));
             i = 0;
-          }
+          }*/
 
           UpdateSpellDescription(entry.tlkEntry, entry.googleDocId);
-          i++;
+          //i++;
         }
       }
 
-      ModuleSystem.Log.Info("Spell description updated");
+      //ModuleSystem.Log.Info("Spell description updated");
       UpdateLearnableDescriptions();
     }
     private static async void UpdateSpellDescription(StrRef description, string docId)
     {
       try
       {
-        description.Override = await StringUtils.DownloadGoogleDoc(docId);
+        string result = await StringUtils.DownloadGoogleDoc(docId);
+        await NwTask.SwitchToMainThread();
+        description.Override = result;
       }
       catch (Exception e)
       {
@@ -44,26 +46,26 @@ namespace NWN.Systems
       }
     }
 
-    private static async void UpdateLearnableDescriptions()
+    private static void UpdateLearnableDescriptions()
     {
-      int i = 0;
+      //int i = 0;
 
       foreach (var learnable in learnableDictionary.Values)
       {
         if (!string.IsNullOrEmpty(learnable.descriptionLink))
         {
-          if (i > 100)
+          /*if (i > 100)
           {
             await NwTask.Delay(TimeSpan.FromSeconds(5));
             i = 0;
-          }
+          }*/
 
           UpdateDescriptionFromGoogleURL(learnable);
-          i++;
+          //i++;
         }
       }
 
-      ModuleSystem.Log.Info("Learnable descriptions updated");
+      //ModuleSystem.Log.Info("Learnable descriptions updated");
       StringUtils.InitializeTlkOverrides();
     }
 
@@ -71,7 +73,9 @@ namespace NWN.Systems
     {
       try
       {
-        learnable.description = await StringUtils.DownloadGoogleDoc(learnable.descriptionLink);
+        string result = await StringUtils.DownloadGoogleDoc(learnable.descriptionLink);
+        await NwTask.SwitchToMainThread();
+        learnable.description = result;
       }
       catch (Exception e)
       {

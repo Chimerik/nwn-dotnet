@@ -12,9 +12,9 @@ namespace NWN.Systems
         if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ExpertiseTirPercant))
         {
           oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipTirPercant;
-          oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipTirPercant;
+          oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipTirPercant;
           oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipTirPercant;
-          oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipTirPercant;
+          oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipTirPercant;
 
           var weapon = oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
 

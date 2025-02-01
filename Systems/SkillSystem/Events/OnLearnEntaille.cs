@@ -11,9 +11,9 @@ namespace NWN.Systems
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.ExpertiseEntaille);
 
       player.oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipEntaille;
-      player.oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipEntaille;
+      player.oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipEntaille;
       player.oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipEntaille;
-      player.oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipEntaille;
+      player.oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipEntaille;
 
       var weapon = player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
       var secondWeapon = player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand);

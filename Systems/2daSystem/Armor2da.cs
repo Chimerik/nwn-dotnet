@@ -36,7 +36,7 @@ namespace NWN.Systems
     public static readonly TwoDimArray<ArmorEntry> armorTable = NwGameTables.GetTable<ArmorEntry>("armor.2da");
     public Armor2da()
     {
-      
+
     }
 
     public static int GetCost(int baseACV)

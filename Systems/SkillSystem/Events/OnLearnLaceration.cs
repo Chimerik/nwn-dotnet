@@ -11,9 +11,9 @@ namespace NWN.Systems
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.ExpertiseLaceration);
 
       player.oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipLaceration;
-      player.oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipLaceration;
+      player.oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipLaceration;
       player.oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipLaceration;
-      player.oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipLaceration;
+      player.oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipLaceration;
 
       var weapon = player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
       var secondWeapon = player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand);

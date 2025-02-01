@@ -533,7 +533,7 @@ namespace NWN.Systems.Alchemy
       player.menu.Close();
       player.oid.SendServerMessage("Vous videz le chaudron de son contenu actuel et le remplissez à nouveau d'une eau neutre.", ColorConstants.Orange);
     }
-    private async void GetRecipeName()
+    private void GetRecipeName()
     {
       player.menu.Clear();
 

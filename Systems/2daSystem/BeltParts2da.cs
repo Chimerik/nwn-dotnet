@@ -24,7 +24,7 @@ namespace NWN.Systems
     public static readonly List<NuiComboEntry> combo = new ();
     public BeltParts2da()
     {
-      foreach(var entry in BeltPartsTable.Where(b => b.maxAC > -1))
+      foreach (var entry in BeltPartsTable.Where(b => b.maxAC > -1))
         combo.Add(new NuiComboEntry(entry.RowIndex.ToString(), entry.RowIndex));
     }
   }

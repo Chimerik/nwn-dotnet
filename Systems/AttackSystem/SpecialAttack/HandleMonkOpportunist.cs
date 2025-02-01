@@ -40,12 +40,17 @@ namespace NWN.Systems
 
             var opportunist = NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(eff.m_oidCreator);
 
-            if(opportunist is not null && opportunist.m_idSelf != 0x7F000000 && opportunist.m_oidArea == target.m_oidArea
-              && opportunist.m_vPosition is not null && opportunist.m_ScriptVars.GetInt(CreatureUtils.ReactionVariableExo) > 0
+            if (opportunist is not null && opportunist.m_idSelf != 0x7F000000 && opportunist.m_oidArea == target.m_oidArea
+              && opportunist.m_vPosition is not null
               && Vector3.DistanceSquared(opportunist.m_vPosition.ToManagedVector(), target.m_vPosition.ToManagedVector()) < 10)
             {
-              opportunist.m_ScriptVars.SetInt(CreatureUtils.ReactionVariableExo, opportunist.m_ScriptVars.GetInt(CreatureUtils.ReactionVariableExo) - 1);
-              opportunist.m_ScriptVars.SetObject(CreatureUtils.OpportunisteVariableExo, target.m_idSelf);
+              var reaction = opportunist.m_appliedEffects.FirstOrDefault(e => e.m_sCustomTag.ToString() == EffectSystem.ReactionEffectTag);
+
+              if (reaction is not null)
+              {
+                opportunist.RemoveEffect(reaction);
+                opportunist.m_ScriptVars.SetObject(CreatureUtils.OpportunisteVariableExo, target.m_idSelf);
+              }
             }
           }
           

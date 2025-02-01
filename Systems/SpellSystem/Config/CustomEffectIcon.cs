@@ -11,6 +11,7 @@ namespace NWN
     public const EffectIcon ChatimentBrillant = (EffectIcon)134;
     public const EffectIcon Broyeur = (EffectIcon)135;
     public const EffectIcon Sprint = (EffectIcon)142;
+    public const EffectIcon ElectricJolt = (EffectIcon)147;
     public const EffectIcon Bouclier = (EffectIcon)152;
     public const EffectIcon FormeDeLune = (EffectIcon)186;
 
@@ -109,5 +110,8 @@ namespace NWN
     public const EffectIcon AthleteAccompli = (EffectIcon)264;
     public const EffectIcon AvantageTactique = (EffectIcon)265;
     public const EffectIcon AttaquesEtudiees = (EffectIcon)266;
+    public const EffectIcon CoupAuBut = (EffectIcon)267;
+    public const EffectIcon ActionBonus = (EffectIcon)268;
+    public const EffectIcon Reaction = (EffectIcon)269;
   }
 }

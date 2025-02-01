@@ -11,9 +11,9 @@ namespace NWN.Systems
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.ExpertiseDestabiliser);
 
       player.oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipDestabiliser;
-      player.oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipDestabiliser;
+      player.oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipDestabiliser;
       player.oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipDestabiliser;
-      player.oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipDestabiliser;
+      player.oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipDestabiliser;
 
       var weapon = player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
 

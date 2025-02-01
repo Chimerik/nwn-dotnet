@@ -27,12 +27,16 @@ namespace NWN.Systems
 
         if (saveFailed && caster.KnowsFeat((Feat)CustomSkill.WildMagicMagieGalvanisanteBienfait)
           && caster.Classes.Any(c => c.Class.ClassType == ClassType.Barbarian && c.Level > 9)
-          && caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value > 0
           && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.BarbarianRageEffectTag))
         {
-          BarbarianUtils.DispelWildMagicEffects(caster);
-          FeatSystem.HandleWildMagicRage(caster);
-          caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.ReactionVariable).Value -= 1;
+          var reaction = caster.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.ReactionEffectTag);
+
+          if (reaction is not null)
+          {
+            BarbarianUtils.DispelWildMagicEffects(caster);
+            FeatSystem.HandleWildMagicRage(caster);
+            caster.RemoveEffect(reaction);
+          }
         }
       }
 

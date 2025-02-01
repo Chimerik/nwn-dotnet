@@ -11,9 +11,9 @@ namespace NWN.Systems
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.ExpertiseBriseEchine);
 
       player.oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipBriseEchine;
-      player.oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipBriseEchine;
+      player.oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipBriseEchine;
       player.oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipBriseEchine;
-      player.oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipBriseEchine;
+      player.oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipBriseEchine;
 
       var weapon = player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
 

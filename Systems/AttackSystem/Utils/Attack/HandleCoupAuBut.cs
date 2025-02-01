@@ -11,7 +11,7 @@ namespace NWN.Systems
       {
         var coupAuBut = creature.m_appliedEffects.FirstOrDefault(e => e.m_sCustomTag.ToString() == effectTag);
         if (coupAuBut is not null)
-          attackStat = (Anvil.API.Ability)coupAuBut.GetInteger(3);
+          attackStat = (Anvil.API.Ability)coupAuBut.GetInteger(5);
 
         EffectUtils.RemoveTaggedNativeEffect(creature, effectTag);
       }

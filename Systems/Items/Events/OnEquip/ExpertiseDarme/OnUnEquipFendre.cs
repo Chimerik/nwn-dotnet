@@ -6,9 +6,9 @@ namespace NWN.Systems
 {
   public partial class ItemSystem
   {
-    public static async void OnUnEquipFendre(OnItemUnequip onUnequip)
+    public static async void OnUnEquipFendre(ModuleEvents.OnPlayerUnequipItem onUnequip)
     {
-      NwCreature oPC = onUnequip.Creature;
+      NwCreature oPC = onUnequip.UnequippedBy;
       NwItem oItem = onUnequip.Item;
       
       if (oPC is null || oItem is null || !ItemUtils.IsWeapon(oItem.BaseItem))
@@ -18,7 +18,7 @@ namespace NWN.Systems
 
       var weapon = oPC.GetItemInSlot(InventorySlot.RightHand);
 
-      if ((weapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Doubleaxe, BaseItemType.Greatsword, BaseItemType.TwoBladedSword, BaseItemType.Greataxe, BaseItemType.DwarvenWaraxe, BaseItemType.Halberd, BaseItemType.Scythe)))
+      if ((weapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Battleaxe, BaseItemType.Doubleaxe, BaseItemType.Greatsword, BaseItemType.TwoBladedSword, BaseItemType.Greataxe, BaseItemType.DwarvenWaraxe, BaseItemType.Halberd, BaseItemType.Scythe)))
       {
         if (!oPC.ActiveEffects.Any(e => e.Tag == EffectSystem.CooldownEffectTag && e.IntParams[5] == CustomSkill.ExpertiseFendre))
           oPC.SetFeatRemainingUses((Feat)CustomSkill.ExpertiseFendre, 100);

@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -6,9 +7,11 @@ namespace NWN.Systems
   {
     public static bool HandleReactionUse(NwCreature creature)
     {
-      if (creature.GetObjectVariable<LocalVariableInt>(ReactionVariable).Value > 0 || creature.IsDMPossessed || creature.IsDMAvatar)
+      var reaction = creature.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.ReactionEffectTag);
+
+      if (reaction is not null)
       {
-        creature.GetObjectVariable<LocalVariableInt>(ReactionVariable).Value -= 1;
+        creature.RemoveEffect(reaction);
         return true;
       }
 

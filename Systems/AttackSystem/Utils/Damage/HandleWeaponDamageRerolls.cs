@@ -15,7 +15,6 @@ namespace NWN.Systems
         int roll = NwRandom.Roll(Utils.random, dieToRoll, 1);
 
         roll = HandleRenforcement(creature, weapon, roll, dieToRoll);
-        roll = HandlePreparation(creature, weapon, roll, dieToRoll);
         roll = HandleStabilisation(creature, weapon, roll, dieToRoll);
 
         if (creature.m_pStats.HasFeat(CustomSkill.FighterCombatStyleTwoHanded).ToBool()

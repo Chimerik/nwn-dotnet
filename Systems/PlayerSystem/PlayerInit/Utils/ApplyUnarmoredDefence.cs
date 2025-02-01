@@ -12,9 +12,9 @@ namespace NWN.Systems
         if (oid.LoginCreature.Classes.Any(c => c.Class.ClassType == ClassType.Barbarian))
         {
           oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipUnarmoredDefence;
-          oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipUnarmoredDefence;
+          oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipUnarmoredDefence;
           oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipUnarmoredDefence;
-          oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipUnarmoredDefence;
+          oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipUnarmoredDefence;
 
           NwItem armor = oid.LoginCreature.GetItemInSlot(InventorySlot.Chest);
 
