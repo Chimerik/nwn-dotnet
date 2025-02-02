@@ -11,14 +11,14 @@ namespace NWN.Systems
       {
         if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ExpertiseBriseEchine))
         {
-          oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipDestabiliser;
+          oid.OnPlayerEquipItem -= ItemSystem.OnEquipDestabiliser;
           oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipDestabiliser;
-          oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipDestabiliser;
+          oid.OnPlayerEquipItem += ItemSystem.OnEquipDestabiliser;
           oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipDestabiliser;
 
           var weapon = oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
 
-          if (weapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Quarterstaff, BaseItemType.MagicStaff, BaseItemType.Whip))
+          if (weapon is not null && ItemUtils.IsCreatureWeaponExpert(oid.LoginCreature, weapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Quarterstaff, BaseItemType.MagicStaff, BaseItemType.Whip))
           {
             if (!oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.CooldownEffectTag && e.IntParams[5] == CustomSkill.ExpertiseDestabiliser))
               oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ExpertiseDestabiliser, 100);

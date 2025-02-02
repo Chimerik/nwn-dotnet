@@ -11,14 +11,14 @@ namespace NWN.Systems
       {
         if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ExpertiseCommotion))
         {
-          oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipCharge;
+          oid.OnPlayerEquipItem -= ItemSystem.OnEquipCharge;
           oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipCharge;
-          oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipCharge;
+          oid.OnPlayerEquipItem += ItemSystem.OnEquipCharge;
           oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipCharge;
 
           var weapon = oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
 
-          if ((weapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Bastardsword, BaseItemType.Katana, BaseItemType.Longsword, BaseItemType.Halberd, BaseItemType.ShortSpear)))
+          if ((weapon is not null && ItemUtils.IsCreatureWeaponExpert(oid.LoginCreature, weapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Bastardsword, BaseItemType.Katana, BaseItemType.Longsword, BaseItemType.Halberd, BaseItemType.ShortSpear)))
           {
             if (!oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.CooldownEffectTag && e.IntParams[5] == CustomSkill.ExpertiseCharge))
               oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ExpertiseCharge, 100);

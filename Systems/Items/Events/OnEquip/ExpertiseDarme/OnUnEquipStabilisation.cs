@@ -19,7 +19,7 @@ namespace NWN.Systems
 
       var weapon = oPC.GetItemInSlot(InventorySlot.RightHand);
 
-      if (weapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.HeavyCrossbow, BaseItemType.Longbow, BaseItemType.ThrowingAxe))
+      if (weapon is not null && ItemUtils.IsCreatureWeaponExpert(oPC, weapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.HeavyCrossbow, BaseItemType.Longbow, BaseItemType.ThrowingAxe))
       {
         if (!oPC.ActiveEffects.Any(e => e.Tag == EffectSystem.CooldownEffectTag && e.IntParams[5] == CustomSkill.ExpertiseStabilisation))
           oPC.SetFeatRemainingUses((Feat)CustomSkill.ExpertiseStabilisation, 100);

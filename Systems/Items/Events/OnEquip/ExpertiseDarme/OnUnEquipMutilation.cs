@@ -19,8 +19,8 @@ namespace NWN.Systems
       var weapon = oPC.GetItemInSlot(InventorySlot.RightHand);
       var secondWeapon = oPC.GetItemInSlot(InventorySlot.LeftHand);
 
-      if ((weapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Handaxe, BaseItemType.Battleaxe, BaseItemType.Greataxe, BaseItemType.Doubleaxe, BaseItemType.DwarvenWaraxe, BaseItemType.Scythe))
-      || (secondWeapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Handaxe)))
+      if ((weapon is not null && ItemUtils.IsCreatureWeaponExpert(oPC, weapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Handaxe, BaseItemType.Battleaxe, BaseItemType.Greataxe, BaseItemType.Doubleaxe, BaseItemType.DwarvenWaraxe, BaseItemType.Scythe))
+      || (secondWeapon is not null && ItemUtils.IsCreatureWeaponExpert(oPC, secondWeapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Handaxe)))
       {
         if (!oPC.ActiveEffects.Any(e => e.Tag == EffectSystem.CooldownEffectTag && e.IntParams[5] == CustomSkill.ExpertiseMutilation))
           oPC.SetFeatRemainingUses((Feat)CustomSkill.ExpertiseMutilation, 100);

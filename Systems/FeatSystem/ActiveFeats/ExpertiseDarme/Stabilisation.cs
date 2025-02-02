@@ -1,5 +1,4 @@
-﻿
-using Anvil.API;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -9,7 +8,7 @@ namespace NWN.Systems
     {
       var weapon = caster.GetItemInSlot(InventorySlot.RightHand);
 
-      if (weapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.HeavyCrossbow, BaseItemType.Longbow, BaseItemType.ThrowingAxe))
+      if (weapon is not null && ItemUtils.IsCreatureWeaponExpert(caster, weapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.HeavyCrossbow, BaseItemType.Longbow, BaseItemType.ThrowingAxe))
       {
         caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadFire));
         caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.Stabilisation, NwTimeSpan.FromRounds(1));

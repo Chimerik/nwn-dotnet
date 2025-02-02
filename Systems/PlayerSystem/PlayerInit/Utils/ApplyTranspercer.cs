@@ -11,16 +11,16 @@ namespace NWN.Systems
       {
         if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ExpertiseTranspercer))
         {
-          oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipTranspercer;
+          oid.OnPlayerEquipItem -= ItemSystem.OnEquipTranspercer;
           oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipTranspercer;
-          oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipTranspercer;
+          oid.OnPlayerEquipItem += ItemSystem.OnEquipTranspercer;
           oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipTranspercer;
 
           var weapon = oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
           var secondWeapon = oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand);
 
-          if ((weapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Dagger, BaseItemType.ShortSpear, BaseItemType.Rapier, BaseItemType.Shortsword))
-          || (secondWeapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Dagger, BaseItemType.ShortSpear, BaseItemType.Rapier, BaseItemType.Shortsword)))
+          if ((weapon is not null && ItemUtils.IsCreatureWeaponExpert(oid.LoginCreature, weapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Dagger, BaseItemType.ShortSpear, BaseItemType.Rapier, BaseItemType.Shortsword))
+          || (secondWeapon is not null && ItemUtils.IsCreatureWeaponExpert(oid.LoginCreature, secondWeapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Dagger, BaseItemType.ShortSpear, BaseItemType.Rapier, BaseItemType.Shortsword)))
           {
             if (!oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.CooldownEffectTag && e.IntParams[5] == CustomSkill.ExpertiseTranspercer))
               oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ExpertiseTranspercer, 100);

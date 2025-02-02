@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       var weapon = caster.GetItemInSlot(InventorySlot.RightHand);
 
-      if (weapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Shortbow, BaseItemType.Longbow, BaseItemType.ThrowingAxe, BaseItemType.Dart))
+      if (weapon is not null && ItemUtils.IsCreatureWeaponExpert(caster, weapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Shortbow, BaseItemType.Longbow, BaseItemType.ThrowingAxe, BaseItemType.Dart))
       {
         caster.OnCreatureAttack -= CreatureUtils.OnAttackCoupeJarret;
         caster.OnCreatureAttack += CreatureUtils.OnAttackCoupeJarret;

@@ -12,14 +12,16 @@ namespace NWN.Systems
       {
         if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ExpertiseFendre))
         {
-          oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipFendre;
+          oid.OnPlayerEquipItem -= ItemSystem.OnEquipFendre;
           oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipFendre;
-          oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipFendre;
+          oid.OnPlayerEquipItem += ItemSystem.OnEquipFendre;
           oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipFendre;
 
           var weapon = oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
+          var secondWeapon = oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand);
 
-          if ((weapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Battleaxe, BaseItemType.Doubleaxe, BaseItemType.Greatsword, BaseItemType.TwoBladedSword, BaseItemType.Greataxe, BaseItemType.DwarvenWaraxe, BaseItemType.Halberd, BaseItemType.Scythe)))
+          if ((weapon is not null && ItemUtils.IsCreatureWeaponExpert(oid.LoginCreature, weapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Battleaxe, BaseItemType.Doubleaxe, BaseItemType.Greatsword, BaseItemType.TwoBladedSword, BaseItemType.Greataxe, BaseItemType.DwarvenWaraxe, BaseItemType.Halberd, BaseItemType.Scythe))
+            || (secondWeapon is not null && ItemUtils.IsCreatureWeaponExpert(oid.LoginCreature, secondWeapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Battleaxe, BaseItemType.DwarvenWaraxe)))
           {
             if (!oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.CooldownEffectTag && e.IntParams[5] == CustomSkill.ExpertiseFendre))
               oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ExpertiseFendre, 100);

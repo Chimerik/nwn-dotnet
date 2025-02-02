@@ -1,40 +1,30 @@
 ﻿using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
-using NWN.Systems.Arena;
 
 namespace NWN.Systems
 {
   public partial class ItemSystem
   {
-    public static void OnEquipTranspercer(OnItemEquip onEquip)
+    public static void OnEquipTranspercer(ModuleEvents.OnPlayerEquipItem onEquip)
     {
-      NwCreature oPC = onEquip.EquippedBy;
+      NwCreature oPC = onEquip.Player;
       NwItem oItem = onEquip.Item;
-      //NwItem swappedItem = oPC.GetItemInSlot(onEquip.Slot);
 
       if (oPC is null || oItem is null || !ItemUtils.IsWeapon(oItem.BaseItem))
         return;
 
-      if (Utils.In(oItem.BaseItem.ItemType, BaseItemType.Dagger, BaseItemType.ShortSpear, BaseItemType.Rapier, BaseItemType.Shortsword))
+      var weapon = oPC.GetItemInSlot(InventorySlot.RightHand);
+      var secondWeapon = oPC.GetItemInSlot(InventorySlot.LeftHand);
+
+      if ((weapon is not null && ItemUtils.IsCreatureWeaponExpert(oPC, weapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Dagger, BaseItemType.ShortSpear, BaseItemType.Rapier, BaseItemType.Shortsword))
+      || (secondWeapon is not null && ItemUtils.IsCreatureWeaponExpert(oPC, secondWeapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Dagger, BaseItemType.ShortSpear, BaseItemType.Rapier, BaseItemType.Shortsword)))
       {
         if (!oPC.ActiveEffects.Any(e => e.Tag == EffectSystem.CooldownEffectTag && e.IntParams[5] == CustomSkill.ExpertiseTranspercer))
           oPC.SetFeatRemainingUses((Feat)CustomSkill.ExpertiseTranspercer, 100);
       }
       else
-      {
-        var weapon = oPC.GetItemInSlot(InventorySlot.RightHand);
-        var secondWeapon = oPC.GetItemInSlot(InventorySlot.LeftHand);
-
-        if ((weapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Dagger, BaseItemType.ShortSpear, BaseItemType.Rapier, BaseItemType.Shortsword))
-        || (secondWeapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Dagger, BaseItemType.ShortSpear, BaseItemType.Rapier, BaseItemType.Shortsword)))
-        {
-          if (!oPC.ActiveEffects.Any(e => e.Tag == EffectSystem.CooldownEffectTag && e.IntParams[5] == CustomSkill.ExpertiseTranspercer))
-            oPC.SetFeatRemainingUses((Feat)CustomSkill.ExpertiseTranspercer, 100);
-        }
-        else
-          oPC.SetFeatRemainingUses((Feat)CustomSkill.ExpertiseTranspercer, 0);
-      }
+        oPC.SetFeatRemainingUses((Feat)CustomSkill.ExpertiseTranspercer, 0);
     }
   }
 }

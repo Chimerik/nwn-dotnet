@@ -11,14 +11,14 @@ namespace NWN.Systems
       {
         if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ExpertisePreparation))
         {
-          oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipPreparation;
+          oid.OnPlayerEquipItem -= ItemSystem.OnEquipPreparation;
           oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipPreparation;
-          oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipPreparation;
+          oid.OnPlayerEquipItem += ItemSystem.OnEquipPreparation;
           oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipPreparation;
 
           var weapon = oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
 
-          if (weapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Handaxe, BaseItemType.Greataxe, BaseItemType.Doubleaxe, BaseItemType.Battleaxe, BaseItemType.DwarvenWaraxe, BaseItemType.Katana, BaseItemType.Scythe))
+          if (weapon is not null && ItemUtils.IsCreatureWeaponExpert(oid.LoginCreature, weapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Handaxe, BaseItemType.Greataxe, BaseItemType.Doubleaxe, BaseItemType.Battleaxe, BaseItemType.DwarvenWaraxe, BaseItemType.Katana, BaseItemType.Scythe))
           {
             if (!oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.CooldownEffectTag && e.IntParams[5] == CustomSkill.ExpertisePreparation))
               oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ExpertisePreparation, 100);

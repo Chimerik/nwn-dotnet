@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       var weapon = caster.GetItemInSlot(InventorySlot.RightHand);
 
-      if (weapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.DireMace, BaseItemType.Warhammer))
+      if (weapon is not null && ItemUtils.IsCreatureWeaponExpert(caster, weapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.DireMace, BaseItemType.Warhammer))
       {
         caster.OnCreatureAttack -= CreatureUtils.OnAttackBriseEchine;
         caster.OnCreatureAttack += CreatureUtils.OnAttackBriseEchine;

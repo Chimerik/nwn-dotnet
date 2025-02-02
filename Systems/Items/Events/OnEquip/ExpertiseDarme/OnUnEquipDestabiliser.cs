@@ -17,9 +17,8 @@ namespace NWN.Systems
       await NwTask.NextFrame();
 
       var weapon = oPC.GetItemInSlot(InventorySlot.RightHand);
-      var secondWeapon = oPC.GetItemInSlot(InventorySlot.LeftHand);
 
-      if (weapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Quarterstaff, BaseItemType.MagicStaff, BaseItemType.Whip))
+      if (weapon is not null && ItemUtils.IsCreatureWeaponExpert(oPC, weapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Quarterstaff, BaseItemType.MagicStaff, BaseItemType.Whip))
       {
         if (!oPC.ActiveEffects.Any(e => e.Tag == EffectSystem.CooldownEffectTag && e.IntParams[5] == CustomSkill.ExpertiseDestabiliser))
           oPC.SetFeatRemainingUses((Feat)CustomSkill.ExpertiseDestabiliser, 100);

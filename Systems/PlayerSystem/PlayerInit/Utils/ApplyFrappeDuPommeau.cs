@@ -12,14 +12,14 @@ namespace NWN.Systems
       {
         if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ExpertiseFrappeDuPommeau))
         {
-          oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipFrappeDuPommeau;
+          oid.OnPlayerEquipItem -= ItemSystem.OnEquipFrappeDuPommeau;
           oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipFrappeDuPommeau;
-          oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipFrappeDuPommeau;
+          oid.OnPlayerEquipItem += ItemSystem.OnEquipFrappeDuPommeau;
           oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipFrappeDuPommeau;
 
           var weapon = oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
 
-          if (weapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Longsword, BaseItemType.Bastardsword, BaseItemType.Greatsword))
+          if (weapon is not null && ItemUtils.IsCreatureWeaponExpert(oid.LoginCreature, weapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Longsword, BaseItemType.Bastardsword, BaseItemType.Greatsword))
           {
             if (!oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.CooldownEffectTag && e.IntParams[5] == CustomSkill.ExpertiseFrappeDuPommeau))
               oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ExpertiseFrappeDuPommeau, 100);

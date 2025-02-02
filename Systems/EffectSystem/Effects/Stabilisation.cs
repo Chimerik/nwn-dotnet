@@ -5,7 +5,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string StabilisationEffectTag = "_STABILISATION_EFFECT";
-    public static readonly Native.API.CExoString StabilisationEffectExoTag = StabilisationEffectTag.ToExoString();
     public static Effect Stabilisation
     {
       get

@@ -9,8 +9,8 @@ namespace NWN.Systems
       var weapon = caster.GetItemInSlot(InventorySlot.RightHand);
       var secondWeapon = caster.GetItemInSlot(InventorySlot.LeftHand);
 
-      if ((weapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.LightMace, BaseItemType.Club, BaseItemType.Morningstar, BaseItemType.HeavyFlail))
-        || (secondWeapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.LightMace, BaseItemType.Club, BaseItemType.Morningstar)))
+      if ((weapon is not null && ItemUtils.IsCreatureWeaponExpert(caster, weapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.LightMace, BaseItemType.Club, BaseItemType.Morningstar, BaseItemType.HeavyFlail))
+        || (secondWeapon is not null && ItemUtils.IsCreatureWeaponExpert(caster, secondWeapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.LightMace, BaseItemType.Club, BaseItemType.Morningstar)))
       {
         caster.OnCreatureAttack -= CreatureUtils.OnAttackArretCardiaque;
         caster.OnCreatureAttack += CreatureUtils.OnAttackArretCardiaque;

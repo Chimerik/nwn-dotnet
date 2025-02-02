@@ -11,14 +11,14 @@ namespace NWN.Systems
       {
         if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ExpertiseCoupeJarret))
         {
-          oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipCoupeJarret;
+          oid.OnPlayerEquipItem -= ItemSystem.OnEquipCoupeJarret;
           oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipCoupeJarret;
-          oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipCoupeJarret;
+          oid.OnPlayerEquipItem += ItemSystem.OnEquipCoupeJarret;
           oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipCoupeJarret;
 
           var weapon = oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
 
-          if (weapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Shortbow, BaseItemType.Longbow, BaseItemType.ThrowingAxe, BaseItemType.Dart))
+          if (weapon is not null && ItemUtils.IsCreatureWeaponExpert(oid.LoginCreature, weapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Shortbow, BaseItemType.Longbow, BaseItemType.ThrowingAxe, BaseItemType.Dart))
           {
             if (!oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.CooldownEffectTag && e.IntParams[5] == CustomSkill.ExpertiseCoupeJarret))
               oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ExpertiseCoupeJarret, 100);

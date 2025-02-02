@@ -1,38 +1,28 @@
 ﻿using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
-using NWN.Systems.Arena;
 
 namespace NWN.Systems
 {
   public partial class ItemSystem
   {
-    public static void OnEquipTirPercant(OnItemEquip onEquip)
+    public static void OnEquipTirPercant(ModuleEvents.OnPlayerEquipItem onEquip)
     {
-      NwCreature oPC = onEquip.EquippedBy;
+      NwCreature oPC = onEquip.Player;
       NwItem oItem = onEquip.Item;
 
       if (oPC is null || oItem is null || !ItemUtils.IsWeapon(oItem.BaseItem))
         return;
 
-      if (Utils.In(oItem.BaseItem.ItemType, BaseItemType.LightCrossbow, BaseItemType.HeavyCrossbow, BaseItemType.Shuriken))
+      var weapon = oPC.GetItemInSlot(InventorySlot.RightHand);
+
+      if (weapon is not null && ItemUtils.IsCreatureWeaponExpert(oPC, weapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.LightCrossbow, BaseItemType.HeavyCrossbow, BaseItemType.Shuriken))
       {
         if (!oPC.ActiveEffects.Any(e => e.Tag == EffectSystem.CooldownEffectTag && e.IntParams[5] == CustomSkill.ExpertiseTirPercant))
           oPC.SetFeatRemainingUses((Feat)CustomSkill.ExpertiseTirPercant, 100);
       }
       else
-      {
-        var weapon = oPC.GetItemInSlot(InventorySlot.RightHand);
-        var secondWeapon = oPC.GetItemInSlot(InventorySlot.LeftHand);
-
-        if (weapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.LightCrossbow, BaseItemType.HeavyCrossbow, BaseItemType.Shuriken))
-        {
-          if (!oPC.ActiveEffects.Any(e => e.Tag == EffectSystem.CooldownEffectTag && e.IntParams[5] == CustomSkill.ExpertiseTirPercant))
-            oPC.SetFeatRemainingUses((Feat)CustomSkill.ExpertiseTirPercant, 100);
-        }
-        else
-          oPC.SetFeatRemainingUses((Feat)CustomSkill.ExpertiseTirPercant, 0);
-      }
+        oPC.SetFeatRemainingUses((Feat)CustomSkill.ExpertiseTirPercant, 0);
     }
   }
 }

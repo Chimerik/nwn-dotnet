@@ -28,7 +28,7 @@ namespace NWN.Systems
             default: return;
           }
 
-          if ((weapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.LightFlail, BaseItemType.HeavyFlail, BaseItemType.Morningstar, BaseItemType.LightMace, 
+          if ((weapon is not null && ItemUtils.IsCreatureWeaponExpert(onAttack.Attacker, weapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.LightFlail, BaseItemType.HeavyFlail, BaseItemType.Morningstar, BaseItemType.LightMace, 
             BaseItemType.DireMace, BaseItemType.LightHammer, BaseItemType.Warhammer)))
           {
             int modifier = onAttack.Attacker.GetAbilityModifier(NativeUtils.GetAttackAbility(onAttack.Attacker, onAttack.IsRangedAttack, weapon));

@@ -9,8 +9,8 @@ namespace NWN.Systems
       var weapon = caster.GetItemInSlot(InventorySlot.RightHand);
       var secondWeapon = caster.GetItemInSlot(InventorySlot.LeftHand);
 
-      if ((weapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Handaxe, BaseItemType.Battleaxe, BaseItemType.Greataxe, BaseItemType.Doubleaxe, BaseItemType.DwarvenWaraxe, BaseItemType.Scythe))
-        || (secondWeapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Handaxe)))
+      if ((weapon is not null && ItemUtils.IsCreatureWeaponExpert(caster, weapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Handaxe, BaseItemType.Battleaxe, BaseItemType.Greataxe, BaseItemType.Doubleaxe, BaseItemType.DwarvenWaraxe, BaseItemType.Scythe))
+        || (secondWeapon is not null && ItemUtils.IsCreatureWeaponExpert(caster, secondWeapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Handaxe)))
       {
         caster.OnCreatureAttack -= CreatureUtils.OnAttackMutilation;
         caster.OnCreatureAttack += CreatureUtils.OnAttackMutilation;

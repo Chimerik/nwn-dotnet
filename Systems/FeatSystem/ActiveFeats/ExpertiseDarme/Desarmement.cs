@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       var weapon = caster.GetItemInSlot(InventorySlot.RightHand);
 
-      if (weapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Whip))
+      if (weapon is not null && ItemUtils.IsCreatureWeaponExpert(caster, weapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Whip))
       {
         caster.OnCreatureAttack -= CreatureUtils.OnAttackExpertiseDesarmement;
         caster.OnCreatureAttack += CreatureUtils.OnAttackExpertiseDesarmement;

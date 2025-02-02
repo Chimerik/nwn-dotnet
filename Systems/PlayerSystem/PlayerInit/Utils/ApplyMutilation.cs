@@ -11,16 +11,16 @@ namespace NWN.Systems
       {
         if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ExpertiseMutilation))
         {
-          oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipMutilation;
-          oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipMutilation;
+          oid.OnPlayerEquipItem -= ItemSystem.OnEquipMutilation;
+          oid.OnPlayerEquipItem += ItemSystem.OnEquipMutilation;
           oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipMutilation;
           oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipMutilation;
 
           var weapon = oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
           var secondWeapon = oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand);
 
-          if ((weapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Handaxe, BaseItemType.Battleaxe, BaseItemType.Greataxe, BaseItemType.Doubleaxe, BaseItemType.DwarvenWaraxe, BaseItemType.Scythe))
-          || (secondWeapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Handaxe)))
+          if ((weapon is not null && ItemUtils.IsCreatureWeaponExpert(oid.LoginCreature, weapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Handaxe, BaseItemType.Battleaxe, BaseItemType.Greataxe, BaseItemType.Doubleaxe, BaseItemType.DwarvenWaraxe, BaseItemType.Scythe))
+          || (secondWeapon is not null && ItemUtils.IsCreatureWeaponExpert(oid.LoginCreature, secondWeapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Handaxe)))
           {
             if (!oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.CooldownEffectTag && e.IntParams[5] == CustomSkill.ExpertiseMutilation))
               oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ExpertiseMutilation, 100);

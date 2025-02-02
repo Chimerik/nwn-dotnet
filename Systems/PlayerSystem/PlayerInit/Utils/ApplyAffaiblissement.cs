@@ -11,16 +11,16 @@ namespace NWN.Systems
       {
         if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ExpertiseAffaiblissement))
         {
-          oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipAffaiblissement;
+          oid.OnPlayerEquipItem -= ItemSystem.OnEquipAffaiblissement;
           oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipAffaiblissement;
-          oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipAffaiblissement;
+          oid.OnPlayerEquipItem += ItemSystem.OnEquipAffaiblissement;
           oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipAffaiblissement;
 
           var weapon = oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
           var secondWeapon = oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand);
 
-          if ((weapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.LightFlail, BaseItemType.Club, BaseItemType.HeavyFlail, BaseItemType.Rapier, BaseItemType.Whip, BaseItemType.Sling))
-        || (secondWeapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.LightFlail, BaseItemType.Club, BaseItemType.Rapier, BaseItemType.Whip)))
+          if ((weapon is not null && ItemUtils.IsCreatureWeaponExpert(oid.LoginCreature, weapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.LightFlail, BaseItemType.Club, BaseItemType.HeavyFlail, BaseItemType.Rapier, BaseItemType.Whip, BaseItemType.Sling))
+        || (secondWeapon is not null && ItemUtils.IsCreatureWeaponExpert(oid.LoginCreature, secondWeapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.LightFlail, BaseItemType.Club, BaseItemType.Rapier, BaseItemType.Whip)))
           {
             if (!oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.CooldownEffectTag && e.IntParams[5] == CustomSkill.ExpertiseAffaiblissement))
               oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ExpertiseAffaiblissement, 100);

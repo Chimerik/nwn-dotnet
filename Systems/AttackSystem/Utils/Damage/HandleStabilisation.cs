@@ -8,8 +8,8 @@ namespace NWN.Systems
   {
     public static int HandleStabilisation(CNWSCreature creature, NwBaseItem weapon,  int roll, int dieToRoll)
     {
-      if(creature.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.StabilisationEffectExoTag).ToBool())
-        && Utils.In(weapon.ItemType, BaseItemType.HeavyCrossbow, BaseItemType.Longbow, BaseItemType.ThrowingAxe))
+      if(creature.m_appliedEffects.Any(e => e.m_sCustomTag.ToString() == EffectSystem.StabilisationEffectTag)
+        && ItemUtils.IsCreatureWeaponExpert(creature, weapon) && Utils.In(weapon.ItemType, BaseItemType.HeavyCrossbow, BaseItemType.Longbow, BaseItemType.ThrowingAxe))
       {
         int secondRoll = NwRandom.Roll(Utils.random, dieToRoll, 1);
         LogUtils.LogMessage($"Stabilisation - Jet de dégâts entre : {roll} et {secondRoll}", LogUtils.LogType.Combat);

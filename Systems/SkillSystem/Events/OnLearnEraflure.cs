@@ -11,16 +11,16 @@ namespace NWN.Systems
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.ExpertiseEraflure);
 
 
-      player.oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipEraflure;
+      player.oid.OnPlayerEquipItem -= ItemSystem.OnEquipEraflure;
       player.oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipEraflure;
-      player.oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipEraflure;
+      player.oid.OnPlayerEquipItem += ItemSystem.OnEquipEraflure;
       player.oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipEraflure;
 
       var weapon = player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand);
       var secondWeapon = player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand);
 
-      if ((weapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.LightFlail, BaseItemType.HeavyFlail, BaseItemType.Morningstar, BaseItemType.LightMace, BaseItemType.DireMace, BaseItemType.LightHammer, BaseItemType.Warhammer))
-        || (secondWeapon is not null && Utils.In(weapon.BaseItem.ItemType, BaseItemType.LightFlail, BaseItemType.HeavyFlail, BaseItemType.Morningstar, BaseItemType.LightMace, BaseItemType.DireMace, BaseItemType.LightHammer, BaseItemType.Warhammer)))
+      if ((weapon is not null && ItemUtils.IsCreatureWeaponExpert(player.oid.LoginCreature, weapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.LightFlail, BaseItemType.HeavyFlail, BaseItemType.Morningstar, BaseItemType.LightMace, BaseItemType.DireMace, BaseItemType.LightHammer, BaseItemType.Warhammer))
+        || (secondWeapon is not null && ItemUtils.IsCreatureWeaponExpert(player.oid.LoginCreature, secondWeapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.LightFlail, BaseItemType.HeavyFlail, BaseItemType.Morningstar, BaseItemType.LightMace, BaseItemType.DireMace, BaseItemType.LightHammer, BaseItemType.Warhammer)))
       {
         player.oid.LoginCreature.OnCreatureAttack -= CreatureUtils.OnAttackEraflure;
         player.oid.LoginCreature.OnCreatureAttack += CreatureUtils.OnAttackEraflure;
