@@ -10,12 +10,16 @@ namespace NWN.Systems
   {
     public const string PoisonEffectTag = "_POISON_EFFECT";
     private static ScriptCallbackHandle onIntervalPoisonCallback;
-    public static SavingThrowResult ApplyPoison(NwCreature target, NwCreature caster, TimeSpan duration, Ability SaveAbility, Ability DCAbility = Ability.Dexterity, bool repeatSave = false, bool noSave = false)
+    public static SavingThrowResult ApplyPoison(NwCreature target, NwCreature caster, TimeSpan duration, Ability SaveAbility, Ability DCAbility = Ability.Dexterity, bool repeatSave = false, bool noSave = false, int spellId = -1)
     {
       if (IsPoisonImmune(target, caster))
         return SavingThrowResult.Immune;
 
       Effect eff = repeatSave ? Effect.LinkEffects(Effect.Icon(EffectIcon.Poison), Effect.RunAction(onIntervalHandle: onIntervalPoisonCallback, interval: NwTimeSpan.FromRounds(1))) : Effect.Icon(EffectIcon.Poison);
+      
+      if (spellId == CustomSpell.NuageNauseabond)
+        eff = Effect.LinkEffects(eff, Effect.Dazed(), Effect.VisualEffect(VfxType.DurMindAffectingDisabled));
+      
       eff.Tag = PoisonEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       eff.Creator = caster;

@@ -11,10 +11,10 @@ namespace NWN.Systems
       {
         if (learnableSkills.TryGetValue(CustomSkill.AmbiMaster, out var protection) && protection.currentLevel > 0)
         {
-          oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipApplyAmbiMaster;
-          oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipRemoveAmbiMaster;
-          oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipApplyAmbiMaster;
-          oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipRemoveAmbiMaster;
+          oid.OnPlayerEquipItem -= ItemSystem.OnEquipApplyAmbiMaster;
+          oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipRemoveAmbiMaster;
+          oid.OnPlayerEquipItem += ItemSystem.OnEquipApplyAmbiMaster;
+          oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipRemoveAmbiMaster;
 
           if(ItemUtils.IsWeapon(oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand)?.BaseItem) && !oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.AmbiMasterEffectTag))
             oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.ambiMaster);

@@ -13,6 +13,7 @@ namespace NWN
     public const EffectIcon Sprint = (EffectIcon)142;
     public const EffectIcon ElectricJolt = (EffectIcon)147;
     public const EffectIcon Bouclier = (EffectIcon)152;
+    public const EffectIcon AmbiMaster = (EffectIcon)155;
     public const EffectIcon FormeDeLune = (EffectIcon)186;
 
     public const EffectIcon BlugeoningImmunity = (EffectIcon)196;
@@ -113,5 +114,9 @@ namespace NWN
     public const EffectIcon CoupAuBut = (EffectIcon)267;
     public const EffectIcon ActionBonus = (EffectIcon)268;
     public const EffectIcon Reaction = (EffectIcon)269;
+    public const EffectIcon FlecheDeFoudre = (EffectIcon)270;
+    public const EffectIcon ChatimentAveuglant = (EffectIcon)271;
+    public const EffectIcon FeintTrepas = (EffectIcon)272;
+    public const EffectIcon AppelDeLaFoudre = (EffectIcon)273;
   }
 }

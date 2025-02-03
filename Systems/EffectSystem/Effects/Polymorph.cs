@@ -241,19 +241,31 @@ namespace NWN.Systems
       creature.HP = creature.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_CURRENT_HP").Value;
       //ModuleSystem.Log.Info($"REMOVE : creature HP AFTER RESET : {creature.HP}");
       creature.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_CURRENT_HP").Delete();
+      creature.OnDamaged -= OnDamagedPolymorphHPBuffer;
       creature.LoginPlayer?.ExportCharacter();
     }
+
+
     public static void OnDamagedPolymorph(CreatureEvents.OnDamaged onDamaged)
     {
       NwCreature creature = onDamaged.Creature;
 
       if (creature.HP < 1)
       {
+        ModuleSystem.Log.Info($"on damage polymorph < 1 {creature.HP}");
         creature.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_CURRENT_HP").Value += creature.HP;
-
-        creature.HP = 1;
         EffectUtils.RemoveTaggedEffect(creature, creature, PolymorphEffectTag);
+        creature.HP = creature.MaxHP;
+
+        creature.ApplyEffect(EffectDuration.Temporary, Effect.TemporaryHitpoints(500), TimeSpan.FromSeconds(0.59f));
+        creature.OnDamaged += OnDamagedPolymorphHPBuffer;
       }
+    }
+
+    public static void OnDamagedPolymorphHPBuffer(CreatureEvents.OnDamaged onDamaged)
+    {
+      NwCreature creature = onDamaged.Creature;
+      creature.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_CURRENT_HP").Value -= onDamaged.DamageAmount;
     }
   }
 }

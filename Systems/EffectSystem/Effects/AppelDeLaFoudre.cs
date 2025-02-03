@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.AreaOfEffect((PersistentVfxType)61);
+        Effect eff = Effect.Icon(CustomEffectIcon.AppelDeLaFoudre);
         eff.Tag = AppelDeLaFoudreEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

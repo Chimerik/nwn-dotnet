@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Anvil.API;
 using static NWN.Systems.PlayerSystem.Player;
 using static NWN.Systems.PlayerSystem;
+using System.Linq;
+
 namespace NWN.Systems
 {
   public static partial class SpellUtils
@@ -88,7 +90,7 @@ namespace NWN.Systems
           break;
 
         case Spell.CureSeriousWounds:
-          SpellSystem.SouffleDeGuerisonDeGroupe(oCaster, spell, spellEntry, castingClass, targetLocation);
+          SpellSystem.SouffleDeGuerisonDeGroupe(oCaster, target, spell, spellEntry, castingClass);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -251,7 +253,7 @@ namespace NWN.Systems
           break;
 
         case Spell.Fireball:
-          SpellSystem.BouleDeFeu(oCaster, spell, spellEntry, target, castingClass, target is null ? targetLocation : target.Location);
+          SpellSystem.BouleDeFeu(oCaster, spell, spellEntry, castingClass, target is null ? targetLocation : target.Location);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -271,7 +273,7 @@ namespace NWN.Systems
           break;
 
         case Spell.Slow:
-          concentrationTargets.AddRange(SpellSystem.Lenteur(oCaster, spell, spellEntry, target is null ? targetLocation : target.Location, castingClass));
+          concentrationTargets.AddRange(SpellSystem.Lenteur(oCaster, spell, spellEntry, target, castingClass));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -291,7 +293,11 @@ namespace NWN.Systems
           break;
 
         case Spell.CallLightning:
-          concentrationTargets.AddRange(SpellSystem.AppelDeLaFoudre(oCaster, spell, spellEntry, castingClass, target is null ? targetLocation : target.Location));
+          if (oCaster.ActiveEffects.Any(e => e.Tag == EffectSystem.AppelDeLaFoudreEffectTag))
+            concentrationTargets.AddRange(SpellSystem.AppelDeLaFoudre(oCaster, spell, spellEntry, castingClass, target is null ? targetLocation : target.Location));
+          else
+            SpellSystem.AppelDeLaFoudreRecast(oCaster, spell, spellEntry, castingClass, target is null ? targetLocation : target.Location);
+
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -656,6 +662,11 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case CustomSpell.FlecheDeFoudre:
+          SpellSystem.FlecheDeFoudre(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.SearingSmite:
           SpellSystem.SearingSmite(oCaster, spell, spellEntry, feat);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
@@ -671,6 +682,11 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case CustomSpell.ChatimentAveuglant:
+          SpellSystem.ChatimentAveuglant(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.BrandingSmite:
           SpellSystem.BrandingSmite(oCaster, spell, spellEntry, feat);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
@@ -678,6 +694,16 @@ namespace NWN.Systems
 
         case CustomSpell.FlecheAcideDeMelf:
           SpellSystem.FlecheAcideDeMelf(oCaster, spell, spellEntry, target, castingClass);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.Eclair:
+          SpellSystem.Eclair(oCaster, spell, spellEntry, target is null ? targetLocation : target.Location, castingClass);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.FeintTrepas:
+          SpellSystem.FeintTrepas(oCaster, spell, spellEntry, target);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -753,6 +779,11 @@ namespace NWN.Systems
 
         case CustomSpell.RegardHypnotique:
           concentrationTargets.AddRange(SpellSystem.RegardHypnotique(oCaster, spell, spellEntry, target, castingClass));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.MotifHypnotique:
+          concentrationTargets.AddRange(SpellSystem.MotifHypnotique(oCaster, spell, spellEntry, target is null ? targetLocation : target.Location, castingClass));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -863,6 +894,11 @@ namespace NWN.Systems
 
         case CustomSpell.RayonDeLuneDeplacement:
           SpellSystem.RayonDeLuneDeplacement(oCaster, spell, spellEntry, target is null ? targetLocation : target.Location);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.NuageNauseabond:
+          concentrationTargets.AddRange(SpellSystem.NuageNauseabond(oCaster, spell, spellEntry, target is null ? targetLocation : target.Location, castingClass));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 

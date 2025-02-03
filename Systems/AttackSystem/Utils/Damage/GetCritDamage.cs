@@ -6,15 +6,15 @@ namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static int GetCritDamage(CNWSCreature attacker, CNWSItem attackWeapon, CNWSCombatAttackData attackData, int sneakAttack, bool isDuelFightingStyle, CNWSCreature target, Anvil.API.Ability damageAbility)
+    public static int GetCritDamage(CNWSCreature attacker, CNWSItem attackWeapon, CNWSCombatAttackData attackData, int sneakAttack, CNWSCreature target, Anvil.API.Ability damageAbility)
     {
       LogUtils.LogMessage("Ajout des dégâts du coup critique", LogUtils.LogType.Combat);
 
       return attackWeapon is null || attacker.m_ScriptVars.GetInt(CreatureUtils.MonkUnarmedDamageVariableExo).ToBool()
         ? GetUnarmedCritDamage(attacker)  
-        : GetWeaponCritDamage(attacker, attackWeapon, attackData, sneakAttack, isDuelFightingStyle, target, damageAbility);
+        : GetWeaponCritDamage(attacker, attackWeapon, attackData, sneakAttack, target, damageAbility);
     }
-    public static int GetWeaponCritDamage(CNWSCreature attacker, CNWSItem attackWeapon, CNWSCombatAttackData attackData, int sneakAttack, bool isDuelFightingStyle, CNWSCreature target, Anvil.API.Ability damageAbility)
+    public static int GetWeaponCritDamage(CNWSCreature attacker, CNWSItem attackWeapon, CNWSCombatAttackData attackData, int sneakAttack, CNWSCreature target, Anvil.API.Ability damageAbility)
     {
       if (attackData.m_nAttackType == 6 && attacker.m_ScriptVars.GetInt(CreatureUtils.HastMasterSpecialAttackExo).ToBool())
       {
@@ -24,7 +24,6 @@ namespace NWN.Systems
 
       NwBaseItem baseWeapon = NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem);
       int damage = RollWeaponDamage(attacker, baseWeapon, attackData, target, attackWeapon, damageAbility, true);
-      damage += isDuelFightingStyle ? 2 : 0;
 
       if (sneakAttack > 0)
         damage += GetSneakAttackCritDamage(attacker);

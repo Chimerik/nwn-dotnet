@@ -746,7 +746,6 @@ namespace NWN.Systems
           return;
 
         case CustomSpell.LameArdente:
-        case (int)Spell.CallLightning:
 
           if(caster.GetObjectVariable<LocalVariableInt>("_FREE_SPELL").HasValue)
           {
@@ -773,6 +772,13 @@ namespace NWN.Systems
             EffectUtils.RemoveTaggedEffect(caster, EffectSystem.FreeMarqueDuChasseurTag);
             EventsPlugin.SkipEvent();
           }
+
+          return;
+
+        case CustomSpell.AppelDeLaFoudre:
+
+          if(caster.ActiveEffects.Any(e => e.Tag == EffectSystem.AppelDeLaFoudreEffectTag))
+            EventsPlugin.SkipEvent();
 
           return;
 

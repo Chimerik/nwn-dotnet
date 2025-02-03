@@ -654,6 +654,8 @@
     public const int SouffleDuDragonElec= 1912;
     public const int SouffleDuDragonPoison = 1913;
 
+    public const int FighterCombatStyleDualWield = 1914;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -1022,7 +1024,6 @@
     public const int FighterArcaneArcher = 20473;
 
     public const int FighterCombatStyleProtection = 20479;
-    public const int FighterCombatStyleDualWield = 20480;
     public const int FighterInflexible = 20483;
     
     /*public const int FighterEldritchKnightBoundWeapon = 20486;

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Anvil.API;
-using Anvil.API.Events;
-using NWN.Core;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -12,9 +9,13 @@ namespace NWN.Systems
     public static List<NwGameObject> EspritsGardiens(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry)
     {
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
-      NWScript.AssignCommand(oCaster, () => oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.EspritsGardiens(spell.Id == CustomSpell.EspritsGardiensNecrotique ? CustomDamageType.Necrotic : DamageType.Divine), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
-      
-      return new List<NwGameObject>() { oCaster };
+
+      oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.EspritsGardiens(oCaster, spell.Id == CustomSpell.EspritsGardiensNecrotique ? CustomDamageType.Necrotic : DamageType.Divine), SpellUtils.GetSpellDuration(oCaster, spellEntry));
+
+      var aoe = UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>();
+      aoe.SetRadius(4.5f);
+
+      return new List<NwGameObject>() { aoe };
     }
   }
 }

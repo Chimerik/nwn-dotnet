@@ -46,6 +46,7 @@ namespace NWN.Systems
       onIntervalRayonAffaiblissantCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalRayonAffaiblissant);
 
       onIntervalHeroismeCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalHeroisme);
+      onIntervalChatimentAveuglantCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalChatimentAveuglant);
 
       onRemoveViseeStableCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveViseeStable);
 
@@ -101,8 +102,10 @@ namespace NWN.Systems
 
       onIntervalRegardHypnotiqueCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalRegardHypnotique);
       onIntervalImmobilisationDePersonneCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalImmobilisationDePersonne);
-      onIntervalLenteurCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalLenteur);
       onIntervalConfusionCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalConfusion);
+
+      onIntervalLenteurCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalLenteur);
+      onRemoveLenteurCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveLenteur);
 
       onRemoveTemporaryConSaveCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveTemporaryConSave);
 
@@ -145,6 +148,9 @@ namespace NWN.Systems
       onEnterRayonDeLuneCallback = scriptHandleFactory.CreateUniqueHandler(onEnterRayonDeLuneAura);
       onExitRayonDeLuneCallback = scriptHandleFactory.CreateUniqueHandler(onExitRayonDeLuneAura);
       onHeartbeatRayonDeLuneCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatRayonDeLuneAura);
+
+      onEnterNuageNauseabondCallback = scriptHandleFactory.CreateUniqueHandler(onEnterNuageNauseabond);
+      onHeartbeatNuageNauseabondCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatNuageNauseabond);
 
       onEnterCroissanceVegetaleCallback = scriptHandleFactory.CreateUniqueHandler(onEnterCroissanceVegetale);
       onExitCroissanceVegetaleCallback = scriptHandleFactory.CreateUniqueHandler(onExitCroissanceVegetale);

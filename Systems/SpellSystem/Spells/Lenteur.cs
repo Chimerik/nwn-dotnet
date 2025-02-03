@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Anvil.API;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static List<NwGameObject> Lenteur(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, Location targetLocation, NwClass castingClass)
+    public static List<NwGameObject> Lenteur(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass castingClass)
     {
       List<NwGameObject> concentrationTargets = new();
 
@@ -16,15 +15,17 @@ namespace NWN.Systems
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
       int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, castingClass.SpellCastingAbility);
 
-      foreach (var target in targetLocation.GetObjectsInShapeByType<NwCreature>(Shape.Cube, spellEntry.aoESize, false))
-      {
-        if (!caster.IsReactionTypeHostile(target) 
-          || CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) != SavingThrowResult.Failure)
-          continue;
+      List<NwGameObject> targets = SpellUtils.GetSpellTargets(oCaster, oTarget, spellEntry);
 
-        target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Lenteur(castingClass.SpellCastingAbility), SpellUtils.GetSpellDuration(oCaster, spellEntry));
-        target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSlow));
-        concentrationTargets.Add(target);
+      foreach (var target in targets)
+      {
+        if(target is NwCreature targetCreature &&
+          CreatureUtils.GetSavingThrow(caster, targetCreature, spellEntry.savingThrowAbility, spellDC, spellEntry) != SavingThrowResult.Failure)
+        {
+          target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Lenteur(targetCreature, castingClass.SpellCastingAbility), SpellUtils.GetSpellDuration(oCaster, spellEntry));
+          target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSlow));
+          concentrationTargets.Add(target);
+        }
       }
 
       return concentrationTargets;

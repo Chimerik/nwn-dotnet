@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.ACIncrease(1), Effect.Icon((EffectIcon)155));
+        Effect eff = Effect.LinkEffects(Effect.ACIncrease(1), Effect.Icon(CustomEffectIcon.AmbiMaster));
         eff.Tag = AmbiMasterEffectTag;
         eff.SubType = EffectSubType.Unyielding;
         return eff;

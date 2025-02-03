@@ -10,12 +10,11 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onEnterRayonDeLuneCallback;
     private static ScriptCallbackHandle onExitRayonDeLuneCallback;
     private static ScriptCallbackHandle onHeartbeatRayonDeLuneCallback;
-    public static Effect RayonDeLuneAura(NwGameObject caster, Ability castingAbility)
+    public static Effect RayonDeLuneAura(NwGameObject caster )
     {
       Effect eff = Effect.AreaOfEffect(CustomAoE.RayonDeLune, onEnterRayonDeLuneCallback, onHeartbeatRayonDeLuneCallback, onExitRayonDeLuneCallback);
       eff.Tag = RayonDeLuneEffectTag;
       eff.Creator = caster;
-      eff.IntParams[5] = (int)castingAbility;
       eff.SubType = EffectSubType.Supernatural;
       return eff;
     }

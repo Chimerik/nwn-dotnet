@@ -278,15 +278,15 @@ namespace NWN.Systems
     }
     public static bool IsWeapon(NwBaseItem baseItem)
     {
-      return baseItem.NumDamageDice > 0;
+      return baseItem is null ? false : baseItem.NumDamageDice > 0;
     }
     public static bool IsMeleeWeapon(NwBaseItem baseItem)
     {
-      return baseItem.NumDamageDice > 0 && !baseItem.IsRangedWeapon;
+      return baseItem is null ? false : baseItem.NumDamageDice > 0 && !baseItem.IsRangedWeapon;
     }
     public static bool IsTwoHandedWeapon(NwBaseItem baseItem, CreatureSize creatureSize)
     {
-      return baseItem.NumDamageDice > 0 && baseItem.WeaponSize != BaseItemWeaponSize.Unknown && baseItem.WeaponSize > (BaseItemWeaponSize)creatureSize;
+      return baseItem is null ? false : baseItem.NumDamageDice > 0 && baseItem.WeaponSize != BaseItemWeaponSize.Unknown && baseItem.WeaponSize > (BaseItemWeaponSize)creatureSize;
     }
     public static byte[] GetDamageDices(NwBaseItem baseItem)
     {

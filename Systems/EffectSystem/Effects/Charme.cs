@@ -16,7 +16,7 @@ namespace NWN.Systems
   {
     private static ScriptCallbackHandle onRemoveCharmCallback;
     public const string CharmEffectTag = "_CHARM_EFFECT";
-    public static void ApplyCharme(NwCreature target, NwCreature caster, TimeSpan duration, bool repeatSave = false)
+    public static void ApplyCharme(NwCreature target, NwCreature caster, TimeSpan duration, bool repeatSave = false, int spellId = -1)
     {
       if (IsCharmeImmune(target, caster))
         return;
@@ -44,6 +44,9 @@ namespace NWN.Systems
           Effect.LinkEffects(Effect.Dominated(), Effect.VisualEffect(VfxType.DurMindAffectingDominated)) 
           : Effect.LinkEffects(Effect.Charmed(), Effect.VisualEffect(VfxType.DurMindAffectingDisabled));
       }
+
+      if (spellId == CustomSpell.MotifHypnotique)
+        eff = Effect.LinkEffects(eff, Effect.Paralyze());
       
       eff.Tag = CharmEffectTag;
       eff.SubType = EffectSubType.Supernatural;
@@ -97,7 +100,7 @@ namespace NWN.Systems
     }
     public static void OnSpellInputCharmed(OnSpellAction onCast)
     {
-      if (onCast.Caster.ActiveEffects.Any(e => e.Tag == EffectSystem.CharmEffectTag && onCast.TargetObject == e.Creator))
+      if (onCast.Caster.ActiveEffects.Any(e => e.Tag == CharmEffectTag && onCast.TargetObject == e.Creator))
       {
         onCast.PreventSpellCast = true;
         onCast.Caster.LoginPlayer?.SendServerMessage($"Vous êtes sous le charme de cette création et ne pouvez pas la cibler", ColorConstants.Red);

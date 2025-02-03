@@ -23,8 +23,9 @@ namespace NWN.Systems
 
         if (CreatureUtils.GetSavingThrow(oCaster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
         {
-          NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetTerreurEffect(casterClass.SpellCastingAbility), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
-          targetList.Add(target);  
+          NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetTerreurEffect(caster, target, casterClass.SpellCastingAbility), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
+          targetList.Add(target);
+          target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpFearS));
         }
       }
 

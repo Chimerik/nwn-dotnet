@@ -64,6 +64,8 @@ namespace NWN.Systems
 
               case (Spell)CustomSpell.DechargeOcculte: nbTargets = onSpellAction.Caster.Level > 4 ? onSpellAction.Caster.Level > 10 ? onSpellAction.Caster.Level > 17 ? 4 : 3 : 2 : 1; break;
               case Spell.HealingCircle: nbTargets += 4; break;
+              case Spell.Slow:
+              case Spell.CureSeriousWounds: nbTargets += 5; break;
             }
           }
 

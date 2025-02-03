@@ -6,6 +6,7 @@
     public const int PeauDecorce = 1;
     public const int CeciteSurdite = 8;
     public const int Fascination = 9;
+    public const int AppelDeLaFoudre = 11;
     public const int Assistance = 12;
     public const int RadianceDelAube = 13;
     public const int Elementalisme = 22;
@@ -15,6 +16,8 @@
     public const int Enchevetrement = 53;
     public const int VerrouArcanique = 86;
     public const int Deblocage = 93;
+    public const int MotifHypnotique = 97;
+    public const int Eclair = 101;
     public const int ArmureDeMage = 102;
     public const int ChatimentDuCourroux = 103;
     public const int MotRayonnant = 104;
@@ -32,12 +35,17 @@
     public const int DomestiqueInvisible = 139;
     public const int MetalBrulant = 140;
     public const int RayonAffaiblissant = 143;
+    public const int ChatimentAveuglant = 145;
+    public const int FeintTrepas = 147;
     public const int Resistance = 151;
     public const int Sanctuaire = 154;
     public const int MessagerAnimal = 155;
     public const int DetectionDeLinvisibilite = 157;
     public const int Vol = 162;
     public const int Silence = 163;
+    public const int Lenteur = 167;
+    public const int FlecheDeFoudre = 168;
+    public const int NuageNauseabond = 171;
     public const int InvocationBestiale = 174;
     public const int ToileDaraignee = 192;
     public const int AppelDeFamilier = 195;

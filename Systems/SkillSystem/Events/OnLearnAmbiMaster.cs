@@ -12,12 +12,13 @@ namespace NWN.Systems
       if(!player.oid.LoginCreature.KnowsFeat(Feat.Ambidexterity))
         player.oid.LoginCreature.AddFeat(Feat.Ambidexterity);
 
-      player.oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipApplyAmbiMaster;
-      player.oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipRemoveAmbiMaster;
-      player.oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipApplyAmbiMaster;
-      player.oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipRemoveAmbiMaster;
+      player.oid.OnPlayerEquipItem -= ItemSystem.OnEquipApplyAmbiMaster;
+      player.oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipRemoveAmbiMaster;
+      player.oid.OnPlayerEquipItem += ItemSystem.OnEquipApplyAmbiMaster;
+      player.oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipRemoveAmbiMaster;
 
-      if (ItemUtils.IsWeapon(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand)?.BaseItem) 
+      if (ItemUtils.IsMeleeWeapon(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand)?.BaseItem) 
+        && ItemUtils.IsMeleeWeapon(player.oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand)?.BaseItem)
         && !player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.AmbiMasterEffectTag))
         player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.ambiMaster);
 

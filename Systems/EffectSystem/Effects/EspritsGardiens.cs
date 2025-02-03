@@ -15,12 +15,13 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onEnterEspritsGardiensCallback;
     private static ScriptCallbackHandle onExitEspritsGardiensCallback;
     private static ScriptCallbackHandle onIntervalEspritsGardiensCallback;
-    public static Effect EspritsGardiens(DamageType damageType)
+    public static Effect EspritsGardiens(NwGameObject oCaster, DamageType damageType)
     {
-      Effect eff = Effect.LinkEffects(Effect.AreaOfEffect((PersistentVfxType)54, onEnterEspritsGardiensCallback, onIntervalEspritsGardiensCallback,
-        onExitEspritsGardiensCallback));
+      Effect eff = Effect.LinkEffects(Effect.AreaOfEffect(PersistentVfxType.PerCustomAoe, onEnterEspritsGardiensCallback, onIntervalEspritsGardiensCallback,
+        onExitEspritsGardiensCallback), Effect.VisualEffect(CustomVfx.EspritsGardiens, fScale:2));
       eff.Tag = EspritsGardiensEffectTag;
       eff.SubType = EffectSubType.Supernatural;
+      eff.Creator = oCaster;
       return eff;
     }
     public static Effect EspritsGardiensSlow
@@ -53,7 +54,7 @@ namespace NWN.Systems
 
       if (!entering.ActiveEffects.Any(e => e.Tag == EspritsGardienCooldownTag && e.Creator == protector))
       {
-        entering.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpFlameS));
+        entering.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpFrostS));
         entering.ApplyEffect(EffectDuration.Temporary, EspritsGardiensCooldown, TimeSpan.FromSeconds(5));
 
         EffectUtils.RemoveEffectType(protector, EffectType.Invisibility, EffectType.ImprovedInvisibility);
@@ -93,7 +94,7 @@ namespace NWN.Systems
         if (target == caster || !caster.IsReactionTypeHostile(target) || target.ActiveEffects.Any(e => e.Tag == EspritsGardienCooldownTag && e.Creator == caster))
           continue;
 
-        target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpFlameS));
+        target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpFrostS));
         target.ApplyEffect(EffectDuration.Temporary, EspritsGardiensCooldown, TimeSpan.FromSeconds(5));
 
         SpellUtils.DealSpellDamage(target, caster.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(caster, spell), caster, 3, 

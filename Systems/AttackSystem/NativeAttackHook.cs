@@ -107,16 +107,19 @@ namespace NWN.Systems
 
       if (attackData.m_nWeaponAttackType == 2) // combat à deux armes
       {
-        int bonusAction = attacker.m_ScriptVars.GetInt(Config.isBonusActionAvailableVariable);
+        var bonusAction = attacker.m_appliedEffects.FirstOrDefault(e => e.m_sCustomTag.ToString() == EffectSystem.BonusActionEffectTag);
 
-        if (bonusAction > 0) // L'attaque supplémentaire consomme l'action bonus du personnage
-          attacker.m_ScriptVars.SetInt(Config.isBonusActionAvailableVariable, bonusAction - 1);
-        else // Si pas d'action bonus dispo, auto miss
+        if (bonusAction is null) // L'attaque supplémentaire consomme l'action bonus du personnage
         {
-          attackData.m_nAttackResult = 4;
+          attackData.m_nAttackResult = 4; // Si pas d'action bonus dispo, auto miss
           attackData.m_nMissedBy = 8;
 
           NativeUtils.SendNativeServerMessage($"Main secondaire - Echec automatique - Pas d'action bonus disponible".ColorString(ColorConstants.Red), attacker);
+          return;
+        }
+        else 
+        {
+          attacker.RemoveEffect(bonusAction);
         }
       }
 
@@ -438,7 +441,6 @@ namespace NWN.Systems
       damageAbility = NativeUtils.HandleCoupAuBut(attacker, attackWeapon, damageAbility, EffectSystem.CoupAuButDamageEffectTag);
       damageAbility = NativeUtils.HandleShillelagh(attacker, attackWeapon, damageAbility);
       int baseDamage = 0;
-      bool isDuelFightingStyle = false;
       int sneakAttack = 0;
 
       // Jet de dégâts de l'arme
@@ -461,8 +463,7 @@ namespace NWN.Systems
           else
           {
             baseDamage += NativeUtils.RollWeaponDamage(attacker, baseWeapon, attackData, targetCreature, attackWeapon, damageAbility);
-            isDuelFightingStyle = NativeUtils.IsDuelFightingStyle(attacker, baseWeapon, attackData);
-            baseDamage += isDuelFightingStyle ? 2 : 0;
+            baseDamage += NativeUtils.IsDuelFightingStyle(attacker, baseWeapon, attackData);
           }
 
           sneakAttack = NativeUtils.GetSneakAttackDamage(attacker, targetCreature, attackWeapon, attackData, combatRound);
@@ -480,7 +481,7 @@ namespace NWN.Systems
 
       if (bCritical > 0)
       {
-        int critDamage = NativeUtils.GetCritDamage(attacker, attackWeapon, attackData, sneakAttack, isDuelFightingStyle, targetCreature, damageAbility);
+        int critDamage = NativeUtils.GetCritDamage(attacker, attackWeapon, attackData, sneakAttack, targetCreature, damageAbility);
         LogUtils.LogMessage($"Critique - Base {baseDamage} + crit {critDamage} = {baseDamage + critDamage}", LogUtils.LogType.Combat);
         baseDamage += critDamage;
       }
@@ -500,7 +501,7 @@ namespace NWN.Systems
       int damageBonus = NativeUtils.GetAbilityModifier(attacker, damageAbility);
 
       // Pour l'attaque de la main secondaire, on n'ajoute le modificateur de caractéristique que s'il est négatif
-      if (!bOffHand.ToBool() || NativeUtils.HasTwoWeaponStyle(attacker) || (bOffHand > 0 && damageBonus < 0))
+      if (!bOffHand.ToBool() || attacker.m_pStats.HasFeat(CustomSkill.FighterCombatStyleDualWield).ToBool() || (bOffHand > 0 && damageBonus < 0))
       {
         baseDamage += damageBonus;
         LogUtils.LogMessage($"Adding {damageAbility} modifier (+{damageBonus})", LogUtils.LogType.Combat);
