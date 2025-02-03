@@ -32,8 +32,9 @@ namespace NWN.Systems
               if (GetSavingThrow(onAttack.Attacker, target, Ability.Dexterity, spellDC) == SavingThrowResult.Failure)
               {
                 EffectSystem.ApplyKnockdown(target, onAttack.Attacker, Ability.Dexterity, Ability.Dexterity, EffectSystem.Destabilisation, true);
-                onAttack.Attacker.ApplyEffect(EffectDuration.Temporary, EffectSystem.Cooldown(onAttack.Attacker, 60, CustomSkill.ExpertiseDestabiliser), NwTimeSpan.FromRounds(10));
               }
+
+              onAttack.Attacker.ApplyEffect(EffectDuration.Temporary, EffectSystem.Cooldown(onAttack.Attacker, 60, CustomSkill.ExpertiseDestabiliser), NwTimeSpan.FromRounds(10));
 
               await NwTask.NextFrame();
               onAttack.Attacker.OnCreatureAttack -= OnAttackDestabiliser;

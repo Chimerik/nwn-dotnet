@@ -161,6 +161,7 @@ namespace NWN.Systems
         oid.OnMapPinDestroyPin += HandleMapPinDestroyed;
         oid.OnDMPlayerDMLogin += OnDmLoginRemoveThreatRange;
         oid.OnDMPlayerDMLogout += OnDmLogoutRemoveThreatRange;
+        oid.LoginCreature.OnCreatureAttack += PlayerUtils.OnAttackDualWield;
 
         //oid.LoginCreature.OnEffectApply += HandleItemPropertyChecksOnEffectApplied;
         //oid.LoginCreature.OnEffectRemove += HandleItemPropertyChecksOnEffectRemoved;

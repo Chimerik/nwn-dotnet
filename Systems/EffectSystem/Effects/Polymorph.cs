@@ -245,14 +245,13 @@ namespace NWN.Systems
       creature.LoginPlayer?.ExportCharacter();
     }
 
-
     public static void OnDamagedPolymorph(CreatureEvents.OnDamaged onDamaged)
     {
       NwCreature creature = onDamaged.Creature;
 
       if (creature.HP < 1)
       {
-        ModuleSystem.Log.Info($"on damage polymorph < 1 {creature.HP}");
+        //ModuleSystem.Log.Info($"on damage polymorph < 1 {creature.HP}");
         creature.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_CURRENT_HP").Value += creature.HP;
         EffectUtils.RemoveTaggedEffect(creature, creature, PolymorphEffectTag);
         creature.HP = creature.MaxHP;

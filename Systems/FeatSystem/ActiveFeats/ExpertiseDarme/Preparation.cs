@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       var weapon = caster.GetItemInSlot(InventorySlot.RightHand);
 
-      if (weapon is not null && ItemUtils.IsCreatureWeaponExpert(caster, weapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Greataxe, BaseItemType.Doubleaxe, BaseItemType.Battleaxe, BaseItemType.DwarvenWaraxe, BaseItemType.Katana, BaseItemType.Scythe))
+      if (weapon is not null && ItemUtils.IsCreatureWeaponExpert(caster, weapon) && Utils.In(weapon.BaseItem.ItemType, BaseItemType.Greataxe, BaseItemType.Doubleaxe, BaseItemType.Battleaxe, BaseItemType.DwarvenWaraxe, BaseItemType.Handaxe, BaseItemType.Katana, BaseItemType.Scythe))
       {
         caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadFire));
         caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.Preparation, NwTimeSpan.FromRounds(1));

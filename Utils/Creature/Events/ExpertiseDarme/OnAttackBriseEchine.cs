@@ -32,8 +32,9 @@ namespace NWN.Systems
               if (GetSavingThrow(onAttack.Attacker, target, Ability.Constitution, spellDC) == SavingThrowResult.Failure)
               {
                 EffectSystem.ApplyKnockdown(target, onAttack.Attacker, Ability.Strength, Ability.Constitution, EffectSystem.Destabilisation, true);
-                onAttack.Attacker.ApplyEffect(EffectDuration.Temporary, EffectSystem.Cooldown(onAttack.Attacker, 60, CustomSkill.ExpertiseBriseEchine), NwTimeSpan.FromRounds(10));
               }
+
+              onAttack.Attacker.ApplyEffect(EffectDuration.Temporary, EffectSystem.Cooldown(onAttack.Attacker, 60, CustomSkill.ExpertiseBriseEchine), NwTimeSpan.FromRounds(10));
 
               await NwTask.NextFrame();
               onAttack.Attacker.OnCreatureAttack -= OnAttackBriseEchine;

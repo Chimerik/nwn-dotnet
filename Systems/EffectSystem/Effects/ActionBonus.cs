@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
@@ -31,7 +32,7 @@ namespace NWN.Systems
 
       if (eventData.EffectTarget is NwCreature creature)
       {
-        creature.ApplyEffect(EffectDuration.Temporary, Cooldown(creature, 6, BonusActionId), NwTimeSpan.FromRounds(1));
+        creature.ApplyEffect(EffectDuration.Temporary, Cooldown(creature, 6, BonusActionId), TimeSpan.FromSeconds(5.9));
       }
 
       return ScriptHandleResult.Handled;

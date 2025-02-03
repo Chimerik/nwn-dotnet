@@ -45,10 +45,10 @@ namespace NWN.Systems
                   }
                   else
                     onAttack.Attacker?.LoginPlayer.SendServerMessage($"L'arme de {target.Name.ColorString(ColorConstants.Cyan)} est liée et ne peut être désarmée");
-                }
-
-                onAttack.Attacker.ApplyEffect(EffectDuration.Temporary, EffectSystem.Cooldown(onAttack.Attacker, 60, CustomSkill.ExpertiseDesarmement), NwTimeSpan.FromRounds(10));
+                }                
               }
+
+              onAttack.Attacker.ApplyEffect(EffectDuration.Temporary, EffectSystem.Cooldown(onAttack.Attacker, 60, CustomSkill.ExpertiseDesarmement), NwTimeSpan.FromRounds(10));
 
               await NwTask.NextFrame();
               onAttack.Attacker.OnCreatureAttack -= OnAttackExpertiseDesarmement;

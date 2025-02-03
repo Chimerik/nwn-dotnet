@@ -149,7 +149,7 @@ namespace NWN.Systems
     private static ScriptHandleResult OnRemoveCooldown(CallInfo callInfo)
     {
       EffectRunScriptEvent eventData = new EffectRunScriptEvent();
-
+      
       if (eventData.EffectTarget is NwCreature caster)
       {
         var eff = eventData.Effect;
@@ -202,7 +202,12 @@ namespace NWN.Systems
           }            
         }
 
-        HandleCooldown(caster, eff.IntParams[5], feat, NwSpell.FromSpellId(eff.IntParams[6]), remainingUse);
+        switch (eff.IntParams[5])
+        {
+          case BonusActionId: ApplyActionBonus(caster); break;
+          case ReactionId: ApplyReaction(caster); break;
+          default: HandleCooldown(caster, eff.IntParams[5], feat, NwSpell.FromSpellId(eff.IntParams[6]), remainingUse); break;
+        }
       }
 
       return ScriptHandleResult.Handled;
@@ -213,8 +218,6 @@ namespace NWN.Systems
 
       switch (cooldownId)
       {
-        case BonusActionId: ApplyActionBonus(caster); break;
-        case ReactionId: ApplyReaction(caster); break;
         case CustomSkill.BuveuseDeVie: ApplyBuveuseDeVie(caster); break;
         case CustomSkill.ClercFrappeDivine: ApplyFrappeDivine(caster); break;
         case CustomSkill.DefensesEnjoleuses: NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, DefensesEnjoleuses)); break;

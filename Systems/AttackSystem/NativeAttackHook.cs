@@ -105,24 +105,6 @@ namespace NWN.Systems
 
       NativeUtils.HandleCrossbowMaster(attacker, targetObject, combatRound, attackBonus, attackerName);
 
-      if (attackData.m_nWeaponAttackType == 2) // combat à deux armes
-      {
-        var bonusAction = attacker.m_appliedEffects.FirstOrDefault(e => e.m_sCustomTag.ToString() == EffectSystem.BonusActionEffectTag);
-
-        if (bonusAction is null) // L'attaque supplémentaire consomme l'action bonus du personnage
-        {
-          attackData.m_nAttackResult = 4; // Si pas d'action bonus dispo, auto miss
-          attackData.m_nMissedBy = 8;
-
-          NativeUtils.SendNativeServerMessage($"Main secondaire - Echec automatique - Pas d'action bonus disponible".ColorString(ColorConstants.Red), attacker);
-          return;
-        }
-        else 
-        {
-          attacker.RemoveEffect(bonusAction);
-        }
-      }
-
       string opportunityString = "";
 
       if(attackData.m_nAttackType == 65002) // 65002 = attaque d'opportunité
