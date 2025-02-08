@@ -22,6 +22,8 @@ namespace NWN.Systems
         if(!player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.CooldownEffectTag && e.IntParams[5] == CustomSkill.ExpertiseTirPercant))
           player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ExpertiseTirPercant, 100);
       }
+      else
+        player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ExpertiseTirPercant, 0);
 
       return true;
     }

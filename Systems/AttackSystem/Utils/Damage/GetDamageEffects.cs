@@ -10,7 +10,7 @@ namespace NWN.Systems
       int bonusDamage = 0;
       List<string> noStack = new();
 
-      foreach(var eff in creature.m_appliedEffects)
+      foreach (var eff in creature.m_appliedEffects)
       {
         string tag = eff.m_sCustomTag.ToString();
 
@@ -33,23 +33,24 @@ namespace NWN.Systems
             case EffectSystem.FrappeFrenetiqueEffectTag: bonusDamage += GetFrappeFrenetiqueBonus(creature, eff, attackAbility, isCritical, noStack); break;
             case EffectSystem.FrappeBrutaleEffectTag: bonusDamage += GetFrappeBrutaleBonus(creature, attackAbility, noStack); break;
           }
-        }
-        else if(!isUnarmed && isMeleeAttack)
-        {
+
+          if (!isUnarmed && isMeleeAttack)
+          {
+            switch (tag)
+            {
+              case EffectSystem.BotteSecreteEffectTag: bonusDamage += GetDegatsBotteSecrete(creature, eff, noStack); break;
+              case EffectSystem.PreparationEffectTag: bonusDamage += GetPreparationBonusDamage(creature, isCritical, noStack); break;
+            }
+          }
+          else
+          {
+
+          }
+
           switch (tag)
           {
-            case EffectSystem.BotteSecreteEffectTag: bonusDamage += GetDegatsBotteSecrete(creature, eff, noStack); break;
-            case EffectSystem.PreparationEffectTag: bonusDamage += GetPreparationBonusDamage(creature, isCritical, noStack); break;
+            case EffectSystem.RayonAffaiblissantDesavantageEffectTag: bonusDamage -= GetRayonAffaiblissantDamageReduction(noStack); break;
           }
-        }
-        else
-        {
-
-        }
-
-        switch (tag)
-        {
-          case EffectSystem.RayonAffaiblissantDesavantageEffectTag: bonusDamage -= GetRayonAffaiblissantDamageReduction(noStack); break;
         }
       }
 

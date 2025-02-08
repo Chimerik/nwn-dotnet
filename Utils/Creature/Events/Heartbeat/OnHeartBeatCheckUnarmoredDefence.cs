@@ -13,8 +13,11 @@ namespace NWN.Systems
       if (armor is null || armor.BaseACValue < 1)
       {
         int conMod = onHB.Creature.GetAbilityModifier(Ability.Constitution);
-        EffectUtils.RemoveTaggedEffect(onHB.Creature, EffectSystem.UnarmoredDefenceEffectTag);
-        WaitNextFrameToApplyConEffect(onHB.Creature, conMod);
+
+        var eff = onHB.Creature.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.UnarmoredDefenceEffectTag);
+
+        if (eff is not null && eff.IntParams[1] != conMod)
+          EffectSystem.ApplyUnarmoredDefenseEffect(onHB.Creature);
 
         if (onHB.Creature.Classes.Any(c => c.Class.Id == CustomClass.Barbarian && c.Level > 4)
             && !onHB.Creature.ActiveEffects.Any(e => e.Tag == EffectSystem.BarbarianSpeedEffectTag))
@@ -24,14 +27,6 @@ namespace NWN.Systems
       {
         onHB.Creature.OnHeartbeat -= OnHeartBeatCheckUnarmoredDefence;
         EffectUtils.RemoveTaggedEffect(onHB.Creature, EffectSystem.UnarmoredDefenceEffectTag, EffectSystem.BarbarianSpeedEffectTag);
-      }
-    }
-    private static async void WaitNextFrameToApplyConEffect(NwCreature creature, int conMod)
-    {
-      if (conMod > 0)
-      {
-        await NwTask.NextFrame();
-        EffectSystem.ApplyUnarmoredDefenseEffect(creature);
       }
     }
   }

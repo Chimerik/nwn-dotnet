@@ -13,7 +13,7 @@ namespace NWN.Systems
         return 0;
 
       int bonusDamage = GetAbilityModifier(attacker, Anvil.API.Ability.Strength);
-      LogUtils.LogMessage($"Préparation - Ajout du bonus de force : {bonusDamage}", LogUtils.LogType.Combat);
+      LogUtils.LogMessage($"Préparation - Ajout du bonus de force (+{bonusDamage})", LogUtils.LogType.Combat);
 
       return bonusDamage;
     }

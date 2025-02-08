@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using Anvil.API.Events;
 
 namespace NWN.Systems
@@ -12,21 +13,16 @@ namespace NWN.Systems
       if (armor is null || armor.BaseACValue < 1)
       {
         int chaMod = onHB.Creature.GetAbilityModifier(Ability.Charisma);
-        EffectUtils.RemoveTaggedEffect(onHB.Creature, EffectSystem.ResistanceDraconiqueEffectTag);
-        WaitNextFrameToApplyChaEffect(onHB.Creature, chaMod);
+
+        var eff = onHB.Creature.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.ResistanceDraconiqueEffectTag && e.EffectType == EffectType.AcIncrease);
+
+        if(eff is not null && eff.IntParams[1] != chaMod)
+          EffectSystem.ApplyResistanceDraconiqueEffect(onHB.Creature);
       }
       else
       {
         onHB.Creature.OnHeartbeat -= OnHeartBeatCheckResistanceDraconique;
         EffectUtils.RemoveTaggedEffect(onHB.Creature, EffectSystem.ResistanceDraconiqueEffectTag);
-      }
-    }
-    private static async void WaitNextFrameToApplyChaEffect(NwCreature creature, int chaMod)
-    {
-      if (chaMod > 0)
-      {
-        await NwTask.NextFrame();
-        EffectSystem.ApplyResistanceDraconiqueEffect(creature);
       }
     }
   }

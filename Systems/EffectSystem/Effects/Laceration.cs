@@ -20,7 +20,7 @@ namespace NWN.Systems
       eff.Tag = LacerationEffectTag;
       eff.SubType = EffectSubType.Supernatural;
 
-      target.ApplyEffect(EffectDuration.Temporary, eff, NwTimeSpan.FromRounds(2));
+      target.ApplyEffect(EffectDuration.Temporary, eff, NwTimeSpan.FromRounds(3));
     }
     private static ScriptHandleResult OnIntervalLaceration(CallInfo callInfo)
     {

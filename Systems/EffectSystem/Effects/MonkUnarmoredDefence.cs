@@ -26,14 +26,12 @@ namespace NWN.Systems
       Effect acInc = Effect.ACIncrease(wisdomModifier, ACBonus.ArmourEnchantment);
       acInc.ShowIcon = false;
 
-      Effect eff = Effect.LinkEffects(acInc, Effect.Icon(CustomEffectIcon.BarbareDefenseSansArmure));
+      Effect eff = Effect.LinkEffects(acInc, Effect.Icon(CustomEffectIcon.MoineDefenseSansArmure));
       eff.Tag = MonkUnarmoredDefenceEffectTag;
       eff.SubType = EffectSubType.Unyielding;
 
-      if (creature.IsLoginPlayerCharacter)
-        NwFeat.FromFeatId(CustomSkill.MonkUnarmoredDefence).Name.SetPlayerOverride(creature.LoginPlayer, $"Défense sans Armure (+{wisdomModifier}");
-
       creature.ApplyEffect(EffectDuration.Permanent, eff);
+      StringUtils.DelayPlayerOverrideText(creature.LoginPlayer, NwFeat.FromFeatId(CustomSkill.MonkUnarmoredDefence).Name, $"Défense sans Armure (+{wisdomModifier})");
     }
   }
 }

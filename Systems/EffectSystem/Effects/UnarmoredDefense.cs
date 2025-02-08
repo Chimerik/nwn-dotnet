@@ -30,10 +30,8 @@ namespace NWN.Systems
       eff.Tag = UnarmoredDefenceEffectTag;
       eff.SubType = EffectSubType.Unyielding;
 
-      if (creature.IsLoginPlayerCharacter)
-        NwFeat.FromFeatId(CustomSkill.BarbarianUnarmoredDefence).Name.SetPlayerOverride(creature.LoginPlayer, $"Défense sans Armure (+{constitutionModifier}");
-
       creature.ApplyEffect(EffectDuration.Permanent, eff);
+      StringUtils.DelayPlayerOverrideText(creature.LoginPlayer, NwFeat.FromFeatId(CustomSkill.BarbarianUnarmoredDefence).Name, $"Défense sans Armure (+{constitutionModifier})");
     }
   }
 }

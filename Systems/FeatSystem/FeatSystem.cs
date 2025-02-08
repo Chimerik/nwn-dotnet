@@ -246,6 +246,7 @@ namespace NWN.Systems
         case CustomSkill.ExpertiseAffaiblissement: Affaiblissement(onUseFeat.Creature); return;
         case CustomSkill.ExpertiseArretCardiaque: ArretCardiaque(onUseFeat.Creature); return;
         case CustomSkill.ExpertiseTranspercer: Transpercer(onUseFeat.Creature); return;
+        case CustomSkill.ExpertiseTirPercant: TirPercant(onUseFeat.Creature); return;
         case CustomSkill.ExpertiseMoulinet: Moulinet(onUseFeat.Creature); return;
         case CustomSkill.ExpertiseLaceration: Laceration(onUseFeat.Creature); return;
         case CustomSkill.ExpertiseMutilation: Mutilation(onUseFeat.Creature); return;
@@ -260,6 +261,10 @@ namespace NWN.Systems
         case CustomSkill.ExpertiseRenforcement: Renforcement(onUseFeat.Creature); return;
         case CustomSkill.ExpertisePreparation: Preparation(onUseFeat.Creature); return;
         case CustomSkill.ExpertiseStabilisation: Stabilisation(onUseFeat.Creature); return;
+
+        case CustomSkill.FighterSecondWind:
+          if (CreatureUtils.HandleBonusActionUse(onUseFeat.Creature)) return;
+          else onUseFeat.PreventFeatUse = true; return;
       }
 
       int featId = onUseFeat.Feat.Id + 10000;

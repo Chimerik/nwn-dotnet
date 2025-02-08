@@ -13,11 +13,9 @@ namespace NWN.Systems
           return;
 
         if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(EffectSystem.EnduranceImplacableVariable).HasValue
-        && !oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.enduranceImplacable.Tag))
+        && !oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.EnduranceImplacableEffectTag))      
         {
-          oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.enduranceImplacable);
-          oid.LoginCreature.OnDamaged -= CreatureUtils.HandleImplacableEndurance;
-          oid.LoginCreature.OnDamaged += CreatureUtils.HandleImplacableEndurance;
+          oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.enduranceImplacable(oid.LoginCreature));
         }
       }
     }

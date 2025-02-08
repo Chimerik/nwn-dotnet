@@ -14,10 +14,16 @@ namespace NWN.Systems
 
         if (bonusAction is null) // L'attaque supplémentaire consomme l'action bonus du personnage
         {
-          onAttack.AttackResult = AttackResult.MissChance; // Si pas d'action bonus dispo, auto miss
+          if (onAttack.Attacker.GetObjectVariable<LocalVariableInt>("_ENTAILLE_BONUS_ATTACK").HasNothing)
+          {
+            onAttack.AttackResult = AttackResult.MissChance; // Si pas d'action bonus dispo, auto miss
 
-          onAttack.Attacker.LoginPlayer?.SendServerMessage("Main secondaire - Echec automatique - Pas d'action bonus disponible".ColorString(ColorConstants.Red));
-          LogUtils.LogMessage("Main secondaire - Echec automatique - Pas d'action bonus disponible", LogUtils.LogType.Combat);
+            onAttack.Attacker.LoginPlayer?.SendServerMessage("Main secondaire - Echec automatique - Pas d'action bonus disponible".ColorString(ColorConstants.Red));
+            LogUtils.LogMessage("Main secondaire - Echec automatique - Pas d'action bonus disponible", LogUtils.LogType.Combat);
+          }
+          else
+            onAttack.Attacker.GetObjectVariable<LocalVariableInt>("_ENTAILLE_BONUS_ATTACK").Delete();
+
           return;
         }
         else

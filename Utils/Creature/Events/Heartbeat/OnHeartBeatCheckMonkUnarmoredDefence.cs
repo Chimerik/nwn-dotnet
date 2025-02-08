@@ -23,8 +23,11 @@ namespace NWN.Systems
       if (!hasShield && (armor is null || armor.BaseACValue < 1))
       {
         int wisMod = onHB.Creature.GetAbilityModifier(Ability.Wisdom);
-        EffectUtils.RemoveTaggedEffect(onHB.Creature, EffectSystem.MonkUnarmoredDefenceEffectTag);
-        WaitNextFrameToApplyEffect(onHB.Creature, wisMod);
+
+        var eff = onHB.Creature.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.MonkUnarmoredDefenceEffectTag && e.EffectType == EffectType.AcIncrease);
+
+        if (eff is not null && eff.IntParams[1] != wisMod)
+          EffectSystem.ApplyMonkUnarmoredDefenseEffect(onHB.Creature);
 
         if (onHB.Creature.GetObjectVariable<LocalVariableInt>("_MONK_SPEED_DISABLED").HasNothing
           && onHB.Creature.Classes.Any(c => c.Class.Id == CustomClass.Monk && c.Level > 1)
@@ -37,14 +40,6 @@ namespace NWN.Systems
       {
         onHB.Creature.OnHeartbeat -= OnHeartBeatCheckMonkUnarmoredDefence;
         EffectUtils.RemoveTaggedEffect(onHB.Creature, EffectSystem.MonkUnarmoredDefenceEffectTag, EffectSystem.MonkSpeedEffectTag);
-      }
-    }
-    private static async void WaitNextFrameToApplyEffect(NwCreature creature, int wisMod)
-    {
-      if (wisMod > 0)
-      {
-        await NwTask.NextFrame();
-        EffectSystem.ApplyMonkUnarmoredDefenseEffect(creature);
       }
     }
   }

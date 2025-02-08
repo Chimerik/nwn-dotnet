@@ -2,6 +2,7 @@
 using Anvil.API;
 using System.Linq;
 using NWN.Core;
+using System;
 
 namespace NWN.Systems
 {
@@ -11,6 +12,14 @@ namespace NWN.Systems
     {
       if (onDamage.Target is not NwCreature target)
         return;
+
+      int totalDamage = 0;
+
+      foreach (DamageType damageType in (DamageType[])Enum.GetValues(typeof(DamageType)))
+      {
+        var damage = onDamage.DamageData.GetDamageByType(damageType);
+        totalDamage += damage > 0 ? damage : 0;
+      }
 
       Effect resist = target.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.ResistanceEffectTag);
 
@@ -27,6 +36,14 @@ namespace NWN.Systems
           case CustomSpell.ResistanceTranchant: ApplyResistanceReduction(onDamage.DamageData, DamageType.Slashing, target, resist.IntParams[6]); break;
           case CustomSpell.ResistancePoison: ApplyResistanceReduction(onDamage.DamageData, DamageType.Custom1, target, resist.IntParams[6]); break;
         }
+      }
+
+      if(totalDamage >= target.HP && target.ActiveEffects.Any(e => e.EffectType == EffectType.Polymorph))
+      {
+        int remainingDamage = totalDamage - target.HP;
+        target.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_CURRENT_HP").Value -= remainingDamage;
+        EffectUtils.RemoveTaggedEffect(target, EffectSystem.PolymorphEffectTag);
+        target.ApplyEffect(EffectDuration.Temporary, Effect.TemporaryHitpoints(totalDamage), TimeSpan.FromSeconds(0.59f));
       }
 
       if (onDamage.DamagedBy is not NwCreature damager)

@@ -30,10 +30,8 @@ namespace NWN.Systems
       eff.Tag = ResistanceDraconiqueEffectTag;
       eff.SubType = EffectSubType.Unyielding;
 
-      if(creature.IsLoginPlayerCharacter)
-        NwFeat.FromFeatId(CustomSkill.EnsoResistanceDraconique).Name.SetPlayerOverride(creature.LoginPlayer, $"Résistance Draconique (+{charismaModifier})");
-
       creature.ApplyEffect(EffectDuration.Permanent, eff);
+      StringUtils.DelayPlayerOverrideText(creature.LoginPlayer, NwFeat.FromFeatId(CustomSkill.EnsoResistanceDraconique).Name, $"Résistance Draconique (+{charismaModifier})");
     }
   }
 }

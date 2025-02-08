@@ -9,7 +9,10 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.Preparation), Effect.MovementSpeedDecrease(75));
+        Effect speed = Effect.MovementSpeedDecrease(75);
+        speed.ShowIcon = false;
+
+        Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.Preparation), speed);
         eff.Tag = PreparationEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

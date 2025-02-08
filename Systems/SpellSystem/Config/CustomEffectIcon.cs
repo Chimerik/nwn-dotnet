@@ -11,6 +11,7 @@ namespace NWN
     public const EffectIcon ChatimentBrillant = (EffectIcon)134;
     public const EffectIcon Broyeur = (EffectIcon)135;
     public const EffectIcon Sprint = (EffectIcon)142;
+    public const EffectIcon EnduranceImplacable = (EffectIcon)146;
     public const EffectIcon ElectricJolt = (EffectIcon)147;
     public const EffectIcon Bouclier = (EffectIcon)152;
     public const EffectIcon AmbiMaster = (EffectIcon)155;

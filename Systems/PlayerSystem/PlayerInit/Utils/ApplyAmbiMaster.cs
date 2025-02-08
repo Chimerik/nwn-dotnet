@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Anvil.API;
+using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
@@ -9,14 +10,16 @@ namespace NWN.Systems
     {
       private void ApplyAmbiMaster()
       {
-        if (learnableSkills.TryGetValue(CustomSkill.AmbiMaster, out var protection) && protection.currentLevel > 0)
+        if (oid.LoginCreature.KnowsFeat(Feat.Ambidexterity))
         {
           oid.OnPlayerEquipItem -= ItemSystem.OnEquipApplyAmbiMaster;
           oid.OnPlayerUnequipItem -= ItemSystem.OnUnEquipRemoveAmbiMaster;
           oid.OnPlayerEquipItem += ItemSystem.OnEquipApplyAmbiMaster;
           oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipRemoveAmbiMaster;
 
-          if(ItemUtils.IsWeapon(oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand)?.BaseItem) && !oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.AmbiMasterEffectTag))
+          if (ItemUtils.IsMeleeWeapon(oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand)?.BaseItem)
+        && ItemUtils.IsMeleeWeapon(oid.LoginCreature.GetItemInSlot(InventorySlot.LeftHand)?.BaseItem)
+        && !oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.AmbiMasterEffectTag))
             oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.ambiMaster);
         }
       }

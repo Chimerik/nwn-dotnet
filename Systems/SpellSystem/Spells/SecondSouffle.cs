@@ -10,6 +10,8 @@ namespace NWN.Systems
       if (oCaster is not NwCreature caster)
         return;
 
+
+
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
 
       int fighterLevel = FighterUtils.GetFighterLevel(caster);

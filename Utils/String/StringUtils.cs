@@ -225,5 +225,14 @@ namespace NWN.Systems
 
       player.oid.PostString(adrenaline.ToString(), player.cooldownPositions.xPos + slotId * player.cooldownPositions.spacing, 100, ScreenAnchor.TopLeft, 25, color, color, featId + 10000);
     }
+
+    public static async void DelayPlayerOverrideText(NwPlayer player, StrRef strRef, string text)
+    {
+      if (player is null)
+        return;
+
+      await NwTask.NextFrame();
+      strRef.SetPlayerOverride(player, text);
+    }
   }
 }

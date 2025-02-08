@@ -4,17 +4,18 @@ namespace NWN.Systems
 {
   public partial class EffectSystem
   {
-    public static Effect enduranceImplacable
-    {
-      get
-      {
-        Effect eff = Effect.Icon(NwGameTables.EffectIconTable.GetRow(146));
-        eff.Tag = EnduranceImplacableEffectTag;
-        eff.SubType = EffectSubType.Unyielding;
-        return eff;
-      }
-    }
     public const string EnduranceImplacableEffectTag = "_HALFORC_ENDURANCE_EFFECT";
     public const string EnduranceImplacableVariable = "_HALFORC_ENDURANCE";
+
+    public static Effect enduranceImplacable(NwCreature creature)
+    {
+      creature.OnDamaged -= CreatureUtils.HandleImplacableEndurance;
+      creature.OnDamaged += CreatureUtils.HandleImplacableEndurance;
+
+      Effect eff = Effect.Icon(CustomEffectIcon.EnduranceImplacable);
+      eff.Tag = EnduranceImplacableEffectTag;
+      eff.SubType = EffectSubType.Unyielding;
+      return eff;
+    }
   }
 }

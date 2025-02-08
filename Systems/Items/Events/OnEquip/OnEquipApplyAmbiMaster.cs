@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
+using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
@@ -8,21 +9,18 @@ namespace NWN.Systems
   {
     public static void OnEquipApplyAmbiMaster(ModuleEvents.OnPlayerEquipItem onEquip)
     {
-      if (onEquip.Slot != InventorySlot.LeftHand || !ItemUtils.IsMeleeWeapon(onEquip.Item.BaseItem) 
-        || onEquip.Player.ActiveEffects.Any(e => e.Tag == EffectSystem.AmbiMasterEffectTag))
-        return;
-
-      onEquip.Player.ApplyEffect(EffectDuration.Permanent, EffectSystem.ambiMaster);
+      if (ItemUtils.IsMeleeWeapon(onEquip.Player.GetItemInSlot(InventorySlot.RightHand)?.BaseItem)
+        && ItemUtils.IsMeleeWeapon(onEquip.Player.GetItemInSlot(InventorySlot.LeftHand)?.BaseItem)
+        && !onEquip.Player.ActiveEffects.Any(e => e.Tag == EffectSystem.AmbiMasterEffectTag))
+        onEquip.Player.ApplyEffect(EffectDuration.Permanent, EffectSystem.ambiMaster);
     }
     public static void OnUnEquipRemoveAmbiMaster(ModuleEvents.OnPlayerUnequipItem onUnEquip)
     {
       NwCreature oPC = onUnEquip.UnequippedBy;
-      NwItem offhandWeapon = onUnEquip.Item;
 
-      if (oPC.GetSlotFromItem(offhandWeapon) != EquipmentSlots.LeftHand || !oPC.ActiveEffects.Any(e => e.Tag == EffectSystem.AmbiMasterEffectTag))
-        return;
-
-      EffectUtils.RemoveTaggedEffect(oPC, EffectSystem.AmbiMasterEffectTag);
+      if (!ItemUtils.IsMeleeWeapon(oPC.GetItemInSlot(InventorySlot.RightHand)?.BaseItem)
+        || !ItemUtils.IsMeleeWeapon(oPC.GetItemInSlot(InventorySlot.LeftHand)?.BaseItem))
+        EffectUtils.RemoveTaggedEffect(oPC, EffectSystem.AmbiMasterEffectTag);
     }
   }
 }

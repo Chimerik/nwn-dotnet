@@ -78,7 +78,6 @@ namespace NWN.Systems
       LoadPlaceableSpawns();
       LoadMailReceiverList();
       NwModule.Instance.OnModuleLoad += OnModuleLoad;
-      Log.Info("END MODULE CONSTRUCTOR");
     }
     private IntPtr ResolveFromNwServer(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
     {

@@ -64,8 +64,8 @@ namespace NWN.Systems
       creature.HP = creature.MaxHP;
       creature.OnEffectRemove -= OnRemovePolymorph;
       creature.OnEffectRemove += OnRemovePolymorph;
-      creature.OnDamaged -= OnDamagedPolymorph;
-      creature.OnDamaged += OnDamagedPolymorph;
+      //creature.OnDamaged -= OnDamagedPolymorph;
+      //creature.OnDamaged += OnDamagedPolymorph;
 
       if (creature.KnowsFeat((Feat)CustomSkill.DruideFormeDeLune))
       {
@@ -191,7 +191,7 @@ namespace NWN.Systems
       creature.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_SHAPE").Delete();
 
       creature.OnEffectRemove -= OnRemovePolymorph;
-      creature.OnDamaged -= OnDamagedPolymorph;
+      //creature.OnDamaged -= OnDamagedPolymorph;
       creature.OnCreatureAttack -= RangerUtils.OnAttackSpiderPoisonBite;
       creature.OnCreatureAttack -= DruideUtils.OnAttackBriseArmure;
       creature.OnCreatureAttack -= DruideUtils.OnAttackElemAirStun;
@@ -227,37 +227,41 @@ namespace NWN.Systems
     public static async void DelayHPReset(NwCreature creature)
     {
       //ModuleSystem.Log.Info($"REMOVE : creature HP BEFORE DELAY : {creature.HP}");
-      //ModuleSystem.Log.Info($"REMOVE : creature MAX HP BEFORE value change : {creature.MaxHP}");
+      //ModuleSystem.Log.Info($"REMOVE : creature MAX HP BEFORE DELAY : {creature.MaxHP}");
+
       await NwTask.Delay(TimeSpan.FromSeconds(0.6));
 
       if (creature is null || !creature.IsValid)
         return;
 
-      //ModuleSystem.Log.Info($"REMOVE : creature MAX HP AFTER value change : {creature.MaxHP}");
+      //ModuleSystem.Log.Info($"REMOVE : creature HP AFTER DELAY : {creature.HP}");
+      //ModuleSystem.Log.Info($"REMOVE : creature MAX HP AFTER delay : {creature.MaxHP}");
 
       //ModuleSystem.Log.Info($"REMOVE : creature HP : {creature.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_CURRENT_HP").Value}");
-      //ModuleSystem.Log.Info($"REMOVE : creature HP AFTER DELAY : {creature.HP}");
-
+      
       creature.HP = creature.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_CURRENT_HP").Value;
       //ModuleSystem.Log.Info($"REMOVE : creature HP AFTER RESET : {creature.HP}");
       creature.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_CURRENT_HP").Delete();
-      creature.OnDamaged -= OnDamagedPolymorphHPBuffer;
+      //creature.OnDamaged -= OnDamagedPolymorphHPBuffer;
       creature.LoginPlayer?.ExportCharacter();
     }
 
     public static void OnDamagedPolymorph(CreatureEvents.OnDamaged onDamaged)
     {
+      ModuleSystem.Log.Info($"on damage polymorph");
       NwCreature creature = onDamaged.Creature;
 
-      if (creature.HP < 1)
+      ModuleSystem.Log.Info($"creature hp : {creature.HP}");
+
+      if (creature.HP < 1 && creature.ActiveEffects.Any(e => e.EffectType == EffectType.Polymorph))
       {
-        //ModuleSystem.Log.Info($"on damage polymorph < 1 {creature.HP}");
         creature.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_CURRENT_HP").Value += creature.HP;
         EffectUtils.RemoveTaggedEffect(creature, creature, PolymorphEffectTag);
         creature.HP = creature.MaxHP;
+        ModuleSystem.Log.Info($"hp = maxHP : {creature.HP}");
 
-        creature.ApplyEffect(EffectDuration.Temporary, Effect.TemporaryHitpoints(500), TimeSpan.FromSeconds(0.59f));
-        creature.OnDamaged += OnDamagedPolymorphHPBuffer;
+        //creature.ApplyEffect(EffectDuration.Temporary, Effect.TemporaryHitpoints(500), TimeSpan.FromSeconds(0.59f));
+        //creature.OnDamaged += OnDamagedPolymorphHPBuffer;
       }
     }
 

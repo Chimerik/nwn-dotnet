@@ -317,7 +317,7 @@ namespace NWN.Systems
 
       NativeUtils.HandleHastMaster(attacker, targetObject, combatRound, attackerName);
       NativeUtils.HandleBalayage(attacker, targetObject, combatRound, attackerName);
-      NativeUtils.HandleEntaille(attacker, targetObject, combatRound);
+      NativeUtils.HandleEntaille(attacker, targetObject, combatRound, attackData);
       NativeUtils.HandleFendre(attacker, targetObject, combatRound, attackData.m_nAttackResult);
       NativeUtils.HandleRiposteBonusAttack(attacker, combatRound, attackData, attackerName);
       NativeUtils.HandleBersekerRepresaillesBonusAttack(attacker, combatRound, attackData, attackerName);

@@ -24,7 +24,7 @@ namespace NWN.Systems
           return;
       }
 
-      NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.Polymorph(caster, EffectSystem.GetPolymorphType(featId))));
+      caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.Polymorph(caster, EffectSystem.GetPolymorphType(featId)));
       DruideUtils.DecrementFormeSauvage(caster, formeSauvageCharges);
     }
   }

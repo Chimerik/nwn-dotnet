@@ -26,7 +26,7 @@ namespace NWN.Systems
           return;
       }
 
-      NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.Polymorph(caster, EffectSystem.GetPolymorphType(spell.Id))));
+      caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.Polymorph(caster, EffectSystem.GetPolymorphType(spell.Id)));
 
       if(!caster.KnowsFeat((Feat)CustomSkill.DruideFormeDeLune))
         caster.IncrementRemainingFeatUses(spell.MasterSpell.FeatReference);
