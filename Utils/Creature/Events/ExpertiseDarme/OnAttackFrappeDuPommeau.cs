@@ -32,6 +32,7 @@ namespace NWN.Systems
 
               if (GetSavingThrow(onAttack.Attacker, target, Ability.Constitution, spellDC) == SavingThrowResult.Failure)
               {
+                target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpDazedS));
                 NWScript.AssignCommand(onAttack.Attacker, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Hebetement(target), NwTimeSpan.FromRounds(2)));
               }
 

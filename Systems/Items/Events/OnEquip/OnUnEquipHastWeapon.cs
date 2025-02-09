@@ -11,18 +11,21 @@ namespace NWN.Systems
       NwCreature oCreature = onUnequip.Creature;
       NwItem oItem = onUnequip.Item;
 
-      if (oCreature is null || oItem is null || oCreature.GetObjectVariable<LocalVariableInt>("_HAST_WEAPON_EQUIPPED").HasNothing)
+      if (oCreature is null || oItem is null)
         return;
 
       switch (oItem.BaseItem.ItemType)
       {
         case BaseItemType.Halberd:
-        case BaseItemType.Greatsword:
         case BaseItemType.Whip:
         case BaseItemType.ShortSpear:
 
           CreaturePlugin.SetHitDistance(oCreature, CreaturePlugin.GetHitDistance(oCreature) / 2);
           oCreature.GetObjectVariable<LocalVariableInt>("_HAST_WEAPON_EQUIPPED").Delete();
+
+          EffectUtils.RemoveTaggedEffect(oCreature, oCreature, EffectSystem.ThreatenedAoETag);
+          CreatureUtils.InitThreatRange(oCreature);
+
           break;
       }
     }

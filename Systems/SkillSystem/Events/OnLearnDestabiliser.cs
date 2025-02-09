@@ -22,6 +22,8 @@ namespace NWN.Systems
         if(!player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.CooldownEffectTag && e.IntParams[5] == CustomSkill.ExpertiseDestabiliser))
           player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ExpertiseDestabiliser, 100);
       }
+      else
+        player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ExpertiseDestabiliser, 0);
 
       return true;
     }

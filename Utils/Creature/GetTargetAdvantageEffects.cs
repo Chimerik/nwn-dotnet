@@ -1,5 +1,4 @@
-﻿using Anvil.API;
-using NWN.Native.API;
+﻿using NWN.Native.API;
 
 namespace NWN.Systems
 {
@@ -18,8 +17,8 @@ namespace NWN.Systems
 
             switch(statParameter)
             {
-              case 6: LogUtils.LogMessage("Avantage - Cible étourdie", LogUtils.LogType.Combat); return true;
-              case 8: LogUtils.LogMessage("Avantage - Cible paralysée", LogUtils.LogType.Combat); return true;
+              case EffectState.Etourdi: LogUtils.LogMessage("Avantage - Cible étourdie", LogUtils.LogType.Combat); return true;
+              case EffectState.Paralyse: LogUtils.LogMessage("Avantage - Cible paralysée", LogUtils.LogType.Combat); return true;
             }
 
             break;

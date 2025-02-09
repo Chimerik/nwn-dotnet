@@ -192,7 +192,7 @@ namespace NWN.Systems
         }
 
         if (isCriticalHit 
-          || (attackData.m_bRangedAttack < 1 && targetCreature.m_appliedEffects.Any(e => (EffectTrueType)e.m_nType == EffectTrueType.SetState && e.GetInteger(0) == 8))) // Si la cible est paralysée, que l'attaque touche et est en mêlée, alors critique auto
+          || (attackData.m_bRangedAttack < 1 && targetCreature.m_appliedEffects.Any(e => (EffectTrueType)e.m_nType == EffectTrueType.SetState && e.GetInteger(0) == EffectState.Paralyse))) // Si la cible est paralysée, que l'attaque touche et est en mêlée, alors critique auto
         {
           attackData.m_nAttackResult = 3;
           criticalString = "CRITIQUE - ".ColorString(StringUtils.gold);

@@ -31,7 +31,6 @@ namespace NWN.Systems
           case (uint)BaseItemType.Halberd:
           case (uint)BaseItemType.ShortSpear:
           case (uint)BaseItemType.Quarterstaff:
-          case (uint)BaseItemType.Whip:
 
             string targetName = $"{target.GetFirstName().GetSimple(0)} {target.GetLastName().GetSimple(0)}".ColorString(ColorConstants.Cyan);
             BroadcastNativeServerMessage($"Attaque spéciale du maître d'Hast {attackerName.ColorString(ColorConstants.Cyan)} contre {targetName}", attacker);

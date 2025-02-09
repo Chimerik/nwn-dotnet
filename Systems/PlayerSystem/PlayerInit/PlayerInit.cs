@@ -10,6 +10,7 @@ using Microsoft.Data.Sqlite;
 
 using Newtonsoft.Json;
 using NWN.Core;
+using static NWN.Systems.PlayerSystem;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace NWN.Systems
@@ -70,8 +71,7 @@ namespace NWN.Systems
 
       Utils.ResetVisualTransform(player.oid.ControlledCreature);
       player.pcState = Player.PcState.Offline;
-      player.OnLoginRefreshPlayerList();
-      CreatureUtils.InitThreatRange(player.oid.LoginCreature);
+      player.OnLoginRefreshPlayerList();  
 
       foreach(var magicWeapon in ModuleSystem.magicWeaponsToRemoveList)
       {
@@ -557,6 +557,9 @@ namespace NWN.Systems
         //HandleAdrenalineInit();
         //oid.LoginCreature.OnHeal -= SpellSystem.PreventHeal;
         //oid.LoginCreature.OnEffectApply -= EffectSystem.CheckFaerieFire;
+
+        CreatureUtils.InitThreatRange(oid.LoginCreature);
+        ItemSystem.InitHastWeaponHitDistance(oid.LoginCreature);
 
         oid.LoginCreature.OnHeartbeat -= OnHeartbeatDetectTrap;
         oid.LoginCreature.OnHeartbeat += OnHeartbeatDetectTrap;

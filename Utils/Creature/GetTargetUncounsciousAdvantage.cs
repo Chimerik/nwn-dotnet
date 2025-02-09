@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     public static bool GetTargetUncounsciousAdvantage(CGameEffect eff)
     {
-      if ((EffectTrueType)eff.m_nType == EffectTrueType.SetState && eff.GetInteger(0) == 9)
+      if ((EffectTrueType)eff.m_nType == EffectTrueType.SetState && eff.GetInteger(0) == EffectState.Endormi)
       {
         LogUtils.LogMessage("Avantage - Cible inconsciente", LogUtils.LogType.Combat);
         return true;

@@ -10,7 +10,6 @@ namespace NWN.Systems
 {
   public static partial class Config
   {
-    public static readonly CExoString isBonusActionAvailableVariable = "_BONUS_ACTION".ToExoString();
     public class Context
     {
       public OnCreatureAttack onAttack { get; set; }

@@ -10,7 +10,7 @@ namespace NWN.Systems
         + GetFightingStyleDefenseBonus(creature)
         + GetDefenseVaillanteBonus(creature)
         + GetAnimalCompanionBonusAC(creature)
-        - GetHebetementACMalus(creature);
+        - GetIncapacitatedACMalus(creature);
 
       AC = GetPeauDecorceAC(creature, AC);
       return AC;

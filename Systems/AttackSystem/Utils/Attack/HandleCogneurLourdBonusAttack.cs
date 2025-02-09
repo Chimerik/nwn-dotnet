@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Linq;
+using System.Numerics;
 using Anvil.API;
 using NWN.Native.API;
 
@@ -12,33 +13,32 @@ namespace NWN.Systems
         return;
 
       if (attacker.m_pStats.HasFeat(CustomSkill.CogneurLourd).ToBool() && combatRound.GetCurrentAttackWeapon() is not null
-      && !attackData.m_bRangedAttack.ToBool() && attacker.m_ScriptVars.GetInt(Config.isBonusActionAvailableVariable).ToBool())
+      && !attackData.m_bRangedAttack.ToBool())
       {
+        var bonusAction = attacker.m_appliedEffects.FirstOrDefault(e => e.m_sCustomTag.ToString() == EffectSystem.BonusActionEffectTag);
+
+        if (bonusAction is null)
+          return;
+
+        CNWSObject bonusTarget = target;
+
         if (target.m_nCurrentHitPoints - damageDealt < 1)
         {
-          var newTarget = NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(attacker.GetNearestEnemy(3, target.m_idSelf, 1, 1));
+          bonusTarget = NWNXLib.AppManager().m_pServerExoApp.GetCreatureByGameObjectID(attacker.GetNearestEnemy(3, target.m_idSelf, 1, 1));
 
-          if (newTarget is null || newTarget.m_idSelf == 0x7F000000) // OBJECT_INVALID
+          if (bonusTarget is null || bonusTarget.m_idSelf == 0x7F000000) // OBJECT_INVALID
             return;
 
-          string targetName = $"{newTarget.GetFirstName().GetSimple(0)} {newTarget.GetLastName().GetSimple(0)}".ColorString(ColorConstants.Cyan);
-          BroadcastNativeServerMessage($"{attackerName.ColorString(ColorConstants.Cyan)} cogneur lourd contre {targetName}", attacker);
-
-          combatRound.AddWhirlwindAttack(newTarget.m_idSelf, 1);
-          attacker.m_ScriptVars.SetInt(Config.isBonusActionAvailableVariable, attacker.m_ScriptVars.GetInt(Config.isBonusActionAvailableVariable) - 1);
-
-          LogUtils.LogMessage($"Attaque supplémentaire - Cogneur Lourd", LogUtils.LogType.Combat);
+          combatRound.AddWhirlwindAttack(bonusTarget.m_idSelf, 1);
         }
         else
-        {
-          string targetName = $"{target.GetFirstName().GetSimple(0)} {target.GetLastName().GetSimple(0)}".ColorString(ColorConstants.Cyan);
-          BroadcastNativeServerMessage($"{attackerName.ColorString(ColorConstants.Cyan)} cogneur lourd contre {targetName}", attacker);
+          combatRound.AddCleaveAttack(bonusTarget.m_idSelf);
 
-          combatRound.AddCleaveAttack(target.m_idSelf);
-          attacker.m_ScriptVars.SetInt(Config.isBonusActionAvailableVariable, attacker.m_ScriptVars.GetInt(Config.isBonusActionAvailableVariable) - 1);
+        string targetName = $"{bonusTarget.GetFirstName().GetSimple(0)} {bonusTarget.GetLastName().GetSimple(0)}".ColorString(ColorConstants.Cyan);
+        BroadcastNativeServerMessage($"{attackerName.ColorString(ColorConstants.Cyan)} cogneur lourd contre {targetName}", attacker);
 
-          LogUtils.LogMessage($"Attaque supplémentaire - Cogneur Lourd", LogUtils.LogType.Combat);
-        }
+        attacker.RemoveEffect(bonusAction);
+        LogUtils.LogMessage($"Attaque supplémentaire - Cogneur Lourd", LogUtils.LogType.Combat);
       }
     }
   }

@@ -23,11 +23,10 @@ namespace NWN
     }
     public static bool IsIncapacitated(CNWSCreature creature)
     {
-      if (creature.m_appliedEffects.Any(e => (EffectTrueType)e.m_nType == EffectTrueType.Knockdown
-          || (EffectTrueType)e.m_nType == EffectTrueType.Petrify || (EffectTrueType)e.m_nType == EffectTrueType.Sanctuary
-          || (EffectTrueType)e.m_nType == EffectTrueType.Timestop || (EffectTrueType)e.m_nType == EffectTrueType.Pacify
-          || ((EffectTrueType)e.m_nType == EffectTrueType.SetState && (e.GetInteger(0) == 6 || e.GetInteger(0) == 1
-          || e.GetInteger(0) == 2 || e.GetInteger(0) == 3 || e.GetInteger(0) == 7 || e.GetInteger(0) == 8 || e.GetInteger(0) == 9))))
+      if (creature.m_appliedEffects.Any(e => In((EffectTrueType)e.m_nType, EffectTrueType.Knockdown, EffectTrueType.Petrify, 
+          EffectTrueType.Pacify, EffectTrueType.Timestop, EffectTrueType.Sanctuary)
+        || ((EffectTrueType)e.m_nType == EffectTrueType.SetState && Utils.In(e.GetInteger(0), EffectState.Etourdi, EffectState.Charme, 
+          EffectState.Endormi, EffectState.Confus, EffectState.Effroi, EffectState.Domine, EffectState.Paralyse))))
         return true;
 
       return false;

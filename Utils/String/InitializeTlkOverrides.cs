@@ -108,6 +108,8 @@ namespace NWN.Systems
       OverrideTlkEntry(191454, "Action Bonus");
       OverrideTlkEntry(191455, "Réaction");
 
+      OverrideTlkEntry(NwBaseItem.FromItemType(BaseItemType.Whip).Description.CustomId, "Arme de Finesse et d'Allonge. 1d4 dégâts tranchants");
+
       foreach (var entry in Feats2da.featTable)
       {
         if ((entry.spellId < 0) && SkillSystem.learnableDictionary.TryGetValue(entry.RowIndex, out var learnable) && learnable is LearnableSkill)
