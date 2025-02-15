@@ -71,7 +71,7 @@ namespace NWN.Systems
     {
       if(master.KnowsFeat((Feat)CustomSkill.MaitreDesChaines))
       {
-        familiar.ApplyEffect(EffectDuration.Permanent, Effect.LinkEffects(EffectSystem.Vol, EffectSystem.Nage, Effect.ModifyAttacks(1), Effect.DamageImmunityIncrease(DamageType.Bludgeoning, 50),
+        familiar.ApplyEffect(EffectDuration.Permanent, Effect.LinkEffects(EffectSystem.Vol(familiar), EffectSystem.Nage, Effect.ModifyAttacks(1), Effect.DamageImmunityIncrease(DamageType.Bludgeoning, 50),
           Effect.DamageImmunityIncrease(DamageType.Piercing, 50), Effect.DamageImmunityIncrease(DamageType.Slashing, 50)));
       }
     }

@@ -11,7 +11,7 @@ namespace NWN.Systems
     public static void BroadcastNativeServerMessage(string message, CNWSCreature creature, bool ignoreSelf = false)
     {
       var playerList = NWNXLib.AppManager().m_pServerExoApp.m_pcExoAppInternal.m_lstPlayerList;
-
+      
       foreach (var player in playerList)
       {
         if (ignoreSelf && player.m_oidNWSObject == creature.m_idSelf)

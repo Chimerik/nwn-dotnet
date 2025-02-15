@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using NWN.Core;
 
 namespace NWN.Systems
@@ -22,7 +23,7 @@ namespace NWN.Systems
         if (Utils.In(target.Race.RacialType, RacialType.Undead, RacialType.Construct) || !caster.Faction.GetMembers().Contains(target))
           continue;
 
-        int healAmount = caster.KnowsFeat((Feat)CustomSkill.ClercGuerisonSupreme)
+        int healAmount = caster.KnowsFeat((Feat)CustomSkill.ClercGuerisonSupreme) || target.ActiveEffects.Any(e => e.Tag == EffectSystem.LueurDespoirEffectTag)
         ? (spellEntry.damageDice * spellEntry.numDice) + caster.GetAbilityModifier(castingClass.SpellCastingAbility) + bonusHeal
         : NwRandom.Roll(Utils.random, spellEntry.damageDice, spellEntry.numDice) + caster.GetAbilityModifier(castingClass.SpellCastingAbility) + bonusHeal;
 

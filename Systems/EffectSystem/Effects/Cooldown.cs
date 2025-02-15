@@ -71,6 +71,7 @@ namespace NWN.Systems
             break;
 
           case CustomSpell.Resistance:
+          case CustomSpell.AuraDeVitalite:
           case BonusActionId: 
           case ReactionId: 
             break;
@@ -135,6 +136,7 @@ namespace NWN.Systems
               break;
 
             case CustomSpell.Resistance:
+            case CustomSpell.AuraDeVitalite:
             case BonusActionId:  
             case ReactionId:  
               break;
@@ -194,6 +196,7 @@ namespace NWN.Systems
 
               break;
 
+            case CustomSpell.Resistance: 
             case BonusActionId: 
             case ReactionId: 
               break;
@@ -222,6 +225,14 @@ namespace NWN.Systems
         case CustomSkill.ClercFrappeDivine: ApplyFrappeDivine(caster); break;
         case CustomSkill.DefensesEnjoleuses: NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, DefensesEnjoleuses)); break;
         case CustomSkill.MonkParade: NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, MonkParade)); break;
+        
+        case CustomSpell.AuraDeVitalite:
+          var aura = caster.ActiveEffects.FirstOrDefault(e => e.Tag == AuraDeVitaliteEffectTag);
+
+          if(aura is not null)
+            NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, AuraDeVitaliteHeal, TimeSpan.FromSeconds(aura.DurationRemaining))); 
+          
+          break;
         
         case CustomSkill.ChasseurProie: 
           

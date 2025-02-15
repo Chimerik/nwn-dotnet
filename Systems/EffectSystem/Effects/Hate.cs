@@ -22,10 +22,8 @@ namespace NWN.Systems
     {
       EffectRunScriptEvent eventData = new EffectRunScriptEvent();
 
-      if (eventData.EffectTarget is not NwCreature creature)
-        return ScriptHandleResult.Handled;
-
-      creature.ApplyEffect(EffectDuration.Temporary, Effect.CutsceneParalyze(), NwTimeSpan.FromRounds(1));
+      if (eventData.EffectTarget is  NwCreature creature)
+        creature.ApplyEffect(EffectDuration.Temporary, Effect.Stunned(), NwTimeSpan.FromRounds(1));
 
       return ScriptHandleResult.Handled;
     }

@@ -6,6 +6,9 @@ namespace NWN.Systems
   {
     public static bool IsCreatureWeaponExpert(NwCreature creature, NwItem item)
     {
+      if (item is null)
+        return false;
+
       return item.BaseItem.ItemType switch
       {
         BaseItemType.Shortsword => creature.KnowsFeat((Feat)CustomSkill.ExpertiseEpeeCourte),
@@ -50,6 +53,9 @@ namespace NWN.Systems
 
     public static bool IsCreatureWeaponExpert(Native.API.CNWSCreature creature, NwBaseItem item)
     {
+      if (item is null)
+        return false;
+
       return item.ItemType switch
       {
         BaseItemType.Shortsword => creature.m_pStats.HasFeat(CustomSkill.ExpertiseEpeeCourte).ToBool(),

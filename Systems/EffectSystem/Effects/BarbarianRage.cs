@@ -69,7 +69,7 @@ namespace NWN.Systems
               break;
 
             case CustomSpell.RageSauvageLoup: caster.ApplyEffect(EffectDuration.Temporary, wolfTotemAura, TimeSpan.FromMinutes(10)); break;
-            case CustomSpell.PuissanceSauvageFaucon: eff = Effect.LinkEffects(eff, Vol); break;
+            case CustomSpell.PuissanceSauvageFaucon: eff = Effect.LinkEffects(eff, Vol(caster)); break;
             case CustomSpell.PuissanceSauvageTigre: NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, LionTotem, TimeSpan.FromMinutes(10))); break;
             case CustomSpell.PuissanceSauvageBelier: 
               

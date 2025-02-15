@@ -36,7 +36,10 @@
     public const int MetalBrulant = 140;
     public const int RayonAffaiblissant = 143;
     public const int ChatimentAveuglant = 145;
+    public const int DelivranceDesMaledictions = 146;
     public const int FeintTrepas = 147;
+    public const int TirDeBarrage = 148;
+    public const int AuraDeVitalite = 149;
     public const int Resistance = 151;
     public const int Sanctuaire = 154;
     public const int MessagerAnimal = 155;
@@ -47,6 +50,7 @@
     public const int FlecheDeFoudre = 168;
     public const int NuageNauseabond = 171;
     public const int InvocationBestiale = 174;
+    public const int ToucherVampirique = 188;
     public const int ToileDaraignee = 192;
     public const int AppelDeFamilier = 195;
     public const int AppelDeFamilierBat = 196;
@@ -119,6 +123,7 @@
     public const int AffluxMental = 310;
     public const int ZoneDeVerite = 311;
     public const int DetectionDuBienEtDuMal = 312;
+    public const int ContreSort = 313;
     public const int VisionNocturne = 317;
     public const int DouxRepos = 318;
     public const int LocalisationDanimauxOuDePlantes = 319;

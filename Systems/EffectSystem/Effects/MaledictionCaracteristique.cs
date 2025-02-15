@@ -9,9 +9,11 @@ namespace NWN.Systems
     public const string MaledictionConstitutionEffectTag = "_MALEDICTION_CONSTITUTION_EFFECT";
     public const string MaledictionIntelligenceEffectTag  = "_MALEDICTION_INTELLIGENCE_EFFECT";
     public const string MaledictionSagesseEffectTag = "_MALEDICTION_SAGESSE_EFFECT";
+    public const string MaledictionCharismeEffectTag = "_MALEDICTION_CHARISME_EFFECT";
     public static Effect GetMaledictionCaracteristique(int spellId)
     {
       Effect eff = Effect.Icon(EffectIcon.Curse);
+
       eff.Tag = spellId switch
       {
         CustomSpell.MaledictionForce => MaledictionForceEffectTag,
@@ -19,9 +21,12 @@ namespace NWN.Systems
         CustomSpell.MaledictionConstitution => MaledictionConstitutionEffectTag,
         CustomSpell.MaledictionIntelligence => MaledictionIntelligenceEffectTag,
         CustomSpell.MaledictionSagesse => MaledictionSagesseEffectTag,
+        CustomSpell.MaledictionCharisme => MaledictionCharismeEffectTag,
         _ => MaledictionForceEffectTag,
       };
+
       eff.SubType = EffectSubType.Supernatural;
+
       return eff;
     }
   }

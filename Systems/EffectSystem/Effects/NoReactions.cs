@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.Icon(CustomEffectIcon.ElectricJolt);
+        Effect eff = Effect.RunAction();
         eff.Tag = NoReactionsEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

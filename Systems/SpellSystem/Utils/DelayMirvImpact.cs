@@ -6,16 +6,20 @@ namespace NWN.Systems
 {
   public static partial class SpellUtils
   {
-    public static async void DelayMirvDamageImpact(NwGameObject oCaster, NwGameObject target, NwSpell spell, SpellEntry spellEntry, NwClass casterClass, double delay, VfxType vfx = VfxType.ImpMagblue, VfxType mirv = VfxType.ImpMirv, int nbDices = 1, bool chromaticBounce = true)
+    public static async void DelayMirvDamageImpact(NwGameObject oCaster, NwGameObject target, NwSpell spell, SpellEntry spellEntry, NwClass casterClass, double delay, VfxType vfx = VfxType.ImpMagblue, VfxType mirv = VfxType.ImpMirv, int nbDices = 1, bool chromaticBounce = true, int spellDC = -1)
     {
       await NwTask.Delay(TimeSpan.FromSeconds(delay));
 
       if (target is not null && target.IsValid && oCaster is not null && oCaster.IsValid)
       {
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(vfx));
-        DealSpellDamage(target, oCaster.CasterLevel, spellEntry, nbDices, oCaster, spell.GetSpellLevelForClass(casterClass), casterClass: casterClass);
 
-        if(!chromaticBounce)
+        DealSpellDamage(target, oCaster.CasterLevel, spellEntry, nbDices, oCaster, spell.GetSpellLevelForClass(casterClass),
+          spell.Id == CustomSpell.TirDeBarrage && target is NwCreature targetCreature ? CreatureUtils.GetSavingThrow(oCaster, targetCreature, spellEntry.savingThrowAbility, spellDC, spellEntry) : SavingThrowResult.Failure, 
+          casterClass: casterClass);
+
+
+        if (!chromaticBounce)
         {
           oCaster.GetObjectVariable<LocalVariableInt>("_CHROMATIC_ORB_BOUNCE").Delete();
           return;

@@ -35,7 +35,6 @@ namespace NWN.Systems
               {
                 target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpDazedS));
                 NWScript.AssignCommand(onAttack.Attacker, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Hebetement(target), NwTimeSpan.FromRounds(2)));
-                NWScript.AssignCommand(onAttack.Attacker, () => onAttack.Attacker.ApplyEffect(EffectDuration.Temporary, EffectSystem.Hebetement(target), NwTimeSpan.FromRounds(2)));
               }
 
               onAttack.Attacker.ApplyEffect(EffectDuration.Temporary, EffectSystem.Cooldown(onAttack.Attacker, 60, CustomSkill.ExpertiseCommotion), NwTimeSpan.FromRounds(10));

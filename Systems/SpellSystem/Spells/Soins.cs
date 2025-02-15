@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Anvil.API;
 using NWN.Core;
 
@@ -13,7 +14,7 @@ namespace NWN.Systems
 
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
       List<NwGameObject> targets = SpellUtils.GetSpellTargets(oCaster, oTarget, spellEntry, true);
-      int healAmount = caster.KnowsFeat((Feat)CustomSkill.ClercGuerisonSupreme)
+      int healAmount = caster.KnowsFeat((Feat)CustomSkill.ClercGuerisonSupreme) || oTarget.ActiveEffects.Any(e => e.Tag == EffectSystem.LueurDespoirEffectTag)
         ? (spellEntry.damageDice * spellEntry.numDice) + caster.GetAbilityModifier(castingClass.SpellCastingAbility)
         : Utils.Roll(spellEntry.damageDice, spellEntry.numDice) + caster.GetAbilityModifier(castingClass.SpellCastingAbility);
 

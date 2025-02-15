@@ -109,6 +109,7 @@ namespace NWN.Systems
       OverrideTlkEntry(191455, "Réaction");
 
       OverrideTlkEntry(NwBaseItem.FromItemType(BaseItemType.Whip).Description.CustomId, "Arme de Finesse et d'Allonge. 1d4 dégâts tranchants");
+      OverrideTlkEntry(NwBaseItem.FromItemType(BaseItemType.LightMace).Name.CustomId, "Masse d'Armes");
 
       foreach (var entry in Feats2da.featTable)
       {

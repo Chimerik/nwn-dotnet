@@ -782,6 +782,13 @@ namespace NWN.Systems
 
           return;
 
+        case CustomSpell.AuraDeVitalite:
+
+          if (caster.ActiveEffects.Any(e => e.Tag == EffectSystem.AuraDeVitaliteEffectTag))
+            EventsPlugin.SkipEvent();
+
+          return;
+
         case CustomSpell.MaleficeForce:
         case CustomSpell.MaleficeDexterite:
         case CustomSpell.MaleficeConstitution:

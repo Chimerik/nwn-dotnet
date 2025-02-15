@@ -35,10 +35,10 @@ namespace NWN.Systems
           default: continue;
         }
 
-        target.ApplyEffect(EffectDuration.Temporary, EffectSystem.noReactions, NwTimeSpan.FromRounds(1));
+        target.ApplyEffect(EffectDuration.Temporary, Effect.LinkEffects(EffectSystem.noReactions, Effect.Icon(CustomEffectIcon.ElectricJolt)), NwTimeSpan.FromRounds(1));
 
         EffectUtils.RemoveTaggedEffect(target, EffectSystem.ReactionEffectTag);
-        SpellUtils.DealSpellDamage(target, caster.CasterLevel, spellEntry, nbDice, caster, 1);
+        SpellUtils.DealSpellDamage(target, caster.CasterLevel, spellEntry, nbDice, caster, 0);
       }
     }
   }

@@ -1080,6 +1080,11 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case CustomSpell.DelivranceDesMaledictions:
+          SpellSystem.DelivranceDesMaledictions(oCaster, spell, spellEntry, target);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.SouffleDuDragonAcide:
         case CustomSpell.SouffleDuDragonFroid:
         case CustomSpell.SouffleDuDragonFeu:
@@ -1133,6 +1138,11 @@ namespace NWN.Systems
           
         case CustomSpell.BondSuperieur:
           SpellSystem.BondSuperieur(oCaster, spell, spellEntry, castingClass, target);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.TirDeBarrage:
+          SpellSystem.TirDeBarrage(oCaster, spell, spellEntry, castingClass, target is null ? targetLocation : target.Location);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
@@ -1277,8 +1287,33 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case CustomSpell.ContreSort:
+          SpellSystem.ContreSort(oCaster, spell, spellEntry, target, castingClass);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.TrancheVue:
           SpellSystem.TrancheVue(oCaster);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.ToucherVampirique:
+
+          if (oCaster.ActiveEffects.Any(e => e.Tag == EffectSystem.ToucherVampiriqueEffectTag))
+            concentrationTargets.AddRange(SpellSystem.ToucherVampirique(oCaster, spell, spellEntry, castingClass, target));
+          else
+            SpellSystem.ToucherVampiriqueRecast(oCaster, spell, spellEntry, castingClass, target);
+
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.AuraDeVitalite:
+
+          if (oCaster.ActiveEffects.Any(e => e.Tag == EffectSystem.AuraDeVitaliteEffectTag))
+            concentrationTargets.AddRange(SpellSystem.AuraDeVitalite(oCaster, spell, spellEntry, castingClass));
+          else
+            SpellSystem.AuraDeVitaliteHeal(oCaster, spell, spellEntry);
+          
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 

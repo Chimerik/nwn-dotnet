@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Anvil.API;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -14,10 +13,22 @@ namespace NWN.Systems
         || feat?.Id == CustomSkill.RangerVoileNaturel)
         return true;
 
-      if (caster.ActiveEffects.Any(e => e.Tag == EffectSystem.MetamagieEffectTag && e.IntParams[5] == CustomSkill.EnsoAcceleration))
+      foreach(var eff in caster.ActiveEffects)
       {
-        EffectUtils.RemoveTaggedParamEffect(caster, CustomSkill.EnsoAcceleration, EffectSystem.MetamagieEffectTag);
-        return true;
+        switch(eff.Tag)
+        {
+          case EffectSystem.LenteurEffectTag: return false;
+
+          case EffectSystem.MetamagieEffectTag:
+
+            if (eff.IntParams[5] == CustomSkill.EnsoAcceleration)
+            {
+              EffectUtils.RemoveTaggedParamEffect(caster, CustomSkill.EnsoAcceleration, EffectSystem.MetamagieEffectTag);
+              return true;
+            }
+
+            break;
+        }
       }
 
       return false;

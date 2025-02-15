@@ -70,6 +70,7 @@ namespace NWN
     public const EffectIcon PsychiqueVulnerability = (EffectIcon)203;
     public const EffectIcon PsychiqueResistance = (EffectIcon)216;
 
+    public const EffectIcon Vol = (EffectIcon)222;
     public const EffectIcon FrappeRuseePoison = (EffectIcon)224;
     public const EffectIcon FrappeRuseeBousculade = (EffectIcon)225;
     public const EffectIcon FrappeRuseeRetraite = (EffectIcon)226;
@@ -120,5 +121,8 @@ namespace NWN
     public const EffectIcon ChatimentAveuglant = (EffectIcon)271;
     public const EffectIcon FeintTrepas = (EffectIcon)272;
     public const EffectIcon AppelDeLaFoudre = (EffectIcon)273;
+    public const EffectIcon ToucherVampirique = (EffectIcon)274;
+    public const EffectIcon BrasDhadar = (EffectIcon)275;
+    public const EffectIcon AuraDeVitalite = (EffectIcon)276;
   }
 }

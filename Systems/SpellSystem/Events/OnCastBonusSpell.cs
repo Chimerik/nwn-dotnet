@@ -37,12 +37,19 @@ namespace NWN.Systems
         }
       }*/
 
-      if (SpellUtils.IsBonusActionSpell(caster, spell.Id, spellEntry, onSpellAction.Feat)
-        && !caster.ActiveEffects.Any(e => e.Tag == EffectSystem.LenteurEffectTag))
+      if(spell.Id == CustomSpell.AuraDeVitalite && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.AuraDeVitaliteEffectTag)
+        && caster.ActiveEffects.Any(e => e.Tag == EffectSystem.AuraDeVitaliteHealEffectTag))
+      {
+        NwClass castingClass = onSpellAction.ClassIndex < 255 ? onSpellAction.Caster.Classes[onSpellAction.ClassIndex].Class : NwClass.FromClassId(CustomClass.Adventurer);
+        SpellUtils.SpellSwitch(caster, onSpellAction.Spell, onSpellAction.Feat, spellEntry, onSpellAction.TargetObject, Location.Create(onSpellAction.Caster.Area, onSpellAction.TargetPosition, onSpellAction.Caster.Rotation), castingClass);
+        onSpellAction.PreventSpellCast = true;
+        return;
+      }
+
+      if (SpellUtils.IsBonusActionSpell(caster, spell.Id, spellEntry, onSpellAction.Feat))
       {
         if(spellEntry.isReaction)
         {
-
           if (!CreatureUtils.HandleReactionUse(caster))
           {
             onSpellAction.PreventSpellCast = true;

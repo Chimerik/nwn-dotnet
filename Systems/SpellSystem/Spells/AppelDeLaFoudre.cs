@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Anvil.API;
 
 namespace NWN.Systems
@@ -15,7 +16,7 @@ namespace NWN.Systems
         targetLocation.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpLightningM));
         oCaster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadElectricity));
 
-        DelayEffect(oCaster, spellEntry);
+        DelayEffect(oCaster, EffectSystem.AppelDeLaFoudre, SpellUtils.GetSpellDuration(oCaster, spellEntry));
 
         foreach (NwCreature target in targetLocation.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, spellEntry.aoESize, false))
         {
@@ -29,10 +30,10 @@ namespace NWN.Systems
       return new List<NwGameObject>() { oCaster };
     }
 
-    private static async void DelayEffect(NwGameObject oCaster, SpellEntry spellEntry)
+    private static async void DelayEffect(NwGameObject oCaster, Effect effect, TimeSpan duration)
     {
       await NwTask.NextFrame();
-      oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.AppelDeLaFoudre, SpellUtils.GetSpellDuration(oCaster, spellEntry));
+      oCaster.ApplyEffect(EffectDuration.Temporary, effect, duration);
     }
 
     public static void AppelDeLaFoudreRecast(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwClass castingClass, Location targetLocation)

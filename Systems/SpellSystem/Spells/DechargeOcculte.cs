@@ -29,7 +29,7 @@ namespace NWN.Systems
         target.ApplyEffect(EffectDuration.Temporary, NWScript.EffectBeam((int)VfxType.BeamOdd, oCaster, (int)BodyNode.Hand, 0, 2), TimeSpan.FromSeconds(1.7));
 
         if (oCaster is NwCreature caster && caster.KnowsFeat((Feat)CustomSkill.DechargeRepulsive))
-          target.ApplyEffect(EffectDuration.Temporary, Effect.MovementSpeedDecrease(50), NwTimeSpan.FromRounds(1));
+          CreatureUtils.HandlePush(caster, target, 4);
 
         SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, nbDice, oCaster, spell.GetSpellLevelForClass(casterClass), casterClass:casterClass);
       }

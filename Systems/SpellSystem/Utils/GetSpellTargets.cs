@@ -27,7 +27,7 @@ namespace NWN.Systems
         {
           NwGameObject multiTarget = caster.GetObjectVariable<LocalVariableObject<NwGameObject>>($"_SPELL_TARGET_{i}").Value;
 
-          if (!distinctTargets || !targets.Contains(multiTarget))
+          if (multiTarget is not null && (!distinctTargets || !targets.Contains(multiTarget)))
           {
             float distance = caster.DistanceSquared(multiTarget);
 
