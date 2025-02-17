@@ -22,7 +22,7 @@ namespace NWN.Systems
 
         if (result == SavingThrowResult.Failure)
         {
-          target.ApplyEffect(EffectDuration.Temporary, Effect.LinkEffects(EffectSystem.noReactions, Effect.VisualEffect(VfxType.DurTentacle), Effect.Icon(CustomEffectIcon.BrasDhadar)), SpellUtils.GetSpellDuration(oCaster, spellEntry));
+          target.ApplyEffect(EffectDuration.Temporary, Effect.LinkEffects(EffectSystem.noReactions(target), Effect.VisualEffect(VfxType.DurTentacle), Effect.Icon(CustomEffectIcon.BrasDhadar)), SpellUtils.GetSpellDuration(oCaster, spellEntry));
         }
       }
     }

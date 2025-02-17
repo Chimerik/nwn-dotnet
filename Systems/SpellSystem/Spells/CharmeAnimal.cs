@@ -21,7 +21,7 @@ namespace NWN.Systems
           || CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, DC, spellEntry) != SavingThrowResult.Failure)
           continue;
 
-        EffectSystem.ApplyCharme(target, caster, SpellUtils.GetSpellDuration(oCaster, spellEntry));
+        EffectSystem.ApplyCharme(target, caster, spell, SpellUtils.GetSpellDuration(oCaster, spellEntry));
       }
     }
   }

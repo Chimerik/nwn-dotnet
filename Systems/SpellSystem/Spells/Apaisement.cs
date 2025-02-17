@@ -25,7 +25,7 @@ namespace NWN.Systems
           {
             if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
             {
-              EffectSystem.ApplyCharme(target, caster, spellDuration);
+              EffectSystem.ApplyCharme(target, caster, spell, SpellUtils.GetSpellDuration(oCaster, spellEntry));
               concentrationList.Add(target);
             }
           }

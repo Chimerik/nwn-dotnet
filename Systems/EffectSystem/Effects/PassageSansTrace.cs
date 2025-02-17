@@ -13,13 +13,13 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onEnterPassageSansTraceCallback;
     private static ScriptCallbackHandle onExitPassageSansTraceCallback;
 
-    public static Effect PassageSansTrace(NwGameObject caster)
+    public static Effect PassageSansTrace(NwGameObject caster, NwSpell spell)
     {
       Effect eff = Effect.AreaOfEffect(PersistentVfxType.MobDragonFear, onEnterHandle: onEnterPassageSansTraceCallback, onExitHandle: onExitPassageSansTraceCallback);
       eff.Tag = PassageSansTraceEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       eff.Creator = caster;
-
+      eff.Spell = spell;
       return eff;
     }
     private static Effect PassageSansTraceBonus

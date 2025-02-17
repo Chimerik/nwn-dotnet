@@ -12,7 +12,7 @@ namespace NWN.Systems
 
       SpellUtils.SignalEventSpellCast(caster, caster, spell.SpellType);
 
-      oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.ArmuredAgathys(caster), SpellUtils.GetSpellDuration(caster, spellEntry));
+      oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.ArmuredAgathys(caster, spell), SpellUtils.GetSpellDuration(caster, spellEntry));
     }  
   }
 }

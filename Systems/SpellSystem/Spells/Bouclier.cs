@@ -13,7 +13,7 @@ namespace NWN.Systems
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
       oCaster.ApplyEffect(EffectDuration.Temporary, Effect.VisualEffect(VfxType.ImpGlobeUse));
 
-      EffectSystem.ApplyBouclier(caster);
+      EffectSystem.ApplyBouclier(caster, spell);
     }
   }
 }

@@ -22,7 +22,7 @@ namespace NWN.Systems
       {
         if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, DC, spellEntry) == SavingThrowResult.Failure)
         {
-          NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetConfusionEffect(castingClass.SpellCastingAbility), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
+          NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetConfusionEffect(castingClass.SpellCastingAbility, spell), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
           target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpConfusionS));
           targetList.Add(target);
         }

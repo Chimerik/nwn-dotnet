@@ -23,7 +23,7 @@ namespace NWN.Systems
     {
       if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) && eventData.Effect.Creator is NwCreature caster 
         && eventData.Entering is NwCreature entering && caster != entering)
-          ApplyTerrainDifficileEffect(entering, caster, CustomSpell.CroissanceVegetale);
+          ApplyTerrainDifficileEffect(entering, caster, NwSpell.FromSpellId(CustomSpell.CroissanceVegetale));
 
       return ScriptHandleResult.Handled;
     }

@@ -11,6 +11,7 @@ namespace NWN.Systems
       {
         Effect eff = Effect.Icon(CustomEffectIcon.PattesDaraignee);
         eff.Tag = PattesDaraigneeEffectTag;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.PattesDaraignee);
         eff.SubType = EffectSubType.Supernatural;
         return eff;
       }

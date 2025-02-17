@@ -20,6 +20,7 @@ namespace NWN.Systems
           Effect.AreaOfEffect((PersistentVfxType)185, onEnterHandle: onEnterGardienDeLaFoiCallback, onExitHandle: onExitGardienDeLaFoiCallback));
         eff.Tag = GardienDeLaFoiAuraEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.GardienDeLaFoi);
         return eff;
       }
     }

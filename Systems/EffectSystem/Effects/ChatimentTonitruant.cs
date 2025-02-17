@@ -7,7 +7,7 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string ChatimentTonitruantEffectTag = "_CHATIMENT_TONITRUANT_EFFECT";
-    public static Effect ChatimentTonitruant(NwCreature caster)
+    public static Effect ChatimentTonitruant(NwCreature caster, NwSpell spell)
     {
       EffectUtils.ClearChatimentEffects(caster);
       caster.OnCreatureAttack -= OnAttackChatimentTonitruant;
@@ -15,7 +15,7 @@ namespace NWN.Systems
 
       Effect eff = Effect.RunAction();
       eff.Tag = ChatimentTonitruantEffectTag;
-      eff.Spell = NwSpell.FromSpellId(CustomSpell.ChatimentTonitruant);
+      eff.Spell = spell;
       return eff;
     }
     private static async void OnAttackChatimentTonitruant(OnCreatureAttack onAttack)

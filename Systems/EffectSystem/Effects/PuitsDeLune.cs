@@ -13,7 +13,7 @@ namespace NWN.Systems
     public const string PuitsDeLuneDamageEffectTag = "_PUITS_DE_LUNE_DAMAGE_EFFECT";
     private static ScriptCallbackHandle onIntervalPuitsDeLuneCallback;
     private static ScriptCallbackHandle onRemovePuitsDeLuneCallback;
-    public static Effect PuitsDeLune(NwCreature caster, Ability ability, TimeSpan spellDuration)
+    public static Effect PuitsDeLune(NwCreature caster, NwSpell spell, Ability ability, TimeSpan spellDuration)
     {
       Effect eff = Effect.LinkEffects(Effect.DamageImmunityIncrease(DamageType.Divine, 50),
         Effect.RunAction(onRemovedHandle: onRemovePuitsDeLuneCallback, onIntervalHandle: onIntervalPuitsDeLuneCallback, interval: TimeSpan.FromSeconds(2)));
@@ -32,6 +32,7 @@ namespace NWN.Systems
       eff.Tag = PuitsDeLuneEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       eff.CasterLevel = (int)ability;
+      eff.Spell = spell;
 
       NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, eff, spellDuration));
 

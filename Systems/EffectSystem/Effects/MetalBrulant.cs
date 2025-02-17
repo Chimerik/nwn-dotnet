@@ -10,11 +10,12 @@ namespace NWN.Systems
   {
     public const string MetalBrulantEffectTag = "_METAL_BRULANT_EFFECT";
     private static ScriptCallbackHandle onIntervalMetalBrulantCallback;
-    public static Effect MetalBrulant(Ability castAbility)
+    public static Effect MetalBrulant(NwSpell spell, Ability castAbility)
     {
       Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.MetalBrulant), Effect.RunAction(onIntervalHandle: onIntervalMetalBrulantCallback, interval:NwTimeSpan.FromRounds(1)));
       eff.Tag = MetalBrulantEffectTag;
       eff.SubType = EffectSubType.Supernatural;
+      eff.Spell = spell;
       eff.IntParams[5] = (int)castAbility;
       return eff;
       

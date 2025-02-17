@@ -12,12 +12,12 @@ namespace NWN.Systems
     public static readonly Native.API.CExoString MaleficeExoTag = MaleficeTag.ToExoString();
 
     private static ScriptCallbackHandle onRemoveMaleficeCallback;
-    public static Effect Malefice(NwCreature caster, int spellId)
+    public static Effect Malefice(NwCreature caster, NwSpell spell)
     {
       caster.OnCreatureAttack -= OnAttackMalefice;
       caster.OnCreatureAttack += OnAttackMalefice;
 
-      var ability = spellId switch
+      var ability = spell.Id switch
       {
         CustomSpell.MaledictionForce => Ability.Strength,
         CustomSpell.MaledictionDexterite => Ability.Dexterity,
@@ -29,7 +29,7 @@ namespace NWN.Systems
 
       Effect eff = Effect.RunAction(onRemovedHandle: onRemoveMaleficeCallback);
       eff.Tag = MaleficeTag;
-      eff.Spell = NwSpell.FromSpellId(spellId);
+      eff.Spell = spell;
       eff.SubType = EffectSubType.Supernatural;
       eff.IntParams[5] = (int)ability;
       return eff;

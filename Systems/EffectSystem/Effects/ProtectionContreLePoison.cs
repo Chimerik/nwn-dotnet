@@ -12,6 +12,7 @@ namespace NWN.Systems
         Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.ProtectionContreLePoison), ResistancePoison);
         eff.Tag = ProtectionContreLePoisonEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.ProtectionContreLePoison);
         return eff;
       }
     }

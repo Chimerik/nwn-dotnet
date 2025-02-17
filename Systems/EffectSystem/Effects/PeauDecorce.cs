@@ -12,6 +12,7 @@ namespace NWN.Systems
       {
         Effect eff = Effect.VisualEffect(VfxType.DurProtBarkskin);
         eff.Tag = PeauDecorceEffectTag;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.PeauDecorce);
         eff.SubType = EffectSubType.Supernatural;
         return eff;
       }

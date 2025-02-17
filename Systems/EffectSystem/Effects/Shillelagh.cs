@@ -18,6 +18,7 @@ namespace NWN.Systems
       attack.Tag = ShillelaghEffectTag;
       attack.SubType = EffectSubType.Supernatural;
       attack.IntParams[5] = (int)casterAbility;
+      attack.Spell = spell;
       caster.ApplyEffect(EffectDuration.Permanent, attack);
 
       if (spell.Id == CustomSpell.ShillelaghForce) 

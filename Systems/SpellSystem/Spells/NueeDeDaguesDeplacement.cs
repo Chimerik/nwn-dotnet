@@ -17,7 +17,7 @@ namespace NWN.Systems
           if(aoe.Location.Area == targetLocation.Area
           && Vector3.DistanceSquared(aoe.Position, targetLocation.Position) < 81)
           {
-            targetLocation.ApplyEffect(EffectDuration.Temporary, EffectSystem.NueeDeDagues(oCaster), aoe.RemainingDuration);
+            targetLocation.ApplyEffect(EffectDuration.Temporary, EffectSystem.NueeDeDagues(oCaster, spell), aoe.RemainingDuration);
 
             var newAOE = UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>();
             newAOE.Tag = EffectSystem.NueeDeDaguesEffectTag;

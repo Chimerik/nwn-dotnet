@@ -15,7 +15,7 @@ namespace NWN.Systems
         SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
         oCaster.GetObjectVariable<LocalVariableInt>($"_SPELL_CASTING_ABILITY_{spell.Id}").Value = (int)castingClass.SpellCastingAbility;
 
-        targetLocation.ApplyEffect(EffectDuration.Temporary, EffectSystem.FleauDinsectesAoE(caster), SpellUtils.GetSpellDuration(oCaster, spellEntry));  
+        targetLocation.ApplyEffect(EffectDuration.Temporary, EffectSystem.FleauDinsectesAoE(caster, spell), SpellUtils.GetSpellDuration(oCaster, spellEntry));  
         concentrationList.Add(UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>());
       }
 

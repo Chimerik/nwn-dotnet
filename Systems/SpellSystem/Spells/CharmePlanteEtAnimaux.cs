@@ -20,7 +20,7 @@ namespace NWN.Systems
         if(target.Race.RacialType == RacialType.Animal && target.Master is null && caster.IsReactionTypeHostile(target) && !EffectSystem.IsCharmeImmune(caster, target)
           && CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, DC) == SavingThrowResult.Failure)
         {
-          EffectSystem.ApplyCharme(target, caster, SpellUtils.GetSpellDuration(oCaster, spellEntry));
+          EffectSystem.ApplyCharme(target, caster, spell, SpellUtils.GetSpellDuration(oCaster, spellEntry));
         }
       }
 

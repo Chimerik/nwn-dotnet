@@ -16,7 +16,7 @@ namespace NWN.Systems
   {
     private static ScriptCallbackHandle onRemoveCharmCallback;
     public const string CharmEffectTag = "_CHARM_EFFECT";
-    public static void ApplyCharme(NwCreature target, NwCreature caster, TimeSpan duration, bool repeatSave = false, int spellId = -1)
+    public static void ApplyCharme(NwCreature target, NwCreature caster, NwSpell spell, TimeSpan duration, bool repeatSave = false, int spellId = -1)
     {
       if (IsCharmeImmune(target, caster))
         return;
@@ -51,6 +51,7 @@ namespace NWN.Systems
       eff.Tag = CharmEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       eff.Creator = caster;
+      eff.Spell = spell;
 
       target.ApplyEffect(EffectDuration.Temporary, eff, duration);
     }

@@ -22,7 +22,7 @@ namespace NWN.Systems
     {
       if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) && eventData.Entering is NwCreature entering && eventData.Effect.Creator is NwCreature caster)
       {
-        ApplyTerrainDifficileEffect(entering, caster, CustomSpell.ToileDaraignee);
+        ApplyTerrainDifficileEffect(entering, caster, NwSpell.FromSpellId(CustomSpell.ToileDaraignee));
 
         Ability castingAbility = (Ability)eventData.Effect.GetObjectVariable<LocalVariableInt>("_DC_ABILITY").Value;
         SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.ToileDaraignee];

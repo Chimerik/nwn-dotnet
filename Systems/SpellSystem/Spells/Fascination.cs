@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Anvil.API;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {

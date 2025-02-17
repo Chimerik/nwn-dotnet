@@ -27,7 +27,7 @@ namespace NWN.Systems
             EffectSystem.Entrave(target, caster, casterClass.SpellCastingAbility, duration, true);
         }
 
-        targetLocation.ApplyEffect(EffectDuration.Temporary, EffectSystem.Enchevetrement(caster), duration);
+        targetLocation.ApplyEffect(EffectDuration.Temporary, EffectSystem.Enchevetrement(caster, spell), duration);
         //targetLocation.ApplyEffect(EffectDuration.Temporary, Effect.AreaOfEffect(PersistentVfxType.PerDarkness), SpellUtils.GetSpellDuration(oCaster, spellEntry));
         concentrationTarget.Add(UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>());
       }

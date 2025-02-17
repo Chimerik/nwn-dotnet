@@ -8,8 +8,9 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.Icon(NwGameTables.EffectIconTable.GetRow(143));
+        Effect eff = Effect.Icon(CustomEffectIcon.CommunicationAnimale);
         eff.Tag = SpeakAnimalEffectTag;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.SpeakAnimal);
         return eff;
       }
     }

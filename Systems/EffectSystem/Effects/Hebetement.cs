@@ -6,14 +6,13 @@ namespace NWN.Systems
   {
     public const string HebetementEffectTag = "_HEBETEMENT_EFFECT";
 
-    public static Effect Hebetement(NwCreature target)
+    public static void ApplyHebetement(NwGameObject target)
     {
-      EffectUtils.RemoveTaggedEffect(target, ReactionEffectTag);
-
-      Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurMindAffectingNegative), Effect.Icon(EffectIcon.Dazed), noReactions, Effect.RunAction());
+      Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurMindAffectingNegative), Effect.Icon(EffectIcon.Dazed), noReactions(target), Effect.RunAction());
       eff.Tag = HebetementEffectTag;
       eff.SubType = EffectSubType.Supernatural;
-      return eff;
+
+      target.ApplyEffect(EffectDuration.Temporary, eff, NwTimeSpan.FromRounds(2));
     }
   }
 }

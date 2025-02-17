@@ -12,6 +12,7 @@ namespace NWN.Systems
         Effect eff = Effect.Icon(EffectIcon.AttackIncrease);
         eff.Tag = BenedictionEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.Benediction);
         return eff;
       }
     }

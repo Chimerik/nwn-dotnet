@@ -22,6 +22,7 @@ namespace NWN.Systems
           Effect.RunAction(onIntervalHandle: onIntervalCroissanceDepinesCallback, interval: TimeSpan.FromSeconds(1.5)));
         eff.Tag = CroissanceDepinesAoEEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.CroissanceDepines);
         return eff;
       }
     }
@@ -30,7 +31,7 @@ namespace NWN.Systems
       if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) && eventData.Entering is NwCreature entering
         && eventData.Effect.Creator is NwCreature caster)
       {
-        ApplyTerrainDifficileEffect(entering, caster, CustomSpell.CroissanceDepines);
+        ApplyTerrainDifficileEffect(entering, caster, NwSpell.FromSpellId(CustomSpell.CroissanceDepines));
         entering.ApplyEffect(EffectDuration.Instant, Effect.Damage((int)DamageBonus.Plus2d4, DamageType.Piercing));
       }
 

@@ -14,8 +14,10 @@ namespace NWN
     public const EffectIcon Threatened = (EffectIcon)144;
     public const EffectIcon EnduranceImplacable = (EffectIcon)146;
     public const EffectIcon ElectricJolt = (EffectIcon)147;
+    public const EffectIcon CommunicationAnimale = (EffectIcon)151;
     public const EffectIcon Bouclier = (EffectIcon)152;
     public const EffectIcon AmbiMaster = (EffectIcon)155;
+    public const EffectIcon Antidetection = (EffectIcon)179;
     public const EffectIcon FormeDeLune = (EffectIcon)186;
 
     public const EffectIcon BlugeoningImmunity = (EffectIcon)196;
@@ -124,5 +126,7 @@ namespace NWN
     public const EffectIcon ToucherVampirique = (EffectIcon)274;
     public const EffectIcon BrasDhadar = (EffectIcon)275;
     public const EffectIcon AuraDeVitalite = (EffectIcon)276;
+    public const EffectIcon NoBonusAction = (EffectIcon)277;
+    public const EffectIcon NoReaction = (EffectIcon)278;
   }
 }

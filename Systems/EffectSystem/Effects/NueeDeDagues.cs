@@ -9,11 +9,12 @@ namespace NWN.Systems
     public const string NueeDeDaguesEffectTag = "_NUEE_DE_DAGUES_EFFECT";
     private static ScriptCallbackHandle onEnterNueeDeDaguesCallback;
     private static ScriptCallbackHandle onHeartbeatNueeDeDaguesCallback;
-    public static Effect NueeDeDagues(NwGameObject caster)
+    public static Effect NueeDeDagues(NwGameObject caster, NwSpell spell)
     {
       Effect eff = Effect.AreaOfEffect(CustomAoE.NueeDeDagues, onEnterNueeDeDaguesCallback, onHeartbeatNueeDeDaguesCallback);
       eff.Tag = NueeDeDaguesEffectTag;
       eff.Creator = caster;
+      eff.Spell = spell;
       eff.SubType = EffectSubType.Supernatural;
       return eff;
     }

@@ -8,7 +8,7 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string RapetissementEffectTag = "_EFFECT_RAPETISSEMENT";
-    public static Effect Rapetissement(NwGameObject target)
+    public static Effect Rapetissement(NwGameObject target, NwSpell spell)
     {
       if (target.GetObjectVariable<PersistentVariableFloat>(CreatureUtils.OriginalSizeVariable).HasNothing)
         target.GetObjectVariable<PersistentVariableFloat>(CreatureUtils.OriginalSizeVariable).Value = target.VisualTransform.Scale;
@@ -19,6 +19,7 @@ namespace NWN.Systems
       Effect eff = Effect.RunAction(onRemovedHandle: onRemoveEnlargeCallback);
       eff.Tag = EnlargeEffectTag;
       eff.SubType = EffectSubType.Supernatural;
+      eff.Spell = spell;
       return eff;
     }
   }

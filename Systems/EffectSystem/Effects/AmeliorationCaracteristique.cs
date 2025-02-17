@@ -22,6 +22,7 @@ namespace NWN.Systems
       eff.Tag = AmeliorationCaracteristiqueEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       eff.IntParams[5] = (int)spell.savingThrowAbility;
+      eff.Spell = NwSpell.FromSpellId(spell.RowIndex);
 
       return eff;
     }

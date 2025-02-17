@@ -9,17 +9,18 @@ namespace NWN.Systems
     public const string EnchevetrementEffectTag = "_ENCHEVETREMENT_EFFECT";
     private static ScriptCallbackHandle onEnterEnchevetrementCallback;
     private static ScriptCallbackHandle onExitEnchevetrementCallback;
-    public static Effect Enchevetrement(NwCreature caster)
+    public static Effect Enchevetrement(NwCreature caster, NwSpell spell)
     {
       Effect eff = Effect.AreaOfEffect(PersistentVfxType.PerEntangle, onEnterEnchevetrementCallback, onExitHandle: onExitEnchevetrementCallback);
       eff.Tag = EnchevetrementEffectTag;
       eff.Creator = caster;
+      eff.Spell = spell;
       return eff;
     }
     private static ScriptHandleResult onEnterEnchevetrement(CallInfo callInfo)
     {
       if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) && eventData.Entering is NwCreature entering && eventData.Effect.Creator is NwCreature caster)
-        ApplyTerrainDifficileEffect(entering, caster, CustomSpell.Enchevetrement);
+        ApplyTerrainDifficileEffect(entering, caster, NwSpell.FromSpellId(CustomSpell.Enchevetrement));
       
       return ScriptHandleResult.Handled;
     }

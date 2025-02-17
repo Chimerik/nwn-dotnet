@@ -6,7 +6,7 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string ArmuredAgathysEffectTag = "_ARMURE_DAGATHYS_EFFECT";
-    public static Effect ArmuredAgathys(NwCreature oCaster)
+    public static Effect ArmuredAgathys(NwCreature oCaster, NwSpell spell)
     {
       oCaster.OnDamaged -= OnDamagedArmuredAgathys;
       oCaster.OnDamaged += OnDamagedArmuredAgathys;
@@ -15,6 +15,7 @@ namespace NWN.Systems
         Effect.VisualEffect(CustomVfx.ArmureDagathys));
       eff.Tag = ArmuredAgathysEffectTag;
       eff.SubType = EffectSubType.Supernatural;
+      eff.Spell = spell;
       return eff;
     }
     private static void OnDamagedArmuredAgathys(Anvil.API.Events.CreatureEvents.OnDamaged onDamaged)

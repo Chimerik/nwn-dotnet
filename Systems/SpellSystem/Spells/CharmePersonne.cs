@@ -20,7 +20,7 @@ namespace NWN.Systems
         if(targetObject is NwCreature target && !EffectSystem.IsCharmeImmune(caster, target) 
           && CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, DC, spellEntry) == SavingThrowResult.Failure)
         {
-         EffectSystem.ApplyCharme(target, caster, SpellUtils.GetSpellDuration(oCaster, spellEntry));
+         EffectSystem.ApplyCharme(target, caster, spell, SpellUtils.GetSpellDuration(oCaster, spellEntry));
         }
       }        
     }

@@ -8,13 +8,14 @@ namespace NWN.Systems
   {
     private static ScriptCallbackHandle onIntervalTerreurCallback;
     public const string TerreurEffectTag = "_TERREUR_EFFECT";
-    public static Effect GetTerreurEffect(NwCreature caster, NwCreature target, Ability ability)
+    public static Effect GetTerreurEffect(NwCreature caster, NwCreature target, NwSpell spell, Ability ability)
     {
       _ = target.ActionMoveAwayFrom(caster, true);
 
       Effect eff = Effect.LinkEffects(Effect.Frightened(), Effect.VisualEffect(VfxType.DurMindAffectingFear),
         Effect.RunAction(onIntervalHandle: onIntervalTerreurCallback, interval: NwTimeSpan.FromRounds(1)));
       eff.Tag = TerreurEffectTag;
+      eff.Spell = spell;
       eff.SubType = EffectSubType.Supernatural;
       eff.IntParams[5] = (int)ability;
       return eff;

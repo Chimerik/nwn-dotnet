@@ -13,7 +13,7 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onRemoveBonusActionCallback;
     public static void ApplyActionBonus(NwCreature creature)
     {
-      if(creature.ActiveEffects.Any(e => e.Tag == NoBonusActionEffectTag))
+      if(creature.ActiveEffects.Any(e => e.EffectType == EffectType.Icon && e.IntParams[0] == (int)CustomEffectIcon.NoBonusAction))
       {
         creature.ApplyEffect(EffectDuration.Temporary, Cooldown(creature, 6, BonusActionId), NwTimeSpan.FromRounds(1));
       }

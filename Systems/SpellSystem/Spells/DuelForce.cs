@@ -12,7 +12,7 @@ namespace NWN.Systems
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
 
       target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfPwstun));
-      EffectSystem.ApplyDuelForce(target, caster, SpellUtils.GetSpellDuration(oCaster, spellEntry), spellEntry.savingThrowAbility, casterClass.SpellCastingAbility);
+      EffectSystem.ApplyDuelForce(target, caster, spell, SpellUtils.GetSpellDuration(oCaster, spellEntry), spellEntry.savingThrowAbility, casterClass.SpellCastingAbility);
     }
   }
 }

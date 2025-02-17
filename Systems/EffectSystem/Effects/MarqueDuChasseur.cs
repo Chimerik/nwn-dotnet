@@ -16,6 +16,7 @@ namespace NWN.Systems
         Effect eff = Effect.RunAction(onRemovedHandle: onRemoveMarqueDuChasseurCallback);
         eff.Tag = MarqueDuChasseurTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.MarqueDuChasseur);
         return eff;
       }
     }

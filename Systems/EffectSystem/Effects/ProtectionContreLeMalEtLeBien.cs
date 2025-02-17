@@ -12,6 +12,7 @@ namespace NWN.Systems
         Effect eff = Effect.VisualEffect(VfxType.DurProtectionGoodMinor);
         eff.Tag = ProtectionContreLeMalEtLeBienEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.ProtectionContreLeMalEtLeBien);
         return eff;
       }
     }

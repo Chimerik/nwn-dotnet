@@ -8,7 +8,7 @@ namespace NWN.Systems
   {
     public const string BouclierEffectTag = "_BOUCLIER_EFFECT";
     private static ScriptCallbackHandle onRemoveBouclierCallback;
-    public static void ApplyBouclier(NwCreature caster)
+    public static void ApplyBouclier(NwCreature caster, NwSpell spell)
     {
       caster.OnSpellCastAt -= OnSpellCastAtBouclier;
       caster.OnSpellCastAt += OnSpellCastAtBouclier;
@@ -17,6 +17,7 @@ namespace NWN.Systems
         Effect.SpellImmunity(Spell.MagicMissile), Effect.Icon(CustomEffectIcon.Bouclier));
       eff.Tag = BouclierEffectTag;
       eff.SubType = EffectSubType.Supernatural;
+      eff.Spell = spell;
 
       caster.ApplyEffect(EffectDuration.Permanent, eff);
     }

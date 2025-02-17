@@ -8,7 +8,7 @@ namespace NWN.Systems
   {
     public const string SanctuaireEffectTag = "_SANCTUAIRE_EFFECT";
     private static ScriptCallbackHandle onRemoveSanctuaireCallback;
-    public static Effect Sanctuaire(NwCreature target, int spellDC)
+    public static Effect Sanctuaire(NwCreature target, NwSpell spell, int spellDC)
     {
       target.OnCreatureAttack -= OnAttackSanctuaire;
       target.OnCreatureAttack += OnAttackSanctuaire;
@@ -20,6 +20,7 @@ namespace NWN.Systems
       Effect eff = Effect.LinkEffects(Effect.Sanctuary(spellDC), Effect.RunAction(onRemovedHandle: onRemoveSanctuaireCallback));
       eff.Tag = SanctuaireEffectTag;
       eff.SubType = EffectSubType.Supernatural;
+      eff.Spell = spell;
 
       return eff;
     }

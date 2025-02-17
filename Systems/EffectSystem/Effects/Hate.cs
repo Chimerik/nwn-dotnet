@@ -15,6 +15,7 @@ namespace NWN.Systems
         Effect eff = Effect.LinkEffects(Effect.Haste(), Effect.RunAction(onRemovedHandle:onRemoveHateCallback));
         eff.Tag = HateEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellType(Spell.Haste);
         return eff;
       }
     }

@@ -18,7 +18,7 @@ namespace NWN.Systems
           && Vector3.DistanceSquared(aoe.Position, targetLocation.Position) < 81)
           {
             Ability castAbility = (Ability)aoe.GetObjectVariable<LocalVariableInt>("_DC_ABILITY").Value;
-            targetLocation.ApplyEffect(EffectDuration.Temporary, EffectSystem.SphereDeFeu(oCaster), aoe.RemainingDuration);
+            targetLocation.ApplyEffect(EffectDuration.Temporary, EffectSystem.SphereDeFeu(oCaster, spell), aoe.RemainingDuration);
             
             var newAOE = UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>();
             newAOE.Tag = EffectSystem.SphereDeFeuEffectTag;

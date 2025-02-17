@@ -13,6 +13,7 @@ namespace NWN.Systems
         Effect eff = Effect.Icon(EffectIcon.ACDecrease);
         eff.Tag = EclairTracantEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.EclairTracant);
         return eff;
       }
     }

@@ -17,7 +17,7 @@ namespace NWN.Systems
         targets.Add(oTarget);
 
         oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHolyAid));
-        NWScript.AssignCommand(caster, () => oTarget.ApplyEffect(EffectDuration.Temporary, EffectSystem.Heroisme(CreatureUtils.GetAbilityModifierMin1(caster, castingClass.SpellCastingAbility)), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
+        NWScript.AssignCommand(caster, () => oTarget.ApplyEffect(EffectDuration.Temporary, EffectSystem.Heroisme(spell, CreatureUtils.GetAbilityModifierMin1(caster, castingClass.SpellCastingAbility)), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
       }
 
       return targets;

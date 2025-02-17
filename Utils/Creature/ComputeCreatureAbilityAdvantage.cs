@@ -249,10 +249,15 @@ namespace NWN.Systems
 
           case SpellEffectType.Poison:
 
-            if (EffectSystem.ProtectionContreLePoisonEffectTag == eff.Tag)
+            switch(eff.Tag)
             {
-              LogUtils.LogMessage("Avantage - Protection contre le Poison", LogUtils.LogType.Combat);
-              return true;
+              case EffectSystem.ConstitutionInfernaleEffectTag:
+                LogUtils.LogMessage("Avantage - Constitution Infernale", LogUtils.LogType.Combat);
+                return true;
+
+              case EffectSystem.ProtectionContreLePoisonEffectTag:
+                LogUtils.LogMessage("Avantage - Protection contre le Poison", LogUtils.LogType.Combat);
+                return true;
             }
 
             break;

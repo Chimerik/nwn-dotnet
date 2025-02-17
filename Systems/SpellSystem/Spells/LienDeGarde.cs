@@ -1,8 +1,4 @@
-﻿
-
-using System;
-using Anvil.API;
-using NWN.Core;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -14,7 +10,7 @@ namespace NWN.Systems
         return;
 
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
-      EffectSystem.ApplyLienDeGarde(caster, target, spellEntry);
+      EffectSystem.ApplyLienDeGarde(caster, target, spell, spellEntry);
     }
   }
 }

@@ -11,11 +11,12 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onEnterVoracitedHadarCallback;
     private static ScriptCallbackHandle onHeartbeatVoracitedHadarCallback;
     private static ScriptCallbackHandle onExitVoracitedHadarCallback;
-    public static Effect VoracitedHadar(NwGameObject caster)
+    public static Effect VoracitedHadar(NwGameObject caster, NwSpell spell)
     {
       Effect eff = Effect.AreaOfEffect(CustomAoE.VoracitedHadar, onEnterSphereDeFeuCallback, onHeartbeatSphereDeFeuCallback, onExitVoracitedHadarCallback);
       eff.Tag = VoracitedHadarEffectTag;
       eff.Creator = caster;
+      eff.Spell = spell;
       eff.SubType = EffectSubType.Supernatural;
       return eff;
     }
@@ -28,7 +29,7 @@ namespace NWN.Systems
       NwSpell spell = NwSpell.FromSpellId(CustomSpell.VoraciteDhadar);
       SpellEntry spellEntry = Spells2da.spellTable[spell.Id];
 
-      ApplyTerrainDifficileEffect(entering, protector, CustomSpell.VoraciteDhadar);
+      ApplyTerrainDifficileEffect(entering, protector, NwSpell.FromSpellId(CustomSpell.VoraciteDhadar));
 
       int spellDC = SpellUtils.GetCasterSpellDC(protector, spell, (Ability)eventData.Effect.GetObjectVariable<LocalVariableInt>("_DC_ABILITY").Value);
       HandleVoracitedHadarEffect(protector, entering, spellEntry, spell, spellDC);

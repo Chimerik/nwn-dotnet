@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
 
-      targetLocation.ApplyEffect(EffectDuration.Temporary, EffectSystem.ZoneDeVerite(oCaster), SpellUtils.GetSpellDuration(oCaster, spellEntry));
+      targetLocation.ApplyEffect(EffectDuration.Temporary, EffectSystem.ZoneDeVerite(oCaster, spell), SpellUtils.GetSpellDuration(oCaster, spellEntry));
 
       var aoe = UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>();
       aoe.Tag = EffectSystem.ZoneDeVeriteEffectTag;

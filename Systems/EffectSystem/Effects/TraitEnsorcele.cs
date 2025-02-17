@@ -16,6 +16,7 @@ namespace NWN.Systems
       {
         Effect eff = Effect.RunAction(onIntervalHandle: onIntervalEntraveCallback, interval: NwTimeSpan.FromRounds(1));
         eff.Tag = EntraveEffectTag;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.TraitEnsorcele);
         eff.SubType = EffectSubType.Supernatural;
 
         return eff;

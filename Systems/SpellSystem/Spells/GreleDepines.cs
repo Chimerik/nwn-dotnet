@@ -10,7 +10,7 @@ namespace NWN.Systems
         return;
 
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
-      oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.GreleDepines(caster, casterClass.SpellCastingAbility), SpellUtils.GetSpellDuration(oCaster, spellEntry));
+      oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.GreleDepines(caster, spell, casterClass.SpellCastingAbility), SpellUtils.GetSpellDuration(oCaster, spellEntry));
     }
   }
 }

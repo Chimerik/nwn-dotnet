@@ -15,7 +15,7 @@ namespace NWN.Systems
 
       caster.Location.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(VfxType.ImpHeadHoly)));
 
-      NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.ChatimentAveuglant(caster)));
+      NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.ChatimentAveuglant(caster, spell)));
     }
   }
 }

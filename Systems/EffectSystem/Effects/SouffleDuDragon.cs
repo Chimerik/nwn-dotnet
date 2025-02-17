@@ -13,6 +13,7 @@ namespace NWN.Systems
       Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.SouffleDuDragon), Effect.RunAction(onRemovedHandle: onRemoveSouffleDuDragonCallback));
       eff.Tag = SouffleDuDragonEffectTag;
       eff.Creator = caster;
+      eff.Spell = spell;
       eff.SubType = EffectSubType.Supernatural;
       eff.IntParams[5] = SpellUtils.GetCasterSpellDC(caster, spell, castAbility);
 

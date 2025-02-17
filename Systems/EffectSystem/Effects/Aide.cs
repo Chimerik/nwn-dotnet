@@ -15,6 +15,7 @@ namespace NWN.Systems
         Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.Aide), Effect.RunAction(onRemovedHandle: onRemoveAideCallback));
         eff.Tag = AideEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.Aide);
         return eff;
       }
     }

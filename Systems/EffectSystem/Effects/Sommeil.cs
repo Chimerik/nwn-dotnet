@@ -13,7 +13,7 @@ namespace NWN.Systems
     public static readonly Native.API.CExoString SommeilEffectExoTag = SommeilEffectTag.ToExoString();
     private static ScriptCallbackHandle onIntervalSommeilCallback;
     private static ScriptCallbackHandle onRemoveSommeilCallback;
-    public static async void ApplySommeil(NwCreature target, NwCreature caster, TimeSpan duration, Ability SaveAbility, Ability DCAbility, bool delay = false)
+    public static async void ApplySommeil(NwCreature target, NwCreature caster, NwSpell spell, TimeSpan duration, Ability SaveAbility, Ability DCAbility, bool delay = false)
     {
       if(delay)
       {
@@ -34,6 +34,7 @@ namespace NWN.Systems
           eff.Tag = SommeilEffectTag;
           eff.SubType = EffectSubType.Supernatural;
           eff.Creator = caster;
+          eff.Spell = spell;
           eff.IntParams[5] = (int)DCAbility;
 
           target.OnDamaged -= OnDamagedSommeil;

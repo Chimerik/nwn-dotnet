@@ -11,7 +11,7 @@ namespace NWN.Systems
       if (oTarget is not NwCreature target)
         return;
 
-      target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Sanctuaire(target, SpellUtils.GetCasterSpellDC(oCaster, spell, castingClass.SpellCastingAbility)), SpellUtils.GetSpellDuration(oCaster, spellEntry));
+      target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Sanctuaire(target, spell, SpellUtils.GetCasterSpellDC(oCaster, spell, castingClass.SpellCastingAbility)), SpellUtils.GetSpellDuration(oCaster, spellEntry));
     }
   }
 }

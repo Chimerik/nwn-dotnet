@@ -10,7 +10,7 @@ namespace NWN.Systems
     {
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
 
-      oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.PassageSansTrace(oCaster));
+      oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.PassageSansTrace(oCaster, spell));
 
       return new List<NwGameObject>() { UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>() };
     }

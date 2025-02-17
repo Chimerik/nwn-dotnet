@@ -12,12 +12,13 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onEnterFleauDinsectesCallback;
     private static ScriptCallbackHandle onExitFleauDinsectesCallback;
     private static ScriptCallbackHandle onHeartbeatFleauDinsectesCallback;
-    public static Effect FleauDinsectesAoE(NwCreature caster)
+    public static Effect FleauDinsectesAoE(NwCreature caster, NwSpell spell)
     {
       Effect eff = Effect.AreaOfEffect(PersistentVfxType.PerCreepingDoom, onEnterFleauDinsectesCallback, onHeartbeatFleauDinsectesCallback, onExitFleauDinsectesCallback);
       eff.Tag = FleauDinsectesAOEEffectTag;
       eff.Spell = NwSpell.FromSpellId(CustomSpell.FleauDinsectes);
       eff.Creator = caster;
+      eff.Spell = spell;
       return eff;
     }
     private static ScriptHandleResult onEnterFleauDinsectes(CallInfo callInfo)
@@ -31,7 +32,7 @@ namespace NWN.Systems
         return ScriptHandleResult.Handled;
       }
 
-      ApplyTerrainDifficileEffect(entering, caster, CustomSpell.FleauDinsectes);
+      ApplyTerrainDifficileEffect(entering, caster, NwSpell.FromSpellId(CustomSpell.FleauDinsectes));
 
       SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.FleauDinsectes];
       int spellDC = SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellId(CustomSpell.FleauDinsectes), (Ability)caster.GetObjectVariable<LocalVariableInt>($"_SPELL_CASTING_ABILITY_{eventData.Effect.Spell.Id}").Value);

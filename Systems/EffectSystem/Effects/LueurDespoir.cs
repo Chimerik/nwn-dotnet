@@ -12,6 +12,7 @@ namespace NWN.Systems
         Effect eff = Effect.Icon(CustomEffectIcon.LueurDespoir);
         eff.Tag = LueurDespoirEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.LueurDespoir);
         return eff;
       }
     }

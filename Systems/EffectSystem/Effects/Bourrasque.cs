@@ -13,11 +13,11 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onEnterBourrasqueCallback;
     private static ScriptCallbackHandle onExitBourrasqueCallback;
     private static ScriptCallbackHandle onHeartbeatBourrasqueCallback;
-    public static Effect Bourrasque(NwCreature caster, Ability castingAbility)
+    public static Effect Bourrasque(NwCreature caster, NwSpell spell, Ability castingAbility)
     {
       Effect eff = Effect.AreaOfEffect(CustomAoE.Bourrasque, onEnterBourrasqueCallback, onHeartbeatBourrasqueCallback, onExitBourrasqueCallback);
       eff.Tag = BourrasqueEffectTag;
-      eff.Spell = NwSpell.FromSpellType(Spell.GustOfWind);
+      eff.Spell = spell;
       eff.IntParams[5] = (int)castingAbility;
       eff.Creator = caster;
       return eff;

@@ -15,6 +15,7 @@ namespace NWN.Systems
         Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurBigbysInterposingHand), Effect.RunAction(onRemovedHandle: onRemoveBoneChillCallback));
         eff.Tag = boneChillEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.BoneChill);
         return eff;
       }
     }

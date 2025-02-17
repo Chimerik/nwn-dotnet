@@ -8,11 +8,12 @@ namespace NWN.Systems
   {
     public const string ZoneDeVeriteEffectTag = "_ZONE_DE_VERITE_EFFECT";
     private static ScriptCallbackHandle onEnterZoneDeVeriteCallback;
-    public static Effect ZoneDeVerite(NwGameObject caster)
+    public static Effect ZoneDeVerite(NwGameObject caster, NwSpell spell)
     {
       Effect eff = Effect.AreaOfEffect(CustomAoE.ZoneDeVerite, onEnterZoneDeVeriteCallback);
       eff.Tag = ZoneDeVeriteEffectTag;
       eff.Creator = caster;
+      eff.Spell = spell;
       eff.SubType = EffectSubType.Supernatural;
       return eff;
     }

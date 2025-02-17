@@ -12,6 +12,7 @@ namespace NWN.Systems
         Effect eff = Effect.Icon(CustomEffectIcon.LameArdente);
         eff.Tag = LameArdenteEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.LameArdente);
         return eff;
       }
     }

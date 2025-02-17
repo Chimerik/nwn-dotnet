@@ -9,7 +9,7 @@ namespace NWN.Systems
     public static List<NwGameObject> RayonDeLune(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, Location targetLocation, NwClass castingClass)
     {
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
-      targetLocation.ApplyEffect(EffectDuration.Temporary, EffectSystem.RayonDeLuneAura(oCaster), SpellUtils.GetSpellDuration(oCaster, spellEntry));
+      targetLocation.ApplyEffect(EffectDuration.Temporary, EffectSystem.RayonDeLuneAura(oCaster, spell), SpellUtils.GetSpellDuration(oCaster, spellEntry));
 
       var aoe = UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>();
       aoe.Tag = EffectSystem.RayonDeLuneEffectTag;

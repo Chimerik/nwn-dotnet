@@ -15,7 +15,7 @@ namespace NWN.Systems
         SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
         oCaster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpAuraHoly));
 
-        DelayEffect(oCaster, EffectSystem.AuraDeVitalite(castingClass.SpellCastingAbility), SpellUtils.GetSpellDuration(oCaster, spellEntry));
+        DelayEffect(oCaster, EffectSystem.AuraDeVitalite(castingClass.SpellCastingAbility, spell), SpellUtils.GetSpellDuration(oCaster, spellEntry));
         DelayEffect(oCaster, EffectSystem.AuraDeVitaliteHeal, SpellUtils.GetSpellDuration(oCaster, spellEntry));
       }
 

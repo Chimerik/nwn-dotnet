@@ -13,7 +13,7 @@ namespace NWN.Systems
     public const string LienDeGardeBonusEffectTag = "_LIEN_DE_GARDE_BONUS_EFFECT";
     private static ScriptCallbackHandle onExitLienDeGardeCallback;
 
-    public static void ApplyLienDeGarde(NwCreature caster, NwCreature target, SpellEntry spellEntry)
+    public static void ApplyLienDeGarde(NwCreature caster, NwCreature target, NwSpell spell, SpellEntry spellEntry)
     {
       var previousLien = target.ActiveEffects.FirstOrDefault(e => e.Tag == LienDeGardeBonusEffectTag);
 
@@ -29,6 +29,7 @@ namespace NWN.Systems
       eff.Tag = LienDeGardeAuraEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       eff.Creator = target;
+      eff.Spell = spell;
 
       caster.ApplyEffect(EffectDuration.Temporary, eff, SpellUtils.GetSpellDuration(caster, spellEntry)); 
 
@@ -37,6 +38,7 @@ namespace NWN.Systems
       eff.Tag = LienDeGardeAuraEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       eff.Creator = caster;
+      eff.Spell = spell;
 
       target.ApplyEffect(EffectDuration.Temporary, eff, SpellUtils.GetSpellDuration(caster, spellEntry));
 

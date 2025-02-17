@@ -12,6 +12,7 @@ namespace NWN.Systems
         Effect eff = Effect.LinkEffects(Effect.ACIncrease(2), Effect.VisualEffect(CustomVfx.BouclierDeLaFoi));
         eff.Tag = BouclierDeLaFoiEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.BouclierDeLaFoi);
         return eff;
       }
     }

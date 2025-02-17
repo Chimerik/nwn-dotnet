@@ -11,6 +11,7 @@ namespace NWN.Systems
       {
         Effect eff = Effect.VisualEffect(CustomVfx.DashPurple);
         eff.Tag = RetraiteExpeditiveEffectTag;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.RetraiteExpeditive);
         eff.SubType = EffectSubType.Supernatural;
         return eff;
       }

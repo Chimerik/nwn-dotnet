@@ -59,9 +59,9 @@ namespace NWN.Systems
             nuiToken.OnNuiEvent += HandleAbilityImprovementEvents;
 
             availableAbilities.SetBindValue(player.oid, nuiToken.Token, abilitychoice);
-            ModuleSystem.Log.Info($"bind : {abilitychoice.FirstOrDefault().Value}");
+
             selectedAbility.SetBindValue(player.oid, nuiToken.Token, abilitychoice.FirstOrDefault().Value);
-            ModuleSystem.Log.Info($"selected : {selectedAbility.GetBindValue(player.oid, nuiToken.Token)}");
+
             geometry.SetBindValue(player.oid, nuiToken.Token, new NuiRect(savedRectangle.X, savedRectangle.Y, player.guiScaledWidth * 0.4f, player.guiScaledHeight * 0.55f));
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
           }

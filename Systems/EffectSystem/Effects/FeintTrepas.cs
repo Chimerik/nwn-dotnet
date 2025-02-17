@@ -14,6 +14,7 @@ namespace NWN.Systems
           Effect.Immunity(ImmunityType.Poison));
         eff.Tag = FeintTrepasEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.FeintTrepas);
         return eff;
       }
     }

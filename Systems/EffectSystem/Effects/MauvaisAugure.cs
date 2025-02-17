@@ -12,6 +12,7 @@ namespace NWN.Systems
         Effect eff = Effect.Icon(EffectIcon.ACDecrease);
         eff.Tag = MauvaisAugureEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.MauvaisAugure);
         return eff;
       }
     }

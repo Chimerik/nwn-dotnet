@@ -15,6 +15,7 @@ namespace NWN.Systems
         Effect eff = Effect.LinkEffects(Effect.ACIncrease(3), Effect.RunAction(onIntervalHandle: onIntervalArmureDeMageCallback, interval:NwTimeSpan.FromRounds(1)));
         eff.Tag = ArmureDeMageEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.ArmureDeMage);
         return eff;
       }
     }

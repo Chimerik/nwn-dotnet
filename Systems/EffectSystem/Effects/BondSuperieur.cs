@@ -12,6 +12,7 @@ namespace NWN.Systems
         Effect eff = Effect.LinkEffects(Effect.Icon((EffectIcon)193), Effect.RunAction());
         eff.Tag = BondSuperieurEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.BondSuperieur);
         return eff;
       }
     }

@@ -12,7 +12,7 @@ namespace NWN.Systems
       eff.SubType = EffectSubType.Supernatural;
       eff.IntParams[5] = CustomSpell.Resistance;
       eff.IntParams[6] = spell.Id;
-
+      eff.Spell = spell;
       return eff;
     }
   }

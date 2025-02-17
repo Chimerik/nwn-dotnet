@@ -13,7 +13,7 @@ namespace NWN.Systems
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
       caster.Location.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(VfxType.ImpHeadElectricity)));
 
-      NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.ChatimentDuCourroux(caster)));
+      NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.ChatimentDuCourroux(caster, spell)));
     }
   }
 }

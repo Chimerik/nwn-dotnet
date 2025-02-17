@@ -7,7 +7,7 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string ChatimentDuCourrouxEffectTag = "_CHATIMENT_DU_COURROUX_EFFECT";
-    public static Effect ChatimentDuCourroux(NwCreature caster)
+    public static Effect ChatimentDuCourroux(NwCreature caster, NwSpell spell)
     {
       EffectUtils.ClearChatimentEffects(caster);
       caster.OnCreatureAttack -= OnAttackChatimentDuCourroux;
@@ -15,7 +15,7 @@ namespace NWN.Systems
 
       Effect eff = Effect.RunAction();
       eff.Tag = ChatimentDuCourrouxEffectTag;
-      eff.Spell = NwSpell.FromSpellId(CustomSpell.ChatimentDuCourroux);
+      eff.Spell = spell;
       return eff;
     }
     private static async void OnAttackChatimentDuCourroux(OnCreatureAttack onAttack)

@@ -12,6 +12,7 @@ namespace NWN.Systems
         Effect eff = Effect.Icon(EffectIcon.AttackDecrease);
         eff.Tag = FleauEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.Fleau);
         return eff;
       }
     }

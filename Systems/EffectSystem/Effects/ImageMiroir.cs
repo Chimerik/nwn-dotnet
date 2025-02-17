@@ -13,6 +13,7 @@ namespace NWN.Systems
         Effect eff = Effect.VisualEffect(VfxType.DurGhostlyVisage);
         eff.Tag = ImageMiroirEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.ImageMiroir);
         return eff;
       }
     }

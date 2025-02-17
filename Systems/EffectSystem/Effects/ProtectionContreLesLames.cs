@@ -13,6 +13,7 @@ namespace NWN.Systems
         Effect eff = Effect.Icon(CustomEffectIcon.ProtectionContreLesLames);
         eff.Tag = ProtectionContreLesLamesEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.ProtectionContreLesLames);
         return eff;
       }
     }

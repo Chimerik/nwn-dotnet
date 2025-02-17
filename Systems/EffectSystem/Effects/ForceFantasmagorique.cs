@@ -16,7 +16,7 @@ namespace NWN.Systems
         Effect eff = Effect.RunAction(onIntervalHandle: onIntervalCooldownCallback, interval: TimeSpan.FromSeconds(6));
         eff.Tag = ForceFantasmagoriqueEffectTag;
         eff.SubType = EffectSubType.Magical;
-
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.ForceFantasmagorique);
         return eff;
       }
     }

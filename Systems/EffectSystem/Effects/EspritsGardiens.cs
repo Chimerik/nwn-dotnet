@@ -15,13 +15,14 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onEnterEspritsGardiensCallback;
     private static ScriptCallbackHandle onExitEspritsGardiensCallback;
     private static ScriptCallbackHandle onIntervalEspritsGardiensCallback;
-    public static Effect EspritsGardiens(NwGameObject oCaster, DamageType damageType)
+    public static Effect EspritsGardiens(NwGameObject oCaster, NwSpell spell)
     {
       Effect eff = Effect.LinkEffects(Effect.AreaOfEffect(PersistentVfxType.PerCustomAoe, onEnterEspritsGardiensCallback, onIntervalEspritsGardiensCallback,
         onExitEspritsGardiensCallback), Effect.VisualEffect(CustomVfx.EspritsGardiens, fScale:2));
       eff.Tag = EspritsGardiensEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       eff.Creator = oCaster;
+      eff.Spell = spell;
       return eff;
     }
     public static Effect EspritsGardiensSlow
@@ -63,7 +64,8 @@ namespace NWN.Systems
         int spellDC = SpellUtils.GetCasterSpellDC(protector, spell, Ability.Wisdom);
 
         SpellUtils.DealSpellDamage(entering, protector.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(protector, spell), protector, 3, 
-          CreatureUtils.GetSavingThrow(protector, entering, spellEntry.savingThrowAbility, spellDC, spellEntry));
+          CreatureUtils.GetSavingThrow(protector, entering, spellEntry.savingThrowAbility, spellDC, spellEntry), 
+          forcedDamage: spell.Id == CustomSpell.EspritsGardiensNecrotique ? CustomDamageType.Necrotic : DamageType.Divine);
       }
 
       return ScriptHandleResult.Handled;
@@ -98,7 +100,8 @@ namespace NWN.Systems
         target.ApplyEffect(EffectDuration.Temporary, EspritsGardiensCooldown, TimeSpan.FromSeconds(5));
 
         SpellUtils.DealSpellDamage(target, caster.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(caster, spell), caster, 3, 
-          CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry));
+          CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry),
+          forcedDamage: spell.Id == CustomSpell.EspritsGardiensNecrotique ? CustomDamageType.Necrotic : DamageType.Divine);
       }
 
       return ScriptHandleResult.Handled;

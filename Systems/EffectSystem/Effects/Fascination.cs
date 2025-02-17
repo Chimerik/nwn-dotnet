@@ -12,6 +12,7 @@ namespace NWN.Systems
         Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.Fascination), Effect.RunAction());
         eff.Tag = FascinationEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.Fascination);
         return eff;
       }
     }

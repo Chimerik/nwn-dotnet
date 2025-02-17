@@ -14,7 +14,7 @@ namespace NWN.Systems
       
       caster.Location.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(VfxType.ImpHeadSonic)));
 
-      NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.ChatimentTonitruant(caster)));
+      NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.ChatimentTonitruant(caster, spell)));
     }
   }
 }

@@ -8,11 +8,12 @@ namespace NWN.Systems
   {
     public const string HeroismeEffectTag = "_HEROISME_EFFECT";
     private static ScriptCallbackHandle onIntervalHeroismeCallback;
-    public static Effect Heroisme(int modifier)
+    public static Effect Heroisme(NwSpell spell, int modifier)
     {
       Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.Heroisme), Effect.Immunity(ImmunityType.Fear), Effect.TemporaryHitpoints(modifier),
         Effect.RunAction(onIntervalHandle: onIntervalHeroismeCallback, interval: NwTimeSpan.FromRounds(1)));
       eff.Tag = HeroismeEffectTag;
+      eff.Spell = spell;
       eff.SubType = EffectSubType.Supernatural;
       eff.IntParams[5] = modifier;
       return eff;

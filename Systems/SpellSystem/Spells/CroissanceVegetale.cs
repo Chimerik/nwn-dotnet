@@ -10,7 +10,7 @@ namespace NWN.Systems
     {
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
 
-      targetLocation.ApplyEffect(EffectDuration.Temporary, EffectSystem.CroissanceVegetaleAoE(oCaster), SpellUtils.GetSpellDuration(oCaster, spellEntry));
+      targetLocation.ApplyEffect(EffectDuration.Temporary, EffectSystem.CroissanceVegetaleAoE(oCaster, spell), SpellUtils.GetSpellDuration(oCaster, spellEntry));
       var aoe = UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>();
       aoe.SetRadius(50);
 

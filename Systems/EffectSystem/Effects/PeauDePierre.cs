@@ -9,9 +9,9 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.DamageImmunityIncrease(DamageType.Slashing, 50),
-          Effect.DamageImmunityIncrease(DamageType.Piercing, 50), Effect.DamageImmunityIncrease(DamageType.Bludgeoning, 50));
+        Effect eff = Effect.LinkEffects(ResistanceTranchant, ResistanceContondant, ResistancePercant, Effect.VisualEffect(VfxType.DurProtStoneskin));
         eff.Tag = PeauDePierreEffectTag;
+        eff.Spell = NwSpell.FromSpellType(Spell.Stoneskin);
         eff.SubType = EffectSubType.Supernatural;
         return eff;
       }

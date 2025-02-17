@@ -9,9 +9,10 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.Icon((EffectIcon)179);
+        Effect eff = Effect.Icon(CustomEffectIcon.Antidetection);
         eff.Tag = AntidetectionEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.Antidetection);
         return eff;
       }
     }

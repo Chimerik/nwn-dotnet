@@ -14,6 +14,7 @@ namespace NWN.Systems
         Effect eff = Effect.MovementSpeedIncrease(15);
         eff.Tag = GrandeFouleeEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.GrandeFoulee);
         return eff;
       }
     }

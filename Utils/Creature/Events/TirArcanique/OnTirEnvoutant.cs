@@ -26,7 +26,7 @@ namespace NWN.Systems
           if (GetSavingThrow(onDamage.Attacker, target, Ability.Wisdom, tirDC, effectType: SpellConfig.SpellEffectType.Charm) == SavingThrowResult.Failure)
           {
             if (target.IsLoginPlayerCharacter)
-              EffectSystem.ApplyCharme(target, onDamage.Attacker, NwTimeSpan.FromRounds(1));
+              EffectSystem.ApplyCharme(target, onDamage.Attacker, null, NwTimeSpan.FromRounds(1));
             else
               NWScript.AssignCommand(onDamage.Attacker, () => target.ApplyEffect(EffectDuration.Temporary,
                 Effect.LinkEffects(Effect.Confused(), Effect.VisualEffect(VfxType.DurMindAffectingDominated)), NwTimeSpan.FromRounds(1)));

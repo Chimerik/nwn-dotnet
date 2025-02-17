@@ -15,6 +15,7 @@ namespace NWN.Systems
         Effect eff = Effect.RunAction(onRemovedHandle: onRemoveFlecheAcideDeMelfCallback);
         eff.Tag = FlecheAcideDeMelfEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.FlecheAcideDeMelf);
         return eff;
       }
     }

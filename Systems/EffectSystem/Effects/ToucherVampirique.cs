@@ -11,6 +11,7 @@ namespace NWN.Systems
       {
         Effect eff = Effect.Icon(CustomEffectIcon.ToucherVampirique);
         eff.Tag = ToucherVampiriqueEffectTag;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.ToucherVampirique);
         eff.SubType = EffectSubType.Supernatural;
         return eff;
       }

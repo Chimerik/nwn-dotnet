@@ -11,6 +11,7 @@ namespace NWN.Systems
       {
         Effect eff = Effect.LinkEffects(Effect.Ultravision(), Effect.SeeInvisible(), Effect.Icon(EffectIcon.TrueSeeing));
         eff.Tag = VisionLucideEffectTag;
+        eff.Spell = NwSpell.FromSpellType(Spell.TrueSeeing);
         eff.SubType = EffectSubType.Supernatural;
         return eff;
       }

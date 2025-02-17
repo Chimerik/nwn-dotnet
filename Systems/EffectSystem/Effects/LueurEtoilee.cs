@@ -12,6 +12,7 @@ namespace NWN.Systems
         Effect eff = Effect.VisualEffect(VfxType.DurLightOrange10);
         eff.Tag = LueurEtoileeEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.LueurEtoilee);
         return eff;
       }
     }

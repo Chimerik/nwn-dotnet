@@ -16,7 +16,6 @@ namespace NWN.Systems
       else
       {
         attackBonus = attacker.m_pStats.GetAttackModifierVersus(target);
-        LogUtils.LogMessage($"modifier versus target 1 : {attackBonus}", LogUtils.LogType.Combat);
         attackBonus -= attackData.m_bRangedAttack.ToBool()
           ? GetAbilityModifier(attacker, Anvil.API.Ability.Dexterity) : GetAbilityModifier(attacker, Anvil.API.Ability.Strength);
       }

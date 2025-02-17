@@ -9,7 +9,7 @@ namespace NWN.Systems
   {
     public const string ChatimentAveuglantEffectTag = "_CHATIMENT_AVEUGLANT_EFFECT";
     private static ScriptCallbackHandle onIntervalChatimentAveuglantCallback;
-    public static Effect ChatimentAveuglant(NwCreature caster)
+    public static Effect ChatimentAveuglant(NwCreature caster, NwSpell spell)
     {
       EffectUtils.ClearChatimentEffects(caster);
       caster.OnCreatureAttack -= OnAttackChatimentAveuglant;
@@ -17,7 +17,7 @@ namespace NWN.Systems
 
       Effect eff = Effect.Icon(CustomEffectIcon.ChatimentAveuglant);
       eff.Tag = ChatimentAveuglantEffectTag;
-      eff.Spell = NwSpell.FromSpellId(CustomSpell.ChatimentAveuglant);
+      eff.Spell = spell;
       return eff;
     }
 

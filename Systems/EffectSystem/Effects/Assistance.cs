@@ -12,6 +12,7 @@ namespace NWN.Systems
         Effect eff = Effect.SkillIncreaseAll(NwRandom.Roll(Utils.random, 4));
         eff.Tag = AssistanceEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.Assistance);
         return eff;
       }
     }

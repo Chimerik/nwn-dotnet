@@ -10,16 +10,19 @@ namespace NWN.Systems
     public const string LenteurEffectTag = "_LENTEUR_EFFECT";
     private static ScriptCallbackHandle onIntervalLenteurCallback;
     private static ScriptCallbackHandle onRemoveLenteurCallback;
-    public static Effect Lenteur(NwCreature target, Ability spellCastingAbility)
+    public static void ApplyLenteur(NwCreature target, NwGameObject caster, NwSpell spell, Ability spellCastingAbility, TimeSpan duration)
     {
       target.OnSpellCast -= OnSpellCastLenteur;
       target.OnSpellCast += OnSpellCastLenteur;
 
-      Effect eff = Effect.LinkEffects(Effect.Slow(), noReactions, NoBonusAction,
+      Effect eff = Effect.LinkEffects(Effect.Slow(), noReactions(target), NoBonusAction(target),
         Effect.RunAction(onRemovedHandle:onRemoveLenteurCallback, onIntervalHandle: onIntervalLenteurCallback, interval: TimeSpan.FromSeconds(6)));
       eff.IntParams[5] = (int)spellCastingAbility;
       eff.Tag = LenteurEffectTag;
-      return eff;
+      eff.Spell = spell;
+      eff.Creator = caster;
+
+      target.ApplyEffect(EffectDuration.Temporary,eff, duration);
     }
 
     private static ScriptHandleResult OnIntervalLenteur(CallInfo callInfo)
@@ -50,7 +53,9 @@ namespace NWN.Systems
       EffectRunScriptEvent eventData = new EffectRunScriptEvent();
 
       if (eventData.EffectTarget is NwCreature creature)
+      {
         creature.OnSpellCast -= OnSpellCastLenteur;
+      }
 
       return ScriptHandleResult.Handled;
     }

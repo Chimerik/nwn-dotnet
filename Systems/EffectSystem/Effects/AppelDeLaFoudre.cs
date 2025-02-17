@@ -12,6 +12,7 @@ namespace NWN.Systems
         Effect eff = Effect.Icon(CustomEffectIcon.AppelDeLaFoudre);
         eff.Tag = AppelDeLaFoudreEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.AppelDeLaFoudre);
         return eff;
       }
     }

@@ -286,6 +286,7 @@ namespace NWN.Systems
 
                   player.learnableSkills.TryAdd(selectedLearnable.id, new LearnableSkill((LearnableSkill)learnableDictionary[selectedLearnable.id], player, (int)Category.Class));
                   player.learnableSkills[selectedLearnable.id].LevelUp(player);
+                  player.learnableSkills[selectedLearnable.id].acquiredPoints = 8640;
 
                   validationText.SetBindValue(player.oid, nuiToken.Token, $"Votre classe est désormais : {selectedLearnable.name}");
                   player.oid.SendServerMessage($"Votre classe initiale est désormais {StringUtils.ToWhitecolor(selectedLearnable.name)} !", ColorConstants.Orange);

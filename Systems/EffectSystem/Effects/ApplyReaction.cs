@@ -12,7 +12,7 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onRemoveReactionCallback;
     public static void ApplyReaction(NwCreature creature)
     {
-      if(creature.ActiveEffects.Any(e => e.Tag == NoReactionsEffectTag))
+      if(creature.ActiveEffects.Any(e => e.EffectType == EffectType.Icon && e.IntParams[0] == (int)CustomEffectIcon.NoReaction))
       {
         creature.ApplyEffect(EffectDuration.Temporary, Cooldown(creature, 6, ReactionId), NwTimeSpan.FromRounds(1));
       }

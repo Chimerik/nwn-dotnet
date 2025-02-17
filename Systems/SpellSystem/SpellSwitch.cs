@@ -551,7 +551,7 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
-        case CustomSpell.BladeWard:
+        case CustomSpell.ProtectionContreLesLames:
           concentrationTargets.AddRange(SpellSystem.BladeWard(oCaster, spell, spellEntry));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
@@ -737,6 +737,11 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case CustomSpell.DissipationDeLaMagie:
+          SpellSystem.DissipationDeLaMagie(oCaster, spell, spellEntry, target, castingClass);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.DouxRepos:
           SpellSystem.DouxRepos(oCaster, spell, spellEntry);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
@@ -789,6 +794,31 @@ namespace NWN.Systems
 
         case CustomSpell.IllusionMineure:
           SpellSystem.IllusionMineure(oCaster, spell);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.ImageSuperieure:
+          SpellSystem.ImageSuperieure(oCaster, spell);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.FusionAvecLaPierre:
+          SpellSystem.FusionAvecLaPierre(oCaster, spell);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.Clairvoyance:
+          SpellSystem.Clairvoyance(oCaster, spell);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.CommunicationAvecLaFlore:
+          SpellSystem.CommunicationAvecLaFlore(oCaster, spell);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.CommunicationDistante:
+          SpellSystem.CommunicationDistante(oCaster, spell);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 

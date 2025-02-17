@@ -10,11 +10,12 @@ namespace NWN.Systems
   {
     private static ScriptCallbackHandle onIntervalConfusionCallback;
     public const string ConfusionEffectTag = "_CONFUSION_EFFECT";
-    public static Effect GetConfusionEffect(Ability spellCastingAbility)
+    public static Effect GetConfusionEffect(Ability spellCastingAbility, NwSpell spell)
     {
       Effect eff = Effect.LinkEffects(Effect.Confused(), 
         Effect.RunAction(onIntervalHandle: onIntervalConfusionCallback, interval: TimeSpan.FromSeconds(6), data:((int)spellCastingAbility).ToString()));
       eff.Tag = ConfusionEffectTag;
+      eff.Spell = spell;
       return eff;
     }
     private static ScriptHandleResult OnIntervalConfusion(CallInfo callInfo)

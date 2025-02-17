@@ -12,6 +12,7 @@ namespace NWN.Systems
         Effect eff = Effect.LinkEffects(Effect.Icon(EffectIcon.AttackDecrease), Effect.VisualEffect(VfxType.DurMindAffectingNegative));
         eff.Tag = MoquerieVicieuseEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.MoquerieVicieuse);
         return eff;
       } 
     }

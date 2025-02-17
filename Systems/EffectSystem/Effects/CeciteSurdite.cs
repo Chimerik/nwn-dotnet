@@ -12,6 +12,7 @@ namespace NWN.Systems
         Effect eff = Effect.LinkEffects(Effect.Blindness(), Effect.Deaf());
         eff.Tag = CeciteSurditeEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.CeciteSurdite);
         return eff;
       }
     }

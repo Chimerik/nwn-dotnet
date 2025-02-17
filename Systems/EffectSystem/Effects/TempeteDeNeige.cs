@@ -12,11 +12,12 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onEnterTempeteDeNeigeCallback;
     private static ScriptCallbackHandle onHeartbeatTempeteDeNeigeCallback;
     private static ScriptCallbackHandle onExitTempeteDeNeigeCallback;
-    public static Effect TempeteDeNeige(NwGameObject caster)
+    public static Effect TempeteDeNeige(NwGameObject caster, NwSpell spell)
     {
       Effect eff = Effect.AreaOfEffect((PersistentVfxType)61, onEnterTempeteDeNeigeCallback, onExitTempeteDeNeigeCallback);
       eff.Tag = TempeteDeNeigeEffectTag;
       eff.Creator = caster;
+      eff.Spell = spell;
       eff.SubType = EffectSubType.Supernatural;
       return eff;
     }
@@ -43,7 +44,7 @@ namespace NWN.Systems
         return ScriptHandleResult.Handled;
       }
 
-      ApplyTerrainDifficileEffect(entering, caster, CustomSpell.TempeteDeNeige);
+      ApplyTerrainDifficileEffect(entering, caster, NwSpell.FromSpellId(CustomSpell.TempeteDeNeige));
       NWScript.AssignCommand(caster, () => entering.ApplyEffect(EffectDuration.Permanent, TempeteDeNeigeBlind));
       TempeteDeNeigeKnockDown(caster, entering, Spells2da.spellTable[CustomSpell.TempeteDeNeige], (Ability)eventData.Effect.GetObjectVariable<LocalVariableInt>("_SPELL_CASTING_ABILITY").Value);
 

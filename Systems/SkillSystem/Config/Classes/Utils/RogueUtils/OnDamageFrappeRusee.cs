@@ -53,7 +53,7 @@ namespace NWN.Systems
 
             break;
 
-          case CustomSpell.FrappePerfideAssommer: EffectSystem.ApplySommeil(damaged, damager, NwTimeSpan.FromRounds(10), Ability.Dexterity, Ability.Constitution); break;
+          case CustomSpell.FrappePerfideAssommer: EffectSystem.ApplySommeil(damaged, damager, null, NwTimeSpan.FromRounds(10), Ability.Dexterity, Ability.Constitution); break;
         }
       }
 

@@ -15,6 +15,7 @@ namespace NWN.Systems
         Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurGlowLightBlue), Effect.RunAction(onRemovedHandle: onRemoveFaerieFireCallback));
         eff.Tag = faerieFireEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.FaerieFire);
         return eff;
       }
     }

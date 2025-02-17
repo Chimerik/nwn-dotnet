@@ -18,12 +18,14 @@ namespace NWN.Systems
       attack.Tag = CoupAuButAttackEffectTag;
       attack.SubType = EffectSubType.Supernatural;
       attack.IntParams[5] = (int)casterAbility;
+      attack.Spell = spell;
       caster.ApplyEffect(EffectDuration.Permanent, attack);
 
       Effect damage = Effect.RunAction();
       damage.Tag = CoupAuButDamageEffectTag;
       damage.SubType = EffectSubType.Supernatural;
       damage.IntParams[5] = (int)casterAbility;
+      damage.Spell = spell;
       caster.ApplyEffect(EffectDuration.Permanent, damage);
 
       if (spell.Id == CustomSpell.CoupAuButRadiant)

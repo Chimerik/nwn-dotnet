@@ -10,7 +10,7 @@ namespace NWN.Systems
     {
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
 
-      oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.EspritsGardiens(oCaster, spell.Id == CustomSpell.EspritsGardiensNecrotique ? CustomDamageType.Necrotic : DamageType.Divine), SpellUtils.GetSpellDuration(oCaster, spellEntry));
+      oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.EspritsGardiens(oCaster, spell), SpellUtils.GetSpellDuration(oCaster, spellEntry));
 
       var aoe = UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>();
       aoe.SetRadius(4.5f);

@@ -11,7 +11,7 @@ namespace NWN.Systems
     public const string FrightenedEffectTag = "_FRIGHTENED_EFFECT";
     private static ScriptCallbackHandle onRemoveEffroiCallback;
     private static ScriptCallbackHandle onIntervalEffroiCallback;
-    public static void ApplyEffroi(NwCreature target, NwCreature caster, TimeSpan duration, bool repeatSave = false)
+    public static void ApplyEffroi(NwCreature target, NwCreature caster, TimeSpan duration, bool repeatSave = false, NwSpell spell = null)
     {
       if (IsFrightImmune(target, caster))
         return;
@@ -24,6 +24,7 @@ namespace NWN.Systems
       eff.Tag = FrightenedEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       eff.Creator = caster;
+      eff.Spell = spell;
 
       target.GetObjectVariable<LocalVariableInt>("_PREVIOUS_MOVEMENT_RATE").Value = (int)target.MovementRate;
       target.MovementRate = MovementRate.Immobile;

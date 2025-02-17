@@ -9,7 +9,7 @@ namespace NWN.Systems
   {
     private static ScriptCallbackHandle onRemoveEnlargeCallback;
     public const string EnlargeEffectTag = "_EFFECT_ENLARGE";
-    public static Effect Agrandissement(NwGameObject target)
+    public static Effect Agrandissement(NwGameObject target, NwSpell spell)
     {
       if (target.GetObjectVariable<PersistentVariableFloat>(CreatureUtils.OriginalSizeVariable).HasNothing)
         target.GetObjectVariable<PersistentVariableFloat>(CreatureUtils.OriginalSizeVariable).Value = target.VisualTransform.Scale;
@@ -20,6 +20,7 @@ namespace NWN.Systems
       Effect eff = Effect.LinkEffects(Effect.DamageIncrease(DamageBonus.Plus1d4, DamageType.BaseWeapon), Effect.RunAction(onRemovedHandle: onRemoveEnlargeCallback));
       eff.Tag = EnlargeEffectTag;
       eff.SubType = EffectSubType.Supernatural;
+      eff.Spell = spell;
       return eff;
     }
     private static ScriptHandleResult OnRemoveEnlarge(CallInfo callInfo)

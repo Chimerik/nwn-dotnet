@@ -10,6 +10,7 @@ namespace NWN.Systems
       {
         Effect eff = Effect.VisualEffect(VfxType.DurLightRed5);
         eff.Tag = ProduceFlameEffectTag;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.ProduceFlame);
         return eff;
       }
     }

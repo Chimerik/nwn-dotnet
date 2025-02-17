@@ -9,13 +9,14 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onIntervalRayonAffaiblissantCallback;
     public const string RayonAffaiblissantEffectTag = "_RAYON_AFFAIBLISSANT_EFFECT";
     public const string RayonAffaiblissantDesavantageEffectTag = "_RAYON_AFFAIBLISSANT_DESAVANTAGE_EFFECT";
-    public static Effect RayonAffaiblissant(Ability spellCastingAbility)
+    public static Effect RayonAffaiblissant(NwSpell spell, Ability spellCastingAbility)
     {
       Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.RayonAffaiblissant), Effect.VisualEffect(VfxType.DurCessateNegative),
         Effect.RunAction(onIntervalHandle: onIntervalRayonAffaiblissantCallback, interval: NwTimeSpan.FromRounds(1)));
       eff.Tag = RayonAffaiblissantEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       eff.IntParams[5] = (int)spellCastingAbility;
+      eff.Spell = spell;
       return eff;
     }
 

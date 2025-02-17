@@ -12,7 +12,7 @@ namespace NWN.Systems
     public const string FouRireDeTashaEffectTag = "_FOU_RIRE_DE_TASHA_EFFECT";
     private static ScriptCallbackHandle onIntervalFouRireDeTashaCallback;
     private static ScriptCallbackHandle onRemoveFouRireDeTashaCallback;
-    public static void ApplyFouRireDeTasha(NwCreature target, NwCreature caster, TimeSpan duration, Ability SaveAbility, Ability DCAbility)
+    public static void ApplyFouRireDeTasha(NwCreature target, NwCreature caster, NwSpell spell, TimeSpan duration, Ability SaveAbility, Ability DCAbility)
     {
       //if (!IsSleepImmune(target, caster))
       //{
@@ -27,6 +27,7 @@ namespace NWN.Systems
           Effect.RunAction(onRemovedHandle: onRemoveFouRireDeTashaCallback, onIntervalHandle: onIntervalFouRireDeTashaCallback, interval: NwTimeSpan.FromRounds(1)));
         eff.Tag = FouRireDeTashaEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = spell;
         eff.Creator = caster;
         eff.IntParams[5] = (int)DCAbility;
 

@@ -136,7 +136,10 @@ namespace NWN.Systems
                 case "validate":
 
                   if (player.learnableSkills.TryAdd(selectedLearnable.id, new LearnableSkill((LearnableSkill)learnableDictionary[selectedLearnable.id], player, levelTaken: player.oid.LoginCreature.Level)))
+                  {
                     player.learnableSkills[selectedLearnable.id].currentLevel = 3;
+                    player.learnableSkills[selectedLearnable.id].acquiredPoints = 114640;
+                  }
 
                   Category category = Category.FighterSubClass;
 

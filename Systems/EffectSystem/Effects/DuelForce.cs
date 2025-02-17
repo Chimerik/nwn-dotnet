@@ -14,7 +14,7 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onRemoveDuelForceCallback;
     private static ScriptCallbackHandle onIntervalDuelForceCasterCallback;
     private static ScriptCallbackHandle onRemoveDuelForceCasterForceCallback;
-    public static void ApplyDuelForce(NwCreature target, NwCreature caster, TimeSpan duration, Ability SaveAbility, Ability DCAbility)
+    public static void ApplyDuelForce(NwCreature target, NwCreature caster, NwSpell spell, TimeSpan duration, Ability SaveAbility, Ability DCAbility)
     {
       int spellDC = SpellUtils.GetCasterSpellDC(caster, DCAbility);
 
@@ -25,6 +25,7 @@ namespace NWN.Systems
         eff.Tag = DuelForceEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         eff.Creator = caster;
+        eff.Spell = spell;
 
         target.MovementRate = MovementRate.Immobile;
 

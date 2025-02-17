@@ -22,7 +22,7 @@ namespace NWN.Systems
       if (result == SavingThrowResult.Failure)
       {
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfScreenBump));
-        EffectSystem.ApplyEffroi(target, caster, SpellUtils.GetSpellDuration(oCaster, spellEntry));
+        EffectSystem.ApplyEffroi(target, caster, SpellUtils.GetSpellDuration(oCaster, spellEntry), spell: spell);
       }
       
       target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfPwstun));

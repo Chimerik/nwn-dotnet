@@ -12,7 +12,7 @@ namespace NWN.Systems
 
       if (oCaster is NwCreature caster)
       {
-        oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.CapeDuCroiseAura(caster), SpellUtils.GetSpellDuration(oCaster, spellEntry));
+        oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.CapeDuCroiseAura(caster, spell), SpellUtils.GetSpellDuration(oCaster, spellEntry));
         UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>().SetRadius(9);
       }
 

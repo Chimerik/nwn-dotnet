@@ -9,7 +9,7 @@ namespace NWN.Systems
   {
     public const string GreleDepinesEffectTag = "_GRELE_DEPINES_EFFECT";
     private static ScriptCallbackHandle onRemoveGreleDepinesCallback;
-    public static Effect GreleDepines(NwCreature caster, Ability dcAbility)
+    public static Effect GreleDepines(NwCreature caster, NwSpell spell, Ability dcAbility)
     {
       caster.OnCreatureAttack -= OnAttackGreleDepines;
       caster.OnCreatureAttack += OnAttackGreleDepines;
@@ -18,6 +18,7 @@ namespace NWN.Systems
       eff.Tag = GreleDepinesEffectTag;
       eff.IntParams[5] = (int)dcAbility;
       eff.SubType = EffectSubType.Supernatural;
+      eff.Spell = spell;
 
       return eff;
     }

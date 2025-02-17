@@ -12,6 +12,7 @@ namespace NWN.Systems
       {
         Effect eff = Effect.Immunity(ImmunityType.Death);
         eff.Tag = ProtectionContreLaMortEffectTag;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.ProtectionContreLaMort);
         return eff;
       }
     }

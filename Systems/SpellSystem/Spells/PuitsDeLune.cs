@@ -10,7 +10,7 @@ namespace NWN.Systems
       if (oCaster is NwCreature caster)
       {
         SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
-        EffectSystem.PuitsDeLune(caster, castingClass.SpellCastingAbility, SpellUtils.GetSpellDuration(oCaster, spellEntry));
+        EffectSystem.PuitsDeLune(caster, spell, castingClass.SpellCastingAbility, SpellUtils.GetSpellDuration(oCaster, spellEntry));
       }
       
       return new List<NwGameObject>() { oCaster };

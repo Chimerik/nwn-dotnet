@@ -15,7 +15,7 @@ namespace NWN.Systems
         SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
         oCaster.GetObjectVariable<LocalVariableInt>($"_SPELL_CASTING_ABILITY_{spell.Id}").Value = (int)castingClass.SpellCastingAbility;
         
-        oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.Bourrasque(caster, castingClass.SpellCastingAbility), SpellUtils.GetSpellDuration(oCaster, spellEntry));  
+        oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.Bourrasque(caster, spell, castingClass.SpellCastingAbility), SpellUtils.GetSpellDuration(oCaster, spellEntry));  
         concentrationList.Add(UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>());
       }
 

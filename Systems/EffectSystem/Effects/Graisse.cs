@@ -16,6 +16,7 @@ namespace NWN.Systems
       {
         Effect eff = Effect.AreaOfEffect(PersistentVfxType.PerGrease, onEnterGraisseCallback, onHeartbeatGraisseCallback, onExitGraisseCallback);
         eff.Tag = GraisseEffectTag;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.Graisse);
         return eff;
       }
     }
@@ -23,7 +24,7 @@ namespace NWN.Systems
     {
       if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) && eventData.Entering is NwCreature entering && eventData.Effect.Creator is NwCreature caster)
       {
-        ApplyTerrainDifficileEffect(entering, caster, (int)Spell.Grease);
+        ApplyTerrainDifficileEffect(entering, caster, NwSpell.FromSpellId(CustomSpell.Graisse));
         ApplyKnockdown(entering, caster, (Ability)caster.GetObjectVariable<LocalVariableInt>($"_SPELL_CASTING_ABILITY_{eventData.Effect.Spell.Id}").Value, Ability.Dexterity, Knockdown);
       }
       

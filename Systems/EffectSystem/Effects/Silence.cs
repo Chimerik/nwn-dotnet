@@ -11,7 +11,7 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onEnterSilenceCallback;
     private static ScriptCallbackHandle onExitSilenceCallback;
 
-    public static Effect Silence(NwGameObject caster)
+    public static Effect Silence(NwGameObject caster, NwSpell spell)
     {
       Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurAuraSilence, fScale: 1.5f),
         Effect.AreaOfEffect(PersistentVfxType.PerCustomAoe, onEnterHandle: onEnterSilenceCallback, onExitHandle: onExitSilenceCallback));
@@ -19,6 +19,7 @@ namespace NWN.Systems
       eff.Tag = SilenceAoEEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       eff.Creator = caster;
+      eff.Spell = spell;
 
       return eff;
     }

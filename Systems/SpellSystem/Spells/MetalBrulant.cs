@@ -67,7 +67,7 @@ namespace NWN.Systems
           else
           {
             // Si l jet est réussi on réapplique les dégâts et le jet chaque round
-            NWScript.AssignCommand(oCaster, () => targetCreature.ApplyEffect(EffectDuration.Temporary, EffectSystem.MetalBrulant(casterClass.SpellCastingAbility), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
+            NWScript.AssignCommand(oCaster, () => targetCreature.ApplyEffect(EffectDuration.Temporary, EffectSystem.MetalBrulant(spell, casterClass.SpellCastingAbility), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
           }
         }
       }

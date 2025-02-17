@@ -12,6 +12,7 @@ namespace NWN.Systems
         Effect eff = Effect.LinkEffects(Effect.ACIncrease(2), Effect.MovementSpeedDecrease(75));
         eff.Tag = GlaiseMetalliseeEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.GlaiseMetallisee);
         return eff;
       }
     }

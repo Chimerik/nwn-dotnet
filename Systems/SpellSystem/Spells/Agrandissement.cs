@@ -1,5 +1,4 @@
 ﻿using Anvil.API;
-using System;
 using System.Collections.Generic;
 
 namespace NWN.Systems
@@ -14,9 +13,9 @@ namespace NWN.Systems
       foreach (var target in targets)
       {
         if(spell.Id == CustomSpell.Agrandissement)
-          target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Agrandissement(target), SpellUtils.GetSpellDuration(oCaster, spellEntry));
+          target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Agrandissement(target, spell), SpellUtils.GetSpellDuration(oCaster, spellEntry));
         else
-          target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Rapetissement(target), SpellUtils.GetSpellDuration(oCaster, spellEntry));
+          target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Rapetissement(target, spell), SpellUtils.GetSpellDuration(oCaster, spellEntry));
       }
 
       return targets;

@@ -9,11 +9,12 @@ namespace NWN.Systems
     public const string NuageNauseabondEffectTag = "_NUAGE_NAUSEABOND_EFFECT";
     private static ScriptCallbackHandle onEnterNuageNauseabondCallback;
     private static ScriptCallbackHandle onHeartbeatNuageNauseabondCallback;
-    public static Effect NuageNauseabond(NwGameObject caster)
+    public static Effect NuageNauseabond(NwGameObject caster, NwSpell spell)
     {
       Effect eff = Effect.AreaOfEffect(PersistentVfxType.PerFogstink, onEnterNuageNauseabondCallback, onHeartbeatNuageNauseabondCallback);
       eff.Tag = NuageNauseabondEffectTag;
       eff.Creator = caster;
+      eff.Spell = spell;
       eff.SubType = EffectSubType.Supernatural;
       return eff;
     }

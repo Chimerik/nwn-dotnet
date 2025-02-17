@@ -21,7 +21,7 @@ namespace NWN.Systems
       {
         if(CreatureUtils.GetSavingThrow(oCaster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
         {
-          EffectSystem.ApplyCharme(target, caster, duration, false, CustomSpell.MotifHypnotique);
+          EffectSystem.ApplyCharme(target, caster, spell, duration, false, CustomSpell.MotifHypnotique);
           concentration.Add(target);
         }
       }

@@ -12,6 +12,7 @@ namespace NWN.Systems
         Effect eff = Effect.VisualEffect(VfxType.DurGhostlyVisage);
         eff.Tag = FlouEffectTag;
         eff.SubType = EffectSubType.Supernatural;
+        eff.Spell = NwSpell.FromSpellId(CustomSpell.Flou);
         return eff;
       }
     }

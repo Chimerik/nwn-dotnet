@@ -9,7 +9,7 @@ namespace NWN.Systems
     public static List<NwGameObject> NuageNauseabond(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, Location targetLocation, NwClass castingClass)
     {
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
-      targetLocation.ApplyEffect(EffectDuration.Temporary, EffectSystem.NuageNauseabond(oCaster), SpellUtils.GetSpellDuration(oCaster, spellEntry));
+      targetLocation.ApplyEffect(EffectDuration.Temporary, EffectSystem.NuageNauseabond(oCaster, spell), SpellUtils.GetSpellDuration(oCaster, spellEntry));
 
       var aoe = UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>();
       aoe.Tag = EffectSystem.NuageNauseabondEffectTag;

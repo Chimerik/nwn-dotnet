@@ -17,7 +17,7 @@ namespace NWN.Systems
       foreach (var target in targets)
       {
         if (target is NwCreature targetCreature)
-          EffectSystem.ApplyFouRireDeTasha(targetCreature, caster, SpellUtils.GetSpellDuration(caster, spellEntry), spellEntry.savingThrowAbility, castingClass.SpellCastingAbility); 
+          EffectSystem.ApplyFouRireDeTasha(targetCreature, caster, spell, SpellUtils.GetSpellDuration(caster, spellEntry), spellEntry.savingThrowAbility, castingClass.SpellCastingAbility); 
       }
     }
   }

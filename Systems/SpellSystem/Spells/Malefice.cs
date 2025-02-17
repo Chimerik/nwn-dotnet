@@ -21,7 +21,7 @@ namespace NWN.Systems
       Effect freeMarque = oCaster.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.FreeMaleficeTag);
       TimeSpan duration = freeMarque is null ? SpellUtils.GetSpellDuration(oCaster, spellEntry) : TimeSpan.FromSeconds(freeMarque.DurationRemaining);
 
-      NWScript.AssignCommand(oCaster, () => oTarget.ApplyEffect(EffectDuration.Temporary, EffectSystem.Malefice(caster, spell.Id), duration));
+      NWScript.AssignCommand(oCaster, () => oTarget.ApplyEffect(EffectDuration.Temporary, EffectSystem.Malefice(caster, spell), duration));
       
       target.OnDeath -= OnDeathMalefice;
       target.OnDeath += OnDeathMalefice;
