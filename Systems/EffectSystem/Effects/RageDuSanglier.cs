@@ -9,20 +9,18 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onRemoveRageDuSanglierCallback;
     private static ScriptCallbackHandle onIntervalRageDuSanglierCallback;
     public const string RageDuSanglierEffectTag = "_RAGE_DU_SANGLIER_EFFECT";
-    public static readonly Native.API.CExoString rageDuSanglierEffectExoTag = RageDuSanglierEffectTag.ToExoString();
+
     public static Effect RageDuSanglier(NwCreature caster)
     {
       int level = caster.GetClassInfo((ClassType)CustomClass.Ranger).Level;
 
-      Effect eff = Effect.LinkEffects(Effect.Icon((EffectIcon)168), 
-        Effect.DamageImmunityIncrease(DamageType.Bludgeoning, 50), Effect.DamageImmunityIncrease(DamageType.Piercing, 50), Effect.DamageImmunityIncrease(DamageType.Slashing, 50),
+      Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.RageDuSanglier), ResistanceContondant, ResistancePercant, ResistanceTranchant,
         Effect.RunAction(onRemovedHandle: onRemoveRageDuSanglierCallback, onIntervalHandle: onIntervalRageDuSanglierCallback, interval: NwTimeSpan.FromRounds(1)),
         Effect.ModifyAttacks(1));
 
       eff.Tag = RageDuSanglierEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       eff.Creator = caster;
-      eff.IntParams[5] = level > 15 ? 4 : level > 8 ? 3 : 2;
 
       return eff;
     }

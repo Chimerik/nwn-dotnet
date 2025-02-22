@@ -10,7 +10,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurAuraPulseOrangeWhite), Effect.Icon((EffectIcon)165),
+        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurAuraPulseOrangeWhite), Effect.Icon(CustomEffectIcon.EvocateurSurcharge),
           Effect.RunAction()); // Note : pour les Effect.Icon, il faut obligatoirement ajouter un RunAction vide. Les vfx ne suffisent pas
         eff.Tag = EvocateurSurchargeEffectTag;
         eff.SubType = EffectSubType.Supernatural;

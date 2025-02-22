@@ -1,5 +1,4 @@
 ﻿using Anvil.API;
-using EffectSubType = Anvil.API.EffectSubType;
 
 namespace NWN.Systems
 {
@@ -10,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.Icon((EffectIcon)192), Effect.RunAction());
+        Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.ChatimentOcculte), Effect.RunAction());
         eff.Tag = ChatimentOcculteEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

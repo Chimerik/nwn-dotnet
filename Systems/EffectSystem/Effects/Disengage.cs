@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.Icon(NwGameTables.EffectIconTable.GetRow(143));
+        Effect eff = Effect.Icon(CustomEffectIcon.Desengagement);
         eff.Tag = DisengageffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

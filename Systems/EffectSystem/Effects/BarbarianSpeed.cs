@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.MovementSpeedIncrease(15), Effect.Icon(EffectIcon.MovementSpeedIncrease));
+        Effect eff = Effect.LinkEffects(Effect.MovementSpeedIncrease(15), Effect.Icon(CustomEffectIcon.FastMovement));
         eff.Tag = BarbarianSpeedEffectTag;
         eff.SubType = EffectSubType.Unyielding;
         return eff;

@@ -7,10 +7,10 @@ namespace NWN.Systems
     public const string FrappeBrutaleEffectTag = "_FRAPPE_BRUTALE_EFFECT";
     public static Effect FrappeBrutale(int featId)
     {
-      Effect eff = Effect.Icon(EffectIcon.DamageIncrease);
+      Effect eff = Effect.Icon(CustomEffectIcon.FrappeBrutale);
       eff.Tag = FrappeBrutaleEffectTag;
       eff.SubType = EffectSubType.Supernatural;
-      eff.IntParams[5] = featId;
+      eff.CasterLevel = featId;
       return eff;
     }
   }

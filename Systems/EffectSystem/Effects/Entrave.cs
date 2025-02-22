@@ -15,13 +15,15 @@ namespace NWN.Systems
     {
       target.MovementRate = MovementRate.Immobile;
 
-      Effect eff = repeatSave ? Effect.LinkEffects(Effect.VisualEffect(VfxType.DurEntangle), Effect.RunAction(onRemovedHandle: onRemoveEntraveCallback, onIntervalHandle: onIntervalEntraveCallback, interval: NwTimeSpan.FromRounds(1)))
-        : Effect.LinkEffects(Effect.VisualEffect(VfxType.DurEntangle), Effect.RunAction(onRemovedHandle: onRemoveEntraveCallback));
+      Effect eff = Effect.VisualEffect(VfxType.DurEntangle);
+      Effect action = repeatSave ? Effect.RunAction(onRemovedHandle: onRemoveEntraveCallback, onIntervalHandle: onIntervalEntraveCallback, interval: NwTimeSpan.FromRounds(1)) 
+        : Effect.RunAction(onRemovedHandle: onRemoveEntraveCallback);
 
+      eff = Effect.LinkEffects(eff, action);
       eff.Tag = EntraveEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       eff.Creator = caster;
-      eff.IntParams[5] = (int)castAbility;
+      eff.CasterLevel = (int)castAbility;
 
       target.ApplyEffect(EffectDuration.Temporary, eff, duration);
     }
@@ -45,13 +47,13 @@ namespace NWN.Systems
 
       if (eventData.EffectTarget is NwCreature target && eventData.Effect.Creator is NwCreature caster)
       {
-        if(!target.ActiveEffects.Any(e => e.Tag == TerrainDifficileEffectTag && e.IntParams[5] == CustomSpell.Enchevetrement))
+        if(!target.ActiveEffects.Any(e => e.Tag == TerrainDifficileEffectTag && e.Spell == NwSpell.FromSpellId(CustomSpell.Enchevetrement)))
         {
           target.RemoveEffect(eventData.Effect);
           return ScriptHandleResult.Handled;
         }
 
-        int spellDC = SpellUtils.GetCasterSpellDC(caster, (Ability)eventData.Effect.IntParams[5]);
+        int spellDC = SpellUtils.GetCasterSpellDC(caster, (Ability)eventData.Effect.CasterLevel);
 
         if (CreatureUtils.GetSavingThrow(caster, target, Ability.Strength, spellDC) != SavingThrowResult.Failure)
           target.RemoveEffect(eventData.Effect);

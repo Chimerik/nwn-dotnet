@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.MovementSpeedDecrease(30), Effect.Icon((EffectIcon)160));
+        Effect eff = Effect.LinkEffects(Effect.MovementSpeedDecrease(30), Effect.Icon(CustomEffectIcon.PourfendeurSlow));
         eff.Tag = PourfendeurSlowEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;
@@ -20,7 +20,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.Icon((EffectIcon)161);
+        Effect eff = Effect.Icon(CustomEffectIcon.PourfendeurDisadvantage);
         eff.Tag = PourfendeurDisadvantageEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

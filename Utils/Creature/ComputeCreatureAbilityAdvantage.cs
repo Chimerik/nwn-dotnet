@@ -154,11 +154,21 @@ namespace NWN.Systems
 
             switch (eff.Tag)
             {
-              case EffectSystem.EnlargeEffectTag: LogUtils.LogMessage("Avantage - Agrandissement", LogUtils.LogType.Combat); return true;
               case EffectSystem.RageDuSanglierEffectTag:
               case EffectSystem.BarbarianRageEffectTag:
                 LogUtils.LogMessage("Avantage - Barbare : Rage", LogUtils.LogType.Combat);
                 return true;
+              case EffectSystem.EnlargeEffectTag: LogUtils.LogMessage("Avantage - Agrandissement", LogUtils.LogType.Combat); return true;
+              
+              case EffectSystem.AmeliorationCaracteristiqueEffectTag:
+                
+                if (eff.Spell == NwSpell.FromSpellId(CustomSpell.AmeliorationForce))
+                { 
+                  LogUtils.LogMessage("Avantage - Force du Taureau", LogUtils.LogType.Combat); 
+                  return true; 
+                }
+
+                break;
             }
 
             break;
@@ -174,6 +184,50 @@ namespace NWN.Systems
               case EffectSystem.MonkPatienceEffectTag:
                 LogUtils.LogMessage("Avantage - Moine : Patience", LogUtils.LogType.Combat);
                 return true;
+
+              case EffectSystem.AmeliorationCaracteristiqueEffectTag:
+
+                if (eff.Spell == NwSpell.FromSpellId(CustomSpell.AmeliorationDexterite))
+                {
+                  LogUtils.LogMessage("Avantage - Grâce Féline", LogUtils.LogType.Combat);
+                  return true;
+                }
+
+                break;
+            }
+
+            break;
+
+          case Ability.Constitution:
+
+            switch(eff.Tag)
+            {
+              case EffectSystem.AmeliorationCaracteristiqueEffectTag:
+
+                if (eff.Spell == NwSpell.FromSpellId(CustomSpell.AmeliorationConstitution))
+                {
+                  LogUtils.LogMessage("Avantage - Endurance de l'Ours", LogUtils.LogType.Combat);
+                  return true;
+                }
+
+                break;
+            }
+
+            break;
+
+          case Ability.Intelligence:
+
+            switch (eff.Tag)
+            {
+              case EffectSystem.AmeliorationCaracteristiqueEffectTag:
+
+                if (eff.Spell == NwSpell.FromSpellId(CustomSpell.AmeliorationIntelligence))
+                {
+                  LogUtils.LogMessage("Avantage - Ruse du Renard", LogUtils.LogType.Combat);
+                  return true;
+                }
+
+                break;
             }
 
             break;
@@ -189,6 +243,33 @@ namespace NWN.Systems
               case EffectSystem.MonkPatienceEffectTag:
                 LogUtils.LogMessage("Avantage - Moine : Patience", LogUtils.LogType.Combat);
                 return true;
+
+              case EffectSystem.AmeliorationCaracteristiqueEffectTag:
+
+                if (eff.Spell == NwSpell.FromSpellId(CustomSpell.AmeliorationSagesse))
+                {
+                  LogUtils.LogMessage("Avantage - Sagesse du Hibou", LogUtils.LogType.Combat);
+                  return true;
+                }
+
+                break;
+            }
+
+            break;
+
+          case Ability.Charisma:
+
+            switch (eff.Tag)
+            {
+              case EffectSystem.AmeliorationCaracteristiqueEffectTag:
+
+                if (eff.Spell == NwSpell.FromSpellId(CustomSpell.AmeliorationCharisme))
+                {
+                  LogUtils.LogMessage("Avantage - Splendeur de l'Aigle", LogUtils.LogType.Combat);
+                  return true;
+                }
+
+                break;
             }
 
             break;

@@ -12,7 +12,8 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurBigbysInterposingHand), Effect.RunAction(onRemovedHandle: onRemoveBoneChillCallback));
+        // TODO : Est-ce que la main existe en rouge ?
+        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurBigbysInterposingHand, fScale:0.5f), Effect.RunAction(onRemovedHandle: onRemoveBoneChillCallback));
         eff.Tag = boneChillEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         eff.Spell = NwSpell.FromSpellId(CustomSpell.BoneChill);

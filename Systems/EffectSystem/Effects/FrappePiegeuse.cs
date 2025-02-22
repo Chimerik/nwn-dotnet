@@ -9,7 +9,6 @@ namespace NWN.Systems
   {
     public const string FrappePiegeuseEffectTag = "_FRAPPE_PIEGEUSE_EFFECT";
     public const string FrappePiegeuseAttackTag = "_FRAPPE_PIEGEUSE_ATTACK_EFFECT";
-    public static readonly Native.API.CExoString FrappePiegeuseEffectExoTag = FrappePiegeuseEffectTag.ToExoString();
     private static ScriptCallbackHandle onIntervalFrappePiegeuseCallback;
 
     public static Effect FrappePiegeuseAttack

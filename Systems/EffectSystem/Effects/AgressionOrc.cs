@@ -22,10 +22,8 @@ namespace NWN.Systems
     {
       EffectRunScriptEvent eventData = new EffectRunScriptEvent();
 
-      if (eventData.EffectTarget is not NwCreature creature)
-        return ScriptHandleResult.Handled;
-
-      creature.Commandable = true;
+      if (eventData.EffectTarget is NwCreature creature)
+        creature.Commandable = true;
 
       return ScriptHandleResult.Handled;
     }

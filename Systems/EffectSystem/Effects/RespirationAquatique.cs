@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.Icon((EffectIcon)189), Effect.VisualEffect(VfxType.DurMindAffectingPositive), Effect.RunAction());
+        Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.RespirationAquatique), Effect.VisualEffect(VfxType.DurMindAffectingPositive), Effect.RunAction());
         eff.Tag = RespirationAquatiqueEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         eff.Spell = NwSpell.FromSpellId(CustomSpell.RespirationAquatique);

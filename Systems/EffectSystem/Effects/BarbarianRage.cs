@@ -12,72 +12,36 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onRemoveBarbarianRageCallback;
     private static ScriptCallbackHandle onIntervalBarbarianRageCallback;
     public const string BarbarianRageEffectTag = "_EFFECT_BARBARIAN_RAGE";
-    //public static readonly Native.API.CExoString barbarianRageEffectExoTag = BarbarianRageEffectTag.ToExoString();
     public const string BarbarianRageAveugleEffectTag = "_EFFECT_BARBARIAN_RAGE_AVEUGLE";
-    public static Effect BarbarianRage(NwCreature caster, int spellId)
+    public static Effect BarbarianRage(NwCreature caster, NwSpell spell)
     {
       int level = caster.GetClassInfo((ClassType)CustomClass.Barbarian).Level;
+      Effect eff = Effect.LinkEffects(ResistanceContondant, ResistancePercant, ResistanceTranchant,
+        Effect.RunAction(onRemovedHandle: onRemoveBarbarianRageCallback, onIntervalHandle: onIntervalBarbarianRageCallback, interval: NwTimeSpan.FromRounds(1)));
 
-      Effect resBludg = Effect.DamageImmunityIncrease(DamageType.Bludgeoning, 50);
-      resBludg.ShowIcon = false;
-      Effect resPierc = Effect.DamageImmunityIncrease(DamageType.Piercing, 50);
-      resPierc.ShowIcon = false;
-      Effect resSlash = Effect.DamageImmunityIncrease(DamageType.Slashing, 50);
-      resSlash.ShowIcon = false;
-
-      Effect eff;
-
-      switch(spellId)
+      switch(spell.Id)
       {
         case CustomSpell.RageSauvageOurs:
         case CustomSpell.PuissanceSauvageOurs:
 
-          Effect resAcid = Effect.DamageImmunityIncrease(DamageType.Acid, 50);
-          resAcid.ShowIcon = false;
-          Effect resCold = Effect.DamageImmunityIncrease(DamageType.Cold, 50);
-          resCold.ShowIcon = false;
-          Effect resElec = Effect.DamageImmunityIncrease(DamageType.Electrical, 50);
-          resElec.ShowIcon = false;
-          Effect resFire = Effect.DamageImmunityIncrease(DamageType.Fire, 50);
-          resFire.ShowIcon = false;
-          Effect resSonic = Effect.DamageImmunityIncrease(DamageType.Sonic, 50);
-          resSonic.ShowIcon = false;
-          Effect resPoison = Effect.DamageImmunityIncrease(CustomDamageType.Poison, 50);
-          resPoison.ShowIcon = false;
-
-          eff = Effect.LinkEffects(resBludg, resPierc, resSlash, resAcid, resCold, resElec, resFire, resSonic, resPoison,
-          Effect.Icon((EffectIcon)168), Effect.Icon((EffectIcon)211), Effect.Icon((EffectIcon)212), Effect.Icon((EffectIcon)213),
-          Effect.Icon((EffectIcon)205), Effect.Icon((EffectIcon)206), Effect.Icon((EffectIcon)208), Effect.Icon((EffectIcon)209),
-          Effect.Icon((EffectIcon)210), Effect.Icon((EffectIcon)214),
-        Effect.RunAction(onRemovedHandle: onRemoveBarbarianRageCallback, onIntervalHandle: onIntervalBarbarianRageCallback, interval: NwTimeSpan.FromRounds(1)));
+          eff = Effect.LinkEffects(eff, ResistanceAcide, ResistanceFroid, ResistanceElec, ResistanceFeu, ResistancePoison, ResistanceTonnerre);
           
           break;
 
-        default:
+        case CustomSpell.RageSauvageAigle:
 
-        eff = Effect.LinkEffects(resBludg, resPierc, resSlash,
-        Effect.Icon((EffectIcon)168), Effect.Icon((EffectIcon)211), Effect.Icon((EffectIcon)212), Effect.Icon((EffectIcon)213),
-        Effect.RunAction(onRemovedHandle: onRemoveBarbarianRageCallback, onIntervalHandle: onIntervalBarbarianRageCallback, interval: NwTimeSpan.FromRounds(1)));
+          caster.ApplyEffect(EffectDuration.Temporary, Sprint(caster), NwTimeSpan.FromRounds(1));
+          caster.ApplyEffect(EffectDuration.Temporary, disengageEffect, NwTimeSpan.FromRounds(1));
 
-          switch(spellId)
-          {
-            case CustomSpell.RageSauvageAigle:
+          break;
 
-              caster.ApplyEffect(EffectDuration.Temporary, Sprint(caster), NwTimeSpan.FromRounds(1));
-              caster.ApplyEffect(EffectDuration.Temporary, disengageEffect, NwTimeSpan.FromRounds(1));
+        case CustomSpell.RageSauvageLoup: eff = Effect.LinkEffects(eff, wolfTotemAura); break;
+        case CustomSpell.PuissanceSauvageFaucon: eff = Effect.LinkEffects(eff, Vol(caster)); break;
+        case CustomSpell.PuissanceSauvageTigre: eff = Effect.LinkEffects(eff, LionTotem); break;
+        case CustomSpell.PuissanceSauvageBelier:
 
-              break;
-
-            case CustomSpell.RageSauvageLoup: caster.ApplyEffect(EffectDuration.Temporary, wolfTotemAura, TimeSpan.FromMinutes(10)); break;
-            case CustomSpell.PuissanceSauvageFaucon: eff = Effect.LinkEffects(eff, Vol(caster)); break;
-            case CustomSpell.PuissanceSauvageTigre: NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, LionTotem, TimeSpan.FromMinutes(10))); break;
-            case CustomSpell.PuissanceSauvageBelier: 
-              
-              caster.OnCreatureAttack -= BarbarianUtils.OnAttackBelier; 
-              caster.OnCreatureAttack += BarbarianUtils.OnAttackBelier; 
-              
-              break;
-          }            
+          caster.OnCreatureAttack -= BarbarianUtils.OnAttackBelier;
+          caster.OnCreatureAttack += BarbarianUtils.OnAttackBelier;
 
           break;
       }
@@ -85,8 +49,7 @@ namespace NWN.Systems
       eff.Tag = BarbarianRageEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       eff.Creator = caster;
-      eff.IntParams[5] = level > 15 ? 4 : level > 8 ? 3 : 2;
-      eff.IntParams[6] = spellId;
+      eff.Spell = spell;
 
       return eff;
     }

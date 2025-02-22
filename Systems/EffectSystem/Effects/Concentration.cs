@@ -14,7 +14,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.RunAction(onRemovedHandle: onRemoveConcentrationCallback), Effect.Icon(NwGameTables.EffectIconTable.GetRow(148)), Effect.VisualEffect(VfxType.DurCessateNeutral));
+        Effect eff = Effect.LinkEffects(Effect.RunAction(onRemovedHandle: onRemoveConcentrationCallback), Effect.Icon(CustomEffectIcon.Concentration), Effect.VisualEffect(VfxType.DurCessateNeutral));
         eff.Tag = ConcentrationEffectTag;
         eff.SubType = EffectSubType.Supernatural;
 

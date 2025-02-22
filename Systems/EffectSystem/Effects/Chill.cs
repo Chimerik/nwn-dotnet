@@ -1,6 +1,4 @@
 ﻿using Anvil.API;
-using Anvil.API.Events;
-using Anvil.Services;
 
 namespace NWN.Systems
 {
@@ -11,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.Icon((EffectIcon)188), Effect.DamageImmunityDecrease(DamageType.Cold, 50), Effect.DamageImmunityIncrease(DamageType.Fire, 50));
+        Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.Chilled), VulnerabiliteFroid, ResistanceFeu);
         eff.Tag = ChillEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

@@ -13,7 +13,7 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onExitSanctuaireNaturelCallback;
     public static Effect SantuaireNaturelAura(NwCreature caster)
     {
-      Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.ImpAuraFear), Effect.Icon((EffectIcon)185),
+      Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.ImpAuraFear), Effect.Icon(CustomEffectIcon.SanctuaireNaturel),
         Effect.AreaOfEffect(PersistentVfxType.PerCustomAoe, onEnterHandle: onEnterSanctuaireNaturelCallback, onExitHandle: onExitSanctuaireNaturelCallback));
       eff.Tag = SanctuaireNaturelAuraEffectTag;
       eff.SubType = EffectSubType.Supernatural;

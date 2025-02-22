@@ -9,7 +9,7 @@ namespace NWN.Systems
 
     public static void ApplyBuveuseDeVie(NwCreature caster)
     {
-      Effect eff = Effect.Icon((EffectIcon)194);
+      Effect eff = Effect.Icon(CustomEffectIcon.BuveuseDeVie);
       eff.Tag = BuveuseDeVieEffectTag;
       eff.SubType = EffectSubType.Unyielding;
 

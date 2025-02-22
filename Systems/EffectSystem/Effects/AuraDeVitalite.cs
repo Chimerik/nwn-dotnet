@@ -11,7 +11,7 @@ namespace NWN.Systems
       Effect eff = Effect.VisualEffect(CustomVfx.AuraDeVitalite);
       eff.Tag = AuraDeVitaliteEffectTag;
       eff.SubType = EffectSubType.Supernatural;
-      eff.IntParams[5] = (int)ability;
+      eff.CasterLevel = (int)ability;
       eff.Spell = spell;
       return eff;
     }

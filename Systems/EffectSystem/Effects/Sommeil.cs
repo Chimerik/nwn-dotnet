@@ -3,7 +3,6 @@ using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
-using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -35,7 +34,7 @@ namespace NWN.Systems
           eff.SubType = EffectSubType.Supernatural;
           eff.Creator = caster;
           eff.Spell = spell;
-          eff.IntParams[5] = (int)DCAbility;
+          eff.CasterLevel = (int)DCAbility;
 
           target.OnDamaged -= OnDamagedSommeil;
           target.OnDamaged += OnDamagedSommeil;
@@ -63,7 +62,7 @@ namespace NWN.Systems
 
       if (eventData.EffectTarget is NwCreature target && eff.Creator is NwCreature caster)
       {
-        int spellDC = SpellUtils.GetCasterSpellDC(caster, (Ability)eff.IntParams[5]);
+        int spellDC = SpellUtils.GetCasterSpellDC(caster, (Ability)eff.CasterLevel);
 
         if (CreatureUtils.GetSavingThrow(caster, target, Ability.Constitution, spellDC, effectType: SpellConfig.SpellEffectType.Sleep) != SavingThrowResult.Failure)
           EffectUtils.RemoveEffectType(target, EffectType.Sleep);

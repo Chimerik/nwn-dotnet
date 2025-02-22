@@ -44,7 +44,7 @@ namespace NWN.Systems
         caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHaste));
       }
 
-      caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.BarbarianRage(caster, spell.Id), TimeSpan.FromMinutes(10));
+      caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.BarbarianRage(caster, spell), TimeSpan.FromMinutes(10));
 
       byte barbarianLevel = caster.GetClassInfo(ClassType.Barbarian).Level;
 

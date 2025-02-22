@@ -31,7 +31,7 @@ namespace NWN.Systems
       }
 
       foreach (var eff in target.m_appliedEffects)
-        if(eff.m_sCustomTag.CompareNoCase(EffectSystem.monkOpportunistEffectExoTag).ToBool())
+        if(eff.m_sCustomTag.ToString() == EffectSystem.MonkOpportunistEffectTag)
         {
           if(eff.m_oidCreator != 0x7F000000)
           {

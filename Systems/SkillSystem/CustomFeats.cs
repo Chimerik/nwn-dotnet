@@ -655,6 +655,8 @@
     public const int SouffleDuDragonPoison = 1913;
 
     public const int FighterCombatStyleDualWield = 1914;
+    public const int EldritchKnightMagieDeGuerre = 1915;
+    public const int FighterInflexible = 1916;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -1024,7 +1026,6 @@
     public const int FighterArcaneArcher = 20473;
 
     public const int FighterCombatStyleProtection = 20479;
-    public const int FighterInflexible = 20483;
     
     /*public const int FighterEldritchKnightBoundWeapon = 20486;
     public const int FighterEldritchKnightWarMagic = 20487; // 2 niveaux
@@ -1105,7 +1106,6 @@
 
     public const int RogueArcaneTrickster = 20559;
 
-    public const int EldritchKnightMagieDeGuerre = 20560;
     public const int EldritchKnightFrappeOcculte = 20561;
 
     public const int Bard = 20562;

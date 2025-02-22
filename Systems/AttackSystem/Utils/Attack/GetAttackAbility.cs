@@ -18,7 +18,7 @@ namespace NWN.Systems
         {
           var coupAuBut = creature.m_appliedEffects.FirstOrDefault(e => e.m_sCustomTag.ToString() == EffectSystem.CoupAuButAttackEffectTag);
           if(coupAuBut is not null)
-            return (Anvil.API.Ability)coupAuBut.GetInteger(5);
+            return (Anvil.API.Ability)coupAuBut.m_nCasterLevel;
         }
 
         if (attackWeapon.m_ScriptVars.GetObject(CreatureUtils.PacteDeLaLameVariableExo) == creature.m_idSelf)

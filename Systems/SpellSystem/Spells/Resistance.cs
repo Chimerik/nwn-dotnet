@@ -12,7 +12,11 @@ namespace NWN.Systems
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
 
       EffectUtils.RemoveTaggedEffect(oTarget, EffectSystem.ResistanceEffectTag);
-      EffectUtils.RemoveTaggedParamEffect(oTarget, EffectSystem.CooldownEffectTag, CustomSpell.Resistance, CustomSpell.ResistanceAcide, CustomSpell.ResistanceContondant, CustomSpell.ResistanceElec, CustomSpell.ResistanceFeu, CustomSpell.ResistanceFroid, CustomSpell.ResistancePercant, CustomSpell.ResistancePoison, CustomSpell.ResistanceTranchant);
+      EffectUtils.RemoveTaggedSpellEffect(oTarget, EffectSystem.CooldownEffectTag, NwSpell.FromSpellId(CustomSpell.Resistance), 
+        NwSpell.FromSpellId(CustomSpell.ResistanceAcide), NwSpell.FromSpellId(CustomSpell.ResistanceContondant), 
+        NwSpell.FromSpellId(CustomSpell.ResistanceElec), NwSpell.FromSpellId(CustomSpell.ResistanceFeu), 
+        NwSpell.FromSpellId(CustomSpell.ResistanceFroid), NwSpell.FromSpellId(CustomSpell.ResistancePercant), 
+        NwSpell.FromSpellId(CustomSpell.ResistancePoison), NwSpell.FromSpellId(CustomSpell.ResistanceTranchant));
 
       oCaster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpGoodHelp));
       oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.Resistance(oTarget, spell), NwTimeSpan.FromRounds(spellEntry.duration));

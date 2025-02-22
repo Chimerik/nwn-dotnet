@@ -15,7 +15,7 @@ namespace NWN.Systems
         case AttackResult.AutomaticHit:
 
           var eff = onAttack.Attacker.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.BotteSecreteEffectTag);
-          onAttack.Attacker.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetBotteDefensiveEffect(eff.IntParams[5]), NwTimeSpan.FromRounds(1));
+          onAttack.Attacker.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetBotteDefensiveEffect(eff.CasterLevel), NwTimeSpan.FromRounds(1));
 
           StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Botte Défensive", StringUtils.gold, true);
           

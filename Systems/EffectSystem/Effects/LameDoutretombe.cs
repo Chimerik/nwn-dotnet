@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.ACIncrease(1), Effect.Icon((EffectIcon)162));
+        Effect eff = Effect.LinkEffects(Effect.ACIncrease(1), Effect.Icon(CustomEffectIcon.LameDoutretombe));
         eff.Tag = LameDoutretombeEffectTag;
         eff.SubType = EffectSubType.Unyielding;
         return eff;

@@ -1,18 +1,17 @@
-﻿using System.Linq;
-using Anvil.API;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {
   public partial class EffectSystem
   {
     public const string FrappeRedoutableEffectTag = "_FRAPPE_REDOUTABLE_EFFECT";
-    public static readonly Native.API.CExoString FrappeRedoutableEffectExoTag = FrappeRedoutableEffectTag.ToExoString();
+
     public static Effect FrappeRedoutable(byte remainingUse)
     {
-      Effect eff = Effect.Icon(EffectIcon.DamageIncrease);
+      Effect eff = Effect.Icon(CustomEffectIcon.FrappeRedoutable);
       eff.Tag = FrappeRedoutableEffectTag;
       eff.SubType = EffectSubType.Supernatural;
-      eff.IntParams[7] = remainingUse - 1;
+      eff.CasterLevel = remainingUse - 1;
 
       return eff;
     }

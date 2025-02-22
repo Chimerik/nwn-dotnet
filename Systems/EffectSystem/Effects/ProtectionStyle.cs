@@ -16,7 +16,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.AreaOfEffect((PersistentVfxType)184, onEnterHandle: onEnterProtectionStyleCallback, onExitHandle: onExitProtectionStyleCallback);
+        Effect eff = Effect.AreaOfEffect(CustomAoE.MeleeRange, onEnterHandle: onEnterProtectionStyleCallback, onExitHandle: onExitProtectionStyleCallback);
         eff.Tag = ProtectionStyleAuraEffectTag;
         eff.SubType = EffectSubType.Unyielding;
         return eff;

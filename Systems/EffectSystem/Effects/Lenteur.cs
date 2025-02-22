@@ -17,7 +17,7 @@ namespace NWN.Systems
 
       Effect eff = Effect.LinkEffects(Effect.Slow(), noReactions(target), NoBonusAction(target),
         Effect.RunAction(onRemovedHandle:onRemoveLenteurCallback, onIntervalHandle: onIntervalLenteurCallback, interval: TimeSpan.FromSeconds(6)));
-      eff.IntParams[5] = (int)spellCastingAbility;
+      eff.CasterLevel = (int)spellCastingAbility;
       eff.Tag = LenteurEffectTag;
       eff.Spell = spell;
       eff.Creator = caster;
@@ -40,7 +40,7 @@ namespace NWN.Systems
       }
 
       SpellEntry spellEntry = Spells2da.spellTable[(int)Spell.Slow];
-      int spellDC = SpellUtils.GetCasterSpellDC(caster, Spell.Slow, (Ability)eff.IntParams[5]);
+      int spellDC = SpellUtils.GetCasterSpellDC(caster, Spell.Slow, (Ability)eff.CasterLevel);
 
       if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) != SavingThrowResult.Failure)
         target.RemoveEffect(eff);

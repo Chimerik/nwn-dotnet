@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.Icon((EffectIcon)154));
+        Effect eff = Effect.Icon(CustomEffectIcon.ActionSurge);
         eff.Tag = ActionSurgeEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

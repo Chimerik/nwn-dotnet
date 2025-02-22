@@ -11,11 +11,14 @@ namespace NWN.Systems
     public const string RayonAffaiblissantDesavantageEffectTag = "_RAYON_AFFAIBLISSANT_DESAVANTAGE_EFFECT";
     public static Effect RayonAffaiblissant(NwSpell spell, Ability spellCastingAbility)
     {
-      Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.RayonAffaiblissant), Effect.VisualEffect(VfxType.DurCessateNegative),
-        Effect.RunAction(onIntervalHandle: onIntervalRayonAffaiblissantCallback, interval: NwTimeSpan.FromRounds(1)));
+      Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.RayonAffaiblissant), Effect.VisualEffect(VfxType.DurCessateNegative));
+      Effect action = Effect.RunAction(onIntervalHandle: onIntervalRayonAffaiblissantCallback, interval: NwTimeSpan.FromRounds(1));
+      action.IntParams[5] = (int)spellCastingAbility;
+
+      eff = Effect.LinkEffects(eff, action);
       eff.Tag = RayonAffaiblissantEffectTag;
       eff.SubType = EffectSubType.Supernatural;
-      eff.IntParams[5] = (int)spellCastingAbility;
+      eff.CasterLevel = (int)spellCastingAbility;
       eff.Spell = spell;
       return eff;
     }
@@ -41,7 +44,7 @@ namespace NWN.Systems
         if (eff.Creator is NwCreature caster)
         {
           SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.RayonAffaiblissant];
-          int spellDC = SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellId(CustomSpell.RayonAffaiblissant), (Ability)eventData.Effect.IntParams[5]);
+          int spellDC = SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellId(CustomSpell.RayonAffaiblissant), (Ability)eventData.Effect.CasterLevel);
 
           if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry, SpellConfig.SpellEffectType.Paralysis) != SavingThrowResult.Failure)
           {

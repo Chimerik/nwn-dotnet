@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.Icon(EffectIcon.AttackDecrease), Effect.VisualEffect(VfxType.DurMindAffectingNegative));
+        Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.Faiblesse), Effect.VisualEffect(VfxType.DurMindAffectingNegative));
         eff.Tag = AffaiblissementEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

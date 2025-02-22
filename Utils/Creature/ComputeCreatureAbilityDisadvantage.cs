@@ -78,8 +78,18 @@ namespace NWN.Systems
 
           case EffectSystem.MaleficeTag:
 
-            if (eff.IntParams[5] == (int)ability)
-              return true;
+            if(eff.Spell is not null)
+            {
+              switch(eff.Spell.Id)
+              {
+                case CustomSpell.MaledictionForce: if (ability == Ability.Strength) return true; break;
+                case CustomSpell.MaledictionDexterite: if (ability == Ability.Dexterity) return true; break;
+                case CustomSpell.MaledictionConstitution: if (ability == Ability.Constitution) return true; break;
+                case CustomSpell.MaledictionIntelligence: if (ability == Ability.Intelligence) return true; break;
+                case CustomSpell.MaledictionSagesse: if (ability == Ability.Wisdom) return true; break;
+                case CustomSpell.MaledictionCharisme: if (ability == Ability.Charisma) return true; break;
+              }
+            }
 
             break;
 

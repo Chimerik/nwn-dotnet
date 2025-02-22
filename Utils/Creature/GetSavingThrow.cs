@@ -40,7 +40,17 @@ namespace NWN.Systems
 
       SpellUtils.SendSavingThrowFeedbackMessage(attacker, target, feedback, advantage, saveDC, totalSave, saveResult, ability, effectType);
 
-      switch(ability)
+      if(saveResult == SavingThrowResult.Failure && target.ActiveEffects.Any(e => e.Tag == EffectSystem.InflexibleEffectTag))
+      {
+        StringUtils.DisplayStringToAllPlayersNearTarget(target, "Inflexible", StringUtils.gold, true, true);
+        totalSave = SpellUtils.GetSavingThrowRoll(target, ability, saveDC, advantage, feedback) + FighterUtils.GetFighterLevel(target);
+        saveResult = (SavingThrowResult)(totalSave >= saveDC).ToInt();
+
+        SpellUtils.SendSavingThrowFeedbackMessage(attacker, target, feedback, advantage, saveDC, totalSave, saveResult, ability, effectType);
+        EffectUtils.RemoveTaggedEffect(target, EffectSystem.InflexibleEffectTag);
+      }
+
+      switch (ability)
       {
         case Ability.Strength:
         case Ability.Constitution:

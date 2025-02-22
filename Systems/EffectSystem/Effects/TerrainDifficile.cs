@@ -12,7 +12,6 @@ namespace NWN.Systems
       eff.SubType = EffectSubType.Supernatural;
       eff.Creator = caster;
       eff.Spell = spell;
-      eff.IntParams[5] = spell.Id;
       return eff;
     }
     public static void ApplyTerrainDifficileEffect(NwCreature creature, NwCreature caster, NwSpell spell)

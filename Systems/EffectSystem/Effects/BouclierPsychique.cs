@@ -9,14 +9,11 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.DamageImmunityIncrease(CustomDamageType.Psychic, 50);
-        eff.ShowIcon = false;
+        Effect eff = ResistancePsychique;
+        eff.Tag = BouclierPsychiqueEffectTag;
+        eff.SubType = EffectSubType.Unyielding;
 
-        Effect link = Effect.LinkEffects(eff, Effect.Icon(DamageType2da.damageResistanceEffectIcon[CustomDamageType.Psychic]));
-        link.Tag = BouclierPsychiqueEffectTag;
-        link.SubType = EffectSubType.Unyielding;
-
-        return link;
+        return eff;
       }
     }
   }

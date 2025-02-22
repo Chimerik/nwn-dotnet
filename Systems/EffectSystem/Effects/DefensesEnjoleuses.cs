@@ -14,7 +14,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.Icon((EffectIcon)217), Effect.RunAction(onRemovedHandle: onRemoveDefensesEnjoleusesCallback));
+        Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.DefensesEnjoleuses), Effect.RunAction(onRemovedHandle: onRemoveDefensesEnjoleusesCallback));
         eff.Tag = DefensesEnjoleusesEffectTag;
         eff.SubType = Anvil.API.EffectSubType.Unyielding;
 

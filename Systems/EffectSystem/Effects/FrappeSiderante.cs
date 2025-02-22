@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.Icon(EffectIcon.SavingThrowDecrease);
+        Effect eff = Effect.Icon(CustomEffectIcon.FrappeSiderante);
         eff.Tag = FrappeSideranteEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

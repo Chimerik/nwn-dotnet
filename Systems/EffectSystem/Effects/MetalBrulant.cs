@@ -16,7 +16,7 @@ namespace NWN.Systems
       eff.Tag = MetalBrulantEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       eff.Spell = spell;
-      eff.IntParams[5] = (int)castAbility;
+      eff.CasterLevel = (int)castAbility;
       return eff;
       
     }
@@ -59,7 +59,7 @@ namespace NWN.Systems
         SpellUtils.DealSpellDamage(creature, caster.CasterLevel, spellEntry, spellEntry.numDice, caster, 2);
         creature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpFlameM));
 
-        int spellDC = SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellId(CustomSpell.MetalBrulant), (Ability)eventData.Effect.IntParams[5]);
+        int spellDC = SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellId(CustomSpell.MetalBrulant), (Ability)eventData.Effect.CasterLevel);
 
         if (droppable && CreatureUtils.GetSavingThrow(caster, creature, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
         {

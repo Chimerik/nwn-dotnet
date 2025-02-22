@@ -9,8 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.DamageImmunityIncrease(DamageType.Electrical, 100), 
-          Effect.DamageImmunityIncrease(DamageType.Sonic, 100));
+        Effect eff = Effect.LinkEffects(ImmuniteElec, ImmuniteTonnerre);
         eff.Tag = AmeDesVentsEffectTag;
         eff.SubType = EffectSubType.Unyielding;
         return eff;

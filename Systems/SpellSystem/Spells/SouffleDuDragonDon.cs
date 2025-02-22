@@ -25,7 +25,7 @@ namespace NWN.Systems
 
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
       int damageDice = SpellUtils.GetSpellDamageDiceNumber(oCaster, spell);
-      int spellDC = souffleEffect.IntParams[5];
+      int spellDC = souffleEffect.CasterLevel;
 
       foreach (NwCreature target in targetLocation.GetObjectsInShapeByType<NwCreature>(Shape.SpellCone, 5, false, oCaster.Location.Position))
       {

@@ -10,7 +10,7 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onEnterCordonDeFlechesCallback;
     public static Effect CordonDeFleches(NwGameObject caster)
     {
-      Effect eff = Effect.AreaOfEffect(PersistentVfxType.PerCustomAoe, onEnterSphereDeFeuCallback);
+      Effect eff = Effect.AreaOfEffect(PersistentVfxType.PerCustomAoe, onEnterCordonDeFlechesCallback);
       eff.Tag = CordonDeFlechesEffectTag;
       eff.Creator = caster;
       eff.SubType = EffectSubType.Supernatural;

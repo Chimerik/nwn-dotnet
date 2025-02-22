@@ -14,7 +14,8 @@ namespace NWN.Systems
 
       if (attackAbility == Anvil.API.Ability.Strength)
       {
-        roll = eff.GetInteger(5);
+        int level = creature.m_pStats.GetNumLevelsOfClass(CustomClass.Barbarian);
+        roll = level > 15 ? 4 : level > 8 ? 3 : 2;
         LogUtils.LogMessage($"Rage du Barbare : +{roll} dégâts", LogUtils.LogType.Combat);
       }
 

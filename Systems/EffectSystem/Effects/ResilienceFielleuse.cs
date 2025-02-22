@@ -10,17 +10,28 @@ namespace NWN.Systems
       EffectUtils.RemoveTaggedEffect(caster, ResilienceFielleuseEffectTag);
       caster.DecrementRemainingFeatUses((Feat)CustomSkill.ResilienceFielleuse);
 
-      Effect eff = Effect.DamageImmunityIncrease(resist, 50);
-      eff.ShowIcon = false;
+      var eff = resist switch
+      {
+        DamageType.Fire => ResistanceFeu,
+        DamageType.Cold => ResistanceFroid,
+        DamageType.Acid => ResistanceAcide,
+        DamageType.Sonic => ResistanceTonnerre,
+        DamageType.Electrical => ResistanceElec,
+        DamageType.Slashing => ResistanceTranchant,
+        DamageType.Piercing => ResistancePercant,
+        CustomDamageType.Poison => ResistancePoison,
+        CustomDamageType.Necrotic => ResistanceNecrotique,
+        CustomDamageType.Psychic => ResistancePsychique,
+        _ => ResistanceContondant,
+      };
 
-      Effect link = Effect.LinkEffects(eff, Effect.Icon(DamageType2da.damageResistanceEffectIcon[resist]));
-      link.Tag = ResilienceFielleuseEffectTag;
-      link.SubType = EffectSubType.Unyielding;
-      link.Creator = caster;
+      eff.Tag = ResilienceFielleuseEffectTag;
+      eff.SubType = EffectSubType.Unyielding;
+      eff.Creator = caster;
 
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpElementalProtection));
 
-      return link;
+      return eff;
     }
   }
 }

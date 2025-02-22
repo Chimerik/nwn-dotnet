@@ -17,7 +17,7 @@ namespace NWN.Systems
       eff.Tag = TerreurEffectTag;
       eff.Spell = spell;
       eff.SubType = EffectSubType.Supernatural;
-      eff.IntParams[5] = (int)ability;
+      eff.CasterLevel = (int)ability;
       return eff;
     }
     private static ScriptHandleResult OnIntervalTerreur(CallInfo callInfo)
@@ -34,7 +34,7 @@ namespace NWN.Systems
       else
       {
         SpellEntry spellEntry = Spells2da.spellTable[(int)Spell.Fear];
-        Ability castingAbility = (Ability)eventData.Effect.IntParams[5];
+        Ability castingAbility = (Ability)eventData.Effect.CasterLevel;
         int spellDC = SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellType(Spell.Fear), castingAbility);
 
         if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry, SpellConfig.SpellEffectType.Fear) != SavingThrowResult.Failure)

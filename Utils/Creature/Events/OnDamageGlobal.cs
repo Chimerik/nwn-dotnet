@@ -25,16 +25,16 @@ namespace NWN.Systems
 
       if (resist is not null && !target.ActiveEffects.Any(e => e.Tag == EffectSystem.CooldownEffectTag && e.IntParams[5] == CustomSpell.Resistance))
       {
-        switch (resist.IntParams[6])
+        switch (resist.Spell.Id)
         {
-          case CustomSpell.ResistanceContondant: ApplyResistanceReduction(onDamage.DamageData, DamageType.Bludgeoning, target, resist.IntParams[6]); break;
-          case CustomSpell.ResistanceAcide: ApplyResistanceReduction(onDamage.DamageData, DamageType.Acid, target, resist.IntParams[6]); break;
-          case CustomSpell.ResistanceElec: ApplyResistanceReduction(onDamage.DamageData, DamageType.Electrical, target, resist.IntParams[6]); break;
-          case CustomSpell.ResistanceFeu: ApplyResistanceReduction(onDamage.DamageData, DamageType.Fire, target, resist.IntParams[6]); break;
-          case CustomSpell.ResistanceFroid: ApplyResistanceReduction(onDamage.DamageData, DamageType.Cold, target, resist.IntParams[6]); break;
-          case CustomSpell.ResistancePercant: ApplyResistanceReduction(onDamage.DamageData, DamageType.Piercing, target, resist.IntParams[6]); break;
-          case CustomSpell.ResistanceTranchant: ApplyResistanceReduction(onDamage.DamageData, DamageType.Slashing, target, resist.IntParams[6]); break;
-          case CustomSpell.ResistancePoison: ApplyResistanceReduction(onDamage.DamageData, DamageType.Custom1, target, resist.IntParams[6]); break;
+          case CustomSpell.ResistanceContondant: ApplyResistanceReduction(onDamage.DamageData, DamageType.Bludgeoning, target, resist.Spell); break;
+          case CustomSpell.ResistanceAcide: ApplyResistanceReduction(onDamage.DamageData, DamageType.Acid, target, resist.Spell); break;
+          case CustomSpell.ResistanceElec: ApplyResistanceReduction(onDamage.DamageData, DamageType.Electrical, target, resist.Spell); break;
+          case CustomSpell.ResistanceFeu: ApplyResistanceReduction(onDamage.DamageData, DamageType.Fire, target, resist.Spell); break;
+          case CustomSpell.ResistanceFroid: ApplyResistanceReduction(onDamage.DamageData, DamageType.Cold, target, resist.Spell); break;
+          case CustomSpell.ResistancePercant: ApplyResistanceReduction(onDamage.DamageData, DamageType.Piercing, target, resist.Spell); break;
+          case CustomSpell.ResistanceTranchant: ApplyResistanceReduction(onDamage.DamageData, DamageType.Slashing, target, resist.Spell); break;
+          case CustomSpell.ResistancePoison: ApplyResistanceReduction(onDamage.DamageData, DamageType.Custom1, target, resist.Spell); break;
         }
       }
 
@@ -85,7 +85,7 @@ namespace NWN.Systems
                 {
                   int ouraganDC = SpellUtils.GetCasterSpellDC(target, Ability.Wisdom);
                   int ouraganDamage = GetSavingThrow(target, damager, Ability.Dexterity, ouraganDC) == SavingThrowResult.Failure ? Utils.Roll(8, 2) : Utils.Roll(8, 1);
-                  NWScript.AssignCommand(target, () => damager.ApplyEffect(EffectDuration.Instant, Effect.Damage(ouraganDamage, (DamageType)eff.IntParams[5])));
+                  NWScript.AssignCommand(target, () => damager.ApplyEffect(EffectDuration.Instant, Effect.Damage(ouraganDamage, eff.Spell == NwSpell.FromSpellId(CustomSpell.FureurDelOuraganFoudre) ? DamageType.Electrical : DamageType.Sonic)));
 
                   EffectUtils.RemoveTaggedEffect(target, EffectSystem.FureurDelOuraganEffectTag);
                 }
@@ -108,7 +108,7 @@ namespace NWN.Systems
 
       NWScript.AssignCommand(damager, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.DamagedBy, NwTimeSpan.FromRounds(1)));
     }
-    private static void ApplyResistanceReduction(DamageData<int> damageData, DamageType damageType, NwCreature target, int spellId)
+    private static void ApplyResistanceReduction(DamageData<int> damageData, DamageType damageType, NwCreature target, NwSpell spell)
     {
       int damage = damageData.GetDamageByType(damageType);
       
@@ -118,7 +118,7 @@ namespace NWN.Systems
         int total = damage - damageReduction;
         damageData.SetDamageByType(damageType, total);
 
-        target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Cooldown(target, 6, CustomSpell.Resistance, spellId));
+        target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Cooldown(target, 6, CustomSpell.Resistance, spell));
 
         LogUtils.LogMessage($"Résistance : {StringUtils.GetDamageTypeTraduction(damageType)} réduits de {damageReduction} ({damage} - {damageReduction} = {total})", LogUtils.LogType.Combat);
       }

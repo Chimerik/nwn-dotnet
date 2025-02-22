@@ -125,7 +125,6 @@ namespace NWN.Systems
     public const string RegardHypnotiqueTargetListVariable = "_REGARD_HYPNOTIQUE_TARGET_LIST";
 
     public const string VigueurNaineHDVariable = "_FEAT_VIGUEUR_NAINE_HD";
-    public const string MeneurExaltantVariable = "_MENEUR_EXALTANT_BUFF";
     public const string OriginalSizeVariable = "_ORIGINAL_SIZE";
 
     public const string ClercMartialVariable = "_CLERC_MARTIAL";

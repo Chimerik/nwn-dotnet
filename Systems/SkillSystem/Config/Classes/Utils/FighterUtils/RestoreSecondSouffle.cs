@@ -10,7 +10,7 @@ namespace NWN.Systems
         return;
 
       await NwTask.NextFrame();
-      byte fighterLevel = creature.GetClassInfo(ClassType.Fighter).Level;
+      byte fighterLevel = GetFighterLevel(creature);
       byte maxUses = (byte)(fighterLevel > 9 ? 4 : fighterLevel > 3 ? 3 : 2);
       byte currentUses = creature.GetFeatRemainingUses((Feat)CustomSkill.FighterSecondWind);
 
@@ -22,6 +22,11 @@ namespace NWN.Systems
       else
       {
         creature.SetFeatRemainingUses((Feat)CustomSkill.FighterSecondWind, maxUses);
+
+        if(creature.KnowsFeat((Feat)CustomSkill.FighterInflexible))
+        {
+          creature.SetFeatRemainingUses((Feat)CustomSkill.FighterInflexible, (byte)(fighterLevel > 16 ? 3 : fighterLevel > 12 ? 2 : 1));
+        }
       }
     }
   }

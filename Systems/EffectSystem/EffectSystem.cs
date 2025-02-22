@@ -6,8 +6,6 @@ namespace NWN.Systems
   [ServiceBinding(typeof(EffectSystem))]
   public partial class EffectSystem
   {
-    public static readonly Native.API.CExoString exoDelimiter = "_".ToExoString();
-
     private static ScriptHandleFactory scriptHandleFactory;
 
     public EffectSystem(ScriptHandleFactory scriptFactory)

@@ -109,6 +109,7 @@ namespace NWN.Systems
       OverrideTlkEntry(191455, "Réaction");
       OverrideTlkEntry(191581, "Pas d'Action Bonus");
       OverrideTlkEntry(191582, "Pas de Réaction");
+      OverrideTlkEntry(191585, "Déplacement Rapide");
 
       OverrideTlkEntry(NwBaseItem.FromItemType(BaseItemType.Whip).Description.CustomId, "Arme de Finesse et d'Allonge. 1d4 dégâts tranchants");
       OverrideTlkEntry(NwBaseItem.FromItemType(BaseItemType.LightMace).Name.CustomId, "Masse d'Armes");

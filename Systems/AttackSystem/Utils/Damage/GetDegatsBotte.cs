@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     public static int GetDegatsBotteSecrete(CNWSCreature creature, CGameEffect eff, List<string> noStack)
     {
-      int bonusDamage = eff.GetInteger(5);
+      int bonusDamage = eff.m_nCasterLevel;
       LogUtils.LogMessage($"Dégâts Botte Secrête : +{bonusDamage}", LogUtils.LogType.Combat);
 
       noStack.Add(EffectSystem.BotteSecreteEffectTag);

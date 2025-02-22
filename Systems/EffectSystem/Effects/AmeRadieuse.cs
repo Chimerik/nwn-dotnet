@@ -9,10 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect res = Effect.DamageImmunityIncrease(DamageType.Divine, 50);
-        res.ShowIcon = false;
-
-        Effect eff = Effect.LinkEffects(res, Effect.Icon(CustomEffectIcon.RadiantResistance));
+        Effect eff = ResistanceRadiant;
         eff.Tag = AmeRadieuseEffectTag;
         eff.SubType = EffectSubType.Unyielding;
         return eff;

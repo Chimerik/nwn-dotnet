@@ -15,7 +15,7 @@ namespace NWN.Systems
       eff.Creator = caster;
       eff.Spell = spell;
       eff.SubType = EffectSubType.Supernatural;
-      eff.IntParams[5] = SpellUtils.GetCasterSpellDC(caster, spell, castAbility);
+      eff.CasterLevel = SpellUtils.GetCasterSpellDC(caster, spell, castAbility);
 
       var breathFeat = spell.Id switch
       {

@@ -7,8 +7,8 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string MarqueDuChasseurTag = "_MARQUE_DU_CHASSEUR_EFFECT";
-
     private static ScriptCallbackHandle onRemoveMarqueDuChasseurCallback;
+
     public static Effect MarqueDuChasseur
     {
       get

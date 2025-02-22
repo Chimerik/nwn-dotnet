@@ -118,12 +118,7 @@ namespace NWN.Systems
 
           break;
 
-        case 13:
-
-          player.LearnClassSkill(CustomSkill.FighterInflexible);
-          player.LearnClassSkill(CustomSkill.FighterAttaquesEtudiees);
-
-          break;
+        case 13: player.LearnClassSkill(CustomSkill.FighterAttaquesEtudiees); break;
 
         case 14:
 
@@ -142,12 +137,7 @@ namespace NWN.Systems
 
           break;
 
-        case 17:
-
-          player.LearnClassSkill(CustomSkill.FighterInflexible);
-          player.LearnClassSkill(CustomSkill.FighterSurge);
-
-          break;
+        case 17: player.LearnClassSkill(CustomSkill.FighterSurge); break;
 
         case 19:
 

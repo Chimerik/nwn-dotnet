@@ -14,7 +14,7 @@ namespace NWN.Systems
     {
       Effect damageReduction = Effect.DamageReduction(intensity, DamagePower.Plus20);
       damageReduction.ShowIcon = false;
-      Effect eff = Effect.LinkEffects(Effect.Icon(EffectIcon.DamageReduction), damageReduction, Effect.RunAction(onRemovedHandle: onRemoveAbjurationWardCallback));
+      Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.AbjurationWard), damageReduction, Effect.RunAction(onRemovedHandle: onRemoveAbjurationWardCallback));
       eff.CasterLevel = intensity;
       eff.Tag = AbjurationWardEffectTag;
       eff.SubType = EffectSubType.Unyielding;

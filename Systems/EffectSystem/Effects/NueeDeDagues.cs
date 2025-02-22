@@ -39,14 +39,11 @@ namespace NWN.Systems
       if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnHeartbeat eventData)
         && eventData.Effect.Creator is NwCreature caster)
       {
-        ModuleSystem.Log.Info($"heartbeat !");
-
         NwSpell spell = NwSpell.FromSpellId(CustomSpell.NueeDeDagues).MasterSpell;
         SpellEntry spellEntry = Spells2da.spellTable[spell.Id];
         
         foreach (var target in eventData.Effect.GetObjectsInEffectArea<NwCreature>())
         {
-          ModuleSystem.Log.Info($"heartbeat target : {target.Name}");
           HandleNueeDeDaguesEffect(caster, target, spellEntry, spell);
         }
       }

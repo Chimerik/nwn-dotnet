@@ -5,11 +5,11 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string FureurDelOuraganEffectTag = "_FUREUR_OURAGAN_EFFECT";
-    public static Effect FureurDeLOuragan(int spellId)
+    public static Effect FureurDeLOuragan(NwSpell spell)
     {
       var eff = Effect.RunAction();
       eff.Tag = FureurDelOuraganEffectTag;
-      eff.IntParams[5] = spellId == CustomSpell.FureurDelOuraganFoudre ? (int)DamageType.Electrical : (int)DamageType.Sonic;
+      eff.Spell = spell;
       return eff;
     }
   }

@@ -588,7 +588,6 @@ namespace NWN.Systems
                   case "longRest": 
                     
                     player.oid.LoginCreature.ForceRest();
-                    player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(CreatureUtils.MeneurExaltantVariable).Delete();
                     player.oid.LoginCreature.GetObjectVariable<LocalVariableString>(CreatureUtils.RegardHypnotiqueTargetListVariable).Delete();
                     player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>(EffectSystem.EvocateurSurchargeVariable).Delete();
                     player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_ILLUSION_SEE_INVI_COOLDOWN").Delete();

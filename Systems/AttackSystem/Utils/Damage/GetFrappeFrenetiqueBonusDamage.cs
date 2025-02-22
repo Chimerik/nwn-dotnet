@@ -9,7 +9,8 @@ namespace NWN.Systems
     {
       if (attackAbility == Anvil.API.Ability.Strength)
       {
-        int nbDices = eff.GetInteger(5);
+        int barbarianLevel = creature.m_pStats.GetNumLevelsOfClass(CustomClass.Barbarian);
+        int nbDices = barbarianLevel > 15 ? 4 : barbarianLevel > 8 ? 3 : 2; ;
         int roll = Utils.Roll(6, isCritical ? nbDices * 2 : nbDices);
 
         creature.RemoveEffect(eff);

@@ -11,7 +11,7 @@ namespace NWN.Systems
     public static readonly Native.API.CExoString FrappeRuseeVariableExo = FrappeRuseeVariable.ToExoString();
     public static void ApplyFrappeRusee(NwCreature caster, NwSpell spell)
     {
-      if(caster.ActiveEffects.Any(e => e.Tag == FrappeRuseeEffectTag && e.IntParams[5] == spell.Id))
+      if(caster.ActiveEffects.Any(e => e.Tag == FrappeRuseeEffectTag && e.Spell == spell))
       {
         caster.LoginPlayer?.SendServerMessage($"{spell.Name.ToString().ColorString(ColorConstants.White)} - Désactivé", ColorConstants.Orange);
         EffectUtils.RemoveTaggedParamEffect(caster, spell.Id, FrappeRuseeEffectTag);
@@ -23,7 +23,7 @@ namespace NWN.Systems
         if(caster.ActiveEffects.Count(e => e.Tag == FrappeRuseeEffectTag) > 1)
         {
           var previousEff = caster.ActiveEffects.First(e => e.Tag == FrappeRuseeEffectTag);
-          NwSpell previousSpell = NwSpell.FromSpellId(previousEff.IntParams[5]);
+          NwSpell previousSpell = previousEff.Spell;
           EffectUtils.RemoveTaggedParamEffect(caster, previousSpell.Id, FrappeRuseeEffectTag);
           caster.LoginPlayer?.SendServerMessage($"{previousSpell.Name.ToString().ColorString(ColorConstants.White)} - Désactivé", ColorConstants.Orange);
         }
@@ -45,7 +45,7 @@ namespace NWN.Systems
       eff.Tag = FrappeRuseeEffectTag;
       eff.SubType = EffectSubType.Unyielding;
       eff.Creator = caster;
-      eff.IntParams[5] = spell.Id;
+      eff.Spell = spell;
 
       caster.ApplyEffect(EffectDuration.Permanent, eff);
       caster.OnCreatureDamage -= RogueUtils.OnDamageFrappeRusee;

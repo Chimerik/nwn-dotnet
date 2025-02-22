@@ -10,7 +10,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.Icon(EffectIcon.ACDecrease);
+        Effect eff = Effect.Icon(CustomEffectIcon.EclairTracant);
         eff.Tag = EclairTracantEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         eff.Spell = NwSpell.FromSpellId(CustomSpell.EclairTracant);

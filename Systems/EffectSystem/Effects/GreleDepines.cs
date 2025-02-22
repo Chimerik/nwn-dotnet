@@ -16,7 +16,7 @@ namespace NWN.Systems
 
       Effect eff = Effect.RunAction(onRemovedHandle: onRemoveGreleDepinesCallback);
       eff.Tag = GreleDepinesEffectTag;
-      eff.IntParams[5] = (int)dcAbility;
+      eff.CasterLevel = (int)dcAbility;
       eff.SubType = EffectSubType.Supernatural;
       eff.Spell = spell;
 
@@ -43,7 +43,7 @@ namespace NWN.Systems
 
             SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.GreleDepines];
             NwSpell spell = NwSpell.FromSpellId(CustomSpell.GreleDepines);
-            int spellDC = SpellUtils.GetCasterSpellDC(onAttack.Attacker, (Ability)onAttack.Attacker.ActiveEffects.FirstOrDefault(e => e.Tag == GreleDepinesEffectTag).IntParams[5]);
+            int spellDC = SpellUtils.GetCasterSpellDC(onAttack.Attacker, (Ability)onAttack.Attacker.ActiveEffects.FirstOrDefault(e => e.Tag == GreleDepinesEffectTag).CasterLevel);
 
             foreach (NwCreature spellTarget in target.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, spellEntry.aoESize, false))
             {

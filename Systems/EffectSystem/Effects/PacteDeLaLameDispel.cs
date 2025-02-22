@@ -14,7 +14,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.Icon((EffectIcon)191), Effect.RunAction(onIntervalHandle: onIntervalPacteDeLaLameDispelCallback, interval:TimeSpan.FromMinutes(1)));
+        Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.PacteDeLaLame), Effect.RunAction(onIntervalHandle: onIntervalPacteDeLaLameDispelCallback, interval:TimeSpan.FromMinutes(1)));
         eff.Tag = PacteDeLaLameDispelEffectTag;
         eff.SubType = EffectSubType.Unyielding;
         return eff;

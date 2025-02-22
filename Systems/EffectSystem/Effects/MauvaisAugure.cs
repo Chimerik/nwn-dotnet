@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.Icon(EffectIcon.ACDecrease);
+        Effect eff = Effect.Icon(CustomEffectIcon.MauvaisAugure);
         eff.Tag = MauvaisAugureEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         eff.Spell = NwSpell.FromSpellId(CustomSpell.MauvaisAugure);

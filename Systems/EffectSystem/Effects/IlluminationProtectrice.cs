@@ -7,7 +7,7 @@ namespace NWN.Systems
     public const string IlluminationProtectriceEffectTag = "_ILLUMINATION_PROTECTRICE_EFFECT";
     public static void ApplyIlluminationProtectrice(NwCreature caster, NwCreature target)
     {
-      Effect eff = Effect.Icon(EffectIcon.ACIncrease);
+      Effect eff = Effect.Icon(CustomEffectIcon.IlluminationProtectrice);
       eff.Tag = IlluminationProtectriceEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       target.ApplyEffect(EffectDuration.Permanent, eff);

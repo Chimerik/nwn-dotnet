@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.Icon(NwGameTables.EffectIconTable.GetRow(163));
+        Effect eff = Effect.Icon(CustomEffectIcon.Assassinat);
         eff.Tag = AssassinateEffectTag;
         return eff;
       }

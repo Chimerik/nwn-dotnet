@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.Icon(NwGameTables.EffectIconTable.GetRow(140));
+        Effect eff = Effect.Icon(CustomEffectIcon.Esquive);
         eff.Tag = DodgeEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

@@ -7,7 +7,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string ShillelaghEffectTag = "_SHILLELAGH_EFFECT";
-    public static readonly Native.API.CExoString ShillelaghEffectExoTag = ShillelaghEffectTag.ToExoString();
     private static ScriptCallbackHandle onRemoveShillelaghCallback;
     public static void ApplyShillelagh(NwCreature caster, NwSpell spell, Ability casterAbility)
     {
@@ -17,7 +16,7 @@ namespace NWN.Systems
       Effect attack = Effect.LinkEffects(Effect.Icon(EffectIcon.AttackIncrease), Effect.RunAction(onRemovedHandle: onRemoveShillelaghCallback));
       attack.Tag = ShillelaghEffectTag;
       attack.SubType = EffectSubType.Supernatural;
-      attack.IntParams[5] = (int)casterAbility;
+      attack.CasterLevel = (int)casterAbility;
       attack.Spell = spell;
       caster.ApplyEffect(EffectDuration.Permanent, attack);
 

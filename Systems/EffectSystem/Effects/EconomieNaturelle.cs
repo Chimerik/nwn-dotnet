@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.Icon((EffectIcon)184);
+        Effect eff = Effect.Icon(CustomEffectIcon.EconomieNaturelle);
         eff.Tag = EconomieNaturelleEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

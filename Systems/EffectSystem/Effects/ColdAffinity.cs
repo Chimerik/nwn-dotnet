@@ -9,10 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect resist = Effect.DamageImmunityIncrease(DamageType.Cold, 50);
-        resist.ShowIcon = false;
-
-        Effect eff = Effect.LinkEffects(resist, Effect.Icon(CustomEffectIcon.ColdResistance));
+        Effect eff = Effect.LinkEffects(ResistanceFroid);
         eff.Tag = ColdAffinityEffectTag;
         eff.SubType = EffectSubType.Unyielding;
         return eff;

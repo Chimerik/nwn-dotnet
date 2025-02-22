@@ -10,10 +10,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect resist = Effect.DamageImmunityIncrease(DamageType.Fire, 50);
-        resist.ShowIcon = false;
-
-        Effect eff = Effect.LinkEffects(resist, Effect.Icon(CustomEffectIcon.FireResistance));
+        Effect eff = ResistanceFeu;
         eff.Tag = FireAffinityEffectTag;
         eff.SubType = EffectSubType.Unyielding;
         return eff;

@@ -1,6 +1,5 @@
 ﻿using Anvil.API.Events;
 using Anvil.API;
-using System.Linq;
 
 namespace NWN.Systems
 {

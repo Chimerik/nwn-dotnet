@@ -8,7 +8,7 @@ namespace NWN.Systems
     public static readonly Native.API.CExoString defenseVaillanteEffectExoTag = DefenseVaillanteEffectTag.ToExoString();
     public static Effect GetDefenseVaillanteEffect(int bonus)
     {
-      Effect eff = Effect.Icon((EffectIcon)170);
+      Effect eff = Effect.Icon(CustomEffectIcon.DefenseVaillante);
       eff.Tag = DefenseVaillanteEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       eff.CasterLevel = bonus;

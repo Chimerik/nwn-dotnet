@@ -9,7 +9,6 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string MaleficeTag = "_MALEFICE_EFFECT";
-    public static readonly Native.API.CExoString MaleficeExoTag = MaleficeTag.ToExoString();
 
     private static ScriptCallbackHandle onRemoveMaleficeCallback;
     public static Effect Malefice(NwCreature caster, NwSpell spell)
@@ -17,21 +16,10 @@ namespace NWN.Systems
       caster.OnCreatureAttack -= OnAttackMalefice;
       caster.OnCreatureAttack += OnAttackMalefice;
 
-      var ability = spell.Id switch
-      {
-        CustomSpell.MaledictionForce => Ability.Strength,
-        CustomSpell.MaledictionDexterite => Ability.Dexterity,
-        CustomSpell.MaledictionIntelligence => Ability.Intelligence,
-        CustomSpell.MaledictionSagesse => Ability.Wisdom,
-        CustomSpell.MaledictionCharisme => Ability.Charisma,
-        _ => Ability.Constitution,
-      };
-
       Effect eff = Effect.RunAction(onRemovedHandle: onRemoveMaleficeCallback);
       eff.Tag = MaleficeTag;
       eff.Spell = spell;
       eff.SubType = EffectSubType.Supernatural;
-      eff.IntParams[5] = (int)ability;
       return eff;
     }
     private static ScriptHandleResult OnRemoveMalefice(CallInfo callInfo)

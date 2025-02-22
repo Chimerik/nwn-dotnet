@@ -155,7 +155,7 @@ namespace NWN.Systems
         CGameEffect frappeGuideeEffect = targetObject.m_appliedEffects.FirstOrDefault(e => e.m_sCustomTag.ToString() == EffectSystem.FrappeGuideeEffectTag);
         int frappeGuideeBonus = frappeGuideeEffect is not null ? 10 : 0;
 
-        if (targetObject.m_appliedEffects.Any(e => e.m_sCustomTag.CompareNoCase(EffectSystem.ImageMiroirEffectExoTag).ToBool()))
+        if (targetObject.m_appliedEffects.Any(e => e.m_sCustomTag.ToString() == EffectSystem.ImageMiroirEffectTag))
         {
           int nbImages = targetObject.m_ScriptVars.GetInt(EffectSystem.ImageMiroirEffectExoTag);
           List<int> imagesRoll = new();

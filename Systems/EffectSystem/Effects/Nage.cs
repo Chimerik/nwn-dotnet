@@ -5,7 +5,7 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string NageffectTag = "_NAGE_EFFECT";
-    public static readonly Native.API.CExoString NageEffectExoTag = NageffectTag.ToExoString();
+
     public static Effect Nage
     {
       get

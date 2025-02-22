@@ -13,7 +13,7 @@ namespace NWN.Systems
       Effect damage = Effect.DamageIncrease((int)DamageBonus.Plus1d8, DamageType.Divine);
       damage.ShowIcon = false;
 
-      Effect eff = Effect.LinkEffects(Effect.Icon((EffectIcon)182), damage);
+      Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.ChatimentAmeliore), damage);
       eff.Tag = ChatimentAmelioreEffectTag;
       eff.SubType = EffectSubType.Unyielding;
       return eff;

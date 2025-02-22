@@ -11,6 +11,7 @@ namespace NWN.Systems
     public const string NappeDeBrouillardBlindEffectTag = "_NAPPE_DE_BROUILLARD_BLIND_EFFECT";
     private static ScriptCallbackHandle onEnterNappeDeBrouillardCallback;
     private static ScriptCallbackHandle onExitNappeDeBrouillardCallback;
+
     public static Effect NappeDeBrouillard(NwCreature caster, NwSpell spell)
     {
       Effect eff = Effect.AreaOfEffect(CustomAoE.NappeDeBrouillard, onEnterNappeDeBrouillardCallback, onExitHandle: onExitNappeDeBrouillardCallback);

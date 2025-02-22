@@ -9,8 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.Immunity(ImmunityType.Poison), Effect.Immunity(ImmunityType.Disease),
-          Effect.DamageImmunityIncrease(CustomDamageType.Poison, 100));
+        Effect eff = Effect.LinkEffects(Effect.Immunity(ImmunityType.Poison), Effect.Immunity(ImmunityType.Disease), ImmunitePoison);
         eff.Tag = PuretePhysiqueEffectTag;
         eff.SubType = EffectSubType.Unyielding;
         return eff;

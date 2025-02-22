@@ -15,7 +15,7 @@ namespace NWN.Systems
       target.OnHeal -= OnHealRemoveExpertiseEffect;
       target.OnHeal += OnHealRemoveExpertiseEffect;
 
-      Effect eff = Effect.Slow();
+      Effect eff = Effect.LinkEffects(Effect.Slow(), Effect.Icon(CustomEffectIcon.ArretCardiaque));
       eff.Tag = ArretCardiaqueEffectTag;
       eff.SubType = EffectSubType.Supernatural;
 

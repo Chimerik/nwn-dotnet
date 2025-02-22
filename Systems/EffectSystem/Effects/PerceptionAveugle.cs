@@ -16,7 +16,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.AreaOfEffect((PersistentVfxType)184, onEnterHandle: onEnterPerceptionAveugleCallback);
+        Effect eff = Effect.AreaOfEffect(CustomAoE.MeleeRange, onEnterHandle: onEnterPerceptionAveugleCallback);
         eff.Tag = PerceptionAveugleAuraEffectTag;
         eff.SubType = EffectSubType.Unyielding;
         return eff;

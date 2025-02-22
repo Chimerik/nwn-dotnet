@@ -14,7 +14,7 @@ namespace NWN.Systems
       EffectUtils.RemoveTaggedEffect(oTarget, EffectSystem.AmeliorationCaracteristiqueEffectTag);
 
       oCaster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpImproveAbilityScore));
-      oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.AmeliorationCaracteristique(oTarget, spellEntry), NwTimeSpan.FromRounds(spellEntry.duration));
+      oCaster.ApplyEffect(EffectDuration.Temporary, EffectSystem.AmeliorationCaracteristique(oTarget, spell), NwTimeSpan.FromRounds(spellEntry.duration));
 
       return new List<NwGameObject> { oTarget };
     }

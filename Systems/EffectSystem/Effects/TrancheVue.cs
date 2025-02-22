@@ -10,7 +10,7 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onRemoveTrancheVueCallback;
     public static Effect TrancheVue(NwCreature caster)
     {
-      Effect eff = Effect.LinkEffects(Effect.Icon((EffectIcon)187), Effect.RunAction(onRemovedHandle: onRemoveTrancheVueCallback));
+      Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.TrancheVue), Effect.RunAction(onRemovedHandle: onRemoveTrancheVueCallback));
       eff.Tag = TrancheVueEffectTag;
       eff.SubType = EffectSubType.Supernatural;
 

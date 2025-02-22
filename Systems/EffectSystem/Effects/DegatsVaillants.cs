@@ -10,7 +10,7 @@ namespace NWN.Systems
     {
       EffectUtils.RemoveTaggedEffect(target, DegatsVaillanteEffectTag);
 
-      Effect eff = Effect.Icon((EffectIcon)171);
+      Effect eff = Effect.Icon(CustomEffectIcon.DegatsVaillants);
       eff.Tag = DegatsVaillanteEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       eff.CasterLevel = bonus;

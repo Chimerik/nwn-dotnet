@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.ACIncrease(1, ACBonus.Dodge), Effect.Icon((EffectIcon)157));
+        Effect eff = Effect.LinkEffects(Effect.ACIncrease(1, ACBonus.Dodge), Effect.Icon(CustomEffectIcon.MaitreArmureIntermediaire));
         eff.Tag = MaitreArmureIntermediaireEffectTag;
         eff.SubType = EffectSubType.Unyielding;
         return eff;

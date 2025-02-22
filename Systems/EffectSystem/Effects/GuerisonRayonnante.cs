@@ -9,7 +9,7 @@ namespace NWN.Systems
     public const string GuerisonRayonnanteEffectTag = "_GUERISON_RAYONNANTE_EFFECT";
     public static Effect GuerisonRayonnante(NwCreature caster)
     {
-      Effect eff = Effect.Icon((EffectIcon)177);
+      Effect eff = Effect.Icon(CustomEffectIcon.GuerisonRayonnante);
       eff.Tag = GuerisonRayonnanteEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       caster.OnEffectRemove += OnRemoveGuerisonRayonnante;

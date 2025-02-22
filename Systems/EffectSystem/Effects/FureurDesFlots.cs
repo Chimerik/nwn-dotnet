@@ -18,8 +18,7 @@ namespace NWN.Systems
         Effect.AreaOfEffect(PersistentVfxType.PerCustomAoe, onEnterFureurDesFlotsCallback, onHeartbeatFureurDesFlotsCallback));
 
       if (druideLevel > 9)
-        eff = Effect.LinkEffects(eff, Effect.DamageImmunityIncrease(DamageType.Cold, 50), Effect.DamageImmunityIncrease(DamageType.Sonic, 50),
-          Effect.DamageImmunityIncrease(DamageType.Electrical, 50));
+        eff = Effect.LinkEffects(eff, ResistanceFroid, ResistanceTonnerre, ResistanceElec);
 
       eff.Tag = FureurDesFlotsEffectTag;
       eff.SubType = EffectSubType.Supernatural;

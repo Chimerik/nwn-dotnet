@@ -29,7 +29,7 @@ namespace NWN.Systems
         eff.SubType = EffectSubType.Supernatural;
         eff.Spell = spell;
         eff.Creator = caster;
-        eff.IntParams[5] = (int)DCAbility;
+        eff.CasterLevel = (int)DCAbility;
 
         target.OnDamaged -= OnDamagedFouRire;
         target.OnDamaged += OnDamagedFouRire;
@@ -47,7 +47,7 @@ namespace NWN.Systems
       {
         if (eff.Creator is NwCreature caster)
         {
-          int spellDC = SpellUtils.GetCasterSpellDC(caster, (Ability)eff.IntParams[5]);
+          int spellDC = SpellUtils.GetCasterSpellDC(caster, (Ability)eff.CasterLevel);
 
           if (CreatureUtils.GetSavingThrow(caster, target, Ability.Wisdom, spellDC) != SavingThrowResult.Failure)
             EffectUtils.RemoveTaggedEffect(target, FouRireDeTashaEffectTag);
@@ -77,7 +77,7 @@ namespace NWN.Systems
       {
         if (eff.Creator is NwCreature caster)
         {
-          int spellDC = SpellUtils.GetCasterSpellDC(caster, (Ability)eff.IntParams[5]);
+          int spellDC = SpellUtils.GetCasterSpellDC(caster, (Ability)eff.CasterLevel);
 
           if (CreatureUtils.GetSavingThrow(caster, onDamaged.Creature, Ability.Wisdom, spellDC, Spells2da.spellTable[CustomSpell.FouRireDeTasha], SpellConfig.SpellEffectType.Tasha) != SavingThrowResult.Failure)
             EffectUtils.RemoveTaggedEffect(onDamaged.Creature, FouRireDeTashaEffectTag);

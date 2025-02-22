@@ -7,18 +7,16 @@ namespace NWN.Systems
     public const string ProtectionNaturelleEffectTag = "_PROTECTION_NATURELLE_EFFECT";
     public static Effect ProtectionNaturelle(PlayerSystem.Player druid)
     {
-      DamageType damageType = DamageType.Fire;
+      Effect effRes = ResistanceFeu;
 
       if (druid.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerrePolaire))
-        damageType = DamageType.Cold;
+        effRes = ResistanceFroid;
       else if(druid.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerreTempere))
-        damageType = DamageType.Electrical;
+        effRes = ResistanceElec;
       else if (druid.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerreTropicale))
-        damageType = CustomDamageType.Poison;
+        effRes = ResistancePoison;
 
-      Effect eff = Effect.LinkEffects(Effect.Immunity(ImmunityType.Poison),
-        Effect.DamageImmunityIncrease(damageType, 50));
-        
+      Effect eff = Effect.LinkEffects(Effect.Immunity(ImmunityType.Poison), effRes);        
       eff.Tag = ProtectionNaturelleEffectTag;
       eff.SubType = EffectSubType.Unyielding;
       return eff;

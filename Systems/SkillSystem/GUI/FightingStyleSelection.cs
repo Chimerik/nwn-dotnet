@@ -131,10 +131,7 @@ namespace NWN.Systems
                 case "validate":
 
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_FIGHTING_STYLE_SELECTION").Delete();
-
-                  player.learnableSkills.TryAdd(selectedLearnable.id, new LearnableSkill((LearnableSkill)learnableDictionary[selectedLearnable.id], player, levelTaken: player.oid.LoginCreature.Level));
-                  player.learnableSkills[selectedLearnable.id].LevelUp(player);
-
+                  player.LearnClassSkill(selectedLearnable.id);
                   player.oid.SendServerMessage($"Vous maîtrisez le style de combat : {StringUtils.ToWhitecolor(selectedLearnable.name)} !", ColorConstants.Orange);
 
                   CloseWindow();

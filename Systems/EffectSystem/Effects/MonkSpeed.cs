@@ -8,7 +8,7 @@ namespace NWN.Systems
     public static Effect GetMonkSpeedEffect(int monkLevel)
     {
       int speed = monkLevel > 17 ? 50 : monkLevel > 13 ? 40  : monkLevel > 9 ? 30 : monkLevel > 5 ? 20 : monkLevel > 1 ? 10 : 0;
-      Effect eff = /*speed > 0 ?*/ Effect.LinkEffects(Effect.MovementSpeedIncrease(speed), Effect.Icon(EffectIcon.MovementSpeedIncrease))
+      Effect eff = /*speed > 0 ?*/ Effect.LinkEffects(Effect.MovementSpeedIncrease(speed), Effect.Icon(CustomEffectIcon.MonkSpeed))
           /*: Effect.RunAction()*/;
       eff.Tag = MonkSpeedEffectTag;
       eff.SubType = EffectSubType.Unyielding;

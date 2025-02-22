@@ -15,7 +15,7 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onRemovePuitsDeLuneCallback;
     public static Effect PuitsDeLune(NwCreature caster, NwSpell spell, Ability ability, TimeSpan spellDuration)
     {
-      Effect eff = Effect.LinkEffects(Effect.DamageImmunityIncrease(DamageType.Divine, 50),
+      Effect eff = Effect.LinkEffects(ResistanceRadiant,
         Effect.RunAction(onRemovedHandle: onRemovePuitsDeLuneCallback, onIntervalHandle: onIntervalPuitsDeLuneCallback, interval: TimeSpan.FromSeconds(2)));
       
       var weapon = caster.GetItemInSlot(InventorySlot.RightHand);

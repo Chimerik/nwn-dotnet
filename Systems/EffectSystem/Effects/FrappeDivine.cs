@@ -10,7 +10,7 @@ namespace NWN.Systems
     public static readonly Native.API.CExoString FrappeDivineEffectExoTag = FrappeDivineEffectTag.ToExoString();
     public static void ApplyFrappeDivine(NwCreature caster)
     {
-      Effect eff = Effect.Icon((EffectIcon)223);
+      Effect eff = Effect.Icon(CustomEffectIcon.FrappeDivine);
       eff.Tag = FrappeDivineEffectTag;
       eff.SubType = EffectSubType.Unyielding;
 

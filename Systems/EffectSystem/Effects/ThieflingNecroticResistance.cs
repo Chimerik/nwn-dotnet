@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.DamageImmunityIncrease(CustomDamageType.Necrotic, 50);
+        Effect eff = ResistanceNecrotique;
         eff.Tag = ThieflingNecroticResistanceEffectTag;
         eff.SubType = EffectSubType.Unyielding;
         return eff;

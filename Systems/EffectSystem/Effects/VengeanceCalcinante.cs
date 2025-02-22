@@ -13,7 +13,7 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onExitVengeanceCalcinanteCallback;
     public static Effect VengeanceCalcinanteAura(NwCreature caster)
     {
-      Effect eff = Effect.LinkEffects(Effect.Icon((EffectIcon)218),
+      Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.VengeanceCalcinante),
         Effect.AreaOfEffect(PersistentVfxType.PerCustomAoe, onEnterHandle: onEnterVengeanceCalcinanteCallback, onExitHandle: onExitVengeanceCalcinanteCallback));
       eff.Tag = VengeanceCalcinanteAuraEffectTag;
       eff.SubType = EffectSubType.Supernatural;

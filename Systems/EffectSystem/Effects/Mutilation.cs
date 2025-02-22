@@ -7,8 +7,8 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string MutilationEffectTag = "_MUTILATION_EFFECT";
-    public static readonly Native.API.CExoString MutilationEffectExoTag = MutilationEffectTag.ToExoString();
     private static ScriptCallbackHandle onRemoveMutilationCallback;
+
     public static void Mutilation(NwCreature target)
     {
       target.OnHeal -= OnHealRemoveExpertiseEffect;

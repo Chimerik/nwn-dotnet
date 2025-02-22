@@ -20,7 +20,7 @@ namespace NWN.Systems
 
       foreach (var eff in target.m_appliedEffects)
       {
-        if (eff.m_sCustomTag.CompareNoCase(EffectSystem.IllusionDoubleEffectExoTag).ToBool())
+        if (eff.m_sCustomTag.ToString() == EffectSystem.IllusionDoubleEffectTag)
         {
           doubleTrigger = true;
           DelayEffectRemoval(target, eff);

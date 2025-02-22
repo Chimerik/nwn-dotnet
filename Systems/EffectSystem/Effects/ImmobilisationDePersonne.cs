@@ -15,7 +15,7 @@ namespace NWN.Systems
       eff.Tag = ImmobilisationDePersonneEffectTag;
       eff.Spell = spell;
       eff.SubType = EffectSubType.Supernatural;
-      eff.IntParams[5] = (int)spellCastingAbility;
+      eff.CasterLevel = (int)spellCastingAbility;
       return eff;
     }
     private static ScriptHandleResult OnIntervalImmobilisationDePersonne(CallInfo callInfo)
@@ -33,7 +33,7 @@ namespace NWN.Systems
       }
 
       SpellEntry spellEntry = Spells2da.spellTable[(int)Spell.HoldPerson];
-      int spellDC = SpellUtils.GetCasterSpellDC(caster, Spell.HoldPerson, (Ability)eff.IntParams[5]);
+      int spellDC = SpellUtils.GetCasterSpellDC(caster, Spell.HoldPerson, (Ability)eff.CasterLevel);
 
       if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry, SpellConfig.SpellEffectType.Paralysis) != SavingThrowResult.Failure)
         target.RemoveEffect(eff);

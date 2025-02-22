@@ -8,7 +8,7 @@ namespace NWN.Systems
     public static readonly Native.API.CExoString FrappesRenforceesEffectExoTag = FrappesRenforceesEffectTag.ToExoString();
     public static Effect FrappesRenforcees(NwCreature caster)
     {
-      Effect eff = Effect.Icon(EffectIcon.AttackIncrease);
+      Effect eff = Effect.Icon(CustomEffectIcon.FrappesRenforcees);
       eff.Tag = FrappesRenforceesEffectTag;
       eff.SubType = EffectSubType.Supernatural;
 

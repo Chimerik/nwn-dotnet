@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.Icon((EffectIcon)173);
+        Effect eff = Effect.Icon(CustomEffectIcon.SensDivin);
         eff.Tag = SensDivinEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

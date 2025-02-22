@@ -29,7 +29,7 @@ namespace NWN.Systems
       Effect eff = Effect.Icon(EffectIcon.DamageIncrease);
       eff.Tag = BotteSecreteEffectTag;
       eff.SubType = EffectSubType.Supernatural;
-      eff.IntParams[5] = bonus;
+      eff.CasterLevel = bonus;
 
       return eff;
     }

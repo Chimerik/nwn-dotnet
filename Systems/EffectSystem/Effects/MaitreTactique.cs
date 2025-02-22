@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.Icon(EffectIcon.AttackIncrease);
+        Effect eff = Effect.Icon(CustomEffectIcon.MaitreTactique);
         eff.Tag = MaitreTactiqueTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

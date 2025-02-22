@@ -16,7 +16,7 @@ namespace NWN.Systems
       if (caster.Race.Id == CustomRace.HalfOrc 
         || caster.Classes.Any(c => Utils.In(c.Class.ClassType, ClassType.Rogue, (ClassType)CustomClass.RogueArcaneTrickster) && c.Level > 1)
         || caster.Classes.Any(c => c.Class.Id == CustomClass.Monk && c.Level > 1)
-        || caster.ActiveEffects.Any(e => (e.Tag == EffectSystem.BarbarianRageEffectTag && e.IntParams[6] == CustomSpell.RageSauvageAigle)
+        || caster.ActiveEffects.Any(e => (e.Tag == EffectSystem.BarbarianRageEffectTag && e.Spell == NwSpell.FromSpellId(CustomSpell.RageSauvageAigle))
         || e.Tag == EffectSystem.RetraiteExpeditiveEffectTag))
       {
         EffectUtils.RemoveTaggedEffect(caster, EffectSystem.SprintEffectTag);
@@ -32,7 +32,7 @@ namespace NWN.Systems
         if (caster.Race.Id == CustomRace.HalfOrc)
           caster.ApplyEffect(EffectDuration.Permanent, Effect.TemporaryHitpoints(NativeUtils.GetCreatureProficiencyBonus(caster)));
 
-        if(caster.ActiveEffects.Any(e => e.Tag == EffectSystem.BarbarianRageEffectTag && e.IntParams[6] == CustomSpell.RageSauvageAigle))
+        if(caster.ActiveEffects.Any(e => e.Tag == EffectSystem.BarbarianRageEffectTag && e.Spell == NwSpell.FromSpellId(CustomSpell.RageSauvageAigle)))
           caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.disengageEffect, NwTimeSpan.FromRounds(1));
 
         if(caster.KnowsFeat((Feat)CustomSkill.BelluaireEntrainementExceptionnel))

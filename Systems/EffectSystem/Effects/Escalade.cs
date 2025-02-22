@@ -4,7 +4,7 @@ namespace NWN.Systems
 {
   public partial class EffectSystem
   {
-    public const string EscaladeEffectTag = "_NAGE_EFFECT";
+    public const string EscaladeEffectTag = "_ESCALADE_EFFECT";
     public static readonly Native.API.CExoString EscaladeEffectExoTag = EscaladeEffectTag.ToExoString();
     public static Effect Escalade
     {

@@ -432,7 +432,6 @@ namespace NWN.Systems
         ApplyReaction();
         ApplyElvenSleepImmunity();
         ApplyWoodElfSpeed();
-        ApplyDrowLightSensitivity();
         ApplyThieflingFireResistance();
         ApplyAasimarResistance();
         ApplyVolee();

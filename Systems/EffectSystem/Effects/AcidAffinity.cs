@@ -9,10 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect resist = Effect.DamageImmunityIncrease(DamageType.Acid, 50);
-        resist.ShowIcon = false;
-
-        Effect eff = Effect.LinkEffects(resist, Effect.Icon(CustomEffectIcon.AcidResistance));
+        Effect eff = ResistanceAcide;
         eff.Tag = AcidAffinityEffectTag;
         eff.SubType = EffectSubType.Unyielding;
         return eff;

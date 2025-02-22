@@ -9,17 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect bludgeoning = Effect.DamageImmunityIncrease(DamageType.Bludgeoning, 50);
-        bludgeoning.ShowIcon = false;
-
-        Effect slashing = Effect.DamageImmunityIncrease(DamageType.Slashing, 50);
-        slashing.ShowIcon = false;
-
-        Effect piercing = Effect.DamageImmunityIncrease(DamageType.Piercing, 50);
-        piercing.ShowIcon = false;
-
-        Effect eff = Effect.LinkEffects(bludgeoning, slashing, piercing, Effect.Icon(CustomEffectIcon.BludgeoningResistance),
-          Effect.Icon(CustomEffectIcon.PiercingResistance), Effect.Icon(CustomEffectIcon.SlashingResistance));
+        Effect eff = Effect.LinkEffects(ResistanceContondant, ResistanceTranchant, ResistancePercant);
         eff.Tag = AvatarDeBatailleEffectTag;
         eff.SubType = EffectSubType.Unyielding;
         return eff;

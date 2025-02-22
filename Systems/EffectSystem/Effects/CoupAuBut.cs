@@ -17,14 +17,14 @@ namespace NWN.Systems
       Effect attack = Effect.Icon(CustomEffectIcon.CoupAuBut);
       attack.Tag = CoupAuButAttackEffectTag;
       attack.SubType = EffectSubType.Supernatural;
-      attack.IntParams[5] = (int)casterAbility;
+      attack.CasterLevel = (int)casterAbility;
       attack.Spell = spell;
       caster.ApplyEffect(EffectDuration.Permanent, attack);
 
       Effect damage = Effect.RunAction();
       damage.Tag = CoupAuButDamageEffectTag;
       damage.SubType = EffectSubType.Supernatural;
-      damage.IntParams[5] = (int)casterAbility;
+      damage.CasterLevel = (int)casterAbility;
       damage.Spell = spell;
       caster.ApplyEffect(EffectDuration.Permanent, damage);
 

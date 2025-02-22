@@ -30,10 +30,10 @@ namespace NWN
         if (effectTag.Contains(eff.Tag) && eff.IntParams[5] == param)
           target.RemoveEffect(eff);
     }
-    public static void RemoveTaggedParamEffect(NwGameObject target, string effectTag, params int[] param)
+    public static void RemoveTaggedSpellEffect(NwGameObject target, string effectTag, params NwSpell[] param)
     {
       foreach (var eff in target.ActiveEffects)
-        if (eff.Tag == effectTag && param.Contains(eff.IntParams[6]))
+        if (eff.Tag == effectTag && param.Contains(eff.Spell))
           target.RemoveEffect(eff);
     }
 

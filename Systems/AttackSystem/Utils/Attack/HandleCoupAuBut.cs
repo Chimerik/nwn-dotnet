@@ -10,8 +10,9 @@ namespace NWN.Systems
       if (attackWeapon is not null && GetCreatureWeaponProficiencyBonus(creature, attackWeapon) > 0)
       {
         var coupAuBut = creature.m_appliedEffects.FirstOrDefault(e => e.m_sCustomTag.ToString() == effectTag);
+        
         if (coupAuBut is not null)
-          attackStat = (Anvil.API.Ability)coupAuBut.GetInteger(5);
+          attackStat = (Anvil.API.Ability)coupAuBut.m_nCasterLevel;
 
         EffectUtils.RemoveTaggedNativeEffect(creature, effectTag);
       }

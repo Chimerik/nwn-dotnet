@@ -9,13 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect elec = Effect.DamageImmunityIncrease(DamageType.Electrical, 50);
-        elec.ShowIcon = false;
-
-        Effect thunder = Effect.DamageImmunityIncrease(DamageType.Sonic, 50);
-        thunder.ShowIcon = false;
-
-        Effect eff = Effect.LinkEffects(elec, thunder, Effect.Icon(CustomEffectIcon.ElectricalResistance), Effect.Icon(CustomEffectIcon.TonnerreResistance));
+        Effect eff = Effect.LinkEffects(ResistanceElec, ResistanceTonnerre);
         eff.Tag = CoeurDeLaTempeteEffectTag;
         eff.SubType = EffectSubType.Unyielding;
         return eff;

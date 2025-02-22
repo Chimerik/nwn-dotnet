@@ -7,7 +7,7 @@ namespace NWN.Systems
     public const string FaveurDuMalinEffectTag = "_FAVEUR_DU_MALIN_EFFECT";
     public static Effect FaveurDuMalin(int faveurId)
     {
-      Effect eff = Effect.Icon((EffectIcon)219);
+      Effect eff = Effect.Icon(CustomEffectIcon.FaveurDuMalin);
       eff.Tag = FaveurDuMalinEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       eff.IntParams[5] = faveurId;

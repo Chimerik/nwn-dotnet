@@ -12,15 +12,14 @@ namespace NWN.Systems
     public const string CooldownEffectTag = "_COOLDOWN_EFFECT";
     private static ScriptCallbackHandle onIntervalCooldownCallback;
     private static ScriptCallbackHandle onRemoveCooldownCallback;
-    public static Effect Cooldown(NwCreature caster, int cooldown, int featId, int spellId = -1)
+    public static Effect Cooldown(NwCreature caster, int cooldown, int featId, NwSpell spell = null)
     {
       Effect eff = Effect.RunAction(onRemovedHandle: onRemoveCooldownCallback, onIntervalHandle: onIntervalCooldownCallback, interval: TimeSpan.FromSeconds(1));
       eff.Tag = CooldownEffectTag;
       eff.SubType = EffectSubType.Unyielding;
+      eff.Spell = spell;
       eff.IntParams[5] = featId;
-      eff.IntParams[6] = spellId;
-
-      NwSpell spell;
+      
       NwFeat feat;
 
       if (caster.IsLoginPlayerCharacter)
@@ -63,7 +62,7 @@ namespace NWN.Systems
           case CustomSkill.ProfondeursFrappeRedoutable:
 
             var frappeRedoutable = caster.ActiveEffects.FirstOrDefault(e => e.Tag == FrappeRedoutableEffectTag); 
-            eff.IntParams[7] = eff is null ? 0 : eff.IntParams[7];
+            eff.CasterLevel = eff is null ? 0 : eff.CasterLevel;
 
             feat = NwFeat.FromFeatId(featId);
             feat.Name.SetPlayerOverride(caster.LoginPlayer, feat.Name.ToString() + $" - Rechargement ({cooldown} s)");
@@ -156,7 +155,7 @@ namespace NWN.Systems
       {
         var eff = eventData.Effect;
         var feat = NwFeat.FromFeatId(eff.IntParams[5]);
-        var remainingUse = eff.IntParams[7];
+        var remainingUse = eff.CasterLevel;
         NwSpell spell;
 
         if (caster.IsLoginPlayerCharacter)
@@ -209,7 +208,7 @@ namespace NWN.Systems
         {
           case BonusActionId: ApplyActionBonus(caster); break;
           case ReactionId: ApplyReaction(caster); break;
-          default: HandleCooldown(caster, eff.IntParams[5], feat, NwSpell.FromSpellId(eff.IntParams[6]), remainingUse); break;
+          default: HandleCooldown(caster, eff.IntParams[5], feat, eff.Spell, remainingUse); break;
         }
       }
 

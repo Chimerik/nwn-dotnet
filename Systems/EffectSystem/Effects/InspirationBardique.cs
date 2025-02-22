@@ -8,7 +8,7 @@ namespace NWN.Systems
     public static readonly Native.API.CExoString inspirationBardiqueEffectExoTag = InspirationBardiqueEffectTag.ToExoString();
     public static Effect GetInspirationBardiqueEffect(int bonus)
     {
-      Effect eff = Effect.Icon((EffectIcon)169);
+      Effect eff = Effect.Icon(CustomEffectIcon.InspirationBardique);
       eff.Tag = InspirationBardiqueEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       eff.CasterLevel = bonus;

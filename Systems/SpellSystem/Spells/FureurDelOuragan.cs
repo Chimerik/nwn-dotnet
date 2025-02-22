@@ -12,7 +12,7 @@ namespace NWN.Systems
 
       EffectUtils.RemoveTaggedEffect(oCaster, EffectSystem.FureurDelOuraganEffectTag);
 
-      NWScript.AssignCommand(oCaster, () => oCaster.ApplyEffect(EffectDuration.Permanent, EffectSystem.FureurDeLOuragan(spell.Id)));
+      NWScript.AssignCommand(oCaster, () => oCaster.ApplyEffect(EffectDuration.Permanent, EffectSystem.FureurDeLOuragan(spell)));
     }
   }
 }

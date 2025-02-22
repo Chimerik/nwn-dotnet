@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.Icon(EffectIcon.SavingThrowDecrease);
+        Effect eff = Effect.Icon(CustomEffectIcon.FractureMentale);
         eff.Tag = FractureMentaleEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         eff.Spell = NwSpell.FromSpellId(CustomSpell.FractureMentale);

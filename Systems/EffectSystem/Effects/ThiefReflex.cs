@@ -10,7 +10,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.Icon(NwGameTables.EffectIconTable.GetRow(167));
+        Effect eff = Effect.Icon(CustomEffectIcon.ThiefReflex);
         eff.Tag = ThiefReflexEffectTag;
         return eff;
       }

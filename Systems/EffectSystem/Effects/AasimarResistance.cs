@@ -9,13 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect divine = Effect.DamageImmunityIncrease(DamageType.Divine, 50);
-        divine.ShowIcon = false;
-
-        Effect necrotic = Effect.DamageImmunityIncrease(CustomDamageType.Necrotic, 50);
-        necrotic.ShowIcon = false; 
-
-        Effect link = Effect.LinkEffects(divine, necrotic, Effect.Icon((EffectIcon)207), Effect.Icon((EffectIcon)215));
+        Effect link = Effect.LinkEffects(ResistanceRadiant, ResistanceNecrotique);
 
         link.Tag = AasimarResistanceEffectTag;
         link.SubType = EffectSubType.Unyielding;

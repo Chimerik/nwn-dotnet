@@ -31,7 +31,7 @@ namespace NWN.Systems
               NWScript.AssignCommand(onAttack.Attacker, () => targetCreature.ApplyEffect(EffectDuration.Instant, Effect.Damage(Utils.Roll(8), damageType)));
 
               NWScript.AssignCommand(onAttack.Attacker, () => onAttack.Attacker.ApplyEffect(EffectDuration.Temporary,
-                EffectSystem.Cooldown(onAttack.Attacker, 6, CustomSkill.ChasseurProie, CustomSpell.PourfendeurDeColosses), NwTimeSpan.FromRounds(1)));
+                EffectSystem.Cooldown(onAttack.Attacker, 6, CustomSkill.ChasseurProie, NwSpell.FromSpellId(CustomSpell.PourfendeurDeColosses)), NwTimeSpan.FromRounds(1)));
 
               EffectUtils.RemoveTaggedEffect(onAttack.Attacker, EffectSystem.PourfendeurDeColossesEffectTag);
 

@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.DamageImmunityIncrease(DamageType.Fire, 50);
+        Effect eff = ResistanceFeu;
         eff.Tag = ThieflingResistanceEffectTag;
         eff.SubType = EffectSubType.Unyielding;
         return eff;

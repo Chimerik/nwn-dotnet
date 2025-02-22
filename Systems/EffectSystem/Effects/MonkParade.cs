@@ -17,7 +17,6 @@ namespace NWN.Systems
         Effect eff = Effect.RunAction(onRemovedHandle: onRemoveMonkParadeCallback);
         eff.Tag = MonkParadeEffectTag;
         eff.SubType = Anvil.API.EffectSubType.Unyielding;
-
         return eff;
       }
     }

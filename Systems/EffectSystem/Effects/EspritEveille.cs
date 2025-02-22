@@ -10,7 +10,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.Icon((EffectIcon)221);
+        Effect eff = Effect.Icon(CustomEffectIcon.EspritEveille);
         eff.Tag = EspritEveilleEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

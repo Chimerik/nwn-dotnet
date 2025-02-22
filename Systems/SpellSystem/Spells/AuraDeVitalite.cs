@@ -10,15 +10,12 @@ namespace NWN.Systems
   {
     public static List<NwGameObject> AuraDeVitalite(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwClass castingClass)
     {
-      if (oCaster is NwCreature caster)
-      {
-        SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
-        oCaster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpAuraHoly));
+      SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
+      oCaster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpAuraHoly));
 
-        DelayEffect(oCaster, EffectSystem.AuraDeVitalite(castingClass.SpellCastingAbility, spell), SpellUtils.GetSpellDuration(oCaster, spellEntry));
-        DelayEffect(oCaster, EffectSystem.AuraDeVitaliteHeal, SpellUtils.GetSpellDuration(oCaster, spellEntry));
-      }
-
+      DelayEffect(oCaster, EffectSystem.AuraDeVitalite(castingClass.SpellCastingAbility, spell), SpellUtils.GetSpellDuration(oCaster, spellEntry));
+      DelayEffect(oCaster, EffectSystem.AuraDeVitaliteHeal, SpellUtils.GetSpellDuration(oCaster, spellEntry));
+      
       return new List<NwGameObject>() { oCaster };
     }
 
@@ -43,8 +40,8 @@ namespace NWN.Systems
       SpellUtils.SignalEventSpellCast(target, caster, (Spell)CustomSpell.AuraDeVitalite, false);
 
       int healAmount = caster.KnowsFeat((Feat)CustomSkill.ClercGuerisonSupreme) || target.ActiveEffects.Any(e => e.Tag == EffectSystem.LueurDespoirEffectTag)
-        ? (spellEntry.damageDice * spellEntry.numDice) + caster.GetAbilityModifier((Ability)eff.IntParams[5])
-        : Utils.Roll(spellEntry.damageDice, spellEntry.numDice) + caster.GetAbilityModifier((Ability)eff.IntParams[5]);
+        ? (spellEntry.damageDice * spellEntry.numDice) + caster.GetAbilityModifier((Ability)eff.CasterLevel)
+        : Utils.Roll(spellEntry.damageDice, spellEntry.numDice) + caster.GetAbilityModifier((Ability)eff.CasterLevel);
 
       if (caster.KnowsFeat((Feat)CustomSkill.ClercDiscipleDeLaVie))
         healAmount += 5;

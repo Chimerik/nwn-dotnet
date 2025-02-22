@@ -59,7 +59,6 @@ namespace NWN.Systems
       foreach (NwArea area in NwModule.Instance.Areas)
       {
         area.OnEnter += OnAreaEnter;
-        area.OnEnter += OnEnterApplyDrowLightSensitivity;
         area.OnExit += OnAreaExit;
         area.OnHeartbeat += OnAreaHeartbeat;
         area.RestingAllowed = false;

@@ -339,7 +339,6 @@ namespace NWN.Systems
               case EffectSystem.DwarfPoisonResistanceEffectTag:
               case EffectSystem.ThieflingResistanceEffectTag:
               case EffectSystem.SleepImmunityEffectTag:
-              case EffectSystem.lightSensitivityEffectTag:
               case EffectSystem.woodElfEffectTag:
               case EffectSystem.EnduranceImplacableEffectTag: player.oid.LoginCreature.RemoveEffect(eff); break;
             }

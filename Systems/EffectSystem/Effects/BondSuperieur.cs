@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.Icon((EffectIcon)193), Effect.RunAction());
+        Effect eff = Effect.Icon(CustomEffectIcon.BondSuperieur);
         eff.Tag = BondSuperieurEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         eff.Spell = NwSpell.FromSpellId(CustomSpell.BondSuperieur);

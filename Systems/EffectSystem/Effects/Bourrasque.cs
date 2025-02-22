@@ -18,7 +18,6 @@ namespace NWN.Systems
       Effect eff = Effect.AreaOfEffect(CustomAoE.Bourrasque, onEnterBourrasqueCallback, onHeartbeatBourrasqueCallback, onExitBourrasqueCallback);
       eff.Tag = BourrasqueEffectTag;
       eff.Spell = spell;
-      eff.IntParams[5] = (int)castingAbility;
       eff.Creator = caster;
       return eff;
     }

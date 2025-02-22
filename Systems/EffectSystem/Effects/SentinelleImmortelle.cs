@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.Icon(NwGameTables.EffectIconTable.GetRow(178));
+        Effect eff = Effect.Icon(CustomEffectIcon.SentinelleImmortelle);
         eff.Tag = SentinelleImmortelleEffectTag;
         eff.SubType = EffectSubType.Unyielding;
         return eff;

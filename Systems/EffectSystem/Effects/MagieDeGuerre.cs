@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.RunAction();
+        Effect eff = Effect.Icon(CustomEffectIcon.MagieDeGuerre);
         eff.Tag = MagieDeGuerreEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

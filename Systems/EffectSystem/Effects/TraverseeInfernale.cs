@@ -12,7 +12,7 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onRemoveTraverseeInfernaleCallback;
     public static Effect TraverseeInfernaleBuff(NwCreature caster)
     {
-      Effect eff = Effect.Icon((EffectIcon)220);
+      Effect eff = Effect.Icon(CustomEffectIcon.TraverseeInfernale);
       eff.Tag = TraverseeInfernaleBuffEffectTag;
       eff.SubType = EffectSubType.Supernatural;
 

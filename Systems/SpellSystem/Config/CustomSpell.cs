@@ -128,6 +128,7 @@
     public const int ChatimentTonitruant = 299;
     public const int VigueurArcanique = 300;
     public const int CordonDeFleches = 301;
+    public const int RageDuBarbare = 307;
     public const int PattesDaraignee = 309;
     public const int AffluxMental = 310;
     public const int ZoneDeVerite = 311;

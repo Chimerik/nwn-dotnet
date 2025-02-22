@@ -24,7 +24,7 @@ namespace NWN.Systems
             caster.GetObjectVariable<LocalVariableInt>(CreatureUtils.BriseurDeHordesVariable).Delete();
 
             NWScript.AssignCommand(onAttack.Attacker, () => onAttack.Attacker.ApplyEffect(EffectDuration.Temporary,
-              EffectSystem.Cooldown(onAttack.Attacker, 6, CustomSkill.ChasseurProie, CustomSpell.BriseurDeHordes), NwTimeSpan.FromRounds(1)));
+              EffectSystem.Cooldown(onAttack.Attacker, 6, CustomSkill.ChasseurProie, NwSpell.FromSpellId(CustomSpell.BriseurDeHordes)), NwTimeSpan.FromRounds(1)));
 
             await NwTask.NextFrame();
             onAttack.Attacker.OnCreatureAttack -= OnAttackBriseurDeHordes;

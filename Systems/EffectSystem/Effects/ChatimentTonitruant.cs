@@ -33,7 +33,7 @@ namespace NWN.Systems
             NWScript.AssignCommand(onAttack.Attacker, () => onAttack.Target.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.Damage(Utils.Roll(6, onAttack.AttackResult == AttackResult.CriticalHit ? 4 : 2), DamageType.Sonic), Effect.VisualEffect(VfxType.FnfSoundBurst))));
 
             if (onAttack.Target is NwCreature target)
-              ApplyKnockdown(target, onAttack.Attacker, Ability.Charisma, Ability.Strength, EffectSystem.Destabilisation);
+              ApplyKnockdown(target, onAttack.Attacker, Ability.Charisma, Ability.Strength, Destabilisation);
           }
 
           await NwTask.NextFrame();

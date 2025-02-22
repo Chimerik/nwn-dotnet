@@ -1474,7 +1474,7 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
-        case (int)Feat.BarbarianRage:
+        case CustomSpell.RageDuBarbare:
         case CustomSpell.RageSauvage:
         case CustomSpell.RageSauvageOurs:
         case CustomSpell.RageSauvageAigle:

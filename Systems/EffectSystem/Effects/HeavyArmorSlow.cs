@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.MovementSpeedDecrease(30), Effect.Icon(NwGameTables.EffectIconTable.GetRow(38)));
+        Effect eff = Effect.LinkEffects(Effect.MovementSpeedDecrease(30), Effect.Icon(EffectIcon.Slow));
         eff.Tag = heavyArmorSlowEffectTag;
         eff.SubType = EffectSubType.Unyielding;
         return eff;
