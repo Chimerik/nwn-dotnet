@@ -449,6 +449,12 @@ namespace NWN.Systems
             spellSelection.CloseWindow();
           }
 
+          if (player.windows.TryGetValue("cantripSelection", out var cantripSelection) && cantripSelection.IsOpen)
+          {
+            player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CANTRIP_SELECTION").Delete();
+            cantripSelection.CloseWindow();
+          }
+
           if (player.windows.TryGetValue("fightingStyleSelection", out var styleSelection) && styleSelection.IsOpen)
           {
             player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_FIGHTING_STYLE_SELECTION").Delete();

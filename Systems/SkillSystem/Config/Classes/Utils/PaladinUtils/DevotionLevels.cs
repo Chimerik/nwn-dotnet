@@ -22,14 +22,14 @@ namespace NWN.Systems
           player.LearnClassSkill(CustomSkill.DevotionRenvoiDesImpies);
 
           player.LearnAlwaysPreparedSpell(CustomSpell.ProtectionContreLeMalEtLeBien, CustomClass.Paladin);
-          player.LearnAlwaysPreparedSpell((int)Spell.ShieldOfFaith, CustomClass.Paladin);
+          player.LearnAlwaysPreparedSpell(CustomSpell.BouclierDeLaFoi, CustomClass.Paladin);
 
           break;
 
         case 5:
 
-          player.LearnAlwaysPreparedSpell((int)Spell.Aid, CustomClass.Paladin);
-          player.LearnAlwaysPreparedSpell((int)Spell.LesserRestoration, CustomClass.Paladin);
+          player.LearnAlwaysPreparedSpell(CustomSpell.Aide, CustomClass.Paladin);
+          player.LearnAlwaysPreparedSpell(CustomSpell.ZoneDeVerite, CustomClass.Paladin);
 
           break;
 

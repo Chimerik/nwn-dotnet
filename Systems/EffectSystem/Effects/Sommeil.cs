@@ -74,16 +74,15 @@ namespace NWN.Systems
     {
       EffectRunScriptEvent eventData = new EffectRunScriptEvent();
 
-      if (eventData.EffectTarget is not NwCreature creature)
-        return ScriptHandleResult.Handled;
-
-      creature.OnDamaged -= OnDamagedSommeil;
+      if (eventData.EffectTarget is NwCreature creature)
+        creature.OnDamaged -= OnDamagedSommeil;
 
       return ScriptHandleResult.Handled;
     }
     private static void OnDamagedSommeil(CreatureEvents.OnDamaged onDamaged)
     {
       EffectUtils.RemoveEffectType(onDamaged.Creature, EffectType.Sleep);
+      EffectUtils.RemoveTaggedEffect(onDamaged.Creature, SommeilEffectTag);
     }
   }
 }

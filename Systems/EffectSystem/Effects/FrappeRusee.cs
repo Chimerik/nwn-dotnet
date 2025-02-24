@@ -14,7 +14,7 @@ namespace NWN.Systems
       if(caster.ActiveEffects.Any(e => e.Tag == FrappeRuseeEffectTag && e.Spell == spell))
       {
         caster.LoginPlayer?.SendServerMessage($"{spell.Name.ToString().ColorString(ColorConstants.White)} - Désactivé", ColorConstants.Orange);
-        EffectUtils.RemoveTaggedParamEffect(caster, spell.Id, FrappeRuseeEffectTag);
+        EffectUtils.RemoveTaggedSpellEffect(caster, FrappeRuseeEffectTag, spell);
         return;
       }
 
@@ -24,7 +24,7 @@ namespace NWN.Systems
         {
           var previousEff = caster.ActiveEffects.First(e => e.Tag == FrappeRuseeEffectTag);
           NwSpell previousSpell = previousEff.Spell;
-          EffectUtils.RemoveTaggedParamEffect(caster, previousSpell.Id, FrappeRuseeEffectTag);
+          EffectUtils.RemoveTaggedSpellEffect(caster, FrappeRuseeEffectTag, previousSpell);
           caster.LoginPlayer?.SendServerMessage($"{previousSpell.Name.ToString().ColorString(ColorConstants.White)} - Désactivé", ColorConstants.Orange);
         }
       }

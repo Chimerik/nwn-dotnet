@@ -16,7 +16,7 @@ namespace NWN.Systems
     }
     public static int GetWeaponCritDamage(CNWSCreature attacker, CNWSItem attackWeapon, CNWSCombatAttackData attackData, int sneakAttack, CNWSCreature target, Anvil.API.Ability damageAbility)
     {
-      if (attackData.m_nAttackType == 6 && attacker.m_ScriptVars.GetInt(CreatureUtils.HastMasterSpecialAttackExo).ToBool())
+      if (attackData.m_nAttackType != 65002 && attacker.m_ScriptVars.GetInt(CreatureUtils.HastMasterSpecialAttackExo).ToBool())
       {
         attacker.m_ScriptVars.DestroyInt(CreatureUtils.HastMasterSpecialAttackExo);
         return NwRandom.Roll(Utils.random, 4, 1);

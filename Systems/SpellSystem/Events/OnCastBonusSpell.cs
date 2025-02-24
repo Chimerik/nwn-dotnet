@@ -45,7 +45,7 @@ namespace NWN.Systems
         onSpellAction.PreventSpellCast = true;
         return;
       }
-
+      
       if (SpellUtils.IsBonusActionSpell(caster, spell.Id, spellEntry, onSpellAction.Feat))
       {
         if(spellEntry.isReaction)

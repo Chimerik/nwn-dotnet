@@ -10,9 +10,18 @@ namespace NWN.Systems
     {
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
       List<NwGameObject> targets = SpellUtils.GetSpellTargets(oCaster, oTarget, spellEntry, true);
+      
+      var eff = spellEntry.damageType[0] switch
+      {
+        DamageType.Acid => Effect.LinkEffects(EffectSystem.ResistanceAcide, Effect.VisualEffect(CustomVfx.ProtectionAcide), Effect.RunAction()),
+        DamageType.Cold => Effect.LinkEffects(EffectSystem.ResistanceFroid, Effect.VisualEffect(CustomVfx.ProtectionFroid), Effect.RunAction()),
+        DamageType.Electrical => Effect.LinkEffects(EffectSystem.ResistanceElec, Effect.VisualEffect(CustomVfx.ProtectionElec), Effect.RunAction()),
+        DamageType.Sonic => Effect.LinkEffects(EffectSystem.ResistanceTonnerre, Effect.VisualEffect(CustomVfx.ProtectionTonnerre), Effect.RunAction()),
+        _ => Effect.LinkEffects(EffectSystem.ResistanceFeu, Effect.VisualEffect(CustomVfx.ProtectionFeu), Effect.RunAction()),
+      };
 
       foreach (var target in targets)
-        NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, Effect.DamageImmunityIncrease(spellEntry.damageType[0], 50), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
+        NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, eff, SpellUtils.GetSpellDuration(oCaster, spellEntry)));
       
       return targets;
     }

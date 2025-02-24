@@ -10,6 +10,8 @@ namespace NWN.Systems
       if (oCaster is not NwCreature caster)
         return;
 
+      caster.IncrementRemainingFeatUses((Feat)CustomSkill.ImpositionDesMains);
+
       if (caster.GetFeatRemainingUses((Feat)CustomSkill.ImpositionDesMains) < 2)
       {
         caster.LoginPlayer?.SendServerMessage("2 charges requises", ColorConstants.Red);
@@ -23,7 +25,7 @@ namespace NWN.Systems
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.Heal(healAmount));
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHealingL));
 
-      caster.DecrementRemainingFeatUses((Feat)CustomSkill.ImpositionDesMains);
+      caster.DecrementRemainingFeatUses((Feat)CustomSkill.ImpositionDesMains, 2);
     }
   }
 }

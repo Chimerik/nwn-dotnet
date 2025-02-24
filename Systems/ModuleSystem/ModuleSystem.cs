@@ -443,6 +443,7 @@ namespace NWN.Systems
       //NwModule.Instance.OnCreatureDamage += AttackSystem.HandleDamageEvent;
 
       NwModule.Instance.OnCreatureCheckProficiencies += ItemSystem.OverrideProficiencyCheck;
+      NwModule.Instance.OnItemEquip += ItemSystem.OnEquipArbaleteDePoing;
       NwModule.Instance.OnItemEquip += ItemSystem.OnEquipHastWeapon;
       NwModule.Instance.OnItemUnequip += ItemSystem.OnUnequipHastWeapon;
 

@@ -65,6 +65,9 @@ namespace NWN.Systems
 
           player.LearnClassSkill(CustomSkill.ImpositionDesMains);
 
+          if (!player.windows.TryGetValue("expertiseDarmeSelection", out var invo1)) player.windows.Add("expertiseDarmeSelection", new ExpertiseDarmeSelectionWindow(player, 2));
+          else ((ExpertiseDarmeSelectionWindow)invo1).CreateWindow(2);
+
           break;
 
         case 2:
@@ -74,9 +77,6 @@ namespace NWN.Systems
 
           player.LearnClassSkill(CustomSkill.ChatimentDivin);
           player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ChatimentDivin, player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).GetRemainingSpellSlots(1));
-
-          if (!player.windows.TryGetValue("expertiseDarmeSelection", out var invo1)) player.windows.Add("expertiseDarmeSelection", new ExpertiseDarmeSelectionWindow(player, 2));
-          else ((ExpertiseDarmeSelectionWindow)invo1).CreateWindow(2);
 
           break;
 

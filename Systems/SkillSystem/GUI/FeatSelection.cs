@@ -54,7 +54,7 @@ namespace NWN.Systems
               {
                 new NuiSpacer(),
                 new NuiButtonImage(selectedItemIcon) { Height = 40, Width = 40, Visible = selectedItemVisibility },
-                new NuiLabel(selectedItemTitle) { Height = 40, Width = 200, Visible = selectedItemVisibility, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+                new NuiLabel(selectedItemTitle) { Height = 40, Width = 300, Visible = selectedItemVisibility, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
                 new NuiSpacer()
               } },
               new NuiRow() { Children = new List<NuiElement>() { new NuiText(selectedItemDescription) } },
@@ -123,14 +123,25 @@ namespace NWN.Systems
 
                   LearnableSkill selectedSkill = (LearnableSkill)selectedLearnable;
 
-                  if ((selectedSkill.racePrerequiste is not null && !selectedSkill.racePrerequiste.Any(r => r == player.oid.LoginCreature.Race.Id))
-                    || (selectedSkill.learnablePrerequiste is not null && !selectedSkill.learnablePrerequiste.Any(l => player.learnableSkills.ContainsKey(l))))
+                  if ((selectedSkill.racePrerequiste is not null && !selectedSkill.racePrerequiste.Any(r => r == player.oid.LoginCreature.Race.Id)))
                   {
                     validationEnabled.SetBindValue(player.oid, nuiToken.Token, false);
-                    validationText.SetBindValue(player.oid, nuiToken.Token, $"Vous ne disposez pas des prérequis");
+                    validationText.SetBindValue(player.oid, nuiToken.Token, "Vous ne disposez pas des prérequis");
                   }
                   else
                   {
+                    if(selectedSkill.learnablePrerequiste is not null)
+                      foreach (var prereq in selectedSkill.learnablePrerequiste)
+                      {
+                        if(!player.learnableSkills.TryGetValue(prereq, out var value) || value.currentLevel < 1)
+                        {
+                          validationEnabled.SetBindValue(player.oid, nuiToken.Token, false);
+                          validationText.SetBindValue(player.oid, nuiToken.Token, "Vous ne disposez pas des prérequis");
+                          LoadLearnableList(currentList);
+                          return;
+                        }
+                      }
+
                     validationEnabled.SetBindValue(player.oid, nuiToken.Token, true);
                     validationText.SetBindValue(player.oid, nuiToken.Token, $"Valider le don {selectedLearnable.name}");
                   }

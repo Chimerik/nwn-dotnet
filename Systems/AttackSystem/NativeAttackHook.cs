@@ -103,8 +103,6 @@ namespace NWN.Systems
       int attackBonus = NativeUtils.GetCreatureWeaponProficiencyBonus(attacker, attackWeapon);
       LogUtils.LogMessage($"Bonus de maîtrise {attackBonus} {(attackBonus < 1 ? "(Arme non maîtrisée)" : "")}", LogUtils.LogType.Combat);
 
-      NativeUtils.HandleCrossbowMaster(attacker, targetObject, combatRound, attackBonus, attackerName);
-
       string opportunityString = "";
 
       if(attackData.m_nAttackType == 65002) // 65002 = attaque d'opportunité
@@ -315,6 +313,7 @@ namespace NWN.Systems
       else
         attackData.m_nAttackResult = 7;
 
+      NativeUtils.HandleCrossbowMaster(attacker, targetObject, combatRound, attackWeapon, attackerName);
       NativeUtils.HandleHastMaster(attacker, targetObject, combatRound, attackerName);
       NativeUtils.HandleBalayage(attacker, targetObject, combatRound, attackerName);
       NativeUtils.HandleEntaille(attacker, targetObject, combatRound, attackData);
@@ -435,7 +434,7 @@ namespace NWN.Systems
         {
           NwBaseItem baseWeapon = NwBaseItem.FromItemId((int)attackWeapon.m_nBaseItem);
 
-          if (attackData.m_nAttackType == 65002 && attacker.m_ScriptVars.GetInt(CreatureUtils.HastMasterSpecialAttackExo).ToBool())
+          if (attackData.m_nAttackType != 65002 && attacker.m_ScriptVars.GetInt(CreatureUtils.HastMasterSpecialAttackExo).ToBool())
           {
             baseDamage = NwRandom.Roll(Utils.random, 4, 1);
 

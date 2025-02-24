@@ -7,6 +7,11 @@ namespace NWN
     public const VfxType ColonneBleue = (VfxType)466;
     public const VfxType ColonneFeu = (VfxType)467;
     public const VfxType EspritsGardiens = (VfxType)771;
+    public const VfxType ProtectionAcide = (VfxType)786;
+    public const VfxType ProtectionFroid = (VfxType)787;
+    public const VfxType ProtectionFeu = (VfxType)788;
+    public const VfxType ProtectionElec = (VfxType)789;
+    public const VfxType ProtectionTonnerre = (VfxType)790;
     public const VfxType DashPurple = (VfxType)828;
     public const VfxType Vol = (VfxType)837;
     public const VfxType Bourrasque = (VfxType)838;

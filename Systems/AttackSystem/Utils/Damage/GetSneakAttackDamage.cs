@@ -39,7 +39,7 @@ namespace NWN.Systems
 
       foreach(var eff in attacker.m_appliedEffects.Where(e => e.m_sCustomTag.CompareNoCase(EffectSystem.FrappeRuseeEffectExoTag).ToBool()))
       {
-        sneakLevel -= eff.GetInteger(5) switch
+        sneakLevel -= eff.m_nSpellId switch
         {
           CustomSpell.FrappePerfideHebeter => 2,
           CustomSpell.FrappePerfideObscurcir => 3,
@@ -49,8 +49,8 @@ namespace NWN.Systems
 
         attacker.m_ScriptVars.SetString(EffectSystem.FrappeRuseeVariableExo,
           attacker.m_ScriptVars.GetString(EffectSystem.FrappeRuseeVariableExo).GetLength() < 1 
-          ? $"{eff.GetInteger(5)}".ToExoString()
-          : $"{attacker.m_ScriptVars.GetString(EffectSystem.FrappeRuseeVariableExo)}_{eff.GetInteger(5)}".ToExoString());
+          ? $"{eff.m_nSpellId}".ToExoString()
+          : $"{attacker.m_ScriptVars.GetString(EffectSystem.FrappeRuseeVariableExo)}_{eff.m_nSpellId}".ToExoString());
 
         if (sneakLevel < 1)
           break;

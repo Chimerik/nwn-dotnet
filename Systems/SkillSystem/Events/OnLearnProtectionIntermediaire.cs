@@ -19,20 +19,11 @@ namespace NWN.Systems
       if (!player.oid.LoginCreature.KnowsFeat(Feat.ArmorProficiencyMedium))
         player.oid.LoginCreature.AddFeat(Feat.ArmorProficiencyMedium);
 
-      if (!player.oid.LoginCreature.KnowsFeat(Feat.ShieldProficiency))
-        player.oid.LoginCreature.AddFeat(Feat.ShieldProficiency);
-
       player.learnableSkills.TryAdd(CustomSkill.MediumArmorProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MediumArmorProficiency], player));
       player.learnableSkills[CustomSkill.MediumArmorProficiency].source.Add(Category.Feat);
 
       if (player.learnableSkills[CustomSkill.MediumArmorProficiency].currentLevel < 1)
         player.learnableSkills[CustomSkill.MediumArmorProficiency].LevelUp(player);
-
-      player.learnableSkills.TryAdd(CustomSkill.ShieldProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ShieldProficiency], player));
-      player.learnableSkills[CustomSkill.ShieldProficiency].source.Add(Category.Feat);
-
-      if (player.learnableSkills[CustomSkill.ShieldProficiency].currentLevel < 1)
-        player.learnableSkills[CustomSkill.ShieldProficiency].LevelUp(player);
 
       if (abilities.Count > 0)
       {

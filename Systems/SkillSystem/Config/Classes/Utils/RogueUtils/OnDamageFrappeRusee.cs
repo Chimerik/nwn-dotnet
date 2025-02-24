@@ -2,7 +2,6 @@
 using Anvil.API;
 using Anvil.API.Events;
 using NWN.Core;
-using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
@@ -15,10 +14,13 @@ namespace NWN.Systems
 
       var frappeRuseeEffects = damager.GetObjectVariable<LocalVariableString>(EffectSystem.FrappeRuseeVariable).Value.Split("_");
       double sneakDies = Math.Round((double)(GetRogueLevel(damager) / 2), MidpointRounding.AwayFromZero);
-      
+  
+      ModuleSystem.Log.Info($"----------------sneak dies : {sneakDies}-----------------------");
+
       foreach (var frappe in frappeRuseeEffects)
       {
-        switch(int.Parse(frappe))
+        ModuleSystem.Log.Info($"----------------frappe : {frappe}-----------------------");
+        switch (int.Parse(frappe))
         {
           case CustomSpell.FrappeRuseePoison: 
           case CustomSpell.FrappePerfidePoison:
@@ -33,6 +35,7 @@ namespace NWN.Systems
               && damager.KnowsFeat((Feat)CustomSkill.AssassinEnvenimer)) 
             {
               damaged.ApplyEffect(EffectDuration.Temporary, EffectSystem.VulnerabilitePoison, NwTimeSpan.FromRounds(1));
+              damager.ApplyEffect(EffectDuration.Temporary, EffectSystem.VulnerabilitePoison, NwTimeSpan.FromRounds(1));
               NWScript.AssignCommand(damager, () => damaged.ApplyEffect(EffectDuration.Instant, Effect.Damage(NwRandom.Roll(Utils.random, 6, 2), CustomDamageType.Poison)));
             }
 

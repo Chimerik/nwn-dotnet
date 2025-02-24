@@ -1,5 +1,4 @@
-﻿
-using Anvil.API;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -10,6 +9,8 @@ namespace NWN.Systems
       if (oCaster is not NwCreature caster)
         return;
 
+      caster.IncrementRemainingFeatUses((Feat)CustomSkill.ImpositionDesMains);
+
       if (caster.GetFeatRemainingUses((Feat)CustomSkill.ImpositionDesMains) < 2)
       {
         caster.LoginPlayer?.SendServerMessage("2 charges requises", ColorConstants.Red);
@@ -19,9 +20,10 @@ namespace NWN.Systems
       SpellUtils.SignalEventSpellCast(oCaster, oTarget, spell.SpellType);
 
       EffectUtils.RemoveEffectType(oTarget, EffectType.Poison);
+      EffectUtils.RemoveTaggedEffect(oTarget, EffectSystem.PoisonEffectTag);
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpRemoveCondition));
 
-      caster.DecrementRemainingFeatUses((Feat)CustomSkill.ImpositionDesMains);
+      caster.DecrementRemainingFeatUses((Feat)CustomSkill.ImpositionDesMains, 2);
     }
   }
 }

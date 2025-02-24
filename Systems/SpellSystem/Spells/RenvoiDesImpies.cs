@@ -24,6 +24,7 @@ namespace NWN.Systems
         }
       }
 
+      caster.IncrementRemainingFeatUses((Feat)CustomSkill.DevotionRenvoiDesImpies);
       PaladinUtils.ConsumeOathCharge(caster);
     }
   }

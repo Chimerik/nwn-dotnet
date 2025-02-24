@@ -81,22 +81,22 @@ namespace NWN.Systems
       OverrideTlkEntry(190621, "Immunité aux dégâts (psychique)");
       OverrideTlkEntry(190807, "Terrain Difficile");
       OverrideTlkEntry(191025, "Glacé");
-      OverrideTlkEntry(191107, "Immunité aux dégâts (tranchant)");
-      OverrideTlkEntry(191108, "Immunité aux dégâts (contondant)");
-      OverrideTlkEntry(191109, "Immunité aux dégâts (perçant)");
-      OverrideTlkEntry(191110, "Vulnérabilité aux dégâts (tranchant)");
-      OverrideTlkEntry(191111, "Vulnérabilité aux dégâts (contondant)");
-      OverrideTlkEntry(191112, "Vulnérabilité aux dégâts (perçant)");
-      OverrideTlkEntry(191113, "Vulnérabilité aux dégâts (poison)");
-      OverrideTlkEntry(191114, "Vulnérabilité aux dégâts (nécrotique)");
-      OverrideTlkEntry(191115, "Vulnérabilité aux dégâts (psychique)");
-      OverrideTlkEntry(191116, "Résistance aux dégâts (force)");
-      OverrideTlkEntry(191117, "Résistance aux dégâts (acide)");
-      OverrideTlkEntry(191118, "Résistance aux dégâts (froid)");
-      OverrideTlkEntry(191119, "Résistance aux dégâts (radiant)");
-      OverrideTlkEntry(191120, "Résistance aux dégâts (électricité)");
-      OverrideTlkEntry(191121, "Résistance aux dégâts (feu)");
-      OverrideTlkEntry(191122, "Résistance aux dégâts (tonnerre)");
+      OverrideTlkEntry(191106, "Immunité aux dégâts (tranchant)"); // 16968322
+      OverrideTlkEntry(191107, "Immunité aux dégâts (contondant)");
+      OverrideTlkEntry(191108, "Immunité aux dégâts (perçant)");
+      OverrideTlkEntry(191109, "Vulnérabilité aux dégâts (tranchant)");
+      OverrideTlkEntry(191110, "Vulnérabilité aux dégâts (contondant)");
+      OverrideTlkEntry(191111, "Vulnérabilité aux dégâts (perçant)");
+      OverrideTlkEntry(191112, "Vulnérabilité aux dégâts (poison)"); // 16968328
+      OverrideTlkEntry(191113, "Vulnérabilité aux dégâts (nécrotique)");
+      OverrideTlkEntry(191114, "Vulnérabilité aux dégâts (psychique)");
+      OverrideTlkEntry(191115, "Résistance aux dégâts (force)");
+      OverrideTlkEntry(191116, "Résistance aux dégâts (acide)"); // 16968332
+      OverrideTlkEntry(191118, "Résistance aux dégâts (froid)"); // 16968334
+      OverrideTlkEntry(191119, "Résistance aux dégâts (radiant)"); // 16968335
+      OverrideTlkEntry(191120, "Résistance aux dégâts (électricité)"); // 16968336
+      OverrideTlkEntry(191121, "Résistance aux dégâts (feu)"); // 16968337
+      OverrideTlkEntry(191122, "Résistance aux dégâts (tonnerre)");// 16968338
       OverrideTlkEntry(191123, "Résistance aux dégâts (tranchant)");
       OverrideTlkEntry(191124, "Résistance aux dégâts (contondant)");
       OverrideTlkEntry(191125, "Résistance aux dégâts (perçant)");
@@ -113,6 +113,8 @@ namespace NWN.Systems
 
       OverrideTlkEntry(NwBaseItem.FromItemType(BaseItemType.Whip).Description.CustomId, "Arme de Finesse et d'Allonge. 1d4 dégâts tranchants");
       OverrideTlkEntry(NwBaseItem.FromItemType(BaseItemType.LightMace).Name.CustomId, "Masse d'Armes");
+      OverrideTlkEntry(NwBaseItem.FromItemType(BaseItemType.Shuriken).Name.CustomId, "Arbalète de Poing");
+      OverrideTlkEntry(NwBaseItem.FromItemType(BaseItemType.Shuriken).Description.CustomId, "1d6 Perforant - Portée 9 m / 36 m - Légère - Chargement");
 
       foreach (var entry in Feats2da.featTable)
       {

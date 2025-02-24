@@ -1,6 +1,7 @@
 ﻿using Anvil.Services;
 using Anvil.API.Events;
 using Anvil.API;
+using NWN.Native.API;
 
 namespace NWN.Systems
 {
@@ -12,184 +13,188 @@ namespace NWN.Systems
       if (!PlayerSystem.Players.TryGetValue(onUseFeat.Creature.ControllingPlayer.LoginCreature, out PlayerSystem.Player player))
         return;
 
-      LogUtils.LogMessage($"{onUseFeat.Creature.Name} utilise le don {onUseFeat.Feat.Name} ({onUseFeat.Feat.Id})", LogUtils.LogType.Combat);
+      NwCreature caster = onUseFeat.Creature;
+      NwFeat feat = onUseFeat.Feat;
+      NwGameObject target = onUseFeat.TargetObject;
 
-      switch (onUseFeat.Feat.Id)
+      LogUtils.LogMessage($"{caster.Name} utilise le don {feat.Name} ({feat.Id})", LogUtils.LogType.Combat);
+
+      switch (feat.Id)
       {
-        //case CustomSkill.Determination: SecondWind(onUseFeat.Creature); return;
+        //case CustomSkill.Determination: SecondWind(caster); return;
 
         case CustomSkill.MaitreBouclier:
-          MaitreBouclier(onUseFeat.Creature, onUseFeat.TargetObject);
+          MaitreBouclier(caster, target);
           onUseFeat.PreventFeatUse = true;
           return;
 
-        case CustomSkill.Sprint: Sprint(onUseFeat.Creature, onUseFeat); return;
-        case CustomSkill.Disengage: Disengage(onUseFeat.Creature, onUseFeat); return;
-        case CustomSkill.Stealth: Stealth(onUseFeat.Creature, onUseFeat); return;
-        case CustomSkill.Chargeur: Chargeur(onUseFeat.Creature, onUseFeat.TargetObject); return;
-        case CustomSkill.FighterSurge: ActionSurge(onUseFeat.Creature); return;
-        case CustomSkill.FighterInflexible: Inflexible(onUseFeat.Creature); return;
-        case CustomSkill.MageDeGuerre: MageDeGuerre(onUseFeat.Creature); return;
-        case CustomSkill.FureurOrc: FureurOrc(onUseFeat.Creature); return;
-        case CustomSkill.AgressionOrc: AgressionOrc(onUseFeat.Creature, onUseFeat.TargetObject); return;
-        case CustomSkill.MeneurExaltant: MeneurExaltant(onUseFeat.Creature); return;
-        case CustomSkill.Chanceux: Chanceux(onUseFeat.Creature); return;
-        case CustomSkill.MainsGuerisseuses: MainsGuerisseuses(onUseFeat.Creature, onUseFeat.TargetObject); return;
-        case CustomSkill.AilesAngeliques: AilesAngeliques(onUseFeat.Creature); return;
+        case CustomSkill.Sprint: Sprint(caster, onUseFeat); return;
+        case CustomSkill.Disengage: Disengage(caster, onUseFeat); return;
+        case CustomSkill.Stealth: Stealth(caster, onUseFeat); return;
+        case CustomSkill.Chargeur: Chargeur(caster, target); return;
+        case CustomSkill.FighterSurge: ActionSurge(caster); return;
+        case CustomSkill.FighterInflexible: Inflexible(caster); return;
+        case CustomSkill.MageDeGuerre: MageDeGuerre(caster); return;
+        case CustomSkill.FureurOrc: FureurOrc(caster); return;
+        case CustomSkill.AgressionOrc: AgressionOrc(caster, target); return;
+        case CustomSkill.MeneurExaltant: MeneurExaltant(caster); return;
+        case CustomSkill.Chanceux: Chanceux(caster); return;
+        case CustomSkill.MainsGuerisseuses: MainsGuerisseuses(caster, target); return;
+        case CustomSkill.AilesAngeliques: AilesAngeliques(caster); return;
 
-        case CustomSkill.ConspirateurMaitriseTactique: TacticalMastery(onUseFeat.Creature, onUseFeat); return;
-        case CustomSkill.RoublardViseeStable: ViseeStable(onUseFeat.Creature); return;
-        case CustomSkill.RoublardCoupDeChance: CoupDeChance(onUseFeat.Creature); return;
+        case CustomSkill.ConspirateurMaitriseTactique: TacticalMastery(caster, onUseFeat); return;
+        case CustomSkill.RoublardViseeStable: ViseeStable(caster); return;
+        case CustomSkill.RoublardCoupDeChance: CoupDeChance(caster); return;
 
         case CustomSkill.ArcaneArcherTirAffaiblissant:
         case CustomSkill.ArcaneArcherTirAgrippant:
         case CustomSkill.ArcaneArcherTirBannissement:
         case CustomSkill.ArcaneArcherTirEnvoutant:
         case CustomSkill.ArcaneArcherTirExplosif:
-        case CustomSkill.ArcaneArcherTirOmbres: TirArcanique(onUseFeat.Creature, onUseFeat.Feat.Id); return;
-        case CustomSkill.ArcaneArcherTirChercheur: CreatureUtils.HandleTirChercheur(onUseFeat.Creature); return;
+        case CustomSkill.ArcaneArcherTirOmbres: TirArcanique(caster, feat.Id); return;
+        case CustomSkill.ArcaneArcherTirChercheur: CreatureUtils.HandleTirChercheur(caster); return;
 
-        case CustomSkill.WarMasterAttaqueMenacante: AttaqueMenacante(onUseFeat.Creature); return;
-        case CustomSkill.WarMasterAttaquePrecise: AttaquePrecise(onUseFeat.Creature); return;
-        case CustomSkill.WarMasterBalayage: Balayage(onUseFeat.Creature); return;
-        case CustomSkill.WarMasterRenversement: Renversement(onUseFeat.Creature); return;
-        case CustomSkill.WarMasterDesarmement: Desarmement(onUseFeat.Creature); return;
-        case CustomSkill.WarMasterDiversion: Diversion(onUseFeat.Creature); return;
-        case CustomSkill.WarMasterFeinte: Feinte(onUseFeat.Creature); return;
-        case CustomSkill.WarMasterInstruction: Instruction(onUseFeat.Creature, onUseFeat.TargetObject); return;
-        case CustomSkill.WarMasterJeuDeJambe: JeuDeJambe(onUseFeat.Creature); return;
-        case CustomSkill.WarMasterManoeuvreTactique: ManoeuvreTactique(onUseFeat.Creature, onUseFeat.TargetObject); return;
-        case CustomSkill.WarMasterParade: Parade(onUseFeat.Creature); return;
-        case CustomSkill.WarMasterProvocation: Provocation(onUseFeat.Creature); return;
-        case CustomSkill.WarMasterRalliement: Ralliement(onUseFeat.Creature, onUseFeat.TargetObject); return;
-        case CustomSkill.WarMasterRiposte: Riposte(onUseFeat.Creature); return;
-        case CustomSkill.WarMasterConnaisTonEnnemi: ConnaisTonEnnemi(onUseFeat.Creature, onUseFeat.TargetObject); return;
+        case CustomSkill.WarMasterAttaqueMenacante: AttaqueMenacante(caster); return;
+        case CustomSkill.WarMasterAttaquePrecise: AttaquePrecise(caster); return;
+        case CustomSkill.WarMasterBalayage: Balayage(caster); return;
+        case CustomSkill.WarMasterRenversement: Renversement(caster); return;
+        case CustomSkill.WarMasterDesarmement: Desarmement(caster); return;
+        case CustomSkill.WarMasterDiversion: Diversion(caster); return;
+        case CustomSkill.WarMasterFeinte: Feinte(caster); return;
+        case CustomSkill.WarMasterInstruction: Instruction(caster, target); return;
+        case CustomSkill.WarMasterJeuDeJambe: JeuDeJambe(caster); return;
+        case CustomSkill.WarMasterManoeuvreTactique: ManoeuvreTactique(caster, target); return;
+        case CustomSkill.WarMasterParade: Parade(caster); return;
+        case CustomSkill.WarMasterProvocation: Provocation(caster); return;
+        case CustomSkill.WarMasterRalliement: Ralliement(caster, target); return;
+        case CustomSkill.WarMasterRiposte: Riposte(caster); return;
+        case CustomSkill.WarMasterConnaisTonEnnemi: ConnaisTonEnnemi(caster, target); return;
 
         case CustomSkill.EldritchKnightArmeLiee:
-        case CustomSkill.EldritchKnightArmeLiee2: ArmeLiee(onUseFeat.Creature, onUseFeat.Feat); return;
+        case CustomSkill.EldritchKnightArmeLiee2: ArmeLiee(caster, feat); return;
         case CustomSkill.EldritchKnightArmeLieeInvocation:
-        case CustomSkill.EldritchKnightArmeLieeInvocation2: ArmeLieeInovcation(onUseFeat.Creature, onUseFeat.Feat); return;
+        case CustomSkill.EldritchKnightArmeLieeInvocation2: ArmeLieeInovcation(caster, feat); return;
 
-        case CustomSkill.BarbarianRecklessAttack: RecklessAttack(onUseFeat.Creature); return;
-        case CustomSkill.BarbarianRagePersistante: RagePersistante(onUseFeat.Creature); return;
+        case CustomSkill.BarbarianRecklessAttack: RecklessAttack(caster); return;
+        case CustomSkill.BarbarianRagePersistante: RagePersistante(caster); return;
         case CustomSkill.FrappeBrutale: 
         case CustomSkill.FrappeSiderante: 
-        case CustomSkill.FrappeDechirante: FrappeBrutale(onUseFeat.Creature, onUseFeat.Feat.Id); return;
-        case CustomSkill.BersekerPresenceIntimidante: BersekerPresenceIntimidante(onUseFeat.Creature); return;
+        case CustomSkill.FrappeDechirante: FrappeBrutale(caster, feat.Id); return;
+        case CustomSkill.BersekerPresenceIntimidante: BersekerPresenceIntimidante(caster); return;
 
-        case CustomSkill.WildMagicSense: SensDeLaMagie(onUseFeat.Creature); return;
-        case CustomSkill.WildMagicMagieGalvanisanteBienfait: Bienfait(onUseFeat.Creature, onUseFeat.TargetObject); return;
-        case CustomSkill.WildMagicMagieGalvanisanteRecuperation: Recuperation(onUseFeat.Creature, onUseFeat.TargetObject); return;
+        case CustomSkill.WildMagicSense: SensDeLaMagie(caster); return;
+        case CustomSkill.WildMagicMagieGalvanisanteBienfait: Bienfait(caster, target); return;
+        case CustomSkill.WildMagicMagieGalvanisanteRecuperation: Recuperation(caster, target); return;
 
-        case CustomSkill.MonkUnarmoredSpeed: MonkUnarmoredSpeed(onUseFeat.Creature); return;
-        case CustomSkill.MonkBonusAttack: MonkBonusAttack(onUseFeat.Creature); return;
-        case CustomSkill.MonkPatience: MonkPatience(onUseFeat.Creature); return;
-        case CustomSkill.MonkDelugeDeCoups: MonkDelugeDeCoups(onUseFeat.Creature); return;
-        case CustomSkill.MonkSlowFall: MonkSlowFall(onUseFeat.Creature); return;
-        case CustomSkill.MonkStunStrike: MonkStunStrike(onUseFeat.Creature); return;
-        case CustomSkill.MonkFrappesRenforcees: FrappesRenforcees(onUseFeat.Creature); return;
-        case CustomSkill.MonkDiamondSoul: DiamondSoul(onUseFeat.Creature); return;
-        case CustomSkill.MonkDesertion: MonkDesertion(onUseFeat.Creature); return;
-        case CustomSkill.MonkPlenitude: MonkPlenitude(onUseFeat.Creature); return;
+        case CustomSkill.MonkUnarmoredSpeed: MonkUnarmoredSpeed(caster); return;
+        case CustomSkill.MonkBonusAttack: MonkBonusAttack(caster); return;
+        case CustomSkill.MonkPatience: MonkPatience(caster); return;
+        case CustomSkill.MonkDelugeDeCoups: MonkDelugeDeCoups(caster); return;
+        case CustomSkill.MonkSlowFall: MonkSlowFall(caster); return;
+        case CustomSkill.MonkStunStrike: MonkStunStrike(caster); return;
+        case CustomSkill.MonkFrappesRenforcees: FrappesRenforcees(caster); return;
+        case CustomSkill.MonkDiamondSoul: DiamondSoul(caster); return;
+        case CustomSkill.MonkDesertion: MonkDesertion(caster); return;
+        case CustomSkill.MonkPlenitude: MonkPlenitude(caster); return;
 
-        case CustomSkill.MonkManifestationAme: MonkManifestationAme(onUseFeat.Creature); return;
-        case CustomSkill.MonkManifestationCorps: MonkManifestationCorps(onUseFeat.Creature); return;
-        case CustomSkill.MonkManifestationEsprit: MonkManifestationEsprit(onUseFeat.Creature); return;
-        case CustomSkill.MonkResonanceKi: MonkResonanceKi(onUseFeat.Creature); return;
-        case CustomSkill.MonkExplosionKi: MonkExplosionKi(onUseFeat.Creature); return;
-        case CustomSkill.MonkPaumeVibratoire: MonkPaumeVibratoire(onUseFeat.Creature); return;
+        case CustomSkill.MonkManifestationAme: MonkManifestationAme(caster); return;
+        case CustomSkill.MonkManifestationCorps: MonkManifestationCorps(caster); return;
+        case CustomSkill.MonkManifestationEsprit: MonkManifestationEsprit(caster); return;
+        case CustomSkill.MonkResonanceKi: MonkResonanceKi(caster); return;
+        case CustomSkill.MonkExplosionKi: MonkExplosionKi(caster); return;
+        case CustomSkill.MonkPaumeVibratoire: MonkPaumeVibratoire(caster); return;
 
         case CustomSkill.TraqueurLinceulDombre:
-        case CustomSkill.MonkLinceulDombre: MonkLinceulDombre(onUseFeat.Creature, onUseFeat); return;
+        case CustomSkill.MonkLinceulDombre: MonkLinceulDombre(caster, onUseFeat); return;
         //case CustomSkill.ClercLinceulDombre:
-        case CustomSkill.MonkFouleeDombre: MonkFouleeDombre(onUseFeat.Creature, onUseFeat); return;
-        case CustomSkill.MonkFrappeDombre: MonkFrappeDombre(onUseFeat.Creature, onUseFeat); return;
-        case CustomSkill.MonkMetabolismeSurnaturel: MetabolismeSurnaturel(onUseFeat.Creature); return;
+        case CustomSkill.MonkFouleeDombre: MonkFouleeDombre(caster, onUseFeat); return;
+        case CustomSkill.MonkFrappeDombre: MonkFrappeDombre(caster, onUseFeat); return;
+        case CustomSkill.MonkMetabolismeSurnaturel: MetabolismeSurnaturel(caster); return;
 
-        case CustomSkill.MonkLienElementaire: LienElementaire(onUseFeat.Creature); return;
-        case CustomSkill.MonkCrochetsDuSerpentDeFeu: CrochetsDuSerpentDeFeu(onUseFeat.Creature); return;
-        case CustomSkill.MonkFaconnageDeLaRiviere: FaconnageDeLaRiviere(onUseFeat.Creature); return;
-        case CustomSkill.MonkPorteParLeVent: PorteParLeVent(onUseFeat.Creature); return;
+        case CustomSkill.MonkLienElementaire: LienElementaire(caster); return;
+        case CustomSkill.MonkCrochetsDuSerpentDeFeu: CrochetsDuSerpentDeFeu(caster); return;
+        case CustomSkill.MonkFaconnageDeLaRiviere: FaconnageDeLaRiviere(caster); return;
+        case CustomSkill.MonkPorteParLeVent: PorteParLeVent(caster); return;
 
-        case CustomSkill.WizardRestaurationArcanique: RestaurationArcanique(onUseFeat.Creature); return;
-        case CustomSkill.AbjurationWardProjetee: ProtectionProjetee(onUseFeat.Creature, onUseFeat.TargetObject); return;
+        case CustomSkill.WizardRestaurationArcanique: RestaurationArcanique(caster); return;
+        case CustomSkill.AbjurationWardProjetee: ProtectionProjetee(caster, target); return;
         case CustomSkill.DivinationPresage: 
         case CustomSkill.DivinationPresage2: 
         case CustomSkill.DivinationPresageSuperieur: 
-          Presage(onUseFeat.Creature, onUseFeat.TargetObject, onUseFeat.Feat); return;
-        case CustomSkill.DivinationSeeInvisibility: DivinationSeeInvisible(onUseFeat.Creature); return;
-        case CustomSkill.DivinationDarkVision: DivinationDarkVision(onUseFeat.Creature); return;
-        case CustomSkill.DivinationSeeEthereal: DivinationSeeEthereal(onUseFeat.Creature); return;
+          Presage(caster, target, feat); return;
+        case CustomSkill.DivinationSeeInvisibility: DivinationSeeInvisible(caster); return;
+        case CustomSkill.DivinationDarkVision: DivinationDarkVision(caster); return;
+        case CustomSkill.DivinationSeeEthereal: DivinationSeeEthereal(caster); return;
 
-        case CustomSkill.EvocateurSurcharge: SurchargeArcanique(onUseFeat.Creature); return;
+        case CustomSkill.EvocateurSurcharge: SurchargeArcanique(caster); return;
 
-        case CustomSkill.IllusionDouble: IllusionDouble(onUseFeat.Creature); return;
+        case CustomSkill.IllusionDouble: IllusionDouble(caster); return;
 
-        case CustomSkill.InvocationMineure: InvocationMineure(onUseFeat.Creature); return;
+        case CustomSkill.InvocationMineure: InvocationMineure(caster); return;
 
-        case CustomSkill.NecromancieUndeadControl: NecromancieUndeadControl(onUseFeat.Creature, onUseFeat.TargetObject); return;
+        case CustomSkill.NecromancieUndeadControl: NecromancieUndeadControl(caster, target); return;
 
-        case CustomSkill.TransmutationAlchimieMineure: TransmutationAlchimieMineure(onUseFeat.Creature); return;
+        case CustomSkill.TransmutationAlchimieMineure: TransmutationAlchimieMineure(caster); return;
         case CustomSkill.TransmutationStone: TransmutationStone(player); return;
         case CustomSkill.TransmutationMaitre: TransmutationMaster(player); return;
 
-        case CustomSkill.BardInspiration: InspirationBardique(onUseFeat.Creature, onUseFeat.TargetObject); return;
-        case CustomSkill.DefenseVaillante: DefenseVaillante(onUseFeat.Creature, onUseFeat.TargetObject); return;
-        case CustomSkill.DegatsVaillants: DegatsVaillants(onUseFeat.Creature, onUseFeat.TargetObject); return;
-        case CustomSkill.SourceDinspiration: SourceDinspiration(onUseFeat.Creature); return;
+        case CustomSkill.BardInspiration: InspirationBardique(caster, target); return;
+        case CustomSkill.DefenseVaillante: DefenseVaillante(caster, target); return;
+        case CustomSkill.DegatsVaillants: DegatsVaillants(caster, target); return;
+        case CustomSkill.SourceDinspiration: SourceDinspiration(caster); return;
         case CustomSkill.BotteDefensive:
-        case CustomSkill.BotteDefensiveDeMaitre: BotteDefensive(onUseFeat.Creature, onUseFeat.Feat.Id); return;
+        case CustomSkill.BotteDefensiveDeMaitre: BotteDefensive(caster, feat.Id); return;
         case CustomSkill.BotteTranchante:
-        case CustomSkill.BotteTranchanteDeMaitre: BotteTranchante(onUseFeat.Creature, onUseFeat.Feat.Id); return;
+        case CustomSkill.BotteTranchanteDeMaitre: BotteTranchante(caster, feat.Id); return;
 
-        case CustomSkill.RangerInfatiguable: Infatiguable(onUseFeat.Creature); return;
-        case CustomSkill.ProfondeursFrappeRedoutable: FrappeRedoutable(onUseFeat.Creature); return;
+        case CustomSkill.RangerInfatiguable: Infatiguable(caster); return;
+        case CustomSkill.ProfondeursFrappeRedoutable: FrappeRedoutable(caster); return;
 
-        case CustomSkill.BelluaireFurieBestiale: FurieBestiale(onUseFeat.Creature); return;
-        case CustomSkill.BelluaireRugissementProvoquant: BelluaireRugissementProvoquant(onUseFeat.Creature); return;
-        case CustomSkill.BelluairePatteMielleuse: PatteMielleuse(onUseFeat.Creature); return;
-        case CustomSkill.BelluaireChargeSanglier: ChargeDuSanglier(onUseFeat.Creature, onUseFeat.TargetObject); return;
-        case CustomSkill.BelluaireRageSanglier: RageDuSanglier(onUseFeat.Creature); return;
-        case CustomSkill.BelluaireCorbeauAveuglement: CorbeauAveuglement(onUseFeat.Creature); return;
-        case CustomSkill.BelluaireCorbeauMauvaisAugure: CorbeauMauvaisAugure(onUseFeat.Creature, onUseFeat.TargetObject); return;
-        //case CustomSkill.BelluaireLoupMorsurePlongeante: LoupMorsurePlongeante(onUseFeat.Creature); return;
-        case CustomSkill.BelluaireSpiderWeb: SpiderWeb(onUseFeat.Creature, onUseFeat.TargetObject is null ? onUseFeat.TargetPosition : onUseFeat.TargetObject.Position); return;
-        case CustomSkill.BelluaireSpiderCocoon: SpiderCocoon(onUseFeat.Creature, onUseFeat.TargetObject); return;
+        case CustomSkill.BelluaireFurieBestiale: FurieBestiale(caster); return;
+        case CustomSkill.BelluaireRugissementProvoquant: BelluaireRugissementProvoquant(caster); return;
+        case CustomSkill.BelluairePatteMielleuse: PatteMielleuse(caster); return;
+        case CustomSkill.BelluaireChargeSanglier: ChargeDuSanglier(caster, target); return;
+        case CustomSkill.BelluaireRageSanglier: RageDuSanglier(caster); return;
+        case CustomSkill.BelluaireCorbeauAveuglement: CorbeauAveuglement(caster); return;
+        case CustomSkill.BelluaireCorbeauMauvaisAugure: CorbeauMauvaisAugure(caster, target); return;
+        //case CustomSkill.BelluaireLoupMorsurePlongeante: LoupMorsurePlongeante(caster); return;
+        case CustomSkill.BelluaireSpiderWeb: SpiderWeb(caster, target is null ? onUseFeat.TargetPosition : target.Position); return;
+        case CustomSkill.BelluaireSpiderCocoon: SpiderCocoon(caster, target); return;
 
-        case CustomSkill.SensDivin: SensDivin(onUseFeat.Creature); return;
-        case CustomSkill.ChatimentDivin: ChatimentDivin(onUseFeat.Creature); return;
-        case CustomSkill.AuraDeProtection: AuraDeProtection(onUseFeat.Creature); return;
-        case CustomSkill.DevotionSaintesRepresailles: SaintesRepresailles(onUseFeat.Creature, onUseFeat.TargetObject); return;
-        case CustomSkill.DevotionNimbeSacree: NimbeSacree(onUseFeat.Creature); return;
-        case CustomSkill.AnciensGuerisonRayonnante: GuerisonRayonnante(onUseFeat.Creature); return;
-        case CustomSkill.AnciensChampionAntique: ChampionAntique(onUseFeat.Creature); return;
-        case CustomSkill.PaladinVoeuHostile: VoeudHostilite(onUseFeat.Creature, onUseFeat.TargetObject); return;
-        case CustomSkill.PaladinPuissanceInquisitrice: PuissanceInquisitrice(onUseFeat.Creature, onUseFeat.TargetObject); return;
-        case CustomSkill.AngeDeLaVengeance: AngeDeLaVengeance(onUseFeat.Creature); return;
+        case CustomSkill.SensDivin: SensDivin(caster); return;
+        case CustomSkill.ChatimentDivin: ChatimentDivin(caster); return;
+        case CustomSkill.AuraDeProtection: AuraDeProtection(caster); return;
+        case CustomSkill.DevotionSaintesRepresailles: SaintesRepresailles(caster, target); return;
+        case CustomSkill.DevotionNimbeSacree: NimbeSacree(caster); return;
+        case CustomSkill.AnciensGuerisonRayonnante: GuerisonRayonnante(caster); return;
+        case CustomSkill.AnciensChampionAntique: ChampionAntique(caster); return;
+        case CustomSkill.PaladinVoeuHostile: VoeudHostilite(caster, target); return;
+        case CustomSkill.PaladinPuissanceInquisitrice: PuissanceInquisitrice(caster, target); return;
+        case CustomSkill.AngeDeLaVengeance: AngeDeLaVengeance(caster); return;
 
-        case CustomSkill.ClercInterventionDivine: InterventionDivine(onUseFeat.Creature); return;
-        case CustomSkill.ClercIncantationPuissante: IncantationPuissante(onUseFeat.Creature, onUseFeat.TargetObject); return;
+        case CustomSkill.ClercInterventionDivine: InterventionDivine(caster); return;
+        case CustomSkill.ClercIncantationPuissante: IncantationPuissante(caster, target); return;
 
-        //case CustomSkill.ClercMartial: ClercMartial(onUseFeat.Creature); return;
-        case CustomSkill.ClercFrappeGuidee: FrappeGuidee(onUseFeat.Creature, onUseFeat.TargetObject); return;
+        //case CustomSkill.ClercMartial: ClercMartial(caster); return;
+        case CustomSkill.ClercFrappeGuidee: FrappeGuidee(caster, target); return;
 
-        case CustomSkill.ClercIllumination: ClercIllumination(onUseFeat.Creature, onUseFeat.TargetObject); return;
-        case CustomSkill.ClercHaloDeLumiere: HaloDeLumiere(onUseFeat.Creature); return;
+        case CustomSkill.ClercIllumination: ClercIllumination(caster, target); return;
+        case CustomSkill.ClercHaloDeLumiere: HaloDeLumiere(caster); return;
 
-        case CustomSkill.ClercVisionDuPasse: VisionDuPasse(onUseFeat.Creature); return;
+        case CustomSkill.ClercVisionDuPasse: VisionDuPasse(caster); return;
 
-        case CustomSkill.ClercFureurDestructrice: FureurDestructrice(onUseFeat.Creature); return;
-        case CustomSkill.ClercEnfantDeLaTempete: EnfantDeLaTempete(onUseFeat.Creature); return;
+        case CustomSkill.ClercFureurDestructrice: FureurDestructrice(caster); return;
+        case CustomSkill.ClercEnfantDeLaTempete: EnfantDeLaTempete(caster); return;
 
-        case CustomSkill.ClercPreservationDeLaVie: PreservationDeLaVie(onUseFeat.Creature); return;
+        case CustomSkill.ClercPreservationDeLaVie: PreservationDeLaVie(caster); return;
 
-        case CustomSkill.ClercBenedictionDuFilou: BenedictionDuFilou(onUseFeat.Creature, onUseFeat.TargetObject); return;
-        case CustomSkill.TeleportRepliqueDuplicite: TranspositionDuFilou(onUseFeat.Creature); return;
+        case CustomSkill.ClercBenedictionDuFilou: BenedictionDuFilou(caster, target); return;
+        case CustomSkill.TeleportRepliqueDuplicite: TranspositionDuFilou(caster); return;
 
-        case CustomSkill.SorcellerieInnee: SorcellerieInnee(onUseFeat.Creature); return;
-        case CustomSkill.SorcellerieIncarnee: SorcellerieIncarnee(onUseFeat.Creature); return;
-        case CustomSkill.EnsoSourceToSlot: SourceToSlot(onUseFeat.Creature); return;
-        case CustomSkill.EnsoSlotToSource: SlotToSource(onUseFeat.Creature); return;
+        case CustomSkill.SorcellerieInnee: SorcellerieInnee(caster); return;
+        case CustomSkill.SorcellerieIncarnee: SorcellerieIncarnee(caster); return;
+        case CustomSkill.EnsoSourceToSlot: SourceToSlot(caster); return;
+        case CustomSkill.EnsoSlotToSource: SlotToSource(caster); return;
         case CustomSkill.EnsoPrudence: 
         case CustomSkill.EnsoAllonge: 
         case CustomSkill.EnsoExtension: 
@@ -199,82 +204,82 @@ namespace NWN.Systems
         case CustomSkill.EnsoAcceleration: 
         case CustomSkill.EnsoGuidage: 
         case CustomSkill.EnsoSubtilite: 
-        case CustomSkill.EnsoTransmutation: Metamagie(onUseFeat.Creature, onUseFeat.Feat.Id); return;
-        case CustomSkill.EnsoDracoWings: AilesDraconiques(onUseFeat.Creature); return;
-        case CustomSkill.EnsoGuideTempete: GuideTempete(onUseFeat.Creature); return;
-        case CustomSkill.EnsoAmeDesVents: AmeDesVents(onUseFeat.Creature); return;
+        case CustomSkill.EnsoTransmutation: Metamagie(caster, feat.Id); return;
+        case CustomSkill.EnsoDracoWings: AilesDraconiques(caster); return;
+        case CustomSkill.EnsoGuideTempete: GuideTempete(caster); return;
+        case CustomSkill.EnsoAmeDesVents: AmeDesVents(caster); return;
 
-        case CustomSkill.DruideReveilSauvage: ReveilSauvage(onUseFeat.Creature); return;
+        case CustomSkill.DruideReveilSauvage: ReveilSauvage(caster); return;
         case CustomSkill.DruideFrappePrimordialeFroid:
         case CustomSkill.DruideFrappePrimordialeFeu: 
         case CustomSkill.DruideFrappePrimordialeElec: 
-        case CustomSkill.DruideFrappePrimordialeTonnerre: FrappePrimordiale(onUseFeat.Creature, onUseFeat.Feat.Id); return;
-        case CustomSkill.MageNature: SlotToFormeSauvage(onUseFeat.Creature); return;
+        case CustomSkill.DruideFrappePrimordialeTonnerre: FrappePrimordiale(caster, feat.Id); return;
+        case CustomSkill.MageNature: SlotToFormeSauvage(caster); return;
 
         case CustomSkill.FormeSauvageOurs: 
         case CustomSkill.FormeSauvageCorbeau: 
-        case CustomSkill.FormeSauvageTigre: FormeSauvage(onUseFeat.Creature, onUseFeat.Feat.Id); return;
+        case CustomSkill.FormeSauvageTigre: FormeSauvage(caster, feat.Id); return;
         case CustomSkill.FormeSauvageAir:
         case CustomSkill.FormeSauvageTerre:
         case CustomSkill.FormeSauvageFeu:
-        case CustomSkill.FormeSauvageEau: FormeSauvage(onUseFeat.Creature, onUseFeat.Feat.Id, 2); return;
+        case CustomSkill.FormeSauvageEau: FormeSauvage(caster, feat.Id, 2); return;
 
-        case CustomSkill.DruideEconomieNaturelle: EconomieNaturelle(onUseFeat.Creature); return;
-        case CustomSkill.DruideRecuperationNaturelle: RecuperationNaturelle(onUseFeat.Creature); return;
-        case CustomSkill.DruideSanctuaireNaturel: SanctuaireNaturel(onUseFeat.Creature); return;
-        case CustomSkill.DruideLuneRadieuse: LuneRadieuse(onUseFeat.Creature); return;
-        case CustomSkill.DruideFureurDesFlots: FureurDesFlots(onUseFeat.Creature); return;
+        case CustomSkill.DruideEconomieNaturelle: EconomieNaturelle(caster); return;
+        case CustomSkill.DruideRecuperationNaturelle: RecuperationNaturelle(caster); return;
+        case CustomSkill.DruideSanctuaireNaturel: SanctuaireNaturel(caster); return;
+        case CustomSkill.DruideLuneRadieuse: LuneRadieuse(caster); return;
+        case CustomSkill.DruideFureurDesFlots: FureurDesFlots(caster); return;
 
-        case CustomSkill.OccultisteFourberieMagique: FourberieMagique(onUseFeat.Creature); return;
-        case CustomSkill.OccultisteContactDoutremonde: ContactDoutremonde(onUseFeat.Creature); return;
-        case CustomSkill.PacteDeLaLame: PacteDeLaLame(onUseFeat.Creature); return;
-        case CustomSkill.PacteDeLaLameInvoquer: PacteDeLaLameInvoquer(onUseFeat.Creature); return;
-        case CustomSkill.ChatimentOcculte: ChatimentOcculte(onUseFeat.Creature); return;
-        case CustomSkill.DonDuProtecteur: DonDuProtecteur(onUseFeat.Creature, onUseFeat.TargetObject); return;
-        case CustomSkill.DoubleVue: DoubleVue(onUseFeat.Creature, onUseFeat.TargetObject); return;
-        case CustomSkill.PacteDuTome: PacteDuTome(onUseFeat.Creature); return;
+        case CustomSkill.OccultisteFourberieMagique: FourberieMagique(caster); return;
+        case CustomSkill.OccultisteContactDoutremonde: ContactDoutremonde(caster); return;
+        case CustomSkill.PacteDeLaLame: PacteDeLaLame(caster); return;
+        case CustomSkill.PacteDeLaLameInvoquer: PacteDeLaLameInvoquer(caster); return;
+        case CustomSkill.ChatimentOcculte: ChatimentOcculte(caster); return;
+        case CustomSkill.DonDuProtecteur: DonDuProtecteur(caster, target); return;
+        case CustomSkill.DoubleVue: DoubleVue(caster, target); return;
+        case CustomSkill.PacteDuTome: PacteDuTome(caster); return;
 
-        case CustomSkill.LueurDeGuérison: LueurDeGuérison(onUseFeat.Creature, onUseFeat.TargetObject); return;
-        case CustomSkill.VengeanceCalcinante: VengeanceCalcinante(onUseFeat.Creature); return;
+        case CustomSkill.LueurDeGuérison: LueurDeGuérison(caster, target); return;
+        case CustomSkill.VengeanceCalcinante: VengeanceCalcinante(caster); return;
 
-        case CustomSkill.ResilienceFielleuse: ResilienceFielleuse(onUseFeat.Creature); return;
-        case CustomSkill.TraverseeInfernale: TraverseeInfernale(onUseFeat.Creature); return;
+        case CustomSkill.ResilienceFielleuse: ResilienceFielleuse(caster); return;
+        case CustomSkill.TraverseeInfernale: TraverseeInfernale(caster); return;
 
-        case CustomSkill.EspritEveille: EspritEveille(onUseFeat.Creature, onUseFeat.TargetObject); return;
-        case CustomSkill.SortsPsychiques: SortsPsychiques(onUseFeat.Creature); return;
+        case CustomSkill.EspritEveille: EspritEveille(caster, target); return;
+        case CustomSkill.SortsPsychiques: SortsPsychiques(caster); return;
 
-        case CustomSkill.ExpertiseCommotion: Commotion(onUseFeat.Creature); return;
-        case CustomSkill.ExpertiseAffaiblissement: Affaiblissement(onUseFeat.Creature); return;
-        case CustomSkill.ExpertiseArretCardiaque: ArretCardiaque(onUseFeat.Creature); return;
-        case CustomSkill.ExpertiseTranspercer: Transpercer(onUseFeat.Creature); return;
-        case CustomSkill.ExpertiseTirPercant: TirPercant(onUseFeat.Creature); return;
-        case CustomSkill.ExpertiseMoulinet: Moulinet(onUseFeat.Creature); return;
-        case CustomSkill.ExpertiseLaceration: Laceration(onUseFeat.Creature); return;
-        case CustomSkill.ExpertiseMutilation: Mutilation(onUseFeat.Creature); return;
-        case CustomSkill.ExpertiseFendre: Fendre(onUseFeat.Creature); return;
-        case CustomSkill.ExpertiseCharge: Charge(onUseFeat.Creature); return;
-        case CustomSkill.ExpertiseFrappeDuPommeau: FrappeDuPommeau(onUseFeat.Creature); return;
-        case CustomSkill.ExpertiseDesarmement: ExpertiseDesarmement(onUseFeat.Creature); return;
-        case CustomSkill.ExpertiseBriseEchine: BriseEchine(onUseFeat.Creature); return;
-        case CustomSkill.ExpertiseDestabiliser: Destabiliser(onUseFeat.Creature); return;
-        case CustomSkill.ExpertiseCoupeJarret: CoupeJarret(onUseFeat.Creature); return;
-        case CustomSkill.ExpertiseEntaille: Entaille(onUseFeat.Creature); return;
-        case CustomSkill.ExpertiseRenforcement: Renforcement(onUseFeat.Creature); return;
-        case CustomSkill.ExpertisePreparation: Preparation(onUseFeat.Creature); return;
-        case CustomSkill.ExpertiseStabilisation: Stabilisation(onUseFeat.Creature); return;
+        case CustomSkill.ExpertiseCommotion: Commotion(caster); return;
+        case CustomSkill.ExpertiseAffaiblissement: Affaiblissement(caster); return;
+        case CustomSkill.ExpertiseArretCardiaque: ArretCardiaque(caster); return;
+        case CustomSkill.ExpertiseTranspercer: Transpercer(caster); return;
+        case CustomSkill.ExpertiseTirPercant: TirPercant(caster); return;
+        case CustomSkill.ExpertiseMoulinet: Moulinet(caster); return;
+        case CustomSkill.ExpertiseLaceration: Laceration(caster); return;
+        case CustomSkill.ExpertiseMutilation: Mutilation(caster); return;
+        case CustomSkill.ExpertiseFendre: Fendre(caster); return;
+        case CustomSkill.ExpertiseCharge: Charge(caster); return;
+        case CustomSkill.ExpertiseFrappeDuPommeau: FrappeDuPommeau(caster); return;
+        case CustomSkill.ExpertiseDesarmement: ExpertiseDesarmement(caster); return;
+        case CustomSkill.ExpertiseBriseEchine: BriseEchine(caster); return;
+        case CustomSkill.ExpertiseDestabiliser: Destabiliser(caster); return;
+        case CustomSkill.ExpertiseCoupeJarret: CoupeJarret(caster); return;
+        case CustomSkill.ExpertiseEntaille: Entaille(caster); return;
+        case CustomSkill.ExpertiseRenforcement: Renforcement(caster); return;
+        case CustomSkill.ExpertisePreparation: Preparation(caster); return;
+        case CustomSkill.ExpertiseStabilisation: Stabilisation(caster); return;
 
         case CustomSkill.FighterSecondWind:
-          if (CreatureUtils.HandleBonusActionUse(onUseFeat.Creature)) return;
+          if (CreatureUtils.HandleBonusActionUse(caster)) return;
           else onUseFeat.PreventFeatUse = true; return;
       }
 
-      int featId = onUseFeat.Feat.Id + 10000;
+      int featId = feat.Id + 10000;
 
       /*SkillSystem.Attribut featAttribute = SkillSystem.learnableDictionary[featId].attribut;
       int attributeLevel = player.GetAttributeLevel(featAttribute);
       int bonusAttributeChance = 0;
 
-      NwItem castItem = onUseFeat.Creature.GetItemInSlot(InventorySlot.RightHand);
+      NwItem castItem = caster.GetItemInSlot(InventorySlot.RightHand);
 
       if (castItem is not null)
       {
@@ -284,7 +289,7 @@ namespace NWN.Systems
               bonusAttributeChance += 3;
       }
 
-      castItem = onUseFeat.Creature.GetItemInSlot(InventorySlot.LeftHand);
+      castItem = caster.GetItemInSlot(InventorySlot.LeftHand);
 
       if (castItem is not null)
       {
@@ -297,14 +302,24 @@ namespace NWN.Systems
       if (NwRandom.Roll(Utils.random, 100) < bonusAttributeChance)
         attributeLevel += 1;*/
 
+      if (feat.Spell is not null && SpellUtils.IsBonusActionSpell(caster, feat.Spell.Id, Spells2da.spellTable[feat.Spell.Id], feat))
+      {
+        if (!CreatureUtils.HandleBonusActionUse(caster))
+        {
+          onUseFeat.PreventFeatUse = true;
+          return;
+        }
+      }
+
+
       switch (featId)
       {
         case CustomSkill.SeverArtery:
-          onUseFeat.Creature.GetObjectVariable<LocalVariableInt>("_NEXT_ATTACK").Value = featId;
+          caster.GetObjectVariable<LocalVariableInt>("_NEXT_ATTACK").Value = featId;
           return;
       }
 
-      switch (onUseFeat.Feat.FeatType)
+      switch (feat.FeatType)
       {
         case CustomFeats.CustomMenuUP:
         case CustomFeats.CustomMenuDOWN:
@@ -312,7 +327,7 @@ namespace NWN.Systems
         case CustomFeats.CustomMenuEXIT:
 
           onUseFeat.PreventFeatUse = true;
-          player.EmitKeydown(new PlayerSystem.Player.MenuFeatEventArgs(onUseFeat.Feat.FeatType));
+          player.EmitKeydown(new PlayerSystem.Player.MenuFeatEventArgs(feat.FeatType));
           break;
       }
     }
