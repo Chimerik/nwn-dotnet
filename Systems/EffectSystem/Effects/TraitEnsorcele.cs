@@ -14,7 +14,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.RunAction(onIntervalHandle: onIntervalEntraveCallback, interval: NwTimeSpan.FromRounds(1));
+        Effect eff = Effect.RunAction(onIntervalHandle: onIntervalTraitEnsorceleCallback, interval: NwTimeSpan.FromRounds(1));
         eff.Tag = EntraveEffectTag;
         eff.Spell = NwSpell.FromSpellId(CustomSpell.TraitEnsorcele);
         eff.SubType = EffectSubType.Supernatural;
@@ -32,9 +32,7 @@ namespace NWN.Systems
         {
           var bonusAction = target.ActiveEffects.FirstOrDefault(e => e.Tag == BonusActionEffectTag);
 
-          if (bonusAction is null)
-            target.RemoveEffect(eventData.Effect);
-          else
+          if (bonusAction is not null)
           {
             if (caster.IsCreatureSeen(target) && caster.DistanceSquared(target) < 325)
             {

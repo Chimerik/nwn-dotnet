@@ -11,13 +11,14 @@ namespace NWN.Systems
         if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_CLASS_SELECTION").HasValue)
         {
           ClassType classType = (ClassType)oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_CLASS_SELECTION").Value;
+          SpellSchool school = (SpellSchool)oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_SCHOOL_SELECTION").Value;
           int nbSpells = oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_SELECTION").Value;
           int nbCantrips = oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CANTRIP_SELECTION").Value;
 
           if (nbSpells > 0)
           {
-            if (!windows.TryGetValue("spellSelection", out var spell)) windows.Add("spellSelection", new SpellSelectionWindow(this, classType, nbSpells));
-            else ((SpellSelectionWindow)spell).CreateWindow(classType, nbSpells);
+            if (!windows.TryGetValue("spellSelection", out var spell)) windows.Add("spellSelection", new SpellSelectionWindow(this, classType, nbSpells, school));
+            else ((SpellSelectionWindow)spell).CreateWindow(classType, nbSpells, school);
           }
 
           if (nbCantrips > 0)
@@ -27,7 +28,10 @@ namespace NWN.Systems
           }
 
           if (nbSpells == 0 && nbCantrips == 0)
+          { 
             oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_CLASS_SELECTION").Delete();
+            oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_SCHOOL_SELECTION").Delete();
+          }
         }
       }
     }

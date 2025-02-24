@@ -1,9 +1,7 @@
-﻿using System.Linq;
-using System.Security.Cryptography;
-using Anvil.API;
+﻿using Anvil.API;
 using NWN.Core;
 using static NWN.Systems.PlayerSystem;
-using static NWN.Systems.SkillSystem;
+using static NWN.Systems.PlayerSystem.Player;
 
 namespace NWN.Systems
 {
@@ -13,59 +11,142 @@ namespace NWN.Systems
     {
       switch (level)
       {
-        case 2: 
+        case 3: 
           
           new StrRef(20).SetPlayerOverride(player.oid, "Nécromancien");
           player.oid.SetTextureOverride("wizard", "necromancie");
 
-          player.learnableSkills.TryAdd(CustomSkill.NecromancieMoissonDuFiel, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.NecromancieMoissonDuFiel], player));
-          player.learnableSkills[CustomSkill.NecromancieMoissonDuFiel].LevelUp(player);
-          player.learnableSkills[CustomSkill.NecromancieMoissonDuFiel].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.NecromancieMoissonDuFiel);
+
+          if (!player.windows.TryGetValue("spellSelection", out var spell1)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 2, SpellSchool.Necromancy));
+          else ((SpellSelectionWindow)spell1).CreateWindow(ClassType.Wizard, 2, SpellSchool.Necromancy);
+
+          break;
+
+        case 4:
+
+          if (!player.windows.TryGetValue("spellSelection", out var spell4)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 1, SpellSchool.Necromancy));
+          else ((SpellSelectionWindow)spell4).CreateWindow(ClassType.Wizard, 1, SpellSchool.Necromancy);
+
+          break;
+
+        case 5:
+
+          if (!player.windows.TryGetValue("spellSelection", out var spell5)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 1, SpellSchool.Necromancy));
+          else ((SpellSelectionWindow)spell5).CreateWindow(ClassType.Wizard, 1, SpellSchool.Necromancy);
 
           break;
 
         case 6:
 
-          player.learnableSkills.TryAdd(CustomSkill.NecromancieUndeadThralls, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.NecromancieUndeadThralls], player));
-          player.learnableSkills[CustomSkill.NecromancieUndeadThralls].LevelUp(player);
-          player.learnableSkills[CustomSkill.NecromancieUndeadThralls].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.NecromancieUndeadThralls);
+          player.LearnAlwaysPreparedSpell((int)Spell.AnimateDead, CustomClass.Wizard);
 
-          if (player.learnableSpells.TryGetValue((int)Spell.AnimateDead, out var learnable))
-          {
-            if (!learnable.learntFromClasses.Any(c => c == (int)ClassType.Wizard))
-            {
-              learnable.learntFromClasses.Add((int)ClassType.Wizard);
+          if (!player.windows.TryGetValue("spellSelection", out var spell6)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 1, SpellSchool.Necromancy));
+          else ((SpellSelectionWindow)spell6).CreateWindow(ClassType.Wizard, 1, SpellSchool.Necromancy);
 
-              if (learnable.currentLevel < 1)
-                learnable.LevelUp(player);
-            }
-          }
-          else
-          {
-            LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)learnableDictionary[(int)Spell.AnimateDead], (int)ClassType.Wizard);
-            player.learnableSpells.Add(learnableSpell.id, learnableSpell);
-            learnableSpell.LevelUp(player);
+          break;
 
-            player.oid.SendServerMessage($"Vous apprenez le sort {StringUtils.ToWhitecolor("Animation des Morts")}", ColorConstants.Orange);
-          }
+        case 7:
+
+          if (!player.windows.TryGetValue("spellSelection", out var spell7)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 1, SpellSchool.Necromancy));
+          else ((SpellSelectionWindow)spell7).CreateWindow(ClassType.Wizard, 1, SpellSchool.Necromancy);
+
+          break;
+
+        case 8:
+
+          if (!player.windows.TryGetValue("spellSelection", out var spell8)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 1, SpellSchool.Necromancy));
+          else ((SpellSelectionWindow)spell8).CreateWindow(ClassType.Wizard, 1, SpellSchool.Necromancy);
+
+          break;
+
+        case 9:
+
+          if (!player.windows.TryGetValue("spellSelection", out var spell9)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 1, SpellSchool.Necromancy));
+          else ((SpellSelectionWindow)spell9).CreateWindow(ClassType.Wizard, 1, SpellSchool.Necromancy);
 
           break;
 
         case 10:
 
-          player.learnableSkills.TryAdd(CustomSkill.NecromancieInsensible, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.NecromancieInsensible], player));
-          player.learnableSkills[CustomSkill.NecromancieInsensible].LevelUp(player);
-          player.learnableSkills[CustomSkill.NecromancieInsensible].source.Add(Category.Class);
-
+          player.LearnClassSkill(CustomSkill.NecromancieInsensible);
           NWScript.AssignCommand(player.oid.LoginCreature, () => player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.NecroticResistance));
+
+          if (!player.windows.TryGetValue("spellSelection", out var spell10)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 1, SpellSchool.Necromancy));
+          else ((SpellSelectionWindow)spell10).CreateWindow(ClassType.Wizard, 1, SpellSchool.Necromancy);
+
+          break;
+
+        case 11:
+
+          if (!player.windows.TryGetValue("spellSelection", out var spell11)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 1, SpellSchool.Necromancy));
+          else ((SpellSelectionWindow)spell11).CreateWindow(ClassType.Wizard, 1, SpellSchool.Necromancy);
+
+          break;
+
+        case 12:
+
+          if (!player.windows.TryGetValue("spellSelection", out var spell12)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 1, SpellSchool.Necromancy));
+          else ((SpellSelectionWindow)spell12).CreateWindow(ClassType.Wizard, 1, SpellSchool.Necromancy);
+
+          break;
+
+        case 13:
+
+          if (!player.windows.TryGetValue("spellSelection", out var spell13)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 1, SpellSchool.Necromancy));
+          else ((SpellSelectionWindow)spell13).CreateWindow(ClassType.Wizard, 1, SpellSchool.Necromancy);
 
           break;
 
         case 14:
 
-          player.learnableSkills.TryAdd(CustomSkill.NecromancieUndeadControl, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.NecromancieUndeadControl], player));
-          player.learnableSkills[CustomSkill.NecromancieUndeadControl].LevelUp(player);
-          player.learnableSkills[CustomSkill.NecromancieUndeadControl].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.NecromancieUndeadControl);
+
+          if (!player.windows.TryGetValue("spellSelection", out var spell14)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 1, SpellSchool.Necromancy));
+          else ((SpellSelectionWindow)spell14).CreateWindow(ClassType.Wizard, 1, SpellSchool.Necromancy);
+
+          break;
+
+        case 15:
+
+          if (!player.windows.TryGetValue("spellSelection", out var spell15)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 1, SpellSchool.Necromancy));
+          else ((SpellSelectionWindow)spell15).CreateWindow(ClassType.Wizard, 1, SpellSchool.Necromancy);
+
+          break;
+
+        case 16:
+
+          if (!player.windows.TryGetValue("spellSelection", out var spell16)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 1, SpellSchool.Necromancy));
+          else ((SpellSelectionWindow)spell16).CreateWindow(ClassType.Wizard, 1, SpellSchool.Necromancy);
+
+          break;
+
+        case 17:
+
+          if (!player.windows.TryGetValue("spellSelection", out var spell17)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 1, SpellSchool.Necromancy));
+          else ((SpellSelectionWindow)spell17).CreateWindow(ClassType.Wizard, 1, SpellSchool.Necromancy);
+
+          break;
+
+        case 18:
+
+          if (!player.windows.TryGetValue("spellSelection", out var spell18)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 1, SpellSchool.Necromancy));
+          else ((SpellSelectionWindow)spell18).CreateWindow(ClassType.Wizard, 1, SpellSchool.Necromancy);
+
+          break;
+
+        case 19:
+
+          if (!player.windows.TryGetValue("spellSelection", out var spell19)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 1, SpellSchool.Necromancy));
+          else ((SpellSelectionWindow)spell19).CreateWindow(ClassType.Wizard, 1, SpellSchool.Necromancy);
+
+          break;
+
+        case 20:
+
+          if (!player.windows.TryGetValue("spellSelection", out var spell20)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Wizard, 1, SpellSchool.Necromancy));
+          else ((SpellSelectionWindow)spell20).CreateWindow(ClassType.Wizard, 1, SpellSchool.Necromancy);
 
           break;
       }

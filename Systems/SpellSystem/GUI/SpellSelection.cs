@@ -27,9 +27,10 @@ namespace NWN.Systems
         private readonly List<NwSpell> acquiredSpells = new();
 
         private ClassType spellClass;
+        private SpellSchool spellSchool;
         private int nbSpells;
 
-        public SpellSelectionWindow(Player player, ClassType spellClass, int nbSpells) : base(player)
+        public SpellSelectionWindow(Player player, ClassType spellClass, int nbSpells, SpellSchool school = SpellSchool.Unknown) : base(player)
         {
           windowId = "spellSelection";
 
@@ -58,13 +59,14 @@ namespace NWN.Systems
               new NuiSpacer() } }
           };
 
-          CreateWindow(spellClass, nbSpells);
+          CreateWindow(spellClass, nbSpells, school);
         }
-        public async void CreateWindow(ClassType spellClass, int nbSpells)
+        public async void CreateWindow(ClassType spellClass, int nbSpells, SpellSchool school = SpellSchool.Unknown)
         {
           await NwTask.NextFrame();
 
           this.spellClass = spellClass;
+          this.spellSchool = school;
           this.nbSpells = nbSpells;
 
           NuiRect windowRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 520, 500);
@@ -105,6 +107,7 @@ namespace NWN.Systems
             {
               player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_SELECTION").Value = nbSpells;
               player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_CLASS_SELECTION").Value = (int)spellClass;
+              player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_SCHOOL_SELECTION").Value = (int)spellClass;
             }
           }
           else
@@ -192,8 +195,8 @@ namespace NWN.Systems
                   }
 
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_SELECTION").Delete();
-                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CANTRIP_SELECTION").Delete();
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_CLASS_SELECTION").Delete();
+                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_SCHOOL_SELECTION").Delete();
 
                   CloseWindow();
 
@@ -282,6 +285,9 @@ namespace NWN.Systems
                 case (ClassType)CustomClass.Occultiste: if (entry.hideFromClasses.Contains((ClassType)CustomClass.Occultiste)) continue; break;
               }
             }
+
+            if (spellSchool != SpellSchool.Unknown && spell.SpellSchool != spellSchool)
+              continue;
 
             availableSpells.Add(spell);
           }
