@@ -41,6 +41,7 @@ namespace NWN
     public const EffectIcon Antidetection = (EffectIcon)179;
     public const EffectIcon ChatimentDivin = (EffectIcon)181;
     public const EffectIcon ChatimentAmeliore = (EffectIcon)182;
+    public const EffectIcon Effroi = (EffectIcon)183;
     public const EffectIcon EconomieNaturelle = (EffectIcon)184;
     public const EffectIcon SanctuaireNaturel = (EffectIcon)185;
     public const EffectIcon FormeDeLune = (EffectIcon)186;

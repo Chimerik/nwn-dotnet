@@ -20,7 +20,11 @@ namespace NWN.Systems
           LogUtils.LogMessage("Cible insaississable - Pas d'avantage", LogUtils.LogType.Combat);
           return false;
         }
-          if (rangedAttack && GetHighGroundAdvantage(attacker, target))
+
+        if (attacker.m_sTag == ConvocationFeeriqueTagExo)
+          return true;
+
+        if (rangedAttack && GetHighGroundAdvantage(attacker, target))
           return true;
 
         if (GetAttackerAdvantageEffects(attacker, target, attackStat, rangedAttack))

@@ -138,6 +138,8 @@ namespace NWN.Systems
     public const string BuveuseDeVieVariable = "_BUVEUSE_DE_VIE_DAMAGE_TYPE";
     public const string FrappeDivineVariable = "_FRAPPE_DIVINE_DAMAGE_TYPE";
 
+    public static readonly CExoString ConvocationFeeriqueTagExo = "feyspirit".ToExoString();
+
     public static readonly Dictionary<string, NwCreature> creatureSpawnDictionary = new();
     public static void OnMobPerception(CreatureEvents.OnPerception onPerception)
     {

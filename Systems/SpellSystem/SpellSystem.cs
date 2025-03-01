@@ -731,6 +731,7 @@ namespace NWN.Systems
         case CustomSpell.AppelDeFamilierRename:
         case CustomSpell.RayonDeLuneDeplacement: 
         case CustomSpell.NueeDeDaguesDeplacement: 
+        case CustomSpell.ApparitionAnimaleDeplacement: 
         case CustomSpell.SphereDeFeuDeplacement: EventsPlugin.SkipEvent(); return;
 
         case (int)Spell.EpicDragonKnight:

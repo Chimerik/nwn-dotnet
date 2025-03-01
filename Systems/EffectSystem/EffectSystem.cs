@@ -139,6 +139,15 @@ namespace NWN.Systems
       onEnterFureurDesFlotsCallback = scriptHandleFactory.CreateUniqueHandler(onEnterFureurDesFlots);
       onHeartbeatFureurDesFlotsCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatFureurDesFlots);
 
+      onHeartbeatAuraPutrideCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatAuraPutride);
+
+      onHeartbeatApparitionAnimaleCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatApparitionAnimale);
+      onEnterApparitionAnimaleCallback = scriptHandleFactory.CreateUniqueHandler(onEnterApparitionAnimale);
+      onExitApparitionAnimaleCallback = scriptHandleFactory.CreateUniqueHandler(onExitApparitionAnimale);
+      onRemoveApparitionAnimaleCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveApparitionAnimale);
+
+      onRemoveSummonDurationCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveSummonDuration);
+
       onEnterChampionAntiqueCallback = scriptHandleFactory.CreateUniqueHandler(onEnterChampionAntiqueAura);
       onExitChampionAntiqueCallback = scriptHandleFactory.CreateUniqueHandler(onExitChampionAntiqueAura);
       onHeartbeatChampionAntiqueCallback = scriptHandleFactory.CreateUniqueHandler(onHeartbeatChampionAntiqueAura);

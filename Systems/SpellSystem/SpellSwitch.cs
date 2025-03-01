@@ -767,6 +767,18 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case CustomSpell.ConvocationEspritSpectral:
+        case CustomSpell.ConvocationEspritPutride:
+        case CustomSpell.ConvocationEspritSquelettique:
+          concentrationTargets.AddRange(SpellSystem.ConvocationDeMortVivant(oCaster, spell, spellEntry, target is null ? targetLocation : target.Location, castingClass));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.ConvocationFeerique:
+          concentrationTargets.AddRange(SpellSystem.ConvocationFeerique(oCaster, spell, spellEntry, target is null ? targetLocation : target.Location, castingClass));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.DetectionDesPensees:
           concentrationTargets.AddRange(SpellSystem.DetectionDesPensees(oCaster, spell, feat, spellEntry));
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
@@ -980,6 +992,16 @@ namespace NWN.Systems
 
         case CustomSpell.MoveRepliqueDuplicite:
           SpellSystem.MoveRepliqueDuplicite(oCaster, spell, spellEntry, target is null ? targetLocation : target.Location);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.ApparitionAnimale:
+          concentrationTargets.AddRange(SpellSystem.ApparitionAnimale(oCaster, spell, spellEntry, target is null ? targetLocation : target.Location, castingClass));
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.ApparitionAnimaleDeplacement:
+          SpellSystem.MoveApparitionAnimale(oCaster, spell, spellEntry, target is null ? targetLocation : target.Location);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 

@@ -23,6 +23,7 @@
     public const int LienDeGarde = 49;
     public const int Enchevetrement = 53;
     public const int Graisse = 66;
+    public const int ConvocationFeerique = 67;
     public const int VerrouArcanique = 86;
     public const int Deblocage = 93;
     public const int MotifHypnotique = 97;
@@ -125,6 +126,8 @@
     public const int ArmeElementaireFeu = 267;
     public const int ArmeElementaireElec = 268;
     public const int ArmeElementaireTonnerre = 269;
+    public const int ApparitionAnimale = 271;
+    public const int ApparitionAnimaleDeplacement = 272;
     public const int ChatimentTonitruant = 299;
     public const int VigueurArcanique = 300;
     public const int CordonDeFleches = 301;
@@ -162,6 +165,9 @@
     public const int FouRireDeTasha = 457;
     public const int CoupDeTonnerre = 515;
     public const int ArmuredAgathys = 519;
+    public const int ConvocationEspritSpectral = 625;
+    public const int ConvocationEspritPutride = 626;
+    public const int ConvocationEspritSquelettique = 627;
     public const int MoquerieVicieuse = 644;
     public const int Calligraphie = 840;
     public const int Sprint = 841;    

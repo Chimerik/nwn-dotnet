@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Anvil.API;
-using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -23,6 +21,7 @@ namespace NWN.Systems
       weapon.AddItemProperty(ItemProperty.DamageBonus(IPDamageType.Piercing, IPDamageBonus.Plus1d8), EffectDuration.Permanent);
       weapon.AddItemProperty(ItemProperty.DamageBonus(IPDamageType.Piercing, IPDamageBonus.Plus2), EffectDuration.Permanent);
 
+      concentrationList.Add(summon);
       return concentrationList;
     }
   }

@@ -16,7 +16,7 @@ namespace NWN.Systems
       if (IsFrightImmune(target, caster))
         return;
 
-      Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurMindAffectingFear), Effect.Icon((EffectIcon)183));
+      Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurMindAffectingFear), Effect.Icon(CustomEffectIcon.Effroi));
 
       eff = repeatSave ? Effect.LinkEffects(eff, Effect.RunAction(onRemovedHandle: onRemoveEffroiCallback, onIntervalHandle: onIntervalEffroiCallback, interval: NwTimeSpan.FromRounds(1)))
         : Effect.LinkEffects(eff, Effect.RunAction(onRemovedHandle: onRemoveEffroiCallback));        
