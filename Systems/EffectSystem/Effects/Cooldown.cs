@@ -220,8 +220,8 @@ namespace NWN.Systems
 
       switch (cooldownId)
       {
-        case CustomSkill.BuveuseDeVie: ApplyBuveuseDeVie(caster); break;
-        case CustomSkill.ClercFrappeDivine: ApplyFrappeDivine(caster); break;
+        case CustomSkill.BuveuseDeVie: ApplyBuveuseDeVie(caster, spell); break;
+        case CustomSkill.ClercFrappeDivine: ApplyFrappeDivine(caster, spell); break;
         case CustomSkill.DefensesEnjoleuses: NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, DefensesEnjoleuses)); break;
         case CustomSkill.MonkParade: NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, MonkParade)); break;
         
@@ -237,7 +237,7 @@ namespace NWN.Systems
           
           switch(spell.Id)
           {
-            case CustomSpell.PourfendeurDeColosses: ApplyPourfendeurDeColosses(caster); break;
+            case CustomSpell.PourfendeurDeColosses: ApplyPourfendeurDeColosses(caster, spell); break;
             case CustomSpell.BriseurDeHordes: ApplyBriseurDeHordes(caster); break;
           }
 

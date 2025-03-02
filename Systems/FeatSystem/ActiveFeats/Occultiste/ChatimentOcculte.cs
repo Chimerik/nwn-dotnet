@@ -14,9 +14,6 @@ namespace NWN.Systems
       {
         EffectUtils.ClearChatimentEffects(caster);
         caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.ChatimentOcculte);
-
-        caster.OnCreatureAttack -= OccultisteUtils.OnAttackChatimentOcculte;
-        caster.OnCreatureAttack += OccultisteUtils.OnAttackChatimentOcculte;
       }
       else
       {

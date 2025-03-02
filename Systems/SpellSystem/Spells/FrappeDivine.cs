@@ -1,5 +1,4 @@
-﻿
-using Anvil.API;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -11,8 +10,7 @@ namespace NWN.Systems
         return;
 
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
-      caster.GetObjectVariable<PersistentVariableInt>(CreatureUtils.FrappeDivineVariable).Value = (int)spellEntry.damageType[0];
-      EffectSystem.ApplyFrappeDivine(caster);
+      EffectSystem.ApplyFrappeDivine(caster, spell);
     }
   }
 }

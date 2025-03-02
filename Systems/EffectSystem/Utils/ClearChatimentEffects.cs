@@ -1,6 +1,4 @@
-﻿using System;
-using Anvil.API;
-using NWN.Core;
+﻿using Anvil.API;
 using NWN.Systems;
 
 namespace NWN

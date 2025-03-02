@@ -10,13 +10,12 @@ namespace NWN.Systems
       if (caster.ActiveEffects.Any(e => e.Tag == EffectSystem.FrappesRenforceesEffectTag))
       {
         EffectUtils.RemoveTaggedEffect(caster, EffectSystem.FrappesRenforceesEffectTag);
-        caster.OnCreatureDamage -= MonkUtils.OnAttackFrappesRenforcees;
-        caster.LoginPlayer?.SendServerMessage($"{"Frappes Renforcées".ColorString(ColorConstants.White)} désactivé", ColorConstants.Orange);
+        caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadMind));
       }
       else
       {
         caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.FrappesRenforcees(caster));
-        caster.LoginPlayer?.SendServerMessage($"{"Frappes Renforcées".ColorString(ColorConstants.White)} activé", ColorConstants.Orange);
+        caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadMind));
       }
     }
   }

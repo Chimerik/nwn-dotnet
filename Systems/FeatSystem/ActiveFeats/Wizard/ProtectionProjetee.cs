@@ -29,15 +29,11 @@ namespace NWN.Systems
       var ward = currentWardBearer.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.AbjurationWardEffectTag && e.Creator == caster);
       int intensity = ward is not null ? ward.CasterLevel : caster.GetClassInfo(ClassType.Wizard).Level;
 
-      caster.OnDamaged -= WizardUtils.OnDamageAbjurationWard;
-
       EffectUtils.RemoveTaggedEffect(caster, caster, EffectSystem.AbjurationWardEffectTag);
 
       NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetAbjurationWardEffect(intensity)));
 
       target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpGlobeUse));
-      target.OnDamaged -= WizardUtils.OnDamageAbjurationWard;
-      target.OnDamaged += WizardUtils.OnDamageAbjurationWard;
       target.OnDeath -= EffectSystem.OnDeathAbjurationWard;
       target.OnDeath += EffectSystem.OnDeathAbjurationWard;
 

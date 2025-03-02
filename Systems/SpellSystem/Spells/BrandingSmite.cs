@@ -16,9 +16,6 @@ namespace NWN.Systems
 
       NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.brandingSmiteAttack));
 
-      caster.OnCreatureAttack -= CreatureUtils.OnAttackBrandingSmite;
-      caster.OnCreatureAttack += CreatureUtils.OnAttackBrandingSmite;
-
       if (feat is not null)
         FeatUtils.DecrementFeatUses(caster, CustomSkill.BrandingSmite);
     }

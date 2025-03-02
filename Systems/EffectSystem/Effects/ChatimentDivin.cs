@@ -7,7 +7,7 @@ namespace NWN.Systems
     public const string ChatimentDivinEffectTag = "_CHATIMENT_DIVIN_EFFECT";
     public static Effect GetChatimentDivinEffect(int spellLevel)
     {
-      Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.ChatimentDivin), Effect.RunAction());
+      Effect eff =Effect.Icon(CustomEffectIcon.ChatimentDivin);
 
       eff.Tag = ChatimentDivinEffectTag;
       eff.SubType = EffectSubType.Supernatural;

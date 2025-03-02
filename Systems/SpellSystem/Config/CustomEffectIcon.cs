@@ -53,7 +53,7 @@ namespace NWN
     public const EffectIcon BondSuperieur = (EffectIcon)193;
     public const EffectIcon BuveuseDeVie = (EffectIcon)194;
 
-    public const EffectIcon BlugeoningImmunity = (EffectIcon)196;
+    public const EffectIcon BludgeoningImmunity = (EffectIcon)196;
     public const EffectIcon BludgeoningVulnerability = (EffectIcon)199;
     public const EffectIcon BludgeoningResistance = (EffectIcon)212;
 
@@ -185,5 +185,7 @@ namespace NWN
     public const EffectIcon MauvaisAugure = (EffectIcon)294;
     public const EffectIcon MonkSpeed = (EffectIcon)295;
     public const EffectIcon Inflexible = (EffectIcon)296;
+    public const EffectIcon Shillelagh = (EffectIcon)297;
+    public const EffectIcon MorsureInfectieuse = (EffectIcon)298;
   }
 }

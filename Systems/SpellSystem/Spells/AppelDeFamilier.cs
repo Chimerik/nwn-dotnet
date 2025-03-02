@@ -71,8 +71,8 @@ namespace NWN.Systems
     {
       if(master.KnowsFeat((Feat)CustomSkill.MaitreDesChaines))
       {
-        familiar.ApplyEffect(EffectDuration.Permanent, Effect.LinkEffects(EffectSystem.Vol(familiar), EffectSystem.Nage, Effect.ModifyAttacks(1), Effect.DamageImmunityIncrease(DamageType.Bludgeoning, 50),
-          Effect.DamageImmunityIncrease(DamageType.Piercing, 50), Effect.DamageImmunityIncrease(DamageType.Slashing, 50)));
+        familiar.ApplyEffect(EffectDuration.Permanent, Effect.LinkEffects(EffectSystem.Vol(familiar), EffectSystem.Nage, Effect.ModifyAttacks(1), 
+          EffectSystem.ResistancePercant, EffectSystem.ResistanceContondant, EffectSystem.ResistanceTranchant));
       }
     }
     private static void HandleFamiliarDamage(NwCreature familiar, int spellId)
@@ -133,7 +133,7 @@ namespace NWN.Systems
         case CustomSpell.PacteDeLaChaineSquelette:
           weapon.AddItemProperty(ItemProperty.DamageBonus(IPDamageType.Piercing, IPDamageBonus.Plus1d6), EffectDuration.Permanent);
           familiar.ApplyEffect(EffectDuration.Permanent, Effect.Immunity(ImmunityType.Poison));
-          familiar.ApplyEffect(EffectDuration.Permanent, Effect.DamageImmunityIncrease(CustomDamageType.Poison, 100));
+          familiar.ApplyEffect(EffectDuration.Permanent, EffectSystem.ImmunitePoison);
           break;
 
         case CustomSpell.PacteDeLaChaineTetard:

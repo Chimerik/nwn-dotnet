@@ -12,7 +12,6 @@ namespace NWN.Systems
         NwCreature target = creature.GetObjectVariable<LocalVariableObject<NwCreature>>("_ABJURATION_WARD_TARGET").HasValue
         ? creature.GetObjectVariable<LocalVariableObject<NwCreature>>("_ABJURATION_WARD_TARGET").Value : creature;
 
-        target.OnDamaged -= OnDamageAbjurationWard;
         target.OnDeath -= EffectSystem.OnDeathAbjurationWard;
 
         if (target.IsLoginPlayerCharacter)
@@ -21,8 +20,6 @@ namespace NWN.Systems
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpDispel));
         EffectUtils.RemoveTaggedEffect(target, creature, EffectSystem.AbjurationWardEffectTag);
 
-        creature.OnDamaged -= OnDamageAbjurationWard;
-        creature.OnDamaged += OnDamageAbjurationWard;
         creature.GetObjectVariable<LocalVariableObject<NwCreature>>("_ABJURATION_WARD_TARGET").Delete();
         creature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpGlobeUse));
         

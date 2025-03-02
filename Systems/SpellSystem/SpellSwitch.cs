@@ -1004,7 +1004,7 @@ namespace NWN.Systems
           SpellSystem.MoveApparitionAnimale(oCaster, spell, spellEntry, target is null ? targetLocation : target.Location);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
-
+        
         case CustomSpell.ImageMiroir:
           SpellSystem.ImageMiroir(oCaster, spell, spellEntry);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
@@ -1590,6 +1590,24 @@ namespace NWN.Systems
 
         case CustomSpell.BelluaireRename:
           SpellSystem.AssociateRename(oCaster, AssociateType.AnimalCompanion);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.PacteDeLaLameLier:
+          SpellSystem.PacteDeLaLameLier(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.PacteDeLaLameInvoquer:
+          SpellSystem.PacteDeLaLameInvoquer(oCaster, spell, spellEntry);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case CustomSpell.PacteDeLaLameRadiant:
+        case CustomSpell.PacteDeLaLameNecrotique:
+        case CustomSpell.PacteDeLaLamePsychique:
+        case CustomSpell.PacteDeLaLameNormal:
+          SpellSystem.PacteDeLaLameDamageType(oCaster, spell, spellEntry);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 

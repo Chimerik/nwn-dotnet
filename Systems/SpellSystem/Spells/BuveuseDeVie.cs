@@ -1,6 +1,4 @@
-﻿
-using Anvil.API;
-using NWN.Native.API;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -12,8 +10,7 @@ namespace NWN.Systems
         return;
 
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
-      caster.GetObjectVariable<PersistentVariableInt>(CreatureUtils.BuveuseDeVieVariable).Value = (int)spellEntry.damageType[0];
-      EffectSystem.ApplyBuveuseDeVie(caster);
+      EffectSystem.ApplyBuveuseDeVie(caster, spell);
     }
   }
 }

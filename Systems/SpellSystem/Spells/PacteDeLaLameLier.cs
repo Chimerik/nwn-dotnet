@@ -1,11 +1,15 @@
-﻿using Anvil.API;
+﻿
+using Anvil.API;
 
 namespace NWN.Systems
 {
-  public partial class FeatSystem
+  public partial class SpellSystem
   {
-    private static void PacteDeLaLame(NwCreature caster)
+    public static void PacteDeLaLameLier(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry)
     {
+      if (oCaster is not NwCreature caster)
+        return;
+
       if (caster.IsInCombat)
       {
         caster.LoginPlayer?.SendServerMessage("Non utilisable en combat", ColorConstants.Red);
@@ -14,13 +18,7 @@ namespace NWN.Systems
 
       NwItem pactWeapon = caster.GetItemInSlot(InventorySlot.RightHand);
 
-      if (pactWeapon is null)
-      {
-        caster.LoginPlayer?.SendServerMessage("Vous devez équiper une arme de mêlée dans votre main droite afin de lier un pacte", ColorConstants.Red);
-        return;
-      }
-
-      if (pactWeapon.IsRangedWeapon)
+      if (pactWeapon is null || !ItemUtils.IsMeleeWeapon(pactWeapon.BaseItem.ItemType))
       {
         caster.LoginPlayer?.SendServerMessage("Vous devez équiper une arme de mêlée dans votre main droite afin de lier un pacte", ColorConstants.Red);
         return;
@@ -28,6 +26,8 @@ namespace NWN.Systems
 
       if (!CreatureUtils.HandleBonusActionUse(caster))
         return;
+
+      SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
 
       if (caster.GetObjectVariable<LocalVariableObject<NwItem>>(CreatureUtils.PacteDeLaLameVariable).HasValue)
         caster.GetObjectVariable<LocalVariableObject<NwItem>>(CreatureUtils.PacteDeLaLameVariable).Value?.GetObjectVariable<LocalVariableObject<NwCreature>>(CreatureUtils.PacteDeLaLameVariable).Delete();
@@ -37,7 +37,6 @@ namespace NWN.Systems
 
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSuperHeroism));
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadOdd));
-      StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} - Pacte de la Lame", StringUtils.gold, true, true);
 
       caster.OnUnacquireItem -= OccultisteUtils.PacteDeLaLameOnUnacquire;
       caster.OnUnacquireItem += OccultisteUtils.PacteDeLaLameOnUnacquire;

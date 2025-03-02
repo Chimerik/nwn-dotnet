@@ -14,9 +14,6 @@ namespace NWN.Systems
           && !oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.AbjurationWardEffectTag && e.Creator == oid.LoginCreature))
         {
           NWScript.AssignCommand(oid.LoginCreature, () => oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetAbjurationWardEffect(oid.LoginCreature.GetClassInfo(ClassType.Wizard).Level)));
-
-          oid.LoginCreature.OnDamaged -= WizardUtils.OnDamageAbjurationWard;
-          oid.LoginCreature.OnDamaged += WizardUtils.OnDamageAbjurationWard;
         }
       }
     }

@@ -128,6 +128,12 @@
     public const int ArmeElementaireTonnerre = 269;
     public const int ApparitionAnimale = 271;
     public const int ApparitionAnimaleDeplacement = 272;
+    public const int PacteDeLaLameLier = 274;
+    public const int PacteDeLaLameInvoquer = 275;
+    public const int PacteDeLaLameRadiant = 276;
+    public const int PacteDeLaLameNecrotique = 277;
+    public const int PacteDeLaLamePsychique = 278;
+    public const int PacteDeLaLameNormal = 279;
     public const int ChatimentTonitruant = 299;
     public const int VigueurArcanique = 300;
     public const int CordonDeFleches = 301;

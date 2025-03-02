@@ -124,6 +124,10 @@ namespace NWN
     {
       return new TimeSpan(timespan.Days, timespan.Hours, timespan.Minutes, timespan.Seconds);
     }
+    public static bool In(this string me, params string[] set)
+    {
+      return set.Contains(me);
+    }
     public static bool In(this SpellSchool me, params SpellSchool[] set)
     {
       return set.Contains(me);

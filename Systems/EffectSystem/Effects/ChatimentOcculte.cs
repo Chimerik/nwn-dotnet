@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.ChatimentOcculte), Effect.RunAction());
+        Effect eff = Effect.Icon(CustomEffectIcon.ChatimentOcculte);
         eff.Tag = ChatimentOcculteEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

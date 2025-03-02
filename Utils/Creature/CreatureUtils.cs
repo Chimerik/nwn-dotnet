@@ -16,6 +16,8 @@ namespace NWN.Systems
   {
     public const string CurrentAttackTarget = "_CURRENT_ATTACK_TARGET";
     public const string CancelDamageDoublonVariable = "_CANCEL_DAMAGE_DOUBLON";
+    public const string CriticalHitVariable = "_CRITICAL_HIT";
+    public static readonly CExoString CriticalHitVariableExo = CriticalHitVariable.ToExoString();
     public const string AnimalCompanionTag = "animal_companion";
     public static readonly CExoString AnimalCompanionTagExo = AnimalCompanionTag.ToExoString();
     public static readonly CExoString CancelDamageDoublonVariableExo = CancelDamageDoublonVariable.ToExoString();
@@ -134,9 +136,6 @@ namespace NWN.Systems
 
     public const string PacteDeLaLameVariable = "_PACTE_DE_LA_LAME";
     public static readonly CExoString PacteDeLaLameVariableExo = PacteDeLaLameVariable.ToExoString();
-
-    public const string BuveuseDeVieVariable = "_BUVEUSE_DE_VIE_DAMAGE_TYPE";
-    public const string FrappeDivineVariable = "_FRAPPE_DIVINE_DAMAGE_TYPE";
 
     public static readonly CExoString ConvocationFeeriqueTagExo = "feyspirit".ToExoString();
 

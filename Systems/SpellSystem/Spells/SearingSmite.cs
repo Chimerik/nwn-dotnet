@@ -16,9 +16,6 @@ namespace NWN.Systems
 
       NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, EffectSystem.searingSmiteAttack));
 
-      caster.OnCreatureAttack -= CreatureUtils.OnAttackSearingSmite;
-      caster.OnCreatureAttack += CreatureUtils.OnAttackSearingSmite;
-
       if(feat is not null)
         FeatUtils.DecrementFeatUses(caster, feat.Id);
     }

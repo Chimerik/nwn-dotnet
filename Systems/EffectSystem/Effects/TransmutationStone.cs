@@ -26,11 +26,11 @@ namespace NWN.Systems
 
         case 2: eff = Effect.LinkEffects(Effect.Ultravision(), Effect.VisualEffect(VfxType.DurUltravision)); break;
 
-        case 3: eff = Effect.LinkEffects(Effect.DamageImmunityIncrease(DamageType.Acid, 50), Effect.Icon(EffectIcon.DamageImmunityAcid)); break;
-        case 4: eff = Effect.LinkEffects(Effect.DamageImmunityIncrease(DamageType.Cold, 50), Effect.Icon(EffectIcon.DamageImmunityCold)); break;
-        case 5: eff = Effect.LinkEffects(Effect.DamageImmunityIncrease(DamageType.Fire, 50), Effect.Icon(EffectIcon.DamageImmunityFire)); break;
-        case 6: eff = Effect.LinkEffects(Effect.DamageImmunityIncrease(DamageType.Electrical, 50), Effect.Icon(EffectIcon.DamageImmunityElectrical)); break;
-        case 7: eff = Effect.LinkEffects(Effect.DamageImmunityIncrease(DamageType.Sonic, 50), Effect.Icon(EffectIcon.DamageImmunitySonic)); break;
+        case 3: eff = ResistanceAcide; break;
+        case 4: eff = ResistanceFroid; break;
+        case 5: eff = ResistanceFeu; break;
+        case 6: eff = ResistanceElec; break;
+        case 7: eff = ResistanceTonnerre; break;
       }
 
       target.OnUnacquireItem += OnUnacquireTransmutationStone;

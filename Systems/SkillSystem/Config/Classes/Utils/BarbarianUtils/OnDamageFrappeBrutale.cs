@@ -17,7 +17,7 @@ namespace NWN.Systems
 
       if (frappe is not null)
       {
-        switch (frappe.IntParams[5])
+        switch (frappe.CasterLevel)
         {
           case CustomSkill.FrappeBrutale:
             caster.ApplyEffect(EffectDuration.Temporary, Effect.MovementSpeedIncrease(25));

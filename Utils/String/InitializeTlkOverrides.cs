@@ -76,33 +76,33 @@ namespace NWN.Systems
       OverrideTlkEntry(190153, "LISEZ-MOI");
       OverrideTlkEntry(190154, "Les choix de races, de classe et de caractéristiques de cette partie de l'interface sont inutiles.\n\nEn jeu, un miroir vous permettra d'accéder à des options de personnalisation approfondies.\n\nIl vous faudra alors valider toutes les étapes avant que le capitaine ne vous autorise à poursuivre votre voyage.");
       OverrideTlkEntry(190155, "Les Larmes des Erylies - Editeur de personnage");
-      OverrideTlkEntry(190619, "Immunité aux dégâts (poison)");
-      OverrideTlkEntry(190620, "Immunité aux dégâts (nécrotique)");
-      OverrideTlkEntry(190621, "Immunité aux dégâts (psychique)");
+      OverrideTlkEntry(190619, "Immunité Poison");
+      OverrideTlkEntry(190620, "Immunité Nécrotique");
+      OverrideTlkEntry(190621, "Immunité Psychique");
       OverrideTlkEntry(190807, "Terrain Difficile");
       OverrideTlkEntry(191025, "Glacé");
-      OverrideTlkEntry(191106, "Immunité aux dégâts (tranchant)"); // 16968322
-      OverrideTlkEntry(191107, "Immunité aux dégâts (contondant)");
-      OverrideTlkEntry(191108, "Immunité aux dégâts (perçant)");
-      OverrideTlkEntry(191109, "Vulnérabilité aux dégâts (tranchant)");
-      OverrideTlkEntry(191110, "Vulnérabilité aux dégâts (contondant)");
-      OverrideTlkEntry(191111, "Vulnérabilité aux dégâts (perçant)");
-      OverrideTlkEntry(191112, "Vulnérabilité aux dégâts (poison)"); // 16968328
-      OverrideTlkEntry(191113, "Vulnérabilité aux dégâts (nécrotique)");
-      OverrideTlkEntry(191114, "Vulnérabilité aux dégâts (psychique)");
-      OverrideTlkEntry(191115, "Résistance aux dégâts (force)");
-      OverrideTlkEntry(191116, "Résistance aux dégâts (acide)"); // 16968332
-      OverrideTlkEntry(191118, "Résistance aux dégâts (froid)"); // 16968334
-      OverrideTlkEntry(191119, "Résistance aux dégâts (radiant)"); // 16968335
-      OverrideTlkEntry(191120, "Résistance aux dégâts (électricité)"); // 16968336
-      OverrideTlkEntry(191121, "Résistance aux dégâts (feu)"); // 16968337
-      OverrideTlkEntry(191122, "Résistance aux dégâts (tonnerre)");// 16968338
-      OverrideTlkEntry(191123, "Résistance aux dégâts (tranchant)");
-      OverrideTlkEntry(191124, "Résistance aux dégâts (contondant)");
-      OverrideTlkEntry(191125, "Résistance aux dégâts (perçant)");
-      OverrideTlkEntry(191126, "Résistance aux dégâts (poison)");
-      OverrideTlkEntry(191127, "Résistance aux dégâts (nécrotique)");
-      OverrideTlkEntry(191128, "Résistance aux dégâts (psychique)");
+      OverrideTlkEntry(191106, "Immunité Tranchant"); // 16968322
+      OverrideTlkEntry(191107, "Immunité Contondant");
+      OverrideTlkEntry(191108, "Immunité Perforant");
+      OverrideTlkEntry(191109, "Vulnérabilité Tranchant");
+      OverrideTlkEntry(191110, "Vulnérabilité Contondant");
+      OverrideTlkEntry(191111, "Vulnérabilité Perforant");
+      OverrideTlkEntry(191112, "Vulnérabilité Poison"); // 16968328
+      OverrideTlkEntry(191113, "Vulnérabilité Nécrotique");
+      OverrideTlkEntry(191114, "Vulnérabilité Psychique");
+      OverrideTlkEntry(191115, "Résistance Force");
+      OverrideTlkEntry(191116, "Résistance Acide"); // 16968332
+      OverrideTlkEntry(191118, "Résistance Froid"); // 16968334
+      OverrideTlkEntry(191119, "Résistance Radiant"); // 16968335
+      OverrideTlkEntry(191120, "Résistance Electrique"); // 16968336
+      OverrideTlkEntry(191121, "Résistance Feu"); // 16968337
+      OverrideTlkEntry(191122, "Résistance Tonnerre");// 16968338
+      OverrideTlkEntry(191123, "Résistance Tranchant");
+      OverrideTlkEntry(191124, "Résistance Contondant");
+      OverrideTlkEntry(191125, "Résistance Perforant");
+      OverrideTlkEntry(191126, "Résistance Poison");
+      OverrideTlkEntry(191127, "Résistance Nécrotique");
+      OverrideTlkEntry(191128, "Résistance Psychique");
       OverrideTlkEntry(191253, "Déstabilisé");
       OverrideTlkEntry(191259, "Arcane Mystique");
       OverrideTlkEntry(191454, "Action Bonus");
@@ -115,6 +115,33 @@ namespace NWN.Systems
       OverrideTlkEntry(NwBaseItem.FromItemType(BaseItemType.LightMace).Name.CustomId, "Masse d'Armes");
       OverrideTlkEntry(NwBaseItem.FromItemType(BaseItemType.Shuriken).Name.CustomId, "Arbalète de Poing");
       OverrideTlkEntry(NwBaseItem.FromItemType(BaseItemType.Shuriken).Description.CustomId, "1d6 Perforant - Portée 9 m / 36 m - Légère - Chargement");
+
+      var ipDamageRes = NwGameTables.ItemPropertyTable.GetRow(14);
+      OverrideTlkEntry(ipDamageRes.Name.Value.CustomId, "Résistance aux dégâts");
+      OverrideTlkEntry(ipDamageRes.Description.Value.CustomId, "Une créature résistante à un type de dégâts réduit de moitié les dégâts de ce type.");
+
+      var ipDamageImmu = NwGameTables.ItemPropertyTable.GetRow(25);
+      OverrideTlkEntry(ipDamageImmu.Name.Value.CustomId, "Immunité aux dégâts");
+      OverrideTlkEntry(ipDamageImmu.Description.Value.CustomId, "Une créature immunisée à un type de dégâts ne subit aucun dégât de ce type.");
+
+      var ipDamageVul = NwGameTables.ItemPropertyTable.GetRow(30);
+      OverrideTlkEntry(ipDamageVul.Name.Value.CustomId, "Vulnérabilité aux dégâts");
+      OverrideTlkEntry(ipDamageVul.Description.Value.CustomId, "Une créature vulnérable à un type de dégâts se voit augmenter les dégâts infligés de ce type.");
+
+      OverrideTlkEntry(NwGameTables.EffectIconTable.GetRow(111).StrRef.Value.CustomId, "Immunité Force");
+      OverrideTlkEntry(NwGameTables.EffectIconTable.GetRow(112).StrRef.Value.CustomId, "Immunité Acide");
+      OverrideTlkEntry(NwGameTables.EffectIconTable.GetRow(113).StrRef.Value.CustomId, "Immunité Froid");
+      OverrideTlkEntry(NwGameTables.EffectIconTable.GetRow(114).StrRef.Value.CustomId, "Immunité Radiant");
+      OverrideTlkEntry(NwGameTables.EffectIconTable.GetRow(115).StrRef.Value.CustomId, "Immunité Electrique");
+      OverrideTlkEntry(NwGameTables.EffectIconTable.GetRow(116).StrRef.Value.CustomId, "Immunité Feu");
+      OverrideTlkEntry(NwGameTables.EffectIconTable.GetRow(119).StrRef.Value.CustomId, "Immunité Tonnerre");
+      OverrideTlkEntry(NwGameTables.EffectIconTable.GetRow(120).StrRef.Value.CustomId, "Immunité Force");
+      OverrideTlkEntry(NwGameTables.EffectIconTable.GetRow(121).StrRef.Value.CustomId, "Immunité Acide");
+      OverrideTlkEntry(NwGameTables.EffectIconTable.GetRow(122).StrRef.Value.CustomId, "Immunité Froid");
+      OverrideTlkEntry(NwGameTables.EffectIconTable.GetRow(123).StrRef.Value.CustomId, "Immunité Radiant");
+      OverrideTlkEntry(NwGameTables.EffectIconTable.GetRow(124).StrRef.Value.CustomId, "Immunité Electrique");
+      OverrideTlkEntry(NwGameTables.EffectIconTable.GetRow(125).StrRef.Value.CustomId, "Immunité Feu");
+      OverrideTlkEntry(NwGameTables.EffectIconTable.GetRow(128).StrRef.Value.CustomId, "Immunité Tonnerre");
 
       foreach (var entry in Feats2da.featTable)
       {

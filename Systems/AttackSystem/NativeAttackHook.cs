@@ -194,7 +194,8 @@ namespace NWN.Systems
         {
           attackData.m_nAttackResult = 3;
           criticalString = "CRITIQUE - ".ColorString(StringUtils.gold);
-          
+          attacker.m_ScriptVars.SetInt(CreatureUtils.CriticalHitVariableExo, 1);
+
           LogUtils.LogMessage("Coup critique", LogUtils.LogType.Combat);
         }
         else if (attackRoll > 1 && totalAttack >= targetAC) // L'attaque touche
@@ -504,7 +505,7 @@ namespace NWN.Systems
 
       // Application des réductions du jeu de base
 
-      if (attackWeapon is null || attackWeapon.m_ScriptVars.GetObject(CreatureUtils.PacteDeLaLameVariableExo) != attacker.m_idSelf)
+      /*if (attackWeapon is null || attackWeapon.m_ScriptVars.GetObject(CreatureUtils.PacteDeLaLameVariableExo) != attacker.m_idSelf)
       {
         LogUtils.LogMessage($"Application des immunités de la cible - Dégats : {baseDamage}", LogUtils.LogType.Combat);
         baseDamage = targetObject.DoDamageImmunity(attacker, baseDamage, damageFlags, 0, 1);
@@ -523,7 +524,7 @@ namespace NWN.Systems
       LogUtils.LogMessage($"Application des résistances de la cible - Dégâts : {baseDamage}", LogUtils.LogType.Combat);
       baseDamage = targetObject.DoDamageReduction(attacker, baseDamage, attacker.CalculateDamagePower(targetObject, bOffHand), 0, 1, attackData.m_bRangedAttack);   
       LogUtils.LogMessage($"Application des réductions de la cible - Calcul Final - Dégâts : {baseDamage}", LogUtils.LogType.Combat);
-
+      */
       NativeUtils.HandleCogneurLourdBonusAttack(attacker, targetObject, combatRound, attackData, baseDamage, attackerName);
       
       if (attacker.m_ScriptVars.GetInt(CreatureUtils.ManoeuvreTypeVariableExo) != CustomSkill.WarMasterAttaquePrecise)

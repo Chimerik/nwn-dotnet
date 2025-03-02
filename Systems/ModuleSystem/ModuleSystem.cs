@@ -429,9 +429,15 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_TRAP_SET_AFTER", "on_set_trap");
       EventsPlugin.SubscribeEvent("NWNX_ON_DECREMENT_SPELL_COUNT_BEFORE", "on_cantrip_cast");
 
+      EventsPlugin.SubscribeEvent("NWNX_ON_ITEMPROPERTY_EFFECT_APPLIED_BEFORE", "on_apply_ip_eff");
+
+      EventsPlugin.AddIDToWhitelist("NWNX_ON_ITEMPROPERTY_EFFECT", (int)CustomItemProperty.DamageResistance);
+      EventsPlugin.AddIDToWhitelist("NWNX_ON_ITEMPROPERTY_EFFECT", (int)CustomItemProperty.DamageImmunity);
+      EventsPlugin.AddIDToWhitelist("NWNX_ON_ITEMPROPERTY_EFFECT", (int)CustomItemProperty.DamageVulnerability);
+      
       // ImprovedTwoWeaponFighting donne une attaque supplémentaire avec l'off-hand pour une pénalité de -5 BA. A voir dans le cas de Thief qui dual fight avec 2 actions bonus
       //EventsPlugin.AddIDToWhitelist("NWNX_ON_HAS_FEAT", (int)Feat.ImprovedTwoWeaponFighting);
-      
+
       NwModule.Instance.OnAcquireItem += ItemSystem.OnAcquireCheckFinesseProperty;
       NwModule.Instance.OnAcquireItem += ItemSystem.OnAcquireTransmutationStone;
       NwModule.Instance.OnPlayerGuiEvent += PlayerSystem.HandleGuiEvents;
@@ -449,7 +455,6 @@ namespace NWN.Systems
 
       NwModule.Instance.OnEffectApply += EffectSystem.OnIncapacitatedRemoveThreatRange;
       NwModule.Instance.OnEffectApply += EffectSystem.OnIncapacitatedRemoveConcentration;
-      NwModule.Instance.OnEffectApply += EffectSystem.OnApplyDamageImmunity;
       NwModule.Instance.OnEffectApply += EffectSystem.OnApplyTemporaryHP;
 
       NwModule.Instance.OnEffectRemove += EffectSystem.OnEffectRemoved;
@@ -1359,22 +1364,26 @@ namespace NWN.Systems
         EventsPlugin.SetEventResult("1");
       }
     }
+
     [ScriptHandler("on_combat_enter")]
     private void OnCombatEnter(CallInfo callInfo)
     {
       if (callInfo.ObjectSelf is NwCreature creature && creature.KnowsFeat((Feat)CustomSkill.SecondeChance))
         creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.SecondeChanceVariable).Value = 1;
     }
+
     [ScriptHandler("on_listen")]
     private void OnListen(CallInfo callInfo)
     {
       EventsPlugin.SkipEvent();
     }
+
     [ScriptHandler("on_spot")]
     private void OnSpot(CallInfo callInfo)
     {
       EventsPlugin.SkipEvent();
     }
+
     [ScriptHandler("on_hips")]
     private void AutoGiveHideInPlainSight(CallInfo callInfo)
     {
@@ -1385,6 +1394,81 @@ namespace NWN.Systems
           EventsPlugin.SkipEvent();
           break;
       }
+    }
+
+    [ScriptHandler("on_apply_ip_eff")]
+    private void OnApplyItemPropertyEffect(CallInfo callInfo)
+    {
+      if (!int.TryParse(EventsPlugin.GetEventData("PROPERTY"), out int property))
+        return;
+
+      if (!int.TryParse(EventsPlugin.GetEventData("SUBTYPE"), out int value))
+        return;
+
+      var creature = NWScript.StringToObject(EventsPlugin.GetEventData("CREATURE")).ToNwObjectSafe<NwCreature>();
+
+      if (creature is null)
+        return;
+
+      ModuleSystem.Log.Info($"{(ItemPropertyType)property}");
+      ModuleSystem.Log.Info($"{(IPDamageType)value}");
+
+      var eff = (ItemPropertyType)property switch
+      {
+        CustomItemProperty.DamageImmunity => (IPDamageType)value switch
+        {
+          IPDamageType.Acid => EffectSystem.ImmuniteAcide,
+          IPDamageType.Bludgeoning => EffectSystem.ImmuniteContondant,
+          IPDamageType.Piercing => EffectSystem.ImmunitePerforant,
+          IPDamageType.Slashing => EffectSystem.ImmuniteTranchant,
+          IPDamageType.Magical => EffectSystem.ImmuniteForce,
+          IPDamageType.Cold => EffectSystem.ImmuniteFroid,
+          IPDamageType.Divine => EffectSystem.ImmuniteRadiant,
+          IPDamageType.Electrical => EffectSystem.ImmuniteElec,
+          IPDamageType.Sonic => EffectSystem.ImmuniteTonnerre,
+          CustomItemPropertyDamageType.Necrotic => EffectSystem.ImmuniteNecrotique,
+          CustomItemPropertyDamageType.Poison => EffectSystem.ImmunitePoison,
+          CustomItemPropertyDamageType.Psychic => EffectSystem.ImmunitePsychique,
+          _ => EffectSystem.ImmuniteFeu,
+        },
+
+        CustomItemProperty.DamageVulnerability => (IPDamageType)value switch
+        {
+          IPDamageType.Acid => EffectSystem.VulnerabiliteAcide,
+          IPDamageType.Bludgeoning => EffectSystem.VulnerabiliteContondant,
+          IPDamageType.Piercing => EffectSystem.VulnerabilitePerforant,
+          IPDamageType.Slashing => EffectSystem.VulnerabiliteTranchant,
+          IPDamageType.Magical => EffectSystem.VulnerabiliteForce,
+          IPDamageType.Cold => EffectSystem.VulnerabiliteFroid,
+          IPDamageType.Divine => EffectSystem.VulnerabiliteRadiant,
+          IPDamageType.Electrical => EffectSystem.VulnerabiliteElec,
+          IPDamageType.Sonic => EffectSystem.VulnerabiliteTonnerre,
+          CustomItemPropertyDamageType.Necrotic => EffectSystem.VulnerabiliteNecrotique,
+          CustomItemPropertyDamageType.Poison => EffectSystem.VulnerabilitePoison,
+          CustomItemPropertyDamageType.Psychic => EffectSystem.VulnerabilitePsychique,
+          _ => EffectSystem.VulnerabiliteFeu,
+        },
+        
+        _ => (IPDamageType)value switch
+        {
+          IPDamageType.Acid => EffectSystem.ResistanceAcide,
+          IPDamageType.Bludgeoning => EffectSystem.ResistanceContondant,
+          IPDamageType.Piercing => EffectSystem.ResistancePercant,
+          IPDamageType.Slashing => EffectSystem.ResistanceTranchant,
+          IPDamageType.Magical => EffectSystem.ResistanceForce,
+          IPDamageType.Cold => EffectSystem.ResistanceFroid,
+          IPDamageType.Divine => EffectSystem.ResistanceRadiant,
+          IPDamageType.Electrical => EffectSystem.ResistanceElec,
+          IPDamageType.Sonic => EffectSystem.ResistanceTonnerre,
+          CustomItemPropertyDamageType.Necrotic => EffectSystem.ResistanceNecrotique,
+          CustomItemPropertyDamageType.Poison => EffectSystem.ResistancePoison,
+          CustomItemPropertyDamageType.Psychic => EffectSystem.ResistancePsychique,
+          _ => EffectSystem.ResistanceFeu,
+        },
+      };
+
+      //eff.SubType = EffectSubType.Unyielding;
+      creature.ApplyEffect((EffectDuration)EffectPlugin.DURATION_TYPE_EQUIPPED, eff);
     }
   }
 }

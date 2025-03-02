@@ -266,7 +266,6 @@ namespace NWN.Systems
       onRemoveTraverseeInfernaleCallback = scriptHandleFactory.CreateUniqueHandler(onRemoveTraverseeInfernale);
       onRemoveMutilationCallback = scriptHandleFactory.CreateUniqueHandler(onRemoveMutilation);
       onRemoveChargeCallback = scriptHandleFactory.CreateUniqueHandler(onRemoveCharge);
-      onRemoveShillelaghCallback = scriptHandleFactory.CreateUniqueHandler(onRemoveShillelagh);
 
       onIntervalEffroiCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalEffroi);
 

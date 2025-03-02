@@ -22,17 +22,16 @@ namespace NWN.Systems
     }
     public static Effect SanctuaireNaturel(PlayerSystem.Player druid)
     {
-      DamageType damageType = DamageType.Fire;
+      Effect damageType = EffectSystem.ResistanceFeu;
 
       if (druid.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerrePolaire))
-        damageType = DamageType.Cold;
+        damageType = EffectSystem.ResistanceFroid;
       else if(druid.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerreTempere))
-        damageType = DamageType.Electrical;
+        damageType = EffectSystem.ResistanceElec;
       else if (druid.learnableSkills.ContainsKey(CustomSkill.DruideCercleTerreTropicale))
-        damageType = CustomDamageType.Poison;
+        damageType = EffectSystem.ResistancePoison;
 
-      Effect eff = Effect.LinkEffects(Effect.ACIncrease(2),
-        Effect.DamageImmunityIncrease(damageType, 50));
+      Effect eff = Effect.LinkEffects(Effect.ACIncrease(2), damageType);
         
       eff.Tag = SanctuaireNaturelEffectTag;
       eff.SubType = EffectSubType.Supernatural;

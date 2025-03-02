@@ -48,18 +48,7 @@ namespace NWN.Systems
       }        
 
       if (protector.KnowsFeat((Feat)CustomSkill.PaladinAuraDeGarde))
-      {
-        Effect divine = Effect.DamageImmunityIncrease(DamageType.Divine, 50);
-        divine.ShowIcon = false;
-
-        Effect necrotic = Effect.DamageImmunityIncrease(CustomDamageType.Necrotic, 50);
-        necrotic.ShowIcon = false;
-
-        Effect psychic = Effect.DamageImmunityIncrease(CustomDamageType.Psychic, 50);
-        psychic.ShowIcon = false;
-
-        eff = Effect.LinkEffects(eff, divine, necrotic, psychic, Effect.Icon((EffectIcon)207), Effect.Icon((EffectIcon)215), Effect.Icon((EffectIcon)216));
-      }
+        eff = Effect.LinkEffects(eff, EffectSystem.ResistanceRadiant, EffectSystem.ResistanceNecrotique, EffectSystem.ResistancePsychique);
         
 
       eff.Tag = ProtectionEffectTag;

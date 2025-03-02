@@ -15,11 +15,11 @@ namespace NWN.Systems
       var frappeRuseeEffects = damager.GetObjectVariable<LocalVariableString>(EffectSystem.FrappeRuseeVariable).Value.Split("_");
       double sneakDies = Math.Round((double)(GetRogueLevel(damager) / 2), MidpointRounding.AwayFromZero);
   
-      ModuleSystem.Log.Info($"----------------sneak dies : {sneakDies}-----------------------");
+      //ModuleSystem.Log.Info($"----------------sneak dies : {sneakDies}-----------------------");
 
       foreach (var frappe in frappeRuseeEffects)
       {
-        ModuleSystem.Log.Info($"----------------frappe : {frappe}-----------------------");
+        //ModuleSystem.Log.Info($"----------------frappe : {frappe}-----------------------");
         switch (int.Parse(frappe))
         {
           case CustomSpell.FrappeRuseePoison: 

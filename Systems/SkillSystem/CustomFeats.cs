@@ -504,7 +504,6 @@
     public const int MurmuresDuTombeau = 1767;
     public const int OeilDeSorciere = 1768;
     public const int DechargeRepulsive = 1769;
-    public const int PacteDeLaLameInvoquer = 1770;
 
     public const int AttaqueSupplementaire = 1771;
     public const int AttaqueSupplementaire2 = 1772;

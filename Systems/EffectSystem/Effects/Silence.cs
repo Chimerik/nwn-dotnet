@@ -28,7 +28,7 @@ namespace NWN.Systems
       if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) || eventData.Entering is not NwCreature entering)
         return ScriptHandleResult.Handled;
 
-      var eff = Effect.LinkEffects(Effect.DamageImmunityIncrease(DamageType.Sonic, 100), Effect.Deaf());
+      var eff = Effect.LinkEffects(EffectSystem.ImmuniteTonnerre, Effect.Deaf());
       eff.Tag = "_SILENCE_EFFECT";
       entering.ApplyEffect(EffectDuration.Permanent, eff);
 

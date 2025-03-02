@@ -25,9 +25,6 @@ namespace NWN.Systems
           }
         }
 
-        target.OnDamaged -= OnDamageAbjurationWard;
-        target.OnDamaged += OnDamageAbjurationWard;
-
         NWScript.AssignCommand(creature, () => target.ApplyEffect(EffectDuration.Permanent, EffectSystem.GetAbjurationWardEffect(casterLevel + intensity > maxIntensity ? maxIntensity : casterLevel + intensity)));
 
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpGlobeUse));

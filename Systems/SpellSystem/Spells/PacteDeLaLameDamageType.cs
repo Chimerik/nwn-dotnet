@@ -2,10 +2,13 @@
 
 namespace NWN.Systems
 {
-  public partial class FeatSystem
+  public partial class SpellSystem
   {
-    private static void PacteDeLaLameInvoquer(NwCreature caster)
+    public static void PacteDeLaLameDamageType(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry)
     {
+      if (oCaster is not NwCreature caster)
+        return;
+
       NwItem pactWeapon = caster.GetObjectVariable<LocalVariableObject<NwItem>>(CreatureUtils.PacteDeLaLameVariable).Value;
 
       if (pactWeapon is null)
@@ -17,9 +20,10 @@ namespace NWN.Systems
       if (!CreatureUtils.HandleBonusActionUse(caster))
         return;
 
-      caster.RunEquip(pactWeapon, EquipmentSlots.RightHand);
+      pactWeapon.GetObjectVariable<LocalVariableInt>(CreatureUtils.PacteDeLaLameVariable).Value = spell.Id;
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadOdd));
-      StringUtils.DisplayStringToAllPlayersNearTarget(caster, $"{caster.Name.ColorString(ColorConstants.Cyan)} - Pacte de la Lame", StringUtils.gold, true, true);
+
+      SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
     }
   }
 }

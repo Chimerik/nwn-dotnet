@@ -35,7 +35,7 @@ namespace NWN.Systems
         && !onAttack.IsRangedAttack
         && weapon is not null
         && onAttack.Attacker.KnowsFeat((Feat)CustomSkill.Broyeur)
-        && weapon.BaseItem.WeaponType.Any(d => d == Anvil.API.DamageType.Bludgeoning))
+        && weapon.BaseItem.WeaponType.Any(d => d == DamageType.Bludgeoning))
         onAttack.Attacker.ApplyEffect(EffectDuration.Temporary, EffectSystem.BroyeurEffect, NwTimeSpan.FromRounds(1));
     }
   }

@@ -1,8 +1,6 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
-using NWN.Systems;
 
 namespace NWN.Systems
 {

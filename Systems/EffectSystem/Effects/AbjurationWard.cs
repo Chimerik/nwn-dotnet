@@ -12,9 +12,7 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onRemoveAbjurationWardCallback;
     public static Effect GetAbjurationWardEffect(int intensity)
     {
-      Effect damageReduction = Effect.DamageReduction(intensity, DamagePower.Plus20);
-      damageReduction.ShowIcon = false;
-      Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.AbjurationWard), damageReduction, Effect.RunAction(onRemovedHandle: onRemoveAbjurationWardCallback));
+      Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.AbjurationWard), Effect.RunAction(onRemovedHandle: onRemoveAbjurationWardCallback));
       eff.CasterLevel = intensity;
       eff.Tag = AbjurationWardEffectTag;
       eff.SubType = EffectSubType.Unyielding;

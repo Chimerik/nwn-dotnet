@@ -1,5 +1,4 @@
-﻿
-using Anvil.API;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -11,7 +10,7 @@ namespace NWN.Systems
         return;
 
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
-      EffectSystem.ApplyPourfendeurDeColosses(caster);
+      EffectSystem.ApplyPourfendeurDeColosses(caster, spell);
     }
   }
 }

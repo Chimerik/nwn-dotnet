@@ -40,9 +40,6 @@ namespace NWN.Systems
       player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).SetRemainingSpellSlots((byte)chatimentLevel,
         (byte)(player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).GetRemainingSpellSlots((byte)chatimentLevel) - 1));
 
-      player.oid.LoginCreature.OnCreatureAttack -= PaladinUtils.OnAttackChatimentDivin;
-      player.oid.LoginCreature.OnCreatureAttack += PaladinUtils.OnAttackChatimentDivin;
-
       if(player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.DevotionChatimentProtecteur))
       {
         int range = player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).Level > 17 ? 9 : 3;

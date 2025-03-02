@@ -168,7 +168,6 @@ namespace NWN.Systems
           damage = ItemUtils.GetShieldMasterReducedDamage(targetCreature, damage, saveResult, spellEntry.savingThrowAbility);
           damage = WizardUtils.GetAbjurationReducedDamage(targetCreature, damage);
           damage = ClercUtils.GetAttenuationElementaireReducedDamage(targetCreature, damage, appliedDamage);
-          damage = HandleResistanceBypass(targetCreature, isElementalist, isEvocateurSurcharge, damage, appliedDamage);
         }
 
         if (oCaster is not null)

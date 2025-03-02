@@ -232,8 +232,6 @@ namespace NWN.Systems
 
         case CustomSkill.OccultisteFourberieMagique: FourberieMagique(caster); return;
         case CustomSkill.OccultisteContactDoutremonde: ContactDoutremonde(caster); return;
-        case CustomSkill.PacteDeLaLame: PacteDeLaLame(caster); return;
-        case CustomSkill.PacteDeLaLameInvoquer: PacteDeLaLameInvoquer(caster); return;
         case CustomSkill.ChatimentOcculte: ChatimentOcculte(caster); return;
         case CustomSkill.DonDuProtecteur: DonDuProtecteur(caster, target); return;
         case CustomSkill.DoubleVue: DoubleVue(caster, target); return;

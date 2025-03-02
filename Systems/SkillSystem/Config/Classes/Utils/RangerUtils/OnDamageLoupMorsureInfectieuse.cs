@@ -9,10 +9,14 @@ namespace NWN.Systems
   {
     public static void OnDamageLoupMorsureInfectieuse(OnCreatureDamage onDamage)
     {
-      onDamage.DamageData.SetDamageByType(CustomDamageType.Necrotic, onDamage.DamageData.GetDamageByType(DamageType.BaseWeapon) + onDamage.DamageData.GetDamageByType(CustomDamageType.Necrotic));
-      onDamage.DamageData.SetDamageByType(DamageType.BaseWeapon, -1);
+      if (onDamage.Target is not NwCreature target || onDamage.DamagedBy is not NwCreature damager || damager.Master is null
+        || target.ActiveEffects.Any(e => e.Tag == EffectSystem.MorsureInfectieuseEffectTag))
+        return;
 
-      NWScript.AssignCommand(onDamage.DamagedBy, () => onDamage.Target.ApplyEffect(EffectDuration.Temporary, EffectSystem.MorsureInfectieuse, NwTimeSpan.FromRounds(1)));
+      int spellDC = SpellUtils.GetCasterSpellDC(damager.Master, Ability.Wisdom);
+      
+      if(CreatureUtils.GetSavingThrow(damager.Master, target, Ability.Constitution, spellDC) == SavingThrowResult.Failure)
+        NWScript.AssignCommand(damager, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.MorsureInfectieuse, NwTimeSpan.FromRounds(3)));
     }
   }
 }
