@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using static NWN.Systems.PlayerSystem;
 using NWN.Core.NWNX;
 using System.Numerics;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -16,16 +17,28 @@ namespace NWN.Systems
     public readonly SchedulerService scheduler;
     public static readonly TwoDimArray<TrapEntry> trapTable = NwGameTables.GetTable<TrapEntry>("traps.2da");
     public static ScriptCallbackHandle gasTrapHandler;
+    VisualTransformLerpSettings floaterSettings;
+    private IDisposable scheduleFloaterMotion { get; set; }
     public PlaceableSystem(SchedulerService schedulerService, ScriptHandleFactory scriptHandleFactory)
     {
       scheduler = schedulerService;
       gasTrapHandler = scriptHandleFactory.CreateUniqueHandler(OnEnterGasTrap);
+
+      floaterSettings = new VisualTransformLerpSettings
+      {
+        LerpType = VisualTransformLerpType.EaseOut,
+        Duration = TimeSpan.FromSeconds(2),
+        PauseWithGame = true,
+        //BehaviorFlags = ObjectVisualTransformBehavior.Bounce,
+        //ReturnDestinationTransform = true,
+      };
+
       HandlePlaceableBehaviour();
     }
     private async void HandlePlaceableBehaviour()
     {
       await NwTask.NextFrame();
-      
+
       foreach (NwPlaceable plc in NwObject.FindObjectsOfType<NwPlaceable>())
       {
         if (plc.GetObjectVariable<LocalVariableBool>("_SPAWN_ID").HasNothing)
@@ -36,6 +49,31 @@ namespace NWN.Systems
 
         switch (plc.Tag)
         {
+          case "floating":
+            plc.VisualTransform.Lerp(floaterSettings, transform =>
+            {
+              transform.Translation = new Vector3(0, 0, -0.025f);
+              //transform.Rotation = new Vector3(0, 7, 0);
+            });
+
+            scheduleFloaterMotion = scheduler.ScheduleRepeating(() => HandleFloater(plc), TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(0));
+            break;
+
+          case "day_night_light":
+            if (NwModule.Instance.IsDusk || NwModule.Instance.IsNight)
+            {
+              _ = plc.PlayAnimation(Animation.PlaceableActivate, 1);
+              plc.Illumination = true;
+              plc.Area.RecomputeStaticLighting();
+            }
+            else
+            {
+              _ = plc.PlayAnimation(Animation.PlaceableDeactivate, 1);
+              plc.Illumination = false;
+              plc.Area.RecomputeStaticLighting();
+            }
+            break;
+
           case "intro_mirror": plc.OnLeftClick += StartIntroMirrorDialog; break;
           case "body_modifier": plc.OnUsed += StartBodyModifierDialog; break;
           case "refinery": plc.OnUsed += OpenRefineryWindow; break;
@@ -289,6 +327,17 @@ namespace NWN.Systems
     public static void Give1000Gold(PlaceableEvents.OnUsed onUsed)
     {
       onUsed.UsedBy.GiveGold(1000);
+    }
+
+    private void HandleFloater(NwPlaceable floater)
+    {
+      float lerp = (float)(floater.VisualTransform.Translation.Z > 0 ? -0.00025f * Utils.random.Next(70, 130) : 0.00025 * Utils.random.Next(70, 130));
+
+      floater.VisualTransform.Lerp(floaterSettings, transform =>
+      {
+        transform.Translation = new Vector3(0, 0, lerp);
+        //transform.Rotation = new Vector3(0, -floater.VisualTransform.Rotation.Y, 0);
+      });
     }
   }
 }

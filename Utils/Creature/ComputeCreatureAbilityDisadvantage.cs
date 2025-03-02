@@ -24,7 +24,7 @@ namespace NWN.Systems
             return true;
           }
 
-          if (spellEntry.RowIndex == CustomSpell.ConspuerLennemi && Utils.In(creature.Race.RacialType, RacialType.Undead, RacialType.Outsider))
+          if (spellEntry.RowIndex == CustomSpell.ConspuerLennemi && Utils.In(creature.Race.RacialType, RacialType.Undead, CustomRacialType.Fielon))
           {
             LogUtils.LogMessage("Désavantage - Conspuer l'ennemi", LogUtils.LogType.Combat);
             return true;

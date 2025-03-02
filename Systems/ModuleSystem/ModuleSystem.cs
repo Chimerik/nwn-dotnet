@@ -422,9 +422,6 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_BEFORE", "on_hips");
       EventsPlugin.AddIDToWhitelist("NWNX_ON_HAS_FEAT", (int)Feat.HideInPlainSight);
       //EventsPlugin.AddIDToWhitelist("NWNX_ON_HAS_FEAT", (int)Feat.Ambidexterity);
-      
-      EventsPlugin.SubscribeEvent("NWNX_ON_CALENDAR_DUSK", "remov_drowsensi");
-      EventsPlugin.SubscribeEvent("NWNX_ON_CALENDAR_DAWN", "apply_drow_sensi");
 
       EventsPlugin.SubscribeEvent("NWNX_ON_TRAP_SET_AFTER", "on_set_trap");
       EventsPlugin.SubscribeEvent("NWNX_ON_DECREMENT_SPELL_COUNT_BEFORE", "on_cantrip_cast");
@@ -464,6 +461,7 @@ namespace NWN.Systems
       //NwModule.Instance.OnDoListenDetection += CreatureUtils.CancelOnListen;
 
       NwModule.Instance.OnCreatureDamage += CreatureUtils.OnDamageGlobal;
+      NwModule.Instance.OnCalendarTimeChange += PlaceableSystem.OnTimeChangeHandleLights;
     }
     private static void SetModuleTime()
     {
@@ -1409,9 +1407,6 @@ namespace NWN.Systems
 
       if (creature is null)
         return;
-
-      ModuleSystem.Log.Info($"{(ItemPropertyType)property}");
-      ModuleSystem.Log.Info($"{(IPDamageType)value}");
 
       var eff = (ItemPropertyType)property switch
       {

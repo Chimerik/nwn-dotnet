@@ -65,7 +65,7 @@ namespace NWN.Systems
     public static bool IsCharmeImmune(NwCreature caster, NwCreature target)
     {
       if (target.ActiveEffects.Any(e => e.EffectType == EffectType.Immunity && e.IntParams[1] == 14)
-        || (Utils.In(caster.Race.RacialType, RacialType.Fey, RacialType.Aberration, RacialType.Outsider, RacialType.Elemental, RacialType.Undead)
+        || (Utils.In(caster.Race.RacialType, RacialType.Fey, RacialType.Aberration, CustomRacialType.Fielon, CustomRacialType.Celeste, RacialType.Elemental, RacialType.Undead)
         && target.ActiveEffects.Any(e => e.Tag == ProtectionContreLeMalEtLeBienEffectTag)))
       {
         caster.LoginPlayer?.SendServerMessage($"{target.Name.ColorString(ColorConstants.Cyan)} dispose d'une immunité contre les effets de charme");
@@ -77,7 +77,7 @@ namespace NWN.Systems
     public static bool IsCharmeImmune(CNWSCreature caster, CNWSCreature target)
     {
       if (target.m_appliedEffects.Any(e => (EffectTrueType)e.m_nType == EffectTrueType.Immunity && e.GetInteger(1) == 28)
-        || Utils.In((RacialType)caster.m_pStats.m_nRace, RacialType.Fey, RacialType.Aberration, RacialType.Outsider, RacialType.Elemental, RacialType.Undead))
+        || Utils.In((RacialType)caster.m_pStats.m_nRace, RacialType.Fey, RacialType.Aberration, CustomRacialType.Fielon, CustomRacialType.Celeste, RacialType.Elemental, RacialType.Undead))
         return true;
 
       return false;

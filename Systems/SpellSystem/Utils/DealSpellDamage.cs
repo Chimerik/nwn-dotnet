@@ -24,6 +24,7 @@ namespace NWN.Systems
       bool isFureurDestructrice = oCaster.ActiveEffects.Any(e => e.Tag == EffectSystem.FureurDestructriceEffectTag);
       bool moissonDuFielTriggered = target.HP > 0 && castingCreature is not null && !Utils.In(castingCreature.Race.RacialType, RacialType.Undead, RacialType.Construct);
       int amplifiedDices = 0;
+      int maxSorcBurst = 0;
       string logString = "Jet : ";
       List<int> rolls = new();
 
@@ -35,18 +36,21 @@ namespace NWN.Systems
 
       DamageType transmutedDamage = DamageType.BaseWeapon;
 
-      if(casterClass is not null && casterClass.Id == CustomClass.Occultiste && oCaster.ActiveEffects.Any(e => e.Tag == EffectSystem.SortsPsychiquesEffectTag))
+      if(casterClass is not null)
       {
-        transmutedDamage = CustomDamageType.Psychic;
-      }
-      else if (Players.TryGetValue(oCaster, out var transmuter) 
-        && oCaster.ActiveEffects.Any(e => e.Tag == EffectSystem.MetamagieEffectTag && e.IntParams[5] == CustomSkill.EnsoTransmutation))
-      {
-        transmutedDamage = transmuter.windows.TryGetValue("ensoMetaTransmutationSelection", out var transmu)
-          ? ((EnsoMetaTransmutationSelectionWindow)transmu).selectedDamageType : DamageType.BaseWeapon;
+        maxSorcBurst = castingCreature.GetAbilityModifier(casterClass.SpellCastingAbility);
 
-        EffectUtils.RemoveTaggedParamEffect(oCaster, CustomSkill.EnsoTransmutation, EffectSystem.MetamagieEffectTag);
-      }
+        if(casterClass.Id == CustomClass.Occultiste && oCaster.ActiveEffects.Any(e => e.Tag == EffectSystem.SortsPsychiquesEffectTag))
+          transmutedDamage = CustomDamageType.Psychic;
+        else if (Players.TryGetValue(oCaster, out var transmuter)
+        && oCaster.ActiveEffects.Any(e => e.Tag == EffectSystem.MetamagieEffectTag && e.IntParams[5] == CustomSkill.EnsoTransmutation))
+        {
+          transmutedDamage = transmuter.windows.TryGetValue("ensoMetaTransmutationSelection", out var transmu)
+            ? ((EnsoMetaTransmutationSelectionWindow)transmu).selectedDamageType : DamageType.BaseWeapon;
+
+          EffectUtils.RemoveTaggedParamEffect(oCaster, CustomSkill.EnsoTransmutation, EffectSystem.MetamagieEffectTag);
+        }
+      }      
 
       foreach (DamageType damageType in spellEntry.damageType)
       {
@@ -93,17 +97,28 @@ namespace NWN.Systems
             amplifiedDices -= 1;
           }
 
-          if (oCaster.GetObjectVariable<LocalVariableInt>("_CHROMATIC_ORB_BOUNCE").HasNothing
-            && Utils.In(spellEntry.RowIndex, CustomSpell.OrbeChromatiqueAcide, CustomSpell.OrbeChromatiqueFeu, CustomSpell.OrbeChromatiqueFoudre, CustomSpell.OrbeChromatiqueFroid, CustomSpell.OrbeChromatiquePoison, CustomSpell.OrbeChromatiqueTonnerre))
+          if (spell.MasterSpell?.Id == CustomSpell.OrbeChromatique && oCaster.GetObjectVariable<LocalVariableInt>("_CHROMATIC_ORB_BOUNCE").HasNothing)
             rolls.Add(roll);
+
+          if (spell.MasterSpell?.Id == CustomSpell.EclatSorcier && roll == 8 && maxSorcBurst > 0)
+          {
+            maxSorcBurst -= 1;
+            int bonusBurst = Utils.Roll(8);
+            damage += bonusBurst;
+
+            if(bonusBurst == 8)
+            {
+              maxSorcBurst -= 1;
+              bonusBurst = Utils.Roll(8);
+              damage += bonusBurst;
+            }
+          }
 
           damage += roll;
           logString += $"{roll} + ";
         }
 
-        int bonusDamage = 0;
-
-        bonusDamage = HandleEvocateurSuperieur(castingCreature, spell);
+        int bonusDamage = HandleEvocateurSuperieur(castingCreature, spell);
 
         if (bonusDamage > 0)
         {

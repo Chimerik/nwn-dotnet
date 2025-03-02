@@ -3,7 +3,6 @@ using System.Numerics;
 
 using Anvil.API;
 using Anvil.API.Events;
-using Anvil.Services;
 
 namespace NWN.Systems
 {
@@ -32,8 +31,7 @@ namespace NWN.Systems
 
       swing.GetObjectVariable<LocalVariableInt>("_IS_SWINGING").Delete();
       
-      if(scheduleMotion != null)
-        scheduleMotion.Dispose();
+      scheduleMotion?.Dispose();
 
       VisualTransformLerpSettings vtLerpSettings = new VisualTransformLerpSettings
       {

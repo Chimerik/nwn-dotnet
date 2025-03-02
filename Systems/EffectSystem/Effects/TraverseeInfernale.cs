@@ -48,7 +48,7 @@ namespace NWN.Systems
         target.VisibilityOverride = VisibilityMode.Default;
         target.PlotFlag = false;
 
-        if(target.Race.RacialType != RacialType.Outsider && eventData.Effect.Creator is NwCreature caster)
+        if(target.Race.RacialType != CustomRacialType.Fielon && eventData.Effect.Creator is NwCreature caster)
         {
           NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, Effect.Damage(NwRandom.Roll(Utils.random, 10, 8), CustomDamageType.Psychic)));
         }

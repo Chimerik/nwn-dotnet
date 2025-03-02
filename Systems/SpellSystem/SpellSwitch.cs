@@ -1264,6 +1264,18 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
+        case CustomSpell.EclatSorcier:
+        case CustomSpell.EclatSorcierAcide:
+        case CustomSpell.EclatSorcierElec:
+        case CustomSpell.EclatSorcierFeu:
+        case CustomSpell.EclatSorcierFroid:
+        case CustomSpell.EclatSorcierPoison:
+        case CustomSpell.EclatSorcierTonnerre:
+        case CustomSpell.EclatSorcierPsychique:
+          SpellSystem.EclatSorcier(oCaster, spell, spellEntry, target, castingClass);
+          oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
         case CustomSpell.OrbeChromatique:
         case CustomSpell.OrbeChromatiqueAcide:
         case CustomSpell.OrbeChromatiqueFoudre:

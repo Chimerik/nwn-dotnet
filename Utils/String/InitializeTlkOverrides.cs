@@ -143,6 +143,9 @@ namespace NWN.Systems
       OverrideTlkEntry(NwGameTables.EffectIconTable.GetRow(125).StrRef.Value.CustomId, "Immunité Feu");
       OverrideTlkEntry(NwGameTables.EffectIconTable.GetRow(128).StrRef.Value.CustomId, "Immunité Tonnerre");
 
+      OverrideTlkEntry(Races2da.raceTable[(int)CustomRacialType.Fielon].name.CustomId, "Fiélon");
+      OverrideTlkEntry(Races2da.raceTable[(int)CustomRacialType.Celeste].name.CustomId, "Céleste");
+
       foreach (var entry in Feats2da.featTable)
       {
         if ((entry.spellId < 0) && SkillSystem.learnableDictionary.TryGetValue(entry.RowIndex, out var learnable) && learnable is LearnableSkill)

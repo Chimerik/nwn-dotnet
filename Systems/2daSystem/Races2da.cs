@@ -11,11 +11,13 @@ namespace NWN.Systems
     public bool isPlayableRace { get; private set; }
     public string icon { get; private set; }
     public int appearanceId { get; private set; }
+    public StrRef name { get; private set; }
     public void InterpretEntry(TwoDimArrayEntry entry)
     {
       isPlayableRace = entry.GetBool("PlayableRace").GetValueOrDefault(false);
       icon = entry.GetString("Icon");
       appearanceId = entry.GetInt("Appearance").GetValueOrDefault(-1);
+      name = entry.GetStrRef("Name").GetValueOrDefault();
     }
   }
 

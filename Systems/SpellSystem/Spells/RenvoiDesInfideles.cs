@@ -16,7 +16,7 @@ namespace NWN.Systems
 
       foreach (NwCreature target in caster.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, spellEntry.aoESize, false))
       {
-        if(Utils.In(target.Race.RacialType, RacialType.Fey, RacialType.Outsider)
+        if(Utils.In(target.Race.RacialType, RacialType.Fey, CustomRacialType.Fielon)
           && CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, DC) == SavingThrowResult.Failure)
         {
           target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSunstrike));

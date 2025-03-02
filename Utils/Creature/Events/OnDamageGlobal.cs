@@ -140,7 +140,7 @@ namespace NWN.Systems
                 {
                   nbDice = 1 + chatimentEffect.CasterLevel;
 
-                  if (Utils.In(target.Race.RacialType, RacialType.Undead, RacialType.Outsider))
+                  if (Utils.In(target.Race.RacialType, RacialType.Undead, CustomRacialType.Fielon))
                   {
                     LogUtils.LogMessage($"Châtiment Divin - Cible mort-vivant ou extérieur : +1d8", LogUtils.LogType.Combat);
                     nbDice += 1;

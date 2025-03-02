@@ -6,8 +6,9 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void OrbeChromatique(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass castingClass)
+    public static void EclatSorcier(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass castingClass)
     {
+
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
       List<NwGameObject> targets = SpellUtils.GetSpellTargets(oCaster, oTarget, spellEntry, true);
 
@@ -16,26 +17,26 @@ namespace NWN.Systems
 
       switch(spell.Id)
       {
-        case CustomSpell.OrbeChromatiqueAcide:
+        case CustomSpell.EclatSorcierAcide:
           vfx = VfxType.ImpAcidS;
           mirv = VfxType.DurMirvAcid;
           break;
 
-        case CustomSpell.OrbeChromatiqueFoudre:
+        case CustomSpell.EclatSorcierElec:
           vfx = VfxType.ImpLightningS;
           mirv = VfxType.ImpMirvElectric;
           break;
 
-        case CustomSpell.OrbeChromatiqueTonnerre:
+        case CustomSpell.EclatSorcierTonnerre:
           vfx = VfxType.ImpSonic;
           mirv = VfxType.ImpMirvElectric;
           break;
 
-        case CustomSpell.OrbeChromatiqueFroid:
+        case CustomSpell.EclatSorcierFroid:
           vfx = VfxType.ImpFrostS;
           break;
 
-        case CustomSpell.OrbeChromatiquePoison:
+        case CustomSpell.EclatSorcierPoison:
           vfx = VfxType.ImpPoisonS;
           mirv = VfxType.DurMirvAcid;
           break;

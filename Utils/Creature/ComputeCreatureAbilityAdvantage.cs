@@ -139,7 +139,7 @@ namespace NWN.Systems
           return true;
         }
 
-        if (spellEntry is not null && Utils.In(caster.Race.RacialType, RacialType.Undead, RacialType.Outsider) && creature.ActiveEffects.Any(e => e.Tag == EffectSystem.NimbeSacreeAuraEffectTag))
+        if (spellEntry is not null && Utils.In(caster.Race.RacialType, RacialType.Undead, CustomRacialType.Fielon) && creature.ActiveEffects.Any(e => e.Tag == EffectSystem.NimbeSacreeAuraEffectTag))
         {
           LogUtils.LogMessage("Avantage - Nimbe Sacrée : Résistance aux sorts des extérieurs et mort-vivants", LogUtils.LogType.Combat);
           return true;

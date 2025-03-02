@@ -134,6 +134,14 @@
     public const int PacteDeLaLameNecrotique = 277;
     public const int PacteDeLaLamePsychique = 278;
     public const int PacteDeLaLameNormal = 279;
+    public const int EclatSorcier = 280;
+    public const int EclatSorcierAcide = 281;
+    public const int EclatSorcierElec = 282;
+    public const int EclatSorcierFeu = 283;
+    public const int EclatSorcierFroid = 284;
+    public const int EclatSorcierPoison = 285;
+    public const int EclatSorcierTonnerre = 286;
+    public const int EclatSorcierPsychique = 287;
     public const int ChatimentTonitruant = 299;
     public const int VigueurArcanique = 300;
     public const int CordonDeFleches = 301;
