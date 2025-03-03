@@ -8,11 +8,15 @@ namespace NWN.Systems
   {
     public static void OnTimeChangeHandleLights(OnCalendarTimeChange onTimechange)
     {
-      if(onTimechange.TimeChangeType == TimeChangeType.TimeOfDay)
+      //ModuleSystem.Log.Info($"{onTimechange.TimeChangeType} : {onTimechange.NewValue}");
+
+      if (onTimechange.TimeChangeType == TimeChangeType.TimeOfDay)
       {
         List<NwArea> recomputeArea = new();
 
-        if(NwModule.Instance.IsDawn)
+        //ModuleSystem.Log.Info($"{NwModule.Instance.IsDawn}");
+
+        if (NwModule.Instance.IsDawn)
         {
           foreach (var obj in NwObject.FindObjectsWithTag("day_night_light"))
           {
@@ -44,9 +48,6 @@ namespace NWN.Systems
         foreach (NwArea area in recomputeArea)
           area.RecomputeStaticLighting();
       }
-
-      ModuleSystem.Log.Info($"--------------{onTimechange.TimeChangeType}--------------------");
-      ModuleSystem.Log.Info($"--------------{onTimechange.NewValue}--------------------");
     }
   }
 }

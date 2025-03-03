@@ -60,6 +60,11 @@ namespace NWN.Systems
             break;
 
           case "day_night_light":
+
+            plc.IsStatic = false;
+            plc.Useable = false;
+            plc.PlotFlag = true;
+
             if (NwModule.Instance.IsDusk || NwModule.Instance.IsNight)
             {
               _ = plc.PlayAnimation(Animation.PlaceableActivate, 1);
@@ -72,6 +77,7 @@ namespace NWN.Systems
               plc.Illumination = false;
               plc.Area.RecomputeStaticLighting();
             }
+
             break;
 
           case "intro_mirror": plc.OnLeftClick += StartIntroMirrorDialog; break;
@@ -99,7 +105,7 @@ namespace NWN.Systems
 
         if (plc.VisualTransform.Scale != 1 || plc.VisualTransform.Translation != Vector3.Zero || plc.VisualTransform.Rotation != Vector3.Zero)
           plc.VisibilityOverride = VisibilityMode.AlwaysVisible;
-        else if (!plc.Useable && plc.AnimationState != AnimationState.PlaceableActivated)
+        else if (!plc.Useable && plc.AnimationState != AnimationState.PlaceableActivated && plc.Tag != "day_night_light")
           plc.IsStatic = true;
 
         if (plc.IsTrapped)
