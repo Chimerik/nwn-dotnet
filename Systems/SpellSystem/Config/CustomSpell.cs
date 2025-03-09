@@ -20,6 +20,7 @@
     public const int Shillelagh = 37;
     public const int ProtectionContreLaMort = 38;
     public const int DissipationDeLaMagie = 41;
+    public const int DetectionDeLaMagie = 42;
     public const int LienDeGarde = 49;
     public const int Enchevetrement = 53;
     public const int Graisse = 66;

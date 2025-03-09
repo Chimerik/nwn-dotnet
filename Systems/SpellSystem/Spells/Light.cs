@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Anvil.API;
 using NWN.Core;
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void Light(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass casterClass)
+    public static void Light(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass casterClass, NwFeat feat)
     {
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType, false);
 
@@ -24,7 +25,7 @@ namespace NWN.Systems
       else if (oTarget is NwCreature targetCreature && oCaster is NwCreature caster)
       {
         List<NwGameObject> targets = SpellUtils.GetSpellTargets(oCaster, oTarget, spellEntry, true);
-        int spellDC = SpellUtils.GetCasterSpellDC(caster, spell, casterClass.SpellCastingAbility);
+        int spellDC = SpellUtils.GetCasterSpellDC(caster, spell, SpellUtils.GetSpellCastAbility(oCaster, casterClass, feat));
 
         foreach (var target in targets)
           if (target is NwCreature targetC && targetC.IsReactionTypeHostile(caster))

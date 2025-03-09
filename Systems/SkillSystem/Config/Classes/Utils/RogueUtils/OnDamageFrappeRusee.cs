@@ -111,7 +111,7 @@ namespace NWN.Systems
               return;
             }
 
-            EffectSystem.ApplySommeil(damaged, damager, null, NwTimeSpan.FromRounds(10), Ability.Constitution, Ability.Dexterity, true);
+            EffectSystem.ApplySommeil(damaged, damager, null, NwTimeSpan.FromRounds(10), Ability.Constitution, Ability.Dexterity);
 
             sneakDies -= 6;
 

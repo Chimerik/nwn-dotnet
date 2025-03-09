@@ -148,6 +148,14 @@ namespace NWN.Systems
 
       foreach (var eff in creature.ActiveEffects)
       {
+        switch(eff.Tag)
+        {
+          case EffectSystem.InspirationBardiqueEffectTag: 
+            LogUtils.LogMessage("Avantage - Inspiration Heroïque", LogUtils.LogType.Combat);
+            creature.RemoveEffect(eff);
+            return true;
+        }
+
         switch (ability)
         {
           case Ability.Strength:

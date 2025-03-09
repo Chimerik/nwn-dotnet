@@ -1,7 +1,5 @@
 ﻿using System.Linq;
-using System.Numerics;
 using Anvil.API;
-using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {

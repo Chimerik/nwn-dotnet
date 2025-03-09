@@ -34,11 +34,15 @@ namespace NWN.Systems
           break;
 
 
-        case 7:
-
+        case 7: 
+          
           player.LearnClassSkill(CustomSkill.PaladinAuraDeGarde);
 
+          var tlk = NwFeat.FromFeatId(CustomSkill.AuraDeProtection).Name;
+          tlk.SetPlayerOverride(player.oid, "Aura de Garde");
+
           EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.AuraDeProtectionEffectTag);
+
           player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.AuraDeProtection(player.oid.LoginCreature, 7));
           UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>().SetRadius(3);
 

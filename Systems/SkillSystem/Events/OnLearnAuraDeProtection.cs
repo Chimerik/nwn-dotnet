@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Anvil.API;
+﻿using Anvil.API;
 using NWN.Core.NWNX;
 
 namespace NWN.Systems
@@ -11,12 +10,11 @@ namespace NWN.Systems
       if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.AuraDeProtection))
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.AuraDeProtection);
 
-      if (!player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.AuraDeProtectionEffectTag && e.Creator == player.oid.LoginCreature))
-      {
-        int paladinLevel = player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).Level;
-        player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.AuraDeProtection(player.oid.LoginCreature, paladinLevel));
-        UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>().SetRadius(paladinLevel < 18 ? 3 : 9);
-      }
+      EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.AuraDeProtectionEffectTag);
+
+      player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.AuraDeProtection(player.oid.LoginCreature, 6));
+      UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>().SetRadius(3);
+      
       return true;
     }
   }

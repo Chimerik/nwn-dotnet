@@ -9,8 +9,6 @@ using Anvil.Services;
 using Microsoft.Data.Sqlite;
 
 using Newtonsoft.Json;
-using NWN.Core;
-using static NWN.Systems.PlayerSystem;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace NWN.Systems
@@ -50,6 +48,12 @@ namespace NWN.Systems
 
       if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.Stealth))
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.Stealth);
+
+      if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.InspirationHeroique))
+      {
+        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.InspirationHeroique);
+        player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.InspirationHeroique, 0);
+      }
 
       player.oid.SetGuiPanelDisabled(GUIPanel.ExamineItem, true);
       player.oid.SetGuiPanelDisabled(GUIPanel.Journal, true);
@@ -187,7 +191,7 @@ namespace NWN.Systems
         oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipCheckArmorShieldProficiency;
         oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipCheckArmorShieldProficiency;
         oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireForceEquipCreatureSkin;
-        oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipForceEquipCreatureSkin;
+        //oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipForceEquipCreatureSkin;
         oid.LoginCreature.OnItemUse += ItemSystem.OnItemUse;
         oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipCheckThreatRange;
         oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnequipCheckThreatRange;
@@ -462,6 +466,7 @@ namespace NWN.Systems
         InitializeTirArcaniqueChoice();
         InitializeMaitriseDesSortsChoice();
         InitializeSpellSelection();
+        InitializeHighElfCantripSelection();
         InitializeTechniqueElementaireSelection();
         InitializeInvocationOcculteSelection();
         InitializeMetamagieSelection();

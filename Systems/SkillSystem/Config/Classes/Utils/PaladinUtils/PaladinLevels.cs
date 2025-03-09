@@ -122,6 +122,12 @@ namespace NWN.Systems
 
           EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.AuraDeProtectionEffectTag);
 
+          if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.PaladinAuraDeDevotion) && !player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.PaladinAuraDeGarde))
+          {
+            var tlk = NwFeat.FromFeatId(CustomSkill.AuraDeProtection).Name;
+            tlk.SetPlayerOverride(player.oid, "Aura de Courage");
+          }
+
           player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.AuraDeProtection(player.oid.LoginCreature, 10));
           UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>().SetRadius(3);
 

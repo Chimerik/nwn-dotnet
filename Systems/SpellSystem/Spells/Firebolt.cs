@@ -5,17 +5,18 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void FireBolt(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass castingClass)
+    public static void FireBolt(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass castingClass, NwFeat feat)
     {
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
       List<NwGameObject> targets = SpellUtils.GetSpellTargets(oCaster, oTarget, spellEntry, true);
       int nbDice = SpellUtils.GetSpellDamageDiceNumber(oCaster, spell);
+      var castAbility = SpellUtils.GetSpellCastAbility(oCaster, castingClass, feat);
 
       foreach (var target in targets)
       {
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpFlameS));
 
-        switch (SpellUtils.GetSpellAttackRoll(target, oCaster, spell, castingClass.SpellCastingAbility))
+        switch (SpellUtils.GetSpellAttackRoll(target, oCaster, spell, castAbility))
         {
           case TouchAttackResult.CriticalHit: nbDice = SpellUtils.GetCriticalSpellDamageDiceNumber(oCaster, spellEntry, nbDice); ; break;
           case TouchAttackResult.Hit: break;

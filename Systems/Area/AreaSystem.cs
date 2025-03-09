@@ -99,7 +99,7 @@ namespace NWN.Systems
       }
 
       SerializeCreaturesAndCreateSpawn(creatureToSerialize);
-      InitializeBankPlaceableNames();
+      //InitializeBankPlaceableNames();
 
       foreach (string areaName in areaDescriptionsToDownload)
         AreaUtils.LoadAreaDescription(areaName);

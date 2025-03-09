@@ -12,15 +12,17 @@ namespace NWN.Systems
     public static readonly Native.API.CExoString SommeilEffectExoTag = SommeilEffectTag.ToExoString();
     private static ScriptCallbackHandle onIntervalSommeilCallback;
     private static ScriptCallbackHandle onRemoveSommeilCallback;
-    public static async void ApplySommeil(NwCreature target, NwCreature caster, NwSpell spell, TimeSpan duration, Ability SaveAbility, Ability DCAbility, bool delay = false)
+    public static async void ApplySommeil(NwCreature target, NwCreature caster, NwSpell spell, TimeSpan duration, Ability SaveAbility, Ability DCAbility)
     {
-      if(delay)
+      if (spell is not null && spell.SpellType == Spell.Sleep)
       {
         await NwTask.Delay(NwTimeSpan.FromRounds(1));
 
         if (target is null || !target.IsValid || caster is null || !caster.IsValid)
           return;
       }
+      else
+        await NwTask.NextFrame();
 
       if (!IsSleepImmune(target, caster))
       {
@@ -28,8 +30,8 @@ namespace NWN.Systems
 
         if (CreatureUtils.GetSavingThrow(caster, target, SaveAbility, spellDC, effectType: SpellConfig.SpellEffectType.Sleep) == SavingThrowResult.Failure)
         {
-          Effect eff = Effect.Sleep();
-          eff = Effect.LinkEffects(eff, delay ? Effect.RunAction(onRemovedHandle: onRemoveSommeilCallback) : Effect.RunAction(onRemovedHandle: onRemoveSommeilCallback, onIntervalHandle: onIntervalSommeilCallback, interval: NwTimeSpan.FromRounds(1)));
+         Effect  eff = Effect.LinkEffects(Effect.Sleep(), 
+           Effect.RunAction(onRemovedHandle: onRemoveSommeilCallback, onIntervalHandle: onIntervalSommeilCallback, interval: NwTimeSpan.FromRounds(1)));
           eff.Tag = SommeilEffectTag;
           eff.SubType = EffectSubType.Supernatural;
           eff.Creator = caster;
@@ -60,7 +62,7 @@ namespace NWN.Systems
       EffectRunScriptEvent eventData = new EffectRunScriptEvent();
       var eff = eventData.Effect;
 
-      if (eventData.EffectTarget is NwCreature target && eff.Creator is NwCreature caster)
+      if (eff.Spell is null && eventData.EffectTarget is NwCreature target && eff.Creator is NwCreature caster)
       {
         int spellDC = SpellUtils.GetCasterSpellDC(caster, (Ability)eff.CasterLevel);
 

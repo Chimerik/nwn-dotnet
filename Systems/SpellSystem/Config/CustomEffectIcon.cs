@@ -187,5 +187,10 @@ namespace NWN
     public const EffectIcon Inflexible = (EffectIcon)296;
     public const EffectIcon Shillelagh = (EffectIcon)297;
     public const EffectIcon MorsureInfectieuse = (EffectIcon)298;
+    public const EffectIcon AuraDeProtection = (EffectIcon)299;
+    public const EffectIcon AuraDeCourage = (EffectIcon)300;
+    public const EffectIcon AuraDeDevotion = (EffectIcon)301;
+    public const EffectIcon AuraDeGarde = (EffectIcon)302;
+    public const EffectIcon InspirationHeroique = (EffectIcon)303;
   }
 }

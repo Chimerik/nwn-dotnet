@@ -27,7 +27,7 @@ namespace NWN.Systems
             target.ApplyEffect(EffectDuration.Temporary, Effect.Knockdown(), NwTimeSpan.FromRounds(1));
             targets.Add(target);
 
-            EffectSystem.ApplySommeil(target, caster, spell, duration, Ability.Wisdom, castingClass.SpellCastingAbility, true);
+            EffectSystem.ApplySommeil(target, caster, spell, duration, Ability.Wisdom, castingClass.SpellCastingAbility);
           }
         }
       }

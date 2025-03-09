@@ -1,4 +1,5 @@
-﻿using static NWN.Systems.SkillSystem;
+﻿using Anvil.API;
+using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
 {
@@ -10,16 +11,12 @@ namespace NWN.Systems
       {
         if (learnableSkills.TryAdd(CustomSkill.HumanVersatility, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HumanVersatility], this)))
           learnableSkills[CustomSkill.HumanVersatility].LevelUp(this);
-
         learnableSkills[CustomSkill.HumanVersatility].source.Add(Category.Race);
 
-        if (bonusSelection > -1)
-        {
-          if (learnableSkills.TryAdd(bonusSelection, new LearnableSkill((LearnableSkill)learnableDictionary[bonusSelection], this)))
-            learnableSkills[bonusSelection].LevelUp(this);
+        oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.InspirationHeroique, 1);
 
-          learnableSkills[bonusSelection].source.Add(Category.Race);
-        }
+        oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_CHOICE_FEAT").Value = CustomRace.Human;
+        InitializeBonusSkillChoice();
       }
     }
   }

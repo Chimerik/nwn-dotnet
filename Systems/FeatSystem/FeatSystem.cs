@@ -41,6 +41,8 @@ namespace NWN.Systems
         case CustomSkill.Chanceux: Chanceux(caster); return;
         case CustomSkill.MainsGuerisseuses: MainsGuerisseuses(caster, target); return;
         case CustomSkill.AilesAngeliques: AilesAngeliques(caster); return;
+        case CustomSkill.InspirationHeroique: InspirationHeroique(caster); return;
+        case CustomSkill.HighElfCantrip: HighElfCantrip(caster); return;
 
         case CustomSkill.ConspirateurMaitriseTactique: TacticalMastery(caster, onUseFeat); return;
         case CustomSkill.RoublardViseeStable: ViseeStable(caster); return;

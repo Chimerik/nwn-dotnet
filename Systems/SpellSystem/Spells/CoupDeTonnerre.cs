@@ -1,15 +1,14 @@
-﻿
-
-using Anvil.API;
+﻿using Anvil.API;
+using NWN.Native.API;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void CoupDeTonnerre(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwClass casterClass)
+    public static void CoupDeTonnerre(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwClass casterClass, NwFeat feat)
     {
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
-      int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, casterClass.SpellCastingAbility);
+      int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, SpellUtils.GetSpellCastAbility(oCaster, casterClass, feat));
 
       foreach (NwCreature target in oCaster.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, spellEntry.aoESize, false))
       {

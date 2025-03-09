@@ -1,4 +1,5 @@
 ﻿using Anvil.API;
+using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
@@ -170,16 +171,34 @@ namespace NWN.Systems
         {
           new StrRef(12).SetPlayerOverride(oid, "Serment de Dévotion");
           oid.SetTextureOverride("paladin", "devotion");
+
+          if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.PaladinAuraDeDevotion))
+          {
+            var tlk = NwFeat.FromFeatId(CustomSkill.AuraDeProtection).Name;
+            tlk.SetPlayerOverride(oid, "Aura de Dévotion");
+          }
         }
         else if(learnableSkills.ContainsKey(CustomSkill.PaladinSermentDesAnciens))
         {
           new StrRef(12).SetPlayerOverride(oid, "Serment des Anciens");
           oid.SetTextureOverride("paladin", "anciens");
+
+          if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.PaladinAuraDeGarde))
+          {
+            var tlk = NwFeat.FromFeatId(CustomSkill.AuraDeProtection).Name;
+            tlk.SetPlayerOverride(oid, "Aura de Garde");
+          }
         }
         else if (learnableSkills.ContainsKey(CustomSkill.PaladinSermentVengeance))
         {
           new StrRef(12).SetPlayerOverride(oid, "Serment de Vengeance");
           oid.SetTextureOverride("paladin", "vengeance");
+
+          if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.AuraDeCourage))
+          {
+            var tlk = NwFeat.FromFeatId(CustomSkill.AuraDeProtection).Name;
+            tlk.SetPlayerOverride(oid, "Aura de Courage");
+          }
         }
 
         if (learnableSkills.ContainsKey(CustomSkill.ClercDuperie))

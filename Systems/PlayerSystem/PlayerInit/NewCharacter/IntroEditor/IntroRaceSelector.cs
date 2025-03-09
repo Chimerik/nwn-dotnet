@@ -29,7 +29,6 @@ namespace NWN.Systems
         private readonly NuiBind<string> raceName = new("raceName");
 
         private readonly NuiBind<int> selectedBonusSkill = new("selectedBonusSkill");
-        private readonly NuiBind<bool> visibleBonusSkill = new("visibleBonusSkill");
         private readonly NuiBind<List<NuiComboEntry>> bonusSelectionList = new("bonusSelectionList");
 
         private IEnumerable<RaceEntry> currentList;
@@ -74,7 +73,6 @@ namespace NWN.Systems
                 new NuiLabel(selectedItemTitle) { Height = 40, Width = 200, Visible = selectedItemVisibility, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
                 new NuiSpacer()
               } },
-              new NuiRow() { Children = new List<NuiElement>() { new NuiCombo() { Entries = bonusSelectionList, Selected = selectedBonusSkill, Visible = visibleBonusSkill, Height = 40, Width = player.guiScaledWidth * 0.6f - 370 } } },
               new NuiRow() { Children = new List<NuiElement>() { new NuiText(selectedItemDescription) { } } },
               new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiButton(validationText) { Id = "validate", Height = 40, Width = player.guiScaledWidth * 0.6f - 370, Enabled = validationEnabled }, new NuiSpacer() } }
             }, Width = player.guiScaledWidth * 0.6f - 370 }
@@ -109,8 +107,6 @@ namespace NWN.Systems
 
             selectedBonusSkill.SetBindValue(player.oid, nuiToken.Token, -1);
             selectedBonusSkill.SetBindWatch(player.oid, nuiToken.Token, true);
-            visibleBonusSkill.SetBindValue(player.oid, nuiToken.Token, false);
-            bonusSelectionList.SetBindValue(player.oid, nuiToken.Token, Utils.skillList);
 
             geometry.SetBindValue(player.oid, nuiToken.Token, new NuiRect(savedRectangle.X, savedRectangle.Y, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f));
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
@@ -138,45 +134,11 @@ namespace NWN.Systems
                   selectedItemTitle.SetBindValue(player.oid, nuiToken.Token, selectedRace.Name);
                   selectedItemIcon.SetBindValue(player.oid, nuiToken.Token, Races2da.raceTable[selectedRace.Id].icon);
 
-                  visibleBonusSkill.SetBindValue(player.oid, nuiToken.Token, false);
-
                   if (selectedRace.RacialType == RacialType.Human)
                   {
-                    visibleBonusSkill.SetBindValue(player.oid, nuiToken.Token, true);
-                    LoadBonusList(Utils.skillList);
-
-                    LearnableSkill bonusSkill = player.learnableSkills.Values.FirstOrDefault(s => s.category == SkillSystem.Category.Skill && s.source.Any(so => so == SkillSystem.Category.Race));
-                    selectedBonusSkill.SetBindValue(player.oid, nuiToken.Token, bonusSkill is not null ? bonusSkill.id : -1);
-
-                    if (selectedBonusSkill.GetBindValue(player.oid, nuiToken.Token) > -1)
-                    {
-                      validationEnabled.SetBindValue(player.oid, nuiToken.Token, true);
-                      validationText.SetBindValue(player.oid, nuiToken.Token, "Valider le choix : Humain");
-                    }
-                    else
-                    {
-                      validationEnabled.SetBindValue(player.oid, nuiToken.Token, false);
-                      validationText.SetBindValue(player.oid, nuiToken.Token, "Humain : Veuillez sélectionner une compétence bonus");
-                    }                    
-                  }
-                  else if(selectedRace.Id == CustomRace.HighElf || selectedRace.Id == CustomRace.HighHalfElf)
-                  {
-                    visibleBonusSkill.SetBindValue(player.oid, nuiToken.Token, true);
-                    LoadBonusList(Utils.mageCanTripList);
-
-                    LearnableSkill bonusSkill = player.learnableSkills.Values.FirstOrDefault(s => s.category == SkillSystem.Category.Magic && s.source.Any(so => so == SkillSystem.Category.Race));
-                    selectedBonusSkill.SetBindValue(player.oid, nuiToken.Token, bonusSkill is not null ? bonusSkill.id : -1);
-
-                    if (selectedBonusSkill.GetBindValue(player.oid, nuiToken.Token) > -1)
-                    {
-                      validationEnabled.SetBindValue(player.oid, nuiToken.Token, true);
-                      validationText.SetBindValue(player.oid, nuiToken.Token, $"Valider le choix : {selectedRace.Name}");
-                    }
-                    else
-                    {
-                      validationEnabled.SetBindValue(player.oid, nuiToken.Token, false);
-                      validationText.SetBindValue(player.oid, nuiToken.Token, $"{selectedRace.Name} : Veuillez sélectionner un tour de magie bonus");
-                    }
+                    validationEnabled.SetBindValue(player.oid, nuiToken.Token, true);
+                    validationText.SetBindValue(player.oid, nuiToken.Token, "Valider le choix : Humain");
+                             
                   }
                   else if (player.oid.LoginCreature.Race.Id == selectedRace.Id)
                   {
@@ -362,19 +324,17 @@ namespace NWN.Systems
           player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.ProduceFlame);
           player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.FlameBlade);
           player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.Thaumaturgy);
+          player.oid.LoginCreature.RemoveFeat(Feat.HardinessVersusEnchantments);
 
           player.oid.LoginCreature.TailType = CreatureTailType.None;
           player.oid.LoginCreature.WingType = CreatureWingType.None;
-        }
-        private void LoadBonusList(IEnumerable<NuiComboEntry> list)
-        {
-          List<NuiComboEntry> tempBonusList = new();
 
-          foreach (var skill in list)
-            if (!player.learnableSkills.ContainsKey(skill.Value) || player.learnableSkills[skill.Value].source.Any(so => so == SkillSystem.Category.Race))
-              tempBonusList.Add(skill);
-
-          bonusSelectionList.SetBindValue(player.oid, nuiToken.Token, tempBonusList);
+          if (player.windows.TryGetValue("skillBonusChoice", out var bonusSkill) && bonusSkill.IsOpen)
+          {
+            bonusSkill.CloseWindow();
+            player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_CHOICE_FEAT").Delete();
+            player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_OPTION_CHOICE_FEAT").Delete();
+          }
         }
       }
     }

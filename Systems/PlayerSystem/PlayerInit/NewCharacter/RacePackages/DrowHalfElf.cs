@@ -1,4 +1,5 @@
-﻿using static NWN.Systems.SkillSystem;
+﻿using Anvil.API;
+using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
 {
@@ -8,20 +9,15 @@ namespace NWN.Systems
     {
       private void ApplyDrowHalfElfPackage()
       { 
-        if (learnableSkills.TryAdd(CustomSkill.Elfique, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Elfique], this)))
-          learnableSkills[CustomSkill.Elfique].LevelUp(this);
+        if (learnableSkills.TryAdd(CustomSkill.Profond, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Profond], this)))
+          learnableSkills[CustomSkill.Profond].LevelUp(this);
+        learnableSkills[CustomSkill.Profond].source.Add(Category.Race);
 
-        learnableSkills[CustomSkill.Elfique].source.Add(Category.Race);
+        oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.InspirationHeroique, 1);
+        oid.LoginCreature.AddFeat(Feat.HardinessVersusEnchantments);
 
-        if (learnableSkills.TryAdd(CustomSkill.HighElfLanguage, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HighElfLanguage], this)))
-          learnableSkills[CustomSkill.HighElfLanguage].LevelUp(this);
-
-        learnableSkills[CustomSkill.HighElfLanguage].source.Add(Category.Race);
-
-        if (learnableSkills.TryAdd(CustomSkill.LightDrow, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.LightDrow], this)))
-          learnableSkills[CustomSkill.LightDrow].LevelUp(this);
-
-        learnableSkills[CustomSkill.LightDrow].source.Add(Category.Race);
+        oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_CHOICE_FEAT").Value = CustomRace.HighHalfElf;
+        InitializeBonusSkillChoice();
       }
     }
   }

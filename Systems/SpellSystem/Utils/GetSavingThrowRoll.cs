@@ -25,6 +25,7 @@ namespace NWN.Systems
 
             if (!protectionNoStack.Contains(EffectSystem.LienDeGardeBonusEffectTag))
             {
+              proficiencyBonus += 1;
               protectionNoStack.Add(EffectSystem.LienDeGardeBonusEffectTag);
               LogUtils.LogMessage("Lien de Garde : JDS +1", LogUtils.LogType.Combat);
             }
@@ -57,13 +58,12 @@ namespace NWN.Systems
 
           case EffectSystem.ProtectionEffectTag:
 
-            if (protectionNoStack.Contains(EffectSystem.ProtectionEffectTag) || eff.Creator is not NwCreature protector)
+            if (protectionNoStack.Contains(EffectSystem.ProtectionEffectTag))
               break;
 
             protectionNoStack.Add(EffectSystem.ProtectionEffectTag);
-            int protection = protector.GetAbilityModifier(Ability.Charisma);
-            proficiencyBonus += protection;
-            LogUtils.LogMessage($"Paladin - Aura de Protection : JDS +{protection}", LogUtils.LogType.Combat);
+            proficiencyBonus += eff.CasterLevel;
+            LogUtils.LogMessage($"Paladin - Aura de Protection : JDS +{eff.CasterLevel}", LogUtils.LogType.Combat);
 
             break;
 
@@ -166,9 +166,6 @@ namespace NWN.Systems
 
         if (ability == Ability.Strength)
           saveRoll = BarbarianUtils.HandleBarbarianPuissanceIndomptable(target, saveRoll);
-
-        if (saveRoll + proficiencyBonus < saveDC)
-          saveRoll = FighterUtils.HandleInflexible(target, saveRoll);
 
         if (saveRoll + proficiencyBonus < saveDC)
           saveRoll = MonkUtils.HandleDiamondSoul(target, saveRoll);

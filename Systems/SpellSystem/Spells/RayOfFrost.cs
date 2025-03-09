@@ -7,16 +7,18 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void RayOfFrost(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass casterClass)
+    public static void RayOfFrost(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass casterClass, NwFeat feat)
     {
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
       List<NwGameObject> targets = SpellUtils.GetSpellTargets(oCaster, oTarget, spellEntry, true);
 
+      var castAbility = SpellUtils.GetSpellCastAbility(oCaster, casterClass, feat);
+      
       foreach (var target in targets)
       {
         int nbDice = SpellUtils.GetSpellDamageDiceNumber(oCaster, spell);
 
-        switch (SpellUtils.GetSpellAttackRoll(target, oCaster, spell, casterClass.SpellCastingAbility))
+        switch (SpellUtils.GetSpellAttackRoll(target, oCaster, spell, castAbility))
         {
           case TouchAttackResult.CriticalHit: nbDice = SpellUtils.GetCriticalSpellDamageDiceNumber(oCaster, spellEntry, nbDice); break;
           case TouchAttackResult.Hit: break;

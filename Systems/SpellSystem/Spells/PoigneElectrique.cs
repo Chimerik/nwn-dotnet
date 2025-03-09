@@ -14,21 +14,13 @@ namespace NWN.Systems
       List<NwGameObject> targets = SpellUtils.GetSpellTargets(oCaster, oTarget, spellEntry, true);
       int nbDice = SpellUtils.GetSpellDamageDiceNumber(caster, spell);
 
-      if (oCaster is NwCreature castingCreature && feat is not null && feat.Id == CustomSkill.MonkFrappeDeLaTempete)
-      {
-        castingCreature.IncrementRemainingFeatUses(feat.FeatType);
-        FeatUtils.DecrementKi(castingCreature, 2);
-        casterClass = NwClass.FromClassId(CustomClass.Monk);
-
-        if (caster.KnowsFeat((Feat)CustomSkill.MonkIncantationElementaire))
-          nbDice += 1;
-      }
+      var castAbility = SpellUtils.GetSpellCastAbility(oCaster, casterClass, feat);
 
       foreach (var target in targets)
       {
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpLightningS));
 
-        switch (SpellUtils.GetSpellAttackRoll(target, caster, spell, casterClass.SpellCastingAbility, 0))
+        switch (SpellUtils.GetSpellAttackRoll(target, caster, spell, castAbility, 0))
         {
           case TouchAttackResult.CriticalHit: nbDice = SpellUtils.GetCriticalSpellDamageDiceNumber(caster, spellEntry, nbDice); ; break;
           case TouchAttackResult.Hit: break;

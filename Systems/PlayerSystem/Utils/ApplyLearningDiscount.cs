@@ -22,12 +22,6 @@ namespace NWN.Systems
         {
           case SkillSystem.Category.Language:
 
-            if (learnableSkills.ContainsKey(CustomSkill.HumanVersatility))
-              learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 10;
-
-            if (learnableSkills.ContainsKey(CustomSkill.HighElfLanguage))
-              learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 10;
-
             if (learnableSkills.ContainsKey(CustomSkill.Prodige))
               learnable.acquiredPoints += (learnable.pointsToNextLevel - learnable.acquiredPoints) / 4;
 

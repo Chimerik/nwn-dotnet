@@ -4,7 +4,7 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void AcidSplash(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, Location targetLocation, NwClass casterClass)
+    public static void AcidSplash(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, Location targetLocation, NwClass casterClass, NwFeat feat)
     {
       int spellDC = 10;
       bool tourPuissant = false;
@@ -13,7 +13,7 @@ namespace NWN.Systems
 
       if (oCaster is NwCreature caster)
       {
-        spellDC = SpellUtils.GetCasterSpellDC(caster, spell, casterClass.SpellCastingAbility);
+        spellDC = SpellUtils.GetCasterSpellDC(caster, spell, SpellUtils.GetSpellCastAbility(oCaster, casterClass, feat));
         tourPuissant = caster.KnowsFeat((Feat)CustomSkill.EvocateurToursPuissants);
       }
       

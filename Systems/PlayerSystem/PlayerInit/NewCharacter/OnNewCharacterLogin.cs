@@ -30,7 +30,7 @@ namespace NWN.Systems
 
         Utils.DestroyInventory(oid.LoginCreature);
         ClearKnownSpells();
-        CreateCharacterSkin();     
+        //CreateCharacterSkin();     
         CreateCharacterDB(CreateIntroScene(oid, areaSystem));
         InitializeStartingLearnables();
 

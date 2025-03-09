@@ -678,6 +678,10 @@ namespace NWN.Systems
 
                     player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ClercIncantationPuissante, 0);
 
+                    if (Utils.In(player.oid.LoginCreature.Race.RacialType, RacialType.Human, (RacialType)CustomRace.WoodHalfElf, (RacialType)CustomRace.DrowHalfElf, (RacialType)CustomRace.HighHalfElf) 
+                      && player.oid.LoginCreature.GetFeatRemainingUses((Feat)CustomSkill.InspirationHeroique) < 3)
+                      player.oid.LoginCreature.IncrementRemainingFeatUses((Feat)CustomSkill.InspirationHeroique);
+
                     break;
                 }
                 break;

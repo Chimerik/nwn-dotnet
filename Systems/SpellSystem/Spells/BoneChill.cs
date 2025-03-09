@@ -5,7 +5,7 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void BoneChill(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass castingClass)
+    public static void BoneChill(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass castingClass, NwFeat feat)
     {
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
 
@@ -14,7 +14,7 @@ namespace NWN.Systems
 
       foreach (var target in targets)
       {
-        switch (SpellUtils.GetSpellAttackRoll(target, oCaster, spell, castingClass.SpellCastingAbility))
+        switch (SpellUtils.GetSpellAttackRoll(target, oCaster, spell, SpellUtils.GetSpellCastAbility(oCaster, castingClass, feat)))
         {
           case TouchAttackResult.CriticalHit: nbDice = SpellUtils.GetCriticalSpellDamageDiceNumber(oCaster, spellEntry, nbDice); ; break;
           case TouchAttackResult.Hit: break;

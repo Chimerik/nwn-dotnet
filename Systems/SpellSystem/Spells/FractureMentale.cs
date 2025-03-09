@@ -4,12 +4,12 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void FractureMentale(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass casterClass)
+    public static void FractureMentale(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass casterClass, NwFeat feat)
     {
       if (oCaster is not NwCreature caster || oTarget is not NwCreature target)
         return;
 
-      int spellDC = SpellUtils.GetCasterSpellDC(caster, spell, casterClass.SpellCastingAbility);
+      int spellDC = SpellUtils.GetCasterSpellDC(caster, spell, SpellUtils.GetSpellCastAbility(oCaster, casterClass, feat));
       bool tourPuissant = caster.KnowsFeat((Feat)CustomSkill.EvocateurToursPuissants);
 
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);

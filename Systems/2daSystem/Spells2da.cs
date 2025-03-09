@@ -94,14 +94,7 @@ namespace NWN.Systems
 
     public Spells2da()
     {
-      Utils.mageCanTripList.Add(new NuiComboEntry("Haut-Elfe : Sélection d'un tour de magie", -1));
-
-      foreach (var entry in spellTable)
-      {
-        NwSpell spell = NwSpell.FromSpellId(entry.RowIndex);
-        if (spell.GetSpellLevelForClass(ClassType.Wizard) == 0 && spell.FeatReference?.Id > 0)
-          Utils.mageCanTripList.Add(new NuiComboEntry(spell.Name.ToString(), spell.FeatReference.Id));
-      }
+      foreach (var entry in spellTable) ;
     }
   }
 }

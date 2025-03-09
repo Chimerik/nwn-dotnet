@@ -1,16 +1,22 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Anvil.API;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static List<NwGameObject> FaerieFire(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, Location targetLocation, NwClass castingClass)
+    public static List<NwGameObject> FaerieFire(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, Location targetLocation, NwClass castingClass, NwFeat feat)
     {
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
-      SpellConfig.SavingThrowFeedback feedback = new();
       List<NwGameObject> targetList = new();
-      int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, castingClass.SpellCastingAbility);
+
+      Ability castAbility = castingClass.SpellCastingAbility;
+
+      if (oCaster is NwCreature caster && feat is not null && feat.Id == CustomSkill.FaerieFireDrow)
+        castAbility = (Ability)new int[3] { caster.GetAbilityModifier(Ability.Intelligence), caster.GetAbilityModifier(Ability.Wisdom), caster.GetAbilityModifier(Ability.Charisma) }.OrderDescending().First();
+
+      int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, castAbility);
 
       targetLocation.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpDustExplosion));
 

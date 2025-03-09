@@ -2,7 +2,6 @@
 using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
-using NWN.Core;
 
 namespace NWN.Systems
 {

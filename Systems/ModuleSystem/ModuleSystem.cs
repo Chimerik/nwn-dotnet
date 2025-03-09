@@ -833,10 +833,6 @@ namespace NWN.Systems
         Utils.tradeMaterialList.Add(new NuiComboEntry(resource.name, j));
         j++;
       }
-
-      Utils.skillList.Add(new NuiComboEntry("Humain : Sélection d'une compétence bonus", -1));
-      foreach (Learnable learnable in SkillSystem.learnableDictionary.Values.Where(l => l is LearnableSkill skill && skill.category == SkillSystem.Category.Skill))
-        Utils.skillList.Add(new NuiComboEntry(learnable.name, learnable.id));
     }
     private static async void LoadMailReceiverList()
     {

@@ -10,8 +10,57 @@ namespace NWN.Systems
       {
         switch (oid.LoginCreature.Race.Id)
         {
+          case CustomRace.WoodElf:
+
+            switch (oid.LoginCreature.Level)
+            {
+              case 3:
+
+                if (learnableSkills.TryAdd(CustomSkill.GrandeFoulee, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.GrandeFoulee], this)))
+                  learnableSkills[CustomSkill.GrandeFoulee].LevelUp(this);
+
+                learnableSkills[CustomSkill.GrandeFoulee].source.Add(Category.Race);
+
+                break;
+
+              case 5:
+
+                if (learnableSkills.TryAdd(CustomSkill.PassageSansTrace, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PassageSansTrace], this)))
+                  learnableSkills[CustomSkill.PassageSansTrace].LevelUp(this);
+
+                learnableSkills[CustomSkill.PassageSansTrace].source.Add(Category.Race);
+
+                break;
+            }
+
+            break;
+
+          case CustomRace.HighElf:
+
+            switch (oid.LoginCreature.Level)
+            {
+              case 3:
+
+                if (learnableSkills.TryAdd(CustomSkill.DetectionDeLaMagie, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DetectionDeLaMagie], this)))
+                  learnableSkills[CustomSkill.DetectionDeLaMagie].LevelUp(this);
+
+                learnableSkills[CustomSkill.DetectionDeLaMagie].source.Add(Category.Race);
+
+                break;
+
+              case 5:
+
+                if (learnableSkills.TryAdd(CustomSkill.FouleeBrumeuse, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.FouleeBrumeuse], this)))
+                  learnableSkills[CustomSkill.FouleeBrumeuse].LevelUp(this);
+
+                learnableSkills[CustomSkill.FouleeBrumeuse].source.Add(Category.Race);
+
+                break;
+            }
+
+            break;
+
           case CustomRace.Drow:
-          case CustomRace.DrowHalfElf:
 
             switch (oid.LoginCreature.Level)
             {

@@ -320,7 +320,8 @@
     public const int BarbarianRagePersistante = 1599;
 
     public const int ImpositionDesMains = 1600;
-
+    public const int PaladinAuraDeDevotion = 1601;
+    public const int PaladinAuraDeGarde = 1602;
     public const int SensDivin = 1603;
     public const int ChatimentDivin = 1604;
 
@@ -657,6 +658,14 @@
     public const int EldritchKnightMagieDeGuerre = 1915;
     public const int FighterInflexible = 1916;
 
+    public const int InspirationHeroique = 1917;
+
+    public const int GrandeFoulee = 1918;
+    public const int PassageSansTrace = 1919;
+    public const int DetectionDeLaMagie = 1920;
+    public const int FouleeBrumeuse = 1921;
+    public const int HighElfCantrip = 1922;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -948,7 +957,6 @@
     public const int UncannyDodge = 20368;
   
     public const int HumanVersatility = 20418;
-    public const int HighElfLanguage = 20419;
 
     public const int CalligrapheArmurierExpert = 20420;
     public const int CalligrapheBlindeur = 20421;
@@ -1147,9 +1155,7 @@
     public const int Paladin = 20598;
 
     public const int PaladinSermentDevotion = 20600;
-    public const int PaladinAuraDeDevotion = 20601;
     public const int PaladinSermentDesAnciens = 20602;
-    public const int PaladinAuraDeGarde = 20603;
     public const int PaladinSentinelleImmortelle = 20604;
 
     public const int PaladinSermentVengeance = 20605;

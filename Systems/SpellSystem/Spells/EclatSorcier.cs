@@ -6,7 +6,7 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void EclatSorcier(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass castingClass)
+    public static void EclatSorcier(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry, NwGameObject oTarget, NwClass castingClass, NwFeat feat)
     {
 
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
@@ -42,13 +42,14 @@ namespace NWN.Systems
           break;
       }
 
-      double visualDelay = 0.1;
+    double visualDelay = 0.1;
+     var castAbility = SpellUtils.GetSpellCastAbility(oCaster, castingClass, feat);
 
       foreach (var target in targets)
       {
         int nbDice = SpellUtils.GetSpellDamageDiceNumber(oCaster, spell);
 
-        switch (SpellUtils.GetSpellAttackRoll(target, oCaster, spell, castingClass.SpellCastingAbility))
+        switch (SpellUtils.GetSpellAttackRoll(target, oCaster, spell, castAbility))
         {
           case TouchAttackResult.CriticalHit: nbDice = SpellUtils.GetCriticalSpellDamageDiceNumber(oCaster, spellEntry, nbDice); ; break;
           case TouchAttackResult.Hit: break;

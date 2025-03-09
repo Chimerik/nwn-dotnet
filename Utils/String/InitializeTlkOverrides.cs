@@ -22,10 +22,10 @@ namespace NWN.Systems
       OverrideTlkEntry(190062, "Etourdissement");
       OverrideTlkEntry(190067, "Menacé");
       OverrideTlkEntry(190072, "Haut-Elfe");
-      OverrideTlkEntry(190073, "Elfe des bois");
+      OverrideTlkEntry(190073, "Elfe Sylvestre");
       OverrideTlkEntry(190074, "Drow");
       OverrideTlkEntry(190075, "Demi Haut-Elfe");
-      OverrideTlkEntry(190076, "Demi Elfe des Bois");
+      OverrideTlkEntry(190076, "Demi Elfe Sylvestre");
       OverrideTlkEntry(190077, "Demi Drow");
       OverrideTlkEntry(190078, "Hyper-sensibilité lumineuse");
       OverrideTlkEntry(190079, "Demi Orc : Endurance Implacable");

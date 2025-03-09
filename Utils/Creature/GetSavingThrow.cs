@@ -38,17 +38,19 @@ namespace NWN.Systems
       int totalSave = SpellUtils.GetSavingThrowRoll(target, ability, saveDC, advantage, feedback);
       SavingThrowResult saveResult = (SavingThrowResult)(totalSave >= saveDC).ToInt();
 
-      SpellUtils.SendSavingThrowFeedbackMessage(attacker, target, feedback, advantage, saveDC, totalSave, saveResult, ability, effectType);
-
       if(saveResult == SavingThrowResult.Failure && target.ActiveEffects.Any(e => e.Tag == EffectSystem.InflexibleEffectTag))
       {
         StringUtils.DisplayStringToAllPlayersNearTarget(target, "Inflexible", StringUtils.gold, true, true);
-        totalSave = SpellUtils.GetSavingThrowRoll(target, ability, saveDC, advantage, feedback) + FighterUtils.GetFighterLevel(target);
+        int fighterLevel = FighterUtils.GetFighterLevel(target);
+        totalSave = SpellUtils.GetSavingThrowRoll(target, ability, saveDC, advantage, feedback) + fighterLevel;
+        feedback.proficiencyBonus += fighterLevel;
         saveResult = (SavingThrowResult)(totalSave >= saveDC).ToInt();
 
-        SpellUtils.SendSavingThrowFeedbackMessage(attacker, target, feedback, advantage, saveDC, totalSave, saveResult, ability, effectType);
+        target.DecrementRemainingFeatUses((Feat)CustomSkill.FighterInflexible);
         EffectUtils.RemoveTaggedEffect(target, EffectSystem.InflexibleEffectTag);
       }
+
+      SpellUtils.SendSavingThrowFeedbackMessage(attacker, target, feedback, advantage, saveDC, totalSave, saveResult, ability, effectType);
 
       switch (ability)
       {

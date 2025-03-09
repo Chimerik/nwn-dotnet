@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -6,29 +7,34 @@ namespace NWN.Systems
   {
     public static int GetCreatureSkillAdvantage(NwCreature creature, int skill)
     {
-      switch (skill)
+      if(creature.ActiveEffects.Any(e => e.Tag == EffectSystem.InspirationHeroiqueEffectTag))
       {
-        case CustomSkill.PerceptionProficiency: return GetCreatureAbilityAdvantage(creature, Ability.Wisdom);
-        case CustomSkill.AcrobaticsProficiency: return GetCreatureAbilityAdvantage(creature, Ability.Dexterity);
-        case CustomSkill.AnimalHandlingProficiency: return GetCreatureAbilityAdvantage(creature, Ability.Wisdom);
-        case CustomSkill.ArcanaProficiency: return GetCreatureAbilityAdvantage(creature, Ability.Intelligence);
-        case CustomSkill.AthleticsProficiency: return GetCreatureAbilityAdvantage(creature, Ability.Strength);
-        case CustomSkill.MedicineProficiency: return GetCreatureAbilityAdvantage(creature, Ability.Wisdom);
-        case CustomSkill.NatureProficiency: return GetCreatureAbilityAdvantage(creature, Ability.Wisdom);
-        case CustomSkill.PerformanceProficiency: return GetCreatureAbilityAdvantage(creature, Ability.Charisma);
-        case CustomSkill.StealthProficiency: return GetCreatureAbilityAdvantage(creature, Ability.Dexterity);
-        case CustomSkill.DeceptionProficiency: return GetCreatureAbilityAdvantage(creature, Ability.Charisma);
-        case CustomSkill.HistoryProficiency: return GetCreatureAbilityAdvantage(creature, Ability.Intelligence);
-        case CustomSkill.InsightProficiency: return GetCreatureAbilityAdvantage(creature, Ability.Wisdom);
-        case CustomSkill.IntimidationProficiency: return GetCreatureAbilityAdvantage(creature, Ability.Charisma);
-        case CustomSkill.InvestigationProficiency: return GetCreatureAbilityAdvantage(creature, Ability.Intelligence);
-        case CustomSkill.PersuasionProficiency: return GetCreatureAbilityAdvantage(creature, Ability.Charisma);
-        case CustomSkill.ReligionProficiency: return GetCreatureAbilityAdvantage(creature, Ability.Intelligence);
-        case CustomSkill.SleightOfHandProficiency: return GetCreatureAbilityAdvantage(creature, Ability.Dexterity);
-        case CustomSkill.SurvivalProficiency: return GetCreatureAbilityAdvantage(creature, Ability.Wisdom);
+        LogUtils.LogMessage("Avantage - Inspiration Heroïque", LogUtils.LogType.Combat);
+        EffectUtils.RemoveTaggedEffect(creature, EffectSystem.InspirationHeroiqueEffectTag);
       }
 
-      return 0;
+      return skill switch
+      {
+        CustomSkill.PerceptionProficiency => GetCreatureAbilityAdvantage(creature, Ability.Wisdom),
+        CustomSkill.AcrobaticsProficiency => GetCreatureAbilityAdvantage(creature, Ability.Dexterity),
+        CustomSkill.AnimalHandlingProficiency => GetCreatureAbilityAdvantage(creature, Ability.Wisdom),
+        CustomSkill.ArcanaProficiency => GetCreatureAbilityAdvantage(creature, Ability.Intelligence),
+        CustomSkill.AthleticsProficiency => GetCreatureAbilityAdvantage(creature, Ability.Strength),
+        CustomSkill.MedicineProficiency => GetCreatureAbilityAdvantage(creature, Ability.Wisdom),
+        CustomSkill.NatureProficiency => GetCreatureAbilityAdvantage(creature, Ability.Wisdom),
+        CustomSkill.PerformanceProficiency => GetCreatureAbilityAdvantage(creature, Ability.Charisma),
+        CustomSkill.StealthProficiency => GetCreatureAbilityAdvantage(creature, Ability.Dexterity),
+        CustomSkill.DeceptionProficiency => GetCreatureAbilityAdvantage(creature, Ability.Charisma),
+        CustomSkill.HistoryProficiency => GetCreatureAbilityAdvantage(creature, Ability.Intelligence),
+        CustomSkill.InsightProficiency => GetCreatureAbilityAdvantage(creature, Ability.Wisdom),
+        CustomSkill.IntimidationProficiency => GetCreatureAbilityAdvantage(creature, Ability.Charisma),
+        CustomSkill.InvestigationProficiency => GetCreatureAbilityAdvantage(creature, Ability.Intelligence),
+        CustomSkill.PersuasionProficiency => GetCreatureAbilityAdvantage(creature, Ability.Charisma),
+        CustomSkill.ReligionProficiency => GetCreatureAbilityAdvantage(creature, Ability.Intelligence),
+        CustomSkill.SleightOfHandProficiency => GetCreatureAbilityAdvantage(creature, Ability.Dexterity),
+        CustomSkill.SurvivalProficiency => GetCreatureAbilityAdvantage(creature, Ability.Wisdom),
+        _ => 0,
+      };
     }
   }
 }
