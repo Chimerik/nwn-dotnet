@@ -32,7 +32,7 @@ namespace NWN.Systems
 
         public SpellSelectionWindow(Player player, ClassType spellClass, int nbSpells, SpellSchool school = SpellSchool.Unknown) : base(player)
         {
-          windowId = "spellSelection";
+          windowId = school == SpellSchool.Unknown ? "spellSelection" : "schoolSpellSelection";
 
           List<NuiListTemplateCell> rowTemplateAvailableSpells = new()
           {
@@ -107,7 +107,7 @@ namespace NWN.Systems
             {
               player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_SELECTION").Value = nbSpells;
               player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_CLASS_SELECTION").Value = (int)spellClass;
-              player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_SCHOOL_SELECTION").Value = (int)spellClass;
+              player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_SCHOOL_SELECTION").Value = (int)school;
             }
           }
           else

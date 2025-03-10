@@ -12,9 +12,9 @@ namespace NWN.Systems
         caster.LoginPlayer?.SendServerMessage("Cible invalide", ColorConstants.Red);
         return;
       }
-
+      
       NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, 
-        Effect.Heal(NativeUtils.GetCreatureProficiencyBonus(caster) * NwRandom.Roll(Utils.random, 4))));
+        Effect.Heal(NativeUtils.GetCreatureProficiencyBonus(caster) * SpellUtils.HandleHealerFeat(caster, 4))));
 
       target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHealingS));
 

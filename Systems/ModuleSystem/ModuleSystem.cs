@@ -514,6 +514,10 @@ namespace NWN.Systems
     }
     private static void RestoreResourceBlocksFromDatabase()
     {
+      //SqLiteUtils.DeletionQuery("areaResourceStock", new Dictionary<string, string>() { { "location", "%epine_seeksa%" } }, "like");
+      //SqLiteUtils.DeletionQuery("areaResourceStock", new Dictionary<string, string>() { { "location", "%collines_mugissantes%" } }, "like");
+      //SqLiteUtils.DeletionQuery("areaResourceStock", new Dictionary<string, string>() { { "location", "%chemin_interdit%" } }, "like");
+
       var result = SqLiteUtils.SelectQuery("areaResourceStock",
           new List<string>() { { "type" }, { "quantity" }, { "grade" }, { "location" } },
           new List<string[]>() { });
@@ -525,11 +529,19 @@ namespace NWN.Systems
         int quantity = int.Parse(resourceBlock[1]);
         int grade = int.Parse(resourceBlock[2]);
         NwPlaceable newResourceBlock = NwPlaceable.Create(resRef, materiaLocation, false, "mineable_materia");
-        newResourceBlock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = quantity;
-        newResourceBlock.GetObjectVariable<LocalVariableInt>("_GRADE").Value = grade;
-        Utils.SetResourceBlockData(newResourceBlock);
 
-        LogUtils.LogMessage($"MATERIA SPAWN - Area {materiaLocation.Area.Name} - Spawning {resRef} - Quantity {grade} - grade {grade}", LogUtils.LogType.MateriaSpawn);
+        if (newResourceBlock is null)
+        {
+          Utils.LogMessageToDMs($"MATERIA SPAWN - WARNING COULD NOT SPAWN MATERIA - {resourceBlock[3]}");
+        }
+        else
+        {
+          newResourceBlock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = quantity;
+          newResourceBlock.GetObjectVariable<LocalVariableInt>("_GRADE").Value = grade;
+          Utils.SetResourceBlockData(newResourceBlock);
+
+          LogUtils.LogMessage($"MATERIA SPAWN - Area {materiaLocation.Area.Name} - Spawning {resRef} - Quantity {grade} - grade {grade}", LogUtils.LogType.MateriaSpawn);
+        }
       }
     }
     private async void HandleMateriaGrowth()

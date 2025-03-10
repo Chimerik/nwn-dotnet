@@ -190,7 +190,7 @@ namespace NWN.Systems
         oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipOffHandWeapon;
         oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipCheckArmorShieldProficiency;
         oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipCheckArmorShieldProficiency;
-        oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireForceEquipCreatureSkin;
+        //oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireForceEquipCreatureSkin;
         //oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipForceEquipCreatureSkin;
         oid.LoginCreature.OnItemUse += ItemSystem.OnItemUse;
         oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipCheckThreatRange;
@@ -438,6 +438,7 @@ namespace NWN.Systems
         ApplyWoodElfSpeed();
         ApplyThieflingFireResistance();
         ApplyAasimarResistance();
+        ApplyAgresseurSauvage();
         ApplyVolee();
         ApplyMonkParade();
         InitializeMagicalSecretSelection();

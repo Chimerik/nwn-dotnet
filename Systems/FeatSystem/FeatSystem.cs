@@ -38,7 +38,8 @@ namespace NWN.Systems
         case CustomSkill.FureurOrc: FureurOrc(caster); return;
         case CustomSkill.AgressionOrc: AgressionOrc(caster, target); return;
         case CustomSkill.MeneurExaltant: MeneurExaltant(caster); return;
-        case CustomSkill.Chanceux: Chanceux(caster); return;
+        case CustomSkill.Musicien: Musicien(caster); return;
+        case CustomSkill.Chanceux: Chanceux(caster, target); return;
         case CustomSkill.MainsGuerisseuses: MainsGuerisseuses(caster, target); return;
         case CustomSkill.AilesAngeliques: AilesAngeliques(caster); return;
         case CustomSkill.InspirationHeroique: InspirationHeroique(caster); return;

@@ -22,7 +22,7 @@ namespace NWN.Systems
         else
         {
           target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHealingM));
-          target.ApplyEffect(EffectDuration.Instant, Effect.Heal(NwRandom.Roll(Utils.random, 8, 2)));
+          target.ApplyEffect(EffectDuration.Instant, Effect.Heal(Utils.Roll(8, 2)));
         }
       }
 

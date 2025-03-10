@@ -192,5 +192,8 @@ namespace NWN
     public const EffectIcon AuraDeDevotion = (EffectIcon)301;
     public const EffectIcon AuraDeGarde = (EffectIcon)302;
     public const EffectIcon InspirationHeroique = (EffectIcon)303;
+    public const EffectIcon Chanceux = (EffectIcon)304;
+    public const EffectIcon TraitEnsorcele = (EffectIcon)305;
+    public const EffectIcon AgresseurSauvage = (EffectIcon)306;
   }
 }

@@ -10,12 +10,10 @@ namespace NWN.Systems
       if (oCaster is not NwCreature caster)
         return;
 
-
-
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
 
       int fighterLevel = FighterUtils.GetFighterLevel(caster);
-      caster.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.Heal(NwRandom.Roll(Utils.random, spellEntry.damageDice) + fighterLevel), Effect.VisualEffect(VfxType.ImpHealingM)));
+      caster.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.Heal(SpellUtils.HandleHealerFeat(caster, spellEntry.damageDice) + fighterLevel), Effect.VisualEffect(VfxType.ImpHealingM)));
 
       if (caster.KnowsFeat((Feat)CustomSkill.FighterAvantageTactique))
         caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.AvantageTactique, NwTimeSpan.FromRounds(1));

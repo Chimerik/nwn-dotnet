@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using Anvil.API;
-using static NWN.Systems.PlayerSystem.Player;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -11,19 +9,8 @@ namespace NWN.Systems
       if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.AgresseurSauvage))
         player.oid.LoginCreature.AddFeat((Feat)CustomSkill.AgresseurSauvage);
 
-      List<NuiComboEntry> abilities = new();
 
-      if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Strength) < 20)
-        abilities.Add(new("Force", (int)Ability.Strength));
-
-      if (player.oid.LoginCreature.GetRawAbilityScore(Ability.Dexterity) < 20)
-        abilities.Add(new("Dextérité", (int)Ability.Dexterity));
-
-      if (abilities.Count > 0)
-      {
-        if (!player.windows.TryGetValue("abilityBonusChoice", out var value)) player.windows.Add("abilityBonusChoice", new AbilityBonusChoiceWindow(player, abilities));
-        else ((AbilityBonusChoiceWindow)value).CreateWindow(abilities);
-      }
+      EffectSystem.ApplyAgresseurSauvage(player.oid.LoginCreature);
 
       return true;
     }

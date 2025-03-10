@@ -666,6 +666,13 @@
     public const int FouleeBrumeuse = 1921;
     public const int HighElfCantrip = 1922;
 
+    public const int Vigilant = 1928;
+    public const int Healer = 1929;
+    public const int InitieArcanique = 1930;
+    public const int InitieMystique = 1931;
+    public const int InitieDruidique = 1932;
+    public const int Musicien = 1933;
+
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -1066,8 +1073,6 @@
     public const int Doue = 20512;    
     public const int MaitreDarme = 20513;
     public const int ChanceDebordante = 20514;
-        
-    public const int Healer = 20516;
 
     public const int FighterChampionBonusCombatStyle = 20517;
     public const int FighterChampionUltimeSurvivant = 20519; // 2 niveaux

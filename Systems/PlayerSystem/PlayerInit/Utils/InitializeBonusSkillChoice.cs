@@ -61,6 +61,7 @@ namespace NWN.Systems
             case CustomRace.DrowHalfElf:
             case CustomRace.HighHalfElf:
             case CustomRace.WoodHalfElf:
+            case CustomRace.Human:
 
               if (!learnableSkills.TryGetValue(CustomSkill.AcrobaticsProficiency, out LearnableSkill acrobatie) || acrobatie.currentLevel < 1)
                 skillList.Add(new NuiComboEntry("Acrobatie - Maîtrise", CustomSkill.AcrobaticsProficiency));
@@ -128,7 +129,7 @@ namespace NWN.Systems
 
             learnableSkills.TryAdd(selection, new LearnableSkill((LearnableSkill)learnableDictionary[selection], this));
             learnableSkills[selection].LevelUp(this);
-            learnableSkills[selection].source.Add(Utils.In(source, CustomRace.Drow, CustomRace.HighElf, CustomRace.WoodElf) ? Category.Race : Category.Class);
+            learnableSkills[selection].source.Add(Utils.In(source, CustomRace.Drow, CustomRace.HighElf, CustomRace.WoodElf, CustomRace.Human) ? Category.Race : Category.Class);
 
             oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_CHOICE_FEAT").Delete();
             oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_OPTION_CHOICE_FEAT").Delete();

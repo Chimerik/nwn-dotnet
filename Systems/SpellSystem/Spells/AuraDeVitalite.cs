@@ -13,13 +13,13 @@ namespace NWN.Systems
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
       oCaster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpAuraHoly));
 
-      DelayEffect(oCaster, EffectSystem.AuraDeVitalite(castingClass.SpellCastingAbility, spell), SpellUtils.GetSpellDuration(oCaster, spellEntry));
+      DelayEffect(oCaster, EffectSystem.AuraDeVitalite(castingClass.Id, spell), SpellUtils.GetSpellDuration(oCaster, spellEntry));
       DelayEffect(oCaster, EffectSystem.AuraDeVitaliteHeal, SpellUtils.GetSpellDuration(oCaster, spellEntry));
       
       return new List<NwGameObject>() { oCaster };
     }
 
-    public static void AuraDeVitaliteHeal(NwGameObject oCaster, NwSpell spell, SpellEntry spellEntry)
+    public static void AuraDeVitaliteHeal(NwGameObject oCaster)
     {
       if (oCaster is NwCreature caster)
         caster.LoginPlayer?.EnterTargetMode(SelectVitaliteHealTarget, Config.CreatureTargetMode(10, new Vector2() { X = 1, Y = 1 }));
@@ -30,7 +30,6 @@ namespace NWN.Systems
         return;
 
       NwCreature caster = selection.Player.ControlledCreature;
-
       Effect eff = caster.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.AuraDeVitaliteEffectTag);
 
       if (eff is null)
@@ -39,17 +38,8 @@ namespace NWN.Systems
       SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.AuraDeVitalite];
       SpellUtils.SignalEventSpellCast(target, caster, (Spell)CustomSpell.AuraDeVitalite, false);
 
-      int healAmount = caster.KnowsFeat((Feat)CustomSkill.ClercGuerisonSupreme) || target.ActiveEffects.Any(e => e.Tag == EffectSystem.LueurDespoirEffectTag)
-        ? (spellEntry.damageDice * spellEntry.numDice) + caster.GetAbilityModifier((Ability)eff.CasterLevel)
-        : Utils.Roll(spellEntry.damageDice, spellEntry.numDice) + caster.GetAbilityModifier((Ability)eff.CasterLevel);
-
-      if (caster.KnowsFeat((Feat)CustomSkill.ClercDiscipleDeLaVie))
-        healAmount += 5;
-
-      if (caster.KnowsFeat((Feat)CustomSkill.ClercGuerriseurBeni) && caster != target)
-        NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Instant, Effect.Heal(5)));
-
-      NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, Effect.Heal(healAmount)));
+      NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, 
+        Effect.Heal(SpellUtils.GetHealAmount(caster, target, eff.Spell, spellEntry, NwClass.FromClassId(eff.CasterLevel), spellEntry.numDice))));
 
       EffectUtils.RemoveTaggedEffect(caster, EffectSystem.AuraDeVitaliteHealEffectTag);
       caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.Cooldown(caster, 6, CustomSpell.AuraDeVitalite));

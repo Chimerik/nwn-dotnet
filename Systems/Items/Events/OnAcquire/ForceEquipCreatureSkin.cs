@@ -21,7 +21,7 @@ namespace NWN.Systems
     }
     public static async void OnAcquireForceEquipCreatureSkin(ModuleEvents.OnAcquireItem onAcquire)
     {
-      //ModuleSystem.Log.Info($"acquired : {onAcquire.Item.Name} - {onAcquire.Item.Tag} - {onAcquire.Item.ResRef}");
+      ModuleSystem.Log.Info($"acquired : {onAcquire.Item.Name} - {onAcquire.Item.Tag} - {onAcquire.Item.ResRef}");
 
       if (onAcquire.Item is not null && onAcquire.Item.Tag == "x3_it_pchide" && onAcquire.AcquiredBy is NwCreature creature)
       {

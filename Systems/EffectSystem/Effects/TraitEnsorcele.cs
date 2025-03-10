@@ -14,8 +14,9 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.RunAction(onIntervalHandle: onIntervalTraitEnsorceleCallback, interval: NwTimeSpan.FromRounds(1));
-        eff.Tag = EntraveEffectTag;
+        Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.TraitEnsorcele),
+          Effect.RunAction(onIntervalHandle: onIntervalTraitEnsorceleCallback, interval: NwTimeSpan.FromRounds(1)));
+        eff.Tag = TraitEnsorceleEffectTag;
         eff.Spell = NwSpell.FromSpellId(CustomSpell.TraitEnsorcele);
         eff.SubType = EffectSubType.Supernatural;
 
@@ -30,7 +31,7 @@ namespace NWN.Systems
       {
         if (eventData.Effect.Creator is NwCreature caster)
         {
-          var bonusAction = target.ActiveEffects.FirstOrDefault(e => e.Tag == BonusActionEffectTag);
+          var bonusAction = caster.ActiveEffects.FirstOrDefault(e => e.Tag == BonusActionEffectTag);
 
           if (bonusAction is not null)
           {
@@ -41,7 +42,9 @@ namespace NWN.Systems
               target.RemoveEffect(bonusAction);
             }
             else
-              target.RemoveEffect(eventData.Effect);
+            {
+              SpellUtils.DispelConcentrationEffects(caster);
+            }
           }
         }
         else

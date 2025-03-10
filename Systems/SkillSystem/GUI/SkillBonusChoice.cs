@@ -78,7 +78,7 @@ namespace NWN.Systems
 
                   player.learnableSkills.TryAdd(selection, new LearnableSkill((LearnableSkill)learnableDictionary[selection], player));
                   player.learnableSkills[selection].LevelUp(player);
-                  player.learnableSkills[selection].source.Add(Utils.In(sourceFeat, CustomRace.Drow, CustomRace.HighElf, CustomRace.WoodElf) ? Category.Race : Category.Class);
+                  player.learnableSkills[selection].source.Add(Utils.In(sourceFeat, CustomRace.Drow, CustomRace.HighElf, CustomRace.WoodElf, CustomRace.Human) ? Category.Race : Category.Class);
 
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_CHOICE_FEAT").Delete();
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_OPTION_CHOICE_FEAT").Delete();

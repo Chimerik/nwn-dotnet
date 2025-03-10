@@ -1380,7 +1380,7 @@ namespace NWN.Systems
           if (oCaster.ActiveEffects.Any(e => e.Tag == EffectSystem.AuraDeVitaliteEffectTag))
             concentrationTargets.AddRange(SpellSystem.AuraDeVitalite(oCaster, spell, spellEntry, castingClass));
           else
-            SpellSystem.AuraDeVitaliteHeal(oCaster, spell, spellEntry);
+            SpellSystem.AuraDeVitaliteHeal(oCaster);
           
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;

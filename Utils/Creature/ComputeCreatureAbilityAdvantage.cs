@@ -150,7 +150,12 @@ namespace NWN.Systems
       {
         switch(eff.Tag)
         {
-          case EffectSystem.InspirationBardiqueEffectTag: 
+          case EffectSystem.ChanceuxAvantageEffectTag:
+            LogUtils.LogMessage("Avantage - Chanceux", LogUtils.LogType.Combat);
+            creature.RemoveEffect(eff);
+            return true;
+
+          case EffectSystem.InspirationHeroiqueEffectTag: 
             LogUtils.LogMessage("Avantage - Inspiration Heroïque", LogUtils.LogType.Combat);
             creature.RemoveEffect(eff);
             return true;

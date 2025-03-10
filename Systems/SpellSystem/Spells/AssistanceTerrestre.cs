@@ -27,9 +27,8 @@ namespace NWN.Systems
         }
         else
         {
-          int spellEffect = NwRandom.Roll(Utils.random, spellEntry.damageDice, nbDices);
           target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHealingM));
-          NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, Effect.Heal(spellEffect)));
+          NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, Effect.Heal(SpellUtils.GetHealAmount(caster, target, spell, spellEntry, NwClass.FromClassId(CustomClass.Druid), nbDices))));
         }
       }
     }

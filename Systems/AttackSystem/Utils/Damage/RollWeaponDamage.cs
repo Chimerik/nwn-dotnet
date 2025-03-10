@@ -19,7 +19,6 @@ namespace NWN.Systems
         //+ GetBarbarianBrutalCriticalBonus(creature, attackData.m_bRangedAttack.ToBool(), isCriticalRoll);
 
       int damage = HandleWeaponDamageRerolls(creature, weapon, numDamageDice, damageDie);
-      damage = HandleSavageAttacker(creature, weapon, attackData, numDamageDice, damage, damageDie);
 
       LogUtils.LogMessage($"{(isCriticalRoll ? "Critique - " : "")}{weapon.Name.ToString()} - {numDamageDice}d{damageDie} => {damage}", LogUtils.LogType.Combat);
 

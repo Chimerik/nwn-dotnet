@@ -137,7 +137,7 @@ namespace NWN.Systems.Arena
     }
     private static void HandleBatAttack(OnCreatureDamage onAttack)
     {
-      if (!(onAttack.DamagedBy is NwCreature damager))
+      if (onAttack.DamagedBy is not NwCreature damager)
         return;
 
       damager.ApplyEffect(EffectDuration.Instant, Effect.Heal(onAttack.DamageData.GetDamageByType(DamageType.BaseWeapon)));

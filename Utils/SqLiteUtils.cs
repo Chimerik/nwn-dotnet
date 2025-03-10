@@ -32,23 +32,21 @@ namespace NWN
 
         try
         {
-          using (var connection = new SqliteConnection(Config.dbPath))
+          using var connection = new SqliteConnection(Config.dbPath);
+          connection.Open();
+
+          var command = connection.CreateCommand();
+          command.CommandText = queryString;
+
+          foreach (var param in queryParameters)
           {
-            connection.Open();
-
-            var command = connection.CreateCommand();
-            command.CommandText = queryString;
-
-            foreach (var param in queryParameters)
-            {
-              command.Parameters.AddWithValue($"${param.Key}", param.Value);
-              logString += $"${param.Key} = {param.Value} ";
-            }
-
-            //Log.Info(logString);
-
-            await command.ExecuteNonQueryAsync();
+            command.Parameters.AddWithValue($"${param.Key}", param.Value);
+            logString += $"${param.Key} = {param.Value} ";
           }
+
+          //Log.Info(logString);
+
+          await command.ExecuteNonQueryAsync();
         }
         catch (Exception e)
         {
@@ -82,30 +80,28 @@ namespace NWN
 
         try
         {
-          using (var connection = new SqliteConnection(Config.dbPath))
+          using var connection = new SqliteConnection(Config.dbPath);
+          connection.Open();
+
+          var command = connection.CreateCommand();
+          command.CommandText = queryString;
+
+          foreach (var param in queryParameters)
           {
-            connection.Open();
-
-            var command = connection.CreateCommand();
-            command.CommandText = queryString;
-
-            foreach (var param in queryParameters)
-            {
-              command.Parameters.AddWithValue($"${param[0]}", (object)param[1] ?? DBNull.Value);
-              logString += $"${param[0]} = {param[1]} ";
-            }
-
-            if(whereParameters.Count > 0)
-              logString += "Binding WHERE : ";
-
-            foreach (var param in whereParameters)
-            {
-              command.Parameters.AddWithValue($"${param[0]}", param[1]);
-              logString += $"${param[0]} = {param[1]} ";
-            }
-
-            await command.ExecuteNonQueryAsync();
+            command.Parameters.AddWithValue($"${param[0]}", (object)param[1] ?? DBNull.Value);
+            logString += $"${param[0]} = {param[1]} ";
           }
+
+          if (whereParameters.Count > 0)
+            logString += "Binding WHERE : ";
+
+          foreach (var param in whereParameters)
+          {
+            command.Parameters.AddWithValue($"${param[0]}", param[1]);
+            logString += $"${param[0]} = {param[1]} ";
+          }
+
+          await command.ExecuteNonQueryAsync();
         }
         catch (Exception e)
         {

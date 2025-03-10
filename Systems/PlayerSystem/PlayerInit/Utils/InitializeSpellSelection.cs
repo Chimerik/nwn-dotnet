@@ -14,10 +14,11 @@ namespace NWN.Systems
           SpellSchool school = (SpellSchool)oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_SCHOOL_SELECTION").Value;
           int nbSpells = oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_SELECTION").Value;
           int nbCantrips = oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CANTRIP_SELECTION").Value;
+          string windowTag = school == SpellSchool.Unknown ? "spellSelection" : "schoolSpellSelection";
 
           if (nbSpells > 0)
           {
-            if (!windows.TryGetValue("spellSelection", out var spell)) windows.Add("spellSelection", new SpellSelectionWindow(this, classType, nbSpells, school));
+            if (!windows.TryGetValue(windowTag, out var spell)) windows.Add(windowTag, new SpellSelectionWindow(this, classType, nbSpells, school));
             else ((SpellSelectionWindow)spell).CreateWindow(classType, nbSpells, school);
           }
 

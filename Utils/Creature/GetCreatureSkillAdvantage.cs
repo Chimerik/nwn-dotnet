@@ -7,10 +7,20 @@ namespace NWN.Systems
   {
     public static int GetCreatureSkillAdvantage(NwCreature creature, int skill)
     {
-      if(creature.ActiveEffects.Any(e => e.Tag == EffectSystem.InspirationHeroiqueEffectTag))
+      foreach(var eff in creature.ActiveEffects)
       {
-        LogUtils.LogMessage("Avantage - Inspiration Heroïque", LogUtils.LogType.Combat);
-        EffectUtils.RemoveTaggedEffect(creature, EffectSystem.InspirationHeroiqueEffectTag);
+        switch(eff.Tag)
+        {
+          case EffectSystem.InspirationHeroiqueEffectTag:
+            creature.RemoveEffect(eff);
+            LogUtils.LogMessage("Avantage - Inspiration Heroïque", LogUtils.LogType.Combat);
+            return 1;
+
+          case EffectSystem.ChanceuxAvantageEffectTag:
+            creature.RemoveEffect(eff);
+            LogUtils.LogMessage("Avantage - Chanceux", LogUtils.LogType.Combat);
+            return 1;
+        }
       }
 
       return skill switch

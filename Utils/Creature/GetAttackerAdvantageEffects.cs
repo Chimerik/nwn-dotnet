@@ -14,6 +14,7 @@ namespace NWN.Systems
 
         switch(tag)
         {
+          case EffectSystem.ChanceuxAvantageEffectTag: LogUtils.LogMessage("Avantage - Chanceux", LogUtils.LogType.Combat); attacker.RemoveEffect(eff); return true;
           case EffectSystem.InspirationHeroiqueEffectTag: LogUtils.LogMessage("Avantage - Inspiration Héroïque", LogUtils.LogType.Combat); attacker.RemoveEffect(eff); return true;
           case EffectSystem.ViseeStableEffectTag: GetViseeStableAdvantage(eff, attacker); return true; 
           case EffectSystem.AttaquesEtudieesEffectTag: return GetAttaquesEtudieesAdvantage(eff, attacker, target); 
