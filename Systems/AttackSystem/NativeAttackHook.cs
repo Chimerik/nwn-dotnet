@@ -450,15 +450,19 @@ namespace NWN.Systems
 
           sneakAttack = NativeUtils.GetSneakAttackDamage(attacker, targetCreature, attackWeapon, attackData, combatRound);
           baseDamage += sneakAttack;
+
+          attacker.m_ScriptVars.SetInt(CreatureUtils.BaseWeaponDamageTypeVariableExo, (int)baseWeapon.WeaponType.FirstOrDefault());
         }
         else
         {
           baseDamage += NativeUtils.GetUnarmedDamage(attacker, targetCreature, damageAbility, bCritical.ToBool());
+          attacker.m_ScriptVars.SetInt(CreatureUtils.BaseWeaponDamageTypeVariableExo, (int)Anvil.API.DamageType.Bludgeoning);
         }
       }
       else
       {
         baseDamage += NativeUtils.GetUnarmedDamage(attacker, targetCreature, damageAbility, bCritical.ToBool());
+        attacker.m_ScriptVars.SetInt(CreatureUtils.BaseWeaponDamageTypeVariableExo, (int)Anvil.API.DamageType.Bludgeoning);
       }
 
       if (bCritical > 0)

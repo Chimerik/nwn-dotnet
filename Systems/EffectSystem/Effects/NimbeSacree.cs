@@ -10,16 +10,14 @@ namespace NWN.Systems
     public const string NimbeSacreeAuraEffectTag = "_NIMBE_SACREE_AURA_EFFECT";
     private static ScriptCallbackHandle onIntervalNimbeSacreeCallback;
     
-    public static Effect NimbeSacree
+    public static Effect NimbeSacree(NwCreature caster)
     {
-      get
-      {
-        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurLightWhite20),
-          Effect.AreaOfEffect(PersistentVfxType.MobHorrificappearance, heartbeatHandle: onIntervalNimbeSacreeCallback));
-        eff.Tag = NimbeSacreeAuraEffectTag;
-        eff.SubType = EffectSubType.Supernatural;
-        return eff;
-      }
+      Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurLightWhite20),
+        Effect.AreaOfEffect(PersistentVfxType.PerCustomAoe, heartbeatHandle: onIntervalNimbeSacreeCallback));
+      eff.Tag = NimbeSacreeAuraEffectTag;
+      eff.SubType = EffectSubType.Supernatural;
+      eff.Creator = caster;
+      return eff;
     }
     private static ScriptHandleResult OnIntervalNimbeSacree(CallInfo callInfo)
     {

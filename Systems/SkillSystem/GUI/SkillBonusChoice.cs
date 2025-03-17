@@ -43,7 +43,7 @@ namespace NWN.Systems
 
           NuiRect savedRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(player.guiScaledWidth * 0.7f, player.guiHeight * 0.15f, player.guiScaledWidth * 0.3f, player.guiScaledHeight * 0.18f);
 
-          window = new NuiWindow(rootColumn, $"{learnableDictionary[source].name} - Choisissez une maîtrise")
+          window = new NuiWindow(rootColumn, "Maîtrise de compétence supplémentaire")
           {
             Geometry = geometry,
             Resizable = false,

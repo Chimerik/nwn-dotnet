@@ -13,9 +13,9 @@ namespace NWN.Systems
 
       if (oCaster is NwCreature caster)
       {
-        if (caster.Gold > 299)
-        {
-          caster.Gold -= 300;
+        //if (caster.Gold > 299)
+        //{
+          //caster.Gold -= 300;
 
           SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
 
@@ -38,9 +38,9 @@ namespace NWN.Systems
           summon.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonUndead));
           
           concentrationList.Add(summon);
-        }
-        else
-          caster.LoginPlayer?.SendServerMessage("Vous devez disposer de 300 po pour faire usage de ce sort");
+        //}
+        //else
+          //caster.LoginPlayer?.SendServerMessage("Vous devez disposer de 300 po pour faire usage de ce sort");
       }
 
       return concentrationList;
@@ -83,7 +83,7 @@ namespace NWN.Systems
       weapon.AddItemProperty(ItemProperty.DamageBonus(IPDamageType.Slashing, IPDamageBonus.Plus1d6), EffectDuration.Permanent);
       weapon.AddItemProperty(ItemProperty.DamageBonus(IPDamageType.Slashing, IPDamageBonus.Plus6), EffectDuration.Permanent);
 
-      summon.ApplyEffect(EffectDuration.Permanent, EffectSystem.AuraPutride(caster, SpellUtils.GetCasterSpellDC(caster, casterClass.SpellCastingAbility)));
+      summon.ApplyEffect(EffectDuration.Permanent, EffectSystem.AuraPutride(summon, SpellUtils.GetCasterSpellDC(caster, casterClass.SpellCastingAbility)));
       summon.OnCreatureAttack += OnAttackPutridSpirit;
 
       return summon;

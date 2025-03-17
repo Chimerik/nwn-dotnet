@@ -16,6 +16,9 @@ namespace NWN.Systems
 
           nbPreparableSpells += 3 + classLevel;
 
+          if (classLevel > 4)
+            nbPreparableSpells += 1;
+
           if (classLevel > 8)
             nbPreparableSpells += 1;
 
@@ -27,7 +30,8 @@ namespace NWN.Systems
         case CustomClass.Paladin:
         case CustomClass.Ranger:
 
-          nbPreparableSpells += 2 + classLevel;
+
+          nbPreparableSpells += 1 + classLevel;
 
           if (classLevel > 5)
             nbPreparableSpells -= 1;
@@ -50,6 +54,9 @@ namespace NWN.Systems
           if (classLevel > 15)
             nbPreparableSpells -= 1;
 
+          if (classLevel > 16)
+            nbPreparableSpells += 1;
+
           if (classLevel > 17)
             nbPreparableSpells -= 1;
 
@@ -61,6 +68,9 @@ namespace NWN.Systems
         default: // default = Cleric et druid !
 
           nbPreparableSpells += 3 + classLevel;
+
+          if (classLevel > 4)
+            nbPreparableSpells += 1;
 
           if (classLevel > 8)
             nbPreparableSpells += 1;

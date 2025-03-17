@@ -2,7 +2,6 @@
 using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
-using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -14,8 +13,7 @@ namespace NWN.Systems
     
     public static Effect AngeDeLaVengeance(NwCreature caster)
     {
-      Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.ImpAuraNegativeEnergy, fScale:2),
-        Effect.AreaOfEffect(PersistentVfxType.PerCustomAoe, onEnterHandle: onEnterAngeDeLaVengeanceCallback, heartbeatHandle: onIntervalAngeDeLaVengeanceCallback));
+      Effect eff = Effect.AreaOfEffect(PersistentVfxType.PerCustomAoe, onEnterHandle: onEnterAngeDeLaVengeanceCallback, heartbeatHandle: onIntervalAngeDeLaVengeanceCallback);
       eff.Tag = AngeDeLaVengeanceAuraEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       eff.Creator = caster;

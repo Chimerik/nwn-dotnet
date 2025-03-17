@@ -16,7 +16,7 @@ namespace NWN.Systems
     public static Effect BarbarianRage(NwCreature caster, NwSpell spell)
     {
       int level = caster.GetClassInfo((ClassType)CustomClass.Barbarian).Level;
-      Effect eff = Effect.LinkEffects(ResistanceContondant, ResistancePercant, ResistanceTranchant,
+      Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.RageDuSanglier), ResistanceContondant, ResistancePercant, ResistanceTranchant,
         Effect.RunAction(onRemovedHandle: onRemoveBarbarianRageCallback, onIntervalHandle: onIntervalBarbarianRageCallback, interval: NwTimeSpan.FromRounds(1)));
 
       switch(spell.Id)

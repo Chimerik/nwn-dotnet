@@ -188,7 +188,7 @@ namespace NWN.Systems
         oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipCancelIfInventoryFull;
         oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipCancelIfInventoryFull;
         oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipOffHandWeapon;
-        oid.LoginCreature.OnItemEquip += ItemSystem.OnEquipCheckArmorShieldProficiency;
+        oid.OnPlayerEquipItem += ItemSystem.OnEquipCheckArmorShieldProficiency;
         oid.OnPlayerUnequipItem += ItemSystem.OnUnEquipCheckArmorShieldProficiency;
         //oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireForceEquipCreatureSkin;
         //oid.LoginCreature.OnItemUnequip += ItemSystem.OnUnEquipForceEquipCreatureSkin;

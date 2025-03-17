@@ -15,7 +15,8 @@ namespace NWN.Systems
         return;
 
       NwCreature damager = onDamage.DamagedBy is NwCreature tempDamager ? tempDamager : null;
-      int baseDamage = onDamage.DamageData.GetDamageByType(DamageType.BaseWeapon);
+      var damageData = onDamage.DamageData;
+      int baseDamage = damageData.GetDamageByType(DamageType.BaseWeapon);
       bool isWeaponAttack = baseDamage > -1;
       int totalDamage = 0;
       int nbDice = 0;
@@ -24,7 +25,7 @@ namespace NWN.Systems
       if (isWeaponAttack)
       {
         if (Utils.In(onDamage.DamagedBy.ResRef, "undeadspiritskel", "loupcompagnon"))
-          NativeUtils.ReplaceWeaponDamage(onDamage.DamageData, CustomDamageType.Necrotic);
+          NativeUtils.ReplaceWeaponDamage(damageData, CustomDamageType.Necrotic);
 
         if (damager is not null)
         {
@@ -36,9 +37,9 @@ namespace NWN.Systems
             {
               switch (pactWeapon.GetObjectVariable<LocalVariableInt>(PacteDeLaLameVariable).Value)
               {
-                case CustomSpell.PacteDeLaLameRadiant: NativeUtils.ReplaceWeaponDamage(onDamage.DamageData, DamageType.Divine); break;
-                case CustomSpell.PacteDeLaLameNecrotique: NativeUtils.ReplaceWeaponDamage(onDamage.DamageData, CustomDamageType.Necrotic); break;
-                case CustomSpell.PacteDeLaLamePsychique: NativeUtils.ReplaceWeaponDamage(onDamage.DamageData, CustomDamageType.Psychic); break;
+                case CustomSpell.PacteDeLaLameRadiant: NativeUtils.ReplaceWeaponDamage(damageData, DamageType.Divine); break;
+                case CustomSpell.PacteDeLaLameNecrotique: NativeUtils.ReplaceWeaponDamage(damageData, CustomDamageType.Necrotic); break;
+                case CustomSpell.PacteDeLaLamePsychique: NativeUtils.ReplaceWeaponDamage(damageData, CustomDamageType.Psychic); break;
               }
 
               foreach (var eff in damager.ActiveEffects)
@@ -73,7 +74,7 @@ namespace NWN.Systems
                         damage += roll;
                       }
 
-                      NativeUtils.AddWeaponDamage(onDamage.DamageData, DamageType.Magical, damage);
+                      NativeUtils.AddWeaponDamage(damageData, DamageType.Magical, damage);
                       EffectSystem.ApplyKnockdown(target, damager);
 
                       EffectUtils.RemoveTaggedEffect(damager, EffectSystem.ChatimentOcculteEffectTag);
@@ -98,7 +99,7 @@ namespace NWN.Systems
                     NWScript.AssignCommand(damager, () => damager.ApplyEffect(EffectDuration.Instant,
                       Effect.Heal(Utils.Roll(6) + GetAbilityModifierMin1(damager, Ability.Constitution))));
 
-                    NativeUtils.AddWeaponDamage(onDamage.DamageData, damageType, Utils.Roll(6, 1 + damager.GetObjectVariable<LocalVariableInt>(CriticalHitVariable).HasValue.ToInt()));
+                    NativeUtils.AddWeaponDamage(damageData, damageType, Utils.Roll(6, 1 + damager.GetObjectVariable<LocalVariableInt>(CriticalHitVariable).HasValue.ToInt()));
 
                     EffectUtils.RemoveTaggedEffect(damager, EffectSystem.BuveuseDeVieEffectTag);
 
@@ -124,7 +125,7 @@ namespace NWN.Systems
                   NwItem shillelaghWeapon = damager.GetItemInSlot(InventorySlot.RightHand);
 
                   if (shillelaghWeapon is not null && Utils.In(shillelaghWeapon.BaseItem.ItemType, BaseItemType.Club, BaseItemType.Quarterstaff, BaseItemType.MagicStaff))
-                    NativeUtils.ReplaceWeaponDamage(onDamage.DamageData, DamageType.Magical);
+                    NativeUtils.ReplaceWeaponDamage(damageData, DamageType.Magical);
                 }
 
                 break;
@@ -158,7 +159,7 @@ namespace NWN.Systems
                     damage += roll;
                   }
 
-                  NativeUtils.AddWeaponDamage(onDamage.DamageData, DamageType.Divine, damage);
+                  NativeUtils.AddWeaponDamage(damageData, DamageType.Divine, damage);
 
                   LogUtils.LogMessage($"Châtiment Divin - {nbDice}d8 : {logString.Remove(logString.Length - 2)} = {damage}", LogUtils.LogType.Combat);
 
@@ -180,7 +181,7 @@ namespace NWN.Systems
                   if (damager.GetObjectVariable<LocalVariableInt>(CriticalHitVariable).HasValue)
                     nbDice *= 2;
 
-                  NativeUtils.AddWeaponDamage(onDamage.DamageData, eff.Spell.Id == CustomSpell.FrappeDivineNecrotique ? CustomDamageType.Necrotic : DamageType.Divine,
+                  NativeUtils.AddWeaponDamage(damageData, eff.Spell.Id == CustomSpell.FrappeDivineNecrotique ? CustomDamageType.Necrotic : DamageType.Divine,
                     Utils.Roll(8, nbDice));
 
                   EffectUtils.RemoveTaggedEffect(damager, EffectSystem.FrappeDivineEffectTag);
@@ -194,7 +195,7 @@ namespace NWN.Systems
               case EffectSystem.FrappesRenforceesEffectTag:
 
                 if (damager.GetItemInSlot(InventorySlot.RightHand) is null)
-                  NativeUtils.ReplaceWeaponDamage(onDamage.DamageData, DamageType.Magical);
+                  NativeUtils.ReplaceWeaponDamage(damageData, DamageType.Magical);
 
                 break;
 
@@ -203,7 +204,7 @@ namespace NWN.Systems
                 nbDice = damager.GetObjectVariable<LocalVariableInt>(CriticalHitVariable).HasValue ? 4 : 2;
                 int damageDice = damager.KnowsFeat((Feat)CustomSkill.TraqueurRafale) ? 8 : 6;
 
-                NativeUtils.AddWeaponDamage(onDamage.DamageData, CustomDamageType.Psychic, Utils.Roll(damageDice, nbDice));
+                NativeUtils.AddWeaponDamage(damageData, CustomDamageType.Psychic, Utils.Roll(damageDice, nbDice));
 
                 NWScript.AssignCommand(damager, () => damager.ApplyEffect(EffectDuration.Temporary,
                   EffectSystem.Cooldown(damager, 6, CustomSkill.ProfondeursFrappeRedoutable), TimeSpan.FromSeconds(5)));
@@ -217,7 +218,7 @@ namespace NWN.Systems
                 if (target.HP < target.MaxHP)
                 {
                   nbDice = damager.GetObjectVariable<LocalVariableInt>(CriticalHitVariable).HasValue ? 2 : 1;
-                  NativeUtils.AddWeaponDamage(onDamage.DamageData, DamageType.BaseWeapon, Utils.Roll(8, nbDice));
+                  NativeUtils.AddWeaponDamage(damageData, DamageType.BaseWeapon, Utils.Roll(8, nbDice));
 
                   NWScript.AssignCommand(damager, () => damager.ApplyEffect(EffectDuration.Temporary,
                     EffectSystem.Cooldown(damager, 6, CustomSkill.ChasseurProie, NwSpell.FromSpellId(CustomSpell.PourfendeurDeColosses)), NwTimeSpan.FromRounds(1)));
@@ -233,7 +234,7 @@ namespace NWN.Systems
                 var duration = SpellUtils.GetSpellDuration(damager, spellEntry);
                 nbDice = damager.GetObjectVariable<LocalVariableInt>(CriticalHitVariable).HasValue ? 4 : 2;
 
-                NativeUtils.AddWeaponDamage(onDamage.DamageData, DamageType.Divine, Utils.Roll(6, nbDice));
+                NativeUtils.AddWeaponDamage(damageData, DamageType.Divine, Utils.Roll(6, nbDice));
                 NWScript.AssignCommand(damager, () => target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpDivineStrikeHoly)));
                 NWScript.AssignCommand(damager, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.brandingSmiteReveal, duration));
 
@@ -256,7 +257,7 @@ namespace NWN.Systems
 
                 nbDice = damager.GetObjectVariable<LocalVariableInt>(CriticalHitVariable).HasValue ? 2 : 1;
 
-                NativeUtils.AddWeaponDamage(onDamage.DamageData, DamageType.Fire, Utils.Roll(6, nbDice));
+                NativeUtils.AddWeaponDamage(damageData, DamageType.Fire, Utils.Roll(6, nbDice));
 
                 NWScript.AssignCommand(damager, () => target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpFlameS)));
                 NWScript.AssignCommand(damager, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.searingSmiteBurn, NwTimeSpan.FromRounds(Spells2da.spellTable[CustomSpell.SearingSmite].duration)));
@@ -274,28 +275,59 @@ namespace NWN.Systems
       else
         isSurcharge = damager is not null && damager.ActiveEffects.Any(e => e.Tag == EffectSystem.EvocateurSurchargeEffectTag);
 
+      if(damageData.GetDamageByType(DamageType.BaseWeapon) > 0)
+      {
+        DamageType weaponDamageType = (DamageType)damager.GetObjectVariable<LocalVariableInt>(BaseWeaponDamageTypeVariable).Value;
+        var damage = damageData.GetDamageByType(DamageType.BaseWeapon);
+
+        if (target.ActiveEffects.Any(e => e.IntParams[0] == EffectUtils.GetImmunityEffectTagByDamageType(weaponDamageType)))
+        {
+          totalDamage -= damage;
+          damageData.SetDamageByType(DamageType.BaseWeapon, 0);
+          LogUtils.LogMessage($"{target.Name} immunisé aux dégâts {weaponDamageType}", LogUtils.LogType.Combat);
+        }
+        else
+        {
+          if (target.ActiveEffects.Any(e => e.IntParams[0] == EffectUtils.GetVulnerabilityEffectTagByDamageType(weaponDamageType)))
+          {
+            damageData.SetDamageByType(DamageType.BaseWeapon, damage * 2);
+            LogUtils.LogMessage($"{target.Name} vulnérable aux dégâts {weaponDamageType} : {damage} * 2 = {damageData.GetDamageByType(DamageType.BaseWeapon)}", LogUtils.LogType.Combat);
+          }
+
+          if (target.ActiveEffects.Any(e => e.IntParams[0] == EffectUtils.GetResistanceEffectTagByDamageType(weaponDamageType)))
+          {
+            damageData.SetDamageByType(DamageType.BaseWeapon, damage / 2);
+            LogUtils.LogMessage($"{target.Name} résistant aux dégâts {weaponDamageType} : {damage} / 2 = {damageData.GetDamageByType(DamageType.BaseWeapon)}", LogUtils.LogType.Combat);
+          }
+        }
+      }
+
       foreach (DamageType damageType in (DamageType[])Enum.GetValues(typeof(DamageType)))
       {
-        var damage = onDamage.DamageData.GetDamageByType(damageType);
+        var damage = damageData.GetDamageByType(damageType);
 
         if (damage > 0)
         {
           if (!isSurcharge && target.ActiveEffects.Any(e => e.IntParams[0] == EffectUtils.GetImmunityEffectTagByDamageType(damageType)))
           {
-            onDamage.DamageData.SetDamageByType(damageType, 0);
+            totalDamage -= damage;
+            damageData.SetDamageByType(damageType, 0);
+            LogUtils.LogMessage($"{target.Name} immunisé aux dégâts {damageType}", LogUtils.LogType.Combat);
             continue;
           }
 
           if (target.ActiveEffects.Any(e => e.IntParams[0] == EffectUtils.GetVulnerabilityEffectTagByDamageType(damageType)))
           {
+            LogUtils.LogMessage($"{target.Name} vulnérable aux dégâts {damageType} : {damage} * 2 = {damage * 2}", LogUtils.LogType.Combat);
             damage *= 2;
-            onDamage.DamageData.SetDamageByType(damageType, damage);
+            damageData.SetDamageByType(damageType, damage);
           }
 
           if (!isSurcharge && target.ActiveEffects.Any(e => e.IntParams[0] == EffectUtils.GetResistanceEffectTagByDamageType(damageType)))
           {
+            LogUtils.LogMessage($"{target.Name} vulnérable aux dégâts {damageType} : {damage} / 2 = {damage / 2}", LogUtils.LogType.Combat);
             damage /= 2;
-            onDamage.DamageData.SetDamageByType(damageType, damage);
+            damageData.SetDamageByType(damageType, damage);
           }
 
           totalDamage += damage;
@@ -315,14 +347,14 @@ namespace NWN.Systems
 
             switch (eff.Spell.Id)
             {
-              case CustomSpell.ResistanceContondant: totalDamage -= ApplyResistanceReduction(onDamage.DamageData, DamageType.Bludgeoning, target, eff.Spell); break;
-              case CustomSpell.ResistanceAcide: totalDamage -= ApplyResistanceReduction(onDamage.DamageData, DamageType.Acid, target, eff.Spell); break;
-              case CustomSpell.ResistanceElec: totalDamage -= ApplyResistanceReduction(onDamage.DamageData, DamageType.Electrical, target, eff.Spell); break;
-              case CustomSpell.ResistanceFeu: totalDamage -= ApplyResistanceReduction(onDamage.DamageData, DamageType.Fire, target, eff.Spell); break;
-              case CustomSpell.ResistanceFroid: totalDamage -= ApplyResistanceReduction(onDamage.DamageData, DamageType.Cold, target, eff.Spell); break;
-              case CustomSpell.ResistancePercant: totalDamage -= ApplyResistanceReduction(onDamage.DamageData, DamageType.Piercing, target, eff.Spell); break;
-              case CustomSpell.ResistanceTranchant: totalDamage -= ApplyResistanceReduction(onDamage.DamageData, DamageType.Slashing, target, eff.Spell); break;
-              case CustomSpell.ResistancePoison: totalDamage -= ApplyResistanceReduction(onDamage.DamageData, DamageType.Custom1, target, eff.Spell); break;
+              case CustomSpell.ResistanceContondant: totalDamage -= ApplyResistanceReduction(damageData, DamageType.Bludgeoning, target, eff.Spell); break;
+              case CustomSpell.ResistanceAcide: totalDamage -= ApplyResistanceReduction(damageData, DamageType.Acid, target, eff.Spell); break;
+              case CustomSpell.ResistanceElec: totalDamage -= ApplyResistanceReduction(damageData, DamageType.Electrical, target, eff.Spell); break;
+              case CustomSpell.ResistanceFeu: totalDamage -= ApplyResistanceReduction(damageData, DamageType.Fire, target, eff.Spell); break;
+              case CustomSpell.ResistanceFroid: totalDamage -= ApplyResistanceReduction(damageData, DamageType.Cold, target, eff.Spell); break;
+              case CustomSpell.ResistancePercant: totalDamage -= ApplyResistanceReduction(damageData, DamageType.Piercing, target, eff.Spell); break;
+              case CustomSpell.ResistanceTranchant: totalDamage -= ApplyResistanceReduction(damageData, DamageType.Slashing, target, eff.Spell); break;
+              case CustomSpell.ResistancePoison: totalDamage -= ApplyResistanceReduction(damageData, DamageType.Custom1, target, eff.Spell); break;
             }
 
             break;
@@ -336,7 +368,7 @@ namespace NWN.Systems
 
             foreach (DamageType damageType in (DamageType[])Enum.GetValues(typeof(DamageType)))
             {
-              var damage = onDamage.DamageData.GetDamageByType(damageType);
+              var damage = damageData.GetDamageByType(damageType);
 
               if(damage > 0)
               {
@@ -344,12 +376,12 @@ namespace NWN.Systems
 
                 if(damage > wardIntensity)
                 {
-                  onDamage.DamageData.SetDamageByType(damageType, damage - wardIntensity);
+                  damageData.SetDamageByType(damageType, damage - wardIntensity);
                   break;
                 }
                 else
                 {
-                  onDamage.DamageData.SetDamageByType(damageType, -1);
+                  damageData.SetDamageByType(damageType, -1);
                   wardIntensity -= damage;
                 }
               }
@@ -364,7 +396,7 @@ namespace NWN.Systems
 
       if (damager is not null)
       {
-        int baseWeaponDamage = onDamage.DamageData.GetDamageByType(DamageType.BaseWeapon);
+        int baseWeaponDamage = damageData.GetDamageByType(DamageType.BaseWeapon);
 
         if (isWeaponAttack && baseWeaponDamage > 0)
         {
@@ -379,7 +411,7 @@ namespace NWN.Systems
                 int spellDC = SpellUtils.GetCasterSpellDC(target, Ability.Charisma);
                 int reducedDamage = baseWeaponDamage / 2;
                 totalDamage -= reducedDamage;
-                onDamage.DamageData.SetDamageByType(DamageType.BaseWeapon, reducedDamage);
+                damageData.SetDamageByType(DamageType.BaseWeapon, reducedDamage);
 
                 LogUtils.LogMessage($"Defenses Enjoleuses - Dégâts initiaux : {baseWeaponDamage} / 2 = {reducedDamage}", LogUtils.LogType.Combat);
                 StringUtils.DisplayStringToAllPlayersNearTarget(target, "Défenses Enjôleuses", ColorConstants.Pink, true, true);
@@ -413,7 +445,7 @@ namespace NWN.Systems
         }
         else
         {
-          int psyDamage = onDamage.DamageData.GetDamageByType(CustomDamageType.Psychic);
+          int psyDamage = damageData.GetDamageByType(CustomDamageType.Psychic);
 
           if (psyDamage > 0 && target.ActiveEffects.Any(e => e.Tag == EffectSystem.BouclierPsychiqueEffectTag))
           {

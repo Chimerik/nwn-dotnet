@@ -17,6 +17,10 @@ namespace NWN.Systems
       {
         onEquip.PreventEquip = true;
         oPC.LoginPlayer?.SendServerMessage("Vous ne pouvez pas équiper d'armure lourde sous l'effet de rage", ColorConstants.Red);
+
+        if(!ItemUtils.CheckArmorShieldProficiency(oPC, oPC.GetItemInSlot(InventorySlot.LeftHand)) && 
+          !ItemUtils.CheckArmorShieldProficiency(oPC, oPC.GetItemInSlot(InventorySlot.Chest)))
+          EffectUtils.RemoveTaggedEffect(oPC, EffectSystem.ShieldArmorDisadvantageEffectTag);
       }
     }
   }

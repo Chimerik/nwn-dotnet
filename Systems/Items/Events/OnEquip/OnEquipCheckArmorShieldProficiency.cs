@@ -1,14 +1,13 @@
-﻿using System.Collections.Generic;
-using Anvil.API;
+﻿using Anvil.API;
 using Anvil.API.Events;
 
 namespace NWN.Systems
 {
   public partial class ItemSystem
   {
-    public static void OnEquipCheckArmorShieldProficiency(OnItemEquip onEquip)
+    public static void OnEquipCheckArmorShieldProficiency(ModuleEvents.OnPlayerEquipItem onEquip)
     {
-      NwCreature oPC = onEquip.EquippedBy;
+      NwCreature oPC = onEquip.Player;
       NwItem oItem = onEquip.Item;
       NwItem swappedItem = oPC.GetItemInSlot(onEquip.Slot);
 

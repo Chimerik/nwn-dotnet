@@ -23,15 +23,17 @@ namespace NWN.Systems
 
     private static ScriptHandleResult onHeartbeatAuraPutride(CallInfo callInfo)
     {
-      if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnHeartbeat eventData) && eventData.Effect.Creator is NwCreature caster)
+      if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnHeartbeat eventData) && eventData.Effect.Creator is NwCreature summon)
       {
+        NwCreature dcSource = summon.Master is null ? summon : summon.Master;
+
         foreach(NwCreature target in eventData.Effect.GetObjectsInEffectArea<NwCreature>())
         {
-          if (target == caster || target == caster.Master)
+          if (target == summon)
             continue;
 
-          if (CreatureUtils.GetSavingThrow(caster, target, Ability.Constitution, eventData.Effect.CasterLevel) == SavingThrowResult.Failure)
-            ApplyPoison(target, caster, NwTimeSpan.FromRounds(1), Ability.Constitution, noSave: true);
+          if (CreatureUtils.GetSavingThrow(dcSource, target, Ability.Constitution, eventData.Effect.CasterLevel) == SavingThrowResult.Failure)
+            ApplyPoison(target, dcSource, NwTimeSpan.FromRounds(1), Ability.Constitution, noSave: true);
         }
       }
 

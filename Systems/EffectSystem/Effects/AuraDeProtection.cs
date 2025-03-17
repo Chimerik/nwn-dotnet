@@ -2,7 +2,6 @@
 using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
-using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -15,7 +14,7 @@ namespace NWN.Systems
 
     public static Effect AuraDeProtection(NwCreature caster, int paladinLevel)
     {
-      Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.ImpAuraHoly, fScale: paladinLevel < 18 ? 0.9f : 1.9f),
+      Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.ImpAuraHoly, fScale: paladinLevel < 18 ? 0.8f : 1.9f),
         Effect.AreaOfEffect(PersistentVfxType.PerCustomAoe, onEnterHandle: onEnterAuraDeProtectionCallback, onExitHandle: onExitAuraDeProtectionCallback));
 
       eff.Tag = AuraDeProtectionEffectTag;
@@ -28,11 +27,10 @@ namespace NWN.Systems
     {
       if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) || eventData.Entering is not NwCreature entering 
         || eventData.Effect.Creator is not NwCreature protector || protector.HP < 1
-        || entering.IsReactionTypeHostile(protector) || entering.ActiveEffects.Any(e => e.Tag == ProtectionEffectTag))
+        || protector.IsReactionTypeHostile(entering) || entering.ActiveEffects.Any(e => e.Tag == ProtectionEffectTag))
         return ScriptHandleResult.Handled;
 
       Effect eff = Effect.Icon(CustomEffectIcon.AuraDeProtection);
-
       if (protector.KnowsFeat((Feat)CustomSkill.PaladinAuraDeDevotion))
       {
         eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.AuraDeDevotion), GetCharmImmunityEffect(ProtectionEffectTag));
@@ -40,7 +38,9 @@ namespace NWN.Systems
         EffectUtils.RemoveTaggedEffect(entering, CharmEffectTag);
       }
       else if (protector.KnowsFeat((Feat)CustomSkill.PaladinAuraDeGarde))
-        eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.AuraDeGarde), ResistanceRadiant, ResistanceNecrotique, ResistancePsychique);
+      {
+        eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.AuraDeGarde), ResistanceRadiant, ResistanceNecrotique, ResistancePsychique, Effect.RunAction());
+      }
       else if (protector.KnowsFeat((Feat)CustomSkill.AuraDeCourage))
         eff = Effect.Icon(CustomEffectIcon.AuraDeCourage);
 
@@ -52,10 +52,11 @@ namespace NWN.Systems
       }
 
       eff.Tag = ProtectionEffectTag;
+      eff.Creator = protector;
       eff.CasterLevel = CreatureUtils.GetAbilityModifierMin1(protector, Ability.Charisma);
       eff.SubType = EffectSubType.Supernatural;
 
-      NWScript.AssignCommand(protector, () => entering.ApplyEffect(EffectDuration.Permanent, eff));
+      entering.ApplyEffect(EffectDuration.Permanent, eff);
 
       return ScriptHandleResult.Handled;
     }

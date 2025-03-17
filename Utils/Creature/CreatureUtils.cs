@@ -18,6 +18,8 @@ namespace NWN.Systems
     public const string CancelDamageDoublonVariable = "_CANCEL_DAMAGE_DOUBLON";
     public const string CriticalHitVariable = "_CRITICAL_HIT";
     public static readonly CExoString CriticalHitVariableExo = CriticalHitVariable.ToExoString();
+    public const string BaseWeaponDamageTypeVariable = "_BASE_WEAPON_DAMAGE_TYPE";
+    public static readonly CExoString BaseWeaponDamageTypeVariableExo = BaseWeaponDamageTypeVariable.ToExoString();
     public const string AnimalCompanionTag = "animal_companion";
     public static readonly CExoString AnimalCompanionTagExo = AnimalCompanionTag.ToExoString();
     public static readonly CExoString CancelDamageDoublonVariableExo = CancelDamageDoublonVariable.ToExoString();

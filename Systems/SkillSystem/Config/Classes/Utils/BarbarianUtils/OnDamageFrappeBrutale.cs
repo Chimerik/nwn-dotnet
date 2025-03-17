@@ -20,8 +20,8 @@ namespace NWN.Systems
         switch (frappe.CasterLevel)
         {
           case CustomSkill.FrappeBrutale:
-            caster.ApplyEffect(EffectDuration.Temporary, Effect.MovementSpeedIncrease(25));
-            target.ApplyEffect(EffectDuration.Temporary, Effect.MovementSpeedDecrease(50));
+            caster.ApplyEffect(EffectDuration.Temporary, Effect.MovementSpeedIncrease(25), NwTimeSpan.FromRounds(1));
+            target.ApplyEffect(EffectDuration.Temporary, Effect.MovementSpeedDecrease(50), NwTimeSpan.FromRounds(1));
             break;
 
           case CustomSkill.FrappeSiderante:
