@@ -195,5 +195,6 @@ namespace NWN
     public const EffectIcon Chanceux = (EffectIcon)304;
     public const EffectIcon TraitEnsorcele = (EffectIcon)305;
     public const EffectIcon AgresseurSauvage = (EffectIcon)306;
+    public const EffectIcon ProtectionContreLaMort = (EffectIcon)307;
   }
 }

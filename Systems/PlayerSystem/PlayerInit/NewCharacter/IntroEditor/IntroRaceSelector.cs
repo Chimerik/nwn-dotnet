@@ -307,7 +307,7 @@ namespace NWN.Systems
           }
 
           player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(EffectSystem.EnduranceImplacableVariable).Delete();
-          player.oid.LoginCreature.OnDamaged -= CreatureUtils.HandleImplacableEndurance;
+
 
           player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.MageHand);
           player.oid.LoginCreature.RemoveFeat((Feat)CustomSkill.RayOfFrost);

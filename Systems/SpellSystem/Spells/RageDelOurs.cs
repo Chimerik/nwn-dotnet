@@ -21,7 +21,7 @@ namespace NWN.Systems
         if(caster.IsReactionTypeHostile(target)
           && CreatureUtils.GetSavingThrow(oCaster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
         {
-          EffectSystem.ApplyEffroi(target, caster, NwTimeSpan.FromRounds(1));
+          EffectSystem.ApplyEffroi(target, caster, NwTimeSpan.FromRounds(1), spellDC);
         }
       }
     }

@@ -28,8 +28,62 @@ namespace NWN.Systems
           reaper.soulReapTriggers -= 1;
         }
     }*/
+
+    public static void HandlePlayerDying(ModuleEvents.OnPlayerDying onPlayerDying)
+    {
+      //ModuleSystem.Log.Info($"OnPlayerDying Triggered - HP : {onPlayerDying.Player.LoginCreature.HP}");
+
+      var creature = onPlayerDying.Player.LoginCreature;
+
+      /*if (creature.ActiveEffects.Any(e => e.EffectType == EffectType.Polymorph))
+      {
+        EffectUtils.RemoveEffectType(creature, EffectType.Polymorph);
+      }
+      else if (creature.ActiveEffects.Any(e => e.Tag == EffectSystem.ProtectionContreLaMortEffectTag))
+      {
+        creature.HP = 1;
+
+        EffectUtils.RemoveTaggedEffect(creature, EffectSystem.ProtectionContreLaMortEffectTag);
+        StringUtils.DisplayStringToAllPlayersNearTarget(creature, $"{creature.Name.ColorString(ColorConstants.Cyan)} - Protection contre la Mort", StringUtils.gold, true, true);
+      }
+      else if (creature.ActiveEffects.Any(e => e.Tag == EffectSystem.EnduranceImplacableEffectTag))
+      {
+        creature.HP = 1;
+
+        EffectUtils.RemoveTaggedEffect(creature, EffectSystem.EnduranceImplacableEffectTag);
+        creature.GetObjectVariable<PersistentVariableInt>(EffectSystem.EnduranceImplacableVariable).Delete();
+        StringUtils.DisplayStringToAllPlayersNearTarget(creature, $"{creature.Name.ColorString(ColorConstants.Cyan)} - Endurance Implacable", StringUtils.gold, true, true);
+
+        if (creature.KnowsFeat((Feat)CustomSkill.FureurOrc)
+          && creature.CurrentAction == Anvil.API.Action.AttackObject)
+        {
+          var reaction = creature.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.ReactionEffectTag);
+
+          if (reaction is not null)
+          {
+            creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.FureurOrcBonusAttackVariable).Value = 1;
+            creature.RemoveEffect(reaction);
+          }
+        }
+      }
+      else if (creature.ActiveEffects.Any(e => e.Tag == EffectSystem.SentinelleImmortelleEffectTag))
+      {
+        creature.HP = 1;
+
+        EffectUtils.RemoveTaggedEffect(creature, EffectSystem.SentinelleImmortelleEffectTag);
+        creature.GetObjectVariable<PersistentVariableInt>(EffectSystem.SentinelleImmortelleVariable).Delete();
+        StringUtils.DisplayStringToAllPlayersNearTarget(creature, "Sentinelle Immortelle", StringUtils.gold, true);
+      }
+      else*/ if(creature.HP < 1)
+      {
+        creature.ApplyEffect(EffectDuration.Instant, Effect.Death(false, false));
+      }
+    }
+
     public static void HandlePlayerDeath(ModuleEvents.OnPlayerDeath onPlayerDeath)
     {
+      //ModuleSystem.Log.Info($"OnPlayerDeath Triggered - HP : {onPlayerDeath.DeadPlayer.LoginCreature.HP}");
+
       if (Players.TryGetValue(onPlayerDeath.DeadPlayer.LoginCreature, out Player player))
       {
         onPlayerDeath.DeadPlayer.SendServerMessage("Tout se brouille autour de vous. Avant de perdre connaissance, vous sentez comme un étrange maëlstrom vous aspirer.");

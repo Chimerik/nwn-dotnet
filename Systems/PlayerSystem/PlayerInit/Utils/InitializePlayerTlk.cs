@@ -167,6 +167,20 @@ namespace NWN.Systems
           oid.SetTextureOverride("ranger", "profondeurs");
         }
 
+        var auraDeProtection = NwFeat.FromFeatId(CustomSkill.AuraDeProtection);
+
+        if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.AuraDeCourage))
+        {
+          var auraDeCourage = NwFeat.FromFeatId(CustomSkill.AuraDeCourage);
+          var tlk = NwFeat.FromFeatId(CustomSkill.AuraDeProtection).Name;
+          tlk.SetPlayerOverride(oid, "Aura de Courage");
+
+          oid.SetTextureOverride(auraDeProtection.IconResRef, auraDeCourage.IconResRef);
+
+          tlk = auraDeProtection.Description;
+          tlk.SetPlayerOverride(oid, $"{tlk.ToString()}\n\n{auraDeCourage.Description.ToString()}");
+        }
+
         if (learnableSkills.ContainsKey(CustomSkill.PaladinSermentDevotion))
         {
           new StrRef(12).SetPlayerOverride(oid, "Serment de Dévotion");
@@ -174,8 +188,14 @@ namespace NWN.Systems
 
           if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.PaladinAuraDeDevotion))
           {
-            var tlk = NwFeat.FromFeatId(CustomSkill.AuraDeProtection).Name;
+            var auraDeDevotion = NwFeat.FromFeatId(CustomSkill.PaladinAuraDeDevotion);
+            var tlk = auraDeProtection.Name;
             tlk.SetPlayerOverride(oid, "Aura de Dévotion");
+
+            oid.SetTextureOverride(auraDeProtection.IconResRef, auraDeDevotion.IconResRef);
+
+            tlk = auraDeProtection.Description;
+            tlk.SetPlayerOverride(oid, $"{tlk.ToString()}\n\n{auraDeDevotion.Description.ToString()}");
           }
         }
         else if(learnableSkills.ContainsKey(CustomSkill.PaladinSermentDesAnciens))
@@ -185,20 +205,20 @@ namespace NWN.Systems
 
           if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.PaladinAuraDeGarde))
           {
-            var tlk = NwFeat.FromFeatId(CustomSkill.AuraDeProtection).Name;
+            var auraDeGarde = NwFeat.FromFeatId(CustomSkill.PaladinAuraDeGarde);
+            var tlk = auraDeProtection.Name;
             tlk.SetPlayerOverride(oid, "Aura de Garde");
+
+            oid.SetTextureOverride(auraDeProtection.IconResRef, auraDeGarde.IconResRef);
+
+            tlk = auraDeProtection.Description;
+            tlk.SetPlayerOverride(oid, $"{tlk.ToString()}\n\n{auraDeGarde.Description.ToString()}");
           }
         }
         else if (learnableSkills.ContainsKey(CustomSkill.PaladinSermentVengeance))
         {
           new StrRef(12).SetPlayerOverride(oid, "Serment de Vengeance");
-          oid.SetTextureOverride("paladin", "vengeance");
-
-          if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.AuraDeCourage))
-          {
-            var tlk = NwFeat.FromFeatId(CustomSkill.AuraDeProtection).Name;
-            tlk.SetPlayerOverride(oid, "Aura de Courage");
-          }
+          oid.SetTextureOverride("paladin", "vengeance"); 
         }
 
         if (learnableSkills.ContainsKey(CustomSkill.ClercDuperie))

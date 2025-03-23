@@ -141,6 +141,7 @@
     public const int Chargeur = 1442;
     
     public const int TotemCommunionAvecLaNature = 1452;
+    public const int BersekerRestorePresenceIntimidante = 1453;
 
     public const int WildMagicSense = 1457;
     public const int WildMagicTeleportation = 1458;

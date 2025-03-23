@@ -20,7 +20,9 @@ namespace NWN.Systems
       bool isWeaponAttack = baseDamage > -1;
       int totalDamage = 0;
       int nbDice = 0;
+      int roll;
       bool isSurcharge = false;
+      bool isCritical = damager.GetObjectVariable<LocalVariableInt>(CriticalHitVariable).HasValue;
 
       if (isWeaponAttack)
       {
@@ -60,20 +62,19 @@ namespace NWN.Systems
                       damager.SetFeatRemainingUses((Feat)CustomSkill.ChatimentOcculte, consumedSlots);
 
                       nbDice = 1 + SpellUtils.GetMaxSpellSlotLevelKnown(damager, (ClassType)CustomClass.Occultiste);
-
-                      if (damager.GetObjectVariable<LocalVariableInt>(CriticalHitVariable).HasValue)
-                        nbDice *= 2;
+                      nbDice *= isCritical ? 2 : 1;
 
                       string logString = "";
                       int damage = 0;
 
                       for (int i = 0; i < nbDice; i++)
                       {
-                        int roll = Utils.Roll(8);
+                        roll = Utils.Roll(8);
                         logString += $"{roll} + ";
                         damage += roll;
                       }
 
+                      totalDamage += damage;
                       NativeUtils.AddWeaponDamage(damageData, DamageType.Magical, damage);
                       EffectSystem.ApplyKnockdown(target, damager);
 
@@ -96,10 +97,13 @@ namespace NWN.Systems
                       _ => CustomDamageType.Psychic,
                     };
 
-                    NWScript.AssignCommand(damager, () => damager.ApplyEffect(EffectDuration.Instant,
-                      Effect.Heal(Utils.Roll(6) + GetAbilityModifierMin1(damager, Ability.Constitution))));
+                    roll = Utils.Roll(6, 1 + isCritical.ToInt());
 
-                    NativeUtils.AddWeaponDamage(damageData, damageType, Utils.Roll(6, 1 + damager.GetObjectVariable<LocalVariableInt>(CriticalHitVariable).HasValue.ToInt()));
+                    NWScript.AssignCommand(damager, () => damager.ApplyEffect(EffectDuration.Instant,
+                      Effect.Heal(roll + GetAbilityModifierMin1(damager, Ability.Constitution))));
+
+                    totalDamage += roll;
+                    NativeUtils.AddWeaponDamage(damageData, damageType, roll);
 
                     EffectUtils.RemoveTaggedEffect(damager, EffectSystem.BuveuseDeVieEffectTag);
 
@@ -116,6 +120,13 @@ namespace NWN.Systems
           {
             switch (eff.Tag)
             {
+              case EffectSystem.ChatimentAmelioreEffectTag:
+
+                roll = Utils.Roll(8, 1 + isCritical.ToInt());
+                totalDamage += roll;
+                NativeUtils.AddWeaponDamage(damageData, DamageType.Divine, roll); 
+                break;
+
               case EffectSystem.ShillelaghEffectTag:
 
                 Effect shillelagEffect = damager.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.ShillelaghEffectTag);
@@ -139,26 +150,21 @@ namespace NWN.Systems
 
                 if (chatimentEffect is not null)
                 {
-                  nbDice = 1 + chatimentEffect.CasterLevel;
-
-                  if (Utils.In(target.Race.RacialType, RacialType.Undead, CustomRacialType.Fielon))
-                  {
-                    LogUtils.LogMessage($"Châtiment Divin - Cible mort-vivant ou extérieur : +1d8", LogUtils.LogType.Combat);
-                    nbDice += 1;
-                  }
-
-                  nbDice *= damager.GetObjectVariable<LocalVariableInt>(CriticalHitVariable).HasValue ? 2 : 1;
+                  nbDice = (1 + chatimentEffect.CasterLevel
+                    + Utils.In(target.Race.RacialType, RacialType.Undead, CustomRacialType.Fielon).ToInt())
+                    * (1 + isCritical.ToInt());
 
                   string logString = "";
                   int damage = 0;
 
                   for (int i = 0; i < nbDice; i++)
                   {
-                    int roll = Utils.Roll(8);
+                    roll = Utils.Roll(8);
                     logString += $"{roll} + ";
                     damage += roll;
                   }
 
+                  totalDamage += damage;
                   NativeUtils.AddWeaponDamage(damageData, DamageType.Divine, damage);
 
                   LogUtils.LogMessage($"Châtiment Divin - {nbDice}d8 : {logString.Remove(logString.Length - 2)} = {damage}", LogUtils.LogType.Combat);
@@ -177,12 +183,11 @@ namespace NWN.Systems
 
                 if (mainWeapon is not null && ItemUtils.IsWeapon(mainWeapon.BaseItem))
                 {
-                  nbDice = damager.GetClassInfo(ClassType.Cleric).Level > 13 ? 2 : 1;
-                  if (damager.GetObjectVariable<LocalVariableInt>(CriticalHitVariable).HasValue)
-                    nbDice *= 2;
+                  nbDice = (1 + (damager.GetClassInfo(ClassType.Cleric).Level > 13).ToInt()) * (1 + isCritical.ToInt());
+                  roll = Utils.Roll(8, nbDice);
 
-                  NativeUtils.AddWeaponDamage(damageData, eff.Spell.Id == CustomSpell.FrappeDivineNecrotique ? CustomDamageType.Necrotic : DamageType.Divine,
-                    Utils.Roll(8, nbDice));
+                  totalDamage += roll;
+                  NativeUtils.AddWeaponDamage(damageData, eff.Spell.Id == CustomSpell.FrappeDivineNecrotique ? CustomDamageType.Necrotic : DamageType.Divine, roll);
 
                   EffectUtils.RemoveTaggedEffect(damager, EffectSystem.FrappeDivineEffectTag);
 
@@ -201,10 +206,12 @@ namespace NWN.Systems
 
               case EffectSystem.FrappeRedoutableEffectTag:
 
-                nbDice = damager.GetObjectVariable<LocalVariableInt>(CriticalHitVariable).HasValue ? 4 : 2;
+                nbDice = isCritical ? 4 : 2;
                 int damageDice = damager.KnowsFeat((Feat)CustomSkill.TraqueurRafale) ? 8 : 6;
+                roll = Utils.Roll(damageDice, nbDice);
 
-                NativeUtils.AddWeaponDamage(damageData, CustomDamageType.Psychic, Utils.Roll(damageDice, nbDice));
+                totalDamage += roll;
+                NativeUtils.AddWeaponDamage(damageData, CustomDamageType.Psychic, roll);
 
                 NWScript.AssignCommand(damager, () => damager.ApplyEffect(EffectDuration.Temporary,
                   EffectSystem.Cooldown(damager, 6, CustomSkill.ProfondeursFrappeRedoutable), TimeSpan.FromSeconds(5)));
@@ -217,8 +224,11 @@ namespace NWN.Systems
 
                 if (target.HP < target.MaxHP)
                 {
-                  nbDice = damager.GetObjectVariable<LocalVariableInt>(CriticalHitVariable).HasValue ? 2 : 1;
-                  NativeUtils.AddWeaponDamage(damageData, DamageType.BaseWeapon, Utils.Roll(8, nbDice));
+                  nbDice = 1 + isCritical.ToInt();
+                  roll = Utils.Roll(8, nbDice);
+
+                  totalDamage += roll;
+                  NativeUtils.AddWeaponDamage(damageData, DamageType.BaseWeapon, roll);
 
                   NWScript.AssignCommand(damager, () => damager.ApplyEffect(EffectDuration.Temporary,
                     EffectSystem.Cooldown(damager, 6, CustomSkill.ChasseurProie, NwSpell.FromSpellId(CustomSpell.PourfendeurDeColosses)), NwTimeSpan.FromRounds(1)));
@@ -232,9 +242,11 @@ namespace NWN.Systems
 
                 var spellEntry = Spells2da.spellTable[CustomSpell.BrandingSmite];
                 var duration = SpellUtils.GetSpellDuration(damager, spellEntry);
-                nbDice = damager.GetObjectVariable<LocalVariableInt>(CriticalHitVariable).HasValue ? 4 : 2;
+                nbDice = isCritical ? 4 : 2;
+                roll = Utils.Roll(6, nbDice);
 
-                NativeUtils.AddWeaponDamage(damageData, DamageType.Divine, Utils.Roll(6, nbDice));
+                totalDamage += roll;
+                NativeUtils.AddWeaponDamage(damageData, DamageType.Divine, roll);
                 NWScript.AssignCommand(damager, () => target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpDivineStrikeHoly)));
                 NWScript.AssignCommand(damager, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.brandingSmiteReveal, duration));
 
@@ -255,9 +267,11 @@ namespace NWN.Systems
                 if (damager.IsRangedWeaponEquipped)
                   break;
 
-                nbDice = damager.GetObjectVariable<LocalVariableInt>(CriticalHitVariable).HasValue ? 2 : 1;
+                nbDice = 1 + isCritical.ToInt();
+                roll = Utils.Roll(6, nbDice);
 
-                NativeUtils.AddWeaponDamage(damageData, DamageType.Fire, Utils.Roll(6, nbDice));
+                totalDamage += roll;
+                NativeUtils.AddWeaponDamage(damageData, DamageType.Fire, roll);
 
                 NWScript.AssignCommand(damager, () => target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpFlameS)));
                 NWScript.AssignCommand(damager, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.searingSmiteBurn, NwTimeSpan.FromRounds(Spells2da.spellTable[CustomSpell.SearingSmite].duration)));
@@ -457,12 +471,79 @@ namespace NWN.Systems
         NWScript.AssignCommand(damager, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.DamagedBy, NwTimeSpan.FromRounds(1)));
       }
 
-      if (totalDamage >= target.HP && target.ActiveEffects.Any(e => e.EffectType == EffectType.Polymorph))
+      if (totalDamage >= target.HP)
       {
-        int remainingDamage = totalDamage - target.HP;
-        target.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_CURRENT_HP").Value -= remainingDamage;
-        EffectUtils.RemoveTaggedEffect(target, EffectSystem.PolymorphEffectTag);
-        target.ApplyEffect(EffectDuration.Temporary, Effect.TemporaryHitpoints(totalDamage), TimeSpan.FromSeconds(0.59f));
+        foreach(var effect in target.ActiveEffects)
+        {
+          switch (effect.Tag)
+          {
+            case EffectSystem.PolymorphEffectTag:
+
+              target.Immortal = true;
+
+              int remainingDamage = totalDamage - target.HP;
+              target.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_CURRENT_HP").Value -= remainingDamage;
+              EffectUtils.RemoveEffectType(target, EffectType.Polymorph);
+              
+              return;
+
+            case EffectSystem.BarbarianRageEffectTag:
+
+              var barbarianClass = target.GetClassInfo(ClassType.Barbarian);
+
+              if(barbarianClass is not null && barbarianClass.Level > 10)
+              {
+                int saveDC = target.GetObjectVariable<PersistentVariableInt>("_RAGE_IMPLACABLE_DD").Value;
+                target.GetObjectVariable<PersistentVariableInt>("_RAGE_IMPLACABLE_DD").Value += 5;
+
+                if (GetSavingThrow(damager, target, Ability.Constitution, saveDC) == SavingThrowResult.Failure)
+                {
+                  target.Immortal = true;
+                  StringUtils.DisplayStringToAllPlayersNearTarget(target, "Rage Implacable", StringUtils.gold, true, true);
+                  BarbarianUtils.DelayImplacableRage(target, barbarianClass.Level);
+                  return;
+                }
+              }
+
+              break;
+
+            case EffectSystem.ProtectionContreLaMortEffectTag:
+
+              target.Immortal = true;
+              target.RemoveEffect(effect);
+              StringUtils.DisplayStringToAllPlayersNearTarget(target, $"{target.Name.ColorString(ColorConstants.Cyan)} - Protection contre la Mort", StringUtils.gold, true, true);
+
+              return;
+
+            case EffectSystem.EnduranceImplacableEffectTag:
+
+              target.Immortal = true;
+              target.RemoveEffect(effect);
+              StringUtils.DisplayStringToAllPlayersNearTarget(target, $"{target.Name.ColorString(ColorConstants.Cyan)} - Endurance Implacable", StringUtils.gold, true, true);
+
+              if (target.KnowsFeat((Feat)CustomSkill.FureurOrc)
+                && target.CurrentAction == Anvil.API.Action.AttackObject)
+              {
+                var reaction = target.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.ReactionEffectTag);
+
+                if (reaction is not null)
+                {
+                  target.GetObjectVariable<LocalVariableInt>(CreatureUtils.FureurOrcBonusAttackVariable).Value = 1;
+                  target.RemoveEffect(reaction);
+                }
+              }
+
+              return;
+
+            case EffectSystem.SentinelleImmortelleEffectTag:
+
+              target.Immortal = true;
+              target.RemoveEffect(effect);
+              StringUtils.DisplayStringToAllPlayersNearTarget(target, $"{target.Name.ColorString(ColorConstants.Cyan)} - Sentinelle Immortelle", StringUtils.gold, true, true);
+
+              return;
+          }
+        }
       }
     }
 

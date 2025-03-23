@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
+using Anvil.Services;
 
 namespace NWN.Systems
 {
@@ -9,11 +9,13 @@ namespace NWN.Systems
   {
     public const string PolymorphEffectTag = "_POLYMORPH_EFFECT";
     public const string PolymorphTempHPEffectTag = "_POLYMORPH_EFFECT";
+    private static ScriptCallbackHandle onRemovePolymorphCallback;
+
     public static Effect Polymorph(NwCreature creature, PolymorphType shapeType)
     {
       creature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPolymorph));
   
-      Effect eff = Effect.Polymorph(shapeType);
+      Effect eff = Effect.LinkEffects(Effect.Polymorph(shapeType), Effect.RunAction(onRemovedHandle: onRemovePolymorphCallback));
       eff.Tag = PolymorphEffectTag;
       eff.SubType = EffectSubType.Supernatural;
 
@@ -62,10 +64,8 @@ namespace NWN.Systems
 
       DelayDamageBonus(creature, shapeType);
       creature.HP = creature.MaxHP;
-      creature.OnEffectRemove -= OnRemovePolymorph;
-      creature.OnEffectRemove += OnRemovePolymorph;
-      //creature.OnDamaged -= OnDamagedPolymorph;
-      //creature.OnDamaged += OnDamagedPolymorph;
+      //creature.OnEffectRemove -= OnRemovePolymorph;
+      //creature.OnEffectRemove += OnRemovePolymorph;
 
       if (creature.KnowsFeat((Feat)CustomSkill.DruideFormeDeLune))
       {
@@ -173,6 +173,43 @@ namespace NWN.Systems
         }
       }
     }
+
+    private static ScriptHandleResult OnRemovePolymorph(CallInfo callInfo)
+    {
+      EffectRunScriptEvent eventData = new EffectRunScriptEvent();
+
+      if (eventData.EffectTarget is NwCreature creature)
+      {
+        int nLvl = 0;
+
+        foreach (var level in creature.LevelInfo)
+        {
+          nLvl += 1;
+          level.HitDie = (byte)creature.GetObjectVariable<PersistentVariableInt>($"_SHAPECHANGE_HITDIE_LEVEL_{nLvl}").Value;
+          creature.GetObjectVariable<PersistentVariableInt>($"_SHAPECHANGE_HITDIE_LEVEL_{nLvl}").Delete();
+        }
+
+        DelayHPReset(creature);
+        creature.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_SHAPE").Delete();
+
+        //creature.OnEffectRemove -= OnRemovePolymorph;
+        creature.OnCreatureAttack -= RangerUtils.OnAttackSpiderPoisonBite;
+        creature.OnCreatureAttack -= DruideUtils.OnAttackBriseArmure;
+        creature.OnCreatureAttack -= DruideUtils.OnAttackElemAirStun;
+        creature.OnCreatureAttack -= DruideUtils.OnAttackElemTerreKnockdown;
+        creature.OnCreatureAttack -= DruideUtils.OnAttackElemFeuBrulure;
+        creature.OnCreatureAttack -= DruideUtils.OnAttackElemEauChill;
+        creature.OnHeartbeat -= DruideUtils.OnHeartbeatVitaliteAnimale;
+
+        creature.Immortal = false;
+
+        EffectUtils.RemoveTaggedEffect(creature, PolymorphTempHPEffectTag, FormeDeLuneEffectTag);
+        creature.SetFeatRemainingUses((Feat)CustomSkill.DruideLuneRadieuse, 0);
+      }
+
+      return ScriptHandleResult.Handled;
+    }
+
     public static void OnRemovePolymorph(OnEffectRemove onRemove)
     {
       if (onRemove.Effect.EffectType != EffectType.Polymorph || onRemove.Object is not NwCreature creature)
@@ -190,8 +227,7 @@ namespace NWN.Systems
       DelayHPReset(creature);
       creature.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_SHAPE").Delete();
 
-      creature.OnEffectRemove -= OnRemovePolymorph;
-      //creature.OnDamaged -= OnDamagedPolymorph;
+      //creature.OnEffectRemove -= OnRemovePolymorph;
       creature.OnCreatureAttack -= RangerUtils.OnAttackSpiderPoisonBite;
       creature.OnCreatureAttack -= DruideUtils.OnAttackBriseArmure;
       creature.OnCreatureAttack -= DruideUtils.OnAttackElemAirStun;
@@ -199,6 +235,8 @@ namespace NWN.Systems
       creature.OnCreatureAttack -= DruideUtils.OnAttackElemFeuBrulure;
       creature.OnCreatureAttack -= DruideUtils.OnAttackElemEauChill;
       creature.OnHeartbeat -= DruideUtils.OnHeartbeatVitaliteAnimale;
+
+      creature.Immortal = false;
 
       EffectUtils.RemoveTaggedEffect(creature, PolymorphTempHPEffectTag, FormeDeLuneEffectTag);
       creature.SetFeatRemainingUses((Feat)CustomSkill.DruideLuneRadieuse, 0);
@@ -244,31 +282,6 @@ namespace NWN.Systems
       creature.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_CURRENT_HP").Delete();
       //creature.OnDamaged -= OnDamagedPolymorphHPBuffer;
       creature.LoginPlayer?.ExportCharacter();
-    }
-
-    public static void OnDamagedPolymorph(CreatureEvents.OnDamaged onDamaged)
-    {
-      ModuleSystem.Log.Info($"on damage polymorph");
-      NwCreature creature = onDamaged.Creature;
-
-      ModuleSystem.Log.Info($"creature hp : {creature.HP}");
-
-      if (creature.HP < 1 && creature.ActiveEffects.Any(e => e.EffectType == EffectType.Polymorph))
-      {
-        creature.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_CURRENT_HP").Value += creature.HP;
-        EffectUtils.RemoveTaggedEffect(creature, creature, PolymorphEffectTag);
-        creature.HP = creature.MaxHP;
-        ModuleSystem.Log.Info($"hp = maxHP : {creature.HP}");
-
-        //creature.ApplyEffect(EffectDuration.Temporary, Effect.TemporaryHitpoints(500), TimeSpan.FromSeconds(0.59f));
-        //creature.OnDamaged += OnDamagedPolymorphHPBuffer;
-      }
-    }
-
-    public static void OnDamagedPolymorphHPBuffer(CreatureEvents.OnDamaged onDamaged)
-    {
-      NwCreature creature = onDamaged.Creature;
-      creature.GetObjectVariable<PersistentVariableInt>("_SHAPECHANGE_CURRENT_HP").Value -= onDamaged.DamageAmount;
     }
   }
 }

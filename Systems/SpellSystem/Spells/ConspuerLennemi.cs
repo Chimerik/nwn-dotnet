@@ -12,14 +12,14 @@ namespace NWN.Systems
 
       SpellUtils.SignalEventSpellCast(oCaster, oCaster, spell.SpellType);
 
-      int DC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(caster) + caster.GetAbilityModifier(Ability.Charisma);
+      int spellDC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(caster) + caster.GetAbilityModifier(Ability.Charisma);
 
       foreach(var target in caster.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, spellEntry.aoESize, false))
 
-      if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, DC) == SavingThrowResult.Failure)
+      if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC) == SavingThrowResult.Failure)
       {
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpFearS));
-        EffectSystem.ApplyEffroi(target, caster, NwTimeSpan.FromRounds(spellEntry.duration), true);
+        EffectSystem.ApplyEffroi(target, caster, NwTimeSpan.FromRounds(spellEntry.duration), spellDC, true);
       }
 
       caster.IncrementRemainingFeatUses((Feat)CustomSkill.PaladinConspuerEnnemi);

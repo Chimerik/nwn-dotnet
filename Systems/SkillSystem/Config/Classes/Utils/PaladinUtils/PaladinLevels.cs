@@ -118,15 +118,20 @@ namespace NWN.Systems
 
         case 10:
 
+          var auraDeProtection = NwFeat.FromFeatId(CustomSkill.AuraDeProtection);
           player.LearnClassSkill(CustomSkill.AuraDeCourage);
 
           EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.AuraDeProtectionEffectTag);
 
-          if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.PaladinAuraDeDevotion) && !player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.PaladinAuraDeGarde))
+          if (player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.PaladinSermentVengeance))
           {
-            var tlk = NwFeat.FromFeatId(CustomSkill.AuraDeProtection).Name;
-            tlk.SetPlayerOverride(player.oid, "Aura de Courage");
+            var nameTlk = auraDeProtection.Name;
+            nameTlk.SetPlayerOverride(player.oid, "Aura de Courage");
+            player.oid.SetTextureOverride(auraDeProtection.IconResRef, NwFeat.FromFeatId(CustomSkill.AuraDeCourage).IconResRef);
           }
+
+          var descTlk = auraDeProtection.Description;
+          descTlk.SetPlayerOverride(player.oid, $"{descTlk.ToString()}\n\n{player.learnableSkills[CustomSkill.AuraDeCourage].description}");
 
           player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.AuraDeProtection(player.oid.LoginCreature, 10));
           UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>().SetRadius(3);

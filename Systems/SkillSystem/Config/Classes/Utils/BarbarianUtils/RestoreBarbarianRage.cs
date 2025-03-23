@@ -29,8 +29,7 @@ namespace NWN.Systems
         creature.SetFeatRemainingUses(rageToRestore, maxUse);
         creature.GetObjectVariable<PersistentVariableInt>("_RAGE_IMPLACABLE_DD").Value = 10;
         creature.SetFeatRemainingUses((Feat)CustomSkill.BersekerPresenceIntimidante, 1);
-
-        EffectUtils.RemoveTaggedEffect(creature, EffectSystem.PresenceIntimidanteUsedEffectTag);
+        creature.SetFeatRemainingUses((Feat)CustomSkill.BersekerRestorePresenceIntimidante, 0);
       }
     }
     private static Feat GetRageToRestore(NwCreature creature)

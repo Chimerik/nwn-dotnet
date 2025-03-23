@@ -38,8 +38,13 @@ namespace NWN.Systems
           
           player.LearnClassSkill(CustomSkill.PaladinAuraDeGarde);
 
-          var tlk = NwFeat.FromFeatId(CustomSkill.AuraDeProtection).Name;
+          var auraDeProtection = NwFeat.FromFeatId(CustomSkill.AuraDeProtection);
+          var tlk = auraDeProtection.Name;
           tlk.SetPlayerOverride(player.oid, "Aura de Garde");
+
+          var descTlk = auraDeProtection.Description;
+          descTlk.SetPlayerOverride(player.oid, $"{descTlk.ToString()}\n\n{player.learnableSkills[CustomSkill.PaladinAuraDeGarde].description}");
+          player.oid.SetTextureOverride(auraDeProtection.IconResRef, NwFeat.FromFeatId(CustomSkill.PaladinAuraDeGarde).IconResRef);
 
           EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.AuraDeProtectionEffectTag);
 
@@ -62,15 +67,7 @@ namespace NWN.Systems
 
           break;
 
-        case 15:
-
-          NWScript.AssignCommand(player.oid.LoginCreature, () => player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.ProtectionContreLeMalEtLeBien));
-
-          player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.SentinelleImmortelle);
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(EffectSystem.SentinelleImmortelleVariable).Value = 1;
-          player.oid.LoginCreature.OnDamaged += PaladinUtils.HandleSentinelleImmortelle;
-          
-          break;
+        case 15: player.LearnClassSkill(CustomSkill.PaladinSentinelleImmortelle); break;
 
         case 17:
 

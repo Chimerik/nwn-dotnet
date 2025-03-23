@@ -29,7 +29,7 @@ namespace NWN.Systems
       foreach (NwCreature entering in eventData.Effect.GetObjectsInEffectArea<NwCreature>())
       {
         if (caster.IsReactionTypeHostile(entering) && CreatureUtils.GetSavingThrow(caster, entering, Ability.Charisma, spellDC) == SavingThrowResult.Failure)
-          ApplyEffroi(entering, caster, NwTimeSpan.FromRounds(1));
+          ApplyEffroi(entering, caster, NwTimeSpan.FromRounds(1), spellDC);
       }
 
       return ScriptHandleResult.Handled;

@@ -153,6 +153,7 @@ namespace NWN.Systems
       private void InitializePlayerEvents()
       {
         oid.OnServerCharacterSave += HandleBeforePlayerSave;
+        oid.OnPlayerDying += HandlePlayerDying;
         oid.OnPlayerDeath += HandlePlayerDeath;
         oid.LoginCreature.OnUseFeat += FeatSystem.OnUseFeatBefore;
         oid.OnCombatStatusChange += OnCombatStarted;

@@ -66,7 +66,6 @@ namespace NWN.Systems
       target.OnCreatureAttack -= CreatureUtils.OnAttackBarbarianRage;
       target.OnDamaged -= CreatureUtils.OnDamagedBarbarianRage;
       target.OnItemEquip -= ItemSystem.OnEquipBarbarianRage;
-      target.OnDamaged -= CreatureUtils.OnDamagedRageImplacable;
       target.OnDamaged -= BarbarianUtils.OnDamagedWildMagic;
       target.OnCreatureAttack -= BarbarianUtils.OnAttackBelier;
 

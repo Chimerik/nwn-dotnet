@@ -38,21 +38,15 @@ namespace NWN.Systems
 
       caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpImproveAbilityScore));
 
-      if (caster.GetClassInfo(ClassType.Barbarian).Level > 6)
+      byte barbarianLevel = caster.GetClassInfo(ClassType.Barbarian).Level;
+
+      if (barbarianLevel > 6)
       {
         caster.ApplyEffect(EffectDuration.Temporary, Effect.MovementSpeedIncrease(50), NwTimeSpan.FromRounds(1));
         caster.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHaste));
       }
 
       caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.BarbarianRage(caster, spell), TimeSpan.FromMinutes(10));
-
-      byte barbarianLevel = caster.GetClassInfo(ClassType.Barbarian).Level;
-
-      if (barbarianLevel > 10)
-      {
-        caster.OnDamaged -= CreatureUtils.OnDamagedRageImplacable;
-        caster.OnDamaged += CreatureUtils.OnDamagedRageImplacable;
-      }
 
       if (barbarianLevel < 15)
       {
@@ -85,6 +79,9 @@ namespace NWN.Systems
         if (caster.Classes.Any(c => c.Class.ClassType == ClassType.Barbarian && c.Level > 9))
           caster.OnDamaged += BarbarianUtils.OnDamagedWildMagic;
       }
+
+      if (caster.GetFeatRemainingUses(Feat.BarbarianRage) < 1)
+        caster.SetFeatRemainingUses((Feat)CustomSkill.BersekerRestorePresenceIntimidante, 0);
     }
   }
 }

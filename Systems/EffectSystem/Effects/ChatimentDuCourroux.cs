@@ -34,7 +34,7 @@ namespace NWN.Systems
           if (weapon is null || ItemUtils.IsMeleeWeapon(weapon.BaseItem.ItemType))
           {
             NWScript.AssignCommand(onAttack.Attacker, () => onAttack.Target.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.Damage(Utils.Roll(6, onAttack.AttackResult == AttackResult.CriticalHit ? 2 : 1), CustomDamageType.Necrotic), Effect.VisualEffect(VfxType.ImpDiseaseS))));
-            ApplyEffroi(target, onAttack.Attacker, SpellUtils.GetSpellDuration(onAttack.Attacker, Spells2da.spellTable[CustomSpell.ChatimentDuCourroux]), true);
+            ApplyEffroi(target, onAttack.Attacker, SpellUtils.GetSpellDuration(onAttack.Attacker, Spells2da.spellTable[CustomSpell.ChatimentDuCourroux]), SpellUtils.GetCasterSpellDC(onAttack.Attacker, Ability.Charisma), true);
           }
 
           await NwTask.NextFrame();

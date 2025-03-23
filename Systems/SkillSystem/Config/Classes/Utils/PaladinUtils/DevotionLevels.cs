@@ -1,8 +1,6 @@
 ﻿using Anvil.API;
-using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.PlayerSystem;
-using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
 {
@@ -38,8 +36,13 @@ namespace NWN.Systems
 
           player.LearnClassSkill(CustomSkill.PaladinAuraDeDevotion);
 
-          var tlk = NwFeat.FromFeatId(CustomSkill.AuraDeProtection).Name;
+          var auraDeProtection = NwFeat.FromFeatId(CustomSkill.AuraDeProtection);
+          var tlk = auraDeProtection.Name;
           tlk.SetPlayerOverride(player.oid, "Aura de Dévotion");
+
+          var descTlk = auraDeProtection.Description;
+          descTlk.SetPlayerOverride(player.oid, $"{descTlk.ToString()}\n\n{player.learnableSkills[CustomSkill.PaladinAuraDeDevotion].description}");
+          player.oid.SetTextureOverride(auraDeProtection.IconResRef, NwFeat.FromFeatId(CustomSkill.PaladinAuraDeDevotion).IconResRef);
 
           EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.AuraDeProtectionEffectTag);
 

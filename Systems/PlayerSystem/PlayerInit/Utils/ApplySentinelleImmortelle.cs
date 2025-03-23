@@ -10,11 +10,9 @@ namespace NWN.Systems
       private void ApplySentinelleImmortelle()
       {
         if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(EffectSystem.SentinelleImmortelleVariable).HasValue
-        && !oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.SentinelleImmortelleEffectTag))
+          && !oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.SentinelleImmortelleEffectTag))
         {
           oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.SentinelleImmortelle);
-          oid.LoginCreature.OnDamaged -= PaladinUtils.HandleSentinelleImmortelle;
-          oid.LoginCreature.OnDamaged += PaladinUtils.HandleSentinelleImmortelle;
         }
       }
     }

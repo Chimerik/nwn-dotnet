@@ -10,10 +10,7 @@ namespace NWN.Systems
       creature.OnItemEquip -= ItemSystem.OnEquipChatimentAmeliore;
       creature.OnItemEquip += ItemSystem.OnEquipChatimentAmeliore;
 
-      Effect damage = Effect.DamageIncrease((int)DamageBonus.Plus1d8, DamageType.Divine);
-      damage.ShowIcon = false;
-
-      Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.ChatimentAmeliore), damage);
+      Effect eff = Effect.Icon(CustomEffectIcon.ChatimentAmeliore);
       eff.Tag = ChatimentAmelioreEffectTag;
       eff.SubType = EffectSubType.Unyielding;
       return eff;

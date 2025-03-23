@@ -15,40 +15,18 @@ namespace NWN.Systems
           new StrRef(5213).SetPlayerOverride(player.oid, "Berseker");
           player.oid.SetTextureOverride("barbarian", "berseker");
 
-          player.learnableSkills.TryAdd(CustomSkill.BersekerFrenziedStrike, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BersekerFrenziedStrike], player));
-          player.learnableSkills[CustomSkill.BersekerFrenziedStrike].LevelUp(player);
-          player.learnableSkills[CustomSkill.BersekerFrenziedStrike].source.Add(Category.Class);
-
-          if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.BersekerFrenziedStrike))
-            player.oid.LoginCreature.AddFeat((Feat)CustomSkill.BersekerFrenziedStrike);
-
-          player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.BersekerFrenziedStrike, 0);
+          player.LearnClassSkill(CustomSkill.BersekerFrenziedStrike);
 
           break;
 
-        case 6:
+        case 6: player.LearnClassSkill(CustomSkill.BersekerRageAveugle); break;
 
-          player.learnableSkills.TryAdd(CustomSkill.BersekerRageAveugle, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BersekerRageAveugle], player));
-          player.learnableSkills[CustomSkill.BersekerRageAveugle].LevelUp(player);
-          player.learnableSkills[CustomSkill.BersekerRageAveugle].source.Add(Category.Class);
-
-          break;
-
-        case 10:
-
-          player.learnableSkills.TryAdd(CustomSkill.BersekerRepresailles, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BersekerRepresailles], player));
-          player.learnableSkills[CustomSkill.BersekerRepresailles].LevelUp(player);
-          player.learnableSkills[CustomSkill.BersekerRepresailles].source.Add(Category.Class);
-
-          break;
+        case 10: player.LearnClassSkill(CustomSkill.BersekerRepresailles); break;
 
         case 14:
 
-          player.learnableSkills.TryAdd(CustomSkill.BersekerPresenceIntimidante, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.BersekerPresenceIntimidante], player));
-          player.learnableSkills[CustomSkill.BersekerPresenceIntimidante].LevelUp(player);
-          player.learnableSkills[CustomSkill.BersekerPresenceIntimidante].source.Add(Category.Class);
-
-          player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.BersekerPresenceIntimidante, 1);
+          player.LearnClassSkill(CustomSkill.BersekerPresenceIntimidante);
+          player.LearnClassSkill(CustomSkill.BersekerRestorePresenceIntimidante);
 
           break;
       }

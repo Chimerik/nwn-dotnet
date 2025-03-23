@@ -14,7 +14,7 @@ namespace NWN.Systems
 
         learnableSkills[CustomSkill.Orc].source.Add(Category.Race);
 
-        oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.enduranceImplacable(oid.LoginCreature));
+        oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, EffectSystem.enduranceImplacable);
         oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(EffectSystem.EnduranceImplacableVariable).Value = 1;
       }
     }

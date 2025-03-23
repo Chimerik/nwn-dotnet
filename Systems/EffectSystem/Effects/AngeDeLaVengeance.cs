@@ -29,7 +29,7 @@ namespace NWN.Systems
       int saveDC = 8 + NativeUtils.GetCreatureProficiencyBonus(intimidator) + intimidator.GetAbilityModifier(Ability.Charisma);
 
       if (CreatureUtils.GetSavingThrow(intimidator, entering, Ability.Wisdom, saveDC) == SavingThrowResult.Failure)
-        ApplyEffroi(entering, intimidator, NwTimeSpan.FromRounds(10));
+        ApplyEffroi(entering, intimidator, NwTimeSpan.FromRounds(10), saveDC);
 
       return ScriptHandleResult.Handled;
     }
@@ -48,7 +48,7 @@ namespace NWN.Systems
         int saveDC = 8 + NativeUtils.GetCreatureProficiencyBonus(intimidator) + intimidator.GetAbilityModifier(Ability.Charisma);
 
         if (CreatureUtils.GetSavingThrow(intimidator, target, Ability.Wisdom, saveDC) == SavingThrowResult.Failure)
-          ApplyEffroi(target, intimidator, NwTimeSpan.FromRounds(10));
+          ApplyEffroi(target, intimidator, NwTimeSpan.FromRounds(10), saveDC);
       }
 
       return ScriptHandleResult.Handled;

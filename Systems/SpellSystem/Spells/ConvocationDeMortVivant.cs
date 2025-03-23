@@ -70,7 +70,7 @@ namespace NWN.Systems
       {
         case AttackResult.Hit:
         case AttackResult.CriticalHit:
-        case AttackResult.AutomaticHit: EffectSystem.ApplyEffroi(target, onAttack.Attacker, NwTimeSpan.FromRounds(1)); break;
+        case AttackResult.AutomaticHit: EffectSystem.ApplyEffroi(target, onAttack.Attacker, NwTimeSpan.FromRounds(1), 10); break;
       }
     }
 

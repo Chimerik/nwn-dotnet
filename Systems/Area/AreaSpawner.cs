@@ -71,8 +71,8 @@ namespace NWN.Systems
       creature.OnDeath += CreatureUtils.MakeInventoryUndroppable;
       creature.OnDeath += CreatureUtils.OnMobDeathResetSpawn;
 
-      if (creature.Race.RacialType == RacialType.HalfOrc)
-        creature.OnDamaged += CreatureUtils.HandleImplacableEndurance;
+      if (Utils.In(creature.Race.RacialType, RacialType.HumanoidOrc, RacialType.HalfOrc))
+        creature.ApplyEffect(EffectDuration.Permanent, EffectSystem.enduranceImplacable);
 
       if (creature.KnowsFeat((Feat)CustomSkill.Sentinelle))
         creature.OnCreatureAttack += CreatureUtils.OnAttackSentinelle;

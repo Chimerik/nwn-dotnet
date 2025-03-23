@@ -84,6 +84,7 @@ namespace NWN.Systems
         case CustomSkill.FrappeSiderante: 
         case CustomSkill.FrappeDechirante: FrappeBrutale(caster, feat.Id); return;
         case CustomSkill.BersekerPresenceIntimidante: BersekerPresenceIntimidante(caster); return;
+        case CustomSkill.BersekerRestorePresenceIntimidante: BersekerRestorePresenceIntimidante(caster); return;
 
         case CustomSkill.WildMagicSense: SensDeLaMagie(caster); return;
         case CustomSkill.WildMagicMagieGalvanisanteBienfait: Bienfait(caster, target); return;

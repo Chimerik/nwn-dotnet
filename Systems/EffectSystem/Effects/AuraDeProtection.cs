@@ -31,6 +31,7 @@ namespace NWN.Systems
         return ScriptHandleResult.Handled;
 
       Effect eff = Effect.Icon(CustomEffectIcon.AuraDeProtection);
+
       if (protector.KnowsFeat((Feat)CustomSkill.PaladinAuraDeDevotion))
       {
         eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.AuraDeDevotion), GetCharmImmunityEffect(ProtectionEffectTag));

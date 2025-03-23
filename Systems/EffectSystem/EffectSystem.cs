@@ -39,6 +39,10 @@ namespace NWN.Systems
       onRemoveReactionCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveReaction);
       onRemoveVolCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveVol);
       onRemoveAgresseurSauvageCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveAgresseurSauvage);
+      onRemoveProtectionContreLaMortCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveProtectionContreLaMort);
+      onRemoveEnduranceImplacableCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveEnduranceImplacable);
+      onRemoveSentinelleImmortelleCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveSentinelleImmortelle);
+      onRemovePolymorphCallback = scriptHandleFactory.CreateUniqueHandler(OnRemovePolymorph);
 
       onRemoveMetalBrulantDesarmementCallback = scriptHandleFactory.CreateUniqueHandler(OnRemoveMetalBrulantDesarmement);
       onIntervalMetalBrulantCallback = scriptHandleFactory.CreateUniqueHandler(OnIntervalMetalBrulant);

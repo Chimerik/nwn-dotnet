@@ -11,7 +11,7 @@ namespace NWN.Systems
     public const string FrightenedEffectTag = "_FRIGHTENED_EFFECT";
     private static ScriptCallbackHandle onRemoveEffroiCallback;
     private static ScriptCallbackHandle onIntervalEffroiCallback;
-    public static void ApplyEffroi(NwCreature target, NwCreature caster, TimeSpan duration, bool repeatSave = false, NwSpell spell = null)
+    public static void ApplyEffroi(NwCreature target, NwCreature caster, TimeSpan duration, int saveDC, bool repeatSave = false, NwSpell spell = null)
     {
       if (IsFrightImmune(target, caster))
         return;
@@ -25,6 +25,7 @@ namespace NWN.Systems
       eff.SubType = EffectSubType.Supernatural;
       eff.Creator = caster;
       eff.Spell = spell;
+      eff.CasterLevel = saveDC;
 
       target.GetObjectVariable<LocalVariableInt>("_PREVIOUS_MOVEMENT_RATE").Value = (int)target.MovementRate;
       target.MovementRate = MovementRate.Immobile;
@@ -60,9 +61,7 @@ namespace NWN.Systems
 
       if (eventData.EffectTarget is NwCreature target && eventData.Effect.Creator is NwCreature caster)
       {
-        int spellDC = SpellUtils.GetCasterSpellDC(caster, Ability.Charisma);
-
-        if (CreatureUtils.GetSavingThrow(caster, target, Ability.Wisdom, spellDC, effectType: SpellConfig.SpellEffectType.Fear) != SavingThrowResult.Failure)
+        if (CreatureUtils.GetSavingThrow(caster, target, Ability.Wisdom, eventData.Effect.CasterLevel, effectType: SpellConfig.SpellEffectType.Fear) != SavingThrowResult.Failure)
           target.RemoveEffect(eventData.Effect);
       }
       else if (eventData.EffectTarget is NwGameObject oTarget)

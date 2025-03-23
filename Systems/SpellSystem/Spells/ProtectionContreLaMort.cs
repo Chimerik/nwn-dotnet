@@ -18,8 +18,7 @@ namespace NWN.Systems
           EffectUtils.RemoveTaggedEffect(targetCreature, EffectSystem.ProtectionContreLaMortEffectTag);
           NWScript.AssignCommand(oCaster, () => targetCreature.ApplyEffect(EffectDuration.Temporary, EffectSystem.ProtectionContreLaMort, SpellUtils.GetSpellDuration(oCaster, spellEntry)));
 
-          targetCreature.OnDamaged -= SpellEvent.OnDamagedProtectionContreLaMort;
-          targetCreature.OnDamaged += SpellEvent.OnDamagedProtectionContreLaMort;
+          target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpDeathWard));
         }
       }
     }
