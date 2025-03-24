@@ -35,14 +35,14 @@ namespace NWN.Systems
       if (advantage < -900)
         return SavingThrowResult.Immune;
 
-      int totalSave = SpellUtils.GetSavingThrowRoll(target, ability, saveDC, advantage, feedback);
+      int totalSave = SpellUtils.GetSavingThrowRoll(target, ability, saveDC, advantage, feedback, spellEntry);
       SavingThrowResult saveResult = (SavingThrowResult)(totalSave >= saveDC).ToInt();
 
       if(saveResult == SavingThrowResult.Failure && target.ActiveEffects.Any(e => e.Tag == EffectSystem.InflexibleEffectTag))
       {
         StringUtils.DisplayStringToAllPlayersNearTarget(target, "Inflexible", StringUtils.gold, true, true);
         int fighterLevel = FighterUtils.GetFighterLevel(target);
-        totalSave = SpellUtils.GetSavingThrowRoll(target, ability, saveDC, advantage, feedback) + fighterLevel;
+        totalSave = SpellUtils.GetSavingThrowRoll(target, ability, saveDC, advantage, feedback, spellEntry) + fighterLevel;
         feedback.proficiencyBonus += fighterLevel;
         saveResult = (SavingThrowResult)(totalSave >= saveDC).ToInt();
 

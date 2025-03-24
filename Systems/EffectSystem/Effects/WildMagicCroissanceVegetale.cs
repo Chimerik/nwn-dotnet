@@ -13,7 +13,8 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurAuraGreenDark), Effect.AreaOfEffect(PersistentVfxType.PerEntangle, onEnterWildMagicCroissanceVegetaleCallback, onExitHandle:onExitWildMagicCroissanceVegetaleCallback));
+        Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.WildMagicCroissanceVegetale), Effect.VisualEffect(VfxType.DurAuraGreenDark), Effect.VisualEffect(VfxType.DurEntangle),
+          Effect.AreaOfEffect(PersistentVfxType.PerCustomAoe, onEnterWildMagicCroissanceVegetaleCallback, onExitHandle:onExitWildMagicCroissanceVegetaleCallback));
         eff.Tag = WildMagicCroissanceVegetaleAuraEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;
@@ -22,7 +23,7 @@ namespace NWN.Systems
     private static ScriptHandleResult onEnterWildMagicCroissanceVegetale(CallInfo callInfo)
     {
       if (callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) && eventData.Effect.Creator is NwCreature caster 
-        && eventData.Entering is NwCreature entering && caster != entering)
+        && eventData.Entering is NwCreature entering && caster != entering && caster.IsReactionTypeHostile(entering))
           ApplyTerrainDifficileEffect(entering, caster, NwSpell.FromSpellId(CustomSpell.CroissanceVegetale));
 
       return ScriptHandleResult.Handled;

@@ -5,7 +5,7 @@ namespace NWN.Systems
 {
   public static partial class SpellUtils
   {
-    public static int GetSavingThrowRoll(NwCreature target, Ability ability, int saveDC, int advantage, SpellConfig.SavingThrowFeedback feedback, bool fromSpell = false)
+    public static int GetSavingThrowRoll(NwCreature target, Ability ability, int saveDC, int advantage, SpellConfig.SavingThrowFeedback feedback, SpellEntry spellEntry = null)
     {
       int proficiencyBonus = GetSavingThrowProficiencyBonus(target, ability);
       int abilityModifier = target.GetAbilityModifier(ability);
@@ -33,8 +33,8 @@ namespace NWN.Systems
             break;
 
           case EffectSystem.SensDeLaMagieEffectTag:
-            
-            if (fromSpell && !protectionNoStack.Contains(EffectSystem.SensDeLaMagieEffectTag))
+
+            if (spellEntry is not null && !protectionNoStack.Contains(EffectSystem.SensDeLaMagieEffectTag))
             {
               int bonus = NativeUtils.GetCreatureProficiencyBonus(target);
               proficiencyBonus += bonus;

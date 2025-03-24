@@ -7,7 +7,7 @@ namespace NWN.Systems
     public const string TerrainDifficileEffectTag = "_TERRAIN_DIFFICILE_EFFECT";
     public static Effect TerrainDifficile(NwSpell spell, NwCreature caster)
     {
-      Effect eff = Effect.MovementSpeedDecrease(50);
+      Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.TerrainDifficile), Effect.MovementSpeedDecrease(50));
       eff.Tag = TerrainDifficileEffectTag;
       eff.SubType = EffectSubType.Supernatural;
       eff.Creator = caster;

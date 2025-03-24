@@ -585,8 +585,14 @@ namespace NWN.Systems
 
                     break;
 
-                  case "longRest": 
-                    
+                  case "longRest":
+
+                    var nbInspiHeroique = player.oid.LoginCreature.GetFeatRemainingUses((Feat)CustomSkill.InspirationHeroique);
+
+                    if (Utils.In(player.oid.LoginCreature.Race.RacialType, RacialType.Human, (RacialType)CustomRace.WoodHalfElf, (RacialType)CustomRace.DrowHalfElf, (RacialType)CustomRace.HighHalfElf)
+                      && nbInspiHeroique < 3)
+                      nbInspiHeroique += 1;
+
                     player.oid.LoginCreature.ForceRest();
                     player.oid.LoginCreature.GetObjectVariable<LocalVariableString>(CreatureUtils.RegardHypnotiqueTargetListVariable).Delete();
                     player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>(EffectSystem.EvocateurSurchargeVariable).Delete();
@@ -634,19 +640,7 @@ namespace NWN.Systems
 
                     if (player.oid.LoginCreature.Classes.Any(c => Utils.In(c.Class.ClassType, ClassType.Fighter, (ClassType)CustomClass.EldritchKnight) && c.Level < 17))
                       player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.FighterSurge, 1);
-                    
-                    if (player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.WildMagicSense))
-                    {
-                      player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.WildMagicSense, (byte)NativeUtils.GetCreatureProficiencyBonus(player.oid.LoginCreature));
-                      player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.WildMagicTeleportation, 0);
-
-                      if (player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.WildMagicMagieGalvanisanteBienfait))
-                        player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.WildMagicMagieGalvanisanteBienfait, (byte)NativeUtils.GetCreatureProficiencyBonus(player.oid.LoginCreature));
-
-                      if (player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.WildMagicMagieGalvanisanteRecuperation))
-                        player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.WildMagicMagieGalvanisanteRecuperation, (byte)NativeUtils.GetCreatureProficiencyBonus(player.oid.LoginCreature));
-                    }
-
+                     
                     player.oid.LoginCreature.ApplyEffect(EffectDuration.Temporary, EffectSystem.CanPrepareSpells, NwTimeSpan.FromHours(1));
 
                     foreach (var classInfo in player.oid.LoginCreature.Classes.Where(c => c.Class.IsSpellCaster))
@@ -677,10 +671,7 @@ namespace NWN.Systems
                       player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ChatimentOcculte, (byte)(player.oid.LoginCreature.GetClassInfo((ClassType)CustomClass.Occultiste).GetRemainingSpellSlots(1)));
 
                     player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ClercIncantationPuissante, 0);
-
-                    if (Utils.In(player.oid.LoginCreature.Race.RacialType, RacialType.Human, (RacialType)CustomRace.WoodHalfElf, (RacialType)CustomRace.DrowHalfElf, (RacialType)CustomRace.HighHalfElf) 
-                      && player.oid.LoginCreature.GetFeatRemainingUses((Feat)CustomSkill.InspirationHeroique) < 3)
-                      player.oid.LoginCreature.IncrementRemainingFeatUses((Feat)CustomSkill.InspirationHeroique);
+                    player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.InspirationHeroique, nbInspiHeroique);
 
                     break;
                 }

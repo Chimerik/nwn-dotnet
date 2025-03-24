@@ -1,4 +1,5 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
 using NWN.Core;
@@ -16,12 +17,13 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.RunAction();
+        Effect eff = Effect.Icon(CustomEffectIcon.WildMagicSensDeLaMagie);
         eff.Tag = SensDeLaMagieEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;
       }
     }
+
     public static Effect wildMagicAwarenessAura
     {
       get
@@ -35,7 +37,8 @@ namespace NWN.Systems
     private static ScriptHandleResult onEnterWildMagicAwarenessAura(CallInfo callInfo)
     {
       if (!callInfo.TryGetEvent(out AreaOfEffectEvents.OnEnter eventData) || eventData.Entering is not NwCreature entering 
-        || eventData.Effect.Creator is not NwCreature protector || entering.IsReactionTypeHostile(protector))
+        || eventData.Effect.Creator is not NwCreature protector || entering.IsReactionTypeHostile(protector)
+        || entering.ActiveEffects.Any(e => e.Tag == SensDeLaMagieEffectTag))
         return ScriptHandleResult.Handled;
 
       NWScript.AssignCommand(protector, () => entering.ApplyEffect(EffectDuration.Permanent, wildMagicAwareness));
@@ -47,9 +50,7 @@ namespace NWN.Systems
         || eventData.Effect.Creator is not NwCreature protector)
         return ScriptHandleResult.Handled;
 
-      foreach (var eff in exiting.ActiveEffects)
-        if (eff.Creator == protector && eff.Tag == SensDeLaMagieEffectTag)
-          exiting.RemoveEffect(eff);
+      EffectUtils.RemoveTaggedEffect(exiting, protector, SensDeLaMagieEffectTag);
 
       return ScriptHandleResult.Handled;
     }

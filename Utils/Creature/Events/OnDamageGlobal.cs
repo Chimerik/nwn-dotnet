@@ -22,7 +22,7 @@ namespace NWN.Systems
       int nbDice = 0;
       int roll;
       bool isSurcharge = false;
-      bool isCritical = damager.GetObjectVariable<LocalVariableInt>(CriticalHitVariable).HasValue;
+      bool isCritical = damager is not null && damager.GetObjectVariable<LocalVariableInt>(CriticalHitVariable).HasValue;
 
       if (isWeaponAttack)
       {

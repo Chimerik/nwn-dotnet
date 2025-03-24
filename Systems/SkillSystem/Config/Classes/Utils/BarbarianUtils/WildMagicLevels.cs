@@ -1,6 +1,5 @@
 ﻿using Anvil.API;
 using static NWN.Systems.PlayerSystem;
-using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
 {
@@ -15,25 +14,15 @@ namespace NWN.Systems
           new StrRef(5213).SetPlayerOverride(player.oid, "Magie Sauvage");
           player.oid.SetTextureOverride("barbarian", "wildmagic");
 
-          player.learnableSkills.TryAdd(CustomSkill.WildMagicSense, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.WildMagicSense], player));
-          player.learnableSkills[CustomSkill.WildMagicSense].LevelUp(player);
-          player.learnableSkills[CustomSkill.WildMagicSense].source.Add(Category.Class);
-
-          player.learnableSkills.TryAdd(CustomSkill.WildMagicTeleportation, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.WildMagicTeleportation], player));
-          player.learnableSkills[CustomSkill.WildMagicTeleportation].LevelUp(player);
-          player.learnableSkills[CustomSkill.WildMagicTeleportation].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.WildMagicSense);
+          player.LearnClassSkill(CustomSkill.WildMagicTeleportation);
 
           break;
 
         case 6:
 
-          player.learnableSkills.TryAdd(CustomSkill.WildMagicMagieGalvanisanteBienfait, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.WildMagicMagieGalvanisanteBienfait], player));
-          player.learnableSkills[CustomSkill.WildMagicMagieGalvanisanteBienfait].LevelUp(player);
-          player.learnableSkills[CustomSkill.WildMagicMagieGalvanisanteBienfait].source.Add(Category.Class);
-
-          player.learnableSkills.TryAdd(CustomSkill.WildMagicMagieGalvanisanteRecuperation, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.WildMagicMagieGalvanisanteRecuperation], player));
-          player.learnableSkills[CustomSkill.WildMagicMagieGalvanisanteRecuperation].LevelUp(player);
-          player.learnableSkills[CustomSkill.WildMagicMagieGalvanisanteRecuperation].source.Add(Category.Class);
+          player.LearnClassSkill(CustomSkill.WildMagicMagieGalvanisanteBienfait);
+          player.LearnClassSkill(CustomSkill.WildMagicMagieGalvanisanteRecuperation);
 
           break;
 

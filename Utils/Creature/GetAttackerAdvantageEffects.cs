@@ -11,7 +11,7 @@ namespace NWN.Systems
       foreach (var eff in attacker.m_appliedEffects)
       {
         string tag = eff.m_sCustomTag.ToString();
-
+        ModuleSystem.Log.Info(tag);
         switch(tag)
         {
           case EffectSystem.ChanceuxAvantageEffectTag: LogUtils.LogMessage("Avantage - Chanceux", LogUtils.LogType.Combat); attacker.RemoveEffect(eff); return true;

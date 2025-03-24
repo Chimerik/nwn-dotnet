@@ -39,6 +39,7 @@ namespace NWN
     public const EffectIcon GuerisonRayonnante = (EffectIcon)177;
     public const EffectIcon SentinelleImmortelle = (EffectIcon)178;
     public const EffectIcon Antidetection = (EffectIcon)179;
+    public const EffectIcon TerrainDifficile = (EffectIcon)180;
     public const EffectIcon ChatimentDivin = (EffectIcon)181;
     public const EffectIcon ChatimentAmeliore = (EffectIcon)182;
     public const EffectIcon Effroi = (EffectIcon)183;
@@ -196,5 +197,7 @@ namespace NWN
     public const EffectIcon TraitEnsorcele = (EffectIcon)305;
     public const EffectIcon AgresseurSauvage = (EffectIcon)306;
     public const EffectIcon ProtectionContreLaMort = (EffectIcon)307;
+    public const EffectIcon WildMagicSensDeLaMagie = (EffectIcon)308;
+    public const EffectIcon WildMagicCroissanceVegetale = (EffectIcon)309;
   }
 }

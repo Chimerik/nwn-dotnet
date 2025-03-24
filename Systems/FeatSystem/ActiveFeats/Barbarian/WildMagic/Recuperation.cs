@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using System.Numerics;
-using Anvil.API;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -8,13 +6,27 @@ namespace NWN.Systems
   {
     private static void Recuperation(NwCreature caster, NwGameObject target)
     {
-      if(target is not NwCreature creature)
+      if (target is not NwCreature creature)
       {
         caster.LoginPlayer?.SendServerMessage("Cible invalide", ColorConstants.Red);
         return;
       }
 
-      caster.LoginPlayer?.SendServerMessage("La récupération des emplacements de sorts n'est pas encore en place pour le moment", ColorConstants.Red);
+      caster.DecrementRemainingFeatUses((Feat)CustomSkill.WildMagicMagieGalvanisanteBienfait);
+      caster.DecrementRemainingFeatUses((Feat)CustomSkill.WildMagicMagieGalvanisanteRecuperation);
+
+      byte spellLevel = (byte)Utils.Roll(3);
+      StringUtils.DisplayStringToAllPlayersNearTarget(creature, $"{caster.Name.ColorString(ColorConstants.Cyan)} - Magie Galvanisante - Récupération sort niveau {spellLevel} sur {creature.Name.ColorString(ColorConstants.Cyan)}", StringUtils.gold, true, true);
+
+      foreach (var classInfo in caster.Classes)
+      {
+        if (classInfo.Class.IsSpellCaster)
+        {
+          var remainingSlots = classInfo.GetRemainingSpellSlots(spellLevel);
+          if (remainingSlots < classInfo.Class.SpellGainTable[spellLevel - 1].Count)
+            classInfo.SetRemainingSpellSlots(spellLevel, (byte)(remainingSlots + 1));
+        }
+      }
     }
   }
 }

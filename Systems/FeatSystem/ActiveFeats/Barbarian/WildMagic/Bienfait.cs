@@ -16,6 +16,8 @@ namespace NWN.Systems
 
       creature.ApplyEffect(EffectDuration.Temporary, EffectSystem.wildMagicBienfait, NwTimeSpan.FromRounds(10));
       creature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHolyAid));
+      caster.DecrementRemainingFeatUses((Feat)CustomSkill.WildMagicMagieGalvanisanteBienfait);
+      caster.DecrementRemainingFeatUses((Feat)CustomSkill.WildMagicMagieGalvanisanteRecuperation);
     }
   }
 }

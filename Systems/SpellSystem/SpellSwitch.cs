@@ -1520,6 +1520,9 @@ namespace NWN.Systems
         case CustomSpell.PuissanceSauvageOurs:
         case CustomSpell.PuissanceSauvageAigle:
         case CustomSpell.PuissanceSauvageLoup:
+        case CustomSpell.PuissanceSauvageFaucon:
+        case CustomSpell.PuissanceSauvageTigre:
+        case CustomSpell.PuissanceSauvageBelier:
           SpellSystem.RageDuBarbare(oCaster, spell);
           oCaster.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;

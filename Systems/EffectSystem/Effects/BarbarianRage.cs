@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
@@ -13,6 +12,7 @@ namespace NWN.Systems
     private static ScriptCallbackHandle onIntervalBarbarianRageCallback;
     public const string BarbarianRageEffectTag = "_EFFECT_BARBARIAN_RAGE";
     public const string BarbarianRageAveugleEffectTag = "_EFFECT_BARBARIAN_RAGE_AVEUGLE";
+
     public static Effect BarbarianRage(NwCreature caster, NwSpell spell)
     {
       int level = caster.GetClassInfo((ClassType)CustomClass.Barbarian).Level;
@@ -107,6 +107,9 @@ namespace NWN.Systems
           target.GetObjectVariable<LocalVariableObject<NwItem>>("_WILDMAGIC_ARME_INFUSEE_2").Delete();
         }
       }
+
+      if(eventData.Effect.Spell.Id == CustomSpell.RageSauvageOurs)
+        NWScript.AssignCommand(target, () => target.ApplyEffect(EffectDuration.Instant, Effect.Heal(Utils.Roll(8) + target.GetAbilityModifier(Ability.Constitution))));
 
       return ScriptHandleResult.Handled;
     }
