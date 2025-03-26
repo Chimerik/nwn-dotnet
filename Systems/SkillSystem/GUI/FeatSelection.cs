@@ -31,7 +31,7 @@ namespace NWN.Systems
         private IEnumerable<Learnable> currentList;
         private Learnable selectedLearnable;
 
-        public FeatSelectionWindow(Player player) : base(player)
+        public FeatSelectionWindow(Player player, bool originOnly = false) : base(player)
         {
           windowId = "featSelection";
           rootColumn.Children = rootChildren;
@@ -62,13 +62,14 @@ namespace NWN.Systems
             }, Width = player.guiScaledWidth * 0.6f - 370 }
           } });
 
-          CreateWindow();
+          CreateWindow(originOnly);
         }
-        public void CreateWindow()
+        public void CreateWindow(bool originOnly = false)
         {
-          player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_FEAT_SELECTION").Value = 1;
+          if(player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_FEAT_SELECTION").HasNothing)
+            player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_FEAT_SELECTION").Value = originOnly ? 2 : 1;
 
-          NuiRect savedRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(player.guiWidth * 0.2f, player.guiHeight * 0.05f, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f);
+          NuiRect savedRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(player.guiWidth * 0.2f, player.guiHeight * 0.05f, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f);
           selectedLearnable = null;
 
           window = new NuiWindow(rootColumn, "Choisissez un don")
@@ -95,7 +96,9 @@ namespace NWN.Systems
             geometry.SetBindValue(player.oid, nuiToken.Token, new NuiRect(savedRectangle.X, savedRectangle.Y, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f));
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-            currentList = learnableDictionary.Values.Where(s => s is LearnableSkill ls && ls.category == Category.Feat && (!player.learnableSkills.ContainsKey(s.id) 
+            Category[] category = originOnly ? new[] { Category.OriginFeat } : new[] { Category.Feat, Category.OriginFeat };
+
+            currentList = learnableDictionary.Values.Where(s => s is LearnableSkill ls && Utils.In(ls.category, category) && (!player.learnableSkills.ContainsKey(s.id) 
               || player.learnableSkills[s.id].currentLevel < s.maxLevel)).OrderBy(s => s.name);                        
             
             LoadLearnableList(currentList);
@@ -152,12 +155,19 @@ namespace NWN.Systems
 
                 case "validate":
 
-                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_FEAT_SELECTION").Delete();
-
                   player.learnableSkills.TryAdd(selectedLearnable.id, new LearnableSkill((LearnableSkill)learnableDictionary[selectedLearnable.id], player, levelTaken: player.oid.LoginCreature.Level));
                   player.learnableSkills[selectedLearnable.id].LevelUp(player);
+                  
+                  switch(player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_FEAT_SELECTION").Value)
+                  {
+                    case 2: player.learnableSkills[selectedLearnable.id].source.Add(Category.StartingTraits); break;
+                    case 3: player.learnableSkills[selectedLearnable.id].source.Add(Category.Race); break;  
+                    default: player.learnableSkills[selectedLearnable.id].source.Add(Category.Feat); break;
+                  }                    
 
                   player.oid.SendServerMessage($"Vous avez acquis le don {StringUtils.ToWhitecolor(selectedLearnable.name)} !", ColorConstants.Orange);
+
+                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_FEAT_SELECTION").Delete();
 
                   CloseWindow();
 

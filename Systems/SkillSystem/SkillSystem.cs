@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using Anvil.API;
 using System.ComponentModel;
-using System.Threading.Tasks;
 using System.Linq;
+using static NWN.Systems.PlayerSystem;
+using static NWN.Systems.PlayerSystem.Player;
 
 namespace NWN.Systems
 {
@@ -275,17 +276,17 @@ namespace NWN.Systems
 
       // ORIGIN FEATS
 
-      learnableDictionary.Add(CustomSkill.Vigilant, new LearnableSkill(CustomSkill.Vigilant, "Vigilant", "Toujours à l'affut du danger, vous ajoutez votre bonus de maîtrise à votre jet d'initiative. De plus vous êtes capable de donner vos bonus d'initiatives à une autre créature ayant réalisé un jet inférieur au votre.", Category.OriginFeat, "is_Vigilant", 1, 5, Ability.Wisdom, Ability.Dexterity, LearnActivableFeat));
-      learnableDictionary.Add(CustomSkill.Healer, new LearnableSkill(CustomSkill.Healer, "Guérisseur", "Vous êtes un bon médecin. Vous êtes capables d'utiliser les kits de soin et de rendre à la créature soignée un nombre de points de vie égal à 1d8 + votre bonus de maîtrise.\n\nLorsque vous lancez un dé pour rendre des points à l'aide d'un sort ou d'un kit de soin, vous relancez le dé si jamais celui-ci est égal à 1. Vous devez obligatoirement utiliser le nouveau jet.", Category.OriginFeat, "is_Healer", 1, 5, Ability.Intelligence, Ability.Wisdom, LearnActivableFeat));
-      learnableDictionary.Add(CustomSkill.Chanceux, new LearnableSkill(CustomSkill.Chanceux, "Chanceux", "Vous avez une chance inexplicable qui tombe toujours au bon moment.\n\nA chaque long repos, vous disposez de 3 points de chance.\n\nSi vous vous ciblez vous-même, le prochain jet que vous effectuerez bénéficiera d'un avantage.\n\nSi vous ciblez une autre créature, sa prochaine attaque portée contre vous sera effectuée avec désavantage.", Category.OriginFeat, "is_Lucky", 1, 5, Ability.Charisma, Ability.Constitution, LearnActivableFeat));
-      //learnableDictionary.Add(CustomSkill.InitieArcanique, new LearnableSkill(CustomSkill.InitieArcanique, "Initié Arcanique", "Vous apprenez trois tours de magie de Magicien. Vous utilisez votre caractéristique la plus élevée parmi Intelligence, Sagesse et Charisme pour les lancer.", Category.OriginFeat, "is_MageInitiate", 1, 5, Ability.Intelligence, Ability.Wisdom, OnLearnInitieArcanique));
-      //learnableDictionary.Add(CustomSkill.InitieMystique, new LearnableSkill(CustomSkill.InitieMystique, "Initié Mystique", "Vous apprenez trois tours de magie de Clerc. Vous utilisez votre caractéristique la plus élevée parmi Intelligence, Sagesse et Charisme pour les lancer.", Category.OriginFeat, "is_ClericInitiate", 1, 5, Ability.Wisdom, Ability.Charisma, OnLearnInitieMystique));
-      //learnableDictionary.Add(CustomSkill.InitieDruidique, new LearnableSkill(CustomSkill.InitieDruidique, "Initié Druidique", "Vous apprenez trois tours de magie de Druide. Vous utilisez votre caractéristique la plus élevée parmi Intelligence, Sagesse et Charisme pour les lancer.", Category.OriginFeat, "is_DruidInitiate", 1, 5, Ability.Wisdom, Ability.Intelligence, OnLearnInitieDruidique));
-      learnableDictionary.Add(CustomSkill.Musicien, new LearnableSkill(CustomSkill.Musicien, "Musicien", "Vous maîtrisez trois instruments de musique de votre choix.\n\nUne fois par repos court, lorsque vous jouez de l'un de ces instruments, vous pouvez donner une Inspiration Héroïque à nombre de créatures égal à votre bonus de maîtrise.", Category.OriginFeat, "is_Musician", 1, 5, Ability.Charisma, Ability.Intelligence, LearnActivableFeat, restoreOnShortRest: true));
-      learnableDictionary.Add(CustomSkill.AgresseurSauvage, new LearnableSkill(CustomSkill.AgresseurSauvage, "Agresseur Sauvage", "Vous êtes entrainé à effectuer des attaques efficaces. Une fois par round, lorsque vous infligez des dégâts avec une arme, vous lancez vos dés dégâts deux fois et utilisez le meilleur résultat.", Category.OriginFeat, "is_SavageAg", 1, 5, Ability.Strength, Ability.Dexterity, OnLearnAgresseurSauvage));
-      learnableDictionary.Add(CustomSkill.Doue, new LearnableSkill(CustomSkill.Doue, "Doué", "Vous maîtrisez trois compétences supplémentaires de votre choix.", Category.OriginFeat, "is_Doue", 1, 5, Ability.Intelligence, Ability.Wisdom, OnLearnDoue));
-      learnableDictionary.Add(CustomSkill.BagarreurDeTaverne, new LearnableSkill(CustomSkill.BagarreurDeTaverne, "Bagarreur de taverne", "Vous bénéficiez des effets ci-dessous\n- Vous maîtrisez les armes improvisées (pour le moment uniquement utilisable en animation. Dégâts à la discrétion du DM : 1d4 si l'objet utilisé ne peut pas faire office d'arme, sinon dégâts de l'arme dont il se rapproche le plus)\n- Votre attaque à mains nues utilise 1d4 pour les dégâts (si elle n'est pas déjà supérieure)\n- Lorsque vous infligez des dégâts avec une attaque à mains nues et que votre jet est de 1, vous relancez le jet et utilisez le nouveau résultat", Category.Feat, "is_Bagarreur", 1, 5, Ability.Strength, Ability.Dexterity, LearnActivableFeat));
-      learnableDictionary.Add(CustomSkill.Robuste, new LearnableSkill(CustomSkill.Robuste, "Robuste", "Vous gagnez 2 points de vie supplémentaires pour chaque niveau. Ce don est rétroactif.", Category.OriginFeat, "is_Robuste", 1, 5, Ability.Constitution, Ability.Strength, OnLearnRobuste));
+      learnableDictionary.Add(CustomSkill.Vigilant, new LearnableSkill(CustomSkill.Vigilant, "Vigilant", "Don d'origine\n\nToujours à l'affut du danger, vous ajoutez votre bonus de maîtrise à votre jet d'initiative. De plus vous êtes capable de donner vos bonus d'initiatives à une autre créature ayant réalisé un jet inférieur au votre.", Category.OriginFeat, "is_Vigilant", 1, 5, Ability.Wisdom, Ability.Dexterity, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.Healer, new LearnableSkill(CustomSkill.Healer, "Guérisseur", "Don d'origine\n\nVous êtes un bon médecin. Vous êtes capables d'utiliser les kits de soin et de rendre à la créature soignée un nombre de points de vie égal à 1d8 + votre bonus de maîtrise.\n\nLorsque vous lancez un dé pour rendre des points à l'aide d'un sort ou d'un kit de soin, vous relancez le dé si jamais celui-ci est égal à 1. Vous devez obligatoirement utiliser le nouveau jet.", Category.OriginFeat, "is_Healer", 1, 5, Ability.Intelligence, Ability.Wisdom, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.Chanceux, new LearnableSkill(CustomSkill.Chanceux, "Chanceux", "Don d'origine\n\nVous avez une chance inexplicable qui tombe toujours au bon moment.\n\nA chaque long repos, vous disposez de 3 points de chance.\n\nSi vous vous ciblez vous-même, le prochain jet que vous effectuerez bénéficiera d'un avantage.\n\nSi vous ciblez une autre créature, sa prochaine attaque portée contre vous sera effectuée avec désavantage.", Category.OriginFeat, "is_Lucky", 1, 5, Ability.Charisma, Ability.Constitution, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.InitieArcanique, new LearnableSkill(CustomSkill.InitieArcanique, "Initié Arcanique", "Don d'origine\n\nVous apprenez trois tours de magie de Magicien. Vous utilisez votre caractéristique la plus élevée parmi Intelligence, Sagesse et Charisme pour les lancer.", Category.OriginFeat, "is_MageInitiate", 1, 5, Ability.Intelligence, Ability.Wisdom, OnLearnInitieArcanique));
+      learnableDictionary.Add(CustomSkill.InitieMystique, new LearnableSkill(CustomSkill.InitieMystique, "Initié Mystique", "Don d'origine\n\nVous apprenez trois tours de magie de Clerc. Vous utilisez votre caractéristique la plus élevée parmi Intelligence, Sagesse et Charisme pour les lancer.", Category.OriginFeat, "is_ClericInitiate", 1, 5, Ability.Wisdom, Ability.Charisma, OnLearnInitieMystique));
+      learnableDictionary.Add(CustomSkill.InitieDruidique, new LearnableSkill(CustomSkill.InitieDruidique, "Initié Druidique", "Don d'origine\n\nVous apprenez trois tours de magie de Druide. Vous utilisez votre caractéristique la plus élevée parmi Intelligence, Sagesse et Charisme pour les lancer.", Category.OriginFeat, "is_DruidInitiate", 1, 5, Ability.Wisdom, Ability.Intelligence, OnLearnInitieDruidique));
+      learnableDictionary.Add(CustomSkill.Musicien, new LearnableSkill(CustomSkill.Musicien, "Musicien", "Don d'origine\n\nVous maîtrisez trois instruments de musique de votre choix.\n\nUne fois par repos court, lorsque vous jouez de l'un de ces instruments, vous pouvez donner une Inspiration Héroïque à nombre de créatures égal à votre bonus de maîtrise.", Category.OriginFeat, "is_Musician", 1, 5, Ability.Charisma, Ability.Intelligence, LearnActivableFeat, restoreOnShortRest: true));
+      learnableDictionary.Add(CustomSkill.AgresseurSauvage, new LearnableSkill(CustomSkill.AgresseurSauvage, "Agresseur Sauvage", "Don d'origine\n\nVous êtes entrainé à effectuer des attaques efficaces. Une fois par round, lorsque vous infligez des dégâts avec une arme, vous lancez vos dés dégâts deux fois et utilisez le meilleur résultat.", Category.OriginFeat, "is_SavageAg", 1, 5, Ability.Strength, Ability.Dexterity, OnLearnAgresseurSauvage));
+      learnableDictionary.Add(CustomSkill.Doue, new LearnableSkill(CustomSkill.Doue, "Doué", "Don d'origine\n\nVous maîtrisez trois compétences supplémentaires de votre choix.", Category.OriginFeat, "is_Doue", 1, 5, Ability.Intelligence, Ability.Wisdom, OnLearnDoue));
+      learnableDictionary.Add(CustomSkill.BagarreurDeTaverne, new LearnableSkill(CustomSkill.BagarreurDeTaverne, "Bagarreur de taverne", "Don d'origine\n\nVous bénéficiez des effets ci-dessous\n- Vous maîtrisez les armes improvisées (pour le moment uniquement utilisable en animation. Dégâts à la discrétion du DM : 1d4 si l'objet utilisé ne peut pas faire office d'arme, sinon dégâts de l'arme dont il se rapproche le plus)\n- Votre attaque à mains nues utilise 1d4 pour les dégâts (si elle n'est pas déjà supérieure)\n- Lorsque vous infligez des dégâts avec une attaque à mains nues et que votre jet est de 1, vous relancez le jet et utilisez le nouveau résultat", Category.Feat, "is_Bagarreur", 1, 5, Ability.Strength, Ability.Dexterity, LearnActivableFeat));
+      learnableDictionary.Add(CustomSkill.Robuste, new LearnableSkill(CustomSkill.Robuste, "Robuste", "Don d'origine\n\nVous gagnez 2 points de vie supplémentaires pour chaque niveau. Ce don est rétroactif.", Category.OriginFeat, "is_Robuste", 1, 5, Ability.Constitution, Ability.Strength, OnLearnRobuste));
 
       // FEATS
 
@@ -490,9 +491,9 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomSkill.BarbarianTotem, new LearnableSkill(CustomSkill.BarbarianTotem, "Totem", "", Category.BarbarianSubClass, "totem", 20, 1, Ability.Strength, Ability.Constitution, Barbarian.LevelUp, "1zMgiYOS_r39s-uv0A3bAK4582Srv8Dn00WPbayF8lTo"));
       learnableDictionary.Add(CustomSkill.TotemSpeakAnimal, new LearnableSkill(CustomSkill.TotemSpeakAnimal, "Communication Animale (Voie du Totem)", NwSpell.FromSpellId(CustomSpell.SpeakAnimal).Description.ToString(), Category.Magic, NwSpell.FromSpellId(CustomSpell.SpeakAnimal).IconResRef, 1, 1, Ability.Wisdom, Ability.Charisma, LearnActivableFeat));
       learnableDictionary.Add(CustomSkill.TotemSensAnimal, new LearnableSkill(CustomSkill.TotemSensAnimal, "Sens Animal (Voie du Totem)", NwSpell.FromSpellId(CustomSpell.SpeakAnimal).Description.ToString(), Category.Magic, NwSpell.FromSpellId(CustomSpell.SensAnimal).IconResRef, 1, 1, Ability.Wisdom, Ability.Charisma, LearnActivableFeat));
-      learnableDictionary.Add(CustomSkill.TotemRage, new LearnableSkill(CustomSkill.TotemRage, "Rage Sauvage", "Votre rage peut-être utilisée avec trois options différentes :\n- Ours : Sous rage, vous bénéficiez d'une résistance à tous les dégâts, à l'exception de force, nécrotique, psychique et radiant. Lorsque votre rage prend fin, vous récupérez 1d8 + modificateur de Constitution points de vie\n- Aigle : Lorsque vous activez votre rage, vous déclenchez à la fois les effets de Sprint et de Désengagement. Tant que votre rage est active, lorsque vous Sprint est utilisé comme action bonus et vous permet de bénéficier des effets de Désengagement\n- Loup : Sous  rage, les attaques contre vos ennemis à portée de mêlée bénéficient d'un avantage lorsqu'elles sont effectuées par des créatures autres que vous", Category.Fight, "ife_rage", 1, 1, Ability.Constitution, Ability.Strength, OnLearnTotemRage));
+      learnableDictionary.Add(CustomSkill.TotemRage, new LearnableSkill(CustomSkill.TotemRage, "Rage Sauvage", "Votre rage peut-être utilisée avec trois options différentes :\n- Ours : Sous rage, vous bénéficiez d'une résistance à tous les dégâts, à l'exception de force, nécrotique, psychique et radiant. Lorsque votre rage prend fin, vous récupérez 1d8 + modificateur de Constitution points de vie\n- Aigle : Lorsque vous activez votre rage, vous déclenchez à la fois les effets de Sprint et de Désengagement. Tant que votre rage est active, Sprint peut-être utilisé comme action bonus et vous permet de bénéficier des effets de Désengagement\n- Loup : Sous  rage, les attaques contre vos ennemis à portée de mêlée bénéficient d'un avantage lorsqu'elles sont effectuées par des créatures autres que vous", Category.Fight, "ife_rage", 1, 1, Ability.Constitution, Ability.Strength, OnLearnTotemRage));
       learnableDictionary.Add(CustomSkill.TotemAspectSauvage, new LearnableSkill(CustomSkill.TotemAspectSauvage, "Aspect Sauvage", "Une fois par repos court, vous pouvez choisir l'une des option ci-dessous\n- Chouette : Vision dans le noir\n- Saumon : Vous disposez d'une vitesse de nage égale à votre vitesse de déplacement\n- Panthère : Vous disposez d'une vitesse d'escalade égale à votre vitesse de déplacement", Category.MindBody, "is_FerociteIndom", 1, 1, Ability.Strength, Ability.Constitution, LearnActivableFeat, restoreOnShortRest:true));
-      learnableDictionary.Add(CustomSkill.TotemPuissanceSauvage, new LearnableSkill(CustomSkill.TotemPuissanceSauvage, "Puissance Sauvage", "", Category.Fight, "is_FerociteIndom", 1, 1, Ability.Strength, Ability.Constitution, OnLearnTotemPuissanceSauvage, restoreOnShortRest:true));
+      learnableDictionary.Add(CustomSkill.TotemPuissanceSauvage, new LearnableSkill(CustomSkill.TotemPuissanceSauvage, "Puissance Sauvage", "Vous pouvez ajouter à votre rage l’un des six effets ci-dessous :\n\n- Ours : Sous rage, vous bénéficiez d’une résistance à tous les dégâts, à l’exception de force, nécrotique, psychique et radiant. Une fois par rage, vous pouvez utilisez l’action Férocité Indomptable pour vous soigner de 1d8 + modificateur de Constitution\n\n- Aigle : Lorsque vous activez votre rage, vous déclenchez à la fois les effets de Sprint et de Désengagement. Tant que votre rage est active, Sprint peut être utilisé comme action bonus et vous permet de bénéficier des effets de Désengagement\n\n- Loup : Sous  rage, les attaques contre vos ennemis à portée de mêlée bénéficient d’un avantage lorsqu’elles sont effectuées par des créatures autres que vous\n\n- Faucon : Vous bénéficiez d’une vitesse de vol égale à votre vitesse de déplacement\n\n- Tigre : Les attaques de vos ennemis à portée de mêlée subissent un désavantage si elles sont effectuées contre une cible n’ayant pas un effet de Provocation actif\n\n- Bélier : Vos attaques de mêlée réussies sur des cibles de taille Large ou inférieure infligent la Déstabilisation", Category.Fight, "is_FerociteIndom", 1, 1, Ability.Strength, Ability.Constitution, OnLearnTotemPuissanceSauvage, restoreOnShortRest:true));
 
       learnableDictionary.Add(CustomSkill.TotemCommunionAvecLaNature, new LearnableSkill(CustomSkill.TotemCommunionAvecLaNature, "Communion avec la nature (Voie du Totem)", NwSpell.FromSpellId(CustomSpell.CommunionAvecLaNature).Description.ToString(), Category.Magic, NwSpell.FromSpellId(CustomSpell.CommunionAvecLaNature).IconResRef, 1, 1, Ability.Wisdom, Ability.Charisma, LearnActivableFeat));
 
@@ -1508,519 +1509,408 @@ namespace NWN.Systems
 
       return true;
     }
-    private static bool HandleHeavyArmorProficiency(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleHeavyArmorProficiency(Player player, int customSkillId)
     {
       player.oid.LoginCreature.AddFeat((Feat)CustomSkill.HeavyArmorProficiency);
       EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.ShieldArmorDisadvantageEffectTag);
       return true;
     }
-    private static bool HandleAcolyteBackground(PlayerSystem.Player player, int customSkillId)
+
+    private static void LearnStartingTrait(Player player, int skillId)
     {
-      if(player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency], player)))
-        player.learnableSkills[CustomSkill.InsightProficiency].LevelUp(player);
+      if (player.learnableSkills.TryAdd(skillId, new LearnableSkill((LearnableSkill)learnableDictionary[skillId], player)))
+        player.learnableSkills[skillId].LevelUp(player);
 
-      player.learnableSkills[CustomSkill.InsightProficiency].source.Add(Category.StartingTraits);
+      player.learnableSkills[skillId].source.Add(Category.StartingTraits);
+    }
 
-      if(player.learnableSkills.TryAdd(CustomSkill.ReligionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ReligionProficiency], player)))
-      player.learnableSkills[CustomSkill.ReligionProficiency].LevelUp(player);
+    private static void ClearPreviousStartingTrait(Player player)
+    {
+      foreach (var learnable in player.learnableSkills.Values)
+      {
+        if (learnable.category == Category.OriginFeat && learnable.source.Contains(Category.StartingTraits))
+        {
+          if (learnable.source.Count < 2)
+          {
+            player.oid.LoginCreature.RemoveFeat((Feat)learnable.id);
+            DelayLearnableRemoval(player, learnable.id);
+          }
 
-      player.learnableSkills[CustomSkill.ReligionProficiency].source.Add(Category.StartingTraits);
+          learnable.source.Remove(Category.StartingTraits);
+        }
+      }
+    }
+
+    private static async void DelayLearnableRemoval(Player player, int learnableId)
+    {
+      await NwTask.NextFrame();
+      player.learnableSkills.Remove(learnableId);
+    }
+
+    private static bool HandleAcolyteBackground(Player player, int customSkillId)
+    {
+      LearnStartingTrait(player, CustomSkill.InsightProficiency);
+      LearnStartingTrait(player, CustomSkill.ReligionProficiency);
+      ClearPreviousStartingTrait(player);
+
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
 
       return true;
     }
-    private static bool HandleAnthropologistBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleAnthropologistBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency], player)))
-      player.learnableSkills[CustomSkill.InsightProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.InsightProficiency);
+      LearnStartingTrait(player, CustomSkill.HistoryProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.InsightProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.HistoryProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HistoryProficiency], player)))
-      player.learnableSkills[CustomSkill.HistoryProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.HistoryProficiency].source.Add(Category.StartingTraits);
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
 
       return true;
     }
-    private static bool HandleArcheologistBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleArcheologistBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.HistoryProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HistoryProficiency], player)))
-      player.learnableSkills[CustomSkill.HistoryProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.HistoryProficiency);
+      LearnStartingTrait(player, CustomSkill.SurvivalProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.HistoryProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency], player)))
-      player.learnableSkills[CustomSkill.SurvivalProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.SurvivalProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleScholarBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleScholarBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.HistoryProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HistoryProficiency], player)))
-      player.learnableSkills[CustomSkill.HistoryProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.HistoryProficiency].source.Add(Category.StartingTraits);
-
       int selectedBonus = player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_SELECTED_SCHOLAR_BONUS");
+      LearnStartingTrait(player, CustomSkill.HistoryProficiency);
+      LearnStartingTrait(player, selectedBonus);
+      ClearPreviousStartingTrait(player);
 
-      if (player.learnableSkills.TryAdd(selectedBonus, new LearnableSkill((LearnableSkill)learnableDictionary[selectedBonus], player)))
-      player.learnableSkills[selectedBonus].LevelUp(player);
-
-      player.learnableSkills[selectedBonus].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleSageBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleSageBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.HistoryProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HistoryProficiency], player)))
-      player.learnableSkills[CustomSkill.HistoryProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.HistoryProficiency);
+      LearnStartingTrait(player, CustomSkill.ArcanaProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.HistoryProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.ArcanaProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ArcanaProficiency], player)))
-      player.learnableSkills[CustomSkill.ArcanaProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.ArcanaProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleHermitBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleHermitBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.MedicineProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MedicineProficiency], player)))
-      player.learnableSkills[CustomSkill.MedicineProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.MedicineProficiency);
+      LearnStartingTrait(player, CustomSkill.ReligionProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.MedicineProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.ReligionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ReligionProficiency], player)))
-      player.learnableSkills[CustomSkill.ReligionProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.ReligionProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleWandererBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleWandererBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency], player)))
-      player.learnableSkills[CustomSkill.SurvivalProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.SurvivalProficiency);
+      LearnStartingTrait(player, CustomSkill.PersuasionProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.SurvivalProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.PersuasionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PersuasionProficiency], player)))
-      player.learnableSkills[CustomSkill.PersuasionProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.PersuasionProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleAthleteBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleAthleteBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.AcrobaticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AcrobaticsProficiency], player)))
-      player.learnableSkills[CustomSkill.AcrobaticsProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.AcrobaticsProficiency);
+      LearnStartingTrait(player, CustomSkill.AthleticsProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.AcrobaticsProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.AthleticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AthleticsProficiency], player)))
-      player.learnableSkills[CustomSkill.AthleticsProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.AthleticsProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleOutlanderBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleOutlanderBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.AthleticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AthleticsProficiency], player)))
-      player.learnableSkills[CustomSkill.AthleticsProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.AthleticsProficiency);
+      LearnStartingTrait(player, CustomSkill.SurvivalProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.AthleticsProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency], player)))
-      player.learnableSkills[CustomSkill.SurvivalProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.SurvivalProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleSoldierBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleSoldierBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.AthleticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AthleticsProficiency], player)))
-      player.learnableSkills[CustomSkill.AthleticsProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.AthleticsProficiency);
+      LearnStartingTrait(player, CustomSkill.IntimidationProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.AthleticsProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.IntimidationProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.IntimidationProficiency], player)))
-      player.learnableSkills[CustomSkill.IntimidationProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.IntimidationProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleMercenaryBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleMercenaryBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.AthleticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AthleticsProficiency], player)))
-      player.learnableSkills[CustomSkill.AthleticsProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.AthleticsProficiency);
+      LearnStartingTrait(player, CustomSkill.PersuasionProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.AthleticsProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.PersuasionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PersuasionProficiency], player)))
-      player.learnableSkills[CustomSkill.PersuasionProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.PersuasionProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleFolkHeroBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleFolkHeroBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.AnimalHandlingProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AnimalHandlingProficiency], player)))
-      player.learnableSkills[CustomSkill.AnimalHandlingProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.AnimalHandlingProficiency);
+      LearnStartingTrait(player, CustomSkill.SurvivalProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.AnimalHandlingProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency], player)))
-      player.learnableSkills[CustomSkill.SurvivalProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.SurvivalProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleSailorBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleSailorBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.AthleticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AthleticsProficiency], player)))
-      player.learnableSkills[CustomSkill.AthleticsProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.AthleticsProficiency);
+      LearnStartingTrait(player, CustomSkill.PerceptionProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.AthleticsProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.PerceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PerceptionProficiency], player)))
-      player.learnableSkills[CustomSkill.PerceptionProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.PerceptionProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleShipwrightBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleShipwrightBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.HistoryProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HistoryProficiency], player)))
-      player.learnableSkills[CustomSkill.HistoryProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.HistoryProficiency);
+      LearnStartingTrait(player, CustomSkill.PerceptionProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.HistoryProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.PerceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PerceptionProficiency], player)))
-      player.learnableSkills[CustomSkill.PerceptionProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.PerceptionProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleFisherBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleFisherBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.MedicineProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.MedicineProficiency], player)))
-      player.learnableSkills[CustomSkill.MedicineProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.MedicineProficiency);
+      LearnStartingTrait(player, CustomSkill.SurvivalProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.MedicineProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency], player)))
-      player.learnableSkills[CustomSkill.SurvivalProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.SurvivalProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleMarineBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleMarineBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.PerceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PerceptionProficiency], player)))
-      player.learnableSkills[CustomSkill.PerceptionProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.PerceptionProficiency);
+      LearnStartingTrait(player, CustomSkill.SurvivalProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.PerceptionProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency], player)))
-      player.learnableSkills[CustomSkill.SurvivalProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.SurvivalProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleCriminalBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleCriminalBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency], player)))
-      player.learnableSkills[CustomSkill.DeceptionProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.DeceptionProficiency);
+      LearnStartingTrait(player, CustomSkill.StealthProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.DeceptionProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.StealthProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.StealthProficiency], player)))
-      player.learnableSkills[CustomSkill.StealthProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.StealthProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleCharlatanBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleCharlatanBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency], player)))
-      player.learnableSkills[CustomSkill.DeceptionProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.DeceptionProficiency);
+      LearnStartingTrait(player, CustomSkill.SleightOfHandProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.DeceptionProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.SleightOfHandProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SleightOfHandProficiency], player)))
-      player.learnableSkills[CustomSkill.SleightOfHandProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.SleightOfHandProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleSmugglerBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleSmugglerBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency], player)))
-      player.learnableSkills[CustomSkill.DeceptionProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.DeceptionProficiency);
+      LearnStartingTrait(player, CustomSkill.AthleticsProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.DeceptionProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.AthleticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AthleticsProficiency], player)))
-      player.learnableSkills[CustomSkill.AthleticsProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.AthleticsProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleUrchinBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleUrchinBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.SleightOfHandProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SleightOfHandProficiency], player)))
-      player.learnableSkills[CustomSkill.SleightOfHandProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.SleightOfHandProficiency);
+      LearnStartingTrait(player, CustomSkill.StealthProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.SleightOfHandProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.StealthProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.StealthProficiency], player)))
-      player.learnableSkills[CustomSkill.StealthProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.StealthProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleGamblerBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleGamblerBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency], player)))
-      player.learnableSkills[CustomSkill.DeceptionProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.DeceptionProficiency);
+      LearnStartingTrait(player, CustomSkill.InsightProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.DeceptionProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency], player)))
-      player.learnableSkills[CustomSkill.InsightProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.InsightProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleEntertainerBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleEntertainerBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.PerformanceProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PerformanceProficiency], player)))
-      player.learnableSkills[CustomSkill.PerformanceProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.PerformanceProficiency);
+      LearnStartingTrait(player, CustomSkill.AcrobaticsProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.PerformanceProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.AcrobaticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AcrobaticsProficiency], player)))
-      player.learnableSkills[CustomSkill.AcrobaticsProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.AcrobaticsProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleCityWatchBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleCityWatchBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.AthleticsProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AthleticsProficiency], player)))
-      player.learnableSkills[CustomSkill.AthleticsProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.AthleticsProficiency);
+      LearnStartingTrait(player, CustomSkill.InsightProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.AthleticsProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency], player)))
-      player.learnableSkills[CustomSkill.InsightProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.InsightProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleInvestigatorBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleInvestigatorBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.InvestigationProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InvestigationProficiency], player)))
-      player.learnableSkills[CustomSkill.InvestigationProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.InvestigationProficiency);
+      LearnStartingTrait(player, CustomSkill.InsightProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.InvestigationProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency], player)))
-      player.learnableSkills[CustomSkill.InsightProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.InsightProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleKnightBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleKnightBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.PersuasionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PersuasionProficiency], player)))
-      player.learnableSkills[CustomSkill.PersuasionProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.PersuasionProficiency);
+      LearnStartingTrait(player, CustomSkill.ReligionProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.PersuasionProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.ReligionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ReligionProficiency], player)))
-      player.learnableSkills[CustomSkill.ReligionProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.ReligionProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleNobleBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleNobleBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.PersuasionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PersuasionProficiency], player)))
-      player.learnableSkills[CustomSkill.PersuasionProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.PersuasionProficiency);
+      LearnStartingTrait(player, CustomSkill.HistoryProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.PersuasionProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.HistoryProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.HistoryProficiency], player)))
-      player.learnableSkills[CustomSkill.HistoryProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.HistoryProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleCourtierBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleCourtierBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.PersuasionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PersuasionProficiency], player)))
-      player.learnableSkills[CustomSkill.PersuasionProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.PersuasionProficiency);
+      LearnStartingTrait(player, CustomSkill.InsightProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.PersuasionProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency], player)))
-      player.learnableSkills[CustomSkill.InsightProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.InsightProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleMerchantBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleMerchantBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.PersuasionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PersuasionProficiency], player)))
-      player.learnableSkills[CustomSkill.PersuasionProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.PersuasionProficiency);
+      LearnStartingTrait(player, CustomSkill.InvestigationProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.PersuasionProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.InvestigationProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InvestigationProficiency], player)))
-      player.learnableSkills[CustomSkill.InvestigationProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.InvestigationProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleTakenBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleTakenBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.NatureProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.NatureProficiency], player)))
-      player.learnableSkills[CustomSkill.NatureProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.NatureProficiency);
+      LearnStartingTrait(player, CustomSkill.SurvivalProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.NatureProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency], player)))
-      player.learnableSkills[CustomSkill.SurvivalProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.SurvivalProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleScionBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleScionBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.PerceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PerceptionProficiency], player)))
-      player.learnableSkills[CustomSkill.PerceptionProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.PerceptionProficiency);
+      LearnStartingTrait(player, CustomSkill.PerformanceProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.PerceptionProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.PerformanceProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PerformanceProficiency], player)))
-      player.learnableSkills[CustomSkill.PerformanceProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.PerformanceProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleMagistrateBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleMagistrateBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency], player)))
-      player.learnableSkills[CustomSkill.InsightProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.InsightProficiency);
+      LearnStartingTrait(player, CustomSkill.IntimidationProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.InsightProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.IntimidationProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.IntimidationProficiency], player)))
-      player.learnableSkills[CustomSkill.IntimidationProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.IntimidationProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleRefugeeBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleRefugeeBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.InsightProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InsightProficiency], player)))
-      player.learnableSkills[CustomSkill.InsightProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.InsightProficiency);
+      LearnStartingTrait(player, CustomSkill.SurvivalProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.InsightProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.SurvivalProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.SurvivalProficiency], player)))
-      player.learnableSkills[CustomSkill.SurvivalProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.SurvivalProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandlePrisonerBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandlePrisonerBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency], player)))
-      player.learnableSkills[CustomSkill.DeceptionProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.DeceptionProficiency);
+      LearnStartingTrait(player, CustomSkill.PerceptionProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.DeceptionProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.PerceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PerceptionProficiency], player)))
-      player.learnableSkills[CustomSkill.PerceptionProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.PerceptionProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleHauntedBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleHauntedBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.ArcanaProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.ArcanaProficiency], player)))
-      player.learnableSkills[CustomSkill.ArcanaProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.ArcanaProficiency);
+      LearnStartingTrait(player, CustomSkill.InvestigationProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.ArcanaProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.InvestigationProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.InvestigationProficiency], player)))
-      player.learnableSkills[CustomSkill.InvestigationProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.InvestigationProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleFacelessBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleFacelessBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency], player)))
-      player.learnableSkills[CustomSkill.DeceptionProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.DeceptionProficiency);
+      LearnStartingTrait(player, CustomSkill.IntimidationProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.DeceptionProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.IntimidationProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.IntimidationProficiency], player)))
-      player.learnableSkills[CustomSkill.IntimidationProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.IntimidationProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    private static bool HandleSecretBackground(PlayerSystem.Player player, int customSkillId)
+    private static bool HandleSecretBackground(Player player, int customSkillId)
     {
-      if (player.learnableSkills.TryAdd(CustomSkill.DeceptionProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.DeceptionProficiency], player)))
-      player.learnableSkills[CustomSkill.DeceptionProficiency].LevelUp(player);
+      LearnStartingTrait(player, CustomSkill.DeceptionProficiency);
+      LearnStartingTrait(player, CustomSkill.PerformanceProficiency);
+      ClearPreviousStartingTrait(player);
 
-      player.learnableSkills[CustomSkill.DeceptionProficiency].source.Add(Category.StartingTraits);
-
-      if (player.learnableSkills.TryAdd(CustomSkill.PerformanceProficiency, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.PerformanceProficiency], player)))
-      player.learnableSkills[CustomSkill.PerformanceProficiency].LevelUp(player);
-
-      player.learnableSkills[CustomSkill.PerformanceProficiency].source.Add(Category.StartingTraits);
-
+      if (!player.windows.TryGetValue("featSelection", out var value)) player.windows.Add("featSelection", new FeatSelectionWindow(player, true));
+      else ((FeatSelectionWindow)value).CreateWindow(true);
       return true;
     }
-    public static bool LearnActivableFeat(PlayerSystem.Player player, int customSkillId)
+    public static bool LearnActivableFeat(Player player, int customSkillId)
     {
       if (!player.oid.LoginCreature.KnowsFeat((Feat)customSkillId))
         player.oid.LoginCreature.AddFeat((Feat)customSkillId);

@@ -14,6 +14,7 @@ namespace NWN.Systems
           SpellSchool school = (SpellSchool)oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_SCHOOL_SELECTION").Value;
           int nbSpells = oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_SELECTION").Value;
           int nbCantrips = oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CANTRIP_SELECTION").Value;
+          int initiateFeatID = oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_INITIATE_CANTRIP_FEAT_ID").Value;
           string windowTag = school == SpellSchool.Unknown ? "spellSelection" : "schoolSpellSelection";
 
           if (nbSpells > 0)
@@ -24,8 +25,8 @@ namespace NWN.Systems
 
           if (nbCantrips > 0)
           {
-            if (!windows.TryGetValue("cantripSelection", out var cantrip)) windows.Add("cantripSelection", new CantripSelectionWindow(this, classType, nbCantrips));
-            else ((CantripSelectionWindow)cantrip).CreateWindow(classType, nbCantrips);
+            if (!windows.TryGetValue("cantripSelection", out var cantrip)) windows.Add("cantripSelection", new CantripSelectionWindow(this, classType, nbCantrips, featId: initiateFeatID));
+            else ((CantripSelectionWindow)cantrip).CreateWindow(classType, nbCantrips, featId: initiateFeatID);
           }
 
           if (nbSpells == 0 && nbCantrips == 0)

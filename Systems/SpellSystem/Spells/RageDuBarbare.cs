@@ -7,7 +7,7 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    public static void RageDuBarbare(NwGameObject oCaster, NwSpell spell)
+    public static void RageDuBarbare(NwGameObject oCaster, NwSpell spell, NwFeat feat)
     {
       if (oCaster is not NwCreature caster)
         return;
@@ -16,6 +16,7 @@ namespace NWN.Systems
       {
         caster.LoginPlayer?.SendServerMessage("Rage annulée", ColorConstants.Orange);
         EffectUtils.RemoveTaggedEffect(caster, EffectSystem.BarbarianRageEffectTag);
+        caster.IncrementRemainingFeatUses(feat);
         return;
       }
 

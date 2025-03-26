@@ -29,8 +29,9 @@ namespace NWN.Systems
 
         private ClassType spellClass;
         private int nbCantrips;
+        private int featId;
 
-        public CantripSelectionWindow(Player player, ClassType spellClass, int nbCantrips, List<NwSpell> forcedList = null) : base(player)
+        public CantripSelectionWindow(Player player, ClassType spellClass, int nbCantrips, List<NwSpell> forcedList = null, int featId = 0) : base(player)
         {
           windowId = "cantripSelection";
 
@@ -59,14 +60,15 @@ namespace NWN.Systems
               new NuiSpacer() } }
           };
 
-          CreateWindow(spellClass, nbCantrips, forcedList);
+          CreateWindow(spellClass, nbCantrips, forcedList, featId);
         }
-        public async void CreateWindow(ClassType spellClass, int nbCantrips, List<NwSpell> forcedList = null)
+        public async void CreateWindow(ClassType spellClass, int nbCantrips, List<NwSpell> forcedList = null, int featId = 0)
         {
           await NwTask.NextFrame();
 
           this.spellClass = spellClass;
           this.nbCantrips = nbCantrips;
+          this.featId = featId;
 
           forcedSpells.Clear();
           if(forcedList != null)
@@ -111,6 +113,7 @@ namespace NWN.Systems
             {
               player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CANTRIP_SELECTION").Value = nbCantrips;
               player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SPELL_CLASS_SELECTION").Value = (int)spellClass;
+              player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_INITIATE_CANTRIP_FEAT_ID").Value = featId;
             }
           }
           else
@@ -178,24 +181,32 @@ namespace NWN.Systems
 
                   foreach (var spell in acquiredSpells)
                   {
-                    if (player.learnableSpells.TryGetValue(spell.Id, out var learnable))
+                    if (featId < 1)
                     {
-                      learnable.learntFromClasses.Add((int)spellClass);
+                      if (player.learnableSpells.TryGetValue(spell.Id, out var learnable))
+                      {
+                        learnable.learntFromClasses.Add((int)spellClass);
 
-                      if(learnable.currentLevel < 1)
-                        learnable.LevelUp(player);                      
+                        if (learnable.currentLevel < 1)
+                          learnable.LevelUp(player);
+                      }
+                      else
+                      {
+                        LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[spell.Id], (int)spellClass);
+                        player.learnableSpells.Add(learnableSpell.id, learnableSpell);
+                        learnableSpell.LevelUp(player);
+                      }
                     }
-                    else
+                    else if(player.learnableSkills.TryAdd(spell.FeatReference.Id, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[spell.FeatReference.Id], player, levelTaken: player.oid.LoginCreature.Level)))
                     {
-                      LearnableSpell learnableSpell = new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[spell.Id], (int)spellClass);
-                      player.learnableSpells.Add(learnableSpell.id, learnableSpell);
-                      learnableSpell.LevelUp(player);
+                      player.learnableSkills[spell.FeatReference.Id].LevelUp(player);
                     }
 
                     player.oid.SendServerMessage($"Vous apprenez le tour de magie {StringUtils.ToWhitecolor(spell.Name.ToString())}", ColorConstants.Orange);
                   }
 
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CANTRIP_SELECTION").Delete();
+                  player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_INITIATE_CANTRIP_FEAT_ID").Delete();
 
                   CloseWindow();
 

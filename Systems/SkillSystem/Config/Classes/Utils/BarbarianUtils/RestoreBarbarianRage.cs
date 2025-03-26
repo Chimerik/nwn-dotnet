@@ -47,9 +47,12 @@ namespace NWN.Systems
         creature.SetFeatRemainingUses((Feat)CustomSkill.WildMagicMagieGalvanisanteRecuperation, proficiencyBonus);
       }
     }
+
     private static Feat GetRageToRestore(NwCreature creature)
     {
-      if (creature.KnowsFeat((Feat)CustomSkill.TotemRage))
+      if (creature.KnowsFeat((Feat)CustomSkill.TotemPuissanceSauvage))
+        return (Feat)CustomSkill.TotemPuissanceSauvage;
+      else if (creature.KnowsFeat((Feat)CustomSkill.TotemRage))
         return (Feat)CustomSkill.TotemRage;
       else
         return Feat.BarbarianRage;

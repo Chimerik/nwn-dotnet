@@ -17,6 +17,11 @@ namespace NWN.Systems
 
         oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_SKILL_BONUS_CHOICE_FEAT").Value = CustomRace.Human;
         InitializeBonusSkillChoice();
+
+        oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_FEAT_SELECTION").Value = 3;
+
+        if (!windows.TryGetValue("featSelection", out var value)) windows.Add("featSelection", new FeatSelectionWindow(this, true));
+        else ((FeatSelectionWindow)value).CreateWindow(true);
       }
     }
   }

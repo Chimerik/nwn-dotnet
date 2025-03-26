@@ -496,7 +496,7 @@ namespace NWN.Systems
                 int saveDC = target.GetObjectVariable<PersistentVariableInt>("_RAGE_IMPLACABLE_DD").Value;
                 target.GetObjectVariable<PersistentVariableInt>("_RAGE_IMPLACABLE_DD").Value += 5;
 
-                if (GetSavingThrow(damager, target, Ability.Constitution, saveDC) == SavingThrowResult.Failure)
+                if (GetSavingThrow(damager, target, Ability.Constitution, saveDC) != SavingThrowResult.Failure)
                 {
                   target.Immortal = true;
                   StringUtils.DisplayStringToAllPlayersNearTarget(target, "Rage Implacable", StringUtils.gold, true, true);
