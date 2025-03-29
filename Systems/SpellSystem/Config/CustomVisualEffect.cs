@@ -20,6 +20,7 @@ namespace NWN
     public const VfxType BouclierDeLaFoi = (VfxType)905;
     public const VfxType NappeDeBrouillard = (VfxType)909;
     public const VfxType SphereDeFeu = (VfxType)921;
+    public const VfxType MarqueDuChasseur = (VfxType)1247;
     public const VfxType AuraDeVitalite = (VfxType)1902;
     //public const VfxType ColonneBleue2 = (VfxType)1861;
     //public const VfxType ColonneBleue3 = (VfxType)1881;

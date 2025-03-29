@@ -34,6 +34,9 @@ namespace NWN.Systems
     [NativeFunction("_ZN12CNWSCreature29AddUseTalentAtLocationActionsEii6Vectorhjihh", null)]
     private delegate int AddUseTalentAtLocationHook(void* pCreature, int talentType, int talentId, Vector3 vTargetLocation, byte nMultiClass, uint oidItem, int nItemPropertyIndex, byte nCasterLevel, int nMetaType);
 
+    //[NativeFunction("_ZN12CNWSCreature17ResolveInitiativeEv", null)]
+    //private delegate void ResolveInitiative();
+
     //[NativeFunction("_ZN17CNWSCreatureStats21GetSpellGainWithBonusEhh", null)]
     //private delegate byte GetSpellGainWithBonusHook(byte nMultiClass, byte nSpellLevel);
 
@@ -49,10 +52,15 @@ namespace NWN.Systems
       getDamageRollHook = hookService.RequestHook<GetDamageRollHook>(OnGetDamageRoll, HookOrder.Early);
       hookService.RequestHook<ResolveAttackRollHook>(OnResolveAttackRoll, HookOrder.Early);
       hookService.RequestHook<GetSpellLikeAbilityCasterLevelHook>(OnGetSpellLikeAbilityCasterLevel, HookOrder.Early);
+      //hookService.RequestHook<ResolveInitiative>(OnResolveInitiative, HookOrder.Late);
       //hookService.RequestHook<GetCasterLevelHook>(OnGetCasterLevel, HookOrder.Early); // Malheureusement ce hook est inutile => La fonction n'est jamais appelée en jeu
       addUseTalentOnObjectHook = hookService.RequestHook<AddUseTalentOnObjectHook>(OnAddUseTalentOnObjectHook, HookOrder.Early);
       addUseTalentAtLocationHook = hookService.RequestHook<AddUseTalentAtLocationHook>(OnAddUseTalentAtLocationHook, HookOrder.Early);
     }
+    /*private void OnResolveInitiative()
+    {
+      LogUtils.LogMessage($"----- RESOLVE INITIATIVE -----", LogUtils.LogType.Combat);
+    }*/
     private void OnResolveAttackRoll(void* pCreature, void* pTarget)
     {
       CNWSCreature attacker = CNWSCreature.FromPointer(pCreature);
@@ -504,7 +512,7 @@ namespace NWN.Systems
         baseDamage /= 2;
         LogUtils.LogMessage($"Tir affaiblissant : Dégâts {baseDamage}", LogUtils.LogType.Combat);
       }
-      
+
       LogUtils.LogMessage($"Dégâts : {baseDamage}", LogUtils.LogType.Combat);
 
       // Application des réductions du jeu de base

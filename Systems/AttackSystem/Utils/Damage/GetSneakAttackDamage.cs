@@ -57,7 +57,7 @@ namespace NWN.Systems
       }
 
       int sneakRoll = NwRandom.Roll(Utils.random, 6, sneakLevel);
-      int assassinateBonus = IsAssassinate(attacker) ? attacker.m_pStats.GetNumLevelsOfClass(CustomClass.Rogue) : 0;
+      int assassinateBonus = IsAssassinate(attacker, target) ? attacker.m_pStats.GetNumLevelsOfClass(CustomClass.Rogue) : 0;
       attacker.m_ScriptVars.SetInt(CreatureUtils.SneakAttackCooldownVariableExo, 1);
       attacker.m_ScriptVars.DestroyInt($"_ADVANTAGE_ATTACK_{round.m_nCurrentAttack}".ToExoString());
 

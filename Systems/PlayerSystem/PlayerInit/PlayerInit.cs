@@ -517,8 +517,6 @@ namespace NWN.Systems
         ApplyPuretePhysique();
         ApplyBerserkerRepresailles();
         //ApplyPerceptionAveugle();
-        ApplyAssassinate();
-        ApplyFrappeMeurtriere();
         ApplyThiefReflex();
         ApplyAbjurationWard();
         ApplyAttaquesEtudiees();

@@ -20,13 +20,6 @@ namespace NWN.Systems
 
         case 9: player.LearnClassSkill(CustomSkill.AssassinInfiltrationExpert); break;
         case 13: player.LearnClassSkill(CustomSkill.AssassinEnvenimer); break;
-
-        case 17:
-
-          player.oid.LoginCreature.OnCreatureDamage -= CreatureUtils.OnDamageFrappeMeurtriere;
-          player.oid.LoginCreature.OnCreatureDamage += CreatureUtils.OnDamageFrappeMeurtriere;
-
-          break;
       }
     }
   }

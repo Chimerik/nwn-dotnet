@@ -1707,7 +1707,8 @@ namespace NWN.Systems
 
         OccultisteUtils.DecrementFouleeFeerique(castingCreature, feat);
 
-        if (spellEntry.requiresConcentration)
+        if (spellEntry.requiresConcentration
+          && !(spell.Id == CustomSpell.MarqueDuChasseur && castingCreature.GetClassInfo(ClassType.Ranger)?.Level > 8))
           EffectSystem.ApplyConcentrationEffect(castingCreature, spell.Id, concentrationTargets, GetSpellDuration(oCaster, spellEntry));
       }
 

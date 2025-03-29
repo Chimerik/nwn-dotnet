@@ -8,12 +8,16 @@ namespace NWN.Systems
   {
     public static int GetFightingStyleDefenseBonus(CNWSCreature creature)
     {
-      CNWSItem armor = NWNXLib.AppManager().m_pServerExoApp.GetItemByGameObjectID(creature.m_pInventory.m_pEquipSlot[(int)InventorySlot.Chest]);
-
-      if (armor is not null && armor.m_nArmorValue > 0  && creature.m_pStats.HasFeat(CustomSkill.FighterCombatStyleDefense).ToBool())
+      if (creature.m_pStats.HasFeat(CustomSkill.FighterCombatStyleDefense).ToBool())
       {
-        LogUtils.LogMessage("Style de combat défensif : +1 CA", LogUtils.LogType.Combat);
-        return 1;
+        CNWSItem armor = NWNXLib.AppManager().m_pServerExoApp.GetItemByGameObjectID(creature.m_pInventory.m_pEquipSlot[(int)InventorySlot.Chest]);
+        CNWSItem shield = NWNXLib.AppManager().m_pServerExoApp.GetItemByGameObjectID(creature.m_pInventory.m_pEquipSlot[(int)InventorySlot.LeftHand]);
+
+        if ((armor is not null && armor.m_nArmorValue > 0) || (shield is not null && shield.m_nArmorValue > 0))
+        {
+          LogUtils.LogMessage("Style de combat défensif : +1 CA", LogUtils.LogType.Combat);
+          return 1;
+        }
       }
 
       return 0;

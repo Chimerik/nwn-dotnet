@@ -11,7 +11,7 @@ namespace NWN.Systems
       foreach (var eff in attacker.m_appliedEffects)
       {
         string tag = eff.m_sCustomTag.ToString();
-        ModuleSystem.Log.Info(tag);
+
         switch(tag)
         {
           case EffectSystem.ChanceuxAvantageEffectTag: LogUtils.LogMessage("Avantage - Chanceux", LogUtils.LogType.Combat); attacker.RemoveEffect(eff); return true;
@@ -22,7 +22,7 @@ namespace NWN.Systems
           case EffectSystem.BroyeurEffectTag: LogUtils.LogMessage("Avantage - Broyeur", LogUtils.LogType.Combat); return true; 
           case EffectSystem.RecklessAttackEffectTag: LogUtils.LogMessage("Avantage - Frappe Téméraire", LogUtils.LogType.Combat); return true; 
           case EffectSystem.MaitreTactiqueTag: GetMaitreTactiqueAdvantage(eff, attacker); return true; 
-          case EffectSystem.AssassinateEffectTag: LogUtils.LogMessage("Avantage - Assassinat", LogUtils.LogType.Combat); return true; 
+          case EffectSystem.AssassinateEffectTag: if (GetAssassinateAdvantage(attacker, target)) return true; break;
           case EffectSystem.SensDivinEffectTag: if(GetSensDivinAdvantage(target)) return true; break; 
           case EffectSystem.SorcellerieInneeEffectTag: if(GetSorcellerieInneeAdvantage(spell)) return true; break; 
           case EffectSystem.VolEffectTag: if(GetVolRangedAdvantage(target, rangedAttack)) return true; break; 

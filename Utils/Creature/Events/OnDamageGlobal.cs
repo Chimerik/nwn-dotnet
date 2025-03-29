@@ -468,6 +468,25 @@ namespace NWN.Systems
           }
         }
 
+        if (damager.GetClassInfo((ClassType.Rogue))?.Level > 16 && NativeUtils.IsAssassinate(damager, target))
+        {
+          int spellDC = SpellUtils.GetCasterSpellDC(damager, Ability.Dexterity);
+
+          if (GetSavingThrow(damager, target, Ability.Constitution, spellDC) == SavingThrowResult.Failure)
+          {
+            foreach (DamageType damageType in (DamageType[])Enum.GetValues(typeof(DamageType)))
+            {
+              var damage = damageData.GetDamageByType(damageType);
+
+              if (damage > 0)
+                damageData.SetDamageByType(damageType, damage * 2);
+            }
+
+            totalDamage *= 2;
+          }
+        }
+          
+
         NWScript.AssignCommand(damager, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.DamagedBy, NwTimeSpan.FromRounds(1)));
       }
 

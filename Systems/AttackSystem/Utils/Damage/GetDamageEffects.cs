@@ -42,15 +42,12 @@ namespace NWN.Systems
               case EffectSystem.PreparationEffectTag: bonusDamage += GetPreparationBonusDamage(creature, isCritical, noStack); break;
             }
           }
-          else
-          {
+        }
 
-          }
-
-          switch (tag)
-          {
-            case EffectSystem.RayonAffaiblissantDesavantageEffectTag: bonusDamage -= GetRayonAffaiblissantDamageReduction(noStack); break;
-          }
+        switch (tag)
+        {
+          case EffectSystem.RayonAffaiblissantDesavantageEffectTag: bonusDamage -= GetRayonAffaiblissantDamageReduction(attackAbility, noStack); break;
+          case EffectSystem.AssassinateEffectTag: bonusDamage += GetAssassinateBonusDamage(creature, target, noStack); break;
         }
       }
 

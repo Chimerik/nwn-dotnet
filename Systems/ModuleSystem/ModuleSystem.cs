@@ -18,12 +18,6 @@ using System.Runtime.InteropServices;
 using SQLitePCL;
 using System.Reflection;
 using Action = Anvil.API.Action;
-using System.IO;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Text;
-using System.Diagnostics;
-using System.Globalization;
-using System.Security.Cryptography;
 
 namespace NWN.Systems
 {
@@ -462,7 +456,41 @@ namespace NWN.Systems
 
       NwModule.Instance.OnCreatureDamage += CreatureUtils.OnDamageGlobal;
       NwModule.Instance.OnCalendarTimeChange += PlaceableSystem.OnTimeChangeHandleLights;
+      NwModule.Instance.OnCombatStatusChange += GlobalCombatStatusChange;
     }
+
+    public static void GlobalCombatStatusChange(OnCombatStatusChange onStatus)
+    {
+      NwCreature creature = onStatus.Player.LoginCreature;
+
+      //LogUtils.LogMessage($"{ocreature.Name} - {onStatus.CombatStatus}", LogUtils.LogType.Combat);
+
+      if (onStatus.CombatStatus == CombatStatus.EnterCombat)
+      {
+        bool advantage = false;
+
+        if (creature.KnowsFeat((Feat)CustomSkill.SecondeChance))
+          creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.SecondeChanceVariable).Value = 1;
+
+        if (creature.KnowsFeat((Feat)CustomSkill.AssassinAssassinate))
+        {
+          creature.ApplyEffect(EffectDuration.Temporary, EffectSystem.Assassinate, NwTimeSpan.FromRounds(1));
+          advantage = true;
+        }
+
+        RollInitiative(creature, advantage);
+      }
+    }
+
+    private static async void RollInitiative(NwCreature creature, bool advantage)
+    {
+      await NwTask.NextFrame();
+      creature.InitiativeRoll = (byte)(Utils.RollAdvantage(advantage.ToInt(), false) 
+        + creature.GetAbilityModifier(Ability.Dexterity));
+
+      LogUtils.LogMessage($"{creature.Name} - Initiative : {creature.InitiativeRoll}", LogUtils.LogType.Combat);
+    }
+
     private static void SetModuleTime()
     {
       var query = SqLiteUtils.SelectQuery("moduleInfo",
@@ -1369,13 +1397,6 @@ namespace NWN.Systems
         //StringUtils.DisplayStringToAllPlayersNearTarget(creature, $"Attaque d'opportunité{option}", StringUtils.gold, true);
         EventsPlugin.SetEventResult("1");
       }
-    }
-
-    [ScriptHandler("on_combat_enter")]
-    private void OnCombatEnter(CallInfo callInfo)
-    {
-      if (callInfo.ObjectSelf is NwCreature creature && creature.KnowsFeat((Feat)CustomSkill.SecondeChance))
-        creature.GetObjectVariable<LocalVariableInt>(CreatureUtils.SecondeChanceVariable).Value = 1;
     }
 
     [ScriptHandler("on_listen")]

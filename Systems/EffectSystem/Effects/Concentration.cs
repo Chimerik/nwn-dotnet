@@ -10,16 +10,14 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     private static ScriptCallbackHandle onRemoveConcentrationCallback;
-    public static Effect concentration
+    public static Effect concentration(int spellId)
     {
-      get
-      {
-        Effect eff = Effect.LinkEffects(Effect.RunAction(onRemovedHandle: onRemoveConcentrationCallback), Effect.Icon(CustomEffectIcon.Concentration), Effect.VisualEffect(VfxType.DurCessateNeutral));
-        eff.Tag = ConcentrationEffectTag;
-        eff.SubType = EffectSubType.Supernatural;
+      Effect eff = Effect.LinkEffects(Effect.RunAction(onRemovedHandle: onRemoveConcentrationCallback), Effect.Icon(CustomEffectIcon.Concentration), Effect.VisualEffect(VfxType.DurCessateNeutral));
+      eff.Tag = ConcentrationEffectTag;
+      eff.SubType = EffectSubType.Supernatural;
+      eff.Spell = NwSpell.FromSpellId(spellId);
 
-        return eff;
-      }
+      return eff;
     }
     public const string ConcentrationEffectTag = "_CONCENTRATION_EFFECT";
     public const string ConcentrationTargetString = "_CONCENTRATION_TARGET_";
@@ -37,9 +35,9 @@ namespace NWN.Systems
         tlkEntry.SetPlayerOverride(caster.LoginPlayer, $"Concentration : {NwSpell.FromSpellId(spellId).Name}");
 
       if (duration.TotalSeconds > 0)
-        NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, concentration, duration));
+        NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, concentration(spellId), duration));
       else
-        NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, concentration));
+        NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, concentration(spellId)));
 
       int targetNumber = 1;
 

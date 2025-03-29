@@ -48,7 +48,8 @@ namespace NWN.Systems
       
       if (SpellUtils.IsBonusActionSpell(caster, spell.Id, spellEntry, onSpellAction.Feat))
       {
-        if(spellEntry.isReaction)
+        if(spellEntry.isReaction
+          || (spell.Id == CustomSpell.MarqueDuChasseur && caster.GetClassInfo(ClassType.Ranger) is not null))
         {
           if (!CreatureUtils.HandleReactionUse(caster))
           {

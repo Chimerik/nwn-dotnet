@@ -325,7 +325,7 @@ namespace NWN.Systems
 
             if (EffectSystem.ConcentrationAdvantageEffectTag == eff.Tag)
             {
-              LogUtils.LogMessage("Avantage - Concentration : Métamagie", LogUtils.LogType.Combat);
+              LogUtils.LogMessage("Avantage - Concentration", LogUtils.LogType.Combat);
               return true;
             }
 

@@ -21,12 +21,18 @@ namespace NWN.Systems
       Effect freeMarque = oCaster.ActiveEffects.FirstOrDefault(e => e.Tag == EffectSystem.FreeMarqueDuChasseurTag);
       TimeSpan duration = SpellUtils.GetSpellDuration(oCaster, spellEntry);
 
-      if (freeMarque is not null)
+      if (oCaster is NwCreature caster)
       {
-        duration = TimeSpan.FromSeconds(freeMarque.DurationRemaining);
+        if (freeMarque is not null)
+        {
+          duration = TimeSpan.FromSeconds(freeMarque.DurationRemaining);
 
-        if (feat is not null && oCaster is NwCreature caster)
-          caster.IncrementRemainingFeatUses(feat);
+          if (feat is not null)
+            caster.IncrementRemainingFeatUses(feat);
+        }
+
+        if (caster.KnowsFeat((Feat)CustomSkill.RangerImplacable))
+          caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.ConcentrationAdvantage, duration);
       }
 
       NWScript.AssignCommand(oCaster, () => oTarget.ApplyEffect(EffectDuration.Temporary, EffectSystem.MarqueDuChasseur, duration));

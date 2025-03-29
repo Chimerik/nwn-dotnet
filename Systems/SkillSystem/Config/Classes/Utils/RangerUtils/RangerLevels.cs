@@ -39,6 +39,9 @@ namespace NWN.Systems
 
           player.LearnClassSkill(CustomSkill.RangerEnnemiJuré);
 
+          if (!player.windows.TryGetValue("fightingStyleSelection", out var style)) player.windows.Add("fightingStyleSelection", new FightingStyleSelectionWindow(player, CustomSkill.Ranger));
+          else ((FightingStyleSelectionWindow)style).CreateWindow(CustomSkill.Ranger);
+
 
           if (!player.windows.TryGetValue("spellSelection", out var spell)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 2));
           else ((SpellSelectionWindow)spell).CreateWindow(ClassType.Ranger, 2);
@@ -49,9 +52,6 @@ namespace NWN.Systems
           break;
 
         case 2:
-
-          if (!player.windows.TryGetValue("fightingStyleSelection", out var style)) player.windows.Add("fightingStyleSelection", new FightingStyleSelectionWindow(player, CustomSkill.Ranger));
-          else ((FightingStyleSelectionWindow)style).CreateWindow(CustomSkill.Ranger);
 
           if (!player.windows.TryGetValue("spellSelection", out var spell2)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 1));
           else ((SpellSelectionWindow)spell2).CreateWindow(ClassType.Ranger, 1);
@@ -92,10 +92,7 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("spellSelection", out var spell5)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 1));
           else ((SpellSelectionWindow)spell5).CreateWindow(ClassType.Ranger, 1);
 
-          player.learnableSkills.TryAdd(CustomSkill.AttaqueSupplementaire, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.AttaqueSupplementaire], player));
-          player.learnableSkills[CustomSkill.AttaqueSupplementaire].LevelUp(player);
-          player.learnableSkills[CustomSkill.AttaqueSupplementaire].source.Add(Category.Class);
-
+          player.LearnClassSkill(CustomSkill.AttaqueSupplementaire);
           CreatureUtils.InitializeNumAttackPerRound(player.oid.LoginCreature);
           
           break;

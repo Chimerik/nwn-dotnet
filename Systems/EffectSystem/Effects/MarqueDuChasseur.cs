@@ -13,7 +13,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.RunAction(onRemovedHandle: onRemoveMarqueDuChasseurCallback);
+        Effect eff = Effect.LinkEffects(Effect.VisualEffect(CustomVfx.MarqueDuChasseur), Effect.RunAction(onRemovedHandle: onRemoveMarqueDuChasseurCallback));
         eff.Tag = MarqueDuChasseurTag;
         eff.SubType = EffectSubType.Supernatural;
         eff.Spell = NwSpell.FromSpellId(CustomSpell.MarqueDuChasseur);
