@@ -222,6 +222,7 @@ namespace NWN.Systems
       {
         case CustomSkill.BuveuseDeVie: ApplyBuveuseDeVie(caster, spell); break;
         case CustomSkill.ClercFrappeDivine: ApplyFrappeDivine(caster, spell); break;
+        case CustomSkill.Pourfendeur3: caster.OnCreatureAttack += RangerUtils.OnAttackPourfendeur3; break;
         case CustomSkill.DefensesEnjoleuses: NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, DefensesEnjoleuses)); break;
         case CustomSkill.MonkParade: NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Permanent, MonkParade)); break;
         

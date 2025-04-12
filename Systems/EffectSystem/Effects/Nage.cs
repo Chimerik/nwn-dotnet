@@ -6,15 +6,12 @@ namespace NWN.Systems
   {
     public const string NageffectTag = "_NAGE_EFFECT";
 
-    public static Effect Nage
+    public static Effect Nage(bool unyielding = false)
     {
-      get
-      {
-        Effect eff = Effect.RunAction();
-        eff.Tag = NageffectTag;
-        eff.SubType = EffectSubType.Supernatural;
-        return eff;
-      }
+      Effect eff = Effect.RunAction();
+      eff.Tag = NageffectTag;
+      eff.SubType = unyielding ? EffectSubType.Unyielding : EffectSubType.Supernatural;
+      return eff;
     }
   }
 }

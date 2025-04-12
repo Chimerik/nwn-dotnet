@@ -25,6 +25,7 @@ namespace NWN.Systems
       public int bonusRolePlay { get; set; }
       public int currentLanguage { get; set; }
       public int bankGold { get; set; }
+      public int shortRest { get; set; }
       public CraftJob craftJob { get; set; }
       public Location previousLocation { get; set; }
       public Menu menu { get; }

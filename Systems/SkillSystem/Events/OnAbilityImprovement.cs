@@ -6,8 +6,8 @@ namespace NWN.Systems
   {
     public static bool OnAbilityImprovement(PlayerSystem.Player player, int customSkillId)
     {
-      if (!player.windows.ContainsKey("abilityImprovement")) player.windows.Add("abilityImprovement", new AbilityImprovementWindow(player));
-      else ((AbilityImprovementWindow)player.windows["abilityImprovement"]).CreateWindow();
+      if (!player.windows.TryGetValue("abilityImprovement", out var value)) player.windows.Add("abilityImprovement", new AbilityImprovementWindow(player));
+      else ((AbilityImprovementWindow)value).CreateWindow();
 
       return true;
     }

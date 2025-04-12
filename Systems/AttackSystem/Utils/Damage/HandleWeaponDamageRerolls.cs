@@ -17,7 +17,7 @@ namespace NWN.Systems
         roll = HandleRenforcement(creature, weapon, roll, dieToRoll);
         roll = HandleStabilisation(creature, weapon, roll, dieToRoll);
 
-        if (creature.m_pStats.HasFeat(CustomSkill.FighterCombatStyleTwoHanded).ToBool()
+        if (creature.m_pStats.HasFeat(CustomSkill.FightingStyleTwoHanded).ToBool()
           && IsGreatWeaponStyle(weapon, creature)
           && roll < 3)
         {
@@ -38,14 +38,12 @@ namespace NWN.Systems
           creature.m_ScriptVars.SetInt(CreatureUtils.EmpaleurCooldownVariableExo, 1);
         }
 
-        if (roll < dieToRoll / 2 && creature.m_pStats.HasFeat(CustomSkill.AgresseurSauvage).ToBool())
+        if (creature.m_pStats.HasFeat(CustomSkill.AgresseurSauvage).ToBool())
         {
           var eff = creature.m_appliedEffects.FirstOrDefault(e => e.m_sCustomTag.ToString() == EffectSystem.AgresseurSauvageEffectTag);
-
           if (eff is not null)
           { 
             int reroll = Utils.Roll(dieToRoll);
-
             if (reroll > roll)
             {
               LogUtils.LogMessage($"Agresseur Sauvage reroll {roll} vs {reroll} = {reroll}", LogUtils.LogType.Combat);

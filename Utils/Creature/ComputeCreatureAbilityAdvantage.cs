@@ -19,7 +19,7 @@ namespace NWN.Systems
         LogUtils.LogMessage("Avantage - Expert en donjons", LogUtils.LogType.Combat);
         return true;
       }
-
+      
       if (effectType == SpellEffectType.Tasha) // Signifie qu'il s'agit du JDS de fou rire de Tasha après que la cible ait subit des dégâts
         return true;
 
@@ -32,6 +32,11 @@ namespace NWN.Systems
             if (creature.KnowsFeat((Feat)CustomSkill.ThiefDiscretionSupreme))
             {
               LogUtils.LogMessage("Avantage - Voleur : Discrétion Suprème", LogUtils.LogType.Combat);
+              return true;
+            }
+            else if (creature.KnowsFeat((Feat)CustomSkill.Traqueur1) && creature.Area.IsNatural)
+            {
+              LogUtils.LogMessage("Avantage - Trucs de Rôdeur : Traqueur I", LogUtils.LogType.Combat);
               return true;
             }
           }

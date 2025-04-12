@@ -8,5 +8,10 @@ namespace NWN.Systems
     {
       return item is not null && item.BaseItem.ItemType == BaseItemType.Armor && item.BaseACValue > 0;
     }
+
+    public static bool IsMediumOrHeavyArmor(NwItem item)
+    {
+      return item is not null && item.BaseItem.ItemType == BaseItemType.Armor && item.BaseACValue > 4;
+    }
   }
 }

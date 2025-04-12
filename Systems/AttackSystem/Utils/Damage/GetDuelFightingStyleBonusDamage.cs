@@ -8,7 +8,7 @@ namespace NWN.Systems
   {
     public static int IsDuelFightingStyle(CNWSCreature creature, NwBaseItem weapon, CNWSCombatAttackData attackData)
     {
-      if (attackData.m_bRangedAttack.ToBool() || !creature.m_pStats.HasFeat(CustomSkill.FighterCombatStyleDuel).ToBool()
+      if (attackData.m_bRangedAttack.ToBool() || !creature.m_pStats.HasFeat(CustomSkill.FightingStyleDuel).ToBool()
         || ItemUtils.IsTwoHandedWeapon(weapon, (CreatureSize)creature.m_nCreatureSize))
         return 0;
 

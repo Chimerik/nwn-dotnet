@@ -4,7 +4,7 @@ namespace NWN.Systems
 {
   public static partial class SpellUtils
   {
-    public static bool IsBonusActionSpell(NwCreature caster, int spellId, SpellEntry spellEntry, NwFeat? feat)
+    public static bool IsBonusActionSpell(NwCreature caster, int spellId, SpellEntry spellEntry, NwFeat feat)
     {
       if (spellEntry.isBonusAction || spellEntry.isReaction
         || (spellId == CustomSpell.MageHand && caster.KnowsFeat((Feat)CustomSkill.ArcaneTricksterPolyvalent))

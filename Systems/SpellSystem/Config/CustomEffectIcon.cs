@@ -199,5 +199,11 @@ namespace NWN
     public const EffectIcon ProtectionContreLaMort = (EffectIcon)307;
     public const EffectIcon WildMagicSensDeLaMagie = (EffectIcon)308;
     public const EffectIcon WildMagicCroissanceVegetale = (EffectIcon)309;
+    public const EffectIcon PoidsPlumeStyle = (EffectIcon)310;
+    public const EffectIcon LiberteDeMouvement = (EffectIcon)311;
+    public const EffectIcon BarbarianWildMagicRetribution = (EffectIcon)312;
+    public const EffectIcon BarbarianWildMagicRayonDeLumiere = (EffectIcon)313;
+    public const EffectIcon BarbarianWildMagicEspritIntangible = (EffectIcon)314;
+    public const EffectIcon BarbarianWildMagicLumieresProtectrices = (EffectIcon)315;
   }
 }

@@ -14,6 +14,7 @@ namespace NWN.Systems
         return;
 
       if (caster.Race.Id == CustomRace.HalfOrc 
+        || caster.KnowsFeat((Feat)CustomSkill.Marcheur2)
         || caster.Classes.Any(c => Utils.In(c.Class.ClassType, ClassType.Rogue, (ClassType)CustomClass.RogueArcaneTrickster) && c.Level > 1)
         || caster.Classes.Any(c => c.Class.Id == CustomClass.Monk && c.Level > 1)
         || caster.ActiveEffects.Any(e => (e.Tag == EffectSystem.BarbarianRageEffectTag && e.Spell == NwSpell.FromSpellId(CustomSpell.RageSauvageAigle))

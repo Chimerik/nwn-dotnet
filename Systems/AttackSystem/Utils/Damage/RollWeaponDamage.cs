@@ -25,6 +25,8 @@ namespace NWN.Systems
       damage += GetDamageEffects(creature, target, attackAbility, false, isCriticalRoll, !attackData.m_bRangedAttack.ToBool())
         + GetCogneurLourdBonusDamage(creature, attackWeapon, isCriticalRoll)
         + GetTireurDeliteBonusDamage(creature, attackData, attackWeapon, isCriticalRoll)
+        + GetArcherDeForceBonusDamage(creature, attackData, attackWeapon, isCriticalRoll)
+        + GetStyleArmeDeJetBonusDamage(creature, attackData, attackWeapon, isCriticalRoll)
         + GetSuperiorityDiceDamage(creature, isCriticalRoll)
         + GetFormeSauvagePanthereBonusDamage(creature, target)
         + GetAnimalCompanionBonusDamage(creature, isCriticalRoll)

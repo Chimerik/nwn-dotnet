@@ -10,7 +10,7 @@ namespace NWN.Systems
     {
       private void ApplyProtectionStyle()
       {
-        if (learnableSkills.TryGetValue(CustomSkill.FighterCombatStyleProtection, out var protection) && protection.currentLevel > 0)
+        if (learnableSkills.TryGetValue(CustomSkill.FightingStyleProtection, out var protection) && protection.currentLevel > 0)
         {
           oid.LoginCreature.OnItemEquip -= ItemSystem.OnEquipApplyProtectionStyle;
           oid.LoginCreature.OnItemUnequip -= ItemSystem.OnUnEquipRemoveProtectionStyle;

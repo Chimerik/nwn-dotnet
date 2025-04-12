@@ -9,7 +9,7 @@ namespace NWN.Systems
     public const string VagabondageEffectTag = "_VAGABONDAAGE_EFFECT";
     public static void ApplyVagabondage(NwCreature caster)
     {
-      Effect eff = Effect.LinkEffects(Effect.MovementSpeedIncrease(15), Nage, Escalade);
+      Effect eff = Effect.LinkEffects(Effect.MovementSpeedIncrease(15), Nage(true), Escalade(true));
       eff.Tag = VagabondageEffectTag;
       eff.SubType = EffectSubType.Unyielding;
 

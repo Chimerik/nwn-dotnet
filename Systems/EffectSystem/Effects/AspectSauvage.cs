@@ -10,7 +10,7 @@ namespace NWN.Systems
       Effect eff = spellId switch
       {
         CustomSpell.AspectSauvageChouette => Effect.Ultravision(),
-        CustomSpell.AspectSauvageSaumon => Nage,
+        CustomSpell.AspectSauvageSaumon => Nage(),
         _ => Effect.RunAction(),
       };
 

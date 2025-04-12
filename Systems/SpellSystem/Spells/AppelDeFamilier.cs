@@ -71,7 +71,7 @@ namespace NWN.Systems
     {
       if(master.KnowsFeat((Feat)CustomSkill.MaitreDesChaines))
       {
-        familiar.ApplyEffect(EffectDuration.Permanent, Effect.LinkEffects(EffectSystem.Vol(familiar), EffectSystem.Nage, Effect.ModifyAttacks(1), 
+        familiar.ApplyEffect(EffectDuration.Permanent, Effect.LinkEffects(EffectSystem.Vol(familiar), EffectSystem.Nage(), Effect.ModifyAttacks(1), 
           EffectSystem.ResistancePercant, EffectSystem.ResistanceContondant, EffectSystem.ResistanceTranchant));
       }
     }

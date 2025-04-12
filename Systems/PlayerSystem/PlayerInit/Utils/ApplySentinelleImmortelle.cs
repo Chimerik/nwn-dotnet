@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      private void ApplySentinelleImmortelle()
+      public void ApplySentinelleImmortelle()
       {
         if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(EffectSystem.SentinelleImmortelleVariable).HasValue
           && !oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.SentinelleImmortelleEffectTag))

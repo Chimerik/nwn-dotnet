@@ -5,7 +5,7 @@ namespace NWN.Systems
 {
   public static partial class SpellUtils
   {
-    public static int GetSavingThrowRoll(NwCreature target, Ability ability, int saveDC, int advantage, SpellConfig.SavingThrowFeedback feedback, SpellEntry spellEntry = null)
+    public static int GetSavingThrowRoll(NwCreature target, Ability ability, int saveDC, int advantage, SpellConfig.SavingThrowFeedback feedback, SpellEntry spellEntry = null, SpellConfig.SpellEffectType effectType = SpellConfig.SpellEffectType.Invalid)
     {
       int proficiencyBonus = GetSavingThrowProficiencyBonus(target, ability);
       int abilityModifier = target.GetAbilityModifier(ability);
@@ -154,6 +154,13 @@ namespace NWN.Systems
 
             break;
         }
+      }
+
+      if (effectType == SpellConfig.SpellEffectType.Death && target.KnowsFeat((Feat)CustomSkill.Survivant3))
+      {
+        int wisMod = CreatureUtils.GetAbilityModifierMin1(target, Ability.Wisdom);
+        proficiencyBonus += wisMod;
+        LogUtils.LogMessage($"Survivant III : JDS contre la mort +{wisMod}", LogUtils.LogType.Combat);
       }
 
       int saveRoll = NativeUtils.HandlePresage(target); // Si présage, alors on remplace totalement le jet de la cible

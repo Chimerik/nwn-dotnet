@@ -13,7 +13,8 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurAuraPulseYellowWhite), Effect.RunAction(onIntervalHandle: onIntervalWildMagicRayonDeLumiereCallback, interval: NwTimeSpan.FromRounds(1)));
+        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurAuraPulseYellowWhite), Effect.Icon(CustomEffectIcon.BarbarianWildMagicRayonDeLumiere),
+          Effect.RunAction(onIntervalHandle: onIntervalWildMagicRayonDeLumiereCallback, interval: NwTimeSpan.FromRounds(1)));
         eff.Tag = WildMagicRayonDeLumiereEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

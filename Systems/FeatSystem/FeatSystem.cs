@@ -31,6 +31,8 @@ namespace NWN.Systems
         case CustomSkill.Sprint: Sprint(caster, onUseFeat); return;
         case CustomSkill.Disengage: Disengage(caster, onUseFeat); return;
         case CustomSkill.Stealth: Stealth(caster, onUseFeat); return;
+        case CustomSkill.ShortRest: ShortRest(caster); return;
+        case CustomSkill.LongRest: LongRest(caster); return;
         case CustomSkill.Chargeur: Chargeur(caster, target); return;
         case CustomSkill.FighterSurge: ActionSurge(caster); return;
         case CustomSkill.FighterInflexible: Inflexible(caster); return;
@@ -152,6 +154,8 @@ namespace NWN.Systems
         case CustomSkill.BotteTranchanteDeMaitre: BotteTranchante(caster, feat.Id); return;
 
         case CustomSkill.RangerInfatiguable: Infatiguable(caster); return;
+        case CustomSkill.Survivant1: Survivant(caster); return;
+        case CustomSkill.RegenerationNaturelle: RegenerationNaturelle(caster); return;
         case CustomSkill.ProfondeursFrappeRedoutable: FrappeRedoutable(caster); return;
 
         case CustomSkill.BelluaireFurieBestiale: FurieBestiale(caster); return;

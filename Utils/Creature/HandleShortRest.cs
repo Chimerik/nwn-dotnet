@@ -8,8 +8,9 @@ namespace NWN.Systems
   {
     public static void HandleShortRest(Player player)
     {
-      player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Heal(player.oid.LoginCreature.MaxHP / 2));
-      player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHealingL));
+      player.shortRest += 1;
+
+      ShortRestHeal(player.oid.LoginCreature);
       player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_ILLUSION_SEE_INVI_COOLDOWN").Delete();
 
       FighterUtils.RestoreManoeuvres(player.oid.LoginCreature);
@@ -49,6 +50,31 @@ namespace NWN.Systems
       BarbarianUtils.RestoreImplacableRage(player.oid.LoginCreature);
       player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_RAGE_IMPLACABLE_DD").Value = 10;
       player.oid.LoginCreature.GetObjectVariable<LocalVariableString>(CharmeInstinctifVariable).Delete();
+    }
+
+    private static void ShortRestHeal(NwCreature creature)
+    {
+      int missingHP = creature.MaxHP - creature.HP;
+
+      if (missingHP < 1)
+        return;
+
+      int bonusHeal = creature.KnowsFeat((Feat)CustomSkill.Survivant2) ? GetAbilityModifierMin1(creature, Ability.Constitution): 0;
+      int remainingDie = creature.GetFeatRemainingUses((Feat)CustomSkill.ShortRest);
+      int consumedDie = creature.LevelInfo.Count - remainingDie;
+      int healAmount = 0;
+
+      for(int i = consumedDie; i < creature.LevelInfo.Count; i++) 
+      {
+        healAmount += Utils.Roll(creature.LevelInfo[i].HitDie) + bonusHeal;
+        creature.DecrementRemainingFeatUses((Feat)CustomSkill.ShortRest);
+
+        if (missingHP - healAmount < 1)
+          break;
+      }
+
+      creature.ApplyEffect(EffectDuration.Instant, Effect.Heal(healAmount));
+      creature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHealingL));
     }
   }
 }

@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      private void ApplyHalfOrcEndurance()
+      public void ApplyHalfOrcEndurance()
       {
         if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>(EffectSystem.EnduranceImplacableVariable).HasValue
           && !oid.LoginCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.EnduranceImplacableEffectTag))      

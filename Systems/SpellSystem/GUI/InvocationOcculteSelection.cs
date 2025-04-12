@@ -184,21 +184,9 @@ namespace NWN.Systems
           && skill.category == Category.InvocationOcculte
           && skill.minLevel <= player.oid.LoginCreature.GetClassInfo((ClassType)CustomClass.Occultiste).Level
           && !acquiredTechs.Contains(skill)
-          && !player.learnableSkills.ContainsKey(skill.id)).OrderBy(s => s.name).Cast<LearnableSkill>())
+          && !player.learnableSkills.ContainsKey(skill.id)
+          && skill.learnablePrerequiste.All(preReq => player.learnableSkills.ContainsKey(preReq))).OrderBy(s => s.name).Cast<LearnableSkill>())
           {
-            if (Utils.In(tech.id, CustomSkill.ChatimentOcculte, CustomSkill.BuveuseDeVie, CustomSkill.LameAssoiffee)
-              && !player.learnableSkills.ContainsKey(CustomSkill.PacteDeLaLame))
-              continue;
-
-            if (tech.id == CustomSkill.LameDevorante && !player.learnableSkills.ContainsKey(CustomSkill.LameAssoiffee))
-              continue;
-
-            if (tech.id == CustomSkill.DonDuProtecteur && !player.learnableSkills.ContainsKey(CustomSkill.PacteDuTome))
-              continue;
-
-            if (tech.id == CustomSkill.MaitreDesChaines && !player.learnableSkills.ContainsKey(CustomSkill.PacteDeLaChaine))
-              continue;
-
             availableTechs.Add(tech);
           }
         }

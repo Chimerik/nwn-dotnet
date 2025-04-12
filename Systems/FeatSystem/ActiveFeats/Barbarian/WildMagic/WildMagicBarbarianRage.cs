@@ -13,12 +13,7 @@ namespace NWN.Systems
         case 2: SpellSystem.WildMagicVrillesTenebreuses(caster); break;
         case 3: caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.wildMagicEspritIntangible, NwTimeSpan.FromRounds(10)); break;
         case 4: caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.wildMagicRepresailles, NwTimeSpan.FromRounds(10)); break;
-        case 5:
-
-          StringUtils.DisplayStringToAllPlayersNearTarget(caster, "Magie Sauvage - Lumières Protectrices", StringUtils.gold, true);
-          caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.wildMagicLumieresProtectricesAura, NwTimeSpan.FromRounds(10)); 
-          break;
-
+        case 5: caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.wildMagicLumieresProtectricesAura, NwTimeSpan.FromRounds(10)); break;
         case 6: SpellSystem.WildMagicArmeInfusee(caster); break;
         case 7: NWScript.AssignCommand(caster, () => caster.ApplyEffect(EffectDuration.Temporary, EffectSystem.WildMagicCroissanceVegetaleAura, NwTimeSpan.FromRounds(10))); break;
         case 8:

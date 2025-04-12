@@ -8,7 +8,7 @@ namespace NWN.Systems
   {
     public static int GetFightingStyleDefenseBonus(CNWSCreature creature)
     {
-      if (creature.m_pStats.HasFeat(CustomSkill.FighterCombatStyleDefense).ToBool())
+      if (creature.m_pStats.HasFeat(CustomSkill.FightingStyleDefense).ToBool())
       {
         CNWSItem armor = NWNXLib.AppManager().m_pServerExoApp.GetItemByGameObjectID(creature.m_pInventory.m_pEquipSlot[(int)InventorySlot.Chest]);
         CNWSItem shield = NWNXLib.AppManager().m_pServerExoApp.GetItemByGameObjectID(creature.m_pInventory.m_pEquipSlot[(int)InventorySlot.LeftHand]);

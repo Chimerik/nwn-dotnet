@@ -20,7 +20,7 @@ namespace NWN.Systems
 
       caster.Gold -= 25;
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpMagicalVision));
-      NWScript.AssignCommand(caster, () => oTarget.ApplyEffect(EffectDuration.Temporary, EffectSystem.Antidetection, SpellUtils.GetSpellDuration(oCaster, spellEntry)));
+      NWScript.AssignCommand(caster, () => oTarget.ApplyEffect(EffectDuration.Temporary, EffectSystem.Antidetection(true), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
     }  
   }
 }

@@ -12,6 +12,7 @@ namespace NWN.Systems
       {
         int bonus = NwRandom.Roll(Utils.random, creature.m_pStats.HasFeat(CustomSkill.RangerPourfendeur).ToBool() ? 10 : 6);
         LogUtils.LogMessage($"Marque du chasseur : +{bonus} dégâts", LogUtils.LogType.Combat);
+
         return bonus;
       }
 

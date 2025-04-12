@@ -495,7 +495,7 @@ namespace NWN.Systems
       int damageBonus = NativeUtils.GetAbilityModifier(attacker, damageAbility);
 
       // Pour l'attaque de la main secondaire, on n'ajoute le modificateur de caractéristique que s'il est négatif
-      if (!bOffHand.ToBool() || attacker.m_pStats.HasFeat(CustomSkill.FighterCombatStyleDualWield).ToBool() || (bOffHand > 0 && damageBonus < 0))
+      if (!bOffHand.ToBool() || attacker.m_pStats.HasFeat(CustomSkill.FightingStyleDualWield).ToBool() || (bOffHand > 0 && damageBonus < 0))
       {
         baseDamage += damageBonus;
         LogUtils.LogMessage($"Adding {damageAbility} modifier (+{damageBonus})", LogUtils.LogType.Combat);

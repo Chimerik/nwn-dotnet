@@ -79,7 +79,7 @@
     public const int FureurOrc = 1384;
     public const int Pourfendeur = 1385;
     public const int Empaleur = 1386;
-    public const int FighterCombatStyleTwoHanded = 1387;
+    public const int FightingStyleTwoHanded = 1387;
     public const int Elementaliste = 1388;
     public const int LameDoutretombe = 1389;
     public const int FlammesDePhlegetos = 1390;
@@ -122,8 +122,8 @@
     public const int WarMasterConnaisTonEnnemi = 1425;
     public const int FighterChampionImprovedCritical = 1426;
 
-    public const int FighterCombatStyleArchery = 1427;
-    public const int FighterCombatStyleDuel = 1428;
+    public const int FightingStyleArchery = 1427;
+    public const int FightingStyleDuel = 1428;
 
     public const int BarbarianUnarmoredDefence = 1450;
     public const int BarbarianRecklessAttack = 1429;
@@ -160,6 +160,9 @@
     public const int AssassinEnvenimer = 1447;
     public const int FightingStyleCombatAveugle = 1448;
     public const int FightingStyleUnarmed = 1449;
+    public const int FightingStylePoidsPlume = 1454;
+    public const int FightingStyleArcherDeForce = 1455;
+    public const int FightingStyleArmeDeJet = 1456;
     public const int MainLeste = 1462;
     public const int ThiefDiscretionSupreme = 1463;
     public const int ConspirateurMaitriseTactique = 1465;
@@ -294,7 +297,7 @@
     public const int ChasseurDefenseSuperieure = 1566;
 
     public const int EsquiveInstinctive = 1567;
-    public const int FighterCombatStyleDefense = 1568;
+    public const int FightingStyleDefense = 1568;
 
     public const int ProfondeursFrappeRedoutable = 1569;
     public const int TraqueurRedoutable = 1570;
@@ -656,7 +659,7 @@
     public const int SouffleDuDragonElec= 1912;
     public const int SouffleDuDragonPoison = 1913;
 
-    public const int FighterCombatStyleDualWield = 1914;
+    public const int FightingStyleDualWield = 1914;
     public const int EldritchKnightMagieDeGuerre = 1915;
     public const int FighterInflexible = 1916;
 
@@ -674,6 +677,30 @@
     public const int InitieMystique = 1931;
     public const int InitieDruidique = 1932;
     public const int Musicien = 1933;
+
+    public const int AdepteAlpin = 1934;
+    public const int AdeptePelagique = 1935;
+    public const int Herbaliste = 1936;
+    public const int Naturaliste = 1937;
+    public const int RegenerationNaturelle = 1938;
+    public const int Pourfendeur2 = 1939;
+    public const int Pourfendeur3 = 1940;
+    public const int Traqueur1= 1941;
+    public const int Traqueur2 = 1942;
+    public const int Traqueur3 = 1943;
+    public const int Traqueur4 = 1944;
+    public const int Marcheur1 = 1945;
+    public const int Marcheur2 = 1946;
+    public const int Marcheur3 = 1947;
+    public const int Marcheur4 = 1948;
+    public const int IntuitionSauvage1 = 1949;
+    public const int IntuitionSauvage2 = 1950;
+    public const int Survivant1 = 1951;
+    public const int Survivant2 = 1952;
+    public const int Survivant3 = 1953;
+
+    public const int ShortRest = 1954;
+    public const int LongRest = 1955;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
@@ -1041,7 +1068,7 @@
     public const int FighterEldritchKnight = 20472;
     public const int FighterArcaneArcher = 20473;
 
-    public const int FighterCombatStyleProtection = 20479;
+    public const int FightingStyleProtection = 20479;
     
     /*public const int FighterEldritchKnightBoundWeapon = 20486;
     public const int FighterEldritchKnightWarMagic = 20487; // 2 niveaux

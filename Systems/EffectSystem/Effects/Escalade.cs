@@ -5,16 +5,13 @@ namespace NWN.Systems
   public partial class EffectSystem
   {
     public const string EscaladeEffectTag = "_ESCALADE_EFFECT";
-    public static readonly Native.API.CExoString EscaladeEffectExoTag = EscaladeEffectTag.ToExoString();
-    public static Effect Escalade
+
+    public static Effect Escalade(bool unyielding = false)
     {
-      get
-      {
-        Effect eff = Effect.RunAction();
-        eff.Tag = EscaladeEffectTag;
-        eff.SubType = EffectSubType.Supernatural;
-        return eff;
-      }
+      Effect eff = Effect.RunAction();
+      eff.Tag = EscaladeEffectTag;
+      eff.SubType = unyielding ? EffectSubType.Unyielding : EffectSubType.Supernatural;
+      return eff;
     }
   }
 }

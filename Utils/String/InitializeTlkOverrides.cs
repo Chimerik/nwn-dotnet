@@ -143,6 +143,10 @@ namespace NWN.Systems
       OverrideTlkEntry(NwGameTables.EffectIconTable.GetRow(124).StrRef.Value.CustomId, "Immunité Electrique");
       OverrideTlkEntry(NwGameTables.EffectIconTable.GetRow(125).StrRef.Value.CustomId, "Immunité Feu");
       OverrideTlkEntry(NwGameTables.EffectIconTable.GetRow(128).StrRef.Value.CustomId, "Immunité Tonnerre");
+      OverrideTlkEntry(NwGameTables.EffectIconTable.GetRow((int)CustomEffectIcon.BarbarianWildMagicRetribution).StrRef.Value.CustomId, "Magie Sauvage - Représailles");
+      OverrideTlkEntry(NwGameTables.EffectIconTable.GetRow((int)CustomEffectIcon.BarbarianWildMagicRayonDeLumiere).StrRef.Value.CustomId, "Magie Sauvage - Rayon de Lumière");
+      OverrideTlkEntry(NwGameTables.EffectIconTable.GetRow((int)CustomEffectIcon.BarbarianWildMagicEspritIntangible).StrRef.Value.CustomId, "Magie Sauvage - Esprit Intangible");
+      OverrideTlkEntry(NwGameTables.EffectIconTable.GetRow((int)CustomEffectIcon.BarbarianWildMagicLumieresProtectrices).StrRef.Value.CustomId, "Magie Sauvage - Lumières Protectrices");
 
       OverrideTlkEntry(Races2da.raceTable[(int)CustomRacialType.Fielon].name.CustomId, "Fiélon");
       OverrideTlkEntry(Races2da.raceTable[(int)CustomRacialType.Celeste].name.CustomId, "Céleste");
@@ -209,6 +213,12 @@ namespace NWN.Systems
       OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.MasqueDesMilleVisages).Description.CustomId, SkillSystem.learnableDictionary[CustomSkill.MasqueDesMilleVisages].description);
       OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.MaitreDesFormes).Name.CustomId, SkillSystem.learnableDictionary[CustomSkill.MaitreDesFormes].name);
       OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.MaitreDesFormes).Description.CustomId, SkillSystem.learnableDictionary[CustomSkill.MaitreDesFormes].description);
+      
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.ShortRest).Name.CustomId, "Repos Court");
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.ShortRest).Description.CustomId, "Vous bénéficiez des effets d'un repos court\n\nVous dépensez les dés de vie dont dispose votre personnage jusqu'à ce que vous ayez récupéré tous vos points où jusqu'à épuisement des dés\n\nVous pouvez prendre un maximum de 2 repos courts par repos long");
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.LongRest).Name.CustomId, "Repos Long");
+      OverrideTlkEntry(NwFeat.FromFeatId(CustomSkill.LongRest).Description.CustomId, "Vous bénéciez des effets d'un long repos");
+
     }
 
     private static void OverrideTlkEntry(uint entry, string text)

@@ -16,28 +16,38 @@ namespace NWN.Systems
           onStealth.EnterOverride = StealthModeOverride.PreventEnter;
         else
         {
-          foreach(NwCreature enemy in onStealth.Creature.GetNearestCreatures(CreatureTypeFilter.Alive(true), CreatureTypeFilter.Reputation(ReputationType.Enemy),
-            CreatureTypeFilter.Perception(PerceptionType.Seen)))
+          if(!onStealth.Creature.KnowsFeat((Feat)CustomSkill.Traqueur4))
           {
-            if (enemy.DistanceSquared(onStealth.Creature) > 600)
-              break;
-
-            if(enemy.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 25, true).Any(c => c == onStealth.Creature))
+            foreach (NwCreature enemy in onStealth.Creature.GetNearestCreatures(CreatureTypeFilter.Alive(true), CreatureTypeFilter.Reputation(ReputationType.Enemy),
+              CreatureTypeFilter.Perception(PerceptionType.Seen)))
             {
-              double angle = AngleBetween(enemy.Position, onStealth.Creature.Position);
-              angle = angle < 0 ? 360 + angle : angle;
+              if (enemy.DistanceSquared(onStealth.Creature) > 600)
+                break;
 
-              float visionMax = enemy.Rotation + 67 > 360 ? (enemy.Rotation + 67) - 360 : enemy.Rotation + 67;
-              float visionMin = enemy.Rotation - 67 < 0 ? 360 + (enemy.Rotation - 67) : enemy.Rotation - 67;
-
-              //StringUtils.DisplayStringToAllPlayersNearTarget(enemy, $"facing {enemy.Rotation}", ColorConstants.Orange, true, true);
-              //StringUtils.DisplayStringToAllPlayersNearTarget(enemy, $"vision min {visionMin}", ColorConstants.Orange, true, true);
-              //StringUtils.DisplayStringToAllPlayersNearTarget(enemy, $"vision max {visionMax}", ColorConstants.Orange, true, true);
-              //StringUtils.DisplayStringToAllPlayersNearTarget(enemy, $"angle {angle}", ColorConstants.Orange, true, true);
-
-              if (visionMax > visionMin)
+              if (enemy.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 25, true).Any(c => c == onStealth.Creature))
               {
-                if (angle > visionMin && angle < visionMax)
+                double angle = AngleBetween(enemy.Position, onStealth.Creature.Position);
+                angle = angle < 0 ? 360 + angle : angle;
+
+                float visionMax = enemy.Rotation + 67 > 360 ? (enemy.Rotation + 67) - 360 : enemy.Rotation + 67;
+                float visionMin = enemy.Rotation - 67 < 0 ? 360 + (enemy.Rotation - 67) : enemy.Rotation - 67;
+
+                //StringUtils.DisplayStringToAllPlayersNearTarget(enemy, $"facing {enemy.Rotation}", ColorConstants.Orange, true, true);
+                //StringUtils.DisplayStringToAllPlayersNearTarget(enemy, $"vision min {visionMin}", ColorConstants.Orange, true, true);
+                //StringUtils.DisplayStringToAllPlayersNearTarget(enemy, $"vision max {visionMax}", ColorConstants.Orange, true, true);
+                //StringUtils.DisplayStringToAllPlayersNearTarget(enemy, $"angle {angle}", ColorConstants.Orange, true, true);
+
+                if (visionMax > visionMin)
+                {
+                  if (angle > visionMin && angle < visionMax)
+                  {
+                    onStealth.EnterOverride = StealthModeOverride.PreventEnter;
+                    onStealth.Creature?.LoginPlayer.SendServerMessage($"{enemy.Name.ColorString(ColorConstants.Cyan)} repère votre tentative de dissimulation", ColorConstants.Orange);
+                    onStealth.Creature.GetObjectVariable<LocalVariableInt>("_STEALTH_AUTHORIZED").Delete();
+                    return;
+                  }
+                }
+                else if ((angle > visionMin) || (angle < visionMax))
                 {
                   onStealth.EnterOverride = StealthModeOverride.PreventEnter;
                   onStealth.Creature?.LoginPlayer.SendServerMessage($"{enemy.Name.ColorString(ColorConstants.Cyan)} repère votre tentative de dissimulation", ColorConstants.Orange);
@@ -45,15 +55,7 @@ namespace NWN.Systems
                   return;
                 }
               }
-              else if((angle > visionMin) || (angle < visionMax))
-              {
-                onStealth.EnterOverride = StealthModeOverride.PreventEnter;
-                onStealth.Creature?.LoginPlayer.SendServerMessage($"{enemy.Name.ColorString(ColorConstants.Cyan)} repère votre tentative de dissimulation", ColorConstants.Orange);
-                onStealth.Creature.GetObjectVariable<LocalVariableInt>("_STEALTH_AUTHORIZED").Delete();
-                return;
-              }
             }
-
           }
 
           onStealth.EnterOverride = StealthModeOverride.None;

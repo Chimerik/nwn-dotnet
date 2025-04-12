@@ -411,8 +411,8 @@ namespace NWN
 
     public static readonly Dictionary<string, MainMenuCommand> mainMenuCommands = new()
     {
-      { "shortRest", new MainMenuCommand("Simuler un repos court (alpha)", "", CommandRank.Public) },
-      { "longRest", new MainMenuCommand("Simuler un repos long (alpha)", "", CommandRank.Public) },
+      //{ "shortRest", new MainMenuCommand("Simuler un repos court (alpha)", "", CommandRank.Public) },
+      //{ "longRest", new MainMenuCommand("Simuler un repos long (alpha)", "", CommandRank.Public) },
       { "sacrificeHP", new MainMenuCommand("Perdre 20 % de points de vie (alpha)", "", CommandRank.Public) },
       { "dm", new MainMenuCommand("Mode DM", "", CommandRank.Admin) },
       { "spellBook", new MainMenuCommand("Livre de sorts", "", CommandRank.Public) },

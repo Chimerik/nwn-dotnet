@@ -98,8 +98,9 @@ namespace NWN.Systems
 
             Category[] category = originOnly ? new[] { Category.OriginFeat } : new[] { Category.Feat, Category.OriginFeat };
 
-            currentList = learnableDictionary.Values.Where(s => s is LearnableSkill ls && Utils.In(ls.category, category) && (!player.learnableSkills.ContainsKey(s.id) 
-              || player.learnableSkills[s.id].currentLevel < s.maxLevel)).OrderBy(s => s.name);                        
+            currentList = learnableDictionary.Values.Where(s => s is LearnableSkill ls 
+            && Utils.In(ls.category, category) 
+            && (!player.learnableSkills.ContainsKey(s.id) || player.learnableSkills[s.id].currentLevel < s.maxLevel)).OrderBy(s => s.name);                        
             
             LoadLearnableList(currentList);
           }

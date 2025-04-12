@@ -55,6 +55,15 @@ namespace NWN.Systems
         player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.InspirationHeroique, 0);
       }
 
+      if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ShortRest))
+      {
+        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.ShortRest);
+        player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ShortRest, (byte)player.oid.LoginCreature.Level);
+      }
+
+      if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.LongRest))
+        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.LongRest);
+
       player.oid.SetGuiPanelDisabled(GUIPanel.ExamineItem, true);
       player.oid.SetGuiPanelDisabled(GUIPanel.Journal, true);
       player.oid.SetGuiPanelDisabled(GUIPanel.PlayerList, true);
@@ -483,6 +492,7 @@ namespace NWN.Systems
         ApplyMobile();
         ApplyBroyeur();
         ApplyPourfendeur();
+        ApplyPourfendeur3();
         ApplyLameDoutretombe();
         ApplyChanceDebordante();
         ApplyUltimeSurvivant();
@@ -556,6 +566,12 @@ namespace NWN.Systems
         ApplyPoisonAffinity();
         ApplyPolymorph();
         ApplyProtectionNaturelle();
+        ApplyPoidsPlumeStyle();
+        ApplyAdepteAlpin();
+        ApplyAdeptePelagique();
+        ApplyTraqueur3();
+        ApplyMarcheur();
+        InitializeRangerKnacksSelection();
 
         //RestoreCooledDownSpells();
         //HandleAdrenalineInit();

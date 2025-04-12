@@ -6,6 +6,8 @@ namespace NWN.Systems
   {
     public static bool IsShield(NwItem item)
     {
+      if(item is null) return false;
+
       return Utils.In(item.BaseItem.ItemType, BaseItemType.SmallShield, BaseItemType.LargeShield, BaseItemType.TowerShield);
     }
   }

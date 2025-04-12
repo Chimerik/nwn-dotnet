@@ -579,19 +579,20 @@ namespace NWN.Systems
 
                   case "shortRest":
 
-                    // TODO : limiter à deux shortRest par LongRest
-                    CreatureUtils.HandleShortRest(player);
-                    SpellUtils.DispelConcentrationEffects(player.oid.LoginCreature);
+                    //CreatureUtils.HandleShortRest(player);
+                    //SpellUtils.DispelConcentrationEffects(player.oid.LoginCreature);
 
                     break;
 
                   case "longRest":
 
-                    var nbInspiHeroique = player.oid.LoginCreature.GetFeatRemainingUses((Feat)CustomSkill.InspirationHeroique);
+                    /*var nbInspiHeroique = player.oid.LoginCreature.GetFeatRemainingUses((Feat)CustomSkill.InspirationHeroique);
 
                     if (Utils.In(player.oid.LoginCreature.Race.RacialType, RacialType.Human, (RacialType)CustomRace.WoodHalfElf, (RacialType)CustomRace.DrowHalfElf, (RacialType)CustomRace.HighHalfElf)
                       && nbInspiHeroique < 3)
                       nbInspiHeroique += 1;
+
+                    player.shortRest = 0;
 
                     player.oid.LoginCreature.ForceRest();
                     player.oid.LoginCreature.GetObjectVariable<LocalVariableString>(CreatureUtils.RegardHypnotiqueTargetListVariable).Delete();
@@ -608,6 +609,7 @@ namespace NWN.Systems
                     MonkUtils.RestoreKi(player.oid.LoginCreature);
                     WizardUtils.RestaurationArcanique(player.oid.LoginCreature);
                     DruideUtils.RecuperationNaturelle(player.oid.LoginCreature);
+                    RangerUtils.RegenerationNaturelle(player.oid.LoginCreature);
                     WizardUtils.ResetAbjurationWard(player.oid.LoginCreature);
                     WizardUtils.ResetPresage(player.oid);
                     FighterUtils.RestoreEldritchKnight(player.oid.LoginCreature);
@@ -672,7 +674,7 @@ namespace NWN.Systems
 
                     player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ClercIncantationPuissante, 0);
                     player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.InspirationHeroique, nbInspiHeroique);
-
+                    */
                     break;
                 }
                 break;

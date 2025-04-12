@@ -10,7 +10,7 @@ namespace NWN.Systems
     {
       if (onAttack.WeaponAttackType == WeaponAttackType.Offhand) // combat à deux armes
       {
-        if (onAttack.Attacker.KnowsFeat((Feat)CustomSkill.FighterCombatStyleDualWield))
+        if (onAttack.Attacker.KnowsFeat((Feat)CustomSkill.FightingStyleDualWield))
         {
           onAttack.Attacker.GetObjectVariable<LocalVariableInt>("_ENTAILLE_BONUS_ATTACK").Delete();
         }

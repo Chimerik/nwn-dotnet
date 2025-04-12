@@ -24,6 +24,7 @@ namespace NWN.Systems
 
       if (caster.Classes.Any(c => Utils.In(c.Class.ClassType, ClassType.Rogue, (ClassType)CustomClass.RogueArcaneTrickster) && c.Level > 1)
         || caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.MonkTenebres))
+        || caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.Traqueur2))
         || caster.KnowsFeat(NwFeat.FromFeatId(CustomSkill.TraqueurRedoutable)))
       {
         if (!CreatureUtils.HandleBonusActionUse(caster))
@@ -35,6 +36,7 @@ namespace NWN.Systems
         return;
       }
     }
+
     private static void Stealth(NwCreature caster)
     {
       caster.SetActionMode(ActionMode.Stealth, true);

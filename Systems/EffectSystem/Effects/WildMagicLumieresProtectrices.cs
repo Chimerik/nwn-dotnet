@@ -16,7 +16,7 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.ACIncrease(1), Effect.Icon(EffectIcon.ACIncrease));
+        Effect eff = Effect.ACIncrease(1);
         eff.Tag = LumieresProtectricesEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;
@@ -26,7 +26,8 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.AreaOfEffect(PersistentVfxType.MobCircgood, onEnterHandle: onEnterWildMagicLumieresProtectricesCallback, onExitHandle: onExitWildMagicLumieresProtectricesCallback);
+        Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.BarbarianWildMagicLumieresProtectrices),
+          Effect.AreaOfEffect(PersistentVfxType.MobCircgood, onEnterHandle: onEnterWildMagicLumieresProtectricesCallback, onExitHandle: onExitWildMagicLumieresProtectricesCallback));
         eff.Tag = LumieresProtectricesAuraEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

@@ -12,7 +12,8 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurAuraPurple), Effect.RunAction(onIntervalHandle: onIntervalWildMagicEspritIntangibleCallback, interval: NwTimeSpan.FromRounds(1)));
+        Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurAuraPurple), Effect.Icon(CustomEffectIcon.BarbarianWildMagicEspritIntangible),
+          Effect.RunAction(onIntervalHandle: onIntervalWildMagicEspritIntangibleCallback, interval: NwTimeSpan.FromRounds(1)));
         eff.Tag = WildMagicEspritIntangibleEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

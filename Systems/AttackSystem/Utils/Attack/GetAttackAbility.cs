@@ -38,7 +38,12 @@ namespace NWN.Systems
       else if(creature.m_pStats.GetNumLevelsOfClass(CustomClass.Monk) > 0)
       {
         attackStat = dexBonus > strBonus ? Anvil.API.Ability.Dexterity : Anvil.API.Ability.Strength;
-      }   
+      }
+      else if(isRangedAttack && creature.m_pStats.HasFeat(CustomSkill.FightingStyleArcherDeForce).ToBool()
+        && Utils.In((int)attackWeapon.m_nBaseItem, (int)BaseItem.Shortbow, (int)BaseItem.Longbow))
+      {
+        attackStat = Anvil.API.Ability.Strength;
+      }
 
       return attackStat;
     }

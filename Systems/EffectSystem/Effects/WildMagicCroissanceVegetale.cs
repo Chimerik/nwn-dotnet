@@ -13,8 +13,8 @@ namespace NWN.Systems
     {
       get
       {
-        Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.WildMagicCroissanceVegetale), Effect.VisualEffect(VfxType.DurAuraGreenDark), Effect.VisualEffect(VfxType.DurEntangle),
-          Effect.AreaOfEffect(PersistentVfxType.PerCustomAoe, onEnterWildMagicCroissanceVegetaleCallback, onExitHandle:onExitWildMagicCroissanceVegetaleCallback));
+        Effect eff = Effect.LinkEffects(Effect.Icon(CustomEffectIcon.WildMagicCroissanceVegetale), Effect.VisualEffect(VfxType.DurAuraGreenDark),
+          Effect.AreaOfEffect(PersistentVfxType.PerEntangle, onEnterWildMagicCroissanceVegetaleCallback, null, onExitHandle:onExitWildMagicCroissanceVegetaleCallback));
         eff.Tag = WildMagicCroissanceVegetaleAuraEffectTag;
         eff.SubType = EffectSubType.Supernatural;
         return eff;

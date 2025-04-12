@@ -26,7 +26,7 @@ namespace NWN.Systems
       LogUtils.LogMessage($"Adding {attackAbility} modifier : {abilityModifier}", LogUtils.LogType.Combat);
       attackBonus += abilityModifier;
 
-      if (attackData.m_bRangedAttack.ToBool() && attacker.m_pStats.HasFeat(CustomSkill.FighterCombatStyleArchery).ToBool())
+      if (attackData.m_bRangedAttack.ToBool() && attacker.m_pStats.HasFeat(CustomSkill.FightingStyleArchery).ToBool())
       {
         attackBonus += 2;
         LogUtils.LogMessage("Style de combat archerie : +2 BA", LogUtils.LogType.Combat);

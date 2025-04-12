@@ -49,6 +49,9 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("expertiseDarmeSelection", out var invo1)) player.windows.Add("expertiseDarmeSelection", new ExpertiseDarmeSelectionWindow(player, 2));
           else ((ExpertiseDarmeSelectionWindow)invo1).CreateWindow(2);
 
+          if (!player.windows.TryGetValue("rangerKnacksSelection", out var knacks1)) player.windows.Add("rangerKnacksSelection", new RangerKnacksSelectionWindow(player, 1));
+          else ((RangerKnacksSelectionWindow)knacks1).CreateWindow(1);
+
           break;
 
         case 2:
@@ -60,6 +63,9 @@ namespace NWN.Systems
 
           if (!player.windows.TryGetValue("expertiseChoice", out var expertise3)) player.windows.Add("expertiseChoice", new ExpertiseChoiceWindow(player));
           else ((ExpertiseChoiceWindow)expertise3).CreateWindow();
+
+          if (!player.windows.TryGetValue("rangerKnacksSelection", out var knacks2)) player.windows.Add("rangerKnacksSelection", new RangerKnacksSelectionWindow(player, 1));
+          else ((RangerKnacksSelectionWindow)knacks2).CreateWindow(1);
 
           player.LearnClassSkill(CustomSkill.RangerExplorationHabile);
 
@@ -74,6 +80,9 @@ namespace NWN.Systems
 
           if (!player.windows.TryGetValue("spellSelection", out var spell3)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 1));
           else ((SpellSelectionWindow)spell3).CreateWindow(ClassType.Ranger, 1);
+
+          if (!player.windows.TryGetValue("rangerKnacksSelection", out var knacks3)) player.windows.Add("rangerKnacksSelection", new RangerKnacksSelectionWindow(player, 1));
+          else ((RangerKnacksSelectionWindow)knacks3).CreateWindow(1);
 
           break;
 
@@ -97,7 +106,14 @@ namespace NWN.Systems
           
           break;
 
-        case 6:  player.LearnClassSkill(CustomSkill.RangerVagabondage); break;
+        case 6:  
+          
+          player.LearnClassSkill(CustomSkill.RangerVagabondage);
+
+          if (!player.windows.TryGetValue("rangerKnacksSelection", out var knacks6)) player.windows.Add("rangerKnacksSelection", new RangerKnacksSelectionWindow(player, 1));
+          else ((RangerKnacksSelectionWindow)knacks6).CreateWindow(1);
+
+          break;
 
         case 7:
 
@@ -118,6 +134,9 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("spellSelection", out var spell9)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 1));
           else ((SpellSelectionWindow)spell9).CreateWindow(ClassType.Ranger, 1);
 
+          if (!player.windows.TryGetValue("rangerKnacksSelection", out var knacks9)) player.windows.Add("rangerKnacksSelection", new RangerKnacksSelectionWindow(player, 1));
+          else ((RangerKnacksSelectionWindow)knacks9).CreateWindow(1);
+
           break;
 
         case 10: player.LearnClassSkill(CustomSkill.RangerInfatiguable); break;
@@ -137,6 +156,9 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("featSelection", out var feat12)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
           else ((FeatSelectionWindow)feat12).CreateWindow();
 
+          if (!player.windows.TryGetValue("rangerKnacksSelection", out var knacks12)) player.windows.Add("rangerKnacksSelection", new RangerKnacksSelectionWindow(player, 1));
+          else ((RangerKnacksSelectionWindow)knacks12).CreateWindow(1);
+
           break;
 
         case 13:
@@ -146,7 +168,14 @@ namespace NWN.Systems
 
           break;
 
-        case 14: player.LearnClassSkill(CustomSkill.RangerVoileNaturel); break;
+        case 14: 
+          
+          player.LearnClassSkill(CustomSkill.RangerVoileNaturel);
+
+          if (!player.windows.TryGetValue("rangerKnacksSelection", out var knacks14)) player.windows.Add("rangerKnacksSelection", new RangerKnacksSelectionWindow(player, 1));
+          else ((RangerKnacksSelectionWindow)knacks14).CreateWindow(1);
+
+          break;
 
         case 15:
 
@@ -160,6 +189,9 @@ namespace NWN.Systems
           if (!player.windows.TryGetValue("featSelection", out var feat16)) player.windows.Add("featSelection", new FeatSelectionWindow(player));
           else ((FeatSelectionWindow)feat16).CreateWindow();
 
+          if (!player.windows.TryGetValue("rangerKnacksSelection", out var knacks16)) player.windows.Add("rangerKnacksSelection", new RangerKnacksSelectionWindow(player, 1));
+          else ((RangerKnacksSelectionWindow)knacks16).CreateWindow(1);
+
           break;
 
         case 17:
@@ -171,7 +203,14 @@ namespace NWN.Systems
 
           break;
          
-        case 18: player.LearnClassSkill(CustomSkill.RangerSensSauvages); break;
+        case 18: 
+          
+          player.LearnClassSkill(CustomSkill.RangerSensSauvages);
+
+          if (!player.windows.TryGetValue("rangerKnacksSelection", out var knacks18)) player.windows.Add("rangerKnacksSelection", new RangerKnacksSelectionWindow(player, 1));
+          else ((RangerKnacksSelectionWindow)knacks18).CreateWindow(1);
+
+          break;
 
         case 19:
 
@@ -183,7 +222,14 @@ namespace NWN.Systems
 
           break;
 
-        case 20: player.LearnClassSkill(CustomSkill.RangerPourfendeur); break;
+        case 20: 
+          
+          player.LearnClassSkill(CustomSkill.RangerPourfendeur);
+
+          if (!player.windows.TryGetValue("rangerKnacksSelection", out var knacks20)) player.windows.Add("rangerKnacksSelection", new RangerKnacksSelectionWindow(player, 1));
+          else ((RangerKnacksSelectionWindow)knacks20).CreateWindow(1);
+
+          break;
       }
     }
   }
