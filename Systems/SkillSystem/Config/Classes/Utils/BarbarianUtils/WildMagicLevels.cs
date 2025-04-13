@@ -26,6 +26,8 @@ namespace NWN.Systems
 
           break;
 
+        case 10: player.LearnClassSkill(CustomSkill.RepercussionInstable); break;
+
         case 14:
 
           // TODO : table de priorité des effets de magie sauvage

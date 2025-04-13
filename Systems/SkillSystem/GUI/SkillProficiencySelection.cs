@@ -72,7 +72,7 @@ namespace NWN.Systems
 
           string title = $"Veuillez choisir {nbSkills} maîtrise(s)";
 
-          window = new NuiWindow(rootColumn, title.Remove(title.Length))
+          window = new NuiWindow(rootColumn, title[..title.Length])
           {
             Geometry = geometry,
             Resizable = false,
@@ -138,18 +138,13 @@ namespace NWN.Systems
 
                 case "removeSkill":
 
-                  LearnableSkill clickedSkill = acquiredSkills[nuiEvent.ArrayIndex];
+                  if (acquiredSkills.Count < 1)
+                    return;
 
-                  if (acquiredSkills.Count < nbSkills)
-                    availableSkills.Add(clickedSkill);
-                  else
-                  {
-                    foreach (var skillId in skillList)
-                      if(!player.learnableSkills.TryGetValue(skillId, out LearnableSkill learnable) || learnable.currentLevel < 1)
-                        availableSkills.Add((LearnableSkill)SkillSystem.learnableDictionary[skillId]);
-                  }
-                  
+                  LearnableSkill clickedSkill = acquiredSkills[nuiEvent.ArrayIndex];                  
                   acquiredSkills.Remove(clickedSkill);
+
+                  GetAvailableSkills();
 
                   BindAvailableSkills();
                   BindAcquiredSkills();
@@ -219,37 +214,34 @@ namespace NWN.Systems
         }
         private void InitSkillsBinding()
         {
-          List<string> availableIconsList = new();
-          List<string> availableNamesList = new();
-          List<bool> selectableList = new();
+          acquiredSkills.Clear();
 
+          GetAvailableSkills();
+          BindAvailableSkills();
+
+          enabled.SetBindValue(player.oid, nuiToken.Token, false);
+        }
+        private void GetAvailableSkills()
+        {
           availableSkills.Clear();
-          acquiredSkills.Clear();            
 
           foreach (var skillId in skillList)
           {
-            if (!player.learnableSkills.TryGetValue(skillId, out LearnableSkill learnable) || learnable.currentLevel < 1)
-            {
-              learnable = (LearnableSkill)SkillSystem.learnableDictionary[skillId];
-              availableSkills.Add(learnable);
+            var learnable = (LearnableSkill)SkillSystem.learnableDictionary[skillId];
 
-              availableIconsList.Add(learnable.icon);
-              availableNamesList.Add(learnable.name);
-              selectableList.Add(true);
+            if (!acquiredSkills.Contains(learnable)
+              && (!player.learnableSkills.TryGetValue(skillId, out var learned) || learned.currentLevel < 1))
+            {
+              availableSkills.Add(learnable);
             }
           }
-
-          availableSkillIcons.SetBindValues(player.oid, nuiToken.Token, availableIconsList);
-          availableSkillNames.SetBindValues(player.oid, nuiToken.Token, availableNamesList);
-          listCount.SetBindValue(player.oid, nuiToken.Token, availableSkills.Count);
-          enabled.SetBindValue(player.oid, nuiToken.Token, false);
         }
         private void BindAvailableSkills()
         {
           List<string> availableIconsList = new();
           List<string> availableNamesList = new();
 
-          if (acquiredSkills.Count == nbSkills)
+          if (acquiredSkills.Count >= nbSkills)
             availableSkills.Clear();
 
           foreach (var skill in availableSkills)

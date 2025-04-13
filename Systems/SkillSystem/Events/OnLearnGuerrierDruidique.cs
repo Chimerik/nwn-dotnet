@@ -7,11 +7,11 @@ namespace NWN.Systems
   {
     public static bool OnLearnGuerrierDruidique(PlayerSystem.Player player, int customSkillId)
     {
-      if (!player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.RangerGuerrierDruidique))
-        player.oid.LoginCreature.AddFeat((Feat)CustomSkill.RangerGuerrierDruidique);
+      if (!player.oid.LoginCreature.KnowsFeat((Feat)customSkillId))
+        player.oid.LoginCreature.AddFeat((Feat)customSkillId);
 
-      if (!player.windows.TryGetValue("spellSelection", out var spell2)) player.windows.Add("spellSelection", new SpellSelectionWindow(player, ClassType.Ranger, 2));
-      else ((SpellSelectionWindow)spell2).CreateWindow(ClassType.Druid, 2);
+      if (!player.windows.TryGetValue("cantripSelection", out var spell2)) player.windows.Add("cantripSelection", new CantripSelectionWindow(player, ClassType.Druid, 2, featId:customSkillId));
+      else ((CantripSelectionWindow)spell2).CreateWindow(ClassType.Druid, 2, featId: customSkillId);
 
       return true;
     }

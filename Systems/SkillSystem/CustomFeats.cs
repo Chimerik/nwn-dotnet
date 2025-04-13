@@ -47,6 +47,7 @@
     public const int BoneChill = 1352;
     public const int TrueStrike = 1353;
     public const int PoisonSpray = 1354;
+    public const int Assistance = 1957;
     public const int Light = 1355;
     public const int LightDrow = 1356;
     public const int FaerieFireDrow = 1357;
@@ -701,6 +702,9 @@
 
     public const int ShortRest = 1954;
     public const int LongRest = 1955;
+    public const int CombattantBeni = 1956;
+
+    public const int RepercussionInstable = 1958;
 
     /*public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;

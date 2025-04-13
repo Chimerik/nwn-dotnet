@@ -205,5 +205,6 @@ namespace NWN
     public const EffectIcon BarbarianWildMagicRayonDeLumiere = (EffectIcon)313;
     public const EffectIcon BarbarianWildMagicEspritIntangible = (EffectIcon)314;
     public const EffectIcon BarbarianWildMagicLumieresProtectrices = (EffectIcon)315;
+    public const EffectIcon BarbarianWildMagicRepercussionInstable = (EffectIcon)316;
   }
 }

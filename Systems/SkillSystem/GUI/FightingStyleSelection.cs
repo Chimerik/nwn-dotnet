@@ -3,6 +3,7 @@ using System.Linq;
 
 using Anvil.API;
 using Anvil.API.Events;
+using NWN.Native.API;
 using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
@@ -91,8 +92,11 @@ namespace NWN.Systems
             geometry.SetBindValue(player.oid, nuiToken.Token, new NuiRect(savedRectangle.X, savedRectangle.Y, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f));
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-            currentList = learnableDictionary.Values.Where(s => s is LearnableSkill ls && (ls.category == Category.FightingStyle || (fromLearnable == CustomSkill.Ranger && ls.id == CustomSkill.RangerGuerrierDruidique))
-                && (!player.learnableSkills.ContainsKey(s.id) || player.learnableSkills[s.id].currentLevel < s.maxLevel)).OrderBy(s => s.name);
+            currentList = learnableDictionary.Values.Where(s => s is LearnableSkill ls 
+            && ls.category == Category.FightingStyle
+            && (!player.learnableSkills.ContainsKey(s.id) || player.learnableSkills[s.id].currentLevel < s.maxLevel)
+            && ls.learnablePrerequiste.All(preReq => player.learnableSkills.ContainsKey(preReq))
+            ).OrderBy(s => s.name);
 
             if(!currentList.Any())
             {

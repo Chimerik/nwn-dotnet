@@ -36,7 +36,7 @@ namespace NWN.Systems
       if (area is null)
         return;
 
-      if (!NwModule.Instance.Players.Any(p => p.ControlledCreature == null && p.ControlledCreature.Area == null) && area.PlayerCount < 1)
+      if (area.PlayerCount < 1 && !NwModule.Instance.Players.Any(p => p?.ControlledCreature?.Area is null))
       {
         LogUtils.LogMessage($"Destroyed area {area.Name}", LogUtils.LogType.AreaManagement);
         area.Destroy();

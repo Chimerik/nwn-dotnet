@@ -91,6 +91,7 @@ namespace NWN.Systems
         case CustomSkill.WildMagicSense: SensDeLaMagie(caster); return;
         case CustomSkill.WildMagicMagieGalvanisanteBienfait: Bienfait(caster, target); return;
         case CustomSkill.WildMagicMagieGalvanisanteRecuperation: Recuperation(caster, target); return;
+        case CustomSkill.RepercussionInstable: RepercussionInstable(caster); return;
 
         case CustomSkill.MonkUnarmoredSpeed: MonkUnarmoredSpeed(caster); return;
         case CustomSkill.MonkBonusAttack: MonkBonusAttack(caster); return;
