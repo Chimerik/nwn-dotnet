@@ -1,4 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Anvil.API;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.PlayerSystem.Player;
@@ -18,11 +21,11 @@ namespace NWN.Systems
       player.shortRest = 0;
 
       player.oid.LoginCreature.ForceRest();
-      player.oid.LoginCreature.GetObjectVariable<LocalVariableString>(CreatureUtils.RegardHypnotiqueTargetListVariable).Delete();
+      player.oid.LoginCreature.GetObjectVariable<LocalVariableString>(RegardHypnotiqueTargetListVariable).Delete();
       player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>(EffectSystem.EvocateurSurchargeVariable).Delete();
       player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_ILLUSION_SEE_INVI_COOLDOWN").Delete();
       player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>(Wizard.TransmutationStoneVariable).Delete();
-      player.oid.LoginCreature.GetObjectVariable<LocalVariableString>(CreatureUtils.CharmeInstinctifVariable).Delete();
+      player.oid.LoginCreature.GetObjectVariable<LocalVariableString>(CharmeInstinctifVariable).Delete();
 
       RangerUtils.RestoreEnnemiJure(player.oid.LoginCreature);
       FighterUtils.RestoreManoeuvres(player.oid.LoginCreature);
@@ -68,17 +71,7 @@ namespace NWN.Systems
 
       player.oid.LoginCreature.ApplyEffect(EffectDuration.Temporary, EffectSystem.CanPrepareSpells, NwTimeSpan.FromHours(1));
 
-      foreach (var classInfo in player.oid.LoginCreature.Classes.Where(c => c.Class.IsSpellCaster))
-      {
-        var spellGainTable = classInfo.Class.SpellGainTable[classInfo.Level - 1];
-        byte i = 0;
-
-        foreach (var spellGain in spellGainTable)
-        {
-          classInfo.SetRemainingSpellSlots(i, spellGain);
-          i++;
-        }
-      }
+      HandleSpellRestoration(player.oid.LoginCreature);
 
       if (player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ChatimentDivin))
       {
@@ -87,7 +80,7 @@ namespace NWN.Systems
         player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ChatimentDivin, player.oid.LoginCreature.GetClassInfo(ClassType.Paladin).GetRemainingSpellSlots(chatimentLevel));
       }
 
-      player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>(CreatureUtils.ClercMartialVariable).Delete();
+      player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>(ClercMartialVariable).Delete();
 
       EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.DivinationVisionEffectTag);
       SpellUtils.DispelConcentrationEffects(player.oid.LoginCreature);
@@ -97,6 +90,61 @@ namespace NWN.Systems
 
       player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.ClercIncantationPuissante, 0);
       player.oid.LoginCreature.SetFeatRemainingUses((Feat)CustomSkill.InspirationHeroique, nbInspiHeroique);
+    }
+
+    private static void HandleSpellRestoration(NwCreature caster)
+    {
+      var spellCasterClasses = caster.Classes.Where(c => c.Class.IsSpellCaster && c.Class.ClassType != (ClassType)CustomClass.Occultiste);
+
+      if (spellCasterClasses.Any())
+      {
+        if (spellCasterClasses.Count() > 1)
+        {
+          int casterLevel = 0;
+
+          foreach (var classInfo in spellCasterClasses)
+          {
+            switch (classInfo.Class.ClassType)
+            {
+              case ClassType.Druid:
+              case ClassType.Wizard:
+              case ClassType.Bard:
+              case ClassType.Cleric:
+              case ClassType.Sorcerer: casterLevel += classInfo.Level; break;
+
+              case ClassType.Paladin:
+              case ClassType.Ranger: casterLevel += (int)Math.Round((double)classInfo.Level / 2, MidpointRounding.AwayFromZero); break;
+
+              case (ClassType)CustomClass.RogueArcaneTrickster:
+              case (ClassType)CustomClass.EldritchKnight: casterLevel += (int)Math.Round((double)classInfo.Level / 3, MidpointRounding.ToZero); break;
+            }
+          }
+
+          RestoreSpellCasterSlots(casterLevel, spellCasterClasses);
+        }
+        else
+          RestoreSpellCasterSlots(spellCasterClasses.FirstOrDefault().Level, spellCasterClasses);
+      }
+
+      spellCasterClasses = caster.Classes.Where(c => c.Class.ClassType == (ClassType)CustomClass.Occultiste);
+
+      if (spellCasterClasses.Any())
+        RestoreSpellCasterSlots(spellCasterClasses.FirstOrDefault().Level, spellCasterClasses);
+    }
+
+    private static void RestoreSpellCasterSlots(int casterLevel, IEnumerable<CreatureClassInfo> casterClasses)
+    {
+      foreach (var classInfo in casterClasses)
+      {
+        var spellGainTable = classInfo.Class.SpellGainTable[casterLevel - 1];
+        byte i = 0;
+
+        foreach (var spellGain in spellGainTable)
+        {
+          classInfo.SetRemainingSpellSlots(i, spellGain);
+          i++;
+        }
+      }
     }
   }
 }

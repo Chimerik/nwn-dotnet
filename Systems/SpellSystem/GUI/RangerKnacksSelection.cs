@@ -181,11 +181,11 @@ namespace NWN.Systems
           availableTechs.Clear();
 
           foreach (LearnableSkill tech in learnableDictionary.Values.Where(l => l is LearnableSkill skill
-          && skill.category == Category.InvocationOcculte
-          && skill.minLevel <= player.oid.LoginCreature.GetClassInfo((ClassType)CustomClass.Occultiste).Level
+          && skill.category == Category.RangerKnack
+          && skill.minLevel <= player.oid.LoginCreature.GetClassInfo((ClassType)CustomClass.Ranger).Level
           && !acquiredTechs.Contains(skill)
           && !player.learnableSkills.ContainsKey(skill.id)
-          && skill.learnablePrerequiste.All(preReq => player.learnableSkills.ContainsKey(preReq))).OrderBy(s => s.name).Cast<LearnableSkill>())
+          && (skill.learnablePrerequiste is null || skill.learnablePrerequiste.All(preReq => player.learnableSkills.ContainsKey(preReq)))).OrderBy(s => s.name).Cast<LearnableSkill>())
           {
             availableTechs.Add(tech);
           }

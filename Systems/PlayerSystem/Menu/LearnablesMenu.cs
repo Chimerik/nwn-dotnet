@@ -229,9 +229,10 @@ namespace NWN.Systems
             levelList.Add($"{learnable.currentLevel}/{learnable.maxLevel}");
             bool canLearn = true;
 
-            if (learnable is LearnableSkill)
+            if (learnable is LearnableSkill skill)
             {
-              if (learnable.currentLevel >= learnable.maxLevel)
+              if (learnable.currentLevel >= learnable.maxLevel
+                || Utils.In(skill.category, Category.Feat))
                 canLearn = false;
             }
             else if (learnable is LearnableSpell spell && !spell.canLearn)

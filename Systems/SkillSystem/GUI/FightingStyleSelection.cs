@@ -95,7 +95,7 @@ namespace NWN.Systems
             currentList = learnableDictionary.Values.Where(s => s is LearnableSkill ls 
             && ls.category == Category.FightingStyle
             && (!player.learnableSkills.ContainsKey(s.id) || player.learnableSkills[s.id].currentLevel < s.maxLevel)
-            && ls.learnablePrerequiste.All(preReq => player.learnableSkills.ContainsKey(preReq))
+            && (ls.learnablePrerequiste is null || ls.learnablePrerequiste.All(preReq => player.learnableSkills.ContainsKey(preReq)))
             ).OrderBy(s => s.name);
 
             if(!currentList.Any())

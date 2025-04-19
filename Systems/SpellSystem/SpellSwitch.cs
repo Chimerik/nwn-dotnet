@@ -1698,6 +1698,19 @@ namespace NWN.Systems
               }
             }
           }
+          else if(Utils.In(castingClass.ClassType, ClassType.Druid, ClassType.Wizard, ClassType.Barbarian, ClassType.Cleric, ClassType.Sorcerer,
+            ClassType.Ranger, ClassType.Paladin, (ClassType)CustomClass.EldritchKnight, (ClassType)CustomClass.RogueArcaneTrickster)
+            && castingCreature.Classes.Count(c => c.Class.IsSpellCaster && c.Class.ClassType != (ClassType)CustomClass.Occultiste) > 1)
+          {
+            foreach(var casterClass in castingCreature.Classes.Where(c => c.Class.IsSpellCaster 
+              && !Utils.In(c.Class.ClassType, (ClassType)CustomClass.Occultiste, castingClass.ClassType)))
+            {
+              byte classSpellLevel = spell.GetSpellLevelForClass(casterClass.Class);
+              byte remainingSlots = casterClass.GetRemainingSpellSlots(classSpellLevel);
+              if(remainingSlots > 0)
+                casterClass.SetRemainingSpellSlots(classSpellLevel, (byte)(remainingSlots - 1));
+            }
+          }
           else if (castingFamiliar)
           {
             var casterClassInfo = castingCreature.GetClassInfo(castingClass);

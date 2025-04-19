@@ -48,6 +48,9 @@ namespace NWN.Systems
     }
 
     public static readonly List<HeadModels> headModels = new();
+    private static readonly string[] item = new string[] { "rumors", "" };
+    private static readonly string[] itemArray = new string[] { "placeables", "" };
+    private static readonly string[] itemArray0 = new string[] { "items", "" };
 
     public ModuleSystem(SchedulerService schedulerService)
     {
@@ -933,7 +936,7 @@ namespace NWN.Systems
       if (result == null || result.Count < 1) 
       {
         await SqLiteUtils.InsertQueryAsync("modulePalette",
-                  new List<string[]>() { new string[] { "items", "" } });
+                  new List<string[]>() { itemArray0 });
 
         return;
       }
@@ -966,7 +969,7 @@ namespace NWN.Systems
       if (result == null || result.Count < 1)
       {
         await SqLiteUtils.InsertQueryAsync("modulePalette",
-                  new List<string[]>() { new string[] { "placeables", "" } });
+                  new List<string[]>() { itemArray });
 
         return;
       }
@@ -999,7 +1002,7 @@ namespace NWN.Systems
       if (result == null || result.Count < 1)
       {
         await SqLiteUtils.InsertQueryAsync("rumors",
-                  new List<string[]>() { new string[] { "rumors", "" } });
+                  new List<string[]>() { item });
 
         return;
       }

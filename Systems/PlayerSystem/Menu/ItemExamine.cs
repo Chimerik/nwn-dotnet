@@ -499,17 +499,25 @@ namespace NWN.Systems
               case "skillbook_learn":
 
                 int learnableId = item.GetObjectVariable<LocalVariableInt>("_SKILL_ID").Value;
-                LearnableSkill learnable = player.ApplyLearningDiscout(new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[learnableId], player));
-                player.learnableSkills.Add(learnableId, learnable);
-                player.oid.SendServerMessage("Vous venez d'ajouter une nouvelle compétence à votre livre d'apprentissage !", ColorConstants.Rose);
+                var learnableSkill = (LearnableSkill)SkillSystem.learnableDictionary[learnableId];
 
-                CloseWindow();
-                item.Destroy();
+                if (player.oid.LoginCreature.GetRawAbilityScore(learnableSkill.primaryAbility) > 12)
+                {
 
-                if (player.TryGetOpenedWindow("learnables", out PlayerWindow window))
-                  ((LearnableWindow)window).HandleLearnableSearch();
+                  LearnableSkill learnable = player.ApplyLearningDiscout(new LearnableSkill(learnableSkill, player));
+                  player.learnableSkills.Add(learnableId, learnable);
+                  player.oid.SendServerMessage("Vous venez d'ajouter une nouvelle compétence à votre livre d'apprentissage !", ColorConstants.Rose);
 
-                return;
+                  CloseWindow();
+                  item.Destroy();
+
+                  if (player.TryGetOpenedWindow("learnables", out PlayerWindow window))
+                    ((LearnableWindow)window).HandleLearnableSearch();
+                }
+                else
+                  player.oid.SendServerMessage($"Vous devez avoir minimum 13 de base dans la caractéristique principale de {learnableSkill.name} pour pouvoir multiclasser", ColorConstants.Red);
+
+                  return;
 
               case "hide":
 

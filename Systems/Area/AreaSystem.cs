@@ -210,13 +210,23 @@ namespace NWN.Systems
       //if (!NwModule.Instance.Players.Any(p => p.ControlledCreature != null && p.ControlledCreature.Area == area))
       //AreaCleaner(area);
     }
-    private void DoAreaSpecificInitialisation(NwArea area)
+    private async void DoAreaSpecificInitialisation(NwArea area)
     {
       switch (area.Tag)
       {
         case "Alphazone01":
         case "Alphazone02":
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
+
+          foreach(var stuffTest in NwObject.FindObjectsWithTag<NwPlaceable>("test_area_stuff"))
+          {
+            foreach (var customSkill in SkillSystem.learnableDictionary.Values.Where(l => l is LearnableSkill skill && skill.category == SkillSystem.Category.Class))
+            {
+              NwItem skillBook = await NwItem.Create("skillbookgeneriq", stuffTest, 1, "skillbook");
+              ItemUtils.CreateShopSkillBook(skillBook, customSkill.id);
+            }
+          }
+
           break;
 
         case "entry_scene_out":

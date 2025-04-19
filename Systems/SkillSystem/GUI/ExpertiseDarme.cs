@@ -87,6 +87,13 @@ namespace NWN.Systems
 
             InitTechsBinding();
 
+            if(availableTechs.Count < 1)
+            {
+              player.oid.SendServerMessage("Vous êtes déjà expert de toutes les armes que vous maîtrisez", ColorConstants.Orange);
+              player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_EXPERTISE_DARME_SELECTION").Delete();
+              return;
+            }
+
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 

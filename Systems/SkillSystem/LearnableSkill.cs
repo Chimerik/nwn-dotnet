@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Anvil.API;
 using static NWN.Systems.PlayerSystem;
 
@@ -43,7 +44,7 @@ namespace NWN.Systems
       this.acquiredPoints = acquiredSP;
       this.currentLevel = currentLevel;
       this.pointsToNextLevel = GetPointsToLevelUp(player);
-      this.minLevel = minLevel;
+      this.minLevel = learnableBase.minLevel;
       this.levelTaken = levelTaken;
       this.featOptions = featOptions;
       this.source = new();
@@ -113,7 +114,20 @@ namespace NWN.Systems
       active = false;
 
       skillEffect?.Invoke(player, id);
-      pointsToNextLevel = GetPointsToLevelUp(player);
+
+      if(Utils.In(category, SkillSystem.Category.Class, SkillSystem.Category.BarbarianSubClass, SkillSystem.Category.BardSubClass,
+        SkillSystem.Category.ClercSubClass, SkillSystem.Category.DruidSubclass, SkillSystem.Category.EnsorceleurSubClass,
+        SkillSystem.Category.FighterSubClass, SkillSystem.Category.MonkSubClass, SkillSystem.Category.OccultisteSubClass, 
+        SkillSystem.Category.PaladinSubClass, SkillSystem.Category.RangerSubClass, SkillSystem.Category.RogueSubClass, SkillSystem.Category.WizardSubClass))
+      {
+        foreach(var learnable in player.learnableSkills.Values.Where(l => Utils.In(l.category, SkillSystem.Category.Class, SkillSystem.Category.BarbarianSubClass, SkillSystem.Category.BardSubClass,
+        SkillSystem.Category.ClercSubClass, SkillSystem.Category.DruidSubclass, SkillSystem.Category.EnsorceleurSubClass,
+        SkillSystem.Category.FighterSubClass, SkillSystem.Category.MonkSubClass, SkillSystem.Category.OccultisteSubClass,
+        SkillSystem.Category.PaladinSubClass, SkillSystem.Category.RangerSubClass, SkillSystem.Category.RogueSubClass, SkillSystem.Category.WizardSubClass)))
+          learnable.pointsToNextLevel = GetPointsToLevelUp(player);
+      }
+      else
+        pointsToNextLevel = GetPointsToLevelUp(player);
 
       if (player.TryGetOpenedWindow("activeLearnable", out Player.PlayerWindow activeLearnableWindow))
       {
