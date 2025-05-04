@@ -1,5 +1,4 @@
 ﻿using Anvil.API;
-using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
@@ -22,149 +21,252 @@ namespace NWN.Systems
 
         if (learnableSkills.ContainsKey(CustomSkill.FighterArcaneArcher))
         {
-          new StrRef(8).SetPlayerOverride(oid, "Archer-Mage");
-          oid.SetTextureOverride("fighter", "arcanearcher");
+          var playerClass = NwClass.FromClassType(ClassType.Fighter);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Archer-Mage"))
+            tlkOverrides[playerClass.Name] = "Archer-Mage";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "arcanearcher"))
+            iconOverrides[playerClass.IconResRef] = "arcanearcher";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.FighterChampion))
         {
-          new StrRef(8).SetPlayerOverride(oid, "Champion");
-          oid.SetTextureOverride("fighter", "champion");
+          var playerClass = NwClass.FromClassType(ClassType.Fighter);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Champion"))
+            tlkOverrides[playerClass.Name] = "Champion";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "champion"))
+            iconOverrides[playerClass.IconResRef] = "champion";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.FighterWarMaster))
         {
-          new StrRef(8).SetPlayerOverride(oid, "Maître de Guerre");
-          oid.SetTextureOverride("fighter", "warmaster");
+          var playerClass = NwClass.FromClassType(ClassType.Fighter);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Maître de Guerre"))
+            tlkOverrides[playerClass.Name] = "Maître de Guerre";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "warmaster"))
+            iconOverrides[playerClass.IconResRef] = "warmaster";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.FighterEldritchKnight))
         {
-          new StrRef(8).SetPlayerOverride(oid, "Guerrier Occulte");
-          oid.SetTextureOverride("fighter", "eldritchknight");
+          var playerClass = NwClass.FromClassType(ClassType.Fighter);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Guerrier Occulte"))
+            tlkOverrides[playerClass.Name] = "Guerrier Occulte";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "eldritchknight"))
+            iconOverrides[playerClass.IconResRef] = "eldritchknight";
         }
 
         if (learnableSkills.ContainsKey(CustomSkill.BarbarianBerseker))
         {
-          new StrRef(5213).SetPlayerOverride(oid, "Berseker");
-          oid.SetTextureOverride("barbarian", "berseker");
+          var playerClass = NwClass.FromClassType(ClassType.Barbarian);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Berseker"))
+            tlkOverrides[playerClass.Name] = "Berseker";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "berseker"))
+            iconOverrides[playerClass.IconResRef] = "berseker";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.BarbarianTotem))
         {
-          new StrRef(5213).SetPlayerOverride(oid, "Voie du Totem");
-          oid.SetTextureOverride("barbarian", "totem");
+          var playerClass = NwClass.FromClassType(ClassType.Barbarian);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Voie du Totem"))
+            tlkOverrides[playerClass.Name] = "Voie du Totem";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "totem"))
+            iconOverrides[playerClass.IconResRef] = "totem";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.BarbarianWildMagic))
         {
-          new StrRef(5213).SetPlayerOverride(oid, "Voie de la Magie Sauvage");
-          oid.SetTextureOverride("barbarian", "wildmagic");
+          var playerClass = NwClass.FromClassType(ClassType.Barbarian);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Voie de la Magie Sauvage"))
+            tlkOverrides[playerClass.Name] = "Voie de la Magie Sauvage";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "wildmagic"))
+            iconOverrides[playerClass.IconResRef] = "wildmagic";
         }
-        
+
         if (learnableSkills.ContainsKey(CustomSkill.RogueThief))
         {
-          new StrRef(16).SetPlayerOverride(oid, "Voleur");
-          oid.SetTextureOverride("rogue", "thief");
+          var playerClass = NwClass.FromClassType(ClassType.Rogue);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Voleur"))
+            tlkOverrides[playerClass.Name] = "Voleur";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "thief"))
+            iconOverrides[playerClass.IconResRef] = "thief";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.RogueAssassin))
         {
-          new StrRef(16).SetPlayerOverride(oid, "Assassin");
-          oid.SetTextureOverride("rogue", "assassin");
+          var playerClass = NwClass.FromClassType(ClassType.Rogue);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Assassin"))
+            tlkOverrides[playerClass.Name] = "Assassin";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "assassin"))
+            iconOverrides[playerClass.IconResRef] = "assassin";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.RogueArcaneTrickster))
         {
-          new StrRef(16).SetPlayerOverride(oid, "Escroc Arcanique");
-          oid.SetTextureOverride("rogue", "arcane_trickster");
-        }
-        else if (learnableSkills.ContainsKey(CustomSkill.RogueConspirateur))
-        {
-          new StrRef(16).SetPlayerOverride(oid, "Conspirateur");
-          oid.SetTextureOverride("rogue", "conspirateur");
+          var playerClass = NwClass.FromClassType(ClassType.Rogue);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Escroc Arcanique"))
+            tlkOverrides[playerClass.Name] = "Escroc Arcanique";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "arcane_trickster"))
+            iconOverrides[playerClass.IconResRef] = "arcane_trickster";
         }
 
         if (learnableSkills.ContainsKey(CustomSkill.MonkPaume))
         {
-          new StrRef(10).SetPlayerOverride(oid, "Voie de la Paume");
-          oid.SetTextureOverride("monk", "monk_paume");
+          var playerClass = NwClass.FromClassType(ClassType.Monk);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Voie de la Paume"))
+            tlkOverrides[playerClass.Name] = "Voie de la Paume";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "monk_paume"))
+            iconOverrides[playerClass.IconResRef] = "monk_paume";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.MonkOmbre))
         {
-          new StrRef(10).SetPlayerOverride(oid, "Voie de l'Ombre");
-          oid.SetTextureOverride("monk", "monk_shadow");
+          var playerClass = NwClass.FromClassType(ClassType.Monk);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Voie de l'Ombre"))
+            tlkOverrides[playerClass.Name] = "Voie de l'Ombre";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "monk_shadow"))
+            iconOverrides[playerClass.IconResRef] = "monk_shadow";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.MonkElements))
         {
-          new StrRef(10).SetPlayerOverride(oid, "Voie des Quatre Eléments");
-          oid.SetTextureOverride("monk", "monk_elements");
+          var playerClass = NwClass.FromClassType(ClassType.Monk);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Voie des Eléments"))
+            tlkOverrides[playerClass.Name] = "Voie des Eléments";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "monk_elements"))
+            iconOverrides[playerClass.IconResRef] = "monk_elements";
         }
 
         if (learnableSkills.ContainsKey(CustomSkill.WizardAbjuration))
         {
-          new StrRef(20).SetPlayerOverride(oid, "Abjurateur");
-          oid.SetTextureOverride("wizard", "abjuration");
+          var playerClass = NwClass.FromClassType(ClassType.Wizard);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Abjurateur"))
+            tlkOverrides[playerClass.Name] = "Abjurateur";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "abjuration"))
+            iconOverrides[playerClass.IconResRef] = "abjuration";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.WizardDivination))
         {
-          new StrRef(20).SetPlayerOverride(oid, "Devin");
-          oid.SetTextureOverride("wizard", "divination");
+          var playerClass = NwClass.FromClassType(ClassType.Wizard);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Devin"))
+            tlkOverrides[playerClass.Name] = "Devin";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "divination"))
+            iconOverrides[playerClass.IconResRef] = "divination";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.WizardEnchantement))
         {
-          new StrRef(20).SetPlayerOverride(oid, "Enchanteur");
-          oid.SetTextureOverride("wizard", "enchantement");
+          var playerClass = NwClass.FromClassType(ClassType.Wizard);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Enchanteur"))
+            tlkOverrides[playerClass.Name] = "Enchanteur";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "enchantement"))
+            iconOverrides[playerClass.IconResRef] = "enchantement";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.WizardEvocation))
         {
-          new StrRef(20).SetPlayerOverride(oid, "Evocateur");
-          oid.SetTextureOverride("wizard", "evocation");
+          var playerClass = NwClass.FromClassType(ClassType.Wizard);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Evocateur"))
+            tlkOverrides[playerClass.Name] = "Evocateur";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "evocation"))
+            iconOverrides[playerClass.IconResRef] = "evocation";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.WizardEvocation))
         {
-          new StrRef(20).SetPlayerOverride(oid, "Illusionniste");
-          oid.SetTextureOverride("wizard", "illusion");
+          var playerClass = NwClass.FromClassType(ClassType.Wizard);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Illusionniste"))
+            tlkOverrides[playerClass.Name] = "Illusionniste";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "illusion"))
+            iconOverrides[playerClass.IconResRef] = "illusion";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.WizardEvocation))
         {
-          new StrRef(20).SetPlayerOverride(oid, "Invocateur");
-          oid.SetTextureOverride("wizard", "invocation");
+          var playerClass = NwClass.FromClassType(ClassType.Wizard);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Invocateur"))
+            tlkOverrides[playerClass.Name] = "Invocateur";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "invocation"))
+            iconOverrides[playerClass.IconResRef] = "invocation";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.WizardNecromancie))
         {
-          new StrRef(20).SetPlayerOverride(oid, "Nécromancien");
-          oid.SetTextureOverride("wizard", "necromancie");
+          var playerClass = NwClass.FromClassType(ClassType.Wizard);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Nécromancien"))
+            tlkOverrides[playerClass.Name] = "Nécromancien";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "necromancie"))
+            iconOverrides[playerClass.IconResRef] = "necromancie";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.WizardTransmutation))
         {
-          new StrRef(20).SetPlayerOverride(oid, "Transmutateur");
-          oid.SetTextureOverride("wizard", "transmutation");
+          var playerClass = NwClass.FromClassType(ClassType.Wizard);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Transmutateur"))
+            tlkOverrides[playerClass.Name] = "Transmutateur";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "transmutation"))
+            iconOverrides[playerClass.IconResRef] = "transmutation";
         }
 
         if (learnableSkills.ContainsKey(CustomSkill.BardCollegeDuSavoir))
         {
-          new StrRef(2).SetPlayerOverride(oid, "Collège du Savoir");
-          oid.SetTextureOverride("bard", "college_lore");
+          var playerClass = NwClass.FromClassType(ClassType.Bard);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Collège du Savoir"))
+            tlkOverrides[playerClass.Name] = "Collège du Savoir";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "college_lore"))
+            iconOverrides[playerClass.IconResRef] = "college_lore";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.BardCollegeDeLaVaillance))
         {
-          new StrRef(2).SetPlayerOverride(oid, "Collège de la Vaillance");
-          oid.SetTextureOverride("bard", "vaillance");
+          var playerClass = NwClass.FromClassType(ClassType.Bard);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Collège de la Vaillance"))
+            tlkOverrides[playerClass.Name] = "Collège de la Vaillance";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "vaillance"))
+            iconOverrides[playerClass.IconResRef] = "vaillance";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.BardCollegeDeLaVaillance))
         {
-          new StrRef(2).SetPlayerOverride(oid, "Collège de l'Escrime");
-          oid.SetTextureOverride("bard", "escrime");
+          var playerClass = NwClass.FromClassType(ClassType.Bard);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Collège de l'Escrime"))
+            tlkOverrides[playerClass.Name] = "Collège de l'Escrime";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "escrime"))
+            iconOverrides[playerClass.IconResRef] = "escrime";
         }
 
         if (learnableSkills.ContainsKey(CustomSkill.RangerChasseur))
         {
-          new StrRef(14).SetPlayerOverride(oid, "Conclave des Chasseurs");
-          oid.SetTextureOverride("ranger", "chasseur");
+          var playerClass = NwClass.FromClassType(ClassType.Ranger);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Conclave des Chasseurs"))
+            tlkOverrides[playerClass.Name] = "Conclave des Chasseurs";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "chasseur"))
+            iconOverrides[playerClass.IconResRef] = "chasseur";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.RangerBelluaire))
         {
-          new StrRef(14).SetPlayerOverride(oid, "Conclave des Belluaires");
-          oid.SetTextureOverride("ranger", "conclave_betes");
+          var playerClass = NwClass.FromClassType(ClassType.Ranger);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Conclave des Belluaires"))
+            tlkOverrides[playerClass.Name] = "Conclave des Belluaires";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "conclave_betes"))
+            iconOverrides[playerClass.IconResRef] = "conclave_betes";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.RangerProfondeurs))
         {
-          new StrRef(14).SetPlayerOverride(oid, "Conclave des Profondeurs");
-          oid.SetTextureOverride("ranger", "profondeurs");
+          var playerClass = NwClass.FromClassType(ClassType.Ranger);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Conclave des Profondeurs"))
+            tlkOverrides[playerClass.Name] = "Conclave des Profondeurs";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "profondeurs"))
+            iconOverrides[playerClass.IconResRef] = "profondeurs";
         }
 
         var auraDeProtection = NwFeat.FromFeatId(CustomSkill.AuraDeProtection);
@@ -173,137 +275,234 @@ namespace NWN.Systems
         {
           var auraDeCourage = NwFeat.FromFeatId(CustomSkill.AuraDeCourage);
           var tlk = NwFeat.FromFeatId(CustomSkill.AuraDeProtection).Name;
-          tlk.SetPlayerOverride(oid, "Aura de Courage");
 
-          oid.SetTextureOverride(auraDeProtection.IconResRef, auraDeCourage.IconResRef);
+          if (!tlkOverrides.TryAdd(tlk, "Aura de Courage"))
+            tlkOverrides[tlk] = "Aura de Courage";
+          if (!iconOverrides.TryAdd(auraDeProtection.IconResRef, auraDeCourage.IconResRef))
+            iconOverrides[auraDeProtection.IconResRef] = auraDeCourage.IconResRef;
 
           tlk = auraDeProtection.Description;
-          tlk.SetPlayerOverride(oid, $"{tlk.ToString()}\n\n{auraDeCourage.Description.ToString()}");
+
+          if (!tlkOverrides.TryAdd(tlk, $"{tlk.ToString()}\n\n{auraDeCourage.Description.ToString()}"))
+            tlkOverrides[tlk] = $"{tlk.ToString()}\n\n{auraDeCourage.Description.ToString()}";
         }
 
         if (learnableSkills.ContainsKey(CustomSkill.PaladinSermentDevotion))
         {
-          new StrRef(12).SetPlayerOverride(oid, "Serment de Dévotion");
-          oid.SetTextureOverride("paladin", "devotion");
+          var playerClass = NwClass.FromClassType(ClassType.Paladin);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Serment de Dévotion"))
+            tlkOverrides[playerClass.Name] = "Serment de Dévotion";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "devotion"))
+            iconOverrides[playerClass.IconResRef] = "devotion";
 
           if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.PaladinAuraDeDevotion))
           {
             var auraDeDevotion = NwFeat.FromFeatId(CustomSkill.PaladinAuraDeDevotion);
             var tlk = auraDeProtection.Name;
-            tlk.SetPlayerOverride(oid, "Aura de Dévotion");
 
-            oid.SetTextureOverride(auraDeProtection.IconResRef, auraDeDevotion.IconResRef);
+            if (!tlkOverrides.TryAdd(tlk, "Aura de Dévotion"))
+              tlkOverrides[tlk] = "Aura de Dévotion";
+            if (!iconOverrides.TryAdd(auraDeProtection.IconResRef, auraDeDevotion.IconResRef))
+              iconOverrides[auraDeProtection.IconResRef] = auraDeDevotion.IconResRef;
 
             tlk = auraDeProtection.Description;
-            tlk.SetPlayerOverride(oid, $"{tlk.ToString()}\n\n{auraDeDevotion.Description.ToString()}");
+
+            if (!tlkOverrides.TryAdd(tlk, $"{tlk.ToString()}\n\n{auraDeDevotion.Description.ToString()}"))
+              tlkOverrides[tlk] = $"{tlk.ToString()}\n\n{auraDeDevotion.Description.ToString()}";
           }
         }
         else if(learnableSkills.ContainsKey(CustomSkill.PaladinSermentDesAnciens))
         {
-          new StrRef(12).SetPlayerOverride(oid, "Serment des Anciens");
-          oid.SetTextureOverride("paladin", "anciens");
+          var playerClass = NwClass.FromClassType(ClassType.Paladin);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Serment des Anciens"))
+            tlkOverrides[playerClass.Name] = "Serment des Anciens";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "anciens"))
+            iconOverrides[playerClass.IconResRef] = "anciens";
 
           if (oid.LoginCreature.KnowsFeat((Feat)CustomSkill.PaladinAuraDeGarde))
           {
             var auraDeGarde = NwFeat.FromFeatId(CustomSkill.PaladinAuraDeGarde);
             var tlk = auraDeProtection.Name;
-            tlk.SetPlayerOverride(oid, "Aura de Garde");
 
-            oid.SetTextureOverride(auraDeProtection.IconResRef, auraDeGarde.IconResRef);
+            if (!tlkOverrides.TryAdd(tlk, "Aura de Garde"))
+              tlkOverrides[tlk] = "Aura de Garde";
+            if (!iconOverrides.TryAdd(auraDeProtection.IconResRef, auraDeGarde.IconResRef))
+              iconOverrides[auraDeProtection.IconResRef] = auraDeGarde.IconResRef;
 
             tlk = auraDeProtection.Description;
-            tlk.SetPlayerOverride(oid, $"{tlk.ToString()}\n\n{auraDeGarde.Description.ToString()}");
+
+            if (!tlkOverrides.TryAdd(tlk, $"{tlk.ToString()}\n\n{auraDeGarde.Description.ToString()}"))
+              tlkOverrides[tlk] = $"{tlk.ToString()}\n\n{auraDeGarde.Description.ToString()}";
           }
         }
         else if (learnableSkills.ContainsKey(CustomSkill.PaladinSermentVengeance))
         {
-          new StrRef(12).SetPlayerOverride(oid, "Serment de Vengeance");
-          oid.SetTextureOverride("paladin", "vengeance"); 
+          var playerClass = NwClass.FromClassType(ClassType.Paladin);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Serment de Vengeance"))
+            tlkOverrides[playerClass.Name] = "Serment des Vengeance";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "vengeance"))
+            iconOverrides[playerClass.IconResRef] = "vengeance";
         }
 
         if (learnableSkills.ContainsKey(CustomSkill.ClercDuperie))
         {
-          new StrRef(12).SetPlayerOverride(oid, "Domaine de la Duperie");
-          oid.SetTextureOverride("clerc", "duperie");
+          var playerClass = NwClass.FromClassType(ClassType.Cleric);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Domaine de la Duperie"))
+            tlkOverrides[playerClass.Name] = "Domaine de la Duperie";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "duperie"))
+            iconOverrides[playerClass.IconResRef] = "duperie";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.ClercGuerre))
         {
-          new StrRef(12).SetPlayerOverride(oid, "Domaine de la Guerre");
-          oid.SetTextureOverride("clerc", "guerre");
+          var playerClass = NwClass.FromClassType(ClassType.Cleric);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Domaine de la Guerre"))
+            tlkOverrides[playerClass.Name] = "Domaine de la Guerre";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "guerre"))
+            iconOverrides[playerClass.IconResRef] = "guerre";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.ClercLumiere))
         {
-          new StrRef(12).SetPlayerOverride(oid, "Domaine de la Lumière");
-          oid.SetTextureOverride("clerc", "light_domain");
+          var playerClass = NwClass.FromClassType(ClassType.Cleric);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Domaine de la Lumière"))
+            tlkOverrides[playerClass.Name] = "Domaine de la Lumière";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "light_domain"))
+            iconOverrides[playerClass.IconResRef] = "light_domain";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.ClercNature))
         {
-          new StrRef(12).SetPlayerOverride(oid, "Domaine de la Nature");
-          oid.SetTextureOverride("clerc", "nature_domain");
+          var playerClass = NwClass.FromClassType(ClassType.Cleric);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Domaine de la Nature"))
+            tlkOverrides[playerClass.Name] = "Domaine de la Nature";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "nature_domain"))
+            iconOverrides[playerClass.IconResRef] = "nature_domain";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.ClercSavoir))
         {
-          new StrRef(12).SetPlayerOverride(oid, "Domaine de la Nature");
-          oid.SetTextureOverride("clerc", "domaine_savoir");
+          var playerClass = NwClass.FromClassType(ClassType.Cleric);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Domaine de la Nature"))
+            tlkOverrides[playerClass.Name] = "Domaine de la Nature";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "domaine_savoir"))
+            iconOverrides[playerClass.IconResRef] = "domaine_savoir";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.ClercTempete))
         {
-          new StrRef(12).SetPlayerOverride(oid, "Domaine de la Tempête");
-          oid.SetTextureOverride("clerc", "domaine_tempete");
+          var playerClass = NwClass.FromClassType(ClassType.Cleric);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Domaine de la Tempête"))
+            tlkOverrides[playerClass.Name] = "Domaine de la Tempête";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "domaine_tempete"))
+            iconOverrides[playerClass.IconResRef] = "domaine_tempete";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.ClercVie))
         {
-          new StrRef(12).SetPlayerOverride(oid, "Domaine de la Vie");
-          oid.SetTextureOverride("clerc", "domaine_vie");
+          var playerClass = NwClass.FromClassType(ClassType.Cleric);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Domaine de la Vie"))
+            tlkOverrides[playerClass.Name] = "Domaine de la Vie";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "domaine_vie"))
+            iconOverrides[playerClass.IconResRef] = "domaine_vie";
         }
         
         if (learnableSkills.ContainsKey(CustomSkill.EnsorceleurLigneeDraconique))
         {
-          new StrRef(9).SetPlayerOverride(oid, "Lignée Draconique");
-          oid.SetTextureOverride("ensorceleur", "enso_draconique");
+          var playerClass = NwClass.FromClassType(ClassType.Sorcerer);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Lignée Draconique"))
+            tlkOverrides[playerClass.Name] = "Lignée Draconique";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "enso_draconique"))
+            iconOverrides[playerClass.IconResRef] = "enso_draconique";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.EnsorceleurTempete))
         {
-          new StrRef(9).SetPlayerOverride(oid, "Sorcellerie de la Tempête");
-          oid.SetTextureOverride("ensorceleur", "enso_tempete");
+          var playerClass = NwClass.FromClassType(ClassType.Sorcerer);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Sorcellerie de la Tempête"))
+            tlkOverrides[playerClass.Name] = "Sorcellerie de la Tempête";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "enso_tempete"))
+            iconOverrides[playerClass.IconResRef] = "enso_tempete";
         }
         
         if (learnableSkills.ContainsKey(CustomSkill.DruideCercleTellurique))
         {
-          new StrRef(6).SetPlayerOverride(oid, "Cercle Tellurique");
-          oid.SetTextureOverride("druide", "druide_terre");
+          var playerClass = NwClass.FromClassType(ClassType.Druid);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Cercle Tellurique"))
+            tlkOverrides[playerClass.Name] = "Cercle Tellurique";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "druide_terre"))
+            iconOverrides[playerClass.IconResRef] = "druide_terre";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.DruideCercleSelenite))
         {
+          var playerClass = NwClass.FromClassType(ClassType.Druid);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Cercle Sélénite"))
+            tlkOverrides[playerClass.Name] = "Cercle Sélénite";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "druide_lune"))
+            iconOverrides[playerClass.IconResRef] = "druide_lune";
+
           new StrRef(6).SetPlayerOverride(oid, "Cercle Sélénite");
           oid.SetTextureOverride("druide", "druide_lune");
         }
         else if (learnableSkills.ContainsKey(CustomSkill.DruideCerclePelagique))
         {
-          new StrRef(6).SetPlayerOverride(oid, "Cercle Pélagique");
-          oid.SetTextureOverride("druide", "druide_mer");
+          var playerClass = NwClass.FromClassType(ClassType.Druid);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Cercle Pélagique"))
+            tlkOverrides[playerClass.Name] = "Cercle Pélagique";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "druide_mer"))
+            iconOverrides[playerClass.IconResRef] = "druide_mer";
         }
 
         if (learnableSkills.ContainsKey(CustomSkill.OccultisteArchifee))
         {
-          NwClass.FromClassId(CustomClass.Occultiste).Name.SetPlayerOverride(oid, "Mécène Archifée");
-          oid.SetTextureOverride("occultiste", "warlock_archfey");
+          var playerClass = NwClass.FromClassId(CustomClass.Occultiste);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Mécène Archifée"))
+            tlkOverrides[playerClass.Name] = "Mécène Archifée";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "warlock_archfey"))
+            iconOverrides[playerClass.IconResRef] = "warlock_archfey";
         }
         else if(learnableSkills.ContainsKey(CustomSkill.OccultisteCeleste))
         {
-          NwClass.FromClassId(CustomClass.Occultiste).Name.SetPlayerOverride(oid, "Mécène Céleste");
-          oid.SetTextureOverride("occultiste", "warlock_celeste");
+          var playerClass = NwClass.FromClassId(CustomClass.Occultiste);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Mécène Céleste"))
+            tlkOverrides[playerClass.Name] = "Mécène Céleste";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "warlock_celeste"))
+            iconOverrides[playerClass.IconResRef] = "warlock_celeste";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.OccultisteFielon))
         {
-          NwClass.FromClassId(CustomClass.Occultiste).Name.SetPlayerOverride(oid, "Mécène Fiélon");
-          oid.SetTextureOverride("occultiste", "warlock_fielon");
+          var playerClass = NwClass.FromClassId(CustomClass.Occultiste);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Mécène Fiélon"))
+            tlkOverrides[playerClass.Name] = "Mécène Fiélon";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "warlock_fielon"))
+            iconOverrides[playerClass.IconResRef] = "warlock_fielon";
         }
         else if (learnableSkills.ContainsKey(CustomSkill.OccultisteGrandAncien))
         {
-          NwClass.FromClassId(CustomClass.Occultiste).Name.SetPlayerOverride(oid, "Mécène Grand Ancien");
-          oid.SetTextureOverride("occultiste", "warlock_ancien");
+          var playerClass = NwClass.FromClassId(CustomClass.Occultiste);
+
+          if (!tlkOverrides.TryAdd(playerClass.Name, "Mécène Grand Ancien"))
+            tlkOverrides[playerClass.Name] = "Mécène Grand Ancien";
+          if (!iconOverrides.TryAdd(playerClass.IconResRef, "warlock_ancien"))
+            iconOverrides[playerClass.IconResRef] = "warlock_ancien";
         }
+
+        foreach(var tlk in tlkOverrides)
+          tlk.Key.SetPlayerOverride(oid, tlk.Value);
+
+        foreach (var icon in iconOverrides)
+          oid.SetTextureOverride(icon.Key, icon.Value);
       }
     }
   }

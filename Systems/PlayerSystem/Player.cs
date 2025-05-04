@@ -46,6 +46,8 @@ namespace NWN.Systems
       public float guiWidth { get => oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth); }
       public float guiScaledHeight => oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / (oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) / 100);
       public float guiScaledWidth => oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) / (oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) / 100);
+      public Dictionary<StrRef, string> tlkOverrides = new();
+      public Dictionary<string, string> iconOverrides = new();
       public int MaxHP { get => oid.LoginCreature.LevelInfo[0].HitDie + ((oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2); }
       public double energyRegen { get; set; }
       public int healthRegen { get; set; }

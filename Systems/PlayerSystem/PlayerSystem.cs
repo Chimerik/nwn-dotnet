@@ -212,8 +212,8 @@ namespace NWN.Systems
                 else ((Player.EditorPNJWindow)editor).CreateWindow((NwCreature)guiEvent.EventObject);
               }
 
-              if (!player.windows.TryGetValue("ficheDePersoDetails", out var fiche)) player.windows.Add("ficheDePersoDetails", new Player.FicheDePersoDetailsWindow(player, (NwCreature)guiEvent.EventObject));
-              else ((Player.FicheDePersoDetailsWindow)fiche).CreateWindow((NwCreature)guiEvent.EventObject);
+              if (!player.windows.TryGetValue("ficheDePerso", out var fiche)) player.windows.Add("ficheDePerso", new Player.FicheDePersoWindow(player, (NwCreature)guiEvent.EventObject));
+              else ((Player.FicheDePersoWindow)fiche).CreateWindow((NwCreature)guiEvent.EventObject);
 
               return;
 
