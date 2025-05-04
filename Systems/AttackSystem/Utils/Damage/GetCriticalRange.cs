@@ -6,13 +6,13 @@ namespace NWN.Systems
 {
   public static partial class NativeUtils
   {
-    public static int GetCriticalRange(CNWSCreature creature, CNWSItem weapon, CNWSCombatAttackData data)
+    public static int GetCriticalRange(CNWSCreature creature, CNWSItem weapon, bool isRangedAttack)
     {
       int criticalRange = 20;
       
       if(weapon is not null)
       {
-        if(!data.m_bRangedAttack.ToBool()
+        if(isRangedAttack
           && creature.m_pStats.HasFeat(CustomSkill.Broyeur).ToBool()
           && NwBaseItem.FromItemId((int)weapon.m_nBaseItem).WeaponType.Any(d => d == Anvil.API.DamageType.Bludgeoning))
           criticalRange -= 1;

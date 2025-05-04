@@ -206,8 +206,14 @@ namespace NWN.Systems
 
             case GUIPanel.ExamineCreature:
 
-              if (!player.windows.ContainsKey("editorPNJ")) player.windows.Add("editorPNJ", new Player.EditorPNJWindow(player, (NwCreature)guiEvent.EventObject));
-              else ((Player.EditorPNJWindow)player.windows["editorPNJ"]).CreateWindow((NwCreature)guiEvent.EventObject);
+              if (player.oid.IsDM)
+              {
+                if (!player.windows.TryGetValue("editorPNJ", out var editor)) player.windows.Add("editorPNJ", new Player.EditorPNJWindow(player, (NwCreature)guiEvent.EventObject));
+                else ((Player.EditorPNJWindow)editor).CreateWindow((NwCreature)guiEvent.EventObject);
+              }
+
+              if (!player.windows.TryGetValue("ficheDePersoDetails", out var fiche)) player.windows.Add("ficheDePersoDetails", new Player.FicheDePersoDetailsWindow(player, (NwCreature)guiEvent.EventObject));
+              else ((Player.FicheDePersoDetailsWindow)fiche).CreateWindow((NwCreature)guiEvent.EventObject);
 
               return;
 
@@ -240,18 +246,16 @@ namespace NWN.Systems
 
         case GuiEventType.ExamineObject:
 
-          // TODO : Lorsque la créature examinée est une invocation du joueur et que le joueur possède le don spell focus conjuration, permettre de la renommer
-
           if (guiEvent.EventObject is NwCreature examineCreature && examineCreature == oPC.LoginCreature) // TODO : plutôt mettre ça dans le menu
           {
             if (player.craftJob != null)
             {
-              if (!player.windows.ContainsKey("activeCraftJob")) player.windows.Add("activeCraftJob", new Player.ActiveCraftJobWindow(player));
-              else ((Player.ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
+              if (!player.windows.TryGetValue("activeCraftJob", out var craft)) player.windows.Add("activeCraftJob", new Player.ActiveCraftJobWindow(player));
+              else ((Player.ActiveCraftJobWindow)craft).CreateWindow();
             }
 
-            if (!player.windows.ContainsKey("learnables")) player.windows.Add("learnables", new Player.LearnableWindow(player));
-            else ((Player.LearnableWindow)player.windows["learnables"]).CreateWindow();
+            if (!player.windows.TryGetValue("learnables", out var value)) player.windows.Add("learnables", new Player.LearnableWindow(player));
+            else ((Player.LearnableWindow)value).CreateWindow();
           }
 
           break;

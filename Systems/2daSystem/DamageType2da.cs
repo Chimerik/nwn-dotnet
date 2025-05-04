@@ -34,7 +34,7 @@ namespace NWN.Systems
     {
       foreach (var entry in damageTypeTable) ;
 
-      damageImmunityEffectIcon.Add(DamageType.Bludgeoning, (EffectIcon)196);
+      damageImmunityEffectIcon.Add(DamageType.Bludgeoning, CustomEffectIcon.BludgeoningImmunity);
       damageResistanceEffectIcon.Add(DamageType.Bludgeoning, (EffectIcon)212);
       damageVulnerabilityEffectIcon.Add(DamageType.Bludgeoning, (EffectIcon)199);
 

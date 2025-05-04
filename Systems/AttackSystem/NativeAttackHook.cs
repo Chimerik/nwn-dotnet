@@ -133,12 +133,12 @@ namespace NWN.Systems
 
         int attackRoll = NativeUtils.GetAttackRoll(attacker, advantage, attackAbility);
         int targetAC  = NativeUtils.GetCreatureAC(targetCreature, attacker);
-        bool isCriticalHit = attackRoll >= NativeUtils.GetCriticalRange(attacker, attackWeapon, attackData);
+        bool isCriticalHit = attackRoll >= NativeUtils.GetCriticalRange(attacker, attackWeapon, attackData.m_bRangedAttack.ToBool());
 
         if (isCriticalHit && targetCreature.m_ScriptVars.GetInt(CreatureUtils.SecondeChanceVariableExo).ToBool())
         {
           attackRoll = NativeUtils.GetAttackRoll(attacker, advantage, attackAbility);
-          isCriticalHit = attackRoll >= NativeUtils.GetCriticalRange(attacker, attackWeapon, attackData);
+          isCriticalHit = attackRoll >= NativeUtils.GetCriticalRange(attacker, attackWeapon, attackData.m_bRangedAttack.ToBool());
           NativeUtils.SendNativeServerMessage("Seconde chance".ColorString(StringUtils.gold), targetCreature);
         }
 

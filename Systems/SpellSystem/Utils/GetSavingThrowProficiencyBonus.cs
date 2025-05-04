@@ -27,8 +27,6 @@ namespace NWN.Systems
       else
         proficiencyBonus = NativeUtils.GetCreatureProficiencyBonus(target);
 
-      LogUtils.LogMessage($"JDS {ability} proficiency bonus : {proficiencyBonus}", LogUtils.LogType.Combat);
-
       return proficiencyBonus;
     }
   }

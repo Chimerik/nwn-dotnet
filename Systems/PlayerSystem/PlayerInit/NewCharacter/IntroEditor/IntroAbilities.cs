@@ -37,16 +37,16 @@ namespace NWN.Systems
 
           List<NuiListTemplateCell> abilitiesTemplate = new List<NuiListTemplateCell>
           {
-            new NuiListTemplateCell(new NuiSpacer()),
-            new NuiListTemplateCell(new NuiButtonImage(icon)) { Width = 40 },
-            new NuiListTemplateCell(new NuiLabel(abilityName) { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }) { Width = 120 },
-            new NuiListTemplateCell(new NuiButton("<") { Id = "abilityDecrease" }) { Width = 40 },
-            new NuiListTemplateCell(new NuiLabel(abilityLevel) { Margin = 0.0f, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }) { Width = 40 },
-            new NuiListTemplateCell(new NuiButton(">") { Id = "abilityIncrease" }) { Width = 40 },
-            new NuiListTemplateCell(new NuiSpacer()),
-            new NuiListTemplateCell(new NuiCheck("", bonus2Checked) { Tooltip = "Attribuer le bonus de +2 à cette caractéristique", Margin = 0.0f }) { Width = 40 },
-            new NuiListTemplateCell(new NuiCheck("", bonus1Checked) { Tooltip = "Attribuer le bonus de +1 à cette caractéristique", Margin = 0.0f }) { Width = 40 },
-            new NuiListTemplateCell(new NuiSpacer())
+            new(new NuiSpacer()),
+            new(new NuiButtonImage(icon)) { Width = 40 },
+            new(new NuiLabel(abilityName) { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }) { Width = 120 },
+            new(new NuiButton("<") { Id = "abilityDecrease" }) { Width = 40 },
+            new(new NuiLabel(abilityLevel) { Margin = 0.0f, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }) { Width = 40 },
+            new(new NuiButton(">") { Id = "abilityIncrease" }) { Width = 40 },
+            new(new NuiSpacer()),
+            new(new NuiCheck("", bonus2Checked) { Tooltip = "Attribuer le bonus de +2 à cette caractéristique", Margin = 0.0f }) { Width = 40 },
+            new(new NuiCheck("", bonus1Checked) { Tooltip = "Attribuer le bonus de +1 à cette caractéristique", Margin = 0.0f }) { Width = 40 },
+            new(new NuiSpacer())
           };
 
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()

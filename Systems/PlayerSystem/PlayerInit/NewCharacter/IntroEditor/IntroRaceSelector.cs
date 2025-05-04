@@ -41,10 +41,10 @@ namespace NWN.Systems
 
           List<NuiListTemplateCell> learnableTemplate = new List<NuiListTemplateCell>
           {
-            new NuiListTemplateCell(new NuiButtonImage(icon) { Id = "select", Tooltip = raceName, Encouraged = encouraged, Height = 40, Width = 40 }) { Width = 40 },
-            new NuiListTemplateCell(new NuiLabel(raceName) { Width = 200, Id = "select", ForegroundColor = color, Encouraged = encouraged, Tooltip = raceName, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }) { Width = 220 },
-            new NuiListTemplateCell(new NuiButtonImage("select_right") { Id = "select", Tooltip = raceName, Encouraged = encouraged, Height = 40, Width = 40 }) { Width = 40 },
-            new NuiListTemplateCell(new NuiSpacer())
+            new(new NuiButtonImage(icon) { Id = "select", Tooltip = raceName, Encouraged = encouraged, Height = 40, Width = 40 }) { Width = 40 },
+            new(new NuiLabel(raceName) { Width = 200, Id = "select", ForegroundColor = color, Encouraged = encouraged, Tooltip = raceName, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }) { Width = 220 },
+            new(new NuiButtonImage("select_right") { Id = "select", Tooltip = raceName, Encouraged = encouraged, Height = 40, Width = 40 }) { Width = 40 },
+            new(new NuiSpacer())
           };
 
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()

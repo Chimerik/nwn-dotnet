@@ -8,8 +8,9 @@ namespace NWN.Systems
     public static int GetSavingThrowRoll(NwCreature target, Ability ability, int saveDC, int advantage, SpellConfig.SavingThrowFeedback feedback, SpellEntry spellEntry = null, SpellConfig.SpellEffectType effectType = SpellConfig.SpellEffectType.Invalid)
     {
       int proficiencyBonus = GetSavingThrowProficiencyBonus(target, ability);
-      int abilityModifier = target.GetAbilityModifier(ability);
+      LogUtils.LogMessage($"JDS {ability} proficiency bonus : {proficiencyBonus}", LogUtils.LogType.Combat);
 
+      int abilityModifier = target.GetAbilityModifier(ability);
       LogUtils.LogMessage($"JDS modifier {ability} : {abilityModifier}", LogUtils.LogType.Combat);
 
       proficiencyBonus += abilityModifier
