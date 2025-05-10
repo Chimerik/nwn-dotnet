@@ -16,11 +16,11 @@ namespace NWN.Systems
           classRow.Children.Clear();
           classRow.Children.Add(new NuiSpacer());
 
-          classRow.Children.Add(new NuiColumn() { Margin = 0.0f, Width = windowWidth / 7, Children = new List<NuiElement>()
+          classRow.Children.Add(new NuiColumn() { Width = windowWidth / 7.5f, Height = classRow.Height / 1.1f, Children = new List<NuiElement>()
           {
-            new NuiRow() { Margin = 0.0f, Children = new List<NuiElement>() { new NuiButtonImage(Races2da.raceTable[target.Race.Id].icon) { Width = windowWidth / 7 } } },
-            new NuiRow() { Margin = 0.0f, Children = new List<NuiElement>() { new NuiLabel($"{target.Race.Name}") { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center } } },
-            new NuiRow() { Margin = 0.0f, Children = new List<NuiElement>() { new NuiLabel("") } }
+            new NuiRow() { Children = new List<NuiElement>() { new NuiButtonImage(Races2da.raceTable[target.Race.Id].icon) { Width = windowWidth / 8, Height = windowWidth / 8 } } },
+            new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"{target.Race.Name}") { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 8, Height = windowWidth / 30 } } },
+            new NuiRow() { Children = new List<NuiElement>() { new NuiLabel("") { Width = windowWidth / 8, Height = windowWidth / 30 } } }
           } });
 
           classRow.Children.Add(new NuiSpacer());
@@ -30,36 +30,17 @@ namespace NWN.Systems
             if (playerClass.Class.Id == CustomClass.Adventurer)
               continue;
 
-            classRow.Children.Add(new NuiColumn() { Margin = 0.0f, Width = windowWidth / 7, Children = new List<NuiElement>()
+            classRow.Children.Add(new NuiColumn() { Width = windowWidth / 7.5f, Children = new List<NuiElement>()
             {
-              new NuiRow() { Margin = 0.0f, Children = new List<NuiElement>() { new NuiButtonImage(targetPlayer.GetIconOverride(playerClass.Class.IconResRef)) { Width = windowWidth / 7, Tooltip = $"{targetPlayer.GetTlkOverride(playerClass.Class.Name)}" } } },
-              new NuiRow() { Margin = 0.0f, Children = new List<NuiElement>() { new NuiLabel($"{targetPlayer.GetTlkOverride(playerClass.Class.Name)}") { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center, Tooltip = $"{targetPlayer.GetTlkOverride(playerClass.Class.Name)}" } } },
-              new NuiRow() { Margin = 0.0f, Children = new List<NuiElement>() { new NuiLabel($"{playerClass.Level}") { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center, Tooltip = $"{targetPlayer.GetTlkOverride(playerClass.Class.Name)}" } } }
+              new NuiRow() { Children = new List<NuiElement>() { new NuiButtonImage(targetPlayer.GetIconOverride(playerClass.Class.IconResRef)) { Width = windowWidth / 8, Height = windowWidth / 8, Tooltip = $"{targetPlayer.GetTlkOverride(playerClass.Class.Name)}" } } },
+              new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"{targetPlayer.GetTlkOverride(playerClass.Class.Name)}") { Width = windowWidth / 8, Height = windowWidth / 30, VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center, Tooltip = $"{targetPlayer.GetTlkOverride(playerClass.Class.Name)}" } } },
+              new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"{playerClass.Level}") { Width = windowWidth / 8, Height = windowWidth / 30, VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center, Tooltip = $"{targetPlayer.GetTlkOverride(playerClass.Class.Name)}" } } }
             } });
 
             classRow.Children.Add(new NuiSpacer());
           }
 
           classGroup.SetLayout(player.oid, nuiToken.Token, classRow);
-
-          /*backgroundRow.Children.Clear();
-          backgroundRow.Children.Add(new NuiSpacer());
-
-          if (Players.TryGetValue(target, out var targetPlayer))
-          {
-            foreach (var learnable in targetPlayer.learnableSkills.Values.Where(s => s.category == SkillSystem.Category.StartingTraits))
-            {
-              backgroundRow.Children.Add(new NuiColumn() { Margin = 0.0f, Width = windowWidth / 8, Children = new List<NuiElement>()
-              {
-                new NuiRow() { Margin = 0.0f, Children = new List<NuiElement>() { new NuiButtonImage(learnable.icon) { Width = windowWidth / 8 } } },
-                new NuiRow() { Margin = 0.0f, Children = new List<NuiElement>() { new NuiLabel($"{learnable.name}") { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center } } },
-              }});
-
-              backgroundRow.Children.Add(new NuiSpacer());
-            }
-          }
-
-          backgroundGroup.SetLayout(player.oid, nuiToken.Token, backgroundRow);*/
 
           str.SetBindValue(player.oid, nuiToken.Token, target.GetAbilityScore(Ability.Strength).ToString());
           dex.SetBindValue(player.oid, nuiToken.Token, target.GetAbilityScore(Ability.Dexterity).ToString());
@@ -71,7 +52,7 @@ namespace NWN.Systems
           hp.SetBindValue(player.oid, nuiToken.Token, $"Points de vie : {target.HP} / {target.MaxHP}");
           ac.SetBindValue(player.oid, nuiToken.Token, $"Classe d'armure : {target.AC}");
           init.SetBindValue(player.oid, nuiToken.Token, $"Initiative : {target.GetAbilityModifier(Ability.Dexterity)}");
-          proficiency.SetBindValue(player.oid, nuiToken.Token, $"Bonus de maîtrise : {NativeUtils.GetCreatureProficiencyBonus(target)}");
+          proficiency.SetBindValue(player.oid, nuiToken.Token, $"Bonus de maîtrise (+{NativeUtils.GetCreatureProficiencyBonus(target)})");
 
           NwItem mainWeapon = target.GetItemInSlot(InventorySlot.RightHand);
           NwItem secondaryWeapon = target.GetItemInSlot(InventorySlot.LeftHand);

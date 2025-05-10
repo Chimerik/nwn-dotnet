@@ -20,27 +20,11 @@ namespace NWN.Systems
         public FicheDePersoWindow(Player player, NwCreature target) : base(player)
         {
           windowId = "ficheDePerso";
-          windowWidth = player.guiScaledWidth * 0.3f;
-          windowHeight = player.guiScaledHeight * 0.9f;
+          
           rootColumn.Children = rootChildren;
           rootGroup.Layout = rootColumn;
-
-          menuRow.Height = windowWidth / 10;
-          menuGroup.Height = menuRow.Height;
           menuGroup.Layout = menuRow;
 
-          menuRow.Children.Add(new NuiSpacer());
-          menuRow.Children.Add(new NuiButtonImage("sheet_main_view") { Id = "sheetMainView", Height = windowWidth / 12, Width = windowWidth / 12 });
-          menuRow.Children.Add(new NuiButtonImage("sheet_conditions") { Id = "sheetConditions", Height = windowWidth / 12, Width = windowWidth / 12 });
-          menuRow.Children.Add(new NuiSpacer());
-
-          conditionsTemplate = new List<NuiListTemplateCell>
-          {
-            new(new NuiButtonImage(conditionIcon) { }) { Width = windowWidth / 12 },
-            new(new NuiLabel(conditionName) { VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { Width = windowWidth * 11 / 12  },
-          };
-
-          LoadMainLayout();
           CreateWindow(target);
         }
 
@@ -51,6 +35,8 @@ namespace NWN.Systems
             targetPlayer = player;
 
           NuiRect savedRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(0, 0, windowWidth, windowHeight);
+
+          LoadMainLayout();
 
           window = new NuiWindow(rootGroup, $"{target.Name} - Fiche de perso")
           {
@@ -92,6 +78,20 @@ namespace NWN.Systems
 
                   LoadConditionsLayout();
                   ConditionsBindings();
+
+                  break;
+
+                case "sheetSkills":
+
+                  LoadSkillsLayout();
+                  SkillsBindings();
+
+                  break;
+
+                case "sheetWeapons":
+
+                  LoadWeaponsLayout();
+                  WeaponsBindings();
 
                   break;
               }

@@ -59,9 +59,6 @@ namespace NWN.Systems
             new NuiSpacer()
           } });
 
-          classRow.Height = windowWidth / 4;
-          classGroup.Height = windowWidth / 4;
-          classGroup.Layout = classRow;
           rootChildren.Add(classGroup);
 
           rootChildren.Add(new NuiRow() { Margin = 5.0f, Height = windowWidth / 20, Width = windowWidth / 1.1f, Children = new List<NuiElement>()
@@ -75,38 +72,38 @@ namespace NWN.Systems
             new NuiSpacer()
           } });
 
-          rootChildren.Add(new NuiRow() {  Margin = 0.0f, Height = windowWidth / 5, Children = new List<NuiElement>()
+          rootChildren.Add(new NuiRow() {  Margin = 0.0f, Height = windowWidth / 5, Width = windowWidth / 1.1f, Children = new List<NuiElement>()
           {
             new NuiSpacer(),
-            new NuiColumn() { Margin = 0.0f, Width = windowWidth / 8, Children = new List<NuiElement>() 
+            new NuiColumn() { Margin = 0.0f, Width = windowWidth / 7.5f, Children = new List<NuiElement>() 
               { 
-                new NuiButtonImage("strength") { Id = "strRoll", Tooltip = "Force" },
-                new NuiLabel(str) { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center }
+                new NuiButtonImage("strength") { Id = "strRoll", Tooltip = "Force", Width = windowWidth / 8, Height = windowWidth / 8 },
+                new NuiLabel(str) { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 8, Height = windowWidth / 8 }
               } },
-            new NuiColumn() { Margin = 0.0f, Width = windowWidth / 8, Children = new List<NuiElement>()
+            new NuiColumn() { Margin = 0.0f, Width = windowWidth / 7.5f, Children = new List<NuiElement>()
               {
-                new NuiButtonImage("dexterity") { Id = "dexRoll", Tooltip = "Dextérité" },
-                new NuiLabel(dex) { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center }
+                new NuiButtonImage("dexterity") { Id = "dexRoll", Tooltip = "Dextérité", Width = windowWidth / 8, Height = windowWidth / 8 },
+                new NuiLabel(dex) { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 8, Height = windowWidth / 8 }
               } },
-            new NuiColumn() { Margin = 0.0f, Width = windowWidth / 8, Children = new List<NuiElement>()
+            new NuiColumn() { Margin = 0.0f, Width = windowWidth / 7.5f, Children = new List<NuiElement>()
               {
-                new NuiButtonImage("constitution") { Id = "conRoll", Tooltip = "Constitution" },
-                new NuiLabel(con) { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center }
+                new NuiButtonImage("constitution") { Id = "conRoll", Tooltip = "Constitution", Width = windowWidth / 8, Height = windowWidth / 8 },
+                new NuiLabel(con) { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center , Width = windowWidth / 8, Height = windowWidth / 8}
               } },
-            new NuiColumn() { Margin = 0.0f, Width = windowWidth / 8, Children = new List<NuiElement>()
+            new NuiColumn() { Margin = 0.0f, Width = windowWidth / 7.5f, Children = new List<NuiElement>()
               {
-                new NuiButtonImage("intelligence") { Id = "intRoll", Tooltip = "Intelligence" },
-                new NuiLabel(intel) { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center }
+                new NuiButtonImage("intelligence") { Id = "intRoll", Tooltip = "Intelligence", Width = windowWidth / 8, Height = windowWidth / 8 },
+                new NuiLabel(intel) { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 8, Height = windowWidth / 8 }
               } },
-            new NuiColumn() { Margin = 0.0f, Width = windowWidth / 8, Children = new List<NuiElement>()
+            new NuiColumn() { Margin = 0.0f, Width = windowWidth / 7.5f, Children = new List<NuiElement>()
               {
-                new NuiButtonImage("wisdom") { Id = "wisRoll", Tooltip = "Sagesse" },
-                new NuiLabel(wis) { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center }
+                new NuiButtonImage("wisdom") { Id = "wisRoll", Tooltip = "Sagesse", Width = windowWidth / 8, Height = windowWidth / 8 },
+                new NuiLabel(wis) { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 8, Height = windowWidth / 8 }
               } },
-            new NuiColumn() { Margin = 0.0f, Width = windowWidth / 8, Children = new List<NuiElement>()
+            new NuiColumn() { Margin = 0.0f, Width = windowWidth / 7.5f, Children = new List<NuiElement>()
               {
-                new NuiButtonImage("charisma") { Id = "chaRoll", Tooltip = "Charisme" },
-                new NuiLabel(cha) { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center }
+                new NuiButtonImage("charisma") { Id = "chaRoll", Tooltip = "Charisme", Width = windowWidth / 8, Height = windowWidth / 8 },
+                new NuiLabel(cha) { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 8, Height = windowWidth / 8 }
               } },
             new NuiSpacer()
           } });
@@ -151,38 +148,38 @@ namespace NWN.Systems
             new NuiSpacer()
           } });
           
-          rootChildren.Add(new NuiRow() { Margin = 0.0f, Height = windowWidth / 5, Children = new List<NuiElement>()
+          rootChildren.Add(new NuiRow() { Margin = 0.0f, Height = windowWidth / 5, Width = windowWidth / 1.1f, Children = new List<NuiElement>()
           {
             new NuiSpacer(),
-            new NuiColumn() { Margin = 0.0f, Width = windowWidth / 8, Children = new List<NuiElement>()
+            new NuiColumn() { Margin = 0.0f, Width = windowWidth / 7.5f, Children = new List<NuiElement>()
             {
-              new NuiButtonImage("strength") { Id = "strSaveRoll", Tooltip = "Force" },
-              new NuiLabel(strSave) { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center }
+              new NuiButtonImage("strength") { Id = "strSaveRoll", Tooltip = "Force" , Width = windowWidth / 8, Height = windowWidth / 8},
+              new NuiLabel(strSave) { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 8, Height = windowWidth / 8 }
             } },
-            new NuiColumn() { Margin = 0.0f, Width = windowWidth / 8, Children = new List<NuiElement>()
+            new NuiColumn() { Margin = 0.0f, Width = windowWidth / 7.5f, Children = new List<NuiElement>()
             {
-              new NuiButtonImage("dexterity") { Id = "dexSaveRoll", Tooltip = "Dextérité" },
-              new NuiLabel(dexSave) { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center }
+              new NuiButtonImage("dexterity") { Id = "dexSaveRoll", Tooltip = "Dextérité", Width = windowWidth / 8, Height = windowWidth / 8 },
+              new NuiLabel(dexSave) { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 8, Height = windowWidth / 8 }
             } },
-            new NuiColumn() { Margin = 0.0f, Width = windowWidth / 8, Children = new List<NuiElement>()
+            new NuiColumn() { Margin = 0.0f, Width = windowWidth / 7.5f, Children = new List<NuiElement>()
             {
-              new NuiButtonImage("constitution") { Id = "conSaveRoll", Tooltip = "Constitution" },
-              new NuiLabel(conSave) { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center }
+              new NuiButtonImage("constitution") { Id = "conSaveRoll", Tooltip = "Constitution", Width = windowWidth / 8, Height = windowWidth / 8 },
+              new NuiLabel(conSave) { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 8, Height = windowWidth / 8 }
             } },
-            new NuiColumn() { Margin = 0.0f, Width = windowWidth / 8, Children = new List<NuiElement>()
+            new NuiColumn() { Margin = 0.0f, Width = windowWidth / 7.5f, Children = new List<NuiElement>()
             {
-              new NuiButtonImage("intelligence") { Id = "intSaveRoll", Tooltip = "Intelligence" },
-              new NuiLabel(intSave) { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center }
+              new NuiButtonImage("intelligence") { Id = "intSaveRoll", Tooltip = "Intelligence", Width = windowWidth / 8, Height = windowWidth / 8 },
+              new NuiLabel(intSave) { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 8, Height = windowWidth / 8 }
             } },
-            new NuiColumn() { Margin = 0.0f, Width = windowWidth / 8, Children = new List<NuiElement>()
+            new NuiColumn() { Margin = 0.0f, Width = windowWidth / 7.5f, Children = new List<NuiElement>()
             {
-              new NuiButtonImage("wisdom") { Id = "wisSaveRoll", Tooltip = "Sagesse" },
-              new NuiLabel(wisSave) { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center }
+              new NuiButtonImage("wisdom") { Id = "wisSaveRoll", Tooltip = "Sagesse", Width = windowWidth / 8, Height = windowWidth / 8 },
+              new NuiLabel(wisSave) { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 8, Height = windowWidth / 8 }
             } },
-            new NuiColumn() { Margin = 0.0f, Width = windowWidth / 8, Children = new List<NuiElement>()
+            new NuiColumn() { Margin = 0.0f, Width = windowWidth / 7.5f, Children = new List<NuiElement>()
             {
-              new NuiButtonImage("charisma") { Id = "chaSaveRoll", Tooltip = "Charisme" },
-              new NuiLabel(chaSave) { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center }
+              new NuiButtonImage("charisma") { Id = "chaSaveRoll", Tooltip = "Charisme", Width = windowWidth / 8, Height = windowWidth / 8 },
+              new NuiLabel(chaSave) { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 8, Height = windowWidth / 8 }
             } },
             new NuiSpacer()
           } });

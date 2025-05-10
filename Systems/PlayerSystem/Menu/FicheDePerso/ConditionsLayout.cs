@@ -16,7 +16,7 @@ namespace NWN.Systems
         private readonly NuiBind<string> conditionIcon = new("conditionIcon");
         private readonly NuiBind<string> conditionName = new("conditionName");
 
-        private readonly List<NuiListTemplateCell> conditionsTemplate;
+        private readonly List<NuiListTemplateCell> conditionsTemplate = new();
 
         private void LoadConditionsLayout()
         {

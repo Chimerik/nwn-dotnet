@@ -84,9 +84,13 @@ namespace NWN.Systems
         case CustomSkill.ArcanaProficiency:
         case CustomSkill.NatureProficiency:
 
-          int druideSageBonus = creature.GetAbilityModifier(Ability.Wisdom) > 0 ? creature.GetAbilityModifier(Ability.Wisdom): 1;
-          if (!noLogs) LogUtils.LogMessage($"Druide Sage : +{druideSageBonus}", LogUtils.LogType.Combat);
-          score += druideSageBonus;
+          if (creature.KnowsFeat((Feat)CustomSkill.DruideSage))
+          {
+            int druideSageBonus = creature.GetAbilityModifier(Ability.Wisdom) > 0 ? creature.GetAbilityModifier(Ability.Wisdom) : 1;
+            if (!noLogs) LogUtils.LogMessage($"Druide Sage : +{druideSageBonus}", LogUtils.LogType.Combat);
+            score += druideSageBonus;
+          }
+
           break;
       }
 
