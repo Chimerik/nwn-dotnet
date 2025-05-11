@@ -13,20 +13,23 @@ namespace NWN.Systems
         private void SkillsBindings()
         {
           classRow.Children.Clear();
+          classRow.Children.Add(classRowSpacer);
 
-          classRow.Children.Add(new NuiSpacer());
+          var traitList = targetPlayer.learnableSkills.Values.Where(e => e.category == SkillSystem.Category.StartingTraits);
+          var colWidth = windowWidth / 7.5f;
 
-          foreach (var origine in targetPlayer.learnableSkills.Values.Where(e => e.category == SkillSystem.Category.StartingTraits))
+          foreach (var origine in traitList)
           {
-            classRow.Children.Add(new NuiColumn() { Width = windowWidth / 7.5f, Height = classRow.Height / 1.1f, Children = new List<NuiElement>()
+            classRow.Children.Add(new NuiColumn() { Width = colWidth, Height = classRow.Height / 1.1f, Children = new List<NuiElement>()
             {
               new NuiRow() { Children = new List<NuiElement>() { new NuiButtonImage(origine.icon) { Width = windowWidth / 8, Height = windowWidth / 8, Tooltip = origine.name } } },
               new NuiRow() { Children = new List<NuiElement>() { new NuiLabel(origine.name) { Width = windowWidth / 8, Height = windowWidth / 30, VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center, Tooltip = origine.name } } }
             } });
 
-            classRow.Children.Add(new NuiSpacer());
+            classRow.Children.Add(classRowSpacer);
           }
 
+          classRowSpacer.Width = ((windowWidth / 1.1f) - (traitList.Count() * colWidth)) / (traitList.Count() + 1);
           classGroup.SetLayout(player.oid, nuiToken.Token, classRow);
 
           proficiency.SetBindValue(player.oid, nuiToken.Token, $"Bonus de maîtrise (+{NativeUtils.GetCreatureProficiencyBonus(target)})");

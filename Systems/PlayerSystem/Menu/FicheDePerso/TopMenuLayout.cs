@@ -20,6 +20,9 @@ namespace NWN.Systems
           windowWidth = player.guiScaledWidth * 0.3f;
           windowHeight = player.guiScaledHeight * 0.9f;
 
+          rootColumn.Width = windowWidth;
+          rootGroup.Width = rootColumn.Width;
+
           classRow.Height = windowWidth / 4;
           classRow.Width = windowWidth / 1.1f;
           classGroup.Height = classRow.Height;

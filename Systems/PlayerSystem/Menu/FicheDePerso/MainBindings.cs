@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Anvil.API;
 
 namespace NWN.Systems
@@ -14,7 +15,7 @@ namespace NWN.Systems
           portrait.SetBindValue(player.oid, nuiToken.Token, $"{target.PortraitResRef}m");
 
           classRow.Children.Clear();
-          classRow.Children.Add(new NuiSpacer());
+          classRow.Children.Add(classRowSpacer);
 
           classRow.Children.Add(new NuiColumn() { Width = windowWidth / 7.5f, Height = classRow.Height / 1.1f, Children = new List<NuiElement>()
           {
@@ -23,7 +24,9 @@ namespace NWN.Systems
             new NuiRow() { Children = new List<NuiElement>() { new NuiLabel("") { Width = windowWidth / 8, Height = windowWidth / 30 } } }
           } });
 
-          classRow.Children.Add(new NuiSpacer());
+          classRow.Children.Add(classRowSpacer);
+
+          var colWidth = windowWidth / 7.5f;
 
           foreach (var playerClass in target.Classes)
           {
@@ -40,6 +43,7 @@ namespace NWN.Systems
             classRow.Children.Add(new NuiSpacer());
           }
 
+          classRowSpacer.Width = ((windowWidth / 1.1f) - (target.Classes.Count * colWidth)) / (target.Classes.Count + 1);
           classGroup.SetLayout(player.oid, nuiToken.Token, classRow);
 
           str.SetBindValue(player.oid, nuiToken.Token, target.GetAbilityScore(Ability.Strength).ToString());

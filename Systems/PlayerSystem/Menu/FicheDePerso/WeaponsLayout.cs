@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Anvil.API;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -104,7 +105,7 @@ namespace NWN.Systems
           {
             new NuiSpacer(),
             new NuiImage("proficiency") { ImageAspect = NuiAspect.Fit, Width = windowWidth / 20, HorizontalAlign = NuiHAlign.Right, VerticalAlign = NuiVAlign.Middle },
-            new NuiLabel(proficiency) { Width = windowWidth / 2, Height = windowWidth / 20, VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center },
+            new NuiLabel(proficiency) { Width = windowWidth / 2, Height = windowWidth / 20, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center },
             new NuiSpacer()
           } });
 
@@ -113,7 +114,7 @@ namespace NWN.Systems
             new NuiSpacer(),
             new NuiImage("menu_separator_l") { ImageAspect = NuiAspect.Fit, Width = windowWidth / 8,  VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center},
             new NuiSpacer(),
-            new NuiLabel("Maîtrises d'armures") { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 3 },
+            new NuiLabel("Maîtrises d'armures") { VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 3 },
             new NuiSpacer(),
             new NuiImage("menu_separator_r") { ImageAspect = NuiAspect.Fit, Width = windowWidth / 8, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center },
             new NuiSpacer()
@@ -121,22 +122,17 @@ namespace NWN.Systems
 
           rootChildren.Add(new NuiRow() { Margin = 0.0f, Children = new List<NuiElement>()
           {
-            new NuiSpacer(),
             new NuiButtonImage("ife_sh_prof") { Width = windowWidth / 12, Height = windowWidth / 12 },
             new NuiSpacer() { Width = 25 },
             new NuiLabel("Bouclier") { Height = windowWidth / 12, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Left },
-            new NuiSpacer(),
             new NuiImage(shield) { Width = windowWidth / 8, Height = windowWidth / 12, Visible = shieldVisibility, HorizontalAlign = NuiHAlign.Right, VerticalAlign = NuiVAlign.Middle },
-            new NuiSpacer()
           } });
 
           rootChildren.Add(new NuiRow() { Margin = 0.0f, Children = new List<NuiElement>()
           {
-            new NuiSpacer(),
             new NuiButtonImage("ife_armor_l") { Width = windowWidth / 12, Height = windowWidth / 12 },
             new NuiSpacer() { Width = 25 },
             new NuiLabel("Armure Légère") { Height = windowWidth / 12, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Left },
-            new NuiSpacer(),
             new NuiImage(lightArmor) { Width = windowWidth / 8, Height = windowWidth / 12, Visible = lightArmorVisibility, HorizontalAlign = NuiHAlign.Right, VerticalAlign = NuiVAlign.Middle },
           } });
 
@@ -175,7 +171,7 @@ namespace NWN.Systems
             new NuiSpacer(),
             new NuiImage("menu_separator_l") { ImageAspect = NuiAspect.Fit, Width = windowWidth / 8,  VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center},
             new NuiSpacer(),
-            new NuiLabel("Armes Simples") { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 3 },
+            new NuiLabel("Armes Simples") { VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 3 },
             new NuiSpacer(),
             new NuiImage("menu_separator_r") { ImageAspect = NuiAspect.Fit, Width = windowWidth / 8, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center },
             new NuiSpacer()
@@ -266,7 +262,7 @@ namespace NWN.Systems
             new NuiSpacer(),
             new NuiButtonImage("ife_wepfoc_Dar") { Width = windowWidth / 12, Height = windowWidth / 12 },
             new NuiSpacer() { Width = 25 },
-            new NuiLabel("Dart") { Height = windowWidth / 12, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Left },
+            new NuiLabel("Dard") { Height = windowWidth / 12, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Left },
             new NuiSpacer(),
             new NuiImage(dart) { Width = windowWidth / 8, Height = windowWidth / 12, Visible = dartVisibility, HorizontalAlign = NuiHAlign.Right, VerticalAlign = NuiVAlign.Middle },
           } });
@@ -326,7 +322,7 @@ namespace NWN.Systems
             new NuiSpacer(),
             new NuiImage("menu_separator_l") { ImageAspect = NuiAspect.Fit, Width = windowWidth / 8,  VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center},
             new NuiSpacer(),
-            new NuiLabel("Armes Martiales") { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 3 },
+            new NuiLabel("Armes Martiales") { VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 3 },
             new NuiSpacer(),
             new NuiImage("menu_separator_r") { ImageAspect = NuiAspect.Fit, Width = windowWidth / 8, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center },
             new NuiSpacer()
@@ -488,7 +484,7 @@ namespace NWN.Systems
             new NuiSpacer(),
             new NuiImage("menu_separator_l") { ImageAspect = NuiAspect.Fit, Width = windowWidth / 8,  VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center},
             new NuiSpacer(),
-            new NuiLabel("Armes Exotiques") { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 3 },
+            new NuiLabel("Armes Exotiques") { VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 3 },
             new NuiSpacer(),
             new NuiImage("menu_separator_r") { ImageAspect = NuiAspect.Fit, Width = windowWidth / 8, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center },
             new NuiSpacer()

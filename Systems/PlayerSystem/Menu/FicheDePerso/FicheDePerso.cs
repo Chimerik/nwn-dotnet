@@ -61,6 +61,9 @@ namespace NWN.Systems
         }
         private void HandleCharacterSheetEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
+          ModuleSystem.Log.Info(nuiEvent.EventType);
+          ModuleSystem.Log.Info(nuiEvent.ElementId);
+
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
@@ -96,7 +99,24 @@ namespace NWN.Systems
                   break;
               }
 
-              break; 
+              break;
+
+            case NuiEventType.MouseUp:
+
+              switch (nuiEvent.ElementId)
+              {
+                case "sheetPortrait":
+
+                  LoadPortraitLayout();
+                  PortraitBindings();
+
+                  break;
+              }
+
+              if (nuiEvent.ElementId.StartsWith("po_"))
+                player.oid.LoginCreature.PortraitResRef = nuiEvent.ElementId.Remove(nuiEvent.ElementId.Length - 1);
+
+              break;
           }
         }
       }

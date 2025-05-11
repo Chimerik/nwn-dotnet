@@ -249,7 +249,7 @@ namespace NWN.Systems
           if (Portraits2da.playerCustomPortraits.TryGetValue(player.oid.PlayerName, out var value))
             portraitTable.AddRange(value);
 
-          int baseRaceId = GetBaseRaceIdFromCustomRace(player.oid.LoginCreature.Race.Id);
+          int baseRaceId = CreatureUtils.GetBaseRaceIdFromCustomRace(player.oid.LoginCreature.Race.Id);
 
           if(baseRaceId == CustomRace.HalfElf)
           {
@@ -291,19 +291,7 @@ namespace NWN.Systems
 
           listCount.SetBindValue(player.oid, nuiToken.Token, portraitList[0].Count);
         }
-        private int GetBaseRaceIdFromCustomRace(int customRace)
-        {
-          return customRace switch
-          {
-            CustomRace.DeepGnome or CustomRace.RockGnome or CustomRace.ForestGnome => CustomRace.Gnome,
-            CustomRace.Drow or CustomRace.HighElf or CustomRace.WoodElf => CustomRace.Elf,
-            CustomRace.DrowHalfElf or CustomRace.HighHalfElf or CustomRace.WoodHalfElf => CustomRace.HalfElf,
-            CustomRace.GoldDwarf or CustomRace.Duergar => CustomRace.Dwarf,
-            CustomRace.Halfelin => CustomRace.Halfling,
-            CustomRace.HalfOrc => CustomRace.HalfOrc,
-            _ => CustomRace.Human,
-          };
-        }
+  
       }
     }
   }

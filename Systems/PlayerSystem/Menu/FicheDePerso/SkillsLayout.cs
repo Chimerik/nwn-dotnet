@@ -89,7 +89,7 @@ namespace NWN.Systems
             new NuiSpacer(),
             new NuiImage("menu_separator_l") { ImageAspect = NuiAspect.Fit, Width = windowWidth / 8,  VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center},
             new NuiSpacer(),
-            new NuiLabel("Origine") { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 3 },
+            new NuiLabel("Origine") { VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 3 },
             new NuiSpacer(),
             new NuiImage("menu_separator_r") { ImageAspect = NuiAspect.Fit, Width = windowWidth / 8, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center },
             new NuiSpacer()
@@ -101,7 +101,7 @@ namespace NWN.Systems
           {
             new NuiSpacer(),
             new NuiImage("proficiency") { ImageAspect = NuiAspect.Fit, Width = windowWidth / 20, HorizontalAlign = NuiHAlign.Right, VerticalAlign = NuiVAlign.Middle },
-            new NuiLabel(proficiency) { Width = windowWidth / 2, Height = windowWidth / 20, VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center },
+            new NuiLabel(proficiency) { Width = windowWidth / 2, Height = windowWidth / 20, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center },
             new NuiSpacer()
           } });
 
@@ -110,7 +110,7 @@ namespace NWN.Systems
             new NuiSpacer(),
             new NuiImage("menu_separator_l") { ImageAspect = NuiAspect.Fit, Width = windowWidth / 8,  VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center},
             new NuiSpacer(),
-            new NuiLabel(str) { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 3 },
+            new NuiLabel(str) { VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 3 },
             new NuiSpacer(),
             new NuiImage("menu_separator_r") { ImageAspect = NuiAspect.Fit, Width = windowWidth / 8, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center },
             new NuiSpacer()
@@ -132,7 +132,7 @@ namespace NWN.Systems
             new NuiSpacer(),
             new NuiImage("menu_separator_l") { ImageAspect = NuiAspect.Fit, Width = windowWidth / 8,  VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center},
             new NuiSpacer(),
-            new NuiLabel(dex) { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 3 },
+            new NuiLabel(dex) { VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 3 },
             new NuiSpacer(),
             new NuiImage("menu_separator_r") { ImageAspect = NuiAspect.Fit, Width = windowWidth / 8, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center },
             new NuiSpacer()
@@ -176,7 +176,7 @@ namespace NWN.Systems
             new NuiSpacer(),
             new NuiImage("menu_separator_l") { ImageAspect = NuiAspect.Fit, Width = windowWidth / 8,  VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center},
             new NuiSpacer(),
-            new NuiLabel(intel) { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 3 },
+            new NuiLabel(intel) { VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 3 },
             new NuiSpacer(),
             new NuiImage("menu_separator_r") { ImageAspect = NuiAspect.Fit, Width = windowWidth / 8, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center },
             new NuiSpacer()
@@ -242,7 +242,7 @@ namespace NWN.Systems
             new NuiSpacer(),
             new NuiImage("menu_separator_l") { ImageAspect = NuiAspect.Fit, Width = windowWidth / 8,  VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center},
             new NuiSpacer(),
-            new NuiLabel(wis) { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 3 },
+            new NuiLabel(wis) { VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 3 },
             new NuiSpacer(),
             new NuiImage("menu_separator_r") { ImageAspect = NuiAspect.Fit, Width = windowWidth / 8, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center },
             new NuiSpacer()
@@ -308,7 +308,7 @@ namespace NWN.Systems
             new NuiSpacer(),
             new NuiImage("menu_separator_l") { ImageAspect = NuiAspect.Fit, Width = windowWidth / 8,  VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center},
             new NuiSpacer(),
-            new NuiLabel(cha) { VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 3 },
+            new NuiLabel(cha) { VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 3 },
             new NuiSpacer(),
             new NuiImage("menu_separator_r") { ImageAspect = NuiAspect.Fit, Width = windowWidth / 8, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center },
             new NuiSpacer()
