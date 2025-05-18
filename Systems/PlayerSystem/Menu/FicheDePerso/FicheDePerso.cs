@@ -61,8 +61,8 @@ namespace NWN.Systems
         }
         private void HandleCharacterSheetEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          ModuleSystem.Log.Info(nuiEvent.EventType);
-          ModuleSystem.Log.Info(nuiEvent.ElementId);
+          //ModuleSystem.Log.Info(nuiEvent.EventType);
+          //ModuleSystem.Log.Info(nuiEvent.ElementId);
 
           switch (nuiEvent.EventType)
           {
@@ -97,6 +97,46 @@ namespace NWN.Systems
                   WeaponsBindings();
 
                   break;
+
+                case "sheetDescription":
+
+                  LoadDescriptionLayout();
+                  DescriptionsBindings();
+
+                  break;
+
+                case "applyDescription":
+
+                  player.oid.LoginCreature.Description = description.GetBindValue(player.oid, nuiToken.Token);
+
+                  break;
+
+                case "saveDescription":
+
+                  string currentTitle = title.GetBindValue(player.oid, nuiToken.Token);
+                  string currentDescription = description.GetBindValue(player.oid, nuiToken.Token);
+
+                  foreach (var desc in player.descriptions)
+                  {
+                    if (desc.name == currentTitle)
+                    {
+                      desc.description = currentDescription;
+                      SetDescriptionListBindings();
+                      return;
+                    }
+                  }
+
+                  player.descriptions.Add(new CharacterDescription(currentTitle, currentDescription));
+                  SetDescriptionListBindings();
+
+                  break;
+
+                case "deleteDescription":
+
+                  player.descriptions.RemoveAt(nuiEvent.ArrayIndex);
+                  SetDescriptionListBindings();
+
+                  break;
               }
 
               break;
@@ -109,6 +149,13 @@ namespace NWN.Systems
 
                   LoadPortraitLayout();
                   PortraitBindings();
+
+                  break;
+
+                case "selectDescription":
+
+                  title.SetBindValue(player.oid, nuiToken.Token, player.descriptions[nuiEvent.ArrayIndex].name);
+                  description.SetBindValue(player.oid, nuiToken.Token, player.descriptions[nuiEvent.ArrayIndex].description);
 
                   break;
               }

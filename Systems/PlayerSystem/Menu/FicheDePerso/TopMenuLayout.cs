@@ -38,6 +38,7 @@ namespace NWN.Systems
           menuRow.Children.Add(new NuiButtonImage("sheet_conditions") { Id = "sheetConditions", Height = windowWidth / 12, Width = windowWidth / 12 });
           menuRow.Children.Add(new NuiButtonImage("sheet_skills") { Id = "sheetSkills", Height = windowWidth / 12, Width = windowWidth / 12 });
           menuRow.Children.Add(new NuiButtonImage("sheet_weapons") { Id = "sheetWeapons", Height = windowWidth / 12, Width = windowWidth / 12 });
+          menuRow.Children.Add(new NuiButtonImage("sheet_desc") { Id = "sheetDescription", Height = windowWidth / 12, Width = windowWidth / 12 });
           menuRow.Children.Add(new NuiSpacer());
 
           conditionsTemplate.Clear();
@@ -45,6 +46,11 @@ namespace NWN.Systems
           conditionsTemplate.Add(new(new NuiSpacer()));
           conditionsTemplate.Add(new(new NuiLabel(conditionName) { VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center, Tooltip = conditionName }) { Width = windowWidth / 1.5f });
           conditionsTemplate.Add(new(new NuiSpacer()));
+
+          descriptionsTemplate.Clear();
+          descriptionsTemplate.Add(new(new NuiLabel(descriptionTitles) { Id = "selectDescription", VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Left, Tooltip = "Selectionner" }) { Width = windowWidth / 1.5f });
+          descriptionsTemplate.Add(new(new NuiSpacer()));
+          descriptionsTemplate.Add(new(new NuiButtonImage("ir_ban") { Id = "deleteDescription", Height = windowWidth / 12 }) { Width = windowWidth / 12 });
         }
       }
     }
