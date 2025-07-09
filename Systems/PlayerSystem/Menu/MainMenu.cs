@@ -61,9 +61,6 @@ namespace NWN.Systems
           if (player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION").HasValue)
             myCommandList.Remove("learnables");
 
-          if (player.craftJob == null)
-            myCommandList.Remove("currentJob");
-
           if (!player.subscriptions.Any(s => s.type == Utils.SubscriptionType.MailDistantAccess))
             myCommandList.Remove("mailBox");
 
@@ -434,18 +431,6 @@ namespace NWN.Systems
                     else ((LearnableWindow)learnables).CreateWindow();
 
                     CloseWindow();
-
-                    break;
-
-                  case "currentJob":
-
-                    if (player.craftJob != null)
-                    {
-                      if (!player.windows.TryGetValue("activeCraftJob", out var job)) player.windows.Add("activeCraftJob", new ActiveCraftJobWindow(player));
-                      else ((ActiveCraftJobWindow)job).CreateWindow();
-
-                      CloseWindow();
-                    }
 
                     break;
 

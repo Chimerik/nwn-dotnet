@@ -22,9 +22,6 @@ namespace NWN.Systems
       }
 
       player.craftJob = new CraftJob(player, JobType.TransmutationStone);
-
-      if (!player.windows.TryGetValue("activeCraftJob", out var value)) player.windows.Add("activeCraftJob", new ActiveCraftJobWindow(player));
-      else ((ActiveCraftJobWindow)value).CreateWindow();
     }
   }
 }

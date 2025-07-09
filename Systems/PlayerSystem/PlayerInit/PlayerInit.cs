@@ -68,6 +68,7 @@ namespace NWN.Systems
       player.oid.SetGuiPanelDisabled(GUIPanel.Journal, true);
       player.oid.SetGuiPanelDisabled(GUIPanel.PlayerList, true);
       player.oid.SetGuiPanelDisabled(GUIPanel.ExamineCreature, true);
+      player.oid.SetGuiPanelDisabled(GUIPanel.CharacterSheet, true);
 
       if (player.IsDm())
       {

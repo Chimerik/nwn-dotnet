@@ -1069,8 +1069,8 @@ namespace NWN.Systems
         if (areaLevel < 1)
         {
           player.craftJob.remainingTime -= 1;
-          if (player.TryGetOpenedWindow("activeCraftJob", out PlayerSystem.Player.PlayerWindow window) && window is PlayerSystem.Player.ActiveCraftJobWindow craftWindow)
-            craftWindow.timeLeft.SetBindValue(player.oid, craftWindow.nuiToken.Token, player.craftJob.GetReadableJobCompletionTime());
+          if (player.TryGetOpenedWindow("ficheDePerso", out PlayerSystem.Player.PlayerWindow window) && window is PlayerSystem.Player.FicheDePersoWindow craftWindow)
+            craftWindow.jobETA.SetBindValue(player.oid, craftWindow.nuiToken.Token, player.craftJob.GetReadableJobCompletionTime());
 
           if (player.craftJob.remainingTime < 1)
           {
@@ -1098,8 +1098,8 @@ namespace NWN.Systems
           return;
         }
 
-        if (player.TryGetOpenedWindow("activeLearnable", out PlayerSystem.Player.PlayerWindow window) && window is PlayerSystem.Player.ActiveLearnableWindow learnableWindow)
-          learnableWindow.timeLeft.SetBindValue(player.oid, learnableWindow.nuiToken.Token, player.activeLearnable.GetReadableTimeSpanToNextLevel(player));
+        if (player.TryGetOpenedWindow("ficheDePerso", out PlayerSystem.Player.PlayerWindow window) && window is PlayerSystem.Player.FicheDePersoWindow learnableWindow)
+          learnableWindow.learnableETA.SetBindValue(player.oid, learnableWindow.nuiToken.Token, player.activeLearnable.GetReadableTimeSpanToNextLevel(player));
 
         if (player.TryGetOpenedWindow("learnables", out PlayerSystem.Player.PlayerWindow menu) && menu is PlayerSystem.Player.LearnableWindow learnableMenu)
         {

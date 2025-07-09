@@ -192,15 +192,15 @@ namespace NWN.Systems
           {
             case GUIPanel.ExamineItem:
 
-              if (!player.windows.ContainsKey("itemExamine")) player.windows.Add("itemExamine", new Player.ItemExamineWindow(player, (NwItem)guiEvent.EventObject));
-              else ((Player.ItemExamineWindow)player.windows["itemExamine"]).CreateWindow((NwItem)guiEvent.EventObject);
+              if (!player.windows.TryGetValue("itemExamine", out var examine)) player.windows.Add("itemExamine", new Player.ItemExamineWindow(player, (NwItem)guiEvent.EventObject));
+              else ((Player.ItemExamineWindow)examine).CreateWindow((NwItem)guiEvent.EventObject);
 
               return;
 
             case GUIPanel.ExaminePlaceable:
 
-              if (!player.windows.ContainsKey("editorPlaceable")) player.windows.Add("editorPlaceable", new Player.EditorPlaceableWindow(player, (NwPlaceable)guiEvent.EventObject));
-              else ((Player.EditorPlaceableWindow)player.windows["editorPlaceable"]).CreateWindow((NwPlaceable)guiEvent.EventObject);
+              if (!player.windows.TryGetValue("editorPlaceable", out var editorPlaceable)) player.windows.Add("editorPlaceable", new Player.EditorPlaceableWindow(player, (NwPlaceable)guiEvent.EventObject));
+              else ((Player.EditorPlaceableWindow)editorPlaceable).CreateWindow((NwPlaceable)guiEvent.EventObject);
 
               return;
 
@@ -212,20 +212,24 @@ namespace NWN.Systems
                 else ((Player.EditorPNJWindow)editor).CreateWindow((NwCreature)guiEvent.EventObject);
               }
 
-              if (!player.windows.TryGetValue("ficheDePerso", out var fiche)) player.windows.Add("ficheDePerso", new Player.FicheDePersoWindow(player, (NwCreature)guiEvent.EventObject));
-              else ((Player.FicheDePersoWindow)fiche).CreateWindow((NwCreature)guiEvent.EventObject);
-
               return;
 
             case GUIPanel.Journal:
 
-              if (!player.windows.ContainsKey("mainMenu")) player.windows.Add("mainMenu", new Player.MainMenuWindow(player));
-              else if (((Player.MainMenuWindow)player.windows["mainMenu"]).IsOpen)
+              if (!player.windows.TryGetValue("mainMenu", out var journal)) player.windows.Add("mainMenu", new Player.MainMenuWindow(player));
+              else if (((Player.MainMenuWindow)journal).IsOpen)
               {
                 await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-                ((Player.MainMenuWindow)player.windows["mainMenu"]).CloseWindow();
+                ((Player.MainMenuWindow)journal).CloseWindow();
               }
-              else ((Player.MainMenuWindow)player.windows["mainMenu"]).CreateWindow();
+              else ((Player.MainMenuWindow)journal).CreateWindow();
+
+              return;
+
+            case GUIPanel.CharacterSheet:
+
+              if (!player.windows.TryGetValue("ficheDePerso", out var fiche)) player.windows.Add("ficheDePerso", new Player.FicheDePersoWindow(player, (NwCreature)guiEvent.EventObject));
+              else ((Player.FicheDePersoWindow)fiche).CreateWindow((NwCreature)guiEvent.EventObject);
 
               return;
 
@@ -240,22 +244,6 @@ namespace NWN.Systems
               else ((Player.PlayerListWindow)player.windows["playerList"]).CreateWindow();
 
               return;
-          }
-
-          break;
-
-        case GuiEventType.ExamineObject:
-
-          if (guiEvent.EventObject is NwCreature examineCreature && examineCreature == oPC.LoginCreature) // TODO : plutôt mettre ça dans le menu
-          {
-            if (player.craftJob != null)
-            {
-              if (!player.windows.TryGetValue("activeCraftJob", out var craft)) player.windows.Add("activeCraftJob", new Player.ActiveCraftJobWindow(player));
-              else ((Player.ActiveCraftJobWindow)craft).CreateWindow();
-            }
-
-            if (!player.windows.TryGetValue("learnables", out var value)) player.windows.Add("learnables", new Player.LearnableWindow(player));
-            else ((Player.LearnableWindow)value).CreateWindow();
           }
 
           break;

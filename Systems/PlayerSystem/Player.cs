@@ -195,12 +195,6 @@ namespace NWN.Systems
             else
               windows.Add(window, new ChatReaderWindow(this));
             break;
-          case "activeLearnable":
-            if (windows.ContainsKey(window))
-              ((ActiveLearnableWindow)windows[window]).CreateWindow();
-            else
-              windows.Add(window, new ActiveLearnableWindow(this));
-            break;
         }
       }
       public void UnloadMenuQuickbar()
@@ -583,9 +577,6 @@ namespace NWN.Systems
 
         ItemUtils.HandleCraftToolDurability(this, tool, CustomInscription.MateriaProductionDurability, CustomSkill.ArtisanPrudent);
 
-        if (!windows.ContainsKey("activeCraftJob")) windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
-        else ((ActiveCraftJobWindow) windows["activeCraftJob"]).CreateWindow();
-
         return;
       }
       public void HandleCraftItemChecks(NwItem blueprint, NwItem tool, NwItem upgradedItem = null)
@@ -649,9 +640,6 @@ namespace NWN.Systems
         craftJob = grade < 2 ? new CraftJob(this, blueprint, GetItemCraftTime(blueprint, materiaCost, tool), tool) : new CraftJob(this, blueprint, GetItemCraftTime(blueprint, materiaCost, tool), upgradedItem, tool);
         
         ItemUtils.HandleCraftToolDurability(this, tool, CustomInscription.MateriaProductionDurability, CustomSkill.ArtisanPrudent);
-
-        if (!windows.TryGetValue("activeCraftJob", out var value)) windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
-        else ((ActiveCraftJobWindow)value).CreateWindow();
       }
       public void HandlePassiveJobChecks(string worshop)
       {
@@ -662,9 +650,6 @@ namespace NWN.Systems
         }
 
         craftJob = new CraftJob(this, ItemUtils.GetResourceFromWorkshopTag(worshop), 0, "beam");
-
-        if (!windows.ContainsKey("activeCraftJob")) windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
-        else ((ActiveCraftJobWindow)windows["activeCraftJob"]).CreateWindow();
       }
       public static string GetReadableTimeSpan(double timeCost)
       {

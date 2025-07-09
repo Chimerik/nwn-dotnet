@@ -459,9 +459,6 @@ namespace NWN.Systems
                 player.craftJob = new CraftJob(player, item, JobType.BlueprintCopy);
                 CloseWindow();
 
-                if (!player.windows.ContainsKey("activeCraftJob")) player.windows.Add("activeCraftJob", new ActiveCraftJobWindow(player));
-                else ((ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
-
                 break;
 
               case "blueprintME":
@@ -471,9 +468,6 @@ namespace NWN.Systems
 
                 player.craftJob = new CraftJob(player, item, JobType.BlueprintResearchMaterialEfficiency);
                 CloseWindow();
-
-                if (!player.windows.ContainsKey("activeCraftJob")) player.windows.Add("activeCraftJob", new ActiveCraftJobWindow(player));
-                else ((ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
 
                 return;
 
@@ -490,9 +484,6 @@ namespace NWN.Systems
 
                 player.craftJob = new CraftJob(player, item, JobType.BlueprintResearchTimeEfficiency);
                 CloseWindow();
-
-                if (!player.windows.ContainsKey("activeCraftJob")) player.windows.Add("activeCraftJob", new ActiveCraftJobWindow(player));
-                else ((ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
 
                 return;
 

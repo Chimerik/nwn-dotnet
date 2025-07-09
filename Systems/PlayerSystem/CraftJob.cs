@@ -418,11 +418,11 @@ namespace NWN.Systems
         if (type != JobType.Invalid)
           HandleSpecificJobCompletion[type].Invoke(player, false);
 
-        if (player.TryGetOpenedWindow("activeCraftJob", out Player.PlayerWindow craftWindow))
-          craftWindow.CloseWindow();
-
         player.craftJob = null;
         player.oid.ExportCharacter();
+
+        if (player.TryGetOpenedWindow("ficheDePerso", out Player.PlayerWindow window) && window is PlayerSystem.Player.FicheDePersoWindow craftWindow)
+          craftWindow.LearnablesBindings();
       }
       public string GetReadableJobCompletionTime()
       {
@@ -898,7 +898,7 @@ namespace NWN.Systems
 
       return true;
     }
-    private static bool CompleteWoodCutting(Player player, bool completed)
+    /*private static bool CompleteWoodCutting(Player player, bool completed)
     {
       if (completed)
       {

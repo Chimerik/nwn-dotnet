@@ -35,6 +35,7 @@ namespace NWN.Systems
 
           menuRow.Children.Add(new NuiSpacer());
           menuRow.Children.Add(new NuiButtonImage("sheet_main_view") { Id = "sheetMainView", Height = windowWidth / 12, Width = windowWidth / 12 });
+          menuRow.Children.Add(new NuiButtonImage("sheet_learnables") { Id = "sheetLearnables", Height = windowWidth / 12, Width = windowWidth / 12 });
           menuRow.Children.Add(new NuiButtonImage("sheet_conditions") { Id = "sheetConditions", Height = windowWidth / 12, Width = windowWidth / 12 });
           menuRow.Children.Add(new NuiButtonImage("sheet_skills") { Id = "sheetSkills", Height = windowWidth / 12, Width = windowWidth / 12 });
           menuRow.Children.Add(new NuiButtonImage("sheet_weapons") { Id = "sheetWeapons", Height = windowWidth / 12, Width = windowWidth / 12 });

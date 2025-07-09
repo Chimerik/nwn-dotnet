@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Anvil.API;
 using Anvil.API.Events;
+using static Anvil.API.Events.PlaceableEvents;
 
 namespace NWN.Systems
 {
@@ -58,6 +59,9 @@ namespace NWN.Systems
             geometry.SetBindValue(player.oid, nuiToken.Token, new NuiRect(savedRectangle.X, savedRectangle.Y, windowWidth, windowHeight));
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
           }
+
+          //if (!player.windows.TryGetValue("craftWorkshop", out var craftwindow)) player.windows.Add("craftWorkshop", new PlayerSystem.Player.WorkshopWindow(player, "", null));
+          //else ((PlayerSystem.Player.WorkshopWindow)craftwindow).CreateWindow("", null);
         }
         private void HandleCharacterSheetEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
@@ -74,6 +78,13 @@ namespace NWN.Systems
 
                   LoadMainLayout();
                   MainBindings();
+
+                  break;
+
+                case "sheetLearnables":
+
+                  LoadLearnablesLayout();
+                  LearnablesBindings();
 
                   break;
 
@@ -135,6 +146,25 @@ namespace NWN.Systems
 
                   player.descriptions.RemoveAt(nuiEvent.ArrayIndex);
                   SetDescriptionListBindings();
+
+                  break;
+
+                case "cancelJob":
+                  if (player.craftJob is not null)
+                    player.craftJob.HandleCraftJobCancellation(player);
+                  break;
+
+                case "examineJobItem":
+
+                  if (!string.IsNullOrEmpty(player.craftJob.serializedCraftedItem))
+                  {
+                    NwItem item = NwItem.Deserialize(player.craftJob.serializedCraftedItem.ToByteArray());
+
+                    if (!player.windows.TryGetValue("itemExamine", out var value)) player.windows.Add("itemExamine", new ItemExamineWindow(player, item));
+                    else ((ItemExamineWindow)value).CreateWindow(item);
+
+                    ItemUtils.ScheduleItemForDestruction(item, 300);
+                  }
 
                   break;
               }

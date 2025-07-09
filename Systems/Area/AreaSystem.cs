@@ -168,8 +168,9 @@ namespace NWN.Systems
       else if (player.areaExplorationStateDictionnary.TryGetValue(area.Tag, out var value))
         player.oid.SetAreaExplorationState(area, value);
 
-      if (player.craftJob is not null && area.GetObjectVariable<LocalVariableInt>(AreaUtils.AreaLevelVariable).Value > 0 && player.TryGetOpenedWindow("activeCraftJob", out PlayerSystem.Player.PlayerWindow jobWindow))
-        ((PlayerSystem.Player.ActiveCraftJobWindow)jobWindow).timeLeft.SetBindValue(player.oid, jobWindow.nuiToken.Token, "En pause (Hors Cité)");
+      if (player.craftJob is not null && area.GetObjectVariable<LocalVariableInt>(AreaUtils.AreaLevelVariable).Value > 0 
+        && player.TryGetOpenedWindow("ficheDePerso", out PlayerSystem.Player.PlayerWindow window) && window is PlayerSystem.Player.FicheDePersoWindow jobWindow)
+        jobWindow.jobETA.SetBindValue(player.oid, jobWindow.nuiToken.Token, "En pause (Hors Cité)");
     }
     public static void OnAreaExit(AreaEvents.OnExit onExit)
     {

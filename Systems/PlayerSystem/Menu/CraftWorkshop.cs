@@ -47,8 +47,8 @@ namespace NWN.Systems
 
           List<NuiListTemplateCell> blueprintTemplate = new List<NuiListTemplateCell>
           {
-            new NuiListTemplateCell(new NuiButtonImage(icon) {Id = "startCraft", Tooltip = blueprintNames, Enabled = enable, Height = 40 }) { Width = 40 },
-            new NuiListTemplateCell(new NuiLabel(blueprintMEs)
+            new(new NuiButtonImage(icon) {Id = "startCraft", Tooltip = blueprintNames, Enabled = enable, Height = 40 }) { Width = 40 },
+            new(new NuiLabel(blueprintMEs)
             {
               Tooltip = blueprintNames,
               DrawList = new List<NuiDrawListItem>() { new NuiDrawListText(white, drawListRect, blueprintTEs) }

@@ -429,7 +429,6 @@ namespace NWN
       { "follow", new MainMenuCommand("Suivre", "Suivre une créature ciblée (pour les feignasses !)", CommandRank.Public) },
       { "examineArea", new MainMenuCommand("Examiner les environs", "Obtenir une description de la zone", CommandRank.Public) },
       { "learnables", new MainMenuCommand("Journal d'apprentissage", "Ouvrir le journal d'apprentissage", CommandRank.Public) },
-      { "currentJob", new MainMenuCommand("Carnet d'artisanat", "Ouvrir mon carnet d'artisanat", CommandRank.Public) },
       { "language", new MainMenuCommand("Langue", "Choisir la langue actuellement parlée par mon personnage", CommandRank.Public) },
       { "effectDispel", new MainMenuCommand("Dissiper mes effets de sorts", "", CommandRank.Public) },
       { "dispelAoE", new MainMenuCommand("Dissiper mes zones d'effets", "", CommandRank.Public) },
@@ -552,10 +551,12 @@ namespace NWN
     {
       return Math.Pow(2, (strikeLevel - targetAC) / 40);
     }
+
     public static NuiRect GetDrawListTextScaleFromPlayerUI(PlayerSystem.Player player)
     {
       return new(0, 20/*player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) * 0.234f*/, 500, 60);
     }
+
     public static int GetResTypeFromFileExtension(string extension, string fileName)
     {
       switch (extension.ToLower())

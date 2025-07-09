@@ -129,13 +129,6 @@ namespace NWN.Systems
       else
         pointsToNextLevel = GetPointsToLevelUp(player);
 
-      if (player.TryGetOpenedWindow("activeLearnable", out Player.PlayerWindow activeLearnableWindow))
-      {
-        Player.ActiveLearnableWindow window = (Player.ActiveLearnableWindow)activeLearnableWindow;
-        window.timeLeft.SetBindValue(player.oid, window.nuiToken.Token, "Apprentissage terminé");
-        window.level.SetBindValue(player.oid, window.nuiToken.Token, $"{currentLevel}/{maxLevel}");
-      }
-
       if (player.TryGetOpenedWindow("learnables", out Player.PlayerWindow learnableWindow))
       {
         Player.LearnableWindow window = (Player.LearnableWindow)learnableWindow;

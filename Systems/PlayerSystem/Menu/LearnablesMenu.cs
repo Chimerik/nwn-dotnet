@@ -18,7 +18,7 @@ namespace NWN.Systems
         private readonly NuiColumn rootColumn;
         private readonly NuiBind<List<NuiComboEntry>> categories = new("categories");
         private readonly List<NuiComboEntry> skillCategories = new();
-
+        
         private readonly List<NuiComboEntry> spellCategories = new()
           {
             new NuiComboEntry("Tous", 0),
@@ -129,10 +129,6 @@ namespace NWN.Systems
             geometry.SetBindValue(player.oid, nuiToken.Token, player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(0, 0, 500, 600));//player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.25f, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.65f));
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-            if (target.activeLearnable != null && target.activeLearnable.active && !player.TryGetOpenedWindow("activeLearnable", out PlayerWindow activeWindow))
-              if (!player.windows.TryGetValue("activeLearnable", out var rectangle)) player.windows.Add("activeLearnable", new ActiveLearnableWindow(player, target));
-              else ((ActiveLearnableWindow)rectangle).CreateWindow(target);
-
             currentList = target.learnableSkills.Values.Where(s => s.category == Category.MindBody);
             LoadLearnableList(currentList);
           }
@@ -183,9 +179,6 @@ namespace NWN.Systems
 
                 if (player.TryGetOpenedWindow("activeLearnable", out PlayerWindow activeWindow))
                   activeWindow.CloseWindow();
-
-                if (!player.windows.TryGetValue("activeLearnable", out var value)) player.windows.Add("activeLearnable", new ActiveLearnableWindow(player, target));
-                else ((ActiveLearnableWindow)value).CreateWindow(target);
 
                 LoadLearnableList(currentList);
               }

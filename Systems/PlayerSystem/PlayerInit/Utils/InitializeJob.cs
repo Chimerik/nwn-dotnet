@@ -16,9 +16,6 @@ namespace NWN.Systems
             craftJob.remainingTime -= (DateTime.Now - craftJob.progressLastCalculation.Value).TotalSeconds;
             craftJob.progressLastCalculation = null;
           }
-
-          if (!windows.ContainsKey("activeCraftJob")) windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
-          else ((ActiveCraftJobWindow)windows["activeCraftJob"]).CreateWindow();
         }
       }
     }
