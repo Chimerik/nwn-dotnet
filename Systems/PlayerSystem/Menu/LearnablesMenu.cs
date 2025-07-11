@@ -95,7 +95,7 @@ namespace NWN.Systems
           foreach (var cat in target.learnableSkills.Values.GroupBy(l => l.category))
             skillCategories.Add(new NuiComboEntry(cat.Key.ToDescription(), (int)cat.Key));
 
-          window = new NuiWindow(rootColumn, "Journal d'apprentissage")
+          window = new NuiWindow(rootColumn, $"Journal d'apprentissage - {target.oid.LoginCreature.Name}")
           {
             Geometry = geometry,
             Resizable = false,

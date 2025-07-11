@@ -184,7 +184,7 @@ namespace NWN.Systems
 
                 case "commend":
 
-                  if (!Players.TryGetValue(selectedPlayer.LoginCreature, out Player commendedPlayer))
+                  if (!Players.TryGetValue(player.oid.LoginCreature, out Player commendedPlayer))
                     return;
 
                   if (player.IsDm())
@@ -194,31 +194,32 @@ namespace NWN.Systems
 
                     commendedPlayer.bonusRolePlay += 1;
 
+                    Utils.LogMessageToDMs($"{player.oid.LoginCreature.Name} vient d'augmenter le bonus d'investissement de {commendedPlayer.oid.LoginCreature.Name} à {commendedPlayer.bonusRolePlay}.");
+
                     List<string> updatedList = bonusRoleplay.GetBindValues(player.oid, nuiToken.Token);
-                    updatedList[nuiEvent.ArrayIndex] = commendedPlayer.bonusRolePlay < 4 ? $"Augmenter le bonus roleplay au niveau {commendedPlayer.bonusRolePlay + 1}" : "Bonus roleplay niveau max (4)";
+                    updatedList[nuiEvent.ArrayIndex] = commendedPlayer.bonusRolePlay < 4 ? $"Augmenter le bonus d'investissement au niveau {commendedPlayer.bonusRolePlay + 1}" : "Bonus d'investissement niveau max (4)";
                     bonusRoleplay.SetBindValues(player.oid, nuiToken.Token, updatedList);
 
-                    selectedPlayer.SendServerMessage($"Votre bonus roleplay est désormais de {commendedPlayer.bonusRolePlay}", new Color(32, 255, 32));
-
-                    player.oid.ExportCharacter();
+                    commendedPlayer.oid.SendServerMessage($"Votre bonus d'investissement est désormais de {commendedPlayer.bonusRolePlay}", new Color(32, 255, 32));
+                    commendedPlayer.oid.ExportCharacter();
                   }
                   else
                   {
                     if (commendedPlayer.bonusRolePlay < 4)
                     {
-                      selectedPlayer.SendServerMessage("Vous venez d'obtenir une recommandation pour une augmentation de bonus roleplay !", ColorConstants.Rose);
+                      commendedPlayer.oid.SendServerMessage("Vous venez d'obtenir une recommandation pour une augmentation de bonus d'investissement !", ColorConstants.Rose);
+                      Utils.LogMessageToDMs($"{player.oid.LoginCreature.Name} vient de recommander {commendedPlayer.oid.LoginCreature.Name} pour une augmentation de bonus d'investissement.");
 
                       if (commendedPlayer.bonusRolePlay == 1)
                       {
+                        Utils.LogMessageToDMs($"{player.oid.LoginCreature.Name} vient de faire passer {commendedPlayer.oid.LoginCreature.Name} au niveau 2 de bonus d'investissement");
                         commendedPlayer.bonusRolePlay = 2;
-                        selectedPlayer.SendServerMessage("Votre bonus roleplay est désormais de 2", new Color(32, 255, 32));
-                        player.oid.ExportCharacter();
+                        commendedPlayer.oid.SendServerMessage("Votre bonus d'investissement est désormais de 2", new Color(32, 255, 32));
+                        commendedPlayer.oid.ExportCharacter();
                       }
                     }
 
-                    Utils.LogMessageToDMs($"{selectedPlayer.LoginCreature.Name} vient de recommander {selectedPlayer.LoginCreature.Name} pour une augmentation de bonus roleplay.");
-
-                    player.oid.SendServerMessage($"Vous venez de recommander {selectedPlayer.LoginCreature.Name.ColorString(ColorConstants.White)} pour une augmentation de bonus roleplay !", ColorConstants.Rose);
+                    player.oid.SendServerMessage($"Vous venez de recommander {commendedPlayer.oid.LoginCreature.Name.ColorString(ColorConstants.White)} pour une augmentation de bonus d'investissement !", ColorConstants.Rose);
                   }
 
                   break;
@@ -235,11 +236,13 @@ namespace NWN.Systems
 
                     downgradedPlayer.bonusRolePlay -= 1;
 
+                    Utils.LogMessageToDMs($"{player.oid.LoginCreature.Name} vient de dégrader le bonus d'investissement de {downgradedPlayer.oid.LoginCreature.Name} à {downgradedPlayer.bonusRolePlay}");
+
                     List<string> updatedList = bonusRoleplayDown.GetBindValues(player.oid, nuiToken.Token);
                     updatedList[nuiEvent.ArrayIndex] = downgradedPlayer.bonusRolePlay > 0 ? $"Diminuer le bonus roleplay au niveau {downgradedPlayer.bonusRolePlay - 1}" : "Bonus roleplay niveau min (0)";
                     bonusRoleplay.SetBindValues(player.oid, nuiToken.Token, updatedList);
 
-                    selectedPlayer.SendServerMessage($"Votre bonus roleplay est désormais de {downgradedPlayer.bonusRolePlay}", new Color(32, 255, 32));
+                    downgradedPlayer.oid.SendServerMessage($"Votre bonus roleplay est désormais de {downgradedPlayer.bonusRolePlay}", new Color(32, 255, 32));
 
                     player.oid.ExportCharacter();
                   }
@@ -429,8 +432,8 @@ namespace NWN.Systems
                   {
                     if (Players.TryGetValue(selectedPlayer.LoginCreature, out Player invitedPlayer))
                     {
-                      if (!invitedPlayer.windows.ContainsKey("partyInvitation")) invitedPlayer.windows.Add("partyInvitation", new PartyInvitationWindow(invitedPlayer, player));
-                      else ((PartyInvitationWindow)invitedPlayer.windows["partyInvitation"]).CreateWindow(player);
+                      if (!invitedPlayer.windows.TryGetValue("partyInvitation", out var partyInvitation)) invitedPlayer.windows.Add("partyInvitation", new PartyInvitationWindow(invitedPlayer, player));
+                      else ((PartyInvitationWindow)partyInvitation).CreateWindow(player);
                     }
                   }
                   else
@@ -443,8 +446,8 @@ namespace NWN.Systems
                   if (!Players.TryGetValue(selectedPlayer.LoginCreature, out Player targetPlayer))
                     return;
 
-                  if (!player.windows.ContainsKey("learnables")) player.windows.Add("learnables", new LearnableWindow(player, targetPlayer));
-                  else ((LearnableWindow)player.windows["learnables"]).CreateWindow(targetPlayer);
+                  if (!player.windows.TryGetValue("learnables", out var learnables)) player.windows.Add("learnables", new LearnableWindow(player, targetPlayer));
+                  else ((LearnableWindow)learnables).CreateWindow(targetPlayer);
 
                   break;
               }

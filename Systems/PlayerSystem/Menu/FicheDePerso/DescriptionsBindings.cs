@@ -12,7 +12,7 @@ namespace NWN.Systems
         {
           resistanceRow.Children.Clear();
 
-          description.SetBindValue(player.oid, nuiToken.Token, player.oid.LoginCreature.Description);
+          description.SetBindValue(player.oid, nuiToken.Token, target.Description);
           SetDescriptionListBindings(true);
         }
 
@@ -20,11 +20,11 @@ namespace NWN.Systems
         {
           List<string> titleList = new();
 
-          foreach (CharacterDescription description in player.descriptions)
+          foreach (CharacterDescription description in targetPlayer.descriptions)
           {
             titleList.Add(description.name);
 
-            if (setTitle && description.description == player.oid.LoginCreature.Description)
+            if (setTitle && description.description == target.Description)
               title.SetBindValue(player.oid, nuiToken.Token, description.name);
           }
 

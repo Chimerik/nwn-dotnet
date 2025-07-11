@@ -36,10 +36,11 @@ namespace NWN.Systems
         private readonly NuiBind<List<NuiComboEntry>> comboEntries = new("comboEntries");
         private readonly NuiBind<int> selectedEntry = new("selectedEntry");
 
+        private Player targetPlayer;
         IEnumerable<Mail> filteredList;
         Mail lastReadMail;
 
-        public MailBox(Player player) : base(player)
+        public MailBox(Player player, Player targetPlayer) : base(player)
         {
           windowId = "mailBox";
 
@@ -51,15 +52,16 @@ namespace NWN.Systems
           rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(receivedDate) { Id = "read", Tooltip = receivedDate, ForegroundColor = readColorBinding, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { Width = 110 });
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_ban") { Id = "delete", Tooltip = "Supprimer" }) { Width = 35 });
 
-          CreateWindow();
+          CreateWindow(targetPlayer);
         }
-        public void CreateWindow()
+        public void CreateWindow(Player targetPlayer)
         {
+          this.targetPlayer = targetPlayer;
           LoadMailBoxLayout();
 
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? new NuiRect(player.windowRectangles[windowId].X, player.windowRectangles[windowId].Y, 600, 500) : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 600, 500);
+          NuiRect windowRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? new NuiRect(value.X, value.Y, 600, 500) : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 600, 500);
 
-          window = new NuiWindow(rootGroup, "Boîte aux lettres")
+          window = new NuiWindow(rootGroup, $"Boîte aux lettres - {targetPlayer.oid.LoginCreature.Name}")
           {
             Geometry = geometry,
             Resizable = false,
@@ -129,7 +131,7 @@ namespace NWN.Systems
 
                 case "delete":
 
-                  player.mails.Remove(filteredList.ElementAt(nuiEvent.ArrayIndex));
+                  targetPlayer.mails.Remove(filteredList.ElementAt(nuiEvent.ArrayIndex));
 
                   LoadMailBoxLayout();
                   rootGroup.SetLayout(player.oid, nuiEvent.Token.Token, layoutColumn);
@@ -144,7 +146,7 @@ namespace NWN.Systems
 
                 case "copy":
 
-                  NwItem letter = NwItem.Create("skillbookgeneriq", player.oid.LoginCreature.Location);
+                  NwItem letter = NwItem.Create("skillbookgeneriq", targetPlayer.oid.LoginCreature.Location);
                   letter.BaseItem = NwBaseItem.FromItemType(BaseItemType.MiscMedium);
                   letter.Appearance.SetSimpleModel(42);
                   letter.Tag = "missive";
@@ -155,7 +157,7 @@ namespace NWN.Systems
                   $"{lastReadMail.title}\n\n" +
                   $"{lastReadMail.content}";
 
-                  letter.Clone(player.oid.LoginCreature);
+                  letter.Clone(targetPlayer.oid.LoginCreature);
                   letter.Destroy();
 
                   player.bankGold -= 1;
@@ -169,10 +171,10 @@ namespace NWN.Systems
                   string mailTitle = title.GetBindValue(player.oid, nuiToken.Token);
                   string mailContent = content.GetBindValue(player.oid, nuiToken.Token);
 
-                  Mail newMail = new Mail(player.oid.LoginCreature.Name, player.characterId, targetName, targetId, mailTitle, mailContent, DateTime.Now, receiptSelected.GetBindValue(player.oid, nuiToken.Token));
-                  player.mails.Add(newMail);
+                  Mail newMail = new Mail(targetPlayer.oid.LoginCreature.Name, targetPlayer.characterId, targetName, targetId, mailTitle, mailContent, DateTime.Now, receiptSelected.GetBindValue(player.oid, nuiToken.Token));
+                  targetPlayer.mails.Add(newMail);
 
-                  if (targetId != player.characterId)
+                  if (targetId != targetPlayer.characterId)
                     newMail.SendMailToPlayer(targetId);
 
                   LoadMailBoxLayout();
@@ -184,12 +186,12 @@ namespace NWN.Systems
                   SearchMails();
                   LoadMessages(filteredList);
 
-                  player.bankGold -= 1;
+                  targetPlayer.bankGold -= 1;
 
                   if (receiptSelected.GetBindValue(player.oid, nuiToken.Token))
-                    player.bankGold -= 5;
+                    targetPlayer.bankGold -= 5;
 
-                  Utils.LogMessageToDMs($"MAIL SYSTEM - {player.oid.LoginCreature.Name} vient d'envoyer une lettre à {targetName}\n" +
+                  Utils.LogMessageToDMs($"MAIL SYSTEM - {targetPlayer.oid.LoginCreature.Name} vient d'envoyer une lettre à {targetName}\n" +
                     $"Titre : {mailTitle}\n" +
                     $"Contenu : {mailContent}");
 
@@ -210,7 +212,7 @@ namespace NWN.Systems
                 case "massDelete":
 
                   foreach (var mail in filteredList.ToList())
-                    player.mails.Remove(mail);
+                    targetPlayer.mails.Remove(mail);
 
                   LoadMailBoxLayout();
                   rootGroup.SetLayout(player.oid, nuiEvent.Token.Token, layoutColumn);
@@ -263,19 +265,19 @@ namespace NWN.Systems
 
           if (inboxEnabled.GetBindValue(player.oid, nuiToken.Token)) // Si inbox enabled, alors c'est qu'on se trouve sur l'outbox
           {
-            filteredList = selectedSender != 0 ? player.mails.Where(m => m.toCharacterId == selectedSender) : player.mails;
-            filteredList = filteredList.Where(m => m.fromCharacterId == player.characterId);
+            filteredList = selectedSender != 0 ? targetPlayer.mails.Where(m => m.toCharacterId == selectedSender) : targetPlayer.mails;
+            filteredList = filteredList.Where(m => m.fromCharacterId == targetPlayer.characterId);
 
             if (!string.IsNullOrEmpty(searchValue))
               filteredList = filteredList.Where(m => m.title.ToLower().Contains(searchValue));
           }
           else
           {
-            filteredList = selectedSender != 0 ? player.mails.Where(m => m.fromCharacterId == selectedSender) : player.mails;
-            filteredList = filteredList.Where(m => m.toCharacterId == player.characterId);
+            filteredList = selectedSender != 0 ? targetPlayer.mails.Where(m => m.fromCharacterId == selectedSender) : targetPlayer.mails;
+            filteredList = filteredList.Where(m => m.toCharacterId == targetPlayer.characterId);
 
             if (!string.IsNullOrEmpty(searchValue))
-              filteredList = player.mails.Where(m => m.title.ToLower().Contains(searchValue));
+              filteredList = targetPlayer.mails.Where(m => m.title.ToLower().Contains(searchValue));
           }
         }
         private void LoadButtons()
@@ -414,16 +416,16 @@ namespace NWN.Systems
 
           if (inboxEnabled.GetBindValue(player.oid, nuiToken.Token)) // Si inbox enabled, alors c'est qu'on se trouve sur l'outbox
           {
-            foreach (var sender in player.mails.DistinctBy(m => m.toCharacterId))
+            foreach (var sender in targetPlayer.mails.DistinctBy(m => m.toCharacterId))
               entries.Add(new NuiComboEntry(sender.to, sender.toCharacterId));
           }
           else
           {
-            foreach (var sender in player.mails.DistinctBy(m => m.fromCharacterId))
+            foreach (var sender in targetPlayer.mails.DistinctBy(m => m.fromCharacterId))
               entries.Add(new NuiComboEntry(sender.from, sender.fromCharacterId));
           }
 
-          comboEntries.SetBindValue(player.oid, nuiToken.Token, entries);
+          comboEntries.SetBindValue(targetPlayer.oid, nuiToken.Token, entries);
         }
       }
     }

@@ -34,12 +34,12 @@ namespace NWN.Systems
 
         private NwClass selectedClass;
         private int selectedSpellLevel;
+        private Player targetPlayer;
 
-        public SpellBookWindow(Player player) : base(player)
+        public SpellBookWindow(Player player, Player targetPlayer) : base(player)
         {
           windowId = "spellBook";
 
-          selectedClass = player.oid.LoginCreature.Classes.FirstOrDefault(c => c.Class.IsSpellCaster)?.Class;
           selectedSpellLevel = 0;
 
           rootGroup.Layout = rootColumn;
@@ -67,18 +67,21 @@ namespace NWN.Systems
           preparedSpellGroup.Layout = preparedSpellRow;
           spellGroup.Layout = spellRow;
 
-          CreateWindow();
+          CreateWindow(targetPlayer);
         }
-        public void CreateWindow()
+        public void CreateWindow(Player targetPlayer)
         {
-          if(selectedClass is null)
+          this.targetPlayer = targetPlayer;
+          selectedClass = targetPlayer.oid.LoginCreature.Classes.FirstOrDefault(c => c.Class.IsSpellCaster)?.Class;
+
+          if (selectedClass is null)
           {
-            player.oid.SendServerMessage("Aucune de vos classes ne dispose de livre de sorts", ColorConstants.Orange);
+            player.oid.SendServerMessage("Aucune classe ne dispose de livre de sorts", ColorConstants.Orange);
             return;
           }
 
           NuiRect savedRectangle = player.windowRectangles.TryGetValue(windowId, out var value) ? value : new NuiRect(player.guiWidth * 0.2f, player.guiHeight * 0.05f, player.guiScaledWidth * 0.6f, player.guiScaledHeight * 0.9f);
-          window = new NuiWindow(rootGroup, "Livre de sorts")
+          window = new NuiWindow(rootGroup, $"Livre de sorts - {targetPlayer.oid.LoginCreature.Name}")
           {
             Geometry = geometry,
             Closable = true,
@@ -94,7 +97,7 @@ namespace NWN.Systems
             SetClassLayout();
             SetLevelLayout();
 
-            selectedSpellLevel = player.learnableSpells.Values.Where(s => s.currentLevel > 0 && s.learntFromClasses.Contains(selectedClass.Id))
+            selectedSpellLevel = targetPlayer.learnableSpells.Values.Where(s => s.currentLevel > 0 && s.learntFromClasses.Contains(selectedClass.Id))
               .Min(s => NwSpell.FromSpellId(s.id).GetSpellLevelForClass(selectedClass));
 
             SetPreparedSpellLayout();
@@ -146,7 +149,7 @@ namespace NWN.Systems
               {
                 NwSpell spell = NwSpell.FromSpellId(int.Parse(nuiEvent.ElementId.Split("_")[1]));
                 int spellLevel = spell.GetSpellLevelForClass(selectedClass);
-                player.oid.LoginCreature.GetClassInfo(selectedClass).KnownSpells[spellLevel].Remove(spell);
+                targetPlayer.oid.LoginCreature.GetClassInfo(selectedClass).KnownSpells[spellLevel].Remove(spell);
                 SetPreparedSpellLayout();
                 SetSpellLayout();
               }
@@ -154,7 +157,7 @@ namespace NWN.Systems
               {
                 NwSpell spell = NwSpell.FromSpellId(int.Parse(nuiEvent.ElementId.Split("_")[1]));
                 int spellLevel = spell.GetSpellLevelForClass(selectedClass);
-                player.oid.LoginCreature.GetClassInfo(selectedClass).KnownSpells[spellLevel].Add(spell);
+                targetPlayer.oid.LoginCreature.GetClassInfo(selectedClass).KnownSpells[spellLevel].Add(spell);
                 SetPreparedSpellLayout();
                 SetSpellLayout();
               }
@@ -166,7 +169,7 @@ namespace NWN.Systems
         {
           List<NuiElement> classChildren = new() { new NuiSpacer() };
 
-          foreach (var playerClass in player.oid.LoginCreature.Classes.Where(c => c.Class.IsSpellCaster))
+          foreach (var playerClass in targetPlayer.oid.LoginCreature.Classes.Where(c => c.Class.IsSpellCaster))
             classChildren.Add(new NuiButtonImage(playerClass.Class.IconResRef) { Id = playerClass.Class.Id.ToString(),
               Tooltip = $"{playerClass.Class.Name.ToString()} ({playerClass.Level})", Height = 40, Width = 40,
               Encouraged = playerClass.Class.Id == selectedClass.Id});
@@ -185,9 +188,9 @@ namespace NWN.Systems
         private void SetLevelLayout()
         {
           List<NuiElement> levelChildren = new() { new NuiSpacer() };
-          byte maxSlotKnown = SpellUtils.GetMaxSpellSlotLevelKnown(player.oid.LoginCreature, selectedClass.ClassType);
+          byte maxSlotKnown = SpellUtils.GetMaxSpellSlotLevelKnown(targetPlayer.oid.LoginCreature, selectedClass.ClassType);
 
-          foreach (var spellLevel in player.learnableSpells.Values.Where(s => s.currentLevel > 0 && s.learntFromClasses.Contains(selectedClass.Id) && NwSpell.FromSpellId(s.id).GetSpellLevelForClass(selectedClass) <= maxSlotKnown)
+          foreach (var spellLevel in targetPlayer.learnableSpells.Values.Where(s => s.currentLevel > 0 && s.learntFromClasses.Contains(selectedClass.Id) && NwSpell.FromSpellId(s.id).GetSpellLevelForClass(selectedClass) <= maxSlotKnown)
             .Select(s => NwSpell.FromSpellId(s.id).GetSpellLevelForClass(selectedClass)).Distinct().Order())
           {
               string icon = spellLevel switch
@@ -220,7 +223,7 @@ namespace NWN.Systems
 
         private void SetCantripLayout()
         {
-          var classInfo = player.oid.LoginCreature.GetClassInfo(selectedClass);
+          var classInfo = targetPlayer.oid.LoginCreature.GetClassInfo(selectedClass);
 
           if (selectedSpellLevel > 0 || classInfo.KnownSpells[0].Count < 1)
           {
@@ -284,10 +287,10 @@ namespace NWN.Systems
 
               List<NwSpell> readySpells = new();
 
-              foreach (var spell in player.learnableSpells.Values.Where(s => s.alwaysPrepared))
+              foreach (var spell in targetPlayer.learnableSpells.Values.Where(s => s.alwaysPrepared))
                 readySpells.Add(NwSpell.FromSpellId(spell.id));
 
-              var classInfo = player.oid.LoginCreature.GetClassInfo(selectedClass);
+              var classInfo = targetPlayer.oid.LoginCreature.GetClassInfo(selectedClass);
               int preparedSpells = CreatureUtils.GetPreparableSpellsCount(player, selectedClass);
 
               if(preparedSpells < 1)
@@ -324,7 +327,7 @@ namespace NWN.Systems
 
                   string tooltip = "Retirer";
                   string disabledTooltip = "Ce sort est toujours préparé et ne consomme pas d'emplacement préparé";
-                  var learnable = player.learnableSpells[spell.Id];
+                  var learnable = targetPlayer.learnableSpells[spell.Id];
                   bool enabled = !learnable.alwaysPrepared;
                  
                   guiSpacersChildren.Add(new NuiButtonImage("gui_arrow_down") { Id = $"remove_{spell.Id}", Tooltip = tooltip, DisabledTooltip = disabledTooltip, Enabled = enabled, Height = 14, Width = 22 });
@@ -358,7 +361,7 @@ namespace NWN.Systems
         }
         private void SetSpellLayout()
         {
-          var spellList = player.learnableSpells.Values.Where(s => s.currentLevel > 0 && s.multiplier == selectedSpellLevel + 1 && s.learntFromClasses.Contains(selectedClass.Id));
+          var spellList = targetPlayer.learnableSpells.Values.Where(s => s.currentLevel > 0 && s.multiplier == selectedSpellLevel + 1 && s.learntFromClasses.Contains(selectedClass.Id));
 
           if(selectedSpellLevel < 1 || !spellList.Any())
           {
@@ -394,13 +397,13 @@ namespace NWN.Systems
           bool canPrepareSpells = false;
           string disabledTooltipMessage = "Aucun emplacement de préparation libre";
 
-          if (!EffectUtils.HasTaggedEffect(player.oid.LoginCreature, EffectSystem.CanPrepareSpellsEffectTag))
+          if (!EffectUtils.HasTaggedEffect(targetPlayer.oid.LoginCreature, EffectSystem.CanPrepareSpellsEffectTag))
           {
             canPrepareSpells = false;
             disabledTooltipMessage = "Vous devez prendre un repos long avant de pouvoir modifier votre mémorisation de sorts";
           }
-          else if (CreatureUtils.GetKnownSpellsCount(player.oid.LoginCreature, player.oid.LoginCreature.GetClassInfo(selectedClass)) <
-            CreatureUtils.GetPreparableSpellsCount(player, selectedClass))
+          else if (CreatureUtils.GetKnownSpellsCount(targetPlayer.oid.LoginCreature, targetPlayer.oid.LoginCreature.GetClassInfo(selectedClass)) <
+            CreatureUtils.GetPreparableSpellsCount(targetPlayer, selectedClass))
           {
             canPrepareSpells = true;
             disabledTooltipMessage = "Sort déjà préparé";
@@ -434,7 +437,7 @@ namespace NWN.Systems
 
                 guiSpacersChildren.Add(new NuiButtonImage("gui_arrow_up") { Id = $"add_{spell.Id}", Tooltip = "Ajouter",
                   DisabledTooltip = disabledTooltipMessage, Height = 14, Width = 22,
-                  Enabled = canPrepareSpells && !player.oid.LoginCreature.GetClassInfo(selectedClass).KnownSpells[selectedSpellLevel].Contains(spell) });
+                  Enabled = canPrepareSpells && !targetPlayer.oid.LoginCreature.GetClassInfo(selectedClass).KnownSpells[selectedSpellLevel].Contains(spell) });
                 
                 guiSpacersChildren.Add(new NuiSpacer());
 

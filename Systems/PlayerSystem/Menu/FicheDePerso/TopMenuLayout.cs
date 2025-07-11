@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Anvil.API;
 
 namespace NWN.Systems
@@ -35,11 +36,27 @@ namespace NWN.Systems
 
           menuRow.Children.Add(new NuiSpacer());
           menuRow.Children.Add(new NuiButtonImage("sheet_main_view") { Id = "sheetMainView", Height = windowWidth / 12, Width = windowWidth / 12 });
-          menuRow.Children.Add(new NuiButtonImage("sheet_learnables") { Id = "sheetLearnables", Height = windowWidth / 12, Width = windowWidth / 12 });
+
+          if (!Utils.In(target.Area?.Tag, "entry_scene_in", "entry_scene_out"))
+            menuRow.Children.Add(new NuiButtonImage("sheet_learnables") { Id = "sheetLearnables", Height = windowWidth / 12, Width = windowWidth / 12 });
+
           menuRow.Children.Add(new NuiButtonImage("sheet_conditions") { Id = "sheetConditions", Height = windowWidth / 12, Width = windowWidth / 12 });
+
+          if (target.Classes.Any(c => c.Class.IsSpellCaster))
+            menuRow.Children.Add(new NuiButtonImage("sheet_spellbook") { Id = "sheetSpellbook", Height = windowWidth / 12, Width = windowWidth / 12 });
+          
           menuRow.Children.Add(new NuiButtonImage("sheet_skills") { Id = "sheetSkills", Height = windowWidth / 12, Width = windowWidth / 12 });
           menuRow.Children.Add(new NuiButtonImage("sheet_weapons") { Id = "sheetWeapons", Height = windowWidth / 12, Width = windowWidth / 12 });
           menuRow.Children.Add(new NuiButtonImage("sheet_desc") { Id = "sheetDescription", Height = windowWidth / 12, Width = windowWidth / 12 });
+
+          if (targetPlayer.subscriptions.Any(s => s.type == Utils.SubscriptionType.MailDistantAccess))
+            menuRow.Children.Add(new NuiButtonImage("ir_animalemp") { Id = "sheetMailBox", Height = windowWidth / 12, Width = windowWidth / 12 });
+         
+          menuRow.Children.Add(new NuiButtonImage("sheet_config") { Id = "sheetConfig", Height = windowWidth / 12, Width = windowWidth / 12 });
+
+          if (player.oid.IsDM || Utils.In(player.oid.PlayerName, "Chim",  "dodozik", "WingsOfJoy"))
+            menuRow.Children.Add(new NuiButtonImage("ife_possess") { Id = "sheetDmTools", Height = windowWidth / 12, Width = windowWidth / 12 });
+         
           menuRow.Children.Add(new NuiSpacer());
 
           conditionsTemplate.Clear();

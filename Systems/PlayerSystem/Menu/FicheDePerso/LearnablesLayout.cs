@@ -64,6 +64,17 @@ namespace NWN.Systems
               new NuiSpacer()
           } });
 
+          rootChildren.Add(new NuiRow() { Margin = 5.0f, Height = windowWidth / 20, Width = windowWidth / 1.1f, Children = new List<NuiElement>()
+          {
+            new NuiSpacer(),
+            new NuiImage("menu_separator_l") { ImageAspect = NuiAspect.Fit, Width = windowWidth / 8,  VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center},
+            new NuiSpacer(),
+            new NuiButton("Ouvrir le journal d'apprentissage") { Id = "learnables", Width = windowWidth / 3 },
+            new NuiSpacer(),
+            new NuiImage("menu_separator_r") { ImageAspect = NuiAspect.Fit, Width = windowWidth / 8, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center },
+            new NuiSpacer()
+          } });
+
           rootGroup.SetLayout(player.oid, nuiToken.Token, rootColumn);
         }
       }

@@ -15,18 +15,18 @@ namespace NWN.Systems
 
           List<string> portraitTable = new();
 
-          if (Portraits2da.playerCustomPortraits.TryGetValue(player.oid.PlayerName, out var value))
+          if (Portraits2da.playerCustomPortraits.TryGetValue(targetPlayer.oid.PlayerName, out var value))
             portraitTable.AddRange(value);
 
-          int baseRaceId = CreatureUtils.GetBaseRaceIdFromCustomRace(player.oid.LoginCreature.Race.Id);
+          int baseRaceId = CreatureUtils.GetBaseRaceIdFromCustomRace(target.Race.Id);
 
           if (baseRaceId == CustomRace.HalfElf)
           {
-            portraitTable.AddRange(Portraits2da.portraitFilteredEntries[CustomRace.Human, (int)player.oid.LoginCreature.Gender]);
-            portraitTable.AddRange(Portraits2da.portraitFilteredEntries[CustomRace.Elf, (int)player.oid.LoginCreature.Gender]);
+            portraitTable.AddRange(Portraits2da.portraitFilteredEntries[CustomRace.Human, (int)target.Gender]);
+            portraitTable.AddRange(Portraits2da.portraitFilteredEntries[CustomRace.Elf, (int)target.Gender]);
           }
           else
-            portraitTable.AddRange(Portraits2da.portraitFilteredEntries[baseRaceId, (int)player.oid.LoginCreature.Gender]);
+            portraitTable.AddRange(Portraits2da.portraitFilteredEntries[baseRaceId, (int)target.Gender]);
 
           int nbPortrait = 0;
 

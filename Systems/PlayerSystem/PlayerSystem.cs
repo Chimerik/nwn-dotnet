@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Anvil.API;
+using Anvil.API.Events;
+using Anvil.Services;
 using NWN.Core;
 using NWN.Core.NWNX;
-using Anvil.API;
-using Anvil.Services;
-using Anvil.API.Events;
-using System.Threading.Tasks;
+using static NWN.Systems.PlayerSystem.Player;
 
 namespace NWN.Systems
 {
@@ -216,20 +217,22 @@ namespace NWN.Systems
 
             case GUIPanel.Journal:
 
-              if (!player.windows.TryGetValue("mainMenu", out var journal)) player.windows.Add("mainMenu", new Player.MainMenuWindow(player));
-              else if (((Player.MainMenuWindow)journal).IsOpen)
+              Player targetPlayer = Players.TryGetValue((NwCreature)guiEvent.EventObject, out Player targetP) ? targetP : player;
+
+                if (!player.windows.TryGetValue("learnables", out var learnables)) player.windows.Add("learnables", new LearnableWindow(player, targetPlayer));
+              else if (((LearnableWindow)learnables).IsOpen)
               {
                 await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-                ((Player.MainMenuWindow)journal).CloseWindow();
+                ((LearnableWindow)learnables).CloseWindow();
               }
-              else ((Player.MainMenuWindow)journal).CreateWindow();
-
+              else ((LearnableWindow)learnables).CreateWindow();
+                
               return;
 
             case GUIPanel.CharacterSheet:
 
               if (!player.windows.TryGetValue("ficheDePerso", out var fiche)) player.windows.Add("ficheDePerso", new Player.FicheDePersoWindow(player, (NwCreature)guiEvent.EventObject));
-              else ((Player.FicheDePersoWindow)fiche).CreateWindow((NwCreature)guiEvent.EventObject);
+              else ((FicheDePersoWindow)fiche).CreateWindow((NwCreature)guiEvent.EventObject);
 
               return;
 

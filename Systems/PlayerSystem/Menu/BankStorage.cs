@@ -172,8 +172,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (!player.windows.ContainsKey("mailBox")) player.windows.Add("mailBox", new MailBox(player));
-                  else ((MailBox)player.windows["mailBox"]).CreateWindow();
+                  if (!player.windows.TryGetValue("mailBox", out var mailBox)) player.windows.Add("mailBox", new MailBox(player, player));
+                  else ((MailBox)mailBox).CreateWindow(player);
 
 
                   break;

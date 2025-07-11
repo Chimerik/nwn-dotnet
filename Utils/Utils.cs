@@ -413,49 +413,11 @@ namespace NWN
     {
       //{ "shortRest", new MainMenuCommand("Simuler un repos court (alpha)", "", CommandRank.Public) },
       //{ "longRest", new MainMenuCommand("Simuler un repos long (alpha)", "", CommandRank.Public) },
-      { "sacrificeHP", new MainMenuCommand("Perdre 20 % de points de vie (alpha)", "", CommandRank.Public) },
-      { "dm", new MainMenuCommand("Mode DM", "", CommandRank.Admin) },
-      { "spellBook", new MainMenuCommand("Livre de sorts", "", CommandRank.Public) },
-      { "chatimentLevelSelection", new MainMenuCommand("Châtiment - Niveau de sort", "Ouvrir ou fermer la fenêtre de sélection du niveau de sorts de vos châtiments", CommandRank.Public) },
-      { "addClass", new MainMenuCommand("Test Chim", "", CommandRank.Admin) },
-      { "creaturePalette", new MainMenuCommand("Palette des créatures", "", CommandRank.DM) },
-      { "itemPalette", new MainMenuCommand("Palette des objets", "", CommandRank.DM) },
-      { "placeablePalette", new MainMenuCommand("Palette des placeables", "", CommandRank.DM) },
-      { "placeableManager", new MainMenuCommand("Gérer les placeable de la zone", "", CommandRank.DM) },
-      { "mailBox", new MainMenuCommand("Corbeau Messager", "Le corbeau Skalsgard vous apporte vos missives où que vous vous trouviez", CommandRank.Public) },
-      { "sit", new MainMenuCommand("S'asseoir n'importe où", "Permet de s'asseoir partout. Attention, seule la position affichée change. La position réelle du personnage reste la même.", CommandRank.Public) },
-      { "touch", new MainMenuCommand("Mode toucher", "Permet d'éviter les collisions entre personnages (non utilisable en combat)", CommandRank.Public) },
-      { "walk", new MainMenuCommand("Mode marche", "Permet d'avoir l'air moins ridicule en ville", CommandRank.Public) },
-      { "follow", new MainMenuCommand("Suivre", "Suivre une créature ciblée (pour les feignasses !)", CommandRank.Public) },
-      { "examineArea", new MainMenuCommand("Examiner les environs", "Obtenir une description de la zone", CommandRank.Public) },
-      { "learnables", new MainMenuCommand("Journal d'apprentissage", "Ouvrir le journal d'apprentissage", CommandRank.Public) },
-      { "language", new MainMenuCommand("Langue", "Choisir la langue actuellement parlée par mon personnage", CommandRank.Public) },
-      { "effectDispel", new MainMenuCommand("Dissiper mes effets de sorts", "", CommandRank.Public) },
-      { "dispelAoE", new MainMenuCommand("Dissiper mes zones d'effets", "", CommandRank.Public) },
+      //{ "effectDispel", new MainMenuCommand("Dissiper mes effets de sorts", "", CommandRank.Public) },
+      //{ "dispelAoE", new MainMenuCommand("Dissiper mes zones d'effets", "", CommandRank.Public) },
       //{ "healthManaBars", new MainMenuCommand("Dé/Verrouiller l'affichage des barres de statuts", "", CommandRank.Public) },
-      { "grimoire", new MainMenuCommand("Gérer les grimoires", "Enregistrer ou charger un grimoire de sorts", CommandRank.Public) },
-      { "quickbars", new MainMenuCommand("Gérer les barres de raccourcis", "Enregistrer ou charger une barre de raccourcis", CommandRank.Public) },
-      { "commend", new MainMenuCommand("Recommander un joueur", "Recommander un joueur pour la qualité de son roleplay et son implication sur le module", CommandRank.Public) }, // TODO : Ajouter à OnExamine Player
-      { "itemAppearance", new MainMenuCommand("Gestion des apparences d'objets", "Enregistrer ou charger une apparence d'objet", CommandRank.Public) },
-      { "description", new MainMenuCommand("Gérer les descriptions", "Enregistrer ou charger une description de personnage", CommandRank.Public) },
-      { "chat", new MainMenuCommand("Gestion des couleurs du chat", "Personnaliser les couleurs du chat", CommandRank.Public) },
-      { "cooldownPosition", new MainMenuCommand("Gérer l'affichage des cooldowns", "Personnaliser l'affichage des cooldowns", CommandRank.Public) },
-      { "unstuck", new MainMenuCommand("Déblocage du décor", "Tentative de déblocage du décor (succès non garanti)", CommandRank.Public) },
-      { "reinitPositionDisplay", new MainMenuCommand("Réinitialiser la position affichée", "Réinitialise la position affichée du personnage (à utiliser en cas de problème avec le système d'assise)", CommandRank.Public) },
-      { "publicKey", new MainMenuCommand("Afficher ma clé publique", "Permet d'obtenir la clé publique de votre compte, utile pour lier le compte Discord au compte Never", CommandRank.Public) },
-      { "delete", new MainMenuCommand("Supprimer ce personnage", "Attention, la suppression est définitive", CommandRank.Public) },
-      { "wind", new MainMenuCommand("Gestion du vent", "Permet de modifier la configuration du vent de cette zone", CommandRank.DM) },
-      { "dmRename", new MainMenuCommand("Changer le nom de la cible", "Permet de modifier le nom de n'importe quel objet", CommandRank.DM) }, // TODO : Ajouter à OnExamine Custom pour DM
-      { "visualEffects", new MainMenuCommand("Gérer mes effets visuels - Alpha", "Permet d'utiliser et de gérer les effets visuels personnalisés", CommandRank.Public) },
-      { "aoeVisualEffects", new MainMenuCommand("Gérer mes effets visuels en AOE - Alpha", "Permet d'utiliser et de gérer les effets visuels personnalisés", CommandRank.Public) },
-      { "areaMusicEditor", new MainMenuCommand("Modifier la sélection musicale de la zone", "", CommandRank.DM) },
-      { "areaLoadScreenEditor", new MainMenuCommand("Modifier l'écran de chargement de la zone", "", CommandRank.DM) },
-      { "reboot", new MainMenuCommand("Reboot", "", CommandRank.Admin) },
-      { "refill", new MainMenuCommand("Refill ressources", "", CommandRank.Admin) },
-      { "instantLearn", new MainMenuCommand("Activer/Désactiver Instant Learn (alpha)", "", CommandRank.Public) }, // TODO : Ajouter à OnExamine Player => Temporairement accessible à tout le monde pendant la BETA
-      { "instantCraft", new MainMenuCommand("Instant Craft (Alpha)", "", CommandRank.Public) }, // TODO : Ajouter à OnExamine Player
-      { "giveResources", new MainMenuCommand("Don de ressources", "", CommandRank.Admin) }, // TODO : Ajouter à OnExamine Player
-      { "giveSkillbook", new MainMenuCommand("Don de skillbook", "", CommandRank.Admin) }, // TODO : Ajouter à OnExamine Player
+      //{ "grimoire", new MainMenuCommand("Gérer les grimoires", "Enregistrer ou charger un grimoire de sorts", CommandRank.Public) },
+      //{ "cooldownPosition", new MainMenuCommand("Gérer l'affichage des cooldowns", "Personnaliser l'affichage des cooldowns", CommandRank.Public) },
       { "lootEditor", new MainMenuCommand("Modifier les listes de loots", "", CommandRank.Admin) }
     };
 

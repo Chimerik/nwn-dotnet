@@ -11,7 +11,7 @@ namespace NWN.Systems
       {
         public void LearnablesBindings()
         {
-          Learnable learnable = player.GetActiveLearnable();
+          Learnable learnable = targetPlayer.GetActiveLearnable();
 
           learnableDrawListRect.SetBindValue(player.oid, nuiToken.Token, new(0, windowHeight / 48, windowWidth / 2, windowHeight / 48));
           jobDrawListRect.SetBindValue(player.oid, nuiToken.Token, new(0, windowHeight / 48, windowWidth / 2, windowHeight / 48));
@@ -31,21 +31,21 @@ namespace NWN.Systems
             learnableLevel.SetBindValue(player.oid, nuiToken.Token, $"-/-");
           }
 
-          if (player.craftJob is not null)
+          if (targetPlayer.craftJob is not null)
           {
-            jobIcon.SetBindValue(player.oid, nuiToken.Token, player.craftJob.icon);
-            jobName.SetBindValue(player.oid, nuiToken.Token, player.craftJob.type.ToDescription());
+            jobIcon.SetBindValue(player.oid, nuiToken.Token, targetPlayer.craftJob.icon);
+            jobName.SetBindValue(player.oid, nuiToken.Token, targetPlayer.craftJob.type.ToDescription());
 
-            if (player.craftJob.progressLastCalculation.HasValue)
+            if (targetPlayer.craftJob.progressLastCalculation.HasValue)
             {
-              player.craftJob.remainingTime -= (DateTime.Now - player.craftJob.progressLastCalculation.Value).TotalSeconds;
-              player.craftJob.progressLastCalculation = null;
+              targetPlayer.craftJob.remainingTime -= (DateTime.Now - targetPlayer.craftJob.progressLastCalculation.Value).TotalSeconds;
+              targetPlayer.craftJob.progressLastCalculation = null;
             }
 
-            if (player.oid.LoginCreature.Area == null || player.oid.LoginCreature.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 0)
+            if (targetPlayer.oid.LoginCreature.Area == null || targetPlayer.oid.LoginCreature.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 0)
               jobETA.SetBindValue(player.oid, nuiToken.Token, "En pause (Hors Cité)");
             else
-              jobETA.SetBindValue(player.oid, nuiToken.Token, player.craftJob.GetReadableJobCompletionTime());
+              jobETA.SetBindValue(player.oid, nuiToken.Token, targetPlayer.craftJob.GetReadableJobCompletionTime());
           }
           else
           {
