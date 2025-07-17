@@ -18,7 +18,7 @@ namespace NWN.Systems
       //{
       int spellDC = SpellUtils.GetCasterSpellDC(caster, DCAbility);
 
-      if (CreatureUtils.GetSavingThrow(caster, target, SaveAbility, spellDC) == SavingThrowResult.Failure)
+      if (CreatureUtils.GetSavingThrowResult(target, SaveAbility, caster, spellDC) == SavingThrowResult.Failure)
       {
         target.ClearActionQueue();
         target.PlayVoiceChat(VoiceChatType.Laugh);
@@ -49,7 +49,7 @@ namespace NWN.Systems
         {
           int spellDC = SpellUtils.GetCasterSpellDC(caster, (Ability)eff.CasterLevel);
 
-          if (CreatureUtils.GetSavingThrow(caster, target, Ability.Wisdom, spellDC) != SavingThrowResult.Failure)
+          if (CreatureUtils.GetSavingThrowResult(target, Ability.Wisdom, caster, spellDC) != SavingThrowResult.Failure)
             EffectUtils.RemoveTaggedEffect(target, FouRireDeTashaEffectTag);
         }
         else
@@ -79,7 +79,7 @@ namespace NWN.Systems
         {
           int spellDC = SpellUtils.GetCasterSpellDC(caster, (Ability)eff.CasterLevel);
 
-          if (CreatureUtils.GetSavingThrow(caster, onDamaged.Creature, Ability.Wisdom, spellDC, Spells2da.spellTable[CustomSpell.FouRireDeTasha], SpellConfig.SpellEffectType.Tasha) != SavingThrowResult.Failure)
+          if (CreatureUtils.GetSavingThrowResult(onDamaged.Creature, Ability.Wisdom, caster, spellDC, Spells2da.spellTable[CustomSpell.FouRireDeTasha], SpellConfig.SpellEffectType.Tasha) != SavingThrowResult.Failure)
             EffectUtils.RemoveTaggedEffect(onDamaged.Creature, FouRireDeTashaEffectTag);
         }
         else

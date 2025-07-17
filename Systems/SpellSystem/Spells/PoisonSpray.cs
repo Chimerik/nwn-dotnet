@@ -17,7 +17,7 @@ namespace NWN.Systems
         {
           targetCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPoisonS));
 
-          SavingThrowResult saveResult = CreatureUtils.GetSavingThrow(oCaster, targetCreature, spellEntry.savingThrowAbility, spellDC, spellEntry, effectType: SpellConfig.SpellEffectType.Poison);
+          SavingThrowResult saveResult = CreatureUtils.GetSavingThrowResult(targetCreature, spellEntry.savingThrowAbility, oCaster, spellDC, spellEntry, effectType: SpellConfig.SpellEffectType.Poison);
 
           if (saveResult == SavingThrowResult.Failure || oCaster is NwCreature caster && caster.KnowsFeat((Feat)CustomSkill.EvocateurToursPuissants))
             SpellUtils.DealSpellDamage(targetCreature, oCaster.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(oCaster, spell), oCaster, spell.GetSpellLevelForClass(castingClass), saveResult, casterClass: castingClass);

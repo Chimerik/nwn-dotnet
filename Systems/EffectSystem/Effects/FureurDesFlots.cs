@@ -33,7 +33,7 @@ namespace NWN.Systems
 
       int spellDC = SpellUtils.GetCasterSpellDC(protector, Ability.Wisdom);
 
-      if (CreatureUtils.GetSavingThrow(protector, entering, Ability.Constitution, spellDC) == SavingThrowResult.Failure)
+      if (CreatureUtils.GetSavingThrowResult(entering, Ability.Constitution, protector, spellDC) == SavingThrowResult.Failure)
         entering.ApplyEffect(EffectDuration.Temporary, Effect.MovementSpeedDecrease(50), NwTimeSpan.FromRounds(1));
 
       return ScriptHandleResult.Handled;
@@ -48,7 +48,7 @@ namespace NWN.Systems
         {
           int spellDC = SpellUtils.GetCasterSpellDC(caster, Ability.Wisdom);
 
-          if (CreatureUtils.GetSavingThrow(caster, target, Ability.Constitution, spellDC) == SavingThrowResult.Failure)
+          if (CreatureUtils.GetSavingThrowResult(target, Ability.Constitution, caster, spellDC) == SavingThrowResult.Failure)
           {
             int damage = NwRandom.Roll(Utils.random, 6, caster.GetAbilityModifier(Ability.Wisdom) > 1 ? caster.GetAbilityModifier(Ability.Wisdom) : 1);
             NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, Effect.Damage(damage, DamageType.Sonic)));

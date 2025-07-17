@@ -34,7 +34,7 @@ namespace NWN.Systems
       SpellEntry spellEntry = Spells2da.spellTable[(int)Spell.Confusion];
       int spellDC = SpellUtils.GetCasterSpellDC(caster, Spell.Confusion, (Ability)int.Parse(eff.StringParams[0]));
 
-      if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility,  spellDC, spellEntry) != SavingThrowResult.Failure)
+      if (CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, caster,  spellDC, spellEntry) != SavingThrowResult.Failure)
         target.RemoveEffect(eff);
 
       return ScriptHandleResult.Handled;

@@ -75,7 +75,7 @@ namespace NWN.Systems
 
     private static void HandleRayonDeLuneEffect(NwCreature caster, NwCreature target, SpellEntry spellEntry, NwSpell spell, int spellDC)
     {
-      var saveResult = CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry);
+      var saveResult = CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, caster, spellDC, spellEntry);
       SpellUtils.DealSpellDamage(target, caster.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(caster, spell), caster, spell.InnateSpellLevel,
       saveResult);
 

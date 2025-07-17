@@ -24,7 +24,7 @@ namespace NWN.Systems
 
           StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Attaque Menaçante", ColorConstants.Red, true);
 
-          if (GetSavingThrow(onAttack.Attacker, target, Ability.Wisdom, DC) == SavingThrowResult.Failure)
+          if (GetSavingThrowResult(target, Ability.Wisdom, onAttack.Attacker, DC) == SavingThrowResult.Failure)
             EffectSystem.ApplyProvocation(onAttack.Attacker, target, NwTimeSpan.FromRounds(1));
 
           await NwTask.NextFrame();

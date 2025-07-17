@@ -4,8 +4,6 @@ using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
 using NWN.Core;
-using NWN.Core.NWNX;
-using static Anvil.API.Events.PlaceableEvents;
 
 namespace NWN.Systems
 {
@@ -63,9 +61,6 @@ namespace NWN.Systems
             geometry.SetBindValue(player.oid, nuiToken.Token, new NuiRect(savedRectangle.X, savedRectangle.Y, windowWidth, windowHeight));
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
           }
-
-          //if (!player.windows.TryGetValue("craftWorkshop", out var craftwindow)) player.windows.Add("craftWorkshop", new PlayerSystem.Player.WorkshopWindow(player, "", null));
-          //else ((PlayerSystem.Player.WorkshopWindow)craftwindow).CreateWindow("", null);
         }
         private void HandleCharacterSheetEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
@@ -222,7 +217,38 @@ namespace NWN.Systems
 
                   break;
 
+                case "strRoll": CreatureUtils.RollAbility(target, Ability.Strength); break;
+                case "dexRoll": CreatureUtils.RollAbility(target, Ability.Dexterity); break;
+                case "conRoll": CreatureUtils.RollAbility(target, Ability.Constitution); break;
+                case "intRoll": CreatureUtils.RollAbility(target, Ability.Intelligence); break;
+                case "wisRoll": CreatureUtils.RollAbility(target, Ability.Wisdom); break;
+                case "chaRoll": CreatureUtils.RollAbility(target, Ability.Charisma); break;
 
+                case "strSaveRoll": CreatureUtils.GetSavingThrowResult(target, Ability.Strength); break;
+                case "dexSaveRoll": CreatureUtils.GetSavingThrowResult(target, Ability.Dexterity); break;
+                case "conSaveRoll": CreatureUtils.GetSavingThrowResult(target, Ability.Constitution); break;
+                case "intSaveRoll": CreatureUtils.GetSavingThrowResult(target, Ability.Intelligence); break;
+                case "wisSaveRoll": CreatureUtils.GetSavingThrowResult(target, Ability.Wisdom); break;
+                case "chaSaveRoll": CreatureUtils.GetSavingThrowResult(target, Ability.Charisma); break;
+
+                case "rollAthletics": CreatureUtils.RollAbility(target, Ability.Strength, skill:CustomSkill.AthleticsProficiency); break;
+                case "rollAcrobatics": CreatureUtils.RollAbility(target, Ability.Dexterity, skill:CustomSkill.AcrobaticsProficiency); break;
+                case "rollEscamotage": CreatureUtils.RollAbility(target, Ability.Dexterity, skill:CustomSkill.SleightOfHandProficiency); break;
+                case "rollFurtivite": CreatureUtils.RollAbility(target, Ability.Dexterity, skill:CustomSkill.StealthProficiency); break;
+                case "rollArcana": CreatureUtils.RollAbility(target, Ability.Intelligence, skill:CustomSkill.ArcanaProficiency); break;
+                case "rollHistory": CreatureUtils.RollAbility(target, Ability.Intelligence, skill:CustomSkill.HistoryProficiency); break;
+                case "rollInvestigation": CreatureUtils.RollAbility(target, Ability.Intelligence, skill:CustomSkill.InvestigationProficiency); break;
+                case "rollNature": CreatureUtils.RollAbility(target, Ability.Intelligence, skill:CustomSkill.NatureProficiency); break;
+                case "rollReligion": CreatureUtils.RollAbility(target, Ability.Intelligence, skill:CustomSkill.ReligionProficiency); break;
+                case "rollDressage": CreatureUtils.RollAbility(target, Ability.Wisdom, skill:CustomSkill.AnimalHandlingProficiency); break;
+                case "rollIntuition": CreatureUtils.RollAbility(target, Ability.Wisdom, skill:CustomSkill.InsightProficiency); break;
+                case "rollMedicine": CreatureUtils.RollAbility(target, Ability.Wisdom, skill:CustomSkill.MedicineProficiency); break;
+                case "rollPerception": CreatureUtils.RollAbility(target, Ability.Wisdom, skill:CustomSkill.PerceptionProficiency); break;
+                case "rollSurvie": CreatureUtils.RollAbility(target, Ability.Wisdom, skill:CustomSkill.SurvivalProficiency); break;
+                case "rollTromperie": CreatureUtils.RollAbility(target, Ability.Charisma, skill:CustomSkill.DeceptionProficiency); break;
+                case "rollPersuasion": CreatureUtils.RollAbility(target, Ability.Charisma, skill:CustomSkill.PersuasionProficiency); break;
+                case "rollPerformance": CreatureUtils.RollAbility(target, Ability.Charisma, skill:CustomSkill.PerformanceProficiency); break;
+                case "rollIntimidation": CreatureUtils.RollAbility(target, Ability.Charisma, skill:CustomSkill.IntimidationProficiency); break;
               }
 
               break;
@@ -472,6 +498,14 @@ namespace NWN.Systems
 
                   break;
 
+                case "customDiceRolls":
+
+                  if (!player.windows.TryGetValue("customDiceRolls", out var customDiceRolls)) player.windows.Add("customDiceRolls", new CustomDiceRolls(player));
+                  else ((CustomDiceRolls)customDiceRolls).CreateWindow();
+
+                  CloseWindow();
+                  break;
+
                 case "reboot":
 
                   NwServer.Instance.PlayerPassword = "REBOOTINPROGRESS";
@@ -513,6 +547,32 @@ namespace NWN.Systems
                     target.GetObjectVariable<PersistentVariableInt>("_INSTANT_LEARN").Value = 1;
                     instantLearnLabel.SetBindValue(player.oid, nuiToken.Token, "Désactiver l'apprentissage instantanné");
                     LogUtils.LogMessage($"{player.oid.PlayerName} active apprentissage instantanné sur {target.Name}", LogUtils.LogType.DMAction);
+                  }
+
+                  break;
+
+                case "rollDM":
+
+                  if (target.GetObjectVariable<PersistentVariableInt>("_ROLL_DM").HasValue)
+                  {
+                    target.GetObjectVariable<PersistentVariableInt>("_ROLL_DM").Delete();
+                  }
+                  else
+                  {
+                    target.GetObjectVariable<PersistentVariableInt>("_ROLL_DM").Value = 1;
+                  }
+
+                  break;
+
+                case "rollPrivate":
+
+                  if (target.GetObjectVariable<PersistentVariableInt>("_ROLL_PRIVATE").HasValue)
+                  {
+                    target.GetObjectVariable<PersistentVariableInt>("_ROLL_PRIVATE").Delete();
+                  }
+                  else
+                  {
+                    target.GetObjectVariable<PersistentVariableInt>("_ROLL_PRIVATE").Value = 1;
                   }
 
                   break;

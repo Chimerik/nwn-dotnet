@@ -18,7 +18,7 @@ namespace NWN.Systems
     {
       int spellDC = SpellUtils.GetCasterSpellDC(caster, DCAbility);
 
-      if (CreatureUtils.GetSavingThrow(caster, target, SaveAbility, spellDC) == SavingThrowResult.Failure)
+      if (CreatureUtils.GetSavingThrowResult(target, SaveAbility, caster, spellDC) == SavingThrowResult.Failure)
       {
         Effect eff = Effect.LinkEffects(Effect.VisualEffect(VfxType.DurMindAffectingNegative),
           Effect.RunAction(onRemovedHandle: onRemoveDuelForceCallback));

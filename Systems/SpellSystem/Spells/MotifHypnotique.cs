@@ -19,7 +19,7 @@ namespace NWN.Systems
 
       foreach (NwCreature target in targetLocation.GetObjectsInShapeByType<NwCreature>(Shape.Cube, spellEntry.aoESize, true))
       {
-        if(CreatureUtils.GetSavingThrow(oCaster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
+        if(CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, oCaster, spellDC, spellEntry) == SavingThrowResult.Failure)
         {
           EffectSystem.ApplyCharme(target, caster, spell, duration, false, CustomSpell.MotifHypnotique);
           concentration.Add(target);

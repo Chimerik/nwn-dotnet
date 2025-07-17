@@ -17,6 +17,16 @@ namespace NWN.Systems
         private readonly NuiBind<bool> walk = new("walk");
         private readonly NuiBind<bool> instantLearn = new("instantLearn");
         private readonly NuiBind<string> instantLearnLabel = new("instantLearnLabel");
+        private readonly NuiBind<bool> rollDM = new("rollDM");
+        private readonly NuiBind<int> selectedRollDistance = new("selectedRollDistance");
+        private readonly List<NuiComboEntry> rollDistanceEntries = new()
+        {
+          new ("Toute la zone", 100),
+          new ("Distance de voix forte (40m)", 40),
+          new ("Distance de voix basse (15m)", 15),
+          new ("Distance de chuchotement (5m)", 5),
+          new ("Privé (0m)", 0)
+        };
 
         private void LoadConfigLayout()
         {
@@ -30,7 +40,7 @@ namespace NWN.Systems
               new NuiCheck("", false) { Id = "sacrificeHP", Height = windowHeight / 24, Width = windowHeight / 24 },
               new NuiSpacer()
             } });
-
+          
           if (player.oid.LoginCreature.KnowsFeat((Feat)CustomSkill.ChatimentDivin))
             rootChildren.Add(new NuiRow() { Margin = 0.0f, Children = new List<NuiElement>()
             {
@@ -146,6 +156,30 @@ namespace NWN.Systems
             new NuiCheck("", false) { Id = "publicKey", Height = windowHeight / 24, Width = windowHeight / 24 },
             new NuiSpacer()
           } });
+
+          rootChildren.Add(new NuiRow() { Margin = 0.0f, Children = new List<NuiElement>()
+          {
+            new NuiSpacer(),
+            new NuiLabel("Diffuser mes jets de dés aux MJ") { Height = windowHeight / 24, Width = windowWidth / 1.25f, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+            new NuiCheck("", false) { Id = "rollDM", Height = windowHeight / 24, Width = windowHeight / 24 },
+            new NuiSpacer()
+          } });
+
+          rootChildren.Add(new NuiRow() { Margin = 0.0f, Children = new List<NuiElement>()
+          {
+            new NuiSpacer(),
+            new NuiLabel("Distance de diffusion des jets de dés") { Height = windowHeight / 24, Width = windowWidth / 1.25f, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+            new NuiCombo() { Entries = rollDistanceEntries, Selected = selectedRollDistance, Height = windowHeight / 24, Width = windowHeight / 18 },
+            new NuiSpacer()
+          } });
+
+          rootChildren.Add(new NuiRow() { Margin = 0.0f, Children = new List<NuiElement>()
+            {
+              new NuiSpacer(),
+              new NuiLabel("Jets de dés personnalisés") { Height = windowHeight / 24, Width = windowWidth / 1.25f, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+              new NuiCheck("", false) { Id = "customDiceRolls", Height = windowHeight / 24, Width = windowHeight / 24 },
+              new NuiSpacer()
+            } });
 
           rootChildren.Add(new NuiRow() { Margin = 0.0f, Children = new List<NuiElement>()
           {

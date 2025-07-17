@@ -21,7 +21,7 @@ namespace NWN.Systems
       {
         int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, Ability.Wisdom);
         SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, 1, caster, 2,
-          CreatureUtils.GetSavingThrow(oCaster, target, spellEntry.savingThrowAbility, spellDC, spellEntry));
+          CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, oCaster, spellDC, spellEntry));
       }
 
       caster.IncrementRemainingFeatUses((Feat)CustomSkill.ClercEtincelleDivine);

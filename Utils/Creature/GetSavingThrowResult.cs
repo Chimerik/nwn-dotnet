@@ -5,9 +5,9 @@ namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static SavingThrowResult GetSavingThrow(NwGameObject attacker, NwCreature target, Ability ability, int saveDC, SpellEntry spellEntry = null, SpellConfig.SpellEffectType effectType = SpellConfig.SpellEffectType.Invalid)
+    public static SavingThrowResult GetSavingThrowResult(NwCreature target, Ability ability, NwGameObject attacker = null, int saveDC = -1, SpellEntry spellEntry = null, SpellConfig.SpellEffectType effectType = SpellConfig.SpellEffectType.Invalid)
     {
-      if (spellEntry is not null && attacker is NwCreature caster)
+      if (spellEntry is not null && attacker is not null && attacker is NwCreature caster)
       {
         var spellSchool = NwSpell.FromSpellId(spellEntry.RowIndex).SpellSchool;
 
@@ -29,16 +29,17 @@ namespace NWN.Systems
           return SavingThrowResult.Immune;
       }
 
-      SpellConfig.SavingThrowFeedback feedback = new();
-      int advantage = GetCreatureAbilityAdvantage(target, ability, spellEntry, effectType, attacker);
-      
-      if (advantage < -900)
+      int advantage = GetCreatureSavingThrowAdvantage(target, ability, spellEntry, effectType, attacker);
+
+      if (saveDC > 0 && advantage < -900)
         return SavingThrowResult.Immune;
+
+      SpellConfig.SavingThrowFeedback feedback = new();
 
       int totalSave = SpellUtils.GetSavingThrowRoll(target, ability, saveDC, advantage, feedback, spellEntry);
       SavingThrowResult saveResult = (SavingThrowResult)(totalSave >= saveDC).ToInt();
-
-      if(saveResult == SavingThrowResult.Failure && target.ActiveEffects.Any(e => e.Tag == EffectSystem.InflexibleEffectTag))
+      ModuleSystem.Log.Info(saveResult);
+      if (saveResult == SavingThrowResult.Failure && target.ActiveEffects.Any(e => e.Tag == EffectSystem.InflexibleEffectTag))
       {
         StringUtils.DisplayStringToAllPlayersNearTarget(target, "Inflexible", StringUtils.gold, true, true);
         int fighterLevel = FighterUtils.GetFighterLevel(target);
@@ -50,7 +51,13 @@ namespace NWN.Systems
         EffectUtils.RemoveTaggedEffect(target, EffectSystem.InflexibleEffectTag);
       }
 
-      SpellUtils.SendSavingThrowFeedbackMessage(attacker, target, feedback, advantage, saveDC, totalSave, saveResult, ability, effectType);
+      if(saveDC > 0)
+        SpellUtils.SendSavingThrowFeedbackMessage(attacker, target, feedback, advantage, saveDC, totalSave, saveResult, ability, effectType);
+      else
+      {
+        string advantageString = advantage == 0 ? "" : advantage > 0 ? " (Avantage)".ColorString(StringUtils.gold) : " (Désavantage)".ColorString(ColorConstants.Red);
+        StringUtils.BroadcastRollToPlayersInRange(target, $"{target.Name.ColorString(ColorConstants.Cyan)}{advantageString} - JDS {StringUtils.TranslateAttributeToFrench(ability)} - {StringUtils.ToWhitecolor(feedback.saveRoll)} + {StringUtils.ToWhitecolor(feedback.proficiencyBonus)} = {StringUtils.ToWhitecolor(feedback.saveRoll + feedback.proficiencyBonus)}", ColorConstants.Orange);
+      }
 
       switch (ability)
       {

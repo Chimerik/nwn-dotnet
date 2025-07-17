@@ -18,7 +18,7 @@ namespace NWN.Systems
       {
         int tirDC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(onDamage.Attacker) + onDamage.Attacker.GetAbilityModifier(Ability.Intelligence);
         
-        if (GetSavingThrow(onDamage.Attacker, target, Ability.Wisdom, tirDC) == SavingThrowResult.Failure)
+        if (GetSavingThrowResult(target, Ability.Wisdom, onDamage.Attacker, tirDC) == SavingThrowResult.Failure)
           NWScript.AssignCommand(onDamage.Attacker, () => target.ApplyEffect(EffectDuration.Temporary,
             Effect.Blindness(), NwTimeSpan.FromRounds(1)));
       }

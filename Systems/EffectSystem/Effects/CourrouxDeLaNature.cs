@@ -37,7 +37,7 @@ namespace NWN.Systems
       Ability saveAbility = target.GetAbilityModifier(Ability.Strength) > target.GetAbilityModifier(Ability.Dexterity) ? Ability.Strength : Ability.Dexterity;
       SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.AnciensCourrouxDeLaNature];
 
-      if(CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC) != SavingThrowResult.Failure)
+      if(CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, caster, spellDC) != SavingThrowResult.Failure)
         target.RemoveEffect(eventData.Effect);
 
       return ScriptHandleResult.Handled;

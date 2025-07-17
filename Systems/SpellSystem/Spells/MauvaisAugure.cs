@@ -15,7 +15,7 @@ namespace NWN.Systems
       {
         if (target is NwCreature targetCreature)
         {
-          SavingThrowResult saveResult = CreatureUtils.GetSavingThrow(oCaster, targetCreature, spellEntry.savingThrowAbility, spellDC);
+          SavingThrowResult saveResult = CreatureUtils.GetSavingThrowResult(targetCreature, spellEntry.savingThrowAbility, oCaster, spellDC);
 
           if (saveResult == SavingThrowResult.Failure)
           {

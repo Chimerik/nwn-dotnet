@@ -12,7 +12,7 @@ namespace NWN.Systems
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
       int spellDC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(caster.Master) + caster.GetAbilityModifier(Ability.Wisdom);
 
-      if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC) == SavingThrowResult.Failure)
+      if (CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, caster, spellDC) == SavingThrowResult.Failure)
       {
         target.ApplyEffect(EffectDuration.Temporary, EffectSystem.SpiderCocoon, NwTimeSpan.FromRounds(2));
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPulseNegative));

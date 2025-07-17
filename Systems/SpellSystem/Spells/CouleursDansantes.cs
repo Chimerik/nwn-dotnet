@@ -15,7 +15,7 @@ namespace NWN.Systems
         if (target == oCaster)
           continue;
 
-        if(CreatureUtils.GetSavingThrow(oCaster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
+        if(CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, oCaster, spellDC, spellEntry) == SavingThrowResult.Failure)
         {
           target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpBlindDeafM));
           target.ApplyEffect(EffectDuration.Temporary, eff, SpellUtils.GetSpellDuration(oCaster, spellEntry));

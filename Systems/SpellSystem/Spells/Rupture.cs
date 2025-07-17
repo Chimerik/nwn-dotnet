@@ -17,7 +17,7 @@ namespace NWN.Systems
         if(oCaster == target) continue;
 
         SpellUtils.DealSpellDamage(target, 0, spellEntry, spellEntry.numDice, oCaster, 2,
-          CreatureUtils.GetSavingThrow(oCaster, target, spellEntry.savingThrowAbility, spellDC, spellEntry));
+          CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, oCaster, spellDC, spellEntry));
       }
     }
   }

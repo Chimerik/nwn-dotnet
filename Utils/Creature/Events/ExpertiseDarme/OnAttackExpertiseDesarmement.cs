@@ -28,7 +28,7 @@ namespace NWN.Systems
             {
               int spellDC = SpellUtils.GetCasterSpellDC(onAttack.Attacker, NativeUtils.GetAttackAbility(onAttack.Attacker, onAttack.IsRangedAttack, weapon));
 
-              if (GetSavingThrow(onAttack.Attacker, target, Ability.Strength, spellDC) == SavingThrowResult.Failure)
+              if (GetSavingThrowResult(target, Ability.Strength, onAttack.Attacker, spellDC) == SavingThrowResult.Failure)
               {
                 NwItem disarmedWeapon = target.GetItemInSlot(InventorySlot.RightHand);
 

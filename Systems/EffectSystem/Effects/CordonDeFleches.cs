@@ -26,7 +26,7 @@ namespace NWN.Systems
       SpellEntry spellEntry = Spells2da.spellTable[spell.Id];
 
       int spellDC = SpellUtils.GetCasterSpellDC(protector, spell, (Ability)eventData.Effect.GetObjectVariable<LocalVariableInt>("_DC_ABILITY").Value);
-      var saveResult = CreatureUtils.GetSavingThrow(protector, entering, spellEntry.savingThrowAbility, spellDC, spellEntry);
+      var saveResult = CreatureUtils.GetSavingThrowResult(entering, spellEntry.savingThrowAbility, protector, spellDC, spellEntry);
       eventData.Effect.GetObjectVariable<LocalVariableInt>("_MUNITIONS").Value -= 1;
 
       if (saveResult == SavingThrowResult.Failure)

@@ -22,7 +22,7 @@ namespace NWN.Systems
           if (target == oCaster || !caster.IsReactionTypeHostile(target))
             continue;
 
-          if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry, SpellConfig.SpellEffectType.Sleep) == SavingThrowResult.Failure)
+          if (CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, caster, spellDC, spellEntry, SpellConfig.SpellEffectType.Sleep) == SavingThrowResult.Failure)
           {
             target.ApplyEffect(EffectDuration.Temporary, Effect.Knockdown(), NwTimeSpan.FromRounds(1));
             targets.Add(target);

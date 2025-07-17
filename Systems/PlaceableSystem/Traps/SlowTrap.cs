@@ -11,7 +11,7 @@ namespace NWN.Systems
       foreach (NwCreature creature in trap.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, entry.aoeSize, false))
       {
         SpellConfig.SavingThrowFeedback feedback = new();
-        int advantage = CreatureUtils.GetCreatureAbilityAdvantage(creature, Ability.Dexterity, null, SpellConfig.SpellEffectType.Trap, trap);
+        int advantage = CreatureUtils.GetCreatureSavingThrowAdvantage(creature, Ability.Dexterity, null, SpellConfig.SpellEffectType.Trap, trap);
 
         if (advantage < 900)
         {

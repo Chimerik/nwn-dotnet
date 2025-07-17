@@ -28,7 +28,7 @@ namespace NWN.Systems
             {
               int spellDC = SpellUtils.GetCasterSpellDC(onAttack.Attacker, NativeUtils.GetAttackAbility(onAttack.Attacker, onAttack.IsRangedAttack, weapon));
 
-              if (GetSavingThrow(onAttack.Attacker, target, Ability.Dexterity, spellDC) == SavingThrowResult.Failure)
+              if (GetSavingThrowResult(target, Ability.Dexterity, onAttack.Attacker, spellDC) == SavingThrowResult.Failure)
               {
                 EffectSystem.ApplyKnockdown(target, onAttack.Attacker, Ability.Dexterity, Ability.Dexterity, EffectSystem.Destabilisation, true);
               }

@@ -39,7 +39,7 @@ namespace NWN.Systems
 
       EffectUtils.RemoveTaggedEffect(target, ExcretionCorrosiveEffectTag);
 
-      if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
+      if (CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, caster, spellDC, spellEntry) == SavingThrowResult.Failure)
       {
         NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, Effect.Damage(NwRandom.Roll(Utils.random, 10), DamageType.Acid)));
         NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, ExcretionCorrosive(ACMalus), NwTimeSpan.FromRounds(spellEntry.duration)));

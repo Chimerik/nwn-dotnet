@@ -17,7 +17,7 @@ namespace NWN.Systems
         case AttackResult.CriticalHit:
         case AttackResult.AutomaticHit:
 
-          if (CreatureUtils.GetSavingThrow(onAttack.Attacker, target, Ability.Constitution, 13) == SavingThrowResult.Failure)
+          if (CreatureUtils.GetSavingThrowResult(target, Ability.Constitution, onAttack.Attacker, 13) == SavingThrowResult.Failure)
           {
             target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpStun));
             NWScript.AssignCommand(onAttack.Attacker, () => target.ApplyEffect(EffectDuration.Temporary, Effect.LinkEffects(Effect.Stunned(), Effect.VisualEffect(VfxType.DurMindAffectingDisabled)), NwTimeSpan.FromRounds(2)));

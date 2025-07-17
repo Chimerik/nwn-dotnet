@@ -35,9 +35,9 @@ namespace NWN.Systems
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
           {
             new NuiSpacer(),
-            new NuiButtonImage("ir_examine") { Id = "applyDescription", Tooltip = "Applique la description au personnage actuellement contrôlé.", Height = windowWidth / 12, Width = windowWidth / 12 },
+            new NuiButtonImage("ir_examine") { Id = "applyDescription", Tooltip = "Appliquer la description au personnage actuel.", Height = windowWidth / 12, Width = windowWidth / 12 },
             new NuiSpacer(),
-            new NuiButtonImage("ir_empytqs") { Id = "saveDescription", Height = windowWidth / 12, Width = windowWidth / 12 },
+            new NuiButtonImage("ir_empytqs") { Id = "saveDescription", Tooltip = "Enregistrer cette description", Height = windowWidth / 12, Width = windowWidth / 12 },
             new NuiSpacer(),
           } });
 

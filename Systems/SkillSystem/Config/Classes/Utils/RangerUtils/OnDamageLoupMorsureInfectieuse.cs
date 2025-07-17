@@ -15,7 +15,7 @@ namespace NWN.Systems
 
       int spellDC = SpellUtils.GetCasterSpellDC(damager.Master, Ability.Wisdom);
       
-      if(CreatureUtils.GetSavingThrow(damager.Master, target, Ability.Constitution, spellDC) == SavingThrowResult.Failure)
+      if(CreatureUtils.GetSavingThrowResult(target, Ability.Constitution, damager.Master, spellDC) == SavingThrowResult.Failure)
         NWScript.AssignCommand(damager, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.MorsureInfectieuse, NwTimeSpan.FromRounds(3)));
     }
   }

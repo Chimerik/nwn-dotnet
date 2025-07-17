@@ -47,7 +47,7 @@ namespace NWN.Systems
 
             foreach (NwCreature spellTarget in target.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, spellEntry.aoESize, false))
             {
-              SavingThrowResult result = CreatureUtils.GetSavingThrow(onAttack.Attacker, target, spellEntry.savingThrowAbility, spellDC);
+              SavingThrowResult result = CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, onAttack.Attacker, spellDC);
               
               if(result == SavingThrowResult.Failure)
               {

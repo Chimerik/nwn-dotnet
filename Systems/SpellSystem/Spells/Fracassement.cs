@@ -33,7 +33,7 @@ namespace NWN.Systems
         if (evocateur && oCaster is NwCreature casterCreature && !casterCreature.IsReactionTypeHostile(target))
           continue;
 
-        SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, damageDice, oCaster, 2, CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC), casterClass: casterClass);
+        SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, damageDice, oCaster, 2, CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, caster, spellDC), casterClass: casterClass);
 
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadNature));
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfScreenBump));

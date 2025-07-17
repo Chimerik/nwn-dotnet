@@ -26,7 +26,7 @@ namespace NWN.Systems
         return ScriptHandleResult.Handled;
 
       
-      if (CreatureUtils.GetSavingThrow(caster, target, Ability.Strength, 8 + NativeUtils.GetCreatureProficiencyBonus(caster.Master) + caster.GetAbilityModifier(Ability.Wisdom))
+      if (CreatureUtils.GetSavingThrowResult(target, Ability.Strength, caster, 8 + NativeUtils.GetCreatureProficiencyBonus(caster.Master) + caster.GetAbilityModifier(Ability.Wisdom))
          != SavingThrowResult.Failure)
       {
         target.RemoveEffect(eventData.Effect);

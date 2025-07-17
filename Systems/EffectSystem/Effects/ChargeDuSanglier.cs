@@ -38,7 +38,7 @@ namespace NWN.Systems
       NwCreature master = protector.Master is null ? protector : protector.Master;
 
       int DC = 8 + protector.GetAbilityModifier(Ability.Strength) + NativeUtils.GetCreatureProficiencyBonus(master);
-      int targetRoll = entering.GetAbilityModifier(Ability.Strength) + Utils.RollAdvantage(CreatureUtils.GetCreatureAbilityAdvantage(entering, Ability.Strength, effectType: SpellEffectType.Knockdown, caster: protector));
+      int targetRoll = entering.GetAbilityModifier(Ability.Strength) + Utils.RollAdvantage(CreatureUtils.GetCreatureSavingThrowAdvantage(entering, Ability.Strength, effectType: SpellEffectType.Knockdown, caster: protector));
 
       if (PlayerSystem.Players.TryGetValue(entering, out PlayerSystem.Player player) &&
         player.learnableSkills.TryGetValue(CustomSkill.StrengthSavesProficiency, out LearnableSkill strSave) && strSave.currentLevel > 0)

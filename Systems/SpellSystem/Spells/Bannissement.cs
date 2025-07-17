@@ -15,7 +15,7 @@ namespace NWN.Systems
       foreach (var target in targets)
       {
         if (target is NwCreature targetCreature
-          && CreatureUtils.GetSavingThrow(oCaster, targetCreature, spellEntry.savingThrowAbility, spellDC, spellEntry, effectType: SpellConfig.SpellEffectType.Paralysis) == SavingThrowResult.Failure)
+          && CreatureUtils.GetSavingThrowResult(targetCreature, spellEntry.savingThrowAbility, oCaster, spellDC, spellEntry, effectType: SpellConfig.SpellEffectType.Paralysis) == SavingThrowResult.Failure)
         {
           NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetBannissementEffect(targetCreature), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
         }

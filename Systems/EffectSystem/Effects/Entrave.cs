@@ -55,7 +55,7 @@ namespace NWN.Systems
 
         int spellDC = SpellUtils.GetCasterSpellDC(caster, (Ability)eventData.Effect.CasterLevel);
 
-        if (CreatureUtils.GetSavingThrow(caster, target, Ability.Strength, spellDC) != SavingThrowResult.Failure)
+        if (CreatureUtils.GetSavingThrowResult(target, Ability.Strength, caster, spellDC) != SavingThrowResult.Failure)
           target.RemoveEffect(eventData.Effect);
       }
       else if (eventData.EffectTarget is NwGameObject oTarget)

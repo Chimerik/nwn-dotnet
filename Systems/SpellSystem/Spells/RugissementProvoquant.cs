@@ -13,7 +13,7 @@ namespace NWN.Systems
 
       foreach (var target in oCaster.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, spellEntry.aoESize, false))
       {
-        if (CreatureUtils.GetSavingThrow(oCaster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
+        if (CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, oCaster, spellDC, spellEntry) == SavingThrowResult.Failure)
           EffectSystem.ApplyProvocation(oCaster, target, NwTimeSpan.FromRounds(spellEntry.duration));
       }
     }

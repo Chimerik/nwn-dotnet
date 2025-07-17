@@ -4,7 +4,7 @@ namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static int GetSkillRoll(NwCreature creature, int skill, int advantage, int score, int DC)
+    public static int GetSkillRoll(NwCreature creature, int skill, int advantage, int score, int DC = -1)
     {
       int roll = NativeUtils.HandlePresage(creature);
 
@@ -12,7 +12,7 @@ namespace NWN.Systems
         return roll;
 
       roll = Utils.RollAdvantage(advantage);
-      roll = RogueUtils.HandleSavoirFaire(creature, skill, roll);
+      roll = skill > -1 ? RogueUtils.HandleSavoirFaire(creature, skill, roll) : roll;
 
       if(DC > 0 && roll + score < DC)
       {

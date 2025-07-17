@@ -55,7 +55,7 @@ namespace NWN.Systems
       {
         int spellDC = SpellUtils.GetCasterSpellDC(caster, Ability.Charisma);
 
-        if (CreatureUtils.GetSavingThrow(caster, target, Ability.Constitution, spellDC) != SavingThrowResult.Failure)
+        if (CreatureUtils.GetSavingThrowResult(target, Ability.Constitution, caster, spellDC) != SavingThrowResult.Failure)
           target.RemoveEffect(eventData.Effect);
       }
       else if (eventData.EffectTarget is NwGameObject oTarget)

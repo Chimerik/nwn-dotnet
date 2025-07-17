@@ -21,7 +21,7 @@ namespace NWN.Systems
         if (EffectSystem.IsFrightImmune(target, caster))
           continue;
 
-        if (CreatureUtils.GetSavingThrow(oCaster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
+        if (CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, oCaster, spellDC, spellEntry) == SavingThrowResult.Failure)
         {
           NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetTerreurEffect(caster, target, spell, casterClass.SpellCastingAbility), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
           targetList.Add(target);

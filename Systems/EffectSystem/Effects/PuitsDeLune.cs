@@ -104,7 +104,7 @@ namespace NWN.Systems
           var spellEntry = Spells2da.spellTable.GetRow(CustomSpell.PuitsDeLune);
           int DC = SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellId(CustomSpell.PuitsDeLune), (Ability)eff.CasterLevel);
 
-          if (CreatureUtils.GetSavingThrow(caster, damager, spellEntry.savingThrowAbility, DC, spellEntry) == SavingThrowResult.Failure)
+          if (CreatureUtils.GetSavingThrowResult(damager, spellEntry.savingThrowAbility, caster, DC, spellEntry) == SavingThrowResult.Failure)
           {
             NWScript.AssignCommand(caster, () => damager.ApplyEffect(EffectDuration.Temporary, Effect.Blindness(), NwTimeSpan.FromRounds(1)));
             damager.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpBlindDeafM));

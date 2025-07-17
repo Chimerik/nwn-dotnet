@@ -15,7 +15,7 @@ namespace NWN.Systems
       SpellUtils.SignalEventSpellCast(target, oCaster, spell.SpellType);
 
       int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, casterClass.SpellCastingAbility);
-      var result = CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC);
+      var result = CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, caster, spellDC);
 
       SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, damageDice, oCaster, 1, result, casterClass: casterClass);
 

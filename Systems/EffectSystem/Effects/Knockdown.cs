@@ -56,7 +56,7 @@ namespace NWN.Systems
 
       int spellDC = SpellUtils.GetCasterSpellDC(attacker, DCAbility);
 
-      if (saveFailed || CreatureUtils.GetSavingThrow(attacker, target, SaveAbility, spellDC, effectType: SpellConfig.SpellEffectType.Knockdown) == SavingThrowResult.Failure)
+      if (saveFailed || CreatureUtils.GetSavingThrowResult(target, SaveAbility, attacker, spellDC, effectType: SpellConfig.SpellEffectType.Knockdown) == SavingThrowResult.Failure)
       {
         target.ApplyEffect(EffectDuration.Temporary, type,
         target.KnowsFeat((Feat)CustomSkill.Sportif) ? NwTimeSpan.FromRounds(1) : NwTimeSpan.FromRounds(2));
@@ -68,7 +68,7 @@ namespace NWN.Systems
       if (IsKnockdownImmune(target, attacker))
         return;
 
-      if (CreatureUtils.HandleSkillCheck(target, skillCheck, saveAbility, saveDC))
+      if (CreatureUtils.RollAbility(target, saveAbility, saveDC, skillCheck))
       {
         target.ApplyEffect(EffectDuration.Temporary, Knockdown,
         target.KnowsFeat((Feat)CustomSkill.Sportif) ? NwTimeSpan.FromRounds(1) : NwTimeSpan.FromRounds(2));

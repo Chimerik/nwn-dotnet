@@ -72,7 +72,7 @@ namespace NWN.Systems
 
       int tirDC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(caster) + caster.GetAbilityModifier(Ability.Intelligence);
 
-      if (GetSavingThrow(caster, target, Ability.Dexterity, tirDC) != SavingThrowResult.Failure)
+      if (GetSavingThrowResult(target, Ability.Dexterity, caster, tirDC) != SavingThrowResult.Failure)
       {
         damage /= 2;
         forceDamage /= 2;

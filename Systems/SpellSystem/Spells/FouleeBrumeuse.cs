@@ -46,7 +46,7 @@ namespace NWN.Systems
               if (caster.DistanceSquared(target) > 15)
                 break;
 
-              if(CreatureUtils.GetSavingThrow(oCaster, target, Ability.Wisdom, spellDC, spellEntry) == SavingThrowResult.Failure)
+              if(CreatureUtils.GetSavingThrowResult(target, Ability.Wisdom, oCaster, spellDC, spellEntry) == SavingThrowResult.Failure)
                 EffectSystem.ApplyProvocation(caster, target, NwTimeSpan.FromRounds(1));
             }
 
@@ -67,7 +67,7 @@ namespace NWN.Systems
               if (caster == target || !caster.IsReactionTypeHostile(target))
                 continue;
 
-              if (CreatureUtils.GetSavingThrow(oCaster, target, Ability.Wisdom, dc, spellEntry) == SavingThrowResult.Failure)
+              if (CreatureUtils.GetSavingThrowResult(target, Ability.Wisdom, oCaster, dc, spellEntry) == SavingThrowResult.Failure)
               {
                 NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Instant, Effect.Damage(NwRandom.Roll(Utils.random, 10, 2), CustomDamageType.Psychic)));
                 NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpDazedS)));
@@ -79,7 +79,7 @@ namespace NWN.Systems
               if (caster == target || !caster.IsReactionTypeHostile(target))
                 continue;
 
-              if (CreatureUtils.GetSavingThrow(oCaster, target, Ability.Wisdom, dc, spellEntry) == SavingThrowResult.Failure)
+              if (CreatureUtils.GetSavingThrowResult(target, Ability.Wisdom, oCaster, dc, spellEntry) == SavingThrowResult.Failure)
               {
                 NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Instant, Effect.Damage(NwRandom.Roll(Utils.random, 10, 2), CustomDamageType.Psychic)));
                 NWScript.AssignCommand(oCaster, () => target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpDazedS)));

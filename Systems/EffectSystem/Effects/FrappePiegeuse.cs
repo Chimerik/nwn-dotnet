@@ -48,7 +48,7 @@ namespace NWN.Systems
       int spellDC = SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellId(CustomSpell.FrappePiegeuse), Ability.Wisdom);
       SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.FrappePiegeuse];
 
-      if(CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
+      if(CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, caster, spellDC, spellEntry) == SavingThrowResult.Failure)
         NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, 
           Effect.Damage(NwRandom.Roll(Utils.random, spellEntry.damageDice, spellEntry.numDice), DamageType.Piercing)));
       else

@@ -18,7 +18,7 @@ namespace NWN.Systems
         if(targetObject is NwCreature target 
           && !target.IsInCombat 
           && !caster.Faction.GetMembers().Contains(target)
-          && CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, DC, spellEntry) == SavingThrowResult.Failure)
+          && CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, caster, DC, spellEntry) == SavingThrowResult.Failure)
         {
           target.ApplyEffect(EffectDuration.Temporary, EffectSystem.Fascination, SpellUtils.GetSpellDuration(oCaster, spellEntry));
         }

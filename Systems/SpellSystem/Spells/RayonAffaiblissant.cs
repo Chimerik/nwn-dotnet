@@ -23,7 +23,7 @@ namespace NWN.Systems
         if (target is not NwCreature targetCreature)
           continue;
 
-        if(CreatureUtils.GetSavingThrow(oCaster, targetCreature, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
+        if(CreatureUtils.GetSavingThrowResult(targetCreature, spellEntry.savingThrowAbility, oCaster, spellDC, spellEntry) == SavingThrowResult.Failure)
         {
           target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpReduceAbilityScore));
           target.ApplyEffect(EffectDuration.Temporary, EffectSystem.RayonAffaiblissant(spell, casterClass.SpellCastingAbility), SpellUtils.GetSpellDuration(oCaster, spellEntry));

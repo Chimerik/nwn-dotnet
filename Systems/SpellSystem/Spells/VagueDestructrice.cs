@@ -17,7 +17,7 @@ namespace NWN.Systems
         if (oCaster is NwCreature casterCreature && !casterCreature.IsReactionTypeHostile(target))
           continue;
 
-        SavingThrowResult saveResult = CreatureUtils.GetSavingThrow(oCaster, target, spellEntry.savingThrowAbility, spellDC, spellEntry);
+        SavingThrowResult saveResult = CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, oCaster, spellDC, spellEntry);
 
         if (saveResult == SavingThrowResult.Failure)
           target.ApplyEffect(EffectDuration.Temporary, Effect.Knockdown(), NwTimeSpan.FromRounds(1));

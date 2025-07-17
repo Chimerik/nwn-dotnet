@@ -61,7 +61,7 @@ namespace NWN.Systems
 
       if (eventData.EffectTarget is NwCreature target && eventData.Effect.Creator is NwCreature caster)
       {
-        if (CreatureUtils.GetSavingThrow(caster, target, Ability.Wisdom, eventData.Effect.CasterLevel, effectType: SpellConfig.SpellEffectType.Fear) != SavingThrowResult.Failure)
+        if (CreatureUtils.GetSavingThrowResult(target, Ability.Wisdom, caster, eventData.Effect.CasterLevel, effectType: SpellConfig.SpellEffectType.Fear) != SavingThrowResult.Failure)
           target.RemoveEffect(eventData.Effect);
       }
       else if (eventData.EffectTarget is NwGameObject oTarget)

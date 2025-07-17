@@ -19,7 +19,7 @@ namespace NWN.Systems
       foreach (NwCreature target in oCaster.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, spellEntry.aoESize, false))
       {
         if(caster.IsReactionTypeHostile(target)
-          && CreatureUtils.GetSavingThrow(oCaster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
+          && CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, oCaster, spellDC, spellEntry) == SavingThrowResult.Failure)
         {
           EffectSystem.ApplyEffroi(target, caster, NwTimeSpan.FromRounds(1), spellDC);
         }

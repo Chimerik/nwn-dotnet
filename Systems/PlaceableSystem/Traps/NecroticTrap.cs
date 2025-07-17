@@ -8,7 +8,7 @@ namespace NWN.Systems
     public static void NecroticTrap(NwCreature creature, NwGameObject trap, TrapEntry entry)
     {
       SpellConfig.SavingThrowFeedback feedback = new();
-      int advantage = CreatureUtils.GetCreatureAbilityAdvantage(creature, Ability.Constitution) + creature.KnowsFeat(Feat.KeenSense).ToInt();
+      int advantage = CreatureUtils.GetCreatureSavingThrowAdvantage(creature, Ability.Constitution) + creature.KnowsFeat(Feat.KeenSense).ToInt();
       int totalSave = SpellUtils.GetSavingThrowRoll(creature, Ability.Constitution, entry.baseDC, advantage, feedback);
       int damage = NwRandom.Roll(Utils.random, entry.damageDice, entry.numDice); // TODO : Variabiliser les dégâts selon la compétence de l'artisan
       SavingThrowResult saveResult = (SavingThrowResult)(totalSave >+ entry.baseDC).ToInt(); // TODO : Variabiliser le DD selon la compétence de celui qui a posé le piège

@@ -21,7 +21,7 @@ namespace NWN.Systems
 
           if (target.ActiveEffects.Any(e => e.Tag == EffectSystem.MarqueDuChasseurTag && e.Creator == onAttack.Attacker))
           {
-            if(CreatureUtils.GetSavingThrow(onAttack.Attacker, target, Ability.Constitution, SpellUtils.GetCasterSpellDC(onAttack.Attacker, Ability.Wisdom)) == SavingThrowResult.Failure)
+            if(CreatureUtils.GetSavingThrowResult(target, Ability.Constitution, onAttack.Attacker, SpellUtils.GetCasterSpellDC(onAttack.Attacker, Ability.Wisdom)) == SavingThrowResult.Failure)
             {
               target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpBlindDeafM));
               NWScript.AssignCommand(onAttack.Attacker, () => target.ApplyEffect(EffectDuration.Temporary, Effect.LinkEffects(Effect.Silence(), Effect.Blindness(), Effect.VisualEffect(VfxType.DurMindAffectingDisabled)), NwTimeSpan.FromRounds(1)));

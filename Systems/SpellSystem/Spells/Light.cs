@@ -30,7 +30,7 @@ namespace NWN.Systems
         foreach (var target in targets)
           if (target is NwCreature targetC && targetC.IsReactionTypeHostile(caster))
           {
-            if (CreatureUtils.GetSavingThrow(oCaster, targetC, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
+            if (CreatureUtils.GetSavingThrowResult(targetC, spellEntry.savingThrowAbility, oCaster, spellDC, spellEntry) == SavingThrowResult.Failure)
               ApplyLightEffect(oCaster, targetC, spellEntry);
           }
           else

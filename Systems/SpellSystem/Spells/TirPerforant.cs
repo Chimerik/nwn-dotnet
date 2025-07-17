@@ -33,7 +33,7 @@ namespace NWN.Systems
         int weaponDamage = NativeUtils.HandleWeaponDamageRerolls(caster, weapon, weapon.NumDamageDice, weapon.DieToRoll);
         int bonusDamage = NwRandom.Roll(Utils.random, 6, nbDice);
         int damage = weaponDamage + bonusDamage + dexDamage;
-        SavingThrowResult saveResult = CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry);
+        SavingThrowResult saveResult = CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, caster, spellDC, spellEntry);
 
         damage = ItemUtils.GetShieldMasterReducedDamage(target, damage, saveResult, spellEntry.savingThrowAbility);
         damage /= saveResult == SavingThrowResult.Failure ? 2 : 1;

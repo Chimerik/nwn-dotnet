@@ -46,7 +46,7 @@ namespace NWN.Systems
           SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.RayonAffaiblissant];
           int spellDC = SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellId(CustomSpell.RayonAffaiblissant), (Ability)eventData.Effect.CasterLevel);
 
-          if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry, SpellConfig.SpellEffectType.Paralysis) != SavingThrowResult.Failure)
+          if (CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, caster, spellDC, spellEntry, SpellConfig.SpellEffectType.Paralysis) != SavingThrowResult.Failure)
           {
             target.RemoveEffect(eff);
             target.ApplyEffect(EffectDuration.Temporary, RayonAffaiblissantDesavantage, NwTimeSpan.FromRounds(1));

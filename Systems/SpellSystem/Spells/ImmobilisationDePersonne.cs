@@ -22,7 +22,7 @@ namespace NWN.Systems
       {
         if (target is NwCreature targetCreature 
           && (CreatureUtils.IsHumanoid(targetCreature))
-          && CreatureUtils.GetSavingThrow(caster, targetCreature, spellEntry.savingThrowAbility, DC, spellEntry) == SavingThrowResult.Failure)
+          && CreatureUtils.GetSavingThrowResult(targetCreature, spellEntry.savingThrowAbility, caster, DC, spellEntry) == SavingThrowResult.Failure)
         {
           NWScript.AssignCommand(caster, () => targetCreature.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetImmobilisationDePersonneEffect(castingClass.SpellCastingAbility, spell), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
           targetList.Add(target);

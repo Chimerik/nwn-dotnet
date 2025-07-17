@@ -17,7 +17,7 @@ namespace NWN.Systems
       {
         int tirDC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(onDamage.Attacker) + onDamage.Attacker.GetAbilityModifier(Ability.Intelligence);
 
-        if (GetSavingThrow(onDamage.Attacker, target, Ability.Charisma, tirDC) == SavingThrowResult.Failure)
+        if (GetSavingThrowResult(target, Ability.Charisma, onDamage.Attacker, tirDC) == SavingThrowResult.Failure)
         {
           target.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetBannissementEffect(target), NwTimeSpan.FromRounds(1));
           onDamage.Attacker.ClearActionQueue();

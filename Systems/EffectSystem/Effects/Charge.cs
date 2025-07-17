@@ -64,7 +64,7 @@ namespace NWN.Systems
             {
               int spellDC = SpellUtils.GetCasterSpellDC(onAttack.Attacker, NativeUtils.GetAttackAbility(onAttack.Attacker, onAttack.IsRangedAttack, weapon));
 
-              if (CreatureUtils.GetSavingThrow(onAttack.Attacker, target, Ability.Strength, spellDC) == SavingThrowResult.Failure)
+              if (CreatureUtils.GetSavingThrowResult(target, Ability.Strength, onAttack.Attacker, spellDC) == SavingThrowResult.Failure)
               {
                 NWScript.AssignCommand(onAttack.Attacker, () => target.ApplyEffect(EffectDuration.Temporary, ChargeDebuff, NwTimeSpan.FromRounds(2)));
               }

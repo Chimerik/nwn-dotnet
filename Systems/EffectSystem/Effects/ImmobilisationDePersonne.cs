@@ -35,7 +35,7 @@ namespace NWN.Systems
       SpellEntry spellEntry = Spells2da.spellTable[(int)Spell.HoldPerson];
       int spellDC = SpellUtils.GetCasterSpellDC(caster, Spell.HoldPerson, (Ability)eff.CasterLevel);
 
-      if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry, SpellConfig.SpellEffectType.Paralysis) != SavingThrowResult.Failure)
+      if (CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, caster, spellDC, spellEntry, SpellConfig.SpellEffectType.Paralysis) != SavingThrowResult.Failure)
         target.RemoveEffect(eff);
 
       return ScriptHandleResult.Handled;

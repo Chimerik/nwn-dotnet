@@ -14,7 +14,7 @@ namespace NWN.Systems
 
       SpellUtils.SignalEventSpellCast(oTarget, oCaster, spell.SpellType);
 
-      SavingThrowResult saveResult = CreatureUtils.GetSavingThrow(oCaster, target, spellEntry.savingThrowAbility, spellDC, spellEntry);
+      SavingThrowResult saveResult = CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, oCaster, spellDC, spellEntry);
 
       if (tourPuissant || saveResult == SavingThrowResult.Failure)
         SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(oCaster, spell),

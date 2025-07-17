@@ -81,7 +81,7 @@ namespace NWN.Systems
               return;
             }
 
-            if (CreatureUtils.GetSavingThrow(damager, damaged, Ability.Constitution, SpellUtils.GetCasterSpellDC(damager, Ability.Dexterity)) == SavingThrowResult.Failure)
+            if (CreatureUtils.GetSavingThrowResult(damaged, Ability.Constitution, damager, SpellUtils.GetCasterSpellDC(damager, Ability.Dexterity)) == SavingThrowResult.Failure)
               damaged.ApplyEffect(EffectDuration.Temporary, Effect.Slow(), NwTimeSpan.FromRounds(1));
 
             sneakDies -= 2;
@@ -96,7 +96,7 @@ namespace NWN.Systems
               return;
             }
 
-            if (CreatureUtils.GetSavingThrow(damager, damaged, Ability.Dexterity, SpellUtils.GetCasterSpellDC(damager, Ability.Dexterity)) == SavingThrowResult.Failure)
+            if (CreatureUtils.GetSavingThrowResult(damaged, Ability.Dexterity, damager, SpellUtils.GetCasterSpellDC(damager, Ability.Dexterity)) == SavingThrowResult.Failure)
               damaged.ApplyEffect(EffectDuration.Temporary, Effect.Blindness(), NwTimeSpan.FromRounds(1));
 
             sneakDies -= 3;

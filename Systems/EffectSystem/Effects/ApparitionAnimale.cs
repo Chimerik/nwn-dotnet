@@ -61,7 +61,7 @@ namespace NWN.Systems
       {
         var spellEntry = Spells2da.spellTable[CustomSpell.ApparitionAnimale];
 
-        if (CreatureUtils.GetSavingThrow(summon.Master, entering, Ability.Dexterity, eventData.Effect.CasterLevel, spellEntry) == SavingThrowResult.Failure)
+        if (CreatureUtils.GetSavingThrowResult(entering, Ability.Dexterity, summon.Master, eventData.Effect.CasterLevel, spellEntry) == SavingThrowResult.Failure)
         {
           SpellUtils.DealSpellDamage(entering, 3, spellEntry, SpellUtils.GetSpellDamageDiceNumber(summon.Master, NwSpell.FromSpellId(CustomSpell.ApparitionAnimale)), summon.Master, 3,
             SavingThrowResult.Failure);
@@ -90,7 +90,7 @@ namespace NWN.Systems
           {
             var spellEntry = Spells2da.spellTable[CustomSpell.ApparitionAnimale];
 
-            if (CreatureUtils.GetSavingThrow(summon.Master, target, Ability.Dexterity, eventData.Effect.CasterLevel, spellEntry) == SavingThrowResult.Failure)
+            if (CreatureUtils.GetSavingThrowResult(target, Ability.Dexterity, summon.Master, eventData.Effect.CasterLevel, spellEntry) == SavingThrowResult.Failure)
             {
               SpellUtils.DealSpellDamage(target, 3, spellEntry, SpellUtils.GetSpellDamageDiceNumber(summon.Master, NwSpell.FromSpellId(CustomSpell.ApparitionAnimale)), summon.Master, 3,
                 SavingThrowResult.Failure);

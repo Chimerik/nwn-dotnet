@@ -23,7 +23,7 @@ namespace NWN.Systems
           EffectUtils.RemoveTaggedEffect(onAttack.Attacker, EffectSystem.TraverseeInfernaleBuffEffectTag);
           int spellDC = SpellUtils.GetCasterSpellDC(caster, Ability.Charisma);
 
-          if (CreatureUtils.GetSavingThrow(caster, targetCreature, Ability.Charisma, spellDC) == SavingThrowResult.Failure)
+          if (CreatureUtils.GetSavingThrowResult(targetCreature, Ability.Charisma, caster, spellDC) == SavingThrowResult.Failure)
             ApplyTraverseeInfernale(caster, targetCreature);
 
           await NwTask.NextFrame();

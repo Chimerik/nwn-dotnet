@@ -16,7 +16,7 @@ namespace NWN.Systems
 
       foreach(var target in caster.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, spellEntry.aoESize, false))
 
-      if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC) == SavingThrowResult.Failure)
+      if (CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, caster, spellDC) == SavingThrowResult.Failure)
       {
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpFearS));
         EffectSystem.ApplyEffroi(target, caster, NwTimeSpan.FromRounds(spellEntry.duration), spellDC, true);

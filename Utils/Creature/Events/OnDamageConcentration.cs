@@ -20,7 +20,7 @@ namespace NWN.Systems
       int totalDamage = onDamage.DamageAmount / 2;
       int concentrationDC = 10 > totalDamage ? 10 : totalDamage;
      
-      if (GetSavingThrow(damager, onDamage.Creature, Ability.Constitution, concentrationDC, effectType:SpellConfig.SpellEffectType.Concentration) == SavingThrowResult.Failure)
+      if (GetSavingThrowResult(onDamage.Creature, Ability.Constitution, damager, concentrationDC, effectType:SpellConfig.SpellEffectType.Concentration) == SavingThrowResult.Failure)
       {
         SpellUtils.DispelConcentrationEffects(onDamage.Creature);
       }

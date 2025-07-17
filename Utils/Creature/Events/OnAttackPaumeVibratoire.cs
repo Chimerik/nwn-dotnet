@@ -23,7 +23,7 @@ namespace NWN.Systems
 
               StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, $"{onAttack.Attacker.Name.ColorString(ColorConstants.Cyan)} - Paume Vibratoire", StringUtils.gold, true, true);
 
-              if (GetSavingThrow(onAttack.Target, target, Ability.Constitution, DC) == SavingThrowResult.Failure)
+              if (GetSavingThrowResult(target, Ability.Constitution, onAttack.Target, DC) == SavingThrowResult.Failure)
                 NWScript.AssignCommand(onAttack.Attacker, () => target.ApplyEffect(EffectDuration.Instant, Effect.Death(true, true)));
               else
                 NWScript.AssignCommand(onAttack.Attacker, () => target.ApplyEffect(EffectDuration.Instant

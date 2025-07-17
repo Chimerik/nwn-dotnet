@@ -51,7 +51,7 @@ namespace NWN.Systems
               break;
 
             protectionNoStack.Add(EffectSystem.WildMagicBienfaitEffectTag);
-            int bienfait = NwRandom.Roll(Utils.random, 4);
+            int bienfait = Utils.Roll(4);
             proficiencyBonus += bienfait;
             LogUtils.LogMessage($"Magie Sauvage - Bienfait : JDS +{bienfait}", LogUtils.LogType.Combat);
 
@@ -75,8 +75,8 @@ namespace NWN.Systems
 
             protectionNoStack.Add(EffectSystem.BenedictionEffectTag);
 
-            int beneBonus = NwRandom.Roll(Utils.random, 4);
-            proficiencyBonus -= beneBonus;
+            int beneBonus = Utils.Roll(4);
+            proficiencyBonus += beneBonus;
             LogUtils.LogMessage($"Bénédiction : JDS +{beneBonus}", LogUtils.LogType.Combat);
 
             break;
@@ -88,7 +88,7 @@ namespace NWN.Systems
 
             protectionNoStack.Add(EffectSystem.FleauEffectTag);
 
-            int fleauMalus = NwRandom.Roll(Utils.random, 4);
+            int fleauMalus = Utils.Roll(4);
             proficiencyBonus -= fleauMalus;
             LogUtils.LogMessage($"Fléau : JDS -{fleauMalus}", LogUtils.LogType.Combat);
 
@@ -112,9 +112,9 @@ namespace NWN.Systems
               break;
 
             protectionNoStack.Add(EffectSystem.FractureMentaleEffectTag);
-            int factureRoll = Utils.Roll(4);
-            proficiencyBonus -= factureRoll;
-            LogUtils.LogMessage($"Fracture Mentale : JDS -{factureRoll}", LogUtils.LogType.Combat);
+            int fractureRoll = Utils.Roll(4);
+            proficiencyBonus -= fractureRoll;
+            LogUtils.LogMessage($"Fracture Mentale : JDS -{fractureRoll}", LogUtils.LogType.Combat);
 
             break;
 
@@ -164,7 +164,7 @@ namespace NWN.Systems
         LogUtils.LogMessage($"Survivant III : JDS contre la mort +{wisMod}", LogUtils.LogType.Combat);
       }
 
-      int saveRoll = NativeUtils.HandlePresage(target); // Si présage, alors on remplace totalement le jet de la cible
+      int saveRoll = saveDC > 0 ? NativeUtils.HandlePresage(target) : 0; // Si présage, alors on remplace totalement le jet de la cible
 
       if (saveRoll < 1)
       {
@@ -197,7 +197,7 @@ namespace NWN.Systems
           StringUtils.DisplayStringToAllPlayersNearTarget(target, $"Inspiration Bardique (+{StringUtils.ToWhitecolor(inspirationBonus)})".ColorString(StringUtils.gold), StringUtils.gold, true, true);
           target.RemoveEffect(inspirationEffect);
         }
-        else if(inspirationBonus < 0 && saveRoll + proficiencyBonus >= saveDC && saveRoll + proficiencyBonus + inspirationBonus < saveDC)
+        else if(saveDC > 0 && inspirationBonus < 0 && saveRoll + proficiencyBonus >= saveDC && saveRoll + proficiencyBonus + inspirationBonus < saveDC)
         {
           proficiencyBonus += inspirationBonus;
 

@@ -32,7 +32,7 @@ namespace NWN.Systems
         if (target == caster || (evocateur && !caster.IsReactionTypeHostile(target)))
           continue;
 
-        SavingThrowResult saveResult = CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC);
+        SavingThrowResult saveResult = CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, caster, spellDC);
         SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, damageDice, oCaster, 1, saveResult);
 
         if (saveResult == SavingThrowResult.Failure)

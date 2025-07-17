@@ -22,7 +22,7 @@ namespace NWN.Systems
           LogUtils.LogMessage($"--- {onAttack.Attacker.Name} désarmement contre {target.Name} ---", LogUtils.LogType.Combat);
           StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Désarmement", ColorConstants.Red, true, true);
 
-          if (GetSavingThrow(onAttack.Attacker, target, Ability.Strength, DC) == SavingThrowResult.Failure)
+          if (GetSavingThrowResult(target, Ability.Strength, onAttack.Attacker, DC) == SavingThrowResult.Failure)
           {
             NwItem weapon = target.GetItemInSlot(InventorySlot.RightHand);
 

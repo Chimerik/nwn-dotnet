@@ -18,7 +18,7 @@ namespace NWN.Systems
       foreach (var targetObject in targets)
       {
         if (targetObject is not NwCreature target || target.Race.RacialType != RacialType.Animal || EffectSystem.IsCharmeImmune(caster, target)
-          || CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, DC, spellEntry) != SavingThrowResult.Failure)
+          || CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, caster, DC, spellEntry) != SavingThrowResult.Failure)
           continue;
 
         EffectSystem.ApplyCharme(target, caster, spell, SpellUtils.GetSpellDuration(oCaster, spellEntry));

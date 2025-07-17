@@ -17,7 +17,7 @@ namespace NWN.Systems
         if (target == caster)
           continue;
 
-        if(CreatureUtils.GetSavingThrow(caster, target, Ability.Constitution, spellDC) == SavingThrowResult.Failure) 
+        if(CreatureUtils.GetSavingThrowResult(target, Ability.Constitution, caster, spellDC) == SavingThrowResult.Failure) 
           NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(VfxType.ImpNegativeEnergy),
             Effect.Damage(NwRandom.Roll(Utils.random, 12), CustomDamageType.Necrotic))));
       }

@@ -23,7 +23,7 @@ namespace NWN.Systems
         { 
           target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpAcidS));
           SpellUtils.DealSpellDamage(target, caster.GetClassInfo(ClassType.Druid).Level, spellEntry, nbDices, caster, 2,
-            CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry));           
+            CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, caster, spellDC, spellEntry));           
         }
         else
         {

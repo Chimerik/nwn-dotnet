@@ -21,7 +21,7 @@ namespace NWN.Systems
       {
         if(target.Race.RacialType == RacialType.Undead 
           && caster.IsReactionTypeHostile(target)
-          && CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, DC) == SavingThrowResult.Failure)
+          && CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, caster, DC) == SavingThrowResult.Failure)
         {
           if (clericLevel > 4)
             NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Instant, Effect.Damage(NwRandom.Roll(Utils.random, 8, wisMod),

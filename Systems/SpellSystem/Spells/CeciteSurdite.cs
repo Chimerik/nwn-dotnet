@@ -18,7 +18,7 @@ namespace NWN.Systems
       foreach (var targetObject in targets)
       {
         if (targetObject is NwCreature target
-          && CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, DC, spellEntry) == SavingThrowResult.Failure)
+          && CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, caster, DC, spellEntry) == SavingThrowResult.Failure)
         {
           target.ApplyEffect(EffectDuration.Temporary, EffectSystem.CeciteSurdite, SpellUtils.GetSpellDuration(oCaster, spellEntry));
         }

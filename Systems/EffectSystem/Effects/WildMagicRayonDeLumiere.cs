@@ -36,7 +36,7 @@ namespace NWN.Systems
 
         int spellDC = SpellConfig.BaseSpellDC + source.GetAbilityModifier(Ability.Constitution) + NativeUtils.GetCreatureProficiencyBonus(source);
 
-        if(CreatureUtils.GetSavingThrow(source, target, Ability.Constitution, spellDC) == SavingThrowResult.Failure)
+        if(CreatureUtils.GetSavingThrowResult(target, Ability.Constitution, source, spellDC) == SavingThrowResult.Failure)
         {
           target.ApplyEffect(EffectDuration.Instant, Effect.Damage(NwRandom.Roll(Utils.random, 6), DamageType.Positive));
           target.ApplyEffect(EffectDuration.Temporary, Effect.Blindness(), NwTimeSpan.FromRounds(1));

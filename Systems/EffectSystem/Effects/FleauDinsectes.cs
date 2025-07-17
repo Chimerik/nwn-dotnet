@@ -69,7 +69,7 @@ namespace NWN.Systems
     }
     private static void FleauDinsectesDamage(NwCreature caster, NwCreature entering, SpellEntry spellEntry, int spellDC)
     {
-      if (CreatureUtils.GetSavingThrow(caster, entering, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
+      if (CreatureUtils.GetSavingThrowResult(entering, spellEntry.savingThrowAbility, caster, spellDC, spellEntry) == SavingThrowResult.Failure)
         SpellUtils.DealSpellDamage(entering, caster.CasterLevel, spellEntry, spellEntry.numDice, caster, 5);
     }
   }

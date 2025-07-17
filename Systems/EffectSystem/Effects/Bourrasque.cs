@@ -108,7 +108,7 @@ namespace NWN.Systems
     {
       int spellDC = SpellUtils.GetCasterSpellDC(caster, DCAbility);
 
-      if (CreatureUtils.GetSavingThrow(caster, entering, Ability.Strength, spellDC) == SavingThrowResult.Failure)
+      if (CreatureUtils.GetSavingThrowResult(entering, Ability.Strength, caster, spellDC) == SavingThrowResult.Failure)
       {
         entering.ApplyEffect(EffectDuration.Temporary, Effect.MovementSpeedDecrease(25), NwTimeSpan.FromRounds(1));
         entering.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSlow));

@@ -118,7 +118,7 @@ namespace NWN.Systems
 
           rootChildren.Add(new NuiRow() { Margin = 0.0f, /*Height = windowWidth / 12, Width = windowWidth / 1.0f,*/ Children = new List<NuiElement>()
           {
-            new NuiButtonImage("isk_Athletics") { Width = windowWidth / 12, Height = windowWidth / 12 },
+            new NuiButtonImage("isk_Athletics") { Id = "rollAthletics", Width = windowWidth / 12, Height = windowWidth / 12 },
             new NuiSpacer() { Width = 25 },
             new NuiLabel("Athlétisme") { Height = windowWidth / 12, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Left },
             new NuiSpacer(),
@@ -140,7 +140,7 @@ namespace NWN.Systems
 
           rootChildren.Add(new NuiRow() { Margin = 0.0f, /*Height = windowWidth / 9, Width = windowWidth / 1.1f*/ Children = new List<NuiElement>()
           {
-            new NuiButtonImage("isk_Acrobatics") { Width = windowWidth / 12, Height = windowWidth / 12 },
+            new NuiButtonImage("isk_Acrobatics") { Id = "rollAcrobatics", Width = windowWidth / 12, Height = windowWidth / 12 },
             new NuiSpacer() { Width = 25 },
             new NuiLabel("Acrobatie") { Height = windowWidth / 12, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Left },
             new NuiSpacer(),
@@ -151,7 +151,7 @@ namespace NWN.Systems
 
           rootChildren.Add(new NuiRow() { Margin = 0.0f, /*Height = windowWidth / 9, Width = windowWidth / 1.1f*/ Children = new List<NuiElement>()
           {
-            new NuiButtonImage("isk_Sleight") { Width = windowWidth / 12, Height = windowWidth / 12 },
+            new NuiButtonImage("isk_Sleight") { Id = "rollEscamotage", Width = windowWidth / 12, Height = windowWidth / 12 },
             new NuiSpacer() { Width = 25 },
             new NuiLabel("Escamotage") { Height = windowWidth / 12, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Left },
             new NuiSpacer(),
@@ -162,7 +162,7 @@ namespace NWN.Systems
 
           rootChildren.Add(new NuiRow() { Margin = 0.0f, /*Height = windowWidth / 9, Width = windowWidth / 1.1f*/ Children = new List<NuiElement>()
           {
-            new NuiButtonImage("isk_Stealth") { Width = windowWidth / 12, Height = windowWidth / 12 },
+            new NuiButtonImage("isk_Stealth") { Id = "rollFurtivite", Width = windowWidth / 12, Height = windowWidth / 12 },
             new NuiSpacer() { Width = 25 },
             new NuiLabel("Furtivité") { Height = windowWidth / 12,VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Left },
             new NuiSpacer(),
@@ -184,7 +184,7 @@ namespace NWN.Systems
 
           rootChildren.Add(new NuiRow() { Margin = 0.0f, /*Height = windowWidth / 9, Width = windowWidth / 1.1f*/ Children = new List<NuiElement>()
           {
-            new NuiButtonImage("isk_Arcana") { Width = windowWidth / 12, Height = windowWidth / 12 },
+            new NuiButtonImage("isk_Arcana") { Id = "rollArcana", Width = windowWidth / 12, Height = windowWidth / 12 },
             new NuiSpacer() { Width = 25 },
             new NuiLabel("Arcane") { Height = windowWidth / 12, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Left },
             new NuiSpacer(),
@@ -195,7 +195,7 @@ namespace NWN.Systems
 
           rootChildren.Add(new NuiRow() { Margin = 0.0f, /*Height = windowWidth / 9, Width = windowWidth / 1.1f*/ Children = new List<NuiElement>()
           {
-            new NuiButtonImage("isk_History") { Width = windowWidth / 12, Height = windowWidth / 12 },
+            new NuiButtonImage("isk_History") { Id = "rollHistory", Width = windowWidth / 12, Height = windowWidth / 12 },
             new NuiSpacer() { Width = 25 },
             new NuiLabel("Histoire") { Height = windowWidth / 12, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Left },
             new NuiSpacer(),
@@ -206,7 +206,7 @@ namespace NWN.Systems
 
           rootChildren.Add(new NuiRow() { Margin = 0.0f, /*Height = windowWidth / 9, Width = windowWidth / 1.1f*/ Children = new List<NuiElement>()
           {
-            new NuiButtonImage("isk_Investigation") { Width = windowWidth / 12, Height = windowWidth / 12 },
+            new NuiButtonImage("isk_Investigation") { Id = "rollInvestigation", Width = windowWidth / 12, Height = windowWidth / 12 },
             new NuiSpacer() { Width = 25 },
             new NuiLabel("Investigation") { Height = windowWidth / 12, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Left },
             new NuiSpacer(),
@@ -217,7 +217,7 @@ namespace NWN.Systems
 
           rootChildren.Add(new NuiRow() { Margin = 0.0f, /*Height = windowWidth / 9, Width = windowWidth / 1.1f*/ Children = new List<NuiElement>()
           {
-            new NuiButtonImage("isk_Nature") { Width = windowWidth / 12, Height = windowWidth / 12 },
+            new NuiButtonImage("isk_Nature") { Id = "rollNature", Width = windowWidth / 12, Height = windowWidth / 12 },
             new NuiSpacer() { Width = 25 },
             new NuiLabel("Nature") { Height = windowWidth / 12, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Left },
             new NuiSpacer(),
@@ -228,7 +228,7 @@ namespace NWN.Systems
 
           rootChildren.Add(new NuiRow() { Margin = 0.0f, /*Height = windowWidth / 9, Width = windowWidth / 1.1f*/ Children = new List<NuiElement>()
           {
-            new NuiButtonImage("isk_Religion") { Width = windowWidth / 12, Height = windowWidth / 12 },
+            new NuiButtonImage("isk_Religion") { Id = "rollReligion", Width = windowWidth / 12, Height = windowWidth / 12 },
             new NuiSpacer() { Width = 25 },
             new NuiLabel("Religion") { Height = windowWidth / 12, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Left },
             new NuiSpacer(),
@@ -250,7 +250,7 @@ namespace NWN.Systems
 
           rootChildren.Add(new NuiRow() { Margin = 0.0f, /*Height = windowWidth / 9, Width = windowWidth / 1.1f*/ Children = new List<NuiElement>()
           {
-            new NuiButtonImage("isk_Animal") { Width = windowWidth / 12, Height = windowWidth / 12 },
+            new NuiButtonImage("isk_Animal") { Id = "rollDressage", Width = windowWidth / 12, Height = windowWidth / 12 },
             new NuiSpacer() { Width = 25 },
             new NuiLabel("Dressage") { Height = windowWidth / 12, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Left },
             new NuiSpacer(),
@@ -261,7 +261,7 @@ namespace NWN.Systems
 
           rootChildren.Add(new NuiRow() { Margin = 0.0f, /*Height = windowWidth / 9, Width = windowWidth / 1.1f*/ Children = new List<NuiElement>()
           {
-            new NuiButtonImage("isk_Insight") { Width = windowWidth / 12, Height = windowWidth / 12 },
+            new NuiButtonImage("isk_Insight") { Id = "rollIntuition", Width = windowWidth / 12, Height = windowWidth / 12 },
             new NuiSpacer() { Width = 25 },
             new NuiLabel("Intuition") { Height = windowWidth / 12, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Left },
             new NuiSpacer(),
@@ -272,7 +272,7 @@ namespace NWN.Systems
 
           rootChildren.Add(new NuiRow() { Margin = 0.0f, /*Height = windowWidth / 9, Width = windowWidth / 1.1f*/ Children = new List<NuiElement>()
           {
-            new NuiButtonImage("isk_Medicine") { Width = windowWidth / 12, Height = windowWidth / 12 },
+            new NuiButtonImage("isk_Medicine") { Id = "rollMedicine", Width = windowWidth / 12, Height = windowWidth / 12 },
             new NuiSpacer() { Width = 25 },
             new NuiLabel("Médecine") { Height = windowWidth / 12, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Left },
             new NuiSpacer(),
@@ -283,7 +283,7 @@ namespace NWN.Systems
 
           rootChildren.Add(new NuiRow() { Margin = 0.0f, /*Height = windowWidth / 9, Width = windowWidth / 1.1f*/ Children = new List<NuiElement>()
           {
-            new NuiButtonImage("isk_Perception") { Width = windowWidth / 12, Height = windowWidth / 12 },
+            new NuiButtonImage("isk_Perception") { Id = "rollPerception", Width = windowWidth / 12, Height = windowWidth / 12 },
             new NuiSpacer() { Width = 25 },
             new NuiLabel("Perception") { Height = windowWidth / 12, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Left },
             new NuiSpacer(),
@@ -294,7 +294,7 @@ namespace NWN.Systems
 
           rootChildren.Add(new NuiRow() { Margin = 0.0f, /*Height = windowWidth / 9, Width = windowWidth / 1.1f*/ Children = new List<NuiElement>()
           {
-            new NuiButtonImage("isk_Survival") { Width = windowWidth / 12, Height = windowWidth / 12 },
+            new NuiButtonImage("isk_Survival") { Id = "rollSurvie", Width = windowWidth / 12, Height = windowWidth / 12 },
             new NuiSpacer() { Width = 25 },
             new NuiLabel("Survie") { Height = windowWidth / 12, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Left },
             new NuiSpacer(),
@@ -316,7 +316,7 @@ namespace NWN.Systems
 
           rootChildren.Add(new NuiRow() { Margin = 0.0f, /*Height = windowWidth / 9, Width = windowWidth / 1.1f*/ Children = new List<NuiElement>()
           {
-            new NuiButtonImage("isk_Deception") { Width = windowWidth / 12, Height = windowWidth / 12 },
+            new NuiButtonImage("isk_Deception") { Id = "rollTromperie", Width = windowWidth / 12, Height = windowWidth / 12 },
             new NuiSpacer() { Width = 25 },
             new NuiLabel("Tromperie") { Height = windowWidth / 12, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Left },
             new NuiSpacer(),
@@ -327,7 +327,7 @@ namespace NWN.Systems
           
           rootChildren.Add(new NuiRow() { Margin = 0.0f, /*Height = windowWidth / 9, Width = windowWidth / 1.1f*/ Children = new List<NuiElement>()
           {
-            new NuiButtonImage("isk_Intimidation") { Width = windowWidth / 12, Height = windowWidth / 12 },
+            new NuiButtonImage("isk_Intimidation") { Id = "rollIntimidation", Width = windowWidth / 12, Height = windowWidth / 12 },
             new NuiSpacer() { Width = 25 },
             new NuiLabel("Intimidation") { Height = windowWidth / 12, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Left },
             new NuiSpacer(),
@@ -338,7 +338,7 @@ namespace NWN.Systems
 
           rootChildren.Add(new NuiRow() { Margin = 0.0f, /*Height = windowWidth / 9, Width = windowWidth / 1.1f*/ Children = new List<NuiElement>()
           {
-            new NuiButtonImage("isk_Performance") { Width = windowWidth / 12, Height = windowWidth / 12 },
+            new NuiButtonImage("isk_Performance") { Id = "rollPerformance", Width = windowWidth / 12, Height = windowWidth / 12 },
             new NuiSpacer() { Width = 25 },
             new NuiLabel("Performance") { Height = windowWidth / 12, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Left },
             new NuiSpacer(),
@@ -349,7 +349,7 @@ namespace NWN.Systems
 
           rootChildren.Add(new NuiRow() { Margin = 0.0f, /*Height = windowWidth / 9, Width = windowWidth / 1.1f*/ Children = new List<NuiElement>()
           {
-            new NuiButtonImage("isk_Persuasion") { Width = windowWidth / 12, Height = windowWidth / 12 },
+            new NuiButtonImage("isk_Persuasion") { Id = "rollPersuasion", Width = windowWidth / 12, Height = windowWidth / 12 },
             new NuiSpacer() { Width = 25 },
             new NuiLabel("Persuasion") { Height = windowWidth / 12, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Left },
             new NuiSpacer(),

@@ -175,6 +175,30 @@ namespace NWN.Systems
         }
       }
     }
+
+    public static void BroadcastRollToPlayersInRange(NwCreature target, string message, Color color)
+    {
+      foreach (NwPlayer player in NwModule.Instance.Players)
+      {
+        if(player.IsDM && target.GetObjectVariable<PersistentVariableInt>("_DICE_ROLL_DM").HasValue)
+        {
+          player.DisplayFloatingTextStringOnCreature(target, message.ColorString(color));
+          player.SendServerMessage(message, color);
+          continue;
+        }
+
+        int broadcastRange = target.GetObjectVariable<PersistentVariableInt>("_DICE_ROLL_DISTANCE").HasValue ?
+          target.GetObjectVariable<PersistentVariableInt>("_DICE_ROLL_DISTANCE").Value : 35;
+        broadcastRange *= broadcastRange;
+
+        if (player?.ControlledCreature?.Area == target?.Area && player?.ControlledCreature.DistanceSquared(target) < broadcastRange)
+        {
+          player.DisplayFloatingTextStringOnCreature(target, message.ColorString(color));
+          player.SendServerMessage(message, color);
+        }
+      }
+    }
+
     public static void ForceBroadcastSpellCasting(NwCreature caster, NwSpell spell, NwCreature target = null)
     {
       foreach (NwPlayer player in NwModule.Instance.Players)

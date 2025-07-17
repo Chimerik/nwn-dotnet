@@ -22,7 +22,7 @@ namespace NWN.Systems
       {
         if(target is NwCreature targetCreature && targetCreature.Race.RacialType == RacialType.Animal && targetCreature.Master is null
           && !EffectSystem.IsCharmeImmune(caster, targetCreature) 
-          && CreatureUtils.GetSavingThrow(caster, targetCreature, spellEntry.savingThrowAbility, DC) == SavingThrowResult.Failure)
+          && CreatureUtils.GetSavingThrowResult(targetCreature, spellEntry.savingThrowAbility, caster, DC) == SavingThrowResult.Failure)
         {
           NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, Effect.Dominated(), SpellUtils.GetSpellDuration(oCaster, spellEntry)));
           targetList.Add(target);

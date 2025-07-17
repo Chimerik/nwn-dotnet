@@ -25,7 +25,7 @@ namespace NWN.Systems
       int spellDC = SpellUtils.GetCasterSpellDC(caster, spell, castingClass.SpellCastingAbility);
       caster.GetObjectVariable<LocalVariableString>(CreatureUtils.RegardHypnotiqueTargetListVariable).Value += $"{caster}_";
 
-      if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, effectType: SpellConfig.SpellEffectType.Charm) == SavingThrowResult.Failure)
+      if (CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, caster, spellDC, effectType: SpellConfig.SpellEffectType.Charm) == SavingThrowResult.Failure)
       {
         NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Permanent, EffectSystem.RegardHypnotique));
 

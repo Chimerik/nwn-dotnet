@@ -9,7 +9,7 @@ namespace NWN.Systems
     public static void AcidTrap(NwCreature creature, NwGameObject trap, TrapEntry entry)
     {
       SpellConfig.SavingThrowFeedback feedback = new();
-      int advantage = CreatureUtils.GetCreatureAbilityAdvantage(creature, Ability.Dexterity, null, SpellConfig.SpellEffectType.Trap, trap);
+      int advantage = CreatureUtils.GetCreatureSavingThrowAdvantage(creature, Ability.Dexterity, null, SpellConfig.SpellEffectType.Trap, trap);
 
       if (advantage < 900)
       {

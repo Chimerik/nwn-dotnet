@@ -28,7 +28,7 @@ namespace NWN.Systems
       {
         int spellDC = SpellUtils.GetCasterSpellDC(caster, DCAbility);
 
-        if (CreatureUtils.GetSavingThrow(caster, target, SaveAbility, spellDC, effectType: SpellConfig.SpellEffectType.Sleep) == SavingThrowResult.Failure)
+        if (CreatureUtils.GetSavingThrowResult(target, SaveAbility, caster, spellDC, effectType: SpellConfig.SpellEffectType.Sleep) == SavingThrowResult.Failure)
         {
          Effect  eff = Effect.LinkEffects(Effect.Sleep(), 
            Effect.RunAction(onRemovedHandle: onRemoveSommeilCallback, onIntervalHandle: onIntervalSommeilCallback, interval: NwTimeSpan.FromRounds(1)));
@@ -66,7 +66,7 @@ namespace NWN.Systems
       {
         int spellDC = SpellUtils.GetCasterSpellDC(caster, (Ability)eff.CasterLevel);
 
-        if (CreatureUtils.GetSavingThrow(caster, target, Ability.Constitution, spellDC, effectType: SpellConfig.SpellEffectType.Sleep) != SavingThrowResult.Failure)
+        if (CreatureUtils.GetSavingThrowResult(target, Ability.Constitution, caster, spellDC, effectType: SpellConfig.SpellEffectType.Sleep) != SavingThrowResult.Failure)
           EffectUtils.RemoveEffectType(target, EffectType.Sleep);
       }
 

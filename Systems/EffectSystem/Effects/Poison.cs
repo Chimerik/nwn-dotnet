@@ -35,7 +35,7 @@ namespace NWN.Systems
         return SavingThrowResult.Failure;
       }
       
-      SavingThrowResult result = CreatureUtils.GetSavingThrow(caster, target, SaveAbility, spellDC, effectType: SpellConfig.SpellEffectType.Poison);
+      SavingThrowResult result = CreatureUtils.GetSavingThrowResult(target, SaveAbility, caster, spellDC, effectType: SpellConfig.SpellEffectType.Poison);
 
       if (result == SavingThrowResult.Failure)
       {
@@ -63,7 +63,7 @@ namespace NWN.Systems
 
       if (eventData.EffectTarget is NwCreature target)
       {
-        if (CreatureUtils.GetSavingThrow(eff.Creator is NwGameObject creator ? creator : null, target, Ability.Constitution, eff.CasterLevel, effectType: SpellConfig.SpellEffectType.Poison) != SavingThrowResult.Failure)
+        if (CreatureUtils.GetSavingThrowResult(target, Ability.Constitution, eff.Creator is NwGameObject creator ? creator : null, eff.CasterLevel, effectType: SpellConfig.SpellEffectType.Poison) != SavingThrowResult.Failure)
           target.RemoveEffect(eventData.Effect);
       }
 

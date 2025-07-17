@@ -21,7 +21,7 @@ namespace NWN.Systems
         creature.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(entry.damageVFX));
 
         SpellConfig.SavingThrowFeedback feedback = new();
-        int advantage = CreatureUtils.GetCreatureAbilityAdvantage(creature, Ability.Dexterity, null, SpellConfig.SpellEffectType.Trap, trap);
+        int advantage = CreatureUtils.GetCreatureSavingThrowAdvantage(creature, Ability.Dexterity, null, SpellConfig.SpellEffectType.Trap, trap);
 
         if (advantage < 900)
         {

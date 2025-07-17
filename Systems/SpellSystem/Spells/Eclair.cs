@@ -25,7 +25,7 @@ namespace NWN.Systems
           if(target == cylinderTarget)
           {
             SpellUtils.DealSpellDamage(target, oCaster.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(oCaster, spell), oCaster, spell.GetSpellLevelForClass(casterClass),
-              CreatureUtils.GetSavingThrow(oCaster, target, spellEntry.savingThrowAbility, spellDC, spellEntry));
+              CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, oCaster, spellDC, spellEntry));
 
             target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpLightningS), TimeSpan.FromSeconds(1));
             NWScript.AssignCommand(prevTarget, () => target.ApplyEffect(EffectDuration.Temporary, Effect.Beam(VfxType.BeamLightning, prevTarget, BodyNode.Chest)));

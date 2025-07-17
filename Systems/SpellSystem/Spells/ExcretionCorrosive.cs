@@ -19,7 +19,7 @@ namespace NWN.Systems
       target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfGasExplosionAcid));
       
       if (!target.ActiveEffects.Any(e => e.Tag == EffectSystem.ExcretionCorrosiveEffectTag)
-        && CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
+        && CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, caster, spellDC, spellEntry) == SavingThrowResult.Failure)
       {
         SpellUtils.DealSpellDamage(target, 4, spellEntry, spellEntry.numDice, caster, 2);
         NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.ExcretionCorrosive(1), NwTimeSpan.FromRounds(spellEntry.duration)));

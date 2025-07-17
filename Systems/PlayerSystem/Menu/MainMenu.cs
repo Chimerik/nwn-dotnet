@@ -23,7 +23,7 @@ namespace NWN.Systems
         private readonly NuiBind<int> listCount = new("listCount");
         private readonly NuiBind<string> search = new("search");
 
-        private NwObject selectionTarget;
+        //private NwObject selectionTarget;
 
         private Dictionary<string, Utils.MainMenuCommand> myCommandList = new();
         private Dictionary<string, Utils.MainMenuCommand> currentList;

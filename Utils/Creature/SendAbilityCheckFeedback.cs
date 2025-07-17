@@ -14,7 +14,7 @@ namespace NWN.Systems
 
       StringUtils.DisplayStringToAllPlayersNearTarget(target, $"{target.Name.ColorString(ColorConstants.Cyan)} - {advantageString}{rollString} {hitString}", ColorConstants.Orange, true, true);
     }
-    public static void SendSkillCheckFeedback(NwCreature target, int saveRoll, int proficiencyBonus, int advantage, int DC, int totalSave, bool saveFailed, string skill)
+    public static void SendAbilityCheckFeedback(NwCreature target, int saveRoll, int proficiencyBonus, int advantage, int DC, int totalSave, bool saveFailed, int skill)
     {
       string advantageString = advantage == 0 ? "" : advantage > 0 ? " (Avantage)".ColorString(StringUtils.gold) : " (Désavantage)".ColorString(ColorConstants.Red);
       string hitString = saveFailed ? "ECHEC".ColorString(ColorConstants.Red) : "REUSSI".ColorString(StringUtils.brightGreen);

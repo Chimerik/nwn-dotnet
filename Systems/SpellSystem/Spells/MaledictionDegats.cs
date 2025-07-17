@@ -17,7 +17,7 @@ namespace NWN.Systems
 
         foreach (var target in targets)
           if (target is NwCreature targetCreature
-            && CreatureUtils.GetSavingThrow(oCaster, targetCreature, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
+            && CreatureUtils.GetSavingThrowResult(targetCreature, spellEntry.savingThrowAbility, oCaster, spellDC, spellEntry) == SavingThrowResult.Failure)
           {
             target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpReduceAbilityScore));
             NWScript.AssignCommand(oCaster, () => targetCreature.ApplyEffect(EffectDuration.Temporary, EffectSystem.GetMaledictionDegats(targetCreature), SpellUtils.GetSpellDuration(oCaster, spellEntry)));

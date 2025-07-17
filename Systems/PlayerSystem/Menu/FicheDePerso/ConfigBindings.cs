@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using Anvil.API;
 
 namespace NWN.Systems
@@ -18,6 +17,8 @@ namespace NWN.Systems
           instantLearn.SetBindWatch(player.oid, nuiToken.Token, false);
           walk.SetBindWatch(player.oid, nuiToken.Token, false);
           touch.SetBindWatch(player.oid, nuiToken.Token, false);
+          rollDM.SetBindWatch(player.oid, nuiToken.Token, false);
+          selectedRollDistance.SetBindWatch(player.oid, nuiToken.Token, false);
 
           if (player.oid.ControlledCreature.ActiveEffects.Any(e => e.Tag == EffectSystem.ModeToucherEffectTag))
           {
@@ -52,8 +53,28 @@ namespace NWN.Systems
             instantLearn.SetBindValue(player.oid, nuiToken.Token, false);
           }
 
+          if (player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_DICE_ROLL_DISTANCE").HasValue)
+          {
+            selectedRollDistance.SetBindValue(player.oid, nuiToken.Token, player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_DICE_ROLL_DISTANCE").Value);
+          }
+          else
+          {
+            selectedRollDistance.SetBindValue(player.oid, nuiToken.Token, 40);
+          }
+
+          if (player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_DICE_ROLL_DM").HasValue)
+          {
+            rollDM.SetBindValue(player.oid, nuiToken.Token, true);
+          }
+          else
+          {
+            rollDM.SetBindValue(player.oid, nuiToken.Token, false);
+          }
+
           touch.SetBindWatch(player.oid, nuiToken.Token, true);
           walk.SetBindWatch(player.oid, nuiToken.Token, true);
+          rollDM.SetBindWatch(player.oid, nuiToken.Token, true);
+          selectedRollDistance.SetBindWatch(player.oid, nuiToken.Token, true);
         }
       }
     }

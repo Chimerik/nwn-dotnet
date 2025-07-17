@@ -48,7 +48,7 @@ namespace NWN.Systems
       SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.GardienDeLaFoi];
       int spellDC = caster is not null ? SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellId(CustomSpell.GardienDeLaFoi), Ability.Wisdom) : 10;
       int damageDealt = SpellUtils.DealSpellDamage(entering, 0, spellEntry, SpellUtils.GetSpellDamageDiceNumber(caster, NwSpell.FromSpellId(CustomSpell.GardienDeLaFoi)), caster, 4, 
-        CreatureUtils.GetSavingThrow(caster, entering, spellEntry.savingThrowAbility, spellDC, spellEntry));
+        CreatureUtils.GetSavingThrowResult(entering, spellEntry.savingThrowAbility, caster, spellDC, spellEntry));
 
       entering.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHarm));
 
@@ -75,7 +75,7 @@ namespace NWN.Systems
       SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.GardienDeLaFoi];
       int spellDC = caster is not null ? SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellId(CustomSpell.GardienDeLaFoi), Ability.Wisdom) : 10;
       int damageDealt = SpellUtils.DealSpellDamage(exiting, 0, spellEntry, SpellUtils.GetSpellDamageDiceNumber(caster, NwSpell.FromSpellId(CustomSpell.GardienDeLaFoi)), caster, 4, 
-        CreatureUtils.GetSavingThrow(caster, exiting, spellEntry.savingThrowAbility, spellDC, spellEntry));
+        CreatureUtils.GetSavingThrowResult(exiting, spellEntry.savingThrowAbility, caster, spellDC, spellEntry));
 
       exiting.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHarm));
 

@@ -16,7 +16,7 @@ namespace NWN.Systems
       foreach(var target in caster.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 9, false))
       {
         if(caster.IsReactionTypeHostile(target) 
-          && CreatureUtils.GetSavingThrow(caster, target, Ability.Wisdom, spellDC, effectType:SpellConfig.SpellEffectType.Fear) == SavingThrowResult.Failure)
+          && CreatureUtils.GetSavingThrowResult(target, Ability.Wisdom, caster, spellDC, effectType:SpellConfig.SpellEffectType.Fear) == SavingThrowResult.Failure)
         {
           EffectSystem.ApplyEffroi(target, caster, NwTimeSpan.FromRounds(10), spellDC, true);
         }

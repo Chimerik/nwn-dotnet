@@ -1,27 +1,14 @@
 ﻿using Anvil.API;
-using static NWN.Systems.SpellConfig;
 using Ability = Anvil.API.Ability;
 
 namespace NWN.Systems
 {
   public static partial class CreatureUtils
   {
-    public static int GetCreatureAbilityAdvantage(NwCreature creature, Ability ability, SpellEntry spellEntry = null, SpellEffectType effectType = SpellEffectType.Invalid, NwGameObject caster = null)
+    public static int GetCreatureAbilityAdvantage(NwCreature creature, Ability ability, int skill = -1)
     {
-      switch(ability)
-      {
-        case Ability.Strength:
-        case Ability.Dexterity:
-
-          foreach(var eff in creature.ActiveEffects)
-            if (spellEntry is not null && SpellUtils.HandleSpellTargetIncapacitated(caster, creature, eff, spellEntry, NwSpell.FromSpellId(spellEntry.RowIndex).InnateSpellLevel))
-              return -1000;
-
-          break;
-      }
-
-      bool advantage = ComputeCreatureAbilityAdvantage(creature, ability, spellEntry, effectType, caster);
-      bool disadvantage = ComputeCreatureAbilityDisadvantage(creature, ability, spellEntry, effectType, caster);
+      bool advantage = ComputeCreatureAbilityAdvantage(creature, ability, skill);
+      bool disadvantage = ComputeCreatureAbilityDisadvantage(creature, ability, skill);
 
       if (advantage)
       {

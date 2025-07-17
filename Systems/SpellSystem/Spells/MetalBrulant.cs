@@ -50,7 +50,7 @@ namespace NWN.Systems
 
           int spellDC = SpellUtils.GetCasterSpellDC(oCaster, spell, casterClass.SpellCastingAbility);
 
-          if (droppable && CreatureUtils.GetSavingThrow(oCaster, targetCreature, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
+          if (droppable && CreatureUtils.GetSavingThrowResult(targetCreature, spellEntry.savingThrowAbility, oCaster, spellDC, spellEntry) == SavingThrowResult.Failure)
           {
             // Si le jet est raté, l'objet est déséquipé et ne peut pas être réquipé jusqu'à la fin du sort
             targetItem.GetObjectVariable<LocalVariableObject<NwGameObject>>("_METAL_BRULANT").Value = oCaster;

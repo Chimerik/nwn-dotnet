@@ -40,7 +40,7 @@ namespace NWN.Systems
         byte spellLevel = spell.InnateSpellLevel;
         int spellDC = SpellUtils.GetCasterSpellDC(caster, spell, NwClass.FromClassType(ClassType.Paladin).SpellCastingAbility);
 
-        if (CreatureUtils.GetSavingThrow(caster, onHB.Creature, spellEntry.savingThrowAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
+        if (CreatureUtils.GetSavingThrowResult(onHB.Creature, spellEntry.savingThrowAbility, caster, spellDC, spellEntry) == SavingThrowResult.Failure)
           SpellUtils.DealSpellDamage(onHB.Creature, caster.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(caster, spell), caster, spell.InnateSpellLevel);
         else
         {

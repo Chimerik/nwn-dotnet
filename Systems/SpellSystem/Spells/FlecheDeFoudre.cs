@@ -48,7 +48,7 @@ namespace NWN.Systems
       foreach (var targetCreature in target.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 3, false))
       {
         SpellUtils.DealSpellDamage(targetCreature, 3, spellEntry, 2, onAttack.Attacker, 3, 
-          CreatureUtils.GetSavingThrow(onAttack.Attacker, target, spellEntry.savingThrowAbility, spellDC, spellEntry));
+          CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, onAttack.Attacker, spellDC, spellEntry));
       }
 
       target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfElectricExplosion));

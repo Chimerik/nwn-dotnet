@@ -430,7 +430,7 @@ namespace NWN.Systems
                 LogUtils.LogMessage($"Defenses Enjoleuses - Dégâts initiaux : {baseWeaponDamage} / 2 = {reducedDamage}", LogUtils.LogType.Combat);
                 StringUtils.DisplayStringToAllPlayersNearTarget(target, "Défenses Enjôleuses", ColorConstants.Pink, true, true);
 
-                if (GetSavingThrow(target, damager, Ability.Wisdom, spellDC) == SavingThrowResult.Failure)
+                if (GetSavingThrowResult(damager, Ability.Wisdom, target, spellDC) == SavingThrowResult.Failure)
                 {
                   NWScript.AssignCommand(target, () => damager.ApplyEffect(EffectDuration.Instant, Effect.Damage(reducedDamage, CustomDamageType.Psychic)));
                 }
@@ -446,7 +446,7 @@ namespace NWN.Systems
                   if (HandleReactionUse(target))
                   {
                     int ouraganDC = SpellUtils.GetCasterSpellDC(target, Ability.Wisdom);
-                    int ouraganDamage = GetSavingThrow(target, damager, Ability.Dexterity, ouraganDC) == SavingThrowResult.Failure ? Utils.Roll(8, 2) : Utils.Roll(8, 1);
+                    int ouraganDamage = GetSavingThrowResult(damager, Ability.Dexterity, target, ouraganDC) == SavingThrowResult.Failure ? Utils.Roll(8, 2) : Utils.Roll(8, 1);
                     NWScript.AssignCommand(target, () => damager.ApplyEffect(EffectDuration.Instant, Effect.Damage(ouraganDamage, eff.Spell == NwSpell.FromSpellId(CustomSpell.FureurDelOuraganFoudre) ? DamageType.Electrical : DamageType.Sonic)));
 
                     EffectUtils.RemoveTaggedEffect(target, EffectSystem.FureurDelOuraganEffectTag);
@@ -472,7 +472,7 @@ namespace NWN.Systems
         {
           int spellDC = SpellUtils.GetCasterSpellDC(damager, Ability.Dexterity);
 
-          if (GetSavingThrow(damager, target, Ability.Constitution, spellDC) == SavingThrowResult.Failure)
+          if (GetSavingThrowResult(target, Ability.Constitution, damager, spellDC) == SavingThrowResult.Failure)
           {
             foreach (DamageType damageType in (DamageType[])Enum.GetValues(typeof(DamageType)))
             {
@@ -515,7 +515,7 @@ namespace NWN.Systems
                 int saveDC = target.GetObjectVariable<PersistentVariableInt>("_RAGE_IMPLACABLE_DD").Value;
                 target.GetObjectVariable<PersistentVariableInt>("_RAGE_IMPLACABLE_DD").Value += 5;
 
-                if (GetSavingThrow(damager, target, Ability.Constitution, saveDC) != SavingThrowResult.Failure)
+                if (GetSavingThrowResult(target, Ability.Constitution, damager, saveDC) != SavingThrowResult.Failure)
                 {
                   target.Immortal = true;
                   StringUtils.DisplayStringToAllPlayersNearTarget(target, "Rage Implacable", StringUtils.gold, true, true);

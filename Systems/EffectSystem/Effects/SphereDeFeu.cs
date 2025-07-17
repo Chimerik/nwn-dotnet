@@ -53,7 +53,7 @@ namespace NWN.Systems
     private static void HandleSphereDeFeuEffect(NwCreature caster, NwCreature target, SpellEntry spellEntry, NwSpell spell, int spellDC)
     {
       SpellUtils.DealSpellDamage(target, caster.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(caster, spell), caster, spell.InnateSpellLevel,
-      CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry));
+      CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, caster, spellDC, spellEntry));
 
       target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpFlameM));
     }

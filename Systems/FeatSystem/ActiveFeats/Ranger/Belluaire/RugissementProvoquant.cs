@@ -22,7 +22,7 @@ namespace NWN.Systems
           {
             int DC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(caster) + caster.GetAbilityModifier(Ability.Wisdom);
 
-            if (CreatureUtils.GetSavingThrow(companion, target, Ability.Wisdom, DC) == SavingThrowResult.Failure)
+            if (CreatureUtils.GetSavingThrowResult(target, Ability.Wisdom, companion, DC) == SavingThrowResult.Failure)
               EffectSystem.ApplyProvocation(caster, target, NwTimeSpan.FromRounds(2));
           }
         }

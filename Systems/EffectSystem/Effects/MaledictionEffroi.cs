@@ -34,7 +34,7 @@ namespace NWN.Systems
       SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.MaledictionEffroi];
       int spellDC = SpellUtils.GetCasterSpellDC(creator, NwSpell.FromSpellId(CustomSpell.MaledictionEffroi), (Ability)int.Parse(eventData.Effect.StringParams[0]));
 
-      if (CreatureUtils.GetSavingThrow(creator, creature, spellEntry.savingThrowAbility, spellDC, spellEntry, SpellConfig.SpellEffectType.Fear) != SavingThrowResult.Failure)
+      if (CreatureUtils.GetSavingThrowResult(creature, spellEntry.savingThrowAbility, creator, spellDC, spellEntry, SpellConfig.SpellEffectType.Fear) != SavingThrowResult.Failure)
         EffectUtils.RemoveTaggedEffect(creature, creator, MaledictionEffroiEffectTag);
 
       return ScriptHandleResult.Handled;

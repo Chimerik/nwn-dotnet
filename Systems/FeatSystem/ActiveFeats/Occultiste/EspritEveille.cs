@@ -43,7 +43,7 @@ namespace NWN.Systems
       if (caster.KnowsFeat((Feat)CustomSkill.CombattantClairvoyant))
       {
         int spellDC = SpellUtils.GetCasterSpellDC(caster, Ability.Charisma);
-        if (CreatureUtils.GetSavingThrow(caster, target, Ability.Wisdom, spellDC) == SavingThrowResult.Failure)
+        if (CreatureUtils.GetSavingThrowResult(target, Ability.Wisdom, caster, spellDC) == SavingThrowResult.Failure)
           NWScript.AssignCommand(caster, () => target.ApplyEffect(EffectDuration.Temporary, EffectSystem.EspritEveilleDisadvantage, duration));
       }
     }

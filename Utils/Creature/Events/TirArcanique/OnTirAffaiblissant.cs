@@ -16,7 +16,7 @@ namespace NWN.Systems
       {
         int tirDC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(onDamage.Attacker) + onDamage.Attacker.GetAbilityModifier(Ability.Intelligence);
 
-        if (GetSavingThrow(onDamage.Attacker, target, Ability.Constitution, tirDC) == SavingThrowResult.Failure)
+        if (GetSavingThrowResult(target, Ability.Constitution, onDamage.Attacker, tirDC) == SavingThrowResult.Failure)
         {
           target.GetObjectVariable<LocalVariableInt>(TirAffaiblissantVariable).Value = 1;
 

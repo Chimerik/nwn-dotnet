@@ -34,7 +34,7 @@ namespace NWN.Systems
       {
         SpellConfig.SavingThrowFeedback feedback = new();
         int tirDC = 8 + NativeUtils.GetCreatureProficiencyBonus(attacker) + attacker.GetAbilityModifier(Ability.Intelligence);
-        int advantage = CreatureUtils.GetCreatureAbilityAdvantage(target, Ability.Strength);
+        int advantage = CreatureUtils.GetCreatureSavingThrowAdvantage(target, Ability.Strength);
         int score = CreatureUtils.GetSkillScore(target, Ability.Strength, CustomSkill.AthleticsProficiency);
         int roll = CreatureUtils.GetSkillRoll(target, CustomSkill.AthleticsProficiency, advantage, score, tirDC);        
         int totalSave = roll + score;

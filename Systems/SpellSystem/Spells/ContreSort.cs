@@ -16,7 +16,7 @@ namespace NWN.Systems
 
       if (target.CurrentAction == Action.CastSpell)
       {
-        SavingThrowResult saveResult = CreatureUtils.GetSavingThrow(oCaster, target, spellEntry.savingThrowAbility, spellDC, spellEntry);
+        SavingThrowResult saveResult = CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, oCaster, spellDC, spellEntry);
 
         if (saveResult == SavingThrowResult.Failure)
         {

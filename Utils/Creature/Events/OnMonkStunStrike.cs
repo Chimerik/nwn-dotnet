@@ -20,7 +20,7 @@ namespace NWN.Systems
           int DC = SpellConfig.BaseSpellDC + NativeUtils.GetCreatureProficiencyBonus(onAttack.Attacker) + attackerModifier;
           StringUtils.DisplayStringToAllPlayersNearTarget(onAttack.Attacker, "Frappe étourdissante", StringUtils.gold, true, true);
 
-          if (GetSavingThrow(onAttack.Attacker, target, Ability.Constitution, DC) == SavingThrowResult.Failure)
+          if (GetSavingThrowResult(target, Ability.Constitution, onAttack.Attacker, DC) == SavingThrowResult.Failure)
             target.ApplyEffect(EffectDuration.Temporary, Effect.Stunned(), NwTimeSpan.FromRounds(1));
           else
             target.ApplyEffect(EffectDuration.Temporary, EffectSystem.FrappeEtourdissante, NwTimeSpan.FromRounds(1));

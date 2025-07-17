@@ -20,7 +20,7 @@ namespace NWN.Systems
       foreach (var target in targets)
       {
         if(target is NwCreature targetCreature &&
-          CreatureUtils.GetSavingThrow(caster, targetCreature, spellEntry.savingThrowAbility, spellDC, spellEntry) != SavingThrowResult.Failure)
+          CreatureUtils.GetSavingThrowResult(targetCreature, spellEntry.savingThrowAbility, caster, spellDC, spellEntry) != SavingThrowResult.Failure)
         {
           target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSlow));
           EffectSystem.ApplyLenteur(targetCreature, oCaster, spell, castingClass.SpellCastingAbility, SpellUtils.GetSpellDuration(oCaster, spellEntry));

@@ -37,7 +37,7 @@ namespace NWN.Systems
         Ability castingAbility = (Ability)eventData.Effect.CasterLevel;
         int spellDC = SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellType(Spell.Fear), castingAbility);
 
-        if (CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry, SpellConfig.SpellEffectType.Fear) != SavingThrowResult.Failure)
+        if (CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, caster, spellDC, spellEntry, SpellConfig.SpellEffectType.Fear) != SavingThrowResult.Failure)
           EffectUtils.RemoveTaggedEffect(target, caster, TerreurEffectTag);
       }
 

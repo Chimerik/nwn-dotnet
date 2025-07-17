@@ -38,7 +38,7 @@ namespace NWN.Systems
 
         foreach (var victims in source.Location.GetObjectsInShapeByType<NwCreature>(Shape.Sphere, 2, false))
         {
-          if (CreatureUtils.GetSavingThrow(source, victims, Ability.Dexterity, spellDC) == SavingThrowResult.Failure)
+          if (CreatureUtils.GetSavingThrowResult(victims, Ability.Dexterity, source, spellDC) == SavingThrowResult.Failure)
             victims.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(Effect.VisualEffect(VfxType.ImpMagblue), 
               Effect.Damage(NwRandom.Roll(Utils.random, 6), DamageType.Magical)));
         }

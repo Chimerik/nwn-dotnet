@@ -32,7 +32,7 @@ namespace NWN.Systems
           if (target == summon)
             continue;
 
-          if (CreatureUtils.GetSavingThrow(dcSource, target, Ability.Constitution, eventData.Effect.CasterLevel) == SavingThrowResult.Failure)
+          if (CreatureUtils.GetSavingThrowResult(target, Ability.Constitution, dcSource, eventData.Effect.CasterLevel) == SavingThrowResult.Failure)
             ApplyPoison(target, dcSource, NwTimeSpan.FromRounds(1), Ability.Constitution, noSave: true);
         }
       }

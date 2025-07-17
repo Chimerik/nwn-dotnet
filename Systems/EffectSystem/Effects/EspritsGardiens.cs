@@ -64,7 +64,7 @@ namespace NWN.Systems
         int spellDC = SpellUtils.GetCasterSpellDC(protector, spell, Ability.Wisdom);
 
         SpellUtils.DealSpellDamage(entering, protector.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(protector, spell), protector, 3, 
-          CreatureUtils.GetSavingThrow(protector, entering, spellEntry.savingThrowAbility, spellDC, spellEntry), 
+          CreatureUtils.GetSavingThrowResult(entering, spellEntry.savingThrowAbility, protector, spellDC, spellEntry), 
           forcedDamage: spell.Id == CustomSpell.EspritsGardiensNecrotique ? CustomDamageType.Necrotic : DamageType.Divine);
       }
 
@@ -100,7 +100,7 @@ namespace NWN.Systems
         target.ApplyEffect(EffectDuration.Temporary, EspritsGardiensCooldown, TimeSpan.FromSeconds(5));
 
         SpellUtils.DealSpellDamage(target, caster.CasterLevel, spellEntry, SpellUtils.GetSpellDamageDiceNumber(caster, spell), caster, 3, 
-          CreatureUtils.GetSavingThrow(caster, target, spellEntry.savingThrowAbility, spellDC, spellEntry),
+          CreatureUtils.GetSavingThrowResult(target, spellEntry.savingThrowAbility, caster, spellDC, spellEntry),
           forcedDamage: spell.Id == CustomSpell.EspritsGardiensNecrotique ? CustomDamageType.Necrotic : DamageType.Divine);
       }
 

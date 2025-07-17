@@ -28,7 +28,7 @@ namespace NWN.Systems
         SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.ToileDaraignee];
         int spellDC = SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellType(Spell.Web), castingAbility);
 
-        if (CreatureUtils.GetSavingThrow(caster, entering, castingAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
+        if (CreatureUtils.GetSavingThrowResult(entering, castingAbility, caster, spellDC, spellEntry) == SavingThrowResult.Failure)
           Entrave(entering, caster, castingAbility, eventData.Effect.RemainingDuration, true);
       }
       
@@ -54,7 +54,7 @@ namespace NWN.Systems
           SpellEntry spellEntry = Spells2da.spellTable[CustomSpell.ToileDaraignee];
           int spellDC = SpellUtils.GetCasterSpellDC(caster, NwSpell.FromSpellType(Spell.Web), castingAbility);
 
-          if (CreatureUtils.GetSavingThrow(caster, entering, castingAbility, spellDC, spellEntry) == SavingThrowResult.Failure)
+          if (CreatureUtils.GetSavingThrowResult(entering, castingAbility, caster, spellDC, spellEntry) == SavingThrowResult.Failure)
             Entrave(entering, caster, castingAbility, eventData.Effect.RemainingDuration, true);
         }
       }
