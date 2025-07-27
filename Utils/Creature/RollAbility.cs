@@ -9,10 +9,13 @@ namespace NWN.Systems
       int advantage = GetCreatureAbilityAdvantage(creature, ability, skill);
       int score = GetSkillScore(creature, ability, skill);
       int roll = GetSkillRoll(creature, skill, advantage, score, DC);
+      int totalSave = roll + score;
+
+      if (ability == Ability.Strength)
+        totalSave = BarbarianUtils.HandleBarbarianPuissanceIndomptable(creature, totalSave);
 
       if (DC > 0)
       {
-        int totalSave = roll + score;
         bool saveFailed = totalSave < DC;
 
         SendAbilityCheckFeedback(creature, roll, score, advantage, DC, totalSave, saveFailed, skill);
@@ -22,7 +25,7 @@ namespace NWN.Systems
       {
         string advantageString = advantage == 0 ? "" : advantage > 0 ? " (Avantage)".ColorString(StringUtils.gold) : " (Désavantage)".ColorString(ColorConstants.Red);
         string skillString = skill < 0 ? "" : $" ({SkillSystem.learnableDictionary[skill].name.Replace(" - Maîtrise", "")})";
-        StringUtils.BroadcastRollToPlayersInRange(creature, $"{creature.Name.ColorString(ColorConstants.Cyan)}{advantageString} - Jet de {StringUtils.TranslateAttributeToFrench(ability)}{skillString} - {StringUtils.ToWhitecolor(roll)} + {StringUtils.ToWhitecolor(score)} = {StringUtils.ToWhitecolor(roll + score)}", ColorConstants.Orange);
+        StringUtils.BroadcastRollToPlayersInRange(creature, $"{creature.Name.ColorString(ColorConstants.Cyan)}{advantageString} - Jet de {StringUtils.TranslateAttributeToFrench(ability)}{skillString} - {StringUtils.ToWhitecolor(roll)} + {StringUtils.ToWhitecolor(score)} = {StringUtils.ToWhitecolor(totalSave)}", ColorConstants.Orange);
       }
 
       return true;

@@ -69,7 +69,7 @@ namespace NWN.Systems
             new NuiSpacer(),
             new NuiImage("menu_separator_l") { ImageAspect = NuiAspect.Fit, Width = windowWidth / 8,  VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center},
             new NuiSpacer(),
-            new NuiButton("Ouvrir le journal d'apprentissage") { Id = "learnables", Width = windowWidth / 3 },
+            new NuiButton("Ouvrir le journal") { Id = "learnables", Width = windowWidth / 3 },
             new NuiSpacer(),
             new NuiImage("menu_separator_r") { ImageAspect = NuiAspect.Fit, Width = windowWidth / 8, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center },
             new NuiSpacer()

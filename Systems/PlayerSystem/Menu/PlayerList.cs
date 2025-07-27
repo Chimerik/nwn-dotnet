@@ -65,7 +65,7 @@ namespace NWN.Systems
             rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(listenIcon) { Id = "listen", Tooltip = listenTooltip, Enabled = muteEnabled, Height = 35 }) { Width = 35 });
             rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_more_sp_ab") { Id = "tp", Tooltip = "Se téléporter auprès de ce joueur", Height = 35 }) { Width = 35 });
             rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_boot") { Id = "kick", Tooltip = "Exclure ce joueur du module", Enabled = muteEnabled, Height = 35 }) { Width = 35 });
-            rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_examine") { Id = "learnables", Tooltip = "Ouvrir le journal d'apprentissage de ce joueur", Height = 35 }) { Width = 35 });
+            rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_examine") { Id = "learnables", Tooltip = "Ouvrir la fiche de personnage de ce joueur", Height = 35 }) { Width = 35 });
           }
 
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(hostileIcon) { Id = "hostile", Tooltip = hostileTooltip, Height = 35 }) { Width = 35 });
@@ -446,8 +446,8 @@ namespace NWN.Systems
                   if (!Players.TryGetValue(selectedPlayer.LoginCreature, out Player targetPlayer))
                     return;
 
-                  if (!player.windows.TryGetValue("learnables", out var learnables)) player.windows.Add("learnables", new LearnableWindow(player, targetPlayer));
-                  else ((LearnableWindow)learnables).CreateWindow(targetPlayer);
+                  if (!player.windows.TryGetValue("ficheDePerso", out var fiche)) player.windows.Add("ficheDePerso", new Player.FicheDePersoWindow(player, selectedPlayer.LoginCreature));
+                  else ((FicheDePersoWindow)fiche).CreateWindow(selectedPlayer.LoginCreature);
 
                   break;
               }

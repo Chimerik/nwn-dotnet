@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using Anvil.API;
-using static NWN.Systems.SpellConfig;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -10,6 +8,13 @@ namespace NWN.Systems
     {
       switch (ability)
       {
+        case Ability.Strength:
+
+          if(skill == CustomSkill.AthleticsProficiency && creature.KnowsFeat((Feat)CustomSkill.FighterChampionAthleteAccompli))
+            return true;
+
+          break;
+
         case Ability.Dexterity:
 
           if (skill == CustomSkill.StealthProficiency)

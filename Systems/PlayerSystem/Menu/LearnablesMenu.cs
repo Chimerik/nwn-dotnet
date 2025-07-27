@@ -110,7 +110,7 @@ namespace NWN.Systems
             nuiToken = tempToken;
             nuiToken.OnNuiEvent += HandleLearnableEvents;
 
-            isReadOnly = playerTarget != null;
+            isReadOnly = playerTarget != player;
 
             drawListRect.SetBindValue(player.oid, nuiToken.Token, Utils.GetDrawListTextScaleFromPlayerUI(player));
 
@@ -173,13 +173,12 @@ namespace NWN.Systems
                   return;
               }
 
+              ModuleSystem.Log.Info($"nuiEvent.ElementId.StartsWith(learn) : {nuiEvent.ElementId.StartsWith("learn")}");
+              ModuleSystem.Log.Info($"!isReadOnly : {!isReadOnly}");
+
               if (nuiEvent.ElementId.StartsWith("learn") && !isReadOnly)
               {
                 currentList.ElementAt(nuiEvent.ArrayIndex).StartLearning(target);
-
-                if (player.TryGetOpenedWindow("activeLearnable", out PlayerWindow activeWindow))
-                  activeWindow.CloseWindow();
-
                 LoadLearnableList(currentList);
               }
               else

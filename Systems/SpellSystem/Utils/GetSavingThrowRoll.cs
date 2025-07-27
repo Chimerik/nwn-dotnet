@@ -171,46 +171,47 @@ namespace NWN.Systems
         saveRoll = Utils.RollAdvantage(advantage);
         saveRoll = NativeUtils.HandleChanceDebordante(target, saveRoll);
         saveRoll = NativeUtils.HandleHalflingLuck(target, saveRoll);
+      }
 
-        if (ability == Ability.Strength)
-          saveRoll = BarbarianUtils.HandleBarbarianPuissanceIndomptable(target, saveRoll);
+      if (saveRoll + proficiencyBonus < saveDC)
+        saveRoll = MonkUtils.HandleDiamondSoul(target, saveRoll);
 
-        if (saveRoll + proficiencyBonus < saveDC)
-          saveRoll = MonkUtils.HandleDiamondSoul(target, saveRoll);
+      int inspirationBonus = 0;
+      Effect inspirationEffect = null;
 
-        int inspirationBonus = 0;
-        Effect inspirationEffect = null;
-
-        foreach (var eff in target.ActiveEffects)
-          if (eff.Tag == EffectSystem.InspirationBardiqueEffectTag)
-          {
-            inspirationBonus = eff.CasterLevel;
-            inspirationEffect = eff;
-            break;
-          }
-
-        if (inspirationBonus > 0 && saveRoll + proficiencyBonus < saveDC && saveRoll + proficiencyBonus + inspirationBonus >= saveDC)
+      foreach (var eff in target.ActiveEffects)
+        if (eff.Tag == EffectSystem.InspirationBardiqueEffectTag)
         {
-          proficiencyBonus += inspirationBonus;
-
-          LogUtils.LogMessage($"Activation Inspiration Bardique : +{inspirationBonus}", LogUtils.LogType.Combat);
-          StringUtils.DisplayStringToAllPlayersNearTarget(target, $"Inspiration Bardique (+{StringUtils.ToWhitecolor(inspirationBonus)})".ColorString(StringUtils.gold), StringUtils.gold, true, true);
-          target.RemoveEffect(inspirationEffect);
+          inspirationBonus = eff.CasterLevel;
+          inspirationEffect = eff;
+          break;
         }
-        else if(saveDC > 0 && inspirationBonus < 0 && saveRoll + proficiencyBonus >= saveDC && saveRoll + proficiencyBonus + inspirationBonus < saveDC)
-        {
-          proficiencyBonus += inspirationBonus;
 
-          LogUtils.LogMessage($"Activation Mots Cinglants : {inspirationBonus}", LogUtils.LogType.Combat);
-          StringUtils.DisplayStringToAllPlayersNearTarget(target, $"Mots Cinglants ({StringUtils.ToWhitecolor(inspirationBonus)})".ColorString(StringUtils.gold), ColorConstants.Red, true, true);
-          target.RemoveEffect(inspirationEffect);
-        }
+      if (inspirationBonus > 0 && saveRoll + proficiencyBonus < saveDC && saveRoll + proficiencyBonus + inspirationBonus >= saveDC)
+      {
+        proficiencyBonus += inspirationBonus;
+
+        LogUtils.LogMessage($"Activation Inspiration Bardique : +{inspirationBonus}", LogUtils.LogType.Combat);
+        StringUtils.DisplayStringToAllPlayersNearTarget(target, $"Inspiration Bardique (+{StringUtils.ToWhitecolor(inspirationBonus)})".ColorString(StringUtils.gold), StringUtils.gold, true, true);
+        target.RemoveEffect(inspirationEffect);
+      }
+      else if (saveDC > 0 && inspirationBonus < 0 && saveRoll + proficiencyBonus >= saveDC && saveRoll + proficiencyBonus + inspirationBonus < saveDC)
+      {
+        proficiencyBonus += inspirationBonus;
+
+        LogUtils.LogMessage($"Activation Mots Cinglants : {inspirationBonus}", LogUtils.LogType.Combat);
+        StringUtils.DisplayStringToAllPlayersNearTarget(target, $"Mots Cinglants ({StringUtils.ToWhitecolor(inspirationBonus)})".ColorString(StringUtils.gold), ColorConstants.Red, true, true);
+        target.RemoveEffect(inspirationEffect);
       }
 
       feedback.proficiencyBonus = proficiencyBonus;
       feedback.saveRoll = saveRoll;
+      int totalSave = saveRoll + proficiencyBonus;
 
-      return saveRoll + proficiencyBonus;
+      if (ability == Ability.Strength)
+        return BarbarianUtils.HandleBarbarianPuissanceIndomptable(target, totalSave);
+
+      return totalSave;
     }
   }
 }
