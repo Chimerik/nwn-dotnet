@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Anvil.API;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -12,7 +12,8 @@ namespace NWN.Systems
       {
         private void MainBindings()
         {
-          portrait.SetBindValue(player.oid, nuiToken.Token, $"{target.PortraitResRef}m");
+          string resRef = string.IsNullOrEmpty(NWScript.ResManGetAliasFor($"{target.PortraitResRef}m2", (int)ResRefType.TGA)) ? $"{target.PortraitResRef}m" : $"{target.PortraitResRef}m2";
+          portrait.SetBindValue(player.oid, nuiToken.Token, resRef);
 
           classRow.Children.Clear();
           classRow.Children.Add(classRowSpacer);

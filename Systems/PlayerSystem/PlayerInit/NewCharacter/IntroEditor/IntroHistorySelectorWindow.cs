@@ -294,11 +294,19 @@ namespace NWN.Systems
             profienciesToRemove.Add(skill);
 
           foreach (var proficiency in profienciesToRemove)
-          { 
+          {
             if (proficiency.source.Count < 2)
+            {
               player.learnableSkills.Remove(proficiency.id);
+
+              switch (proficiency.id)
+              {
+                case CustomSkill.Robuste: player.oid.LoginCreature.RemoveFeat(Feat.Toughness); break;
+                case CustomSkill.AgresseurSauvage: EffectUtils.RemoveTaggedEffect(player.oid.LoginCreature, EffectSystem.AgresseurSauvageEffectTag); break;
+              }
+            }
             else
-              proficiency.source.Remove(SkillSystem.Category.StartingTraits);
+              proficiency.source.Remove(SkillSystem.Category.Race);
           }
         }
       }

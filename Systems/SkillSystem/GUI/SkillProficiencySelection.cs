@@ -188,11 +188,11 @@ namespace NWN.Systems
                         player.oid.SendServerMessage($"Vous apprenez la maîtrise {StringUtils.ToWhitecolor(skill.name)}", ColorConstants.Orange);
                       }
                     }
-                    else if (learningFeat == CustomSkill.Doue && player.learnableSkills[CustomSkill.Doue].source.Contains(SkillSystem.Category.Race))
+                    else if (learningFeat == CustomSkill.Doue && player.learnableSkills[CustomSkill.Doue].source.Count > 0)
                     {
                       if (player.learnableSkills.TryAdd(skill.id, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[skill.id], player)))
                         player.learnableSkills[skill.id].LevelUp(player);
-                      player.learnableSkills[skill.id].source.Add(SkillSystem.Category.Race);
+                      player.learnableSkills[skill.id].source.Add(player.learnableSkills[CustomSkill.Doue].source[0]);
                     }
                     else
                     {

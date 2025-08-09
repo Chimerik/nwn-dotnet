@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using Anvil.API;
 using Discord;
 using Discord.WebSocket;
 using SixLabors.ImageSharp;
@@ -26,6 +27,8 @@ namespace NWN.Systems
 
               using var img = await Image.LoadAsync(file);
               img.Mutate(c => c.Resize(64, 128));
+
+              await img.SaveAsTgaAsync($"../../../.local/share/Neverwinter Nights/development/po_{resName}m2.tga");
               img.Mutate(c => c.Flip(FlipMode.Vertical));
               img.Mutate(c => c.Flip(FlipMode.Horizontal));
               await img.SaveAsTgaAsync($"../../../.local/share/Neverwinter Nights/development/po_{resName}m.tga");
@@ -39,6 +42,8 @@ namespace NWN.Systems
               x.Content = $"{splitCommand[1]} - Demande de validation de portrait ({splitCommand[2]}) => Validée par {component.User.Username}";
               x.Components = new ComponentBuilder().Build();
             });
+
+            Portraits2da.ReloadPortraits();
 
             break;
 

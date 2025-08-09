@@ -661,7 +661,7 @@ namespace NWN.Systems
               }
 
               if (nuiEvent.ElementId.StartsWith("po_"))
-                player.oid.LoginCreature.PortraitResRef = nuiEvent.ElementId[..^1];
+                player.oid.LoginCreature.PortraitResRef = nuiEvent.ElementId.EndsWith("m2") ? nuiEvent.ElementId[..^2] : nuiEvent.ElementId[..^1];
 
               break;
           }

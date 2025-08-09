@@ -171,7 +171,7 @@ namespace NWN.Systems
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_FEAT_SELECTION").Delete();
 
                   CloseWindow();
-
+                  
                   break;
               }
 

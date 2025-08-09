@@ -159,7 +159,7 @@ namespace NWN.Systems
                   
                   if (!string.IsNullOrEmpty(portraitResRef))
                   {
-                    player.oid.LoginCreature.PortraitResRef = portraitResRef.Remove(portraitResRef.Length - 1);
+                    player.oid.LoginCreature.PortraitResRef = portraitResRef.EndsWith("m2") ? portraitResRef[..^2] : portraitResRef[..^1];
                     player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_PORTRAIT").Delete();
                   }
 
@@ -171,7 +171,7 @@ namespace NWN.Systems
 
                   if (!string.IsNullOrEmpty(portraitResRef))
                   {
-                    player.oid.LoginCreature.PortraitResRef = portraitResRef.Remove(portraitResRef.Length - 1);
+                    player.oid.LoginCreature.PortraitResRef = portraitResRef.EndsWith("m2") ? portraitResRef[..^2] : portraitResRef[..^1];
                     player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_PORTRAIT").Delete();
                   }
                   break;
@@ -182,7 +182,7 @@ namespace NWN.Systems
 
                   if (!string.IsNullOrEmpty(portraitResRef))
                   {
-                    player.oid.LoginCreature.PortraitResRef = portraitResRef.Remove(portraitResRef.Length - 1);
+                    player.oid.LoginCreature.PortraitResRef = portraitResRef.EndsWith("m2") ? portraitResRef[..^2] : portraitResRef[..^1];
                     player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_PORTRAIT").Delete();
                   }
                   
@@ -194,7 +194,7 @@ namespace NWN.Systems
 
                   if (!string.IsNullOrEmpty(portraitResRef))
                   {
-                    player.oid.LoginCreature.PortraitResRef = portraitResRef.Remove(portraitResRef.Length - 1);
+                    player.oid.LoginCreature.PortraitResRef = portraitResRef.EndsWith("m2") ? portraitResRef[..^2] : portraitResRef[..^1];
                     player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_PORTRAIT").Delete();
                   }
                   
@@ -206,7 +206,7 @@ namespace NWN.Systems
 
                   if (!string.IsNullOrEmpty(portraitResRef))
                   {
-                    player.oid.LoginCreature.PortraitResRef = portraitResRef.Remove(portraitResRef.Length - 1);
+                    player.oid.LoginCreature.PortraitResRef = portraitResRef.EndsWith("m2") ? portraitResRef[..^2] : portraitResRef[..^1];
                     player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_PORTRAIT").Delete();
                   }
 
@@ -218,7 +218,7 @@ namespace NWN.Systems
 
                   if (!string.IsNullOrEmpty(portraitResRef))
                   {
-                    player.oid.LoginCreature.PortraitResRef = portraitResRef.Remove(portraitResRef.Length - 1);
+                    player.oid.LoginCreature.PortraitResRef = portraitResRef.EndsWith("m2") ? portraitResRef[..^2] : portraitResRef[..^1];
                     player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_PORTRAIT").Delete();
                   }
 
@@ -230,7 +230,7 @@ namespace NWN.Systems
 
                   if (!string.IsNullOrEmpty(portraitResRef))
                   {
-                    player.oid.LoginCreature.PortraitResRef = portraitResRef.Remove(portraitResRef.Length - 1);
+                    player.oid.LoginCreature.PortraitResRef = portraitResRef.EndsWith("m2") ? portraitResRef[..^2] : portraitResRef[..^1];
                     player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_CHARACTER_CREATION_PORTRAIT").Delete();
                   }
 

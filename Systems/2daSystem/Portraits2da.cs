@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 using Anvil.API;
 using Anvil.Services;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -11,6 +11,7 @@ namespace NWN.Systems
   {
     public string resRef { get; private set; }
     public string mediumPortrait { get; private set; }
+    public string customPortrait { get; private set; }
     public string player { get; private set; }
     public int gender { get; private set; }
     public int racialType { get; private set; }
@@ -23,6 +24,7 @@ namespace NWN.Systems
       resRef = entry.GetString("BaseResRef");
       player = entry.GetString("Player");
       mediumPortrait = $"po_{resRef}m";
+      customPortrait = $"po_{resRef}m2";
       gender = entry.GetInt("Sex").GetValueOrDefault(4);
       racialType = entry.GetInt("Race").GetValueOrDefault(28);
     }
@@ -36,6 +38,12 @@ namespace NWN.Systems
     public static readonly Dictionary<string, List<string>> playerCustomPortraits = new();
     public Portraits2da(ModuleSystem _)
     {
+      ReloadPortraits();
+    }
+    public static async void ReloadPortraits()
+    {
+      await NwTask.SwitchToMainThread();
+
       //portraitEntries = portraitsTable.Where(p => !string.IsNullOrEmpty(p.resRef));
       foreach (var portrait in portraitsTable)
         if (!string.IsNullOrEmpty(portrait.resRef))
@@ -51,10 +59,12 @@ namespace NWN.Systems
 
           if (!string.IsNullOrEmpty(portrait.player))
           {
-            if(!playerCustomPortraits.ContainsKey(portrait.player))
-              playerCustomPortraits.Add(portrait.player, new List<string>() { portrait.mediumPortrait });
+            string portraitResRef = String.IsNullOrEmpty(NWScript.ResManGetAliasFor(portrait.customPortrait, (int)ResRefType.TGA)) ? portrait.mediumPortrait : portrait.customPortrait;
+
+            if (!playerCustomPortraits.TryGetValue(portrait.player, out var value))
+              playerCustomPortraits.Add(portrait.player, new List<string>() { portraitResRef });
             else
-              playerCustomPortraits[portrait.player].Add(portrait.mediumPortrait);
+              value.Add(portraitResRef);
           }
         }
     }

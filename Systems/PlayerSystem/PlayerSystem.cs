@@ -231,20 +231,21 @@ namespace NWN.Systems
 
             case GUIPanel.CharacterSheet:
 
-              if (!player.windows.TryGetValue("ficheDePerso", out var fiche)) player.windows.Add("ficheDePerso", new Player.FicheDePersoWindow(player, (NwCreature)guiEvent.EventObject));
+              if (!player.windows.TryGetValue("ficheDePerso", out var fiche)) player.windows.Add("ficheDePerso", new FicheDePersoWindow(player, (NwCreature)guiEvent.EventObject));
+              else if (fiche.IsOpen) fiche.CloseWindow();
               else ((FicheDePersoWindow)fiche).CreateWindow((NwCreature)guiEvent.EventObject);
 
               return;
 
             case GUIPanel.PlayerList:
               
-              if (!player.windows.ContainsKey("playerList")) player.windows.Add("playerList", new Player.PlayerListWindow(player));
-              else if (((Player.PlayerListWindow)player.windows["playerList"]).IsOpen)
+              if (!player.windows.ContainsKey("playerList")) player.windows.Add("playerList", new PlayerListWindow(player));
+              else if (((PlayerListWindow)player.windows["playerList"]).IsOpen)
               {
                 await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-                ((Player.PlayerListWindow)player.windows["playerList"]).CloseWindow();
+                ((PlayerListWindow)player.windows["playerList"]).CloseWindow();
               }
-              else ((Player.PlayerListWindow)player.windows["playerList"]).CreateWindow();
+              else ((PlayerListWindow)player.windows["playerList"]).CreateWindow();
 
               return;
           }
