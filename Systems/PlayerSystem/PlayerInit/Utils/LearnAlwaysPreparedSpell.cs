@@ -27,7 +27,7 @@ namespace NWN.Systems
         if (Utils.In(classId, CustomClass.Clerc, CustomClass.Druid, CustomClass.Paladin))
         {
           NwSpell spell = NwSpell.FromSpellId(spellId);
-          int spellLevel = spell.GetSpellLevelForClass((ClassType)classId);
+          int spellLevel = spell.GetSpellLevelByClass((ClassType)classId).GetValueOrDefault();
           var knownSpells = oid.LoginCreature.GetClassInfo((ClassType)classId).KnownSpells[spellLevel];
 
           if (!knownSpells.Contains(spell))

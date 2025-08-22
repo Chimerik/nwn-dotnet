@@ -75,6 +75,26 @@ namespace NWN.Systems
             new NuiSpacer()
           } });
 
+          rootChildren.Add(new NuiRow() { Margin = 5.0f, Height = windowWidth / 20, Width = windowWidth / 1.1f, Children = new List<NuiElement>()
+          {
+            new NuiSpacer(),
+            new NuiImage("menu_separator_l") { ImageAspect = NuiAspect.Fit, Width = windowWidth / 8,  VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center},
+            new NuiSpacer(),
+            new NuiLabel("Menu Artisanal") { VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center, Width = windowWidth / 3 },
+            new NuiSpacer(),
+            new NuiImage("menu_separator_r") { ImageAspect = NuiAspect.Fit, Width = windowWidth / 8, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center },
+            new NuiSpacer()
+          } });
+
+          if (player.learnableSkills.ContainsKey(CustomSkill.InfluxDetection))
+            rootChildren.Add(new NuiRow() { Margin = 0.0f, Children = new List<NuiElement>()
+            {
+              new NuiSpacer(),
+              new NuiLabel("Recherche de matéria") { Height = windowHeight / 24, Width = windowWidth / 1.25f, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+              new NuiCheck("", false) { Id = "detectMateria", Height = windowHeight / 24, Width = windowHeight / 24 },
+              new NuiSpacer()
+            } });
+
           rootGroup.SetLayout(player.oid, nuiToken.Token, rootColumn);
         }
       }

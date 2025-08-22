@@ -161,7 +161,7 @@ namespace NWN.Systems
 
                 case "examineJobItem":
 
-                  if (!string.IsNullOrEmpty(targetPlayer.craftJob.serializedCraftedItem))
+                  if (targetPlayer.craftJob is not null && !string.IsNullOrEmpty(targetPlayer.craftJob.serializedCraftedItem))
                   {
                     NwItem item = NwItem.Deserialize(targetPlayer.craftJob.serializedCraftedItem.ToByteArray());
 
@@ -607,6 +607,14 @@ namespace NWN.Systems
                   else ((LearnableWindow)learnables).CreateWindow(targetPlayer);
 
                   break;
+
+                case "detectMateria":
+
+                  if (!player.windows.TryGetValue("materiaDetector", out var materiaDetector)) player.windows.Add("materiaDetector", new MateriaDetectorWindow(player));
+                  else ((MateriaDetectorWindow)materiaDetector).CreateWindow();
+
+                  break;
+
 
                 case "addClass":
 

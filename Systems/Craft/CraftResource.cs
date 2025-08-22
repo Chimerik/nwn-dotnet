@@ -5,9 +5,11 @@ namespace NWN.Systems
   public enum ResourceType
   {
     Invalid = -1,
-    [Description("Influx")]
-    Influx = 1,
-    [Description("Lingot")]
+    [Description("Influx_brut")]
+    InfluxBrut = 1,
+    [Description("Influx_raffiné")]
+    InfluxRaffine = 2,
+    /*[Description("Lingot")]
     Ingot = 2,
     [Description("Bûche")]
     Wood = 3,
@@ -20,7 +22,7 @@ namespace NWN.Systems
     [Description("Plante")]
     Plant = 7,
     [Description("Poudre")]
-    Powder = 8,
+    Powder = 8,*/
   }
   public class CraftResource
   {

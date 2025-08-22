@@ -373,48 +373,7 @@ namespace NWN.Systems
         _ => "",
       };
     }
-    public static string GetResourceNameFromBlueprint(NwItem blueprint)
-    {
-      BaseItemType baseItemType = (BaseItemType)blueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value;
-      string workshop = baseItemType == BaseItemType.Armor ? Armor2da.GetWorkshop(blueprint.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value) : BaseItems2da.baseItemTable[(int)baseItemType].workshop;
 
-      return workshop switch
-      {
-        "forge" => ResourceType.Ingot.ToDescription(),
-        "scierie" => ResourceType.Plank.ToDescription(),
-        "tannerie" => ResourceType.Leather.ToDescription(),
-        _ => "ressource non définie",
-      };
-    }
-    public static ResourceType GetResourceTypeFromBlueprint(NwItem blueprint)
-    {
-      BaseItemType baseItemType = (BaseItemType)blueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value;
-      string workshop = baseItemType == BaseItemType.Armor ? Armor2da.GetWorkshop(blueprint.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value) : BaseItems2da.baseItemTable[(int)baseItemType].workshop;
-
-      return GetResourceFromWorkshopTag(workshop);
-    }
-    public static ResourceType GetResourceFromWorkshopTag(string workshop)
-    {
-      return workshop switch
-      {
-        "forge" => ResourceType.Ingot,
-        "scierie" => ResourceType.Plank,
-        "tannerie" => ResourceType.Leather,
-        _ => ResourceType.Invalid,
-      };
-    }
-    public static ResourceType GetResourceTypeFromItem(NwItem item)
-    {
-      string workshop = item.BaseItem.ItemType == BaseItemType.Armor ? Armor2da.GetWorkshop(item.BaseACValue) : BaseItems2da.baseItemTable[(int)item.BaseItem.ItemType].workshop;
-
-      return workshop switch
-      {
-        "forge" => ResourceType.Ingot,
-        "scierie" => ResourceType.Plank,
-        "tannerie" => ResourceType.Leather,
-        _ => ResourceType.Invalid,
-      };
-    }
     public static async void ScheduleItemForDestruction(NwItem item, double delay)
     {
       await NwTask.Delay(TimeSpan.FromSeconds(delay));
@@ -472,9 +431,13 @@ namespace NWN.Systems
     }
     public static void HandleCraftToolDurability(PlayerSystem.Player player, NwItem craftTool, int type, int resourceDurabilitySkill)
     {
+
+      if (craftTool is null)
+        return;
+
       List<ObjectVariable> localsToRemove = new();
       int slotToAdd = 0;
-      int skillPoints = player.learnableSkills.ContainsKey(resourceDurabilitySkill) ? player.learnableSkills[resourceDurabilitySkill].totalPoints * 2 : 0;
+      int skillPoints = player.learnableSkills.TryGetValue(resourceDurabilitySkill, out var value) ? value.totalPoints * 2 : 0;
 
       for (int i = 0; i < craftTool.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
       {

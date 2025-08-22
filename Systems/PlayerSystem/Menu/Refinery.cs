@@ -23,9 +23,8 @@ namespace NWN.Systems
         private readonly NuiBind<bool> concentrateEnabled = new("concentrateEnabled");
         private IEnumerable<CraftResource> playerCraftResourceList;
         private CraftResource selectedResource;
-        private ResourceType refinedResourceType;
 
-        public RefineryWindow(Player player, ResourceType refinedResourceType) : base(player)
+        public RefineryWindow(Player player) : base(player)
         {
           windowId = "refinery";
 
@@ -36,7 +35,7 @@ namespace NWN.Systems
             new NuiListTemplateCell(new NuiButtonImage(materiaIcon) { Height = 35, Width = 35 }) { Width = 35 },
             new NuiListTemplateCell(new NuiLabel(materiaNames) { VerticalAlign = NuiVAlign.Middle, Height = 35 }) { VariableSize = true },
             new NuiListTemplateCell(new NuiTextEdit("Quantité", input, 6, false) { Height = 40 }) { Width = 80 },
-            new NuiListTemplateCell(new NuiButtonImage("refine") { Id = "refine", Tooltip = "Permet de raffiner la matéria brute en un matériau utilisable", Height = 35 }) { Width = 35},
+            new NuiListTemplateCell(new NuiButtonImage("refine") { Id = "refine", Tooltip = "Permet de raffiner la matéria brute afin de la rendre utilisable", Height = 35 }) { Width = 35},
             new NuiListTemplateCell(new NuiButtonImage("concentrate") { Id = "upgrade", Tooltip = "Concentre une grande quantité de matéria brute en une meilleure qualité", Height = 35, Enabled = concentrateEnabled }) { Width = 35 }
           };
 
@@ -56,12 +55,10 @@ namespace NWN.Systems
             $"Total : {total} matérias raffinées de qualité {selectedResource.grade + 1}";*/
 
           rootChidren.Add(new NuiList(rowTemplate, listCount) { RowHeight = 40 });
-          CreateWindow(refinedResourceType);
+          CreateWindow();
         }
-        public void CreateWindow(ResourceType refinedResourceType)
+        public void CreateWindow()
         {
-          this.refinedResourceType = refinedResourceType;
-
           NuiRect windowRectangle = /*player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] :*/ new NuiRect(0, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.02f, 540, 400);
 
           window = new NuiWindow(rootColumn, "Raffinerie")
@@ -118,14 +115,14 @@ namespace NWN.Systems
                       player.oid.SendServerMessage("Quelle chance, vous parvenez à obtenir une matéria raffinée de plus grande qualité !", new Color(32, 255, 32));
                     }
                   */
-                  CraftResource refinedMateria = player.craftResourceStock.FirstOrDefault(r => r.type == refinedResourceType);
+                  CraftResource refinedMateria = player.craftResourceStock.FirstOrDefault(r => r.type ==  ResourceType.InfluxRaffine);
 
                   if (refinedMateria != null)
                     refinedMateria.quantity += refinedAmount;
                   else
-                    player.craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == refinedResourceType), refinedAmount));
+                    player.craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == ResourceType.InfluxRaffine), refinedAmount));
 
-                  player.oid.SendServerMessage($"Vous parvenez à raffiner {refinedAmount} unité(s) de {refinedResourceType}", ColorConstants.Orange);
+                  player.oid.SendServerMessage($"Vous raffinez {refinedAmount} unité(s) d'influx", ColorConstants.Orange);
 
                   LoadMateriaList();
 
@@ -143,7 +140,7 @@ namespace NWN.Systems
 
                   //int selectedGrade = selectedResource.grade + 1;
                   double concentrationSkill = 1.00 + 5 * player.learnableSkills[CustomSkill.MateriaGradeConcentration].totalPoints / 100.0;
-                  double connectionSkill = player.learnableSkills.ContainsKey(CustomSkill.ConnectionsPromenade) ? 0.95 + player.learnableSkills[CustomSkill.ConnectionsPromenade].totalPoints / 100.0 : 1.00;
+                  double connectionSkill = player.learnableSkills.TryGetValue(CustomSkill.ConnectionsPromenade, out var value) ? 0.95 + value.totalPoints / 100.0 : 1.00;
                   double total = amount / 3.0 * concentrationSkill * 0.3; // le * 0.3 représente la qualité de la fonderie de base. Il faudra le variabiliser lorsqu'il sera possible de créer des ateliers de différente qualité
                   total *= connectionSkill;
 
@@ -166,13 +163,14 @@ namespace NWN.Systems
               break;
           }
         }
+
         private void LoadMateriaList()
         {
           List<string> materiaNamesList = new List<string>();
           List<string> materiaIconList = new List<string>();
           List<string> quantityList = new List<string>();
           List<bool> enabledList = new List<bool>();
-          playerCraftResourceList = player.craftResourceStock.Where(c => c.type == ResourceType.Influx && c.quantity > 0);
+          playerCraftResourceList = player.craftResourceStock.Where(c => c.type == ResourceType.InfluxBrut && c.quantity > 0);
 
           foreach (CraftResource resource in playerCraftResourceList)
           {
@@ -190,13 +188,13 @@ namespace NWN.Systems
         }
         private bool HandleRefinerLuck()
         {
-          if (!player.learnableSkills.ContainsKey(CustomSkill.MateriaGradeConcentration))
+          if (!player.learnableSkills.TryGetValue(CustomSkill.ReprocessingInfluxLuck, out var value))
             return false;
 
-          if (NwRandom.Roll(Utils.random, 100) > player.learnableSkills[CustomSkill.MateriaGradeConcentration].totalPoints)
+          if (NwRandom.Roll(Utils.random, 100) > value.totalPoints)
             return false;
 
-          player.oid.SendServerMessage("Votre concentration hors du commun vous permet d'obtenir une matéria bien plus concentrée qu'attendu !", ColorConstants.Rose);
+          player.oid.SendServerMessage("Votre concentration hors du commun vous permet d'obtenir un influx bien plus concentrée qu'attendu !", ColorConstants.Rose);
           return true;
         }
       }

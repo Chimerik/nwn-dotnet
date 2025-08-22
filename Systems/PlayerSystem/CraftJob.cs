@@ -319,16 +319,10 @@ namespace NWN.Systems
           Utils.LogMessageToDMs($"{e.Message}\n\n{e.StackTrace}");
         }
       }
-      public CraftJob(Player player, ResourceType resourceType, double consumedTime, string icon) // Passive repeatable mining
+      public CraftJob(Player player, double consumedTime, string icon) // Passive repeatable mining
       {
         try
         {
-          type = resourceType switch
-          {
-            ResourceType.Plank => JobType.WoodCutting,
-            ResourceType.Leather => JobType.Pelting,
-            _ => JobType.Mining,
-          };
           remainingTime = 3600;
           startTime = DateTime.Now.AddSeconds(-consumedTime);
           this.icon = icon;
@@ -682,16 +676,15 @@ namespace NWN.Systems
       {
         NwItem item = NwItem.Deserialize(player.craftJob.originalSerializedItem.ToByteArray());
 
-        ResourceType resourceType = ItemUtils.GetResourceTypeFromItem(item);
         int grade = item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").HasValue ? item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value : 1;
         double quantity = player.GetItemRecycleGain(item);
 
-        CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == resourceType);
+        CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == ResourceType.InfluxRaffine);
 
         if (resource != null)
           resource.quantity += (int)quantity;
         else
-          player.craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == resourceType), (int)quantity));
+          player.craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == ResourceType.InfluxRaffine), (int)quantity));
 
         player.oid.SendServerMessage($"Le recyclage de : {item.Name.ColorString(ColorConstants.White)} vous rapporte {quantity.ToString().ColorString(ColorConstants.White)} unités de matéria de qualité {((int)grade).ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);
         player.oid.ApplyInstantVisualEffectToObject((VfxType)818, player.oid.ControlledCreature);

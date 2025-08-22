@@ -14,7 +14,7 @@ namespace NWN.Systems
       {
         target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(vfx));
 
-        DealSpellDamage(target, oCaster.CasterLevel, spellEntry, nbDices, oCaster, spell.GetSpellLevelForClass(casterClass),
+        DealSpellDamage(target, oCaster.CasterLevel, spellEntry, nbDices, oCaster, (byte)spell.GetSpellLevelByClass(casterClass).GetValueOrDefault(),
           spell.Id == CustomSpell.TirDeBarrage && target is NwCreature targetCreature ? CreatureUtils.GetSavingThrowResult(targetCreature, spellEntry.savingThrowAbility, oCaster, spellDC, spellEntry) : SavingThrowResult.Failure, 
           casterClass: casterClass);
 

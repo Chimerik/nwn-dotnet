@@ -16,7 +16,7 @@ namespace NWN.Systems
         if (spellEntry is not null)
         {
           var spell = NwSpell.FromSpellId(spellEntry.RowIndex);
-          byte paladinSpellLevel = spell.MasterSpell is null ? spell.GetSpellLevelForClass(ClassType.Paladin) : spell.MasterSpell.GetSpellLevelForClass(ClassType.Paladin);
+          byte paladinSpellLevel = (byte)(spell.MasterSpell is null ? spell.GetSpellLevelByClass(ClassType.Paladin).GetValueOrDefault() : spell.MasterSpell.GetSpellLevelByClass(ClassType.Paladin).GetValueOrDefault());
 
           if (paladinSpellLevel > 0 && paladinSpellLevel < 10 && creature.ActiveEffects.Any(e => e.Tag == EffectSystem.ChampionAntiqueEffectTag && e.Creator == caster))
           {

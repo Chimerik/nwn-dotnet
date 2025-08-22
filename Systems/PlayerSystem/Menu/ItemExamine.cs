@@ -246,7 +246,7 @@ namespace NWN.Systems
                   new NuiSpacer() { Width = 5 },
                   new NuiLabel(materielEfficiency.ToString()) { Height = 35, Width = 50, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle },
                   new NuiSpacer(),
-                  new NuiButtonImage("brick_stack") { Height = 35, Width = 35, Tooltip = $"Coût initial en {ItemUtils.GetResourceNameFromBlueprint(item)}. Puis 10 % de moins par amélioration vers un matériau supérieur." },
+                  new NuiButtonImage("brick_stack") { Height = 35, Width = 35, Tooltip = $"Coût initial en influx raffiné. Puis 10 % de moins par amélioration vers un matériau supérieur." },
                   new NuiSpacer() { Width = 5 },
                   new NuiLabel(mineralCost.ToString()) { Height = 35, Width = 50, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle },
                   new NuiSpacer(),
@@ -492,9 +492,8 @@ namespace NWN.Systems
                 int learnableId = item.GetObjectVariable<LocalVariableInt>("_SKILL_ID").Value;
                 var learnableSkill = (LearnableSkill)SkillSystem.learnableDictionary[learnableId];
 
-                if (player.oid.LoginCreature.GetRawAbilityScore(learnableSkill.primaryAbility) > 12)
-                {
-
+                //if (player.oid.LoginCreature.GetRawAbilityScore(learnableSkill.primaryAbility) > 12)
+                //{
                   LearnableSkill learnable = player.ApplyLearningDiscout(new LearnableSkill(learnableSkill, player));
                   player.learnableSkills.Add(learnableId, learnable);
                   player.oid.SendServerMessage("Vous venez d'ajouter une nouvelle compétence à votre livre d'apprentissage !", ColorConstants.Rose);
@@ -504,9 +503,9 @@ namespace NWN.Systems
 
                   if (player.TryGetOpenedWindow("learnables", out PlayerWindow window))
                     ((LearnableWindow)window).HandleLearnableSearch();
-                }
-                else
-                  player.oid.SendServerMessage($"Vous devez avoir minimum 13 de base dans la caractéristique principale de {learnableSkill.name} pour pouvoir multiclasser", ColorConstants.Red);
+                //}
+                //else
+                  //player.oid.SendServerMessage($"Vous devez avoir minimum 13 de base dans la caractéristique principale de {learnableSkill.name} pour pouvoir multiclasser", ColorConstants.Red);
 
                   return;
 

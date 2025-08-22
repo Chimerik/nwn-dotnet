@@ -148,7 +148,7 @@ namespace NWN.Systems
 
                 case "recycleList":
 
-                  blueprintList = player.oid.ControlledCreature.Inventory.Items.Where(i => !i.PlotFlag && !i.CursedFlag && ItemUtils.GetResourceTypeFromItem(i) != ResourceType.Invalid);
+                  blueprintList = player.oid.ControlledCreature.Inventory.Items.Where(i => !i.PlotFlag && !i.CursedFlag);
                   filteredList = blueprintList;
                   LoadRecyclableItemList(filteredList);
                   search.SetBindValue(player.oid, nuiToken.Token, "");
@@ -158,7 +158,7 @@ namespace NWN.Systems
 
                 case "repairList":
 
-                  blueprintList = player.oid.ControlledCreature.Inventory.Items.Where(i => !i.PlotFlag && !i.CursedFlag && i.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasValue && i.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value < i.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value && ItemUtils.GetResourceTypeFromItem(i) != ResourceType.Invalid);
+                  blueprintList = player.oid.ControlledCreature.Inventory.Items.Where(i => !i.PlotFlag && !i.CursedFlag && i.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasValue && i.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value < i.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value);
                   filteredList = blueprintList;
                   LoadRepairableItemList(filteredList);
                   search.SetBindValue(player.oid, nuiToken.Token, "");
@@ -339,12 +339,12 @@ namespace NWN.Systems
             int materiaCost = (int)(player.GetItemMateriaCost(item, tool) * (1 - (item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value / 100)));
             TimeSpan jobDuration = TimeSpan.FromSeconds(player.GetItemCraftTime(item, materiaCost, tool));
 
-            CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromBlueprint(item));
+            CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == ResourceType.InfluxRaffine);
             int availableQuantity = resource != null ? resource.quantity : 0;
 
             blueprintNamesList.Add(item.Name + " - Commencer la fabrication");
             iconList.Add("ife_opportunist");
-            blueprintMEsList.Add($"Coût en {ItemUtils.GetResourceNameFromBlueprint(item)} : {availableQuantity}/{materiaCost}");
+            blueprintMEsList.Add($"Coût en influx raffiné : {availableQuantity}/{materiaCost}");
             blueprintTEsList.Add($"Temps de fabrication : {new TimeSpan(jobDuration.Days, jobDuration.Hours, jobDuration.Minutes, jobDuration.Seconds)}");
             enabledList.Add(player.learnableSkills.ContainsKey(player.GetJobLearnableFromWorkshop(workshopTag)) && player.craftJob == null && availableQuantity >= materiaCost);
           }
@@ -383,10 +383,10 @@ namespace NWN.Systems
               int materiaCost = (int)(player.GetItemMateriaCost(bestBlueprint, tool, grade + 1) * (1 - (bestBlueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value / 100)));
               TimeSpan jobDuration = TimeSpan.FromSeconds(player.GetItemCraftTime(bestBlueprint, materiaCost, tool));
 
-              CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromBlueprint(bestBlueprint));
+              CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == ResourceType.InfluxRaffine);
               int availableQuantity = resource != null ? resource.quantity : 0;
 
-              blueprintMEsList.Add($"{item.Name} - Coût en {ItemUtils.GetResourceNameFromBlueprint(bestBlueprint)} : {availableQuantity}/{materiaCost}");
+              blueprintMEsList.Add($"{item.Name} - Coût en influx raffiné : {availableQuantity}/{materiaCost}");
               blueprintTEsList.Add($"Temps de fabrication : {new TimeSpan(jobDuration.Days, jobDuration.Hours, jobDuration.Minutes, jobDuration.Seconds)}");
               enabledList.Add(player.learnableSkills.ContainsKey(player.GetJobLearnableFromWorkshop(workshopTag)) && player.craftJob == null && availableQuantity >= materiaCost);
             }
@@ -418,8 +418,8 @@ namespace NWN.Systems
           {
             int grade = item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").HasValue ? item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value : 1;
             int materiaCost = (int)player.GetItemRepairMateriaCost(item, tool);
-            ResourceType resType = ItemUtils.GetResourceTypeFromItem(item);
-            CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == resType && r.quantity >= materiaCost);
+
+            CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == ResourceType.InfluxRaffine && r.quantity >= materiaCost);
             int availableQuantity = resource != null ? resource.quantity : 0;
 
             itemNamesList.Add($"{item.Name} - Qualité {grade} - Réparé {item.GetObjectVariable<LocalVariableInt>("_DURABILITY_NB_REPAIRS").Value} fois");
@@ -427,7 +427,7 @@ namespace NWN.Systems
 
             TimeSpan jobDuration = TimeSpan.FromSeconds(player.GetItemRepairTime(item, materiaCost, tool));
 
-            blueprintMEsList.Add($"{item.Name} - Coût en {resType.ToDescription()} {grade} : {availableQuantity}/{materiaCost}");
+            blueprintMEsList.Add($"{item.Name} - Coût en influx raffiné {grade} : {availableQuantity}/{materiaCost}");
             blueprintTEsList.Add($"Temps de réparation : {new TimeSpan(jobDuration.Days, jobDuration.Hours, jobDuration.Minutes, jobDuration.Seconds)}");
             enabledList.Add(player.learnableSkills.ContainsKey(CustomSkill.Repair) && player.craftJob == null && availableQuantity >= materiaCost);
           }

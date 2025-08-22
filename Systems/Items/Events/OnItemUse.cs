@@ -39,8 +39,6 @@ namespace NWN.Systems
           case "tannerie": HandleOnTargetCraftWorkshop(onUse); break;
         }
       }
-      else // Utilisation en mode scanner ?
-        HandleMateriaScanning(onUse);
 
       await NwTask.Delay(TimeSpan.FromSeconds(0.2));
       feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);

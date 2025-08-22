@@ -11,7 +11,7 @@ namespace NWN.Systems
       if (!PlayerSystem.Players.TryGetValue(onUse.UsedBy, out PlayerSystem.Player player))
         return;
 
-      if (!player.learnableSkills.ContainsKey(CustomSkill.MateriaExtraction))
+      if (!player.learnableSkills.ContainsKey(CustomSkill.InfluxExtraction))
       {
         player.oid.SendServerMessage("La base de la compétence d'extraction de dépot de matéria doit être apprise avant de pouvoir utiliser cet objet", ColorConstants.Red);
         return;

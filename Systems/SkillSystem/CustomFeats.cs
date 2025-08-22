@@ -799,52 +799,22 @@
     public const int ImprovedSpellSlot8 = 20092;
     public const int ImprovedSpellSlot9 = 20093;
 
-    public const int OreDetection = 20150;
-    public const int WoodDetection = 20151;
-    public const int PeltDetection = 20152;
-    public const int OreDetectionSpeed = 20153;
-    public const int WoodDetectionSpeed = 20154;
-    public const int PeltDetectionSpeed = 20155;
-    public const int OreDetectionRange = 20156;
-    public const int WoodDetectionRange = 20157;
-    public const int PeltDetectionRange = 20158;
-    public const int OreDetectionSafe = 20159;
-    public const int WoodDetectionSafe = 20160;
-    public const int PeltDetectionSafe = 20161;
-    public const int OreDetectionEstimation = 20162;
-    public const int WoodDetectionEstimation = 20163;
-    public const int PeltDetectionEstimation = 20164;
-    public const int OreDetectionAdvanced = 20165;
-    public const int WoodDetectionAdvanced = 20166;
-    public const int PeltDetectionAdvanced = 20167;
-    public const int OreDetectionMastery = 20168;
-    public const int WoodDetectionMastery = 20169;
-    public const int PeltDetectionMastery = 20170;
+    public const int InfluxDetection = 20150;
+    public const int InfluxDetectionSpeed = 20153;
+    public const int InfluxDetectionRange = 20156;
+    public const int InfluxDetectionSafe = 20159;
+    public const int InfluxDetectionEstimation = 20162;
+    public const int InfluxDetectionAdvanced = 20165;
+    public const int InfluxDetectionMastery = 20168;
 
-    public const int OreExtraction = 20171;
-    public const int OreExtractionSpeed = 20172;
-    public const int OreExtractionYield = 20173;
-    public const int OreExtractionAdvanced = 20174;
-    public const int OreExtractionMastery = 20175;
+    public const int InfluxExtraction = 20171;
+    public const int InfluxExtractionSpeed = 20172;
+    public const int InfluxExtractionYield = 20173;
+    public const int InfluxExtractionAdvanced = 20174;
+    public const int InfluxExtractionMastery = 20175;
 
-    public const int WoodExtraction = 20176;
-    public const int WoodExtractionSpeed = 20177;
-    public const int WoodExtractionYield = 20178;
-    public const int WoodExtractionAdvanced = 20179;
-    public const int WoodExtractionMastery = 20180;
-
-    public const int PeltExtraction = 20181;
-    public const int PeltExtractionSpeed = 20182;
-    public const int PeltExtractionYield = 20183;
-    public const int PeltExtractionAdvanced = 20184;
-    public const int PeltExtractionMastery = 20185;
-
-    public const int ReprocessingOre = 20186;
-    public const int ReprocessingOreEfficiency = 20187;
-    public const int ReprocessingWood = 20188;
-    public const int ReprocessingWoodEfficiency = 20189;
-    public const int ReprocessingPelt = 20190;
-    public const int ReprocessingPeltEfficiency = 20191;
+    public const int ReprocessingInflux = 20186;
+    public const int ReprocessingInfluxEfficiency = 20187;
     public const int ReprocessingGrade1Expertise = 20192;
     public const int ReprocessingGrade2Expertise = 20193;
     public const int ReprocessingGrade3Expertise = 20194;
@@ -860,12 +830,8 @@
     public const int ConnectionsTemple = 20203;
 
     public const int MateriaGradeConcentration = 20247;
-    public const int ReprocessingOreExpertise = 20248;
-    public const int ReprocessingWoodExpertise = 20249;
-    public const int ReprocessingPeltExpertise = 20250;
-    public const int ReprocessingOreLuck = 20251;
-    public const int ReprocessingWoodLuck = 20252;
-    public const int ReprocessingPeltLuck = 20253;
+    public const int ReprocessingInfluxExpertise = 20248;
+    public const int ReprocessingInfluxLuck = 20251;
 
     public const int BlueprintCopy = 20254;
     public const int BlueprintEfficiency = 20255;
@@ -978,19 +944,9 @@
 
     public const int ArtisanFocus = 20355;
 
-    public const int OreExtractionSafe = 20356;
-    public const int WoodExtractionSafe = 20357;
-    public const int PeltExtractionSafe = 20358;
-
-    public const int MateriaScanning = 20359;
-    public const int OreDetectionAccuracy = 20360;
-    public const int WoodDetectionAccuracy = 20361;
-    public const int PeltDetectionAccuracy = 20362;
-
-    public const int MateriaExtraction = 20363;
-    public const int OreExtractionDurable = 20364;
-    public const int WoodExtractionDurable = 20365;
-    public const int PeltExtractionDurable = 20366;
+    public const int InfluxExtractionSafe = 20356;
+    public const int InfluxDetectionAccuracy = 20360;
+    public const int InfluxExtractionDurable = 20364;
 
     public const int ArtisanPrudent = 20367;
 

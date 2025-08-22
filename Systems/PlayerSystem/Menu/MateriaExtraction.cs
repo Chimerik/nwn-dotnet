@@ -25,13 +25,6 @@ namespace NWN.Systems
         private NwItem extractor { get; set; }
         private NwGameObject targetMateria { get; set; }
         private ScheduledTask extractionProgress { get; set; }
-        private int resourceExtractionSkill = CustomSkill.OreExtraction;
-        private int resourceExtractionSpeedSkill = CustomSkill.OreExtractionSpeed;
-        private int resourceYieldSkill = CustomSkill.OreExtractionYield;
-        private int resourceSafetySkill = CustomSkill.OreExtractionSafe;
-        private int resourceDurableSkill = CustomSkill.OreExtractionDurable;
-        private int resourceAdvancedSkill = CustomSkill.OreExtractionAdvanced;
-        private int resourceMasterySkill = CustomSkill.OreExtractionMastery;
 
         public MateriaExtractionWindow(Player player, NwItem extractor, NwGameObject oTarget) : base(player)
         {
@@ -58,7 +51,6 @@ namespace NWN.Systems
 
           this.extractor = extractor;
 
-          SelectExtractionSkill(oTarget.ResRef);
           SetExtractionTime();
 
           foreach (Effect eff in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "_MINING_BEAM"))
@@ -163,50 +155,24 @@ namespace NWN.Systems
               targetMateria.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value -= miningYield;
             }
 
-            CreateSelectedResourceInInventory(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == ResourceType.Influx), miningYield);
+            CreateSelectedResourceInInventory(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == ResourceType.InfluxBrut), miningYield);
 
             foreach (Effect eff in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "_MINING_BEAM"))
               player.oid.LoginCreature.RemoveEffect(eff);
 
-            ItemUtils.HandleCraftToolDurability(player, extractor, CustomInscription.MateriaExtractionDurability, resourceSafetySkill);
+            ItemUtils.HandleCraftToolDurability(player, extractor, CustomInscription.MateriaExtractionDurability, CustomSkill.InfluxExtractionSafe);
             player.oid.SendServerMessage($"Vous parvenez à extraire {StringUtils.ToWhitecolor(miningYield)} unité(s) de matéria de niveau de concentration {StringUtils.ToWhitecolor(grade)}", new Color(32, 255, 32));
 
             return;
           }
         }
-        private void SelectExtractionSkill(string type)
-        {
-          switch (type)
-          {
-            case "mineable_tree":
-              resourceExtractionSkill = CustomSkill.WoodExtraction;
-              resourceExtractionSpeedSkill = CustomSkill.WoodExtractionSpeed;
-              resourceYieldSkill = CustomSkill.WoodExtractionYield;
-              resourceSafetySkill = CustomSkill.WoodExtractionSafe;
-              resourceDurableSkill = CustomSkill.WoodExtractionDurable;
-              resourceAdvancedSkill = CustomSkill.WoodExtractionAdvanced;
-              resourceMasterySkill = CustomSkill.WoodExtractionMastery;
-              break;
-
-            case "mineable_animal":
-              resourceExtractionSkill = CustomSkill.PeltExtraction;
-              resourceExtractionSpeedSkill = CustomSkill.PeltExtractionSpeed;
-              resourceYieldSkill = CustomSkill.PeltExtractionYield;
-              resourceSafetySkill = CustomSkill.PeltExtractionSafe;
-              resourceDurableSkill = CustomSkill.PeltExtractionDurable;
-              resourceAdvancedSkill = CustomSkill.PeltExtractionAdvanced;
-              resourceMasterySkill = CustomSkill.PeltExtractionMastery;
-              break;
-          }
-        }
         private void SetExtractionTime()
         {
           extractionTotalDuration = Config.env == Config.Env.Prod ? Config.extractionBaseDuration : 10;
-          extractionTotalDuration *=  1 - player.learnableSkills[CustomSkill.MateriaScanning].totalPoints * 0.05;
-          extractionTotalDuration *= player.learnableSkills.ContainsKey(resourceExtractionSkill) ? 1 - player.learnableSkills[resourceExtractionSkill].totalPoints * 0.05 : 1;
-          extractionTotalDuration *= player.learnableSkills.ContainsKey(resourceExtractionSpeedSkill) ? 1 - player.learnableSkills[resourceExtractionSpeedSkill].totalPoints * 0.05 : 1;
-          extractionTotalDuration *= player.learnableSkills.ContainsKey(resourceAdvancedSkill) ? 1 - player.learnableSkills[resourceAdvancedSkill].totalPoints * 0.05 : 1;
-          extractionTotalDuration *= player.learnableSkills.ContainsKey(resourceMasterySkill) ? 1 - player.learnableSkills[resourceMasterySkill].totalPoints * 0.05 : 1;
+          extractionTotalDuration *=  1 - player.learnableSkills[CustomSkill.InfluxExtraction].totalPoints * 0.05;
+          extractionTotalDuration *= player.learnableSkills.TryGetValue(CustomSkill.InfluxExtractionSpeed, out var value) ? 1 - value.totalPoints * 0.05 : 1;
+          extractionTotalDuration *= player.learnableSkills.TryGetValue(CustomSkill.InfluxExtractionAdvanced, out value) ? 1 - value.totalPoints * 0.05 : 1;
+          extractionTotalDuration *= player.learnableSkills.TryGetValue(CustomSkill.InfluxExtractionMastery, out value) ? 1 - value.totalPoints * 0.05 : 1;
 
           for (int i = 0; i < extractor.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
           {
@@ -245,11 +211,10 @@ namespace NWN.Systems
         private int GetMiningYield()
         {
           double miningYield = Config.extractionBaseYield;
-          miningYield *= 1 + player.learnableSkills[CustomSkill.MateriaScanning].totalPoints * 0.05;
-          miningYield *= player.learnableSkills.ContainsKey(resourceExtractionSkill) ? 1 + player.learnableSkills[resourceExtractionSkill].totalPoints * 0.05 : 1;
-          miningYield *= player.learnableSkills.ContainsKey(resourceYieldSkill) ? 1 + player.learnableSkills[resourceYieldSkill].totalPoints * 0.05 : 1;
-          miningYield *= player.learnableSkills.ContainsKey(resourceAdvancedSkill) ? 1 + player.learnableSkills[resourceAdvancedSkill].totalPoints * 0.05 : 1;
-          miningYield *= player.learnableSkills.ContainsKey(resourceMasterySkill) ? 1 + player.learnableSkills[resourceMasterySkill].totalPoints * 0.05 : 1;
+          miningYield *= 1 + player.learnableSkills[CustomSkill.InfluxExtraction].totalPoints * 0.05;
+          miningYield *= player.learnableSkills.TryGetValue(CustomSkill.InfluxExtractionYield, out var value) ? 1 + value.totalPoints * 0.05 : 1;
+          miningYield *= player.learnableSkills.TryGetValue(CustomSkill.InfluxExtractionAdvanced, out value) ? 1 + value.totalPoints * 0.05 : 1;
+          miningYield *= player.learnableSkills.TryGetValue(CustomSkill.InfluxExtractionMastery, out value) ? 1 + value.totalPoints * 0.05 : 1;
 
           for (int i = 0; i < extractor.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
           {
@@ -272,10 +237,9 @@ namespace NWN.Systems
           // Plus la ressource est de niveau important, plus la chance de critical success est basse et plus celle de failure est élevée
           int grade = targetMateria.GetObjectVariable<LocalVariableInt>("_GRADE").Value;
           int gradeChance = (grade - 1) * 2;
-          int skill = player.learnableSkills[CustomSkill.MateriaScanning].totalPoints;
-          skill += player.learnableSkills.ContainsKey(resourceExtractionSkill) ? player.learnableSkills[resourceExtractionSkill].totalPoints : 0;
-          skill += player.learnableSkills.ContainsKey(resourceAdvancedSkill) ? player.learnableSkills[resourceAdvancedSkill].totalPoints : 0;
-          skill += player.learnableSkills.ContainsKey(resourceMasterySkill) ? player.learnableSkills[resourceMasterySkill].totalPoints : 0;
+          int skill = player.learnableSkills[CustomSkill.InfluxExtraction].totalPoints;
+          skill += player.learnableSkills.TryGetValue(CustomSkill.InfluxExtractionAdvanced, out var value) ? value.totalPoints : 0;
+          skill += player.learnableSkills.TryGetValue(CustomSkill.InfluxExtractionMastery, out value) ? value.totalPoints : 0;
 
           for (int i = 0; i < extractor.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").Value; i++)
           {
@@ -313,9 +277,9 @@ namespace NWN.Systems
           string resRef = targetMateria.ResRef;
           Location location = targetMateria.Location;
 
-          if (player.learnableSkills.ContainsKey(resourceDurableSkill))
+          if (player.learnableSkills.ContainsKey(CustomSkill.InfluxExtractionDurable))
           {
-            if(NwRandom.Roll(Utils.random, 100) <= player.learnableSkills[resourceDurableSkill].totalPoints)
+            if(NwRandom.Roll(Utils.random, 100) <= player.learnableSkills[CustomSkill.InfluxExtractionDurable].totalPoints)
             {
               player.oid.SendServerMessage("Votre maîtrise de l'extraction vous a permis de conserver le dépôt intact malgré son épuisement total.");
               targetMateria.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = 0;

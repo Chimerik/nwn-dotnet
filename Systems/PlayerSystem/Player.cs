@@ -563,7 +563,7 @@ namespace NWN.Systems
         int grade = repairedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").HasValue ? repairedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value : 1;
 
         int materiaCost = (int)GetItemRepairMateriaCost(repairedItem, tool);
-        CraftResource resource = craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromItem(repairedItem) && r.quantity >= materiaCost);
+        CraftResource resource = craftResourceStock.FirstOrDefault(r => r.type == ResourceType.InfluxRaffine && r.quantity >= materiaCost);
         int availableQuantity = resource != null ? resource.quantity : 0;
 
         if (availableQuantity < materiaCost)
@@ -627,7 +627,7 @@ namespace NWN.Systems
         }
 
         int materiaCost = (int)(GetItemMateriaCost(blueprint, tool, grade) * (1 - (blueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value / 100)));
-        CraftResource resource = craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromBlueprint(blueprint) && r.quantity >= materiaCost);
+        CraftResource resource = craftResourceStock.FirstOrDefault(r => r.type == ResourceType.InfluxRaffine && r.quantity >= materiaCost);
         int availableQuantity = resource != null ? resource.quantity : 0;
 
         if (availableQuantity < materiaCost)
@@ -649,7 +649,7 @@ namespace NWN.Systems
           return;
         }
 
-        craftJob = new CraftJob(this, ItemUtils.GetResourceFromWorkshopTag(worshop), 0, "beam");
+        craftJob = new CraftJob(this, 0, "beam");
       }
       public static string GetReadableTimeSpan(double timeCost)
       {
@@ -873,7 +873,7 @@ namespace NWN.Systems
       public async void RescheduleRepeatableJob(ResourceType type, double consumedTime, string jobIcon)
       {
         await NwTask.Delay(TimeSpan.FromSeconds(0));
-        craftJob = new CraftJob(this, type, consumedTime, jobIcon);
+        craftJob = new CraftJob(this, consumedTime, jobIcon);
       }
       public NwItem GetItemBestBlueprint(NwItem item)
       {

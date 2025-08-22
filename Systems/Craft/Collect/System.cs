@@ -1,25 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using static NWN.Systems.Craft.Collect.Config;
+﻿using static NWN.Systems.Craft.Collect.Config;
 using Anvil.API;
-using NLog;
-using System.Linq;
 
 namespace NWN.Systems.Craft.Collect
 {
   public static class System
   {
-    public static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    public static readonly string[] badPelts = new string[] { "paraceratherium", "ankheg", "gorille", "giantlizard" };
-    public static readonly string[] commonPelts = new string[] { "alligator", "crocodile", "crocblinde", "varan" };
-    public static readonly string[] normalPelts = new string[] { "basilisk", "jhakar", "gorgon", "bulette", "dagon" };
+    //public static readonly string[] badPelts = new string[] { "paraceratherium", "ankheg", "gorille", "giantlizard" };
+    //public static readonly string[] commonPelts = new string[] { "alligator", "crocodile", "crocblinde", "varan" };
+    //public static readonly string[] normalPelts = new string[] { "basilisk", "jhakar", "gorgon", "bulette", "dagon" };
 
     public static readonly CraftResource[] craftResourceArray = new CraftResource[] 
     { 
-      new CraftResource(ResourceType.Influx, "L'influx est une substance mystérieuse qui s'accumule parfois en certains endroits aquatiques.\n\nCorrectement utilisée, elle permet de rendre n'importe quelle matière malléable et extrêmement facile à travailler. On dit même qu'elle est capable de prolonger la vie.\n\nIl s'agit aussi d'une substance éminemment toxique, capable de provoquer des mutations irréversibles à même la chair humaine.", 201, new decimal(0.5)),
-      new CraftResource(ResourceType.Ingot, "Une fois correctement raffiné et incorporé à un matériau de base, l'influx peut-être exploité par un artisan.\n\nCes lingots de métal gorgés d'influx disposeront de certaines propriétés magiques et pourront même être inscrits.", 106, new decimal(0.2)),
-      new CraftResource(ResourceType.Plank, "Une fois correctement raffinée et incorporée à un matériau de base, l'influx peut-être exploité par un artisan.\n\nCes planches de bois gorgés d'influx disposeront de certaines propriétés magiques et pourront même être inscrits.", 117, new decimal(0.3)),
-      new CraftResource(ResourceType.Leather, "Une fois correctement raffiné et incorporé à un matériau de base, l'influx peut-être exploité par un artisan.\n\nCes cuirs tannés et gorgés d'influx disposeront de certaines propriétés magiques et pourront même être inscrits.", 87, new decimal(0.2))
+      new (ResourceType.InfluxBrut, "L'influx brut est une substance mystérieuse qui s'accumule parfois en certains endroits aquatiques.\n\nIl s'agit aussi d'une substance éminemment toxique, capable de provoquer des mutations irréversibles à même la chair humaine.", 201, new decimal(0.5)),
+      new (ResourceType.InfluxRaffine, "Correctement raffiné l'influx permet de rendre n'importe quelle matière malléable et extrêmement facile à travailler. On dit même qu'avec la bonne préparation, il est capable de prolonger la vie et de donner accès à la magie.", 201, new decimal(0.5)),
+      //new (ResourceType.Ingot, "Une fois correctement raffiné et incorporé à un matériau de base, l'influx peut-être exploité par un artisan.\n\nCes lingots de métal gorgés d'influx disposeront de certaines propriétés magiques et pourront même être inscrits.", 106, new decimal(0.2)),
+      //new (ResourceType.Plank, "Une fois correctement raffinée et incorporée à un matériau de base, l'influx peut-être exploité par un artisan.\n\nCes planches de bois gorgés d'influx disposeront de certaines propriétés magiques et pourront même être inscrits.", 117, new decimal(0.3)),
+      //new (ResourceType.Leather, "Une fois correctement raffiné et incorporé à un matériau de base, l'influx peut-être exploité par un artisan.\n\nCes cuirs tannés et gorgés d'influx disposeront de certaines propriétés magiques et pourront même être inscrits.", 87, new decimal(0.2))
     }; 
 
     public static readonly int[] lowArmorBlueprints = new int[] { 0, 1, 2, 3 };
