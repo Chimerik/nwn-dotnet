@@ -17,9 +17,7 @@ namespace NWN.Systems
       {
         private readonly NuiColumn rootColumn;
         private readonly List<NuiListTemplateCell> rowTemplate = new();
-        private readonly List<NuiComboEntry> resourceCategories = new() { new NuiComboEntry("Dépôt minéral", 1), new NuiComboEntry("Dépôt végétal", 2), new NuiComboEntry("Dépôt animal", 3) };
 
-        private readonly NuiBind<int> selectedCategory = new ("selectedCategory");
         private readonly NuiBind<int> selectedMode = new("selectedMode");
         private readonly NuiBind<float> progress = new("progress");
         private readonly NuiBind<string> readableRemainingTime = new ("readableRemainingTime");
@@ -50,8 +48,7 @@ namespace NWN.Systems
             new NuiRow() { Children = new List<NuiElement>() 
             { 
               new NuiSpacer(),
-              new NuiCombo() { Entries = resourceCategories, Selected = selectedCategory, Height = 35, Width = 160 },
-              new NuiCombo() { Entries = new List<NuiComboEntry>() { new NuiComboEntry("Mode Passif", 0), new("Mode Actif", 1) }, Selected = selectedMode, Height = 35, Width = 160 },
+              new NuiCombo() { Entries = new List<NuiComboEntry>() { new ("Mode Passif", 0), new("Mode Actif", 1) }, Selected = selectedMode, Height = 35, Width = 160 },
               new NuiButton("Recherche") { Id = "start_detection", Tooltip = "Démarrer la recherche de matéria à proximité", Height = 35, Width = 160 },
               new NuiSpacer()
             } },
@@ -87,7 +84,6 @@ namespace NWN.Systems
             nuiToken.OnNuiEvent += HandleDetectorEvents;
             player.oid.OnClientLeave += OnLeaveCancelDetection;
 
-            selectedCategory.SetBindValue(player.oid, nuiToken.Token, resourceCategories.FirstOrDefault().Value);
             selectedMode.SetBindValue(player.oid, nuiToken.Token, 0);
 
             drawListRect.SetBindValue(player.oid, nuiToken.Token, new(300, 15, 151, 20));
