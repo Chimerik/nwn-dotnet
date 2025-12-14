@@ -2366,129 +2366,185 @@ namespace NWN.Systems
         case BaseItemType.Club:
           featList.Add(CustomSkill.SimpleWeaponProficiency);
           featList.Add(CustomSkill.ClubProficiency);
+          featList.Add(CustomSkill.ExpertiseGourdin);
           break;
         case BaseItemType.Dagger:
           featList.Add(CustomSkill.SimpleWeaponProficiency);
           featList.Add(CustomSkill.DaggerProficiency);
+          featList.Add(CustomSkill.ExpertiseDague);
           break;
         case BaseItemType.Handaxe:
             featList.Add(CustomSkill.SimpleWeaponProficiency);
           featList.Add(CustomSkill.HandAxeProficiency);
+          featList.Add(CustomSkill.ExpertiseHachette);
           break;
         case BaseItemType.LightHammer:
           featList.Add(CustomSkill.SimpleWeaponProficiency);
           featList.Add(CustomSkill.LightHammerProficiency);
+          featList.Add(CustomSkill.ExpertiseMarteauLeger);
           break;
         case BaseItemType.LightMace:
           featList.Add(CustomSkill.SimpleWeaponProficiency);
           featList.Add(CustomSkill.LightMaceProficiency);
+          featList.Add(CustomSkill.ExpertiseMasseLegere);
           break;
         case BaseItemType.Quarterstaff:
         case BaseItemType.MagicStaff:
           featList.Add(CustomSkill.SimpleWeaponProficiency);
           featList.Add(CustomSkill.QuarterstaffProficiency);
+          featList.Add(CustomSkill.ExpertiseBaton);
           break;
         case BaseItemType.Sickle:
           featList.Add(CustomSkill.SimpleWeaponProficiency);
           featList.Add(CustomSkill.SickleProficiency);
+          featList.Add(CustomSkill.ExpertiseSerpe);
           break;
         case BaseItemType.LightCrossbow:
           featList.Add(CustomSkill.SimpleWeaponProficiency);
           featList.Add(CustomSkill.LightCrossbowProficiency);
+          featList.Add(CustomSkill.ExpertiseArbaleteLegere);
           break;
         case BaseItemType.Dart:
           featList.Add(CustomSkill.SimpleWeaponProficiency);
           featList.Add(CustomSkill.DartProficiency);
+          featList.Add(CustomSkill.ExpertiseDard);
           break;
         case BaseItemType.LightFlail:
           featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.LightFlailProficiency);
+          featList.Add(CustomSkill.ExpertiseFleauLeger);
           break;
         case BaseItemType.Morningstar:
           featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.MorningstarProficiency);
+          featList.Add(CustomSkill.ExpertiseMorgenstern);
           break;
         case BaseItemType.Sling:
           featList.Add(CustomSkill.SimpleWeaponProficiency);
           featList.Add(CustomSkill.SlingProficiency);
+          featList.Add(CustomSkill.ExpertiseFronde);
           break;
         case BaseItemType.ShortSpear:
           featList.Add(CustomSkill.SimpleWeaponProficiency);
           featList.Add(CustomSkill.SpearProficiency);
+          featList.Add(CustomSkill.ExpertiseLance);
           break;
         case BaseItemType.Shortbow:
           featList.Add(CustomSkill.SimpleWeaponProficiency);
           featList.Add(CustomSkill.ShortBowProficiency);
+          featList.Add(CustomSkill.ExpertiseArcCourt);
           break;
         case BaseItemType.Battleaxe:
           featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.BattleaxeProficiency);
+          featList.Add(CustomSkill.ExpertiseHacheDeGuerre);
           break;
         case BaseItemType.Greataxe:
           featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.GreataxeProficiency);
+          featList.Add(CustomSkill.ExpertiseHacheDarmes);
           break;
         case BaseItemType.Greatsword:
           featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.GreatswordProficiency);
+          featList.Add(CustomSkill.ExpertiseEspadon);
           break;
         case BaseItemType.Scimitar:
           featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.ScimitarProficiency);
+          featList.Add(CustomSkill.ExpertiseCimeterre);
           break;
         case BaseItemType.Halberd:
           featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.HalberdProficiency);
+          featList.Add(CustomSkill.ExpertiseHallebarde);
           break;
         case BaseItemType.HeavyFlail:
           featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.HeavyFlailProficiency);
+          featList.Add(CustomSkill.ExpertiseFleauLourd);
           break;
         case BaseItemType.ThrowingAxe:
           featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.ThrowingAxeProficiency);
+          featList.Add(CustomSkill.ExpertiseHacheDeLancer);
           break;
         case BaseItemType.Warhammer:
           featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.WarHammerProficiency);
+          featList.Add(CustomSkill.ExpertiseMarteauDeGuerre);
           break;
         case BaseItemType.HeavyCrossbow:
           featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.HeavyCrossbowProficiency);
+          featList.Add(CustomSkill.ExpertiseArbaleteLourde);
           break;
         case BaseItemType.Rapier:
           featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.RapierProficiency);
+          featList.Add(CustomSkill.ExpertiseRapiere);
           break;
         case BaseItemType.Shortsword:
           featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.ShortSwordProficiency);
+          featList.Add(CustomSkill.ExpertiseEpeeCourte);
           break;
         case BaseItemType.Longsword:
           featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.LongSwordProficiency);
+          featList.Add(CustomSkill.ExpertiseEpeeLongue);
           break;
             case BaseItemType.Longbow:
           featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.LongBowProficiency);
+          featList.Add(CustomSkill.ExpertiseArcLong);
           break;
         case BaseItemType.Shuriken:
           featList.Add(CustomSkill.MartialWeaponProficiency);
           featList.Add(CustomSkill.ShurikenProficiency);
+          featList.Add(CustomSkill.ExpertiseShuriken);
           break;
         case BaseItemType.Whip:
           featList.Add(CustomSkill.MartialWeaponProficiency); 
           featList.Add(CustomSkill.WhipProficiency); 
+          featList.Add(CustomSkill.ExpertiseFouet); 
           break;
-        case BaseItemType.Bastardsword: featList.Add(CustomSkill.BastardswordProficiency); break;
-        case BaseItemType.Scythe: featList.Add(CustomSkill.ScytheProficiency); break;
-        case BaseItemType.DireMace: featList.Add(CustomSkill.DireMaceProficiency); break;
-        case BaseItemType.Doubleaxe: featList.Add(CustomSkill.DoubleAxeProficiency); break;
-        case BaseItemType.DwarvenWaraxe: featList.Add(CustomSkill.DwarvenAxeProficiency); break;
-        case BaseItemType.TwoBladedSword: featList.Add(CustomSkill.DoubleBladeProficiency); break;
-        case BaseItemType.Kama: featList.Add(CustomSkill.KamaProficiency); break;
-        case BaseItemType.Katana: featList.Add(CustomSkill.KatanaProficiency); break;
-        case BaseItemType.Kukri: featList.Add(CustomSkill.KukriProficiency); break;
+        case BaseItemType.Bastardsword: 
+          featList.Add(CustomSkill.BastardswordProficiency); 
+          featList.Add(CustomSkill.ExpertiseEpeeBatarde); 
+          break;
+        case BaseItemType.Scythe: 
+          featList.Add(CustomSkill.ScytheProficiency); 
+          featList.Add(CustomSkill.ExpertiseFaux); 
+          break;
+        case BaseItemType.DireMace: 
+          featList.Add(CustomSkill.DireMaceProficiency); 
+          featList.Add(CustomSkill.ExpertiseMasseDouble); 
+          break;
+        case BaseItemType.Doubleaxe: 
+          featList.Add(CustomSkill.DoubleAxeProficiency); 
+          featList.Add(CustomSkill.ExpertiseHacheDouble); 
+          break;
+        case BaseItemType.DwarvenWaraxe: 
+          featList.Add(CustomSkill.DwarvenAxeProficiency); 
+          featList.Add(CustomSkill.ExpertiseHacheNaine); 
+          break;
+        case BaseItemType.TwoBladedSword: 
+          featList.Add(CustomSkill.DoubleBladeProficiency);
+          featList.Add(CustomSkill.ExpertiseLameDouble);
+          break;
+        case BaseItemType.Kama: 
+          featList.Add(CustomSkill.KamaProficiency); 
+          featList.Add(CustomSkill.ExpertiseKama); 
+          break;
+        case BaseItemType.Katana: 
+          featList.Add(CustomSkill.KatanaProficiency); 
+          featList.Add(CustomSkill.ExpertiseKatana); 
+          break;
+        case BaseItemType.Kukri: 
+          featList.Add(CustomSkill.KukriProficiency); 
+          featList.Add(CustomSkill.ExpertiseKukri); 
+          break;
         
         case BaseItemType.SmallShield:
         case BaseItemType.LargeShield: featList.Add(CustomSkill.ShieldProficiency); break;

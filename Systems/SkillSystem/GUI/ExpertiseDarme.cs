@@ -2,7 +2,6 @@
 using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
-using NWN.Native.API;
 using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
@@ -89,7 +88,7 @@ namespace NWN.Systems
 
             if(availableTechs.Count < 1)
             {
-              player.oid.SendServerMessage("Vous êtes déjà expert de toutes les armes que vous maîtrisez", ColorConstants.Orange);
+              player.oid.SendServerMessage("Vous êtes déjà expert de toutes les armes", ColorConstants.Orange);
               player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_IN_EXPERTISE_DARME_SELECTION").Delete();
               return;
             }
@@ -186,9 +185,7 @@ namespace NWN.Systems
           availableTechs.Clear();
 
           foreach (LearnableSkill learnable in learnableDictionary.Values.Where(s => s is LearnableSkill skill && skill.category == Category.ExpertiseDarme
-             && !acquiredTechs.Contains(skill)
-             && NativeUtils.GetCreatureWeaponProficiencyBonus(player.oid.LoginCreature, ItemUtils.GeBaseWeaponFromLearnable(skill.id)) > 0
-             && (!player.learnableSkills.TryGetValue(skill.id, out var learntSkill) || learntSkill.currentLevel < 1))
+             && !acquiredTechs.Contains(skill) && (!player.learnableSkills.TryGetValue(skill.id, out var learntSkill) || learntSkill.currentLevel < 1))
             .OrderBy(s => s.name).Cast<LearnableSkill>())
           {
             availableTechs.Add(learnable);
