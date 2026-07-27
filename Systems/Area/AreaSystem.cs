@@ -101,8 +101,8 @@ namespace NWN.Systems
       SerializeCreaturesAndCreateSpawn(creatureToSerialize);
       //InitializeBankPlaceableNames();
 
-      foreach (string areaName in areaDescriptionsToDownload)
-        AreaUtils.LoadAreaDescription(areaName);
+      //foreach (string areaName in areaDescriptionsToDownload)
+        //AreaUtils.LoadAreaDescription(areaName);
     }
     private static void SerializeCreaturesAndCreateSpawn(List<NwCreature> creatureList)
     {

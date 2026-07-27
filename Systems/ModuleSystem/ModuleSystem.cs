@@ -61,8 +61,8 @@ namespace NWN.Systems
 
       scheduler = schedulerService;
 
-      LoadDiscordBot();
-      scheduler.ScheduleRepeating(LogUtils.LogLoop, TimeSpan.FromSeconds(1));
+      //LoadDiscordBot();
+      //scheduler.ScheduleRepeating(LogUtils.LogLoop, TimeSpan.FromSeconds(1));
 
       CreateDatabase();
       InitializeEvents();
@@ -146,8 +146,8 @@ namespace NWN.Systems
       scheduler.ScheduleRepeating(HandlePlayerLoop, TimeSpan.FromSeconds(1));
       scheduler.ScheduleRepeating(HandleSaveDate, TimeSpan.FromMinutes(1));
       scheduler.ScheduleRepeating(HandleMateriaGrowth, TimeSpan.FromHours(1));
-      scheduler.ScheduleRepeating(SkillSystem.RefreshLearnableDescriptions, TimeSpan.FromHours(1));
-      scheduler.ScheduleRepeating(AreaUtils.RefreshAreaDescriptions, TimeSpan.FromHours(1));
+      //scheduler.ScheduleRepeating(SkillSystem.RefreshLearnableDescriptions, TimeSpan.FromHours(1));
+      //scheduler.ScheduleRepeating(AreaUtils.RefreshAreaDescriptions, TimeSpan.FromHours(1));
       scheduler.ScheduleRepeating(DailyReboot, activationOn5AM);
       scheduler.ScheduleRepeating(SpawnCollectableResources, activationOn6AM);
       scheduler.ScheduleRepeating(HandleSubscriptionDues, activationOn6AM);

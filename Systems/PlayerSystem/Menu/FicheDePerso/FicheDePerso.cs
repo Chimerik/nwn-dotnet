@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using Anvil.API;
 using Anvil.API.Events;
+using Anvil.Services;
 using NWN.Core;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -618,6 +621,25 @@ namespace NWN.Systems
 
                 case "addClass":
 
+                  //scan.VisualTransform.Translation = new System.Numerics.Vector3(0, 0, -2);
+                  Location scanLoc = Location.Create(player.oid.ControlledCreature.Location.Area, new System.Numerics.Vector3(player.oid.ControlledCreature.Position.X, player.oid.ControlledCreature.Position.Y, player.oid.ControlledCreature.Position.Z - 2f), 0);
+                  //player.oid.ControlledCreature.Location.ApplyEffect(EffectDuration.Temporary, Effect.VisualEffect((VfxType)1832, fScale: 20), TimeSpan.FromSeconds(10)); 
+
+                  //player.oid.ControlledCreature.ApplyEffect(EffectDuration.Temporary, Effect.AreaOfEffect((PersistentVfxType)266), TimeSpan.FromSeconds(10));
+                  //NwAreaOfEffect scan = UtilPlugin.GetLastCreatedObject(NWNXObjectType.AreaOfEffect).ToNwObject<NwAreaOfEffect>();
+
+                  //player.oid.ControlledCreature.Location.ApplyEffect(EffectDuration.Temporary, Effect.LinkEffects(Effect.VisualEffect((VfxType)1832, fScale: 20), Effect.AreaOfEffect((PersistentVfxType)266)), TimeSpan.FromSeconds(10));
+                  //player.oid.ControlledCreature.Location.ApplyEffect(EffectDuration.Temporary, Effect.LinkEffects(Effect.VisualEffect((VfxType)1809), Effect.AreaOfEffect((PersistentVfxType)266)), TimeSpan.FromSeconds(1));
+
+                  NwPlaceable scanObject = NwPlaceable.Create("invi_detector", scanLoc);
+                  //Location scanLoc = Location.Create(player.oid.ControlledCreature.Location.Area, new System.Numerics.Vector3(player.oid.ControlledCreature.Position.X, player.oid.ControlledCreature.Position.Y, player.oid.ControlledCreature.Position.Z + 2), 0);
+                  scanObject.ApplyEffect(EffectDuration.Temporary, Effect.VisualEffect((VfxType)1809, fScale: 0.01f, vTranslate: new Vector3(0, 0, 2)), TimeSpan.FromSeconds(1));
+                  scanObject.ApplyEffect(EffectDuration.Permanent, Effect.VisualEffect((VfxType)1832, fScale: 15));
+
+                  //player.oid.LoginCreature.ApplyEffect(EffectDuration.Temporary, Effect.AreaOfEffect(PersistentVfxType.MobDragonFear), NwTimeSpan.FromRounds(3));               
+                  //player.oid.LoginCreature.ApplyEffect(EffectDuration.Temporary, Effect.VisualEffect(VfxType.DurAuraCold), TimeSpan.FromSeconds(1));
+                  IncreaseScanSize(player.oid.LoginCreature, scanObject, 0.1f);
+
                   /*if (!player.oid.LoginCreature.Classes.Any(c => c.Class.ClassType == ClassType.Wizard))
                       player.oid.LoginCreature.ForceLevelUp(NwClass.FromClassType(ClassType.Wizard).Id, 1);
 
@@ -673,6 +695,23 @@ namespace NWN.Systems
 
               break;
           }
+        }
+        private static async void IncreaseScanSize(NwCreature creature, NwPlaceable scan, float scale)
+        {
+          /*if (scale > 10)
+          {
+            scan.Destroy();
+            return;
+          }*/
+
+          await NwTask.Delay(TimeSpan.FromSeconds(1));
+
+          scale += 0.5f;
+          Effect testVfx = Effect.VisualEffect((VfxType)1809, fScale: scale, vTranslate: new Vector3(0, 0, 2));
+          scan.ApplyEffect(EffectDuration.Temporary, testVfx, TimeSpan.FromSeconds(1));
+         
+          creature.LoginPlayer.DisplayFloatingTextStringOnCreature(creature, $"scale : {scale}");
+          IncreaseScanSize(creature, scan, scale);
         }
       }
     }
